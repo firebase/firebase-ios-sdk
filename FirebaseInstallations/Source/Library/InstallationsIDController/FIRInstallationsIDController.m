@@ -22,6 +22,8 @@
 #import "FBLPromises.h"
 #endif
 
+#import <GoogleUtilities/GULKeychainStorage.h>
+
 #import <FirebaseCore/FIRAppInternal.h>
 
 #import "FIRInstallationsAPIService.h"
@@ -32,7 +34,6 @@
 #import "FIRInstallationsLogger.h"
 #import "FIRInstallationsSingleOperationPromiseCache.h"
 #import "FIRInstallationsStore.h"
-#import "FIRSecureStorage.h"
 
 #import "FIRInstallationsHTTPError.h"
 #import "FIRInstallationsStoredAuthToken.h"
@@ -72,7 +73,7 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
                           projectID:(NSString *)projectID
                         GCMSenderID:(NSString *)GCMSenderID
                         accessGroup:(NSString *)accessGroup {
-  FIRSecureStorage *secureStorage = [[FIRSecureStorage alloc] init];
+  GULKeychainStorage *secureStorage = [[GULKeychainStorage alloc] init];
   FIRInstallationsStore *installationsStore =
       [[FIRInstallationsStore alloc] initWithSecureStorage:secureStorage accessGroup:accessGroup];
 

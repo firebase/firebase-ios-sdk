@@ -13,25 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 #import <Foundation/Foundation.h>
+#import <Security/Security.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-FOUNDATION_EXPORT NSString *const kGULKeychainUtilsErrorDomain;
+#if TARGET_OS_OSX
 
-/// Helper functions to access Keychain.
-@interface GULKeychainUtils : NSObject
+@interface FIRTestKeychain : NSObject
 
-+ (nullable NSData *)getItemWithQuery:(NSDictionary *)query
-                                error:(NSError *_Nullable *_Nullable)outError;
+- (nullable instancetype)init;
 
-+ (BOOL)setItem:(NSData *)item
-      withQuery:(NSDictionary *)query
-          error:(NSError *_Nullable *_Nullable)outError;
-
-+ (BOOL)removeItemWithQuery:(NSDictionary *)query error:(NSError *_Nullable *_Nullable)outError;
+@property(nonatomic, readonly, nullable) SecKeychainRef testKeychainRef;
 
 @end
+
+#endif  // TARGET_OSX
 
 NS_ASSUME_NONNULL_END
