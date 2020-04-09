@@ -40,7 +40,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, MessagingDelegate {
   func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String) {
     identity.token = fcmToken
     InstanceID.instanceID().instanceID { result, error in
-      self.identity.instanceID = result?.instanceID ?? ""
+      self.identity.instanceID = result?.instanceID
     }
   }
 }

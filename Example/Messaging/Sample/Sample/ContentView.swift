@@ -23,7 +23,32 @@ struct ContentView: View {
 
   var body: some View {
     NavigationView {
-      List {
+      // Outer stack containing the list and the buttons.
+      VStack {
+        List {
+          VStack(alignment: .leading) {
+            Text("InstanceID").font(.subheadline)
+            Text(identity.instanceID ?? "None").foregroundColor(.blue)
+          }
+
+          VStack(alignment: .leading) {
+            Text("Token").font(.subheadline)
+            Text(identity.token ?? "None")
+              .foregroundColor(.blue)
+              // Increase the layout priority to allow more than one line to be shown. Without this, the
+              // simulator renders a single truncated line even though the Preview renders it
+              // appropriately. Potentially a bug in the simulator?
+              .layoutPriority(1)
+          }
+
+          NavigationLink(destination: DetailView()) {
+            Text("Show Detail View")
+          }
+        }
+        .navigationBarTitle("Firebase Messaging")
+
+        // MARK: Action buttons
+
         Button(action: getToken) {
           HStack {
             Image(systemName: "arrow.clockwise.circle.fill").font(.body)
@@ -59,14 +84,6 @@ struct ContentView: View {
           }
         }
         .buttonStyle(IdentityButtonStyle())
-
-        Text("InstanceID: \(identity.instanceID)")
-          .foregroundColor(.blue)
-        Text("Token: \(identity.token)")
-          .foregroundColor(.blue)
-        NavigationLink(destination: DetailView()) {
-          Text("Show Detail View")
-        }
       }
     }
   }
@@ -92,7 +109,7 @@ struct ContentView: View {
         print("Failed delete token: ", error)
         return
       }
-      self.identity.token = ""
+      self.identity.token = nil
     }
   }
 
@@ -102,8 +119,8 @@ struct ContentView: View {
         print("Failed delete ID: ", error)
         return
       }
-      self.identity.instanceID = ""
-      self.identity.token = ""
+      self.identity.instanceID = nil
+      self.identity.token = nil
     }
   }
 
@@ -113,7 +130,7 @@ struct ContentView: View {
         print("Failed delete FID: ", error)
         return
       }
-      self.identity.instanceID = ""
+      self.identity.instanceID = nil
     }
   }
 }
@@ -123,15 +140,32 @@ struct DetailView: View {
 
   var body: some View {
     VStack {
-      Text("InstanceID: \(self.identity.instanceID)")
-      Text("Token: \(self.identity.token)")
+      Text("InstanceID: \(self.identity.instanceID ?? "None")")
+      Text("Token: \(self.identity.token ?? "None")")
     }
   }
 }
 
 struct ContentView_Previews: PreviewProvider {
+  // A fake filled identity for testing rendering of a filled cell.
+  static let filledIdentity: Identity = {
+    var identity = Identity()
+    identity.instanceID = UUID().uuidString
+
+    // The token is a long string, generate a very long repeating string of characters to see how the view
+    // will react.
+    let longString = UUID().uuidString.replacingOccurrences(of: "-", with: "")
+    identity.token = Array(repeating: longString, count: 10).reduce("", +)
+
+    return identity
+  }()
+
   static var previews: some View {
-    ContentView().environmentObject(Identity())
+    Group {
+      ContentView().environmentObject(Identity())
+
+      ContentView().environmentObject(filledIdentity)
+    }
   }
 }
 
@@ -144,5 +178,7 @@ struct IdentityButtonStyle: ButtonStyle {
       .background(LinearGradient(gradient: Gradient(colors: [Color.blue, Color.pink]),
                                  startPoint: .leading, endPoint: .trailing))
       .cornerRadius(40)
+      // Push the button down a bit when it's pressed.
+      .scaleEffect(configuration.isPressed ? 0.9 : 1)
   }
 }
