@@ -51,7 +51,7 @@ Pod::Spec.new do |s|
     subspec_dir = base_dir + 'Library/DeviceCheckAttestationProvider/'
     ds.source_files = subspec_dir + '**/*.[mh]'
     ds.public_header_files = subspec_dir + 'Private/*.h'
-    s.private_header_files = subspec_dir + 'Private/*.h'
+    ds.private_header_files = subspec_dir + 'Private/*.h'
 
     ds.dependency 'FirebaseAppAttestation/Core'
   end
