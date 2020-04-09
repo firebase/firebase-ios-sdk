@@ -14,16 +14,12 @@
 
 #import "FIRAppDistributionRelease.h"
 
-@implementation FIRAppDistributionRelease
-- (instancetype)initWithDictionary:(NSDictionary *)dict {
-  self = [super init];
-  if (self) {
-    self.buildVersion = [dict objectForKey:@"buildVersion"];
-    self.displayVersion = [dict objectForKey:@"displayVersion"];
+NS_ASSUME_NONNULL_BEGIN
 
-    self.downloadURL = [[NSURL alloc] initWithString:[dict objectForKey:@"downloadUrl"]];
-    self.releaseNotes = [dict objectForKey:@"releaseNotes"];
-  }
-  return self;
-}
+@interface FIRAppDistributionRelease ()
+
+- (instancetype)initWithDictionary:(NSDictionary *)dict;
+
 @end
+
+NS_ASSUME_NONNULL_END
