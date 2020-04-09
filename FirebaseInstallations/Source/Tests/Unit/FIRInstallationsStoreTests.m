@@ -18,8 +18,8 @@
 
 #import <OCMock/OCMock.h>
 
-#import <GoogleUtilities/GULUserDefaults.h>
 #import <GoogleUtilities/GULKeychainStorage.h>
+#import <GoogleUtilities/GULUserDefaults.h>
 
 #import "FBLPromise+Testing.h"
 #import "FIRInstallationsErrorUtil.h"
