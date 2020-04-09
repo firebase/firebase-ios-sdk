@@ -62,6 +62,7 @@ NS_ASSUME_NONNULL_BEGIN
   return @[ appAttestationProvider ];
 }
 
+// TODO: Consider removing the initializer and move the provider fetching to the client code.
 - (nullable instancetype)initWithApp:(FIRApp *)app {
   self = [super init];
   if (self) {
