@@ -517,4 +517,3 @@ jobs:
 branches:
   only:
     - master
-    - mph-gdtsqlite
