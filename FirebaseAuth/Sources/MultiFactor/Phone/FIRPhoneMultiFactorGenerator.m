@@ -19,8 +19,8 @@
 
 #import <FirebaseAuth/FIRPhoneMultiFactorGenerator.h>
 
-#import "FirebaseAuth/Sources/MultiFactor/Phone/FIRPhoneMultiFactorAssertion+Internal.h"
 #import <FirebaseAuth/FIRPhoneMultiFactorAssertion.h>
+#import "FirebaseAuth/Sources/MultiFactor/Phone/FIRPhoneMultiFactorAssertion+Internal.h"
 
 @implementation FIRPhoneMultiFactorGenerator
 

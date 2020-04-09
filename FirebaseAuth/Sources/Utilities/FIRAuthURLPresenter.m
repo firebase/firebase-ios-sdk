@@ -21,10 +21,10 @@
 
 #import <SafariServices/SafariServices.h>
 
+#import <FirebaseAuth/FIRAuthUIDelegate.h>
+#import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthDefaultUIDelegate.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthErrorUtils.h"
-#import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
-#import <FirebaseAuth/FIRAuthUIDelegate.h>
 #import "FirebaseAuth/Sources/Utilities/FIRAuthWebViewController.h"
 
 NS_ASSUME_NONNULL_BEGIN

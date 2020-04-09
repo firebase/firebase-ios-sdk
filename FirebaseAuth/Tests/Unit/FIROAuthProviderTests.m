@@ -17,21 +17,21 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
-#import "FIRApp.h"
-#import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
-#import "FirebaseAuth/Sources/Utilities/FIRAuthErrorUtils.h"
 #import <FirebaseAuth/FIRAuthErrors.h>
-#import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
-#import "FirebaseAuth/Sources/Backend/FIRAuthRequestConfiguration.h"
 #import <FirebaseAuth/FIRAuthUIDelegate.h>
-#import "FirebaseAuth/Sources/Utilities/FIRAuthURLPresenter.h"
-#import "FirebaseAuth/Sources/Utilities/FIRAuthWebUtils.h"
+#import <FirebaseAuth/FIROAuthProvider.h>
+#import "FIRApp.h"
+#import "FIROptions.h"
+#import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
+#import "FirebaseAuth/Sources/AuthProvider/OAuth/FIROAuthCredential_Internal.h"
+#import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
+#import "FirebaseAuth/Sources/Backend/FIRAuthRequestConfiguration.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRGetProjectConfigRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRGetProjectConfigResponse.h"
-#import <FirebaseAuth/FIROAuthProvider.h>
-#import "FIROptions.h"
-#import "FirebaseAuth/Sources/AuthProvider/OAuth/FIROAuthCredential_Internal.h"
+#import "FirebaseAuth/Sources/Utilities/FIRAuthErrorUtils.h"
+#import "FirebaseAuth/Sources/Utilities/FIRAuthURLPresenter.h"
+#import "FirebaseAuth/Sources/Utilities/FIRAuthWebUtils.h"
 #import "OCMStubRecorder+FIRAuthUnitTests.h"
 
 /** @var kExpectationTimeout

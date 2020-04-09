@@ -18,39 +18,32 @@
 
 #import <FirebaseCore/FIRLogger.h>
 
-#import "FirebaseAuth/Sources/User/FIRAdditionalUserInfo_Internal.h"
 #import <FirebaseAuth/FIRAuth.h>
-#import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
-#import "FirebaseAuth/Sources/AuthProvider/FIRAuthCredential_Internal.h"
+#import <FirebaseAuth/FIREmailAuthProvider.h>
+#import <FirebaseAuth/FIRFederatedAuthProvider.h>
 #import "FirebaseAuth/Sources/Auth/FIRAuthDataResult_Internal.h"
-#import "FirebaseAuth/Sources/Utilities/FIRAuthErrorUtils.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuthOperationType.h"
-#import "FirebaseAuth/Sources/Backend/FIRAuthRequestConfiguration.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuthSerialTaskQueue.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuthTokenResult_Internal.h"
-#import "FirebaseAuth/Sources/Utilities/FIRAuthWebUtils.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
+#import "FirebaseAuth/Sources/AuthProvider/Email/FIREmailPasswordAuthCredential.h"
+#import "FirebaseAuth/Sources/AuthProvider/FIRAuthCredential_Internal.h"
+#import "FirebaseAuth/Sources/AuthProvider/GameCenter/FIRGameCenterAuthCredential.h"
+#import "FirebaseAuth/Sources/AuthProvider/OAuth/FIROAuthCredential_Internal.h"
+#import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
+#import "FirebaseAuth/Sources/Backend/FIRAuthRequestConfiguration.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRDeleteAccountRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRDeleteAccountResponse.h"
-#import <FirebaseAuth/FIREmailAuthProvider.h>
 #import "FirebaseAuth/Sources/Backend/RPC/FIREmailLinkSignInRequest.h"
-#import "FirebaseAuth/Sources/AuthProvider/Email/FIREmailPasswordAuthCredential.h"
-#import <FirebaseAuth/FIRFederatedAuthProvider.h>
-#import "FirebaseAuth/Sources/AuthProvider/GameCenter/FIRGameCenterAuthCredential.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRGetAccountInfoRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRGetAccountInfoResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRGetOOBConfirmationCodeRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRGetOOBConfirmationCodeResponse.h"
-#import "FirebaseAuth/Sources/MultiFactor/FIRMultiFactor+Internal.h"
-#import "FirebaseAuth/Sources/AuthProvider/OAuth/FIROAuthCredential_Internal.h"
-#import "FirebaseAuth/Sources/SystemService/FIRSecureTokenService.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRSetAccountInfoRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRSetAccountInfoResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRSignInWithGameCenterRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRSignInWithGameCenterResponse.h"
-#import "FirebaseAuth/Sources/User/FIRUserInfoImpl.h"
-#import "FirebaseAuth/Sources/User/FIRUserMetadata_Internal.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyAssertionRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyAssertionResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyCustomTokenRequest.h"
@@ -59,10 +52,17 @@
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPasswordResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPhoneNumberRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPhoneNumberResponse.h"
+#import "FirebaseAuth/Sources/MultiFactor/FIRMultiFactor+Internal.h"
+#import "FirebaseAuth/Sources/SystemService/FIRSecureTokenService.h"
+#import "FirebaseAuth/Sources/User/FIRAdditionalUserInfo_Internal.h"
+#import "FirebaseAuth/Sources/User/FIRUserInfoImpl.h"
+#import "FirebaseAuth/Sources/User/FIRUserMetadata_Internal.h"
+#import "FirebaseAuth/Sources/Utilities/FIRAuthErrorUtils.h"
+#import "FirebaseAuth/Sources/Utilities/FIRAuthWebUtils.h"
 
 #if TARGET_OS_IOS
-#import "FirebaseAuth/Sources/AuthProvider/Phone/FIRPhoneAuthCredential_Internal.h"
 #import <FirebaseAuth/FIRPhoneAuthProvider.h>
+#import "FirebaseAuth/Sources/AuthProvider/Phone/FIRPhoneAuthCredential_Internal.h"
 #endif
 
 NS_ASSUME_NONNULL_BEGIN

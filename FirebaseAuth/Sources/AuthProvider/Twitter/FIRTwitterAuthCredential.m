@@ -16,9 +16,9 @@
 
 #import "FirebaseAuth/Sources/AuthProvider/Twitter/FIRTwitterAuthCredential.h"
 
-#import "FirebaseAuth/Sources/Utilities/FIRAuthExceptionUtils.h"
 #import <FirebaseAuth/FIRTwitterAuthProvider.h>
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyAssertionRequest.h"
+#import "FirebaseAuth/Sources/Utilities/FIRAuthExceptionUtils.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

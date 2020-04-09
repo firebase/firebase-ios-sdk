@@ -16,21 +16,21 @@
 #include <TargetConditionals.h>
 #if TARGET_OS_IOS
 
-#import "FirebaseAuth/Sources/MultiFactor/FIRMultiFactor+Internal.h"
 #import <FirebaseAuth/FIRMultiFactor.h>
+#import "FirebaseAuth/Sources/MultiFactor/FIRMultiFactor+Internal.h"
 
-#import "FirebaseAuth/Sources/Backend/FIRAuthBackend+MultiFactor.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuthDataResult_Internal.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
+#import "FirebaseAuth/Sources/Backend/FIRAuthBackend+MultiFactor.h"
+#import "FirebaseAuth/Sources/Backend/RPC/MultiFactor/Enroll/FIRStartMFAEnrollmentRequest.h"
 #import "FirebaseAuth/Sources/MultiFactor/FIRMultiFactorInfo+Internal.h"
 #import "FirebaseAuth/Sources/MultiFactor/FIRMultiFactorSession+Internal.h"
-#import "FirebaseAuth/Sources/Backend/RPC/MultiFactor/Enroll/FIRStartMFAEnrollmentRequest.h"
 #import "FirebaseAuth/Sources/User/FIRUser_Internal.h"
 
 #if TARGET_OS_IOS
+#import <FirebaseAuth/FIRPhoneMultiFactorAssertion.h>
 #import "FirebaseAuth/Sources/AuthProvider/Phone/FIRPhoneAuthCredential_Internal.h"
 #import "FirebaseAuth/Sources/MultiFactor/Phone/FIRPhoneMultiFactorAssertion+Internal.h"
-#import <FirebaseAuth/FIRPhoneMultiFactorAssertion.h>
 #endif
 
 NS_ASSUME_NONNULL_BEGIN

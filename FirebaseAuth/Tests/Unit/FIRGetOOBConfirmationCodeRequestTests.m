@@ -17,9 +17,9 @@
 #import <XCTest/XCTest.h>
 
 #import <FirebaseAuth/FIRActionCodeSettings.h>
-#import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
 #import <FirebaseAuth/FIRAuthErrors.h>
 #import "FIRFakeBackendRPCIssuer.h"
+#import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRGetOOBConfirmationCodeRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRGetOOBConfirmationCodeResponse.h"
 

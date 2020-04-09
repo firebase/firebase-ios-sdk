@@ -16,8 +16,8 @@
 
 #import <FirebaseAuth/FIRFacebookAuthProvider.h>
 
-#import "FirebaseAuth/Sources/Utilities/FIRAuthExceptionUtils.h"
 #import "FirebaseAuth/Sources/AuthProvider/Facebook/FIRFacebookAuthCredential.h"
+#import "FirebaseAuth/Sources/Utilities/FIRAuthExceptionUtils.h"
 
 // FIRFacebookAuthProviderID is defined in FIRAuthProvider.m.
 

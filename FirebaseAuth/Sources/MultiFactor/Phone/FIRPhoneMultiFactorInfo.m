@@ -19,9 +19,9 @@
 
 #import <FirebaseAuth/FIRPhoneMultiFactorInfo.h>
 
+#import <FirebaseAuth/FIRMultiFactorInfo.h>
 #import "FirebaseAuth/Sources/Backend/RPC/Proto/FIRAuthProtoMFAEnrollment.h"
 #import "FirebaseAuth/Sources/MultiFactor/FIRMultiFactorInfo+Internal.h"
-#import <FirebaseAuth/FIRMultiFactorInfo.h>
 
 extern NSString *const FIRPhoneMultiFactorID;
 

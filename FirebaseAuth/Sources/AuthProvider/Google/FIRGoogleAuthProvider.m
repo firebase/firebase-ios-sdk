@@ -16,8 +16,8 @@
 
 #import <FirebaseAuth/FIRGoogleAuthProvider.h>
 
-#import "FirebaseAuth/Sources/Utilities/FIRAuthExceptionUtils.h"
 #import "FirebaseAuth/Sources/AuthProvider/Google/FIRGoogleAuthCredential.h"
+#import "FirebaseAuth/Sources/Utilities/FIRAuthExceptionUtils.h"
 
 // FIRGoogleAuthProviderID is defined in FIRAuthProvider.m.
 

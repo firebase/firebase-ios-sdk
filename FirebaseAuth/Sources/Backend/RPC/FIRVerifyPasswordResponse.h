@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import "FirebaseAuth/Sources/Backend/RPC/Proto/FIRAuthProtoMFAEnrollment.h"
 #import "FirebaseAuth/Sources/Backend/FIRAuthRPCResponse.h"
+#import "FirebaseAuth/Sources/Backend/RPC/Proto/FIRAuthProtoMFAEnrollment.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

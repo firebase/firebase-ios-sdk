@@ -17,9 +17,9 @@
 #import <XCTest/XCTest.h>
 
 #import <OCMock/OCMock.h>
+#import "FirebaseAuth/Sources/Storage/FIRAuthKeychainServices.h"
 #import "FirebaseAuth/Sources/SystemService/FIRAuthAppCredential.h"
 #import "FirebaseAuth/Sources/SystemService/FIRAuthAppCredentialManager.h"
-#import "FirebaseAuth/Sources/Storage/FIRAuthKeychainServices.h"
 
 #define ANY_ERROR_POINTER ((NSError * __autoreleasing * _Nullable)[OCMArg anyPointer])
 #define SAVE_TO(var)                     \

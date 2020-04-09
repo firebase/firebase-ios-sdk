@@ -19,8 +19,9 @@
 #import <GTMSessionFetcher/GTMSessionFetcher.h>
 #import <GTMSessionFetcher/GTMSessionFetcherService.h>
 
-#import "FirebaseAuth/Sources/Utilities/FIRAuthErrorUtils.h"
+#import <FirebaseAuth/FirebaseAuth.h>
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
+#import "FirebaseAuth/Sources/AuthProvider/OAuth/FIROAuthCredential_Internal.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRCreateAuthURIRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRCreateAuthURIResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRDeleteAccountRequest.h"
@@ -33,7 +34,6 @@
 #import "FirebaseAuth/Sources/Backend/RPC/FIRGetOOBConfirmationCodeResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRGetProjectConfigRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRGetProjectConfigResponse.h"
-#import "FirebaseAuth/Sources/AuthProvider/OAuth/FIROAuthCredential_Internal.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRResetPasswordRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRResetPasswordResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRSecureTokenRequest.h"
@@ -56,11 +56,11 @@
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPasswordResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPhoneNumberRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPhoneNumberResponse.h"
-#import <FirebaseAuth/FirebaseAuth.h>
+#import "FirebaseAuth/Sources/Utilities/FIRAuthErrorUtils.h"
 
 #if TARGET_OS_IOS
-#import "FirebaseAuth/Sources/AuthProvider/Phone/FIRPhoneAuthCredential_Internal.h"
 #import <FirebaseAuth/FIRPhoneAuthProvider.h>
+#import "FirebaseAuth/Sources/AuthProvider/Phone/FIRPhoneAuthCredential_Internal.h"
 #import "FirebaseAuth/Sources/MultiFactor/Phone/FIRPhoneMultiFactorInfo+Internal.h"
 #endif
 

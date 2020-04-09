@@ -18,36 +18,36 @@
 
 #import <XCTest/XCTest.h>
 
+#import <FirebaseAuth/FIRAuthTokenResult.h>
+#import <FirebaseAuth/FIREmailAuthProvider.h>
+#import <FirebaseAuth/FIRFacebookAuthProvider.h>
+#import <FirebaseAuth/FIRGoogleAuthProvider.h>
+#import <FirebaseAuth/FIRUserInfo.h>
+#import <FirebaseAuth/FIRUserMetadata.h>
 #import <OCMock/OCMock.h>
-#import "FirebaseAuth/Sources/User/FIRAdditionalUserInfo_Internal.h"
 #import "FIRApp+FIRAuthUnitTests.h"
-#import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
-#import "FirebaseAuth/Sources/Utilities/FIRAuthErrorUtils.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuthOperationType.h"
-#import <FirebaseAuth/FIRAuthTokenResult.h>
 #import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
-#import <FirebaseAuth/FIREmailAuthProvider.h>
+#import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIREmailLinkSignInResponse.h"
-#import <FirebaseAuth/FIRFacebookAuthProvider.h>
 #import "FirebaseAuth/Sources/Backend/RPC/FIRGetAccountInfoRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRGetAccountInfoResponse.h"
-#import <FirebaseAuth/FIRGoogleAuthProvider.h>
 #import "FirebaseAuth/Sources/Backend/RPC/FIRSecureTokenRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRSecureTokenResponse.h"
-#import "FirebaseAuth/Sources/SystemService/FIRSecureTokenService.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRSetAccountInfoRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRSetAccountInfoResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRSignUpNewUserResponse.h"
-#import <FirebaseAuth/FIRUserInfo.h>
-#import <FirebaseAuth/FIRUserMetadata.h>
-#import "FirebaseAuth/Sources/User/FIRUser_Internal.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyAssertionRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyAssertionResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPasswordRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPasswordResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPhoneNumberRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPhoneNumberResponse.h"
+#import "FirebaseAuth/Sources/SystemService/FIRSecureTokenService.h"
+#import "FirebaseAuth/Sources/User/FIRAdditionalUserInfo_Internal.h"
+#import "FirebaseAuth/Sources/User/FIRUser_Internal.h"
+#import "FirebaseAuth/Sources/Utilities/FIRAuthErrorUtils.h"
 #import "OCMStubRecorder+FIRAuthUnitTests.h"
 
 #if TARGET_OS_IOS

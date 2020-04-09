@@ -16,8 +16,8 @@
 
 #import <FirebaseAuth/FIRTwitterAuthProvider.h>
 
-#import "FirebaseAuth/Sources/Utilities/FIRAuthExceptionUtils.h"
 #import "FirebaseAuth/Sources/AuthProvider/Twitter/FIRTwitterAuthCredential.h"
+#import "FirebaseAuth/Sources/Utilities/FIRAuthExceptionUtils.h"
 
 // FIRTwitterAuthProviderID is defined in FIRAuthProvider.m.
 

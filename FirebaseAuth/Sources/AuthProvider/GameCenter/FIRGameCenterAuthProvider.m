@@ -18,9 +18,9 @@
 
 #import <GameKit/GameKit.h>
 
+#import "FirebaseAuth/Sources/AuthProvider/GameCenter/FIRGameCenterAuthCredential.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthErrorUtils.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthExceptionUtils.h"
-#import "FirebaseAuth/Sources/AuthProvider/GameCenter/FIRGameCenterAuthCredential.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

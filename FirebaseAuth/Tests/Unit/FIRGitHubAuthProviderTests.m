@@ -16,8 +16,8 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FirebaseAuth/Sources/AuthProvider/FIRAuthCredential_Internal.h"
 #import <FirebaseAuth/FIRGitHubAuthProvider.h>
+#import "FirebaseAuth/Sources/AuthProvider/FIRAuthCredential_Internal.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyAssertionRequest.h"
 
 /** @var kGitHubToken

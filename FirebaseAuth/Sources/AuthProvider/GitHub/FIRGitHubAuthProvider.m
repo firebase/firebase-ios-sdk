@@ -16,8 +16,8 @@
 
 #import <FirebaseAuth/FIRGitHubAuthProvider.h>
 
-#import "FirebaseAuth/Sources/Utilities/FIRAuthExceptionUtils.h"
 #import "FirebaseAuth/Sources/AuthProvider/GitHub/FIRGitHubAuthCredential.h"
+#import "FirebaseAuth/Sources/Utilities/FIRAuthExceptionUtils.h"
 
 // FIRGitHubAuthProviderID is defined in FIRAuthProvider.m.
 

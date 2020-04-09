@@ -18,8 +18,8 @@
 
 #import <FirebaseAuth/FIRActionCodeSettings.h>
 
-#import "FirebaseAuth/Sources/Utilities/FIRAuthErrorUtils.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
+#import "FirebaseAuth/Sources/Utilities/FIRAuthErrorUtils.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

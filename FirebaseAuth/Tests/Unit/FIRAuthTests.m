@@ -30,27 +30,27 @@
 
 #import <GoogleUtilities/GULAppDelegateSwizzler.h>
 
-#import <OCMock/OCMock.h>
 #import <FirebaseAuth/FIRActionCodeSettings.h>
 #import <FirebaseAuth/FIRAdditionalUserInfo.h>
+#import <FirebaseAuth/FIREmailAuthProvider.h>
+#import <FirebaseAuth/FIRFacebookAuthProvider.h>
+#import <FirebaseAuth/FIROAuthProvider.h>
+#import <OCMock/OCMock.h>
 #import "FIRApp+FIRAuthUnitTests.h"
-#import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuthDispatcher.h"
-#import "FirebaseAuth/Sources/Utilities/FIRAuthErrorUtils.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuthOperationType.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
+#import "FirebaseAuth/Sources/AuthProvider/OAuth/FIROAuthCredential_Internal.h"
+#import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRCreateAuthURIRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRCreateAuthURIResponse.h"
-#import <FirebaseAuth/FIREmailAuthProvider.h>
 #import "FirebaseAuth/Sources/Backend/RPC/FIREmailLinkSignInRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIREmailLinkSignInResponse.h"
-#import <FirebaseAuth/FIRFacebookAuthProvider.h>
 #import "FirebaseAuth/Sources/Backend/RPC/FIRGetAccountInfoRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRGetAccountInfoResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRGetOOBConfirmationCodeRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRGetOOBConfirmationCodeResponse.h"
-#import <FirebaseAuth/FIROAuthProvider.h>
 #import "FirebaseAuth/Sources/Backend/RPC/FIRResetPasswordRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRResetPasswordResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRSecureTokenRequest.h"
@@ -59,7 +59,6 @@
 #import "FirebaseAuth/Sources/Backend/RPC/FIRSetAccountInfoResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRSignUpNewUserRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRSignUpNewUserResponse.h"
-#import "FirebaseAuth/Sources/User/FIRUser_Internal.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyAssertionRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyAssertionResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyCustomTokenRequest.h"
@@ -68,17 +67,18 @@
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPasswordResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPhoneNumberRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPhoneNumberResponse.h"
-#import "FirebaseAuth/Sources/AuthProvider/OAuth/FIROAuthCredential_Internal.h"
+#import "FirebaseAuth/Sources/User/FIRUser_Internal.h"
+#import "FirebaseAuth/Sources/Utilities/FIRAuthErrorUtils.h"
 #import "OCMStubRecorder+FIRAuthUnitTests.h"
 
 #if TARGET_OS_IOS
+#import <FirebaseAuth/FIRAuthUIDelegate.h>
+#import <FirebaseAuth/FIRPhoneAuthCredential.h>
+#import <FirebaseAuth/FIRPhoneAuthProvider.h>
 #import "FirebaseAuth/Sources/SystemService/FIRAuthAPNSToken.h"
 #import "FirebaseAuth/Sources/SystemService/FIRAuthAPNSTokenManager.h"
 #import "FirebaseAuth/Sources/SystemService/FIRAuthNotificationManager.h"
-#import <FirebaseAuth/FIRAuthUIDelegate.h>
 #import "FirebaseAuth/Sources/Utilities/FIRAuthURLPresenter.h"
-#import <FirebaseAuth/FIRPhoneAuthCredential.h>
-#import <FirebaseAuth/FIRPhoneAuthProvider.h>
 #endif  // TARGET_OS_IOS
 
 /** @var kAPIKey
