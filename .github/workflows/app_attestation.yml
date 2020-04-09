@@ -17,7 +17,8 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: FirebaseAppAttestation
-      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseAppAttestation.podspec
+      # TODO: Remove --allow-warnings when stabilized.
+      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseAppAttestation.podspec --allow-warnings
 
   app_attestation-cron-only:
     runs-on: macos-latest
@@ -34,4 +35,5 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: PodLibLint FirebaseAppAttestation Cron
+      # TODO: Remove --allow-warnings when stabilized.
       run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseAppAttestation.podspec --platforms=ios ${{ matrix.flags }}
