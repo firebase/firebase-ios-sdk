@@ -38,8 +38,6 @@ NS_SWIFT_NAME(AppDistributionRelease)
 /** :nodoc: */
 - (instancetype)init NS_UNAVAILABLE;
 
-- (instancetype)initWithDictionary:(NSDictionary *)dict;
-
 @end
 
 NS_ASSUME_NONNULL_END

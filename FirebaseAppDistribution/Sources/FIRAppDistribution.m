@@ -12,17 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRAppDistribution.h"
 #import "FIRAppDistribution+Private.h"
+#import "FIRAppDistributionRelease+Private.h"
 
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIRComponent.h>
 #import <FirebaseCore/FIRComponentContainer.h>
 #import <FirebaseCore/FIROptions.h>
 
-#import <AppAuth/AppAuth.h>
 #import <GoogleUtilities/GULAppDelegateSwizzler.h>
-#import <UIKit/UIKit.h>
 #import "FIRAppDistributionAppDelegateInterceptor.h"
 
 /// Empty protocol to register with FirebaseCore's component system.
@@ -169,8 +167,6 @@ NSString *const kIssuerURL = @"https://accounts.google.com";
   [listReleasesDataTask resume];
 }
 
-// OIDServiceConfiguration *_Nullable configuration,
-// NSError *_Nullable error
 - (void)handleOauthDiscoveryCompletion:(OIDServiceConfiguration *_Nullable)configuration
                                  error:(NSError *_Nullable)error
        appDistributionSignInCompletion:(FIRAppDistributionSignInTesterCompletion)completion {
@@ -182,7 +178,7 @@ NSString *const kIssuerURL = @"https://accounts.google.com";
     return;
   }
 
-  NSString *redirectUrl = [@"dev.firebase.appdistribution."
+  NSString *redirectURL = [@"dev.firebase.appdistribution."
       stringByAppendingString:[[[NSBundle mainBundle] bundleIdentifier]
                                   stringByAppendingString:@":/launch"]];
 
@@ -190,7 +186,7 @@ NSString *const kIssuerURL = @"https://accounts.google.com";
       initWithConfiguration:configuration
                    clientId:kTesterAPIClientID
                      scopes:@[ OIDScopeOpenID, OIDScopeProfile, kOIDScopeTesterAPI ]
-                redirectURL:[NSURL URLWithString:redirectUrl]
+                redirectURL:[NSURL URLWithString:redirectURL]
                responseType:OIDResponseTypeCode
        additionalParameters:nil];
 
