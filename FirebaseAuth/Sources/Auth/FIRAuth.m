@@ -22,7 +22,6 @@
 #import <UIKit/UIKit.h>
 #endif
 
-#import <FirebaseAuth/FIRAuthSettings.h>
 #import <FirebaseAuth/FirebaseAuth.h>
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIRComponent.h>
