@@ -547,19 +547,21 @@ endfunction()
 #
 # All other arguments are ignored.
 function(firebase_ios_set_common_target_options target)
-  set(bool DISABLE_STRICT_WARNINGS)
-  cmake_parse_arguments(flag "${bool}" "" "" ${ARGN})
+  set(options DISABLE_STRICT_WARNINGS)
+  cmake_parse_arguments(flag "${options}" "" "" ${ARGN})
 
-  set(suffix _STRICT)
   if(flag_DISABLE_STRICT_WARNINGS)
-    set(suffix "")
+    set(cxx_flags ${FIREBASE_IOS_CXX_FLAGS})
+    set(objc_flags ${FIREBASE_IOS_OBJC_FLAGS})
+  else()
+    set(cxx_flags ${FIREBASE_IOS_CXX_FLAGS_STRICT})
+    set(objc_flags ${FIREBASE_IOS_OBJC_FLAGS_STRICT})
   endif()
+  message("objc_flags = ${objc_flags}")
 
-  target_compile_options(${target} PRIVATE ${FIREBASE_IOS_CXX_FLAGS${suffix}})
+  target_compile_options(${target} PRIVATE ${cxx_flags})
   if(APPLE)
-    target_compile_options(
-      ${target} PRIVATE ${FIREBASE_IOS_OBJC_FLAGS${suffix}}
-    )
+    target_compile_options(${target} PRIVATE ${objc_flags})
   endif()
 
   target_include_directories(
