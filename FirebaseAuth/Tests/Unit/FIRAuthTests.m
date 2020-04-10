@@ -14,28 +14,21 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
-
-#import <XCTest/XCTest.h>
-
-#import <FirebaseAuthInterop/FIRAuthInterop.h>
-#import <FirebaseCore/FIRAppInternal.h>
-
-#import <FirebaseAuth/FIRAdditionalUserInfo.h>
-#import <FirebaseAuth/FIREmailAuthProvider.h>
-#import <FirebaseAuth/FIRGoogleAuthProvider.h>
-
-#import <FirebaseCore/FIRComponent.h>
-#import <FirebaseCore/FIRLibrary.h>
-
-#import <GoogleUtilities/GULAppDelegateSwizzler.h>
-
 #import <FirebaseAuth/FIRActionCodeSettings.h>
 #import <FirebaseAuth/FIRAdditionalUserInfo.h>
 #import <FirebaseAuth/FIREmailAuthProvider.h>
 #import <FirebaseAuth/FIRFacebookAuthProvider.h>
+#import <FirebaseAuth/FIRGoogleAuthProvider.h>
 #import <FirebaseAuth/FIROAuthProvider.h>
+#import <FirebaseAuthInterop/FIRAuthInterop.h>
+#import <FirebaseCore/FIRAppInternal.h>
+#import <FirebaseCore/FIRComponent.h>
+#import <FirebaseCore/FIRLibrary.h>
+#import <Foundation/Foundation.h>
+#import <GoogleUtilities/GULAppDelegateSwizzler.h>
 #import <OCMock/OCMock.h>
+#import <XCTest/XCTest.h>
+
 #import "FIRApp+FIRAuthUnitTests.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuthDispatcher.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
@@ -75,6 +68,7 @@
 #import <FirebaseAuth/FIRAuthUIDelegate.h>
 #import <FirebaseAuth/FIRPhoneAuthCredential.h>
 #import <FirebaseAuth/FIRPhoneAuthProvider.h>
+
 #import "FirebaseAuth/Sources/SystemService/FIRAuthAPNSToken.h"
 #import "FirebaseAuth/Sources/SystemService/FIRAuthAPNSTokenManager.h"
 #import "FirebaseAuth/Sources/SystemService/FIRAuthNotificationManager.h"

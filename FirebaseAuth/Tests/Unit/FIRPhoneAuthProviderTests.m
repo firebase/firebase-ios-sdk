@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 
-#import <OCMock/OCMock.h>
-#import <XCTest/XCTest.h>
-
 #import <FirebaseAuth/FIRAuth.h>
 #import <FirebaseAuth/FIRAuthSettings.h>
 #import <FirebaseAuth/FIRAuthUIDelegate.h>
 #import <FirebaseAuth/FIRPhoneAuthProvider.h>
 #import <FirebaseCore/FIRApp.h>
 #import <FirebaseCore/FIROptions.h>
+#import <OCMock/OCMock.h>
+#import <SafariServices/SafariServices.h>
+#import <XCTest/XCTest.h>
+
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
 #import "FirebaseAuth/Sources/AuthProvider/FIRAuthCredential_Internal.h"
@@ -44,8 +45,6 @@
 #import "FirebaseAuth/Sources/Utilities/FIRAuthURLPresenter.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthWebUtils.h"
 #import "OCMStubRecorder+FIRAuthUnitTests.h"
-
-#import <SafariServices/SafariServices.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

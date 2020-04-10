@@ -17,13 +17,12 @@
 #include <TargetConditionals.h>
 #if !TARGET_OS_OSX
 
-#import "FirebaseAuth/Sources/SystemService/FIRAuthAPNSTokenManager.h"
-
 #import <FirebaseCore/FIRLogger.h>
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
 #import "FirebaseAuth/Sources/SystemService/FIRAuthAPNSToken.h"
+#import "FirebaseAuth/Sources/SystemService/FIRAuthAPNSTokenManager.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

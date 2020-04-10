@@ -14,17 +14,16 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
-
-#import <XCTest/XCTest.h>
-
 #import <FirebaseAuth/FIRAuthTokenResult.h>
 #import <FirebaseAuth/FIREmailAuthProvider.h>
 #import <FirebaseAuth/FIRFacebookAuthProvider.h>
 #import <FirebaseAuth/FIRGoogleAuthProvider.h>
 #import <FirebaseAuth/FIRUserInfo.h>
 #import <FirebaseAuth/FIRUserMetadata.h>
+#import <Foundation/Foundation.h>
 #import <OCMock/OCMock.h>
+#import <XCTest/XCTest.h>
+
 #import "FIRApp+FIRAuthUnitTests.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuthOperationType.h"
@@ -52,6 +51,7 @@
 
 #if TARGET_OS_IOS
 #import <FirebaseAuth/FIRPhoneAuthProvider.h>
+
 #import "FirebaseAuth/Sources/AuthProvider/Phone/FIRPhoneAuthCredential_Internal.h"
 #endif
 

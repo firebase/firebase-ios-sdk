@@ -15,7 +15,6 @@
  */
 
 #import <FirebaseAuth/FIRGameCenterAuthProvider.h>
-
 #import <GameKit/GameKit.h>
 
 #import "FirebaseAuth/Sources/AuthProvider/GameCenter/FIRGameCenterAuthCredential.h"

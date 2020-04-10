@@ -18,6 +18,7 @@
 #if TARGET_OS_IOS
 
 #import <FirebaseAuth/FIRMultiFactor.h>
+
 #import "FirebaseAuth/Sources/Backend/RPC/Proto/FIRAuthProtoMFAEnrollment.h"
 
 NS_ASSUME_NONNULL_BEGIN

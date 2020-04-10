@@ -17,6 +17,7 @@
 #import "FirebaseAuth/Sources/AuthProvider/Google/FIRGoogleAuthCredential.h"
 
 #import <FirebaseAuth/FIRGoogleAuthProvider.h>
+
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyAssertionRequest.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthExceptionUtils.h"
 

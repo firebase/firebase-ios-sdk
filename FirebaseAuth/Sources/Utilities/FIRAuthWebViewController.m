@@ -17,9 +17,8 @@
 #include <TargetConditionals.h>
 #if TARGET_OS_IOS
 
-#import "FirebaseAuth/Sources/Utilities/FIRAuthWebViewController.h"
-
 #import "FirebaseAuth/Sources/Utilities/FIRAuthWebView.h"
+#import "FirebaseAuth/Sources/Utilities/FIRAuthWebViewController.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

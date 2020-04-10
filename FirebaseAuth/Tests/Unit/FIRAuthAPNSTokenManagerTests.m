@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
+#import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
-#import <OCMock/OCMock.h>
 #import "FirebaseAuth/Sources/SystemService/FIRAuthAPNSToken.h"
 #import "FirebaseAuth/Sources/SystemService/FIRAuthAPNSTokenManager.h"
 

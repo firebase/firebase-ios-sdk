@@ -22,6 +22,8 @@
 #import <UIKit/UIKit.h>
 #endif
 
+#import <FirebaseAuth/FIRAuthSettings.h>
+#import <FirebaseAuth/FirebaseAuth.h>
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIRComponent.h>
 #import <FirebaseCore/FIRComponentContainer.h>
@@ -32,8 +34,6 @@
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import <GoogleUtilities/GULSceneDelegateSwizzler.h>
 
-#import <FirebaseAuth/FIRAuthSettings.h>
-#import <FirebaseAuth/FirebaseAuth.h>
 #import "FirebaseAuth/Sources/Auth/FIRAuthDataResult_Internal.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuthDispatcher.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"

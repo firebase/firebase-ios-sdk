@@ -14,13 +14,11 @@
  * limitations under the License.
  */
 
-#import "FirebaseAuth/Sources/User/FIRUser_Internal.h"
-
-#import <FirebaseCore/FIRLogger.h>
-
 #import <FirebaseAuth/FIRAuth.h>
 #import <FirebaseAuth/FIREmailAuthProvider.h>
 #import <FirebaseAuth/FIRFederatedAuthProvider.h>
+#import <FirebaseCore/FIRLogger.h>
+
 #import "FirebaseAuth/Sources/Auth/FIRAuthDataResult_Internal.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuthOperationType.h"
@@ -57,11 +55,13 @@
 #import "FirebaseAuth/Sources/User/FIRAdditionalUserInfo_Internal.h"
 #import "FirebaseAuth/Sources/User/FIRUserInfoImpl.h"
 #import "FirebaseAuth/Sources/User/FIRUserMetadata_Internal.h"
+#import "FirebaseAuth/Sources/User/FIRUser_Internal.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthErrorUtils.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthWebUtils.h"
 
 #if TARGET_OS_IOS
 #import <FirebaseAuth/FIRPhoneAuthProvider.h>
+
 #import "FirebaseAuth/Sources/AuthProvider/Phone/FIRPhoneAuthCredential_Internal.h"
 #endif
 

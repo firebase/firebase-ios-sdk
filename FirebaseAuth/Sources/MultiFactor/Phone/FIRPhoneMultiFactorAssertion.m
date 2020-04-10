@@ -18,9 +18,9 @@
 #if TARGET_OS_IOS
 
 #import <FirebaseAuth/FIRPhoneMultiFactorAssertion.h>
-#import "FirebaseAuth/Sources/MultiFactor/Phone/FIRPhoneMultiFactorAssertion+Internal.h"
 
 #import "FirebaseAuth/Sources/MultiFactor/FIRMultiFactorAssertion+Internal.h"
+#import "FirebaseAuth/Sources/MultiFactor/Phone/FIRPhoneMultiFactorAssertion+Internal.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

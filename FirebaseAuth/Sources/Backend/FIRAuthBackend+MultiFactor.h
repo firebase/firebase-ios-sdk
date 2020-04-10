@@ -18,7 +18,6 @@
 #if TARGET_OS_IOS
 
 #import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
-
 #import "FirebaseAuth/Sources/Backend/RPC/MultiFactor/Enroll/FIRFinalizeMFAEnrollmentRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/MultiFactor/Enroll/FIRFinalizeMFAEnrollmentResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/MultiFactor/Enroll/FIRStartMFAEnrollmentRequest.h"

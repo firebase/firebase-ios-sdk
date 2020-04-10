@@ -17,6 +17,7 @@
 #import "FirebaseAuth/Sources/AuthProvider/Email/FIREmailPasswordAuthCredential.h"
 
 #import <FirebaseAuth/FIREmailAuthProvider.h>
+
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyAssertionRequest.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthExceptionUtils.h"
 

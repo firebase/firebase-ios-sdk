@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-#import "FirebaseAuth/Sources/Backend/FIRIdentityToolkitRequest.h"
-
 #import "FirebaseAuth/Sources/Backend/FIRAuthRPCRequest.h"
 #import "FirebaseAuth/Sources/Backend/FIRIdentityToolkitRequest.h"
 
