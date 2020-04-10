@@ -15,7 +15,7 @@
  */
 
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
-#import "OCMStubRecorder+FIRAuthUnitTests.h"
+#import "FirebaseAuth/Tests/Unit/OCMStubRecorder+FIRAuthUnitTests.h"
 
 /** @fn argumentOf
     @brief Retrieves a specific argument from a method invocation.
