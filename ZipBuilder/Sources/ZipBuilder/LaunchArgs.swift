@@ -350,6 +350,11 @@ struct LaunchArgs {
     updatePodRepo = defaults.bool(forKey: Key.updatePodRepo.rawValue)
     keepBuildArtifacts = defaults.bool(forKey: Key.keepBuildArtifacts.rawValue)
 
+    if !buildDependencies && zipPods == nil {
+      LaunchArgs.exitWithUsageAndLog("The -buildDependencies option cannot be false unless a " +
+        "list of pods is specified with the -zipPods option.")
+    }
+
     // Check for extra invalid options.
     let validArgs = Key.allCases.map { $0.rawValue }
     for arg in ProcessInfo.processInfo.arguments {
