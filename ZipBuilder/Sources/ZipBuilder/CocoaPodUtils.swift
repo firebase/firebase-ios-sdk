@@ -327,12 +327,12 @@ enum CocoaPodUtils {
                                                  in installedPods: [String: PodInfo])
     -> [VersionedPod] {
     return transitivePodDependencies(for: podName, in: installedPods).map {
-      var podVersion : String?
+      var podVersion: String?
       if let version = installedPods[$0]?.version {
         podVersion = version
       } else {
         // See if there's a version on the base pod.
-        let basePod = String($0.split(separator:"/")[0])
+        let basePod = String($0.split(separator: "/")[0])
         podVersion = installedPods[basePod]?.version
       }
       return CocoaPodUtils.VersionedPod(name: $0, version: podVersion)
@@ -414,7 +414,7 @@ enum CocoaPodUtils {
     // Loop through the subspecs passed in and use the actual Pod name.
     for pod in pods {
       podfile += "  pod '\(pod.name)'"
-      let podspec = String(pod.name.split(separator:"/")[0] + ".podspec")
+      let podspec = String(pod.name.split(separator: "/")[0] + ".podspec")
       // Check if we want to use a local version of the podspec.
       if let localURL = LaunchArgs.shared.localPodspecPath,
         FileManager.default

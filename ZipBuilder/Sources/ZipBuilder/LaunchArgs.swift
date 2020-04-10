@@ -352,7 +352,7 @@ struct LaunchArgs {
 
     if !buildDependencies && zipPods == nil {
       LaunchArgs.exitWithUsageAndLog("The -buildDependencies option cannot be false unless a " +
-                                     "list of pods is specified with the -zipPods option.")
+        "list of pods is specified with the -zipPods option.")
     }
 
     // Check for extra invalid options.
