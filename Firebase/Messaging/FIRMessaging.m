@@ -664,6 +664,8 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   if ([self.delegate respondsToSelector:@selector(messaging:didReceiveRegistrationToken:)]) {
     [self.delegate messaging:self didReceiveRegistrationToken:self.defaultFcmToken];
   }
+  NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
+  [center postNotificationName:FIRMessagingRegistrationTokenRefreshedNotification object:nil];
 }
 
 #pragma mark - Application State Changes
@@ -963,8 +965,6 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
       (self.defaultFcmToken && !oldToken) || (!self.defaultFcmToken && oldToken)) {
     [self notifyDelegateOfFCMTokenAvailability];
   }
-  NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
-  [center postNotificationName:FIRMessagingRegistrationTokenRefreshedNotification object:nil];
 }
 
 #pragma mark - Application Support Directory
