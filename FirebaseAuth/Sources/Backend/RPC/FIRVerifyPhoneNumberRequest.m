@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRVerifyPhoneNumberRequest.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPhoneNumberRequest.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

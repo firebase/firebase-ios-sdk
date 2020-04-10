@@ -17,9 +17,9 @@
 #include <TargetConditionals.h>
 #if TARGET_OS_IOS
 
-#import "FIRMultiFactorInfo.h"
+#import <FirebaseAuth/FIRMultiFactorInfo.h>
 
-#import "FIRAuthProtoMFAEnrollment.h"
+#import "FirebaseAuth/Sources/Backend/RPC/Proto/FIRAuthProtoMFAEnrollment.h"
 
 static NSString *kUIDCodingKey = @"uid";
 

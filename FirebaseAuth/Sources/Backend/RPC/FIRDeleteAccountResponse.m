@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRDeleteAccountResponse.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRDeleteAccountResponse.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

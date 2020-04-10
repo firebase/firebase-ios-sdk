@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRAuthStoredUserManager.h"
+#import "FirebaseAuth/Sources/SystemService/FIRAuthStoredUserManager.h"
 
 /** @var kUserAccessGroupKey
     @brief Key of user access group stored in user defaults. Used for retrieve the user access

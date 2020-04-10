@@ -16,7 +16,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FIRAuthDispatcher.h"
+#import "FirebaseAuth/Sources/Auth/FIRAuthDispatcher.h"
 
 /** @var kMaxDifferenceBetweenTimeIntervals
     @brief The maximum difference between time intervals (in seconds), after which they will be

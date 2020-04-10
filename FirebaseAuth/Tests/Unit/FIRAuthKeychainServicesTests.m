@@ -17,7 +17,7 @@
 #import <Security/Security.h>
 #import <XCTest/XCTest.h>
 
-#import "FIRAuthKeychainServices.h"
+#import "FirebaseAuth/Sources/Storage/FIRAuthKeychainServices.h"
 
 /** @var kAccountPrefix
     @brief The keychain account prefix assumed by the tests.

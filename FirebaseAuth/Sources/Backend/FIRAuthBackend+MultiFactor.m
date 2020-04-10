@@ -17,7 +17,7 @@
 #include <TargetConditionals.h>
 #if TARGET_OS_IOS
 
-#import "FIRAuthBackend+MultiFactor.h"
+#import "FirebaseAuth/Sources/Backend/FIRAuthBackend+MultiFactor.h"
 
 @implementation FIRAuthBackend (MultiFactor)
 

@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-#import "FIRAuthTokenResult_Internal.h"
-
-#import "FIRAuthErrorUtils.h"
+#import "FirebaseAuth/Sources/Auth/FIRAuthTokenResult_Internal.h"
+#import "FirebaseAuth/Sources/Utilities/FIRAuthErrorUtils.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

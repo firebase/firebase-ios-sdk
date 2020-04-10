@@ -644,7 +644,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"${PODS_ROOT}/../../../Sources/**",
+					"${SRCROOT}/../../..",
 				);
 				INFOPLIST_FILE = Sample/Application.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
@@ -669,7 +669,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"${PODS_ROOT}/../../../Sources/**",
+					"${SRCROOT}/../../..",
 				);
 				INFOPLIST_FILE = Sample/Application.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;

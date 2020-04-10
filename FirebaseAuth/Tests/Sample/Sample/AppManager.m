@@ -17,8 +17,8 @@
 #import "AppManager.h"
 
 #import <FirebaseCore/FIRApp.h>
-#import "FIRPhoneAuthProvider.h"
-#import "FirebaseAuth.h"
+#import <FirebaseAuth/FIRPhoneAuthProvider.h>
+#import <FirebaseAuth/FirebaseAuth.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -61,9 +61,9 @@ NS_ASSUME_NONNULL_BEGIN
       NSString *name = [self appNameWithIndex:index];
       if (options) {
         [FIRApp configureWithName:name options:options];
-        [_liveAppNames addObject:name];
+        [self->_liveAppNames addObject:name];
       } else {
-        [_liveAppNames removeObject:name];
+        [self->_liveAppNames removeObject:name];
       }
     }
     completion();

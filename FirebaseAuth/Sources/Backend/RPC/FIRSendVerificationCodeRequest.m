@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "FIRSendVerificationCodeRequest.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRSendVerificationCodeRequest.h"
 
-#import "FIRAuthAppCredential.h"
+#import "FirebaseAuth/Sources/SystemService/FIRAuthAppCredential.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

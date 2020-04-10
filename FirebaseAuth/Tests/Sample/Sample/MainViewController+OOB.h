@@ -18,7 +18,7 @@
 
 #import "MainViewController.h"
 
-#import "FirebaseAuth.h"
+#import <FirebaseAuth/FirebaseAuth.h>
 #import "StaticContentTableViewManager.h"
 
 NS_ASSUME_NONNULL_BEGIN

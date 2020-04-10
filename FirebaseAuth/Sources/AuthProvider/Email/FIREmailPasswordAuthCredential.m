@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-#import "FIREmailPasswordAuthCredential.h"
+#import "FirebaseAuth/Sources/AuthProvider/Email/FIREmailPasswordAuthCredential.h"
 
-#import "FIRAuthExceptionUtils.h"
-#import "FIREmailAuthProvider.h"
-#import "FIRVerifyAssertionRequest.h"
+#import <FirebaseAuth/FIREmailAuthProvider.h>
+
+#import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyAssertionRequest.h"
+#import "FirebaseAuth/Sources/Utilities/FIRAuthExceptionUtils.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

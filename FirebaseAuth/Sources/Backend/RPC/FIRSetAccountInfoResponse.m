@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRSetAccountInfoResponse.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRSetAccountInfoResponse.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

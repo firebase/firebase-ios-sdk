@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-#import "FIROAuthCredential.h"
+#import <FirebaseAuth/FIROAuthCredential.h>
 
-#import "FIRAuthCredential_Internal.h"
-#import "FIRAuthExceptionUtils.h"
-#import "FIROAuthCredential_Internal.h"
-#import "FIRVerifyAssertionRequest.h"
-#import "FIRVerifyAssertionResponse.h"
+#import "FirebaseAuth/Sources/AuthProvider/FIRAuthCredential_Internal.h"
+#import "FirebaseAuth/Sources/AuthProvider/OAuth/FIROAuthCredential_Internal.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyAssertionRequest.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyAssertionResponse.h"
+#import "FirebaseAuth/Sources/Utilities/FIRAuthExceptionUtils.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

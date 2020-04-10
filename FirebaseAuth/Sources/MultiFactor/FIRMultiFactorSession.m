@@ -16,11 +16,11 @@
 #include <TargetConditionals.h>
 #if TARGET_OS_IOS
 
-#import "FIRMultiFactorSession+Internal.h"
-#import "FIRMultiFactorSession.h"
+#import <FirebaseAuth/FIRAuth.h>
+#import <FirebaseAuth/FIRMultiFactorSession.h>
 
-#import "FIRAuth.h"
-#import "FIRUser_Internal.h"
+#import "FirebaseAuth/Sources/MultiFactor/FIRMultiFactorSession+Internal.h"
+#import "FirebaseAuth/Sources/User/FIRUser_Internal.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

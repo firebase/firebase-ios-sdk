@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRAuthSettings.h"
+#import <FirebaseAuth/FIRAuthSettings.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

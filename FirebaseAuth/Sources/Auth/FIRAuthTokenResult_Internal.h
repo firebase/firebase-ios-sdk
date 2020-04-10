@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
+#import <FirebaseAuth/FIRAuthTokenResult.h>
 #import <Foundation/Foundation.h>
-
-#import "FIRAuthTokenResult.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

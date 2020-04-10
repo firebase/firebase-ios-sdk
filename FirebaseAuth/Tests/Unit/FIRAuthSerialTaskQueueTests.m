@@ -16,8 +16,8 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FIRAuthGlobalWorkQueue.h"
-#import "FIRAuthSerialTaskQueue.h"
+#import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
+#import "FirebaseAuth/Sources/Auth/FIRAuthSerialTaskQueue.h"
 
 /** @var kTimeout
     @brief Time-out in seconds waiting for tasks to be executed.

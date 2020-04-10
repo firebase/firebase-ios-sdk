@@ -14,16 +14,15 @@
  * limitations under the License.
  */
 
-#import <XCTest/XCTest.h>
-
 #import <FirebaseAuthInterop/FIRAuthInterop.h>
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIRComponent.h>
 #import <FirebaseCore/FIRLibrary.h>
+#import <XCTest/XCTest.h>
 
-#import "FIRApp+FIRAuthUnitTests.h"
-#import "FIRAuthRequestConfiguration.h"
-#import "FIRAuth_Internal.h"
+#import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
+#import "FirebaseAuth/Sources/Backend/FIRAuthRequestConfiguration.h"
+#import "FirebaseAuth/Tests/Unit/FIRApp+FIRAuthUnitTests.h"
 
 /** @var kFirebaseAppName1
     @brief A fake Firebase app name.

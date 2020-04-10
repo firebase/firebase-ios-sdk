@@ -16,12 +16,13 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRAuth_Internal.h"
+#import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
 
 #if __has_include(<UIKit/UIKit.h>)
 #import <UIKit/UIKit.h>
 #endif
 
+#import <FirebaseAuth/FirebaseAuth.h>
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIRComponent.h>
 #import <FirebaseCore/FIRComponentContainer.h>
@@ -32,57 +33,55 @@
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import <GoogleUtilities/GULSceneDelegateSwizzler.h>
 
-#import "FIRAdditionalUserInfo_Internal.h"
-#import "FIRAuthBackend.h"
-#import "FIRAuthCredential_Internal.h"
-#import "FIRAuthDataResult_Internal.h"
-#import "FIRAuthDispatcher.h"
-#import "FIRAuthErrorUtils.h"
-#import "FIRAuthExceptionUtils.h"
-#import "FIRAuthGlobalWorkQueue.h"
-#import "FIRAuthKeychainServices.h"
-#import "FIRAuthOperationType.h"
-#import "FIRAuthRequestConfiguration.h"
-#import "FIRAuthSettings.h"
-#import "FIRAuthStoredUserManager.h"
-#import "FIRAuthWebUtils.h"
-#import "FIRCreateAuthURIRequest.h"
-#import "FIRCreateAuthURIResponse.h"
-#import "FIREmailLinkSignInRequest.h"
-#import "FIREmailLinkSignInResponse.h"
-#import "FIREmailPasswordAuthCredential.h"
-#import "FIRGameCenterAuthCredential.h"
-#import "FIRGetOOBConfirmationCodeRequest.h"
-#import "FIRGetOOBConfirmationCodeResponse.h"
-#import "FIROAuthCredential_Internal.h"
-#import "FIRResetPasswordRequest.h"
-#import "FIRResetPasswordResponse.h"
-#import "FIRSendVerificationCodeRequest.h"
-#import "FIRSendVerificationCodeResponse.h"
-#import "FIRSetAccountInfoRequest.h"
-#import "FIRSetAccountInfoResponse.h"
-#import "FIRSignInWithGameCenterRequest.h"
-#import "FIRSignInWithGameCenterResponse.h"
-#import "FIRSignUpNewUserRequest.h"
-#import "FIRSignUpNewUserResponse.h"
-#import "FIRUser_Internal.h"
-#import "FIRVerifyAssertionRequest.h"
-#import "FIRVerifyAssertionResponse.h"
-#import "FIRVerifyCustomTokenRequest.h"
-#import "FIRVerifyCustomTokenResponse.h"
-#import "FIRVerifyPasswordRequest.h"
-#import "FIRVerifyPasswordResponse.h"
-#import "FIRVerifyPhoneNumberRequest.h"
-#import "FIRVerifyPhoneNumberResponse.h"
-#import "FirebaseAuth.h"
+#import "FirebaseAuth/Sources/Auth/FIRAuthDataResult_Internal.h"
+#import "FirebaseAuth/Sources/Auth/FIRAuthDispatcher.h"
+#import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
+#import "FirebaseAuth/Sources/Auth/FIRAuthOperationType.h"
+#import "FirebaseAuth/Sources/AuthProvider/Email/FIREmailPasswordAuthCredential.h"
+#import "FirebaseAuth/Sources/AuthProvider/FIRAuthCredential_Internal.h"
+#import "FirebaseAuth/Sources/AuthProvider/GameCenter/FIRGameCenterAuthCredential.h"
+#import "FirebaseAuth/Sources/AuthProvider/OAuth/FIROAuthCredential_Internal.h"
+#import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
+#import "FirebaseAuth/Sources/Backend/FIRAuthRequestConfiguration.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRCreateAuthURIRequest.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRCreateAuthURIResponse.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIREmailLinkSignInRequest.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIREmailLinkSignInResponse.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRGetOOBConfirmationCodeRequest.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRGetOOBConfirmationCodeResponse.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRResetPasswordRequest.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRResetPasswordResponse.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRSendVerificationCodeRequest.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRSendVerificationCodeResponse.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRSetAccountInfoRequest.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRSetAccountInfoResponse.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRSignInWithGameCenterRequest.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRSignInWithGameCenterResponse.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRSignUpNewUserRequest.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRSignUpNewUserResponse.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyAssertionRequest.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyAssertionResponse.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyCustomTokenRequest.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyCustomTokenResponse.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPasswordRequest.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPasswordResponse.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPhoneNumberRequest.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPhoneNumberResponse.h"
+#import "FirebaseAuth/Sources/Storage/FIRAuthKeychainServices.h"
+#import "FirebaseAuth/Sources/SystemService/FIRAuthStoredUserManager.h"
+#import "FirebaseAuth/Sources/User/FIRAdditionalUserInfo_Internal.h"
+#import "FirebaseAuth/Sources/User/FIRUser_Internal.h"
+#import "FirebaseAuth/Sources/Utilities/FIRAuthErrorUtils.h"
+#import "FirebaseAuth/Sources/Utilities/FIRAuthExceptionUtils.h"
+#import "FirebaseAuth/Sources/Utilities/FIRAuthWebUtils.h"
 
 #if TARGET_OS_IOS
-#import "FIRAuthAPNSToken.h"
-#import "FIRAuthAPNSTokenManager.h"
-#import "FIRAuthAppCredentialManager.h"
-#import "FIRAuthNotificationManager.h"
-#import "FIRAuthURLPresenter.h"
-#import "FIRPhoneAuthCredential_Internal.h"
+#import "FirebaseAuth/Sources/AuthProvider/Phone/FIRPhoneAuthCredential_Internal.h"
+#import "FirebaseAuth/Sources/SystemService/FIRAuthAPNSToken.h"
+#import "FirebaseAuth/Sources/SystemService/FIRAuthAPNSTokenManager.h"
+#import "FirebaseAuth/Sources/SystemService/FIRAuthAppCredentialManager.h"
+#import "FirebaseAuth/Sources/SystemService/FIRAuthNotificationManager.h"
+#import "FirebaseAuth/Sources/Utilities/FIRAuthURLPresenter.h"
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
@@ -481,10 +480,9 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   if (self) {
     _listenerHandles = [NSMutableArray array];
     _requestConfiguration = [[FIRAuthRequestConfiguration alloc] initWithAPIKey:APIKey];
-    _settings = [[FIRAuthSettings alloc] init];
     _firebaseAppName = [appName copy];
 #if TARGET_OS_IOS
-
+    _settings = [[FIRAuthSettings alloc] init];
     static Class applicationClass = nil;
     // iOS App extensions should not call [UIApplication sharedApplication], even if UIApplication
     // responds to it.

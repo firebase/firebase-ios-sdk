@@ -16,7 +16,7 @@
 
 #import "UserTableViewCell.h"
 
-#import "FIRUser.h"
+#import <FirebaseAuth/FIRUser.h>
 
 @implementation UserTableViewCell {
   /** @var _lastPhotoURL
@@ -42,8 +42,8 @@
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^() {
       UIImage *image = [UIImage imageWithData:[NSData dataWithContentsOfURL:photoURL]];
       dispatch_async(dispatch_get_main_queue(), ^() {
-        if (photoURL == _lastPhotoURL) {
-          _userInfoProfileURLImageView.image = image;
+        if (photoURL == self->_lastPhotoURL) {
+          self->_userInfoProfileURLImageView.image = image;
         }
       });
     });

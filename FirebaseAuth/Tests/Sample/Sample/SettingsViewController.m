@@ -20,13 +20,13 @@
 
 #import "AppManager.h"
 #import <FirebaseCore/FIRApp.h>
-#import "FIRAuth_Internal.h"
-#import "FIRAuthAPNSToken.h"
-#import "FIRAuthAPNSTokenManager.h"
-#import "FIRAuthAppCredential.h"
-#import "FIRAuthAppCredentialManager.h"
+#import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
+#import "FirebaseAuth/Sources/SystemService/FIRAuthAPNSToken.h"
+#import "FirebaseAuth/Sources/SystemService/FIRAuthAPNSTokenManager.h"
+#import "FirebaseAuth/Sources/SystemService/FIRAuthAppCredential.h"
+#import "FirebaseAuth/Sources/SystemService/FIRAuthAppCredentialManager.h"
 #import <FirebaseCore/FIROptions.h>
-#import "FirebaseAuth.h"
+#import <FirebaseAuth/FirebaseAuth.h>
 #import "StaticContentTableViewManager.h"
 #import "UIViewController+Alerts.h"
 

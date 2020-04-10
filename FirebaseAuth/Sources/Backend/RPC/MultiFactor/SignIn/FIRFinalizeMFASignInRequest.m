@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRFinalizeMFASignInRequest.h"
+#import "FirebaseAuth/Sources/Backend/RPC/MultiFactor/SignIn/FIRFinalizeMFASignInRequest.h"
 
 static NSString *const kFinalizeMFASignInEndPoint = @"accounts/mfaSignIn:finalize";
 

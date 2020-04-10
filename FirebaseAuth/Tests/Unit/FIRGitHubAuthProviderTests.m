@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
+#import <FirebaseAuth/FIRGitHubAuthProvider.h>
 #import <XCTest/XCTest.h>
 
-#import "FIRAuthCredential_Internal.h"
-#import "FIRGitHubAuthProvider.h"
-#import "FIRVerifyAssertionRequest.h"
+#import "FirebaseAuth/Sources/AuthProvider/FIRAuthCredential_Internal.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyAssertionRequest.h"
 
 /** @var kGitHubToken
     @brief A testing GitHub token.

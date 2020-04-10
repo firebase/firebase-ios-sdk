@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
+#import <FirebaseAuth/FIRActionCodeSettings.h>
+#import <FirebaseAuth/FIRAuthErrors.h>
 #import <XCTest/XCTest.h>
 
-#import "FIRActionCodeSettings.h"
-#import "FIRAuthBackend.h"
-#import "FIRAuthErrors.h"
-#import "FIRFakeBackendRPCIssuer.h"
-#import "FIRGetOOBConfirmationCodeRequest.h"
-#import "FIRGetOOBConfirmationCodeResponse.h"
+#import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRGetOOBConfirmationCodeRequest.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRGetOOBConfirmationCodeResponse.h"
+#import "FirebaseAuth/Tests/Unit/FIRFakeBackendRPCIssuer.h"
 
 /** @var kTestEmail
     @brief Testing user email adadress.

@@ -15,7 +15,7 @@
  */
 #import <Foundation/Foundation.h>
 
-#import "FIRAuthRPCResponse.h"
+#import "FirebaseAuth/Sources/Backend/FIRAuthRPCResponse.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

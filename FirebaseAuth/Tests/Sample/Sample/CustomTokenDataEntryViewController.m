@@ -140,7 +140,7 @@ static NSString *const kDone = @"Done";
 - (void)finishByCancelling:(BOOL)cancelled
     withUserEnteredTokenText:(nullable NSString *)userEnteredTokenText {
   [self dismissViewControllerAnimated:YES completion:^{
-    _completion(cancelled,
+    self->_completion(cancelled,
                 cancelled ? nil : userEnteredTokenText);
   }];
 }

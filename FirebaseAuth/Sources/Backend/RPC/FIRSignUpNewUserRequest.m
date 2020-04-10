@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRSignUpNewUserRequest.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRSignUpNewUserRequest.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

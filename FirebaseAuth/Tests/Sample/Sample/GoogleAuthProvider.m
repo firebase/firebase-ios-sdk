@@ -21,7 +21,7 @@
 #import "AppManager.h"
 #import <FirebaseCore/FIRApp.h>
 #import <FirebaseCore/FIROptions.h>
-#import "FIRGoogleAuthProvider.h"
+#import <FirebaseAuth/FIRGoogleAuthProvider.h>
 #import "ApplicationDelegate.h"
 
 /** @typedef GoogleSignInCallback

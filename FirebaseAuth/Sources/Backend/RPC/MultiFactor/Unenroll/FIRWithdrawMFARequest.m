@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRWithdrawMFARequest.h"
+#import "FirebaseAuth/Sources/Backend/RPC/MultiFactor/Unenroll/FIRWithdrawMFARequest.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

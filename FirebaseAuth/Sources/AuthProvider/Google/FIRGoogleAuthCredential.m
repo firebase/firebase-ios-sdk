@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-#import "FIRGoogleAuthCredential.h"
+#import "FirebaseAuth/Sources/AuthProvider/Google/FIRGoogleAuthCredential.h"
 
-#import "FIRAuthExceptionUtils.h"
-#import "FIRGoogleAuthProvider.h"
-#import "FIRVerifyAssertionRequest.h"
+#import <FirebaseAuth/FIRGoogleAuthProvider.h>
+
+#import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyAssertionRequest.h"
+#import "FirebaseAuth/Sources/Utilities/FIRAuthExceptionUtils.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
