@@ -109,7 +109,6 @@ struct ContentView: View {
         print("Failed delete token: ", error)
         return
       }
-      self.identity.token = nil
     }
   }
 
@@ -119,8 +118,6 @@ struct ContentView: View {
         print("Failed delete ID: ", error)
         return
       }
-      self.identity.instanceID = nil
-      self.identity.token = nil
     }
   }
 
@@ -130,7 +127,6 @@ struct ContentView: View {
         print("Failed delete FID: ", error)
         return
       }
-      self.identity.instanceID = nil
     }
   }
 }
@@ -162,8 +158,6 @@ struct ContentView_Previews: PreviewProvider {
 
   static var previews: some View {
     Group {
-      ContentView().environmentObject(Identity())
-
       ContentView().environmentObject(filledIdentity)
     }
   }

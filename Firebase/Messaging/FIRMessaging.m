@@ -940,7 +940,8 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   }
   NSString *oldToken = self.defaultFcmToken;
   self.defaultFcmToken = [(NSString *)notification.object copy];
-  if (self.defaultFcmToken && ![self.defaultFcmToken isEqualToString:oldToken]) {
+  if ((self.defaultFcmToken && ![self.defaultFcmToken isEqualToString:oldToken]) ||
+      (self.defaultFcmToken && !oldToken) || (!self.defaultFcmToken && oldToken)) {
     [self notifyDelegateOfFCMTokenAvailability];
   }
   [self.pubsub scheduleSync:YES];
@@ -955,18 +956,14 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 - (void)defaultInstanceIDTokenWasRefreshed:(NSNotification *)notification {
   // Retrieve the Instance ID default token, and if it is non-nil, post it
   NSString *token = self.instanceID.token;
-  // Sometimes Instance ID doesn't yet have a token, so wait until the default
-  // token is fetched, and then notify. This ensures that this token should not
-  // be nil when the developer accesses it.
-  if (token != nil) {
-    NSString *oldToken = self.defaultFcmToken;
-    self.defaultFcmToken = [token copy];
-    if (self.defaultFcmToken && ![self.defaultFcmToken isEqualToString:oldToken]) {
-      [self notifyDelegateOfFCMTokenAvailability];
-    }
-    NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
-    [center postNotificationName:FIRMessagingRegistrationTokenRefreshedNotification object:nil];
+  NSString *oldToken = self.defaultFcmToken;
+  self.defaultFcmToken = [token copy];
+  if ((self.defaultFcmToken && ![self.defaultFcmToken isEqualToString:oldToken]) ||
+      (self.defaultFcmToken && !oldToken) || (!self.defaultFcmToken && oldToken)) {
+    [self notifyDelegateOfFCMTokenAvailability];
   }
+  NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
+  [center postNotificationName:FIRMessagingRegistrationTokenRefreshedNotification object:nil];
 }
 
 #pragma mark - Application Support Directory
