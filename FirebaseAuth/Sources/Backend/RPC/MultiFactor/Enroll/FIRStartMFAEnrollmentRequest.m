@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "FIRStartMFAEnrollmentRequest.h"
+#import "FirebaseAuth/Sources/Backend/RPC/MultiFactor/Enroll/FIRStartMFAEnrollmentRequest.h"
 
-#import "FIRAuthProtoStartMFAPhoneRequestInfo.h"
+#import "FirebaseAuth/Sources/Backend/RPC/Proto/Phone/FIRAuthProtoStartMFAPhoneRequestInfo.h"
 
 static NSString *const kStartMFAEnrollmentEndPoint = @"accounts/mfaEnrollment:start";
 

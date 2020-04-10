@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#import <FirebaseAuth/FIRAuthErrors.h>
 #import <XCTest/XCTest.h>
 
-#import "FIRAuthBackend.h"
-#import "FIRAuthErrors.h"
-#import "FIRAuthOperationType.h"
-#import "FIRFakeBackendRPCIssuer.h"
-#import "FIRVerifyPhoneNumberRequest.h"
-#import "FIRVerifyPhoneNumberResponse.h"
-#import "Phone/FIRPhoneAuthCredential_Internal.h"
+#import "FirebaseAuth/Sources/Auth/FIRAuthOperationType.h"
+#import "FirebaseAuth/Sources/AuthProvider/Phone/FIRPhoneAuthCredential_Internal.h"
+#import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPhoneNumberRequest.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPhoneNumberResponse.h"
+#import "FirebaseAuth/Tests/Unit/FIRFakeBackendRPCIssuer.h"
 
 /** @var kTestAPIKey
     @brief Fake API key used for testing.

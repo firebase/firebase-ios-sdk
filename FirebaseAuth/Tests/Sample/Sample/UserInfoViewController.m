@@ -16,9 +16,9 @@
 
 #import "UserInfoViewController.h"
 
-#import "FIRUser.h"
-#import "FIRUserInfo.h"
-#import "FIRUserMetadata.h"
+#import <FirebaseAuth/FIRUser.h>
+#import <FirebaseAuth/FIRUserInfo.h>
+#import <FirebaseAuth/FIRUserMetadata.h>
 #import "StaticContentTableViewManager.h"
 
 /** @fn stringWithBool

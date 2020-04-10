@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#import "FIRTwitterAuthProvider.h"
+#import <FirebaseAuth/FIRTwitterAuthProvider.h>
 
-#import "FIRAuthExceptionUtils.h"
-#import "FIRTwitterAuthCredential.h"
+#import "FirebaseAuth/Sources/AuthProvider/Twitter/FIRTwitterAuthCredential.h"
+#import "FirebaseAuth/Sources/Utilities/FIRAuthExceptionUtils.h"
 
 // FIRTwitterAuthProviderID is defined in FIRAuthProvider.m.
 

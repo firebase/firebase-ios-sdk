@@ -16,8 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRAuthRPCRequest.h"
-#import "FIRAuthRPCResponse.h"
+#import "FirebaseAuth/Sources/Backend/FIRAuthRPCRequest.h"
+#import "FirebaseAuth/Sources/Backend/FIRAuthRPCResponse.h"
 
 @class FIRAuthRequestConfiguration;
 @class FIRCreateAuthURIRequest;

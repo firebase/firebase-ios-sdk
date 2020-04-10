@@ -15,7 +15,6 @@
  */
 
 #import <Foundation/Foundation.h>
-
 #import <OCMock/OCMStubRecorder.h>
 
 NS_ASSUME_NONNULL_BEGIN

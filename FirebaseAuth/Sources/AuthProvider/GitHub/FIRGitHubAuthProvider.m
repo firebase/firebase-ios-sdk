@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#import "FIRGitHubAuthProvider.h"
+#import <FirebaseAuth/FIRGitHubAuthProvider.h>
 
-#import "FIRAuthExceptionUtils.h"
-#import "FIRGitHubAuthCredential.h"
+#import "FirebaseAuth/Sources/AuthProvider/GitHub/FIRGitHubAuthCredential.h"
+#import "FirebaseAuth/Sources/Utilities/FIRAuthExceptionUtils.h"
 
 // FIRGitHubAuthProviderID is defined in FIRAuthProvider.m.
 

@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "FIRAuthProtoStartMFAPhoneRequestInfo.h"
-#import "FIRAuthRPCRequest.h"
-#import "FIRIdentityToolkitRequest.h"
+#import "FirebaseAuth/Sources/Backend/FIRAuthRPCRequest.h"
+#import "FirebaseAuth/Sources/Backend/FIRIdentityToolkitRequest.h"
+#import "FirebaseAuth/Sources/Backend/RPC/Proto/Phone/FIRAuthProtoStartMFAPhoneRequestInfo.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRAuthCredential_Internal.h"
+#import "FirebaseAuth/Sources/AuthProvider/FIRAuthCredential_Internal.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

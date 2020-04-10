@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
+#import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
-#import <OCMock/OCMock.h>
-#import "FIRAuthAppCredential.h"
-#import "FIRAuthAppCredentialManager.h"
-#import "FIRAuthNotificationManager.h"
+#import "FirebaseAuth/Sources/SystemService/FIRAuthAppCredential.h"
+#import "FirebaseAuth/Sources/SystemService/FIRAuthAppCredentialManager.h"
+#import "FirebaseAuth/Sources/SystemService/FIRAuthNotificationManager.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

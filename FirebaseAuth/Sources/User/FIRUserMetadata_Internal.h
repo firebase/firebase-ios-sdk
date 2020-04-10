@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
+#import <FirebaseAuth/FIRUserMetadata.h>
 #import <Foundation/Foundation.h>
-
-#import "FIRUserMetadata.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

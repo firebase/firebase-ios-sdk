@@ -17,14 +17,14 @@
 #include <TargetConditionals.h>
 #if TARGET_OS_IOS
 
-#import "FIRPhoneAuthCredential.h"
+#import <FirebaseAuth/FIRPhoneAuthCredential.h>
 
-#import "FIRAuthCredential_Internal.h"
-#import "FIRAuthExceptionUtils.h"
-#import "FIRVerifyAssertionRequest.h"
+#import "FirebaseAuth/Sources/AuthProvider/FIRAuthCredential_Internal.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyAssertionRequest.h"
+#import "FirebaseAuth/Sources/Utilities/FIRAuthExceptionUtils.h"
 
 #if TARGET_OS_IOS
-#import "FIRPhoneAuthCredential_Internal.h"
+#import "FirebaseAuth/Sources/AuthProvider/Phone/FIRPhoneAuthCredential_Internal.h"
 #endif
 
 NS_ASSUME_NONNULL_BEGIN

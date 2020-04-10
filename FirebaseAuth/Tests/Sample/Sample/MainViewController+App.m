@@ -17,17 +17,17 @@
 #import "MainViewController+App.h"
 
 #import "AppManager.h"
-#import "FIRAuthAPNSToken.h"
-#import "FIRAuthAPNSTokenManager.h"
-#import "FIRAuthAppCredential.h"
-#import "FIRAuthAppCredentialManager.h"
-#import "FIRAuth_Internal.h"
+#import "FirebaseAuth/Sources/SystemService/FIRAuthAPNSToken.h"
+#import "FirebaseAuth/Sources/SystemService/FIRAuthAPNSTokenManager.h"
+#import "FirebaseAuth/Sources/SystemService/FIRAuthAppCredential.h"
+#import "FirebaseAuth/Sources/SystemService/FIRAuthAppCredentialManager.h"
+#import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
 #import "MainViewController+Internal.h"
-#import "FIRVerifyClientRequest.h"
-#import "FIRVerifyClientResponse.h"
-#import "FIRSendVerificationCodeRequest.h"
-#import "FIRAuthBackend.h"
-#import "FIRApp.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyClientRequest.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyClientResponse.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRSendVerificationCodeRequest.h"
+#import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
+#import <FirebaseCore/FIRApp.h>
 
 static NSString *const kTokenRefreshErrorAlertTitle = @"Get Token Error";
 

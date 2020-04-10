@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
+#import <FirebaseAuth/FIRAuthUIDelegate.h>
 #import <Foundation/Foundation.h>
 #import <OCMock/OCMock.h>
 #import <SafariServices/SafariServices.h>
 #import <XCTest/XCTest.h>
 
-#import "FIRAuthUIDelegate.h"
-#import "FIRAuthURLPresenter.h"
-#import "FIRAuthWebViewController.h"
+#import "FirebaseAuth/Sources/Utilities/FIRAuthURLPresenter.h"
+#import "FirebaseAuth/Sources/Utilities/FIRAuthWebViewController.h"
 
 /** @var kExpectationTimeout
     @brief The maximum time waiting for expectations to fulfill.

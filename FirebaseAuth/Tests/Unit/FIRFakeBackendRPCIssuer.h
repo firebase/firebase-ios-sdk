@@ -16,7 +16,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FIRAuthBackend.h"
+#import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

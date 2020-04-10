@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "NSData+FIRBase64.h"
+#import "FirebaseAuth/Sources/Utilities/NSData+FIRBase64.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

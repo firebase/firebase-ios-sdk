@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRAuthRequestConfiguration.h"
+#import "FirebaseAuth/Sources/Backend/FIRAuthRequestConfiguration.h"
 
 @class FIRAuthRequestConfiguration;
 

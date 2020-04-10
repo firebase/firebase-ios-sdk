@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-#import "FIRGetOOBConfirmationCodeRequest.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRGetOOBConfirmationCodeRequest.h"
 
-#import "FIRActionCodeSettings.h"
+#import <FirebaseAuth/FIRActionCodeSettings.h>
 
-#import "FIRAuthErrorUtils.h"
-#import "FIRAuth_Internal.h"
+#import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
+#import "FirebaseAuth/Sources/Utilities/FIRAuthErrorUtils.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

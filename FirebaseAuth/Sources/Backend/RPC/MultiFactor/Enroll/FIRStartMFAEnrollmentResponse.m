@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "FIRStartMFAEnrollmentResponse.h"
+#import "FirebaseAuth/Sources/Backend/RPC/MultiFactor/Enroll/FIRStartMFAEnrollmentResponse.h"
 
-#import "FIRAuthProtoStartMFAPhoneResponseInfo.h"
+#import "FirebaseAuth/Sources/Backend/RPC/Proto/Phone/FIRAuthProtoStartMFAPhoneResponseInfo.h"
 
 @implementation FIRStartMFAEnrollmentResponse
 

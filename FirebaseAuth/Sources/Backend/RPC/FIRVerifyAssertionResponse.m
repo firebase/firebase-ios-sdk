@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRVerifyAssertionResponse.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyAssertionResponse.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRAuthProto.h"
+#import "FirebaseAuth/Sources/Backend/RPC/Proto/FIRAuthProto.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

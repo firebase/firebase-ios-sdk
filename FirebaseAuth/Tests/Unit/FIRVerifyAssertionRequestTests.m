@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
+#import <FirebaseAuth/FIRAuthErrors.h>
 #import <XCTest/XCTest.h>
 
-#import "FIRAuthBackend.h"
-#import "FIRAuthErrors.h"
-#import "FIRFakeBackendRPCIssuer.h"
-#import "FIRGetOOBConfirmationCodeResponse.h"
-#import "FIRVerifyAssertionRequest.h"
-#import "FIRVerifyAssertionResponse.h"
+#import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRGetOOBConfirmationCodeResponse.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyAssertionRequest.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyAssertionResponse.h"
+#import "FirebaseAuth/Tests/Unit/FIRFakeBackendRPCIssuer.h"
 
 /** @var kTestAPIKey
     @brief Fake API key used for testing.

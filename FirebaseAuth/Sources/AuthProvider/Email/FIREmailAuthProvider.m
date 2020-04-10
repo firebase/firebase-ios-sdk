@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "FIREmailAuthProvider.h"
+#import <FirebaseAuth/FIREmailAuthProvider.h>
 
-#import "FIREmailPasswordAuthCredential.h"
+#import "FirebaseAuth/Sources/AuthProvider/Email/FIREmailPasswordAuthCredential.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

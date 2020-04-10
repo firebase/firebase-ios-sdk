@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRStartMFASignInResponse.h"
+#import "FirebaseAuth/Sources/Backend/RPC/MultiFactor/SignIn/FIRStartMFASignInResponse.h"
 
 @implementation FIRStartMFASignInResponse
 

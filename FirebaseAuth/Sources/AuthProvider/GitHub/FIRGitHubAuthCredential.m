@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-#import "FIRGitHubAuthCredential.h"
+#import "FirebaseAuth/Sources/AuthProvider/GitHub/FIRGitHubAuthCredential.h"
 
-#import "FIRAuthExceptionUtils.h"
-#import "FIRGitHubAuthProvider.h"
-#import "FIRVerifyAssertionRequest.h"
+#import <FirebaseAuth/FIRGitHubAuthProvider.h>
+
+#import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyAssertionRequest.h"
+#import "FirebaseAuth/Sources/Utilities/FIRAuthExceptionUtils.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

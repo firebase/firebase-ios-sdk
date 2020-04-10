@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
+#import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
-#import <OCMock/OCMock.h>
-#import "FIRAuthAppCredential.h"
-#import "FIRAuthAppCredentialManager.h"
-#import "FIRAuthKeychainServices.h"
+#import "FirebaseAuth/Sources/Storage/FIRAuthKeychainServices.h"
+#import "FirebaseAuth/Sources/SystemService/FIRAuthAppCredential.h"
+#import "FirebaseAuth/Sources/SystemService/FIRAuthAppCredentialManager.h"
 
 #define ANY_ERROR_POINTER ((NSError * __autoreleasing * _Nullable)[OCMArg anyPointer])
 #define SAVE_TO(var)                     \

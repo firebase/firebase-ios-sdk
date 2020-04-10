@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-#import "OCMStubRecorder+FIRAuthUnitTests.h"
-
-#import "FIRAuthGlobalWorkQueue.h"
+#import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
+#import "FirebaseAuth/Tests/Unit/OCMStubRecorder+FIRAuthUnitTests.h"
 
 /** @fn argumentOf
     @brief Retrieves a specific argument from a method invocation.

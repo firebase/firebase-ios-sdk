@@ -17,10 +17,10 @@
 #include <TargetConditionals.h>
 #if !TARGET_OS_OSX
 
-#import "FIRAuthDefaultUIDelegate.h"
-
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import <UIKit/UIKit.h>
+
+#import "FirebaseAuth/Sources/Utilities/FIRAuthDefaultUIDelegate.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

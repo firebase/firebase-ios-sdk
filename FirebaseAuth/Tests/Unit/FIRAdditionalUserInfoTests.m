@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
+#import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
-#import <OCMock/OCMock.h>
-#import "FIRAdditionalUserInfo_Internal.h"
-#import "FIRVerifyAssertionResponse.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyAssertionResponse.h"
+#import "FirebaseAuth/Sources/User/FIRAdditionalUserInfo_Internal.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

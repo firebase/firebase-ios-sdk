@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
+#import <FirebaseAuth/FIRUser.h>
 #import <Foundation/Foundation.h>
 
-#import "FIRAuthKeychainServices.h"
-#import "FIRAuthUserDefaults.h"
-#import "FIRUser.h"
+#import "FirebaseAuth/Sources/Storage/FIRAuthKeychainServices.h"
+#import "FirebaseAuth/Sources/Storage/FIRAuthUserDefaults.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

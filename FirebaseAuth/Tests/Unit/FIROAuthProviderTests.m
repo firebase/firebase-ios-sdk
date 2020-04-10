@@ -14,25 +14,25 @@
  * limitations under the License.
  */
 
+#import <FirebaseAuth/FIRAuthErrors.h>
+#import <FirebaseAuth/FIRAuthUIDelegate.h>
+#import <FirebaseAuth/FIROAuthProvider.h>
+#import <FirebaseCore/FIRApp.h>
+#import <FirebaseCore/FIROptions.h>
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
-#import "FIRApp.h"
-#import "FIRAuthBackend.h"
-#import "FIRAuthErrorUtils.h"
-#import "FIRAuthErrors.h"
-#import "FIRAuthGlobalWorkQueue.h"
-#import "FIRAuthRequestConfiguration.h"
-#import "FIRAuthUIDelegate.h"
-#import "FIRAuthURLPresenter.h"
-#import "FIRAuthWebUtils.h"
-#import "FIRAuth_Internal.h"
-#import "FIRGetProjectConfigRequest.h"
-#import "FIRGetProjectConfigResponse.h"
-#import "FIROAuthProvider.h"
-#import "FIROptions.h"
-#import "OAuth/FIROAuthCredential_Internal.h"
-#import "OCMStubRecorder+FIRAuthUnitTests.h"
+#import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
+#import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
+#import "FirebaseAuth/Sources/AuthProvider/OAuth/FIROAuthCredential_Internal.h"
+#import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
+#import "FirebaseAuth/Sources/Backend/FIRAuthRequestConfiguration.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRGetProjectConfigRequest.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRGetProjectConfigResponse.h"
+#import "FirebaseAuth/Sources/Utilities/FIRAuthErrorUtils.h"
+#import "FirebaseAuth/Sources/Utilities/FIRAuthURLPresenter.h"
+#import "FirebaseAuth/Sources/Utilities/FIRAuthWebUtils.h"
+#import "FirebaseAuth/Tests/Unit/OCMStubRecorder+FIRAuthUnitTests.h"
 
 /** @var kExpectationTimeout
     @brief The maximum time waiting for expectations to fulfill.

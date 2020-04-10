@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRResetPasswordRequest.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRResetPasswordRequest.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

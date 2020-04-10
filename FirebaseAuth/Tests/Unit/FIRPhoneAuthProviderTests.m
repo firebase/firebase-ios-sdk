@@ -14,38 +14,37 @@
  * limitations under the License.
  */
 
-#import <OCMock/OCMock.h>
-#import <XCTest/XCTest.h>
-
+#import <FirebaseAuth/FIRAuth.h>
+#import <FirebaseAuth/FIRAuthSettings.h>
+#import <FirebaseAuth/FIRAuthUIDelegate.h>
+#import <FirebaseAuth/FIRPhoneAuthProvider.h>
 #import <FirebaseCore/FIRApp.h>
 #import <FirebaseCore/FIROptions.h>
-#import "FIRAuth.h"
-#import "FIRAuthAPNSToken.h"
-#import "FIRAuthAPNSTokenManager.h"
-#import "FIRAuthAppCredential.h"
-#import "FIRAuthAppCredentialManager.h"
-#import "FIRAuthBackend.h"
-#import "FIRAuthCredential_Internal.h"
-#import "FIRAuthErrorUtils.h"
-#import "FIRAuthGlobalWorkQueue.h"
-#import "FIRAuthNotificationManager.h"
-#import "FIRAuthRequestConfiguration.h"
-#import "FIRAuthSettings.h"
-#import "FIRAuthUIDelegate.h"
-#import "FIRAuthURLPresenter.h"
-#import "FIRAuthWebUtils.h"
-#import "FIRAuth_Internal.h"
-#import "FIRGetProjectConfigRequest.h"
-#import "FIRGetProjectConfigResponse.h"
-#import "FIRPhoneAuthProvider.h"
-#import "FIRSendVerificationCodeRequest.h"
-#import "FIRSendVerificationCodeResponse.h"
-#import "FIRVerifyClientRequest.h"
-#import "FIRVerifyClientResponse.h"
-#import "OCMStubRecorder+FIRAuthUnitTests.h"
-#import "Phone/FIRPhoneAuthCredential_Internal.h"
-
+#import <OCMock/OCMock.h>
 #import <SafariServices/SafariServices.h>
+#import <XCTest/XCTest.h>
+
+#import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
+#import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
+#import "FirebaseAuth/Sources/AuthProvider/FIRAuthCredential_Internal.h"
+#import "FirebaseAuth/Sources/AuthProvider/Phone/FIRPhoneAuthCredential_Internal.h"
+#import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
+#import "FirebaseAuth/Sources/Backend/FIRAuthRequestConfiguration.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRGetProjectConfigRequest.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRGetProjectConfigResponse.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRSendVerificationCodeRequest.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRSendVerificationCodeResponse.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyClientRequest.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyClientResponse.h"
+#import "FirebaseAuth/Sources/SystemService/FIRAuthAPNSToken.h"
+#import "FirebaseAuth/Sources/SystemService/FIRAuthAPNSTokenManager.h"
+#import "FirebaseAuth/Sources/SystemService/FIRAuthAppCredential.h"
+#import "FirebaseAuth/Sources/SystemService/FIRAuthAppCredentialManager.h"
+#import "FirebaseAuth/Sources/SystemService/FIRAuthNotificationManager.h"
+#import "FirebaseAuth/Sources/Utilities/FIRAuthErrorUtils.h"
+#import "FirebaseAuth/Sources/Utilities/FIRAuthURLPresenter.h"
+#import "FirebaseAuth/Sources/Utilities/FIRAuthWebUtils.h"
+#import "FirebaseAuth/Tests/Unit/OCMStubRecorder+FIRAuthUnitTests.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
