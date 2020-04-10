@@ -120,4 +120,7 @@
 /// Returns true if the last fetch is outside the minimum fetch interval supplied.
 - (BOOL)hasMinimumFetchIntervalElapsed:(NSTimeInterval)minimumFetchInterval;
 
+/// Update SDK settings with the SDK settings in the response.
+- (void)updateSettingsWithSDKSettingsResponse:(NSDictionary *)response;
+
 @end

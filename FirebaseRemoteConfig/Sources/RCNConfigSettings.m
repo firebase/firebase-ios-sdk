@@ -69,6 +69,8 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
   RCNUserDefaultsManager *_userDefaultsManager;
   /// The timestamp of last eTag update.
   NSTimeInterval _lastETagUpdateTime;
+  /// True if the minimumFetchInterval was overriden by the developer.
+  BOOL _customMinimumFetchIntervalSet;
 }
 @end
 
@@ -410,11 +412,19 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
 }
 
 - (void)setMinimumFetchInterval:(NSTimeInterval)minimumFetchInterval {
+  if (minimumFetchInterval != RCNDefaultMinimumFetchInterval) {
+    _customMinimumFetchIntervalSet = true;
+  } else {
+    _customMinimumFetchIntervalSet = false;
+  }
+
   if (minimumFetchInterval < 0) {
     _minimumFetchInterval = 0;
   } else {
     _minimumFetchInterval = minimumFetchInterval;
   }
+  FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000075",
+              @"MinimumFetchInterval updated to %@:", _minimumFetchInterval);
 }
 
 - (void)setFetchTimeout:(NSTimeInterval)fetchTimeout {
@@ -457,11 +467,12 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
 }
 
 #pragma mark self config
-- (void)updateSettingsWithSelfConfigResponse:(NSDictionary *)response {
+- (void)updateSettingsWithSDKSettingsResponse:(NSDictionary *)response {
   if (!response || response.count < 1) {
     return;
   }
-  NSNumber *minimumFetchInterval = [response objectForKey:@"minimumFetchInterval"];
-  [self updateLastFetchTimeInterval:[minimumFetchInterval longValue]];
+  NSString *minimumFetchIntervalString = [response objectForKey:@"minimumFetchIntervalMillis"];
+  double minimumFetchInterval = minimumFetchIntervalString.doubleValue / 1000.0f;
+  self.minimumFetchInterval = minimumFetchInterval;
 }
 @end

@@ -98,7 +98,7 @@ static NSString *const FIRSecondFIRAppName = @"secondFIRApp";
       }
       FIRRemoteConfigSettings *settings = [[FIRRemoteConfigSettings alloc] init];
       settings.fetchTimeout = 300;
-      settings.minimumFetchInterval = 0;
+      //@@ settings.minimumFetchInterval = 0;
       ((FIRRemoteConfig *)(self.RCInstances[namespaceString][appString])).configSettings = settings;
     }
   }
@@ -113,6 +113,11 @@ static NSString *const FIRSecondFIRAppName = @"secondFIRApp";
 
 - (IBAction)fetchButtonPressed:(id)sender {
   [[FRCLog sharedInstance] logToConsole:@"Fetch button pressed"];
+  NSTimeInterval currentFetchInterval =
+      ((FIRRemoteConfig *)(self.RCInstances[self.currentNamespace][self.FIRAppName]))
+          .configSettings.minimumFetchInterval;
+  [[FRCLog sharedInstance] logToConsole:[NSString stringWithFormat:@"MinimumFetchInterval is: %f",
+                                                                   currentFetchInterval]];
   // fetchConfig api callback, this is triggered when client receives response from server
   ViewController *__weak weakSelf = self;
   FIRRemoteConfigFetchCompletion completion = ^(FIRRemoteConfigFetchStatus status, NSError *error) {

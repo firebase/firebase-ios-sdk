@@ -27,11 +27,17 @@
 #import "FirebaseRemoteConfig/Sources/RCNConfigExperiment.h"
 #import "FirebaseRemoteConfig/Sources/RCNDevice.h"
 
+#define BORG_RUN_SERVER
+#ifdef BORG_RUN_SERVER
+static NSString *const kServerURLDomain =
+    @"https://borgrun-firebaseremoteconfig.sandbox.googleapis.com";
+#else
 #ifdef RCN_STAGING_SERVER
 static NSString *const kServerURLDomain =
     @"https://staging-firebaseremoteconfig.sandbox.googleapis.com";
 #else
 static NSString *const kServerURLDomain = @"https://firebaseremoteconfig.googleapis.com";
+#endif
 #endif
 
 static NSString *const kServerURLVersion = @"/v1";
@@ -501,7 +507,8 @@ static RCNConfigFetcherTestBlock gGlobalTestBlock;
             updateExperimentsWithResponse:fetchedConfig[RCNFetchResponseKeyExperimentDescriptions]];
 
         // Update self config.
-        [strongSelf->_settings
+        NSDictionary *sdkConfig = [fetchedConfig objectForKey:@"sdkSettings"];
+        [strongSelf->_settings updateSettingsWithSDKSettingsResponse:sdkConfig];
       } else {
         FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000063",
                     @"Empty response with no fetched config.");
@@ -593,6 +600,9 @@ static RCNConfigFetcherTestBlock gGlobalTestBlock;
                                timeoutInterval:timeoutInterval];
   URLRequest.HTTPMethod = kHTTPMethodPost;
   [URLRequest setValue:kContentTypeValueJSON forHTTPHeaderField:kContentTypeHeaderName];
+#ifdef BORG_RUN_SERVER
+  [URLRequest setValue:@"true" forHTTPHeaderField:@"x-enable-fetch"];
+#endif
   [URLRequest setValue:[[NSBundle mainBundle] bundleIdentifier]
       forHTTPHeaderField:kiOSBundleIdentifierHeaderName];
   [URLRequest setValue:@"gzip" forHTTPHeaderField:kContentEncodingHeaderName];
