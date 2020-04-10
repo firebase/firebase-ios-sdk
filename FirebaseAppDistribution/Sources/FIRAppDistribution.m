@@ -41,6 +41,7 @@ NSString *const kReleasesEndpointURL =
 NSString *const kTesterAPIClientID =
     @"319754533822-osu3v3hcci24umq6diathdm0dipds1fb.apps.googleusercontent.com";
 NSString *const kIssuerURL = @"https://accounts.google.com";
+NSString *const kAppDistroLibraryName = @"fire-fad";
 
 // explicit @synthesize is needed since the property is readonly
 @synthesize isTesterSignedIn = _isTesterSignedIn;
@@ -69,7 +70,7 @@ NSString *const kIssuerURL = @"https://accounts.google.com";
   NSString *version =
       [NSString stringWithUTF8String:(const char *const)STR_EXPAND(FIRAppDistribution_VERSION)];
   [FIRApp registerInternalLibrary:(Class<FIRLibrary>)self
-                         withName:@"firebase-appdistribution"
+                         withName:kAppDistroLibraryName
                       withVersion:version];
 }
 
