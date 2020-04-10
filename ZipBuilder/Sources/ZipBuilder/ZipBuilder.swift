@@ -382,7 +382,7 @@ struct ZipBuilder {
     // Keep track of the names of the frameworks copied over.
     var copiedFrameworkNames: [String] = []
 
-    // Loop through each InstalledPod item and get the name so we can fetch the framework and copy
+    // Loop through each installedPod item and get the name so we can fetch the framework and copy
     // it to the destination directory.
     for podName in installedPods {
       // Skip the Firebase pod, any Interop pods, and specifically ignored frameworks.
