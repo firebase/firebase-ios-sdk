@@ -307,11 +307,6 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   // To prevent multiple notifications remove self as observer for all events.
   NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
   [center removeObserver:self];
-
-  [center addObserver:self
-             selector:@selector(didReceiveDefaultInstanceIDToken:)
-                 name:kFIRMessagingFCMTokenNotification
-               object:nil];
   [center addObserver:self
              selector:@selector(defaultInstanceIDTokenWasRefreshed:)
                  name:kFIRMessagingRegistrationTokenRefreshNotification
@@ -933,37 +928,30 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 
 #pragma mark - Notifications
 
-- (void)didReceiveDefaultInstanceIDToken:(NSNotification *)notification {
+- (void)defaultInstanceIDTokenWasRefreshed:(NSNotification *)notification {
   if (notification.object && ![notification.object isKindOfClass:[NSString class]]) {
     FIRMessagingLoggerDebug(kFIRMessagingMessageCodeMessaging015,
                             @"Invalid default FCM token type %@",
                             NSStringFromClass([notification.object class]));
     return;
   }
-  NSString *oldToken = self.defaultFcmToken;
-  self.defaultFcmToken = [(NSString *)notification.object copy];
-  if ((self.defaultFcmToken && ![self.defaultFcmToken isEqualToString:oldToken]) ||
-      (self.defaultFcmToken && !oldToken) || (!self.defaultFcmToken && oldToken)) {
-    [self notifyDelegateOfFCMTokenAvailability];
-  }
-  [self.pubsub scheduleSync:YES];
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  if (self.shouldEstablishDirectChannel) {
-    [self updateAutomaticClientConnection];
-  }
-#pragma clang diagnostic pop
-}
-
-- (void)defaultInstanceIDTokenWasRefreshed:(NSNotification *)notification {
   // Retrieve the Instance ID default token, and should notify delegate and
   // trigger notification as long as the token is different from previous state.
-  NSString *token = self.instanceID.token;
   NSString *oldToken = self.defaultFcmToken;
+  NSString *token = [(NSString *)notification.object copy];
   self.defaultFcmToken = [token copy];
-  if ((self.defaultFcmToken && ![self.defaultFcmToken isEqualToString:oldToken]) ||
-      (self.defaultFcmToken && !oldToken) || (!self.defaultFcmToken && oldToken)) {
+  if ((self.defaultFcmToken.length && oldToken.length &&
+       ![self.defaultFcmToken isEqualToString:oldToken]) ||
+      (self.defaultFcmToken.length && !oldToken.length) ||
+      (!self.defaultFcmToken.length && oldToken.length)) {
     [self notifyDelegateOfFCMTokenAvailability];
+    [self.pubsub scheduleSync:YES];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+    if (self.shouldEstablishDirectChannel) {
+      [self updateAutomaticClientConnection];
+    }
+#pragma clang diagnostic pop
   }
 }
 
