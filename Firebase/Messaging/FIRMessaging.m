@@ -954,7 +954,8 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 }
 
 - (void)defaultInstanceIDTokenWasRefreshed:(NSNotification *)notification {
-  // Retrieve the Instance ID default token, and if it is non-nil, post it
+  // Retrieve the Instance ID default token, and should notify delegate and
+  // trigger notification as long as the token is different from previous state.
   NSString *token = self.instanceID.token;
   NSString *oldToken = self.defaultFcmToken;
   self.defaultFcmToken = [token copy];
