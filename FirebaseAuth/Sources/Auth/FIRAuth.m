@@ -480,10 +480,9 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   if (self) {
     _listenerHandles = [NSMutableArray array];
     _requestConfiguration = [[FIRAuthRequestConfiguration alloc] initWithAPIKey:APIKey];
-    _settings = [[FIRAuthSettings alloc] init];
     _firebaseAppName = [appName copy];
 #if TARGET_OS_IOS
-
+    _settings = [[FIRAuthSettings alloc] init];
     static Class applicationClass = nil;
     // iOS App extensions should not call [UIApplication sharedApplication], even if UIApplication
     // responds to it.
