@@ -17,7 +17,7 @@ end
 
 target 'GDTCCTWatchOSCompanionTestAppExtension' do
   platform :watchos, '6.0'
-   
+
   # Pods for GDTCCTWatchOSCompanionTestAppExtension
   pod 'SwiftProtobuf', '~> 1.0'
   pod 'GoogleDataTransport', :path => '../../'
