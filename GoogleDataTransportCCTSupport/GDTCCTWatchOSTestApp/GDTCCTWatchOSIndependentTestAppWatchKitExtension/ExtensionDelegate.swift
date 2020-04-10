@@ -16,9 +16,31 @@
 
 import WatchKit
 
-class ExtensionDelegate: NSObject, WKExtensionDelegate {
+import FirebaseCore
+import FirebaseMessaging
+
+class ExtensionDelegate: NSObject, WKExtensionDelegate, MessagingDelegate {
   func applicationDidFinishLaunching() {
     // Perform any final initialization of your application.
+    FirebaseApp.configure()
+    let center = UNUserNotificationCenter.current()
+    center.requestAuthorization(options: [.alert, .sound]) { granted, error in
+      if granted {
+        WKExtension.shared().registerForRemoteNotifications()
+      }
+    }
+    Messaging.messaging().delegate = self
+  }
+
+  // MessagingDelegate
+  func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String) {
+    print("token:\n" + fcmToken)
+  }
+
+  // WKExtensionDelegate
+  func didRegisterForRemoteNotifications(withDeviceToken deviceToken: Data) {
+    // Swizzling should be disabled in Messaging for watchOS, set APNS token manually.
+    Messaging.messaging().apnsToken = deviceToken
   }
 
   func applicationDidBecomeActive() {

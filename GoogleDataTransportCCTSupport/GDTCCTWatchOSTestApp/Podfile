@@ -1,10 +1,5 @@
 use_frameworks!
 
-target 'GDTCCTWatchOSIndependentTestAppWatchKitApp' do
-  platform :watchos, '6.0'
-
-end
-
 target 'GDTCCTWatchOSIndependentTestAppWatchKitExtension' do
   platform :watchos, '6.0'
 
@@ -12,8 +7,28 @@ target 'GDTCCTWatchOSIndependentTestAppWatchKitExtension' do
   pod 'SwiftProtobuf', '~> 1.0'
   pod 'GoogleDataTransport', :path => '../../'
   pod 'GoogleDataTransportCCTSupport', :path => '../../'
+  # Pods for firebase and Messaging
+  pod 'FirebaseAnalyticsInterop', :path => '../../'
+  pod 'FirebaseAuthInterop', :path => '../../'
+  pod 'FirebaseCore', :path => '../../'
+  pod 'GoogleUtilities', :path => '../../'
+  pod 'FirebaseMessaging', :path => '../../'
+  pod 'FirebaseInstanceID', :path => '../../'
+  pod 'FirebaseCoreDiagnostics', :path => '../../'
+  pod 'FirebaseCoreDiagnosticsInterop', :path => '../../'
+  pod 'FirebaseInstallations', :path => '../../'
+  pod 'FirebaseStorage', :path => '../../'
 
 end
+
+target 'GDTCCTServiceExtension' do
+  platform :watchos, '6.0'
+  
+  # Pods for GDTCCTServiceExtension
+  pod 'FirebaseMessaging', :path => '../../'
+  pod 'FirebaseInstanceID', :path => '../../'
+end
+
 
 target 'GDTCCTWatchOSCompanionTestAppExtension' do
   platform :watchos, '6.0'
