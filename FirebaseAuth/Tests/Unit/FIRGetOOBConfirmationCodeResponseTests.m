@@ -18,10 +18,10 @@
 #import <FirebaseAuth/FIRAuthErrors.h>
 #import <XCTest/XCTest.h>
 
-#import "FIRFakeBackendRPCIssuer.h"
 #import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRGetOOBConfirmationCodeRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRGetOOBConfirmationCodeResponse.h"
+#import "FirebaseAuth/Tests/Unit/FIRFakeBackendRPCIssuer.h"
 
 /** @var kTestEmail
     @brief Testing user email adadress.

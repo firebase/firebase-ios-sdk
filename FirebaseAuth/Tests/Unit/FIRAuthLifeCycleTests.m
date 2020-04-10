@@ -20,9 +20,9 @@
 #import <FirebaseCore/FIRLibrary.h>
 #import <XCTest/XCTest.h>
 
-#import "FIRApp+FIRAuthUnitTests.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
 #import "FirebaseAuth/Sources/Backend/FIRAuthRequestConfiguration.h"
+#import "FirebaseAuth/Tests/Unit/FIRApp+FIRAuthUnitTests.h"
 
 /** @var kFirebaseAppName1
     @brief A fake Firebase app name.

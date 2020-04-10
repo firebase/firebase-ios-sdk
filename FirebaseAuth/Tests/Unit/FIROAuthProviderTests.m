@@ -32,7 +32,7 @@
 #import "FirebaseAuth/Sources/Utilities/FIRAuthErrorUtils.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthURLPresenter.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthWebUtils.h"
-#import "OCMStubRecorder+FIRAuthUnitTests.h"
+#import "FirebaseAuth/Tests/Unit/OCMStubRecorder+FIRAuthUnitTests.h"
 
 /** @var kExpectationTimeout
     @brief The maximum time waiting for expectations to fulfill.

@@ -16,10 +16,10 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FIRFakeBackendRPCIssuer.h"
 #import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyClientRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyClientResponse.h"
+#import "FirebaseAuth/Tests/Unit/FIRFakeBackendRPCIssuer.h"
 
 /** @var kFakeAppToken
     @brief The fake app token to use in the test request.

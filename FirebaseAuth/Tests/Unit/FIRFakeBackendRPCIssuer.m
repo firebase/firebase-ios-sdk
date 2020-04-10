@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRFakeBackendRPCIssuer.h"
+#import "FirebaseAuth/Tests/Unit/FIRFakeBackendRPCIssuer.h"
 
 /** @var kFakeErrorDomain
     @brief Fake error domain used for testing.

@@ -17,11 +17,11 @@
 #import <FirebaseAuth/FIRAuthErrors.h>
 #import <XCTest/XCTest.h>
 
-#import "FIRFakeBackendRPCIssuer.h"
 #import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRGetOOBConfirmationCodeResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRSignUpNewUserRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRSignUpNewUserResponse.h"
+#import "FirebaseAuth/Tests/Unit/FIRFakeBackendRPCIssuer.h"
 
 /** @var kExpectedAPIURL
     @brief The expected URL for the test calls.
