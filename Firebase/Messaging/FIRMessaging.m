@@ -659,8 +659,10 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   if ([self.delegate respondsToSelector:@selector(messaging:didReceiveRegistrationToken:)]) {
     [self.delegate messaging:self didReceiveRegistrationToken:self.defaultFcmToken];
   }
+  // Should always trigger the token refresh notification when the delegate method is called
   NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
-  [center postNotificationName:FIRMessagingRegistrationTokenRefreshedNotification object:nil];
+  [center postNotificationName:FIRMessagingRegistrationTokenRefreshedNotification
+                        object:self.defaultFcmToken];
 }
 
 #pragma mark - Application State Changes

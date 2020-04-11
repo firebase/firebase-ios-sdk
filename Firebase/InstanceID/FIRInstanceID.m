@@ -839,7 +839,6 @@ static FIRInstanceID *gInstanceID;
       // Post the required notifications if somebody is waiting.
       FIRInstanceIDLoggerDebug(kFIRInstanceIDMessageCodeInstanceID008, @"Got default token %@",
                                token);
-      NSString *previousFCMToken = self.defaultFCMToken;
       // Update default FCM token, this method also triggers sending notification if token has
       // changed.
       self.defaultFCMToken = token;

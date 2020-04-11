@@ -39,13 +39,5 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, MessagingDelegate {
 
   func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String) {
     identity.token = fcmToken
-
-    Installations.installations().installationID(completion: { fid, error in
-      if let error = error as NSError? {
-        print("Failed to get FID: ", error)
-        return
-      }
-      self.identity.instanceID = fid ?? "None"
-    })
   }
 }

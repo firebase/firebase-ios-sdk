@@ -21,6 +21,11 @@ import FirebaseInstallations
 struct ContentView: View {
   @EnvironmentObject var identity: Identity
 
+  let fisPub = NotificationCenter.default
+    .publisher(for: Notification.Name.FIRInstallationIDDidChange)
+    .map { _ in }
+    .receive(on: RunLoop.main)
+
   var body: some View {
     NavigationView {
       // Outer stack containing the list and the buttons.
@@ -85,6 +90,15 @@ struct ContentView: View {
         }
         .buttonStyle(IdentityButtonStyle())
       }
+    }.onReceive(fisPub) { () in
+      // Handling FID publisher
+      Installations.installations().installationID(completion: { fid, error in
+        if let error = error as NSError? {
+          print("Failed to get FID: ", error)
+          return
+        }
+        self.identity.instanceID = fid ?? "None"
+          })
     }
   }
 
