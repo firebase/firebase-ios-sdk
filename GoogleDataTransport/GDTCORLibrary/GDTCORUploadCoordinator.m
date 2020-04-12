@@ -246,7 +246,7 @@ static NSString *const ktargetToInFlightPackagesKey =
       NSMutableSet *eventIDs = [[NSMutableSet alloc] init];
       for (GDTCOREvent *event in packageEvents) {
         NSNumber *eventID = event.eventID;
-        if (eventID) {
+        if (eventID != nil) {
           [eventIDs addObject:eventID];
         } else {
           GDTCORLogDebug(@"An event was missing its ID: %@", event);
