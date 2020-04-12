@@ -1,9 +1,8 @@
 # v6.6.7 -- M69
 - [fixed] Fixed Carthage installation failures involving `Protobuf.framework`.
   `Protobuf.framework` is now separately installable via adding
-  `FirebaseProtobufBinary.json` to the Cartfile. Full details in the [Carthage
-  usage instructions]
-  (https://github.com/firebase/firebase-ios-sdk/blob/master/Carthage.md#carthage-usage).
+  `FirebaseProtobufBinary.json` to the Cartfile. Full details in the [Carthage usage
+  instructions](https://github.com/firebase/firebase-ios-sdk/blob/master/Carthage.md#carthage-usage).
   (#5276)
 
 # v6.6.6 -- M68
