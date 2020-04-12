@@ -32,7 +32,8 @@ To fix malfunctioning Firebase services for your applications, **please take the
 1. Release a new version of your app to the App Store.
 
 ## FCM Server keys
-If your app is using an [FCM Server key](https://firebase.google.com/docs/cloud-messaging/auth-server#authorize-legacy-protocol-send-requests) rather than a Cloud API key, this could cause a security vulnerability in case you are using the same FCM Server key to send push notifications via FCM. \ In this case, we strongly recommend that you revisit how your server [authenticates send requests to FCM.](https://firebase.google.com/docs/cloud-messaging/auth-server)
+If your app is using an [FCM Server key](https://firebase.google.com/docs/cloud-messaging/auth-server#authorize-legacy-protocol-send-requests) rather than a Cloud API key, this could cause a security vulnerability in case you are using the same FCM Server key to send push notifications via FCM. \
+In this case, we strongly recommend that you revisit how your server [authenticates send requests to FCM.](https://firebase.google.com/docs/cloud-messaging/auth-server)
 
 Please note that FCM Server Keys (not the same as the Firebase / Cloud API key) must not be included in applications as they can be abused to send push-notifications in the name of your project.
 
