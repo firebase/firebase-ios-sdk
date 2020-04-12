@@ -202,6 +202,9 @@ static NSString *kCustomDataKey = @"GDTCOREventCustomDataKey";
   self = [self initWithMappingID:mappingID target:target];
   if (self) {
     _eventID = [aDecoder decodeObjectOfClass:[NSNumber class] forKey:eventIDKey];
+    if (_eventID == nil) {
+      _eventID = [GDTCOREvent nextEventID];
+    }
     _qosTier = [aDecoder decodeIntegerForKey:qosTierKey];
     _clockSnapshot = [aDecoder decodeObjectOfClass:[GDTCORClock class] forKey:clockSnapshotKey];
     NSURL *fileURL = [aDecoder decodeObjectOfClass:[NSURL class] forKey:fileURLKey];
