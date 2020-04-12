@@ -245,7 +245,12 @@ static NSString *const ktargetToInFlightPackagesKey =
     if (successful && packageEvents.count) {
       NSMutableSet *eventIDs = [[NSMutableSet alloc] init];
       for (GDTCOREvent *event in packageEvents) {
-        [eventIDs addObject:[event.eventID copy]];
+        NSNumber *eventID = event.eventID;
+        if (eventID != nil) {
+          [eventIDs addObject:eventID];
+        } else {
+          GDTCORLogDebug(@"An event was missing its ID: %@", event);
+        }
       }
       [[self storageForTarget:@(package.target)] removeEvents:eventIDs];
     }
