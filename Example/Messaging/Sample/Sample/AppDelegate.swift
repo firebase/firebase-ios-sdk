@@ -13,9 +13,7 @@
 // limitations under the License.
 
 import UIKit
-import CoreData
 import FirebaseCore
-import FirebaseMessaging
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate {

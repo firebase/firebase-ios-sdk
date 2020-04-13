@@ -26,7 +26,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, MessagingDelegate {
              options connectionOptions: UIScene.ConnectionOptions) {
     let contentView = ContentView()
     // Use a UIHostingController as window root view controller.
-    Messaging.messaging().delegate = self
     if let windowScene = scene as? UIWindowScene {
       let window = UIWindow(windowScene: windowScene)
       window
@@ -35,12 +34,27 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, MessagingDelegate {
       self.window = window
       window.makeKeyAndVisible()
     }
-  }
 
-  func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String) {
-    identity.token = fcmToken
-    InstanceID.instanceID().instanceID { result, error in
-      self.identity.instanceID = result?.instanceID
-    }
+    // Subscribe to token refresh
+    _ = NotificationCenter.default
+      .publisher(for: Notification.Name.MessagingRegistrationTokenRefreshed)
+      .map { $0.object as? String }
+      .receive(on: RunLoop.main)
+      .assign(to: \Identity.token, on: identity)
+
+    // Subscribe to fid changes
+    _ = NotificationCenter.default
+      .publisher(for: Notification.Name.FIRInstallationIDDidChange)
+      .map { _ in }
+      .receive(on: RunLoop.main)
+      .sink(receiveValue: {
+        Installations.installations().installationID(completion: { fid, error in
+          if let error = error as NSError? {
+            print("Failed to get FID: ", error)
+            return
+          }
+          self.identity.instanceID = fid ?? "None"
+          })
+        })
   }
 }
