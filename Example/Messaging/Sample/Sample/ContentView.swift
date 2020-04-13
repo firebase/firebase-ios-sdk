@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Combine
 import SwiftUI
 import FirebaseCore
 import FirebaseMessaging
@@ -20,11 +21,6 @@ import FirebaseInstallations
 
 struct ContentView: View {
   @EnvironmentObject var identity: Identity
-
-  let fisPub = NotificationCenter.default
-    .publisher(for: Notification.Name.FIRInstallationIDDidChange)
-    .map { _ in }
-    .receive(on: RunLoop.main)
 
   var body: some View {
     NavigationView {
@@ -90,15 +86,6 @@ struct ContentView: View {
         }
         .buttonStyle(IdentityButtonStyle())
       }
-    }.onReceive(fisPub) { () in
-      // Handling FID publisher
-      Installations.installations().installationID(completion: { fid, error in
-        if let error = error as NSError? {
-          print("Failed to get FID: ", error)
-          return
-        }
-        self.identity.instanceID = fid ?? "None"
-          })
     }
   }
 
