@@ -22,7 +22,7 @@ end
 
 target 'GDTCCTServiceExtension' do
   platform :watchos, '6.0'
-  
+
   # Pods for GDTCCTServiceExtension
   pod 'FirebaseMessaging', :path => '../../'
   pod 'FirebaseInstanceID', :path => '../../'
@@ -31,10 +31,9 @@ target 'GDTCCTServiceExtension' do
   pod 'GoogleDataTransportCCTSupport', :path => '../../'
 end
 
-
 target 'GDTCCTWatchOSCompanionTestAppExtension' do
   platform :watchos, '6.0'
-   
+
   # Pods for GDTCCTWatchOSCompanionTestAppExtension
   pod 'SwiftProtobuf', '~> 1.0'
   pod 'GoogleDataTransport', :path => '../../'
