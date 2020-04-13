@@ -40,7 +40,7 @@
                                                     encoding:NSUTF8StringEncoding
                                                        error:&error];
     const char *countChars = [countText UTF8String];
-    unsigned long long count = -1;
+    unsigned long long count = 0ULL;
     if (countChars) {
       count = strtoull([countText UTF8String], NULL, 10);
     }
