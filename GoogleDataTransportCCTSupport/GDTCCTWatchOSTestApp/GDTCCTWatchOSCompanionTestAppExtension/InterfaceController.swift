@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,12 +19,10 @@ import Foundation
 import GoogleDataTransport
 
 class InterfaceController: WKInterfaceController {
-  var transport: GDTCORTransport = GDTCORTransport(mappingID: "1018", transformers: nil, target: GDTCORTarget.CCT.rawValue)!
-  // TODO: Segmented control for FLL and CSH
+  var transport: GDTCORTransport = GDTCORTransport(mappingID: "1018", transformers: nil, target: GDTCORTarget.FLL.rawValue)!
 
   override func awake(withContext context: Any?) {
     super.awake(withContext: context)
-
     // Configure interface objects here.
   }
 
@@ -38,12 +36,12 @@ class InterfaceController: WKInterfaceController {
     super.didDeactivate()
   }
 
-  @IBAction func generateDataEvent(sender: AnyObject?) {
-    print("Generating data event on independent watch app")
+  @IBAction func generateDataEventCompanion(sender: AnyObject?) {
+    print("Generating data event on Companion watch app")
     let transportToUse = transport
     let event: GDTCOREvent = transportToUse.eventForTransport()
     let testMessage = FirelogTestMessageHolder()
-    testMessage.root.identifier = "watchos_test_app_data_event"
+    testMessage.root.identifier = "watchos_companion_test_app_data_event"
     testMessage.root.repeatedID = ["id1", "id2", "id3"]
     testMessage.root.warriorChampionships = 1_111_110
     testMessage.root.subMessage.starTrekData = "technoBabble".data(using: String.Encoding.utf8)!
@@ -57,12 +55,12 @@ class InterfaceController: WKInterfaceController {
     transportToUse.sendDataEvent(event)
   }
 
-  @IBAction func generateTelemetryEvent(sender: AnyObject?) {
-    print("Generating telemetry event on independent watch app")
+  @IBAction func generateTelemetryEventCompanion(sender: AnyObject?) {
+    print("Generating telemetry event on Companion watch app")
     let transportToUse = transport
     let event: GDTCOREvent = transportToUse.eventForTransport()
     let testMessage = FirelogTestMessageHolder()
-    testMessage.root.identifier = "watchos_test_app_telemetry_event"
+    testMessage.root.identifier = "watchos_companion_test_app_telemetry_event"
     testMessage.root.warriorChampionships = 1000
     testMessage.root.subMessage.repeatedSubMessage = [
       SubMessageTwo(),
@@ -72,12 +70,12 @@ class InterfaceController: WKInterfaceController {
     transportToUse.sendTelemetryEvent(event)
   }
 
-  @IBAction func generateHighPriorityEvent(sender: AnyObject?) {
-    print("Generating high priority event on independent watch app")
+  @IBAction func generateHighPriorityEventCompanion(sender: AnyObject?) {
+    print("Generating high priority event on Companion watch app")
     let transportToUse = transport
     let event: GDTCOREvent = transportToUse.eventForTransport()
     let testMessage = FirelogTestMessageHolder()
-    testMessage.root.identifier = "watchos_test_app_high_priority_event"
+    testMessage.root.identifier = "watchos_companion_test_app_high_priority_event"
     testMessage.root.repeatedID = ["id1", "id2", "id3"]
     testMessage.root.warriorChampionships = 1337
     event.qosTier = GDTCOREventQoS.qoSFast
@@ -86,24 +84,24 @@ class InterfaceController: WKInterfaceController {
     transportToUse.sendDataEvent(event)
   }
 
-  @IBAction func generateWifiOnlyEvent(sender: AnyObject?) {
-    print("Generating wifi only event on independent watch app")
+  @IBAction func generateWifiOnlyEventCompanion(sender: AnyObject?) {
+    print("Generating wifi only event on Companion watch app")
     let transportToUse = transport
     let event: GDTCOREvent = transportToUse.eventForTransport()
     let testMessage = FirelogTestMessageHolder()
-    testMessage.root.identifier = "watchos_test_app_wifi_only_event"
+    testMessage.root.identifier = "watchos_companion_test_app_wifi_only_event"
     event.qosTier = GDTCOREventQoS.qoSWifiOnly
     event.dataObject = testMessage
     event.customPrioritizationParams = ["needs_network_connection_info": true]
     transportToUse.sendDataEvent(event)
   }
 
-  @IBAction func generateDailyEvent(sender: AnyObject?) {
-    print("Generating daily event on independent watch app")
+  @IBAction func generateDailyEventCompanion(sender: AnyObject?) {
+    print("Generating daily only event on Companion watch app")
     let transportToUse = transport
     let event: GDTCOREvent = transportToUse.eventForTransport()
     let testMessage = FirelogTestMessageHolder()
-    testMessage.root.identifier = "watchos_test_app_daily_event"
+    testMessage.root.identifier = "watchos_companion_test_app_daily_event"
     testMessage.root.repeatedID = ["id1", "id2", "id3"]
     testMessage.root.warriorChampionships = 9001
     testMessage.root.subMessage.starTrekData = "engage!".data(using: String.Encoding.utf8)!
