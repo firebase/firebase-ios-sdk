@@ -40,6 +40,20 @@ static NSString *ArchivePath() {
   return archivePath;
 }
 
+/** This class extension isf or declaring private properties. */
+@interface GDTCCTPrioritizer ()
+
+/** All CCT events that have been processed by this prioritizer. */
+@property(nonatomic) NSMutableSet<GDTCOREvent *> *CCTEvents;
+
+/** All FLL events that have been processed by this prioritizer. */
+@property(nonatomic) NSMutableSet<GDTCOREvent *> *FLLEvents;
+
+/** All CSH events that have been processed by this prioritizer. */
+@property(nonatomic) NSMutableSet<GDTCOREvent *> *CSHEvents;
+
+@end
+
 @implementation GDTCCTPrioritizer
 
 + (void)load {
@@ -71,6 +85,29 @@ static NSString *ArchivePath() {
     _CSHEvents = [[NSMutableSet alloc] init];
   }
   return self;
+}
+
+- (nullable NSSet *)eventsForTarget:(GDTCORTarget)target {
+  __block NSSet *events;
+  dispatch_sync(_queue, ^{
+    switch (target) {
+      case kGDTCORTargetCCT:
+        events = [self->_CCTEvents copy];
+        break;
+
+      case kGDTCORTargetFLL:
+        events = [self->_FLLEvents copy];
+        break;
+
+      case kGDTCORTargetCSH:
+        events = [self->_CSHEvents copy];
+        break;
+
+      default:
+        break;
+    }
+  });
+  return events;
 }
 
 #pragma mark - GDTCORPrioritizer Protocol
