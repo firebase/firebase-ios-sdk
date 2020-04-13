@@ -276,13 +276,10 @@ NSNotificationName const GDTCCTUploadCompleteNotification = @"com.GDTCCTUploader
 
 - (BOOL)readyToUploadTarget:(GDTCORTarget)target conditions:(GDTCORUploadConditions)conditions {
   __block BOOL result = NO;
+  NSSet *CSHEvents = [[GDTCCTPrioritizer sharedInstance] eventsForTarget:kGDTCORTargetCSH];
   dispatch_sync(_uploaderQueue, ^{
     if (target == kGDTCORTargetCSH) {
-      if ([GDTCCTPrioritizer sharedInstance].CSHEvents.count > 0) {
-        result = YES;
-      } else {
-        result = NO;
-      }
+      result = CSHEvents.count > 0;
       return;
     }
 
