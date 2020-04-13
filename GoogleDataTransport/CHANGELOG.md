@@ -1,4 +1,4 @@
-# Unreleased
+# v6.0.0
 - Internal refactor to change storage to a protocol.
 
 # v5.1.1
