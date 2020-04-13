@@ -944,8 +944,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   self.defaultFcmToken = [token copy];
   if ((self.defaultFcmToken.length && oldToken.length &&
        ![self.defaultFcmToken isEqualToString:oldToken]) ||
-      (self.defaultFcmToken.length && !oldToken.length) ||
-      (!self.defaultFcmToken.length && oldToken.length)) {
+      self.defaultFcmToken.length != oldToken.length) {
     [self notifyDelegateOfFCMTokenAvailability];
     [self.pubsub scheduleSync:YES];
 #pragma clang diagnostic push

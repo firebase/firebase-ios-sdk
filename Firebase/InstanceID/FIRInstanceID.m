@@ -250,8 +250,7 @@ static FIRInstanceID *gInstanceID;
   // Only notify of token refresh if we have a new valid token that's different than before
   if ((defaultFCMToken.length && _defaultFCMToken.length &&
        ![defaultFCMToken isEqualToString:_defaultFCMToken]) ||
-      (defaultFCMToken.length && !_defaultFCMToken.length) ||
-      (!defaultFCMToken.length && _defaultFCMToken.length)) {
+      defaultFCMToken.length != _defaultFCMToken.length) {
     NSNotification *tokenRefreshNotification =
         [NSNotification notificationWithName:kFIRInstanceIDTokenRefreshNotification
                                       object:[defaultFCMToken copy]];
