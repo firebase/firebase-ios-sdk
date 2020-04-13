@@ -40,7 +40,7 @@ static NSString *ArchivePath() {
   return archivePath;
 }
 
-/** This class extension isf or declaring private properties. */
+/** This class extension is for declaring private properties. */
 @interface GDTCCTPrioritizer ()
 
 /** All CCT events that have been processed by this prioritizer. */
