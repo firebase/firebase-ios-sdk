@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,12 @@
 
 import UserNotifications
 import FirebaseMessaging
+import GoogleDataTransport
 
 class NotificationService: UNNotificationServiceExtension {
   var contentHandler: ((UNNotificationContent) -> Void)?
   var bestAttemptContent: UNMutableNotificationContent?
+  var transport: GDTCORTransport = GDTCORTransport(mappingID: "1018", transformers: nil, target: GDTCORTarget.FLL.rawValue)!
 
   override func didReceive(_ request: UNNotificationRequest, withContentHandler contentHandler: @escaping (UNNotificationContent) -> Void) {
     self.contentHandler = contentHandler
@@ -27,7 +29,22 @@ class NotificationService: UNNotificationServiceExtension {
 
     if let bestAttemptContent = bestAttemptContent {
       // Modify the notification content here...
-      bestAttemptContent.title = "\(bestAttemptContent.title) [modified]"
+      bestAttemptContent.title = "\(bestAttemptContent.title) [High]"
+
+      // Please generate high priority event in notification service extension
+      print("Generating high priority event on watchOS notification service extension")
+      let transportToUse = transport
+      let event: GDTCOREvent = transportToUse.eventForTransport()
+      let testMessage = FirelogTestMessageHolder()
+      testMessage.root.identifier = "watchos_test_app_service_extension_high_priority_event"
+      testMessage.root.repeatedID = ["id1", "id2", "id3"]
+      testMessage.root.warriorChampionships = 1337
+      event.qosTier = GDTCOREventQoS.qoSFast
+      event.dataObject = testMessage
+      event.customPrioritizationParams = ["needs_network_connection_info": true]
+      transportToUse.sendDataEvent(event)
+
+      bestAttemptContent.title = "\(bestAttemptContent.title) [Priority Event]"
 
       Messaging.serviceExtension().populateNotificationContent(bestAttemptContent, withContentHandler: self.contentHandler!)
     }

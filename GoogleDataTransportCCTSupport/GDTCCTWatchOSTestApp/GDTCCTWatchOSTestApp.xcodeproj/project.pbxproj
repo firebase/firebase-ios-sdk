@@ -10,6 +10,8 @@
 		2047C1CB51687B364624D62B /* Pods_GDTCCTWatchOSIndependentTestAppWatchKitExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5C55DD3705E7AB41A8669604 /* Pods_GDTCCTWatchOSIndependentTestAppWatchKitExtension.framework */; };
 		728DFB6E3385B8289C3B4797 /* Pods_GDTCCTServiceExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 302CC4CD46E706F964D2896A /* Pods_GDTCCTServiceExtension.framework */; };
 		9528A921240D9C110092BB98 /* flltest.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9528A920240D9C100092BB98 /* flltest.pb.swift */; };
+		955035B92445189800E00D70 /* flltest.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = 955035B82445189800E00D70 /* flltest.pb.swift */; };
+		955035BB244518A300E00D70 /* gdthelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 955035BA244518A300E00D70 /* gdthelpers.swift */; };
 		957EE5A32406FDC5003B51B2 /* GDTCCTWatchOSIndependentTestAppWatchKitApp.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 957EE5A22406FDC5003B51B2 /* GDTCCTWatchOSIndependentTestAppWatchKitApp.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		957EE5A92406FDC5003B51B2 /* Interface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 957EE5A72406FDC5003B51B2 /* Interface.storyboard */; };
 		957EE5AB2406FDC6003B51B2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 957EE5AA2406FDC6003B51B2 /* Assets.xcassets */; };
@@ -144,6 +146,8 @@
 		7482BF82A89E15B92F5B4D5F /* Pods-GDTCCTServiceExtension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-GDTCCTServiceExtension.debug.xcconfig"; path = "Target Support Files/Pods-GDTCCTServiceExtension/Pods-GDTCCTServiceExtension.debug.xcconfig"; sourceTree = "<group>"; };
 		77E102080D49A6C2889F0E3B /* Pods-GDTCCTWatchOSIndependentTestAppWatchKitExtension.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-GDTCCTWatchOSIndependentTestAppWatchKitExtension.release.xcconfig"; path = "Target Support Files/Pods-GDTCCTWatchOSIndependentTestAppWatchKitExtension/Pods-GDTCCTWatchOSIndependentTestAppWatchKitExtension.release.xcconfig"; sourceTree = "<group>"; };
 		9528A920240D9C100092BB98 /* flltest.pb.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = flltest.pb.swift; path = ../../GDTCCTTestApp/proto/flltest.pb.swift; sourceTree = "<group>"; };
+		955035B82445189800E00D70 /* flltest.pb.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = flltest.pb.swift; path = ../../GDTCCTTestApp/proto/flltest.pb.swift; sourceTree = "<group>"; };
+		955035BA244518A300E00D70 /* gdthelpers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = gdthelpers.swift; path = ../../GDTCCTTestApp/gdthelpers.swift; sourceTree = "<group>"; };
 		957EE59E2406FDC5003B51B2 /* GDTCCTWatchOSTestApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GDTCCTWatchOSTestApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		957EE5A22406FDC5003B51B2 /* GDTCCTWatchOSIndependentTestAppWatchKitApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GDTCCTWatchOSIndependentTestAppWatchKitApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		957EE5A82406FDC5003B51B2 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Interface.storyboard; sourceTree = "<group>"; };
@@ -364,6 +368,8 @@
 			isa = PBXGroup;
 			children = (
 				95DC1488244107CF0025D52C /* NotificationService.swift */,
+				955035BA244518A300E00D70 /* gdthelpers.swift */,
+				955035B82445189800E00D70 /* flltest.pb.swift */,
 				95DC148A244107CF0025D52C /* Info.plist */,
 			);
 			path = GDTCCTServiceExtension;
@@ -765,7 +771,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				955035BB244518A300E00D70 /* gdthelpers.swift in Sources */,
 				95DC1489244107CF0025D52C /* NotificationService.swift in Sources */,
+				955035B92445189800E00D70 /* flltest.pb.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
