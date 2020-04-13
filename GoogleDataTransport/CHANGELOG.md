@@ -1,4 +1,7 @@
 # Unreleased
+- Internal refactor to change storage to a protocol.
+
+# v5.1.1
 - Remove usage of memcpy and convert calls from malloc to calloc.
 - Fixes a race condition likely to occur when removing events.
 

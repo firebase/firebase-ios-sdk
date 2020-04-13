@@ -1,4 +1,8 @@
 # Unreleased
+- Fixes unsynchronized access to prioritizer internals. (#5312)
+- Internal refactor to change storage to a protocol.
+
+# v2.0.2
 - Remove usage of memcpy and convert calls from malloc to calloc.
 
 # v2.0.1
