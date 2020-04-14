@@ -149,14 +149,14 @@ gdt_cct_LogEvent GDTCCTConstructLogEvent(GDTCOREvent *event) {
   NSError *error;
   NSData *extensionBytes;
   if (event.fileURL) {
-    extensionBytes = [NSData dataWithContentsOfURL:event.fileURL options:0 error:&error];
+    extensionBytes = [NSData dataWithContentsOfFile:event.fileURL.path options:0 error:&error];
   } else {
     GDTCORLogError(GDTCORMCEFileReadError, @"%@", @"An event's fileURL property was nil.");
     return logEvent;
   }
   if (error) {
-    GDTCORLogError(GDTCORMCEGeneralError,
-                   @"There was an error reading extension bytes from disk: %@", error);
+    GDTCORLogWarning(GDTCORMCWFileReadError,
+                     @"There was an error reading extension bytes from disk: %@", error);
     return logEvent;
   }
   logEvent.source_extension = GDTCCTEncodeData(extensionBytes);  // read bytes from the file.
