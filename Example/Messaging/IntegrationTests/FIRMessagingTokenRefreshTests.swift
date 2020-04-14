@@ -24,7 +24,7 @@
   import FirebaseMessaging
   import XCTest
 
-// This class should be only used once to ensure the test is independent
+  // This class should be only used once to ensure the test is independent
   class fakeAppDelegate: NSObject, MessagingDelegate {
     var messaging = Messaging.messaging()
     var delegateIsCalled = false
@@ -39,9 +39,11 @@
     var instanceID: InstanceID?
     var messaging: Messaging?
 
-    override func setUp() {
+    override class func setUp() {
       FirebaseApp.configure()
+    }
 
+    override func setUp() {
       instanceID = InstanceID.instanceID()
       messaging = Messaging.messaging()
     }
@@ -51,35 +53,18 @@
       messaging = nil
     }
 
-    func testDeleteTokenWithTokenRefreshNotifications() {
+    func testDeleteTokenWithTokenRefreshDelegatesAndNotifications() {
+      let expectation = self.expectation(description: "delegate method and notification are called")
       assertTokenWithAuthorizedEntity()
 
-      let notificationExpectation = expectation(forNotification: NSNotification.Name
+      let notificationExpectation = self.expectation(forNotification: NSNotification.Name
         .MessagingRegistrationTokenRefreshed,
-                                                object: FIRMessagingTokenRefreshTests(),
-                                                handler: nil)
-
-      guard let messaging = self.messaging else {
-        return
-      }
-      messaging.deleteFCMToken(forSenderID: tokenAuthorizedEntity(), completion: { Error in
-
-      })
-
-      wait(for: [notificationExpectation], timeout: 5)
-    }
-
-    func testDeleteTokenWithTokenRefreshDelegates() {
-      assertTokenWithAuthorizedEntity()
+                                                     object: nil,
+                                                     handler: nil)
 
       let testDelegate = fakeAppDelegate()
       messaging?.delegate = testDelegate
       testDelegate.delegateIsCalled = false
-
-      let notificationExpectation = expectation(forNotification: NSNotification.Name
-        .MessagingRegistrationTokenRefreshed,
-                                                object: FIRMessagingTokenRefreshTests(),
-                                                handler: nil)
 
       guard let messaging = self.messaging else {
         return
@@ -87,9 +72,10 @@
       messaging.deleteFCMToken(forSenderID: tokenAuthorizedEntity(), completion: { error in
         XCTAssertNil(error)
         XCTAssertTrue(testDelegate.delegateIsCalled)
+        expectation.fulfill()
       })
 
-      wait(for: [notificationExpectation], timeout: 5)
+      wait(for: [expectation, notificationExpectation], timeout: 5)
     }
 
     // pragma mark - Helpers

@@ -33,6 +33,7 @@ product can be one of:
   Firebase
   Firestore
   InAppMessaging
+  Messaging
   MessagingSample
   Storage
   StorageSwift
@@ -351,6 +352,46 @@ case "$product-$platform-$method" in
         -scheme "SymbolCollisionTest" \
         "${xcb_flags[@]}" \
         build
+    ;;
+
+  Messaging-*-xcodebuild)
+    pod_gen FirebaseMessaging.podspec --platforms=ios
+    RunXcodebuild \
+      -workspace 'gen/FirebaseMessaging/FirebaseMessaging.xcworkspace' \
+      -scheme "FirebaseMessaging-Unit-unit" \
+      "${ios_flags[@]}" \
+      "${xcb_flags[@]}" \
+      build \
+      test
+
+    if check_secrets; then
+      # Integration tests are only run on iOS to minimize flake failures.
+      RunXcodebuild \
+        -workspace 'gen/FirebaseMessaging/FirebaseMessaging.xcworkspace' \
+        -scheme "FirebaseMessaging-Unit-integration" \
+        "${ios_flags[@]}" \
+        "${xcb_flags[@]}" \
+        build \
+        test
+    fi
+
+    pod_gen FirebaseMessaging.podspec --platforms=macos --clean
+    RunXcodebuild \
+      -workspace 'gen/FirebaseMessaging/FirebaseMessaging.xcworkspace' \
+      -scheme "FirebaseMessaging-Unit-unit" \
+      "${macos_flags[@]}" \
+      "${xcb_flags[@]}" \
+      build \
+      test
+
+    pod_gen FirebaseStorage.podspec --platforms=tvos --clean
+    RunXcodebuild \
+      -workspace 'gen/FirebaseMessaging/FirebaseMessaging.xcworkspace' \
+      -scheme "FirebaseMessaging-Unit-unit" \
+      "${tvos_flags[@]}" \
+      "${xcb_flags[@]}" \
+      build \
+      test
     ;;
 
   MessagingSample-*-*)
