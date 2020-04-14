@@ -16,7 +16,7 @@
 
 #import <mach-o/fat.h>
 #import <mach-o/loader.h>
-#import "FIRAppDistributionMachOSlice.h"
+#import "FIRAppDistributionMachOSlice+Private.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

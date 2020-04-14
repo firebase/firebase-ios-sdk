@@ -63,8 +63,34 @@ NSString *const kAppDistroLibraryName = @"fire-fad";
   }
 
   // TODO: Lookup keychain to load auth state on init
-  _isTesterSignedIn = self.authState ? YES : NO;
-  return self;
+    NSMutableDictionary *keychainQuery =
+         [NSMutableDictionary dictionaryWithObjectsAndKeys:(id)kSecClassGenericPassword, (id)kSecClass,
+                                                           @"OAuth", (id)kSecAttrGeneric,
+                                                           @"OAuth", (id)kSecAttrAccount,
+                                                           @"fire-fad-auth", (id)kSecAttrService,
+                                                           nil];
+      [keychainQuery setObject:(id)kCFBooleanTrue forKey:(id)kSecReturnData];
+      [keychainQuery setObject:(id)kSecMatchLimitOne forKey:(id)kSecMatchLimit];
+      CFDataRef passwordData = NULL;
+      NSData *result = nil;
+      OSStatus status = SecItemCopyMatching((CFDictionaryRef)keychainQuery,
+                                         (CFTypeRef *)&passwordData);
+      if (status == noErr && 0 < [(__bridge NSData *)passwordData length]) {
+        result = [(__bridge NSData *)passwordData copy];
+      } else {
+          NSLog(@"AUTH FAILURE on startup - cannot lookup keystore config");
+      }
+      if (passwordData != NULL) {
+        CFRelease(passwordData);
+      }
+      
+      if(result) {
+          NSLog(@"AUTH SUCCESS on startup - setting auth state");
+          self.authState = (OIDAuthState *)[NSKeyedUnarchiver unarchiveObjectWithData:result];
+          NSLog(@"Auth state %@", self.authState);
+      }
+      _isTesterSignedIn = self.authState ? YES : NO;
+      return self;
 }
 
 + (void)load {
@@ -130,43 +156,76 @@ NSString *const kAppDistroLibraryName = @"fire-fad";
 }
 
 - (void)signOutTester {
-  self.authState = nil;
-  _isTesterSignedIn = false;
+    [self deleteAuthStateFromKeychain];
+    self.authState = nil;
+    _isTesterSignedIn = false;
 }
 
 - (void)fetchReleases:(FIRAppDistributionUpdateCheckCompletion)completion {
-  NSURLSession *URLSession = [NSURLSession sharedSession];
-  NSMutableURLRequest *request = [[NSMutableURLRequest alloc] init];
-  NSString *URLString =
-      [NSString stringWithFormat:kReleasesEndpointURL, [[FIRApp defaultApp] options].googleAppID];
-  [request setURL:[NSURL URLWithString:URLString]];
-  [request setHTTPMethod:@"GET"];
-  [request setValue:[NSString
-                        stringWithFormat:@"Bearer %@", self.authState.lastTokenResponse.accessToken]
-      forHTTPHeaderField:@"Authorization"];
+    
+    [self.authState performActionWithFreshTokens:^(NSString *_Nonnull accessToken,
+                                               NSString *_Nonnull idToken,
+                                               NSError *_Nullable error) {
+      if (error) {
+        NSLog(@"Error fetching fresh tokens: %@", [error localizedDescription]);
+        [self signOutTester];
+        return;
+      }
 
-  NSURLSessionDataTask *listReleasesDataTask = [URLSession
-      dataTaskWithRequest:request
-        completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
-          if (error) {
-            // TODO: Reformat error into error code
-            completion(nil, error);
-            return;
-          }
+      // perform your API request using the tokens
+        NSURLSession *URLSession = [NSURLSession sharedSession];
+        NSMutableURLRequest *request = [[NSMutableURLRequest alloc] init];
+        NSString *URLString =
+            [NSString stringWithFormat:kReleasesEndpointURL, [[FIRApp defaultApp] options].googleAppID];
+        [request setURL:[NSURL URLWithString:URLString]];
+        [request setHTTPMethod:@"GET"];
+        [request setValue:[NSString
+                              stringWithFormat:@"Bearer %@", accessToken]
+            forHTTPHeaderField:@"Authorization"];
 
-          NSHTTPURLResponse *HTTPResponse = (NSHTTPURLResponse *)response;
+        NSURLSessionDataTask *listReleasesDataTask = [URLSession
+            dataTaskWithRequest:request
+              completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+                if (error) {
+                  // TODO: Reformat error into error code
+                  completion(nil, error);
+                  return;
+                }
 
-          if (HTTPResponse.statusCode == 200) {
-            [self handleReleasesAPIResponseWithData:data completion:completion];
-          } else {
-            // TODO: Handle non-200 http response
-            @throw([NSException exceptionWithName:@"NotImplementedException"
-                                           reason:@"This code path is not implemented yet"
-                                         userInfo:nil]);
-          }
-        }];
+                NSHTTPURLResponse *HTTPResponse = (NSHTTPURLResponse *)response;
 
-  [listReleasesDataTask resume];
+                if (HTTPResponse.statusCode == 200) {
+                  [self handleReleasesAPIResponseWithData:data completion:completion];
+                } else {
+                  // TODO: Handle non-200 http response
+                  NSLog(@"ERROR - Non 200 service response - %@", HTTPResponse);
+                  @throw([NSException exceptionWithName:@"NotImplementedException"
+                                                 reason:@"This code path is not implemented yet"
+                                               userInfo:nil]);
+                }
+              }];
+
+        [listReleasesDataTask resume];
+    }];
+}
+
+- (void)deleteAuthStateFromKeychain {
+    if(self.authState) {
+        NSMutableDictionary *keychainQuery =
+             [NSMutableDictionary dictionaryWithObjectsAndKeys:(id)kSecClassGenericPassword, (id)kSecClass,
+                                                               @"OAuth", (id)kSecAttrGeneric,
+                                                               @"OAuth", (id)kSecAttrAccount,
+                                                               @"fire-fad-auth", (id)kSecAttrService,
+                                                               nil];
+        
+        OSStatus status = SecItemDelete((CFDictionaryRef)keychainQuery);
+        if (status != noErr) {
+            //TODO: Handle error state
+            NSLog(@"Error deleting auth keychain entry!");
+        } else {
+            NSLog(@"keychain successfully deleted!");
+        }
+    }
 }
 
 - (void)handleOauthDiscoveryCompletion:(OIDServiceConfiguration *_Nullable)configuration
@@ -174,6 +233,7 @@ NSString *const kAppDistroLibraryName = @"fire-fad";
        appDistributionSignInCompletion:(FIRAppDistributionSignInTesterCompletion)completion {
   if (!configuration) {
     // TODO: Handle when we cannot get configuration
+      NSLog(@"ERROR - Cannot discover oauth config");
     @throw([NSException exceptionWithName:@"NotImplementedException"
                                    reason:@"This code path is not implemented yet"
                                  userInfo:nil]);
@@ -199,12 +259,29 @@ NSString *const kAppDistroLibraryName = @"fire-fad";
                                      presentingViewController:self.safariHostingViewController
                                                      callback:^(OIDAuthState *_Nullable authState,
                                                                 NSError *_Nullable error) {
-                                                       self.authState = authState;
-                                                       self->_isTesterSignedIn =
-                                                           self.authState ? YES : NO;
-                                                       completion(error);
-                                                     }];
+          self.authState = authState;
+          if(authState) {
+           NSData *authorizationData = [NSKeyedArchiver archivedDataWithRootObject:authState];
+            NSMutableDictionary *query =
+                [NSMutableDictionary dictionaryWithObjectsAndKeys:(id)kSecClassGenericPassword, (id)kSecClass,
+                                                                  @"OAuth", (id)kSecAttrGeneric,
+                                                                  @"OAuth", (id)kSecAttrAccount,
+                                                                  @"fire-fad-auth", (id)kSecAttrService,
+                                                                  authorizationData, (id)kSecValueData,
+                                                                  nil];
+              OSStatus status = SecItemAdd((CFDictionaryRef)query, NULL);
+              if (status != noErr && error != NULL) {
+                  NSLog(@"AUTH ERROR. Cant store auth state in keychain");
+                  self.authState = nil;
+              } else {
+                  NSLog(@"AUTH SUCCESS! Added auth state to keychain");
+              }
+          }
+          self->_isTesterSignedIn = self.authState ? YES : NO;
+          completion(error);
+        }];
 }
+
 
 - (UIWindow *)createUIWindowForLogin {
   // Create an empty window + viewController to host the Safari UI.
@@ -243,6 +320,8 @@ NSString *const kAppDistroLibraryName = @"fire-fad";
             }
             
             break;
+        }
+    }
 }
 
 - (void)checkForUpdateWithCompletion:(FIRAppDistributionUpdateCheckCompletion)completion {

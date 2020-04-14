@@ -18,8 +18,8 @@
 #import <mach-o/loader.h>
 #include <mach-o/arch.h>
 #import <CommonCrypto/CommonHMAC.h>
-#import "FIRAppDistributionMachO.h"
-#import "FIRAppDistributionMachOSlice.h"
+#import "FIRAppDistributionMachO+Private.h"
+#import "FIRAppDistributionMachOSlice+Private.h"
 
 @implementation FIRAppDistributionMachO
 
