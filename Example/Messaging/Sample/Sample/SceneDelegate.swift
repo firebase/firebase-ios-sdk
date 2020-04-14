@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Combine
 import UIKit
 import SwiftUI
 import FirebaseInstanceID
@@ -21,6 +22,7 @@ import FirebaseInstallations
 class SceneDelegate: UIResponder, UIWindowSceneDelegate, MessagingDelegate {
   var window: UIWindow?
   let identity = Identity()
+  var cancellables = Set<AnyCancellable>()
 
   func scene(_ scene: UIScene, willConnectTo session: UISceneSession,
              options connectionOptions: UIScene.ConnectionOptions) {
@@ -41,6 +43,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, MessagingDelegate {
       .map { $0.object as? String }
       .receive(on: RunLoop.main)
       .assign(to: \Identity.token, on: identity)
+      .store(in: &cancellables)
 
     // Subscribe to fid changes
     _ = NotificationCenter.default
@@ -53,8 +56,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, MessagingDelegate {
             print("Failed to get FID: ", error)
             return
           }
-          self.identity.instanceID = fid ?? "None"
+          self.identity.instanceID = fid
           })
         })
+      .store(in: &cancellables)
   }
 }
