@@ -21,29 +21,29 @@ include(CheckIncludeFiles)
 # The set of sources to use for firestore_util are complex.
 file(
   GLOB util_sources
-  src/firebase/firestore/util/*.cc
-  src/firebase/firestore/util/*.h
+  src/util/*.cc
+  src/util/*.h
 )
 
 if(APPLE)
   firebase_ios_glob(
-    util_sources APPEND src/firebase/firestore/util/*.mm
-    EXCLUDE src/firebase/firestore/util/*_win.cc
+    util_sources APPEND src/util/*.mm
+    EXCLUDE src/util/*_win.cc
   )
 
 elseif(WIN32)
   firebase_ios_glob(
     util_sources EXCLUDE
-    src/firebase/firestore/util/*_apple.*
-    src/firebase/firestore/util/*_posix.*
+    src/util/*_apple.*
+    src/util/*_posix.*
   )
 
 else()
   # Linux and other UNIX systems.
   firebase_ios_glob(
     util_sources EXCLUDE
-    src/firebase/firestore/util/*_apple.cc
-    src/firebase/firestore/util/*_win.cc
+    src/util/*_apple.cc
+    src/util/*_win.cc
   )
 endif()
 
@@ -55,32 +55,32 @@ endif()
 check_symbol_exists(dispatch_async_f dispatch/dispatch.h HAVE_LIBDISPATCH)
 
 firebase_ios_glob(
-  util_sources EXCLUDE src/firebase/firestore/util/executor_*
+  util_sources EXCLUDE src/util/executor_*
 )
 if(HAVE_LIBDISPATCH)
   firebase_ios_glob(
-    util_sources APPEND src/firebase/firestore/util/executor_libdispatch.*
+    util_sources APPEND src/util/executor_libdispatch.*
   )
 else()
   firebase_ios_glob(
-    util_sources APPEND src/firebase/firestore/util/executor_std.*
+    util_sources APPEND src/util/executor_std.*
   )
 endif()
 
 
 # Choose Logger implementation
 firebase_ios_glob(
-  util_sources EXCLUDE src/firebase/firestore/util/log_*
+  util_sources EXCLUDE src/util/log_*
 )
 
 # TODO(wilhuff): Can this be if(APPLE)?
 if(IOS)
   firebase_ios_glob(
-    util_sources APPEND src/firebase/firestore/util/log_apple.mm
+    util_sources APPEND src/util/log_apple.mm
   )
 else()
   firebase_ios_glob(
-    util_sources APPEND src/firebase/firestore/util/log_stdio.cc
+    util_sources APPEND src/util/log_stdio.cc
   )
 endif()
 
@@ -96,17 +96,17 @@ if(TARGET OpenSSL::Crypto)
 endif()
 
 firebase_ios_glob(
-  util_sources EXCLUDE src/firebase/firestore/util/secure_random_*.cc
+  util_sources EXCLUDE src/util/secure_random_*.cc
 )
 if(HAVE_ARC4RANDOM)
   firebase_ios_glob(
     util_sources APPEND
-    src/firebase/firestore/util/secure_random_arc4random.cc
+    src/util/secure_random_arc4random.cc
   )
 elseif(HAVE_OPENSSL_RAND_H)
   firebase_ios_glob(
     util_sources APPEND
-    src/firebase/firestore/util/secure_random_openssl.cc
+    src/util/secure_random_openssl.cc
   )
 else()
   message(
@@ -117,8 +117,8 @@ endif()
 
 
 configure_file(
-  src/firebase/firestore/util/config.h.in
-  src/firebase/firestore/util/config.h  # NOLINT(generated)
+  src/util/config.h.in
+  src/util/config.h  # NOLINT(generated)
 )
 
 
@@ -150,9 +150,9 @@ endif()
 
 firebase_ios_glob(
   nanopb_sources
-  src/firebase/firestore/nanopb/byte_string.*
-  src/firebase/firestore/nanopb/nanopb_util.*
-  src/firebase/firestore/nanopb/pretty_printing.*
+  src/nanopb/byte_string.*
+  src/nanopb/nanopb_util.*
+  src/nanopb/pretty_printing.*
 )
 
 firebase_ios_add_library(firestore_nanopb EXCLUDE_FROM_ALL ${nanopb_sources})
@@ -171,33 +171,33 @@ target_link_libraries(
 firebase_ios_glob(
   core_sources
   include/firebase/firestore/*.h
-  src/firebase/firestore/*.cc
-  src/firebase/firestore/*.h
-  src/firebase/firestore/api/*.cc
-  src/firebase/firestore/api/*.h
-  src/firebase/firestore/auth/*.cc
-  src/firebase/firestore/auth/*.h
-  src/firebase/firestore/core/*.cc
-  src/firebase/firestore/core/*.h
-  src/firebase/firestore/immutable/*.cc
-  src/firebase/firestore/immutable/*.h
-  src/firebase/firestore/local/*.cc
-  src/firebase/firestore/local/*.h
-  src/firebase/firestore/model/*.cc
-  src/firebase/firestore/model/*.h
-  src/firebase/firestore/nanopb/*.cc
-  src/firebase/firestore/nanopb/*.h
-  src/firebase/firestore/objc/*.h
-  src/firebase/firestore/remote/*.cc
-  src/firebase/firestore/remote/*.h
+  src/*.cc
+  src/*.h
+  src/api/*.cc
+  src/api/*.h
+  src/auth/*.cc
+  src/auth/*.h
+  src/core/*.cc
+  src/core/*.h
+  src/immutable/*.cc
+  src/immutable/*.h
+  src/local/*.cc
+  src/local/*.h
+  src/model/*.cc
+  src/model/*.h
+  src/nanopb/*.cc
+  src/nanopb/*.h
+  src/objc/*.h
+  src/remote/*.cc
+  src/remote/*.h
   EXCLUDE ${nanopb_sources}
 )
 
 if(APPLE)
   firebase_ios_glob(
     core_sources APPEND
-    src/firebase/firestore/auth/firebase_credentials_provider_apple.*
-    src/firebase/firestore/remote/connectivity_monitor_apple.mm
+    src/auth/firebase_credentials_provider_apple.*
+    src/remote/connectivity_monitor_apple.mm
   )
 endif()
 
@@ -246,7 +246,7 @@ endif()
 
 # Source files should be generated in place so that the XCode build can pick
 # them up.
-set(OUTPUT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/firebase/firestore/remote)
+set(OUTPUT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/remote)
 
 set(
   GRPC_ROOT_CERTIFICATE_SOURCES
@@ -284,15 +284,15 @@ add_custom_target(
 )
 
 
-add_subdirectory(test/firebase/firestore/testutil)
-add_subdirectory(test/firebase/firestore)
-add_subdirectory(test/firebase/firestore/api)
-add_subdirectory(test/firebase/firestore/auth)
-add_subdirectory(test/firebase/firestore/core)
-add_subdirectory(test/firebase/firestore/immutable)
-add_subdirectory(test/firebase/firestore/local)
-add_subdirectory(test/firebase/firestore/model)
-add_subdirectory(test/firebase/firestore/objc)
-add_subdirectory(test/firebase/firestore/nanopb)
-add_subdirectory(test/firebase/firestore/remote)
-add_subdirectory(test/firebase/firestore/util)
+add_subdirectory(test/unit/testutil)
+add_subdirectory(test/unit)
+add_subdirectory(test/unit/api)
+add_subdirectory(test/unit/auth)
+add_subdirectory(test/unit/core)
+add_subdirectory(test/unit/immutable)
+add_subdirectory(test/unit/local)
+add_subdirectory(test/unit/model)
+add_subdirectory(test/unit/objc)
+add_subdirectory(test/unit/nanopb)
+add_subdirectory(test/unit/remote)
+add_subdirectory(test/unit/util)

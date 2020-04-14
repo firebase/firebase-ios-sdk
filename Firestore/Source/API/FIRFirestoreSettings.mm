@@ -16,10 +16,10 @@
 
 #import "FIRFirestoreSettings.h"
 
-#include "Firestore/core/src/firebase/firestore/api/settings.h"
-#include "Firestore/core/src/firebase/firestore/util/exception.h"
-#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
-#include "Firestore/core/src/firebase/firestore/util/warnings.h"
+#include "Firestore/core/src/api/settings.h"
+#include "Firestore/core/src/util/exception.h"
+#include "Firestore/core/src/util/string_apple.h"
+#include "Firestore/core/src/util/warnings.h"
 #include "absl/base/attributes.h"
 #include "absl/memory/memory.h"
 

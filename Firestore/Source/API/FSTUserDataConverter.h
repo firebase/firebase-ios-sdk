@@ -18,9 +18,9 @@
 
 #include <vector>
 
-#include "Firestore/core/src/firebase/firestore/core/core_fwd.h"
-#include "Firestore/core/src/firebase/firestore/model/database_id.h"
-#include "Firestore/core/src/firebase/firestore/model/model_fwd.h"
+#include "Firestore/core/src/core/core_fwd.h"
+#include "Firestore/core/src/model/database_id.h"
+#include "Firestore/core/src/model/model_fwd.h"
 
 @class FIRTimestamp;
 

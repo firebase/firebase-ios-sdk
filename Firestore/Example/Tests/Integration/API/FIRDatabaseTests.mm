@@ -23,9 +23,9 @@
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 
-#include "Firestore/core/src/firebase/firestore/api/query_snapshot.h"
-#include "Firestore/core/src/firebase/firestore/core/firestore_client.h"
-#include "Firestore/core/test/firebase/firestore/testutil/app_testing.h"
+#include "Firestore/core/src/api/query_snapshot.h"
+#include "Firestore/core/src/core/firestore_client.h"
+#include "Firestore/core/test/unit/testutil/app_testing.h"
 
 namespace testutil = firebase::firestore::testutil;
 

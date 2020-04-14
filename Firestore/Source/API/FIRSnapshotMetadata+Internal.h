@@ -18,7 +18,7 @@
 
 #import <Foundation/Foundation.h>
 
-#include "Firestore/core/src/firebase/firestore/api/snapshot_metadata.h"
+#include "Firestore/core/src/api/snapshot_metadata.h"
 
 namespace api = firebase::firestore::api;
 
