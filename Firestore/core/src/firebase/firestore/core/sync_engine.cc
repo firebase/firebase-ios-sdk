@@ -135,8 +135,7 @@ ViewSnapshot SyncEngine::InitializeViewAndComputeSnapshot(const Query& query,
       view.ComputeDocumentChanges(query_result.documents().underlying_map());
   ViewChange view_change =
       view.ApplyChanges(view_doc_changes, synthesized_current_change);
-  HARD_ASSERT(view_change.limbo_changes().empty(),
-              "View returned limbo docs before target ack from the server.");
+  UpdateTrackedLimboDocuments(view_change.limbo_changes(), target_id);
 
   auto query_view =
       std::make_shared<QueryView>(query, target_id, std::move(view));
