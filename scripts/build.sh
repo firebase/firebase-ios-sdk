@@ -33,6 +33,9 @@ product can be one of:
   Firebase
   Firestore
   InAppMessaging
+  MessagingSample
+  Storage
+  StorageSwift
   SymbolCollision
 
 platform can be one of:
@@ -285,7 +288,7 @@ fi
 
 
 case "$product-$platform-$method" in
-  FirebasePod-*-xcodebuild)
+  FirebasePod-iOS-*)
     RunXcodebuild \
         -workspace 'CoreOnly/Tests/FirebasePodTest/FirebasePodTest.xcworkspace' \
         -scheme "FirebasePodTest" \
@@ -296,7 +299,7 @@ case "$product-$platform-$method" in
   Auth-*-xcodebuild)
     if check_secrets; then
       RunXcodebuild \
-        -workspace 'Example/Auth/AuthSample/AuthSample.xcworkspace' \
+        -workspace 'FirebaseAuth/Tests/Sample/AuthSample.xcworkspace' \
         -scheme "Auth_ApiTests" \
         "${xcb_flags[@]}" \
         build \
@@ -342,10 +345,18 @@ case "$product-$platform-$method" in
     )
     ;;
 
-  SymbolCollision-*-xcodebuild)
+  SymbolCollision-*-*)
     RunXcodebuild \
         -workspace 'SymbolCollisionTest/SymbolCollisionTest.xcworkspace' \
         -scheme "SymbolCollisionTest" \
+        "${xcb_flags[@]}" \
+        build
+    ;;
+
+  MessagingSample-*-*)
+    RunXcodebuild \
+        -workspace 'Example/Messaging/Sample/Sample.xcworkspace' \
+        -scheme "Sample" \
         "${xcb_flags[@]}" \
         build
     ;;
@@ -409,6 +420,14 @@ case "$product-$platform-$method" in
         "${xcb_flags[@]}" \
         build \
         test
+
+      RunXcodebuild \
+        -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
+        -scheme "FirebaseStorage-Unit-swift-integration" \
+        "${ios_flags[@]}" \
+        "${xcb_flags[@]}" \
+        build \
+        test
       fi
 
     pod_gen FirebaseStorage.podspec --platforms=macos --clean
@@ -428,6 +447,20 @@ case "$product-$platform-$method" in
       "${xcb_flags[@]}" \
       build \
       test
+    ;;
+
+  StorageSwift-*-xcodebuild)
+    pod_gen FirebaseStorageSwift.podspec --platforms=ios
+    if check_secrets; then
+      # Integration tests are only run on iOS to minimize flake failures.
+      RunXcodebuild \
+        -workspace 'gen/FirebaseStorageSwift/FirebaseStorageSwift.xcworkspace' \
+        -scheme "FirebaseStorageSwift-Unit-integration" \
+        "${ios_flags[@]}" \
+        "${xcb_flags[@]}" \
+        build \
+        test
+      fi
     ;;
   *)
     echo "Don't know how to build this product-platform-method combination" 1>&2

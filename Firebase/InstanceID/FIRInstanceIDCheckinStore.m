@@ -29,13 +29,6 @@
 static NSString *const kFIRInstanceIDCheckinKeychainGeneric = @"com.google.iid";
 
 NSString *const kFIRInstanceIDCheckinKeychainService = @"com.google.iid.checkin";
-NSString *const kFIRInstanceIDLegacyCheckinKeychainAccount = @"com.google.iid.checkin-account";
-NSString *const kFIRInstanceIDLegacyCheckinKeychainService = @"com.google.iid.checkin-service";
-
-// Checkin plist used to have the deviceID and secret stored in them and that's why they
-// had 6 items in it. Since the deviceID and secret have been moved to the keychain
-// there would only be 4 items.
-static const NSInteger kOldCheckinPlistCount = 6;
 
 @interface FIRInstanceIDCheckinStore ()
 
@@ -157,19 +150,11 @@ static const NSInteger kOldCheckinPlistCount = 6;
   FIRInstanceIDLoggerDebug(kFIRInstanceIDMessageCodeCheckinStoreCheckinPlistDeleted,
                            @"Deleted checkin plist file.");
   // Remove deviceID and secret from Keychain
-  [self.keychain
-      removeItemsMatchingService:kFIRInstanceIDCheckinKeychainService
-                         account:self.bundleIdentifierForKeychainAccount
-                         handler:^(NSError *error) {
-                           // Try to remove from old location as well because migration
-                           // is no longer needed. Consider this is either a fresh install
-                           // or an identity wipe.
-                           [self.keychain
-                               removeItemsMatchingService:kFIRInstanceIDLegacyCheckinKeychainService
-                                                  account:kFIRInstanceIDLegacyCheckinKeychainAccount
-                                                  handler:nil];
-                           handler(error);
-                         }];
+  [self.keychain removeItemsMatchingService:kFIRInstanceIDCheckinKeychainService
+                                    account:self.bundleIdentifierForKeychainAccount
+                                    handler:^(NSError *error) {
+                                      handler(error);
+                                    }];
 }
 
 - (FIRInstanceIDCheckinPreferences *)cachedCheckinPreferences {
@@ -200,37 +185,10 @@ static const NSInteger kOldCheckinPlistCount = 6;
       // Couldn't find checkin credentials in keychain nor plist
       return nil;
     }
-  } else if (kOldCheckinPlistCount == checkinPlistContents.count) {
-    // same check as above but just to be extra sure that we cover all upgrade cases properly.
-    // TODO(chliangGoogle): Remove this case, after verifying it's not needed
-    if ([plistDeviceAuthID length] && [plistSecretToken length]) {
-      checkinPreferences =
-          [[FIRInstanceIDCheckinPreferences alloc] initWithDeviceID:plistDeviceAuthID
-                                                        secretToken:plistSecretToken];
-    }
   }
 
   [checkinPreferences updateWithCheckinPlistContents:checkinPlistContents];
   return checkinPreferences;
-}
-
-- (void)migrateCheckinItemIfNeeded {
-  // Check for checkin in the old location, using the legacy keys
-  // Query the keychain for deviceID and secret
-  NSData *dataInOldLocation =
-      [self.keychain dataForService:kFIRInstanceIDLegacyCheckinKeychainService
-                            account:kFIRInstanceIDLegacyCheckinKeychainAccount];
-  if (dataInOldLocation) {
-    // Save to new location
-    [self.keychain setData:dataInOldLocation
-                forService:kFIRInstanceIDCheckinKeychainService
-                   account:self.bundleIdentifierForKeychainAccount
-                   handler:nil];
-    // Remove from old location
-    [self.keychain removeItemsMatchingService:kFIRInstanceIDLegacyCheckinKeychainService
-                                      account:kFIRInstanceIDLegacyCheckinKeychainAccount
-                                      handler:nil];
-  }
 }
 
 @end

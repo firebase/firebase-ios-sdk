@@ -18,14 +18,13 @@
 
 #import <objc/runtime.h>
 
-#import "GDTCORLibrary/Private/GDTCORStorage.h"
+#import "GDTCORLibrary/Private/GDTCORFlatFileStorage.h"
 #import "GDTCORLibrary/Public/GDTCORRegistrar.h"
 
 @implementation GDTCORUploadCoordinator (Testing)
 
 - (void)reset {
   dispatch_sync(self.coordinationQueue, ^{
-    self.storage = [GDTCORStorage sharedInstance];
     self.registrar = [GDTCORRegistrar sharedInstance];
     [self.targetToInFlightPackages removeAllObjects];
   });

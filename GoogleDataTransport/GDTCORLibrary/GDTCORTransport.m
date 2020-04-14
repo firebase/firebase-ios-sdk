@@ -41,19 +41,20 @@
     _target = target;
     _transformerInstance = [GDTCORTransformer sharedInstance];
   }
-  GDTCORLogDebug("Transport object created. mappingID:%@ transformers:%@ target:%ld", mappingID,
+  GDTCORLogDebug(@"Transport object created. mappingID:%@ transformers:%@ target:%ld", mappingID,
                  transformers, (long)target);
   return self;
 }
 
 - (void)sendTelemetryEvent:(GDTCOREvent *)event
-                onComplete:(void (^)(BOOL wasWritten, NSError *_Nullable error))completion {
+                onComplete:
+                    (void (^_Nullable)(BOOL wasWritten, NSError *_Nullable error))completion {
   event.qosTier = GDTCOREventQoSTelemetry;
   [self sendEvent:event onComplete:completion];
 }
 
 - (void)sendDataEvent:(GDTCOREvent *)event
-           onComplete:(void (^)(BOOL wasWritten, NSError *_Nullable error))completion {
+           onComplete:(void (^_Nullable)(BOOL wasWritten, NSError *_Nullable error))completion {
   GDTCORAssert(event.qosTier != GDTCOREventQoSTelemetry, @"Use -sendTelemetryEvent, please.");
   [self sendEvent:event onComplete:completion];
 }
@@ -78,7 +79,7 @@
  * @param completion A block that will be called when the event has been written or dropped.
  */
 - (void)sendEvent:(GDTCOREvent *)event
-       onComplete:(void (^_Nullable)(BOOL wasWritten, NSError *error))completion {
+       onComplete:(void (^_Nullable)(BOOL wasWritten, NSError *_Nullable error))completion {
   // TODO: Determine if sending an event before registration is allowed.
   GDTCORAssert(event, @"You can't send a nil event");
   GDTCOREvent *copiedEvent = [event copy];

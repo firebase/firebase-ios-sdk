@@ -18,6 +18,7 @@
 
 #import <FirebaseFirestore/FIRFirestoreErrors.h>
 
+#include <algorithm>
 #include <map>
 #include <memory>
 #include <string>
@@ -92,6 +93,7 @@ using firebase::firestore::remote::DocumentWatchChange;
 using firebase::firestore::remote::ExistenceFilterWatchChange;
 using firebase::firestore::remote::WatchTargetChange;
 using firebase::firestore::remote::WatchTargetChangeState;
+using firebase::firestore::util::MakeNSString;
 using firebase::firestore::util::MakeString;
 using firebase::firestore::util::Path;
 using firebase::firestore::util::Status;
@@ -106,6 +108,15 @@ NS_ASSUME_NONNULL_BEGIN
 // Whether to run the benchmark spec tests.
 // TODO(mrschmidt): Make this configurable via the tests schema.
 static BOOL kRunBenchmarkTests = NO;
+
+// The name of an environment variable whose value is a filter that specifies which tests to
+// execute. The value of this environment variable is a regular expression that is matched against
+// the name of each test. Using this environment variable is an alternative to setting the
+// kExclusiveTag tag, which requires modifying the JSON file. When this environment variable is set
+// to a non-empty value, a test will be executed if and only if its name matches this regular
+// expression. In this context, a test's "name" is the result of appending its "itName" to its
+// "describeName", separated by a space character.
+static NSString *const kTestFilterEnvKey = @"SPEC_TEST_FILTER";
 
 // Disables all other tests; useful for debugging. Multiple tests can have this tag and they'll all
 // be run (but all others won't).
@@ -139,6 +150,26 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
 
 ByteString MakeResumeToken(NSString *specString) {
   return MakeByteString([specString dataUsingEncoding:NSUTF8StringEncoding]);
+}
+
+NSString *ToDocumentListString(const std::map<DocumentKey, TargetId> &map) {
+  std::vector<std::string> strings;
+  strings.reserve(map.size());
+  for (const auto &kv : map) {
+    strings.push_back(kv.first.ToString());
+  }
+  std::sort(strings.begin(), strings.end());
+  return MakeNSString(absl::StrJoin(strings, ", "));
+}
+
+NSString *ToTargetIdListString(const ActiveTargetMap &map) {
+  std::vector<model::TargetId> targetIds;
+  targetIds.reserve(map.size());
+  for (const auto &kv : map) {
+    targetIds.push_back(kv.first);
+  }
+  std::sort(targetIds.begin(), targetIds.end());
+  return MakeNSString(absl::StrJoin(targetIds, ", "));
 }
 
 }  // namespace
@@ -652,14 +683,14 @@ ByteString MakeResumeToken(NSString *specString) {
       XCTAssertEqual([self.driver watchStreamRequestCount],
                      [expectedState[@"watchStreamRequestCount"] intValue]);
     }
-    if (expectedState[@"limboDocs"]) {
-      DocumentKeySet expectedLimboDocuments;
-      NSArray *docNames = expectedState[@"limboDocs"];
+    if (expectedState[@"activeLimboDocs"]) {
+      DocumentKeySet expectedActiveLimboDocuments;
+      NSArray *docNames = expectedState[@"activeLimboDocs"];
       for (NSString *name in docNames) {
-        expectedLimboDocuments = expectedLimboDocuments.insert(FSTTestDocKey(name));
+        expectedActiveLimboDocuments = expectedActiveLimboDocuments.insert(FSTTestDocKey(name));
       }
       // Update the expected limbo documents
-      [self.driver setExpectedLimboDocuments:std::move(expectedLimboDocuments)];
+      [self.driver setExpectedActiveLimboDocuments:std::move(expectedActiveLimboDocuments)];
     }
     if (expectedState[@"activeTargets"]) {
       __block ActiveTargetMap expectedActiveTargets;
@@ -717,21 +748,23 @@ ByteString MakeResumeToken(NSString *specString) {
   // Make a copy so it can modified while checking against the expected limbo docs.
   std::map<DocumentKey, TargetId> actualLimboDocs = self.driver.currentLimboDocuments;
 
-  // Validate that each limbo doc has an expected active target
+  // Validate that each active limbo doc has an expected active target
   for (const auto &kv : actualLimboDocs) {
     const auto &expected = [self.driver expectedActiveTargets];
     XCTAssertTrue(expected.find(kv.second) != expected.end(),
-                  @"Found limbo doc without an expected active target");
+                  @"Found limbo doc %s, but its target ID %d was not in the "
+                  @"set of expected active target IDs %@",
+                  kv.first.ToString().c_str(), kv.second, ToTargetIdListString(expected));
   }
 
-  for (const DocumentKey &expectedLimboDoc : self.driver.expectedLimboDocuments) {
+  for (const DocumentKey &expectedLimboDoc : self.driver.expectedActiveLimboDocuments) {
     XCTAssert(actualLimboDocs.find(expectedLimboDoc) != actualLimboDocs.end(),
               @"Expected doc to be in limbo, but was not: %s", expectedLimboDoc.ToString().c_str());
     actualLimboDocs.erase(expectedLimboDoc);
   }
-  XCTAssertTrue(actualLimboDocs.empty(), "%lu Unexpected docs in limbo, the first one is <%s, %d>",
-                actualLimboDocs.size(), actualLimboDocs.begin()->first.ToString().c_str(),
-                actualLimboDocs.begin()->second);
+
+  XCTAssertTrue(actualLimboDocs.empty(), @"Unexpected active docs in limbo: %@",
+                ToDocumentListString(actualLimboDocs));
 }
 
 - (void)validateActiveTargets {
@@ -830,7 +863,24 @@ ByteString MakeResumeToken(NSString *specString) {
     [parsedSpecs addObject:testDict];
   }
 
+  NSString *testNameFilterFromEnv = NSProcessInfo.processInfo.environment[kTestFilterEnvKey];
+  NSRegularExpression *testNameFilter;
+  if (testNameFilterFromEnv.length == 0) {
+    testNameFilter = nil;
+  } else {
+    exclusiveMode = YES;
+    NSError *error;
+    testNameFilter =
+        [NSRegularExpression regularExpressionWithPattern:testNameFilterFromEnv
+                                                  options:NSRegularExpressionAnchorsMatchLines
+                                                    error:&error];
+    XCTAssertNotNil(testNameFilter, @"Invalid regular expression: %@ (%@)", testNameFilterFromEnv,
+                    error);
+  }
+
   // Now iterate over them and run them.
+  __block int testPassCount = 0;
+  __block int testSkipCount = 0;
   __block bool ranAtLeastOneTest = NO;
   for (NSUInteger i = 0; i < specFiles.count; i++) {
     NSLog(@"Spec test file: %@", specFiles[i]);
@@ -845,15 +895,30 @@ ByteString MakeResumeToken(NSString *specString) {
       NSArray *steps = testDescription[@"steps"];
       NSArray<NSString *> *tags = testDescription[@"tags"];
 
-      BOOL runTest = !exclusiveMode || [tags indexOfObject:kExclusiveTag] != NSNotFound;
-      if (runTest) {
-        runTest = [self shouldRunWithTags:tags];
+      BOOL runTest;
+      if (![self shouldRunWithTags:tags]) {
+        runTest = NO;
+      } else if (!exclusiveMode) {
+        runTest = YES;
+      } else if ([tags indexOfObject:kExclusiveTag] != NSNotFound) {
+        runTest = YES;
+      } else if (testNameFilter != nil) {
+        NSRange testNameFilterMatchRange =
+            [testNameFilter rangeOfFirstMatchInString:name
+                                              options:0
+                                                range:NSMakeRange(0, [name length])];
+        runTest = !NSEqualRanges(testNameFilterMatchRange, NSMakeRange(NSNotFound, 0));
+      } else {
+        runTest = NO;
       }
+
       if (runTest) {
         NSLog(@"  Spec test: %@", name);
         [self runSpecTestSteps:steps config:config];
         ranAtLeastOneTest = YES;
+        ++testPassCount;
       } else {
+        ++testSkipCount;
         NSLog(@"  [SKIPPED] Spec test: %@", name);
         NSString *comment = testDescription[@"comment"];
         if (comment) {
@@ -862,6 +927,8 @@ ByteString MakeResumeToken(NSString *specString) {
       }
     }];
   }
+  NSLog(@"%@ completed; pass=%d skip=%d", NSStringFromClass([self class]), testPassCount,
+        testSkipCount);
   XCTAssertTrue(ranAtLeastOneTest);
 }
 

@@ -14,10 +14,10 @@
 
 #pragma once
 
-#include "FIRCLSFile.h"
-
 #include <mach/vm_types.h>
 #include <sys/cdefs.h>
+
+#include "FIRCLSFile.h"
 
 typedef struct {
   const char* documentDirectoryPath;

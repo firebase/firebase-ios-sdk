@@ -43,13 +43,26 @@ if check_secrets; then
   bundle update --bundler
   bundle install
   bundle exec pod install
-  ../scripts/install_prereqs/"$SAMPLE".sh
+
+  # Add GoogleService-Info.plist to Xcode project
+  ruby ../scripts/info_script.rb "${SAMPLE}"
 
   # Secrets are repo specific, so we need to override with the firebase-ios-sdk
   # version. GHA manages the secrets in its action script.
+  PLIST_FILE=$root_dir/Secrets/quickstart-ios/"$SAMPLE"/GoogleService-Info.plist
   if [[ -n "${TRAVIS_PULL_REQUEST:-}" ]]; then
-    cp $root_dir/Secrets/quickstart-ios/"$SAMPLE"/GoogleService-Info.plist ./
-    cp $root_dir/Secrets/quickstart-ios/TestUtils/FIREGSignInInfo.h ../TestUtils/
+    if [[ -f "$PLIST_FILE" ]]; then
+      cp $root_dir/Secrets/quickstart-ios/"$SAMPLE"/GoogleService-Info.plist ./
+      cp $root_dir/Secrets/quickstart-ios/TestUtils/FIREGSignInInfo.h ../TestUtils/
+      if [[ ${SAMPLE} == "DynamicLinks" ]]; then
+        sed -i '' 's#DYNAMIC_LINK_DOMAIN#https://qpf6m.app.goo.gl#' DynamicLinksExample/DynamicLinksExample.entitlements
+        sed -i '' 's#YOUR_DOMAIN_URI_PREFIX";#https://qpf6m.app.goo.gl";#' DynamicLinksExample/ViewController.m
+      elif [[ ${SAMPLE} == "Functions" ]]; then
+        sed -i '' 's/REVERSED_CLIENT_ID/com.googleusercontent.apps.1025801074639-6p6ebi8amuklcjrto20gvpe295smm8u6/' FunctionsExample/Info.plist
+      fi
+    else
+      cp ../mock-GoogleService-Info.plist ./GoogleService-Info.plist
+    fi
   fi
   cd -
 fi

@@ -40,6 +40,7 @@ struct LaunchArgs {
   /// Keys associated with the launch args. See `Usage` for descriptions of each flag.
   private enum Key: String, CaseIterable {
     case archs
+    case buildDependencies
     case buildRoot
     case carthageDir
     case carthageSkipVersionCheck
@@ -62,6 +63,8 @@ struct LaunchArgs {
       case .archs:
         return "The list of architectures to build for. The default list is " +
           "\(Architecture.allCases.map { $0.rawValue })."
+      case .buildDependencies:
+        return "Whether or not to build dependencies of requested pods. The default is true."
       case .buildRoot:
         return "The root directory for build artifacts. If `nil`, a temporary directory will be " +
           "used."
@@ -108,6 +111,9 @@ struct LaunchArgs {
   /// A file URL to a textproto with the contents of a `ZipBuilder_FirebaseSDKs` object. Used to
   /// verify expected version numbers.
   let allSDKsPath: URL?
+
+  /// Build dependencies flag.
+  let buildDependencies: Bool
 
   /// The root directory for build artifacts. If `nil`, a temporary directory will be used.
   let buildRoot: URL?
@@ -170,6 +176,8 @@ struct LaunchArgs {
     // Override default values for specific keys.
     //   - Always run `pod repo update` and pod cache clean -all` unless explicitly set to false.
     defaults.register(defaults: [Key.updatePodRepo.rawValue: true])
+    //   - Always build dependencies unless explicitly set to false.
+    defaults.register(defaults: [Key.buildDependencies.rawValue: true])
 
     // Get the project template directory, and fail if it doesn't exist.
     guard let templatePath = defaults.string(forKey: Key.templateDir.rawValue) else {
@@ -336,10 +344,16 @@ struct LaunchArgs {
       minimumIOSVersion = "9.0"
     }
 
+    buildDependencies = defaults.bool(forKey: Key.buildDependencies.rawValue)
     carthageSkipVersionCheck = defaults.bool(forKey: Key.carthageSkipVersionCheck.rawValue)
     dynamic = defaults.bool(forKey: Key.dynamic.rawValue)
     updatePodRepo = defaults.bool(forKey: Key.updatePodRepo.rawValue)
     keepBuildArtifacts = defaults.bool(forKey: Key.keepBuildArtifacts.rawValue)
+
+    if !buildDependencies && zipPods == nil {
+      LaunchArgs.exitWithUsageAndLog("The -buildDependencies option cannot be false unless a " +
+        "list of pods is specified with the -zipPods option.")
+    }
 
     // Check for extra invalid options.
     let validArgs = Key.allCases.map { $0.rawValue }

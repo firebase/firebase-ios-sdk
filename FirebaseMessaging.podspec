@@ -1,12 +1,12 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseMessaging'
   s.version          = '4.3.0'
-  s.summary          = 'Firebase Messaging for iOS'
+  s.summary          = 'Firebase Messaging'
 
   s.description      = <<-DESC
-Firebase Messaging for iOS is a service that allows you to send data from your server to your users'
+Firebase Messaging is a service that allows you to send data from your server to your users'
 iOS device, and also to receive messages from devices on the same connection. The service handles
-all aspects of queueing of messages and delivery to the target iOS application running on the target
+all aspects of queueing of messages and delivery to the target application running on the target
 device, and it is completely free.
                        DESC
 

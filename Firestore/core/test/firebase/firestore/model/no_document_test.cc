@@ -17,7 +17,6 @@
 #include "Firestore/core/src/firebase/firestore/model/no_document.h"
 
 #include "Firestore/core/src/firebase/firestore/model/unknown_document.h"
-
 #include "absl/strings/string_view.h"
 #include "gtest/gtest.h"
 

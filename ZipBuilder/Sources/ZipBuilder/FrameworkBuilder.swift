@@ -112,9 +112,11 @@ struct FrameworkBuilder {
 
     // Build the full cached framework path.
     let realFramework = frameworkBuildName(podName)
-    let cachedFrameworkDir = cachedFrameworkRoot.appendingPathComponent("\(realFramework).xcframework")
+    let cachedFrameworkDir = cachedFrameworkRoot
+      .appendingPathComponent("\(realFramework).xcframework")
     let cachedCarthageDir = cachedCarthageRoot.appendingPathComponent("\(realFramework).framework")
-    let (frameworkDir, carthageDir) = compileFrameworkAndResources(withName: podName, podInfo: podInfo)
+    let (frameworkDir, carthageDir) = compileFrameworkAndResources(withName: podName,
+                                                                   podInfo: podInfo)
     do {
       // Remove the previously cached framework if it exists, otherwise the `moveItem` call will
       // fail.
@@ -149,7 +151,8 @@ struct FrameworkBuilder {
   /// This runs a command and immediately returns a Shell result.
   /// NOTE: This exists in conjunction with the `Shell.execute...` due to issues with different
   ///       `.bash_profile` environment variables. This should be consolidated in the future.
-  private func syncExec(command: String, args: [String] = [], captureOutput: Bool = false) -> Shell.Result {
+  private func syncExec(command: String, args: [String] = [], captureOutput: Bool = false) -> Shell
+    .Result {
     let task = Process()
     task.launchPath = command
     task.arguments = args
@@ -241,7 +244,8 @@ struct FrameworkBuilder {
     let distributionFlag = carthageBuild ? "-DFIREBASE_BUILD_CARTHAGE" : "-DFIREBASE_BUILD_ZIP_FILE"
     let platformSpecificFlags = platform.otherCFlags().joined(separator: " ")
     let cFlags = "OTHER_CFLAGS=$(value) \(distributionFlag) \(platformSpecificFlags)"
-    let cleanArch = isMacCatalyst ? Architecture.x86_64.rawValue : archs.map { $0.rawValue }.joined(separator: " ")
+    let cleanArch = isMacCatalyst ? Architecture.x86_64.rawValue : archs.map { $0.rawValue }
+      .joined(separator: " ")
 
     var args = ["build",
                 "-configuration", "release",
@@ -302,7 +306,8 @@ struct FrameworkBuilder {
       var actualFramework: String
       do {
         let files = try FileManager.default.contentsOfDirectory(at: frameworkPath,
-                                                                includingPropertiesForKeys: nil).compactMap { $0.path }
+                                                                includingPropertiesForKeys: nil)
+          .compactMap { $0.path }
         let frameworkDir = files.filter { $0.contains(".framework") }
         actualFramework = URL(fileURLWithPath: frameworkDir[0]).lastPathComponent
       } catch {
@@ -310,7 +315,8 @@ struct FrameworkBuilder {
       }
       var libPath = frameworkPath.appendingPathComponent(actualFramework)
       if !LaunchArgs.shared.dynamic {
-        libPath = libPath.appendingPathComponent(actualFramework.replacingOccurrences(of: ".framework", with: ""))
+        libPath = libPath
+          .appendingPathComponent(actualFramework.replacingOccurrences(of: ".framework", with: ""))
       }
       print("buildThin returns \(libPath)")
       return libPath
@@ -410,7 +416,8 @@ struct FrameworkBuilder {
 
     print("About to create xcframework for \(frameworkDir.path) with \(inputArgs)")
 
-    let result = syncExec(command: "/usr/bin/xcodebuild", args: ["-create-xcframework", "-output", frameworkDir.path] + inputArgs)
+    let result = syncExec(command: "/usr/bin/xcodebuild",
+                          args: ["-create-xcframework", "-output", frameworkDir.path] + inputArgs)
     switch result {
     case let .error(code, output):
       fatalError("""
@@ -449,7 +456,8 @@ struct FrameworkBuilder {
     }
 
     // Find the location of the public headers.
-    let anyArch = LaunchArgs.shared.archs[0] // any arch is ok, but need to make sure we're building it
+    let anyArch = LaunchArgs.shared
+      .archs[0] // any arch is ok, but need to make sure we're building it
     let archivePath = thinArchives[anyArch]!
     let headersDir = archivePath.deletingLastPathComponent().appendingPathComponent("Headers")
 
@@ -463,16 +471,16 @@ struct FrameworkBuilder {
       var umbrellaHeaderURL: URL
       do {
         let files = try fileManager.contentsOfDirectory(at: headersDir,
-                                                        includingPropertiesForKeys: nil).compactMap { $0.path }
+                                                        includingPropertiesForKeys: nil)
+          .compactMap { $0.path }
         let umbrellas = files.filter { $0.hasSuffix("umbrella.h") }
         if umbrellas.count != 1 {
           fatalError("Did not find exactly one umbrella header in \(headersDir).")
         }
-        guard let firstUmbrella = umbrellas.first,
-          let foundHeader = URL(string: firstUmbrella) else {
+        guard let firstUmbrella = umbrellas.first else {
           fatalError("Failed to get umbrella header in \(headersDir).")
         }
-        umbrellaHeaderURL = foundHeader
+        umbrellaHeaderURL = URL(fileURLWithPath: firstUmbrella)
       } catch {
         fatalError("Error while enumerating files \(headersDir): \(error.localizedDescription)")
       }
@@ -485,7 +493,7 @@ struct FrameworkBuilder {
         do {
           try fileManager.removeItem(at: umbrellaHeaderURL)
         } catch let error as NSError {
-          print("Failed to delete: \(umbrellaHeaderURL). Error: \(error.domain)")
+          fatalError("Failed to delete: \(umbrellaHeaderURL). Error: \(error.domain)")
         }
         umbrellaHeader = "\(framework).h"
         let frameworkHeader = headersDir.appendingPathComponent(umbrellaHeader)
@@ -646,7 +654,8 @@ struct FrameworkBuilder {
       let moduleDir = frameworkDir.appendingPathComponent("Modules").resolvingSymlinksInPath()
       do {
         let files = try fileManager.contentsOfDirectory(at: moduleDir,
-                                                        includingPropertiesForKeys: nil).compactMap { $0.path }
+                                                        includingPropertiesForKeys: nil)
+          .compactMap { $0.path }
         let swiftModules = files.filter { $0.hasSuffix(".swiftmodule") }
         if swiftModules.isEmpty {
           return false
@@ -660,26 +669,52 @@ struct FrameworkBuilder {
           do {
             try fileManager.copyItem(at: moduleDir, to: destModuleDir)
           } catch {
-            fatalError("Could not copy Modules from \(moduleDir) to " + "\(destModuleDir): \(error)")
+            fatalError("Could not copy Modules from \(moduleDir) to " +
+              "\(destModuleDir): \(error)")
           }
         } else {
           // If the Modules directory is already there, only copy in the architecture specific files
           // from the *.swiftmodule subdirectory.
           do {
             let files = try fileManager.contentsOfDirectory(at: swiftModule,
-                                                            includingPropertiesForKeys: nil).compactMap { $0.path }
-            let destSwiftModuleDir = destModuleDir.appendingPathComponent(swiftModule.lastPathComponent)
+                                                            includingPropertiesForKeys: nil)
+              .compactMap { $0.path }
+            let destSwiftModuleDir = destModuleDir
+              .appendingPathComponent(swiftModule.lastPathComponent)
             for file in files {
               let fileURL = URL(fileURLWithPath: file)
-              do {
-                try fileManager.copyItem(at: fileURL, to:
-                  destSwiftModuleDir.appendingPathComponent(fileURL.lastPathComponent))
-              } catch {
-                fatalError("Could not copy Swift module file from \(fileURL) to " + "\(destSwiftModuleDir): \(error)")
+              let projectDir = swiftModule.appendingPathComponent("Project")
+              if fileURL.lastPathComponent == "Project",
+                fileManager.directoryExists(at: projectDir) {
+                // The Project directory (introduced with Xcode 11.4) already exist, only copy in
+                // new contents.
+                let projectFiles = try fileManager.contentsOfDirectory(at: projectDir,
+                                                                       includingPropertiesForKeys: nil)
+                  .compactMap { $0.path }
+                let destProjectDir = destSwiftModuleDir.appendingPathComponent("Project")
+                for projectFile in projectFiles {
+                  let projectFileURL = URL(fileURLWithPath: projectFile)
+                  do {
+                    try fileManager.copyItem(at: projectFileURL, to:
+                      destProjectDir.appendingPathComponent(projectFileURL.lastPathComponent))
+                  } catch {
+                    fatalError("Could not copy Project file from \(projectFileURL) to " +
+                      "\(destProjectDir): \(error)")
+                  }
+                }
+              } else {
+                do {
+                  try fileManager.copyItem(at: fileURL, to:
+                    destSwiftModuleDir.appendingPathComponent(fileURL.lastPathComponent))
+                } catch {
+                  fatalError("Could not copy Swift module file from \(fileURL) to " +
+                    "\(destSwiftModuleDir): \(error)")
+                }
               }
             }
           } catch {
-            fatalError("Failed to get Modules directory contents - \(moduleDir): \(error.localizedDescription)")
+            fatalError("Failed to get Modules directory contents - \(moduleDir):" +
+              "\(error.localizedDescription)")
           }
         }
       } catch {

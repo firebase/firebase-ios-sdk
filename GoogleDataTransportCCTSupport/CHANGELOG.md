@@ -1,3 +1,10 @@
+# v3.0.0
+- Fixes unsynchronized access to prioritizer internals. (#5312)
+- Internal refactor to change storage to a protocol.
+
+# v2.0.2
+- Remove usage of memcpy and convert calls from malloc to calloc.
+
 # v2.0.1
 - Don't attempt to make NSData out of a nil file URL. (#5088)
 - Fix deprecation warnings. (#5086)

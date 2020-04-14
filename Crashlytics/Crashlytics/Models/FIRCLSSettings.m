@@ -293,7 +293,7 @@ NSString *const AppVersion = @"app_version";
   return [self errorReportingEnabled];
 }
 
-- (BOOL)crashReportingEnabled {
+- (BOOL)collectReportsEnabled {
   NSNumber *value = [self featuresSettings][@"collect_reports"];
 
   if (value != nil) {

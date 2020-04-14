@@ -49,7 +49,15 @@ NSURL *GDTCORRootDirectory(void) {
         NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)[0];
     GDTPath =
         [NSURL fileURLWithPath:[NSString stringWithFormat:@"%@/google-sdks-events", cachePath]];
-    GDTCORLogDebug("GDT's state will be saved to: %@", GDTPath);
+    GDTCORLogDebug(@"GDT's state will be saved to: %@", GDTPath);
+    if (![[NSFileManager defaultManager] fileExistsAtPath:GDTPath.path]) {
+      NSError *error;
+      [[NSFileManager defaultManager] createDirectoryAtPath:GDTPath.path
+                                withIntermediateDirectories:YES
+                                                 attributes:nil
+                                                      error:&error];
+      GDTCORAssert(error == nil, @"There was an error creating GDT's path");
+    }
   });
   return GDTPath;
 }
@@ -239,9 +247,9 @@ id<NSSecureCoding> _Nullable GDTCORDecodeArchive(Class archiveClass,
 
 + (void)load {
   GDTCORLogDebug(
-      "%@", @"GDT is initializing. Please note that if you quit the app via the "
-             "debugger and not through a lifecycle event, event data will remain on disk but "
-             "storage won't have a reference to them since the singleton wasn't saved to disk.");
+      @"%@", @"GDT is initializing. Please note that if you quit the app via the "
+              "debugger and not through a lifecycle event, event data will remain on disk but "
+              "storage won't have a reference to them since the singleton wasn't saved to disk.");
 #if TARGET_OS_IOS || TARGET_OS_TV
   // If this asserts, please file a bug at https://github.com/firebase/firebase-ios-sdk/issues.
   GDTCORFatalAssert(
@@ -314,7 +322,7 @@ id<NSSecureCoding> _Nullable GDTCORDecodeArchive(Class archiveClass,
                                                            expirationHandler:handler];
 #if !NDEBUG
   if (bgID != GDTCORBackgroundIdentifierInvalid) {
-    GDTCORLogDebug("Creating background task with name:%@ bgID:%ld", name, (long)bgID);
+    GDTCORLogDebug(@"Creating background task with name:%@ bgID:%ld", name, (long)bgID);
   }
 #endif  // !NDEBUG
   return bgID;
@@ -322,7 +330,7 @@ id<NSSecureCoding> _Nullable GDTCORDecodeArchive(Class archiveClass,
 
 - (void)endBackgroundTask:(GDTCORBackgroundIdentifier)bgID {
   if (bgID != GDTCORBackgroundIdentifierInvalid) {
-    GDTCORLogDebug("Ending background task with ID:%ld was successful", (long)bgID);
+    GDTCORLogDebug(@"Ending background task with ID:%ld was successful", (long)bgID);
     [[self sharedApplicationForBackgroundTask] endBackgroundTask:bgID];
     return;
   }
@@ -367,7 +375,7 @@ id<NSSecureCoding> _Nullable GDTCORDecodeArchive(Class archiveClass,
   _isRunningInBackground = YES;
 
   NSNotificationCenter *notifCenter = [NSNotificationCenter defaultCenter];
-  GDTCORLogDebug("%@", @"GDTCORPlatform is sending a notif that the app is backgrounding.");
+  GDTCORLogDebug(@"%@", @"GDTCORPlatform is sending a notif that the app is backgrounding.");
   [notifCenter postNotificationName:kGDTCORApplicationDidEnterBackgroundNotification object:nil];
 }
 
@@ -375,13 +383,13 @@ id<NSSecureCoding> _Nullable GDTCORDecodeArchive(Class archiveClass,
   _isRunningInBackground = NO;
 
   NSNotificationCenter *notifCenter = [NSNotificationCenter defaultCenter];
-  GDTCORLogDebug("%@", @"GDTCORPlatform is sending a notif that the app is foregrounding.");
+  GDTCORLogDebug(@"%@", @"GDTCORPlatform is sending a notif that the app is foregrounding.");
   [notifCenter postNotificationName:kGDTCORApplicationWillEnterForegroundNotification object:nil];
 }
 
 - (void)iOSApplicationWillTerminate:(NSNotification *)notif {
   NSNotificationCenter *notifCenter = [NSNotificationCenter defaultCenter];
-  GDTCORLogDebug("%@", @"GDTCORPlatform is sending a notif that the app is terminating.");
+  GDTCORLogDebug(@"%@", @"GDTCORPlatform is sending a notif that the app is terminating.");
   [notifCenter postNotificationName:kGDTCORApplicationWillTerminateNotification object:nil];
 }
 #endif  // TARGET_OS_IOS || TARGET_OS_TV
@@ -391,7 +399,7 @@ id<NSSecureCoding> _Nullable GDTCORDecodeArchive(Class archiveClass,
 #if TARGET_OS_OSX
 - (void)macOSApplicationWillTerminate:(NSNotification *)notif {
   NSNotificationCenter *notifCenter = [NSNotificationCenter defaultCenter];
-  GDTCORLogDebug("%@", @"GDTCORPlatform is sending a notif that the app is terminating.");
+  GDTCORLogDebug(@"%@", @"GDTCORPlatform is sending a notif that the app is terminating.");
   [notifCenter postNotificationName:kGDTCORApplicationWillTerminateNotification object:nil];
 }
 #endif  // TARGET_OS_OSX

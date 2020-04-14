@@ -19,10 +19,10 @@
 #if CLS_COMPACT_UNWINDING_SUPPORTED
 #include "FIRCLSCompactUnwind.h"
 #endif
-#include "FIRCLSUnwind_arch.h"
-
 #include <mach/vm_types.h>
 #include <stdbool.h>
+
+#include "FIRCLSUnwind_arch.h"
 
 extern const uint32_t FIRCLSUnwindMaxFrames;
 

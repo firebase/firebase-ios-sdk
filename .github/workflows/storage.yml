@@ -5,24 +5,28 @@ on:
     paths:
     - 'FirebaseStorage**'
     - '.github/workflows/storage.yml'
+    - 'scripts/**'
   schedule:
     # Run every day at 11pm (PST) - cron uses UTC times
     - cron:  '0 7 * * *'
 
 jobs:
   storage:
+    env:
+      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
     runs-on: macos-latest
+    strategy:
+      matrix:
+        pod: [Storage, StorageSwift]
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Install Secret GoogleService-Info.plist
-      env:
-         plist_secret: ${{ secrets.StoragePlistSecret }}
-      run: ./scripts/decrypt_gha_secret.sh scripts/gha-encrypted/storage-db-plist.gpg \
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/storage-db-plist.gpg \
           FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist "$plist_secret"
     - name: BuildAndTest # can be replaced with pod lib lint with CocoaPods 1.10
-      run: scripts/third_party/travis/retry.sh scripts/build.sh Storage all
+      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/build.sh ${{ matrix.pod }} all)
 
   catalyst:
     runs-on: macOS-latest
@@ -35,23 +39,22 @@ jobs:
       run: scripts/test_catalyst.sh FirebaseStorage test FirebaseStorage-Unit-unit
 
   quickstart:
+    env:
+      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+      signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
     runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v2
     - name: Setup quickstart
       run: scripts/setup_quickstart.sh storage
     - name: Install Secret GoogleService-Info.plist
-      env:
-         plist_secret: ${{ secrets.QsStoragePlistSecret }}
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-storage.plist.gpg \
           quickstart-ios/storage/GoogleService-Info.plist "$plist_secret"
     - name: Install Secret FIREGSignInInfo.h
-      env:
-         signin_secret: ${{ secrets.QsSignInSecret }}
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/FIREGSignInInfo.h.gpg \
           quickstart-ios/TestUtils/FIREGSignInInfo.h "$signin_secret"
     - name: Test quickstart
-      run: scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Storage
+      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Storage)
 
   pod-lib-lint:
     runs-on: macOS-latest
@@ -64,7 +67,9 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Build and test
-      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseStorage.podspec --skip-tests --platforms=${{ matrix.target }}
+      run: |
+       scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseStorage.podspec --skip-tests --platforms=${{ matrix.target }}
+       scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseStorageSwift.podspec --skip-tests --platforms=${{ matrix.target }}
 
   storage-cron-only:
     runs-on: macos-latest
@@ -82,4 +87,6 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: PodLibLint Storage Cron
-      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseStorage.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}
+      run: |
+        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseStorage.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}
+        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseStorage.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}

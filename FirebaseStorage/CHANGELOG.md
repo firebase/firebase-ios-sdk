@@ -1,3 +1,9 @@
+# Unreleased
+
+# 3.6.1
+- [fixed] Fix a rare case where a StorageTask would call its completion callbacks more than
+  once. (#5245)
+
 # 3.6.0
 - [added] Added watchOS support for Firebase Storage. (#4955)
 

@@ -189,7 +189,9 @@ extension ResourcesManager {
   static func removeEmptyResourcesDirectories(in dir: URL) {
     // Find all the Resources directories to begin with.
     let fileManager = FileManager.default
-    guard let resourceDirs = try? fileManager.recursivelySearch(for: .directories(name: "Resources"), in: dir) else {
+    guard let resourceDirs = try? fileManager
+      .recursivelySearch(for: .directories(name: "Resources"),
+                         in: dir) else {
       print("Attempted to remove empty resource directories, but it failed. This shouldn't be " +
         "classified as an error, but something to look out for.")
       return

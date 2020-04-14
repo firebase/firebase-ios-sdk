@@ -18,6 +18,7 @@
 
 #import <GoogleDataTransport/GDTCORAssert.h>
 #import <GoogleDataTransport/GDTCOREventDataObject.h>
+#import <GoogleDataTransport/GDTCORPlatform.h>
 #import <GoogleDataTransport/GDTCORTargets.h>
 
 @interface GDTCCTEventGeneratorDataObject : NSObject <GDTCOREventDataObject>
@@ -48,21 +49,39 @@
 - (void)deleteGeneratedFilesFromDisk {
   for (GDTCOREvent *event in self.allGeneratedEvents) {
     NSError *error;
-    [[NSFileManager defaultManager] removeItemAtURL:event.fileURL error:&error];
+    [[NSFileManager defaultManager] removeItemAtPath:event.fileURL.path error:&error];
     GDTCORAssert(error == nil, @"There was an error deleting a temporary event file.");
   }
 }
 
+- (void)writeEvent:(GDTCOREvent *)event toGDTPath:(NSString *)path error:(NSError **)error {
+  SEL sel = NSSelectorFromString(@"writeToGDTPath:error:");
+  IMP imp = [event methodForSelector:sel];
+  GDTCORFatalAssert(imp, @"writeToGDTPath:error: must be implemented by GDTCOREvent");
+  if (imp) {
+    typedef void *(*WriteToGDTPathIMP)(id, SEL, NSString *, NSError **);
+    ((WriteToGDTPathIMP)imp)(event, sel, path, error);
+  }
+}
+
 - (GDTCOREvent *)generateEvent:(GDTCOREventQoS)qosTier {
-  NSString *filePath = [NSString stringWithFormat:@"test-%lf.txt", CFAbsoluteTimeGetCurrent()];
+  CFAbsoluteTime currentTime = CFAbsoluteTimeGetCurrent();
+  NSURL *testDataFile = [GDTCORRootDirectory()
+      URLByAppendingPathComponent:[NSString stringWithFormat:@"test-data-%lf.txt", currentTime]];
+  [[NSFileManager defaultManager] createFileAtPath:testDataFile.path
+                                          contents:[@"test" dataUsingEncoding:NSUTF8StringEncoding]
+                                        attributes:nil];
+
   GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"1018" target:_target];
   event.clockSnapshot = [GDTCORClock snapshot];
   event.qosTier = qosTier;
-  [[NSFileManager defaultManager] createFileAtPath:filePath contents:[NSData data] attributes:nil];
-  NSURL *fileURL = [NSURL fileURLWithPath:filePath];
   GDTCCTEventGeneratorDataObject *dataObject = [[GDTCCTEventGeneratorDataObject alloc] init];
-  dataObject.dataFile = fileURL;
+  dataObject.dataFile = testDataFile;
   event.dataObject = dataObject;
+  NSString *eventPath = [NSString stringWithFormat:@"test-event-%lf", CFAbsoluteTimeGetCurrent()];
+  NSError *error;
+  [self writeEvent:event toGDTPath:eventPath error:&error];
+  GDTCORFatalAssert(error == nil, @"Generating an event failed: %@", error);
   [self.allGeneratedEvents addObject:event];
   return event;
 }
@@ -74,6 +93,11 @@
   GDTCCTEventGeneratorDataObject *dataObject = [[GDTCCTEventGeneratorDataObject alloc] init];
   dataObject.dataFile = fileURL;
   event.dataObject = dataObject;
+  NSError *error;
+  [self writeEvent:event
+         toGDTPath:[NSString stringWithFormat:@"test-event-%lf", CFAbsoluteTimeGetCurrent()]
+             error:&error];
+  GDTCORFatalAssert(error == nil, @"Generating an event failed: %@", error);
   [self.allGeneratedEvents addObject:event];
   return event;
 }
@@ -85,7 +109,7 @@
  */
 - (NSURL *)writeConsistentMessageToDisk:(NSString *)messageResource {
   NSBundle *testBundle = [NSBundle bundleForClass:[self class]];
-  NSString *filePath = [NSString stringWithFormat:@"test-%lf.txt", CFAbsoluteTimeGetCurrent()];
+  NSString *filePath = [NSString stringWithFormat:@"test-data-%lf.txt", CFAbsoluteTimeGetCurrent()];
   NSAssert([[NSFileManager defaultManager] fileExistsAtPath:filePath] == NO,
            @"There should be no duplicate files generated.");
   NSData *messageData = [NSData dataWithContentsOfURL:[testBundle URLForResource:messageResource
@@ -104,11 +128,22 @@
     [event.clockSnapshot setValue:@(1111111111111222) forKeyPath:@"kernelBootTime"];
     [event.clockSnapshot setValue:@(1235567890) forKeyPath:@"uptime"];
     event.qosTier = GDTCOREventQosDefault;
-    event.customPrioritizationParams = @{@"customParam" : @1337};
+    NSError *error;
+    event.customBytes = [NSJSONSerialization dataWithJSONObject:@{
+      @"customParam" : @1337
+    }
+                                                        options:0
+                                                          error:&error];
+    GDTCORAssert(error == nil, @"There shouldn't be an issue turning into JSON");
     NSURL *messageDataURL = [self writeConsistentMessageToDisk:@"message-32347456.dat"];
     GDTCCTEventGeneratorDataObject *dataObject = [[GDTCCTEventGeneratorDataObject alloc] init];
     dataObject.dataFile = messageDataURL;
     event.dataObject = dataObject;
+    error = nil;
+    [self writeEvent:event
+           toGDTPath:[NSString stringWithFormat:@"test-event-%lf", CFAbsoluteTimeGetCurrent()]
+               error:&error];
+    GDTCORFatalAssert(error == nil, @"Generating an event failed: %@", error);
     [events addObject:event];
   }
 
@@ -124,6 +159,11 @@
     GDTCCTEventGeneratorDataObject *dataObject = [[GDTCCTEventGeneratorDataObject alloc] init];
     dataObject.dataFile = messageDataURL;
     event.dataObject = dataObject;
+    NSError *error;
+    [self writeEvent:event
+           toGDTPath:[NSString stringWithFormat:@"test-event-%lf", CFAbsoluteTimeGetCurrent()]
+               error:&error];
+    GDTCORFatalAssert(error == nil, @"Generating an event failed: %@", error);
     [events addObject:event];
   }
 
@@ -139,6 +179,11 @@
     GDTCCTEventGeneratorDataObject *dataObject = [[GDTCCTEventGeneratorDataObject alloc] init];
     dataObject.dataFile = messageDataURL;
     event.dataObject = dataObject;
+    NSError *error;
+    [self writeEvent:event
+           toGDTPath:[NSString stringWithFormat:@"test-event-%lf", CFAbsoluteTimeGetCurrent()]
+               error:&error];
+    GDTCORFatalAssert(error == nil, @"Generating an event failed: %@", error);
     [events addObject:event];
   }
 
@@ -150,11 +195,20 @@
     [event.clockSnapshot setValue:@(1111111111111555) forKeyPath:@"kernelBootTime"];
     [event.clockSnapshot setValue:@(1238567890) forKeyPath:@"uptime"];
     event.qosTier = GDTCOREventQosDefault;
-    event.customPrioritizationParams = @{@"customParam1" : @"aValue1"};
+    NSError *error;
+    event.customBytes = [NSJSONSerialization dataWithJSONObject:@{@"customParam1" : @"aValue1"}
+                                                        options:0
+                                                          error:&error];
+    GDTCORAssert(error == nil, @"There shouldn't be an issue turning into JSON");
     NSURL *messageDataURL = [self writeConsistentMessageToDisk:@"message-40043840.dat"];
     GDTCCTEventGeneratorDataObject *dataObject = [[GDTCCTEventGeneratorDataObject alloc] init];
     dataObject.dataFile = messageDataURL;
     event.dataObject = dataObject;
+    error = nil;
+    [self writeEvent:event
+           toGDTPath:[NSString stringWithFormat:@"test-event-%lf", CFAbsoluteTimeGetCurrent()]
+               error:&error];
+    GDTCORFatalAssert(error == nil, @"Generating an event failed: %@", error);
     [events addObject:event];
   }
 
@@ -166,11 +220,22 @@
     [event.clockSnapshot setValue:@(1111111111111666) forKeyPath:@"kernelBootTime"];
     [event.clockSnapshot setValue:@(1239567890) forKeyPath:@"uptime"];
     event.qosTier = GDTCOREventQoSTelemetry;
-    event.customPrioritizationParams = @{@"customParam2" : @(34)};
+    NSError *error;
+    event.customBytes = [NSJSONSerialization dataWithJSONObject:@{
+      @"customParam2" : @(34)
+    }
+                                                        options:0
+                                                          error:&error];
+    GDTCORAssert(error == nil, @"There shouldn't be an issue turning into JSON");
     NSURL *messageDataURL = [self writeConsistentMessageToDisk:@"message-40657984.dat"];
     GDTCCTEventGeneratorDataObject *dataObject = [[GDTCCTEventGeneratorDataObject alloc] init];
     dataObject.dataFile = messageDataURL;
     event.dataObject = dataObject;
+    error = nil;
+    [self writeEvent:event
+           toGDTPath:[NSString stringWithFormat:@"test-event-%lf", CFAbsoluteTimeGetCurrent()]
+               error:&error];
+    GDTCORFatalAssert(error == nil, @"Generating an event failed: %@", error);
     [events addObject:event];
   }
   return events;

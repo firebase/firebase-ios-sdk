@@ -18,6 +18,7 @@
 
 #import <GoogleDataTransport/GDTCORPlatform.h>
 
+#import "GDTCORLibrary/Private/GDTCORFlatFileStorage.h"
 #import "GDTCORLibrary/Private/GDTCORUploadCoordinator.h"
 
 #import "GDTCORTests/Common/Categories/GDTCORRegistrar+Testing.h"
@@ -55,7 +56,7 @@
   [[GDTCORRegistrar sharedInstance] registerUploader:_uploader target:kGDTCORTargetTest];
 
   GDTCORUploadCoordinator *uploadCoordinator = [GDTCORUploadCoordinator sharedInstance];
-  uploadCoordinator.storage = self.storageFake;
+  [[GDTCORRegistrar sharedInstance] registerStorage:self.storageFake target:kGDTCORTargetTest];
   uploadCoordinator.timerInterval = NSEC_PER_SEC;
   uploadCoordinator.timerLeeway = 0;
 }
@@ -165,6 +166,32 @@
   XCTAssertNil(error);
   XCTAssertNotNil(unarchivedCoordinator);
   XCTAssertEqualObjects([GDTCORUploadCoordinator sharedInstance], unarchivedCoordinator);
+}
+
+/** Tests that retrying a package delivery doesn't delete the file from disk. */
+- (void)testPackageRetrying {
+  NSSet<GDTCOREvent *> *events = [GDTCOREventGenerator generate3Events];
+  self.prioritizer.events = events;
+  XCTestExpectation *expectation = [self expectationWithDescription:@"uploader will upload"];
+  expectation.assertForOverFulfill = NO;
+  self.uploader.uploadPackageBlock = ^(GDTCORUploadPackage *_Nonnull package) {
+    [expectation fulfill];
+    [package retryDeliveryInTheFuture];
+  };
+  [GDTCORUploadCoordinator sharedInstance].timerInterval = NSEC_PER_SEC / 10;
+  [GDTCORUploadCoordinator sharedInstance].timerLeeway = 0;
+
+  [[GDTCORUploadCoordinator sharedInstance] startTimer];
+  [self waitForExpectations:@[ expectation ] timeout:1.0];
+  [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
+  dispatch_sync([GDTCORUploadCoordinator sharedInstance].coordinationQueue, ^{
+                });
+  dispatch_sync([GDTCORFlatFileStorage sharedInstance].storageQueue, ^{
+                });
+  [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
+  for (GDTCOREvent *event in events) {
+    XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:event.fileURL.path]);
+  }
 }
 
 @end

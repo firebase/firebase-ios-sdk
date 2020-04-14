@@ -37,9 +37,8 @@ const pb_field_t google_crashlytics_Report_fields[8] = {
     PB_LAST_FIELD
 };
 
-const pb_field_t google_crashlytics_FilesPayload_fields[3] = {
+const pb_field_t google_crashlytics_FilesPayload_fields[2] = {
     PB_FIELD(  1, MESSAGE , REPEATED, POINTER , FIRST, google_crashlytics_FilesPayload, files, files, &google_crashlytics_FilesPayload_File_fields),
-    PB_FIELD(  2, BYTES   , SINGULAR, POINTER , OTHER, google_crashlytics_FilesPayload, org_id, files, 0),
     PB_LAST_FIELD
 };
 

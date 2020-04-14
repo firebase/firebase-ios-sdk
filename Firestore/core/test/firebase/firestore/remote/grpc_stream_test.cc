@@ -29,9 +29,9 @@
 #include "Firestore/core/src/firebase/firestore/util/executor.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/string_format.h"
+#include "Firestore/core/test/firebase/firestore/remote/create_noop_connectivity_monitor.h"
+#include "Firestore/core/test/firebase/firestore/remote/grpc_stream_tester.h"
 #include "Firestore/core/test/firebase/firestore/testutil/async_testing.h"
-#include "Firestore/core/test/firebase/firestore/util/create_noop_connectivity_monitor.h"
-#include "Firestore/core/test/firebase/firestore/util/grpc_stream_tester.h"
 #include "absl/memory/memory.h"
 #include "grpcpp/support/byte_buffer.h"
 #include "gtest/gtest.h"
@@ -41,15 +41,7 @@ namespace firestore {
 namespace remote {
 
 using util::AsyncQueue;
-using util::ByteBufferToString;
-using util::CompletionEndState;
-using util::CompletionResult;
-using util::CreateNoOpConnectivityMonitor;
 using util::Executor;
-using util::GetFirestoreErrorName;
-using util::GetGrpcErrorCodeName;
-using util::GrpcStreamTester;
-using util::MakeByteBuffer;
 using util::Status;
 using util::StringFormat;
 using Type = GrpcCompletion::Type;

@@ -245,19 +245,20 @@ static FIRInstanceID *gInstanceID;
 }
 
 - (void)setDefaultFCMToken:(NSString *)defaultFCMToken {
-  if (_defaultFCMToken && defaultFCMToken && [defaultFCMToken isEqualToString:_defaultFCMToken]) {
-    return;
+  // Sending this notification out will ensure that FIRMessaging and FIRInstanceID has the updated
+  // default FCM token.
+  // Only notify of token refresh if we have a new valid token that's different than before
+  if ((defaultFCMToken.length && _defaultFCMToken.length &&
+       ![defaultFCMToken isEqualToString:_defaultFCMToken]) ||
+      defaultFCMToken.length != _defaultFCMToken.length) {
+    NSNotification *tokenRefreshNotification =
+        [NSNotification notificationWithName:kFIRInstanceIDTokenRefreshNotification
+                                      object:[defaultFCMToken copy]];
+    [[NSNotificationQueue defaultQueue] enqueueNotification:tokenRefreshNotification
+                                               postingStyle:NSPostASAP];
   }
 
   _defaultFCMToken = defaultFCMToken;
-
-  // Sending this notification out will ensure that FIRMessaging has the updated
-  // default FCM token.
-  NSNotification *internalDefaultTokenNotification =
-      [NSNotification notificationWithName:kFIRInstanceIDDefaultGCMTokenNotification
-                                    object:_defaultFCMToken];
-  [[NSNotificationQueue defaultQueue] enqueueNotification:internalDefaultTokenNotification
-                                             postingStyle:NSPostASAP];
 }
 
 - (void)tokenWithAuthorizedEntity:(NSString *)authorizedEntity
@@ -367,6 +368,7 @@ static FIRInstanceID *gInstanceID;
   if (!handler) {
     FIRInstanceIDLoggerError(kFIRInstanceIDMessageCodeInstanceID001,
                              kFIRInstanceIDInvalidNilHandlerError);
+    return;
   }
 
   // comparing enums to ints directly throws a warning
@@ -836,17 +838,9 @@ static FIRInstanceID *gInstanceID;
       // Post the required notifications if somebody is waiting.
       FIRInstanceIDLoggerDebug(kFIRInstanceIDMessageCodeInstanceID008, @"Got default token %@",
                                token);
-      NSString *previousFCMToken = self.defaultFCMToken;
+      // Update default FCM token, this method also triggers sending notification if token has
+      // changed.
       self.defaultFCMToken = token;
-
-      // Only notify of token refresh if we have a new valid token that's different than before
-      if (self.defaultFCMToken.length && ![self.defaultFCMToken isEqualToString:previousFCMToken]) {
-        NSNotification *tokenRefreshNotification =
-            [NSNotification notificationWithName:kFIRInstanceIDTokenRefreshNotification
-                                          object:[self.defaultFCMToken copy]];
-        [[NSNotificationQueue defaultQueue] enqueueNotification:tokenRefreshNotification
-                                                   postingStyle:NSPostASAP];
-      }
 
       [self performDefaultTokenHandlerWithToken:token error:nil];
     }
@@ -982,12 +976,12 @@ static FIRInstanceID *gInstanceID;
     // Apps distributed via AppStore or TestFlight use the Production APNS certificates.
     return defaultAppTypeProd;
   }
-#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_WATCH
-  NSString *path = [[[NSBundle mainBundle] bundlePath]
-      stringByAppendingPathComponent:@"embedded.mobileprovision"];
-#elif TARGET_OS_OSX
+#if TARGET_OS_OSX || TARGET_OS_MACCATALYST
   NSString *path = [[[[NSBundle mainBundle] resourcePath] stringByDeletingLastPathComponent]
       stringByAppendingPathComponent:@"embedded.provisionprofile"];
+#elif TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_WATCH
+  NSString *path = [[[NSBundle mainBundle] bundlePath]
+      stringByAppendingPathComponent:@"embedded.mobileprovision"];
 #endif
 
   if ([GULAppEnvironmentUtil isAppStoreReceiptSandbox] && !path.length) {

@@ -40,8 +40,7 @@
 
   FIRCLSReportAdapter *adapter =
       [[FIRCLSReportAdapter alloc] initWithPath:minCrash
-                                    googleAppId:@"1:17586535263:ios:83778f4dc7e8a26ef794ea"
-                                          orgId:@"5bec84f69ea6961d03000dc5"];
+                                    googleAppId:@"1:17586535263:ios:83778f4dc7e8a26ef794ea"];
 
   GDTCORTransport *transport = [[GDTCORTransport alloc] initWithMappingID:@"1206"
                                                              transformers:nil
@@ -59,8 +58,7 @@
 
   FIRCLSReportAdapter *adapter =
       [[FIRCLSReportAdapter alloc] initWithPath:minCrash
-                                    googleAppId:@"1:17586535263:ios:83778f4dc7e8a26ef794ea"
-                                          orgId:@"5bec84f69ea6961d03000dc5"];
+                                    googleAppId:@"1:17586535263:ios:83778f4dc7e8a26ef794ea"];
 
   NSData *data = adapter.transportBytes;
 
@@ -81,8 +79,7 @@
 /// Verify various invalid input cases.
 - (void)testInvalidRecordCases {
   id adapter __unused = [[FIRCLSReportAdapter alloc] initWithPath:@"nonExistentPath"
-                                                      googleAppId:@"appID"
-                                                            orgId:@"orgID"];
+                                                      googleAppId:@"appID"];
 
   id application __unused = [[FIRCLSRecordApplication alloc] initWithDict:nil];
   id host __unused = [[FIRCLSRecordHost alloc] initWithDict:nil];
@@ -125,8 +122,7 @@
                  equalToString:adapter.application.display_version]);
 
   // Files payload
-  XCTAssertTrue([self isPBData:report.apple_payload.org_id equalToString:@"orgID"]);
-  XCTAssertEqual(report.apple_payload.files_count, 10);
+  XCTAssertEqual(report.apple_payload.files_count, 11);
 
   NSArray<NSString *> *clsRecords = adapter.clsRecordFilePaths;
   for (NSUInteger i = 0; i < clsRecords.count; i++) {
@@ -144,24 +140,21 @@
   return [[FIRCLSReportAdapter alloc]
       initWithPath:[[FIRCLSReportAdapterTests resourcePath]
                        stringByAppendingPathComponent:@"ios_all_files_crash"]
-       googleAppId:@"appID"
-             orgId:@"orgID"];
+       googleAppId:@"appID"];
 }
 
 + (FIRCLSReportAdapter *)adapterForCorruptMetadata {
   return [[FIRCLSReportAdapter alloc]
       initWithPath:[[FIRCLSReportAdapterTests resourcePath]
                        stringByAppendingPathComponent:@"corrupt_metadata"]
-       googleAppId:@"appID"
-             orgId:@"orgID"];
+       googleAppId:@"appID"];
 }
 
 + (FIRCLSReportAdapter *)adapterForValidMetadata {
   return [[FIRCLSReportAdapter alloc]
       initWithPath:[[FIRCLSReportAdapterTests resourcePath]
                        stringByAppendingPathComponent:@"valid_metadata"]
-       googleAppId:@"appID"
-             orgId:@"orgID"];
+       googleAppId:@"appID"];
 }
 
 + (NSString *)resourcePath {
