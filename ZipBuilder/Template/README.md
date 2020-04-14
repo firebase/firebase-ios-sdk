@@ -1,7 +1,7 @@
 # Firebase iOS SDKs
 
-This directory contains the full Firebase distribution, packaged as static
-frameworks that can be integrated into your app.
+This directory contains the full Firebase iOS distribution, packaged as
+static frameworks and xcframeworks that can be integrated into your app.
 
 # Integration Instructions
 
