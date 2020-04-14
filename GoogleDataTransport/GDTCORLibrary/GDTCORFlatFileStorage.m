@@ -168,7 +168,7 @@
         NSError *error;
         if (event.fileURL) {
           NSURL *fileURL = event.fileURL;
-          [[NSFileManager defaultManager] removeItemAtURL:fileURL error:&error];
+          [[NSFileManager defaultManager] removeItemAtPath:fileURL.path error:&error];
           GDTCORAssert(error == nil, @"There was an error removing an event file: %@", error);
           GDTCORLogDebug("Removed event from disk: %@", fileURL);
         }
