@@ -18,7 +18,7 @@
 
 #import <GoogleDataTransport/GDTCORPlatform.h>
 
-#import "GDTCORLibrary/Private/GDTCORStorage_Private.h"
+#import "GDTCORLibrary/Private/GDTCORFlatFileStorage.h"
 #import "GDTCORLibrary/Private/GDTCORUploadCoordinator.h"
 
 #import "GDTCORTests/Common/Categories/GDTCORRegistrar+Testing.h"
@@ -56,7 +56,7 @@
   [[GDTCORRegistrar sharedInstance] registerUploader:_uploader target:kGDTCORTargetTest];
 
   GDTCORUploadCoordinator *uploadCoordinator = [GDTCORUploadCoordinator sharedInstance];
-  uploadCoordinator.storage = self.storageFake;
+  [[GDTCORRegistrar sharedInstance] registerStorage:self.storageFake target:kGDTCORTargetTest];
   uploadCoordinator.timerInterval = NSEC_PER_SEC;
   uploadCoordinator.timerLeeway = 0;
 }
@@ -170,7 +170,6 @@
 
 /** Tests that retrying a package delivery doesn't delete the file from disk. */
 - (void)testPackageRetrying {
-  [GDTCORUploadCoordinator sharedInstance].storage = [GDTCORStorage sharedInstance];
   NSSet<GDTCOREvent *> *events = [GDTCOREventGenerator generate3Events];
   self.prioritizer.events = events;
   XCTestExpectation *expectation = [self expectationWithDescription:@"uploader will upload"];
@@ -187,7 +186,7 @@
   [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
   dispatch_sync([GDTCORUploadCoordinator sharedInstance].coordinationQueue, ^{
                 });
-  dispatch_sync([GDTCORStorage sharedInstance].storageQueue, ^{
+  dispatch_sync([GDTCORFlatFileStorage sharedInstance].storageQueue, ^{
                 });
   [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
   for (GDTCOREvent *event in events) {

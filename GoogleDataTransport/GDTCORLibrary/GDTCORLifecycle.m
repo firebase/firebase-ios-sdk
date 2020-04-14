@@ -20,7 +20,6 @@
 #import <GoogleDataTransport/GDTCOREvent.h>
 
 #import "GDTCORLibrary/Private/GDTCORRegistrar_Private.h"
-#import "GDTCORLibrary/Private/GDTCORStorage_Private.h"
 #import "GDTCORLibrary/Private/GDTCORTransformer_Private.h"
 #import "GDTCORLibrary/Private/GDTCORUploadCoordinator.h"
 
@@ -75,10 +74,6 @@
     GDTCORLogDebug("%@", @"Signaling GDTCORTransformer that the app is backgrounding.");
     [[GDTCORTransformer sharedInstance] appWillBackground:application];
   }
-  if ([[GDTCORStorage sharedInstance] respondsToSelector:@selector(appWillBackground:)]) {
-    GDTCORLogDebug("%@", @"Signaling GDTCORStorage that the app is backgrounding.");
-    [[GDTCORStorage sharedInstance] appWillBackground:application];
-  }
   if ([[GDTCORUploadCoordinator sharedInstance] respondsToSelector:@selector(appWillBackground:)]) {
     GDTCORLogDebug("%@", @"Signaling GDTCORUploadCoordinator that the app is backgrounding.");
     [[GDTCORUploadCoordinator sharedInstance] appWillBackground:application];
@@ -95,10 +90,6 @@
     GDTCORLogDebug("%@", @"Signaling GDTCORTransformer that the app is foregrounding.");
     [[GDTCORTransformer sharedInstance] appWillForeground:application];
   }
-  if ([[GDTCORStorage sharedInstance] respondsToSelector:@selector(appWillForeground:)]) {
-    GDTCORLogDebug("%@", @"Signaling GDTCORStorage that the app is foregrounding.");
-    [[GDTCORStorage sharedInstance] appWillForeground:application];
-  }
   if ([[GDTCORUploadCoordinator sharedInstance] respondsToSelector:@selector(appWillForeground:)]) {
     GDTCORLogDebug("%@", @"Signaling GDTCORUploadCoordinator that the app is foregrounding.");
     [[GDTCORUploadCoordinator sharedInstance] appWillForeground:application];
@@ -114,10 +105,6 @@
   if ([[GDTCORTransformer sharedInstance] respondsToSelector:@selector(appWillTerminate:)]) {
     GDTCORLogDebug("%@", @"Signaling GDTCORTransformer that the app is terminating.");
     [[GDTCORTransformer sharedInstance] appWillTerminate:application];
-  }
-  if ([[GDTCORStorage sharedInstance] respondsToSelector:@selector(appWillTerminate:)]) {
-    GDTCORLogDebug("%@", @"Signaling GDTCORStorage that the app is terminating.");
-    [[GDTCORStorage sharedInstance] appWillTerminate:application];
   }
   if ([[GDTCORUploadCoordinator sharedInstance] respondsToSelector:@selector(appWillTerminate:)]) {
     GDTCORLogDebug("%@", @"Signaling GDTCORUploadCoordinator that the app is terminating.");

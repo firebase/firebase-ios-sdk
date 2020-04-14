@@ -19,9 +19,6 @@
 #import <GoogleDataTransport/GDTCORPrioritizer.h>
 #import <GoogleDataTransport/GDTCORTargets.h>
 
-/** The integration test target. Normally, you should use a value in GDTCORTargets.h. */
-static GDTCORTarget kGDTCORIntegrationTestTarget = 100;
-
 /** An integration test prioritization class. */
 @interface GDTCORIntegrationTestPrioritizer : NSObject <GDTCORPrioritizer>
 

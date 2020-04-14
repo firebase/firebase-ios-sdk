@@ -20,14 +20,14 @@
 #import <GoogleDataTransport/GDTCOREventDataObject.h>
 #import <GoogleDataTransport/GDTCORTransport.h>
 
-#import "GDTCORLibrary/Private/GDTCORStorage_Private.h"
 #import "GDTCORLibrary/Private/GDTCORTransformer_Private.h"
 #import "GDTCORLibrary/Private/GDTCORUploadCoordinator.h"
 
 #import "GDTCORTests/Lifecycle/Helpers/GDTCORLifecycleTestPrioritizer.h"
 #import "GDTCORTests/Lifecycle/Helpers/GDTCORLifecycleTestUploader.h"
 
-#import "GDTCORTests/Common/Categories/GDTCORStorage+Testing.h"
+#import "GDTCORTests/Common/Categories/GDTCORFlatFileStorage+Testing.h"
+#import "GDTCORTests/Common/Categories/GDTCORRegistrar+Testing.h"
 #import "GDTCORTests/Common/Categories/GDTCORUploadCoordinator+Testing.h"
 
 /** Waits for the result of waitBlock to be YES, or times out and fails.
@@ -43,10 +43,8 @@
           return waitBlock();                                                                     \
         }];                                                                                       \
     XCTestExpectation *expectation = [self expectationForPredicate:pred                           \
-                                               evaluatedWithObject:[[NSObject alloc] init]        \
-                                                           handler:^BOOL {                        \
-                                                             return YES;                          \
-                                                           }];                                    \
+                                               evaluatedWithObject:nil                            \
+                                                           handler:nil];                          \
     [self waitForExpectations:@[ expectation ] timeout:timeInterval];                             \
   }
 
@@ -78,15 +76,27 @@
 
 - (void)setUp {
   [super setUp];
+  [[GDTCORRegistrar sharedInstance] registerStorage:[GDTCORFlatFileStorage sharedInstance]
+                                             target:kGDTCORTargetTest];
+
   // Don't check the error, because it'll be populated in cases where the file doesn't exist.
   NSError *error;
-  [[NSFileManager defaultManager] removeItemAtPath:[GDTCORStorage archivePath] error:&error];
+  [[NSFileManager defaultManager] removeItemAtPath:[GDTCORFlatFileStorage archivePath]
+                                             error:&error];
   self.uploader = [[GDTCORLifecycleTestUploader alloc] init];
   [[GDTCORRegistrar sharedInstance] registerUploader:self.uploader target:kGDTCORTargetTest];
 
   self.prioritizer = [[GDTCORLifecycleTestPrioritizer alloc] init];
   [[GDTCORRegistrar sharedInstance] registerPrioritizer:self.prioritizer target:kGDTCORTargetTest];
-  [[GDTCORStorage sharedInstance] reset];
+}
+
+- (void)tearDown {
+  [super tearDown];
+  self.uploader = nil;
+  self.prioritizer = nil;
+
+  [[GDTCORRegistrar sharedInstance] reset];
+  [[GDTCORFlatFileStorage sharedInstance] reset];
   [[GDTCORUploadCoordinator sharedInstance] reset];
 }
 
@@ -100,11 +110,11 @@
                                                                    target:kGDTCORTargetTest];
   GDTCOREvent *event = [transport eventForTransport];
   event.dataObject = [[GDTCORLifecycleTestEvent alloc] init];
-  XCTAssertEqual([GDTCORStorage sharedInstance].storedEvents.count, 0);
+  XCTAssertEqual([GDTCORFlatFileStorage sharedInstance].storedEvents.count, 0);
   [transport sendDataEvent:event];
   GDTCORWaitForBlock(
       ^BOOL {
-        return [GDTCORStorage sharedInstance].storedEvents.count > 0;
+        return [GDTCORFlatFileStorage sharedInstance].storedEvents.count > 0;
       },
       5.0);
 
@@ -115,7 +125,7 @@
   GDTCORWaitForBlock(
       ^BOOL {
         NSFileManager *fm = [NSFileManager defaultManager];
-        return [fm fileExistsAtPath:[GDTCORStorage archivePath] isDirectory:NULL];
+        return [fm fileExistsAtPath:[GDTCORFlatFileStorage archivePath] isDirectory:NULL];
       },
       5.0);
 }
@@ -127,11 +137,11 @@
                                                                    target:kGDTCORTargetTest];
   GDTCOREvent *event = [transport eventForTransport];
   event.dataObject = [[GDTCORLifecycleTestEvent alloc] init];
-  XCTAssertEqual([GDTCORStorage sharedInstance].storedEvents.count, 0);
+  XCTAssertEqual([GDTCORFlatFileStorage sharedInstance].storedEvents.count, 0);
   [transport sendDataEvent:event];
   GDTCORWaitForBlock(
       ^BOOL {
-        return [GDTCORStorage sharedInstance].storedEvents.count > 0;
+        return [GDTCORFlatFileStorage sharedInstance].storedEvents.count > 0;
       },
       5.0);
 
@@ -141,7 +151,7 @@
   GDTCORWaitForBlock(
       ^BOOL {
         NSFileManager *fm = [NSFileManager defaultManager];
-        return [fm fileExistsAtPath:[GDTCORStorage archivePath] isDirectory:NULL];
+        return [fm fileExistsAtPath:[GDTCORFlatFileStorage archivePath] isDirectory:NULL];
       },
       5.0);
 
@@ -150,7 +160,7 @@
   XCTAssertFalse([GDTCORApplication sharedApplication].isRunningInBackground);
   GDTCORWaitForBlock(
       ^BOOL {
-        return [GDTCORStorage sharedInstance].storedEvents.count > 0;
+        return [GDTCORFlatFileStorage sharedInstance].storedEvents.count > 0;
       },
       5.0);
 }
@@ -163,11 +173,11 @@
                                                                    target:kGDTCORTargetTest];
   GDTCOREvent *event = [transport eventForTransport];
   event.dataObject = [[GDTCORLifecycleTestEvent alloc] init];
-  XCTAssertEqual([GDTCORStorage sharedInstance].storedEvents.count, 0);
+  XCTAssertEqual([GDTCORFlatFileStorage sharedInstance].storedEvents.count, 0);
   [transport sendDataEvent:event];
   GDTCORWaitForBlock(
       ^BOOL {
-        return [GDTCORStorage sharedInstance].storedEvents.count > 0;
+        return [GDTCORFlatFileStorage sharedInstance].storedEvents.count > 0;
       },
       5.0);
 
@@ -176,7 +186,7 @@
   GDTCORWaitForBlock(
       ^BOOL {
         NSFileManager *fm = [NSFileManager defaultManager];
-        return [fm fileExistsAtPath:[GDTCORStorage archivePath] isDirectory:NULL];
+        return [fm fileExistsAtPath:[GDTCORFlatFileStorage archivePath] isDirectory:NULL];
       },
       5.0);
 }

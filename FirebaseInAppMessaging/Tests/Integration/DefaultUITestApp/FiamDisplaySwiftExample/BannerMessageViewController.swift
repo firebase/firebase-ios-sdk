@@ -36,7 +36,8 @@ class BannerMessageViewController: CommonMessageTestVC {
   @IBAction func showRegularBannerTapped(_ sender: Any) {
     verifyLabel.text = "Verification Label"
     let imageRawData = produceImageOfSize(size: CGSize(width: 200, height: 200))
-    let fiamImageData = InAppMessagingImageData(imageURL: "url not important", imageData: imageRawData!)
+    let fiamImageData = InAppMessagingImageData(imageURL: "url not important",
+                                                imageData: imageRawData!)
 
     let bannerMessage = InAppMessagingBannerDisplay(messageID: "messageId",
                                                     campaignName: "testCampaign",
@@ -71,7 +72,8 @@ class BannerMessageViewController: CommonMessageTestVC {
   @IBAction func showBannerViewWithWideImageTapped(_ sender: Any) {
     verifyLabel.text = "Verification Label"
     let imageRawData = produceImageOfSize(size: CGSize(width: 800, height: 200))
-    let fiamImageData = InAppMessagingImageData(imageURL: "url not important", imageData: imageRawData!)
+    let fiamImageData = InAppMessagingImageData(imageURL: "url not important",
+                                                imageData: imageRawData!)
 
     let modalMessage = InAppMessagingBannerDisplay(messageID: "messageId",
                                                    campaignName: "testCampaign",
@@ -90,7 +92,8 @@ class BannerMessageViewController: CommonMessageTestVC {
   @IBAction func showBannerViewWithNarrowImageTapped(_ sender: Any) {
     verifyLabel.text = "Verification Label"
     let imageRawData = produceImageOfSize(size: CGSize(width: 200, height: 800))
-    let fiamImageData = InAppMessagingImageData(imageURL: "url not important", imageData: imageRawData!)
+    let fiamImageData = InAppMessagingImageData(imageURL: "url not important",
+                                                imageData: imageRawData!)
 
     let modalMessage = InAppMessagingBannerDisplay(messageID: "messageId",
                                                    campaignName: "testCampaign",
@@ -109,7 +112,8 @@ class BannerMessageViewController: CommonMessageTestVC {
   @IBAction func showBannerViewWithLargeBodyTextTapped(_ sender: Any) {
     verifyLabel.text = "Verification Label"
     let imageRawData = produceImageOfSize(size: CGSize(width: 200, height: 200))
-    let fiamImageData = InAppMessagingImageData(imageURL: "url not important", imageData: imageRawData!)
+    let fiamImageData = InAppMessagingImageData(imageURL: "url not important",
+                                                imageData: imageRawData!)
 
     let modalMessage = InAppMessagingBannerDisplay(messageID: "messageId",
                                                    campaignName: "testCampaign",
@@ -128,7 +132,8 @@ class BannerMessageViewController: CommonMessageTestVC {
   @IBAction func showBannerViewWithLongTitleTextTapped(_ sender: Any) {
     verifyLabel.text = "Verification Label"
     let imageRawData = produceImageOfSize(size: CGSize(width: 200, height: 200))
-    let fiamImageData = InAppMessagingImageData(imageURL: "url not important", imageData: imageRawData!)
+    let fiamImageData = InAppMessagingImageData(imageURL: "url not important",
+                                                imageData: imageRawData!)
 
     let modalMessage = InAppMessagingBannerDisplay(messageID: "messageId",
                                                    campaignName: "testCampaign",

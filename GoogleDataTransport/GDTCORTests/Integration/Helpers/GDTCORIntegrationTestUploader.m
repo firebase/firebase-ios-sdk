@@ -36,7 +36,7 @@
   self = [super init];
   if (self) {
     _serverURL = serverURL;
-    [[GDTCORRegistrar sharedInstance] registerUploader:self target:kGDTCORIntegrationTestTarget];
+    [[GDTCORRegistrar sharedInstance] registerUploader:self target:kGDTCORTargetTest];
   }
   return self;
 }

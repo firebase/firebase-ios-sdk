@@ -56,7 +56,8 @@ public struct TableUpdate: Encodable {
   }
 
   /// Creates a table update for code coverage by parsing a coverage report from XCov.
-  public static func createFrom(coverage: CoverageReport, pullRequest: Int, currentTime: String) -> TableUpdate {
+  public static func createFrom(coverage: CoverageReport, pullRequest: Int,
+                                currentTime: String) -> TableUpdate {
     var metrics = [[String]]()
     for target in coverage.targets {
       if TARGETS_TO_COLLECT.contains(target.name) {
@@ -71,6 +72,7 @@ public struct TableUpdate: Encodable {
       }
     }
     let columnNames = ["product_name", "pull_request_id", "coverage_total", "collection_time"]
-    return TableUpdate(table_name: "IosCodeCoverage", column_names: columnNames, replace_measurements: metrics)
+    return TableUpdate(table_name: "IosCodeCoverage", column_names: columnNames,
+                       replace_measurements: metrics)
   }
 }
