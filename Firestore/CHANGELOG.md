@@ -1,7 +1,10 @@
 # Unreleased
 
-# v1.11.3
-- [changed] Internal changes.
+# v1.12.1
+- [changed] Internal improvements for future C++ and Unity support.
+
+# v1.12.0
+- [changed] Internal improvements.
 
 # v1.11.2
 - [fixed] Fixed the FirebaseFirestore podspec to properly declare its
