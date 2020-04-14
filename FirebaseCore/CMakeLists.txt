@@ -16,28 +16,29 @@ if(NOT APPLE)
   return()
 endif()
 
-file(GLOB sources Sources/*.m)
 file(GLOB headers Sources/Private/*.h Sources/Public/*.h)
+file(GLOB sources Sources/*.m)
 
 podspec_version(version ${PROJECT_SOURCE_DIR}/FirebaseCore.podspec)
-firebase_version(firebase_ios_version ${PROJECT_SOURCE_DIR}/FirebaseCore.podspec)
+firebase_version(firebase_version ${PROJECT_SOURCE_DIR}/FirebaseCore.podspec)
 
-firebase_ios_objc_framework(
-  FirebaseCore
-  SOURCES ${sources}
-  HEADERS ${headers}
-  VERSION ${version}
-  DEFINES
-    FIRCore_VERSION=${version}
-    Firebase_VERSION=${firebase_ios_version}
-  INCLUDES
-    ${PROJECT_SOURCE_DIR}
-  DEPENDS
-    FirebaseCoreDiagnosticsInterop
-    GoogleUtilities
-    "-framework Foundation"
-  DISABLE_STRICT_WARNINGS
-  EXCLUDE_FROM_ALL
+firebase_ios_add_framework(
+  FirebaseCore DISABLE_STRICT_WARNINGS EXCLUDE_FROM_ALL ${headers} ${sources}
+)
+
+firebase_ios_framework_public_headers(FirebaseCore ${headers})
+
+target_compile_definitions(
+  FirebaseCore PRIVATE
+  FIRCore_VERSION=${version}
+  Firebase_VERSION=${firebase_version}
+)
+
+target_link_libraries(
+  FirebaseCore PRIVATE
+  "-framework Foundation"
+  FirebaseCoreDiagnosticsInterop
+  GoogleUtilities
 )
 
 if(IOS)

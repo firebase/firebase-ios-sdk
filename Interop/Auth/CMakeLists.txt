@@ -17,13 +17,11 @@ if(NOT APPLE)
 endif()
 
 file(GLOB headers Public/*.h)
+firebase_ios_generate_dummy_source(FirebaseAuthInterop sources)
 
-podspec_version(version ${PROJECT_SOURCE_DIR}/FirebaseAuthInterop.podspec)
-
-firebase_ios_objc_framework(
-  FirebaseAuthInterop
-  HEADERS ${headers}
-  VERSION ${version}
-  DISABLE_STRICT_WARNINGS
-  EXCLUDE_FROM_ALL
+firebase_ios_add_framework(
+  FirebaseAuthInterop DISABLE_STRICT_WARNINGS EXCLUDE_FROM_ALL
+  ${headers} ${sources}
 )
+
+firebase_ios_framework_public_headers(FirebaseAuthInterop ${headers})

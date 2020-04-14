@@ -17,17 +17,11 @@ if(NOT APPLE)
 endif()
 
 file(GLOB headers Public/*.h)
+firebase_ios_generate_dummy_source(FirebaseCoreDiagnosticsInterop sources)
 
-podspec_version(
-  version
-  ${PROJECT_SOURCE_DIR}/FirebaseCoreDiagnosticsInterop.podspec
+firebase_ios_add_framework(
+  FirebaseCoreDiagnosticsInterop DISABLE_STRICT_WARNINGS EXCLUDE_FROM_ALL
+  ${headers} ${sources}
 )
 
-firebase_ios_objc_framework(
-  FirebaseCoreDiagnosticsInterop
-  HEADERS ${headers}
-  VERSION ${version}
-  INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}
-  DISABLE_STRICT_WARNINGS
-  EXCLUDE_FROM_ALL
-)
+firebase_ios_framework_public_headers(FirebaseCoreDiagnosticsInterop ${headers})
