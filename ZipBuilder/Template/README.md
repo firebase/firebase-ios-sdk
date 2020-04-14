@@ -1,13 +1,15 @@
 # Firebase iOS SDKs
 
-This directory contains the full Firebase distribution, packaged as static
-frameworks that can be integrated into your app.
+This directory contains the full Firebase iOS distribution, packaged as
+static frameworks and xcframeworks that can be integrated into your app.
 
 # Integration Instructions
 
 Each Firebase component requires several frameworks in order to function
 properly. Each section below lists the frameworks you'll need to include
 in your project in order to use that Firebase SDK in your application.
+
+Xcode 11.0 or newer is required.
 
 To integrate a Firebase SDK with your app:
 
