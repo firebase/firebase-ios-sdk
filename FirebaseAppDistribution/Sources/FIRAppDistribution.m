@@ -17,6 +17,7 @@
 #import "FIRAppDistributionMachO+Private.h"
 #import "FIRAppDistributionRelease+Private.h"
 #import "FIRAppDistributionMachO+Private.h"
+#import "FIRAppDistributionAuthPersistence+Private.h"
 
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIRComponent.h>
@@ -68,6 +69,7 @@ NSString *const kAppDistroLibraryName = @"fire-fad";
   if (authRetrievalError) {
     NSLog(@"Error retrieving token from keychain: %@", [authRetrievalError localizedDescription]);
   }
+
   self.isTesterSignedIn = self.authState ? YES : NO;
   return self;
 }
@@ -141,6 +143,7 @@ NSString *const kAppDistroLibraryName = @"fire-fad";
   if (!didClearAuthState) {
     NSLog(@"Error clearing token from keychain: %@", [error localizedDescription]);
   }
+
   self.authState = nil;
   self.isTesterSignedIn = false;
 }
@@ -244,7 +247,9 @@ NSString *const kAppDistroLibraryName = @"fire-fad";
                                              self.isTesterSignedIn = self.authState ? YES : NO;
                                              completion(error);
                                            }];
+
 }
+
 
 - (UIWindow *)createUIWindowForLogin {
   // Create an empty window + viewController to host the Safari UI.
