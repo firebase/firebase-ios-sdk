@@ -16,6 +16,7 @@
 #import "FIRAppDistributionMachO+Private.h"
 #import "FIRAppDistributionRelease+Private.h"
 #import "FIRAppDistributionMachO+Private.h"
+#import "FIRAppDistributionAuthPersistence+Private.h"
 
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIRComponent.h>
@@ -61,7 +62,7 @@ NSString *const kAppDistroLibraryName = @"fire-fad";
     [GULAppDelegateSwizzler registerAppDelegateInterceptor:interceptor];
   }
 
-  // TODO: Lookup keychain to load auth state on init
+  self.authState = [FIRAppDistributionAuthPersistence retrieveAuthState];
   self.isTesterSignedIn = self.authState ? YES : NO;
   return self;
 }
@@ -129,43 +130,57 @@ NSString *const kAppDistroLibraryName = @"fire-fad";
 }
 
 - (void)signOutTester {
+  [FIRAppDistributionAuthPersistence clearAuthState];
   self.authState = nil;
   self.isTesterSignedIn = false;
 }
 
 - (void)fetchReleases:(FIRAppDistributionUpdateCheckCompletion)completion {
-  NSURLSession *URLSession = [NSURLSession sharedSession];
-  NSMutableURLRequest *request = [[NSMutableURLRequest alloc] init];
-  NSString *URLString =
-      [NSString stringWithFormat:kReleasesEndpointURL, [[FIRApp defaultApp] options].googleAppID];
-  [request setURL:[NSURL URLWithString:URLString]];
-  [request setHTTPMethod:@"GET"];
-  [request setValue:[NSString
-                        stringWithFormat:@"Bearer %@", self.authState.lastTokenResponse.accessToken]
-      forHTTPHeaderField:@"Authorization"];
 
-  NSURLSessionDataTask *listReleasesDataTask = [URLSession
-      dataTaskWithRequest:request
-        completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
-          if (error) {
-            // TODO: Reformat error into error code
-            completion(nil, error);
-            return;
-          }
+    [self.authState performActionWithFreshTokens:^(NSString *_Nonnull accessToken,
+                                               NSString *_Nonnull idToken,
+                                               NSError *_Nullable error) {
+      if (error) {
+        NSLog(@"Error fetching fresh tokens: %@", [error localizedDescription]);
+        [self signOutTester];
+        return;
+      }
 
-          NSHTTPURLResponse *HTTPResponse = (NSHTTPURLResponse *)response;
+      // perform your API request using the tokens
+        NSURLSession *URLSession = [NSURLSession sharedSession];
+        NSMutableURLRequest *request = [[NSMutableURLRequest alloc] init];
+        NSString *URLString =
+            [NSString stringWithFormat:kReleasesEndpointURL, [[FIRApp defaultApp] options].googleAppID];
+        [request setURL:[NSURL URLWithString:URLString]];
+        [request setHTTPMethod:@"GET"];
+        [request setValue:[NSString
+                              stringWithFormat:@"Bearer %@", accessToken]
+            forHTTPHeaderField:@"Authorization"];
 
-          if (HTTPResponse.statusCode == 200) {
-            [self handleReleasesAPIResponseWithData:data completion:completion];
-          } else {
-            // TODO: Handle non-200 http response
-            @throw([NSException exceptionWithName:@"NotImplementedException"
-                                           reason:@"This code path is not implemented yet"
-                                         userInfo:nil]);
-          }
-        }];
+        NSURLSessionDataTask *listReleasesDataTask = [URLSession
+            dataTaskWithRequest:request
+              completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+                if (error) {
+                  // TODO: Reformat error into error code
+                  completion(nil, error);
+                  return;
+                }
 
-  [listReleasesDataTask resume];
+                NSHTTPURLResponse *HTTPResponse = (NSHTTPURLResponse *)response;
+
+                if (HTTPResponse.statusCode == 200) {
+                  [self handleReleasesAPIResponseWithData:data completion:completion];
+                } else {
+                  // TODO: Handle non-200 http response
+                  NSLog(@"ERROR - Non 200 service response - %@", HTTPResponse);
+                  @throw([NSException exceptionWithName:@"NotImplementedException"
+                                                 reason:@"This code path is not implemented yet"
+                                               userInfo:nil]);
+                }
+              }];
+
+        [listReleasesDataTask resume];
+    }];
 }
 
 - (void)handleOauthDiscoveryCompletion:(OIDServiceConfiguration *_Nullable)configuration
@@ -173,6 +188,7 @@ NSString *const kAppDistroLibraryName = @"fire-fad";
        appDistributionSignInCompletion:(void (^)(NSError *_Nullable error))completion {
   if (!configuration) {
     // TODO: Handle when we cannot get configuration
+      NSLog(@"ERROR - Cannot discover oauth config");
     @throw([NSException exceptionWithName:@"NotImplementedException"
                                    reason:@"This code path is not implemented yet"
                                  userInfo:nil]);
@@ -198,13 +214,13 @@ NSString *const kAppDistroLibraryName = @"fire-fad";
                                      presentingViewController:self.safariHostingViewController
                                                      callback:^(OIDAuthState *_Nullable authState,
                                                                 NSError *_Nullable error) {
-                                                       [self cleanupUIWindow];
-
-                                                       self.authState = authState;
-                                                       self.isTesterSignedIn =
-                                                           self.authState ? YES : NO;
-                                                       completion(error);
-                                                     }];
+        self.authState = authState;
+        if(authState) {
+          [FIRAppDistributionAuthPersistence persistAuthState:authState];
+        }
+        self.isTesterSignedIn = self.authState ? YES : NO;
+        completion(error);
+      }];
 }
 
 - (void)setupUIWindowForLogin {
