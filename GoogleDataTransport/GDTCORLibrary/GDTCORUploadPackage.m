@@ -31,7 +31,7 @@
   BOOL _isHandled;
 
   /** A timer that will regularly check to see whether this package has expired or not. */
-  NSTimer *_expirationTimer;
+  __weak NSTimer *_expirationTimer;
 }
 
 - (instancetype)initWithTarget:(GDTCORTarget)target {
@@ -79,6 +79,7 @@
   if (!_isHandled && _handler &&
       [_handler respondsToSelector:@selector(packageDelivered:successful:)]) {
     [_expirationTimer invalidate];
+    _expirationTimer = nil;
     _isHandled = YES;
     [_handler packageDelivered:[self copy] successful:YES];
   }
@@ -89,6 +90,7 @@
   if (!_isHandled && _handler &&
       [_handler respondsToSelector:@selector(packageDelivered:successful:)]) {
     [_expirationTimer invalidate];
+    _expirationTimer = nil;
     _isHandled = YES;
     [_handler packageDelivered:[self copy] successful:NO];
   }
