@@ -15,6 +15,7 @@
 #import "FIRAppDistribution+Private.h"
 #import "FIRAppDistributionRelease+Private.h"
 #import "FIRAppDistributionMachO+Private.h"
+#import "FIRAppDistributionAuthPersistence+Private.h"
 
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIRComponent.h>
@@ -62,33 +63,8 @@ NSString *const kAppDistroLibraryName = @"fire-fad";
     [GULAppDelegateSwizzler registerAppDelegateInterceptor:interceptor];
   }
 
-  // TODO: Lookup keychain to load auth state on init
-    NSMutableDictionary *keychainQuery =
-         [NSMutableDictionary dictionaryWithObjectsAndKeys:(id)kSecClassGenericPassword, (id)kSecClass,
-                                                           @"OAuth", (id)kSecAttrGeneric,
-                                                           @"OAuth", (id)kSecAttrAccount,
-                                                           @"fire-fad-auth", (id)kSecAttrService,
-                                                           nil];
-      [keychainQuery setObject:(id)kCFBooleanTrue forKey:(id)kSecReturnData];
-      [keychainQuery setObject:(id)kSecMatchLimitOne forKey:(id)kSecMatchLimit];
-      CFDataRef passwordData = NULL;
-      NSData *result = nil;
-      OSStatus status = SecItemCopyMatching((CFDictionaryRef)keychainQuery,
-                                         (CFTypeRef *)&passwordData);
-      if (status == noErr && 0 < [(__bridge NSData *)passwordData length]) {
-        result = [(__bridge NSData *)passwordData copy];
-      } else {
-          NSLog(@"AUTH FAILURE on startup - cannot lookup keystore config");
-      }
-      if (passwordData != NULL) {
-        CFRelease(passwordData);
-      }
-      
-      if(result) {
-          NSLog(@"AUTH SUCCESS on startup - setting auth state");
-          self.authState = (OIDAuthState *)[NSKeyedUnarchiver unarchiveObjectWithData:result];
-          NSLog(@"Auth state %@", self.authState);
-      }
+    self.authState = [FIRAppDistributionAuthPersistence retrieveAuthState];
+
       _isTesterSignedIn = self.authState ? YES : NO;
       return self;
 }
@@ -156,7 +132,7 @@ NSString *const kAppDistroLibraryName = @"fire-fad";
 }
 
 - (void)signOutTester {
-    [self deleteAuthStateFromKeychain];
+    [FIRAppDistributionAuthPersistence clearAuthState];
     self.authState = nil;
     _isTesterSignedIn = false;
 }
@@ -209,25 +185,6 @@ NSString *const kAppDistroLibraryName = @"fire-fad";
     }];
 }
 
-- (void)deleteAuthStateFromKeychain {
-    if(self.authState) {
-        NSMutableDictionary *keychainQuery =
-             [NSMutableDictionary dictionaryWithObjectsAndKeys:(id)kSecClassGenericPassword, (id)kSecClass,
-                                                               @"OAuth", (id)kSecAttrGeneric,
-                                                               @"OAuth", (id)kSecAttrAccount,
-                                                               @"fire-fad-auth", (id)kSecAttrService,
-                                                               nil];
-        
-        OSStatus status = SecItemDelete((CFDictionaryRef)keychainQuery);
-        if (status != noErr) {
-            //TODO: Handle error state
-            NSLog(@"Error deleting auth keychain entry!");
-        } else {
-            NSLog(@"keychain successfully deleted!");
-        }
-    }
-}
-
 - (void)handleOauthDiscoveryCompletion:(OIDServiceConfiguration *_Nullable)configuration
                                  error:(NSError *_Nullable)error
        appDistributionSignInCompletion:(FIRAppDistributionSignInTesterCompletion)completion {
@@ -261,21 +218,7 @@ NSString *const kAppDistroLibraryName = @"fire-fad";
                                                                 NSError *_Nullable error) {
           self.authState = authState;
           if(authState) {
-           NSData *authorizationData = [NSKeyedArchiver archivedDataWithRootObject:authState];
-            NSMutableDictionary *query =
-                [NSMutableDictionary dictionaryWithObjectsAndKeys:(id)kSecClassGenericPassword, (id)kSecClass,
-                                                                  @"OAuth", (id)kSecAttrGeneric,
-                                                                  @"OAuth", (id)kSecAttrAccount,
-                                                                  @"fire-fad-auth", (id)kSecAttrService,
-                                                                  authorizationData, (id)kSecValueData,
-                                                                  nil];
-              OSStatus status = SecItemAdd((CFDictionaryRef)query, NULL);
-              if (status != noErr && error != NULL) {
-                  NSLog(@"AUTH ERROR. Cant store auth state in keychain");
-                  self.authState = nil;
-              } else {
-                  NSLog(@"AUTH SUCCESS! Added auth state to keychain");
-              }
+              [FIRAppDistributionAuthPersistence persistAuthState:authState];
           }
           self->_isTesterSignedIn = self.authState ? YES : NO;
           completion(error);
