@@ -42,7 +42,7 @@
 }
 
 - (void)testObservesExistingDocument {
-  [self readerAndWriterOnDocumentRef:^(NSString *path, FIRDocumentReference *readerRef,
+  [self readerAndWriterOnDocumentRef:^(NSString *, FIRDocumentReference *readerRef,
                                        FIRDocumentReference *writerRef) {
     NSDictionary<NSString *, id> *data = [self chatMessage];
     [self writeDocumentRef:writerRef data:data];
@@ -59,7 +59,7 @@
 }
 
 - (void)testObservesNewDocument {
-  [self readerAndWriterOnDocumentRef:^(NSString *path, FIRDocumentReference *readerRef,
+  [self readerAndWriterOnDocumentRef:^(NSString *, FIRDocumentReference *readerRef,
                                        FIRDocumentReference *writerRef) {
     id<FIRListenerRegistration> listenerRegistration =
         [readerRef addSnapshotListener:self.eventAccumulator.valueEventHandler];

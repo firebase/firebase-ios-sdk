@@ -196,7 +196,7 @@ NS_ASSUME_NONNULL_BEGIN
   __block ParseContext context = accumulator.RootContext();
   __block ObjectValue updateData = ObjectValue::Empty();
 
-  [dict enumerateKeysAndObjectsUsingBlock:^(id key, id value, BOOL *stop) {
+  [dict enumerateKeysAndObjectsUsingBlock:^(id key, id value, BOOL *) {
     FieldPath path;
 
     if ([key isKindOfClass:[NSString class]]) {
@@ -295,7 +295,7 @@ NS_ASSUME_NONNULL_BEGIN
   } else {
     __block ObjectValue result = ObjectValue::Empty();
 
-    [dict enumerateKeysAndObjectsUsingBlock:^(NSString *key, id value, BOOL *stop) {
+    [dict enumerateKeysAndObjectsUsingBlock:^(NSString *key, id value, BOOL *) {
       absl::optional<FieldValue> parsedValue =
           [self parseData:value context:context.ChildContext(util::MakeString(key))];
       if (parsedValue) {
@@ -312,7 +312,7 @@ NS_ASSUME_NONNULL_BEGIN
   __block FieldValue::Array result;
   result.reserve(array.count);
 
-  [array enumerateObjectsUsingBlock:^(id entry, NSUInteger idx, BOOL *stop) {
+  [array enumerateObjectsUsingBlock:^(id entry, NSUInteger idx, BOOL *) {
     absl::optional<FieldValue> parsedEntry = [self parseData:entry
                                                      context:context.ChildContext(idx)];
     if (!parsedEntry) {

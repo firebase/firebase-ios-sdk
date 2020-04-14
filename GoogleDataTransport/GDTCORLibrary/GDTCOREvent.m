@@ -74,7 +74,7 @@
     _target = target;
     _qosTier = GDTCOREventQosDefault;
   }
-  GDTCORLogDebug("Event %@ created. mappingID: %@ target:%ld", self, mappingID, (long)target);
+  GDTCORLogDebug(@"Event %@ created. mappingID: %@ target:%ld", self, mappingID, (long)target);
   return self;
 }
 
@@ -86,7 +86,7 @@
   copy.clockSnapshot = _clockSnapshot;
   copy.customBytes = _customBytes;
   copy->_GDTFilePath = _GDTFilePath;
-  GDTCORLogDebug("Copying event %@ to event %@", self, copy);
+  GDTCORLogDebug(@"Copying event %@ to event %@", self, copy);
   return copy;
 }
 
