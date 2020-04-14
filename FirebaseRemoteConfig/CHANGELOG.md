@@ -1,3 +1,5 @@
+# v4.4.10
+- [changed] Internal code changes - migrate to using the FIS SDK. (#5096)
 # v4.4.9
 - [changed] Internal code changes. (#4934)
 # v4.4.8
