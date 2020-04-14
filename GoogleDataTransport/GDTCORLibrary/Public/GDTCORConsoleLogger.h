@@ -16,7 +16,9 @@
 
 #import <Foundation/Foundation.h>
 
-/** The current logging level. This value and higher will be printed. */
+/** The current logging level. This value and higher will be printed. Declared as volatile to make
+ * getting and setting atomic.
+ */
 FOUNDATION_EXPORT volatile NSInteger GDTCORConsoleLoggerLoggingLevel;
 
 /** A  list of logging levels that GDT supports. */
