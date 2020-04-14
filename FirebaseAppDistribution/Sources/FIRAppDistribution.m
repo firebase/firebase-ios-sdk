@@ -28,6 +28,7 @@
 @end
 
 @interface FIRAppDistribution () <FIRLibrary, FIRAppDistributionInstanceProvider>
+  @property(nonatomic) BOOL isTesterSignedIn;
 @end
 
 @implementation FIRAppDistribution
@@ -42,9 +43,6 @@ NSString *const kTesterAPIClientID =
     @"319754533822-osu3v3hcci24umq6diathdm0dipds1fb.apps.googleusercontent.com";
 NSString *const kIssuerURL = @"https://accounts.google.com";
 NSString *const kAppDistroLibraryName = @"fire-fad";
-
-// explicit @synthesize is needed since the property is readonly
-@synthesize isTesterSignedIn = _isTesterSignedIn;
 
 #pragma mark - Singleton Support
 
@@ -62,7 +60,7 @@ NSString *const kAppDistroLibraryName = @"fire-fad";
   }
 
   // TODO: Lookup keychain to load auth state on init
-  _isTesterSignedIn = self.authState ? YES : NO;
+  self.isTesterSignedIn = self.authState ? YES : NO;
   return self;
 }
 
@@ -130,7 +128,7 @@ NSString *const kAppDistroLibraryName = @"fire-fad";
 
 - (void)signOutTester {
   self.authState = nil;
-  _isTesterSignedIn = false;
+  self.isTesterSignedIn = false;
 }
 
 - (void)fetchReleases:(FIRAppDistributionUpdateCheckCompletion)completion {
@@ -199,7 +197,7 @@ NSString *const kAppDistroLibraryName = @"fire-fad";
                                                      callback:^(OIDAuthState *_Nullable authState,
                                                                 NSError *_Nullable error) {
                                                        self.authState = authState;
-                                                       self->_isTesterSignedIn =
+                                                       self.isTesterSignedIn =
                                                            self.authState ? YES : NO;
                                                        completion(error);
                                                      }];

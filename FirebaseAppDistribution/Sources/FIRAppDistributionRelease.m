@@ -14,6 +14,10 @@
 
 #import "FIRAppDistributionRelease.h"
 
+@interface FIRAppDistributionRelease ()
+  @property(nonatomic, strong) NSURL *downloadURL;
+@end
+
 @implementation FIRAppDistributionRelease
 - (instancetype)initWithDictionary:(NSDictionary *)dict {
   self = [super init];

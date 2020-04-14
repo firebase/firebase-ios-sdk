@@ -33,7 +33,7 @@ NS_SWIFT_NAME(AppDistributionRelease)
 @property(nonatomic, copy) NSString *releaseNotes;
 
 // The URL for the build
-@property(nonatomic, strong) NSURL *downloadURL;
+@property(nonatomic, strong, readonly) NSURL *downloadURL;
 
 /** :nodoc: */
 - (instancetype)init NS_UNAVAILABLE;
