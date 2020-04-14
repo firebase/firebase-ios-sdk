@@ -384,7 +384,7 @@ case "$product-$platform-$method" in
       build \
       test
 
-    pod_gen FirebaseStorage.podspec --platforms=tvos --clean
+    pod_gen FirebaseMessaging.podspec --platforms=tvos --clean
     RunXcodebuild \
       -workspace 'gen/FirebaseMessaging/FirebaseMessaging.xcworkspace' \
       -scheme "FirebaseMessaging-Unit-unit" \
