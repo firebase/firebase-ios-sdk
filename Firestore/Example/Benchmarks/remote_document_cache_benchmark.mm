@@ -89,7 +89,7 @@ FIRQuerySnapshot* GetDocumentsFromServer(FIRQuery* query) {
 
 void WaitForPendingWrites(FIRFirestore* db) {
   dispatch_semaphore_t done = dispatch_semaphore_create(0);
-  [db waitForPendingWritesWithCompletion:^(NSError* error) {
+  [db waitForPendingWritesWithCompletion:^(NSError*) {
     dispatch_semaphore_signal(done);
   }];
   dispatch_semaphore_wait(done, DISPATCH_TIME_FOREVER);
@@ -107,7 +107,7 @@ void WriteDocs(FIRCollectionReference* collection, int64_t count, bool match) {
 
 void Shutdown(FIRFirestore* db) {
   dispatch_semaphore_t done = dispatch_semaphore_create(0);
-  [db terminateWithCompletion:^(NSError* error) {
+  [db terminateWithCompletion:^(NSError*) {
     dispatch_semaphore_signal(done);
   }];
   dispatch_semaphore_wait(done, DISPATCH_TIME_FOREVER);

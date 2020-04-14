@@ -72,6 +72,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** Implements NSCopying without actually copying because geopoints are immutable. */
 - (id)copyWithZone:(NSZone *_Nullable)zone {
+  (void)zone;
   return self;
 }
 
