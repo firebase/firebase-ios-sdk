@@ -557,7 +557,6 @@ function(firebase_ios_set_common_target_options target)
     set(cxx_flags ${FIREBASE_IOS_CXX_FLAGS_STRICT})
     set(objc_flags ${FIREBASE_IOS_OBJC_FLAGS_STRICT})
   endif()
-  message("objc_flags = ${objc_flags}")
 
   target_compile_options(${target} PRIVATE ${cxx_flags})
   if(APPLE)

@@ -45,6 +45,9 @@ typedef NS_ENUM(NSInteger, GDTCOREventQoS) {
 
 @interface GDTCOREvent : NSObject <NSSecureCoding>
 
+/** The unique ID of the event. */
+@property(nonatomic, readonly) NSNumber *eventID;
+
 /** The mapping identifier, to allow backends to map the transport bytes to a proto. */
 @property(readonly, nonatomic) NSString *mappingID;
 
@@ -64,12 +67,10 @@ typedef NS_ENUM(NSInteger, GDTCOREventQoS) {
 /** The resulting file URL when [dataObject -transportBytes] has been saved to disk.*/
 @property(nullable, readonly, nonatomic) NSURL *fileURL;
 
-/** A dictionary provided to aid prioritizers by allowing the passing of arbitrary data. It will be
- * retained by a copy in -copy, but not used for -hash.
- *
- * @note Ensure that classes contained therein implement NSSecureCoding to prevent loss of data.
+/** Bytes that can be used by a prioritizer or uploader later on. It's the prioritizer or uploader's
+ * responsibility to serialize and deserialize these bytes.
  */
-@property(nullable, nonatomic) NSDictionary *customPrioritizationParams;
+@property(nullable, nonatomic) NSData *customBytes;
 
 // Please use the designated initializer.
 - (instancetype)init NS_UNAVAILABLE;

@@ -19,7 +19,9 @@ class NotificationService: UNNotificationServiceExtension {
   var contentHandler: ((UNNotificationContent) -> Void)?
   var bestAttemptContent: UNMutableNotificationContent?
 
-  override func didReceive(_ request: UNNotificationRequest, withContentHandler contentHandler: @escaping (UNNotificationContent) -> Void) {
+  override func didReceive(_ request: UNNotificationRequest,
+                           withContentHandler contentHandler: @escaping (UNNotificationContent)
+                             -> Void) {
     self.contentHandler = contentHandler
     bestAttemptContent = (request.content.mutableCopy() as? UNMutableNotificationContent)
 
@@ -28,7 +30,8 @@ class NotificationService: UNNotificationServiceExtension {
       bestAttemptContent.title = "\(bestAttemptContent.title) 👩‍💻"
 
       // Add images
-      Messaging.serviceExtension().populateNotificationContent(bestAttemptContent, withContentHandler: self.contentHandler!)
+      Messaging.serviceExtension()
+        .populateNotificationContent(bestAttemptContent, withContentHandler: self.contentHandler!)
     }
   }
 

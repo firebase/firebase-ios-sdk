@@ -20,6 +20,7 @@
 
 #import "GDTCCTLibrary/Private/GDTCCTNanopbHelpers.h"
 #import "GDTCCTLibrary/Private/GDTCCTPrioritizer.h"
+#import "GDTCCTLibrary/Private/GDTCOREvent+NetworkConnectionInfo.h"
 
 @interface GDTCCTPrioritizerTest : XCTestCase
 
@@ -55,11 +56,9 @@
   [prioritizer prioritizeEvent:[_CCTGenerator generateEvent:GDTCOREventQosDefault]];
   [prioritizer prioritizeEvent:[_FLLGenerator generateEvent:GDTCOREventQosDefault]];
   [prioritizer prioritizeEvent:[_CSHGenerator generateEvent:GDTCOREventQosDefault]];
-  dispatch_sync(prioritizer.queue, ^{
-    XCTAssertEqual(prioritizer.CCTEvents.count, 1);
-    XCTAssertEqual(prioritizer.FLLEvents.count, 1);
-    XCTAssertEqual(prioritizer.CSHEvents.count, 1);
-  });
+  XCTAssertEqual([prioritizer eventsForTarget:kGDTCORTargetCCT].count, 1);
+  XCTAssertEqual([prioritizer eventsForTarget:kGDTCORTargetFLL].count, 1);
+  XCTAssertEqual([prioritizer eventsForTarget:kGDTCORTargetCSH].count, 1);
 }
 
 /** Tests prioritizing multiple events. */
@@ -74,11 +73,9 @@
   [prioritizer prioritizeEvent:[_CCTGenerator generateEvent:GDTCOREventQosDefault]];
   [prioritizer prioritizeEvent:[_CSHGenerator generateEvent:GDTCOREventQosDefault]];
   [prioritizer prioritizeEvent:[_CCTGenerator generateEvent:GDTCOREventQosDefault]];
-  dispatch_sync(prioritizer.queue, ^{
-    XCTAssertEqual(prioritizer.CCTEvents.count, 5);
-    XCTAssertEqual(prioritizer.FLLEvents.count, 2);
-    XCTAssertEqual(prioritizer.CSHEvents.count, 2);
-  });
+  XCTAssertEqual([prioritizer eventsForTarget:kGDTCORTargetCCT].count, 5);
+  XCTAssertEqual([prioritizer eventsForTarget:kGDTCORTargetFLL].count, 2);
+  XCTAssertEqual([prioritizer eventsForTarget:kGDTCORTargetCSH].count, 2);
 }
 
 /** Tests unprioritizing events. */
@@ -93,11 +90,9 @@
   [prioritizer prioritizeEvent:[_CCTGenerator generateEvent:GDTCOREventQosDefault]];
   [prioritizer prioritizeEvent:[_CSHGenerator generateEvent:GDTCOREventQosDefault]];
   [prioritizer prioritizeEvent:[_CCTGenerator generateEvent:GDTCOREventQosDefault]];
-  dispatch_sync(prioritizer.queue, ^{
-    XCTAssertEqual(prioritizer.CCTEvents.count, 5);
-    XCTAssertEqual(prioritizer.FLLEvents.count, 2);
-    XCTAssertEqual(prioritizer.CSHEvents.count, 2);
-  });
+  XCTAssertEqual([prioritizer eventsForTarget:kGDTCORTargetCCT].count, 5);
+  XCTAssertEqual([prioritizer eventsForTarget:kGDTCORTargetFLL].count, 2);
+  XCTAssertEqual([prioritizer eventsForTarget:kGDTCORTargetCSH].count, 2);
   GDTCORUploadPackage *package =
       [prioritizer uploadPackageWithTarget:kGDTCORTargetFLL
                                 conditions:GDTCORUploadConditionWifiData];
@@ -172,10 +167,10 @@
 - (void)testNetworkConnectionInfo {
   GDTCCTPrioritizer *prioritizer = [[GDTCCTPrioritizer alloc] init];
   GDTCOREvent *event = [_CCTGenerator generateEvent:GDTCOREventQosDefault];
-  event.customPrioritizationParams = @{GDTCCTNeedsNetworkConnectionInfo : @YES};
+  event.needsNetworkConnectionInfoPopulated = YES;
   [prioritizer prioritizeEvent:event];
-  XCTAssertNotNil(event.customPrioritizationParams[GDTCCTNetworkConnectionInfo]);
-  NSData *networkConnectionInfoData = event.customPrioritizationParams[GDTCCTNetworkConnectionInfo];
+  NSData *networkConnectionInfoData = event.networkConnectionInfoData;
+  XCTAssertNotNil(networkConnectionInfoData);
   gdt_cct_NetworkConnectionInfo info;
   [networkConnectionInfoData getBytes:&info length:networkConnectionInfoData.length];
   XCTAssertNotEqual(info.network_type, gdt_cct_NetworkConnectionInfo_NetworkType_NONE);
@@ -185,12 +180,12 @@
 - (void)testEncodingAndDecoding {
   GDTCCTPrioritizer *prioritizer = [GDTCCTPrioritizer sharedInstance];
   GDTCOREvent *event = [_CCTGenerator generateEvent:GDTCOREventQosDefault];
-  event.customPrioritizationParams = @{GDTCCTNeedsNetworkConnectionInfo : @YES};
+  event.needsNetworkConnectionInfoPopulated = YES;
   [prioritizer prioritizeEvent:event];
   NSError *error;
   dispatch_sync(prioritizer.queue, ^{
                 });
-  XCTAssertEqual(prioritizer.CCTEvents.count, 1);
+  XCTAssertEqual([prioritizer eventsForTarget:kGDTCORTargetCCT].count, 1);
   NSData *prioritizerData = GDTCOREncodeArchive(prioritizer, nil, &error);
   XCTAssertNil(error);
   XCTAssertNotNil(prioritizerData);
@@ -201,7 +196,8 @@
   XCTAssertNil(error);
   XCTAssertNotNil(unarchivedPrioritizer);
   XCTAssertEqual([prioritizer hash], [prioritizer hash]);
-  XCTAssertEqualObjects(prioritizer.CCTEvents, unarchivedPrioritizer.CCTEvents);
+  XCTAssertEqualObjects([prioritizer eventsForTarget:kGDTCORTargetCCT],
+                        [unarchivedPrioritizer eventsForTarget:kGDTCORTargetCCT]);
 }
 
 @end

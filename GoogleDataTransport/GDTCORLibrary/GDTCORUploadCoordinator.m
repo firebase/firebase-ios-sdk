@@ -22,7 +22,6 @@
 #import <GoogleDataTransport/GDTCORReachability.h>
 
 #import "GDTCORLibrary/Private/GDTCORRegistrar_Private.h"
-#import "GDTCORLibrary/Private/GDTCORStorage.h"
 
 @implementation GDTCORUploadCoordinator
 
@@ -56,17 +55,6 @@
     conditions |= GDTCORUploadConditionHighPriority;
     [self uploadTargets:@[ @(target) ] conditions:conditions];
   });
-}
-
-#pragma mark - Property overrides
-
-// GDTCORStorage and GDTCORUploadCoordinator +sharedInstance methods call each other, so this breaks
-// the loop.
-- (GDTCORStorage *)storage {
-  if (!_storage) {
-    _storage = [GDTCORStorage sharedInstance];
-  }
-  return _storage;
 }
 
 #pragma mark - Private helper methods
@@ -133,6 +121,17 @@
       GDTCORLogDebug("Target %@ is not ready to upload", target);
     }
   });
+}
+
+/** Returns the registered storage for the given NSNumber wrapped GDTCORTarget.
+ *
+ * @param target The NSNumber wrapping of a GDTCORTarget to find the storage instance of.
+ * @return The storage instance for the given target.
+ */
+- (nullable id<GDTCORStorageProtocol>)storageForTarget:(NSNumber *)target {
+  id<GDTCORStorageProtocol> storage = [GDTCORRegistrar sharedInstance].targetToStorage[target];
+  GDTCORAssert(storage, @"A storage must be registered for target %@", target);
+  return storage;
 }
 
 /** Returns the current upload conditions after making determinations about the network connection.
@@ -202,13 +201,14 @@ static NSString *const ktargetToInFlightPackagesKey =
 #pragma mark - GDTCORLifecycleProtocol
 
 - (void)appWillForeground:(GDTCORApplication *)app {
-  // Not entirely thread-safe, but it should be fine.
+  // -startTimer is thread-safe.
   [self startTimer];
 }
 
 - (void)appWillBackground:(GDTCORApplication *)app {
-  // Should be thread-safe. If it ends up not being, put this in a dispatch_sync.
-  [self stopTimer];
+  dispatch_sync(_coordinationQueue, ^{
+    [self stopTimer];
+  });
 }
 
 - (void)appWillTerminate:(GDTCORApplication *)application {
@@ -243,7 +243,16 @@ static NSString *const ktargetToInFlightPackagesKey =
       }
     }
     if (successful && packageEvents.count) {
-      [self.storage removeEvents:packageEvents];
+      NSMutableSet *eventIDs = [[NSMutableSet alloc] init];
+      for (GDTCOREvent *event in packageEvents) {
+        NSNumber *eventID = event.eventID;
+        if (eventID != nil) {
+          [eventIDs addObject:eventID];
+        } else {
+          GDTCORLogDebug(@"An event was missing its ID: %@", event);
+        }
+      }
+      [[self storageForTarget:@(package.target)] removeEvents:eventIDs];
     }
   });
 }

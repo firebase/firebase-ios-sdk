@@ -1,5 +1,12 @@
+# v6.6.7 -- M69
+- [fixed] Fixed Carthage installation failures involving `Protobuf.framework`.
+  `Protobuf.framework` is now separately installable via adding
+  `FirebaseProtobufBinary.json` to the Cartfile. Full details in the [Carthage usage
+  instructions](https://github.com/firebase/firebase-ios-sdk/blob/master/Carthage.md#carthage-usage).
+  (#5276)
+
 # v6.6.6 -- M68
-- [fixed] Unincluded umbrella header warnings in Carthage and zip distributions
+- [fixed] Fixed unincluded umbrella header warnings in Carthage and zip distributions
   introduced in Firebase 6.21.0. (#5209)
 
 # v6.6.5 -- M67

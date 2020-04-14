@@ -19,7 +19,7 @@
 #import <GoogleDataTransport/GDTCORClock.h>
 #import <GoogleDataTransport/GDTCORConsoleLogger.h>
 
-#import "GDTCORLibrary/Private/GDTCORStorage_Private.h"
+#import "GDTCORLibrary/Private/GDTCORRegistrar_Private.h"
 #import "GDTCORLibrary/Private/GDTCORUploadCoordinator.h"
 #import "GDTCORLibrary/Private/GDTCORUploadPackage_Private.h"
 
@@ -38,7 +38,7 @@
   self = [super init];
   if (self) {
     _target = target;
-    _storage = [GDTCORStorage sharedInstance];
+    _storage = [GDTCORRegistrar sharedInstance].targetToStorage[@(target)];
     _deliverByTime = [GDTCORClock clockSnapshotInTheFuture:180000];
     _handler = [GDTCORUploadCoordinator sharedInstance];
     _expirationTimer = [NSTimer scheduledTimerWithTimeInterval:5.0
@@ -68,12 +68,6 @@
 
 - (void)dealloc {
   [_expirationTimer invalidate];
-}
-
-- (void)setStorage:(GDTCORStorage *)storage {
-  if (storage != _storage) {
-    _storage = storage;
-  }
 }
 
 - (void)completeDelivery {
