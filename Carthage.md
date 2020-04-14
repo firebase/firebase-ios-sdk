@@ -28,6 +28,10 @@ more details and additional installation methods.
 - Create a Cartfile with a **subset** of the following components - choosing the
 Firebase components that you want to include in your app. Note that
 **FirebaseAnalyticsBinary** must always be included.
+
+- If you're using FirebaseMessaging, FirebasePerformance, FirebaserRemoteConfig,
+FirebaseABTesting, FirebaseInAppMessaging, or FirebaseML,
+**FirebaseProtobufBinary** must also be included.
 ```
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseABTestingBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseAdMobBinary.json"
@@ -54,6 +58,7 @@ binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseMLVisionLabelMode
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseMLVisionObjectDetectionBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseMLVisionTextModelBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebasePerformanceBinary.json"
+binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseProtobufBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseRemoteConfigBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseStorageBinary.json"
 ```

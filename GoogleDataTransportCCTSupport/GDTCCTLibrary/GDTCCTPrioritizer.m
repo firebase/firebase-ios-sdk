@@ -23,6 +23,7 @@
 #import <GoogleDataTransport/GDTCORTargets.h>
 
 #import "GDTCCTLibrary/Private/GDTCCTNanopbHelpers.h"
+#import "GDTCCTLibrary/Private/GDTCOREvent+NetworkConnectionInfo.h"
 
 const static int64_t kMillisPerDay = 8.64e+7;
 
@@ -38,6 +39,20 @@ static NSString *ArchivePath() {
   });
   return archivePath;
 }
+
+/** This class extension is for declaring private properties. */
+@interface GDTCCTPrioritizer ()
+
+/** All CCT events that have been processed by this prioritizer. */
+@property(nonatomic) NSMutableSet<GDTCOREvent *> *CCTEvents;
+
+/** All FLL events that have been processed by this prioritizer. */
+@property(nonatomic) NSMutableSet<GDTCOREvent *> *FLLEvents;
+
+/** All CSH events that have been processed by this prioritizer. */
+@property(nonatomic) NSMutableSet<GDTCOREvent *> *CSHEvents;
+
+@end
 
 @implementation GDTCCTPrioritizer
 
@@ -72,14 +87,34 @@ static NSString *ArchivePath() {
   return self;
 }
 
+- (nullable NSSet *)eventsForTarget:(GDTCORTarget)target {
+  __block NSSet *events;
+  dispatch_sync(_queue, ^{
+    switch (target) {
+      case kGDTCORTargetCCT:
+        events = [self->_CCTEvents copy];
+        break;
+
+      case kGDTCORTargetFLL:
+        events = [self->_FLLEvents copy];
+        break;
+
+      case kGDTCORTargetCSH:
+        events = [self->_CSHEvents copy];
+        break;
+
+      default:
+        break;
+    }
+  });
+  return events;
+}
+
 #pragma mark - GDTCORPrioritizer Protocol
 
 - (void)prioritizeEvent:(GDTCOREvent *)event {
-  if (event.customPrioritizationParams[GDTCCTNeedsNetworkConnectionInfo]) {
-    NSData *networkInfoData = GDTCCTConstructNetworkConnectionInfoData();
-    if (networkInfoData) {
-      event.customPrioritizationParams = @{GDTCCTNetworkConnectionInfo : networkInfoData};
-    }
+  if (event.needsNetworkConnectionInfoPopulated) {
+    event.networkConnectionInfoData = GDTCCTConstructNetworkConnectionInfoData();
   }
   dispatch_async(_queue, ^{
     switch (event.target) {

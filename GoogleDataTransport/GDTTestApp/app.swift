@@ -24,13 +24,16 @@ import GoogleDataTransport
   class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
 
-    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+    func application(_ application: UIApplication,
+                     didFinishLaunchingWithOptions launchOptions: [UIApplication
+                       .LaunchOptionsKey: Any]?) -> Bool {
       return true
     }
   }
 
   public class ViewController: UIViewController {
-    let transport: GDTCORTransport = GDTCORTransport(mappingID: "1234", transformers: nil, target: GDTCORTarget.test.rawValue)!
+    let transport: GDTCORTransport = GDTCORTransport(mappingID: "1234", transformers: nil,
+                                                     target: GDTCORTarget.test.rawValue)!
   }
 
 // macOS specifics.
@@ -44,6 +47,7 @@ import GoogleDataTransport
   }
 
   public class ViewController: NSViewController {
-    let transport: GDTCORTransport = GDTCORTransport(mappingID: "1234", transformers: nil, target: GDTCORTarget.test.rawValue)!
+    let transport: GDTCORTransport = GDTCORTransport(mappingID: "1234", transformers: nil,
+                                                     target: GDTCORTarget.test.rawValue)!
   }
 #endif

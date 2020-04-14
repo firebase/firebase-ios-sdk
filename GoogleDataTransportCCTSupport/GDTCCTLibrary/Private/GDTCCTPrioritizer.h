@@ -29,15 +29,6 @@ NS_ASSUME_NONNULL_BEGIN
 /** The queue on which this prioritizer operates. */
 @property(nonatomic) dispatch_queue_t queue;
 
-/** All CCT events that have been processed by this prioritizer. */
-@property(nonatomic) NSMutableSet<GDTCOREvent *> *CCTEvents;
-
-/** All FLL events that have been processed by this prioritizer. */
-@property(nonatomic) NSMutableSet<GDTCOREvent *> *FLLEvents;
-
-/** All CSH events that have been processed by this prioritizer. */
-@property(nonatomic) NSMutableSet<GDTCOREvent *> *CSHEvents;
-
 /** The most recent attempted upload of CCT daily uploaded logs. */
 @property(nonatomic) GDTCORClock *CCTTimeOfLastDailyUpload;
 
@@ -49,6 +40,13 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The singleton instance of this class.
  */
 + (instancetype)sharedInstance;
+
+/** Returns a set of events that have been prioritized for the given target.
+ *
+ * @param target The target to check. CCT, FLL, and CSH are currently supported by this class.
+ * @return The set of events prioritized so far.
+ */
+- (nullable NSSet *)eventsForTarget:(GDTCORTarget)target;
 
 NS_ASSUME_NONNULL_END
 

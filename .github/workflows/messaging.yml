@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
     - 'Firebase/Messaging/**'
+    - 'Examples/Messaging/Sample/**'
 
     #Podspec
     - 'FirebaseMessaging.podspec'
@@ -101,4 +102,13 @@ jobs:
     - name: PodLibLint Messaging Cron
       run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseMessaging.podspec --platforms=watchos
 
-
+  messaging-sample-build-test:
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Prereqs
+      run: scripts/install_prereqs.sh MessagingSample iOS
+    - name: Build
+      run: scripts/build.sh MessagingSample iOS

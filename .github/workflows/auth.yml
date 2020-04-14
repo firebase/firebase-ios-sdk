@@ -1,0 +1,102 @@
+name: auth
+
+on:
+  pull_request:
+    paths:
+    - 'FirebaseAuth**'
+    - '.github/workflows/auth.yml'
+  schedule:
+    # Run every day at 11pm (PST) - cron uses UTC times
+    - cron:  '0 7 * * *'
+
+jobs:
+
+  pod-lib-lint:
+    runs-on: macOS-latest
+
+    strategy:
+      matrix:
+        target: [ios, tvos, macos]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Build and test
+      run: |
+        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseAuth.podspec --platforms=${{ matrix.target }}
+
+  integration-tests:
+    env:
+      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Prereqs
+      run: scripts/install_prereqs.sh Auth iOS
+    - name: Install Secrets
+      run: |
+        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/AuthCredentials.h.gpg \
+          FirebaseAuth/Tests/Sample/ApiTests/AuthCredentials.h "$plist_secret"
+        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/AuthSample/Application.plist.gpg \
+          FirebaseAuth/Tests/Sample/Sample/Application.plist "$plist_secret"
+        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/AuthSample/AuthCredentials.h.gpg \
+          FirebaseAuth/Tests/Sample/Sample/AuthCredentials.h "$plist_secret"
+        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/AuthSample/GoogleService-Info.plist.gpg \
+          FirebaseAuth/Tests/Sample/Sample/GoogleService-Info.plist "$plist_secret"
+        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/AuthSample/GoogleService-Info_multi.plist.gpg \
+          FirebaseAuth/Tests/Sample/Sample/GoogleService-Info_multi.plist "$plist_secret"
+        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/AuthSample/Sample.entitlements.gpg \
+          FirebaseAuth/Tests/Sample/Sample/Sample.entitlements "$plist_secret"
+
+    - name: BuildAndTest # can be replaced with pod lib lint with CocoaPods 1.10
+      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/build.sh Auth iOS)
+
+  catalyst:
+    runs-on: macOS-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Setup project and Build for Catalyst
+      # Only build the unit tests on Catalyst
+      run: scripts/test_catalyst.sh FirebaseAuth build FirebaseAuth-Unit-unit
+
+  quickstart:
+    env:
+      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+      signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+    runs-on: macOS-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup quickstart
+      run: scripts/setup_quickstart.sh authentication
+    - name: Install Secret GoogleService-Info.plist
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-auth.plist.gpg \
+          quickstart-ios/authentication/GoogleService-Info.plist "$plist_secret"
+    - name: Install Secret FIREGSignInInfo.h
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/FIREGSignInInfo.h.gpg \
+          quickstart-ios/TestUtils/FIREGSignInInfo.h "$signin_secret"
+    - name: Test quickstart
+      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Authentication)
+
+  auth-cron-only:
+    runs-on: macos-latest
+    if: github.event_name == 'schedule'
+    strategy:
+      matrix:
+        target: [ios, tvos --skip-tests, macos --skip-tests] # The macos and tvos tests can hang
+        flags: [
+          '--use-modular-headers',
+          '--use-libraries'
+        ]
+    needs: pod-lib-lint
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: PodLibLint Auth Cron
+      run: |
+        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseAuth.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}
+        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseAuth.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}
