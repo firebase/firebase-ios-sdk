@@ -20,7 +20,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (BOOL)clearAuthState {
     NSMutableDictionary *keychainQuery = [self getKeyChainQuery];
-    [keychainQuery setObject:(id)kSecMatchLimitOne forKey:(id)kSecMatchLimit];
     OSStatus status = SecItemDelete((CFDictionaryRef)keychainQuery);
     
     if (status != errSecSuccess && status != errSecItemNotFound) {
@@ -57,13 +56,16 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 + (BOOL)persistAuthState:(OIDAuthState *)authState {
-    [self clearAuthState];
-    
     NSData *authorizationData = [NSKeyedArchiver archivedDataWithRootObject:authState];
     NSMutableDictionary *keychainQuery = [self getKeyChainQuery];
-    [keychainQuery setObject:authorizationData forKey:(id)kSecValueData];
-
-    OSStatus status = SecItemAdd((CFDictionaryRef)keychainQuery, NULL);
+    OSStatus status = noErr;
+    if([self retrieveAuthState]) {
+        NSLog(@"Auth state already persisted. Updating auth state");
+        status = SecItemUpdate((CFDictionaryRef)keychainQuery, (CFDictionaryRef)@{(id)kSecValueData: authorizationData});
+    } else {
+        [keychainQuery setObject:authorizationData forKey:(id)kSecValueData];
+        status = SecItemAdd((CFDictionaryRef)keychainQuery, NULL);
+    }
 
       if (status != noErr) {
           NSLog(@"AUTH ERROR. Cant store auth state in keychain");
