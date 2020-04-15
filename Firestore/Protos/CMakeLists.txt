@@ -138,7 +138,7 @@ target_link_libraries(
 )
 
 # Generate the python representation of descriptor.proto.
-set(PROTOBUF_DIR ${FIREBASE_BINARY_DIR}/external/src/grpc/third_party/protobuf)
+set(PROTOBUF_DIR ${FIREBASE_EXTERNAL_SOURCE_DIR}/protobuf)
 set(PROTOBUF_PROTO ${PROTOBUF_DIR}/src/google/protobuf/descriptor.proto)
 set(PROTOBUF_PYTHON ${PROTOBUF_DIR}/python/google/protobuf/descriptor_pb2.py)
 

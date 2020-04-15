@@ -1,4 +1,4 @@
-# Copyright 2018 Google
+# Copyright 2018 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.5.1)
 project(Firebase-download C CXX)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR})
@@ -25,9 +25,12 @@ set(
 
 include(abseil-cpp)
 include(benchmark)
+include(boringssl)
+include(c-ares)
 include(googletest)
 include(grpc)
 include(leveldb)
+include(libfuzzer)
 include(nanopb)
 include(protobuf)
-include(libfuzzer)
+include(zlib)

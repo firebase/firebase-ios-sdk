@@ -18,18 +18,12 @@ if(TARGET protobuf)
   return()
 endif()
 
-# This ExternalProject unpacks itself inside the gRPC source tree. CMake clears
-# the SOURCE_DIR when unpacking so this must come after grpc despite the fact
-# that grpc logically depends upon this.
-
 # Based on https://github.com/grpc/grpc/blob/v1.27.0/bazel/grpc_deps.bzl
 # v3.11.4, master@{2020-01-15}
 set(commit 29cd005ce1fe1a8fabf11e325cb13006a6646d59)
 
 ExternalProject_Add(
   protobuf
-  DEPENDS
-    grpc-download
 
   DOWNLOAD_DIR ${FIREBASE_DOWNLOAD_DIR}
   DOWNLOAD_NAME protobuf-${commit}.tar.gz
@@ -37,7 +31,7 @@ ExternalProject_Add(
   URL_HASH SHA256=51398b0b97b353c1c226d0ade0bae80c80380e691cba7c1a108918986784a1c7
 
   PREFIX ${PROJECT_BINARY_DIR}
-  SOURCE_DIR ${PROJECT_BINARY_DIR}/src/grpc/third_party/protobuf
+  SOURCE_DIR ${PROJECT_BINARY_DIR}/src/protobuf
 
   CONFIGURE_COMMAND ""
   BUILD_COMMAND ""

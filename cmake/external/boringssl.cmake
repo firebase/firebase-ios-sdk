@@ -18,18 +18,12 @@ if(TARGET boringssl)
   return()
 endif()
 
-# This ExternalProject unpacks itself inside the gRPC source tree. CMake clears
-# the SOURCE_DIR when unpacking so this must come after grpc despite the fact
-# that grpc logically depends upon this.
-
 # Based on https://github.com/grpc/grpc/blob/v1.27.0/bazel/grpc_deps.bzl
 # master-with-bazel@{2019-10-18}
 set(commit 83da28a68f32023fd3b95a8ae94991a07b1f6c62)
 
 ExternalProject_Add(
   boringssl
-  DEPENDS
-    grpc-download
 
   DOWNLOAD_DIR ${FIREBASE_DOWNLOAD_DIR}
   DOWNLOAD_NAME boringssl-${commit}.tar.gz
@@ -37,7 +31,7 @@ ExternalProject_Add(
   URL_HASH SHA256=781fa39693ec2984c71213cd633e9f6589eaaed75e3a9ac413237edec96fd3b9
 
   PREFIX ${PROJECT_BINARY_DIR}
-  SOURCE_DIR ${PROJECT_BINARY_DIR}/src/grpc/third_party/boringssl
+  SOURCE_DIR ${PROJECT_BINARY_DIR}/src/boringssl
 
   CONFIGURE_COMMAND ""
   BUILD_COMMAND     ""
