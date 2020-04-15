@@ -3,8 +3,13 @@
   will perform when resolving inconsistencies in the local cache
   (https://github.com/firebase/firebase-js-sdk/issues/2683).
 
-# v1.11.3
-- [changed] Internal changes.
+# v1.12.1
+- [changed] Internal improvements for future C++ and Unity support.
+
+# v1.12.0
+- [changed] Internal improvements for future C++ and Unity support. Includes a
+  breaking change for the Firestore C++ Alpha SDK, but does not affect
+  Objective-C or Swift users.
 
 # v1.11.2
 - [fixed] Fixed the FirebaseFirestore podspec to properly declare its
