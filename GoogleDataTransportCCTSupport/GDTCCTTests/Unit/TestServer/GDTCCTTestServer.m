@@ -95,7 +95,7 @@
   CFMutableDataRef dataRef = CFDataCreateMutable(CFAllocatorGetDefault(), bufferSize);
   CFDataSetLength(dataRef, bufferSize);
   pb_ostream_t ostream = pb_ostream_from_buffer((void *)CFDataGetBytePtr(dataRef), bufferSize);
-  if (!pb_encode(&sizestream, gdt_cct_LogResponse_fields, &logResponse)) {
+  if (!pb_encode(&ostream, gdt_cct_LogResponse_fields, &logResponse)) {
     GDTCORAssert(NO, @"Error in nanopb encoding for bytes: %s", PB_GET_ERROR(&ostream));
   }
   pb_release(gdt_cct_LogResponse_fields, &logResponse);

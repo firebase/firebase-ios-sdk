@@ -49,7 +49,7 @@
 - (void)deleteGeneratedFilesFromDisk {
   for (GDTCOREvent *event in self.allGeneratedEvents) {
     NSError *error;
-    [[NSFileManager defaultManager] removeItemAtURL:event.fileURL error:&error];
+    [[NSFileManager defaultManager] removeItemAtPath:event.fileURL.path error:&error];
     GDTCORAssert(error == nil, @"There was an error deleting a temporary event file.");
   }
 }
