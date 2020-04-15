@@ -1,3 +1,6 @@
+# v4.0.0
+
+ - [changed] The Firebase Crashlytics SDK is now available for general access.
 
 # v4.0.0-beta.7
 

@@ -16,6 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
+#include <cstddef>
+#include <deque>
 #include <map>
 #include <memory>
 #include <unordered_map>
@@ -117,19 +119,13 @@ typedef std::unordered_map<auth::User, NSMutableArray<FSTOutstandingWrite *> *, 
 
 /**
  * Initializes the underlying FSTSyncEngine with the given local persistence implementation and
- * garbage collection policy.
- */
-- (instancetype)initWithPersistence:(std::unique_ptr<local::Persistence>)persistence;
-
-/**
- * Initializes the underlying FSTSyncEngine with the given local persistence implementation and
  * a set of existing outstandingWrites (useful when your Persistence object has persisted
  * mutation queues).
  */
 - (instancetype)initWithPersistence:(std::unique_ptr<local::Persistence>)persistence
                         initialUser:(const auth::User &)initialUser
                   outstandingWrites:(const FSTOutstandingWriteQueues &)outstandingWrites
-    NS_DESIGNATED_INITIALIZER;
+      maxConcurrentLimboResolutions:(size_t)maxConcurrentLimboResolutions NS_DESIGNATED_INITIALIZER;
 
 - (instancetype)init NS_UNAVAILABLE;
 
@@ -289,14 +285,23 @@ typedef std::unordered_map<auth::User, NSMutableArray<FSTOutstandingWrite *> *, 
  */
 - (NSArray<NSString *> *)capturedRejectedWritesSinceLastCall;
 
-/** The current set of documents in limbo. */
-- (std::map<model::DocumentKey, model::TargetId>)currentLimboDocuments;
+/** The current set of documents in limbo with active targets. */
+- (std::map<model::DocumentKey, model::TargetId>)activeLimboDocumentResolutions;
+
+/** The current set of documents in limbo that are enqueued for resolution. */
+- (std::deque<model::DocumentKey>)enqueuedLimboDocumentResolutions;
 
 /** The expected set of documents in limbo with an active target. */
 - (const model::DocumentKeySet &)expectedActiveLimboDocuments;
 
 /** Sets the expected set of documents in limbo with an active target. */
 - (void)setExpectedActiveLimboDocuments:(model::DocumentKeySet)docs;
+
+/** The expected set of documents in limbo that are enqueued for resolution. */
+- (const model::DocumentKeySet &)expectedEnqueuedLimboDocuments;
+
+/** Sets the expected set of documents in limbo that are enqueued for resolution. */
+- (void)setExpectedEnqueuedLimboDocuments:(model::DocumentKeySet)docs;
 
 /**
  * The writes that have been sent to the FSTSyncEngine via writeUserMutation: but not yet

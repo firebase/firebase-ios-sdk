@@ -20,7 +20,7 @@
 #import "FBLPromise+Testing.h"
 #import "GULTestKeychain.h"
 
-#import "GULKeychainStorage.h"
+#import <GoogleUtilities/GULKeychainStorage.h>
 
 @interface GULKeychainStorage (Tests)
 - (instancetype)initWithService:(NSString *)service cache:(NSCache *)cache;

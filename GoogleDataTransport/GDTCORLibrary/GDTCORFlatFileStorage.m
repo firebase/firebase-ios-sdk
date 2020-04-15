@@ -74,9 +74,9 @@
 
 - (void)storeEvent:(GDTCOREvent *)event
         onComplete:(void (^_Nullable)(BOOL wasWritten, NSError *_Nullable error))completion {
-  GDTCORLogDebug("Saving event: %@", event);
+  GDTCORLogDebug(@"Saving event: %@", event);
   if (event == nil) {
-    GDTCORLogDebug("%@", @"The event was nil, so it was not saved.");
+    GDTCORLogDebug(@"%@", @"The event was nil, so it was not saved.");
     return;
   }
   BOOL hadOriginalCompletion = completion != nil;
@@ -113,10 +113,12 @@
     NSURL *eventFile = [self saveEventBytesToDisk:event eventHash:event.hash error:&error];
     if (!eventFile || error) {
       GDTCORLogError(GDTCORMCEFileWriteError, @"Event failed to save to disk: %@", error);
+      completion(NO, error);
+      return;
     } else {
-      GDTCORLogDebug("Event saved to disk: %@", eventFile);
+      GDTCORLogDebug(@"Event saved to disk: %@", eventFile);
+      completion(YES, error);
     }
-    completion(eventFile != nil, error);
 
     // Add event to tracking collections.
     [self addEventToTrackingCollections:event];
@@ -137,11 +139,11 @@
     // Write state to disk if there was an onComplete block or if we're in the background.
     if (hadOriginalCompletion || [[GDTCORApplication sharedApplication] isRunningInBackground]) {
       if (hadOriginalCompletion) {
-        GDTCORLogDebug("%@",
+        GDTCORLogDebug(@"%@",
                        @"Saving flat file storage state because a completion block was passed.");
       } else {
         GDTCORLogDebug(
-            "%@", @"Saving flat file storage state because the app is running in the background");
+            @"%@", @"Saving flat file storage state because the app is running in the background");
       }
       NSError *error;
       GDTCOREncodeArchive(self, [GDTCORFlatFileStorage archivePath], &error);
@@ -153,7 +155,7 @@
     // Cancel or end the associated background task if it's still valid.
     [[GDTCORApplication sharedApplication] endBackgroundTask:bgID];
     bgID = GDTCORBackgroundIdentifierInvalid;
-    GDTCORLogDebug("Event %@ is stored. There are %ld events stored on disk", event,
+    GDTCORLogDebug(@"Event %@ is stored. There are %ld events stored on disk", event,
                    (unsigned long)self->_storedEvents.count);
   });
 }
@@ -168,9 +170,13 @@
         NSError *error;
         if (event.fileURL) {
           NSURL *fileURL = event.fileURL;
-          [[NSFileManager defaultManager] removeItemAtURL:fileURL error:&error];
-          GDTCORAssert(error == nil, @"There was an error removing an event file: %@", error);
-          GDTCORLogDebug("Removed event from disk: %@", fileURL);
+          BOOL result = [[NSFileManager defaultManager] removeItemAtPath:fileURL.path error:&error];
+          if (!result || error) {
+            GDTCORLogWarning(GDTCORMCWFileReadError,
+                             @"There was an error removing an event file: %@", error);
+          } else {
+            GDTCORLogDebug(@"Removed event from disk: %@", fileURL);
+          }
         }
 
         // Remove from the tracking collections.
