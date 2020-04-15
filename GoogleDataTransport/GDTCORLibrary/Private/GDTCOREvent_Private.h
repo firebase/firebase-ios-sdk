@@ -22,6 +22,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface GDTCOREvent ()
 
+/** The unique ID of the event. This property is for testing only. */
+@property(nonatomic, readwrite) NSNumber *eventID;
+
 /** The GDT relative file path of the event. */
 @property(nullable, nonatomic, readonly) NSString *GDTFilePath;
 
@@ -33,6 +36,12 @@ NS_ASSUME_NONNULL_BEGIN
  * @return YES if writing dataObject to disk was successful, NO otherwise.
  */
 - (BOOL)writeToGDTPath:(NSString *)filePath error:(NSError **)error;
+
+/** Generates incrementing event IDs, stored in a file in the app's cache.
+ *
+ * @return An event ID that is incremented based on a number in a file stored in the app cache.
+ */
++ (NSNumber *)nextEventID;
 
 @end
 

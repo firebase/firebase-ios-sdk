@@ -15,6 +15,60 @@
 include(CMakeParseArguments)
 include(FindASANDylib)
 
+
+# firebase_ios_add_framework(
+#   target
+#   sources...
+# )
+#
+# Wraps a call to add_library (including arguments like EXCLUDE_FROM_ALL) that
+# additionally sets common options that apply to all frameworks in this repo.
+#
+# Note that this does not build an actual framework bundle--even recent versions
+# of CMake (3.15.5 as of this writing) produce problematic output when
+# frameworks are enabled. However `firebase_ios_add_framework` along with
+# `firebase_ios_framework_public_headers` produces a library target that
+# can be compiled against as if it *were* a framework. Notably, imports of the
+# form #import <Framework/Framework.h> and public headers that refer to each
+# other unqualified will work.
+function(firebase_ios_add_framework target)
+  firebase_ios_split_target_options(flag ${ARGN})
+
+  add_library(${target} ${flag_REST})
+  firebase_ios_set_common_target_options(${target} ${flag_OPTIONS})
+
+  target_link_libraries(${target} INTERFACE -ObjC)
+endfunction()
+
+# firebase_ios_framework_public_headers(
+#   target
+#   headers...
+# )
+#
+# Prepares the given headers for use as public headers of the given target.
+# This emulates CocoaPods behavior of flattening public headers by creating
+# a separate directory tree in the build output, consisting of symbolic links to
+# the actual header files. This makes it possible to use imports of these forms:
+#
+#   * #import <Framework/Header.h>
+#   * #import "Header.h"
+function(firebase_ios_framework_public_headers target)
+  target_sources(${target} PRIVATE ${ARGN})
+
+  podspec_prep_headers(${target} ${ARGN})
+  target_include_directories(
+    ${target}
+
+    # ${target} is a subdirectory, making <Framework/Header.h> work.
+    PUBLIC ${PROJECT_BINARY_DIR}/Headers
+
+    # Make unqualified imports work too, often needed for peer imports from
+    # one public header to another.
+    PUBLIC ${PROJECT_BINARY_DIR}/Headers/${target}
+  )
+endfunction()
+
+
 # firebase_ios_cc_library(
 #   target
 #   SOURCES sources...
@@ -300,92 +354,6 @@ function(firebase_ios_add_alias ALIAS_TARGET ACTUAL_TARGET)
   endif()
 endfunction()
 
-# firebase_ios_objc_framework(
-#   target
-#   HEADERS headers...
-#   SOURCES sources...
-#   INCLUDES include_directories...
-#   DEFINES macros...
-#   DEPENDS libraries...
-#   [EXCLUDE_FROM_ALL]
-# )
-#
-# Defines a new framework target with the given target name and parameters.
-#
-# If SOURCES is not included, a dummy file will be generated.
-function(firebase_ios_objc_framework target)
-  if(APPLE)
-    set(flag DISABLE_STRICT_WARNINGS EXCLUDE_FROM_ALL SHARED)
-    set(single VERSION)
-    set(multi DEPENDS DEFINES HEADERS INCLUDES SOURCES)
-    cmake_parse_arguments(of "${flag}" "${single}" "${multi}" ${ARGN})
-
-    if (NOT of_SOURCES)
-      firebase_ios_generate_dummy_source(${target} of_SOURCES)
-    endif()
-
-    set(shared_flag "")
-    if(of_SHARED)
-      set(shared_flag SHARED)
-    endif()
-    add_library(
-      ${target}
-      ${shared_flag}
-      ${of_HEADERS}
-      ${of_SOURCES}
-    )
-
-    set(warnings_flag "")
-    if(of_DISABLE_STRICT_WARNINGS)
-      set(warnings_flag DISABLE_STRICT_WARNINGS)
-    endif()
-    firebase_ios_add_compile_options(${target} ${warnings_flag} ${of_SOURCES})
-
-    set_property(TARGET ${target} PROPERTY PUBLIC_HEADER ${of_HEADERS})
-    set_property(TARGET ${target} PROPERTY FRAMEWORK ON)
-    set_property(TARGET ${target} PROPERTY VERSION ${of_VERSION})
-
-    if(of_EXCLUDE_FROM_ALL)
-      set_property(TARGET ${target} PROPERTY EXCLUDE_FROM_ALL ON)
-    endif()
-
-    target_compile_definitions(${target} PUBLIC ${of_DEFINES})
-    target_compile_options(${target} INTERFACE -F${CMAKE_CURRENT_BINARY_DIR})
-
-    # Include directories are carefully crafted to support the following forms
-    # of import, both before and after the framework is built.
-    #   * #import <Framework/Header.h>
-    #   * #import "Header.h"
-    #
-    # Do not use #import "Firestore/Source/Public/Header.h".
-    podspec_prep_headers(${target} ${of_HEADERS})
-    target_include_directories(
-      ${target}
-      # Before the framework is built, Framework.framework/Headers isn't
-      # available yet, so use podspec_prep_headers to create symbolic links
-      # fitting the <Framework/Header.h> pattern.
-      PRIVATE ${PROJECT_BINARY_DIR}/Headers
-
-      # Also support unqualified imports of public headers to work, fitting the
-      # "Header.h" pattern.
-      PRIVATE ${PROJECT_BINARY_DIR}/Headers/${target}
-
-      # Building the framework copies public headers into it. Unfortunately
-      # these copies defeat Clang's #import deduplication mechanism, so the
-      # podspec_prep_headers versions (and any original locations) must not be
-      # made available to clients of the framework. Clients get the qualified
-      # form through the public header support in Clang's module system, and
-      # unqualified names through this additional entry.
-      INTERFACE ${CMAKE_CURRENT_BINARY_DIR}/${target}.framework/Headers
-
-      PRIVATE ${of_INCLUDES}
-    )
-
-    target_link_options(${target} PRIVATE -ObjC)
-    target_link_libraries(${target} PUBLIC ${of_DEPENDS})
-  endif()
-endfunction()
-
 function(firebase_ios_objc_test target)
   if(NOT APPLE OR NOT FIREBASE_IOS_BUILD_TESTS)
     return()
@@ -440,24 +408,89 @@ function(firebase_ios_objc_test target)
   endif()
 endfunction()
 
-# firebase_ios_generate_dummy_source(name, sources_list)
+# firebase_ios_generate_dummy_source(target, sources_list)
 #
 # Generates a dummy source file containing a single symbol, suitable for use as
 # a source file in when defining a header-only library.
 #
-# Appends the generated source file name to the list named by sources_list.
-macro(firebase_ios_generate_dummy_source name sources_list)
-  set(__empty_header_only_file "${CMAKE_CURRENT_BINARY_DIR}/${name}_header_only_empty.cc")
+# Appends the generated source file target to the list named by sources_list.
+macro(firebase_ios_generate_dummy_source target sources_list)
+  set(
+    __empty_header_only_file
+    "${CMAKE_CURRENT_BINARY_DIR}/${target}_header_only_empty.cc"
+  )
 
   if(NOT EXISTS ${__empty_header_only_file})
     file(WRITE ${__empty_header_only_file}
       "// Generated file that keeps header-only CMake libraries happy.
 
       // single meaningless symbol
-      void ${name}_header_only_fakesym() {}
+      void ${target}_header_only_fakesym() {}
       "
     )
   endif()
 
   list(APPEND ${sources_list} ${__empty_header_only_file})
 endmacro()
+
+# Splits the given arguments into two lists: those suitable for passing to
+# `firebase_ios_set_common_target_options` and everything else, usually passed
+# to `add_library`, `add_executable`, or similar.
+#
+# The resulting lists are set in the parent scope as `${prefix}_OPTIONS` for use
+# when calling `firebase_ios_set_common_target_options`, and `${prefix}_REST`
+# that contains any arguments that were unrecognized.
+#
+# See `firebase_ios_set_common_target_options` for details on which arguments
+# are split out.
+function(firebase_ios_split_target_options prefix)
+  set(option_names DISABLE_STRICT_WARNINGS)
+
+  set(${prefix}_OPTIONS)
+  set(${prefix}_REST)
+
+  foreach(arg ${ARGN})
+    list(FIND option_names ${arg} option_index)
+    if(NOT option_index EQUAL -1)
+      list(APPEND ${prefix}_OPTIONS ${arg})
+    else()
+      list(APPEND ${prefix}_REST ${arg})
+    endif()
+  endforeach()
+
+  set(${prefix}_OPTIONS ${${prefix}_OPTIONS} PARENT_SCOPE)
+  set(${prefix}_REST ${${prefix}_REST} PARENT_SCOPE)
+endfunction()
+
+# Sets common options for a given target. This includes:
+#
+#   * `DISABLE_STRICT_WARNINGS`: disables stricter warnings usually applied to
+#     targets in this repo. Use this to compile code that's local but doesn't
+#     hold itself to Firestore's warning strictness.
+#
+# All other arguments are ignored.
+function(firebase_ios_set_common_target_options target)
+  set(options DISABLE_STRICT_WARNINGS)
+  cmake_parse_arguments(flag "${options}" "" "" ${ARGN})
+
+  if(flag_DISABLE_STRICT_WARNINGS)
+    set(cxx_flags ${FIREBASE_IOS_CXX_FLAGS})
+    set(objc_flags ${FIREBASE_IOS_OBJC_FLAGS})
+  else()
+    set(cxx_flags ${FIREBASE_IOS_CXX_FLAGS_STRICT})
+    set(objc_flags ${FIREBASE_IOS_OBJC_FLAGS_STRICT})
+  endif()
+
+  target_compile_options(${target} PRIVATE ${cxx_flags})
+  if(APPLE)
+    target_compile_options(${target} PRIVATE ${objc_flags})
+  endif()
+
+  target_include_directories(
+    ${target} PRIVATE
+    # Put the binary dir first so that the generated config.h trumps any one
+    # generated statically by a Cocoapods-based build in the same source tree.
+    ${PROJECT_BINARY_DIR}
+    ${PROJECT_SOURCE_DIR}
+  )
+endfunction()

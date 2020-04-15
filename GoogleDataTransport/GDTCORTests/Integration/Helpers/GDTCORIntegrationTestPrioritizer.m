@@ -43,7 +43,7 @@
         dispatch_queue_create("com.google.GDTCORIntegrationTestPrioritizer", DISPATCH_QUEUE_SERIAL);
     _wifiOnlyEvents = [[NSMutableSet alloc] init];
     _nonWifiEvents = [[NSMutableSet alloc] init];
-    [[GDTCORRegistrar sharedInstance] registerPrioritizer:self target:kGDTCORIntegrationTestTarget];
+    [[GDTCORRegistrar sharedInstance] registerPrioritizer:self target:kGDTCORTargetTest];
   }
   return self;
 }

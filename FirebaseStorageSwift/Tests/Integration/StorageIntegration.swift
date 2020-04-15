@@ -551,10 +551,8 @@ class StorageIntegration: XCTestCase {
     })
   }
 
-  private func assertResultSuccess<T>(
-    _ result: Result<T, Error>,
-    file: StaticString = #file, line: UInt = #line
-  ) {
+  private func assertResultSuccess<T>(_ result: Result<T, Error>,
+                                      file: StaticString = #file, line: UInt = #line) {
     switch result {
     case let .success(value):
       XCTAssertNotNil(value, file: file, line: line)

@@ -45,11 +45,14 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
       }
     case .writeBatch:
       if let merge = merge {
-        try doc.firestore.batch().setData(from: value, forDocument: doc, merge: merge).commit(completion: completion)
+        try doc.firestore.batch().setData(from: value, forDocument: doc, merge: merge)
+          .commit(completion: completion)
       } else if let mergeFields = mergeFields {
-        try doc.firestore.batch().setData(from: value, forDocument: doc, mergeFields: mergeFields).commit(completion: completion)
+        try doc.firestore.batch().setData(from: value, forDocument: doc, mergeFields: mergeFields)
+          .commit(completion: completion)
       } else {
-        try doc.firestore.batch().setData(from: value, forDocument: doc).commit(completion: completion)
+        try doc.firestore.batch().setData(from: value, forDocument: doc)
+          .commit(completion: completion)
       }
     case .transaction:
       doc.firestore.runTransaction({ (transaction, errorPointer) -> Any? in
@@ -270,11 +273,13 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
 
       let newUpdate = Model(name: "xxxx", age: 10, hobby: "Play")
       // Note 'name' is not updated.
-      try setData(from: newUpdate, forDocument: docToWrite, withFlavor: flavor, mergeFields: ["age", FieldPath(["hobby"])])
+      try setData(from: newUpdate, forDocument: docToWrite, withFlavor: flavor,
+                  mergeFields: ["age", FieldPath(["hobby"])])
 
       readAfterUpdate = try readDocument(forRef: docToWrite).data(as: Model.self)
       XCTAssertEqual(readAfterUpdate!, Model(name: "test",
-                                             age: 10, hobby: "Play"), "Failed with flavor \(flavor)")
+                                             age: 10,
+                                             hobby: "Play"), "Failed with flavor \(flavor)")
     }
   }
 

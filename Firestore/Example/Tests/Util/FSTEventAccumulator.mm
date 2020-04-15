@@ -97,7 +97,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void (^)(id _Nullable, NSError *_Nullable))valueEventHandler {
-  return ^void(id _Nullable value, NSError *_Nullable error) {
+  return ^void(id _Nullable value, NSError *) {
     // We can't store nil in the _events array, but these are still interesting to tests so store
     // NSNull instead.
     id event = value ? value : [NSNull null];

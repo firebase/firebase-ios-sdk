@@ -97,6 +97,8 @@ swift_disable=(
 swift_options=(
   # Mimic Objective-C style.
   --indent 2
+  --maxwidth 100
+  --wrapparameters afterfirst
 
   --disable $(join , "${swift_disable[@]}")
 )
@@ -154,7 +156,7 @@ s%^./%%
 \%^/?vendor/bundle/% d
 
 # Auth Sample is not subject to formatting
-\%^(Example/Auth/Sample)/% d
+\%^(FirebaseAuth/Tests/Sample)/% d
 
 # Keep Firebase.h indenting
 \%^CoreOnly/Sources/Firebase.h% d

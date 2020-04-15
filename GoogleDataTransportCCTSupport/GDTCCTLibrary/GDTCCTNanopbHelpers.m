@@ -31,9 +31,7 @@
 #import <nanopb/pb_decode.h>
 #import <nanopb/pb_encode.h>
 
-NSString *const GDTCCTNeedsNetworkConnectionInfo = @"needs_network_connection_info";
-
-NSString *const GDTCCTNetworkConnectionInfo = @"network_connection_info";
+#import "GDTCCTLibrary/Private/GDTCOREvent+NetworkConnectionInfo.h"
 
 #pragma mark - General purpose encoders
 
@@ -140,24 +138,25 @@ gdt_cct_LogEvent GDTCCTConstructLogEvent(GDTCOREvent *event) {
   logEvent.has_event_uptime_ms = 1;
   logEvent.timezone_offset_seconds = event.clockSnapshot.timezoneOffsetSeconds;
   logEvent.has_timezone_offset_seconds = 1;
-  if (event.customPrioritizationParams[GDTCCTNetworkConnectionInfo]) {
-    NSData *networkConnectionInfoData =
-        event.customPrioritizationParams[GDTCCTNetworkConnectionInfo];
-    [networkConnectionInfoData getBytes:&logEvent.network_connection_info
-                                 length:networkConnectionInfoData.length];
-    logEvent.has_network_connection_info = 1;
+  if (event.customBytes) {
+    NSData *networkConnectionInfoData = event.networkConnectionInfoData;
+    if (networkConnectionInfoData) {
+      [networkConnectionInfoData getBytes:&logEvent.network_connection_info
+                                   length:networkConnectionInfoData.length];
+      logEvent.has_network_connection_info = 1;
+    }
   }
   NSError *error;
   NSData *extensionBytes;
   if (event.fileURL) {
-    extensionBytes = [NSData dataWithContentsOfURL:event.fileURL options:0 error:&error];
+    extensionBytes = [NSData dataWithContentsOfFile:event.fileURL.path options:0 error:&error];
   } else {
     GDTCORLogError(GDTCORMCEFileReadError, @"%@", @"An event's fileURL property was nil.");
     return logEvent;
   }
   if (error) {
-    GDTCORLogError(GDTCORMCEGeneralError,
-                   @"There was an error reading extension bytes from disk: %@", error);
+    GDTCORLogWarning(GDTCORMCWFileReadError,
+                     @"There was an error reading extension bytes from disk: %@", error);
     return logEvent;
   }
   logEvent.source_extension = GDTCCTEncodeData(extensionBytes);  // read bytes from the file.

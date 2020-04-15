@@ -307,11 +307,6 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   // To prevent multiple notifications remove self as observer for all events.
   NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
   [center removeObserver:self];
-
-  [center addObserver:self
-             selector:@selector(didReceiveDefaultInstanceIDToken:)
-                 name:kFIRMessagingFCMTokenNotification
-               object:nil];
   [center addObserver:self
              selector:@selector(defaultInstanceIDTokenWasRefreshed:)
                  name:kFIRMessagingRegistrationTokenRefreshNotification
@@ -664,6 +659,10 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   if ([self.delegate respondsToSelector:@selector(messaging:didReceiveRegistrationToken:)]) {
     [self.delegate messaging:self didReceiveRegistrationToken:self.defaultFcmToken];
   }
+  // Should always trigger the token refresh notification when the delegate method is called
+  NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
+  [center postNotificationName:FIRMessagingRegistrationTokenRefreshedNotification
+                        object:self.defaultFcmToken];
 }
 
 #pragma mark - Application State Changes
@@ -931,41 +930,28 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 
 #pragma mark - Notifications
 
-- (void)didReceiveDefaultInstanceIDToken:(NSNotification *)notification {
+- (void)defaultInstanceIDTokenWasRefreshed:(NSNotification *)notification {
   if (notification.object && ![notification.object isKindOfClass:[NSString class]]) {
     FIRMessagingLoggerDebug(kFIRMessagingMessageCodeMessaging015,
                             @"Invalid default FCM token type %@",
                             NSStringFromClass([notification.object class]));
     return;
   }
+  // Retrieve the Instance ID default token, and should notify delegate and
+  // trigger notification as long as the token is different from previous state.
   NSString *oldToken = self.defaultFcmToken;
   self.defaultFcmToken = [(NSString *)notification.object copy];
-  if (self.defaultFcmToken && ![self.defaultFcmToken isEqualToString:oldToken]) {
+  if ((self.defaultFcmToken.length && oldToken.length &&
+       ![self.defaultFcmToken isEqualToString:oldToken]) ||
+      self.defaultFcmToken.length != oldToken.length) {
     [self notifyDelegateOfFCMTokenAvailability];
-  }
-  [self.pubsub scheduleSync:YES];
+    [self.pubsub scheduleSync:YES];
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  if (self.shouldEstablishDirectChannel) {
-    [self updateAutomaticClientConnection];
-  }
-#pragma clang diagnostic pop
-}
-
-- (void)defaultInstanceIDTokenWasRefreshed:(NSNotification *)notification {
-  // Retrieve the Instance ID default token, and if it is non-nil, post it
-  NSString *token = self.instanceID.token;
-  // Sometimes Instance ID doesn't yet have a token, so wait until the default
-  // token is fetched, and then notify. This ensures that this token should not
-  // be nil when the developer accesses it.
-  if (token != nil) {
-    NSString *oldToken = self.defaultFcmToken;
-    self.defaultFcmToken = [token copy];
-    if (self.defaultFcmToken && ![self.defaultFcmToken isEqualToString:oldToken]) {
-      [self notifyDelegateOfFCMTokenAvailability];
+    if (self.shouldEstablishDirectChannel) {
+      [self updateAutomaticClientConnection];
     }
-    NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
-    [center postNotificationName:FIRMessagingRegistrationTokenRefreshedNotification object:nil];
+#pragma clang diagnostic pop
   }
 }
 

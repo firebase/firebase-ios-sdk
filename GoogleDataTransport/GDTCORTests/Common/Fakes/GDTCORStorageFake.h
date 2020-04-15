@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-#import "GDTCORLibrary/Private/GDTCORStorage.h"
+#import <GoogleDataTransport/GDTCORStorageProtocol.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
 /** A functionless fake that can be injected into classes that need it. */
-@interface GDTCORStorageFake : GDTCORStorage
+@interface GDTCORStorageFake : NSObject <GDTCORStorageProtocol>
 
 @end
 

@@ -74,6 +74,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (id)copyWithZone:(NSZone *__nullable)zone {
+  (void)zone;
   return [[[self class] alloc] initPrivate:_internalValue];
 }
 

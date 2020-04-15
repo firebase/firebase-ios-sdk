@@ -36,7 +36,8 @@ class ModalMessageViewController: CommonMessageTestVC {
   @IBAction func showRegular(_ sender: Any) {
     verifyLabel.text = "Verification Label"
     let imageRawData = produceImageOfSize(size: CGSize(width: 200, height: 200))
-    let fiamImageData = InAppMessagingImageData(imageURL: "url not important", imageData: imageRawData!)
+    let fiamImageData = InAppMessagingImageData(imageURL: "url not important",
+                                                imageData: imageRawData!)
 
     let modalMessage = InAppMessagingModalDisplay(messageID: "messageId",
                                                   campaignName: "testCampaign",
@@ -73,7 +74,8 @@ class ModalMessageViewController: CommonMessageTestVC {
   @IBAction func showWithoutButton(_ sender: Any) {
     verifyLabel.text = "Verification Label"
     let imageRawData = produceImageOfSize(size: CGSize(width: 200, height: 200))
-    let fiamImageData = InAppMessagingImageData(imageURL: "url not important", imageData: imageRawData!)
+    let fiamImageData = InAppMessagingImageData(imageURL: "url not important",
+                                                imageData: imageRawData!)
 
     let modalMessage = InAppMessagingModalDisplay(messageID: "messageId",
                                                   campaignName: "testCampaign",
@@ -127,7 +129,8 @@ class ModalMessageViewController: CommonMessageTestVC {
   @IBAction func showWithLargeTitleAndBody(_ sender: Any) {
     verifyLabel.text = "Verification Label"
     let imageRawData = produceImageOfSize(size: CGSize(width: 200, height: 200))
-    let fiamImageData = InAppMessagingImageData(imageURL: "url not important", imageData: imageRawData!)
+    let fiamImageData = InAppMessagingImageData(imageURL: "url not important",
+                                                imageData: imageRawData!)
 
     let modalMessage = InAppMessagingModalDisplay(messageID: "messageId",
                                                   campaignName: "testCampaign",
@@ -198,7 +201,8 @@ class ModalMessageViewController: CommonMessageTestVC {
   @IBAction func showWithWideImage(_ sender: Any) {
     verifyLabel.text = "Verification Label"
     let imageRawData = produceImageOfSize(size: CGSize(width: 600, height: 200))
-    let fiamImageData = InAppMessagingImageData(imageURL: "url not important", imageData: imageRawData!)
+    let fiamImageData = InAppMessagingImageData(imageURL: "url not important",
+                                                imageData: imageRawData!)
 
     let modalMessage = InAppMessagingModalDisplay(messageID: "messageId",
                                                   campaignName: "testCampaign",
@@ -218,7 +222,8 @@ class ModalMessageViewController: CommonMessageTestVC {
   @IBAction func showWithThinImage(_ sender: Any) {
     verifyLabel.text = "Verification Label"
     let imageRawData = produceImageOfSize(size: CGSize(width: 200, height: 600))
-    let fiamImageData = InAppMessagingImageData(imageURL: "url not important", imageData: imageRawData!)
+    let fiamImageData = InAppMessagingImageData(imageURL: "url not important",
+                                                imageData: imageRawData!)
 
     let modalMessage = InAppMessagingModalDisplay(messageID: "messageId",
                                                   campaignName: "testCampaign",
