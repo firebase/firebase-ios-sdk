@@ -74,7 +74,6 @@
         XCTAssertTrue(testDelegate.delegateIsCalled)
         expectation.fulfill()
       })
-
       wait(for: [expectation, notificationExpectation], timeout: 5)
     }
 
