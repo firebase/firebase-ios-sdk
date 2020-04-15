@@ -68,7 +68,7 @@
     GDTCOREvent *transformedEvent = event;
     for (id<GDTCOREventTransformer> transformer in transformers) {
       if ([transformer respondsToSelector:@selector(transform:)]) {
-        GDTCORLogDebug("Applying a transformer to event %@", event);
+        GDTCORLogDebug(@"Applying a transformer to event %@", event);
         transformedEvent = [transformer transform:transformedEvent];
         if (!transformedEvent) {
           completion(NO, nil);
