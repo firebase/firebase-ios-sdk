@@ -31,19 +31,14 @@ file(
   Logger/Public/*.h
 )
 
-podspec_version(version ${PROJECT_SOURCE_DIR}/GoogleUtilities.podspec)
+firebase_ios_add_framework(
+  GoogleUtilities DISABLE_STRICT_WARNINGS EXCLUDE_FROM_ALL
+  ${headers} ${sources}
+)
 
-firebase_ios_objc_framework(
-  GoogleUtilities
-  SOURCES ${sources}
-  HEADERS ${headers}
-  VERSION ${version}
-  INCLUDES
-    Private
-    Public
-    ${PROJECT_SOURCE_DIR}
-  DEPENDS
-    "-framework Foundation"
-  DISABLE_STRICT_WARNINGS
-  EXCLUDE_FROM_ALL
+firebase_ios_framework_public_headers(GoogleUtilities ${headers})
+
+target_link_libraries(
+  GoogleUtilities PRIVATE
+  "-framework Foundation"
 )

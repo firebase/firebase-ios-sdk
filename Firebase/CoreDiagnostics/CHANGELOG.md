@@ -1,4 +1,4 @@
-# Unreleased
+# v1.2.3
 - Remove usage of memcpy and convert calls from malloc to calloc.
 
 # v1.2.2

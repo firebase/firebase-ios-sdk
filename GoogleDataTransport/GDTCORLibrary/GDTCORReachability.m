@@ -62,7 +62,7 @@ static void GDTCORReachabilityCallback(SCNetworkReachabilityRef reachability,
     GDTCORReachability *reachability = [GDTCORReachability sharedInstance];
     currentFlags =
         reachability->_callbackFlags ? reachability->_callbackFlags : reachability->_flags;
-    GDTCORLogDebug("Initial reachability flags determined: %d", currentFlags);
+    GDTCORLogDebug(@"Initial reachability flags determined: %d", currentFlags);
   });
   return currentFlags;
 }
@@ -93,7 +93,7 @@ static void GDTCORReachabilityCallback(SCNetworkReachabilityRef reachability,
     dispatch_async(_reachabilityQueue, ^{
       Boolean valid = SCNetworkReachabilityGetFlags(self->_reachabilityRef, &self->_flags);
       if (!valid) {
-        GDTCORLogDebug("%@", @"Determining reachability failed.");
+        GDTCORLogDebug(@"%@", @"Determining reachability failed.");
         self->_flags = 0;
       }
     });
@@ -112,7 +112,7 @@ static void GDTCORReachabilityCallback(SCNetworkReachabilityRef reachability,
 static void GDTCORReachabilityCallback(SCNetworkReachabilityRef reachability,
                                        SCNetworkReachabilityFlags flags,
                                        void *info) {
-  GDTCORLogDebug("Reachability changed, new flags: %d", flags);
+  GDTCORLogDebug(@"Reachability changed, new flags: %d", flags);
   [[GDTCORReachability sharedInstance] setCallbackFlags:flags];
 }
 

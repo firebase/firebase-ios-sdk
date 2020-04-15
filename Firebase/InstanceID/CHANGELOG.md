@@ -1,3 +1,6 @@
+# 2020-04 -- 4.3.4
+- [changed] Internal cleanup and remove repetitive local notification. (#5339)
+
 # 2020-03 -- 4.3.3
 - [fixed] Fixed provisioning profile location for catalyst. (#5048)
 - [fixed] Fixed crash when passing a nil handler to deleteToken request. (#5247)

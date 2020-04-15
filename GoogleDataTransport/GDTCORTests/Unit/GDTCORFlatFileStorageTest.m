@@ -101,7 +101,7 @@ static NSInteger target = kGDTCORTargetCCT;
     XCTAssertNotNil(eventFile);
     XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:eventFile.path]);
     NSError *error;
-    XCTAssertTrue([[NSFileManager defaultManager] removeItemAtURL:eventFile error:&error]);
+    XCTAssertTrue([[NSFileManager defaultManager] removeItemAtPath:eventFile.path error:&error]);
     XCTAssertNil(error, @"There was an error deleting the eventFile: %@", error);
   });
 }
@@ -240,21 +240,21 @@ static NSInteger target = kGDTCORTargetCCT;
     XCTAssertNotNil(event1File);
     XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:event1File.path]);
     NSError *error;
-    XCTAssertTrue([[NSFileManager defaultManager] removeItemAtURL:event1File error:&error]);
+    XCTAssertTrue([[NSFileManager defaultManager] removeItemAtPath:event1File.path error:&error]);
     XCTAssertNil(error, @"There was an error deleting the eventFile: %@", error);
 
     NSURL *event2File = event2.fileURL;
     XCTAssertNotNil(event2File);
     XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:event2File.path]);
     error = nil;
-    XCTAssertTrue([[NSFileManager defaultManager] removeItemAtURL:event2File error:&error]);
+    XCTAssertTrue([[NSFileManager defaultManager] removeItemAtPath:event2File.path error:&error]);
     XCTAssertNil(error, @"There was an error deleting the eventFile: %@", error);
 
     NSURL *event3File = event3.fileURL;
     XCTAssertNotNil(event3File);
     XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:event3File.path]);
     error = nil;
-    XCTAssertTrue([[NSFileManager defaultManager] removeItemAtURL:event3File error:&error]);
+    XCTAssertTrue([[NSFileManager defaultManager] removeItemAtPath:event3File.path error:&error]);
     XCTAssertNil(error, @"There was an error deleting the eventFile: %@", error);
   });
 }
@@ -409,7 +409,7 @@ static NSInteger target = kGDTCORTargetCCT;
     XCTAssertNotNil(eventFile);
     XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:eventFile.path]);
     NSError *error;
-    XCTAssertTrue([[NSFileManager defaultManager] removeItemAtURL:eventFile error:&error]);
+    XCTAssertTrue([[NSFileManager defaultManager] removeItemAtPath:eventFile.path error:&error]);
     XCTAssertNil(error, @"There was an error deleting the eventFile: %@", error);
   });
 }

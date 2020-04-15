@@ -44,7 +44,7 @@ See more product details at https://firebase.google.com/products/in-app-messagin
   s.dependency 'FirebaseCore', '~> 6.2'
   s.ios.dependency 'FirebaseAnalyticsInterop', '~> 1.3'
   s.dependency 'FirebaseInstallations', '~> 1.1'
-  s.dependency 'GoogleDataTransportCCTSupport', '~> 2.0'
+  s.dependency 'GoogleDataTransportCCTSupport', '~> 3.0'
   s.dependency 'FirebaseABTesting', '~> 3.2'
   s.dependency 'GoogleUtilities/Environment', '~> 6.5'
 

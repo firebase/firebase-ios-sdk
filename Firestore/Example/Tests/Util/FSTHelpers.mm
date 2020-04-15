@@ -142,7 +142,7 @@ PatchMutation FSTTestPatchMutation(const absl::string_view path,
 
   __block ObjectValue objectValue = ObjectValue::Empty();
   __block std::set<FieldPath> fieldMaskPaths;
-  [values enumerateKeysAndObjectsUsingBlock:^(NSString *key, id value, BOOL *stop) {
+  [values enumerateKeysAndObjectsUsingBlock:^(NSString *key, id value, BOOL *) {
     const FieldPath path = testutil::Field(util::MakeString(key));
     fieldMaskPaths.insert(path);
     if (![value isEqual:kDeleteSentinel]) {

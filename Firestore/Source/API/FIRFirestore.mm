@@ -350,7 +350,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (id<FIRListenerRegistration>)addSnapshotsInSyncListener:(void (^)(void))listener {
   std::unique_ptr<core::EventListener<Empty>> eventListener =
-      core::EventListener<Empty>::Create([listener](const StatusOr<Empty> &v) { listener(); });
+      core::EventListener<Empty>::Create([listener](const StatusOr<Empty> &) { listener(); });
   std::unique_ptr<ListenerRegistration> result =
       _firestore->AddSnapshotsInSyncListener(std::move(eventListener));
   return [[FSTListenerRegistration alloc] initWithRegistration:std::move(result)];

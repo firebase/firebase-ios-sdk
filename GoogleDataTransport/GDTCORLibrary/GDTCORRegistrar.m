@@ -55,7 +55,7 @@
   dispatch_async(_registrarQueue, ^{
     GDTCORRegistrar *strongSelf = weakSelf;
     if (strongSelf) {
-      GDTCORLogDebug("Registered an uploader: %@ for target:%ld", backend, (long)target);
+      GDTCORLogDebug(@"Registered an uploader: %@ for target:%ld", backend, (long)target);
       strongSelf->_targetToUploader[@(target)] = backend;
     }
   });
@@ -66,7 +66,7 @@
   dispatch_async(_registrarQueue, ^{
     GDTCORRegistrar *strongSelf = weakSelf;
     if (strongSelf) {
-      GDTCORLogDebug("Registered storage: %@ for target:%ld", storage, (long)target);
+      GDTCORLogDebug(@"Registered storage: %@ for target:%ld", storage, (long)target);
       strongSelf->_targetToStorage[@(target)] = storage;
     }
   });
@@ -77,7 +77,7 @@
   dispatch_async(_registrarQueue, ^{
     GDTCORRegistrar *strongSelf = weakSelf;
     if (strongSelf) {
-      GDTCORLogDebug("Registered a prioritizer: %@ for target:%ld", prioritizer, (long)target);
+      GDTCORLogDebug(@"Registered a prioritizer: %@ for target:%ld", prioritizer, (long)target);
       strongSelf->_targetToPrioritizer[@(target)] = prioritizer;
     }
   });
