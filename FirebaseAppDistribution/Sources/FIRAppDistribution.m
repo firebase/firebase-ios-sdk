@@ -113,7 +113,7 @@ NSString *const kAppDistroLibraryName = @"fire-fad";
   return (FIRAppDistribution *)instance;
 }
 
-- (void)signInTesterWithCompletion:(FIRAppDistributionSignInTesterCompletion)completion {
+- (void)signInTesterWithCompletion:(void (^)(NSError *_Nullable error))completion {
   NSURL *issuer = [NSURL URLWithString:kIssuerURL];
 
   [OIDAuthorizationService
@@ -168,7 +168,7 @@ NSString *const kAppDistroLibraryName = @"fire-fad";
 
 - (void)handleOauthDiscoveryCompletion:(OIDServiceConfiguration *_Nullable)configuration
                                  error:(NSError *_Nullable)error
-       appDistributionSignInCompletion:(FIRAppDistributionSignInTesterCompletion)completion {
+       appDistributionSignInCompletion:(void (^)(NSError *_Nullable error))completion {
   if (!configuration) {
     // TODO: Handle when we cannot get configuration
     @throw([NSException exceptionWithName:@"NotImplementedException"

@@ -34,18 +34,6 @@ typedef void (^FIRAppDistributionUpdateCheckCompletion)(
     NS_SWIFT_NAME(AppDistributionUpdateCheckCompletion);
 
 /**
- *  @related AppDistributionError
- *
- *  The completion handler invoked  when App Distribution sign in is complete
- *  If the call fails we return the appropriate `error code`, described by
- *  `AppDistributionError`.
- *
- *  @param error     The error describing why sign in failed
- */
-typedef void (^FIRAppDistributionSignInTesterCompletion)(NSError *_Nullable error)
-    NS_SWIFT_NAME(AppDistributionSignInTesterCompletion);
-
-/**
  * The Firebase App Distribution API provides methods to check for update to
  * the app and returns information that enables updating the app.
  *
@@ -66,7 +54,7 @@ NS_SWIFT_NAME(AppDistribution)
 /**
  * Sign-in the App Distribution tester
  */
-- (void)signInTesterWithCompletion:(FIRAppDistributionSignInTesterCompletion)completion
+- (void)signInTesterWithCompletion:(void (^)(NSError *_Nullable error))completion
     NS_SWIFT_NAME(signInTester(completion:));
 
 /**
