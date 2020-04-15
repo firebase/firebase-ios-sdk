@@ -4,7 +4,9 @@
 - [changed] Internal improvements for future C++ and Unity support.
 
 # v1.12.0
-- [changed] Internal improvements.
+- [changed] Internal improvements for future C++ and Unity support. The minor
+  version bump here represents a breaking change for the Firestore C++ Alpha
+  SDK, but does not affect Objective-C or Swift users.
 
 # v1.11.2
 - [fixed] Fixed the FirebaseFirestore podspec to properly declare its
