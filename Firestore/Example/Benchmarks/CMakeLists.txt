@@ -18,9 +18,9 @@ if(FIREBASE_IOS_BUILD_BENCHMARKS AND APPLE)
     SOURCES
       remote_document_cache_benchmark.mm
     DEPENDS
+      FirebaseFirestore
       benchmark
       benchmark_main
-      firebase_firestore_testutil
-      FirebaseFirestore
+      firestore_testutil
   )
 endif()

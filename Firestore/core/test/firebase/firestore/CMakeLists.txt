@@ -18,12 +18,11 @@
 # Xcode, but that's not necessary in CMake which directly supports running
 # GoogleTest-based tests.
 
-firebase_ios_cc_test(
-  firebase_firestore_types_test
-  SOURCES
-    geo_point_test.cc
-    timestamp_test.cc
-  DEPENDS
-    absl_time
-    firebase_firestore_types
+file(GLOB sources *.cc)  # not .mm
+firebase_ios_add_test(firestore_types_test ${sources})
+
+target_link_libraries(
+  firestore_types_test PRIVATE
+  absl_time
+  firestore_core
 )

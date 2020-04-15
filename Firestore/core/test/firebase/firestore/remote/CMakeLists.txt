@@ -12,44 +12,37 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-firebase_ios_cc_library(
-  firebase_firestore_remote_testing
-  SOURCES
-    create_noop_connectivity_monitor.cc
-    create_noop_connectivity_monitor.h
-    fake_target_metadata_provider.cc
-    fake_target_metadata_provider.h
-  DEPENDS
-    absl_memory
-    firebase_firestore_remote
+file(
+  GLOB remote_testing_sources
+  create_noop_connectivity_monitor.*
+  fake_target_metadata_provider.*
 )
 
-firebase_ios_cc_test(
-  firebase_firestore_remote_test
-  SOURCES
-    datastore_test.cc
-    exponential_backoff_test.cc
-    fake_credentials_provider.cc
-    fake_credentials_provider.h
-    grpc_connection_test.cc
-    grpc_stream_test.cc
-    grpc_stream_tester.cc
-    grpc_stream_tester.h
-    grpc_streaming_reader_test.cc
-    grpc_unary_call_test.cc
-    remote_event_test.cc
-    serializer_test.cc
-    stream_test.cc
-    watch_change_test.cc
+firebase_ios_add_library(
+  firestore_remote_testing EXCLUDE_FROM_ALL
+  ${remote_testing_sources}
+)
 
-  DEPENDS
-    absl_base
-    firebase_firestore_protos_libprotobuf
-    firebase_firestore_core
-    firebase_firestore_local
-    firebase_firestore_remote
-    firebase_firestore_remote_testing
-    firebase_firestore_testutil
-    firebase_firestore_util_async_std
-    GMock::GMock
+target_link_libraries(
+  firestore_remote_testing PUBLIC
+  absl_memory
+  firestore_core
+)
+
+
+firebase_ios_glob(
+  sources *.cc *.h
+  EXCLUDE ${remote_testing_sources}
+)
+
+firebase_ios_add_test(firestore_remote_test ${sources})
+
+target_link_libraries(
+  firestore_remote_test PRIVATE
+  GMock::GMock
+  absl_base
+  firestore_core
+  firestore_protos_protobuf
+  firestore_remote_testing
+  firestore_testutil
 )

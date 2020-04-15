@@ -287,7 +287,6 @@ fi
 "${top_dir}/scripts/check_copyright.sh"
 "${top_dir}/scripts/check_no_module_imports.sh"
 "${top_dir}/scripts/check_test_inclusion.py"
-"${top_dir}/scripts/check_cmake_files.py"
 
 # Google C++ style
 lint_cmd=("${top_dir}/scripts/check_lint.py")

@@ -12,16 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-firebase_ios_cc_test(
-  firebase_firestore_immutable_test
-  SOURCES
-    append_only_list_test.cc
-    array_sorted_map_test.cc
-    testing.h
-    sorted_map_test.cc
-    sorted_set_test.cc
-    tree_sorted_map_test.cc
-  DEPENDS
-    firebase_firestore_immutable
-    firebase_firestore_util
+file(GLOB sources *.cc *.h)
+firebase_ios_add_test(firestore_immutable_test ${sources})
+
+target_link_libraries(
+  firestore_immutable_test PRIVATE
+  firestore_core
 )
