@@ -109,8 +109,8 @@ firebase_ios_cc_library(
   DEPENDS
     absl_optional
     firebase_firestore_nanopb
-    firebase_firestore_protos_nanopb
     firebase_firestore_version
+    firestore_protos_nanopb
     grpc++
     protobuf-nanopb-static
 )
@@ -133,10 +133,10 @@ firebase_ios_cc_library(
   DEPENDS
     absl_strings
     firebase_firestore_nanopb
-    firebase_firestore_protos_nanopb
     firebase_firestore_remote_connectivity_monitor
     firebase_firestore_remote_grpc
     firebase_firestore_remote_serializer
+    firestore_protos_nanopb
 )
 
 firebase_ios_cc_library(

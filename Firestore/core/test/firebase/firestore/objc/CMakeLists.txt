@@ -12,13 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-if(APPLE)
-  firebase_ios_cc_test(
-    firebase_firestore_objc_test
-    SOURCES
-      objc_type_traits_apple_test.mm
-    DEPENDS
-      firebase_firestore_objc
-      firebase_firestore_util
-  )
+if(NOT APPLE)
+  return()
 endif()
+
+file(GLOB sources *.mm)
+firebase_ios_add_test(
+  firestore_objc_test
+  ${sources}
+)
+
+target_link_libraries(
+  firestore_objc_test PRIVATE
+  firestore_core
+)

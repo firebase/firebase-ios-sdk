@@ -16,46 +16,26 @@ if(NOT FIREBASE_IOS_BUILD_TESTS)
   return()
 endif()
 
-firebase_ios_cc_library(
-  firebase_firestore_testutil_apple
-  SOURCES
-    app_testing.h
-    app_testing.mm
-  DEPENDS
-    FirebaseCore
-    absl_strings
-    GMock::GMock
-    ${XCTest_LIBRARIES}
-  EXCLUDE_FROM_ALL
+firebase_ios_glob(sources *.cc *.h EXCLUDE app_testing.h)
+if(APPLE)
+  firebase_ios_glob(sources APPEND app_testing.*)
+endif()
+
+firebase_ios_add_library(firestore_testutil EXCLUDE_FROM_ALL ${sources})
+
+target_link_libraries(
+  firestore_testutil
+  GMock::GMock
+  GTest::GTest
+  absl_strings
+  absl_time
+  firestore_core
 )
 
 if(APPLE)
-  list(APPEND TESTUTIL_DEPENDS firebase_firestore_testutil_apple)
+  target_link_libraries(
+    firestore_testutil
+    ${XCTest_LIBRARIES}
+    FirebaseCore
+  )
 endif()
-
-firebase_ios_cc_library(
-  firebase_firestore_testutil
-  SOURCES
-    async_testing.cc
-    async_testing.h
-    equals_tester.h
-    filesystem_testing.cc
-    filesystem_testing.h
-    status_testing.cc
-    status_testing.h
-    testutil.cc
-    testutil.h
-    time_testing.cc
-    time_testing.h
-    view_testing.cc
-    view_testing.h
-  DEPENDS
-    ${TESTUTIL_DEPENDS}
-    GMock::GMock
-    GTest::GTest
-    absl_time
-    firebase_firestore_core
-    firebase_firestore_model
-    firebase_firestore_nanopb
-    firebase_firestore_util
-)
