@@ -93,7 +93,7 @@ class SyncEngine : public remote::RemoteStoreCallback, public QueryEventSource {
   SyncEngine(local::LocalStore* local_store,
              remote::RemoteStore* remote_store,
              const auth::User& initial_user,
-             size_t maxConcurrentLimboResolutions);
+             size_t max_concurrent_limbo_resolutions);
 
   // Implements `QueryEventSource`.
   void SetCallback(SyncEngineCallback* callback) override {

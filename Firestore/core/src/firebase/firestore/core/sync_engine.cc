@@ -545,7 +545,7 @@ void SyncEngine::PumpEnqueuedLimboResolutions() {
     TargetId limbo_target_id = target_id_generator_.NextId();
     active_limbo_resolutions_by_target_.emplace(limbo_target_id,
                                                 LimboResolution{key});
-    active_limbo_targets_by_key_[key] = limbo_target_id;
+    active_limbo_targets_by_key_.emplace(key, limbo_target_id);
     remote_store_->Listen(TargetData(Query(key.path()).ToTarget(),
                                      limbo_target_id, kIrrelevantSequenceNumber,
                                      QueryPurpose::LimboResolution));
