@@ -197,7 +197,6 @@ class SerializerTest : public ::testing::Test {
   void ExpectDeserializationRoundTrip(const WatchChange& model,
                                       const v1::ListenResponse& proto) {
     auto actual_model = Decode<google_firestore_v1_ListenResponse>(
-        google_firestore_v1_ListenResponse_fields,
         std::mem_fn(&Serializer::DecodeWatchChange), proto);
 
     EXPECT_EQ(model, *actual_model);
@@ -207,7 +206,6 @@ class SerializerTest : public ::testing::Test {
                                       const v1::WriteResult& proto,
                                       const SnapshotVersion& commit_version) {
     auto actual_model = Decode<google_firestore_v1_WriteResult>(
-        google_firestore_v1_WriteResult_fields,
         std::mem_fn(&Serializer::DecodeMutationResult), proto, commit_version);
 
     EXPECT_EQ(model, actual_model);
@@ -216,7 +214,6 @@ class SerializerTest : public ::testing::Test {
   void ExpectDeserializationRoundTrip(const SnapshotVersion& model,
                                       const v1::ListenResponse& proto) {
     auto actual_model = Decode<google_firestore_v1_ListenResponse>(
-        google_firestore_v1_ListenResponse_fields,
         std::mem_fn(&Serializer::DecodeVersionFromListenResponse), proto);
 
     EXPECT_EQ(model, actual_model);
@@ -507,12 +504,10 @@ class SerializerTest : public ::testing::Test {
     core::Target actual_model;
     if (proto.has_documents()) {
       actual_model = Decode<google_firestore_v1_Target_DocumentsTarget>(
-          google_firestore_v1_Target_DocumentsTarget_fields,
           std::mem_fn(&Serializer::DecodeDocumentsTarget), proto.documents());
 
     } else {
       actual_model = Decode<google_firestore_v1_Target_QueryTarget>(
-          google_firestore_v1_Target_QueryTarget_fields,
           std::mem_fn(&Serializer::DecodeQueryTarget), proto.query());
     }
 
@@ -531,7 +526,6 @@ class SerializerTest : public ::testing::Test {
   void ExpectDeserializationRoundTrip(const Mutation& model,
                                       const v1::Write& proto) {
     Mutation actual_model = Decode<google_firestore_v1_Write>(
-        google_firestore_v1_Write_fields,
         std::mem_fn(&Serializer::DecodeMutation), proto);
 
     EXPECT_EQ(model, actual_model);
@@ -550,7 +544,6 @@ class SerializerTest : public ::testing::Test {
       const core::Filter& model, const v1::StructuredQuery::Filter& proto) {
     FilterList actual_model =
         Decode<google_firestore_v1_StructuredQuery_Filter>(
-            google_firestore_v1_StructuredQuery_Filter_fields,
             std::mem_fn(&Serializer::DecodeFilters), proto);
 
     EXPECT_EQ(FilterList{model}, actual_model);
@@ -565,10 +558,8 @@ class SerializerTest : public ::testing::Test {
   }
 
   template <typename T, typename F, typename P, typename... Args>
-  auto Decode(const pb_field_t* fields,
-              F decode_func,
-              const P& proto,
-              const Args&... args) -> typename F::result_type {
+  auto Decode(F decode_func, const P& proto, const Args&... args) ->
+      typename F::result_type {
     ByteString bytes = ProtobufSerialize(proto);
     StringReader reader{bytes};
 

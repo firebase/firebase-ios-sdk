@@ -144,10 +144,13 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)rejectFailedWriteWithBatchID:(BatchId)batchID error:(NSError *)error {
+  (void)batchID;
+  (void)error;
   HARD_FAIL("Not implemented");
 }
 
-- (DocumentKeySet)remoteKeysForTarget:(TargetId)targetId {
+- (DocumentKeySet)remoteKeysForTarget:(TargetId)targetID {
+  (void)targetID;
   return DocumentKeySet{};
 }
 
@@ -159,6 +162,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)rejectListenWithTargetID:(const TargetId)targetID error:(NSError *)error {
+  (void)targetID;
+  (void)error;
   HARD_FAIL("Not implemented");
 }
 
@@ -194,7 +199,7 @@ class RemoteStoreEventCapture : public RemoteStoreCallback {
     [underlying_capture_ rejectFailedWriteWithBatchID:batch_id error:error.ToNSError()];
   }
 
-  void HandleOnlineStateChange(OnlineState online_state) override {
+  void HandleOnlineStateChange(OnlineState) override {
     HARD_FAIL("Not implemented");
   }
 

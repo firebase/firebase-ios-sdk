@@ -211,11 +211,11 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
                          data:(NSDictionary<NSString *, id> *)data {
   __block NSError *errorResult;
   XCTestExpectation *expectation = [_testCase expectationWithDescription:@"prepareDoc:set"];
-  [_docRef setData:data
-        completion:^(NSError *error) {
-          errorResult = error;
-          [expectation fulfill];
-        }];
+  [ref setData:data
+      completion:^(NSError *error) {
+        errorResult = error;
+        [expectation fulfill];
+      }];
   [_testCase awaitExpectations];
   return errorResult;
 }
@@ -224,13 +224,13 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
   XCTestExpectation *expectation =
       [_testCase expectationWithDescription:@"runSuccessfulTransaction"];
   [_db
-      runTransactionWithBlock:^id _Nullable(FIRTransaction *transaction, NSError **error) {
+      runTransactionWithBlock:^id _Nullable(FIRTransaction *transaction, NSError **) {
         for (TransactionStage stage in self->_stages) {
           stage(transaction, self->_docRef);
         }
         return @YES;
       }
-      completion:^(id _Nullable result, NSError *_Nullable error) {
+      completion:^(id, NSError *error) {
         [expectation fulfill];
         NSString *message =
             [NSString stringWithFormat:@"Expected the sequence %@, to succeed, but got %d.",
@@ -245,13 +245,13 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
   XCTestExpectation *expectation =
       [_testCase expectationWithDescription:@"runFailingTransactionWithError"];
   [_db
-      runTransactionWithBlock:^id _Nullable(FIRTransaction *transaction, NSError **error) {
+      runTransactionWithBlock:^id _Nullable(FIRTransaction *transaction, NSError **) {
         for (TransactionStage stage in self->_stages) {
           stage(transaction, self->_docRef);
         }
         return @YES;
       }
-      completion:^(id _Nullable result, NSError *_Nullable error) {
+      completion:^(id, NSError *_Nullable error) {
         [expectation fulfill];
         NSString *message =
             [NSString stringWithFormat:@"Expected the sequence (%@), to fail, but it didn't.",
@@ -371,7 +371,7 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
 
   XCTestExpectation *expectation = [self expectationWithDescription:@"transaction"];
   [firestore
-      runTransactionWithBlock:^id _Nullable(FIRTransaction *transaction, NSError **error) {
+      runTransactionWithBlock:^id _Nullable(FIRTransaction *transaction, NSError **) {
         [transaction setData:@{@"a" : @"b", @"nested" : @{@"a" : @"b"}} forDocument:doc];
         [transaction setData:@{@"c" : @"d", @"nested" : @{@"c" : @"d"}} forDocument:doc merge:YES];
         return @YES;
@@ -422,7 +422,7 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
           [transaction setData:@{@"count" : @(newCount)} forDocument:doc];
           return @YES;
         }
-        completion:^(id _Nullable result, NSError *_Nullable error) {
+        completion:^(id, NSError *) {
           [expectation fulfill];
         }];
   }
@@ -469,7 +469,7 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
           [transaction updateData:@{@"count" : @(newCount)} forDocument:doc];
           return @YES;
         }
-        completion:^(id _Nullable result, NSError *_Nullable error) {
+        completion:^(id, NSError *) {
           [expectation fulfill];
         }];
   }
@@ -509,7 +509,7 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
         [doc1 setData:@{
           @"count" : @(1234)
         }
-            completion:^(NSError *_Nullable error) {
+            completion:^(NSError *) {
               dispatch_semaphore_signal(writeSemaphore);
             }];
         // We can block on it, because transactions run on a background queue.
@@ -519,7 +519,7 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
         [transaction setData:@{@"count" : @(16)} forDocument:doc2];
         return nil;
       }
-      completion:^(id _Nullable result, NSError *_Nullable error) {
+      completion:^(id, NSError *_Nullable error) {
         XCTAssertNil(error);
         XCTAssertEqual(counter->load(), 2);
         [expectation fulfill];
@@ -552,7 +552,7 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
         [doc setData:@{
           @"count" : @(1234 + (int)(*counter))
         }
-            completion:^(NSError *_Nullable error) {
+            completion:^(NSError *) {
               dispatch_semaphore_signal(writeSemaphore);
             }];
         // We can block on it, because transactions run on a background queue.
@@ -566,7 +566,7 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
         XCTAssertNotNil(*error);
         return nil;
       }
-      completion:^(id _Nullable result, NSError *_Nullable error) {
+      completion:^(id, NSError *_Nullable error) {
         [expectation fulfill];
         XCTAssertNotNil(error);
         XCTAssertEqual(error.code, FIRFirestoreErrorCodeAborted);
@@ -589,7 +589,7 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
         [doc setData:@{
           @"count" : @(1234)
         }
-            completion:^(NSError *_Nullable error) {
+            completion:^(NSError *) {
               dispatch_semaphore_signal(writeSemaphore);
             }];
         // We can block on it, because transactions run on a background queue.
@@ -600,7 +600,7 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
         [transaction updateData:@{@"count" : @(16)} forDocument:doc];
         return nil;
       }
-      completion:^(id _Nullable result, NSError *_Nullable error) {
+      completion:^(id, NSError *_Nullable error) {
         [expectation fulfill];
         XCTAssertNotNil(error);
         XCTAssertEqual(error.code, FIRFirestoreErrorCodeInvalidArgument);
@@ -621,7 +621,7 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
         [transaction getDocument:doc error:error];
         return nil;
       }
-      completion:^(id _Nullable result, NSError *_Nullable error) {
+      completion:^(id, NSError *_Nullable error) {
         XCTAssertNil(error);
         [expectation fulfill];
       }];
@@ -646,7 +646,7 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
         [transaction updateData:@{@"count" : @(16)} forDocument:doc];
         return nil;
       }
-      completion:^(id _Nullable result, NSError *_Nullable error) {
+      completion:^(id, NSError *_Nullable error) {
         [expectation fulfill];
         XCTAssertNotNil(error);
         XCTAssertEqual(error.code, FIRFirestoreErrorCodeInvalidArgument);
@@ -659,7 +659,7 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
   FIRFirestore *firestore = [self firestore];
   XCTestExpectation *expectation = [self expectationWithDescription:@"transaction"];
   [firestore
-      runTransactionWithBlock:^id _Nullable(FIRTransaction *transaction, NSError **error) {
+      runTransactionWithBlock:^id _Nullable(FIRTransaction *, NSError **) {
         return @"yes";
       }
       completion:^(id _Nullable result, NSError *_Nullable error) {
@@ -712,7 +712,7 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
                     forDocument:doc];
         return nil;
       }
-      completion:^(id result, NSError *error) {
+      completion:^(id, NSError *error) {
         XCTAssertNil(error);
         [doc getDocumentWithCompletion:^(FIRDocumentSnapshot *snapshot, NSError *error) {
           XCTAssertNil(error);
@@ -745,7 +745,7 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
                     forDocument:doc];
         return nil;
       }
-      completion:^(id result, NSError *error) {
+      completion:^(id, NSError *error) {
         XCTAssertNil(error);
         [doc getDocumentWithCompletion:^(FIRDocumentSnapshot *snapshot, NSError *error) {
           XCTAssertNil(error);

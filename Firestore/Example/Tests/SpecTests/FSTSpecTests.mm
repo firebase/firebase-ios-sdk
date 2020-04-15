@@ -204,6 +204,7 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
                         userInfo:nil];
 
 - (std::unique_ptr<Persistence>)persistenceWithGCEnabled:(BOOL)GCEnabled {
+  (void)GCEnabled;
   @throw FSTAbstractMethodException();  // NOLINT
 }
 
@@ -727,7 +728,7 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
       __block ActiveTargetMap expectedActiveTargets;
       [expectedState[@"activeTargets"]
           enumerateKeysAndObjectsUsingBlock:^(NSString *targetIDString, NSDictionary *queryData,
-                                              BOOL *stop) {
+                                              BOOL *) {
             TargetId targetID = [targetIDString intValue];
             ByteString resumeToken = MakeResumeToken(queryData[@"resumeToken"]);
             NSArray *queriesJson = queryData[@"queries"];
@@ -942,7 +943,7 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
   for (NSUInteger i = 0; i < specFiles.count; i++) {
     NSLog(@"Spec test file: %@", specFiles[i]);
     // Iterate over the tests in the file and run them.
-    [parsedSpecs[i] enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
+    [parsedSpecs[i] enumerateKeysAndObjectsUsingBlock:^(id, id obj, BOOL *) {
       XCTAssertTrue([obj isKindOfClass:[NSDictionary class]]);
       NSDictionary *testDescription = (NSDictionary *)obj;
       NSString *describeName = testDescription[@"describeName"];
@@ -991,7 +992,7 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
 
 - (BOOL)anyTestsAreMarkedExclusive:(NSDictionary *)tests {
   __block BOOL found = NO;
-  [tests enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
+  [tests enumerateKeysAndObjectsUsingBlock:^(id, id obj, BOOL *stop) {
     XCTAssertTrue([obj isKindOfClass:[NSDictionary class]]);
     NSDictionary *testDescription = (NSDictionary *)obj;
     NSArray<NSString *> *tags = testDescription[@"tags"];
