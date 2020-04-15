@@ -50,6 +50,7 @@ struct ContentView: View {
         .navigationBarTitle("Firebase Messaging")
 
         // MARK: Action buttons
+
         Button(action: getToken) {
           HStack {
             Image(systemName: "arrow.clockwise.circle.fill").font(.body)
@@ -133,7 +134,7 @@ struct ContentView: View {
 }
 
 struct SettingsView: View {
-  @ObservedObject var settings:UserSettings
+  @ObservedObject var settings: UserSettings
   @State var shouldUseDelegate = true
 
   init(settings: UserSettings) {
@@ -145,7 +146,7 @@ struct SettingsView: View {
       List {
         Toggle(isOn: $settings.isAutoInitEnabled) {
           Text("isAutoInitEnabled")
-          }.padding()
+        }.padding()
         Toggle(isOn: $settings.shouldUseDelegateThanNotification) {
           Text("shouldUseDelegate")
         }.padding()

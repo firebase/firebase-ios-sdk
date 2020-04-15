@@ -28,7 +28,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, MessagingDelegate {
   func scene(_ scene: UIScene, willConnectTo session: UISceneSession,
              options connectionOptions: UIScene.ConnectionOptions) {
     let contentView = ContentView()
-    if (settings.shouldUseDelegateThanNotification) {
+    if settings.shouldUseDelegateThanNotification {
       Messaging.messaging().delegate = self
     }
     // Use a UIHostingController as window root view controller.
@@ -38,20 +38,20 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, MessagingDelegate {
         .rootViewController = UIHostingController(rootView: contentView
           .environmentObject(identity)
           .environmentObject(settings)
-      )
+        )
 
       self.window = window
       window.makeKeyAndVisible()
     }
 
-    if !self.settings.shouldUseDelegateThanNotification {
-    // Subscribe to token refresh
-    _ = NotificationCenter.default
-      .publisher(for: Notification.Name.MessagingRegistrationTokenRefreshed)
-      .map { $0.object as? String }
-      .receive(on: RunLoop.main)
-      .assign(to: \Identity.token, on: identity)
-      .store(in: &cancellables)
+    if !settings.shouldUseDelegateThanNotification {
+      // Subscribe to token refresh
+      _ = NotificationCenter.default
+        .publisher(for: Notification.Name.MessagingRegistrationTokenRefreshed)
+        .map { $0.object as? String }
+        .receive(on: RunLoop.main)
+        .assign(to: \Identity.token, on: identity)
+        .store(in: &cancellables)
     }
 
     // Subscribe to fid changes
@@ -72,6 +72,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, MessagingDelegate {
   }
 
   func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String) {
-    self.identity.token = fcmToken
+    identity.token = fcmToken
   }
 }

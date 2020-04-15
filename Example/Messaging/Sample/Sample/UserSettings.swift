@@ -17,10 +17,11 @@ import FirebaseMessaging
 
 public final class UserSettings: ObservableObject {
   @Published public var isAutoInitEnabled: Bool = Messaging.messaging().isAutoInitEnabled {
-    didSet { Messaging.messaging().isAutoInitEnabled = self.isAutoInitEnabled}
+    didSet { Messaging.messaging().isAutoInitEnabled = isAutoInitEnabled }
   }
-  
-  @Published public var shouldUseDelegateThanNotification: Bool = UserDefaults.standard.bool(forKey: "useDelegate") {
-    didSet {UserDefaults.standard.set(self.shouldUseDelegateThanNotification, forKey: "useDelegate")}
+
+  @Published public var shouldUseDelegateThanNotification: Bool = UserDefaults.standard
+    .bool(forKey: "useDelegate") {
+    didSet { UserDefaults.standard.set(shouldUseDelegateThanNotification, forKey: "useDelegate") }
   }
 }
