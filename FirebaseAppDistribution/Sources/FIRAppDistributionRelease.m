@@ -15,7 +15,7 @@
 #import "FIRAppDistributionRelease.h"
 
 @interface FIRAppDistributionRelease ()
-  @property(nonatomic, strong) NSURL *downloadURL;
+@property(nonatomic, strong) NSURL *downloadURL;
 @end
 
 @implementation FIRAppDistributionRelease

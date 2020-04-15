@@ -28,7 +28,7 @@
 @end
 
 @interface FIRAppDistribution () <FIRLibrary, FIRAppDistributionInstanceProvider>
-  @property(nonatomic) BOOL isTesterSignedIn;
+@property(nonatomic) BOOL isTesterSignedIn;
 @end
 
 @implementation FIRAppDistribution
