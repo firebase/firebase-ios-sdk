@@ -101,7 +101,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
 
   s.subspec 'InAppMessaging' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.ios.dependency 'FirebaseInAppMessaging', '~> 0.19.2'
+    ss.ios.dependency 'FirebaseInAppMessaging', '~> 0.19.3'
     ss.ios.deployment_target = '9.0'
   end
 
