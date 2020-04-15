@@ -21,6 +21,7 @@ import FirebaseInstallations
 
 struct ContentView: View {
   @EnvironmentObject var identity: Identity
+  @EnvironmentObject var settings: UserSettings
 
   var body: some View {
     NavigationView {
@@ -42,14 +43,13 @@ struct ContentView: View {
               .layoutPriority(1)
           }
 
-          NavigationLink(destination: DetailView()) {
-            Text("Show Detail View")
+          NavigationLink(destination: SettingsView(settings: self.settings)) {
+            Text("Settings")
           }
         }
         .navigationBarTitle("Firebase Messaging")
 
         // MARK: Action buttons
-
         Button(action: getToken) {
           HStack {
             Image(systemName: "arrow.clockwise.circle.fill").font(.body)
@@ -132,13 +132,24 @@ struct ContentView: View {
   }
 }
 
-struct DetailView: View {
-  @EnvironmentObject var identity: Identity
+struct SettingsView: View {
+  @ObservedObject var settings:UserSettings
+  @State var shouldUseDelegate = true
+
+  init(settings: UserSettings) {
+    self.settings = settings
+  }
 
   var body: some View {
     VStack {
-      Text("InstanceID: \(self.identity.instanceID ?? "None")")
-      Text("Token: \(self.identity.token ?? "None")")
+      List {
+        Toggle(isOn: $settings.isAutoInitEnabled) {
+          Text("isAutoInitEnabled")
+          }.padding()
+        Toggle(isOn: $settings.shouldUseDelegateThanNotification) {
+          Text("shouldUseDelegate")
+        }.padding()
+      }
     }
   }
 }

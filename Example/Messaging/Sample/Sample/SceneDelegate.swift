@@ -22,21 +22,29 @@ import FirebaseInstallations
 class SceneDelegate: UIResponder, UIWindowSceneDelegate, MessagingDelegate {
   var window: UIWindow?
   let identity = Identity()
+  let settings = UserSettings()
   var cancellables = Set<AnyCancellable>()
 
   func scene(_ scene: UIScene, willConnectTo session: UISceneSession,
              options connectionOptions: UIScene.ConnectionOptions) {
     let contentView = ContentView()
+    if (settings.shouldUseDelegateThanNotification) {
+      Messaging.messaging().delegate = self
+    }
     // Use a UIHostingController as window root view controller.
     if let windowScene = scene as? UIWindowScene {
       let window = UIWindow(windowScene: windowScene)
       window
-        .rootViewController = UIHostingController(rootView: contentView.environmentObject(identity))
+        .rootViewController = UIHostingController(rootView: contentView
+          .environmentObject(identity)
+          .environmentObject(settings)
+      )
 
       self.window = window
       window.makeKeyAndVisible()
     }
 
+    if !self.settings.shouldUseDelegateThanNotification {
     // Subscribe to token refresh
     _ = NotificationCenter.default
       .publisher(for: Notification.Name.MessagingRegistrationTokenRefreshed)
@@ -44,6 +52,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, MessagingDelegate {
       .receive(on: RunLoop.main)
       .assign(to: \Identity.token, on: identity)
       .store(in: &cancellables)
+    }
 
     // Subscribe to fid changes
     _ = NotificationCenter.default
@@ -60,5 +69,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, MessagingDelegate {
           })
         })
       .store(in: &cancellables)
+  }
+
+  func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String) {
+    self.identity.token = fcmToken
   }
 }
