@@ -15,6 +15,9 @@
 #import "FIRAppDistributionRelease.h"
 
 @interface FIRAppDistributionRelease ()
+@property(nonatomic, copy) NSString *displayVersion;
+@property(nonatomic, copy) NSString *buildVersion;
+@property(nonatomic, copy) NSString *releaseNotes;
 @property(nonatomic, strong) NSURL *downloadURL;
 @end
 
