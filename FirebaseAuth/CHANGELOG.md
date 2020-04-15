@@ -1,3 +1,9 @@
+# v6.5.2
+- [changed] File structure changes. No functional change.
+
+# v6.5.1
+- [changed] Code formatting changes.
+
 # v6.5.0
 - [feature] Added support of Multi-factor Authentication. (#4823)
 

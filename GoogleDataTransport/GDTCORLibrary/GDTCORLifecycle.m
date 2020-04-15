@@ -71,15 +71,15 @@
 - (void)applicationDidEnterBackground:(NSNotification *)notification {
   GDTCORApplication *application = [GDTCORApplication sharedApplication];
   if ([[GDTCORTransformer sharedInstance] respondsToSelector:@selector(appWillBackground:)]) {
-    GDTCORLogDebug("%@", @"Signaling GDTCORTransformer that the app is backgrounding.");
+    GDTCORLogDebug(@"%@", @"Signaling GDTCORTransformer that the app is backgrounding.");
     [[GDTCORTransformer sharedInstance] appWillBackground:application];
   }
   if ([[GDTCORUploadCoordinator sharedInstance] respondsToSelector:@selector(appWillBackground:)]) {
-    GDTCORLogDebug("%@", @"Signaling GDTCORUploadCoordinator that the app is backgrounding.");
+    GDTCORLogDebug(@"%@", @"Signaling GDTCORUploadCoordinator that the app is backgrounding.");
     [[GDTCORUploadCoordinator sharedInstance] appWillBackground:application];
   }
   if ([[GDTCORRegistrar sharedInstance] respondsToSelector:@selector(appWillBackground:)]) {
-    GDTCORLogDebug("%@", @"Signaling GDTCORRegistrar that the app is backgrounding.");
+    GDTCORLogDebug(@"%@", @"Signaling GDTCORRegistrar that the app is backgrounding.");
     [[GDTCORRegistrar sharedInstance] appWillBackground:application];
   }
 }
@@ -87,15 +87,15 @@
 - (void)applicationWillEnterForeground:(NSNotification *)notification {
   GDTCORApplication *application = [GDTCORApplication sharedApplication];
   if ([[GDTCORTransformer sharedInstance] respondsToSelector:@selector(appWillForeground:)]) {
-    GDTCORLogDebug("%@", @"Signaling GDTCORTransformer that the app is foregrounding.");
+    GDTCORLogDebug(@"%@", @"Signaling GDTCORTransformer that the app is foregrounding.");
     [[GDTCORTransformer sharedInstance] appWillForeground:application];
   }
   if ([[GDTCORUploadCoordinator sharedInstance] respondsToSelector:@selector(appWillForeground:)]) {
-    GDTCORLogDebug("%@", @"Signaling GDTCORUploadCoordinator that the app is foregrounding.");
+    GDTCORLogDebug(@"%@", @"Signaling GDTCORUploadCoordinator that the app is foregrounding.");
     [[GDTCORUploadCoordinator sharedInstance] appWillForeground:application];
   }
   if ([[GDTCORRegistrar sharedInstance] respondsToSelector:@selector(appWillForeground:)]) {
-    GDTCORLogDebug("%@", @"Signaling GDTCORRegistrar that the app is foregrounding.");
+    GDTCORLogDebug(@"%@", @"Signaling GDTCORRegistrar that the app is foregrounding.");
     [[GDTCORRegistrar sharedInstance] appWillForeground:application];
   }
 }
@@ -103,15 +103,15 @@
 - (void)applicationWillTerminate:(NSNotification *)notification {
   GDTCORApplication *application = [GDTCORApplication sharedApplication];
   if ([[GDTCORTransformer sharedInstance] respondsToSelector:@selector(appWillTerminate:)]) {
-    GDTCORLogDebug("%@", @"Signaling GDTCORTransformer that the app is terminating.");
+    GDTCORLogDebug(@"%@", @"Signaling GDTCORTransformer that the app is terminating.");
     [[GDTCORTransformer sharedInstance] appWillTerminate:application];
   }
   if ([[GDTCORUploadCoordinator sharedInstance] respondsToSelector:@selector(appWillTerminate:)]) {
-    GDTCORLogDebug("%@", @"Signaling GDTCORUploadCoordinator that the app is terminating.");
+    GDTCORLogDebug(@"%@", @"Signaling GDTCORUploadCoordinator that the app is terminating.");
     [[GDTCORUploadCoordinator sharedInstance] appWillTerminate:application];
   }
   if ([[GDTCORRegistrar sharedInstance] respondsToSelector:@selector(appWillTerminate:)]) {
-    GDTCORLogDebug("%@", @"Signaling GDTCORRegistrar that the app is terminating.");
+    GDTCORLogDebug(@"%@", @"Signaling GDTCORRegistrar that the app is terminating.");
     [[GDTCORRegistrar sharedInstance] appWillTerminate:application];
   }
 }
