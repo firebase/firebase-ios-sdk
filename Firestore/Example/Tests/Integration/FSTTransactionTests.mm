@@ -195,15 +195,6 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
     NSError *setError = [self writeDocumentRef:_docRef data:@{@"foo" : @"bar"}];
     NSString *message = [NSString stringWithFormat:@"Failed set at %@", [self stageNames]];
     [_testCase assertNilError:setError message:message];
-
-    XCTestExpectation *expectation = [_testCase expectationWithDescription:@"prepareDoc:get"];
-
-    [_docRef getDocumentWithCompletion:^(FIRDocumentSnapshot *snapshot, NSError *error) {
-      [self->_testCase assertExistsWithSnapshot:snapshot error:error];
-      [expectation fulfill];
-    }];
-
-    [_testCase awaitExpectations];
   }
 }
 
