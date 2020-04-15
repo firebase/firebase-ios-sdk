@@ -2171,6 +2171,12 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 
 - (BOOL)useUserAccessGroup:(NSString *_Nullable)accessGroup
                      error:(NSError *_Nullable *_Nullable)outError {
+  // self.storedUserManager is initialized asynchronously.
+  __block FIRAuthStoredUserManager *storedUserManager;
+  dispatch_sync(FIRAuthGlobalWorkQueue(), ^{
+    storedUserManager = self.storedUserManager;
+  });
+
   BOOL success;
   success = [self.storedUserManager setStoredUserAccessGroup:accessGroup error:outError];
   if (!success) {
