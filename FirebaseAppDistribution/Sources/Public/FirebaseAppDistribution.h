@@ -12,23 +12,5 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import SwiftUI
-import FirebaseMessaging
-import FirebaseInstallations
-
-public final class Identity: ObservableObject {
-  // Identity that is unique per app.
-  @Published public var instanceID: String? = nil
-  // The token that Firebase Messaging use to send notifications.
-  @Published public var token: String? = nil
-
-  init() {
-    Installations.installations().installationID(completion: { fid, error in
-      if let error = error as NSError? {
-        print("Failed to get FID: ", error)
-        return
-      }
-      self.instanceID = fid
-    })
-  }
-}
+#import "FIRAppDistribution.h"
+#import "FIRAppDistributionRelease.h"
