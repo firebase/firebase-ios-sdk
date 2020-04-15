@@ -142,4 +142,15 @@
   [self waitForExpectations:@[ expectation ] timeout:30];
 }
 
+/** Tests that the upload package is not leaked by using an NSTimer. */
+- (void)testNoMemoryLeak {
+  __weak GDTCORUploadPackage *weakPackage;
+  @autoreleasepool {
+    GDTCORUploadPackage *package = [[GDTCORUploadPackage alloc] initWithTarget:kGDTCORTargetTest];
+    weakPackage = package;
+    package = nil;
+  }
+  XCTAssertNil(weakPackage);
+}
+
 @end
