@@ -14,7 +14,7 @@
 [![Actions Status][gh-symbolcollision-badge]][gh-actions]
 [![Actions Status][gh-zip-badge]][gh-actions]
 [![Travis](https://travis-ci.org/firebase/firebase-ios-sdk.svg?branch=master)](https://travis-ci.org/firebase/firebase-ios-sdk)
- 
+
 # Firebase Apple Open Source Development
 
 This repository contains all Apple platform Firebase SDK source except FirebaseAnalytics,
