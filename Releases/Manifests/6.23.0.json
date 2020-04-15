@@ -6,6 +6,7 @@
   "FirebaseCrashlytics":"4.0.0",
   "FirebaseDatabase":"6.2.0",
   "FirebaseFirestore":"1.12.1",
+  "FirebaseInAppMessaging":"0.19.3",
   "FirebaseInstanceID":"4.3.4",
   "FirebaseMessaging":"4.3.1",
   "FirebaseStorage":"3.6.1",
