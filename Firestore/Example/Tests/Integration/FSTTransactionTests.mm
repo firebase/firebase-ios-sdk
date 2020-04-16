@@ -35,7 +35,7 @@ using firebase::firestore::util::TimerId;
 - (void)assertExistsWithSnapshot:(FIRDocumentSnapshot *)snapshot error:(NSError *)error;
 - (void)assertDoesNotExistWithSnapshot:(FIRDocumentSnapshot *)snapshot error:(NSError *)error;
 - (void)assertNilError:(NSError *)error message:(NSString *)message;
-- (void)assertError:(NSError *)error message:(NSString *)message;
+- (void)assertError:(NSError *)error message:(NSString *)message code:(NSInteger)code;
 - (void)assertSnapshot:(FIRDocumentSnapshot *)snapshot
           equalsObject:(NSObject *)expected
                  error:(NSError *)error;
@@ -56,8 +56,9 @@ using firebase::firestore::util::TimerId;
   XCTAssertNil(error, @"%@", message);
 }
 
-- (void)assertError:(NSError *)error message:(NSString *)message {
+- (void)assertError:(NSError *)error message:(NSString *)message code:(NSInteger)code {
   XCTAssertNotNil(error, @"%@", message);
+  XCTAssertEqual(error.code, code, @"%@", message);
 }
 
 - (void)assertSnapshot:(FIRDocumentSnapshot *)snapshot
@@ -247,7 +248,7 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
         NSString *message =
             [NSString stringWithFormat:@"Expected the sequence (%@), to fail, but it didn't.",
                                        [self stageNames]];
-        [self->_testCase assertError:error message:message];
+        [self->_testCase assertError:error message:message code:expected];
       }];
 
   [_testCase awaitExpectations];
