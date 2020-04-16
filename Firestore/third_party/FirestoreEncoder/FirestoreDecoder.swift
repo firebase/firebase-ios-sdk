@@ -94,7 +94,8 @@ class _FirestoreDecoder: Decoder {
     }
 
     guard let topContainer = storage.topContainer as? [String: Any] else {
-      let context = DecodingError.Context(codingPath: codingPath, debugDescription: "Not a dictionary")
+      let context = DecodingError
+        .Context(codingPath: codingPath, debugDescription: "Not a dictionary")
       throw DecodingError.typeMismatch([String: Any].self, context)
     }
 
@@ -688,7 +689,12 @@ private struct _FirestoreUnkeyedDecodingContainer: UnkeyedDecodingContainer {
 
   private func expectNotAtEnd() throws {
     guard !isAtEnd else {
-      throw DecodingError.valueNotFound(Any?.self, DecodingError.Context(codingPath: decoder.codingPath + [_FirestoreKey(index: currentIndex)], debugDescription: "Unkeyed container is at end."))
+      throw DecodingError
+        .valueNotFound(Any?.self,
+                       DecodingError
+                         .Context(codingPath: decoder
+                           .codingPath + [_FirestoreKey(index: currentIndex)],
+                                  debugDescription: "Unkeyed container is at end."))
     }
   }
 
