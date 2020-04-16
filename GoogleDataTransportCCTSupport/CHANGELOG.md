@@ -2,6 +2,9 @@
 - Fixes unsynchronized access to prioritizer internals. (#5312)
 - Internal refactor to change storage to a protocol.
 
+# v2.0.3
+- Synchronize prioritizer property access using a new method. (#5312)
+
 # v2.0.2
 - Remove usage of memcpy and convert calls from malloc to calloc.
 
