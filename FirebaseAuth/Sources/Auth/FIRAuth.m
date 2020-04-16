@@ -529,7 +529,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                         @"Error loading saved user when starting up: %@", error);
           }
         } else {
-          [strongSelf useUserAccessGroup:storedUserAccessGroup error:&error];
+          [strongSelf internalUseUserAccessGroup:storedUserAccessGroup error:&error];
           if (error) {
             FIRLogError(kFIRLoggerAuth, @"I-AUT000001",
                         @"Error loading saved user when starting up: %@", error);
