@@ -14,20 +14,8 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
+#import "DCDevice+FIRDeviceCheckTokenGenerator.h"
 
-#import <FirebaseAppAttestation/FIRAppAttestationProvider.h>
-
-@class FIRDeviceCheckAttestationAPIService;
-@protocol FIRDeviceCheckTokenGenerator;
-
-@interface FIRDeviceCheckAttestationProvider : NSObject <FIRAppAttestationProvider>
-
-- (instancetype)init NS_UNAVAILABLE;
-
-- (instancetype)initWithAPIService:(FIRDeviceCheckAttestationAPIService *)APIService;
-
-- (instancetype)initWithAPIService:(FIRDeviceCheckAttestationAPIService *)APIService
-              deviceTokenGenerator:(id<FIRDeviceCheckTokenGenerator>)deviceTokenGenerator;
+@implementation DCDevice (FIRDeviceCheckTokenGenerator)
 
 @end

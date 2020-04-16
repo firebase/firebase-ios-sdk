@@ -16,18 +16,20 @@
 
 #import <Foundation/Foundation.h>
 
-#import <FirebaseAppAttestation/FIRAppAttestationProvider.h>
+@class FBLPromise<Result>;
+@class FIRAppAttestationToken;
 
-@class FIRDeviceCheckAttestationAPIService;
-@protocol FIRDeviceCheckTokenGenerator;
+NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRDeviceCheckAttestationProvider : NSObject <FIRAppAttestationProvider>
+@protocol FIRDeviceCheckAttestationAPIServiceProtocol <NSObject>
 
-- (instancetype)init NS_UNAVAILABLE;
-
-- (instancetype)initWithAPIService:(FIRDeviceCheckAttestationAPIService *)APIService;
-
-- (instancetype)initWithAPIService:(FIRDeviceCheckAttestationAPIService *)APIService
-              deviceTokenGenerator:(id<FIRDeviceCheckTokenGenerator>)deviceTokenGenerator;
+- (FBLPromise<FIRAppAttestationToken *> *)attestationTokenWithDeviceToken:(NSData *)deviceToken;
 
 @end
+
+@interface FIRDeviceCheckAttestationAPIService
+    : NSObject <FIRDeviceCheckAttestationAPIServiceProtocol>
+
+@end
+
+NS_ASSUME_NONNULL_END

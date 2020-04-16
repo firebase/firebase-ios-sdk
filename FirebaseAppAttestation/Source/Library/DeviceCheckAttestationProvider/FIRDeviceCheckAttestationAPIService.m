@@ -14,20 +14,19 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
+#import "FIRDeviceCheckAttestationAPIService.h"
 
-#import <FirebaseAppAttestation/FIRAppAttestationProvider.h>
+#import <FBLPromises/FBLPromises.h>
 
-@class FIRDeviceCheckAttestationAPIService;
-@protocol FIRDeviceCheckTokenGenerator;
+#import "FIRAppAttestationToken.h"
 
-@interface FIRDeviceCheckAttestationProvider : NSObject <FIRAppAttestationProvider>
+@implementation FIRDeviceCheckAttestationAPIService
 
-- (instancetype)init NS_UNAVAILABLE;
-
-- (instancetype)initWithAPIService:(FIRDeviceCheckAttestationAPIService *)APIService;
-
-- (instancetype)initWithAPIService:(FIRDeviceCheckAttestationAPIService *)APIService
-              deviceTokenGenerator:(id<FIRDeviceCheckTokenGenerator>)deviceTokenGenerator;
+- (FBLPromise<FIRAppAttestationToken *> *)attestationTokenWithDeviceToken:(NSData *)deviceToken {
+  // TODO: Implement.
+  return [FBLPromise
+      resolvedWith:[[FIRAppAttestationToken alloc] initWithToken:@"token"
+                                                  expirationDate:[NSDate distantFuture]]];
+}
 
 @end
