@@ -450,7 +450,6 @@ extern NSString *const FIRPhoneMultiFactorID;
                         }
 
                         NSString *IDToken = session.IDToken;
-                        NSString *multiFactorProvider = FIRPhoneMultiFactorID;
                         FIRAuthProtoStartMFAPhoneRequestInfo *startMFARequestInfo =
                             [[FIRAuthProtoStartMFAPhoneRequestInfo alloc]
                                 initWithPhoneNumber:phoneNumber
