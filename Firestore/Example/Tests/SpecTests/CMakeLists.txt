@@ -27,9 +27,9 @@ if(APPLE)
       FSTSyncEngineTestDriver.mm
     DEPENDS
       FirebaseFirestore
-      firebase_firestore_local_testing
       firebase_firestore_objc_test_util
-      firebase_firestore_remote_testing
+      firestore_local_testing
+      firestore_remote_testing
     # Force this to run in the project-wide binary directory so that relative
     # paths used during compilation are usable.
     WORKING_DIRECTORY ${PROJECT_BINARY_DIR}

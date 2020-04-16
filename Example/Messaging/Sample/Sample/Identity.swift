@@ -28,7 +28,7 @@ public final class Identity: ObservableObject {
         print("Failed to get FID: ", error)
         return
       }
-      self.instanceID = fid ?? "None"
+      self.instanceID = fid
     })
   }
 }

@@ -102,59 +102,39 @@ foreach(root ${PROTO_FILE_ROOTS})
   )
 endforeach()
 
-# Converts a snake_case string to a CamelCase string.
-#
-# Input string must start and end with a lower case character, and must not
-# have multiple consecutive underscores.
-function(snake_case_to_camel_case str var)
-  # prepend an underscore (to avoid special casing the first char)
-  set(str "_${str}")
-  while(TRUE)
-    string(FIND ${str} "_" pos)
-    if(${pos} EQUAL "-1")
-      break()
-    endif()
-    MATH(EXPR pos "${pos}+1")
-    string(SUBSTRING ${str} "${pos}" 1 lower_char)
-    string(TOUPPER ${lower_char} upper_char)
-    string(REPLACE  "_${lower_char}" ${upper_char} str ${str})
-  endwhile()
-
-  set(${var} ${str} PARENT_SCOPE)
-endfunction()
-
-firebase_ios_cc_library(
-  firebase_firestore_protos_nanopb
-  SOURCES
-    ${NANOPB_GENERATED_SOURCES}
-  DEPENDS
-    absl_strings
-    firebase_firestore_nanopb_runtime
-    protobuf-nanopb-static
-  DISABLE_STRICT_WARNINGS
+firebase_ios_add_library(
+  firestore_protos_nanopb DISABLE_STRICT_WARNINGS EXCLUDE_FROM_ALL
+  ${NANOPB_GENERATED_SOURCES}
 )
 
 target_include_directories(
-  firebase_firestore_protos_nanopb
-  PUBLIC ${FIREBASE_SOURCE_DIR}/Firestore/Protos/nanopb
+  firestore_protos_nanopb PUBLIC
+  ${CMAKE_CURRENT_LIST_DIR}/nanopb
+)
+
+target_link_libraries(
+  firestore_protos_nanopb PUBLIC
+  firestore_nanopb
+  protobuf-nanopb-static
+  absl_strings
 )
 
 # libprotobuf based generated protos. Expected only to be used in test (as
 # libprotobuf[-lite] is too large; we're using nanopb instead. But we do want
 # to test our serialization logic against libprotobuf.)
-firebase_ios_cc_library(
-  firebase_firestore_protos_libprotobuf
-  SOURCES
-    ${PROTOBUF_CPP_GENERATED_SOURCES}
-  DEPENDS
-    protobuf::libprotobuf
-  DISABLE_STRICT_WARNINGS
-  EXCLUDE_FROM_ALL
+firebase_ios_add_library(
+  firestore_protos_protobuf DISABLE_STRICT_WARNINGS EXCLUDE_FROM_ALL
+  ${PROTOBUF_CPP_GENERATED_SOURCES}
 )
 
 target_include_directories(
-  firebase_firestore_protos_libprotobuf PUBLIC
-  ${FIREBASE_SOURCE_DIR}/Firestore/Protos/cpp
+  firestore_protos_protobuf PUBLIC
+  ${CMAKE_CURRENT_LIST_DIR}/cpp
+)
+
+target_link_libraries(
+  firestore_protos_protobuf PUBLIC
+  protobuf::libprotobuf
 )
 
 # Generate the python representation of descriptor.proto.
