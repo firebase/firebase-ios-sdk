@@ -2170,7 +2170,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 #pragma mark - Keychain sharing
 
 - (BOOL)internalUseUserAccessGroup:(NSString *_Nullable)accessGroup
-                     error:(NSError *_Nullable *_Nullable)outError {
+                             error:(NSError *_Nullable *_Nullable)outError {
   BOOL success;
   success = [self.storedUserManager setStoredUserAccessGroup:accessGroup error:outError];
   if (!success) {
@@ -2200,7 +2200,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                      error:(NSError *_Nullable *_Nullable)outError {
   // self.storedUserManager is initialized asynchronously. Make sure it is done.
   dispatch_sync(FIRAuthGlobalWorkQueue(), ^{
-  });
+                });
   return [self internalUseUserAccessGroup:accessGroup error:outError];
 }
 
