@@ -431,11 +431,6 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
           UIApplicationDidEnterBackgroundNotification.
    */
   id<NSObject> _applicationDidEnterBackgroundObserver;
-
-  /** @var initializingKeychain
-      @brief Locked until the keychain is initialized.
-   */
-  dispatch_semaphore_t _initializingKeychain;
 }
 
 + (void)load {
@@ -486,7 +481,6 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     _listenerHandles = [NSMutableArray array];
     _requestConfiguration = [[FIRAuthRequestConfiguration alloc] initWithAPIKey:APIKey];
     _firebaseAppName = [appName copy];
-    _initializingKeychain = dispatch_semaphore_create(0);
 #if TARGET_OS_IOS
     _settings = [[FIRAuthSettings alloc] init];
     static Class applicationClass = nil;
@@ -535,7 +529,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                         @"Error loading saved user when starting up: %@", error);
           }
         } else {
-          [strongSelf internalUseUserAccessGroup:storedUserAccessGroup error:&error];
+          [strongSelf useUserAccessGroup:storedUserAccessGroup error:&error];
           if (error) {
             FIRLogError(kFIRLoggerAuth, @"I-AUT000001",
                         @"Error loading saved user when starting up: %@", error);
@@ -564,7 +558,6 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
       }
 #endif  // ((TARGET_OS_IOS || TARGET_OS_TV) && (__IPHONE_OS_VERSION_MAX_ALLOWED >= 130000))
 #endif  // TARGET_OS_IOS
-      dispatch_semaphore_signal(self->_initializingKeychain);
     });
   }
   return self;
@@ -2177,7 +2170,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 #pragma mark - Keychain sharing
 
 - (BOOL)internalUseUserAccessGroup:(NSString *_Nullable)accessGroup
-                             error:(NSError *_Nullable *_Nullable)outError {
+                     error:(NSError *_Nullable *_Nullable)outError {
   BOOL success;
   success = [self.storedUserManager setStoredUserAccessGroup:accessGroup error:outError];
   if (!success) {
@@ -2205,10 +2198,9 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 
 - (BOOL)useUserAccessGroup:(NSString *_Nullable)accessGroup
                      error:(NSError *_Nullable *_Nullable)outError {
-  // Make sure that the keychain has been initialized.
-  dispatch_semaphore_wait(_initializingKeychain, DISPATCH_TIME_FOREVER);
-  // Future invocations are fine on this FIRAuth instance.
-  dispatch_semaphore_signal(_initializingKeychain);
+  // self.storedUserManager is initialized asynchronously. Make sure it is done.
+  dispatch_sync(FIRAuthGlobalWorkQueue(), ^{
+  });
   return [self internalUseUserAccessGroup:accessGroup error:outError];
 }
 
