@@ -39,6 +39,34 @@ we're making use of:
 """
 
 
+class ForwardingSynthProvider(object):
+  """A synthetic child provider that forwards all methods to another provider.
+
+  Override the `delegate` method to customize the target to which this forwards.
+  """
+
+  def __init__(self, value, params):
+    self.value = value
+
+  def delegate(self):
+    return self.value
+
+  def has_children(self):
+    return self.delegate().MightHaveChildren()
+
+  def num_children(self):
+    return self.delegate().GetNumChildren()
+
+  def get_child_index(self, name):
+    return self.delegate().GetIndexOfChildWithName(name)
+
+  def get_child_at_index(self, index):
+    return self.delegate().GetChildAtIndex(index)
+
+  def update(self):
+    pass
+
+
 # Abseil
 
 class AbseilOptional_SynthProvider(object):
@@ -101,6 +129,21 @@ def AbseilOptional_SummaryProvider(value, params):
 
 
 # model
+
+class DatabaseId_SynthProvider(ForwardingSynthProvider):
+  """Makes DatabaseId behave as if `*rep_` were inline."""
+  def delegate(self):
+    return deref_shared(self.value.GetChildMemberWithName('rep_'))
+
+
+def DatabaseId_SummaryProvider(value, params):
+  # Operates on the result of the SynthProvider; value is *rep_.
+  parts = [
+    get_string(value.GetChildMemberWithName('project_id')),
+    get_string(value.GetChildMemberWithName('database_id'))
+  ]
+  return format_string('/'.join(parts))
+
 
 def DocumentKey_SummaryProvider(value, params):
   """Summarizes DocumentKey as if path_->segments_ were inline and a single
@@ -191,6 +234,9 @@ def __lldb_init_module(debugger, params):
   model = 'firebase::firestore::model::'
   add_summary(DocumentKey_SummaryProvider, model + 'DocumentKey')
   add_summary(ResourcePath_SummaryProvider, model + 'ResourcePath')
+
+  add_summary(DatabaseId_SummaryProvider, model + 'DatabaseId')
+  add_synthetic(DatabaseId_SynthProvider, model + 'DatabaseId')
 
   add_summary(FIRDocumentReference_SummaryProvider, 'FIRDocumentReference')
 
