@@ -39,6 +39,67 @@ we're making use of:
 """
 
 
+# Abseil
+
+class AbseilOptional_SynthProvider(object):
+  """A synthetic child provider that hides the internals of absl::optional.
+  """
+
+  def __init__(self, value, params):
+    self.value = value
+    self.engaged = None
+    self.data = None
+
+  def update(self):
+    # Unwrap all the internal optional_data and similar types
+    value = self.value
+    while True:
+      if value.GetNumChildren() <= 0:
+        break
+
+      child = value.GetChildAtIndex(0)
+      if not child.IsValid():
+        break
+
+      if 'optional_internal' not in child.GetType().GetName():
+        break
+
+      value = child
+
+    # value should now point to the innermost absl::optional container type.
+    self.engaged = value.GetChildMemberWithName('engaged_')
+
+    if self.has_children():
+      self.data = value.GetChildMemberWithName('data_')
+
+    else:
+      self.data = None
+
+  def has_children(self):
+    return self.engaged.GetValueAsUnsigned(0) != 0
+
+  def num_children(self):
+    return 2 if self.has_children() else 1
+
+  def get_child_index(self, name):
+    if name == 'engaged_':
+      return 0
+    if name == 'data_':
+      return 1
+    return -1
+
+  def get_child_at_index(self, index):
+    if index == 0:
+      return self.engaged
+    if index == 1:
+      return self.data
+
+
+def AbseilOptional_SummaryProvider(value, params):
+  # Operates on the synthetic children above, calling has_children.
+  return 'engaged={0}'.format(format_bool(value.MightHaveChildren()))
+
+
 # model
 
 def DocumentKey_SummaryProvider(value, params):
@@ -95,6 +156,11 @@ def format_string(string):
   return json.dumps(string)
 
 
+def format_bool(value):
+  """Formats a Python value as a C++ bool literal."""
+  return 'true' if value else 'false'
+
+
 def deref_shared(value):
   """Dereference a shared_ptr."""
   return value.GetChildMemberWithName('__ptr_').Dereference()
@@ -108,6 +174,15 @@ def __lldb_init_module(debugger, params):
     args = ' '.join(args)
     run('type summary add -w firestore -F {0} {1} {2}'.format(
       qname(provider), args, typename))
+
+  def add_synthetic(provider, typename, *args):
+    args = ' '.join(args)
+    run('type synthetic add -l {0} -w firestore {1} {2}'.format(
+      qname(provider), args, typename))
+
+  optional_matcher = '-x absl::[^:]*::optional<.*>'
+  add_summary(AbseilOptional_SummaryProvider, optional_matcher, '-e')
+  add_synthetic(AbseilOptional_SynthProvider, optional_matcher)
 
   api = 'firebase::firestore::api::'
   add_summary(DocumentReference_SummaryProvider, api + 'DocumentReference')
