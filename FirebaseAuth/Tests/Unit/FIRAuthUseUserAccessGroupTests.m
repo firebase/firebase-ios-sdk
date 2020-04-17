@@ -39,7 +39,8 @@
 - (void)testUseUserAccessGroup {
   id classMock = OCMClassMock([FIRAuth class]);
   OCMStub([classMock keychainServiceNameForAppName:OCMOCK_ANY]).andReturn(nil);
-  FIRAuthStoredUserManager *myManager = [[FIRAuthStoredUserManager alloc] initWithServiceName:@"MyService"];
+  FIRAuthStoredUserManager *myManager =
+      [[FIRAuthStoredUserManager alloc] initWithServiceName:@"MyService"];
   [myManager setStoredUserAccessGroup:@"MyGroup" error:nil];
 
   FIRAuth *auth = [FIRAuth auth];
