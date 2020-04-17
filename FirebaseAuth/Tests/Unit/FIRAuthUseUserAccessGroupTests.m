@@ -18,7 +18,13 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
+#import "FirebaseAuth/Sources/SystemService/FIRAuthStoredUserManager.h"
 #import "FirebaseAuth/Tests/Unit/FIRApp+FIRAuthUnitTests.h"
+
+@interface FIRAuth (Test)
+@property(nonatomic, strong, nullable) FIRAuthStoredUserManager *storedUserManager;
++ (NSString *)keychainServiceNameForAppName:(NSString *)appName;
+@end
 
 @interface UseUserAccessGroupTests : XCTestCase
 @end
@@ -31,11 +37,21 @@
 }
 
 - (void)testUseUserAccessGroup {
+  id classMock = OCMClassMock([FIRAuth class]);
+  OCMStub([classMock keychainServiceNameForAppName:OCMOCK_ANY]).andReturn(nil);
+  FIRAuthStoredUserManager *myManager = [[FIRAuthStoredUserManager alloc] initWithServiceName:@"MyService"];
+  [myManager setStoredUserAccessGroup:@"MyGroup" error:nil];
+
   FIRAuth *auth = [FIRAuth auth];
   XCTAssertNotNil(auth);
+  id partialMock = OCMPartialMock(auth);
+  OCMStub([partialMock storedUserManager]).andReturn(myManager);
+
+  XCTAssertNotNil([auth.storedUserManager getStoredUserAccessGroupWithError:nil]);
   XCTAssertTrue([auth useUserAccessGroup:@"id.com.example.group1" error:nil]);
   XCTAssertTrue([auth useUserAccessGroup:@"id.com.example.group2" error:nil]);
   XCTAssertTrue([auth useUserAccessGroup:nil error:nil]);
+  [partialMock stopMocking];
 }
 
 @end
