@@ -18,15 +18,16 @@ jobs:
 
   messaging:
     env:
-      env:
-        plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
     runs-on: macos-latest
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Install Secret GoogleService-Info.plist
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/messaging-sample-plist.gpg \
+      run: |
+        mkdir Example/Messaging/IntegrationTests/Resources
+        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/messaging-sample-plist.gpg \
           Example/Messaging/IntegrationTests/Resources/GoogleService-Info.plist "$plist_secret"
     - name: BuildAndTest # can be replaced with pod lib lint with CocoaPods 1.10
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/build.sh Messaging all)
