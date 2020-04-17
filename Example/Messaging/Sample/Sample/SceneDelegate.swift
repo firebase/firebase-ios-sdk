@@ -55,7 +55,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, MessagingDelegate {
     }
 
     // Subscribe to fid changes
-      NotificationCenter.default
+    NotificationCenter.default
       .publisher(for: Notification.Name.FIRInstallationIDDidChange)
       .map { _ in }
       .receive(on: RunLoop.main)
