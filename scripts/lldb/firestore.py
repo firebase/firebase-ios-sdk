@@ -68,10 +68,18 @@ def DocumentReference_SummaryProvider(value, params):
   return value.GetChildMemberWithName('key_').GetSummary()
 
 
+def DocumentSnapshot_SummaryProvider(value, params):
+  return value.GetChildMemberWithName('internal_key_').GetSummary()
+
+
 # Objective-C
 
 def FIRDocumentReference_SummaryProvider(value, params):
   return value.GetChildMemberWithName('_documentReference').GetSummary()
+
+
+def FIRDocumentSnapshot_SummaryProvider(value, params):
+  return value.GetChildMemberWithName('_snapshot').GetSummary()
 
 
 def get_string(value):
@@ -103,12 +111,15 @@ def __lldb_init_module(debugger, params):
 
   api = 'firebase::firestore::api::'
   add_summary(DocumentReference_SummaryProvider, api + 'DocumentReference')
+  add_summary(DocumentSnapshot_SummaryProvider, api + 'DocumentSnapshot', '-e')
 
   model = 'firebase::firestore::model::'
   add_summary(DocumentKey_SummaryProvider, model + 'DocumentKey')
   add_summary(ResourcePath_SummaryProvider, model + 'ResourcePath')
 
   add_summary(FIRDocumentReference_SummaryProvider, 'FIRDocumentReference')
+
+  add_summary(FIRDocumentSnapshot_SummaryProvider, 'FIRDocumentSnapshot', '-e')
 
   run('type category enable firestore')
 
