@@ -64,6 +64,7 @@ class ForwardingSynthProvider(object):
     return self.delegate().GetChildAtIndex(index)
 
   def update(self):
+    # No additional state so nothing needs updating when the value changes.
     pass
 
 
@@ -131,7 +132,9 @@ def AbseilOptional_SummaryProvider(value, params):
 # model
 
 class DatabaseId_SynthProvider(ForwardingSynthProvider):
-  """Makes DatabaseId behave as if `*rep_` were inline."""
+  """Makes DatabaseId behave as if `*rep_` were inline, hiding its
+  `shared_ptr<Rep>` implementation details.
+  """
   def delegate(self):
     return deref_shared(self.value.GetChildMemberWithName('rep_'))
 
@@ -146,33 +149,34 @@ def DatabaseId_SummaryProvider(value, params):
 
 
 def DocumentKey_SummaryProvider(value, params):
-  """Summarizes DocumentKey as if path_->segments_ were inline and a single
-  string."""
+  """Summarizes DocumentKey as if path_->segments_ were inline and a single,
+  slash-delimited string like `"users/foo"`.
+  """
   return deref_shared(value.GetChildMemberWithName('path_')).GetSummary()
 
 
 def ResourcePath_SummaryProvider(value, params):
-  """Summarizes ResourcePath as if segments_ is a single string."""
-
+  """Summarizes ResourcePath as if segments_ were a single string,
+  slash-delimited string like `"users/foo"`.
+  """
   segments = value.GetChildMemberWithName('segments_')
-  count = segments.GetNumChildren()
-
-  segment_text = []
-  for i in range(0, count):
-    child = segments.GetChildAtIndex(i)
-    segment_text.append(get_string(child))
-
-  text = format_string('/'.join(segment_text))
-  return text
+  segment_text = [get_string(child) for child in segments]
+  return format_string('/'.join(segment_text))
 
 
 # api
 
 def DocumentReference_SummaryProvider(value, params):
+  """Summarizes DocumentReference as a single slash-delimited string like
+  `"users/foo"`.
+  """
   return value.GetChildMemberWithName('key_').GetSummary()
 
 
 def DocumentSnapshot_SummaryProvider(value, params):
+  """Summarizes DocumentSnapshot as a single slash-delimited string like
+  `"users/foo"` that names the path of the document in the snapshot.
+  """
   return value.GetChildMemberWithName('internal_key_').GetSummary()
 
 
@@ -188,7 +192,9 @@ def FIRDocumentSnapshot_SummaryProvider(value, params):
 
 def get_string(value):
   """Returns a Python string from the underlying LLDB SBValue."""
-  # TODO(wilhuff): This is gross hack. Actually use the SBData API to get this.
+  # TODO(wilhuff): Actually use the SBData API to get this.
+  # Get the summary as a C literal and parse it (for now). Using the SBData
+  # API would allow this to directly read the string contents.
   summary = value.GetSummary()
   return ast.literal_eval(summary)
 
