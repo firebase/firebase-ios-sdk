@@ -12,10 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-firebase_ios_cc_test(
-  firebase_firestore_api_test
-  SOURCES
-    cc_compilation_test.cc
-  DEPENDS
-    firebase_firestore_api
+firebase_ios_add_test(
+  firestore_api_test
+  cc_compilation_test.cc
+)
+
+target_link_libraries(
+  firestore_api_test PRIVATE
+  firestore_core
 )

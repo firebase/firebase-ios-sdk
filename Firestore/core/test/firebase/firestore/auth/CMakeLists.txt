@@ -12,24 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-firebase_ios_cc_test(
-  firebase_firestore_auth_test
-  SOURCES
-    credentials_provider_test.cc
-    empty_credentials_provider_test.cc
-    token_test.cc
-    user_test.cc
-  DEPENDS
-    firebase_firestore_auth
+file(GLOB sources *.cc *.h)
+firebase_ios_add_test(firestore_auth_test ${sources})
+
+target_link_libraries(
+  firestore_auth_test PRIVATE
+  firestore_core
 )
 
 if(APPLE)
-  firebase_ios_cc_test(
-    firebase_firestore_auth_apple_test
-    SOURCES
-      firebase_credentials_provider_test.mm
-    DEPENDS
-      firebase_firestore_auth_apple
-      firebase_firestore_testutil
+  target_sources(
+    firestore_auth_test PRIVATE
+    firebase_credentials_provider_test.mm
   )
-endif(APPLE)
+
+  target_link_libraries(
+    firestore_auth_test PRIVATE
+    firestore_testutil
+  )
+endif()
