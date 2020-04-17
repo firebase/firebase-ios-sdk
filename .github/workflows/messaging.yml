@@ -18,8 +18,7 @@ jobs:
 
   messaging:
     env:
-      env:
-        plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
     runs-on: macos-latest
     steps:
     - uses: actions/checkout@v2
