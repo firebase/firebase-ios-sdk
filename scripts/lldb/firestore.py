@@ -62,6 +62,18 @@ def ResourcePath_SummaryProvider(value, params):
   return text
 
 
+# api
+
+def DocumentReference_SummaryProvider(value, params):
+  return value.GetChildMemberWithName('key_').GetSummary()
+
+
+# Objective-C
+
+def FIRDocumentReference_SummaryProvider(value, params):
+  return value.GetChildMemberWithName('_documentReference').GetSummary()
+
+
 def get_string(value):
   """Returns a Python string from the underlying LLDB SBValue."""
   # TODO(wilhuff): This is gross hack. Actually use the SBData API to get this.
@@ -89,9 +101,14 @@ def __lldb_init_module(debugger, params):
     run('type summary add -w firestore -F {0} {1} {2}'.format(
       qname(provider), args, typename))
 
+  api = 'firebase::firestore::api::'
+  add_summary(DocumentReference_SummaryProvider, api + 'DocumentReference')
+
   model = 'firebase::firestore::model::'
   add_summary(DocumentKey_SummaryProvider, model + 'DocumentKey')
   add_summary(ResourcePath_SummaryProvider, model + 'ResourcePath')
+
+  add_summary(FIRDocumentReference_SummaryProvider, 'FIRDocumentReference')
 
   run('type category enable firestore')
 
