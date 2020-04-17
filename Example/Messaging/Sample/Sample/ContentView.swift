@@ -43,7 +43,7 @@ struct ContentView: View {
               .layoutPriority(1)
           }
 
-          NavigationLink(destination: SettingsView(settings: self.settings)) {
+          NavigationLink(destination: SettingsView()) {
             Text("Settings")
           }
         }
@@ -134,12 +134,8 @@ struct ContentView: View {
 }
 
 struct SettingsView: View {
-  @ObservedObject var settings: UserSettings
+  @EnvironmentObject var settings: UserSettings
   @State var shouldUseDelegate = true
-
-  init(settings: UserSettings) {
-    self.settings = settings
-  }
 
   var body: some View {
     VStack {

@@ -46,7 +46,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, MessagingDelegate {
 
     if !settings.shouldUseDelegateThanNotification {
       // Subscribe to token refresh
-      _ = NotificationCenter.default
+      NotificationCenter.default
         .publisher(for: Notification.Name.MessagingRegistrationTokenRefreshed)
         .map { $0.object as? String }
         .receive(on: RunLoop.main)
@@ -55,7 +55,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, MessagingDelegate {
     }
 
     // Subscribe to fid changes
-    _ = NotificationCenter.default
+      NotificationCenter.default
       .publisher(for: Notification.Name.FIRInstallationIDDidChange)
       .map { _ in }
       .receive(on: RunLoop.main)
