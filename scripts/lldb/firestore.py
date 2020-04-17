@@ -139,8 +139,8 @@ class DatabaseId_SynthProvider(ForwardingSynthProvider):
 def DatabaseId_SummaryProvider(value, params):
   # Operates on the result of the SynthProvider; value is *rep_.
   parts = [
-    get_string(value.GetChildMemberWithName('project_id')),
-    get_string(value.GetChildMemberWithName('database_id'))
+      get_string(value.GetChildMemberWithName('project_id')),
+      get_string(value.GetChildMemberWithName('database_id'))
   ]
   return format_string('/'.join(parts))
 
@@ -216,12 +216,12 @@ def __lldb_init_module(debugger, params):
   def add_summary(provider, typename, *args):
     args = ' '.join(args)
     run('type summary add -w firestore -F {0} {1} {2}'.format(
-      qname(provider), args, typename))
+        qname(provider), args, typename))
 
   def add_synthetic(provider, typename, *args):
     args = ' '.join(args)
     run('type synthetic add -l {0} -w firestore {1} {2}'.format(
-      qname(provider), args, typename))
+        qname(provider), args, typename))
 
   optional_matcher = '-x absl::[^:]*::optional<.*>'
   add_summary(AbseilOptional_SummaryProvider, optional_matcher, '-e')
