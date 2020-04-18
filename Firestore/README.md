@@ -10,7 +10,7 @@
   * Select the Firestore_Tests_iOS scheme
   * ⌘-u to build and run the unit tests
 
-### Improving the debuger experience
+### Improving the debugger experience
 
 You can install a set of type formatters to improve the presentation of
 Firestore internals in LLDB and Xcode. Add the following to your `~/.lldbinit` file:
