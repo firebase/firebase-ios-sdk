@@ -28,7 +28,7 @@
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIRLogger.h>
 #import <FirebaseCore/FIROptions.h>
-#import <FirebaseInstanceID/FirebaseInstanceID.h>
+#import <FirebaseInstallations/FirebaseInstallations.h>
 #import <GoogleUtilities/GULNSData+zlib.h>
 #import <OCMock/OCMock.h>
 
@@ -50,6 +50,10 @@
 + (NSUserDefaults *)sharedUserDefaultsForBundleIdentifier:(NSString *)bundleIdentifier;
 @end
 
+@interface FIRInstallationsAuthTokenResult (Test)
+- (instancetype)initWithToken:(NSString *)token expirationDate:(NSDate *)expirationDate;
+@end
+
 typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
   RCNTestRCInstanceDefault,
   RCNTestRCNumTotalInstances,  // TODO(mandard): Remove once OCMock issue is resolved (#4877).
@@ -57,11 +61,15 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
   RCNTestRCInstanceSecondApp,
 };
 
-@interface FIRInstanceID (Tests)
-+ (FIRInstanceID *)instanceIDForTests;
+@class FIRInstallationsIDController;
+@interface FIRInstallations (Tests)
+- (instancetype)initWithAppOptions:(FIROptions *)appOptions
+                           appName:(NSString *)appName
+         installationsIDController:(FIRInstallationsIDController *)installationsIDController
+                 prefetchAuthToken:(BOOL)prefetchAuthToken;
 @end
 
-@interface RCNInstanceIDTest : XCTestCase {
+@interface RCNInstallationsTests : XCTestCase {
   NSTimeInterval _expectationTimeout;
   NSTimeInterval _checkCompletionTimeout;
   NSMutableArray<FIRRemoteConfig *> *_configInstances;
@@ -74,18 +82,18 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
   NSUserDefaults *_userDefaults;
   NSString *_userDefaultsSuiteName;
   NSString *_DBPath;
+
+  id _installationsMock;
 }
 @end
 
-@implementation RCNInstanceIDTest
+@implementation RCNInstallationsTests
 
-- (void)setUp {
-  [super setUp];
+- (void)setUpConfigMock {
   FIRSetLoggerLevel(FIRLoggerLevelMax);
-  //@@if (![FIRApp isDefaultAppConfigured]) {
-  [FIRApp configureWithOptions:[self firstAppOptions]];
   _expectationTimeout = 5;
   _checkCompletionTimeout = 1.0;
+  [FIRApp configureWithOptions:[self firstAppOptions]];
 
   // Always remove the database at the start of testing.
   _DBPath = [RCNTestUtilities remoteConfigPathForTestDatabase];
@@ -174,41 +182,61 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
                                      tokenError:(nullable NSError *)tokenError
                                        identity:(nullable NSString *)identity
                                   identityError:(nullable NSError *)identityError {
-  // Mock the instanceID retreival method.
-  id instanceIDMock = OCMPartialMock([FIRInstanceID instanceIDForTests]);
-  OCMStub([instanceIDMock
-      tokenWithAuthorizedEntity:[OCMArg any]
-                          scope:[OCMArg any]
-                        options:[OCMArg any]
-                        handler:([OCMArg
-                                    invokeBlockWithArgs:(token ? token : [NSNull null]),
-                                                        (tokenError ? tokenError : [NSNull null]),
-                                                        nil])]);
-  OCMStub([instanceIDMock
-      getIDWithHandler:([OCMArg invokeBlockWithArgs:(identity ? identity : [NSNull null]),
-                                                    (identityError ? identityError : [NSNull null]),
-                                                    nil])]);
+  // Mock the installations retreival method.
+  _installationsMock = OCMClassMock([FIRInstallations class]);
+
+  id installationIDCompletionArg =
+      [OCMArg checkWithBlock:^BOOL(FIRInstallationsIDHandler completion) {
+        if (completion) {
+          completion(identity, identityError);
+        }
+        return YES;
+      }];
+  OCMStub([_installationsMock installationIDWithCompletion:installationIDCompletionArg]);
+
+  FIRInstallationsAuthTokenResult *tokenResult;
+  if (token) {
+    tokenResult = [[FIRInstallationsAuthTokenResult alloc] initWithToken:token
+                                                          expirationDate:[NSDate distantFuture]];
+  }
+
+  id authTokenCompletionArg =
+      [OCMArg checkWithBlock:^BOOL(FIRInstallationsTokenHandler completion) {
+        if (completion) {
+          completion(tokenResult, tokenError);
+        }
+        return YES;
+      }];
+  OCMStub([_installationsMock authTokenWithCompletion:authTokenCompletionArg]);
+
+  OCMStub([_installationsMock installationsWithApp:[OCMArg any]]).andReturn(_installationsMock);
+
+  [self setUpConfigMock];
 }
 
 - (void)tearDown {
   [_DBManager removeDatabaseOnDatabaseQueueAtPath:_DBPath];
   [[NSUserDefaults standardUserDefaults] removePersistentDomainForName:_userDefaultsSuiteName];
   [FIRApp resetApps];
+  [_installationsMock stopMocking];
+  _installationsMock = nil;
   [super tearDown];
 }
 
 // Instance ID token is nil. Error is not nil. Verify fetch fails.
-- (void)testNilInstanceIDTokenAndError {
+- (void)testNilInstallationsAuthTokenAndError {
   NSMutableArray<XCTestExpectation *> *expectations =
       [[NSMutableArray alloc] initWithCapacity:RCNTestRCNumTotalInstances];
 
   // Set the token as nil.
-  [self mockInstanceIDMethodForTokenAndIdentity:nil
-                                     tokenError:[NSError errorWithDomain:@"com.google.instanceid"
-                                                                    code:FIRInstanceIDErrorUnknown
-                                                                userInfo:nil]
-                                       identity:nil
-                                  identityError:nil];
+  [self
+      mockInstanceIDMethodForTokenAndIdentity:nil
+                                   tokenError:[NSError
+                                                  errorWithDomain:kFirebaseInstallationsErrorDomain
+                                                             code:FIRInstallationsErrorCodeUnknown
+                                                         userInfo:nil]
+                                     identity:nil
+                                identityError:nil];
   // Test for each RC FIRApp, namespace instance.
   for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
     expectations[i] =
@@ -235,10 +263,11 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
       [[NSMutableArray alloc] initWithCapacity:RCNTestRCNumTotalInstances];
 
   // Set the token as nil.
+  NSError *tokenError = [NSError errorWithDomain:kFirebaseInstallationsErrorDomain
+                                            code:FIRInstallationsErrorCodeUnknown
+                                        userInfo:nil];
   [self mockInstanceIDMethodForTokenAndIdentity:nil
-                                     tokenError:[NSError errorWithDomain:@"com.google.instanceid"
-                                                                    code:FIRInstanceIDErrorUnknown
-                                                                userInfo:nil]
+                                     tokenError:tokenError
                                        identity:nil
                                   identityError:nil];
   // Test for each RC FIRApp, namespace instance.
@@ -250,17 +279,15 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
     FIRRemoteConfigFetchCompletion fetchCompletion =
         ^void(FIRRemoteConfigFetchStatus status, NSError *error) {
           XCTAssertNotNil(error);
-          XCTAssertFalse([[error.userInfo objectForKey:@"NSLocalizedDescription"]
-                             rangeOfString:@"Failed to get InstanceID token"]
-                             .location == NSNotFound);
+          XCTAssert([[error.userInfo objectForKey:@"NSLocalizedDescription"]
+              containsString:@"Failed to get installations token"]);
           // Make a second fetch call.
           [self->_configInstances[i]
               fetchWithExpirationDuration:43200
                         completionHandler:^void(FIRRemoteConfigFetchStatus status, NSError *error) {
                           XCTAssertNotNil(error);
-                          XCTAssertFalse([[error.userInfo objectForKey:@"NSLocalizedDescription"]
-                                             rangeOfString:@"Failed to get InstanceID token"]
-                                             .location == NSNotFound);
+                          XCTAssert([[error.userInfo objectForKey:@"NSLocalizedDescription"]
+                              containsString:@"Failed to get installations token"]);
                           [expectations[i] fulfill];
                         }];
         };
@@ -281,10 +308,11 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
   // Test for each RC FIRApp, namespace instance.
   for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
     // Set the token as nil.
+    NSError *tokenError = [NSError errorWithDomain:kFirebaseInstallationsErrorDomain
+                                              code:FIRInstallationsErrorCodeUnknown
+                                          userInfo:nil];
     [self mockInstanceIDMethodForTokenAndIdentity:@"abcd"
-                                       tokenError:[NSError errorWithDomain:@"com.google.instanceid"
-                                                                      code:FIRInstanceIDErrorUnknown
-                                                                  userInfo:nil]
+                                       tokenError:tokenError
                                          identity:nil
                                     identityError:nil];
 
@@ -376,12 +404,13 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
   // Test for each RC FIRApp, namespace instance.
   for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
     // Set the token as nil.
+    NSError *identityError = [NSError errorWithDomain:kFirebaseInstallationsErrorDomain
+                                                 code:FIRInstallationsErrorCodeUnknown
+                                             userInfo:nil];
     [self mockInstanceIDMethodForTokenAndIdentity:@"abcd"
                                        tokenError:nil
                                          identity:@"test-id"
-                                    identityError:[NSError errorWithDomain:@"com.google.instanceid"
-                                                                      code:FIRInstanceIDErrorUnknown
-                                                                  userInfo:nil]];
+                                    identityError:identityError];
 
     expectations[i] =
         [self expectationWithDescription:

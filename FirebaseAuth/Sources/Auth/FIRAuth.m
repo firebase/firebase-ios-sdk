@@ -529,7 +529,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                         @"Error loading saved user when starting up: %@", error);
           }
         } else {
-          [strongSelf useUserAccessGroup:storedUserAccessGroup error:&error];
+          [strongSelf internalUseUserAccessGroup:storedUserAccessGroup error:&error];
           if (error) {
             FIRLogError(kFIRLoggerAuth, @"I-AUT000001",
                         @"Error loading saved user when starting up: %@", error);
@@ -2169,8 +2169,8 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 
 #pragma mark - Keychain sharing
 
-- (BOOL)useUserAccessGroup:(NSString *_Nullable)accessGroup
-                     error:(NSError *_Nullable *_Nullable)outError {
+- (BOOL)internalUseUserAccessGroup:(NSString *_Nullable)accessGroup
+                             error:(NSError *_Nullable *_Nullable)outError {
   BOOL success;
   success = [self.storedUserManager setStoredUserAccessGroup:accessGroup error:outError];
   if (!success) {
@@ -2194,6 +2194,14 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   self->_lastNotifiedUserToken = user.rawAccessToken;
 
   return YES;
+}
+
+- (BOOL)useUserAccessGroup:(NSString *_Nullable)accessGroup
+                     error:(NSError *_Nullable *_Nullable)outError {
+  // self.storedUserManager is initialized asynchronously. Make sure it is done.
+  dispatch_sync(FIRAuthGlobalWorkQueue(), ^{
+                });
+  return [self internalUseUserAccessGroup:accessGroup error:outError];
 }
 
 - (nullable FIRUser *)getStoredUserForAccessGroup:(NSString *_Nullable)accessGroup

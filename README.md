@@ -1,18 +1,23 @@
-# Firebase iOS Open Source Development
- [![Actions Status][gh-auth-badge]][gh-actions]
- [![Actions Status][gh-core-badge]][gh-actions]
- [![Actions Status][gh-datatransport-badge]][gh-actions]
- [![Actions Status][gh-dynamiclinks-badge]][gh-actions]
- [![Actions Status][gh-firebasepod-badge]][gh-actions]
- [![Actions Status][gh-firestore-badge]][gh-actions]
- [![Actions Status][gh-interop-badge]][gh-actions]
- [![Actions Status][gh-messaging-badge]][gh-actions]
- [![Actions Status][gh-storage-badge]][gh-actions]
- [![Actions Status][gh-symbolcollision-badge]][gh-actions]
- [![Actions Status][gh-zip-badge]][gh-actions]
- [![Travis](https://travis-ci.org/firebase/firebase-ios-sdk.svg?branch=master)](https://travis-ci.org/firebase/firebase-ios-sdk)
+[![Version](https://img.shields.io/cocoapods/v/Firebase.svg?style=flat)](https://cocoapods.org/pods/Firebase)
+[![License](https://img.shields.io/cocoapods/l/Firebase.svg?style=flat)](https://cocoapods.org/pods/Firebase)
+[![Platform](https://img.shields.io/cocoapods/p/Firebase.svg?style=flat)](https://cocoapods.org/pods/Firebase)
 
-This repository contains all Firebase iOS SDK source except FirebaseAnalytics,
+[![Actions Status][gh-auth-badge]][gh-actions]
+[![Actions Status][gh-core-badge]][gh-actions]
+[![Actions Status][gh-datatransport-badge]][gh-actions]
+[![Actions Status][gh-dynamiclinks-badge]][gh-actions]
+[![Actions Status][gh-firebasepod-badge]][gh-actions]
+[![Actions Status][gh-firestore-badge]][gh-actions]
+[![Actions Status][gh-interop-badge]][gh-actions]
+[![Actions Status][gh-messaging-badge]][gh-actions]
+[![Actions Status][gh-storage-badge]][gh-actions]
+[![Actions Status][gh-symbolcollision-badge]][gh-actions]
+[![Actions Status][gh-zip-badge]][gh-actions]
+[![Travis](https://travis-ci.org/firebase/firebase-ios-sdk.svg?branch=master)](https://travis-ci.org/firebase/firebase-ios-sdk)
+
+# Firebase Apple Open Source Development
+
+This repository contains all Apple platform Firebase SDK source except FirebaseAnalytics,
 FirebasePerformance, and FirebaseML.
 
 The repository also includes GoogleUtilities source. The

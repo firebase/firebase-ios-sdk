@@ -29,7 +29,8 @@ more details and additional installation methods.
 Firebase components that you want to include in your app. Note that
 **FirebaseAnalyticsBinary** must always be included.
 
-- If you're using FirebaseMessaging, FirebasePerformance, FirebaserRemoteConfig,
+- Starting with the 6.23.0 release, if you're using FirebaseMessaging,
+FirebasePerformance, FirebaserRemoteConfig,
 FirebaseABTesting, FirebaseInAppMessaging, or FirebaseML,
 **FirebaseProtobufBinary** must also be included.
 ```
