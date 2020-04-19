@@ -496,7 +496,11 @@ static NSMutableDictionary<NSNumber *, dispatch_semaphore_t> *gBackgroundIdentif
   id sharedInstance = nil;
 #if TARGET_OS_IOS || TARGET_OS_TV
   if (![self isAppExtension]) {
-    sharedInstance = [UIApplication sharedApplication];
+    Class uiApplicationClass = NSClassFromString(@"UIApplication");
+    if (uiApplicationClass &&
+        [uiApplicationClass respondsToSelector:(NSSelectorFromString(@"sharedApplication"))]) {
+      sharedInstance = [uiApplicationClass sharedApplication];
+    }
   }
 #elif TARGET_OS_WATCH
   sharedInstance = [NSProcessInfo processInfo];
