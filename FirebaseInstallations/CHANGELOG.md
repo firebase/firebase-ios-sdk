@@ -1,3 +1,7 @@
+# v1.1.2 -- M69
+
+- [changed] Keychain key-value storage refactored to `GoogleUtilities`. (#5329)
+
 # v1.1.1 -- M67
 
 - [fixed] Accessing `GULHeartbeatDateStorage` moved out of main thread. (#5098)

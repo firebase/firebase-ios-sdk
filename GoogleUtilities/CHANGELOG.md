@@ -1,3 +1,7 @@
+# 6.6.0 -- M69
+- Keychain utilities and Keychain-based key-value storage added to
+  `GoogleUtilities/Environment`. (#5329)
+
 # 6.5.2
 - Fixed an issue where GoogleUtilities misidentified Catalyst as a
   simulator runtime environment. (#5048)
