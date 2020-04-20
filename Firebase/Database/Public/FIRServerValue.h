@@ -35,7 +35,7 @@ NS_SWIFT_NAME(ServerValue)
  * Returns a placeholder value that can be used to atomically increment the
  * current database value by the provided delta.
  *
- * The delta must be an long or a double value. If the current value is not an
+ * The delta must be a long or double value. If the current value is not an
  * integer or double, or if the data does not yet exist, the transformation will
  * set the data to the delta value. If either of the delta value or the existing
  * data are doubles, both values will be interpreted as doubles. Double
