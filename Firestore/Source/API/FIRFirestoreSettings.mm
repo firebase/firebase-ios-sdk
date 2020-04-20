@@ -78,9 +78,7 @@ ABSL_CONST_INIT extern "C" const int64_t kFIRFirestoreCacheSizeUnlimited =
   return result;
 }
 
-- (id)copyWithZone:(nullable NSZone *)zone {
-  (void)zone;
-
+- (id)copyWithZone:(__unused NSZone *_Nullable)zone {
   FIRFirestoreSettings *copy = [[FIRFirestoreSettings alloc] init];
   copy.host = _host;
   copy.sslEnabled = _sslEnabled;
