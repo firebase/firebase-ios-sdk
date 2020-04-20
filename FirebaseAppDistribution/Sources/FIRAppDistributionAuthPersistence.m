@@ -16,6 +16,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+NSString *const kFIRAppDistributionKeychainErrorDomain = @"com.firebase.app_distribution.internal";
+
 @implementation FIRAppDistributionAuthPersistence
 
 + (BOOL)clearAuthState:(NSError **_Nullable)error {
@@ -27,7 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
         @"Failed to clear auth state from keychain. Tester will overwrite data on sign in.",
         @"Error message for failure to retrieve auth state from keychain");
     NSDictionary *userInfo = @{NSLocalizedDescriptionKey : desc};
-    *error = [NSError errorWithDomain:kFIRAppDistributionInternalErrorDomain
+    *error = [NSError errorWithDomain:kFIRAppDistributionKeychainErrorDomain
                                  code:FIRAppDistributionErrorTokenDeletionFailure
                              userInfo:userInfo];
   }
@@ -49,7 +51,7 @@ NS_ASSUME_NONNULL_BEGIN
         @"Failed to retrieve auth state from keychain. Tester will have to sign in again.",
         @"Error message for failure to retrieve auth state from keychain");
     NSDictionary *userInfo = @{NSLocalizedDescriptionKey : desc};
-    *error = [NSError errorWithDomain:kFIRAppDistributionInternalErrorDomain
+    *error = [NSError errorWithDomain:kFIRAppDistributionKeychainErrorDomain
                                  code:FIRAppDistributionErrorTokenRetrievalFailure
                              userInfo:userInfo];
   }
@@ -62,7 +64,7 @@ NS_ASSUME_NONNULL_BEGIN
         NSLocalizedString(@"Failed to unarchive auth state. Tester will have to sign in again.",
                           @"Error message for failure to copy password data from keychain");
     NSDictionary *userInfo = @{NSLocalizedDescriptionKey : desc};
-    *error = [NSError errorWithDomain:kFIRAppDistributionInternalErrorDomain
+    *error = [NSError errorWithDomain:kFIRAppDistributionKeychainErrorDomain
                                  code:FIRAppDistributionErrorTokenRetrievalFailure
                              userInfo:userInfo];
   }
@@ -91,7 +93,7 @@ NS_ASSUME_NONNULL_BEGIN
         @"Failed to persist auth state. Tester will have to sign in again after app close.",
         @"Error message for failure to persist auth state to keychain");
     NSDictionary *userInfo = @{NSLocalizedDescriptionKey : desc};
-    *error = [NSError errorWithDomain:kFIRAppDistributionInternalErrorDomain
+    *error = [NSError errorWithDomain:kFIRAppDistributionKeychainErrorDomain
                                  code:FIRAppDistributionErrorTokenPersistenceFailure
                              userInfo:userInfo];
   }
