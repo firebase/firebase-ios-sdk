@@ -61,7 +61,12 @@ NSString *const kAppDistroLibraryName = @"fire-fad";
     [GULAppDelegateSwizzler registerAppDelegateInterceptor:interceptor];
   }
 
-  self.authState = [FIRAppDistributionAuthPersistence retrieveAuthState];
+  NSError *authRetrievalError;
+  self.authState = [FIRAppDistributionAuthPersistence retrieveAuthState error:&authRetrievalError];
+  //TODO (schnecle): replace NSLog statement with FIRLogger log statement
+  if(authRetrievalError){
+    NSLog(@"Error retrieving token from keychain: %@", [authRetrievalError localizedDescription]);
+  }
   self.isTesterSignedIn = self.authState ? YES : NO;
   return self;
 }
@@ -129,7 +134,12 @@ NSString *const kAppDistroLibraryName = @"fire-fad";
 }
 
 - (void)signOutTester {
-  [FIRAppDistributionAuthPersistence clearAuthState];
+  NSError *error;
+  [FIRAppDistributionAuthPersistence clearAuthState error:&error];
+  // TODO (schnecle): Add in FIRLogger to report when we have failed to clear auth state
+  if(error){
+    NSLog(@"Error clearing token from keychain: %@", [error localizedDescription]);
+  }
   self.authState = nil;
   self.isTesterSignedIn = false;
 }
@@ -140,6 +150,7 @@ NSString *const kAppDistroLibraryName = @"fire-fad";
                                                NSString *_Nonnull idToken,
                                                NSError *_Nullable error) {
       if (error) {
+        // TODO (schnecle): Add in FIRLogger log statement
         NSLog(@"Error fetching fresh tokens: %@", [error localizedDescription]);
         [self signOutTester];
         return;
@@ -187,7 +198,7 @@ NSString *const kAppDistroLibraryName = @"fire-fad";
        appDistributionSignInCompletion:(void (^)(NSError *_Nullable error))completion {
   if (!configuration) {
     // TODO: Handle when we cannot get configuration
-      NSLog(@"ERROR - Cannot discover oauth config");
+    NSLog(@"ERROR - Cannot discover oauth config");
     @throw([NSException exceptionWithName:@"NotImplementedException"
                                    reason:@"This code path is not implemented yet"
                                  userInfo:nil]);
@@ -214,8 +225,16 @@ NSString *const kAppDistroLibraryName = @"fire-fad";
                                                      callback:^(OIDAuthState *_Nullable authState,
                                                                 NSError *_Nullable error) {
           self.authState = authState;
+
+          // Capture errors in persistence but do not bubble them up
+          NSError *authPersistenceError;
           if(authState) {
-              [FIRAppDistributionAuthPersistence persistAuthState:authState];
+            [FIRAppDistributionAuthPersistence persistAuthState:authState error:&authPersistenceError];
+          }
+
+          // TODO (schnecle): Log errors in persistence using FIRLogger
+          if(authPersistenceError) {
+            NSLog(@"Error persisting token to keychain: %@", [error localizedDescription]);
           }
           self.isTesterSignedIn = self.authState ? YES : NO;
           completion(error);

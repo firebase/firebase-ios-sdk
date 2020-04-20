@@ -20,6 +20,13 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+// Label exceptions from private App Distribution calls.
+NSString *const kFIRAppDistributionInternalErrorDomain =
+@"com.firebase.app_distribution.internal";
+
+// A key that 
+NSString *const kFIRAppDistributionUnderlyingErrorCode = @"UnderlyingErrorCode";
+
 @interface FIRAppDistribution ()
 /**
  * Current view controller presenting the `SFSafariViewController` if any.
@@ -34,5 +41,20 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nullable, nonatomic) UIWindow *window;
 
 @end
+
+/**
+ *  The set of error codes that may be returned from internal SDK calls. These should never be returned to the user.
+ *  @enum AppDistributionInternalError
+ */
+typedef NS_ENUM(NSUInteger, FIRAppDistributionInternalError) {
+  // Authentication token persistence error
+  FIRAppDistributionErrorTokenPersistenceFailure = 0,
+
+  // Authentication token retrieval error
+  FIRAppDistributionErrorTokenRetrievalFailure = 1,
+
+  // Authentication token deletion error
+  FIRAppDistributionErrorTokenDeletionFailure = 2,
+} NS_SWIFT_NAME(AppDistributionInternalError);
 
 NS_ASSUME_NONNULL_END

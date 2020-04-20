@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #import <AppAuth/AppAuth.h>
+#import "FIRAppDistribution+Private.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -20,11 +21,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)init NS_UNAVAILABLE;
 
-+ (BOOL)persistAuthState:(OIDAuthState *)authState;
++ (BOOL)persistAuthState:(OIDAuthState *)authState
+                   error:(NSError **)error;
 
-+ (BOOL)clearAuthState;
++ (BOOL)clearAuthState:(NSError **)error;
 
-+ (OIDAuthState*)retrieveAuthState;
++ (OIDAuthState*)retrieveAuthState:(NSError **)error;
 
 @end
 
