@@ -17,8 +17,8 @@
 #import "Firestore/Source/API/FIRGeoPoint+Internal.h"
 
 #include "Firestore/core/include/firebase/firestore/geo_point.h"
-#include "Firestore/core/src/firebase/firestore/util/comparison.h"
-#include "Firestore/core/src/firebase/firestore/util/exception.h"
+#include "Firestore/core/src/util/comparison.h"
+#include "Firestore/core/src/util/exception.h"
 
 using firebase::firestore::util::ThrowInvalidArgument;
 using firebase::firestore::util::DoubleBitwiseEquals;

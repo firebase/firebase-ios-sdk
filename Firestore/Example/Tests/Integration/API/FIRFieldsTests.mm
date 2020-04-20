@@ -19,7 +19,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "Firestore/core/src/firebase/firestore/util/warnings.h"
+#import "Firestore/core/src/util/warnings.h"
 
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 

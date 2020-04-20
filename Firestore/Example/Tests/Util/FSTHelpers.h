@@ -19,7 +19,7 @@
 #include <string>
 #include <vector>
 
-#include "Firestore/core/src/firebase/firestore/model/model_fwd.h"
+#include "Firestore/core/src/model/model_fwd.h"
 #include "absl/strings/string_view.h"
 
 @class FIRGeoPoint;

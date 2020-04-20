@@ -18,7 +18,7 @@
 
 #include <memory>
 
-#include "Firestore/core/src/firebase/firestore/core/transaction.h"
+#include "Firestore/core/src/core/transaction.h"
 
 @class FIRFirestore;
 
