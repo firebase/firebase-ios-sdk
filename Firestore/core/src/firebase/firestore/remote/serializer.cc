@@ -1600,7 +1600,7 @@ std::unique_ptr<WatchChange> Serializer::DecodeTargetChange(
 }
 
 WatchTargetChangeState Serializer::DecodeTargetChangeState(
-    nanopb::Reader* reader,
+    nanopb::Reader*,
     const google_firestore_v1_TargetChange_TargetChangeType state) {
   switch (state) {
     case google_firestore_v1_TargetChange_TargetChangeType_NO_CHANGE:
@@ -1681,8 +1681,7 @@ std::unique_ptr<WatchChange> Serializer::DecodeDocumentRemove(
 }
 
 std::unique_ptr<WatchChange> Serializer::DecodeExistenceFilterWatchChange(
-    nanopb::Reader* reader,
-    const google_firestore_v1_ExistenceFilter& filter) const {
+    nanopb::Reader*, const google_firestore_v1_ExistenceFilter& filter) const {
   ExistenceFilter existence_filter{filter.count};
   return absl::make_unique<ExistenceFilterWatchChange>(existence_filter,
                                                        filter.target_id);

@@ -23,13 +23,11 @@
 
 @implementation AppDelegate
 
-- (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
-  (void)aNotification;
+- (void)applicationDidFinishLaunching:(__unused NSNotification *)aNotification {
 }
 
-- (void)applicationWillTerminate:(NSNotification *)aNotification {
+- (void)applicationWillTerminate:(__unused NSNotification *)aNotification {
   // Insert code here to tear down your application
-  (void)aNotification;
 }
 
 @end

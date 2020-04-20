@@ -347,9 +347,8 @@ TEST_F(DatastoreTest, AuthAfterDatastoreHasBeenShutDown) {
   credentials->DelayGetToken();
 
   worker_queue->EnqueueBlocking([&] {
-    datastore->CommitMutations({}, [](const Status& status) {
-      FAIL() << "Callback shouldn't be invoked";
-    });
+    datastore->CommitMutations(
+        {}, [](const Status&) { FAIL() << "Callback shouldn't be invoked"; });
   });
   Shutdown();
 
@@ -360,9 +359,8 @@ TEST_F(DatastoreTest, AuthOutlivesDatastore) {
   credentials->DelayGetToken();
 
   worker_queue->EnqueueBlocking([&] {
-    datastore->CommitMutations({}, [](const Status& status) {
-      FAIL() << "Callback shouldn't be invoked";
-    });
+    datastore->CommitMutations(
+        {}, [](const Status&) { FAIL() << "Callback shouldn't be invoked"; });
   });
   Shutdown();
   datastore.reset();
