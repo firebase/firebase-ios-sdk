@@ -41,7 +41,9 @@ if(FUZZING AND NOT DEFINED ENV{LIB_FUZZING_ENGINE})
     # have libFuzzer by default.
     set(fuzzing_flags -fsanitize-coverage=trace-pc-guard)
   elseif(CXX_GNU)
-    set(fuzzing_flags -fsanitize-coverage=trace-pc)
+    # TODO(varconst): restore this flag. While this flag appears to be valid,
+    # setting it causes build to fail (at least when using GitHub Actions).
+    #set(fuzzing_flags -fsanitize-coverage=trace-pc)
   else()
     message(FATAL_ERROR "Only Clang and GCC support fuzzing.")
   endif()

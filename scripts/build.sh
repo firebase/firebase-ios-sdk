@@ -41,12 +41,14 @@ product can be one of:
 
 platform can be one of:
   iOS (default)
+  Linux
   macOS
   tvOS
 
 method can be one of:
   xcodebuild (default)
   cmake
+  cmake_fuzzing
 
 Optionally, reads the environment variable SANITIZERS. If set, it is expected to
 be a string containing a space-separated list with some of the following
@@ -287,6 +289,11 @@ if [[ -n "${SANITIZERS:-}" ]]; then
   done
 fi
 
+if [ "$method" = "cmake_fuzzing" ]; then
+  cmake_options+=(
+    -DFUZZING=ON
+  )
+fi
 
 case "$product-$platform-$method" in
   FirebasePod-iOS-*)
@@ -329,7 +336,7 @@ case "$product-$platform-$method" in
         test
     ;;
 
-  Firestore-macOS-cmake | Firestore-Linux-cmake)
+  Firestore-macOS-cmake | Firestore-Linux-cmake*)
     "${firestore_emulator}" start
     trap '"${firestore_emulator}" stop' ERR EXIT
 
