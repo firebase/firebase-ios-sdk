@@ -76,7 +76,7 @@ void MemoryLruReferenceDelegate::UpdateLimboDocument(
   sequence_numbers_[key] = current_sequence_number_;
 }
 
-void MemoryLruReferenceDelegate::OnTransactionStarted(absl::string_view label) {
+void MemoryLruReferenceDelegate::OnTransactionStarted(absl::string_view) {
   current_sequence_number_ = listen_sequence_->Next();
 }
 
@@ -105,8 +105,9 @@ void MemoryLruReferenceDelegate::EnumerateOrphanedDocuments(
 size_t MemoryLruReferenceDelegate::GetSequenceNumberCount() {
   size_t total_count = persistence_->target_cache()->size();
   EnumerateOrphanedDocuments(
-      [&total_count](const DocumentKey& key,
-                     ListenSequenceNumber sequence_number) { total_count++; });
+      [&total_count](const DocumentKey&, ListenSequenceNumber) {
+        total_count++;
+      });
   return total_count;
 }
 

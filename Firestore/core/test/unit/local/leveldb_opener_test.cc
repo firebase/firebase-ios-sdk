@@ -192,7 +192,7 @@ class OtherFilesystem : public Filesystem {
     return Path::JoinUtf8(root_dir_, absl::StrCat(".", app_name));
   }
 
-  StatusOr<Path> LegacyDocumentsDir(absl::string_view app_name) override {
+  StatusOr<Path> LegacyDocumentsDir(absl::string_view) override {
     return Status(Error::kUnimplemented, "unimplemented");
   }
 

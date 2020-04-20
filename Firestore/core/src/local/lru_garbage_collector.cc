@@ -187,8 +187,7 @@ ListenSequenceNumber LruGarbageCollector::SequenceNumberForQueryCount(
   });
 
   delegate_->EnumerateOrphanedDocuments(
-      [&buffer](const DocumentKey& doc_key,
-                ListenSequenceNumber sequence_number) {
+      [&buffer](const DocumentKey&, ListenSequenceNumber sequence_number) {
         buffer.AddElement(sequence_number);
       });
 

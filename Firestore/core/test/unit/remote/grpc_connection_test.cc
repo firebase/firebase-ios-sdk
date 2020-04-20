@@ -67,7 +67,7 @@ class ConnectivityObserver : public GrpcStreamObserver {
  public:
   void OnStreamStart() override {
   }
-  void OnStreamRead(const grpc::ByteBuffer& message) override {
+  void OnStreamRead(const grpc::ByteBuffer&) override {
   }
   void OnStreamFinish(const util::Status& status) override {
     if (IsConnectivityChange(status)) {
@@ -191,9 +191,9 @@ TEST_F(GrpcConnectionTest, ShutdownFastFinishesActiveCalls) {
    public:
     void OnStreamStart() override {
     }
-    void OnStreamRead(const grpc::ByteBuffer& message) override {
+    void OnStreamRead(const grpc::ByteBuffer&) override {
     }
-    void OnStreamFinish(const util::Status& status) override {
+    void OnStreamFinish(const util::Status&) override {
       FAIL() << "Observer shouldn't have been invoked";
     }
   };

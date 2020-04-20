@@ -73,8 +73,7 @@ NS_ASSUME_NONNULL_BEGIN
       [[FIRFieldPath alloc] initPrivate:FieldPath::FromDotSeparatedString(util::MakeString(path))];
 }
 
-- (id)copyWithZone:(NSZone *__nullable)zone {
-  (void)zone;
+- (id)copyWithZone:(__unused NSZone *_Nullable)zone {
   return [[[self class] alloc] initPrivate:_internalValue];
 }
 

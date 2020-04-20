@@ -60,10 +60,9 @@
 - (void)testLimitToLastMustAlsoHaveExplicitOrderBy {
   FIRCollectionReference *collRef = [self collectionRefWithDocuments:@{}];
   FIRQuery *query = [collRef queryLimitedToLast:2];
-  FSTAssertThrows(
-      [query getDocumentsWithCompletion:^(FIRQuerySnapshot *documentSet, NSError *error){
-      }],
-      @"limit(toLast:) queries require specifying at least one OrderBy() clause.");
+  FSTAssertThrows([query getDocumentsWithCompletion:^(FIRQuerySnapshot *, NSError *){
+                  }],
+                  @"limit(toLast:) queries require specifying at least one OrderBy() clause.");
 }
 
 // Two queries that mapped to the same target ID are referred to as

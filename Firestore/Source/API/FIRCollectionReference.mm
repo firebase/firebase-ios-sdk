@@ -53,9 +53,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 // Override the designated initializer from the super class.
-- (instancetype)initWithQuery:(api::Query &&)query {
-  (void)query;
-
+- (instancetype)initWithQuery:(__unused api::Query &&)query {
   HARD_FAIL("Use FIRCollectionReference initWithPath: initializer.");
 }
 

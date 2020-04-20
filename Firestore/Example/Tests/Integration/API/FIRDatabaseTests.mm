@@ -61,7 +61,7 @@ using firebase::firestore::util::TimerId;
 }
 
 - (void)testCanUpdateAnUnknownDocument {
-  [self readerAndWriterOnDocumentRef:^(NSString *path, FIRDocumentReference *readerRef,
+  [self readerAndWriterOnDocumentRef:^(FIRDocumentReference *readerRef,
                                        FIRDocumentReference *writerRef) {
     [self writeDocumentRef:writerRef data:@{@"a" : @"a"}];
     [self updateDocumentRef:readerRef data:@{@"b" : @"b"}];
@@ -73,7 +73,7 @@ using firebase::firestore::util::TimerId;
     XCTestExpectation *expectation =
         [self expectationWithDescription:@"testCanUpdateAnUnknownDocument"];
     [readerRef getDocumentWithSource:FIRFirestoreSourceCache
-                          completion:^(FIRDocumentSnapshot *doc, NSError *_Nullable error) {
+                          completion:^(FIRDocumentSnapshot *, NSError *_Nullable error) {
                             XCTAssertNotNil(error);
                             [expectation fulfill];
                           }];
@@ -539,7 +539,7 @@ using firebase::firestore::util::TimerId;
 
   XCTestExpectation *gotInitialSnapshot = [self expectationWithDescription:@"gotInitialSnapshot"];
   __block bool setupComplete = false;
-  [ref addSnapshotListener:^(FIRDocumentSnapshot *snapshot, NSError *error) {
+  [ref addSnapshotListener:^(FIRDocumentSnapshot *, NSError *error) {
     XCTAssertNil(error);
     [events addObject:@"doc"];
     // Wait for the initial event from the backend so that we know we'll get exactly one snapshot
@@ -584,7 +584,7 @@ using firebase::firestore::util::TimerId;
         XCTAssertNil(error1);
         FIRDocumentReference *strongDoc = weakDoc;
 
-        [strongDoc addSnapshotListener:^(FIRDocumentSnapshot *snapshot2, NSError *error2) {
+        [strongDoc addSnapshotListener:^(FIRDocumentSnapshot *, NSError *error2) {
           XCTAssertNil(error2);
 
           FIRDocumentReference *strongDoc2 = weakDoc;
@@ -607,7 +607,7 @@ using firebase::firestore::util::TimerId;
   __block int callbacks = 0;
 
   id<FIRListenerRegistration> listenerRegistration =
-      [docRef addSnapshotListener:^(FIRDocumentSnapshot *_Nullable doc, NSError *error) {
+      [docRef addSnapshotListener:^(FIRDocumentSnapshot *_Nullable doc, NSError *) {
         callbacks++;
 
         if (callbacks == 1) {
@@ -633,7 +633,7 @@ using firebase::firestore::util::TimerId;
   __block int callbacks = 0;
 
   id<FIRListenerRegistration> listenerRegistration =
-      [docRef addSnapshotListener:^(FIRDocumentSnapshot *_Nullable doc, NSError *error) {
+      [docRef addSnapshotListener:^(FIRDocumentSnapshot *_Nullable doc, NSError *) {
         callbacks++;
 
         if (callbacks == 1) {
@@ -670,7 +670,7 @@ using firebase::firestore::util::TimerId;
   id<FIRListenerRegistration> listenerRegistration = [docRef
       addSnapshotListenerWithIncludeMetadataChanges:YES
                                            listener:^(FIRDocumentSnapshot *_Nullable doc,
-                                                      NSError *error) {
+                                                      NSError *) {
                                              callbacks++;
 
                                              if (callbacks == 1) {
@@ -714,7 +714,7 @@ using firebase::firestore::util::TimerId;
   __block int callbacks = 0;
 
   id<FIRListenerRegistration> listenerRegistration =
-      [docRef addSnapshotListener:^(FIRDocumentSnapshot *_Nullable doc, NSError *error) {
+      [docRef addSnapshotListener:^(FIRDocumentSnapshot *_Nullable doc, NSError *) {
         callbacks++;
 
         if (callbacks == 1) {
@@ -756,7 +756,7 @@ using firebase::firestore::util::TimerId;
   id<FIRListenerRegistration> listenerRegistration = [docRef
       addSnapshotListenerWithIncludeMetadataChanges:YES
                                            listener:^(FIRDocumentSnapshot *_Nullable doc,
-                                                      NSError *error) {
+                                                      NSError *) {
                                              callbacks++;
 
                                              if (callbacks == 1) {
@@ -807,7 +807,7 @@ using firebase::firestore::util::TimerId;
   __block int callbacks = 0;
 
   id<FIRListenerRegistration> listenerRegistration =
-      [docRef addSnapshotListener:^(FIRDocumentSnapshot *_Nullable doc, NSError *error) {
+      [docRef addSnapshotListener:^(FIRDocumentSnapshot *_Nullable doc, NSError *) {
         callbacks++;
 
         if (callbacks == 1) {
@@ -848,7 +848,7 @@ using firebase::firestore::util::TimerId;
   id<FIRListenerRegistration> listenerRegistration = [docRef
       addSnapshotListenerWithIncludeMetadataChanges:YES
                                            listener:^(FIRDocumentSnapshot *_Nullable doc,
-                                                      NSError *error) {
+                                                      NSError *) {
                                              callbacks++;
 
                                              if (callbacks == 1) {
@@ -893,7 +893,7 @@ using firebase::firestore::util::TimerId;
   __block int callbacks = 0;
 
   id<FIRListenerRegistration> listenerRegistration =
-      [roomsRef addSnapshotListener:^(FIRQuerySnapshot *_Nullable docSet, NSError *error) {
+      [roomsRef addSnapshotListener:^(FIRQuerySnapshot *_Nullable docSet, NSError *) {
         callbacks++;
 
         if (callbacks == 1) {
@@ -935,7 +935,7 @@ using firebase::firestore::util::TimerId;
   __block int callbacks = 0;
 
   id<FIRListenerRegistration> listenerRegistration =
-      [roomsRef addSnapshotListener:^(FIRQuerySnapshot *_Nullable docSet, NSError *error) {
+      [roomsRef addSnapshotListener:^(FIRQuerySnapshot *_Nullable docSet, NSError *) {
         callbacks++;
 
         if (callbacks == 1) {
@@ -977,7 +977,7 @@ using firebase::firestore::util::TimerId;
   __block int callbacks = 0;
 
   id<FIRListenerRegistration> listenerRegistration =
-      [roomsRef addSnapshotListener:^(FIRQuerySnapshot *_Nullable docSet, NSError *error) {
+      [roomsRef addSnapshotListener:^(FIRQuerySnapshot *_Nullable docSet, NSError *) {
         callbacks++;
 
         if (callbacks == 1) {
@@ -1189,7 +1189,7 @@ using firebase::firestore::util::TimerId;
   [firestore disableNetworkWithCompletion:^(NSError *error) {
     XCTAssertNil(error);
 
-    [doc getDocumentWithCompletion:^(FIRDocumentSnapshot *snapshot, NSError *error) {
+    [doc getDocumentWithCompletion:^(FIRDocumentSnapshot *, NSError *error) {
       XCTAssertNotNil(error);
       [failExpectation fulfill];
     }];
@@ -1213,7 +1213,7 @@ using firebase::firestore::util::TimerId;
       // Verify that we are reading from cache.
       XCTAssertTrue(snapshot.metadata.fromCache);
       XCTAssertEqualObjects(snapshot.data, data);
-      [firestore enableNetworkWithCompletion:^(NSError *error) {
+      [firestore enableNetworkWithCompletion:^(NSError *) {
         [networkExpectation fulfill];
       }];
     }];
@@ -1272,7 +1272,7 @@ using firebase::firestore::util::TimerId;
 
   XCTAssertThrowsSpecific(
       {
-        [firestore disableNetworkWithCompletion:^(NSError *error){
+        [firestore disableNetworkWithCompletion:^(NSError *){
         }];
       },
       NSException, @"The client has already been terminated.");
@@ -1333,7 +1333,7 @@ using firebase::firestore::util::TimerId;
   FIRDocumentReference *docRef2 = [firestore2 documentWithPath:doc.path];
   XCTestExpectation *expectation2 = [self expectationWithDescription:@"getData"];
   [docRef2 getDocumentWithSource:FIRFirestoreSourceCache
-                      completion:^(FIRDocumentSnapshot *doc2, NSError *_Nullable error) {
+                      completion:^(FIRDocumentSnapshot *, NSError *_Nullable error) {
                         XCTAssertNotNil(error);
                         XCTAssertEqualObjects(error.domain, FIRFirestoreErrorDomain);
                         XCTAssertEqual(error.code, FIRFirestoreErrorCodeUnavailable);
@@ -1403,7 +1403,7 @@ using firebase::firestore::util::TimerId;
   [self awaitExpectations];
   XCTAssertThrowsSpecific(
       {
-        [firestore disableNetworkWithCompletion:^(NSError *error){
+        [firestore disableNetworkWithCompletion:^(NSError *){
         }];
       },
       NSException, @"The client has already been terminated.");
@@ -1412,7 +1412,7 @@ using firebase::firestore::util::TimerId;
   [self awaitExpectations];
   XCTAssertThrowsSpecific(
       {
-        [firestore enableNetworkWithCompletion:^(NSError *error){
+        [firestore enableNetworkWithCompletion:^(NSError *){
         }];
       },
       NSException, @"The client has already been terminated.");
