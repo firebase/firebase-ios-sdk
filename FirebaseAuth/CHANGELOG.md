@@ -1,3 +1,6 @@
+# v6.5.3
+- [fixed] Handle calls to `useUserAccessGroup` soon after configure. (#4175)
+
 # v6.5.2
 - [changed] File structure changes. No functional change.
 

@@ -18,7 +18,7 @@
 
 #include <memory>
 
-#include "Firestore/core/src/firebase/firestore/api/api_fwd.h"
+#include "Firestore/core/src/api/api_fwd.h"
 
 namespace firebase {
 namespace firestore {

@@ -19,9 +19,9 @@
 #include <memory>
 #include <string>
 
-#include "Firestore/core/src/firebase/firestore/api/firestore.h"
-#include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
-#include "Firestore/core/src/firebase/firestore/util/async_queue.h"
+#include "Firestore/core/src/api/firestore.h"
+#include "Firestore/core/src/auth/credentials_provider.h"
+#include "Firestore/core/src/util/async_queue.h"
 
 @class FIRApp;
 @class FSTFirestoreClient;

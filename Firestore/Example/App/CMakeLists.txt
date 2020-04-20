@@ -17,29 +17,17 @@ if(NOT APPLE)
 endif()
 
 if(IOS)
-  add_executable(
-    firebase_firestore_example_app MACOSX_BUNDLE
-    iOS/FIRAppDelegate.h
-    iOS/FIRAppDelegate.m
-    iOS/FIRViewController.h
-    iOS/FIRViewController.m
-    iOS/main.m
-  )
-
-  target_compile_options(
-    firebase_firestore_example_app
-    PRIVATE ${FIREBASE_IOS_OBJC_FLAGS}
-  )
+  file(GLOB sources iOS/*.h iOS/*.m)
+  firebase_ios_add_executable(firestore_objc_host_app MACOSX_BUNDLE ${sources})
 
   target_link_libraries(
-    firebase_firestore_example_app
-    PRIVATE
-    "-framework UIKit"
+    firestore_objc_host_app PRIVATE
     "-framework Foundation"
+    "-framework UIKit"
   )
 
   set_target_properties(
-    firebase_firestore_example_app PROPERTIES
+    firestore_objc_host_app PROPERTIES
     MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/iOS/Firestore-Info.plist
     RESOURCE GoogleService-Info.plist
   )
@@ -47,29 +35,18 @@ if(IOS)
 else()
   # Assume macOS
 
-  add_executable(
-    firebase_firestore_example_app MACOSX_BUNDLE
-    macOS/AppDelegate.h
-    macOS/AppDelegate.m
-    macOS/main.m
-  )
-
-  target_compile_options(
-    firebase_firestore_example_app
-    PRIVATE ${FIREBASE_IOS_OBJC_FLAGS}
-  )
+  file(GLOB sources macOS/*.h macOS/*.m)
+  firebase_ios_add_executable(firestore_objc_host_app MACOSX_BUNDLE ${sources})
 
   target_link_libraries(
-    firebase_firestore_example_app
-    PRIVATE
+    firestore_objc_host_app PRIVATE
     "-framework AppKit"
     "-framework Foundation"
   )
 
   set_target_properties(
-    firebase_firestore_example_app PROPERTIES
+    firestore_objc_host_app PROPERTIES
     MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/macOS/Info.plist
     RESOURCE GoogleService-Info.plist
   )
-
 endif()

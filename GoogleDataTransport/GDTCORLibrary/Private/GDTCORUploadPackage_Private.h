@@ -24,4 +24,7 @@
 /** A handler that will receive callbacks for certain events. */
 @property(nonatomic) id<NSSecureCoding, GDTCORUploadPackageProtocol> handler;
 
+/** Checks if the package is expired and calls -packageExpired: on the handler if necessary. */
+- (void)checkIfPackageIsExpired;
+
 @end

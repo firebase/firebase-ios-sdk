@@ -23,6 +23,30 @@
 #import "GDTCORLibrary/Private/GDTCORUploadCoordinator.h"
 #import "GDTCORLibrary/Private/GDTCORUploadPackage_Private.h"
 
+/** A class that holds a weak reference to an upload package, for use by the package's NSTimer. */
+@interface GDTCORUploadPackageTimerHolder : NSObject
+
+/** The upload package. */
+@property(weak, nonatomic) GDTCORUploadPackage *package;
+
+@end
+
+@implementation GDTCORUploadPackageTimerHolder
+
+/** Calls checkIfPackageIsExpired on the package if non-nil. Invalidates if the package is nil.
+ *
+ * @param timer The timer instance calling this method.
+ */
+- (void)timerFired:(NSTimer *)timer {
+  if (_package) {
+    [_package checkIfPackageIsExpired];
+  } else {
+    [timer invalidate];
+  }
+}
+
+@end
+
 @implementation GDTCORUploadPackage {
   /** If YES, the package's -completeDelivery method has been called. */
   BOOL _isDelivered;
@@ -41,9 +65,11 @@
     _storage = [GDTCORRegistrar sharedInstance].targetToStorage[@(target)];
     _deliverByTime = [GDTCORClock clockSnapshotInTheFuture:180000];
     _handler = [GDTCORUploadCoordinator sharedInstance];
+    GDTCORUploadPackageTimerHolder *holder = [[GDTCORUploadPackageTimerHolder alloc] init];
+    holder.package = self;
     _expirationTimer = [NSTimer scheduledTimerWithTimeInterval:5.0
-                                                        target:self
-                                                      selector:@selector(checkIfPackageIsExpired:)
+                                                        target:holder
+                                                      selector:@selector(timerFired:)
                                                       userInfo:nil
                                                        repeats:YES];
   }
@@ -52,7 +78,18 @@
 }
 
 - (instancetype)copy {
-  GDTCORUploadPackage *newPackage = [[GDTCORUploadPackage alloc] initWithTarget:_target];
+  GDTCORUploadPackage *newPackage = [[GDTCORUploadPackage alloc] init];
+  newPackage->_target = _target;
+  newPackage->_storage = _storage;
+  newPackage->_deliverByTime = _deliverByTime;
+  newPackage->_handler = _handler;
+  GDTCORUploadPackageTimerHolder *holder = [[GDTCORUploadPackageTimerHolder alloc] init];
+  holder.package = newPackage;
+  newPackage->_expirationTimer = [NSTimer scheduledTimerWithTimeInterval:5.0
+                                                                  target:holder
+                                                                selector:@selector(timerFired:)
+                                                                userInfo:nil
+                                                                 repeats:YES];
   newPackage->_events = [_events copy];
   GDTCORLogDebug(@"Copying UploadPackage %@ to %@", self, newPackage);
   return newPackage;
@@ -76,9 +113,9 @@
                    @"It's an API violation to call -completeDelivery twice.");
   }
   _isDelivered = YES;
+  [_expirationTimer invalidate];
   if (!_isHandled && _handler &&
       [_handler respondsToSelector:@selector(packageDelivered:successful:)]) {
-    [_expirationTimer invalidate];
     _isHandled = YES;
     [_handler packageDelivered:[self copy] successful:YES];
   }
@@ -86,20 +123,20 @@
 }
 
 - (void)retryDeliveryInTheFuture {
+  [_expirationTimer invalidate];
   if (!_isHandled && _handler &&
       [_handler respondsToSelector:@selector(packageDelivered:successful:)]) {
-    [_expirationTimer invalidate];
     _isHandled = YES;
     [_handler packageDelivered:[self copy] successful:NO];
   }
   GDTCORLogDebug(@"Upload package will retry in the future: %@", self);
 }
 
-- (void)checkIfPackageIsExpired:(NSTimer *)timer {
+- (void)checkIfPackageIsExpired {
   if ([[GDTCORClock snapshot] isAfter:_deliverByTime]) {
+    [_expirationTimer invalidate];
     if (_handler && [_handler respondsToSelector:@selector(packageExpired:)]) {
       _isHandled = YES;
-      [_expirationTimer invalidate];
       GDTCORLogDebug(@"Upload package expired: %@", self);
       [_handler packageExpired:self];
     }

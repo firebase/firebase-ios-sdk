@@ -20,7 +20,7 @@
 
 #import <XCTest/XCTest.h>
 
-#include "Firestore/core/test/firebase/firestore/testutil/app_testing.h"
+#include "Firestore/core/test/unit/testutil/app_testing.h"
 
 namespace testutil = firebase::firestore::testutil;
 
