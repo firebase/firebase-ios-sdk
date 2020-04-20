@@ -18,7 +18,7 @@
 
 #import <Foundation/Foundation.h>
 
-#include "Firestore/core/src/firebase/firestore/api/write_batch.h"
+#include "Firestore/core/src/api/write_batch.h"
 
 @class FSTUserDataConverter;
 

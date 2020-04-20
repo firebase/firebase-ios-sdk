@@ -23,7 +23,7 @@
 #import "Firestore/Source/Public/FIRQuerySnapshot.h"
 #import "Firestore/Source/Public/FIRSnapshotMetadata.h"
 
-#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "Firestore/core/src/util/hard_assert.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

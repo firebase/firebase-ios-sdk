@@ -28,7 +28,7 @@
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 
-#include "Firestore/core/test/firebase/firestore/testutil/app_testing.h"
+#include "Firestore/core/test/unit/testutil/app_testing.h"
 
 namespace testutil = firebase::firestore::testutil;
 

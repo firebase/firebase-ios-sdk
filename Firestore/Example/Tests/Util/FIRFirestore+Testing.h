@@ -20,7 +20,7 @@
 
 #include <memory>
 
-#include "Firestore/core/src/firebase/firestore/util/async_queue.h"
+#include "Firestore/core/src/util/async_queue.h"
 
 namespace util = firebase::firestore::util;
 

@@ -22,8 +22,8 @@
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
-#include "Firestore/core/src/firebase/firestore/model/field_path.h"
-#include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
+#include "Firestore/core/src/model/field_path.h"
+#include "Firestore/core/test/unit/testutil/testutil.h"
 
 namespace testutil = firebase::firestore::testutil;
 
