@@ -21,14 +21,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)init NS_UNAVAILABLE;
 
-+ (BOOL)persistAuthState:(OIDAuthState *)authState
-                   error:(NSError **)error;
++ (BOOL)persistAuthState:(OIDAuthState *)authState error:(NSError **_Nullable)error;
 
-+ (BOOL)clearAuthState:(NSError **)error;
++ (BOOL)clearAuthState:(NSError **_Nullable)error;
 
-+ (OIDAuthState*)retrieveAuthState:(NSError **)error;
++ (OIDAuthState *)retrieveAuthState:(NSError **_Nullable)error;
 
 @end
-
 
 NS_ASSUME_NONNULL_END

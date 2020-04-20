@@ -21,11 +21,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 // Label exceptions from private App Distribution calls.
-NSString *const kFIRAppDistributionInternalErrorDomain =
-@"com.firebase.app_distribution.internal";
-
-// A key that 
-NSString *const kFIRAppDistributionUnderlyingErrorCode = @"UnderlyingErrorCode";
+NSString *const kFIRAppDistributionInternalErrorDomain = @"com.firebase.app_distribution.internal";
 
 @interface FIRAppDistribution ()
 /**
@@ -43,7 +39,8 @@ NSString *const kFIRAppDistributionUnderlyingErrorCode = @"UnderlyingErrorCode";
 @end
 
 /**
- *  The set of error codes that may be returned from internal SDK calls. These should never be returned to the user.
+ *  The set of error codes that may be returned from internal SDK calls. These should never be
+ * returned to the user.
  *  @enum AppDistributionInternalError
  */
 typedef NS_ENUM(NSUInteger, FIRAppDistributionInternalError) {

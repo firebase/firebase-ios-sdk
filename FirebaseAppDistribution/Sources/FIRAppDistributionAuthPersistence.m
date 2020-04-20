@@ -18,27 +18,23 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FIRAppDistributionAuthPersistence
 
-+ (BOOL)clearAuthState:(NSError **) error {
++ (BOOL)clearAuthState:(NSError **_Nullable)error {
   NSMutableDictionary *keychainQuery = [self getKeyChainQuery];
   OSStatus status = SecItemDelete((CFDictionaryRef)keychainQuery);
 
-  if (status != errSecSuccess && status != errSecItemNotFound) {
+  if (status != errSecSuccess && status != errSecItemNotFound && error) {
     NSString *desc = NSLocalizedString(
-      @"Failed to clear auth state from keychain. Tester will overwrite data on sign in.",
-      @"Error message for failure to retrieve auth state from keychain");
-    NSDictionary *userInfo = @{
-      kFIRAppDistributionUnderlyingErrorCode: status,
-      NSLocalizedDescriptionKey: desc
-    }
+        @"Failed to clear auth state from keychain. Tester will overwrite data on sign in.",
+        @"Error message for failure to retrieve auth state from keychain");
+    NSDictionary *userInfo = @{NSLocalizedDescriptionKey : desc};
     *error = [NSError errorWithDomain:kFIRAppDistributionInternalErrorDomain
                                  code:FIRAppDistributionErrorTokenDeletionFailure
-                             userInfo:userInfo]
+                             userInfo:userInfo];
   }
   return errSecSuccess || status == errSecItemNotFound;
 }
 
-
-+ (OIDAuthState *)retrieveAuthState:(NSError **) error {
++ (OIDAuthState *)retrieveAuthState:(NSError **_Nullable)error {
   NSMutableDictionary *keychainQuery = [self getKeyChainQuery];
   [keychainQuery setObject:(id)kCFBooleanTrue forKey:(id)kSecReturnData];
   [keychainQuery setObject:(id)kSecMatchLimitOne forKey:(id)kSecMatchLimit];
@@ -48,27 +44,27 @@ NS_ASSUME_NONNULL_BEGIN
 
   if (status == noErr && 0 < [(__bridge NSData *)passwordData length]) {
     result = [(__bridge NSData *)passwordData copy];
-  } else {
+  } else if (error) {
     NSString *desc = NSLocalizedString(
-      @"Failed to retrieve auth state from keychain. Tester will have to sign in again.",
-      @"Error message for failure to retrieve auth state from keychain");
-    NSDictionary *userInfo = @{ NSLocalizedDescriptionKey: desc };
+        @"Failed to retrieve auth state from keychain. Tester will have to sign in again.",
+        @"Error message for failure to retrieve auth state from keychain");
+    NSDictionary *userInfo = @{NSLocalizedDescriptionKey : desc};
     *error = [NSError errorWithDomain:kFIRAppDistributionInternalErrorDomain
                                  code:FIRAppDistributionErrorTokenRetrievalFailure
-                             userInfo:userInfo]
+                             userInfo:userInfo];
   }
 
   OIDAuthState *authState = nil;
   if (result) {
     authState = (OIDAuthState *)[NSKeyedUnarchiver unarchiveObjectWithData:result];
-  } else {
-    NSString *desc = NSLocalizedString(
-      @"Failed to unarchive auth state. Tester will have to sign in again.",
-      @"Error message for failure to copy password data from keychain");
-    NSDictionary *userInfo = @{ NSLocalizedDescriptionKey : desc };
+  } else if (error) {
+    NSString *desc =
+        NSLocalizedString(@"Failed to unarchive auth state. Tester will have to sign in again.",
+                          @"Error message for failure to copy password data from keychain");
+    NSDictionary *userInfo = @{NSLocalizedDescriptionKey : desc};
     *error = [NSError errorWithDomain:kFIRAppDistributionInternalErrorDomain
                                  code:FIRAppDistributionErrorTokenRetrievalFailure
-                             userInfo:userInfo]
+                             userInfo:userInfo];
   }
 
   if (passwordData != NULL) {
@@ -78,12 +74,11 @@ NS_ASSUME_NONNULL_BEGIN
   return authState;
 }
 
-+ (BOOL)persistAuthState:(OIDAuthState *)authState
-                   error:(NSError **)error {
++ (BOOL)persistAuthState:(OIDAuthState *)authState error:(NSError **_Nullable)error {
   NSData *authorizationData = [NSKeyedArchiver archivedDataWithRootObject:authState];
   NSMutableDictionary *keychainQuery = [self getKeyChainQuery];
   OSStatus status = noErr;
-  if ([self retrieveAuthState]) {
+  if ([self retrieveAuthState:NULL]) {
     status = SecItemUpdate((CFDictionaryRef)keychainQuery,
                            (CFDictionaryRef) @{(id)kSecValueData : authorizationData});
   } else {
@@ -91,17 +86,14 @@ NS_ASSUME_NONNULL_BEGIN
     status = SecItemAdd((CFDictionaryRef)keychainQuery, NULL);
   }
 
-  if (status != noErr) {
+  if (status != noErr && error) {
     NSString *desc = NSLocalizedString(
-      @"Failed to persist auth state. Tester will have to sign in again after app close.",
-      @"Error message for failure to persist auth state to keychain");
-    NSDictionary *userInfo = @{
-      kFIRAppDistributionUnderlyingErrorCode: status,
-      NSLocalizedDescriptionKey: desc
-    }
+        @"Failed to persist auth state. Tester will have to sign in again after app close.",
+        @"Error message for failure to persist auth state to keychain");
+    NSDictionary *userInfo = @{NSLocalizedDescriptionKey : desc};
     *error = [NSError errorWithDomain:kFIRAppDistributionInternalErrorDomain
                                  code:FIRAppDistributionErrorTokenPersistenceFailure
-                             userInfo:userInfo]
+                             userInfo:userInfo];
   }
 
   return status == noErr;
