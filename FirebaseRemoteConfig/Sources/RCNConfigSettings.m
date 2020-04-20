@@ -334,9 +334,9 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
   // Note: We only set user properties as mentioned in the new REST API Design doc
   NSString *ret = [NSString stringWithFormat:@"{"];
   ret = [ret stringByAppendingString:[NSString stringWithFormat:@"app_instance_id:'%@'",
-                                                                _configInstanceID]];
+                                                                _configInstallationsIdentifier]];
   ret = [ret stringByAppendingString:[NSString stringWithFormat:@", app_instance_id_token:'%@'",
-                                                                _configInstanceIDToken]];
+                                                                _configInstallationsToken]];
   ret = [ret stringByAppendingString:[NSString stringWithFormat:@", app_id:'%@'", _googleAppID]];
 
   ret = [ret stringByAppendingString:[NSString stringWithFormat:@", country_code:'%@'",
