@@ -255,6 +255,8 @@ struct FIRCLSMachOSlice FIRCLSMachOSliceGetCurrent(void) {
 
   slice.startAddress = NULL;
 
+  // This call can fail when Exported Symbols File in Build Settings is missing the symbol value
+  // defined as _MH_EXECUTE_SYM (if you look in the header the underscored MH_EXECUTE_SYM define is there)
   executableSymbol = dlsym(RTLD_MAIN_ONLY, MH_EXECUTE_SYM);
 
   // get the address of the main function
