@@ -526,7 +526,7 @@ static void (^reportSentCallback)(void);
   // When the ApplicationIdentifierModel fails to initialize, it is usually due to
   // failing computeExecutableInfo. This can happen if the user sets the
   // Exported Symbols File in Build Settings, and leaves off the one symbol
-  // that Crashlytics needs, "__mh_execute_header" defined as _MH_EXECUTE_SYM
+  // that Crashlytics needs, "__mh_execute_header" (wich is defined in mach-o/ldsyms.h as _MH_EXECUTE_SYM)
   // From https://github.com/firebase/firebase-ios-sdk/issues/5020
   if (!self.appIDModel) {
     FIRCLSErrorLog(
