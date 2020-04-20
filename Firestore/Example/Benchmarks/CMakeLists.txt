@@ -12,15 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-if(FIREBASE_IOS_BUILD_BENCHMARKS AND APPLE)
-  firebase_ios_cc_binary(
-    firebase_firestore_remote_document_cache_benchmark
-    SOURCES
-      remote_document_cache_benchmark.mm
-    DEPENDS
-      FirebaseFirestore
-      benchmark
-      benchmark_main
-      firestore_testutil
-  )
+if(NOT FIREBASE_IOS_BUILD_BENCHMARKS OR NOT APPLE)
+  return()
 endif()
+
+firebase_ios_add_executable(
+  firestore_remote_document_cache_benchmark
+  remote_document_cache_benchmark.mm
+)
+
+target_link_libraries(
+  firestore_remote_document_cache_benchmark PRIVATE
+  FirebaseFirestore
+  benchmark
+  benchmark_main
+  firestore_testutil
+)
