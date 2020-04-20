@@ -529,8 +529,10 @@ static void (^reportSentCallback)(void);
   // that Crashlytics needs, "__mh_execute_header" (wich is defined in mach-o/ldsyms.h as
   // _MH_EXECUTE_SYM). From https://github.com/firebase/firebase-ios-sdk/issues/5020
   if (!self.appIDModel) {
-    FIRCLSErrorLog(@"Crashlytics could not find the symbol for the app's main function and cannot "
-                   @"start up. This can happen when Exported Symbols File is set in Build Settings. To resolve this, add \"__mh_execute_header\" as a newline to your Exported Symbols File.");
+    FIRCLSErrorLog(
+        @"Crashlytics could not find the symbol for the app's main function and cannot "
+        @"start up. This can happen when Exported Symbols File is set in Build Settings. To "
+        @"resolve this, add \"__mh_execute_header\" as a newline to your Exported Symbols File.");
     return NO;
   }
 
