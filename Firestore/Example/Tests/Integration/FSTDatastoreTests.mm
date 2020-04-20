@@ -143,14 +143,11 @@ NS_ASSUME_NONNULL_BEGIN
   [expectation fulfill];
 }
 
-- (void)rejectFailedWriteWithBatchID:(BatchId)batchID error:(NSError *)error {
-  (void)batchID;
-  (void)error;
+- (void)rejectFailedWriteWithBatchID:(__unused BatchId)batchID error:(__unused NSError *)error {
   HARD_FAIL("Not implemented");
 }
 
-- (DocumentKeySet)remoteKeysForTarget:(TargetId)targetID {
-  (void)targetID;
+- (DocumentKeySet)remoteKeysForTarget:(__unused TargetId)targetId {
   return DocumentKeySet{};
 }
 
@@ -161,9 +158,7 @@ NS_ASSUME_NONNULL_BEGIN
   [expectation fulfill];
 }
 
-- (void)rejectListenWithTargetID:(const TargetId)targetID error:(NSError *)error {
-  (void)targetID;
-  (void)error;
+- (void)rejectListenWithTargetID:(__unused const TargetId)targetID error:(__unused NSError *)error {
   HARD_FAIL("Not implemented");
 }
 

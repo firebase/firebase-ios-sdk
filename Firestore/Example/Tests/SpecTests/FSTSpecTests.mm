@@ -203,8 +203,7 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
                                                             __func__]                              \
                         userInfo:nil];
 
-- (std::unique_ptr<Persistence>)persistenceWithGCEnabled:(BOOL)GCEnabled {
-  (void)GCEnabled;
+- (std::unique_ptr<Persistence>)persistenceWithGCEnabled:(__unused BOOL)GCEnabled {
   @throw FSTAbstractMethodException();  // NOLINT
 }
 
