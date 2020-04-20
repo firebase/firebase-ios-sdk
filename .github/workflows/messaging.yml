@@ -15,12 +15,30 @@ on:
     - cron:  '0 7 * * *'
 
 jobs:
+
+  messaging:
+    env:
+      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Install Secret GoogleService-Info.plist
+      run: |
+        mkdir Example/Messaging/IntegrationTests/Resources
+        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/messaging-sample-plist.gpg \
+          Example/Messaging/IntegrationTests/Resources/GoogleService-Info.plist "$plist_secret"
+    - name: BuildAndTest # can be replaced with pod lib lint with CocoaPods 1.10
+      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/build.sh Messaging all)
+
+
   pod-lib-lint:
     runs-on: macOS-latest
 
     strategy:
       matrix:
-        target: [ios, tvos, macos]
+        target: [ios, tvos, macos --skip-tests] # skipping tests on mac because of keychain access
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
@@ -72,7 +90,7 @@ jobs:
     if: github.event_name == 'schedule'
     strategy:
       matrix:
-        target: [ios, tvos, macos]
+        target: [ios, tvos, macos --skip-tests]
         flags: [
           '--use-modular-headers',
           '--skip-tests --use-libraries'
