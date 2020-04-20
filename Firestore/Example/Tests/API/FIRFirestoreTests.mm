@@ -45,6 +45,8 @@ namespace testutil = firebase::firestore::testutil;
       [self expectationWithDescription:@"Deleting the default app should invalidate the default "
                                        @"Firestore instance."];
   [app deleteApp:^(BOOL success) {
+    XCTAssertTrue(success);
+
     // Recreate the FIRApp with the same name, fetch a new Firestore instance and make sure it's
     // different than the other one.
     [FIRApp configureWithName:appName options:options];

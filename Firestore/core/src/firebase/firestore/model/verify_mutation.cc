@@ -39,13 +39,12 @@ VerifyMutation::VerifyMutation(const Mutation& mutation) : Mutation(mutation) {
 }
 
 MaybeDocument VerifyMutation::Rep::ApplyToRemoteDocument(
-    const absl::optional<MaybeDocument>& maybe_doc,
-    const MutationResult& mutation_result) const {
+    const absl::optional<MaybeDocument>&, const MutationResult&) const {
   HARD_FAIL("VerifyMutation should only be used in Transactions.");
 }
 
 absl::optional<MaybeDocument> VerifyMutation::Rep::ApplyToLocalView(
-    const absl::optional<MaybeDocument>& maybe_doc,
+    const absl::optional<MaybeDocument>&,
     const absl::optional<MaybeDocument>&,
     const Timestamp&) const {
   HARD_FAIL("VerifyMutation should only be used in Transactions.");
