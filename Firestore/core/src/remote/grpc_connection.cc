@@ -32,6 +32,7 @@
 #include "Firestore/core/src/util/statusor.h"
 #include "Firestore/core/src/util/string_format.h"
 #include "absl/memory/memory.h"
+#include "absl/strings/str_cat.h"
 #include "grpcpp/create_channel.h"
 
 namespace firebase {
@@ -49,6 +50,7 @@ using util::StringFormat;
 
 namespace {
 
+const char* const kAuthorizationHeader = "authorization";
 const char* const kXGoogAPIClientHeader = "x-goog-api-client";
 const char* const kGoogleCloudResourcePrefix = "google-cloud-resource-prefix";
 
@@ -151,7 +153,7 @@ std::unique_ptr<grpc::ClientContext> GrpcConnection::CreateContext(
 
   auto context = absl::make_unique<grpc::ClientContext>();
   if (token.data()) {
-    context->set_credentials(grpc::AccessTokenCredentials(MakeString(token)));
+    context->AddMetadata(kAuthorizationHeader, absl::StrCat("Bearer ", token));
   }
 
   // TODO(dimond): This should ideally also include the gRPC version, however,
