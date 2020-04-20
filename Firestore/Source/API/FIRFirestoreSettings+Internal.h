@@ -18,7 +18,7 @@
 
 #import <Foundation/Foundation.h>
 
-#include "Firestore/core/src/firebase/firestore/api/settings.h"
+#include "Firestore/core/src/api/settings.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

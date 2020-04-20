@@ -23,10 +23,10 @@
 
 #import "Firestore/Source/API/FIRFieldPath+Internal.h"
 
-#include "Firestore/core/src/firebase/firestore/model/field_path.h"
-#include "Firestore/core/src/firebase/firestore/util/exception.h"
-#include "Firestore/core/src/firebase/firestore/util/hashing.h"
-#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+#include "Firestore/core/src/model/field_path.h"
+#include "Firestore/core/src/util/exception.h"
+#include "Firestore/core/src/util/hashing.h"
+#include "Firestore/core/src/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
 using firebase::firestore::model::FieldPath;

@@ -18,8 +18,8 @@
 #include <cstdint>
 #include <string>
 
-#include "Firestore/core/src/firebase/firestore/local/leveldb_key.h"
-#include "Firestore/core/src/firebase/firestore/local/leveldb_util.h"
+#include "Firestore/core/src/local/leveldb_key.h"
+#include "Firestore/core/src/local/leveldb_util.h"
 
 using firebase::firestore::local::LevelDbDocumentMutationKey;
 using firebase::firestore::local::LevelDbDocumentTargetKey;

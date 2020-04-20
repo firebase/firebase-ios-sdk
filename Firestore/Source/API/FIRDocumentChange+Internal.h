@@ -18,7 +18,7 @@
 
 #import <Foundation/Foundation.h>
 
-#include "Firestore/core/src/firebase/firestore/api/document_change.h"
+#include "Firestore/core/src/api/document_change.h"
 
 namespace api = firebase::firestore::api;
 

@@ -17,10 +17,10 @@
 #import <FirebaseCore/FIRApp.h>
 #import <FirebaseFirestore/FirebaseFirestore.h>
 
-#include "Firestore/core/src/firebase/firestore/util/autoid.h"
-#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
-#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
-#include "Firestore/core/test/firebase/firestore/testutil/app_testing.h"
+#include "Firestore/core/src/util/autoid.h"
+#include "Firestore/core/src/util/hard_assert.h"
+#include "Firestore/core/src/util/string_apple.h"
+#include "Firestore/core/test/unit/testutil/app_testing.h"
 #include "benchmark/benchmark.h"
 
 namespace {

@@ -20,9 +20,9 @@
 #include <unordered_map>
 #include <vector>
 
-#include "Firestore/core/src/firebase/firestore/model/model_fwd.h"
-#include "Firestore/core/src/firebase/firestore/remote/datastore.h"
-#include "Firestore/core/src/firebase/firestore/util/status_fwd.h"
+#include "Firestore/core/src/model/model_fwd.h"
+#include "Firestore/core/src/remote/datastore.h"
+#include "Firestore/core/src/util/status_fwd.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
