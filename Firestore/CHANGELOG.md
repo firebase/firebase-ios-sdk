@@ -2,6 +2,8 @@
 - [changed] Firestore now limits the number of concurrent document lookups it
   will perform when resolving inconsistencies in the local cache
   (https://github.com/firebase/firebase-js-sdk/issues/2683).
+- [fixed] Firestore will now send Auth credentials to the Firestore Emulator
+  (#5072).
 
 # v1.12.1
 - [changed] Internal improvements for future C++ and Unity support.
