@@ -21,7 +21,7 @@ import GoogleDataTransport
 class NotificationService: UNNotificationServiceExtension {
   var contentHandler: ((UNNotificationContent) -> Void)?
   var bestAttemptContent: UNMutableNotificationContent?
-  
+
   var transport: GDTCORTransport = GDTCORTransport(mappingID: "1018", transformers: nil,
                                                    target: GDTCORTarget.FLL.rawValue)!
 
