@@ -142,10 +142,10 @@ struct SettingsView: View {
       List {
         Toggle(isOn: $settings.isAutoInitEnabled) {
           Text("isAutoInitEnabled")
-        }.padding()
+        }
         Toggle(isOn: $settings.shouldUseDelegateThanNotification) {
           Text("shouldUseDelegate")
-        }.padding()
+        }
       }
     }
   }
@@ -165,9 +165,16 @@ struct ContentView_Previews: PreviewProvider {
     return identity
   }()
 
+  static let filledSettings: UserSettings = {
+    var settings = UserSettings()
+    settings.shouldUseDelegateThanNotification = true
+    settings.isAutoInitEnabled = true
+    return settings
+  }()
+
   static var previews: some View {
     Group {
-      ContentView().environmentObject(filledIdentity)
+      ContentView().environmentObject(filledIdentity).environmentObject(filledSettings)
     }
   }
 }
