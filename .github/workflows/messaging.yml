@@ -121,11 +121,17 @@ jobs:
       run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseMessaging.podspec --platforms=watchos
 
   messaging-sample-build-test:
+    env:
+      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
     runs-on: macos-latest
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
+    - name: Install Secret GoogleService-Info.plist
+      run: |
+        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/messaging-sample-plist.gpg \
+          Example/Messaging/Sample/Sample/GoogleService-Info.plist "$plist_secret"
     - name: Prereqs
       run: scripts/install_prereqs.sh MessagingSample iOS
     - name: Build

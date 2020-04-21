@@ -395,11 +395,13 @@ case "$product-$platform-$method" in
     ;;
 
   MessagingSample-*-*)
-    RunXcodebuild \
+    if check_secrets; then
+      RunXcodebuild \
         -workspace 'Example/Messaging/Sample/Sample.xcworkspace' \
         -scheme "Sample" \
         "${xcb_flags[@]}" \
         build
+    fi
     ;;
 
   Database-*-xcodebuild)
