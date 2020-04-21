@@ -32,7 +32,9 @@
         _slices = [NSMutableArray new];
     }
     
-    [self extractSlices];
+    if (_file) {
+        [self extractSlices];
+    }
     
     return self;
 }
@@ -46,7 +48,7 @@
 
     magicValue = CFSwapInt32HostToBig(fheader.magic);
 
-    if (magicValue == FAT_MAGIC || magicValue == FAT_CIGAM) {
+    if (magicValue == FAT_MAGIC) {
         uint32_t archCount = CFSwapInt32HostToBig(fheader.nfat_arch);
         NSUInteger archOffsets[archCount];
         
