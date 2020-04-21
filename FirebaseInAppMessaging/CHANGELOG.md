@@ -1,3 +1,6 @@
+# 2020-04-21 -- v0.19.3
+- [fixed] Fixed an issue where GoogleUtilities wasn't explicitly listed as a dependency (#5282).
+
 # 2020-04-07 -- v0.19.2
 - [fixed] Internal fixes for test apps (#5171).
 
