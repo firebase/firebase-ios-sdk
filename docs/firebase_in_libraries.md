@@ -42,7 +42,7 @@ See also
 
 **Using Firebase SDKs from dynamic framework**
 
-###Conclusions:
+### Conclusions:
 
 -   Firebase may be used from an embedded dynamic framework in your project
     (e.g. for the code reuse purposes) only when Firebase is not used from the
@@ -67,7 +67,7 @@ it leads to increasing the download size of your app.
 
 <img src="./resources/firebase_from_static_framework.svg" width=700>Using Firebase SDKs from static framework</img>
 
-###Conclusions:
+### Conclusions:
 
 -   Firebase SDKs in static frameworks/libraries is safe for both vendor and
     in-app internal libraries
