@@ -41,8 +41,8 @@ See also
 <figure>
 <img src="./resources/firebase_from_dynamic_framework.svg" width=500/>
 <figcaption>Using Firebase SDKs from dynamic framework</figcaption>
-</figure>
 <br/>
+</figure>
 
 **Conclusions:**
 
