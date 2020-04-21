@@ -155,19 +155,22 @@
   google_crashlytics_FilesPayload_File *files =
       malloc(sizeof(google_crashlytics_FilesPayload_File) * clsRecords.count);
 
-  for (NSUInteger i = 0; i < clsRecords.count; i++) {
-    google_crashlytics_FilesPayload_File file = google_crashlytics_FilesPayload_File_init_default;
-    file.filename = FIRCLSEncodeString(clsRecords[i].lastPathComponent);
+  if (files != NULL) {
+    for (NSUInteger i = 0; i < clsRecords.count; i++) {
+      google_crashlytics_FilesPayload_File file = 
+          google_crashlytics_FilesPayload_File_init_default;
+      file.filename = FIRCLSEncodeString(clsRecords[i].lastPathComponent);
 
-    NSError *error;
-    file.contents = FIRCLSEncodeData([NSData dataWithContentsOfFile:clsRecords[i]
-                                                            options:0
-                                                              error:&error]);
-    if (error) {
-      FIRCLSErrorLog(@"Failed to read from %@ with error: %@", clsRecords[i], error);
+      NSError *error;
+      file.contents = FIRCLSEncodeData([NSData dataWithContentsOfFile:clsRecords[i]
+                                                              options:0
+                                                                error:&error]);
+      if (error) {
+        FIRCLSErrorLog(@"Failed to read from %@ with error: %@", clsRecords[i], error);
+      }
+
+      files[i] = file;
     }
-
-    files[i] = file;
   }
 
   apple_payload.files = files;
@@ -230,8 +233,10 @@ pb_bytes_array_t *FIRCLSEncodeString(NSString *string) {
  */
 pb_bytes_array_t *FIRCLSEncodeData(NSData *data) {
   pb_bytes_array_t *pbBytes = malloc(PB_BYTES_ARRAY_T_ALLOCSIZE(data.length));
-  memcpy(pbBytes->bytes, [data bytes], data.length);
-  pbBytes->size = (pb_size_t)data.length;
+  if (pbBytes != NULL) {
+    memcpy(pbBytes->bytes, [data bytes], data.length);
+    pbBytes->size = (pb_size_t)data.length;
+  }
   return pbBytes;
 }
 
