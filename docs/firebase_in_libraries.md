@@ -40,7 +40,7 @@ See also
 
 <img src="./resources/firebase_from_dynamic_framework.svg" width=500/>
 
-**Using Firebase SDKs from dynamic framework**
+**Figure 1: Using Firebase SDKs from dynamic framework**
 
 ### Conclusions:
 
@@ -67,7 +67,7 @@ it leads to increasing the download size of your app.
 
 <img src="./resources/firebase_from_static_framework.svg" width=500/>
 
-**Firebase SDKs from static framework**
+**Figure 2: Firebase SDKs from static framework**
 
 ### Conclusions:
 
