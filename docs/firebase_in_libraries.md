@@ -39,10 +39,10 @@ See also
 [Using dynamic framework which is linked with static framework](https://forums.developer.apple.com/thread/105062#319818).
 
 <figure>
-<img src="./resources/firebase_from_dynamic_framework.svg" width=700/>
+<img src="./resources/firebase_from_dynamic_framework.svg" width=500/>
 <figcaption>Using Firebase SDKs from dynamic framework</figcaption>
 </figure>
-
+<br/>
 
 **Conclusions:**
 
