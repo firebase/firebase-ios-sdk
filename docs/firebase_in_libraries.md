@@ -65,7 +65,9 @@ to a dynamic embedded framework, a copy of the static framework will be added to
 both the app and each extension. It doesn't lead to any symbol collisions, but
 it leads to increasing the download size of your app.
 
-<img src="./resources/firebase_from_static_framework.svg" width=700>Using Firebase SDKs from static framework</img>
+<img src="./resources/firebase_from_static_framework.svg" width=500/>
+
+**Firebase SDKs from static framework**
 
 ### Conclusions:
 
