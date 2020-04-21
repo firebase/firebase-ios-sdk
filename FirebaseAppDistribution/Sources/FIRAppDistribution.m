@@ -13,8 +13,8 @@
 // limitations under the License.
 
 #import "FIRAppDistribution+Private.h"
-#import "FIRAppDistributionRelease+Private.h"
 #import "FIRAppDistributionMachO+Private.h"
+#import "FIRAppDistributionRelease+Private.h"
 
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIRComponent.h>
@@ -221,28 +221,27 @@ NSString *const kAppDistroLibraryName = @"fire-fad";
 - (void)handleReleasesAPIResponseWithData:data
                                completion:(FIRAppDistributionUpdateCheckCompletion)completion {
   NSError *error = nil;
-  NSDictionary *object = [NSJSONSerialization
-                          JSONObjectWithData:data
-                          options:0
-                          error:&error];
-    
-    NSArray *releaseList = [object objectForKey:@"releases"];
-    for (NSDictionary *releaseDict in releaseList) {
-        if([[releaseDict objectForKey:@"latest"] boolValue]) {
-            NSString *codeHash = [releaseDict objectForKey:@"codeHash"];
-            NSString *executablePath = [[NSBundle mainBundle] executablePath];
-            FIRAppDistributionMachO *machO = [[FIRAppDistributionMachO alloc] initWithPath:executablePath];
-            
-            if(![codeHash isEqualToString:machO.codeHash]) {
-                FIRAppDistributionRelease *release = [[FIRAppDistributionRelease alloc] initWithDictionary:releaseDict];
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    completion(release, nil);
-                });
-            }
-            
-            break;
-        }
+  NSDictionary *object = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
+
+  NSArray *releaseList = [object objectForKey:@"releases"];
+  for (NSDictionary *releaseDict in releaseList) {
+    if ([[releaseDict objectForKey:@"latest"] boolValue]) {
+      NSString *codeHash = [releaseDict objectForKey:@"codeHash"];
+      NSString *executablePath = [[NSBundle mainBundle] executablePath];
+      FIRAppDistributionMachO *machO =
+          [[FIRAppDistributionMachO alloc] initWithPath:executablePath];
+
+      if (![codeHash isEqualToString:machO.codeHash]) {
+        FIRAppDistributionRelease *release =
+            [[FIRAppDistributionRelease alloc] initWithDictionary:releaseDict];
+        dispatch_async(dispatch_get_main_queue(), ^{
+          completion(release, nil);
+        });
+      }
+
+      break;
     }
+  }
 }
 - (void)checkForUpdateWithCompletion:(FIRAppDistributionUpdateCheckCompletion)completion {
   if (self.isTesterSignedIn) {

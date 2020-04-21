@@ -22,23 +22,22 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FIRAppDistributionMachOSlice
 
-- (instancetype)initWithArch:(const NXArchInfo *)arch uuid:(NSUUID*)uuid {
-    self = [super init];
-    if (!self)
-        return nil;
-    
-    _arch = arch;
-    _uuid = uuid;
-    return self;
+- (instancetype)initWithArch:(const NXArchInfo *)arch uuid:(NSUUID *)uuid {
+  self = [super init];
+  if (!self) return nil;
+
+  _arch = arch;
+  _uuid = uuid;
+  return self;
 }
 
-- (NSString*)architectureName {
-    return [NSString stringWithUTF8String:_arch->name];
+- (NSString *)architectureName {
+  return [NSString stringWithUTF8String:_arch->name];
 }
 
-- (NSString*)uuidString {
-    return [[[_uuid UUIDString] lowercaseString]
-            stringByReplacingOccurrencesOfString:@"-" withString:@""];
+- (NSString *)uuidString {
+  return [[[_uuid UUIDString] lowercaseString] stringByReplacingOccurrencesOfString:@"-"
+                                                                         withString:@""];
 }
 @end
 

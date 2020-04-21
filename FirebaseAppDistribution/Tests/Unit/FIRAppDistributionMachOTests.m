@@ -16,31 +16,31 @@
 #import <XCTest/XCTest.h>
 
 #import <FirebaseCore/FIRAppInternal.h>
-#import "FIRAppDistribution.h"
+#import "FIRAppDistributionMachO+Private.h"
 
-@interface FIRAppDistributionSampleTests : XCTestCase
-
-@property(nonatomic, strong) FIRAppDistribution *appDistribution;
-
+@interface FIRAppDistributionMachOTests : XCTestCase
 @end
 
-@interface FIRAppDistribution (PrivateUnitTesting)
+@implementation FIRAppDistributionMachOTests
 
-- (instancetype)initWithApp:(FIRApp *)app appInfo:(NSDictionary *)appInfo;
+- (NSString*)resourcePath:(NSString*)path {
+  NSBundle* bundle = [NSBundle bundleForClass:[self class]];
+  NSString* resourcePath = [bundle resourcePath];
 
-@end
-
-@implementation FIRAppDistributionSampleTests
-
-- (void)setUp {
-  [super setUp];
-
-  NSDictionary<NSString *, NSString *> *dict = [[NSDictionary<NSString *, NSString *> alloc] init];
-  self.appDistribution = [[FIRAppDistribution alloc] initWithApp:nil appInfo:dict];
+  return [resourcePath stringByAppendingPathComponent:path];
 }
 
-- (void)testGetSingleton {
-  XCTAssertNotNil(self.appDistribution);
+- (void)testCodeHashForSingleArchIntelSimulator {
+  FIRAppDistributionMachO* macho;
+  macho = [[FIRAppDistributionMachO alloc] initWithPath:[self resourcePath:@"x86_64-executable"]];
+  XCTAssertEqualObjects([macho codeHash], @"442eb836efe1f56bf8a65b2a0a78b2f8d3e792e7");
+}
+
+- (void)testCodeHashForMultipleArch {
+  FIRAppDistributionMachO* macho;
+  macho =
+      [[FIRAppDistributionMachO alloc] initWithPath:[self resourcePath:@"armv7-armv7s-executable"]];
+  XCTAssertEqualObjects([macho codeHash], @"80cc0ec0af8a0169831abcc73177eb2b57990bc0");
 }
 
 @end
