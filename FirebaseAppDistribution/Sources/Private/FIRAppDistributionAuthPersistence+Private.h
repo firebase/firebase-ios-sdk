@@ -18,18 +18,6 @@ NS_ASSUME_NONNULL_BEGIN
 // Label exceptions from AppDistributionAuthPersistence calls.
 FOUNDATION_EXPORT NSString *const kFIRAppDistributionKeychainErrorDomain;
 
-@interface FIRAppDistributionAuthPersistence : NSObject
-
-- (instancetype)init NS_UNAVAILABLE;
-
-+ (BOOL)persistAuthState:(OIDAuthState *)authState error:(NSError **_Nullable)error;
-
-+ (BOOL)clearAuthState:(NSError **_Nullable)error;
-
-+ (OIDAuthState *)retrieveAuthState:(NSError **_Nullable)error;
-
-@end
-
 /**
  *  The set of error codes that may be returned from internal calls to persist Tester authentication
  *  to the keychain. These should never be returned to the user.
@@ -45,5 +33,22 @@ typedef NS_ENUM(NSUInteger, FIRAppDistributionKeychainError) {
   // Authentication token deletion error
   FIRAppDistributionErrorTokenDeletionFailure = 2,
 } NS_SWIFT_NAME(AppDistributionKeychainError);
+
+@interface FIRAppDistributionAuthPersistence : NSObject
+
+- (instancetype)init NS_UNAVAILABLE;
+
+// Handle null checking, creation, and formatting of an error encountered
++ (void)handleAuthStateError:(NSError **_Nullable)error
+                 description:(NSString *)description
+                        code:(FIRAppDistributionKeychainError)code;
+
++ (BOOL)persistAuthState:(OIDAuthState *)authState error:(NSError **_Nullable)error;
+
++ (BOOL)clearAuthState:(NSError **_Nullable)error;
+
++ (OIDAuthState *)retrieveAuthState:(NSError **_Nullable)error;
+
+@end
 
 NS_ASSUME_NONNULL_END

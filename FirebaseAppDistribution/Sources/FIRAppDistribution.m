@@ -135,9 +135,9 @@ NSString *const kAppDistroLibraryName = @"fire-fad";
 
 - (void)signOutTester {
   NSError *error;
-  [FIRAppDistributionAuthPersistence clearAuthState:&error];
+  BOOL didClearAuthState = [FIRAppDistributionAuthPersistence clearAuthState:&error];
   // TODO (schnecle): Add in FIRLogger to report when we have failed to clear auth state
-  if (error) {
+  if (!didClearAuthState) {
     NSLog(@"Error clearing token from keychain: %@", [error localizedDescription]);
   }
   self.authState = nil;
