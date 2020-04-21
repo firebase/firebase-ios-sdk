@@ -157,8 +157,7 @@
 
   if (files != NULL) {
     for (NSUInteger i = 0; i < clsRecords.count; i++) {
-      google_crashlytics_FilesPayload_File file = 
-          google_crashlytics_FilesPayload_File_init_default;
+      google_crashlytics_FilesPayload_File file = google_crashlytics_FilesPayload_File_init_default;
       file.filename = FIRCLSEncodeString(clsRecords[i].lastPathComponent);
 
       NSError *error;
