@@ -1,3 +1,6 @@
+# v6.5.4
+- [fixed] Suppress deprecation warnings when targeting iOS versions up to iOS 13. (#5437)
+
 # v6.5.3
 - [fixed] Handle calls to `useUserAccessGroup` soon after configure. (#4175)
 

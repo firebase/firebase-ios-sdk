@@ -84,7 +84,11 @@ static NSString *kStoredUserCoderKey = @"firebase_auth_stored_user_coder_key";
   NSError *error;
   NSKeyedUnarchiver *unarchiver = [[NSKeyedUnarchiver alloc] initForReadingFromData:data error:&error];
 #else
+// iOS 12 deprecation
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   NSKeyedUnarchiver *unarchiver = [[NSKeyedUnarchiver alloc] initForReadingWithData:data];
+#pragma clang diagnostic pop
 #endif
   FIRUser *user = [unarchiver decodeObjectOfClass:[FIRUser class] forKey:kStoredUserCoderKey];
 
@@ -108,7 +112,11 @@ static NSString *kStoredUserCoderKey = @"firebase_auth_stored_user_coder_key";
   NSKeyedArchiver *archiver = [[NSKeyedArchiver alloc] initRequiringSecureCoding:false];
 #else
   NSMutableData *data = [NSMutableData data];
+// iOS 12 deprecation
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   NSKeyedArchiver *archiver = [[NSKeyedArchiver alloc] initForWritingWithMutableData:data];
+#pragma clang diagnostic pop
 #endif
   [archiver encodeObject:user forKey:kStoredUserCoderKey];
   [archiver finishEncoding];
