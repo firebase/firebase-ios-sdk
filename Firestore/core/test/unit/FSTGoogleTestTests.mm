@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2017 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,6 +51,8 @@ NSDictionary<NSString*, NSValue*>* testInfosByKey;
 // If the user focuses on GoogleTests itself, this means force all C++ tests to
 // run.
 bool forceAllTests = false;
+
+void RunGoogleTestTests();
 
 /**
  * Loads this XCTest runner's configuration file and figures out which tests to
@@ -177,15 +179,24 @@ NSString* TestInfoKey(Class testClass, SEL testSelector) {
 }
 
 /**
+ * A function that is the implementation for each generated test method. It
+ * shouldn't be used directly--instead use it with class_addMethod to define the
+ * behavior of the generated XCTestCase class.
+ *
+ * The first invocation of this method runs all GoogleTest tests. Delaying
+ * execution this way allows XCTest to register to the test runner that it
+ * actually has started.
+ *
  * Looks up the testing::TestInfo for this test method and reports on the
  * outcome to XCTest, as if the test actually ran in this method.
  *
- * Note: this function is the implementation for each generated test method. It
- * shouldn't be used directly. The parameter names of self and _cmd match up
- * with the implicit parameters passed to any Objective-C method. Naming them
- * this way here allows XCTAssert and friends to work.
+ * Note: The parameter names of self and _cmd match up with the implicit
+ * parameters passed to any Objective-C method. Naming them this way here allows
+ * XCTAssert and friends to work.
  */
-void ReportTestResult(XCTestCase* self, SEL _cmd) {
+void XCTestMethod(XCTestCase* self, SEL _cmd) {
+  RunGoogleTestTests();
+
   NSString* testInfoKey = TestInfoKey([self class], _cmd);
   NSValue* holder = testInfosByKey[testInfoKey];
   auto testInfo = static_cast<const testing::TestInfo*>(holder.pointerValue);
@@ -222,7 +233,7 @@ void ReportTestResult(XCTestCase* self, SEL _cmd) {
 
 /**
  * Generates a new subclass of XCTestCase for the given GoogleTest TestCase.
- * Each TestInfo (which represents an indivudal test method execution) is
+ * Each TestInfo (which represents an individual test method execution) is
  * translated into a method on the test case.
  *
  * @param testCase The testing::TestCase of interest to translate.
@@ -246,10 +257,10 @@ Class CreateXCTestCaseClass(const testing::TestCase* testCase,
     NSString* selectorName = SelectorNameForTestInfo(testInfo);
     SEL selector = sel_registerName([selectorName UTF8String]);
 
-    // Use the ReportTestResult function as the method implementation. The v@:
+    // Use the XCTestMethod function as the method implementation. The v@:
     // indicates it is a void objective-C method; this must continue to match
-    // the signature of ReportTestResult.
-    IMP method = reinterpret_cast<IMP>(ReportTestResult);
+    // the signature of XCTestMethod.
+    IMP method = reinterpret_cast<IMP>(XCTestMethod);
     class_addMethod(testClass, selector, method, "v@:");
 
     NSString* infoKey = TestInfoKey(testClass, selector);
@@ -294,7 +305,7 @@ XCTestSuite* CreateAllTestsTestSuite() {
  * Finds and runs googletest-based tests based on the XCTestConfiguration of the
  * current test invocation.
  */
-void RunGoogleTestTests() {
+void CreateGoogleTestTests() {
   NSString* masterTestCaseName = NSStringFromClass([GoogleTests class]);
 
   // Initialize GoogleTest but don't run the tests yet.
@@ -333,16 +344,22 @@ void RunGoogleTestTests() {
     CreateXCTestCaseClass(testCase, infoMap);
   }
   testInfosByKey = infoMap;
+}
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunused-result"
-  // RUN_ALL_TESTS by default doesn't want you to ignore its result, but it's
-  // safe here. Test failures are already logged by GoogleTest itself (and then
-  // again by XCTest). Test failures are reported via
-  // -recordFailureWithDescription:inFile:atLine:expected: which then causes
-  // XCTest itself to fail the run.
-  RUN_ALL_TESTS();
-#pragma clang diagnostic pop
+void RunGoogleTestTests() {
+  static bool firstRun = true;
+
+  if (firstRun) {
+    firstRun = false;
+    int result = RUN_ALL_TESTS();
+
+    // RUN_ALL_TESTS by default doesn't want you to ignore its result, but it's
+    // safe here. Test failures are already logged by GoogleTest itself (and
+    // then again by XCTest). Test failures are reported via
+    // -recordFailureWithDescription:inFile:atLine:expected: which then causes
+    // XCTest itself to fail the run.
+    (void)result;
+  }
 }
 
 }  // namespace
@@ -383,7 +400,7 @@ void RunGoogleTestTests() {
 
 - (instancetype)init {
   self = [super init];
-  RunGoogleTestTests();
+  CreateGoogleTestTests();
   return self;
 }
 
