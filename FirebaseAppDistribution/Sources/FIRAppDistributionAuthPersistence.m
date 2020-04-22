@@ -15,20 +15,16 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-NSString *const kFIRAppDistributionKeychainErrorDomain = @"com.firebase.app_distribution.internal";
+NSString *const kFIRAppDistributionAuthPersistenceErrorDomain = @"com.firebase.app_distribution.auth_persistence";
 
 @implementation FIRAppDistributionAuthPersistence
-
-+ (Class<FIRAppDistributionKeychainProtocol>)keychainUtility {
-  return [FIRAppDistributionKeychainUtility class];
-}
 
 + (void)handleAuthStateError:(NSError **_Nullable)error
                  description:(NSString *)description
                         code:(FIRAppDistributionKeychainError)code {
   if (error) {
     NSDictionary *userInfo = @{NSLocalizedDescriptionKey : description};
-    *error = [NSError errorWithDomain:kFIRAppDistributionKeychainErrorDomain
+    *error = [NSError errorWithDomain:kFIRAppDistributionAuthPersistenceErrorDomain
                                  code:code
                              userInfo:userInfo];
   }
@@ -36,7 +32,7 @@ NSString *const kFIRAppDistributionKeychainErrorDomain = @"com.firebase.app_dist
 
 + (BOOL)clearAuthState:(NSError **_Nullable)error {
   NSMutableDictionary *keychainQuery = [self getKeyChainQuery];
-  BOOL success = [[self keychainUtility] deleteKeychainItem:keychainQuery];
+  BOOL success = [FIRAppDistributionKeychainUtility deleteKeychainItem:keychainQuery];
 
   if (!success) {
     NSString *description = NSLocalizedString(
@@ -55,11 +51,10 @@ NSString *const kFIRAppDistributionKeychainErrorDomain = @"com.firebase.app_dist
   NSMutableDictionary *keychainQuery = [self getKeyChainQuery];
   [keychainQuery setObject:(id)kCFBooleanTrue forKey:(id)kSecReturnData];
   [keychainQuery setObject:(id)kSecMatchLimitOne forKey:(id)kSecMatchLimit];
-  NSData *passwordData = NULL;
+  NSData *passwordData = [FIRAppDistributionKeychainUtility fetchKeychainItemMatching:keychainQuery error:NULL];
   NSData *result = nil;
-  BOOL success = [[self keychainUtility] fetchKeychainItemMatching:keychainQuery keychainItem:passwordData];
 
-  if (!success) {
+  if (!passwordData) {
     NSString *description = NSLocalizedString(
         @"Failed to retrieve auth state from keychain. Tester will have to sign in again.",
         @"Error message for failure to retrieve auth state from keychain");
@@ -81,19 +76,20 @@ NSString *const kFIRAppDistributionKeychainErrorDomain = @"com.firebase.app_dist
     return nil;
   }
 
-  OIDAuthState *authState = [[self keychainUtility] unarchiveKeychainResult:result];
+  OIDAuthState *authState = [FIRAppDistributionKeychainUtility unarchiveKeychainResult:result];
 
   return authState;
 }
 
 + (BOOL)persistAuthState:(OIDAuthState *)authState error:(NSError **_Nullable)error {
-  NSData *authorizationData = [[self keychainUtility] archiveDataForKeychain:authState];
+  NSData *authorizationData = [FIRAppDistributionKeychainUtility archiveDataForKeychain:authState];
   NSMutableDictionary *keychainQuery = [self getKeyChainQuery];
   BOOL success = NO;
-  if ([self retrieveAuthState:NULL]) {
-    success =[[self keychainUtility] updateKeychainItem:keychainQuery withDataDictionary:authorizationData];
+  BOOL hasAuthState = [self retrieveAuthState:NULL];
+  if (hasAuthState) {
+    success =[FIRAppDistributionKeychainUtility updateKeychainItem:keychainQuery withDataDictionary:authorizationData];
   } else {
-    success =[[self keychainUtility] addKeychainItem:keychainQuery withDataDictionary:authorizationData];
+    success =[FIRAppDistributionKeychainUtility addKeychainItem:keychainQuery withDataDictionary:authorizationData];
   }
 
   if (!success) {
