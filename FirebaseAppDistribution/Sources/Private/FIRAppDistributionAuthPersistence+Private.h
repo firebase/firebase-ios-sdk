@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 #import <AppAuth/AppAuth.h>
+#import "FIRAppDistributionKeychainUtility+Private.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -35,6 +36,9 @@ typedef NS_ENUM(NSUInteger, FIRAppDistributionKeychainError) {
 } NS_SWIFT_NAME(AppDistributionKeychainError);
 
 @interface FIRAppDistributionAuthPersistence : NSObject
+
+// A Keychain persistence implementation
+@property (class, nonatomic, readonly) Class<FIRAppDistributionKeychainProtocol> keychainUtility;
 
 - (instancetype)init NS_UNAVAILABLE;
 
