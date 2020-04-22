@@ -11,7 +11,6 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#import <AppAuth/AppAuth.h>
 #import "FIRAppDistributionAuthPersistence+Private.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -19,6 +18,10 @@ NS_ASSUME_NONNULL_BEGIN
 NSString *const kFIRAppDistributionKeychainErrorDomain = @"com.firebase.app_distribution.internal";
 
 @implementation FIRAppDistributionAuthPersistence
+
++ (Class<FIRAppDistributionKeychainProtocol>)keychainUtility {
+  return [FIRAppDistributionKeychainUtility class];
+}
 
 + (void)handleAuthStateError:(NSError **_Nullable)error
                  description:(NSString *)description
@@ -33,9 +36,9 @@ NSString *const kFIRAppDistributionKeychainErrorDomain = @"com.firebase.app_dist
 
 + (BOOL)clearAuthState:(NSError **_Nullable)error {
   NSMutableDictionary *keychainQuery = [self getKeyChainQuery];
-  OSStatus status = SecItemDelete((CFDictionaryRef)keychainQuery);
+  BOOL success = [[self keychainUtility] deleteKeychainItem:keychainQuery];
 
-  if (status != errSecSuccess && status != errSecItemNotFound) {
+  if (!success) {
     NSString *description = NSLocalizedString(
         @"Failed to clear auth state from keychain. Tester will overwrite data on sign in.",
         @"Error message for failure to retrieve auth state from keychain");
@@ -54,9 +57,9 @@ NSString *const kFIRAppDistributionKeychainErrorDomain = @"com.firebase.app_dist
   [keychainQuery setObject:(id)kSecMatchLimitOne forKey:(id)kSecMatchLimit];
   NSData *passwordData = NULL;
   NSData *result = nil;
-  OSStatus status = SecItemCopyMatching((CFDictionaryRef)keychainQuery, (void *)&passwordData);
+  BOOL success = [[self keychainUtility] fetchKeychainItemMatching:keychainQuery keychainItem:passwordData];
 
-  if (status != noErr || 0 == [passwordData length]) {
+  if (!success) {
     NSString *description = NSLocalizedString(
         @"Failed to retrieve auth state from keychain. Tester will have to sign in again.",
         @"Error message for failure to retrieve auth state from keychain");
@@ -78,24 +81,22 @@ NSString *const kFIRAppDistributionKeychainErrorDomain = @"com.firebase.app_dist
     return nil;
   }
 
-  OIDAuthState *authState = (OIDAuthState *)[NSKeyedUnarchiver unarchiveObjectWithData:result];
+  OIDAuthState *authState = [[self keychainUtility] unarchiveKeychainResult:result];
 
   return authState;
 }
 
 + (BOOL)persistAuthState:(OIDAuthState *)authState error:(NSError **_Nullable)error {
-  NSData *authorizationData = [NSKeyedArchiver archivedDataWithRootObject:authState];
+  NSData *authorizationData = [[self keychainUtility] archiveDataForKeychain:authState];
   NSMutableDictionary *keychainQuery = [self getKeyChainQuery];
-  OSStatus status = noErr;
+  BOOL success = NO;
   if ([self retrieveAuthState:NULL]) {
-    status = SecItemUpdate((CFDictionaryRef)keychainQuery,
-                           (CFDictionaryRef) @{(id)kSecValueData : authorizationData});
+    success =[[self keychainUtility] updateKeychainItem:keychainQuery withDataDictionary:authorizationData];
   } else {
-    [keychainQuery setObject:authorizationData forKey:(id)kSecValueData];
-    status = SecItemAdd((CFDictionaryRef)keychainQuery, NULL);
+    success =[[self keychainUtility] addKeychainItem:keychainQuery withDataDictionary:authorizationData];
   }
 
-  if (status != noErr) {
+  if (!success) {
     NSString *description = NSLocalizedString(
         @"Failed to persist auth state. Tester will have to sign in again after app close.",
         @"Error message for failure to persist auth state to keychain");
