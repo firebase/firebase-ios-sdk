@@ -117,8 +117,12 @@ static const NSTimeInterval kProbingTimeout = 1;
 #if !TARGET_OS_TV
     } else if ([self->_application.delegate
                    respondsToSelector:@selector(application:didReceiveRemoteNotification:)]) {
+// iOS 10 deprecation
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
       [self->_application.delegate application:self->_application
                   didReceiveRemoteNotification:proberNotification];
+#pragma clang diagnostic pop
 #endif
     } else {
       FIRLogWarning(kFIRLoggerAuth, @"I-AUT000015",

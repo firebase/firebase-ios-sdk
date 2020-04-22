@@ -70,6 +70,9 @@ NS_ASSUME_NONNULL_BEGIN
          https://developer.apple.com/documentation/gamekit/gkplayer
          **/
         NSString *displayName = localPlayer.alias;
+// iOS 13 deprecation
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
         FIRGameCenterAuthCredential *credential =
             [[FIRGameCenterAuthCredential alloc] initWithPlayerID:localPlayer.playerID
                                                      publicKeyURL:publicKeyURL
@@ -77,6 +80,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                              salt:salt
                                                         timestamp:timestamp
                                                       displayName:displayName];
+#pragma clang diagnostic pop
         completion(credential, nil);
       }
     }
