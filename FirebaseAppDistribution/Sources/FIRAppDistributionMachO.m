@@ -106,7 +106,7 @@
       [_file seekToFileOffset:[_file offsetInFile] + lc.cmdsize - sizeof(lc)];
       continue;
     }
-    
+
     // Re-read the load command, but this time as a UUID command
     // so we can easily fetch the UUID
     [_file seekToFileOffset:[_file offsetInFile] - sizeof(lc)];
