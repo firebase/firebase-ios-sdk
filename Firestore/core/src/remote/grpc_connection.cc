@@ -17,6 +17,7 @@
 #include "Firestore/core/src/remote/grpc_connection.h"
 
 #include <algorithm>
+#include <cstdlib>
 #include <mutex>  // NOLINT(build/c++11)
 #include <string>
 #include <utility>
@@ -119,6 +120,22 @@ HostConfigMap& Config() {
   static HostConfigMap config_by_host_;
   return config_by_host_;
 }
+
+#if __APPLE__
+// Disable CFStream-based transport on Apple platforms due to b/133182964, where
+// CFStream will occasionally fail to raise a has-bytes-available events,
+// causing Firestore to appear to hang.
+//
+// Use a constructor of a globally scoped object to set the `grpc_cfstream`
+// environment variable before `main` is invoked. This should be early enough
+// that it precedes any call of gRPC APIs.
+class DisableGrpcCFStream {
+ public:
+  DisableGrpcCFStream() {
+    setenv("grpc_cfstream", "0", 1);
+  }
+} disable;
+#endif  // __APPLE__
 
 }  // namespace
 
