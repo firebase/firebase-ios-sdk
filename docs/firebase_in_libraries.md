@@ -31,10 +31,6 @@ objc[40943]: Class FIRApp is implemented in both
 ~/Library/Developer/CoreSimulator/Devices/4821F959-24A6-4D78-A102-4C5703103D99/data/Containers/Bundle/Application/F017D210-113A-4DAF-9E17-BDE455E71E06/FrameworkTest.app/FrameworkTest
 (0x10ad2d348). One of the two will be used. Which one is undefined.
 ```
-
-See also
-[Using dynamic framework which is linked with static framework](https://forums.developer.apple.com/thread/105062#319818).
-
 <img src="./resources/firebase_from_dynamic_framework.svg" width=500/>
 
 **Figure 1: Using Firebase SDKs from dynamic framework**
