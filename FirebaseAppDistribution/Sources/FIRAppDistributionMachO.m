@@ -28,7 +28,6 @@
 
   if (self) {
     _file = [NSFileHandle fileHandleForReadingAtPath:path];
-    [_file seekToFileOffset:0];
     _slices = [NSMutableArray new];
     [self extractSlices];
   }
@@ -45,11 +44,12 @@
 
   magicValue = CFSwapInt32BigToHost(fheader.magic);
 
+  // Check to see if the file is a FAT binary (has multiple architectures)
   if (magicValue == FAT_MAGIC) {
     uint32_t archCount = CFSwapInt32BigToHost(fheader.nfat_arch);
     NSUInteger archOffsets[archCount];
 
-    // Gather the offsets
+    // Gather the offsets for each architecture
     for (uint32_t i = 0; i < archCount; i++) {
       struct fat_arch arch;
 
@@ -66,6 +66,7 @@
       if (slice) [_slices addObject:slice];
     }
   } else {
+    // If the binary is not FAT, we're dealing with a single architecture
     FIRAppDistributionMachOSlice* slice = [self extractSliceAtOffset:0];
 
     if (slice) [_slices addObject:slice];
@@ -100,19 +101,23 @@
     data = [_file readDataOfLength:sizeof(lc)];
     [data getBytes:&lc length:sizeof(lc)];
 
-    if (lc.cmd == LC_UUID) {
-      [_file seekToFileOffset:[_file offsetInFile] - sizeof(lc)];
-      struct uuid_command uc;
-      data = [_file readDataOfLength:sizeof(uc)];
-      [data getBytes:&uc length:sizeof(uc)];
-
-      NSUUID* uuid = [[NSUUID alloc] initWithUUIDBytes:uc.uuid];
-      const NXArchInfo* arch = NXGetArchInfoFromCpuType(header.cputype, header.cpusubtype);
-
-      return [[FIRAppDistributionMachOSlice alloc] initWithArch:arch uuid:uuid];
-    } else {
+    if (lc.cmd != LC_UUID) {
+      // Move to the next load command
       [_file seekToFileOffset:[_file offsetInFile] + lc.cmdsize - sizeof(lc)];
+      continue;
     }
+    
+    // Re-read the load command, but this time as a UUID command
+    // so we can easily fetch the UUID
+    [_file seekToFileOffset:[_file offsetInFile] - sizeof(lc)];
+    struct uuid_command uc;
+    data = [_file readDataOfLength:sizeof(uc)];
+    [data getBytes:&uc length:sizeof(uc)];
+
+    NSUUID* uuid = [[NSUUID alloc] initWithUUIDBytes:uc.uuid];
+    const NXArchInfo* arch = NXGetArchInfoFromCpuType(header.cputype, header.cpusubtype);
+
+    return [[FIRAppDistributionMachOSlice alloc] initWithArch:arch uuid:uuid];
   }
 
   // If we got here, something is wrong. We iterated the load commands

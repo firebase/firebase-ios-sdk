@@ -225,21 +225,18 @@ NSString *const kAppDistroLibraryName = @"fire-fad";
 
   NSArray *releaseList = [object objectForKey:@"releases"];
   for (NSDictionary *releaseDict in releaseList) {
-    if ([[releaseDict objectForKey:@"latest"] boolValue]) {
-      NSString *codeHash = [releaseDict objectForKey:@"codeHash"];
-      NSString *executablePath = [[NSBundle mainBundle] executablePath];
-      FIRAppDistributionMachO *machO =
-          [[FIRAppDistributionMachO alloc] initWithPath:executablePath];
+    if (![[releaseDict objectForKey:@"latest"] boolValue]) continue;
 
-      if (![codeHash isEqualToString:machO.codeHash]) {
-        FIRAppDistributionRelease *release =
-            [[FIRAppDistributionRelease alloc] initWithDictionary:releaseDict];
-        dispatch_async(dispatch_get_main_queue(), ^{
-          completion(release, nil);
-        });
-      }
+    NSString *codeHash = [releaseDict objectForKey:@"codeHash"];
+    FIRAppDistributionMachO *machO =
+        [[FIRAppDistributionMachO alloc] initWithPath:[[NSBundle mainBundle] executablePath]];
 
-      break;
+    if (![codeHash isEqualToString:machO.codeHash]) {
+      FIRAppDistributionRelease *release =
+          [[FIRAppDistributionRelease alloc] initWithDictionary:releaseDict];
+      dispatch_async(dispatch_get_main_queue(), ^{
+        completion(release, nil);
+      });
     }
   }
 }
