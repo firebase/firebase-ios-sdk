@@ -16,7 +16,7 @@ Firebase core and product libraries, meaning all of the symbols of the static li
 part of the dynamic framework bundle. What if your core app already directly links a static
 Firebase library when you link to the same library indirectly from a dynamic framework? This
 leads to undefined behavior (especially when different versions of the static framework are
-linked to the app and the dynamic framework). For example, a dispatch_once may or may not
+linked to the app and the dynamic framework). For example, a `dispatch_once` may or may not
 perform the correct initialization since there are now two entities to initialize. Here are
 couple more examples of issues related to this undefined behavior:
 [#4315](https://github.com/firebase/firebase-ios-sdk/issues/4315),
