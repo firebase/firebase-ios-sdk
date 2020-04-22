@@ -80,7 +80,11 @@ static NSString *kStoredUserCoderKey = @"firebase_auth_stored_user_coder_key";
   query[(__bridge id)kSecAttrAccount] = kSharedKeychainAccountValue;
 
   NSData *data = [self.keychainServices getItemWithQuery:query error:outError];
+// iOS 12 deprecation
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   NSKeyedUnarchiver *unarchiver = [[NSKeyedUnarchiver alloc] initForReadingWithData:data];
+#pragma clang diagnostic pop
   FIRUser *user = [unarchiver decodeObjectOfClass:[FIRUser class] forKey:kStoredUserCoderKey];
 
   return user;
@@ -100,7 +104,11 @@ static NSString *kStoredUserCoderKey = @"firebase_auth_stored_user_coder_key";
   query[(__bridge id)kSecAttrAccount] = kSharedKeychainAccountValue;
 
   NSMutableData *data = [NSMutableData data];
+// iOS 12 deprecation
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   NSKeyedArchiver *archiver = [[NSKeyedArchiver alloc] initForWritingWithMutableData:data];
+#pragma clang diagnostic pop
   [archiver encodeObject:user forKey:kStoredUserCoderKey];
   [archiver finishEncoding];
 

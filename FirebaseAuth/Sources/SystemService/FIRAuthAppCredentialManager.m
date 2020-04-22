@@ -69,8 +69,12 @@ static const NSUInteger kMaximumNumberOfPendingReceipts = 32;
     NSError *error;
     NSData *encodedData = [_keychainServices dataForKey:kKeychainDataKey error:&error];
     if (!error && encodedData) {
+// iOS 12 deprecation
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
       NSKeyedUnarchiver *unarchiver =
           [[NSKeyedUnarchiver alloc] initForReadingWithData:encodedData];
+#pragma clang diagnostic pop
       FIRAuthAppCredential *credential =
           [unarchiver decodeObjectOfClass:[FIRAuthAppCredential class] forKey:kFullCredentialKey];
       if ([credential isKindOfClass:[FIRAuthAppCredential class]]) {
@@ -136,7 +140,11 @@ static const NSUInteger kMaximumNumberOfPendingReceipts = 32;
  */
 - (void)saveData {
   NSMutableData *archiveData = [NSMutableData data];
+// iOS 12 deprecation
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   NSKeyedArchiver *archiver = [[NSKeyedArchiver alloc] initForWritingWithMutableData:archiveData];
+#pragma clang diagnostic pop
   [archiver encodeObject:_credential forKey:kFullCredentialKey];
   [archiver encodeObject:_pendingReceipts forKey:kPendingReceiptsKey];
   [archiver finishEncoding];
