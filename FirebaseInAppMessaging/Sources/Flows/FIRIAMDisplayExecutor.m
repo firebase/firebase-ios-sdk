@@ -311,13 +311,13 @@
 - (void)displayMessageLoadError:(NSError *)error {
   NSString *errorMsg = error.userInfo[NSLocalizedDescriptionKey]
                            ? error.userInfo[NSLocalizedDescriptionKey]
-                           : @"Message loading failed";
+                           : NSLocalizedString(@"Message loading failed", nil);
   UIAlertController *alert = [UIAlertController
       alertControllerWithTitle:@"Firebase InAppMessaging fail to load a test message"
                        message:errorMsg
                 preferredStyle:UIAlertControllerStyleAlert];
 
-  UIAlertAction *defaultAction = [UIAlertAction actionWithTitle:@"OK"
+  UIAlertAction *defaultAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"OK", nil)
                                                           style:UIAlertActionStyleDefault
                                                         handler:^(UIAlertAction *action) {
                                                           self.alertWindow.hidden = NO;
