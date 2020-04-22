@@ -18,7 +18,7 @@ Firebase library when you link to the same library indirectly from a dynamic fra
 leads to undefined behavior (especially when different versions of the static framework are
 linked to the app and the dynamic framework). For example, a `dispatch_once` may or may not
 perform the correct initialization since there are now two entities to initialize. Here are
-couple more examples of issues related to this undefined behavior:
+a couple more examples of issues related to this undefined behavior:
 [#4315](https://github.com/firebase/firebase-ios-sdk/issues/4315),
 [#5152](https://github.com/firebase/firebase-ios-sdk/issues/4315).
 
@@ -46,13 +46,13 @@ app or included in any app bundles.
 ## Using Firebase SDKs from static frameworks
 
 A static framework is a bundle containing static libraries and other resources. When a static
-binary is built it is not necessary to link any static or dynamic dependencies into the binary
+binary is built, it is not necessary to link any static or dynamic dependencies into the binary
 because presence of the dependencies will be verified when the whole app is linked. This means
 that both the static framework/library and your app will be able to "share" symbols (which is
 basically what we need).
 
 The main downside of this approach arises when the static framework using Firebase is used
-from e.g. an app and its extension. In this case, in contrast to a dynamic embedded framework,
+from, for example, an app and its extension. In this case, in contrast to a dynamic embedded framework,
 a copy of the static framework will be added to both the app and each extension. It doesn't
 lead to any symbol collisions, but it does increase the download size of your app.
 
