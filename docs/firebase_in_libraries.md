@@ -32,6 +32,11 @@ objc[40943]: Class FIRApp is implemented in both
 ~/Library/Developer/CoreSimulator/Devices/4821F959-24A6-4D78-A102-4C5703103D99/data/Containers/Bundle/Application/F017D210-113A-4DAF-9E17-BDE455E71E06/FrameworkTest.app/FrameworkTest
 (0x10ad2d348). One of the two will be used. Which one is undefined.
 ```
+
+This commonly leads to a crash with the following error message:
+
+`The default FirebaseApp instance must be configured before the defaultFirebaseApp instance can be initialized.`
+
 <img src="./resources/firebase_from_dynamic_framework.svg" width=500/>
 
 **Figure 1: Using Firebase SDKs from dynamic framework**
