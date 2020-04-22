@@ -20,7 +20,7 @@ linked to the app and the dynamic framework). For example, a `dispatch_once` may
 perform the correct initialization since there are now two entities to initialize. Here are
 a couple more examples of issues related to this undefined behavior:
 [#4315](https://github.com/firebase/firebase-ios-sdk/issues/4315),
-[#5152](https://github.com/firebase/firebase-ios-sdk/issues/4315).
+[#5152](https://github.com/firebase/firebase-ios-sdk/issues/5152).
 
 In this case you will most likely see warnings like the following in the console:
 
