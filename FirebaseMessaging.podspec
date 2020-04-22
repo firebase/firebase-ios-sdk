@@ -28,10 +28,10 @@ device, and it is completely free.
   s.static_framework = true
   s.prefix_header_file = false
 
-  base_dir = "Firebase/Messaging/"
-  s.source_files = base_dir + '**/*.[mh]'
-  s.requires_arc = base_dir + '*.m'
-  s.public_header_files = base_dir + 'Public/*.h'
+  base_dir = "FirebaseMessaging/"
+  s.source_files = base_dir + 'Sources/**/*.[mh]'
+  s.requires_arc = base_dir + 'Sources/*.m'
+  s.public_header_files = base_dir + 'Sources/Public/*.h'
   s.library = 'sqlite3'
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
@@ -56,7 +56,7 @@ device, and it is completely free.
 
   s.test_spec 'unit' do |unit_tests|
     unit_tests.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
-    unit_tests.source_files = 'Example/Messaging/Tests/*.{m,h,swift}'
+    unit_tests.source_files = 'FirebaseMessaging/Tests/UnitTests/*.{m,h,swift}'
     unit_tests.requires_app_host = true
     unit_tests.pod_target_xcconfig = {
      'CLANG_ENABLE_OBJC_WEAK' => 'YES'
@@ -66,8 +66,8 @@ device, and it is completely free.
 
   s.test_spec 'integration' do |int_tests|
     int_tests.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
-    int_tests.source_files = 'Example/Messaging/IntegrationTests/*.swift'
+    int_tests.source_files = 'FirebaseMessaging/Tests/IntegrationTests/*.swift'
     int_tests.requires_app_host = true
-    int_tests.resources = 'Example/Messaging/IntegrationTests/Resources/GoogleService-Info.plist'
+    int_tests.resources = 'FirebaseMessaging/Tests/IntegrationTests/Resources/GoogleService-Info.plist'
   end
 end
