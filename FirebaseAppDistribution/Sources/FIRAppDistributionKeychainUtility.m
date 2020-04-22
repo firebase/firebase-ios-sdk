@@ -14,7 +14,20 @@
 #import <AppAuth/AppAuth.h>
 #import "FIRAppDistributionKeychainUtility+Private.h"
 
+NSString *const kFIRAppDistributionKeychainErrorDomain = @"com.firebase.app_distribution.keychain";
+
 @implementation FIRAppDistributionKeychainUtility
+
++ (void)handleAuthStateError:(NSError **_Nullable)error
+                 description:(NSString *)description
+                        code:(int)code {
+  if (error) {
+    NSDictionary *userInfo = @{NSLocalizedDescriptionKey : description};
+    *error = [NSError errorWithDomain:kFIRAppDistributionKeychainErrorDomain
+                                 code:code
+                             userInfo:userInfo];
+  }
+}
 
 + (BOOL)addKeychainItem:(nonnull NSMutableDictionary *)keychainQuery withDataDictionary:(nonnull NSData *)data {
   [keychainQuery setObject:data forKey:(id)kSecValueData];
@@ -35,10 +48,23 @@
   return status != errSecSuccess && status != errSecItemNotFound ? NO : YES;
 }
 
-+ (BOOL)fetchKeychainItemMatching:(nonnull NSMutableDictionary *)keychainQuery keychainItem:(nonnull NSData *)keychainItem {
++ (NSData *)fetchKeychainItemMatching:(nonnull NSMutableDictionary *)keychainQuery error:(NSError **_Nullable)error {
+  NSData *keychainItem;
   OSStatus status = SecItemCopyMatching((CFDictionaryRef)keychainQuery, (void *)&keychainItem);
 
-  return status != noErr || 0 == [keychainItem length] ? NO : YES;
+  if(status != noErr || 0 == [keychainItem length]){
+    if(error){
+      NSString *description = NSLocalizedString(
+        @"Failed to fetch keychain item.",
+        @"Error message for failure to retrieve auth state from keychain");
+      [self handleAuthStateError:error
+                     description:description
+                            code:0];
+      return nil;
+    }
+  }
+
+  return keychainItem;
 }
 
 + (OIDAuthState *)unarchiveKeychainResult:(NSData *)result {

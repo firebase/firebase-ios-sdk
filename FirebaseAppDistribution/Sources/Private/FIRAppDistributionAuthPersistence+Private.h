@@ -17,7 +17,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 // Label exceptions from AppDistributionAuthPersistence calls.
-FOUNDATION_EXPORT NSString *const kFIRAppDistributionKeychainErrorDomain;
+FOUNDATION_EXPORT NSString *const kFIRAppDistributionAuthPersistenceErrorDomain;
 
 /**
  *  The set of error codes that may be returned from internal calls to persist Tester authentication
@@ -36,9 +36,6 @@ typedef NS_ENUM(NSUInteger, FIRAppDistributionKeychainError) {
 } NS_SWIFT_NAME(AppDistributionKeychainError);
 
 @interface FIRAppDistributionAuthPersistence : NSObject
-
-// A Keychain persistence implementation
-@property (class, nonatomic, readonly) Class<FIRAppDistributionKeychainProtocol> keychainUtility;
 
 - (instancetype)init NS_UNAVAILABLE;
 
