@@ -8,7 +8,7 @@ always hard-to-debug undefined behaviors, that all come down to code duplication
 static and dynamic linking work. Your framework itself may be either static or dynamic. Let's
 consider these two options in more detail.
 
-## Using Firebase SDKs from dynamic framework
+## Using Firebase SDKs from dynamic frameworks
 
 A dynamic framework is a bundle containing dynamic libraries and other resources. The dynamic
 libraries bundled in the framework can themselves be compiled from static libraries, like
@@ -43,7 +43,7 @@ code reuse purposes) only when Firebase is not used from the app directly.
 Firebase compiled into the dynamic framework will conflict with the versions compiled into the
 app or included in any app bundles.
 
-## Using Firebase SDKs from static framework/library
+## Using Firebase SDKs from static frameworks
 
 A static framework is a bundle containing static libraries and other resources. When a static
 binary is built it is not necessary to link any static or dynamic dependencies into the binary
