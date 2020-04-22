@@ -21,7 +21,6 @@
 
 #include <algorithm>
 
-#include <google/protobuf/stubs/common.h>
 #include <google/protobuf/io/coded_stream.h>
 #include <google/protobuf/extension_set.h>
 #include <google/protobuf/wire_format_lite.h>
@@ -98,7 +97,7 @@ static void InitDefaultsscc_info_DocumentChange_google_2ffirestore_2fv1_2fwrite_
 }
 
 ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_DocumentChange_google_2ffirestore_2fv1_2fwrite_2eproto =
-    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 1, InitDefaultsscc_info_DocumentChange_google_2ffirestore_2fv1_2fwrite_2eproto}, {
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 1, 0, InitDefaultsscc_info_DocumentChange_google_2ffirestore_2fv1_2fwrite_2eproto}, {
       &scc_info_Document_google_2ffirestore_2fv1_2fdocument_2eproto.base,}};
 
 static void InitDefaultsscc_info_DocumentDelete_google_2ffirestore_2fv1_2fwrite_2eproto() {
@@ -113,7 +112,7 @@ static void InitDefaultsscc_info_DocumentDelete_google_2ffirestore_2fv1_2fwrite_
 }
 
 ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_DocumentDelete_google_2ffirestore_2fv1_2fwrite_2eproto =
-    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 1, InitDefaultsscc_info_DocumentDelete_google_2ffirestore_2fv1_2fwrite_2eproto}, {
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 1, 0, InitDefaultsscc_info_DocumentDelete_google_2ffirestore_2fv1_2fwrite_2eproto}, {
       &scc_info_Timestamp_google_2fprotobuf_2ftimestamp_2eproto.base,}};
 
 static void InitDefaultsscc_info_DocumentRemove_google_2ffirestore_2fv1_2fwrite_2eproto() {
@@ -128,7 +127,7 @@ static void InitDefaultsscc_info_DocumentRemove_google_2ffirestore_2fv1_2fwrite_
 }
 
 ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_DocumentRemove_google_2ffirestore_2fv1_2fwrite_2eproto =
-    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 1, InitDefaultsscc_info_DocumentRemove_google_2ffirestore_2fv1_2fwrite_2eproto}, {
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 1, 0, InitDefaultsscc_info_DocumentRemove_google_2ffirestore_2fv1_2fwrite_2eproto}, {
       &scc_info_Timestamp_google_2fprotobuf_2ftimestamp_2eproto.base,}};
 
 static void InitDefaultsscc_info_DocumentTransform_google_2ffirestore_2fv1_2fwrite_2eproto() {
@@ -143,7 +142,7 @@ static void InitDefaultsscc_info_DocumentTransform_google_2ffirestore_2fv1_2fwri
 }
 
 ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_DocumentTransform_google_2ffirestore_2fv1_2fwrite_2eproto =
-    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 1, InitDefaultsscc_info_DocumentTransform_google_2ffirestore_2fv1_2fwrite_2eproto}, {
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 1, 0, InitDefaultsscc_info_DocumentTransform_google_2ffirestore_2fv1_2fwrite_2eproto}, {
       &scc_info_DocumentTransform_FieldTransform_google_2ffirestore_2fv1_2fwrite_2eproto.base,}};
 
 static void InitDefaultsscc_info_DocumentTransform_FieldTransform_google_2ffirestore_2fv1_2fwrite_2eproto() {
@@ -158,7 +157,7 @@ static void InitDefaultsscc_info_DocumentTransform_FieldTransform_google_2ffires
 }
 
 ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_DocumentTransform_FieldTransform_google_2ffirestore_2fv1_2fwrite_2eproto =
-    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 1, InitDefaultsscc_info_DocumentTransform_FieldTransform_google_2ffirestore_2fv1_2fwrite_2eproto}, {
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 1, 0, InitDefaultsscc_info_DocumentTransform_FieldTransform_google_2ffirestore_2fv1_2fwrite_2eproto}, {
       &scc_info_ArrayValue_google_2ffirestore_2fv1_2fdocument_2eproto.base,}};
 
 static void InitDefaultsscc_info_ExistenceFilter_google_2ffirestore_2fv1_2fwrite_2eproto() {
@@ -173,7 +172,7 @@ static void InitDefaultsscc_info_ExistenceFilter_google_2ffirestore_2fv1_2fwrite
 }
 
 ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_ExistenceFilter_google_2ffirestore_2fv1_2fwrite_2eproto =
-    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 0, InitDefaultsscc_info_ExistenceFilter_google_2ffirestore_2fv1_2fwrite_2eproto}, {}};
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 0, 0, InitDefaultsscc_info_ExistenceFilter_google_2ffirestore_2fv1_2fwrite_2eproto}, {}};
 
 static void InitDefaultsscc_info_Write_google_2ffirestore_2fv1_2fwrite_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
@@ -187,7 +186,7 @@ static void InitDefaultsscc_info_Write_google_2ffirestore_2fv1_2fwrite_2eproto()
 }
 
 ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<4> scc_info_Write_google_2ffirestore_2fv1_2fwrite_2eproto =
-    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 4, InitDefaultsscc_info_Write_google_2ffirestore_2fv1_2fwrite_2eproto}, {
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 4, 0, InitDefaultsscc_info_Write_google_2ffirestore_2fv1_2fwrite_2eproto}, {
       &scc_info_Document_google_2ffirestore_2fv1_2fdocument_2eproto.base,
       &scc_info_DocumentTransform_google_2ffirestore_2fv1_2fwrite_2eproto.base,
       &scc_info_DocumentMask_google_2ffirestore_2fv1_2fcommon_2eproto.base,
@@ -205,7 +204,7 @@ static void InitDefaultsscc_info_WriteResult_google_2ffirestore_2fv1_2fwrite_2ep
 }
 
 ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<2> scc_info_WriteResult_google_2ffirestore_2fv1_2fwrite_2eproto =
-    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 2, InitDefaultsscc_info_WriteResult_google_2ffirestore_2fv1_2fwrite_2eproto}, {
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 2, 0, InitDefaultsscc_info_WriteResult_google_2ffirestore_2fv1_2fwrite_2eproto}, {
       &scc_info_Timestamp_google_2fprotobuf_2ftimestamp_2eproto.base,
       &scc_info_ArrayValue_google_2ffirestore_2fv1_2fdocument_2eproto.base,}};
 
@@ -461,7 +460,7 @@ void Write::set_allocated_update(::google::firestore::v1::Document* update) {
   // @@protoc_insertion_point(field_set_allocated:google.firestore.v1.Write.update)
 }
 void Write::clear_update() {
-  if (has_update()) {
+  if (_internal_has_update()) {
     delete operation_.update_;
     clear_has_operation();
   }
@@ -501,12 +500,12 @@ Write::Write(const Write& from)
   : ::PROTOBUF_NAMESPACE_ID::Message(),
       _internal_metadata_(nullptr) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
-  if (from.has_update_mask()) {
+  if (from._internal_has_update_mask()) {
     update_mask_ = new ::google::firestore::v1::DocumentMask(*from.update_mask_);
   } else {
     update_mask_ = nullptr;
   }
-  if (from.has_current_document()) {
+  if (from._internal_has_current_document()) {
     current_document_ = new ::google::firestore::v1::Precondition(*from.current_document_);
   } else {
     current_document_ = nullptr;
@@ -514,19 +513,19 @@ Write::Write(const Write& from)
   clear_has_operation();
   switch (from.operation_case()) {
     case kUpdate: {
-      mutable_update()->::google::firestore::v1::Document::MergeFrom(from.update());
+      _internal_mutable_update()->::google::firestore::v1::Document::MergeFrom(from._internal_update());
       break;
     }
     case kDelete: {
-      set_delete_(from.delete_());
+      _internal_set_delete_(from._internal_delete_());
       break;
     }
     case kVerify: {
-      set_verify(from.verify());
+      _internal_set_verify(from._internal_verify());
       break;
     }
     case kTransform: {
-      mutable_transform()->::google::firestore::v1::DocumentTransform::MergeFrom(from.transform());
+      _internal_mutable_transform()->::google::firestore::v1::DocumentTransform::MergeFrom(from._internal_transform());
       break;
     }
     case OPERATION_NOT_SET: {
@@ -611,7 +610,6 @@ void Write::Clear() {
   _internal_metadata_.Clear();
 }
 
-#if GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
 const char* Write::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
 #define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   while (!ctx->Done(&ptr)) {
@@ -622,42 +620,46 @@ const char* Write::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::inte
       // .google.firestore.v1.Document update = 1;
       case 1:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
-          ptr = ctx->ParseMessage(mutable_update(), ptr);
+          ptr = ctx->ParseMessage(_internal_mutable_update(), ptr);
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
       // string delete = 2;
       case 2:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
-          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParserUTF8(mutable_delete_(), ptr, ctx, "google.firestore.v1.Write.delete");
+          auto str = _internal_mutable_delete_();
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
+          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "google.firestore.v1.Write.delete"));
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
       // .google.firestore.v1.DocumentMask update_mask = 3;
       case 3:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 26)) {
-          ptr = ctx->ParseMessage(mutable_update_mask(), ptr);
+          ptr = ctx->ParseMessage(_internal_mutable_update_mask(), ptr);
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
       // .google.firestore.v1.Precondition current_document = 4;
       case 4:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 34)) {
-          ptr = ctx->ParseMessage(mutable_current_document(), ptr);
+          ptr = ctx->ParseMessage(_internal_mutable_current_document(), ptr);
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
       // string verify = 5;
       case 5:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 42)) {
-          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParserUTF8(mutable_verify(), ptr, ctx, "google.firestore.v1.Write.verify");
+          auto str = _internal_mutable_verify();
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
+          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "google.firestore.v1.Write.verify"));
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
       // .google.firestore.v1.DocumentTransform transform = 6;
       case 6:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 50)) {
-          ptr = ctx->ParseMessage(mutable_transform(), ptr);
+          ptr = ctx->ParseMessage(_internal_mutable_transform(), ptr);
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
@@ -680,228 +682,68 @@ failure:
   goto success;
 #undef CHK_
 }
-#else  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
-bool Write::MergePartialFromCodedStream(
-    ::PROTOBUF_NAMESPACE_ID::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!PROTOBUF_PREDICT_TRUE(EXPRESSION)) goto failure
-  ::PROTOBUF_NAMESPACE_ID::uint32 tag;
-  // @@protoc_insertion_point(parse_start:google.firestore.v1.Write)
-  for (;;) {
-    ::std::pair<::PROTOBUF_NAMESPACE_ID::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // .google.firestore.v1.Document update = 1;
-      case 1: {
-        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (10 & 0xFF)) {
-          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadMessage(
-               input, mutable_update()));
-        } else {
-          goto handle_unusual;
-        }
-        break;
-      }
 
-      // string delete = 2;
-      case 2: {
-        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (18 & 0xFF)) {
-          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadString(
-                input, this->mutable_delete_()));
-          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-            this->delete_().data(), static_cast<int>(this->delete_().length()),
-            ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE,
-            "google.firestore.v1.Write.delete"));
-        } else {
-          goto handle_unusual;
-        }
-        break;
-      }
-
-      // .google.firestore.v1.DocumentMask update_mask = 3;
-      case 3: {
-        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (26 & 0xFF)) {
-          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadMessage(
-               input, mutable_update_mask()));
-        } else {
-          goto handle_unusual;
-        }
-        break;
-      }
-
-      // .google.firestore.v1.Precondition current_document = 4;
-      case 4: {
-        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (34 & 0xFF)) {
-          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadMessage(
-               input, mutable_current_document()));
-        } else {
-          goto handle_unusual;
-        }
-        break;
-      }
-
-      // string verify = 5;
-      case 5: {
-        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (42 & 0xFF)) {
-          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadString(
-                input, this->mutable_verify()));
-          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-            this->verify().data(), static_cast<int>(this->verify().length()),
-            ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE,
-            "google.firestore.v1.Write.verify"));
-        } else {
-          goto handle_unusual;
-        }
-        break;
-      }
-
-      // .google.firestore.v1.DocumentTransform transform = 6;
-      case 6: {
-        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (50 & 0xFF)) {
-          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadMessage(
-               input, mutable_transform()));
-        } else {
-          goto handle_unusual;
-        }
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0) {
-          goto success;
-        }
-        DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SkipField(
-              input, tag, _internal_metadata_.mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:google.firestore.v1.Write)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:google.firestore.v1.Write)
-  return false;
-#undef DO_
-}
-#endif  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
-
-void Write::SerializeWithCachedSizes(
-    ::PROTOBUF_NAMESPACE_ID::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:google.firestore.v1.Write)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
-  (void) cached_has_bits;
-
-  // .google.firestore.v1.Document update = 1;
-  if (has_update()) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteMessageMaybeToArray(
-      1, _Internal::update(this), output);
-  }
-
-  // string delete = 2;
-  if (has_delete_()) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->delete_().data(), static_cast<int>(this->delete_().length()),
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "google.firestore.v1.Write.delete");
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteStringMaybeAliased(
-      2, this->delete_(), output);
-  }
-
-  // .google.firestore.v1.DocumentMask update_mask = 3;
-  if (this->has_update_mask()) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteMessageMaybeToArray(
-      3, _Internal::update_mask(this), output);
-  }
-
-  // .google.firestore.v1.Precondition current_document = 4;
-  if (this->has_current_document()) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteMessageMaybeToArray(
-      4, _Internal::current_document(this), output);
-  }
-
-  // string verify = 5;
-  if (has_verify()) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->verify().data(), static_cast<int>(this->verify().length()),
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "google.firestore.v1.Write.verify");
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteStringMaybeAliased(
-      5, this->verify(), output);
-  }
-
-  // .google.firestore.v1.DocumentTransform transform = 6;
-  if (has_transform()) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteMessageMaybeToArray(
-      6, _Internal::transform(this), output);
-  }
-
-  if (_internal_metadata_.have_unknown_fields()) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SerializeUnknownFields(
-        _internal_metadata_.unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:google.firestore.v1.Write)
-}
-
-::PROTOBUF_NAMESPACE_ID::uint8* Write::InternalSerializeWithCachedSizesToArray(
-    ::PROTOBUF_NAMESPACE_ID::uint8* target) const {
+::PROTOBUF_NAMESPACE_ID::uint8* Write::_InternalSerialize(
+    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
   // @@protoc_insertion_point(serialize_to_array_start:google.firestore.v1.Write)
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   // .google.firestore.v1.Document update = 1;
-  if (has_update()) {
+  if (_internal_has_update()) {
+    target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessageToArray(
-        1, _Internal::update(this), target);
+      InternalWriteMessage(
+        1, _Internal::update(this), target, stream);
   }
 
   // string delete = 2;
-  if (has_delete_()) {
+  if (_internal_has_delete_()) {
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->delete_().data(), static_cast<int>(this->delete_().length()),
+      this->_internal_delete_().data(), static_cast<int>(this->_internal_delete_().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "google.firestore.v1.Write.delete");
-    target =
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteStringToArray(
-        2, this->delete_(), target);
+    target = stream->WriteStringMaybeAliased(
+        2, this->_internal_delete_(), target);
   }
 
   // .google.firestore.v1.DocumentMask update_mask = 3;
   if (this->has_update_mask()) {
+    target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessageToArray(
-        3, _Internal::update_mask(this), target);
+      InternalWriteMessage(
+        3, _Internal::update_mask(this), target, stream);
   }
 
   // .google.firestore.v1.Precondition current_document = 4;
   if (this->has_current_document()) {
+    target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessageToArray(
-        4, _Internal::current_document(this), target);
+      InternalWriteMessage(
+        4, _Internal::current_document(this), target, stream);
   }
 
   // string verify = 5;
-  if (has_verify()) {
+  if (_internal_has_verify()) {
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->verify().data(), static_cast<int>(this->verify().length()),
+      this->_internal_verify().data(), static_cast<int>(this->_internal_verify().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "google.firestore.v1.Write.verify");
-    target =
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteStringToArray(
-        5, this->verify(), target);
+    target = stream->WriteStringMaybeAliased(
+        5, this->_internal_verify(), target);
   }
 
   // .google.firestore.v1.DocumentTransform transform = 6;
-  if (has_transform()) {
+  if (_internal_has_transform()) {
+    target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessageToArray(
-        6, _Internal::transform(this), target);
+      InternalWriteMessage(
+        6, _Internal::transform(this), target, stream);
   }
 
-  if (_internal_metadata_.have_unknown_fields()) {
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SerializeUnknownFieldsToArray(
-        _internal_metadata_.unknown_fields(), target);
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields(), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:google.firestore.v1.Write)
   return target;
@@ -911,11 +753,6 @@ size_t Write::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:google.firestore.v1.Write)
   size_t total_size = 0;
 
-  if (_internal_metadata_.have_unknown_fields()) {
-    total_size +=
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::ComputeUnknownFieldsSize(
-        _internal_metadata_.unknown_fields());
-  }
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
@@ -946,14 +783,14 @@ size_t Write::ByteSizeLong() const {
     case kDelete: {
       total_size += 1 +
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-          this->delete_());
+          this->_internal_delete_());
       break;
     }
     // string verify = 5;
     case kVerify: {
       total_size += 1 +
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-          this->verify());
+          this->_internal_verify());
       break;
     }
     // .google.firestore.v1.DocumentTransform transform = 6;
@@ -966,6 +803,10 @@ size_t Write::ByteSizeLong() const {
     case OPERATION_NOT_SET: {
       break;
     }
+  }
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
+        _internal_metadata_, total_size, &_cached_size_);
   }
   int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
   SetCachedSize(cached_size);
@@ -995,26 +836,26 @@ void Write::MergeFrom(const Write& from) {
   (void) cached_has_bits;
 
   if (from.has_update_mask()) {
-    mutable_update_mask()->::google::firestore::v1::DocumentMask::MergeFrom(from.update_mask());
+    _internal_mutable_update_mask()->::google::firestore::v1::DocumentMask::MergeFrom(from._internal_update_mask());
   }
   if (from.has_current_document()) {
-    mutable_current_document()->::google::firestore::v1::Precondition::MergeFrom(from.current_document());
+    _internal_mutable_current_document()->::google::firestore::v1::Precondition::MergeFrom(from._internal_current_document());
   }
   switch (from.operation_case()) {
     case kUpdate: {
-      mutable_update()->::google::firestore::v1::Document::MergeFrom(from.update());
+      _internal_mutable_update()->::google::firestore::v1::Document::MergeFrom(from._internal_update());
       break;
     }
     case kDelete: {
-      set_delete_(from.delete_());
+      _internal_set_delete_(from._internal_delete_());
       break;
     }
     case kVerify: {
-      set_verify(from.verify());
+      _internal_set_verify(from._internal_verify());
       break;
     }
     case kTransform: {
-      mutable_transform()->::google::firestore::v1::DocumentTransform::MergeFrom(from.transform());
+      _internal_mutable_transform()->::google::firestore::v1::DocumentTransform::MergeFrom(from._internal_transform());
       break;
     }
     case OPERATION_NOT_SET: {
@@ -1114,7 +955,7 @@ void DocumentTransform_FieldTransform::set_allocated_increment(::google::firesto
   // @@protoc_insertion_point(field_set_allocated:google.firestore.v1.DocumentTransform.FieldTransform.increment)
 }
 void DocumentTransform_FieldTransform::clear_increment() {
-  if (has_increment()) {
+  if (_internal_has_increment()) {
     delete transform_type_.increment_;
     clear_has_transform_type();
   }
@@ -1134,7 +975,7 @@ void DocumentTransform_FieldTransform::set_allocated_maximum(::google::firestore
   // @@protoc_insertion_point(field_set_allocated:google.firestore.v1.DocumentTransform.FieldTransform.maximum)
 }
 void DocumentTransform_FieldTransform::clear_maximum() {
-  if (has_maximum()) {
+  if (_internal_has_maximum()) {
     delete transform_type_.maximum_;
     clear_has_transform_type();
   }
@@ -1154,7 +995,7 @@ void DocumentTransform_FieldTransform::set_allocated_minimum(::google::firestore
   // @@protoc_insertion_point(field_set_allocated:google.firestore.v1.DocumentTransform.FieldTransform.minimum)
 }
 void DocumentTransform_FieldTransform::clear_minimum() {
-  if (has_minimum()) {
+  if (_internal_has_minimum()) {
     delete transform_type_.minimum_;
     clear_has_transform_type();
   }
@@ -1174,7 +1015,7 @@ void DocumentTransform_FieldTransform::set_allocated_append_missing_elements(::g
   // @@protoc_insertion_point(field_set_allocated:google.firestore.v1.DocumentTransform.FieldTransform.append_missing_elements)
 }
 void DocumentTransform_FieldTransform::clear_append_missing_elements() {
-  if (has_append_missing_elements()) {
+  if (_internal_has_append_missing_elements()) {
     delete transform_type_.append_missing_elements_;
     clear_has_transform_type();
   }
@@ -1194,7 +1035,7 @@ void DocumentTransform_FieldTransform::set_allocated_remove_all_from_array(::goo
   // @@protoc_insertion_point(field_set_allocated:google.firestore.v1.DocumentTransform.FieldTransform.remove_all_from_array)
 }
 void DocumentTransform_FieldTransform::clear_remove_all_from_array() {
-  if (has_remove_all_from_array()) {
+  if (_internal_has_remove_all_from_array()) {
     delete transform_type_.remove_all_from_array_;
     clear_has_transform_type();
   }
@@ -1209,33 +1050,33 @@ DocumentTransform_FieldTransform::DocumentTransform_FieldTransform(const Documen
       _internal_metadata_(nullptr) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
   field_path_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-  if (!from.field_path().empty()) {
+  if (!from._internal_field_path().empty()) {
     field_path_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.field_path_);
   }
   clear_has_transform_type();
   switch (from.transform_type_case()) {
     case kSetToServerValue: {
-      set_set_to_server_value(from.set_to_server_value());
+      _internal_set_set_to_server_value(from._internal_set_to_server_value());
       break;
     }
     case kIncrement: {
-      mutable_increment()->::google::firestore::v1::Value::MergeFrom(from.increment());
+      _internal_mutable_increment()->::google::firestore::v1::Value::MergeFrom(from._internal_increment());
       break;
     }
     case kMaximum: {
-      mutable_maximum()->::google::firestore::v1::Value::MergeFrom(from.maximum());
+      _internal_mutable_maximum()->::google::firestore::v1::Value::MergeFrom(from._internal_maximum());
       break;
     }
     case kMinimum: {
-      mutable_minimum()->::google::firestore::v1::Value::MergeFrom(from.minimum());
+      _internal_mutable_minimum()->::google::firestore::v1::Value::MergeFrom(from._internal_minimum());
       break;
     }
     case kAppendMissingElements: {
-      mutable_append_missing_elements()->::google::firestore::v1::ArrayValue::MergeFrom(from.append_missing_elements());
+      _internal_mutable_append_missing_elements()->::google::firestore::v1::ArrayValue::MergeFrom(from._internal_append_missing_elements());
       break;
     }
     case kRemoveAllFromArray: {
-      mutable_remove_all_from_array()->::google::firestore::v1::ArrayValue::MergeFrom(from.remove_all_from_array());
+      _internal_mutable_remove_all_from_array()->::google::firestore::v1::ArrayValue::MergeFrom(from._internal_remove_all_from_array());
       break;
     }
     case TRANSFORM_TYPE_NOT_SET: {
@@ -1318,7 +1159,6 @@ void DocumentTransform_FieldTransform::Clear() {
   _internal_metadata_.Clear();
 }
 
-#if GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
 const char* DocumentTransform_FieldTransform::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
 #define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   while (!ctx->Done(&ptr)) {
@@ -1329,7 +1169,9 @@ const char* DocumentTransform_FieldTransform::_InternalParse(const char* ptr, ::
       // string field_path = 1;
       case 1:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
-          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParserUTF8(mutable_field_path(), ptr, ctx, "google.firestore.v1.DocumentTransform.FieldTransform.field_path");
+          auto str = _internal_mutable_field_path();
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
+          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "google.firestore.v1.DocumentTransform.FieldTransform.field_path"));
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
@@ -1338,41 +1180,41 @@ const char* DocumentTransform_FieldTransform::_InternalParse(const char* ptr, ::
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 16)) {
           ::PROTOBUF_NAMESPACE_ID::uint64 val = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint(&ptr);
           CHK_(ptr);
-          set_set_to_server_value(static_cast<::google::firestore::v1::DocumentTransform_FieldTransform_ServerValue>(val));
+          _internal_set_set_to_server_value(static_cast<::google::firestore::v1::DocumentTransform_FieldTransform_ServerValue>(val));
         } else goto handle_unusual;
         continue;
       // .google.firestore.v1.Value increment = 3;
       case 3:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 26)) {
-          ptr = ctx->ParseMessage(mutable_increment(), ptr);
+          ptr = ctx->ParseMessage(_internal_mutable_increment(), ptr);
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
       // .google.firestore.v1.Value maximum = 4;
       case 4:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 34)) {
-          ptr = ctx->ParseMessage(mutable_maximum(), ptr);
+          ptr = ctx->ParseMessage(_internal_mutable_maximum(), ptr);
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
       // .google.firestore.v1.Value minimum = 5;
       case 5:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 42)) {
-          ptr = ctx->ParseMessage(mutable_minimum(), ptr);
+          ptr = ctx->ParseMessage(_internal_mutable_minimum(), ptr);
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
       // .google.firestore.v1.ArrayValue append_missing_elements = 6;
       case 6:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 50)) {
-          ptr = ctx->ParseMessage(mutable_append_missing_elements(), ptr);
+          ptr = ctx->ParseMessage(_internal_mutable_append_missing_elements(), ptr);
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
       // .google.firestore.v1.ArrayValue remove_all_from_array = 7;
       case 7:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 58)) {
-          ptr = ctx->ParseMessage(mutable_remove_all_from_array(), ptr);
+          ptr = ctx->ParseMessage(_internal_mutable_remove_all_from_array(), ptr);
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
@@ -1395,183 +1237,9 @@ failure:
   goto success;
 #undef CHK_
 }
-#else  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
-bool DocumentTransform_FieldTransform::MergePartialFromCodedStream(
-    ::PROTOBUF_NAMESPACE_ID::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!PROTOBUF_PREDICT_TRUE(EXPRESSION)) goto failure
-  ::PROTOBUF_NAMESPACE_ID::uint32 tag;
-  // @@protoc_insertion_point(parse_start:google.firestore.v1.DocumentTransform.FieldTransform)
-  for (;;) {
-    ::std::pair<::PROTOBUF_NAMESPACE_ID::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // string field_path = 1;
-      case 1: {
-        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (10 & 0xFF)) {
-          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadString(
-                input, this->mutable_field_path()));
-          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-            this->field_path().data(), static_cast<int>(this->field_path().length()),
-            ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE,
-            "google.firestore.v1.DocumentTransform.FieldTransform.field_path"));
-        } else {
-          goto handle_unusual;
-        }
-        break;
-      }
 
-      // .google.firestore.v1.DocumentTransform.FieldTransform.ServerValue set_to_server_value = 2;
-      case 2: {
-        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (16 & 0xFF)) {
-          int value = 0;
-          DO_((::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadPrimitive<
-                   int, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_ENUM>(
-                 input, &value)));
-          set_set_to_server_value(static_cast< ::google::firestore::v1::DocumentTransform_FieldTransform_ServerValue >(value));
-        } else {
-          goto handle_unusual;
-        }
-        break;
-      }
-
-      // .google.firestore.v1.Value increment = 3;
-      case 3: {
-        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (26 & 0xFF)) {
-          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadMessage(
-               input, mutable_increment()));
-        } else {
-          goto handle_unusual;
-        }
-        break;
-      }
-
-      // .google.firestore.v1.Value maximum = 4;
-      case 4: {
-        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (34 & 0xFF)) {
-          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadMessage(
-               input, mutable_maximum()));
-        } else {
-          goto handle_unusual;
-        }
-        break;
-      }
-
-      // .google.firestore.v1.Value minimum = 5;
-      case 5: {
-        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (42 & 0xFF)) {
-          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadMessage(
-               input, mutable_minimum()));
-        } else {
-          goto handle_unusual;
-        }
-        break;
-      }
-
-      // .google.firestore.v1.ArrayValue append_missing_elements = 6;
-      case 6: {
-        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (50 & 0xFF)) {
-          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadMessage(
-               input, mutable_append_missing_elements()));
-        } else {
-          goto handle_unusual;
-        }
-        break;
-      }
-
-      // .google.firestore.v1.ArrayValue remove_all_from_array = 7;
-      case 7: {
-        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (58 & 0xFF)) {
-          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadMessage(
-               input, mutable_remove_all_from_array()));
-        } else {
-          goto handle_unusual;
-        }
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0) {
-          goto success;
-        }
-        DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SkipField(
-              input, tag, _internal_metadata_.mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:google.firestore.v1.DocumentTransform.FieldTransform)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:google.firestore.v1.DocumentTransform.FieldTransform)
-  return false;
-#undef DO_
-}
-#endif  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
-
-void DocumentTransform_FieldTransform::SerializeWithCachedSizes(
-    ::PROTOBUF_NAMESPACE_ID::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:google.firestore.v1.DocumentTransform.FieldTransform)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
-  (void) cached_has_bits;
-
-  // string field_path = 1;
-  if (this->field_path().size() > 0) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->field_path().data(), static_cast<int>(this->field_path().length()),
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "google.firestore.v1.DocumentTransform.FieldTransform.field_path");
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteStringMaybeAliased(
-      1, this->field_path(), output);
-  }
-
-  // .google.firestore.v1.DocumentTransform.FieldTransform.ServerValue set_to_server_value = 2;
-  if (has_set_to_server_value()) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteEnum(
-      2, this->set_to_server_value(), output);
-  }
-
-  // .google.firestore.v1.Value increment = 3;
-  if (has_increment()) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteMessageMaybeToArray(
-      3, _Internal::increment(this), output);
-  }
-
-  // .google.firestore.v1.Value maximum = 4;
-  if (has_maximum()) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteMessageMaybeToArray(
-      4, _Internal::maximum(this), output);
-  }
-
-  // .google.firestore.v1.Value minimum = 5;
-  if (has_minimum()) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteMessageMaybeToArray(
-      5, _Internal::minimum(this), output);
-  }
-
-  // .google.firestore.v1.ArrayValue append_missing_elements = 6;
-  if (has_append_missing_elements()) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteMessageMaybeToArray(
-      6, _Internal::append_missing_elements(this), output);
-  }
-
-  // .google.firestore.v1.ArrayValue remove_all_from_array = 7;
-  if (has_remove_all_from_array()) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteMessageMaybeToArray(
-      7, _Internal::remove_all_from_array(this), output);
-  }
-
-  if (_internal_metadata_.have_unknown_fields()) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SerializeUnknownFields(
-        _internal_metadata_.unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:google.firestore.v1.DocumentTransform.FieldTransform)
-}
-
-::PROTOBUF_NAMESPACE_ID::uint8* DocumentTransform_FieldTransform::InternalSerializeWithCachedSizesToArray(
-    ::PROTOBUF_NAMESPACE_ID::uint8* target) const {
+::PROTOBUF_NAMESPACE_ID::uint8* DocumentTransform_FieldTransform::_InternalSerialize(
+    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
   // @@protoc_insertion_point(serialize_to_array_start:google.firestore.v1.DocumentTransform.FieldTransform)
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
@@ -1579,58 +1247,63 @@ void DocumentTransform_FieldTransform::SerializeWithCachedSizes(
   // string field_path = 1;
   if (this->field_path().size() > 0) {
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->field_path().data(), static_cast<int>(this->field_path().length()),
+      this->_internal_field_path().data(), static_cast<int>(this->_internal_field_path().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "google.firestore.v1.DocumentTransform.FieldTransform.field_path");
-    target =
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteStringToArray(
-        1, this->field_path(), target);
+    target = stream->WriteStringMaybeAliased(
+        1, this->_internal_field_path(), target);
   }
 
   // .google.firestore.v1.DocumentTransform.FieldTransform.ServerValue set_to_server_value = 2;
-  if (has_set_to_server_value()) {
+  if (_internal_has_set_to_server_value()) {
+    target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteEnumToArray(
-      2, this->set_to_server_value(), target);
+      2, this->_internal_set_to_server_value(), target);
   }
 
   // .google.firestore.v1.Value increment = 3;
-  if (has_increment()) {
+  if (_internal_has_increment()) {
+    target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessageToArray(
-        3, _Internal::increment(this), target);
+      InternalWriteMessage(
+        3, _Internal::increment(this), target, stream);
   }
 
   // .google.firestore.v1.Value maximum = 4;
-  if (has_maximum()) {
+  if (_internal_has_maximum()) {
+    target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessageToArray(
-        4, _Internal::maximum(this), target);
+      InternalWriteMessage(
+        4, _Internal::maximum(this), target, stream);
   }
 
   // .google.firestore.v1.Value minimum = 5;
-  if (has_minimum()) {
+  if (_internal_has_minimum()) {
+    target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessageToArray(
-        5, _Internal::minimum(this), target);
+      InternalWriteMessage(
+        5, _Internal::minimum(this), target, stream);
   }
 
   // .google.firestore.v1.ArrayValue append_missing_elements = 6;
-  if (has_append_missing_elements()) {
+  if (_internal_has_append_missing_elements()) {
+    target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessageToArray(
-        6, _Internal::append_missing_elements(this), target);
+      InternalWriteMessage(
+        6, _Internal::append_missing_elements(this), target, stream);
   }
 
   // .google.firestore.v1.ArrayValue remove_all_from_array = 7;
-  if (has_remove_all_from_array()) {
+  if (_internal_has_remove_all_from_array()) {
+    target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessageToArray(
-        7, _Internal::remove_all_from_array(this), target);
+      InternalWriteMessage(
+        7, _Internal::remove_all_from_array(this), target, stream);
   }
 
-  if (_internal_metadata_.have_unknown_fields()) {
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SerializeUnknownFieldsToArray(
-        _internal_metadata_.unknown_fields(), target);
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields(), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:google.firestore.v1.DocumentTransform.FieldTransform)
   return target;
@@ -1640,11 +1313,6 @@ size_t DocumentTransform_FieldTransform::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:google.firestore.v1.DocumentTransform.FieldTransform)
   size_t total_size = 0;
 
-  if (_internal_metadata_.have_unknown_fields()) {
-    total_size +=
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::ComputeUnknownFieldsSize(
-        _internal_metadata_.unknown_fields());
-  }
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
@@ -1653,14 +1321,14 @@ size_t DocumentTransform_FieldTransform::ByteSizeLong() const {
   if (this->field_path().size() > 0) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-        this->field_path());
+        this->_internal_field_path());
   }
 
   switch (transform_type_case()) {
     // .google.firestore.v1.DocumentTransform.FieldTransform.ServerValue set_to_server_value = 2;
     case kSetToServerValue: {
       total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->set_to_server_value());
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->_internal_set_to_server_value());
       break;
     }
     // .google.firestore.v1.Value increment = 3;
@@ -1702,6 +1370,10 @@ size_t DocumentTransform_FieldTransform::ByteSizeLong() const {
       break;
     }
   }
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
+        _internal_metadata_, total_size, &_cached_size_);
+  }
   int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
   SetCachedSize(cached_size);
   return total_size;
@@ -1735,27 +1407,27 @@ void DocumentTransform_FieldTransform::MergeFrom(const DocumentTransform_FieldTr
   }
   switch (from.transform_type_case()) {
     case kSetToServerValue: {
-      set_set_to_server_value(from.set_to_server_value());
+      _internal_set_set_to_server_value(from._internal_set_to_server_value());
       break;
     }
     case kIncrement: {
-      mutable_increment()->::google::firestore::v1::Value::MergeFrom(from.increment());
+      _internal_mutable_increment()->::google::firestore::v1::Value::MergeFrom(from._internal_increment());
       break;
     }
     case kMaximum: {
-      mutable_maximum()->::google::firestore::v1::Value::MergeFrom(from.maximum());
+      _internal_mutable_maximum()->::google::firestore::v1::Value::MergeFrom(from._internal_maximum());
       break;
     }
     case kMinimum: {
-      mutable_minimum()->::google::firestore::v1::Value::MergeFrom(from.minimum());
+      _internal_mutable_minimum()->::google::firestore::v1::Value::MergeFrom(from._internal_minimum());
       break;
     }
     case kAppendMissingElements: {
-      mutable_append_missing_elements()->::google::firestore::v1::ArrayValue::MergeFrom(from.append_missing_elements());
+      _internal_mutable_append_missing_elements()->::google::firestore::v1::ArrayValue::MergeFrom(from._internal_append_missing_elements());
       break;
     }
     case kRemoveAllFromArray: {
-      mutable_remove_all_from_array()->::google::firestore::v1::ArrayValue::MergeFrom(from.remove_all_from_array());
+      _internal_mutable_remove_all_from_array()->::google::firestore::v1::ArrayValue::MergeFrom(from._internal_remove_all_from_array());
       break;
     }
     case TRANSFORM_TYPE_NOT_SET: {
@@ -1815,7 +1487,7 @@ DocumentTransform::DocumentTransform(const DocumentTransform& from)
       field_transforms_(from.field_transforms_) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
   document_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-  if (!from.document().empty()) {
+  if (!from._internal_document().empty()) {
     document_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.document_);
   }
   // @@protoc_insertion_point(copy_constructor:google.firestore.v1.DocumentTransform)
@@ -1855,7 +1527,6 @@ void DocumentTransform::Clear() {
   _internal_metadata_.Clear();
 }
 
-#if GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
 const char* DocumentTransform::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
 #define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   while (!ctx->Done(&ptr)) {
@@ -1866,7 +1537,9 @@ const char* DocumentTransform::_InternalParse(const char* ptr, ::PROTOBUF_NAMESP
       // string document = 1;
       case 1:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
-          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParserUTF8(mutable_document(), ptr, ctx, "google.firestore.v1.DocumentTransform.document");
+          auto str = _internal_mutable_document();
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
+          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "google.firestore.v1.DocumentTransform.document"));
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
@@ -1876,10 +1549,10 @@ const char* DocumentTransform::_InternalParse(const char* ptr, ::PROTOBUF_NAMESP
           ptr -= 1;
           do {
             ptr += 1;
-            ptr = ctx->ParseMessage(add_field_transforms(), ptr);
+            ptr = ctx->ParseMessage(_internal_add_field_transforms(), ptr);
             CHK_(ptr);
             if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<::PROTOBUF_NAMESPACE_ID::uint8>(ptr) == 18);
+          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<18>(ptr));
         } else goto handle_unusual;
         continue;
       default: {
@@ -1901,98 +1574,9 @@ failure:
   goto success;
 #undef CHK_
 }
-#else  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
-bool DocumentTransform::MergePartialFromCodedStream(
-    ::PROTOBUF_NAMESPACE_ID::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!PROTOBUF_PREDICT_TRUE(EXPRESSION)) goto failure
-  ::PROTOBUF_NAMESPACE_ID::uint32 tag;
-  // @@protoc_insertion_point(parse_start:google.firestore.v1.DocumentTransform)
-  for (;;) {
-    ::std::pair<::PROTOBUF_NAMESPACE_ID::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // string document = 1;
-      case 1: {
-        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (10 & 0xFF)) {
-          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadString(
-                input, this->mutable_document()));
-          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-            this->document().data(), static_cast<int>(this->document().length()),
-            ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE,
-            "google.firestore.v1.DocumentTransform.document"));
-        } else {
-          goto handle_unusual;
-        }
-        break;
-      }
 
-      // repeated .google.firestore.v1.DocumentTransform.FieldTransform field_transforms = 2;
-      case 2: {
-        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (18 & 0xFF)) {
-          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadMessage(
-                input, add_field_transforms()));
-        } else {
-          goto handle_unusual;
-        }
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0) {
-          goto success;
-        }
-        DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SkipField(
-              input, tag, _internal_metadata_.mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:google.firestore.v1.DocumentTransform)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:google.firestore.v1.DocumentTransform)
-  return false;
-#undef DO_
-}
-#endif  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
-
-void DocumentTransform::SerializeWithCachedSizes(
-    ::PROTOBUF_NAMESPACE_ID::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:google.firestore.v1.DocumentTransform)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
-  (void) cached_has_bits;
-
-  // string document = 1;
-  if (this->document().size() > 0) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->document().data(), static_cast<int>(this->document().length()),
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "google.firestore.v1.DocumentTransform.document");
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteStringMaybeAliased(
-      1, this->document(), output);
-  }
-
-  // repeated .google.firestore.v1.DocumentTransform.FieldTransform field_transforms = 2;
-  for (unsigned int i = 0,
-      n = static_cast<unsigned int>(this->field_transforms_size()); i < n; i++) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteMessageMaybeToArray(
-      2,
-      this->field_transforms(static_cast<int>(i)),
-      output);
-  }
-
-  if (_internal_metadata_.have_unknown_fields()) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SerializeUnknownFields(
-        _internal_metadata_.unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:google.firestore.v1.DocumentTransform)
-}
-
-::PROTOBUF_NAMESPACE_ID::uint8* DocumentTransform::InternalSerializeWithCachedSizesToArray(
-    ::PROTOBUF_NAMESPACE_ID::uint8* target) const {
+::PROTOBUF_NAMESPACE_ID::uint8* DocumentTransform::_InternalSerialize(
+    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
   // @@protoc_insertion_point(serialize_to_array_start:google.firestore.v1.DocumentTransform)
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
@@ -2000,25 +1584,24 @@ void DocumentTransform::SerializeWithCachedSizes(
   // string document = 1;
   if (this->document().size() > 0) {
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->document().data(), static_cast<int>(this->document().length()),
+      this->_internal_document().data(), static_cast<int>(this->_internal_document().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "google.firestore.v1.DocumentTransform.document");
-    target =
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteStringToArray(
-        1, this->document(), target);
+    target = stream->WriteStringMaybeAliased(
+        1, this->_internal_document(), target);
   }
 
   // repeated .google.firestore.v1.DocumentTransform.FieldTransform field_transforms = 2;
   for (unsigned int i = 0,
-      n = static_cast<unsigned int>(this->field_transforms_size()); i < n; i++) {
+      n = static_cast<unsigned int>(this->_internal_field_transforms_size()); i < n; i++) {
+    target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessageToArray(
-        2, this->field_transforms(static_cast<int>(i)), target);
+      InternalWriteMessage(2, this->_internal_field_transforms(i), target, stream);
   }
 
-  if (_internal_metadata_.have_unknown_fields()) {
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SerializeUnknownFieldsToArray(
-        _internal_metadata_.unknown_fields(), target);
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields(), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:google.firestore.v1.DocumentTransform)
   return target;
@@ -2028,33 +1611,28 @@ size_t DocumentTransform::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:google.firestore.v1.DocumentTransform)
   size_t total_size = 0;
 
-  if (_internal_metadata_.have_unknown_fields()) {
-    total_size +=
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::ComputeUnknownFieldsSize(
-        _internal_metadata_.unknown_fields());
-  }
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
   // repeated .google.firestore.v1.DocumentTransform.FieldTransform field_transforms = 2;
-  {
-    unsigned int count = static_cast<unsigned int>(this->field_transforms_size());
-    total_size += 1UL * count;
-    for (unsigned int i = 0; i < count; i++) {
-      total_size +=
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-          this->field_transforms(static_cast<int>(i)));
-    }
+  total_size += 1UL * this->_internal_field_transforms_size();
+  for (const auto& msg : this->field_transforms_) {
+    total_size +=
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
   // string document = 1;
   if (this->document().size() > 0) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-        this->document());
+        this->_internal_document());
   }
 
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
+        _internal_metadata_, total_size, &_cached_size_);
+  }
   int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
   SetCachedSize(cached_size);
   return total_size;
@@ -2110,7 +1688,7 @@ bool DocumentTransform::IsInitialized() const {
 void DocumentTransform::InternalSwap(DocumentTransform* other) {
   using std::swap;
   _internal_metadata_.Swap(&other->_internal_metadata_);
-  CastToBase(&field_transforms_)->InternalSwap(CastToBase(&other->field_transforms_));
+  field_transforms_.InternalSwap(&other->field_transforms_);
   document_.Swap(&other->document_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
     GetArenaNoVirtual());
 }
@@ -2154,7 +1732,7 @@ WriteResult::WriteResult(const WriteResult& from)
       _internal_metadata_(nullptr),
       transform_results_(from.transform_results_) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
-  if (from.has_update_time()) {
+  if (from._internal_has_update_time()) {
     update_time_ = new PROTOBUF_NAMESPACE_ID::Timestamp(*from.update_time_);
   } else {
     update_time_ = nullptr;
@@ -2199,7 +1777,6 @@ void WriteResult::Clear() {
   _internal_metadata_.Clear();
 }
 
-#if GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
 const char* WriteResult::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
 #define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   while (!ctx->Done(&ptr)) {
@@ -2210,7 +1787,7 @@ const char* WriteResult::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID
       // .google.protobuf.Timestamp update_time = 1;
       case 1:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
-          ptr = ctx->ParseMessage(mutable_update_time(), ptr);
+          ptr = ctx->ParseMessage(_internal_mutable_update_time(), ptr);
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
@@ -2220,10 +1797,10 @@ const char* WriteResult::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID
           ptr -= 1;
           do {
             ptr += 1;
-            ptr = ctx->ParseMessage(add_transform_results(), ptr);
+            ptr = ctx->ParseMessage(_internal_add_transform_results(), ptr);
             CHK_(ptr);
             if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<::PROTOBUF_NAMESPACE_ID::uint8>(ptr) == 18);
+          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<18>(ptr));
         } else goto handle_unusual;
         continue;
       default: {
@@ -2245,112 +1822,32 @@ failure:
   goto success;
 #undef CHK_
 }
-#else  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
-bool WriteResult::MergePartialFromCodedStream(
-    ::PROTOBUF_NAMESPACE_ID::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!PROTOBUF_PREDICT_TRUE(EXPRESSION)) goto failure
-  ::PROTOBUF_NAMESPACE_ID::uint32 tag;
-  // @@protoc_insertion_point(parse_start:google.firestore.v1.WriteResult)
-  for (;;) {
-    ::std::pair<::PROTOBUF_NAMESPACE_ID::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // .google.protobuf.Timestamp update_time = 1;
-      case 1: {
-        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (10 & 0xFF)) {
-          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadMessage(
-               input, mutable_update_time()));
-        } else {
-          goto handle_unusual;
-        }
-        break;
-      }
 
-      // repeated .google.firestore.v1.Value transform_results = 2;
-      case 2: {
-        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (18 & 0xFF)) {
-          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadMessage(
-                input, add_transform_results()));
-        } else {
-          goto handle_unusual;
-        }
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0) {
-          goto success;
-        }
-        DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SkipField(
-              input, tag, _internal_metadata_.mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:google.firestore.v1.WriteResult)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:google.firestore.v1.WriteResult)
-  return false;
-#undef DO_
-}
-#endif  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
-
-void WriteResult::SerializeWithCachedSizes(
-    ::PROTOBUF_NAMESPACE_ID::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:google.firestore.v1.WriteResult)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
-  (void) cached_has_bits;
-
-  // .google.protobuf.Timestamp update_time = 1;
-  if (this->has_update_time()) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteMessageMaybeToArray(
-      1, _Internal::update_time(this), output);
-  }
-
-  // repeated .google.firestore.v1.Value transform_results = 2;
-  for (unsigned int i = 0,
-      n = static_cast<unsigned int>(this->transform_results_size()); i < n; i++) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteMessageMaybeToArray(
-      2,
-      this->transform_results(static_cast<int>(i)),
-      output);
-  }
-
-  if (_internal_metadata_.have_unknown_fields()) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SerializeUnknownFields(
-        _internal_metadata_.unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:google.firestore.v1.WriteResult)
-}
-
-::PROTOBUF_NAMESPACE_ID::uint8* WriteResult::InternalSerializeWithCachedSizesToArray(
-    ::PROTOBUF_NAMESPACE_ID::uint8* target) const {
+::PROTOBUF_NAMESPACE_ID::uint8* WriteResult::_InternalSerialize(
+    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
   // @@protoc_insertion_point(serialize_to_array_start:google.firestore.v1.WriteResult)
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   // .google.protobuf.Timestamp update_time = 1;
   if (this->has_update_time()) {
+    target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessageToArray(
-        1, _Internal::update_time(this), target);
+      InternalWriteMessage(
+        1, _Internal::update_time(this), target, stream);
   }
 
   // repeated .google.firestore.v1.Value transform_results = 2;
   for (unsigned int i = 0,
-      n = static_cast<unsigned int>(this->transform_results_size()); i < n; i++) {
+      n = static_cast<unsigned int>(this->_internal_transform_results_size()); i < n; i++) {
+    target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessageToArray(
-        2, this->transform_results(static_cast<int>(i)), target);
+      InternalWriteMessage(2, this->_internal_transform_results(i), target, stream);
   }
 
-  if (_internal_metadata_.have_unknown_fields()) {
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SerializeUnknownFieldsToArray(
-        _internal_metadata_.unknown_fields(), target);
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields(), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:google.firestore.v1.WriteResult)
   return target;
@@ -2360,24 +1857,15 @@ size_t WriteResult::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:google.firestore.v1.WriteResult)
   size_t total_size = 0;
 
-  if (_internal_metadata_.have_unknown_fields()) {
-    total_size +=
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::ComputeUnknownFieldsSize(
-        _internal_metadata_.unknown_fields());
-  }
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
   // repeated .google.firestore.v1.Value transform_results = 2;
-  {
-    unsigned int count = static_cast<unsigned int>(this->transform_results_size());
-    total_size += 1UL * count;
-    for (unsigned int i = 0; i < count; i++) {
-      total_size +=
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-          this->transform_results(static_cast<int>(i)));
-    }
+  total_size += 1UL * this->_internal_transform_results_size();
+  for (const auto& msg : this->transform_results_) {
+    total_size +=
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
   // .google.protobuf.Timestamp update_time = 1;
@@ -2387,6 +1875,10 @@ size_t WriteResult::ByteSizeLong() const {
         *update_time_);
   }
 
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
+        _internal_metadata_, total_size, &_cached_size_);
+  }
   int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
   SetCachedSize(cached_size);
   return total_size;
@@ -2416,7 +1908,7 @@ void WriteResult::MergeFrom(const WriteResult& from) {
 
   transform_results_.MergeFrom(from.transform_results_);
   if (from.has_update_time()) {
-    mutable_update_time()->PROTOBUF_NAMESPACE_ID::Timestamp::MergeFrom(from.update_time());
+    _internal_mutable_update_time()->PROTOBUF_NAMESPACE_ID::Timestamp::MergeFrom(from._internal_update_time());
   }
 }
 
@@ -2441,7 +1933,7 @@ bool WriteResult::IsInitialized() const {
 void WriteResult::InternalSwap(WriteResult* other) {
   using std::swap;
   _internal_metadata_.Swap(&other->_internal_metadata_);
-  CastToBase(&transform_results_)->InternalSwap(CastToBase(&other->transform_results_));
+  transform_results_.InternalSwap(&other->transform_results_);
   swap(update_time_, other->update_time_);
 }
 
@@ -2482,7 +1974,7 @@ DocumentChange::DocumentChange(const DocumentChange& from)
       target_ids_(from.target_ids_),
       removed_target_ids_(from.removed_target_ids_) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
-  if (from.has_document()) {
+  if (from._internal_has_document()) {
     document_ = new ::google::firestore::v1::Document(*from.document_);
   } else {
     document_ = nullptr;
@@ -2528,7 +2020,6 @@ void DocumentChange::Clear() {
   _internal_metadata_.Clear();
 }
 
-#if GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
 const char* DocumentChange::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
 #define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   while (!ctx->Done(&ptr)) {
@@ -2539,27 +2030,27 @@ const char* DocumentChange::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE
       // .google.firestore.v1.Document document = 1;
       case 1:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
-          ptr = ctx->ParseMessage(mutable_document(), ptr);
+          ptr = ctx->ParseMessage(_internal_mutable_document(), ptr);
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
       // repeated int32 target_ids = 5;
       case 5:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 42)) {
-          ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedInt32Parser(mutable_target_ids(), ptr, ctx);
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedInt32Parser(_internal_mutable_target_ids(), ptr, ctx);
           CHK_(ptr);
         } else if (static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 40) {
-          add_target_ids(::PROTOBUF_NAMESPACE_ID::internal::ReadVarint(&ptr));
+          _internal_add_target_ids(::PROTOBUF_NAMESPACE_ID::internal::ReadVarint(&ptr));
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
       // repeated int32 removed_target_ids = 6;
       case 6:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 50)) {
-          ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedInt32Parser(mutable_removed_target_ids(), ptr, ctx);
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedInt32Parser(_internal_mutable_removed_target_ids(), ptr, ctx);
           CHK_(ptr);
         } else if (static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 48) {
-          add_removed_target_ids(::PROTOBUF_NAMESPACE_ID::internal::ReadVarint(&ptr));
+          _internal_add_removed_target_ids(::PROTOBUF_NAMESPACE_ID::internal::ReadVarint(&ptr));
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
@@ -2582,164 +2073,42 @@ failure:
   goto success;
 #undef CHK_
 }
-#else  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
-bool DocumentChange::MergePartialFromCodedStream(
-    ::PROTOBUF_NAMESPACE_ID::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!PROTOBUF_PREDICT_TRUE(EXPRESSION)) goto failure
-  ::PROTOBUF_NAMESPACE_ID::uint32 tag;
-  // @@protoc_insertion_point(parse_start:google.firestore.v1.DocumentChange)
-  for (;;) {
-    ::std::pair<::PROTOBUF_NAMESPACE_ID::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // .google.firestore.v1.Document document = 1;
-      case 1: {
-        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (10 & 0xFF)) {
-          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadMessage(
-               input, mutable_document()));
-        } else {
-          goto handle_unusual;
-        }
-        break;
-      }
 
-      // repeated int32 target_ids = 5;
-      case 5: {
-        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (42 & 0xFF)) {
-          DO_((::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadPackedPrimitive<
-                   ::PROTOBUF_NAMESPACE_ID::int32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32>(
-                 input, this->mutable_target_ids())));
-        } else if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (40 & 0xFF)) {
-          DO_((::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadRepeatedPrimitiveNoInline<
-                   ::PROTOBUF_NAMESPACE_ID::int32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32>(
-                 1, 42u, input, this->mutable_target_ids())));
-        } else {
-          goto handle_unusual;
-        }
-        break;
-      }
-
-      // repeated int32 removed_target_ids = 6;
-      case 6: {
-        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (50 & 0xFF)) {
-          DO_((::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadPackedPrimitive<
-                   ::PROTOBUF_NAMESPACE_ID::int32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32>(
-                 input, this->mutable_removed_target_ids())));
-        } else if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (48 & 0xFF)) {
-          DO_((::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadRepeatedPrimitiveNoInline<
-                   ::PROTOBUF_NAMESPACE_ID::int32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32>(
-                 1, 50u, input, this->mutable_removed_target_ids())));
-        } else {
-          goto handle_unusual;
-        }
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0) {
-          goto success;
-        }
-        DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SkipField(
-              input, tag, _internal_metadata_.mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:google.firestore.v1.DocumentChange)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:google.firestore.v1.DocumentChange)
-  return false;
-#undef DO_
-}
-#endif  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
-
-void DocumentChange::SerializeWithCachedSizes(
-    ::PROTOBUF_NAMESPACE_ID::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:google.firestore.v1.DocumentChange)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
-  (void) cached_has_bits;
-
-  // .google.firestore.v1.Document document = 1;
-  if (this->has_document()) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteMessageMaybeToArray(
-      1, _Internal::document(this), output);
-  }
-
-  // repeated int32 target_ids = 5;
-  if (this->target_ids_size() > 0) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteTag(5, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED, output);
-    output->WriteVarint32(_target_ids_cached_byte_size_.load(
-        std::memory_order_relaxed));
-  }
-  for (int i = 0, n = this->target_ids_size(); i < n; i++) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32NoTag(
-      this->target_ids(i), output);
-  }
-
-  // repeated int32 removed_target_ids = 6;
-  if (this->removed_target_ids_size() > 0) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteTag(6, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED, output);
-    output->WriteVarint32(_removed_target_ids_cached_byte_size_.load(
-        std::memory_order_relaxed));
-  }
-  for (int i = 0, n = this->removed_target_ids_size(); i < n; i++) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32NoTag(
-      this->removed_target_ids(i), output);
-  }
-
-  if (_internal_metadata_.have_unknown_fields()) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SerializeUnknownFields(
-        _internal_metadata_.unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:google.firestore.v1.DocumentChange)
-}
-
-::PROTOBUF_NAMESPACE_ID::uint8* DocumentChange::InternalSerializeWithCachedSizesToArray(
-    ::PROTOBUF_NAMESPACE_ID::uint8* target) const {
+::PROTOBUF_NAMESPACE_ID::uint8* DocumentChange::_InternalSerialize(
+    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
   // @@protoc_insertion_point(serialize_to_array_start:google.firestore.v1.DocumentChange)
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   // .google.firestore.v1.Document document = 1;
   if (this->has_document()) {
+    target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessageToArray(
-        1, _Internal::document(this), target);
+      InternalWriteMessage(
+        1, _Internal::document(this), target, stream);
   }
 
   // repeated int32 target_ids = 5;
-  if (this->target_ids_size() > 0) {
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteTagToArray(
-      5,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED,
-      target);
-    target = ::PROTOBUF_NAMESPACE_ID::io::CodedOutputStream::WriteVarint32ToArray(
-        _target_ids_cached_byte_size_.load(std::memory_order_relaxed),
-         target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      WriteInt32NoTagToArray(this->target_ids_, target);
+  {
+    int byte_size = _target_ids_cached_byte_size_.load(std::memory_order_relaxed);
+    if (byte_size > 0) {
+      target = stream->WriteInt32Packed(
+          5, _internal_target_ids(), byte_size, target);
+    }
   }
 
   // repeated int32 removed_target_ids = 6;
-  if (this->removed_target_ids_size() > 0) {
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteTagToArray(
-      6,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED,
-      target);
-    target = ::PROTOBUF_NAMESPACE_ID::io::CodedOutputStream::WriteVarint32ToArray(
-        _removed_target_ids_cached_byte_size_.load(std::memory_order_relaxed),
-         target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      WriteInt32NoTagToArray(this->removed_target_ids_, target);
+  {
+    int byte_size = _removed_target_ids_cached_byte_size_.load(std::memory_order_relaxed);
+    if (byte_size > 0) {
+      target = stream->WriteInt32Packed(
+          6, _internal_removed_target_ids(), byte_size, target);
+    }
   }
 
-  if (_internal_metadata_.have_unknown_fields()) {
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SerializeUnknownFieldsToArray(
-        _internal_metadata_.unknown_fields(), target);
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields(), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:google.firestore.v1.DocumentChange)
   return target;
@@ -2749,11 +2118,6 @@ size_t DocumentChange::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:google.firestore.v1.DocumentChange)
   size_t total_size = 0;
 
-  if (_internal_metadata_.have_unknown_fields()) {
-    total_size +=
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::ComputeUnknownFieldsSize(
-        _internal_metadata_.unknown_fields());
-  }
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
@@ -2795,6 +2159,10 @@ size_t DocumentChange::ByteSizeLong() const {
         *document_);
   }
 
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
+        _internal_metadata_, total_size, &_cached_size_);
+  }
   int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
   SetCachedSize(cached_size);
   return total_size;
@@ -2825,7 +2193,7 @@ void DocumentChange::MergeFrom(const DocumentChange& from) {
   target_ids_.MergeFrom(from.target_ids_);
   removed_target_ids_.MergeFrom(from.removed_target_ids_);
   if (from.has_document()) {
-    mutable_document()->::google::firestore::v1::Document::MergeFrom(from.document());
+    _internal_mutable_document()->::google::firestore::v1::Document::MergeFrom(from._internal_document());
   }
 }
 
@@ -2892,10 +2260,10 @@ DocumentDelete::DocumentDelete(const DocumentDelete& from)
       removed_target_ids_(from.removed_target_ids_) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
   document_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-  if (!from.document().empty()) {
+  if (!from._internal_document().empty()) {
     document_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.document_);
   }
-  if (from.has_read_time()) {
+  if (from._internal_has_read_time()) {
     read_time_ = new PROTOBUF_NAMESPACE_ID::Timestamp(*from.read_time_);
   } else {
     read_time_ = nullptr;
@@ -2943,7 +2311,6 @@ void DocumentDelete::Clear() {
   _internal_metadata_.Clear();
 }
 
-#if GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
 const char* DocumentDelete::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
 #define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   while (!ctx->Done(&ptr)) {
@@ -2954,24 +2321,26 @@ const char* DocumentDelete::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE
       // string document = 1;
       case 1:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
-          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParserUTF8(mutable_document(), ptr, ctx, "google.firestore.v1.DocumentDelete.document");
+          auto str = _internal_mutable_document();
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
+          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "google.firestore.v1.DocumentDelete.document"));
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
       // .google.protobuf.Timestamp read_time = 4;
       case 4:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 34)) {
-          ptr = ctx->ParseMessage(mutable_read_time(), ptr);
+          ptr = ctx->ParseMessage(_internal_mutable_read_time(), ptr);
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
       // repeated int32 removed_target_ids = 6;
       case 6:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 50)) {
-          ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedInt32Parser(mutable_removed_target_ids(), ptr, ctx);
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedInt32Parser(_internal_mutable_removed_target_ids(), ptr, ctx);
           CHK_(ptr);
         } else if (static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 48) {
-          add_removed_target_ids(::PROTOBUF_NAMESPACE_ID::internal::ReadVarint(&ptr));
+          _internal_add_removed_target_ids(::PROTOBUF_NAMESPACE_ID::internal::ReadVarint(&ptr));
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
@@ -2994,122 +2363,9 @@ failure:
   goto success;
 #undef CHK_
 }
-#else  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
-bool DocumentDelete::MergePartialFromCodedStream(
-    ::PROTOBUF_NAMESPACE_ID::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!PROTOBUF_PREDICT_TRUE(EXPRESSION)) goto failure
-  ::PROTOBUF_NAMESPACE_ID::uint32 tag;
-  // @@protoc_insertion_point(parse_start:google.firestore.v1.DocumentDelete)
-  for (;;) {
-    ::std::pair<::PROTOBUF_NAMESPACE_ID::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // string document = 1;
-      case 1: {
-        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (10 & 0xFF)) {
-          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadString(
-                input, this->mutable_document()));
-          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-            this->document().data(), static_cast<int>(this->document().length()),
-            ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE,
-            "google.firestore.v1.DocumentDelete.document"));
-        } else {
-          goto handle_unusual;
-        }
-        break;
-      }
 
-      // .google.protobuf.Timestamp read_time = 4;
-      case 4: {
-        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (34 & 0xFF)) {
-          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadMessage(
-               input, mutable_read_time()));
-        } else {
-          goto handle_unusual;
-        }
-        break;
-      }
-
-      // repeated int32 removed_target_ids = 6;
-      case 6: {
-        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (50 & 0xFF)) {
-          DO_((::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadPackedPrimitive<
-                   ::PROTOBUF_NAMESPACE_ID::int32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32>(
-                 input, this->mutable_removed_target_ids())));
-        } else if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (48 & 0xFF)) {
-          DO_((::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadRepeatedPrimitiveNoInline<
-                   ::PROTOBUF_NAMESPACE_ID::int32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32>(
-                 1, 50u, input, this->mutable_removed_target_ids())));
-        } else {
-          goto handle_unusual;
-        }
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0) {
-          goto success;
-        }
-        DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SkipField(
-              input, tag, _internal_metadata_.mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:google.firestore.v1.DocumentDelete)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:google.firestore.v1.DocumentDelete)
-  return false;
-#undef DO_
-}
-#endif  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
-
-void DocumentDelete::SerializeWithCachedSizes(
-    ::PROTOBUF_NAMESPACE_ID::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:google.firestore.v1.DocumentDelete)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
-  (void) cached_has_bits;
-
-  // string document = 1;
-  if (this->document().size() > 0) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->document().data(), static_cast<int>(this->document().length()),
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "google.firestore.v1.DocumentDelete.document");
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteStringMaybeAliased(
-      1, this->document(), output);
-  }
-
-  // .google.protobuf.Timestamp read_time = 4;
-  if (this->has_read_time()) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteMessageMaybeToArray(
-      4, _Internal::read_time(this), output);
-  }
-
-  // repeated int32 removed_target_ids = 6;
-  if (this->removed_target_ids_size() > 0) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteTag(6, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED, output);
-    output->WriteVarint32(_removed_target_ids_cached_byte_size_.load(
-        std::memory_order_relaxed));
-  }
-  for (int i = 0, n = this->removed_target_ids_size(); i < n; i++) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32NoTag(
-      this->removed_target_ids(i), output);
-  }
-
-  if (_internal_metadata_.have_unknown_fields()) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SerializeUnknownFields(
-        _internal_metadata_.unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:google.firestore.v1.DocumentDelete)
-}
-
-::PROTOBUF_NAMESPACE_ID::uint8* DocumentDelete::InternalSerializeWithCachedSizesToArray(
-    ::PROTOBUF_NAMESPACE_ID::uint8* target) const {
+::PROTOBUF_NAMESPACE_ID::uint8* DocumentDelete::_InternalSerialize(
+    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
   // @@protoc_insertion_point(serialize_to_array_start:google.firestore.v1.DocumentDelete)
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
@@ -3117,37 +2373,33 @@ void DocumentDelete::SerializeWithCachedSizes(
   // string document = 1;
   if (this->document().size() > 0) {
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->document().data(), static_cast<int>(this->document().length()),
+      this->_internal_document().data(), static_cast<int>(this->_internal_document().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "google.firestore.v1.DocumentDelete.document");
-    target =
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteStringToArray(
-        1, this->document(), target);
+    target = stream->WriteStringMaybeAliased(
+        1, this->_internal_document(), target);
   }
 
   // .google.protobuf.Timestamp read_time = 4;
   if (this->has_read_time()) {
+    target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessageToArray(
-        4, _Internal::read_time(this), target);
+      InternalWriteMessage(
+        4, _Internal::read_time(this), target, stream);
   }
 
   // repeated int32 removed_target_ids = 6;
-  if (this->removed_target_ids_size() > 0) {
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteTagToArray(
-      6,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED,
-      target);
-    target = ::PROTOBUF_NAMESPACE_ID::io::CodedOutputStream::WriteVarint32ToArray(
-        _removed_target_ids_cached_byte_size_.load(std::memory_order_relaxed),
-         target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      WriteInt32NoTagToArray(this->removed_target_ids_, target);
+  {
+    int byte_size = _removed_target_ids_cached_byte_size_.load(std::memory_order_relaxed);
+    if (byte_size > 0) {
+      target = stream->WriteInt32Packed(
+          6, _internal_removed_target_ids(), byte_size, target);
+    }
   }
 
-  if (_internal_metadata_.have_unknown_fields()) {
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SerializeUnknownFieldsToArray(
-        _internal_metadata_.unknown_fields(), target);
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields(), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:google.firestore.v1.DocumentDelete)
   return target;
@@ -3157,11 +2409,6 @@ size_t DocumentDelete::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:google.firestore.v1.DocumentDelete)
   size_t total_size = 0;
 
-  if (_internal_metadata_.have_unknown_fields()) {
-    total_size +=
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::ComputeUnknownFieldsSize(
-        _internal_metadata_.unknown_fields());
-  }
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
@@ -3185,7 +2432,7 @@ size_t DocumentDelete::ByteSizeLong() const {
   if (this->document().size() > 0) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-        this->document());
+        this->_internal_document());
   }
 
   // .google.protobuf.Timestamp read_time = 4;
@@ -3195,6 +2442,10 @@ size_t DocumentDelete::ByteSizeLong() const {
         *read_time_);
   }
 
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
+        _internal_metadata_, total_size, &_cached_size_);
+  }
   int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
   SetCachedSize(cached_size);
   return total_size;
@@ -3228,7 +2479,7 @@ void DocumentDelete::MergeFrom(const DocumentDelete& from) {
     document_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.document_);
   }
   if (from.has_read_time()) {
-    mutable_read_time()->PROTOBUF_NAMESPACE_ID::Timestamp::MergeFrom(from.read_time());
+    _internal_mutable_read_time()->PROTOBUF_NAMESPACE_ID::Timestamp::MergeFrom(from._internal_read_time());
   }
 }
 
@@ -3296,10 +2547,10 @@ DocumentRemove::DocumentRemove(const DocumentRemove& from)
       removed_target_ids_(from.removed_target_ids_) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
   document_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-  if (!from.document().empty()) {
+  if (!from._internal_document().empty()) {
     document_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.document_);
   }
-  if (from.has_read_time()) {
+  if (from._internal_has_read_time()) {
     read_time_ = new PROTOBUF_NAMESPACE_ID::Timestamp(*from.read_time_);
   } else {
     read_time_ = nullptr;
@@ -3347,7 +2598,6 @@ void DocumentRemove::Clear() {
   _internal_metadata_.Clear();
 }
 
-#if GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
 const char* DocumentRemove::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
 #define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   while (!ctx->Done(&ptr)) {
@@ -3358,24 +2608,26 @@ const char* DocumentRemove::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE
       // string document = 1;
       case 1:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
-          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParserUTF8(mutable_document(), ptr, ctx, "google.firestore.v1.DocumentRemove.document");
+          auto str = _internal_mutable_document();
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
+          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "google.firestore.v1.DocumentRemove.document"));
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
       // repeated int32 removed_target_ids = 2;
       case 2:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
-          ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedInt32Parser(mutable_removed_target_ids(), ptr, ctx);
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedInt32Parser(_internal_mutable_removed_target_ids(), ptr, ctx);
           CHK_(ptr);
         } else if (static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 16) {
-          add_removed_target_ids(::PROTOBUF_NAMESPACE_ID::internal::ReadVarint(&ptr));
+          _internal_add_removed_target_ids(::PROTOBUF_NAMESPACE_ID::internal::ReadVarint(&ptr));
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
       // .google.protobuf.Timestamp read_time = 4;
       case 4:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 34)) {
-          ptr = ctx->ParseMessage(mutable_read_time(), ptr);
+          ptr = ctx->ParseMessage(_internal_mutable_read_time(), ptr);
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
@@ -3398,122 +2650,9 @@ failure:
   goto success;
 #undef CHK_
 }
-#else  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
-bool DocumentRemove::MergePartialFromCodedStream(
-    ::PROTOBUF_NAMESPACE_ID::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!PROTOBUF_PREDICT_TRUE(EXPRESSION)) goto failure
-  ::PROTOBUF_NAMESPACE_ID::uint32 tag;
-  // @@protoc_insertion_point(parse_start:google.firestore.v1.DocumentRemove)
-  for (;;) {
-    ::std::pair<::PROTOBUF_NAMESPACE_ID::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // string document = 1;
-      case 1: {
-        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (10 & 0xFF)) {
-          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadString(
-                input, this->mutable_document()));
-          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-            this->document().data(), static_cast<int>(this->document().length()),
-            ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::PARSE,
-            "google.firestore.v1.DocumentRemove.document"));
-        } else {
-          goto handle_unusual;
-        }
-        break;
-      }
 
-      // repeated int32 removed_target_ids = 2;
-      case 2: {
-        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (18 & 0xFF)) {
-          DO_((::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadPackedPrimitive<
-                   ::PROTOBUF_NAMESPACE_ID::int32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32>(
-                 input, this->mutable_removed_target_ids())));
-        } else if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (16 & 0xFF)) {
-          DO_((::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadRepeatedPrimitiveNoInline<
-                   ::PROTOBUF_NAMESPACE_ID::int32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32>(
-                 1, 18u, input, this->mutable_removed_target_ids())));
-        } else {
-          goto handle_unusual;
-        }
-        break;
-      }
-
-      // .google.protobuf.Timestamp read_time = 4;
-      case 4: {
-        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (34 & 0xFF)) {
-          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadMessage(
-               input, mutable_read_time()));
-        } else {
-          goto handle_unusual;
-        }
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0) {
-          goto success;
-        }
-        DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SkipField(
-              input, tag, _internal_metadata_.mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:google.firestore.v1.DocumentRemove)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:google.firestore.v1.DocumentRemove)
-  return false;
-#undef DO_
-}
-#endif  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
-
-void DocumentRemove::SerializeWithCachedSizes(
-    ::PROTOBUF_NAMESPACE_ID::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:google.firestore.v1.DocumentRemove)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
-  (void) cached_has_bits;
-
-  // string document = 1;
-  if (this->document().size() > 0) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->document().data(), static_cast<int>(this->document().length()),
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "google.firestore.v1.DocumentRemove.document");
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteStringMaybeAliased(
-      1, this->document(), output);
-  }
-
-  // repeated int32 removed_target_ids = 2;
-  if (this->removed_target_ids_size() > 0) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteTag(2, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED, output);
-    output->WriteVarint32(_removed_target_ids_cached_byte_size_.load(
-        std::memory_order_relaxed));
-  }
-  for (int i = 0, n = this->removed_target_ids_size(); i < n; i++) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32NoTag(
-      this->removed_target_ids(i), output);
-  }
-
-  // .google.protobuf.Timestamp read_time = 4;
-  if (this->has_read_time()) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteMessageMaybeToArray(
-      4, _Internal::read_time(this), output);
-  }
-
-  if (_internal_metadata_.have_unknown_fields()) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SerializeUnknownFields(
-        _internal_metadata_.unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:google.firestore.v1.DocumentRemove)
-}
-
-::PROTOBUF_NAMESPACE_ID::uint8* DocumentRemove::InternalSerializeWithCachedSizesToArray(
-    ::PROTOBUF_NAMESPACE_ID::uint8* target) const {
+::PROTOBUF_NAMESPACE_ID::uint8* DocumentRemove::_InternalSerialize(
+    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
   // @@protoc_insertion_point(serialize_to_array_start:google.firestore.v1.DocumentRemove)
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
@@ -3521,37 +2660,33 @@ void DocumentRemove::SerializeWithCachedSizes(
   // string document = 1;
   if (this->document().size() > 0) {
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->document().data(), static_cast<int>(this->document().length()),
+      this->_internal_document().data(), static_cast<int>(this->_internal_document().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "google.firestore.v1.DocumentRemove.document");
-    target =
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteStringToArray(
-        1, this->document(), target);
+    target = stream->WriteStringMaybeAliased(
+        1, this->_internal_document(), target);
   }
 
   // repeated int32 removed_target_ids = 2;
-  if (this->removed_target_ids_size() > 0) {
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteTagToArray(
-      2,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED,
-      target);
-    target = ::PROTOBUF_NAMESPACE_ID::io::CodedOutputStream::WriteVarint32ToArray(
-        _removed_target_ids_cached_byte_size_.load(std::memory_order_relaxed),
-         target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      WriteInt32NoTagToArray(this->removed_target_ids_, target);
+  {
+    int byte_size = _removed_target_ids_cached_byte_size_.load(std::memory_order_relaxed);
+    if (byte_size > 0) {
+      target = stream->WriteInt32Packed(
+          2, _internal_removed_target_ids(), byte_size, target);
+    }
   }
 
   // .google.protobuf.Timestamp read_time = 4;
   if (this->has_read_time()) {
+    target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessageToArray(
-        4, _Internal::read_time(this), target);
+      InternalWriteMessage(
+        4, _Internal::read_time(this), target, stream);
   }
 
-  if (_internal_metadata_.have_unknown_fields()) {
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SerializeUnknownFieldsToArray(
-        _internal_metadata_.unknown_fields(), target);
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields(), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:google.firestore.v1.DocumentRemove)
   return target;
@@ -3561,11 +2696,6 @@ size_t DocumentRemove::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:google.firestore.v1.DocumentRemove)
   size_t total_size = 0;
 
-  if (_internal_metadata_.have_unknown_fields()) {
-    total_size +=
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::ComputeUnknownFieldsSize(
-        _internal_metadata_.unknown_fields());
-  }
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
@@ -3589,7 +2719,7 @@ size_t DocumentRemove::ByteSizeLong() const {
   if (this->document().size() > 0) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-        this->document());
+        this->_internal_document());
   }
 
   // .google.protobuf.Timestamp read_time = 4;
@@ -3599,6 +2729,10 @@ size_t DocumentRemove::ByteSizeLong() const {
         *read_time_);
   }
 
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
+        _internal_metadata_, total_size, &_cached_size_);
+  }
   int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
   SetCachedSize(cached_size);
   return total_size;
@@ -3632,7 +2766,7 @@ void DocumentRemove::MergeFrom(const DocumentRemove& from) {
     document_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.document_);
   }
   if (from.has_read_time()) {
-    mutable_read_time()->PROTOBUF_NAMESPACE_ID::Timestamp::MergeFrom(from.read_time());
+    _internal_mutable_read_time()->PROTOBUF_NAMESPACE_ID::Timestamp::MergeFrom(from._internal_read_time());
   }
 }
 
@@ -3726,7 +2860,6 @@ void ExistenceFilter::Clear() {
   _internal_metadata_.Clear();
 }
 
-#if GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
 const char* ExistenceFilter::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
 #define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   while (!ctx->Done(&ptr)) {
@@ -3767,106 +2900,28 @@ failure:
   goto success;
 #undef CHK_
 }
-#else  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
-bool ExistenceFilter::MergePartialFromCodedStream(
-    ::PROTOBUF_NAMESPACE_ID::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!PROTOBUF_PREDICT_TRUE(EXPRESSION)) goto failure
-  ::PROTOBUF_NAMESPACE_ID::uint32 tag;
-  // @@protoc_insertion_point(parse_start:google.firestore.v1.ExistenceFilter)
-  for (;;) {
-    ::std::pair<::PROTOBUF_NAMESPACE_ID::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // int32 target_id = 1;
-      case 1: {
-        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (8 & 0xFF)) {
 
-          DO_((::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadPrimitive<
-                   ::PROTOBUF_NAMESPACE_ID::int32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32>(
-                 input, &target_id_)));
-        } else {
-          goto handle_unusual;
-        }
-        break;
-      }
-
-      // int32 count = 2;
-      case 2: {
-        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (16 & 0xFF)) {
-
-          DO_((::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadPrimitive<
-                   ::PROTOBUF_NAMESPACE_ID::int32, ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32>(
-                 input, &count_)));
-        } else {
-          goto handle_unusual;
-        }
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0) {
-          goto success;
-        }
-        DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SkipField(
-              input, tag, _internal_metadata_.mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:google.firestore.v1.ExistenceFilter)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:google.firestore.v1.ExistenceFilter)
-  return false;
-#undef DO_
-}
-#endif  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
-
-void ExistenceFilter::SerializeWithCachedSizes(
-    ::PROTOBUF_NAMESPACE_ID::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:google.firestore.v1.ExistenceFilter)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
-  (void) cached_has_bits;
-
-  // int32 target_id = 1;
-  if (this->target_id() != 0) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32(1, this->target_id(), output);
-  }
-
-  // int32 count = 2;
-  if (this->count() != 0) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32(2, this->count(), output);
-  }
-
-  if (_internal_metadata_.have_unknown_fields()) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SerializeUnknownFields(
-        _internal_metadata_.unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:google.firestore.v1.ExistenceFilter)
-}
-
-::PROTOBUF_NAMESPACE_ID::uint8* ExistenceFilter::InternalSerializeWithCachedSizesToArray(
-    ::PROTOBUF_NAMESPACE_ID::uint8* target) const {
+::PROTOBUF_NAMESPACE_ID::uint8* ExistenceFilter::_InternalSerialize(
+    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
   // @@protoc_insertion_point(serialize_to_array_start:google.firestore.v1.ExistenceFilter)
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   // int32 target_id = 1;
   if (this->target_id() != 0) {
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(1, this->target_id(), target);
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(1, this->_internal_target_id(), target);
   }
 
   // int32 count = 2;
   if (this->count() != 0) {
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(2, this->count(), target);
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(2, this->_internal_count(), target);
   }
 
-  if (_internal_metadata_.have_unknown_fields()) {
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SerializeUnknownFieldsToArray(
-        _internal_metadata_.unknown_fields(), target);
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields(), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:google.firestore.v1.ExistenceFilter)
   return target;
@@ -3876,11 +2931,6 @@ size_t ExistenceFilter::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:google.firestore.v1.ExistenceFilter)
   size_t total_size = 0;
 
-  if (_internal_metadata_.have_unknown_fields()) {
-    total_size +=
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::ComputeUnknownFieldsSize(
-        _internal_metadata_.unknown_fields());
-  }
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
@@ -3889,16 +2939,20 @@ size_t ExistenceFilter::ByteSizeLong() const {
   if (this->target_id() != 0) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
-        this->target_id());
+        this->_internal_target_id());
   }
 
   // int32 count = 2;
   if (this->count() != 0) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
-        this->count());
+        this->_internal_count());
   }
 
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
+        _internal_metadata_, total_size, &_cached_size_);
+  }
   int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
   SetCachedSize(cached_size);
   return total_size;
@@ -3927,10 +2981,10 @@ void ExistenceFilter::MergeFrom(const ExistenceFilter& from) {
   (void) cached_has_bits;
 
   if (from.target_id() != 0) {
-    set_target_id(from.target_id());
+    _internal_set_target_id(from._internal_target_id());
   }
   if (from.count() != 0) {
-    set_count(from.count());
+    _internal_set_count(from._internal_count());
   }
 }
 

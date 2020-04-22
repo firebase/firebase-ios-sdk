@@ -234,6 +234,7 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
 }
 
 - (void)runFailingTransactionWithError:(FIRFirestoreErrorCode)expected {
+  (void)expected;
   XCTestExpectation *expectation =
       [_testCase expectationWithDescription:@"runFailingTransactionWithError"];
   [_db

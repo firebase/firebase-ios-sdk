@@ -1,4 +1,4 @@
-# Copyright 2018 Google
+# Copyright 2018 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,24 +18,20 @@ if(TARGET protobuf)
   return()
 endif()
 
-# This ExternalProject unpacks itself inside the gRPC source tree. CMake clears
-# the SOURCE_DIR when unpacking so this must come after grpc despite the fact
-# that grpc logically depends upon this.
-
-set(version 3.9.2)
+# Based on https://github.com/grpc/grpc/blob/v1.27.0/bazel/grpc_deps.bzl
+# v3.11.4, master@{2020-01-15}
+set(commit 29cd005ce1fe1a8fabf11e325cb13006a6646d59)
 
 ExternalProject_Add(
   protobuf
-  DEPENDS
-    grpc-download
 
   DOWNLOAD_DIR ${FIREBASE_DOWNLOAD_DIR}
-  DOWNLOAD_NAME protobuf-${version}.tar.gz
-  URL https://github.com/google/protobuf/archive/v${version}.tar.gz
-  URL_HASH SHA256=1fbf1c2962af287607232b2eddeaec9b4f4a7a6f5934e1a9276e9af76952f7e0
+  DOWNLOAD_NAME protobuf-${commit}.tar.gz
+  URL https://github.com/protocolbuffers/protobuf/archive/${commit}.tar.gz
+  URL_HASH SHA256=51398b0b97b353c1c226d0ade0bae80c80380e691cba7c1a108918986784a1c7
 
   PREFIX ${PROJECT_BINARY_DIR}
-  SOURCE_DIR ${PROJECT_BINARY_DIR}/src/grpc/third_party/protobuf
+  SOURCE_DIR ${PROJECT_BINARY_DIR}/src/protobuf
 
   CONFIGURE_COMMAND ""
   BUILD_COMMAND ""
