@@ -19,8 +19,8 @@ import Foundation
 import GoogleDataTransport
 
 class InterfaceController: WKInterfaceController {
-  var transport: GDTCORTransport = GDTCORTransport(mappingID: "1018", transformers: nil, target: GDTCORTarget.CCT.rawValue)!
-  // TODO: Segmented control for FLL and CSH
+  var transport: GDTCORTransport = GDTCORTransport(mappingID: "1018", transformers: nil,
+                                                   target: GDTCORTarget.FLL.rawValue)!
 
   override func awake(withContext context: Any?) {
     super.awake(withContext: context)

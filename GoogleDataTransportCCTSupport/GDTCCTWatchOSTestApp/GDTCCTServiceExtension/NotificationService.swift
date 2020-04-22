@@ -21,9 +21,13 @@ import GoogleDataTransport
 class NotificationService: UNNotificationServiceExtension {
   var contentHandler: ((UNNotificationContent) -> Void)?
   var bestAttemptContent: UNMutableNotificationContent?
-  var transport: GDTCORTransport = GDTCORTransport(mappingID: "1018", transformers: nil, target: GDTCORTarget.FLL.rawValue)!
 
-  override func didReceive(_ request: UNNotificationRequest, withContentHandler contentHandler: @escaping (UNNotificationContent) -> Void) {
+  var transport: GDTCORTransport = GDTCORTransport(mappingID: "1018", transformers: nil,
+                                                   target: GDTCORTarget.FLL.rawValue)!
+
+  override func didReceive(_ request: UNNotificationRequest,
+                           withContentHandler contentHandler: @escaping (UNNotificationContent)
+                             -> Void) {
     self.contentHandler = contentHandler
     bestAttemptContent = (request.content.mutableCopy() as? UNMutableNotificationContent)
 
@@ -46,13 +50,15 @@ class NotificationService: UNNotificationServiceExtension {
 
       bestAttemptContent.title = "\(bestAttemptContent.title) [Priority Event]"
 
-      Messaging.serviceExtension().populateNotificationContent(bestAttemptContent, withContentHandler: self.contentHandler!)
+      Messaging.serviceExtension()
+        .populateNotificationContent(bestAttemptContent, withContentHandler: self.contentHandler!)
     }
   }
 
   override func serviceExtensionTimeWillExpire() {
     // Called just before the extension will be terminated by the system.
-    // Use this as an opportunity to deliver your "best attempt" at modified content, otherwise the original push payload will be used.
+    // Use this as an opportunity to deliver your "best attempt" at modified content.
+    // Otherwise the original push payload will be used.
     if let contentHandler = contentHandler, let bestAttemptContent = bestAttemptContent {
       contentHandler(bestAttemptContent)
     }
