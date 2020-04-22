@@ -1,4 +1,4 @@
-# Using Firebase from a Framework or a library
+# Using Firebase from a framework or a library
 
 Currently all source code and binary Firebase SDKs are compiled as static frameworks. Most
 of the time you’ll link these frameworks directly to your app targets, but in some cases
