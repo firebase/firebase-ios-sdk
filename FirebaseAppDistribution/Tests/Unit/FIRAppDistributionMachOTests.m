@@ -43,4 +43,10 @@
   XCTAssertEqualObjects([macho codeHash], @"80cc0ec0af8a0169831abcc73177eb2b57990bc0");
 }
 
+- (void)testCodeHashForNonExistentBinary {
+  FIRAppDistributionMachO* macho;
+  macho = [[FIRAppDistributionMachO alloc] initWithPath:[self resourcePath:@"missing-file"]];
+  XCTAssertEqualObjects([macho codeHash], @"da39a3ee5e6b4b0d3255bfef95601890afd80709");
+}
+
 @end

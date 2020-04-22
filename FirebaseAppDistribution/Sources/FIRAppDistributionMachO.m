@@ -30,9 +30,6 @@
     _file = [NSFileHandle fileHandleForReadingAtPath:path];
     [_file seekToFileOffset:0];
     _slices = [NSMutableArray new];
-  }
-
-  if (_file) {
     [self extractSlices];
   }
 
@@ -46,10 +43,10 @@
   NSData* data = [_file readDataOfLength:sizeof(fheader)];
   [data getBytes:&fheader length:sizeof(fheader)];
 
-  magicValue = CFSwapInt32HostToBig(fheader.magic);
+  magicValue = CFSwapInt32BigToHost(fheader.magic);
 
   if (magicValue == FAT_MAGIC) {
-    uint32_t archCount = CFSwapInt32HostToBig(fheader.nfat_arch);
+    uint32_t archCount = CFSwapInt32BigToHost(fheader.nfat_arch);
     NSUInteger archOffsets[archCount];
 
     // Gather the offsets
@@ -59,17 +56,19 @@
       data = [_file readDataOfLength:sizeof(arch)];
       [data getBytes:&arch length:sizeof(arch)];
 
-      archOffsets[i] = CFSwapInt32HostToBig(arch.offset);
+      archOffsets[i] = CFSwapInt32BigToHost(arch.offset);
     }
 
-    // Iterate the slices
+    // Iterate the slices based on the offsets we extracted above
     for (uint32_t i = 0; i < archCount; i++) {
       FIRAppDistributionMachOSlice* slice = [self extractSliceAtOffset:archOffsets[i]];
-      [_slices addObject:slice];
+
+      if (slice) [_slices addObject:slice];
     }
   } else {
     FIRAppDistributionMachOSlice* slice = [self extractSliceAtOffset:0];
-    [_slices addObject:slice];
+
+    if (slice) [_slices addObject:slice];
   }
 }
 
@@ -80,11 +79,15 @@
 
   NSData* data = [_file readDataOfLength:sizeof(header)];
   [data getBytes:&header length:sizeof(header)];
-  uint32_t magicValue = CFSwapInt32HostToBig(header.magic);
+  uint32_t magicValue = CFSwapInt32BigToHost(header.magic);
 
-  // TODO: Verify Mach-O
+  // If we didn't read a valid magic value, something is wrong
+  // Bail out immediately to prevent reading random data
+  if (magicValue != MH_CIGAM_64 && magicValue != MH_CIGAM) {
+    return nil;
+  }
 
-  // If binary is 64-bit, read reserved bit and discard it
+  // If the binary is 64-bit, read the reserved bit and discard it
   if (magicValue == MH_CIGAM_64) {
     uint32_t reserved;
 
@@ -106,13 +109,14 @@
       NSUUID* uuid = [[NSUUID alloc] initWithUUIDBytes:uc.uuid];
       const NXArchInfo* arch = NXGetArchInfoFromCpuType(header.cputype, header.cpusubtype);
 
-      NSLog(@"Got Architecture %s UUID: %@", arch->name, [uuid UUIDString]);
       return [[FIRAppDistributionMachOSlice alloc] initWithArch:arch uuid:uuid];
     } else {
       [_file seekToFileOffset:[_file offsetInFile] + lc.cmdsize - sizeof(lc)];
     }
   }
 
+  // If we got here, something is wrong. We iterated the load commands
+  // and didn't find a UUID load command. This means the binary is corrupt.
   return nil;
 }
 
@@ -129,7 +133,6 @@
   }
 
   return [self sha1:prehashedString];
-  ;
 }
 
 - (NSString*)sha1:(NSString*)prehashedString {
