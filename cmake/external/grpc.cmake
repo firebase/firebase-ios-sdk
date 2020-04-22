@@ -1,4 +1,4 @@
-# Copyright 2018 Google
+# Copyright 2018 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,13 +18,15 @@ if(TARGET grpc)
   return()
 endif()
 
+set(version 1.28.0)
+
 ExternalProject_Add(
-  grpc-download
+  grpc
 
   DOWNLOAD_DIR ${FIREBASE_DOWNLOAD_DIR}
-  DOWNLOAD_NAME grpc-1.24.3.tar.gz
-  URL https://github.com/grpc/grpc/archive/v1.24.3.tar.gz
-  URL_HASH SHA256=c84b3fa140fcd6cce79b3f9de6357c5733a0071e04ca4e65ba5f8d306f10f033
+  DOWNLOAD_NAME grpc-${version}.tar.gz
+  URL https://github.com/grpc/grpc/archive/v${version}.tar.gz
+  URL_HASH SHA256=d6277f77e0bb922d3f6f56c0f93292bb4cfabfc3c92b31ee5ccea0e100303612
 
   PREFIX ${PROJECT_BINARY_DIR}
   SOURCE_DIR ${PROJECT_BINARY_DIR}/src/grpc
@@ -33,30 +35,4 @@ ExternalProject_Add(
   BUILD_COMMAND ""
   TEST_COMMAND ""
   INSTALL_COMMAND ""
-
-  # TODO(b/136119129): Get a common version of nanopb with gRPC.
-  # We need to resolve how to arrange for gRPC and Firestore to get a common
-  # version of nanopb.
-  PATCH_COMMAND sed -i.bak "/third_party\\/nanopb/ d" ${PROJECT_BINARY_DIR}/src/grpc/CMakeLists.txt
-)
-
-# gRPC depends upon these projects, so from an IWYU point of view should
-# include these files. Unfortunately gRPC's build requires these to be
-# subdirectories in its own source tree and CMake's ExternalProject download
-# step clears the source tree so these must be declared to depend upon the grpc
-# target. ExternalProject dependencies must already exist when declared so
-# these must come after the ExternalProject_Add block above.
-include(boringssl)
-include(c-ares)
-include(protobuf)
-include(zlib)
-
-add_custom_target(
-  grpc
-  DEPENDS
-    boringssl
-    c-ares
-    grpc-download
-    protobuf
-    zlib
 )
