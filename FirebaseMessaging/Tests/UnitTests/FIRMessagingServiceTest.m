@@ -21,11 +21,11 @@
 #import <GoogleUtilities/GULUserDefaults.h>
 
 #import <FirebaseMessaging/FIRMessaging.h>
-#import "Example/Messaging/Tests/FIRMessagingTestUtilities.h"
-#import "Firebase/Messaging/FIRMessagingClient.h"
-#import "Firebase/Messaging/FIRMessagingPubSub.h"
-#import "Firebase/Messaging/FIRMessagingTopicsCommon.h"
-#import "Firebase/Messaging/NSError+FIRMessaging.h"
+#import "FirebaseMessaging/Tests/UnitTests/FIRMessagingTestUtilities.h"
+#import "FirebaseMessaging/Sources/FIRMessagingClient.h"
+#import "FirebaseMessaging/Sources/FIRMessagingPubSub.h"
+#import "FirebaseMessaging/Sources/FIRMessagingTopicsCommon.h"
+#import "FirebaseMessaging/Sources/NSError+FIRMessaging.h"
 
 static NSString *const kFakeToken =
     @"fE1e1PZJFSQ:APA91bFAOjp1ahBWn9rTlbjArwBEm_"

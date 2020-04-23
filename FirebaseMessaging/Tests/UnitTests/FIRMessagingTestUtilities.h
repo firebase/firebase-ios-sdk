@@ -19,8 +19,8 @@
 #import <FirebaseInstanceID/FIRInstanceID.h>
 #import <FirebaseMessaging/FIRMessaging.h>
 
-#import "Firebase/Messaging/FIRMessagingPendingTopicsList.h"
-#import "Firebase/Messaging/FIRMessagingTopicsCommon.h"
+#import "FirebaseMessaging/Sources/FIRMessagingPendingTopicsList.h"
+#import "FirebaseMessaging/Sources/FIRMessagingTopicsCommon.h"
 
 @class GULUserDefaults;
 

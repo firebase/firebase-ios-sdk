@@ -17,11 +17,11 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
-#import "Example/Messaging/Tests/FIRMessagingFakeSocket.h"
-#import "Firebase/Messaging/FIRMessagingConnection.h"
-#import "Firebase/Messaging/FIRMessagingSecureSocket.h"
-#import "Firebase/Messaging/FIRMessagingUtilities.h"
-#import "Firebase/Messaging/Protos/GtalkCore.pbobjc.h"
+#import "FirebaseMessaging/Tests/UnitTests/FIRMessagingFakeSocket.h"
+#import "FirebaseMessaging/Sources/FIRMessagingConnection.h"
+#import "FirebaseMessaging/Sources/FIRMessagingSecureSocket.h"
+#import "FirebaseMessaging/Sources/FIRMessagingUtilities.h"
+#import "FirebaseMessaging/Sources/Protos/GtalkCore.pbobjc.h"
 
 @interface FIRMessagingConnection ()
 

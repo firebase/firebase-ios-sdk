@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "Example/Messaging/Tests/FIRMessagingTestNotificationUtilities.h"
+#import "FirebaseMessaging/Tests/UnitTests/FIRMessagingTestNotificationUtilities.h"
 
-#import "Firebase/Messaging/FIRMessagingConstants.h"
+#import "FirebaseMessaging/Sources/FIRMessagingConstants.h"
 
 @implementation FIRMessagingTestNotificationUtilities
 

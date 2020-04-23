@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-#import "Example/Messaging/Tests/FIRMessagingFakeConnection.h"
+#import "FirebaseMessaging/Tests/UnitTests/FIRMessagingFakeConnection.h"
 
 #import <OCMock/OCMock.h>
 
-#import "Firebase/Messaging/Protos/GtalkCore.pbobjc.h"
+#import "FirebaseMessaging/Sources/Protos/GtalkCore.pbobjc.h"
 
-#import "Firebase/Messaging/FIRMessagingSecureSocket.h"
-#import "Firebase/Messaging/FIRMessagingUtilities.h"
+#import "FirebaseMessaging/Sources/FIRMessagingSecureSocket.h"
+#import "FirebaseMessaging/Sources/FIRMessagingUtilities.h"
 
 static NSString *const kHost = @"localhost";
 static const int kPort = 6234;

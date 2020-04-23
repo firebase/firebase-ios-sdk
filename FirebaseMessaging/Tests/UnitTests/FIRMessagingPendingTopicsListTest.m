@@ -17,10 +17,11 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
-#import "Example/Messaging/Tests/FIRMessagingTestUtilities.h"
-#import "Firebase/Messaging/FIRMessagingDefines.h"
-#import "Firebase/Messaging/FIRMessagingPendingTopicsList.h"
-#import "Firebase/Messaging/FIRMessagingTopicsCommon.h"
+#import "FirebaseMessaging/Tests/UnitTests/FIRMessagingTestUtilities.h"
+
+#import "FirebaseMessaging/Sources/FIRMessagingDefines.h"
+#import "FirebaseMessaging/Sources/FIRMessagingPendingTopicsList.h"
+#import "FirebaseMessaging/Sources/FIRMessagingTopicsCommon.h"
 
 @interface FIRMessagingPendingTopicsListTest : XCTestCase
 

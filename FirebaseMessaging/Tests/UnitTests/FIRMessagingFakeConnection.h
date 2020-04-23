@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "Firebase/Messaging/FIRMessagingConnection.h"
+#import "FirebaseMessaging/Sources/FIRMessagingConnection.h"
 
 /**
  * A bunch of different fake connections are used to simulate various connection behaviours.

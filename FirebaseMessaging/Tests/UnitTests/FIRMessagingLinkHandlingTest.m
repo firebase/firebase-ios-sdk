@@ -22,9 +22,9 @@
 
 #import <FirebaseMessaging/FIRMessaging.h>
 
-#import "Example/Messaging/Tests/FIRMessagingTestNotificationUtilities.h"
-#import "Example/Messaging/Tests/FIRMessagingTestUtilities.h"
-#import "Firebase/Messaging/FIRMessagingConstants.h"
+#import "FirebaseMessaging/Tests/UnitTests/FIRMessagingTestNotificationUtilities.h"
+#import "FirebaseMessaging/Tests/UnitTests/FIRMessagingTestUtilities.h"
+#import "FirebaseMessaging/Sources/FIRMessagingConstants.h"
 
 NSString *const kFIRMessagingTestsLinkHandlingSuiteName = @"com.messaging.test_linkhandling";
 

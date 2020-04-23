@@ -20,18 +20,18 @@
 
 #import <FirebaseMessaging/FIRMessaging.h>
 
-#import "Firebase/Messaging/FIRMessagingClient.h"
-#import "Firebase/Messaging/FIRMessagingConnection.h"
-#import "Firebase/Messaging/FIRMessagingConstants.h"
-#import "Firebase/Messaging/FIRMessagingDataMessageManager.h"
-#import "Firebase/Messaging/FIRMessagingDefines.h"
-#import "Firebase/Messaging/FIRMessagingReceiver.h"
-#import "Firebase/Messaging/FIRMessagingRmqManager.h"
-#import "Firebase/Messaging/FIRMessagingSyncMessageManager.h"
-#import "Firebase/Messaging/FIRMessagingUtilities.h"
-#import "Firebase/Messaging/FIRMessaging_Private.h"
-#import "Firebase/Messaging/NSError+FIRMessaging.h"
-#import "Firebase/Messaging/Protos/GtalkCore.pbobjc.h"
+#import "FirebaseMessaging/Sources/FIRMessagingClient.h"
+#import "FirebaseMessaging/Sources/FIRMessagingConnection.h"
+#import "FirebaseMessaging/Sources/FIRMessagingConstants.h"
+#import "FirebaseMessaging/Sources/FIRMessagingDataMessageManager.h"
+#import "FirebaseMessaging/Sources/FIRMessagingDefines.h"
+#import "FirebaseMessaging/Sources/FIRMessagingReceiver.h"
+#import "FirebaseMessaging/Sources/FIRMessagingRmqManager.h"
+#import "FirebaseMessaging/Sources/FIRMessagingSyncMessageManager.h"
+#import "FirebaseMessaging/Sources/FIRMessagingUtilities.h"
+#import "FirebaseMessaging/Sources/FIRMessaging_Private.h"
+#import "FirebaseMessaging/Sources/NSError+FIRMessaging.h"
+#import "FirebaseMessaging/Sources/Protos/GtalkCore.pbobjc.h"
 
 static NSString *const kMessagePersistentID = @"abcdef123";
 static NSString *const kMessageFrom = @"com.example.gcm";

@@ -21,10 +21,10 @@
 #import "FIRTestsAssertionHandler.h"
 #import "XCTestCase+FIRMessagingRmqManagerTests.h"
 
-#import "Firebase/Messaging/FIRMessagingPersistentSyncMessage.h"
-#import "Firebase/Messaging/FIRMessagingRmqManager.h"
-#import "Firebase/Messaging/FIRMessagingUtilities.h"
-#import "Firebase/Messaging/Protos/GtalkCore.pbobjc.h"
+#import "FirebaseMessaging/Sources/FIRMessagingPersistentSyncMessage.h"
+#import "FirebaseMessaging/Sources/FIRMessagingRmqManager.h"
+#import "FirebaseMessaging/Sources/FIRMessagingUtilities.h"
+#import "FirebaseMessaging/Sources/Protos/GtalkCore.pbobjc.h"
 
 static NSString *const kRmqDatabaseName = @"rmq-test-db";
 static NSString *const kRmqDataMessageCategory = @"com.google.gcm-rmq-test";

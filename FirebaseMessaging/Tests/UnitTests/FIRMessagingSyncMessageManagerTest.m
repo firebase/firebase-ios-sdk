@@ -18,11 +18,11 @@
 
 #import "XCTestCase+FIRMessagingRmqManagerTests.h"
 
-#import "Firebase/Messaging/FIRMessagingConstants.h"
-#import "Firebase/Messaging/FIRMessagingPersistentSyncMessage.h"
-#import "Firebase/Messaging/FIRMessagingRmqManager.h"
-#import "Firebase/Messaging/FIRMessagingSyncMessageManager.h"
-#import "Firebase/Messaging/FIRMessagingUtilities.h"
+#import "FirebaseMessaging/Sources/FIRMessagingConstants.h"
+#import "FirebaseMessaging/Sources/FIRMessagingPersistentSyncMessage.h"
+#import "FirebaseMessaging/Sources/FIRMessagingRmqManager.h"
+#import "FirebaseMessaging/Sources/FIRMessagingSyncMessageManager.h"
+#import "FirebaseMessaging/Sources/FIRMessagingUtilities.h"
 
 static NSString *const kRmqSqliteFilename = @"rmq-sync-manager-test";
 

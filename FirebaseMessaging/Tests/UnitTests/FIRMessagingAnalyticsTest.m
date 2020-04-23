@@ -20,7 +20,7 @@
 #import <FirebaseAnalyticsInterop/FIRInteropEventNames.h>
 #import <FirebaseAnalyticsInterop/FIRInteropParameterNames.h>
 
-#import "Firebase/Messaging/FIRMessagingAnalytics.h"
+#import "FirebaseMessaging/Sources/FIRMessagingAnalytics.h"
 
 // Analytics tracking is iOS only feature.
 #if TARGET_OS_IOS

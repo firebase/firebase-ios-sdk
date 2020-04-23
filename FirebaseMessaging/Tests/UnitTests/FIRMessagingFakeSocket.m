@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#import "Example/Messaging/Tests/FIRMessagingFakeSocket.h"
+#import "FirebaseMessaging/Tests/UnitTests/FIRMessagingFakeSocket.h"
 
-#import "Firebase/Messaging/FIRMessagingConstants.h"
-#import "Firebase/Messaging/FIRMessagingDefines.h"
+#import "FirebaseMessaging/Sources/FIRMessagingConstants.h"
+#import "FirebaseMessaging/Sources/FIRMessagingDefines.h"
 
 @interface FIRMessagingSecureSocket () <NSStreamDelegate>
 

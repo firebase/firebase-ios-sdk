@@ -19,11 +19,11 @@
 
 #import <GoogleUtilities/GULReachabilityChecker.h>
 
-#import "Example/Messaging/Tests/FIRMessagingTestUtilities.h"
-#import "Firebase/Messaging/FIRMessagingClient.h"
-#import "Firebase/Messaging/FIRMessagingPendingTopicsList.h"
-#import "Firebase/Messaging/FIRMessagingPubSub.h"
-#import "Firebase/Messaging/FIRMessagingRmqManager.h"
+#import "FirebaseMessaging/Tests/UnitTests/FIRMessagingTestUtilities.h"
+#import "FirebaseMessaging/Sources/FIRMessagingClient.h"
+#import "FirebaseMessaging/Sources/FIRMessagingPendingTopicsList.h"
+#import "FirebaseMessaging/Sources/FIRMessagingPubSub.h"
+#import "FirebaseMessaging/Sources/FIRMessagingRmqManager.h"
 
 @interface FIRMessagingPubSub (ExposedForTest)
 

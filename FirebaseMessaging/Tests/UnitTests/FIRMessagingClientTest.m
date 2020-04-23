@@ -21,15 +21,15 @@
 #import <FirebaseInstanceID/FIRInstanceID_Private.h>
 #import <GoogleUtilities/GULReachabilityChecker.h>
 
-#import "Example/Messaging/Tests/FIRMessagingFakeConnection.h"
-#import "Firebase/Messaging/FIRMessagingClient.h"
-#import "Firebase/Messaging/FIRMessagingConnection.h"
-#import "Firebase/Messaging/FIRMessagingDataMessageManager.h"
-#import "Firebase/Messaging/FIRMessagingRmqManager.h"
-#import "Firebase/Messaging/FIRMessagingSecureSocket.h"
-#import "Firebase/Messaging/FIRMessagingUtilities.h"
-#import "Firebase/Messaging/NSError+FIRMessaging.h"
-#import "Firebase/Messaging/Protos/GtalkCore.pbobjc.h"
+#import "FirebaseMessaging/Tests/UnitTests/FIRMessagingFakeConnection.h"
+#import "FirebaseMessaging/Sources/FIRMessagingClient.h"
+#import "FirebaseMessaging/Sources/FIRMessagingConnection.h"
+#import "FirebaseMessaging/Sources/FIRMessagingDataMessageManager.h"
+#import "FirebaseMessaging/Sources/FIRMessagingRmqManager.h"
+#import "FirebaseMessaging/Sources/FIRMessagingSecureSocket.h"
+#import "FirebaseMessaging/Sources/FIRMessagingUtilities.h"
+#import "FirebaseMessaging/Sources/NSError+FIRMessaging.h"
+#import "FirebaseMessaging/Sources/Protos/GtalkCore.pbobjc.h"
 
 static NSString *const kDeviceAuthId = @"123456";
 static NSString *const kSecretToken = @"56789";

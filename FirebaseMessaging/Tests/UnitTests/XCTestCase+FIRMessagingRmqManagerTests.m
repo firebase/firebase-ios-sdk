@@ -18,7 +18,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "Firebase/Messaging/FIRMessagingRmqManager.h"
+#import "FirebaseMessaging/Sources/FIRMessagingRmqManager.h"
 
 @interface FIRMessagingRmqManager (FIRMessagingRmqManagerTests)
 - (dispatch_queue_t)databaseOperationQueue;
