@@ -36,7 +36,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
   end
 
   s.subspec 'CoreOnly' do |ss|
-    ss.dependency 'FirebaseCore', '6.6.7'
+    ss.dependency 'FirebaseCore', '6.7.0'
     ss.source_files = 'CoreOnly/Sources/Firebase.h'
     ss.preserve_paths = 'CoreOnly/Sources/module.modulemap'
     if ENV['FIREBASE_POD_REPO_FOR_DEV_POD'] then
@@ -76,7 +76,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
 
   s.subspec 'Crashlytics' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseCrashlytics', '~> 4.0.0'
+    ss.dependency 'FirebaseCrashlytics', '~> 4.1.0'
   end
 
   s.subspec 'Database' do |ss|
@@ -91,7 +91,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
 
   s.subspec 'Firestore' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseFirestore', '~> 1.12.1'
+    ss.dependency 'FirebaseFirestore', '~> 1.13.0'
   end
 
   s.subspec 'Functions' do |ss|
