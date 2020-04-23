@@ -21,9 +21,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRAppDistributionMachO : NSObject
 
-@property(nonatomic, copy) NSFileHandle *file;
-@property(nonatomic, copy) NSMutableArray *slices;
-
 - (instancetype)initWithPath:(NSString *)path;
 - (NSString *)codeHash;
 

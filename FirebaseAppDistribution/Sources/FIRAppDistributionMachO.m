@@ -21,6 +21,11 @@
 #import "FIRAppDistributionMachO+Private.h"
 #import "FIRAppDistributionMachOSlice+Private.h"
 
+@interface FIRAppDistributionMachO ()
+@property(nonatomic, copy) NSFileHandle* file;
+@property(nonatomic, copy) NSMutableArray* slices;
+@end
+
 @implementation FIRAppDistributionMachO
 
 - (instancetype)initWithPath:(NSString*)path {
@@ -39,7 +44,7 @@
   uint32_t magicValue;
 
   struct fat_header fheader;
-  NSData* data = [_file readDataOfLength:sizeof(fheader)];
+  NSData* data = [self.file readDataOfLength:sizeof(fheader)];
   [data getBytes:&fheader length:sizeof(fheader)];
 
   magicValue = CFSwapInt32BigToHost(fheader.magic);
@@ -53,7 +58,7 @@
     for (uint32_t i = 0; i < archCount; i++) {
       struct fat_arch arch;
 
-      data = [_file readDataOfLength:sizeof(arch)];
+      data = [self.file readDataOfLength:sizeof(arch)];
       [data getBytes:&arch length:sizeof(arch)];
 
       archOffsets[i] = CFSwapInt32BigToHost(arch.offset);
@@ -74,11 +79,11 @@
 }
 
 - (FIRAppDistributionMachOSlice*)extractSliceAtOffset:(NSUInteger)offset {
-  [_file seekToFileOffset:offset];
+  [self.file seekToFileOffset:offset];
 
   struct mach_header header;
 
-  NSData* data = [_file readDataOfLength:sizeof(header)];
+  NSData* data = [self.file readDataOfLength:sizeof(header)];
   [data getBytes:&header length:sizeof(header)];
   uint32_t magicValue = CFSwapInt32BigToHost(header.magic);
 
@@ -92,26 +97,26 @@
   if (magicValue == MH_CIGAM_64) {
     uint32_t reserved;
 
-    [_file readDataOfLength:sizeof(reserved)];
+    [self.file readDataOfLength:sizeof(reserved)];
   }
 
   for (uint32_t i = 0; i < header.ncmds; i++) {
     struct load_command lc;
 
-    data = [_file readDataOfLength:sizeof(lc)];
+    data = [self.file readDataOfLength:sizeof(lc)];
     [data getBytes:&lc length:sizeof(lc)];
 
     if (lc.cmd != LC_UUID) {
       // Move to the next load command
-      [_file seekToFileOffset:[_file offsetInFile] + lc.cmdsize - sizeof(lc)];
+      [self.file seekToFileOffset:[self.file offsetInFile] + lc.cmdsize - sizeof(lc)];
       continue;
     }
 
     // Re-read the load command, but this time as a UUID command
     // so we can easily fetch the UUID
-    [_file seekToFileOffset:[_file offsetInFile] - sizeof(lc)];
+    [self.file seekToFileOffset:[self.file offsetInFile] - sizeof(lc)];
     struct uuid_command uc;
-    data = [_file readDataOfLength:sizeof(uc)];
+    data = [self.file readDataOfLength:sizeof(uc)];
     [data getBytes:&uc length:sizeof(uc)];
 
     NSUUID* uuid = [[NSUUID alloc] initWithUUIDBytes:uc.uuid];
