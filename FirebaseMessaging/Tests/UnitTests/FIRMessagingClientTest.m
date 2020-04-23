@@ -21,7 +21,6 @@
 #import <FirebaseInstanceID/FIRInstanceID_Private.h>
 #import <GoogleUtilities/GULReachabilityChecker.h>
 
-#import "FirebaseMessaging/Tests/UnitTests/FIRMessagingFakeConnection.h"
 #import "FirebaseMessaging/Sources/FIRMessagingClient.h"
 #import "FirebaseMessaging/Sources/FIRMessagingConnection.h"
 #import "FirebaseMessaging/Sources/FIRMessagingDataMessageManager.h"
@@ -30,6 +29,7 @@
 #import "FirebaseMessaging/Sources/FIRMessagingUtilities.h"
 #import "FirebaseMessaging/Sources/NSError+FIRMessaging.h"
 #import "FirebaseMessaging/Sources/Protos/GtalkCore.pbobjc.h"
+#import "FirebaseMessaging/Tests/UnitTests/FIRMessagingFakeConnection.h"
 
 static NSString *const kDeviceAuthId = @"123456";
 static NSString *const kSecretToken = @"56789";
