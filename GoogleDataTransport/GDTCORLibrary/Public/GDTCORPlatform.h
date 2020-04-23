@@ -80,13 +80,15 @@ typedef SCNetworkReachabilityRef GDTCORNetworkReachabilityRef;
 /** The different possible reachabilityFlags option on watchOS. */
 typedef NS_OPTIONS(uint32_t, GDTCORNetworkReachabilityFlags) {
   kGDTCORNetworkReachabilityFlagsReachable = 1 << 1,
-  // TODO(doudounan): Add more options on watchOS if needed.
+  // TODO(doudounan): Add more options on watchOS if watchOS network connection information relative
+  // APIs available in the future.
 };
 
 /** Define a struct as GDTCORNetworkReachabilityRef on watchOS to store network connection
  * information. */
 typedef struct {
-  // TODO(doudounan): Store network connection information on watchOS if needed.
+  // TODO(doudounan): Store network connection information on watchOS if watchOS network connection
+  // information relative APIs available in the future.
 } GDTCORNetworkReachabilityRef;
 #endif
 

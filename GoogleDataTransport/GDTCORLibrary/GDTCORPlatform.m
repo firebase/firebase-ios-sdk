@@ -257,13 +257,15 @@ id<NSSecureCoding> _Nullable GDTCORDecodeArchive(Class archiveClass,
 
 @implementation GDTCORApplication
 
-/** A dispatch queue on which all task semaphore will populate and remove from
+#if TARGET_OS_WATCH
+/** A dispatch queue on which all task semaphores will populate and remove from
  * gBackgroundIdentifierToSemaphoreMap.
  */
 static dispatch_queue_t gSemaphoreQueue;
 
 /** For mapping backgroundIdentifier to task semaphore. */
 static NSMutableDictionary<NSNumber *, dispatch_semaphore_t> *gBackgroundIdentifierToSemaphoreMap;
+#endif
 
 + (void)load {
   GDTCORLogDebug(
@@ -373,6 +375,7 @@ static NSMutableDictionary<NSNumber *, dispatch_semaphore_t> *gBackgroundIdentif
   return self;
 }
 
+#if TARGET_OS_WATCH
 /** Generates and maps a unique background identifier to the given semaphore.
  *
  * @param semaphore The semaphore to map.
@@ -415,6 +418,7 @@ static NSMutableDictionary<NSNumber *, dispatch_semaphore_t> *gBackgroundIdentif
   }
   return semaphore;
 }
+#endif
 
 - (GDTCORBackgroundIdentifier)beginBackgroundTaskWithName:(NSString *)name
                                         expirationHandler:(void (^)(void))handler {
