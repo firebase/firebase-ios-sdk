@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#import "Firebase/Messaging/FIRMessagingContextManagerService.h"
+#import "FirebaseMessaging/Sources/FIRMessagingContextManagerService.h"
 
-#import "Firebase/Messaging/FIRMessagingDefines.h"
-#import "Firebase/Messaging/FIRMessagingLogger.h"
-#import "Firebase/Messaging/FIRMessagingUtilities.h"
+#import "FirebaseMessaging/Sources/FIRMessagingDefines.h"
+#import "FirebaseMessaging/Sources/FIRMessagingLogger.h"
+#import "FirebaseMessaging/Sources/FIRMessagingUtilities.h"
 
 #import <GoogleUtilities/GULAppDelegateSwizzler.h>
 

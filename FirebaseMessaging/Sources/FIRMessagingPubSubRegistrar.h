@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "Firebase/Messaging/FIRMessagingTopicOperation.h"
+#import "FirebaseMessaging/Sources/FIRMessagingTopicOperation.h"
 
 @interface FIRMessagingPubSubRegistrar : NSObject
 

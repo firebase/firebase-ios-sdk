@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-#import "Firebase/Messaging/FIRMessagingPubSubRegistrar.h"
+#import "FirebaseMessaging/Sources/FIRMessagingPubSubRegistrar.h"
 
-#import "Firebase/Messaging/FIRMessagingDefines.h"
-#import "Firebase/Messaging/FIRMessagingPubSubRegistrar.h"
-#import "Firebase/Messaging/FIRMessagingTopicsCommon.h"
-#import "Firebase/Messaging/NSError+FIRMessaging.h"
+#import "FirebaseMessaging/Sources/FIRMessagingDefines.h"
+#import "FirebaseMessaging/Sources/FIRMessagingPubSubRegistrar.h"
+#import "FirebaseMessaging/Sources/FIRMessagingTopicsCommon.h"
+#import "FirebaseMessaging/Sources/NSError+FIRMessaging.h"
 
 @interface FIRMessagingPubSubRegistrar ()
 

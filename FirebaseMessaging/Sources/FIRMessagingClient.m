@@ -14,24 +14,24 @@
  * limitations under the License.
  */
 
-#import "Firebase/Messaging/FIRMessagingClient.h"
+#import "FirebaseMessaging/Sources/FIRMessagingClient.h"
 
-#import "Firebase/Messaging/Protos/GtalkCore.pbobjc.h"
+#import "FirebaseMessaging/Sources/Protos/GtalkCore.pbobjc.h"
 
 #import <FirebaseInstanceID/FIRInstanceID_Private.h>
 #import <FirebaseMessaging/FIRMessaging.h>
 #import <GoogleUtilities/GULReachabilityChecker.h>
 
-#import "Firebase/Messaging/FIRMessagingConnection.h"
-#import "Firebase/Messaging/FIRMessagingConstants.h"
-#import "Firebase/Messaging/FIRMessagingDataMessageManager.h"
-#import "Firebase/Messaging/FIRMessagingDefines.h"
-#import "Firebase/Messaging/FIRMessagingLogger.h"
-#import "Firebase/Messaging/FIRMessagingPubSubRegistrar.h"
-#import "Firebase/Messaging/FIRMessagingRmqManager.h"
-#import "Firebase/Messaging/FIRMessagingTopicsCommon.h"
-#import "Firebase/Messaging/FIRMessagingUtilities.h"
-#import "Firebase/Messaging/NSError+FIRMessaging.h"
+#import "FirebaseMessaging/Sources/FIRMessagingConnection.h"
+#import "FirebaseMessaging/Sources/FIRMessagingConstants.h"
+#import "FirebaseMessaging/Sources/FIRMessagingDataMessageManager.h"
+#import "FirebaseMessaging/Sources/FIRMessagingDefines.h"
+#import "FirebaseMessaging/Sources/FIRMessagingLogger.h"
+#import "FirebaseMessaging/Sources/FIRMessagingPubSubRegistrar.h"
+#import "FirebaseMessaging/Sources/FIRMessagingRmqManager.h"
+#import "FirebaseMessaging/Sources/FIRMessagingTopicsCommon.h"
+#import "FirebaseMessaging/Sources/FIRMessagingUtilities.h"
+#import "FirebaseMessaging/Sources/NSError+FIRMessaging.h"
 
 static const NSTimeInterval kConnectTimeoutInterval = 40.0;
 static const NSTimeInterval kReconnectDelayInSeconds = 2 * 60;  // 2 minutes

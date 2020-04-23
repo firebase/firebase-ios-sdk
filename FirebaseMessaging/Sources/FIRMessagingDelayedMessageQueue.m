@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-#import "Firebase/Messaging/FIRMessagingDelayedMessageQueue.h"
+#import "FirebaseMessaging/Sources/FIRMessagingDelayedMessageQueue.h"
 
-#import "Firebase/Messaging/Protos/GtalkCore.pbobjc.h"
+#import "FirebaseMessaging/Sources/Protos/GtalkCore.pbobjc.h"
 
-#import "Firebase/Messaging/FIRMessagingDefines.h"
-#import "Firebase/Messaging/FIRMessagingRmqManager.h"
-#import "Firebase/Messaging/FIRMessagingUtilities.h"
+#import "FirebaseMessaging/Sources/FIRMessagingDefines.h"
+#import "FirebaseMessaging/Sources/FIRMessagingRmqManager.h"
+#import "FirebaseMessaging/Sources/FIRMessagingUtilities.h"
 
 static const int kMaxQueuedMessageCount = 10;
 

@@ -15,7 +15,7 @@
  */
 
 #import <FirebaseMessaging/FIRMessaging.h>
-#import "Firebase/Messaging/FIRMessagingDataMessageManager.h"
+#import "FirebaseMessaging/Sources/FIRMessagingDataMessageManager.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -18,7 +18,7 @@
 
 #import <FirebaseMessaging/FIRMessaging.h>
 
-#import "Firebase/Messaging/FIRMessagingTopicsCommon.h"
+#import "FirebaseMessaging/Sources/FIRMessagingTopicsCommon.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

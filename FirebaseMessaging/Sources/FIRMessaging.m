@@ -32,22 +32,22 @@
 #import <GoogleUtilities/GULReachabilityChecker.h>
 #import <GoogleUtilities/GULUserDefaults.h>
 
-#import "Firebase/Messaging/FIRMessagingAnalytics.h"
-#import "Firebase/Messaging/FIRMessagingClient.h"
-#import "Firebase/Messaging/FIRMessagingConstants.h"
-#import "Firebase/Messaging/FIRMessagingContextManagerService.h"
-#import "Firebase/Messaging/FIRMessagingDataMessageManager.h"
-#import "Firebase/Messaging/FIRMessagingDefines.h"
-#import "Firebase/Messaging/FIRMessagingLogger.h"
-#import "Firebase/Messaging/FIRMessagingPubSub.h"
-#import "Firebase/Messaging/FIRMessagingReceiver.h"
-#import "Firebase/Messaging/FIRMessagingRemoteNotificationsProxy.h"
-#import "Firebase/Messaging/FIRMessagingRmqManager.h"
-#import "Firebase/Messaging/FIRMessagingSyncMessageManager.h"
-#import "Firebase/Messaging/FIRMessagingUtilities.h"
-#import "Firebase/Messaging/FIRMessagingVersionUtilities.h"
-#import "Firebase/Messaging/FIRMessaging_Private.h"
-#import "Firebase/Messaging/NSError+FIRMessaging.h"
+#import "FirebaseMessaging/Sources/FIRMessagingAnalytics.h"
+#import "FirebaseMessaging/Sources/FIRMessagingClient.h"
+#import "FirebaseMessaging/Sources/FIRMessagingConstants.h"
+#import "FirebaseMessaging/Sources/FIRMessagingContextManagerService.h"
+#import "FirebaseMessaging/Sources/FIRMessagingDataMessageManager.h"
+#import "FirebaseMessaging/Sources/FIRMessagingDefines.h"
+#import "FirebaseMessaging/Sources/FIRMessagingLogger.h"
+#import "FirebaseMessaging/Sources/FIRMessagingPubSub.h"
+#import "FirebaseMessaging/Sources/FIRMessagingReceiver.h"
+#import "FirebaseMessaging/Sources/FIRMessagingRemoteNotificationsProxy.h"
+#import "FirebaseMessaging/Sources/FIRMessagingRmqManager.h"
+#import "FirebaseMessaging/Sources/FIRMessagingSyncMessageManager.h"
+#import "FirebaseMessaging/Sources/FIRMessagingUtilities.h"
+#import "FirebaseMessaging/Sources/FIRMessagingVersionUtilities.h"
+#import "FirebaseMessaging/Sources/FIRMessaging_Private.h"
+#import "FirebaseMessaging/Sources/NSError+FIRMessaging.h"
 
 static NSString *const kFIRMessagingMessageViaAPNSRootKey = @"aps";
 static NSString *const kFIRMessagingReachabilityHostname = @"www.google.com";

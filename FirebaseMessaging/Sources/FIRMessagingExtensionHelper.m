@@ -16,8 +16,8 @@
 
 #import <FirebaseMessaging/FIRMessagingExtensionHelper.h>
 
-#import "Firebase/Messaging/FIRMMessageCode.h"
-#import "Firebase/Messaging/FIRMessagingLogger.h"
+#import "FirebaseMessaging/Sources/FIRMMessageCode.h"
+#import "FirebaseMessaging/Sources/FIRMessagingLogger.h"
 
 static NSString *const kPayloadOptionsName = @"fcm_options";
 static NSString *const kPayloadOptionsImageURLName = @"image";

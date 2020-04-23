@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,21 +14,21 @@
  * limitations under the License.
  */
 
-#import "Firebase/Messaging/FIRMessagingConnection.h"
+#import "FirebaseMessaging/Sources/FIRMessagingConnection.h"
 
 #import <FirebaseMessaging/FIRMessaging.h>
 
-#import "Firebase/Messaging/Protos/GtalkCore.pbobjc.h"
-#import "Firebase/Messaging/Protos/GtalkExtensions.pbobjc.h"
+#import "FirebaseMessaging/Sources/Protos/GtalkCore.pbobjc.h"
+#import "FirebaseMessaging/Sources/Protos/GtalkExtensions.pbobjc.h"
 
-#import "Firebase/Messaging/FIRMessagingDataMessageManager.h"
-#import "Firebase/Messaging/FIRMessagingDefines.h"
-#import "Firebase/Messaging/FIRMessagingLogger.h"
-#import "Firebase/Messaging/FIRMessagingRmqManager.h"
-#import "Firebase/Messaging/FIRMessagingSecureSocket.h"
-#import "Firebase/Messaging/FIRMessagingUtilities.h"
-#import "Firebase/Messaging/FIRMessagingVersionUtilities.h"
-#import "Firebase/Messaging/FIRMessaging_Private.h"
+#import "FirebaseMessaging/Sources/FIRMessagingDataMessageManager.h"
+#import "FirebaseMessaging/Sources/FIRMessagingDefines.h"
+#import "FirebaseMessaging/Sources/FIRMessagingLogger.h"
+#import "FirebaseMessaging/Sources/FIRMessagingRmqManager.h"
+#import "FirebaseMessaging/Sources/FIRMessagingSecureSocket.h"
+#import "FirebaseMessaging/Sources/FIRMessagingUtilities.h"
+#import "FirebaseMessaging/Sources/FIRMessagingVersionUtilities.h"
+#import "FirebaseMessaging/Sources/FIRMessaging_Private.h"
 
 static NSInteger const kIqSelectiveAck = 12;
 static NSInteger const kIqStreamAck = 13;

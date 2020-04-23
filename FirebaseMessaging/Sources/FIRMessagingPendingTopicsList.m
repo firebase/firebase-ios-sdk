@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-#import "Firebase/Messaging/FIRMessagingPendingTopicsList.h"
+#import "FirebaseMessaging/Sources/FIRMessagingPendingTopicsList.h"
 
-#import "Firebase/Messaging/FIRMessagingDefines.h"
-#import "Firebase/Messaging/FIRMessagingLogger.h"
-#import "Firebase/Messaging/FIRMessagingPubSub.h"
-#import "Firebase/Messaging/FIRMessaging_Private.h"
+#import "FirebaseMessaging/Sources/FIRMessagingDefines.h"
+#import "FirebaseMessaging/Sources/FIRMessagingLogger.h"
+#import "FirebaseMessaging/Sources/FIRMessagingPubSub.h"
+#import "FirebaseMessaging/Sources/FIRMessaging_Private.h"
 
 NSString *const kPendingTopicBatchActionKey = @"action";
 NSString *const kPendingTopicBatchTopicsKey = @"topics";

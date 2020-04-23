@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-#import "Firebase/Messaging/FIRMessagingPubSub.h"
+#import "FirebaseMessaging/Sources/FIRMessagingPubSub.h"
 
 #import <FirebaseMessaging/FIRMessaging.h>
 #import <GoogleUtilities/GULSecureCoding.h>
 #import <GoogleUtilities/GULUserDefaults.h>
 
-#import "Firebase/Messaging/FIRMessagingClient.h"
-#import "Firebase/Messaging/FIRMessagingDefines.h"
-#import "Firebase/Messaging/FIRMessagingLogger.h"
-#import "Firebase/Messaging/FIRMessagingPendingTopicsList.h"
-#import "Firebase/Messaging/FIRMessagingUtilities.h"
-#import "Firebase/Messaging/FIRMessaging_Private.h"
-#import "Firebase/Messaging/NSDictionary+FIRMessaging.h"
-#import "Firebase/Messaging/NSError+FIRMessaging.h"
+#import "FirebaseMessaging/Sources/FIRMessagingClient.h"
+#import "FirebaseMessaging/Sources/FIRMessagingDefines.h"
+#import "FirebaseMessaging/Sources/FIRMessagingLogger.h"
+#import "FirebaseMessaging/Sources/FIRMessagingPendingTopicsList.h"
+#import "FirebaseMessaging/Sources/FIRMessagingUtilities.h"
+#import "FirebaseMessaging/Sources/FIRMessaging_Private.h"
+#import "FirebaseMessaging/Sources/NSDictionary+FIRMessaging.h"
+#import "FirebaseMessaging/Sources/NSError+FIRMessaging.h"
 
 static NSString *const kPendingSubscriptionsListKey =
     @"com.firebase.messaging.pending-subscriptions";
