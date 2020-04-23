@@ -31,7 +31,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
   s.default_subspec = 'Core'
 
   s.subspec 'Core' do |ss|
-    ss.ios.dependency 'FirebaseAnalytics', '6.4.990'
+    ss.ios.dependency 'FirebaseAnalytics', '6.5.0'
     ss.dependency 'Firebase/CoreOnly'
   end
 
