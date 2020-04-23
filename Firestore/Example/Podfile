@@ -56,6 +56,7 @@ def configure_local_pods()
   # scripts/install_prereqs.sh for more details.
   pod 'FirebaseCore', :path => '../..'
   pod 'FirebaseCoreDiagnostics', :path => '../..'
+  pod 'GoogleDataTransportCCTSupport', :path => '../..'
 
   # Pull in local sources conditionally.
   maybe_local_pod 'FirebaseAuth'
