@@ -1,6 +1,10 @@
+# Unreleased
+
+- [fixed] Fixed unchecked `malloc`s in Crashlytics (#5428).
+
 # v4.0.0
 
- - [changed] The Firebase Crashlytics SDK is now available for general access.
+ - [changed] The Firebase Crashlytics SDK is now generally available.
 
 # v4.0.0-beta.7
 

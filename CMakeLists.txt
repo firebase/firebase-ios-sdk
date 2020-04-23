@@ -132,33 +132,10 @@ if(FIREBASE_IOS_BUILD_BENCHMARKS)
 endif()
 
 
-# Abseil-cpp
-# Force disable Abseil's tests, which don't compile under VS2017.
-set(old_build_testing ${BUILD_TESTING})
-set(ABSL_RUN_TESTS OFF CACHE BOOL "Disable Abseil tests" FORCE)
-add_external_subdirectory(abseil-cpp)
-
-if(CXX_CLANG)
-  target_compile_options(
-    absl_time_zone
-    PRIVATE
-      -Wno-unused-template
-      -Wno-shadow
-      -Wno-tautological-type-limit-compare
-  )
-endif()
-
-if(MSVC)
-  # Disable warnings about unsafe use of std::copy
-  target_compile_definitions(
-    absl_strings
-    PUBLIC
-      _SCL_SECURE_NO_WARNINGS=1
-  )
-endif()
-
-
 # gRPC
+
+# Force disable Abseil's tests, which don't compile under VS2017.
+set(ABSL_RUN_TESTS OFF CACHE BOOL "Disable Abseil tests" FORCE)
 
 # libcurl and c-ares conflict in their usage of this variable. Prevent
 # libcurl's setting of this variable from affecting the c-ares build that's
@@ -178,75 +155,74 @@ if(IOS OR ANDROID)
   set(protobuf_BUILD_PROTOC_BINARIES OFF CACHE BOOL "Disabled")
 endif()
 
-if(NOT ANDROID AND NOT IOS)
+if(ANDROID OR IOS)
+  set(OPENSSL_FOUND FALSE)
+else()
   find_package(OpenSSL QUIET)
-  if(OPENSSL_FOUND)
-    set(gRPC_SSL_PROVIDER package CACHE STRING "Use external OpenSSL")
-  endif()
+endif()
+
+if(OPENSSL_FOUND)
+  set(gRPC_SSL_PROVIDER package CACHE STRING "Use external OpenSSL")
+else()
+  set(BORINGSSL_ROOT_DIR ${FIREBASE_EXTERNAL_SOURCE_DIR}/boringssl/src)
 endif()
 
 find_package(ZLIB QUIET)
 if(ZLIB_FOUND)
   set(gRPC_ZLIB_PROVIDER package CACHE STRING "Use external ZLIB")
+else()
+  set(ZLIB_ROOT_DIR ${FIREBASE_EXTERNAL_SOURCE_DIR}/zlib)
 endif()
 
 set(gRPC_BUILD_TESTS OFF CACHE BOOL "Disable gRPC tests")
+set(gRPC_BUILD_CODEGEN OFF CACHE BOOL "Disable gRPC codegen")
+set(gRPC_BUILD_CSHARP_EXT OFF CACHE BOOL "Disable gRPC C# extensions")
+set(gRPC_INSTALL OFF CACHE BOOL "Disable gRPC installation")
+
+set(ABSL_ROOT_DIR ${FIREBASE_EXTERNAL_SOURCE_DIR}/abseil-cpp)
+set(CARES_ROOT_DIR ${FIREBASE_EXTERNAL_SOURCE_DIR}/cares)
+set(PROTOBUF_ROOT_DIR ${FIREBASE_EXTERNAL_SOURCE_DIR}/protobuf)
+
 add_external_subdirectory(grpc)
 
-# Fix up targets included by gRPC's build
-if(OPENSSL_FOUND)
-  # gRPC's CMakeLists.txt does not account for finding OpenSSL in a directory
-  # that's not in the default search path.
-  target_include_directories(grpc PRIVATE ${OPENSSL_INCLUDE_DIR})
 
-  if(CXX_CLANG OR CXX_GNU)
-    if((OPENSSL_VERSION VERSION_EQUAL "1.1.0") OR
-       (OPENSSL_VERSION VERSION_GREATER "1.1.0"))
-      # gRPC uses some features deprecated in OpenSSL 1.1.0
-      target_compile_options(
-        grpc
-        PRIVATE -Wno-deprecated-declarations
-      )
-    endif()
-  endif()
+# Fix up targets included by gRPC
+if(CXX_CLANG)
+  target_compile_options(
+    absl_time_zone PRIVATE
+    -Wno-unused-template
+    -Wno-shadow
+    -Wno-tautological-type-limit-compare
+  )
+endif()
 
-else()
+if(MSVC)
+  # Disable warnings about unsafe use of std::copy
+  target_compile_definitions(
+    absl_strings PUBLIC
+    _SCL_SECURE_NO_WARNINGS=1
+  )
+endif()
+
+if(NOT OPENSSL_FOUND)
   # Not using outboard OpenSSL so set up BoringSSL to look like it.
   firebase_ios_add_alias(OpenSSL::Crypto crypto)
   target_include_directories(
-    crypto
-    INTERFACE
-      $<BUILD_INTERFACE:${FIREBASE_EXTERNAL_SOURCE_DIR}/grpc/third_party/boringssl/include>
+    crypto INTERFACE
+    $<BUILD_INTERFACE:${FIREBASE_EXTERNAL_SOURCE_DIR}/boringssl/src/include>
   )
 
   firebase_ios_add_alias(OpenSSL::SSL ssl)
   target_include_directories(
-    ssl
-    INTERFACE
-      $<BUILD_INTERFACE:${FIREBASE_EXTERNAL_SOURCE_DIR}/grpc/third_party/boringssl/include>
+    ssl INTERFACE
+    $<BUILD_INTERFACE:${FIREBASE_EXTERNAL_SOURCE_DIR}/boringssl/src/include>
   )
 endif()
-
-if(CXX_CLANG OR CXX_GNU)
-  target_compile_options(
-    libprotobuf
-    PUBLIC -Wno-unused-parameter
-  )
-endif()
-if(CXX_CLANG)
-  target_compile_options(
-    libprotobuf
-    PRIVATE
-      -Wno-inconsistent-missing-override
-      -Wno-invalid-offsetof
-  )
-endif()
-
 
 if(NOT ZLIB_FOUND)
   target_include_directories(
-    zlibstatic
-    INTERFACE $<BUILD_INTERFACE:${FIREBASE_EXTERNAL_SOURCE_DIR}/grpc/third_party/zlib>
+    zlibstatic INTERFACE
+    $<BUILD_INTERFACE:${FIREBASE_EXTERNAL_SOURCE_DIR}/grpc/third_party/zlib>
   )
 endif()
 
@@ -265,14 +241,13 @@ set(nanopb_MSVC_STATIC_RUNTIME OFF CACHE BOOL "Link static runtime libraries")
 add_external_subdirectory(nanopb)
 
 target_compile_definitions(
-  protobuf-nanopb-static
-  PUBLIC -DPB_FIELD_32BIT -DPB_ENABLE_MALLOC
+  protobuf-nanopb-static PUBLIC
+  -DPB_FIELD_32BIT -DPB_ENABLE_MALLOC
 )
 
 # Enable #include <nanopb/pb.h>
 target_include_directories(
-  protobuf-nanopb-static
-  INTERFACE
+  protobuf-nanopb-static INTERFACE
   $<BUILD_INTERFACE:${FIREBASE_EXTERNAL_SOURCE_DIR}/nanopb>
 )
 

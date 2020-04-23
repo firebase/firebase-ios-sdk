@@ -28,7 +28,7 @@
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 
-#include "Firestore/core/test/firebase/firestore/testutil/app_testing.h"
+#include "Firestore/core/test/unit/testutil/app_testing.h"
 
 namespace testutil = firebase::firestore::testutil;
 
@@ -88,13 +88,13 @@ namespace testutil = firebase::firestore::testutil;
 
 - (void)testNilTransactionBlocksFail {
   FSTAssertThrows([self.db runTransactionWithBlock:nil
-                                        completion:^(id result, NSError *error) {
+                                        completion:^(id, NSError *) {
                                           XCTFail(@"Completion shouldn't run.");
                                         }],
                   @"Transaction block cannot be nil.");
 
   FSTAssertThrows([self.db
-                      runTransactionWithBlock:^id(FIRTransaction *transaction, NSError **pError) {
+                      runTransactionWithBlock:^id(FIRTransaction *, NSError **) {
                         XCTFail(@"Transaction block shouldn't run.");
                         return nil;
                       }
@@ -223,13 +223,13 @@ namespace testutil = firebase::firestore::testutil;
 
   XCTestExpectation *transactionDone = [self expectationWithDescription:@"transaction done"];
   [ref.firestore
-      runTransactionWithBlock:^id(FIRTransaction *transaction, NSError **pError) {
+      runTransactionWithBlock:^id(FIRTransaction *transaction, NSError **) {
         // Note ref2 does not exist at this point so set that and update ref.
         [transaction updateData:data forDocument:ref];
         [transaction setData:data forDocument:ref2];
         return nil;
       }
-      completion:^(id result, NSError *error) {
+      completion:^(id, NSError *error) {
         // ends up being a no-op transaction.
         XCTAssertNil(error);
         [transactionDone fulfill];
@@ -325,7 +325,7 @@ namespace testutil = firebase::firestore::testutil;
 
   XCTestExpectation *transactionDone = [self expectationWithDescription:@"transaction done"];
   [db1
-      runTransactionWithBlock:^id(FIRTransaction *txn, NSError **pError) {
+      runTransactionWithBlock:^id(FIRTransaction *txn, NSError **) {
         FSTAssertThrows([txn getDocument:badRef error:nil], reason);
         FSTAssertThrows([txn setData:data forDocument:badRef], reason);
         FSTAssertThrows([txn setData:data forDocument:badRef merge:YES], reason);
@@ -333,7 +333,7 @@ namespace testutil = firebase::firestore::testutil;
         FSTAssertThrows([txn deleteDocument:badRef], reason);
         return nil;
       }
-      completion:^(id result, NSError *error) {
+      completion:^(id, NSError *error) {
         // ends up being a no-op transaction.
         XCTAssertNil(error);
         [transactionDone fulfill];
@@ -798,7 +798,7 @@ namespace testutil = firebase::firestore::testutil;
 
   XCTestExpectation *transactionDone = [self expectationWithDescription:@"transaction done"];
   [ref.firestore
-      runTransactionWithBlock:^id(FIRTransaction *transaction, NSError **pError) {
+      runTransactionWithBlock:^id(FIRTransaction *transaction, NSError **) {
         if (includeSets) {
           FSTAssertThrows([transaction setData:data forDocument:ref], reason, @"for %@", data);
         }
@@ -807,7 +807,7 @@ namespace testutil = firebase::firestore::testutil;
         }
         return nil;
       }
-      completion:^(id result, NSError *error) {
+      completion:^(id, NSError *error) {
         // ends up being a no-op transaction.
         XCTAssertNil(error);
         [transactionDone fulfill];

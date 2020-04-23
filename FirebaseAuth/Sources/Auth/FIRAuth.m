@@ -1520,10 +1520,14 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   [self canHandleNotification:userInfo];
 }
 
+// iOS 10 deprecation
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-implementations"
 - (void)application:(UIApplication *)application
     didReceiveRemoteNotification:(NSDictionary *)userInfo {
   [self canHandleNotification:userInfo];
 }
+#pragma clang diagnostic pop
 
 - (BOOL)application:(UIApplication *)app
             openURL:(NSURL *)url
@@ -1531,12 +1535,16 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   return [self canHandleURL:url];
 }
 
+// iOS 10 deprecation
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-implementations"
 - (BOOL)application:(UIApplication *)application
               openURL:(NSURL *)url
     sourceApplication:(nullable NSString *)sourceApplication
            annotation:(id)annotation {
   return [self canHandleURL:url];
 }
+#pragma clang diagnostic pop
 
 - (void)setAPNSToken:(NSData *)token type:(FIRAuthAPNSTokenType)type {
   dispatch_sync(FIRAuthGlobalWorkQueue(), ^{
@@ -1999,8 +2007,12 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     } else {
       // Encode the user object.
       NSMutableData *archiveData = [NSMutableData data];
+// iOS 12 deprecation
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
       NSKeyedArchiver *archiver =
           [[NSKeyedArchiver alloc] initForWritingWithMutableData:archiveData];
+#pragma clang diagnostic pop
       [archiver encodeObject:user forKey:userKey];
       [archiver finishEncoding];
 
@@ -2046,8 +2058,12 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
       *outUser = nil;
       return YES;
     }
+// iOS 12 deprecation
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     NSKeyedUnarchiver *unarchiver =
         [[NSKeyedUnarchiver alloc] initForReadingWithData:encodedUserData];
+#pragma clang diagnostic pop
     FIRUser *user = [unarchiver decodeObjectOfClass:[FIRUser class] forKey:userKey];
     user.auth = self;
     *outUser = user;
@@ -2214,8 +2230,12 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
       return nil;
     }
 
+// iOS 12 deprecation
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     NSKeyedUnarchiver *unarchiver =
         [[NSKeyedUnarchiver alloc] initForReadingWithData:encodedUserData];
+#pragma clang diagnostic pop
     user = [unarchiver decodeObjectOfClass:[FIRUser class] forKey:userKey];
   } else {
     user = [self.storedUserManager getStoredUserForAccessGroup:self.userAccessGroup

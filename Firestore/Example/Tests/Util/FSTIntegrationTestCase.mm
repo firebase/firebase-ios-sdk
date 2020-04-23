@@ -37,20 +37,20 @@
 #import "Firestore/Example/Tests/Util/FSTEventAccumulator.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 
-#include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
-#include "Firestore/core/src/firebase/firestore/auth/empty_credentials_provider.h"
-#include "Firestore/core/src/firebase/firestore/auth/user.h"
-#include "Firestore/core/src/firebase/firestore/local/leveldb_opener.h"
-#include "Firestore/core/src/firebase/firestore/model/database_id.h"
-#include "Firestore/core/src/firebase/firestore/remote/grpc_connection.h"
-#include "Firestore/core/src/firebase/firestore/util/async_queue.h"
-#include "Firestore/core/src/firebase/firestore/util/autoid.h"
-#include "Firestore/core/src/firebase/firestore/util/filesystem.h"
-#include "Firestore/core/src/firebase/firestore/util/path.h"
-#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
-#include "Firestore/core/test/firebase/firestore/testutil/app_testing.h"
-#include "Firestore/core/test/firebase/firestore/testutil/async_testing.h"
-#include "Firestore/core/test/firebase/firestore/testutil/status_testing.h"
+#include "Firestore/core/src/auth/credentials_provider.h"
+#include "Firestore/core/src/auth/empty_credentials_provider.h"
+#include "Firestore/core/src/auth/user.h"
+#include "Firestore/core/src/local/leveldb_opener.h"
+#include "Firestore/core/src/model/database_id.h"
+#include "Firestore/core/src/remote/grpc_connection.h"
+#include "Firestore/core/src/util/async_queue.h"
+#include "Firestore/core/src/util/autoid.h"
+#include "Firestore/core/src/util/filesystem.h"
+#include "Firestore/core/src/util/path.h"
+#include "Firestore/core/src/util/string_apple.h"
+#include "Firestore/core/test/unit/testutil/app_testing.h"
+#include "Firestore/core/test/unit/testutil/async_testing.h"
+#include "Firestore/core/test/unit/testutil/status_testing.h"
 #include "absl/memory/memory.h"
 
 namespace testutil = firebase::firestore::testutil;
@@ -304,7 +304,7 @@ class FakeCredentialsProvider : public EmptyCredentialsProvider {
     __block XCTestExpectation *watchUpdateReceived;
     FIRDocumentReference *docRef = [db documentWithPath:[self documentPath]];
     id<FIRListenerRegistration> listenerRegistration =
-        [docRef addSnapshotListener:^(FIRDocumentSnapshot *snapshot, NSError *error) {
+        [docRef addSnapshotListener:^(FIRDocumentSnapshot *snapshot, NSError *) {
           if ([snapshot[@"value"] isEqual:@"done"]) {
             [watchUpdateReceived fulfill];
           } else {
@@ -319,11 +319,11 @@ class FakeCredentialsProvider : public EmptyCredentialsProvider {
 
     // Use a transaction to perform a write without triggering any local events.
     [docRef.firestore
-        runTransactionWithBlock:^id(FIRTransaction *transaction, NSError **pError) {
+        runTransactionWithBlock:^id(FIRTransaction *transaction, NSError **) {
           [transaction setData:@{@"value" : @"done"} forDocument:docRef];
           return nil;
         }
-                     completion:^(id result, NSError *error){
+                     completion:^(id, NSError *){
                      }];
 
     // Wait to see the write on the watch stream.
@@ -382,14 +382,13 @@ class FakeCredentialsProvider : public EmptyCredentialsProvider {
 - (void)writeAllDocuments:(NSDictionary<NSString *, NSDictionary<NSString *, id> *> *)documents
              toCollection:(FIRCollectionReference *)collection {
   [documents enumerateKeysAndObjectsUsingBlock:^(NSString *key, NSDictionary<NSString *, id> *value,
-                                                 BOOL *stop) {
+                                                 BOOL *) {
     FIRDocumentReference *ref = [collection documentWithPath:key];
     [self writeDocumentRef:ref data:value];
   }];
 }
 
-- (void)readerAndWriterOnDocumentRef:(void (^)(NSString *path,
-                                               FIRDocumentReference *readerRef,
+- (void)readerAndWriterOnDocumentRef:(void (^)(FIRDocumentReference *readerRef,
                                                FIRDocumentReference *writerRef))action {
   FIRFirestore *reader = self.db;  // for clarity
   FIRFirestore *writer = [self firestore];
@@ -397,7 +396,7 @@ class FakeCredentialsProvider : public EmptyCredentialsProvider {
   NSString *path = [self documentPath];
   FIRDocumentReference *readerRef = [reader documentWithPath:path];
   FIRDocumentReference *writerRef = [writer documentWithPath:path];
-  action(path, readerRef, writerRef);
+  action(readerRef, writerRef);
 }
 
 - (FIRDocumentSnapshot *)readDocumentForRef:(FIRDocumentReference *)ref {

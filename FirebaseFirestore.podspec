@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseFirestore'
-  s.version          = '1.12.0'
+  s.version          = '1.12.1'
   s.summary          = 'Google Cloud Firestore'
 
   s.description      = <<-DESC
@@ -49,19 +49,19 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
   ]
   s.exclude_files = [
     # Exclude alternate implementations for other platforms
-    'Firestore/core/src/firebase/firestore/api/input_validation_std.cc',
-    'Firestore/core/src/firebase/firestore/remote/connectivity_monitor_noop.cc',
-    'Firestore/core/src/firebase/firestore/util/filesystem_win.cc',
-    'Firestore/core/src/firebase/firestore/util/hard_assert_stdio.cc',
-    'Firestore/core/src/firebase/firestore/util/log_stdio.cc',
-    'Firestore/core/src/firebase/firestore/util/secure_random_openssl.cc'
+    'Firestore/core/src/api/input_validation_std.cc',
+    'Firestore/core/src/remote/connectivity_monitor_noop.cc',
+    'Firestore/core/src/util/filesystem_win.cc',
+    'Firestore/core/src/util/hard_assert_stdio.cc',
+    'Firestore/core/src/util/log_stdio.cc',
+    'Firestore/core/src/util/secure_random_openssl.cc'
   ]
   s.public_header_files = 'Firestore/Source/Public/*.h'
 
   s.dependency 'FirebaseAuthInterop', '~> 1.0'
   s.dependency 'FirebaseCore', '~> 6.2'
 
-  abseil_version = '0.20190808'
+  abseil_version = '0.20200225.0'
   s.dependency 'abseil/algorithm', abseil_version
   s.dependency 'abseil/base', abseil_version
   s.dependency 'abseil/memory', abseil_version
@@ -70,7 +70,7 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
   s.dependency 'abseil/time', abseil_version
   s.dependency 'abseil/types', abseil_version
 
-  s.dependency 'gRPC-C++', '0.0.9'
+  s.dependency 'gRPC-C++', '~> 1.28.0'
   s.dependency 'leveldb-library', '~> 1.22'
   s.dependency 'nanopb', '~> 0.3.901'
 
@@ -103,8 +103,8 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
   # CocoaPods.
   s.prepare_command = <<-CMD
     sed '/^#cmakedefine/ d' \
-        Firestore/core/src/firebase/firestore/util/config.h.in > \
-        Firestore/core/src/firebase/firestore/util/config.h
+        Firestore/core/src/util/config.h.in > \
+        Firestore/core/src/util/config.h
   CMD
 
   s.compiler_flags = '$(inherited) -Wreorder -Werror=reorder -Wno-comma'

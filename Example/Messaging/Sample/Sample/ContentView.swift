@@ -21,6 +21,7 @@ import FirebaseInstallations
 
 struct ContentView: View {
   @EnvironmentObject var identity: Identity
+  @EnvironmentObject var settings: UserSettings
 
   var body: some View {
     NavigationView {
@@ -42,8 +43,8 @@ struct ContentView: View {
               .layoutPriority(1)
           }
 
-          NavigationLink(destination: DetailView()) {
-            Text("Show Detail View")
+          NavigationLink(destination: SettingsView()) {
+            Text("Settings")
           }
         }
         .navigationBarTitle("Firebase Messaging")
@@ -132,13 +133,20 @@ struct ContentView: View {
   }
 }
 
-struct DetailView: View {
-  @EnvironmentObject var identity: Identity
+struct SettingsView: View {
+  @EnvironmentObject var settings: UserSettings
+  @State var shouldUseDelegate = true
 
   var body: some View {
     VStack {
-      Text("InstanceID: \(self.identity.instanceID ?? "None")")
-      Text("Token: \(self.identity.token ?? "None")")
+      List {
+        Toggle(isOn: $settings.isAutoInitEnabled) {
+          Text("isAutoInitEnabled")
+        }
+        Toggle(isOn: $settings.shouldUseDelegateThanNotification) {
+          Text("shouldUseDelegate")
+        }
+      }
     }
   }
 }
@@ -157,9 +165,16 @@ struct ContentView_Previews: PreviewProvider {
     return identity
   }()
 
+  static let filledSettings: UserSettings = {
+    var settings = UserSettings()
+    settings.shouldUseDelegateThanNotification = true
+    settings.isAutoInitEnabled = true
+    return settings
+  }()
+
   static var previews: some View {
     Group {
-      ContentView().environmentObject(filledIdentity)
+      ContentView().environmentObject(filledIdentity).environmentObject(filledSettings)
     }
   }
 }

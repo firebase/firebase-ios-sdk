@@ -18,7 +18,7 @@
 #include <cstdint>
 #include <string>
 
-#include "Firestore/core/src/firebase/firestore/model/resource_path.h"
+#include "Firestore/core/src/model/resource_path.h"
 
 using firebase::firestore::model::ResourcePath;
 

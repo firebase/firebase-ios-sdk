@@ -23,12 +23,9 @@ firebase_ios_add_framework(FirebaseFirestore ${headers} ${sources})
 firebase_ios_framework_public_headers(FirebaseFirestore ${headers})
 
 target_link_libraries(
-  FirebaseFirestore PRIVATE
+  FirebaseFirestore PUBLIC
   FirebaseAuthInterop
   FirebaseCore
   absl_strings
-  firebase_firestore_api
-  firebase_firestore_core_transaction
-  firebase_firestore_remote_datastore
-  firebase_firestore_version
+  firestore_core
 )

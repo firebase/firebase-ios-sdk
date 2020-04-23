@@ -305,7 +305,7 @@ static void (^reportSentCallback)(void);
   NSTimeInterval currentTimestamp = [NSDate timeIntervalSinceReferenceDate];
   [self.settings reloadFromCacheWithGoogleAppID:self.googleAppID currentTimestamp:currentTimestamp];
 
-  if (![self checkBundleIDExists]) {
+  if (![self validateAppIdentifiers]) {
     return [FBLPromise resolvedWith:@NO];
   }
 
@@ -522,7 +522,20 @@ static void (^reportSentCallback)(void);
   });
 }
 
-- (BOOL)checkBundleIDExists {
+- (BOOL)validateAppIdentifiers {
+  // When the ApplicationIdentifierModel fails to initialize, it is usually due to
+  // failing computeExecutableInfo. This can happen if the user sets the
+  // Exported Symbols File in Build Settings, and leaves off the one symbol
+  // that Crashlytics needs, "__mh_execute_header" (wich is defined in mach-o/ldsyms.h as
+  // _MH_EXECUTE_SYM). From https://github.com/firebase/firebase-ios-sdk/issues/5020
+  if (!self.appIDModel) {
+    FIRCLSErrorLog(
+        @"Crashlytics could not find the symbol for the app's main function and cannot "
+        @"start up. This can happen when Exported Symbols File is set in Build Settings. To "
+        @"resolve this, add \"__mh_execute_header\" as a newline to your Exported Symbols File.");
+    return NO;
+  }
+
   if (self.appIDModel.bundleID.length == 0) {
     FIRCLSErrorLog(@"An application must have a valid bundle identifier in its Info.plist");
     return NO;

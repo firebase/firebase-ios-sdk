@@ -24,15 +24,15 @@
 #include <utility>
 #include <vector>
 
-#include "Firestore/core/src/firebase/firestore/auth/user.h"
-#include "Firestore/core/src/firebase/firestore/core/query.h"
-#include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
-#include "Firestore/core/src/firebase/firestore/model/model_fwd.h"
-#include "Firestore/core/src/firebase/firestore/nanopb/byte_string.h"
-#include "Firestore/core/src/firebase/firestore/nanopb/nanopb_util.h"
-#include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
-#include "Firestore/core/src/firebase/firestore/util/async_queue.h"
-#include "Firestore/core/src/firebase/firestore/util/empty.h"
+#include "Firestore/core/src/auth/user.h"
+#include "Firestore/core/src/core/query.h"
+#include "Firestore/core/src/core/view_snapshot.h"
+#include "Firestore/core/src/model/model_fwd.h"
+#include "Firestore/core/src/nanopb/byte_string.h"
+#include "Firestore/core/src/nanopb/nanopb_util.h"
+#include "Firestore/core/src/remote/watch_change.h"
+#include "Firestore/core/src/util/async_queue.h"
+#include "Firestore/core/src/util/empty.h"
 
 namespace firebase {
 namespace firestore {

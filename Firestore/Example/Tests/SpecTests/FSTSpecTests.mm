@@ -35,36 +35,36 @@
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
-#include "Firestore/core/src/firebase/firestore/auth/user.h"
-#include "Firestore/core/src/firebase/firestore/core/field_filter.h"
-#include "Firestore/core/src/firebase/firestore/local/persistence.h"
-#include "Firestore/core/src/firebase/firestore/local/target_data.h"
-#include "Firestore/core/src/firebase/firestore/model/delete_mutation.h"
-#include "Firestore/core/src/firebase/firestore/model/document.h"
-#include "Firestore/core/src/firebase/firestore/model/document_key.h"
-#include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
-#include "Firestore/core/src/firebase/firestore/model/field_value.h"
-#include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
-#include "Firestore/core/src/firebase/firestore/model/no_document.h"
-#include "Firestore/core/src/firebase/firestore/model/patch_mutation.h"
-#include "Firestore/core/src/firebase/firestore/model/resource_path.h"
-#include "Firestore/core/src/firebase/firestore/model/set_mutation.h"
-#include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
-#include "Firestore/core/src/firebase/firestore/model/types.h"
-#include "Firestore/core/src/firebase/firestore/nanopb/nanopb_util.h"
-#include "Firestore/core/src/firebase/firestore/remote/existence_filter.h"
-#include "Firestore/core/src/firebase/firestore/remote/serializer.h"
-#include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
-#include "Firestore/core/src/firebase/firestore/util/async_queue.h"
-#include "Firestore/core/src/firebase/firestore/util/comparison.h"
-#include "Firestore/core/src/firebase/firestore/util/filesystem.h"
-#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
-#include "Firestore/core/src/firebase/firestore/util/log.h"
-#include "Firestore/core/src/firebase/firestore/util/path.h"
-#include "Firestore/core/src/firebase/firestore/util/status.h"
-#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
-#include "Firestore/core/src/firebase/firestore/util/to_string.h"
-#include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
+#include "Firestore/core/src/auth/user.h"
+#include "Firestore/core/src/core/field_filter.h"
+#include "Firestore/core/src/local/persistence.h"
+#include "Firestore/core/src/local/target_data.h"
+#include "Firestore/core/src/model/delete_mutation.h"
+#include "Firestore/core/src/model/document.h"
+#include "Firestore/core/src/model/document_key.h"
+#include "Firestore/core/src/model/document_key_set.h"
+#include "Firestore/core/src/model/field_value.h"
+#include "Firestore/core/src/model/maybe_document.h"
+#include "Firestore/core/src/model/no_document.h"
+#include "Firestore/core/src/model/patch_mutation.h"
+#include "Firestore/core/src/model/resource_path.h"
+#include "Firestore/core/src/model/set_mutation.h"
+#include "Firestore/core/src/model/snapshot_version.h"
+#include "Firestore/core/src/model/types.h"
+#include "Firestore/core/src/nanopb/nanopb_util.h"
+#include "Firestore/core/src/remote/existence_filter.h"
+#include "Firestore/core/src/remote/serializer.h"
+#include "Firestore/core/src/remote/watch_change.h"
+#include "Firestore/core/src/util/async_queue.h"
+#include "Firestore/core/src/util/comparison.h"
+#include "Firestore/core/src/util/filesystem.h"
+#include "Firestore/core/src/util/hard_assert.h"
+#include "Firestore/core/src/util/log.h"
+#include "Firestore/core/src/util/path.h"
+#include "Firestore/core/src/util/status.h"
+#include "Firestore/core/src/util/string_apple.h"
+#include "Firestore/core/src/util/to_string.h"
+#include "Firestore/core/test/unit/testutil/testutil.h"
 #include "absl/types/optional.h"
 
 namespace objc = firebase::firestore::objc;
@@ -203,7 +203,7 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
                                                             __func__]                              \
                         userInfo:nil];
 
-- (std::unique_ptr<Persistence>)persistenceWithGCEnabled:(BOOL)GCEnabled {
+- (std::unique_ptr<Persistence>)persistenceWithGCEnabled:(__unused BOOL)GCEnabled {
   @throw FSTAbstractMethodException();  // NOLINT
 }
 
@@ -727,7 +727,7 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
       __block ActiveTargetMap expectedActiveTargets;
       [expectedState[@"activeTargets"]
           enumerateKeysAndObjectsUsingBlock:^(NSString *targetIDString, NSDictionary *queryData,
-                                              BOOL *stop) {
+                                              BOOL *) {
             TargetId targetID = [targetIDString intValue];
             ByteString resumeToken = MakeResumeToken(queryData[@"resumeToken"]);
             NSArray *queriesJson = queryData[@"queries"];
@@ -942,7 +942,7 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
   for (NSUInteger i = 0; i < specFiles.count; i++) {
     NSLog(@"Spec test file: %@", specFiles[i]);
     // Iterate over the tests in the file and run them.
-    [parsedSpecs[i] enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
+    [parsedSpecs[i] enumerateKeysAndObjectsUsingBlock:^(id, id obj, BOOL *) {
       XCTAssertTrue([obj isKindOfClass:[NSDictionary class]]);
       NSDictionary *testDescription = (NSDictionary *)obj;
       NSString *describeName = testDescription[@"describeName"];
@@ -991,7 +991,7 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
 
 - (BOOL)anyTestsAreMarkedExclusive:(NSDictionary *)tests {
   __block BOOL found = NO;
-  [tests enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
+  [tests enumerateKeysAndObjectsUsingBlock:^(id, id obj, BOOL *stop) {
     XCTAssertTrue([obj isKindOfClass:[NSDictionary class]]);
     NSDictionary *testDescription = (NSDictionary *)obj;
     NSArray<NSString *> *tags = testDescription[@"tags"];

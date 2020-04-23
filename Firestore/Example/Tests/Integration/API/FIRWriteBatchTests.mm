@@ -24,9 +24,9 @@
 #import "Firestore/Example/Tests/Util/FSTEventAccumulator.h"
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 
-#include "Firestore/core/src/firebase/firestore/util/autoid.h"
-#include "Firestore/core/src/firebase/firestore/util/sanitizers.h"
-#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+#include "Firestore/core/src/util/autoid.h"
+#include "Firestore/core/src/util/sanitizers.h"
+#include "Firestore/core/src/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
 using firebase::firestore::util::CreateAutoId;

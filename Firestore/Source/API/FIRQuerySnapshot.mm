@@ -25,12 +25,12 @@
 #import "Firestore/Source/API/FIRQuery+Internal.h"
 #import "Firestore/Source/API/FIRSnapshotMetadata+Internal.h"
 
-#include "Firestore/core/src/firebase/firestore/api/query_core.h"
-#include "Firestore/core/src/firebase/firestore/api/query_snapshot.h"
-#include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
-#include "Firestore/core/src/firebase/firestore/model/document_set.h"
-#include "Firestore/core/src/firebase/firestore/util/delayed_constructor.h"
-#include "Firestore/core/src/firebase/firestore/util/exception.h"
+#include "Firestore/core/src/api/query_core.h"
+#include "Firestore/core/src/api/query_snapshot.h"
+#include "Firestore/core/src/core/view_snapshot.h"
+#include "Firestore/core/src/model/document_set.h"
+#include "Firestore/core/src/util/delayed_constructor.h"
+#include "Firestore/core/src/util/exception.h"
 
 using firebase::firestore::api::DocumentChange;
 using firebase::firestore::api::DocumentSnapshot;
