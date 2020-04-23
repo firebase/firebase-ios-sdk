@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #import "FIRAppDistribution+Private.h"
+#import "FIRAppDistributionMachO+Private.h"
 #import "FIRAppDistributionRelease+Private.h"
 
 #import <FirebaseCore/FIRAppInternal.h>
@@ -219,10 +220,26 @@ NSString *const kAppDistroLibraryName = @"fire-fad";
 
 - (void)handleReleasesAPIResponseWithData:data
                                completion:(FIRAppDistributionUpdateCheckCompletion)completion {
-  // TODO Implement parsing of releases API response
-  completion(nil, nil);
-}
+  NSError *error = nil;
+  NSDictionary *object = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
 
+  NSArray *releaseList = [object objectForKey:@"releases"];
+  for (NSDictionary *releaseDict in releaseList) {
+    if (![[releaseDict objectForKey:@"latest"] boolValue]) continue;
+
+    NSString *codeHash = [releaseDict objectForKey:@"codeHash"];
+    FIRAppDistributionMachO *machO =
+        [[FIRAppDistributionMachO alloc] initWithPath:[[NSBundle mainBundle] executablePath]];
+
+    if (![codeHash isEqualToString:machO.codeHash]) {
+      FIRAppDistributionRelease *release =
+          [[FIRAppDistributionRelease alloc] initWithDictionary:releaseDict];
+      dispatch_async(dispatch_get_main_queue(), ^{
+        completion(release, nil);
+      });
+    }
+  }
+}
 - (void)checkForUpdateWithCompletion:(FIRAppDistributionUpdateCheckCompletion)completion {
   if (self.isTesterSignedIn) {
     [self fetchReleases:completion];
