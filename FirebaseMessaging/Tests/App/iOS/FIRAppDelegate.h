@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@import UIKit;
+#import <UIKit/UIKit.h>
 
 @interface FIRAppDelegate : UIResponder <UIApplicationDelegate>
 
