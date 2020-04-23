@@ -16,19 +16,20 @@
 
 #import <Foundation/Foundation.h>
 
-#import <FirebaseAppAttestation/FIRAppAttestationProvider.h>
+@class FIRApp;
 
-@class FIRDeviceCheckAttestationAPIService;
-@protocol FIRDeviceCheckTokenGenerator;
+NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRDeviceCheckAttestationProvider : NSObject <FIRAppAttestationProvider>
+@interface FIRAppAttestStoredToken : NSObject <NSSecureCoding>
 
-- (instancetype)init NS_UNAVAILABLE;
+/// FAA token.
+@property(nonatomic, copy) NSString *token;
+/// FAA token expiration date in the device local time.
+@property(nonatomic, strong) NSDate *expirationDate;
 
-- (instancetype)initWithAPIService:(FIRDeviceCheckAttestationAPIService *)APIService;
-
-- (instancetype)initWithAPIService:(FIRDeviceCheckAttestationAPIService *)APIService
-              deviceTokenGenerator:(id<FIRDeviceCheckTokenGenerator>)deviceTokenGenerator
-    NS_DESIGNATED_INITIALIZER;
+/// The version of local storage.
+@property(nonatomic, readonly) NSInteger storageVersion;
 
 @end
+
+NS_ASSUME_NONNULL_END

@@ -43,7 +43,7 @@ Pod::Spec.new do |s|
     cs.source_files = subspec_dir + '**/*.[mh]'
     cs.public_header_files = subspec_dir + 'Public/*.h'
 
-    cs.framework = 'Security'
+    cs.dependency 'GoogleUtilities/Environment'
   end
 
   s.subspec 'DeviceCheckAttestationProvider' do |ds|

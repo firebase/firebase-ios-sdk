@@ -14,8 +14,18 @@
  * limitations under the License.
  */
 
-#import "FIRAppAttestationStoredToken.h"
+#import "FIRAppAttestStoredToken.h"
 
-@implementation FIRAppAttestationStoredToken
+@class FIRAppAttestationToken;
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface FIRAppAttestStoredToken (FIRAppAttestationToken)
+
+- (void)updateWithToken:(FIRAppAttestationToken *)token;
+
+- (FIRAppAttestationToken *)attestationToken;
 
 @end
+
+NS_ASSUME_NONNULL_END

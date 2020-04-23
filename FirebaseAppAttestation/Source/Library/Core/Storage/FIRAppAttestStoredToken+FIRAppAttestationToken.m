@@ -14,22 +14,20 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
+#import "FIRAppAttestStoredToken+FIRAppAttestationToken.h"
 
-@class FIRApp;
+#import <FirebaseAppAttestation/FIRAppAttestationToken.h>
 
-NS_ASSUME_NONNULL_BEGIN
+@implementation FIRAppAttestStoredToken (FIRAppAttestationToken)
 
-@interface FIRAppAttestationStoredToken : NSObject <NSSecureCoding>
+- (void)updateWithToken:(FIRAppAttestationToken *)token {
+  self.token = token.token;
+  self.expirationDate = token.expirationDate;
+}
 
-/// FAA token.
-@property(nonatomic, copy) NSString *token;
-/// FAA token expiration date in the device local time.
-@property(nonatomic, strong) NSDate *expirationDate;
-
-/// The version of local storage.
-@property(nonatomic, readonly) NSInteger storageVersion;
+- (FIRAppAttestationToken *)attestationToken {
+  return [[FIRAppAttestationToken alloc] initWithToken:self.token
+                                        expirationDate:self.expirationDate];
+}
 
 @end
-
-NS_ASSUME_NONNULL_END
