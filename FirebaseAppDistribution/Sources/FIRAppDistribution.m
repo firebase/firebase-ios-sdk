@@ -17,10 +17,6 @@
 #import "FIRAppDistributionMachO+Private.h"
 #import "FIRAppDistributionRelease+Private.h"
 
-#import "FIRAppDistributionAuthPersistence+Private.h"
-#import "FIRAppDistributionMachO+Private.h"
-#import "FIRAppDistributionRelease+Private.h"
-
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIRComponent.h>
 #import <FirebaseCore/FIRComponentContainer.h>

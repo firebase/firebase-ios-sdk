@@ -12,8 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#import <XCTest/XCTest.h>
 #import <OCMock/OCMock.h>
+#import <XCTest/XCTest.h>
 
 #import <AppAuth/AppAuth.h>
 #import <FirebaseAppDistribution/FIRAppDistributionAuthPersistence+Private.h>
@@ -33,13 +33,14 @@
 - (void)setUp {
   [super setUp];
   _mockKeychainQuery = [NSMutableDictionary
-                        dictionaryWithObjectsAndKeys:(id)@"thing one", (id)@"another thing", nil];
+      dictionaryWithObjectsAndKeys:(id) @"thing one", (id) @"another thing", nil];
   _mockKeychainUtility = OCMClassMock([FIRAppDistributionKeychainUtility class]);
   _mockAuthorizationData = [@"this is some password stuff" dataUsingEncoding:NSUTF8StringEncoding];
   _mockOIDAuthState = OCMClassMock([OIDAuthState class]);
-  OCMStub(ClassMethod([_mockKeychainUtility unarchiveKeychainResult:[OCMArg any]])).andReturn(_mockOIDAuthState);
-  OCMStub(ClassMethod([_mockKeychainUtility archiveDataForKeychain:[OCMArg any]])).andReturn(_mockAuthorizationData);
-
+  OCMStub(ClassMethod([_mockKeychainUtility unarchiveKeychainResult:[OCMArg any]]))
+      .andReturn(_mockOIDAuthState);
+  OCMStub(ClassMethod([_mockKeychainUtility archiveDataForKeychain:[OCMArg any]]))
+      .andReturn(_mockAuthorizationData);
 }
 
 - (void)tearDown {
@@ -48,17 +49,21 @@
 
 - (void)testPersistAuthStateSuccess {
   OCMStub(ClassMethod([_mockKeychainUtility addKeychainItem:[OCMArg any]
-                                         withDataDictionary:[OCMArg any] ])).andReturn(YES);
+                                         withDataDictionary:[OCMArg any]]))
+      .andReturn(YES);
   NSError *error;
-  XCTAssertTrue([FIRAppDistributionAuthPersistence persistAuthState:_mockOIDAuthState error:&error]);
+  XCTAssertTrue([FIRAppDistributionAuthPersistence persistAuthState:_mockOIDAuthState
+                                                              error:&error]);
   XCTAssertNil(error);
 }
 
 - (void)testPersistAuthStateFailure {
   OCMStub(ClassMethod([_mockKeychainUtility addKeychainItem:[OCMArg any]
-                                         withDataDictionary:[OCMArg any] ])).andReturn(NO);
+                                         withDataDictionary:[OCMArg any]]))
+      .andReturn(NO);
   NSError *error;
-  XCTAssertFalse([FIRAppDistributionAuthPersistence persistAuthState:_mockOIDAuthState error:&error]);
+  XCTAssertFalse([FIRAppDistributionAuthPersistence persistAuthState:_mockOIDAuthState
+                                                               error:&error]);
   XCTAssertNotNil(error);
   XCTAssertEqual([error domain], kFIRAppDistributionAuthPersistenceErrorDomain);
   XCTAssertEqual([error code], FIRAppDistributionErrorTokenPersistenceFailure);
@@ -66,38 +71,46 @@
 
 - (void)testOverwriteAuthStateSuccess {
   OCMStub(ClassMethod([_mockKeychainUtility fetchKeychainItemMatching:[OCMArg any]
-                                                                error:[OCMArg setTo:nil]])).andReturn(_mockAuthorizationData);
+                                                                error:[OCMArg setTo:nil]]))
+      .andReturn(_mockAuthorizationData);
   OCMStub(ClassMethod([_mockKeychainUtility updateKeychainItem:[OCMArg any]
-                                            withDataDictionary:[OCMArg any]])).andReturn(YES);
+                                            withDataDictionary:[OCMArg any]]))
+      .andReturn(YES);
   NSError *error;
-  XCTAssertTrue([FIRAppDistributionAuthPersistence persistAuthState:_mockOIDAuthState error:&error]);
+  XCTAssertTrue([FIRAppDistributionAuthPersistence persistAuthState:_mockOIDAuthState
+                                                              error:&error]);
   XCTAssertNil(error);
 }
 
 - (void)testOverwriteAuthStateFailure {
   OCMStub(ClassMethod([_mockKeychainUtility fetchKeychainItemMatching:[OCMArg any]
-                                                                error:[OCMArg setTo:nil]])).andReturn(_mockAuthorizationData);
+                                                                error:[OCMArg setTo:nil]]))
+      .andReturn(_mockAuthorizationData);
   OCMStub(ClassMethod([_mockKeychainUtility updateKeychainItem:[OCMArg any]
-                                            withDataDictionary:[OCMArg any]])).andReturn(NO);
+                                            withDataDictionary:[OCMArg any]]))
+      .andReturn(NO);
   NSError *error;
-  XCTAssertFalse([FIRAppDistributionAuthPersistence persistAuthState:_mockOIDAuthState error:&error]);
+  XCTAssertFalse([FIRAppDistributionAuthPersistence persistAuthState:_mockOIDAuthState
+                                                               error:&error]);
   XCTAssertNotNil(error);
   XCTAssertEqual([error domain], kFIRAppDistributionAuthPersistenceErrorDomain);
   XCTAssertEqual([error code], FIRAppDistributionErrorTokenPersistenceFailure);
 }
 
-- (void) testRetrieveAuthStateSuccess {
+- (void)testRetrieveAuthStateSuccess {
   OCMStub(ClassMethod([_mockKeychainUtility fetchKeychainItemMatching:[OCMArg any]
-                                                                error:[OCMArg setTo:nil]])).andReturn(_mockAuthorizationData);
+                                                                error:[OCMArg setTo:nil]]))
+      .andReturn(_mockAuthorizationData);
   NSError *error;
-  XCTAssertTrue([[FIRAppDistributionAuthPersistence retrieveAuthState:&error] isKindOfClass:[OIDAuthState class]]);
+  XCTAssertTrue([[FIRAppDistributionAuthPersistence retrieveAuthState:&error]
+      isKindOfClass:[OIDAuthState class]]);
   XCTAssertNil(error);
 }
 
-
-- (void) testRetrieveAuthStateFailure {
+- (void)testRetrieveAuthStateFailure {
   OCMStub(ClassMethod([_mockKeychainUtility fetchKeychainItemMatching:[OCMArg any]
-                                                         error:[OCMArg setTo:nil]])).andReturn(nil);
+                                                                error:[OCMArg setTo:nil]]))
+      .andReturn(nil);
   NSError *error;
   XCTAssertFalse([FIRAppDistributionAuthPersistence retrieveAuthState:&error]);
   XCTAssertNotNil(error);
@@ -105,16 +118,14 @@
   XCTAssertEqual([error code], FIRAppDistributionErrorTokenRetrievalFailure);
 }
 
-
-- (void) testClearAuthStateSuccess {
+- (void)testClearAuthStateSuccess {
   OCMStub(ClassMethod([_mockKeychainUtility deleteKeychainItem:[OCMArg any]])).andReturn(YES);
   NSError *error;
   XCTAssertTrue([FIRAppDistributionAuthPersistence clearAuthState:&error]);
   XCTAssertNil(error);
 }
 
-
-- (void) testClearAuthStateFailure {
+- (void)testClearAuthStateFailure {
   OCMStub(ClassMethod([_mockKeychainUtility deleteKeychainItem:[OCMArg any]])).andReturn(NO);
   NSError *error;
   XCTAssertFalse([FIRAppDistributionAuthPersistence clearAuthState:&error]);
