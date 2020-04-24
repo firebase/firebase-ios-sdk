@@ -22,3 +22,13 @@ struct PackageData {
 
   // TODO: Add necessary fields.
 }
+
+extension PackageData {
+  static func undefined() -> PackageData {
+    return PackageData(name: "undefined",
+                       type: .swiftPM,
+                       version: "",
+                       publicHeaderPaths: [],
+                       sourceFilePaths: [])
+  }
+}
