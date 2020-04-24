@@ -49,6 +49,7 @@ DerivedData
 ZipBuilder/Packages
 ZipBuilder/*.xcodeproj
 ZipBuilder/Package.resolved
+ZipBuilder/.swiftpm
 
 
 # IntelliJ
