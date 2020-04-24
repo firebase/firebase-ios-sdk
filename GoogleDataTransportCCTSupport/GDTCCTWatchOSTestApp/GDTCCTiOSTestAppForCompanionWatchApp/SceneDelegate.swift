@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,13 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
+import UIKit
 
-#import <GoogleDataTransport/GDTCORPlatform.h>
+class SceneDelegate: UIResponder, UIWindowSceneDelegate {
+  var window: UIWindow?
 
-NS_ASSUME_NONNULL_BEGIN
-
-/** This class helps determine upload conditions by determining connectivity. */
-@interface GDTCORReachability : NSObject
-
-/** The current set flags indicating network conditions */
-+ (GDTCORNetworkReachabilityFlags)currentFlags;
-
-@end
-
-NS_ASSUME_NONNULL_END
+  func scene(_ scene: UIScene, willConnectTo session: UISceneSession,
+             options connectionOptions: UIScene.ConnectionOptions) {
+    guard let _ = (scene as? UIWindowScene) else { return }
+  }
+}

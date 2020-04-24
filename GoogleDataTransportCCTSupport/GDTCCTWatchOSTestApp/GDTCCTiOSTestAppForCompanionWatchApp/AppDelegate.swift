@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,14 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
+import UIKit
 
-#import <GoogleDataTransport/GDTCORPlatform.h>
-
-NS_ASSUME_NONNULL_BEGIN
-
-/** This class helps determine upload conditions by determining connectivity. */
-@interface GDTCORReachability : NSObject
-
-/** The current set flags indicating network conditions */
-+ (GDTCORNetworkReachabilityFlags)currentFlags;
-
-@end
-
-NS_ASSUME_NONNULL_END
+@UIApplicationMain
+class AppDelegate: UIResponder, UIApplicationDelegate {
+  func application(_ application: UIApplication,
+                   didFinishLaunchingWithOptions launchOptions: [UIApplication
+                     .LaunchOptionsKey: Any]?) -> Bool {
+    // Override point for customization after application launch.
+    return true
+  }
+}

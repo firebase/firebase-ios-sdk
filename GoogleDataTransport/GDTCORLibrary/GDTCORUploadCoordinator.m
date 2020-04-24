@@ -139,27 +139,17 @@
  * @return The current upload conditions.
  */
 - (GDTCORUploadConditions)uploadConditions {
-#if TARGET_OS_WATCH
-  return GDTCORUploadConditionNoNetwork;
-#else
-  SCNetworkReachabilityFlags currentFlags = [GDTCORReachability currentFlags];
-  BOOL reachable =
-      (currentFlags & kSCNetworkReachabilityFlagsReachable) == kSCNetworkReachabilityFlagsReachable;
-  BOOL connectionRequired = (currentFlags & kSCNetworkReachabilityFlagsConnectionRequired) ==
-                            kSCNetworkReachabilityFlagsConnectionRequired;
-  BOOL networkConnected = reachable && !connectionRequired;
-
+  GDTCORNetworkReachabilityFlags currentFlags = [GDTCORReachability currentFlags];
+  BOOL networkConnected = GDTCORReachabilityFlagsReachable(currentFlags);
   if (!networkConnected) {
     return GDTCORUploadConditionNoNetwork;
   }
-
   BOOL isWWAN = GDTCORReachabilityFlagsContainWWAN(currentFlags);
   if (isWWAN) {
     return GDTCORUploadConditionMobileData;
   } else {
     return GDTCORUploadConditionWifiData;
   }
-#endif
 }
 
 #pragma mark - NSSecureCoding support
