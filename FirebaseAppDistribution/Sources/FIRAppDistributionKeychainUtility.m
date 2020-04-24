@@ -29,37 +29,38 @@ NSString *const kFIRAppDistributionKeychainErrorDomain = @"com.firebase.app_dist
   }
 }
 
-+ (BOOL)addKeychainItem:(nonnull NSMutableDictionary *)keychainQuery withDataDictionary:(nonnull NSData *)data {
++ (BOOL)addKeychainItem:(nonnull NSMutableDictionary *)keychainQuery
+     withDataDictionary:(nonnull NSData *)data {
   [keychainQuery setObject:data forKey:(id)kSecValueData];
   OSStatus status = SecItemAdd((CFDictionaryRef)keychainQuery, NULL);
 
   return status == noErr ? YES : NO;
 }
 
-+ (BOOL)updateKeychainItem:(nonnull NSMutableDictionary *)keychainQuery withDataDictionary:(nonnull NSData *)data {
-  OSStatus status = SecItemUpdate((CFDictionaryRef)keychainQuery,
-                                  (CFDictionaryRef) @{(id)kSecValueData : data});
++ (BOOL)updateKeychainItem:(nonnull NSMutableDictionary *)keychainQuery
+        withDataDictionary:(nonnull NSData *)data {
+  OSStatus status =
+      SecItemUpdate((CFDictionaryRef)keychainQuery, (CFDictionaryRef) @{(id)kSecValueData : data});
   return status == noErr ? YES : NO;
 }
 
 + (BOOL)deleteKeychainItem:(nonnull NSMutableDictionary *)keychainQuery {
   OSStatus status = SecItemDelete((CFDictionaryRef)keychainQuery);
-  
+
   return status != errSecSuccess && status != errSecItemNotFound ? NO : YES;
 }
 
-+ (NSData *)fetchKeychainItemMatching:(nonnull NSMutableDictionary *)keychainQuery error:(NSError **_Nullable)error {
++ (NSData *)fetchKeychainItemMatching:(nonnull NSMutableDictionary *)keychainQuery
+                                error:(NSError **_Nullable)error {
   NSData *keychainItem;
   OSStatus status = SecItemCopyMatching((CFDictionaryRef)keychainQuery, (void *)&keychainItem);
 
-  if(status != noErr || 0 == [keychainItem length]){
-    if(error){
-      NSString *description = NSLocalizedString(
-        @"Failed to fetch keychain item.",
-        @"Error message for failure to retrieve auth state from keychain");
-      [self handleAuthStateError:error
-                     description:description
-                            code:0];
+  if (status != noErr || 0 == [keychainItem length]) {
+    if (error) {
+      NSString *description =
+          NSLocalizedString(@"Failed to fetch keychain item.",
+                            @"Error message for failure to retrieve auth state from keychain");
+      [self handleAuthStateError:error description:description code:0];
       return nil;
     }
   }

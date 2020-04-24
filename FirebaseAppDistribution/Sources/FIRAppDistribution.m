@@ -17,10 +17,6 @@
 #import "FIRAppDistributionMachO+Private.h"
 #import "FIRAppDistributionRelease+Private.h"
 
-#import "FIRAppDistributionAuthPersistence+Private.h"
-#import "FIRAppDistributionMachO+Private.h"
-#import "FIRAppDistributionRelease+Private.h"
-
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIRComponent.h>
 #import <FirebaseCore/FIRComponentContainer.h>
@@ -250,6 +246,7 @@ NSString *const kAppDistroLibraryName = @"fire-fad";
                                              self.isTesterSignedIn = self.authState ? YES : NO;
                                              completion(error);
                                            }];
+}
 
 - (UIWindow *)createUIWindowForLogin {
   // Create an empty window + viewController to host the Safari UI.

@@ -16,7 +16,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /// @brief Wraps keychain operations to encapsulate interactions with CF data structures
-@interface FIRAppDistributionKeychainUtility: NSObject
+@interface FIRAppDistributionKeychainUtility : NSObject
 
 /// @brief Store an item in the keychain
 + (BOOL)addKeychainItem:(NSMutableDictionary *)keychainQuery withDataDictionary:(NSData *)data;
@@ -28,7 +28,8 @@ NS_ASSUME_NONNULL_BEGIN
 + (BOOL)deleteKeychainItem:(NSMutableDictionary *)keychainQuery;
 
 /// @brief Fetch the item matching the keychain query from the keychain
-+ (NSData *)fetchKeychainItemMatching:(nonnull NSMutableDictionary *)keychainQuery error:(NSError **_Nullable)error;
++ (NSData *)fetchKeychainItemMatching:(nonnull NSMutableDictionary *)keychainQuery
+                                error:(NSError **_Nullable)error;
 
 /// @brief Unarchive the authentication state from the keychain result
 + (OIDAuthState *)unarchiveKeychainResult:(NSData *)result;

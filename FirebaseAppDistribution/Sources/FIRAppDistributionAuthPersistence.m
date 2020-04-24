@@ -15,7 +15,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-NSString *const kFIRAppDistributionAuthPersistenceErrorDomain = @"com.firebase.app_distribution.auth_persistence";
+NSString *const kFIRAppDistributionAuthPersistenceErrorDomain =
+    @"com.firebase.app_distribution.auth_persistence";
 
 @implementation FIRAppDistributionAuthPersistence
 
@@ -51,7 +52,8 @@ NSString *const kFIRAppDistributionAuthPersistenceErrorDomain = @"com.firebase.a
   NSMutableDictionary *keychainQuery = [self getKeyChainQuery];
   [keychainQuery setObject:(id)kCFBooleanTrue forKey:(id)kSecReturnData];
   [keychainQuery setObject:(id)kSecMatchLimitOne forKey:(id)kSecMatchLimit];
-  NSData *passwordData = [FIRAppDistributionKeychainUtility fetchKeychainItemMatching:keychainQuery error:NULL];
+  NSData *passwordData = [FIRAppDistributionKeychainUtility fetchKeychainItemMatching:keychainQuery
+                                                                                error:NULL];
   NSData *result = nil;
 
   if (!passwordData) {
@@ -87,9 +89,11 @@ NSString *const kFIRAppDistributionAuthPersistenceErrorDomain = @"com.firebase.a
   BOOL success = NO;
   BOOL hasAuthState = [self retrieveAuthState:NULL];
   if (hasAuthState) {
-    success =[FIRAppDistributionKeychainUtility updateKeychainItem:keychainQuery withDataDictionary:authorizationData];
+    success = [FIRAppDistributionKeychainUtility updateKeychainItem:keychainQuery
+                                                 withDataDictionary:authorizationData];
   } else {
-    success =[FIRAppDistributionKeychainUtility addKeychainItem:keychainQuery withDataDictionary:authorizationData];
+    success = [FIRAppDistributionKeychainUtility addKeychainItem:keychainQuery
+                                              withDataDictionary:authorizationData];
   }
 
   if (!success) {
