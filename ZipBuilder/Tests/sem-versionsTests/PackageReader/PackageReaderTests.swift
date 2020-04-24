@@ -4,6 +4,7 @@ import Foundation
 
 final class PackageReaderTests: XCTestCase {
     func testSimpleValidPod() {
+      // 
       let rootDirURL = URL(fileURLWithPath: "/Users/mmaksym/Projects/firebase-ios-sdk2/ZipBuilder/TestResources/CocoapodsReaderSamples/CocoapodsReader/SimpleValidPod")
       print("rootDirURL: \(rootDirURL.absoluteString)")
 
