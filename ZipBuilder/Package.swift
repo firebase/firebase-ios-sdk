@@ -41,19 +41,20 @@ let package = Package(
     ),
     .target(
       name: "ZipBuilder",
-      dependencies: ["ArgumentParser", "ManifestReader"]
+      dependencies: ["ArgumentParser", "ManifestReader", "ShellUtils"]
     ),
     .target(
       name: "ManifestReader",
       dependencies: ["SwiftProtobuf"]
     ),
-    
+    .target(name: "ShellUtils"),
 
     // Semantic versioning
     .target(
       name: "sem-versions",
       dependencies: [
         .product(name: "ArgumentParser", package: "swift-argument-parser"),
+        "ShellUtils"
     ]),
     .testTarget(
       name: "sem-versionsTests",

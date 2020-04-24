@@ -16,6 +16,8 @@
 
 import Foundation
 
+import ShellUtils
+
 /// Different architectures to build frameworks for.
 enum Architecture: String, CaseIterable {
   /// The target platform that the framework is built for.

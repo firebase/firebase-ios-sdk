@@ -16,6 +16,8 @@
 
 import Foundation
 
+import ShellUtils
+
 /// Convenience
 struct Zip {
   /// Compresses the contents of the directory into a Zip file that resides beside the directory
