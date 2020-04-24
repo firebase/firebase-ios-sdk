@@ -219,32 +219,32 @@ NSString *const kAppDistroLibraryName = @"fire-fad";
        additionalParameters:nil];
 
   [self setupUIWindowForLogin];
-  // performs authentication request
-  [FIRAppDistributionAppDelegatorInterceptor sharedInstance].currentAuthorizationFlow =
-  [OIDAuthState authStateByPresentingAuthorizationRequest:request
-                                 presentingViewController:self.safariHostingViewController
-                                                 callback:^(OIDAuthState *_Nullable authState,
-                                                            NSError *_Nullable error) {
+
+  void (^processAuthState)(OIDAuthState *_Nullable authState, NSError *_Nullable error) = ^void(
+      OIDAuthState *_Nullable authState, NSError *_Nullable error) {
     self.authState = authState;
 
     // Capture errors in persistence but do not bubble them
     // up
     NSError *authPersistenceError;
     if (authState) {
-      [FIRAppDistributionAuthPersistence
-       persistAuthState:authState
-       error:&authPersistenceError];
+      [FIRAppDistributionAuthPersistence persistAuthState:authState error:&authPersistenceError];
     }
 
     // TODO (schnecle): Log errors in persistence using
     // FIRLogger
     if (authPersistenceError) {
-      NSLog(@"Error persisting token to keychain: %@",
-            [error localizedDescription]);
+      NSLog(@"Error persisting token to keychain: %@", [error localizedDescription]);
     }
     self.isTesterSignedIn = self.authState ? YES : NO;
     completion(error);
-  }];
+  };
+
+  // performs authentication request
+  [FIRAppDistributionAppDelegatorInterceptor sharedInstance].currentAuthorizationFlow =
+      [OIDAuthState authStateByPresentingAuthorizationRequest:request
+                                     presentingViewController:self.safariHostingViewController
+                                                     callback:processAuthState];
 }
 
 - (void)setupUIWindowForLogin {
