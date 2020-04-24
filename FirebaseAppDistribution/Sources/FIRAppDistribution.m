@@ -74,7 +74,6 @@ NSString *const kAppDistroLibraryName = @"fire-fad";
 
   self.isTesterSignedIn = self.authState ? YES : NO;
 
-  NSLog(@"Tester %@ already logged in", self.isTesterSignedIn ? @"is" : @"is not");
   return self;
 }
 
