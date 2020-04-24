@@ -353,7 +353,7 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
   ret = [ret stringByAppendingString:[NSString stringWithFormat:@", app_version:'%@'",
                                                                 FIRRemoteConfigAppVersion()]];
   ret = [ret stringByAppendingString:[NSString stringWithFormat:@", app_build:'%@'",
-  FIRRemoteConfigAppBuildVersion()]];
+                                                                FIRRemoteConfigAppBuildVersion()]];
   ret = [ret stringByAppendingString:[NSString stringWithFormat:@", sdk_version:'%d'",
                                                                 FIRRemoteConfigSDKVersion()]];
 
