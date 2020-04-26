@@ -47,6 +47,11 @@ class Executor {
   using Operation = std::function<void()>;
   using Milliseconds = std::chrono::milliseconds;
 
+  // An opaque, monotonically increasing identifier for each operation that does
+  // not depend on their address. Where the `Tag` identifies the kind of
+  // operation, the `Id` identifies the specific instance.
+  using Id = uint32_t;
+
   // Operations scheduled for future execution have an opaque tag. The value of
   // the tag is ignored by the executor but can be used to find operations with
   // a given tag after they are scheduled.

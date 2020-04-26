@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2018 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,10 +58,6 @@ class TimeSlot;
 // a dedicated serial dispatch queue.
 class ExecutorLibdispatch : public Executor {
  public:
-  // An opaque, monotonically increasing identifier for TimeSlots that does
-  // not depend on their address.
-  using TimeSlotId = uint32_t;
-
   explicit ExecutorLibdispatch(dispatch_queue_t dispatch_queue);
   ~ExecutorLibdispatch() override;
 
@@ -74,7 +70,7 @@ class ExecutorLibdispatch : public Executor {
   DelayedOperation Schedule(Milliseconds delay,
                             TaggedOperation&& operation) override;
 
-  void RemoveFromSchedule(TimeSlotId to_remove);
+  void RemoveFromSchedule(Id to_remove);
 
   bool IsScheduled(Tag tag) const override;
   absl::optional<TaggedOperation> PopFromSchedule() override;
@@ -84,16 +80,16 @@ class ExecutorLibdispatch : public Executor {
   }
 
  private:
-  using ScheduleMap = std::unordered_map<TimeSlotId, TimeSlot*>;
+  using ScheduleMap = std::unordered_map<Id, TimeSlot*>;
   using ScheduleEntry = ScheduleMap::value_type;
 
-  TimeSlotId NextId();
+  Id NextId();
 
   dispatch_queue_t dispatch_queue_;
   // Stores non-owned pointers to `TimeSlot`s.
   // Invariant: if a `TimeSlot` is in `schedule_`, it's a valid pointer.
   ScheduleMap schedule_;
-  TimeSlotId current_id_ = 0;
+  Id current_id_ = 0;
 };
 
 }  // namespace util

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2018 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -116,12 +116,10 @@ void RunSynchronized(const ExecutorLibdispatch* const executor, Work&& work) {
 
 class TimeSlot {
  public:
-  using TimeSlotId = ExecutorLibdispatch::TimeSlotId;
-
   TimeSlot(ExecutorLibdispatch* executor,
            Executor::Milliseconds delay,
            Executor::TaggedOperation&& operation,
-           TimeSlotId slot_id);
+           Executor::Id slot_id);
 
   // Returns the operation that was scheduled for this time slot and turns the
   // slot into a no-op.
@@ -158,7 +156,7 @@ class TimeSlot {
   ExecutorLibdispatch* const executor_;
   const TimePoint target_time_;  // Used for sorting
   Executor::TaggedOperation tagged_;
-  TimeSlotId time_slot_id_ = 0;
+  Executor::Id time_slot_id_ = 0;
 
   // True if the operation has either been run or canceled.
   //
@@ -170,7 +168,7 @@ class TimeSlot {
 TimeSlot::TimeSlot(ExecutorLibdispatch* const executor,
                    const Executor::Milliseconds delay,
                    Executor::TaggedOperation&& operation,
-                   TimeSlotId slot_id)
+                   Executor::Id slot_id)
     : executor_{executor},
       target_time_{std::chrono::time_point_cast<Executor::Milliseconds>(
                        std::chrono::steady_clock::now()) +
@@ -261,7 +259,7 @@ DelayedOperation ExecutorLibdispatch::Schedule(const Milliseconds delay,
   // invoked by libdispatch after the executor is destroyed. Executor only
   // stores an observer pointer to the operation.
   TimeSlot* time_slot = nullptr;
-  TimeSlotId time_slot_id = 0;
+  Id time_slot_id = 0;
   RunSynchronized(this, [this, delay, &operation, &time_slot, &time_slot_id] {
     time_slot_id = NextId();
     time_slot = new TimeSlot{this, delay, std::move(operation), time_slot_id};
@@ -280,7 +278,7 @@ DelayedOperation ExecutorLibdispatch::Schedule(const Milliseconds delay,
   }};
 }
 
-void ExecutorLibdispatch::RemoveFromSchedule(TimeSlotId to_remove) {
+void ExecutorLibdispatch::RemoveFromSchedule(Id to_remove) {
   RunSynchronized(this, [this, to_remove] {
     const auto found = schedule_.find(to_remove);
 
@@ -327,7 +325,7 @@ ExecutorLibdispatch::PopFromSchedule() {
   return result;
 }
 
-ExecutorLibdispatch::TimeSlotId ExecutorLibdispatch::NextId() {
+ExecutorLibdispatch::Id ExecutorLibdispatch::NextId() {
   // The wrap around after ~4 billion operations is explicitly ignored. Even if
   // an instance of `ExecutorLibdispatch` runs long enough to get `current_id_`
   // to overflow, it's extremely unlikely that any object still holds a

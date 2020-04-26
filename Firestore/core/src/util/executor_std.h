@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2018 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -228,9 +228,6 @@ class ExecutorStd : public Executor {
   absl::optional<TaggedOperation> PopFromSchedule() override;
 
   using TimePoint = async::Schedule<Operation>::TimePoint;
-  // To allow canceling operations, each scheduled operation is assigned
-  // a monotonically increasing identifier.
-  using Id = unsigned int;
 
   // If the operation hasn't yet been run, it will be removed from the queue.
   // Otherwise, this function is a no-op.
