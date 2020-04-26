@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2018 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,38 +29,7 @@ namespace firebase {
 namespace firestore {
 namespace util {
 
-// A handle to an operation scheduled for future execution. The handle may
-// outlive the operation, but it *cannot* outlive the executor that created it.
-class DelayedOperation {
- public:
-  // Creates an empty `DelayedOperation` not associated with any actual
-  // operation. Calling `Cancel` on it is a no-op.
-  DelayedOperation() {
-  }
-
-  // Returns whether this `DelayedOperation` is associated with an actual
-  // operation.
-  explicit operator bool() const {
-    return static_cast<bool>(cancel_func_);
-  }
-
-  // If the operation has not been run yet, cancels the operation. Otherwise,
-  // this function is a no-op.
-  void Cancel() {
-    if (cancel_func_) {
-      cancel_func_();
-      cancel_func_ = {};
-    }
-  }
-
-  // Internal use only.
-  explicit DelayedOperation(std::function<void()>&& cancel_func)
-      : cancel_func_{std::move(cancel_func)} {
-  }
-
- private:
-  std::function<void()> cancel_func_;
-};
+class DelayedOperation;
 
 // An interface to a platform-specific executor of asynchronous operations
 // (called tasks on other platforms).
@@ -142,6 +111,38 @@ class Executor {
   // execution may be removed. If no such operations are currently scheduled, an
   // empty `optional` is returned.
   virtual absl::optional<TaggedOperation> PopFromSchedule() = 0;
+};
+
+// A handle to an operation scheduled for future execution. The handle may
+// outlive the operation, but it *cannot* outlive the executor that created it.
+class DelayedOperation {
+ public:
+  // Creates an empty `DelayedOperation` not associated with any actual
+  // operation. Calling `Cancel` on it is a no-op.
+  DelayedOperation() = default;
+
+  // Returns whether this `DelayedOperation` is associated with an actual
+  // operation.
+  explicit operator bool() const {
+    return static_cast<bool>(cancel_func_);
+  }
+
+  // If the operation has not been run yet, cancels the operation. Otherwise,
+  // this function is a no-op.
+  void Cancel() {
+    if (cancel_func_) {
+      cancel_func_();
+      cancel_func_ = {};
+    }
+  }
+
+  // Internal use only.
+  explicit DelayedOperation(std::function<void()>&& cancel_func)
+      : cancel_func_{std::move(cancel_func)} {
+  }
+
+ private:
+  std::function<void()> cancel_func_;
 };
 
 }  // namespace util
