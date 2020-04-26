@@ -119,10 +119,6 @@ if is_platform(:ios)
       pod 'leveldb-library'
     end
 
-    target 'Firestore_SwiftTests_iOS' do
-      pod 'FirebaseFirestoreSwift', :path => '../../'
-    end
-
     target 'Firestore_FuzzTests_iOS' do
       inherit! :search_paths
       platform :ios, '9.0'
