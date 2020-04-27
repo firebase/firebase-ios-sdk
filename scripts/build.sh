@@ -522,7 +522,6 @@ case "$product-$platform-$method" in
       RunXcodebuild \
         -workspace 'GoolgeDataTransport/GDTWatchOSTestApp/GDTWatchOSTestApp.xcworkspace' \
         -scheme "GDTWatchOSTestAppWatchKitApp" \
-        "${watchos_flags[@]}" \
         "${xcb_flags[@]}" \
         build
     fi
