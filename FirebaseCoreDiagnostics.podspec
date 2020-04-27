@@ -46,7 +46,7 @@ non-Cocoapod integration. This library also respects the Firebase global data co
   s.framework = 'Foundation'
 
   s.dependency 'FirebaseCoreDiagnosticsInterop', '~> 1.2'
-  s.dependency 'GoogleDataTransportCCTSupport', '~> 3.0'
+  s.dependency 'GoogleDataTransportCCTSupport', '~> 3.1'
   s.dependency 'GoogleUtilities/Environment', '~> 6.5'
   s.dependency 'GoogleUtilities/Logger', '~> 6.5'
   s.dependency 'nanopb', '~> 0.3.901'
