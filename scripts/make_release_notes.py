@@ -37,7 +37,7 @@ PRODUCTS = {
     'FirebaseInAppMessaging/CHANGELOG.md': '{{inapp_messaging}}',
     'FirebaseInstallations/CHANGELOG.md': 'Installations',
     'Firebase/InstanceID/CHANGELOG.md': 'InstanceID',
-    'Firebase/Messaging/CHANGELOG.md': '{{messaging}}',
+    'FirebaseMessaging/CHANGELOG.md': '{{messaging}}',
     'FirebaseStorage/CHANGELOG.md': '{{storage}}',
     'Firestore/CHANGELOG.md': '{{firestore}}',
     'Functions/CHANGELOG.md': '{{cloud_functions}}',
