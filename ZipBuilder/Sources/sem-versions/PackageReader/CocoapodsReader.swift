@@ -2,13 +2,15 @@ import Foundation
 
 import ShellUtils
 
+import PathKit
+
 class CocoapodsReader: PackageReader {
   func packagesInDirectory(_ dirURL: URL) throws -> [PackageData] {
 
     return try podspecURLs(at: dirURL)
       .compactMap { (podspecURL) -> PackageData? in
       print("podspecURL: \(podspecURL)")
-        return try parsePodspec(at: podspecURL).packageData()
+        return try parsePodspec(at: podspecURL).packageData(baseDir: dirURL)
     }
   }
 
@@ -83,20 +85,55 @@ struct PodspecData: Decodable {
     sourceFilePaths = try decodeStringOrArray(.sourceFilePaths)
   }
 
-  func packageData() -> PackageData? {
-    return PackageData(podspec: self)
+  fileprivate func packageData(baseDir: URL) -> PackageData? {
+    let basePath = baseDir.path
+
+    let sourceFilePaths = glob(patterns: self.sourceFilePaths, basePath: basePath)
+    let privateHeaderPaths = Set(glob(patterns: self.privateHeaderPaths, basePath: basePath))
+    let publicAndPrivateHeadersPaths = Set(glob(patterns: self.publicHeaderPaths, basePath: basePath))
+    let publicHeaderPaths = publicAndPrivateHeadersPaths.subtracting(privateHeaderPaths)
+
+    return PackageData(name: name, type: .cocoapods, version: version,
+                       publicHeaderPaths: Array(publicHeaderPaths),
+                       sourceFilePaths: sourceFilePaths)
+  }
+
+  private func glob(pattern: String, basePath: String) -> [PathKit.Path]{
+    // glob behaves differently in Ruby:
+    // - "**/*.m" will match to .m files in the directory and subdirectories in Ruby
+    // - "**/*.m" will match to .m in subdirectories only for BSD glob
+    // To match Ruby behaviour let's perform two searches, one for the original pattern and another for the pattern with "**/" removed.
+
+    let basePath = PathKit.Path(basePath)
+    let subDirPaths = basePath.glob(pattern)
+
+    let dirPattern = pattern.replacingOccurrences(of: "**/", with: "")
+    let dirPaths = basePath.glob(dirPattern)
+    return dirPaths + subDirPaths
+  }
+
+  private func glob(patterns: [String], basePath: String) -> [Path] {
+    return patterns.flatMap { (pattern) -> [PathKit.Path] in
+      glob(pattern: pattern, basePath: basePath)
+    }
+    .map { path -> Path in
+      var relativePath = path.string
+      relativePath.removeFirst(basePath.count + 1) // +1 to remove "/"
+      return relativePath
+    }
   }
 }
 
-extension PackageData {
-  init?(podspec: PodspecData) {
-    type = .cocoapods
 
-    name = podspec.name
-    version = podspec.version
-
-    // TODO:
-    publicHeaderPaths = podspec.publicHeaderPaths
-    sourceFilePaths = podspec.sourceFilePaths
-  }
-}
+//extension PackageData {
+//  init?(podspec: PodspecData) {
+//    type = .cocoapods
+//
+//    name = podspec.name
+//    version = podspec.version
+//
+//    // TODO:
+//    publicHeaderPaths = podspec.publicHeaderPaths
+//    sourceFilePaths = podspec.sourceFilePaths
+//  }
+//}

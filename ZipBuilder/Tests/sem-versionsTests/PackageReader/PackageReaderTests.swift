@@ -5,7 +5,7 @@ import Foundation
 final class PackageReaderTests: XCTestCase {
     func testSimpleValidPod() {
       // 
-      let rootDirURL = URL(fileURLWithPath: "/Users/mmaksym/Projects/firebase-ios-sdk2/ZipBuilder/TestResources/CocoapodsReaderSamples/CocoapodsReader/SimpleValidPod")
+      let rootDirURL = URL(fileURLWithPath: "/Users/mmaksym/Projects/firebase-ios-sdk2/ZipBuilder/TestResources/CocoapodsReaderSamples/CocoapodsReader/SimpleValidPod/")
       print("rootDirURL: \(rootDirURL.absoluteString)")
 
       let cocoapodsReader = CocoapodsReader()
@@ -19,6 +19,12 @@ final class PackageReaderTests: XCTestCase {
         }
 
         XCTAssertEqual(package.name, "FirebaseCore")
+        XCTAssertEqual(package.version, "6.6.6")
+
+        XCTAssertEqual(package.publicHeaderPaths.count, 1)
+        XCTAssertEqual(package.sourceFilePaths.count, 5)
+
+        XCTAssert(package.publicHeaderPaths.contains("FirebaseCore/Sources/Public/FIRApp.h"))
 
       } catch {
         XCTFail("Error: \(error)")

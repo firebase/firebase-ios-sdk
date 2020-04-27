@@ -33,6 +33,7 @@ let package = Package(
     // Keep the generated protos in sync with the version below.
     // See https://github.com/firebase/firebase-ios-sdk/tree/master/ZipBuilder#updating-protobuf-generated-swift-files.
     .package(url: "https://github.com/apple/swift-protobuf.git", .exact("1.7.0")),
+    .package(url: "https://github.com/kylef/PathKit", from: "1.0.0")
   ],
   targets: [
     .target(
@@ -54,7 +55,8 @@ let package = Package(
       name: "sem-versions",
       dependencies: [
         .product(name: "ArgumentParser", package: "swift-argument-parser"),
-        "ShellUtils"
+        "ShellUtils",
+        "PathKit"
     ]),
     .testTarget(
       name: "sem-versionsTests",
