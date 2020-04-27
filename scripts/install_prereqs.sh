@@ -134,7 +134,7 @@ case "$project-$platform-$method" in
     install_secrets
     ;;
 
-  InstanceID-*)
+  InstanceID*)
     install_secrets
     ;;
 
