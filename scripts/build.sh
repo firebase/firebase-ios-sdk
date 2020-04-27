@@ -520,7 +520,7 @@ case "$product-$platform-$method" in
   GoogleDataTransport-watchOS-xcodebuild)
     if check_secrets; then
       RunXcodebuild \
-        -workspace 'GoolgeDataTransport/GDTWatchOSTestApp/GDTWatchOSTestApp.xcworkspace' \
+        -workspace 'GoogleDataTransport/GDTWatchOSTestApp/GDTWatchOSTestApp.xcworkspace' \
         -scheme "GDTWatchOSTestAppWatchKitApp" \
         "${xcb_flags[@]}" \
         build
@@ -530,13 +530,13 @@ case "$product-$platform-$method" in
   GoogleDataTransportCCTSupport-watchOS-xcodebuild)
     if check_secrets; then
       RunXcodebuild \
-        -workspace 'GoolgeDataTransportCCTSupport/GDTCCTWatchOSTestApp/GDTCCTWatchOSTestApp.xcworkspace' \
+        -workspace 'GoogleDataTransportCCTSupport/GDTCCTWatchOSTestApp/GDTCCTWatchOSTestApp.xcworkspace' \
         -scheme "GDTCCTWatchOSIndependentTestAppWatchKitApp" \
         "${xcb_flags[@]}" \
         build
 
       RunXcodebuild \
-        -workspace 'GoolgeDataTransportCCTSupport/GDTCCTWatchOSTestApp/GDTCCTWatchOSTestApp.xcworkspace' \
+        -workspace 'GoogleDataTransportCCTSupport/GDTCCTWatchOSTestApp/GDTCCTWatchOSTestApp.xcworkspace' \
         -scheme "GDTCCTWatchOSCompanionTestApp" \
         "${xcb_flags[@]}" \
         build
