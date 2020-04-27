@@ -18,6 +18,8 @@ import Foundation
 
 import Darwin
 
+// TODO: Consider using a separate type in the future.
+/// A type representing a file/directory path.
 typealias Path = String
 
 extension Path {

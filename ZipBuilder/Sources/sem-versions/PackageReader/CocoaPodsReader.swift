@@ -18,16 +18,17 @@ import Foundation
 
 import ShellUtils
 
+/// The  class reads package information from Pod Specs in the provided directory.
 class CocoaPodsReader: PackageReader {
   func packagesInDirectory(_ dirURL: URL) throws -> [PackageData] {
-    return try podspecURLs(at: dirURL)
+    return try podSpecURLsInDirectory(dirURL)
       .compactMap { (podspecURL) -> PackageData? in
         print("podspecURL: \(podspecURL)")
         return try parsePodspec(at: podspecURL).packageData(baseDir: dirURL)
       }
   }
 
-  private func podspecURLs(at dirURL: URL) throws -> [URL] {
+  private func podspecURLsInDirectory(dirURL: URL) throws -> [URL] {
     return try FileManager.default.contentsOfDirectory(at: dirURL, includingPropertiesForKeys: [])
       .filter { (itemURL) -> Bool in
         itemURL.pathExtension == "podspec"
@@ -35,6 +36,8 @@ class CocoaPodsReader: PackageReader {
   }
 
   private func parsePodspec(at podspecURL: URL) throws -> PodspecData {
+    // Convert a .podspec file to JSON using CocoaPods `pod ipc` command.
+    // See https://guides.cocoapods.org/terminal/commands.html#pod_ipc_spec for more details.
     let workingDir = podspecURL.deletingLastPathComponent()
     let podspecFileName = podspecURL.lastPathComponent
 
@@ -62,7 +65,8 @@ extension CocoaPodsReader {
   }
 }
 
-struct PodspecData: Decodable {
+/// The struct represents CocoaPods specific `PackageData`.
+private struct PodspecData: Decodable {
   var name: String
   var version: PackageVersion
 
