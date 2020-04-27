@@ -256,6 +256,7 @@ endif()
 if(FIREBASE_IOS_PROTOC_GENERATE_SOURCES)
   add_custom_target(
     generate_protos
+    DEPENDS
     generate_nanopb_protos
     generate_cpp_protos
   )
