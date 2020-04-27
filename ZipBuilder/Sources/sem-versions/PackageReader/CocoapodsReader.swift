@@ -6,19 +6,18 @@ import PathKit
 
 class CocoapodsReader: PackageReader {
   func packagesInDirectory(_ dirURL: URL) throws -> [PackageData] {
-
     return try podspecURLs(at: dirURL)
       .compactMap { (podspecURL) -> PackageData? in
-      print("podspecURL: \(podspecURL)")
+        print("podspecURL: \(podspecURL)")
         return try parsePodspec(at: podspecURL).packageData(baseDir: dirURL)
-    }
+      }
   }
 
   private func podspecURLs(at dirURL: URL) throws -> [URL] {
     return try FileManager.default.contentsOfDirectory(at: dirURL, includingPropertiesForKeys: [])
       .filter { (itemURL) -> Bool in
-        return itemURL.pathExtension == "podspec"
-    }
+        itemURL.pathExtension == "podspec"
+      }
   }
 
   private func parsePodspec(at podspecURL: URL) throws -> PodspecData {
@@ -26,12 +25,13 @@ class CocoapodsReader: PackageReader {
     let podspecFileName = podspecURL.lastPathComponent
 
     let command = "pod ipc spec \(podspecFileName)"
-    let result = Shell.executeCommandFromScript(command, outputToConsole: false, workingDir: workingDir)
+    let result = Shell
+      .executeCommandFromScript(command, outputToConsole: false, workingDir: workingDir)
 
     switch result {
-    case .error(let code, let output):
+    case let .error(code, output):
       throw ParseError.podspecToJSONFailure(code: code, output: output)
-    case .success(let jsonString):
+    case let .success(jsonString):
       return try parse(jsonPodspec: jsonString)
     }
   }
@@ -40,7 +40,6 @@ class CocoapodsReader: PackageReader {
     let decoder = JSONDecoder()
     return try decoder.decode(PodspecData.self, from: jsonPodspec.data(using: .utf8) ?? Data())
   }
-  
 }
 
 extension CocoapodsReader {
@@ -90,7 +89,8 @@ struct PodspecData: Decodable {
 
     let sourceFilePaths = glob(patterns: self.sourceFilePaths, basePath: basePath)
     let privateHeaderPaths = Set(glob(patterns: self.privateHeaderPaths, basePath: basePath))
-    let publicAndPrivateHeadersPaths = Set(glob(patterns: self.publicHeaderPaths, basePath: basePath))
+    let publicAndPrivateHeadersPaths =
+      Set(glob(patterns: self.publicHeaderPaths, basePath: basePath))
     let publicHeaderPaths = publicAndPrivateHeadersPaths.subtracting(privateHeaderPaths)
 
     return PackageData(name: name, type: .cocoapods, version: version,
@@ -98,7 +98,7 @@ struct PodspecData: Decodable {
                        sourceFilePaths: sourceFilePaths)
   }
 
-  private func glob(pattern: String, basePath: String) -> [PathKit.Path]{
+  private func glob(pattern: String, basePath: String) -> [PathKit.Path] {
     // glob behaves differently in Ruby:
     // - "**/*.m" will match to .m files in the directory and subdirectories in Ruby
     // - "**/*.m" will match to .m in subdirectories only for BSD glob
@@ -124,8 +124,7 @@ struct PodspecData: Decodable {
   }
 }
 
-
-//extension PackageData {
+// extension PackageData {
 //  init?(podspec: PodspecData) {
 //    type = .cocoapods
 //
@@ -136,4 +135,4 @@ struct PodspecData: Decodable {
 //    publicHeaderPaths = podspec.publicHeaderPaths
 //    sourceFilePaths = podspec.sourceFilePaths
 //  }
-//}
+// }

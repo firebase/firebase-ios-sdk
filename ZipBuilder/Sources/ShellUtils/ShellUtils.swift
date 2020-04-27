@@ -43,8 +43,8 @@ extension Shell {
   ///   - workingDir: An optional working directory to run the shell command in.
   /// - Returns: A Result containing output information from the command.
   public static func executeCommandFromScript(_ command: String,
-                                       outputToConsole: Bool = true,
-                                       workingDir: URL? = nil) -> Result {
+                                              outputToConsole: Bool = true,
+                                              workingDir: URL? = nil) -> Result {
     let scriptPath: URL
     do {
       let tempScriptsDir = URL(fileURLWithPath: NSTemporaryDirectory())
