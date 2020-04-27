@@ -64,7 +64,11 @@ dispatch_queue_t _firclsExceptionQueue;
 
 static atomic_bool _hasInitializedInstance;
 
-NSString *const FIRCLSGoogleTransportMappingID = @"1206";
+// FIREBASE_CRASHLYTICS_REPORT
+NSString *const FIRCLSGoogleDataTransportMappingID = @"1206";
+
+// FIREBASE_CRASHLYTICS_REPORT_TEST
+NSString *const FIRCLSTestGoogleDataTransportMappingID = @"1214";
 
 /// Empty protocol to register with FirebaseCore's component system.
 @protocol FIRCrashlyticsInstanceProvider <NSObject>
@@ -100,22 +104,19 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
 
     FIRCLSProfileMark mark = FIRCLSProfilingStart();
 
-    NSLog(@"[Firebase/Crashlytics] Version %@", @CLS_SDK_DISPLAY_VERSION);
+    FIRCLSInfoLog(@"Version %@", @CLS_SDK_DISPLAY_VERSION);
 
     FIRCLSDeveloperLog("Crashlytics", @"Running on %@, %@ (%@)", FIRCLSHostModelInfo(),
                        FIRCLSHostOSDisplayVersion(), FIRCLSHostOSBuildVersion());
 
-    _googleTransport = [[GDTCORTransport alloc] initWithMappingID:FIRCLSGoogleTransportMappingID
-                                                     transformers:nil
-                                                           target:kGDTCORTargetCSH];
-
     _fileManager = [[FIRCLSFileManager alloc] init];
+
+    FIRCLSApplicationIdentifierModel *appIDModel = [[FIRCLSApplicationIdentifierModel alloc] init];
+    FIRCLSSettings *settings = [[FIRCLSSettings alloc] initWithFileManager:_fileManager
+                                                                appIDModel:appIDModel];
+
     _googleAppID = app.options.googleAppID;
     _dataArbiter = [[FIRCLSDataCollectionArbiter alloc] initWithApp:app withAppInfo:appInfo];
-
-    FIRCLSApplicationIdentifierModel *appModel = [[FIRCLSApplicationIdentifierModel alloc] init];
-    FIRCLSSettings *settings = [[FIRCLSSettings alloc] initWithFileManager:_fileManager
-                                                                appIDModel:appModel];
 
     _reportManager = [[FIRCLSReportManager alloc] initWithFileManager:_fileManager
                                                         installations:installations
@@ -123,8 +124,16 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
                                                           googleAppID:_googleAppID
                                                           dataArbiter:_dataArbiter
                                                       googleTransport:_googleTransport
-                                                           appIDModel:appModel
+                                                           appIDModel:appIDModel
                                                              settings:settings];
+
+    NSString *mappingID = FIRCLSGoogleDataTransportMappingID;
+    if (settings.runtimeSettings.isDevelopmentMode) {
+      mappingID = FIRCLSTestGoogleDataTransportMappingID;
+    }
+    _googleTransport = [[GDTCORTransport alloc] initWithMappingID:mappingID
+                                                     transformers:nil
+                                                           target:kGDTCORTargetCSH];
 
     // Process did crash during previous execution
     NSString *crashedMarkerFileName = [NSString stringWithUTF8String:FIRCLSCrashedMarkerFileName];

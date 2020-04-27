@@ -20,6 +20,8 @@
 #import "FBLPromises.h"
 #endif
 
+#import "FIRCLSRuntimeSettings.h"
+
 @class FIRCLSApplicationIdentifierModel;
 @class FIRCLSFileManager;
 
@@ -62,6 +64,11 @@ NS_ASSUME_NONNULL_BEGIN
  * Determines how long these Settings should be respected until the SDK should fetch again
  */
 @property(nonatomic, readonly) uint32_t cacheDurationSeconds;
+
+/**
+ * Collection of settings from command line arguments
+ */
+@property(nonatomic, readonly) FIRCLSRuntimeSettings *runtimeSettings;
 
 /**
  * The Crashlytics Organization identifier of the app. Allows data continuity between

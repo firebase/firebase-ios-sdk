@@ -38,6 +38,8 @@ NSString *const AppVersion = @"app_version";
 
 @property(nonatomic, strong) NSDictionary<NSString *, id> *settingsDictionary;
 
+@property(nonatomic, strong) FIRCLSRuntimeSettings *runtimeSettings;
+
 @property(nonatomic) BOOL isCacheKeyExpired;
 
 @end
@@ -56,6 +58,8 @@ NSString *const AppVersion = @"app_version";
 
   _settingsDictionary = nil;
   _isCacheKeyExpired = NO;
+
+  _runtimeSettings = [[FIRCLSRuntimeSettings alloc] init];
 
   return self;
 }
@@ -304,6 +308,10 @@ NSString *const AppVersion = @"app_version";
 }
 
 - (BOOL)shouldUseNewReportEndpoint {
+  if (self.runtimeSettings.isGDTEnabled) {
+    return true;
+  }
+
   NSNumber *value = [self appSettings][@"report_upload_variant"];
 
   // Default to use the new endpoint when settings were not successfully fetched

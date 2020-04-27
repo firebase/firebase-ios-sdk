@@ -146,8 +146,7 @@
           }
         }
 
-        NSLog(@"[Firebase/Crashlytics] Packaged report with id '%@' for submission",
-              report.identifier);
+        FIRCLSInfoLog(@"Packaged report with id '%@' for submission", report.identifier);
 
         success = [self uploadPackagedReportAtPath:packagedPath
                                dataCollectionToken:dataCollectionToken
