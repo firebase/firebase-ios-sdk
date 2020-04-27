@@ -129,7 +129,7 @@ else
       ;;
 
     Messaging-*)
-      check_changes '^(FirebaseCore|FirebaseMessaging|Example/Messaging|GoogleUtilities|FirebaseMessaging.podspec|Firebase/InstanceID|'\
+      check_changes '^(FirebaseCore|FirebaseMessaging|GoogleUtilities|FirebaseMessaging.podspec|Firebase/InstanceID|'\
 'FirebaseInstanceID.podspec|FirebaseInstallations)'
       ;;
 

@@ -397,7 +397,7 @@ case "$product-$platform-$method" in
   MessagingSample-*-*)
     if check_secrets; then
       RunXcodebuild \
-        -workspace 'Example/Messaging/Sample/Sample.xcworkspace' \
+        -workspace 'FirebaseMessaging/Apps/Sample/Sample.xcworkspace' \
         -scheme "Sample" \
         "${xcb_flags[@]}" \
         build
