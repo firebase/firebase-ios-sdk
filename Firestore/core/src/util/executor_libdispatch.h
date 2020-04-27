@@ -41,18 +41,6 @@ namespace firebase {
 namespace firestore {
 namespace util {
 
-namespace internal {
-
-// Generic wrapper over `dispatch_async_f`, providing `dispatch_async`-like
-// interface: accepts an arbitrary invocable object in place of an Objective-C
-// block.
-void DispatchAsync(dispatch_queue_t queue, std::function<void()>&& work);
-
-// Similar to `DispatchAsync` but wraps `dispatch_sync_f`.
-void DispatchSync(dispatch_queue_t queue, std::function<void()> work);
-
-}  // namespace internal
-
 class TimeSlot;
 
 // A serial queue built on top of libdispatch. The operations are run on

@@ -46,42 +46,6 @@ absl::string_view GetCurrentQueueLabel() {
 
 }  // namespace
 
-namespace internal {
-
-void DispatchAsync(const dispatch_queue_t queue, std::function<void()>&& work) {
-  // Dynamically allocate the function to make sure the object is valid by the
-  // time libdispatch gets to it.
-  const auto wrap = new std::function<void()>{std::move(work)};
-
-  dispatch_async_f(queue, wrap, [](void* const raw_work) {
-    const auto unwrap = static_cast<std::function<void()>*>(raw_work);
-    (*unwrap)();
-    delete unwrap;
-  });
-}
-
-void DispatchSync(const dispatch_queue_t queue, std::function<void()> work) {
-  HARD_ASSERT(
-      GetCurrentQueueLabel() != GetQueueLabel(queue),
-      "Calling DispatchSync on the current queue will lead to a deadlock.");
-
-  // Unlike dispatch_async_f, dispatch_sync_f blocks until the work passed to it
-  // is done, so passing a reference to a local variable is okay.
-  dispatch_sync_f(queue, &work, [](void* const raw_work) {
-    const auto unwrap = static_cast<std::function<void()>*>(raw_work);
-    (*unwrap)();
-  });
-}
-
-}  // namespace internal
-
-namespace {
-
-using internal::DispatchAsync;
-using internal::DispatchSync;
-
-}  // namespace
-
 // MARK: - TimeSlot
 
 // Represents a "busy" time slot on the schedule.
@@ -223,10 +187,28 @@ std::string ExecutorLibdispatch::Name() const {
 }
 
 void ExecutorLibdispatch::Execute(Operation&& operation) {
-  DispatchAsync(dispatch_queue(), std::move(operation));
+  // Dynamically allocate the function to make sure the object is valid by the
+  // time libdispatch gets to it.
+  const auto wrap = new std::function<void()>{std::move(operation)};
+
+  dispatch_async_f(dispatch_queue_, wrap, [](void* const raw_work) {
+    const auto unwrap = static_cast<std::function<void()>*>(raw_work);
+    (*unwrap)();
+    delete unwrap;
+  });
 }
+
 void ExecutorLibdispatch::ExecuteBlocking(Operation&& operation) {
-  DispatchSync(dispatch_queue(), std::move(operation));
+  HARD_ASSERT(
+      GetCurrentQueueLabel() != GetQueueLabel(dispatch_queue_),
+      "Calling DispatchSync on the current queue will lead to a deadlock.");
+
+  // Unlike dispatch_async_f, dispatch_sync_f blocks until the work passed to it
+  // is done, so passing a reference to a local variable is okay.
+  dispatch_sync_f(dispatch_queue_, &operation, [](void* const raw_work) {
+    const auto unwrap = static_cast<std::function<void()>*>(raw_work);
+    (*unwrap)();
+  });
 }
 
 DelayedOperation ExecutorLibdispatch::Schedule(const Milliseconds delay,
