@@ -42,7 +42,7 @@ static void GDTCORReachabilityCallback(GDTCORNetworkReachabilityRef reachability
   GDTCORNetworkReachabilityFlags _callbackFlags;
 }
 
-+ (void)load {
++ (void)initialize {
   [self sharedInstance];
 }
 
