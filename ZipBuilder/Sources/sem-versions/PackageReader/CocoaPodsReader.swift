@@ -21,14 +21,14 @@ import ShellUtils
 /// The  class reads package information from Pod Specs in the provided directory.
 class CocoaPodsReader: PackageReader {
   func packagesInDirectory(_ dirURL: URL) throws -> [PackageData] {
-    return try podSpecURLsInDirectory(dirURL)
+    return try podspecURLsInDirectory(dirURL)
       .compactMap { (podspecURL) -> PackageData? in
         print("podspecURL: \(podspecURL)")
         return try parsePodspec(at: podspecURL).packageData(baseDir: dirURL)
       }
   }
 
-  private func podspecURLsInDirectory(dirURL: URL) throws -> [URL] {
+  private func podspecURLsInDirectory(_ dirURL: URL) throws -> [URL] {
     return try FileManager.default.contentsOfDirectory(at: dirURL, includingPropertiesForKeys: [])
       .filter { (itemURL) -> Bool in
         itemURL.pathExtension == "podspec"
