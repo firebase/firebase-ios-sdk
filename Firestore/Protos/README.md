@@ -7,7 +7,7 @@ brew install automake libtool protobuf golang
 
 Take a nap while that completes. Then, build the protos:
 ```
-cd firebase-ios-sdk
+cd firebase-ios-sdk  # the root of this repo, not Firestore/Protos
 mkdir -p build
 cd build
 cmake ..
