@@ -17,7 +17,7 @@
 import Foundation
 
 enum PackageType {
-  case cocoapods
+  case cocoaPods
   case swiftPM
 }
 

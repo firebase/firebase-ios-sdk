@@ -22,13 +22,13 @@ final class PackageReaderTests: XCTestCase {
   func testSimpleValidPod() {
     //
     let rootDirURL =
-      URL(fileURLWithPath: "/Users/mmaksym/Projects/firebase-ios-sdk2/ZipBuilder/TestResources/CocoapodsReaderSamples/CocoapodsReader/SimpleValidPod/")
+      URL(fileURLWithPath: "/Users/mmaksym/Projects/firebase-ios-sdk2/ZipBuilder/TestResources/CocoaPodsReaderSamples/CocoaPodsReader/SimpleValidPod/")
     print("rootDirURL: \(rootDirURL.absoluteString)")
 
-    let cocoapodsReader = CocoapodsReader()
+    let cocoaPodsReader = CocoaPodsReader()
 
     do {
-      let packages = try cocoapodsReader.packagesInDirectory(rootDirURL)
+      let packages = try cocoaPodsReader.packagesInDirectory(rootDirURL)
       XCTAssertEqual(packages.count, 1)
       guard let package = packages.first else {
         XCTFail()

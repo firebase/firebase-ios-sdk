@@ -18,9 +18,7 @@ import Foundation
 
 import ShellUtils
 
-import PathKit
-
-class CocoapodsReader: PackageReader {
+class CocoaPodsReader: PackageReader {
   func packagesInDirectory(_ dirURL: URL) throws -> [PackageData] {
     return try podspecURLs(at: dirURL)
       .compactMap { (podspecURL) -> PackageData? in
@@ -58,7 +56,7 @@ class CocoapodsReader: PackageReader {
   }
 }
 
-extension CocoapodsReader {
+extension CocoaPodsReader {
   enum ParseError: Error {
     case podspecToJSONFailure(code: Int32, output: String)
   }
@@ -109,7 +107,7 @@ struct PodspecData: Decodable {
       Set(glob(patterns: self.publicHeaderPaths, basePath: basePath))
     let publicHeaderPaths = publicAndPrivateHeadersPaths.subtracting(privateHeaderPaths)
 
-    return PackageData(name: name, type: .cocoapods, version: version,
+    return PackageData(name: name, type: .cocoaPods, version: version,
                        publicHeaderPaths: Array(publicHeaderPaths),
                        sourceFilePaths: sourceFilePaths)
   }
