@@ -58,7 +58,6 @@ struct ContentView: View {
               .fontWeight(.semibold)
           }
         }
-        .buttonStyle(IdentityButtonStyle())
 
         Button(action: deleteToken) {
           HStack {
@@ -67,7 +66,6 @@ struct ContentView: View {
               .fontWeight(.semibold)
           }
         }
-        .buttonStyle(IdentityButtonStyle())
 
         Button(action: deleteID) {
           HStack {
@@ -76,7 +74,6 @@ struct ContentView: View {
               .fontWeight(.semibold)
           }
         }
-        .buttonStyle(IdentityButtonStyle())
 
         Button(action: deleteFID) {
           HStack {
@@ -85,8 +82,7 @@ struct ContentView: View {
               .fontWeight(.semibold)
           }
         }
-        .buttonStyle(IdentityButtonStyle())
-      }
+      }.buttonStyle(IdentityButtonStyle())
     }
   }
 
