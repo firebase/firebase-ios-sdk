@@ -114,26 +114,12 @@ struct PodspecData: Decodable {
                        sourceFilePaths: sourceFilePaths)
   }
 
-  private func glob(pattern: String, basePath: String) -> [PathKit.Path] {
-    // glob behaves differently in Ruby:
-    // - "**/*.m" will match to .m files in the directory and subdirectories in Ruby
-    // - "**/*.m" will match to .m in subdirectories only for BSD glob
-    // To match Ruby behaviour let's perform two searches, one for the original pattern and another for the pattern with "**/" removed.
-
-    let basePath = PathKit.Path(basePath)
-    let subDirPaths = basePath.glob(pattern)
-
-    let dirPattern = pattern.replacingOccurrences(of: "**/", with: "")
-    let dirPaths = basePath.glob(dirPattern)
-    return dirPaths + subDirPaths
-  }
-
   private func glob(patterns: [String], basePath: String) -> [Path] {
-    return patterns.flatMap { (pattern) -> [PathKit.Path] in
-      glob(pattern: pattern, basePath: basePath)
+    return patterns.flatMap { (pattern) -> [Path] in
+      basePath.glob(pattern: pattern)
     }
     .map { path -> Path in
-      var relativePath = path.string
+      var relativePath = path
       relativePath.removeFirst(basePath.count + 1) // +1 to remove "/"
       return relativePath
     }

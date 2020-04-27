@@ -25,9 +25,6 @@ enum PackageType {
 // like https://github.com/mxcl/Version
 typealias PackageVersion = String
 
-// TODO: Use something like https://github.com/kylef/PathKit
-typealias Path = String
-
 struct PackageData {
   var name: String
   var type: PackageType
