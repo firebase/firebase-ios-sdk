@@ -122,6 +122,16 @@ class Executor {
   // execution may be removed. If no such operations are currently scheduled, an
   // empty `optional` is returned.
   virtual absl::optional<TaggedOperation> PopFromSchedule() = 0;
+
+ private:
+  // If the operation hasn't yet been run, it will be removed from the queue.
+  // Otherwise, this function is a no-op.
+  //
+  // Called by `DelayedOperation` when its user calls `Cancel`. Implementations
+  // of `Cancel` should also `Dispose` the underlying `Task` to actually prevent
+  // execution.
+  virtual void Cancel(Id operation_id) = 0;
+  friend class DelayedOperation;
 };
 
 // A handle to an operation scheduled for future execution. The handle may
@@ -135,25 +145,27 @@ class DelayedOperation {
   // Returns whether this `DelayedOperation` is associated with an actual
   // operation.
   explicit operator bool() const {
-    return static_cast<bool>(cancel_func_);
+    return !canceled_;
   }
 
   // If the operation has not been run yet, cancels the operation. Otherwise,
   // this function is a no-op.
   void Cancel() {
-    if (cancel_func_) {
-      cancel_func_();
-      cancel_func_ = {};
+    if (!canceled_) {
+      canceled_ = true;
+      executor_->Cancel(id_);
     }
   }
 
   // Internal use only.
-  explicit DelayedOperation(std::function<void()>&& cancel_func)
-      : cancel_func_{std::move(cancel_func)} {
+  explicit DelayedOperation(Executor* executor, Executor::Id id)
+      : executor_(executor), id_(id), canceled_(false) {
   }
 
  private:
-  std::function<void()> cancel_func_;
+  Executor* executor_;
+  Executor::Id id_;
+  bool canceled_ = true;
 };
 
 inline Executor::TimePoint MakeTargetTime(Executor::Milliseconds delay) {

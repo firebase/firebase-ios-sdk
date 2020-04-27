@@ -227,12 +227,10 @@ class ExecutorStd : public Executor {
   bool IsScheduled(Tag tag) const override;
   absl::optional<TaggedOperation> PopFromSchedule() override;
 
-  // If the operation hasn't yet been run, it will be removed from the queue.
-  // Otherwise, this function is a no-op.
-  void TryCancel(Id operation_id);
-
  private:
   Id PushOnSchedule(Operation&& operation, TimePoint when, Tag tag = -1);
+
+  void Cancel(Id operation_id) override;
 
   void PollingThread();
   void UnblockQueue();

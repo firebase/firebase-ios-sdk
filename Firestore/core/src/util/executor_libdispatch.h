@@ -70,8 +70,6 @@ class ExecutorLibdispatch : public Executor {
   DelayedOperation Schedule(Milliseconds delay,
                             TaggedOperation&& operation) override;
 
-  void RemoveFromSchedule(Id to_remove);
-
   bool IsScheduled(Tag tag) const override;
   absl::optional<TaggedOperation> PopFromSchedule() override;
 
@@ -80,9 +78,12 @@ class ExecutorLibdispatch : public Executor {
   }
 
  private:
+  friend class TimeSlot;
+
   using ScheduleMap = std::unordered_map<Id, TimeSlot*>;
   using ScheduleEntry = ScheduleMap::value_type;
 
+  void Cancel(Id operation_id) override;
   Id NextId();
 
   dispatch_queue_t dispatch_queue_;

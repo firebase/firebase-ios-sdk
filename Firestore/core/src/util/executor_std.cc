@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2018 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -93,10 +93,10 @@ DelayedOperation ExecutorStd::Schedule(const Milliseconds delay,
   const auto id =
       PushOnSchedule(std::move(tagged.operation), target_time, tagged.tag);
 
-  return DelayedOperation{[this, id] { TryCancel(id); }};
+  return DelayedOperation(this, id);
 }
 
-void ExecutorStd::TryCancel(const Id operation_id) {
+void ExecutorStd::Cancel(const Id operation_id) {
   schedule_.RemoveIf(
       [operation_id](const Entry& e) { return e.id == operation_id; });
 }

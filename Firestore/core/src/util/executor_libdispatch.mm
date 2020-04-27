@@ -203,7 +203,7 @@ void TimeSlot::Execute() {
 }
 
 void TimeSlot::RemoveFromSchedule() {
-  executor_->RemoveFromSchedule(time_slot_id_);
+  executor_->Cancel(time_slot_id_);
 }
 
 // MARK: - ExecutorLibdispatch
@@ -264,16 +264,14 @@ DelayedOperation ExecutorLibdispatch::Schedule(const Milliseconds delay,
   dispatch_after_f(delay_ns, dispatch_queue(), time_slot,
                    TimeSlot::InvokedByLibdispatch);
 
-  return DelayedOperation{[this, time_slot_id] {
-    // `time_slot` might have been destroyed by the time cancellation function
-    // runs, in which case it's guaranteed to have been removed from the
-    // `schedule_`. If the `time_slot_id` refers to a slot that has been
-    // removed, the call to `RemoveFromSchedule` will be a no-op.
-    RemoveFromSchedule(time_slot_id);
-  }};
+  return DelayedOperation(this, time_slot_id);
 }
 
-void ExecutorLibdispatch::RemoveFromSchedule(Id to_remove) {
+void ExecutorLibdispatch::Cancel(Id to_remove) {
+  // `time_slot` might have been destroyed by the time cancellation function
+  // runs, in which case it's guaranteed to have been removed from the
+  // `schedule_`. If the `time_slot_id` refers to a slot that has been
+  // removed, the call to `RemoveFromSchedule` will be a no-op.
   RunSynchronized(this, [this, to_remove] {
     const auto found = schedule_.find(to_remove);
 
