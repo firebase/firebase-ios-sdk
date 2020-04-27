@@ -134,7 +134,8 @@ case "$project-$platform-$method" in
     install_secrets
     ;;
 
-  InstanceID-*)
+  # There is purposefully not a dash to include InstanceIDCron.
+  InstanceID*)
     install_secrets
     ;;
 
