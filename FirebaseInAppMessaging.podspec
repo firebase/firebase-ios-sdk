@@ -47,7 +47,7 @@ See more product details at https://firebase.google.com/products/in-app-messagin
   s.dependency 'GoogleDataTransportCCTSupport', '~> 3.0'
   s.dependency 'FirebaseABTesting', '~> 3.2'
   s.dependency 'GoogleUtilities/Environment', '~> 6.5'
-  s.dependency 'nanopb', '~> 1.300905.0'
+  s.dependency 'nanopb', '~> 1.30905.0'
 
   s.test_spec 'unit' do |unit_tests|
       unit_tests.source_files = 'FirebaseInAppMessaging/Tests/Unit/*.[mh]'

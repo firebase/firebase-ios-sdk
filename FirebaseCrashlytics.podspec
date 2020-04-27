@@ -47,7 +47,7 @@ Pod::Spec.new do |s|
   s.dependency 'PromisesObjC', '~> 1.2'
   s.dependency 'GoogleDataTransport', '~> 6.0'
   s.dependency 'GoogleDataTransportCCTSupport', '~> 3.0'
-  s.dependency 'nanopb', '~> 1.300905.0'
+  s.dependency 'nanopb', '~> 1.30905.0'
 
   s.libraries = 'c++', 'z'
   s.frameworks = 'Security', 'SystemConfiguration'

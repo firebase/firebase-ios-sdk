@@ -2,7 +2,7 @@
 - [fixed] Updated the nanopb version dependency across Firebase to 0.3.9.5 that
   includes a vulnerability fix. To properly manage nanopb versions, Firebase has
   switched to a new versioning scheme in which the nanopb CocoaPods
-  version 1.300905.0 maps to nanopb version 0.3.9.5. Full details at
+  version 1.30905.0 maps to nanopb version 0.3.9.5. Full details at
   https://github.com/google/nanopb-podspec. (#5191)
 
 # v6.6.7 -- M69
