@@ -17,7 +17,6 @@
 // macOS requests a user password when accessing the Keychain for the first time,
 // so the tests may fail. Disable integration tests on macOS so far.
 // TODO: Configure the tests to run on macOS without requesting the keychain password.
-#if !TARGET_OS_OSX
 
   import FirebaseCore
   import FirebaseInstanceID
@@ -53,6 +52,7 @@
       messaging = nil
     }
 
+    #if !os(OSX) // OSX does not support NSNotification.
     func testDeleteTokenWithTokenRefreshDelegatesAndNotifications() {
       let expectation = self.expectation(description: "delegate method and notification are called")
       assertTokenWithAuthorizedEntity()
@@ -76,6 +76,7 @@
       })
       wait(for: [expectation, notificationExpectation], timeout: 5)
     }
+    #endif
 
     // pragma mark - Helpers
     func assertTokenWithAuthorizedEntity() {
@@ -98,4 +99,3 @@
       return app.options.gcmSenderID
     }
   }
-#endif // !TARGET_OS_OSX
