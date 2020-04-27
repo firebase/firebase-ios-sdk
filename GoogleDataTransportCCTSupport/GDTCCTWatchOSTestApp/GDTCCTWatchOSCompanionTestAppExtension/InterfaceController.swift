@@ -52,7 +52,10 @@ class InterfaceController: WKInterfaceController {
     ]
     testMessage.root.subMessage.repeatedSubMessage[0].samplingPercentage = 13.37
     event.dataObject = testMessage
-    event.customPrioritizationParams = ["needs_network_connection_info": true]
+    let encoder = JSONEncoder()
+    if let jsonData = try? encoder.encode(["needs_network_connection_info": true]) {
+      event.customBytes = jsonData
+    }
     transportToUse.sendDataEvent(event)
   }
 
@@ -67,7 +70,10 @@ class InterfaceController: WKInterfaceController {
       SubMessageTwo(),
     ]
     event.dataObject = testMessage
-    event.customPrioritizationParams = ["needs_network_connection_info": true]
+    let encoder = JSONEncoder()
+    if let jsonData = try? encoder.encode(["needs_network_connection_info": true]) {
+      event.customBytes = jsonData
+    }
     transportToUse.sendTelemetryEvent(event)
   }
 
@@ -81,7 +87,10 @@ class InterfaceController: WKInterfaceController {
     testMessage.root.warriorChampionships = 1337
     event.qosTier = GDTCOREventQoS.qoSFast
     event.dataObject = testMessage
-    event.customPrioritizationParams = ["needs_network_connection_info": true]
+    let encoder = JSONEncoder()
+    if let jsonData = try? encoder.encode(["needs_network_connection_info": true]) {
+      event.customBytes = jsonData
+    }
     transportToUse.sendDataEvent(event)
   }
 
@@ -93,7 +102,10 @@ class InterfaceController: WKInterfaceController {
     testMessage.root.identifier = "watchos_companion_test_app_wifi_only_event"
     event.qosTier = GDTCOREventQoS.qoSWifiOnly
     event.dataObject = testMessage
-    event.customPrioritizationParams = ["needs_network_connection_info": true]
+    let encoder = JSONEncoder()
+    if let jsonData = try? encoder.encode(["needs_network_connection_info": true]) {
+      event.customBytes = jsonData
+    }
     transportToUse.sendDataEvent(event)
   }
 
@@ -112,7 +124,10 @@ class InterfaceController: WKInterfaceController {
     testMessage.root.subMessage.repeatedSubMessage[0].samplingPercentage = 100.0
     event.qosTier = GDTCOREventQoS.qoSDaily
     event.dataObject = testMessage
-    event.customPrioritizationParams = ["needs_network_connection_info": true]
+    let encoder = JSONEncoder()
+    if let jsonData = try? encoder.encode(["needs_network_connection_info": true]) {
+      event.customBytes = jsonData
+    }
     transportToUse.sendDataEvent(event)
   }
 }
