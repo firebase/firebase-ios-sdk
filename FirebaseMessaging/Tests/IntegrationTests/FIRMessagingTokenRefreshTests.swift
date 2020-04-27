@@ -17,7 +17,7 @@
 // macOS requests a user password when accessing the Keychain for the first time,
 // so the tests may fail. Disable integration tests on macOS so far.
 // TODO: Configure the tests to run on macOS without requesting the keychain password.
-#if !TARGET_OS_OSX
+#if !os(OSX)
 
   import FirebaseCore
   import FirebaseInstanceID
@@ -29,7 +29,7 @@
     var messaging = Messaging.messaging()
     var delegateIsCalled = false
 
-    func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String) {
+    func messaging(_: Messaging, didReceiveRegistrationToken _: String) {
       delegateIsCalled = true
     }
   }
