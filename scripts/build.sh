@@ -227,10 +227,6 @@ case "$platform" in
     xcb_flags=("${tvos_flags[@]}")
     ;;
 
-  watchOS)
-    xcb_flags=("${watchos_flags[@]}")
-    ;;
-
   all)
     xcb_flags=()
     ;;
@@ -534,14 +530,12 @@ case "$product-$platform-$method" in
         -workspace 'GoolgeDataTransportCCTSupport/GDTCCTWatchOSTestApp/GDTCCTWatchOSTestApp.xcworkspace' \
         -scheme "GDTCCTWatchOSIndependentTestAppWatchKitApp" \
         "${watchos_flags[@]}" \
-        "${xcb_flags[@]}" \
         build
 
       RunXcodebuild \
         -workspace 'GoolgeDataTransportCCTSupport/GDTCCTWatchOSTestApp/GDTCCTWatchOSTestApp.xcworkspace' \
         -scheme "GDTCCTWatchOSCompanionTestApp" \
         "${watchos_flags[@]}" \
-        "${xcb_flags[@]}" \
         build
     fi
     ;;
