@@ -45,7 +45,10 @@ class NotificationService: UNNotificationServiceExtension {
       testMessage.root.warriorChampionships = 1337
       event.qosTier = GDTCOREventQoS.qoSFast
       event.dataObject = testMessage
-      event.customPrioritizationParams = ["needs_network_connection_info": true]
+      let encoder = JSONEncoder()
+      if let jsonData = try? encoder.encode(["needs_network_connection_info": true]) {
+        event.customBytes = jsonData
+      }
       transportToUse.sendDataEvent(event)
 
       bestAttemptContent.title = "\(bestAttemptContent.title) [Priority Event]"
