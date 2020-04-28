@@ -49,7 +49,7 @@ jobs:
     - name: Prereqs
       run: scripts/install_prereqs.sh ${{ matrix.pod }} watchOS xcodebuild
     - name: Setup project and test watchOS test app
-      run: scripts/third_party/travis/retry.sh scripts/build.sh ${{ matrix.pod }} watchOS xcodebuild
+      run: scripts/third_party/travis/retry.sh scripts/build.sh ${{ matrix.pod }}
 
 # Scheduled jobs
 
