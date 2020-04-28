@@ -23,9 +23,9 @@ command script import ~/path/to/firebase-ios-sdk/scripts/lldb/firestore.py
 
 ### Running Integration Tests
 
-By default, run integration tests against the Firestore Emulator. This is much
-faster than running against production and does not require you to configure a
-Firestore-enabled project.
+Prefer running the integration tests against the Firestore Emulator. This is
+much faster than running against production and does not require you to
+configure a Firestore-enabled project.
 
   * In a new terminal, run `scripts/run_firestore_emulator.sh` and leave it running.
   * In Xcode select the `Firestore_IntegrationTests_iOS` scheme (or macOS or tvOS).
