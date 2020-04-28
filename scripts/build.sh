@@ -205,8 +205,8 @@ tvos_flags=(
   -destination 'platform=tvOS Simulator,name=Apple TV'
 )
 watchos_flags=(
-  -sdk 'watchsimulator6.0'
-  -destination 'platform=watchOS Simulator,name=Apple Watch Series 5 - 44mm'
+  -sdk 'watchsimulator'
+  -destination 'platform=iOS Simulator,name=iPhone 11'
 )
 
 # Compute standard flags for all platforms
