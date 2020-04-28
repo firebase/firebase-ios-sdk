@@ -1,5 +1,6 @@
 # v4.4.10
 - [changed] Internal code changes - migrate to using the FIS SDK. (#5096)
+- [changed] Internal code changes - include both CFBundleString and CFBundleShortVersionString in the outgoing fetch requests.
 # v4.4.9
 - [changed] Internal code changes. (#4934)
 # v4.4.8
