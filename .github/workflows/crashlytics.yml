@@ -50,11 +50,14 @@ jobs:
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/FIREGSignInInfo.h.gpg \
           quickstart-ios/TestUtils/FIREGSignInInfo.h "$signin_secret"
     - name: Test quickstart
-      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Crashlytics)
+      run: |
+        mkdir quickstart-ios/crashlytics/Pods/FirebaseCrashlytics
+        cp Crashlytics/run quickstart-ios/crashlytics/Pods/FirebaseCrashlytics/
+        ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Crashlytics)
 
   crashlytics-cron-only:
     runs-on: macos-latest
-#    if: github.event_name == 'schedule'
+    if: github.event_name == 'schedule'
     strategy:
       matrix:
         target: [ios, tvos, macos] # The macos and tvos tests can hang
