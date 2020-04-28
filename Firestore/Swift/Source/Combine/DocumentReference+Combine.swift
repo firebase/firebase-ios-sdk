@@ -16,13 +16,13 @@
 
 #if canImport(Combine)
   import Combine
-#endif
-import Foundation
-import FirebaseFirestore
+  import Foundation
+  import FirebaseFirestore
 
-extension DocumentReference {
-  @available(iOS 13.0, macOS 10.15, tvOS 13.0, *)
-  public func dummyPublisher() -> AnyPublisher<Int, Never> {
-    return Just(42).eraseToAnyPublisher()
+  extension DocumentReference {
+    @available(iOS 13.0, macOS 10.15, tvOS 13.0, *)
+    public func dummyPublisher() -> AnyPublisher<Int, Never> {
+      return Just(42).eraseToAnyPublisher()
+    }
   }
-}
+#endif
