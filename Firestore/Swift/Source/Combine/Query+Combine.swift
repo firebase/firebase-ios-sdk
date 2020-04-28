@@ -27,8 +27,8 @@ extension Query {
    * Reads the documents matching this query.
    *
    * This method returns a publisher that yields an array
-   * of `DocumentSnapshot`s, allowing the user to easily iterate over
-   * the documents themselves:
+   * of `QuerySnapshot`s, requiring the user to extract the underlying
+   * `DocumentSnapshot`s before using them:
    *
    * ```
    * let noBooks = [Book]()
