@@ -22,6 +22,7 @@ import FirebaseInstallations
 struct ContentView: View {
   @EnvironmentObject var identity: Identity
   @EnvironmentObject var settings: UserSettings
+  @State private var log: String = ""
 
   var body: some View {
     NavigationView {
@@ -45,6 +46,9 @@ struct ContentView: View {
 
           NavigationLink(destination: SettingsView()) {
             Text("Settings")
+          }
+          NavigationLink(destination: TopicView()) {
+            Text("Topic")
           }
         }
         .navigationBarTitle("Firebase Messaging")
@@ -82,6 +86,9 @@ struct ContentView: View {
               .fontWeight(.semibold)
           }
         }
+        Text("\(log)")
+          .lineLimit(10)
+          .multilineTextAlignment(.leading)
       }.buttonStyle(IdentityButtonStyle())
     }
   }
@@ -89,11 +96,12 @@ struct ContentView: View {
   func getToken() {
     InstanceID.instanceID().instanceID { result, error in
       guard let result = result, error == nil else {
-        print("Failed getting iid and token: ", error ?? "")
+        self.log = "Failed getting iid and token: \(String(describing: error))"
         return
       }
       self.identity.token = result.token
       self.identity.instanceID = result.instanceID
+      self.log = "Successfully get token."
     }
   }
 
@@ -104,27 +112,30 @@ struct ContentView: View {
     let senderID = app.options.gcmSenderID
     Messaging.messaging().deleteFCMToken(forSenderID: senderID) { error in
       if let error = error as NSError? {
-        print("Failed delete token: ", error)
+        self.log = "Failed delete token: \(error)"
         return
       }
+      self.log = "Successfully delete token."
     }
   }
 
   func deleteID() {
     InstanceID.instanceID().deleteID { error in
       if let error = error as NSError? {
-        print("Failed delete ID: ", error)
+        self.log = "Failed delete ID: \(error)"
         return
       }
+      self.log = "Successfully delete ID."
     }
   }
 
   func deleteFID() {
     Installations.installations().delete { error in
       if let error = error as NSError? {
-        print("Failed delete FID: ", error)
+        self.log = "Failed delete FID: \(error)"
         return
       }
+      self.log = "Successfully delete FID."
     }
   }
 }

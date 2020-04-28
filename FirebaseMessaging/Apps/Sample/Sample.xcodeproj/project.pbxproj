@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 51;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -16,6 +16,7 @@
 		5125CCAC2437F472006CA5D0 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5125CCAA2437F472006CA5D0 /* LaunchScreen.storyboard */; };
 		5126B5F0244F87D800C5A2CD /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 5126B5EF244F87D800C5A2CD /* GoogleService-Info.plist */; };
 		513771F2243BE5DE004503C3 /* Identity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 513771F1243BE5DE004503C3 /* Identity.swift */; };
+		51C544FB2457A86E0093D292 /* TopicView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51C544FA2457A86E0093D292 /* TopicView.swift */; };
 		51D4B021244684B4001A87BB /* UserSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51D4B020244684B4001A87BB /* UserSettings.swift */; };
 /* End PBXBuildFile section */
 
@@ -32,6 +33,7 @@
 		5125CCB32437F9A9006CA5D0 /* Sample.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Sample.entitlements; sourceTree = "<group>"; };
 		5126B5EF244F87D800C5A2CD /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		513771F1243BE5DE004503C3 /* Identity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Identity.swift; sourceTree = "<group>"; };
+		51C544FA2457A86E0093D292 /* TopicView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopicView.swift; sourceTree = "<group>"; };
 		51D4B020244684B4001A87BB /* UserSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSettings.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -85,6 +87,7 @@
 				513771F1243BE5DE004503C3 /* Identity.swift */,
 				51D4B020244684B4001A87BB /* UserSettings.swift */,
 				5125CCA72437F472006CA5D0 /* Preview Content */,
+				51C544FA2457A86E0093D292 /* TopicView.swift */,
 			);
 			path = Sample;
 			sourceTree = "<group>";
@@ -174,6 +177,7 @@
 				5125CC9D2437F471006CA5D0 /* AppDelegate.swift in Sources */,
 				513771F2243BE5DE004503C3 /* Identity.swift in Sources */,
 				5125CCA42437F471006CA5D0 /* ContentView.swift in Sources */,
+				51C544FB2457A86E0093D292 /* TopicView.swift in Sources */,
 				5125CC9F2437F471006CA5D0 /* SceneDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
