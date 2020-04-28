@@ -38,6 +38,8 @@ product can be one of:
   Storage
   StorageSwift
   SymbolCollision
+  GoogleDataTransport
+  GoogleDataTransportCCTSupport
 
 platform can be one of:
   iOS (default)
@@ -504,6 +506,28 @@ case "$product-$platform-$method" in
         build \
         test
       fi
+    ;;
+
+  GoogleDataTransport-*-*)
+    RunXcodebuild \
+      -workspace 'GoogleDataTransport/GDTWatchOSTestApp/GDTWatchOSTestApp.xcworkspace' \
+      -scheme "GDTWatchOSTestAppWatchKitApp" \
+      "${xcb_flags[@]}" \
+      build
+    ;;
+
+  GoogleDataTransportCCTSupport-*-*)
+    RunXcodebuild \
+      -workspace 'GoogleDataTransportCCTSupport/GDTCCTWatchOSTestApp/GDTCCTWatchOSTestApp.xcworkspace' \
+      -scheme "GDTCCTWatchOSIndependentTestAppWatchKitApp" \
+      "${xcb_flags[@]}" \
+      build
+
+    RunXcodebuild \
+      -workspace 'GoogleDataTransportCCTSupport/GDTCCTWatchOSTestApp/GDTCCTWatchOSTestApp.xcworkspace' \
+      -scheme "GDTCCTWatchOSCompanionTestApp" \
+      "${xcb_flags[@]}" \
+      build
     ;;
   *)
     echo "Don't know how to build this product-platform-method combination" 1>&2
