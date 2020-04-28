@@ -37,4 +37,9 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
   ]
 
   s.dependency 'FirebaseFirestore', '~> 1.6', '>= 1.6.1'
+
+  s.test_spec 'unit' do |unit_tests|
+    # The other Swift tests require FSTDocRef, gtest, and other dependencies.
+    unit_tests.source_files = 'Firestore/Swift/Tests/API/*.swift'
+  end
 end

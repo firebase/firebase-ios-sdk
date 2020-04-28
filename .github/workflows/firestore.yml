@@ -139,6 +139,10 @@ jobs:
     runs-on: macos-latest
     needs: check
 
+    strategy:
+      matrix:
+        target: [FirebaseFirestore.podspec --allow-warnings, FirebaseFirestoreSwift.podspec]
+
     steps:
     - uses: actions/checkout@v2
 
@@ -147,9 +151,8 @@ jobs:
 
     - name: Pod lib lint
       run: |
-        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseFirestore.podspec \
-            --platforms=ios \
-            --allow-warnings
+        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb ${{ matrix.target }} \
+            --platforms=ios
 
   quickstart:
     runs-on: macOS-latest
