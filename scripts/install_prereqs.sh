@@ -181,7 +181,7 @@ case "$project-$platform-$method" in
 
   MessagingSample-*)
     install_xcpretty
-    bundle exec pod install --project-directory=Example/Messaging/Sample --repo-update
+    bundle exec pod install --project-directory=FirebaseMessaging/Apps/Sample --repo-update
     ;;
 
   *-pod-lib-lint)

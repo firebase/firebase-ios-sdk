@@ -79,8 +79,6 @@ jobs:
       osx_image: xcode10.3
       env:
         - PROJECT=Auth PLATFORM=iOS METHOD=xcodebuild
-      before_install:
-        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseAuth.podspec --platforms=ios
 

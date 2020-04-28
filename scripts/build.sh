@@ -20,7 +20,7 @@
 
 function pod_gen() {
   # Call pod gen with a podspec and additional optional arguments.
-  bundle exec pod gen --local-sources=./ --sources=https://cdn.cocoapods.org/ "$@"
+  bundle exec pod gen --local-sources=./ --sources=https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org/ "$@"
 }
 
 set -euo pipefail
@@ -397,7 +397,7 @@ case "$product-$platform-$method" in
   MessagingSample-*-*)
     if check_secrets; then
       RunXcodebuild \
-        -workspace 'Example/Messaging/Sample/Sample.xcworkspace' \
+        -workspace 'FirebaseMessaging/Apps/Sample/Sample.xcworkspace' \
         -scheme "Sample" \
         "${xcb_flags[@]}" \
         build

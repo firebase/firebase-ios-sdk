@@ -17,10 +17,9 @@ FirebaseInstallations/Source/Tests/Resources/GoogleService-Info.plist
 Example/InstanceID/Resources/GoogleService-Info.plist
 
 # FirebaseMessaging integration tests GoogleService-Info.plist
-Example/Messaging/Resources/GoogleService-Info.plist
 FirebaseMessaging/Tests/IntegrationTests/Resources/GoogleService-Info.plist
 # FirebaseMessaging test app GoogleService-Info.plist
-Example/Messaging/Sample/Sample/GoogleService-Info.plist
+FirebaseMessaging/Apps/Sample/Sample/GoogleService-Info.plist
 
 Secrets.tar
 
