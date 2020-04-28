@@ -206,7 +206,7 @@ tvos_flags=(
 )
 watchos_flags=(
   -sdk 'watchos6.0'
-  -destination 'platform:watchOS,name=Generic watchOS Device'
+  -destination 'platform=watchOS,name=Generic watchOS Device'
 )
 
 # Compute standard flags for all platforms
