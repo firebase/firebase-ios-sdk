@@ -31,13 +31,13 @@ struct ContentView: View {
         List {
           VStack(alignment: .leading) {
             Text("InstanceID").font(.subheadline)
-            Text(identity.instanceID ?? "None").foregroundColor(.blue)
+            Text(identity.instanceID ?? "None").foregroundColor(.green)
           }
 
           VStack(alignment: .leading) {
             Text("Token").font(.subheadline)
             Text(identity.token ?? "None")
-              .foregroundColor(.blue)
+              .foregroundColor(.green)
               // Increase the layout priority to allow more than one line to be shown. Without this, the
               // simulator renders a single truncated line even though the Preview renders it
               // appropriately. Potentially a bug in the simulator?
@@ -51,7 +51,7 @@ struct ContentView: View {
             Text("Topic")
           }
         }
-        .navigationBarTitle("Firebase Messaging")
+        .navigationBarTitle("Firebase Messaging").foregroundColor(.blue)
 
         // MARK: Action buttons
 
@@ -197,8 +197,7 @@ struct IdentityButtonStyle: ButtonStyle {
       .frame(minWidth: 0, maxWidth: 200)
       .padding()
       .foregroundColor(.white)
-      .background(LinearGradient(gradient: Gradient(colors: [Color.blue, Color.yellow]),
-                                 startPoint: .leading, endPoint: .trailing))
+      .background(Color.yellow)
       .cornerRadius(40)
       // Push the button down a bit when it's pressed.
       .scaleEffect(configuration.isPressed ? 0.9 : 1)
