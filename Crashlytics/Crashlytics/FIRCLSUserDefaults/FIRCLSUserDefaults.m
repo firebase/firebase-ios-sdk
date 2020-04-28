@@ -235,7 +235,7 @@ NSString *const FIRCLSUserDefaultsPathComponent = @"CLSUserDefaults";
   NSDictionary *state = [self dictionaryRepresentation];
   dispatch_sync(self.synchronizationQueue, ^{
 #if CLS_TARGET_CAN_WRITE_TO_DISK
-    BOOL isDirectory;
+    BOOL isDirectory = NO;
     BOOL pathExists = [[NSFileManager defaultManager] fileExistsAtPath:[self->_directoryURL path]
                                                            isDirectory:&isDirectory];
 
