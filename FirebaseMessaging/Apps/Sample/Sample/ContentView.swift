@@ -86,6 +86,7 @@ struct ContentView: View {
               .fontWeight(.semibold)
           }
         }
+
         Text("\(log)")
           .lineLimit(10)
           .multilineTextAlignment(.leading)
@@ -149,9 +150,13 @@ struct SettingsView: View {
       List {
         Toggle(isOn: $settings.isAutoInitEnabled) {
           Text("isAutoInitEnabled")
+            .font(.subheadline)
+            .foregroundColor(.blue)
         }
         Toggle(isOn: $settings.shouldUseDelegateThanNotification) {
           Text("shouldUseDelegate")
+            .font(.subheadline)
+            .foregroundColor(.blue)
         }
       }
     }
@@ -167,7 +172,7 @@ struct ContentView_Previews: PreviewProvider {
     // The token is a long string, generate a very long repeating string of characters to see how the view
     // will react.
     let longString = UUID().uuidString.replacingOccurrences(of: "-", with: "")
-    identity.token = Array(repeating: longString, count: 10).reduce("", +)
+    identity.token = Array(repeating: longString, count: 8).reduce("", +)
 
     return identity
   }()
@@ -192,7 +197,7 @@ struct IdentityButtonStyle: ButtonStyle {
       .frame(minWidth: 0, maxWidth: 200)
       .padding()
       .foregroundColor(.white)
-      .background(LinearGradient(gradient: Gradient(colors: [Color.blue, Color.pink]),
+      .background(LinearGradient(gradient: Gradient(colors: [Color.blue, Color.yellow]),
                                  startPoint: .leading, endPoint: .trailing))
       .cornerRadius(40)
       // Push the button down a bit when it's pressed.
