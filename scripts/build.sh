@@ -517,7 +517,7 @@ case "$product-$platform-$method" in
       fi
     ;;
 
-  GoogleDataTransport-*-*)
+  GoogleDataTransport-watchOS-xcodebuild)
     RunXcodebuild \
       -workspace 'GoogleDataTransport/GDTWatchOSTestApp/GDTWatchOSTestApp.xcworkspace' \
       -scheme "GDTWatchOSTestAppWatchKitApp" \
@@ -525,7 +525,7 @@ case "$product-$platform-$method" in
       build
     ;;
 
-  GoogleDataTransportCCTSupport-*-*)
+  GoogleDataTransportCCTSupport-watchOS-xcodebuild)
     RunXcodebuild \
       -workspace 'GoogleDataTransportCCTSupport/GDTCCTWatchOSTestApp/GDTCCTWatchOSTestApp.xcworkspace' \
       -scheme "GDTCCTWatchOSIndependentTestAppWatchKitApp" \
