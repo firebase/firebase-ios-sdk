@@ -22,7 +22,7 @@ import FirebaseFirestore
 
 extension DocumentReference {
   @available(iOS 13.0, macOS 10.15, tvOS 13.0, *)
-  func dummyPublisher() -> AnyPublisher<Int, Never> {
+  public func dummyPublisher() -> AnyPublisher<Int, Never> {
     return Just(42).eraseToAnyPublisher()
   }
 }
