@@ -1,4 +1,4 @@
-name: auth
+name: crashlytics
 
 on:
   pull_request:
@@ -32,8 +32,7 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Setup project and Build for Catalyst
-      # Only build the unit tests on Catalyst
-      run: scripts/test_catalyst.sh FirebaseCrashlytics build FirebaseCrashlytics-Unit-unit
+      run: scripts/test_catalyst.sh FirebaseCrashlytics test FirebaseCrashlytics-Unit-unit
 
   quickstart:
     env:
@@ -53,9 +52,9 @@ jobs:
     - name: Test quickstart
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Crashlytics)
 
-  auth-cron-only:
+  crashlytics-cron-only:
     runs-on: macos-latest
-    if: github.event_name == 'schedule'
+#    if: github.event_name == 'schedule'
     strategy:
       matrix:
         target: [ios, tvos, macos] # The macos and tvos tests can hang
