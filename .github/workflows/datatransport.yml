@@ -41,7 +41,7 @@ jobs:
     runs-on: macOS-latest
     strategy:
       matrix:
-        pod: [GoogleDataTransport, GoogleDataTransportCCTSupport]
+        pod: [GoogleDataTransportCCTSupport]
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
