@@ -23,35 +23,30 @@ command script import ~/path/to/firebase-ios-sdk/scripts/lldb/firestore.py
 
 ### Running Integration Tests
 
+Prefer running the integration tests against the Firestore Emulator. This is
+much faster than running against production and does not require you to
+configure a Firestore-enabled project.
+
+  * In a new terminal, run `scripts/run_firestore_emulator.sh` and leave it running.
+  * In Xcode select the `Firestore_IntegrationTests_iOS` scheme (or macOS or tvOS).
+  * ⌘-u to build and run the integration tests.
+
+### Running Integration Tests - against production
+
+Occasionally it's useful to run integration tests against a production account.
+
+
   * [Set up a `GoogleServices-Info.plist`](//github.com/firebase/firebase-ios-sdk#running-sample-apps)
     file in `Firestore/Example/App`.
+  * Ensure your Firestore database has open rules (the integration tests do not
+    authenticate).
   * In Xcode select the Firestore_IntegrationTests_iOS scheme
   * ⌘-u to build and run the integration tests
 
-### Running Integration Tests - using the Firestore Emulator
+If you want to switch back to running integration tests against the emulator:
 
-Note: this does not give full coverage, but is much faster than above.
-b/hotlists/1578399 tracks outstanding issues.
-
-  * Ensure that `GoogleServices-Info.plist` is back in its default state (`git
+  * Ensure that `GoogleServices-Info.plist` is in its default state (`git
     checkout Firestore/Example/App/GoogleServices-Info.plist`).
-  * [Install the Firebase CLI](https://firebase.google.com/docs/cli/).
-    Essentially:
-    ```
-    npm install -g firebase-tools
-    ```
-  * [Install the Firestore
-    emulator](https://firebase.google.com/docs/firestore/security/test-rules-emulator#install_the_emulator).
-    Essentially:
-    ```
-    firebase setup:emulators:firestore
-    ```
-  * Run the emulator
-    ```
-    firebase serve --only firestore
-    ```
-  * In Xcode select the Firestore_IntegrationTests_iOS scheme
-  * ⌘-u to build and run the integration tests
 
 ### Building Protos
 
