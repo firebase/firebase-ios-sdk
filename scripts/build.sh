@@ -45,6 +45,7 @@ platform can be one of:
   iOS (default)
   macOS
   tvOS
+  watchOS
 
 method can be one of:
   xcodebuild (default)
@@ -203,6 +204,10 @@ tvos_flags=(
   -sdk "appletvsimulator"
   -destination 'platform=tvOS Simulator,name=Apple TV'
 )
+watchos_flags=(
+  -sdk 'watchsimulator6.1'
+  -destination 'platform=watchOS Simulator,name=Apple Watch Series 5 - 44mm'
+)
 
 # Compute standard flags for all platforms
 case "$platform" in
@@ -220,6 +225,10 @@ case "$platform" in
 
   tvOS)
     xcb_flags=("${tvos_flags[@]}")
+    ;;
+
+  watchOS)
+    xcb_flags=("${watchos_flags[@]}")
     ;;
 
   all)
