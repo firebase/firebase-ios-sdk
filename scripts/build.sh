@@ -206,7 +206,7 @@ tvos_flags=(
 )
 watchos_flags=(
   -sdk 'watchsimulator'
-  -destination 'platform=iOS Simulator,name=iPhone 11'
+  -destination 'platform=iOS Simulator,name=iPhone 11 Pro'
 )
 
 # Compute standard flags for all platforms
