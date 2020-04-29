@@ -38,11 +38,14 @@ product can be one of:
   Storage
   StorageSwift
   SymbolCollision
+  GoogleDataTransport
+  GoogleDataTransportCCTSupport
 
 platform can be one of:
   iOS (default)
   macOS
   tvOS
+  watchOS
 
 method can be one of:
   xcodebuild (default)
@@ -201,6 +204,9 @@ tvos_flags=(
   -sdk "appletvsimulator"
   -destination 'platform=tvOS Simulator,name=Apple TV'
 )
+watchos_flags=(
+  -destination 'platform=iOS Simulator,name=iPhone 11 Pro'
+)
 
 # Compute standard flags for all platforms
 case "$platform" in
@@ -218,6 +224,10 @@ case "$platform" in
 
   tvOS)
     xcb_flags=("${tvos_flags[@]}")
+    ;;
+
+  watchOS)
+    xcb_flags=("${watchos_flags[@]}")
     ;;
 
   all)
@@ -504,6 +514,28 @@ case "$product-$platform-$method" in
         build \
         test
       fi
+    ;;
+
+  GoogleDataTransport-watchOS-xcodebuild)
+    RunXcodebuild \
+      -workspace 'GoogleDataTransport/GDTWatchOSTestApp/GDTWatchOSTestApp.xcworkspace' \
+      -scheme "GDTWatchOSTestAppWatchKitApp" \
+      "${xcb_flags[@]}" \
+      build
+    ;;
+
+  GoogleDataTransportCCTSupport-watchOS-xcodebuild)
+    RunXcodebuild \
+      -workspace 'GoogleDataTransportCCTSupport/GDTCCTWatchOSTestApp/GDTCCTWatchOSTestApp.xcworkspace' \
+      -scheme "GDTCCTWatchOSIndependentTestAppWatchKitApp" \
+      "${xcb_flags[@]}" \
+      build
+
+    RunXcodebuild \
+      -workspace 'GoogleDataTransportCCTSupport/GDTCCTWatchOSTestApp/GDTCCTWatchOSTestApp.xcworkspace' \
+      -scheme "GDTCCTWatchOSCompanionTestApp" \
+      "${xcb_flags[@]}" \
+      build
     ;;
   *)
     echo "Don't know how to build this product-platform-method combination" 1>&2
