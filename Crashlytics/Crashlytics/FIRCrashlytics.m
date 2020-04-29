@@ -118,6 +118,14 @@ NSString *const FIRCLSTestGoogleDataTransportMappingID = @"1214";
     _googleAppID = app.options.googleAppID;
     _dataArbiter = [[FIRCLSDataCollectionArbiter alloc] initWithApp:app withAppInfo:appInfo];
 
+    NSString *mappingID = FIRCLSGoogleDataTransportMappingID;
+    if (settings.runtimeSettings.isDevelopmentMode) {
+      mappingID = FIRCLSTestGoogleDataTransportMappingID;
+    }
+    _googleTransport = [[GDTCORTransport alloc] initWithMappingID:mappingID
+                                                     transformers:nil
+                                                           target:kGDTCORTargetCSH];
+
     _reportManager = [[FIRCLSReportManager alloc] initWithFileManager:_fileManager
                                                         installations:installations
                                                             analytics:analytics
@@ -126,14 +134,6 @@ NSString *const FIRCLSTestGoogleDataTransportMappingID = @"1214";
                                                       googleTransport:_googleTransport
                                                            appIDModel:appIDModel
                                                              settings:settings];
-
-    NSString *mappingID = FIRCLSGoogleDataTransportMappingID;
-    if (settings.runtimeSettings.isDevelopmentMode) {
-      mappingID = FIRCLSTestGoogleDataTransportMappingID;
-    }
-    _googleTransport = [[GDTCORTransport alloc] initWithMappingID:mappingID
-                                                     transformers:nil
-                                                           target:kGDTCORTargetCSH];
 
     // Process did crash during previous execution
     NSString *crashedMarkerFileName = [NSString stringWithUTF8String:FIRCLSCrashedMarkerFileName];
