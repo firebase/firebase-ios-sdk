@@ -22,7 +22,6 @@
 
   @available(iOS 13.0, macOS 10.15, tvOS 13.0, *)
   extension Query {
-    
     /**
      * Reads the documents matching this query.
      *
@@ -54,8 +53,8 @@
             promise(.failure(NSError(domain: "FirebaseFirestoreSwift",
                                      code: -1,
                                      userInfo: [NSLocalizedDescriptionKey:
-                                        "InternalError - Return type and Error code both nil in " +
-                                        "getDocuments publisher"])))
+                                       "InternalError - Return type and Error code both nil in " +
+                                       "getDocuments publisher"])))
           }
         }
       }
@@ -108,7 +107,6 @@
     public func snapshotPublisher() -> QuerySnapshotPublisher {
       return QuerySnapshotPublisher(self)
     }
-    
   }
 
 #endif
