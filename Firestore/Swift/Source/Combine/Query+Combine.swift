@@ -47,8 +47,7 @@
         self?.getDocuments { querySnapshot, error in
           if let error = error {
             promise(.failure(error))
-          } 
-          else if let querySnapshot = querySnapshot {
+          } else if let querySnapshot = querySnapshot {
             promise(.success(querySnapshot))
           }
         }
@@ -81,8 +80,7 @@
         self?.getDocuments(completion: { querySnapshot, error in
           if let error = error {
             promise(.failure(error))
-          } 
-          else if let querySnapshot = querySnapshot {
+          } else if let querySnapshot = querySnapshot {
             promise(.success(querySnapshot.documents))
           }
         })
