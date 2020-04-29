@@ -61,7 +61,10 @@ static NSString *const kPendingSubscriptionsListKey =
                    options:(NSDictionary *)options
                    handler:(FIRMessagingTopicOperationCompletion)handler {
   if (!self.client) {
-    handler([NSError errorWithFCMErrorCode:kFIRMessagingErrorCodePubSubFIRMessagingNotSetup]);
+    handler([NSError
+        messagingErrorWithCode:kFIRMessagingErrorCodePubSubClientNotSetup
+                 failureReason:@"Firebase Messaging Client does not exist. Firebase Messaging was "
+                               @"not setup property and subscription failed."]);
     return;
   }
 
@@ -73,9 +76,10 @@ static NSString *const kPendingSubscriptionsListKey =
   }
 
   if (![[self class] isValidTopicWithPrefix:topic]) {
-    FIRMessagingLoggerError(kFIRMessagingMessageCodePubSub000,
-                            @"Invalid FIRMessaging Pubsub topic %@", topic);
-    handler([NSError errorWithFCMErrorCode:kFIRMessagingErrorCodePubSubInvalidTopic]);
+    NSString *failureReason = [NSString stringWithFormat:@"Invalid subscription topic %@", topic];
+    FIRMessagingLoggerError(kFIRMessagingMessageCodePubSub000, @"%@", failureReason);
+    handler([NSError messagingErrorWithCode:kFIRMessagingErrorCodePubSubInvalidTopic
+                              failureReason:failureReason]);
     return;
   }
 
@@ -102,7 +106,10 @@ static NSString *const kPendingSubscriptionsListKey =
                      options:(NSDictionary *)options
                      handler:(FIRMessagingTopicOperationCompletion)handler {
   if (!self.client) {
-    handler([NSError errorWithFCMErrorCode:kFIRMessagingErrorCodePubSubFIRMessagingNotSetup]);
+    handler([NSError
+        messagingErrorWithCode:kFIRMessagingErrorCodePubSubClientNotSetup
+                 failureReason:@"Firebase Messaging Client does not exist. Firebase Messaging was "
+                               @"not setup property and subscription failed."]);
     return;
   }
   token = [token copy];
@@ -112,9 +119,11 @@ static NSString *const kPendingSubscriptionsListKey =
   }
 
   if (![[self class] isValidTopicWithPrefix:topic]) {
-    FIRMessagingLoggerError(kFIRMessagingMessageCodePubSub002,
-                            @"Invalid FIRMessaging Pubsub topic %@", topic);
-    handler([NSError errorWithFCMErrorCode:kFIRMessagingErrorCodePubSubInvalidTopic]);
+    NSString *failureReason =
+        [NSString stringWithFormat:@"Invalid FIRMessaging Pubsub topic %@", topic];
+    FIRMessagingLoggerError(kFIRMessagingMessageCodePubSub002, @"%@", failureReason);
+    handler([NSError messagingErrorWithCode:kFIRMessagingErrorCodePubSubInvalidTopic
+                              failureReason:failureReason]);
     return;
   }
   if (![self verifyPubSubOptions:options]) {

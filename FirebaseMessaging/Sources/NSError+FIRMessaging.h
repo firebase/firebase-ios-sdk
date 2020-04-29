@@ -16,6 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
+#import <FirebaseMessaging/FIRMessaging.h>
+
 FOUNDATION_EXPORT NSString *const kFIRMessagingDomain;
 
 typedef NS_ENUM(NSUInteger, FIRMessagingInternalErrorCode) {
@@ -39,13 +41,12 @@ typedef NS_ENUM(NSUInteger, FIRMessagingInternalErrorCode) {
   // FIRMessaging generic errors
   kFIRMessagingErrorCodeMissingDeviceID = 501,
 
-  // upstream send errors
+  // Upstream send errors
   kFIRMessagingErrorServiceNotAvailable = 1001,
   kFIRMessagingErrorInvalidParameters = 1002,
   kFIRMessagingErrorMissingTo = 1003,
   kFIRMessagingErrorSave = 1004,
   kFIRMessagingErrorSizeExceeded = 1005,
-  // Future Send Errors
 
   // MCS errors
   // Already connected with MCS
@@ -55,15 +56,13 @@ typedef NS_ENUM(NSUInteger, FIRMessagingInternalErrorCode) {
   kFIRMessagingErrorCodePubSubAlreadySubscribed = 3001,
   kFIRMessagingErrorCodePubSubAlreadyUnsubscribed = 3002,
   kFIRMessagingErrorCodePubSubInvalidTopic = 3003,
-  kFIRMessagingErrorCodePubSubFIRMessagingNotSetup = 3004,
+  kFIRMessagingErrorCodePubSubClientNotSetup = 3004,
   kFIRMessagingErrorCodePubSubOperationIsCancelled = 3005,
 };
 
 @interface NSError (FIRMessaging)
 
-@property(nonatomic, readonly) FIRMessagingInternalErrorCode fcmErrorCode;
-
-+ (NSError *)errorWithFCMErrorCode:(FIRMessagingInternalErrorCode)fcmErrorCode;
-+ (NSError *)fcm_errorWithCode:(NSInteger)code userInfo:(NSDictionary *)userInfo;
++ (NSError *)messagingErrorWithCode:(FIRMessagingInternalErrorCode)fcmErrorCode
+                      failureReason:(NSString *)failureReason;
 
 @end

@@ -404,10 +404,11 @@ typedef NS_ENUM(int8_t, UpstreamForceReconnect) {
 - (void)willSendDataMessageFail:(GtalkDataMessageStanza *)stanza
                   withMessageId:(NSString *)messageId
                           error:(FIRMessagingInternalErrorCode)errorCode {
-  FIRMessagingLoggerDebug(kFIRMessagingMessageCodeDataMessageManager011,
-                          @"Send message fail: %@ error: %lu", messageId, (unsigned long)errorCode);
+  NSString *failureReason = [NSString
+      stringWithFormat:@"Send message fail: %@ error: %lu", messageId, (unsigned long)errorCode];
+  FIRMessagingLoggerDebug(kFIRMessagingMessageCodeDataMessageManager011, @"%@", failureReason);
 
-  NSError *error = [NSError errorWithFCMErrorCode:errorCode];
+  NSError *error = [NSError messagingErrorWithCode:errorCode failureReason:failureReason];
   if ([self.delegate respondsToSelector:@selector(willSendDataMessageWithID:error:)]) {
     [self.delegate willSendDataMessageWithID:messageId error:error];
   }

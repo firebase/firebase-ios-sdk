@@ -20,16 +20,11 @@ NSString *const kFIRMessagingDomain = @"com.google.fcm";
 
 @implementation NSError (FIRMessaging)
 
-- (FIRMessagingInternalErrorCode)fcmErrorCode {
-  return (FIRMessagingInternalErrorCode)self.code;
-}
-
-+ (NSError *)errorWithFCMErrorCode:(FIRMessagingInternalErrorCode)fcmErrorCode {
-  return [NSError errorWithDomain:kFIRMessagingDomain code:fcmErrorCode userInfo:nil];
-}
-
-+ (NSError *)fcm_errorWithCode:(NSInteger)code userInfo:(NSDictionary *)userInfo {
-  return [NSError errorWithDomain:kFIRMessagingDomain code:code userInfo:userInfo];
++ (NSError *)messagingErrorWithCode:(FIRMessagingInternalErrorCode)fcmErrorCode
+                      failureReason:(NSString *)failureReason {
+  NSMutableDictionary *userInfo = [NSMutableDictionary dictionary];
+  userInfo[NSLocalizedFailureReasonErrorKey] = failureReason;
+  return [NSError errorWithDomain:kFIRMessagingDomain code:fcmErrorCode userInfo:userInfo];
 }
 
 @end
