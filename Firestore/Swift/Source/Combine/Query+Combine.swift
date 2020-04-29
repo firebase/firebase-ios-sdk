@@ -72,18 +72,4 @@
     }
   }
 
-  @available(iOS 13.0, macOS 10.15, tvOS 13.0, *)
-  extension Query.QuerySnapshotPublisher {
-    public func mapData<T: Decodable>() -> AnyPublisher<[T], Error> {
-      map { querySnapshot in
-        querySnapshot.documents.compactMap { queryDocumentSnapshot -> T? in
-          let d = Firestore.Decoder()
-          let data = queryDocumentSnapshot.data()
-          return try? d.decode(T.self, from: data, in: queryDocumentSnapshot.reference)
-        }
-      }
-      .eraseToAnyPublisher()
-    }
-  }
-
 #endif
