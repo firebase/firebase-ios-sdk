@@ -1,6 +1,7 @@
 # Unreleased
 
 - [fixed] Fixed unchecked `malloc`s in Crashlytics (#5428).
+- [fixed] Fixed an instance of undefined behavior when loading files from disk (#5454).
 
 # v4.0.0
 
