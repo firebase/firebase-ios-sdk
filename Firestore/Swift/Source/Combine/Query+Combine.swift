@@ -62,5 +62,53 @@
       .eraseToAnyPublisher()
     }
 
+    public struct QuerySnapshotPublisher: Publisher {
+      public typealias Output = QuerySnapshot
+      public typealias Failure = Error
+
+      private let query: Query
+
+      init(_ query: Query) {
+        self.query = query
+      }
+
+      public func receive<S>(subscriber: S) where S: Subscriber, Self.Failure == S.Failure,
+        Self.Output == S.Input {
+        let subscription = QuerySnaphotSubscription(subscriber: subscriber, query: query)
+        subscriber.receive(subscription: subscription)
+      }
+    }
+
+    fileprivate class QuerySnaphotSubscription<SubscriberType: Subscriber>: Subscription
+      where SubscriberType.Input == QuerySnapshot, SubscriberType.Failure == Error {
+      private var subscriber: SubscriberType?
+      private var registration: ListenerRegistration?
+
+      init(subscriber: SubscriberType, query: Query) {
+        self.subscriber = subscriber
+
+        registration = query.addSnapshotListener { querySnapshot, error in
+          if let error = error {
+            subscriber.receive(completion: .failure(error))
+          } else if let querySnapshot = querySnapshot {
+            _ = subscriber.receive(querySnapshot)
+          }
+        }
+      }
+
+      func request(_ demand: Subscribers.Demand) {}
+
+      func cancel() {
+        registration?.remove()
+        registration = nil
+        subscriber = nil
+      }
+    }
+
+    public func snapshotPublisher() -> QuerySnapshotPublisher {
+      return QuerySnapshotPublisher(self)
+    }
+    
   }
+
 #endif
