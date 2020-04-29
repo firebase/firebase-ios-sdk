@@ -22,7 +22,7 @@
 
   @available(iOS 13.0, macOS 10.15, tvOS 13.0, *)
   extension Query {
-    @available(iOS 13.0, macOS 10.15, tvOS 13.0, *)
+    
     public struct QuerySnapshotPublisher: Publisher {
       public typealias Output = QuerySnapshot
       public typealias Failure = Error
@@ -40,7 +40,6 @@
       }
     }
 
-    @available(iOS 13.0, macOS 10.15, tvOS 13.0, *)
     fileprivate class QuerySnaphotSubscription<SubscriberType: Subscriber>: Subscription
       where SubscriberType.Input == QuerySnapshot, SubscriberType.Failure == Error {
       private var subscriber: SubscriberType?
