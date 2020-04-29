@@ -30,12 +30,16 @@ struct ContentView: View {
       VStack {
         List {
           VStack(alignment: .leading) {
-            Text("InstanceID").font(.subheadline)
+            Text("InstanceID")
+              .font(.subheadline)
+              .fontWeight(.semibold)
             Text(identity.instanceID ?? "None").foregroundColor(.green)
           }
 
           VStack(alignment: .leading) {
-            Text("Token").font(.subheadline)
+            Text("Token")
+              .font(.subheadline)
+              .fontWeight(.semibold)
             Text(identity.token ?? "None")
               .foregroundColor(.green)
               // Increase the layout priority to allow more than one line to be shown. Without this, the
@@ -43,15 +47,17 @@ struct ContentView: View {
               // appropriately. Potentially a bug in the simulator?
               .layoutPriority(1)
           }
-
           NavigationLink(destination: SettingsView()) {
             Text("Settings")
+              .fontWeight(.semibold)
           }
           NavigationLink(destination: TopicView()) {
             Text("Topic")
+              .fontWeight(.semibold)
           }
         }
-        .navigationBarTitle("Firebase Messaging").foregroundColor(.blue)
+        .navigationBarTitle("Firebase Messaging")
+        .foregroundColor(.blue)
 
         // MARK: Action buttons
 
@@ -86,7 +92,6 @@ struct ContentView: View {
               .fontWeight(.semibold)
           }
         }
-
         Text("\(log)")
           .lineLimit(10)
           .multilineTextAlignment(.leading)
@@ -150,15 +155,15 @@ struct SettingsView: View {
       List {
         Toggle(isOn: $settings.isAutoInitEnabled) {
           Text("isAutoInitEnabled")
-            .font(.subheadline)
-            .foregroundColor(.blue)
+            .fontWeight(.semibold)
         }
         Toggle(isOn: $settings.shouldUseDelegateThanNotification) {
           Text("shouldUseDelegate")
-            .font(.subheadline)
-            .foregroundColor(.blue)
+            .fontWeight(.semibold)
         }
       }
+      .font(.subheadline)
+      .foregroundColor(.blue)
     }
   }
 }

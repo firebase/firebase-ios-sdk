@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import SwiftUI
-import FirebaseCore
 import FirebaseMessaging
 
 struct TopicView: View {
@@ -21,10 +20,18 @@ struct TopicView: View {
   @State private var result: String = ""
 
   var body: some View {
-    VStack(alignment: .leading) {
-      Text("Topic").font(.callout).bold()
-      TextField("Enter your topic", text: $topic)
-        .textFieldStyle(RoundedBorderTextFieldStyle())
+    VStack {
+      List {
+        Text("Topic")
+          .font(.title).bold()
+          .foregroundColor(.blue)
+        TextField("Enter your topic", text: $topic)
+          .textFieldStyle(RoundedBorderTextFieldStyle())
+        Text("\(result)")
+          .lineLimit(10)
+          .multilineTextAlignment(.leading)
+      }
+
       Button(action: subscribe) {
         HStack {
           Image(systemName: "t.bubble.fill").font(.body)
@@ -39,11 +46,14 @@ struct TopicView: View {
             .fontWeight(.semibold)
         }
       }
-      Text("\(result)")
-        .lineLimit(10)
-        .multilineTextAlignment(.leading)
+      Button(action: clear) {
+        HStack {
+          Image(systemName: "clear").font(.body)
+          Text("Clear ")
+            .fontWeight(.semibold)
+        }
+      }
     }
-    .padding()
     .buttonStyle(IdentityButtonStyle())
   }
 
@@ -65,6 +75,10 @@ struct TopicView: View {
       }
       self.result = "Successfully unsubscribe \(self.topic)"
     }
+  }
+
+  func clear() {
+    result = ""
   }
 }
 
