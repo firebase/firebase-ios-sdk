@@ -16,6 +16,7 @@
 #import "FIRAppDistributionAuthPersistence+Private.h"
 #import "FIRAppDistributionMachO+Private.h"
 #import "FIRAppDistributionRelease+Private.h"
+#import "FIRFADLogger.h"
 
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIRComponent.h>
@@ -50,7 +51,6 @@ NSString *const kAppDistroLibraryName = @"fire-fad";
 
 - (instancetype)initWithApp:(FIRApp *)app appInfo:(NSDictionary *)appInfo {
   self = [super init];
-
   if (self) {
     self.safariHostingViewController = [[UIViewController alloc] init];
 
@@ -63,9 +63,10 @@ NSString *const kAppDistroLibraryName = @"fire-fad";
 
   NSError *authRetrievalError;
   self.authState = [FIRAppDistributionAuthPersistence retrieveAuthState:&authRetrievalError];
-  // TODO (schnecle): replace NSLog statement with FIRLogger log statement
   if (authRetrievalError) {
-    NSLog(@"Error retrieving token from keychain: %@", [authRetrievalError localizedDescription]);
+    FIRFADInfoLog(@"No tester token found in keychain. Tester will need to sign in.");
+  } else {
+    FIRFADInfoLog(@"Found tester token in keychain.");
   }
 
   self.isTesterSignedIn = self.authState ? YES : NO;
@@ -140,7 +141,9 @@ NSString *const kAppDistroLibraryName = @"fire-fad";
   BOOL didClearAuthState = [FIRAppDistributionAuthPersistence clearAuthState:&error];
   // TODO (schnecle): Add in FIRLogger to report when we have failed to clear auth state
   if (!didClearAuthState) {
-    NSLog(@"Error clearing token from keychain: %@", [error localizedDescription]);
+    FIRFADInfoLog(@"Error clearing tester token from keychain: %@", [error localizedDescription]);
+  } else {
+    FIRFADInfoLog(@"Tester is signed out - successfully cleared tester token from keychain.");
   }
 
   self.authState = nil;
@@ -152,8 +155,7 @@ NSString *const kAppDistroLibraryName = @"fire-fad";
                                                  NSString *_Nonnull idToken,
                                                  NSError *_Nullable error) {
     if (error) {
-      // TODO (schnecle): Add in FIRLogger log statement
-      NSLog(@"Error fetching fresh tokens: %@", [error localizedDescription]);
+      FIRFADInfoLog(@"Error fetching fresh tokens: %@", [error localizedDescription]);
       [self signOutTester];
       return;
     }
@@ -180,10 +182,11 @@ NSString *const kAppDistroLibraryName = @"fire-fad";
             NSHTTPURLResponse *HTTPResponse = (NSHTTPURLResponse *)response;
 
             if (HTTPResponse.statusCode == 200) {
+              FIRFADInfoLog(@"Retrieved App Distribution releases.");
               [self handleReleasesAPIResponseWithData:data completion:completion];
             } else {
               // TODO: Handle non-200 http response
-              NSLog(@"ERROR - Non 200 service response - %@", HTTPResponse);
+              FIRFADErrorLog(@"ERROR - Non 200 service response - %@", HTTPResponse);
               @throw([NSException exceptionWithName:@"NotImplementedException"
                                              reason:@"This code path is not implemented yet"
                                            userInfo:nil]);
@@ -199,7 +202,7 @@ NSString *const kAppDistroLibraryName = @"fire-fad";
        appDistributionSignInCompletion:(void (^)(NSError *_Nullable error))completion {
   if (!configuration) {
     // TODO: Handle when we cannot get configuration
-    NSLog(@"ERROR - Cannot discover oauth config");
+    FIRFADErrorLog(@"ERROR - Cannot discover oauth config");
     @throw([NSException exceptionWithName:@"NotImplementedException"
                                    reason:@"This code path is not implemented yet"
                                  userInfo:nil]);
@@ -231,10 +234,8 @@ NSString *const kAppDistroLibraryName = @"fire-fad";
       [FIRAppDistributionAuthPersistence persistAuthState:authState error:&authPersistenceError];
     }
 
-    // TODO (schnecle): Log errors in persistence using
-    // FIRLogger
     if (authPersistenceError) {
-      NSLog(@"Error persisting token to keychain: %@", [error localizedDescription]);
+      FIRFADInfoLog(@"Error persisting token to keychain: %@", [error localizedDescription]);
     }
     self.isTesterSignedIn = self.authState ? YES : NO;
     completion(error);
