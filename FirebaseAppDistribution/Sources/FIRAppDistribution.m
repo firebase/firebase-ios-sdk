@@ -387,8 +387,8 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
       FIRAppDistributionMachO *machO =
           [[FIRAppDistributionMachO alloc] initWithPath:executablePath];
 
-      NSLog(@"Code hash for the app on device - %s", machO.codeHash);
-      NSLog(@"Code hash for the release from the service response - %s", codeHash);
+      NSLog(@"Code hash for the app on device - %@", machO.codeHash);
+      NSLog(@"Code hash for the release from the service response - %@", codeHash);
       if (codeHash && ![codeHash isEqualToString:machO.codeHash]) {
         FIRAppDistributionRelease *release =
             [[FIRAppDistributionRelease alloc] initWithDictionary:releaseDict];
