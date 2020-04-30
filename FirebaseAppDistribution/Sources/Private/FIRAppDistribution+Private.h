@@ -33,6 +33,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property(nullable, nonatomic) UIWindow *window;
 
+@property(nullable, nonatomic) NSString *apiClientID;
+
 @end
 
 NS_ASSUME_NONNULL_END

@@ -76,7 +76,7 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
   self.authState = [FIRAppDistributionAuthPersistence retrieveAuthState:&authRetrievalError];
   // TODO (schnecle): replace NSLog statement with FIRLogger log statement
   if (authRetrievalError) {
-    NSLog(@"Error retrieving token from keychain: %@", [authRetrievalError localizedDescription]);
+    NSLog(@"Found no tester auth token in keychain on intitialization");
   } else {
     NSLog(@"Successfully retrieved auth token from keychain on initialization");
   }
@@ -169,6 +169,20 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
   return [NSError errorWithDomain:FIRAppDistributionErrorDomain code:errorCode userInfo:userInfo];
 }
 
+@synthesize apiClientID = _apiClientID;
+
+- (NSString *)apiClientID {
+  if(!_apiClientID){
+    return kTesterAPIClientID;
+  }
+
+  return _apiClientID;
+}
+
+- (void)setApiClientID:(NSString *)clientID {
+  _apiClientID = clientID;
+}
+
 - (void)fetchReleases:(FIRAppDistributionUpdateCheckCompletion)completion {
   [self.authState performActionWithFreshTokens:^(NSString *_Nonnull accessToken,
                                                  NSString *_Nonnull idToken,
@@ -259,7 +273,7 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
 
   OIDAuthorizationRequest *request = [[OIDAuthorizationRequest alloc]
       initWithConfiguration:configuration
-                   clientId:kTesterAPIClientID
+                   clientId:[self apiClientID]
                      scopes:@[ OIDScopeOpenID, OIDScopeProfile, kOIDScopeTesterAPI ]
                 redirectURL:[NSURL URLWithString:redirectURL]
                responseType:OIDResponseTypeCode

@@ -67,6 +67,12 @@ NS_SWIFT_NAME(AppDistribution)
  * Sign out App Distribution tester
  */
 - (void)signOutTester;
+
+/**
+  * Set the client id to use to get the latest release for this app
+ */
+- (void)setApiClientID:(NSString *)clientID;
+
 /**
  * Accesses the singleton App Distribution instance.
  *
