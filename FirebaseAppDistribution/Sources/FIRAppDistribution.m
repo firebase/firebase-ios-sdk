@@ -30,7 +30,6 @@
 @property(nonatomic) BOOL isTesterSignedIn;
 @end
 
-
 NSString *const FIRAppDistributionErrorDomain = @"com.firebase.appdistribution";
 NSString *const FIRAppDistributionErrorDetailsKey = @"details";
 
@@ -52,10 +51,12 @@ NSString *const kLatestReleaseKey = @"latest";
 NSString *const kCodeHashKey = @"codeHash";
 
 NSString *const kAuthErrorMessage = @"Unable to authenticate the tester";
+NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
 
 #pragma mark - Singleton Support
 
 - (instancetype)initWithApp:(FIRApp *)app appInfo:(NSDictionary *)appInfo {
+  NSLog(@"Initializing Firebase App Distribution");
   self = [super init];
 
   if (self) {
@@ -73,6 +74,8 @@ NSString *const kAuthErrorMessage = @"Unable to authenticate the tester";
   // TODO (schnecle): replace NSLog statement with FIRLogger log statement
   if (authRetrievalError) {
     NSLog(@"Error retrieving token from keychain: %@", [authRetrievalError localizedDescription]);
+  } else {
+    NSLog(@"Successfully retrieved auth token from keychain on initialization");
   }
 
   self.isTesterSignedIn = self.authState ? YES : NO;
@@ -131,7 +134,7 @@ NSString *const kAuthErrorMessage = @"Unable to authenticate the tester";
 
 - (void)signInTesterWithCompletion:(void (^)(NSError *_Nullable error))completion {
   NSURL *issuer = [NSURL URLWithString:kIssuerURL];
-
+  NSLog(@"App Distribution tester sign in");
   [OIDAuthorizationService
       discoverServiceConfigurationForIssuer:issuer
                                  completion:^(OIDServiceConfiguration *_Nullable configuration,
@@ -143,11 +146,14 @@ NSString *const kAuthErrorMessage = @"Unable to authenticate the tester";
 }
 
 - (void)signOutTester {
+  NSLog(@"Tester sign out");
   NSError *error;
   BOOL didClearAuthState = [FIRAppDistributionAuthPersistence clearAuthState:&error];
   // TODO (schnecle): Add in FIRLogger to report when we have failed to clear auth state
   if (!didClearAuthState) {
     NSLog(@"Error clearing token from keychain: %@", [error localizedDescription]);
+  } else {
+    NSLog(@"Successfully cleared auth state from keychain");
   }
 
   self.authState = nil;
@@ -156,8 +162,8 @@ NSString *const kAuthErrorMessage = @"Unable to authenticate the tester";
 
 - (NSError *)NSErrorForErrorCodeAndMessage:(FIRAppDistributionError)errorCode
                                    message:(NSString *)message {
-    NSDictionary *userInfo = @{FIRAppDistributionErrorDetailsKey : message};
-    return [NSError errorWithDomain:FIRAppDistributionErrorDomain code:errorCode userInfo:userInfo];
+  NSDictionary *userInfo = @{FIRAppDistributionErrorDetailsKey : message};
+  return [NSError errorWithDomain:FIRAppDistributionErrorDomain code:errorCode userInfo:userInfo];
 }
 
 - (void)fetchReleases:(FIRAppDistributionUpdateCheckCompletion)completion {
@@ -165,15 +171,18 @@ NSString *const kAuthErrorMessage = @"Unable to authenticate the tester";
                                                  NSString *_Nonnull idToken,
                                                  NSError *_Nullable error) {
     if (error) {
-        // TODO: Do we need a less aggresive strategy here? maybe a retry?
-        [self signOutTester];
-        NSError *HTTPError = [self NSErrorForErrorCodeAndMessage:FIRAppDistributionErrorAuthenticationFailure
-                                  message:kAuthErrorMessage];
-        
+      NSLog(@"Error getting fresh auth tokens. Will sign out tester. Error: %@",
+            [error localizedDescription]);
+      // TODO: Do we need a less aggresive strategy here? maybe a retry?
+      [self signOutTester];
+      NSError *HTTPError =
+          [self NSErrorForErrorCodeAndMessage:FIRAppDistributionErrorAuthenticationFailure
+                                      message:kAuthErrorMessage];
+
       dispatch_async(dispatch_get_main_queue(), ^{
-          completion(nil, HTTPError);
+        completion(nil, HTTPError);
       });
-        
+
       return;
     }
 
@@ -190,38 +199,41 @@ NSString *const kAuthErrorMessage = @"Unable to authenticate the tester";
     NSURLSessionDataTask *listReleasesDataTask = [URLSession
         dataTaskWithRequest:request
           completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
-
-        NSHTTPURLResponse *HTTPResponse = (NSHTTPURLResponse *)response;
+            NSHTTPURLResponse *HTTPResponse = (NSHTTPURLResponse *)response;
 
             if (error || HTTPResponse.statusCode != 200) {
-                NSError *HTTPError = nil;
-                if(HTTPResponse == nil && error) {
-                    // Handles network timeouts or no internet connectivity
-                    NSString *message = error.userInfo[NSLocalizedDescriptionKey] ? error.userInfo[NSLocalizedDescriptionKey] : @"";
-                    
-                    HTTPError = [self NSErrorForErrorCodeAndMessage:FIRAppDistributionErrorNetworkFailure               message:message];
-                }
-                else if(HTTPResponse.statusCode == 401) {
-                    // TODO: Maybe sign out tester?
-                    HTTPError = [self NSErrorForErrorCodeAndMessage:FIRAppDistributionErrorAuthenticationFailure
-                                                        message:kAuthErrorMessage];
-                } else {
-                    HTTPError = [self NSErrorForErrorCodeAndMessage:FIRAppDistributionErrorUnknown
+              NSError *HTTPError = nil;
+              if (HTTPResponse == nil && error) {
+                // Handles network timeouts or no internet connectivity
+                NSString *message = error.userInfo[NSLocalizedDescriptionKey]
+                                        ? error.userInfo[NSLocalizedDescriptionKey]
+                                        : @"";
+
+                HTTPError =
+                    [self NSErrorForErrorCodeAndMessage:FIRAppDistributionErrorNetworkFailure
+                                                message:message];
+              } else if (HTTPResponse.statusCode == 401) {
+                // TODO: Maybe sign out tester?
+                HTTPError =
+                    [self NSErrorForErrorCodeAndMessage:FIRAppDistributionErrorAuthenticationFailure
+                                                message:kAuthErrorMessage];
+              } else {
+                HTTPError = [self NSErrorForErrorCodeAndMessage:FIRAppDistributionErrorUnknown
                                                         message:@""];
-                }
-                
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    completion(nil, HTTPError);
-                });
-              
+              }
+
+              NSLog(@"App Tester API service error - %@", [HTTPError localizedDescription]);
+              dispatch_async(dispatch_get_main_queue(), ^{
+                completion(nil, HTTPError);
+              });
+
             } else {
-                [self handleReleasesAPIResponseWithData:data completion:completion];
+              [self handleReleasesAPIResponseWithData:data completion:completion];
             }
           }];
 
     [listReleasesDataTask resume];
   }];
-    
 }
 
 - (void)handleOauthDiscoveryCompletion:(OIDServiceConfiguration *_Nullable)configuration
@@ -230,9 +242,11 @@ NSString *const kAuthErrorMessage = @"Unable to authenticate the tester";
   if (!configuration) {
     // TODO: Handle when we cannot get configuration
     NSLog(@"ERROR - Cannot discover oauth config");
-    @throw([NSException exceptionWithName:@"NotImplementedException"
-                                   reason:@"This code path is not implemented yet"
-                                 userInfo:nil]);
+
+    NSError *error =
+        [self NSErrorForErrorCodeAndMessage:FIRAppDistributionErrorAuthenticationFailure
+                                    message:kAuthErrorMessage];
+    completion(error);
     return;
   }
 
@@ -252,6 +266,31 @@ NSString *const kAuthErrorMessage = @"Unable to authenticate the tester";
 
   void (^processAuthState)(OIDAuthState *_Nullable authState, NSError *_Nullable error) = ^void(
       OIDAuthState *_Nullable authState, NSError *_Nullable error) {
+    [self cleanupUIWindow];
+    if (error) {
+      NSError *signInError = nil;
+      if (error.code == OIDErrorCodeUserCanceledAuthorizationFlow) {
+        // User cancelled auth flow
+        NSLog(@"Tester cancelled sign in flow");
+        signInError =
+            [self NSErrorForErrorCodeAndMessage:FIRAppDistributionErrorAuthenticationCancelled
+                                        message:kAuthCancelledErrorMessage];
+      } else {
+        // Error in the auth flow
+        NSLog(@"Tester sign in error - %@", [error localizedDescription]);
+        signInError =
+            [self NSErrorForErrorCodeAndMessage:FIRAppDistributionErrorAuthenticationFailure
+                                        message:kAuthErrorMessage];
+      }
+
+      completion(signInError);
+      return;
+
+    } else if (!authState) {
+      NSLog(@"Tester sign in error - authState is nil");
+    } else {
+      NSLog(@"Tester sign successful");
+    }
     self.authState = authState;
 
     // Capture errors in persistence but do not bubble them
@@ -264,10 +303,12 @@ NSString *const kAuthErrorMessage = @"Unable to authenticate the tester";
     // TODO (schnecle): Log errors in persistence using
     // FIRLogger
     if (authPersistenceError) {
-      NSLog(@"Error persisting token to keychain: %@", [error localizedDescription]);
+      NSLog(@"Error persisting auth token to keychain: %@", [error localizedDescription]);
+    } else {
+      NSLog(@"Successfully persisted auth token in the keychain");
     }
     self.isTesterSignedIn = self.authState ? YES : NO;
-    completion(error);
+    completion(nil);
   };
 
   // performs authentication request
@@ -303,34 +344,47 @@ NSString *const kAuthErrorMessage = @"Unable to authenticate the tester";
                                completion:(FIRAppDistributionUpdateCheckCompletion)completion {
   NSError *error = nil;
 
-  NSDictionary *serializedResponse = [NSJSONSerialization
-                          JSONObjectWithData:data
-                          options:0
-                          error:&error];
+  NSDictionary *serializedResponse = [NSJSONSerialization JSONObjectWithData:data
+                                                                     options:0
+                                                                       error:&error];
 
-    NSArray *releaseList = [serializedResponse objectForKey:kReleasesKey];
-    for (NSDictionary *releaseDict in releaseList) {
-        if([[releaseDict objectForKey:kLatestReleaseKey] boolValue]) {
-            NSString *codeHash = [releaseDict objectForKey:kCodeHashKey];
-            NSString *executablePath = [[NSBundle mainBundle] executablePath];
-            FIRAppDistributionMachO *machO = [[FIRAppDistributionMachO alloc] initWithPath:executablePath];
-
-            if(codeHash && ![codeHash isEqualToString:machO.codeHash]) {
-                FIRAppDistributionRelease *release = [[FIRAppDistributionRelease alloc] initWithDictionary:releaseDict];
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    completion(release, nil);
-                });
-                
-                return;
-            }
-
-            break;
-        }
-    }
-
+  if (error) {
+    NSString *message =
+        error.userInfo[NSLocalizedDescriptionKey] ? error.userInfo[NSLocalizedDescriptionKey] : @"";
+    NSError *error = [self NSErrorForErrorCodeAndMessage:FIRAppDistributionErrorUnknown
+                                                 message:message];
     dispatch_async(dispatch_get_main_queue(), ^{
-        completion(nil, nil);
+      completion(nil, error);
     });
+
+    return;
+  }
+
+  NSArray *releaseList = [serializedResponse objectForKey:kReleasesKey];
+  for (NSDictionary *releaseDict in releaseList) {
+    if ([[releaseDict objectForKey:kLatestReleaseKey] boolValue]) {
+      NSString *codeHash = [releaseDict objectForKey:kCodeHashKey];
+      NSString *executablePath = [[NSBundle mainBundle] executablePath];
+      FIRAppDistributionMachO *machO =
+          [[FIRAppDistributionMachO alloc] initWithPath:executablePath];
+
+      if (codeHash && ![codeHash isEqualToString:machO.codeHash]) {
+        FIRAppDistributionRelease *release =
+            [[FIRAppDistributionRelease alloc] initWithDictionary:releaseDict];
+        dispatch_async(dispatch_get_main_queue(), ^{
+          completion(release, nil);
+        });
+
+        return;
+      }
+
+      break;
+    }
+  }
+
+  dispatch_async(dispatch_get_main_queue(), ^{
+    completion(nil, nil);
+  });
 }
 - (void)checkForUpdateWithCompletion:(FIRAppDistributionUpdateCheckCompletion)completion {
   if (self.isTesterSignedIn) {
