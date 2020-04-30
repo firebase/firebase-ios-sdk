@@ -69,7 +69,7 @@ NS_SWIFT_NAME(AppDistribution)
 - (void)signOutTester;
 
 /**
-  * Set the client id to use to get the latest release for this app
+ * Set the client id to use to get the latest release for this app
  */
 - (void)setApiClientID:(NSString *)clientID;
 

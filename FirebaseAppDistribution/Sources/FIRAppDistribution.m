@@ -172,7 +172,7 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
 @synthesize apiClientID = _apiClientID;
 
 - (NSString *)apiClientID {
-  if(!_apiClientID){
+  if (!_apiClientID) {
     return kTesterAPIClientID;
   }
 
