@@ -37,9 +37,27 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
   ]
 
   s.dependency 'FirebaseFirestore', '~> 1.6', '>= 1.6.1'
+  s.dependency 'GoogleTest', '1.10.0'
 
-  s.test_spec 'unit' do |unit_tests|
-    # The other Swift tests require FSTDocRef, gtest, and other dependencies.
-    unit_tests.source_files = 'Firestore/Swift/Tests/API/*.swift'
+  s.test_spec 'unit' do |int_tests|
+    int_tests.source_files = 'Firestore/Swift/Tests/API/*.swift',
+                             'Firestore/Swift/Tests/Codable/*.swift',
+                             'Firestore/Example/Tests/API/FSTAPIHelpers.*',
+                             'Firestore/Example/Tests/Util/FSTHelpers.*'
+    int_tests.requires_app_host = true
+
+      abseil_version = '0.20200225.0'
+  int_tests.dependency 'abseil/algorithm', abseil_version
+  int_tests.dependency 'abseil/base', abseil_version
+  int_tests.dependency 'abseil/memory', abseil_version
+  int_tests.dependency 'abseil/meta', abseil_version
+  int_tests.dependency 'abseil/strings/strings', abseil_version
+  int_tests.dependency 'abseil/time', abseil_version
+  int_tests.dependency 'abseil/types', abseil_version
+
+    int_tests.pod_target_xcconfig = {
+      'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"',
+      'SWIFT_OBJC_BRIDGING_HEADER' => '$(PODS_TARGET_SRCROOT)/Firestore/Swift/Tests/BridgingHeader.h'
+    }
   end
 end
