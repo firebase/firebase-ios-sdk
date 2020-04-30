@@ -6,6 +6,7 @@ on:
     - 'GoogleDataTransport**'
     - 'GoogleDataTransportCCTSupport**'
     - '.github/workflows/datatransport.yml'
+    - 'Gemfile'
   schedule:
     # Run every day at 11pm (PST) - cron uses UTC times
     - cron:  '0 7 * * *'
@@ -35,7 +36,8 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Setup project and Test Catalyst
-      run: scripts/third_party/travis/retry.sh scripts/test_catalyst.sh ${{ matrix.pod }} test
+      # Only build the unit tests on Catalyst. Test stopped working when GHA moved to Xcode 11.4.1.
+      run: scripts/third_party/travis/retry.sh scripts/test_catalyst.sh ${{ matrix.pod }} build
 
   watchos-testapp:
     runs-on: macOS-latest
