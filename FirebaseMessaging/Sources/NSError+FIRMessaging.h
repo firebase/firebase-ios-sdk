@@ -18,6 +18,8 @@
 
 #import <FirebaseMessaging/FIRMessaging.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 FOUNDATION_EXPORT NSString *const kFIRMessagingDomain;
 
 typedef NS_ENUM(NSUInteger, FIRMessagingInternalErrorCode) {
@@ -53,3 +55,5 @@ typedef NS_ENUM(NSUInteger, FIRMessagingInternalErrorCode) {
                       failureReason:(NSString *)failureReason;
 
 @end
+
+NS_ASSUME_NONNULL_END

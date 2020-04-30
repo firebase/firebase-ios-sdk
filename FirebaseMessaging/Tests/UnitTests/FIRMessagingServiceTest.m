@@ -169,14 +169,13 @@ static NSString *const kFIRMessagingTestsServiceSuiteName = @"com.messaging.test
  *  Test using PubSub without explicitly starting FIRMessagingService.
  */
 - (void)testSubscribeWithoutStart {
-  [_mockPubSub
-      subscribeWithToken:kFakeToken
-                   topic:@"/topics/hello-world"
-                 options:nil
-                 handler:^(NSError *error) {
-                   XCTAssertNotNil(error);
-                   XCTAssertEqual(kFIRMessagingErrorCodePubSubFIRMessagingNotSetup, error.code);
-                 }];
+  [_mockPubSub subscribeWithToken:kFakeToken
+                            topic:@"/topics/hello-world"
+                          options:nil
+                          handler:^(NSError *error) {
+                            XCTAssertNotNil(error);
+                            XCTAssertEqual(kFIRMessagingErrorCodePubSubClientNotSetup, error.code);
+                          }];
 }
 
 - (void)testSubscribeWithNoTopicPrefix {
@@ -322,28 +321,32 @@ static NSString *const kFIRMessagingTestsServiceSuiteName = @"com.messaging.test
   // Mock get token is failed with FIRMessagingErrorUnknown error.
   XCTestExpectation *subscriptionCompletionExpectation =
       [self expectationWithDescription:@"Subscription is complete"];
+  NSString *failureReason = @"Invalid token.";
   OCMStub([_mockInstanceID
       instanceIDWithHandler:
-          ([OCMArg
-              invokeBlockWithArgs:[NSNull null],
-                                  [NSError errorWithFCMErrorCode:kFIRMessagingErrorCodeUnknown],
-                                  nil])]);
+          ([OCMArg invokeBlockWithArgs:[NSNull null],
+                                       [NSError messagingErrorWithCode:kFIRMessagingErrorCodeUnknown
+                                                         failureReason:failureReason],
+                                       nil])]);
   [_messaging subscribeToTopic:@"Apple"
                     completion:^(NSError *_Nullable error) {
                       XCTAssertNotNil(error);
                       XCTAssertEqual(error.code, kFIRMessagingErrorCodeUnknown);
+                      XCTAssertEqualObjects(failureReason, error.localizedFailureReason);
+
                       [subscriptionCompletionExpectation fulfill];
                     }];
   [self waitForExpectationsWithTimeout:0.2 handler:nil];
 }
 
 - (void)testUnsubscribeFailedWithInvalidToken {
+  NSString *failureReason = @"Invalid token.";
   OCMStub([_mockInstanceID
       instanceIDWithHandler:
-          ([OCMArg
-              invokeBlockWithArgs:[NSNull null],
-                                  [NSError errorWithFCMErrorCode:kFIRMessagingErrorCodeUnknown],
-                                  nil])]);
+          ([OCMArg invokeBlockWithArgs:[NSNull null],
+                                       [NSError messagingErrorWithCode:kFIRMessagingErrorCodeUnknown
+                                                         failureReason:failureReason],
+                                       nil])]);
   XCTestExpectation *unsubscriptionCompletionExpectation =
       [self expectationWithDescription:@"Unsubscription is complete"];
 
@@ -351,6 +354,7 @@ static NSString *const kFIRMessagingTestsServiceSuiteName = @"com.messaging.test
                         completion:^(NSError *_Nullable error) {
                           XCTAssertNotNil(error);
                           XCTAssertEqual(error.code, kFIRMessagingErrorCodeUnknown);
+                          XCTAssertEqualObjects(failureReason, error.localizedFailureReason);
                           [unsubscriptionCompletionExpectation fulfill];
                         }];
   [self waitForExpectationsWithTimeout:0.2 handler:nil];

@@ -788,7 +788,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
       return;
     }
     NSString *failureReason =
-        [NSString stringWithFormat:@"Cannot parse topic name %@. Will not subscribe.", topic];
+        [NSString stringWithFormat:@"Cannot parse topic name: '%@'. Will not subscribe.", topic];
     FIRMessagingLoggerError(kFIRMessagingMessageCodeMessaging009, @"%@", failureReason);
     if (completion) {
       completion([NSError
@@ -829,7 +829,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
       return;
     }
     NSString *failureReason =
-        [NSString stringWithFormat:@"Cannot parse topic name %@. Will not unsubscribe.", topic];
+        [NSString stringWithFormat:@"Cannot parse topic name: '%@'. Will not unsubscribe.", topic];
     FIRMessagingLoggerError(kFIRMessagingMessageCodeMessaging011, @"%@", failureReason);
     if (completion) {
       completion([NSError
