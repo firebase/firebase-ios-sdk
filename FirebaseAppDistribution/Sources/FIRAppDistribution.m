@@ -59,6 +59,7 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
 #pragma mark - Singleton Support
 
 - (instancetype)initWithApp:(FIRApp *)app appInfo:(NSDictionary *)appInfo {
+  NSLog(@"Initializing Firebase App Distribution");
   self = [super init];
 
   if (self) {
@@ -76,6 +77,8 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
   // TODO (schnecle): replace NSLog statement with FIRLogger log statement
   if (authRetrievalError) {
     NSLog(@"Error retrieving token from keychain: %@", [authRetrievalError localizedDescription]);
+  } else {
+    NSLog(@"Successfully retrieved auth token from keychain on initilization");
   }
 
   self.isTesterSignedIn = self.authState ? YES : NO;
@@ -134,7 +137,7 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
 
 - (void)signInTesterWithCompletion:(void (^)(NSError *_Nullable error))completion {
   NSURL *issuer = [NSURL URLWithString:kIssuerURL];
-
+  NSLog(@"App Distribution tester sign in");
   [OIDAuthorizationService
       discoverServiceConfigurationForIssuer:issuer
                                  completion:^(OIDServiceConfiguration *_Nullable configuration,
@@ -146,11 +149,14 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
 }
 
 - (void)signOutTester {
+  NSLog(@"Tester sign out");
   NSError *error;
   BOOL didClearAuthState = [FIRAppDistributionAuthPersistence clearAuthState:&error];
   // TODO (schnecle): Add in FIRLogger to report when we have failed to clear auth state
   if (!didClearAuthState) {
     NSLog(@"Error clearing token from keychain: %@", [error localizedDescription]);
+  } else {
+    NSLog(@"Successfully cleared auth state from keychain");
   }
 
   self.authState = nil;
@@ -168,6 +174,8 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
                                                  NSString *_Nonnull idToken,
                                                  NSError *_Nullable error) {
     if (error) {
+      NSLog(@"Error getting fresh auth tokens. Will sign out tester. Error: %@",
+            [error localizedDescription]);
       // TODO: Do we need a less aggresive strategy here? maybe a retry?
       [self signOutTester];
       NSError *HTTPError =
@@ -217,6 +225,7 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
                                                         message:@""];
               }
 
+              NSLog(@"App Tester API service error - %@", [HTTPError localizedDescription]);
               dispatch_async(dispatch_get_main_queue(), ^{
                 completion(nil, HTTPError);
               });
@@ -236,6 +245,7 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
   if (!configuration) {
     // TODO: Handle when we cannot get configuration
     NSLog(@"ERROR - Cannot discover oauth config");
+
     NSError *error =
         [self NSErrorForErrorCodeAndMessage:FIRAppDistributionErrorAuthenticationFailure
                                     message:kAuthErrorMessage];
@@ -264,12 +274,13 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
       NSError *signInError = nil;
       if (error.code == OIDErrorCodeUserCanceledAuthorizationFlow) {
         // User cancelled auth flow
+        NSLog(@"Tester cancelled sign in flow");
         signInError =
             [self NSErrorForErrorCodeAndMessage:FIRAppDistributionErrorAuthenticationCancelled
                                         message:kAuthCancelledErrorMessage];
       } else {
         // Error in the auth flow
-
+        NSLog(@"Tester sign in error - %@", [error localizedDescription]);
         signInError =
             [self NSErrorForErrorCodeAndMessage:FIRAppDistributionErrorAuthenticationFailure
                                         message:kAuthErrorMessage];
@@ -277,8 +288,12 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
 
       completion(signInError);
       return;
-    }
 
+    } else if (!authState) {
+      NSLog(@"Tester sign in error - authState is nil");
+    } else {
+      NSLog(@"Tester sign successful");
+    }
     self.authState = authState;
 
     // Capture errors in persistence but do not bubble them
@@ -291,7 +306,9 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
     // TODO (schnecle): Log errors in persistence using
     // FIRLogger
     if (authPersistenceError) {
-      NSLog(@"Error persisting token to keychain: %@", [error localizedDescription]);
+      NSLog(@"Error persisting auth token to keychain: %@", [error localizedDescription]);
+    } else {
+      NSLog(@"Successfully persisted auth token in the keychain");
     }
     self.isTesterSignedIn = self.authState ? YES : NO;
     completion(nil);
