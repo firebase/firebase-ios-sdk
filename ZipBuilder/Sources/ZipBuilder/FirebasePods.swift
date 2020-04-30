@@ -48,6 +48,7 @@ enum FirebasePods: String, CaseIterable {
   case performance = "FirebasePerformance"
   case remoteConfig = "FirebaseRemoteConfig"
   case storage = "FirebaseStorage"
+  case appdistribution = "FirebaseAppDistribution"
 
   /// Flag to explicitly exclude any Resources from being copied.
   var excludeResources: Bool {
