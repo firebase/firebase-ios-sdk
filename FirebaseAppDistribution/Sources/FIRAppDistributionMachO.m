@@ -36,7 +36,6 @@
     _slices = [NSMutableArray new];
     [self extractSlices];
   }
-
   return self;
 }
 
