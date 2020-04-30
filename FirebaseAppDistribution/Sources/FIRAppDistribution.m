@@ -55,6 +55,7 @@ NSString *const kLatestReleaseKey = @"latest";
 NSString *const kCodeHashKey = @"codeHash";
 
 NSString *const kAuthErrorMessage = @"Unable to authenticate the tester";
+NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
 
 #pragma mark - Singleton Support
 
@@ -233,9 +234,9 @@ NSString *const kAuthErrorMessage = @"Unable to authenticate the tester";
   if (!configuration) {
     // TODO: Handle when we cannot get configuration
     NSLog(@"ERROR - Cannot discover oauth config");
-    @throw([NSException exceptionWithName:@"NotImplementedException"
-                                   reason:@"This code path is not implemented yet"
-                                 userInfo:nil]);
+    NSError *error = [self NSErrorForErrorCodeAndMessage:FIRAppDistributionErrorAuthenticationFailure
+                                        message:kAuthErrorMessage];
+      completion(error);
     return;
   }
 
@@ -255,6 +256,24 @@ NSString *const kAuthErrorMessage = @"Unable to authenticate the tester";
 
   void (^processAuthState)(OIDAuthState *_Nullable authState, NSError *_Nullable error) = ^void(
       OIDAuthState *_Nullable authState, NSError *_Nullable error) {
+      [self cleanupUIWindow];
+      if(error) {
+          NSError *signInError = nil;
+          if(error.code == OIDErrorCodeUserCanceledAuthorizationFlow) {
+              // User cancelled auth flow
+              signInError = [self NSErrorForErrorCodeAndMessage:FIRAppDistributionErrorAuthenticationCancelled
+                                                  message:kAuthCancelledErrorMessage];
+          } else {
+              // Error in the auth flow
+              
+              signInError = [self NSErrorForErrorCodeAndMessage:FIRAppDistributionErrorAuthenticationFailure
+                                                  message:kAuthErrorMessage];
+          }
+
+          completion(signInError);
+          return;
+      }
+    
     self.authState = authState;
 
     // Capture errors in persistence but do not bubble them
@@ -270,7 +289,7 @@ NSString *const kAuthErrorMessage = @"Unable to authenticate the tester";
       NSLog(@"Error persisting token to keychain: %@", [error localizedDescription]);
     }
     self.isTesterSignedIn = self.authState ? YES : NO;
-    completion(error);
+    completion(nil);
   };
 
   // performs authentication request
@@ -310,6 +329,17 @@ NSString *const kAuthErrorMessage = @"Unable to authenticate the tester";
                           JSONObjectWithData:data
                           options:0
                           error:&error];
+    
+    if(error) {
+        NSString *message = error.userInfo[NSLocalizedDescriptionKey] ? error.userInfo[NSLocalizedDescriptionKey] : @"";
+        NSError *error = [self NSErrorForErrorCodeAndMessage:FIRAppDistributionErrorUnknown
+                                            message:message];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            completion(nil, error);
+        });
+        
+        return;
+    }
 
     NSArray *releaseList = [serializedResponse objectForKey:kReleasesKey];
     for (NSDictionary *releaseDict in releaseList) {
