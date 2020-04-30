@@ -38,6 +38,7 @@ enum FirebasePods: String, CaseIterable {
   case performance = "FirebasePerformance"
   case remoteConfig = "FirebaseRemoteConfig"
   case storage = "FirebaseStorage"
+  case appdistribution = "FirebaseAppDistribution"
 
   /// Describes the dependency on other frameworks for the README file.
   static func readmeHeader(podName: String) -> String {
