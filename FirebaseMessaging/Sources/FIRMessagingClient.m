@@ -195,7 +195,8 @@ static NSUInteger FIRMessagingServerPort() {
                                  shouldDelete:shouldDelete
                                       handler:completion];
   } else {
-    NSString *failureReason = @"Device check in error, no auth credentials found";
+    NSString *failureReason = @"Device ID and checkin info is not found. Will not proceed with "
+                              @"subscription/unsubscription.";
     FIRMessagingLoggerDebug(kFIRMessagingMessageCodeRegistrar000, @"%@", failureReason);
     NSError *error = [NSError messagingErrorWithCode:kFIRMessagingErrorCodeMissingDeviceID
                                        failureReason:failureReason];
@@ -267,8 +268,10 @@ static NSUInteger FIRMessagingServerPort() {
 
 - (void)connectWithHandler:(FIRMessagingConnectCompletionHandler)handler {
   if (self.isConnected) {
-    NSError *error = [NSError messagingErrorWithCode:kFIRMessagingErrorCodeAlreadyConnected
-                                       failureReason:@"FIRMessaging is already connected"];
+    NSError *error =
+        [NSError messagingErrorWithCode:kFIRMessagingErrorCodeAlreadyConnected
+                          failureReason:
+                              @"FIRMessaging is already connected. Will not try to connect again."];
     handler(error);
     return;
   }

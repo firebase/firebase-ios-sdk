@@ -610,11 +610,11 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 - (void)deleteFCMTokenForSenderID:(nonnull NSString *)senderID
                        completion:(nonnull FIRMessagingDeleteFCMTokenCompletion)completion {
   if (!senderID.length) {
-    FIRMessagingLoggerError(kFIRMessagingMessageCodeSenderIDNotSuppliedForTokenDelete,
-                            @"Sender ID not supplied. It is required to delete an FCM token.");
+    NSString *description = @"Couldn't delete token because a Sender ID was not supplied. A "
+                            @"valid Sender ID is required to delete an FCM token";
+    FIRMessagingLoggerError(kFIRMessagingMessageCodeSenderIDNotSuppliedForTokenDelete, @"%@",
+                            description);
     if (completion) {
-      NSString *description = @"Couldn't delete token because a Sender ID was not supplied. A "
-                              @"valid Sender ID is required to delete an FCM token";
       NSError *error = [NSError
           messagingErrorWithCode:(FIRMessagingInternalErrorCode)FIRMessagingErrorInvalidRequest
                    failureReason:description];
