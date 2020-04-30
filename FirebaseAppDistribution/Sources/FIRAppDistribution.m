@@ -190,13 +190,15 @@ NSString *const kAppDistroLibraryName = @"fire-fad";
                responseType:OIDResponseTypeCode
        additionalParameters:nil];
 
-  [self createUIWindowForLogin];
+  [self setupUIWindowForLogin];
   // performs authentication request
   [FIRAppDistributionAppDelegatorInterceptor sharedInstance].currentAuthorizationFlow =
       [OIDAuthState authStateByPresentingAuthorizationRequest:request
                                      presentingViewController:self.safariHostingViewController
                                                      callback:^(OIDAuthState *_Nullable authState,
                                                                 NSError *_Nullable error) {
+                                                       [self cleanupUIWindow];
+
                                                        self.authState = authState;
                                                        self.isTesterSignedIn =
                                                            self.authState ? YES : NO;
@@ -204,18 +206,26 @@ NSString *const kAppDistroLibraryName = @"fire-fad";
                                                      }];
 }
 
-- (UIWindow *)createUIWindowForLogin {
+- (void)setupUIWindowForLogin {
+  if (self.window) {
+    return;
+  }
   // Create an empty window + viewController to host the Safari UI.
-  UIWindow *window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
-  window.rootViewController = self.safariHostingViewController;
+  self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+  self.window.rootViewController = self.safariHostingViewController;
 
   // Place it at the highest level within the stack.
-  window.windowLevel = +CGFLOAT_MAX;
+  self.window.windowLevel = +CGFLOAT_MAX;
 
   // Run it.
-  [window makeKeyAndVisible];
+  [self.window makeKeyAndVisible];
+}
 
-  return window;
+- (void)cleanupUIWindow {
+  if (self.window) {
+    self.window.hidden = YES;
+    self.window = nil;
+  }
 }
 
 - (void)handleReleasesAPIResponseWithData:data
@@ -255,9 +265,6 @@ NSString *const kAppDistroLibraryName = @"fire-fad";
                                  style:UIAlertActionStyleDefault
                                handler:^(UIAlertAction *action) {
                                  [self signInTesterWithCompletion:^(NSError *_Nullable error) {
-                                   self.window.hidden = YES;
-                                   self.window = nil;
-
                                    if (error) {
                                      completion(nil, error);
                                      return;
@@ -271,8 +278,7 @@ NSString *const kAppDistroLibraryName = @"fire-fad";
                                                        style:UIAlertActionStyleDefault
                                                      handler:^(UIAlertAction *action) {
                                                        // precaution to ensure window gets destroyed
-                                                       self.window.hidden = YES;
-                                                       self.window = nil;
+                                                       [self cleanupUIWindow];
                                                        completion(nil, nil);
                                                      }];
 
@@ -280,7 +286,7 @@ NSString *const kAppDistroLibraryName = @"fire-fad";
     [alert addAction:yesButton];
 
     // Create an empty window + viewController to host the Safari UI.
-    self.window = [self createUIWindowForLogin];
+    [self setupUIWindowForLogin];
     [self.window.rootViewController presentViewController:alert animated:YES completion:nil];
   }
 }
