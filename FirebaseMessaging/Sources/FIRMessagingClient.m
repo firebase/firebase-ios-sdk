@@ -494,7 +494,7 @@ static NSUInteger FIRMessagingServerPort() {
     // disconnect before issuing a callback
     [self disconnectWithTryToConnectLater:YES];
     NSError *error =
-        [NSError messagingErrorWithCode:(FIRMessagingInternalErrorCode)FIRMessagingErrorNetwork
+        [NSError messagingErrorWithCode:kFIRMessagingErrorCodeNetwork
                           failureReason:@"No internet available, cannot connect to FIRMessaging"];
     if (handler) {
       handler(error);

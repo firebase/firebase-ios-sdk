@@ -216,8 +216,7 @@ NSString *FIRMessagingSubscriptionsServer() {
           NSString *failureReason = @"Invalid registration response - zero length.";
           FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTopicOperationEmptyResponse, @"%@",
                                   failureReason);
-          [self finishWithError:[NSError messagingErrorWithCode:(FIRMessagingInternalErrorCode)
-                                                                    FIRMessagingErrorUnknown
+          [self finishWithError:[NSError messagingErrorWithCode:kFIRMessagingErrorCodeUnknown
                                                   failureReason:failureReason]];
           return;
         }
@@ -227,8 +226,7 @@ NSString *FIRMessagingSubscriptionsServer() {
               stringWithFormat:@"Invalid registration response :'%@'. It is missing 'token' field.",
                                response];
           FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTopicOption002, @"%@", failureReason);
-          [self finishWithError:[NSError messagingErrorWithCode:(FIRMessagingInternalErrorCode)
-                                                                    FIRMessagingErrorUnknown
+          [self finishWithError:[NSError messagingErrorWithCode:kFIRMessagingErrorCodeUnknown
                                                   failureReason:failureReason]];
           return;
         }

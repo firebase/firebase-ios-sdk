@@ -583,9 +583,8 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
     FIRMessagingLoggerError(kFIRMessagingMessageCodeSenderIDNotSuppliedForTokenFetch, @"%@",
                             description);
     if (completion) {
-      NSError *error = [NSError
-          messagingErrorWithCode:(FIRMessagingInternalErrorCode)FIRMessagingErrorInvalidRequest
-                   failureReason:description];
+      NSError *error = [NSError messagingErrorWithCode:kFIRMessagingErrorCodeInvalidRequest
+                                         failureReason:description];
       completion(nil, error);
     }
     return;
@@ -615,9 +614,8 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
     FIRMessagingLoggerError(kFIRMessagingMessageCodeSenderIDNotSuppliedForTokenDelete, @"%@",
                             description);
     if (completion) {
-      NSError *error = [NSError
-          messagingErrorWithCode:(FIRMessagingInternalErrorCode)FIRMessagingErrorInvalidRequest
-                   failureReason:description];
+      NSError *error = [NSError messagingErrorWithCode:kFIRMessagingErrorCodeInvalidRequest
+                                         failureReason:description];
       completion(error);
     }
     return;
@@ -791,9 +789,8 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
         [NSString stringWithFormat:@"Cannot parse topic name: '%@'. Will not subscribe.", topic];
     FIRMessagingLoggerError(kFIRMessagingMessageCodeMessaging009, @"%@", failureReason);
     if (completion) {
-      completion([NSError
-          messagingErrorWithCode:(FIRMessagingInternalErrorCode)FIRMessagingErrorInvalidTopicName
-                   failureReason:failureReason]);
+      completion([NSError messagingErrorWithCode:kFIRMessagingErrorCodeInvalidTopicName
+                                   failureReason:failureReason]);
     }
   }];
 }
@@ -832,9 +829,8 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
         [NSString stringWithFormat:@"Cannot parse topic name: '%@'. Will not unsubscribe.", topic];
     FIRMessagingLoggerError(kFIRMessagingMessageCodeMessaging011, @"%@", failureReason);
     if (completion) {
-      completion([NSError
-          messagingErrorWithCode:(FIRMessagingInternalErrorCode)FIRMessagingErrorInvalidTopicName
-                   failureReason:failureReason]);
+      completion([NSError messagingErrorWithCode:kFIRMessagingErrorCodeInvalidTopicName
+                                   failureReason:failureReason]);
     }
   }];
 }

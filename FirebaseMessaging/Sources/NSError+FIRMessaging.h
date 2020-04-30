@@ -22,24 +22,24 @@ NS_ASSUME_NONNULL_BEGIN
 
 FOUNDATION_EXPORT NSString *const kFIRMessagingDomain;
 
-typedef NS_ENUM(NSUInteger, FIRMessagingInternalErrorCode) {
-  // Unknown error.
+// FIRMessaging Internal Error Code
+typedef NS_ENUM(NSUInteger, FIRMessagingErrorCode) {
   kFIRMessagingErrorCodeUnknown = 0,
 
   kFIRMessagingErrorCodeNetwork = 4,
 
   kFIRMessagingErrorCodeInvalidRequest = 7,
 
-  kFIRMessagingErrorInvalidTopicName = 8,
+  kFIRMessagingErrorCodeInvalidTopicName = 8,
 
   // FIRMessaging generic errors
   kFIRMessagingErrorCodeMissingDeviceID = 501,
 
   // Upstream send errors
-  kFIRMessagingErrorServiceNotAvailable = 1001,
-  kFIRMessagingErrorMissingTo = 1003,
-  kFIRMessagingErrorSave = 1004,
-  kFIRMessagingErrorSizeExceeded = 1005,
+  kFIRMessagingErrorCodeServiceNotAvailable = 1001,
+  kFIRMessagingErrorCodeMissingTo = 1003,
+  kFIRMessagingErrorCodeSave = 1004,
+  kFIRMessagingErrorCodeSizeExceeded = 1005,
 
   // Already connected with MCS
   kFIRMessagingErrorCodeAlreadyConnected = 2001,
@@ -51,7 +51,7 @@ typedef NS_ENUM(NSUInteger, FIRMessagingInternalErrorCode) {
 
 @interface NSError (FIRMessaging)
 
-+ (NSError *)messagingErrorWithCode:(FIRMessagingInternalErrorCode)fcmErrorCode
++ (NSError *)messagingErrorWithCode:(FIRMessagingErrorCode)fcmErrorCode
                       failureReason:(NSString *)failureReason;
 
 @end

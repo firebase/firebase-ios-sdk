@@ -79,9 +79,8 @@ static NSString *const kPendingSubscriptionsListKey =
     NSString *failureReason =
         [NSString stringWithFormat:@"Invalid subscription topic :'%@'", topic];
     FIRMessagingLoggerError(kFIRMessagingMessageCodePubSub000, @"%@", failureReason);
-    handler([NSError
-        messagingErrorWithCode:(FIRMessagingInternalErrorCode)FIRMessagingErrorInvalidTopicName
-                 failureReason:failureReason]);
+    handler([NSError messagingErrorWithCode:kFIRMessagingErrorCodeInvalidTopicName
+                              failureReason:failureReason]);
     return;
   }
 
@@ -124,9 +123,8 @@ static NSString *const kPendingSubscriptionsListKey =
     NSString *failureReason =
         [NSString stringWithFormat:@"Invalid topic name : '%@' for unsubscription.", topic];
     FIRMessagingLoggerError(kFIRMessagingMessageCodePubSub002, @"%@", failureReason);
-    handler([NSError
-        messagingErrorWithCode:(FIRMessagingInternalErrorCode)FIRMessagingErrorInvalidTopicName
-                 failureReason:failureReason]);
+    handler([NSError messagingErrorWithCode:kFIRMessagingErrorCodeInvalidTopicName
+                              failureReason:failureReason]);
     return;
   }
   if (![self verifyPubSubOptions:options]) {
