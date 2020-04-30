@@ -216,7 +216,8 @@ NSString *FIRMessagingSubscriptionsServer() {
           NSString *failureReason = @"Invalid registration response - zero length.";
           FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTopicOperationEmptyResponse, @"%@",
                                   failureReason);
-          [self finishWithError:[NSError messagingErrorWithCode:kFIRMessagingErrorCodeUnknown
+          [self finishWithError:[NSError messagingErrorWithCode:(FIRMessagingInternalErrorCode)
+                                                                    FIRMessagingErrorUnknown
                                                   failureReason:failureReason]];
           return;
         }
@@ -225,7 +226,8 @@ NSString *FIRMessagingSubscriptionsServer() {
           NSString *failureReason =
               [NSString stringWithFormat:@"Invalid registration response %@", response];
           FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTopicOption002, @"%@", failureReason);
-          [self finishWithError:[NSError messagingErrorWithCode:kFIRMessagingErrorCodeUnknown
+          [self finishWithError:[NSError messagingErrorWithCode:(FIRMessagingInternalErrorCode)
+                                                                    FIRMessagingErrorUnknown
                                                   failureReason:failureReason]];
           return;
         }

@@ -24,38 +24,25 @@ typedef NS_ENUM(NSUInteger, FIRMessagingInternalErrorCode) {
   // Unknown error.
   kFIRMessagingErrorCodeUnknown = 0,
 
-  // HTTP related errors.
-  kFIRMessagingErrorCodeAuthentication = 1,
-  kFIRMessagingErrorCodeNoAccess = 2,
-  kFIRMessagingErrorCodeTimeout = 3,
   kFIRMessagingErrorCodeNetwork = 4,
 
-  // Another operation is in progress.
-  kFIRMessagingErrorCodeOperationInProgress = 5,
-
-  // Failed to perform device check in.
-  kFIRMessagingErrorCodeRegistrarFailedToCheckIn = 6,
-
   kFIRMessagingErrorCodeInvalidRequest = 7,
+
+  kFIRMessagingErrorInvalidTopicName = 8,
 
   // FIRMessaging generic errors
   kFIRMessagingErrorCodeMissingDeviceID = 501,
 
   // Upstream send errors
   kFIRMessagingErrorServiceNotAvailable = 1001,
-  kFIRMessagingErrorInvalidParameters = 1002,
   kFIRMessagingErrorMissingTo = 1003,
   kFIRMessagingErrorSave = 1004,
   kFIRMessagingErrorSizeExceeded = 1005,
 
-  // MCS errors
   // Already connected with MCS
   kFIRMessagingErrorCodeAlreadyConnected = 2001,
 
   // PubSub errors
-  kFIRMessagingErrorCodePubSubAlreadySubscribed = 3001,
-  kFIRMessagingErrorCodePubSubAlreadyUnsubscribed = 3002,
-  kFIRMessagingErrorCodePubSubInvalidTopic = 3003,
   kFIRMessagingErrorCodePubSubClientNotSetup = 3004,
   kFIRMessagingErrorCodePubSubOperationIsCancelled = 3005,
 };

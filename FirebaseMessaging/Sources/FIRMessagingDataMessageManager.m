@@ -322,7 +322,9 @@ typedef NS_ENUM(int8_t, UpstreamForceReconnect) {
       NSString *event __unused = [NSString stringWithFormat:@"Queued message: %@", [stanza id_p]];
       FIRMessagingLoggerDebug(kFIRMessagingMessageCodeDataMessageManager007, @"%@", event);
     } else {
-      [self willSendDataMessageFail:stanza withMessageId:msgId error:kFIRMessagingErrorCodeNetwork];
+      [self willSendDataMessageFail:stanza
+                      withMessageId:msgId
+                              error:(FIRMessagingInternalErrorCode)FIRMessagingErrorNetwork];
       return;
     }
   }
