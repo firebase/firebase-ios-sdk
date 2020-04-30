@@ -22,7 +22,45 @@
 
   @available(iOS 13.0, macOS 10.15, tvOS 13.0, *)
   extension Query {
-    
+    /**
+     * Reads the documents matching this query.
+     *
+     * This method returns a publisher that yields an array
+     * of `QuerySnapshot`s, requiring the user to extract the underlying
+     * `DocumentSnapshot`s before using them:
+     *
+     * ```
+     * let noBooks = [Book]()
+     * db.collection("books").getDocuments()
+     *   .map { querySnapshot in
+     *     querySnapshot.documents.compactMap { (queryDocumentSnapshot) in
+     *       return try? queryDocumentSnapshot.data(as: Book.self)
+     *     }
+     *   }
+     *   .replaceError(with: noBooks)
+     *   .assign(to: \.books, on: self)
+     *   .store(in: &cancellables)
+     * ```
+     */
+    public func getDocuments() -> AnyPublisher<QuerySnapshot, Error> {
+      Future<QuerySnapshot, Error> { [weak self] promise in
+        self?.getDocuments { querySnapshot, error in
+          if let error = error {
+            promise(.failure(error))
+          } else if let querySnapshot = querySnapshot {
+            promise(.success(querySnapshot))
+          } else {
+            promise(.failure(NSError(domain: "FirebaseFirestoreSwift",
+                                     code: -1,
+                                     userInfo: [NSLocalizedDescriptionKey:
+                                       "InternalError - Return type and Error code both nil in " +
+                                       "getDocuments publisher"])))
+          }
+        }
+      }
+      .eraseToAnyPublisher()
+    }
+
     public struct QuerySnapshotPublisher: Publisher {
       public typealias Output = QuerySnapshot
       public typealias Failure = Error
