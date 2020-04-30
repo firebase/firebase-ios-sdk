@@ -78,7 +78,7 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
   if (authRetrievalError) {
     NSLog(@"Error retrieving token from keychain: %@", [authRetrievalError localizedDescription]);
   } else {
-    NSLog(@"Successfully retrieved auth token from keychain on initilization");
+    NSLog(@"Successfully retrieved auth token from keychain on initialization");
   }
 
   self.isTesterSignedIn = self.authState ? YES : NO;
