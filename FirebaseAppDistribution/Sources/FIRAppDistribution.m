@@ -363,6 +363,7 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
                                                                        error:&error];
 
   if (error) {
+    NSLog(@"Tester API - Error serializing json response");
     NSString *message =
         error.userInfo[NSLocalizedDescriptionKey] ? error.userInfo[NSLocalizedDescriptionKey] : @"";
     NSError *error = [self NSErrorForErrorCodeAndMessage:FIRAppDistributionErrorUnknown
@@ -377,15 +378,19 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
   NSArray *releaseList = [serializedResponse objectForKey:kReleasesKey];
   for (NSDictionary *releaseDict in releaseList) {
     if ([[releaseDict objectForKey:kLatestReleaseKey] boolValue]) {
+      NSLog(@"Tester API - found latest release in response. Checking if code hash match");
       NSString *codeHash = [releaseDict objectForKey:kCodeHashKey];
       NSString *executablePath = [[NSBundle mainBundle] executablePath];
       FIRAppDistributionMachO *machO =
           [[FIRAppDistributionMachO alloc] initWithPath:executablePath];
 
+      NSLog(@"Code hash for the app on device - %s", machO.codeHash);
+      NSLog(@"Code hash for the release from the service response - %s", codeHash);
       if (codeHash && ![codeHash isEqualToString:machO.codeHash]) {
         FIRAppDistributionRelease *release =
             [[FIRAppDistributionRelease alloc] initWithDictionary:releaseDict];
         dispatch_async(dispatch_get_main_queue(), ^{
+          NSLog(@"Found new release");
           completion(release, nil);
         });
 
@@ -396,6 +401,7 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
     }
   }
 
+  NSLog(@"Tester API - No new release found");
   dispatch_async(dispatch_get_main_queue(), ^{
     completion(nil, nil);
   });
