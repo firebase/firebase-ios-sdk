@@ -37,7 +37,7 @@ else
   scheme="$pod"
 fi
 
-bundle exec pod gen --local-sources=./ --sources=https://cdn.cocoapods.org/ \
+bundle exec pod gen --local-sources=./ --sources=https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org/ \
   "$pod".podspec --platforms=ios
 
 args=(
@@ -57,4 +57,5 @@ args=(
   "CODE_SIGN_IDENTITY=-" "CODE_SIGNING_REQUIRED=NO" "CODE_SIGNING_ALLOWED=NO"
 )
 
+xcodebuild -version
 xcodebuild "${args[@]}" | xcpretty

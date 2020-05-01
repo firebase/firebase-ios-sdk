@@ -120,8 +120,10 @@ NSString *FIRMessagingSubscriptionsServer() {
 
 - (void)start {
   if (self.isCancelled) {
-    NSError *error =
-        [NSError errorWithFCMErrorCode:kFIRMessagingErrorCodePubSubOperationIsCancelled];
+    NSError *error = [NSError
+        messagingErrorWithCode:kFIRMessagingErrorCodePubSubOperationIsCancelled
+                 failureReason:
+                     @"Failed to start the pubsub service as the topic operation is cancelled."];
     [self finishWithError:error];
     return;
   }
@@ -148,7 +150,8 @@ NSString *FIRMessagingSubscriptionsServer() {
 - (void)cancel {
   [super cancel];
   [self.dataTask cancel];
-  NSError *error = [NSError errorWithFCMErrorCode:kFIRMessagingErrorCodePubSubOperationIsCancelled];
+  NSError *error = [NSError messagingErrorWithCode:kFIRMessagingErrorCodePubSubOperationIsCancelled
+                                     failureReason:@"The topic operation is cancelled."];
   [self finishWithError:error];
 }
 
@@ -210,16 +213,21 @@ NSString *FIRMessagingSubscriptionsServer() {
         }
         NSString *response = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
         if (response.length == 0) {
-          FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTopicOperationEmptyResponse,
-                                  @"Invalid registration response - zero length.");
-          [self finishWithError:[NSError errorWithFCMErrorCode:kFIRMessagingErrorCodeUnknown]];
+          NSString *failureReason = @"Invalid registration response - zero length.";
+          FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTopicOperationEmptyResponse, @"%@",
+                                  failureReason);
+          [self finishWithError:[NSError messagingErrorWithCode:kFIRMessagingErrorCodeUnknown
+                                                  failureReason:failureReason]];
           return;
         }
         NSArray *parts = [response componentsSeparatedByString:@"="];
         if (![parts[0] isEqualToString:@"token"] || parts.count <= 1) {
-          FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTopicOption002,
-                                  @"Invalid registration response %@", response);
-          [self finishWithError:[NSError errorWithFCMErrorCode:kFIRMessagingErrorCodeUnknown]];
+          NSString *failureReason = [NSString
+              stringWithFormat:@"Invalid registration response :'%@'. It is missing 'token' field.",
+                               response];
+          FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTopicOption002, @"%@", failureReason);
+          [self finishWithError:[NSError messagingErrorWithCode:kFIRMessagingErrorCodeUnknown
+                                                  failureReason:failureReason]];
           return;
         }
         [self finishWithError:nil];

@@ -161,7 +161,7 @@ static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
                                                      if ([obj isKindOfClass:[NSError class]]) {
                                                        NSError *error = (NSError *)obj;
                                                        return error.code ==
-                                                              kFIRMessagingErrorMissingTo;
+                                                              kFIRMessagingErrorCodeMissingTo;
                                                      }
                                                      return NO;
                                                    }]]);
@@ -190,7 +190,7 @@ static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
                                                      if ([obj isKindOfClass:[NSError class]]) {
                                                        NSError *error = (NSError *)obj;
                                                        return error.code ==
-                                                              kFIRMessagingErrorSizeExceeded;
+                                                              kFIRMessagingErrorCodeSizeExceeded;
                                                      }
                                                      return NO;
                                                    }]]);
@@ -214,7 +214,8 @@ static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
                                                    error:[OCMArg checkWithBlock:^BOOL(id obj) {
                                                      if ([obj isKindOfClass:[NSError class]]) {
                                                        NSError *error = (NSError *)obj;
-                                                       return error.code == kFIRMessagingErrorSave;
+                                                       return error.code ==
+                                                              kFIRMessagingErrorCodeSave;
                                                      }
                                                      return NO;
                                                    }]]);

@@ -46,7 +46,8 @@ while url.path != "/", url.lastPathComponent != "firebase-ios-sdk" {
 
 let repo = url
 let lines = fileContents.components(separatedBy: .newlines)
-var outBuffer = ""
+var outBuffer = "source 'https://github.com/firebase/SpecsStaging.git'\n" +
+  "source 'https://cdn.cocoapods.org/'\n"
 for line in lines {
   var newLine = line
   let tokens = line.components(separatedBy: [" ", ","] as CharacterSet)

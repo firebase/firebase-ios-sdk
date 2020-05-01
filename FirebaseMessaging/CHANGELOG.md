@@ -1,3 +1,9 @@
+# unreleased
+- [changed] Updated NSError with a failure reason to give more details on the error.
+
+# 2020-04 -- v4.4.0
+- [changed] Changed the location of source under FirebaseMessaging folder to fit the current repository organization.
+
 # 2020-04 -- v4.3.1
 - [fixed] Fixed an issue that when a token is deleted, the token refresh notificaiton and delegate is not triggered. (#5338)
 
