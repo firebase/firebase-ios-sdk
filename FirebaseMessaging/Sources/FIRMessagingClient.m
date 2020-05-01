@@ -195,9 +195,11 @@ static NSUInteger FIRMessagingServerPort() {
                                  shouldDelete:shouldDelete
                                       handler:completion];
   } else {
-    FIRMessagingLoggerDebug(kFIRMessagingMessageCodeRegistrar000,
-                            @"Device check in error, no auth credentials found");
-    NSError *error = [NSError errorWithFCMErrorCode:kFIRMessagingErrorCodeMissingDeviceID];
+    NSString *failureReason = @"Device ID and checkin info is not found. Will not proceed with "
+                              @"subscription/unsubscription.";
+    FIRMessagingLoggerDebug(kFIRMessagingMessageCodeRegistrar000, @"%@", failureReason);
+    NSError *error = [NSError messagingErrorWithCode:kFIRMessagingErrorCodeMissingDeviceID
+                                       failureReason:failureReason];
     handler(error);
   }
 }
@@ -267,10 +269,9 @@ static NSUInteger FIRMessagingServerPort() {
 - (void)connectWithHandler:(FIRMessagingConnectCompletionHandler)handler {
   if (self.isConnected) {
     NSError *error =
-        [NSError fcm_errorWithCode:kFIRMessagingErrorCodeAlreadyConnected
-                          userInfo:@{
-                            NSLocalizedFailureReasonErrorKey : @"FIRMessaging is already connected",
-                          }];
+        [NSError messagingErrorWithCode:kFIRMessagingErrorCodeAlreadyConnected
+                          failureReason:
+                              @"FIRMessaging is already connected. Will not try to connect again."];
     handler(error);
     return;
   }
@@ -290,12 +291,13 @@ static NSUInteger FIRMessagingServerPort() {
   self.stayConnected = YES;
   if (![[FIRInstanceID instanceID] tryToLoadValidCheckinInfo]) {
     // Checkin info is not available. This may be due to the checkin still being fetched.
+    NSString *failureReason = @"Failed to connect to MCS. No deviceID and secret found.";
     if (self.connectHandler) {
-      NSError *error = [NSError errorWithFCMErrorCode:kFIRMessagingErrorCodeMissingDeviceID];
+      NSError *error = [NSError messagingErrorWithCode:kFIRMessagingErrorCodeMissingDeviceID
+                                         failureReason:failureReason];
       self.connectHandler(error);
     }
-    FIRMessagingLoggerDebug(kFIRMessagingMessageCodeClient009,
-                            @"Failed to connect to MCS. No deviceID and secret found.");
+    FIRMessagingLoggerDebug(kFIRMessagingMessageCodeClient009, @"%@", failureReason);
     // Return for now. If checkin is, in fact, retrieved, the
     // |kFIRMessagingCheckinFetchedNotification| will be fired.
     return;
@@ -492,9 +494,8 @@ static NSUInteger FIRMessagingServerPort() {
     // disconnect before issuing a callback
     [self disconnectWithTryToConnectLater:YES];
     NSError *error =
-        [NSError errorWithDomain:@"No internet available, cannot connect to FIRMessaging"
-                            code:kFIRMessagingErrorCodeNetwork
-                        userInfo:nil];
+        [NSError messagingErrorWithCode:kFIRMessagingErrorCodeNetwork
+                          failureReason:@"No internet available, cannot connect to FIRMessaging"];
     if (handler) {
       handler(error);
       self.connectHandler = nil;

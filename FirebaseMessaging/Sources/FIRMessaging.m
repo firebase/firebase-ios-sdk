@@ -578,14 +578,13 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 - (void)retrieveFCMTokenForSenderID:(nonnull NSString *)senderID
                          completion:(nonnull FIRMessagingFCMTokenFetchCompletion)completion {
   if (!senderID.length) {
-    FIRMessagingLoggerError(kFIRMessagingMessageCodeSenderIDNotSuppliedForTokenFetch,
-                            @"Sender ID not supplied. It is required for a token fetch, "
-                            @"to identify the sender.");
+    NSString *description = @"Couldn't fetch token because a Sender ID was not supplied. A valid "
+                            @"Sender ID is required to fetch an FCM token";
+    FIRMessagingLoggerError(kFIRMessagingMessageCodeSenderIDNotSuppliedForTokenFetch, @"%@",
+                            description);
     if (completion) {
-      NSString *description = @"Couldn't fetch token because a Sender ID was not supplied. A valid "
-                              @"Sender ID is required to fetch an FCM token";
-      NSError *error = [NSError fcm_errorWithCode:FIRMessagingErrorInvalidRequest
-                                         userInfo:@{NSLocalizedDescriptionKey : description}];
+      NSError *error = [NSError messagingErrorWithCode:kFIRMessagingErrorCodeInvalidRequest
+                                         failureReason:description];
       completion(nil, error);
     }
     return;
@@ -610,13 +609,13 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 - (void)deleteFCMTokenForSenderID:(nonnull NSString *)senderID
                        completion:(nonnull FIRMessagingDeleteFCMTokenCompletion)completion {
   if (!senderID.length) {
-    FIRMessagingLoggerError(kFIRMessagingMessageCodeSenderIDNotSuppliedForTokenDelete,
-                            @"Sender ID not supplied. It is required to delete an FCM token.");
+    NSString *description = @"Couldn't delete token because a Sender ID was not supplied. A "
+                            @"valid Sender ID is required to delete an FCM token";
+    FIRMessagingLoggerError(kFIRMessagingMessageCodeSenderIDNotSuppliedForTokenDelete, @"%@",
+                            description);
     if (completion) {
-      NSString *description = @"Couldn't delete token because a Sender ID was not supplied. A "
-                              @"valid Sender ID is required to delete an FCM token";
-      NSError *error = [NSError fcm_errorWithCode:FIRMessagingErrorInvalidRequest
-                                         userInfo:@{NSLocalizedDescriptionKey : description}];
+      NSError *error = [NSError messagingErrorWithCode:kFIRMessagingErrorCodeInvalidRequest
+                                         failureReason:description];
       completion(error);
     }
     return;
@@ -786,10 +785,12 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
       [strongSelf.pubsub subscribeToTopic:normalizeTopic handler:completion];
       return;
     }
-    FIRMessagingLoggerError(kFIRMessagingMessageCodeMessaging009,
-                            @"Cannot parse topic name %@. Will not subscribe.", topic);
+    NSString *failureReason =
+        [NSString stringWithFormat:@"Cannot parse topic name: '%@'. Will not subscribe.", topic];
+    FIRMessagingLoggerError(kFIRMessagingMessageCodeMessaging009, @"%@", failureReason);
     if (completion) {
-      completion([NSError fcm_errorWithCode:FIRMessagingErrorInvalidTopicName userInfo:nil]);
+      completion([NSError messagingErrorWithCode:kFIRMessagingErrorCodeInvalidTopicName
+                                   failureReason:failureReason]);
     }
   }];
 }
@@ -824,10 +825,12 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
       [strongSelf.pubsub unsubscribeFromTopic:normalizeTopic handler:completion];
       return;
     }
-    FIRMessagingLoggerError(kFIRMessagingMessageCodeMessaging011,
-                            @"Cannot parse topic name %@. Will not unsubscribe.", topic);
+    NSString *failureReason =
+        [NSString stringWithFormat:@"Cannot parse topic name: '%@'. Will not unsubscribe.", topic];
+    FIRMessagingLoggerError(kFIRMessagingMessageCodeMessaging011, @"%@", failureReason);
     if (completion) {
-      completion([NSError fcm_errorWithCode:FIRMessagingErrorInvalidTopicName userInfo:nil]);
+      completion([NSError messagingErrorWithCode:kFIRMessagingErrorCodeInvalidTopicName
+                                   failureReason:failureReason]);
     }
   }];
 }

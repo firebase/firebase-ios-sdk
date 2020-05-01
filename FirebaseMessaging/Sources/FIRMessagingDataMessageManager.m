@@ -274,7 +274,7 @@ typedef NS_ENUM(int8_t, UpstreamForceReconnect) {
   }
 
   if (![to length]) {
-    [self willSendDataMessageFail:stanza withMessageId:msgId error:kFIRMessagingErrorMissingTo];
+    [self willSendDataMessageFail:stanza withMessageId:msgId error:kFIRMessagingErrorCodeMissingTo];
     return;
   }
   [stanza setTo:to];
@@ -288,7 +288,9 @@ typedef NS_ENUM(int8_t, UpstreamForceReconnect) {
 
   int size = [self addData:dataMessage[KFIRMessagingSendMessageAppData] toStanza:stanza];
   if (size > kMaxAppDataSizeDefault) {
-    [self willSendDataMessageFail:stanza withMessageId:msgId error:kFIRMessagingErrorSizeExceeded];
+    [self willSendDataMessageFail:stanza
+                    withMessageId:msgId
+                            error:kFIRMessagingErrorCodeSizeExceeded];
     return;
   }
 
@@ -299,7 +301,7 @@ typedef NS_ENUM(int8_t, UpstreamForceReconnect) {
                  if (!success) {
                    [self willSendDataMessageFail:stanza
                                    withMessageId:msgId
-                                           error:kFIRMessagingErrorSave];
+                                           error:kFIRMessagingErrorCodeSave];
                    return;
                  }
                  [self willSendDataMessageSuccess:stanza withMessageId:msgId];
@@ -403,11 +405,12 @@ typedef NS_ENUM(int8_t, UpstreamForceReconnect) {
  */
 - (void)willSendDataMessageFail:(GtalkDataMessageStanza *)stanza
                   withMessageId:(NSString *)messageId
-                          error:(FIRMessagingInternalErrorCode)errorCode {
-  FIRMessagingLoggerDebug(kFIRMessagingMessageCodeDataMessageManager011,
-                          @"Send message fail: %@ error: %lu", messageId, (unsigned long)errorCode);
+                          error:(FIRMessagingErrorCode)errorCode {
+  NSString *failureReason = [NSString
+      stringWithFormat:@"Send message fail: %@ error: %lu", messageId, (unsigned long)errorCode];
+  FIRMessagingLoggerDebug(kFIRMessagingMessageCodeDataMessageManager011, @"%@", failureReason);
 
-  NSError *error = [NSError errorWithFCMErrorCode:errorCode];
+  NSError *error = [NSError messagingErrorWithCode:errorCode failureReason:failureReason];
   if ([self.delegate respondsToSelector:@selector(willSendDataMessageWithID:error:)]) {
     [self.delegate willSendDataMessageWithID:messageId error:error];
   }
@@ -459,7 +462,7 @@ typedef NS_ENUM(int8_t, UpstreamForceReconnect) {
   if (now > message.sent + message.ttl) {
     [self willSendDataMessageFail:message
                     withMessageId:message.id_p
-                            error:kFIRMessagingErrorServiceNotAvailable];
+                            error:kFIRMessagingErrorCodeServiceNotAvailable];
     return NO;
   }
   return YES;
