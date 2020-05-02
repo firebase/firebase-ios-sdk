@@ -18,7 +18,7 @@
 
 #import "FIRAuthApiTestsBase.h"
 
-static NSString *kGoogleCliendId = KGOOGLE_CLIENT_ID;
+static NSString *kGoogleClientID = KGOOGLE_CLIENT_ID;
 
 static NSString *const kGoogleTestAccountName = KGOOGLE_USER_NAME;
 
@@ -78,7 +78,7 @@ NSString *kGoogleTestAccountRefreshToken = KGOOGLE_TEST_ACCOUNT_REFRESH_TOKEN;
   NSString *googleOauth2TokenServerUrl = @"https://www.googleapis.com/oauth2/v4/token";
   NSString *bodyString =
       [NSString stringWithFormat:@"client_id=%@&grant_type=refresh_token&refresh_token=%@",
-                                 kGoogleCliendId, kGoogleTestAccountRefreshToken];
+                                 kGoogleClientID, kGoogleTestAccountRefreshToken];
   NSData *postData = [bodyString dataUsingEncoding:NSUTF8StringEncoding];
   GTMSessionFetcherService *service = [[GTMSessionFetcherService alloc] init];
   GTMSessionFetcher *fetcher = [service fetcherWithURLString:googleOauth2TokenServerUrl];

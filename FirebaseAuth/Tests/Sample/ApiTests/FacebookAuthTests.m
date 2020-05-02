@@ -96,7 +96,7 @@ static NSString *const kFacebookTestAccountName = KFACEBOOK_USER_NAME;
   [auth.currentUser linkWithCredential:credential
                             completion:^(FIRAuthDataResult *result, NSError *error) {
                               if (error) {
-                                NSLog(@"Link to Facebok error: %@", error);
+                                NSLog(@"Link to Facebook error: %@", error);
                               }
                               [expectation fulfill];
                             }];
