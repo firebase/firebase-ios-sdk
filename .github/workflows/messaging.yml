@@ -137,4 +137,4 @@ jobs:
     - name: Prereqs
       run: scripts/install_prereqs.sh MessagingSample iOS
     - name: Build
-      run: scripts/build.sh MessagingSample iOS
+      run: ([ -z $plist_secret ] || scripts/build.sh MessagingSample iOS)
