@@ -72,7 +72,7 @@ jobs:
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/FIREGSignInInfo.h.gpg \
           quickstart-ios/TestUtils/FIREGSignInInfo.h "$signin_secret"
     - name: Test quickstart
-      run: ([ -z $plist_secret ] || \
+      run: ([ -z $plist_secret ] ||
             scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Messaging)
 
   pod-lib-lint-watchos:
