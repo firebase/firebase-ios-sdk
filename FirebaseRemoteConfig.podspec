@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseRemoteConfig'
-  s.version          = '4.4.9'
+  s.version          = '4.4.10'
   s.summary          = 'Firebase Remote Config'
 
   s.description      = <<-DESC
