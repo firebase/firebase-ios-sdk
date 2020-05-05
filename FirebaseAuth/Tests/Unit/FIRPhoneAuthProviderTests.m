@@ -1138,10 +1138,10 @@ static const NSTimeInterval kExpectationTimeout = 2;
         });
       });
   // Mock receiving of push notification.
-  OCMExpect([[_mockAppCredentialManager ignoringNonObjectArgs]
-                didStartVerificationWithReceipt:OCMOCK_ANY
-                                        timeout:0
-                                       callback:OCMOCK_ANY])
+  OCMExpect([_mockAppCredentialManager didStartVerificationWithReceipt:OCMOCK_ANY
+                                                               timeout:0
+                                                              callback:OCMOCK_ANY])
+      .ignoringNonObjectArgs()
       .andCallIdDoubleIdBlock(^(NSString *receipt, NSTimeInterval timeout,
                                 FIRAuthAppCredentialCallback callback) {
         XCTAssertEqualObjects(receipt, kTestReceipt);
@@ -1254,10 +1254,10 @@ static const NSTimeInterval kExpectationTimeout = 2;
       });
 
   // Mock receiving of push notification.
-  OCMStub([[_mockAppCredentialManager ignoringNonObjectArgs]
-              didStartVerificationWithReceipt:OCMOCK_ANY
-                                      timeout:0
-                                     callback:OCMOCK_ANY])
+  OCMStub([_mockAppCredentialManager didStartVerificationWithReceipt:OCMOCK_ANY
+                                                             timeout:0
+                                                            callback:OCMOCK_ANY])
+      .ignoringNonObjectArgs()
       .andCallIdDoubleIdBlock(^(NSString *receipt, NSTimeInterval timeout,
                                 FIRAuthAppCredentialCallback callback) {
         XCTAssertEqualObjects(receipt, kTestReceipt);
@@ -1359,10 +1359,10 @@ static const NSTimeInterval kExpectationTimeout = 2;
       });
 
   // Mock receiving of push notification.
-  OCMStub([[_mockAppCredentialManager ignoringNonObjectArgs]
-              didStartVerificationWithReceipt:OCMOCK_ANY
-                                      timeout:0
-                                     callback:OCMOCK_ANY])
+  OCMStub([_mockAppCredentialManager didStartVerificationWithReceipt:OCMOCK_ANY
+                                                             timeout:0
+                                                            callback:OCMOCK_ANY])
+      .ignoringNonObjectArgs()
       .andCallIdDoubleIdBlock(^(NSString *receipt, NSTimeInterval timeout,
                                 FIRAuthAppCredentialCallback callback) {
         XCTAssertEqualObjects(receipt, kTestReceipt);
