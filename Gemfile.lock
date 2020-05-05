@@ -54,7 +54,7 @@ GEM
       nap
     cocoapods-search (1.0.0)
     cocoapods-stats (1.1.0)
-    cocoapods-trunk (1.4.1)
+    cocoapods-trunk (1.5.0)
       nap (>= 0.8, < 2.0)
       netrc (~> 0.11)
     cocoapods-try (1.1.0)
