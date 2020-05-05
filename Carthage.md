@@ -93,6 +93,7 @@ binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseStorageBinary.jso
      [upload-symbols](https://github.com/firebase/firebase-ios-sdk/raw/master/Crashlytics/upload-symbols)
      and [run](https://github.com/firebase/firebase-ios-sdk/raw/master/Crashlytics/run).
     - Put these in the directory where your `.xcodeproj` file lives, eg. `scripts/run` and `scripts/upload-symbols`
+    - Make sure that the files are executable - `chmod +x scripts/run scripts/upload-symbols`
     - Open your project in Xcode, then select its project file in the left navigator.
     - From the **Select a project or target** dropdown, select your main build target.
     - Select the **Build Phases** tab, then click "+" add > **New Run Script Phase**.

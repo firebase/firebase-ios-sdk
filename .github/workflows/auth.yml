@@ -50,6 +50,8 @@ jobs:
           FirebaseAuth/Tests/Sample/Sample/GoogleService-Info_multi.plist "$plist_secret"
         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/AuthSample/Sample.entitlements.gpg \
           FirebaseAuth/Tests/Sample/Sample/Sample.entitlements "$plist_secret"
+        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/AuthSample/Credentials.swift.gpg \
+          FirebaseAuth/Tests/Sample/SwiftApiTests/Credentials.swift "$plist_secret"
 
     - name: BuildAndTest # can be replaced with pod lib lint with CocoaPods 1.10
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/build.sh Auth iOS)

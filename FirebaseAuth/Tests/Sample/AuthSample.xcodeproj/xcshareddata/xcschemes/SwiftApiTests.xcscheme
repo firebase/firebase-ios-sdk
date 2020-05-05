@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "1020"
+   LastUpgradeVersion = "1140"
    version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -14,9 +14,9 @@
             buildForAnalyzing = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "DE800B7022A5927C00AC9A23"
-               BuildableName = "Auth_ApiTests.xctest"
-               BlueprintName = "Auth_ApiTests"
+               BlueprintIdentifier = "DEBEF6022450EA27005E1A8F"
+               BuildableName = "SwiftApiTests.xctest"
+               BlueprintName = "SwiftApiTests"
                ReferencedContainer = "container:AuthSample.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -32,9 +32,9 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "DE800B7022A5927C00AC9A23"
-               BuildableName = "Auth_ApiTests.xctest"
-               BlueprintName = "Auth_ApiTests"
+               BlueprintIdentifier = "DEBEF6022450EA27005E1A8F"
+               BuildableName = "SwiftApiTests.xctest"
+               BlueprintName = "SwiftApiTests"
                ReferencedContainer = "container:AuthSample.xcodeproj">
             </BuildableReference>
          </TestableReference>
@@ -50,15 +50,6 @@
       debugDocumentVersioning = "YES"
       debugServiceExtension = "internal"
       allowLocationSimulation = "YES">
-      <MacroExpansion>
-         <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "DE800B7022A5927C00AC9A23"
-            BuildableName = "Auth_ApiTests.xctest"
-            BlueprintName = "Auth_ApiTests"
-            ReferencedContainer = "container:AuthSample.xcodeproj">
-         </BuildableReference>
-      </MacroExpansion>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"
@@ -69,9 +60,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "DE800B7022A5927C00AC9A23"
-            BuildableName = "Auth_ApiTests.xctest"
-            BlueprintName = "Auth_ApiTests"
+            BlueprintIdentifier = "DEBEF6022450EA27005E1A8F"
+            BuildableName = "SwiftApiTests.xctest"
+            BlueprintName = "SwiftApiTests"
             ReferencedContainer = "container:AuthSample.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
