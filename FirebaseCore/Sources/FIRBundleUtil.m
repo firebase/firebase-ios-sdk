@@ -49,14 +49,17 @@
 
 + (BOOL)hasBundleIdentifierPrefix:(NSString *)bundleIdentifier inBundles:(NSArray *)bundles {
   for (NSBundle *bundle in bundles) {
-    // This allows app extensions that have the app's bundle as their prefix to pass this test.
-    NSString *applicationBundleIdentifier =
-        [GULAppEnvironmentUtil isAppExtension]
-            ? [self bundleIdentifierByRemovingLastPartFrom:bundle.bundleIdentifier]
-            : bundle.bundleIdentifier;
-
-    if ([applicationBundleIdentifier isEqualToString:bundleIdentifier]) {
+    if ([bundle.bundleIdentifier isEqualToString:bundleIdentifier]) {
       return YES;
+    }
+
+    if ([GULAppEnvironmentUtil isAppExtension]) {
+      // This allows app extensions that have the app's bundle as their prefix to pass this test.
+      NSString *appBundleIDFromExtension =
+          [self bundleIdentifierByRemovingLastPartFrom:bundle.bundleIdentifier];
+      if ([appBundleIDFromExtension isEqualToString:bundleIdentifier]) {
+        return YES;
+      }
     }
   }
   return NO;
