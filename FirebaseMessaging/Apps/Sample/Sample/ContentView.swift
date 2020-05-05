@@ -107,7 +107,7 @@ struct ContentView: View {
       }
       self.identity.token = result.token
       self.identity.instanceID = result.instanceID
-      self.log = "Successfully get token."
+      self.log = "Successfully got token."
     }
   }
 
@@ -118,30 +118,30 @@ struct ContentView: View {
     let senderID = app.options.gcmSenderID
     Messaging.messaging().deleteFCMToken(forSenderID: senderID) { error in
       if let error = error as NSError? {
-        self.log = "Failed delete token: \(error)"
+        self.log = "Failed deleting token: \(error)"
         return
       }
-      self.log = "Successfully delete token."
+      self.log = "Successfully deleted token."
     }
   }
 
   func deleteID() {
     InstanceID.instanceID().deleteID { error in
       if let error = error as NSError? {
-        self.log = "Failed delete ID: \(error)"
+        self.log = "Failed deleting ID: \(error)"
         return
       }
-      self.log = "Successfully delete ID."
+      self.log = "Successfully deleted ID."
     }
   }
 
   func deleteFID() {
     Installations.installations().delete { error in
       if let error = error as NSError? {
-        self.log = "Failed delete FID: \(error)"
+        self.log = "Failed deleting FID: \(error)"
         return
       }
-      self.log = "Successfully delete FID."
+      self.log = "Successfully deleted FID."
     }
   }
 }

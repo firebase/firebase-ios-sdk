@@ -28,6 +28,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, MessagingDelegate {
   func scene(_ scene: UIScene, willConnectTo session: UISceneSession,
              options connectionOptions: UIScene.ConnectionOptions) {
     let contentView = ContentView()
+    // Choose using delegate for token refresh.
     if settings.shouldUseDelegateThanNotification {
       Messaging.messaging().delegate = self
     }
@@ -44,6 +45,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, MessagingDelegate {
       window.makeKeyAndVisible()
     }
 
+    // Choose using notification for token refresh.
     if !settings.shouldUseDelegateThanNotification {
       // Subscribe to token refresh
       NotificationCenter.default
