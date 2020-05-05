@@ -315,6 +315,13 @@ case "$product-$platform-$method" in
         "${xcb_flags[@]}" \
         build \
         test
+
+      RunXcodebuild \
+        -workspace 'FirebaseAuth/Tests/Sample/AuthSample.xcworkspace' \
+        -scheme "SwiftApiTests" \
+        "${xcb_flags[@]}" \
+        build \
+        test
     fi
     ;;
 

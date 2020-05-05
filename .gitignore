@@ -4,6 +4,7 @@ FirebaseAuth/Tests/Sample/Sample/GoogleService-Info_multi.plist
 FirebaseAuth/Tests/Sample/Sample/GoogleService-Info.plist
 FirebaseAuth/Tests/Sample/Sample/Sample.entitlements
 FirebaseAuth/Tests/Sample/ApiTests/AuthCredentials.h
+FirebaseAuth/Tests/Sample/SwiftApiTests/Credentials.swift
 
 Example/Database/App/GoogleService-Info.plist
 
