@@ -54,7 +54,8 @@
     }
 
     if ([GULAppEnvironmentUtil isAppExtension]) {
-      // This allows app extensions that have the app's bundle as their prefix to pass this test.
+      // A developer could be using the same `FIROptions` for both their app and extension. Since
+      // extensions have a suffix added to the bundleID, we consider a matching prefix as valid.
       NSString *appBundleIDFromExtension =
           [self bundleIdentifierByRemovingLastPartFrom:bundle.bundleIdentifier];
       if ([appBundleIDFromExtension isEqualToString:bundleIdentifier]) {
