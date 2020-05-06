@@ -13,9 +13,7 @@
 // limitations under the License.
 
 @class FIRAppDistributionRelease;
-#import <AppAuth/AppAuth.h>
 #import <Foundation/Foundation.h>
-#import <UIKit/UIKit.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
