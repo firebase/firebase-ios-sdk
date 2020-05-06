@@ -24,7 +24,7 @@ jobs:
     - uses: actions/checkout@v2
     - uses: technote-space/load-config-action@v1
       with:
-        CONFIG_FILENAME: config.yml
+        CONFIG_FILENAME: workflows/config.yml
     - name: Set xcode version
       run: sudo xcode-select -switch /Applications/Xcode_"${{env.XCODE_VERSION}}".app
     - name: Setup quickstart
