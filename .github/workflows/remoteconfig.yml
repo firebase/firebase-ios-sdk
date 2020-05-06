@@ -22,6 +22,11 @@ jobs:
     runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v2
+    - uses: technote-space/load-config-action@v1
+      with:
+        CONFIG_FILENAME: config.yml
+    - name: Force xcode version
+      run: sudo xcode-select -switch /Applications/Xcode_"${{env.XCODE_VERSION}}".app
     - name: Setup quickstart
       run: scripts/setup_quickstart.sh config
     - name: Install Secret GoogleService-Info.plist
