@@ -15,7 +15,6 @@ on:
 
 jobs:
 
-
   quickstart:
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -34,5 +33,5 @@ jobs:
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/FIREGSignInInfo.h.gpg \
           quickstart-ios/TestUtils/FIREGSignInInfo.h "$signin_secret"
     - name: Test quickstart
-      run: ([ -z $plist_secret ] || scripts/test_quickstart.sh Config)
+      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Config)
 
