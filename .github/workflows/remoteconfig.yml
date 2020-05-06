@@ -34,6 +34,5 @@ jobs:
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/FIREGSignInInfo.h.gpg \
           quickstart-ios/TestUtils/FIREGSignInInfo.h "$signin_secret"
     - name: Test quickstart
-      run: |
-        scripts/test_quickstart.sh Config
+      run: ([ -z $plist_secret ] || scripts/test_quickstart.sh Config)
 
