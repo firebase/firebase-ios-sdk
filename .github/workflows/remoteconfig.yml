@@ -26,7 +26,7 @@ jobs:
     - uses: technote-space/load-config-action@v1
       with:
         CONFIG_FILENAME: config.yml
-    - name: Force xcode version
+    - name: Set xcode version
       run: sudo xcode-select -switch /Applications/Xcode_"${{env.XCODE_VERSION}}".app
     - name: Setup quickstart
       run: scripts/setup_quickstart.sh config
