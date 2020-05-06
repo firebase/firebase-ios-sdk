@@ -4,6 +4,7 @@ FirebaseAuth/Tests/Sample/Sample/GoogleService-Info_multi.plist
 FirebaseAuth/Tests/Sample/Sample/GoogleService-Info.plist
 FirebaseAuth/Tests/Sample/Sample/Sample.entitlements
 FirebaseAuth/Tests/Sample/ApiTests/AuthCredentials.h
+FirebaseAuth/Tests/Sample/SwiftApiTests/Credentials.swift
 
 Example/Database/App/GoogleService-Info.plist
 
@@ -17,9 +18,9 @@ FirebaseInstallations/Source/Tests/Resources/GoogleService-Info.plist
 Example/InstanceID/Resources/GoogleService-Info.plist
 
 # FirebaseMessaging integration tests GoogleService-Info.plist
-Example/Messaging/Resources/GoogleService-Info.plist
+FirebaseMessaging/Tests/IntegrationTests/Resources/GoogleService-Info.plist
 # FirebaseMessaging test app GoogleService-Info.plist
-Example/Messaging/Sample/Sample/GoogleService-Info.plist
+FirebaseMessaging/Apps/Sample/Sample/GoogleService-Info.plist
 
 Secrets.tar
 

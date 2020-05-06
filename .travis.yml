@@ -79,8 +79,6 @@ jobs:
       osx_image: xcode10.3
       env:
         - PROJECT=Auth PLATFORM=iOS METHOD=xcodebuild
-      before_install:
-        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseAuth.podspec --platforms=ios
 
@@ -229,18 +227,6 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseStorage.podspec --skip-tests --platforms=ios
 
     - stage: test
-      if: type = cron
-      env:
-        - PROJECT=StorageCron METHOD=pod-lib-lint
-      script:
-        - travis_retry ./scripts/pod_lib_lint.rb FirebaseStorage.podspec --use-libraries --skip-tests --platforms=ios
-        - travis_retry ./scripts/pod_lib_lint.rb FirebaseStorage.podspec --use-libraries --skip-tests --platforms=tvos
-        - travis_retry ./scripts/pod_lib_lint.rb FirebaseStorage.podspec --use-libraries --skip-tests --platforms=macos
-        - travis_retry ./scripts/pod_lib_lint.rb FirebaseStorage.podspec --use-modular-headers --skip-tests --platforms=ios
-        - travis_retry ./scripts/pod_lib_lint.rb FirebaseStorage.podspec --use-modular-headers --skip-tests --platforms=tvos
-        - travis_retry ./scripts/pod_lib_lint.rb FirebaseStorage.podspec --use-modular-headers --skip-tests --platforms=macos
-
-    - stage: test
       env:
         - PROJECT=Functions METHOD=pod-lib-lint QUICKSTART=Functions
       before_install:
@@ -261,28 +247,11 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseFunctions.podspec
 
     - stage: test
-      env:
-#TODO(#4729) Restore quickstart testing.
-#        - PROJECT=Crashlytics METHOD=pod-lib-lint QUICKSTART=crashlytics
-        - PROJECT=Crashlytics METHOD=pod-lib-lint
-      script:
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseCrashlytics.podspec
-#        - travis_retry ./scripts/if_changed.sh ./scripts/test_quickstart.sh Crashlytics
-
-    - stage: test
       osx_image: xcode10.3
       env:
         - PROJECT=Crashlytics METHOD=pod-lib-lint
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseCrashlytics.podspec
-
-    - stage: test
-      if: type = cron
-      env:
-        - PROJECT=CrashlyticsCron METHOD=pod-lib-lint
-      script:
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseCrashlytics.podspec --use-libraries
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseCrashlytics.podspec --use-modular-headers
 
     - stage: test
       env:

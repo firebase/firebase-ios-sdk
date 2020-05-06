@@ -3,13 +3,14 @@ name: messaging
 on:
   pull_request:
     paths:
-    - 'Firebase/Messaging/**'
-    - 'Examples/Messaging/Sample/**'
-
-    #Podspec
+    # Messaging sources
+    - 'FirebaseMessaging/**'
+    # Podspec
     - 'FirebaseMessaging.podspec'
-
+    # This file
     - '.github/workflows/messaging.yml'
+    # Rebuild on Ruby infrastructure changes
+    - 'Gemfile'
   schedule:
     # Run every day at 11pm (PST) - cron uses UTC times
     - cron:  '0 7 * * *'
@@ -26,9 +27,9 @@ jobs:
       run: scripts/setup_bundler.sh
     - name: Install Secret GoogleService-Info.plist
       run: |
-        mkdir Example/Messaging/IntegrationTests/Resources
+        mkdir FirebaseMessaging/Tests/IntegrationTests/Resources
         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/messaging-sample-plist.gpg \
-          Example/Messaging/IntegrationTests/Resources/GoogleService-Info.plist "$plist_secret"
+          FirebaseMessaging/Tests/IntegrationTests/Resources/GoogleService-Info.plist "$plist_secret"
     - name: BuildAndTest # can be replaced with pod lib lint with CocoaPods 1.10
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/build.sh Messaging all)
 
@@ -56,23 +57,23 @@ jobs:
       run: scripts/test_catalyst.sh FirebaseMessaging build
 
   quickstart:
+    env:
+      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+      signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
     runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v2
     - name: Setup quickstart
       run: scripts/setup_quickstart.sh messaging
     - name: Install Secret GoogleService-Info.plist
-      env:
-         plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-messaging.plist.gpg \
           quickstart-ios/messaging/GoogleService-Info.plist "$plist_secret"
     - name: Install Secret FIREGSignInInfo.h
-      env:
-         signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/FIREGSignInInfo.h.gpg \
           quickstart-ios/TestUtils/FIREGSignInInfo.h "$signin_secret"
     - name: Test quickstart
-      run: scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Messaging
+      run: ([ -z $plist_secret ] ||
+            scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Messaging)
 
   pod-lib-lint-watchos:
     runs-on: macOS-latest
@@ -131,8 +132,8 @@ jobs:
     - name: Install Secret GoogleService-Info.plist
       run: |
         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/messaging-sample-plist.gpg \
-          Example/Messaging/Sample/Sample/GoogleService-Info.plist "$plist_secret"
+          FirebaseMessaging/Apps/Sample/Sample/GoogleService-Info.plist "$plist_secret"
     - name: Prereqs
       run: scripts/install_prereqs.sh MessagingSample iOS
     - name: Build
-      run: scripts/build.sh MessagingSample iOS
+      run: ([ -z $plist_secret ] || scripts/build.sh MessagingSample iOS)

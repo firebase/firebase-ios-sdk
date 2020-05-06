@@ -1,0 +1,79 @@
+name: crashlytics
+
+on:
+  pull_request:
+    paths:
+    - 'Crashlytics**'
+    - '.github/workflows/crashlytics.yml'
+    - 'Gemfile'
+  schedule:
+    # Run every day at 11pm (PST) - cron uses UTC times
+    - cron:  '0 7 * * *'
+
+jobs:
+
+  pod-lib-lint:
+    runs-on: macOS-latest
+
+    strategy:
+      matrix:
+        target: [ios, tvos, macos]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Build and test
+      run: |
+        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseCrashlytics.podspec --platforms=${{ matrix.target }}
+
+  catalyst:
+    runs-on: macOS-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Setup project and Build for Catalyst
+      run: scripts/test_catalyst.sh FirebaseCrashlytics build FirebaseCrashlytics-Unit-unit
+
+  quickstart:
+    env:
+      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+      signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+    runs-on: macOS-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup quickstart
+      run: scripts/setup_quickstart.sh crashlytics
+    - name: Install Secret GoogleService-Info.plist
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-crashlytics.plist.gpg \
+          quickstart-ios/crashlytics/GoogleService-Info.plist "$plist_secret"
+    - name: Install Secret FIREGSignInInfo.h
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/FIREGSignInInfo.h.gpg \
+          quickstart-ios/TestUtils/FIREGSignInInfo.h "$signin_secret"
+    - name: Test quickstart
+      run: |
+        mkdir quickstart-ios/crashlytics/Pods/FirebaseCrashlytics
+        # Set the deployed pod location of run and upload-symbols with the development pod version.
+        cp Crashlytics/run quickstart-ios/crashlytics/Pods/FirebaseCrashlytics/
+        cp Crashlytics/upload-symbols quickstart-ios/crashlytics/Pods/FirebaseCrashlytics/
+        ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Crashlytics)
+
+  crashlytics-cron-only:
+    runs-on: macos-latest
+    if: github.event_name == 'schedule'
+    strategy:
+      matrix:
+        target: [ios, tvos, macos] # The macos and tvos tests can hang
+        flags: [
+          '--use-modular-headers',
+          '--use-libraries'
+        ]
+    needs: pod-lib-lint
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: PodLibLint Auth Cron
+      run: |
+        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseCrashlytics.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}
+        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseCrashlytics.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}

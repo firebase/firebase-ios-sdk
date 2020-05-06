@@ -134,7 +134,8 @@ case "$project-$platform-$method" in
     install_secrets
     ;;
 
-  InstanceID-*)
+  # There is purposefully not a dash to include InstanceIDCron.
+  InstanceID*)
     install_secrets
     ;;
 
@@ -180,7 +181,17 @@ case "$project-$platform-$method" in
 
   MessagingSample-*)
     install_xcpretty
-    bundle exec pod install --project-directory=Example/Messaging/Sample --repo-update
+    bundle exec pod install --project-directory=FirebaseMessaging/Apps/Sample --repo-update
+    ;;
+
+  GoogleDataTransport-watchOS-xcodebuild)
+    install_xcpretty
+    bundle exec pod install --project-directory=GoogleDataTransport/GDTWatchOSTestApp/ --repo-update
+    ;;
+
+  GoogleDataTransportCCTSupport-watchOS-xcodebuild)
+    install_xcpretty
+    bundle exec pod install --project-directory=GoogleDataTransportCCTSupport/GDTCCTWatchOSTestApp/ --repo-update
     ;;
 
   *-pod-lib-lint)

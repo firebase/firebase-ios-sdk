@@ -2,6 +2,7 @@
 #source 'sso://cpdc-internal/firebase'
 #source 'https://cdn.cocoapods.org/'
 
+source 'https://github.com/firebase/SpecsStaging.git'
 source 'https://cdn.cocoapods.org/'
 
 use_frameworks!
@@ -22,6 +23,10 @@ target 'AuthSample' do
   pod 'GTMSessionFetcher/Core'
 
   target 'Auth_ApiTests' do
+    inherit! :search_paths
+  end
+
+  target 'SwiftApiTests' do
     inherit! :search_paths
   end
 

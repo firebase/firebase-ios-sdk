@@ -1,3 +1,9 @@
+# v6.7.0 -- M70
+- [fixed] Updated nanopb to 0.3.9.5 (across all Firebase pods). This includes a fix for
+  [CVE-2020-5235](https://github.com/nanopb/nanopb/security/advisories/GHSA-gcx3-7m76-287p).
+  Note that the versioning scheme for the nanopb CocoaPod has changed;
+  see https://github.com/google/nanopb-podspec for more details. (#5191)
+
 # v6.6.7 -- M69
 - [fixed] Fixed Carthage installation failures involving `Protobuf.framework`.
   `Protobuf.framework` is now separately installable via adding

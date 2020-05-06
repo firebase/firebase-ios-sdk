@@ -13,6 +13,8 @@
 // limitations under the License.
 
 #import "FIRAppDistribution+Private.h"
+#import "FIRAppDistributionAuthPersistence+Private.h"
+#import "FIRAppDistributionMachO+Private.h"
 #import "FIRAppDistributionRelease+Private.h"
 
 #import <FirebaseCore/FIRAppInternal.h>
@@ -59,8 +61,15 @@ NSString *const kAppDistroLibraryName = @"fire-fad";
     [GULAppDelegateSwizzler registerAppDelegateInterceptor:interceptor];
   }
 
-  // TODO: Lookup keychain to load auth state on init
+  NSError *authRetrievalError;
+  self.authState = [FIRAppDistributionAuthPersistence retrieveAuthState:&authRetrievalError];
+  // TODO (schnecle): replace NSLog statement with FIRLogger log statement
+  if (authRetrievalError) {
+    NSLog(@"Error retrieving token from keychain: %@", [authRetrievalError localizedDescription]);
+  }
+
   self.isTesterSignedIn = self.authState ? YES : NO;
+
   return self;
 }
 
@@ -127,43 +136,62 @@ NSString *const kAppDistroLibraryName = @"fire-fad";
 }
 
 - (void)signOutTester {
+  NSError *error;
+  BOOL didClearAuthState = [FIRAppDistributionAuthPersistence clearAuthState:&error];
+  // TODO (schnecle): Add in FIRLogger to report when we have failed to clear auth state
+  if (!didClearAuthState) {
+    NSLog(@"Error clearing token from keychain: %@", [error localizedDescription]);
+  }
+
   self.authState = nil;
   self.isTesterSignedIn = false;
 }
 
 - (void)fetchReleases:(FIRAppDistributionUpdateCheckCompletion)completion {
-  NSURLSession *URLSession = [NSURLSession sharedSession];
-  NSMutableURLRequest *request = [[NSMutableURLRequest alloc] init];
-  NSString *URLString =
-      [NSString stringWithFormat:kReleasesEndpointURL, [[FIRApp defaultApp] options].googleAppID];
-  [request setURL:[NSURL URLWithString:URLString]];
-  [request setHTTPMethod:@"GET"];
-  [request setValue:[NSString
-                        stringWithFormat:@"Bearer %@", self.authState.lastTokenResponse.accessToken]
-      forHTTPHeaderField:@"Authorization"];
+  [self.authState performActionWithFreshTokens:^(NSString *_Nonnull accessToken,
+                                                 NSString *_Nonnull idToken,
+                                                 NSError *_Nullable error) {
+    if (error) {
+      // TODO (schnecle): Add in FIRLogger log statement
+      NSLog(@"Error fetching fresh tokens: %@", [error localizedDescription]);
+      [self signOutTester];
+      return;
+    }
 
-  NSURLSessionDataTask *listReleasesDataTask = [URLSession
-      dataTaskWithRequest:request
-        completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
-          if (error) {
-            // TODO: Reformat error into error code
-            completion(nil, error);
-            return;
-          }
+    // perform your API request using the tokens
+    NSURLSession *URLSession = [NSURLSession sharedSession];
+    NSMutableURLRequest *request = [[NSMutableURLRequest alloc] init];
+    NSString *URLString =
+        [NSString stringWithFormat:kReleasesEndpointURL, [[FIRApp defaultApp] options].googleAppID];
+    [request setURL:[NSURL URLWithString:URLString]];
+    [request setHTTPMethod:@"GET"];
+    [request setValue:[NSString stringWithFormat:@"Bearer %@", accessToken]
+        forHTTPHeaderField:@"Authorization"];
 
-          NSHTTPURLResponse *HTTPResponse = (NSHTTPURLResponse *)response;
+    NSURLSessionDataTask *listReleasesDataTask = [URLSession
+        dataTaskWithRequest:request
+          completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+            if (error) {
+              // TODO: Reformat error into error code
+              completion(nil, error);
+              return;
+            }
 
-          if (HTTPResponse.statusCode == 200) {
-            [self handleReleasesAPIResponseWithData:data completion:completion];
-          } else {
-            // TODO: Handle non-200 http response
-            @throw([NSException exceptionWithName:@"NotImplementedException"
-                                           reason:@"This code path is not implemented yet"
-                                         userInfo:nil]);
-          }
-        }];
+            NSHTTPURLResponse *HTTPResponse = (NSHTTPURLResponse *)response;
 
-  [listReleasesDataTask resume];
+            if (HTTPResponse.statusCode == 200) {
+              [self handleReleasesAPIResponseWithData:data completion:completion];
+            } else {
+              // TODO: Handle non-200 http response
+              NSLog(@"ERROR - Non 200 service response - %@", HTTPResponse);
+              @throw([NSException exceptionWithName:@"NotImplementedException"
+                                             reason:@"This code path is not implemented yet"
+                                           userInfo:nil]);
+            }
+          }];
+
+    [listReleasesDataTask resume];
+  }];
 }
 
 - (void)handleOauthDiscoveryCompletion:(OIDServiceConfiguration *_Nullable)configuration
@@ -171,6 +199,7 @@ NSString *const kAppDistroLibraryName = @"fire-fad";
        appDistributionSignInCompletion:(void (^)(NSError *_Nullable error))completion {
   if (!configuration) {
     // TODO: Handle when we cannot get configuration
+    NSLog(@"ERROR - Cannot discover oauth config");
     @throw([NSException exceptionWithName:@"NotImplementedException"
                                    reason:@"This code path is not implemented yet"
                                  userInfo:nil]);
@@ -189,40 +218,79 @@ NSString *const kAppDistroLibraryName = @"fire-fad";
                responseType:OIDResponseTypeCode
        additionalParameters:nil];
 
-  [self createUIWindowForLogin];
+  [self setupUIWindowForLogin];
+
+  void (^processAuthState)(OIDAuthState *_Nullable authState, NSError *_Nullable error) = ^void(
+      OIDAuthState *_Nullable authState, NSError *_Nullable error) {
+    self.authState = authState;
+
+    // Capture errors in persistence but do not bubble them
+    // up
+    NSError *authPersistenceError;
+    if (authState) {
+      [FIRAppDistributionAuthPersistence persistAuthState:authState error:&authPersistenceError];
+    }
+
+    // TODO (schnecle): Log errors in persistence using
+    // FIRLogger
+    if (authPersistenceError) {
+      NSLog(@"Error persisting token to keychain: %@", [error localizedDescription]);
+    }
+    self.isTesterSignedIn = self.authState ? YES : NO;
+    completion(error);
+  };
+
   // performs authentication request
   [FIRAppDistributionAppDelegatorInterceptor sharedInstance].currentAuthorizationFlow =
       [OIDAuthState authStateByPresentingAuthorizationRequest:request
                                      presentingViewController:self.safariHostingViewController
-                                                     callback:^(OIDAuthState *_Nullable authState,
-                                                                NSError *_Nullable error) {
-                                                       self.authState = authState;
-                                                       self.isTesterSignedIn =
-                                                           self.authState ? YES : NO;
-                                                       completion(error);
-                                                     }];
+                                                     callback:processAuthState];
 }
 
-- (UIWindow *)createUIWindowForLogin {
+- (void)setupUIWindowForLogin {
+  if (self.window) {
+    return;
+  }
   // Create an empty window + viewController to host the Safari UI.
-  UIWindow *window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
-  window.rootViewController = self.safariHostingViewController;
+  self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+  self.window.rootViewController = self.safariHostingViewController;
 
   // Place it at the highest level within the stack.
-  window.windowLevel = +CGFLOAT_MAX;
+  self.window.windowLevel = +CGFLOAT_MAX;
 
   // Run it.
-  [window makeKeyAndVisible];
+  [self.window makeKeyAndVisible];
+}
 
-  return window;
+- (void)cleanupUIWindow {
+  if (self.window) {
+    self.window.hidden = YES;
+    self.window = nil;
+  }
 }
 
 - (void)handleReleasesAPIResponseWithData:data
                                completion:(FIRAppDistributionUpdateCheckCompletion)completion {
-  // TODO Implement parsing of releases API response
-  completion(nil, nil);
-}
+  NSError *error = nil;
+  NSDictionary *object = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
 
+  NSArray *releaseList = [object objectForKey:@"releases"];
+  for (NSDictionary *releaseDict in releaseList) {
+    if (![[releaseDict objectForKey:@"latest"] boolValue]) continue;
+
+    NSString *codeHash = [releaseDict objectForKey:@"codeHash"];
+    FIRAppDistributionMachO *machO =
+        [[FIRAppDistributionMachO alloc] initWithPath:[[NSBundle mainBundle] executablePath]];
+
+    if (![codeHash isEqualToString:machO.codeHash]) {
+      FIRAppDistributionRelease *release =
+          [[FIRAppDistributionRelease alloc] initWithDictionary:releaseDict];
+      dispatch_async(dispatch_get_main_queue(), ^{
+        completion(release, nil);
+      });
+    }
+  }
+}
 - (void)checkForUpdateWithCompletion:(FIRAppDistributionUpdateCheckCompletion)completion {
   if (self.isTesterSignedIn) {
     [self fetchReleases:completion];
@@ -238,9 +306,6 @@ NSString *const kAppDistroLibraryName = @"fire-fad";
                                  style:UIAlertActionStyleDefault
                                handler:^(UIAlertAction *action) {
                                  [self signInTesterWithCompletion:^(NSError *_Nullable error) {
-                                   self.window.hidden = YES;
-                                   self.window = nil;
-
                                    if (error) {
                                      completion(nil, error);
                                      return;
@@ -254,8 +319,7 @@ NSString *const kAppDistroLibraryName = @"fire-fad";
                                                        style:UIAlertActionStyleDefault
                                                      handler:^(UIAlertAction *action) {
                                                        // precaution to ensure window gets destroyed
-                                                       self.window.hidden = YES;
-                                                       self.window = nil;
+                                                       [self cleanupUIWindow];
                                                        completion(nil, nil);
                                                      }];
 
@@ -263,7 +327,7 @@ NSString *const kAppDistroLibraryName = @"fire-fad";
     [alert addAction:yesButton];
 
     // Create an empty window + viewController to host the Safari UI.
-    self.window = [self createUIWindowForLogin];
+    [self setupUIWindowForLogin];
     [self.window.rootViewController presentViewController:alert animated:YES completion:nil];
   }
 }

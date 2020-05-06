@@ -1,3 +1,8 @@
+# v6.1.0
+- watchOS extension and independent apps now supported. (#4292)
+- iOS extensions better supported.
+- GDTCORReachability will lazily initialize to address library loading hang. (#5463)
+
 # v6.0.0
 - Internal refactor to change storage to a protocol.
 
