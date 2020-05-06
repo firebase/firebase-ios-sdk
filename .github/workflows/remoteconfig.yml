@@ -22,8 +22,6 @@ jobs:
     runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v2
-    - name: Set xcode version
-      run: sudo xcode-select -switch /Applications/Xcode_11.3.app
     - name: Setup quickstart
       run: scripts/setup_quickstart.sh config
     - name: Install Secret GoogleService-Info.plist
