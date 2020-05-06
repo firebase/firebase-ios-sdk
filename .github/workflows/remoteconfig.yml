@@ -23,11 +23,8 @@ jobs:
     runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v2
-    - uses: technote-space/load-config-action@v1
-      with:
-        CONFIG_FILENAME: workflows/config.yml
     - name: Set xcode version
-      run: sudo xcode-select -switch /Applications/Xcode_"${{env.XCODE_VERSION}}".app
+      run: sudo xcode-select -switch /Applications/Xcode_11.3.app
     - name: Setup quickstart
       run: scripts/setup_quickstart.sh config
     - name: Install Secret GoogleService-Info.plist
@@ -40,5 +37,5 @@ jobs:
       run: |
         cd ./quickstart-ios/config/
         xcodebuild -workspace *.xcworkspace -list
-        xcodebuild test -scheme ConfigExample -workspace ConfigExample.xcworkspace -destination "platform=${{env.PLATFORM}},name=${{env.DEVICE_NAME}},OS=${{env.OS_VERSION}}"
+        scripts/test_quickstart.sh Config
 
