@@ -22,6 +22,7 @@ import FirebaseInstallations
 struct ContentView: View {
   @EnvironmentObject var identity: Identity
   @EnvironmentObject var settings: UserSettings
+  @State private var log: String = ""
 
   var body: some View {
     NavigationView {
@@ -29,25 +30,34 @@ struct ContentView: View {
       VStack {
         List {
           VStack(alignment: .leading) {
-            Text("InstanceID").font(.subheadline)
-            Text(identity.instanceID ?? "None").foregroundColor(.blue)
+            Text("InstanceID")
+              .font(.subheadline)
+              .fontWeight(.semibold)
+            Text(identity.instanceID ?? "None").foregroundColor(.green)
           }
 
           VStack(alignment: .leading) {
-            Text("Token").font(.subheadline)
+            Text("Token")
+              .font(.subheadline)
+              .fontWeight(.semibold)
             Text(identity.token ?? "None")
-              .foregroundColor(.blue)
+              .foregroundColor(.green)
               // Increase the layout priority to allow more than one line to be shown. Without this, the
               // simulator renders a single truncated line even though the Preview renders it
               // appropriately. Potentially a bug in the simulator?
               .layoutPriority(1)
           }
-
           NavigationLink(destination: SettingsView()) {
             Text("Settings")
+              .fontWeight(.semibold)
+          }
+          NavigationLink(destination: TopicView()) {
+            Text("Topic")
+              .fontWeight(.semibold)
           }
         }
         .navigationBarTitle("Firebase Messaging")
+        .foregroundColor(.blue)
 
         // MARK: Action buttons
 
@@ -58,7 +68,6 @@ struct ContentView: View {
               .fontWeight(.semibold)
           }
         }
-        .buttonStyle(IdentityButtonStyle())
 
         Button(action: deleteToken) {
           HStack {
@@ -67,7 +76,6 @@ struct ContentView: View {
               .fontWeight(.semibold)
           }
         }
-        .buttonStyle(IdentityButtonStyle())
 
         Button(action: deleteID) {
           HStack {
@@ -76,7 +84,6 @@ struct ContentView: View {
               .fontWeight(.semibold)
           }
         }
-        .buttonStyle(IdentityButtonStyle())
 
         Button(action: deleteFID) {
           HStack {
@@ -85,19 +92,22 @@ struct ContentView: View {
               .fontWeight(.semibold)
           }
         }
-        .buttonStyle(IdentityButtonStyle())
-      }
+        Text("\(log)")
+          .lineLimit(10)
+          .multilineTextAlignment(.leading)
+      }.buttonStyle(IdentityButtonStyle())
     }
   }
 
   func getToken() {
     InstanceID.instanceID().instanceID { result, error in
       guard let result = result, error == nil else {
-        print("Failed getting iid and token: ", error ?? "")
+        self.log = "Failed getting iid and token: \(String(describing: error))"
         return
       }
       self.identity.token = result.token
       self.identity.instanceID = result.instanceID
+      self.log = "Successfully got token."
     }
   }
 
@@ -108,27 +118,30 @@ struct ContentView: View {
     let senderID = app.options.gcmSenderID
     Messaging.messaging().deleteFCMToken(forSenderID: senderID) { error in
       if let error = error as NSError? {
-        print("Failed delete token: ", error)
+        self.log = "Failed deleting token: \(error)"
         return
       }
+      self.log = "Successfully deleted token."
     }
   }
 
   func deleteID() {
     InstanceID.instanceID().deleteID { error in
       if let error = error as NSError? {
-        print("Failed delete ID: ", error)
+        self.log = "Failed deleting ID: \(error)"
         return
       }
+      self.log = "Successfully deleted ID."
     }
   }
 
   func deleteFID() {
     Installations.installations().delete { error in
       if let error = error as NSError? {
-        print("Failed delete FID: ", error)
+        self.log = "Failed deleting FID: \(error)"
         return
       }
+      self.log = "Successfully deleted FID."
     }
   }
 }
@@ -142,11 +155,15 @@ struct SettingsView: View {
       List {
         Toggle(isOn: $settings.isAutoInitEnabled) {
           Text("isAutoInitEnabled")
+            .fontWeight(.semibold)
         }
         Toggle(isOn: $settings.shouldUseDelegateThanNotification) {
           Text("shouldUseDelegate")
+            .fontWeight(.semibold)
         }
       }
+      .font(.subheadline)
+      .foregroundColor(.blue)
     }
   }
 }
@@ -160,7 +177,7 @@ struct ContentView_Previews: PreviewProvider {
     // The token is a long string, generate a very long repeating string of characters to see how the view
     // will react.
     let longString = UUID().uuidString.replacingOccurrences(of: "-", with: "")
-    identity.token = Array(repeating: longString, count: 10).reduce("", +)
+    identity.token = Array(repeating: longString, count: 8).reduce("", +)
 
     return identity
   }()
@@ -185,8 +202,7 @@ struct IdentityButtonStyle: ButtonStyle {
       .frame(minWidth: 0, maxWidth: 200)
       .padding()
       .foregroundColor(.white)
-      .background(LinearGradient(gradient: Gradient(colors: [Color.blue, Color.pink]),
-                                 startPoint: .leading, endPoint: .trailing))
+      .background(Color.yellow)
       .cornerRadius(40)
       // Push the button down a bit when it's pressed.
       .scaleEffect(configuration.isPressed ? 0.9 : 1)
