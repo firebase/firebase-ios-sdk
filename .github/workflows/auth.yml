@@ -66,6 +66,7 @@ jobs:
       # Only build the unit tests on Catalyst
       run: scripts/test_catalyst.sh FirebaseAuth build FirebaseAuth-Unit-unit
 
+
   quickstart:
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
