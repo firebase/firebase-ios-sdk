@@ -103,7 +103,8 @@ StatusOr<Path> Filesystem::AppDataDir(absl::string_view app_name) {
 }
 
 StatusOr<Path> Filesystem::LegacyDocumentsDir(absl::string_view) {
-  return Status(Error::kErrorUnimplemented, "No legacy storage on this platform.");
+  return Status(Error::kErrorUnimplemented,
+                "No legacy storage on this platform.");
 }
 
 Path Filesystem::TempDir() {

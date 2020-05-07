@@ -70,9 +70,9 @@ namespace {
  */
 Status FromFirestoreNSError(NSError* error) {
   auto error_code = static_cast<int>(error.code);
-  HARD_ASSERT(
-      error_code >= Error::kErrorCancelled && error_code <= Error::kErrorUnauthenticated,
-      "Unknown error code");
+  HARD_ASSERT(error_code >= Error::kErrorCancelled &&
+                  error_code <= Error::kErrorUnauthenticated,
+              "Unknown error code");
 
   auto original = UnderlyingNSError::Create(error);
 

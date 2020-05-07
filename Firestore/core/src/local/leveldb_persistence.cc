@@ -133,7 +133,8 @@ Status LevelDbPersistence::EnsureDirectory(const Path& dir) {
   auto* fs = Filesystem::Default();
   Status status = fs->RecursivelyCreateDir(dir);
   if (!status.ok()) {
-    return Status{Error::kErrorInternal, "Failed to create persistence directory"}
+    return Status{Error::kErrorInternal,
+                  "Failed to create persistence directory"}
         .CausedBy(status);
   }
 
