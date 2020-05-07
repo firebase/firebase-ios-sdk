@@ -173,12 +173,6 @@ class DelayedOperation {
   Executor::Id id_ = 0;
 };
 
-inline Executor::TimePoint MakeTargetTime(Executor::Milliseconds delay) {
-  return std::chrono::time_point_cast<Executor::Milliseconds>(
-             Executor::Clock::now()) +
-         delay;
-}
-
 }  // namespace util
 }  // namespace firestore
 }  // namespace firebase

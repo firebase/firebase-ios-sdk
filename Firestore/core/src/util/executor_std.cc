@@ -20,6 +20,7 @@
 #include <memory>
 #include <sstream>
 
+#include "Firestore/core/src/util/task.h"
 #include "absl/memory/memory.h"
 
 namespace firebase {

@@ -165,6 +165,12 @@ bool Task::operator<(const Task& rhs) const {
   return id_ < rhs.id_;
 }
 
+Executor::TimePoint MakeTargetTime(Executor::Milliseconds delay) {
+  return std::chrono::time_point_cast<Executor::Milliseconds>(
+             Executor::Clock::now()) +
+         delay;
+}
+
 }  // namespace util
 }  // namespace firestore
 }  // namespace firebase

@@ -186,6 +186,15 @@ class Task {
   std::thread::id executing_thread_;
 };
 
+/**
+ * Converts a delay into an absolute TimePoint representing the current time
+ * plus the delay.
+ *
+ * @param delay The number of milliseconds to delay.
+ * @return A time representing now plus the delay.
+ */
+Executor::TimePoint MakeTargetTime(Executor::Milliseconds delay);
+
 }  // namespace util
 }  // namespace firestore
 }  // namespace firebase
