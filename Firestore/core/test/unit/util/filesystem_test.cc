@@ -54,17 +54,17 @@ static void WriteBytesToFile(const Path& path, int byte_count) {
 
 #define ASSERT_NOT_FOUND(expression)                  \
   do {                                                \
-    ASSERT_EQ(Error::kNotFound, (expression).code()); \
+    ASSERT_EQ(Error::kErrorNotFound, (expression).code()); \
   } while (0)
 
 #define EXPECT_NOT_FOUND(expression)                  \
   do {                                                \
-    ASSERT_EQ(Error::kNotFound, (expression).code()); \
+    ASSERT_EQ(Error::kErrorNotFound, (expression).code()); \
   } while (0)
 
 #define EXPECT_FAILED_PRECONDITION(expression)                  \
   do {                                                          \
-    ASSERT_EQ(Error::kFailedPrecondition, (expression).code()); \
+    ASSERT_EQ(Error::kErrorFailedPrecondition, (expression).code()); \
   } while (0)
 
 class FilesystemTest : public testing::Test {
@@ -174,7 +174,7 @@ TEST_F(FilesystemTest, RecursivelyCreateDirFailure) {
   Touch(dir);
 
   Status status = fs_->RecursivelyCreateDir(subdir);
-  EXPECT_EQ(Error::kFailedPrecondition, status.code());
+  EXPECT_EQ(Error::kErrorFailedPrecondition, status.code());
 
   EXPECT_OK(fs_->RecursivelyRemove(dir));
 }

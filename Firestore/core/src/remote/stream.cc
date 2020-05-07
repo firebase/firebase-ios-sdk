@@ -280,12 +280,12 @@ void Stream::Close(const Status& status) {
 }
 
 void Stream::HandleErrorStatus(const Status& status) {
-  if (status.code() == Error::kResourceExhausted) {
+  if (status.code() == Error::kErrorResourceExhausted) {
     LOG_DEBUG(
         "%s Using maximum backoff delay to prevent overloading the backend.",
         GetDebugDescription());
     backoff_.ResetToMax();
-  } else if (status.code() == Error::kUnauthenticated) {
+  } else if (status.code() == Error::kErrorUnauthenticated) {
     // "unauthenticated" error means the token was rejected. Try force
     // refreshing it in case it just expired.
     credentials_provider_->InvalidateToken();

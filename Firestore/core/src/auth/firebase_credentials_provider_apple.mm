@@ -97,7 +97,7 @@ void FirebaseCredentialsProvider::GetToken(TokenListener completion) {
       // Cancel the request since the user changed while the request was
       // outstanding so the response is likely for a previous user (which
       // user, we can't be sure).
-      completion(util::Status(Error::kAborted,
+      completion(util::Status(Error::kErrorAborted,
                               "GetToken aborted due to token change."));
     } else {
       if (error == nil) {
@@ -107,7 +107,7 @@ void FirebaseCredentialsProvider::GetToken(TokenListener completion) {
           completion(Token::Unauthenticated());
         }
       } else {
-        Error error_code = Error::kUnknown;
+        Error error_code = Error::kErrorUnknown;
         if (error.domain == FIRFirestoreErrorDomain) {
           error_code = static_cast<Error>(error.code);
         }
