@@ -14,7 +14,12 @@
 
 #import "Private/GULUserDefaults.h"
 
+#if SWIFT_PACKAGE
+// SwiftPM doesn't work with private headers in a framework.
+#import "GoogleUtilities/Logger/Private/GULLogger.h"
+#else
 #import <GoogleUtilities/GULLogger.h>
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
 

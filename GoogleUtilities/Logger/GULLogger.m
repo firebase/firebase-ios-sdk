@@ -16,8 +16,13 @@
 
 #include <asl.h>
 
+#if SWIFT_PACKAGE
+@import GoogleUtilities_Environment;
+#else
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
-#import <GoogleUtilities/GULLoggerLevel.h>
+#endif
+
+#import "GoogleUtilities/Logger/Public/GULLoggerLevel.h"
 
 /// ASL client facility name used by GULLogger.
 const char *kGULLoggerASLClientFacilityName = "com.google.utilities.logger";

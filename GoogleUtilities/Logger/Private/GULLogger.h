@@ -14,9 +14,12 @@
  * limitations under the License.
  */
 
+#ifndef GOOGLEUTILITIES_LOGGER_PRIVATE_GULLOGGER_H_
+#define GOOGLEUTILITIES_LOGGER_PRIVATE_GULLOGGER_H_
+
 #import <Foundation/Foundation.h>
 
-#import <GoogleUtilities/GULLoggerLevel.h>
+#import "GoogleUtilities/Logger/Public/GULLoggerLevel.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -157,3 +160,5 @@ extern void GULLogDebug(GULLoggerService service,
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif  // GOOGLEUTILITIES_LOGGER_PRIVATE_GULLOGGER_H_

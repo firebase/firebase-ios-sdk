@@ -18,8 +18,12 @@
 #import "GoogleUtilities/Reachability/Private/GULReachabilityChecker.h"
 #import "GoogleUtilities/Reachability/Private/GULReachabilityMessageCode.h"
 
+#if SWIFT_PACKAGE
+// SwiftPM doesn't work with private headers in a framework.
+#import "GoogleUtilities/Logger/Private/GULLogger.h"
+#else
 #import <GoogleUtilities/GULLogger.h>
-#import <GoogleUtilities/GULReachabilityChecker.h>
+#endif
 
 static GULLoggerService kGULLoggerReachability = @"[GULReachability]";
 #if !TARGET_OS_WATCH

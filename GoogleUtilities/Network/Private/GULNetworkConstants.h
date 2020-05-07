@@ -15,7 +15,13 @@
  */
 
 #import <Foundation/Foundation.h>
+
+#if SWIFT_PACKAGE
+// SwiftPM doesn't work with private headers in a framework.
+#import "GoogleUtilities/Logger/Private/GULLogger.h"
+#else
 #import <GoogleUtilities/GULLogger.h>
+#endif
 
 /// Error codes in Firebase Network error domain.
 /// Note: these error codes should never change. It would make it harder to decode the errors if

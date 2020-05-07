@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+#ifndef GOOGLEUTILITIES_REACHABILITY_PRIVATE_GULREACHABILITYCHECKER_H_
+#define GOOGLEUTILITIES_REACHABILITY_PRIVATE_GULREACHABILITYCHECKER_H_
+
 #import <Foundation/Foundation.h>
 #if !TARGET_OS_WATCH
 #import <SystemConfiguration/SystemConfiguration.h>
@@ -77,3 +80,5 @@ const NSString *GULReachabilityStatusString(GULReachabilityStatus status);
 - (void)stop;
 
 @end
+
+#endif  // GOOGLEUTILITIES_REACHABILITY_PRIVATE_GULREACHABILITYCHECKER_H_

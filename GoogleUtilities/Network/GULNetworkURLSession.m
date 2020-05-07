@@ -16,7 +16,13 @@
 
 #import "GoogleUtilities/Network/Private/GULNetworkURLSession.h"
 
+#if SWIFT_PACKAGE
+// SwiftPM doesn't work with private headers in a framework.
+#import "GoogleUtilities/Logger/Private/GULLogger.h"
+#else
 #import <GoogleUtilities/GULLogger.h>
+#endif
+
 #import "GoogleUtilities/Network/Private/GULMutableDictionary.h"
 #import "GoogleUtilities/Network/Private/GULNetworkConstants.h"
 #import "GoogleUtilities/Network/Private/GULNetworkMessageCode.h"
