@@ -145,15 +145,31 @@ TEST_P(AsyncQueueTest, CanCancelDelayedOperations) {
 TEST_P(AsyncQueueTest, CanCallCancelOnDelayedOperationAfterTheOperationHasRun) {
   Expectation ran;
 
+  // Fulfill the `ran` expectation from another task enqueued on the AsyncQueue
+  // to work around a race condition in the test that exists otherwise.
+  //
+  // The problem is that if `EnqueueAfterDelay` directly fulfills the `ran`
+  // expectation, the `IsScheduled` check below `Await(ran)` will race with the
+  // Task's callback into the `Executor` that marks it complete. Forcing the
+  // expectation to be fulfilled in the next task avoids the race because the
+  // lock to mark the task complete must have been acquired to start the next
+  // task.
+  //
+  // This is something of a gross hack, but it serves to keep the underlying
+  // executors simpler. Without this, we'd need expose some way to reliably
+  // await the actual completion of a task, not just observe its execution.
+  auto fulfill = [&] { queue->EnqueueRelaxed(ran.AsCallback()); };
+
   DelayedOperation delayed_operation;
   queue->Enqueue([&] {
-    delayed_operation = queue->EnqueueAfterDelay(AsyncQueue::Milliseconds(10),
-                                                 kTimerId1, ran.AsCallback());
+    delayed_operation = queue->EnqueueAfterDelay(AsyncQueue::Milliseconds(1),
+                                                 kTimerId1, fulfill);
     EXPECT_TRUE(queue->IsScheduled(kTimerId1));
   });
 
   Await(ran);
-  EXPECT_FALSE(queue->IsScheduled(kTimerId1));
+  bool scheduled = queue->IsScheduled(kTimerId1);
+  EXPECT_FALSE(scheduled);
   EXPECT_NO_THROW(delayed_operation.Cancel());
 }
 
@@ -180,10 +196,12 @@ TEST_P(AsyncQueueTest, CanManuallyDrainSpecificDelayedOperationsForTesting) {
   Expectation ran;
   std::string steps;
 
+  DelayedOperation timer1;
+
   queue->Enqueue([&] {
     queue->EnqueueRelaxed([&] { steps += '1'; });
-    queue->EnqueueAfterDelay(AsyncQueue::Milliseconds(20000), kTimerId1,
-                             [&steps] { steps += '5'; });
+    timer1 = queue->EnqueueAfterDelay(AsyncQueue::Milliseconds(20000),
+                                      kTimerId1, [&steps] { steps += '5'; });
     queue->EnqueueAfterDelay(AsyncQueue::Milliseconds(10000), kTimerId2,
                              [&steps] { steps += '3'; });
     queue->EnqueueAfterDelay(AsyncQueue::Milliseconds(15000), kTimerId3,
@@ -195,6 +213,15 @@ TEST_P(AsyncQueueTest, CanManuallyDrainSpecificDelayedOperationsForTesting) {
   Await(ran);
   queue->RunScheduledOperationsUntil(kTimerId3);
   EXPECT_EQ(steps, "1234");
+
+  // TODO(wilhuff): Force the AsyncQueue to be destroyed at test end
+  //
+  // Currently the Task with tag=kTimerId1 survives beyond the end of the test
+  // because the AsyncQueue is held by shared_ptr that's captured in the test.
+  // If the AsyncQueue were destroyed at test end, the Executor's normal logic
+  // of canceling all future scheduled tasks would kick in and this manual
+  // cancellation would not be necessary.
+  timer1.Cancel();
 }
 
 TEST_P(AsyncQueueTest, CanScheduleOprationsWithRespectsToShutdownState) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2018 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@
 #include <thread>  // NOLINT(build/c++11)
 
 #include "Firestore/core/src/util/executor.h"
+#include "Firestore/core/src/util/task.h"
 #include "gtest/gtest.h"
 
 namespace firebase {
@@ -38,8 +39,8 @@ using testutil::Expectation;
 DelayedOperation Schedule(Executor* const executor,
                           const Executor::Milliseconds delay,
                           Executor::Operation&& operation) {
-  const Executor::Tag no_tag = -1;
-  return executor->Schedule(delay, no_tag, std::move(operation));
+  static const Executor::Tag test_tag = 42;
+  return executor->Schedule(delay, test_tag, std::move(operation));
 }
 
 }  // namespace
@@ -58,7 +59,7 @@ TEST_P(ExecutorTest, ExecuteBlocking) {
 
 TEST_P(ExecutorTest, DestructorDoesNotBlockIfThereArePendingTasks) {
   const auto future = Async([&] {
-    auto another_executor = GetParam()(/* threads */ 1);
+    auto another_executor = GetParam()(/*threads=*/1);
     Schedule(another_executor.get(), chr::minutes(5), [] {});
     Schedule(another_executor.get(), chr::minutes(10), [] {});
     // Destructor shouldn't block waiting for the 5/10-minute-away operations.
@@ -175,7 +176,7 @@ TEST_P(ExecutorTest, OperationsCanBeRemovedFromScheduleBeforeTheyRun) {
   // Make sure the schedule is empty.
   EXPECT_FALSE(executor->IsScheduled(tag_foo));
   EXPECT_FALSE(executor->IsScheduled(tag_bar));
-  EXPECT_FALSE(executor->PopFromSchedule().has_value());
+  EXPECT_EQ(executor->PopFromSchedule(), nullptr);
 
   // Add two operations to the schedule with different tags.
 
@@ -198,18 +199,20 @@ TEST_P(ExecutorTest, OperationsCanBeRemovedFromScheduleBeforeTheyRun) {
   // preserve tags. Schedule should become empty as a result.
 
   auto maybe_operation = executor->PopFromSchedule();
-  ASSERT_TRUE(maybe_operation.has_value());
-  EXPECT_EQ(maybe_operation->tag, tag_foo);
+  ASSERT_NE(maybe_operation, nullptr);
+  EXPECT_EQ(maybe_operation->tag(), tag_foo);
   EXPECT_FALSE(executor->IsScheduled(tag_foo));
   EXPECT_TRUE(executor->IsScheduled(tag_bar));
+  maybe_operation->Execute();
 
   maybe_operation = executor->PopFromSchedule();
-  ASSERT_TRUE(maybe_operation.has_value());
-  EXPECT_EQ(maybe_operation->tag, tag_bar);
+  ASSERT_NE(maybe_operation, nullptr);
+  EXPECT_EQ(maybe_operation->tag(), tag_bar);
   EXPECT_FALSE(executor->IsScheduled(tag_bar));
+  maybe_operation->Execute();
 
   // Schedule should now be empty.
-  EXPECT_FALSE(executor->PopFromSchedule().has_value());
+  EXPECT_EQ(executor->PopFromSchedule(), nullptr);
 }
 
 TEST_P(ExecutorTest, DuplicateTagsOnOperationsAreAllowed) {
@@ -225,19 +228,19 @@ TEST_P(ExecutorTest, DuplicateTagsOnOperationsAreAllowed) {
   EXPECT_TRUE(executor->IsScheduled(tag_foo));
 
   auto maybe_operation = executor->PopFromSchedule();
-  ASSERT_TRUE(maybe_operation.has_value());
-  EXPECT_EQ(maybe_operation->tag, tag_foo);
+  ASSERT_NE(maybe_operation, nullptr);
+  EXPECT_EQ(maybe_operation->tag(), tag_foo);
   // There's still another operation with the same tag in the schedule.
   EXPECT_TRUE(executor->IsScheduled(tag_foo));
 
-  maybe_operation->operation();
+  maybe_operation->Execute();
 
   maybe_operation = executor->PopFromSchedule();
-  ASSERT_TRUE(maybe_operation.has_value());
-  EXPECT_EQ(maybe_operation->tag, tag_foo);
+  ASSERT_NE(maybe_operation, nullptr);
+  EXPECT_EQ(maybe_operation->tag(), tag_foo);
   EXPECT_FALSE(executor->IsScheduled(tag_foo));
 
-  maybe_operation->operation();
+  maybe_operation->Execute();
   // Despite having the same tag, the operations should have been ordered
   // according to their scheduled time and preserved their identity.
   EXPECT_EQ(steps, "12");
@@ -294,6 +297,52 @@ TEST_P(ExecutorTest, ConcurrentExecutorsWork) {
 
   countdown->Await();
   ASSERT_EQ(0, countdown->count());
+}
+
+TEST_P(ExecutorTest, DestructorWaitsForExecutingTasks) {
+  Expectation running;
+  Expectation shutdown_started;
+
+  std::string result;
+
+  executor->Execute([&] {
+    result += "1";
+    running.Fulfill();
+
+    Await(shutdown_started);
+    result += "3";
+  });
+
+  Expectation shutdown_complete;
+  Async([&] {
+    Await(running);
+    result += "2";
+
+    shutdown_started.Fulfill();
+    executor.reset(nullptr);
+
+    result += "4";
+    shutdown_complete.Fulfill();
+  });
+
+  Await(shutdown_complete);
+  ASSERT_EQ(result, "1234");
+}
+
+TEST_P(ExecutorTest, DestructorAvoidsDeadlockWhenDeletingSelf) {
+  Expectation complete;
+  std::string result;
+
+  executor->Execute([&] {
+    result += "1";
+    executor.reset(nullptr);
+    result += "2";
+
+    complete.Fulfill();
+  });
+
+  Await(complete);
+  ASSERT_EQ(result, "12");
 }
 
 }  // namespace util

@@ -19,12 +19,14 @@
 
 #include <dispatch/dispatch.h>
 
-#include <chrono>  // NOLINT(build/c++11)
+#include <chrono>              // NOLINT(build/c++11)
+#include <condition_variable>  // NOLINT(build/c++11)
 #include <functional>
 #include <memory>
 #include <mutex>  // NOLINT(build/c++11)
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 #include <utility>
 
 #include "Firestore/core/src/util/executor.h"
@@ -40,8 +42,6 @@
 namespace firebase {
 namespace firestore {
 namespace util {
-
-class TimeSlot;
 
 // A serial queue built on top of libdispatch. The operations are run on
 // a dedicated serial dispatch queue.
@@ -62,27 +62,29 @@ class ExecutorLibdispatch : public Executor {
 
   bool IsScheduled(Tag tag) const override;
   bool IsTaskScheduled(Id id) const override;
-  absl::optional<TaggedOperation> PopFromSchedule() override;
+  Task* PopFromSchedule() override;
 
   dispatch_queue_t dispatch_queue() const {
     return dispatch_queue_;
   }
 
  private:
-  friend class TimeSlot;
-
-  using ScheduleMap = std::unordered_map<Id, TimeSlot*>;
+  using ScheduleMap = std::unordered_map<Id, Task*>;
   using ScheduleEntry = ScheduleMap::value_type;
 
+  void Complete(Task* task) override;
   void Cancel(Id operation_id) override;
-  void CancelLocked(Id operation_id);
+
+  static void InvokeAsync(void* raw_task);
+  static void InvokeSync(void* raw_task);
+
   Id NextIdLocked();
 
   mutable std::mutex mutex_;
 
   dispatch_queue_t dispatch_queue_;
-  // Stores non-owned pointers to `TimeSlot`s.
-  // Invariant: if a `TimeSlot` is in `schedule_`, it's a valid pointer.
+
+  std::unordered_set<Task*> async_tasks_;
   ScheduleMap schedule_;
   Id current_id_ = 0;
 };

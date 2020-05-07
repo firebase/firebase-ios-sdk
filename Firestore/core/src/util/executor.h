@@ -21,15 +21,13 @@
 #include <functional>
 #include <memory>
 #include <string>
-#include <utility>
-
-#include "absl/types/optional.h"
 
 namespace firebase {
 namespace firestore {
 namespace util {
 
 class DelayedOperation;
+class Task;
 
 // An interface to a platform-specific executor of asynchronous operations
 // (called tasks on other platforms).
@@ -57,19 +55,6 @@ class Executor {
   using Milliseconds = std::chrono::milliseconds;
   using Clock = std::chrono::steady_clock;
   using TimePoint = std::chrono::time_point<Clock, Milliseconds>;
-
-  // Operations scheduled for future execution have an opaque tag. The value of
-  // the tag is ignored by the executor but can be used to find operations with
-  // a given tag after they are scheduled.
-  struct TaggedOperation {
-    TaggedOperation() {
-    }
-    TaggedOperation(const Tag tag, Operation&& operation)
-        : tag{tag}, operation{std::move(operation)} {
-    }
-    Tag tag = 0;
-    Operation operation;
-  };
 
   // Creates a new serial Executor of the platform-appropriate type, and gives
   // it the given label, if the implementation supports it.
@@ -124,13 +109,25 @@ class Executor {
   virtual bool IsTaskScheduled(Id id) const = 0;
 
   // Removes the nearest due scheduled operation from the schedule and returns
-  // it to the caller. This function may be used to reschedule operations.
-  // Immediate operations don't count; only operations scheduled for delayed
-  // execution may be removed. If no such operations are currently scheduled, an
-  // empty `optional` is returned.
-  virtual absl::optional<TaggedOperation> PopFromSchedule() = 0;
+  // it to the caller.
+  //
+  // Only operations scheduled for delayed execution can be removed with this
+  // method; immediate operations don't count. If no such operations are
+  // currently scheduled, `nullptr` is returned.
+  //
+  // The caller is responsible for either Executing or Canceling (and Releasing)
+  // the returned Task.
+  virtual Task* PopFromSchedule() = 0;
 
  private:
+  // Mark a task completed, removing it from any internal schedule or tracking.
+  //
+  // Called by Task once it has completed execution. Implementations of
+  // `Complete` should not call back to the Task: it is responsible for marking
+  // itself completed.
+  virtual void Complete(Task* task) = 0;
+  friend class Task;
+
   // If the operation hasn't yet been run, it will be removed from the queue.
   // Otherwise, this function is a no-op.
   //

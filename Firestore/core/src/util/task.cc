@@ -105,6 +105,13 @@ void Task::Execute() {
       // the current task can trigger the cancellation of the task.
       InverseLockGuard unlock(mutex_);
       operation_();
+
+      // The callback to the executor must be performed after the operation
+      // completes, otherwise the executor's destructor cannot reliably block
+      // until all currently running tasks have completed.
+      if (executor_) {
+        executor_->Complete(this);
+      }
     }
 
     state_ = State::kDone;
