@@ -61,6 +61,7 @@ class ExecutorLibdispatch : public Executor {
                             Operation&& operation) override;
 
   bool IsScheduled(Tag tag) const override;
+  bool IsTaskScheduled(Id id) const override;
   absl::optional<TaggedOperation> PopFromSchedule() override;
 
   dispatch_queue_t dispatch_queue() const {

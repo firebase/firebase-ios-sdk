@@ -228,6 +228,7 @@ class ExecutorStd : public Executor {
   std::string Name() const override;
 
   bool IsScheduled(Tag tag) const override;
+  bool IsTaskScheduled(Id id) const override;
   absl::optional<TaggedOperation> PopFromSchedule() override;
 
  private:

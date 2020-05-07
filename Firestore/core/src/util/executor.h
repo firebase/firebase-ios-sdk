@@ -121,6 +121,8 @@ class Executor {
   // Checks whether an operation tagged with the given `tag` is currently
   // scheduled for future execution.
   virtual bool IsScheduled(Tag tag) const = 0;
+  virtual bool IsTaskScheduled(Id id) const = 0;
+
   // Removes the nearest due scheduled operation from the schedule and returns
   // it to the caller. This function may be used to reschedule operations.
   // Immediate operations don't count; only operations scheduled for delayed
@@ -150,27 +152,25 @@ class DelayedOperation {
   // Returns whether this `DelayedOperation` is associated with an actual
   // operation.
   explicit operator bool() const {
-    return !canceled_;
+    return executor_ && executor_->IsTaskScheduled(id_);
   }
 
   // If the operation has not been run yet, cancels the operation. Otherwise,
   // this function is a no-op.
   void Cancel() {
-    if (!canceled_) {
-      canceled_ = true;
+    if (executor_) {
       executor_->Cancel(id_);
     }
   }
 
   // Internal use only.
   explicit DelayedOperation(Executor* executor, Executor::Id id)
-      : executor_(executor), id_(id), canceled_(false) {
+      : executor_(executor), id_(id) {
   }
 
  private:
-  Executor* executor_;
-  Executor::Id id_;
-  bool canceled_ = true;
+  Executor* executor_ = nullptr;
+  Executor::Id id_ = 0;
 };
 
 inline Executor::TimePoint MakeTargetTime(Executor::Milliseconds delay) {

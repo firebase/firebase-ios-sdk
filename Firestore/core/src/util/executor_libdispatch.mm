@@ -273,6 +273,12 @@ bool ExecutorLibdispatch::IsScheduled(const Tag tag) const {
                      });
 }
 
+bool ExecutorLibdispatch::IsTaskScheduled(Id id) const {
+  std::lock_guard<std::mutex> lock(mutex_);
+
+  return schedule_.find(id) != schedule_.end();
+}
+
 absl::optional<Executor::TaggedOperation>
 ExecutorLibdispatch::PopFromSchedule() {
   std::lock_guard<std::mutex> lock(mutex_);
