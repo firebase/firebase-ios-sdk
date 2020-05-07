@@ -43,14 +43,18 @@ class DelayedOperation;
 // Delayed operations may be canceled if they have not already been run.
 class Executor {
  public:
+  // An opaque name for a kind of operation. All operations of the same type
+  // should share a tag.
   using Tag = int;
-  using Operation = std::function<void()>;
-  using Milliseconds = std::chrono::milliseconds;
-
   // An opaque, monotonically increasing identifier for each operation that does
   // not depend on their address. Where the `Tag` identifies the kind of
   // operation, the `Id` identifies the specific instance.
   using Id = uint32_t;
+  using Operation = std::function<void()>;
+
+  using Milliseconds = std::chrono::milliseconds;
+  using Clock = std::chrono::steady_clock;
+  using TimePoint = std::chrono::time_point<Clock, Milliseconds>;
 
   // Operations scheduled for future execution have an opaque tag. The value of
   // the tag is ignored by the executor but can be used to find operations with
@@ -149,6 +153,12 @@ class DelayedOperation {
  private:
   std::function<void()> cancel_func_;
 };
+
+inline Executor::TimePoint MakeTargetTime(Executor::Milliseconds delay) {
+  return std::chrono::time_point_cast<Executor::Milliseconds>(
+             Executor::Clock::now()) +
+         delay;
+}
 
 }  // namespace util
 }  // namespace firestore

@@ -89,10 +89,9 @@ DelayedOperation ExecutorStd::Schedule(const Milliseconds delay,
   // of immediate operations.
   HARD_ASSERT(delay.count() >= 0, "Schedule: delay cannot be negative");
 
-  namespace chr = std::chrono;
-  const auto now = chr::time_point_cast<Milliseconds>(chr::steady_clock::now());
+  const auto target_time = MakeTargetTime(delay);
   const auto id =
-      PushOnSchedule(std::move(tagged.operation), now + delay, tagged.tag);
+      PushOnSchedule(std::move(tagged.operation), target_time, tagged.tag);
 
   return DelayedOperation{[this, id] { TryCancel(id); }};
 }

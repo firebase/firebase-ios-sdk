@@ -150,11 +150,8 @@ class TimeSlot {
   void Execute();
   void RemoveFromSchedule();
 
-  using TimePoint = std::chrono::time_point<std::chrono::steady_clock,
-                                            Executor::Milliseconds>;
-
   ExecutorLibdispatch* const executor_;
-  const TimePoint target_time_;  // Used for sorting
+  const Executor::TimePoint target_time_;  // Used for sorting
   Executor::TaggedOperation tagged_;
   Executor::Id time_slot_id_ = 0;
 
@@ -170,9 +167,7 @@ TimeSlot::TimeSlot(ExecutorLibdispatch* const executor,
                    Executor::TaggedOperation&& operation,
                    Executor::Id slot_id)
     : executor_{executor},
-      target_time_{std::chrono::time_point_cast<Executor::Milliseconds>(
-                       std::chrono::steady_clock::now()) +
-                   delay},
+      target_time_{MakeTargetTime(delay)},
       tagged_{std::move(operation)},
       time_slot_id_{slot_id} {
   // Only assignment of std::atomic is atomic; initialization in its constructor
