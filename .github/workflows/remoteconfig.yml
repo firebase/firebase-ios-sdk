@@ -25,7 +25,7 @@ jobs:
     - name: Setup quickstart
       run: scripts/setup_quickstart.sh config
     - name: Install Secret GoogleService-Info.plist
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-auth.plist.gpg \
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-config.plist.gpg \
           quickstart-ios/config/GoogleService-Info.plist "$plist_secret"
     - name: Install Secret FIREGSignInInfo.h
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/FIREGSignInInfo.h.gpg \
