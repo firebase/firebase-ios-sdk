@@ -46,6 +46,8 @@ class Executor {
   // An opaque name for a kind of operation. All operations of the same type
   // should share a tag.
   using Tag = int;
+  static constexpr Tag kNoTag = -1;
+
   // An opaque, monotonically increasing identifier for each operation that does
   // not depend on their address. Where the `Tag` identifies the kind of
   // operation, the `Id` identifies the specific instance.

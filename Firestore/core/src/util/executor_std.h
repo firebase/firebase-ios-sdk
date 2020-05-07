@@ -260,7 +260,6 @@ class ExecutorStd : public Executor {
       return tagged.tag == kNoTag;
     }
 
-    static constexpr Tag kNoTag = -1;
     TaggedOperation tagged;
     Id id = 0;
   };
