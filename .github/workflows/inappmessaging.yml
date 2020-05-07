@@ -1,4 +1,4 @@
-name: abtesting
+name: inappmessaging
 
 on:
   push:
@@ -6,8 +6,8 @@ on:
       - master
   pull_request:
     paths:
-    - 'FirebaseABTesting**'
-    - '.github/workflows/abtesting.yml'
+    - 'FirebaseInAppMessaging**'
+    - '.github/workflows/InAppMessaging.yml'
     - 'Gemfile'
   schedule:
     # Run every day at 11pm (PST) - cron uses UTC times
@@ -20,16 +20,19 @@ jobs:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
     runs-on: macOS-latest
+    needs: check
+
     steps:
     - uses: actions/checkout@v2
     - name: Setup quickstart
-      run: scripts/setup_quickstart.sh abtesting
-    - name: Install Secret GoogleService-Info.plist
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-abtesting.plist.gpg \
-          quickstart-ios/abtesting/GoogleService-Info.plist "$plist_secret"
+      run: scripts/setup_quickstart.sh inappmessaging
+    - name: install secret googleservice-info.plist
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-inappmessaging.plist.gpg \
+          quickstart-ios/inappmessaging/GoogleService-Info.plist "$plist_secret"
     - name: Install Secret FIREGSignInInfo.h
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/FIREGSignInInfo.h.gpg \
           quickstart-ios/TestUtils/FIREGSignInInfo.h "$signin_secret"
     - name: Test quickstart
-      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh ABTesting)
+      run: ([ -z $plist_secret ] ||
+            scripts/third_party/travis/retry.sh scripts/test_quickstart.sh InAppMessaging)
 
