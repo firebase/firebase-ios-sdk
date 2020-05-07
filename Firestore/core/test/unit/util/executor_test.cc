@@ -39,8 +39,7 @@ DelayedOperation Schedule(Executor* const executor,
                           const Executor::Milliseconds delay,
                           Executor::Operation&& operation) {
   const Executor::Tag no_tag = -1;
-  return executor->Schedule(
-      delay, Executor::TaggedOperation{no_tag, std::move(operation)});
+  return executor->Schedule(delay, no_tag, std::move(operation));
 }
 
 }  // namespace
@@ -183,14 +182,14 @@ TEST_P(ExecutorTest, OperationsCanBeRemovedFromScheduleBeforeTheyRun) {
   // The exact delay doesn't matter as long as it's too far away to be executed
   // during the test.
   const auto far_away = chr::seconds(1);
-  executor->Schedule(far_away, {tag_foo, [] {}});
+  executor->Schedule(far_away, tag_foo, [] {});
   // Scheduled operations can be distinguished by their tag.
   EXPECT_TRUE(executor->IsScheduled(tag_foo));
   EXPECT_FALSE(executor->IsScheduled(tag_bar));
 
   // This operation will be scheduled after the previous one (operations
   // scheduled with the same delay are FIFO ordered).
-  executor->Schedule(far_away, {tag_bar, [] {}});
+  executor->Schedule(far_away, tag_bar, [] {});
   EXPECT_TRUE(executor->IsScheduled(tag_foo));
   EXPECT_TRUE(executor->IsScheduled(tag_bar));
 
@@ -221,8 +220,8 @@ TEST_P(ExecutorTest, DuplicateTagsOnOperationsAreAllowed) {
   // duplicate tags are allowed.
 
   const auto far_away = chr::seconds(1);
-  executor->Schedule(far_away, {tag_foo, [&steps] { steps += '1'; }});
-  executor->Schedule(far_away, {tag_foo, [&steps] { steps += '2'; }});
+  executor->Schedule(far_away, tag_foo, [&steps] { steps += '1'; });
+  executor->Schedule(far_away, tag_foo, [&steps] { steps += '2'; });
   EXPECT_TRUE(executor->IsScheduled(tag_foo));
 
   auto maybe_operation = executor->PopFromSchedule();

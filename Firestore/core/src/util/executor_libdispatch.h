@@ -57,7 +57,8 @@ class ExecutorLibdispatch : public Executor {
   void Execute(Operation&& operation) override;
   void ExecuteBlocking(Operation&& operation) override;
   DelayedOperation Schedule(Milliseconds delay,
-                            TaggedOperation&& operation) override;
+                            Tag tag,
+                            Operation&& operation) override;
 
   bool IsScheduled(Tag tag) const override;
   absl::optional<TaggedOperation> PopFromSchedule() override;

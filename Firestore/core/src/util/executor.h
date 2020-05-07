@@ -93,15 +93,20 @@ class Executor {
   // Like `Execute`, but blocks until the `operation` finishes, consequently
   // draining immediate operations from the executor.
   virtual void ExecuteBlocking(Operation&& operation) = 0;
+
   // Scheduled the given `operation` to be executed after `delay` milliseconds
   // from now, and returns a handle that allows to cancel the operation
-  // (provided it hasn't been run already). The operation is tagged to allow
-  // retrieving it later.
+  // (provided it hasn't been run already).
+  //
+  // Operations scheduled for future execution have an opaque tag. The value of
+  // the tag is ignored by the executor but can be used to find operations with
+  // a given tag after they are scheduled.
   //
   // `delay` must be non-negative; use `Execute` to schedule operations for
   // immediate execution.
   virtual DelayedOperation Schedule(Milliseconds delay,
-                                    TaggedOperation&& operation) = 0;
+                                    Tag tag,
+                                    Operation&& operation) = 0;
 
   // Checks for the caller whether it is being invoked by this executor.
   virtual bool IsCurrentExecutor() const = 0;

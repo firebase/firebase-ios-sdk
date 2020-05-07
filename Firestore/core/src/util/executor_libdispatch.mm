@@ -72,10 +72,11 @@ absl::string_view GetCurrentQueueLabel() {
 
 class TimeSlot {
  public:
-  TimeSlot(ExecutorLibdispatch* executor,
+  TimeSlot(ExecutorLibdispatch* const executor,
            Executor::Milliseconds delay,
-           Executor::TaggedOperation&& operation,
-           Executor::Id slot_id);
+           Executor::Tag tag,
+           Executor::Id id,
+           Executor::Operation&& operation);
 
   // Returns the operation that was scheduled for this time slot and turns the
   // slot into a no-op.
@@ -90,10 +91,10 @@ class TimeSlot {
       return false;
     }
 
-    return time_slot_id_ < rhs.time_slot_id_;
+    return id_ < rhs.id_;
   }
   bool operator==(const Executor::Tag tag) const {
-    return tagged_.tag == tag;
+    return tag_ == tag;
   }
 
   void MarkDone() {
@@ -107,8 +108,9 @@ class TimeSlot {
 
   ExecutorLibdispatch* const executor_;
   const Executor::TimePoint target_time_;  // Used for sorting
-  Executor::TaggedOperation tagged_;
-  Executor::Id time_slot_id_ = 0;
+  Executor::Tag tag_ = 0;
+  Executor::Id id_ = 0;
+  Executor::Operation operation_;
 
   // True if the operation has either been run or canceled.
   //
@@ -119,12 +121,14 @@ class TimeSlot {
 
 TimeSlot::TimeSlot(ExecutorLibdispatch* const executor,
                    const Executor::Milliseconds delay,
-                   Executor::TaggedOperation&& operation,
-                   Executor::Id slot_id)
-    : executor_{executor},
-      target_time_{MakeTargetTime(delay)},
-      tagged_{std::move(operation)},
-      time_slot_id_{slot_id} {
+                   Executor::Tag tag,
+                   Executor::Id id,
+                   Executor::Operation&& operation)
+    : executor_(executor),
+      target_time_(MakeTargetTime(delay)),
+      tag_(tag),
+      id_(id),
+      operation_(std::move(operation)) {
   // Only assignment of std::atomic is atomic; initialization in its constructor
   // isn't
   done_ = false;
@@ -132,9 +136,9 @@ TimeSlot::TimeSlot(ExecutorLibdispatch* const executor,
 
 Executor::TaggedOperation TimeSlot::UnscheduleLocked() {
   if (!done_) {
-    executor_->CancelLocked(time_slot_id_);
+    executor_->CancelLocked(id_);
   }
-  return std::move(tagged_);
+  return Executor::TaggedOperation(tag_, std::move(operation_));
 }
 
 void TimeSlot::InvokedByLibdispatch(void* raw_self) {
@@ -150,11 +154,10 @@ void TimeSlot::Execute() {
     return;
   }
 
-  executor_->Cancel(time_slot_id_);
+  executor_->Cancel(id_);
 
-  HARD_ASSERT(tagged_.operation,
-              "TimeSlot contains an invalid function object");
-  tagged_.operation();
+  HARD_ASSERT(operation_, "TimeSlot contains an invalid function object");
+  operation_();
 }
 
 // MARK: - ExecutorLibdispatch
@@ -211,8 +214,9 @@ void ExecutorLibdispatch::ExecuteBlocking(Operation&& operation) {
   });
 }
 
-DelayedOperation ExecutorLibdispatch::Schedule(const Milliseconds delay,
-                                               TaggedOperation&& operation) {
+DelayedOperation ExecutorLibdispatch::Schedule(Milliseconds delay,
+                                               Tag tag,
+                                               Operation&& operation) {
   namespace chr = std::chrono;
   const dispatch_time_t delay_ns = dispatch_time(
       DISPATCH_TIME_NOW, chr::duration_cast<chr::nanoseconds>(delay).count());
@@ -223,19 +227,19 @@ DelayedOperation ExecutorLibdispatch::Schedule(const Milliseconds delay,
   // libdispatch after the executor is destroyed. The Executor only stores an
   // observer pointer to the operation.
   TimeSlot* time_slot = nullptr;
-  Id time_slot_id = 0;
+  Id id = 0;
   {
     std::lock_guard<std::mutex> lock(mutex_);
 
-    time_slot_id = NextIdLocked();
-    time_slot = new TimeSlot(this, delay, std::move(operation), time_slot_id);
-    schedule_[time_slot_id] = time_slot;
+    id = NextIdLocked();
+    time_slot = new TimeSlot(this, delay, tag, id, std::move(operation));
+    schedule_[id] = time_slot;
   }
 
   dispatch_after_f(delay_ns, dispatch_queue_, time_slot,
                    TimeSlot::InvokedByLibdispatch);
 
-  return DelayedOperation(this, time_slot_id);
+  return DelayedOperation(this, id);
 }
 
 void ExecutorLibdispatch::Cancel(Id to_remove) {

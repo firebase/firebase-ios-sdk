@@ -79,20 +79,19 @@ ExecutorStd::~ExecutorStd() {
 }
 
 void ExecutorStd::Execute(Operation&& operation) {
-  PushOnSchedule(std::move(operation), Immediate());
+  PushOnSchedule(Immediate(), kNoTag, std::move(operation));
 }
 
 DelayedOperation ExecutorStd::Schedule(const Milliseconds delay,
-                                       TaggedOperation&& tagged) {
+                                       Tag tag,
+                                       Operation&& operation) {
   // While negative delay can be interpreted as a request for immediate
   // execution, supporting it would provide a hacky way to modify FIFO ordering
   // of immediate operations.
   HARD_ASSERT(delay.count() >= 0, "Schedule: delay cannot be negative");
 
   const auto target_time = MakeTargetTime(delay);
-  const auto id =
-      PushOnSchedule(std::move(tagged.operation), target_time, tagged.tag);
-
+  const auto id = PushOnSchedule(target_time, tag, std::move(operation));
   return DelayedOperation(this, id);
 }
 
@@ -101,13 +100,13 @@ void ExecutorStd::Cancel(const Id operation_id) {
       [operation_id](const Entry& e) { return e.id == operation_id; });
 }
 
-ExecutorStd::Id ExecutorStd::PushOnSchedule(Operation&& operation,
-                                            const TimePoint when,
-                                            const Tag tag) {
+ExecutorStd::Id ExecutorStd::PushOnSchedule(const TimePoint when,
+                                            const Tag tag,
+                                            Operation&& operation) {
   // Note: operations scheduled for immediate execution don't actually need an
   // id. This could be tweaked to reuse the same id for all such operations.
   const auto id = NextId();
-  schedule_.Push(Entry{std::move(operation), id, tag}, when);
+  schedule_.Push(Entry(tag, id, std::move(operation)), when);
   return id;
 }
 
@@ -117,8 +116,8 @@ void ExecutorStd::PollingThread() {
   std::shared_ptr<std::atomic<bool>> local_shutting_down = shutting_down_;
   while (!*local_shutting_down) {
     Entry entry = schedule_.PopBlocking();
-    if (entry.tagged.operation) {
-      entry.tagged.operation();
+    if (entry.operation) {
+      entry.operation();
     }
   }
 }
@@ -127,7 +126,7 @@ void ExecutorStd::UnblockQueue() {
   // Put a no-op for immediate execution on the queue to ensure that
   // `schedule_.PopBlocking` returns, and worker thread can notice that shutdown
   // is in progress.
-  schedule_.Push(Entry{[] {}, /*id=*/0}, Immediate());
+  schedule_.Push(Entry(kNoTag, /*id=*/0, [] {}), Immediate());
 }
 
 ExecutorStd::Id ExecutorStd::NextId() {
@@ -170,8 +169,7 @@ void ExecutorStd::ExecuteBlocking(Operation&& operation) {
 }
 
 bool ExecutorStd::IsScheduled(const Tag tag) const {
-  return schedule_.Contains(
-      [&tag](const Entry& e) { return e.tagged.tag == tag; });
+  return schedule_.Contains([&tag](const Entry& e) { return e.tag == tag; });
 }
 
 absl::optional<Executor::TaggedOperation> ExecutorStd::PopFromSchedule() {
@@ -180,7 +178,8 @@ absl::optional<Executor::TaggedOperation> ExecutorStd::PopFromSchedule() {
   if (!removed.has_value()) {
     return {};
   }
-  return {std::move(removed.value().tagged)};
+  Entry entry = std::move(removed).value();
+  return TaggedOperation(entry.tag, std::move(entry.operation));
 }
 
 // MARK: - Executor

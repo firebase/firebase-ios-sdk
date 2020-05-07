@@ -78,7 +78,7 @@ TEST_F(ExecutorLibdispatchOnlyTests,
 TEST_F(ExecutorLibdispatchOnlyTests, ScheduledOperationOutlivesExecutor) {
   namespace chr = std::chrono;
   const auto far_away = chr::milliseconds(100);
-  executor->Schedule(far_away, {Executor::Tag{1}, [] {}});
+  executor->Schedule(far_away, Executor::Tag{1}, [] {});
   executor.reset();
   // Try to wait until libdispatch invokes the scheduled operation. This is
   // flaky but unlikely to not work in practice. The test is successful if
@@ -89,7 +89,7 @@ TEST_F(ExecutorLibdispatchOnlyTests, ScheduledOperationOutlivesExecutor) {
 TEST_F(ExecutorLibdispatchOnlyTests,
        ScheduledOperationOutlivesExecutor_DestroyedOnOwnQueue) {
   const auto far_away = chr::milliseconds(100);
-  executor->Schedule(far_away, {Executor::Tag{1}, [] {}});
+  executor->Schedule(far_away, Executor::Tag{1}, [] {});
 
   // Invoke destructor on the executor's own queue to make sure there is no
   // deadlock.

@@ -211,6 +211,8 @@ class Schedule {
 // thread, using C++11 standard library functionality.
 class ExecutorStd : public Executor {
  public:
+  static constexpr Tag kNoTag = -1;
+
   explicit ExecutorStd(int threads);
   ~ExecutorStd();
 
@@ -218,7 +220,8 @@ class ExecutorStd : public Executor {
   void ExecuteBlocking(Operation&& operation) override;
 
   DelayedOperation Schedule(Milliseconds delay,
-                            TaggedOperation&& tagged) override;
+                            Tag tag,
+                            Operation&& operation) override;
 
   bool IsCurrentExecutor() const override;
   std::string CurrentExecutorName() const override;
@@ -228,7 +231,7 @@ class ExecutorStd : public Executor {
   absl::optional<TaggedOperation> PopFromSchedule() override;
 
  private:
-  Id PushOnSchedule(Operation&& operation, TimePoint when, Tag tag = -1);
+  Id PushOnSchedule(TimePoint when, Tag tag, Operation&& operation);
 
   void Cancel(Id operation_id) override;
 
@@ -246,20 +249,21 @@ class ExecutorStd : public Executor {
   }
 
   struct Entry {
-    Entry() {
-    }
-    Entry(Operation&& operation,
+    Entry() = default;
+
+    Entry(const ExecutorStd::Tag tag,
           const ExecutorStd::Id id,
-          const ExecutorStd::Tag tag = kNoTag)
-        : tagged{tag, std::move(operation)}, id{id} {
+          Operation&& operation)
+        : tag(tag), id(id), operation(std::move(operation)) {
     }
 
     bool IsImmediate() const {
-      return tagged.tag == kNoTag;
+      return tag == kNoTag;
     }
 
-    TaggedOperation tagged;
+    Tag tag = 0;
     Id id = 0;
+    Operation operation;
   };
   // Operations scheduled for immediate execution are also put on the schedule
   // (with due time set to `Immediate`).

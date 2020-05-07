@@ -119,8 +119,8 @@ DelayedOperation AsyncQueue::EnqueueAfterDelay(Milliseconds delay,
     delay = Milliseconds(0);
   }
 
-  Executor::TaggedOperation tagged{static_cast<int>(timer_id), Wrap(operation)};
-  return executor_->Schedule(delay, std::move(tagged));
+  auto tag = static_cast<Executor::Tag>(timer_id);
+  return executor_->Schedule(delay, tag, Wrap(operation));
 }
 
 AsyncQueue::Operation AsyncQueue::Wrap(const Operation& operation) {
