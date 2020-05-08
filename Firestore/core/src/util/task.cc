@@ -97,25 +97,32 @@ void Task::Execute() {
   {
     std::lock_guard<std::mutex> lock(mutex_);
 
+    bool should_complete = false;
     if (state_ == State::kInitial) {
       state_ = State::kRunning;
       executing_thread_ = std::this_thread::get_id();
+      should_complete = true;
 
       // Invoke the operation without holding mutex_ to avoid deadlocks where
       // the current task can trigger the cancellation of the task.
       InverseLockGuard unlock(mutex_);
       operation_();
 
-      // The callback to the executor must be performed after the operation
-      // completes, otherwise the executor's destructor cannot reliably block
-      // until all currently running tasks have completed.
-      if (executor_) {
-        executor_->Complete(this);
-      }
     }
 
     state_ = State::kDone;
     operation_ = {};
+
+    // The callback to the executor must be performed after the operation
+    // completes, otherwise the executor's destructor cannot reliably block
+    // until all currently running tasks have completed.
+    //
+    // Also, the callback should only be performed if execute transitioned from
+    // kInitial to kDone, but this has to be done while holding the lock to
+    // avoid a data race with `Cancel`.
+    if (should_complete && executor_) {
+      executor_->Complete(this);
+    }
 
     is_complete_.notify_all();
   }
