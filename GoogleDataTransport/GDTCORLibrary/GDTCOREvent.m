@@ -56,7 +56,7 @@
                            atomically:YES
                              encoding:NSUTF8StringEncoding
                                 error:&error];
-    GDTCORAssert(error == nil, @"There was an error saving the new counter value to disk.");
+    GDTCORAssert(error == nil, @"There was an error saving the new counter value to disk: %@", error);
   });
   return result;
 }
