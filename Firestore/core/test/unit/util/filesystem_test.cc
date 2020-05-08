@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2018 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@
 #include <fstream>
 
 #include "Firestore/core/src/util/autoid.h"
+#include "Firestore/core/src/util/defer.h"
 #include "Firestore/core/src/util/log.h"
 #include "Firestore/core/src/util/path.h"
 #include "Firestore/core/src/util/statusor.h"
@@ -43,9 +44,12 @@ using testutil::Touch;
 static void WriteStringToFile(const Path& path, const std::string& text) {
   std::ofstream out{path.native_value()};
   ASSERT_TRUE(out.good());
+  auto cleanup = defer([&] {
+    out.close();
+    ASSERT_TRUE(out.good());
+  });
+
   out << text;
-  out.close();
-  ASSERT_TRUE(out.good());
 }
 
 static void WriteBytesToFile(const Path& path, int byte_count) {

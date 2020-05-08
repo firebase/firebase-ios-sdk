@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2018 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -167,7 +167,7 @@ Status Filesystem::IsDirectory(const Path& path) {
 
 StatusOr<int64_t> Filesystem::FileSize(const Path& path) {
   struct stat st {};
-  if (stat(path.c_str(), &st) == 0) {
+  if (::stat(path.c_str(), &st) == 0) {
     return st.st_size;
   } else {
     return Status::FromErrno(
