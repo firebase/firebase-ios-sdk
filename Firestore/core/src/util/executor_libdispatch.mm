@@ -20,6 +20,7 @@
 #include <atomic>
 
 #include "Firestore/core/src/util/hard_assert.h"
+#include "Firestore/core/src/util/log.h"
 #include "Firestore/core/src/util/task.h"
 #include "absl/memory/memory.h"
 
@@ -27,6 +28,12 @@ namespace firebase {
 namespace firestore {
 namespace util {
 namespace {
+
+#if FIRESTORE_TRACE_TASKS
+#define TASK_TRACE(...) LOG_WARN(__VA_ARGS__)
+#else
+#define TASK_TRACE(...)
+#endif
 
 absl::string_view StringViewFromDispatchLabel(const char* const label) {
   // Make sure string_view's data is not null, because it's used for logging.
@@ -79,6 +86,7 @@ ExecutorLibdispatch::ExecutorLibdispatch(const dispatch_queue_t dispatch_queue)
 
 ExecutorLibdispatch::~ExecutorLibdispatch() {
   decltype(async_tasks_) local_async_tasks;
+  TASK_TRACE("Executor::~Executor %s", this);
 
   {
     std::unique_lock<std::mutex> lock(mutex_);
@@ -93,6 +101,7 @@ ExecutorLibdispatch::~ExecutorLibdispatch() {
   }
 
   for (Task* task : local_async_tasks) {
+    TASK_TRACE("Executor::~Executor %s canceling %s", this, task);
     task->Cancel();
     task->Release();
   }
@@ -164,6 +173,7 @@ DelayedOperation ExecutorLibdispatch::Schedule(Milliseconds delay,
 void ExecutorLibdispatch::Complete(Task* task) {
   bool should_release = false;
   {
+    TASK_TRACE("Executor::Complete %s task %s", this, task);
     std::lock_guard<std::mutex> lock(mutex_);
 
     auto found = async_tasks_.find(task);
@@ -185,6 +195,7 @@ void ExecutorLibdispatch::Complete(Task* task) {
 void ExecutorLibdispatch::Cancel(Id operation_id) {
   Task* found_task = nullptr;
   {
+    TASK_TRACE("Executor::Cancel %s task %s", this, task);
     std::lock_guard<std::mutex> lock(mutex_);
 
     // `time_slot` might have been destroyed by the time cancellation function

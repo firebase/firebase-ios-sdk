@@ -21,11 +21,18 @@
 #include <utility>
 
 #include "Firestore/core/src/util/hard_assert.h"
+#include "Firestore/core/src/util/log.h"
 
 namespace firebase {
 namespace firestore {
 namespace util {
 namespace {
+
+#if FIRESTORE_TRACE_TASKS
+#define TASK_TRACE(...) LOG_WARN(__VA_ARGS__)
+#else
+#define TASK_TRACE(...)
+#endif
 
 /**
  * The inverse of `std::lock_guard`: it unlocks in the constructor and locks in
@@ -68,6 +75,7 @@ Task::Task(Executor* executor, Executor::Operation&& operation)
       operation_(std::move(operation)) {
   // Initialization is not atomic; assignment is.
   ref_count_ = InitialRefCount(executor);
+  TASK_TRACE("Task::Task %s (immediate)", this);
 }
 
 Task::Task(Executor* executor,
@@ -83,19 +91,26 @@ Task::Task(Executor* executor,
       operation_(std::move(operation)) {
   // Initialization is not atomic; assignment is.
   ref_count_ = InitialRefCount(executor);
+  TASK_TRACE("Task::Task %s (scheduled)", this);
 }
 
-Task::~Task() = default;
+Task::~Task() {
+  TASK_TRACE("Task::~Task %s", this);
+}
 
 void Task::Release() {
   if (ref_count_.fetch_sub(1, std::memory_order_acq_rel) == 1) {
+    TASK_TRACE("Task::Release %s (deleting)", this);
     delete this;
+  } else {
+    TASK_TRACE("Task::Release %s (ref_count=%s)", this, ref_count_.load());
   }
 }
 
 void Task::Execute() {
   {
     std::lock_guard<std::mutex> lock(mutex_);
+    TASK_TRACE("Task::Execute %s", this);
 
     bool should_complete = false;
     if (state_ == State::kInitial) {
@@ -108,6 +123,7 @@ void Task::Execute() {
       InverseLockGuard unlock(mutex_);
       operation_();
 
+      TASK_TRACE("Task::Execute %s (completing)", this);
     }
 
     state_ = State::kDone;
@@ -136,6 +152,7 @@ void Task::Await() {
 }
 
 void Task::AwaitLocked(std::unique_lock<std::mutex>& lock) {
+  TASK_TRACE("Task::Await %s", this);
   is_complete_.wait(lock, [this] {
     return state_ == State::kCanceled || state_ == State::kDone;
   });
@@ -143,6 +160,7 @@ void Task::AwaitLocked(std::unique_lock<std::mutex>& lock) {
 
 void Task::Cancel() {
   std::unique_lock<std::mutex> lock(mutex_);
+  TASK_TRACE("Task::Cancel %s", this);
 
   if (state_ == State::kInitial) {
     state_ = State::kCanceled;
