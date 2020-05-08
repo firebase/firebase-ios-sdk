@@ -58,3 +58,17 @@ the GitHub Action check phase. Run [scripts/style.sh](scripts/style.sh).
 
 For GitHub tag management and public header change detection, add a GitHub api tag and update
 [Dangerfile](Dangerfile).
+
+## Firebase Integration
+
+* Make sure the public headers are imported via [Firebase.h](CoreOnly/Sources/Firebase.h).
+* Update [Firebase.podspec](Firebase.podspec).
+* Register service in
+  [firebasecore.proto](Firebase/CoreDiagnostics/ProtoSupport/Protos/firebasecore.proto) along with
+  corresponding internal icore.proto.
+* Regenerate the iCore nanopb protos by running
+  [generate_project.sh](Firebase/CoreDiagnostics/generate_project.sh).
+* Add logging code to
+  [FIRCoreDiagnostics.m](Firebase/CoreDiagnostics/FIRCDLibrary/FIRCoreDiagnostics.m).
+* Add to the [ZipBuilder pod list](ZipBuilder/Sources/ZipBuilder/CocoaPod.swift).
+* Add a [quickstart](https://github.com/firebase/quickstart-ios).
