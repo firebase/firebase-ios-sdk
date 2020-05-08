@@ -225,7 +225,7 @@ TEST_F(GrpcStreamingReaderTest, ErrorOnWrite) {
   worker_queue->EnqueueBlocking([] {});
 
   ASSERT_TRUE(status.has_value());
-  EXPECT_EQ(status.value().code(), Error::kResourceExhausted);
+  EXPECT_EQ(status.value().code(), Error::kErrorResourceExhausted);
   EXPECT_TRUE(responses.empty());
 }
 
@@ -240,7 +240,7 @@ TEST_F(GrpcStreamingReaderTest, ErrorOnFirstRead) {
   ForceFinish(
       {{Type::Finish, grpc::Status{grpc::StatusCode::UNAVAILABLE, ""}}});
   ASSERT_TRUE(status.has_value());
-  EXPECT_EQ(status.value().code(), Error::kUnavailable);
+  EXPECT_EQ(status.value().code(), Error::kErrorUnavailable);
   EXPECT_TRUE(responses.empty());
 }
 
@@ -255,7 +255,7 @@ TEST_F(GrpcStreamingReaderTest, ErrorOnSecondRead) {
 
   ForceFinish({{Type::Finish, grpc::Status{grpc::StatusCode::DATA_LOSS, ""}}});
   ASSERT_TRUE(status.has_value());
-  EXPECT_EQ(status.value().code(), Error::kDataLoss);
+  EXPECT_EQ(status.value().code(), Error::kErrorDataLoss);
   EXPECT_TRUE(responses.empty());
 }
 
