@@ -145,25 +145,10 @@ TEST_P(AsyncQueueTest, CanCancelDelayedOperations) {
 TEST_P(AsyncQueueTest, CanCallCancelOnDelayedOperationAfterTheOperationHasRun) {
   Expectation ran;
 
-  // Fulfill the `ran` expectation from another task enqueued on the AsyncQueue
-  // to work around a race condition in the test that exists otherwise.
-  //
-  // The problem is that if `EnqueueAfterDelay` directly fulfills the `ran`
-  // expectation, the `IsScheduled` check below `Await(ran)` will race with the
-  // Task's callback into the `Executor` that marks it complete. Forcing the
-  // expectation to be fulfilled in the next task avoids the race because the
-  // lock to mark the task complete must have been acquired to start the next
-  // task.
-  //
-  // This is something of a gross hack, but it serves to keep the underlying
-  // executors simpler. Without this, we'd need expose some way to reliably
-  // await the actual completion of a task, not just observe its execution.
-  auto fulfill = [&] { queue->EnqueueRelaxed(ran.AsCallback()); };
-
   DelayedOperation delayed_operation;
   queue->Enqueue([&] {
     delayed_operation = queue->EnqueueAfterDelay(AsyncQueue::Milliseconds(1),
-                                                 kTimerId1, fulfill);
+                                                 kTimerId1, ran.AsCallback());
     EXPECT_TRUE(queue->IsScheduled(kTimerId1));
   });
 

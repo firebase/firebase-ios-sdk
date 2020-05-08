@@ -98,6 +98,12 @@ Task::~Task() {
   TASK_TRACE("Task::~Task %s", this);
 }
 
+void Task::Retain() {
+  TASK_TRACE("Task::Retain %s (ref_count=%s)", this,
+             ref_count_.load(std::memory_order_relaxed));
+  ref_count_.fetch_add(1, std::memory_order_relaxed);
+}
+
 void Task::Release() {
   if (ref_count_.fetch_sub(1, std::memory_order_acq_rel) == 1) {
     TASK_TRACE("Task::Release %s (deleting)", this);
@@ -149,6 +155,18 @@ void Task::Execute() {
 void Task::Await() {
   std::unique_lock<std::mutex> lock(mutex_);
   AwaitLocked(lock);
+}
+
+bool Task::AwaitIfRunning() {
+  std::unique_lock<std::mutex> lock(mutex_);
+  if (state_ == State::kInitial) {
+    return false;
+  }
+
+  if (state_ == State::kRunning) {
+    AwaitLocked(lock);
+  }
+  return true;
 }
 
 void Task::AwaitLocked(std::unique_lock<std::mutex>& lock) {

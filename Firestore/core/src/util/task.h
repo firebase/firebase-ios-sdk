@@ -89,6 +89,11 @@ class Task {
   void Execute();
 
   /**
+   * Increases the task's reference count.
+   */
+  void Retain();
+
+  /**
    * Releases the task's ownership of itself without executing the task.
    */
   void Release();
@@ -97,6 +102,14 @@ class Task {
    * Waits until the task has completed execution or cancellation.
    */
   void Await();
+
+  /**
+   * Waits until the task has completed execution or cancellation, but only if
+   * the task is currently running.
+   *
+   * @return true if the task is completed, false if it is still unscheduled.
+   */
+  bool AwaitIfRunning();
 
   /**
    * Cancels the task. Tasks that have not yet started running will be prevented

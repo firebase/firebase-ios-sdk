@@ -19,6 +19,7 @@
 #include <algorithm>
 #include <atomic>
 
+#include "Firestore/core/src/util/defer.h"
 #include "Firestore/core/src/util/hard_assert.h"
 #include "Firestore/core/src/util/log.h"
 #include "Firestore/core/src/util/task.h"
@@ -232,11 +233,37 @@ void ExecutorLibdispatch::InvokeSync(void* raw_task) {
 // Test-only methods
 
 bool ExecutorLibdispatch::IsScheduled(Tag tag) const {
-  std::lock_guard<std::mutex> lock(mutex_);
+  std::unique_lock<std::mutex> lock(mutex_);
 
   for (const ScheduleEntry& entry : schedule_) {
-    if (entry.second->tag() == tag) {
-      return true;
+    Task* task = entry.second;
+    if (task->tag() == tag) {
+      // There's a race inherent in making IsScheduled checks after a task has
+      // executed. The problem is that the task has to lock the Executor to
+      // report its completion, but IsScheduled needs that lock too and it can
+      // win, indicating that tasks that appear completed are still scheduled.
+      //
+      // Work around this by waiting for tasks that are currently executing to
+      // complete. That is, only tasks that are in the schedule and in the
+      // `kInitial` state are considered scheduled.
+      //
+      // Unfortunately, this has to be done with the Executor unlocked so that
+      // the task can report its completion without deadlocking. As the task is
+      // completed (and before the lock could be reacquired here) its reference
+      // count would go to zero. At that point `AwaitIfRunning` would wake up
+      // and lock the just-deleted Task. Retaining the Task here prevents it
+      // from being deleted while waiting.
+      task->Retain();
+      auto release = defer([&] { task->Release(); });
+
+      bool completed;
+      {
+        lock.unlock();
+        auto relock = defer([&] { lock.lock(); });
+
+        completed = task->AwaitIfRunning();
+      }
+      return !completed;
     }
   }
   return false;
