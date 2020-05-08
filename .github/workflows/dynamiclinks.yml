@@ -3,8 +3,8 @@ name: dynamiclinks
 on:
   pull_request:
     paths:
-    - '.github/workflows/dynamiclinks.yml'
     - 'FirebaseDynamicLinks**'
+    - '.github/workflows/dynamiclinks.yml'
     - 'Gemfile'
   schedule:
     # Run every day at 11pm (PST) - cron uses UTC times
@@ -36,4 +36,3 @@ jobs:
       run: scripts/setup_bundler.sh
     - name: PodLibLint Storage Cron
       run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseDynamicLinks.podspec --platforms=ios ${{ matrix.flags }}
-
