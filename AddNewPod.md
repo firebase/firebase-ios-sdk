@@ -63,6 +63,8 @@ For GitHub tag management and public header change detection, add a GitHub api t
 
 * Make sure the public headers are imported via [Firebase.h](CoreOnly/Sources/Firebase.h).
 * Update [Firebase.podspec](Firebase.podspec).
+* Register library via registerInternalLibrary API like this
+  [Storage example](FirebaseStorage/Sources/FIRStorageComponent.m).
 * Register service in
   [firebasecore.proto](Firebase/CoreDiagnostics/ProtoSupport/Protos/firebasecore.proto) along with
   corresponding internal icore.proto.
