@@ -1,0 +1,37 @@
+name: functions
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    paths:
+    - 'FirebaseFunctions**'
+    - '.github/workflows/functions.yml'
+    - 'Gemfile'
+  schedule:
+    # Run every day at 11pm (PST) - cron uses UTC times
+    - cron:  '0 7 * * *'
+
+jobs:
+
+  quickstart:
+    env:
+      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+      signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+    runs-on: macOS-latest
+    needs: check
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup quickstart
+      run: scripts/setup_quickstart.sh functions
+    - name: install secret googleservice-info.plist
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-functions.plist.gpg \
+          quickstart-ios/functions/GoogleService-Info.plist "$plist_secret"
+    - name: Install Secret FIREGSignInInfo.h
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/FIREGSignInInfo.h.gpg \
+          quickstart-ios/TestUtils/FIREGSignInInfo.h "$signin_secret"
+    - name: Test quickstart
+      run: ([ -z $plist_secret ] ||
+            scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Functions)
