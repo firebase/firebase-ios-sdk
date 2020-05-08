@@ -147,7 +147,7 @@ class Task {
   }
 
   /**
-   * Returns the tag supplied in the custructor or `Executor::kNoTag`.
+   * Returns the tag supplied in the constructor or `Executor::kNoTag`.
    */
   Executor::Tag tag() const {
     // tag_ is immutable; no locking required.
