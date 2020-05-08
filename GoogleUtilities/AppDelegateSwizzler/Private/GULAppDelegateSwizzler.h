@@ -14,9 +14,12 @@
  * limitations under the License.
  */
 
+#ifndef GOOGLEUTILITIES_APPDELEGATESWIZZLER_PRIVATE_GULAPPDELEGATESWIZZLER_H_
+#define GOOGLEUTILITIES_APPDELEGATESWIZZLER_PRIVATE_GULAPPDELEGATESWIZZLER_H_
+
 #import <Foundation/Foundation.h>
 
-#import <GoogleUtilities/GULApplication.h>
+#import "GoogleUtilities/AppDelegateSwizzler/Private/GULApplication.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -105,3 +108,5 @@ typedef NSString *const GULAppDelegateInterceptorID;
 NS_ASSUME_NONNULL_END
 
 @end
+
+#endif  // GOOGLEUTILITIES_APPDELEGATESWIZZLER_PRIVATE_GULAPPDELEGATESWIZZLER_H_

@@ -15,8 +15,14 @@
  */
 
 #import <Foundation/Foundation.h>
-#import <GoogleUtilities/GULAppDelegateSwizzler.h>
+
+#import "GoogleUtilities/AppDelegateSwizzler/Private/GULAppDelegateSwizzler.h"
+
+#if SWIFT_PACKAGE
+#import "GoogleUtilities/Network/Private/GULMutableDictionary.h"
+#else
 #import <GoogleUtilities/GULMutableDictionary.h>
+#endif
 
 @class GULApplication;
 

@@ -14,10 +14,19 @@
 
 #import <TargetConditionals.h>
 
-#import <GoogleUtilities/GULAppDelegateSwizzler.h>
+#import "GoogleUtilities/AppDelegateSwizzler/Private/GULAppDelegateSwizzler.h"
+
+#if SWIFT_PACKAGE
+@import GoogleUtilities_Environment;
+
+#import "GoogleUtilities/Logger/Private/GULLogger.h"
+#import "GoogleUtilities/Network/Private/GULMutableDictionary.h"
+#else
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import <GoogleUtilities/GULLogger.h>
 #import <GoogleUtilities/GULMutableDictionary.h>
+#endif
+
 #import "GoogleUtilities/AppDelegateSwizzler/Internal/GULAppDelegateSwizzler_Private.h"
 #import "GoogleUtilities/Common/GULLoggerCodes.h"
 

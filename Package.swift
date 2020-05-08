@@ -11,43 +11,27 @@ let package = Package(
     // other packages.
     // This is a test-only executable for us to try `swift run` and use all imported modules from a
     // Swift target.
-   // .executable(name: "firebase-test", targets: ["firebase-test"]),
-    //
-    .library(
-      name: "GoogleUtilities_Environment",
-      targets: ["GoogleUtilities_Environment"])
-//    .library(
-//      name: "GoogleUtilities_Logger",
-//      targets: ["GoogleUtilities_Logger"])
-    /*
-    .library(
-      name: "GoogleUtilities_AppDelegateSwizzler",
-      targets: ["GoogleUtilities_AppDelegateSwizzler"]),
-    .library(
-      name: "GoogleUtilities_Logger",
-      targets: ["GoogleUtilities_Logger"])
- */
+    .executable(name: "firebase-test", targets: ["firebase-test"]),
   ],
   targets: [
     // Targets are the basic building blocks of a package. A target can define a module or a test suite.
     // Targets can depend on other targets in this package, and on products in packages which this package depends on.
-    /*
     .target(
       name: "firebase-test",
       dependencies: [ "GoogleUtilities_AppDelegateSwizzler", "GoogleUtilities_Environment", "GoogleUtilities_Logger"]
     ),
+
+    // MARK: - Google Utilities Sub-targets
+
     .target(
       name: "GoogleUtilities_AppDelegateSwizzler",
       dependencies: ["GoogleUtilities_Environment", "GoogleUtilities_Logger", "GoogleUtilities_Network"],
       path: "GoogleUtilities/AppDelegateSwizzler",
+      publicHeadersPath: "Private", // Need to expose private headers.
       cSettings: [
-        .headerSearchPath("$(SRCROOT)/GoogleUtilities/Logger/Private"), // SPM doesn't support private headers
-        .headerSearchPath("$(SRCROOT)/GoogleUtilities/Network/Private"), // SPM doesn't support private headers
-        .headerSearchPath("$(SRCROOT)/GoogleUtilities/AppDelegateSwizzler/Private"),
-        .define("SWIFT_PACKAGE", to: "1"),  // SPM loses defaults when loaded into an Xcode project
+        .headerSearchPath("../..") // Root of the repo, needed for Firebase's absolute filepaths.
       ]
     ),
- */
     .target(
       name: "GoogleUtilities_Environment",
       path: "GoogleUtilities/Environment/third_party",
@@ -93,6 +77,7 @@ let package = Package(
       name: "GoogleUtilities_Network",
       dependencies: ["GoogleUtilities_Logger", "GoogleUtilities_NSData", "GoogleUtilities_Reachability"],
       path: "GoogleUtilities/Network",
+      publicHeadersPath: "Private",
       cSettings: [
         .headerSearchPath("../..") // Root of the repo, needed for Firebase's absolute filepaths.
       ],

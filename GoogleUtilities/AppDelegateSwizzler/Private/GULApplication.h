@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+#ifndef GOOGLEUTILITIES_APPDELEGATESWIZZLER_PRIVATE_GULAPPLICATION_H_
+#define GOOGLEUTILITIES_APPDELEGATESWIZZLER_PRIVATE_GULAPPLICATION_H_
+
 #import <Foundation/Foundation.h>
 
 #if TARGET_OS_IOS || TARGET_OS_TV
@@ -48,3 +51,5 @@ static NSString *const kGULApplicationClassName = @"NSApplication";
 static NSString *const kGULApplicationClassName = @"WKExtension";
 
 #endif
+
+#endif  // GOOGLEUTILITIES_APPDELEGATESWIZZLER_PRIVATE_GULAPPLICATION_H_
