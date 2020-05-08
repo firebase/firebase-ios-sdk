@@ -36,58 +36,13 @@ static NSMutableDictionary<
     NSMutableDictionary<NSString * /* bucket */, GTMSessionFetcherService *> *> *_fetcherServiceMap;
 static GTMSessionFetcherRetryBlock _retryWhenOffline;
 
-//Should this be in FIRStorage_Private.h instead?
-@protocol FIRStorageInstanceProvider
-@end
-
-@interface FIRStorage () <FIRStorageInstanceProvider, FIRLibrary> {
+@interface FIRStorage () {
   /// Stored Auth reference, if it exists. This needs to be stored for `copyWithZone:`.
   id<FIRAuthInterop> _Nullable _auth;
 }
 @end
 
 @implementation FIRStorage
-
-+ (void)load {
-  // Register with Core as a library.  Adding FIRStorage as an Interop library enables
-  // proposed FirebaseExtended library SwiftLogForFireCloudStorage to depend on FIRStorage
-  // without making an explicit dependency of FIRStorage by SwiftLogForFireCloudStorage
-  [FIRApp registerInternalLibrary:(Class<FIRLibrary>)self
-                         withName:@"fire-storage"
-                      withVersion:[NSString stringWithUTF8String:FIRStorageVersionString]];
-}
-
-#pragma mark - Interoperability
-/// The components to register with Core.
-+ (NSArray<FIRComponent *> *)componentsToRegister {
-  // Provide a component that will return an instance of `FIRStorage`.
-  FIRComponentCreationBlock storageCreationBlock =
-      ^id _Nullable(FIRComponentContainer *container, BOOL *isCacheable) {
-        // Cache so the same `FIRStorage` instance is returned each time.
-        *isCacheable = YES;
-        
-        //TODO:  timothywise(leisurehound) Bucket and auth here are mocked until determining
-        // how to retrieve these or perhaps to set a constraint that the user must first
-        // setup Storage before it can be vended out (since its not another Firebase library
-        // depenending on FIRStorageInterop but rather a Firebase Extneded library so it may
-        // be sufficient to assume the user has configured storage before trying to inject
-        // it into the SwiftLogForFireCloudStorage library.
-        return [[FIRStorage alloc] initWithApp:container.app
-                                        bucket:@""
-                                          auth:nil];
-      };
-  FIRComponent *storageInterop =
-      [FIRComponent componentWithProtocol:@protocol(FIRStorageInterop)
-                            creationBlock:storageCreationBlock];
-  return @[storageInterop];
-}
-
-//Is this truly unique from storageForApp?
-+ (FIRStorage *)storageWithApp:(FIRApp *)app {
-  // Use the instance from the provided app's container.
-  id<FIRStorageInterop> storage = FIR_COMPONENT(FIRStorageInterop, app.container);
-  return (FIRStorage *)storage;
-}
 
 + (void)initialize {
   static dispatch_once_t onceToken;
