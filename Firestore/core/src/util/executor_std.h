@@ -57,8 +57,8 @@ class ExecutorStd : public Executor {
   std::string CurrentExecutorName() const override;
   std::string Name() const override;
 
-  bool IsScheduled(Tag tag) const override;
-  bool IsTaskScheduled(Id id) const override;
+  bool IsTagScheduled(Tag tag) const override;
+  bool IsIdScheduled(Id id) const override;
   Task* PopFromSchedule() override;
 
  private:

@@ -200,12 +200,12 @@ void ExecutorStd::ExecuteBlocking(Operation&& operation) {
   signal_finished.get_future().wait();
 }
 
-bool ExecutorStd::IsScheduled(const Tag tag) const {
+bool ExecutorStd::IsTagScheduled(const Tag tag) const {
   return state_->schedule_.Contains(
       [&tag](const Task& t) { return t.tag() == tag; });
 }
 
-bool ExecutorStd::IsTaskScheduled(const Id id) const {
+bool ExecutorStd::IsIdScheduled(const Id id) const {
   return state_->schedule_.Contains(
       [&id](const Task& t) { return t.id() == id; });
 }

@@ -47,7 +47,7 @@ class Executor {
   static constexpr Tag kNoTag = -1;
 
   // An opaque, monotonically increasing identifier for each operation that does
-  // not depend on their address. Where the `Tag` identifies the kind of
+  // not depend on its address. Whereas the `Tag` identifies the kind of
   // operation, the `Id` identifies the specific instance.
   using Id = uint32_t;
   using Operation = std::function<void()>;
@@ -105,8 +105,8 @@ class Executor {
 
   // Checks whether an operation tagged with the given `tag` is currently
   // scheduled for future execution.
-  virtual bool IsScheduled(Tag tag) const = 0;
-  virtual bool IsTaskScheduled(Id id) const = 0;
+  virtual bool IsTagScheduled(Tag tag) const = 0;
+  virtual bool IsIdScheduled(Id id) const = 0;
 
   // Removes the nearest due scheduled operation from the schedule and returns
   // it to the caller.
@@ -149,7 +149,7 @@ class DelayedOperation {
   // Returns whether this `DelayedOperation` is associated with an actual
   // operation.
   explicit operator bool() const {
-    return executor_ && executor_->IsTaskScheduled(id_);
+    return executor_ && executor_->IsIdScheduled(id_);
   }
 
   // If the operation has not been run yet, cancels the operation. Otherwise,

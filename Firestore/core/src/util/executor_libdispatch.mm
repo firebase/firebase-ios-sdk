@@ -226,16 +226,17 @@ void ExecutorLibdispatch::InvokeSync(void* raw_task) {
 
 // Test-only methods
 
-bool ExecutorLibdispatch::IsScheduled(Tag tag) const {
+bool ExecutorLibdispatch::IsTagScheduled(Tag tag) const {
   std::unique_lock<std::mutex> lock(mutex_);
 
   for (const ScheduleEntry& entry : schedule_) {
     Task* task = entry.second;
     if (task->tag() == tag) {
-      // There's a race inherent in making IsScheduled checks after a task has
-      // executed. The problem is that the task has to lock the Executor to
-      // report its completion, but IsScheduled needs that lock too and it can
-      // win, indicating that tasks that appear completed are still scheduled.
+      // There's a race inherent in making IsTagScheduled checks after a task
+      // has executed. The problem is that the task has to lock the Executor to
+      // report its completion, but IsTagScheduled needs that lock too and it
+      // can win, indicating that tasks that appear completed are still
+      // scheduled.
       //
       // Work around this by waiting for tasks that are currently executing to
       // complete. That is, only tasks that are in the schedule and in the
@@ -263,7 +264,7 @@ bool ExecutorLibdispatch::IsScheduled(Tag tag) const {
   return false;
 }
 
-bool ExecutorLibdispatch::IsTaskScheduled(Id id) const {
+bool ExecutorLibdispatch::IsIdScheduled(Id id) const {
   std::lock_guard<std::mutex> lock(mutex_);
 
   return schedule_.find(id) != schedule_.end();

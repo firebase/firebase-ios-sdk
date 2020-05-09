@@ -174,8 +174,8 @@ TEST_P(ExecutorTest, OperationsCanBeRemovedFromScheduleBeforeTheyRun) {
   const Executor::Tag tag_bar = 2;
 
   // Make sure the schedule is empty.
-  EXPECT_FALSE(executor->IsScheduled(tag_foo));
-  EXPECT_FALSE(executor->IsScheduled(tag_bar));
+  EXPECT_FALSE(executor->IsTagScheduled(tag_foo));
+  EXPECT_FALSE(executor->IsTagScheduled(tag_bar));
   EXPECT_EQ(executor->PopFromSchedule(), nullptr);
 
   // Add two operations to the schedule with different tags.
@@ -185,14 +185,14 @@ TEST_P(ExecutorTest, OperationsCanBeRemovedFromScheduleBeforeTheyRun) {
   const auto far_away = chr::seconds(1);
   executor->Schedule(far_away, tag_foo, [] {});
   // Scheduled operations can be distinguished by their tag.
-  EXPECT_TRUE(executor->IsScheduled(tag_foo));
-  EXPECT_FALSE(executor->IsScheduled(tag_bar));
+  EXPECT_TRUE(executor->IsTagScheduled(tag_foo));
+  EXPECT_FALSE(executor->IsTagScheduled(tag_bar));
 
   // This operation will be scheduled after the previous one (operations
   // scheduled with the same delay are FIFO ordered).
   executor->Schedule(far_away, tag_bar, [] {});
-  EXPECT_TRUE(executor->IsScheduled(tag_foo));
-  EXPECT_TRUE(executor->IsScheduled(tag_bar));
+  EXPECT_TRUE(executor->IsTagScheduled(tag_foo));
+  EXPECT_TRUE(executor->IsTagScheduled(tag_bar));
 
   // Now pop the operations one by one without waiting for them to be executed,
   // check that operations are popped in the order they are scheduled and
@@ -201,14 +201,14 @@ TEST_P(ExecutorTest, OperationsCanBeRemovedFromScheduleBeforeTheyRun) {
   auto maybe_operation = executor->PopFromSchedule();
   ASSERT_NE(maybe_operation, nullptr);
   EXPECT_EQ(maybe_operation->tag(), tag_foo);
-  EXPECT_FALSE(executor->IsScheduled(tag_foo));
-  EXPECT_TRUE(executor->IsScheduled(tag_bar));
+  EXPECT_FALSE(executor->IsTagScheduled(tag_foo));
+  EXPECT_TRUE(executor->IsTagScheduled(tag_bar));
   maybe_operation->Execute();
 
   maybe_operation = executor->PopFromSchedule();
   ASSERT_NE(maybe_operation, nullptr);
   EXPECT_EQ(maybe_operation->tag(), tag_bar);
-  EXPECT_FALSE(executor->IsScheduled(tag_bar));
+  EXPECT_FALSE(executor->IsTagScheduled(tag_bar));
   maybe_operation->Execute();
 
   // Schedule should now be empty.
@@ -225,20 +225,20 @@ TEST_P(ExecutorTest, DuplicateTagsOnOperationsAreAllowed) {
   const auto far_away = chr::seconds(1);
   executor->Schedule(far_away, tag_foo, [&steps] { steps += '1'; });
   executor->Schedule(far_away, tag_foo, [&steps] { steps += '2'; });
-  EXPECT_TRUE(executor->IsScheduled(tag_foo));
+  EXPECT_TRUE(executor->IsTagScheduled(tag_foo));
 
   auto maybe_operation = executor->PopFromSchedule();
   ASSERT_NE(maybe_operation, nullptr);
   EXPECT_EQ(maybe_operation->tag(), tag_foo);
   // There's still another operation with the same tag in the schedule.
-  EXPECT_TRUE(executor->IsScheduled(tag_foo));
+  EXPECT_TRUE(executor->IsTagScheduled(tag_foo));
 
   maybe_operation->Execute();
 
   maybe_operation = executor->PopFromSchedule();
   ASSERT_NE(maybe_operation, nullptr);
   EXPECT_EQ(maybe_operation->tag(), tag_foo);
-  EXPECT_FALSE(executor->IsScheduled(tag_foo));
+  EXPECT_FALSE(executor->IsTagScheduled(tag_foo));
 
   maybe_operation->Execute();
   // Despite having the same tag, the operations should have been ordered

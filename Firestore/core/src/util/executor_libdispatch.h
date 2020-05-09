@@ -60,8 +60,8 @@ class ExecutorLibdispatch : public Executor {
                             Tag tag,
                             Operation&& operation) override;
 
-  bool IsScheduled(Tag tag) const override;
-  bool IsTaskScheduled(Id id) const override;
+  bool IsTagScheduled(Tag tag) const override;
+  bool IsIdScheduled(Id id) const override;
   Task* PopFromSchedule() override;
 
   dispatch_queue_t dispatch_queue() const {

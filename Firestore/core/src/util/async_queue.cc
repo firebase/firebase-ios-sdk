@@ -150,7 +150,7 @@ void AsyncQueue::EnqueueBlocking(const Operation& operation) {
 }
 
 bool AsyncQueue::IsScheduled(const TimerId timer_id) const {
-  return executor_->IsScheduled(static_cast<int>(timer_id));
+  return executor_->IsTagScheduled(static_cast<int>(timer_id));
 }
 
 void AsyncQueue::RunScheduledOperationsUntil(const TimerId last_timer_id) {
