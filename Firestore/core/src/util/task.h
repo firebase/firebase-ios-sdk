@@ -29,9 +29,16 @@ namespace firebase {
 namespace firestore {
 namespace util {
 
+// For testing
+class TrackingTask;
+
 /**
  * A task for an Executor to execute, either synchronously or asynchronously,
  * either immediately or after some delay.
+ *
+ * Tasks are referenced counted, always live on the heap, must be allocated with
+ * `operator new`, and `delete` themselves when their reference count goes to
+ * zero. Use `Retain` and `Release` to manipulate the internal reference count.
  *
  * Nominally Tasks are owned by an Executor, but Tasks are intended to be able
  * to outlive their owner in some special cases:
@@ -77,9 +84,6 @@ class Task {
 
   Task& operator=(const Task& other) = delete;
   Task& operator=(Task&& other) noexcept = delete;
-
-  // Virtual for testing
-  virtual ~Task();
 
   /**
    * Executes the operation if the Task has not already been executed or
@@ -182,6 +186,13 @@ class Task {
     kDone,      // Has run and has finished running; cannot be canceled
   };
 
+  // Tasks must always be allocated on the heap and they delete themselves when
+  // their reference count goes to zero.
+  //
+  // Virtual for testing.
+  virtual ~Task();
+  friend class TrackingTask;
+
   void AwaitLocked(std::unique_lock<std::mutex>& lock);
 
   std::mutex mutex_;
@@ -207,6 +218,14 @@ class Task {
  * @return A time representing now plus the delay.
  */
 Executor::TimePoint MakeTargetTime(Executor::Milliseconds delay);
+
+// Trace details of task execution. Unfortunately, this is all too useful when
+// diagnosing crashes in tests. Callers must include util/log.h for themselves.
+#if FIRESTORE_TRACE_TASKS
+#define TASK_TRACE(...) LOG_WARN(__VA_ARGS__)
+#else
+#define TASK_TRACE(...)
+#endif
 
 }  // namespace util
 }  // namespace firestore

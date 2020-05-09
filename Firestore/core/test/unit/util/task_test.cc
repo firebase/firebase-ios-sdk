@@ -60,6 +60,9 @@ class DestructionDetector {
   mutable bool copied_from_ = false;
 };
 
+}  // namespace
+
+// TrackingTask is not in the anonymous namespace so that it can be a friend.
 class TrackingTask : public Task {
  public:
   TrackingTask(Executor* executor,
@@ -75,6 +78,8 @@ class TrackingTask : public Task {
  private:
   TaskState* state_;
 };
+
+namespace {
 
 Task* NewTask(Executor* executor, TaskState* state) {
   DestructionDetector detector(&state->op_destroyed);

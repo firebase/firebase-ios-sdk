@@ -28,12 +28,6 @@ namespace firestore {
 namespace util {
 namespace {
 
-#if FIRESTORE_TRACE_TASKS
-#define TASK_TRACE(...) LOG_WARN(__VA_ARGS__)
-#else
-#define TASK_TRACE(...)
-#endif
-
 /**
  * The inverse of `std::lock_guard`: it unlocks in the constructor and locks in
  * its destructor, providing a way to safely temporarily release a lock that has
@@ -118,11 +112,11 @@ void Task::Execute() {
     std::lock_guard<std::mutex> lock(mutex_);
     TASK_TRACE("Task::Execute %s", this);
 
-    bool should_complete = false;
+    bool should_notify_executor = false;
     if (state_ == State::kInitial) {
       state_ = State::kRunning;
       executing_thread_ = std::this_thread::get_id();
-      should_complete = true;
+      should_notify_executor = true;
 
       // Invoke the operation without holding mutex_ to avoid deadlocks where
       // the current task can trigger the cancellation of the task.
@@ -142,7 +136,7 @@ void Task::Execute() {
     // Also, the callback should only be performed if execute transitioned from
     // kInitial to kDone, but this has to be done while holding the lock to
     // avoid a data race with `Cancel`.
-    if (should_complete && executor_) {
+    if (should_notify_executor && executor_) {
       executor_->Complete(this);
     }
 

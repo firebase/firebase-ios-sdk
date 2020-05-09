@@ -30,12 +30,6 @@ namespace firestore {
 namespace util {
 namespace {
 
-#if FIRESTORE_TRACE_TASKS
-#define TASK_TRACE(...) LOG_WARN(__VA_ARGS__)
-#else
-#define TASK_TRACE(...)
-#endif
-
 absl::string_view StringViewFromDispatchLabel(const char* const label) {
   // Make sure string_view's data is not null, because it's used for logging.
   return label ? absl::string_view{label} : absl::string_view{""};
