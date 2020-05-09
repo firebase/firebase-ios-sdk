@@ -42,7 +42,7 @@ namespace testutil {
  *
  * @param name A simple name for the kind of executor this is (e.g. "user" for
  *     executors that emulate delivery of user events or "worker" for executors
- *     that back AsyncQueues). If omitted, name will default to something
+ *     that back AsyncQueues). If omitted, the name will default to something
  *     derived from the current test case name.
  */
 std::unique_ptr<util::Executor> ExecutorForTesting(const char* name = nullptr);

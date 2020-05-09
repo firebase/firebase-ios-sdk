@@ -165,10 +165,11 @@ void AsyncQueue::RunScheduledOperationsUntil(const TimerId last_timer_id) {
 
     for (auto next = executor_->PopFromSchedule(); next != nullptr;
          next = executor_->PopFromSchedule()) {
-      bool should_break = next->tag() == static_cast<int>(last_timer_id);
+      // `Execute` can delete the `Task` so read the tag first.
+      bool found_tag = next->tag() == static_cast<int>(last_timer_id);
 
       next->Execute();
-      if (should_break) {
+      if (found_tag) {
         break;
       }
     }

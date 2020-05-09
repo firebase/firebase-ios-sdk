@@ -45,14 +45,10 @@ class TrackingTask;
  *
  *   * If the Executor implementation delegates to a system scheduling facility
  *     that does not support cancellation, the Executor can `Cancel` the task
- *     and release its ownership. When the system gets around to Executing the
+ *     and release its ownership. When the system gets around to executing the
  *     Task, it will be a no-op.
  *   * If the Executor is being destroyed from a Task owned by the Executor, the
  *     Task naturally has to outlive the Executor.
- *
- * To support this, Task internally keeps a `shared_ptr` to itself--an
- * intentional cycle that is broken either when the task Executes or is
- * Released.
  */
 class Task {
  public:
@@ -211,11 +207,8 @@ class Task {
 };
 
 /**
- * Converts a delay into an absolute TimePoint representing the current time
+ * Converts a delay into an absolute `TimePoint` representing the current time
  * plus the delay.
- *
- * @param delay The number of milliseconds to delay.
- * @return A time representing now plus the delay.
  */
 Executor::TimePoint MakeTargetTime(Executor::Milliseconds delay);
 
