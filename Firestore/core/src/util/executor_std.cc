@@ -144,7 +144,7 @@ ExecutorStd::Id ExecutorStd::PushOnSchedule(const TimePoint when,
   // id. This could be tweaked to reuse the same id for all such operations.
   const auto id = NextId();
   state_->schedule_.Push(
-      new Task(nullptr, when, tag, id, std::move(operation)));
+      Task::Create(nullptr, when, tag, id, std::move(operation)));
   return id;
 }
 

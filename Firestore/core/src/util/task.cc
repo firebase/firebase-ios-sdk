@@ -61,15 +61,17 @@ int InitialRefCount(Executor* executor) {
 
 }  // namespace
 
-Task::Task(Executor* executor, Executor::Operation&& operation)
-    : executor_(executor),
-      target_time_(),  // immediate
-      tag_(Executor::kNoTag),
-      id_(UINT32_C(0)),
-      operation_(std::move(operation)) {
-  // Initialization is not atomic; assignment is.
-  ref_count_ = InitialRefCount(executor);
-  TASK_TRACE("Task::Task %s (immediate)", this);
+Task* Task::Create(Executor* executor, Executor::Operation&& operation) {
+  return new Task(executor, Executor::TimePoint(), Executor::kNoTag, 0u,
+                  std::move(operation));
+}
+
+Task* Task::Create(Executor* executor,
+                   Executor::TimePoint target_time,
+                   Executor::Tag tag,
+                   Executor::Id id,
+                   Executor::Operation&& operation) {
+  return new Task(executor, target_time, tag, id, std::move(operation));
 }
 
 Task::Task(Executor* executor,
@@ -85,7 +87,8 @@ Task::Task(Executor* executor,
       operation_(std::move(operation)) {
   // Initialization is not atomic; assignment is.
   ref_count_ = InitialRefCount(executor);
-  TASK_TRACE("Task::Task %s (scheduled)", this);
+  TASK_TRACE("Task::Task %s (%s)", this,
+             (tag_ == Executor::kNoTag ? "immediate" : "scheduled"));
 }
 
 Task::~Task() {

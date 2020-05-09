@@ -68,7 +68,12 @@ class TrackingTask : public Task {
   TrackingTask(Executor* executor,
                TaskState* state,
                Executor::Operation&& operation)
-      : Task(executor, std::move(operation)), state_(state) {
+      : Task(executor,
+             Executor::TimePoint(),
+             Executor::kNoTag,
+             0u,
+             std::move(operation)),
+        state_(state) {
   }
 
   ~TrackingTask() override {
@@ -155,7 +160,7 @@ TEST_F(TaskTest, CancelBlocksOnRunningTasks) {
 
   Expectation running;
   Expectation task_can_complete;
-  auto task = new Task(executor.get(), [&] {
+  auto task = Task::Create(executor.get(), [&] {
     steps += "1";
     running.Fulfill();
 

@@ -37,7 +37,7 @@ class TrackingTask;
  * either immediately or after some delay.
  *
  * Tasks are referenced counted, always live on the heap, must be allocated with
- * `operator new`, and `delete` themselves when their reference count goes to
+ * `Task::Create`, and `delete` themselves when their reference count goes to
  * zero. Use `Retain` and `Release` to manipulate the internal reference count.
  *
  * Nominally Tasks are owned by an Executor, but Tasks are intended to be able
@@ -55,31 +55,31 @@ class Task {
   /**
    * Constructs a new Task for immediate execution.
    *
-   * @param executor The Executor that owns the Task.
+   * @param executor The Executor that owns the Task. Can be `nullptr` if the
+   *     Task should own itself without allowing for ownership by the Executor.
    * @param operation The operation to perform.
    */
-  Task(Executor* executor, Executor::Operation&& operation);
+  static Task* Create(Executor* executor, Executor::Operation&& operation);
 
   /**
    * Constructs a new Task for delayed execution.
    *
-   * @param executor The Executor that owns the Task.
+   * @param executor The Executor that owns the Task. Can be `nullptr` if the
+   *     Task should own itself without allowing for ownership by the Executor.
    * @param target_time The absolute time after which the task should execute.
    * @param tag The implementation-defined type of the task.
    * @param id The number identifying the specific instance of the task.
    * @param operation The operation to perform.
    */
-  Task(Executor* executor,
-       Executor::TimePoint target_time,
-       Executor::Tag tag,
-       Executor::Id id,
-       Executor::Operation&& operation);
+  static Task* Create(Executor* executor,
+                      Executor::TimePoint target_time,
+                      Executor::Tag tag,
+                      Executor::Id id,
+                      Executor::Operation&& operation);
 
+  // Tasks cannot be copied or moved.
   Task(const Task& other) = delete;
-  Task(Task&& other) noexcept = delete;
-
   Task& operator=(const Task& other) = delete;
-  Task& operator=(Task&& other) noexcept = delete;
 
   /**
    * Executes the operation if the Task has not already been executed or
@@ -94,7 +94,9 @@ class Task {
   void Retain();
 
   /**
-   * Releases the task's ownership of itself without executing the task.
+   * Releases the task's ownership of itself without executing the task. This
+   * decreases the internal reference count, and when that reaches zero,
+   * `Release` will delete the task.
    */
   void Release();
 
@@ -142,8 +144,8 @@ class Task {
   void Cancel();
 
   /**
-   * Returns true if the Task is suitable for immediate execution. That is, it
-   * was created without a target time.
+   * Returns true if the Task is suitable for immediate execution (that is, it
+   * was created without a target time).
    */
   bool is_immediate() const {
     // tag_ is immutable; no locking required
@@ -181,6 +183,12 @@ class Task {
     kRunning,   // Now running and can no longer be canceled
     kDone,      // Has run and has finished running; cannot be canceled
   };
+
+  Task(Executor* executor,
+       Executor::TimePoint target_time,
+       Executor::Tag tag,
+       Executor::Id id,
+       Executor::Operation&& operation);
 
   // Tasks must always be allocated on the heap and they delete themselves when
   // their reference count goes to zero.

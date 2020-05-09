@@ -43,7 +43,7 @@ class ScheduleTest : public ::testing::Test, public testutil::AsyncTest {
   Schedule::TimePoint start_time;
 
   void Push(int value, Schedule::TimePoint target_time) {
-    auto task = new Task(nullptr, target_time, value, UINT32_C(0), [] {});
+    auto task = Task::Create(nullptr, target_time, value, 0u, [] {});
     schedule.Push(task);
   }
 
