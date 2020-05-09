@@ -83,7 +83,7 @@ class Task {
 
   /**
    * Executes the operation if the Task has not already been executed or
-   * canceled. Regardless of whether or not the operation runs, releases the
+   * cancelled. Regardless of whether or not the operation runs, releases the
    * task's ownership of itself.
    */
   void Execute();
@@ -178,10 +178,10 @@ class Task {
 
  private:
   enum class State {
-    kInitial,   // Waiting to run (or be canceled)
-    kCanceled,  // Has not run and has been canceled
-    kRunning,   // Now running and can no longer be canceled
-    kDone,      // Has run and has finished running; cannot be canceled
+    kInitial,    // Waiting to run (or be cancelled)
+    kCancelled,  // Has not run and has been cancelled
+    kRunning,    // Now running and can no longer be cancelled
+    kDone,       // Has run and has finished running; cannot be cancelled
   };
 
   Task(Executor* executor,

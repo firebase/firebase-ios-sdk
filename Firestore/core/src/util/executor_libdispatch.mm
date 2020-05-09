@@ -58,7 +58,7 @@ absl::string_view GetCurrentQueueLabel() {
 // past. Consequently, it is more useful to think of a time slot than
 // a particular scheduled operation -- by the time the slot comes, operation may
 // or may not be there (imagine getting to a meeting and finding out it's been
-// canceled).
+// cancelled).
 //
 // Precondition: all member functions, including the constructor, are *only*
 // invoked on the Firestore queue.
@@ -70,8 +70,8 @@ absl::string_view GetCurrentQueueLabel() {
 // - invariant: if the executor contains a pointer to a `TimeSlot`, it is
 //   a valid object. It is achieved because when libdispatch invokes
 //   a `TimeSlot`, it always removes it from the executor before deleting it.
-//   The reverse is not true: a canceled time slot is removed from the executor,
-//   but won't be destroyed until its original due time is past.
+//   The reverse is not true: a cancelled time slot is removed from the
+//   executor, but won't be destroyed until its original due time is past.
 
 // MARK: - ExecutorLibdispatch
 

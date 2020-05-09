@@ -38,7 +38,7 @@ class Task;
 // The operations are executed sequentially; only a single operation is executed
 // at any given time.
 //
-// Delayed operations may be canceled if they have not already been run.
+// Delayed operations may be cancelled if they have not already been run.
 class Executor {
  public:
   // An opaque name for a kind of operation. All operations of the same type

@@ -319,7 +319,7 @@ TEST_P(ExecutorTest, DestructorWaitsForExecutingTasks) {
     result += "2";
 
     shutdown_started.Fulfill();
-    executor.reset(nullptr);
+    executor.reset();
 
     result += "4";
     shutdown_complete.Fulfill();
@@ -335,7 +335,7 @@ TEST_P(ExecutorTest, DestructorAvoidsDeadlockWhenDeletingSelf) {
 
   executor->Execute([&] {
     result += "1";
-    executor.reset(nullptr);
+    executor.reset();
     result += "2";
 
     complete.Fulfill();

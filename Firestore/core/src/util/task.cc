@@ -169,7 +169,7 @@ bool Task::AwaitIfRunning() {
 void Task::AwaitLocked(std::unique_lock<std::mutex>& lock) {
   TASK_TRACE("Task::Await %s", this);
   is_complete_.wait(lock, [this] {
-    return state_ == State::kCanceled || state_ == State::kDone;
+    return state_ == State::kCancelled || state_ == State::kDone;
   });
 }
 
@@ -178,13 +178,13 @@ void Task::Cancel() {
   TASK_TRACE("Task::Cancel %s", this);
 
   if (state_ == State::kInitial) {
-    state_ = State::kCanceled;
+    state_ = State::kCancelled;
     executor_ = nullptr;
     operation_ = {};
     is_complete_.notify_all();
 
   } else if (state_ == State::kRunning) {
-    // Canceled tasks don't make any callbacks.
+    // Cancelled tasks don't make any callbacks.
     executor_ = nullptr;
 
     // Avoid deadlocking if the current Task is triggering its own cancellation.
@@ -194,7 +194,7 @@ void Task::Cancel() {
     }
 
   } else {
-    // no-op; already kCanceled or kDone.
+    // no-op; already kCancelled or kDone.
   }
 }
 
