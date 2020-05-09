@@ -112,32 +112,32 @@ void Task::Execute() {
     std::lock_guard<std::mutex> lock(mutex_);
     TASK_TRACE("Task::Execute %s", this);
 
-    bool should_notify_executor = false;
     if (state_ == State::kInitial) {
       state_ = State::kRunning;
       executing_thread_ = std::this_thread::get_id();
-      should_notify_executor = true;
 
-      // Invoke the operation without holding mutex_ to avoid deadlocks where
-      // the current task can trigger the cancellation of the task.
-      InverseLockGuard unlock(mutex_);
-      operation_();
+      {
+        // Invoke the operation without holding mutex_ to avoid deadlocks where
+        // the current task can trigger the cancellation of the task.
+        InverseLockGuard unlock(mutex_);
+        operation_();
 
-      TASK_TRACE("Task::Execute %s (completing)", this);
-    }
+        TASK_TRACE("Task::Execute %s (completing)", this);
+      }
 
-    state_ = State::kDone;
-    operation_ = {};
+      state_ = State::kDone;
+      operation_ = {};
 
-    // The callback to the executor must be performed after the operation
-    // completes, otherwise the executor's destructor cannot reliably block
-    // until all currently running tasks have completed.
-    //
-    // Also, the callback should only be performed if execute transitioned from
-    // kInitial to kDone, but this has to be done while holding the lock to
-    // avoid a data race with `Cancel`.
-    if (should_notify_executor && executor_) {
-      executor_->Complete(this);
+      // The callback to the executor must be performed after the operation
+      // completes, otherwise the executor's destructor cannot reliably block
+      // until all currently running tasks have completed.
+      //
+      // Also, the callback should only be performed if execute transitioned
+      // from `kInitial` to `kDone`, but this has to be done while holding the
+      // lock to avoid a data race with `Cancel`.
+      if (executor_) {
+        executor_->Complete(this);
+      }
     }
 
     is_complete_.notify_all();
