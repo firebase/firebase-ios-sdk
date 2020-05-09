@@ -172,7 +172,7 @@ TEST_F(TaskTest, CancelBlocksOnRunningTasks) {
   // completes.
   Async([&] { task->Execute(); });
 
-  // Cancel on yet another thread because this also will block
+  // Cancel on yet another thread because this will also block.
   Expectation cancel_started;
   Expectation cancel_finished;
   Async([&] {
@@ -209,7 +209,7 @@ TEST_F(TaskTest, OwnedExecuteThenRelease) {
   ASSERT_EQ(state.task_destroyed, 1);
 }
 
-TEST_F(TaskTest, OwnedReleaseThenRelease) {
+TEST_F(TaskTest, OwnedReleaseThenExecute) {
   auto executor = testutil::ExecutorForTesting();
   TaskState state;
   auto task = NewTask(executor.get(), &state);
@@ -221,6 +221,22 @@ TEST_F(TaskTest, OwnedReleaseThenRelease) {
 
   task->Execute();
   ASSERT_EQ(state.op_executed, 1);
+  ASSERT_EQ(state.op_destroyed, 1);
+  ASSERT_EQ(state.task_destroyed, 1);
+}
+
+TEST_F(TaskTest, OwnedReleaseThenRelease) {
+  auto executor = testutil::ExecutorForTesting();
+  TaskState state;
+  auto task = NewTask(executor.get(), &state);
+
+  task->Release();
+  ASSERT_EQ(state.op_executed, 0);
+  ASSERT_EQ(state.op_destroyed, 0);
+  ASSERT_EQ(state.task_destroyed, 0);
+
+  task->Release();
+  ASSERT_EQ(state.op_executed, 0);
   ASSERT_EQ(state.op_destroyed, 1);
   ASSERT_EQ(state.task_destroyed, 1);
 }

@@ -50,13 +50,9 @@ class InverseLockGuard {
 /**
  * Returns the initial reference count for a Task based on whether or not the
  * task shares ownership with the executor that created it.
- *
- * @param executor The executor that owns the Task, or `nullptr` if the Task
- *     owns itself.
- * @return The initial reference count value.
  */
-int InitialRefCount(Executor* executor) {
-  return executor ? 2 : 1;
+int InitialRefCount(bool shared_ownership) {
+  return shared_ownership ? 2 : 1;
 }
 
 }  // namespace
@@ -102,6 +98,9 @@ void Task::Retain() {
 }
 
 void Task::Release() {
+  // TODO(wilhuff): assert resulting ref count is >= 0
+  // This isn't safe in the current implementation because HARD_ASSERT can throw
+  // and `Release` is likely to be called in a destructor.
   if (ref_count_.fetch_sub(1, std::memory_order_acq_rel) == 1) {
     TASK_TRACE("Task::Release %s (deleting)", this);
     delete this;
@@ -121,7 +120,7 @@ void Task::Execute() {
 
       {
         // Invoke the operation without holding mutex_ to avoid deadlocks where
-        // the current task can trigger the cancellation of the task.
+        // the current task can trigger its own cancellation.
         InverseLockGuard unlock(mutex_);
         operation_();
 
@@ -135,9 +134,13 @@ void Task::Execute() {
       // completes, otherwise the executor's destructor cannot reliably block
       // until all currently running tasks have completed.
       //
-      // Also, the callback should only be performed if execute transitioned
-      // from `kInitial` to `kDone`, but this has to be done while holding the
-      // lock to avoid a data race with `Cancel`.
+      // Also, the callback should only be performed if the executor has not
+      // canceled the task. If `operation_` destroys the executor, notifying
+      // the executor after `operation_` returns would result in a use after
+      // free.
+      //
+      // Whether or not the task has been canceled has to be evaluated within
+      // the lock to avoid a data race with `Cancel`.
       if (executor_) {
         executor_->Complete(this);
       }
@@ -184,7 +187,7 @@ void Task::Cancel() {
     is_complete_.notify_all();
 
   } else if (state_ == State::kRunning) {
-    // Cancelled tasks don't make any callbacks.
+    // Cancelled tasks shouldn't notify the executor.
     executor_ = nullptr;
 
     // Avoid deadlocking if the current Task is triggering its own cancellation.
@@ -200,8 +203,6 @@ void Task::Cancel() {
 
 bool Task::operator<(const Task& rhs) const {
   // target_time_ and id_ are immutable after assignment; no lock required.
-
-  // Order by target time, then by the order in which entries were created.
   if (target_time_ < rhs.target_time_) {
     return true;
   }

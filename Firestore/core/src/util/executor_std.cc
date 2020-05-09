@@ -133,6 +133,13 @@ void ExecutorStd::Cancel(const Id operation_id) {
   auto removed = state_->schedule_.RemoveIf(
       [operation_id](const Task& t) { return t.id() == operation_id; });
   if (removed) {
+    // If we've managed to remove a task, it's guaranteed not to have started
+    // yet (currently executing tasks have been popped from the schedule and
+    // are held by a worker thread). Therefore all that's required is to
+    // release it since the task will never be executed.
+    //
+    // `Task::Cancel` is not required because once the task is removed from
+    // the schedule it can't be acquired by a worker thread.
     removed->Release();
   }
 }

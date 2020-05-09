@@ -174,6 +174,10 @@ class Task {
     return id_;
   }
 
+  /**
+   * Orders tasks by target time, then by the order in which entries were
+   * created.
+   */
   bool operator<(const Task& rhs) const;
 
  private:

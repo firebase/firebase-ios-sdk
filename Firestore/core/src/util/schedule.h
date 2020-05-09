@@ -93,7 +93,7 @@ class Schedule {
         return ExtractLocked(iter);
       }
     }
-    return {};
+    return nullptr;
   }
 
   // Checks whether the queue contains an entry satisfying the given predicate.
