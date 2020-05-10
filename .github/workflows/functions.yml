@@ -20,7 +20,6 @@ jobs:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
     runs-on: macOS-latest
-    needs: check
 
     steps:
     - uses: actions/checkout@v2
