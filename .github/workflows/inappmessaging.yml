@@ -7,7 +7,7 @@ on:
   pull_request:
     paths:
     - 'FirebaseInAppMessaging**'
-    - '.github/workflows/InAppMessaging.yml'
+    - '.github/workflows/inappmessaging.yml'
     - 'Gemfile'
   schedule:
     # Run every day at 11pm (PST) - cron uses UTC times
