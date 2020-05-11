@@ -192,11 +192,11 @@ NS_SWIFT_NAME(RemoteConfig)
 /// Fetches Remote Config data with a callback. Call activateFetched to make fetched data available
 /// to your app.
 ///
-/// Note: This method uses a Firebase Instance ID token to identify the app instance, and once it's
-/// called, it periodically sends data to the Firebase backend. (see
-/// `[FIRInstanceID getIDWithHandler:]`).
-/// To stop the periodic sync, developers need to call `[FIRInstanceID deleteIDWithHandler:]` and
-/// avoid calling this method again.
+/// Note: This method uses a Firebase Installations token to identify the app instance, and once
+/// it's called, it periodically sends data to the Firebase backend. (see
+/// `[FIRInstallations authTokenWithCompletion:]`).
+/// To stop the periodic sync, developers need to call `[FIRInstallations deleteWithCompletion:]`
+/// and avoid calling this method again.
 ///
 /// @param completionHandler Fetch operation callback.
 - (void)fetchWithCompletionHandler:(nullable FIRRemoteConfigFetchCompletion)completionHandler;
@@ -204,11 +204,11 @@ NS_SWIFT_NAME(RemoteConfig)
 /// Fetches Remote Config data and sets a duration that specifies how long config data lasts.
 /// Call activateFetched to make fetched data available to your app.
 ///
-/// Note: This method uses a Firebase Instance ID token to identify the app instance, and once it's
-/// called, it periodically sends data to the Firebase backend. (see
-/// `[FIRInstanceID getIDWithHandler:]`).
-/// To stop the periodic sync, developers need to call `[FIRInstanceID deleteIDWithHandler:]` and
-/// avoid calling this method again.
+/// Note: This method uses a Firebase Installations token to identify the app instance, and once
+/// it's called, it periodically sends data to the Firebase backend. (see
+/// `[FIRInstallations authTokenWithCompletion:]`).
+/// To stop the periodic sync, developers need to call `[FIRInstallations deleteWithCompletion:]`
+/// and avoid calling this method again.
 ///
 /// @param expirationDuration  Override the (default or optionally set minimumFetchInterval property
 /// in FIRRemoteConfigSettings) minimumFetchInterval for only the current request, in seconds.
@@ -220,11 +220,11 @@ NS_SWIFT_NAME(RemoteConfig)
 /// Fetches Remote Config data and if successful, activates fetched data. Optional completion
 /// handler callback is invoked after the attempted activation of data, if the fetch call succeeded.
 ///
-/// Note: This method uses a Firebase Instance ID token to identify the app instance, and once it's
-/// called, it periodically sends data to the Firebase backend. (see
-/// `[FIRInstanceID getIDWithHandler:]`).
-/// To stop the periodic sync, developers need to call `[FIRInstanceID deleteIDWithHandler:]` and
-/// avoid calling this method again.
+/// Note: This method uses a Firebase Installations token to identify the app instance, and once
+/// it's called, it periodically sends data to the Firebase backend. (see
+/// `[FIRInstallations authTokenWithCompletion:]`).
+/// To stop the periodic sync, developers need to call `[FIRInstallations deleteWithCompletion:]`
+/// and avoid calling this method again.
 ///
 /// @param completionHandler Fetch operation callback.
 - (void)fetchAndActivateWithCompletionHandler:
