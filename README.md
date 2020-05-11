@@ -279,8 +279,8 @@ The contents of this repository is licensed under the
 Your use of Firebase is governed by the
 [Terms of Service for Firebase Services](https://firebase.google.com/terms/).
 
-[gh-abtesting]: https://github.com/firebase/firebase-ios-sdk/abtesting
 [gh-actions]: https://github.com/firebase/firebase-ios-sdk/actions
+[gh-abtesting]: https://github.com/firebase/firebase-ios-sdk/workflows/abtesting/badge.svg
 [gh-auth-badge]: https://github.com/firebase/firebase-ios-sdk/workflows/auth/badge.svg
 [gh-core-badge]: https://github.com/firebase/firebase-ios-sdk/workflows/core/badge.svg
 [gh-crashlytics-badge]: https://github.com/firebase/firebase-ios-sdk/workflows/crashlytics/badge.svg
