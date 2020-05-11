@@ -113,7 +113,9 @@ NSString *const kFIRAppDistributionAuthPersistenceErrorDomain =
   NSMutableDictionary *keychainQuery = [NSMutableDictionary
       dictionaryWithObjectsAndKeys:(id)kSecClassGenericPassword, (id)kSecClass, @"OAuth",
                                    (id)kSecAttrGeneric, @"OAuth", (id)kSecAttrAccount,
-                                   @"fire-fad-auth", (id)kSecAttrService, nil];
+                                   @"fire-fad-auth", (id)kSecAttrService,
+                                   (id)kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly,
+                                   (id)kSecAttrAccessible, nil];
   return keychainQuery;
 }
 
