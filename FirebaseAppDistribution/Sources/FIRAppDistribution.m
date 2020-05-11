@@ -205,6 +205,8 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
     NSMutableURLRequest *request = [[NSMutableURLRequest alloc] init];
     NSString *URLString =
         [NSString stringWithFormat:kReleasesEndpointURL, [[FIRApp defaultApp] options].googleAppID];
+
+    NSLog(@"Requesting releases for app id - %@", [[FIRApp defaultApp] options].googleAppID);
     [request setURL:[NSURL URLWithString:URLString]];
     [request setHTTPMethod:@"GET"];
     [request setValue:[NSString stringWithFormat:@"Bearer %@", accessToken]
@@ -317,7 +319,8 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
     // TODO (schnecle): Log errors in persistence using
     // FIRLogger
     if (authPersistenceError) {
-      NSLog(@"Error persisting auth token to keychain: %@", [error localizedDescription]);
+      NSLog(@"Error persisting auth token to keychain: %@",
+            [authPersistenceError localizedDescription]);
     } else {
       NSLog(@"Successfully persisted auth token in the keychain");
     }
