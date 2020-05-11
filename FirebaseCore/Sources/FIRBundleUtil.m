@@ -14,7 +14,11 @@
 
 #import "FirebaseCore/Sources/FIRBundleUtil.h"
 
+#if SWIFT_PACKAGE
+@import GoogleUtilities_Environment;
+#else
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
+#endif
 
 @implementation FIRBundleUtil
 

@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+#ifndef FIREBASECORE_SOURCES_PRIVATE_FIRCOMPONENT_H_
+#define FIREBASECORE_SOURCES_PRIVATE_FIRCOMPONENT_H_
+
 #import <Foundation/Foundation.h>
 
 @class FIRApp;
@@ -89,3 +92,5 @@ NS_SWIFT_NAME(init(_:instantiationTiming:dependencies:creationBlock:));
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif  // FIREBASECORE_SOURCES_PRIVATE_FIRCOMPONENT_H_

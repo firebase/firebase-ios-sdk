@@ -13,13 +13,35 @@ let package = Package(
     // Swift target.
     .executable(name: "firebase-test", targets: ["firebase-test"]),
   ],
+  dependencies: [
+    .package(name: "Promises", url: "https://www.github.com/google/promises", from: "1.2.0"),
+  ],
   targets: [
     // Targets are the basic building blocks of a package. A target can define a module or a test suite.
     // Targets can depend on other targets in this package, and on products in packages which this package depends on.
     .target(
       name: "firebase-test",
-      dependencies: [ "GoogleUtilities_AppDelegateSwizzler", "GoogleUtilities_Environment", "GoogleUtilities_Logger"]
+      dependencies: [ "GoogleUtilities_AppDelegateSwizzler",
+                      "GoogleUtilities_Environment",
+                      "GoogleUtilities_Logger",
+                      "FirebaseCore"]
     ),
+
+    // MARK: - Firebase
+
+    .target(
+      name: "FirebaseCore",
+      dependencies: ["GoogleUtilities_Environment", "GoogleUtilities_Logger"],
+      // Need to explicitly say `Source` because `Tests` has .swift files and you can't have a mix-language
+      // target yet.
+      path: "FirebaseCore/Sources",
+      publicHeadersPath: "Public",
+      cSettings: [
+        .headerSearchPath("../.."), // Root of the repo, needed for Firebase's absolute filepaths.
+        .define("FIRCore_VERSION", to: "0.0.1"),  // TODO Fix version
+        .define("Firebase_VERSION", to: "0.0.1")  // TODO Fix version
+        // TODO - Add support for cflags cSetting so that we can set the -fno-autolink option
+    ]),
 
     // MARK: - Google Utilities Sub-targets
 
@@ -34,11 +56,11 @@ let package = Package(
     ),
     .target(
       name: "GoogleUtilities_Environment",
-      path: "GoogleUtilities/Environment/third_party",
-      sources: ["GULAppEnvironmentUtil.m"],
-      publicHeadersPath: ".",
+      dependencies: [ .product(name: "FBLPromises", package: "Promises") ],
+      path: "GoogleUtilities/Environment",
+      publicHeadersPath: "Public",
       cSettings: [
-        .headerSearchPath("../../..") // Root of the repo, needed for Firebase's absolute filepaths.
+        .headerSearchPath("../..") // Root of the repo, needed for Firebase's absolute filepaths.
     ]),
     .target(
       name: "GoogleUtilities_Logger",

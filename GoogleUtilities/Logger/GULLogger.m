@@ -17,7 +17,8 @@
 #include <asl.h>
 
 #if SWIFT_PACKAGE
-@import GoogleUtilities_Environment;
+// SwiftPM cannot use private framework imports.
+#import "GoogleUtilities/Environment/third_party/GULAppEnvironmentUtil.h"
 #else
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #endif

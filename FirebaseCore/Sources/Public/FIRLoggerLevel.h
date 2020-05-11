@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+#ifndef FIREBASECORE_SOURCES_PUBLIC_FIRLOGGERLEVEL_H_
+#define FIREBASECORE_SOURCES_PUBLIC_FIRLOGGERLEVEL_H_
+
 // Note that importing GULLoggerLevel.h will lead to a non-modular header
 // import error.
 
@@ -36,3 +39,5 @@ typedef NS_ENUM(NSInteger, FIRLoggerLevel) {
   /** Maximum log level. */
   FIRLoggerLevelMax = FIRLoggerLevelDebug
 } NS_SWIFT_NAME(FirebaseLoggerLevel);
+
+#endif  // FIREBASECORE_SOURCES_PUBLIC_FIRLOGGERLEVEL_H_

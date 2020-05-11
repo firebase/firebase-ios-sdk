@@ -14,9 +14,12 @@
  * limitations under the License.
  */
 
+#ifndef FIREBASECORE_SOURCES_PUBLIC_FIRCONFIGURATION_H_
+#define FIREBASECORE_SOURCES_PUBLIC_FIRCONFIGURATION_H_
+
 #import <Foundation/Foundation.h>
 
-#import <FirebaseCore/FIRLoggerLevel.h>
+#import "FirebaseCore/Sources/Public/FIRLoggerLevel.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -43,3 +46,5 @@ NS_SWIFT_NAME(FirebaseConfiguration)
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif  // FIREBASECORE_SOURCES_PUBLIC_FIRCONFIGURATION_H_

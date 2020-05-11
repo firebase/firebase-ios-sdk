@@ -13,10 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+#ifndef FIREBASECORE_SOURCES_PRIVATE_FIRCOMPONENTCONTAINER_H_
+#define FIREBASECORE_SOURCES_PRIVATE_FIRCOMPONENTCONTAINER_H_
+
 #import <Foundation/Foundation.h>
 
+#if SWIFT_PACKAGE
+#import "FirebaseCore/Sources/Private/FIRComponentType.h"
+#else
 #import <FirebaseCore/FIRComponentType.h>
-#import <FirebaseCore/FIRLibrary.h>
+#import <FirebaseCore/FIRLibrary.h> // May not be necessary anymore?
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -42,3 +50,5 @@ NS_SWIFT_NAME(FirebaseComponentContainer)
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif  // FIREBASECORE_SOURCES_PRIVATE_FIRCOMPONENTCONTAINER_H_

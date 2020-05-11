@@ -12,6 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#ifndef GOOGLEUTILITIES_ENVIRONMENT_PULBIC_GULSECURECODING_H_
+#define GOOGLEUTILITIES_ENVIRONMENT_PULBIC_GULSECURECODING_H_
+
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -34,3 +37,5 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif  // GOOGLEUTILITIES_ENVIRONMENT_PULBIC_GULSECURECODING_H_
