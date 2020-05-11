@@ -67,3 +67,8 @@ For GitHub tag management and public header change detection, add a GitHub api t
   [Storage example](FirebaseStorage/Sources/FIRStorageComponent.m).
 * Add to the [ZipBuilder pod list](ZipBuilder/Sources/ZipBuilder/CocoaPod.swift).
 * Add a [quickstart](https://github.com/firebase/quickstart-ios).
+
+## Review and Release
+
+* Contact icore-eng@ at least a month in advance of desired release date to coordinate the
+  initial launch plan.
