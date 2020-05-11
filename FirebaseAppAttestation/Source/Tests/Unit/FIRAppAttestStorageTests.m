@@ -48,7 +48,7 @@
 
   FBLPromise *setPromise = [self.storage setToken:tokenToStore];
   XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
-  XCTAssertEqualObjects(setPromise.value, [NSNull null]);
+  XCTAssertEqualObjects(setPromise.value, tokenToStore);
   XCTAssertNil(setPromise.error);
 
   __auto_type getPromise = [self.storage getToken];
@@ -61,7 +61,7 @@
 - (void)testRemoveToken {
   FBLPromise *setPromise = [self.storage setToken:nil];
   XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
-  XCTAssertEqualObjects(setPromise.value, [NSNull null]);
+  XCTAssertEqualObjects(setPromise.value, nil);
   XCTAssertNil(setPromise.error);
 
   __auto_type getPromise = [self.storage getToken];

@@ -68,9 +68,16 @@ static NSString *const kKeychainService = @"com.firebase.app_attest.token_storag
     [storedToken updateWithToken:token];
     return [self.keychainStorage setObject:storedToken
                                     forKey:[self tokenKey]
-                               accessGroup:self.accessGroup];
+                               accessGroup:self.accessGroup]
+        .then(^id _Nullable(NSNull *_Nullable value) {
+          return token;
+        });
   } else {
-    return [self.keychainStorage removeObjectForKey:[self tokenKey] accessGroup:self.accessGroup];
+    return
+        [self.keychainStorage removeObjectForKey:[self tokenKey] accessGroup:self.accessGroup].then(
+            ^id _Nullable(NSNull *_Nullable value) {
+              return nil;
+            });
   }
 }
 

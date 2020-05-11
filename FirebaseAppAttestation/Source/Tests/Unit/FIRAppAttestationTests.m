@@ -20,40 +20,27 @@
 // (see also go/srl-dev/why-fakes#no-ocmock)
 #import <OCMock/OCMock.h>
 
+#import "FBLPromise+Testing.h"
+
 #import <FirebaseAppAttestation/FirebaseAppAttestation.h>
 #import <FirebaseAppAttestationInterop/FIRAppAttestationInterop.h>
 #import <FirebaseAppAttestationInterop/FIRAppAttestationTokenInterop.h>
 
-#import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseCore/FIRComponentContainer.h>
-#import <FirebaseCore/FirebaseCore.h>
+#import "FIRAppAttestStorage.h"
+#import "FIRAppAttestationToken+Interop.h"
 
-@interface DummyAttestationProvider : NSObject <FIRAppAttestationProvider>
-@end
-
-@implementation DummyAttestationProvider
-- (void)getTokenWithCompletion:(nonnull FIRAppAttestationTokenHandler)handler {
-  FIRAppAttestationToken *token =
-      [[FIRAppAttestationToken alloc] initWithToken:@"Token" expirationDate:[NSDate distantFuture]];
-  handler(token, nil);
-}
-@end
-
-@interface AttestationProviderFactory : NSObject <FIRAppAttestationProviderFactory>
-@end
-
-@implementation AttestationProviderFactory
-
-- (nullable id<FIRAppAttestationProvider>)createProviderWithApp:(nonnull FIRApp *)app {
-  return [[DummyAttestationProvider alloc] init];
-}
-
+@interface FIRAppAttestation (Tests) <FIRAppAttestationInterop>
+- (instancetype)initWithAppName:(NSString *)appName
+            attestationProvider:(id<FIRAppAttestationProvider>)attestationProvider
+                        storage:(id<FIRAppAttestStorageProtocol>)storage;
 @end
 
 @interface FIRAppAttestationTests : XCTestCase
 
-@property(nonatomic) id mockProviderFactory;
-@property(nonatomic) id mockAttestationProvider;
+@property(nonatomic) NSString *appName;
+@property(nonatomic) OCMockObject<FIRAppAttestStorageProtocol> *mockStorage;
+@property(nonatomic) OCMockObject<FIRAppAttestationProvider> *mockAttestationProvider;
+@property(nonatomic) FIRAppAttestation<FIRAppAttestationInterop> *attestation;
 
 @end
 
@@ -62,151 +49,147 @@
 - (void)setUp {
   [super setUp];
 
+  self.appName = @"FIRAppAttestationTests";
+  self.mockStorage = OCMProtocolMock(@protocol(FIRAppAttestStorageProtocol));
   self.mockAttestationProvider = OCMProtocolMock(@protocol(FIRAppAttestationProvider));
-  self.mockProviderFactory = OCMProtocolMock(@protocol(FIRAppAttestationProviderFactory));
+  self.attestation = [[FIRAppAttestation alloc] initWithAppName:self.appName
+                                            attestationProvider:self.mockAttestationProvider
+                                                        storage:self.mockStorage];
 }
 
 - (void)tearDown {
-  [FIRApp resetApps];
-  [FIRAppAttestation setAttestationProviderFactory:nil];
-
-  [self.mockProviderFactory stopMocking];
-  self.mockProviderFactory = nil;
+  self.attestation = nil;
   [self.mockAttestationProvider stopMocking];
   self.mockAttestationProvider = nil;
+  [self.mockStorage stopMocking];
+  self.mockStorage = nil;
 
   [super tearDown];
 }
 
-// TODO: Consider moving it to integration tests since it requires `[FIRApp configure]`
-- (void)testSetAttestationProviderFactoryWithDefaultApp {
-  NSString *appName = kFIRDefaultAppName;
+- (void)testGetToken_WhenNoCache_Success {
+  // 1. Expect token to be requested from storage.
+  OCMExpect([self.mockStorage getToken]).andReturn([FBLPromise resolvedWith:nil]);
 
-  // 1. Set Attestation Provider Factory.
-  [FIRAppAttestation setAttestationProviderFactory:self.mockProviderFactory];
+  // 2. Expect token requested from attestation provider.
+  FIRAppAttestationToken *tokenToReturn =
+      [[FIRAppAttestationToken alloc] initWithToken:@"valid" expirationDate:[NSDate distantFuture]];
+  id completionArg = [OCMArg invokeBlockWithArgs:tokenToReturn, [NSNull null], nil];
+  OCMExpect([self.mockAttestationProvider getTokenWithCompletion:completionArg]);
 
-  // 2. Expect factory to be used on [FIRApp configure].
-  id appValidationArg = [OCMArg checkWithBlock:^BOOL(FIRApp *app) {
-    XCTAssertEqual(app.name, appName);
-    return YES;
+  // 3. Expect new token to be stored.
+  OCMExpect([self.mockStorage setToken:tokenToReturn])
+      .andReturn([FBLPromise resolvedWith:tokenToReturn]);
+
+  // 4. Request token.
+  XCTestExpectation *getTokenExpectation = [self expectationWithDescription:@"getToken"];
+  [self.attestation getTokenWithCompletion:^(id<FIRAppAttestationTokenInterop> _Nullable token,
+                                             NSError *_Nullable error) {
+    [getTokenExpectation fulfill];
+
+    XCTAssertNil(error);
+    XCTAssertNotNil(token);
+    XCTAssertEqualObjects(token.token, tokenToReturn.token);
+    XCTAssertEqualObjects(token.expirationDate, tokenToReturn.expirationDate);
   }];
-  OCMExpect([self.mockProviderFactory createProviderWithApp:appValidationArg])
-      .andReturn(self.mockAttestationProvider);
 
-  // 3. Configure FIRApp.
-  [self configureAppWithName:appName];
-
-  // 4. Expect Attestation Provider to be called on getToken.
-  FIRAppAttestationToken *fakeToken =
-      [[FIRAppAttestationToken alloc] initWithToken:@"token" expirationDate:[NSDate distantFuture]];
-  id completionBlockArg = [OCMArg invokeBlockWithArgs:fakeToken, [NSNull null], nil];
-  OCMExpect([self.mockAttestationProvider getTokenWithCompletion:completionBlockArg]);
-
-  // 5. Call getToken and check the result.
-  FIRApp *app = [FIRApp appNamed:appName];
-  id<FIRAppAttestationInterop> appAttestation =
-      FIR_COMPONENT(FIRAppAttestationInterop, app.container);
-
-  XCTestExpectation *completionExpectation =
-      [self expectationWithDescription:@"completionExpectation"];
-  [appAttestation
-      getTokenForcingRefresh:YES
-                  completion:^(id<FIRAppAttestationTokenInterop> _Nullable token,
-                               NSError *_Nullable error) {
-                    [completionExpectation fulfill];
-                    XCTAssertNil(error);
-                    XCTAssertNotNil(token);
-                    XCTAssertEqualObjects(token.token, fakeToken.token);
-                    XCTAssertEqualObjects(token.expirationDate, fakeToken.expirationDate);
-                  }];
-  [self waitForExpectations:@[ completionExpectation ] timeout:0.5];
-
-  // 6. Verify mocks
-  OCMVerifyAll(self.mockProviderFactory);
+  // 5. Wait for expectations and validate mocks.
+  [self waitForExpectations:@[ getTokenExpectation ] timeout:0.5];
+  OCMVerifyAll(self.mockStorage);
   OCMVerifyAll(self.mockAttestationProvider);
 }
 
-- (void)testSetAttestationProviderFactoryWithNonDefaultApp {
-  NSString *appName = @"custom_app";
+- (void)testGetToken_WhenChachedTokenIsValid_Success {
+  FIRAppAttestationToken *cachedToken =
+      [[FIRAppAttestationToken alloc] initWithToken:@"valid" expirationDate:[NSDate distantFuture]];
 
-  // 1. Set Attestation Provider Factory.
-  [FIRAppAttestation setAttestationProviderFactory:self.mockProviderFactory forAppName:appName];
+  // 1. Expect token to be requested from storage.
+  OCMExpect([self.mockStorage getToken]).andReturn([FBLPromise resolvedWith:cachedToken]);
 
-  // 2. Expect factory to be used on [FIRApp configure].
-  id appValidationArg = [OCMArg checkWithBlock:^BOOL(FIRApp *app) {
-    XCTAssertEqual(app.name, appName);
-    return YES;
+  // 2. Don't expect token requested from attestation provider.
+  OCMReject([self.mockAttestationProvider getTokenWithCompletion:[OCMArg any]]);
+
+  // 3. Request token.
+  XCTestExpectation *getTokenExpectation = [self expectationWithDescription:@"getToken"];
+  [self.attestation getTokenWithCompletion:^(id<FIRAppAttestationTokenInterop> _Nullable token,
+                                             NSError *_Nullable error) {
+    [getTokenExpectation fulfill];
+
+    XCTAssertNil(error);
+    XCTAssertNotNil(token);
+    XCTAssertEqualObjects(token.token, cachedToken.token);
+    XCTAssertEqualObjects(token.expirationDate, cachedToken.expirationDate);
   }];
-  OCMExpect([self.mockProviderFactory createProviderWithApp:appValidationArg])
-      .andReturn(self.mockAttestationProvider);
 
-  // 3. Configure FIRApp.
-  [self configureAppWithName:appName];
-
-  // 4. Expect Attestation Provider to be called on getToken.
-  FIRAppAttestationToken *fakeToken =
-      [[FIRAppAttestationToken alloc] initWithToken:@"token" expirationDate:[NSDate distantFuture]];
-  id completionBlockArg = [OCMArg invokeBlockWithArgs:fakeToken, [NSNull null], nil];
-  OCMExpect([self.mockAttestationProvider getTokenWithCompletion:completionBlockArg]);
-
-  // 5. Call getToken and check the result.
-  FIRApp *app = [FIRApp appNamed:appName];
-  id<FIRAppAttestationInterop> appAttestation =
-      FIR_COMPONENT(FIRAppAttestationInterop, app.container);
-
-  XCTestExpectation *completionExpectation =
-      [self expectationWithDescription:@"completionExpectation"];
-  [appAttestation
-      getTokenForcingRefresh:YES
-                  completion:^(id<FIRAppAttestationTokenInterop> _Nullable token,
-                               NSError *_Nullable error) {
-                    [completionExpectation fulfill];
-                    XCTAssertNil(error);
-                    XCTAssertNotNil(token);
-                    XCTAssertEqualObjects(token.token, fakeToken.token);
-                    XCTAssertEqualObjects(token.expirationDate, fakeToken.expirationDate);
-                  }];
-  [self waitForExpectations:@[ completionExpectation ] timeout:0.5];
-
-  // 6. Verify mocks
-  OCMVerifyAll(self.mockProviderFactory);
+  // 4. Wait for expectations and validate mocks.
+  [self waitForExpectations:@[ getTokenExpectation ] timeout:0.5];
+  OCMVerifyAll(self.mockStorage);
   OCMVerifyAll(self.mockAttestationProvider);
 }
 
-#pragma mark - Helpers
+- (void)testGetToken_WhenCachedTokenExpired_Success {
+  FIRAppAttestationToken *cachedToken =
+      [[FIRAppAttestationToken alloc] initWithToken:@"valid" expirationDate:[NSDate date]];
 
-- (void)configureAppWithName:(NSString *)appName {
-  FIROptions *options =
-      [[FIROptions alloc] initWithGoogleAppID:@"1:100000000000:ios:aaaaaaaaaaaaaaaaaaaaaaaa"
-                                  GCMSenderID:@"sender_id"];
-  [FIRApp configureWithName:appName options:options];
+  // 1. Expect token to be requested from storage.
+  OCMExpect([self.mockStorage getToken]).andReturn([FBLPromise resolvedWith:cachedToken]);
+
+  // 2. Expect token requested from attestation provider.
+  FIRAppAttestationToken *tokenToReturn =
+      [[FIRAppAttestationToken alloc] initWithToken:@"valid" expirationDate:[NSDate distantFuture]];
+  id completionArg = [OCMArg invokeBlockWithArgs:tokenToReturn, [NSNull null], nil];
+  OCMExpect([self.mockAttestationProvider getTokenWithCompletion:completionArg]);
+
+  // 3. Expect new token to be stored.
+  OCMExpect([self.mockStorage setToken:tokenToReturn])
+      .andReturn([FBLPromise resolvedWith:tokenToReturn]);
+
+  // 4. Request token.
+  XCTestExpectation *getTokenExpectation = [self expectationWithDescription:@"getToken"];
+  [self.attestation getTokenWithCompletion:^(id<FIRAppAttestationTokenInterop> _Nullable token,
+                                             NSError *_Nullable error) {
+    [getTokenExpectation fulfill];
+
+    XCTAssertNil(error);
+    XCTAssertNotNil(token);
+    XCTAssertEqualObjects(token.token, tokenToReturn.token);
+    XCTAssertEqualObjects(token.expirationDate, tokenToReturn.expirationDate);
+  }];
+
+  // 5. Wait for expectations and validate mocks.
+  [self waitForExpectations:@[ getTokenExpectation ] timeout:0.5];
+  OCMVerifyAll(self.mockStorage);
+  OCMVerifyAll(self.mockAttestationProvider);
 }
 
-// TODO: Remove usage example once API review approval obtained.
-- (void)usageExample {
-  // Set a custom attestation provider factory for the default FIRApp.
-  [FIRAppAttestation setAttestationProviderFactory:[[AttestationProviderFactory alloc] init]];
-  [FIRApp configure];
+- (void)testGetToken_AttestationProviderError {
+  // 1. Expect token to be requested from storage.
+  OCMExpect([self.mockStorage getToken]).andReturn([FBLPromise resolvedWith:nil]);
 
-  [FIRAppAttestation setAttestationProviderFactory:[[AttestationProviderFactory alloc] init]
-                                        forAppName:@"AppName"];
+  // 2. Expect token requested from attestation provider.
+  NSError *providerError = [NSError errorWithDomain:@"FIRAppAttestationTests" code:-1 userInfo:nil];
+  id completionArg = [OCMArg invokeBlockWithArgs:[NSNull null], providerError, nil];
+  OCMExpect([self.mockAttestationProvider getTokenWithCompletion:completionArg]);
 
-  FIROptions *options = [[FIROptions alloc] initWithContentsOfFile:@"path"];
-  [FIRApp configureWithName:@"AppName" options:options];
+  // 3. Don't expect token requested from attestation provider.
+  OCMReject([self.mockAttestationProvider getTokenWithCompletion:[OCMArg any]]);
 
-  FIRApp *defaultApp = [FIRApp defaultApp];
+  // 4. Request token.
+  XCTestExpectation *getTokenExpectation = [self expectationWithDescription:@"getToken"];
+  [self.attestation getTokenWithCompletion:^(id<FIRAppAttestationTokenInterop> _Nullable token,
+                                             NSError *_Nullable error) {
+    [getTokenExpectation fulfill];
 
-  id<FIRAppAttestationInterop> defaultAppAttestation =
-      FIR_COMPONENT(FIRAppAttestationInterop, defaultApp.container);
+    XCTAssertNil(token);
 
-  [defaultAppAttestation getTokenWithCompletion:^(id<FIRAppAttestationTokenInterop> _Nullable token,
-                                                  NSError *_Nullable error) {
-    if (token) {
-      NSLog(@"Token: %@", token.token);
-    } else {
-      NSLog(@"Error: %@", error);
-    }
+    // TODO: Expect a public domain error to be returned - not the internal one.
+    XCTAssertEqualObjects(error, providerError);
   }];
+
+  // 5. Wait for expectations and validate mocks.
+  [self waitForExpectations:@[ getTokenExpectation ] timeout:0.5];
+  OCMVerifyAll(self.mockStorage);
+  OCMVerifyAll(self.mockAttestationProvider);
 }
 
 @end
