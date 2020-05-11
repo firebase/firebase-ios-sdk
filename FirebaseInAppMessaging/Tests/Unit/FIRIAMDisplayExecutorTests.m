@@ -599,8 +599,12 @@ NSTimeInterval DISPLAY_MIN_INTERVALS = 1;
 
   [self.clientMessageCache setMessageData:@[ self.m2 ]];
 
+  FIRInAppMessagingAction *m2Action = [[FIRInAppMessagingAction alloc]
+      initWithActionText:self.m2.renderData.contentData.actionButtonText
+               actionURL:self.m2.renderData.contentData.actionURL];
   FIRIAMMessageDisplayForTesting *display = [[FIRIAMMessageDisplayForTesting alloc]
-      initWithDelegateInteraction:FIRInAppMessagingDelegateInteractionClick];
+      initWithDelegateInteraction:FIRInAppMessagingDelegateInteractionClick
+                           action:m2Action];
   self.displayExecutor.messageDisplayComponent = display;
 
   [self.displayExecutor checkAndDisplayNextAppForegroundMessage];
