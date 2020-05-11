@@ -19,7 +19,7 @@
 set -xeuo pipefail
 
 sample="$1"
-platform="$2"
+platform="${2-}"
 
 # Source function to check if CI secrets are available.
 source scripts/check_secrets.sh
@@ -28,7 +28,7 @@ if check_secrets; then
   cd quickstart-ios
 	if [ "$platform" = "swift" ]; then
 					have_secrets=true SAMPLE="$sample" SWIFT_SUFFIX="Swift" ./scripts/test.sh
-	else 
+	else
 					have_secrets=true SAMPLE="$sample" ./scripts/test.sh
 
 fi
