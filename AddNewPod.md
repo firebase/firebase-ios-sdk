@@ -58,3 +58,12 @@ the GitHub Action check phase. Run [scripts/style.sh](scripts/style.sh).
 
 For GitHub tag management and public header change detection, add a GitHub api tag and update
 [Dangerfile](Dangerfile).
+
+## Firebase Integration
+
+* Make sure the public headers are imported via [Firebase.h](CoreOnly/Sources/Firebase.h).
+* Update [Firebase.podspec](Firebase.podspec).
+* Register library via registerInternalLibrary API like this
+  [Storage example](FirebaseStorage/Sources/FIRStorageComponent.m).
+* Add to the [ZipBuilder pod list](ZipBuilder/Sources/ZipBuilder/CocoaPod.swift).
+* Add a [quickstart](https://github.com/firebase/quickstart-ios).
