@@ -62,15 +62,15 @@ class ExecutorStd : public Executor {
   Task* PopFromSchedule() override;
 
  private:
+  class SharedState;
+
   Id PushOnSchedule(TimePoint when, Tag tag, Operation&& operation);
 
   void OnCompletion(Task* task) override;
   void Cancel(Id operation_id) override;
 
-  void PollingThread();
+  static void PollingThread(std::shared_ptr<SharedState> state);
   Id NextId();
-
-  class SharedState;
 
   // State shared with workers. Note that if the Executor's destructor is called
   // from a worker thread, this state will outlive the nominally owning

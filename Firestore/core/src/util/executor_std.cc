@@ -78,7 +78,7 @@ ExecutorStd::ExecutorStd(int threads)
   current_id_ = 0;
 
   for (int i = 0; i < threads; ++i) {
-    worker_thread_pool_.emplace_back(&ExecutorStd::PollingThread, this);
+    worker_thread_pool_.emplace_back(&ExecutorStd::PollingThread, state_);
   }
 }
 
@@ -156,8 +156,8 @@ ExecutorStd::Id ExecutorStd::PushOnSchedule(const TimePoint when,
   return id;
 }
 
-void ExecutorStd::PollingThread() {
-  std::shared_ptr<SharedState> local_state = state_;
+void ExecutorStd::PollingThread(std::shared_ptr<SharedState> state) {
+  std::shared_ptr<SharedState> local_state = std::move(state);
   for (;;) {
     Task* task = local_state->schedule_.PopBlocking();
     bool shutdown_requested = task->tag() == kShutdownTag;
