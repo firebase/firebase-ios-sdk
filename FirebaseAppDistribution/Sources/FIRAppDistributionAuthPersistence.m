@@ -87,8 +87,8 @@ NSString *const kFIRAppDistributionAuthPersistenceErrorDomain =
   NSData *authorizationData = [FIRAppDistributionKeychainUtility archiveDataForKeychain:authState];
   NSMutableDictionary *keychainQuery = [self getKeyChainQuery];
   BOOL success = NO;
-  BOOL hasAuthState = [self retrieveAuthState:NULL];
-  if (hasAuthState) {
+  OIDAuthState *retrievedAuthState = [self retrieveAuthState:NULL];
+  if (retrievedAuthState) {
     success = [FIRAppDistributionKeychainUtility updateKeychainItem:keychainQuery
                                                  withDataDictionary:authorizationData];
   } else {
@@ -113,7 +113,9 @@ NSString *const kFIRAppDistributionAuthPersistenceErrorDomain =
   NSMutableDictionary *keychainQuery = [NSMutableDictionary
       dictionaryWithObjectsAndKeys:(id)kSecClassGenericPassword, (id)kSecClass, @"OAuth",
                                    (id)kSecAttrGeneric, @"OAuth", (id)kSecAttrAccount,
-                                   @"fire-fad-auth", (id)kSecAttrService, nil];
+                                   @"fire-fad-auth", (id)kSecAttrService,
+                                   (id)kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly,
+                                   (id)kSecAttrAccessible, nil];
   return keychainQuery;
 }
 
