@@ -60,7 +60,7 @@ class FakeConnectivityMonitor : public ConnectivityMonitor {
 };
 
 bool IsConnectivityChange(const Status& status) {
-  return status.code() == Error::kUnavailable;
+  return status.code() == Error::kErrorUnavailable;
 }
 
 class ConnectivityObserver : public GrpcStreamObserver {
