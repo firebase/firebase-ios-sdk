@@ -206,7 +206,7 @@ typedef NS_ENUM(NSInteger, FIRInAppMessagingDelegateInteraction) {
 @property id<FIRInAppMessagingDisplay> mockMessageDisplayComponent;
 
 // four pre-defined messages
-@property FIRIAMMessageDefinition *m1, *m2, *m3, *m4;
+@property FIRIAMMessageDefinition *m1, *m2, *m3, *m4, *m5;
 @end
 
 @implementation FIRIAMDisplayExecutorTests
@@ -220,7 +220,7 @@ typedef NS_ENUM(NSInteger, FIRInAppMessagingDelegateInteraction) {
   FIRIAMDisplayTriggerDefinition *contextualTriggerDefinition =
       [[FIRIAMDisplayTriggerDefinition alloc] initWithFirebaseAnalyticEvent:@"test_event"];
 
-  // m2 and m4 will be of app open trigger
+  // m2, m4, and m5 will be of app open trigger
   FIRIAMDisplayTriggerDefinition *appOpentriggerDefinition =
       [[FIRIAMDisplayTriggerDefinition alloc] initForAppForegroundTrigger];
 
@@ -337,6 +337,35 @@ typedef NS_ENUM(NSInteger, FIRInAppMessagingDelegateInteraction) {
                                               triggerDefinition:@[ appOpentriggerDefinition ]
                                                         appData:@{@"a" : @"b", @"up" : @"dog"}
                                               experimentPayload:experimentPayload
+                                                  isTestMessage:NO];
+
+  FIRIAMMessageContentDataForTesting *m5ContentData = [[FIRIAMMessageContentDataForTesting alloc]
+           initWithMessageTitle:nil
+                    messageBody:nil
+               actionButtonText:nil
+      secondaryActionButtonText:nil
+                      actionURL:nil
+             secondaryActionURL:nil
+                       imageURL:[NSURL URLWithString:@"https://google.com/image"]
+              landscapeImageURL:nil
+                  hasImageError:NO];
+
+  FIRIAMRenderingEffectSetting *renderSetting5 =
+      [FIRIAMRenderingEffectSetting getDefaultRenderingEffectSetting];
+  renderSetting5.viewMode = FIRIAMRenderAsImageOnlyView;
+
+  FIRIAMMessageRenderData *renderData5 =
+      [[FIRIAMMessageRenderData alloc] initWithMessageID:@"m5"
+                                             messageName:@"name"
+                                             contentData:m5ContentData
+                                         renderingEffect:renderSetting5];
+
+  self.m5 = [[FIRIAMMessageDefinition alloc] initWithRenderData:renderData5
+                                                      startTime:activeStartTime
+                                                        endTime:activeEndTime
+                                              triggerDefinition:@[ appOpentriggerDefinition ]
+                                                        appData:nil
+                                              experimentPayload:nil
                                                   isTestMessage:NO];
 }
 
@@ -605,6 +634,31 @@ NSTimeInterval DISPLAY_MIN_INTERVALS = 1;
   FIRIAMMessageDisplayForTesting *display = [[FIRIAMMessageDisplayForTesting alloc]
       initWithDelegateInteraction:FIRInAppMessagingDelegateInteractionClick
                            action:m2Action];
+  self.displayExecutor.messageDisplayComponent = display;
+
+  [self.displayExecutor checkAndDisplayNextAppForegroundMessage];
+  OCMVerifyAll((id)self.mockAnalyticsEventLogger);
+}
+
+- (void)testAnalyticsTrackingOnMessageClickCaseWithNoActionURL {
+  // This setup allows next message to be displayed from display interval perspective.
+  OCMStub([self.mockTimeFetcher currentTimestampInSeconds])
+      .andReturn(DISPLAY_MIN_INTERVALS * 60 + 100);
+
+  // We expect two analytics events for a click action:
+  // An impression event and an action URL follow event
+  OCMExpect([self.mockAnalyticsEventLogger
+      logAnalyticsEventForType:FIRIAMAnalyticsEventMessageImpression
+                 forCampaignID:[OCMArg isEqual:self.m5.renderData.messageID]
+              withCampaignName:[OCMArg any]
+                 eventTimeInMs:[OCMArg any]
+                    completion:[OCMArg any]]);
+
+  [self.clientMessageCache setMessageData:@[ self.m5 ]];
+
+  FIRIAMMessageDisplayForTesting *display = [[FIRIAMMessageDisplayForTesting alloc]
+      initWithDelegateInteraction:FIRInAppMessagingDelegateInteractionClick
+                           action:nil];
   self.displayExecutor.messageDisplayComponent = display;
 
   [self.displayExecutor checkAndDisplayNextAppForegroundMessage];
