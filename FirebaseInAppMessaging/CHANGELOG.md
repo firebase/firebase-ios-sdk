@@ -1,3 +1,6 @@
+# 2020-05-19 -- v0.19.4
+- [fixed] Fixed an issue where clicks were counted for messages with no action URL (#5564).
+
 # 2020-04-21 -- v0.19.3
 - [fixed] Fixed an issue where GoogleUtilities wasn't explicitly listed as a dependency (#5282).
 
