@@ -163,7 +163,7 @@ void AsyncQueue::RunScheduledOperationsUntil(const TimerId last_timer_id) {
         "Attempted to run scheduled operations until missing timer id: %s",
         last_timer_id);
 
-    for (auto next = executor_->PopFromSchedule(); next != nullptr;
+    for (auto* next = executor_->PopFromSchedule(); next != nullptr;
          next = executor_->PopFromSchedule()) {
       // `ExecuteAndRelease` can delete the `Task` so read the tag first.
       bool found_tag = next->tag() == static_cast<int>(last_timer_id);

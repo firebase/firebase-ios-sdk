@@ -89,7 +89,7 @@ std::string ExecutorLibdispatch::Name() const {
 }
 
 void ExecutorLibdispatch::Execute(Operation&& operation) {
-  auto task = Task::Create(this, std::move(operation));
+  auto* task = Task::Create(this, std::move(operation));
   task->Retain();  // For libdispatch's ownership
 
   {
@@ -103,9 +103,9 @@ void ExecutorLibdispatch::Execute(Operation&& operation) {
 void ExecutorLibdispatch::ExecuteBlocking(Operation&& operation) {
   HARD_ASSERT(
       GetCurrentQueueLabel() != GetQueueLabel(dispatch_queue_),
-      "Calling DispatchSync on the current queue will lead to a deadlock.");
+      "Calling ExecuteBlocking on the current queue will lead to a deadlock.");
 
-  auto task = Task::Create(this, std::move(operation));
+  auto* task = Task::Create(this, std::move(operation));
   task->Retain();  // For libdispatch's ownership
 
   {
@@ -197,12 +197,12 @@ void ExecutorLibdispatch::Cancel(Id operation_id) {
 }
 
 void ExecutorLibdispatch::InvokeAsync(void* raw_task) {
-  auto task = static_cast<Task*>(raw_task);
+  auto* task = static_cast<Task*>(raw_task);
   task->ExecuteAndRelease();
 }
 
 void ExecutorLibdispatch::InvokeSync(void* raw_task) {
-  auto task = static_cast<Task*>(raw_task);
+  auto* task = static_cast<Task*>(raw_task);
   task->ExecuteAndRelease();
 }
 
