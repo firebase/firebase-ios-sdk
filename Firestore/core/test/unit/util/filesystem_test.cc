@@ -44,7 +44,7 @@ using testutil::Touch;
 static void WriteStringToFile(const Path& path, const std::string& text) {
   std::ofstream out{path.native_value()};
   ASSERT_TRUE(out.good());
-  auto cleanup = Defer([&] {
+  Defer cleanup([&] {
     out.close();
     ASSERT_TRUE(out.good());
   });
