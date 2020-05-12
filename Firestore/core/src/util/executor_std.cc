@@ -125,7 +125,7 @@ DelayedOperation ExecutorStd::Schedule(const Milliseconds delay,
   return DelayedOperation(this, id);
 }
 
-void ExecutorStd::Complete(Task*) {
+void ExecutorStd::OnCompletion(Task*) {
   // No-op in this implementation
 }
 
@@ -161,7 +161,7 @@ void ExecutorStd::PollingThread() {
     Task* task = local_state->schedule_.PopBlocking();
     bool shutdown_requested = task->tag() == kShutdownTag;
 
-    task->Execute();
+    task->ExecuteAndRelease();
     if (shutdown_requested) {
       break;
     }

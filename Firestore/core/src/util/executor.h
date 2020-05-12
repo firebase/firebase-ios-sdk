@@ -121,11 +121,8 @@ class Executor {
 
  private:
   // Mark a task completed, removing it from any internal schedule or tracking.
-  //
-  // Called by Task once it has completed execution. Implementations of
-  // `Complete` should not call back to the Task: it is responsible for marking
-  // itself completed.
-  virtual void Complete(Task* task) = 0;
+  // Called by Task once it has completed execution.
+  virtual void OnCompletion(Task* task) = 0;
   friend class Task;
 
   // If the operation hasn't yet been run, it will be removed from the queue.

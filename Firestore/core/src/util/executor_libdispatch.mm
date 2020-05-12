@@ -87,8 +87,8 @@ ExecutorLibdispatch::~ExecutorLibdispatch() {
     std::unique_lock<std::mutex> lock(mutex_);
 
     // Pull ownership of tasks out of the executor members and into locals. This
-    // prevents any concurrent execution of calls to `Complete` or `Cancel` from
-    // finding tasks (and releasing them).
+    // prevents any concurrent execution of calls to `OnCompletion` or `Cancel`
+    // from finding tasks (and releasing them).
     //
     // All scheduled operations are also registered in `async_tasks_` so they
     // can be handled in a single loop below.
@@ -171,10 +171,10 @@ DelayedOperation ExecutorLibdispatch::Schedule(Milliseconds delay,
   return DelayedOperation(this, id);
 }
 
-void ExecutorLibdispatch::Complete(Task* task) {
+void ExecutorLibdispatch::OnCompletion(Task* task) {
   bool should_release = false;
   {
-    TASK_TRACE("Executor::Complete %s task %s", this, task);
+    TASK_TRACE("Executor::OnCompletion %s task %s", this, task);
     std::lock_guard<std::mutex> lock(mutex_);
 
     auto found = async_tasks_.find(task);

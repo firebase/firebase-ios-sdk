@@ -64,7 +64,7 @@ class ExecutorStd : public Executor {
  private:
   Id PushOnSchedule(TimePoint when, Tag tag, Operation&& operation);
 
-  void Complete(Task* task) override;
+  void OnCompletion(Task* task) override;
   void Cancel(Id operation_id) override;
 
   void PollingThread();

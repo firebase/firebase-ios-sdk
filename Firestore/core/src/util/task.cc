@@ -135,7 +135,7 @@ void Task::ExecuteAndRelease() {
       // Whether or not the task has been canceled has to be evaluated within
       // the lock to avoid a data race with `Cancel`.
       if (executor_) {
-        executor_->Complete(this);
+        executor_->OnCompletion(this);
       }
     }
 

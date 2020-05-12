@@ -72,7 +72,7 @@ class ExecutorLibdispatch : public Executor {
   using ScheduleMap = std::unordered_map<Id, Task*>;
   using ScheduleEntry = ScheduleMap::value_type;
 
-  void Complete(Task* task) override;
+  void OnCompletion(Task* task) override;
   void Cancel(Id operation_id) override;
 
   static void InvokeAsync(void* raw_task);
