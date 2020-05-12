@@ -32,6 +32,7 @@
 #import <GoogleUtilities/GULAppDelegateSwizzler.h>
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import <GoogleUtilities/GULSceneDelegateSwizzler.h>
+#import <GoogleUtilities/GULSecureCoding.h>
 
 #import "FirebaseAuth/Sources/Auth/FIRAuthDataResult_Internal.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuthDispatcher.h"
@@ -2005,16 +2006,13 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     if (!user) {
       success = [_keychainServices removeDataForKey:userKey error:outError];
     } else {
-      // Encode the user object.
-      NSMutableData *archiveData = [NSMutableData data];
-// iOS 12 deprecation
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-      NSKeyedArchiver *archiver =
-          [[NSKeyedArchiver alloc] initForWritingWithMutableData:archiveData];
-#pragma clang diagnostic pop
-      [archiver encodeObject:user forKey:userKey];
-      [archiver finishEncoding];
+      NSData *archiveData = [GULSecureCoding archivedDataWithObject:user
+                                                            toKey:userKey
+                                                            error:outError];
+      if (outError && *outError) {
+        // Error archiving the data.
+        return NO;
+      }
 
       // Save the user object's encoded value.
       success = [_keychainServices setData:archiveData forKey:userKey error:outError];
@@ -2058,13 +2056,15 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
       *outUser = nil;
       return YES;
     }
-// iOS 12 deprecation
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    NSKeyedUnarchiver *unarchiver =
-        [[NSKeyedUnarchiver alloc] initForReadingWithData:encodedUserData];
-#pragma clang diagnostic pop
-    FIRUser *user = [unarchiver decodeObjectOfClass:[FIRUser class] forKey:userKey];
+    FIRUser *user = [GULSecureCoding unarchivedObjectOfClass:[FIRUser class]
+                                                    fromData:encodedUserData
+                                                         key:userKey
+                                                       error:error];
+    if (error && *error) {
+      // An error occurred when unarchiving the user, operation failed.
+      return NO;
+    }
+
     user.auth = self;
     *outUser = user;
 
@@ -2230,13 +2230,10 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
       return nil;
     }
 
-// iOS 12 deprecation
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    NSKeyedUnarchiver *unarchiver =
-        [[NSKeyedUnarchiver alloc] initForReadingWithData:encodedUserData];
-#pragma clang diagnostic pop
-    user = [unarchiver decodeObjectOfClass:[FIRUser class] forKey:userKey];
+    user = [GULSecureCoding unarchivedObjectOfClass:[FIRUser class]
+                                           fromData:encodedUserData
+                                                key:userKey
+                                              error:outError];
   } else {
     user = [self.storedUserManager getStoredUserForAccessGroup:self.userAccessGroup
                                              projectIdentifier:self.app.options.APIKey

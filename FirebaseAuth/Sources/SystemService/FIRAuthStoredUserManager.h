@@ -66,9 +66,9 @@ NS_ASSUME_NONNULL_BEGIN
         we use API KEY.
     @param outError Return value for any error which occurs.
  */
-- (FIRUser *)getStoredUserForAccessGroup:(NSString *)accessGroup
-                       projectIdentifier:(NSString *)projectIdentifier
-                                   error:(NSError *_Nullable *_Nullable)outError;
+- (FIRUser *_Nullable)getStoredUserForAccessGroup:(NSString *)accessGroup
+                                projectIdentifier:(NSString *)projectIdentifier
+                                            error:(NSError *_Nullable *_Nullable)outError;
 
 /** @fn setStoredUser:forAccessGroup:projectID:error:
     @brief The setter of the user stored locally.

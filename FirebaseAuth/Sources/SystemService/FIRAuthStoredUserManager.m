@@ -16,6 +16,10 @@
 
 #import "FirebaseAuth/Sources/SystemService/FIRAuthStoredUserManager.h"
 
+#import "FirebaseAuth/Sources/User/FIRUser_Internal.h"
+
+#import <GoogleUtilities/GULSecureCoding.h>
+
 /** @var kUserAccessGroupKey
     @brief Key of user access group stored in user defaults. Used for retrieve the user access
         group at launch.
@@ -80,13 +84,15 @@ static NSString *kStoredUserCoderKey = @"firebase_auth_stored_user_coder_key";
   query[(__bridge id)kSecAttrAccount] = kSharedKeychainAccountValue;
 
   NSData *data = [self.keychainServices getItemWithQuery:query error:outError];
-// iOS 12 deprecation
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  NSKeyedUnarchiver *unarchiver = [[NSKeyedUnarchiver alloc] initForReadingWithData:data];
-#pragma clang diagnostic pop
-  FIRUser *user = [unarchiver decodeObjectOfClass:[FIRUser class] forKey:kStoredUserCoderKey];
+  // If there's an outError parameter and it's populated, or there's no data, return.
+  if ((outError && *outError) || !data) {
+    return nil;
+  }
 
+  FIRUser *user = [GULSecureCoding unarchivedObjectOfClass:[FIRUser class]
+                                                  fromData:data
+                                                       key:kStoredUserCoderKey
+                                                     error:outError];
   return user;
 }
 
@@ -103,15 +109,9 @@ static NSString *kStoredUserCoderKey = @"firebase_auth_stored_user_coder_key";
   query[(__bridge id)kSecAttrService] = projectIdentifier;
   query[(__bridge id)kSecAttrAccount] = kSharedKeychainAccountValue;
 
-  NSMutableData *data = [NSMutableData data];
-// iOS 12 deprecation
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  NSKeyedArchiver *archiver = [[NSKeyedArchiver alloc] initForWritingWithMutableData:data];
-#pragma clang diagnostic pop
-  [archiver encodeObject:user forKey:kStoredUserCoderKey];
-  [archiver finishEncoding];
-
+  NSData *data = [GULSecureCoding archivedDataWithObject:user
+                                                   toKey:kStoredUserCoderKey
+                                                   error:outError];
   return [self.keychainServices setItem:data withQuery:query error:outError];
 }
 

@@ -22,6 +22,8 @@
 #import "FirebaseAuth/Sources/SystemService/FIRAuthAppCredential.h"
 #import "FirebaseAuth/Sources/SystemService/FIRAuthAppCredentialManager.h"
 
+#import <GoogleUtilities/GULSecureCoding.h>
+
 NS_ASSUME_NONNULL_BEGIN
 
 /** @var kKeychainDataKey
@@ -69,22 +71,24 @@ static const NSUInteger kMaximumNumberOfPendingReceipts = 32;
     NSError *error;
     NSData *encodedData = [_keychainServices dataForKey:kKeychainDataKey error:&error];
     if (!error && encodedData) {
-// iOS 12 deprecation
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-      NSKeyedUnarchiver *unarchiver =
-          [[NSKeyedUnarchiver alloc] initForReadingWithData:encodedData];
-#pragma clang diagnostic pop
-      FIRAuthAppCredential *credential =
-          [unarchiver decodeObjectOfClass:[FIRAuthAppCredential class] forKey:kFullCredentialKey];
-      if ([credential isKindOfClass:[FIRAuthAppCredential class]]) {
+      NSError *credentialError;
+      FIRAuthAppCredential *credential = [GULSecureCoding unarchivedObjectOfClass:[FIRAuthAppCredential class]
+                                                                         fromData:encodedData
+                                                                              key:kFullCredentialKey
+                                                                            error:&credentialError];
+
+      if ([credential isKindOfClass:[FIRAuthAppCredential class]] && !credentialError) {
         _credential = credential;
       }
+
+      NSError *receiptsError;
       NSSet<Class> *allowedClasses =
           [NSSet<Class> setWithObjects:[NSArray class], [NSString class], nil];
-      NSArray<NSString *> *pendingReceipts = [unarchiver decodeObjectOfClasses:allowedClasses
-                                                                        forKey:kPendingReceiptsKey];
-      if ([pendingReceipts isKindOfClass:[NSArray class]]) {
+      NSArray<NSString *> *pendingReceipts = [GULSecureCoding unarchivedObjectOfClasses:allowedClasses
+                                                                               fromData:encodedData
+                                                                                    key:kPendingReceiptsKey
+                                                                                  error:&receiptsError];
+      if ([pendingReceipts isKindOfClass:[NSArray class]] && !receiptsError) {
         _pendingReceipts = [pendingReceipts mutableCopy];
       }
     }

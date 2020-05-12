@@ -456,7 +456,7 @@ NS_SWIFT_NAME(Auth)
 
 - (void)signInWithEmail:(NSString *)email
                    link:(NSString *)link
-             completion:(nullable FIRAuthDataResultCallback)completion;
+             completion:(nullable FIRAuthDataResultCallback)completion API_AVAILABLE(ios(8.0), macos(10.10));
 
 /** @fn signInWithProvider:UIDelegate:completion:
     @brief Signs in using the provided auth provider instance.
@@ -736,7 +736,8 @@ NS_SWIFT_NAME(Auth)
  */
 - (void)sendSignInLinkToEmail:(NSString *)email
            actionCodeSettings:(FIRActionCodeSettings *)actionCodeSettings
-                   completion:(nullable FIRSendSignInLinkToEmailCallback)completion;
+                   completion:(nullable FIRSendSignInLinkToEmailCallback)completion
+API_AVAILABLE(ios(8.0), macos(10.10));
 
 /** @fn signOut:
     @brief Signs out the current user.
