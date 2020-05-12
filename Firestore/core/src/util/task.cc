@@ -98,18 +98,19 @@ void Task::Retain() {
 }
 
 void Task::Release() {
-  // TODO(wilhuff): assert resulting ref count is >= 0
+  // TODO(wilhuff): assert the old ref count is >= 1
   // This isn't safe in the current implementation because HARD_ASSERT can throw
   // and `Release` is likely to be called in a destructor.
-  if (ref_count_.fetch_sub(1, std::memory_order_acq_rel) == 1) {
+  int old_count = ref_count_.fetch_sub(1, std::memory_order_acq_rel);
+  if (old_count == 1) {
     TASK_TRACE("Task::Release %s (deleting)", this);
     delete this;
   } else {
-    TASK_TRACE("Task::Release %s (ref_count=%s)", this, ref_count_.load());
+    TASK_TRACE("Task::Release %s (ref_count=%s)", this, old_count);
   }
 }
 
-void Task::Execute() {
+void Task::ExecuteAndRelease() {
   {
     std::lock_guard<std::mutex> lock(mutex_);
     TASK_TRACE("Task::Execute %s", this);

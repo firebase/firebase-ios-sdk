@@ -111,7 +111,7 @@ class TaskTest : public testing::Test, public testutil::AsyncTest {
 TEST_F(TaskTest, ExecuteReleases) {
   TaskState state;
   auto task = NewTask(&state);
-  task->Execute();
+  task->ExecuteAndRelease();
   ASSERT_EQ(state.op_executed, 1);
   ASSERT_EQ(state.op_destroyed, 1);
   ASSERT_EQ(state.task_destroyed, 1);
@@ -148,7 +148,7 @@ TEST_F(TaskTest, CancelPreventsExecution) {
   ASSERT_EQ(state.op_destroyed, 1);
   ASSERT_EQ(state.task_destroyed, 0);
 
-  task->Execute();
+  task->ExecuteAndRelease();
   ASSERT_EQ(state.op_executed, 0);
   ASSERT_EQ(state.op_destroyed, 1);
   ASSERT_EQ(state.task_destroyed, 1);
@@ -170,7 +170,7 @@ TEST_F(TaskTest, CancelBlocksOnRunningTasks) {
 
   // Start the task on a separate thread; this will block until the Task
   // completes.
-  Async([&] { task->Execute(); });
+  Async([&] { task->ExecuteAndRelease(); });
 
   // Cancel on yet another thread because this will also block.
   Expectation cancel_started;
@@ -200,7 +200,7 @@ TEST_F(TaskTest, OwnedExecuteThenRelease) {
   TaskState state;
   auto task = NewTask(executor.get(), &state);
 
-  task->Execute();
+  task->ExecuteAndRelease();
   ASSERT_EQ(state.op_executed, 1);
   ASSERT_EQ(state.op_destroyed, 1);
   ASSERT_EQ(state.task_destroyed, 0);
@@ -219,7 +219,7 @@ TEST_F(TaskTest, OwnedReleaseThenExecute) {
   ASSERT_EQ(state.op_destroyed, 0);
   ASSERT_EQ(state.task_destroyed, 0);
 
-  task->Execute();
+  task->ExecuteAndRelease();
   ASSERT_EQ(state.op_executed, 1);
   ASSERT_EQ(state.op_destroyed, 1);
   ASSERT_EQ(state.task_destroyed, 1);
@@ -245,18 +245,18 @@ TEST_F(TaskTest, OwnedExecuteThenExecute) {
   // This perverse case arises when higher-level tests are executing against
   // a libdispatch-based Executor and they manually run scheduled tasks. In this
   // case the test itself will execute the task and then libdispatch will also
-  // execute the task. Only the first `Execute` should execute the operation and
-  // the second `Execute` should just `Release`.
+  // execute the task. Only the first `ExecuteAndRelease` should execute the
+  // operation and the second `ExecuteAndRelease` should just `Release`.
   auto executor = testutil::ExecutorForTesting();
   TaskState state;
   auto task = NewTask(executor.get(), &state);
 
-  task->Execute();
+  task->ExecuteAndRelease();
   ASSERT_EQ(state.op_executed, 1);
   ASSERT_EQ(state.op_destroyed, 1);
   ASSERT_EQ(state.task_destroyed, 0);
 
-  task->Execute();
+  task->ExecuteAndRelease();
   ASSERT_EQ(state.op_executed, 1);
   ASSERT_EQ(state.op_destroyed, 1);
   ASSERT_EQ(state.task_destroyed, 1);

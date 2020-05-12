@@ -203,13 +203,13 @@ TEST_P(ExecutorTest, OperationsCanBeRemovedFromScheduleBeforeTheyRun) {
   EXPECT_EQ(maybe_operation->tag(), tag_foo);
   EXPECT_FALSE(executor->IsTagScheduled(tag_foo));
   EXPECT_TRUE(executor->IsTagScheduled(tag_bar));
-  maybe_operation->Execute();
+  maybe_operation->ExecuteAndRelease();
 
   maybe_operation = executor->PopFromSchedule();
   ASSERT_NE(maybe_operation, nullptr);
   EXPECT_EQ(maybe_operation->tag(), tag_bar);
   EXPECT_FALSE(executor->IsTagScheduled(tag_bar));
-  maybe_operation->Execute();
+  maybe_operation->ExecuteAndRelease();
 
   // Schedule should now be empty.
   EXPECT_EQ(executor->PopFromSchedule(), nullptr);
@@ -233,14 +233,14 @@ TEST_P(ExecutorTest, DuplicateTagsOnOperationsAreAllowed) {
   // There's still another operation with the same tag in the schedule.
   EXPECT_TRUE(executor->IsTagScheduled(tag_foo));
 
-  maybe_operation->Execute();
+  maybe_operation->ExecuteAndRelease();
 
   maybe_operation = executor->PopFromSchedule();
   ASSERT_NE(maybe_operation, nullptr);
   EXPECT_EQ(maybe_operation->tag(), tag_foo);
   EXPECT_FALSE(executor->IsTagScheduled(tag_foo));
 
-  maybe_operation->Execute();
+  maybe_operation->ExecuteAndRelease();
   // Despite having the same tag, the operations should have been ordered
   // according to their scheduled time and preserved their identity.
   EXPECT_EQ(steps, "12");

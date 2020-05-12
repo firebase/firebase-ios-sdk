@@ -86,7 +86,7 @@ class Task {
    * cancelled. Regardless of whether or not the operation runs, releases the
    * task's ownership of itself.
    */
-  void Execute();
+  void ExecuteAndRelease();
 
   /**
    * Increases the task's reference count.

@@ -216,12 +216,12 @@ void ExecutorLibdispatch::Cancel(Id operation_id) {
 
 void ExecutorLibdispatch::InvokeAsync(void* raw_task) {
   auto task = static_cast<Task*>(raw_task);
-  task->Execute();
+  task->ExecuteAndRelease();
 }
 
 void ExecutorLibdispatch::InvokeSync(void* raw_task) {
   auto task = static_cast<Task*>(raw_task);
-  task->Execute();
+  task->ExecuteAndRelease();
 }
 
 // Test-only methods
