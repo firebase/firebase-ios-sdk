@@ -314,7 +314,7 @@ TEST_F(FieldValueTest, Equality) {
 TEST_F(FieldValueTest, CanonicalBitsAreCanonical) {
   double input = ToDouble(kAlternateNanBits);
   CFNumberRef number = CFNumberCreate(nullptr, kCFNumberDoubleType, &input);
-  auto cleanup = util::defer([&] { util::SafeCFRelease(number); });
+  auto cleanup = util::Defer([&] { util::SafeCFRelease(number); });
 
   double actual = 0.0;
   CFNumberGetValue(number, kCFNumberDoubleType, &actual);

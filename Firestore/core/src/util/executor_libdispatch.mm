@@ -249,12 +249,12 @@ bool ExecutorLibdispatch::IsTagScheduled(Tag tag) const {
       // and lock the just-deleted Task. Retaining the Task here prevents it
       // from being deleted while waiting.
       task->Retain();
-      auto release = defer([&] { task->Release(); });
+      auto release = Defer([&] { task->Release(); });
 
       bool completed;
       {
         lock.unlock();
-        auto relock = defer([&] { lock.lock(); });
+        auto relock = Defer([&] { lock.lock(); });
 
         completed = task->AwaitIfRunning();
       }

@@ -51,7 +51,7 @@ class StringAppleTest : public testing::Test {
 TEST_F(StringAppleTest, MakeStringFromCFStringRef) {
   for (const std::string& string_value : StringTestCases()) {
     CFStringRef cf_string = MakeCFString(string_value);
-    auto cleanup = defer([&] { SafeCFRelease(cf_string); });
+    auto cleanup = Defer([&] { SafeCFRelease(cf_string); });
 
     std::string actual = MakeString(cf_string);
     EXPECT_EQ(string_value, actual);

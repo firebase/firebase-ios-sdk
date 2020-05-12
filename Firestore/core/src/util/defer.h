@@ -27,13 +27,18 @@ template <typename Action>
 class Deferred;
 
 /**
- * Creates a deferred action that will be destroyed at the close of the lexical
- * scope containing the result of this function call. This is useful for
- * performing ad-hoc RAII-style actions, without having to create the wrapper
- * class. For example:
+ * Creates a `Deferred<Action>` that will execute the given `action` when the
+ * returned object is destroyed at the close of the lexical scope containing it.
+ * The result of the call to `Defer` must be assigned to a variable for the
+ * `Deferred` object to have any useful effect; otherwise the `Deferred` is
+ * destroyed at the end of the statement, which is equivalent to just directly
+ * running the `action`.
+ *
+ * `Defer` is useful for performing ad-hoc RAII-style actions, without having to
+ * create the wrapper class. For example:
  *
  *     FILE* file = fopen(filename, "rb");
- *     auto cleanup = defer([&] {
+ *     auto cleanup = Defer([&] {
  *       if (file) {
  *         fclose(file);
  *       }
@@ -44,7 +49,7 @@ class Deferred;
  *     the restriction that exists on destructors generally.
  */
 template <typename Action>
-Deferred<Action> defer(Action&& action) {
+Deferred<Action> Defer(Action&& action) {
   return Deferred<Action>(std::forward<Action>(action));
 }
 
@@ -61,6 +66,14 @@ class Deferred {
   ~Deferred() {
     action_();
   }
+
+  // Deferred is move-only to support return by value.
+  // TODO(C++17): remove move constructors as well.
+  Deferred(const Deferred&) = delete;
+  Deferred(Deferred&&) noexcept = default;
+
+  Deferred& operator=(const Deferred&) = delete;
+  Deferred& operator=(Deferred&&) noexcept = default;
 
  private:
   Action action_;
