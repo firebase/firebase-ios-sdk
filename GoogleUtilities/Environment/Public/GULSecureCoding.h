@@ -21,15 +21,35 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface GULSecureCoding : NSObject
 
+/** Decodes an object from archived data to the specified classes with the key `NSKeyedArchiveRootObjectKey`. */
 + (nullable id)unarchivedObjectOfClasses:(NSSet<Class> *)classes
                                 fromData:(NSData *)data
                                    error:(NSError **)outError;
 
+/** Decodes an object from archived data to the specified classes with the given key. */
++ (nullable id)unarchivedObjectOfClasses:(NSSet<Class> *)classes
+                               fromData:(NSData *)data
+                                     key:(NSString *)key
+                                   error:(NSError **)outError;
+
+/** Decodes an object from archived data to the specified class with the key `NSKeyedArchiveRootObjectKey`. */
 + (nullable id)unarchivedObjectOfClass:(Class)class
                               fromData:(NSData *)data
                                  error:(NSError **)outError;
 
+/** Decodes an object from archived data to the specified class with the given key. */
++ (nullable id)unarchivedObjectOfClass:(Class)class
+                             fromData:(NSData *)data
+                                  key:(NSString *)key
+                                error:(NSError **)outError;
+
+/** Encodes an object to a container with the key `NSKeyedArchiveRootObjectKey`. */
 + (nullable NSData *)archivedDataWithRootObject:(id<NSCoding>)object error:(NSError **)outError;
+
+/** Encodes an object to a container with a given key. */
++ (nullable NSData *)archivedDataWithObject:(id<NSCoding>)object
+                                    toKey:(NSString *)key
+                                    error:(NSError **)outError;
 
 @end
 

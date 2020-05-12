@@ -21,13 +21,29 @@ NSString *const kGULSecureCodingError = @"GULSecureCodingError";
 + (nullable id)unarchivedObjectOfClasses:(NSSet<Class> *)classes
                                 fromData:(NSData *)data
                                    error:(NSError **)outError {
+  // Use the default root object key by default.
+  return [self unarchivedObjectOfClasses:classes
+                                fromData:data
+                                     key:NSKeyedArchiveRootObjectKey
+                                   error:outError];
+}
+
++ (nullable id)unarchivedObjectOfClasses:(NSSet<Class> *)classes
+                                fromData:(NSData *)data
+                                     key:(NSString *)key
+                                   error:(NSError **)outError {
   id object;
 #if __has_builtin(__builtin_available)
   if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, watchOS 4.0, *)) {
-    object = [NSKeyedUnarchiver unarchivedObjectOfClasses:classes fromData:data error:outError];
+    // Pass in the outError explicitly, which will return errors from the unarchiver.
+    NSKeyedUnarchiver *unarchiver = [[NSKeyedUnarchiver alloc] initForReadingFromData:data error:outError];
+    unarchiver.requiresSecureCoding = YES;
+    object = [unarchiver decodeObjectOfClasses:classes forKey:key];
   } else
 #endif  // __has_builtin(__builtin_available)
   {
+    // Before the `error` parameter was available in the `NSKeyedUnarchiver` initializer, it threw an
+    // exception. Handle that case explicitly and return an error instead which is safer.
     @try {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
@@ -35,7 +51,7 @@ NSString *const kGULSecureCodingError = @"GULSecureCodingError";
 #pragma clang diagnostic pop
       unarchiver.requiresSecureCoding = YES;
 
-      object = [unarchiver decodeObjectOfClasses:classes forKey:NSKeyedArchiveRootObjectKey];
+      object = [unarchiver decodeObjectOfClasses:classes forKey:key];
     } @catch (NSException *exception) {
       if (outError) {
         *outError = [self archivingErrorWithException:exception];
@@ -56,16 +72,39 @@ NSString *const kGULSecureCodingError = @"GULSecureCodingError";
 + (nullable id)unarchivedObjectOfClass:(Class)class
                               fromData:(NSData *)data
                                  error:(NSError **)outError {
-  return [self unarchivedObjectOfClasses:[NSSet setWithObject:class] fromData:data error:outError];
+  return [self unarchivedObjectOfClass:class
+                              fromData:data
+                                   key:NSKeyedArchiveRootObjectKey
+                                 error:outError];
 }
 
-+ (nullable NSData *)archivedDataWithRootObject:(id<NSCoding>)object error:(NSError **)outError {
++ (nullable id)unarchivedObjectOfClass:(Class)class
+                             fromData:(NSData *)data
+                                   key:(NSString *)key
+                                 error:(NSError **)outError {
+  return [self unarchivedObjectOfClasses:[NSSet setWithObject:class]
+                                fromData:data
+                                     key:key
+                                   error:outError];
+}
+
++ (nullable NSData *)archivedDataWithObject:(id<NSCoding>)object
+                                      toKey:(NSString *)key
+                                      error:(NSError **)outError {
   NSData *archiveData;
 #if __has_builtin(__builtin_available)
   if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, watchOS 4.0, *)) {
-    archiveData = [NSKeyedArchiver archivedDataWithRootObject:object
-                                        requiringSecureCoding:YES
-                                                        error:outError];
+    @try {
+      NSKeyedArchiver *archiver = [[NSKeyedArchiver alloc] initRequiringSecureCoding:YES];
+      [archiver encodeObject:object forKey:key];
+      [archiver finishEncoding];
+
+      archiveData = [archiver.encodedData copy];
+    } @catch (NSException *exception) {
+      if (outError) {
+        *outError = [self archivingErrorWithException:exception];
+      }
+    }
   } else
 #endif  // __has_builtin(__builtin_available)
   {
@@ -89,6 +128,13 @@ NSString *const kGULSecureCodingError = @"GULSecureCodingError";
   }
 
   return archiveData;
+}
+
++ (nullable NSData *)archivedDataWithRootObject:(id<NSCoding>)object
+                                          error:(NSError **)outError {
+  return [self archivedDataWithObject:object
+                                toKey:NSKeyedArchiveRootObjectKey
+                                error:outError];
 }
 
 + (NSError *)archivingErrorWithException:(NSException *)exception {
