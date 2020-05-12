@@ -49,30 +49,6 @@ absl::string_view GetCurrentQueueLabel() {
 
 }  // namespace
 
-// MARK: - TimeSlot
-
-// Represents a "busy" time slot on the schedule.
-//
-// Since libdispatch doesn't provide a way to cancel a scheduled operation, once
-// a slot is created, it will always stay in the schedule until the time is
-// past. Consequently, it is more useful to think of a time slot than
-// a particular scheduled operation -- by the time the slot comes, operation may
-// or may not be there (imagine getting to a meeting and finding out it's been
-// cancelled).
-//
-// Precondition: all member functions, including the constructor, are *only*
-// invoked on the Firestore queue.
-//
-//   Ownership:
-//
-// - `TimeSlot` is exclusively owned by libdispatch;
-// - `ExecutorLibdispatch` contains non-owning pointers to `TimeSlot`s;
-// - invariant: if the executor contains a pointer to a `TimeSlot`, it is
-//   a valid object. It is achieved because when libdispatch invokes
-//   a `TimeSlot`, it always removes it from the executor before deleting it.
-//   The reverse is not true: a cancelled time slot is removed from the
-//   executor, but won't be destroyed until its original due time is past.
-
 // MARK: - ExecutorLibdispatch
 
 ExecutorLibdispatch::ExecutorLibdispatch(const dispatch_queue_t dispatch_queue)
@@ -80,7 +56,7 @@ ExecutorLibdispatch::ExecutorLibdispatch(const dispatch_queue_t dispatch_queue)
 }
 
 ExecutorLibdispatch::~ExecutorLibdispatch() {
-  decltype(async_tasks_) local_async_tasks;
+  decltype(tasks_) local_async_tasks;
   TASK_TRACE("Executor::~Executor %s", this);
 
   {
@@ -92,7 +68,7 @@ ExecutorLibdispatch::~ExecutorLibdispatch() {
     //
     // All scheduled operations are also registered in `async_tasks_` so they
     // can be handled in a single loop below.
-    local_async_tasks.swap(async_tasks_);
+    local_async_tasks.swap(tasks_);
   }
 
   for (Task* task : local_async_tasks) {
@@ -118,7 +94,7 @@ void ExecutorLibdispatch::Execute(Operation&& operation) {
 
   {
     std::lock_guard<std::mutex> lock(mutex_);
-    async_tasks_.insert(task);
+    tasks_.insert(task);
   }
 
   dispatch_async_f(dispatch_queue_, task, InvokeAsync);
@@ -134,7 +110,7 @@ void ExecutorLibdispatch::ExecuteBlocking(Operation&& operation) {
 
   {
     std::lock_guard<std::mutex> lock(mutex_);
-    async_tasks_.insert(task);
+    tasks_.insert(task);
   }
 
   dispatch_sync_f(dispatch_queue_, task, InvokeSync);
@@ -162,7 +138,7 @@ DelayedOperation ExecutorLibdispatch::Schedule(Milliseconds delay,
     task = Task::Create(this, target_time, tag, id, std::move(operation));
     task->Retain();  // For libdispatch's ownership
 
-    async_tasks_.insert(task);
+    tasks_.insert(task);
     schedule_[id] = task;
   }
 
@@ -177,10 +153,10 @@ void ExecutorLibdispatch::OnCompletion(Task* task) {
     TASK_TRACE("Executor::OnCompletion %s task %s", this, task);
     std::lock_guard<std::mutex> lock(mutex_);
 
-    auto found = async_tasks_.find(task);
-    if (found != async_tasks_.end()) {
+    auto found = tasks_.find(task);
+    if (found != tasks_.end()) {
       should_release = true;
-      async_tasks_.erase(found);
+      tasks_.erase(found);
 
       if (!task->is_immediate()) {
         schedule_.erase(task->id());
@@ -209,7 +185,7 @@ void ExecutorLibdispatch::Cancel(Id operation_id) {
     // it after it was force-run, for example.
     if (found != schedule_.end()) {
       found_task = found->second;
-      async_tasks_.erase(found_task);
+      tasks_.erase(found_task);
       schedule_.erase(found);
     }
   }
@@ -291,7 +267,7 @@ Task* ExecutorLibdispatch::PopFromSchedule() {
 
   Task* task = nearest->second;
 
-  async_tasks_.erase(task);
+  tasks_.erase(task);
   schedule_.erase(nearest);
   return task;
 }

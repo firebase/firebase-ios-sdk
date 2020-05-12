@@ -84,7 +84,29 @@ class ExecutorLibdispatch : public Executor {
 
   dispatch_queue_t dispatch_queue_;
 
-  std::unordered_set<Task*> async_tasks_;
+  // The set of all tasks managed by this executor, including those from
+  // `Execute`, `ExecuteBlocking`, and `Schedule`.
+  //
+  // libdispatch doesn't provide a way to cancel a scheduled operation, so once
+  // a `Task` is created, it will always stay in the schedule until the time is
+  // past. `Task`s internally track their own state and the executor may cancel
+  // them instead. This means that by the time libdispatch attempts to execute a
+  // a particular operation, the `Task` may already have been executed or
+  // canceled (imagine getting to a meeting and finding out it's been
+  // cancelled).
+  //
+  // `Task`s are jointly owned by libdispatch and the executor.
+  //
+  // Invariant: if the `tasks_` set contains a pointer to a `Task`, it is a
+  // valid object. This is achieved because when libdispatch executes a task,
+  // the task will remove it from the executor (via a call to `OnCompletion`)
+  // before deleting it. The reverse is not true: a cancelled task is removed
+  // from the executor, but won't be destroyed until its original due time is
+  // past.
+  std::unordered_set<Task*> tasks_;
+
+  // A map of `Schedule`d tasks by their Id, allowing `Cancel` to be able to
+  // find tasks quickly.
   ScheduleMap schedule_;
   Id current_id_ = 0;
 };
