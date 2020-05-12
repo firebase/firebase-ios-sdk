@@ -158,6 +158,8 @@ void ExecutorLibdispatch::OnCompletion(Task* task) {
       should_release = true;
       tasks_.erase(found);
 
+      // Only try to remove scheduled tasks here because non-scheduled tasks
+      // all have id 0, which overlaps with the first scheduled task.
       if (!task->is_immediate()) {
         schedule_.erase(task->id());
       }
@@ -175,10 +177,11 @@ void ExecutorLibdispatch::Cancel(Id operation_id) {
     TASK_TRACE("Executor::Cancel %s task %s", this, task);
     std::lock_guard<std::mutex> lock(mutex_);
 
-    // `time_slot` might have been destroyed by the time cancellation function
-    // runs, in which case it's guaranteed to have been removed from the
-    // `schedule_`. If the `time_slot_id` refers to a slot that has been
-    // removed, the call to `RemoveFromSchedule` will be a no-op.
+    // The `Task` referenced by the given `operation_id` might have been
+    // destroyed by the time cancellation function runs, in which case it's
+    // guaranteed to have been removed from the `schedule_`. If the
+    // `operation_id` refers to a task that has been removed, the call to
+    // `Cancel` will be a no-op.
     const auto found = schedule_.find(operation_id);
 
     // It's possible for the operation to be missing if libdispatch gets to run
@@ -202,6 +205,8 @@ void ExecutorLibdispatch::InvokeAsync(void* raw_task) {
 }
 
 void ExecutorLibdispatch::InvokeSync(void* raw_task) {
+  // Note: keep this implementation separate from `InvokeAsync` to make it
+  // clearer in stack traces exactly what's going on.
   auto* task = static_cast<Task*>(raw_task);
   task->ExecuteAndRelease();
 }
