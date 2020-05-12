@@ -25,7 +25,7 @@ namespace util {
 TEST(DeferTest, Defers) {
   int value = 0;
   {
-    auto _ = Defer([&] { ++value; });
+    Defer cleanup([&] { ++value; });
     ASSERT_EQ(value, 0);
   }
 
