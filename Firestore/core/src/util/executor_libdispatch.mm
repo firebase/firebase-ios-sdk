@@ -114,6 +114,8 @@ std::string ExecutorLibdispatch::Name() const {
 
 void ExecutorLibdispatch::Execute(Operation&& operation) {
   auto task = Task::Create(this, std::move(operation));
+  task->Retain();  // For libdispatch's ownership
+
   {
     std::lock_guard<std::mutex> lock(mutex_);
     async_tasks_.insert(task);
@@ -128,6 +130,8 @@ void ExecutorLibdispatch::ExecuteBlocking(Operation&& operation) {
       "Calling DispatchSync on the current queue will lead to a deadlock.");
 
   auto task = Task::Create(this, std::move(operation));
+  task->Retain();  // For libdispatch's ownership
+
   {
     std::lock_guard<std::mutex> lock(mutex_);
     async_tasks_.insert(task);
@@ -156,6 +160,8 @@ DelayedOperation ExecutorLibdispatch::Schedule(Milliseconds delay,
 
     id = NextIdLocked();
     task = Task::Create(this, target_time, tag, id, std::move(operation));
+    task->Retain();  // For libdispatch's ownership
+
     async_tasks_.insert(task);
     schedule_[id] = task;
   }

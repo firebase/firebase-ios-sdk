@@ -199,6 +199,7 @@ TEST_F(TaskTest, OwnedExecuteThenRelease) {
   auto executor = testutil::ExecutorForTesting();
   TaskState state;
   auto task = NewTask(executor.get(), &state);
+  task->Retain();
 
   task->ExecuteAndRelease();
   ASSERT_EQ(state.op_executed, 1);
@@ -213,6 +214,7 @@ TEST_F(TaskTest, OwnedReleaseThenExecute) {
   auto executor = testutil::ExecutorForTesting();
   TaskState state;
   auto task = NewTask(executor.get(), &state);
+  task->Retain();
 
   task->Release();
   ASSERT_EQ(state.op_executed, 0);
@@ -229,6 +231,7 @@ TEST_F(TaskTest, OwnedReleaseThenRelease) {
   auto executor = testutil::ExecutorForTesting();
   TaskState state;
   auto task = NewTask(executor.get(), &state);
+  task->Retain();
 
   task->Release();
   ASSERT_EQ(state.op_executed, 0);
@@ -250,6 +253,7 @@ TEST_F(TaskTest, OwnedExecuteThenExecute) {
   auto executor = testutil::ExecutorForTesting();
   TaskState state;
   auto task = NewTask(executor.get(), &state);
+  task->Retain();
 
   task->ExecuteAndRelease();
   ASSERT_EQ(state.op_executed, 1);

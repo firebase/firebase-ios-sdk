@@ -54,22 +54,11 @@ class Task {
  public:
   /**
    * Constructs a new Task for immediate execution.
-   *
-   * @param executor The Executor that owns the Task. Can be `nullptr` if the
-   *     Task should own itself without allowing for ownership by the Executor.
-   * @param operation The operation to perform.
    */
   static Task* Create(Executor* executor, Executor::Operation&& operation);
 
   /**
    * Constructs a new Task for delayed execution.
-   *
-   * @param executor The Executor that owns the Task. Can be `nullptr` if the
-   *     Task should own itself without allowing for ownership by the Executor.
-   * @param target_time The absolute time after which the task should execute.
-   * @param tag The implementation-defined type of the task.
-   * @param id The number identifying the specific instance of the task.
-   * @param operation The operation to perform.
    */
   static Task* Create(Executor* executor,
                       Executor::TimePoint target_time,
@@ -94,9 +83,8 @@ class Task {
   void Retain();
 
   /**
-   * Releases the task's ownership of itself without executing the task. This
-   * decreases the internal reference count, and when that reaches zero,
-   * `Release` will delete the task.
+   * Decreases the task's reference count, and when that reaches zero, `Release`
+   * will delete the task.
    */
   void Release();
 

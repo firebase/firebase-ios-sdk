@@ -47,14 +47,6 @@ class InverseLockGuard {
   std::mutex& mutex_;
 };
 
-/**
- * Returns the initial reference count for a Task based on whether or not the
- * task shares ownership with the executor that created it.
- */
-int InitialRefCount(bool shared_ownership) {
-  return shared_ownership ? 2 : 1;
-}
-
 }  // namespace
 
 Task* Task::Create(Executor* executor, Executor::Operation&& operation) {
@@ -75,14 +67,14 @@ Task::Task(Executor* executor,
            Executor::Tag tag,
            Executor::Id id,
            Executor::Operation&& operation)
-    : ref_count_(InitialRefCount(executor)),
-      executor_(executor),
+    : executor_(executor),
       target_time_(target_time),
       tag_(tag),
       id_(id),
       operation_(std::move(operation)) {
   // Initialization is not atomic; assignment is.
-  ref_count_ = InitialRefCount(executor);
+  ref_count_ = 1;
+
   TASK_TRACE("Task::Task %s (%s)", this,
              (tag_ == Executor::kNoTag ? "immediate" : "scheduled"));
 }
