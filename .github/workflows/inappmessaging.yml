@@ -7,7 +7,7 @@ on:
   pull_request:
     paths:
     - 'FirebaseInAppMessaging**'
-    - '.github/workflows/InAppMessaging.yml'
+    - '.github/workflows/inappmessaging.yml'
     - 'Gemfile'
   schedule:
     # Run every day at 11pm (PST) - cron uses UTC times
@@ -20,7 +20,6 @@ jobs:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
     runs-on: macOS-latest
-    needs: check
 
     steps:
     - uses: actions/checkout@v2

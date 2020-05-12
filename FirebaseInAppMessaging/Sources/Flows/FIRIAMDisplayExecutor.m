@@ -105,16 +105,18 @@
     [self recordValidImpression:_currentMsgBeingDisplayed.renderData.messageID
                 withMessageName:_currentMsgBeingDisplayed.renderData.name];
 
-    [self.analyticsEventLogger
-        logAnalyticsEventForType:FIRIAMAnalyticsEventActionURLFollow
-                   forCampaignID:_currentMsgBeingDisplayed.renderData.messageID
-                withCampaignName:_currentMsgBeingDisplayed.renderData.name
-                   eventTimeInMs:nil
-                      completion:^(BOOL success) {
-                        FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400032",
-                                    @"Logging analytics event for url following %@",
-                                    success ? @"succeeded" : @"failed");
-                      }];
+    if (action.actionURL) {
+      [self.analyticsEventLogger
+          logAnalyticsEventForType:FIRIAMAnalyticsEventActionURLFollow
+                     forCampaignID:_currentMsgBeingDisplayed.renderData.messageID
+                  withCampaignName:_currentMsgBeingDisplayed.renderData.name
+                     eventTimeInMs:nil
+                        completion:^(BOOL success) {
+                          FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400032",
+                                      @"Logging analytics event for url following %@",
+                                      success ? @"succeeded" : @"failed");
+                        }];
+    }
   }
 
   NSURL *actionURL = action.actionURL;
