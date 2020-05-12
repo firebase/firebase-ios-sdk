@@ -2007,8 +2007,8 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
       success = [_keychainServices removeDataForKey:userKey error:outError];
     } else {
       NSData *archiveData = [GULSecureCoding archivedDataWithObject:user
-                                                            toKey:userKey
-                                                            error:outError];
+                                                              toKey:userKey
+                                                              error:outError];
       if (outError && *outError) {
         // Error archiving the data.
         return NO;

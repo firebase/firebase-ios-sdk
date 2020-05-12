@@ -72,10 +72,11 @@ static const NSUInteger kMaximumNumberOfPendingReceipts = 32;
     NSData *encodedData = [_keychainServices dataForKey:kKeychainDataKey error:&error];
     if (!error && encodedData) {
       NSError *credentialError;
-      FIRAuthAppCredential *credential = [GULSecureCoding unarchivedObjectOfClass:[FIRAuthAppCredential class]
-                                                                         fromData:encodedData
-                                                                              key:kFullCredentialKey
-                                                                            error:&credentialError];
+      FIRAuthAppCredential *credential =
+          [GULSecureCoding unarchivedObjectOfClass:[FIRAuthAppCredential class]
+                                          fromData:encodedData
+                                               key:kFullCredentialKey
+                                             error:&credentialError];
 
       if ([credential isKindOfClass:[FIRAuthAppCredential class]] && !credentialError) {
         _credential = credential;
@@ -84,10 +85,11 @@ static const NSUInteger kMaximumNumberOfPendingReceipts = 32;
       NSError *receiptsError;
       NSSet<Class> *allowedClasses =
           [NSSet<Class> setWithObjects:[NSArray class], [NSString class], nil];
-      NSArray<NSString *> *pendingReceipts = [GULSecureCoding unarchivedObjectOfClasses:allowedClasses
-                                                                               fromData:encodedData
-                                                                                    key:kPendingReceiptsKey
-                                                                                  error:&receiptsError];
+      NSArray<NSString *> *pendingReceipts =
+          [GULSecureCoding unarchivedObjectOfClasses:allowedClasses
+                                            fromData:encodedData
+                                                 key:kPendingReceiptsKey
+                                               error:&receiptsError];
       if ([pendingReceipts isKindOfClass:[NSArray class]] && !receiptsError) {
         _pendingReceipts = [pendingReceipts mutableCopy];
       }
