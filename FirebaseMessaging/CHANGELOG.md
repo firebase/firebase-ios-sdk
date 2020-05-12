@@ -1,4 +1,4 @@
-# unreleased
+# 2020-05 -- v4.4.1
 - [changed] Updated NSError with a failure reason to give more details on the error.
 
 # 2020-04 -- v4.4.0
