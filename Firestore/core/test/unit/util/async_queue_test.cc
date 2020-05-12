@@ -204,7 +204,7 @@ TEST_P(AsyncQueueTest, CanManuallyDrainSpecificDelayedOperationsForTesting) {
   // Currently the Task with tag=kTimerId1 survives beyond the end of the test
   // because the AsyncQueue is held by shared_ptr that's captured in the test.
   // If the AsyncQueue were destroyed at test end, the Executor's normal logic
-  // of canceling all future scheduled tasks would kick in and this manual
+  // of cancelling all future scheduled tasks would kick in and this manual
   // cancellation would not be necessary.
   timer1.Cancel();
 }

@@ -120,12 +120,12 @@ TEST_P(ExecutorTest, DelayedOperationIsValidAfterTheOperationHasRun) {
   EXPECT_NO_THROW(delayed_operation.Cancel());
 }
 
-TEST_P(ExecutorTest, CancelingEmptyDelayedOperationIsValid) {
+TEST_P(ExecutorTest, CancellingEmptyDelayedOperationIsValid) {
   DelayedOperation delayed_operation;
   EXPECT_NO_THROW(delayed_operation.Cancel());
 }
 
-TEST_P(ExecutorTest, DoubleCancelingDelayedOperationIsValid) {
+TEST_P(ExecutorTest, DoubleCancellingDelayedOperationIsValid) {
   std::string steps;
 
   Expectation ran;

@@ -115,8 +115,8 @@ class Executor {
   // method; immediate operations don't count. If no such operations are
   // currently scheduled, `nullptr` is returned.
   //
-  // The caller is responsible for either Executing or Canceling (and Releasing)
-  // the returned Task.
+  // The caller is responsible for either executing or cancelling (and
+  // releasing) the returned Task.
   virtual Task* PopFromSchedule() = 0;
 
  private:

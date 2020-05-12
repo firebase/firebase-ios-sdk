@@ -96,7 +96,7 @@ ExecutorLibdispatch::~ExecutorLibdispatch() {
   }
 
   for (Task* task : local_async_tasks) {
-    TASK_TRACE("Executor::~Executor %s canceling %s", this, task);
+    TASK_TRACE("Executor::~Executor %s cancelling %s", this, task);
     task->Cancel();
     task->Release();
   }
