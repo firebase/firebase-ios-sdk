@@ -19,6 +19,7 @@ jobs:
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
     runs-on: macos-latest
+    strategy:
       matrix:
         target: [iOS, tvOS, macOS]
     steps:
