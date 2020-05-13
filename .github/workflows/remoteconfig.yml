@@ -28,7 +28,7 @@ jobs:
       run: scripts/setup_bundler.sh
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/RemoteConfigSwiftAPI/GoogleService-Info.plist.gpg \
-          FirebaseRemoteConfig/Tests/SwiftAPI/GoogleService-Info.plist-error-test "$plist_secret"
+          FirebaseRemoteConfig/Tests/SwiftAPI/GoogleService-Info.plist "$plist_secret"
     - name: BuildAndUnitTest # can be replaced with pod lib lint with CocoaPods 1.10
       run: scripts/third_party/travis/retry.sh scripts/build.sh RemoteConfig ${{ matrix.target }} unit
     - name: IntegrationTest
