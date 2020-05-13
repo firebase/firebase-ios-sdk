@@ -71,4 +71,12 @@ app update.
     unit_tests.dependency 'OCMock'
     unit_tests.requires_arc = true
   end
+
+  s.test_spec 'swift-api' do |swift_api_tests|
+    swift_api_tests.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
+    swift_api_tests.source_files = 'FirebaseRemoteConfig/Tests/SwiftAPI/*.swift'
+    swift_api_tests.requires_app_host = true
+    swift_api_tests.resources =
+        'FirebaseRemoteConfig/Tests/SwiftAPI/Resources/GoogleService-Info.plist'
+  end
 end

@@ -1409,6 +1409,40 @@ static NSString *UTCToLocal(NSString *utcTime) {
                                }];
 }
 
+/// Verify the minimum fetch interval is applied and is used when fetch calls
+/// hasMinimumFetchIntervalElapsed.
+- (void)testSetMinimumFetchIntervalConfigSettingForFetch {
+  NSMutableArray<XCTestExpectation *> *fetchConfigsExpectation =
+      [[NSMutableArray alloc] initWithCapacity:RCNTestRCNumTotalInstances];
+  for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
+    fetchConfigsExpectation[i] = [self
+        expectationWithDescription:
+            [NSString stringWithFormat:@"Test minimumFetchInterval expectation - instance %d", i]];
+    FIRRemoteConfigSettings *settings = [[FIRRemoteConfigSettings alloc] init];
+    settings.minimumFetchInterval = 123;
+    [_configInstances[i] setConfigSettings:settings];
+    XCTAssertEqual([_configInstances[i] configSettings].minimumFetchInterval, 123);
+
+    FIRRemoteConfigFetchCompletion fetchCompletion =
+        ^void(FIRRemoteConfigFetchStatus status, NSError *error) {
+          XCTAssertFalse([self->_configInstances[i].settings hasMinimumFetchIntervalElapsed:43200]);
+
+          // Update minimum fetch interval.
+          FIRRemoteConfigSettings *settings = [[FIRRemoteConfigSettings alloc] init];
+          settings.minimumFetchInterval = 0;
+          [self->_configInstances[i] setConfigSettings:settings];
+          XCTAssertEqual([self->_configInstances[i] configSettings].minimumFetchInterval, 0);
+          XCTAssertTrue([self->_configInstances[i].settings hasMinimumFetchIntervalElapsed:0]);
+          [fetchConfigsExpectation[i] fulfill];
+        };
+    [_configInstances[i] fetchWithCompletionHandler:fetchCompletion];
+  }
+  [self waitForExpectationsWithTimeout:_expectationTimeout
+                               handler:^(NSError *error) {
+                                 XCTAssertNil(error);
+                               }];
+}
+
 /// Test the fetch timeout is properly set and read back.
 - (void)testSetFetchTimeoutConfigSetting {
   for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
