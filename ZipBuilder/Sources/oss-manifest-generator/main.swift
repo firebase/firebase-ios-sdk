@@ -28,9 +28,13 @@ struct OSSManifestGenerator: ParsableCommand {
   /// A file URL to a textproto with the contents of a `FirebasePod_Release` object. Used to verify
   /// expected version numbers.
   @Option(name: .customLong("releasing-pods"),
-          help: "The file path to a textproto file containing all the releasing Pods, of type `FirebasePod_Release`.",
+          help: "The file path to a textproto file containing all the releasing Pods, of type `ZipBuilder_Release`.",
           transform: URL.init(fileURLWithPath:))
   var currentRelease: URL
+
+  @Option(help: "The file path to a textproto file containing all existing Pods, of type `ZipBuilder_FirebaseSDKs.",
+          transform: URL.init(fileURLWithPath:))
+  var existingVersions: URL
 
   mutating func validate() throws {
     guard FileManager.default.fileExists(atPath: gitRoot.path) else {
@@ -39,6 +43,11 @@ struct OSSManifestGenerator: ParsableCommand {
 
     guard FileManager.default.fileExists(atPath: currentRelease.path) else {
       throw ValidationError("current-release does not exist: \(currentRelease.path). Do you need " +
+        "to run `gcert`?")
+    }
+
+    guard FileManager.default.fileExists(atPath: existingVersions.path) else {
+      throw ValidationError("existing-versions does not exist: \(existingVersions.path). Do you need " +
         "to run `gcert`?")
     }
   }
@@ -61,11 +70,11 @@ struct OSSManifestGenerator: ParsableCommand {
       jsonData = try encoder.encode(newVersions)
     } catch {
       fatalError("""
-         Could not encode new versions to JSON. Error:
-         \(error)
-         New versions:
-         \(newVersions)
-         """)
+      Could not encode new versions to JSON. Error:
+      \(error)
+      New versions:
+      \(newVersions)
+      """)
     }
 
     // Write the JSON data to file.
@@ -81,19 +90,27 @@ struct OSSManifestGenerator: ParsableCommand {
     var releasingVersions: [String: String] = [:]
 
     // Load the current release and keep it in a dictionary format.
+    let allSDKs = ManifestReader.loadAllReleasedSDKs(fromTextproto: existingVersions)
     let loadedRelease = ManifestReader.loadCurrentRelease(fromTextproto: currentRelease)
     for pod in loadedRelease.sdk {
-//      guard pod.
+      // We need to look at the full list of released SDKs to determine if a pod is open source or not.
+      guard let existingPod = allSDKs.sdk.filter({ $0.name == pod.sdkName }).first else {
+        fatalError("Found unexpected pod \(pod.sdkName) that isn't in list of all released SDKs.")
+      }
+
+      // Skip any closed source pods.
+      guard existingPod.openSource else { continue }
+
       releasingVersions[pod.sdkName] = pod.sdkVersion
       print("\(pod.sdkName): \(pod.sdkVersion)")
     }
 
     if !releasingVersions.isEmpty {
       print("""
-        Generating OSS Manifest in git installation at \(gitRoot.path) with the following \
-        versions:
-        \(releasingVersions)
-        """)
+      Generating OSS Manifest in git installation at \(gitRoot.path) with the following \
+      versions:
+      \(releasingVersions)
+      """)
     }
 
     return releasingVersions
