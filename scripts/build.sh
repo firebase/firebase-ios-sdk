@@ -51,6 +51,8 @@ platform can be one of:
 method can be one of:
   xcodebuild (default)
   cmake
+  unit
+  integration
 
 Optionally, reads the environment variable SANITIZERS. If set, it is expected to
 be a string containing a space-separated list with some of the following
@@ -213,6 +215,7 @@ watchos_flags=(
 case "$platform" in
   iOS)
     xcb_flags=("${ios_flags[@]}")
+    gen_platform=ios
     ;;
 
   iPad)
@@ -221,10 +224,12 @@ case "$platform" in
 
   macOS)
     xcb_flags=("${macos_flags[@]}")
+    gen_platform=macos
     ;;
 
   tvOS)
     xcb_flags=("${tvos_flags[@]}")
+    gen_platform=tvos
     ;;
 
   watchOS)
@@ -462,42 +467,21 @@ case "$product-$platform-$method" in
       test
     ;;
 
-  RemoteConfig-*-xcodebuild)
-    pod_gen FirebaseRemoteConfig.podspec --platforms=ios
+  RemoteConfig-*-unit)
+    pod_gen FirebaseRemoteConfig.podspec --platforms="${gen_platform}"
     RunXcodebuild \
       -workspace 'gen/FirebaseRemoteConfig/FirebaseRemoteConfig.xcworkspace' \
       -scheme "FirebaseRemoteConfig-Unit-unit" \
-      "${ios_flags[@]}" \
       "${xcb_flags[@]}" \
       build \
       test
+    ;;
 
-    if check_secrets; then
-      # Integration tests are only run on iOS to minimize flake failures.
-
-      RunXcodebuild \
-        -workspace 'gen/FirebaseRemoteConfig/FirebaseRemoteConfig.xcworkspace' \
-        -scheme "FirebaseRemoteConfig-Unit-swift-api" \
-        "${ios_flags[@]}" \
-        "${xcb_flags[@]}" \
-        build \
-        test
-      fi
-
-    pod_gen FirebaseRemoteConfig.podspec --platforms=macos --clean
+  RemoteConfig-*-integration)
+    pod_gen FirebaseRemoteConfig.podspec --platforms="${gen_platform}"
     RunXcodebuild \
       -workspace 'gen/FirebaseRemoteConfig/FirebaseRemoteConfig.xcworkspace' \
-      -scheme "FirebaseRemoteConfig-Unit-unit" \
-      "${macos_flags[@]}" \
-      "${xcb_flags[@]}" \
-      build \
-      test
-
-    pod_gen FirebaseRemoteConfig.podspec --platforms=tvos --clean
-    RunXcodebuild \
-      -workspace 'gen/FirebaseRemoteConfig/FirebaseRemoteConfig.xcworkspace' \
-      -scheme "FirebaseRemoteConfig-Unit-unit" \
-      "${tvos_flags[@]}" \
+      -scheme "FirebaseRemoteConfig-Unit-swift-api" \
       "${xcb_flags[@]}" \
       build \
       test

@@ -19,15 +19,20 @@ jobs:
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
     runs-on: macos-latest
+      matrix:
+        target: [iOS, tvOS, macOS]
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/RemoteConfigSwiftAPI/GoogleService-Info.plist.gpg \
-          FirebaseRemoteConfig/Tests/SwiftAPI/GoogleService-Info.plist "$plist_secret"
-    - name: BuildAndTest # can be replaced with pod lib lint with CocoaPods 1.10
-      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/build.sh RemoteConfig all)
+          FirebaseRemoteConfig/Tests/SwiftAPI/GoogleService-Info.plist-error-test "$plist_secret"
+    - name: BuildAndUnitTest # can be replaced with pod lib lint with CocoaPods 1.10
+      run: scripts/third_party/travis/retry.sh scripts/build.sh RemoteConfig ${{ matrix.target }} unit
+    - name: IntegrationTest
+      if: matrix.target == 'iOS'
+      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/build.sh RemoteConfig iOS integration)
 
   pod-lib-lint:
     runs-on: macOS-latest
@@ -75,7 +80,7 @@ jobs:
 
   remoteconfig-cron-only:
     runs-on: macos-latest
-#    if: github.event_name == 'schedule'
+    if: github.event_name == 'schedule'
     strategy:
       matrix:
         target: [ios, tvos, macos]
