@@ -1,0 +1,217 @@
+/*
+ * Copyright 2020 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#import "FIRAppCheck.h"
+
+#import <FBLPromises/FBLPromises.h>
+
+#import <FirebaseAppCheck/FIRAppCheckProvider.h>
+#import <FirebaseAppCheck/FIRAppCheckProviderFactory.h>
+#import <FirebaseAppCheck/FIRAppCheckToken.h>
+#import <FirebaseAppCheck/FIRAppCheckVersion.h>
+
+#import "FIRAppCheckErrorUtil.h"
+#import "FIRAppCheckLogger.h"
+#import "FIRAppCheckStorage.h"
+#import "FIRAppCheckToken+Interop.h"
+
+#import <FirebaseAppCheckInterop/FIRAppCheckInterop.h>
+#import <FirebaseAppCheckInterop/FIRAppCheckTokenInterop.h>
+
+#import <FirebaseCore/FIRAppInternal.h>
+#import <FirebaseCore/FIRComponentContainer.h>
+#import <FirebaseCore/FIRLibrary.h>
+#import <FirebaseCore/FIROptions.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+static const NSTimeInterval kTokenExpirationThreshold = 60 * 60;  // 1 hour.
+
+@interface FIRAppCheck () <FIRLibrary, FIRAppCheckInterop>
+@property(nonatomic, readonly) NSString *appName;
+@property(nonatomic, readonly) id<FIRAppCheckProvider> appCheckProvider;
+@property(nonatomic, readonly) id<FIRAppCheckStorageProtocol> storage;
+
+@end
+
+@implementation FIRAppCheck
+
+#pragma mark - FIRComponents
+
++ (void)load {
+  [FIRApp registerInternalLibrary:(Class<FIRLibrary>)self
+                         withName:@"fire-app-check"
+                      withVersion:[NSString stringWithUTF8String:FIRAppCheckVersionStr]];
+}
+
++ (NSArray<FIRComponent *> *)componentsToRegister {
+  FIRComponentCreationBlock creationBlock =
+      ^id _Nullable(FIRComponentContainer *container, BOOL *isCacheable) {
+    *isCacheable = YES;
+    return [[FIRAppCheck alloc] initWithApp:container.app];
+  };
+
+  FIRComponent *appCheckProvider = [FIRComponent componentWithProtocol:@protocol(FIRAppCheckInterop)
+                                                   instantiationTiming:FIRInstantiationTimingLazy
+                                                          dependencies:@[]
+                                                         creationBlock:creationBlock];
+  return @[ appCheckProvider ];
+}
+
+- (nullable instancetype)initWithApp:(FIRApp *)app {
+  self = [super init];
+  if (self) {
+    id<FIRAppCheckProviderFactory> providerFactory =
+        [[self class] providerFactoryForAppName:app.name]
+            ?: [[self class] providerFactoryForAppName:kFIRDefaultAppName];
+
+    if (providerFactory == nil) {
+      FIRLogError(kFIRLoggerAppCheck, kFIRLoggerAppCheckMessageCodeUnknown,
+                  @"Cannot instantiate `FIRAppCheck` for app: %@ without a provider factory. "
+                  @"Please register a provider factory using "
+                  @"`AppCheck.setAppCheckProviderFactory(_ ,forAppName:)` method.",
+                  app.name);
+      return nil;
+    }
+
+    id<FIRAppCheckProvider> appCheckProvider = [providerFactory createProviderWithApp:app];
+    if (appCheckProvider == nil) {
+      FIRLogError(kFIRLoggerAppCheck, kFIRLoggerAppCheckMessageCodeUnknown,
+                  @"Cannot instantiate `FIRAppCheck` for app: %@ without an app check provider. "
+                  @"Please make sure the provide factory returns a valid app check provider.",
+                  app.name);
+      return nil;
+    }
+
+    FIRAppCheckStorage *storage =
+        [[FIRAppCheckStorage alloc] initWithAppName:app.name accessGroup:app.options.appGroupID];
+    return [self initWithAppName:app.name appCheckProvider:appCheckProvider storage:storage];
+  }
+  return self;
+}
+
+- (instancetype)initWithAppName:(NSString *)appName
+               appCheckProvider:(id<FIRAppCheckProvider>)appCheckProvider
+                        storage:(id<FIRAppCheckStorageProtocol>)storage {
+  self = [super init];
+  if (self) {
+    _appName = appName;
+    _appCheckProvider = appCheckProvider;
+    _storage = storage;
+  }
+  return self;
+}
+
+#pragma mark - Public
+
++ (void)setAppCheckProviderFactory:(nullable id<FIRAppCheckProviderFactory>)factory {
+  [self setAppCheckProviderFactory:factory forAppName:kFIRDefaultAppName];
+}
+
++ (void)setAppCheckProviderFactory:(nullable id<FIRAppCheckProviderFactory>)factory
+                        forAppName:(NSString *)firebaseAppName {
+  if (firebaseAppName == nil) {
+    FIRLogError(kFIRLoggerAppCheck, kFIRLoggerAppCheckMessageCodeUnknown,
+                @"App name must not be `nil`");
+    return;
+  }
+
+  @synchronized([self providerFactoryByAppName]) {
+    [self providerFactoryByAppName][firebaseAppName] = factory;
+  }
+}
+
+#pragma mark - App Check Provider Ingestion
+
++ (NSMutableDictionary<NSString *, id<FIRAppCheckProviderFactory>> *)providerFactoryByAppName {
+  static NSMutableDictionary<NSString *, id<FIRAppCheckProviderFactory>> *providerFactoryByAppName;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    providerFactoryByAppName = [[NSMutableDictionary alloc] init];
+  });
+  return providerFactoryByAppName;
+}
+
++ (nullable id<FIRAppCheckProviderFactory>)providerFactoryForAppName:(NSString *)appName {
+  if (appName == nil) {
+    FIRLogError(kFIRLoggerAppCheck, kFIRLoggerAppCheckMessageCodeUnknown,
+                @"App name must not be `nil`");
+    return nil;
+  }
+
+  @synchronized([self providerFactoryByAppName]) {
+    return [self providerFactoryByAppName][appName];
+  }
+}
+
+#pragma mark - FIRAppCheckInterop
+
+- (void)getTokenForcingRefresh:(BOOL)forcingRefresh
+                    completion:(FIRAppCheckTokenHandlerInterop)handler {
+  [self getCachedValidTokenForcingRefresh:forcingRefresh]
+      .recover(^id _Nullable(NSError *_Nonnull error) {
+        return [self refreshToken];
+      })
+      .then(^id _Nullable(FIRAppCheckToken *token) {
+        handler(token, nil);
+        return token;
+      })
+      .catch(^(NSError *_Nonnull error) {
+        handler(nil, error);
+      });
+}
+
+- (void)getTokenWithCompletion:(FIRAppCheckTokenHandlerInterop)handler {
+  [self getTokenForcingRefresh:NO completion:handler];
+}
+
+#pragma mark - FAA token cache
+
+- (FBLPromise<FIRAppCheckToken *> *)getCachedValidTokenForcingRefresh:(BOOL)forcingRefresh {
+  if (forcingRefresh) {
+    FBLPromise *rejectedPromise = [FBLPromise pendingPromise];
+    [rejectedPromise reject:[FIRAppCheckErrorUtil cachedTokenNotFound]];
+    return rejectedPromise;
+  }
+
+  return [self.storage getToken].then(^id(FIRAppCheckToken *_Nullable token) {
+    if (token == nil) {
+      return [FIRAppCheckErrorUtil cachedTokenNotFound];
+    }
+
+    BOOL isTokenExpiredOrExpiresSoon =
+        [token.expirationDate timeIntervalSinceNow] < kTokenExpirationThreshold;
+    if (isTokenExpiredOrExpiresSoon) {
+      return [FIRAppCheckErrorUtil cachedTokenExpired];
+    }
+
+    return token;
+  });
+}
+
+- (FBLPromise<FIRAppCheckToken *> *)refreshToken {
+  return
+      [FBLPromise wrapObjectOrErrorCompletion:^(
+                      FBLPromiseObjectOrErrorCompletion _Nonnull handler) {
+        [self.appCheckProvider getTokenWithCompletion:handler];
+      }].then(^id _Nullable(FIRAppCheckToken *_Nullable token) {
+        return [self.storage setToken:token];
+      });
+}
+
+@end
+
+NS_ASSUME_NONNULL_END
