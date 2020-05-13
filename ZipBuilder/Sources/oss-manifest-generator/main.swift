@@ -39,29 +39,44 @@ struct OSSManifestGenerator: ParsableCommand {
 
     guard FileManager.default.fileExists(atPath: currentRelease.path) else {
       throw ValidationError("current-release does not exist: \(currentRelease.path). Do you need " +
-        "to run `prodaccess`?")
+        "to run `gcert`?")
     }
   }
 
   func run() throws {
-    // Keep timing for how long it takes to change the Firebase pod versions.
-    let buildStart = Date()
+    // Guard for the `.withoutEscapingSlashes` API.
+    guard #available(OSX 10.15, *) else { fatalError("Run on macOS 10.15 or above.") }
 
-    let newVersions = getExpectedVersions()
+    let newVersions: [String: String] = getReleasingVersions()
 
-    print("Updating Firebase pod for version \(String(describing: newVersions["Firebase"]!))")
+    guard let firebaseVersion = newVersions["Firebase"] else {
+      fatalError("Could not determine Firebase version from versions: \(newVersions)")
+    }
 
-    // Get the time since the tool start.
-    let secondsSinceStart = -Int(buildStart.timeIntervalSinceNow)
-    print("""
-    Time profile:
-      It took \(secondsSinceStart) seconds (~\(secondsSinceStart / 60)m) to update the Firebase pod.
-    """)
+    // Catch the error specifically in a do/catch so we can re-print an appropriate message.
+    let jsonData: Data
+    do {
+      let encoder = JSONEncoder()
+      encoder.outputFormatting = [.sortedKeys, .prettyPrinted, .withoutEscapingSlashes]
+      jsonData = try encoder.encode(newVersions)
+    } catch {
+      fatalError("""
+         Could not encode new versions to JSON. Error:
+         \(error)
+         New versions:
+         \(newVersions)
+         """)
+    }
+
+    // Write the JSON data to file.
+    let manifestPath = gitRoot.appendingPathComponent("Releases/Manifests/\(firebaseVersion).json")
+    try jsonData.write(to: manifestPath)
+    print("Successfully wrote the OSS manifest to \(manifestPath).")
   }
 
-  /// Assembles the expected versions based on the release manifest passed in.
+  /// Assembles the releasing versions based on the release manifest passed in.
   /// Returns an array with the pod name as the key and version as the value,
-  private func getExpectedVersions() -> [String: String] {
+  private func getReleasingVersions() -> [String: String] {
     // Merge the versions from the current release and the known public versions.
     var releasingVersions: [String: String] = [:]
 
@@ -81,13 +96,6 @@ struct OSSManifestGenerator: ParsableCommand {
     }
 
     return releasingVersions
-  }
-
-  /// Generates the contents of the OSS manifest
-  /// - Parameter versions: <#versions description#>
-  /// - Returns: <#description#>
-  private func generateOSSManifest(from versions: [String: String]) -> String {
-
   }
 }
 
