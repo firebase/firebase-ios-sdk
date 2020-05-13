@@ -59,7 +59,7 @@ public struct ZipBuilder_SDK {
   }
 
   /// MPM name for the blueprint.
-  var mpmName: String {
+  public var mpmName: String {
     get {return _storage._mpmName}
     set {_uniqueStorage()._mpmName = newValue}
   }
@@ -71,67 +71,67 @@ public struct ZipBuilder_SDK {
   }
 
   /// List of MPM patterns to build.
-  var mpmPattern: [String] {
+  public var mpmPattern: [String] {
     get {return _storage._mpmPattern}
     set {_uniqueStorage()._mpmPattern = newValue}
   }
 
   /// An optional list of additional blaze flags.
-  var blazeFlags: ZipBuilder_BlazeFlag {
+  public var blazeFlags: ZipBuilder_BlazeFlag {
     get {return _storage._blazeFlags ?? ZipBuilder_BlazeFlag()}
     set {_uniqueStorage()._blazeFlags = newValue}
   }
   /// Returns true if `blazeFlags` has been explicitly set.
-  var hasBlazeFlags: Bool {return _storage._blazeFlags != nil}
+  public var hasBlazeFlags: Bool {return _storage._blazeFlags != nil}
   /// Clears the value of `blazeFlags`. Subsequent reads from it will return its default value.
-  mutating func clearBlazeFlags() {_uniqueStorage()._blazeFlags = nil}
+  public mutating func clearBlazeFlags() {_uniqueStorage()._blazeFlags = nil}
 
   /// List of MPM patterns to build (optional nightly override).
-  var nightlyMpmPattern: [String] {
+  public var nightlyMpmPattern: [String] {
     get {return _storage._nightlyMpmPattern}
     set {_uniqueStorage()._nightlyMpmPattern = newValue}
   }
 
   /// Whether or not the SDK is built from open-source.
-  var openSource: Bool {
+  public var openSource: Bool {
     get {return _storage._openSource}
     set {_uniqueStorage()._openSource = newValue}
   }
 
   /// Whether or not to strip the i386 architecture from the build.
-  var stripI386: Bool {
+  public var stripI386: Bool {
     get {return _storage._stripI386}
     set {_uniqueStorage()._stripI386 = newValue}
   }
 
   /// List of build targets to build the SDK - used for collecting licenses.
-  var buildTarget: [String] {
+  public var buildTarget: [String] {
     get {return _storage._buildTarget}
     set {_uniqueStorage()._buildTarget = newValue}
   }
 
   /// Whether or not to strip both the i386 and armv7 architectures from the
   /// build.
-  var strip32Bits: Bool {
+  public var strip32Bits: Bool {
     get {return _storage._strip32Bits}
     set {_uniqueStorage()._strip32Bits = newValue}
   }
 
   /// Specifies if the provided pod should be fetched from public repo.
   /// Mainly use for clash testing.
-  var publicPod: Bool {
+  public var publicPod: Bool {
     get {return _storage._publicPod}
     set {_uniqueStorage()._publicPod = newValue}
   }
 
   /// Whether or not to use the builtin flags.
-  var noBuiltinFlags: Bool {
+  public var noBuiltinFlags: Bool {
     get {return _storage._noBuiltinFlags}
     set {_uniqueStorage()._noBuiltinFlags = newValue}
   }
 
   /// Whether or not to build arm64e slice.
-  var buildArm64E: Bool {
+  public var buildArm64E: Bool {
     get {return _storage._buildArm64E}
     set {_uniqueStorage()._buildArm64E = newValue}
   }
@@ -143,17 +143,17 @@ public struct ZipBuilder_SDK {
   fileprivate var _storage = _StorageClass.defaultInstance
 }
 
-struct ZipBuilder_BlazeFlag {
+public struct ZipBuilder_BlazeFlag {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
 
-  /// An additional blaze flag needed to build the SDK
-  var flag: [String] = []
+  /// An additional blaze flag needed to build the SDK.
+  public var flag: [String] = []
 
-  var unknownFields = SwiftProtobuf.UnknownStorage()
+  public var unknownFields = SwiftProtobuf.UnknownStorage()
 
-  init() {}
+  public init() {}
 }
 
 // MARK: - Code below here is support for the SwiftProtobuf runtime.
@@ -166,7 +166,7 @@ extension ZipBuilder_FirebaseSDKs: SwiftProtobuf.Message, SwiftProtobuf._Message
     1: .same(proto: "sdk"),
   ]
 
-  mutating public func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+  public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
     while let fieldNumber = try decoder.nextFieldNumber() {
       switch fieldNumber {
       case 1: try decoder.decodeRepeatedMessageField(value: &self.sdk)
@@ -250,7 +250,7 @@ extension ZipBuilder_SDK: SwiftProtobuf.Message, SwiftProtobuf._MessageImplement
     return _storage
   }
 
-  mutating public func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+  public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
     _ = _uniqueStorage()
     try withExtendedLifetime(_storage) { (_storage: _StorageClass) in
       while let fieldNumber = try decoder.nextFieldNumber() {
@@ -347,12 +347,12 @@ extension ZipBuilder_SDK: SwiftProtobuf.Message, SwiftProtobuf._MessageImplement
 }
 
 extension ZipBuilder_BlazeFlag: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
-  static let protoMessageName: String = _protobuf_package + ".BlazeFlag"
-  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+  public static let protoMessageName: String = _protobuf_package + ".BlazeFlag"
+  public static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
     1: .same(proto: "flag"),
   ]
 
-  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+  public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
     while let fieldNumber = try decoder.nextFieldNumber() {
       switch fieldNumber {
       case 1: try decoder.decodeRepeatedStringField(value: &self.flag)
@@ -361,14 +361,14 @@ extension ZipBuilder_BlazeFlag: SwiftProtobuf.Message, SwiftProtobuf._MessageImp
     }
   }
 
-  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+  public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
     if !self.flag.isEmpty {
       try visitor.visitRepeatedStringField(value: self.flag, fieldNumber: 1)
     }
     try unknownFields.traverse(visitor: &visitor)
   }
 
-  static func ==(lhs: ZipBuilder_BlazeFlag, rhs: ZipBuilder_BlazeFlag) -> Bool {
+  public static func ==(lhs: ZipBuilder_BlazeFlag, rhs: ZipBuilder_BlazeFlag) -> Bool {
     if lhs.flag != rhs.flag {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
