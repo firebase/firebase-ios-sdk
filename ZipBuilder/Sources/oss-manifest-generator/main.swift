@@ -47,7 +47,7 @@ struct OSSManifestGenerator: ParsableCommand {
     // Guard for the `.withoutEscapingSlashes` API.
     guard #available(OSX 10.15, *) else { fatalError("Run on macOS 10.15 or above.") }
 
-    let newVersions: [String: String] = getReleasingVersions()
+    let newVersions: [String: String] = getReleasingOSSVersions()
 
     guard let firebaseVersion = newVersions["Firebase"] else {
       fatalError("Could not determine Firebase version from versions: \(newVersions)")
@@ -76,13 +76,14 @@ struct OSSManifestGenerator: ParsableCommand {
 
   /// Assembles the releasing versions based on the release manifest passed in.
   /// Returns an array with the pod name as the key and version as the value,
-  private func getReleasingVersions() -> [String: String] {
+  private func getReleasingOSSVersions() -> [String: String] {
     // Merge the versions from the current release and the known public versions.
     var releasingVersions: [String: String] = [:]
 
     // Load the current release and keep it in a dictionary format.
     let loadedRelease = ManifestReader.loadCurrentRelease(fromTextproto: currentRelease)
     for pod in loadedRelease.sdk {
+//      guard pod.
       releasingVersions[pod.sdkName] = pod.sdkVersion
       print("\(pod.sdkName): \(pod.sdkVersion)")
     }
