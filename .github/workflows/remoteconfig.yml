@@ -80,7 +80,7 @@ jobs:
 #    if: github.event_name == 'schedule'
     strategy:
       matrix:
-        target: [ios, tvos, macos, watchos]
+        target: [ios, tvos, macos]
         flags: [
           '--skip-tests --use-modular-headers',
           '--skip-tests --use-libraries'
