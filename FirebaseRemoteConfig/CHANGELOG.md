@@ -1,3 +1,7 @@
+# v4.4.11
+- [fixed] Fixed a bug where settings updates weren't applied before fetches. (#4740)
+- [changed] Updated public API documentation for 4.4.10 change from FirebaseInstanceID to
+  FirebaseInstallations
 # v4.4.10
 - [changed] Internal code changes - migrate to using the FIS SDK. (#5096)
 - [changed] Include both CFBundleString and CFBundleShortVersionString in the outgoing fetch requests.
