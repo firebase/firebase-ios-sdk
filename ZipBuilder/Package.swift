@@ -44,5 +44,9 @@ let package = Package(
       name: "ManifestReader",
       dependencies: ["SwiftProtobuf"]
     ),
+    .target(
+      name: "oss-manifest-generator",
+      dependencies: ["ArgumentParser", "ManifestReader"]
+    ),
   ]
 )
