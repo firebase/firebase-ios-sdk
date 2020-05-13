@@ -35,6 +35,7 @@ product can be one of:
   InAppMessaging
   Messaging
   MessagingSample
+  RemoteConfig
   Storage
   StorageSwift
   SymbolCollision
@@ -455,6 +456,47 @@ case "$product-$platform-$method" in
     RunXcodebuild \
       -workspace 'gen/FirebaseDatabase/FirebaseDatabase.xcworkspace' \
       -scheme "FirebaseDatabase-Unit-unit" \
+      "${tvos_flags[@]}" \
+      "${xcb_flags[@]}" \
+      build \
+      test
+    ;;
+
+  RemoteConfig-*-xcodebuild)
+    pod_gen FirebaseRemoteConfig.podspec --platforms=ios
+    RunXcodebuild \
+      -workspace 'gen/FirebaseRemoteConfig/FirebaseRemoteConfig.xcworkspace' \
+      -scheme "FirebaseRemoteConfig-Unit-unit" \
+      "${ios_flags[@]}" \
+      "${xcb_flags[@]}" \
+      build \
+      test
+
+    if check_secrets; then
+      # Integration tests are only run on iOS to minimize flake failures.
+
+      RunXcodebuild \
+        -workspace 'gen/FirebaseRemoteConfig/FirebaseRemoteConfig.xcworkspace' \
+        -scheme "FirebaseRemoteConfig-Unit-swift-api" \
+        "${ios_flags[@]}" \
+        "${xcb_flags[@]}" \
+        build \
+        test
+      fi
+
+    pod_gen FirebaseRemoteConfig.podspec --platforms=macos --clean
+    RunXcodebuild \
+      -workspace 'gen/FirebaseRemoteConfig/FirebaseRemoteConfig.xcworkspace' \
+      -scheme "FirebaseRemoteConfig-Unit-unit" \
+      "${macos_flags[@]}" \
+      "${xcb_flags[@]}" \
+      build \
+      test
+
+    pod_gen FirebaseRemoteConfig.podspec --platforms=tvos --clean
+    RunXcodebuild \
+      -workspace 'gen/FirebaseRemoteConfig/FirebaseRemoteConfig.xcworkspace' \
+      -scheme "FirebaseRemoteConfig-Unit-unit" \
       "${tvos_flags[@]}" \
       "${xcb_flags[@]}" \
       build \
