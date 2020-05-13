@@ -58,6 +58,7 @@ jobs:
       if: ${{ always() }}
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh DynamicLinks swift)
     - name: Upload Podfile
+      if: ${{ always() }}
       uses: actions/upload-artifact@v1
       with:
           name: Podfile
