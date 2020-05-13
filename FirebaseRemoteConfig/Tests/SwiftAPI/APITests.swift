@@ -28,7 +28,7 @@ class APITests: XCTestCase {
     super.setUp()
     app = FirebaseApp.app()
     config = RemoteConfig.remoteConfig(app: app!)
-    let settings = RemoteConfigSettings.init()
+    let settings = RemoteConfigSettings()
     settings.minimumFetchInterval = 0
     config.configSettings = settings
 
@@ -43,12 +43,12 @@ class APITests: XCTestCase {
 
   func testFetchThenActivate() {
     let expectation = self.expectation(description: #function)
-    config.fetch { (status, error) in
+    config.fetch { status, error in
       if let error = error {
         XCTFail("Fetch Error \(error)")
       }
       XCTAssertEqual(status, RemoteConfigFetchStatus.success)
-      self.config.activate { (error) in
+      self.config.activate { error in
         if let error = error {
           // This API returns an error if the config was unchanged.
           //
@@ -63,12 +63,12 @@ class APITests: XCTestCase {
 
   func testFetchWithExpirationThenActivate() {
     let expectation = self.expectation(description: #function)
-    config.fetch(withExpirationDuration: 0) { (status, error) in
+    config.fetch(withExpirationDuration: 0) { status, error in
       if let error = error {
         XCTFail("Fetch Error \(error)")
       }
       XCTAssertEqual(status, RemoteConfigFetchStatus.success)
-      self.config.activate { (error) in
+      self.config.activate { error in
         if let error = error {
           // This API returns an error if the config was unchanged.
           //
@@ -83,7 +83,7 @@ class APITests: XCTestCase {
 
   func testFetchAndActivate() {
     let expectation = self.expectation(description: #function)
-    config.fetchAndActivate { (status, error) in
+    config.fetchAndActivate { status, error in
       if let error = error {
         XCTFail("Fetch and Activate Error \(error)")
       }
