@@ -30,7 +30,7 @@ jobs:
     - name: BuildAndTest # can be replaced with pod lib lint with CocoaPods 1.10
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/build.sh RemoteConfig all)
 
- pod-lib-lint:
+  pod-lib-lint:
     runs-on: macOS-latest
 
     strategy:
