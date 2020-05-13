@@ -1,6 +1,6 @@
 # v6.7.1 -- M71
 - [fixed] Fixed `FirebaseApp`s `bundleID` verification, allowing exact `bundleID` matches
-  for extensions. (#5531)
+  for extensions. (#5126)
 
 # v6.7.0 -- M70
 - [fixed] Updated nanopb to 0.3.9.5 (across all Firebase pods). This includes a fix for
