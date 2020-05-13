@@ -77,6 +77,6 @@ app update.
     swift_api_tests.source_files = 'FirebaseRemoteConfig/Tests/SwiftAPI/*.swift'
     swift_api_tests.requires_app_host = true
     swift_api_tests.resources =
-        'FirebaseRemoteConfig/Tests/SwiftAPI/Resources/GoogleService-Info.plist'
+        'FirebaseRemoteConfig/Tests/SwiftAPI/GoogleService-Info.plist'
   end
 end
