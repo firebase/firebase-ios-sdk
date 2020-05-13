@@ -44,6 +44,8 @@ NSString *const kFIRInstallationIDDidChangeNotificationAppNameKey =
 
 NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 hour.
 
+static NSString *const kStorageKeychainService = @"com.firebase.FIRInstallations.installations";
+
 @interface FIRInstallationsIDController ()
 @property(nonatomic, readonly) NSString *appID;
 @property(nonatomic, readonly) NSString *appName;
@@ -71,9 +73,10 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
                              APIKey:(NSString *)APIKey
                           projectID:(NSString *)projectID
                         GCMSenderID:(NSString *)GCMSenderID
-                        accessGroup:(NSString *)accessGroup {
-  GULKeychainStorage *secureStorage =
-      [[GULKeychainStorage alloc] initWithService:@"com.firebase.FIRInstallations.installations"];
+                           bundleID:(NSString *)bundleID
+                        accessGroup:(nullable NSString *)accessGroup {
+  NSString *serviceName = [FIRInstallationsIDController keychainServiceWithBundleID:bundleID];
+  GULKeychainStorage *secureStorage = [[GULKeychainStorage alloc] initWithService:serviceName];
   FIRInstallationsStore *installationsStore =
       [[FIRInstallationsStore alloc] initWithSecureStorage:secureStorage accessGroup:accessGroup];
 
@@ -454,6 +457,26 @@ NSTimeInterval const kFIRInstallationsTokenExpirationThreshold = 60 * 60;  // 1 
 
 - (BOOL)isDefaultApp {
   return [self.appName isEqualToString:kFIRDefaultAppName];
+}
+
+#pragma mark - Keychain
+
++ (NSString *)keychainServiceWithBundleID:(nullable NSString *)bundleID {
+#if TARGET_OS_MACCATALYST || TARGET_OS_OSX
+  // We need to keep service name unique per application on macOS if bundleID provided.
+  // Applications on macOS may request access to Keychain items stored by other applications. It
+  // means that when the app looks up for a relevant Keychain item in the service scope it will
+  // request user password to grant access to the Keychain if there are other Keychain items from
+  // other applications stored under the same Keychain Service.
+  return [bundleID stringByAppendingFormat:@".%@", kStorageKeychainService]
+             ?: kStorageKeychainService;
+#else
+  // Use a constant Keychain service for non-macOS because:
+  // 1. Keychain items cannot be shared between apps until configured specifically so the service
+  // name collisions are not a concern
+  // 2. We don't want to change the service name to avoid doing a migration.
+  return kStorageKeychainService;
+#endif
 }
 
 @end
