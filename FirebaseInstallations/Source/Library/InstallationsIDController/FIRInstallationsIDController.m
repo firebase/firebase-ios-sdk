@@ -468,8 +468,7 @@ static NSString *const kKeychainService = @"com.firebase.FIRInstallations.instal
   // means that when the app looks up for a relevant Keychain item in the service scope it will
   // request user password to grant access to the Keychain if there are other Keychain items from
   // other applications stored under the same Keychain Service.
-  return [bundleID stringByAppendingFormat:@".%@", kKeychainService]
-             ?: kKeychainService;
+  return [bundleID stringByAppendingFormat:@".%@", kKeychainService] ?: kKeychainService;
 #else
   // Use a constant Keychain service for non-macOS because:
   // 1. Keychain items cannot be shared between apps until configured specifically so the service
