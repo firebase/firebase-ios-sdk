@@ -29,6 +29,8 @@ Schedule::~Schedule() {
 }
 
 void Schedule::Clear() {
+  std::unique_lock<std::mutex> lock{mutex_};
+
   for (Task* task : scheduled_) {
     task->Release();
   }
