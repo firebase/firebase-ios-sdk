@@ -36,14 +36,15 @@ NSString *const kGULSecureCodingError = @"GULSecureCodingError";
 #if __has_builtin(__builtin_available)
   if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, watchOS 4.0, *)) {
     // Pass in the outError explicitly, which will return errors from the unarchiver.
-    NSKeyedUnarchiver *unarchiver = [[NSKeyedUnarchiver alloc] initForReadingFromData:data error:outError];
+    NSKeyedUnarchiver *unarchiver = [[NSKeyedUnarchiver alloc] initForReadingFromData:data
+                                                                                error:outError];
     unarchiver.requiresSecureCoding = YES;
     object = [unarchiver decodeObjectOfClasses:classes forKey:key];
   } else
 #endif  // __has_builtin(__builtin_available)
   {
-    // Before the `error` parameter was available in the `NSKeyedUnarchiver` initializer, it threw an
-    // exception. Handle that case explicitly and return an error instead which is safer.
+    // Before the `error` parameter was available in the `NSKeyedUnarchiver` initializer, it threw
+    // an exception. Handle that case explicitly and return an error instead which is safer.
     @try {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
@@ -79,7 +80,7 @@ NSString *const kGULSecureCodingError = @"GULSecureCodingError";
 }
 
 + (nullable id)unarchivedObjectOfClass:(Class)class
-                             fromData:(NSData *)data
+                              fromData:(NSData *)data
                                    key:(NSString *)key
                                  error:(NSError **)outError {
   return [self unarchivedObjectOfClasses:[NSSet setWithObject:class]
@@ -130,11 +131,8 @@ NSString *const kGULSecureCodingError = @"GULSecureCodingError";
   return archiveData;
 }
 
-+ (nullable NSData *)archivedDataWithRootObject:(id<NSCoding>)object
-                                          error:(NSError **)outError {
-  return [self archivedDataWithObject:object
-                                toKey:NSKeyedArchiveRootObjectKey
-                                error:outError];
++ (nullable NSData *)archivedDataWithRootObject:(id<NSCoding>)object error:(NSError **)outError {
+  return [self archivedDataWithObject:object toKey:NSKeyedArchiveRootObjectKey error:outError];
 }
 
 + (NSError *)archivingErrorWithException:(NSException *)exception {
