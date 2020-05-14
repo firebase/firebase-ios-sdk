@@ -20,34 +20,13 @@
 #include <cstdint>
 #include <utility>
 
+#include "Firestore/core/src/util/defer.h"
 #include "Firestore/core/src/util/hard_assert.h"
 #include "Firestore/core/src/util/log.h"
 
 namespace firebase {
 namespace firestore {
 namespace util {
-namespace {
-
-/**
- * The inverse of `std::lock_guard`: it unlocks in the constructor and locks in
- * its destructor, providing a way to safely temporarily release a lock that has
- * already been acquired in the current scope.
- */
-class InverseLockGuard {
- public:
-  explicit InverseLockGuard(std::mutex& mutex) : mutex_(mutex) {
-    mutex_.unlock();
-  }
-
-  ~InverseLockGuard() {
-    mutex_.lock();
-  }
-
- private:
-  std::mutex& mutex_;
-};
-
-}  // namespace
 
 Task* Task::Create(Executor* executor, Executor::Operation&& operation) {
   return new Task(executor, Executor::TimePoint(), Executor::kNoTag, 0u,
@@ -108,7 +87,7 @@ void Task::Release() {
 
 void Task::ExecuteAndRelease() {
   {
-    std::lock_guard<std::mutex> lock(mutex_);
+    std::unique_lock<std::mutex> lock(mutex_);
     TASK_TRACE("Task::Execute %s", this);
 
     if (state_ == State::kInitial) {
@@ -118,7 +97,8 @@ void Task::ExecuteAndRelease() {
       {
         // Invoke the operation without holding mutex_ to avoid deadlocks where
         // the current task can trigger its own cancellation.
-        InverseLockGuard unlock(mutex_);
+        lock.unlock();
+        Defer relock([&] { lock.lock(); });
         operation_();
 
         TASK_TRACE("Task::Execute %s (completing)", this);
