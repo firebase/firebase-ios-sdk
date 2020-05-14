@@ -77,14 +77,14 @@ TEST(StatusOr, ElementType) {
 
 TEST(StatusOr, TestNoDefaultConstructorInitialization) {
   // Explicitly initialize it with an error code.
-  StatusOr<NoDefaultConstructor> statusor(Status(Error::kCancelled, ""));
+  StatusOr<NoDefaultConstructor> statusor(Status(Error::kErrorCancelled, ""));
   EXPECT_FALSE(statusor.ok());
-  EXPECT_EQ(statusor.status().code(), Error::kCancelled);
+  EXPECT_EQ(statusor.status().code(), Error::kErrorCancelled);
 
   // Default construction of StatusOr initializes it with an UNKNOWN error code.
   StatusOr<NoDefaultConstructor> statusor2;
   EXPECT_FALSE(statusor2.ok());
-  EXPECT_EQ(statusor2.status().code(), Error::kUnknown);
+  EXPECT_EQ(statusor2.status().code(), Error::kErrorUnknown);
 }
 
 TEST(StatusOr, TestMoveOnlyInitialization) {
@@ -103,7 +103,7 @@ TEST(StatusOr, TestMoveOnlyInitialization) {
 }
 
 TEST(StatusOr, TestMoveOnlyStatusCtr) {
-  StatusOr<std::unique_ptr<int>> thing(Status(Error::kCancelled, ""));
+  StatusOr<std::unique_ptr<int>> thing(Status(Error::kErrorCancelled, ""));
   ASSERT_FALSE(thing.ok());
 }
 
@@ -141,15 +141,15 @@ TEST(StatusOr, TestMoveOnlyVector) {
   vec.resize(2);
   auto another_vec = std::move(vec);
   EXPECT_EQ(0, *another_vec[0].ValueOrDie());
-  EXPECT_EQ(Error::kUnknown, another_vec[1].status().code());
+  EXPECT_EQ(Error::kErrorUnknown, another_vec[1].status().code());
 }
 
 TEST(StatusOr, TestMoveWithValuesAndErrors) {
   StatusOr<string> status_or(string(1000, '0'));
   StatusOr<string> value1(string(1000, '1'));
   StatusOr<string> value2(string(1000, '2'));
-  StatusOr<string> error1(Status(Error::kUnknown, "error1"));
-  StatusOr<string> error2(Status(Error::kUnknown, "error2"));
+  StatusOr<string> error1(Status(Error::kErrorUnknown, "error1"));
+  StatusOr<string> error2(Status(Error::kErrorUnknown, "error2"));
 
   ASSERT_TRUE(status_or.ok());
   EXPECT_EQ(string(1000, '0'), status_or.ValueOrDie());
@@ -179,8 +179,8 @@ TEST(StatusOr, TestCopyWithValuesAndErrors) {
   StatusOr<string> status_or(string(1000, '0'));
   StatusOr<string> value1(string(1000, '1'));
   StatusOr<string> value2(string(1000, '2'));
-  StatusOr<string> error1(Status(Error::kUnknown, "error1"));
-  StatusOr<string> error2(Status(Error::kUnknown, "error2"));
+  StatusOr<string> error1(Status(Error::kErrorUnknown, "error1"));
+  StatusOr<string> error2(Status(Error::kErrorUnknown, "error2"));
 
   ASSERT_TRUE(status_or.ok());
   EXPECT_EQ(string(1000, '0'), status_or.ValueOrDie());
@@ -215,7 +215,7 @@ TEST(StatusOr, TestCopyWithValuesAndErrors) {
 TEST(StatusOr, TestDefaultCtor) {
   StatusOr<int> thing;
   EXPECT_FALSE(thing.ok());
-  EXPECT_EQ(thing.status().code(), Error::kUnknown);
+  EXPECT_EQ(thing.status().code(), Error::kErrorUnknown);
 }
 
 TEST(StatusOrDeathTest, TestDefaultCtorValue) {
@@ -227,9 +227,9 @@ TEST(StatusOrDeathTest, TestDefaultCtorValue) {
 }
 
 TEST(StatusOr, TestStatusCtor) {
-  StatusOr<int> thing(Status(Error::kCancelled, ""));
+  StatusOr<int> thing(Status(Error::kErrorCancelled, ""));
   EXPECT_FALSE(thing.ok());
-  EXPECT_EQ(thing.status().code(), Error::kCancelled);
+  EXPECT_EQ(thing.status().code(), Error::kErrorCancelled);
 }
 
 TEST(StatusOr, TestValueCtor) {
@@ -248,7 +248,7 @@ TEST(StatusOr, TestCopyCtorStatusOk) {
 }
 
 TEST(StatusOr, TestCopyCtorStatusNotOk) {
-  StatusOr<int> original(Status(Error::kCancelled, ""));
+  StatusOr<int> original(Status(Error::kErrorCancelled, ""));
   StatusOr<int> copy(original);
   EXPECT_EQ(copy.status(), original.status());
 }
@@ -271,7 +271,7 @@ TEST(StatusOr, TestCopyCtorStatusOKConverting) {
 }
 
 TEST(StatusOr, TestCopyCtorStatusNotOkConverting) {
-  StatusOr<int> original(Status(Error::kCancelled, ""));
+  StatusOr<int> original(Status(Error::kErrorCancelled, ""));
   StatusOr<double> copy(original);
   EXPECT_EQ(copy.status(), original.status());
 }
@@ -286,7 +286,7 @@ TEST(StatusOr, TestAssignmentStatusOk) {
 }
 
 TEST(StatusOr, TestAssignmentStatusNotOk) {
-  StatusOr<int> source(Status(Error::kCancelled, ""));
+  StatusOr<int> source(Status(Error::kErrorCancelled, ""));
   StatusOr<int> target;
   target = source;
   EXPECT_EQ(target.status(), source.status());
@@ -295,9 +295,9 @@ TEST(StatusOr, TestAssignmentStatusNotOk) {
 TEST(StatusOr, TestStatus) {
   StatusOr<int> good(4);
   EXPECT_TRUE(good.ok());
-  StatusOr<int> bad(Status(Error::kCancelled, ""));
+  StatusOr<int> bad(Status(Error::kErrorCancelled, ""));
   EXPECT_FALSE(bad.ok());
-  EXPECT_EQ(bad.status(), Status(Error::kCancelled, ""));
+  EXPECT_EQ(bad.status(), Status(Error::kErrorCancelled, ""));
 }
 
 TEST(StatusOr, TestValue) {
@@ -313,19 +313,19 @@ TEST(StatusOr, TestValueConst) {
 }
 
 TEST(StatusOrDeathTest, TestValueNotOk) {
-  StatusOr<int> thing(Status(Error::kCancelled, "cancelled"));
+  StatusOr<int> thing(Status(Error::kErrorCancelled, "cancelled"));
   EXPECT_ANY_THROW(thing.ValueOrDie());
 }
 
 TEST(StatusOrDeathTest, TestValueNotOkConst) {
-  const StatusOr<int> thing(Status(Error::kUnknown, ""));
+  const StatusOr<int> thing(Status(Error::kErrorUnknown, ""));
   EXPECT_ANY_THROW(thing.ValueOrDie());
 }
 
 TEST(StatusOr, TestPointerDefaultCtor) {
   StatusOr<int*> thing;
   EXPECT_FALSE(thing.ok());
-  EXPECT_EQ(thing.status().code(), Error::kUnknown);
+  EXPECT_EQ(thing.status().code(), Error::kErrorUnknown);
 }
 
 TEST(StatusOrDeathTest, TestPointerDefaultCtorValue) {
@@ -334,9 +334,9 @@ TEST(StatusOrDeathTest, TestPointerDefaultCtorValue) {
 }
 
 TEST(StatusOr, TestPointerStatusCtor) {
-  StatusOr<int*> thing(Status(Error::kCancelled, ""));
+  StatusOr<int*> thing(Status(Error::kErrorCancelled, ""));
   EXPECT_FALSE(thing.ok());
-  EXPECT_EQ(thing.status(), Status(Error::kCancelled, ""));
+  EXPECT_EQ(thing.status(), Status(Error::kErrorCancelled, ""));
 }
 
 TEST(StatusOr, TestPointerValueCtor) {
@@ -355,7 +355,7 @@ TEST(StatusOr, TestPointerCopyCtorStatusOk) {
 }
 
 TEST(StatusOr, TestPointerCopyCtorStatusNotOk) {
-  StatusOr<int*> original(Status(Error::kCancelled, ""));
+  StatusOr<int*> original(Status(Error::kErrorCancelled, ""));
   StatusOr<int*> copy(original);
   EXPECT_EQ(copy.status(), original.status());
 }
@@ -370,7 +370,7 @@ TEST(StatusOr, TestPointerCopyCtorStatusOKConverting) {
 }
 
 TEST(StatusOr, TestPointerCopyCtorStatusNotOkConverting) {
-  StatusOr<Derived*> original(Status(Error::kCancelled, ""));
+  StatusOr<Derived*> original(Status(Error::kErrorCancelled, ""));
   StatusOr<Base2*> copy(original);
   EXPECT_EQ(copy.status(), original.status());
 }
@@ -385,7 +385,7 @@ TEST(StatusOr, TestPointerAssignmentStatusOk) {
 }
 
 TEST(StatusOr, TestPointerAssignmentStatusNotOk) {
-  StatusOr<int*> source(Status(Error::kCancelled, ""));
+  StatusOr<int*> source(Status(Error::kErrorCancelled, ""));
   StatusOr<int*> target;
   target = source;
   EXPECT_EQ(target.status(), source.status());
@@ -395,8 +395,8 @@ TEST(StatusOr, TestPointerStatus) {
   const int kI = 0;
   StatusOr<const int*> good(&kI);
   EXPECT_TRUE(good.ok());
-  StatusOr<const int*> bad(Status(Error::kCancelled, ""));
-  EXPECT_EQ(bad.status(), Status(Error::kCancelled, ""));
+  StatusOr<const int*> bad(Status(Error::kErrorCancelled, ""));
+  EXPECT_EQ(bad.status(), Status(Error::kErrorCancelled, ""));
 }
 
 TEST(StatusOr, TestPointerValue) {
@@ -422,12 +422,12 @@ TEST(StatusOr, TestPointerValueConst) {
 // }
 
 TEST(StatusOrDeathTest, TestPointerValueNotOk) {
-  StatusOr<int*> thing(Status(Error::kCancelled, "cancelled"));
+  StatusOr<int*> thing(Status(Error::kErrorCancelled, "cancelled"));
   EXPECT_ANY_THROW(thing.ValueOrDie());
 }
 
 TEST(StatusOrDeathTest, TestPointerValueNotOkConst) {
-  const StatusOr<int*> thing(Status(Error::kCancelled, "cancelled"));
+  const StatusOr<int*> thing(Status(Error::kErrorCancelled, "cancelled"));
   EXPECT_ANY_THROW(thing.ValueOrDie());
 }
 

@@ -29,7 +29,7 @@ namespace util {
 static Error CodeForErrno(int errno_code) {
   switch (errno_code) {
     case 0:
-      return Error::kOk;
+      return Error::kErrorOk;
 
       // Internal canonical mappings call these failed preconditions, but for
       // our purposes these must indicate an internal error in file handling.
@@ -37,7 +37,7 @@ static Error CodeForErrno(int errno_code) {
 #if defined(EBADFD)
     case EBADFD:  // File descriptor in bad state
 #endif
-      return Error::kInternal;
+      return Error::kErrorInternal;
 
     case EINVAL:        // Invalid argument
     case ENAMETOOLONG:  // Filename too long
@@ -52,11 +52,11 @@ static Error CodeForErrno(int errno_code) {
     case ENOTTY:        // Inappropriate I/O control operation
     case EPROTOTYPE:    // Protocol wrong type for socket
     case ESPIPE:        // Invalid seek
-      return Error::kInvalidArgument;
+      return Error::kErrorInvalidArgument;
 
     case ETIMEDOUT:  // Connection timed out
     case ETIME:      // Timer expired
-      return Error::kDeadlineExceeded;
+      return Error::kErrorDeadlineExceeded;
 
     case ENODEV:  // No such device
     case ENOENT:  // No such file or directory
@@ -65,7 +65,7 @@ static Error CodeForErrno(int errno_code) {
 #endif
     case ENXIO:  // No such device or address
     case ESRCH:  // No such process
-      return Error::kNotFound;
+      return Error::kErrorNotFound;
 
     case EEXIST:         // File exists
     case EADDRNOTAVAIL:  // Address not available
@@ -73,7 +73,7 @@ static Error CodeForErrno(int errno_code) {
 #if defined(ENOTUNIQ)
     case ENOTUNIQ:  // Name not unique on network
 #endif
-      return Error::kAlreadyExists;
+      return Error::kErrorAlreadyExists;
 
     case EPERM:   // Operation not permitted
     case EACCES:  // Permission denied
@@ -81,7 +81,7 @@ static Error CodeForErrno(int errno_code) {
     case ENOKEY:  // Required key not available
 #endif
     case EROFS:  // Read only file system
-      return Error::kPermissionDenied;
+      return Error::kErrorPermissionDenied;
 
     case ENOTEMPTY:   // Directory not empty
     case EISDIR:      // Is a directory
@@ -105,7 +105,7 @@ static Error CodeForErrno(int errno_code) {
 #if defined(EUNATCH)
     case EUNATCH:  // Protocol driver not attached
 #endif
-      return Error::kFailedPrecondition;
+      return Error::kErrorFailedPrecondition;
 
     case ENOSPC:  // No space left on device
 #if defined(EDQUOT)
@@ -121,7 +121,7 @@ static Error CodeForErrno(int errno_code) {
 #if defined(EUSERS)
     case EUSERS:  // Too many users
 #endif
-      return Error::kResourceExhausted;
+      return Error::kErrorResourceExhausted;
 
 #if defined(ECHRNG)
     case ECHRNG:  // Channel number out of range
@@ -129,7 +129,7 @@ static Error CodeForErrno(int errno_code) {
     case EFBIG:      // File too large
     case EOVERFLOW:  // Value too large to be stored in data type
     case ERANGE:     // Result too large
-      return Error::kOutOfRange;
+      return Error::kErrorOutOfRange;
 
 #if defined(ENOPKG)
     case ENOPKG:  // Package not installed
@@ -145,7 +145,7 @@ static Error CodeForErrno(int errno_code) {
     case ESOCKTNOSUPPORT:  // Socket type not supported
 #endif
     case EXDEV:  // Improper link
-      return Error::kUnimplemented;
+      return Error::kErrorUnimplemented;
 
     case EAGAIN:  // Resource temporarily unavailable
 #if defined(ECOMM)
@@ -167,19 +167,19 @@ static Error CodeForErrno(int errno_code) {
 #if defined(ENONET)
     case ENONET:  // Machine is not on the network
 #endif
-      return Error::kUnavailable;
+      return Error::kErrorUnavailable;
 
     case EDEADLK:  // Resource deadlock avoided
 #if defined(ESTALE)
     case ESTALE:  // Stale file handle
 #endif
-      return Error::kAborted;
+      return Error::kErrorAborted;
 
     case ECANCELED:  // Operation cancelled
-      return Error::kCancelled;
+      return Error::kErrorCancelled;
 
     default:
-      return Error::kUnknown;
+      return Error::kErrorUnknown;
   }
 }
 

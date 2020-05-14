@@ -110,7 +110,7 @@ class TestStream : public Stream {
       // The parent stream will issue a finish operation and block until it's
       // completed, so asynchronously polling gRPC queue is necessary.
       tester_->KeepPollingGrpcQueue();
-      return util::Status{Error::kInternal, ""};
+      return util::Status{Error::kErrorInternal, ""};
     }
     return util::Status::OK();
   }

@@ -1,3 +1,6 @@
+# v6.1.1
+- Fixes writing event counts in a directory that doesn't yet exist. (#5549)
+
 # v6.1.0
 - watchOS extension and independent apps now supported. (#4292)
 - iOS extensions better supported.

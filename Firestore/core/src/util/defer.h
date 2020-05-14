@@ -31,8 +31,8 @@ namespace util {
  * useful effect; otherwise the `Defer` is destroyed at the end of the
  * statement, which is equivalent to just directly running the `action`.
  *
- * `Defer` is useful for performing ad-hoc RAII-style actions, without having to
- * create the wrapper class. For example:
+ * `Defer` is useful for performing ad-hoc RAII-style actions, without having
+ * to create the wrapper class. For example:
  *
  *     FILE* file = fopen(filename, "rb");
  *     Defer cleanup([&] {
@@ -40,16 +40,19 @@ namespace util {
  *         fclose(file);
  *       }
  *     });
- *
- * @param action a callable object; usually a lambda. Even if exceptions are
- *     enabled, when `action` is invoked it must not throw. This is similar to
- *     the restriction that exists on destructors generally.
  */
 class Defer {
   // TODO(C++17): Make Action a template argument and use CTAD in the callers.
  public:
   using Action = std::function<void()>;
 
+  /**
+   * Constructs a `Defer` object.
+   *
+   * @param action a callable object; usually a lambda. Even if exceptions are
+   *     enabled, when `action` is invoked it must not throw. This is similar
+   *     to the restriction that exists on destructors generally.
+   */
   explicit Defer(Action&& action) : action_(std::move(action)) {
   }
 

@@ -67,7 +67,7 @@ Status Transaction::RecordVersion(const MaybeDocument& doc) {
   if (existing_version.has_value()) {
     if (doc_version != existing_version.value()) {
       // This transaction will fail no matter what.
-      return Status{Error::kAborted,
+      return Status{Error::kErrorAborted,
                     "Document version changed between two reads."};
     }
     return Status::OK();
@@ -82,7 +82,7 @@ void Transaction::Lookup(const std::vector<DocumentKey>& keys,
   EnsureCommitNotCalled();
 
   if (!mutations_.empty()) {
-    Status lookup_error = Status{Error::kInvalidArgument,
+    Status lookup_error = Status{Error::kErrorInvalidArgument,
                                  "Firestore transactions require all reads to "
                                  "be executed before all writes"};
     callback(lookup_error);
@@ -146,7 +146,7 @@ StatusOr<Precondition> Transaction::CreateUpdatePrecondition(
       //
       // Note: this can change once we can send separate verify writes in the
       // transaction.
-      return Status{Error::kInvalidArgument,
+      return Status{Error::kErrorInvalidArgument,
                     "Can't update a document that doesn't exist."};
     }
     // Document exists, just base precondition on document update time.

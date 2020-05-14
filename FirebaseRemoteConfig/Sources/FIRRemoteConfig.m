@@ -214,8 +214,10 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
 #pragma mark - fetch
 
 - (void)fetchWithCompletionHandler:(FIRRemoteConfigFetchCompletion)completionHandler {
-  [self fetchWithExpirationDuration:_settings.minimumFetchInterval
-                  completionHandler:completionHandler];
+  dispatch_async(_queue, ^{
+    [self fetchWithExpirationDuration:self->_settings.minimumFetchInterval
+                    completionHandler:completionHandler];
+  });
 }
 
 - (void)fetchWithExpirationDuration:(NSTimeInterval)expirationDuration
