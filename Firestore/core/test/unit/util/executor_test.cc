@@ -121,20 +121,20 @@ TEST_P(ExecutorTest, CanCancelDelayedOperationsFromTheOperation) {
   // asynchronously.
   Async([&] {
     steps += "1";
-    delayed_operation = Schedule(
-        executor.get(), Executor::Milliseconds(1), [&] {
-      Await(scheduled);
-      steps += "3";
+    delayed_operation =
+        Schedule(executor.get(), Executor::Milliseconds(1), [&] {
+          Await(scheduled);
+          steps += "3";
 
-      // When checking if a task is scheduled from the currently executing task,
-      // the result is true.
-      ASSERT_FALSE(delayed_operation);
+          // When checking if a task is scheduled from the currently executing
+          // task, the result is true.
+          ASSERT_FALSE(delayed_operation);
 
-      delayed_operation.Cancel();
+          delayed_operation.Cancel();
 
-      steps += "4";
-      ran.Fulfill();
-    });
+          steps += "4";
+          ran.Fulfill();
+        });
 
     steps += "2";
     scheduled.Fulfill();

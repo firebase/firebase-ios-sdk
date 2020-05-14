@@ -18,6 +18,7 @@
 
 #include <algorithm>
 #include <atomic>
+#include <vector>
 
 #include "Firestore/core/src/util/defer.h"
 #include "Firestore/core/src/util/hard_assert.h"
