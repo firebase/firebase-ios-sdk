@@ -98,6 +98,10 @@ void Task::Release() {
     TASK_TRACE("Task::Release %s (deleting)", this);
     delete this;
   } else {
+    HARD_ASSERT(
+        old_count > 1,
+        "Test::Release called on an already deleted task %s (old_count=%s)",
+        this, old_count);
     TASK_TRACE("Task::Release %s (ref_count=%s)", this, old_count);
   }
 }

@@ -191,8 +191,6 @@ TEST_F(TaskTest, CancelBlocksOnRunningTasks) {
 
   // If cancel doesn't await completion then this will be 1243.
   ASSERT_EQ(steps, "1234");
-
-  task->Release();
 }
 
 TEST_F(TaskTest, OwnedExecuteThenRelease) {
