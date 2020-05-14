@@ -141,7 +141,14 @@ bool Task::AwaitIfRunning() {
   }
 
   if (state_ == State::kRunning) {
-    AwaitLocked(lock);
+    auto this_thread = std::this_thread::get_id();
+    // The return value indicates whether or not the task has completed, but
+    // if the task itself attempts to await its completion it would deadlock.
+    // Instead define a task running on the current thread as no longer being
+    // scheduled.
+    if (this_thread != executing_thread_) {
+      AwaitLocked(lock);
+    }
   }
   return true;
 }

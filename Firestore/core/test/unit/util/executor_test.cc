@@ -110,6 +110,40 @@ TEST_P(ExecutorTest, CanCancelDelayedOperations) {
   EXPECT_EQ(steps, "13");
 }
 
+TEST_P(ExecutorTest, CanCancelDelayedOperationsFromTheOperation) {
+  std::string steps;
+  DelayedOperation delayed_operation;
+
+  Expectation ran;
+  Expectation scheduled;
+
+  // The test is designed to catch cases where a task might deadlock so run it
+  // asynchronously.
+  Async([&] {
+    steps += "1";
+    delayed_operation = Schedule(
+        executor.get(), Executor::Milliseconds(1), [&] {
+      Await(scheduled);
+      steps += "3";
+
+      // When checking if a task is scheduled from the currently executing task,
+      // the result is true.
+      ASSERT_FALSE(delayed_operation);
+
+      delayed_operation.Cancel();
+
+      steps += "4";
+      ran.Fulfill();
+    });
+
+    steps += "2";
+    scheduled.Fulfill();
+  });
+
+  Await(ran);
+  EXPECT_EQ(steps, "1234");
+}
+
 TEST_P(ExecutorTest, DelayedOperationIsValidAfterTheOperationHasRun) {
   Expectation ran;
 
