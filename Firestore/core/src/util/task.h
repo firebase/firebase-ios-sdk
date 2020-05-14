@@ -29,9 +29,6 @@ namespace firebase {
 namespace firestore {
 namespace util {
 
-// For testing
-class TrackingTask;
-
 /**
  * A task for an Executor to execute, either synchronously or asynchronously,
  * either immediately or after some delay.
@@ -187,6 +184,8 @@ class Task {
   //
   // Virtual for testing.
   virtual ~Task();
+
+  // Subclasses allowed for testing.
   friend class TrackingTask;
 
   void AwaitLocked(std::unique_lock<std::mutex>& lock);
