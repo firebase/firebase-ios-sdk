@@ -56,24 +56,28 @@ ExecutorLibdispatch::ExecutorLibdispatch(const dispatch_queue_t dispatch_queue)
 }
 
 ExecutorLibdispatch::~ExecutorLibdispatch() {
-  decltype(tasks_) local_async_tasks;
+  decltype(tasks_) local_tasks;
   TASK_TRACE("Executor::~Executor %s", this);
 
   {
     std::unique_lock<std::mutex> lock(mutex_);
 
-    // Pull ownership of tasks out of the executor members and into locals. This
-    // prevents any concurrent execution of calls to `OnCompletion` or `Cancel`
-    // from finding tasks (and releasing them).
-    //
-    // All scheduled operations are also registered in `async_tasks_` so they
-    // can be handled in a single loop below.
-    local_async_tasks.swap(tasks_);
+    // Transfer ownership of tasks out of the executor members and into
+    // `local_tasks`. This prevents any concurrent execution of calls to
+    // `OnCompletion` or `Cancel` from finding tasks (and also from releasing
+    // them).
+    local_tasks.swap(tasks_);
+
+    // All scheduled operations are also registered in `tasks_` so they can be
+    // handled in a single loop below.
+    schedule_.clear();
   }
 
-  for (Task* task : local_async_tasks) {
+  for (Task* task : local_tasks) {
     TASK_TRACE("Executor::~Executor %s cancelling %s", this, task);
     task->Cancel();
+
+    // Release this method's ownership.
     task->Release();
   }
 }
@@ -123,11 +127,11 @@ DelayedOperation ExecutorLibdispatch::Schedule(Milliseconds delay,
   const dispatch_time_t delay_ns = dispatch_time(
       DISPATCH_TIME_NOW, chr::duration_cast<chr::nanoseconds>(delay).count());
 
-  // Ownership is fully transferred to libdispatch -- because it's impossible
-  // to truly cancel work after it's been dispatched, libdispatch is guaranteed
-  // to outlive the executor, and it's possible for work to be invoked by
-  // libdispatch after the executor is destroyed. The Executor only stores an
-  // observer pointer to the operation.
+  // Ownership is shared with libdispatch because it's impossible to actually
+  // cancel work after it's been dispatched, libdispatch is guaranteed to
+  // outlive the executor, and it's possible for work to be invoked by
+  // libdispatch after the executor is destroyed. While the Executor has a
+  // pointer to the Task it also has ownership.
   Task* task = nullptr;
   TimePoint target_time = MakeTargetTime(delay);
   Id id = 0;
@@ -188,6 +192,10 @@ void ExecutorLibdispatch::Cancel(Id operation_id) {
     // it after it was force-run, for example.
     if (found != schedule_.end()) {
       found_task = found->second;
+
+      // Removing the Task from `tasks_` prevents `OnCompletion` from releasing
+      // the task. This effectively transfers ownership to this method--no
+      // additional retain is required.
       tasks_.erase(found_task);
       schedule_.erase(found);
     }
@@ -195,6 +203,8 @@ void ExecutorLibdispatch::Cancel(Id operation_id) {
 
   if (found_task) {
     found_task->Cancel();
+
+    // Release this method's ownership.
     found_task->Release();
   }
 }
@@ -272,6 +282,9 @@ Task* ExecutorLibdispatch::PopFromSchedule() {
 
   Task* task = nearest->second;
 
+  // Removing the task from `tasks_` will prevent `OnCompletion` from finding
+  // it (or releasing it). This means the executor's ownership is transferred to
+  // the caller--no additional `Retain` is required here.
   tasks_.erase(task);
   schedule_.erase(nearest);
   return task;

@@ -164,7 +164,9 @@ void Task::Cancel() {
     is_complete_.notify_all();
 
   } else if (state_ == State::kRunning) {
-    // Cancelled tasks shouldn't notify the executor.
+    // Cancelled tasks cannot notify the executor because the Executor's
+    // destructor may be running as a task. Once that task completes, a
+    // notification would be a use-after-free.
     executor_ = nullptr;
 
     // Avoid deadlocking if the current Task is triggering its own cancellation.
