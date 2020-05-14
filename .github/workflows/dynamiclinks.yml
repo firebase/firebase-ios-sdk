@@ -52,11 +52,11 @@ jobs:
               fi
               scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-dynamiclinks.plist.gpg \
               quickstart-ios/dynamiclinks/GoogleService-Info.plist "$plist_secret"
+    - name: Setup quickstart
+      run: scripts/setup_quickstart.sh DynamicLinks
     - name: Install Secret FIREGSignInInfo.h
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/FIREGSignInInfo.h.gpg \
           quickstart-ios/TestUtils/FIREGSignInInfo.h "$signin_secret"
-    - name: Setup quickstart
-      run: scripts/setup_quickstart.sh DynamicLinks
     - name: Test objc quickstart
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh DynamicLinks)
     - name: Test swift quickstart
