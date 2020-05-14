@@ -35,6 +35,7 @@ product can be one of:
   InAppMessaging
   Messaging
   MessagingSample
+  RemoteConfig
   Storage
   StorageSwift
   SymbolCollision
@@ -50,6 +51,8 @@ platform can be one of:
 method can be one of:
   xcodebuild (default)
   cmake
+  unit
+  integration
 
 Optionally, reads the environment variable SANITIZERS. If set, it is expected to
 be a string containing a space-separated list with some of the following
@@ -212,6 +215,7 @@ watchos_flags=(
 case "$platform" in
   iOS)
     xcb_flags=("${ios_flags[@]}")
+    gen_platform=ios
     ;;
 
   iPad)
@@ -220,10 +224,12 @@ case "$platform" in
 
   macOS)
     xcb_flags=("${macos_flags[@]}")
+    gen_platform=macos
     ;;
 
   tvOS)
     xcb_flags=("${tvos_flags[@]}")
+    gen_platform=tvos
     ;;
 
   watchOS)
@@ -456,6 +462,26 @@ case "$product-$platform-$method" in
       -workspace 'gen/FirebaseDatabase/FirebaseDatabase.xcworkspace' \
       -scheme "FirebaseDatabase-Unit-unit" \
       "${tvos_flags[@]}" \
+      "${xcb_flags[@]}" \
+      build \
+      test
+    ;;
+
+  RemoteConfig-*-unit)
+    pod_gen FirebaseRemoteConfig.podspec --platforms="${gen_platform}"
+    RunXcodebuild \
+      -workspace 'gen/FirebaseRemoteConfig/FirebaseRemoteConfig.xcworkspace' \
+      -scheme "FirebaseRemoteConfig-Unit-unit" \
+      "${xcb_flags[@]}" \
+      build \
+      test
+    ;;
+
+  RemoteConfig-*-integration)
+    pod_gen FirebaseRemoteConfig.podspec --platforms="${gen_platform}"
+    RunXcodebuild \
+      -workspace 'gen/FirebaseRemoteConfig/FirebaseRemoteConfig.xcworkspace' \
+      -scheme "FirebaseRemoteConfig-Unit-swift-api" \
       "${xcb_flags[@]}" \
       build \
       test

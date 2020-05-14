@@ -190,34 +190,11 @@ jobs:
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseMessaging.podspec --platforms=macos --use-modular-headers
 
     - stage: test
-      env:
-        - PROJECT=RemoteConfig METHOD=pod-lib-lint QUICKSTART=Config
-      before_install:
-        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
-      script:
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --platforms=ios
-        - travis_retry ./scripts/if_changed.sh ./scripts/test_quickstart.sh Config
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --platforms=tvos
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --platforms=macos
-
-    - stage: test
       osx_image: xcode10.3
       env:
         - PROJECT=RemoteConfig METHOD=pod-lib-lint
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --platforms=ios
-
-    - stage: test
-      if: type = cron
-      env:
-        - PROJECT=RemoteConfigCron METHOD=pod-lib-lint
-      script:
-        - travis_retry  ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-libraries --platforms=ios
-        - travis_retry  ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-libraries --platforms=tvos
-        - travis_retry  ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-libraries --platforms=macos
-        - travis_retry  ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-modular-headers --platforms=ios
-        - travis_retry  ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-modular-headers --platforms=tvos
-        - travis_retry  ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --use-modular-headers --platforms=macos
 
     - stage: test
       osx_image: xcode10.3
