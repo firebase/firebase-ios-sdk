@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2018 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@
 #include <cerrno>
 #include <string>
 
+#include "Firestore/core/src/util/defer.h"
 #include "Firestore/core/src/util/hard_assert.h"
 #include "Firestore/core/src/util/path.h"
 #include "Firestore/core/src/util/statusor.h"
@@ -36,16 +37,16 @@ namespace util {
 
 StatusOr<Path> Filesystem::AppDataDir(absl::string_view app_name) {
   wchar_t* path = nullptr;
+  auto cleanup = defer([&] { CoTaskMemFree(path); });
+
   HRESULT hr = SHGetKnownFolderPath(FOLDERID_LocalAppData, 0, nullptr, &path);
   if (FAILED(hr)) {
-    CoTaskMemFree(path);
     return Status::FromLastError(
         HRESULT_CODE(hr),
         "Failed to find the local application data directory");
   }
 
   Path result = Path::FromUtf16(path, wcslen(path)).AppendUtf8(app_name);
-  CoTaskMemFree(path);
   return std::move(result);
 }
 

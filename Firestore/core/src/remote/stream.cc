@@ -295,7 +295,13 @@ void Stream::HandleErrorStatus(const Status& status) {
 void Stream::OnStreamFinish(const Status& status) {
   EnsureOnQueue();
 
-  LOG_DEBUG("%s Stream error: '%s'", GetDebugDescription(), status.ToString());
+  if (!status.ok()) {
+    LOG_WARN("%s Stream error: '%s'", GetDebugDescription(), status.ToString());
+  } else {
+    LOG_DEBUG("%s Stream closing: '%s'", GetDebugDescription(),
+              status.ToString());
+  }
+
   Close(status);
 }
 

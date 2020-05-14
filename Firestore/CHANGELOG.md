@@ -1,5 +1,10 @@
 # Unreleased
 
+# v1.14.0
+- [changed] Internal improvements for future C++ and Unity support. Includes a
+  breaking change for the Firestore C++ Alpha SDK, but does not affect
+  Objective-C or Swift users.
+
 # v1.13.0
 - [changed] Firestore now limits the number of concurrent document lookups it
   will perform when resolving inconsistencies in the local cache

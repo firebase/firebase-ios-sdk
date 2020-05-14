@@ -219,10 +219,15 @@
 }
 
 /** Mallocs a pb_bytes_array and copies the given NSString's bytes into the bytes array.
- * @note Memory needs to be free manually, through pb_free or pb_release.
+ * @note Memory needs to be freed manually, through pb_free or pb_release.
  * @param string The string to encode as pb_bytes.
  */
 pb_bytes_array_t *FIRCLSEncodeString(NSString *string) {
+  if ([string isMemberOfClass:[NSNull class]]) {
+    FIRCLSErrorLog(@"Expected encodable string, but found NSNull instead. "
+                   @"Set a symbolic breakpoint at FIRCLSEncodeString to debug.");
+    string = nil;
+  }
   NSString *stringToEncode = string ? string : @"";
   NSData *stringBytes = [stringToEncode dataUsingEncoding:NSUTF8StringEncoding];
   return FIRCLSEncodeData(stringBytes);

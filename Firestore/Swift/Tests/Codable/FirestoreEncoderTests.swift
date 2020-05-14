@@ -595,7 +595,7 @@ class FirestoreEncoderTests: XCTestCase {
           in: FSTTestDocRef("abc/123")
         )
         XCTFail("Failed to throw")
-      } catch let FirestoreDecodingError.fieldNameConfict(msg) {
+      } catch let FirestoreDecodingError.fieldNameConflict(msg) {
         XCTAssertEqual(msg, "Field name [\"docId\"] was found from document \"abc/123\", "
           + "cannot assign the document reference to this field.")
         return

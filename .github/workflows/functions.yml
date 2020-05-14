@@ -33,6 +33,9 @@ jobs:
           quickstart-ios/TestUtils/FIREGSignInInfo.h "$signin_secret"
     - name: Setup custom URL scheme
       run: sed -i '' 's/REVERSED_CLIENT_ID/com.googleusercontent.apps.1025801074639-6p6ebi8amuklcjrto20gvpe295smm8u6/' quickstart-ios/functions/FunctionsExample/Info.plist
-    - name: Test quickstart
+    - name: Test objc quickstart
       run: ([ -z $plist_secret ] ||
             scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Functions)
+    - name: Test swift quickstart
+      run: ([ -z $plist_secret ] ||
+            scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Functions swift)
