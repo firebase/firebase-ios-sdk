@@ -102,7 +102,6 @@
                                                          APIKey:APIKey
                                                       projectID:projectID
                                                     GCMSenderID:@"sender-id"
-                                                       bundleID:@"FIRInstallationsIDController"
                                                     accessGroup:nil];
   XCTAssertNotNil(controller);
 
@@ -122,7 +121,6 @@
                                                          APIKey:APIKey
                                                       projectID:@""
                                                     GCMSenderID:GCMSenderID
-                                                       bundleID:nil
                                                     accessGroup:nil];
   XCTAssertNotNil(controller);
 

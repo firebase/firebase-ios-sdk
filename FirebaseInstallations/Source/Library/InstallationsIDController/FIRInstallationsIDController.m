@@ -73,9 +73,8 @@ static NSString *const kKeychainService = @"com.firebase.FIRInstallations.instal
                              APIKey:(NSString *)APIKey
                           projectID:(NSString *)projectID
                         GCMSenderID:(NSString *)GCMSenderID
-                           bundleID:(NSString *)bundleID
                         accessGroup:(nullable NSString *)accessGroup {
-  NSString *serviceName = [FIRInstallationsIDController keychainServiceWithBundleID:bundleID];
+  NSString *serviceName = [FIRInstallationsIDController keychainServiceWithAppID:appID];
   GULKeychainStorage *secureStorage = [[GULKeychainStorage alloc] initWithService:serviceName];
   FIRInstallationsStore *installationsStore =
       [[FIRInstallationsStore alloc] initWithSecureStorage:secureStorage accessGroup:accessGroup];
@@ -461,14 +460,14 @@ static NSString *const kKeychainService = @"com.firebase.FIRInstallations.instal
 
 #pragma mark - Keychain
 
-+ (NSString *)keychainServiceWithBundleID:(nullable NSString *)bundleID {
++ (NSString *)keychainServiceWithAppID:(NSString *)appID {
 #if TARGET_OS_MACCATALYST || TARGET_OS_OSX
-  // We need to keep service name unique per application on macOS if bundleID provided.
+  // We need to keep service name unique per application on macOS.
   // Applications on macOS may request access to Keychain items stored by other applications. It
   // means that when the app looks up for a relevant Keychain item in the service scope it will
   // request user password to grant access to the Keychain if there are other Keychain items from
   // other applications stored under the same Keychain Service.
-  return [bundleID stringByAppendingFormat:@".%@", kKeychainService] ?: kKeychainService;
+  return [kKeychainService stringByAppendingFormat:@".%@", appID];
 #else
   // Use a constant Keychain service for non-macOS because:
   // 1. Keychain items cannot be shared between apps until configured specifically so the service

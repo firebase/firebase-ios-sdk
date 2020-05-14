@@ -88,7 +88,6 @@ NS_ASSUME_NONNULL_BEGIN
                                                          APIKey:appOptions.APIKey
                                                       projectID:appOptions.projectID
                                                     GCMSenderID:appOptions.GCMSenderID
-                                                       bundleID:appOptions.bundleID
                                                     accessGroup:appOptions.appGroupID];
   return [self initWithAppOptions:appOptions
                           appName:appName
