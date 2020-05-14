@@ -226,7 +226,7 @@ Task* ExecutorStd::PopFromSchedule() {
 
 // Only defined on non-Apple platforms. On Apple platforms, see the alternative
 // definition in executor_libdispatch.mm.
-#if !__APPLE__
+#if !HAVE_LIBDISPATCH
 
 std::unique_ptr<Executor> Executor::CreateSerial(const char*) {
   return absl::make_unique<ExecutorStd>(/*threads=*/1);
@@ -236,7 +236,7 @@ std::unique_ptr<Executor> Executor::CreateConcurrent(const char*, int threads) {
   return absl::make_unique<ExecutorStd>(threads);
 }
 
-#endif  // !__APPLE__
+#endif  // !HAVE_LIBDISPATCH
 
 }  // namespace util
 }  // namespace firestore
