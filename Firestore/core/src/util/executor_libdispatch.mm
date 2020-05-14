@@ -224,47 +224,74 @@ void ExecutorLibdispatch::InvokeSync(void* raw_task) {
 // Test-only methods
 
 bool ExecutorLibdispatch::IsTagScheduled(Tag tag) const {
-  std::unique_lock<std::mutex> lock(mutex_);
+  std::vector<Task*> matches;
 
-  for (const ScheduleEntry& entry : schedule_) {
-    Task* task = entry.second;
-    if (task->tag() == tag) {
-      // There's a race inherent in making IsTagScheduled checks after a task
-      // has executed. The problem is that the task has to lock the Executor to
-      // report its completion, but IsTagScheduled needs that lock too and it
-      // can win, indicating that tasks that appear completed are still
-      // scheduled.
-      //
-      // Work around this by waiting for tasks that are currently executing to
-      // complete. That is, only tasks that are in the schedule and in the
-      // `kInitial` state are considered scheduled.
-      //
-      // Unfortunately, this has to be done with the Executor unlocked so that
-      // the task can report its completion without deadlocking. As the task is
-      // completed (and before the lock could be reacquired here) its reference
-      // count would go to zero. At that point `AwaitIfRunning` would wake up
-      // and lock the just-deleted Task. Retaining the Task here prevents it
-      // from being deleted while waiting.
-      task->Retain();
-      Defer release([&] { task->Release(); });
+  {
+    std::unique_lock<std::mutex> lock(mutex_);
 
-      bool completed;
-      {
-        lock.unlock();
-        Defer relock([&] { lock.lock(); });
+    // There's a race inherent in making `IsTagScheduled` checks after a task
+    // has executed. The problem is that the task has to lock the Executor to
+    // report its completion, but `IsTagScheduled` needs that lock too. Absent
+    // any intervention, if `IsTagScheduled` won the race it could indicate
+    // that tasks that appear completed are still scheduled.
+    //
+    // Work around this by waiting for tasks that are currently executing to
+    // complete. That is, only tasks that are in the schedule and in the
+    // `kInitial` state are considered scheduled.
+    //
+    // Unfortunately, this has to be done with the Executor unlocked so that
+    // the task can report its completion without deadlocking. The executor
+    // can't be unlocked while iterating the `schedule_` though, so collect up
+    // potential matches in a separate collection.
+    for (const ScheduleEntry& entry : schedule_) {
+      Task* task = entry.second;
+      if (task->tag() == tag) {
+        matches.push_back(task);
 
-        completed = task->AwaitIfRunning();
+        // Retain local references to prevent the task from deleting itself
+        // before it can be examined outside the executor mutex.
+        task->Retain();
       }
-      return !completed;
     }
   }
-  return false;
+
+  bool tag_scheduled = false;
+  for (Task* task : matches) {
+    bool task_completed = task->AwaitIfRunning();
+    tag_scheduled = tag_scheduled || !task_completed;
+
+    // Release this method's ownership.
+    task->Release();
+  }
+
+  return tag_scheduled;
 }
 
 bool ExecutorLibdispatch::IsIdScheduled(Id id) const {
-  std::lock_guard<std::mutex> lock(mutex_);
+  Task* found_task = nullptr;
+  {
+    std::lock_guard<std::mutex> lock(mutex_);
 
-  return schedule_.find(id) != schedule_.end();
+    auto iter = schedule_.find(id);
+    if (iter != schedule_.end()) {
+      found_task = iter->second;
+
+      // Retain local references to prevent the task from deleting itself before
+      // it can be examined outside the executor mutex.
+      found_task->Retain();
+    }
+  }
+
+  bool id_scheduled = false;
+  if (found_task) {
+    bool task_completed = found_task->AwaitIfRunning();
+    id_scheduled = !task_completed;
+
+    // Release this method's ownership
+    found_task->Release();
+  }
+
+  return id_scheduled;
 }
 
 Task* ExecutorLibdispatch::PopFromSchedule() {

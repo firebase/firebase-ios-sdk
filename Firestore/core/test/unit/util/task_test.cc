@@ -18,6 +18,7 @@
 
 #include <chrono>  // NOLINT(build/c++11)
 
+#include "Firestore/core/src/util/defer.h"
 #include "Firestore/core/src/util/hard_assert.h"
 #include "Firestore/core/test/unit/testutil/async_testing.h"
 #include "gmock/gmock.h"
@@ -167,6 +168,10 @@ TEST_F(TaskTest, CancelBlocksOnRunningTasks) {
     Await(task_can_complete);
     steps += "3";
   });
+
+  // `ExecuteAndRelease` can delete the task before `Cancel` starts.
+  task->Retain();
+  Defer release([&] { task->Release(); });
 
   // Start the task on a separate thread; this will block until the Task
   // completes.
