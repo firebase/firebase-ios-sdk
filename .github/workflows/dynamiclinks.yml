@@ -44,16 +44,15 @@ jobs:
     runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v2
-    - name: Install Secret GoogleService-Info.plist
-      run: |
-              if [[ ! -e quickstart-ios/dynamiclinks/GoogleService-Info.plist ]]; then
-              mkdir -p quickstart-ios/dynamiclinks/
-              touch quickstart-ios/dynamiclinks/GoogleService-Info.plist
-              fi
-              scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-dynamiclinks.plist.gpg \
-              quickstart-ios/dynamiclinks/GoogleService-Info.plist "$plist_secret"
     - name: Setup quickstart
       run: scripts/setup_quickstart.sh DynamicLinks
+    - name: Install Secret GoogleService-Info.plist
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-dynamiclinks.plist.gpg \
+          quickstart-ios/dynamiclinks/GoogleService-Info.plist "$plist_secret"
+    - name: Update Environment Variable For DynamicLinks
+      run: |
+        sed -i '' 's#DYNAMIC_LINK_DOMAIN#https://qpf6m.app.goo.gl#' quickstart-ios/DynamicLinksExample/DynamicLinksExample.entitlements
+        sed -i '' 's#YOUR_DOMAIN_URI_PREFIX";#https://qpf6m.app.goo.gl";#' quickstart-ios/DynamicLinksExample/ViewController.m
     - name: Install Secret FIREGSignInInfo.h
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/FIREGSignInInfo.h.gpg \
           quickstart-ios/TestUtils/FIREGSignInInfo.h "$signin_secret"
