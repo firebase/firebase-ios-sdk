@@ -249,7 +249,7 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
               FIRRemoteConfigFetchAndActivateStatus status =
                   activateError ? FIRRemoteConfigFetchAndActivateStatusSuccessUsingPreFetchedData
                                 : FIRRemoteConfigFetchAndActivateStatusSuccessFetchedFromRemote;
-              completionHandler(status, fetchError);
+              completionHandler(status, nil);
             }
           }];
         } else if (completionHandler) {
