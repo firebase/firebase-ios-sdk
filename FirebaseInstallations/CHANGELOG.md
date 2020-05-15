@@ -1,3 +1,9 @@
+# Unreleased
+
+- [changed] Mac OS Keychain storage changes: use a unique (per app) Keychain Service name to isolate Keychain items for different Mac OS applications.
+  NOTE: Installation Identifiers created by previous versions will be reset on Mac OS which can affect e.g. A/B Testing variants or debug device targeting for Firebase Messaging.
+  iOS, TVOS and watchOS Installation Identifiers will not be affected. (#5603)
+
 # v1.1.2 -- M69
 
 - [changed] Keychain key-value storage refactored to `GoogleUtilities`. (#5329)
