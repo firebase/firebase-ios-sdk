@@ -46,6 +46,8 @@ class ExecutorStd : public Executor {
   explicit ExecutorStd(int threads);
   ~ExecutorStd();
 
+  void Dispose() override;
+
   void Execute(Operation&& operation) override;
   void ExecuteBlocking(Operation&& operation) override;
 

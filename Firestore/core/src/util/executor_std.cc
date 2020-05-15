@@ -76,7 +76,16 @@ ExecutorStd::ExecutorStd(int threads)
 }
 
 ExecutorStd::~ExecutorStd() {
+  Dispose();
+}
+
+void ExecutorStd::Dispose() {
   std::lock_guard<std::mutex> lock(mutex_);
+
+  // Do nothing if already disposed.
+  if (state_ == nullptr) {
+    return;
+  }
 
   state_->schedule_.Clear();
 
