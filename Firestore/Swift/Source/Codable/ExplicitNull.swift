@@ -60,6 +60,29 @@ import FirebaseFirestore
       }
     }
   }
+
+  @propertyWrapper struct Ignore<Value> {
+
+    let wrappedValue: Value
+
+    init(defaultValue: Value) {
+      wrappedValue = defaultValue
+    }
+
+  }
+
+  extension Ignore: Encodable where Value: Encodable {
+    func encode(to encoder: Encoder) throws {
+      // avoid encoding the value, since it's ignored
+    }
+  }
+
+  extension Ignore: Decodable where Value: Decodable, Value: ExpressibleByNilLiteral {
+    init(from decoder: Decoder) throws {
+      // ignore the decoder
+      wrappedValue = nil
+    }
+  }
 #endif // compiler(>=5.1)
 
 /// A compatibility version of `ExplicitNull` that does not use property
