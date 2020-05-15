@@ -244,18 +244,19 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
         // Fetch completed. We are being called on the main queue.
         // If fetch is successful, try to activate the fetched config
         if (fetchStatus == FIRRemoteConfigFetchStatusSuccess && !fetchError) {
-          [strongSelf activateWithCompletionHandler:^(NSError * _Nullable activateError) {
+          [strongSelf activateWithCompletionHandler:^(NSError *_Nullable activateError) {
             if (completionHandler) {
-              FIRRemoteConfigFetchAndActivateStatus status = activateError ?
-                FIRRemoteConfigFetchAndActivateStatusSuccessUsingPreFetchedData :
-                FIRRemoteConfigFetchAndActivateStatusSuccessFetchedFromRemote;
+              FIRRemoteConfigFetchAndActivateStatus status =
+                  activateError ? FIRRemoteConfigFetchAndActivateStatusSuccessUsingPreFetchedData
+                                : FIRRemoteConfigFetchAndActivateStatusSuccessFetchedFromRemote;
               completionHandler(status, fetchError);
             }
           }];
         } else if (completionHandler) {
-          FIRRemoteConfigFetchAndActivateStatus status = fetchStatus ?
-            FIRRemoteConfigFetchAndActivateStatusSuccessUsingPreFetchedData :
-            FIRRemoteConfigFetchAndActivateStatusError;
+          FIRRemoteConfigFetchAndActivateStatus status =
+              fetchStatus == FIRRemoteConfigFetchStatusSuccess
+                  ? FIRRemoteConfigFetchAndActivateStatusSuccessUsingPreFetchedData
+                  : FIRRemoteConfigFetchAndActivateStatusError;
           completionHandler(status, fetchError);
         }
       };
