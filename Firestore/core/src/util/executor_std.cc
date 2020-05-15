@@ -20,6 +20,7 @@
 #include <memory>
 #include <sstream>
 
+#include "Firestore/core/src/util/config.h"
 #include "Firestore/core/src/util/hard_assert.h"
 #include "Firestore/core/src/util/schedule.h"
 #include "Firestore/core/src/util/task.h"
