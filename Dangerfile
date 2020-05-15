@@ -145,11 +145,11 @@ has_sdk_changes = sdk_changes.empty?
 # Warn if a changelog is left out on a non-trivial PR that has modified
 # SDK source files (podspec, markdown, etc changes are excluded).
 if has_sdk_changes
-  if !has_changelog_changes && !declared_trivial
+  # if !has_changelog_changes && !declared_trivial
     warning = "Did you forget to add a changelog entry? (Add #no-changelog"\
       " to the PR description to silence this warning.)"
     warn(warning)
-  end
+  # end
 end
 
 # Error on license edits
