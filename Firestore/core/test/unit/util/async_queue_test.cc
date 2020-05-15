@@ -223,6 +223,24 @@ TEST_P(AsyncQueueTest, CanScheduleOprationsWithRespectsToShutdownState) {
   EXPECT_EQ(steps, "124");
 }
 
+TEST_P(AsyncQueueTest, RestrictedModeBlocksEnqueue) {
+  ASSERT_TRUE(queue->Enqueue([&] {}));
+  ASSERT_TRUE(queue->EnqueueEvenWhileRestricted([&] {}));
+
+  queue->EnterRestrictedMode();
+  ASSERT_FALSE(queue->Enqueue([&] {}));
+  ASSERT_TRUE(queue->EnqueueEvenWhileRestricted([&] {}));
+}
+
+TEST_P(AsyncQueueTest, DisposeBlocksAllEnqueues) {
+  ASSERT_TRUE(queue->Enqueue([&] {}));
+  ASSERT_TRUE(queue->EnqueueEvenWhileRestricted([&] {}));
+
+  queue->Dispose();
+  ASSERT_FALSE(queue->Enqueue([&] {}));
+  ASSERT_FALSE(queue->EnqueueEvenWhileRestricted([&] {}));
+}
+
 }  // namespace util
 }  // namespace firestore
 }  // namespace firebase

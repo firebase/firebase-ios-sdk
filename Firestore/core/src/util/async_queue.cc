@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2018 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,26 @@ AsyncQueue::AsyncQueue(std::unique_ptr<Executor> executor)
   is_operation_in_progress_ = false;
 }
 
-// TODO(varconst): assert in destructor that the queue is empty.
+AsyncQueue::~AsyncQueue() {
+  Dispose();
+}
+
+void AsyncQueue::EnterRestrictedMode() {
+  std::lock_guard<std::mutex> lock(mutex_);
+  VerifySequentialOrder();
+  if (mode_ == Mode::kDisposed) return;
+
+  mode_ = Mode::kRestricted;
+}
+
+void AsyncQueue::Dispose() {
+  {
+    std::lock_guard<std::mutex> lock(mutex_);
+
+    mode_ = Mode::kDisposed;
+    executor_->Dispose();
+  }
+}
 
 void AsyncQueue::VerifyIsCurrentExecutor() const {
   HARD_ASSERT(
@@ -72,46 +91,41 @@ void AsyncQueue::ExecuteBlocking(const Operation& operation) {
   is_operation_in_progress_ = false;
 }
 
-void AsyncQueue::Enqueue(const Operation& operation) {
+bool AsyncQueue::Enqueue(const Operation& operation) {
   VerifySequentialOrder();
-  EnqueueRelaxed(operation);
+  return EnqueueRelaxed(operation);
 }
 
-void AsyncQueue::EnqueueAndInitiateShutdown(const Operation& operation) {
-  std::lock_guard<std::mutex> lock{shut_down_mutex_};
-  VerifySequentialOrder();
-
-  is_shutting_down_ = true;
-  executor_->Execute(Wrap(operation));
-}
-
-void AsyncQueue::EnqueueEvenAfterShutdown(const Operation& operation) {
+bool AsyncQueue::EnqueueEvenWhileRestricted(const Operation& operation) {
   // Still guarding the lock to ensure sequential scheduling.
-  std::lock_guard<std::mutex> lock{shut_down_mutex_};
+  std::lock_guard<std::mutex> lock(mutex_);
   VerifySequentialOrder();
+  if (mode_ == Mode::kDisposed) return false;
+
   executor_->Execute(Wrap(operation));
+  return true;
 }
 
-bool AsyncQueue::is_shutting_down() const {
-  std::lock_guard<std::mutex> lock{shut_down_mutex_};
-  return is_shutting_down_;
+bool AsyncQueue::is_running() const {
+  std::lock_guard<std::mutex> lock(mutex_);
+  return mode_ == Mode::kRunning;
 }
 
-void AsyncQueue::EnqueueRelaxed(const Operation& operation) {
-  std::lock_guard<std::mutex> lock{shut_down_mutex_};
-  if (is_shutting_down_) {
-    return;
-  }
+bool AsyncQueue::EnqueueRelaxed(const Operation& operation) {
+  std::lock_guard<std::mutex> lock(mutex_);
+  if (mode_ != Mode::kRunning) return false;
+
   executor_->Execute(Wrap(operation));
+  return true;
 }
 
 DelayedOperation AsyncQueue::EnqueueAfterDelay(Milliseconds delay,
                                                const TimerId timer_id,
                                                const Operation& operation) {
-  std::lock_guard<std::mutex> lock{shut_down_mutex_};
+  std::lock_guard<std::mutex> lock(mutex_);
   VerifyIsCurrentExecutor();
 
-  if (is_shutting_down_) {
+  if (mode_ != Mode::kRunning) {
     return DelayedOperation();
   }
 
@@ -128,9 +142,9 @@ AsyncQueue::Operation AsyncQueue::Wrap(const Operation& operation) {
   // Decorator pattern: wrap `operation` into a call to `ExecuteBlocking` to
   // ensure that it doesn't spawn any nested operations.
 
-  // Note: can't move `operation` into lambda until C++14.
-  auto shared_this = shared_from_this();
-  return [shared_this, operation] { shared_this->ExecuteBlocking(operation); };
+  // The Executor guarantees that this operation will either execute before
+  // `Dispose` completes or not at all.
+  return [this, operation] { this->ExecuteBlocking(operation); };
 }
 
 void AsyncQueue::VerifySequentialOrder() const {
@@ -177,6 +191,8 @@ void AsyncQueue::RunScheduledOperationsUntil(const TimerId last_timer_id) {
 }
 
 void AsyncQueue::SkipDelaysForTimerId(TimerId timer_id) {
+  std::lock_guard<std::mutex> lock(mutex_);
+
   timer_ids_to_skip_.push_back(timer_id);
 }
 
