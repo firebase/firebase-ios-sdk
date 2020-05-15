@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
- //TODO: Remove the line after debuggin Danger.
-
 #import <Foundation/Foundation.h>
 
 @class FIROptions;

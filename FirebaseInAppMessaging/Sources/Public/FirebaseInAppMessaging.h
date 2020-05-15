@@ -20,3 +20,5 @@
 #if __has_include(<FirebaseInAppMessagingDisplay/FirebaseInAppMessagingDisplay.h>)
 #warning The FirebaseInAppMessagingDisplay subspec is deprecated. Please remove FirebaseInAppMessagingDisplay from your Podfile (or delete the framework).
 #endif
+
+//TODO: Remove the line after debuggin Danger.
