@@ -1,5 +1,7 @@
 ### Helper functions
 
+##TODO: Delete dummy change
+
 # Determine if any of the files were changed or deleted.
 # Taken from samdmarshall/danger
 def didModify(files_array)
