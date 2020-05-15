@@ -77,7 +77,7 @@ NSString *const kErrorDescription = @"ErrorDescription";
   }
   __weak SEGContentManager *weakSelf = self;
   [[FIRInstallations installations] installationIDWithCompletion:^(NSString *__nullable identifier,
-                                                      NSError *_Nullable error) {
+                                                                   NSError *_Nullable error) {
     SEGContentManager *strongSelf = weakSelf;
     if (!strongSelf) {
       completionHandler(NO, @{kErrorDescription : @"Internal Error getting installation ID."});
@@ -95,47 +95,49 @@ NSString *const kErrorDescription = @"ErrorDescription";
     }
 
     strongSelf->_instanceIdentifier = identifier;
-      
-    [[FIRInstallations installations] authTokenWithCompletion:^(FIRInstallationsAuthTokenResult *__nullable tokenResult,
-                                                                     NSError *_Nullable error) {
-        if (!tokenResult || error) {
-            NSString *errorMessage = @"Error getting AuthToken.";
-            if (error) {
-                errorMessage = [errorMessage stringByAppendingString:error.description];
-            }
-            NSDictionary *errorDictionary = @{kErrorDescription : errorMessage};
-            completionHandler(NO, errorDictionary);
-            return;
+
+    [[FIRInstallations installations] authTokenWithCompletion:^(
+                                          FIRInstallationsAuthTokenResult *__nullable tokenResult,
+                                          NSError *_Nullable error) {
+      if (!tokenResult || error) {
+        NSString *errorMessage = @"Error getting AuthToken.";
+        if (error) {
+          errorMessage = [errorMessage stringByAppendingString:error.description];
         }
-        strongSelf->_instanceIdentifierToken = tokenResult.authToken;
-        
-        NSMutableDictionary<NSString *, NSString *> *appAssociationData =
-        [[NSMutableDictionary alloc] init];
-        [appAssociationData setObject:customInstallationID forKey:kSEGCustomInstallationIdentifierKey];
-        [appAssociationData setObject:self->_instanceIdentifier
-                               forKey:kSEGFirebaseInstallationIdentifierKey];
-        [appAssociationData setObject:kSEGAssociationStatusPending forKey:kSEGAssociationStatusKey];
-        [strongSelf->_associationData setObject:appAssociationData forKey:firebaseApp];
-        
-        // Update the database async.
-        // TODO(mandard) The database write and corresponding completion handler needs to be wired up
-        // once we support listening to FID changes.
-        [strongSelf->_databaseManager insertMainTableApplicationNamed:firebaseApp
-                                             customInstanceIdentifier:customInstallationID
-                                           firebaseInstanceIdentifier:strongSelf->_instanceIdentifier
-                                                    associationStatus:kSEGAssociationStatusPending
-                                                    completionHandler:nil];
-        
-        // Send the change up to the backend. Also add the token.
-        [strongSelf->_networkManager
-         makeAssociationRequestToBackendWithData:appAssociationData
-         token:strongSelf->_instanceIdentifierToken
-         completion:^(BOOL status,
-                      NSDictionary<NSString *, id> *result) {
-             // TODO...log, update database.
-             
-             completionHandler(status, result);
-         }];
+        NSDictionary *errorDictionary = @{kErrorDescription : errorMessage};
+        completionHandler(NO, errorDictionary);
+        return;
+      }
+      strongSelf->_instanceIdentifierToken = tokenResult.authToken;
+
+      NSMutableDictionary<NSString *, NSString *> *appAssociationData =
+          [[NSMutableDictionary alloc] init];
+      [appAssociationData setObject:customInstallationID
+                             forKey:kSEGCustomInstallationIdentifierKey];
+      [appAssociationData setObject:self->_instanceIdentifier
+                             forKey:kSEGFirebaseInstallationIdentifierKey];
+      [appAssociationData setObject:kSEGAssociationStatusPending forKey:kSEGAssociationStatusKey];
+      [strongSelf->_associationData setObject:appAssociationData forKey:firebaseApp];
+
+      // Update the database async.
+      // TODO(mandard) The database write and corresponding completion handler needs to be wired up
+      // once we support listening to FID changes.
+      [strongSelf->_databaseManager insertMainTableApplicationNamed:firebaseApp
+                                           customInstanceIdentifier:customInstallationID
+                                         firebaseInstanceIdentifier:strongSelf->_instanceIdentifier
+                                                  associationStatus:kSEGAssociationStatusPending
+                                                  completionHandler:nil];
+
+      // Send the change up to the backend. Also add the token.
+      [strongSelf->_networkManager
+          makeAssociationRequestToBackendWithData:appAssociationData
+                                            token:strongSelf->_instanceIdentifierToken
+                                       completion:^(BOOL status,
+                                                    NSDictionary<NSString *, id> *result) {
+                                         // TODO...log, update database.
+
+                                         completionHandler(status, result);
+                                       }];
     }];
   }];
 }

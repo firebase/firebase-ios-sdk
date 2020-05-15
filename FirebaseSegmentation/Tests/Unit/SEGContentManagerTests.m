@@ -57,21 +57,22 @@
   // Setup FIRApp.
   XCTAssertNoThrow([FIRApp configureWithOptions:[self FIRAppOptions]]);
   // TODO (mandard): Investigate replacing the partial mock with a class mock.
-//  self.instanceIDMock = OCMPartialMock([FIRInstanceID instanceIDForTests]);
-//  FIRInstanceIDResult *result = [[FIRInstanceIDResult alloc] init];
-//  result.instanceID = @"test-instance-id";
-//  result.token = @"test-instance-id-token";
-//  OCMStub([self.instanceIDMock
-//      instanceIDWithHandler:([OCMArg invokeBlockWithArgs:result, [NSNull null], nil])]);
-    
-    // Installations Mock
-    NSString *FID = @"fid-is-better-than-iid";
-    FIRInstallationsAuthTokenResult *FISToken = [[FIRInstallationsAuthTokenResult alloc] initWithToken:@"fake-fis-token" expirationDate:nil];
-    self.installationsMock = OCMPartialMock([FIRInstallations installations]);
-    OCMStub([self.installationsMock installationIDWithCompletion:([OCMArg invokeBlockWithArgs:FID, [NSNull null], nil])]);
-    OCMStub([self.installationsMock authTokenWithCompletion:([OCMArg invokeBlockWithArgs:FISToken, [NSNull null], nil])]);
-    
-    
+  //  self.instanceIDMock = OCMPartialMock([FIRInstanceID instanceIDForTests]);
+  //  FIRInstanceIDResult *result = [[FIRInstanceIDResult alloc] init];
+  //  result.instanceID = @"test-instance-id";
+  //  result.token = @"test-instance-id-token";
+  //  OCMStub([self.instanceIDMock
+  //      instanceIDWithHandler:([OCMArg invokeBlockWithArgs:result, [NSNull null], nil])]);
+
+  // Installations Mock
+  NSString *FID = @"fid-is-better-than-iid";
+  FIRInstallationsAuthTokenResult *FISToken =
+      [[FIRInstallationsAuthTokenResult alloc] initWithToken:@"fake-fis-token" expirationDate:nil];
+  self.installationsMock = OCMPartialMock([FIRInstallations installations]);
+  OCMStub([self.installationsMock
+      installationIDWithCompletion:([OCMArg invokeBlockWithArgs:FID, [NSNull null], nil])]);
+  OCMStub([self.installationsMock
+      authTokenWithCompletion:([OCMArg invokeBlockWithArgs:FISToken, [NSNull null], nil])]);
 
   // Mock the network manager.
   FIROptions *options = [[FIROptions alloc] init];
@@ -96,8 +97,8 @@
   [self.instanceIDMock stopMocking];
   self.instanceIDMock = nil;
   self.contentManager = nil;
-    self.installationsMock = nil;
-    self.mockIDController = nil;
+  self.installationsMock = nil;
+  self.mockIDController = nil;
 }
 
 // Associate a fake custom installation id and fake firebase installation id.
