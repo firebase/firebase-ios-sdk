@@ -42,7 +42,7 @@ typedef void (^FIRInstallationsIDHandler)(NSString *__nullable identifier,
  * @param error The error when `tokenResult == nil` or `nil` otherwise.
  */
 typedef void (^FIRInstallationsTokenHandler)(
-    FIRInstallationsAuthTokenResult *__nullable tokenResult, NSError *__nullable error)
+FIRInstallationsAuthTokenResult *__nullable tokenResult, NSError *__nullable error)
     NS_SWIFT_NAME(InstallationsTokenHandler);
 
 /**
