@@ -57,9 +57,9 @@ ExecutorLibdispatch::ExecutorLibdispatch(const dispatch_queue_t dispatch_queue)
 }
 
 ExecutorLibdispatch::~ExecutorLibdispatch() {
-  decltype(tasks_) local_tasks;
   TASK_TRACE("Executor::~Executor %s", this);
 
+  decltype(tasks_) local_tasks;
   {
     std::unique_lock<std::mutex> lock(mutex_);
 
@@ -78,7 +78,8 @@ ExecutorLibdispatch::~ExecutorLibdispatch() {
     TASK_TRACE("Executor::~Executor %s cancelling %s", this, task);
     task->Cancel();
 
-    // Release this method's ownership.
+    // Release this method's ownership (obtained when `local_tasks` swapped with
+    // `tasks_`).
     task->Release();
   }
 }
@@ -95,13 +96,12 @@ std::string ExecutorLibdispatch::Name() const {
 
 void ExecutorLibdispatch::Execute(Operation&& operation) {
   auto* task = Task::Create(this, std::move(operation));
-  task->Retain();  // For libdispatch's ownership
-
   {
     std::lock_guard<std::mutex> lock(mutex_);
     tasks_.insert(task);
   }
 
+  task->Retain();  // For libdispatch's ownership
   dispatch_async_f(dispatch_queue_, task, InvokeAsync);
 }
 
@@ -111,13 +111,12 @@ void ExecutorLibdispatch::ExecuteBlocking(Operation&& operation) {
       "Calling ExecuteBlocking on the current queue will lead to a deadlock.");
 
   auto* task = Task::Create(this, std::move(operation));
-  task->Retain();  // For libdispatch's ownership
-
   {
     std::lock_guard<std::mutex> lock(mutex_);
     tasks_.insert(task);
   }
 
+  task->Retain();  // For libdispatch's ownership
   dispatch_sync_f(dispatch_queue_, task, InvokeSync);
 }
 
@@ -129,8 +128,8 @@ DelayedOperation ExecutorLibdispatch::Schedule(Milliseconds delay,
       DISPATCH_TIME_NOW, chr::duration_cast<chr::nanoseconds>(delay).count());
 
   // Ownership is shared with libdispatch because it's impossible to actually
-  // cancel work after it's been dispatched, libdispatch is guaranteed to
-  // outlive the executor, and it's possible for work to be invoked by
+  // cancel work after it's been dispatched and libdispatch is guaranteed to
+  // outlive the executor, so it's possible for tasks to be executed by
   // libdispatch after the executor is destroyed. While the Executor has a
   // pointer to the Task it also has ownership.
   Task* task = nullptr;
@@ -141,12 +140,12 @@ DelayedOperation ExecutorLibdispatch::Schedule(Milliseconds delay,
 
     id = NextIdLocked();
     task = Task::Create(this, target_time, tag, id, std::move(operation));
-    task->Retain();  // For libdispatch's ownership
 
     tasks_.insert(task);
     schedule_[id] = task;
   }
 
+  task->Retain();  // For libdispatch's ownership
   dispatch_after_f(delay_ns, dispatch_queue_, task, InvokeAsync);
 
   return DelayedOperation(this, id);
@@ -171,6 +170,8 @@ void ExecutorLibdispatch::OnCompletion(Task* task) {
     }
   }
 
+  // Avoid calling potentially locking methods on the task while holding the
+  // executor's lock.
   if (should_release) {
     task->Release();
   }
@@ -202,6 +203,8 @@ void ExecutorLibdispatch::Cancel(Id operation_id) {
     }
   }
 
+  // Avoid calling potentially locking methods on the task while holding the
+  // executor's lock.
   if (found_task) {
     found_task->Cancel();
 
@@ -256,10 +259,16 @@ bool ExecutorLibdispatch::IsTagScheduled(Tag tag) const {
     }
   }
 
+  // Avoid calling potentially locking methods on the task while holding the
+  // executor's lock.
   bool tag_scheduled = false;
   for (Task* task : matches) {
-    bool task_completed = task->AwaitIfRunning();
-    tag_scheduled = tag_scheduled || !task_completed;
+    // Do not break out of the loop early: every task must be released. Once
+    // we find a tag that's still scheduled we no longer need to wait for tasks.
+    if (!tag_scheduled) {
+      bool task_completed = task->AwaitIfRunning();
+      tag_scheduled = !task_completed;
+    }
 
     // Release this method's ownership.
     task->Release();
@@ -283,6 +292,8 @@ bool ExecutorLibdispatch::IsIdScheduled(Id id) const {
     }
   }
 
+  // Avoid calling potentially locking methods on the task while holding the
+  // executor's lock.
   bool id_scheduled = false;
   if (found_task) {
     bool task_completed = found_task->AwaitIfRunning();
