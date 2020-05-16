@@ -104,8 +104,8 @@ class Task {
    *
    * If the task is currently executing while it is invoked, `Cancel` will await
    * the completion of the Task. This makes `Cancel` safe to call in the
-   * destructor of an Executor: any currently executing tasks will extend the
-   * lifetime of the Executor.
+   * destructor of an Executor: any currently executing tasks will effectively
+   * extend the lifetime of the Executor.
    *
    * However, if the current task is triggering its own cancellation, `Cancel`
    * will *not* wait because this would cause a deadlock. This makes it possible

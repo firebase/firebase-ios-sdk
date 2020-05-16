@@ -82,9 +82,16 @@ class ExecutorLibdispatch : public Executor {
 
   Id NextIdLocked();
 
+  // A mutex controlling the executor's internal state. Avoid holding this
+  // while making calls into tasks, which could trigger callbacks into this
+  // executor, causing a deadlock.
   mutable std::mutex mutex_;
 
   dispatch_queue_t dispatch_queue_;
+
+  // A map of `Schedule`d tasks by their Id, allowing `Cancel` to be able to
+  // find tasks quickly.
+  ScheduleMap schedule_;
 
   // The set of all tasks managed by this executor, including those from
   // `Execute`, `ExecuteBlocking`, and `Schedule`.
@@ -101,15 +108,12 @@ class ExecutorLibdispatch : public Executor {
   //
   // Invariant: if the `tasks_` set contains a pointer to a `Task`, it is a
   // valid object. This is achieved because when libdispatch executes a task,
-  // the task will remove it from the executor (via a call to `OnCompletion`)
-  // before deleting it. The reverse is not true: a cancelled task is removed
-  // from the executor, but won't be destroyed until its original due time is
-  // past.
+  // the task will remove itself from the executor (via a call to
+  // `OnCompletion`) before deleting itself. The reverse is not true: a
+  // cancelled task is removed from the executor, but won't be destroyed until
+  // its original due time is past.
   std::unordered_set<Task*> tasks_;
 
-  // A map of `Schedule`d tasks by their Id, allowing `Cancel` to be able to
-  // find tasks quickly.
-  ScheduleMap schedule_;
   Id current_id_ = 0;
 
   // Whether or not the executor has been disposed. Only operations that add

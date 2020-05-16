@@ -61,9 +61,9 @@ ExecutorLibdispatch::~ExecutorLibdispatch() {
 }
 
 void ExecutorLibdispatch::Dispose() {
-  decltype(tasks_) local_tasks;
   TASK_TRACE("Executor::~Executor %s", this);
 
+  decltype(tasks_) local_tasks;
   {
     std::unique_lock<std::mutex> lock(mutex_);
 
@@ -84,7 +84,8 @@ void ExecutorLibdispatch::Dispose() {
     TASK_TRACE("Executor::~Executor %s cancelling %s", this, task);
     task->Cancel();
 
-    // Release this method's ownership.
+    // Release this method's ownership (obtained when `local_tasks` swapped with
+    // `tasks_`).
     task->Release();
   }
 }
@@ -101,7 +102,6 @@ std::string ExecutorLibdispatch::Name() const {
 
 void ExecutorLibdispatch::Execute(Operation&& operation) {
   auto* task = Task::Create(this, std::move(operation));
-
   {
     std::lock_guard<std::mutex> lock(mutex_);
     if (disposed_) {
@@ -121,7 +121,6 @@ void ExecutorLibdispatch::ExecuteBlocking(Operation&& operation) {
       "Calling ExecuteBlocking on the current queue will lead to a deadlock.");
 
   auto* task = Task::Create(this, std::move(operation));
-
   {
     std::lock_guard<std::mutex> lock(mutex_);
     if (disposed_) {
@@ -143,8 +142,8 @@ DelayedOperation ExecutorLibdispatch::Schedule(Milliseconds delay,
       DISPATCH_TIME_NOW, chr::duration_cast<chr::nanoseconds>(delay).count());
 
   // Ownership is shared with libdispatch because it's impossible to actually
-  // cancel work after it's been dispatched, libdispatch is guaranteed to
-  // outlive the executor, and it's possible for work to be invoked by
+  // cancel work after it's been dispatched and libdispatch is guaranteed to
+  // outlive the executor, so it's possible for tasks to be executed by
   // libdispatch after the executor is destroyed. While the Executor has a
   // pointer to the Task it also has ownership.
   Task* task = nullptr;
@@ -189,6 +188,8 @@ void ExecutorLibdispatch::OnCompletion(Task* task) {
     }
   }
 
+  // Avoid calling potentially locking methods on the task while holding the
+  // executor's lock.
   if (should_release) {
     task->Release();
   }
@@ -220,6 +221,8 @@ void ExecutorLibdispatch::Cancel(Id operation_id) {
     }
   }
 
+  // Avoid calling potentially locking methods on the task while holding the
+  // executor's lock.
   if (found_task) {
     found_task->Cancel();
 
@@ -274,10 +277,16 @@ bool ExecutorLibdispatch::IsTagScheduled(Tag tag) const {
     }
   }
 
+  // Avoid calling potentially locking methods on the task while holding the
+  // executor's lock.
   bool tag_scheduled = false;
   for (Task* task : matches) {
-    bool task_completed = task->AwaitIfRunning();
-    tag_scheduled = tag_scheduled || !task_completed;
+    // Do not break out of the loop early: every task must be released. Once
+    // we find a tag that's still scheduled we no longer need to wait for tasks.
+    if (!tag_scheduled) {
+      bool task_completed = task->AwaitIfRunning();
+      tag_scheduled = !task_completed;
+    }
 
     // Release this method's ownership.
     task->Release();
@@ -301,6 +310,8 @@ bool ExecutorLibdispatch::IsIdScheduled(Id id) const {
     }
   }
 
+  // Avoid calling potentially locking methods on the task while holding the
+  // executor's lock.
   bool id_scheduled = false;
   if (found_task) {
     bool task_completed = found_task->AwaitIfRunning();
