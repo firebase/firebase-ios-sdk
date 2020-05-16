@@ -231,13 +231,16 @@ void FirestoreClient::Dispose() {
   // because that operation does not rely on any state in this FirestoreClient.
   std::promise<void> signal_disposing;
   bool enqueued = worker_queue_->EnqueueEvenWhileRestricted([&, this] {
+    // Once this task has started running, AsyncQueue::Dispose will block on its
+    // completion. Signal as early as possible to lock out even restricted tasks
+    // as early as possible.
     signal_disposing.set_value();
+
     TerminateInternal();
   });
 
   // If we successfully enqueued the TerminateInternal task then wait for it to
-  // start. Once started, the AsyncQueue will wait for the task to complete in
-  // its own Dispose method.
+  // start.
   //
   // If the task was not enqueued, we lost the race with some other concurrent
   // invocation of Dispose. In that case, `signal_disposing` will never be
@@ -341,7 +344,7 @@ void FirestoreClient::VerifyNotTerminated() {
 }
 
 bool FirestoreClient::is_terminated() const {
-  // When the user calls `Terminate`, this puts the `AsyncQueue` into restricted
+  // When the user calls `Terminate`, it puts the `AsyncQueue` into restricted
   // mode.
   //
   // Note that `remote_store_ == nullptr` is not a good test for this because

@@ -379,9 +379,9 @@ TEST_P(ExecutorTest, DestructorAvoidsDeadlockWhenDeletingSelf) {
   ASSERT_EQ(result, "12");
 }
 
-TEST_P(ExecutorTest, DipsoseBlocksTaskSubmission) {
-  // Verify there's no crash for an idempotent invocation.
+TEST_P(ExecutorTest, DisposeBlocksTaskSubmission) {
   executor->Dispose();
+  // Verify there's no crash for an idempotent invocation.
   executor->Dispose();
 
   Expectation ran;
@@ -391,7 +391,7 @@ TEST_P(ExecutorTest, DipsoseBlocksTaskSubmission) {
   ASSERT_EQ(status, std::future_status::timeout);
 }
 
-TEST_P(ExecutorTest, DipsoseBlocksConcurrentTaskSubmission) {
+TEST_P(ExecutorTest, DisposeBlocksConcurrentTaskSubmission) {
   Expectation allow_destruction;
   Expectation blocking_task_running;
 
@@ -412,6 +412,9 @@ TEST_P(ExecutorTest, DipsoseBlocksConcurrentTaskSubmission) {
     dispose_complete.Fulfill();
   });
 
+  // Run another `Execute`. This one either blocks waiting to submit or is
+  // prevented from running by the disposed check. Either way, `ran` will not
+  // be fulfilled.
   Await(dispose_running);
   Expectation execute_running;
   Expectation ran;

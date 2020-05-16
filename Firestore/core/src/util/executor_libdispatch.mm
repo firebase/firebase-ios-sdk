@@ -173,7 +173,8 @@ void ExecutorLibdispatch::OnCompletion(Task* task) {
   {
     TASK_TRACE("Executor::OnCompletion %s task %s", this, task);
     std::lock_guard<std::mutex> lock(mutex_);
-    // No need to check `disposed_`: `tasks_` was cleared.
+    // No need to check `disposed_`: in that case `tasks_` would have been
+    // cleared.
 
     auto found = tasks_.find(task);
     if (found != tasks_.end()) {

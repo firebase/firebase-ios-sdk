@@ -176,9 +176,8 @@ ExecutorStd::Id ExecutorStd::PushOnScheduleLocked(const TimePoint when,
 }
 
 void ExecutorStd::PollingThread(std::shared_ptr<SharedState> state) {
-  std::shared_ptr<SharedState> local_state = state;
   for (;;) {
-    Task* task = local_state->schedule_.PopBlocking();
+    Task* task = state->schedule_.PopBlocking();
     bool shutdown_requested = task->tag() == kShutdownTag;
 
     task->ExecuteAndRelease();
