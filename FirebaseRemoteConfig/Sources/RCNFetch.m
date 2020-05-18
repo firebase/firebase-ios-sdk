@@ -67,8 +67,6 @@ static NSInteger const kRCNFetchResponseHTTPStatusCodeGatewayTimeout = 504;
 // Deprecated error code previously from FirebaseCore
 static const NSInteger FIRErrorCodeConfigFailed = -114;
 
-static RCNConfigFetcherTestBlock gGlobalTestBlock;
-
 #pragma mark - RCNConfig
 
 @implementation RCNConfigFetch {
@@ -516,21 +514,11 @@ static RCNConfigFetcherTestBlock gGlobalTestBlock;
     return;
   }
 
-  if (gGlobalTestBlock) {
-    gGlobalTestBlock(fetcherCompletion);
-    return;
-  }
   FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000061", @"Making remote config fetch.");
 
   NSURLSessionDataTask *dataTask = [self URLSessionDataTaskWithContent:compressedContent
                                                      completionHandler:fetcherCompletion];
   [dataTask resume];
-}
-
-+ (void)setGlobalTestBlock:(RCNConfigFetcherTestBlock)block {
-  FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000027",
-              @"Set global test block for NSSessionFetcher, it will not fetch from server.");
-  gGlobalTestBlock = [block copy];
 }
 
 - (NSString *)constructServerURL {
