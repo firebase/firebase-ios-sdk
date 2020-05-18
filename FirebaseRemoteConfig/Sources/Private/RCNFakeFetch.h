@@ -21,7 +21,7 @@ NS_SWIFT_NAME(FakeFetch)
 @interface RCNFakeFetch : NSObject
 
 /// Holds the current fake config.
-@property(class, nonatomic, copy) NSMutableDictionary<NSString *, id> *config;
+@property(class, nonatomic, assign) NSMutableDictionary<NSString *, id> *config;
 
 /// Returns the config and additional metadata.
 + (NSDictionary<NSString *, id> *)get;

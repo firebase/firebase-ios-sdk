@@ -38,7 +38,7 @@ static NSMutableDictionary<NSString *, id> *_config = nil;
     last = nil;
     return @{RCNFetchResponseKeyState : RCNFetchResponseKeyStateEmptyConfig};
   }
-  NSString *state = [_config isEqualToDictionary:last] ? RCNFetchResponseKeyStateNoChange
+  NSString *state = [last isEqualToDictionary:_config] ? RCNFetchResponseKeyStateNoChange
                                                        : RCNFetchResponseKeyStateUpdate;
   last = _config;
   return @{RCNFetchResponseKeyState : state, RCNFetchResponseKeyEntries : _config};
