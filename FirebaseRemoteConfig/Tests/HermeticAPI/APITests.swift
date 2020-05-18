@@ -56,7 +56,6 @@ class APITests: XCTestCase {
       self.config.activate { error in
         if let error = error {
           // This API returns an error if the config was unchanged.
-          //
           print("Activate Error \(error)")
         }
         XCTAssertEqual(self.config["Key1"].stringValue, "Value1")
@@ -76,7 +75,6 @@ class APITests: XCTestCase {
       self.config.activate { error in
         if let error = error {
           // This API returns an error if the config was unchanged.
-          //
           print("Activate Error \(error)")
         }
         XCTAssertEqual(self.config["Key1"].stringValue, "Value1")
@@ -107,8 +105,6 @@ class APITests: XCTestCase {
       XCTAssertEqual(status, RemoteConfigFetchStatus.success)
       self.config.activate { error in
         if let error = error {
-          // This API returns an error if the config was unchanged.
-          //
           print("Activate Error \(error)")
         }
         XCTAssertEqual(self.config["Key1"].stringValue, "Value1")
@@ -125,8 +121,6 @@ class APITests: XCTestCase {
       self.config.activate { error in
         XCTAssertNotNil(error)
         if let error = error {
-          // This API returns an error if the config was unchanged.
-          //
           XCTAssertEqual((error as NSError).code, RemoteConfigError.internalError.rawValue)
         }
         XCTAssertEqual(self.config["Key1"].stringValue, "Value1")
@@ -145,8 +139,6 @@ class APITests: XCTestCase {
       XCTAssertEqual(status, RemoteConfigFetchStatus.success)
       self.config.activate { error in
         if let error = error {
-          // This API returns an error if the config was unchanged.
-          //
           print("Activate Error \(error)")
         }
         XCTAssertEqual(self.config["Key1"].stringValue, "Value1")
