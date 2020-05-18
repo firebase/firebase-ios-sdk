@@ -80,9 +80,9 @@ class Executor {
   // then the objects that make it up are destroyed. If tasks referring to the
   // root were running while the Executor's destructor is running, there would
   // be no way for it to prevent those tasks from referring to a partially
-  // destroyed root. When the root-most object calls `Dispose` during its
-  // destructor, this prevents any tasks from running that could observe a
-  // partially destroyed object graph.
+  // destroyed root. By calling `Dispose` in its destructor, the root-most
+  // object prevents any tasks from running that could observe a partially
+  // destroyed object graph.
   //
   // Requirements for implementors:
   //   * Dispose implementations must be idempotent.
