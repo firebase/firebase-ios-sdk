@@ -37,7 +37,7 @@ namespace util {
 
 StatusOr<Path> Filesystem::AppDataDir(absl::string_view app_name) {
   wchar_t* path = nullptr;
-  auto cleanup = defer([&] { CoTaskMemFree(path); });
+  Defer cleanup([&] { CoTaskMemFree(path); });
 
   HRESULT hr = SHGetKnownFolderPath(FOLDERID_LocalAppData, 0, nullptr, &path);
   if (FAILED(hr)) {

@@ -133,6 +133,13 @@ target_link_libraries(
   absl_strings
 )
 
+if(HAVE_OPENSSL_RAND_H)
+  target_link_libraries(
+    firestore_util PRIVATE
+    OpenSSL::Crypto
+  )
+endif()
+
 if(APPLE)
   target_link_libraries(
     firestore_util PUBLIC
