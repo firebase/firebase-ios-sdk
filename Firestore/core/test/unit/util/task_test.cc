@@ -210,6 +210,7 @@ TEST_F(TaskTest, OwnedExecuteThenRelease) {
   ASSERT_EQ(state.task_destroyed, 0);
 
   task->Release();
+  ASSERT_EQ(state.op_destroyed, 1);
   ASSERT_EQ(state.task_destroyed, 1);
 }
 
@@ -267,6 +268,52 @@ TEST_F(TaskTest, OwnedExecuteThenExecute) {
   ASSERT_EQ(state.op_executed, 1);
   ASSERT_EQ(state.op_destroyed, 1);
   ASSERT_EQ(state.task_destroyed, 1);
+}
+
+TEST_F(TaskTest, AvoidsDeadlockDuringOperationDestruction) {
+  std::string steps;
+
+  // Arrange for a value to be captured inside the lambda capture of the Task's
+  // operation.
+  //
+  // On destruction, Holder will try to cancel the task it owns.
+  struct Holder {
+    explicit Holder(std::string* steps) : steps_(steps) {
+    }
+
+    ~Holder() {
+      *steps_ += "4";
+      if (!copied_from_ && task_) {
+        task_->Cancel();
+      }
+    }
+
+    Holder(const Holder& other) : task_(other.task_), steps_(other.steps_) {
+      other.copied_from_ = true;
+    }
+
+    mutable bool copied_from_ = false;
+    Task* task_ = nullptr;
+    std::string* steps_ = nullptr;
+  };
+  auto holder = std::make_shared<Holder>(&steps);
+
+  Task* task = Task::Create(nullptr, [holder, &steps] { steps += "3"; });
+
+  // Give the task to holder and remove our local copy of the holder.
+  holder->task_ = task;
+  holder.reset();
+  steps += "1";
+
+  Expectation ran;
+  Async([&] {
+    steps += "2";
+    task->ExecuteAndRelease();
+    ran.Fulfill();
+  });
+
+  Await(ran);
+  ASSERT_EQ(steps, "1234");
 }
 
 }  // namespace util
