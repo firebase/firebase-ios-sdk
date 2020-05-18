@@ -29,6 +29,7 @@ class ViewController: UIViewController {
       alert.dismiss(animated: true, completion: nil)
     }))
     
+    // Fire Analytics event based on text field content.
     alert.addAction(UIAlertAction(title: "Fire event", style: .default, handler: { (action) in
       guard let textField = alert.textFields?.first else {
         assertionFailure("Alert has no text field. Something went wrong.")
@@ -51,12 +52,15 @@ class ViewController: UIViewController {
     let remoteConfig = RemoteConfig.remoteConfig()
     
     remoteConfig.fetchAndActivate { (status, error) in
+      // Fetch `bg_color` from remote config after activating.
       guard let color = remoteConfig.configValue(forKey: "bg_color").stringValue else {
         assertionFailure("Failed to fetch `bg_color` config value. Check the ABT console.")
         return
       }
       
+      // Set background color.
       DispatchQueue.main.async {
+        // The AB test has two values for `bg_color`: "green or "red".
         if color == "green" {
           self.view.backgroundColor = UIColor.green
         } else {
@@ -66,4 +70,3 @@ class ViewController: UIViewController {
     }
   }
 }
-
