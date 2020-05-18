@@ -136,7 +136,7 @@ sdk_changes = (git.modified_files +
 end
 
 # Whether or not the PR has modified SDK source files.
-has_sdk_changes = sdk_changes.empty?
+has_sdk_changes = !sdk_changes.empty?
 
 ### Actions
 
