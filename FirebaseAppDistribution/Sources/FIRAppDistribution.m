@@ -320,7 +320,8 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
     // TODO (schnecle): Log errors in persistence using
     // FIRLogger
     if (authPersistenceError) {
-      NSLog(@"Error persisting auth token to keychain: %@", [error localizedDescription]);
+      NSLog(@"Error persisting auth token to keychain: %@",
+            [authPersistenceError localizedDescription]);
     } else {
       NSLog(@"Successfully persisted auth token in the keychain");
     }
