@@ -1,6 +1,7 @@
 # Unreleased
 - [changed] Updated `fetchAndActivateWithCompletionHandler:` implementation to activate asynchronously. (#5617)
 - [fixed] Remove undefined class via removing unused proto generated source files. (#4334)
+- [added] Private API for a Fake Remote Config to enable testing without a backend. (#5633)
 
 # v4.4.11
 - [fixed] Fixed a bug where settings updates weren't applied before fetches. (#4740)

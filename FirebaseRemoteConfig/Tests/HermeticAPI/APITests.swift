@@ -33,10 +33,10 @@ class APITests: XCTestCase {
     settings.minimumFetchInterval = 0
     config.configSettings = settings
 
-    FakeFetch.config = [ "Key1": "Value1"]
+    FakeFetch.config = ["Key1": "Value1"]
 
-// Uncomment for verbose debug logging.
-   FirebaseConfiguration.shared.setLoggerLevel(FirebaseLoggerLevel.debug)
+    // Uncomment for verbose debug logging.
+    FirebaseConfiguration.shared.setLoggerLevel(FirebaseLoggerLevel.debug)
   }
 
   override func tearDown() {
@@ -148,7 +148,7 @@ class APITests: XCTestCase {
     waitForExpectations()
 
     // Simulate updating console.
-    FakeFetch.config = [ "Key1": "Value2"]
+    FakeFetch.config = ["Key1": "Value2"]
 
     let expectation2 = self.expectation(description: #function + "2")
     config.fetch { status, error in

@@ -287,10 +287,10 @@ static RCNConfigFetcherTestBlock gGlobalTestBlock;
 
 - (void)doFetchCall:(FIRRemoteConfigFetchCompletion)completionHandler {
   [self getAnalyticsUserPropertiesWithCompletionHandler:^(NSDictionary *userProperties) {
-      dispatch_async(self->_lockQueue, ^{
-        [self fetchWithUserProperties:userProperties completionHandler:completionHandler];
-      });
-    }];
+    dispatch_async(self->_lockQueue, ^{
+      [self fetchWithUserProperties:userProperties completionHandler:completionHandler];
+    });
+  }];
 }
 
 - (void)getAnalyticsUserPropertiesWithCompletionHandler:

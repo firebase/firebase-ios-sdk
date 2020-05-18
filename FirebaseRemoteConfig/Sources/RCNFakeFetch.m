@@ -14,34 +14,34 @@
  * limitations under the License.
  */
 
-#import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
 #import "FirebaseRemoteConfig/Sources/Private/RCNFakeFetch.h"
+#import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
 
 @implementation RCNFakeFetch
 static NSMutableDictionary<NSString *, id> *_config = nil;
 
-+(NSDictionary<NSString *, id> *)config {
++ (NSDictionary<NSString *, id> *)config {
   return _config;
 }
 
-+(void)setConfig:(NSDictionary<NSString *, id> *)newConfig {
++ (void)setConfig:(NSDictionary<NSString *, id> *)newConfig {
   _config = [newConfig mutableCopy];
 }
 
-+(BOOL)active {
++ (BOOL)active {
   return RCNFakeFetch.config && [RCNFakeFetch.config count] > 0;
 }
 
-+(NSDictionary<NSString *, id> *) get {
++ (NSDictionary<NSString *, id> *)get {
   static NSDictionary<NSString *, id> *last = nil;
   if (_config == nil || _config.count == 0) {
     last = nil;
     return @{RCNFetchResponseKeyState : RCNFetchResponseKeyStateEmptyConfig};
   }
-  NSString *state = [_config isEqualToDictionary:last] ? RCNFetchResponseKeyStateNoChange :
-                                                         RCNFetchResponseKeyStateUpdate;
+  NSString *state = [_config isEqualToDictionary:last] ? RCNFetchResponseKeyStateNoChange
+                                                       : RCNFetchResponseKeyStateUpdate;
   last = _config;
-  return @{RCNFetchResponseKeyState : state, RCNFetchResponseKeyEntries: _config};
+  return @{RCNFetchResponseKeyState : state, RCNFetchResponseKeyEntries : _config};
 }
 
 @end
