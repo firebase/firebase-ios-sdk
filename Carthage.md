@@ -74,8 +74,6 @@ binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseStorageBinary.jso
 - If you're including a Firebase component that has resources, copy its bundles
     into the Xcode project and make sure they're added to the
     `Copy Bundle Resources` Build Phase :
-    - For Firestore:
-        - ./Carthage/Build/iOS/gRPC-C++.framework/Resources/gRPCCertificates-Cpp.bundle
     - For FirebaseMLVisionFaceModel:
         - ./Carthage/Build/iOS/FaceDetector.framework/GoogleMVFaceDetectorResources.bundle
     - For FirebaseMLVisionTextModel:
