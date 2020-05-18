@@ -50,6 +50,8 @@ class ExecutorLibdispatch : public Executor {
   explicit ExecutorLibdispatch(dispatch_queue_t dispatch_queue);
   ~ExecutorLibdispatch() override;
 
+  void Dispose() override;
+
   bool IsCurrentExecutor() const override;
   std::string CurrentExecutorName() const override;
   std::string Name() const override;
@@ -113,6 +115,12 @@ class ExecutorLibdispatch : public Executor {
   std::unordered_set<Task*> tasks_;
 
   Id current_id_ = 0;
+
+  // Whether or not the executor has been disposed. Only operations that add
+  // new work need to observe this. Other operations that operate on `tasks_` or
+  // `schedule_` implicitly do so because those structures are cleared during
+  // `Dispose`.
+  bool disposed_ = false;
 };
 
 }  // namespace util

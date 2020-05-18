@@ -214,13 +214,32 @@ TEST_P(AsyncQueueTest, CanScheduleOprationsWithRespectsToShutdownState) {
   std::string steps;
 
   queue->Enqueue([&] { steps += '1'; });
-  queue->EnqueueAndInitiateShutdown([&] { steps += '2'; });
+  queue->EnterRestrictedMode();
+  queue->EnqueueEvenWhileRestricted([&] { steps += '2'; });
   queue->Enqueue([&] { steps += '3'; });
-  queue->EnqueueEvenAfterShutdown([&] { steps += '4'; });
-  queue->EnqueueEvenAfterShutdown(ran.AsCallback());
+  queue->EnqueueEvenWhileRestricted([&] { steps += '4'; });
+  queue->EnqueueEvenWhileRestricted(ran.AsCallback());
 
   Await(ran);
   EXPECT_EQ(steps, "124");
+}
+
+TEST_P(AsyncQueueTest, RestrictedModeBlocksEnqueue) {
+  ASSERT_TRUE(queue->Enqueue([&] {}));
+  ASSERT_TRUE(queue->EnqueueEvenWhileRestricted([&] {}));
+
+  queue->EnterRestrictedMode();
+  ASSERT_FALSE(queue->Enqueue([&] {}));
+  ASSERT_TRUE(queue->EnqueueEvenWhileRestricted([&] {}));
+}
+
+TEST_P(AsyncQueueTest, DisposeBlocksAllEnqueues) {
+  ASSERT_TRUE(queue->Enqueue([&] {}));
+  ASSERT_TRUE(queue->EnqueueEvenWhileRestricted([&] {}));
+
+  queue->Dispose();
+  ASSERT_FALSE(queue->Enqueue([&] {}));
+  ASSERT_FALSE(queue->EnqueueEvenWhileRestricted([&] {}));
 }
 
 }  // namespace util

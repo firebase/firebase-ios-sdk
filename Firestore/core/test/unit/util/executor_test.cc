@@ -379,6 +379,58 @@ TEST_P(ExecutorTest, DestructorAvoidsDeadlockWhenDeletingSelf) {
   ASSERT_EQ(result, "12");
 }
 
+TEST_P(ExecutorTest, DisposeBlocksTaskSubmission) {
+  executor->Dispose();
+  // Verify there's no crash for an idempotent invocation.
+  executor->Dispose();
+
+  Expectation ran;
+  executor->Execute(ran.AsCallback());
+
+  auto status = ran.get_future().wait_for(Executor::Milliseconds(50));
+  ASSERT_EQ(status, std::future_status::timeout);
+}
+
+TEST_P(ExecutorTest, DisposeBlocksConcurrentTaskSubmission) {
+  Expectation allow_destruction;
+  Expectation blocking_task_running;
+
+  // Run a task that blocks. These cause Dispose to block.
+  executor->Execute([&] {
+    blocking_task_running.Fulfill();
+    Await(allow_destruction);
+  });
+
+  Await(blocking_task_running);
+
+  // Run `Dispose`. This will block because there's a task pending.
+  Expectation dispose_running;
+  Expectation dispose_complete;
+  Async([&] {
+    dispose_running.Fulfill();
+    executor->Dispose();
+    dispose_complete.Fulfill();
+  });
+
+  // Run another `Execute`. This one either blocks waiting to submit or is
+  // prevented from running by the disposed check. Either way, `ran` will not
+  // be fulfilled.
+  Await(dispose_running);
+  Expectation execute_running;
+  Expectation ran;
+  Async([&] {
+    execute_running.Fulfill();
+    executor->Execute(ran.AsCallback());
+  });
+
+  Await(execute_running);
+  auto status = ran.get_future().wait_for(Executor::Milliseconds(50));
+  ASSERT_EQ(status, std::future_status::timeout);
+
+  allow_destruction.Fulfill();
+  Await(dispose_complete);
+}
+
 }  // namespace util
 }  // namespace firestore
 }  // namespace firebase

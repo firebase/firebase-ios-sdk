@@ -46,6 +46,8 @@ class ExecutorStd : public Executor {
   explicit ExecutorStd(int threads);
   ~ExecutorStd();
 
+  void Dispose() override;
+
   void Execute(Operation&& operation) override;
   void ExecuteBlocking(Operation&& operation) override;
 
@@ -62,24 +64,29 @@ class ExecutorStd : public Executor {
   Task* PopFromSchedule() override;
 
  private:
-  Id PushOnSchedule(TimePoint when, Tag tag, Operation&& operation);
+  class SharedState;
+
+  Id PushOnScheduleLocked(TimePoint when, Tag tag, Operation&& operation);
 
   void OnCompletion(Task* task) override;
   void Cancel(Id operation_id) override;
 
-  void PollingThread();
-  Id NextId();
+  static void PollingThread(std::shared_ptr<SharedState> state);
+  Id NextIdLocked();
 
-  class SharedState;
-
-  // State shared with workers. Note that if the Executor's destructor is called
-  // from a worker thread, this state will outlive the nominally owning
-  // Executor.
-  std::shared_ptr<SharedState> state_;
+  // A mutex that provides mutual exclusion to users of the Executor interface.
+  // Worker threads do not acquire this mutex--they only operate on the
+  // SharedState.
+  std::mutex mutex_;
 
   std::vector<std::thread> worker_thread_pool_;
 
-  std::atomic<Id> current_id_{0};
+  Id current_id_ = 0;
+
+  // State shared with workers. Note that if the Executor's destructor is called
+  // from a worker thread, this state will outlive the nominally owning
+  // Executor. `mutex_` does not protect this state.
+  std::shared_ptr<SharedState> state_;
 };
 
 }  // namespace util

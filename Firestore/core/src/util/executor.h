@@ -72,6 +72,27 @@ class Executor {
 
   virtual ~Executor() = default;
 
+  // Explicitly destroy this Executor, canceling pending tasks, and waiting for
+  // any tasks that are currently running.
+  //
+  // Dispose exists as a separate step to facilitate a leaf-first destruction
+  // order. Normally the root-most object in a hierarchy runs its destructor and
+  // then the objects that make it up are destroyed. If tasks referring to the
+  // root were running while the Executor's destructor is running, there would
+  // be no way for it to prevent those tasks from referring to a partially
+  // destroyed root. By calling `Dispose` in its destructor, the root-most
+  // object prevents any tasks from running that could observe a partially
+  // destroyed object graph.
+  //
+  // Requirements for implementors:
+  //   * Dispose implementations must be idempotent.
+  //   * Dispose implementations must exclude concurrent execution of other
+  //     methods.
+  //   * Once Dispose has started, other Executor methods that accept new work
+  //     must silently reject that work.
+  //   * Destructors should call Dispose.
+  virtual void Dispose() = 0;
+
   // Schedules the `operation` to be asynchronously executed as soon as
   // possible, in FIFO order.
   virtual void Execute(Operation&& operation) = 0;

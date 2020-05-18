@@ -57,11 +57,17 @@ ExecutorLibdispatch::ExecutorLibdispatch(const dispatch_queue_t dispatch_queue)
 }
 
 ExecutorLibdispatch::~ExecutorLibdispatch() {
+  Dispose();
+}
+
+void ExecutorLibdispatch::Dispose() {
   TASK_TRACE("Executor::~Executor %s", this);
 
   decltype(tasks_) local_tasks;
   {
     std::unique_lock<std::mutex> lock(mutex_);
+
+    disposed_ = true;
 
     // Transfer ownership of tasks out of the executor members and into
     // `local_tasks`. This prevents any concurrent execution of calls to
@@ -98,6 +104,10 @@ void ExecutorLibdispatch::Execute(Operation&& operation) {
   auto* task = Task::Create(this, std::move(operation));
   {
     std::lock_guard<std::mutex> lock(mutex_);
+    if (disposed_) {
+      task->Release();
+      return;
+    }
     tasks_.insert(task);
   }
 
@@ -113,6 +123,10 @@ void ExecutorLibdispatch::ExecuteBlocking(Operation&& operation) {
   auto* task = Task::Create(this, std::move(operation));
   {
     std::lock_guard<std::mutex> lock(mutex_);
+    if (disposed_) {
+      task->Release();
+      return;
+    }
     tasks_.insert(task);
   }
 
@@ -137,6 +151,9 @@ DelayedOperation ExecutorLibdispatch::Schedule(Milliseconds delay,
   Id id = 0;
   {
     std::lock_guard<std::mutex> lock(mutex_);
+    if (disposed_) {
+      return {};
+    }
 
     id = NextIdLocked();
     task = Task::Create(this, target_time, tag, id, std::move(operation));
@@ -156,6 +173,8 @@ void ExecutorLibdispatch::OnCompletion(Task* task) {
   {
     TASK_TRACE("Executor::OnCompletion %s task %s", this, task);
     std::lock_guard<std::mutex> lock(mutex_);
+    // No need to check `disposed_`: in that case `tasks_` would have been
+    // cleared.
 
     auto found = tasks_.find(task);
     if (found != tasks_.end()) {
