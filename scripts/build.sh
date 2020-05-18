@@ -434,6 +434,16 @@ case "$product-$platform-$method" in
       test
     ;;
 
+  RemoteConfig-*-hermetic)
+    pod_gen FirebaseRemoteConfig.podspec --platforms="${gen_platform}"
+    RunXcodebuild \
+      -workspace 'gen/FirebaseRemoteConfig/FirebaseRemoteConfig.xcworkspace' \
+      -scheme "FirebaseRemoteConfig-Unit-hermetic-api" \
+      "${xcb_flags[@]}" \
+      build \
+      test
+    ;;
+
   RemoteConfig-*-integration)
     pod_gen FirebaseRemoteConfig.podspec --platforms="${gen_platform}"
     RunXcodebuild \
