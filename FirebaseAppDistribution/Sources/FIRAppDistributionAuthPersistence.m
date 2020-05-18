@@ -87,8 +87,8 @@ NSString *const kFIRAppDistributionAuthPersistenceErrorDomain =
   NSData *authorizationData = [FIRAppDistributionKeychainUtility archiveDataForKeychain:authState];
   NSMutableDictionary *keychainQuery = [self getKeyChainQuery];
   BOOL success = NO;
-  BOOL hasAuthState = [self retrieveAuthState:NULL];
-  if (hasAuthState) {
+  OIDAuthState *retrievedAuthState = [self retrieveAuthState:NULL];
+  if (retrievedAuthState) {
     success = [FIRAppDistributionKeychainUtility updateKeychainItem:keychainQuery
                                                  withDataDictionary:authorizationData];
   } else {
