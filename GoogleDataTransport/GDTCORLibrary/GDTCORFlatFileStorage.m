@@ -51,6 +51,27 @@
   return archivePath;
 }
 
++ (NSString *)libraryDataPath {
+  static NSString *libraryDataPath;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    libraryDataPath =
+        [GDTCORRootDirectory() URLByAppendingPathComponent:NSStringFromClass([self class])
+                                               isDirectory:YES]
+            .path;
+    libraryDataPath = [libraryDataPath stringByAppendingPathComponent:@"gdt_library_data"];
+    if (![[NSFileManager defaultManager] fileExistsAtPath:libraryDataPath isDirectory:NULL]) {
+      NSError *error;
+      [[NSFileManager defaultManager] createDirectoryAtPath:libraryDataPath
+                                withIntermediateDirectories:YES
+                                                 attributes:0
+                                                      error:&error];
+      GDTCORAssert(error == nil, @"Creating the library data path failed: %@", error);
+    }
+  });
+  return libraryDataPath;
+}
+
 + (instancetype)sharedInstance {
   static GDTCORFlatFileStorage *sharedStorage;
   static dispatch_once_t onceToken;
@@ -182,6 +203,39 @@
         // Remove from the tracking collections.
         [self.storedEvents removeObjectForKey:event.eventID];
         [self.targetToEventSet[@(event.target)] removeObject:event];
+      }
+    }
+  });
+}
+
+- (void)libraryDataForKey:(nonnull NSString *)key
+               onComplete:(nonnull void (^)(NSData *_Nullable))onComplete {
+  dispatch_async(_storageQueue, ^{
+    NSString *dataPath = [[[self class] libraryDataPath] stringByAppendingPathComponent:key];
+    NSData *data = [NSData dataWithContentsOfFile:dataPath];
+    if (onComplete) {
+      onComplete(data);
+    }
+  });
+}
+
+- (void)storeLibraryData:(nullable NSData *)data
+                  forKey:(nonnull NSString *)key
+              onComplete:(nonnull void (^)(NSError *_Nullable error))onComplete {
+  dispatch_async(_storageQueue, ^{
+    NSError *error;
+    NSString *dataPath = [[[self class] libraryDataPath] stringByAppendingPathComponent:key];
+    if (data && data.length > 0) {
+      [data writeToFile:dataPath options:NSDataWritingAtomic error:&error];
+      if (onComplete) {
+        onComplete(error);
+      }
+    } else {
+      if ([[NSFileManager defaultManager] fileExistsAtPath:dataPath]) {
+        [[NSFileManager defaultManager] removeItemAtPath:dataPath error:&error];
+        if (onComplete) {
+          onComplete(error);
+        }
       }
     }
   });

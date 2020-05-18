@@ -28,4 +28,19 @@
 - (void)removeEvents:(NSSet<NSNumber *> *)eventIDs {
 }
 
+- (void)libraryDataForKey:(nonnull NSString *)key
+               onComplete:(nonnull void (^)(NSData *_Nullable))onComplete {
+  if (onComplete) {
+    onComplete(nil);
+  }
+}
+
+- (void)storeLibraryData:(nullable NSData *)data
+                  forKey:(nonnull NSString *)key
+              onComplete:(nonnull void (^)(NSError *_Nullable error))onComplete {
+  if (onComplete) {
+    onComplete(nil);
+  }
+}
+
 @end

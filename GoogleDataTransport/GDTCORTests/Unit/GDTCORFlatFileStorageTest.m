@@ -445,6 +445,31 @@ static NSInteger target = kGDTCORTargetCCT;
   }
 }
 
+- (void)testSaveAndLoadLibraryData {
+  __weak NSData *weakData;
+  NSString *dataKey = @"GDTCORFlatFileStorageTestData";
+  @autoreleasepool {
+    NSData *data = [@"test data" dataUsingEncoding:NSUTF8StringEncoding];
+    weakData = data;
+    XCTestExpectation *expectation = [self expectationWithDescription:@"storage completion called"];
+    [[GDTCORFlatFileStorage sharedInstance] storeLibraryData:data
+                                                      forKey:dataKey
+                                                  onComplete:^(NSError *_Nullable error) {
+                                                    XCTAssertNil(error);
+                                                    [expectation fulfill];
+                                                  }];
+    [self waitForExpectations:@[ expectation ] timeout:1.0];
+  }
+  XCTAssertNil(weakData);
+  [[GDTCORFlatFileStorage sharedInstance]
+      libraryDataForKey:dataKey
+             onComplete:^(NSData *_Nullable data) {
+               XCTAssertEqualObjects(@"test data",
+                                     [[NSString alloc] initWithData:data
+                                                           encoding:NSUTF8StringEncoding]);
+             }];
+}
+
 /** Tests migration from v1 of the storage format to v2. */
 - (void)testMigrationFromOldVersion {
   static NSString *base64EncodedArchive =
