@@ -19,6 +19,7 @@
 #include <utility>
 
 #include "Firestore/core/src/util/hard_assert.h"
+#include "Firestore/core/src/util/task.h"
 #include "absl/algorithm/container.h"
 #include "absl/memory/memory.h"
 
@@ -119,8 +120,8 @@ DelayedOperation AsyncQueue::EnqueueAfterDelay(Milliseconds delay,
     delay = Milliseconds(0);
   }
 
-  Executor::TaggedOperation tagged{static_cast<int>(timer_id), Wrap(operation)};
-  return executor_->Schedule(delay, std::move(tagged));
+  auto tag = static_cast<Executor::Tag>(timer_id);
+  return executor_->Schedule(delay, tag, Wrap(operation));
 }
 
 AsyncQueue::Operation AsyncQueue::Wrap(const Operation& operation) {
@@ -149,7 +150,7 @@ void AsyncQueue::EnqueueBlocking(const Operation& operation) {
 }
 
 bool AsyncQueue::IsScheduled(const TimerId timer_id) const {
-  return executor_->IsScheduled(static_cast<int>(timer_id));
+  return executor_->IsTagScheduled(static_cast<int>(timer_id));
 }
 
 void AsyncQueue::RunScheduledOperationsUntil(const TimerId last_timer_id) {
@@ -162,10 +163,13 @@ void AsyncQueue::RunScheduledOperationsUntil(const TimerId last_timer_id) {
         "Attempted to run scheduled operations until missing timer id: %s",
         last_timer_id);
 
-    for (auto next = executor_->PopFromSchedule(); next.has_value();
+    for (auto* next = executor_->PopFromSchedule(); next != nullptr;
          next = executor_->PopFromSchedule()) {
-      next->operation();
-      if (next->tag == static_cast<int>(last_timer_id)) {
+      // `ExecuteAndRelease` can delete the `Task` so read the tag first.
+      bool found_tag = next->tag() == static_cast<int>(last_timer_id);
+
+      next->ExecuteAndRelease();
+      if (found_tag) {
         break;
       }
     }

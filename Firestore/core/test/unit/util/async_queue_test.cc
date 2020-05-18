@@ -147,13 +147,14 @@ TEST_P(AsyncQueueTest, CanCallCancelOnDelayedOperationAfterTheOperationHasRun) {
 
   DelayedOperation delayed_operation;
   queue->Enqueue([&] {
-    delayed_operation = queue->EnqueueAfterDelay(AsyncQueue::Milliseconds(10),
+    delayed_operation = queue->EnqueueAfterDelay(AsyncQueue::Milliseconds(1),
                                                  kTimerId1, ran.AsCallback());
     EXPECT_TRUE(queue->IsScheduled(kTimerId1));
   });
 
   Await(ran);
-  EXPECT_FALSE(queue->IsScheduled(kTimerId1));
+  bool scheduled = queue->IsScheduled(kTimerId1);
+  EXPECT_FALSE(scheduled);
   EXPECT_NO_THROW(delayed_operation.Cancel());
 }
 
@@ -180,10 +181,12 @@ TEST_P(AsyncQueueTest, CanManuallyDrainSpecificDelayedOperationsForTesting) {
   Expectation ran;
   std::string steps;
 
+  DelayedOperation timer1;
+
   queue->Enqueue([&] {
     queue->EnqueueRelaxed([&] { steps += '1'; });
-    queue->EnqueueAfterDelay(AsyncQueue::Milliseconds(20000), kTimerId1,
-                             [&steps] { steps += '5'; });
+    timer1 = queue->EnqueueAfterDelay(AsyncQueue::Milliseconds(20000),
+                                      kTimerId1, [&steps] { steps += '5'; });
     queue->EnqueueAfterDelay(AsyncQueue::Milliseconds(10000), kTimerId2,
                              [&steps] { steps += '3'; });
     queue->EnqueueAfterDelay(AsyncQueue::Milliseconds(15000), kTimerId3,
@@ -195,6 +198,15 @@ TEST_P(AsyncQueueTest, CanManuallyDrainSpecificDelayedOperationsForTesting) {
   Await(ran);
   queue->RunScheduledOperationsUntil(kTimerId3);
   EXPECT_EQ(steps, "1234");
+
+  // TODO(wilhuff): Force the AsyncQueue to be destroyed at test end
+  //
+  // Currently the Task with tag=kTimerId1 survives beyond the end of the test
+  // because the AsyncQueue is held by shared_ptr that's captured in the test.
+  // If the AsyncQueue were destroyed at test end, the Executor's normal logic
+  // of cancelling all future scheduled tasks would kick in and this manual
+  // cancellation would not be necessary.
+  timer1.Cancel();
 }
 
 TEST_P(AsyncQueueTest, CanScheduleOprationsWithRespectsToShutdownState) {

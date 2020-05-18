@@ -112,7 +112,7 @@ class AsyncQueue : public std::enable_shared_from_this<AsyncQueue> {
   // Like `Enqueue`, but also starts the shutdown process. Once the shutdown
   // process has started, calling any Enqueue* methods becomes a no-op
   //
-  // The exception is `EnqueueEvenAfterShutdown`, operations requsted via
+  // The exception is `EnqueueEvenAfterShutdown`, operations requested via
   // this will still be scheduled.
   void EnqueueAndInitiateShutdown(const Operation& operation);
 
