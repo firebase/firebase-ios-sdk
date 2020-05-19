@@ -19,6 +19,9 @@ import FirebaseAnalytics
 import FirebaseRemoteConfig
 
 class ViewController: UIViewController {
+  
+  @IBOutlet var labels: [UILabel]!
+  
   @IBAction func fireAnalyticsEventButtonTapped(_ sender: Any) {
     let alert = UIAlertController(title: "Fire custom analytics event",
                                   message: "Enter the name of a custom event",
@@ -61,9 +64,33 @@ class ViewController: UIViewController {
       DispatchQueue.main.async {
         // The AB test has two values for `bg_color`: "green or "red".
         if color == "green" {
-          self.view.backgroundColor = UIColor.green
+          self.view.backgroundColor = UIColor.green.withAlphaComponent(0.5)
         } else {
-          self.view.backgroundColor = UIColor.red
+          self.view.backgroundColor = UIColor.red.withAlphaComponent(0.5)
+        }
+      }
+      
+      // Fetch `text_color` from remote config after activating.
+      guard let textColor = remoteConfig.configValue(forKey: "text_color").stringValue else {
+        print("There's no text color in the remote config bundle")
+        return
+      }
+      
+      // Set text color.
+      DispatchQueue.main.async {
+        var uiColor = UIColor.black
+        
+        // The AB test has three values for `text_color`: "black" "gray" or "white".
+        if textColor == "white" {
+          uiColor = UIColor.white
+        } else if textColor == "gray" {
+          uiColor = UIColor.gray
+        } else if textColor == "black" {
+          uiColor = UIColor.black
+        }
+        
+        for label in self.labels {
+          label.textColor = uiColor
         }
       }
     }
