@@ -28,24 +28,16 @@
 #import <FirebaseCore/FIRComponentContainer.h>
 #import <FirebaseCore/FirebaseCore.h>
 
-@interface DummyAppCheckProvider : NSObject <FIRAppCheckProvider>
-@end
-
-@implementation DummyAppCheckProvider
-- (void)getTokenWithCompletion:(nonnull FIRAppCheckTokenHandler)handler {
-  FIRAppCheckToken *token = [[FIRAppCheckToken alloc] initWithToken:@"Token"
-                                                     expirationDate:[NSDate distantFuture]];
-  handler(token, nil);
-}
-@end
-
 @interface AppCheckProviderFactory : NSObject <FIRAppCheckProviderFactory>
 @end
 
 @implementation AppCheckProviderFactory
 
 - (nullable id<FIRAppCheckProvider>)createProviderWithApp:(nonnull FIRApp *)app {
-  return [[DummyAppCheckProvider alloc] init];
+  return [[FIRAppCheckDefaultCustomProvider alloc]
+      initWithCustomJWTRequestHandler:^(FIRAppCheckCustomJWTHandler _Nonnull JWTHandler) {
+        JWTHandler(@"MyJWTHandler", nil);
+      }];
 }
 
 @end

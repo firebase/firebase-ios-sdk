@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-#import "FIRAppCheck.h"
 #import "FIRAppCheckDefaultCustomProvider.h"
-#import "FIRAppCheckProvider.h"
-#import "FIRAppCheckProviderFactory.h"
-#import "FIRAppCheckToken.h"
-#import "FIRAppCheckVersion.h"
+
+@implementation FIRAppCheckDefaultCustomProvider
+
+@end
