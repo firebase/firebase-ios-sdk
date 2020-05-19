@@ -423,14 +423,19 @@ class StorageIntegration: XCTestCase {
       let fileURL = tmpDirURL.appendingPathComponent("cookie.txt")
       ref.write(toFile: fileURL) { url, error in
         XCTAssertNil(error, "Error should be nil")
+
+        guard let url = url else {
+          XCTFail("Failed to unwrap url")
+          return
+        }
+        XCTAssertEqual(fileURL, url)
+
         do {
-          let url = try XCTUnwrap(url, "Failed to unwrap url")
-          XCTAssertEqual(fileURL, url)
           let stringData = try String(contentsOf: fileURL, encoding: .utf8)
           XCTAssertEqual(stringData, cookieString)
           expectation.fulfill()
         } catch {
-          XCTFail("Throw in url completion block")
+          XCTFail("Could not get String contents of fetched data")
         }
       }
     })
