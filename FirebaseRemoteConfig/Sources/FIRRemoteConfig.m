@@ -307,7 +307,8 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
     }
     // Check if the last fetched config has already been activated. Fetches with no data change are
     // ignored.
-    NSLog(@"%f %f", strongSelf->_settings.lastETagUpdateTime, strongSelf->_settings.lastApplyTimeInterval);
+    NSLog(@"%f %f", strongSelf->_settings.lastETagUpdateTime,
+          strongSelf->_settings.lastApplyTimeInterval);
     if (strongSelf->_settings.lastETagUpdateTime == 0 ||
         strongSelf->_settings.lastETagUpdateTime <= strongSelf->_settings.lastApplyTimeInterval) {
       FIRLogWarning(kFIRLoggerRemoteConfig, @"I-RCN000069",
