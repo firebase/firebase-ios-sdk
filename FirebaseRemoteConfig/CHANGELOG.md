@@ -1,6 +1,6 @@
 # Unreleased
 - [changed] Updated `fetchAndActivateWithCompletionHandler:` implementation to activate asynchronously. (#5617)
-- [fixed] Remove undefined class via removing unused source files. (#4334)
+- [fixed] Remove undefined class via removing unused proto generated source files. (#4334)
 
 # v4.4.11
 - [fixed] Fixed a bug where settings updates weren't applied before fetches. (#4740)
