@@ -26,20 +26,20 @@ NSTimeInterval kFIRStorageIntegrationTestTimeout = 60;
  *
  * To run these tests, you need to define the following access rights:
  *
- * rules_version = '2';
- * service firebase.storage {
- *   match /b/{bucket}/o {
- *     match /ios {
- *       match /public/{allPaths=**} {
- *         allow write: if request.auth != null;
- *         allow read: if true;
- *       }
- *       match /private/{allPaths=**} {
- *         allow read, write: if false;
- *       }
- *     }
- *   }
- * }
+  rules_version = '2';
+  service firebase.storage {
+    match /b/{bucket}/o {
+      match /ios {
+        match /public/{allPaths=**} {
+          allow write: if request.auth != null;
+          allow read: if true;
+        }
+        match /private/{allPaths=**} {
+          allow read, write: if false;
+        }
+      }
+    }
+  }
  *
  * You also need to enable email/password sign in and add a test user in your
  * Firebase Authentication settings. Your account credentials need to match

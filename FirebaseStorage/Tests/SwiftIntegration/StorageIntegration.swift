@@ -12,23 +12,31 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// See console setup instructions in FIRStorageIntegrationTests.m
+
+import FirebaseAuth
 import FirebaseCore
 import FirebaseStorage
 import XCTest
 
 class StorageIntegration: XCTestCase {
-  var app: FirebaseApp!
+  static var app: FirebaseApp!
+  static var auth: Auth!
   var storage: Storage!
   static var once = false
 
   override class func setUp() {
     FirebaseApp.configure()
+    app = FirebaseApp.app()
+    auth = Auth.auth(app:app)
+    auth.signIn(withEmail: "test@example.com", password: "testing") { result, error in
+      XCTAssertNil(error)
+    }
   }
 
   override func setUp() {
     super.setUp()
-    app = FirebaseApp.app()
-    storage = Storage.storage(app: app!)
+    storage = Storage.storage(app: StorageIntegration.app!)
 
     if !StorageIntegration.once {
       StorageIntegration.once = true
@@ -69,13 +77,12 @@ class StorageIntegration: XCTestCase {
   }
 
   override func tearDown() {
-    app = nil
     storage = nil
     super.tearDown()
   }
 
   func testName() {
-    let aGS = app.options.projectID
+    let aGS = StorageIntegration.app.options.projectID
     let aGSURI = "gs://\(aGS!).appspot.com/path/to"
     let ref = storage.reference(forURL: aGSURI)
     XCTAssertEqual(ref.description, aGSURI)

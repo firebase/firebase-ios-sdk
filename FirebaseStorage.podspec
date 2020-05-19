@@ -52,7 +52,7 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
     int_tests.requires_app_host = true
     int_tests.resources = 'FirebaseStorage/Tests/Integration/Resources/1mb.dat',
                           'FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist'
-	int_tests.dependency 'FirebaseAuth', '~> 6.5'
+    int_tests.dependency 'FirebaseAuth', '~> 6.5'
   end
 
   s.test_spec 'swift-integration' do |swift_int_tests|
@@ -61,6 +61,6 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
     swift_int_tests.requires_app_host = true
     swift_int_tests.resources = 'FirebaseStorage/Tests/Integration/Resources/1mb.dat',
                           'FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist'
-	swift_int_tests.dependency 'FirebaseAuth', '~> 6.5'
+    swift_int_tests.dependency 'FirebaseAuth', '~> 6.5'
   end
 end
