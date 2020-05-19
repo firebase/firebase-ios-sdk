@@ -92,6 +92,18 @@ class StorageIntegration: XCTestCase {
     waitForExpectations()
   }
 
+  func testUnauthenticatedGetMetadataUnauthorized() {
+    let expectation = self.expectation(description: #function)
+    let ref = storage.reference().child("ios/private/secretfile.txt")
+    ref.getMetadata(completion: { (metadata, error) -> Void in
+      XCTAssertNil(metadata, "Metadata should be nil")
+      XCTAssertNotNil(error, "Error should not be nil")
+      XCTAssertEqual((error! as NSError).code, StorageErrorCode.unauthorized.rawValue)
+      expectation.fulfill()
+    })
+    waitForExpectations()
+  }
+
   func testUnauthenticatedUpdateMetadata() {
     let expectation = self.expectation(description: #function)
 
@@ -126,6 +138,28 @@ class StorageIntegration: XCTestCase {
         expectation.fulfill()
       })
     })
+    waitForExpectations()
+  }
+
+  func testUnauthenticatedDeleteNonExistingFile() {
+    let expectation = self.expectation(description: #function)
+    let ref = storage.reference(withPath: "ios/public/fileThatDoesNotExist")
+    ref.delete { error in
+      XCTAssertNotNil(error, "Error should not be nil")
+      XCTAssertEqual((error! as NSError).code, StorageErrorCode.objectNotFound.rawValue)
+      expectation.fulfill()
+    }
+    waitForExpectations()
+  }
+
+  func testUnauthenticatedDeleteFileUnauthorized() {
+    let expectation = self.expectation(description: #function)
+    let ref = storage.reference(withPath: "ios/private/secretfile.txt")
+    ref.delete { error in
+      XCTAssertNotNil(error, "Error should not be nil")
+      XCTAssertEqual((error! as NSError).code, StorageErrorCode.unauthorized.rawValue)
+      expectation.fulfill()
+    }
     waitForExpectations()
   }
 
@@ -290,6 +324,24 @@ class StorageIntegration: XCTestCase {
     waitForExpectations()
   }
 
+  func testUnauthenticatedSimplePutBlankImage() throws {
+    let expectation = self.expectation(description: #function)
+    let fileName = "blank.jpg"
+    let ref = storage.reference(withPath: "ios/public/" + fileName)
+    let tmpDirURL = URL(fileURLWithPath: NSTemporaryDirectory())
+    let imageURL = tmpDirURL.appendingPathComponent(fileName)
+
+    let data = Data()
+    try data.write(to: imageURL, options: .atomicWrite)
+
+    ref.putFile(from: imageURL, metadata: nil, completion: { metadata, error in
+      XCTAssertNotNil(metadata, "Metadata should not be nil")
+      XCTAssertNil(error, "Error should be nil")
+      expectation.fulfill()
+    })
+    waitForExpectations()
+  }
+
   func testUnauthenticatedSimpleGetData() {
     let expectation = self.expectation(description: #function)
 
@@ -352,6 +404,39 @@ class StorageIntegration: XCTestCase {
         expectation.fulfill()
       } catch {
         XCTFail("Throw in downloadURL completion block")
+      }
+    })
+    waitForExpectations()
+  }
+
+  func testUnauthenticatedSimpleGetFileWithCompletion() throws {
+    let expectation = self.expectation(description: #function)
+    let ref = storage.reference(withPath: "ios/public/cookie")
+    let cookieString = "Here's a 🍪, yay!"
+    let data = try XCTUnwrap(cookieString.data(using: .utf8), "Data construction failed")
+
+    ref.putData(data, metadata: nil, completion: { metadata, error in
+      XCTAssertNotNil(metadata, "Metadata should not be nil")
+      XCTAssertNil(error, "Error should be nil")
+
+      let tmpDirURL = URL(fileURLWithPath: NSTemporaryDirectory())
+      let fileURL = tmpDirURL.appendingPathComponent("cookie.txt")
+      ref.write(toFile: fileURL) { url, error in
+        XCTAssertNil(error, "Error should be nil")
+
+        guard let url = url else {
+          XCTFail("Failed to unwrap url")
+          return
+        }
+        XCTAssertEqual(fileURL, url)
+
+        do {
+          let stringData = try String(contentsOf: fileURL, encoding: .utf8)
+          XCTAssertEqual(stringData, cookieString)
+          expectation.fulfill()
+        } catch {
+          XCTFail("Could not get String contents of fetched data")
+        }
       }
     })
     waitForExpectations()
