@@ -35,9 +35,16 @@
   }
 }
 
-- (void)storeLibraryData:(nullable NSData *)data
+- (void)storeLibraryData:(NSData *)data
                   forKey:(nonnull NSString *)key
               onComplete:(nonnull void (^)(NSError *_Nullable error))onComplete {
+  if (onComplete) {
+    onComplete(nil);
+  }
+}
+
+- (void)removeLibraryDataForKey:(nonnull NSString *)key
+                     onComplete:(nonnull void (^)(NSError *_Nullable))onComplete {
   if (onComplete) {
     onComplete(nil);
   }

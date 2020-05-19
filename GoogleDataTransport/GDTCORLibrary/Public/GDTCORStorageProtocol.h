@@ -44,8 +44,8 @@ NS_ASSUME_NONNULL_BEGIN
  * @param key The unique key to store it to.
  * @param onComplete An block to be run when storage of the data is complete.
  */
-- (void)storeLibraryData:(nullable NSData *)data
-                  forKey:(nonnull NSString *)key
+- (void)storeLibraryData:(NSData *)data
+                  forKey:(NSString *)key
               onComplete:(void (^)(NSError *_Nullable error))onComplete;
 
 /** Retrieves the stored data for the given key.
@@ -54,6 +54,14 @@ NS_ASSUME_NONNULL_BEGIN
  * @param onComplete The callback to invoke with the data once it's retrieved.
  */
 - (void)libraryDataForKey:(NSString *)key onComplete:(void (^)(NSData *_Nullable data))onComplete;
+
+/** Removes data from storage and calls the callback when complete.
+ *
+ * @param key The key of the data to remove.
+ * @param onComplete The callback that will be invoked when removing the data is complete.
+ */
+- (void)removeLibraryDataForKey:(NSString *)key
+                     onComplete:(void (^)(NSError *_Nullable error))onComplete;
 
 @end
 

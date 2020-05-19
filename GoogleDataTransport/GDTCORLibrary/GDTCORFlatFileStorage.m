@@ -208,6 +208,8 @@
   });
 }
 
+#pragma mark - GDTCORStorageProtocol
+
 - (void)libraryDataForKey:(nonnull NSString *)key
                onComplete:(nonnull void (^)(NSData *_Nullable))onComplete {
   dispatch_async(_storageQueue, ^{
@@ -219,23 +221,34 @@
   });
 }
 
-- (void)storeLibraryData:(nullable NSData *)data
+- (void)storeLibraryData:(NSData *)data
                   forKey:(nonnull NSString *)key
               onComplete:(nonnull void (^)(NSError *_Nullable error))onComplete {
+  if (!data || data.length <= 0) {
+    if (onComplete) {
+      onComplete([NSError errorWithDomain:NSInternalInconsistencyException code:-1 userInfo:nil]);
+    }
+    return;
+  }
   dispatch_async(_storageQueue, ^{
     NSError *error;
     NSString *dataPath = [[[self class] libraryDataPath] stringByAppendingPathComponent:key];
-    if (data && data.length > 0) {
-      [data writeToFile:dataPath options:NSDataWritingAtomic error:&error];
+    [data writeToFile:dataPath options:NSDataWritingAtomic error:&error];
+    if (onComplete) {
+      onComplete(error);
+    }
+  });
+}
+
+- (void)removeLibraryDataForKey:(nonnull NSString *)key
+                     onComplete:(nonnull void (^)(NSError *_Nullable error))onComplete {
+  dispatch_async(_storageQueue, ^{
+    NSError *error;
+    NSString *dataPath = [[[self class] libraryDataPath] stringByAppendingPathComponent:key];
+    if ([[NSFileManager defaultManager] fileExistsAtPath:dataPath]) {
+      [[NSFileManager defaultManager] removeItemAtPath:dataPath error:&error];
       if (onComplete) {
         onComplete(error);
-      }
-    } else {
-      if ([[NSFileManager defaultManager] fileExistsAtPath:dataPath]) {
-        [[NSFileManager defaultManager] removeItemAtPath:dataPath error:&error];
-        if (onComplete) {
-          onComplete(error);
-        }
       }
     }
   });
