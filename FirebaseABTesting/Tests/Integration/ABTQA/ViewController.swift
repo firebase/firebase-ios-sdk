@@ -19,7 +19,6 @@ import FirebaseAnalytics
 import FirebaseRemoteConfig
 
 class ViewController: UIViewController {
-  
   @IBOutlet var labels: [UILabel]!
   
   @IBAction func fireAnalyticsEventButtonTapped(_ sender: Any) {

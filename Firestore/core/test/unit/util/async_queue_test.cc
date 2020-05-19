@@ -224,7 +224,7 @@ TEST_P(AsyncQueueTest, CanScheduleOprationsWithRespectsToShutdownState) {
   EXPECT_EQ(steps, "124");
 }
 
-TEST_P(AsyncQueueTest, RestrictedModeBlocksEnqueue) {
+TEST_P(AsyncQueueTest, RestrictedModePreventsEnqueue) {
   ASSERT_TRUE(queue->Enqueue([&] {}));
   ASSERT_TRUE(queue->EnqueueEvenWhileRestricted([&] {}));
 
@@ -233,13 +233,49 @@ TEST_P(AsyncQueueTest, RestrictedModeBlocksEnqueue) {
   ASSERT_TRUE(queue->EnqueueEvenWhileRestricted([&] {}));
 }
 
-TEST_P(AsyncQueueTest, DisposeBlocksAllEnqueues) {
+TEST_P(AsyncQueueTest, DisposePreventsAllEnqueues) {
   ASSERT_TRUE(queue->Enqueue([&] {}));
   ASSERT_TRUE(queue->EnqueueEvenWhileRestricted([&] {}));
 
   queue->Dispose();
   ASSERT_FALSE(queue->Enqueue([&] {}));
   ASSERT_FALSE(queue->EnqueueEvenWhileRestricted([&] {}));
+}
+
+TEST_P(AsyncQueueTest, DisposeDoesNotBlockEnqueueWhileWaiting) {
+  // Start a task that will block the queue. AsyncQueue::Dispose will block
+  // until this completes.
+  Expectation blocking_started;
+  Expectation blocking_complete;
+  queue->Enqueue([&] {
+    blocking_started.Fulfill();
+    Await(blocking_complete);
+  });
+
+  // Kick off Dispose--this will block while the task above is still running.
+  Await(blocking_started);
+  Expectation dispose_started;
+  Expectation dispose_complete;
+  Async([&] {
+    dispose_started.Fulfill();
+    queue->Dispose();
+    dispose_complete.Fulfill();
+  });
+
+  // Finally, try to enqueue while Dispose is blocked waiting for the first
+  // task to complete. This should not block.
+  Expectation enqueue_completed;
+  Expectation post_dispose;
+  Async([&] {
+    Await(dispose_started);
+    bool enqueued = queue->Enqueue(post_dispose.AsCallback());
+    ASSERT_FALSE(enqueued);
+    enqueue_completed.Fulfill();
+  });
+
+  Await(enqueue_completed);
+  blocking_complete.Fulfill();
+  Await(dispose_complete);
 }
 
 }  // namespace util
