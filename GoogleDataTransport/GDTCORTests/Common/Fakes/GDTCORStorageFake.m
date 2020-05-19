@@ -29,9 +29,10 @@
 }
 
 - (void)libraryDataForKey:(nonnull NSString *)key
-               onComplete:(nonnull void (^)(NSData *_Nullable))onComplete {
+               onComplete:
+                   (nonnull void (^)(NSData *_Nullable, NSError *_Nullable error))onComplete {
   if (onComplete) {
-    onComplete(nil);
+    onComplete(nil, nil);
   }
 }
 

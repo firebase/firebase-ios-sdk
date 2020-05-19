@@ -53,7 +53,8 @@ NS_ASSUME_NONNULL_BEGIN
  * @param key The key corresponding to the desired data.
  * @param onComplete The callback to invoke with the data once it's retrieved.
  */
-- (void)libraryDataForKey:(NSString *)key onComplete:(void (^)(NSData *_Nullable data))onComplete;
+- (void)libraryDataForKey:(NSString *)key
+               onComplete:(void (^)(NSData *_Nullable data, NSError *_Nullable error))onComplete;
 
 /** Removes data from storage and calls the callback when complete.
  *

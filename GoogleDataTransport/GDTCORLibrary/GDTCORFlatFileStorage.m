@@ -211,12 +211,14 @@
 #pragma mark - GDTCORStorageProtocol
 
 - (void)libraryDataForKey:(nonnull NSString *)key
-               onComplete:(nonnull void (^)(NSData *_Nullable))onComplete {
+               onComplete:
+                   (nonnull void (^)(NSData *_Nullable, NSError *_Nullable error))onComplete {
   dispatch_async(_storageQueue, ^{
     NSString *dataPath = [[[self class] libraryDataPath] stringByAppendingPathComponent:key];
-    NSData *data = [NSData dataWithContentsOfFile:dataPath];
+    NSError *error;
+    NSData *data = [NSData dataWithContentsOfFile:dataPath options:0 error:&error];
     if (onComplete) {
-      onComplete(data);
+      onComplete(data, error);
     }
   });
 }

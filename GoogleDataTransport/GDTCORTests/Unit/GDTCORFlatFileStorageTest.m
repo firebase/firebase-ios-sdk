@@ -464,8 +464,9 @@ static NSInteger target = kGDTCORTargetCCT;
   XCTestExpectation *expectation = [self expectationWithDescription:@"retrieval completion called"];
   [[GDTCORFlatFileStorage sharedInstance]
       libraryDataForKey:dataKey
-             onComplete:^(NSData *_Nullable data) {
+             onComplete:^(NSData *_Nullable data, NSError *_Nullable error) {
                [expectation fulfill];
+               XCTAssertNil(error);
                XCTAssertEqualObjects(@"test data",
                                      [[NSString alloc] initWithData:data
                                                            encoding:NSUTF8StringEncoding]);
@@ -498,8 +499,9 @@ static NSInteger target = kGDTCORTargetCCT;
   expectation = [self expectationWithDescription:@"retrieval completion called"];
   [[GDTCORFlatFileStorage sharedInstance]
       libraryDataForKey:dataKey
-             onComplete:^(NSData *_Nullable data) {
+             onComplete:^(NSData *_Nullable data, NSError *_Nullable error) {
                [expectation fulfill];
+               XCTAssertNil(error);
                XCTAssertEqualObjects(@"test data",
                                      [[NSString alloc] initWithData:data
                                                            encoding:NSUTF8StringEncoding]);
@@ -513,11 +515,13 @@ static NSInteger target = kGDTCORTargetCCT;
                                                        }];
   [self waitForExpectations:@[ expectation ] timeout:10.0];
   expectation = [self expectationWithDescription:@"retrieval completion called"];
-  [[GDTCORFlatFileStorage sharedInstance] libraryDataForKey:dataKey
-                                                 onComplete:^(NSData *_Nullable data) {
-                                                   [expectation fulfill];
-                                                   XCTAssertNil(data);
-                                                 }];
+  [[GDTCORFlatFileStorage sharedInstance]
+      libraryDataForKey:dataKey
+             onComplete:^(NSData *_Nullable data, NSError *_Nullable error) {
+               [expectation fulfill];
+               XCTAssertNil(error);
+               XCTAssertNil(data);
+             }];
   [self waitForExpectations:@[ expectation ] timeout:10.0];
 }
 
