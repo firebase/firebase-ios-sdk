@@ -28,9 +28,15 @@ class StorageIntegration: XCTestCase {
   override class func setUp() {
     FirebaseApp.configure()
     app = FirebaseApp.app()
-    auth = Auth.auth(app:app)
+    auth = Auth.auth(app: app)
+    let group = DispatchGroup()
+    group.enter()
     auth.signIn(withEmail: "test@example.com", password: "testing") { result, error in
       XCTAssertNil(error)
+      group.leave()
+    }
+    group.notify(queue: .main) {
+      print("Done signing in")
     }
   }
 
