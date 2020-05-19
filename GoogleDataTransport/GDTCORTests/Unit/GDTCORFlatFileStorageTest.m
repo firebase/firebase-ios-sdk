@@ -447,7 +447,7 @@ static NSInteger target = kGDTCORTargetCCT;
 
 - (void)testSaveAndLoadLibraryData {
   __weak NSData *weakData;
-  NSString *dataKey = @"GDTCORFlatFileStorageTestData";
+  NSString *dataKey = NSStringFromSelector(_cmd);
   @autoreleasepool {
     NSData *data = [@"test data" dataUsingEncoding:NSUTF8StringEncoding];
     weakData = data;
@@ -486,7 +486,7 @@ static NSInteger target = kGDTCORTargetCCT;
 }
 
 - (void)testSaveAndRemoveLibraryData {
-  NSString *dataKey = @"GDTCORFlatFileStorageTestData";
+  NSString *dataKey = NSStringFromSelector(_cmd);
   NSData *data = [@"test data" dataUsingEncoding:NSUTF8StringEncoding];
   XCTestExpectation *expectation = [self expectationWithDescription:@"storage completion called"];
   [[GDTCORFlatFileStorage sharedInstance] storeLibraryData:data
@@ -519,7 +519,7 @@ static NSInteger target = kGDTCORTargetCCT;
       libraryDataForKey:dataKey
              onComplete:^(NSData *_Nullable data, NSError *_Nullable error) {
                [expectation fulfill];
-               XCTAssertNil(error);
+               XCTAssertNotNil(error);
                XCTAssertNil(data);
              }];
   [self waitForExpectations:@[ expectation ] timeout:10.0];
