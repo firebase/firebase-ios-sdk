@@ -74,12 +74,12 @@ NSString *const kTestPassword = @"testing";
 
   static dispatch_once_t once;
   dispatch_once(&once, ^{
-    XCTestExpectation *logInExpectation = [self expectationWithDescription:@"login"];
+    XCTestExpectation *signInExpectation = [self expectationWithDescription:@"signIn"];
     [self.auth signInWithEmail:kTestUser
                       password:kTestPassword
                     completion:^(FIRAuthDataResult *result, NSError *error) {
                       XCTAssertNil(error);
-                      [logInExpectation fulfill];
+                      [signInExpectation fulfill];
                     }];
     [self waitForExpectations];
 
