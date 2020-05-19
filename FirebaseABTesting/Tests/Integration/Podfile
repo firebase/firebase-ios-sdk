@@ -1,0 +1,8 @@
+target 'ABTQA' do
+  use_frameworks!
+
+  pod 'Firebase/Analytics'
+  pod 'FirebaseCore', :path => '../../..'
+  pod 'FirebaseRemoteConfig', :path => '../../..'
+  pod 'FirebaseABTesting', :path => '../../..'
+end
