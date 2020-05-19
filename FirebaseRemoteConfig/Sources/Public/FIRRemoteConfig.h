@@ -87,6 +87,12 @@ typedef void (^FIRRemoteConfigFetchCompletion)(FIRRemoteConfigFetchStatus status
 typedef void (^FIRRemoteConfigActivateCompletion)(NSError *_Nullable error)
     NS_SWIFT_NAME(RemoteConfigActivateCompletion);
 
+/// Completion handler invoked by activate method upon completion.
+/// @param changed  Flag indicating whether or not the configuration changed.
+/// @param error  Error message on failure. Nil if activation was successful.
+typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_Nullable error)
+    NS_SWIFT_NAME(RemoteConfigActivateChangeCompletion);
+
 /// Completion handler invoked upon completion of Remote Config initialization.
 ///
 /// @param initializationError nil if initialization succeeded.
@@ -234,16 +240,21 @@ NS_SWIFT_NAME(RemoteConfig)
 
 /// Applies Fetched Config data to the Active Config, causing updates to the behavior and appearance
 /// of the app to take effect (depending on how config data is used in the app).
+/// @param completion Activate operation callback.
+- (void)activateWithCompletion:(nullable FIRRemoteConfigActivateChangeCompletion)completion;
+
+/// Applies Fetched Config data to the Active Config, causing updates to the behavior and appearance
+/// of the app to take effect (depending on how config data is used in the app).
 /// @param completionHandler Activate operation callback.
-- (void)activateWithCompletionHandler:(nullable FIRRemoteConfigActivateCompletion)completionHandler;
+- (void)activateWithCompletionHandler:(nullable FIRRemoteConfigActivateCompletion)completionHandler
+    DEPRECATED_MSG_ATTRIBUTE("Use -[FIRRemoteConfig activateWithHandler:] instead.");
 
 /// This method is deprecated. Please use -[FIRRemoteConfig activateWithCompletionHandler:] instead.
 /// Applies Fetched Config data to the Active Config, causing updates to the behavior and appearance
 /// of the app to take effect (depending on how config data is used in the app).
 /// Returns true if there was a Fetched Config, and it was activated.
 /// Returns false if no Fetched Config was found, or the Fetched Config was already activated.
-- (BOOL)activateFetched DEPRECATED_MSG_ATTRIBUTE("Use -[FIRRemoteConfig activate] "
-                                                 "instead.");
+- (BOOL)activateFetched DEPRECATED_MSG_ATTRIBUTE("Use -[FIRRemoteConfig activate] instead.");
 
 #pragma mark - Get Config
 /// Enables access to configuration values by using object subscripting syntax.
@@ -265,8 +276,7 @@ NS_SWIFT_NAME(RemoteConfig)
 /// @param aNamespace       Config results under a given namespace.
 - (nonnull FIRRemoteConfigValue *)configValueForKey:(nullable NSString *)key
                                           namespace:(nullable NSString *)aNamespace
-    DEPRECATED_MSG_ATTRIBUTE("Use -[FIRRemoteConfig configValueForKey:] "
-                             "instead.");
+    DEPRECATED_MSG_ATTRIBUTE("Use -[FIRRemoteConfig configValueForKey:] instead.");
 
 /// Gets the config value of a given namespace and a given source.
 /// @param key              Config key.
@@ -281,8 +291,7 @@ NS_SWIFT_NAME(RemoteConfig)
 - (nonnull FIRRemoteConfigValue *)configValueForKey:(nullable NSString *)key
                                           namespace:(nullable NSString *)aNamespace
                                              source:(FIRRemoteConfigSource)source
-    DEPRECATED_MSG_ATTRIBUTE("Use -[FIRRemoteConfig configValueForKey:source:] "
-                             "instead.");
+    DEPRECATED_MSG_ATTRIBUTE("Use -[FIRRemoteConfig configValueForKey:source:] instead.");
 
 /// Gets all the parameter keys from a given source and a given namespace.
 ///
