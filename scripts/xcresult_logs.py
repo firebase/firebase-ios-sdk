@@ -26,6 +26,7 @@ and it will find the output associated with the most recent invocation.
 import json
 import logging
 import os
+import re
 import subprocess
 import sys
 
@@ -114,7 +115,7 @@ def find_xcresult_path(project, scheme):
   """
   project_path = find_project_path(project)
   bundle_dir = os.path.join(project_path, 'Logs/Test')
-  prefix = 'Run-' + scheme + '-'
+  prefix = re.compile('([^-]*)-' + re.escape(scheme) + '-')
 
   _logger.debug('Logging for xcresult bundles in %s', bundle_dir)
   xcresult = find_newest_matching_prefix(bundle_dir, prefix)
@@ -136,7 +137,7 @@ def find_project_path(project):
     The path containing the newest project output.
   """
   path = os.path.expanduser('~/Library/Developer/Xcode/DerivedData')
-  prefix = project + '-'
+  prefix = re.compile(re.escape(project) + '-')
 
   # DerivedData has directories like Firestore-csljdukzqbozahdjizcvrfiufrkb. Use
   # the most recent one if there are more than one such directory matching the
@@ -155,7 +156,7 @@ def find_newest_matching_prefix(path, prefix):
 
   Args:
     path: A directory to list
-    prefix: The starting part of any filename to consider
+    prefix: A regular expression that matches the filenames to consider
 
   Returns:
     The path to the newest entry in the directory whose basename starts with
@@ -164,7 +165,7 @@ def find_newest_matching_prefix(path, prefix):
   entries = os.listdir(path)
   result = None
   for entry in entries:
-    if entry.startswith(prefix):
+    if prefix.match(entry):
       fq_entry = os.path.join(path, entry)
       if result is None:
         result = fq_entry
