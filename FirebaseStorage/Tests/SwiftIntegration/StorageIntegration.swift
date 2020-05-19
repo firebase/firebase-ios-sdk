@@ -97,7 +97,7 @@ class StorageIntegration: XCTestCase {
     let ref = storage.reference().child("ios/private/secretfile.txt")
     ref.getMetadata(completion: { (metadata, error) -> Void in
       XCTAssertNil(metadata, "Metadata should be nil")
-      XCTAssertNotNil(error, "Error should be nil")
+      XCTAssertNotNil(error, "Error should not be nil")
       XCTAssertEqual((error! as NSError).code, StorageErrorCode.unauthorized.rawValue)
       expectation.fulfill()
     })
@@ -412,21 +412,22 @@ class StorageIntegration: XCTestCase {
   func testUnauthenticatedSimpleGetFileWithCompletion() throws {
     let expectation = self.expectation(description: #function)
     let ref = storage.reference(withPath: "ios/public/cookie")
-    let tmpDirURL = URL(fileURLWithPath: NSTemporaryDirectory())
-    let fileURL = tmpDirURL.appendingPathComponent("cookie.txt")
-    let data = try XCTUnwrap("Here's a 🍪, yay!".data(using: .utf8), "Data construction failed")
+    let cookieString = "Here's a 🍪, yay!"
+    let data = try XCTUnwrap(cookieString.data(using: .utf8), "Data construction failed")
 
     ref.putData(data, metadata: nil, completion: { metadata, error in
       XCTAssertNotNil(metadata, "Metadata should not be nil")
       XCTAssertNil(error, "Error should be nil")
 
+      let tmpDirURL = URL(fileURLWithPath: NSTemporaryDirectory())
+      let fileURL = tmpDirURL.appendingPathComponent("cookie.txt")
       ref.write(toFile: fileURL) { url, error in
         XCTAssertNil(error, "Error should be nil")
         do {
           let url = try XCTUnwrap(url, "Failed to unwrap url")
           XCTAssertEqual(fileURL, url)
           let stringData = try String(contentsOf: fileURL, encoding: .utf8)
-          XCTAssertEqual(stringData, "Here's a 🍪, yay!")
+          XCTAssertEqual(stringData, cookieString)
           expectation.fulfill()
         } catch {
           XCTFail("Throw in url completion block")
