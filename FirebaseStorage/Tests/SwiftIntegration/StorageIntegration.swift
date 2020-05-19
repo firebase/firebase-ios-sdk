@@ -20,32 +20,24 @@ import FirebaseStorage
 import XCTest
 
 class StorageIntegration: XCTestCase {
-  static var app: FirebaseApp!
-  static var auth: Auth!
+  var app: FirebaseApp!
+  var auth: Auth!
   var storage: Storage!
   static var once = false
 
   override class func setUp() {
     FirebaseApp.configure()
-    app = FirebaseApp.app()
-    auth = Auth.auth(app: app)
-    let group = DispatchGroup()
-    group.enter()
-    auth.signIn(withEmail: "test@example.com", password: "testing") { result, error in
-      XCTAssertNil(error)
-      group.leave()
-    }
-    group.notify(queue: .main) {
-      print("Done signing in")
-    }
   }
 
   override func setUp() {
     super.setUp()
-    storage = Storage.storage(app: StorageIntegration.app!)
+    app = FirebaseApp.app()
+    auth = Auth.auth(app: app)
+    storage = Storage.storage(app: app!)
 
     if !StorageIntegration.once {
       StorageIntegration.once = true
+      signInAndWait()
       let setupExpectation = expectation(description: "setUp")
 
       let largeFiles = ["ios/public/1mb"]
@@ -83,12 +75,14 @@ class StorageIntegration: XCTestCase {
   }
 
   override func tearDown() {
+    app = nil
+    auth = nil
     storage = nil
     super.tearDown()
   }
 
   func testName() {
-    let aGS = StorageIntegration.app.options.projectID
+    let aGS = app.options.projectID
     let aGSURI = "gs://\(aGS!).appspot.com/path/to"
     let ref = storage.reference(forURL: aGSURI)
     XCTAssertEqual(ref.description, aGSURI)
@@ -715,6 +709,15 @@ class StorageIntegration: XCTestCase {
       XCTAssertNil(listResult.pageToken, "pageToken should be nil")
       expectation.fulfill()
     })
+    waitForExpectations()
+  }
+
+  private func signInAndWait() {
+    let expectation = self.expectation(description: #function)
+    auth.signIn(withEmail: "test@example.com", password: "testing") { result, error in
+      XCTAssertNil(error)
+      expectation.fulfill()
+    }
     waitForExpectations()
   }
 
