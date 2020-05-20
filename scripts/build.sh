@@ -448,7 +448,7 @@ case "$product-$platform-$method" in
       "${ios_flags[@]}" \
       "${xcb_flags[@]}" \
       build \
-	  test
+      test
 
     pod_gen FirebaseDatabase.podspec --platforms=macos --clean
     RunXcodebuild \
