@@ -31,8 +31,10 @@ jobs:
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/Storage/Credentials.h.gpg \
           FirebaseStorage/Tests/Integration/Credentials.h "$plist_secret"
     - name: Install Credentials.swift
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/Storage/Credentials.swift.gpg \
+      run: |
+        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/Storage/Credentials.swift.gpg \
           FirebaseStorage/Tests/SwiftIntegration/Credentials.swift "$plist_secret"
+        cp FirebaseStorage/Tests/SwiftIntegration/Credentials.swift FirebaseStorageSwift/Tests/Integration/
     - name: BuildAndTest # can be replaced with pod lib lint with CocoaPods 1.10
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/build.sh ${{ matrix.pod }} all)
 

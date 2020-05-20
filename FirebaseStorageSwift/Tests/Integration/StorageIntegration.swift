@@ -32,6 +32,7 @@ class StorageIntegration: XCTestCase {
   override func setUp() {
     super.setUp()
     app = FirebaseApp.app()
+    auth = Auth.auth(app: app)
     storage = Storage.storage(app: app!)
 
     if !StorageIntegration.signedIn {

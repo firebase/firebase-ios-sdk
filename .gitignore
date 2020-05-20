@@ -25,8 +25,9 @@ FirebaseMessaging/Tests/IntegrationTests/Resources/GoogleService-Info.plist
 FirebaseMessaging/Apps/Sample/Sample/GoogleService-Info.plist
 
 # Credentials for Firebase Storage Integration Tests
-FirebaseStorage/Tests/SwiftIntegration/Credentials.swift
 FirebaseStorage/Tests/Integration/Credentials.h
+FirebaseStorage/Tests/SwiftIntegration/Credentials.swift
+FirebaseStorageSwift/Tests/Integration/Credentials.swift
 
 Secrets.tar
 
