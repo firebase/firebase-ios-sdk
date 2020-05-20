@@ -27,6 +27,7 @@ import json
 import logging
 import os
 import re
+import shutil
 import subprocess
 import sys
 
@@ -53,9 +54,17 @@ def main():
     scheme = flags['-scheme']
     xcresult_path = find_xcresult_path(project, scheme)
 
-  log_id = find_log_id(xcresult_path)
-  log = export_log(xcresult_path, log_id)
-  sys.stdout.write(log)
+  version = find_xcode_major_version()
+  if version <= 10:
+    files = find_legacy_log_files(xcresult_path)
+    cat_files(files, sys.stdout)
+
+  else:
+    # Xcode 11 and up ship xcresult tool which standardizes the xcresult format
+    # but also makes it harder to deal with.
+    log_id = find_log_id(xcresult_path)
+    log = export_log(xcresult_path, log_id)
+    sys.stdout.write(log)
 
 
 # Most flags on the xcodebuild command-line are uninteresting, so only pull
@@ -178,6 +187,34 @@ def find_newest_matching_prefix(path, prefix):
   return result
 
 
+def find_legacy_log_files(xcresult_path):
+  """Finds the log files produced by Xcode 10 and below."""
+
+  result = []
+
+  for root, dirs, files in os.walk(xcresult_path, topdown=True):
+    for file in files:
+      if file.endswith('.txt'):
+        file = os.path.join(root, file)
+        result.append(file)
+
+  # Sort the files by creation time.
+  result.sort(key=lambda f: os.stat(f).st_ctime)
+  return result
+
+
+def cat_files(files, output):
+  """Reads the contents of all the files and copies them to the output.
+
+  Args:
+    files: A list of filenames
+    output: A file-like object in which all the data should be copied.
+  """
+  for file in files:
+    with open(file, 'r') as fd:
+      shutil.copyfileobj(fd, output)
+
+
 def find_log_id(xcresult_path):
   """Finds the id of the last action's logs.
 
@@ -228,6 +265,18 @@ def collect_log_output(activity_log, result):
     if subsections:
       for subsection in subsections['_values']:
         collect_log_output(subsection, result)
+
+
+def find_xcode_major_version():
+  """Determines the major version number of Xcode."""
+  cmd = ['xcodebuild', '-version']
+  command_trace.log(cmd)
+
+  result = str(subprocess.check_output(cmd))
+  version = result.split('\n', 1)[0]
+  version = re.sub(r'Xcode ', '', version)
+  version = re.sub(r'\..*', '', version)
+  return int(version)
 
 
 def xcresulttool(*args):
