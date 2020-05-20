@@ -19,6 +19,8 @@
 #import <FirebaseCore/FIRApp.h>
 #import <FirebaseCore/FIROptions.h>
 
+#import "Credentials.h"
+
 NSTimeInterval kFIRStorageIntegrationTestTimeout = 60;
 
 /**
@@ -48,8 +50,8 @@ NSTimeInterval kFIRStorageIntegrationTestTimeout = 60;
  * You can define these access rights in the Firebase Console of your project.
  */
 
-NSString *const kTestUser = @"test@example.com";
-NSString *const kTestPassword = @"testing";
+NSString *const kTestUser = KUSER_NAME;
+NSString *const kTestPassword = KPASSWORD;
 
 @interface FIRStorageIntegrationTests : XCTestCase
 

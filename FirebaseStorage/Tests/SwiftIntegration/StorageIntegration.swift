@@ -718,9 +718,11 @@ class StorageIntegration: XCTestCase {
 
   private func signInAndWait() {
     let expectation = self.expectation(description: #function)
-    auth.signIn(withEmail: "test@example.com", password: "testing") { result, error in
-      StorageIntegration.signedIn = true
+    auth.signIn(withEmail: Credentials.kUserName,
+                password: Credentials.kPassword) { result, error in
       XCTAssertNil(error)
+      StorageIntegration.signedIn = true
+      print("Successfully signed in")
       expectation.fulfill()
     }
     waitForExpectations()
