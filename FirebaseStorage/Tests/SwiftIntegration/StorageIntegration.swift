@@ -40,7 +40,7 @@ class StorageIntegration: XCTestCase {
       signInAndWait()
     }
 
-    if !StorageIntegration.once {
+//    if !StorageIntegration.once {
       let setupExpectation = expectation(description: "setUp")
 
       let largeFiles = ["ios/public/1mb"]
@@ -75,7 +75,7 @@ class StorageIntegration: XCTestCase {
       }
       waitForExpectations()
       StorageIntegration.once = true
-    }
+//    }
   }
 
   override func tearDown() {
@@ -497,10 +497,14 @@ class StorageIntegration: XCTestCase {
     let tmpDirURL = URL(fileURLWithPath: NSTemporaryDirectory())
     let fileURL = tmpDirURL.appendingPathComponent("hello.dat")
     let task = ref.write(toFile: fileURL)
+    var failed = false // Only fail once
 
     task.observe(StorageTaskStatus.failure, handler: { snapshot in
       XCTAssertTrue(snapshot.description.starts(with: "<State: Failed"))
-      expectation.fulfill()
+      if !failed {
+        failed = true
+        expectation.fulfill()
+      }
     })
 
     task.observe(StorageTaskStatus.progress, handler: { _ in
