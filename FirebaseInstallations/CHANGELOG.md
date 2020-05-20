@@ -3,6 +3,7 @@
 - [changed] Mac OS Keychain storage changes: use a unique (per app) Keychain Service name to isolate Keychain items for different Mac OS applications.
   NOTE: Installation Identifiers created by previous versions will be reset on Mac OS which can affect e.g. A/B Testing variants or debug device targeting for Firebase Messaging.
   iOS, TVOS and watchOS Installation Identifiers will not be affected. (#5603)
+- [changed] More readable server error console messages. (#5654)
 
 # v1.2.0 -- M69
 
