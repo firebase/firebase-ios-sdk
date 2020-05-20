@@ -94,7 +94,7 @@ class StorageIntegration: XCTestCase {
 
   func testGetMetadata() {
     let expectation = self.expectation(description: #function)
-    let ref = storage.reference().child("ios/public/swift-1mb")
+    let ref = storage.reference().child("ios/public/1mb")
     ref.getMetadata(completion: { (metadata, error) -> Void in
       XCTAssertNotNil(metadata, "Metadata should not be nil")
       XCTAssertNil(error, "Error should be nil")
@@ -124,7 +124,7 @@ class StorageIntegration: XCTestCase {
                            "ちかてつ": "🚇",
                            "shinkansen": "新幹線"]
 
-    let ref = storage.reference(withPath: "ios/public/swift-1mb")
+    let ref = storage.reference(withPath: "ios/public/1mb")
     ref.updateMetadata(meta, completion: { metadata, error in
       XCTAssertEqual(meta.contentType, metadata!.contentType)
       XCTAssertEqual(meta.customMetadata!["lol"], metadata?.customMetadata!["lol"])
@@ -356,7 +356,7 @@ class StorageIntegration: XCTestCase {
   func testSimpleGetData() {
     let expectation = self.expectation(description: #function)
 
-    let ref = storage.reference(withPath: "ios/public/swift-1mb")
+    let ref = storage.reference(withPath: "ios/public/1mb")
     ref.getData(maxSize: 1024 * 1024, completion: { data, error in
       XCTAssertNotNil(data, "Data should not be nil")
       XCTAssertNil(error, "Error should be nil")
@@ -368,7 +368,7 @@ class StorageIntegration: XCTestCase {
   func testSimpleGetDataInBackgroundQueue() {
     let expectation = self.expectation(description: #function)
 
-    let ref = storage.reference(withPath: "ios/public/swift-1mb")
+    let ref = storage.reference(withPath: "ios/public/1mb")
     DispatchQueue.global(qos: .background).async {
       ref.getData(maxSize: 1024 * 1024, completion: { data, error in
         XCTAssertNotNil(data, "Data should not be nil")
@@ -382,7 +382,7 @@ class StorageIntegration: XCTestCase {
   func testSimpleGetDataTooSmall() {
     let expectation = self.expectation(description: #function)
 
-    let ref = storage.reference(withPath: "ios/public/swift-1mb")
+    let ref = storage.reference(withPath: "ios/public/1mb")
     ref.getData(maxSize: 1024, completion: { data, error in
       XCTAssertNil(data, "Data should be nil")
       XCTAssertNotNil(error, "Error should not be nil")
@@ -395,13 +395,13 @@ class StorageIntegration: XCTestCase {
   func testSimpleGetDownloadURL() {
     let expectation = self.expectation(description: #function)
 
-    let ref = storage.reference(withPath: "ios/public/swift-1mb")
+    let ref = storage.reference(withPath: "ios/public/1mb")
 
     // Download URL format is
     // "https://firebasestorage.googleapis.com/v0/b/{bucket}/o/{path}?alt=media&token={token}"
     let downloadURLPattern =
       "^https:\\/\\/firebasestorage.googleapis.com\\/v0\\/b\\/[^\\/]*\\/o\\/" +
-      "ios%2Fpublic%2Fswift-1mb\\?alt=media&token=[a-z0-9-]*$"
+      "ios%2Fpublic%2F1mb\\?alt=media&token=[a-z0-9-]*$"
 
     ref.downloadURL(completion: { downloadURL, error in
       XCTAssertNil(error, "Error should be nil")
@@ -493,7 +493,7 @@ class StorageIntegration: XCTestCase {
 
   func testCancelDownload() throws {
     let expectation = self.expectation(description: #function)
-    let ref = storage.reference(withPath: "ios/public/swift-1mb")
+    let ref = storage.reference(withPath: "ios/public/1mb")
     let tmpDirURL = URL(fileURLWithPath: NSTemporaryDirectory())
     let fileURL = tmpDirURL.appendingPathComponent("hello.dat")
     let task = ref.write(toFile: fileURL)
@@ -539,7 +539,7 @@ class StorageIntegration: XCTestCase {
 
   func testUpdateMetadata2() {
     let expectation = self.expectation(description: #function)
-    let ref = storage.reference(withPath: "ios/public/swift-1mb")
+    let ref = storage.reference(withPath: "ios/public/1mb")
 
     let metadata = StorageMetadata()
     metadata.cacheControl = "cache-control"
@@ -590,7 +590,7 @@ class StorageIntegration: XCTestCase {
 
   func testResumeGetFile() {
     let expectation = self.expectation(description: #function)
-    let ref = storage.reference(withPath: "ios/public/swift-1mb")
+    let ref = storage.reference(withPath: "ios/public/1mb")
     let tmpDirURL = URL(fileURLWithPath: NSTemporaryDirectory())
     let fileURL = tmpDirURL.appendingPathComponent("hello.txt")
     let task = ref.write(toFile: fileURL)
@@ -638,7 +638,7 @@ class StorageIntegration: XCTestCase {
 
   func testResumeGetFileInBackgroundQueue() {
     let expectation = self.expectation(description: #function)
-    let ref = storage.reference(withPath: "ios/public/swift-1mb")
+    let ref = storage.reference(withPath: "ios/public/1mb")
     let tmpDirURL = URL(fileURLWithPath: NSTemporaryDirectory())
     let fileURL = tmpDirURL.appendingPathComponent("hello.txt")
     let task = ref.write(toFile: fileURL)
