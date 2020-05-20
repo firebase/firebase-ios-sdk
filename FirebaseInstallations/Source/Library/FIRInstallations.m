@@ -90,7 +90,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                     GCMSenderID:appOptions.GCMSenderID
                                                     accessGroup:appOptions.appGroupID];
 
-  // `prefetchAuthToken` is disabled due to b/156746574
+  // `prefetchAuthToken` is disabled due to b/156746574.
   return [self initWithAppOptions:appOptions
                           appName:appName
         installationsIDController:IDController
