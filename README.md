@@ -191,7 +191,7 @@ building and running the FirebaseAuth pod along with various samples and tests.
 
 ### Firebase Database
 
-The Firebase Database integration tests can be run against a locally running Database Emulator
+The Firebase Database Integration tests can be run against a locally running Database Emulator
 or against a production instance.
 
 To run against a local emulator instance, invoke `./scripts/run_database_emulator.sh start` before
