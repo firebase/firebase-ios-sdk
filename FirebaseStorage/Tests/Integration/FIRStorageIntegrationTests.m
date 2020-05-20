@@ -12,43 +12,51 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#import <FirebaseAuth/FirebaseAuth.h>
 #import <FirebaseStorage/FirebaseStorage.h>
 #import <XCTest/XCTest.h>
 
 #import <FirebaseCore/FIRApp.h>
 #import <FirebaseCore/FIROptions.h>
 
+#import "Credentials.h"
+
 NSTimeInterval kFIRStorageIntegrationTestTimeout = 60;
 
 /**
  * Firebase Storage Integration tests
  *
- * To run these tests, you need to define the following access rights for your Firebase App:
- * - unauthentication read/write access to /ios/public
- * - authentication read/write access to /ios/private
+ * To run these tests, you need to define the following access rights:
  *
- * A sample configuration may look like:
+  rules_version = '2';
+  service firebase.storage {
+    match /b/{bucket}/o {
+      match /ios {
+        match /public/{allPaths=**} {
+          allow write: if request.auth != null;
+          allow read: if true;
+        }
+        match /private/{allPaths=**} {
+          allow read, write: if false;
+        }
+      }
+    }
+  }
  *
- * rules_version = '2';
- * service firebase.storage {
- *   match /b/{bucket}/o {
- *     ...
- *     match /ios {
- *       match /public/{allPaths=**} {
- *         allow read, write;
- *       }
- *       match /private/{allPaths=**} {
- *         allow none;
- *       }
- *     }
- *   }
- * }
+ * You also need to enable email/password sign in and add a test user in your
+ * Firebase Authentication settings. Your account credentials need to match
+ * the credentials defined in `kTestUser` and `kTestPassword`.
  *
  * You can define these access rights in the Firebase Console of your project.
  */
+
+NSString *const kTestUser = KUSER_NAME;
+NSString *const kTestPassword = KPASSWORD;
+
 @interface FIRStorageIntegrationTests : XCTestCase
 
 @property(strong, nonatomic) FIRApp *app;
+@property(strong, nonatomic) FIRAuth *auth;
 @property(strong, nonatomic) FIRStorage *storage;
 
 @end
@@ -63,10 +71,20 @@ NSTimeInterval kFIRStorageIntegrationTestTimeout = 60;
   [super setUp];
 
   self.app = [FIRApp defaultApp];
+  self.auth = [FIRAuth authWithApp:self.app];
   self.storage = [FIRStorage storageForApp:self.app];
 
   static dispatch_once_t once;
   dispatch_once(&once, ^{
+    XCTestExpectation *signInExpectation = [self expectationWithDescription:@"signIn"];
+    [self.auth signInWithEmail:kTestUser
+                      password:kTestPassword
+                    completion:^(FIRAuthDataResult *result, NSError *error) {
+                      XCTAssertNil(error);
+                      [signInExpectation fulfill];
+                    }];
+    [self waitForExpectations];
+
     XCTestExpectation *setUpExpectation = [self expectationWithDescription:@"setUp"];
 
     NSArray<NSString *> *largeFiles = @[ @"ios/public/1mb" ];
@@ -122,9 +140,8 @@ NSTimeInterval kFIRStorageIntegrationTestTimeout = 60;
   XCTAssertEqualObjects(ref.description, aGSURI);
 }
 
-- (void)testUnauthenticatedGetMetadata {
-  XCTestExpectation *expectation =
-      [self expectationWithDescription:@"testUnauthenticatedGetMetadata"];
+- (void)testGetMetadata {
+  XCTestExpectation *expectation = [self expectationWithDescription:@"testGetMetadata"];
   FIRStorageReference *ref = [self.storage.reference child:@"ios/public/1mb"];
 
   [ref metadataWithCompletion:^(FIRStorageMetadata *metadata, NSError *error) {
@@ -136,37 +153,8 @@ NSTimeInterval kFIRStorageIntegrationTestTimeout = 60;
   [self waitForExpectations];
 }
 
-- (void)testUnauthenticatedUpdateMetadata {
-  XCTestExpectation *expectation =
-      [self expectationWithDescription:@"testUnauthenticatedUpdateMetadata"];
-
-  FIRStorageReference *ref = [self.storage referenceWithPath:@"ios/public/1mb"];
-
-  FIRStorageMetadata *meta = [[FIRStorageMetadata alloc] init];
-  [meta setContentType:@"lol/custom"];
-  [meta setCustomMetadata:@{
-    @"lol" : @"custom metadata is neat",
-    @"ちかてつ" : @"🚇",
-    @"shinkansen" : @"新幹線"
-  }];
-
-  [ref updateMetadata:meta
-           completion:^(FIRStorageMetadata *metadata, NSError *error) {
-             XCTAssertEqualObjects(meta.contentType, metadata.contentType);
-             XCTAssertEqualObjects(meta.customMetadata[@"lol"], metadata.customMetadata[@"lol"]);
-             XCTAssertEqualObjects(meta.customMetadata[@"ちかてつ"],
-                                   metadata.customMetadata[@"ちかてつ"]);
-             XCTAssertEqualObjects(meta.customMetadata[@"shinkansen"],
-                                   metadata.customMetadata[@"shinkansen"]);
-             XCTAssertNil(error, "Error should be nil");
-             [expectation fulfill];
-           }];
-
-  [self waitForExpectations];
-}
-
-- (void)testUnauthenticatedDelete {
-  XCTestExpectation *expectation = [self expectationWithDescription:@"testUnauthenticatedDelete"];
+- (void)testDelete {
+  XCTestExpectation *expectation = [self expectationWithDescription:@"testDelete"];
 
   FIRStorageReference *ref = [self.storage referenceWithPath:@"ios/public/fileToDelete"];
 
@@ -205,27 +193,8 @@ NSTimeInterval kFIRStorageIntegrationTestTimeout = 60;
   [self waitForExpectations];
 }
 
-- (void)testUnauthenticatedSimplePutData {
-  XCTestExpectation *expectation =
-      [self expectationWithDescription:@"testUnauthenticatedSimplePutData"];
-  FIRStorageReference *ref = [self.storage referenceWithPath:@"ios/public/testBytesUpload"];
-
-  NSData *data = [@"Hello World" dataUsingEncoding:NSUTF8StringEncoding];
-
-  [ref putData:data
-        metadata:nil
-      completion:^(FIRStorageMetadata *metadata, NSError *error) {
-        XCTAssertNotNil(metadata, "Metadata should not be nil");
-        XCTAssertNil(error, "Error should be nil");
-        [expectation fulfill];
-      }];
-
-  [self waitForExpectations];
-}
-
-- (void)testUnauthenticatedSimplePutSpecialCharacter {
-  XCTestExpectation *expectation =
-      [self expectationWithDescription:@"testUnauthenticatedSimplePutDataEscapedName"];
+- (void)testPutDataSpecialCharacter {
+  XCTestExpectation *expectation = [self expectationWithDescription:@"testPutDataSpecialCharacter"];
   FIRStorageReference *ref = [self.storage referenceWithPath:@"ios/public/-._~!$'()*,=:@&+;"];
 
   NSData *data = [@"Hello World" dataUsingEncoding:NSUTF8StringEncoding];
@@ -241,9 +210,9 @@ NSTimeInterval kFIRStorageIntegrationTestTimeout = 60;
   [self waitForExpectations];
 }
 
-- (void)testUnauthenticatedSimplePutDataInBackgroundQueue {
+- (void)testPutDataInBackgroundQueue {
   XCTestExpectation *expectation =
-      [self expectationWithDescription:@"testUnauthenticatedSimplePutDataInBackgroundQueue"];
+      [self expectationWithDescription:@"testPutDataInBackgroundQueue"];
   FIRStorageReference *ref = [self.storage referenceWithPath:@"ios/public/testBytesUpload"];
 
   NSData *data = [@"Hello World" dataUsingEncoding:NSUTF8StringEncoding];
@@ -261,9 +230,8 @@ NSTimeInterval kFIRStorageIntegrationTestTimeout = 60;
   [self waitForExpectations];
 }
 
-- (void)testUnauthenticatedSimplePutEmptyData {
-  XCTestExpectation *expectation =
-      [self expectationWithDescription:@"testUnauthenticatedSimplePutEmptyData"];
+- (void)testPutDataWithEmptyData {
+  XCTestExpectation *expectation = [self expectationWithDescription:@"testPutDataWithEmptyData"];
 
   FIRStorageReference *ref =
       [self.storage referenceWithPath:@"ios/public/testUnauthenticatedSimplePutEmptyData"];
@@ -281,9 +249,8 @@ NSTimeInterval kFIRStorageIntegrationTestTimeout = 60;
   [self waitForExpectations];
 }
 
-- (void)testUnauthenticatedSimplePutDataUnauthorized {
-  XCTestExpectation *expectation =
-      [self expectationWithDescription:@"testUnauthenticatedSimplePutDataUnauthorized"];
+- (void)testPutData {
+  XCTestExpectation *expectation = [self expectationWithDescription:@"testPutData"];
   FIRStorageReference *ref = [self.storage referenceWithPath:@"ios/private/secretfile.txt"];
 
   NSData *data = [@"Hello World" dataUsingEncoding:NSUTF8StringEncoding];
@@ -300,9 +267,8 @@ NSTimeInterval kFIRStorageIntegrationTestTimeout = 60;
   [self waitForExpectations];
 }
 
-- (void)testUnauthenticatedSimplePutFile {
-  XCTestExpectation *expectation =
-      [self expectationWithDescription:@"testUnauthenticatedSimplePutFile"];
+- (void)testPutFile {
+  XCTestExpectation *expectation = [self expectationWithDescription:@"testPutFile"];
 
   FIRStorageReference *ref =
       [self.storage referenceWithPath:@"ios/public/testUnauthenticatedSimplePutFile"];
@@ -372,9 +338,8 @@ NSTimeInterval kFIRStorageIntegrationTestTimeout = 60;
   [self waitForExpectations];
 }
 
-- (void)testUnauthenticatedSimplePutDataNoMetadata {
-  XCTestExpectation *expectation =
-      [self expectationWithDescription:@"testUnauthenticatedSimplePutDataNoMetadata"];
+- (void)testPutDataNoMetadata {
+  XCTestExpectation *expectation = [self expectationWithDescription:@"testPutDataNoMetadata"];
 
   FIRStorageReference *ref =
       [self.storage referenceWithPath:@"ios/public/testUnauthenticatedSimplePutDataNoMetadata"];
@@ -392,9 +357,8 @@ NSTimeInterval kFIRStorageIntegrationTestTimeout = 60;
   [self waitForExpectations];
 }
 
-- (void)testUnauthenticatedSimplePutFileNoMetadata {
-  XCTestExpectation *expectation =
-      [self expectationWithDescription:@"testUnauthenticatedSimplePutFileNoMetadata"];
+- (void)testPutFileNoMetadata {
+  XCTestExpectation *expectation = [self expectationWithDescription:@"testPutFileNoMetadata"];
 
   FIRStorageReference *ref =
       [self.storage referenceWithPath:@"ios/public/testUnauthenticatedSimplePutFileNoMetadata"];
@@ -416,9 +380,8 @@ NSTimeInterval kFIRStorageIntegrationTestTimeout = 60;
   [self waitForExpectations];
 }
 
-- (void)testUnauthenticatedSimpleGetData {
-  XCTestExpectation *expectation =
-      [self expectationWithDescription:@"testUnauthenticatedSimpleGetData"];
+- (void)testGetData {
+  XCTestExpectation *expectation = [self expectationWithDescription:@"testGetData"];
 
   FIRStorageReference *ref = [self.storage referenceWithPath:@"ios/public/1mb"];
 
@@ -432,9 +395,9 @@ NSTimeInterval kFIRStorageIntegrationTestTimeout = 60;
   [self waitForExpectations];
 }
 
-- (void)testUnauthenticatedSimpleGetDataInBackgroundQueue {
+- (void)testGetDataInBackgroundQueue {
   XCTestExpectation *expectation =
-      [self expectationWithDescription:@"testUnauthenticatedSimpleGetDataInBackgroundQueue"];
+      [self expectationWithDescription:@"testGetDataInBackgroundQueue"];
 
   FIRStorageReference *ref = [self.storage referenceWithPath:@"ios/public/1mb"];
 
@@ -450,9 +413,8 @@ NSTimeInterval kFIRStorageIntegrationTestTimeout = 60;
   [self waitForExpectations];
 }
 
-- (void)testUnauthenticatedSimpleGetDataTooSmall {
-  XCTestExpectation *expectation =
-      [self expectationWithDescription:@"testUnauthenticatedSimpleGetDataTooSmall"];
+- (void)testGetDataTooSmall {
+  XCTestExpectation *expectation = [self expectationWithDescription:@"testGetDataTooSmall"];
 
   FIRStorageReference *ref = [self.storage referenceWithPath:@"ios/public/1mb"];
 
@@ -467,9 +429,8 @@ NSTimeInterval kFIRStorageIntegrationTestTimeout = 60;
   [self waitForExpectations];
 }
 
-- (void)testUnauthenticatedSimpleGetDownloadURL {
-  XCTestExpectation *expectation =
-      [self expectationWithDescription:@"testUnauthenticatedSimpleGetDownloadURL"];
+- (void)testGetDownloadURL {
+  XCTestExpectation *expectation = [self expectationWithDescription:@"testGetDownloadURL"];
 
   FIRStorageReference *ref = [self.storage referenceWithPath:@"ios/public/1mb"];
 
@@ -494,9 +455,8 @@ NSTimeInterval kFIRStorageIntegrationTestTimeout = 60;
   [self waitForExpectations];
 }
 
-- (void)testUnauthenticatedSimpleGetFile {
-  XCTestExpectation *expectation =
-      [self expectationWithDescription:@"testUnauthenticatedSimpleGetFile"];
+- (void)testGetFile {
+  XCTestExpectation *expectation = [self expectationWithDescription:@"testGetFile"];
 
   FIRStorageReference *ref = [self.storage referenceWithPath:@"ios/public/helloworld"];
 
@@ -639,9 +599,8 @@ NSTimeInterval kFIRStorageIntegrationTestTimeout = 60;
   [self waitForExpectations];
 }
 
-- (void)testUnauthenticatedResumeGetFile {
-  XCTestExpectation *expectation =
-      [self expectationWithDescription:@"testUnauthenticatedResumeGetFile"];
+- (void)testResumeGetFile {
+  XCTestExpectation *expectation = [self expectationWithDescription:@"testResumeGetFile"];
 
   FIRStorageReference *ref = [self.storage referenceWithPath:@"ios/public/1mb"];
 
@@ -693,9 +652,9 @@ NSTimeInterval kFIRStorageIntegrationTestTimeout = 60;
   XCTAssertEqualWithAccuracy(sqrt(INT_MAX - 499), computationResult, 0.1);
 }
 
-- (void)testUnauthenticatedResumeGetFileInBackgroundQueue {
+- (void)testResumeGetFileInBackgroundQueue {
   XCTestExpectation *expectation =
-      [self expectationWithDescription:@"testUnauthenticatedResumeGetFileInBackgroundQueue"];
+      [self expectationWithDescription:@"testResumeGetFileInBackgroundQueue"];
 
   FIRStorageReference *ref = [self.storage referenceWithPath:@"ios/public/1mb"];
 
