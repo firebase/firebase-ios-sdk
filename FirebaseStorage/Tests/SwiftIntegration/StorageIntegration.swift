@@ -41,7 +41,6 @@ class StorageIntegration: XCTestCase {
     }
 
     if !StorageIntegration.once {
-      StorageIntegration.once = true
       let setupExpectation = expectation(description: "setUp")
 
       let largeFiles = ["ios/public/1mb"]
@@ -75,6 +74,7 @@ class StorageIntegration: XCTestCase {
         XCTFail("Exception thrown setting up files in setUp")
       }
       waitForExpectations()
+      StorageIntegration.once = true
     }
   }
 
