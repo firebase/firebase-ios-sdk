@@ -138,6 +138,7 @@ s%^./%%
 \%^build/% d
 \%^Debug/% d
 \%^Release/% d
+\%^cmake-build-debug/% d
 
 # pod gen output
 \%^gen/% d

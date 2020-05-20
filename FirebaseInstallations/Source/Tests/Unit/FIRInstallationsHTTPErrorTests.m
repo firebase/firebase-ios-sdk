@@ -48,8 +48,6 @@
   XCTAssertTrue([failureReason containsString:HTTPResponse.URL.absoluteString]);
   XCTAssertTrue([failureReason containsString:@(HTTPResponse.statusCode).stringValue]);
   XCTAssertTrue([failureReason containsString:@(HTTPResponse.statusCode).stringValue]);
-  XCTAssertTrue([failureReason containsString:@"header1"]);
-  XCTAssertTrue([failureReason containsString:@"value1"]);
 
   // Validate response data content.
   XCTAssertTrue([failureReason containsString:@"invalid request"]);
