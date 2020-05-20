@@ -27,6 +27,7 @@
 
 @interface FDevice () {
   FIRDatabaseConfig *config;
+  FIRDatabase *database;
   NSString *url;
   BOOL isOnline;
   BOOL disposed;
@@ -63,6 +64,7 @@ static NSUInteger deviceId = 0;
     config.persistenceEnabled = YES;
     url = firebaseUrl;
     isOnline = online;
+    database = [FTestHelpers databaseForConfig:self->config];
   }
   return self;
 }
@@ -92,6 +94,7 @@ static NSUInteger deviceId = 0;
 - (void)restartOnline {
   @autoreleasepool {
     [FRepoManager disposeRepos:config];
+    database = [FTestHelpers databaseForConfig:self->config];
     isOnline = YES;
   }
 }
@@ -99,6 +102,7 @@ static NSUInteger deviceId = 0;
 - (void)restartOffline {
   @autoreleasepool {
     [FRepoManager disposeRepos:config];
+    database = [FTestHelpers databaseForConfig:self->config];
     isOnline = NO;
   }
 }
@@ -134,8 +138,7 @@ static NSUInteger deviceId = 0;
 
 - (void)do:(void (^)(FIRDatabaseReference *))action {
   @autoreleasepool {
-    FIRDatabaseReference *ref = [[[[FIRDatabaseReference alloc] initWithConfig:self->config]
-        database] referenceFromURL:self->url];
+    FIRDatabaseReference *ref = [database referenceFromURL:self->url];
     if (!isOnline) {
       [FRepoManager interrupt:config];
     }

@@ -77,6 +77,7 @@ fi
 
 scripts_dir=$(dirname "${BASH_SOURCE[0]}")
 firestore_emulator="${scripts_dir}/run_firestore_emulator.sh"
+database_emulator="${scripts_dir}/run_database_emulator.sh"
 
 system=$(uname -s)
 case "$system" in
@@ -405,6 +406,9 @@ case "$product-$platform-$method" in
     ;;
 
   Database-*-xcodebuild)
+    "${database_emulator}" start
+    trap '"${database_emulator}" stop' ERR EXIT
+	
     pod_gen FirebaseDatabase.podspec --platforms=ios
     RunXcodebuild \
       -workspace 'gen/FirebaseDatabase/FirebaseDatabase.xcworkspace' \
