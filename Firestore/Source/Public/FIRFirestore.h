@@ -211,21 +211,17 @@ NS_SWIFT_NAME(Firestore)
 - (void)waitForPendingWritesWithCompletion:(void (^)(NSError *_Nullable error))completion;
 
 /**
- * Attaches a listener for a snapshots-in-sync event. Server-generated
- * updates and local changes can affect multiple snapshot listeners.
- * The snapshots-in-sync event indicates that all listeners affected by
- * a given change have fired.
+ * Attaches a listener for a snapshots-in-sync event. The snapshots-in-sync event indicates that all
+ * listeners affected by a given change have fired, even if a single server-generated change affects
+ * multiple listeners.
  *
- * NOTE: The snapshots-in-sync event only indicates that listeners are
- * in sync with each other, but does not relate to whether those
- * snapshots are in sync with the server. Use SnapshotMetadata in the
- * individual listeners to determine if a snapshot is from the cache or
- * the server.
+ * NOTE: The snapshots-in-sync event only indicates that listeners are in sync with each other, but
+ * does not relate to whether those snapshots are in sync with the server. Use SnapshotMetadata in
+ * the individual listeners to determine if a snapshot is from the cache or the server.
  *
- * @param listener A callback to be called every time all snapshot
- * listeners are in sync with each other.
- * @return A FIRListenerRegistration object that can be used to remove the
- * listener.
+ * @param listener A callback to be called every time all snapshot listeners are in sync with each
+ * other.
+ * @return A FIRListenerRegistration object that can be used to remove the listener.
  */
 - (id<FIRListenerRegistration>)addSnapshotsInSyncListener:(void (^)(void))listener
     NS_SWIFT_NAME(addSnapshotsInSyncListener(_:));
@@ -235,20 +231,19 @@ NS_SWIFT_NAME(Firestore)
 /**
  * Terminates this `FIRFirestore` instance.
  *
- * After calling `terminate` only the `clearPersistence` method may be used. Any other method
- * will throw an error.
+ * After calling `terminate` only the `clearPersistence` method may be used. Any other method will
+ * throw an error.
  *
- * To restart after termination, simply create a new instance of FIRFirestore with
- * `firestore` or `firestoreForApp` methods.
+ * To restart after termination, simply create a new instance of FIRFirestore with `firestore` or
+ * `firestoreForApp` methods.
  *
  * Termination does not cancel any pending writes and any tasks that are awaiting a response from
- * the server will not be resolved. The next time you start this instance, it will resume
- * attempting to send these writes to the server.
+ * the server will not be resolved. The next time you start this instance, it will resume attempting
+ * to send these writes to the server.
  *
- * Note: Under normal circumstances, calling this method is not required. This
- * method is useful only when you want to force this instance to release all of its resources or
- * in combination with `clearPersistence` to ensure that all local state is destroyed
- * between test runs.
+ * Note: Under normal circumstances, calling this method is not required. This method is useful only
+ * when you want to force this instance to release all of its resources or in combination with
+ * `clearPersistence` to ensure that all local state is destroyed between test runs.
  *
  * @param completion A block to execute once everything has been terminated.
  */
