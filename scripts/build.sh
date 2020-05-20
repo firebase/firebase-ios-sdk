@@ -419,7 +419,7 @@ case "$product-$platform-$method" in
       test
 
     # Integration tests are only run on iOS to minimize flake failures.
-	RunXcodebuild \
+    RunXcodebuild \
       -workspace 'gen/FirebaseDatabase/FirebaseDatabase.xcworkspace' \
       -scheme "FirebaseDatabase-Unit-integration" \
       "${ios_flags[@]}" \
