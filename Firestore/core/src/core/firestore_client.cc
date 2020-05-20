@@ -499,7 +499,9 @@ void FirestoreClient::AddSnapshotsInSyncListener(
 
 void FirestoreClient::RemoveSnapshotsInSyncListener(
     const std::shared_ptr<EventListener<Empty>>& user_listener) {
-  event_manager_->RemoveSnapshotsInSyncListener(user_listener);
+  worker_queue_->Enqueue([this, user_listener] {
+    event_manager_->RemoveSnapshotsInSyncListener(user_listener);
+  });
 }
 
 }  // namespace core

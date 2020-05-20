@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="16096" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="16086"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--View Controller-->
+        <scene sceneID="tne-QT-ifu">
+            <objects>
+                <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="ABTQA" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="leJ-st-KAV">
+                                <rect key="frame" x="22" y="174" width="370" height="130.5"/>
+                                <string key="text">This will make a call to fetch the latest values from Remote Config. This project has a running A/B test with a parameter `bg_color`. Based on the result, the background color of the screen with either turn red or green based on variant assignment.</string>
+                                <fontDescription key="fontDescription" style="UICTFontTextStyleHeadline"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="KLS-Wd-htS">
+                                <rect key="frame" x="62.5" y="124" width="289" height="42"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="25"/>
+                                <state key="normal" title="Fetch remote config values"/>
+                                <connections>
+                                    <action selector="checkTestButtonTapped:" destination="BYZ-38-t0r" eventType="touchUpInside" id="tbq-Rk-knJ"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="PD9-Py-SZW">
+                                <rect key="frame" x="52" y="427" width="310" height="42"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="25"/>
+                                <state key="normal" title="Fire a custom analytics event"/>
+                                <connections>
+                                    <action selector="fireAnalyticsEventButtonTapped:" destination="BYZ-38-t0r" eventType="touchUpInside" id="kgU-vo-FSg"/>
+                                </connections>
+                            </button>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="This opens a text field where you can enter the name of a custom analytics event, which will then be fired." textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="XJp-Bw-Rfp">
+                                <rect key="frame" x="20" y="477" width="374" height="64.5"/>
+                                <fontDescription key="fontDescription" style="UICTFontTextStyleHeadline"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                        </subviews>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                        <constraints>
+                            <constraint firstItem="XJp-Bw-Rfp" firstAttribute="top" secondItem="PD9-Py-SZW" secondAttribute="bottom" constant="8" id="GGg-up-bp6"/>
+                            <constraint firstItem="PD9-Py-SZW" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="Hlb-Oc-fRL"/>
+                            <constraint firstItem="KLS-Wd-htS" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="IYs-Wo-iR7"/>
+                            <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="leJ-st-KAV" secondAttribute="trailing" constant="20" id="Ji6-Oq-YP4"/>
+                            <constraint firstItem="PD9-Py-SZW" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="MMF-eJ-aK8"/>
+                            <constraint firstItem="XJp-Bw-Rfp" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="OVz-W2-lIw"/>
+                            <constraint firstItem="leJ-st-KAV" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="8bC-Xf-vdC" secondAttribute="leading" constant="20" id="PpX-Ah-EAp"/>
+                            <constraint firstItem="XJp-Bw-Rfp" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="8bC-Xf-vdC" secondAttribute="leading" constant="20" id="YYV-YD-dRt"/>
+                            <constraint firstItem="leJ-st-KAV" firstAttribute="top" secondItem="KLS-Wd-htS" secondAttribute="bottom" constant="8" id="ghI-kV-JTk"/>
+                            <constraint firstItem="leJ-st-KAV" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="mDt-we-Cds"/>
+                            <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="XJp-Bw-Rfp" secondAttribute="trailing" constant="20" id="ndW-B7-DAa"/>
+                            <constraint firstItem="KLS-Wd-htS" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="80" id="rE4-d6-WYc"/>
+                        </constraints>
+                        <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="139" y="118"/>
+        </scene>
+    </scenes>
+</document>

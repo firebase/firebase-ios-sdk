@@ -52,9 +52,11 @@ void AsyncQueue::EnterRestrictedMode() {
 }
 
 void AsyncQueue::Dispose() {
-  std::lock_guard<std::mutex> lock(mutex_);
+  {
+    std::lock_guard<std::mutex> lock(mutex_);
+    mode_ = Mode::kDisposed;
+  }
 
-  mode_ = Mode::kDisposed;
   executor_->Dispose();
 }
 

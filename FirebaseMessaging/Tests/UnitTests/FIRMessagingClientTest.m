@@ -233,6 +233,7 @@ static NSString *const kSecretToken = @"56789";
 
   XCTestExpectation *setupConnection =
       [self expectationWithDescription:@"Fcm should successfully setup a connection"];
+  XCTestExpectation *disconnected = [self expectationWithDescription:@"Fcm should disconnect"];
 
   __block int timesConnected = 0;
   FIRMessagingConnectCompletionHandler handler = ^(NSError *error) {
@@ -243,11 +244,12 @@ static NSString *const kSecretToken = @"56789";
       // disconnect the connection after some time
       FIRMessagingFakeConnection *fakeConnection =
           (FIRMessagingFakeConnection *)[self.mockClient connection];
-      dispatch_time_t time = dispatch_time(DISPATCH_TIME_NOW, (0.2 * NSEC_PER_SEC));
+      dispatch_time_t time = dispatch_time(DISPATCH_TIME_NOW, (0.5 * NSEC_PER_SEC));
       dispatch_after(time, dispatch_get_main_queue(), ^{
         // disconnect now
         [(FIRMessagingFakeConnection *)fakeConnection mockSocketDisconnect];
         [(FIRMessagingFakeConnection *)fakeConnection disconnectNow];
+        [disconnected fulfill];
       });
     } else {
       XCTFail(@"Fcm should only connect at max 2 times");
@@ -258,12 +260,11 @@ static NSString *const kSecretToken = @"56789";
   // reconnect after disconnect
   XCTAssertTrue(self.client.isConnectionActive);
 
-  [self waitForExpectationsWithTimeout:10.0
-                               handler:^(NSError *error) {
-                                 XCTAssertNil(error);
-                                 XCTAssertNotEqual(self.client.lastDisconnectedTimestamp, 0);
-                                 XCTAssertTrue(self.client.isConnectionActive);
-                               }];
+  [self waitForExpectations:@[ setupConnection ] timeout:2];
+  XCTAssertNotEqual(self.client.lastDisconnectedTimestamp, 0);
+  XCTAssertTrue(self.client.isConnectionActive);
+  [self waitForExpectations:@[ disconnected ] timeout:2];
+  XCTAssertFalse(self.client.isConnectionActive);
 }
 
 #pragma mark - Private Helpers
