@@ -24,6 +24,7 @@ class StorageIntegration: XCTestCase {
   var auth: Auth!
   var storage: Storage!
   static var once = false
+  static var signedIn = false
 
   override class func setUp() {
     FirebaseApp.configure()
@@ -35,9 +36,12 @@ class StorageIntegration: XCTestCase {
     auth = Auth.auth(app: app)
     storage = Storage.storage(app: app!)
 
+    if !StorageIntegration.signedIn {
+      signInAndWait()
+    }
+
     if !StorageIntegration.once {
       StorageIntegration.once = true
-      signInAndWait()
       let setupExpectation = expectation(description: "setUp")
 
       let largeFiles = ["ios/public/1mb"]
@@ -715,6 +719,7 @@ class StorageIntegration: XCTestCase {
   private func signInAndWait() {
     let expectation = self.expectation(description: #function)
     auth.signIn(withEmail: "test@example.com", password: "testing") { result, error in
+      StorageIntegration.signedIn = true
       XCTAssertNil(error)
       expectation.fulfill()
     }
