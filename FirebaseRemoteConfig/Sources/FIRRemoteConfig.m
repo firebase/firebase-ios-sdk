@@ -214,8 +214,10 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
 #pragma mark - fetch
 
 - (void)fetchWithCompletionHandler:(FIRRemoteConfigFetchCompletion)completionHandler {
-  [self fetchWithExpirationDuration:_settings.minimumFetchInterval
-                  completionHandler:completionHandler];
+  dispatch_async(_queue, ^{
+    [self fetchWithExpirationDuration:self->_settings.minimumFetchInterval
+                    completionHandler:completionHandler];
+  });
 }
 
 - (void)fetchWithExpirationDuration:(NSTimeInterval)expirationDuration
@@ -234,27 +236,28 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
     (FIRRemoteConfigFetchAndActivateCompletion)completionHandler {
   __weak FIRRemoteConfig *weakSelf = self;
   FIRRemoteConfigFetchCompletion fetchCompletion =
-      ^(FIRRemoteConfigFetchStatus fetchStatus, NSError *error) {
+      ^(FIRRemoteConfigFetchStatus fetchStatus, NSError *fetchError) {
         FIRRemoteConfig *strongSelf = weakSelf;
         if (!strongSelf) {
           return;
         }
         // Fetch completed. We are being called on the main queue.
         // If fetch is successful, try to activate the fetched config
-        bool didActivate = false;
-        if (fetchStatus == FIRRemoteConfigFetchStatusSuccess && !error) {
-          didActivate = [strongSelf activateFetched];
-        }
-        if (completionHandler) {
-          FIRRemoteConfigFetchAndActivateStatus status = FIRRemoteConfigFetchAndActivateStatusError;
-          if (fetchStatus == FIRRemoteConfigFetchStatusSuccess) {
-            status = didActivate ? FIRRemoteConfigFetchAndActivateStatusSuccessFetchedFromRemote
-                                 : FIRRemoteConfigFetchAndActivateStatusSuccessUsingPreFetchedData;
-          } else {
-            status = FIRRemoteConfigFetchAndActivateStatusError;
-          }
-          // Pass along the fetch error e.g. throttled.
-          completionHandler(status, error);
+        if (fetchStatus == FIRRemoteConfigFetchStatusSuccess && !fetchError) {
+          [strongSelf activateWithCompletionHandler:^(NSError *_Nullable activateError) {
+            if (completionHandler) {
+              FIRRemoteConfigFetchAndActivateStatus status =
+                  activateError ? FIRRemoteConfigFetchAndActivateStatusSuccessUsingPreFetchedData
+                                : FIRRemoteConfigFetchAndActivateStatusSuccessFetchedFromRemote;
+              completionHandler(status, nil);
+            }
+          }];
+        } else if (completionHandler) {
+          FIRRemoteConfigFetchAndActivateStatus status =
+              fetchStatus == FIRRemoteConfigFetchStatusSuccess
+                  ? FIRRemoteConfigFetchAndActivateStatusSuccessUsingPreFetchedData
+                  : FIRRemoteConfigFetchAndActivateStatusError;
+          completionHandler(status, fetchError);
         }
       };
   [self fetchWithCompletionHandler:fetchCompletion];

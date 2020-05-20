@@ -1,3 +1,6 @@
+# v6.2.1
+- [fixed] Fixed documentation typos. (#5406, #5418)
+
 # v6.2.0
 - [feature] Added `ServerValue.increment()` to support atomic field value increments
   without transactions.

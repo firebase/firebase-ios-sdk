@@ -5,6 +5,7 @@ on:
     paths:
     - 'FirebaseDynamicLinks**'
     - '.github/workflows/dynamiclinks.yml'
+    - 'Gemfile'
   schedule:
     # Run every day at 11pm (PST) - cron uses UTC times
     - cron:  '0 7 * * *'
@@ -35,3 +36,29 @@ jobs:
       run: scripts/setup_bundler.sh
     - name: PodLibLint Storage Cron
       run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseDynamicLinks.podspec --platforms=ios ${{ matrix.flags }}
+
+  quickstart:
+    env:
+      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+      signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+    runs-on: macOS-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup quickstart
+      run: scripts/setup_quickstart.sh DynamicLinks
+    - name: Install Secret GoogleService-Info.plist
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-dynamiclinks.plist.gpg \
+          quickstart-ios/dynamiclinks/GoogleService-Info.plist "$plist_secret"
+    - name: Update Environment Variable For DynamicLinks
+      run: |
+        sed -i '' 's#DYNAMIC_LINK_DOMAIN#https://qpf6m.app.goo.gl#' quickstart-ios/dynamiclinks/DynamicLinksExample/DynamicLinksExample.entitlements
+        sed -i '' 's#YOUR_DOMAIN_URI_PREFIX";#https://qpf6m.app.goo.gl";#' quickstart-ios/dynamiclinks/DynamicLinksExample/ViewController.m
+        sed -i '' 's#YOUR_DOMAIN_URI_PREFIX";#https://qpf6m.app.goo.gl";#' quickstart-ios/dynamiclinks/DynamicLinksExampleSwift/ViewController.swift
+    - name: Install Secret FIREGSignInInfo.h
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/FIREGSignInInfo.h.gpg \
+          quickstart-ios/TestUtils/FIREGSignInInfo.h "$signin_secret"
+    - name: Test objc quickstart
+      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh DynamicLinks)
+    - name: Test swift quickstart
+      if: ${{ always() }}
+      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh DynamicLinks swift)

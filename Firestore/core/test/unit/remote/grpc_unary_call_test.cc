@@ -138,7 +138,7 @@ TEST_F(GrpcUnaryCallTest, Error) {
                 grpc::Status{grpc::UNAVAILABLE, ""}}});
 
   ASSERT_TRUE(status.has_value());
-  EXPECT_EQ(status.value().code(), Error::kUnavailable);
+  EXPECT_EQ(status.value().code(), Error::kErrorUnavailable);
   EXPECT_TRUE(ByteBufferToString(response).empty());
 }
 

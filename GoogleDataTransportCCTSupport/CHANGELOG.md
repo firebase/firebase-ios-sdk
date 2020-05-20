@@ -1,3 +1,8 @@
+# v3.1.0
+- watchOS extension and independent apps now supported. (#4292)
+- iOS extensions better supported.
+- nanopb dependency incremented to 0.3.9.5.
+
 # v3.0.0
 - Internal refactor to change storage to a protocol.
 

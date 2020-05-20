@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2018 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -89,7 +89,41 @@ class AsyncQueue : public std::enable_shared_from_this<AsyncQueue> {
   using Operation = Executor::Operation;
   using Milliseconds = Executor::Milliseconds;
 
+  enum class Mode {
+    /**
+     * The default mode of an `AsyncQueue` after creation. All tasks are
+     * allowed.
+     */
+    kRunning,
+
+    /**
+     * The `AsyncQueue` enters `Mode::kRestricted` after the a user terminates
+     * an instance of Firestore. In this mode, most tasks are not allowed: only
+     * a limited set of special operations are still allowed to run.
+     */
+    kRestricted,
+
+    /**
+     * Finally, once the Firestore instance is in the process of being
+     * destroyed, the `AsyncQueue` stops accepting all tasks.
+     */
+    kDisposed,
+  };
+
   static std::shared_ptr<AsyncQueue> Create(std::unique_ptr<Executor> executor);
+
+  ~AsyncQueue();
+
+  // Puts the `AsyncQueue` into restricted mode, where calling most Enqueue*
+  // methods becomes a no-op. The exception is `EnqueueEvenWhileRestricted`,
+  // which still enqueues operations even while in restricted mode.
+  void EnterRestrictedMode();
+
+  // Disposes of the `AsyncQueue` and synchronously waits for any currently
+  // executing tasks to complete. Queued operations that have not started
+  // executing and all scheduled operations are discarded. As soon as Dispose
+  // begins, all Enqueue* operations become no-ops without exception.
+  void Dispose();
 
   // Asserts for the caller that it is being invoked as part of an operation on
   // the `AsyncQueue`.
@@ -105,26 +139,28 @@ class AsyncQueue : public std::enable_shared_from_this<AsyncQueue> {
   // case, destructors invoked when an enqueued operation has run and is being
   // destroyed may invoke `Enqueue`).
   //
-  // After the shutdown process has initiated (`is_shutting_down()` is true),
-  // calling `Enqueue` is a no-op.
-  void Enqueue(const Operation& operation);
-
-  // Like `Enqueue`, but also starts the shutdown process. Once the shutdown
-  // process has started, calling any Enqueue* methods becomes a no-op
+  // After the shutdown process has initiated (`is_running()` is false), calling
+  // `Enqueue` is a no-op.
   //
-  // The exception is `EnqueueEvenAfterShutdown`, operations requsted via
-  // this will still be scheduled.
-  void EnqueueAndInitiateShutdown(const Operation& operation);
+  // @return true if the operation was successfully enqueued or false if the
+  //     operation was not enqueued because the `AsyncQueue` has already entered
+  //     restricted mode or been disposed.
+  bool Enqueue(const Operation& operation);
 
   // Like `Enqueue`, but it will proceed scheduling the requested operation
-  // regardless of whether the queue is shut down or not.
-  void EnqueueEvenAfterShutdown(const Operation& operation);
+  // regardless of whether the queue is in restricted mode or not.
+  //
+  // @return true if the operation was successfully enqueued or false if the
+  //     operation was not enqueued because the `AsyncQueue` has already been
+  //     disposed.
+  bool EnqueueEvenWhileRestricted(const Operation& operation);
 
   // Like `Enqueue`, but without applying any prerequisite checks.
-  void EnqueueRelaxed(const Operation& operation);
+  bool EnqueueRelaxed(const Operation& operation);
 
-  // Whether the queue has initiated its shutdown process.
-  bool is_shutting_down() const;
+  // Returns true if the queue is still in the main kRunning mode (i.e. not
+  // restricted or disposed).
+  bool is_running() const;
 
   // Puts the `operation` on the queue to be executed `delay` milliseconds from
   // now, and returns a handle that allows to cancel the operation (provided it
@@ -197,8 +233,8 @@ class AsyncQueue : public std::enable_shared_from_this<AsyncQueue> {
   std::atomic<bool> is_operation_in_progress_;
   std::unique_ptr<Executor> executor_;
 
-  bool is_shutting_down_ = false;
-  mutable std::mutex shut_down_mutex_;
+  mutable std::mutex mutex_;
+  Mode mode_ = Mode::kRunning;
 
   std::vector<TimerId> timer_ids_to_skip_;
 };

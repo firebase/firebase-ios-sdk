@@ -95,8 +95,8 @@ has_license_changes = didModify(["LICENSE"])
 @has_installations_api_changes = hasChangesIn("FirebaseInstallations/Source/Library/Public/")
 @has_instanceid_changes = hasChangesIn("Firebase/InstanceID/")
 @has_instanceid_api_changes = hasChangesIn("Firebase/InstanceID/Public/")
-@has_messaging_changes = hasChangesIn("Firebase/Messaging/")
-@has_messaging_api_changes = hasChangesIn("Firebase/Messaging/Public/")
+@has_messaging_changes = hasChangesIn("FirebaseMessaging/")
+@has_messaging_api_changes = hasChangesIn("FirebaseMessaging/Sources/Public/")
 @has_remoteconfig_changes = hasChangesIn("FirebaseRemoteConfig/")
 @has_remoteconfig_api_changes = hasChangesIn("FirebaseRemoteConfig/Sources/Public/")
 @has_storage_changes = hasChangesIn("FirebaseStorage/")
@@ -136,7 +136,7 @@ sdk_changes = (git.modified_files +
 end
 
 # Whether or not the PR has modified SDK source files.
-has_sdk_changes = sdk_changes.empty?
+has_sdk_changes = !sdk_changes.empty?
 
 ### Actions
 

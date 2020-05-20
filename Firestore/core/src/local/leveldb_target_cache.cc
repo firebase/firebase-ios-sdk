@@ -58,7 +58,7 @@ LevelDbTargetCache::TryReadMetadata(leveldb::DB* db) {
 
   auto result = Message<firestore_client_TargetGlobal>::TryParse(&reader);
   if (!reader.ok()) {
-    if (reader.status().code() == Error::kNotFound) {
+    if (reader.status().code() == Error::kErrorNotFound) {
       return absl::nullopt;
     } else {
       HARD_FAIL("ReadMetadata: failed loading key %s with status: %s", key,

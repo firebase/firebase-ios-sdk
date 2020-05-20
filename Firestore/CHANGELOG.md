@@ -1,7 +1,15 @@
 # Unreleased
+
+# v1.14.0
+- [changed] Internal improvements for future C++ and Unity support. Includes a
+  breaking change for the Firestore C++ Alpha SDK, but does not affect
+  Objective-C or Swift users.
+
+# v1.13.0
 - [changed] Firestore now limits the number of concurrent document lookups it
   will perform when resolving inconsistencies in the local cache
   (https://github.com/firebase/firebase-js-sdk/issues/2683).
+- [changed] Upgraded gRPC-C++ to 1.28.0 (#4994).
 - [fixed] Firestore will now send Auth credentials to the Firestore Emulator
   (#5072).
 

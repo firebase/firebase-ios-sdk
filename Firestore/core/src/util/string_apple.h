@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2018 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,6 +44,15 @@ inline CFStringRef MakeCFString(absl::string_view contents) {
   auto bytes = reinterpret_cast<const UInt8*>(contents.data());
   return CFStringCreateWithBytes(kCFAllocatorDefault, bytes, contents.size(),
                                  kCFStringEncodingUTF8, false);
+}
+
+/**
+ * CFRelease that safely ignores null values.
+ */
+inline void SafeCFRelease(CFTypeRef cf) {
+  if (cf) {
+    CFRelease(cf);
+  }
 }
 
 #if defined(__OBJC__)

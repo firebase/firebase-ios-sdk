@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseAuth'
-  s.version          = '6.5.2'
+  s.version          = '6.5.3'
   s.summary          = 'Apple platform client for Firebase Authentication'
 
   s.description      = <<-DESC

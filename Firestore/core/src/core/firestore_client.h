@@ -78,17 +78,19 @@ class FirestoreClient : public std::enable_shared_from_this<FirestoreClient> {
       std::shared_ptr<util::Executor> user_executor,
       std::shared_ptr<util::AsyncQueue> worker_queue);
 
+  ~FirestoreClient();
+
+  /**
+   * Synchronously destroys this client, cancels all writes / listeners, and
+   * releases all resources.
+   */
+  void Dispose();
+
   /**
    * Terminates this client, cancels all writes / listeners, and releases all
    * resources.
    */
   void TerminateAsync(util::StatusCallback callback);
-
-  /**
-   * Synchronously terminates this client, cancels all writes / listeners, and
-   * releases all resources.
-   */
-  void Terminate();
 
   /**
    * Passes a callback that is triggered when all the pending writes at the

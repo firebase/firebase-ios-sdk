@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseRemoteConfig'
-  s.version          = '4.4.9'
+  s.version          = '4.4.11'
   s.summary          = 'Firebase Remote Config'
 
   s.description      = <<-DESC
@@ -28,7 +28,6 @@ app update.
 
   base_dir = "FirebaseRemoteConfig/Sources/"
   s.source_files = base_dir + '**/*.[mh]'
-  s.requires_arc = base_dir + '*.m'
   s.public_header_files = base_dir + 'Public/*.h'
   s.private_header_files = base_dir + 'Private/*.h'
   s.pod_target_xcconfig = {
@@ -44,7 +43,6 @@ app update.
   s.dependency 'FirebaseInstallations', '~> 1.1'
   s.dependency 'GoogleUtilities/Environment', '~> 6.2'
   s.dependency 'GoogleUtilities/NSData+zlib', '~> 6.2'
-  s.dependency 'Protobuf', '~> 3.9', '>= 3.9.2'
 
   s.test_spec 'unit' do |unit_tests|
     # TODO(dmandar) - Update or delete the commented files.
@@ -70,5 +68,13 @@ app update.
     unit_tests.requires_app_host = true
     unit_tests.dependency 'OCMock'
     unit_tests.requires_arc = true
+  end
+
+  s.test_spec 'swift-api' do |swift_api_tests|
+    swift_api_tests.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
+    swift_api_tests.source_files = 'FirebaseRemoteConfig/Tests/SwiftAPI/*.swift'
+    swift_api_tests.requires_app_host = true
+    swift_api_tests.resources =
+        'FirebaseRemoteConfig/Tests/SwiftAPI/GoogleService-Info.plist'
   end
 end

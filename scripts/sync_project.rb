@@ -215,10 +215,6 @@ def sync_firestore(test_only)
       }
 
     end
-
-    s.target 'Firestore_SwiftTests_iOS' do |t|
-      t.xcconfig = xcconfig_objc + xcconfig_swift
-    end
   end
 
   changes = s.sync(test_only)

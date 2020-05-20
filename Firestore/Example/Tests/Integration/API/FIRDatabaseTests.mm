@@ -1320,7 +1320,7 @@ using firebase::firestore::util::TimerId;
   [self terminateFirestore:firestore];
   [self.firestores removeObject:firestore];
   [firestore
-      clearPersistenceWithCompletion:[self completionForExpectationWithName:@"Enable network"]];
+      clearPersistenceWithCompletion:[self completionForExpectationWithName:@"ClearPersistence"]];
   [self awaitExpectations];
   [self deleteApp:app];
 
@@ -1330,6 +1330,42 @@ using firebase::firestore::util::TimerId;
   [FIRApp configureWithName:appName options:options];
   FIRApp *app2 = [FIRApp appNamed:appName];
   FIRFirestore *firestore2 = [self firestoreWithApp:app2];
+  FIRDocumentReference *docRef2 = [firestore2 documentWithPath:doc.path];
+  XCTestExpectation *expectation2 = [self expectationWithDescription:@"getData"];
+  [docRef2 getDocumentWithSource:FIRFirestoreSourceCache
+                      completion:^(FIRDocumentSnapshot *, NSError *_Nullable error) {
+                        XCTAssertNotNil(error);
+                        XCTAssertEqualObjects(error.domain, FIRFirestoreErrorDomain);
+                        XCTAssertEqual(error.code, FIRFirestoreErrorCodeUnavailable);
+                        [expectation2 fulfill];
+                      }];
+  [self awaitExpectations];
+}
+
+- (void)testCanClearPersistenceOnANewFirestoreInstance {
+  FIRDocumentReference *doc = [self documentRef];
+  FIRFirestore *firestore = doc.firestore;
+  FIRApp *app = firestore.app;
+  NSString *appName = app.name;
+  FIROptions *options = app.options;
+
+  NSDictionary<NSString *, id> *initialData = @{@"foo" : @"42"};
+  [self writeDocumentRef:doc data:initialData];
+
+  [firestore terminateWithCompletion:[self completionForExpectationWithName:@"Terminate"]];
+  [self.firestores removeObject:firestore];
+  [self awaitExpectations];
+  [self deleteApp:app];
+
+  // We restart the app with the same name and options to check that the previous instance's
+  // persistent storage is actually cleared after the restart. Calling [self firestore] here would
+  // create a new instance of firestore, which defeats the purpose of this test.
+  [FIRApp configureWithName:appName options:options];
+  FIRApp *app2 = [FIRApp appNamed:appName];
+  FIRFirestore *firestore2 = [self firestoreWithApp:app2];
+  [firestore2
+      clearPersistenceWithCompletion:[self completionForExpectationWithName:@"ClearPersistence"]];
+  [self awaitExpectations];
   FIRDocumentReference *docRef2 = [firestore2 documentWithPath:doc.path];
   XCTestExpectation *expectation2 = [self expectationWithDescription:@"getData"];
   [docRef2 getDocumentWithSource:FIRFirestoreSourceCache

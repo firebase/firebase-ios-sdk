@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder.WatchKit.Storyboard" version="3.0" toolsVersion="15702" targetRuntime="watchKit" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="AgC-eL-Hgc">
+    <device id="watch40"/>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15704"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBWatchKitPlugin" version="15501"/>
+    </dependencies>
+    <scenes>
+        <!--Interface Controller-->
+        <scene sceneID="aou-V4-d1y">
+            <objects>
+                <controller id="AgC-eL-Hgc" customClass="InterfaceController" customModule="GDTWatchOSTestAppWatchKitExtension">
+                    <items>
+                        <label alignment="left" text="GDTWatchOS TestApp" id="EYB-lO-0MJ"/>
+                        <button width="1" alignment="left" title="Generate data event" id="4Oh-eO-JpG">
+                            <connections>
+                                <action selector="generateDataEventWithSender:" destination="AgC-eL-Hgc" id="NUq-4p-3Xi"/>
+                            </connections>
+                        </button>
+                        <button width="1" alignment="left" title="Generate telemetry event" id="GI0-zS-hCd">
+                            <connections>
+                                <action selector="generateTelemetryEventWithSender:" destination="AgC-eL-Hgc" id="daF-pb-Tpq"/>
+                            </connections>
+                        </button>
+                        <button width="1" alignment="left" title="Generate high priority event (force uploads)" id="K1Q-Qs-F4h">
+                            <connections>
+                                <action selector="generateHighPriorityEventWithSender:" destination="AgC-eL-Hgc" id="vlS-Z8-MhS"/>
+                            </connections>
+                        </button>
+                        <button width="1" alignment="left" title="Generate wifi only event" id="sbd-DF-6GA">
+                            <connections>
+                                <action selector="generateWifiOnlyEventWithSender:" destination="AgC-eL-Hgc" id="OiG-43-X22"/>
+                            </connections>
+                        </button>
+                        <button width="1" alignment="left" title="Generate daily event" id="i19-Ww-EpK">
+                            <connections>
+                                <action selector="generateDailyEventWithSender:" destination="AgC-eL-Hgc" id="Izd-6h-qWV"/>
+                            </connections>
+                        </button>
+                    </items>
+                </controller>
+            </objects>
+            <point key="canvasLocation" x="220" y="345"/>
+        </scene>
+        <!--Static Notification Interface Controller-->
+        <scene sceneID="AEw-b0-oYE">
+            <objects>
+                <notificationController id="YCC-NB-fut">
+                    <items>
+                        <label alignment="left" text="Alert Label" numberOfLines="0" id="IdU-wH-bcW"/>
+                    </items>
+                    <notificationCategory key="notificationCategory" identifier="myCategory" id="JfB-70-Muf"/>
+                    <connections>
+                        <outlet property="notificationAlertLabel" destination="IdU-wH-bcW" id="JKC-fr-R95"/>
+                        <segue destination="4sK-HA-Art" kind="relationship" relationship="dynamicNotificationInterface" id="kXh-Jw-8B1"/>
+                        <segue destination="eXb-UN-Cd0" kind="relationship" relationship="dynamicInteractiveNotificationInterface" id="mpB-YA-K8N"/>
+                    </connections>
+                </notificationController>
+            </objects>
+            <point key="canvasLocation" x="220" y="643"/>
+        </scene>
+        <!--Notification Controller-->
+        <scene sceneID="ZPc-GJ-vnh">
+            <objects>
+                <controller id="4sK-HA-Art" customClass="NotificationController" customModule="GDTWatchOSTestAppWatchKitApp" customModuleProvider="target"/>
+            </objects>
+            <point key="canvasLocation" x="468" y="643"/>
+        </scene>
+        <!--Notification Controller-->
+        <scene sceneID="Niz-AI-uX2">
+            <objects>
+                <controller id="eXb-UN-Cd0" customClass="NotificationController" customModule="GDTWatchOSTestAppWatchKitApp" customModuleProvider="target"/>
+            </objects>
+            <point key="canvasLocation" x="468" y="345"/>
+        </scene>
+    </scenes>
+</document>

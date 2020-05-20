@@ -346,7 +346,7 @@ private struct _FirestoreKeyedDecodingContainer<K: CodingKey>: KeyedDecodingCont
           var codingPathCopy = codingPath.map { key in key.stringValue }
           codingPathCopy.append(key.stringValue)
 
-          throw FirestoreDecodingError.fieldNameConfict("Field name " +
+          throw FirestoreDecodingError.fieldNameConflict("Field name " +
             "\(codingPathCopy) was found from document \"\(docPath)\", " +
             "cannot assign the document reference to this field.")
         }

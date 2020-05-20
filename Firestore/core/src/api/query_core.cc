@@ -109,7 +109,7 @@ void Query::GetDocuments(Source source, QuerySnapshotListener&& callback) {
 
       if (snapshot.metadata().from_cache() && source_ == Source::Server) {
         listener_->OnEvent(Status{
-            Error::kUnavailable,
+            Error::kErrorUnavailable,
             "Failed to get documents from server. (However, these documents "
             "may exist in the local cache. Run again without setting source to "
             "FirestoreSourceServer to retrieve the cached documents.)"});

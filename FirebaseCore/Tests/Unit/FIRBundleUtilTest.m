@@ -95,6 +95,18 @@ static NSString *const kFileType = @"fileType";
   [environmentUtilsMock stopMocking];
 }
 
+- (void)testBundleIdentifierExistsInBundlesForExtensions_exactMatch {
+  id environmentUtilsMock = [OCMockObject mockForClass:[GULAppEnvironmentUtil class]];
+  [[[environmentUtilsMock stub] andReturnValue:@(YES)] isAppExtension];
+
+  // Mock bundle should have what app extension has, the extension bundle ID.
+  [OCMStub([self.mockBundle bundleIdentifier]) andReturn:@"com.google.test.someextension"];
+  XCTAssertTrue([FIRBundleUtil hasBundleIdentifierPrefix:@"com.google.test.someextension"
+                                               inBundles:@[ self.mockBundle ]]);
+
+  [environmentUtilsMock stopMocking];
+}
+
 - (void)testBundleIdentifierHasPrefixInBundlesNotValidExtension {
   id environmentUtilsMock = [OCMockObject mockForClass:[GULAppEnvironmentUtil class]];
   [[[environmentUtilsMock stub] andReturnValue:@(YES)] isAppExtension];

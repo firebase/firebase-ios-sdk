@@ -32,6 +32,9 @@ NSString *FIRRemoteConfigPodVersion(void);
 /// App version.
 NSString *FIRRemoteConfigAppVersion(void);
 
+/// App build version
+NSString *FIRRemoteConfigAppBuildVersion(void);
+
 /// Device country, in lowercase.
 NSString *FIRRemoteConfigDeviceCountry(void);
 

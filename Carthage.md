@@ -74,8 +74,6 @@ binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseStorageBinary.jso
 - If you're including a Firebase component that has resources, copy its bundles
     into the Xcode project and make sure they're added to the
     `Copy Bundle Resources` Build Phase :
-    - For Firestore:
-        - ./Carthage/Build/iOS/gRPC-C++.framework/Resources/gRPCCertificates-Cpp.bundle
     - For FirebaseMLVisionFaceModel:
         - ./Carthage/Build/iOS/FaceDetector.framework/GoogleMVFaceDetectorResources.bundle
     - For FirebaseMLVisionTextModel:
@@ -93,13 +91,14 @@ binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseStorageBinary.jso
      [upload-symbols](https://github.com/firebase/firebase-ios-sdk/raw/master/Crashlytics/upload-symbols)
      and [run](https://github.com/firebase/firebase-ios-sdk/raw/master/Crashlytics/run).
     - Put these in the directory where your `.xcodeproj` file lives, eg. `scripts/run` and `scripts/upload-symbols`
+    - Make sure that the files are executable - `chmod +x scripts/run scripts/upload-symbols`
     - Open your project in Xcode, then select its project file in the left navigator.
     - From the **Select a project or target** dropdown, select your main build target.
     - Select the **Build Phases** tab, then click "+" add > **New Run Script Phase**.
     - Paste the following into your new Run Script, replacing "scripts" with whatever you named your folder: `"${PROJECT_DIR}/scripts/run"`
     - Add the following dependencies as **Input Files** to the Run Script:
        - `${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${TARGET_NAME}`
-       - `$(SRCROOT)/$(BUILT_PRODUCTS_DIR)/$(INFOPLIST_PATH)`
+       - `${BUILT_PRODUCTS_DIR}/${INFOPLIST_PATH}`
 
 ## Versioning
 

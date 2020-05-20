@@ -193,7 +193,8 @@
   NSString *bundleIdentifier = [NSBundle mainBundle].bundleIdentifier;
   NSTimeInterval lastFetchTimestamp = [NSDate date].timeIntervalSince1970;
 
-  NSDictionary *deviceContext = @{@"app_version" : @"1.0.1", @"os_version" : @"iOS9.1"};
+  NSDictionary *deviceContext =
+      @{@"app_version" : @"1.0.1", @"app_build" : @"1.0.1.11", @"os_version" : @"iOS9.1"};
   NSDictionary *syncedDBCustomVariables = @{@"user_level" : @15, @"user_experiences" : @"2468"};
   NSArray *successFetchTimes = @[];
   NSTimeInterval now = [NSDate date].timeIntervalSince1970;

@@ -34,7 +34,7 @@ namespace util {
 NSError* MakeNSError(Error error_code,
                      absl::string_view error_msg,
                      NSError* cause) {
-  if (error_code == Error::kOk) {
+  if (error_code == Error::kErrorOk) {
     return nil;
   }
 

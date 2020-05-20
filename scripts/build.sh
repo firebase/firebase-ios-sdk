@@ -20,7 +20,7 @@
 
 function pod_gen() {
   # Call pod gen with a podspec and additional optional arguments.
-  bundle exec pod gen --local-sources=./ --sources=https://cdn.cocoapods.org/ "$@"
+  bundle exec pod gen --local-sources=./ --sources=https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org/ "$@"
 }
 
 set -euo pipefail
@@ -35,18 +35,24 @@ product can be one of:
   InAppMessaging
   Messaging
   MessagingSample
+  RemoteConfig
   Storage
   StorageSwift
   SymbolCollision
+  GoogleDataTransport
+  GoogleDataTransportCCTSupport
 
 platform can be one of:
   iOS (default)
   macOS
   tvOS
+  watchOS
 
 method can be one of:
   xcodebuild (default)
   cmake
+  unit
+  integration
 
 Optionally, reads the environment variable SANITIZERS. If set, it is expected to
 be a string containing a space-separated list with some of the following
@@ -202,11 +208,15 @@ tvos_flags=(
   -sdk "appletvsimulator"
   -destination 'platform=tvOS Simulator,name=Apple TV'
 )
+watchos_flags=(
+  -destination 'platform=iOS Simulator,name=iPhone 11 Pro'
+)
 
 # Compute standard flags for all platforms
 case "$platform" in
   iOS)
     xcb_flags=("${ios_flags[@]}")
+    gen_platform=ios
     ;;
 
   iPad)
@@ -215,10 +225,16 @@ case "$platform" in
 
   macOS)
     xcb_flags=("${macos_flags[@]}")
+    gen_platform=macos
     ;;
 
   tvOS)
     xcb_flags=("${tvos_flags[@]}")
+    gen_platform=tvos
+    ;;
+
+  watchOS)
+    xcb_flags=("${watchos_flags[@]}")
     ;;
 
   all)
@@ -303,6 +319,13 @@ case "$product-$platform-$method" in
       RunXcodebuild \
         -workspace 'FirebaseAuth/Tests/Sample/AuthSample.xcworkspace' \
         -scheme "Auth_ApiTests" \
+        "${xcb_flags[@]}" \
+        build \
+        test
+
+      RunXcodebuild \
+        -workspace 'FirebaseAuth/Tests/Sample/AuthSample.xcworkspace' \
+        -scheme "SwiftApiTests" \
         "${xcb_flags[@]}" \
         build \
         test
@@ -398,7 +421,7 @@ case "$product-$platform-$method" in
   MessagingSample-*-*)
     if check_secrets; then
       RunXcodebuild \
-        -workspace 'Example/Messaging/Sample/Sample.xcworkspace' \
+        -workspace 'FirebaseMessaging/Apps/Sample/Sample.xcworkspace' \
         -scheme "Sample" \
         "${xcb_flags[@]}" \
         build
@@ -441,6 +464,26 @@ case "$product-$platform-$method" in
       -workspace 'gen/FirebaseDatabase/FirebaseDatabase.xcworkspace' \
       -scheme "FirebaseDatabase-Unit-unit" \
       "${tvos_flags[@]}" \
+      "${xcb_flags[@]}" \
+      build \
+      test
+    ;;
+
+  RemoteConfig-*-unit)
+    pod_gen FirebaseRemoteConfig.podspec --platforms="${gen_platform}"
+    RunXcodebuild \
+      -workspace 'gen/FirebaseRemoteConfig/FirebaseRemoteConfig.xcworkspace' \
+      -scheme "FirebaseRemoteConfig-Unit-unit" \
+      "${xcb_flags[@]}" \
+      build \
+      test
+    ;;
+
+  RemoteConfig-*-integration)
+    pod_gen FirebaseRemoteConfig.podspec --platforms="${gen_platform}"
+    RunXcodebuild \
+      -workspace 'gen/FirebaseRemoteConfig/FirebaseRemoteConfig.xcworkspace' \
+      -scheme "FirebaseRemoteConfig-Unit-swift-api" \
       "${xcb_flags[@]}" \
       build \
       test
@@ -506,6 +549,28 @@ case "$product-$platform-$method" in
         build \
         test
       fi
+    ;;
+
+  GoogleDataTransport-watchOS-xcodebuild)
+    RunXcodebuild \
+      -workspace 'GoogleDataTransport/GDTWatchOSTestApp/GDTWatchOSTestApp.xcworkspace' \
+      -scheme "GDTWatchOSTestAppWatchKitApp" \
+      "${xcb_flags[@]}" \
+      build
+    ;;
+
+  GoogleDataTransportCCTSupport-watchOS-xcodebuild)
+    RunXcodebuild \
+      -workspace 'GoogleDataTransportCCTSupport/GDTCCTWatchOSTestApp/GDTCCTWatchOSTestApp.xcworkspace' \
+      -scheme "GDTCCTWatchOSIndependentTestAppWatchKitApp" \
+      "${xcb_flags[@]}" \
+      build
+
+    RunXcodebuild \
+      -workspace 'GoogleDataTransportCCTSupport/GDTCCTWatchOSTestApp/GDTCCTWatchOSTestApp.xcworkspace' \
+      -scheme "GDTCCTWatchOSCompanionTestApp" \
+      "${xcb_flags[@]}" \
+      build
     ;;
   *)
     echo "Don't know how to build this product-platform-method combination" 1>&2

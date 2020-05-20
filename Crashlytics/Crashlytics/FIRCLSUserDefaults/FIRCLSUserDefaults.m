@@ -235,7 +235,7 @@ NSString *const FIRCLSUserDefaultsPathComponent = @"CLSUserDefaults";
   NSDictionary *state = [self dictionaryRepresentation];
   dispatch_sync(self.synchronizationQueue, ^{
 #if CLS_TARGET_CAN_WRITE_TO_DISK
-    BOOL isDirectory;
+    BOOL isDirectory = NO;
     BOOL pathExists = [[NSFileManager defaultManager] fileExistsAtPath:[self->_directoryURL path]
                                                            isDirectory:&isDirectory];
 
@@ -280,7 +280,7 @@ NSString *const FIRCLSUserDefaultsPathComponent = @"CLSUserDefaults";
   __block NSDictionary *state = nil;
   dispatch_sync(self.synchronizationQueue, ^{
 #if CLS_TARGET_CAN_WRITE_TO_DISK
-    BOOL isDirectory;
+    BOOL isDirectory = NO;
     BOOL fileExists = [[NSFileManager defaultManager] fileExistsAtPath:[self->_fileURL path]
                                                            isDirectory:&isDirectory];
 
@@ -289,7 +289,7 @@ NSString *const FIRCLSUserDefaultsPathComponent = @"CLSUserDefaults";
       if (nil == state) {
         FIRCLSErrorLog(@"Failed to read existing UserDefaults file");
       }
-    } else if (!fileExists && !isDirectory) {
+    } else if (!fileExists) {
       // No file found. This is expected on first launch.
     } else if (fileExists && isDirectory) {
       FIRCLSErrorLog(@"Found directory where file expected. Removing conflicting directory");
