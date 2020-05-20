@@ -208,6 +208,8 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
     NSMutableURLRequest *request = [[NSMutableURLRequest alloc] init];
     NSString *URLString =
         [NSString stringWithFormat:kReleasesEndpointURL, [[FIRApp defaultApp] options].googleAppID];
+
+    NSLog(@"Requesting releases for app id - %@", [[FIRApp defaultApp] options].googleAppID);
     [request setURL:[NSURL URLWithString:URLString]];
     [request setHTTPMethod:@"GET"];
     [request setValue:[NSString stringWithFormat:@"Bearer %@", accessToken]
