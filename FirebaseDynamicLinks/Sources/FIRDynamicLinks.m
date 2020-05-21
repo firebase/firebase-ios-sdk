@@ -554,9 +554,14 @@ static const NSInteger FIRErrorCodeDurableDeepLinkFailed = -119;
   self.retrievingPendingDynamicLink = NO;
   _retrievalProcess = nil;
 
-  if (!result.error && ![_userDefaults boolForKey:kFIRDLOpenURLKey]) {
+  if (![_userDefaults boolForKey:kFIRDLOpenURLKey]) {
+    //Once we complete the Pending dynamic link retrival, regardless of whether the retrival is
+    //success or failure, we don't want to do the retrival again on next app start.
+    //If we try to redo the retrival again because of some error, the user will experiance unwanted
+    //deeplinking when they restart the app next time.
     [_userDefaults setBool:YES forKey:kFIRDLOpenURLKey];
   }
+
   NSURL *linkToPassToApp = [result URLWithCustomURLScheme:_URLScheme];
   [self passRetrievedDynamicLinkToApplication:linkToPassToApp];
 }
