@@ -278,6 +278,8 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
   return didActivate;
 }
 
+typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_Nullable error);
+
 - (void)activateWithCompletion:(FIRRemoteConfigActivateChangeCompletion)completion {
   [self activateWithEitherHandler:completion deprecatedHandler:nil];
 }
