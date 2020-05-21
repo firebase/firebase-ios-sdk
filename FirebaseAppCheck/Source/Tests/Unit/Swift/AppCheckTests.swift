@@ -24,7 +24,6 @@ class AppCheckTests: XCTestCase {
     AppCheck.setAppCheckProviderFactory(self)
     FirebaseApp.configure()
 
-    AppCheck.setAppCheckProviderFactory(self, forAppName: "AppName")
     let firebaseOptions = FirebaseOptions(contentsOfFile: "path")!
     FirebaseApp.configure(name: "AppName", options: firebaseOptions)
   }

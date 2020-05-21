@@ -38,9 +38,13 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+static id<FIRAppCheckProviderFactory> _providerFactory;
+
 static const NSTimeInterval kTokenExpirationThreshold = 60 * 60;  // 1 hour.
 
 @interface FIRAppCheck () <FIRLibrary, FIRAppCheckInterop>
+@property(class, nullable) id<FIRAppCheckProviderFactory> providerFactory;
+
 @property(nonatomic, readonly) NSString *appName;
 @property(nonatomic, readonly) id<FIRAppCheckProvider> appCheckProvider;
 @property(nonatomic, readonly) id<FIRAppCheckStorageProtocol> storage;
@@ -74,9 +78,7 @@ static const NSTimeInterval kTokenExpirationThreshold = 60 * 60;  // 1 hour.
 - (nullable instancetype)initWithApp:(FIRApp *)app {
   self = [super init];
   if (self) {
-    id<FIRAppCheckProviderFactory> providerFactory =
-        [[self class] providerFactoryForAppName:app.name]
-            ?: [[self class] providerFactoryForAppName:kFIRDefaultAppName];
+    id<FIRAppCheckProviderFactory> providerFactory = [[self class] providerFactory];
 
     if (providerFactory == nil) {
       FIRLogError(kFIRLoggerAppCheck, kFIRLoggerAppCheckMessageCodeUnknown,
@@ -118,42 +120,20 @@ static const NSTimeInterval kTokenExpirationThreshold = 60 * 60;  // 1 hour.
 #pragma mark - Public
 
 + (void)setAppCheckProviderFactory:(nullable id<FIRAppCheckProviderFactory>)factory {
-  [self setAppCheckProviderFactory:factory forAppName:kFIRDefaultAppName];
-}
-
-+ (void)setAppCheckProviderFactory:(nullable id<FIRAppCheckProviderFactory>)factory
-                        forAppName:(NSString *)firebaseAppName {
-  if (firebaseAppName == nil) {
-    FIRLogError(kFIRLoggerAppCheck, kFIRLoggerAppCheckMessageCodeUnknown,
-                @"App name must not be `nil`");
-    return;
-  }
-
-  @synchronized([self providerFactoryByAppName]) {
-    [self providerFactoryByAppName][firebaseAppName] = factory;
-  }
+  self.providerFactory = factory;
 }
 
 #pragma mark - App Check Provider Ingestion
 
-+ (NSMutableDictionary<NSString *, id<FIRAppCheckProviderFactory>> *)providerFactoryByAppName {
-  static NSMutableDictionary<NSString *, id<FIRAppCheckProviderFactory>> *providerFactoryByAppName;
-  static dispatch_once_t onceToken;
-  dispatch_once(&onceToken, ^{
-    providerFactoryByAppName = [[NSMutableDictionary alloc] init];
-  });
-  return providerFactoryByAppName;
++ (void)setProviderFactory:(nullable id<FIRAppCheckProviderFactory>)providerFactory {
+  @synchronized(self) {
+    _providerFactory = providerFactory;
+  }
 }
 
-+ (nullable id<FIRAppCheckProviderFactory>)providerFactoryForAppName:(NSString *)appName {
-  if (appName == nil) {
-    FIRLogError(kFIRLoggerAppCheck, kFIRLoggerAppCheckMessageCodeUnknown,
-                @"App name must not be `nil`");
-    return nil;
-  }
-
-  @synchronized([self providerFactoryByAppName]) {
-    return [self providerFactoryByAppName][appName];
++ (nullable id<FIRAppCheckProviderFactory>)providerFactory {
+  @synchronized(self) {
+    return _providerFactory;
   }
 }
 

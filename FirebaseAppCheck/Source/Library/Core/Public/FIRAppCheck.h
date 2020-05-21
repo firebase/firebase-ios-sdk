@@ -28,10 +28,6 @@ NS_SWIFT_NAME(AppCheck)
 /// Set App Check Provider Factory for default FirebaseApp.
 + (void)setAppCheckProviderFactory:(nullable id<FIRAppCheckProviderFactory>)factory;
 
-/// Set App Check Provider Factory for FirebaseApp with the specified name.
-+ (void)setAppCheckProviderFactory:(nullable id<FIRAppCheckProviderFactory>)factory
-                        forAppName:(NSString *)firebaseAppName;
-
 @end
 
 NS_ASSUME_NONNULL_END

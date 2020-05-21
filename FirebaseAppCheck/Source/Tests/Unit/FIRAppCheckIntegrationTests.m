@@ -115,51 +115,6 @@
   OCMVerifyAll(self.mockAppCheckProvider);
 }
 
-- (void)testSetAppCheckProviderFactoryWithNonDefaultApp {
-  NSString *appName = @"custom_app";
-
-  // 1. Set App Check Provider Factory.
-  [FIRAppCheck setAppCheckProviderFactory:self.mockProviderFactory forAppName:appName];
-
-  // 2. Expect factory to be used on [FIRApp configure].
-  id appValidationArg = [OCMArg checkWithBlock:^BOOL(FIRApp *app) {
-    XCTAssertEqual(app.name, appName);
-    return YES;
-  }];
-  OCMExpect([self.mockProviderFactory createProviderWithApp:appValidationArg])
-      .andReturn(self.mockAppCheckProvider);
-
-  // 3. Configure FIRApp.
-  [self configureAppWithName:appName];
-
-  // 4. Expect App Check Provider to be called on getToken.
-  FIRAppCheckToken *fakeToken = [[FIRAppCheckToken alloc] initWithToken:@"token"
-                                                         expirationDate:[NSDate distantFuture]];
-  id completionBlockArg = [OCMArg invokeBlockWithArgs:fakeToken, [NSNull null], nil];
-  OCMExpect([self.mockAppCheckProvider getTokenWithCompletion:completionBlockArg]);
-
-  // 5. Call getToken and check the result.
-  FIRApp *app = [FIRApp appNamed:appName];
-  id<FIRAppCheckInterop> appCheck = FIR_COMPONENT(FIRAppCheckInterop, app.container);
-
-  XCTestExpectation *completionExpectation =
-      [self expectationWithDescription:@"completionExpectation"];
-  [appCheck getTokenForcingRefresh:YES
-                        completion:^(id<FIRAppCheckTokenInterop> _Nullable token,
-                                     NSError *_Nullable error) {
-                          [completionExpectation fulfill];
-                          XCTAssertNil(error);
-                          XCTAssertNotNil(token);
-                          XCTAssertEqualObjects(token.token, fakeToken.token);
-                          XCTAssertEqualObjects(token.expirationDate, fakeToken.expirationDate);
-                        }];
-  [self waitForExpectations:@[ completionExpectation ] timeout:0.5];
-
-  // 6. Verify mocks
-  OCMVerifyAll(self.mockProviderFactory);
-  OCMVerifyAll(self.mockAppCheckProvider);
-}
-
 #pragma mark - Helpers
 
 - (void)configureAppWithName:(NSString *)appName {
@@ -174,9 +129,6 @@
   // Set a custom app chack provider factory for the default FIRApp.
   [FIRAppCheck setAppCheckProviderFactory:[[AppCheckProviderFactory alloc] init]];
   [FIRApp configure];
-
-  [FIRAppCheck setAppCheckProviderFactory:[[AppCheckProviderFactory alloc] init]
-                               forAppName:@"AppName"];
 
   FIROptions *options = [[FIROptions alloc] initWithContentsOfFile:@"path"];
   [FIRApp configureWithName:@"AppName" options:options];
