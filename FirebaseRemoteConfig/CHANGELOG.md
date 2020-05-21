@@ -1,14 +1,22 @@
+# Unreleased
+- [changed] Updated `fetchAndActivateWithCompletionHandler:` implementation to activate asynchronously. (#5617)
+- [fixed] Remove undefined class via removing unused proto generated source files. (#4334)
+
 # v4.4.11
 - [fixed] Fixed a bug where settings updates weren't applied before fetches. (#4740)
 - [changed] Updated public API documentation for 4.4.10 change from FirebaseInstanceID to
   FirebaseInstallations. (#5561)
+
 # v4.4.10
 - [changed] Internal code changes - migrate to using the FIS SDK. (#5096)
 - [changed] Include both CFBundleString and CFBundleShortVersionString in the outgoing fetch requests.
+
 # v4.4.9
 - [changed] Internal code changes. (#4934)
+
 # v4.4.8
 - [fixed] Fixed a bug (#4677, #4734) where Remote Config does not work after a restore of a previous backup of the device. (#4896).
+
 # v4.4.7
 - [fixed] Fixed a crash that could occur when attempting a remote config fetch before a valid Instance ID was available. (#4622)
 - [fixed] Fixed an issue where config fetch would sometimes fail with a duplicate fetch error when no other fetches were in progress. (#3802)

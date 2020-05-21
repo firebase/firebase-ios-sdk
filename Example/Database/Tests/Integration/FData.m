@@ -63,9 +63,9 @@
 
 - (void)testNamespaceCaseInsensitivityWithinARepo {
   FIRDatabaseReference *ref1 =
-      [[FIRDatabase database] referenceFromURL:[self.databaseURL uppercaseString]];
+      [[FTestHelpers defaultDatabase] referenceFromURL:[self.databaseURL uppercaseString]];
   FIRDatabaseReference *ref2 =
-      [[FIRDatabase database] referenceFromURL:[self.databaseURL lowercaseString]];
+      [[FTestHelpers defaultDatabase] referenceFromURL:[self.databaseURL lowercaseString]];
 
   XCTAssertTrue([ref1.description isEqualToString:ref2.description], @"Descriptions should match");
 }
@@ -212,7 +212,8 @@
 - (void)testWriteLeafNodeOverwriteAtParentVerifyExpectedEvents {
   FIRDatabaseReference *node = [FTestHelpers getRandomNode];
 
-  FIRDatabaseReference *connected = [[[FIRDatabase database] reference] child:@".info/connected"];
+  FIRDatabaseReference *connected =
+      [[[FTestHelpers defaultDatabase] reference] child:@".info/connected"];
   __block BOOL ready = NO;
   [connected observeEventType:FIRDataEventTypeValue
                     withBlock:^(FIRDataSnapshot *snapshot) {
@@ -1445,10 +1446,10 @@
   FIRDatabaseReference *ref = [FTestHelpers getRandomNode];
   FIRDatabaseReference *parent = [ref parent];
 
-  XCTAssertTrue([[parent description] isEqualToString:self.databaseURL], @"Expect domain");
+  XCTAssertEqualObjects([parent description], self.databaseURL);
   FIRDatabaseReference *child = [parent child:@"a/b/c"];
   NSString *expected = [NSString stringWithFormat:@"%@/a/b/c", self.databaseURL];
-  XCTAssertTrue([[child description] isEqualToString:expected], @"Expected path");
+  XCTAssertEqualObjects([child description], expected);
 }
 
 - (void)testURLEncodingOfDescriptionAndURLDecodingOfNewFirebase {
@@ -1458,7 +1459,7 @@
   NSString *expected1 = [NSString
       stringWithFormat:@"%@/a%%25b%%26c%%40d/space%%3A%%20/non-ascii_character%%3A%%C3%%B8",
                        self.databaseURL];
-  FIRDatabaseReference *ref = [[FIRDatabase database] referenceFromURL:test1];
+  FIRDatabaseReference *ref = [[FTestHelpers defaultDatabase] referenceFromURL:test1];
   NSString *result = [ref description];
   XCTAssertTrue([result isEqualToString:expected1], @"Encodes properly");
 
@@ -1467,7 +1468,7 @@
   [[ref child:path] setValue:@"testdata"
          withCompletionBlock:^(NSError *error, FIRDatabaseReference *childRef) {
            FIRDatabaseReference *other =
-               [[FIRDatabase database] referenceFromURL:[ref description]];
+               [[FTestHelpers defaultDatabase] referenceFromURL:[ref description]];
            [[other child:path] observeEventType:FIRDataEventTypeValue
                                       withBlock:^(FIRDataSnapshot *snapshot) {
                                         NSString *val = snapshot.value;
@@ -1483,7 +1484,7 @@
 }
 
 - (void)testNameAtRootAndNonRootLocations {
-  FIRDatabaseReference *ref = [[FIRDatabase database] referenceFromURL:self.databaseURL];
+  FIRDatabaseReference *ref = [[FTestHelpers defaultDatabase] referenceFromURL:self.databaseURL];
   XCTAssertTrue(ref.key == nil, @"Root key should be nil");
   FIRDatabaseReference *child = [ref child:@"a"];
   XCTAssertTrue([child.key isEqualToString:@"a"], @"Should be 'a'");
@@ -1492,7 +1493,7 @@
 }
 
 - (void)testNameAndRefOnSnapshotsForRootAndNonRootLocations {
-  FIRDatabaseReference *ref = [[FIRDatabase database] reference];
+  FIRDatabaseReference *ref = [[FTestHelpers defaultDatabase] reference];
 
   __block BOOL ready = NO;
   [ref removeValueWithCompletionBlock:^(NSError *error, FIRDatabaseReference *ref) {
@@ -3062,7 +3063,7 @@
 - (void)testDeltaSyncNoDataUpdatesAfterReconnect {
   FIRDatabaseReference *ref = [FTestHelpers getRandomNode];
   FIRDatabaseConfig *cfg = [FTestHelpers configForName:@"test-config"];
-  FIRDatabaseReference *ref2 = [[[FIRDatabaseReference alloc] initWithConfig:cfg] child:ref.key];
+  FIRDatabaseReference *ref2 = [[FTestHelpers databaseForConfig:cfg] referenceWithPath:ref.key];
   __block id data = @{@"a" : @1, @"b" : @2, @"c" : @{@".priority" : @3, @".value" : @3}, @"d" : @4};
   [self waitForCompletionOf:ref setValue:data];
 

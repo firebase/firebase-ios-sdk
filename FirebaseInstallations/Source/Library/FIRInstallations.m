@@ -89,10 +89,12 @@ NS_ASSUME_NONNULL_BEGIN
                                                       projectID:appOptions.projectID
                                                     GCMSenderID:appOptions.GCMSenderID
                                                     accessGroup:appOptions.appGroupID];
+
+  // `prefetchAuthToken` is disabled due to b/156746574.
   return [self initWithAppOptions:appOptions
                           appName:appName
         installationsIDController:IDController
-                prefetchAuthToken:YES];
+                prefetchAuthToken:NO];
 }
 
 /// The initializer is supposed to be used by tests to inject `installationsStore`.
