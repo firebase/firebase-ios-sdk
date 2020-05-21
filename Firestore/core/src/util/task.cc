@@ -101,11 +101,15 @@ void Task::ExecuteAndRelease() {
         Defer relock([&] { lock.lock(); });
         operation_();
 
+        // Clear the operation while not holding the lock to avoid the
+        // possibility that the destructor of something in the closure might
+        // try to reference this task.
+        operation_ = {};
+
         TASK_TRACE("Task::Execute %s (completing)", this);
       }
 
       state_ = State::kDone;
-      operation_ = {};
 
       // The callback to the executor must be performed after the operation
       // completes, otherwise the executor's destructor cannot reliably block
@@ -165,9 +169,17 @@ void Task::Cancel() {
   TASK_TRACE("Task::Cancel %s", this);
 
   if (state_ == State::kInitial) {
+    // Do not clear the `operation_` here because that might indirectly trigger
+    // an interaction with this task through its destructor.
     state_ = State::kCancelled;
     executor_ = nullptr;
+
+    // Clear the operation while not holding the lock to avoid the
+    // possibility that the destructor of something in the closure might
+    // try to reference this task.
+    lock.unlock();
     operation_ = {};
+
     is_complete_.notify_all();
 
   } else if (state_ == State::kRunning) {

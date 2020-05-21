@@ -201,8 +201,11 @@ class Task {
   Executor::Tag tag_ = 0;
   Executor::Id id_ = 0;
 
-  Executor::Operation operation_;
   std::thread::id executing_thread_;
+
+  // The operation to run, supplied by the caller. Make this the last member
+  // just in case it refers to this task during its own destruction.
+  Executor::Operation operation_;
 };
 
 /**
