@@ -151,28 +151,6 @@ class StorageIntegration: XCTestCase {
     })
     waitForExpectations()
   }
-    
-  func testUnauthenticatedDeleteNonExistingFile() {
-    let expectation = self.expectation(description: #function)
-    let ref = storage.reference(withPath: "ios/public/fileThatDoesNotExist")
-    ref.delete { (error) in
-      XCTAssertNotNil(error, "Error should not be nil")
-      XCTAssertEqual((error! as NSError).code, StorageErrorCode.objectNotFound.rawValue)
-      expectation.fulfill()
-    }
-    waitForExpectations()
-  }
-    
-  func testUnauthenticatedDeleteFileUnauthorized() {
-    let expectation = self.expectation(description: #function)
-    let ref = storage.reference(withPath: "ios/private/secretfile.txt")
-    ref.delete { (error) in
-      XCTAssertNotNil(error, "Error should not be nil")
-      XCTAssertEqual((error! as NSError).code, StorageErrorCode.unauthorized.rawValue)
-      expectation.fulfill()
-    }
-    waitForExpectations()
-  }
 
   func testDeleteNonExistingFile() {
     let expectation = self.expectation(description: #function)
@@ -356,25 +334,6 @@ class StorageIntegration: XCTestCase {
     })
     waitForExpectations()
   }
-    
-  func testUnauthenticatedSimplePutBlankImage() throws {
-    let expectation = self.expectation(description: #function)
-    let fileName = "blank.jpg"
-    let ref = storage.reference(withPath: "ios/public/" + fileName)
-    let tmpDirURL = URL(fileURLWithPath: NSTemporaryDirectory())
-    let imageURL = tmpDirURL.appendingPathComponent(fileName)
-    
-    let data = Data()
-    try data.write(to: imageURL, options: .atomicWrite)
-    
-    ref.putFile(from: imageURL, metadata: nil, completion: { metadata, error in
-      XCTAssertNotNil(metadata, "Metadata should not be nil")
-      XCTAssertNil(error, "Error should be nil")
-      expectation.fulfill()
-    })
-    waitForExpectations()
-  }
-
 
   func testSimplePutBlankImage() throws {
     let expectation = self.expectation(description: #function)
@@ -456,33 +415,6 @@ class StorageIntegration: XCTestCase {
         expectation.fulfill()
       } catch {
         XCTFail("Throw in downloadURL completion block")
-      }
-    })
-    waitForExpectations()
-  }
-        
-  func testUnauthenticatedSimpleGetFileWithCompletion() throws {
-    let expectation = self.expectation(description: #function)
-    let ref = storage.reference(withPath: "ios/public/cookie")
-    let tmpDirURL = URL(fileURLWithPath: NSTemporaryDirectory())
-    let fileURL = tmpDirURL.appendingPathComponent("cookie.txt")
-    let data = try XCTUnwrap("Here's a 🍪, yay!".data(using: .utf8), "Data construction failed")
-    
-    ref.putData(data, metadata: nil, completion: { metadata, error in
-      XCTAssertNotNil(metadata, "Metadata should not be nil")
-      XCTAssertNil(error, "Error should be nil")
-    
-      ref.write(toFile: fileURL) { (url, error) in
-        XCTAssertNil(error, "Error should be nil")
-        do {
-          let url = try XCTUnwrap(url, "Failed to unwrap url")
-          XCTAssertEqual(fileURL, url)
-          let stringData = try String(contentsOf: fileURL, encoding: .utf8)
-          XCTAssertEqual(stringData, "Here's a 🍪, yay!")
-          expectation.fulfill()
-        } catch {
-          XCTFail("Throw in url completion block")
-        }
       }
     })
     waitForExpectations()
