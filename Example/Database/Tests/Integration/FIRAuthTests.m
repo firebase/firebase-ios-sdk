@@ -50,7 +50,7 @@
   FIRDatabaseConfig *config = [FTestHelpers configForName:@"testWritesRestoredAfterAuth"];
   config.authTokenProvider = authTokenProvider;
 
-  FIRDatabaseReference *ref = [[[FIRDatabaseReference alloc] initWithConfig:config] childByAutoId];
+  FIRDatabaseReference *ref = [[[FTestHelpers databaseForConfig:config] reference] childByAutoId];
 
   __block BOOL done = NO;
 

@@ -191,8 +191,16 @@ building and running the FirebaseAuth pod along with various samples and tests.
 
 ### Firebase Database
 
-To run the Database Integration tests, make your database authentication rules
-[public](https://firebase.google.com/docs/database/security/quickstart).
+The Firebase Database Integration tests can be run against a locally running Database Emulator
+or against a production instance.
+
+To run against a local emulator instance, invoke `./scripts/run_database_emulator.sh start` before
+running the integration test.
+
+To run against a production instance, provide a valid GoogleServices-Info.plist and copy it to
+`Example/Database/App/GoogleService-Info.plist`. Your Security Rule must be set to
+[public](https://firebase.google.com/docs/database/security/quickstart) while your tests are
+running.
 
 ### Firebase Storage
 

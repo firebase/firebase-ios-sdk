@@ -35,7 +35,7 @@
   [super setUp];
 
   [FIRDatabase setLoggingEnabled:YES];
-  _databaseURL = [[FIRApp defaultApp] options].databaseURL;
+  _databaseURL = [FTestHelpers databaseURL];
 
   // Disabled normally since they slow down the tests and don't actually assert anything (they just
   // NSLog timings).
