@@ -23,13 +23,13 @@ class FakeConsole {
   static func get() -> [String: AnyHashable] {
     if config.count == 0 {
       last = config
-      return [ RCNFetchResponseKeyState : RCNFetchResponseKeyStateEmptyConfig ]
+      return [RCNFetchResponseKeyState: RCNFetchResponseKeyStateEmptyConfig]
     }
     var state = RCNFetchResponseKeyStateNoChange
     if last != config {
       state = RCNFetchResponseKeyStateUpdate
     }
     last = config
-    return [ RCNFetchResponseKeyState : state, RCNFetchResponseKeyEntries : config]
+    return [RCNFetchResponseKeyState: state, RCNFetchResponseKeyEntries: config]
   }
 }

@@ -32,7 +32,8 @@ class APITests: XCTestCase {
     let settings = RemoteConfigSettings()
     settings.minimumFetchInterval = 0
     config.configSettings = settings
-    config.configFetch.fetchSession = URLSessionMock.init()
+    config.configFetch.fetchSession = URLSessionMock()
+    config.configFetch.testWithoutNetwork = true
     FakeConsole.config = ["Key1": "Value1"]
 
     // Uncomment for verbose debug logging.

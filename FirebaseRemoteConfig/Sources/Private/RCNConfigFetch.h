@@ -53,7 +53,11 @@ typedef void (^RCNConfigFetcherCompletion)(NSData *data, NSURLResponse *response
 /// Add the ability to update NSURLSession's timeout after a session has already been created.
 - (void)recreateNetworkSession;
 
+/// Provide fetchSession for tests to override.
 @property(nonatomic, readwrite, strong, nonnull) NSURLSession *fetchSession;
+
+/// Flag for tests to disable network accesses.
+@property(nonatomic, readwrite) BOOL testWithoutNetwork;
 
 NS_ASSUME_NONNULL_END
 

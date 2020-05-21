@@ -45,10 +45,10 @@ class URLSessionMock: URLSession {
       etag = String(NSDate().timeIntervalSince1970)
     }
     let jsonData = try! JSONSerialization.data(withJSONObject: consoleValues)
-    let response = HTTPURLResponse.init(url: URL.init(fileURLWithPath: "fakeURL"),
-                                        statusCode: 200,
-                                        httpVersion: nil,
-                                        headerFields: ["etag": etag])
+    let response = HTTPURLResponse(url: URL(fileURLWithPath: "fakeURL"),
+                                   statusCode: 200,
+                                   httpVersion: nil,
+                                   headerFields: ["etag": etag])
     return URLSessionDataTaskMock {
       completionHandler(jsonData, response, nil)
     }
