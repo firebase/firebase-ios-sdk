@@ -149,6 +149,11 @@ NS_SWIFT_NAME(RemoteConfigSettings)
                              "documentation for additional details.");
 @end
 
+
+@class RCNConfigFetch;
+
+
+
 #pragma mark - FIRRemoteConfig
 /// Firebase Remote Config class. The shared instance method +remoteConfig can be created and used
 /// to fetch, activate and read config results and set default config results.

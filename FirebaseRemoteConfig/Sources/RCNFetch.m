@@ -22,7 +22,6 @@
 #import <FirebaseInstallations/FirebaseInstallations.h>
 #import <GoogleUtilities/GULNSData+zlib.h>
 #import "FirebaseRemoteConfig/Sources/Private/RCNConfigSettings.h"
-#import "FirebaseRemoteConfig/Sources/Private/RCNFakeFetch.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigContent.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigExperiment.h"
@@ -203,7 +202,7 @@ static const NSInteger FIRErrorCodeConfigFailed = -114;
 /// requests to work.(b/14751422).
 - (void)refreshInstallationsTokenWithCompletionHandler:
     (FIRRemoteConfigFetchCompletion)completionHandler {
-  if ([RCNFakeFetch active]) {
+  if (YES) {
     [self doFetchCall:completionHandler];
     return;
   }
@@ -493,26 +492,6 @@ static const NSInteger FIRErrorCodeConfigFailed = -114;
                                          withError:nil];
     });
   };
-
-  // If there is a fake config, use that and skip the big block above that does the remote fetch.
-  if ([RCNFakeFetch active]) {
-    self->_settings.isFetchInProgress = NO;
-
-    NSDictionary<NSString *, id> *fakeConfig = [RCNFakeFetch get];
-    // Update config content to cache and DB.
-    if ([fakeConfig[@"state"] isEqualToString:RCNFetchResponseKeyStateUpdate]) {
-      NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
-      [formatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
-      self->_settings.lastETag = [formatter stringFromDate:[NSDate date]];
-    }
-    [_content updateConfigContentWithResponse:fakeConfig forNamespace:self->_FIRNamespace];
-    // Update experiments.
-    [_experiment
-        updateExperimentsWithResponse:fakeConfig[RCNFetchResponseKeyExperimentDescriptions]];
-    [self->_settings updateMetadataWithFetchSuccessStatus:YES];
-    completionHandler(FIRRemoteConfigFetchStatusSuccess, nil);
-    return;
-  }
 
   FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000061", @"Making remote config fetch.");
 

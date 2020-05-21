@@ -17,8 +17,7 @@
 #import <Foundation/Foundation.h>
 
 /// Enables RemoteConfig testing without a networked backend by providing a fake RemoteConfig.
-NS_SWIFT_NAME(FakeFetch)
-@interface RCNFakeFetch : NSObject
+@interface FakeConsole : NSObject
 
 /// Holds the current fake config.
 @property(class, nonatomic, assign) NSMutableDictionary<NSString *, id> *config;

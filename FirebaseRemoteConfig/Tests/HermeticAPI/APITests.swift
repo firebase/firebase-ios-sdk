@@ -32,8 +32,8 @@ class APITests: XCTestCase {
     let settings = RemoteConfigSettings()
     settings.minimumFetchInterval = 0
     config.configSettings = settings
-
-    FakeFetch.config = ["Key1": "Value1"]
+    config.configFetch.fetchSession = URLSessionMock.init()
+    FakeConsole.config = ["Key1": "Value1"]
 
     // Uncomment for verbose debug logging.
     FirebaseConfiguration.shared.setLoggerLevel(FirebaseLoggerLevel.debug)
@@ -42,7 +42,7 @@ class APITests: XCTestCase {
   override func tearDown() {
     app = nil
     config = nil
-    FakeFetch.config = nil
+    FakeConsole.config = nil
     super.tearDown()
   }
 
@@ -148,7 +148,7 @@ class APITests: XCTestCase {
     waitForExpectations()
 
     // Simulate updating console.
-    FakeFetch.config = ["Key1": "Value2"]
+    FakeConsole.config = ["Key1": "Value2"]
 
     let expectation2 = self.expectation(description: #function + "2")
     config.fetch { status, error in

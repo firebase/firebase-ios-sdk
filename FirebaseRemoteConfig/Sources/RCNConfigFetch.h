@@ -30,9 +30,6 @@ NS_ASSUME_NONNULL_BEGIN
 /// Completion handler invoked by NSSessionFetcher.
 typedef void (^RCNConfigFetcherCompletion)(NSData *data, NSURLResponse *response, NSError *error);
 
-/// Test block used for global NSSessionFetcher.
-typedef void (^RCNConfigFetcherTestBlock)(RCNConfigFetcherCompletion completion);
-
 @interface RCNConfigFetch : NSObject
 
 - (instancetype)init NS_UNAVAILABLE;
@@ -55,6 +52,8 @@ typedef void (^RCNConfigFetcherTestBlock)(RCNConfigFetcherCompletion completion)
 
 /// Add the ability to update NSURLSession's timeout after a session has already been created.
 - (void)recreateNetworkSession;
+
+@property(nonatomic, readwrite, strong, nonnull) NSURLSession *fetchSession;
 
 NS_ASSUME_NONNULL_END
 

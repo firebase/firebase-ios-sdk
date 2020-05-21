@@ -623,7 +623,7 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
     self->_settings.minimumFetchInterval = configSettings.minimumFetchInterval;
     self->_settings.fetchTimeout = configSettings.fetchTimeout;
     /// The NSURLSession needs to be recreated whenever the fetch timeout may be updated.
-    [self->_configFetch recreateNetworkSession];
+//    [self->_configFetch recreateNetworkSession];
     FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000067",
                 @"Successfully set configSettings. Developer Mode: %@, Minimum Fetch Interval:%f, "
                 @"Fetch timeout:%f",

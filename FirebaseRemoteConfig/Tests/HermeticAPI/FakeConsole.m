@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#import "FirebaseRemoteConfig/Sources/Private/RCNFakeFetch.h"
+#import "FirebaseRemoteConfig/Tests/HermeticAPI/FakeConsole.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
 
-@implementation RCNFakeFetch
+@implementation FakeConsole
 static NSMutableDictionary<NSString *, id> *_config = nil;
 
 + (NSDictionary<NSString *, id> *)config {
@@ -29,7 +29,7 @@ static NSMutableDictionary<NSString *, id> *_config = nil;
 }
 
 + (BOOL)active {
-  return RCNFakeFetch.config && [RCNFakeFetch.config count] > 0;
+  return FakeConsole.config && [FakeConsole.config count] > 0;
 }
 
 + (NSDictionary<NSString *, id> *)get {

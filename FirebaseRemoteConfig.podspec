@@ -81,7 +81,7 @@ app update.
   s.test_spec 'hermetic-api' do |hermetic_api_tests|
     hermetic_api_tests.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
     hermetic_api_tests.source_files = 'FirebaseRemoteConfig/Tests/HermeticAPI/*.swift',
-                                      'FirebaseRemoteConfig/Tests/HermeticAPI/*.h'
+                                      'FirebaseRemoteConfig/Tests/HermeticAPI/*.[hm]'
     hermetic_api_tests.requires_app_host = true
     hermetic_api_tests.pod_target_xcconfig = {
       'SWIFT_OBJC_BRIDGING_HEADER' => '$(PODS_TARGET_SRCROOT)/FirebaseRemoteConfig/Tests/HermeticAPI/Bridging-Header.h'
