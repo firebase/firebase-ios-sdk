@@ -114,6 +114,7 @@ function RunXcodebuild() {
 
   result=0
   xcodebuild "$@" | tee xcodebuild.log | "${xcpretty_cmd[@]}" || result=$?
+
   if [[ $result == 65 ]]; then
     ExportLogs "$@"
 
@@ -123,12 +124,9 @@ function RunXcodebuild() {
     result=0
     xcodebuild "$@" | tee xcodebuild.log | "${xcpretty_cmd[@]}" || result=$?
   fi
-  if [[ $result != 0 ]]; then
 
-    echo "xcodebuild exited with $result; raw log follows" 1>&2
-    OpenFold Raw log
-    cat xcodebuild.log
-    CloseFold
+  if [[ $result != 0 ]]; then
+    echo "xcodebuild exited with $result" 1>&2
 
     ExportLogs "$@"
     return $result
@@ -137,50 +135,7 @@ function RunXcodebuild() {
 
 # Exports any logs output captured in the xcresult
 function ExportLogs() {
-  OpenFold XCResult
-
-  exporter="${scripts_dir}/xcresult_logs.py"
-  python "$exporter" "$@"
-
-  CloseFold
-}
-
-current_group=none
-current_fold=0
-
-# Prints a command for CI environments to group log output in the logs
-# presentation UI.
-function OpenFold() {
-  description="$*"
-  current_group="$(echo "$description" | tr '[A-Z] ' '[a-z]_')"
-
-  if [[ -n "${GITHUB_ACTIONS:-}" ]]; then
-    echo "::group::description"
-
-  elif [[ -n "${TRAVIS:-}" ]]; then
-    # Travis wants groups to be numbered.
-    current_group="${current_group}.${current_fold}"
-    let current_fold++
-
-    # Show description in yellow.
-    echo "travis_fold:start:${current_group}\033[33;1m${description}\033[0m"
-
-  else
-    echo "===== $description Start ====="
-  fi
-}
-
-# Closes the current fold opened by `OpenFold`.
-function CloseFold() {
-  if [[ -n "${GITHUB_ACTIONS:-}" ]]; then
-    echo "::endgroup::"
-
-  elif [[ -n "${TRAVIS:-}" ]]; then
-    echo "travis_fold:end:${current_group}"
-
-  else
-    echo "===== $description End ====="
-  fi
+  python "${scripts_dir}/xcresult_logs.py" "$@"
 }
 
 if [[ "$xcode_major" -lt 11 ]]; then
