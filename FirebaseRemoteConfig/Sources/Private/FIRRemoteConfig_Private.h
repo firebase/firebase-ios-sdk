@@ -18,12 +18,11 @@
 
 #import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
 #import <FirebaseRemoteConfig/RCNConfigSettings.h>
-#import  "RCNConfigFetch.h"
+#import <FirebaseRemoteConfig/RCNConfigFetch.h>
 
 @class FIROptions;
 @class RCNConfigContent;
 @class RCNConfigDBManager;
-@class RCNConfigFetch;
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -36,13 +36,19 @@ class URLSessionMock: URLSession {
   var response: URLResponse?
   var etag = ""
 
-  override func dataTask(with request: URLRequest, completionHandler: @escaping (Data?, URLResponse?, Error?) -> Void) -> URLSessionDataTask {
-    let consoleValues = FakeConsole.get() as Dictionary
-//    if etag == "" || consoleValues["state"] == "UPDATE" {
-//
-//    }
+  override func dataTask(with request: URLRequest,
+                         completionHandler: @escaping (Data?, URLResponse?, Error?) -> Void)
+    -> URLSessionDataTask {
+    let consoleValues = FakeConsole.get()
+    if etag == "" || consoleValues["state"] as! String == RCNFetchResponseKeyStateUpdate {
+      // Time string in microseconds to insure a different string from previous change.
+      etag = String(NSDate().timeIntervalSince1970)
+    }
     let jsonData = try! JSONSerialization.data(withJSONObject: consoleValues)
-    let response = HTTPURLResponse.init(url: URL.init(fileURLWithPath: "fakeURL"), statusCode: 200, httpVersion: nil, headerFields: nil)
+    let response = HTTPURLResponse.init(url: URL.init(fileURLWithPath: "fakeURL"),
+                                        statusCode: 200,
+                                        httpVersion: nil,
+                                        headerFields: ["etag": etag])
     return URLSessionDataTaskMock {
       completionHandler(jsonData, response, nil)
     }

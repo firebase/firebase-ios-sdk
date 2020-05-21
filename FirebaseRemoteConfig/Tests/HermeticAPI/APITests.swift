@@ -42,7 +42,7 @@ class APITests: XCTestCase {
   override func tearDown() {
     app = nil
     config = nil
-    FakeConsole.config = nil
+    FakeConsole.empty()
     super.tearDown()
   }
 

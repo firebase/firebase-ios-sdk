@@ -12,5 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import <FirebaseRemoteConfig/FIRRemoteConfig_Private.h>
-#import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
+class FakeConsole {
+  static var config = [String: AnyHashable]()
+  static var last = [String: AnyHashable]()
+
+  static func empty() {
+    config = [String: AnyHashable]()
+  }
+
+  static func get() -> [String: AnyHashable] {
+    if config.count == 0 {
+      last = config
+      return [ RCNFetchResponseKeyState : RCNFetchResponseKeyStateEmptyConfig ]
+    }
+    var state = RCNFetchResponseKeyStateNoChange
+    if last != config {
+      state = RCNFetchResponseKeyStateUpdate
+    }
+    last = config
+    return [ RCNFetchResponseKeyState : state, RCNFetchResponseKeyEntries : config]
+  }
+}

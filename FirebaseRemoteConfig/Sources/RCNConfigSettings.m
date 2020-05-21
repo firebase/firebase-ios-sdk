@@ -126,7 +126,6 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
 }
 
 - (void)setLastETagUpdateTime:(NSTimeInterval)lastETagUpdateTime {
-  NSLog(@"xyzzy lastETagUpdateTime %f", lastETagUpdateTime);
   [_userDefaultsManager setLastETagUpdateTime:lastETagUpdateTime];
 }
 
@@ -170,7 +169,6 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
     }
     if (metadata[RCNKeyLastApplyTime]) {
       self->_lastApplyTimeInterval = [metadata[RCNKeyLastApplyTime] doubleValue];
-      NSLog(@"loading config lastETagUpdateTime %f", _lastApplyTimeInterval);
     }
     if (metadata[RCNKeyLastFetchStatus]) {
       self->_lastSetDefaultsTimeInterval = [metadata[RCNKeyLastSetDefaultsTime] doubleValue];
@@ -431,7 +429,6 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
 
 - (void)setLastApplyTimeInterval:(NSTimeInterval)lastApplyTimestamp {
   _lastApplyTimeInterval = lastApplyTimestamp;
-  NSLog(@"apply timestamp to _lastApplyTimeInterval %f", _lastApplyTimeInterval);
   [_DBManager updateMetadataWithOption:RCNUpdateOptionApplyTime
                                 values:@[ @(lastApplyTimestamp) ]
                      completionHandler:nil];
