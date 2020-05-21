@@ -83,6 +83,7 @@ fi
 
 scripts_dir=$(dirname "${BASH_SOURCE[0]}")
 firestore_emulator="${scripts_dir}/run_firestore_emulator.sh"
+database_emulator="${scripts_dir}/run_database_emulator.sh"
 
 system=$(uname -s)
 case "$system" in
@@ -428,6 +429,9 @@ case "$product-$platform-$method" in
     ;;
 
   Database-*-xcodebuild)
+    "${database_emulator}" start
+    trap '"${database_emulator}" stop' ERR EXIT
+	
     pod_gen FirebaseDatabase.podspec --platforms=ios
     RunXcodebuild \
       -workspace 'gen/FirebaseDatabase/FirebaseDatabase.xcworkspace' \
@@ -437,16 +441,14 @@ case "$product-$platform-$method" in
       build \
       test
 
-    if check_secrets; then
-      # Integration tests are only run on iOS to minimize flake failures.
-      RunXcodebuild \
-        -workspace 'gen/FirebaseDatabase/FirebaseDatabase.xcworkspace' \
-        -scheme "FirebaseDatabase-Unit-integration" \
-        "${ios_flags[@]}" \
-        "${xcb_flags[@]}" \
-        build \
-        test
-      fi
+    # Integration tests are only run on iOS to minimize flake failures.
+    RunXcodebuild \
+      -workspace 'gen/FirebaseDatabase/FirebaseDatabase.xcworkspace' \
+      -scheme "FirebaseDatabase-Unit-integration" \
+      "${ios_flags[@]}" \
+      "${xcb_flags[@]}" \
+      build \
+      test
 
     pod_gen FirebaseDatabase.podspec --platforms=macos --clean
     RunXcodebuild \

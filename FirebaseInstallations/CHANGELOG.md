@@ -4,6 +4,7 @@
   NOTE: Installation Identifiers created by previous versions will be reset on Mac OS which can affect e.g. A/B Testing variants or debug device targeting for Firebase Messaging.
   iOS, TVOS and watchOS Installation Identifiers will not be affected. (#5603)
 - [changed] More readable server error console messages. (#5654)
+- [changed] Auth Token auto fetch disabled. (#5656)
 
 # v1.2.0 -- M69
 

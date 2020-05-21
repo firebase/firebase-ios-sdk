@@ -84,9 +84,9 @@
   FIRDatabaseConfig *readerCfg = [FTestHelpers configForName:@"reader"];
 
   FIRDatabaseReference *writer =
-      [[[FIRDatabaseReference alloc] initWithConfig:writerCfg] childByAutoId];
+      [[[FTestHelpers databaseForConfig:writerCfg] reference] childByAutoId];
   FIRDatabaseReference *reader =
-      [[[FIRDatabaseReference alloc] initWithConfig:readerCfg] child:writer.key];
+      [[[FTestHelpers databaseForConfig:readerCfg] reference] child:writer.key];
 
   __block NSNumber *readValue = @0;
   __block NSNumber *writeValue = @0;
@@ -150,9 +150,9 @@
   FIRDatabaseConfig *readerCfg = [FTestHelpers configForName:@"reader"];
 
   FIRDatabaseReference *writer =
-      [[[FIRDatabaseReference alloc] initWithConfig:writerCfg] childByAutoId];
+      [[[FTestHelpers databaseForConfig:writerCfg] reference] childByAutoId];
   FIRDatabaseReference *reader =
-      [[[FIRDatabaseReference alloc] initWithConfig:readerCfg] child:writer.key];
+      [[[FTestHelpers databaseForConfig:readerCfg] reference] child:writer.key];
 
   __block BOOL sawNewValue = NO;
   __block BOOL writerSawNewValue = NO;
@@ -206,9 +206,9 @@
   FIRDatabaseConfig *readerCfg = [FTestHelpers configForName:@"reader"];
 
   FIRDatabaseReference *writer =
-      [[[FIRDatabaseReference alloc] initWithConfig:writerCfg] childByAutoId];
+      [[[FTestHelpers databaseForConfig:writerCfg] reference] childByAutoId];
   FIRDatabaseReference *reader =
-      [[[FIRDatabaseReference alloc] initWithConfig:readerCfg] child:writer.key];
+      [[[FTestHelpers databaseForConfig:readerCfg] reference] child:writer.key];
 
   __block BOOL ready = NO;
   [[writer child:@"foo"] setValue:@"bar"
@@ -259,9 +259,9 @@
   FIRDatabaseConfig *readerCfg = [FTestHelpers configForName:@"reader"];
 
   FIRDatabaseReference *writer =
-      [[[FIRDatabaseReference alloc] initWithConfig:writerCfg] childByAutoId];
+      [[[FTestHelpers databaseForConfig:writerCfg] reference] childByAutoId];
   FIRDatabaseReference *reader =
-      [[[FIRDatabaseReference alloc] initWithConfig:readerCfg] child:writer.key];
+      [[[FTestHelpers databaseForConfig:readerCfg] reference] child:writer.key];
 
   [self waitForCompletionOf:[writer child:@"foo"] setValue:@{@"bar" : @"a", @"baz" : @"b"}];
 
@@ -313,7 +313,7 @@
 - (void)testOnDisconnectTriggersSingleLocalValueEventForWriter {
   FIRDatabaseConfig *writerCfg = [FTestHelpers configForName:@"writer"];
   FIRDatabaseReference *writer =
-      [[[FIRDatabaseReference alloc] initWithConfig:writerCfg] childByAutoId];
+      [[[FTestHelpers databaseForConfig:writerCfg] reference] childByAutoId];
 
   __block int calls = 0;
   [writer observeEventType:FIRDataEventTypeValue
@@ -361,7 +361,7 @@
   FIRDatabaseConfig *writerCfg = [FTestHelpers configForName:@"writer"];
   FIRDatabaseReference *reader = [FTestHelpers getRandomNode];
   FIRDatabaseReference *writer =
-      [[[FIRDatabaseReference alloc] initWithConfig:writerCfg] child:reader.key];
+      [[[FTestHelpers databaseForConfig:writerCfg] reference] child:reader.key];
 
   __block int calls = 0;
   [reader observeEventType:FIRDataEventTypeValue
@@ -408,7 +408,7 @@
 - (void)testOnDisconnectTriggersSingleLocalValueEventForWriterWithQuery {
   FIRDatabaseConfig *writerCfg = [FTestHelpers configForName:@"writer"];
   FIRDatabaseReference *writer =
-      [[[FIRDatabaseReference alloc] initWithConfig:writerCfg] childByAutoId];
+      [[[FTestHelpers databaseForConfig:writerCfg] reference] childByAutoId];
 
   __block int calls = 0;
   [[[writer child:@"foo"] queryLimitedToLast:2]
@@ -457,7 +457,7 @@
   FIRDatabaseReference *reader = [FTestHelpers getRandomNode];
   FIRDatabaseConfig *writerCfg = [FTestHelpers configForName:@"writer"];
   FIRDatabaseReference *writer =
-      [[[FIRDatabaseReference alloc] initWithConfig:writerCfg] child:reader.key];
+      [[[FTestHelpers databaseForConfig:writerCfg] reference] child:reader.key];
 
   __block int calls = 0;
   [[[reader child:@"foo"] queryLimitedToLast:2]
@@ -507,7 +507,7 @@
   FIRDatabaseReference *reader = [FTestHelpers getRandomNode];
   FIRDatabaseConfig *writerCfg = [FTestHelpers configForName:@"writer"];
   FIRDatabaseReference *writer =
-      [[[FIRDatabaseReference alloc] initWithConfig:writerCfg] childByAutoId];
+      [[[FTestHelpers databaseForConfig:writerCfg] reference] childByAutoId];
 
   __block BOOL done = NO;
   NSDictionary *toSet =
@@ -552,9 +552,9 @@
   FIRDatabaseConfig *readerCfg = [FTestHelpers configForName:@"reader"];
 
   FIRDatabaseReference *writer =
-      [[[FIRDatabaseReference alloc] initWithConfig:writerCfg] childByAutoId];
+      [[[FTestHelpers databaseForConfig:writerCfg] reference] childByAutoId];
   FIRDatabaseReference *reader =
-      [[[FIRDatabaseReference alloc] initWithConfig:readerCfg] child:writer.key];
+      [[[FTestHelpers databaseForConfig:readerCfg] reference] child:writer.key];
 
   __block BOOL ready = NO;
   [[writer child:@"foo"] setValue:@{@"bar" : @"a", @"baz" : @"b"}
@@ -614,7 +614,7 @@
 - (void)testOnDisconnectWithServerValuesWithLocalEvents {
   FIRDatabaseConfig *writerCfg = [FTestHelpers configForName:@"writer"];
   FIRDatabaseReference *node =
-      [[[FIRDatabaseReference alloc] initWithConfig:writerCfg] childByAutoId];
+      [[[FTestHelpers databaseForConfig:writerCfg] reference] childByAutoId];
 
   __block FIRDataSnapshot *snap = nil;
   [node observeEventType:FIRDataEventTypeValue

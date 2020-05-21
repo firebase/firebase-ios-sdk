@@ -83,7 +83,8 @@ else
       ;;
 
     Database-*)
-      check_changes '^(FirebaseCore|Firebase/Database|Example/Database|GoogleUtilities|FirebaseDatabase.podspec)'
+      check_changes '^(FirebaseCore|Firebase/Database|Example/Database|GoogleUtilities|FirebaseDatabase.podspec|'\
+'scripts/run_database_emulator.sh)'
       ;;
 
     DynamicLinks-*)

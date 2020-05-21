@@ -36,7 +36,6 @@ function install_secrets() {
     tar xvf scripts/travis-encrypted/Secrets.tar
 
     cp Secrets/Storage/App/GoogleService-Info.plist FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist
-    cp Secrets/Storage/App/GoogleService-Info.plist Example/Database/App/GoogleService-Info.plist
 
     cp Secrets/Metrics/database.config Metrics/database.config
 
