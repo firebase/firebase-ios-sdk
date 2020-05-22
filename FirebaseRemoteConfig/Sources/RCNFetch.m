@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FirebaseRemoteConfig/Sources/Private//RCNConfigFetch.h"
+#import "FirebaseRemoteConfig/Sources/Private/RCNConfigFetch.h"
 
 #import <FirebaseCore/FIRApp.h>
 #import <FirebaseCore/FIRLogger.h>

@@ -39,7 +39,7 @@ class APITests: XCTestCase {
     fakeConsole.config = ["Key1": "Value1"]
 
     // Uncomment for verbose debug logging.
-    FirebaseConfiguration.shared.setLoggerLevel(FirebaseLoggerLevel.debug)
+    // FirebaseConfiguration.shared.setLoggerLevel(FirebaseLoggerLevel.debug)
   }
 
   override func tearDown() {
