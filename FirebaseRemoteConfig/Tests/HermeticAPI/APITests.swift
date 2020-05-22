@@ -20,6 +20,7 @@ import XCTest
 class APITests: XCTestCase {
   var app: FirebaseApp!
   var config: RemoteConfig!
+  var fakeConsole: FakeConsole!
 
   override class func setUp() {
     FirebaseApp.configure()
@@ -31,10 +32,11 @@ class APITests: XCTestCase {
     config = RemoteConfig.remoteConfig(app: app!)
     let settings = RemoteConfigSettings()
     settings.minimumFetchInterval = 0
+    fakeConsole = FakeConsole(with: ["Key1": "Value1"])
     config.configSettings = settings
-    config.configFetch.fetchSession = URLSessionMock()
+    config.configFetch.fetchSession = URLSessionMock(with: fakeConsole)
     config.configFetch.testWithoutNetwork = true
-    FakeConsole.config = ["Key1": "Value1"]
+    fakeConsole.config = ["Key1": "Value1"]
 
     // Uncomment for verbose debug logging.
     FirebaseConfiguration.shared.setLoggerLevel(FirebaseLoggerLevel.debug)
@@ -43,7 +45,7 @@ class APITests: XCTestCase {
   override func tearDown() {
     app = nil
     config = nil
-    FakeConsole.empty()
+    fakeConsole.empty()
     super.tearDown()
   }
 
@@ -149,7 +151,7 @@ class APITests: XCTestCase {
     waitForExpectations()
 
     // Simulate updating console.
-    FakeConsole.config = ["Key1": "Value2"]
+    fakeConsole.config = ["Key1": "Value2"]
 
     let expectation2 = self.expectation(description: #function + "2")
     config.fetch { status, error in

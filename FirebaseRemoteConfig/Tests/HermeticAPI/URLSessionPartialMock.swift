@@ -30,6 +30,11 @@ class URLSessionDataTaskMock: URLSessionDataTask {
 class URLSessionMock: URLSession {
   typealias CompletionHandler = (Data?, URLResponse?, Error?) -> Void
 
+  private let fakeConsole: FakeConsole
+  init(with fakeConsole: FakeConsole) {
+    self.fakeConsole = fakeConsole
+  }
+
   // Properties to control what gets returned to the URLSession callback.
   // error could also be added here.
   var data: Data?
@@ -39,7 +44,7 @@ class URLSessionMock: URLSession {
   override func dataTask(with request: URLRequest,
                          completionHandler: @escaping (Data?, URLResponse?, Error?) -> Void)
     -> URLSessionDataTask {
-    let consoleValues = FakeConsole.get()
+    let consoleValues = fakeConsole.get()
     if etag == "" || consoleValues["state"] as! String == RCNFetchResponseKeyStateUpdate {
       // Time string in microseconds to insure a different string from previous change.
       etag = String(NSDate().timeIntervalSince1970)

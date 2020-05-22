@@ -13,14 +13,18 @@
 // limitations under the License.
 
 class FakeConsole {
-  static var config = [String: AnyHashable]()
-  static var last = [String: AnyHashable]()
+  var config = [String: AnyHashable]()
+  private var last = [String: AnyHashable]()
 
-  static func empty() {
+  init(with first: [String: AnyHashable]) {
+    config = first
+  }
+
+  func empty() {
     config = [String: AnyHashable]()
   }
 
-  static func get() -> [String: AnyHashable] {
+  func get() -> [String: AnyHashable] {
     if config.count == 0 {
       last = config
       return [RCNFetchResponseKeyState: RCNFetchResponseKeyStateEmptyConfig]
