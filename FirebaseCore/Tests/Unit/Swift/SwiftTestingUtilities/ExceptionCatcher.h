@@ -16,13 +16,12 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-typedef void(^ThrowingBlock)(void);
+typedef void (^ThrowingBlock)(void);
 
-@interface ExceptionCatcher: NSObject
+@interface ExceptionCatcher : NSObject
 
 + (BOOL)catchException:(ThrowingBlock)block error:(__autoreleasing NSError **)error;
 
 @end
 
 NS_ASSUME_NONNULL_END
-
