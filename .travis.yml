@@ -194,7 +194,7 @@ jobs:
       env:
         - PROJECT=RemoteConfig METHOD=pod-lib-lint
       script:
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --platforms=ios
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --platforms=ios --skip-tests
 
     - stage: test
       osx_image: xcode10.3
