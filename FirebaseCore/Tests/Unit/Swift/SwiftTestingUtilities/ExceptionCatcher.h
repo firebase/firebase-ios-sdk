@@ -12,11 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import XCTest
-@testable import FirebaseCore
+#import <Foundation/Foundation.h>
 
-class FIRAppTests: XCTestCase {
-  func testSwiftFlagWithSwift() {
-    XCTAssertTrue(FirebaseApp.firebaseUserAgent().contains("swift"))
-  }
-}
+NS_ASSUME_NONNULL_BEGIN
+
+typedef void(^ThrowingBlock)(void);
+
+@interface ExceptionCatcher: NSObject
+
++ (BOOL)catchException:(ThrowingBlock)block error:(__autoreleasing NSError **)error;
+
+@end
+
+NS_ASSUME_NONNULL_END
+
