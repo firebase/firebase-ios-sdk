@@ -66,16 +66,16 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Install gcloud tool
-    - run: |
-            curl https://sdk.cloud.google.com > install.sh
-            bash install.sh --disable-prompts
+      run: |
+        curl https://sdk.cloud.google.com > install.sh
+        bash install.sh --disable-prompts
     - name: Access GCS bucket and Download frameworks
-    - run: |
-            scripts/decrypt_gha_secret.sh scripts/gha-encrypted/firebase-ios-testing.json.gpg quickstart-ios/firebase-ios-testing.json "$plist_secret"
-            gcloud auth activate-service-account --key-file quickstart-ios/firebase-ios-testing.json
-            gsutil cp gs://ios-framework-zip/Firebase-actions-dir.zip Firebase-actions-dir.zip
+      run: |
+        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/firebase-ios-testing.json.gpg quickstart-ios/firebase-ios-testing.json "$plist_secret"
+        gcloud auth activate-service-account --key-file quickstart-ios/firebase-ios-testing.json
+        gsutil cp gs://ios-framework-zip/Firebase-actions-dir.zip Firebase-actions-dir.zip
     - name: Unzip the framework
-    - run: unzip Firebase-actions-dir.zip
+      run: unzip Firebase-actions-dir.zip
 
   quickstart:
     env:
