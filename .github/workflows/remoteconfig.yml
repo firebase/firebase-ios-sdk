@@ -77,7 +77,7 @@ jobs:
           gsutil cp gs://ios-framework-zip/Firebase-actions-dir.zip Firebase-actions-dir.zip
     - name: Unzip the framework
     - run: unzip Firebase-actions-dir.zip
- 
+
   quickstart:
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
