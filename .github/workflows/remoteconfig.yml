@@ -15,85 +15,105 @@ on:
 
 jobs:
 
-  remoteconfig:
-    env:
-      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-    runs-on: macos-latest
-    strategy:
-      matrix:
-        target: [iOS, tvOS, macOS]
-    steps:
-    - uses: actions/checkout@v2
-    - name: Setup Bundler
-      run: scripts/setup_bundler.sh
-    - name: Install Secret GoogleService-Info.plist
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/RemoteConfigSwiftAPI/GoogleService-Info.plist.gpg \
-          FirebaseRemoteConfig/Tests/SwiftAPI/GoogleService-Info.plist "$plist_secret"
-    - name: BuildAndUnitTest # can be replaced with pod lib lint with CocoaPods 1.10
-      run: scripts/third_party/travis/retry.sh scripts/build.sh RemoteConfig ${{ matrix.target }} unit
-    - name: IntegrationTest
-      if: matrix.target == 'iOS'
-      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/build.sh RemoteConfig iOS integration)
-
-  pod-lib-lint:
-    runs-on: macOS-latest
-
-    strategy:
-      matrix:
-        target: [ios, tvos, macos]
-    steps:
-    - uses: actions/checkout@v2
-    - name: Setup Bundler
-      run: scripts/setup_bundler.sh
-    - name: Build and test
-      run: |
-       scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --skip-tests --platforms=${{ matrix.target }}
-
-  catalyst:
-    runs-on: macOS-latest
-    steps:
-    - uses: actions/checkout@v2
-    - name: Setup Bundler
-      run: scripts/setup_bundler.sh
-    - name: Setup project and Build for Catalyst
-      # Only build the unit tests on Catalyst. Test stopped working when GHA moved to Xcode 11.4.1.
-      run: scripts/test_catalyst.sh FirebaseRemoteConfig build FirebaseRemoteConfig-Unit-unit
-
-  quickstart:
+        #  remoteconfig:
+        #    env:
+        #      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+        #    runs-on: macos-latest
+        #    strategy:
+        #      matrix:
+        #        target: [iOS, tvOS, macOS]
+        #    steps:
+        #    - uses: actions/checkout@v2
+        #    - name: Setup Bundler
+        #      run: scripts/setup_bundler.sh
+        #    - name: Install Secret GoogleService-Info.plist
+        #      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/RemoteConfigSwiftAPI/GoogleService-Info.plist.gpg \
+        #          FirebaseRemoteConfig/Tests/SwiftAPI/GoogleService-Info.plist "$plist_secret"
+        #    - name: BuildAndUnitTest # can be replaced with pod lib lint with CocoaPods 1.10
+        #      run: scripts/third_party/travis/retry.sh scripts/build.sh RemoteConfig ${{ matrix.target }} unit
+        #    - name: IntegrationTest
+        #      if: matrix.target == 'iOS'
+        #      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/build.sh RemoteConfig iOS integration)
+        #
+        #  pod-lib-lint:
+        #    runs-on: macOS-latest
+        #
+        #    strategy:
+        #      matrix:
+        #        target: [ios, tvos, macos]
+        #    steps:
+        #    - uses: actions/checkout@v2
+        #    - name: Setup Bundler
+        #      run: scripts/setup_bundler.sh
+        #    - name: Build and test
+        #      run: |
+        #       scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --skip-tests --platforms=${{ matrix.target }}
+        #
+        #  catalyst:
+        #    runs-on: macOS-latest
+        #    steps:
+        #    - uses: actions/checkout@v2
+        #    - name: Setup Bundler
+        #      run: scripts/setup_bundler.sh
+        #    - name: Setup project and Build for Catalyst
+        #      # Only build the unit tests on Catalyst. Test stopped working when GHA moved to Xcode 11.4.1.
+        #      run: scripts/test_catalyst.sh FirebaseRemoteConfig build FirebaseRemoteConfig-Unit-unit
+        #
+  quickstart_framework:
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
     runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v2
-    - name: Setup quickstart
-      run: scripts/setup_quickstart.sh config
-    - name: Install Secret GoogleService-Info.plist
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-config.plist.gpg \
-          quickstart-ios/config/GoogleService-Info.plist "$plist_secret"
-    - name: Install Secret FIREGSignInInfo.h
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/FIREGSignInInfo.h.gpg \
-          quickstart-ios/TestUtils/FIREGSignInInfo.h "$signin_secret"
-    - name: Test objc quickstart
-      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Config)
-    - name: Test swift quickstart
-      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Config swift)
-
-  remoteconfig-cron-only:
-    runs-on: macos-latest
-    if: github.event_name == 'schedule'
-    strategy:
-      matrix:
-        target: [ios, tvos, macos]
-        flags: [
-          '--skip-tests --use-modular-headers',
-          '--skip-tests --use-libraries'
-        ]
-    needs: pod-lib-lint
-    steps:
-    - uses: actions/checkout@v2
-    - name: Setup Bundler
-      run: scripts/setup_bundler.sh
-    - name: PodLibLint RemoteConfig Cron
-      run: |
-        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}
+    - name: Install gcloud tool
+    - run: |
+            curl https://sdk.cloud.google.com > install.sh
+            bash install.sh --disable-prompts
+    - name: Access GCS bucket and Download frameworks
+    - run: |
+            scripts/decrypt_gha_secret.sh scripts/gha-encrypted/firebase-ios-testing.json.gpg \
+          quickstart-ios/firebase-ios-testing.json "$plist_secret"
+          gcloud auth activate-service-account --key-file quickstart-ios/firebase-ios-testing.json
+          gsutil cp gs://ios-framework-zip/Firebase-actions-dir.zip Firebase-actions-dir.zip
+    - name: Unzip the framework
+    - run: unzip Firebase-actions-dir.zip
+          
+      #  quickstart:
+      #    env:
+      #      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+      #      signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+      #    runs-on: macOS-latest
+      #    steps:
+      #    - uses: actions/checkout@v2
+      #    - name: Setup quickstart
+      #      run: scripts/setup_quickstart.sh config
+      #    - name: Install Secret GoogleService-Info.plist
+      #      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-config.plist.gpg \
+      #          quickstart-ios/config/GoogleService-Info.plist "$plist_secret"
+      #    - name: Install Secret FIREGSignInInfo.h
+      #      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/FIREGSignInInfo.h.gpg \
+      #          quickstart-ios/TestUtils/FIREGSignInInfo.h "$signin_secret"
+      #    - name: Test objc quickstart
+      #      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Config)
+      #    - name: Test swift quickstart
+      #      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Config swift)
+      #
+      #  remoteconfig-cron-only:
+      #    runs-on: macos-latest
+      #    if: github.event_name == 'schedule'
+      #    strategy:
+      #      matrix:
+      #        target: [ios, tvos, macos]
+      #        flags: [
+      #          '--skip-tests --use-modular-headers',
+      #          '--skip-tests --use-libraries'
+      #        ]
+      #    needs: pod-lib-lint
+      #    steps:
+      #    - uses: actions/checkout@v2
+      #    - name: Setup Bundler
+      #      run: scripts/setup_bundler.sh
+      #    - name: PodLibLint RemoteConfig Cron
+      #      run: |
+      #        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}
