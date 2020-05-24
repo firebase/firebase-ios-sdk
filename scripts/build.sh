@@ -434,11 +434,11 @@ case "$product-$platform-$method" in
       test
     ;;
 
-  RemoteConfig-*-hermetic)
+  RemoteConfig-*-fakeconsole)
     pod_gen FirebaseRemoteConfig.podspec --platforms="${gen_platform}"
     RunXcodebuild \
       -workspace 'gen/FirebaseRemoteConfig/FirebaseRemoteConfig.xcworkspace' \
-      -scheme "FirebaseRemoteConfig-Unit-hermetic-api" \
+      -scheme "FirebaseRemoteConfig-Unit-fake-console-tests" \
       "${xcb_flags[@]}" \
       build \
       test
@@ -448,7 +448,7 @@ case "$product-$platform-$method" in
     pod_gen FirebaseRemoteConfig.podspec --platforms="${gen_platform}"
     RunXcodebuild \
       -workspace 'gen/FirebaseRemoteConfig/FirebaseRemoteConfig.xcworkspace' \
-      -scheme "FirebaseRemoteConfig-Unit-swift-api" \
+      -scheme "FirebaseRemoteConfig-Unit-swift-api-tests" \
       "${xcb_flags[@]}" \
       build \
       test

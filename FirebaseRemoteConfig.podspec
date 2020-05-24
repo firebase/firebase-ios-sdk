@@ -70,23 +70,30 @@ app update.
     unit_tests.requires_arc = true
   end
 
-  s.test_spec 'swift-api' do |swift_api_tests|
-    swift_api_tests.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
-    swift_api_tests.source_files = 'FirebaseRemoteConfig/Tests/SwiftAPI/*.swift'
-    swift_api_tests.requires_app_host = true
-    swift_api_tests.resources =
-        'FirebaseRemoteConfig/Tests/SwiftAPI/GoogleService-Info.plist'
+  # Run Swift API tests on a real backend.
+  s.test_spec 'swift-api-tests' do |swift_api|
+    swift_api.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
+    swift_api.source_files = 'FirebaseRemoteConfig/Tests/SwiftAPI/*.swift',
+                             'FirebaseRemoteConfig/Tests/FakeUtils/*.h',
+                             'FirebaseRemoteConfig/Tests/FakeUtils/*.swift'
+    swift_api.requires_app_host = true
+    swift_api.pod_target_xcconfig = {
+      'SWIFT_OBJC_BRIDGING_HEADER' => '$(PODS_TARGET_SRCROOT)/FirebaseRemoteConfig/Tests/FakeUtils/Bridging-Header.h'
+    }
+    swift_api.resources = 'FirebaseRemoteConfig/Tests/SwiftAPI/GoogleService-Info.plist'
   end
 
-  s.test_spec 'hermetic-api' do |hermetic_api_tests|
-    hermetic_api_tests.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
-    hermetic_api_tests.source_files = 'FirebaseRemoteConfig/Tests/HermeticAPI/*.swift',
-                                      'FirebaseRemoteConfig/Tests/HermeticAPI/*.h'
-    hermetic_api_tests.requires_app_host = true
-    hermetic_api_tests.pod_target_xcconfig = {
-      'SWIFT_OBJC_BRIDGING_HEADER' => '$(PODS_TARGET_SRCROOT)/FirebaseRemoteConfig/Tests/HermeticAPI/Bridging-Header.h'
+  # Run Swift API tests and tests requiring console changes on a Fake Console.
+  s.test_spec 'fake-console-tests' do |fake_console|
+    fake_console.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
+    fake_console.source_files = 'FirebaseRemoteConfig/Tests/SwiftAPI/*.swift',
+                                      'FirebaseRemoteConfig/Tests/FakeUtils/*.h',
+                                      'FirebaseRemoteConfig/Tests/FakeUtils/*.swift',
+                                      'FirebaseRemoteConfig/Tests/FakeConsole/*.swift'
+    fake_console.requires_app_host = true
+    fake_console.pod_target_xcconfig = {
+      'SWIFT_OBJC_BRIDGING_HEADER' => '$(PODS_TARGET_SRCROOT)/FirebaseRemoteConfig/Tests/FakeUtils/Bridging-Header.h'
     }
-    hermetic_api_tests.resources =
-        'FirebaseRemoteConfig/Tests/HermeticAPI/GoogleService-Info.plist'
+    fake_console.resources = 'FirebaseRemoteConfig/Tests/FakeUtils/GoogleService-Info.plist'
   end
 end

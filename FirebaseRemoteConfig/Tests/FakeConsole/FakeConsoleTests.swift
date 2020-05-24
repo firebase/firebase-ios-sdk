@@ -17,7 +17,7 @@ import FirebaseCore
 
 import XCTest
 
-class FakeConsoleTests: XCTestCase {
+class APITests: XCTestCase {
   static var useFakeConfig: Bool!
   var app: FirebaseApp!
   var config: RemoteConfig!
@@ -37,11 +37,9 @@ class FakeConsoleTests: XCTestCase {
     let settings = RemoteConfigSettings()
     settings.minimumFetchInterval = 0
     config.configSettings = settings
-    if APITests.useFakeConfig {
-      fakeConsole = FakeConsole(with: ["Key1": "Value1"])
-      config.configFetch.fetchSession = URLSessionMock(with: fakeConsole)
-      config.configFetch.testWithoutNetwork = true
-    }
+    fakeConsole = FakeConsole(with: ["Key1": "Value1"])
+    config.configFetch.fetchSession = URLSessionMock(with: fakeConsole)
+    config.configFetch.testWithoutNetwork = true
 
     // Uncomment for verbose debug logging.
     // FirebaseConfiguration.shared.setLoggerLevel(FirebaseLoggerLevel.debug)
@@ -50,64 +48,12 @@ class FakeConsoleTests: XCTestCase {
   override func tearDown() {
     app = nil
     config = nil
-    if APITests.useFakeConfig {
-      fakeConsole.empty()
-    }
+    fakeConsole.empty()
     super.tearDown()
   }
 
-  func testFetchThenActivate() {
-    let expectation = self.expectation(description: #function)
-    config.fetch { status, error in
-      if let error = error {
-        XCTFail("Fetch Error \(error)")
-      }
-      XCTAssertEqual(status, RemoteConfigFetchStatus.success)
-      self.config.activate { error in
-        if let error = error {
-          // This API returns an error if the config was unchanged.
-          print("Activate Error \(error)")
-        }
-        XCTAssertEqual(self.config["Key1"].stringValue, "Value1")
-        expectation.fulfill()
-      }
-    }
-    waitForExpectations()
-  }
-
-  func testFetchWithExpirationThenActivate() {
-    let expectation = self.expectation(description: #function)
-    config.fetch(withExpirationDuration: 0) { status, error in
-      if let error = error {
-        XCTFail("Fetch Error \(error)")
-      }
-      XCTAssertEqual(status, RemoteConfigFetchStatus.success)
-      self.config.activate { error in
-        if let error = error {
-          // This API returns an error if the config was unchanged.
-          print("Activate Error \(error)")
-        }
-        XCTAssertEqual(self.config["Key1"].stringValue, "Value1")
-        expectation.fulfill()
-      }
-    }
-    waitForExpectations()
-  }
-
-  func testFetchAndActivate() {
-    let expectation = self.expectation(description: #function)
-    config.fetchAndActivate { status, error in
-      if let error = error {
-        XCTFail("Fetch and Activate Error \(error)")
-      }
-      XCTAssertEqual(self.config["Key1"].stringValue, "Value1")
-      expectation.fulfill()
-    }
-    waitForExpectations()
-  }
-
-  // Contrast with testChangedActivateWillNotError in FakeConsole.swift.
-  func testUnchangedActivateWillError() {
+  // Contrast with testUnchangedActivateWillError in APITests.swift.
+  func testChangedActivateWillNotError() {
     let expectation = self.expectation(description: #function)
     config.fetch { status, error in
       if let error = error {
@@ -123,6 +69,10 @@ class FakeConsoleTests: XCTestCase {
       }
     }
     waitForExpectations()
+
+    // Simulate updating console.
+    fakeConsole.config = ["Key1": "Value2"]
+
     let expectation2 = self.expectation(description: #function + "2")
     config.fetch { status, error in
       if let error = error {
@@ -130,11 +80,8 @@ class FakeConsoleTests: XCTestCase {
       }
       XCTAssertEqual(status, RemoteConfigFetchStatus.success)
       self.config.activate { error in
-        XCTAssertNotNil(error)
-        if let error = error {
-          XCTAssertEqual((error as NSError).code, RemoteConfigError.internalError.rawValue)
-        }
-        XCTAssertEqual(self.config["Key1"].stringValue, "Value1")
+        XCTAssertNil(error)
+        XCTAssertEqual(self.config["Key1"].stringValue, "Value2")
         expectation2.fulfill()
       }
     }
