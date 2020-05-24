@@ -17,7 +17,7 @@ import FirebaseCore
 
 import XCTest
 
-class APITests: XCTestCase {
+class FakeConsoleTests: XCTestCase {
   static var useFakeConfig: Bool!
   var app: FirebaseApp!
   var config: RemoteConfig!
