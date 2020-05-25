@@ -13,3 +13,4 @@
 // limitations under the License.
 
 #import <FirebaseCore/FIRAppInternal.h>
+#import "ExceptionCatcher.h"
