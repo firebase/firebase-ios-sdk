@@ -53,7 +53,7 @@ class FirebaseAppTests: XCTestCase {
     XCTAssertTrue(FirebaseApp.firebaseUserAgent().contains("swift"))
   }
 
-  func testConfigure() {
+  func testConfigure() throws {
     let expectedUserInfo = expectedUserInfoForApp(named: firebaseDefaultAppName,
                                                   isDefaultApp: true)
     expectAppConfigurationNotification(with: expectedUserInfo)
@@ -65,15 +65,10 @@ class FirebaseAppTests: XCTestCase {
     }
     XCTAssertNoThrow(try configurationAttempt())
 
-    do {
-      let app = try XCTUnwrap(FirebaseApp.app(), "Failed to unwrap default app")
-      XCTAssertEqual(app.name, firebaseDefaultAppName)
-      XCTAssertEqual(app.options.clientID, TestApp.clientID)
-      XCTAssertTrue(FirebaseApp.allApps?.count == 1)
-
-    } catch {
-      XCTFail("The default app does not exist")
-    }
+    let app = try XCTUnwrap(FirebaseApp.app(), "Failed to unwrap default app")
+    XCTAssertEqual(app.name, firebaseDefaultAppName)
+    XCTAssertEqual(app.options.clientID, TestApp.clientID)
+    XCTAssertTrue(FirebaseApp.allApps?.count == 1)
 
     // MARK: Should we check the registered libraries instances available?
 
@@ -92,7 +87,7 @@ class FirebaseAppTests: XCTestCase {
     XCTAssertThrowsError(try secondConfigurationAttempt())
   }
 
-  func testConfigureWithOptions() {
+  func testConfigureWithOptions() throws {
     let expectedUserInfo = expectedUserInfoForApp(named: firebaseDefaultAppName,
                                                   isDefaultApp: true)
     expectAppConfigurationNotification(with: expectedUserInfo)
@@ -107,22 +102,17 @@ class FirebaseAppTests: XCTestCase {
     }
     XCTAssertNoThrow(try configurationAttempt())
 
-    do {
-      let app = try XCTUnwrap(FirebaseApp.app(), "Failed to unwrap default app")
-      XCTAssertEqual(app.name, firebaseDefaultAppName)
-      XCTAssertEqual(app.options.googleAppID, TestApp.googleAppID)
-      XCTAssertEqual(app.options.gcmSenderID, TestApp.gcmSenderID)
-      XCTAssertEqual(app.options.clientID, TestApp.clientID)
-      XCTAssertTrue(FirebaseApp.allApps?.count == 1)
-
-    } catch {
-      XCTFail("The default app does not exist")
-    }
+    let app = try XCTUnwrap(FirebaseApp.app(), "Failed to unwrap default app")
+    XCTAssertEqual(app.name, firebaseDefaultAppName)
+    XCTAssertEqual(app.options.googleAppID, TestApp.googleAppID)
+    XCTAssertEqual(app.options.gcmSenderID, TestApp.gcmSenderID)
+    XCTAssertEqual(app.options.clientID, TestApp.clientID)
+    XCTAssertTrue(FirebaseApp.allApps?.count == 1)
 
     waitForExpectations()
   }
 
-  func testConfigureWithNameAndOptions() {
+  func testConfigureWithNameAndOptions() throws {
     let expectedUserInfo = expectedUserInfoForApp(named: testAppName1,
                                                   isDefaultApp: false)
     expectAppConfigurationNotification(with: expectedUserInfo)
@@ -138,17 +128,12 @@ class FirebaseAppTests: XCTestCase {
     }
     XCTAssertNoThrow(try configurationAttempt())
 
-    do {
-      let app = try XCTUnwrap(FirebaseApp.app(name: testAppName1), "Failed to unwrap default app")
-      XCTAssertEqual(app.name, testAppName1)
-      XCTAssertEqual(app.options.googleAppID, TestApp.googleAppID)
-      XCTAssertEqual(app.options.gcmSenderID, TestApp.gcmSenderID)
-      XCTAssertEqual(app.options.clientID, TestApp.clientID)
-      XCTAssertTrue(FirebaseApp.allApps?.count == 1)
-
-    } catch {
-      XCTFail("Failed to retrieve app1")
-    }
+    let app = try XCTUnwrap(FirebaseApp.app(name: testAppName1), "Failed to unwrap default app")
+    XCTAssertEqual(app.name, testAppName1)
+    XCTAssertEqual(app.options.googleAppID, TestApp.googleAppID)
+    XCTAssertEqual(app.options.gcmSenderID, TestApp.gcmSenderID)
+    XCTAssertEqual(app.options.clientID, TestApp.clientID)
+    XCTAssertTrue(FirebaseApp.allApps?.count == 1)
 
     let configureAppAgain = {
       try ExceptionCatcher.catchException {
@@ -161,7 +146,7 @@ class FirebaseAppTests: XCTestCase {
     waitForExpectations()
   }
 
-  func testConfigureMultipleApps() {
+  func testConfigureMultipleApps() throws {
     let appsConfiguredSuccessfullyExpectation = expectation(description: #function)
     appsConfiguredSuccessfullyExpectation.expectedFulfillmentCount = 2
 
@@ -185,17 +170,12 @@ class FirebaseAppTests: XCTestCase {
     XCTAssertNoThrow(FirebaseApp.configure(name: testAppName1,
                                            options: options1))
 
-    do {
-      let app1 = try XCTUnwrap(FirebaseApp.app(name: testAppName1), "Failed to unwrap app1")
-      XCTAssertEqual(app1.name, testAppName1)
-      XCTAssertEqual(app1.options.googleAppID, TestApp.googleAppID)
-      XCTAssertEqual(app1.options.gcmSenderID, TestApp.gcmSenderID)
-      XCTAssertEqual(app1.options.deepLinkURLScheme, TestApp.deepLinkURLScheme)
-      XCTAssertTrue(FirebaseApp.allApps?.count == 1)
-
-    } catch {
-      XCTFail("Failed to retrieve app1")
-    }
+    let app1 = try XCTUnwrap(FirebaseApp.app(name: testAppName1), "Failed to unwrap app1")
+    XCTAssertEqual(app1.name, testAppName1)
+    XCTAssertEqual(app1.options.googleAppID, TestApp.googleAppID)
+    XCTAssertEqual(app1.options.gcmSenderID, TestApp.gcmSenderID)
+    XCTAssertEqual(app1.options.deepLinkURLScheme, TestApp.deepLinkURLScheme)
+    XCTAssertTrue(FirebaseApp.allApps?.count == 1)
 
     // Configure a different app with valid customized options.
     let options2 = FirebaseOptions(googleAppID: TestApp.googleAppID,
@@ -210,18 +190,13 @@ class FirebaseAppTests: XCTestCase {
     }
     XCTAssertNoThrow(try configureApp2Attempt())
 
-    do {
-      let app2 = try XCTUnwrap(FirebaseApp.app(name: testAppName2), "Failed to unwrap app")
-      XCTAssertEqual(app2.name, testAppName2)
-      XCTAssertEqual(app2.options.googleAppID, TestApp.googleAppID)
-      XCTAssertEqual(app2.options.gcmSenderID, TestApp.gcmSenderID)
-      XCTAssertEqual(app2.options.bundleID, TestApp.bundleID)
-      XCTAssertEqual(app2.options.apiKey, TestApp.customizedAPIKey)
-      XCTAssertTrue(FirebaseApp.allApps?.count == 2)
-
-    } catch {
-      XCTFail("Failed to retrieve app2")
-    }
+    let app2 = try XCTUnwrap(FirebaseApp.app(name: testAppName2), "Failed to unwrap app")
+    XCTAssertEqual(app2.name, testAppName2)
+    XCTAssertEqual(app2.options.googleAppID, TestApp.googleAppID)
+    XCTAssertEqual(app2.options.gcmSenderID, TestApp.gcmSenderID)
+    XCTAssertEqual(app2.options.bundleID, TestApp.bundleID)
+    XCTAssertEqual(app2.options.apiKey, TestApp.customizedAPIKey)
+    XCTAssertTrue(FirebaseApp.allApps?.count == 2)
 
     waitForExpectations()
   }
@@ -237,16 +212,12 @@ class FirebaseAppTests: XCTestCase {
     XCTAssertNotNil(app)
   }
 
-  func testGetExistingAppWithName() {
-    do {
-      let options = try XCTUnwrap(FirebaseOptions.defaultOptions(),
-                                  "Could not load default options.")
-      FirebaseApp.configure(name: testAppName1, options: options)
-      let app = FirebaseApp.app(name: testAppName1)
-      XCTAssertNotNil(app, "Failed to get app")
-    } catch {
-      XCTFail()
-    }
+  func testGetExistingAppWithName() throws {
+    let options = try XCTUnwrap(FirebaseOptions.defaultOptions(),
+                                "Could not load default options.")
+    FirebaseApp.configure(name: testAppName1, options: options)
+    let app = FirebaseApp.app(name: testAppName1)
+    XCTAssertNotNil(app, "Failed to get app")
   }
 
   func testAttemptToGetNonExistingAppWithName() {
@@ -282,7 +253,7 @@ class FirebaseAppTests: XCTestCase {
     XCTAssertEqual(apps[testAppName2], app2)
   }
 
-  func testDeleteApp() {
+  func testDeleteApp() throws {
     XCTAssertNil(FirebaseApp.app(name: testAppName1))
     XCTAssertNil(FirebaseApp.allApps)
 
@@ -294,57 +265,41 @@ class FirebaseAppTests: XCTestCase {
                                   gcmSenderID: TestApp.gcmSenderID)
     FirebaseApp.configure(name: testAppName1, options: options)
 
-    do {
-      let app = try XCTUnwrap(FirebaseApp.app(name: testAppName1), "Could not unwrap app")
-      let apps = try XCTUnwrap(FirebaseApp.allApps, "Could not retrieve app dictionary")
-      XCTAssertTrue(apps.keys.contains(app.name))
-      let appDeletedExpectation = expectation(description: #function)
-      app.delete { success in
-        XCTAssertTrue(success)
-        XCTAssertFalse(FirebaseApp.allApps?.keys.contains(testAppName1) ?? false)
-        appDeletedExpectation.fulfill()
-      }
-
-    } catch {
-      XCTFail("Could not delete app")
+    let app = try XCTUnwrap(FirebaseApp.app(name: testAppName1), "Could not unwrap app")
+    let apps = try XCTUnwrap(FirebaseApp.allApps, "Could not retrieve app dictionary")
+    XCTAssertTrue(apps.keys.contains(app.name))
+    let appDeletedExpectation = expectation(description: #function)
+    app.delete { success in
+      XCTAssertTrue(success)
+      XCTAssertFalse(FirebaseApp.allApps?.keys.contains(testAppName1) ?? false)
+      appDeletedExpectation.fulfill()
     }
 
     waitForExpectations()
   }
 
-  func testGetNameOfDefaultApp() {
+  func testGetNameOfDefaultApp() throws {
     FirebaseApp.configure()
-    do {
-      let defaultApp = try XCTUnwrap(FirebaseApp.app(), "Could not unwrap default app")
-      XCTAssertEqual(defaultApp.name, firebaseDefaultAppName)
-    } catch {
-      XCTFail("Could not get default app")
-    }
+
+    let defaultApp = try XCTUnwrap(FirebaseApp.app(), "Could not unwrap default app")
+    XCTAssertEqual(defaultApp.name, firebaseDefaultAppName)
   }
 
-  func testGetNameOfApp() {
+  func testGetNameOfApp() throws {
     XCTAssertNil(FirebaseApp.app(name: testAppName1))
 
     let options = FirebaseOptions(googleAppID: TestApp.googleAppID,
                                   gcmSenderID: TestApp.gcmSenderID)
     FirebaseApp.configure(name: testAppName1, options: options)
-    do {
-      let app = try XCTUnwrap(FirebaseApp.app(name: testAppName1), "Could not unwrap app")
-      XCTAssertEqual(app.name, testAppName1)
-    } catch {
-      XCTFail("Could not get app")
-    }
+    let app = try XCTUnwrap(FirebaseApp.app(name: testAppName1), "Could not unwrap app")
+    XCTAssertEqual(app.name, testAppName1)
   }
 
-  func testOptionsForApp() {
+  func testOptionsForApp() throws {
     FirebaseApp.configure()
-    do {
-      let app = try XCTUnwrap(FirebaseApp.app(), "Could not unwrap default app")
-      let defaultOptions = FirebaseOptions.defaultOptions()
-      XCTAssertEqual(app.options, defaultOptions)
-    } catch {
-      XCTFail()
-    }
+    let defaultApp = try XCTUnwrap(FirebaseApp.app(), "Could not unwrap default app")
+    let defaultOptions = FirebaseOptions.defaultOptions()
+    XCTAssertEqual(defaultApp.options, defaultOptions)
 
     let options = FirebaseOptions(googleAppID: TestApp.googleAppID,
                                   gcmSenderID: TestApp.gcmSenderID)
@@ -352,35 +307,27 @@ class FirebaseAppTests: XCTestCase {
     options.deepLinkURLScheme = superSecretURLScheme
     FirebaseApp.configure(name: testAppName1, options: options)
 
-    do {
-      let app = try XCTUnwrap(FirebaseApp.app(name: testAppName1), "Could not unwrap app")
-      XCTAssertEqual(app.name, testAppName1)
-      XCTAssertEqual(app.options.googleAppID, TestApp.googleAppID)
-      XCTAssertEqual(app.options.gcmSenderID, TestApp.gcmSenderID)
-      XCTAssertEqual(app.options.deepLinkURLScheme, superSecretURLScheme)
-      XCTAssertNil(app.options.androidClientID)
-    } catch {
-      XCTFail()
-    }
+    let app = try XCTUnwrap(FirebaseApp.app(name: testAppName1), "Could not unwrap app")
+    XCTAssertEqual(app.name, testAppName1)
+    XCTAssertEqual(app.options.googleAppID, TestApp.googleAppID)
+    XCTAssertEqual(app.options.gcmSenderID, TestApp.gcmSenderID)
+    XCTAssertEqual(app.options.deepLinkURLScheme, superSecretURLScheme)
+    XCTAssertNil(app.options.androidClientID)
   }
 
-  func testFirebaseDataCollectionDefaultEnabled() {
+  func testFirebaseDataCollectionDefaultEnabled() throws {
     FirebaseApp.configure()
-    do {
-      let app = try XCTUnwrap(FirebaseApp.app(), "Could not unwrap default app")
 
-      // defaults to true unless otherwise set to no in app's Info.plist
-      XCTAssertTrue(app.isDataCollectionDefaultEnabled)
+    let app = try XCTUnwrap(FirebaseApp.app(), "Could not unwrap default app")
 
-      app.isDataCollectionDefaultEnabled = false
-      XCTAssertFalse(app.isDataCollectionDefaultEnabled)
+    // defaults to true unless otherwise set to no in app's Info.plist
+    XCTAssertTrue(app.isDataCollectionDefaultEnabled)
 
-      // reset to defautl true since it will persist across runs of the app/tests
-      app.isDataCollectionDefaultEnabled = true
+    app.isDataCollectionDefaultEnabled = false
+    XCTAssertFalse(app.isDataCollectionDefaultEnabled)
 
-    } catch {
-      XCTFail()
-    }
+    // reset to defautl true since it will persist across runs of the app/tests
+    app.isDataCollectionDefaultEnabled = true
   }
 
   private func expectedUserInfoForApp(named name: String, isDefaultApp: Bool) -> NSDictionary {
