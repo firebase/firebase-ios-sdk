@@ -56,7 +56,7 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
     swift_unit_tests.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
     swift_unit_tests.source_files = 'FirebaseCore/Tests/Unit/Swift/**/*.swift',
                                     'FirebaseCore/Tests/Unit/Swift/**/*.h',
-                                    'FirebaseCore/Tests/Unit/Swift/SwiftTestingUtilities/*.[mh]'
+                                    'FirebaseCore/Tests/Unit/Swift/SwiftTestingUtilities/*'
     swift_unit_tests.resources = 'FirebaseCore/Tests/Unit/Resources/GoogleService-Info.plist'
     swift_unit_tests.pod_target_xcconfig = {
       'SWIFT_OBJC_BRIDGING_HEADER' => '$(PODS_TARGET_SRCROOT)/FirebaseCore/Tests/Unit/Swift/FirebaseCore-unit-Bridging-Header.h'
