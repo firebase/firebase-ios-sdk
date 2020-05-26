@@ -78,12 +78,13 @@ jobs:
       run: |
               mkdir "${HOME}/ios_frameworks"
               unzip Firebase-actions-dir.zip -d  "${HOME}/ios_frameworks"
+              find "${HOME}/ios_frameworks"  -name "*.zip" -maxdepth 2 -exec unzip -d "${HOME}/ios_frameworks" {} +
               pwd
     - name: Setup quickstart
       run: scripts/setup_quickstart.sh config
     - name: Move frameworks to xcode project
       run: |
-              find "${HOME}/ios_frameworks" -type d -name "Firebase" -maxdepth 2 -exec mv -t quickstart-ios/config/ {} +
+              find "${HOME}/ios_frameworks" -type d -name "Firebase" -maxdepth 1 -exec mv -t quickstart-ios/config/ {} +
               cd quickstart-ios/config
               ls
               ../scripts/add_framework_script.rb Config ConfigExample Firebase/FirebaseAnalytics
