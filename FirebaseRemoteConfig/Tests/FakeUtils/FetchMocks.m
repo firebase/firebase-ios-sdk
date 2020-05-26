@@ -19,16 +19,17 @@
 
 @interface RCNConfigFetch (ExposedForTest)
 - (void)refreshInstallationsTokenWithCompletionHandler:
-  (FIRRemoteConfigFetchCompletion)completionHandler;
+    (FIRRemoteConfigFetchCompletion)completionHandler;
 - (void)doFetchCall:(FIRRemoteConfigFetchCompletion)completionHandler;
 @end
 
 @implementation FetchMocks
 
-+(RCNConfigFetch *)mockFetch:(RCNConfigFetch *)fetch {
++ (RCNConfigFetch *)mockFetch:(RCNConfigFetch *)fetch {
   RCNConfigFetch *mock = OCMPartialMock(fetch);
   OCMStub([mock recreateNetworkSession]).andDo(nil);
-  OCMStub([mock refreshInstallationsTokenWithCompletionHandler:[OCMArg any]]).andCall(mock, @selector(doFetchCall:));
+  OCMStub([mock refreshInstallationsTokenWithCompletionHandler:[OCMArg any]])
+      .andCall(mock, @selector(doFetchCall:));
   return mock;
 }
 

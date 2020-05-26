@@ -18,7 +18,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FetchMocks : NSObject
-+(RCNConfigFetch *)mockFetch:(RCNConfigFetch *)fetch;
++ (RCNConfigFetch *)mockFetch:(RCNConfigFetch *)fetch;
 @end
 
 NS_ASSUME_NONNULL_END

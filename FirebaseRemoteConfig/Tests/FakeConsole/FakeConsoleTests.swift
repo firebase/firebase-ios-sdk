@@ -18,7 +18,6 @@ import FirebaseCore
 import XCTest
 
 class FakeConsoleTests: APITestBase {
-
   override func setUp() {
     super.setUp()
     fakeConsole.config = ["Key1": "Value1"]

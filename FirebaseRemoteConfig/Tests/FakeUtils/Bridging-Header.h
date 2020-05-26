@@ -13,5 +13,5 @@
 // limitations under the License.
 
 #import <FirebaseRemoteConfig/FIRRemoteConfig_Private.h>
-#import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
 #import "FetchMocks.h"
+#import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
