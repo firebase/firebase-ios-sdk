@@ -17,43 +17,12 @@ import FirebaseCore
 
 import XCTest
 
-class APITests: XCTestCase {
-  static var useFakeConfig: Bool!
-  var app: FirebaseApp!
-  var config: RemoteConfig!
-  var fakeConsole: FakeConsole!
-
-  override class func setUp() {
-    if !(FirebaseApp.app() != nil) {
-      FirebaseApp.configure()
-    }
-    useFakeConfig = FirebaseApp.app()!.options.projectID == "FakeProject"
-  }
-
+class APITests: APITestBase {
   override func setUp() {
     super.setUp()
-    app = FirebaseApp.app()
-    config = RemoteConfig.remoteConfig(app: app!)
-    let settings = RemoteConfigSettings()
-    settings.minimumFetchInterval = 0
-    config.configSettings = settings
     if APITests.useFakeConfig {
-      fakeConsole = FakeConsole(with: ["Key1": "Value1"])
-      config.configFetch.fetchSession = URLSessionMock(with: fakeConsole)
-      config.configFetch.testWithoutNetwork = true
+      fakeConsole.config = ["Key1": "Value1"]
     }
-
-    // Uncomment for verbose debug logging.
-    // FirebaseConfiguration.shared.setLoggerLevel(FirebaseLoggerLevel.debug)
-  }
-
-  override func tearDown() {
-    app = nil
-    config = nil
-    if APITests.useFakeConfig {
-      fakeConsole.empty()
-    }
-    super.tearDown()
   }
 
   func testFetchThenActivate() {

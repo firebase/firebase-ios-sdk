@@ -16,8 +16,8 @@ class FakeConsole {
   var config = [String: AnyHashable]()
   private var last = [String: AnyHashable]()
 
-  init(with first: [String: AnyHashable]) {
-    config = first
+  init() {
+    config = [String: AnyHashable]()
   }
 
   func empty() {

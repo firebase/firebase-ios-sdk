@@ -56,9 +56,6 @@ typedef void (^RCNConfigFetcherCompletion)(NSData *data, NSURLResponse *response
 /// Provide fetchSession for tests to override.
 @property(nonatomic, readwrite, strong, nonnull) NSURLSession *fetchSession;
 
-/// Flag for tests to disable network accesses.
-@property(nonatomic, readwrite) BOOL testWithoutNetwork;
-
 NS_ASSUME_NONNULL_END
 
 @end

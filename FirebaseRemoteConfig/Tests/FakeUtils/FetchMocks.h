@@ -12,6 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import <FirebaseRemoteConfig/FIRRemoteConfig_Private.h>
-#import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
-#import "FetchMocks.h"
+#import <Foundation/Foundation.h>
+#import "FirebaseRemoteConfig/Sources/Private/RCNConfigFetch.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface FetchMocks : NSObject
++(RCNConfigFetch *)mockFetch:(RCNConfigFetch *)fetch;
+@end
+
+NS_ASSUME_NONNULL_END

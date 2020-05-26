@@ -109,9 +109,6 @@ static const NSInteger FIRErrorCodeConfigFailed = -114;
 
 /// Force a new NSURLSession creation for updated config.
 - (void)recreateNetworkSession {
-  if (self.testWithoutNetwork) {
-    return;
-  }
   if (_fetchSession) {
     [_fetchSession invalidateAndCancel];
   }
@@ -205,10 +202,6 @@ static const NSInteger FIRErrorCodeConfigFailed = -114;
 /// requests to work.(b/14751422).
 - (void)refreshInstallationsTokenWithCompletionHandler:
     (FIRRemoteConfigFetchCompletion)completionHandler {
-  if (self.testWithoutNetwork) {
-    [self doFetchCall:completionHandler];
-    return;
-  }
   FIRInstallations *installations = [FIRInstallations
       installationsWithApp:[FIRApp appNamed:[self FIRAppNameFromFullyQualifiedNamespace]]];
   if (!installations || !_options.GCMSenderID) {
