@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public enum FirebaseTestConstants {
+public enum Constants {
   enum App {
-    static let firebaseDefaultAppName = "__FIRAPP_DEFAULT"
+    static let defaultName = "__FIRAPP_DEFAULT"
     static let googleAppIDKey = "FIRGoogleAppIDKey"
-    static let firebaseAppNameKey = "FIRAppNameKey"
-    static let firebaseAppIsDefaultAppKey = "FIRAppIsDefaultAppKey"
+    static let nameKey = "FIRAppNameKey"
+    static let isDefaultAppKey = "FIRAppIsDefaultAppKey"
   }
 
   enum Options {
