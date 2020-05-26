@@ -396,6 +396,7 @@ case "$product-$platform-$method" in
   Database-*-integration)
     "${database_emulator}" start
     trap '"${database_emulator}" stop' ERR EXIT
+    pod_gen FirebaseDatabase.podspec --platforms="${gen_platform}"
 
     RunXcodebuild \
       -workspace 'gen/FirebaseDatabase/FirebaseDatabase.xcworkspace' \
