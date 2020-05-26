@@ -71,7 +71,7 @@ class FakeConsoleTests: APITestBase {
       XCTAssertEqual(status, RemoteConfigFetchStatus.success)
       self.config.activate { changed, error in
         XCTAssertNil(error)
-        XCTAssert(changed)
+        XCTAssertTrue(changed)
         XCTAssertEqual(self.config["Key1"].stringValue, "Value1")
         expectation.fulfill()
       }
