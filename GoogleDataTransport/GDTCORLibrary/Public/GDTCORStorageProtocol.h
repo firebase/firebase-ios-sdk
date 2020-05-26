@@ -66,4 +66,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+/** Retrieves the storage instance for the given target.
+ *
+ * @param target The target.
+ * * @return The storage instance registered for the target, or nil if there is none.
+ */
+FOUNDATION_EXPORT
+id<GDTCORStorageProtocol> _Nullable GDTCORStorageInstanceForTarget(GDTCORTarget target);
+
 NS_ASSUME_NONNULL_END
