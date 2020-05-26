@@ -26,7 +26,7 @@ jobs:
     - name: Setup build
       run:  scripts/install_prereqs.sh Database ${{ matrix.target }} xcodebuild
     - name: BuildAndTest # can be replaced with pod lib lint with CocoaPods 1.10
-      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/build.sh Database all)
+      run: scripts/third_party/travis/retry.sh scripts/build.sh Database all
 
   catalyst:
     runs-on: macOS-latest
@@ -63,20 +63,17 @@ jobs:
 
     strategy:
       matrix:
-        # watchos is disabled since pod lib lint cannot handle test Auth dep even if the dep is only
-        # specified for the other three platforms.
         target: [ios, tvos, macos]
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Build and test
-      run: |
-       scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseDatabase.podspec --skip-tests --platforms=${{ matrix.target }}
+      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseDatabase.podspec --skip-tests --platforms=${{ matrix.target }}
 
- database-cron-only:
+  database-cron-only:
     runs-on: macos-latest
-    if: github.event_name == 'schedule'
+#    if: github.event_name == 'schedule'
     strategy:
       matrix:
         target: [ios, tvos, macos]
