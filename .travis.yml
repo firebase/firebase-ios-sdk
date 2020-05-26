@@ -204,6 +204,13 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseStorage.podspec --skip-tests --platforms=ios
 
     - stage: test
+      osx_image: xcode10.3
+      env:
+        - PROJECT=Core PLATFORM=all METHOD=xcodebuild
+      script:
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseCore.podspec --skip-tests --platforms=ios
+
+    - stage: test
       env:
         - PROJECT=Functions METHOD=pod-lib-lint QUICKSTART=Functions
       before_install:
