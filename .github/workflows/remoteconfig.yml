@@ -76,8 +76,8 @@ jobs:
         "${HOME}"/google-cloud-sdk/bin/gsutil cp gs://ios-framework-zip/Firebase-actions-dir.zip Firebase-actions-dir.zip
     - name: Unzip the framework
       run: |
-              mkdir ios_frameworks
-              unzip Firebase-actions-dir.zip -d ios_frameworks
+              mkdir "${HOME}/ios_frameworks"
+              unzip Firebase-actions-dir.zip -d  "${HOME}/ios_frameworks"
               pwd
     - name: Setup quickstart
       run: scripts/setup_quickstart.sh config
