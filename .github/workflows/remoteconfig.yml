@@ -78,6 +78,7 @@ jobs:
       run: |
               mkdir ios_frameworks
               unzip Firebase-actions-dir.zip -d ios_frameworks
+              pwd
     - name: Setup quickstart
       run: scripts/setup_quickstart.sh config
     - name: Move frameworks to xcode project
