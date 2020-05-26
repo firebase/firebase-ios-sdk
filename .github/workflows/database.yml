@@ -14,6 +14,29 @@ on:
     - cron:  '0 7 * * *'
 
 jobs:
+  database:
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        target: [iOS, tvOS, macOS]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Setup build
+      run:  scripts/install_prereqs.sh Database ${{ matrix.target }} xcodebuild
+    - name: BuildAndTest # can be replaced with pod lib lint with CocoaPods 1.10
+      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/build.sh Database all)
+
+  catalyst:
+    runs-on: macOS-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Setup project and Build for Catalyst
+      # Only build the unit tests on Catalyst. Test stopped working when GHA moved to Xcode 11.4.1.
+      run: scripts/test_catalyst.sh FirebaseDatabase test FirebaseDatabase-Unit-unit
 
   quickstart:
     env:
@@ -35,3 +58,38 @@ jobs:
     - name: Test swift quickstart
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Database swift)
 
+  pod-lib-lint:
+    runs-on: macOS-latest
+
+    strategy:
+      matrix:
+        # watchos is disabled since pod lib lint cannot handle test Auth dep even if the dep is only
+        # specified for the other three platforms.
+        target: [ios, tvos, macos]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Build and test
+      run: |
+       scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseDatabase.podspec --skip-tests --platforms=${{ matrix.target }}
+
+ database-cron-only:
+    runs-on: macos-latest
+    if: github.event_name == 'schedule'
+    strategy:
+      matrix:
+        target: [ios, tvos, macos]
+        flags: [
+          '--skip-tests --use-modular-headers',
+          '--skip-tests --use-libraries'
+        ]
+    needs: pod-lib-lint
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: PodLibLint database Cron
+      run: |
+        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseDatabase.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}
+        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseDatabase.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}
