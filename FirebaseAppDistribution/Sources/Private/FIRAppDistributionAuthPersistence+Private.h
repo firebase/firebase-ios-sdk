@@ -42,7 +42,7 @@ typedef NS_ENUM(NSUInteger, FIRAppDistributionKeychainError) {
 + (void)handleAuthStateError:(NSError **_Nullable)error
                  description:(NSString *)description
                         code:(FIRAppDistributionKeychainError)code
-             underlyingError: (NSError *_Nullable)error;
+             underlyingError:(NSError *_Nullable)error;
 
 + (BOOL)persistAuthState:(OIDAuthState *)authState error:(NSError **_Nullable)error;
 

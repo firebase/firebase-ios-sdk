@@ -11,24 +11,30 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#import "FIRAppDistributionAuthPersistence+Private.h"
-
 #import <GoogleUtilities/GULKeychainUtils.h>
-
+#import "FIRAppDistributionAuthPersistence+Private.h"
+#import "FIRAppDistributionKeychainUtility+Private.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 NSString *const kFIRAppDistributionAuthPersistenceErrorDomain =
     @"com.firebase.app_distribution.auth_persistence";
 
+static NSString *const kFIRAppDistributionAuthPersistenceErrorKeychainId =
+    @"com.firebase.app_distribution.keychain_id";
+static NSString *const kFIRAppDistributionAuthPersistenceServiceId = @"fire-fad-auth";
+
 @implementation FIRAppDistributionAuthPersistence
 
 + (void)handleAuthStateError:(NSError **_Nullable)error
                  description:(NSString *)description
                         code:(FIRAppDistributionKeychainError)code
-             underlyingError: (NSError *_Nullable) underlyingError {
+             underlyingError:(NSError *_Nullable)underlyingError {
   if (error) {
-    NSDictionary *userInfo = underlyingError?  @{NSLocalizedDescriptionKey : description, NSUnderlyingErrorKey: underlyingError} : @{NSLocalizedDescriptionKey : description};
+    NSDictionary *userInfo =
+        underlyingError
+            ? @{NSLocalizedDescriptionKey : description, NSUnderlyingErrorKey : underlyingError}
+            : @{NSLocalizedDescriptionKey : description};
     *error = [NSError errorWithDomain:kFIRAppDistributionAuthPersistenceErrorDomain
                                  code:code
                              userInfo:userInfo];
@@ -58,7 +64,7 @@ NSString *const kFIRAppDistributionAuthPersistenceErrorDomain =
   NSMutableDictionary *keychainQuery = [self getKeyChainQuery];
   [keychainQuery setObject:(id)kCFBooleanTrue forKey:(id)kSecReturnData];
   [keychainQuery setObject:(id)kSecMatchLimitOne forKey:(id)kSecMatchLimit];
-    
+
   NSError *keychainError;
   NSData *passwordData = [GULKeychainUtils getItemWithQuery:keychainQuery error:&keychainError];
   NSData *result = nil;
@@ -87,23 +93,26 @@ NSString *const kFIRAppDistributionAuthPersistenceErrorDomain =
     return nil;
   }
 
-  OIDAuthState *authState = [self unarchiveKeychainResult:result];
+  OIDAuthState *authState = [FIRAppDistributionKeychainUtility unarchiveKeychainResult:result];
 
   return authState;
 }
 
 + (BOOL)persistAuthState:(OIDAuthState *)authState error:(NSError **_Nullable)error {
-  NSData *authorizationData = [self archiveDataForKeychain:authState];
+  NSData *authorizationData = [FIRAppDistributionKeychainUtility archiveDataForKeychain:authState];
   NSMutableDictionary *keychainQuery = [self getKeyChainQuery];
   NSError *keychainError;
-  // setItem performs an up-sert. Will automatically update the keychain enytry if it already exists.
-  BOOL success = [GULKeychainUtils setItem:authorizationData withQuery:keychainQuery error:&keychainError];
+  // setItem performs an up-sert. Will automatically update the keychain enytry if it already
+  // exists.
+  BOOL success = [GULKeychainUtils setItem:authorizationData
+                                 withQuery:keychainQuery
+                                     error:&keychainError];
 
   if (!success) {
     NSString *description = NSLocalizedString(
         @"Failed to persist auth state. Tester will have to sign in again after app close.",
         @"Error message for failure to persist auth state to keychain");
-      
+
     [self handleAuthStateError:error
                    description:description
                           code:FIRAppDistributionErrorTokenPersistenceFailure
@@ -116,20 +125,16 @@ NSString *const kFIRAppDistributionAuthPersistenceErrorDomain =
 
 + (NSMutableDictionary *)getKeyChainQuery {
   NSMutableDictionary *keychainQuery = [NSMutableDictionary
-      dictionaryWithObjectsAndKeys:(id)kSecClassGenericPassword, (id)kSecClass, @"OAuth",
-                                   (id)kSecAttrGeneric, @"OAuth", (id)kSecAttrAccount,
-                                   @"fire-fad-auth", (id)kSecAttrService,
-                                   (id)kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly,
-                                   (id)kSecAttrAccessible, nil];
+      dictionaryWithObjectsAndKeys:(id)kSecClassGenericPassword, (id)kSecClass,
+                                   kFIRAppDistributionAuthPersistenceErrorKeychainId,
+                                   (id)kSecAttrGeneric, [self BundleIdentifier],
+                                   (id)kSecAttrAccount, kFIRAppDistributionAuthPersistenceServiceId,
+                                   (id)kSecAttrService, nil];
   return keychainQuery;
 }
 
-+ (OIDAuthState *)unarchiveKeychainResult:(NSData *)result {
-  return (OIDAuthState *)[NSKeyedUnarchiver unarchiveObjectWithData:result];
-}
-
-+ (NSData *)archiveDataForKeychain:(OIDAuthState *)data {
-  return [NSKeyedArchiver archivedDataWithRootObject:data];
++ (NSString *)BundleIdentifier {
+  return [[NSBundle mainBundle] bundleIdentifier] ?: @"Oauth";
 }
 
 @end

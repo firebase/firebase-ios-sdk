@@ -327,7 +327,7 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
     if (authPersistenceError) {
       NSLog(@"Error persisting auth token to keychain: %@",
             [authPersistenceError localizedDescription]);
-    [self logUnderlyingKeychainError:authPersistenceError];
+      [self logUnderlyingKeychainError:authPersistenceError];
 
     } else {
       NSLog(@"Successfully persisted auth token in the keychain");
@@ -365,14 +365,12 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
   }
 }
 
--(void)logUnderlyingKeychainError:(NSError *)error {
-    NSError *underlyingError = [error.userInfo objectForKey:NSUnderlyingErrorKey];
-    if(underlyingError) {
-          NSLog(@"Keychain error - %@", [underlyingError localizedDescription]);
-    }
+- (void)logUnderlyingKeychainError:(NSError *)error {
+  NSError *underlyingError = [error.userInfo objectForKey:NSUnderlyingErrorKey];
+  if (underlyingError) {
+    NSLog(@"Keychain error - %@", [underlyingError localizedDescription]);
+  }
 }
-
-
 
 - (void)handleReleasesAPIResponseWithData:data
                                completion:(FIRAppDistributionUpdateCheckCompletion)completion {
