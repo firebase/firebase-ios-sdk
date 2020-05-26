@@ -73,7 +73,7 @@ jobs:
       run: |
         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/firebase-ios-testing.json.gpg firebase-ios-testing.json "$plist_secret"
         "${HOME}"/google-cloud-sdk/bin/gcloud auth activate-service-account --key-file firebase-ios-testing.json
-        gsutil cp gs://ios-framework-zip/Firebase-actions-dir.zip Firebase-actions-dir.zip
+        "${HOME}"/google-cloud-sdk/bin/gsutil cp gs://ios-framework-zip/Firebase-actions-dir.zip Firebase-actions-dir.zip
     - name: Unzip the framework
       run: unzip Firebase-actions-dir.zip
 
