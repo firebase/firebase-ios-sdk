@@ -311,8 +311,8 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
     // ignored.
     if (strongSelf->_settings.lastETagUpdateTime == 0 ||
         strongSelf->_settings.lastETagUpdateTime <= strongSelf->_settings.lastApplyTimeInterval) {
-      FIRLogWarning(kFIRLoggerRemoteConfig, @"I-RCN000069",
-                    @"Most recently fetched config is already activated.");
+      FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000069",
+                  @"Most recently fetched config is already activated.");
       if (completion) {
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
           completion(NO, nil);
