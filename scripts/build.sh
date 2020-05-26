@@ -405,6 +405,7 @@ case "$product-$platform-$method" in
       "${xcb_flags[@]}" \
       build \
       test
+  ;;
 
   RemoteConfig-*-unit)
     pod_gen FirebaseRemoteConfig.podspec --platforms="${gen_platform}"
