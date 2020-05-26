@@ -75,7 +75,14 @@ jobs:
         "${HOME}"/google-cloud-sdk/bin/gcloud auth activate-service-account --key-file firebase-ios-testing.json
         "${HOME}"/google-cloud-sdk/bin/gsutil cp gs://ios-framework-zip/Firebase-actions-dir.zip Firebase-actions-dir.zip
     - name: Unzip the framework
-      run: unzip Firebase-actions-dir.zip
+      run: |
+              mkdir ios_frameworks
+              unzip Firebase-actions-dir.zip -d ios_frameworks
+    - name: Setup quickstart
+      run: scripts/setup_quickstart.sh config
+    - name: Move frameworks to xcode project
+      run: |
+              find "${HOME}/ios_frameworks" -type d -name "Firebase" -maxdepth 2 -exec mv -t quickstart-ios/config/ {}
 
   quickstart:
     env:
