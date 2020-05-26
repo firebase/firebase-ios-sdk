@@ -1,3 +1,6 @@
+# Unreleased
+- Added new API for fetching storage instances specific to a target.
+
 # v6.1.1
 - Fixes writing event counts in a directory that doesn't yet exist. (#5549)
 
