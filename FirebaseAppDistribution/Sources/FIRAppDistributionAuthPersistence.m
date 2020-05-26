@@ -13,6 +13,9 @@
 // limitations under the License.
 #import "FIRAppDistributionAuthPersistence+Private.h"
 
+#import <GoogleUtilities/GULKeychainUtils.h>
+
+
 NS_ASSUME_NONNULL_BEGIN
 
 NSString *const kFIRAppDistributionAuthPersistenceErrorDomain =
@@ -22,9 +25,10 @@ NSString *const kFIRAppDistributionAuthPersistenceErrorDomain =
 
 + (void)handleAuthStateError:(NSError **_Nullable)error
                  description:(NSString *)description
-                        code:(FIRAppDistributionKeychainError)code {
+                        code:(FIRAppDistributionKeychainError)code
+             underlyingError: (NSError *_Nullable) underlyingError {
   if (error) {
-    NSDictionary *userInfo = @{NSLocalizedDescriptionKey : description};
+    NSDictionary *userInfo = underlyingError?  @{NSLocalizedDescriptionKey : description, NSUnderlyingErrorKey: underlyingError} : @{NSLocalizedDescriptionKey : description};
     *error = [NSError errorWithDomain:kFIRAppDistributionAuthPersistenceErrorDomain
                                  code:code
                              userInfo:userInfo];
@@ -33,7 +37,8 @@ NSString *const kFIRAppDistributionAuthPersistenceErrorDomain =
 
 + (BOOL)clearAuthState:(NSError **_Nullable)error {
   NSMutableDictionary *keychainQuery = [self getKeyChainQuery];
-  BOOL success = [FIRAppDistributionKeychainUtility deleteKeychainItem:keychainQuery];
+  NSError *keychainError;
+  BOOL success = [GULKeychainUtils removeItemWithQuery:keychainQuery error:&keychainError];
 
   if (!success) {
     NSString *description = NSLocalizedString(
@@ -41,7 +46,8 @@ NSString *const kFIRAppDistributionAuthPersistenceErrorDomain =
         @"Error message for failure to retrieve auth state from keychain");
     [self handleAuthStateError:error
                    description:description
-                          code:FIRAppDistributionErrorTokenDeletionFailure];
+                          code:FIRAppDistributionErrorTokenDeletionFailure
+               underlyingError:keychainError];
     return NO;
   }
 
@@ -52,17 +58,19 @@ NSString *const kFIRAppDistributionAuthPersistenceErrorDomain =
   NSMutableDictionary *keychainQuery = [self getKeyChainQuery];
   [keychainQuery setObject:(id)kCFBooleanTrue forKey:(id)kSecReturnData];
   [keychainQuery setObject:(id)kSecMatchLimitOne forKey:(id)kSecMatchLimit];
-  NSData *passwordData = [FIRAppDistributionKeychainUtility fetchKeychainItemMatching:keychainQuery
-                                                                                error:NULL];
+    
+  NSError *keychainError;
+  NSData *passwordData = [GULKeychainUtils getItemWithQuery:keychainQuery error:&keychainError];
   NSData *result = nil;
 
   if (!passwordData) {
     NSString *description = NSLocalizedString(
         @"Failed to retrieve auth state from keychain. Tester will have to sign in again.",
-        @"Error message for failure to retrieve auth state from keychain");
+        @"Error message for failure to retrieve auth state from keychain. ");
     [self handleAuthStateError:error
                    description:description
-                          code:FIRAppDistributionErrorTokenRetrievalFailure];
+                          code:FIRAppDistributionErrorTokenRetrievalFailure
+               underlyingError:keychainError];
     return nil;
   }
 
@@ -74,35 +82,32 @@ NSString *const kFIRAppDistributionAuthPersistenceErrorDomain =
                           @"Error message for failure to retrieve auth state from keychain");
     [self handleAuthStateError:error
                    description:description
-                          code:FIRAppDistributionErrorTokenRetrievalFailure];
+                          code:FIRAppDistributionErrorTokenRetrievalFailure
+               underlyingError:nil];
     return nil;
   }
 
-  OIDAuthState *authState = [FIRAppDistributionKeychainUtility unarchiveKeychainResult:result];
+  OIDAuthState *authState = [self unarchiveKeychainResult:result];
 
   return authState;
 }
 
 + (BOOL)persistAuthState:(OIDAuthState *)authState error:(NSError **_Nullable)error {
-  NSData *authorizationData = [FIRAppDistributionKeychainUtility archiveDataForKeychain:authState];
+  NSData *authorizationData = [self archiveDataForKeychain:authState];
   NSMutableDictionary *keychainQuery = [self getKeyChainQuery];
-  BOOL success = NO;
-  OIDAuthState *retrievedAuthState = [self retrieveAuthState:NULL];
-  if (retrievedAuthState) {
-    success = [FIRAppDistributionKeychainUtility updateKeychainItem:keychainQuery
-                                                 withDataDictionary:authorizationData];
-  } else {
-    success = [FIRAppDistributionKeychainUtility addKeychainItem:keychainQuery
-                                              withDataDictionary:authorizationData];
-  }
+  NSError *keychainError;
+  // setItem performs an up-sert. Will automatically update the keychain enytry if it already exists.
+  BOOL success = [GULKeychainUtils setItem:authorizationData withQuery:keychainQuery error:&keychainError];
 
   if (!success) {
     NSString *description = NSLocalizedString(
         @"Failed to persist auth state. Tester will have to sign in again after app close.",
         @"Error message for failure to persist auth state to keychain");
+      
     [self handleAuthStateError:error
                    description:description
-                          code:FIRAppDistributionErrorTokenPersistenceFailure];
+                          code:FIRAppDistributionErrorTokenPersistenceFailure
+               underlyingError:keychainError];
     return NO;
   }
 
@@ -117,6 +122,14 @@ NSString *const kFIRAppDistributionAuthPersistenceErrorDomain =
                                    (id)kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly,
                                    (id)kSecAttrAccessible, nil];
   return keychainQuery;
+}
+
++ (OIDAuthState *)unarchiveKeychainResult:(NSData *)result {
+  return (OIDAuthState *)[NSKeyedUnarchiver unarchiveObjectWithData:result];
+}
+
++ (NSData *)archiveDataForKeychain:(OIDAuthState *)data {
+  return [NSKeyedArchiver archivedDataWithRootObject:data];
 }
 
 @end

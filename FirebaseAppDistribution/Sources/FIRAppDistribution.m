@@ -77,6 +77,7 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
   // TODO (schnecle): replace NSLog statement with FIRLogger log statement
   if (authRetrievalError) {
     NSLog(@"Found no tester auth token in keychain on intitialization");
+    [self logUnderlyingKeychainError:authRetrievalError];
   } else {
     NSLog(@"Successfully retrieved auth token from keychain on initialization");
   }
@@ -155,6 +156,8 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
   // TODO (schnecle): Add in FIRLogger to report when we have failed to clear auth state
   if (!didClearAuthState) {
     NSLog(@"Error clearing token from keychain: %@", [error localizedDescription]);
+    [self logUnderlyingKeychainError:error];
+
   } else {
     NSLog(@"Successfully cleared auth state from keychain");
   }
@@ -324,6 +327,8 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
     if (authPersistenceError) {
       NSLog(@"Error persisting auth token to keychain: %@",
             [authPersistenceError localizedDescription]);
+    [self logUnderlyingKeychainError:authPersistenceError];
+
     } else {
       NSLog(@"Successfully persisted auth token in the keychain");
     }
@@ -359,6 +364,15 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
     self.window = nil;
   }
 }
+
+-(void)logUnderlyingKeychainError:(NSError *)error {
+    NSError *underlyingError = [error.userInfo objectForKey:NSUnderlyingErrorKey];
+    if(underlyingError) {
+          NSLog(@"Keychain error - %@", [underlyingError localizedDescription]);
+    }
+}
+
+
 
 - (void)handleReleasesAPIResponseWithData:data
                                completion:(FIRAppDistributionUpdateCheckCompletion)completion {

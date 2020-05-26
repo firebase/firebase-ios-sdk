@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 #import <AppAuth/AppAuth.h>
-#import "FIRAppDistributionKeychainUtility+Private.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -42,7 +41,8 @@ typedef NS_ENUM(NSUInteger, FIRAppDistributionKeychainError) {
 // Handle null checking, creation, and formatting of an error encountered
 + (void)handleAuthStateError:(NSError **_Nullable)error
                  description:(NSString *)description
-                        code:(FIRAppDistributionKeychainError)code;
+                        code:(FIRAppDistributionKeychainError)code
+             underlyingError: (NSError *_Nullable)error;
 
 + (BOOL)persistAuthState:(OIDAuthState *)authState error:(NSError **_Nullable)error;
 
