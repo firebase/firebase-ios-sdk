@@ -13,32 +13,16 @@
 // limitations under the License.
 
 import FirebaseCore
-import FirebaseRemoteConfig
+@testable import FirebaseRemoteConfig
+
 import XCTest
 
-class APITests: XCTestCase {
-  var app: FirebaseApp!
-  var config: RemoteConfig!
-
-  override class func setUp() {
-    FirebaseApp.configure()
-  }
-
+class APITests: APITestBase {
   override func setUp() {
     super.setUp()
-    app = FirebaseApp.app()
-    config = RemoteConfig.remoteConfig(app: app!)
-    let settings = RemoteConfigSettings()
-    settings.minimumFetchInterval = 0
-    config.configSettings = settings
-
-    FirebaseConfiguration.shared.setLoggerLevel(FirebaseLoggerLevel.debug)
-  }
-
-  override func tearDown() {
-    app = nil
-    config = nil
-    super.tearDown()
+    if APITests.useFakeConfig {
+      fakeConsole.config = ["Key1": "Value1"]
+    }
   }
 
   func testFetchThenActivate() {
@@ -51,7 +35,6 @@ class APITests: XCTestCase {
       self.config.activate { error in
         if let error = error {
           // This API returns an error if the config was unchanged.
-          //
           print("Activate Error \(error)")
         }
         XCTAssertEqual(self.config["Key1"].stringValue, "Value1")
@@ -71,7 +54,6 @@ class APITests: XCTestCase {
       self.config.activate { error in
         if let error = error {
           // This API returns an error if the config was unchanged.
-          //
           print("Activate Error \(error)")
         }
         XCTAssertEqual(self.config["Key1"].stringValue, "Value1")
@@ -89,6 +71,41 @@ class APITests: XCTestCase {
       }
       XCTAssertEqual(self.config["Key1"].stringValue, "Value1")
       expectation.fulfill()
+    }
+    waitForExpectations()
+  }
+
+  // Contrast with testChangedActivateWillNotError in FakeConsole.swift.
+  func testUnchangedActivateWillError() {
+    let expectation = self.expectation(description: #function)
+    config.fetch { status, error in
+      if let error = error {
+        XCTFail("Fetch Error \(error)")
+      }
+      XCTAssertEqual(status, RemoteConfigFetchStatus.success)
+      self.config.activate { error in
+        if let error = error {
+          print("Activate Error \(error)")
+        }
+        XCTAssertEqual(self.config["Key1"].stringValue, "Value1")
+        expectation.fulfill()
+      }
+    }
+    waitForExpectations()
+    let expectation2 = self.expectation(description: #function + "2")
+    config.fetch { status, error in
+      if let error = error {
+        XCTFail("Fetch Error \(error)")
+      }
+      XCTAssertEqual(status, RemoteConfigFetchStatus.success)
+      self.config.activate { error in
+        XCTAssertNotNil(error)
+        if let error = error {
+          XCTAssertEqual((error as NSError).code, RemoteConfigError.internalError.rawValue)
+        }
+        XCTAssertEqual(self.config["Key1"].stringValue, "Value1")
+        expectation2.fulfill()
+      }
     }
     waitForExpectations()
   }
