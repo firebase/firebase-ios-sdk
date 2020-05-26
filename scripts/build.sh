@@ -388,7 +388,6 @@ case "$product-$platform-$method" in
     RunXcodebuild \
       -workspace 'gen/FirebaseDatabase/FirebaseDatabase.xcworkspace' \
       -scheme "FirebaseDatabase-Unit-unit" \
-      "${ios_flags[@]}" \
       "${xcb_flags[@]}" \
       build \
       test
@@ -401,7 +400,6 @@ case "$product-$platform-$method" in
     RunXcodebuild \
       -workspace 'gen/FirebaseDatabase/FirebaseDatabase.xcworkspace' \
       -scheme "FirebaseDatabase-Unit-integration" \
-      "${ios_flags[@]}" \
       "${xcb_flags[@]}" \
       build \
       test
