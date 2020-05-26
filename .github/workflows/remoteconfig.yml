@@ -82,7 +82,7 @@ jobs:
       run: scripts/setup_quickstart.sh config
     - name: Move frameworks to xcode project
       run: |
-              find "${HOME}/ios_frameworks" -type d -name "Firebase" -maxdepth 2 -exec mv -t quickstart-ios/config/ {}
+              find "${HOME}/ios_frameworks" -type d -name "Firebase" -maxdepth 2 -exec mv -t quickstart-ios/config/ {} +
 
   quickstart:
     env:
