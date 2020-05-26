@@ -116,9 +116,7 @@ class APITests: APITestBase {
       XCTAssertEqual(status, RemoteConfigFetchStatus.success)
       self.config.activate { changed, error in
         XCTAssertTrue(!APITests.useFakeConfig || changed)
-        if let error = error {
-          print("Activate Error \(error)")
-        }
+        XCTAssertNil(error)
         XCTAssertEqual(self.config["Key1"].stringValue, "Value1")
         expectation.fulfill()
       }
