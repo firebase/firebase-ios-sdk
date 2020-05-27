@@ -36,7 +36,6 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: IntegrationTest
-#      if: matrix.target == 'iOS'
       run: scripts/third_party/travis/retry.sh scripts/build.sh Database ${{ matrix.target }} integration
 
   catalyst:
