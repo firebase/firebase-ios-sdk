@@ -38,17 +38,19 @@ typedef NS_ENUM(NSUInteger, FIRAppDistributionKeychainError) {
 
 - (instancetype)init NS_UNAVAILABLE;
 
+- (instancetype)initWithAppId:(NSString *)appID;
+
 // Handle null checking, creation, and formatting of an error encountered
-+ (void)handleAuthStateError:(NSError **_Nullable)error
+- (void)handleAuthStateError:(NSError **_Nullable)error
                  description:(NSString *)description
                         code:(FIRAppDistributionKeychainError)code
              underlyingError:(NSError *_Nullable)error;
 
-+ (BOOL)persistAuthState:(OIDAuthState *)authState error:(NSError **_Nullable)error;
+- (BOOL)persistAuthState:(OIDAuthState *)authState error:(NSError **_Nullable)error;
 
-+ (BOOL)clearAuthState:(NSError **_Nullable)error;
+- (BOOL)clearAuthState:(NSError **_Nullable)error;
 
-+ (OIDAuthState *)retrieveAuthState:(NSError **_Nullable)error;
+- (OIDAuthState *)retrieveAuthState:(NSError **_Nullable)error;
 
 @end
 

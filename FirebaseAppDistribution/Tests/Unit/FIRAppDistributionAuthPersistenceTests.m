@@ -25,6 +25,7 @@
 
 @implementation FIRAppDistributionAuthPersistenceTests {
   NSMutableDictionary *_mockKeychainQuery;
+  FIRAppDistributionAuthPersistence *_authPersistence;
   id _mockAuthorizationData;
   id _mockOIDAuthState;
   id _mockKeychainUtility;
@@ -44,6 +45,7 @@
       .andReturn(_mockOIDAuthState);
   OCMStub(ClassMethod([_mockKeychainUtility archiveDataForKeychain:[OCMArg any]]))
       .andReturn(_mockAuthorizationData);
+  _authPersistence = [[FIRAppDistributionAuthPersistence alloc] initWithAppId:@"test-app-id"];
 }
 
 - (void)tearDown {
@@ -56,8 +58,7 @@
                                                       error:[OCMArg setTo:nil]]))
       .andReturn(YES);
   NSError *error;
-  XCTAssertTrue([FIRAppDistributionAuthPersistence persistAuthState:_mockOIDAuthState
-                                                              error:&error]);
+  XCTAssertTrue([_authPersistence persistAuthState:_mockOIDAuthState error:&error]);
   XCTAssertNil(error);
 }
 
@@ -67,8 +68,7 @@
                                                       error:[OCMArg setTo:nil]]))
       .andReturn(NO);
   NSError *error;
-  XCTAssertFalse([FIRAppDistributionAuthPersistence persistAuthState:_mockOIDAuthState
-                                                               error:&error]);
+  XCTAssertFalse([_authPersistence persistAuthState:_mockOIDAuthState error:&error]);
   XCTAssertNotNil(error);
   XCTAssertEqual([error domain], kFIRAppDistributionAuthPersistenceErrorDomain);
   XCTAssertEqual([error code], FIRAppDistributionErrorTokenPersistenceFailure);
@@ -79,8 +79,7 @@
                                                                error:[OCMArg setTo:nil]]))
       .andReturn(_mockAuthorizationData);
   NSError *error;
-  XCTAssertTrue([[FIRAppDistributionAuthPersistence retrieveAuthState:&error]
-      isKindOfClass:[OIDAuthState class]]);
+  XCTAssertTrue([[_authPersistence retrieveAuthState:&error] isKindOfClass:[OIDAuthState class]]);
   XCTAssertNil(error);
 }
 
@@ -89,7 +88,7 @@
                                                                error:[OCMArg setTo:nil]]))
       .andReturn(nil);
   NSError *error;
-  XCTAssertFalse([FIRAppDistributionAuthPersistence retrieveAuthState:&error]);
+  XCTAssertFalse([_authPersistence retrieveAuthState:&error]);
   XCTAssertNotNil(error);
   XCTAssertEqual([error domain], kFIRAppDistributionAuthPersistenceErrorDomain);
   XCTAssertEqual([error code], FIRAppDistributionErrorTokenRetrievalFailure);
@@ -100,7 +99,7 @@
                                                                   error:[OCMArg setTo:nil]]))
       .andReturn(YES);
   NSError *error;
-  XCTAssertTrue([FIRAppDistributionAuthPersistence clearAuthState:&error]);
+  XCTAssertTrue([_authPersistence clearAuthState:&error]);
   XCTAssertNil(error);
 }
 
@@ -109,7 +108,7 @@
                                                                   error:[OCMArg setTo:nil]]))
       .andReturn(NO);
   NSError *error;
-  XCTAssertFalse([FIRAppDistributionAuthPersistence clearAuthState:&error]);
+  XCTAssertFalse([_authPersistence clearAuthState:&error]);
   XCTAssertNotNil(error);
   XCTAssertEqual([error domain], kFIRAppDistributionAuthPersistenceErrorDomain);
   XCTAssertEqual([error code], FIRAppDistributionErrorTokenDeletionFailure);
