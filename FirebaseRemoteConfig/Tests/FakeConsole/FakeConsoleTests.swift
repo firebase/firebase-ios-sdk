@@ -23,6 +23,7 @@ class FakeConsoleTests: APITestBase {
     fakeConsole.config = ["Key1": "Value1"]
   }
 
+  // Test old API.
   // Contrast with testUnchangedActivateWillError in APITests.swift.
   func testChangedActivateWillNotError() {
     let expectation = self.expectation(description: #function)
@@ -52,6 +53,43 @@ class FakeConsoleTests: APITestBase {
       XCTAssertEqual(status, RemoteConfigFetchStatus.success)
       self.config.activate { error in
         XCTAssertNil(error)
+        XCTAssertEqual(self.config["Key1"].stringValue, "Value2")
+        expectation2.fulfill()
+      }
+    }
+    waitForExpectations()
+  }
+
+  // Test New API.
+  // Contrast with testUnchangedActivateWillFlag in APITests.swift.
+  func testChangedActivateWillNotFlag() {
+    let expectation = self.expectation(description: #function)
+    config.fetch { status, error in
+      if let error = error {
+        XCTFail("Fetch Error \(error)")
+      }
+      XCTAssertEqual(status, RemoteConfigFetchStatus.success)
+      self.config.activate { changed, error in
+        XCTAssertNil(error)
+        XCTAssertTrue(changed)
+        XCTAssertEqual(self.config["Key1"].stringValue, "Value1")
+        expectation.fulfill()
+      }
+    }
+    waitForExpectations()
+
+    // Simulate updating console.
+    fakeConsole.config = ["Key1": "Value2"]
+
+    let expectation2 = self.expectation(description: #function + "2")
+    config.fetch { status, error in
+      if let error = error {
+        XCTFail("Fetch Error \(error)")
+      }
+      XCTAssertEqual(status, RemoteConfigFetchStatus.success)
+      self.config.activate { changed, error in
+        XCTAssertNil(error)
+        XCTAssert(changed)
         XCTAssertEqual(self.config["Key1"].stringValue, "Value2")
         expectation2.fulfill()
       }
