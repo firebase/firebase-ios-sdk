@@ -1,3 +1,6 @@
+# 2020-06-02 -- v0.20.2
+- [fixed] Fixed log message for in-app messaging test on device flow (#5680).
+
 # 2020-05-19 -- v0.20.1
 - [fixed] Fixed an issue where clicks were counted for messages with no action URL (#5564).
 

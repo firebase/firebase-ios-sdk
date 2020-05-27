@@ -383,42 +383,24 @@ case "$product-$platform-$method" in
     fi
     ;;
 
-  Database-*-xcodebuild)
-    "${database_emulator}" start
-    trap '"${database_emulator}" stop' ERR EXIT
-	
-    pod_gen FirebaseDatabase.podspec --platforms=ios
+  Database-*-unit)
+    pod_gen FirebaseDatabase.podspec --platforms="${gen_platform}"
     RunXcodebuild \
       -workspace 'gen/FirebaseDatabase/FirebaseDatabase.xcworkspace' \
       -scheme "FirebaseDatabase-Unit-unit" \
-      "${ios_flags[@]}" \
       "${xcb_flags[@]}" \
       build \
       test
+    ;;
 
-    # Integration tests are only run on iOS to minimize flake failures.
+  Database-*-integration)
+    "${database_emulator}" start
+    trap '"${database_emulator}" stop' ERR EXIT
+    pod_gen FirebaseDatabase.podspec --platforms="${gen_platform}"
+
     RunXcodebuild \
       -workspace 'gen/FirebaseDatabase/FirebaseDatabase.xcworkspace' \
       -scheme "FirebaseDatabase-Unit-integration" \
-      "${ios_flags[@]}" \
-      "${xcb_flags[@]}" \
-      build \
-      test
-
-    pod_gen FirebaseDatabase.podspec --platforms=macos --clean
-    RunXcodebuild \
-      -workspace 'gen/FirebaseDatabase/FirebaseDatabase.xcworkspace' \
-      -scheme "FirebaseDatabase-Unit-unit" \
-      "${macos_flags[@]}" \
-      "${xcb_flags[@]}" \
-      build \
-      test
-
-    pod_gen FirebaseDatabase.podspec --platforms=tvos --clean
-    RunXcodebuild \
-      -workspace 'gen/FirebaseDatabase/FirebaseDatabase.xcworkspace' \
-      -scheme "FirebaseDatabase-Unit-unit" \
-      "${tvos_flags[@]}" \
       "${xcb_flags[@]}" \
       build \
       test
@@ -434,11 +416,21 @@ case "$product-$platform-$method" in
       test
     ;;
 
+  RemoteConfig-*-fakeconsole)
+    pod_gen FirebaseRemoteConfig.podspec --platforms="${gen_platform}"
+    RunXcodebuild \
+      -workspace 'gen/FirebaseRemoteConfig/FirebaseRemoteConfig.xcworkspace' \
+      -scheme "FirebaseRemoteConfig-Unit-fake-console-tests" \
+      "${xcb_flags[@]}" \
+      build \
+      test
+    ;;
+
   RemoteConfig-*-integration)
     pod_gen FirebaseRemoteConfig.podspec --platforms="${gen_platform}"
     RunXcodebuild \
       -workspace 'gen/FirebaseRemoteConfig/FirebaseRemoteConfig.xcworkspace' \
-      -scheme "FirebaseRemoteConfig-Unit-swift-api" \
+      -scheme "FirebaseRemoteConfig-Unit-swift-api-tests" \
       "${xcb_flags[@]}" \
       build \
       test
