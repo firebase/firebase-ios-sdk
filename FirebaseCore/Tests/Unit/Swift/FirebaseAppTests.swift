@@ -1,4 +1,4 @@
-// Copyright 2020 Google
+// Copyright 2020 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -125,7 +125,7 @@ class FirebaseAppTests: XCTestCase {
 
     let app = try XCTUnwrap(
       FirebaseApp.app(name: Constants.testAppName1),
-      "Failed to unwrap default app"
+      "Failed to unwrap custom named app"
     )
     XCTAssertEqual(app.name, Constants.testAppName1)
     XCTAssertEqual(app.options.googleAppID, Constants.Options.googleAppID)
@@ -175,7 +175,7 @@ class FirebaseAppTests: XCTestCase {
     }
     XCTAssertNoThrow(try configureApp2Attempt())
 
-    let app2 = try XCTUnwrap(FirebaseApp.app(name: Constants.testAppName2), "Failed to unwrap app")
+    let app2 = try XCTUnwrap(FirebaseApp.app(name: Constants.testAppName2), "Failed to unwrap app2")
     XCTAssertEqual(app2.name, Constants.testAppName2)
     XCTAssertEqual(app2.options.googleAppID, Constants.Options.googleAppID)
     XCTAssertEqual(app2.options.gcmSenderID, Constants.Options.gcmSenderID)
@@ -199,7 +199,7 @@ class FirebaseAppTests: XCTestCase {
 
   func testGetExistingAppWithName() throws {
     // Configure a different app with valid customized options.
-    let options = try XCTUnwrap(FirebaseOptions.defaultOptions(), "Could not load default options.")
+    let options = try XCTUnwrap(FirebaseOptions.defaultOptions(), "Could not load default options")
     FirebaseApp.configure(name: Constants.testAppName1, options: options)
     let app = FirebaseApp.app(name: Constants.testAppName1)
     XCTAssertNotNil(app, "Failed to get app")
@@ -276,7 +276,10 @@ class FirebaseAppTests: XCTestCase {
                                   gcmSenderID: Constants.Options.gcmSenderID)
     FirebaseApp.configure(name: Constants.testAppName1, options: options)
 
-    let app = try XCTUnwrap(FirebaseApp.app(name: Constants.testAppName1), "Could not unwrap app")
+    let app = try XCTUnwrap(
+      FirebaseApp.app(name: Constants.testAppName1),
+      "Failed to unwrap custom named app"
+    )
     XCTAssertEqual(app.name, Constants.testAppName1)
   }
 
@@ -292,7 +295,10 @@ class FirebaseAppTests: XCTestCase {
     options.deepLinkURLScheme = superSecretURLScheme
     FirebaseApp.configure(name: Constants.testAppName1, options: options)
 
-    let app = try XCTUnwrap(FirebaseApp.app(name: Constants.testAppName1), "Could not unwrap app")
+    let app = try XCTUnwrap(
+      FirebaseApp.app(name: Constants.testAppName1),
+      "Could not unwrap custom named app"
+    )
     XCTAssertEqual(app.name, Constants.testAppName1)
     XCTAssertEqual(app.options.googleAppID, Constants.Options.googleAppID)
     XCTAssertEqual(app.options.gcmSenderID, Constants.Options.gcmSenderID)
