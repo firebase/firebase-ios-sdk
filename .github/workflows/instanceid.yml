@@ -20,7 +20,6 @@ jobs:
     runs-on: macOS-latest
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      FIR_IID_INTEGRATION_TESTS_REQUIRED: ${{ secrets.GHASecretsGPGPassphrase1 }}
     strategy:
       matrix:
         target: [ios, tvos, macos]
@@ -34,7 +33,7 @@ jobs:
         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/Installations/GoogleService-Info.plist.gpg \
           FirebaseInstallations/Source/Tests/Resources/GoogleService-Info.plist "$plist_secret"
     - name: Build and test
-      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --platforms=${{ matrix.target }}
+      run: scripts/third_party/travis/retry.sh FIR_IID_INTEGRATION_TESTS_REQUIRED="$plist_secret" scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --platforms=${{ matrix.target }}
 
   catalyst:
     runs-on: macOS-latest
