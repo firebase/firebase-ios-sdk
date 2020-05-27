@@ -19,6 +19,10 @@
 
 #import "GDTCORLibrary/Public/GDTCORConsoleLogger.h"
 
+id<GDTCORStorageProtocol> _Nullable GDTCORStorageInstanceForTarget(GDTCORTarget target) {
+  return [GDTCORRegistrar sharedInstance].targetToStorage[@(target)];
+}
+
 @implementation GDTCORRegistrar {
   /** Backing ivar for targetToUploader property. */
   NSMutableDictionary<NSNumber *, id<GDTCORUploader>> *_targetToUploader;
