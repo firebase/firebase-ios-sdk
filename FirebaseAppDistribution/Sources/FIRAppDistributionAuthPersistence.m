@@ -22,7 +22,6 @@ NSString *const kFIRAppDistributionAuthPersistenceErrorDomain =
 
 static NSString *const kFIRAppDistributionAuthPersistenceErrorKeychainId =
     @"com.firebase.app_distribution.keychain_id";
-static NSString *const kFIRAppDistributionAuthPersistenceServiceId = @"fire-fad-auth";
 
 @implementation FIRAppDistributionAuthPersistence
 
@@ -128,7 +127,7 @@ static NSString *const kFIRAppDistributionAuthPersistenceServiceId = @"fire-fad-
       dictionaryWithObjectsAndKeys:(id)kSecClassGenericPassword, (id)kSecClass,
                                    kFIRAppDistributionAuthPersistenceErrorKeychainId,
                                    (id)kSecAttrGeneric, [self bundleIdentifier],
-                                   (id)kSecAttrAccount, kFIRAppDistributionAuthPersistenceServiceId,
+                                   (id)kSecAttrAccount, [self bundleIdentifier],
                                    (id)kSecAttrService, nil];
   return keychainQuery;
 }
