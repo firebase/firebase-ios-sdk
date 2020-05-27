@@ -30,8 +30,8 @@ public enum Constants {
     static let androidClientID = "correct_android_client_id"
     static let googleAppID = "1:123:ios:123abc"
     static let databaseURL = "https://abc-xyz-123.firebaseio.com"
-    static let customizedAPIKey = "customized_api_key"
     static let deepLinkURLScheme = "comgoogledeeplinkurl"
     static let storageBucket = "project-id-123.storage.firebase.com"
+    static let appGroupID: String? = nil
   }
 }

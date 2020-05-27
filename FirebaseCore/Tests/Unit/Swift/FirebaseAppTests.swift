@@ -164,7 +164,7 @@ class FirebaseAppTests: XCTestCase {
     let options2 = FirebaseOptions(googleAppID: Constants.Options.googleAppID,
                                    gcmSenderID: Constants.Options.gcmSenderID)
     options2.bundleID = Constants.Options.bundleID
-    options2.apiKey = Constants.Options.customizedAPIKey
+    options2.apiKey = Constants.Options.apiKey
 
     expectAppConfigurationNotification(appName: Constants.testAppName2, isDefaultApp: false)
 
@@ -180,7 +180,7 @@ class FirebaseAppTests: XCTestCase {
     XCTAssertEqual(app2.options.googleAppID, Constants.Options.googleAppID)
     XCTAssertEqual(app2.options.gcmSenderID, Constants.Options.gcmSenderID)
     XCTAssertEqual(app2.options.bundleID, Constants.Options.bundleID)
-    XCTAssertEqual(app2.options.apiKey, Constants.Options.customizedAPIKey)
+    XCTAssertEqual(app2.options.apiKey, Constants.Options.apiKey)
     XCTAssertTrue(FirebaseApp.allApps?.count == 2)
 
     waitForExpectations(timeout: 1)
