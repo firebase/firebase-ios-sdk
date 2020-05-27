@@ -37,8 +37,6 @@ function install_secrets() {
 
     cp Secrets/Storage/App/GoogleService-Info.plist FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist
 
-    cp Secrets/Metrics/database.config Metrics/database.config
-
     # Firebase Installations
     fis_resources_dir=FirebaseInstallations/Source/Tests/Resources/
     mkdir -p "$fis_resources_dir"
