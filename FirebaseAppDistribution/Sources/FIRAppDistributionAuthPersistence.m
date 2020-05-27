@@ -102,7 +102,7 @@ static NSString *const kFIRAppDistributionAuthPersistenceServiceId = @"fire-fad-
   NSData *authorizationData = [FIRAppDistributionKeychainUtility archiveDataForKeychain:authState];
   NSMutableDictionary *keychainQuery = [self getKeyChainQuery];
   NSError *keychainError;
-  // setItem performs an up-sert. Will automatically update the keychain enytry if it already
+  // setItem performs an up-sert. Will automatically update the keychain entry if it already
   // exists.
   BOOL success = [GULKeychainUtils setItem:authorizationData
                                  withQuery:keychainQuery
@@ -127,14 +127,14 @@ static NSString *const kFIRAppDistributionAuthPersistenceServiceId = @"fire-fad-
   NSMutableDictionary *keychainQuery = [NSMutableDictionary
       dictionaryWithObjectsAndKeys:(id)kSecClassGenericPassword, (id)kSecClass,
                                    kFIRAppDistributionAuthPersistenceErrorKeychainId,
-                                   (id)kSecAttrGeneric, [self BundleIdentifier],
+                                   (id)kSecAttrGeneric, [self bundleIdentifier],
                                    (id)kSecAttrAccount, kFIRAppDistributionAuthPersistenceServiceId,
                                    (id)kSecAttrService, nil];
   return keychainQuery;
 }
 
-+ (NSString *)BundleIdentifier {
-  return [[NSBundle mainBundle] bundleIdentifier] ?: @"Oauth";
++ (NSString *)bundleIdentifier {
+  return [[NSBundle mainBundle] bundleIdentifier];
 }
 
 @end
