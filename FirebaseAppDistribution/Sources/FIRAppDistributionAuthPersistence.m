@@ -13,7 +13,6 @@
 // limitations under the License.
 #import <GoogleUtilities/GULKeychainUtils.h>
 #import "FIRAppDistributionAuthPersistence+Private.h"
-#import "FIRAppDistributionKeychainUtility+Private.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -104,13 +103,13 @@ static NSString *const kFIRAppDistributionAuthPersistenceErrorKeychainId =
     return nil;
   }
 
-  OIDAuthState *authState = [FIRAppDistributionKeychainUtility unarchiveKeychainResult:result];
+  OIDAuthState *authState = [FIRAppDistributionAuthPersistence unarchiveKeychainResult:result];
 
   return authState;
 }
 
 - (BOOL)persistAuthState:(OIDAuthState *)authState error:(NSError **_Nullable)error {
-  NSData *authorizationData = [FIRAppDistributionKeychainUtility archiveDataForKeychain:authState];
+  NSData *authorizationData = [FIRAppDistributionAuthPersistence archiveDataForKeychain:authState];
   NSMutableDictionary *keychainQuery = [self getKeyChainQuery];
   NSError *keychainError;
   // setItem performs an up-sert. Will automatically update the keychain entry if it already
@@ -148,6 +147,14 @@ static NSString *const kFIRAppDistributionAuthPersistenceErrorKeychainId =
 - (NSString *)keychainID {
   return [NSString
       stringWithFormat:@"fad-auth-%@-%@", [[NSBundle mainBundle] bundleIdentifier], self.appID];
+}
+
++ (OIDAuthState *)unarchiveKeychainResult:(NSData *)result {
+  return (OIDAuthState *)[NSKeyedUnarchiver unarchiveObjectWithData:result];
+}
+
++ (NSData *)archiveDataForKeychain:(OIDAuthState *)data {
+  return [NSKeyedArchiver archivedDataWithRootObject:data];
 }
 
 @end

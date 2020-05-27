@@ -17,7 +17,6 @@
 
 #import <AppAuth/AppAuth.h>
 #import <FirebaseAppDistribution/FIRAppDistributionAuthPersistence+Private.h>
-#import <FirebaseAppDistribution/FIRAppDistributionKeychainUtility+Private.h>
 #import <GoogleUtilities/GULKeychainUtils.h>
 
 @interface FIRAppDistributionAuthPersistenceTests : XCTestCase
@@ -37,15 +36,15 @@
   [super setUp];
   _mockKeychainQuery = [NSMutableDictionary
       dictionaryWithObjectsAndKeys:(id) @"thing one", (id) @"another thing", nil];
-  _mockKeychainUtility = OCMClassMock([FIRAppDistributionKeychainUtility class]);
   _mockGoogleKeychainUtilities = OCMClassMock([GULKeychainUtils class]);
   _mockAuthorizationData = [@"this is some password stuff" dataUsingEncoding:NSUTF8StringEncoding];
   _mockOIDAuthState = OCMClassMock([OIDAuthState class]);
-  OCMStub(ClassMethod([_mockKeychainUtility unarchiveKeychainResult:[OCMArg any]]))
-      .andReturn(_mockOIDAuthState);
-  OCMStub(ClassMethod([_mockKeychainUtility archiveDataForKeychain:[OCMArg any]]))
-      .andReturn(_mockAuthorizationData);
+  _partialMockAuthPersitence = OCMClassMock([FIRAppDistributionAuthPersistence class]);
   _authPersistence = [[FIRAppDistributionAuthPersistence alloc] initWithAppId:@"test-app-id"];
+  OCMStub(ClassMethod([_partialMockAuthPersitence unarchiveKeychainResult:[OCMArg any]]))
+      .andReturn(_mockOIDAuthState);
+  OCMStub(ClassMethod([_partialMockAuthPersitence archiveDataForKeychain:[OCMArg any]]))
+      .andReturn(_mockAuthorizationData);
 }
 
 - (void)tearDown {

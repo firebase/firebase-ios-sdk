@@ -52,6 +52,12 @@ typedef NS_ENUM(NSUInteger, FIRAppDistributionKeychainError) {
 
 - (OIDAuthState *)retrieveAuthState:(NSError **_Nullable)error;
 
+/// @brief Unarchive the authentication state from the keychain result
++ (OIDAuthState *)unarchiveKeychainResult:(NSData *)result;
+
+/// @brief Archive the authentication data for persistence to the keychain
++ (NSData *)archiveDataForKeychain:(OIDAuthState *)data;
+
 @end
 
 NS_ASSUME_NONNULL_END
