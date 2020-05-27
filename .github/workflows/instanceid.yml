@@ -1,0 +1,65 @@
+name: instanceid
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    paths:
+    - 'FirebaseInstanceID**'
+    - 'Firebase/InstanceID/**'
+    - 'Example/InstanceID/**'
+    - '.github/workflows/instanceid.yml'
+    - 'Gemfile'
+  schedule:
+    # Run every day at 11pm (PST) - cron uses UTC times
+    - cron:  '0 7 * * *'
+
+jobs:
+  pod-lib-lint:
+    runs-on: macOS-latest
+    env:
+      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+    strategy:
+      matrix:
+        target: [ios, tvos, macos]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Install GoogleService-Info.plist
+      run: |
+        mkdir -p FirebaseInstallations/Source/Tests/Resources
+        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/Installations/GoogleService-Info.plist.gpg \
+          FirebaseInstallations/Source/Tests/Resources/GoogleService-Info.plist "$plist_secret"
+    - name: Build and test
+      env: 
+        FIR_IID_INTEGRATION_TESTS_REQUIRED: if ([[ -z $plist_secret ]]; then echo "0"; else "$1"; fi)
+      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --platforms=${{ matrix.target }}
+
+  instanceid-cron-only:
+    runs-on: macos-latest
+#    if: github.event_name == 'schedule'
+    env:
+      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+    strategy:
+      matrix:
+        target: [ios, tvos, macos]
+        flags: [
+          '--use-modular-headers',
+          '--use-libraries'
+        ]
+    needs: pod-lib-lint
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Install GoogleService-Info.plist
+      run: |
+        mkdir -p FirebaseInstallations/Source/Tests/Resources
+        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/Installations/GoogleService-Info.plist.gpg \
+          FirebaseInstallations/Source/Tests/Resources/GoogleService-Info.plist "$plist_secret"
+    - name: PodLibLint database Cron
+      env: 
+        FIR_IID_INTEGRATION_TESTS_REQUIRED: if ([[ -z $plist_secret ]]; then echo "0"; else "$1"; fi)
+      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}

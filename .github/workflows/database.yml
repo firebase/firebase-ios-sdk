@@ -7,6 +7,8 @@ on:
   pull_request:
     paths:
     - 'FirebaseDatabase**'
+    - 'Firebase/Database/**'
+    - 'Example/Database/**'
     - '.github/workflows/database.yml'
     - 'Gemfile'
   schedule:
@@ -97,6 +99,4 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: PodLibLint database Cron
-      run: |
-        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseDatabase.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}
-        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseDatabase.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}
+      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseDatabase.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}
