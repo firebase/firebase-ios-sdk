@@ -33,13 +33,25 @@ jobs:
         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/Installations/GoogleService-Info.plist.gpg \
           FirebaseInstallations/Source/Tests/Resources/GoogleService-Info.plist "$plist_secret"
     - name: Build and test
-      env: 
+      env:
         FIR_IID_INTEGRATION_TESTS_REQUIRED: if ([[ -z $plist_secret ]]; then echo "0"; else "$1"; fi)
-      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --platforms=${{ matrix.target }}
+      run: |
+        echo $FIR_IID_INTEGRATION_TESTS_REQUIRED
+        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --platforms=${{ matrix.target }}
+
+  catalyst:
+    runs-on: macOS-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Setup project and Build for Catalyst
+      # Only build the unit tests on Catalyst. Test stopped working when GHA moved to Xcode 11.4.1.
+      run: scripts/test_catalyst.sh FirebaseInstanceID build FirebaseInstanceID-Unit-unit
 
   instanceid-cron-only:
     runs-on: macos-latest
-#    if: github.event_name == 'schedule'
+    if: github.event_name == 'schedule'
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
     strategy:
@@ -60,6 +72,6 @@ jobs:
         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/Installations/GoogleService-Info.plist.gpg \
           FirebaseInstallations/Source/Tests/Resources/GoogleService-Info.plist "$plist_secret"
     - name: PodLibLint database Cron
-      env: 
+      env:
         FIR_IID_INTEGRATION_TESTS_REQUIRED: if ([[ -z $plist_secret ]]; then echo "0"; else "$1"; fi)
       run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}
