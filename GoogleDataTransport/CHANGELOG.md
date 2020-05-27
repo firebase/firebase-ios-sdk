@@ -1,3 +1,6 @@
+# v6.2.0
+- Added an API for arbitrary data persistence on storage instances.
+
 # v6.1.1
 - Fixes writing event counts in a directory that doesn't yet exist. (#5549)
 
