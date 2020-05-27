@@ -33,9 +33,8 @@ jobs:
         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/Installations/GoogleService-Info.plist.gpg \
           FirebaseInstallations/Source/Tests/Resources/GoogleService-Info.plist "$plist_secret"
     - name: Build and test
-      env:
-        FIR_IID_INTEGRATION_TESTS_REQUIRED: if ([[ -z $plist_secret ]]; then echo "0"; else "$1"; fi)
       run: |
+        export FIR_IID_INTEGRATION_TESTS_REQUIRED=$(if [[ -z $plist_secret ]]; then echo "0"; else "$1"; fi)
         echo $FIR_IID_INTEGRATION_TESTS_REQUIRED
         scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --platforms=${{ matrix.target }}
 
@@ -51,7 +50,7 @@ jobs:
 
   instanceid-cron-only:
     runs-on: macos-latest
-    if: github.event_name == 'schedule'
+#    if: github.event_name == 'schedule'
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
     strategy:
@@ -73,5 +72,7 @@ jobs:
           FirebaseInstallations/Source/Tests/Resources/GoogleService-Info.plist "$plist_secret"
     - name: PodLibLint database Cron
       env:
-        FIR_IID_INTEGRATION_TESTS_REQUIRED: if ([[ -z $plist_secret ]]; then echo "0"; else "$1"; fi)
-      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}
+        FIR_IID_INTEGRATION_TESTS_REQUIRED: $(if [[ -z $plist_secret ]]; then echo "0"; else "$1"; fi)
+      run: |
+        echo $FIR_IID_INTEGRATION_TESTS_REQUIRED
+        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}
