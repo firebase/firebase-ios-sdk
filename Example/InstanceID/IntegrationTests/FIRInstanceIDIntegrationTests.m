@@ -163,9 +163,11 @@ static BOOL sFIRInstanceIDFirebaseDefaultAppConfigured = NO;
   if (!sFIRInstanceIDFirebaseDefaultAppConfigured) {
 // Fail tests requiring GoogleService-Info.plist only if it is required.
 #if FIR_IID_INTEGRATION_TESTS_REQUIRED
+    #error 1
     XCTFail(@"GoogleService-Info.plist for integration tests was not found. Please add the file to "
             @"your project.");
 #else
+    #error 2
     NSLog(@"GoogleService-Info.plist for integration tests was not found. Skipping the test %@",
           self.name);
 #endif  // FIR_IID_INTEGRATION_TESTS_REQUIRED
