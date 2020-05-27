@@ -138,7 +138,7 @@ typedef NS_ENUM(NSUInteger, FIRMessagingContextManagerMessageType) {
 
 + (void)scheduleiOS10LocalNotificationForMessage:(NSDictionary *)message atDate:(NSDate *)date {
   NSCalendar *calendar = [NSCalendar currentCalendar];
-  if (@available(macOS 10.14, iOS 10.0, watchOS 3.0, *)) {
+  if (@available(macOS 10.14, iOS 10.0, watchOS 3.0, tvOS 10.0, *)) {
     NSCalendarUnit unit = NSCalendarUnitYear | NSCalendarUnitMonth | NSCalendarUnitDay |
                           NSCalendarUnitHour | NSCalendarUnitMinute | NSCalendarUnitSecond;
     NSDateComponents *dateComponents = [calendar components:(NSCalendarUnit)unit fromDate:date];
@@ -149,8 +149,12 @@ typedef NS_ENUM(NSUInteger, FIRMessagingContextManagerMessageType) {
     UNMutableNotificationContent *content = [[UNMutableNotificationContent alloc] init];
     NSDictionary *apsDictionary = message;
 
-    // In the current solution all of the display stuff goes into a special "aps" dictionary
-    // being sent in the message.
+    // Badge is universal
+    if (apsDictionary[kFIRMessagingContextManagerBadgeKey]) {
+      content.badge = apsDictionary[kFIRMessagingContextManagerBadgeKey];
+    }
+#if TARGET_OS_IOS || TARGET_OS_OSX || TARGET_OS_WATCH
+    // The following fields are not available on tvOS
     if ([apsDictionary[kFIRMessagingContextManagerBodyKey] length]) {
       content.body = apsDictionary[kFIRMessagingContextManagerBodyKey];
     }
@@ -161,9 +165,7 @@ typedef NS_ENUM(NSUInteger, FIRMessagingContextManagerMessageType) {
     if (apsDictionary[kFIRMessagingContextManagerSoundKey]) {
       content.sound = apsDictionary[kFIRMessagingContextManagerSoundKey];
     }
-    if (apsDictionary[kFIRMessagingContextManagerBadgeKey]) {
-      content.badge = apsDictionary[kFIRMessagingContextManagerBadgeKey];
-    }
+
     if (apsDictionary[kFIRMessagingContextManagerCategoryKey]) {
       content.categoryIdentifier = apsDictionary[kFIRMessagingContextManagerCategoryKey];
     }
@@ -172,6 +174,7 @@ typedef NS_ENUM(NSUInteger, FIRMessagingContextManagerMessageType) {
     if (userInfo.count) {
       content.userInfo = userInfo;
     }
+#endif
     NSString *identifier = apsDictionary[kFIRMessagingID];
     if (!identifier) {
       identifier = [NSUUID UUID].UUIDString;
@@ -193,7 +196,7 @@ typedef NS_ENUM(NSUInteger, FIRMessagingContextManagerMessageType) {
 }
 
 + (void)scheduleLocalNotificationForMessage:(NSDictionary *)message atDate:(NSDate *)date {
-  if (@available(macOS 10.14, iOS 10.0, watchOS 3.0, *)) {
+  if (@available(macOS 10.14, iOS 10.0, watchOS 3.0, tvOS 10.0, *)) {
     [self scheduleiOS10LocalNotificationForMessage:message atDate:date];
     return;
   }
