@@ -98,8 +98,12 @@ jobs:
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-config.plist.gpg \
           quickstart-ios/config/GoogleService-Info.plist "$plist_secret"
     - name: Install Secret FIREGSignInInfo.h
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/FIREGSignInInfo.h.gpg \
-          quickstart-ios/TestUtils/FIREGSignInInfo.h "$signin_secret"
+      run: |
+              rm -f quickstart-ios/TestUtils/FIREGSignInInfo.h
+              ls quickstart-ios/TestUtils
+              scripts/decrypt_gha_secret.sh scripts/gha-encrypted/FIREGSignInInfo.h.gpg \
+              quickstart-ios/TestUtils/FIREGSignInInfo.h "$signin_secret"
+              ls quickstart-ios/TestUtils
     - name: Test Quickstart
       run: |
               cd quickstart-ios/config
@@ -113,7 +117,7 @@ jobs:
       if: failure()
       with:
         name: quickstart_artifacts
-        path: quickstart-ios/
+        path: quickstart-ios/TestUtils/
 
   quickstart:
     env:
