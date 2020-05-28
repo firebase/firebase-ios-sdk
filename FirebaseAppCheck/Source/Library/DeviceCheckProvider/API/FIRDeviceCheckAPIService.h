@@ -14,18 +14,26 @@
  * limitations under the License.
  */
 
-#import "FIRDeviceCheckAPIService.h"
+#import <Foundation/Foundation.h>
 
-#import <FBLPromises/FBLPromises.h>
+@class FBLPromise<Result>;
+@class FIRAppCheckToken;
 
-#import "FIRAppCheckToken.h"
+NS_ASSUME_NONNULL_BEGIN
 
-@implementation FIRDeviceCheckAPIService
+@protocol FIRDeviceCheckAPIServiceProtocol <NSObject>
 
-- (FBLPromise<FIRAppCheckToken *> *)appCheckTokenWithDeviceToken:(NSData *)deviceToken {
-  // TODO: Implement.
-  return [FBLPromise resolvedWith:[[FIRAppCheckToken alloc] initWithToken:@"token"
-                                                           expirationDate:[NSDate distantFuture]]];
-}
+- (FBLPromise<FIRAppCheckToken *> *)appCheckTokenWithDeviceToken:(NSData *)deviceToken;
 
 @end
+
+@interface FIRDeviceCheckAPIService : NSObject <FIRDeviceCheckAPIServiceProtocol>
+
+- (instancetype)initWithURLSession:(NSURLSession *)session
+                            APIKey:(NSString *)APIKey
+                         projectID:(NSString *)projectID
+                             appID:(NSString *)appID;
+
+@end
+
+NS_ASSUME_NONNULL_END

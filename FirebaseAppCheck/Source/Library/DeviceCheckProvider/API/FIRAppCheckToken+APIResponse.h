@@ -14,16 +14,15 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
-
-@class FBLPromise<Result>;
-@class FIRAppCheckToken;
+#import <FirebaseAppCheck/FirebaseAppCheck.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRAppCheckDeviceCheckAPIService : NSObject
+@interface FIRAppCheckToken (APIResponse)
 
-- (FBLPromise<FIRAppCheckToken *> *)checkTokenWithDeviceToken:(NSData *)deviceToken;
+- (nullable instancetype)initWithDeviceCheckResponse:(NSData *)response
+                                         requestDate:(NSDate *)requestDate
+                                               error:(NSError **)outError;
 
 @end
 

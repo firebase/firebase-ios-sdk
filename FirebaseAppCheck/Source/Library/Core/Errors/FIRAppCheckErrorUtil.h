@@ -25,6 +25,13 @@ NS_ASSUME_NONNULL_BEGIN
 + (NSError *)cachedTokenNotFound;
 + (NSError *)cachedTokenExpired;
 
++ (NSError *)APIErrorWithHTTPResponse:(NSHTTPURLResponse *)HTTPResponse
+                                 data:(nullable NSData *)data;
+
++ (NSError *)appCheckTokenResponseErrorWithMissingField:(NSString *)fieldName;
+
++ (NSError *)JSONSerializationError:(NSError *)error;
+
 @end
 
 NS_ASSUME_NONNULL_END
