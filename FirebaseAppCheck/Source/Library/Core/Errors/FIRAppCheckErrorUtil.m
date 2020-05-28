@@ -28,6 +28,22 @@
   return [self internalError];
 }
 
++ (NSError *)APIErrorWithHTTPResponse:(NSHTTPURLResponse *)HTTPResponse
+                                 data:(nullable NSData *)data {
+  // TODO: Implement
+  return [self internalError];
+}
+
++ (NSError *)appCheckTokenResponseErrorWithMissingField:(NSString *)fieldName {
+  // TODO: Implement
+  return [self internalError];
+}
+
++ (NSError *)JSONSerializationError:(NSError *)error {
+  // TODO: Implement
+  return [self internalError];
+}
+
 + (NSError *)internalError {
   // TODO: Implement
   return [NSError errorWithDomain:@"AppCheck" code:-1 userInfo:nil];
