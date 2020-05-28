@@ -32,27 +32,12 @@ jobs:
         mkdir -p FirebaseInstallations/Source/Tests/Resources
         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/Installations/GoogleService-Info.plist.gpg \
           FirebaseInstallations/Source/Tests/Resources/GoogleService-Info.plist "$plist_secret"
-
-    - name: Get current date
-      id: date
-      run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
-
-
-    - name: check
-      run: echo ${{ steps.date.outputs.date }}
-
-    - name: Get var
-      id: foo
-      run: echo "::set-output name=foo::$([[ -z $plist_secret ]] && echo "1" || echo "0")"
-
-
-    - name: check
-      run: echo ${{ steps.foo.outputs.foo }}
-
-
+    - name: Get boolean for secrets available
+      id: secrets
+      run: echo "::set-output name=val::$([[ -z $plist_secret ]] && echo "0" || echo "1")"
     - name: Build and test
       run: |
-       export FIR_IID_INTEGRATION_TESTS_REQUIRED="1"
+       export FIR_IID_INTEGRATION_TESTS_REQUIRED=${{ steps.secrets.outputs.val }}
        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --platforms=${{ matrix.target }}
 
   catalyst:
@@ -67,7 +52,7 @@ jobs:
 
   instanceid-cron-only:
     runs-on: macos-latest
-#    if: github.event_name == 'schedule'
+    if: github.event_name == 'schedule'
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       FIR_IID_INTEGRATION_TESTS_REQUIRED: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -78,7 +63,7 @@ jobs:
           '--use-modular-headers',
           '--use-libraries'
         ]
-    needs: pod-lib-lint
+#    needs: pod-lib-lint
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
@@ -88,5 +73,10 @@ jobs:
         mkdir -p FirebaseInstallations/Source/Tests/Resources
         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/Installations/GoogleService-Info.plist.gpg \
           FirebaseInstallations/Source/Tests/Resources/GoogleService-Info.plist "$plist_secret"
+    - name: Get boolean for secrets available
+      id: secrets
+      run: echo "::set-output name=val::$([[ -z $plist_secret ]] && echo "0" || echo "1")"
     - name: PodLibLint InstanceID Cron
-      run: FIR_IID_INTEGRATION_TESTS_REQUIRED="$plist_secret" scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}
+      run: |
+        export FIR_IID_INTEGRATION_TESTS_REQUIRED=${{ steps.secrets.outputs.val }}
+        FIR_IID_INTEGRATION_TESTS_REQUIRED="$plist_secret" scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}
