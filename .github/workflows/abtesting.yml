@@ -24,8 +24,9 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Build and test
-      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseABTesting.podspec \
-             --platforms=${{ matrix.target }}
+      run: |
+        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseABTesting.podspec \
+          --platforms=${{ matrix.target }}
 
   catalyst:
     runs-on: macOS-latest
@@ -71,5 +72,6 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: PodLibLint ABTesting Cron
-      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb \
-             FirebaseABTesting.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}
+      run: |
+        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb \
+          FirebaseABTesting.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}

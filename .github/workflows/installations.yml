@@ -69,7 +69,7 @@ jobs:
 
   installations-cron-only:
     runs-on: macos-latest
-#    if: github.event_name == 'schedule'
+    if: github.event_name == 'schedule'
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       FIR_IID_INTEGRATION_TESTS_REQUIRED: ${{ secrets.GHASecretsGPGPassphrase1 }}
