@@ -1,4 +1,4 @@
-// Copyright 2019 Google
+// Copyright 2020 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,11 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import XCTest
-@testable import FirebaseCore
-
-class FIRAppTests: XCTestCase {
-  func testSwiftFlagWithSwift() {
-    XCTAssertTrue(FirebaseApp.firebaseUserAgent().contains("swift"))
-  }
-}
+#import <FirebaseRemoteConfig/FIRRemoteConfig_Private.h>
+#import "FetchMocks.h"
+#import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"

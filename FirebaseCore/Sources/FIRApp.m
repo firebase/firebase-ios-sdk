@@ -166,7 +166,7 @@ static dispatch_once_t sFirebaseUserAgentOnceToken;
 
   if ([name isEqualToString:kFIRDefaultAppName]) {
     if (sDefaultApp) {
-      // The default app already exixts. Handle duplicate `configure` calls and return.
+      // The default app already exists. Handle duplicate `configure` calls and return.
       [self appWasConfiguredTwice:sDefaultApp usingOptions:options];
       return;
     }

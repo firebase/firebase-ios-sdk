@@ -1,5 +1,10 @@
 # Unreleased
 
+# v1.15.0
+- [changed] Internal improvements for future C++ and Unity support. Includes a
+  breaking change for the Firestore C++ Alpha SDK, but does not affect
+  Objective-C or Swift users.
+
 # v1.14.0
 - [changed] Internal improvements for future C++ and Unity support. Includes a
   breaking change for the Firestore C++ Alpha SDK, but does not affect

@@ -1,4 +1,4 @@
-// Copyright 2019 Google
+// Copyright 2020 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,5 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import <FirebaseCore/FIRAppInternal.h>
-#import "ExceptionCatcher.h"
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface ExceptionCatcher : NSObject
+
+typedef void (^ThrowingBlock)(void);
+
++ (BOOL)catchException:(ThrowingBlock)block error:(__autoreleasing NSError **)error;
+
+@end
+
+NS_ASSUME_NONNULL_END
