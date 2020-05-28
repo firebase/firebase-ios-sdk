@@ -81,6 +81,11 @@ jobs:
               find "${HOME}/ios_frameworks"  -name "*.zip" -maxdepth 2 -exec unzip -d "${HOME}/ios_frameworks" {} +
               pwd
     - name: Setup quickstart
+      run: |
+              git clone https://github.com/firebase/quickstart-ios.git
+              cd quickstart-ios/Config
+              chmod +x ../scripts/info_script.rb
+              ruby ../scripts/info_script.rb Config
       run: scripts/setup_quickstart.sh config
     - name: Move frameworks to xcode project
       run: |
