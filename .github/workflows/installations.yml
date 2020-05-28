@@ -69,7 +69,7 @@ jobs:
 
   installations-cron-only:
     runs-on: macos-latest
-    if: github.event_name == 'schedule'
+#    if: github.event_name == 'schedule'
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       FIR_IID_INTEGRATION_TESTS_REQUIRED: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -95,8 +95,8 @@ jobs:
       run: echo "::set-output name=val::$([[ -z $plist_secret ]] && echo "0" || echo "1")"
     - name: PodLibLint Installations Cron
       run: |
-        export FIS_INTEGRATION_TESTS_REQUIRED=${{ steps.secrets.outputs.val }}
-        export FIS_ALLOWS_INCOMPATIBLE_IID_VERSION="1"
-        FIR_IID_INTEGRATION_TESTS_REQUIRED="$plist_secret" scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb \
-          FirebaseInstallations.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }} \
-          --ignore-local-podspecs=FirebaseInstanceID.podspec
+       export FIS_INTEGRATION_TESTS_REQUIRED=${{ steps.secrets.outputs.val }}
+       export FIS_ALLOWS_INCOMPATIBLE_IID_VERSION="1"
+       scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseInstallations.podspec \
+         --platforms=${{ matrix.target }} ${{ matrix.flags }} \
+         --ignore-local-podspecs=FirebaseInstanceID.podspec
