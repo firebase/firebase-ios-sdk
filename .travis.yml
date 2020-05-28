@@ -29,7 +29,7 @@ jobs:
       env:
         - PROJECT=Core METHOD=pod-lib-lint
       script:
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseCore.podspec --platforms=ios
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseCore.podspec --skip-tests --platforms=ios
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseCoreDiagnostics.podspec --platforms=ios
 
     - stage: test
