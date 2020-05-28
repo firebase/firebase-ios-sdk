@@ -109,9 +109,8 @@ jobs:
       run: |
               cd quickstart-ios/config
               xcodebuild -project ConfigExample.xcodeproj -target "ConfigExample" -showBuildSettings
-    - name: Upload Artifacts
-      if: ${{ failure() }}
-      uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v2
+      if: failure()
         with:
           name: quickstart_artifacts
           path: quickstart-ios/
