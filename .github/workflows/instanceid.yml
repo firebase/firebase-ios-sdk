@@ -32,8 +32,28 @@ jobs:
         mkdir -p FirebaseInstallations/Source/Tests/Resources
         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/Installations/GoogleService-Info.plist.gpg \
           FirebaseInstallations/Source/Tests/Resources/GoogleService-Info.plist "$plist_secret"
+
+    - name: Get current date
+      id: date
+      run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
+
+
+    - name: check
+      run: echo ${{ steps.date.outputs.date }}
+
+    - name: Get var
+      id: foo
+      run: echo "::set-output name=foo::$([[ -z $plist_secret ]] && echo "1" || echo "0")"
+
+
+    - name: check
+      run: echo ${{ steps.foo.outputs.foo }}
+
+
     - name: Build and test
-      run: FIR_IID_INTEGRATION_TESTS_REQUIRED="abc" scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --platforms=${{ matrix.target }}
+      run: |
+       export FIR_IID_INTEGRATION_TESTS_REQUIRED="1"
+       scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --platforms=${{ matrix.target }}
 
   catalyst:
     runs-on: macOS-latest
