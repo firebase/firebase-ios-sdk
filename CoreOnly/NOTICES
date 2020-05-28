@@ -1908,9 +1908,9 @@ the other COPYING.* files here.
 
 If you want to guarantee that the Eigen code that you are #including
 is licensed under the MPL2 and possibly more permissive licenses (like
-BSD), #define this preprocessor symbol: EIGEN_MPL2_ONLY
+BSD), #define this preprocessor symbol: EIGEN_MPL2_ONLY 
 For example, with most compilers, you could add this to your project
-      CXXFLAGS: -DEIGEN_MPL2_ONLY
+      CXXFLAGS: -DEIGEN_MPL2_ONLY 
 This will cause a compilation error to be generated if you #include
 any code that is covered by more restrictive licences than MPL2.
 
@@ -2670,7 +2670,7 @@ Mozilla Public License Version 2.0
     means any form of the work other than Source Code Form.
 
 1.7. "Larger Work"
-    means a work that combines Covered Software with other material, in
+    means a work that combines Covered Software with other material, in 
     a separate file or files, that is not Covered Software.
 
 1.8. "License"
@@ -6032,7 +6032,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH THE
 SOFTWARE.
 
 ==============================================================================
-==============================================================================
+==============================================================================                                                                                
 Copied from llvm-project/llvm/utils/unittest/googletest/LICENSE.TXT and
 llvm-project/llvm/utils/unittest/googlemock/LICENSE.txt:
 
@@ -6066,7 +6066,7 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ==============================================================================
-==============================================================================
+==============================================================================                                                                                
 Copied from llvm-project/llvm/lib/Support/COPYRIGHT.regex:
 $OpenBSD: COPYRIGHT,v 1.3 2003/06/02 20:18:36 millert Exp $
 
@@ -6124,7 +6124,7 @@ to the following restrictions:
  */
 
 ==============================================================================
-==============================================================================
+==============================================================================                                                                                
 Copied from llvm-project/llvm/projects/dragonegg/COPYING:
 		    GNU GENERAL PUBLIC LICENSE
 		       Version 2, June 1991
@@ -6468,7 +6468,7 @@ library.  If this is what you want to do, use the GNU Library General
 Public License instead of this License.
 
 ==============================================================================
-==============================================================================
+==============================================================================                                                                                
 Copied from llvm-project/llvm/-project/polly/lib/External/isl/LICENSE:
 
 MIT License (MIT)
@@ -6492,7 +6492,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 ==============================================================================
-==============================================================================
+==============================================================================                                                                                
 Copied from llvm-project/llgo/third_party/gotools/LICENSE:
 
 Copyright (c) 2009 The Go Authors. All rights reserved.
@@ -6524,7 +6524,7 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ==============================================================================
-==============================================================================
+==============================================================================                                                                                
 Copied from llvm-project/llgo/third_party/gofrontend/libffi/LICENSE:
 
 libffi - Copyright (c) 1996-2014  Anthony Green, Red Hat, Inc and others.
@@ -6550,7 +6550,7 @@ TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ==============================================================================
-==============================================================================
+==============================================================================                                                                                
 Copied from llvm-project/lldb/third_party/Python/module/six/LICENSE:
 
 Copyright (c) 2010-2015 Benjamin Peterson
@@ -6573,7 +6573,7 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ==============================================================================
-==============================================================================
+==============================================================================                                                                                
 Copied from llvm-project/lldb/third_party/Python/module/pexpect-4.6/LICENSE and
 lldb/third_party/Python/module/ptyprocess-0.6.0/LICENSE.
 
@@ -6588,7 +6588,7 @@ ISC LICENSE
     Permission to use, copy, modify, and/or distribute this software for any
     purpose with or without fee is hereby granted, provided that the above
     copyright notice and this permission notice appear in all copies.
-
+    
     THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
     WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
     MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
@@ -6598,7 +6598,7 @@ ISC LICENSE
     OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 ==============================================================================
-==============================================================================
+==============================================================================                                                                                
 Copied from
 llvm-project/clang-tools-extra/clangd/clients/clangd-vscode/LICENSE:
 
@@ -6625,7 +6625,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 ==============================================================================
-==============================================================================
+==============================================================================                                                                                
 Copied from llvm-project/llvm/include/llvm/Support/LICENSE.TXT:
 
 LLVM System Interface Library
@@ -6636,7 +6636,7 @@ License and has the following additional copyright:
 Copyright (C) 2004 eXtensible Systems, Inc.
 
 ==============================================================================
-==============================================================================
+==============================================================================                                                                                
 Copied from llvm-project/llvm/test/YAMLParser/LICENSE.txt:
 
 Copyright (c) 2006 Kirill Simonov
@@ -6660,7 +6660,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 ==============================================================================
-==============================================================================
+==============================================================================                                                                                
 Copied from llvm-project/clang-tools-extra/clang-tidy/cert/LICENSE.TXT:
 
 ------------------------------------------------------------------------------
@@ -6687,7 +6687,7 @@ to reproduce the title of the content being linked to, nor to reproduce any
 de Minimis description of such content.
 
 ==============================================================================
-==============================================================================
+==============================================================================                                                                                
 Copied from llvm-project/clang-tools-extra/clang-tidy/hicpp/LICENSE.TXT:
 
 ------------------------------------------------------------------------------
@@ -7202,28 +7202,28 @@ support library is itself covered by the above license.
 Nanopb
 Copyright (c) 2011 Petteri Aimonen <jpa at nanopb.mail.kapsi.fi>
 
-This software is provided 'as-is', without any express or
-implied warranty. In no event will the authors be held liable
+This software is provided 'as-is', without any express or 
+implied warranty. In no event will the authors be held liable 
 for any damages arising from the use of this software.
 
-Permission is granted to anyone to use this software for any
-purpose, including commercial applications, and to alter it and
+Permission is granted to anyone to use this software for any 
+purpose, including commercial applications, and to alter it and 
 redistribute it freely, subject to the following restrictions:
 
-1. The origin of this software must not be misrepresented; you
-   must not claim that you wrote the original software. If you use
-   this software in a product, an acknowledgment in the product
+1. The origin of this software must not be misrepresented; you 
+   must not claim that you wrote the original software. If you use 
+   this software in a product, an acknowledgment in the product 
    documentation would be appreciated but is not required.
 
-2. Altered source versions must be plainly marked as such, and
+2. Altered source versions must be plainly marked as such, and 
    must not be misrepresented as being the original software.
 
-3. This notice may not be removed or altered from any source
+3. This notice may not be removed or altered from any source 
    distribution.
 
 Ooura FFT
 Copyright(C) 1997,2001 Takuya OOURA (email: ooura@kurims.kyoto-u.ac.jp).
-You may use, copy, modify this code for any purpose and
+You may use, copy, modify this code for any purpose and 
 without fee. You may distribute this ORIGINAL package.
 
 OpenBLAS
@@ -7241,9 +7241,9 @@ met:
       notice, this list of conditions and the following disclaimer in
       the documentation and/or other materials provided with the
       distribution.
-   3. Neither the name of the OpenBLAS project nor the names of
-      its contributors may be used to endorse or promote products
-      derived from this software without specific prior written
+   3. Neither the name of the OpenBLAS project nor the names of 
+      its contributors may be used to endorse or promote products 
+      derived from this software without specific prior written 
       permission.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
@@ -8762,16 +8762,16 @@ are met:
 1. Redistributions of source code must retain the above copyright
    notice, this list of conditions and the following disclaimer.
 
-2. The origin of this software must not be misrepresented; you must
-   not claim that you wrote the original software.  If you use this
-   software in a product, an acknowledgment in the product
+2. The origin of this software must not be misrepresented; you must 
+   not claim that you wrote the original software.  If you use this 
+   software in a product, an acknowledgment in the product 
    documentation would be appreciated but is not required.
 
 3. Altered source versions must be plainly marked as such, and must
    not be misrepresented as being the original software.
 
-4. The name of the author may not be used to endorse or promote
-   products derived from this software without specific prior written
+4. The name of the author may not be used to endorse or promote 
+   products derived from this software without specific prior written 
    permission.
 
 THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS
@@ -8874,7 +8874,7 @@ Mozilla Public License Version 2.0
     means any form of the work other than Source Code Form.
 
 1.7. "Larger Work"
-    means a work that combines Covered Software with other material, in
+    means a work that combines Covered Software with other material, in 
     a separate file or files, that is not Covered Software.
 
 1.8. "License"
@@ -13137,7 +13137,7 @@ tiff
 Copyright (c) 1988-1997 Sam Leffler
 Copyright (c) 1991-1997 Silicon Graphics, Inc.
 
-Permission to use, copy, modify, distribute, and sell this software and
+Permission to use, copy, modify, distribute, and sell this software and 
 its documentation for any purpose is hereby granted without fee, provided
 that (i) the above copyright notices and this permission notice appear in
 all copies of the software and related documentation, and (ii) the names of
@@ -13145,15 +13145,15 @@ Sam Leffler and Silicon Graphics may not be used in any advertising or
 publicity relating to the software without the specific, prior written
 permission of Sam Leffler and Silicon Graphics.
 
-THE SOFTWARE IS PROVIDED "AS-IS" AND WITHOUT WARRANTY OF ANY KIND,
-EXPRESS, IMPLIED OR OTHERWISE, INCLUDING WITHOUT LIMITATION, ANY
-WARRANTY OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
+THE SOFTWARE IS PROVIDED "AS-IS" AND WITHOUT WARRANTY OF ANY KIND, 
+EXPRESS, IMPLIED OR OTHERWISE, INCLUDING WITHOUT LIMITATION, ANY 
+WARRANTY OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  
 
 IN NO EVENT SHALL SAM LEFFLER OR SILICON GRAPHICS BE LIABLE FOR
 ANY SPECIAL, INCIDENTAL, INDIRECT OR CONSEQUENTIAL DAMAGES OF ANY KIND,
 OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
-WHETHER OR NOT ADVISED OF THE POSSIBILITY OF DAMAGE, AND ON ANY THEORY OF
-LIABILITY, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE
+WHETHER OR NOT ADVISED OF THE POSSIBILITY OF DAMAGE, AND ON ANY THEORY OF 
+LIABILITY, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE 
 OF THIS SOFTWARE.
 
 upb
