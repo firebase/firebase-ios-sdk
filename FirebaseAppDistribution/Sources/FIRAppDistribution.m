@@ -72,11 +72,15 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
     [GULAppDelegateSwizzler registerAppDelegateInterceptor:interceptor];
   }
 
+  self.authPersistence = [[FIRAppDistributionAuthPersistence alloc]
+      initWithAppId:[[FIRApp defaultApp] options].googleAppID];
+
   NSError *authRetrievalError;
-  self.authState = [FIRAppDistributionAuthPersistence retrieveAuthState:&authRetrievalError];
+  self.authState = [self.authPersistence retrieveAuthState:&authRetrievalError];
   // TODO (schnecle): replace NSLog statement with FIRLogger log statement
   if (authRetrievalError) {
     NSLog(@"Found no tester auth token in keychain on intitialization");
+    [self logUnderlyingKeychainError:authRetrievalError];
   } else {
     NSLog(@"Successfully retrieved auth token from keychain on initialization");
   }
@@ -151,10 +155,12 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
 - (void)signOutTester {
   NSLog(@"Tester sign out");
   NSError *error;
-  BOOL didClearAuthState = [FIRAppDistributionAuthPersistence clearAuthState:&error];
+  BOOL didClearAuthState = [self.authPersistence clearAuthState:&error];
   // TODO (schnecle): Add in FIRLogger to report when we have failed to clear auth state
   if (!didClearAuthState) {
     NSLog(@"Error clearing token from keychain: %@", [error localizedDescription]);
+    [self logUnderlyingKeychainError:error];
+
   } else {
     NSLog(@"Successfully cleared auth state from keychain");
   }
@@ -283,53 +289,55 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
 
   [self setupUIWindowForLogin];
 
-  void (^processAuthState)(OIDAuthState *_Nullable authState, NSError *_Nullable error) = ^void(
-      OIDAuthState *_Nullable authState, NSError *_Nullable error) {
-    [self cleanupUIWindow];
-    if (error) {
-      NSError *signInError = nil;
-      if (error.code == OIDErrorCodeUserCanceledAuthorizationFlow) {
-        // User cancelled auth flow
-        NSLog(@"Tester cancelled sign in flow");
-        signInError =
-            [self NSErrorForErrorCodeAndMessage:FIRAppDistributionErrorAuthenticationCancelled
-                                        message:kAuthCancelledErrorMessage];
-      } else {
-        // Error in the auth flow
-        NSLog(@"Tester sign in error - %@", [error localizedDescription]);
-        signInError =
-            [self NSErrorForErrorCodeAndMessage:FIRAppDistributionErrorAuthenticationFailure
-                                        message:kAuthErrorMessage];
-      }
+  void (^processAuthState)(OIDAuthState *_Nullable authState, NSError *_Nullable error) =
+      ^void(OIDAuthState *_Nullable authState, NSError *_Nullable error) {
+        [self cleanupUIWindow];
+        if (error) {
+          NSError *signInError = nil;
+          if (error.code == OIDErrorCodeUserCanceledAuthorizationFlow) {
+            // User cancelled auth flow
+            NSLog(@"Tester cancelled sign in flow");
+            signInError =
+                [self NSErrorForErrorCodeAndMessage:FIRAppDistributionErrorAuthenticationCancelled
+                                            message:kAuthCancelledErrorMessage];
+          } else {
+            // Error in the auth flow
+            NSLog(@"Tester sign in error - %@", [error localizedDescription]);
+            signInError =
+                [self NSErrorForErrorCodeAndMessage:FIRAppDistributionErrorAuthenticationFailure
+                                            message:kAuthErrorMessage];
+          }
 
-      completion(signInError);
-      return;
+          completion(signInError);
+          return;
 
-    } else if (!authState) {
-      NSLog(@"Tester sign in error - authState is nil");
-    } else {
-      NSLog(@"Tester sign successful");
-    }
-    self.authState = authState;
+        } else if (!authState) {
+          NSLog(@"Tester sign in error - authState is nil");
+        } else {
+          NSLog(@"Tester sign successful");
+        }
+        self.authState = authState;
 
-    // Capture errors in persistence but do not bubble them
-    // up
-    NSError *authPersistenceError;
-    if (authState) {
-      [FIRAppDistributionAuthPersistence persistAuthState:authState error:&authPersistenceError];
-    }
+        // Capture errors in persistence but do not bubble them
+        // up
+        NSError *authPersistenceError;
+        if (authState) {
+          [self.authPersistence persistAuthState:authState error:&authPersistenceError];
+        }
 
-    // TODO (schnecle): Log errors in persistence using
-    // FIRLogger
-    if (authPersistenceError) {
-      NSLog(@"Error persisting auth token to keychain: %@",
-            [authPersistenceError localizedDescription]);
-    } else {
-      NSLog(@"Successfully persisted auth token in the keychain");
-    }
-    self.isTesterSignedIn = self.authState ? YES : NO;
-    completion(nil);
-  };
+        // TODO (schnecle): Log errors in persistence using
+        // FIRLogger
+        if (authPersistenceError) {
+          NSLog(@"Error persisting auth token to keychain: %@",
+                [authPersistenceError localizedDescription]);
+          [self logUnderlyingKeychainError:authPersistenceError];
+
+        } else {
+          NSLog(@"Successfully persisted auth token in the keychain");
+        }
+        self.isTesterSignedIn = self.authState ? YES : NO;
+        completion(nil);
+      };
 
   // performs authentication request
   [FIRAppDistributionAppDelegatorInterceptor sharedInstance].currentAuthorizationFlow =
@@ -357,6 +365,13 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
   if (self.window) {
     self.window.hidden = YES;
     self.window = nil;
+  }
+}
+
+- (void)logUnderlyingKeychainError:(NSError *)error {
+  NSError *underlyingError = [error.userInfo objectForKey:NSUnderlyingErrorKey];
+  if (underlyingError) {
+    NSLog(@"Keychain error - %@", [underlyingError localizedDescription]);
   }
 }
 
