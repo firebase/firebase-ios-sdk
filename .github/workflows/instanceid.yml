@@ -33,7 +33,7 @@ jobs:
         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/Installations/GoogleService-Info.plist.gpg \
           FirebaseInstallations/Source/Tests/Resources/GoogleService-Info.plist "$plist_secret"
     - name: Build and test
-      run: FIR_IID_INTEGRATION_TESTS_REQUIRED="$plist_secret" scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --platforms=${{ matrix.target }}
+      run: FIR_IID_INTEGRATION_TESTS_REQUIRED="abc" scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --platforms=${{ matrix.target }}
 
   catalyst:
     runs-on: macOS-latest
