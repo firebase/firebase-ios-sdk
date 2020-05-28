@@ -423,13 +423,15 @@ NSString *const kTestPassword = KPASSWORD;
   FIRStorageReference *ref = [self.storage referenceWithPath:@"ios/public/1mb"];
   [ref dataWithMaxSize:1 * 1024 * 1024
             completion:^(NSData *data, NSError *error) {
-              if (@available(iOS 10.0, macOS 10.12, *)) {
-                dispatch_assert_queue(callbackQueue);
-              } else {
-                NSAssert(YES, @"Test requires iOS 10 or macOS 10.12");
-              }
               XCTAssertNotNil(data, "Data should not be nil");
               XCTAssertNil(error, "Error should be nil");
+
+              if (@available(macOS 10.12, iOS 10.0, tvOS 10.0, watchOS 3.0, *)) {
+                dispatch_assert_queue(callbackQueue);
+              } else {
+                XCTAssert(true, @"Test requires macOS 10.12, iOS 10.0, tvOS 10.0, or watchOS 3.0");
+              }
+
               [expectation fulfill];
 
               // reset the callbackQueue to default (main queue)

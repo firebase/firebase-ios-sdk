@@ -333,6 +333,30 @@ class StorageIntegration: XCTestCase {
     waitForExpectations()
   }
 
+  func testSimpleGetDataWithCustomCallbackQueue() {
+    let expectation = self.expectation(description: #function)
+
+    let callbackQueue = DispatchQueue(label: "customCallbackQueue")
+    storage.callbackQueue = callbackQueue
+
+    let ref = storage.reference(withPath: "ios/public/1mb")
+    ref.getData(maxSize: 1024 * 1024) { result in
+      self.assertResultSuccess(result)
+
+      if #available(OSX 10.12, iOS 10.0, tvOS 10.0, watchOS 3.0, *) {
+        dispatchPrecondition(condition: .onQueue(callbackQueue))
+      } else {
+        XCTAssert(true, "Test requires OSX 10.12, iOS 10.0, tvOS 10.0, or watchOS 3.0")
+      }
+
+      expectation.fulfill()
+
+      // reset the callbackQueue to default (main queue)
+      self.storage.callbackQueue = DispatchQueue.main
+    }
+    waitForExpectations()
+  }
+
   func testSimpleGetDataTooSmall() {
     let expectation = self.expectation(description: #function)
 
