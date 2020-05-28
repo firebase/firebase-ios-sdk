@@ -52,7 +52,7 @@ jobs:
 
   instanceid-cron-only:
     runs-on: macos-latest
-#    if: github.event_name == 'schedule'
+    if: github.event_name == 'schedule'
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       FIR_IID_INTEGRATION_TESTS_REQUIRED: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -63,7 +63,7 @@ jobs:
           '--use-modular-headers',
           '--use-libraries'
         ]
-#    needs: pod-lib-lint
+    needs: pod-lib-lint
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
