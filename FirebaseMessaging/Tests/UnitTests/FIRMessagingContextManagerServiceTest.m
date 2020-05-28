@@ -99,9 +99,11 @@ static NSString *const kMessageIdentifierValue = @"1584748495200141";
     XCTAssertEqual(self.requests.count, 1);
     UNNotificationRequest *request = self.requests.firstObject;
     XCTAssertEqualObjects(request.identifier, kMessageIdentifierValue);
+#if TARGET_OS_IOS || TARGET_OS_WATCH || TARGET_OS_OSX
     XCTAssertEqualObjects(request.content.body, kBody);
     XCTAssertEqualObjects(request.content.userInfo[kUserInfoKey1], kUserInfoValue1);
     XCTAssertEqualObjects(request.content.userInfo[kUserInfoKey2], kUserInfoValue2);
+#endif
     return;
   }
 
