@@ -417,7 +417,12 @@ NSString *const kTestPassword = KPASSWORD;
   XCTestExpectation *expectation =
       [self expectationWithDescription:@"testUnauthenticatedGetDataInCustomCallbackQueue"];
 
-  dispatch_queue_t callbackQueue = dispatch_queue_create("customCallbackQueue", NULL);
+  NSString *callbackQueueLabelString = @"customCallbackQueue";
+  const char *callbackQueueLabel = [callbackQueueLabelString UTF8String];
+  const void *callbackQueueKey = callbackQueueLabel;
+  dispatch_queue_t callbackQueue = dispatch_queue_create(callbackQueueLabel, NULL);
+
+  dispatch_queue_set_specific(callbackQueue, callbackQueueKey, (void *)callbackQueueKey, NULL);
   _storage.callbackQueue = callbackQueue;
 
   FIRStorageReference *ref = [self.storage referenceWithPath:@"ios/public/1mb"];
@@ -426,16 +431,15 @@ NSString *const kTestPassword = KPASSWORD;
               XCTAssertNotNil(data, "Data should not be nil");
               XCTAssertNil(error, "Error should be nil");
 
-              if (@available(macOS 10.12, iOS 10.0, tvOS 10.0, watchOS 3.0, *)) {
-                dispatch_assert_queue(callbackQueue);
-              } else {
-                XCTAssert(true, @"Test requires macOS 10.12, iOS 10.0, tvOS 10.0, or watchOS 3.0");
-              }
+              char *currentQueueLabel = dispatch_get_specific(callbackQueueKey);
+              NSString *currentQueueLabelString = [NSString stringWithUTF8String:currentQueueLabel];
+              XCTAssertEqualObjects(currentQueueLabelString, callbackQueueLabelString);
 
               [expectation fulfill];
 
               // reset the callbackQueue to default (main queue)
               self.storage.callbackQueue = dispatch_get_main_queue();
+              dispatch_queue_set_specific(callbackQueue, callbackQueueKey, NULL, NULL);
             }];
 
   [self waitForExpectations];
