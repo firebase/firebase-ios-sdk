@@ -86,7 +86,6 @@ jobs:
               cd quickstart-ios/Config
               chmod +x ../scripts/info_script.rb
               ruby ../scripts/info_script.rb Config
-      run: scripts/setup_quickstart.sh config
     - name: Move frameworks to xcode project
       run: |
               find "${HOME}/ios_frameworks" -type d -name "Firebase" -maxdepth 1 -exec mv {}/ quickstart-ios/config/ \;
