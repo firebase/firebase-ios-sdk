@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 #import <AppAuth/AppAuth.h>
-#import "FIRAppDistributionKeychainUtility+Private.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -39,16 +38,25 @@ typedef NS_ENUM(NSUInteger, FIRAppDistributionKeychainError) {
 
 - (instancetype)init NS_UNAVAILABLE;
 
+- (instancetype)initWithAppId:(NSString *)appID;
+
 // Handle null checking, creation, and formatting of an error encountered
-+ (void)handleAuthStateError:(NSError **_Nullable)error
+- (void)handleAuthStateError:(NSError **_Nullable)error
                  description:(NSString *)description
-                        code:(FIRAppDistributionKeychainError)code;
+                        code:(FIRAppDistributionKeychainError)code
+             underlyingError:(NSError *_Nullable)error;
 
-+ (BOOL)persistAuthState:(OIDAuthState *)authState error:(NSError **_Nullable)error;
+- (BOOL)persistAuthState:(OIDAuthState *)authState error:(NSError **_Nullable)error;
 
-+ (BOOL)clearAuthState:(NSError **_Nullable)error;
+- (BOOL)clearAuthState:(NSError **_Nullable)error;
 
-+ (OIDAuthState *)retrieveAuthState:(NSError **_Nullable)error;
+- (OIDAuthState *)retrieveAuthState:(NSError **_Nullable)error;
+
+/// @brief Unarchive the authentication state from the keychain result
++ (OIDAuthState *)unarchiveKeychainResult:(NSData *)result;
+
+/// @brief Archive the authentication data for persistence to the keychain
++ (NSData *)archiveDataForKeychain:(OIDAuthState *)data;
 
 @end
 
