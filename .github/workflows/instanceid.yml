@@ -72,7 +72,7 @@ jobs:
       run: |
         mkdir -p FirebaseInstallations/Source/Tests/Resources
         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/Installations/GoogleService-Info.plist.gpg \
-          FirebaseInstallations/Source/Tests/Resources/GoogleService-Info.plist "$plist_secret"
+          Example/InstanceID/Resources/GoogleService-Info.plist "$plist_secret"
     - name: Get boolean for secrets available
       id: secrets
       run: echo "::set-output name=val::$([[ -z $plist_secret ]] && echo "0" || echo "1")"
