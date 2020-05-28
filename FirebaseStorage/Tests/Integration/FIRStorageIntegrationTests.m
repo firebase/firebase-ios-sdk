@@ -413,6 +413,32 @@ NSString *const kTestPassword = KPASSWORD;
   [self waitForExpectations];
 }
 
+- (void)testGetDataWithCustomCallbackQueue {
+  XCTestExpectation *expectation =
+      [self expectationWithDescription:@"testUnauthenticatedGetDataInCustomCallbackQueue"];
+
+  dispatch_queue_t callbackQueue = dispatch_queue_create("customCallbackQueue", NULL);
+  _storage.callbackQueue = callbackQueue;
+
+  FIRStorageReference *ref = [self.storage referenceWithPath:@"ios/public/1mb"];
+  [ref dataWithMaxSize:1 * 1024 * 1024
+            completion:^(NSData *data, NSError *error) {
+              if (@available(iOS 10.0, macOS 10.12, *)) {
+                dispatch_assert_queue(callbackQueue);
+              } else {
+                NSAssert(YES, @"Test requires iOS 10 or macOS 10.12");
+              }
+              XCTAssertNotNil(data, "Data should not be nil");
+              XCTAssertNil(error, "Error should be nil");
+              [expectation fulfill];
+
+              // reset the callbackQueue to default (main queue)
+              self.storage.callbackQueue = dispatch_get_main_queue();
+            }];
+
+  [self waitForExpectations];
+}
+
 - (void)testGetDataTooSmall {
   XCTestExpectation *expectation = [self expectationWithDescription:@"testGetDataTooSmall"];
 
