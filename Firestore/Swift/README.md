@@ -12,9 +12,9 @@ following to your Podfile
 pod 'FirebaseFirestoreSwift'
 ```
 
-You will also need to import the FirebaseFirestoreSwift module in any source
-file that depends on it, since it's not automatically bundled with the
-Firestore module.
+You will need to import the FirebaseFirestoreSwift module in any source file
+that depends on it, since it's not automatically bundled with the Firestore
+module.
 
 ```swift
 import Firebase
