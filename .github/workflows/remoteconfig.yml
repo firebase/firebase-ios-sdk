@@ -114,9 +114,9 @@ jobs:
     - name: Remove data before upload
       if: ${{ failure() }}
       run: |
-              rm -rf quickstart-ios/Firebase/
-              rm -f quickstart/GoogleSerivce-info.plist
-              rm -f quickstart/TestUtils/FIREGSignInInfo.h
+              rm -rf quickstart-ios/config/Firebase/
+              rm -f quickstart-ios/config/GoogleSerivce-info.plist
+              rm -f quickstart-ios/TestUtils/FIREGSignInInfo.h
     - uses: actions/upload-artifact@v2
       if: failure()
       with:
