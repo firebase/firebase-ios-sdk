@@ -111,12 +111,14 @@ jobs:
       run: |
               cd quickstart-ios/config
               xcodebuild -project ConfigExample.xcodeproj -target "ConfigExample" -showBuildSettings
-    - uses: actions/upload-artifact@v2
-      if: failure()
+    - name: Remove data before upload
+      if: ${{ failure() }}
       run: |
               rm -rf quickstart-ios/Firebase/
               rm -f quickstart/GoogleSerivce-info.plist
               rm -f quickstart/TestUtils/FIREGSignInInfo.h
+    - uses: actions/upload-artifact@v2
+      if: failure()
       with:
         name: quickstart_artifacts
         path: quickstart-ios/
