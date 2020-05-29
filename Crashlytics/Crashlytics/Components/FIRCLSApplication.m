@@ -44,6 +44,8 @@ NSString* FIRCLSApplicationGetPlatform(void) {
   return @"mac";
 #elif TARGET_OS_TV
   return @"tvos";
+#elif TARGET_OS_WATCH
+  return @"watchos";
 #endif
 }
 

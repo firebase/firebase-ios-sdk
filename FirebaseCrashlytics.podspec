@@ -14,6 +14,7 @@ Pod::Spec.new do |s|
   s.ios.deployment_target = '8.0'
   s.osx.deployment_target = '10.11'
   s.tvos.deployment_target = '10.0'
+  s.watchos.deployment_target = '6.0'
 
   s.cocoapods_version = '>= 1.4.0'
   s.static_framework = true
@@ -50,7 +51,10 @@ Pod::Spec.new do |s|
   s.dependency 'nanopb', '~> 1.30905.0'
 
   s.libraries = 'c++', 'z'
-  s.frameworks = 'Security', 'SystemConfiguration'
+  s.ios.frameworks = 'Security', 'SystemConfiguration'
+  s.macos.frameworks = 'Security', 'SystemConfiguration'
+  s.osx.frameworks = 'Security', 'SystemConfiguration'
+  s.watchos.frameworks = 'Security'
 
   s.ios.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
@@ -77,6 +81,16 @@ Pod::Spec.new do |s|
     'GCC_PREPROCESSOR_DEFINITIONS' =>
       'DISPLAY_VERSION=' + s.version.to_s + ' ' +
       'CLS_SDK_NAME="Crashlytics tvOS SDK" ' +
+      # For nanopb:
+      'PB_FIELD_32BIT=1 PB_NO_PACKED_STRUCTS=1 PB_ENABLE_MALLOC=1',
+    'OTHER_LD_FLAGS' => '$(inherited) -sectcreate __TEXT __info_plist'
+  }
+  
+  s.watchos.pod_target_xcconfig = {
+    'GCC_C_LANGUAGE_STANDARD' => 'c99',
+    'GCC_PREPROCESSOR_DEFINITIONS' =>
+      'DISPLAY_VERSION=' + s.version.to_s + ' ' +
+      'CLS_SDK_NAME="Crashlytics watchOS SDK" ' +
       # For nanopb:
       'PB_FIELD_32BIT=1 PB_NO_PACKED_STRUCTS=1 PB_ENABLE_MALLOC=1',
     'OTHER_LD_FLAGS' => '$(inherited) -sectcreate __TEXT __info_plist'
