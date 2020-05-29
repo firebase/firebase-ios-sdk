@@ -555,7 +555,7 @@ static const NSInteger FIRErrorCodeDurableDeepLinkFailed = -119;
   _retrievalProcess = nil;
 
   if (![_userDefaults boolForKey:kFIRDLOpenURLKey]) {
-    // Once we complete the Pending dynamic link retrival, regardless of whether the retrival is
+    // Once we complete the Pending dynamic link retrieval, regardless of whether the retrival is
     // success or failure, we don't want to do the retrival again on next app start.
     // If we try to redo the retrival again because of some error, the user will experiance unwanted
     // deeplinking when they restart the app next time.
