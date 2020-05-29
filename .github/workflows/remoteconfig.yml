@@ -62,6 +62,7 @@ jobs:
   quickstart_framework:
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+      signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
     runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v2
