@@ -1,4 +1,4 @@
-# 2020-06 -- v4.4.2
+# unreleased
 - [changed] Use UNNotificationRequest to schedule local notification for local timezone notification for iOS 10 and above. This should also fix the issue that '%' was not properly shown in title and body. (#5667)
 
 # 2020-05 -- v4.4.1
