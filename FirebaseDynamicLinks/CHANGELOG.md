@@ -1,3 +1,6 @@
+# Unreleased
+- [fixed] Fixing unwanted pending dynamic links checks on subsequent app restarts
+
 # v4.0.8 -- M67
 - [fixed] Fix Catalyst build - removed deprecated unused Apple framework dependencies. (#5139)
 
