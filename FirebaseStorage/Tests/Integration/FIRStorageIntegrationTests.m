@@ -437,7 +437,7 @@ NSString *const kTestPassword = KPASSWORD;
 
               [expectation fulfill];
 
-              // reset the callbackQueue to default (main queue)
+              // Reset the callbackQueue to default (main queue).
               self.storage.callbackQueue = dispatch_get_main_queue();
               dispatch_queue_set_specific(callbackQueue, callbackQueueKey, NULL, NULL);
             }];

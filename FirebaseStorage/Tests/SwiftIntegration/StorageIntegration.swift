@@ -400,7 +400,7 @@ class StorageIntegration: XCTestCase {
 
       expectation.fulfill()
 
-      // reset the callbackQueue to default (main queue)
+      // Reset the callbackQueue to default (main queue).
       self.storage.callbackQueue = DispatchQueue.main
       callbackQueue.setSpecific(key: callbackQueueKey, value: nil)
     }
