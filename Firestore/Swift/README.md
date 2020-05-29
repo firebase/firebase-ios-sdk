@@ -22,7 +22,7 @@ import FirebaseFirestoreSwift
 ```
 
 The FirebaseFirestoreSwift module does not provide any additional utility to
-Objective-C projects, and is thus not recommended for non-Swift projects.
+Objective-C projects, and therefore is not recommended for non-Swift projects.
 
 ## Examples
 
