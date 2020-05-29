@@ -143,8 +143,7 @@ typedef NS_ENUM(NSUInteger, FIRMessagingContextManagerMessageType) {
                           NSCalendarUnitHour | NSCalendarUnitMinute | NSCalendarUnitSecond;
     NSDateComponents *dateComponents = [calendar components:(NSCalendarUnit)unit fromDate:date];
     UNCalendarNotificationTrigger *trigger =
-        [UNCalendarNotificationTrigger triggerWithDateMatchingComponents:dateComponents
-                                                                 repeats:NO];
+        [UNCalendarNotificationTrigger triggerWithDateMatchingComponents:dateComponents repeats:NO];
 
     UNMutableNotificationContent *content = [[UNMutableNotificationContent alloc] init];
     NSDictionary *apsDictionary = message;
