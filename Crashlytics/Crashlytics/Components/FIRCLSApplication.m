@@ -45,7 +45,7 @@ NSString* FIRCLSApplicationGetPlatform(void) {
 #elif TARGET_OS_TV
   return @"tvos";
 #elif TARGET_OS_WATCH
-  return @"watchos";
+  return @"ios"; // TODO: temporarily use iOS until Firebase can add watchos to the backend
 #endif
 }
 
