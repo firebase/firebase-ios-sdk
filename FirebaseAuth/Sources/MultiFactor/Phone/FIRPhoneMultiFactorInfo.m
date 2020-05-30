@@ -18,7 +18,7 @@
 #if TARGET_OS_IOS
 
 #import "FIRMultiFactorInfo.h"
-#import <FirebaseAuth/FIRPhoneMultiFactorInfo.h>
+#import "FIRPhoneMultiFactorInfo.h"
 
 #import "FirebaseAuth/Sources/Backend/RPC/Proto/FIRAuthProtoMFAEnrollment.h"
 #import "FirebaseAuth/Sources/MultiFactor/FIRMultiFactorInfo+Internal.h"

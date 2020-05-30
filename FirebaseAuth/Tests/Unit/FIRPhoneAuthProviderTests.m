@@ -16,7 +16,7 @@
 
 #import "FIRAuth.h"
 #import "FIRAuthSettings.h"
-#import <FirebaseAuth/FIRAuthUIDelegate.h>
+#import "FIRAuthUIDelegate.h"
 #import "FIRPhoneAuthProvider.h"
 #import "FIRApp.h"
 #import "FIROptions.h"
