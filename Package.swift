@@ -58,10 +58,15 @@ let package = Package(
     .target(
       name: "GoogleUtilities_AppDelegateSwizzler",
       dependencies: ["GoogleUtilities_Environment", "GoogleUtilities_Logger", "GoogleUtilities_Network"],
-      path: "GoogleUtilities/AppDelegateSwizzler",
-      publicHeadersPath: "Private",
+      path: "GoogleUtilities",
+      sources: [
+        "AppDelegateSwizzler/",
+        "SceneDelegateSwizzler/",
+        "Common/*.h"
+      ],
+      publicHeadersPath: "AppDelegateSwizzler/Private",
       cSettings: [
-        .headerSearchPath("../../"),
+        .headerSearchPath("../"),
       ]),
       // cSettings: [
       //   .headerSearchPath("../../GoogleUtilities/Logger/Private"), // SPM doesn't support private headers
