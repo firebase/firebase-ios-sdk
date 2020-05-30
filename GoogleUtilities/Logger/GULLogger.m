@@ -12,12 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#if SWIFT_PACKAGE
+#import "Private/GULLogger.h"
+#import "GULAppEnvironmentUtil.h"
+#import "GULLoggerLevel.h"
+#else
 #import "GoogleUtilities/Logger/Private/GULLogger.h"
-
-#include <asl.h>
-
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import <GoogleUtilities/GULLoggerLevel.h>
+#endif
+
+#include <asl.h>
 
 /// ASL client facility name used by GULLogger.
 const char *kGULLoggerASLClientFacilityName = "com.google.utilities.logger";

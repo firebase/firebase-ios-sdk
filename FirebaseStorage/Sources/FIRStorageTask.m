@@ -12,17 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#if SWIFT_PACKAGE
+#import "FIRStorageTask.h"
+#import "FIRStorage.h"
+#import "FIRStorageReference.h"
+#import "FIRStorageTaskSnapshot.h"
+@import GTMSessionFetcherCore;
+#else
 #import <FirebaseStorage/FIRStorageTask.h>
-
 #import <FirebaseStorage/FIRStorage.h>
 #import <FirebaseStorage/FIRStorageReference.h>
 #import <FirebaseStorage/FIRStorageTaskSnapshot.h>
+#import <GTMSessionFetcher/GTMSessionFetcherService.h>
+#endif
+
 #import "FirebaseStorage/Sources/FIRStorageReference_Private.h"
 #import "FirebaseStorage/Sources/FIRStorageTaskSnapshot_Private.h"
 #import "FirebaseStorage/Sources/FIRStorageTask_Private.h"
 #import "FirebaseStorage/Sources/FIRStorage_Private.h"
-
-#import <GTMSessionFetcher/GTMSessionFetcherService.h>
 
 @implementation FIRStorageTask
 

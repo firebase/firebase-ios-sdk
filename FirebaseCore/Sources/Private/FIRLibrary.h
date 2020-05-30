@@ -19,7 +19,11 @@
 
 #import <Foundation/Foundation.h>
 
+#if SWIFT_PACKAGE
+#import "FirebaseCore/Sources/Private/FIRComponent.h"
+#else
 #import <FirebaseCore/FIRComponent.h>
+#endif
 
 @class FIRApp;
 

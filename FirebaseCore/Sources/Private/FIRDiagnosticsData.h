@@ -16,7 +16,11 @@
 
 #import <Foundation/Foundation.h>
 
+#if SWIFT_PACKAGE
+#import "Interop/CoreDiagnostics/Public/FIRCoreDiagnosticsData.h"
+#else
 #import <FirebaseCoreDiagnosticsInterop/FIRCoreDiagnosticsData.h>
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
 

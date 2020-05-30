@@ -12,9 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebaseStorage/Sources/FIRStorageErrors.h"
-
+#if SWIFT_PACKAGE
+#import "FIRStorageErrors.h"
+#import "FIRStorageReference.h"
+#else
+#import <FirebaseStorage/FIRStorageErrors.h>
 #import <FirebaseStorage/FIRStorageReference.h>
+#endif
+
 #import "FirebaseStorage/Sources/FIRStorageConstants_Private.h"
 #import "FirebaseStorage/Sources/FIRStorageReference_Private.h"
 

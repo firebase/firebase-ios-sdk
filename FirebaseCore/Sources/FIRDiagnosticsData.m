@@ -16,7 +16,11 @@
 
 #import "FirebaseCore/Sources/Private/FIRDiagnosticsData.h"
 
+#if SWIFT_PACKAGE
+#import "FIRApp.h"
+#else
 #import <FirebaseCore/FIRApp.h>
+#endif
 
 #import "FirebaseCore/Sources/Private/FIRAppInternal.h"
 #import "FirebaseCore/Sources/Private/FIROptionsInternal.h"
