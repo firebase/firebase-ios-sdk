@@ -50,7 +50,7 @@
 #import "FirebaseAuth/Tests/Unit/OCMStubRecorder+FIRAuthUnitTests.h"
 
 #if TARGET_OS_IOS
-#import <FirebaseAuth/FIRPhoneAuthProvider.h>
+#import "FIRPhoneAuthProvider.h"
 
 #import "FirebaseAuth/Sources/AuthProvider/Phone/FIRPhoneAuthCredential_Internal.h"
 #endif

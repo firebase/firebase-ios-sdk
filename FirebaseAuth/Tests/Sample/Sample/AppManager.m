@@ -17,7 +17,7 @@
 #import "AppManager.h"
 
 #import "FIRApp.h"
-#import <FirebaseAuth/FIRPhoneAuthProvider.h>
+#import "FIRPhoneAuthProvider.h"
 #import "FirebaseAuth.h"
 
 NS_ASSUME_NONNULL_BEGIN

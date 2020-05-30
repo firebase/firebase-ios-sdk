@@ -17,7 +17,7 @@
 #import "FIRAuth.h"
 #import "FIRAuthSettings.h"
 #import <FirebaseAuth/FIRAuthUIDelegate.h>
-#import <FirebaseAuth/FIRPhoneAuthProvider.h>
+#import "FIRPhoneAuthProvider.h"
 #import <OCMock/OCMock.h>
 #import <SafariServices/SafariServices.h>
 #import <XCTest/XCTest.h>
