@@ -1,7 +1,7 @@
 import Foundation
-// import Firebase // TODO mac wants module imports, iOS requires non-modular imports in Firebase.h
+import Firebase
 import FirebaseCore
-// import FirebaseAuth
+import FirebaseAuth
 // import FirebaseFunctions
 // import FirebaseInstanceID
 import FirebaseStorage
