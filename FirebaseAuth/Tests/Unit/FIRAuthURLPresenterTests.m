@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#import "FIRAuthUIDelegate.h"
 #import <Foundation/Foundation.h>
 #import <OCMock/OCMock.h>
 #import <SafariServices/SafariServices.h>
 #import <XCTest/XCTest.h>
+#import "FIRAuthUIDelegate.h"
 
 #import "FirebaseAuth/Sources/Utilities/FIRAuthURLPresenter.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthWebViewController.h"

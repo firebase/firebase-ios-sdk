@@ -27,6 +27,7 @@ function exit_with_error {
   exit 1
 }
 
+# SwiftPM needs module references.
 git grep "${options[@]}" \
   -- ':(exclude,glob)**/Example/**' ':(exclude,glob)**/Sample/**' \
      ':(exclude)FirebaseCore/Sources/Private/FirebaseCoreInternal.h' \

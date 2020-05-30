@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import "FIRUserInfo.h"
 #import <Foundation/Foundation.h>
+#import "FIRUserInfo.h"
 
 @class FIRGetAccountInfoResponseProviderUserInfo;
 

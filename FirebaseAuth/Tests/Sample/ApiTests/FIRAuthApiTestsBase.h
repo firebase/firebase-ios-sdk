@@ -24,7 +24,7 @@
 #import "ITUIOSTestUtil.h"
 #endif
 
-@import GTMSessionFetcherCore;
+#import <GTMSessionFetcher/GTMSessionFetcher.h>
 #import <GTMSessionFetcher/GTMSessionFetcherService.h>
 
 NS_ASSUME_NONNULL_BEGIN
