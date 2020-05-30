@@ -17,7 +17,12 @@
 #import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
 
 #import "FirebaseAuth.h"
+#if SWIFT_PACKAGE
 @import GTMSessionFetcherCore;
+#else
+#import <GTMSessionFetcher/GTMSessionFetcher.h>
+#import <GTMSessionFetcher/GTMSessionFetcherService.h>
+#endif
 
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
 #import "FirebaseAuth/Sources/AuthProvider/OAuth/FIROAuthCredential_Internal.h"
