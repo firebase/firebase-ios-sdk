@@ -15,7 +15,7 @@
  */
 
 #import "FIRAuthErrors.h"
-#import <FirebaseAuth/FIRAuthUIDelegate.h>
+#import "FIRAuthUIDelegate.h"
 #import "FIROAuthProvider.h"
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>

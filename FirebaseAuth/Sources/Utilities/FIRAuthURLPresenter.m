@@ -17,7 +17,7 @@
 #include <TargetConditionals.h>
 #if TARGET_OS_IOS
 
-#import <FirebaseAuth/FIRAuthUIDelegate.h>
+#import "FIRAuthUIDelegate.h"
 #import <SafariServices/SafariServices.h>
 
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"

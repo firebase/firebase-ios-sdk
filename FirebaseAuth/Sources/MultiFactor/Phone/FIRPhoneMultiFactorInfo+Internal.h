@@ -17,7 +17,7 @@
 #include <TargetConditionals.h>
 #if TARGET_OS_IOS
 
-#import <FirebaseAuth/FIRPhoneMultiFactorInfo.h>
+#import "FIRPhoneMultiFactorInfo.h"
 
 @class FIRAuthProtoMFAEnrollment;
 

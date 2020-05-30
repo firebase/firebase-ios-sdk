@@ -17,7 +17,7 @@
 #if TARGET_OS_IOS
 
 #import "FIRAuth.h"
-#import <FirebaseAuth/FIRMultiFactorSession.h>
+#import "FIRMultiFactorSession.h"
 
 #import "FirebaseAuth/Sources/MultiFactor/FIRMultiFactorSession+Internal.h"
 #import "FirebaseAuth/Sources/User/FIRUser_Internal.h"
