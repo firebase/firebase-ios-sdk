@@ -76,7 +76,7 @@ let package = Package(
         .headerSearchPath("../../"),
       ]),
 
-    // Tests need OCMock
+    // Tests need OCMock and resource support.
 
     .target(
       name: "GoogleUtilities_Logger",

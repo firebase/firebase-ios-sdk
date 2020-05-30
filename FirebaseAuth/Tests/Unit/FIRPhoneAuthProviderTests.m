@@ -17,7 +17,7 @@
 #import "FIRAuth.h"
 #import "FIRAuthSettings.h"
 #import <FirebaseAuth/FIRAuthUIDelegate.h>
-#import <FirebaseAuth/FIRPhoneAuthProvider.h>
+#import "FIRPhoneAuthProvider.h"
 #import "FIRApp.h"
 #import "FIROptions.h"
 #import <OCMock/OCMock.h>

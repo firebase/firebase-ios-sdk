@@ -66,8 +66,8 @@
 
 #if TARGET_OS_IOS
 #import <FirebaseAuth/FIRAuthUIDelegate.h>
-#import <FirebaseAuth/FIRPhoneAuthCredential.h>
-#import <FirebaseAuth/FIRPhoneAuthProvider.h>
+#import "FIRPhoneAuthCredential.h"
+#import "FIRPhoneAuthProvider.h"
 
 #import "FirebaseAuth/Sources/SystemService/FIRAuthAPNSToken.h"
 #import "FirebaseAuth/Sources/SystemService/FIRAuthAPNSTokenManager.h"
