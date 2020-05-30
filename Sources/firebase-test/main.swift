@@ -5,6 +5,7 @@ import FirebaseAuth
 // import FirebaseFunctions
 // import FirebaseInstanceID
 import FirebaseStorage
+import FirebaseStorageSwift
 import GoogleUtilities_Environment
 import GoogleUtilities_Logger
 
