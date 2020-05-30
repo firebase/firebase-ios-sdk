@@ -19,7 +19,7 @@
 
 #import "MainViewController.h"
 
-#import <FirebaseAuth/FIRGameCenterAuthProvider.h>
+#import "FIRGameCenterAuthProvider.h"
 #import "StaticContentTableViewManager.h"
 
 NS_ASSUME_NONNULL_BEGIN

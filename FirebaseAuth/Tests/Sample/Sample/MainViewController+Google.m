@@ -20,8 +20,8 @@
 #import "AuthProviders.h"
 #import "FirebaseAuth/Sources/MultiFactor/FIRMultiFactorResolver+Internal.h"
 #import "FirebaseAuth/Sources/MultiFactor/FIRMultiFactorSession+Internal.h"
-#import <FirebaseAuth/FIROAuthProvider.h>
-#import <FirebaseAuth/FIRPhoneMultiFactorInfo.h>
+#import "FIROAuthProvider.h"
+#import "FIRPhoneMultiFactorInfo.h"
 #import "MainViewController+Internal.h"
 
 NS_ASSUME_NONNULL_BEGIN

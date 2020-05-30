@@ -17,8 +17,8 @@
 #include <TargetConditionals.h>
 #if TARGET_OS_IOS
 
-#import <FirebaseAuth/FIRMultiFactorInfo.h>
-#import <FirebaseAuth/FIRMultiFactorSession.h>
+#import "FIRMultiFactorInfo.h"
+#import "FIRMultiFactorSession.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
