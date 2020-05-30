@@ -16,29 +16,26 @@ let package = Package(
     // .library(
     //   name: "GoogleUtilities_AppDelegateSwizzler",
     //   targets: ["GoogleUtilities_AppDelegateSwizzler"]),
-    .library(
-      name: "GoogleUtilities_Environment",
-      targets: ["GoogleUtilities_Environment"]),
-    .library(
-      name: "GoogleUtilities_Logger",
-      targets: ["GoogleUtilities_Logger"]),
+    // .library(
+    //   name: "GoogleUtilities_Environment",
+    //   targets: ["GoogleUtilities_Environment"]),
+    // .library(
+    //   name: "GoogleUtilities_Logger",
+    //   targets: ["GoogleUtilities_Logger"]),
     .library(
       name: "Firebase",
       targets: ["Firebase"]),
     .library(
       name: "FirebaseCore",
       targets: ["FirebaseCore"]),
-    // .library(
-    //   name: "FirebaseAuth",
-    //   type: .static,
-    //   targets: ["FirebaseAuth"]),
+    .library(
+      name: "FirebaseAuth",
+      targets: ["FirebaseAuth"]),
     // .library(
     //   name: "FirebaseFunctions",
-    //   type: .static,
     //   targets: ["FirebaseFunctions"]),
     // .library(
     //   name: "FirebaseInstanceID",
-    //   type: .static,
     //   targets: ["FirebaseInstanceID"]),
     .library(
       name: "FirebaseStorage",
@@ -58,16 +55,16 @@ let package = Package(
                      "FirebaseCore", "FirebaseStorage",
                      "GoogleUtilities_Environment", "GoogleUtilities_Logger"]
     ),
-    // .target(
-    //   name: "GoogleUtilities_AppDelegateSwizzler",
-    //   dependencies: ["GoogleUtilities_Environment", "GoogleUtilities_Logger", "GoogleUtilities_Network"],
-    //   path: "GoogleUtilities/AppDelegateSwizzler",
+    .target(
+      name: "GoogleUtilities_AppDelegateSwizzler",
+      dependencies: ["GoogleUtilities_Environment", "GoogleUtilities_Logger", "GoogleUtilities_Network"],
+      path: "GoogleUtilities/AppDelegateSwizzler"
       // cSettings: [
       //   .headerSearchPath("../../GoogleUtilities/Logger/Private"), // SPM doesn't support private headers
       //   .headerSearchPath("../../GoogleUtilities/Network/Private"), // SPM doesn't support private headers
       //   .headerSearchPath("../../GoogleUtilities/AppDelegateSwizzler/Private"),
       //   .define("SWIFT_PACKAGE", to: "1"),  // SPM loses defaults when loaded into an Xcode project
-      // ]
+      ),
     .target(
       name: "GoogleUtilities_Environment",
       dependencies: ["FBLPromises"],
@@ -85,44 +82,29 @@ let package = Package(
       path: "GoogleUtilities/Logger",
       publicHeadersPath: "Public"
     ),
-    // .target(
-    //   name: "GoogleUtilities_Network",
-    //   dependencies: ["GoogleUtilities_Logger", "GoogleUtilities_NSData", "GoogleUtilities_Reachability"],
-    //   path: "GoogleUtilities/Network",
-    //   cSettings: [
-    //     .headerSearchPath("../../GoogleUtilities/Logger/Private"), // SPM doesn't support private headers
-    //     .headerSearchPath("../../GoogleUtilities/NSData+zlib"), // SPM doesn't support private headers
-    //     .headerSearchPath("../../GoogleUtilities/Reachability/Private"),
-    //     .define("SWIFT_PACKAGE", to: "1"),  // SPM loses defaults when loaded into an Xcode project
-    //   ],
-    //   linkerSettings: [
-    //     .linkedFramework("Security"),
-    //   ]
-    // ),
-    // .target(
-    //   name: "GoogleUtilities_NSData",
-    //   path: "GoogleUtilities/NSData+zlib",
-    //   cSettings: [
-    //     .define("SWIFT_PACKAGE", to: "1"),  // SPM loses defaults when loaded into an Xcode project
-    //   ],
-    //   linkerSettings: [
-    //     .linkedLibrary("z"),
-    //   ]
-    // ),
-    // .target(
-    //   name: "GoogleUtilities_Reachability",
-    //   dependencies: ["GoogleUtilities_Logger"],
-    //   path: "GoogleUtilities/Reachability",
-    //   cSettings: [
-    //     .headerSearchPath("../../GoogleUtilities"),
-    //     .headerSearchPath("../../GoogleUtilities/Reachability/Private"),
-    //     .headerSearchPath("../../GoogleUtilities/Logger/Private"), // SPM doesn't support private headers
-    //     .define("SWIFT_PACKAGE", to: "1"),  // SPM loses defaults if other cSettings
-    //   ],
-    //   linkerSettings: [
-    //     .linkedFramework("SystemConfiguration"),
-    //   ]
-    // ),
+    .target(
+      name: "GoogleUtilities_Network",
+      dependencies: ["GoogleUtilities_Logger", "GoogleUtilities_NSData", "GoogleUtilities_Reachability"],
+      path: "GoogleUtilities/Network",
+      linkerSettings: [
+        .linkedFramework("Security"),
+      ]
+    ),
+    .target(
+      name: "GoogleUtilities_NSData",
+      path: "GoogleUtilities/NSData+zlib",
+      linkerSettings: [
+        .linkedLibrary("z"),
+      ]
+    ),
+    .target(
+      name: "GoogleUtilities_Reachability",
+      dependencies: ["GoogleUtilities_Logger"],
+      path: "GoogleUtilities/Reachability",
+      linkerSettings: [
+        .linkedFramework("SystemConfiguration"),
+      ]
+    ),
     // .target(
     //   name: "GoogleUtilities_UserDefaults",
     //   dependencies: ["GoogleUtilities_Logger"],
@@ -155,51 +137,47 @@ let package = Package(
       publicHeadersPath: "Public",
       cSettings: [
         .headerSearchPath("../.."),
-    //    .headerSearchPath("../../Firebase"), // TODO - remove this in favor of putting Firebase in imports.
-    //    .headerSearchPath("../../GoogleUtilities/Logger/Private"), // SPM doesn't support private headers
         .define("FIRCore_VERSION", to: "0.0.1"),  // TODO Fix version
         .define("Firebase_VERSION", to: "0.0.1"),  // TODO Fix version
-  //      .define("SWIFT_PACKAGE", to: "1"),  // SPM loses defaults if other cSettings
 //        .define("DEBUG", .when(configuration: .debug)), // TODO - destroys other settings in DEBUG config
 // TODO - Add support for cflags cSetting so that we can set the -fno-autolink option
       ]),
-//     .target(
-//       name: "FirebaseAuth",
-//       dependencies: ["FirebaseCore", "GoogleUtilities_Environment", "GoogleUtilities_AppDelegateSwizzler",
-//                      "GTMSessionFetcher_Core"],
-//       path: "Firebase/Auth",
-//       publicHeadersPath: "Source/Public",
-//       cSettings: [
-//          // SPM doesn't support interface frameworks or private headers
-//         .headerSearchPath("../../"),
-//         .headerSearchPath("../../Firebase"),
-//         .headerSearchPath("../../Interop/Auth/Public"),
-//         .headerSearchPath("../../Firebase/Core/Private"), // SPM doesn't support private headers
-//         .headerSearchPath("../../GoogleUtilities/AppDelegateSwizzler/Private"), // SPM doesn't support private headers
-//         .headerSearchPath("../../Firebase/Auth/Source/Public"), // TODO make Auth imports consistent
-//         .headerSearchPath("../../Firebase/Auth/Source/Auth"),
-//         .headerSearchPath("../../Firebase/Auth/Source/AuthProvider"),
-//         .headerSearchPath("../../Firebase/Auth/Source/AuthProvider/GameCenter"),
-//         .headerSearchPath("../../Firebase/Auth/Source/AuthProvider/Email"),
-//         .headerSearchPath("../../Firebase/Auth/Source/AuthProvider/Google"),
-//         .headerSearchPath("../../Firebase/Auth/Source/AuthProvider/OAuth"),
-//         .headerSearchPath("../../Firebase/Auth/Source/AuthProvider/Phone"),
-//         .headerSearchPath("../../Firebase/Auth/Source/AuthProvider/Twitter"),
-//         .headerSearchPath("../../Firebase/Auth/Source/Backend"),
-//         .headerSearchPath("../../Firebase/Auth/Source/Backend/RPC"),
-//         .headerSearchPath("../../Firebase/Auth/Source/Storage"),
-//         .headerSearchPath("../../Firebase/Auth/Source/SystemService"),
-//         .headerSearchPath("../../Firebase/Auth/Source/User"),
-//         .headerSearchPath("../../Firebase/Auth/Source/Utilities"),
-//         .define("FIRAuth_VERSION", to: "0.0.1"),  // TODO Fix version
-//         .define("FIRAuth_MINOR_VERSION", to: "1.1"),  // TODO Fix version
-//         .define("SWIFT_PACKAGE", to: "1"),  // SPM loses defaults if other cSettings
-// //        .define("DEBUG", .when(configuration: .debug)), // TODO - destroys other settings in DEBUG config
-//       ],
-//       linkerSettings: [
-//         .linkedFramework("Security"),
-//       //  .linkedFramework("SafariServices", .when(platforms: [.iOS])),
-//       ]),
+    .target(
+      name: "FirebaseAuth",
+      dependencies: ["FirebaseCore", "GoogleUtilities_Environment", "GoogleUtilities_AppDelegateSwizzler",
+                     "GTMSessionFetcherCore"],
+      path: "FirebaseAuth/Sources",
+      publicHeadersPath: "Public",
+      cSettings: [
+         // SPM doesn't support interface frameworks or private headers
+        .headerSearchPath("../../"),
+        // .headerSearchPath("../../Firebase"),
+        // .headerSearchPath("../../Interop/Auth/Public"),
+        // .headerSearchPath("../../Firebase/Core/Private"), // SPM doesn't support private headers
+        // .headerSearchPath("../../GoogleUtilities/AppDelegateSwizzler/Private"), // SPM doesn't support private headers
+        // .headerSearchPath("../../Firebase/Auth/Source/Public"), // TODO make Auth imports consistent
+        // .headerSearchPath("../../Firebase/Auth/Source/Auth"),
+        // .headerSearchPath("../../Firebase/Auth/Source/AuthProvider"),
+        // .headerSearchPath("../../Firebase/Auth/Source/AuthProvider/GameCenter"),
+        // .headerSearchPath("../../Firebase/Auth/Source/AuthProvider/Email"),
+        // .headerSearchPath("../../Firebase/Auth/Source/AuthProvider/Google"),
+        // .headerSearchPath("../../Firebase/Auth/Source/AuthProvider/OAuth"),
+        // .headerSearchPath("../../Firebase/Auth/Source/AuthProvider/Phone"),
+        // .headerSearchPath("../../Firebase/Auth/Source/AuthProvider/Twitter"),
+        // .headerSearchPath("../../Firebase/Auth/Source/Backend"),
+        // .headerSearchPath("../../Firebase/Auth/Source/Backend/RPC"),
+        // .headerSearchPath("../../Firebase/Auth/Source/Storage"),
+        // .headerSearchPath("../../Firebase/Auth/Source/SystemService"),
+        // .headerSearchPath("../../Firebase/Auth/Source/User"),
+        // .headerSearchPath("../../Firebase/Auth/Source/Utilities"),
+        .define("FIRAuth_VERSION", to: "0.0.1"),  // TODO Fix version
+        .define("FIRAuth_MINOR_VERSION", to: "1.1"),  // TODO Fix version
+//        .define("DEBUG", .when(configuration: .debug)), // TODO - destroys other settings in DEBUG config
+      ],
+      linkerSettings: [
+        .linkedFramework("Security"),
+      //  .linkedFramework("SafariServices", .when(platforms: [.iOS])),
+      ]),
 //     .target(
 //       name: "FirebaseFunctions",
 //       dependencies: ["FirebaseCore", "GTMSessionFetcher_Core"],
