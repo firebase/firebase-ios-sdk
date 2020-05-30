@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import <FirebaseAuth/FIRAuthUIDelegate.h>
+#import "FIRAuthUIDelegate.h"
 #import <Foundation/Foundation.h>
 #import <OCMock/OCMock.h>
 #import <SafariServices/SafariServices.h>

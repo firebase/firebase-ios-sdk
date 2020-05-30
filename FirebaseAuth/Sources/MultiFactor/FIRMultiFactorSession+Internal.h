@@ -18,7 +18,7 @@
 #if TARGET_OS_IOS
 
 #import "FIRMultiFactorInfo.h"
-#import <FirebaseAuth/FIRMultiFactorSession.h>
+#import "FIRMultiFactorSession.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
