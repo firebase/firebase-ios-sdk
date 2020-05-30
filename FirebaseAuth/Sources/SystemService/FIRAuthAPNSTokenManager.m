@@ -18,7 +18,7 @@
 #if !TARGET_OS_OSX
 
 #import "FirebaseCore/Sources/Private/FIRLogger.h"
-#import <GoogleUtilities/GULAppEnvironmentUtil.h>
+#import "GULAppEnvironmentUtil.h"
 
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
 #import "FirebaseAuth/Sources/SystemService/FIRAuthAPNSToken.h"
