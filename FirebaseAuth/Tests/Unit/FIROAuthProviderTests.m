@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import <FirebaseAuth/FIRAuthErrors.h>
+#import "FIRAuthErrors.h"
 #import <FirebaseAuth/FIRAuthUIDelegate.h>
-#import <FirebaseAuth/FIROAuthProvider.h>
+#import "FIROAuthProvider.h"
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"

@@ -16,7 +16,7 @@
 
 #import "FirebaseAuth/Sources/Utilities/FIRAuthErrorUtils.h"
 
-#import <FirebaseAuth/FIRAuthCredential.h>
+#import "FIRAuthCredential.h"
 
 #import "FirebaseAuth/Sources/MultiFactor/FIRMultiFactorResolver+Internal.h"
 

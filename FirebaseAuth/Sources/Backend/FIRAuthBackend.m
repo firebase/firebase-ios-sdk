@@ -16,9 +16,8 @@
 
 #import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
 
-#import <FirebaseAuth/FirebaseAuth.h>
-#import <GTMSessionFetcher/GTMSessionFetcher.h>
-#import <GTMSessionFetcher/GTMSessionFetcherService.h>
+#import "FirebaseAuth.h"
+@import GTMSessionFetcherCore;
 
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
 #import "FirebaseAuth/Sources/AuthProvider/OAuth/FIROAuthCredential_Internal.h"

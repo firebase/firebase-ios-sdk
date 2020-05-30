@@ -58,13 +58,15 @@ let package = Package(
     .target(
       name: "GoogleUtilities_AppDelegateSwizzler",
       dependencies: ["GoogleUtilities_Environment", "GoogleUtilities_Logger", "GoogleUtilities_Network"],
-      path: "GoogleUtilities/AppDelegateSwizzler"
+      path: "GoogleUtilities/AppDelegateSwizzler",
+      publicHeadersPath: "Private",
+      cSettings: [
+        .headerSearchPath("../../"),
+      ]),
       // cSettings: [
       //   .headerSearchPath("../../GoogleUtilities/Logger/Private"), // SPM doesn't support private headers
       //   .headerSearchPath("../../GoogleUtilities/Network/Private"), // SPM doesn't support private headers
       //   .headerSearchPath("../../GoogleUtilities/AppDelegateSwizzler/Private"),
-      //   .define("SWIFT_PACKAGE", to: "1"),  // SPM loses defaults when loaded into an Xcode project
-      ),
     .target(
       name: "GoogleUtilities_Environment",
       dependencies: ["FBLPromises"],
@@ -86,13 +88,21 @@ let package = Package(
       name: "GoogleUtilities_Network",
       dependencies: ["GoogleUtilities_Logger", "GoogleUtilities_NSData", "GoogleUtilities_Reachability"],
       path: "GoogleUtilities/Network",
-      linkerSettings: [
-        .linkedFramework("Security"),
+      publicHeadersPath: "Private",
+      cSettings: [
+        .headerSearchPath("../.."),
       ]
+      // linkerSettings: [
+      //   .linkedFramework("Security"),
+      // ]
     ),
     .target(
       name: "GoogleUtilities_NSData",
       path: "GoogleUtilities/NSData+zlib",
+      publicHeadersPath: ".",
+      cSettings: [
+        .headerSearchPath("../.."),
+      ],
       linkerSettings: [
         .linkedLibrary("z"),
       ]
@@ -101,10 +111,13 @@ let package = Package(
       name: "GoogleUtilities_Reachability",
       dependencies: ["GoogleUtilities_Logger"],
       path: "GoogleUtilities/Reachability",
-      linkerSettings: [
-        .linkedFramework("SystemConfiguration"),
-      ]
-    ),
+      publicHeadersPath: "Private",
+      cSettings: [
+        .headerSearchPath("../../"),
+      ]),
+      // linkerSettings: [
+      //   .linkedFramework("SystemConfiguration"),
+      // ]
     // .target(
     //   name: "GoogleUtilities_UserDefaults",
     //   dependencies: ["GoogleUtilities_Logger"],
@@ -173,9 +186,8 @@ let package = Package(
         .define("FIRAuth_VERSION", to: "0.0.1"),  // TODO Fix version
         .define("FIRAuth_MINOR_VERSION", to: "1.1"),  // TODO Fix version
 //        .define("DEBUG", .when(configuration: .debug)), // TODO - destroys other settings in DEBUG config
-      ],
-      linkerSettings: [
-        .linkedFramework("Security"),
+      // linkerSettings: [
+      //   .linkedFramework("Security"),
       //  .linkedFramework("SafariServices", .when(platforms: [.iOS])),
       ]),
 //     .target(

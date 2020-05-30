@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import <FirebaseAuth/FIRAuthErrors.h>
+#import "FIRAuthErrors.h"
 #import <XCTest/XCTest.h>
 
 #import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"

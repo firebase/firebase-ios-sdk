@@ -22,10 +22,10 @@
 #import <UIKit/UIKit.h>
 #endif
 
-#import <FirebaseAuth/FirebaseAuth.h>
-#import <GoogleUtilities/GULAppDelegateSwizzler.h>
-#import <GoogleUtilities/GULAppEnvironmentUtil.h>
-#import <GoogleUtilities/GULSceneDelegateSwizzler.h>
+#import "FirebaseAuth/Sources/Public/FirebaseAuth.h"
+#import "GoogleUtilities/AppDelegateSwizzler/Private/GULAppDelegateSwizzler.h"
+#import "GoogleUtilities/Environment/Public/GULAppEnvironmentUtil.h"
+#import "GoogleUtilities/SceneDelegateSwizzler/Private/GULSceneDelegateSwizzler.h"
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 #import "FirebaseAuth/Sources/Auth/FIRAuthDataResult_Internal.h"
