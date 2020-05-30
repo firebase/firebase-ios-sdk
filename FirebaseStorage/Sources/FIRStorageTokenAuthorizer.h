@@ -17,7 +17,7 @@
 #if SWIFT_PACKAGE
 @import GTMSessionFetcherCore;
 #else
-#import <GTMSessionFetcher/GTMSessionFetcher.h>
+#import <GTMSessionFetcher/GTMSessionFetcherService.h>
 #endif
 
 @protocol FIRAuthInterop;
