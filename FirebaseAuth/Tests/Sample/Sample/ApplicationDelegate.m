@@ -16,11 +16,11 @@
 
 #import "ApplicationDelegate.h"
 
-#import <FirebaseCore/FIRApp.h>
-#import <FirebaseCore/FIRLogger.h>
+#import "FIRApp.h"
+#import "FirebaseCore/Sources/Private/FIRLogger.h"
 
 #import "AuthProviders.h"
-#import <FirebaseAuth/FirebaseAuth.h>
+#import "FirebaseAuth.h"
 #import "GTMSessionFetcherLogging.h"
 #import "MainViewController.h"
 

@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#import <FirebaseAuth/FIRAuth.h>
-#import <FirebaseAuth/FIREmailAuthProvider.h>
-#import <FirebaseAuth/FIRFederatedAuthProvider.h>
-#import <FirebaseCore/FIRLogger.h>
+#import "FIRAuth.h"
+#import "FIREmailAuthProvider.h"
+#import "FIRFederatedAuthProvider.h"
+#import "FirebaseCore/Sources/Private/FIRLogger.h"
 
 #import "FirebaseAuth/Sources/Auth/FIRAuthDataResult_Internal.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"

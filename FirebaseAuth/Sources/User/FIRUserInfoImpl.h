@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import <FirebaseAuth/FIRUserInfo.h>
+#import "FIRUserInfo.h"
 #import <Foundation/Foundation.h>
 
 @class FIRGetAccountInfoResponseProviderUserInfo;

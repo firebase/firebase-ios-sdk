@@ -16,7 +16,7 @@
 
 #import "FirebaseAuth/Sources/AuthProvider/GitHub/FIRGitHubAuthCredential.h"
 
-#import <FirebaseAuth/FIRGitHubAuthProvider.h>
+#import "FIRGitHubAuthProvider.h"
 
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyAssertionRequest.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthExceptionUtils.h"

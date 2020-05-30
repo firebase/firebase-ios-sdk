@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-#import <FirebaseAuth/FIRActionCodeSettings.h>
-#import <FirebaseAuth/FIRAdditionalUserInfo.h>
-#import <FirebaseAuth/FIREmailAuthProvider.h>
-#import <FirebaseAuth/FIRFacebookAuthProvider.h>
-#import <FirebaseAuth/FIRGoogleAuthProvider.h>
-#import <FirebaseAuth/FIROAuthProvider.h>
-#import <FirebaseAuthInterop/FIRAuthInterop.h>
-#import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseCore/FIRComponent.h>
+#import "FIRActionCodeSettings.h"
+#import "FIRAdditionalUserInfo.h"
+#import "FIREmailAuthProvider.h"
+#import "FIRFacebookAuthProvider.h"
+#import "FIRGoogleAuthProvider.h"
+#import "FIROAuthProvider.h"
+#import "Interop/Auth/Public/FIRAuthInterop.h"
+#import "FirebaseCore/Sources/Private/FIRAppInternal.h"
+#import "FirebaseCore/Sources/Private/FIRComponent.h"
 #import <FirebaseCore/FIRLibrary.h>
 #import <Foundation/Foundation.h>
 #import <GoogleUtilities/GULAppDelegateSwizzler.h>

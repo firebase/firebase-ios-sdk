@@ -17,7 +17,7 @@
 #include <TargetConditionals.h>
 #if !TARGET_OS_OSX
 
-#import <FirebaseCore/FIRLogger.h>
+#import "FirebaseCore/Sources/Private/FIRLogger.h"
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"

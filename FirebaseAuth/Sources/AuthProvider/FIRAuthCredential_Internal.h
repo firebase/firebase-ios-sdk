@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import <FirebaseAuth/FIRAuthCredential.h>
+#import "FIRAuthCredential.h"
 
 @class FIRVerifyAssertionRequest;
 

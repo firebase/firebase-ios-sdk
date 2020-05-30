@@ -16,13 +16,13 @@
 
 #import <objc/runtime.h>
 
-#import <FirebaseCore/FIRApp.h>
-#import <FirebaseCore/FIRAppInternal.h>
+#import "FIRApp.h"
+#import "FirebaseCore/Sources/Private/FIRAppInternal.h"
 
 #import "AppManager.h"
 #import "AuthCredentials.h"
 #import "FacebookAuthProvider.h"
-#import <FirebaseAuth/FirebaseAuth.h>
+#import "FirebaseAuth.h"
 #import "GoogleAuthProvider.h"
 #import "MainViewController+App.h"
 #import "MainViewController+Auth.h"

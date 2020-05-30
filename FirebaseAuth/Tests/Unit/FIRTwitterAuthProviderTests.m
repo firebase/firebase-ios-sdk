@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import <FirebaseAuth/FIRTwitterAuthProvider.h>
+#import "FIRTwitterAuthProvider.h"
 #import <XCTest/XCTest.h>
 
 #import "FirebaseAuth/Sources/AuthProvider/FIRAuthCredential_Internal.h"
