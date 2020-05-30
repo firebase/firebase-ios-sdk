@@ -16,7 +16,11 @@
 
 #import <Foundation/Foundation.h>
 
+#if SWIFT_PACKAGE
+#import "FIRStorageObservableTask.h"
+#else
 #import <FirebaseStorage/FIRStorageObservableTask.h>
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
 

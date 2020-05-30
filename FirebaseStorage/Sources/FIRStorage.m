@@ -12,8 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import <FirebaseStorage/FIRStorage.h>
-#import <FirebaseStorage/FIRStorageReference.h>
+#if SWIFT_PACKAGE
+@import GTMSessionFetcherCore;
+#else
+#import <GTMSessionFetcher/GTMSessionFetcher.h>
+#import <GTMSessionFetcher/GTMSessionFetcherLogging.h>
+#endif
+
+#import "FirebaseStorage/Sources/Public/FIRStorage.h"
+#import "FirebaseStorage/Sources/Public/FIRStorageReference.h"
+
+#import "Interop/Auth/Public/FIRAuthInterop.h"
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 #import "FirebaseStorage/Sources/FIRStorageComponent.h"
 #import "FirebaseStorage/Sources/FIRStorageConstants_Private.h"
@@ -22,12 +32,6 @@
 #import "FirebaseStorage/Sources/FIRStorageTokenAuthorizer.h"
 #import "FirebaseStorage/Sources/FIRStorageUtils.h"
 #import "FirebaseStorage/Sources/FIRStorage_Private.h"
-
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
-#import "Interop/Auth/Public/FIRAuthInterop.h"
-
-#import <GTMSessionFetcher/GTMSessionFetcher.h>
-#import <GTMSessionFetcher/GTMSessionFetcherLogging.h>
 
 static NSMutableDictionary<
     NSString * /* app name */,

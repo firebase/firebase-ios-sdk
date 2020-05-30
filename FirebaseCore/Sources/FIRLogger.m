@@ -14,11 +14,15 @@
 
 #import "FirebaseCore/Sources/Private/FIRLogger.h"
 
+#if SWIFT_PACKAGE
+#import "GULAppEnvironmentUtil.h"
+#else
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
-#import <GoogleUtilities/GULLogger.h>
-#import "FirebaseCore/Sources/Public/FIRLoggerLevel.h"
+#endif
 
-#import "FirebaseCore/Sources/FIRVersion.h"
+#import "FirebaseCore/Sources/FIRLoggerLevel"
+#import "FirebaseCore/Sources/Public/FIRVersion.h"
+#import "GoogleUtilities/Logger/Private/GULLogger.h"
 
 FIRLoggerService kFIRLoggerCore = @"[Firebase/Core]";
 

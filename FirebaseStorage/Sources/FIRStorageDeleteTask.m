@@ -13,7 +13,6 @@
 // limitations under the License.
 
 #import "FirebaseStorage/Sources/FIRStorageDeleteTask.h"
-
 #import "FirebaseStorage/Sources/FIRStorageTask_Private.h"
 
 @implementation FIRStorageDeleteTask {
