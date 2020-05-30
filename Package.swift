@@ -22,9 +22,9 @@ let package = Package(
     .library(
       name: "GoogleUtilities_Logger",
       targets: ["GoogleUtilities_Logger"]),
-    // .library(
-    //   name: "Firebase",
-    //   targets: ["Firebase"]),
+    .library(
+      name: "Firebase",
+      targets: ["Firebase"]),
     .library(
       name: "FirebaseCore",
       targets: ["FirebaseCore"]),
@@ -143,11 +143,11 @@ let package = Package(
 //      path: "Interop/Auth",
 //      sources: ["Interop/Auth/Public/FIRAuthInterop.h"],
 //      publicHeadersPath: "Public"),
-//     .target(
-//       name: "Firebase",
-//       path: "Firebase/Firebase",
-//       publicHeadersPath: "Public"
-//     ),
+    .target(
+      name: "Firebase",
+      path: "Firebase/Firebase",
+      publicHeadersPath: "Public"
+    ),
     .target(
       name: "FirebaseCore",
       dependencies: ["GoogleUtilities_Environment", "GoogleUtilities_Logger"],
