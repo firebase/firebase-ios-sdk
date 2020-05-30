@@ -55,6 +55,7 @@ let package = Package(
       name: "firebase-test",
       dependencies: [// "Firebase", "FirebaseCore", "FirebaseAuth", "FirebaseFunctions", "FirebaseInstanceID",
                      //"FirebaseStorage", "GoogleUtilities_AppDelegateSwizzler",
+                     "FirebaseCore", "FirebaseStorage",
                      "GoogleUtilities_Environment", "GoogleUtilities_Logger"]
     ),
     // .target(
