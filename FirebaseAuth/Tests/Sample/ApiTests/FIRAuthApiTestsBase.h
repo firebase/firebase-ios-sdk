@@ -16,15 +16,15 @@
 
 #import <XCTest/XCTest.h>
 
-#import <FirebaseCore/FIRApp.h>
+#import "FIRApp.h"
 #import "AuthCredentials.h"
-#import <FirebaseAuth/FirebaseAuth.h>
+#import "FirebaseAuth.h"
 
 #ifdef NO_NETWORK
 #import "ITUIOSTestUtil.h"
 #endif
 
-#import <GTMSessionFetcher/GTMSessionFetcher.h>
+@import GTMSessionFetcherCore;
 #import <GTMSessionFetcher/GTMSessionFetcherService.h>
 
 NS_ASSUME_NONNULL_BEGIN

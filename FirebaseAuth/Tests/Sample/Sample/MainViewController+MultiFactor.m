@@ -18,7 +18,7 @@
 
 #import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
 #import "FirebaseAuth/Sources/User/FIRUser_Internal.h"
-#import <FirebaseAuth/FIRMultiFactorInfo.h>
+#import "FIRMultiFactorInfo.h"
 #import <FirebaseAuth/FIRPhoneAuthProvider.h>
 #import "MainViewController+Internal.h"
 

@@ -15,11 +15,11 @@
  */
 
 #include <CommonCrypto/CommonCrypto.h>
-#import <FirebaseAuth/FIRFacebookAuthProvider.h>
-#import <FirebaseAuth/FIROAuthCredential.h>
-#import <FirebaseAuth/FIROAuthProvider.h>
-#import <FirebaseCore/FIRApp.h>
-#import <FirebaseCore/FIROptions.h>
+#import "FIRFacebookAuthProvider.h"
+#import "FIROAuthCredential.h"
+#import "FIROAuthProvider.h"
+#import "FIRApp.h"
+#import "FIROptions.h"
 
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
