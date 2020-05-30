@@ -40,6 +40,9 @@ let package = Package(
     .library(
       name: "FirebaseStorage",
       targets: ["FirebaseStorage"]),
+    .library(
+      name: "FirebaseStorageSwift",
+      targets: ["FirebaseStorageSwift"]),
   ],
   dependencies: [
    .package(url: "https://github.com/google/promises.git", "1.2.8"..<"1.3.0"),
@@ -167,27 +170,7 @@ let package = Package(
       path: "FirebaseAuth/Sources",
       publicHeadersPath: "Public",
       cSettings: [
-         // SPM doesn't support interface frameworks or private headers
         .headerSearchPath("../../"),
-        // .headerSearchPath("../../Firebase"),
-        // .headerSearchPath("../../Interop/Auth/Public"),
-        // .headerSearchPath("../../Firebase/Core/Private"), // SPM doesn't support private headers
-        // .headerSearchPath("../../GoogleUtilities/AppDelegateSwizzler/Private"), // SPM doesn't support private headers
-        // .headerSearchPath("../../Firebase/Auth/Source/Public"), // TODO make Auth imports consistent
-        // .headerSearchPath("../../Firebase/Auth/Source/Auth"),
-        // .headerSearchPath("../../Firebase/Auth/Source/AuthProvider"),
-        // .headerSearchPath("../../Firebase/Auth/Source/AuthProvider/GameCenter"),
-        // .headerSearchPath("../../Firebase/Auth/Source/AuthProvider/Email"),
-        // .headerSearchPath("../../Firebase/Auth/Source/AuthProvider/Google"),
-        // .headerSearchPath("../../Firebase/Auth/Source/AuthProvider/OAuth"),
-        // .headerSearchPath("../../Firebase/Auth/Source/AuthProvider/Phone"),
-        // .headerSearchPath("../../Firebase/Auth/Source/AuthProvider/Twitter"),
-        // .headerSearchPath("../../Firebase/Auth/Source/Backend"),
-        // .headerSearchPath("../../Firebase/Auth/Source/Backend/RPC"),
-        // .headerSearchPath("../../Firebase/Auth/Source/Storage"),
-        // .headerSearchPath("../../Firebase/Auth/Source/SystemService"),
-        // .headerSearchPath("../../Firebase/Auth/Source/User"),
-        // .headerSearchPath("../../Firebase/Auth/Source/Utilities"),
         .define("FIRAuth_VERSION", to: "0.0.1"),  // TODO Fix version
         .define("FIRAuth_MINOR_VERSION", to: "1.1"),  // TODO Fix version
 //        .define("DEBUG", .when(configuration: .debug)), // TODO - destroys other settings in DEBUG config
@@ -223,13 +206,14 @@ let package = Package(
       path: "FirebaseStorage/Sources",
       publicHeadersPath: "Public",
       cSettings: [
-         // SPM doesn't support interface frameworks or private headers
         .headerSearchPath("../../"),
-//        .headerSearchPath("../../Firebase"),
-//        .headerSearchPath("../../Interop/Auth/Public"),
-//        .headerSearchPath("../../Firebase/Core/Private"), // SPM doesn't support private headers
         .define("FIRStorage_VERSION", to: "0.0.1")  // TODO Fix version
       ]),
+    .target(
+      name: "FirebaseStorageSwift",
+      dependencies: ["FirebaseStorage"],
+      path: "FirebaseStorageSwift/Sources"
+    ),
 //       linkerSettings: [
 //         .linkedFramework("CoreServices", .when(platforms: [.macOS])),
 //         .linkedFramework("MobileCoreServices", .when(platforms: [.iOS, .tvOS])),
