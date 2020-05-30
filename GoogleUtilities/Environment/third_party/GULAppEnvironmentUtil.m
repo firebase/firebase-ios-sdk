@@ -15,7 +15,7 @@
 #if SWIFT_PACKAGE
 #import "GULAppEnvironmentUtil.h"
 #else
-#import "GoogleUtilities/Environment/third_party/GULAppEnvironmentUtil.h"
+#import "GoogleUtilities/Environment/Public/GULAppEnvironmentUtil.h"
 #endif
 
 #import <Foundation/Foundation.h>
