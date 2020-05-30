@@ -14,8 +14,13 @@
  * limitations under the License.
  */
 
+#if SWIFT_PACKAGE
+#import "GULHeartbeatDateStorage.h"
+#import "GULSecureCoding.h"
+#else
 #import <GoogleUtilities/GULHeartbeatDateStorage.h>
 #import <GoogleUtilities/GULSecureCoding.h>
+#endif
 
 @interface GULHeartbeatDateStorage ()
 /** The storage to store the date of the last sent heartbeat. */

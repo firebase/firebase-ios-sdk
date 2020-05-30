@@ -14,8 +14,13 @@
  * limitations under the License.
  */
 
+#if SWIFT_PACKAGE
+#import "FIRStorageListResult.h"
+#import "FIRStorageTask.h"
+#else
 #import <FirebaseStorage/FIRStorageListResult.h>
 #import <FirebaseStorage/FIRStorageTask.h>
+#endif
 
 @class GTMSessionFetcherService;
 

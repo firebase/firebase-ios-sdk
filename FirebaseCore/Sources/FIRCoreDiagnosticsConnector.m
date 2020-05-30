@@ -16,9 +16,13 @@
 
 #import "FirebaseCore/Sources/Private/FIRCoreDiagnosticsConnector.h"
 
+#if SWIFT_PACKAGE
+#import "Interop/CoreDiagnostics/Public/FIRCoreDiagnosticsInterop.h"
+#import "FIROptions.h"
+#else
 #import <FirebaseCoreDiagnosticsInterop/FIRCoreDiagnosticsInterop.h>
-
 #import <FirebaseCore/FIROptions.h>
+#endif
 
 #import "FirebaseCore/Sources/Private/FIRAppInternal.h"
 #import "FirebaseCore/Sources/Private/FIRDiagnosticsData.h"

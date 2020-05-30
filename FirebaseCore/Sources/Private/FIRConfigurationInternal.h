@@ -14,7 +14,11 @@
  * limitations under the License.
  */
 
+#if SWIFT_PACKAGE
+#import "FIRConfiguration.h"
+#else
 #import <FirebaseCore/FIRConfiguration.h>
+#endif
 
 @class FIRAnalyticsConfiguration;
 

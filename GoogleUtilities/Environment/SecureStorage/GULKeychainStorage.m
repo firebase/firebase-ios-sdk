@@ -14,7 +14,16 @@
  * limitations under the License.
  */
 
+#if SWIFT_PACKAGE
+#import "GULKeychainStorage.h"
+#import "GULKeychainUtils.h"
+#import "GULSecureCoding.h"
+#else
 #import <GoogleUtilities/GULKeychainStorage.h>
+#import <GoogleUtilities/GULKeychainUtils.h>
+#import <GoogleUtilities/GULSecureCoding.h>
+#endif
+
 #import <Security/Security.h>
 
 #if __has_include(<FBLPromises/FBLPromises.h>)
@@ -22,9 +31,6 @@
 #else
 #import "FBLPromises.h"
 #endif
-
-#import <GoogleUtilities/GULKeychainUtils.h>
-#import <GoogleUtilities/GULSecureCoding.h>
 
 @interface GULKeychainStorage ()
 @property(nonatomic, readonly) dispatch_queue_t keychainQueue;

@@ -12,7 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebaseStorage/Sources/FIRStorageUpdateMetadataTask.h"
+#if SWIFT_PACKAGE
+#import "FIRStorageUpdateMetadataTask.h"
+#else
+#import <FirebaseStorage/FIRStorageUpdateMetadataTask.h>
+#endif
 
 #import "FirebaseStorage/Sources/FIRStorageMetadata_Private.h"
 #import "FirebaseStorage/Sources/FIRStorageTask_Private.h"
