@@ -18,8 +18,8 @@
 #if TARGET_OS_IOS
 
 #import "FIRAuthSettings.h"
-#import <FirebaseAuth/FIRMultiFactorResolver.h>
-#import <FirebaseAuth/FIRPhoneAuthProvider.h>
+#import "FIRMultiFactorResolver.h"
+#import "FIRPhoneAuthProvider.h"
 #import "FirebaseAuthVersion.h"
 #import "FIRApp.h"
 #import "FirebaseCore/Sources/Private/FIRLogger.h"
