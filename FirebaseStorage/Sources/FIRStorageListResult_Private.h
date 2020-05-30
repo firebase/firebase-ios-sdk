@@ -14,7 +14,11 @@
  * limitations under the License.
  */
 
+#if SWIFT_PACKAGE
+#import "FIRStorageListResult.h"
+#else
 #import <FirebaseStorage/FIRStorageListResult.h>
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -14,7 +14,11 @@
  * limitations under the License.
  */
 
+#if SWIFT_PACKAGE
+#import "GULKeychainUtils.h"
+#else
 #import <GoogleUtilities/GULKeychainUtils.h>
+#endif
 
 NSString *const kGULKeychainUtilsErrorDomain = @"com.gul.keychain.ErrorDomain";
 

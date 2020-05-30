@@ -17,10 +17,8 @@
 #import "FirebaseCore/Sources/Private/FIRCoreDiagnosticsConnector.h"
 
 #import "Interop/CoreDiagnostics/Public/FIRCoreDiagnosticsInterop.h"
-
 #import "FirebaseCore/Sources/Public/FIROptions.h"
 
-#import "FirebaseCore/Sources/FIRDiagnosticsData.h"
 #import "FirebaseCore/Sources/Private/FIRAppInternal.h"
 #import "FirebaseCore/Sources/Private/FIROptionsInternal.h"
 

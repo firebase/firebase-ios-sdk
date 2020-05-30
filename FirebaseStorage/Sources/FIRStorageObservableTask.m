@@ -12,7 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#if SWIFT_PACKAGE
+#import "FIRStorageObservableTask.h"
+#else
 #import <FirebaseStorage/FIRStorageObservableTask.h>
+#endif
+
 #import "FirebaseStorage/Sources/FIRStorageObservableTask_Private.h"
 #import "FirebaseStorage/Sources/FIRStorageTask_Private.h"
 

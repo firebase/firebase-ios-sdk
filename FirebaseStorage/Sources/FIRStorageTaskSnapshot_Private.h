@@ -16,7 +16,11 @@
 
 #import <Foundation/Foundation.h>
 
+#if SWIFT_PACKAGE
+#import "FIRStorageTaskSnapshot.h"
+#else
 #import <FirebaseStorage/FIRStorageTaskSnapshot.h>
+#endif
 
 #import "FirebaseStorage/Sources/FIRStorageConstants_Private.h"
 

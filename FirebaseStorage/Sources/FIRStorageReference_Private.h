@@ -14,7 +14,11 @@
  * limitations under the License.
  */
 
+#if SWIFT_PACKAGE
+#import "FIRStorageReference.h"
+#else
 #import <FirebaseStorage/FIRStorageReference.h>
+#endif
 
 #import "FirebaseStorage/Sources/FIRStoragePath.h"
 
