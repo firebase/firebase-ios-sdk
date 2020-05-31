@@ -19,8 +19,8 @@
 #import "GoogleUtilities/Reachability/Private/GULReachabilityMessageCode.h"
 
 #if SWIFT_PACKAGE
-#import "GoogleUtilities/Logger/Private/GULLogger.h"
 #import "GULReachabilityChecker.h"
+#import "GoogleUtilities/Logger/Private/GULLogger.h"
 #else
 #import <GoogleUtilities/GULLogger.h>
 #import <GoogleUtilities/GULReachabilityChecker.h>

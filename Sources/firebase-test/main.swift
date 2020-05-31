@@ -20,6 +20,6 @@ print("Is iOS 7 or higher? Answer: \(GULAppEnvironmentUtil.isIOS7OrHigher())")
 
 print("Is there a default app? Answer: \(FirebaseApp.app() != nil)")
 
-print("Storage Version String? Answer: \(String(cString:StorageVersionString))")
+print("Storage Version String? Answer: \(String(cString: StorageVersionString))")
 
-//print("InstanceIDScopeFirebaseMessaging? Answer: \(InstanceIDScopeFirebaseMessaging)")
+// print("InstanceIDScopeFirebaseMessaging? Answer: \(InstanceIDScopeFirebaseMessaging)")

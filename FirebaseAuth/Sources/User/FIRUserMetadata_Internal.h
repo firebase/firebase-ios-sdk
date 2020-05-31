@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import "FIRUserMetadata.h"
 #import <Foundation/Foundation.h>
+#import "FIRUserMetadata.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

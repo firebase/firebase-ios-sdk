@@ -17,8 +17,8 @@
 #if SWIFT_PACKAGE
 #import "GULAppDelegateSwizzler.h"
 #import "GULAppEnvironmentUtil.h"
-#import "GoogleUtilities/Logger/Private/GULLogger.h"
 #import "GULMutableDictionary.h"
+#import "GoogleUtilities/Logger/Private/GULLogger.h"
 #else
 #import <GoogleUtilities/GULAppDelegateSwizzler.h>
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>

@@ -17,8 +17,8 @@
 #include <TargetConditionals.h>
 #if !TARGET_OS_OSX
 
-#import "FIRAuthUIDelegate.h"
 #import <Foundation/Foundation.h>
+#import "FIRAuthUIDelegate.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

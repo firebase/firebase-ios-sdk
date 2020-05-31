@@ -15,7 +15,6 @@
  */
 
 #import <Foundation/Foundation.h>
-
 #import "FIRAuth.h"
 #import "Interop/Auth/Public/FIRAuthInterop.h"
 

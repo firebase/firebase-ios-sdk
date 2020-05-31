@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import "FIROAuthCredential.h"
 #import <Foundation/Foundation.h>
+#import "FIROAuthCredential.h"
 
 @class FIRVerifyAssertionResponse;
 
