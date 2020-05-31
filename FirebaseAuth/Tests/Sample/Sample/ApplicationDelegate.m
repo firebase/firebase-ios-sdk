@@ -16,7 +16,7 @@
 
 #import "ApplicationDelegate.h"
 
-#import "FIRApp.h"
+#import <FirebaseCore/FIRApp.h>
 #import "FirebaseCore/Sources/Private/FIRLogger.h"
 
 #import "AuthProviders.h"
