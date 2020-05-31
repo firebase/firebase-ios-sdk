@@ -27,8 +27,11 @@ function exit_with_error {
   exit 1
 }
 
+# SwiftPM needs module references.
 git grep "${options[@]}" \
-  -- ':(exclude,glob)**/Example/**' ':(exclude,glob)**/Sample/**' && exit_with_error
+  -- ':(exclude,glob)**/Example/**' ':(exclude,glob)**/Sample/**' \
+  ':(exclude,glob)FirebaseStorage/**' ':(exclude,glob)FirebaseAuth/**' \
+  ':(exclude)Firebase/Firebase/Public/Firebase.h' && exit_with_error
 
 # Tests are under the Example directory, so we have to separately grep them for
 # @import statements (otherwise they'd be excluded).
