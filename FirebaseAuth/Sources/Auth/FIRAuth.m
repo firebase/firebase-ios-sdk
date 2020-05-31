@@ -22,13 +22,13 @@
 #import <UIKit/UIKit.h>
 #endif
 
+#import "FIROptions.h"
 #import "FirebaseAuth.h"
 #import "FirebaseCore/Sources/Private/FIRAppInternal.h"
 #import "FirebaseCore/Sources/Private/FIRComponent.h"
 #import "FirebaseCore/Sources/Private/FIRComponentContainer.h"
 #import "FirebaseCore/Sources/Private/FIRLibrary.h"
 #import "FirebaseCore/Sources/Private/FIRLogger.h"
-#import "FIROptions.h"
 #import "GULAppDelegateSwizzler.h"
 #import "GULAppEnvironmentUtil.h"
 #import "GoogleUtilities/SceneDelegateSwizzler/Private/GULSceneDelegateSwizzler.h"

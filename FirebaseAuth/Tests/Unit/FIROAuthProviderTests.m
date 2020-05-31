@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
+#import <OCMock/OCMock.h>
+#import <XCTest/XCTest.h>
+#import "FIRApp.h"
 #import "FIRAuthErrors.h"
 #import "FIRAuthUIDelegate.h"
 #import "FIROAuthProvider.h"
-#import "FIRApp.h"
 #import "FIROptions.h"
-#import <OCMock/OCMock.h>
-#import <XCTest/XCTest.h>
 
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"

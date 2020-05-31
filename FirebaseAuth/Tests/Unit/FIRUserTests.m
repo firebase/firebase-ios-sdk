@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
+#import <Foundation/Foundation.h>
+#import <OCMock/OCMock.h>
+#import <XCTest/XCTest.h>
 #import "FIRAuthTokenResult.h"
 #import "FIREmailAuthProvider.h"
 #import "FIRFacebookAuthProvider.h"
 #import "FIRGoogleAuthProvider.h"
 #import "FIRUserInfo.h"
 #import "FIRUserMetadata.h"
-#import <Foundation/Foundation.h>
-#import <OCMock/OCMock.h>
-#import <XCTest/XCTest.h>
 
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuthOperationType.h"

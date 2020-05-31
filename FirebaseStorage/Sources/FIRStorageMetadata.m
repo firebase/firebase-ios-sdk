@@ -17,8 +17,8 @@
 #import "FIRStorageConstants.h"
 #import "FIRStorageUtils.h"
 #else
-#import <FirebaseStorage/FIRStorageMetadata.h>
 #import <FirebaseStorage/FIRStorageConstants.h>
+#import <FirebaseStorage/FIRStorageMetadata.h>
 #import "FirebaseStorage/Sources/FIRStorageUtils.h"
 #endif
 

@@ -14,15 +14,15 @@
 
 #if SWIFT_PACKAGE
 #import "FIRStorageReference.h"
-#import "FIRStorageTaskSnapshot.h"
 #import "FIRApp.h"
 #import "FIROptions.h"
+#import "FIRStorageTaskSnapshot.h"
 @import GTMSessionFetcherCore;
 #else
-#import <FirebaseStorage/FIRStorageReference.h>
-#import <FirebaseStorage/FIRStorageTaskSnapshot.h>
 #import <FirebaseCore/FIRApp.h>
 #import <FirebaseCore/FIROptions.h>
+#import <FirebaseStorage/FIRStorageReference.h>
+#import <FirebaseStorage/FIRStorageTaskSnapshot.h>
 #import <GTMSessionFetcher/GTMSessionFetcher.h>
 #import <GTMSessionFetcher/GTMSessionFetcherService.h>
 #endif
