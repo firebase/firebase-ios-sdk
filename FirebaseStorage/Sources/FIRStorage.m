@@ -16,19 +16,19 @@
 #import "FIRStorage.h"
 #import "FIRStorageReference.h"
 @import GTMSessionFetcherCore;
-#import "Interop/Auth/Public/FIRAuthInterop.h"
+#import "FIROptions.h"
 #import "FirebaseCore/Sources/Private/FIRAppInternal.h"
 #import "FirebaseCore/Sources/Private/FIRComponentContainer.h"
-#import "FIROptions.h"
+#import "Interop/Auth/Public/FIRAuthInterop.h"
 #else
-#import <FirebaseStorage/FIRStorage.h>
-#import <FirebaseStorage/FIRStorageReference.h>
-#import <GTMSessionFetcher/GTMSessionFetcher.h>
-#import <GTMSessionFetcher/GTMSessionFetcherLogging.h>
 #import <FirebaseAuthInterop/FIRAuthInterop.h>
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIRComponentContainer.h>
 #import <FirebaseCore/FIROptions.h>
+#import <FirebaseStorage/FIRStorage.h>
+#import <FirebaseStorage/FIRStorageReference.h>
+#import <GTMSessionFetcher/GTMSessionFetcher.h>
+#import <GTMSessionFetcher/GTMSessionFetcherLogging.h>
 #endif
 
 #import "FirebaseStorage/Sources/FIRStorageComponent.h"

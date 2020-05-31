@@ -16,9 +16,9 @@
 #import "GoogleUtilities/Network/Private/GULNetworkMessageCode.h"
 
 #if SWIFT_PACKAGE
-#import "GoogleUtilities/Logger/Private/GULLogger.h"
 #import "GULNSData+zlib.h"
 #import "GULReachabilityChecker.h"
+#import "GoogleUtilities/Logger/Private/GULLogger.h"
 #else
 #import <GoogleUtilities/GULLogger.h>
 #import <GoogleUtilities/GULNSData+zlib.h>

@@ -17,9 +17,9 @@
 #import "GULAppEnvironmentUtil.h"
 #import "GULLoggerLevel.h"
 #else
-#import "GoogleUtilities/Logger/Private/GULLogger.h"
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import <GoogleUtilities/GULLoggerLevel.h>
+#import "GoogleUtilities/Logger/Private/GULLogger.h"
 #endif
 
 #include <asl.h>

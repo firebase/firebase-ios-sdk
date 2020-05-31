@@ -19,9 +19,9 @@
 #import "FIRStorageTaskSnapshot.h"
 @import GTMSessionFetcherCore;
 #else
-#import <FirebaseStorage/FIRStorageTask.h>
 #import <FirebaseStorage/FIRStorage.h>
 #import <FirebaseStorage/FIRStorageReference.h>
+#import <FirebaseStorage/FIRStorageTask.h>
 #import <FirebaseStorage/FIRStorageTaskSnapshot.h>
 #import <GTMSessionFetcher/GTMSessionFetcherService.h>
 #endif

@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#import "Interop/Auth/Public/FIRAuthInterop.h"
-#import "FirebaseCore/Sources/Private/FIRAppInternal.h"
-#import "FirebaseCore/Sources/Private/FIRComponent.h"
 #import <FirebaseCore/FIRLibrary.h>
 #import <XCTest/XCTest.h>
+#import "FirebaseCore/Sources/Private/FIRAppInternal.h"
+#import "FirebaseCore/Sources/Private/FIRComponent.h"
+#import "Interop/Auth/Public/FIRAuthInterop.h"
 
 #import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
 #import "FirebaseAuth/Sources/Backend/FIRAuthRequestConfiguration.h"

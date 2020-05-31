@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import "FIRMultiFactorInfo.h"
 #import <Foundation/Foundation.h>
+#import "FIRMultiFactorInfo.h"
 
 #import "FirebaseAuth/Sources/Utilities/FIRAuthInternalErrors.h"
 

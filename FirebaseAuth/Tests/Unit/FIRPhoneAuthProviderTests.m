@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-#import "FIRAuth.h"
-#import "FIRAuthSettings.h"
-#import "FIRAuthUIDelegate.h"
-#import "FIRPhoneAuthProvider.h"
-#import "FIRApp.h"
-#import "FIROptions.h"
 #import <OCMock/OCMock.h>
 #import <SafariServices/SafariServices.h>
 #import <XCTest/XCTest.h>
+#import "FIRApp.h"
+#import "FIRAuth.h"
+#import "FIRAuthSettings.h"
+#import "FIRAuthUIDelegate.h"
+#import "FIROptions.h"
+#import "FIRPhoneAuthProvider.h"
 
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"

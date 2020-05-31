@@ -19,9 +19,9 @@
 #import "FIRStorageConstants.h"
 #import "Interop/Auth/Public/FIRAuthInterop.h"
 #else
+#import <FirebaseAuthInterop/FIRAuthInterop.h>
 #import <FirebaseStorage/FIRStorage.h>
 #import <FirebaseStorage/FIRStorageConstants.h>
-#import <FirebaseAuthInterop/FIRAuthInterop.h>
 #endif
 
 #import "FirebaseStorage/Sources/FIRStorageConstants_Private.h"
