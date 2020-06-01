@@ -1,0 +1,21 @@
+name: spm
+
+on:
+  pull_request:
+    paths:
+    - '.github/workflows/spm.yml'
+    - 'Package.swift'
+    - 'Firebase**'
+  schedule:
+    # Run every day at 11pm (PST) - cron uses UTC times
+    - cron:  '0 7 * * *'
+
+jobs:
+  build:
+    runs-on: macOS-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build
+      run: swift build
+    - name: Run
+      run: swift run
