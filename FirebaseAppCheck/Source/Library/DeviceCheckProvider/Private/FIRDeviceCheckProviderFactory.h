@@ -16,25 +16,11 @@
 
 #import <Foundation/Foundation.h>
 
-#import <FirebaseAppCheck/FIRAppCheckProvider.h>
-
-@class FIRApp;
-@class FIRDeviceCheckAPIService;
-@protocol FIRDeviceCheckTokenGenerator;
+#import <FirebaseAppCheck/FIRAppCheckProviderFactory.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRDeviceCheckProvider : NSObject <FIRAppCheckProvider>
-
-- (instancetype)init NS_UNAVAILABLE;
-
-- (instancetype)initWithAPIService:(FIRDeviceCheckAPIService *)APIService;
-
-- (instancetype)initWithAPIService:(FIRDeviceCheckAPIService *)APIService
-              deviceTokenGenerator:(id<FIRDeviceCheckTokenGenerator>)deviceTokenGenerator
-    NS_DESIGNATED_INITIALIZER;
-
-- (nullable instancetype)initWithApp:(FIRApp *)app;
+@interface FIRDeviceCheckProviderFactory : NSObject <FIRAppCheckProviderFactory>
 
 @end
 

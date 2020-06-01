@@ -20,6 +20,7 @@
 // (see also go/srl-dev/why-fakes#no-ocmock)
 #import <OCMock/OCMock.h>
 
+#import <FirebaseAppCheck/FIRDeviceCheckProvider.h>
 #import <FirebaseAppCheck/FirebaseAppCheck.h>
 #import <FirebaseAppCheckInterop/FIRAppCheckInterop.h>
 #import <FirebaseAppCheckInterop/FIRAppCheckTokenInterop.h>
@@ -68,6 +69,34 @@
   self.mockAppCheckProvider = nil;
 
   [super tearDown];
+}
+
+- (void)testDefaultAppCheckProvider {
+  NSString *appName = @"testDefaultAppCheckProvider";
+
+  // 1. Expect FIRDeviceCheckProvider to be instantiated.
+  id deviceCheckProviderMock = OCMClassMock([FIRDeviceCheckProvider class]);
+  id appValidationArg = [OCMArg checkWithBlock:^BOOL(FIRApp *app) {
+    XCTAssertEqualObjects(app.name, appName);
+    return YES;
+  }];
+
+  OCMStub([deviceCheckProviderMock alloc]).andReturn(deviceCheckProviderMock);
+  OCMExpect([deviceCheckProviderMock initWithApp:appValidationArg])
+      .andReturn(deviceCheckProviderMock);
+
+  // 2. Configure Firebase
+  [self configureAppWithName:appName];
+
+  FIRApp *app = [FIRApp appNamed:appName];
+  XCTAssertNotNil(FIR_COMPONENT(FIRAppCheckInterop, app.container));
+
+  // 3. Verify
+  OCMVerifyAll(deviceCheckProviderMock);
+
+  // 4. Cleanup
+  [FIRAppCheck setAppCheckProviderFactory:nil];
+  [deviceCheckProviderMock stopMocking];
 }
 
 - (void)testSetAppCheckProviderFactoryWithDefaultApp {
