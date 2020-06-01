@@ -66,7 +66,6 @@ jobs:
     runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v2
-    - uses: cypress-io/github-action@v1
     - name: Install gcloud tool
       run: |
         curl https://sdk.cloud.google.com > install.sh
@@ -124,11 +123,6 @@ jobs:
       with:
         name: quickstart_artifacts
         path: quickstart-ios/
-    - uses: actions/upload-artifact@v1
-      if: always()
-      with:
-        name: cypress-videos
-        path: cypress/videos
 
   quickstart:
     env:
