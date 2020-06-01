@@ -11,7 +11,7 @@ on:
     - cron:  '0 7 * * *'
 
 jobs:
-  build:
+  swift-build-run:
     runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v2
