@@ -63,7 +63,7 @@
  * check the next-upload clocks of all targets to determine if an upload attempt can be made.
  */
 - (void)startTimer {
-  dispatch_sync(_coordinationQueue, ^{
+  dispatch_async(_coordinationQueue, ^{
     self->_timer =
         dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, self->_coordinationQueue);
     dispatch_source_set_timer(self->_timer, DISPATCH_TIME_NOW, self->_timerInterval,
@@ -196,7 +196,7 @@ static NSString *const ktargetToInFlightPackagesKey =
 }
 
 - (void)appWillBackground:(GDTCORApplication *)app {
-  dispatch_sync(_coordinationQueue, ^{
+  dispatch_async(_coordinationQueue, ^{
     [self stopTimer];
   });
 }
