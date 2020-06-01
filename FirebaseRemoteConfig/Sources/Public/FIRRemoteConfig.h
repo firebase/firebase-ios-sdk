@@ -185,7 +185,7 @@ NS_SWIFT_NAME(RemoteConfig)
 - (nonnull instancetype)init __attribute__((unavailable("Use +remoteConfig instead.")));
 
 /// Ensures initialization is complete and clients can begin querying for Remote Config values.
-/// @param completionHandler Initialization complete callback.
+/// @param completionHandler Initialization complete callback with error parameter.
 - (void)ensureInitializedWithCompletionHandler:
     (void (^_Nonnull)(NSError *_Nullable initializationError))completionHandler;
 #pragma mark - Fetch
@@ -198,7 +198,7 @@ NS_SWIFT_NAME(RemoteConfig)
 /// To stop the periodic sync, developers need to call `[FIRInstallations deleteWithCompletion:]`
 /// and avoid calling this method again.
 ///
-/// @param completionHandler Fetch operation callback.
+/// @param completionHandler Fetch operation callback with status and error parameters.
 - (void)fetchWithCompletionHandler:(void (^_Nullable)(FIRRemoteConfigFetchStatus status,
                                                       NSError *_Nullable error))completionHandler;
 
@@ -214,7 +214,7 @@ NS_SWIFT_NAME(RemoteConfig)
 /// @param expirationDuration  Override the (default or optionally set minimumFetchInterval property
 /// in FIRRemoteConfigSettings) minimumFetchInterval for only the current request, in seconds.
 /// Setting a value of 0 seconds will force a fetch to the backend.
-/// @param completionHandler   Fetch operation callback.
+/// @param completionHandler   Fetch operation callback with status and error parameters.
 - (void)fetchWithExpirationDuration:(NSTimeInterval)expirationDuration
                   completionHandler:(void (^_Nullable)(FIRRemoteConfigFetchStatus status,
                                                        NSError *_Nullable error))completionHandler;
@@ -228,7 +228,7 @@ NS_SWIFT_NAME(RemoteConfig)
 /// To stop the periodic sync, developers need to call `[FIRInstallations deleteWithCompletion:]`
 /// and avoid calling this method again.
 ///
-/// @param completionHandler Fetch operation callback.
+/// @param completionHandler Fetch operation callback with status and error parameters.
 - (void)fetchAndActivateWithCompletionHandler:
     (void (^_Nullable)(FIRRemoteConfigFetchAndActivateStatus status,
                        NSError *_Nullable error))completionHandler;
