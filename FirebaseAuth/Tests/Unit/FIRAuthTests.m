@@ -64,9 +64,9 @@
 #import "FirebaseAuth/Tests/Unit/OCMStubRecorder+FIRAuthUnitTests.h"
 
 #if SWIFT_PACKAGE
-@import GoogleUtilities_Environment;
+@import GoogleUtilities_AppDelegateSwizzler;
 #else
-#import <GoogleUtilities/GULAppEnvironmentUtil.h>
+#import <GoogleUtilities/GULAppDelegateSwizzler.h>
 #endif
 
 #if TARGET_OS_IOS
