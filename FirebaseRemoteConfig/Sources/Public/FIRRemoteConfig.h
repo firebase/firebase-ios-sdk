@@ -187,7 +187,7 @@ NS_SWIFT_NAME(RemoteConfig)
 /// Ensures initialization is complete and clients can begin querying for Remote Config values.
 /// @param completionHandler Initialization complete callback.
 - (void)ensureInitializedWithCompletionHandler:
-    (nonnull FIRRemoteConfigInitializationCompletion)completionHandler;
+    (void (^_Nonnull)(NSError *_Nullable initializationError))completionHandler;
 #pragma mark - Fetch
 /// Fetches Remote Config data with a callback. Call activateFetched to make fetched data available
 /// to your app.
@@ -199,7 +199,8 @@ NS_SWIFT_NAME(RemoteConfig)
 /// and avoid calling this method again.
 ///
 /// @param completionHandler Fetch operation callback.
-- (void)fetchWithCompletionHandler:(nullable FIRRemoteConfigFetchCompletion)completionHandler;
+- (void)fetchWithCompletionHandler:(void (^_Nullable)(FIRRemoteConfigFetchStatus status,
+                                                      NSError *_Nullable error))completionHandler;
 
 /// Fetches Remote Config data and sets a duration that specifies how long config data lasts.
 /// Call activateFetched to make fetched data available to your app.
@@ -215,7 +216,8 @@ NS_SWIFT_NAME(RemoteConfig)
 /// Setting a value of 0 seconds will force a fetch to the backend.
 /// @param completionHandler   Fetch operation callback.
 - (void)fetchWithExpirationDuration:(NSTimeInterval)expirationDuration
-                  completionHandler:(nullable FIRRemoteConfigFetchCompletion)completionHandler;
+                  completionHandler:(void (^_Nullable)(FIRRemoteConfigFetchStatus status,
+                                                       NSError *_Nullable error))completionHandler;
 
 /// Fetches Remote Config data and if successful, activates fetched data. Optional completion
 /// handler callback is invoked after the attempted activation of data, if the fetch call succeeded.
@@ -228,7 +230,8 @@ NS_SWIFT_NAME(RemoteConfig)
 ///
 /// @param completionHandler Fetch operation callback.
 - (void)fetchAndActivateWithCompletionHandler:
-    (nullable FIRRemoteConfigFetchAndActivateCompletion)completionHandler;
+    (void (^_Nullable)(FIRRemoteConfigFetchAndActivateStatus status,
+                       NSError *_Nullable error))completionHandler;
 
 #pragma mark - Apply
 
