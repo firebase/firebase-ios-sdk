@@ -93,22 +93,28 @@ static NSString *const kUserAgentKey = @"X-firebase-client";
 #pragma mark - URL request
 
 - (FBLPromise<FIRDeviceCheckURLSessionResponse *> *)URLRequestPromise:(NSURLRequest *)request {
-  return [[FBLPromise async:^(FBLPromiseFulfillBlock fulfill, FBLPromiseRejectBlock reject) {
-    [[self.URLSession
-        dataTaskWithRequest:request
-          completionHandler:^(NSData *_Nullable data, NSURLResponse *_Nullable response,
-                              NSError *_Nullable error) {
-            if (error) {
-              reject(error);
-            } else {
-              fulfill([[FIRDeviceCheckURLSessionResponse alloc]
-                  initWithResponse:(NSHTTPURLResponse *)response
-                              data:data]);
-            }
-          }] resume];
-  }] then:^id _Nullable(FIRDeviceCheckURLSessionResponse *response) {
-    return [self validateHTTPResponseStatusCode:response];
-  }];
+  return [FBLPromise async:^(FBLPromiseFulfillBlock fulfill, FBLPromiseRejectBlock reject) {
+           NSURLSessionDataTask *dataTask = [self.URLSession
+               dataTaskWithRequest:request
+                 completionHandler:^(NSData *_Nullable data, NSURLResponse *_Nullable response,
+                                     NSError *_Nullable error) {
+                   if (error) {
+                     reject(error);
+                   } else {
+                     fulfill([[FIRDeviceCheckURLSessionResponse alloc]
+                         initWithResponse:(NSHTTPURLResponse *)response
+                                     data:data]);
+                   }
+                 }];
+           [dataTask resume];
+         }]
+      .recover(^id(NSError *networkError) {
+        // Wrap raw network error into App Check domain error.
+        return [FIRAppCheckErrorUtil APIErrorWithNetworkError:networkError];
+      })
+      .then(^id _Nullable(FIRDeviceCheckURLSessionResponse *response) {
+        return [self validateHTTPResponseStatusCode:response];
+      });
 }
 
 - (FBLPromise<FIRDeviceCheckURLSessionResponse *> *)validateHTTPResponseStatusCode:

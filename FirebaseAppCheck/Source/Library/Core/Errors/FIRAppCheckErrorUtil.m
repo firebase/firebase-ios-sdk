@@ -16,37 +16,66 @@
 
 #import "FIRAppCheckErrorUtil.h"
 
+NSString *const kFIRAppCheckErrorDomain = @"com.firebase.appCheck";
+
 @implementation FIRAppCheckErrorUtil
 
 + (NSError *)cachedTokenNotFound {
-  // TODO: Implement
-  return [self internalError];
+  NSString *failureReason = [NSString stringWithFormat:@"Cached token not found."];
+  return [self appCheckErrorWithCode:FIRAppCheckErrorCodeUnknown
+                       failureReason:failureReason
+                     underlyingError:nil];
 }
 
 + (NSError *)cachedTokenExpired {
-  // TODO: Implement
-  return [self internalError];
+  NSString *failureReason = [NSString stringWithFormat:@"Cached token expired."];
+  return [self appCheckErrorWithCode:FIRAppCheckErrorCodeUnknown
+                       failureReason:failureReason
+                     underlyingError:nil];
 }
 
 + (NSError *)APIErrorWithHTTPResponse:(NSHTTPURLResponse *)HTTPResponse
                                  data:(nullable NSData *)data {
-  // TODO: Implement
-  return [self internalError];
+  NSString *body = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding] ?: @"";
+  NSString *failureReason =
+      [NSString stringWithFormat:@"Unexpected API response. HTTP code: %ld, body: \n%@",
+                                 (long)HTTPResponse.statusCode, body];
+  return [self appCheckErrorWithCode:FIRAppCheckErrorCodeUnknown
+                       failureReason:failureReason
+                     underlyingError:nil];
+}
+
++ (NSError *)APIErrorWithNetworkError:(NSError *)networkError {
+  NSString *failureReason = [NSString stringWithFormat:@"API request error."];
+  return [self appCheckErrorWithCode:FIRAppCheckErrorCodeUnknown
+                       failureReason:failureReason
+                     underlyingError:networkError];
 }
 
 + (NSError *)appCheckTokenResponseErrorWithMissingField:(NSString *)fieldName {
-  // TODO: Implement
-  return [self internalError];
+  NSString *failureReason = [NSString
+      stringWithFormat:@"Unexpected app check token response format. Field `%@` is missing.",
+                       fieldName];
+  return [self appCheckErrorWithCode:FIRAppCheckErrorCodeUnknown
+                       failureReason:failureReason
+                     underlyingError:nil];
 }
 
 + (NSError *)JSONSerializationError:(NSError *)error {
-  // TODO: Implement
-  return [self internalError];
+  NSString *failureReason = [NSString stringWithFormat:@"JSON serialization error."];
+  return [self appCheckErrorWithCode:FIRAppCheckErrorCodeUnknown
+                       failureReason:failureReason
+                     underlyingError:error];
 }
 
-+ (NSError *)internalError {
-  // TODO: Implement
-  return [NSError errorWithDomain:@"AppCheck" code:-1 userInfo:nil];
++ (NSError *)appCheckErrorWithCode:(FIRAppCheckErrorCode)code
+                     failureReason:(nullable NSString *)failureReason
+                   underlyingError:(nullable NSError *)underlyingError {
+  NSMutableDictionary *userInfo = [NSMutableDictionary dictionary];
+  userInfo[NSUnderlyingErrorKey] = underlyingError;
+  userInfo[NSLocalizedFailureReasonErrorKey] = failureReason;
+
+  return [NSError errorWithDomain:kFIRAppCheckErrorDomain code:code userInfo:userInfo];
 }
 
 @end

@@ -18,6 +18,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+FOUNDATION_EXTERN NSString *const kFIRAppCheckErrorDomain;
+
 @interface FIRAppCheckErrorUtil : NSObject
 
 // Internal errors.
@@ -28,10 +30,18 @@ NS_ASSUME_NONNULL_BEGIN
 + (NSError *)APIErrorWithHTTPResponse:(NSHTTPURLResponse *)HTTPResponse
                                  data:(nullable NSData *)data;
 
++ (NSError *)APIErrorWithNetworkError:(NSError *)networkError;
+
 + (NSError *)appCheckTokenResponseErrorWithMissingField:(NSString *)fieldName;
 
 + (NSError *)JSONSerializationError:(NSError *)error;
 
 @end
+
+typedef NS_ENUM(NSInteger, FIRAppCheckErrorCode) {
+  FIRAppCheckErrorCodeUnknown = 0
+
+  // TODO: Add public error codes here.
+};
 
 NS_ASSUME_NONNULL_END
