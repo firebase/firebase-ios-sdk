@@ -106,7 +106,8 @@ jobs:
       run: |
               ls quickstart-ios/TestUtils/
               cd quickstart-ios/config
-              xcodebuild test -project ConfigExample.xcodeproj -scheme ConfigExample -destination 'platform=iOS Simulator,name=iPhone 11 Pro' "OTHER_LDFLAGS=\$(OTHER_LDFLAGS) -ObjC" "FRAMEWORK_SEARCH_PATHS= \$(PROJECT_DIR)/Firebase/FirebaseRemoteConfig \$(PROJECT_DIR)/Firebase/FirebaseAnalytics" HEADER_SEARCH_PATHS='$(PROJECT_DIR)/Firebase $(PROJECT_DIR)/Firebase/FirebaseAnalytics $(PROJECT_DIR)/Firebase/FirebaseRemoteConfig'
+              xcodebuild test -project ConfigExample.xcodeproj -scheme ConfigExample -destination 'platform=iOS Simulator,name=iPhone 11 Pro' "OTHER_LDFLAGS=\$(OTHER_LDFLAGS) -ObjC" "FRAMEWORK_SEARCH_PATHS= \$(PROJECT_DIR)/Firebase/FirebaseRemoteConfig \$(PROJECT_DIR)/Firebase/FirebaseAnalytics" HEADER_SEARCH_PATHS='$(PROJECT_DIR)/Firebase $(PROJECT_DIR)/Firebase/FirebaseAnalytics $(PROJECT_DIR)/Firebase/FirebaseRemoteConfig' & sleep 3; xcrun simctl io booted recordVideo abc.mov & FOO_PID=$!
+              kill -2 $FOO_PID
     - name: Display xcodebuild setup
       if: ${{ failure() }}
       run: |
