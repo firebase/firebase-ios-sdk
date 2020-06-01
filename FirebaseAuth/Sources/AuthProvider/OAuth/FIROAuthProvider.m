@@ -15,11 +15,17 @@
  */
 
 #import "FIROAuthProvider.h"
+
 #include <CommonCrypto/CommonCrypto.h>
-#import "FIRApp.h"
 #import "FIRFacebookAuthProvider.h"
 #import "FIROAuthCredential.h"
-#import "FIROptions.h"
+
+#if SWIFT_PACKAGE
+@import FirebaseCore;
+#else
+#import <FirebaseCore/FIRApp.h>
+#import <FirebaseCore/FIROptions.h>
+#endif
 
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"

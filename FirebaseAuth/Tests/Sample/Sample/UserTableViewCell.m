@@ -16,7 +16,7 @@
 
 #import "UserTableViewCell.h"
 
-#import "FIRUser.h"
+#import <FirebaseAuth/FIRUser.h>
 
 @implementation UserTableViewCell {
   /** @var _lastPhotoURL

@@ -19,7 +19,7 @@
 #import <AuthenticationServices/AuthenticationServices.h>
 
 #import "AppManager.h"
-#import "FIROAuthProvider.h"
+#import <FirebaseAuth/FIROAuthProvider.h>
 #import "MainViewController+Internal.h"
 
 NS_ASSUME_NONNULL_BEGIN

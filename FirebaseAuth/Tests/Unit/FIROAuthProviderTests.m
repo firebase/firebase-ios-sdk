@@ -16,11 +16,17 @@
 
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
-#import "FIRApp.h"
+
 #import "FIRAuthErrors.h"
 #import "FIRAuthUIDelegate.h"
 #import "FIROAuthProvider.h"
-#import "FIROptions.h"
+
+#if SWIFT_PACKAGE
+@import FirebaseCore;
+#else
+#import <FirebaseCore/FIRApp.h>
+#import <FirebaseCore/FIROptions.h>
+#endif
 
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
