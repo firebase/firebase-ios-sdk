@@ -22,11 +22,7 @@
 #import <UIKit/UIKit.h>
 #endif
 
-#import "FIROptions.h"
 #import "FirebaseAuth.h"
-
-#import "GULAppDelegateSwizzler.h"
-#import "GULAppEnvironmentUtil.h"
 
 #if SWIFT_PACKAGE
 @import FirebaseCore;
