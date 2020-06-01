@@ -17,12 +17,18 @@
 #import <OCMock/OCMock.h>
 #import <SafariServices/SafariServices.h>
 #import <XCTest/XCTest.h>
-#import "FIRApp.h"
+
 #import "FIRAuth.h"
 #import "FIRAuthSettings.h"
 #import "FIRAuthUIDelegate.h"
-#import "FIROptions.h"
 #import "FIRPhoneAuthProvider.h"
+
+#if SWIFT_PACKAGE
+@import FirebaseCore;
+#else
+#import <FirebaseCore/FIRApp.h>
+#import <FirebaseCore/FIROptions.h>
+#endif
 
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"

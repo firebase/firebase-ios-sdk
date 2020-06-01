@@ -24,13 +24,25 @@
 
 #import "FIROptions.h"
 #import "FirebaseAuth.h"
+
+#import "GULAppDelegateSwizzler.h"
+#import "GULAppEnvironmentUtil.h"
+
+#if SWIFT_PACKAGE
+@import FirebaseCore;
+@import GoogleUtilities_Environment;
+@import GoogleUtilities_AppDelegateSwizzler;
+#else
+#import <FirebaseCore/FIROptions.h>
+#import <GoogleUtilities/GULAppDelegateSwizzler.h>
+#import <GoogleUtilities/GULAppEnvironmentUtil.h>
+#endif
+
 #import "FirebaseCore/Sources/Private/FIRAppInternal.h"
 #import "FirebaseCore/Sources/Private/FIRComponent.h"
 #import "FirebaseCore/Sources/Private/FIRComponentContainer.h"
 #import "FirebaseCore/Sources/Private/FIRLibrary.h"
 #import "FirebaseCore/Sources/Private/FIRLogger.h"
-#import "GULAppDelegateSwizzler.h"
-#import "GULAppEnvironmentUtil.h"
 #import "GoogleUtilities/SceneDelegateSwizzler/Private/GULSceneDelegateSwizzler.h"
 
 #import "FirebaseAuth/Sources/Auth/FIRAuthDataResult_Internal.h"
