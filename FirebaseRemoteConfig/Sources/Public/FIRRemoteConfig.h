@@ -80,18 +80,18 @@ typedef NS_ENUM(NSInteger, FIRRemoteConfigSource) {
 /// @param error  Error message on failure.
 typedef void (^FIRRemoteConfigFetchCompletion)(FIRRemoteConfigFetchStatus status,
                                                NSError *_Nullable error)
-    NS_SWIFT_NAME(RemoteConfigFetchCompletion);
+    NS_SWIFT_NAME(RemoteConfigFetchCompletion) DEPRECATED_ATTRIBUTE;
 
 /// Completion handler invoked by activate method upon completion.
 /// @param error  Error message on failure. Nil if activation was successful.
 typedef void (^FIRRemoteConfigActivateCompletion)(NSError *_Nullable error)
-    NS_SWIFT_NAME(RemoteConfigActivateCompletion);
+    NS_SWIFT_NAME(RemoteConfigActivateCompletion) DEPRECATED_ATTRIBUTE;
 
 /// Completion handler invoked upon completion of Remote Config initialization.
 ///
 /// @param initializationError nil if initialization succeeded.
 typedef void (^FIRRemoteConfigInitializationCompletion)(NSError *_Nullable initializationError)
-    NS_SWIFT_NAME(RemoteConfigInitializationCompletion);
+    NS_SWIFT_NAME(RemoteConfigInitializationCompletion) DEPRECATED_ATTRIBUTE;
 
 /// Completion handler invoked by the fetchAndActivate method. Used to convey status of fetch and,
 /// if successful, resultant activate call
@@ -99,7 +99,7 @@ typedef void (^FIRRemoteConfigInitializationCompletion)(NSError *_Nullable initi
 /// @param error  Error message on failure of config fetch
 typedef void (^FIRRemoteConfigFetchAndActivateCompletion)(
     FIRRemoteConfigFetchAndActivateStatus status, NSError *_Nullable error)
-    NS_SWIFT_NAME(RemoteConfigFetchAndActivateCompletion);
+    NS_SWIFT_NAME(RemoteConfigFetchAndActivateCompletion) DEPRECATED_ATTRIBUTE;
 
 #pragma mark - FIRRemoteConfigValue
 /// This class provides a wrapper for Remote Config parameter values, with methods to get parameter

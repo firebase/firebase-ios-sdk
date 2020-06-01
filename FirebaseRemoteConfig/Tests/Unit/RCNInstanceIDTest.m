@@ -243,7 +243,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
         [self expectationWithDescription:
                   [NSString stringWithFormat:@"Test fetch configs successfully - instance %d", i]];
     XCTAssertEqual(_configInstances[i].lastFetchStatus, FIRRemoteConfigFetchStatusNoFetchYet);
-    FIRRemoteConfigFetchCompletion fetchCompletion =
+    void (^fetchCompletion)(FIRRemoteConfigFetchStatus status, NSError *error) =
         ^void(FIRRemoteConfigFetchStatus status, NSError *error) {
           XCTAssertNotNil(error);
           [expectations[i] fulfill];
@@ -276,7 +276,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
         [self expectationWithDescription:
                   [NSString stringWithFormat:@"Test fetch configs successfully - instance %d", i]];
     XCTAssertEqual(_configInstances[i].lastFetchStatus, FIRRemoteConfigFetchStatusNoFetchYet);
-    FIRRemoteConfigFetchCompletion fetchCompletion =
+    void (^fetchCompletion)(FIRRemoteConfigFetchStatus status, NSError *error) =
         ^void(FIRRemoteConfigFetchStatus status, NSError *error) {
           XCTAssertNotNil(error);
           XCTAssert([[error.userInfo objectForKey:@"NSLocalizedDescription"]
@@ -320,7 +320,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
         [self expectationWithDescription:
                   [NSString stringWithFormat:@"Test fetch configs successfully - instance %d", i]];
     XCTAssertEqual(_configInstances[i].lastFetchStatus, FIRRemoteConfigFetchStatusNoFetchYet);
-    FIRRemoteConfigFetchCompletion fetchCompletion =
+    void (^fetchCompletion)(FIRRemoteConfigFetchStatus status, NSError *error) =
         ^void(FIRRemoteConfigFetchStatus status, NSError *error) {
           XCTAssertNotNil(error);
           [expectations[i] fulfill];
@@ -351,7 +351,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
         [self expectationWithDescription:
                   [NSString stringWithFormat:@"Test fetch configs successfully - instance %d", i]];
     XCTAssertEqual(_configInstances[i].lastFetchStatus, FIRRemoteConfigFetchStatusNoFetchYet);
-    FIRRemoteConfigFetchCompletion fetchCompletion =
+    void (^fetchCompletion)(FIRRemoteConfigFetchStatus status, NSError *error) =
         ^void(FIRRemoteConfigFetchStatus status, NSError *error) {
           XCTAssertNotNil(error);
           [expectations[i] fulfill];
@@ -382,7 +382,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
         [self expectationWithDescription:
                   [NSString stringWithFormat:@"Test fetch configs successfully - instance %d", i]];
     XCTAssertEqual(_configInstances[i].lastFetchStatus, FIRRemoteConfigFetchStatusNoFetchYet);
-    FIRRemoteConfigFetchCompletion fetchCompletion =
+    void (^fetchCompletion)(FIRRemoteConfigFetchStatus status, NSError *error) =
         ^void(FIRRemoteConfigFetchStatus status, NSError *error) {
           XCTAssertNotNil(error);
           [expectations[i] fulfill];
@@ -416,7 +416,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
         [self expectationWithDescription:
                   [NSString stringWithFormat:@"Test fetch configs successfully - instance %d", i]];
     XCTAssertEqual(_configInstances[i].lastFetchStatus, FIRRemoteConfigFetchStatusNoFetchYet);
-    FIRRemoteConfigFetchCompletion fetchCompletion =
+    void (^fetchCompletion)(FIRRemoteConfigFetchStatus status, NSError *error) =
         ^void(FIRRemoteConfigFetchStatus status, NSError *error) {
           XCTAssertNotNil(error);
           [expectations[i] fulfill];

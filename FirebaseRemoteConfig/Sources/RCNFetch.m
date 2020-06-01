@@ -127,7 +127,9 @@ static const NSInteger FIRErrorCodeConfigFailed = -114;
 #pragma mark - Fetch Config API
 
 - (void)fetchConfigWithExpirationDuration:(NSTimeInterval)expirationDuration
-                        completionHandler:(FIRRemoteConfigFetchCompletion)completionHandler {
+                        completionHandler:
+                            (void (^_Nullable)(FIRRemoteConfigFetchStatus status,
+                                               NSError *_Nullable error))completionHandler {
   // Note: We expect the googleAppID to always be available.
   BOOL hasDeviceContextChanged =
       FIRRemoteConfigHasDeviceContextChanged(_settings.deviceContext, _options.googleAppID);
@@ -201,7 +203,8 @@ static const NSInteger FIRErrorCodeConfigFailed = -114;
 /// Refresh installation ID token before fetching config. installation ID is now mandatory for fetch
 /// requests to work.(b/14751422).
 - (void)refreshInstallationsTokenWithCompletionHandler:
-    (FIRRemoteConfigFetchCompletion)completionHandler {
+    (void (^_Nullable)(FIRRemoteConfigFetchStatus status,
+                       NSError *_Nullable error))completionHandler {
   FIRInstallations *installations = [FIRInstallations
       installationsWithApp:[FIRApp appNamed:[self FIRAppNameFromFullyQualifiedNamespace]]];
   if (!installations || !_options.GCMSenderID) {
@@ -278,7 +281,8 @@ static const NSInteger FIRErrorCodeConfigFailed = -114;
   [installations authTokenWithCompletion:installationsTokenHandler];
 }
 
-- (void)doFetchCall:(FIRRemoteConfigFetchCompletion)completionHandler {
+- (void)doFetchCall:(void (^_Nullable)(FIRRemoteConfigFetchStatus status,
+                                       NSError *_Nullable error))completionHandler {
   [self getAnalyticsUserPropertiesWithCompletionHandler:^(NSDictionary *userProperties) {
     dispatch_async(self->_lockQueue, ^{
       [self fetchWithUserProperties:userProperties completionHandler:completionHandler];
@@ -297,7 +301,8 @@ static const NSInteger FIRErrorCodeConfigFailed = -114;
   }
 }
 
-- (void)reportCompletionOnHandler:(FIRRemoteConfigFetchCompletion)completionHandler
+- (void)reportCompletionOnHandler:(void (^_Nullable)(FIRRemoteConfigFetchStatus status,
+                                                     NSError *_Nullable error))completionHandler
                        withStatus:(FIRRemoteConfigFetchStatus)status
                         withError:(NSError *)error {
   if (completionHandler) {
@@ -308,7 +313,8 @@ static const NSInteger FIRErrorCodeConfigFailed = -114;
 }
 
 - (void)fetchWithUserProperties:(NSDictionary *)userProperties
-              completionHandler:(FIRRemoteConfigFetchCompletion)completionHandler {
+              completionHandler:(void (^_Nullable)(FIRRemoteConfigFetchStatus status,
+                                                   NSError *_Nullable error))completionHandler {
   FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000061", @"Fetch with user properties initiated.");
 
   NSString *postRequestString = [_settings nextRequestWithUserProperties:userProperties];

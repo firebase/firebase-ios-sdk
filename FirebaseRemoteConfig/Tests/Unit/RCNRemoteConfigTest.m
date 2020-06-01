@@ -48,7 +48,8 @@
                                           (RCNConfigFetcherCompletion)fetcherCompletion;
 
 - (void)fetchWithUserProperties:(NSDictionary *)userProperties
-              completionHandler:(FIRRemoteConfigFetchCompletion)completionHandler;
+              completionHandler:(void (^_Nullable)(FIRRemoteConfigFetchStatus status,
+                                                   NSError *_Nullable error))completionHandler;
 - (NSString *)constructServerURL;
 - (NSURLSession *)currentNetworkSession;
 @end
@@ -275,8 +276,8 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
         [self expectationWithDescription:
                   [NSString stringWithFormat:@"Test fetch configs successfully - instance %d", i]];
     XCTAssertEqual(_configInstances[i].lastFetchStatus, FIRRemoteConfigFetchStatusNoFetchYet);
-    FIRRemoteConfigFetchCompletion fetchCompletion = ^void(FIRRemoteConfigFetchStatus status,
-                                                           NSError *error) {
+    void (^fetchCompletion)(FIRRemoteConfigFetchStatus status, NSError *error) = ^void(
+        FIRRemoteConfigFetchStatus status, NSError *error) {
       XCTAssertEqual(self->_configInstances[i].lastFetchStatus, FIRRemoteConfigFetchStatusSuccess);
       XCTAssertNil(error);
 #pragma clang diagnostic push
@@ -318,8 +319,9 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
         [self expectationWithDescription:
                   [NSString stringWithFormat:@"Test fetch configs successfully - instance %d", i]];
     XCTAssertEqual(_configInstances[i].lastFetchStatus, FIRRemoteConfigFetchStatusNoFetchYet);
-    FIRRemoteConfigFetchAndActivateCompletion fetchAndActivateCompletion = ^void(
-        FIRRemoteConfigFetchAndActivateStatus status, NSError *error) {
+    void (^fetchAndActivateCompletion)(
+        FIRRemoteConfigFetchAndActivateStatus status,
+        NSError *error) = ^void(FIRRemoteConfigFetchAndActivateStatus status, NSError *error) {
       XCTAssertEqual(self->_configInstances[i].lastFetchStatus, FIRRemoteConfigFetchStatusSuccess);
       XCTAssertNil(error);
 
@@ -365,8 +367,8 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
         [self expectationWithDescription:
                   [NSString stringWithFormat:@"Test fetch configs successfully - instance %d", i]];
     XCTAssertEqual(_configInstances[i].lastFetchStatus, FIRRemoteConfigFetchStatusNoFetchYet);
-    FIRRemoteConfigFetchCompletion fetchCompletion = ^(FIRRemoteConfigFetchStatus status,
-                                                       NSError *error) {
+    void (^fetchCompletion)(FIRRemoteConfigFetchStatus status, NSError *error) = ^(
+        FIRRemoteConfigFetchStatus status, NSError *error) {
       XCTAssertEqual(self->_configInstances[i].lastFetchStatus, FIRRemoteConfigFetchStatusSuccess);
       XCTAssertNil(error);
       [self->_configInstances[i] activateWithCompletionHandler:^(NSError *_Nullable error) {
@@ -412,8 +414,8 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
         expectationWithDescription:
             [NSString stringWithFormat:@"Test enumerating configs successfully - instance %d", i]];
     XCTAssertEqual(_configInstances[i].lastFetchStatus, FIRRemoteConfigFetchStatusNoFetchYet);
-    FIRRemoteConfigFetchCompletion fetchCompletion = ^void(FIRRemoteConfigFetchStatus status,
-                                                           NSError *error) {
+    void (^fetchCompletion)(FIRRemoteConfigFetchStatus status, NSError *error) = ^void(
+        FIRRemoteConfigFetchStatus status, NSError *error) {
       XCTAssertEqual(self->_configInstances[i].lastFetchStatus, FIRRemoteConfigFetchStatusSuccess);
       XCTAssertNil(error);
 #pragma clang diagnostic push
@@ -557,8 +559,8 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
         expectationWithDescription:
             [NSString stringWithFormat:@"Test enumerating configs successfully - instance %d", i]];
     XCTAssertEqual(_configInstances[i].lastFetchStatus, FIRRemoteConfigFetchStatusNoFetchYet);
-    FIRRemoteConfigFetchCompletion fetchCompletion = ^void(FIRRemoteConfigFetchStatus status,
-                                                           NSError *error) {
+    void (^fetchCompletion)(FIRRemoteConfigFetchStatus status, NSError *error) = ^void(
+        FIRRemoteConfigFetchStatus status, NSError *error) {
       XCTAssertEqual(self->_configInstances[i].lastFetchStatus, FIRRemoteConfigFetchStatusFailure);
       XCTAssertFalse([self->_configInstances[i] activateFetched]);
       XCTAssertNotNil(error);
@@ -681,8 +683,8 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
         expectationWithDescription:
             [NSString stringWithFormat:@"Test enumerating configs successfully - instance %d", i]];
     XCTAssertEqual(_configInstances[i].lastFetchStatus, FIRRemoteConfigFetchStatusNoFetchYet);
-    FIRRemoteConfigFetchCompletion fetchCompletion = ^void(FIRRemoteConfigFetchStatus status,
-                                                           NSError *error) {
+    void (^fetchCompletion)(FIRRemoteConfigFetchStatus status, NSError *error) = ^void(
+        FIRRemoteConfigFetchStatus status, NSError *error) {
       XCTAssertEqual(self->_configInstances[i].lastFetchStatus, FIRRemoteConfigFetchStatusFailure);
       XCTAssertFalse([self->_configInstances[i] activateFetched]);
       XCTAssertNotNil(error);
@@ -812,8 +814,8 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
     XCTAssertEqual(_configInstances[i].lastFetchStatus, FIRRemoteConfigFetchStatusNoFetchYet);
 
     // Make sure activate returns false in fetch completion.
-    FIRRemoteConfigFetchCompletion fetchCompletion = ^void(FIRRemoteConfigFetchStatus status,
-                                                           NSError *error) {
+    void (^fetchCompletion)(FIRRemoteConfigFetchStatus status, NSError *error) = ^void(
+        FIRRemoteConfigFetchStatus status, NSError *error) {
       XCTAssertEqual(self->_configInstances[i].lastFetchStatus, FIRRemoteConfigFetchStatusSuccess);
       XCTAssertFalse([self->_configInstances[i] activateFetched]);
       XCTAssertNil(error);
@@ -835,8 +837,8 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
         [self expectationWithDescription:
                   [NSString stringWithFormat:@"Test configValueForKey: method - instance %d", i]];
     XCTAssertEqual(_configInstances[i].lastFetchStatus, FIRRemoteConfigFetchStatusNoFetchYet);
-    FIRRemoteConfigFetchCompletion fetchCompletion = ^void(FIRRemoteConfigFetchStatus status,
-                                                           NSError *error) {
+    void (^fetchCompletion)(FIRRemoteConfigFetchStatus status, NSError *error) = ^void(
+        FIRRemoteConfigFetchStatus status, NSError *error) {
       XCTAssertEqual(status, FIRRemoteConfigFetchStatusSuccess);
       XCTAssertNil(error);
       XCTAssertTrue([self->_configInstances[i] activateFetched]);
@@ -897,8 +899,8 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
     NSDictionary<NSString *, NSString *> *defaults = @{key1 : @"default key1", key0 : @"value0-0"};
     [_configInstances[i] setDefaults:defaults];
 
-    FIRRemoteConfigFetchCompletion fetchCompletion = ^void(FIRRemoteConfigFetchStatus status,
-                                                           NSError *error) {
+    void (^fetchCompletion)(FIRRemoteConfigFetchStatus status, NSError *error) = ^void(
+        FIRRemoteConfigFetchStatus status, NSError *error) {
       XCTAssertEqual(self->_configInstances[i].lastFetchStatus, FIRRemoteConfigFetchStatusSuccess);
       XCTAssertNil(error);
       XCTAssertEqualObjects(self->_configInstances[i][key1].stringValue, @"default key1");
@@ -1033,8 +1035,8 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
     value = _configInstances[i][@"A key doesn't exist"];
     XCTAssertEqual(value.source, FIRRemoteConfigSourceStatic);
 
-    FIRRemoteConfigFetchCompletion fetchCompletion = ^void(FIRRemoteConfigFetchStatus status,
-                                                           NSError *error) {
+    void (^fetchCompletion)(FIRRemoteConfigFetchStatus status, NSError *error) = ^void(
+        FIRRemoteConfigFetchStatus status, NSError *error) {
       XCTAssertEqual(self->_configInstances[i].lastFetchStatus, FIRRemoteConfigFetchStatusSuccess);
       XCTAssertNil(error);
       XCTAssertTrue([self->_configInstances[i] activateFetched]);
@@ -1071,8 +1073,8 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
     NSDictionary<NSString *, NSString *> *defaults = @{key1 : @"default value1"};
     [_configInstances[i] setDefaults:defaults];
 
-    FIRRemoteConfigFetchCompletion fetchCompletion = ^void(FIRRemoteConfigFetchStatus status,
-                                                           NSError *error) {
+    void (^fetchCompletion)(FIRRemoteConfigFetchStatus status, NSError *error) = ^void(
+        FIRRemoteConfigFetchStatus status, NSError *error) {
       XCTAssertEqual(self->_configInstances[i].lastFetchStatus, FIRRemoteConfigFetchStatusSuccess);
       XCTAssertNil(error);
       XCTAssertEqualObjects(self->_configInstances[i][key1].stringValue, @"default value1");
@@ -1247,8 +1249,8 @@ static NSString *UTCToLocal(NSString *utcTime) {
     NSDictionary<NSString *, NSString *> *defaults = @{key1 : @"default key1", key0 : @"value0-0"};
     [_configInstances[i] setDefaults:defaults];
 
-    FIRRemoteConfigFetchCompletion fetchCompletion = ^void(FIRRemoteConfigFetchStatus status,
-                                                           NSError *error) {
+    void (^fetchCompletion)(FIRRemoteConfigFetchStatus status, NSError *error) = ^void(
+        FIRRemoteConfigFetchStatus status, NSError *error) {
       XCTAssertEqual(status, FIRRemoteConfigFetchStatusSuccess);
       XCTAssertNil(error);
       XCTAssertTrue([self->_configInstances[i] activateFetched]);
@@ -1314,8 +1316,8 @@ static NSString *UTCToLocal(NSString *utcTime) {
     fetchConfigsExpectation[i] = [self
         expectationWithDescription:[NSString
                                        stringWithFormat:@"Test allKeys methods - instance %d", i]];
-    FIRRemoteConfigFetchCompletion fetchCompletion = ^void(FIRRemoteConfigFetchStatus status,
-                                                           NSError *error) {
+    void (^fetchCompletion)(FIRRemoteConfigFetchStatus status, NSError *error) = ^void(
+        FIRRemoteConfigFetchStatus status, NSError *error) {
       XCTAssertEqual(status, FIRRemoteConfigFetchStatusSuccess);
       XCTAssertNil(error);
       NSLog(@"Testing _configInstances %d", i);
@@ -1389,7 +1391,7 @@ static NSString *UTCToLocal(NSString *utcTime) {
     [_configInstances[i] setConfigSettings:settings];
     XCTAssertEqual([_configInstances[i] configSettings].minimumFetchInterval, 123);
 
-    FIRRemoteConfigFetchCompletion fetchCompletion =
+    void (^fetchCompletion)(FIRRemoteConfigFetchStatus status, NSError *error) =
         ^void(FIRRemoteConfigFetchStatus status, NSError *error) {
           XCTAssertFalse([self->_configInstances[i].settings hasMinimumFetchIntervalElapsed:43200]);
 

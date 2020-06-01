@@ -235,7 +235,7 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
 - (void)fetchAndActivateWithCompletionHandler:
     (FIRRemoteConfigFetchAndActivateCompletion)completionHandler {
   __weak FIRRemoteConfig *weakSelf = self;
-  FIRRemoteConfigFetchCompletion fetchCompletion =
+  void (^fetchCompletion)(FIRRemoteConfigFetchStatus status, NSError *error) =
       ^(FIRRemoteConfigFetchStatus fetchStatus, NSError *fetchError) {
         FIRRemoteConfig *strongSelf = weakSelf;
         if (!strongSelf) {
