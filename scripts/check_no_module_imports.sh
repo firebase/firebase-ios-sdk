@@ -33,12 +33,6 @@ git grep "${options[@]}" \
   ':(exclude,glob)FirebaseStorage/**' ':(exclude,glob)FirebaseAuth/**' \
   ':(exclude)Firebase/Firebase/Public/Firebase.h' && exit_with_error
 
-# Tests are under the Example directory, so we have to separately grep them for
-# @import statements (otherwise they'd be excluded).
-git grep "${options[@]}" \
-  -- ':(glob)**/Tests/**' ':(glob)**/TestUtils/**' ':(glob)**/IntegrationTests/**' && \
-  exit_with_error
-
 # We need to explicitly exit 0, since we expect `git grep` to return an error
 # if no @import calls are found.
 exit 0
