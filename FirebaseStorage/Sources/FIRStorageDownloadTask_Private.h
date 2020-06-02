@@ -16,11 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#if SWIFT_PACKAGE
 #import "FIRStorageDownloadTask.h"
-#else
-#import <FirebaseStorage/FIRStorageDownloadTask.h>
-#endif
 
 @class FIRStorageReference;
 @class GTMSessionFetcherService;

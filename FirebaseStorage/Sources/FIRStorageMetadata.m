@@ -12,18 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if SWIFT_PACKAGE
 #import "FIRStorageMetadata.h"
 #import "FIRStorageConstants.h"
 #import "FIRStorageUtils.h"
-#else
-#import <FirebaseStorage/FIRStorageConstants.h>
-#import <FirebaseStorage/FIRStorageMetadata.h>
-#import "FirebaseStorage/Sources/FIRStorageUtils.h"
-#endif
 
 #import "FirebaseStorage/Sources/FIRStorageConstants_Private.h"
 #import "FirebaseStorage/Sources/FIRStorageMetadata_Private.h"
+#import "FirebaseStorage/Sources/FIRStorageUtils.h"
 
 // TODO: consider rewriting this using GTLR (GTLRStorageObjects.h)
 @implementation FIRStorageMetadata

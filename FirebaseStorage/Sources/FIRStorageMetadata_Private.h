@@ -14,11 +14,7 @@
  * limitations under the License.
  */
 
-#if SWIFT_PACKAGE
 #import "FIRStorageMetadata.h"
-#else
-#import <FirebaseStorage/FIRStorageMetadata.h>
-#endif
 
 #import "FirebaseStorage/Sources/FIRStorageConstants_Private.h"
 

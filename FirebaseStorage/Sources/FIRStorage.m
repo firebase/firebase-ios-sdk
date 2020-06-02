@@ -12,11 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if SWIFT_PACKAGE
 #import "FIRStorage.h"
 #import "FIRStorageReference.h"
+
+#if SWIFT_PACKAGE
+@import FirebaseCore;
 @import GTMSessionFetcherCore;
-#import "FIROptions.h"
 #import "FirebaseCore/Sources/Private/FIRAppInternal.h"
 #import "FirebaseCore/Sources/Private/FIRComponentContainer.h"
 #import "Interop/Auth/Public/FIRAuthInterop.h"
@@ -25,8 +26,6 @@
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIRComponentContainer.h>
 #import <FirebaseCore/FIROptions.h>
-#import <FirebaseStorage/FIRStorage.h>
-#import <FirebaseStorage/FIRStorageReference.h>
 #import <GTMSessionFetcher/GTMSessionFetcher.h>
 #import <GTMSessionFetcher/GTMSessionFetcherLogging.h>
 #endif

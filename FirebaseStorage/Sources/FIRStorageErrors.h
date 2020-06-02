@@ -14,11 +14,7 @@
  * limitations under the License.
  */
 
-#if SWIFT_PACKAGE
 #import "FIRStorageConstants.h"
-#else
-#import <FirebaseStorage/FIRStorageConstants.h>
-#endif
 
 NS_ASSUME_NONNULL_BEGIN
 
