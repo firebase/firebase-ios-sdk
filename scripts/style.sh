@@ -161,7 +161,7 @@ s%^./%%
 
 # Keep Firebase.h indenting
 \%^CoreOnly/Sources/Firebase.h% d
-\%^Firebase/Firebase/Public/Firebase.h% d
+\%^Firebase/Sources/Public/Firebase.h% d
 
 # Checked-in generated code
 \%\.pb(objc|rpc)\.% d
