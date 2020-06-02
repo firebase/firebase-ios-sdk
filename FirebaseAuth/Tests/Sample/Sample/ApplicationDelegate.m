@@ -20,7 +20,7 @@
 #import <FirebaseCore/FIRConfiguration.h>
 
 #import "AuthProviders.h"
-#import "FirebaseAuth.h"
+#import <FirebaseAuth/FirebaseAuth.h>
 #import "GTMSessionFetcherLogging.h"
 #import "MainViewController.h"
 

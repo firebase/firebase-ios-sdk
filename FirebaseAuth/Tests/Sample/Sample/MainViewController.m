@@ -19,7 +19,7 @@
 #import "AppManager.h"
 #import "AuthCredentials.h"
 #import "FacebookAuthProvider.h"
-#import "FirebaseAuth.h"
+#import <FirebaseAuth/FirebaseAuth.h>
 #import "GoogleAuthProvider.h"
 #import "MainViewController+App.h"
 #import "MainViewController+Auth.h"
