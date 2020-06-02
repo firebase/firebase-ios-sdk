@@ -1,6 +1,6 @@
 # v6.2.2
-- [fixed] Addressed crash that prevented the SDK from opening due to a corrupted versioning file.
-  (#3120)
+- [fixed] Addressed crash that prevented the SDK from opening when the versioning file was
+  corrupted. (#3120)
 
 # v6.2.1
 - [fixed] Fixed documentation typos. (#5406, #5418)
