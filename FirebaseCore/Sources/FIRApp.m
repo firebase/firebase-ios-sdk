@@ -33,11 +33,7 @@
 #import "FirebaseCore/Sources/Private/FIRLogger.h"
 #import "FirebaseCore/Sources/Private/FIROptionsInternal.h"
 
-#if SWIFT_PACKAGE
-#import "GULAppEnvironmentUtil.h"
-#else
-#import <GoogleUtilities/GULAppEnvironmentUtil.h>
-#endif
+#import "GoogleUtilities/Environment/Public/GULAppEnvironmentUtil.h"
 
 #import <objc/runtime.h>
 
