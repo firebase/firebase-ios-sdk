@@ -17,13 +17,17 @@
 #include <TargetConditionals.h>
 #if TARGET_OS_IOS
 
-#import "FIRApp.h"
 #import "FIRAuthSettings.h"
 #import "FIRMultiFactorResolver.h"
-#import "FIROptions.h"
 #import "FIRPhoneAuthProvider.h"
 #import "FirebaseAuthVersion.h"
-#import "FirebaseCore/Sources/Private/FIRLogger.h"
+
+#if SWIFT_PACKAGE
+@import FirebaseCore;
+#else
+#import <FirebaseCore/FIRApp.h>
+#import <FirebaseCore/FIROptions.h>
+#endif
 
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
@@ -47,6 +51,7 @@
 #import "FirebaseAuth/Sources/Utilities/FIRAuthErrorUtils.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthURLPresenter.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthWebUtils.h"
+#import "FirebaseCore/Sources/Private/FIRLogger.h"
 
 #if TARGET_OS_IOS
 #import "FirebaseAuth/Sources/AuthProvider/Phone/FIRPhoneAuthCredential_Internal.h"

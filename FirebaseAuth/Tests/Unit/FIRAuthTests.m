@@ -16,7 +16,6 @@
 
 #import <FirebaseCore/FIRLibrary.h>
 #import <Foundation/Foundation.h>
-#import <GoogleUtilities/GULAppDelegateSwizzler.h>
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 #import "FIRActionCodeSettings.h"
@@ -63,6 +62,12 @@
 #import "FirebaseAuth/Sources/Utilities/FIRAuthErrorUtils.h"
 #import "FirebaseAuth/Tests/Unit/FIRApp+FIRAuthUnitTests.h"
 #import "FirebaseAuth/Tests/Unit/OCMStubRecorder+FIRAuthUnitTests.h"
+
+#if SWIFT_PACKAGE
+@import GoogleUtilities_AppDelegateSwizzler;
+#else
+#import <GoogleUtilities/GULAppDelegateSwizzler.h>
+#endif
 
 #if TARGET_OS_IOS
 #import "FIRAuthUIDelegate.h"
