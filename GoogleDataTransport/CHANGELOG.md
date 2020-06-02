@@ -1,4 +1,4 @@
-# Unreleased
+# v6.2.1
 - Stopped GDTCORUploadCoordinator from blocking main thread. (#5707, #5708)
 
 # v6.2.0
