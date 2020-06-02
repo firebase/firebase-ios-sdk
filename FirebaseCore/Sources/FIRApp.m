@@ -24,7 +24,7 @@
 
 #if SWIFT_PACKAGE
 #import "FIRApp.h"
-#import "GULAppEnvironmentUtil.h"
+@import GoogleUtilities_Environment;
 #else
 #import <FirebaseCore/FIRApp.h>
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
