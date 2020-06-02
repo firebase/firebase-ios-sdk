@@ -16,8 +16,8 @@
 
 #if SWIFT_PACKAGE
 #import "FIRLoggerLevel.h"
-#import "GULAppEnvironmentUtil.h"
 #import "GoogleUtilities/Logger/Private/GULLogger.h"
+@import GoogleUtilities_Environment;
 #else
 #import <FirebaseCore/FIRLoggerLevel.h>
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
