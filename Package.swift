@@ -74,7 +74,7 @@ let package = Package(
       name: "firebase-test",
       dependencies: [ // "Firebase", "FirebaseCore", "FirebaseAuth", "FirebaseFunctions", "FirebaseInstanceID",
         // "FirebaseStorage", "GoogleUtilities_AppDelegateSwizzler",
-        "FirebaseCore", "FirebaseStorage",
+        "Firebase", "FirebaseCore", "FirebaseStorage", "FirebaseStorageSwift",
         "GoogleUtilities_Environment", "GoogleUtilities_Logger",
       ]
     ),
@@ -173,7 +173,7 @@ let package = Package(
 //      publicHeadersPath: "Public"),
     .target(
       name: "Firebase",
-      path: "Firebase/Firebase",
+      path: "Firebase/Sources",
       publicHeadersPath: "Public"
     ),
     .target(
