@@ -13,7 +13,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
 
   s.source           = {
     :git => 'https://github.com/firebase/firebase-ios-sdk.git',
-    :tag => s.version.to_s
+    :tag => 'CocoaPods-' + s.version.to_s
   }
 
   s.preserve_paths = [
