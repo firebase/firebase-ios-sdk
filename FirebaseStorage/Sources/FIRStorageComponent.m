@@ -14,9 +14,10 @@
 
 #import "FirebaseStorage/Sources/FIRStorageComponent.h"
 
-#if SWIFT_PACKAGE
 #import "FIRStorage.h"
 #import "FIRStorageConstants.h"
+
+#if SWIFT_PACKAGE
 #import "FirebaseCore/Sources/Private/FIRAppInternal.h"
 #import "FirebaseCore/Sources/Private/FIRComponent.h"
 #import "FirebaseCore/Sources/Private/FIRComponentContainer.h"
@@ -30,8 +31,6 @@
 #import <FirebaseCore/FIRComponentContainer.h>
 #import <FirebaseCore/FIRDependency.h>
 #import <FirebaseCore/FIRLibrary.h>
-#import <FirebaseStorage/FIRStorage.h>
-#import <FirebaseStorage/FIRStorageConstants.h>
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
