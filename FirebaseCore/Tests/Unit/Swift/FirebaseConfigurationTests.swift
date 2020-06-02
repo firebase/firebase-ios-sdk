@@ -16,10 +16,8 @@ import XCTest
 @testable import FirebaseCore
 
 class FirebaseConfigurationTests: XCTestCase {
-  
   func testSharedInstance() {
     let config = FirebaseConfiguration.shared
     XCTAssertNotNil(config)
   }
-  
 }

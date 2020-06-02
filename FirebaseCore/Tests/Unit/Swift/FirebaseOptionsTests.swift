@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import XCTest
-@testable import FirebaseCore
+import FirebaseCore
 
 class FirebaseOptionsTests: XCTestCase {
   func testDefaultOptions() throws {
@@ -24,20 +24,9 @@ class FirebaseOptionsTests: XCTestCase {
     assertOptionsMatchDefaultOptions(options: options)
   }
 
-  func testInitEmptyOptions() {
-    let options = FirebaseOptions()
-    XCTAssertNotNil(options)
-
-    XCTAssertTrue(options.bundleID.isEmpty)
-    XCTAssertTrue(options.gcmSenderID.isEmpty)
-    XCTAssertTrue(options.googleAppID.isEmpty)
-
-    assertNullableOptionsAreEmpty(options: options)
-  }
-
   func testInitWithContentsOfFile() throws {
     let bundle = try XCTUnwrap(
-      Bundle(identifier: "org.cocoapods.FirebaseCore-Unit-swift-unit"),
+      Bundle(for: type(of: self)),
       "Could not find bundle"
     )
 
@@ -66,7 +55,7 @@ class FirebaseOptionsTests: XCTestCase {
     XCTAssertEqual(options.gcmSenderID, gcmSenderID)
 
     let bundleID =
-      try XCTUnwrap(Bundle.main.bundleIdentifier, "Could not unwrap bundle")
+      try XCTUnwrap(Bundle.main.bundleIdentifier, "Could not retrieve bundle identifier")
     XCTAssertEqual(options.bundleID, bundleID)
 
     assertNullableOptionsAreEmpty(options: options)
