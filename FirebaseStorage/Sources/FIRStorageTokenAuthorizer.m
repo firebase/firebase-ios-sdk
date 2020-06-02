@@ -14,14 +14,13 @@
 
 #import "FirebaseStorage/Sources/FIRStorageTokenAuthorizer.h"
 
-#if SWIFT_PACKAGE
 #import "FIRStorage.h"
 #import "FIRStorageConstants.h"
+
+#if SWIFT_PACKAGE
 #import "Interop/Auth/Public/FIRAuthInterop.h"
 #else
 #import <FirebaseAuthInterop/FIRAuthInterop.h>
-#import <FirebaseStorage/FIRStorage.h>
-#import <FirebaseStorage/FIRStorageConstants.h>
 #endif
 
 #import "FirebaseStorage/Sources/FIRStorageConstants_Private.h"
