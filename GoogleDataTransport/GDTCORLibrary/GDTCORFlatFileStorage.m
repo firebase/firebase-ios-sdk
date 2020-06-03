@@ -408,8 +408,7 @@ NSString *const gGDTCORFlatFileStorageQoSTierPathKey = @"QoSTierPath";
     NSString *libraryDataPath = [GDTCORFlatFileStorage libraryDataStoragePath];
     NSDirectoryEnumerator *enumerator =
         [[NSFileManager defaultManager] enumeratorAtPath:eventDataPath];
-    NSString *nextFile;
-    while ((nextFile = [enumerator nextObject])) {
+    while ([enumerator nextObject]) {
       NSFileAttributeType fileType = enumerator.fileAttributes[NSFileType];
       if ([fileType isEqual:NSFileTypeDirectory] == NO &&
           [fileType isEqual:NSFileTypeSymbolicLink] == NO) {
@@ -418,8 +417,7 @@ NSString *const gGDTCORFlatFileStorageQoSTierPathKey = @"QoSTierPath";
       }
     }
     enumerator = [[NSFileManager defaultManager] enumeratorAtPath:libraryDataPath];
-    nextFile = nil;
-    while ((nextFile = [enumerator nextObject])) {
+    while ([enumerator nextObject]) {
       NSFileAttributeType fileType = enumerator.fileAttributes[NSFileType];
       if ([fileType isEqual:NSFileTypeDirectory] == NO &&
           [fileType isEqual:NSFileTypeSymbolicLink] == NO) {
