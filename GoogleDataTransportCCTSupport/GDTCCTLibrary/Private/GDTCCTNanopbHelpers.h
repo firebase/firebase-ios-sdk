@@ -16,8 +16,12 @@
 
 #import <Foundation/Foundation.h>
 
+#if SWIFT_PACKAGE
+@import GoogleDataTransport;
+#else
 #import <GoogleDataTransport/GDTCOREvent.h>
 #import <GoogleDataTransport/GDTCORReachability.h>
+#endif
 
 #import "GDTCCTLibrary/Protogen/nanopb/cct.nanopb.h"
 

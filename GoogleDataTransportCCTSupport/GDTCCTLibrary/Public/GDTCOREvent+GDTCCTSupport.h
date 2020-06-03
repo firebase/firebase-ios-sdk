@@ -14,7 +14,11 @@
  * limitations under the License.
  */
 
+#if SWIFT_PACKAGE
+@import GoogleDataTransport;
+#else
 #import <GoogleDataTransport/GDTCOREvent.h>
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
 

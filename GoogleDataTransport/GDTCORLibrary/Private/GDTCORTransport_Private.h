@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import <GoogleDataTransport/GDTCORTransport.h>
+#import "GDTCORUploadPackage.h"
 
 @class GDTCORTransformer;
 

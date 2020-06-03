@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import <GoogleDataTransport/GDTCOREvent.h>
+#import "GDTCOREvent.h"
 
-#import <GoogleDataTransport/GDTCORClock.h>
+#import "GDTCORClock.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

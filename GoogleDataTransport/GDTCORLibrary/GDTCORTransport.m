@@ -17,9 +17,9 @@
 #import "GDTCORLibrary/Public/GDTCORTransport.h"
 #import "GDTCORLibrary/Private/GDTCORTransport_Private.h"
 
-#import <GoogleDataTransport/GDTCORAssert.h>
-#import <GoogleDataTransport/GDTCORClock.h>
-#import <GoogleDataTransport/GDTCOREvent.h>
+#import "GDTCORLibrary/Public/GDTCORAssert.h"
+#import "GDTCORLibrary/Public/GDTCORClock.h"
+#import "GDTCORLibrary/Public/GDTCOREvent.h"
 
 #import "GDTCORLibrary/Private/GDTCORTransformer.h"
 

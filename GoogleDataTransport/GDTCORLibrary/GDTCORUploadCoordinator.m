@@ -16,10 +16,10 @@
 
 #import "GDTCORLibrary/Private/GDTCORUploadCoordinator.h"
 
-#import <GoogleDataTransport/GDTCORAssert.h>
-#import <GoogleDataTransport/GDTCORClock.h>
-#import <GoogleDataTransport/GDTCORConsoleLogger.h>
-#import <GoogleDataTransport/GDTCORReachability.h>
+#import "GDTCORLibrary/Public/GDTCORAssert.h"
+#import "GDTCORLibrary/Public/GDTCORClock.h"
+#import "GDTCORLibrary/Public/GDTCORConsoleLogger.h"
+#import "GDTCORLibrary/Public/GDTCORReachability.h"
 
 #import "GDTCORLibrary/Private/GDTCORRegistrar_Private.h"
 

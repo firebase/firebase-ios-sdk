@@ -16,11 +16,11 @@
 
 #import <Foundation/Foundation.h>
 
-#import <GoogleDataTransport/GDTCORClock.h>
-#import <GoogleDataTransport/GDTCORLifecycle.h>
-#import <GoogleDataTransport/GDTCORPrioritizer.h>
-#import <GoogleDataTransport/GDTCORTargets.h>
-#import <GoogleDataTransport/GDTCORUploadPackage.h>
+#import "GDTCORClock.h"
+#import "GDTCORLifecycle.h"
+#import "GDTCORPrioritizer.h"
+#import "GDTCORTargets.h"
+#import "GDTCORUploadPackage.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

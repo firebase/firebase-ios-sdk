@@ -16,10 +16,10 @@
 
 #import "GDTCORLibrary/Public/GDTCOREvent.h"
 
-#import <GoogleDataTransport/GDTCORAssert.h>
-#import <GoogleDataTransport/GDTCORClock.h>
-#import <GoogleDataTransport/GDTCORConsoleLogger.h>
-#import <GoogleDataTransport/GDTCORPlatform.h>
+#import "GDTCORLibrary/Public/GDTCORAssert.h"
+#import "GDTCORLibrary/Public/GDTCORClock.h"
+#import "GDTCORLibrary/Public/GDTCORConsoleLogger.h"
+#import "GDTCORLibrary/Public/GDTCORPlatform.h"
 
 #import "GDTCORLibrary/Private/GDTCORDataFuture.h"
 #import "GDTCORLibrary/Private/GDTCOREvent_Private.h"

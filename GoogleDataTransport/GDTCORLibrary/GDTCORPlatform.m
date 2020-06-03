@@ -16,9 +16,9 @@
 
 #import "GDTCORLibrary/Public/GDTCORPlatform.h"
 
-#import <GoogleDataTransport/GDTCORAssert.h>
-#import <GoogleDataTransport/GDTCORConsoleLogger.h>
-#import <GoogleDataTransport/GDTCORReachability.h>
+#import "GDTCORLibrary/Public/GDTCORAssert.h"
+#import "GDTCORLibrary/Public/GDTCORConsoleLogger.h"
+#import "GDTCORLibrary/Public/GDTCORReachability.h"
 
 #import "GDTCORLibrary/Private/GDTCORRegistrar_Private.h"
 
