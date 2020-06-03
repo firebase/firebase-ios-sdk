@@ -16,8 +16,8 @@
 
 #import "GDTCORLibrary/Public/GDTCORLifecycle.h"
 
-#import <GoogleDataTransport/GDTCORConsoleLogger.h>
-#import <GoogleDataTransport/GDTCOREvent.h>
+#import "GDTCORLibrary/Public/GDTCORConsoleLogger.h"
+#import "GDTCORLibrary/Public/GDTCOREvent.h"
 
 #import "GDTCORLibrary/Private/GDTCORRegistrar_Private.h"
 #import "GDTCORLibrary/Private/GDTCORTransformer_Private.h"

@@ -16,8 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
-#import <GoogleDataTransport/GDTCORLifecycle.h>
-#import <GoogleDataTransport/GDTCORStorageProtocol.h>
+#import "GDTCORLifecycle.h"
+#import "GDTCORStorageProtocol.h"
 
 @class GDTCOREvent;
 @class GDTCORUploadCoordinator;

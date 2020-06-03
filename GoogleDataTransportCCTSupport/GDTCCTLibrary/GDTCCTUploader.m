@@ -16,6 +16,10 @@
 
 #import "GDTCCTLibrary/Private/GDTCCTUploader.h"
 
+#if SWIFT_PACKAGE
+@import GoogleDataTransport;
+@import nanopb;
+#else
 #import <GoogleDataTransport/GDTCORConsoleLogger.h>
 #import <GoogleDataTransport/GDTCORPlatform.h>
 #import <GoogleDataTransport/GDTCORRegistrar.h>
@@ -23,6 +27,7 @@
 #import <nanopb/pb.h>
 #import <nanopb/pb_decode.h>
 #import <nanopb/pb_encode.h>
+#endif
 
 #import "GDTCCTLibrary/Private/GDTCCTCompressionHelper.h"
 #import "GDTCCTLibrary/Private/GDTCCTNanopbHelpers.h"

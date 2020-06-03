@@ -66,6 +66,8 @@ let package = Package(
   dependencies: [
     .package(url: "https://github.com/google/promises.git", "1.2.8" ..< "1.3.0"),
     .package(url: "https://github.com/google/gtm-session-fetcher.git", "1.4.0" ..< "2.0.0"),
+    .package(url: "https://github.com/paulb777/nanopb.git", .branch("swift-package-manager")),
+ //   .package(url: "https://github.com/paulb777/nanopb.git", .revision("564392bd87bd093c308a3aaed3997466efb95f74"))
   ],
   targets: [
     // Targets are the basic building blocks of a package. A target can define a module or a test suite.
@@ -242,6 +244,27 @@ let package = Package(
       name: "FirebaseStorageSwift",
       dependencies: ["FirebaseStorage"],
       path: "FirebaseStorageSwift/Sources"
+    ),
+    .target(
+      name: "GoogleDataTransport",
+      path: "GoogleDataTransport/GDTCORLibrary",
+      publicHeadersPath: "Public",
+      cSettings: [
+        .headerSearchPath("../"),
+        .define("GDTCOR_VERSION", to: "0.0.1"),
+      ]
+    ),
+    .target(
+      name: "GoogleDataTransportCCTSupport",
+      dependencies: ["GoogleDataTransport", "nanopb"],
+      path: "GoogleDataTransportCCTSupport/GDTCCTLibrary",
+      publicHeadersPath: "Private",
+      cSettings: [
+        .headerSearchPath("../"),
+        .define("PB_FIELD_32BIT", to: "1"),
+        .define("PB_NO_PACKED_STRUCTS", to: "1"),
+        .define("PB_ENABLE_MALLOC", to: "1"),
+      ]
     ),
 //       linkerSettings: [
 //         .linkedFramework("CoreServices", .when(platforms: [.macOS])),

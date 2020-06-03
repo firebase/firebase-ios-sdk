@@ -16,8 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
-#import <GoogleDataTransport/GDTCORLifecycle.h>
-#import <GoogleDataTransport/GDTCORRegistrar.h>
+#import "GDTCORLifecycle.h"
+#import "GDTCORRegistrar.h"
 
 #import "GDTCORLibrary/Private/GDTCORUploadPackage_Private.h"
 

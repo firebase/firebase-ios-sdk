@@ -16,7 +16,11 @@
 
 #import "GDTCCTLibrary/Private/GDTCOREvent+NetworkConnectionInfo.h"
 
+#if SWIFT_PACKAGE
+@import GoogleDataTransport;
+#else
 #import <GoogleDataTransport/GDTCORConsoleLogger.h>
+#endif
 
 NSString *const GDTCCTNeedsNetworkConnectionInfo = @"needs_network_connection_info";
 

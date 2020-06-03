@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import <GoogleDataTransport/GDTCORUploadPackage.h>
+#import "GDTCORUploadPackage.h"
 
 @interface GDTCORUploadPackage ()
 
