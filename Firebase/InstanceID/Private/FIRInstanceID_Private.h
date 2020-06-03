@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import <FirebaseInstanceID/FIRInstanceID.h>
+#import "FIRInstanceID.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

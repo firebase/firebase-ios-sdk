@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "FIRInstallationsStoredAuthToken.h"
+#import "FirebaseInstallations/Source/Library/InstallationsStore/FIRInstallationsStoredAuthToken.h"
 
-#import "FIRInstallationsLogger.h"
+#import "FirebaseInstallations/Source/Library/FIRInstallationsLogger.h"
 
 NSString *const kFIRInstallationsStoredAuthTokenStatusKey = @"status";
 NSString *const kFIRInstallationsStoredAuthTokenTokenKey = @"token";

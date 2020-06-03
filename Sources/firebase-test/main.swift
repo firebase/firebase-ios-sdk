@@ -17,9 +17,12 @@ import Firebase
 import FirebaseCore
 import FirebaseAuth
 // import FirebaseFunctions
-// import FirebaseInstanceID
+import FirebaseInstallations
+import FirebaseInstanceID
 import FirebaseStorage
 import FirebaseStorageSwift
+import GoogleDataTransport
+//import GoogleDataTransportCCTSupport
 import GoogleUtilities_Environment
 import GoogleUtilities_Logger
 

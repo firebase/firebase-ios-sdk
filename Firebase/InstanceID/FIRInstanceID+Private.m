@@ -14,11 +14,15 @@
  * limitations under the License.
  */
 
-#import "FIRInstanceID+Private.h"
+#import "Firebase/InstanceID/Private/FIRInstanceID+Private.h"
 
+#if SWIFT_PACKAGE
+@import FirebaseInstallations;
+#else
 #import <FirebaseInstallations/FirebaseInstallations.h>
+#endif
 
-#import <FirebaseInstanceID/FIRInstanceID_Private.h>
+#import "Firebase/InstanceID/Private/FIRInstanceID_Private.h"
 #import "FIRInstanceIDAuthService.h"
 #import "FIRInstanceIDDefines.h"
 #import "FIRInstanceIDTokenManager.h"

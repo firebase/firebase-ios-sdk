@@ -16,7 +16,7 @@
 
 #import "FIRInstanceIDTokenFetchOperation.h"
 
-#import "FIRInstanceIDCheckinPreferences.h"
+#import "Firebase/InstanceID/Private/FIRInstanceIDCheckinPreferences.h"
 #import "FIRInstanceIDConstants.h"
 #import "FIRInstanceIDDefines.h"
 #import "FIRInstanceIDLogger.h"
@@ -25,8 +25,8 @@
 #import "FIRInstanceIDUtilities.h"
 #import "NSError+FIRInstanceID.h"
 
-#import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseCore/FIRHeartbeatInfo.h>
+#import "FirebaseCore/Sources/Private/FIRAppInternal.h"
+#import "FirebaseCore/Sources/Private/FIRHeartbeatInfo.h"
 
 // We can have a static int since this error should theoretically only
 // happen once (for the first time). If it repeats there is something

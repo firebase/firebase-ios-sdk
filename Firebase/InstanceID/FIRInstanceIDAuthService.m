@@ -17,7 +17,7 @@
 #import "FIRInstanceIDAuthService.h"
 
 #import "FIRInstanceIDCheckinPreferences+Internal.h"
-#import "FIRInstanceIDCheckinPreferences.h"
+#import "Firebase/InstanceID/Private/FIRInstanceIDCheckinPreferences.h"
 #import "FIRInstanceIDCheckinPreferences_Private.h"
 #import "FIRInstanceIDConstants.h"
 #import "FIRInstanceIDDefines.h"

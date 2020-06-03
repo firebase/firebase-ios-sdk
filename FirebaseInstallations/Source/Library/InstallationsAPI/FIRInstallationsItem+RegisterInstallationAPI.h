@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRInstallationsItem.h"
+#import "FirebaseInstallations/Source/Library/FIRInstallationsItem.h"
 
 @class FIRInstallationsStoredAuthToken;
 
