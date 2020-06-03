@@ -1070,7 +1070,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
     // Malay
     @"ms" : @[ @"ms_MY" ],
     // Maltese
-    @"ms" : @[ @"mt_MT" ],
+    @"mt" : @[ @"mt_MT" ],
     // Polish
     @"pl" : @[ @"pl", @"pl_PL", @"pl-PL" ],
     // Romanian
