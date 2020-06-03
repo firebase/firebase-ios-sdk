@@ -24,14 +24,17 @@
 
 #if SWIFT_PACKAGE
 @import FirebaseCore;
-#else
-#import <FirebaseCore/FIROptions.h>
-#endif
-
 #import "FirebaseCore/Sources/Private/FIRAppInternal.h"
 #import "FirebaseCore/Sources/Private/FIRComponent.h"
 #import "FirebaseCore/Sources/Private/FIRComponentContainer.h"
 #import "FirebaseCore/Sources/Private/FIRLibrary.h"
+#else
+#import <FirebaseCore/FIRAppInternal.h>
+#import <FirebaseCore/FIRComponent.h>
+#import <FirebaseCore/FIRComponentContainer.h>
+#import <FirebaseCore/FIRLibrary.h>
+#import <FirebaseCore/FIROptions.h>
+#endif
 
 #import "FIRInstallationsAuthTokenResultInternal.h"
 

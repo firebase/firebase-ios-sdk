@@ -26,7 +26,12 @@
 #import "FIRInstanceIDTokenFetchOperation.h"
 #import "FIRInstanceIDTokenInfo.h"
 #import "FIRInstanceIDTokenOperation.h"
+#if SWIFT_PACKAGE
 #import "Firebase/InstanceID/Private/FIRInstanceIDCheckinPreferences.h"
+#else
+#import <FirebaseInstanceID/FIRInstanceIDCheckinPreferences.h>
+#endif
+
 #import "NSError+FIRInstanceID.h"
 
 @interface FIRInstanceIDTokenManager () <FIRInstanceIDStoreDelegate>

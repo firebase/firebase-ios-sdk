@@ -22,11 +22,17 @@
 #import "FIRInstanceIDTokenOperation+Private.h"
 #import "FIRInstanceIDURLQueryItem.h"
 #import "FIRInstanceIDUtilities.h"
+#if SWIFT_PACKAGE
 #import "Firebase/InstanceID/Private/FIRInstanceIDCheckinPreferences.h"
-#import "NSError+FIRInstanceID.h"
-
 #import "FirebaseCore/Sources/Private/FIRAppInternal.h"
 #import "FirebaseCore/Sources/Private/FIRHeartbeatInfo.h"
+#else
+#import <FirebaseCore/FIRAppInternal.h>
+#import <FirebaseCore/FIRHeartbeatInfo.h>
+#import <FirebaseInstanceID/FIRInstanceIDCheckinPreferences.h>
+#endif
+
+#import "NSError+FIRInstanceID.h"
 
 // We can have a static int since this error should theoretically only
 // happen once (for the first time). If it repeats there is something

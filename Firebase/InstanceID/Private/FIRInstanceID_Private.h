@@ -14,7 +14,11 @@
  * limitations under the License.
  */
 
+#if SWIFT_PACKAGE
 #import "FIRInstanceID.h"
+#else
+#import <FirebaseInstanceID/FIRInstanceID.h>
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
 

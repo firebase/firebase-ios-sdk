@@ -14,7 +14,11 @@
  * limitations under the License.
  */
 
+#if SWIFT_PACKAGE
 #import "Firebase/InstanceID/Private/FIRInstanceIDCheckinPreferences.h"
+#else
+#import <FirebaseInstanceID/FIRInstanceIDCheckinPreferences.h>
+#endif
 
 #ifdef SWIFT_PACKAGE
 @import GoogleUtilities_UserDefaults;

@@ -17,8 +17,13 @@
 #include <TargetConditionals.h>
 #if !TARGET_OS_OSX
 
+#if SWIFT_PACKAGE
 #import "FirebaseCore/Sources/Private/FIRLogger.h"
-#import "GULAppEnvironmentUtil.h"
+@import GoogleUtilities_Environment;
+#else
+#import <FirebaseCore/FIRLogger.h>
+#import <GoogleUtilities/GULAppEnvironmentUtil.h>
+#endif
 
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
 #import "FirebaseAuth/Sources/SystemService/FIRAuthAPNSToken.h"

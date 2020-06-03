@@ -25,7 +25,12 @@
 #import "FIRInstanceIDLogger.h"
 #import "FIRInstanceIDURLQueryItem.h"
 #import "FIRInstanceIDUtilities.h"
+#if SWIFT_PACKAGE
 #import "Firebase/InstanceID/Private/FIRInstanceIDCheckinPreferences.h"
+#else
+#import <FirebaseInstanceID/FIRInstanceIDCheckinPreferences.h>
+#endif
+
 #import "NSError+FIRInstanceID.h"
 
 static const NSInteger kFIRInstanceIDPlatformVersionIOS = 2;
