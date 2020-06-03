@@ -51,4 +51,20 @@
   }
 }
 
+- (BOOL)hasEventsForTarget:(GDTCORTarget)target {
+  return NO;
+}
+
+- (nullable id<GDTCORStorageEventIterator>)iteratorWithSelector:
+    (nonnull GDTCORStorageEventSelector *)eventSelector {
+  return nil;
+}
+
+- (void)purgeEventsFromBefore:(GDTCORClock *)beforeSnapshot
+                   onComplete:(void (^)(NSError *_Nullable error))onComplete {
+}
+
+- (void)storageSizeWithCallback:(void (^)(uint64_t storageSize))onComplete {
+}
+
 @end

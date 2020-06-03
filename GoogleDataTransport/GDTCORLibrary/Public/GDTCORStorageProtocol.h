@@ -17,11 +17,34 @@
 #import <Foundation/Foundation.h>
 
 #import <GoogleDataTransport/GDTCORLifecycle.h>
+#import <GoogleDataTransport/GDTCORStorageEventSelector.h>
 #import <GoogleDataTransport/GDTCORTargets.h>
 
 @class GDTCOREvent;
+@class GDTCORClock;
 
 NS_ASSUME_NONNULL_BEGIN
+
+/** Defines an iterator API for processing or fetching events. */
+@protocol GDTCORStorageEventIterator <NSObject>
+
+@required
+
+/** Initializes an iterator instance with the given target and queue.
+ *
+ * @param target The target for which the events are stored.
+ * @param queue The queue on which the iterator should run.
+ * @return An iterator instance.
+ */
+- (instancetype)initWithTarget:(GDTCORTarget)target queue:(dispatch_queue_t)queue;
+
+/** Returns the next event or nil if there are no more events to iterate over.
+ *
+ * @return A GDTCOREvent instance or nil if the iterator has iterated through all the events.
+ */
+- (nullable GDTCOREvent *)nextEvent;
+
+@end
 
 /** Defines the interface a storage subsystem is expected to implement. */
 @protocol GDTCORStorageProtocol <NSObject, GDTCORLifecycleProtocol>
@@ -64,6 +87,34 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)removeLibraryDataForKey:(NSString *)key
                      onComplete:(void (^)(NSError *_Nullable error))onComplete;
+
+/** Returns YES if some events have been stored for the given target, NO otherwise.
+ *
+ * @return YES if the storage contains events for the given target, NO otherwise.
+ */
+- (BOOL)hasEventsForTarget:(GDTCORTarget)target;
+
+/** Returns an iterator object that can be used to iterate over events that match the eventSelector.
+ *
+ * @param eventSelector The event selector to match events with.
+ * @return An iterator instance.
+ */
+- (nullable id<GDTCORStorageEventIterator>)iteratorWithSelector:
+    (GDTCORStorageEventSelector *)eventSelector;
+
+/** Removes events from before the given time.
+ *
+ * @param beforeSnapshot The time at which all events prior should be deleted.
+ * @param onComplete The callback that will be invoked when deleting events is complete.
+ */
+- (void)purgeEventsFromBefore:(GDTCORClock *)beforeSnapshot
+                   onComplete:(void (^)(NSError *_Nullable error))onComplete;
+
+/** Calculates and returns the total disk size that this storage consumes.
+ *
+ * @param onComplete The callback that will be invoked once storage size calculation is complete.
+ */
+- (void)storageSizeWithCallback:(void (^)(uint64_t storageSize))onComplete;
 
 @end
 

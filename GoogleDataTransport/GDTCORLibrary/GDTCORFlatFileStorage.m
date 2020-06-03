@@ -20,10 +20,12 @@
 #import <GoogleDataTransport/GDTCORConsoleLogger.h>
 #import <GoogleDataTransport/GDTCOREvent.h>
 #import <GoogleDataTransport/GDTCORLifecycle.h>
+#import <GoogleDataTransport/GDTCORPlatform.h>
 #import <GoogleDataTransport/GDTCORPrioritizer.h>
 #import <GoogleDataTransport/GDTCORStorageEventSelector.h>
 
 #import "GDTCORLibrary/Private/GDTCOREvent_Private.h"
+#import "GDTCORLibrary/Private/GDTCORFlatFileStorageIterator.h"
 #import "GDTCORLibrary/Private/GDTCORRegistrar_Private.h"
 #import "GDTCORLibrary/Private/GDTCORUploadCoordinator.h"
 
@@ -350,6 +352,83 @@ NSString *const gGDTCORFlatFileStorageQoSTierPathKey = @"QoSTierPath";
       if (onComplete) {
         onComplete(error);
       }
+    }
+  });
+}
+
+- (BOOL)hasEventsForTarget:(GDTCORTarget)target {
+  NSString *searchPath = [GDTCORFlatFileStorage pathForTarget:target qosTier:nil mappingID:nil];
+  NSFileManager *fm = [NSFileManager defaultManager];
+  NSDirectoryEnumerator *enumerator = [fm enumeratorAtPath:searchPath];
+  NSString *nextFile;
+  while ((nextFile = [enumerator nextObject])) {
+    if ([enumerator.fileAttributes[NSFileType] isEqual:NSFileTypeDirectory] == NO &&
+        [enumerator.fileAttributes[NSFileType] isEqual:NSFileTypeSymbolicLink] == NO) {
+      return YES;
+    }
+  }
+  return NO;
+}
+
+- (nullable id<GDTCORStorageEventIterator>)iteratorWithSelector:
+    (nonnull GDTCORStorageEventSelector *)eventSelector {
+  __block GDTCORFlatFileStorageIterator *iterator;
+  dispatch_sync(_storageQueue, ^{
+    NSMutableArray<NSString *> *filePaths;
+    NSArray<NSString *> *searchPaths =
+        [GDTCORFlatFileStorage searchPathsWithEventSelector:eventSelector];
+    for (NSString *searchPath in searchPaths) {
+      NSDirectoryEnumerator *enumerator =
+          [[NSFileManager defaultManager] enumeratorAtPath:searchPath];
+      NSString *nextFile;
+      while ((nextFile = [enumerator nextObject])) {
+        NSFileAttributeType fileType = enumerator.fileAttributes[NSFileType];
+        if ([fileType isEqual:NSFileTypeDirectory] == NO &&
+            [fileType isEqual:NSFileTypeSymbolicLink] == NO) {
+          [filePaths addObject:nextFile];
+        }
+      }
+      iterator = [[GDTCORFlatFileStorageIterator alloc] initWithTarget:eventSelector.selectedTarget
+                                                                 queue:_storageQueue];
+      iterator.eventFiles = filePaths;
+    }
+  });
+  return iterator;
+}
+
+- (void)purgeEventsFromBefore:(GDTCORClock *)beforeSnapshot
+                   onComplete:(void (^)(NSError *_Nullable error))onComplete {
+  // TODO(mikehaney24): Figure out how we're going to deal with an NS
+}
+
+- (void)storageSizeWithCallback:(void (^)(uint64_t storageSize))onComplete {
+  dispatch_async(_storageQueue, ^{
+    unsigned long long totalBytes = 0;
+    NSString *eventDataPath = [GDTCORFlatFileStorage baseEventStoragePath];
+    NSString *libraryDataPath = [GDTCORFlatFileStorage libraryDataStoragePath];
+    NSDirectoryEnumerator *enumerator =
+        [[NSFileManager defaultManager] enumeratorAtPath:eventDataPath];
+    NSString *nextFile;
+    while ((nextFile = [enumerator nextObject])) {
+      NSFileAttributeType fileType = enumerator.fileAttributes[NSFileType];
+      if ([fileType isEqual:NSFileTypeDirectory] == NO &&
+          [fileType isEqual:NSFileTypeSymbolicLink] == NO) {
+        NSNumber *fileSize = enumerator.fileAttributes[NSFileSize];
+        totalBytes += fileSize.unsignedLongLongValue;
+      }
+    }
+    enumerator = [[NSFileManager defaultManager] enumeratorAtPath:libraryDataPath];
+    nextFile = nil;
+    while ((nextFile = [enumerator nextObject])) {
+      NSFileAttributeType fileType = enumerator.fileAttributes[NSFileType];
+      if ([fileType isEqual:NSFileTypeDirectory] == NO &&
+          [fileType isEqual:NSFileTypeSymbolicLink] == NO) {
+        NSNumber *fileSize = enumerator.fileAttributes[NSFileSize];
+        totalBytes += fileSize.unsignedLongLongValue;
+      }
+    }
+    if (onComplete) {
+      onComplete(totalBytes);
     }
   });
 }
