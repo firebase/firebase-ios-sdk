@@ -18,7 +18,6 @@
 
 #import "FIRInstanceIDAuthKeyChain.h"
 #import "FIRInstanceIDAuthService.h"
-#import "Firebase/InstanceID/Private/FIRInstanceIDCheckinPreferences.h"
 #import "FIRInstanceIDConstants.h"
 #import "FIRInstanceIDDefines.h"
 #import "FIRInstanceIDLogger.h"
@@ -27,6 +26,7 @@
 #import "FIRInstanceIDTokenFetchOperation.h"
 #import "FIRInstanceIDTokenInfo.h"
 #import "FIRInstanceIDTokenOperation.h"
+#import "Firebase/InstanceID/Private/FIRInstanceIDCheckinPreferences.h"
 #import "NSError+FIRInstanceID.h"
 
 @interface FIRInstanceIDTokenManager () <FIRInstanceIDStoreDelegate>

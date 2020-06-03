@@ -30,13 +30,13 @@
 #import <GoogleUtilities/GULKeychainStorage.h>
 #endif
 
-#import "FirebaseInstallations/Source/Library/InstallationsAPI/FIRInstallationsAPIService.h"
+#import "FIRInstallationsSingleOperationPromiseCache.h"
 #import "FirebaseInstallations/Source/Library/Errors/FIRInstallationsErrorUtil.h"
-#import "FirebaseInstallations/Source/Library/IIDMigration/FIRInstallationsIIDStore.h"
-#import "FirebaseInstallations/Source/Library/IIDMigration/FIRInstallationsIIDTokenStore.h"
 #import "FirebaseInstallations/Source/Library/FIRInstallationsItem.h"
 #import "FirebaseInstallations/Source/Library/FIRInstallationsLogger.h"
-#import "FIRInstallationsSingleOperationPromiseCache.h"
+#import "FirebaseInstallations/Source/Library/IIDMigration/FIRInstallationsIIDStore.h"
+#import "FirebaseInstallations/Source/Library/IIDMigration/FIRInstallationsIIDTokenStore.h"
+#import "FirebaseInstallations/Source/Library/InstallationsAPI/FIRInstallationsAPIService.h"
 #import "FirebaseInstallations/Source/Library/InstallationsStore/FIRInstallationsStore.h"
 
 #import "FirebaseInstallations/Source/Library/Errors/FIRInstallationsHTTPError.h"

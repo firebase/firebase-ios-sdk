@@ -22,8 +22,8 @@
 #import <GoogleUtilities/GULUserDefaults.h>
 
 #import "FBLPromise+Testing.h"
-#import "FirebaseInstallations/Source/Library/Errors/FIRInstallationsErrorUtil.h"
 #import "FIRInstallationsItem+Tests.h"
+#import "FirebaseInstallations/Source/Library/Errors/FIRInstallationsErrorUtil.h"
 #import "FirebaseInstallations/Source/Library/FIRInstallationsItem.h"
 #import "FirebaseInstallations/Source/Library/InstallationsStore/FIRInstallationsStore.h"
 #import "FirebaseInstallations/Source/Library/InstallationsStore/FIRInstallationsStoredItem.h"

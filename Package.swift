@@ -48,10 +48,12 @@ let package = Package(
     //   targets: ["FirebaseFunctions"]),
     .library(
       name: "FirebaseInstallations",
-      targets: ["FirebaseInstallations"]),
+      targets: ["FirebaseInstallations"]
+    ),
     .library(
       name: "FirebaseInstanceID",
-      targets: ["FirebaseInstanceID"]),
+      targets: ["FirebaseInstanceID"]
+    ),
     .library(
       name: "FirebaseStorage",
       targets: ["FirebaseStorage"]
@@ -74,7 +76,8 @@ let package = Package(
     .target(
       name: "firebase-test",
       dependencies: [ // "FirebaseAuth", "FirebaseFunctions",
-        "Firebase", "FirebaseCore", "FirebaseInstallations", "FirebaseInstanceID", "FirebaseStorage",
+        "Firebase", "FirebaseCore", "FirebaseInstallations", "FirebaseInstanceID",
+        "FirebaseStorage",
         "FirebaseStorageSwift",
         "GoogleUtilities_Environment", "GoogleUtilities_Logger",
       ]
@@ -201,23 +204,25 @@ let package = Package(
 //       ]),
     .target(
       name: "FirebaseInstanceID",
-      dependencies: ["FirebaseCore", "FirebaseInstallations", 
-                    "GoogleUtilities_Environment", "GoogleUtilities_UserDefaults"],
+      dependencies: ["FirebaseCore", "FirebaseInstallations",
+                     "GoogleUtilities_Environment", "GoogleUtilities_UserDefaults"],
       path: "Firebase/InstanceID",
       publicHeadersPath: "Public",
       cSettings: [
         .headerSearchPath("../../"),
-        .define("FIRInstanceID_LIB_VERSION", to: "0.0.1"),  // TODO Fix version
-      ]),
+        .define("FIRInstanceID_LIB_VERSION", to: "0.0.1"), // TODO: Fix version
+      ]
+    ),
     .target(
       name: "FirebaseInstallations",
-      dependencies: ["FirebaseCore", "FBLPromises", 
-                    "GoogleUtilities_Environment", "GoogleUtilities_UserDefaults"],
+      dependencies: ["FirebaseCore", "FBLPromises",
+                     "GoogleUtilities_Environment", "GoogleUtilities_UserDefaults"],
       path: "FirebaseInstallations/Source/Library",
       publicHeadersPath: "Public",
       cSettings: [
         .headerSearchPath("../../../"),
-      ]),      
+      ]
+    ),
     .target(
       name: "FirebaseStorage",
       dependencies: ["FirebaseCore", "GTMSessionFetcherCore"],
@@ -251,7 +256,6 @@ let package = Package(
         .define("PB_FIELD_32BIT", to: "1"),
         .define("PB_NO_PACKED_STRUCTS", to: "1"),
         .define("PB_ENABLE_MALLOC", to: "1"),
-        .define("SWIFT_PACKAGE", to: "1"),  // Workaround race in build system.
       ]
     ),
 //       linkerSettings: [

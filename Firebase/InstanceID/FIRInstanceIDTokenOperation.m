@@ -22,10 +22,10 @@
 #import <FirebaseInstallations/FirebaseInstallations.h>
 #endif
 
-#import "Firebase/InstanceID/Private/FIRInstanceIDCheckinPreferences.h"
 #import "FIRInstanceIDLogger.h"
 #import "FIRInstanceIDURLQueryItem.h"
 #import "FIRInstanceIDUtilities.h"
+#import "Firebase/InstanceID/Private/FIRInstanceIDCheckinPreferences.h"
 #import "NSError+FIRInstanceID.h"
 
 static const NSInteger kFIRInstanceIDPlatformVersionIOS = 2;

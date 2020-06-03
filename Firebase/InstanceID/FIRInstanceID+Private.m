@@ -22,10 +22,10 @@
 #import <FirebaseInstallations/FirebaseInstallations.h>
 #endif
 
-#import "Firebase/InstanceID/Private/FIRInstanceID_Private.h"
 #import "FIRInstanceIDAuthService.h"
 #import "FIRInstanceIDDefines.h"
 #import "FIRInstanceIDTokenManager.h"
+#import "Firebase/InstanceID/Private/FIRInstanceID_Private.h"
 
 @class FIRInstallations;
 

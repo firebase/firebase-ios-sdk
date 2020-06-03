@@ -16,12 +16,12 @@
 
 #import "FIRInstanceIDTokenDeleteOperation.h"
 
-#import "Firebase/InstanceID/Private/FIRInstanceIDCheckinPreferences.h"
 #import "FIRInstanceIDDefines.h"
 #import "FIRInstanceIDLogger.h"
 #import "FIRInstanceIDTokenOperation+Private.h"
 #import "FIRInstanceIDURLQueryItem.h"
 #import "FIRInstanceIDUtilities.h"
+#import "Firebase/InstanceID/Private/FIRInstanceIDCheckinPreferences.h"
 #import "NSError+FIRInstanceID.h"
 
 @implementation FIRInstanceIDTokenDeleteOperation

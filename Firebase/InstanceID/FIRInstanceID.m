@@ -34,9 +34,7 @@
 #import "FirebaseCore/Sources/Private/FIRComponentContainer.h"
 #import "FirebaseCore/Sources/Private/FIRLibrary.h"
 
-#import "Firebase/InstanceID/Private/FIRInstanceID+Private.h"
 #import "FIRInstanceIDAuthService.h"
-#import "Firebase/InstanceID/Private/FIRInstanceIDCheckinPreferences.h"
 #import "FIRInstanceIDCombinedHandler.h"
 #import "FIRInstanceIDConstants.h"
 #import "FIRInstanceIDDefines.h"
@@ -46,6 +44,8 @@
 #import "FIRInstanceIDTokenManager.h"
 #import "FIRInstanceIDUtilities.h"
 #import "FIRInstanceIDVersionUtilities.h"
+#import "Firebase/InstanceID/Private/FIRInstanceID+Private.h"
+#import "Firebase/InstanceID/Private/FIRInstanceIDCheckinPreferences.h"
 #import "NSError+FIRInstanceID.h"
 
 // Public constants

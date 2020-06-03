@@ -16,12 +16,12 @@
 
 #import "FIRInstanceIDStore.h"
 
-#import "Firebase/InstanceID/Private/FIRInstanceIDCheckinPreferences.h"
 #import "FIRInstanceIDCheckinStore.h"
 #import "FIRInstanceIDConstants.h"
 #import "FIRInstanceIDLogger.h"
 #import "FIRInstanceIDTokenStore.h"
 #import "FIRInstanceIDVersionUtilities.h"
+#import "Firebase/InstanceID/Private/FIRInstanceIDCheckinPreferences.h"
 
 // NOTE: These values should be in sync with what InstanceID saves in as.
 static NSString *const kCheckinFileName = @"g-checkin";

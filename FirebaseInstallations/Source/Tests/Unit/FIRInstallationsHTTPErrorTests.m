@@ -15,8 +15,8 @@
  */
 
 #import <XCTest/XCTest.h>
-#import "FirebaseInstallations/Source/Library/Errors/FIRInstallationsHTTPError.h"
 #import "FIRKeyedArchivingUtils.h"
+#import "FirebaseInstallations/Source/Library/Errors/FIRInstallationsHTTPError.h"
 
 @interface FIRInstallationsHTTPErrorTests : XCTestCase
 

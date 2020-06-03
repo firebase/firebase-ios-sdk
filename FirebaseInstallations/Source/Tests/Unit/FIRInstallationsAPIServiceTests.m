@@ -20,14 +20,14 @@
 #import "FBLPromise+Testing.h"
 #import "FIRInstallationsItem+Tests.h"
 
-#import "FirebaseInstallations/Source/Library/InstallationsAPI/FIRInstallationsAPIService.h"
+#import "FIRInstallationsVersion.h"
 #import "FirebaseInstallations/Source/Library/Errors/FIRInstallationsErrorUtil.h"
 #import "FirebaseInstallations/Source/Library/Errors/FIRInstallationsHTTPError.h"
+#import "FirebaseInstallations/Source/Library/InstallationsAPI/FIRInstallationsAPIService.h"
 #import "FirebaseInstallations/Source/Library/InstallationsStore/FIRInstallationsStoredAuthToken.h"
-#import "FIRInstallationsVersion.h"
 
-#import "FirebaseCore/Sources/Private/FIRAppInternal.h"
 #import <FirebaseCore/FIRHeartbeatInfo.h>
+#import "FirebaseCore/Sources/Private/FIRAppInternal.h"
 
 typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
 

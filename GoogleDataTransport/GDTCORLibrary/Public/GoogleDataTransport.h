@@ -28,5 +28,5 @@
 #import "GDTCORStorageProtocol.h"
 #import "GDTCORTargets.h"
 #import "GDTCORTransport.h"
-#import "GDTCORUploader.h"
 #import "GDTCORUploadPackage.h"
+#import "GDTCORUploader.h"
