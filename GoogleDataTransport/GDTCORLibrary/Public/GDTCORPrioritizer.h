@@ -16,9 +16,9 @@
 
 #import <Foundation/Foundation.h>
 
-#import <GoogleDataTransport/GDTCOREvent.h>
-#import <GoogleDataTransport/GDTCORLifecycle.h>
-#import <GoogleDataTransport/GDTCORUploadPackage.h>
+#import "GDTCOREvent.h"
+#import "GDTCORLifecycle.h"
+#import "GDTCORUploadPackage.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -16,10 +16,10 @@
 
 #import <Foundation/Foundation.h>
 
-#import <GoogleDataTransport/GDTCORPrioritizer.h>
-#import <GoogleDataTransport/GDTCORStorageProtocol.h>
-#import <GoogleDataTransport/GDTCORTargets.h>
-#import <GoogleDataTransport/GDTCORUploader.h>
+#import "GDTCORPrioritizer.h"
+#import "GDTCORStorageProtocol.h"
+#import "GDTCORTargets.h"
+#import "GDTCORUploader.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

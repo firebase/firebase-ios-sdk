@@ -16,7 +16,11 @@
 
 #import <Foundation/Foundation.h>
 
+#if SWIFT_PACKAGE
+@import GoogleDataTransport;
+#else
 #import <GoogleDataTransport/GDTCORUploader.h>
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
 

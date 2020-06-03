@@ -17,12 +17,12 @@
 #import "GDTCORLibrary/Private/GDTCORTransformer.h"
 #import "GDTCORLibrary/Private/GDTCORTransformer_Private.h"
 
-#import <GoogleDataTransport/GDTCORAssert.h>
-#import <GoogleDataTransport/GDTCORConsoleLogger.h>
-#import <GoogleDataTransport/GDTCOREvent.h>
-#import <GoogleDataTransport/GDTCOREventTransformer.h>
-#import <GoogleDataTransport/GDTCORLifecycle.h>
-#import <GoogleDataTransport/GDTCORStorageProtocol.h>
+#import "GDTCORLibrary/Public/GDTCORAssert.h"
+#import "GDTCORLibrary/Public/GDTCORConsoleLogger.h"
+#import "GDTCORLibrary/Public/GDTCOREvent.h"
+#import "GDTCORLibrary/Public/GDTCOREventTransformer.h"
+#import "GDTCORLibrary/Public/GDTCORLifecycle.h"
+#import "GDTCORLibrary/Public/GDTCORStorageProtocol.h"
 
 #import "GDTCORLibrary/Private/GDTCOREvent_Private.h"
 #import "GDTCORLibrary/Private/GDTCORRegistrar_Private.h"

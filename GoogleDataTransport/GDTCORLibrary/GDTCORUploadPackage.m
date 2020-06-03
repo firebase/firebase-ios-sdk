@@ -16,8 +16,8 @@
 
 #import "GDTCORLibrary/Public/GDTCORUploadPackage.h"
 
-#import <GoogleDataTransport/GDTCORClock.h>
-#import <GoogleDataTransport/GDTCORConsoleLogger.h>
+#import "GDTCORLibrary/Public/GDTCORClock.h"
+#import "GDTCORLibrary/Public/GDTCORConsoleLogger.h"
 
 #import "GDTCORLibrary/Private/GDTCORRegistrar_Private.h"
 #import "GDTCORLibrary/Private/GDTCORUploadCoordinator.h"
