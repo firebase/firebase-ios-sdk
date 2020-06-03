@@ -16,11 +16,15 @@
 
 #import "GDTCCTLibrary/Private/GDTCCTPrioritizer.h"
 
+#if SWIFT_PACKAGE
+@import GoogleDataTransport;
+#else
 #import <GoogleDataTransport/GDTCORConsoleLogger.h>
 #import <GoogleDataTransport/GDTCOREvent.h>
 #import <GoogleDataTransport/GDTCORPlatform.h>
 #import <GoogleDataTransport/GDTCORRegistrar.h>
 #import <GoogleDataTransport/GDTCORTargets.h>
+#endif
 
 #import "GDTCCTLibrary/Private/GDTCCTNanopbHelpers.h"
 #import "GDTCCTLibrary/Public/GDTCOREvent+GDTCCTSupport.h"

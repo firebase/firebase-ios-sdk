@@ -22,6 +22,10 @@
 #import <AppKit/AppKit.h>
 #endif  // TARGET_OS_IOS || TARGET_OS_TV
 
+#if SWIFT_PACKAGE
+@import GoogleDataTransport;
+@import nanopb;
+#else
 #import <GoogleDataTransport/GDTCORClock.h>
 #import <GoogleDataTransport/GDTCORConsoleLogger.h>
 #import <GoogleDataTransport/GDTCOREvent.h>
@@ -30,6 +34,7 @@
 #import <nanopb/pb.h>
 #import <nanopb/pb_decode.h>
 #import <nanopb/pb_encode.h>
+#endif
 
 #import "GDTCCTLibrary/Public/GDTCOREvent+GDTCCTSupport.h"
 

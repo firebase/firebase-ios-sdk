@@ -17,7 +17,7 @@
 #import "GDTCORLibrary/Public/GDTCORReachability.h"
 #import "GDTCORLibrary/Private/GDTCORReachability_Private.h"
 
-#import <GoogleDataTransport/GDTCORConsoleLogger.h>
+#import "GDTCORLibrary/Public/GDTCORConsoleLogger.h"
 
 #import <netinet/in.h>
 

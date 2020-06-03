@@ -16,10 +16,14 @@
 
 #import <Foundation/Foundation.h>
 
+#if SWIFT_PACKAGE
+@import GoogleDataTransport;
+#else
 #import <GoogleDataTransport/GDTCORClock.h>
 #import <GoogleDataTransport/GDTCOREvent.h>
 #import <GoogleDataTransport/GDTCORPrioritizer.h>
 #import <GoogleDataTransport/GDTCORTargets.h>
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
 
