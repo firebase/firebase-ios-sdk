@@ -28,6 +28,3 @@ else
   echo "${GITHUB_HASH}" > latest_commit_hash.txt
   gsutil cp latest_commit_hash.txt "gs://ios-framework-zip/latest_commit_hash.txt"
 fi
-
-
-
