@@ -24,6 +24,15 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/** The key of the event data path if a path dictionary is returned. */
+FOUNDATION_EXPORT NSString *const gGDTCORFlatFileStorageEventDataPathKey;
+
+/** The key of the event's mapping ID path if a path dictionary is returned. */
+FOUNDATION_EXPORT NSString *const gGDTCORFlatFileStorageMappingIDPathKey;
+
+/** The key of the event's qos tier path if a path dictionary is returned. */
+FOUNDATION_EXPORT NSString *const gGDTCORFlatFileStorageQoSTierPathKey;
+
 /** Manages the storage of events. This class is thread-safe. */
 @interface GDTCORFlatFileStorage
     : NSObject <NSSecureCoding, GDTCORStorageProtocol, GDTCORLifecycleProtocol>
@@ -53,6 +62,33 @@ NS_ASSUME_NONNULL_BEGIN
  * @return File path to serialized singleton.
  */
 + (NSString *)archivePath;
+
+/** Returns storage paths for the given event, though the paths may not exist.
+ *
+ * @note The keys of this dictionary are declared in this header.
+ * @param event The event to map to storage paths.
+ */
++ (NSDictionary<NSString *, NSString *> *)pathsForEvent:(GDTCOREvent *)event;
+
+/** Returns a storage path to events for the given target, qosTier, and mapping ID. The path may not
+ * exist.
+ *
+ * @param target The target, which is necessary to be given a path.
+ * @param qosTier An optional parameter to get a more specific path.
+ * @param mappingID An optional parameter to get a more specific path.
+ * @return The path representing the combination of the given parameters.
+ */
++ (NSString *)pathForTarget:(GDTCORTarget)target
+                    qosTier:(nullable NSNumber *)qosTier
+                  mappingID:(nullable NSString *)mappingID;
+
+/** Returns a list of paths that will contain events for the given event selector.
+ *
+ * @param eventSelector The event selector to process.
+ * @return A list of paths that exist and could contain events.
+ */
++ (nullable NSArray<NSString *> *)searchPathsWithEventSelector:
+    (GDTCORStorageEventSelector *)eventSelector;
 
 @end
 

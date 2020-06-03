@@ -525,6 +525,100 @@ static NSInteger target = kGDTCORTargetCCT;
   [self waitForExpectations:@[ expectation ] timeout:10.0];
 }
 
+/** Tests that -pathsForEvent returns 3 file paths of the appropriate structure. */
+- (void)testPathsForEvent {
+  GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"test" target:kGDTCORTargetTest];
+  NSDictionary<NSString *, NSString *> *eventPaths = [GDTCORFlatFileStorage pathsForEvent:event];
+
+  NSString *dataPathSuffix = event.eventID.stringValue;
+  XCTAssertTrue([eventPaths[gGDTCORFlatFileStorageEventDataPathKey] hasSuffix:dataPathSuffix]);
+
+  NSString *qosTierSuffix =
+      [NSString stringWithFormat:@"%@/%@/%@", @(event.qosTier), event.mappingID, event.eventID];
+  XCTAssertTrue([eventPaths[gGDTCORFlatFileStorageQoSTierPathKey] hasSuffix:qosTierSuffix]);
+
+  NSString *mappingIDSuffix =
+      [NSString stringWithFormat:@"%@/%@/%@", event.mappingID, @(event.qosTier), event.eventID];
+  XCTAssertTrue([eventPaths[gGDTCORFlatFileStorageMappingIDPathKey] hasSuffix:mappingIDSuffix]);
+}
+
+/** Tests that -pathForTarget:qosTier:mappingID: returns the correctly structured path. */
+- (void)testPathForTargetQoSTier {
+  // Target only.
+  NSString *expectedSuffix = [NSString stringWithFormat:@"%ld", (long)kGDTCORTargetTest];
+  NSString *path = [GDTCORFlatFileStorage pathForTarget:kGDTCORTargetTest
+                                                qosTier:nil
+                                              mappingID:nil];
+  XCTAssertTrue([path hasSuffix:expectedSuffix]);
+
+  // qosTier is given.
+  path = [GDTCORFlatFileStorage pathForTarget:kGDTCORTargetTest
+                                      qosTier:@(GDTCOREventQoSFast)
+                                    mappingID:nil];
+  XCTAssertTrue([path hasSuffix:@(GDTCOREventQoSFast).stringValue]);
+
+  // mappingID is given.
+  path = [GDTCORFlatFileStorage pathForTarget:kGDTCORTargetTest qosTier:nil mappingID:@"test"];
+  XCTAssertTrue([path hasSuffix:@"test"]);
+
+  // Both qosTier and mappingID are given.
+  path = [GDTCORFlatFileStorage pathForTarget:kGDTCORTargetTest
+                                      qosTier:@(GDTCOREventQoSFast)
+                                    mappingID:@"test"];
+  expectedSuffix = [NSString
+      stringWithFormat:@"%ld/%ld/%@", (long)kGDTCORTargetTest, (long)GDTCOREventQoSFast, @"test"];
+  XCTAssertTrue([path hasSuffix:expectedSuffix]);
+}
+
+/** Tests that searchPathsWithEventSelector: returns the appropriate event search paths. */
+- (void)testSearchPathsWithEventSelector {
+  GDTCORStorageEventSelector *eventSelector =
+      [[GDTCORStorageEventSelector alloc] initWithTarget:kGDTCORTargetTest
+                                          eventIDEqualTo:nil
+                                        mappingIDEqualTo:nil
+                                                qosTiers:nil];
+
+  NSArray<NSString *> *paths = [GDTCORFlatFileStorage searchPathsWithEventSelector:eventSelector];
+  XCTAssertEqual(paths.count, 1);
+  XCTAssertTrue([paths[0] hasSuffix:@(kGDTCORTargetTest).stringValue]);
+
+  eventSelector = [[GDTCORStorageEventSelector alloc] initWithTarget:kGDTCORTargetTest
+                                                      eventIDEqualTo:nil
+                                                    mappingIDEqualTo:nil
+                                                            qosTiers:@[ @(GDTCOREventQoSFast) ]];
+
+  paths = [GDTCORFlatFileStorage searchPathsWithEventSelector:eventSelector];
+  XCTAssertEqual(paths.count, 1);
+  NSString *expectedSuffix = [@(kGDTCORTargetTest).stringValue
+      stringByAppendingPathComponent:@(GDTCOREventQoSFast).stringValue];
+  XCTAssertTrue([paths[0] hasSuffix:expectedSuffix]);
+
+  eventSelector = [[GDTCORStorageEventSelector alloc]
+        initWithTarget:kGDTCORTargetTest
+        eventIDEqualTo:nil
+      mappingIDEqualTo:NSStringFromSelector(_cmd)
+              qosTiers:@[ @(GDTCOREventQoSFast), @(GDTCOREventQoSDaily) ]];
+
+  paths = [GDTCORFlatFileStorage searchPathsWithEventSelector:eventSelector];
+  XCTAssertEqual(paths.count, 2);
+  BOOL qosFastPathFound = NO;
+  BOOL qosDailyPathFound = NO;
+  for (NSString *path in paths) {
+    if ([path hasSuffix:[NSString stringWithFormat:@"%@/%@/%@", @(kGDTCORTargetTest),
+                                                   @(GDTCOREventQoSFast),
+                                                   NSStringFromSelector(_cmd)]]) {
+      qosFastPathFound = YES;
+    }
+    if ([path hasSuffix:[NSString stringWithFormat:@"%@/%@/%@", @(kGDTCORTargetTest),
+                                                   @(GDTCOREventQoSDaily),
+                                                   NSStringFromSelector(_cmd)]]) {
+      qosDailyPathFound = YES;
+    }
+  }
+  XCTAssertTrue(qosFastPathFound);
+  XCTAssertTrue(qosDailyPathFound);
+}
+
 /** Tests migration from v1 of the storage format to v2. */
 - (void)testMigrationFromOldVersion {
   static NSString *base64EncodedArchive =
