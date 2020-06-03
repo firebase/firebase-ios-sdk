@@ -360,8 +360,7 @@ NSString *const gGDTCORFlatFileStorageQoSTierPathKey = @"QoSTierPath";
   NSString *searchPath = [GDTCORFlatFileStorage pathForTarget:target qosTier:nil mappingID:nil];
   NSFileManager *fm = [NSFileManager defaultManager];
   NSDirectoryEnumerator *enumerator = [fm enumeratorAtPath:searchPath];
-  NSString *nextFile;
-  while ((nextFile = [enumerator nextObject])) {
+  while ([enumerator nextObject]) {
     if ([enumerator.fileAttributes[NSFileType] isEqual:NSFileTypeDirectory] == NO &&
         [enumerator.fileAttributes[NSFileType] isEqual:NSFileTypeSymbolicLink] == NO) {
       return YES;
