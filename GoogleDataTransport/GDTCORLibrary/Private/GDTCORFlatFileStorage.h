@@ -73,6 +73,18 @@ FOUNDATION_EXPORT NSString *const gGDTCORFlatFileStorageQoSTierPathKey;
  */
 + (NSString *)archivePath;
 
+/** Returns the base directory under which all events will be stored.
+ *
+ * @return The base directory under which all events will be stored.
+ */
++ (NSString *)baseEventStoragePath;
+
+/** Returns the base directory under which all library data will be stored.
+ *
+ * @return The base directory under which all library data will be stored.
+ */
++ (NSString *)libraryDataStoragePath;
+
 /** Returns storage paths for the given event, though the paths may not exist.
  *
  * @note The keys of this dictionary are declared in this header.

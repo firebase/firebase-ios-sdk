@@ -79,7 +79,7 @@ NSString *const gGDTCORFlatFileStorageQoSTierPathKey = @"QoSTierPath";
   return eventDataPath;
 }
 
-+ (NSString *)libraryDataPath {
++ (NSString *)libraryDataStoragePath {
   static NSString *libraryDataPath;
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
@@ -88,15 +88,15 @@ NSString *const gGDTCORFlatFileStorageQoSTierPathKey = @"QoSTierPath";
                                                isDirectory:YES]
             .path;
     libraryDataPath = [libraryDataPath stringByAppendingPathComponent:@"gdt_library_data"];
-    if (![[NSFileManager defaultManager] fileExistsAtPath:libraryDataPath isDirectory:NULL]) {
-      NSError *error;
-      [[NSFileManager defaultManager] createDirectoryAtPath:libraryDataPath
-                                withIntermediateDirectories:YES
-                                                 attributes:0
-                                                      error:&error];
-      GDTCORAssert(error == nil, @"Creating the library data path failed: %@", error);
-    }
   });
+  if (![[NSFileManager defaultManager] fileExistsAtPath:libraryDataPath isDirectory:NULL]) {
+    NSError *error;
+    [[NSFileManager defaultManager] createDirectoryAtPath:libraryDataPath
+                              withIntermediateDirectories:YES
+                                               attributes:0
+                                                    error:&error];
+    GDTCORAssert(error == nil, @"Creating the library data path failed: %@", error);
+  }
   return libraryDataPath;
 }
 
@@ -312,7 +312,7 @@ NSString *const gGDTCORFlatFileStorageQoSTierPathKey = @"QoSTierPath";
                onComplete:
                    (nonnull void (^)(NSData *_Nullable, NSError *_Nullable error))onComplete {
   dispatch_async(_storageQueue, ^{
-    NSString *dataPath = [[[self class] libraryDataPath] stringByAppendingPathComponent:key];
+    NSString *dataPath = [[[self class] libraryDataStoragePath] stringByAppendingPathComponent:key];
     NSError *error;
     NSData *data = [NSData dataWithContentsOfFile:dataPath options:0 error:&error];
     if (onComplete) {
@@ -332,7 +332,7 @@ NSString *const gGDTCORFlatFileStorageQoSTierPathKey = @"QoSTierPath";
   }
   dispatch_async(_storageQueue, ^{
     NSError *error;
-    NSString *dataPath = [[[self class] libraryDataPath] stringByAppendingPathComponent:key];
+    NSString *dataPath = [[[self class] libraryDataStoragePath] stringByAppendingPathComponent:key];
     [data writeToFile:dataPath options:NSDataWritingAtomic error:&error];
     if (onComplete) {
       onComplete(error);
@@ -344,7 +344,7 @@ NSString *const gGDTCORFlatFileStorageQoSTierPathKey = @"QoSTierPath";
                      onComplete:(nonnull void (^)(NSError *_Nullable error))onComplete {
   dispatch_async(_storageQueue, ^{
     NSError *error;
-    NSString *dataPath = [[[self class] libraryDataPath] stringByAppendingPathComponent:key];
+    NSString *dataPath = [[[self class] libraryDataStoragePath] stringByAppendingPathComponent:key];
     if ([[NSFileManager defaultManager] fileExistsAtPath:dataPath]) {
       [[NSFileManager defaultManager] removeItemAtPath:dataPath error:&error];
       if (onComplete) {
