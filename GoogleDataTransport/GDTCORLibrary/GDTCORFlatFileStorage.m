@@ -101,14 +101,15 @@ NSString *const gGDTCORFlatFileStorageQoSTierPathKey = @"QoSTierPath";
 }
 
 + (NSDictionary<NSString *, NSString *> *)pathsForEvent:(GDTCOREvent *)event {
-  NSString *dataPath = [NSString
-      stringWithFormat:@"%@/%@", [GDTCORFlatFileStorage baseEventStoragePath], event.eventID];
+  NSString *dataPath =
+      [NSString stringWithFormat:@"%@/%ld/%@", [GDTCORFlatFileStorage baseEventStoragePath],
+                                 (long)event.target, event.eventID];
   NSString *mappingIDPath =
-      [NSString stringWithFormat:@"%@/%@/%ld/%@", [GDTCORFlatFileStorage baseEventStoragePath],
-                                 event.mappingID, (long)event.qosTier, event.eventID];
-  NSString *qosTierPath = [NSString
-      stringWithFormat:@"%@/%ld/%ld/%@/%@", [GDTCORFlatFileStorage baseEventStoragePath],
-                       (long)event.target, (long)event.qosTier, event.mappingID, event.eventID];
+      [NSString stringWithFormat:@"%@/%ld/%@/%@", [GDTCORFlatFileStorage baseEventStoragePath],
+                                 (long)event.target, event.mappingID, event.eventID];
+  NSString *qosTierPath =
+      [NSString stringWithFormat:@"%@/%ld/%ld/%@", [GDTCORFlatFileStorage baseEventStoragePath],
+                                 (long)event.target, (long)event.qosTier, event.eventID];
   return @{
     gGDTCORFlatFileStorageEventDataPathKey : dataPath,
     gGDTCORFlatFileStorageMappingIDPathKey : mappingIDPath,
@@ -141,21 +142,30 @@ NSString *const gGDTCORFlatFileStorageQoSTierPathKey = @"QoSTierPath";
       [NSString stringWithFormat:@"%@/%ld/%@/%@", baseEventPath, (long)target, qosTier, mappingID];
 }
 
-+ (nullable NSArray<NSString *> *)searchPathsWithEventSelector:
-    (GDTCORStorageEventSelector *)eventSelector {
++ (NSArray<NSString *> *)searchPathsWithEventSelector:(GDTCORStorageEventSelector *)eventSelector {
   NSMutableArray<NSString *> *searchPaths = [[NSMutableArray alloc] init];
   if (eventSelector.selectedQosTiers && eventSelector.selectedQosTiers.count > 0) {
     for (NSNumber *qosTier in eventSelector.selectedQosTiers) {
       NSString *searchPath = [self pathForTarget:eventSelector.selectedTarget
                                          qosTier:qosTier
                                        mappingID:eventSelector.selectedMappingID];
-      [searchPaths addObject:searchPath];
+      BOOL isDirectory;
+      if ([[NSFileManager defaultManager] fileExistsAtPath:searchPath isDirectory:&isDirectory]) {
+        if (isDirectory) {
+          [searchPaths addObject:searchPath];
+        }
+      }
     }
   } else {
     NSString *searchPath = [self pathForTarget:eventSelector.selectedTarget
                                        qosTier:nil
                                      mappingID:eventSelector.selectedMappingID];
-    [searchPaths addObject:searchPath];
+    BOOL isDirectory;
+    if ([[NSFileManager defaultManager] fileExistsAtPath:searchPath isDirectory:&isDirectory]) {
+      if (isDirectory) {
+        [searchPaths addObject:searchPath];
+      }
+    }
   }
   return searchPaths;
 }

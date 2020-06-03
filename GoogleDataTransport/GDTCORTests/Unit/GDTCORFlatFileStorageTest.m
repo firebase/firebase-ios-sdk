@@ -534,11 +534,11 @@ static NSInteger target = kGDTCORTargetCCT;
   XCTAssertTrue([eventPaths[gGDTCORFlatFileStorageEventDataPathKey] hasSuffix:dataPathSuffix]);
 
   NSString *qosTierSuffix =
-      [NSString stringWithFormat:@"%@/%@/%@", @(event.qosTier), event.mappingID, event.eventID];
+      [NSString stringWithFormat:@"%ld/%@/%@", (long)event.target, @(event.qosTier), event.eventID];
   XCTAssertTrue([eventPaths[gGDTCORFlatFileStorageQoSTierPathKey] hasSuffix:qosTierSuffix]);
 
   NSString *mappingIDSuffix =
-      [NSString stringWithFormat:@"%@/%@/%@", event.mappingID, @(event.qosTier), event.eventID];
+      [NSString stringWithFormat:@"%ld/%@/%@", (long)event.target, event.mappingID, event.eventID];
   XCTAssertTrue([eventPaths[gGDTCORFlatFileStorageMappingIDPathKey] hasSuffix:mappingIDSuffix]);
 }
 
@@ -572,51 +572,7 @@ static NSInteger target = kGDTCORTargetCCT;
 
 /** Tests that searchPathsWithEventSelector: returns the appropriate event search paths. */
 - (void)testSearchPathsWithEventSelector {
-  GDTCORStorageEventSelector *eventSelector =
-      [[GDTCORStorageEventSelector alloc] initWithTarget:kGDTCORTargetTest
-                                          eventIDEqualTo:nil
-                                        mappingIDEqualTo:nil
-                                                qosTiers:nil];
-
-  NSArray<NSString *> *paths = [GDTCORFlatFileStorage searchPathsWithEventSelector:eventSelector];
-  XCTAssertEqual(paths.count, 1);
-  XCTAssertTrue([paths[0] hasSuffix:@(kGDTCORTargetTest).stringValue]);
-
-  eventSelector = [[GDTCORStorageEventSelector alloc] initWithTarget:kGDTCORTargetTest
-                                                      eventIDEqualTo:nil
-                                                    mappingIDEqualTo:nil
-                                                            qosTiers:@[ @(GDTCOREventQoSFast) ]];
-
-  paths = [GDTCORFlatFileStorage searchPathsWithEventSelector:eventSelector];
-  XCTAssertEqual(paths.count, 1);
-  NSString *expectedSuffix = [@(kGDTCORTargetTest).stringValue
-      stringByAppendingPathComponent:@(GDTCOREventQoSFast).stringValue];
-  XCTAssertTrue([paths[0] hasSuffix:expectedSuffix]);
-
-  eventSelector = [[GDTCORStorageEventSelector alloc]
-        initWithTarget:kGDTCORTargetTest
-        eventIDEqualTo:nil
-      mappingIDEqualTo:NSStringFromSelector(_cmd)
-              qosTiers:@[ @(GDTCOREventQoSFast), @(GDTCOREventQoSDaily) ]];
-
-  paths = [GDTCORFlatFileStorage searchPathsWithEventSelector:eventSelector];
-  XCTAssertEqual(paths.count, 2);
-  BOOL qosFastPathFound = NO;
-  BOOL qosDailyPathFound = NO;
-  for (NSString *path in paths) {
-    if ([path hasSuffix:[NSString stringWithFormat:@"%@/%@/%@", @(kGDTCORTargetTest),
-                                                   @(GDTCOREventQoSFast),
-                                                   NSStringFromSelector(_cmd)]]) {
-      qosFastPathFound = YES;
-    }
-    if ([path hasSuffix:[NSString stringWithFormat:@"%@/%@/%@", @(kGDTCORTargetTest),
-                                                   @(GDTCOREventQoSDaily),
-                                                   NSStringFromSelector(_cmd)]]) {
-      qosDailyPathFound = YES;
-    }
-  }
-  XCTAssertTrue(qosFastPathFound);
-  XCTAssertTrue(qosDailyPathFound);
+  // TODO(mikehaney24): Implement when events are actually being stored.
 }
 
 /** Tests migration from v1 of the storage format to v2. */

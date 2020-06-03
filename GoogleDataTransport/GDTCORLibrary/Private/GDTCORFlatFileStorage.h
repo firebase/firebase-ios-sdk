@@ -34,7 +34,16 @@ FOUNDATION_EXPORT NSString *const gGDTCORFlatFileStorageMappingIDPathKey;
 /** The key of the event's qos tier path if a path dictionary is returned. */
 FOUNDATION_EXPORT NSString *const gGDTCORFlatFileStorageQoSTierPathKey;
 
-/** Manages the storage of events. This class is thread-safe. */
+/** Manages the storage of events. This class is thread-safe.
+ *
+ * Event files will be stored as follows:
+ *   <app cache>/gdt_event_data/<target>/<eventID> as a normal file write
+ *   <app cache>/gdt_event_data/<target>/<qosTier>/<eventID> as a symbolic link
+ *   <app cache>/gdt_event_data/<target>/<mappingID>/<eventID> as a symbolic link
+ *
+ * Library data will be stored as follows:
+ *   <app cache>/gdt_library_data/<key of library data>
+ */
 @interface GDTCORFlatFileStorage
     : NSObject <NSSecureCoding, GDTCORStorageProtocol, GDTCORLifecycleProtocol>
 
@@ -88,8 +97,7 @@ FOUNDATION_EXPORT NSString *const gGDTCORFlatFileStorageQoSTierPathKey;
  * @param eventSelector The event selector to process.
  * @return A list of paths that exist and could contain events.
  */
-+ (nullable NSArray<NSString *> *)searchPathsWithEventSelector:
-    (GDTCORStorageEventSelector *)eventSelector;
++ (NSArray<NSString *> *)searchPathsWithEventSelector:(GDTCORStorageEventSelector *)eventSelector;
 
 @end
 
