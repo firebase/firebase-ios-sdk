@@ -31,7 +31,7 @@ function exit_with_error {
 git grep "${options[@]}" \
   -- ':(exclude,glob)**/Example/**' ':(exclude,glob)**/Sample/**' \
   ':(exclude,glob)FirebaseStorage/**' ':(exclude,glob)FirebaseAuth/**' \
-  ':(exclude,glob)FirebaseCore/**' \
+  ':(exclude,glob)FirebaseCore/**' ':(exclude,glob)GoogleDataTransportCCTSupport/**'  \
   ':(exclude)Firebase/Sources/Public/Firebase.h' && exit_with_error
 
 # We need to explicitly exit 0, since we expect `git grep` to return an error

@@ -67,7 +67,8 @@ let package = Package(
     .package(url: "https://github.com/google/promises.git", "1.2.8" ..< "1.3.0"),
     .package(url: "https://github.com/google/gtm-session-fetcher.git", "1.4.0" ..< "2.0.0"),
     .package(url: "https://github.com/paulb777/nanopb.git", .branch("swift-package-manager")),
- //   .package(url: "https://github.com/paulb777/nanopb.git", .revision("564392bd87bd093c308a3aaed3997466efb95f74"))
+    // Branches need a force update with a run with the revision set like below.
+    //   .package(url: "https://github.com/paulb777/nanopb.git", .revision("564392bd87bd093c308a3aaed3997466efb95f74"))
   ],
   targets: [
     // Targets are the basic building blocks of a package. A target can define a module or a test suite.
