@@ -45,7 +45,7 @@ jobs:
         path: zip_output_dir
     - name: Install gcloud tool
       if: ${{ always() }}
-      run: scripts/install_access_gcloud.sh
+      run: scripts/install_gcloud.sh
     - name: Access gcloud account
       if: ${{ always() }}
       run: |
