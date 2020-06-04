@@ -16,3 +16,4 @@
 
 curl https://sdk.cloud.google.com > install.sh
 bash install.sh --disable-prompts
+echo "::add-path::${HOME}/google-cloud-sdk/bin/"

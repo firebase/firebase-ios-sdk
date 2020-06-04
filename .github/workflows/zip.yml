@@ -47,8 +47,6 @@ jobs:
     - name: Install gcloud tool
       if: ${{ always() }}
       run: scripts/install_gcloud.sh
-    - name: Set gcloud commands to PATH
-      run: echo "::add-path::${HOME}/google-cloud-sdk/bin/"
     - name: Access gcloud account
       if: ${{ always() }}
       run: |
