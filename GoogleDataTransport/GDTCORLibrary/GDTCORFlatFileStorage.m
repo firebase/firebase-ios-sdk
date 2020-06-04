@@ -361,8 +361,7 @@ NSString *const gGDTCORFlatFileStorageQoSTierPathKey = @"QoSTierPath";
   NSFileManager *fm = [NSFileManager defaultManager];
   NSDirectoryEnumerator *enumerator = [fm enumeratorAtPath:searchPath];
   while ([enumerator nextObject]) {
-    if ([enumerator.fileAttributes[NSFileType] isEqual:NSFileTypeDirectory] == NO &&
-        [enumerator.fileAttributes[NSFileType] isEqual:NSFileTypeSymbolicLink] == NO) {
+    if ([enumerator.fileAttributes[NSFileType] isEqual:NSFileTypeRegular]) {
       return YES;
     }
   }
@@ -382,8 +381,7 @@ NSString *const gGDTCORFlatFileStorageQoSTierPathKey = @"QoSTierPath";
       NSString *nextFile;
       while ((nextFile = [enumerator nextObject])) {
         NSFileAttributeType fileType = enumerator.fileAttributes[NSFileType];
-        if ([fileType isEqual:NSFileTypeDirectory] == NO &&
-            [fileType isEqual:NSFileTypeSymbolicLink] == NO) {
+        if ([fileType isEqual:NSFileTypeRegular]) {
           [filePaths addObject:nextFile];
         }
       }
@@ -397,7 +395,7 @@ NSString *const gGDTCORFlatFileStorageQoSTierPathKey = @"QoSTierPath";
 
 - (void)purgeEventsFromBefore:(GDTCORClock *)beforeSnapshot
                    onComplete:(void (^)(NSError *_Nullable error))onComplete {
-  // TODO(mikehaney24): Figure out how we're going to deal with an NS
+  // TODO(mikehaney24): Figure out how we're going to deal with this.
 }
 
 - (void)storageSizeWithCallback:(void (^)(uint64_t storageSize))onComplete {
@@ -409,8 +407,7 @@ NSString *const gGDTCORFlatFileStorageQoSTierPathKey = @"QoSTierPath";
         [[NSFileManager defaultManager] enumeratorAtPath:eventDataPath];
     while ([enumerator nextObject]) {
       NSFileAttributeType fileType = enumerator.fileAttributes[NSFileType];
-      if ([fileType isEqual:NSFileTypeDirectory] == NO &&
-          [fileType isEqual:NSFileTypeSymbolicLink] == NO) {
+      if ([fileType isEqual:NSFileTypeRegular]) {
         NSNumber *fileSize = enumerator.fileAttributes[NSFileSize];
         totalBytes += fileSize.unsignedLongLongValue;
       }
@@ -418,8 +415,7 @@ NSString *const gGDTCORFlatFileStorageQoSTierPathKey = @"QoSTierPath";
     enumerator = [[NSFileManager defaultManager] enumeratorAtPath:libraryDataPath];
     while ([enumerator nextObject]) {
       NSFileAttributeType fileType = enumerator.fileAttributes[NSFileType];
-      if ([fileType isEqual:NSFileTypeDirectory] == NO &&
-          [fileType isEqual:NSFileTypeSymbolicLink] == NO) {
+      if ([fileType isEqual:NSFileTypeRegular]) {
         NSNumber *fileSize = enumerator.fileAttributes[NSFileSize];
         totalBytes += fileSize.unsignedLongLongValue;
       }
