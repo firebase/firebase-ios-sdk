@@ -54,7 +54,7 @@ jobs:
          scripts/decrypt_gha_secret.sh scripts/gha-encrypted/firebase-ios-testing.json.gpg firebase-ios-testing.json "$gcs_key"
          gcloud auth activate-service-account --key-file firebase-ios-testing.json
     - name: Upload zip file to GCS
-      run: scripts/upload_to_gcs.sh "${GITHUB_HASH}" "zip_output_dir"
-    - name: Upload zip file to GCS
+      run: scripts/upload_to_gcs.sh "${GITHUB_SHA}" "zip_output_dir"
+    - name: Failed to build zip
       if: ${{ failure() }}
       run: scripts/upload_to_gcs.sh "Fail"
