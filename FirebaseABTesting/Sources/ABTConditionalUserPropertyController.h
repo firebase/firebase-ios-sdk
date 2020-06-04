@@ -13,9 +13,6 @@
 // limitations under the License.
 
 #import <Foundation/Foundation.h>
-
-#import "FirebaseABTesting/Sources/Protos/developers/mobile/abt/proto/ExperimentPayload.pbobjc.h"
-
 #import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
 
 NS_ASSUME_NONNULL_BEGIN
