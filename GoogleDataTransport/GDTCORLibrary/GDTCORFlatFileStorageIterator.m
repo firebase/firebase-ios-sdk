@@ -48,7 +48,7 @@
   }
   __block GDTCOREvent *nextEvent;
   dispatch_sync(queue, ^{
-    NSData *data = [NSData dataWithContentsOfFile:self->_eventFiles[_currentIndex]];
+    NSData *data = [NSData dataWithContentsOfFile:self->_eventFiles[self->_currentIndex]];
     if (data) {
       NSError *error;
       nextEvent = (GDTCOREvent *)GDTCORDecodeArchive([GDTCOREvent class], nil, data, &error);
