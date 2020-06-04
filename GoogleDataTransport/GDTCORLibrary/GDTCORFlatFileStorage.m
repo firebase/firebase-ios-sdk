@@ -386,7 +386,7 @@ NSString *const gGDTCORFlatFileStorageQoSTierPathKey = @"QoSTierPath";
         }
       }
       iterator = [[GDTCORFlatFileStorageIterator alloc] initWithTarget:eventSelector.selectedTarget
-                                                                 queue:_storageQueue];
+                                                                 queue:self->_storageQueue];
       iterator.eventFiles = filePaths;
     }
   });
