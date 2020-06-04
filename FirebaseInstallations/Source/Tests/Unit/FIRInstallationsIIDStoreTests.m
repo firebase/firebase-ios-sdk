@@ -20,7 +20,7 @@
 #import "FBLPromise+Testing.h"
 #import "FIRTestKeychain.h"
 
-#import "FIRInstallationsIIDStore.h"
+#import "FirebaseInstallations/Source/Library/IIDMigration/FIRInstallationsIIDStore.h"
 
 @interface FIRInstanceID (Tests)
 + (FIRInstanceID *)instanceIDForTests;

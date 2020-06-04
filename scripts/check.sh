@@ -285,7 +285,10 @@ fi
 "${top_dir}/scripts/check_whitespace.sh"
 "${top_dir}/scripts/check_filename_spaces.sh"
 "${top_dir}/scripts/check_copyright.sh"
-"${top_dir}/scripts/check_no_module_imports.sh"
+# Disabled module check. Module imports are needed for Swift Package Manager.
+# A more compilcated check could be added that preprocesses out SWIFT_PACKAGE,
+# but any problems should be caught by the `pod lib lint --use-libraries` check.
+#"${top_dir}/scripts/check_no_module_imports.sh"
 "${top_dir}/scripts/check_test_inclusion.py"
 
 # Google C++ style

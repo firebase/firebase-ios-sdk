@@ -18,7 +18,11 @@
 #if !TARGET_OS_OSX
 
 #import <UIKit/UIKit.h>
-#import "GULAppEnvironmentUtil.h"
+#if SWIFT_PACKAGE
+@import GoogleUtilities_Environment;
+#else
+#import <GoogleUtilities/GULAppEnvironmentUtil.h>
+#endif
 
 #import "FirebaseAuth/Sources/Utilities/FIRAuthDefaultUIDelegate.h"
 

@@ -16,8 +16,13 @@
 
 #import <Foundation/Foundation.h>
 
-#import <FirebaseInstanceID/FIRInstanceID+Private.h>
 #import "FIRInstanceIDUtilities.h"
+
+#if SWIFT_PACKAGE
+#import "Firebase/InstanceID/Private/FIRInstanceID+Private.h"
+#else
+#import <FirebaseInstanceID/FIRInstanceID+Private.h>
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
 
