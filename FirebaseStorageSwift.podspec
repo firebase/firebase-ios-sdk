@@ -39,7 +39,9 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
     int_tests.requires_app_host = true
     # Resources are shared with FirebaseStorage's integration tests.
     int_tests.resources = 'FirebaseStorage/Tests/Integration/Resources/1mb.dat',
-                          'FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist'
+                          'FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist',
+                          'FirebaseStorage/Tests/Integration/Resources/Home Improvement.numbers',
+                          'FirebaseStorage/Tests/Integration/Resources/star_wars.pdf'
     int_tests.dependency 'FirebaseAuth', '~> 6.5'
   end
 end

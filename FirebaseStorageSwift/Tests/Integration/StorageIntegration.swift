@@ -223,6 +223,20 @@ class StorageIntegration: XCTestCase {
     waitForExpectations()
   }
 
+  func testSimplePutCustomFile() throws {
+    let expectation = self.expectation(description: #function)
+    let fileName = "star_wars.pdf"
+    let bundle = Bundle(for: StorageIntegration.self)
+    let filePath = try XCTUnwrap(bundle.path(forResource: fileName, ofType: ""),
+                                 "Failed to get filePath")
+    let ref = storage.reference(withPath: "ios/public/" + fileName)
+    ref.putFile(from: URL(fileURLWithPath: filePath)) { result in
+      self.assertResultSuccess(result)
+      expectation.fulfill()
+    }
+    waitForExpectations()
+  }
+
   func testSimplePutFile() throws {
     let expectation = self.expectation(description: #function)
     let putFileExpectation = self.expectation(description: "putFile")
@@ -252,6 +266,27 @@ class StorageIntegration: XCTestCase {
       }
       XCTAssertGreaterThanOrEqual(progress.completedUnitCount, uploadedBytes)
       uploadedBytes = progress.completedUnitCount
+    }
+    waitForExpectations()
+  }
+
+  func testAttemptToUploadDirectory() throws {
+    let expectation = self.expectation(description: #function)
+
+    let fileName = "Home Improvement.numbers"
+    let bundle = Bundle(for: StorageIntegration.self)
+    let fileURL = try XCTUnwrap(bundle.url(forResource: fileName, withExtension: ""),
+                                 "Failed to get filePath")
+    let ref = storage.reference(withPath: "ios/public/" + fileName)
+    ref.putFile(from: fileURL) { result in
+      switch result {
+      case let .success(metadata):
+        XCTAssertNil(metadata)
+        XCTFail("This test should have thrown an error.")
+      case let .failure(error):
+        XCTAssertNotNil(error)
+        expectation.fulfill()
+      }
     }
     waitForExpectations()
   }

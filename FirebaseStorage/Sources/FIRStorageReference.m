@@ -215,6 +215,13 @@
 - (FIRStorageUploadTask *)putFile:(NSURL *)fileURL
                          metadata:(nullable FIRStorageMetadata *)metadata
                        completion:(nullable FIRStorageVoidMetadataError)completion {
+  if ([fileURL frs_hasDirectoryPath]) {
+    NSError *error = [FIRStorageErrors
+        errorWithCustomMessage:
+            @"Failed to recognize file for file URL. Ensure file URL is not a directory."];
+    completion(nil, error);
+  }
+
   if (!metadata) {
     metadata = [[FIRStorageMetadata alloc] init];
   }

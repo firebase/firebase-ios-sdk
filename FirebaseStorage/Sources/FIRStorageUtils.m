@@ -149,3 +149,18 @@ NSString *const kGCSObjectAllowedCharacterSet =
 }
 
 @end
+
+@implementation NSURL (FIRStorageNSURLHelpers)
+
+- (BOOL)frs_hasDirectoryPath {
+  if (@available(macOS 10.11, iOS 9.0, watchOS 2.0, tvOS 9.0, *)) {
+    return [self hasDirectoryPath];
+  } else {
+    NSError *error;
+    NSNumber *isDirectory = [NSNumber numberWithBool:NO];
+    [self getResourceValue:&isDirectory forKey:NSURLIsDirectoryKey error:&error];
+    return [isDirectory boolValue];
+  }
+}
+
+@end
