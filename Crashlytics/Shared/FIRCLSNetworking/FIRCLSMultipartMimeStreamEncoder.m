@@ -14,8 +14,8 @@
 
 #import "Crashlytics/Shared/FIRCLSNetworking/FIRCLSMultipartMimeStreamEncoder.h"
 
-#import "Crashlytics/Shared/FIRCLSByteUtility.h"
 #import "Crashlytics/Crashlytics/Helpers/FIRCLSLogger.h"
+#import "Crashlytics/Shared/FIRCLSByteUtility.h"
 #import "Crashlytics/Shared/FIRCLSUUID.h"
 
 @interface FIRCLSMultipartMimeStreamEncoder () <NSStreamDelegate>

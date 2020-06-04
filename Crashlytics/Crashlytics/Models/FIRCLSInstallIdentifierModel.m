@@ -20,10 +20,10 @@
 #import <FirebaseInstallations/FirebaseInstallations.h>
 #endif
 
-#import "Crashlytics/Shared/FIRCLSByteUtility.h"
-#import "Crashlytics/Crashlytics/Helpers/FIRCLSLogger.h"
-#import "Crashlytics/Shared/FIRCLSUUID.h"
 #import "Crashlytics/Crashlytics/FIRCLSUserDefaults/FIRCLSUserDefaults.h"
+#import "Crashlytics/Crashlytics/Helpers/FIRCLSLogger.h"
+#import "Crashlytics/Shared/FIRCLSByteUtility.h"
+#import "Crashlytics/Shared/FIRCLSUUID.h"
 
 static NSString *const FIRCLSInstallationUUIDKey = @"com.crashlytics.iuuid";
 static NSString *const FIRCLSInstallationIIDHashKey = @"com.crashlytics.install.iid";

@@ -15,11 +15,11 @@
 #import <Foundation/Foundation.h>
 #import <XCTest/XCTest.h>
 
-#import "FABMockApplicationIdentifierModel.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSInternalReport.h"
-#import "FIRCLSMockSettings.h"
-#import "Crashlytics/Crashlytics/Operations/Reports/FIRCLSPackageReportOperation.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSSettings.h"
+#import "Crashlytics/Crashlytics/Operations/Reports/FIRCLSPackageReportOperation.h"
+#import "FABMockApplicationIdentifierModel.h"
+#import "FIRCLSMockSettings.h"
 #import "FIRCLSTempMockFileManager.h"
 
 NSString *const TestOrgID = @"TestOrgID";

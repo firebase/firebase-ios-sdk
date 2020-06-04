@@ -20,8 +20,8 @@
 #import "Crashlytics/Crashlytics/Helpers/FIRCLSFile.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSFileManager.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSInternalReport.h"
-#import "FIRCLSMockSymbolResolver.h"
 #import "Crashlytics/Crashlytics/Private/FIRStackFrame_Private.h"
+#import "FIRCLSMockSymbolResolver.h"
 
 @interface FIRCLSProcessReportOperationTests : XCTestCase
 

@@ -17,8 +17,8 @@
 #import "Crashlytics/Crashlytics/Models/Record/FIRCLSReportAdapter.h"
 #import "FIRCLSReportAdapter_Private.h"
 
-#import "Crashlytics/Crashlytics/Models/FIRCLSInternalReport.h"
 #import "Crashlytics/Crashlytics/Helpers/FIRCLSLogger.h"
+#import "Crashlytics/Crashlytics/Models/FIRCLSInternalReport.h"
 
 #include "Crashlytics/Crashlytics/Components/FIRCLSUserLogging.h"
 

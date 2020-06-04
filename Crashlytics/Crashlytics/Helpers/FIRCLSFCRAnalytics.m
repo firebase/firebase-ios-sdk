@@ -14,8 +14,8 @@
 
 #import "Crashlytics/Crashlytics/Helpers/FIRCLSFCRAnalytics.h"
 
-#import "FIRCLSInternalLogging.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSSettings.h"
+#import "FIRCLSInternalLogging.h"
 
 #if SWIFT_PACKAGE
 #import "Interop/Analytics/Public/FIRAnalyticsInterop.h"

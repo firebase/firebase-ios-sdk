@@ -15,13 +15,13 @@
 #import "FIRCLSNetworkClient.h"
 
 #import "Crashlytics/Crashlytics/Components/FIRCLSApplication.h"
-#import "Crashlytics/Shared/FIRCLSByteUtility.h"
 #import "Crashlytics/Crashlytics/DataCollection/FIRCLSDataCollectionToken.h"
-#import "Crashlytics/Crashlytics/Helpers/FIRCLSDefines.h"
-#import "Crashlytics/Crashlytics/Models/FIRCLSFileManager.h"
-#import "Crashlytics/Shared/FIRCLSNetworking/FIRCLSNetworkResponseHandler.h"
 #import "Crashlytics/Crashlytics/FIRCLSURLSession/FIRCLSURLSession.h"
 #import "Crashlytics/Crashlytics/FIRCLSURLSession/FIRCLSURLSessionConfiguration.h"
+#import "Crashlytics/Crashlytics/Helpers/FIRCLSDefines.h"
+#import "Crashlytics/Crashlytics/Models/FIRCLSFileManager.h"
+#import "Crashlytics/Shared/FIRCLSByteUtility.h"
+#import "Crashlytics/Shared/FIRCLSNetworking/FIRCLSNetworkResponseHandler.h"
 
 #import "Crashlytics/Crashlytics/Helpers/FIRCLSUtility.h"
 

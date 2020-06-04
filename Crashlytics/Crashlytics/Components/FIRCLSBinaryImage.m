@@ -21,13 +21,13 @@
 
 #include <stdatomic.h>
 
-#include "Crashlytics/Shared/FIRCLSByteUtility.h"
-#include "Crashlytics/Crashlytics/Helpers/FIRCLSFeatures.h"
-#include "Crashlytics/Crashlytics/Helpers/FIRCLSFile.h"
 #include "Crashlytics/Crashlytics/Components/FIRCLSGlobals.h"
 #include "Crashlytics/Crashlytics/Components/FIRCLSHost.h"
-#include "Crashlytics/Shared/FIRCLSMachO/FIRCLSMachO.h"
+#include "Crashlytics/Crashlytics/Helpers/FIRCLSFeatures.h"
+#include "Crashlytics/Crashlytics/Helpers/FIRCLSFile.h"
 #include "Crashlytics/Crashlytics/Helpers/FIRCLSUtility.h"
+#include "Crashlytics/Shared/FIRCLSByteUtility.h"
+#include "Crashlytics/Shared/FIRCLSMachO/FIRCLSMachO.h"
 
 #include <dispatch/dispatch.h>
 

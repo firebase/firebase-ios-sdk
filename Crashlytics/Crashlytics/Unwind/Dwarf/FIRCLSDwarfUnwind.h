@@ -18,8 +18,8 @@
 #include <stdint.h>
 #include <sys/types.h>
 
-#include "FIRCLSDwarfUnwindRegisters.h"
 #include "Crashlytics/Crashlytics/Helpers/FIRCLSThreadState.h"
+#include "FIRCLSDwarfUnwindRegisters.h"
 
 #if CLS_DWARF_UNWINDING_SUPPORTED
 

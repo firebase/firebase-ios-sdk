@@ -74,7 +74,7 @@ let package = Package(
     .target(
       name: "firebase-test",
       dependencies: [ // "FirebaseAuth", "FirebaseFunctions",
-        "Firebase", "FirebaseCore", "FirebaseCrashlytics", 
+        "Firebase", "FirebaseCore", "FirebaseCrashlytics",
         "FirebaseInstallations", "FirebaseInstanceID",
         "FirebaseStorage", "FirebaseStorageSwift",
         "GoogleUtilities_Environment", "GoogleUtilities_Logger",
@@ -172,13 +172,13 @@ let package = Package(
     .target(
       name: "FirebaseCrashlytics",
       dependencies: ["FirebaseCore", "FirebaseInstallations", "FBLPromises", "GoogleDataTransport",
-                      "GoogleDataTransportCCTSupport", "nanopb"],
+                     "GoogleDataTransportCCTSupport", "nanopb"],
       path: "Crashlytics",
       sources: [
         "Crashlytics/",
         "Protogen/",
         "Shared/",
-        "third_party/"
+        "third_party/",
       ],
       publicHeadersPath: "Crashlytics/Public",
       cSettings: [

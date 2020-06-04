@@ -15,10 +15,10 @@
 #import <Foundation/Foundation.h>
 #import <XCTest/XCTest.h>
 
+#import "Crashlytics/Crashlytics/Models/Record/FIRCLSReportAdapter.h"
 #import "FIRCLSRecordApplication.h"
 #import "FIRCLSRecordHost.h"
 #import "FIRCLSRecordIdentity.h"
-#import "Crashlytics/Crashlytics/Models/Record/FIRCLSReportAdapter.h"
 #import "FIRCLSReportAdapter_Private.h"
 
 #import "Crashlytics/Crashlytics/Helpers/FIRCLSFile.h"

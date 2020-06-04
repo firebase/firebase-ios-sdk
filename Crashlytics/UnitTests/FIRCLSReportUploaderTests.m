@@ -16,11 +16,11 @@
 
 #import "FIRCLSReportUploader_Private.h"
 
-#import "FABMockApplicationIdentifierModel.h"
 #import "Crashlytics/Crashlytics/Components/FIRCLSApplication.h"
+#include "Crashlytics/Crashlytics/Helpers/FIRCLSDefines.h"
+#import "FABMockApplicationIdentifierModel.h"
 #include "FIRCLSConstants.h"
 #include "FIRCLSDataCollectionToken.h"
-#include "Crashlytics/Crashlytics/Helpers/FIRCLSDefines.h"
 #include "FIRCLSFileManager.h"
 #include "FIRCLSInternalReport.h"
 #include "FIRCLSMockNetworkClient.h"
