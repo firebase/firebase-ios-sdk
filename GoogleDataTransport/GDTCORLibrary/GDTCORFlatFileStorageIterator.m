@@ -48,14 +48,14 @@
   }
   __block GDTCOREvent *nextEvent;
   dispatch_sync(queue, ^{
-    NSData *data = [NSData dataWithContentsOfFile:_eventFiles[_currentIndex]];
+    NSData *data = [NSData dataWithContentsOfFile:self->_eventFiles[_currentIndex]];
     if (data) {
       NSError *error;
       nextEvent = (GDTCOREvent *)GDTCORDecodeArchive([GDTCOREvent class], nil, data, &error);
       if (error || nextEvent == nil) {
         GDTCORLogDebug(@"Unarchiving an event failed: %@", error);
         nextEvent = nil;
-        _currentIndex = -1;
+        self->_currentIndex = -1;
         return;
       }
     }
