@@ -16,7 +16,7 @@
 
 #import "FIRInstallationsErrorUtil+Tests.h"
 
-#import "FIRInstallationsHTTPError.h"
+#import "FirebaseInstallations/Source/Library/Errors/FIRInstallationsHTTPError.h"
 
 @implementation FIRInstallationsErrorUtil (Tests)
 

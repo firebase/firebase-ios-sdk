@@ -28,18 +28,23 @@
 @import FirebaseCore;
 @import GoogleUtilities_Environment;
 @import GoogleUtilities_AppDelegateSwizzler;
-#else
-#import <FirebaseCore/FIROptions.h>
-#import <GoogleUtilities/GULAppDelegateSwizzler.h>
-#import <GoogleUtilities/GULAppEnvironmentUtil.h>
-#endif
-
 #import "FirebaseCore/Sources/Private/FIRAppInternal.h"
 #import "FirebaseCore/Sources/Private/FIRComponent.h"
 #import "FirebaseCore/Sources/Private/FIRComponentContainer.h"
 #import "FirebaseCore/Sources/Private/FIRLibrary.h"
 #import "FirebaseCore/Sources/Private/FIRLogger.h"
 #import "GoogleUtilities/SceneDelegateSwizzler/Private/GULSceneDelegateSwizzler.h"
+#else
+#import <FirebaseCore/FIRAppInternal.h>
+#import <FirebaseCore/FIRComponent.h>
+#import <FirebaseCore/FIRComponentContainer.h>
+#import <FirebaseCore/FIRLibrary.h>
+#import <FirebaseCore/FIRLogger.h>
+#import <FirebaseCore/FIROptions.h>
+#import <GoogleUtilities/GULAppDelegateSwizzler.h>
+#import <GoogleUtilities/GULAppEnvironmentUtil.h>
+#import <GoogleUtilities/GULSceneDelegateSwizzler.h>
+#endif
 
 #import "FirebaseAuth/Sources/Auth/FIRAuthDataResult_Internal.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuthDispatcher.h"

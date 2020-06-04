@@ -14,7 +14,7 @@
 
 #import "Private/GULUserDefaults.h"
 
-#import <GoogleUtilities/GULLogger.h>
+#import "GoogleUtilities/Logger/Private/GULLogger.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

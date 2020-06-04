@@ -27,15 +27,6 @@ let package = Package(
     // Swift target.
     .executable(name: "firebase-test", targets: ["firebase-test"]),
     //
-    // .library(
-    //   name: "GoogleUtilities_AppDelegateSwizzler",
-    //   targets: ["GoogleUtilities_AppDelegateSwizzler"]),
-    // .library(
-    //   name: "GoogleUtilities_Environment",
-    //   targets: ["GoogleUtilities_Environment"]),
-    // .library(
-    //   name: "GoogleUtilities_Logger",
-    //   targets: ["GoogleUtilities_Logger"]),
     .library(
       name: "Firebase",
       targets: ["Firebase"]
@@ -49,11 +40,20 @@ let package = Package(
       targets: ["FirebaseAuth"]
     ),
     // .library(
+    //   name: "FirebaseCrashlytics",
+    //   targets: ["FirebaseCrashlytics"]
+    // ),
+    // .library(
     //   name: "FirebaseFunctions",
     //   targets: ["FirebaseFunctions"]),
-    // .library(
-    //   name: "FirebaseInstanceID",
-    //   targets: ["FirebaseInstanceID"]),
+    .library(
+      name: "FirebaseInstallations",
+      targets: ["FirebaseInstallations"]
+    ),
+    .library(
+      name: "FirebaseInstanceID",
+      targets: ["FirebaseInstanceID"]
+    ),
     .library(
       name: "FirebaseStorage",
       targets: ["FirebaseStorage"]
@@ -75,9 +75,10 @@ let package = Package(
     // Targets can depend on other targets in this package, and on products in packages which this package depends on.
     .target(
       name: "firebase-test",
-      dependencies: [ // "Firebase", "FirebaseCore", "FirebaseAuth", "FirebaseFunctions", "FirebaseInstanceID",
-        // "FirebaseStorage", "GoogleUtilities_AppDelegateSwizzler",
-        "Firebase", "FirebaseCore", "FirebaseStorage", "FirebaseStorageSwift",
+      dependencies: [ // "FirebaseAuth", "FirebaseFunctions",
+        "Firebase", "FirebaseCore", "FirebaseInstallations", "FirebaseInstanceID",
+        "FirebaseStorage",
+        "FirebaseStorageSwift",
         "GoogleUtilities_Environment", "GoogleUtilities_Logger",
       ]
     ),
@@ -96,10 +97,6 @@ let package = Package(
         .headerSearchPath("../"),
       ]
     ),
-    // cSettings: [
-    //   .headerSearchPath("../../GoogleUtilities/Logger/Private"), // SPM doesn't support private headers
-    //   .headerSearchPath("../../GoogleUtilities/Network/Private"), // SPM doesn't support private headers
-    //   .headerSearchPath("../../GoogleUtilities/AppDelegateSwizzler/Private"),
     .target(
       name: "GoogleUtilities_Environment",
       dependencies: ["FBLPromises"],
@@ -151,29 +148,15 @@ let package = Package(
         .headerSearchPath("../../"),
       ]
     ),
-    // linkerSettings: [
-    //   .linkedFramework("SystemConfiguration"),
-    // ]
-    // .target(
-    //   name: "GoogleUtilities_UserDefaults",
-    //   dependencies: ["GoogleUtilities_Logger"],
-    //   path: "GoogleUtilities/UserDefaults",
-    //   publicHeadersPath: "Private", // Consider renaming "Private" directory to "Public"
-    //   cSettings: [
-    //     .headerSearchPath("../../GoogleUtilities"),
-    //     .headerSearchPath("../../GoogleUtilities/UserDefaults/Private"),
-    //     .headerSearchPath("../../GoogleUtilities/Logger/Private"), // SPM doesn't support private headers
-    //     .define("SWIFT_PACKAGE", to: "1"),  // SPM loses defaults if other cSettings
-    //   ]
-    // ),
-    // Interop fails with
-    // warning: Source files for target FirebaseAuthInterop should be located under ..firebase-ios-sdk/Interop/Auth
-    // 'Firebase' : error: target 'FirebaseAuthInterop' referenced in product 'FirebaseAuthInterop' could not be found
-//    .target(
-//      name: "FirebaseAuthInterop",
-//      path: "Interop/Auth",
-//      sources: ["Interop/Auth/Public/FIRAuthInterop.h"],
-//      publicHeadersPath: "Public"),
+    .target(
+      name: "GoogleUtilities_UserDefaults",
+      dependencies: ["GoogleUtilities_Logger"],
+      path: "GoogleUtilities/UserDefaults",
+      publicHeadersPath: "Private", // Consider renaming "Private" directory to "Public"
+      cSettings: [
+        .headerSearchPath("../../"),
+      ]
+    ),
     .target(
       name: "Firebase",
       path: "Firebase/Sources",
@@ -188,7 +171,6 @@ let package = Package(
         .headerSearchPath("../.."),
         .define("FIRCore_VERSION", to: "0.0.1"), // TODO: Fix version
         .define("Firebase_VERSION", to: "0.0.1"), // TODO: Fix version
-//        .define("DEBUG", .when(configuration: .debug)), // TODO - destroys other settings in DEBUG config
         // TODO: - Add support for cflags cSetting so that we can set the -fno-autolink option
       ]
     ),
@@ -220,17 +202,27 @@ let package = Package(
 //         .define("FIRFunctions_VERSION", to: "0.0.1"),  // TODO Fix version
 //         .define("SWIFT_PACKAGE", to: "1"),  // SPM loses defaults if other cSettings
 //       ]),
-//     .target(
-//       name: "FirebaseInstanceID",
-//       dependencies: ["FirebaseCore", "GoogleUtilities_Environment", "GoogleUtilities_UserDefaults"],
-//       path: "Firebase/InstanceID",
-//       publicHeadersPath: "Public",
-//       cSettings: [
-//          // SPM doesn't support interface frameworks or private headers
-//         .headerSearchPath("../../"),
-//         .define("FIRInstanceID_LIB_VERSION", to: "0.0.1"),  // TODO Fix version
-//         .define("SWIFT_PACKAGE", to: "1"),  // SPM loses defaults if other cSettings
-//       ]),
+    .target(
+      name: "FirebaseInstanceID",
+      dependencies: ["FirebaseCore", "FirebaseInstallations",
+                     "GoogleUtilities_Environment", "GoogleUtilities_UserDefaults"],
+      path: "Firebase/InstanceID",
+      publicHeadersPath: "Public",
+      cSettings: [
+        .headerSearchPath("../../"),
+        .define("FIRInstanceID_LIB_VERSION", to: "0.0.1"), // TODO: Fix version
+      ]
+    ),
+    .target(
+      name: "FirebaseInstallations",
+      dependencies: ["FirebaseCore", "FBLPromises",
+                     "GoogleUtilities_Environment", "GoogleUtilities_UserDefaults"],
+      path: "FirebaseInstallations/Source/Library",
+      publicHeadersPath: "Public",
+      cSettings: [
+        .headerSearchPath("../../../"),
+      ]
+    ),
     .target(
       name: "FirebaseStorage",
       dependencies: ["FirebaseCore", "GTMSessionFetcherCore"],
@@ -259,7 +251,6 @@ let package = Package(
       name: "GoogleDataTransportCCTSupport",
       dependencies: ["GoogleDataTransport", "nanopb"],
       path: "GoogleDataTransportCCTSupport/GDTCCTLibrary",
-      publicHeadersPath: "Private",
       cSettings: [
         .headerSearchPath("../"),
         .define("PB_FIELD_32BIT", to: "1"),

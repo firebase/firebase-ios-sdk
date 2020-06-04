@@ -18,7 +18,7 @@
 
 #import <OCMock/OCMock.h>
 
-#import <FirebaseCore/FIRAppInternal.h>
+#import "FirebaseCore/Sources/Private/FIRAppInternal.h"
 
 #import "FBLPromise+Testing.h"
 #import "FBLPromise+Then.h"
@@ -26,15 +26,15 @@
 #import "FIRInstallationsItem+Tests.h"
 
 #import "FIRInstallations.h"
-#import "FIRInstallationsAPIService.h"
-#import "FIRInstallationsErrorUtil.h"
-#import "FIRInstallationsHTTPError.h"
-#import "FIRInstallationsIDController.h"
-#import "FIRInstallationsIIDStore.h"
-#import "FIRInstallationsIIDTokenStore.h"
-#import "FIRInstallationsStore.h"
+#import "FirebaseInstallations/Source/Library/Errors/FIRInstallationsErrorUtil.h"
+#import "FirebaseInstallations/Source/Library/Errors/FIRInstallationsHTTPError.h"
+#import "FirebaseInstallations/Source/Library/IIDMigration/FIRInstallationsIIDStore.h"
+#import "FirebaseInstallations/Source/Library/IIDMigration/FIRInstallationsIIDTokenStore.h"
+#import "FirebaseInstallations/Source/Library/InstallationsAPI/FIRInstallationsAPIService.h"
+#import "FirebaseInstallations/Source/Library/InstallationsIDController/FIRInstallationsIDController.h"
+#import "FirebaseInstallations/Source/Library/InstallationsStore/FIRInstallationsStore.h"
 
-#import "FIRInstallationsStoredAuthToken.h"
+#import "FirebaseInstallations/Source/Library/InstallationsStore/FIRInstallationsStoredAuthToken.h"
 
 @interface FIRInstallationsIDController (Tests)
 - (instancetype)initWithGoogleAppID:(NSString *)appID

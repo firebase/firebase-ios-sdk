@@ -4,6 +4,8 @@
 source 'https://github.com/firebase/SpecsStaging.git'
 source 'https://cdn.cocoapods.org/'
 
+install! 'cocoapods', :generate_multiple_pod_projects => true, :incremental_installation => true
+
 target 'FirebasePodTest' do
   # Comment the next line if you don't want to use dynamic frameworks
   use_frameworks!

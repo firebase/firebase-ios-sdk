@@ -16,6 +16,17 @@
 
 #import "FIRInstanceID.h"
 
+#if SWIFT_PACKAGE
+@import FirebaseInstallations;
+@import FirebaseCore;
+@import GoogleUtilities_Environment;
+@import GoogleUtilities_UserDefaults;
+
+#import "FirebaseCore/Sources/Private/FIRAppInternal.h"
+#import "FirebaseCore/Sources/Private/FIRComponent.h"
+#import "FirebaseCore/Sources/Private/FIRComponentContainer.h"
+#import "FirebaseCore/Sources/Private/FIRLibrary.h"
+#else
 #import <FirebaseInstallations/FIRInstallations.h>
 
 #import <FirebaseCore/FIRAppInternal.h>
@@ -25,9 +36,9 @@
 #import <FirebaseCore/FIROptions.h>
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import <GoogleUtilities/GULUserDefaults.h>
-#import "FIRInstanceID+Private.h"
+#endif
+
 #import "FIRInstanceIDAuthService.h"
-#import "FIRInstanceIDCheckinPreferences.h"
 #import "FIRInstanceIDCombinedHandler.h"
 #import "FIRInstanceIDConstants.h"
 #import "FIRInstanceIDDefines.h"
@@ -37,6 +48,15 @@
 #import "FIRInstanceIDTokenManager.h"
 #import "FIRInstanceIDUtilities.h"
 #import "FIRInstanceIDVersionUtilities.h"
+
+#if SWIFT_PACKAGE
+#import "Firebase/InstanceID/Private/FIRInstanceID+Private.h"
+#import "Firebase/InstanceID/Private/FIRInstanceIDCheckinPreferences.h"
+#else
+#import <FirebaseInstanceID/FIRInstanceID+Private.h>
+#import <FirebaseInstanceID/FIRInstanceIDCheckinPreferences.h>
+#endif
+
 #import "NSError+FIRInstanceID.h"
 
 // Public constants

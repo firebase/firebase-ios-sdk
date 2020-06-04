@@ -21,8 +21,14 @@
 #endif
 #import <sys/utsname.h>
 
+#if SWIFT_PACKAGE
+@import FirebaseCore;
+@import GoogleUtilities_UserDefaults;
+#else
 #import <FirebaseCore/FIROptions.h>
 #import <GoogleUtilities/GULUserDefaults.h>
+#endif
+
 #import "FIRInstanceID.h"
 #import "FIRInstanceIDConstants.h"
 #import "FIRInstanceIDLogger.h"

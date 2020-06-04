@@ -14,7 +14,11 @@
  * limitations under the License.
  */
 
+#if SWIFT_PACKAGE
+#import "Firebase/InstanceID/Private/FIRInstanceIDCheckinPreferences.h"
+#else
 #import <FirebaseInstanceID/FIRInstanceIDCheckinPreferences.h>
+#endif
 
 /** Checkin refresh interval. **/
 FOUNDATION_EXPORT const NSTimeInterval kFIRInstanceIDDefaultCheckinInterval;

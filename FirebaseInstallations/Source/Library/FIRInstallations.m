@@ -22,21 +22,28 @@
 #import "FBLPromises.h"
 #endif
 
+#if SWIFT_PACKAGE
+@import FirebaseCore;
+#import "FirebaseCore/Sources/Private/FIRAppInternal.h"
+#import "FirebaseCore/Sources/Private/FIRComponent.h"
+#import "FirebaseCore/Sources/Private/FIRComponentContainer.h"
+#import "FirebaseCore/Sources/Private/FIRLibrary.h"
+#else
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIRComponent.h>
 #import <FirebaseCore/FIRComponentContainer.h>
 #import <FirebaseCore/FIRLibrary.h>
-#import <FirebaseCore/FIRLogger.h>
 #import <FirebaseCore/FIROptions.h>
+#endif
 
 #import "FIRInstallationsAuthTokenResultInternal.h"
 
-#import "FIRInstallationsErrorUtil.h"
-#import "FIRInstallationsIDController.h"
-#import "FIRInstallationsItem.h"
-#import "FIRInstallationsLogger.h"
-#import "FIRInstallationsStoredAuthToken.h"
 #import "FIRInstallationsVersion.h"
+#import "FirebaseInstallations/Source/Library/Errors/FIRInstallationsErrorUtil.h"
+#import "FirebaseInstallations/Source/Library/FIRInstallationsItem.h"
+#import "FirebaseInstallations/Source/Library/FIRInstallationsLogger.h"
+#import "FirebaseInstallations/Source/Library/InstallationsIDController/FIRInstallationsIDController.h"
+#import "FirebaseInstallations/Source/Library/InstallationsStore/FIRInstallationsStoredAuthToken.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

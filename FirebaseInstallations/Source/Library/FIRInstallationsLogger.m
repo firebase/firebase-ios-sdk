@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRInstallationsLogger.h"
+#import "FirebaseInstallations/Source/Library/FIRInstallationsLogger.h"
 
 FIRLoggerService kFIRLoggerInstallations = @"[Firebase/Installations]";
 

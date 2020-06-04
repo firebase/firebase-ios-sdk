@@ -14,14 +14,18 @@
  * limitations under the License.
  */
 
+#import "GDTCORAssert.h"
 #import "GDTCORClock.h"
 #import "GDTCORConsoleLogger.h"
 #import "GDTCOREvent.h"
 #import "GDTCOREventDataObject.h"
 #import "GDTCOREventTransformer.h"
 #import "GDTCORLifecycle.h"
+#import "GDTCORPlatform.h"
 #import "GDTCORPrioritizer.h"
+#import "GDTCORReachability.h"
 #import "GDTCORRegistrar.h"
+#import "GDTCORStorageProtocol.h"
 #import "GDTCORTargets.h"
 #import "GDTCORTransport.h"
 #import "GDTCORUploadPackage.h"
