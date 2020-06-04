@@ -56,4 +56,4 @@ jobs:
       run: scripts/upload_to_gcs.sh "${GITHUB_SHA}" "zip_output_dir"
     - name: Failed to build zip
       if: ${{ failure() }}
-      run: scripts/upload_to_gcs.sh "Fail"
+      run: scripts/upload_to_gcs.sh "${GITHUB_SHA}" "Fail"
