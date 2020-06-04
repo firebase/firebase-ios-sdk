@@ -14,7 +14,7 @@
 set -x
 GITHUB_HASH="$1"
 FRAMEWORK_DIR="$2"
-if [[ "${GITHUB_HASH}"=="Fail" ]]
+if [[ "${GITHUB_HASH}" == "Fail" ]]
 then
   echo "Zip build or gcloud setup might be failed."
   echo "The last zip workflow failed." > latest_commit_hash.txt
