@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRInstallationsStatus.h"
+#import "FirebaseInstallations/Source/Library/InstallationsIDController/FIRInstallationsStatus.h"
 
 @class FIRInstallationsStoredItem;
 @class FIRInstallationsStoredAuthToken;

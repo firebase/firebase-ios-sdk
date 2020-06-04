@@ -18,8 +18,8 @@
 
 #import "FIRKeyedArchivingUtils.h"
 
-#import "FIRInstallationsStoredAuthToken.h"
-#import "FIRInstallationsStoredItem.h"
+#import "FirebaseInstallations/Source/Library/InstallationsStore/FIRInstallationsStoredAuthToken.h"
+#import "FirebaseInstallations/Source/Library/InstallationsStore/FIRInstallationsStoredItem.h"
 
 @interface FIRInstallationsStoredItemTests : XCTestCase
 

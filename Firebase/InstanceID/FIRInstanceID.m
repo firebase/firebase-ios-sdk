@@ -16,10 +16,10 @@
 
 #import "FIRInstanceID.h"
 
-#import <FirebaseInstallations/FIRInstallations.h>
+#import "FirebaseInstallations/Source/Library/Public/FIRInstallations.h"
 
-#import <GoogleUtilities/GULAppEnvironmentUtil.h>
-#import <GoogleUtilities/GULUserDefaults.h>
+#import "GoogleUtilities/Environment/Public/GULAppEnvironmentUtil.h"
+#import "GoogleUtilities/UserDefaults/Private/GULUserDefaults.h"
 #import "FIRInstanceID+Private.h"
 #import "FIRInstanceIDAuthService.h"
 #import "FIRInstanceIDCheckinPreferences.h"

@@ -21,7 +21,7 @@
 #endif
 #import <sys/utsname.h>
 
-#import <GoogleUtilities/GULUserDefaults.h>
+#import "GoogleUtilities/UserDefaults/Private/GULUserDefaults.h"
 #import "FIRInstanceID.h"
 #import "FIRInstanceIDConstants.h"
 #import "FIRInstanceIDLogger.h"

@@ -26,12 +26,12 @@
 
 #import "FIRInstallationsAuthTokenResultInternal.h"
 
-#import "FIRInstallationsErrorUtil.h"
-#import "FIRInstallationsIDController.h"
-#import "FIRInstallationsItem.h"
-#import "FIRInstallationsLogger.h"
-#import "FIRInstallationsStoredAuthToken.h"
 #import "FIRInstallationsVersion.h"
+#import "FirebaseInstallations/Source/Library/Errors/FIRInstallationsErrorUtil.h"
+#import "FirebaseInstallations/Source/Library/FIRInstallationsItem.h"
+#import "FirebaseInstallations/Source/Library/FIRInstallationsLogger.h"
+#import "FirebaseInstallations/Source/Library/InstallationsIDController/FIRInstallationsIDController.h"
+#import "FirebaseInstallations/Source/Library/InstallationsStore/FIRInstallationsStoredAuthToken.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -14,9 +14,18 @@
  * limitations under the License.
  */
 
-#import "FIRInstanceIDCheckinPreferences.h"
+#if SWIFT_PACKAGE
+#import "Firebase/InstanceID/Private/FIRInstanceIDCheckinPreferences.h"
+#else
+#import <FirebaseInstanceID/FIRInstanceIDCheckinPreferences.h>
+#endif
 
+#ifdef SWIFT_PACKAGE
+@import GoogleUtilities_UserDefaults;
+#else
 #import <GoogleUtilities/GULUserDefaults.h>
+#endif
+
 #import "FIRInstanceIDCheckinService.h"
 #import "FIRInstanceIDUtilities.h"
 

@@ -17,12 +17,17 @@
 #import "FIRInstanceIDAuthService.h"
 
 #import "FIRInstanceIDCheckinPreferences+Internal.h"
-#import "FIRInstanceIDCheckinPreferences.h"
 #import "FIRInstanceIDCheckinPreferences_Private.h"
 #import "FIRInstanceIDConstants.h"
 #import "FIRInstanceIDDefines.h"
 #import "FIRInstanceIDLogger.h"
 #import "FIRInstanceIDStore.h"
+#if SWIFT_PACKAGE
+#import "Firebase/InstanceID/Private/FIRInstanceIDCheckinPreferences.h"
+#else
+#import <FirebaseInstanceID/FIRInstanceIDCheckinPreferences.h>
+#endif
+
 #import "NSError+FIRInstanceID.h"
 
 // Max time interval between checkin retry in seconds.
