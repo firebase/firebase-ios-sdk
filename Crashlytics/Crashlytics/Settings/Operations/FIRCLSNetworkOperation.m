@@ -14,11 +14,11 @@
 
 #import "FIRCLSNetworkOperation.h"
 
-#import "FIRCLSApplication.h"
-#import "FIRCLSConstants.h"
-#import "FIRCLSDataCollectionToken.h"
-#import "FIRCLSDefines.h"
-#import "FIRCLSLogger.h"
+#import "Crashlytics/Crashlytics/Components/FIRCLSApplication.h"
+#import "Crashlytics/Shared/FIRCLSConstants.h"
+#import "Crashlytics/Crashlytics/DataCollection/FIRCLSDataCollectionToken.h"
+#import "Crashlytics/Crashlytics/Helpers/FIRCLSDefines.h"
+#import "Crashlytics/Crashlytics/Helpers/FIRCLSLogger.h"
 
 @interface FIRCLSNetworkOperation ()
 

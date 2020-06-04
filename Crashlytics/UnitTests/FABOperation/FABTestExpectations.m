@@ -16,7 +16,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FIRCLSOperation.h"
+#import "Crashlytics/Shared/FIRCLSOperation/FIRCLSOperation.h"
 
 #import "FABTestAsyncOperation.h"
 

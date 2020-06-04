@@ -16,9 +16,9 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FIRCLSConstants.h"
+#import "Crashlytics/Shared/FIRCLSConstants.h"
 
-#import "FIRCLSDataCollectionToken.h"
+#import "Crashlytics/Crashlytics/DataCollection/FIRCLSDataCollectionToken.h"
 
 @interface FABNetworkOperationTests : XCTestCase
 

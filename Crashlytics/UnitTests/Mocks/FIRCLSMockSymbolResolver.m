@@ -14,7 +14,7 @@
 
 #import "FIRCLSMockSymbolResolver.h"
 
-#import "FIRStackFrame_Private.h"
+#import "Crashlytics/Crashlytics/Private/FIRStackFrame_Private.h"
 
 @interface FIRCLSMockSymbolResolver () {
   NSMutableDictionary *_frames;

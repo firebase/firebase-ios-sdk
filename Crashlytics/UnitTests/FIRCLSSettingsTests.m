@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRCLSSettings.h"
+#import "Crashlytics/Crashlytics/Models/FIRCLSSettings.h"
 
 #import <Foundation/Foundation.h>
 #import <XCTest/XCTest.h>
@@ -24,7 +24,7 @@
 #endif
 
 #import "FABMockApplicationIdentifierModel.h"
-#import "FIRCLSFileManager.h"
+#import "Crashlytics/Crashlytics/Models/FIRCLSFileManager.h"
 #import "FIRCLSMockFileManager.h"
 
 const NSString *FIRCLSTestSettingsActivated =

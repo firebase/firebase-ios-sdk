@@ -14,7 +14,7 @@
 
 #import "FIRCLSMachOTests.h"
 
-#import "FIRCLSMachO.h"
+#import "Crashlytics/Shared/FIRCLSMachO/FIRCLSMachO.h"
 
 #import "FIRCLSMachOBinary.h"
 #import "FIRCLSMachOSlice.h"

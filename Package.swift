@@ -39,10 +39,10 @@ let package = Package(
       name: "FirebaseAuth",
       targets: ["FirebaseAuth"]
     ),
-    // .library(
-    //   name: "FirebaseCrashlytics",
-    //   targets: ["FirebaseCrashlytics"]
-    // ),
+    .library(
+      name: "FirebaseCrashlytics",
+      targets: ["FirebaseCrashlytics"]
+    ),
     // .library(
     //   name: "FirebaseFunctions",
     //   targets: ["FirebaseFunctions"]),
@@ -71,14 +71,12 @@ let package = Package(
     //   .package(url: "https://github.com/paulb777/nanopb.git", .revision("564392bd87bd093c308a3aaed3997466efb95f74"))
   ],
   targets: [
-    // Targets are the basic building blocks of a package. A target can define a module or a test suite.
-    // Targets can depend on other targets in this package, and on products in packages which this package depends on.
     .target(
       name: "firebase-test",
       dependencies: [ // "FirebaseAuth", "FirebaseFunctions",
-        "Firebase", "FirebaseCore", "FirebaseInstallations", "FirebaseInstanceID",
-        "FirebaseStorage",
-        "FirebaseStorageSwift",
+        "Firebase", "FirebaseCore", "FirebaseCrashlytics", 
+        "FirebaseInstallations", "FirebaseInstanceID",
+        "FirebaseStorage", "FirebaseStorageSwift",
         "GoogleUtilities_Environment", "GoogleUtilities_Logger",
       ]
     ),
@@ -124,9 +122,6 @@ let package = Package(
       cSettings: [
         .headerSearchPath("../.."),
       ]
-      // linkerSettings: [
-      //   .linkedFramework("Security"),
-      // ]
     ),
     .target(
       name: "GoogleUtilities_NSData",
@@ -175,6 +170,28 @@ let package = Package(
       ]
     ),
     .target(
+      name: "FirebaseCrashlytics",
+      dependencies: ["FirebaseCore", "FirebaseInstallations", "FBLPromises", "GoogleDataTransport",
+                      "GoogleDataTransportCCTSupport", "nanopb"],
+      path: "Crashlytics",
+      sources: [
+        "Crashlytics/",
+        "Protogen/",
+        "Shared/",
+        "third_party/"
+      ],
+      publicHeadersPath: "Crashlytics/Public",
+      cSettings: [
+        .headerSearchPath(".."),
+        .define("DISPLAY_VERSION", to: "0.0.1"), // TODO: Fix version
+        .define("CLS_SDK_NAME", to: "Crashlytics iOS SDK"), // TODO: Handle other plato
+        .define("PB_FIELD_32BIT", to: "1"),
+        .define("PB_NO_PACKED_STRUCTS", to: "1"),
+        .define("PB_ENABLE_MALLOC", to: "1"),
+      ]
+      // linkerSettings: ["-sectcreate __TEXT __info_plist"] -- TODO figure this out.
+    ),
+    .target(
       name: "FirebaseAuth",
       dependencies: ["FirebaseCore", "GoogleUtilities_Environment",
                      "GoogleUtilities_AppDelegateSwizzler",
@@ -185,10 +202,6 @@ let package = Package(
         .headerSearchPath("../../"),
         .define("FIRAuth_VERSION", to: "0.0.1"), // TODO: Fix version
         .define("FIRAuth_MINOR_VERSION", to: "1.1"), // TODO: Fix version
-//        .define("DEBUG", .when(configuration: .debug)), // TODO - destroys other settings in DEBUG config
-        // linkerSettings: [
-        //   .linkedFramework("Security"),
-        //  .linkedFramework("SafariServices", .when(platforms: [.iOS])),
       ]
     ),
 //     .target(
@@ -258,10 +271,6 @@ let package = Package(
         .define("PB_ENABLE_MALLOC", to: "1"),
       ]
     ),
-//       linkerSettings: [
-//         .linkedFramework("CoreServices", .when(platforms: [.macOS])),
-//         .linkedFramework("MobileCoreServices", .when(platforms: [.iOS, .tvOS])),
-//       ]),
   ],
   cLanguageStandard: .c99
 )

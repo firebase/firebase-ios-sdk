@@ -14,7 +14,7 @@
 
 #import "FIRAEvent+Internal.h"
 
-#import "FIRCLSUtility.h"
+#import "Crashlytics/Crashlytics/Helpers/FIRCLSUtility.h"
 
 NSString* FIRCLSFIRAEventDictionaryToJSON(NSDictionary* eventAsDictionary) {
   NSError* error = nil;

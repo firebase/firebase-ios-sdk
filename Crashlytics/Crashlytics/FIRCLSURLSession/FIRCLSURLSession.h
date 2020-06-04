@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRCLSURLSessionAvailability.h"
+#import "Crashlytics/Crashlytics/FIRCLSURLSession/FIRCLSURLSessionAvailability.h"
 
 #if FIRCLSURLSESSION_REQUIRED
 
-#import "FIRCLSURLSessionConfiguration.h"
+#import "Crashlytics/Crashlytics/FIRCLSURLSession/FIRCLSURLSessionConfiguration.h"
 
 #import <Foundation/Foundation.h>
 

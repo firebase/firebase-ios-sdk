@@ -20,28 +20,43 @@
 #import "FBLPromises.h"
 #endif
 
-#import "FIRCLSApplicationIdentifierModel.h"
-#include "FIRCLSCrashedMarkerFile.h"
-#import "FIRCLSDataCollectionArbiter.h"
-#import "FIRCLSDefines.h"
-#include "FIRCLSException.h"
-#import "FIRCLSFileManager.h"
-#include "FIRCLSGlobals.h"
-#import "FIRCLSHost.h"
-#include "FIRCLSProfiling.h"
-#import "FIRCLSReport_Private.h"
-#import "FIRCLSSettings.h"
-#import "FIRCLSUserDefaults.h"
-#include "FIRCLSUserLogging.h"
-#include "FIRCLSUtility.h"
+#import "Crashlytics/Crashlytics/Settings/Models/FIRCLSApplicationIdentifierModel.h"
+#include "Crashlytics/Crashlytics/Components/FIRCLSCrashedMarkerFile.h"
+#import "Crashlytics/Crashlytics/DataCollection/FIRCLSDataCollectionArbiter.h"
+#import "Crashlytics/Crashlytics/Helpers/FIRCLSDefines.h"
+#include "Crashlytics/Crashlytics/Handlers/FIRCLSException.h"
+#import "Crashlytics/Crashlytics/Models/FIRCLSFileManager.h"
+#include "Crashlytics/Crashlytics/Components/FIRCLSGlobals.h"
+#import "Crashlytics/Crashlytics/Components/FIRCLSHost.h"
+#include "Crashlytics/Crashlytics/Helpers/FIRCLSProfiling.h"
+#import "Crashlytics/Crashlytics/Models/FIRCLSReport_Private.h"
+#import "Crashlytics/Crashlytics/Models/FIRCLSSettings.h"
+#import "Crashlytics/Crashlytics/FIRCLSUserDefaults/FIRCLSUserDefaults.h"
+#include "Crashlytics/Crashlytics/Components/FIRCLSUserLogging.h"
+#include "Crashlytics/Crashlytics/Helpers/FIRCLSUtility.h"
 
-#import "FIRCLSByteUtility.h"
-#import "FIRCLSFABHost.h"
-#import "FIRCLSLogger.h"
+#import "Crashlytics/Shared/FIRCLSByteUtility.h"
+#import "Crashlytics/Shared/FIRCLSFABHost.h"
+#import "Crashlytics/Crashlytics/Helpers/FIRCLSLogger.h"
 
-#import "FIRCLSReportManager.h"
+#import "Crashlytics/Crashlytics/Controllers/FIRCLSReportManager.h"
 
+#if SWIFT_PACKAGE
+#import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
+#else
 #import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
+#endif
+
+#if SWIFT_PACKAGE
+@import FirebaseCore;
+@import FirebaseInstallations;
+@import GoogleDataTransport;
+#import "FirebaseCore/Sources/Private/FIRAppInternal.h"
+#import "FirebaseCore/Sources/Private/FIRComponent.h"
+#import "FirebaseCore/Sources/Private/FIRComponentContainer.h"
+#import "FirebaseCore/Sources/Private/FIRDependency.h"
+#import "FirebaseCore/Sources/Private/FIRLibrary.h"
+#else
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIRComponent.h>
 #import <FirebaseCore/FIRComponentContainer.h>
@@ -52,6 +67,7 @@
 
 #import <GoogleDataTransport/GDTCORTargets.h>
 #import <GoogleDataTransport/GDTCORTransport.h>
+#endif
 
 #if TARGET_OS_IPHONE
 #import <UIKit/UIKit.h>

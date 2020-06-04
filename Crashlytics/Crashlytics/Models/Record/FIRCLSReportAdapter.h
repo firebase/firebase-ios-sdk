@@ -16,9 +16,13 @@
 
 #import <Foundation/Foundation.h>
 
-#include "crashlytics.nanopb.h"
+#include "Crashlytics/Protogen/nanopb/crashlytics.nanopb.h"
 
+#if SWIFT_PACKAGE
+@import GoogleDataTransport;
+#else
 #import <GoogleDataTransport/GDTCOREventDataObject.h>
+#endif
 
 /// This class is responsible for reading the persisted crash reports from disk and converting them
 /// the information into the nanopb model to be used with GoogleDataTransport

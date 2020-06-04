@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRCLSReportAdapter.h"
+#import "Crashlytics/Crashlytics/Models/Record/FIRCLSReportAdapter.h"
 
 #import "FIRCLSRecordApplication.h"
 #import "FIRCLSRecordHost.h"

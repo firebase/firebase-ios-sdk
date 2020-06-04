@@ -16,13 +16,13 @@ import Foundation
 import Firebase
 import FirebaseCore
 import FirebaseAuth
+import FirebaseCrashlytics
 // import FirebaseFunctions
 import FirebaseInstallations
 import FirebaseInstanceID
 import FirebaseStorage
 import FirebaseStorageSwift
 import GoogleDataTransport
-// import GoogleDataTransportCCTSupport
 import GoogleUtilities_Environment
 import GoogleUtilities_Logger
 
@@ -36,6 +36,8 @@ print("Is App extension? Answer: \(GULAppEnvironmentUtil.isAppExtension())")
 print("Is iOS 7 or higher? Answer: \(GULAppEnvironmentUtil.isIOS7OrHigher())")
 
 print("Is there a default app? Answer: \(FirebaseApp.app() != nil)")
+
+print("Is Crashlytics enabled? Answer: \(Crashlytics.crashlytics().isCrashlyticsCollectionEnabled())")
 
 print("Storage Version String? Answer: \(String(cString: StorageVersionString))")
 

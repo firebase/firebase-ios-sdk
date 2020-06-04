@@ -23,16 +23,16 @@
 #import "FBLPromises.h"
 #endif
 
-#include "FIRAEvent+Internal.h"
-#include "FIRCLSContext.h"
-#import "FIRCLSDataCollectionArbiter.h"
-#include "FIRCLSDefines.h"
-#import "FIRCLSInternalReport.h"
-#import "FIRCLSSettings.h"
+#include "Crashlytics/Crashlytics/Helpers/FIRAEvent+Internal.h"
+#include "Crashlytics/Crashlytics/Components/FIRCLSContext.h"
+#import "Crashlytics/Crashlytics/DataCollection/FIRCLSDataCollectionArbiter.h"
+#include "Crashlytics/Crashlytics/Helpers/FIRCLSDefines.h"
+#import "Crashlytics/Crashlytics/Models/FIRCLSInternalReport.h"
+#import "Crashlytics/Crashlytics/Models/FIRCLSSettings.h"
 
 #import "FABMockApplicationIdentifierModel.h"
 #import "FIRAppFake.h"
-#import "FIRCLSApplicationIdentifierModel.h"
+#import "Crashlytics/Crashlytics/Settings/Models/FIRCLSApplicationIdentifierModel.h"
 #import "FIRCLSMockReportManager.h"
 #import "FIRCLSMockReportUploader.h"
 #import "FIRCLSMockSettings.h"

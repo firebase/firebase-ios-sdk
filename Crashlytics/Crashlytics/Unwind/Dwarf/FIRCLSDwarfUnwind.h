@@ -19,7 +19,7 @@
 #include <sys/types.h>
 
 #include "FIRCLSDwarfUnwindRegisters.h"
-#include "FIRCLSThreadState.h"
+#include "Crashlytics/Crashlytics/Helpers/FIRCLSThreadState.h"
 
 #if CLS_DWARF_UNWINDING_SUPPORTED
 

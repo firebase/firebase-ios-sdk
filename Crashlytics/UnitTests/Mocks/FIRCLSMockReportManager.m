@@ -14,7 +14,7 @@
 
 #import "FIRCLSMockReportManager.h"
 
-#import "FIRCLSContext.h"
+#import "Crashlytics/Crashlytics/Components/FIRCLSContext.h"
 #import "FIRCLSMockNetworkClient.h"
 #import "FIRCLSMockReportUploader.h"
 

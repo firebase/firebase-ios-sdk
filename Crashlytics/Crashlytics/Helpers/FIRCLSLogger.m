@@ -12,9 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRCLSLogger.h"
+#import "Crashlytics/Crashlytics/Helpers/FIRCLSLogger.h"
 
+#if SWIFT_PACKAGE
+#import "FirebaseCore/Sources/Private/FIRLogger.h"
+#else
 #import <FirebaseCore/FIRLogger.h>
+#endif
 
 FIRLoggerService kFIRLoggerCrashlytics = @"[Firebase/Crashlytics]";
 

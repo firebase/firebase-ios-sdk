@@ -18,10 +18,10 @@
 #import "FIRCLSRecordApplication.h"
 #import "FIRCLSRecordHost.h"
 #import "FIRCLSRecordIdentity.h"
-#import "FIRCLSReportAdapter.h"
+#import "Crashlytics/Crashlytics/Models/Record/FIRCLSReportAdapter.h"
 #import "FIRCLSReportAdapter_Private.h"
 
-#import "FIRCLSFile.h"
+#import "Crashlytics/Crashlytics/Helpers/FIRCLSFile.h"
 
 #import <GoogleDataTransport/GDTCOREvent.h>
 #import <GoogleDataTransport/GDTCORTargets.h>
