@@ -15,6 +15,8 @@
 #import <Foundation/Foundation.h>
 #import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
 
+@class ABTExperimentPayload;
+
 NS_ASSUME_NONNULL_BEGIN
 
 @class FIRLifecycleEvents;
@@ -66,7 +68,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)setExperimentWithOrigin:(NSString *)origin
                         payload:(ABTExperimentPayload *)payload
                          events:(FIRLifecycleEvents *)events
-                         policy:(ABTExperimentPayload_ExperimentOverflowPolicy)policy;
+                         policy:(ABTExperimentPayloadExperimentOverflowPolicy)policy;
 
 /**
  *  Unavailable. Use sharedInstanceWithAnalytics: instead.

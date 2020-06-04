@@ -14,6 +14,7 @@
 
 #import <XCTest/XCTest.h>
 
+#import <FirebaseABTesting/ABTExperimentPayload.h>
 #import <FirebaseABTesting/FIRExperimentController.h>
 #import <FirebaseABTesting/FIRLifecycleEvents.h>
 #import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
@@ -41,7 +42,7 @@ extern NSArray *ABTExperimentsToClearFromPayloads(
     updateExperimentConditionalUserPropertiesWithServiceOrigin:(NSString *)origin
                                                         events:(FIRLifecycleEvents *)events
                                                         policy:
-                                                            (ABTExperimentPayload_ExperimentOverflowPolicy)
+                                                            (ABTExperimentPayloadExperimentOverflowPolicy)
                                                                 policy
                                                  lastStartTime:(NSTimeInterval)lastStartTime
                                                       payloads:(NSArray<NSData *> *)payloads
@@ -60,9 +61,9 @@ extern NSArray *ABTExperimentsToClearFromPayloads(
 - (id)createExperimentFromOrigin:(NSString *)origin
                          payload:(ABTExperimentPayload *)payload
                           events:(FIRLifecycleEvents *)events;
-- (ABTExperimentPayload_ExperimentOverflowPolicy)
+- (ABTExperimentPayloadExperimentOverflowPolicy)
     overflowPolicyWithPayload:(ABTExperimentPayload *)payload
-               originalPolicy:(ABTExperimentPayload_ExperimentOverflowPolicy)originalPolicy;
+               originalPolicy:(ABTExperimentPayloadExperimentOverflowPolicy)originalPolicy;
 @end
 
 @interface FIRExperimentControllerTest : XCTestCase {
@@ -145,7 +146,7 @@ extern NSArray *ABTExperimentsToClearFromPayloads(
       setExperimentWithOrigin:[OCMArg any]
                       payload:[OCMArg any]
                        events:[OCMArg any]
-                       policy:ABTExperimentPayload_ExperimentOverflowPolicy_DiscardOldest];
+                       policy:ABTExperimentPayloadExperimentOverflowPolicyDiscardOldest];
   NSString *sampleString = @"sample_invalid_payload";
   NSData *invalidData = [sampleString dataUsingEncoding:NSUTF8StringEncoding];
   XCTAssertNil(ABTDeserializeExperimentPayload(invalidData));
@@ -189,7 +190,7 @@ extern NSArray *ABTExperimentsToClearFromPayloads(
       updateExperimentConditionalUserPropertiesWithServiceOrigin:gABTTestOrigin
                                                           events:events
                                                           policy:
-                                                              ABTExperimentPayload_ExperimentOverflowPolicy_DiscardOldest  // NOLINT
+                                                              ABTExperimentPayloadExperimentOverflowPolicyDiscardOldest  // NOLINT
                                                    lastStartTime:now
                                                         payloads:payloads
                                                completionHandler:^(NSError *_Nullable error) {
@@ -205,7 +206,7 @@ extern NSArray *ABTExperimentsToClearFromPayloads(
       updateExperimentConditionalUserPropertiesWithServiceOrigin:gABTTestOrigin
                                                           events:events
                                                           policy:
-                                                              ABTExperimentPayload_ExperimentOverflowPolicy_DiscardOldest  // NOLINT
+                                                              ABTExperimentPayloadExperimentOverflowPolicyDiscardOldest  // NOLINT
                                                    lastStartTime:now
                                                         payloads:payloads
                                                completionHandler:nil];
@@ -326,12 +327,12 @@ extern NSArray *ABTExperimentsToClearFromPayloads(
       setExperimentWithOrigin:[OCMArg any]
                       payload:[OCMArg any]
                        events:[OCMArg any]
-                       policy:ABTExperimentPayload_ExperimentOverflowPolicy_DiscardOldest];
+                       policy:ABTExperimentPayloadExperimentOverflowPolicyDiscardOldest];
   [[_mockCUPController reject]
       setExperimentWithOrigin:[OCMArg any]
                       payload:[OCMArg any]
                        events:[OCMArg any]
-                       policy:ABTExperimentPayload_ExperimentOverflowPolicy_DiscardOldest];
+                       policy:ABTExperimentPayloadExperimentOverflowPolicyDiscardOldest];
 
   OCMStub([_mockCUPController experimentsWithOrigin:gABTTestOrigin]).andReturn(nil);
   NSMutableArray<NSData *> *payloads = [[NSMutableArray alloc] init];
@@ -343,7 +344,7 @@ extern NSArray *ABTExperimentsToClearFromPayloads(
       updateExperimentConditionalUserPropertiesWithServiceOrigin:gABTTestOrigin
                                                           events:events
                                                           policy:
-                                                              ABTExperimentPayload_ExperimentOverflowPolicy_DiscardOldest  // NOLINT
+                                                              ABTExperimentPayloadExperimentOverflowPolicyDiscardOldest  // NOLINT
                                                    lastStartTime:-1
                                                         payloads:payloads
                                                completionHandler:^(NSError *_Nullable error) {
@@ -363,8 +364,8 @@ extern NSArray *ABTExperimentsToClearFromPayloads(
 
   NSString *mockOrigin = @"mockOrigin";
   FIRLifecycleEvents *mockLifecycleEvents = [[FIRLifecycleEvents alloc] init];
-  ABTExperimentPayload_ExperimentOverflowPolicy mockOverflowPolicy =
-      ABTExperimentPayload_ExperimentOverflowPolicy_DiscardOldest;
+  ABTExperimentPayloadExperimentOverflowPolicy mockOverflowPolicy =
+      ABTExperimentPayloadExperimentOverflowPolicyDiscardOldest;
   NSTimeInterval mockLastStartTime = 100;
   NSArray *mockPayloads = @[];
 
@@ -417,7 +418,7 @@ extern NSArray *ABTExperimentsToClearFromPayloads(
       updateExperimentConditionalUserPropertiesWithServiceOrigin:gABTTestOrigin
                                                           events:events
                                                           policy:
-                                                              ABTExperimentPayload_ExperimentOverflowPolicy_DiscardOldest  // NOLINT
+                                                              ABTExperimentPayloadExperimentOverflowPolicyDiscardOldest  // NOLINT
                                                    lastStartTime:now
                                                         payloads:payloads
                                                completionHandler:nil];
@@ -458,7 +459,7 @@ extern NSArray *ABTExperimentsToClearFromPayloads(
       updateExperimentConditionalUserPropertiesWithServiceOrigin:gABTTestOrigin
                                                           events:events
                                                           policy:
-                                                              ABTExperimentPayload_ExperimentOverflowPolicy_DiscardOldest  // NOLINT
+                                                              ABTExperimentPayloadExperimentOverflowPolicyDiscardOldest  // NOLINT
                                                    lastStartTime:now
                                                         payloads:payloads
                                                completionHandler:nil];
@@ -503,7 +504,7 @@ extern NSArray *ABTExperimentsToClearFromPayloads(
       updateExperimentConditionalUserPropertiesWithServiceOrigin:gABTTestOrigin
                                                           events:events
                                                           policy:
-                                                              ABTExperimentPayload_ExperimentOverflowPolicy_DiscardOldest  // NOLINT
+                                                              ABTExperimentPayloadExperimentOverflowPolicyDiscardOldest  // NOLINT
                                                    lastStartTime:now
                                                         payloads:payloads
                                                completionHandler:nil];

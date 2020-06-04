@@ -17,7 +17,7 @@
 @class ABTExperimentPayload;
 
 // Forward declaration to avoid importing into the module header
-typedef NS_ENUM(int32_t, ABTExperimentPayload_ExperimentOverflowPolicy);
+typedef NS_ENUM(int32_t, ABTExperimentPayloadExperimentOverflowPolicy);
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -25,7 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// The default experiment overflow policy, that is to discard the experiment with the oldest start
 /// time when users start the experiment on the web console.
-extern const ABTExperimentPayload_ExperimentOverflowPolicy FIRDefaultExperimentOverflowPolicy;
+extern const ABTExperimentPayloadExperimentOverflowPolicy FIRDefaultExperimentOverflowPolicy;
 
 /// This class is for Firebase services to handle experiments updates to Firebase Analytics.
 /// Experiments can be set, cleared and updated through this controller.
@@ -51,7 +51,7 @@ NS_SWIFT_NAME(ExperimentController)
 ///                       thread.
 - (void)updateExperimentsWithServiceOrigin:(NSString *)origin
                                     events:(FIRLifecycleEvents *)events
-                                    policy:(ABTExperimentPayload_ExperimentOverflowPolicy)policy
+                                    policy:(ABTExperimentPayloadExperimentOverflowPolicy)policy
                              lastStartTime:(NSTimeInterval)lastStartTime
                                   payloads:(NSArray<NSData *> *)payloads
                          completionHandler:
@@ -71,7 +71,7 @@ NS_SWIFT_NAME(ExperimentController)
 /// @param payloads       List of experiment metadata.
 - (void)updateExperimentsWithServiceOrigin:(NSString *)origin
                                     events:(FIRLifecycleEvents *)events
-                                    policy:(ABTExperimentPayload_ExperimentOverflowPolicy)policy
+                                    policy:(ABTExperimentPayloadExperimentOverflowPolicy)policy
                              lastStartTime:(NSTimeInterval)lastStartTime
                                   payloads:(NSArray<NSData *> *)payloads
     DEPRECATED_MSG_ATTRIBUTE("Please use updateExperimentsWithServiceOrigin:events:policy:"

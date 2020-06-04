@@ -31,19 +31,19 @@ typedef NS_ENUM(int32_t, ABTExperimentPayloadExperimentOverflowPolicy) {
 
 @interface ABTExperimentPayload : NSObject
 
-@property(nonatomic, readwrite, copy, null_resettable) NSString *experimentId;
-@property(nonatomic, readwrite, copy, null_resettable) NSString *variantId;
+@property(nonatomic, readwrite, copy) NSString *experimentId;
+@property(nonatomic, readwrite, copy) NSString *variantId;
 @property(nonatomic, readwrite) int64_t experimentStartTimeMillis;
-@property(nonatomic, readwrite, copy, null_resettable) NSString *triggerEvent;
+@property(nonatomic, readwrite, copy) NSString *triggerEvent;
 @property(nonatomic, readwrite) int64_t triggerTimeoutMillis;
 @property(nonatomic, readwrite) int64_t timeToLiveMillis;
-@property(nonatomic, readwrite, copy, null_resettable) NSString *setEventToLog;
-@property(nonatomic, readwrite, copy, null_resettable) NSString *activateEventToLog;
-@property(nonatomic, readwrite, copy, null_resettable) NSString *clearEventToLog;
-@property(nonatomic, readwrite, copy, null_resettable) NSString *timeoutEventToLog;
-@property(nonatomic, readwrite, copy, null_resettable) NSString *ttlExpiryEventToLog;
+@property(nonatomic, readwrite, copy) NSString *setEventToLog;
+@property(nonatomic, readwrite, copy) NSString *activateEventToLog;
+@property(nonatomic, readwrite, copy) NSString *clearEventToLog;
+@property(nonatomic, readwrite, copy) NSString *timeoutEventToLog;
+@property(nonatomic, readwrite, copy) NSString *ttlExpiryEventToLog;
 @property(nonatomic, readwrite) ABTExperimentPayloadExperimentOverflowPolicy overflowPolicy;
-@property(nonatomic, readwrite, strong, null_resettable) NSMutableArray<ABTExperimentLite*> *ongoingExperimentsArray;
+@property(nonatomic, readwrite, strong) NSMutableArray<ABTExperimentLite*> *ongoingExperimentsArray;
 
 @end
 
