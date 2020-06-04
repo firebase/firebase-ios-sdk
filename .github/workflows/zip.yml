@@ -23,11 +23,9 @@ jobs:
 
   package:
     needs: build
-    env:
-      gcs_key: ${{ secrets.GHASecretsGPGPassphrase1 }}
     runs-on: macOS-latest
     # Only run the `package` job for the cron job, not PRs.
-    # if: github.event_name == 'schedule'
+    if: github.event_name == 'schedule'
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
@@ -35,15 +33,13 @@ jobs:
     - name: ZipBuildingTest
       run: |
          mkdir -p zip_output_dir
-         exit 1
-         # sh -x scripts/build_zip.sh zip_output_dir
-
-         # - uses: actions/upload-artifact@v1
-         #   with:
-         #     name: Firebase-actions-dir
-         #     # Zip the entire output directory since the builder adds subdirectories we don't know the
-         #     # name of.
-         #     path: zip_output_dir
+         sh -x scripts/build_zip.sh zip_output_dir
+    - uses: actions/upload-artifact@v1
+      with:
+        name: Firebase-actions-dir
+        # Zip the entire output directory since the builder adds subdirectories we don't know the
+        # name of.
+        path: zip_output_dir
     - name: Install gcloud tool
       if: ${{ always() }}
       run: scripts/install_gcloud.sh
