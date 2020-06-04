@@ -17,3 +17,4 @@
 curl https://sdk.cloud.google.com > install.sh
 bash install.sh --disable-prompts
 export PATH="${HOME}/google-cloud-sdk/bin/:${PATH}"
+source ~/.bash_profile
