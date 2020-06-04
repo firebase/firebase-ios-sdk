@@ -325,7 +325,7 @@ NSString *const gGDTCORFlatFileStorageQoSTierPathKey = @"QoSTierPath";
 
 - (void)storeLibraryData:(NSData *)data
                   forKey:(nonnull NSString *)key
-              onComplete:(nonnull void (^)(NSError *_Nullable error))onComplete {
+              onComplete:(nullable void (^)(NSError *_Nullable error))onComplete {
   if (!data || data.length <= 0) {
     if (onComplete) {
       onComplete([NSError errorWithDomain:NSInternalInconsistencyException code:-1 userInfo:nil]);

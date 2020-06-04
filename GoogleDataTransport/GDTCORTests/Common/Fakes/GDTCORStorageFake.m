@@ -38,7 +38,7 @@
 
 - (void)storeLibraryData:(NSData *)data
                   forKey:(nonnull NSString *)key
-              onComplete:(nonnull void (^)(NSError *_Nullable error))onComplete {
+              onComplete:(nullable void (^)(NSError *_Nullable error))onComplete {
   if (onComplete) {
     onComplete(nil);
   }

@@ -70,7 +70,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)storeLibraryData:(NSData *)data
                   forKey:(NSString *)key
-              onComplete:(void (^)(NSError *_Nullable error))onComplete;
+              onComplete:(nullable void (^)(NSError *_Nullable error))onComplete;
 
 /** Retrieves the stored data for the given key.
  *
