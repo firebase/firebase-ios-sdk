@@ -159,7 +159,7 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
   NSError *error;
   BOOL didClearAuthState = [self.authPersistence clearAuthState:&error];
   if (!didClearAuthState) {
-    FIRFADInfoLog(@"Error clearing token from keychain: %@", [error localizedDescription]);
+    FIRFADErrorLog(@"Error clearing token from keychain: %@", [error localizedDescription]);
     [self logUnderlyingKeychainError:error];
 
   } else {
@@ -195,7 +195,7 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
                                                  NSString *_Nonnull idToken,
                                                  NSError *_Nullable error) {
     if (error) {
-      FIRFADInfoLog(@"Error getting fresh auth tokens. Will sign out tester. Error: %@",
+      FIRFADErrorLog(@"Error getting fresh auth tokens. Will sign out tester. Error: %@",
                     [error localizedDescription]);
       // TODO: Do we need a less aggresive strategy here? maybe a retry?
       [self signOutTester];
@@ -268,7 +268,7 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
        appDistributionSignInCompletion:(void (^)(NSError *_Nullable error))completion {
   if (!configuration) {
     // TODO: Handle when we cannot get configuration
-    FIRFADInfoLog(@"ERROR - Cannot discover oauth config");
+    FIRFADErrorLog(@"Cannot discover oauth config");
 
     NSError *error =
         [self NSErrorForErrorCodeAndMessage:FIRAppDistributionErrorAuthenticationFailure
@@ -304,7 +304,7 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
                                             message:kAuthCancelledErrorMessage];
           } else {
             // Error in the auth flow
-            FIRFADInfoLog(@"Tester sign in error - %@", [error localizedDescription]);
+            FIRFADErrorLog(@"Tester sign in error - %@", [error localizedDescription]);
             signInError =
                 [self NSErrorForErrorCodeAndMessage:FIRAppDistributionErrorAuthenticationFailure
                                             message:kAuthErrorMessage];
@@ -327,10 +327,9 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
           [self.authPersistence persistAuthState:authState error:&authPersistenceError];
         }
 
-        // TODO (schnecle): Log errors in persistence using
         // FIRLogger
         if (authPersistenceError) {
-          FIRFADInfoLog(@"Error persisting auth token to keychain: %@",
+          FIRFADErrorLog(@"Error persisting auth token to keychain: %@",
                         [authPersistenceError localizedDescription]);
           [self logUnderlyingKeychainError:authPersistenceError];
 
@@ -400,7 +399,7 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
 - (void)logUnderlyingKeychainError:(NSError *)error {
   NSError *underlyingError = [error.userInfo objectForKey:NSUnderlyingErrorKey];
   if (underlyingError) {
-    FIRFADInfoLog(@"Keychain error - %@", [underlyingError localizedDescription]);
+    FIRFADErrorLog(@"Keychain error - %@", [underlyingError localizedDescription]);
   }
 }
 
