@@ -16,15 +16,13 @@
 #import "FIRStorageTaskSnapshot.h"
 
 #if SWIFT_PACKAGE
-@import FirebaseCore;
 @import GTMSessionFetcherCore;
 #else
-#import <FirebaseCore/FIRApp.h>
-#import <FirebaseCore/FIROptions.h>
 #import <GTMSessionFetcher/GTMSessionFetcher.h>
 #import <GTMSessionFetcher/GTMSessionFetcherService.h>
 #endif
 
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "FirebaseStorage/Sources/FIRStorageConstants_Private.h"
 #import "FirebaseStorage/Sources/FIRStorageDeleteTask.h"
 #import "FirebaseStorage/Sources/FIRStorageDownloadTask_Private.h"

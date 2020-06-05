@@ -16,11 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#if SWIFT_PACKAGE
-#import "FirebaseCore/Sources/Private/FIRLogger.h"
-#else
-#import <FirebaseCore/FIRLogger.h>
-#endif
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 extern FIRLoggerService kFIRLoggerInstallations;
 

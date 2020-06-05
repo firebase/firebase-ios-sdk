@@ -17,11 +17,7 @@
 #import "FIRStorage.h"
 #import "FIRStorageConstants.h"
 
-#if SWIFT_PACKAGE
 #import "Interop/Auth/Public/FIRAuthInterop.h"
-#else
-#import <FirebaseAuthInterop/FIRAuthInterop.h>
-#endif
 
 #import "FirebaseStorage/Sources/FIRStorageConstants_Private.h"
 #import "FirebaseStorage/Sources/FIRStorageErrors.h"

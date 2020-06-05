@@ -15,13 +15,8 @@
  */
 #import <Foundation/Foundation.h>
 
-#if SWIFT_PACKAGE
 #import "FirebaseCore/Sources/Private/FIRComponentType.h"
 #import "FirebaseCore/Sources/Private/FIRLibrary.h"
-#else
-#import <FirebaseCore/FIRComponentType.h>
-#import <FirebaseCore/FIRLibrary.h>
-#endif
 
 NS_ASSUME_NONNULL_BEGIN
 
