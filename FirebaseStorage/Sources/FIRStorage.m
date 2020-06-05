@@ -18,17 +18,16 @@
 #if SWIFT_PACKAGE
 @import FirebaseCore;
 @import GTMSessionFetcherCore;
-#import "FirebaseCore/Sources/Private/FIRAppInternal.h"
-#import "FirebaseCore/Sources/Private/FIRComponentContainer.h"
-#import "Interop/Auth/Public/FIRAuthInterop.h"
 #else
-#import <FirebaseAuthInterop/FIRAuthInterop.h>
-#import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseCore/FIRComponentContainer.h>
-#import <FirebaseCore/FIROptions.h>
+#import <FirebaseCore/FirebaseCore.h>
 #import <GTMSessionFetcher/GTMSessionFetcher.h>
 #import <GTMSessionFetcher/GTMSessionFetcherLogging.h>
 #endif
+
+#import "Interop/Auth/Public/FIRAuthInterop.h"
+
+#import "FirebaseCore/Sources/Private/FIRAppInternal.h"
+#import "FirebaseCore/Sources/Private/FIRComponentContainer.h"
 
 #import "FirebaseStorage/Sources/FIRStorageComponent.h"
 #import "FirebaseStorage/Sources/FIRStorageConstants_Private.h"

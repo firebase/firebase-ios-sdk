@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseStorage'
-  s.version          = '3.6.1'
+  s.version          = '3.6.1-test'
   s.summary          = 'Firebase Storage'
 
   s.description      = <<-DESC
@@ -13,7 +13,7 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
 
   s.source           = {
     :git => 'https://github.com/firebase/firebase-ios-sdk.git',
-    :tag => 'Storage-' + s.version.to_s
+    :tag => 'Storage-' + s.version.to_s + '-test'
   }
   s.social_media_url = 'https://twitter.com/Firebase'
   s.ios.deployment_target = '8.0'
