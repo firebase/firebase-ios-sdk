@@ -84,10 +84,15 @@ jobs:
         scripts/setup_quickstart_framework.sh "${SDK}"
     - name: Move frameworks to xcode project
       run: |
-        find "${HOME}/ios_frameworks" -type d -name "Firebase" -maxdepth 1 -exec mv {}/ quickstart-ios/config/ \;
-        cd quickstart-ios/config
-        ../scripts/add_framework_script.rb  "${SDK}" ConfigExample Firebase/FirebaseAnalytics
-        ../scripts/add_framework_script.rb  "${SDK}" ConfigExample Firebase/FirebaseRemoteConfig
+        mkdir -p "quickstart-ios/${SDK}/Firebase/"
+        mv "${HOME}/ios_frameworks/Firebase/Firebase.h" "quickstart-ios/${SDK}/Firebase/"
+        mv "${HOME}/ios_frameworks/Firebase/module.modulemap" "quickstart-ios/${SDK}/Firebase/"
+        mv "${HOME}/ios_frameworks/Firebase/FirbeaseRemoteConfig/*" "quickstart-ios/${SDK}/Firebase/"
+        mv "${HOME}/ios_frameworks/Firebase/FirebaseAnalytics/FirebaseAnalytics.xcframework" "quickstart-ios/${SDK}/Firebase/"
+        mv "${HOME}/ios_frameworks/Firebase/FirebaseAnalytics/FirebaseCore.xcframework" "quickstart-ios/${SDK}/Firebase/"
+        mv "${HOME}/ios_frameworks/Firebase/FirebaseAnalytics/GoogleUtilities.xcframework" "quickstart-ios/${SDK}/Firebase/"
+        cd "quickstart-ios/${SDK}"
+        ../scripts/add_framework_script.rb  "${SDK}" ConfigExample Firebase
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-config.plist.gpg \
         quickstart-ios/config/GoogleService-Info.plist "$plist_secret"
@@ -97,7 +102,7 @@ jobs:
     - name: Test Quickstart
       run: |
         cd quickstart-ios/config
-        xcodebuild test -project ConfigExample.xcodeproj -scheme ConfigExample -destination 'platform=iOS Simulator,name=iPhone 11 Pro' "OTHER_LDFLAGS=\$(OTHER_LDFLAGS) -ObjC" "FRAMEWORK_SEARCH_PATHS= \$(PROJECT_DIR)/Firebase/FirebaseRemoteConfig \$(PROJECT_DIR)/Firebase/FirebaseAnalytics" HEADER_SEARCH_PATHS='$(PROJECT_DIR)/Firebase $(PROJECT_DIR)/Firebase/FirebaseAnalytics $(PROJECT_DIR)/Firebase/FirebaseRemoteConfig'
+        xcodebuild test -project ConfigExample.xcodeproj -scheme ConfigExample -destination 'platform=iOS Simulator,name=iPhone 11 Pro' "OTHER_LDFLAGS=\$(OTHER_LDFLAGS) -ObjC" "FRAMEWORK_SEARCH_PATHS= \$(PROJECT_DIR)/Firebase" HEADER_SEARCH_PATHS='$(PROJECT_DIR)/Firebase'
     - name: Display xcodebuild setup
       if: ${{ failure() }}
       run: |
