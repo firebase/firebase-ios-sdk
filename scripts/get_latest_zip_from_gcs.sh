@@ -1,4 +1,4 @@
-#!/usr/bin/env ruby
+#!/bin/bash
 
 # Copyright 2020 Google LLC
 #
@@ -19,7 +19,7 @@ set -x
 FAMEWORK_ZIP="$1"
 OUTPUT_DIR="$2"
 
-gsutil cp gs://ios-framework-zip/latest_commit_hash.txt latest_commit_hash.txt
+gsutil cp "gs://ios-framework-zip/latest_commit_hash.txt" latest_commit_hash.txt
 commit_hash="$(cat 'latest_commit_hash.txt')"
 gsutil cp "gs://ios-framework-zip/Firebase-actions-dir-${commit_hash}.zip" "${FRAMEWORK_ZIP}"
 mkdir "${OUTPUT_DIR}"
