@@ -102,7 +102,7 @@ jobs:
     - name: Test Quickstart
       run: |
         cd quickstart-ios/config
-        ../scripts/test_quickstart_framework.sh
+        scripts/test_quickstart_framework.sh
     - name: Display xcodebuild setup
       if: ${{ failure() }}
       run: |
