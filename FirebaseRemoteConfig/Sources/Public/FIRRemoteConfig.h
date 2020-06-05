@@ -185,9 +185,9 @@ NS_SWIFT_NAME(RemoteConfig)
 - (nonnull instancetype)init __attribute__((unavailable("Use +remoteConfig instead.")));
 
 /// Ensures initialization is complete and clients can begin querying for Remote Config values.
-/// @param completionHandler Initialization complete callback.
+/// @param completionHandler Initialization complete callback with error parameter.
 - (void)ensureInitializedWithCompletionHandler:
-    (nonnull FIRRemoteConfigInitializationCompletion)completionHandler;
+    (void (^_Nonnull)(NSError *_Nullable initializationError))completionHandler;
 #pragma mark - Fetch
 /// Fetches Remote Config data with a callback. Call activateFetched to make fetched data available
 /// to your app.
@@ -198,8 +198,9 @@ NS_SWIFT_NAME(RemoteConfig)
 /// To stop the periodic sync, developers need to call `[FIRInstallations deleteWithCompletion:]`
 /// and avoid calling this method again.
 ///
-/// @param completionHandler Fetch operation callback.
-- (void)fetchWithCompletionHandler:(nullable FIRRemoteConfigFetchCompletion)completionHandler;
+/// @param completionHandler Fetch operation callback with status and error parameters.
+- (void)fetchWithCompletionHandler:(void (^_Nullable)(FIRRemoteConfigFetchStatus status,
+                                                      NSError *_Nullable error))completionHandler;
 
 /// Fetches Remote Config data and sets a duration that specifies how long config data lasts.
 /// Call activateFetched to make fetched data available to your app.
@@ -213,9 +214,10 @@ NS_SWIFT_NAME(RemoteConfig)
 /// @param expirationDuration  Override the (default or optionally set minimumFetchInterval property
 /// in FIRRemoteConfigSettings) minimumFetchInterval for only the current request, in seconds.
 /// Setting a value of 0 seconds will force a fetch to the backend.
-/// @param completionHandler   Fetch operation callback.
+/// @param completionHandler   Fetch operation callback with status and error parameters.
 - (void)fetchWithExpirationDuration:(NSTimeInterval)expirationDuration
-                  completionHandler:(nullable FIRRemoteConfigFetchCompletion)completionHandler;
+                  completionHandler:(void (^_Nullable)(FIRRemoteConfigFetchStatus status,
+                                                       NSError *_Nullable error))completionHandler;
 
 /// Fetches Remote Config data and if successful, activates fetched data. Optional completion
 /// handler callback is invoked after the attempted activation of data, if the fetch call succeeded.
@@ -226,9 +228,10 @@ NS_SWIFT_NAME(RemoteConfig)
 /// To stop the periodic sync, developers need to call `[FIRInstallations deleteWithCompletion:]`
 /// and avoid calling this method again.
 ///
-/// @param completionHandler Fetch operation callback.
+/// @param completionHandler Fetch operation callback with status and error parameters.
 - (void)fetchAndActivateWithCompletionHandler:
-    (nullable FIRRemoteConfigFetchAndActivateCompletion)completionHandler;
+    (void (^_Nullable)(FIRRemoteConfigFetchAndActivateStatus status,
+                       NSError *_Nullable error))completionHandler;
 
 #pragma mark - Apply
 
