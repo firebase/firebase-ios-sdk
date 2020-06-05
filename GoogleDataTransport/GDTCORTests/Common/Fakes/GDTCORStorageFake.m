@@ -38,7 +38,7 @@
 
 - (void)storeLibraryData:(NSData *)data
                   forKey:(nonnull NSString *)key
-              onComplete:(nonnull void (^)(NSError *_Nullable error))onComplete {
+              onComplete:(nullable void (^)(NSError *_Nullable error))onComplete {
   if (onComplete) {
     onComplete(nil);
   }
@@ -49,6 +49,22 @@
   if (onComplete) {
     onComplete(nil);
   }
+}
+
+- (BOOL)hasEventsForTarget:(GDTCORTarget)target {
+  return NO;
+}
+
+- (nullable id<GDTCORStorageEventIterator>)iteratorWithSelector:
+    (nonnull GDTCORStorageEventSelector *)eventSelector {
+  return nil;
+}
+
+- (void)purgeEventsFromBefore:(GDTCORClock *)beforeSnapshot
+                   onComplete:(void (^)(NSError *_Nullable error))onComplete {
+}
+
+- (void)storageSizeWithCallback:(void (^)(uint64_t storageSize))onComplete {
 }
 
 @end
