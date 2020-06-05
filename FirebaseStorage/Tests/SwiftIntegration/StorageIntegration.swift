@@ -379,6 +379,35 @@ class StorageIntegration: XCTestCase {
     waitForExpectations()
   }
 
+  func testSimpleGetDataWithCustomCallbackQueue() {
+    let expectation = self.expectation(description: #function)
+
+    let callbackQueueLabel = "customCallbackQueue"
+    let callbackQueueKey = DispatchSpecificKey<String>()
+    let callbackQueue = DispatchQueue(label: callbackQueueLabel)
+    callbackQueue.setSpecific(key: callbackQueueKey, value: callbackQueueLabel)
+    storage.callbackQueue = callbackQueue
+
+    let ref = storage.reference(withPath: "ios/public/1mb")
+    ref.getData(maxSize: 1024 * 1024) { data, error in
+      XCTAssertNotNil(data, "Data should not be nil")
+      XCTAssertNil(error, "Error should be nil")
+
+      XCTAssertFalse(Thread.isMainThread)
+
+      let currentQueueLabel = DispatchQueue.getSpecific(key: callbackQueueKey)
+      XCTAssertEqual(currentQueueLabel, callbackQueueLabel)
+
+      expectation.fulfill()
+
+      // Reset the callbackQueue to default (main queue).
+      self.storage.callbackQueue = DispatchQueue.main
+      callbackQueue.setSpecific(key: callbackQueueKey, value: nil)
+    }
+
+    waitForExpectations()
+  }
+
   func testSimpleGetDataTooSmall() {
     let expectation = self.expectation(description: #function)
 
@@ -460,7 +489,7 @@ class StorageIntegration: XCTestCase {
     let fileURL = tmpDirURL.appendingPathComponent("hello.txt")
     let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
 
-    _ = [ref.putData(data, metadata: nil, completion: { metadata, error in
+    ref.putData(data, metadata: nil, completion: { metadata, error in
       XCTAssertNotNil(metadata, "Metadata should not be nil")
       XCTAssertNil(error, "Error should be nil")
       let task = ref.write(toFile: fileURL)
@@ -487,7 +516,7 @@ class StorageIntegration: XCTestCase {
       task.observe(StorageTaskStatus.failure, handler: { snapshot in
         XCTAssertNil(snapshot.error, "Error should be nil")
       })
-    })]
+    })
     waitForExpectations()
   }
 

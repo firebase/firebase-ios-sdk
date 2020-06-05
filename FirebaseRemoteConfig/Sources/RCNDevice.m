@@ -202,10 +202,6 @@ NSString *FIRRemoteConfigTimezone() {
   return timezone.name;
 }
 
-int FIRRemoteConfigSDKVersion() {
-  return kRCNMajorVersion * 10000 + kRCNMinorVersion * 100 + kRCNPatchVersion;
-}
-
 NSMutableDictionary *FIRRemoteConfigDeviceContextWithProjectIdentifier(
     NSString *GMPProjectIdentifier) {
   NSMutableDictionary *deviceContext = [[NSMutableDictionary alloc] init];

@@ -34,10 +34,22 @@ jobs:
       run: |
          mkdir -p zip_output_dir
          sh -x scripts/build_zip.sh zip_output_dir
-
     - uses: actions/upload-artifact@v1
       with:
         name: Firebase-actions-dir
         # Zip the entire output directory since the builder adds subdirectories we don't know the
         # name of.
         path: zip_output_dir
+    - name: Install gcloud tool
+      if: ${{ always() }}
+      run: scripts/install_gcloud.sh
+    - name: Access gcloud account
+      if: ${{ always() }}
+      run: |
+         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/firebase-ios-testing.json.gpg firebase-ios-testing.json "$gcs_key"
+         gcloud auth activate-service-account --key-file firebase-ios-testing.json
+    - name: Update commit hash on GCS if any previous steps failed
+      if: ${{ failure() }}
+      run: scripts/upload_to_gcs.sh "${GITHUB_SHA}" "Fail"
+    - name: Upload zip file to GCS
+      run: scripts/upload_to_gcs.sh "${GITHUB_SHA}" "zip_output_dir"

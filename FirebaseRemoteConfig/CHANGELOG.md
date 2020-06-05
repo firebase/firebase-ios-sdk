@@ -1,11 +1,14 @@
+# v4.5.1
+- [changed] Removed typedefs from public API method signatures to improve Swift API usage from Xcode. (#5748)
+
 # v4.5.0
 - [changed] Updated `fetchAndActivateWithCompletionHandler:` implementation to activate asynchronously. (#5617)
 - [fixed] Remove undefined class via removing unused proto generated source files. (#4334)
 - [added] Add an URLSession Partial Mock to enable testing without a backend. (#5633)
 - [added] Added activate API that returns a callback with an additional `bool` parameter indicating
-if the config has changed or not. The new API does not error if the console is unchanged. The old
-activate API with only an error parameter is deprecated and will be removed at the next major
-release. (#3586)
+  if the config has changed or not. The new API does not error if the console is unchanged. The old
+  activate API with only an error parameter is deprecated and will be removed at the next major
+  release. (#3586)
 
 # v4.4.11
 - [fixed] Fixed a bug where settings updates weren't applied before fetches. (#4740)

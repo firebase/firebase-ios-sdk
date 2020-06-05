@@ -413,6 +413,38 @@ NSString *const kTestPassword = KPASSWORD;
   [self waitForExpectations];
 }
 
+- (void)testGetDataWithCustomCallbackQueue {
+  XCTestExpectation *expectation =
+      [self expectationWithDescription:@"testUnauthenticatedGetDataInCustomCallbackQueue"];
+
+  NSString *callbackQueueLabelString = @"customCallbackQueue";
+  const char *callbackQueueLabel = [callbackQueueLabelString UTF8String];
+  const void *callbackQueueKey = callbackQueueLabel;
+  dispatch_queue_t callbackQueue = dispatch_queue_create(callbackQueueLabel, NULL);
+
+  dispatch_queue_set_specific(callbackQueue, callbackQueueKey, (void *)callbackQueueKey, NULL);
+  _storage.callbackQueue = callbackQueue;
+
+  FIRStorageReference *ref = [self.storage referenceWithPath:@"ios/public/1mb"];
+  [ref dataWithMaxSize:1 * 1024 * 1024
+            completion:^(NSData *data, NSError *error) {
+              XCTAssertNotNil(data, "Data should not be nil");
+              XCTAssertNil(error, "Error should be nil");
+
+              char *currentQueueLabel = dispatch_get_specific(callbackQueueKey);
+              NSString *currentQueueLabelString = [NSString stringWithUTF8String:currentQueueLabel];
+              XCTAssertEqualObjects(currentQueueLabelString, callbackQueueLabelString);
+
+              [expectation fulfill];
+
+              // Reset the callbackQueue to default (main queue).
+              self.storage.callbackQueue = dispatch_get_main_queue();
+              dispatch_queue_set_specific(callbackQueue, callbackQueueKey, NULL, NULL);
+            }];
+
+  [self waitForExpectations];
+}
+
 - (void)testGetDataTooSmall {
   XCTestExpectation *expectation = [self expectationWithDescription:@"testGetDataTooSmall"];
 
