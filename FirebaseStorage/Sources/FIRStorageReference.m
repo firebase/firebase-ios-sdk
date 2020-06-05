@@ -215,7 +215,7 @@
 - (FIRStorageUploadTask *)putFile:(NSURL *)fileURL
                          metadata:(nullable FIRStorageMetadata *)metadata
                        completion:(nullable FIRStorageVoidMetadataError)completion {
-  if ([fileURL frs_hasDirectoryPath]) {
+  if ([self fileURLisDirectory:fileURL]) {
     NSError *error = [FIRStorageErrors
         errorWithCustomMessage:
             @"Failed to recognize file for file URL. Ensure file URL is not a directory."];
@@ -490,6 +490,14 @@
                                         dispatchQueue:_storage.dispatchQueue
                                            completion:completion];
   [task enqueue];
+}
+
+#pragma mark - Private Helpers
+
+- (BOOL)fileURLisDirectory:(NSURL *)fileURL {
+  NSNumber *isDirectory = [NSNumber numberWithBool:NO];
+  [fileURL getResourceValue:&isDirectory forKey:NSURLIsDirectoryKey error:nil];
+  return [isDirectory boolValue];
 }
 
 @end
