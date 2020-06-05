@@ -41,7 +41,8 @@ let package = Package(
     ),
     .library(
       name: "FirebaseFunctions",
-      targets: ["FirebaseFunctions"]),
+      targets: ["FirebaseFunctions"]
+    ),
     .library(
       name: "FirebaseStorage",
       targets: ["FirebaseStorage"]
@@ -199,10 +200,11 @@ let package = Package(
       path: "Functions/FirebaseFunctions",
       publicHeadersPath: "Public",
       cSettings: [
-         // SPM doesn't support interface frameworks or private headers
+        // SPM doesn't support interface frameworks or private headers
         .headerSearchPath("../../"),
-        .define("FIRFunctions_VERSION", to: "0.0.1"),  // TODO Fix version
-      ]),
+        .define("FIRFunctions_VERSION", to: "0.0.1"), // TODO: Fix version
+      ]
+    ),
     .target(
       name: "FirebaseInstanceID",
       dependencies: ["FirebaseCore", "FirebaseInstallations",
