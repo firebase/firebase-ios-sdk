@@ -88,7 +88,7 @@ jobs:
         mv "${HOME}"/ios_frameworks/Firebase/Firebase.h quickstart-ios/"${SDK}"/Firebase/
         mv "${HOME}"/ios_frameworks/Firebase/module.modulemap quickstart-ios/"${SDK}"/Firebase/
         mv "${HOME}"/ios_frameworks/Firebase/FirebaseRemoteConfig/* quickstart-ios/"${SDK}"/Firebase/
-        mv "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/FirebaseAnalytics.xcframework quickstart-ios/"${SDK}"/Firebase/
+        mv "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/FirebaseAnalytics.framework quickstart-ios/"${SDK}"/Firebase/
         mv "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/FirebaseCore.xcframework quickstart-ios/"${SDK}"/Firebase/
         mv "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/GoogleUtilities.xcframework quickstart-ios/"${SDK}"/Firebase/
         cd quickstart-ios/"${SDK}"
