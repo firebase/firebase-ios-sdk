@@ -83,6 +83,13 @@ static NSString *const kFIRAppDistributionAuthPersistenceErrorKeychainId =
     NSString *description = NSLocalizedString(
         @"Failed to retrieve auth state from keychain. Tester will have to sign in again.",
         @"Error message for failure to retrieve auth state from keychain. ");
+    if (!keychainError) {
+      // If passwordData and keychain is nil, auth state is not persisted.
+      keychainError = [NSError
+          errorWithDomain:kFIRAppDistributionAuthPersistenceErrorDomain
+                     code:FIRAppDistributionErrorTokenRetrievalFailure
+                 userInfo:@{NSLocalizedDescriptionKey : @"Auth state not present in the keychain"}];
+    }
     [self handleAuthStateError:error
                    description:description
                           code:FIRAppDistributionErrorTokenRetrievalFailure
