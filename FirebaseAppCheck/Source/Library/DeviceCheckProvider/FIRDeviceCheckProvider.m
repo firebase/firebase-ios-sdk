@@ -20,11 +20,18 @@
 
 #import <FBLPromises/FBLPromises.h>
 
+#import <FirebaseAppCheck/FIRAppCheckVersion.h>
 #import <FirebaseAppCheck/FIRDeviceCheckProvider.h>
 
 #import "DCDevice+FIRDeviceCheckTokenGenerator.h"
+#import "FIRAppCheckLogger.h"
 #import "FIRAppCheckToken.h"
 #import "FIRDeviceCheckAPIService.h"
+
+#import <FirebaseCore/FIRAppInternal.h>
+#import <FirebaseCore/FIRComponentContainer.h>
+#import <FirebaseCore/FIRLibrary.h>
+#import <FirebaseCore/FIROptions.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -47,6 +54,45 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithAPIService:(id<FIRDeviceCheckAPIServiceProtocol>)APIService {
   return [self initWithAPIService:APIService deviceTokenGenerator:[DCDevice currentDevice]];
+}
+
+- (nullable instancetype)initWithApp:(FIRApp *)app {
+  NSArray<NSString *> *missingOptionsFields = [[self class] missingFieldsInOptions:app.options];
+  if (missingOptionsFields.count > 0) {
+    FIRLogError(kFIRLoggerAppCheck, kFIRLoggerAppCheckMessageCodeUnknown,
+                @"Cannot instantiate `FIRDeviceCheckProvider` for app: %@. The following "
+                @"`FirebaseOptions` fields are missing: %@",
+                app.name, [missingOptionsFields componentsJoinedByString:@", "]);
+    return nil;
+  }
+
+  NSURLSession *URLSession = [NSURLSession
+      sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]];
+  FIRDeviceCheckAPIService *APIService =
+      [[FIRDeviceCheckAPIService alloc] initWithURLSession:URLSession
+                                                    APIKey:app.options.APIKey
+                                                 projectID:app.options.projectID
+                                                     appID:app.options.googleAppID];
+
+  return [self initWithAPIService:APIService];
+}
+
++ (NSArray<NSString *> *)missingFieldsInOptions:(FIROptions *)options {
+  NSMutableArray<NSString *> *missingFields = [NSMutableArray array];
+
+  if (options.APIKey.length < 1) {
+    [missingFields addObject:@"APIKey"];
+  }
+
+  if (options.projectID.length < 1) {
+    [missingFields addObject:@"projectID"];
+  }
+
+  if (options.googleAppID.length < 1) {
+    [missingFields addObject:@"googleAppID"];
+  }
+
+  return [missingFields copy];
 }
 
 #pragma mark - FIRAppCheckProvider

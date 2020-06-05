@@ -19,6 +19,7 @@
 #import <OCMock/OCMock.h>
 #import "FBLPromise+Testing.h"
 
+#import "FIRAppCheckErrorUtil.h"
 #import "FIRAppCheckToken.h"
 #import "FIRDeviceCheckAPIService.h"
 
@@ -93,7 +94,7 @@ typedef BOOL (^FIRRequestValidationBlock)(NSURLRequest *request);
   };
 
   NSData *HTTPResponseBody = [self loadFixtureNamed:@"DeviceCheckResponseSuccess.json"];
-  id mockURLDataTask = [self stubURLSessionDataTaskWithResponse:[self HTTPResponseSuccess]
+  id mockURLDataTask = [self stubURLSessionDataTaskWithResponse:[self HTTPResponseWithCode:200]
                                                            body:HTTPResponseBody
                                                           error:nil
                                          requestValidationBlock:requestValidation];
@@ -115,9 +116,115 @@ typedef BOOL (^FIRRequestValidationBlock)(NSURLRequest *request);
   OCMVerifyAll(self.mockURLSession);
 }
 
-// TODO: Test failures.
+- (void)testAppCheckTokenNetworkError {
+  NSData *deviceTokenData = [@"device_token" dataUsingEncoding:NSUTF8StringEncoding];
+  NSError *networkError = [NSError errorWithDomain:@"testAppCheckTokenNetworkError"
+                                              code:-1
+                                          userInfo:nil];
+
+  // 1. Stub URL session.
+  id mockURLDataTask = [self stubURLSessionDataTaskWithResponse:nil
+                                                           body:nil
+                                                          error:networkError
+                                         requestValidationBlock:nil];
+
+  // 2. Send request.
+  __auto_type tokenPromise = [self.APIService appCheckTokenWithDeviceToken:deviceTokenData];
+
+  // 3. Verify.
+  XCTAssert(FBLWaitForPromisesWithTimeout(1));
+
+  XCTAssertTrue(tokenPromise.isRejected);
+  XCTAssertNil(tokenPromise.value);
+
+  XCTAssertNotNil(tokenPromise.error);
+  XCTAssertEqualObjects(tokenPromise.error.domain, kFIRAppCheckErrorDomain);
+  XCTAssertEqual(tokenPromise.error.code, FIRAppCheckErrorCodeUnknown);
+  XCTAssertEqualObjects(tokenPromise.error.userInfo[NSUnderlyingErrorKey], networkError);
+
+  OCMVerifyAll(mockURLDataTask);
+  OCMVerifyAll(self.mockURLSession);
+}
+
+- (void)testAppCheckTokenInvalidDeviceToken {
+  NSData *deviceTokenData = [@"device_token" dataUsingEncoding:NSUTF8StringEncoding];
+  NSString *responseBodyString = @"Token verification failed.";
+
+  // 1. Stub URL session.
+
+  id mockURLDataTask = [self
+      stubURLSessionDataTaskWithResponse:[self HTTPResponseWithCode:300]
+                                    body:[responseBodyString dataUsingEncoding:NSUTF8StringEncoding]
+                                   error:nil
+                  requestValidationBlock:nil];
+
+  // 2. Send request.
+  __auto_type tokenPromise = [self.APIService appCheckTokenWithDeviceToken:deviceTokenData];
+
+  // 3. Verify.
+  XCTAssert(FBLWaitForPromisesWithTimeout(1));
+
+  XCTAssertTrue(tokenPromise.isRejected);
+  XCTAssertNil(tokenPromise.value);
+
+  XCTAssertNotNil(tokenPromise.error);
+  XCTAssertEqualObjects(tokenPromise.error.domain, kFIRAppCheckErrorDomain);
+  XCTAssertEqual(tokenPromise.error.code, FIRAppCheckErrorCodeUnknown);
+
+  // Expect response body and HTTP status code to be included in the error.
+  NSString *failureReason = tokenPromise.error.userInfo[NSLocalizedFailureReasonErrorKey];
+  XCTAssertTrue([failureReason containsString:@"300"]);
+  XCTAssertTrue([failureReason containsString:responseBodyString]);
+
+  OCMVerifyAll(mockURLDataTask);
+  OCMVerifyAll(self.mockURLSession);
+}
+
+- (void)testAppCheckTokenResponseMissingFields {
+  [self assertMissingFieldErrorWithFixture:@"DeviceCheckResponseMissingToken.json"
+                              missingField:@"attestation_token"];
+  [self assertMissingFieldErrorWithFixture:@"DeviceCheckResponseMissingTimeToLive.json"
+                              missingField:@"time_to_live"];
+  [self assertMissingFieldErrorWithFixture:@"DeviceCheckResponseMissingSeconds.json"
+                              missingField:@"time_to_live.seconds"];
+}
 
 #pragma mark - Helpers
+
+- (void)assertMissingFieldErrorWithFixture:(NSString *)fixtureName
+                              missingField:(NSString *)fieldName {
+  NSData *deviceTokenData = [@"device_token" dataUsingEncoding:NSUTF8StringEncoding];
+
+  // 1. Stub URL session.
+  NSData *missingFiledBody = [self loadFixtureNamed:fixtureName];
+  id mockURLDataTask = [self stubURLSessionDataTaskWithResponse:[self HTTPResponseWithCode:200]
+                                                           body:missingFiledBody
+                                                          error:nil
+                                         requestValidationBlock:nil];
+
+  // 2. Send request.
+  __auto_type tokenPromise = [self.APIService appCheckTokenWithDeviceToken:deviceTokenData];
+
+  // 3. Verify.
+  XCTAssert(FBLWaitForPromisesWithTimeout(1));
+
+  XCTAssertTrue(tokenPromise.isRejected);
+  XCTAssertNil(tokenPromise.value);
+
+  XCTAssertNotNil(tokenPromise.error);
+  XCTAssertEqualObjects(tokenPromise.error.domain, kFIRAppCheckErrorDomain);
+  XCTAssertEqual(tokenPromise.error.code, FIRAppCheckErrorCodeUnknown);
+
+  // Expect missing field name to be included in the error.
+  NSString *failureReason = tokenPromise.error.userInfo[NSLocalizedFailureReasonErrorKey];
+  NSString *fieldNameString = [NSString stringWithFormat:@"`%@`", fieldName];
+  XCTAssertTrue([failureReason containsString:fieldNameString],
+                @"Fixture `%@`: expected missing field %@ error not found", fixtureName,
+                fieldNameString);
+
+  OCMVerifyAll(mockURLDataTask);
+  OCMVerifyAll(self.mockURLSession);
+}
 
 - (id)stubURLSessionDataTaskWithResponse:(NSHTTPURLResponse *)response
                                     body:(NSData *)body
@@ -126,7 +233,12 @@ typedef BOOL (^FIRRequestValidationBlock)(NSURLRequest *request);
   __block id mockDataTask = OCMStrictClassMock([NSURLSessionDataTask class]);
 
   // Validate request content.
-  id URLRequestValidationArg = [OCMArg checkWithBlock:requestValidationBlock];
+  FIRRequestValidationBlock nonOptionalRequestValidationBlock =
+      requestValidationBlock ?: ^BOOL(id request) {
+        return YES;
+      };
+
+  id URLRequestValidationArg = [OCMArg checkWithBlock:nonOptionalRequestValidationBlock];
 
   // Save task completion to be called on the `[NSURLSessionDataTask resume]`
   __block void (^taskCompletion)(NSData *, NSURLResponse *, NSError *);
@@ -148,9 +260,9 @@ typedef BOOL (^FIRRequestValidationBlock)(NSURLRequest *request);
   return mockDataTask;
 }
 
-- (NSHTTPURLResponse *)HTTPResponseSuccess {
+- (NSHTTPURLResponse *)HTTPResponseWithCode:(NSInteger)statusCode {
   return [[NSHTTPURLResponse alloc] initWithURL:[NSURL URLWithString:@"http://localhost"]
-                                     statusCode:200
+                                     statusCode:statusCode
                                     HTTPVersion:@"HTTP/1.1"
                                    headerFields:nil];
 }

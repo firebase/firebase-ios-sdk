@@ -24,6 +24,9 @@
 #import "FIRDeviceCheckAPIService.h"
 #import "FIRDeviceCheckTokenGenerator.h"
 
+#import <FirebaseCore/FIRAppInternal.h>
+#import <FirebaseCore/FIROptions.h>
+
 @interface FIRDeviceCheckProviderTests : XCTestCase
 @property(nonatomic) FIRDeviceCheckProvider *provider;
 @property(nonatomic) id fakeAPIService;
@@ -45,6 +48,30 @@
   self.provider = nil;
   self.fakeAPIService = nil;
   self.fakeTokenGenerator = nil;
+}
+
+- (void)testInitWithValidApp {
+  FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:@"app_id" GCMSenderID:@"sender_id"];
+  options.APIKey = @"api_key";
+  options.projectID = @"project_id";
+  FIRApp *app = [[FIRApp alloc] initInstanceWithName:@"testInitWithValidApp" options:options];
+
+  XCTAssertNotNil([[FIRDeviceCheckProvider alloc] initWithApp:app]);
+}
+
+- (void)testInitWithIncompleteApp {
+  FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:@"app_id" GCMSenderID:@"sender_id"];
+
+  options.projectID = @"project_id";
+  FIRApp *missingAPIKeyApp = [[FIRApp alloc] initInstanceWithName:@"testInitWithValidApp"
+                                                          options:options];
+  XCTAssertNil([[FIRDeviceCheckProvider alloc] initWithApp:missingAPIKeyApp]);
+
+  options.projectID = nil;
+  options.APIKey = @"api_key";
+  FIRApp *missingProjectIDApp = [[FIRApp alloc] initInstanceWithName:@"testInitWithValidApp"
+                                                             options:options];
+  XCTAssertNil([[FIRDeviceCheckProvider alloc] initWithApp:missingProjectIDApp]);
 }
 
 - (void)testGetTokenSuccess {

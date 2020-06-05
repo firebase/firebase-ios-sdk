@@ -46,14 +46,14 @@
     return nil;
   }
 
-  NSNumber *timeToLiveSeconds = timeToLiveDict[@"seconds"];
-  if ([timeToLiveDict isKindOfClass:[NSNumber class]]) {
+  NSNumber *secondsToLive = timeToLiveDict[@"seconds"];
+  if (![secondsToLive isKindOfClass:[NSNumber class]]) {
     *outError =
         [FIRAppCheckErrorUtil appCheckTokenResponseErrorWithMissingField:@"time_to_live.seconds"];
     return nil;
   }
 
-  NSDate *expirationDate = [requestDate dateByAddingTimeInterval:timeToLiveSeconds.doubleValue];
+  NSDate *expirationDate = [requestDate dateByAddingTimeInterval:secondsToLive.doubleValue];
 
   return [self initWithToken:token expirationDate:expirationDate];
 }
