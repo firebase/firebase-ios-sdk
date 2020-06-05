@@ -108,14 +108,4 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@interface NSURL (FIRStorageNSURLHelpers)
-
-/**
- * Returns a boolean indicating that the NSURL instance represents a file directory
- * @return True if the NSURL object represents a file directory, and false if otherwise
- */
-- (BOOL)frs_hasDirectoryPath;
-
-@end
-
 NS_ASSUME_NONNULL_END
