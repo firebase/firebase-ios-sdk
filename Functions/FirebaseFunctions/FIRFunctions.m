@@ -15,11 +15,32 @@
 #import "FIRFunctions.h"
 #import "FIRFunctions+Internal.h"
 
+#if SWIFT_PACKAGE
+@import FirebaseCore;
+@import GTMSessionFetcherCore;
+#import "FirebaseCore/Sources/Private/FIRAppInternal.h"
+#import "FirebaseCore/Sources/Private/FIRComponent.h"
+#import "FirebaseCore/Sources/Private/FIRComponentContainer.h"
+#import "FirebaseCore/Sources/Private/FIRDependency.h"
+#import "FirebaseCore/Sources/Private/FIRLibrary.h"
+#import "Interop/Auth/Public/FIRAuthInterop.h"
+#else
 #import <FirebaseAuthInterop/FIRAuthInterop.h>
+#import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIRComponent.h>
 #import <FirebaseCore/FIRComponentContainer.h>
 #import <FirebaseCore/FIRDependency.h>
 #import <FirebaseCore/FIRLibrary.h>
+#import <FirebaseCore/FIROptions.h>
+#import <GTMSessionFetcher/GTMSessionFetcher.h>
+#import <GTMSessionFetcher/GTMSessionFetcherLogging.h>
+
+#import <FirebaseCore/FIRApp.h>
+#import <FirebaseCore/FIRAppInternal.h>
+#import <FirebaseCore/FIROptions.h>
+
+#import <GTMSessionFetcher/GTMSessionFetcherService.h>
+#endif
 
 #import "FIRError.h"
 #import "FIRHTTPSCallable+Internal.h"
@@ -28,11 +49,6 @@
 #import "FUNError.h"
 #import "FUNSerializer.h"
 #import "FUNUsageValidation.h"
-
-#import <FirebaseCore/FIRApp.h>
-#import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseCore/FIROptions.h>
-#import <GTMSessionFetcher/GTMSessionFetcherService.h>
 
 // The following two macros supply the incantation so that the C
 // preprocessor does not try to parse the version as a floating

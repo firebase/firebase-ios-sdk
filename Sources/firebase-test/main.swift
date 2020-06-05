@@ -17,7 +17,7 @@ import Firebase
 import FirebaseCore
 import FirebaseAuth
 import FirebaseCrashlytics
-// import FirebaseFunctions
+import FirebaseFunctions
 import FirebaseInstallations
 import FirebaseInstanceID
 import FirebaseStorage

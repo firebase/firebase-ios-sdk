@@ -32,10 +32,6 @@ let package = Package(
       targets: ["Firebase"]
     ),
     .library(
-      name: "FirebaseCore",
-      targets: ["FirebaseCore"]
-    ),
-    .library(
       name: "FirebaseAuth",
       targets: ["FirebaseAuth"]
     ),
@@ -43,17 +39,9 @@ let package = Package(
       name: "FirebaseCrashlytics",
       targets: ["FirebaseCrashlytics"]
     ),
-    // .library(
-    //   name: "FirebaseFunctions",
-    //   targets: ["FirebaseFunctions"]),
     .library(
-      name: "FirebaseInstallations",
-      targets: ["FirebaseInstallations"]
-    ),
-    .library(
-      name: "FirebaseInstanceID",
-      targets: ["FirebaseInstanceID"]
-    ),
+      name: "FirebaseFunctions",
+      targets: ["FirebaseFunctions"]),
     .library(
       name: "FirebaseStorage",
       targets: ["FirebaseStorage"]
@@ -75,6 +63,7 @@ let package = Package(
       name: "firebase-test",
       dependencies: [ // "FirebaseAuth", "FirebaseFunctions",
         "Firebase", "FirebaseCore", "FirebaseCrashlytics",
+        "FirebaseFunctions",
         "FirebaseInstallations", "FirebaseInstanceID",
         "FirebaseStorage", "FirebaseStorageSwift",
         "GoogleUtilities_Environment", "GoogleUtilities_Logger",
@@ -204,17 +193,16 @@ let package = Package(
         .define("FIRAuth_MINOR_VERSION", to: "1.1"), // TODO: Fix version
       ]
     ),
-//     .target(
-//       name: "FirebaseFunctions",
-//       dependencies: ["FirebaseCore", "GTMSessionFetcher_Core"],
-//       path: "Functions/FirebaseFunctions",
-//       publicHeadersPath: "Public",
-//       cSettings: [
-//          // SPM doesn't support interface frameworks or private headers
-//         .headerSearchPath("../../"),
-//         .define("FIRFunctions_VERSION", to: "0.0.1"),  // TODO Fix version
-//         .define("SWIFT_PACKAGE", to: "1"),  // SPM loses defaults if other cSettings
-//       ]),
+    .target(
+      name: "FirebaseFunctions",
+      dependencies: ["FirebaseCore", "GTMSessionFetcherCore"],
+      path: "Functions/FirebaseFunctions",
+      publicHeadersPath: "Public",
+      cSettings: [
+         // SPM doesn't support interface frameworks or private headers
+        .headerSearchPath("../../"),
+        .define("FIRFunctions_VERSION", to: "0.0.1"),  // TODO Fix version
+      ]),
     .target(
       name: "FirebaseInstanceID",
       dependencies: ["FirebaseCore", "FirebaseInstallations",
