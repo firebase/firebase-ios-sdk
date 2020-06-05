@@ -16,7 +16,7 @@
 
 set -x
 
-FAMEWORK_ZIP="$1"
+FRAMEWORK_ZIP="$1"
 OUTPUT_DIR="$2"
 
 gsutil cp "gs://ios-framework-zip/latest_commit_hash.txt" latest_commit_hash.txt
