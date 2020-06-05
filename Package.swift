@@ -178,7 +178,7 @@ let package = Package(
         "Crashlytics/",
         "Protogen/",
         "Shared/",
-        "third_party/",
+        "third_party/libunwind/dwarf.h",
       ],
       publicHeadersPath: "Crashlytics/Public",
       cSettings: [
@@ -257,7 +257,7 @@ let package = Package(
       path: ".",
       sources: [
         "GoogleDataTransport/GDTCORLibrary",
-        "GoogleDataTransportCCTSupport/GDTCCTLibrary"
+        "GoogleDataTransportCCTSupport/GDTCCTLibrary",
       ],
       publicHeadersPath: "GoogleDataTransport/GDTCORLibrary/Public",
       cSettings: [

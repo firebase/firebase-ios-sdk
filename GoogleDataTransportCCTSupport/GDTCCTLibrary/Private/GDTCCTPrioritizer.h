@@ -18,9 +18,9 @@
 
 #if SWIFT_PACKAGE
 #import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORClock.h"
-#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORTargets.h"
-#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORPrioritizer.h"
 #import "GoogleDataTransport/GDTCORLibrary/Public/GDTCOREvent.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORPrioritizer.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORTargets.h"
 #else
 #import <GoogleDataTransport/GDTCORClock.h>
 #import <GoogleDataTransport/GDTCOREvent.h>

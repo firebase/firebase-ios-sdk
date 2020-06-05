@@ -18,9 +18,9 @@
 
 #if SWIFT_PACKAGE
 #import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORConsoleLogger.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCOREvent.h"
 #import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORPlatform.h"
 #import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORRegistrar.h"
-#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCOREvent.h"
 #import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORTargets.h"
 #else
 #import <GoogleDataTransport/GDTCORConsoleLogger.h>

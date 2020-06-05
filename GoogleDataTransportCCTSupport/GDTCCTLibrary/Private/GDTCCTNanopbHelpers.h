@@ -17,8 +17,8 @@
 #import <Foundation/Foundation.h>
 
 #if SWIFT_PACKAGE
-#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORReachability.h"
 #import "GoogleDataTransport/GDTCORLibrary/Public/GDTCOREvent.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORReachability.h"
 #else
 #import <GoogleDataTransport/GDTCOREvent.h>
 #import <GoogleDataTransport/GDTCORReachability.h>

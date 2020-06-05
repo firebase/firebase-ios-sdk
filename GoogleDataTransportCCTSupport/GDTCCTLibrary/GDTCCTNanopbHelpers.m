@@ -25,8 +25,8 @@
 #if SWIFT_PACKAGE
 #import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORClock.h"
 #import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORConsoleLogger.h"
-#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORPlatform.h"
 #import "GoogleDataTransport/GDTCORLibrary/Public/GDTCOREvent.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORPlatform.h"
 @import nanopb;
 #else
 #import <GoogleDataTransport/GDTCORClock.h>
