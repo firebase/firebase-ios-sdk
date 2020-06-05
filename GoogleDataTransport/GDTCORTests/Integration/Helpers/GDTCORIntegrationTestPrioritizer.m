@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-#import "GDTCORTests/Integration/Helpers/GDTCORIntegrationTestPrioritizer.h"
+#import "GoogleDataTransport/GDTCORTests/Integration/Helpers/GDTCORIntegrationTestPrioritizer.h"
 
 #import <GoogleDataTransport/GDTCOREvent.h>
 #import <GoogleDataTransport/GDTCORRegistrar.h>
 
-#import "GDTCORTests/Integration/Helpers/GDTCORIntegrationTestUploadPackage.h"
+#import "GoogleDataTransport/GDTCORTests/Integration/Helpers/GDTCORIntegrationTestUploadPackage.h"
 
 @interface GDTCORIntegrationTestPrioritizer ()
 

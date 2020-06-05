@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "GDTCORTests/Integration/Helpers/GDTCORIntegrationTestUploadPackage.h"
+#import "GoogleDataTransport/GDTCORTests/Integration/Helpers/GDTCORIntegrationTestUploadPackage.h"
 
 @implementation GDTCORIntegrationTestUploadPackage
 

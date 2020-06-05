@@ -40,7 +40,7 @@ Support library to provide event prioritization and uploading for the GoogleData
   s.dependency 'nanopb', '~> 1.30905.0'
 
   header_search_paths = {
-    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}/GoogleDataTransportCCTSupport/"'
+    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}/"'
   }
 
   s.pod_target_xcconfig = {

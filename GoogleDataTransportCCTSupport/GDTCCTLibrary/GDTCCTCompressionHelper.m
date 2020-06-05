@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "GDTCCTLibrary/Private/GDTCCTCompressionHelper.h"
+#import "GoogleDataTransportCCTSupport/GDTCCTLibrary/Private/GDTCCTCompressionHelper.h"
 
 #import <zlib.h>
 

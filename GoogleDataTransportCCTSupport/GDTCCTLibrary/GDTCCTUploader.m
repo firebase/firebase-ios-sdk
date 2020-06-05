@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
-#import "GDTCCTLibrary/Private/GDTCCTUploader.h"
+#import "GoogleDataTransportCCTSupport/GDTCCTLibrary/Private/GDTCCTUploader.h"
 
 #if SWIFT_PACKAGE
-@import GoogleDataTransport;
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORConsoleLogger.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORPlatform.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORRegistrar.h"
 @import nanopb;
 #else
 #import <GoogleDataTransport/GDTCORConsoleLogger.h>
@@ -29,11 +31,11 @@
 #import <nanopb/pb_encode.h>
 #endif
 
-#import "GDTCCTLibrary/Private/GDTCCTCompressionHelper.h"
-#import "GDTCCTLibrary/Private/GDTCCTNanopbHelpers.h"
-#import "GDTCCTLibrary/Private/GDTCCTPrioritizer.h"
+#import "GoogleDataTransportCCTSupport/GDTCCTLibrary/Private/GDTCCTCompressionHelper.h"
+#import "GoogleDataTransportCCTSupport/GDTCCTLibrary/Private/GDTCCTNanopbHelpers.h"
+#import "GoogleDataTransportCCTSupport/GDTCCTLibrary/Private/GDTCCTPrioritizer.h"
 
-#import "GDTCCTLibrary/Protogen/nanopb/cct.nanopb.h"
+#import "GoogleDataTransportCCTSupport/GDTCCTLibrary/Protogen/nanopb/cct.nanopb.h"
 
 #ifdef GDTCCTSUPPORT_VERSION
 #define STR(x) STR_EXPAND(x)

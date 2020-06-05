@@ -17,13 +17,14 @@
 #import <Foundation/Foundation.h>
 
 #if SWIFT_PACKAGE
-@import GoogleDataTransport;
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORReachability.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCOREvent.h"
 #else
 #import <GoogleDataTransport/GDTCOREvent.h>
 #import <GoogleDataTransport/GDTCORReachability.h>
 #endif
 
-#import "GDTCCTLibrary/Protogen/nanopb/cct.nanopb.h"
+#import "GoogleDataTransportCCTSupport/GDTCCTLibrary/Protogen/nanopb/cct.nanopb.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

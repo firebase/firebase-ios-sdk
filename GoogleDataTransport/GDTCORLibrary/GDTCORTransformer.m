@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-#import "GDTCORLibrary/Private/GDTCORTransformer.h"
-#import "GDTCORLibrary/Private/GDTCORTransformer_Private.h"
+#import "GoogleDataTransport/GDTCORLibrary/Private/GDTCORTransformer.h"
+#import "GoogleDataTransport/GDTCORLibrary/Private/GDTCORTransformer_Private.h"
 
-#import "GDTCORLibrary/Public/GDTCORAssert.h"
-#import "GDTCORLibrary/Public/GDTCORConsoleLogger.h"
-#import "GDTCORLibrary/Public/GDTCOREvent.h"
-#import "GDTCORLibrary/Public/GDTCOREventTransformer.h"
-#import "GDTCORLibrary/Public/GDTCORLifecycle.h"
-#import "GDTCORLibrary/Public/GDTCORStorageProtocol.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORAssert.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORConsoleLogger.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCOREvent.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCOREventTransformer.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORLifecycle.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORStorageProtocol.h"
 
-#import "GDTCORLibrary/Private/GDTCOREvent_Private.h"
-#import "GDTCORLibrary/Private/GDTCORRegistrar_Private.h"
+#import "GoogleDataTransport/GDTCORLibrary/Private/GDTCOREvent_Private.h"
+#import "GoogleDataTransport/GDTCORLibrary/Private/GDTCORRegistrar_Private.h"
 
 @implementation GDTCORTransformer
 

@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-#import "GDTCORTests/Unit/GDTCORTestCase.h"
+#import "GoogleDataTransport/GDTCORTests/Unit/GDTCORTestCase.h"
 
 #import <GoogleDataTransport/GDTCORClock.h>
 #import <GoogleDataTransport/GDTCOREvent.h>
 #import <GoogleDataTransport/GDTCORRegistrar.h>
 #import <GoogleDataTransport/GDTCORUploadPackage.h>
 
-#import "GDTCORLibrary/Private/GDTCORUploadPackage_Private.h"
+#import "GoogleDataTransport/GDTCORLibrary/Private/GDTCORUploadPackage_Private.h"
 
-#import "GDTCORTests/Unit/Helpers/GDTCOREventGenerator.h"
-#import "GDTCORTests/Unit/Helpers/GDTCORTestPrioritizer.h"
-#import "GDTCORTests/Unit/Helpers/GDTCORTestUploadPackage.h"
-#import "GDTCORTests/Unit/Helpers/GDTCORTestUploader.h"
+#import "GoogleDataTransport/GDTCORTests/Unit/Helpers/GDTCOREventGenerator.h"
+#import "GoogleDataTransport/GDTCORTests/Unit/Helpers/GDTCORTestPrioritizer.h"
+#import "GoogleDataTransport/GDTCORTests/Unit/Helpers/GDTCORTestUploadPackage.h"
+#import "GoogleDataTransport/GDTCORTests/Unit/Helpers/GDTCORTestUploader.h"
 
 @interface GDTCORUploadPackageTest : GDTCORTestCase <NSSecureCoding, GDTCORUploadPackageProtocol>
 

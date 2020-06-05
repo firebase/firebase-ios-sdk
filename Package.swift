@@ -171,8 +171,8 @@ let package = Package(
     ),
     .target(
       name: "FirebaseCrashlytics",
-      dependencies: ["FirebaseCore", "FirebaseInstallations", "FBLPromises", "GoogleDataTransport",
-                     "GoogleDataTransportCCTSupport", "nanopb"],
+      dependencies: ["FirebaseCore", "FirebaseInstallations", "FBLPromises",
+                     "GoogleDataTransport", "nanopb"],
       path: "Crashlytics",
       sources: [
         "Crashlytics/",
@@ -253,19 +253,16 @@ let package = Package(
     ),
     .target(
       name: "GoogleDataTransport",
-      path: "GoogleDataTransport/GDTCORLibrary",
-      publicHeadersPath: "Public",
+      dependencies: ["nanopb"],
+      path: ".",
+      sources: [
+        "GoogleDataTransport/GDTCORLibrary",
+        "GoogleDataTransportCCTSupport/GDTCCTLibrary"
+      ],
+      publicHeadersPath: "GoogleDataTransport/GDTCORLibrary/Public",
       cSettings: [
-        .headerSearchPath("../"),
+        .headerSearchPath("."),
         .define("GDTCOR_VERSION", to: "0.0.1"),
-      ]
-    ),
-    .target(
-      name: "GoogleDataTransportCCTSupport",
-      dependencies: ["GoogleDataTransport", "nanopb"],
-      path: "GoogleDataTransportCCTSupport/GDTCCTLibrary",
-      cSettings: [
-        .headerSearchPath("../"),
         .define("PB_FIELD_32BIT", to: "1"),
         .define("PB_NO_PACKED_STRUCTS", to: "1"),
         .define("PB_ENABLE_MALLOC", to: "1"),

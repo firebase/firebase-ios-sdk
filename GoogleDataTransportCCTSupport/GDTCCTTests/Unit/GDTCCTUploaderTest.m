@@ -18,11 +18,11 @@
 
 #import <GoogleDataTransport/GDTCORUploadPackage.h>
 
-#import "GDTCCTLibrary/Private/GDTCCTNanopbHelpers.h"
-#import "GDTCCTLibrary/Private/GDTCCTUploader.h"
+#import "GoogleDataTransportCCTSupport/GDTCCTLibrary/Private/GDTCCTNanopbHelpers.h"
+#import "GoogleDataTransportCCTSupport/GDTCCTLibrary/Private/GDTCCTUploader.h"
 
-#import "GDTCCTTests/Unit/Helpers/GDTCCTEventGenerator.h"
-#import "GDTCCTTests/Unit/TestServer/GDTCCTTestServer.h"
+#import "GoogleDataTransportCCTSupport/GDTCCTTests/Unit/Helpers/GDTCCTEventGenerator.h"
+#import "GoogleDataTransportCCTSupport/GDTCCTTests/Unit/TestServer/GDTCCTTestServer.h"
 
 @interface GDTCCTUploaderTest : XCTestCase
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "GDTCCTLibrary/Private/GDTCCTNanopbHelpers.h"
+#import "GoogleDataTransportCCTSupport/GDTCCTLibrary/Private/GDTCCTNanopbHelpers.h"
 
 #if TARGET_OS_IOS || TARGET_OS_TV
 #import <UIKit/UIKit.h>
@@ -23,7 +23,10 @@
 #endif  // TARGET_OS_IOS || TARGET_OS_TV
 
 #if SWIFT_PACKAGE
-@import GoogleDataTransport;
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORClock.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORConsoleLogger.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORPlatform.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCOREvent.h"
 @import nanopb;
 #else
 #import <GoogleDataTransport/GDTCORClock.h>
@@ -36,7 +39,7 @@
 #import <nanopb/pb_encode.h>
 #endif
 
-#import "GDTCCTLibrary/Private/GDTCOREvent+NetworkConnectionInfo.h"
+#import "GoogleDataTransportCCTSupport/GDTCCTLibrary/Private/GDTCOREvent+NetworkConnectionInfo.h"
 
 #pragma mark - General purpose encoders
 

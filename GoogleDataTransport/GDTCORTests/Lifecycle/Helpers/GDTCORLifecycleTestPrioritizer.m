@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "GDTCORTests/Lifecycle/Helpers/GDTCORLifecycleTestPrioritizer.h"
+#import "GoogleDataTransport/GDTCORTests/Lifecycle/Helpers/GDTCORLifecycleTestPrioritizer.h"
 
 #import <GoogleDataTransport/GDTCORRegistrar.h>
 

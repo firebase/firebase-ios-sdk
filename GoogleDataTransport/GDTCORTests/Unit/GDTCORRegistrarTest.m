@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-#import "GDTCORTests/Unit/GDTCORTestCase.h"
+#import "GoogleDataTransport/GDTCORTests/Unit/GDTCORTestCase.h"
 
 #import <GoogleDataTransport/GDTCORRegistrar.h>
 
-#import "GDTCORLibrary/Private/GDTCORRegistrar_Private.h"
-#import "GDTCORTests/Unit/Helpers/GDTCORTestPrioritizer.h"
-#import "GDTCORTests/Unit/Helpers/GDTCORTestUploader.h"
+#import "GoogleDataTransport/GDTCORLibrary/Private/GDTCORRegistrar_Private.h"
+#import "GoogleDataTransport/GDTCORTests/Unit/Helpers/GDTCORTestPrioritizer.h"
+#import "GoogleDataTransport/GDTCORTests/Unit/Helpers/GDTCORTestUploader.h"
 
 @interface GDTCORRegistrarTest : GDTCORTestCase
 

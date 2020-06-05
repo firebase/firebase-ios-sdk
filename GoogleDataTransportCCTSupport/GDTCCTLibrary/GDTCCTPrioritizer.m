@@ -14,10 +14,14 @@
  * limitations under the License.
  */
 
-#import "GDTCCTLibrary/Private/GDTCCTPrioritizer.h"
+#import "GoogleDataTransportCCTSupport/GDTCCTLibrary/Private/GDTCCTPrioritizer.h"
 
 #if SWIFT_PACKAGE
-@import GoogleDataTransport;
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORConsoleLogger.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORPlatform.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORRegistrar.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCOREvent.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORTargets.h"
 #else
 #import <GoogleDataTransport/GDTCORConsoleLogger.h>
 #import <GoogleDataTransport/GDTCOREvent.h>
@@ -26,8 +30,8 @@
 #import <GoogleDataTransport/GDTCORTargets.h>
 #endif
 
-#import "GDTCCTLibrary/Private/GDTCCTNanopbHelpers.h"
-#import "GDTCCTLibrary/Private/GDTCOREvent+NetworkConnectionInfo.h"
+#import "GoogleDataTransportCCTSupport/GDTCCTLibrary/Private/GDTCCTNanopbHelpers.h"
+#import "GoogleDataTransportCCTSupport/GDTCCTLibrary/Private/GDTCOREvent+NetworkConnectionInfo.h"
 
 const static int64_t kMillisPerDay = 8.64e+7;
 

@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-#import "GDTCORLibrary/Private/GDTCORFlatFileStorage.h"
+#import "GoogleDataTransport/GDTCORLibrary/Private/GDTCORFlatFileStorage.h"
 
-#import "GDTCORLibrary/Public/GDTCORAssert.h"
-#import "GDTCORLibrary/Public/GDTCORConsoleLogger.h"
-#import "GDTCORLibrary/Public/GDTCOREvent.h"
-#import "GDTCORLibrary/Public/GDTCORLifecycle.h"
-#import "GDTCORLibrary/Public/GDTCORPrioritizer.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORAssert.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORConsoleLogger.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCOREvent.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORLifecycle.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORPrioritizer.h"
 
-#import "GDTCORLibrary/Private/GDTCOREvent_Private.h"
-#import "GDTCORLibrary/Private/GDTCORRegistrar_Private.h"
-#import "GDTCORLibrary/Private/GDTCORUploadCoordinator.h"
+#import "GoogleDataTransport/GDTCORLibrary/Private/GDTCOREvent_Private.h"
+#import "GoogleDataTransport/GDTCORLibrary/Private/GDTCORRegistrar_Private.h"
+#import "GoogleDataTransport/GDTCORLibrary/Private/GDTCORUploadCoordinator.h"
 
 @implementation GDTCORFlatFileStorage
 

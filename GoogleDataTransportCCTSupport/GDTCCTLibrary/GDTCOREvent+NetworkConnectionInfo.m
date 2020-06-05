@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#import "GDTCCTLibrary/Private/GDTCOREvent+NetworkConnectionInfo.h"
+#import "GoogleDataTransportCCTSupport/GDTCCTLibrary/Private/GDTCOREvent+NetworkConnectionInfo.h"
 
 #if SWIFT_PACKAGE
-@import GoogleDataTransport;
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORConsoleLogger.h"
 #else
 #import <GoogleDataTransport/GDTCORConsoleLogger.h>
 #endif

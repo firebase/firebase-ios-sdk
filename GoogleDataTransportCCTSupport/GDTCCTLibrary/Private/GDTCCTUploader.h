@@ -17,7 +17,7 @@
 #import <Foundation/Foundation.h>
 
 #if SWIFT_PACKAGE
-@import GoogleDataTransport;
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORUploader.h"
 #else
 #import <GoogleDataTransport/GDTCORUploader.h>
 #endif

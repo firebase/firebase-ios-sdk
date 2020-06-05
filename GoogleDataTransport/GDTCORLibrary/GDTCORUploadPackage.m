@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-#import "GDTCORLibrary/Public/GDTCORUploadPackage.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORUploadPackage.h"
 
-#import "GDTCORLibrary/Public/GDTCORClock.h"
-#import "GDTCORLibrary/Public/GDTCORConsoleLogger.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORClock.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORConsoleLogger.h"
 
-#import "GDTCORLibrary/Private/GDTCORRegistrar_Private.h"
-#import "GDTCORLibrary/Private/GDTCORUploadCoordinator.h"
-#import "GDTCORLibrary/Private/GDTCORUploadPackage_Private.h"
+#import "GoogleDataTransport/GDTCORLibrary/Private/GDTCORRegistrar_Private.h"
+#import "GoogleDataTransport/GDTCORLibrary/Private/GDTCORUploadCoordinator.h"
+#import "GoogleDataTransport/GDTCORLibrary/Private/GDTCORUploadPackage_Private.h"
 
 /** A class that holds a weak reference to an upload package, for use by the package's NSTimer. */
 @interface GDTCORUploadPackageTimerHolder : NSObject

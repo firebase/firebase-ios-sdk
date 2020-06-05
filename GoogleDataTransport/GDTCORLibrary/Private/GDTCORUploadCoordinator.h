@@ -19,7 +19,7 @@
 #import "GDTCORLifecycle.h"
 #import "GDTCORRegistrar.h"
 
-#import "GDTCORLibrary/Private/GDTCORUploadPackage_Private.h"
+#import "GoogleDataTransport/GDTCORLibrary/Private/GDTCORUploadPackage_Private.h"
 
 @class GDTCORClock;
 

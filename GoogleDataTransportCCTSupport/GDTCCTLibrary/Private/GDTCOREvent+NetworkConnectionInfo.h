@@ -15,7 +15,7 @@
  */
 
 #if SWIFT_PACKAGE
-@import GoogleDataTransport;
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCOREvent.h"
 #else
 #import <GoogleDataTransport/GDTCOREvent.h>
 #endif

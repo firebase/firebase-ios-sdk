@@ -18,9 +18,9 @@
 
 #import <nanopb/pb_decode.h>
 
-#import "GDTCCTTests/Unit/Helpers/GDTCCTEventGenerator.h"
+#import "GoogleDataTransportCCTSupport/GDTCCTTests/Unit/Helpers/GDTCCTEventGenerator.h"
 
-#import "GDTCCTLibrary/Private/GDTCCTNanopbHelpers.h"
+#import "GoogleDataTransportCCTSupport/GDTCCTLibrary/Private/GDTCCTNanopbHelpers.h"
 
 @interface GDTCCTNanopbHelpersTest : XCTestCase
 

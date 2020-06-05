@@ -16,11 +16,11 @@
 
 #import <XCTest/XCTest.h>
 
-#import "GDTCCTTests/Unit/Helpers/GDTCCTEventGenerator.h"
+#import "GoogleDataTransportCCTSupport/GDTCCTTests/Unit/Helpers/GDTCCTEventGenerator.h"
 
-#import "GDTCCTLibrary/Private/GDTCCTNanopbHelpers.h"
-#import "GDTCCTLibrary/Private/GDTCCTPrioritizer.h"
-#import "GDTCCTLibrary/Private/GDTCOREvent+NetworkConnectionInfo.h"
+#import "GoogleDataTransportCCTSupport/GDTCCTLibrary/Private/GDTCCTNanopbHelpers.h"
+#import "GoogleDataTransportCCTSupport/GDTCCTLibrary/Private/GDTCCTPrioritizer.h"
+#import "GoogleDataTransportCCTSupport/GDTCCTLibrary/Private/GDTCOREvent+NetworkConnectionInfo.h"
 
 @interface GDTCCTPrioritizerTest : XCTestCase
 

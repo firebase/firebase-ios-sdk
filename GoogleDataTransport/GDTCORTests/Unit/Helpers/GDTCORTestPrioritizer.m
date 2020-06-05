@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import "GDTCORTests/Unit/Helpers/GDTCORTestPrioritizer.h"
-#import "GDTCORTests/Unit/Helpers/GDTCORTestUploadPackage.h"
+#import "GoogleDataTransport/GDTCORTests/Unit/Helpers/GDTCORTestPrioritizer.h"
+#import "GoogleDataTransport/GDTCORTests/Unit/Helpers/GDTCORTestUploadPackage.h"
 
 #import <GoogleDataTransport/GDTCOREvent.h>
 

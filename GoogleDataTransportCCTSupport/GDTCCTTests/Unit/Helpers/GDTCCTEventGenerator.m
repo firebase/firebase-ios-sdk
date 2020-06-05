@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "GDTCCTTests/Unit/Helpers/GDTCCTEventGenerator.h"
+#import "GoogleDataTransportCCTSupport/GDTCCTTests/Unit/Helpers/GDTCCTEventGenerator.h"
 
 #import <GoogleDataTransport/GDTCORAssert.h>
 #import <GoogleDataTransport/GDTCOREventDataObject.h>

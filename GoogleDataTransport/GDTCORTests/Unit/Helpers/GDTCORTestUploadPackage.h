@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "GDTCORTests/Unit/Helpers/GDTCORTestPrioritizer.h"
+#import "GoogleDataTransport/GDTCORTests/Unit/Helpers/GDTCORTestPrioritizer.h"
 
 /** An upload package used in testing. */
 @interface GDTCORTestUploadPackage : GDTCORUploadPackage

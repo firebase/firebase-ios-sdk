@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "GDTCORLibrary/Private/GDTCORDataFuture.h"
+#import "GoogleDataTransport/GDTCORLibrary/Private/GDTCORDataFuture.h"
 
 @implementation GDTCORDataFuture
 
