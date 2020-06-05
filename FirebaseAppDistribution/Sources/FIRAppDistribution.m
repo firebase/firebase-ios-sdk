@@ -358,9 +358,15 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
   NSError *authRetrievalError;
   self.authState = [self.authPersistence retrieveAuthState:&authRetrievalError];
   // TODO (schnecle): replace NSLog statement with FIRLogger log statement
-  if (authRetrievalError) {
-    NSLog(@"Error retrieving tester auth token");
-    [self logUnderlyingKeychainError:authRetrievalError];
+  if (!self.authState) {
+    if (authRetrievalError) {
+      NSLog(@"Error retrieving tester auth token");
+      [self logUnderlyingKeychainError:authRetrievalError];
+    } else {
+      // If authState and error is nil, auth state is not persisted in the keychain.
+      NSLog(@"AuthState not persisted in the keychain");
+    }
+
     return false;
   }
 
