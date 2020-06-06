@@ -62,7 +62,7 @@ static NSInteger const kRCNFetchResponseHTTPStatusCodeServiceUnavailable = 503;
 static NSInteger const kRCNFetchResponseHTTPStatusCodeGatewayTimeout = 504;
 
 // Deprecated error code previously from FirebaseCore
-static const NSInteger FIRErrorCodeConfigFailed = -114;
+static const NSInteger sFIRErrorCodeConfigFailed = -114;
 
 #pragma mark - RCNConfig
 
@@ -158,7 +158,7 @@ static const NSInteger FIRErrorCodeConfigFailed = -114;
                     @"A fetch is already in progress. Ignoring duplicate request.");
         NSError *error =
             [NSError errorWithDomain:FIRRemoteConfigErrorDomain
-                                code:FIRErrorCodeConfigFailed
+                                code:sFIRErrorCodeConfigFailed
                             userInfo:@{
                               NSLocalizedDescriptionKey :
                                   @"FetchError: Duplicate request while the previous one is pending"
