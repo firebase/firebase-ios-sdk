@@ -28,7 +28,7 @@ Cloud Functions for Firebase.
   s.preserve_paths = 'FirebaseCore/Sources/Private/*.h'
 
   s.dependency 'FirebaseAuthInterop', '~> 1.0'
-  s.dependency 'FirebaseCore', '~> 6.0'
+  s.dependency 'FirebaseCore', '~> 6.8'
   s.dependency 'GTMSessionFetcher/Core', '~> 1.1'
 
   s.pod_target_xcconfig = {

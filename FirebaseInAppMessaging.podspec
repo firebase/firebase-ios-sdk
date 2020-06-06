@@ -44,7 +44,7 @@ See more product details at https://firebase.google.com/products/in-app-messagin
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
   }
 
-  s.dependency 'FirebaseCore', '~> 6.2'
+  s.dependency 'FirebaseCore', '~> 6.8'
   s.ios.dependency 'FirebaseAnalyticsInterop', '~> 1.3'
   s.dependency 'FirebaseInstallations', '~> 1.1'
   s.dependency 'GoogleDataTransportCCTSupport', '~> 3.1'

@@ -31,7 +31,7 @@ Pod::Spec.new do |s|
   s.preserve_paths = 'FirebaseCore/Sources/Private/*.h'
 
   s.framework = 'Security'
-  s.dependency 'FirebaseCore', '~> 6.6'
+  s.dependency 'FirebaseCore', '~> 6.8'
   s.dependency 'PromisesObjC', '~> 1.2'
   s.dependency 'GoogleUtilities/Environment', '~> 6.6'
   s.dependency 'GoogleUtilities/UserDefaults', '~> 6.6'

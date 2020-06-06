@@ -27,7 +27,7 @@ Firebase Dynamic Links are deep links that enhance user experience and increase 
   s.preserve_paths = 'FirebaseCore/Sources/Private/*.h'
   s.frameworks = 'QuartzCore'
   s.weak_framework = 'WebKit'
-  s.dependency 'FirebaseCore', '~> 6.2'
+  s.dependency 'FirebaseCore', '~> 6.8'
   s.dependency 'FirebaseAnalyticsInterop', '~> 1.3'
 
   s.pod_target_xcconfig = {
