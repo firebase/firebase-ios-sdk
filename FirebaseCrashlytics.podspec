@@ -29,7 +29,7 @@ Pod::Spec.new do |s|
   ]
 
   s.preserve_paths = [
-    'FirebaseCore/Sources/Private/*.h'
+    'FirebaseCore/Sources/Private/*.h',
     'Crashlytics/README.md',
     'run',
     'upload-symbols',
