@@ -17,10 +17,10 @@
 #import <FirebaseFirestore/FirebaseFirestore.h>
 
 #import <XCTest/XCTest.h>
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 #include <limits>
 
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "Firestore/Source/API/FIRFieldValue+Internal.h"
 #import "Firestore/Source/API/FIRQuery+Internal.h"
 

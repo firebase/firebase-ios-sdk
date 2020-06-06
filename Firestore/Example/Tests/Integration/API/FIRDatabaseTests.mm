@@ -15,10 +15,10 @@
  */
 
 #import <FirebaseFirestore/FirebaseFirestore.h>
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 #import <XCTest/XCTest.h>
 
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "Firestore/Example/Tests/Util/FSTEventAccumulator.h"
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
