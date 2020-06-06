@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-#import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseCore/FIROptionsInternal.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import <FirebaseFirestore/FIRFirestore.h>
 
 #import <XCTest/XCTest.h>

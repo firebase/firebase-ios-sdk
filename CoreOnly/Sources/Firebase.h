@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import <FirebaseCore/FirebaseCore.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 #if !defined(__has_include)
   #error "Firebase.h won't import anything if your compiler doesn't support __has_include. Please \

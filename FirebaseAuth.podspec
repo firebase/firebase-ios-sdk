@@ -29,6 +29,7 @@ supports email and password accounts, as well as several 3rd party authenticatio
   s.source_files = source + '**/*.[mh]'
   s.public_header_files = source + 'Public/*.h'
   s.preserve_paths = [
+    'FirebaseCore/Sources/Private/*.h',
     'FirebaseAuth/README.md',
     'FirebaseAuth/CHANGELOG.md'
   ]

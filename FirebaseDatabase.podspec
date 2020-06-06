@@ -29,6 +29,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
     base_dir + 'third_party/Wrap-leveldb/APLevelDB.mm',
     base_dir + 'third_party/SocketRocket/fbase64.c'
   s.public_header_files = base_dir + 'Public/*.h'
+  s.preserve_paths = 'FirebaseCore/Sources/Private/*.h'
   s.libraries = ['c++', 'icucore']
   s.frameworks = 'CFNetwork', 'Security', 'SystemConfiguration'
   s.dependency 'leveldb-library', '~> 1.22'

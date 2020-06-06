@@ -20,7 +20,7 @@
 #import <FirebaseInAppMessaging/FIRInAppMessaging+Bootstrap.h>
 #import <FirebaseInAppMessaging/NSString+FIRInterlaceStrings.h>
 
-#import <FirebaseCore/FirebaseCore.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import <FirebaseDynamicLinks/FirebaseDynamicLinks.h>
 
 @interface FIRInAppMessaging (Testing)

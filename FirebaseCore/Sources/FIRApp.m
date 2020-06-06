@@ -22,7 +22,7 @@
 #import <AppKit/AppKit.h>
 #endif
 
-#import <FirebaseCore/FIRApp.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 #import "FirebaseCore/Sources/FIRAnalyticsConfiguration.h"
 #import "FirebaseCore/Sources/FIRBundleUtil.h"

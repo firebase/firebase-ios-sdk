@@ -28,6 +28,7 @@ Pod::Spec.new do |s|
   base_dir = "FirebaseInstallations/Source/"
   s.source_files = base_dir + 'Library/**/*.[mh]'
   s.public_header_files = base_dir + 'Library/Public/*.h'
+  s.preserve_paths = 'FirebaseCore/Sources/Private/*.h'
 
   s.framework = 'Security'
   s.dependency 'FirebaseCore', '~> 6.6'

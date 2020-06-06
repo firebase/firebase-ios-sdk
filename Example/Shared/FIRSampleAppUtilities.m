@@ -16,7 +16,7 @@
 
 #import "FIRSampleAppUtilities.h"
 
-#import <FirebaseCore/FIROptionsInternal.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import <SafariServices/SafariServices.h>
 
 NSString *const kGoogleAppIDPlistKey = @"GOOGLE_APP_ID";

@@ -18,7 +18,7 @@
 
 #if defined(__APPLE__)
 
-#import <FirebaseCore/FIRLogger.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import <Foundation/Foundation.h>
 
 #include <cstdarg>

@@ -16,7 +16,7 @@
 
 #import <FirebaseABTesting/FIRLifecycleEvents.h>
 #import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
-#import <FirebaseCore/FIRLogger.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "FirebaseABTesting/Sources/ABTConstants.h"
 
 @implementation ABTConditionalUserPropertyController {

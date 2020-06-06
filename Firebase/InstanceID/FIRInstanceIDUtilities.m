@@ -21,7 +21,7 @@
 #endif
 #import <sys/utsname.h>
 
-#import <FirebaseCore/FIROptions.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import <GoogleUtilities/GULUserDefaults.h>
 #import "FIRInstanceID.h"
 #import "FIRInstanceIDConstants.h"

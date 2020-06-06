@@ -33,7 +33,7 @@
 #import "FTupleCallbackStatus.h"
 #import "FTupleOnDisconnect.h"
 #import "FUtilities.h"
-#import <FirebaseCore/FIRLogger.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import <SystemConfiguration/SystemConfiguration.h>
 #import <dlfcn.h>
 #import <netinet/in.h>

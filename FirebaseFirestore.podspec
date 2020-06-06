@@ -33,6 +33,7 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
     'Firestore/core/src/**/*.{cc,mm}',
   ]
   s.preserve_paths = [
+    'FirebaseCore/Sources/Private/*.h'
     'Firestore/Source/API/*.h',
     'Firestore/Source/Core/*.h',
     'Firestore/Source/Local/*.h',

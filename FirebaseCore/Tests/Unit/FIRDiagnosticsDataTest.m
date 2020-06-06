@@ -16,7 +16,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FirebaseCore/Sources/FIRDiagnosticsData.h"
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 @interface FIRDiagnosticsDataTest : XCTestCase
 

@@ -19,6 +19,7 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
   s.ios.deployment_target = '8.0'
   s.osx.deployment_target = '10.11'
   s.tvos.deployment_target = '10.0'
+  # spec won't validate or push with FirebaseAuth as a test spec dependency.
   s.watchos.deployment_target = '6.0'
 
   s.cocoapods_version = '>= 1.4.0'
@@ -27,6 +28,8 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
 
   s.source_files = 'FirebaseStorage/Sources/**/*.[mh]'
   s.public_header_files = 'FirebaseStorage/Sources/Public/*.h'
+  s.preserve_paths = 'Interop/Auth/Public/*.h', 'FirebaseCore/Sources/Private/*.h'
+
   s.ios.framework = 'MobileCoreServices'
   s.osx.framework = 'CoreServices'
 

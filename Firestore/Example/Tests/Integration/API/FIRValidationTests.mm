@@ -16,8 +16,7 @@
 
 #import <FirebaseFirestore/FirebaseFirestore.h>
 
-#import <FirebaseCore/FIRApp.h>
-#import <FirebaseCore/FIROptions.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import <XCTest/XCTest.h>
 
 #include <limits>

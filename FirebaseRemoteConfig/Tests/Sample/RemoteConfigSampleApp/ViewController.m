@@ -15,8 +15,7 @@
 #import "ViewController.h"
 
 #import <FirebaseAnalytics/FirebaseAnalytics.h>
-#import <FirebaseCore/FIROptions.h>
-#import <FirebaseCore/FirebaseCore.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import <FirebaseInstallations/FirebaseInstallations.h>
 #import <FirebaseRemoteConfig/FIRRemoteConfig_Private.h>
 #import <FirebaseRemoteConfig/FirebaseRemoteConfig.h>

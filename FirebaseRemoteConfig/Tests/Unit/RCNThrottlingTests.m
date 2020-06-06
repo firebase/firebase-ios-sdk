@@ -23,8 +23,7 @@
 #import "FirebaseRemoteConfig/Sources/RCNConfigExperiment.h"
 #import "FirebaseRemoteConfig/Tests/Unit/RCNTestUtilities.h"
 
-#import <FirebaseCore/FIRApp.h>
-#import <FirebaseCore/FIRConfiguration.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import <OCMock/OCMock.h>
 
 @interface RCNThrottlingTests : XCTestCase {

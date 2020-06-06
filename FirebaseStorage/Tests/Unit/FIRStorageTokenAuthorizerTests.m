@@ -14,7 +14,7 @@
 
 #import "FIRStorageTestHelpers.h"
 
-#import <FirebaseCore/FIRAppInternal.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 #import "Example/Shared/FIRAuthInteropFake.h"
 

@@ -16,9 +16,7 @@
 
 #import "FIRFirestore+Internal.h"
 
-#import <FirebaseCore/FIRApp.h>
-#import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseCore/FIRComponentContainer.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 #include <memory>
 #include <string>

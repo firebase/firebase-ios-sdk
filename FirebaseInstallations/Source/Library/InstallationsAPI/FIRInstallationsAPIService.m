@@ -24,8 +24,7 @@
 #import "FBLPromises.h"
 #endif
 
-#import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseCore/FIRHeartbeatInfo.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "FIRInstallationsErrorUtil.h"
 #import "FIRInstallationsItem+RegisterInstallationAPI.h"
 #import "FIRInstallationsLogger.h"

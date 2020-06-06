@@ -18,7 +18,7 @@
 #import "FAtomicNumber.h"
 #import "FConstants.h"
 #import "FStringUtilities.h"
-#import <FirebaseCore/FIRLogger.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 #define ARC4RANDOM_MAX 0x100000000
 #define INTEGER_32_MIN (-2147483648)

@@ -19,8 +19,7 @@
 #import <GoogleSignIn/GoogleSignIn.h>
 
 #import "AppManager.h"
-#import <FirebaseCore/FIRApp.h>
-#import <FirebaseCore/FIROptions.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import <FirebaseAuth/FIRGoogleAuthProvider.h>
 #import "ApplicationDelegate.h"
 
