@@ -43,7 +43,8 @@ Pod::Spec.new do |s|
   end
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
-    'GCC_PREPROCESSOR_DEFINITIONS' => preprocessor_definitions
+    'GCC_PREPROCESSOR_DEFINITIONS' => preprocessor_definitions,
+    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
   }
 
   s.test_spec 'unit' do |unit_tests|

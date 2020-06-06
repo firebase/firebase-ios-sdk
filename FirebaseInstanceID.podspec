@@ -35,8 +35,8 @@ services.
   s.preserve_paths = 'FirebaseCore/Sources/Private/*.h'
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
-    'GCC_PREPROCESSOR_DEFINITIONS' =>
-      'FIRInstanceID_LIB_VERSION=' + String(s.version)
+    'GCC_PREPROCESSOR_DEFINITIONS' => 'FIRInstanceID_LIB_VERSION=' + String(s.version),
+    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
   }
   s.framework = 'Security'
   s.dependency 'FirebaseCore', '~> 6.6'
