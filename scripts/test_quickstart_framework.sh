@@ -14,14 +14,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-xcodebuild test -project ConfigExample.xcodeproj -scheme ConfigExample -destination 'platform=iOS Simulator,name=iPhone 11 Pro' "OTHER_LDFLAGS=\$(OTHER_LDFLAGS) -ObjC" "FRAMEWORK_SEARCH_PATHS= \$(PROJECT_DIR)/Firebase" HEADER_SEARCH_PATHS='$(PROJECT_DIR)/Firebase' &
+xcodebuild test -project ConfigExample.xcodeproj -scheme ConfigExample -destination 'platform=iOS Simulator,name=iPhone 11 Pro' "OTHER_LDFLAGS=\$(OTHER_LDFLAGS) -ObjC" "FRAMEWORK_SEARCH_PATHS= \$(PROJECT_DIR)/Firebase/" HEADER_SEARCH_PATHS='$(PROJECT_DIR)/Firebase' &
 pid=$!
-sleep 4 
+sleep 4
 if ps -p $pid > /dev/null
 then
-	xcrun simctl io booted recordVideo abc.mov &
+  echo "-----Video record is triggerred -----"
+	xcrun simctl io booted recordVideo -f abc.mov &
   FOO_PID=$!
-  echo "foo pid is $FOO_PID"
-  while ps -p $pid; do sleep 1; done ; kill -2 "$FOO_PID"
+	echo $FOO_PID
+  while ps -p $pid > /dev/null; do sleep 1; done ; kill -2 "$FOO_PID"
 fi
 

@@ -88,9 +88,7 @@ jobs:
         mv "${HOME}"/ios_frameworks/Firebase/Firebase.h quickstart-ios/"${SDK}"/Firebase/
         mv "${HOME}"/ios_frameworks/Firebase/module.modulemap quickstart-ios/"${SDK}"/Firebase/
         mv "${HOME}"/ios_frameworks/Firebase/FirebaseRemoteConfig/* quickstart-ios/"${SDK}"/Firebase/
-        mv "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/FirebaseAnalytics.framework quickstart-ios/"${SDK}"/Firebase/
-        mv "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/FirebaseCore.xcframework quickstart-ios/"${SDK}"/Firebase/
-        mv "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/GoogleUtilities.xcframework quickstart-ios/"${SDK}"/Firebase/
+        mv "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/* quickstart-ios/"${SDK}"/Firebase/
         cd quickstart-ios/"${SDK}"
         ../scripts/add_framework_script.rb  "${SDK}" ConfigExample Firebase
     - name: Install Secret GoogleService-Info.plist
