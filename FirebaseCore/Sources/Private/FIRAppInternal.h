@@ -14,7 +14,12 @@
  * limitations under the License.
  */
 
-#import "FIRApp.h"
++#if __cplusplus
++#import <FirebaseCore/FIRApp.h>
++#else
+ #import "FIRApp.h"
++#endif
+
 #import "FirebaseCore/Sources/Private/FIRErrors.h"
 
 @class FIRComponentContainer;

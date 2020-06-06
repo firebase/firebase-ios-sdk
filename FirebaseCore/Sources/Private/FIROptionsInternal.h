@@ -14,7 +14,11 @@
  * limitations under the License.
  */
 
+#if __cplusplus
+#import <FirebaseCore/FIROptions.h>
+#else
 #import "FIROptions.h"
+#endif
 
 /**
  * Keys for the strings in the plist file.

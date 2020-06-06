@@ -16,7 +16,11 @@
 
 #import <Foundation/Foundation.h>
 
+#if __cplusplus
+#import <FirebaseCore/FIRLoggerLevel.h>
+#else
 #import "FIRLoggerLevel.h"
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
 
