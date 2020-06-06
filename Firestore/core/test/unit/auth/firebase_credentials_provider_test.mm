@@ -17,11 +17,12 @@
 #include "Firestore/core/src/auth/firebase_credentials_provider_apple.h"
 
 #import <FirebaseAuthInterop/FIRAuthInterop.h>
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 #include <chrono>  // NOLINT(build/c++11)
 #include <future>  // NOLINT(build/c++11)
 #include <memory>
+
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 #include "Firestore/core/src/util/statusor.h"
 #include "Firestore/core/src/util/string_apple.h"
