@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-+#if __cplusplus
-+#import <FirebaseCore/FIRApp.h>
-+#else
- #import "FIRApp.h"
-+#endif
+#if __cplusplus
+#import <FirebaseCore/FIRApp.h>
+#else
+#import "FIRApp.h"
+#endif
 
 #import "FirebaseCore/Sources/Private/FIRErrors.h"
 
