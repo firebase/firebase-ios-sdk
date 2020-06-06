@@ -23,6 +23,5 @@ then
 	xcrun simctl io booted recordVideo -f abc.mov &
   FOO_PID=$!
 	echo $FOO_PID
-  while ps -p $pid > /dev/null; do sleep 1; done ; kill -2 "$FOO_PID"
+  while ps -p $pid > /dev/null; do sleep 1; done ; kill -2 "$FOO_PID"; echo "Video record finished."
 fi
-
