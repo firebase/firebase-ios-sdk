@@ -14,7 +14,7 @@
 
 #import <GoogleUtilities/GULHeartbeatDateStorage.h>
 #import <XCTest/XCTest.h>
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseCore/Sources/Private/FIRHeartbeatInfo.h"
 
 @interface FIRHeartbeatInfoTest : XCTestCase
 

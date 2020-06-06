@@ -19,7 +19,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseCore/Sources/Private/FIRComponent.h"
 
 @class FIRApp;
 

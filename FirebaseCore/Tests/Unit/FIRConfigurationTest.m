@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseCore/Sources/Private/FIRConfigurationInternal.h"
 
 #import "FirebaseCore/Tests/Unit/FIRTestCase.h"
 

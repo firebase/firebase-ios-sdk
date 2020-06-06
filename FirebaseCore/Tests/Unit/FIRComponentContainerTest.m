@@ -15,6 +15,7 @@
 #import "FirebaseCore/Tests/Unit/FIRTestCase.h"
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseCore/Sources/Private/FIRComponentContainerInternal.h"
 
 #import "FirebaseCore/Tests/Unit/FIRTestComponents.h"
 
