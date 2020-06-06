@@ -101,6 +101,7 @@ jobs:
       run: |
         cd quickstart-ios/config
         ../../scripts/test_quickstart_framework.sh
+        exit 1
     - name: Display xcodebuild setup
       if: ${{ failure() }}
       run: |
@@ -112,7 +113,7 @@ jobs:
         rm -f quickstart-ios/config/GoogleSerivce-info.plist
         rm -f quickstart-ios/TestUtils/FIREGSignInInfo.h
     - uses: actions/upload-artifact@v2
-      if: failure()
+      if: ${{ failure() }}
       with:
         name: quickstart_artifacts
         path: quickstart-ios/
