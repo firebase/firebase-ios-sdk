@@ -19,8 +19,8 @@
 #import <Foundation/Foundation.h>
 
 #import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import <FirebaseInstallations/FIRInstallations.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 #import "FIRCore+InAppMessaging.h"
 #import "FIRIAMDisplayExecutor.h"

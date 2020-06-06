@@ -15,7 +15,6 @@
  */
 
 #import "FData.h"
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import <limits.h>
 #import "FEventTester.h"
 #import "FIRDatabaseConfig_Private.h"
@@ -24,6 +23,7 @@
 #import "FRepo_Private.h"
 #import "FTestHelpers.h"
 #import "FTupleEventTypeString.h"
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 @implementation FData
 

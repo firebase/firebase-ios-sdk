@@ -17,10 +17,10 @@
 #import <XCTest/XCTest.h>
 
 #import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import <GoogleUtilities/GULSwizzler+Unswizzle.h>
 #import <GoogleUtilities/GULSwizzler.h>
 #import <OCMock/OCMock.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "FirebaseDynamicLinks/Sources/FIRDLDefaultRetrievalProcessV2.h"
 #import "FirebaseDynamicLinks/Sources/FIRDLRetrievalProcessFactory.h"
 #import "FirebaseDynamicLinks/Sources/FIRDLRetrievalProcessResult+Private.h"

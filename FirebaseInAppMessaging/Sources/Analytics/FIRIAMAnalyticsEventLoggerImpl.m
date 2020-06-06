@@ -17,9 +17,9 @@
 #import "FIRIAMAnalyticsEventLoggerImpl.h"
 
 #import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "FIRCore+InAppMessaging.h"
 #import "FIRIAMClearcutLogger.h"
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 typedef void (^FIRAUserPropertiesCallback)(NSDictionary *userProperties);
 

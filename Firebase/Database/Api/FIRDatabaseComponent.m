@@ -20,8 +20,8 @@
 #import "FIRDatabase_Private.h"
 #import "FRepoManager.h"
 
-#import <FirebaseAuthInterop/FIRAuthInterop.h>
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import <FirebaseAuthInterop/FIRAuthInterop.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

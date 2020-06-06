@@ -15,9 +15,9 @@
 #import <FirebaseABTesting/FIRExperimentController.h>
 
 #import <FirebaseABTesting/FIRLifecycleEvents.h>
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "FirebaseABTesting/Sources/ABTConditionalUserPropertyController.h"
 #import "FirebaseABTesting/Sources/ABTConstants.h"
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 #import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
 

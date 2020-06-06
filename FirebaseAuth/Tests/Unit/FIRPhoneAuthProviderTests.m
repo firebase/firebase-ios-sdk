@@ -18,10 +18,10 @@
 #import <FirebaseAuth/FIRAuthSettings.h>
 #import <FirebaseAuth/FIRAuthUIDelegate.h>
 #import <FirebaseAuth/FIRPhoneAuthProvider.h>
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import <OCMock/OCMock.h>
 #import <SafariServices/SafariServices.h>
 #import <XCTest/XCTest.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"

@@ -16,7 +16,6 @@
 
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import <FirebaseFirestore/FIRCollectionReference.h>
 #import <FirebaseFirestore/FIRDocumentChange.h>
 #import <FirebaseFirestore/FIRDocumentReference.h>
@@ -26,6 +25,7 @@
 #import <FirebaseFirestore/FIRQuerySnapshot.h>
 #import <FirebaseFirestore/FIRSnapshotMetadata.h>
 #import <FirebaseFirestore/FIRTransaction.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 #include <memory>
 #include <string>

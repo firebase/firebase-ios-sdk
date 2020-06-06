@@ -18,8 +18,8 @@
 
 #if defined(__APPLE__)
 
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import <Foundation/Foundation.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 #include <cstdarg>
 #include <string>

@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "FIRCore+InAppMessaging.h"
 #import "FIRInAppMessaging.h"
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 @class FIRInstallations;
 
