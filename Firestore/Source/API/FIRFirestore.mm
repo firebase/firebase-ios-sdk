@@ -16,14 +16,13 @@
 
 #import "FIRFirestore+Internal.h"
 
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
-
 #include <memory>
 #include <string>
 #include <utility>
 
 #import "FIRFirestoreSettings+Internal.h"
 
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "Firestore/Source/API/FIRCollectionReference+Internal.h"
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FIRListenerRegistration+Internal.h"
