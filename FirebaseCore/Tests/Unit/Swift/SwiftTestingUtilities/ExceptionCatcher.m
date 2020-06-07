@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #import "ExceptionCatcher.h"
-#import "FirebaseCore/Sources/Private/FIRErrorCode.h"
+#import "FirebaseCore/Sources/FIRErrorCode.h"
 
 @implementation ExceptionCatcher
 
