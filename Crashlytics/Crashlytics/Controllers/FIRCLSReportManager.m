@@ -66,7 +66,7 @@
 
 #import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 #import "Interop/Analytics/Public/FIRAnalyticsInteropListener.h"
-=
+
 #include "FIRAEvent+Internal.h"
 #include "FIRCLSFCRAnalytics.h"
 
