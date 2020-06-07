@@ -30,7 +30,7 @@ app update.
   s.source_files = base_dir + '**/*.[mh]'
   s.public_header_files = base_dir + 'Public/*.h'
   s.private_header_files = base_dir + 'Private/*.h'
-  s.preserve_paths = 'FirebaseCore/Sources/Private/*.h'
+  s.preserve_paths = 'Interop/Analytics/Public/*.h', 'FirebaseCore/Sources/Private/*.h'
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'GCC_PREPROCESSOR_DEFINITIONS' =>
@@ -38,7 +38,6 @@ app update.
       'FIRRemoteConfig_VERSION=' + String(s.version),
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
   }
-  s.dependency 'FirebaseAnalyticsInterop', '~> 1.4'
   s.dependency 'FirebaseABTesting', '~> 3.1'
   s.dependency 'FirebaseCore', '~> 6.8'
   s.dependency 'FirebaseInstallations', '~> 1.1'

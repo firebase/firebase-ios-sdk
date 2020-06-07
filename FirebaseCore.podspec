@@ -28,13 +28,14 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
   s.source_files = 'FirebaseCore/Sources/**/*.[mh]'
   s.public_header_files = 'FirebaseCore/Sources/Public/*.h', 'FirebaseCore/Sources/Private/*.h'
   s.private_header_files = 'FirebaseCore/Sources/Private/*.h'
+  s.preserve_paths = 'Interop/CoreDiagnosticsInterop/Public/*.h'
+
   s.framework = 'Foundation'
   s.ios.framework = 'UIKit'
   s.osx.framework = 'AppKit'
   s.tvos.framework = 'UIKit'
   s.dependency 'GoogleUtilities/Environment', '~> 6.5'
   s.dependency 'GoogleUtilities/Logger', '~> 6.5'
-  s.dependency 'FirebaseCoreDiagnosticsInterop', '~> 1.2'
   s.dependency 'FirebaseCoreDiagnostics', '~> 1.3'
 
   s.pod_target_xcconfig = {

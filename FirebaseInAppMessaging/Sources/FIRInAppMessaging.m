@@ -18,7 +18,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
+#import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 #import <FirebaseInstallations/FIRInstallations.h>
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 

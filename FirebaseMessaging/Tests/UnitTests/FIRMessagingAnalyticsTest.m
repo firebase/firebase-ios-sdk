@@ -17,8 +17,8 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
-#import <FirebaseAnalyticsInterop/FIRInteropEventNames.h>
-#import <FirebaseAnalyticsInterop/FIRInteropParameterNames.h>
+#import "Interop/Analytics/Public/FIRInteropEventNames.h"
+#import "Interop/Analytics/Public/FIRInteropParameterNames.h"
 
 #import "FirebaseMessaging/Sources/FIRMessagingAnalytics.h"
 

@@ -27,7 +27,7 @@ See more product details at https://firebase.google.com/products/in-app-messagin
   s.source_files = base_dir + "Sources/**/*.[cmh]"
   s.public_header_files = base_dir + 'Sources/Public/*.h'
   s.private_header_files = base_dir + 'Sources/Private/**/*.h'
-  s.preserve_paths = 'FirebaseCore/Sources/Private/*.h'
+  s.preserve_paths = 'Interop/Analytics/Public/*.h', 'FirebaseCore/Sources/Private/*.h'
 
   s.resource_bundles = {
     'InAppMessagingDisplayResources' => [ base_dir + 'Resources/*.xib',
@@ -45,7 +45,6 @@ See more product details at https://firebase.google.com/products/in-app-messagin
   }
 
   s.dependency 'FirebaseCore', '~> 6.8'
-  s.ios.dependency 'FirebaseAnalyticsInterop', '~> 1.3'
   s.dependency 'FirebaseInstallations', '~> 1.1'
   s.dependency 'GoogleDataTransportCCTSupport', '~> 3.1'
   s.dependency 'FirebaseABTesting', '~> 3.2'

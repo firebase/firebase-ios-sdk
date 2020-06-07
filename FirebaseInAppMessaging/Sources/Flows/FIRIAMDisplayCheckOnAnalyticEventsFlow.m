@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
-#import <FirebaseAnalyticsInterop/FIRAnalyticsInteropListener.h>
+#import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
+#import "Interop/Analytics/Public/FIRAnalyticsInteropListener.h"
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 #import "FIRCore+InAppMessaging.h"

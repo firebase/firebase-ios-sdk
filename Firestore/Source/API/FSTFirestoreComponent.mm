@@ -16,7 +16,7 @@
 
 #import "Firestore/Source/API/FSTFirestoreComponent.h"
 
-#import <FirebaseAuthInterop/FIRAuthInterop.h>
+#import "Interop/Auth/Public/FIRAuthInterop.h"
 
 #include <memory>
 #include <string>

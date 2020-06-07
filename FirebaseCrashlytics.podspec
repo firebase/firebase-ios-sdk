@@ -30,6 +30,7 @@ Pod::Spec.new do |s|
 
   s.preserve_paths = [
     'FirebaseCore/Sources/Private/*.h',
+    'Interop/Analytics/Public/*.h',
     'Crashlytics/README.md',
     'run',
     'upload-symbols',
@@ -44,7 +45,6 @@ Pod::Spec.new do |s|
 
   s.dependency 'FirebaseCore', '~> 6.8'
   s.dependency 'FirebaseInstallations', '~> 1.1'
-  s.dependency 'FirebaseAnalyticsInterop', '~> 1.2'
   s.dependency 'PromisesObjC', '~> 1.2'
   s.dependency 'GoogleDataTransport', '~> 6.1'
   s.dependency 'GoogleDataTransportCCTSupport', '~> 3.1'

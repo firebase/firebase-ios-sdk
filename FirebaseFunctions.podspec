@@ -25,9 +25,8 @@ Cloud Functions for Firebase.
 
   s.source_files = 'Functions/FirebaseFunctions/**/*'
   s.public_header_files = 'Functions/FirebaseFunctions/Public/*.h'
-  s.preserve_paths = 'FirebaseCore/Sources/Private/*.h'
+  s.preserve_paths = 'Interop/Auth/Public/*.h', 'FirebaseCore/Sources/Private/*.h'
 
-  s.dependency 'FirebaseAuthInterop', '~> 1.0'
   s.dependency 'FirebaseCore', '~> 6.8'
   s.dependency 'GTMSessionFetcher/Core', '~> 1.1'
 

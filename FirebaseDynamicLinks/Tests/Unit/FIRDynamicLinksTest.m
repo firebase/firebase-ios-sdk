@@ -16,7 +16,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
+#import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 #import <GoogleUtilities/GULSwizzler+Unswizzle.h>
 #import <GoogleUtilities/GULSwizzler.h>
 #import <OCMock/OCMock.h>

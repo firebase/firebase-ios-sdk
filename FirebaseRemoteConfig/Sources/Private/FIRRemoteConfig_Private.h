@@ -16,7 +16,7 @@
 
 #import <FirebaseRemoteConfig/FIRRemoteConfig.h>
 
-#import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
+#import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 #import <FirebaseRemoteConfig/RCNConfigFetch.h>
 #import <FirebaseRemoteConfig/RCNConfigSettings.h>
 

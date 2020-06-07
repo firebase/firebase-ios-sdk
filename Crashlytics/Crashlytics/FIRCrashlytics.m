@@ -41,7 +41,7 @@
 
 #import "FIRCLSReportManager.h"
 
-#import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
+#import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 #import <FirebaseInstallations/FirebaseInstallations.h>
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 

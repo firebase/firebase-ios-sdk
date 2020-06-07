@@ -18,7 +18,7 @@
 #error FIRMessagingLib should be compiled with ARC.
 #endif
 
-#import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
+#import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 #import <FirebaseInstanceID/FIRInstanceID_Private.h>
 #import <FirebaseInstanceID/FirebaseInstanceID.h>
 #import <FirebaseMessaging/FIRMessaging.h>

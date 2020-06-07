@@ -15,7 +15,7 @@
 
 #import "FUNContext.h"
 
-#import <FirebaseAuthInterop/FIRAuthInterop.h>
+#import "Interop/Auth/Public/FIRAuthInterop.h"
 
 #import "FUNInstanceIDProxy.h"
 

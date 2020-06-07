@@ -20,7 +20,7 @@
 #import <FirebaseAuth/FIRFacebookAuthProvider.h>
 #import <FirebaseAuth/FIRGoogleAuthProvider.h>
 #import <FirebaseAuth/FIROAuthProvider.h>
-#import <FirebaseAuthInterop/FIRAuthInterop.h>
+#import "Interop/Auth/Public/FIRAuthInterop.h"
 #import <Foundation/Foundation.h>
 #import <GoogleUtilities/GULAppDelegateSwizzler.h>
 #import <OCMock/OCMock.h>

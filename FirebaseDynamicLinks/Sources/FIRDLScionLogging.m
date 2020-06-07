@@ -16,7 +16,7 @@
 
 #import "FirebaseDynamicLinks/Sources/FIRDLScionLogging.h"
 
-#import <FirebaseAnalyticsInterop/FIRInteropParameterNames.h>
+#import "Interop/Analytics/Public/FIRInteropParameterNames.h"
 
 static NSString *const kFIRDLLogEventFirstOpenCampaign = @"dynamic_link_first_open";
 static NSString *const kFIRDLLogEventAppOpenCampaign = @"dynamic_link_app_open";

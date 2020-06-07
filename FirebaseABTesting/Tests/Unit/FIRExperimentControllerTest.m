@@ -16,7 +16,7 @@
 
 #import <FirebaseABTesting/FIRExperimentController.h>
 #import <FirebaseABTesting/FIRLifecycleEvents.h>
-#import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
+#import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 #import <OCMock/OCMock.h>
 #import "FirebaseABTesting/Sources/ABTConditionalUserPropertyController.h"
 #import "FirebaseABTesting/Sources/ABTConstants.h"

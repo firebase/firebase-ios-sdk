@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import <FirebaseCoreDiagnosticsInterop/FIRCoreDiagnosticsData.h>
+#import "Interop/CoreDiagnostics/Public/FIRCoreDiagnosticsData.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

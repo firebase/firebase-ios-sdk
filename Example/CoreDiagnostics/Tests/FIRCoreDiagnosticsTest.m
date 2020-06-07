@@ -19,8 +19,8 @@
 #import <UIKit/UIKit.h>
 #endif  // TARGET_OS_IOS || TARGET_OS_TV
 
-#import <FirebaseCoreDiagnosticsInterop/FIRCoreDiagnosticsData.h>
-#import <FirebaseCoreDiagnosticsInterop/FIRCoreDiagnosticsInterop.h>
+#import "Interop/CoreDiagnostics/Public/FIRCoreDiagnosticsData.h"
+#import "Interop/CoreDiagnostics/Public/FIRCoreDiagnosticsInterop.h"
 #import <GoogleDataTransport/GDTCOREvent.h>
 #import <GoogleDataTransport/GDTCOREventDataObject.h>
 #import <GoogleDataTransport/GDTCORTransport.h>

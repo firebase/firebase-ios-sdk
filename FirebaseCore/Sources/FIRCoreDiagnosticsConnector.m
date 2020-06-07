@@ -16,7 +16,7 @@
 
 #import "FirebaseCore/Sources/Private/FIRCoreDiagnosticsConnector.h"
 
-#import <FirebaseCoreDiagnosticsInterop/FIRCoreDiagnosticsInterop.h>
+#import "Interop/CoreDiagnostics/Public/FIRCoreDiagnosticsInterop.h"
 
 #import "FirebaseCore/Sources/Public/FIROptions.h"
 

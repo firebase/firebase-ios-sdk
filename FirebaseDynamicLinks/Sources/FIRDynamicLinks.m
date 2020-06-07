@@ -19,7 +19,7 @@
 #import <UIKit/UIKit.h>
 
 #ifdef FIRDynamicLinks3P
-#import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
+#import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "FirebaseDynamicLinks/Sources/FIRDLScionLogging.h"
 #endif

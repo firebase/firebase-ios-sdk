@@ -15,7 +15,7 @@
  */
 
 #import <FirebaseAuth/FIRAuth.h>
-#import <FirebaseAuthInterop/FIRAuthInterop.h>
+#import "Interop/Auth/Public/FIRAuthInterop.h"
 #import <Foundation/Foundation.h>
 
 @class FIRAuthRequestConfiguration;
