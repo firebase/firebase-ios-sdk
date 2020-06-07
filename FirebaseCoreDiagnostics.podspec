@@ -28,7 +28,8 @@ non-Cocoapod integration. This library also respects the Firebase global data co
   s.prefix_header_file = false
 
   header_search_paths = {
-    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}/Firebase/CoreDiagnostics/"'
+    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}" ' +
+                             '"${PODS_TARGET_SRCROOT}/Firebase/CoreDiagnostics/"'
   }
 
   s.pod_target_xcconfig = {
@@ -40,7 +41,6 @@ non-Cocoapod integration. This library also respects the Firebase global data co
       # (or larger) fields, so we'd have to set at least PB_FIELD_16BIT
       # anyways.)
       'PB_FIELD_32BIT=1 PB_NO_PACKED_STRUCTS=1 PB_ENABLE_MALLOC=1',
-    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"',
   }.merge(header_search_paths)
 
   s.source_files = 'Firebase/CoreDiagnostics/FIRCDLibrary/**/*.[cmh]'
