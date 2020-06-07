@@ -511,6 +511,7 @@ typedef enum {
     self->connectionState = ConnectionStateConnecting;
     self.realtime = [[FConnection alloc] initWith:self.repoInfo
                                  andDispatchQueue:self.dispatchQueue
+                                      googleAppID:self.config.googleAppID
                                     lastSessionID:self.lastSessionID];
     self.realtime.delegate = self;
     [self.realtime open];

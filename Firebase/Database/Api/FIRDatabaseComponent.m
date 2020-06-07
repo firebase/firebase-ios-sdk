@@ -157,6 +157,7 @@ typedef NSMutableDictionary<NSString *, FIRDatabase *> FIRDatabaseDictionary;
 
             FIRDatabaseConfig *config = [[FIRDatabaseConfig alloc]
                 initWithSessionIdentifier:sessionIdentifier
+                              googleAppID:app.options.googleAppID
                         authTokenProvider:authTokenProvider];
             database = [[FIRDatabase alloc] initWithApp:app
                                                repoInfo:parsedUrl.repoInfo

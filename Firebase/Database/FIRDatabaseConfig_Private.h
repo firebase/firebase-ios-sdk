@@ -23,6 +23,7 @@
 
 @property(nonatomic, readonly) BOOL isFrozen;
 @property(nonatomic, strong, readonly) NSString *sessionIdentifier;
+@property(nonatomic, strong, readonly) NSString *googleAppID;
 @property(nonatomic, strong) id<FAuthTokenProvider> authTokenProvider;
 @property(nonatomic, strong) id<FStorageEngine> forceStorageEngine;
 
