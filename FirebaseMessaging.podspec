@@ -47,7 +47,7 @@ device, and it is completely free.
   s.osx.framework = 'SystemConfiguration'
   s.weak_framework = 'UserNotifications'
   s.dependency 'FirebaseAnalyticsInterop', '~> 1.5'
-  s.dependency 'FirebaseCore', '~> 6.6'
+  s.dependency 'FirebaseCore', '~> 6.8'
   s.dependency 'FirebaseInstanceID', '~> 4.3'
   s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 6.5'
   s.dependency 'GoogleUtilities/Reachability', '~> 6.5'
