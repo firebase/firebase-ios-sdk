@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
-#if __cplusplus
-#import <FirebaseCore/FIRApp.h>
-#else
+#if SWIFT_PACKAGE
 #import "FIRApp.h"
+#else
+// Above is not findable in some CocoaPods scenarios, including Objective C++
+// and using a post Firebase 6.27.0 FirebaseCore from an earlier dependency.
+#import <FirebaseCore/FIRApp.h>
 #endif
 
 // The has_include is a workaround so the old IID needed for the FIS tests can find FIRErrors.h

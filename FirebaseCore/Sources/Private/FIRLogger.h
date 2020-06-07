@@ -16,10 +16,12 @@
 
 #import <Foundation/Foundation.h>
 
-#if __cplusplus
-#import <FirebaseCore/FIRLoggerLevel.h>
-#else
+#if SWIFT_PACKAGE
 #import "FIRLoggerLevel.h"
+#else
+// Above is not findable in some CocoaPods scenarios, including Objective C++
+// and using a post Firebase 6.27.0 FirebaseCore from an earlier dependency.
+#import <FirebaseCore/FIRLoggerLevel.h>
 #endif
 
 NS_ASSUME_NONNULL_BEGIN

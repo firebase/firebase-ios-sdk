@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
-#if __cplusplus
-#import <FirebaseCore/FIROptions.h>
-#else
+#if SWIFT_PACKAGE
 #import "FIROptions.h"
+#else
+// Above is not findable in some CocoaPods scenarios, including Objective C++
+// and using a post Firebase 6.27.0 FirebaseCore from an earlier dependency.
+#import <FirebaseCore/FIROptions.h>
 #endif
 
 /**
