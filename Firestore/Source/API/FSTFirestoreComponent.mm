@@ -16,14 +16,13 @@
 
 #import "Firestore/Source/API/FSTFirestoreComponent.h"
 
-#import "Interop/Auth/Public/FIRAuthInterop.h"
-
 #include <memory>
 #include <string>
 #include <utility>
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
+#import "Interop/Auth/Public/FIRAuthInterop.h"
 
 #include "Firestore/core/include/firebase/firestore/firestore_version.h"
 #include "Firestore/core/src/api/firestore.h"
