@@ -28,8 +28,8 @@
 #import <FirebaseABTesting/ExperimentPayload.pbobjc.h>
 #import <FirebaseABTesting/FIRExperimentController.h>
 
-#import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 #import <OCMock/OCMock.h>
+#import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 
 // Surface the internal FIRExperimentController initializer.
 @interface FIRExperimentController ()

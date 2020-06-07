@@ -18,13 +18,13 @@
 
 #import <OCMock/OCMock.h>
 
-#import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 #import <FirebaseInstanceID/FirebaseInstanceID.h>
 #import <GoogleUtilities/GULUserDefaults.h>
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
-
 #import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
+
 #import <FirebaseMessaging/FIRMessaging.h>
+#import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 
 #import "FirebaseMessaging/Sources/FIRMessaging_Private.h"
 #import "FirebaseMessaging/Tests/UnitTests/FIRMessagingTestUtilities.h"

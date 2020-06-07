@@ -16,8 +16,8 @@
 
 #import "FTestHelpers.h"
 
-#import "Interop/Auth/Public/FIRAuthInterop.h"
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "Interop/Auth/Public/FIRAuthInterop.h"
 
 #import "FConstants.h"
 #import "FIRAuthInteropFake.h"

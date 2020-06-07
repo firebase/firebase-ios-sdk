@@ -15,8 +15,8 @@
 #import "FIRFunctions.h"
 #import "FIRFunctions+Internal.h"
 
-#import "Interop/Auth/Public/FIRAuthInterop.h"
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "Interop/Auth/Public/FIRAuthInterop.h"
 
 #import "FIRError.h"
 #import "FIRHTTPSCallable+Internal.h"

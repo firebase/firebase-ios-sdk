@@ -41,9 +41,9 @@
 
 #import "FIRCLSReportManager.h"
 
-#import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 #import <FirebaseInstallations/FirebaseInstallations.h>
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 
 #import <GoogleDataTransport/GDTCORTargets.h>
 #import <GoogleDataTransport/GDTCORTransport.h>
