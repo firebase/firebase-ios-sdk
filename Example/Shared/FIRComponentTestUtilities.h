@@ -18,7 +18,7 @@
 
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIRComponent.h>
-#import <FirebaseCore/FIRComponentContainerInternal.h>
+#import <FirebaseCore/FIRComponentContainer.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
