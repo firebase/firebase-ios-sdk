@@ -40,6 +40,7 @@ non-Cocoapod integration. This library also respects the Firebase global data co
       # (or larger) fields, so we'd have to set at least PB_FIELD_16BIT
       # anyways.)
       'PB_FIELD_32BIT=1 PB_NO_PACKED_STRUCTS=1 PB_ENABLE_MALLOC=1',
+    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"',
   }.merge(header_search_paths)
 
   s.source_files = 'Firebase/CoreDiagnostics/FIRCDLibrary/**/*.[cmh]'
