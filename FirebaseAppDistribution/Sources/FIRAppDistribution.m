@@ -60,7 +60,7 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
 @synthesize isTesterSignedIn = _isTesterSignedIn;
 
 - (BOOL)isTesterSignedIn {
-  NSLog(@"Checking if tester is signed in");
+  FIRFADInfoLog(@"Checking if tester is signed in");
   return [self tryInitializeAuthState];
 }
 
@@ -136,7 +136,7 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
 }
 
 - (void)signInTesterWithCompletion:(void (^)(NSError *_Nullable error))completion {
-  NSLog(@"App Distribution tester sign in");
+  FIRFADInfoLog(@"App Distribution tester sign in");
   if ([self tryInitializeAuthState]) {
     FIRFADInfoLog(@"Tester already signed in.");
     completion(nil);
@@ -196,7 +196,7 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
                                                  NSError *_Nullable error) {
     if (error) {
       FIRFADErrorLog(@"Error getting fresh auth tokens. Will sign out tester. Error: %@",
-                    [error localizedDescription]);
+                     [error localizedDescription]);
       // TODO: Do we need a less aggresive strategy here? maybe a retry?
       [self signOutTester];
       NSError *HTTPError =
@@ -249,7 +249,8 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
                                                         message:@""];
               }
 
-              FIRFADInfoLog(@"App Tester API service error - %@", [HTTPError localizedDescription]);
+              FIRFADErrorLog(@"App Tester API service error - %@",
+                             [HTTPError localizedDescription]);
               dispatch_async(dispatch_get_main_queue(), ^{
                 completion(nil, HTTPError);
               });
@@ -314,7 +315,7 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
           return;
 
         } else if (!authState) {
-          FIRFADInfoLog(@"Tester sign in error - authState is nil");
+          FIRFADErrorLog(@"Tester sign in error - authState is nil");
         } else {
           FIRFADInfoLog(@"Tester sign successful");
         }
@@ -330,7 +331,7 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
         // FIRLogger
         if (authPersistenceError) {
           FIRFADErrorLog(@"Error persisting auth token to keychain: %@",
-                        [authPersistenceError localizedDescription]);
+                         [authPersistenceError localizedDescription]);
           [self logUnderlyingKeychainError:authPersistenceError];
 
         } else {
@@ -348,29 +349,28 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
 }
 
 - (BOOL)tryInitializeAuthState {
-  NSLog(@"Initializing auth state");
+  FIRFADInfoLog(@"Initializing auth state");
 
   if (self.authState) {
-    NSLog(@"Auth state already initialized.");
+    FIRFADInfoLog(@"Auth state already initialized.");
     return true;
   }
 
   NSError *authRetrievalError;
   self.authState = [self.authPersistence retrieveAuthState:&authRetrievalError];
-  // TODO (schnecle): replace NSLog statement with FIRLogger log statement
   if (!self.authState) {
     if (authRetrievalError) {
-      NSLog(@"Error retrieving tester auth token");
+      FIRFADErrorLog(@"Error retrieving tester auth token");
       [self logUnderlyingKeychainError:authRetrievalError];
     } else {
       // If authState and error is nil, auth state is not persisted in the keychain.
-      NSLog(@"AuthState not persisted in the keychain");
+      FIRFADInfoLog(@"AuthState not persisted in the keychain");
     }
 
     return false;
   }
 
-  NSLog(@"Successfully retrieved auth token from keychain on initialization");
+  FIRFADInfoLog(@"Successfully retrieved auth token from keychain on initialization");
   return true;
 }
 
@@ -412,7 +412,7 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
                                                                        error:&error];
 
   if (error) {
-    FIRFADInfoLog(@"Tester API - Error serializing json response");
+    FIRFADErrorLog(@"Tester API - Error serializing json response");
     NSString *message =
         error.userInfo[NSLocalizedDescriptionKey] ? error.userInfo[NSLocalizedDescriptionKey] : @"";
     NSError *error = [self NSErrorForErrorCodeAndMessage:FIRAppDistributionErrorUnknown
