@@ -1,4 +1,6 @@
 # Unreleased
+- [fixed] Fixed an issue that may have prevented the client from connecting
+  to the backend immediately after a user signed in.
 
 # v1.15.0
 - [changed] Internal improvements for future C++ and Unity support. Includes a
