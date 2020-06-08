@@ -24,4 +24,4 @@ commit_hash="$(cat 'latest_commit_hash.txt')"
 gsutil cp "gs://ios-framework-zip/Firebase-actions-dir-${commit_hash}.zip" "${FRAMEWORK_ZIP}"
 mkdir "${OUTPUT_DIR}"
 unzip "${FRAMEWORK_ZIP}" -d "${OUTPUT_DIR}"
-find "${OUTPUT_DIR}" -name "*.zip" -maxdepth 2 -exec unzip -d "${OUTPUT_DIR}" {} +
+find "${OUTPUT_DIR}" -name "*.zip" -maxdepth 3 -exec unzip -d "${OUTPUT_DIR}" {} +
