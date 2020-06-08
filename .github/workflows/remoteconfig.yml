@@ -85,6 +85,7 @@ jobs:
     - name: Move frameworks to xcode project
       run: |
         mkdir -p quickstart-ios/"${SDK}"/Firebase/
+        ls -R "${HOME}"/ios_frameworks/ 
         mv "${HOME}"/ios_frameworks/Firebase/Firebase.h quickstart-ios/"${SDK}"/Firebase/
         mv "${HOME}"/ios_frameworks/Firebase/module.modulemap quickstart-ios/"${SDK}"/Firebase/
         mv "${HOME}"/ios_frameworks/Firebase/FirebaseRemoteConfig/* quickstart-ios/"${SDK}"/Firebase/
@@ -100,8 +101,7 @@ jobs:
     - name: Test Quickstart
       run: |
         cd quickstart-ios/config
-        ../../scripts/test_quickstart_framework.sh
-        exit 1
+        ([ -z $plist_secret ] || ../../scripts/third_party/travis/retry.sh ../../scripts/test_quickstart_framework.sh)
     - name: Display xcodebuild setup
       if: ${{ failure() }}
       run: |
