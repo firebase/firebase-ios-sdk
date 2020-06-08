@@ -53,6 +53,13 @@ NSString *const kCodeHashKey = @"codeHash";
 NSString *const kAuthErrorMessage = @"Unable to authenticate the tester";
 NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
 
+@synthesize isTesterSignedIn = _isTesterSignedIn;
+
+- (BOOL)isTesterSignedIn {
+  NSLog(@"Checking if tester is signed in");
+  return [self tryInitializeAuthState];
+}
+
 #pragma mark - Singleton Support
 
 - (instancetype)initWithApp:(FIRApp *)app appInfo:(NSDictionary *)appInfo {
@@ -71,18 +78,6 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
 
   self.authPersistence = [[FIRAppDistributionAuthPersistence alloc]
       initWithAppId:[[FIRApp defaultApp] options].googleAppID];
-
-  NSError *authRetrievalError;
-  self.authState = [self.authPersistence retrieveAuthState:&authRetrievalError];
-  // TODO (schnecle): replace NSLog statement with FIRLogger log statement
-  if (authRetrievalError) {
-    NSLog(@"Found no tester auth token in keychain on intitialization");
-    [self logUnderlyingKeychainError:authRetrievalError];
-  } else {
-    NSLog(@"Successfully retrieved auth token from keychain on initialization");
-  }
-
-  self.isTesterSignedIn = self.authState ? YES : NO;
 
   return self;
 }
@@ -137,8 +132,14 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
 }
 
 - (void)signInTesterWithCompletion:(void (^)(NSError *_Nullable error))completion {
-  NSURL *issuer = [NSURL URLWithString:kIssuerURL];
   NSLog(@"App Distribution tester sign in");
+  if ([self tryInitializeAuthState]) {
+    NSLog(@"Tester already signed in.");
+    completion(nil);
+    return;
+  }
+
+  NSURL *issuer = [NSURL URLWithString:kIssuerURL];
   [OIDAuthorizationService
       discoverServiceConfigurationForIssuer:issuer
                                  completion:^(OIDServiceConfiguration *_Nullable configuration,
@@ -341,6 +342,33 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
       [OIDAuthState authStateByPresentingAuthorizationRequest:request
                                      presentingViewController:self.safariHostingViewController
                                                      callback:processAuthState];
+}
+
+- (BOOL)tryInitializeAuthState {
+  NSLog(@"Initializing auth state");
+
+  if (self.authState) {
+    NSLog(@"Auth state already initialized.");
+    return true;
+  }
+
+  NSError *authRetrievalError;
+  self.authState = [self.authPersistence retrieveAuthState:&authRetrievalError];
+  // TODO (schnecle): replace NSLog statement with FIRLogger log statement
+  if (!self.authState) {
+    if (authRetrievalError) {
+      NSLog(@"Error retrieving tester auth token");
+      [self logUnderlyingKeychainError:authRetrievalError];
+    } else {
+      // If authState and error is nil, auth state is not persisted in the keychain.
+      NSLog(@"AuthState not persisted in the keychain");
+    }
+
+    return false;
+  }
+
+  NSLog(@"Successfully retrieved auth token from keychain on initialization");
+  return true;
 }
 
 - (void)setupUIWindowForLogin {
