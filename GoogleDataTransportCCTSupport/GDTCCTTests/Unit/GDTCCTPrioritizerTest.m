@@ -192,11 +192,18 @@
   event.needsNetworkConnectionInfoPopulated = YES;
   XCTAssertEqualObjects(event.eventCode, testCode);
 
-  event.networkConnectionInfoData = [@"test" dataUsingEncoding:kCFStringEncodingUTF8];
+  NSData *testData = [@"test" dataUsingEncoding:kCFStringEncodingUTF8];
+  event.networkConnectionInfoData = testData;
   XCTAssertEqualObjects(event.eventCode, testCode);
 
   event.networkConnectionInfoData = nil;
   XCTAssertEqualObjects(event.eventCode, testCode);
+
+  event.eventCode = nil;
+  event.networkConnectionInfoData = testData;
+  XCTAssertEqualObjects(event.eventCode, nil);
+  XCTAssertNotNil(event.networkConnectionInfoData);
+  XCTAssertEqualObjects(event.networkConnectionInfoData, testData);
 }
 
 /** Tests encoding and decoding a clock using a keyed archiver. */

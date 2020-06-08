@@ -39,7 +39,7 @@ NSString *const GDTCCTEventCodeInfo = @"event_code_info";
           [[NSJSONSerialization JSONObjectWithData:self.customBytes options:0
                                              error:&error] mutableCopy];
       if (error) {
-        GDTCORLogDebug(@"Error when setting an even'ts event_code: %@", error);
+        GDTCORLogDebug(@"Error when setting an event's event_code: %@", error);
         return;
       }
       NSNumber *eventCode = bytesDict[GDTCCTEventCodeInfo];
@@ -177,6 +177,26 @@ NSString *const GDTCCTEventCodeInfo = @"event_code_info";
 
 - (void)setEventCode:(NSNumber *)eventCode {
   if (eventCode == nil) {
+    if (!self.customBytes) {
+      return;
+    }
+
+    NSError *error;
+    NSMutableDictionary *bytesDict = [[NSJSONSerialization JSONObjectWithData:self.customBytes
+                                                                      options:0
+                                                                        error:&error] mutableCopy];
+    if (error) {
+      GDTCORLogDebug(@"Error when setting an event's event_code: %@", error);
+      return;
+    }
+
+    [bytesDict removeObjectForKey:GDTCCTEventCodeInfo];
+    self.customBytes = [NSJSONSerialization dataWithJSONObject:bytesDict options:0 error:&error];
+    if (error) {
+      self.customBytes = nil;
+      GDTCORLogDebug(@"Error when setting an event's event_code: %@", error);
+      return;
+    }
     return;
   }
 
