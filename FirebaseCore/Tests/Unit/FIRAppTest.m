@@ -585,6 +585,46 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 
 #pragma mark Reading Plist and User Defaults Combinations
 
+- (void)testGlobalDataCollectionNoFlags {
+  // Test: No flags set.
+  NSString *name = NSStringFromSelector(_cmd);
+  FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
+                                                    GCMSenderID:kGCMSenderID];
+  FIRApp *app = [[FIRApp alloc] initInstanceWithName:name options:options];
+  OCMStub([self.appClassMock readDataCollectionSwitchFromPlist]).andReturn(nil);
+  OCMStub([self.appClassMock readDataCollectionSwitchFromUserDefaultsForApp:OCMOCK_ANY])
+      .andReturn(nil);
+
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+  XCTAssertTrue(app.isDataCollectionDefaultEnabled);
+#pragma clang diagnostic pop
+
+  // Test the internal flag and the state matches.
+  XCTAssertTrue(app.isGlobalDataCollectionEnabled);
+  XCTAssertEqual(app.dataCollectionDefaultState, FIRDataCollectionStateDefault);
+}
+
+- (void)testGlobalDataCollectionPlistSetEnabled {
+  // Test: Plist set to enabled, no override.
+  NSString *name = NSStringFromSelector(_cmd);
+  FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
+                                                    GCMSenderID:kGCMSenderID];
+  FIRApp *app = [[FIRApp alloc] initInstanceWithName:name options:options];
+  OCMStub([self.appClassMock readDataCollectionSwitchFromPlist]).andReturn(@YES);
+  OCMStub([self.appClassMock readDataCollectionSwitchFromUserDefaultsForApp:OCMOCK_ANY])
+      .andReturn(nil);
+
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+  XCTAssertTrue(app.isDataCollectionDefaultEnabled);
+#pragma clang diagnostic pop
+
+  // Test the internal flag and the state matches.
+  XCTAssertTrue(app.isGlobalDataCollectionEnabled);
+
+  // Note: this is still `default` because it's the runtime flag. It wasn't explicitly set.
+  XCTAssertEqual(app.dataCollectionDefaultState, FIRDataCollectionStateDefault);
+}
+
 - (void)testGlobalDataCollectionPlistSetDisabled {
   // Test: Plist set to disabled, no override.
   NSString *name = NSStringFromSelector(_cmd);
