@@ -23,6 +23,7 @@
 @interface FIRDatabaseConfig (Private)
 
 @property(nonatomic, strong, readwrite) NSString *sessionIdentifier;
+@property(nonatomic, strong, readwrite) NSString *googleAppID;
 
 @end
 
@@ -35,11 +36,13 @@
 }
 
 - (id)initWithSessionIdentifier:(NSString *)identifier
+                    googleAppID:(NSString *)googleAppID
               authTokenProvider:(id<FAuthTokenProvider>)authTokenProvider {
     self = [super init];
     if (self != nil) {
         self->_sessionIdentifier = identifier;
         self->_callbackQueue = dispatch_get_main_queue();
+        self->_googleAppID = googleAppID;
         self->_persistenceCacheSizeBytes =
             10 * 1024 * 1024; // Default cache size is 10MB
         self->_authTokenProvider = authTokenProvider;

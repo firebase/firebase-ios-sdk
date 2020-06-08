@@ -58,6 +58,7 @@
   id<FIRAuthInterop> auth = [[FIRAuthInteropFake alloc] initWithToken:nil userID:nil error:nil];
   id<FAuthTokenProvider> authTokenProvider = [FAuthTokenProvider authTokenProviderWithAuth:auth];
   return [[FIRDatabaseConfig alloc] initWithSessionIdentifier:name
+                                                  googleAppID:@"fake-app-id"
                                             authTokenProvider:authTokenProvider];
 }
 

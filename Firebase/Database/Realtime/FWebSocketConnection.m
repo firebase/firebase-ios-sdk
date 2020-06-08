@@ -60,6 +60,7 @@
 
 - (id)initWith:(FRepoInfo *)repoInfo
          andQueue:(dispatch_queue_t)queue
+      googleAppID:(NSString *)googleAppID
     lastSessionID:(NSString *)lastSessionID {
     self = [super init];
     if (self) {
@@ -80,6 +81,7 @@
             initWithURL:[[NSURL alloc] initWithString:connectionUrl]];
         self.webSocket = [[FSRWebSocket alloc] initWithURLRequest:req
                                                             queue:queue
+                                                      googleAppID:googleAppID
                                                      andUserAgent:ua];
         [self.webSocket setDelegateDispatchQueue:queue];
         self.webSocket.delegate = self;

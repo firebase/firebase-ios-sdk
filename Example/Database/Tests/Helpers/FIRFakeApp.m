@@ -22,6 +22,7 @@
 
 @interface FIRFakeOptions : NSObject
 @property(nonatomic, readonly, copy) NSString *databaseURL;
+@property(nonatomic, readonly, copy) NSString *googleAppID;
 - (instancetype)initWithURL:(NSString *)url;
 @end
 
@@ -30,6 +31,7 @@
   self = [super init];
   if (self) {
     _databaseURL = url;
+    _googleAppID = @"fake-app-id";
   }
   return self;
 }

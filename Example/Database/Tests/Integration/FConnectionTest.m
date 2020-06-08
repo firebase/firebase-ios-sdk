@@ -59,6 +59,7 @@
   FRepoInfo *info = [[FRepoInfo alloc] initWithHost:host isSecure:YES withNamespace:@"default"];
   FConnection *conn = [[FConnection alloc] initWith:info
                                    andDispatchQueue:[FIRDatabaseQuery sharedQueue]
+                                        googleAppID:@"fake-app-id"
                                       lastSessionID:nil];
   FTestConnectionDelegate *delegate = [[FTestConnectionDelegate alloc] init];
 
