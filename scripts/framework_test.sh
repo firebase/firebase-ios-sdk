@@ -20,7 +20,7 @@
 
 set -eo pipefail
 
-set -x 
+set -x
 
 EXIT_STATUS=0
 
