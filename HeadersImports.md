@@ -38,7 +38,7 @@ In Swift Package Manager, it's a library target.
 
 * *Headers within the Library* - Use a repo-relative path for all of the header types above.
   * *Exception* - Public header imports from other public headers should do an unqualified
-  import like `import "publicHeader.h"` to avoid public module collisions.
+  import like `#import "publicHeader.h"` to avoid public module collisions.
 
 * *Private Headers from other Libraries* - Import a private umbrella header like
   `FirebaseCore/Sources/Private/FirebaseCoreInternal.h`. For CocoaPods, these files should be
