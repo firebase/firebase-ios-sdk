@@ -146,7 +146,7 @@ gdt_cct_LogEvent GDTCCTConstructLogEvent(GDTCOREvent *event) {
       logEvent.has_network_connection_info = 1;
     }
     NSNumber *eventCode = event.eventCode;
-    if (eventCode) {
+    if (eventCode != nil) {
       logEvent.has_event_code = 1;
       logEvent.event_code = [eventCode intValue];
     }
