@@ -48,7 +48,7 @@ In Swift Package Manager, it's a library target.
 ```
 
 * *Headers from an external dependency* - Do a module import for Swift Package Manager and an
-  umbrella header import otherwise, like: 
+  umbrella header import otherwise, like:
 ```
 #if SWIFT_PACKAGE
 @import GTMSessionFetcherCore;
