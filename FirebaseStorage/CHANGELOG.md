@@ -1,5 +1,7 @@
 # Unreleased
 
+- [added] Added a check to FIRStorageUploadTask's `putFile:` to check if the passed in `fileURL` is a directory, and provides a clear error if it is. (#5750)
+
 # 3.6.1
 - [fixed] Fix a rare case where a StorageTask would call its completion callbacks more than
   once. (#5245)
