@@ -168,14 +168,35 @@
   GDTCCTPrioritizer *prioritizer = [[GDTCCTPrioritizer alloc] init];
   GDTCOREvent *event = [_CCTGenerator generateEvent:GDTCOREventQosDefault];
   event.needsNetworkConnectionInfoPopulated = YES;
-  event.eventCode = [[NSNumber alloc] initWithInt:1405];
+  event.eventCode = @(1405);
   [prioritizer prioritizeEvent:event];
   NSData *networkConnectionInfoData = event.networkConnectionInfoData;
   XCTAssertNotNil(networkConnectionInfoData);
   XCTAssertNotNil(event.eventCode);
+  XCTAssertEqualObjects(event.eventCode, @(1405));
   gdt_cct_NetworkConnectionInfo info;
   [networkConnectionInfoData getBytes:&info length:networkConnectionInfoData.length];
   XCTAssertNotEqual(info.network_type, gdt_cct_NetworkConnectionInfo_NetworkType_NONE);
+}
+
+/** Tests getting and setting the eventCode. */
+- (void)testEventCode {
+  NSNumber *const testCode = @(1405);
+  GDTCOREvent *event = [_CCTGenerator generateEvent:GDTCOREventQosDefault];
+  event.eventCode = testCode;
+  XCTAssertEqualObjects(event.eventCode, testCode);
+
+  event.needsNetworkConnectionInfoPopulated = NO;
+  XCTAssertEqualObjects(event.eventCode, testCode);
+
+  event.needsNetworkConnectionInfoPopulated = YES;
+  XCTAssertEqualObjects(event.eventCode, testCode);
+
+  event.networkConnectionInfoData = [@"test" dataUsingEncoding:kCFStringEncodingUTF8];
+  XCTAssertEqualObjects(event.eventCode, testCode);
+
+  event.networkConnectionInfoData = nil;
+  XCTAssertEqualObjects(event.eventCode, testCode);
 }
 
 /** Tests encoding and decoding a clock using a keyed archiver. */

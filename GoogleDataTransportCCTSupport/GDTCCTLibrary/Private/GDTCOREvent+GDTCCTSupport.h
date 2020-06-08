@@ -42,6 +42,8 @@ FOUNDATION_EXPORT NSString *const GDTCCTNetworkConnectionInfo;
  */
 @property(nullable, nonatomic) NSData *networkConnectionInfoData;
 
+/** Code that identifies the event to be sent to the CCT backend.
+ */
 @property(nullable, nonatomic) NSNumber *eventCode;
 
 @end

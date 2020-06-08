@@ -80,7 +80,7 @@
   GDTCCTEventGeneratorDataObject *dataObject = [[GDTCCTEventGeneratorDataObject alloc] init];
   dataObject.dataFile = testDataFile;
   event.dataObject = dataObject;
-  event.eventCode = [[NSNumber alloc] initWithInt:1405];
+  event.eventCode = @(1405);
   NSString *eventPath = [NSString stringWithFormat:@"test-event-%lf", CFAbsoluteTimeGetCurrent()];
   NSError *error;
   [self writeEvent:event toGDTPath:eventPath error:&error];
@@ -96,7 +96,7 @@
   GDTCCTEventGeneratorDataObject *dataObject = [[GDTCCTEventGeneratorDataObject alloc] init];
   dataObject.dataFile = fileURL;
   event.dataObject = dataObject;
-  event.eventCode = [[NSNumber alloc] initWithInt:1405];
+  event.eventCode = @(1405);
   NSError *error;
   [self writeEvent:event
          toGDTPath:[NSString stringWithFormat:@"test-event-%lf", CFAbsoluteTimeGetCurrent()]
