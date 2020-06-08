@@ -458,7 +458,19 @@ static dispatch_once_t sFirebaseUserAgentOnceToken;
 
 - (void)setDataCollectionDefaultState:(FIRDataCollectionState)state {
 #ifdef DEBUG
-  FIRLogDebug(kFIRLoggerCore, @"I-COR000034", @"Explicitly set collection flag to *INSERT ME*.");
+  NSString *textValue;
+  switch (state) {
+    case FIRDataCollectionStateDefault:
+      textValue = @"Default";
+      break;
+    case FIRDataCollectionStateEnabled:
+      textValue = @"Enabled";
+      break;
+    case FIRDataCollectionStateDisabled:
+      textValue = @"Disabled";
+      break;
+  }
+  FIRLogDebug(kFIRLoggerCore, @"I-COR000036", @"Explicitly set collection flag to: %@.", textValue);
   self.alreadyOutputDataCollectionFlag = YES;
 #endif  // DEBUG
 
