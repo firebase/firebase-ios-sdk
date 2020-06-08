@@ -21,11 +21,17 @@
 set -xeuo pipefail
 
 sample="$1"
+platform="${2-}"
 
 # Source function to check if CI secrets are available.
 source scripts/check_secrets.sh
 
 if check_secrets; then
-  cd quickstart-ios/"$sample"
-  xcodebuild test -project "$sample"Example.xcodeproj -scheme  "$sample"Example -destination 'platform=iOS Simulator,name=iPhone 11 Pro' "OTHER_LDFLAGS=\$(OTHER_LDFLAGS) -ObjC" "FRAMEWORK_SEARCH_PATHS= \$(PROJECT_DIR)/Firebase/" HEADER_SEARCH_PATHS='$(PROJECT_DIR)/Firebase'
+  cd quickstart-ios
+  if [ "$platform" = "swift" ]; then
+    have_secrets=true SAMPLE="$sample" SWIFT_SUFFIX="Swift" ../../scripts/framework_test.sh
+  else
+    have_secrets=true SAMPLE="$sample" ../../scripts/framework_test.sh
+  fi
+
 fi
