@@ -294,5 +294,3 @@ jobs:
 branches:
   only:
     - master
-    - pb-interop-preserved
-
