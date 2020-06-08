@@ -15,8 +15,6 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
-#import <AppAuth/AppAuth.h>
-#import <FirebaseAppDistribution/FIRAppDistributionAuthPersistence+Private.h>
 #import <GoogleUtilities/GULKeychainUtils.h>
 
 @interface FIRAppDistributionAuthPersistenceTests : XCTestCase
