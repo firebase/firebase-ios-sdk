@@ -21,7 +21,7 @@ In Swift Package Manager, it's a library target.
   of the public API. These should be located in `FirebaseFoo/Sources/Private`.
   [Xcode](https://stackoverflow.com/a/8016333) and CocoaPods refer to these as "Private Headers".
   Note that the usage CocoaPods `private_headers` is deprecated and should instead
-  the `preserve_paths` attribute should be used for access them with a repo-relative import.
+  the `source_files` attribute should be used for access them with a repo-relative import.
 
 * *Interop Headers* - A special kind of private header that defines an interface to another library.
   Details in [Firebase Component System docs](Interop/FirebaseComponentSystem.md).
