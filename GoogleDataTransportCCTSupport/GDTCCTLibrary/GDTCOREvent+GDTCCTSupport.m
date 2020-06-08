@@ -46,9 +46,9 @@ NSString *const GDTCCTEventCodeInfo = @"event_code_info";
       }
       [bytesDict setObject:@YES forKey:GDTCCTNeedsNetworkConnectionInfo];
       self.customBytes =
-          [NSJSONSerialization dataWithJSONObject:bytesDict
-                                          options:0
-                                            error:&error];
+      [NSJSONSerialization dataWithJSONObject:bytesDict
+                                      options:0
+                                        error:&error];
     } @catch (NSException *exception) {
       GDTCORLogDebug(@"Error when setting the event for needs_network_connection_info: %@",
                      exception);
@@ -91,9 +91,9 @@ NSString *const GDTCCTEventCodeInfo = @"event_code_info";
       }
       [bytesDict setObject:dataString forKey:GDTCCTNetworkConnectionInfo];
       self.customBytes =
-          [NSJSONSerialization dataWithJSONObject:bytesDict
-                                          options:0
-                                            error:&error];
+      [NSJSONSerialization dataWithJSONObject:bytesDict
+                                      options:0
+                                        error:&error];
       if (error) {
         self.customBytes = nil;
         GDTCORLogDebug(@"Error when setting an event's network_connection_info: %@", error);
@@ -177,9 +177,9 @@ NSString *const GDTCCTEventCodeInfo = @"event_code_info";
     [bytesDict setObject:[eventCode stringValue] forKey:GDTCCTEventCodeInfo];
 
     self.customBytes =
-        [NSJSONSerialization dataWithJSONObject:bytesDict
-                                        options:0
-                                          error:&error];
+    [NSJSONSerialization dataWithJSONObject:bytesDict
+                                    options:0
+                                      error:&error];
     if (error) {
       self.customBytes = nil;
       GDTCORLogDebug(@"Error when setting an event's network_connection_info: %@", error);
