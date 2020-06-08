@@ -23,6 +23,8 @@ jobs:
 
   package:
     needs: build
+    env:
+      gcs_key: ${{ secrets.GHASecretsGPGPassphrase1 }}
     runs-on: macOS-latest
     # Only run the `package` job for the cron job, not PRs.
     if: github.event_name == 'schedule'
