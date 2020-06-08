@@ -40,7 +40,7 @@ In Swift Package Manager, it's a library target.
   * *Exception* - Public header imports from other public headers should do an unqualified
   import like `import "publicHeader.h"` to avoid public module collisions.
 
-* *Headers within the Repo, including Interop headers* - Import a private umbrella header like
+* *Private Headers from other Libraries* - Import a private umbrella header like
   `FirebaseCore/Sources/Private/FirebaseCoreInternal.h`. For CocoaPods, these files should be
   added to the podspec in the `preserved_path` attribute like:
 ```
