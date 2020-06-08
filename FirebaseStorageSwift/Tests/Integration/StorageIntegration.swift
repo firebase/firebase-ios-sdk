@@ -258,7 +258,7 @@ class StorageIntegration: XCTestCase {
 
   func testAttemptToUploadDirectoryShouldFail() throws {
     // This `.numbers` file is actually a directory.
-    let fileName = "Home Improvement.numbers"
+    let fileName = "HomeImprovement.numbers"
     let bundle = Bundle(for: StorageIntegration.self)
     let fileURL = try XCTUnwrap(bundle.url(forResource: fileName, withExtension: ""),
                                 "Failed to get filePath")
