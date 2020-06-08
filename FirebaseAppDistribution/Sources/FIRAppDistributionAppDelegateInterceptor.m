@@ -13,14 +13,27 @@
 // limitations under the License.
 
 #import "FIRAppDistributionAppDelegateInterceptor.h"
+#import <AuthenticationServices/AuthenticationServices.h>
+#import <SafariServices/SafariServices.h>
 #import <UIKit/UIKit.h>
-#import "AppAuth.h"
 
 @implementation FIRAppDistributionAppDelegatorInterceptor
 
+API_AVAILABLE(ios(9.0))
+SFSafariViewController *_safariVC;
+
+API_AVAILABLE(ios(12.0))
+ASWebAuthenticationSession *_webAuthenticationVC;
+
+API_AVAILABLE(ios(11.0))
+SFAuthenticationSession *_safariAuthenticationVC;
+
 - (instancetype)init {
   self = [super init];
+  
+  self.safariHostingViewController = [[UIViewController alloc] init];
 
+  
   return self;
 }
 
@@ -34,9 +47,14 @@
   return sharedInstance;
 }
 
+- (BOOL)openRegistrationFlow:(NSURL *)URL {
+  return NO;
+}
+
 - (BOOL)application:(UIApplication *)application
             openURL:(NSURL *)URL
             options:(NSDictionary<NSString *, id> *)options {
+  
   return NO;
 }
 @end

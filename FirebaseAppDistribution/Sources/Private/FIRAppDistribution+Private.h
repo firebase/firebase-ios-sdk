@@ -12,9 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import <AppAuth/AppAuth.h>
 #import "FIRAppDistribution.h"
-#import "FIRAppDistributionAuthPersistence+Private.h"
 
 #define STR(x) STR_EXPAND(x)
 #define STR_EXPAND(x) #x
@@ -22,21 +20,6 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRAppDistribution ()
-/**
- * Current view controller presenting the `SFSafariViewController` if any.
- */
-@property(nullable, nonatomic) UIViewController *safariHostingViewController;
-
-/**
- * Current auth state for app distribution tester
- */
-@property(nullable, nonatomic) OIDAuthState *authState;
-
-@property(nullable, nonatomic) FIRAppDistributionAuthPersistence *authPersistence;
-
-@property(nullable, nonatomic) UIWindow *window;
-
-@property(nullable, nonatomic) NSString *apiClientID;
 
 @end
 
