@@ -99,9 +99,7 @@ jobs:
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/FIREGSignInInfo.h.gpg \
         quickstart-ios/TestUtils/FIREGSignInInfo.h "$signin_secret"
     - name: Test Quickstart
-      run: |
-        cd quickstart-ios/config
-        ([ -z $plist_secret ] || ../../scripts/third_party/travis/retry.sh ../../scripts/test_quickstart_framework.sh)
+      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}")
     - name: Display xcodebuild setup
       if: ${{ failure() }}
       run: |

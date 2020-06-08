@@ -14,4 +14,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-xcodebuild test -project ConfigExample.xcodeproj -scheme ConfigExample -destination 'platform=iOS Simulator,name=iPhone 11 Pro' "OTHER_LDFLAGS=\$(OTHER_LDFLAGS) -ObjC" "FRAMEWORK_SEARCH_PATHS= \$(PROJECT_DIR)/Firebase/" HEADER_SEARCH_PATHS='$(PROJECT_DIR)/Firebase'
+
+# Run a CI `script` phase to build the associated quickstart
+# sample and run its tests.
+
+set -xeuo pipefail
+
+sample="$1"
+
+# Source function to check if CI secrets are available.
+source scripts/check_secrets.sh
+
+if check_secrets; then
+  cd quickstart-ios/"$sample"
+  xcodebuild test -project "$sample"Example.xcodeproj -scheme  "$sample"Example -destination 'platform=iOS Simulator,name=iPhone 11 Pro' "OTHER_LDFLAGS=\$(OTHER_LDFLAGS) -ObjC" "FRAMEWORK_SEARCH_PATHS= \$(PROJECT_DIR)/Firebase/" HEADER_SEARCH_PATHS='$(PROJECT_DIR)/Firebase'
+fi
