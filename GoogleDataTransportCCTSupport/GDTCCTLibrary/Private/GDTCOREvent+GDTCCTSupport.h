@@ -30,7 +30,7 @@ FOUNDATION_EXPORT NSString *const GDTCCTNetworkConnectionInfo;
 
 /** A category that uses the customBytes property of a GDTCOREvent to store network connection info.
  */
-@interface GDTCOREvent (CCTNetworkConnectionInfo)
+@interface GDTCOREvent (GDTCCTSupport)
 
 /** If YES, needs the network connection info field set during prioritization.
  * @note Uses the GDTCOREvent customBytes property.
@@ -41,6 +41,8 @@ FOUNDATION_EXPORT NSString *const GDTCCTNetworkConnectionInfo;
  * @note Uses the GDTCOREvent customBytes property.
  */
 @property(nullable, nonatomic) NSData *networkConnectionInfoData;
+
+@property(nullable, nonatomic) NSNumber *eventCode;
 
 @end
 

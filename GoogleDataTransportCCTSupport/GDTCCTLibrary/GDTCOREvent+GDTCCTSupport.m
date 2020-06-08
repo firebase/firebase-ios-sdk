@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "GDTCCTLibrary/Private/GDTCOREvent+NetworkConnectionInfo.h"
+#import "GDTCCTLibrary/Private/GDTCOREvent+GDTCCTSupport.h"
 
 #import <GoogleDataTransport/GDTCORConsoleLogger.h>
 
@@ -22,7 +22,9 @@ NSString *const GDTCCTNeedsNetworkConnectionInfo = @"needs_network_connection_in
 
 NSString *const GDTCCTNetworkConnectionInfo = @"network_connection_info";
 
-@implementation GDTCOREvent (CCTNetworkConnectionInfo)
+NSString *const GDTCCTEventCodeInfo = @"event_code_info";
+
+@implementation GDTCOREvent (GDTCCTSupport)
 
 - (void)setNeedsNetworkConnectionInfoPopulated:(BOOL)needsNetworkConnectionInfoPopulated {
   if (!needsNetworkConnectionInfoPopulated) {
@@ -30,8 +32,21 @@ NSString *const GDTCCTNetworkConnectionInfo = @"network_connection_info";
   } else {
     @try {
       NSError *error;
+      NSMutableDictionary *bytesDict;
+      if (self.customBytes) {
+        bytesDict = [[NSJSONSerialization JSONObjectWithData:self.customBytes
+                                                     options:0
+                                                       error:&error] mutableCopy];
+        if (error) {
+          GDTCORLogDebug(@"Error when setting an even'ts event_code: %@", error);
+          return;
+        }
+      } else {
+        bytesDict = [[NSMutableDictionary alloc] init];
+      }
+      [bytesDict setObject:@YES forKey:GDTCCTNeedsNetworkConnectionInfo];
       self.customBytes =
-          [NSJSONSerialization dataWithJSONObject:@{GDTCCTNeedsNetworkConnectionInfo : @YES}
+          [NSJSONSerialization dataWithJSONObject:bytesDict
                                           options:0
                                             error:&error];
     } @catch (NSException *exception) {
@@ -62,8 +77,21 @@ NSString *const GDTCCTNetworkConnectionInfo = @"network_connection_info";
     NSError *error;
     NSString *dataString = [networkConnectionInfoData base64EncodedStringWithOptions:0];
     if (dataString) {
+      NSMutableDictionary *bytesDict;
+      if (self.customBytes) {
+        bytesDict = [[NSJSONSerialization JSONObjectWithData:self.customBytes
+                                                     options:0
+                                                       error:&error] mutableCopy];
+        if (error) {
+          GDTCORLogDebug(@"Error when setting an even'ts event_code: %@", error);
+          return;
+        }
+      } else {
+        bytesDict = [[NSMutableDictionary alloc] init];
+      }
+      [bytesDict setObject:dataString forKey:GDTCCTNetworkConnectionInfo];
       self.customBytes =
-          [NSJSONSerialization dataWithJSONObject:@{GDTCCTNetworkConnectionInfo : dataString}
+          [NSJSONSerialization dataWithJSONObject:bytesDict
                                           options:0
                                             error:&error];
       if (error) {
@@ -97,6 +125,70 @@ NSString *const GDTCCTNetworkConnectionInfo = @"network_connection_info";
     }
   }
   return nil;
+}
+
+
+- (NSNumber *)eventCode {
+  if (self.customBytes) {
+    @try {
+      NSError *error;
+      NSDictionary *bytesDict = [NSJSONSerialization JSONObjectWithData:self.customBytes
+                                                                options:0
+                                                                  error:&error];
+      NSString *eventCodeString = bytesDict[GDTCCTEventCodeInfo];
+
+      if (!eventCodeString) {
+        return nil;
+      }
+
+      NSNumberFormatter *formatter = [[NSNumberFormatter alloc] init];
+      formatter.numberStyle = NSNumberFormatterDecimalStyle;
+      NSNumber *eventCode = [formatter numberFromString:eventCodeString];
+
+      if (error) {
+        GDTCORLogDebug(@"Error when getting an event's network_connection_info: %@", error);
+        return nil;
+      } else {
+        return eventCode;
+      }
+    } @catch (NSException *exception) {
+      GDTCORLogDebug(@"Error when getting an event's event_code: %@", exception);
+    }
+  }
+  return nil;
+}
+
+- (void) setEventCode:(NSNumber *)eventCode {
+  @try {
+    NSMutableDictionary *bytesDict;
+    NSError *error;
+    if (self.customBytes) {
+      bytesDict = [[NSJSONSerialization JSONObjectWithData:self.customBytes
+                                                   options:0
+                                                     error:&error] mutableCopy];
+      if (error) {
+        GDTCORLogDebug(@"Error when setting an even'ts event_code: %@", error);
+        return;
+      }
+    } else {
+      bytesDict = [[NSMutableDictionary alloc] init];
+    }
+
+    [bytesDict setObject:[eventCode stringValue] forKey:GDTCCTEventCodeInfo];
+
+    self.customBytes =
+        [NSJSONSerialization dataWithJSONObject:bytesDict
+                                        options:0
+                                          error:&error];
+    if (error) {
+      self.customBytes = nil;
+      GDTCORLogDebug(@"Error when setting an event's network_connection_info: %@", error);
+      return;
+    }
+
+  } @catch (NSException *exception) {
+    GDTCORLogDebug(@"Error when getting an event's network_connection_info: %@", exception);
+  }
 }
 
 @end

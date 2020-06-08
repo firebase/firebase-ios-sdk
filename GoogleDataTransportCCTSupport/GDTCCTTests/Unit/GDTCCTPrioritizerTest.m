@@ -20,7 +20,7 @@
 
 #import "GDTCCTLibrary/Private/GDTCCTNanopbHelpers.h"
 #import "GDTCCTLibrary/Private/GDTCCTPrioritizer.h"
-#import "GDTCCTLibrary/Private/GDTCOREvent+NetworkConnectionInfo.h"
+#import "GDTCCTLibrary/Private/GDTCOREvent+GDTCCTSupport.h"
 
 @interface GDTCCTPrioritizerTest : XCTestCase
 
@@ -168,9 +168,11 @@
   GDTCCTPrioritizer *prioritizer = [[GDTCCTPrioritizer alloc] init];
   GDTCOREvent *event = [_CCTGenerator generateEvent:GDTCOREventQosDefault];
   event.needsNetworkConnectionInfoPopulated = YES;
+  event.eventCode = [[NSNumber alloc] initWithInt:1405];
   [prioritizer prioritizeEvent:event];
   NSData *networkConnectionInfoData = event.networkConnectionInfoData;
   XCTAssertNotNil(networkConnectionInfoData);
+  XCTAssertNotNil(event.eventCode);
   gdt_cct_NetworkConnectionInfo info;
   [networkConnectionInfoData getBytes:&info length:networkConnectionInfoData.length];
   XCTAssertNotEqual(info.network_type, gdt_cct_NetworkConnectionInfo_NetworkType_NONE);
