@@ -24,9 +24,11 @@ See more product details at https://firebase.google.com/products/in-app-messagin
   s.prefix_header_file = false
 
   base_dir = "FirebaseInAppMessaging/"
-  s.source_files = base_dir + "Sources/**/*.[cmh]",
-                   'Interop/Analytics/Public/*.h',
-                   'FirebaseCore/Sources/Private/*.h'
+  s.source_files = [
+    base_dir + "Sources/**/*.[cmh]",
+    'Interop/Analytics/Public/*.h',
+    'FirebaseCore/Sources/Private/*.h',
+  ]
   s.public_header_files = base_dir + 'Sources/Public/*.h'
   s.private_header_files = base_dir + 'Sources/Private/**/*.h'
 

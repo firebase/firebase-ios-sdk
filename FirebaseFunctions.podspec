@@ -23,9 +23,11 @@ Cloud Functions for Firebase.
   s.static_framework = true
   s.prefix_header_file = false
 
-  s.source_files = 'Functions/FirebaseFunctions/**/*',
-                   'Interop/Auth/Public/*.h',
-                   'FirebaseCore/Sources/Private/*.h'
+  s.source_files = [
+    'Functions/FirebaseFunctions/**/*',
+    'Interop/Auth/Public/*.h',
+    'FirebaseCore/Sources/Private/*.h',
+  ]
   s.public_header_files = 'Functions/FirebaseFunctions/Public/*.h'
 
   s.dependency 'FirebaseCore', '~> 6.8'

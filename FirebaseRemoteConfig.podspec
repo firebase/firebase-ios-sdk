@@ -27,9 +27,11 @@ app update.
   s.prefix_header_file = false
 
   base_dir = "FirebaseRemoteConfig/Sources/"
-  s.source_files = base_dir + '**/*.[mh]',
-                   'Interop/Analytics/Public/*.h',
-                   'FirebaseCore/Sources/Private/*.h'
+  s.source_files = [
+    base_dir + '**/*.[mh]',
+    'Interop/Analytics/Public/*.h',
+    'FirebaseCore/Sources/Private/*.h',
+  ]
   s.public_header_files = base_dir + 'Public/*.h'
   s.private_header_files = base_dir + 'Private/*.h'
   s.pod_target_xcconfig = {

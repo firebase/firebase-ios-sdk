@@ -29,9 +29,11 @@ Firebase Cloud Messaging and Firebase Remote Config in your app.
   s.prefix_header_file = false
 
   base_dir = "FirebaseABTesting/Sources/"
-  s.source_files = base_dir + '**/*.[mh]',
-                   'Interop/Analytics/Public/*.h',
-                   'FirebaseCore/Sources/Private/*.h'
+  s.source_files = [
+    base_dir + '**/*.[mh]',
+   'Interop/Analytics/Public/*.h',
+   'FirebaseCore/Sources/Private/*.h',
+  ]
   s.requires_arc = base_dir + '*.m'
   s.public_header_files = base_dir + 'Public/*.h', base_dir + 'Protos/developers/mobile/abt/proto/*.h'
   s.private_header_files = base_dir + 'Protos/developers/mobile/abt/proto/*.h'

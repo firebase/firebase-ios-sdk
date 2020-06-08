@@ -25,7 +25,10 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
   s.static_framework = true
   s.prefix_header_file = false
 
-  s.source_files = 'FirebaseCore/Sources/**/*.[mh]', 'Interop/CoreDiagnostics/Public/*.h'
+  s.source_files = [
+    'FirebaseCore/Sources/**/*.[mh]',
+    'Interop/CoreDiagnostics/Public/*.h',
+  ]
   s.public_header_files = 'FirebaseCore/Sources/Public/*.h', 'FirebaseCore/Sources/Private/*.h'
   s.private_header_files = 'FirebaseCore/Sources/Private/*.h'
 

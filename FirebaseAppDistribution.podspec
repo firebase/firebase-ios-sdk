@@ -22,8 +22,10 @@ iOS SDK for App Distribution for Firebase.
   s.prefix_header_file = false
 
   base_dir = "FirebaseAppDistribution/Sources/"
-  s.source_files = base_dir + '**/*.{c,h,m,mm}',
-                  'FirebaseCore/Sources/Private/*.h'
+  s.source_files = [
+    base_dir + '**/*.{c,h,m,mm}',
+    'FirebaseCore/Sources/Private/*.h',
+  ]
   s.public_header_files = base_dir + 'Public/*.h'
   s.private_header_files = base_dir + 'Private/*.h'
 

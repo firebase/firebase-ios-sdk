@@ -25,11 +25,13 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.prefix_header_file = false
 
   base_dir = "Firebase/Database/"
-  s.source_files = base_dir + '**/*.[mh]',
+  s.source_files = [
+    base_dir + '**/*.[mh]',
     base_dir + 'third_party/Wrap-leveldb/APLevelDB.mm',
     base_dir + 'third_party/SocketRocket/fbase64.c',
     'Interop/Auth/Public/*.h',
-    'FirebaseCore/Sources/Private/*.h'
+    'FirebaseCore/Sources/Private/*.h',
+  ]
   s.public_header_files = base_dir + 'Public/*.h'
   s.libraries = ['c++', 'icucore']
   s.frameworks = 'CFNetwork', 'Security', 'SystemConfiguration'

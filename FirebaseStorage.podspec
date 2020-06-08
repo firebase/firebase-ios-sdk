@@ -26,9 +26,11 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
   s.static_framework = true
   s.prefix_header_file = false
 
-  s.source_files = 'FirebaseStorage/Sources/**/*.[mh]',
-                   'Interop/Auth/Public/*.h',
-                   'FirebaseCore/Sources/Private/*.h'
+  s.source_files = [
+    'FirebaseStorage/Sources/**/*.[mh]',
+    'Interop/Auth/Public/*.h',
+    'FirebaseCore/Sources/Private/*.h',
+  ]
   s.public_header_files = 'FirebaseStorage/Sources/Public/*.h'
 
   s.ios.framework = 'MobileCoreServices'
