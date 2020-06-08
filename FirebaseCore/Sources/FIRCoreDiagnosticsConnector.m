@@ -20,8 +20,8 @@
 
 #import <FirebaseCore/FIROptions.h>
 
+#import "FirebaseCore/Sources/FIRDiagnosticsData.h"
 #import "FirebaseCore/Sources/Private/FIRAppInternal.h"
-#import "FirebaseCore/Sources/Private/FIRDiagnosticsData.h"
 #import "FirebaseCore/Sources/Private/FIROptionsInternal.h"
 
 // Define the interop class symbol declared as an extern in FIRCoreDiagnosticsInterop.

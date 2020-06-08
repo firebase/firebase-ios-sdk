@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "ExceptionCatcher.h"
+#import "FirebaseCore/Tests/Unit/Swift/SwiftTestingUtilities/ExceptionCatcher.h"
 #import "FirebaseCore/Sources/Private/FIRErrorCode.h"
 
 @implementation ExceptionCatcher
