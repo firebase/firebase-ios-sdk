@@ -85,7 +85,7 @@ jobs:
     - name: Move frameworks to xcode project
       run: |
         mkdir -p quickstart-ios/"${SDK}"/Firebase/
-        ls -R "${HOME}"/ios_frameworks/ 
+        ls -R "${HOME}"/ios_frameworks/
         mv "${HOME}"/ios_frameworks/Firebase/Firebase.h quickstart-ios/"${SDK}"/Firebase/
         mv "${HOME}"/ios_frameworks/Firebase/module.modulemap quickstart-ios/"${SDK}"/Firebase/
         mv "${HOME}"/ios_frameworks/Firebase/FirebaseRemoteConfig/* quickstart-ios/"${SDK}"/Firebase/
