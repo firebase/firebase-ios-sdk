@@ -29,10 +29,11 @@ device, and it is completely free.
   s.prefix_header_file = false
 
   base_dir = "FirebaseMessaging/"
-  s.source_files = base_dir + 'Sources/**/*.[mh]'
+  s.source_files = base_dir + 'Sources/**/*.[mh]',
+                   'Interop/Analytics/Public/*.h',
+                   'FirebaseCore/Sources/Private/*.h'
   s.requires_arc = base_dir + 'Sources/*.m'
   s.public_header_files = base_dir + 'Sources/Public/*.h'
-  s.preserve_paths = 'Interop/Analytics/Public/*.h', 'FirebaseCore/Sources/Private/*.h'
   s.library = 'sqlite3'
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',

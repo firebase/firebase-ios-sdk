@@ -22,15 +22,15 @@ Pod::Spec.new do |s|
   s.source_files = 'Crashlytics/Crashlytics/**/*.{c,h,m,mm}',
     'Crashlytics/Protogen/**/*.{c,h,m,mm}',
     'Crashlytics/Shared/**/*.{c,h,m,mm}',
-    'Crashlytics/third_party/**/*.{c,h,m,mm}'
+    'Crashlytics/third_party/**/*.{c,h,m,mm}',
+    'FirebaseCore/Sources/Private/*.h',
+    'Interop/Analytics/Public/*.h',
 
   s.public_header_files = [
     'Crashlytics/Crashlytics/Public/*.h'
   ]
 
   s.preserve_paths = [
-    'FirebaseCore/Sources/Private/*.h',
-    'Interop/Analytics/Public/*.h',
     'Crashlytics/README.md',
     'run',
     'upload-symbols',
