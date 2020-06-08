@@ -17,10 +17,9 @@
 #import <Foundation/Foundation.h>
 
 #if SWIFT_PACKAGE
+// TODO(paulb777): Investigate if there's a common strategy for both Cocoapods and Swift PM.
 #import "FIRLoggerLevel.h"
 #else
-// Above is not findable in some CocoaPods scenarios, including Objective C++
-// and using a post Firebase 6.27.0 FirebaseCore from an earlier dependency.
 #import <FirebaseCore/FIRLoggerLevel.h>
 #endif
 
