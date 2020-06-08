@@ -8,35 +8,44 @@ guidelines are designed to support a wide range of build systems and usage scena
 In this document, the term `library` refers to a buildable package. In CocoaPods, it's a CocoaPod.
 In Swift Package Manager, it's a library target.
 
-## Header File Types and Locations
+## Header File Types and Locations - For Header File Creators
 
 * *Public Headers* - Headers that define the library's API. They should be located in
   `FirebaseFoo/Sources/Public`. Any additions require a minor version update. Any changes or
   deletions require a major version update.
 
 * *Public Umbrella Header* - A single header that includes the full library's public API located at
-  `FirebaseFoo/Sources/Public/FirebaseFoo.h`. This header should be included in
-   [Firebase.h](CoreOnly/Sources/Firebase.h).
+  `FirebaseFoo/Sources/Public/FirebaseFoo.h`.
+
+* *Private Headers* - Headers that are available to other libraries in the repo, but are not part
+  of the public API. These should be located in `FirebaseFoo/Sources/Private`.
+  [Xcode](https://stackoverflow.com/a/8016333) and CocoaPods refer to these as "Private Headers".
+  Note that the usage CocoaPods `private_headers` is deprecated and should instead
+  the `preserve_paths` attribute should be used for access them with a repo-relative import.
+
+* *Interop Headers* - A special kind of private header that defines an interface to another library.
+  Details in [Firebase Component System docs](Interop/FirebaseComponentSystem.md).
+
+* *Private Umbrella Header* - A single header that includes the library's public API plus any APIs
+  provided for other libraries in the repo. Any package manager complexity should be localized to
+  this umbrella header.
 
 * *Library Internal Headers* - Headers that are only used by the enclosing library. These headers
   should be located among the source files. [Xcode](https://stackoverflow.com/a/8016333) refers to
   these as "Project Headers".
 
-* *Private Headers* - Headers that are available to other libraries in the repo, but are not part
-  of the public API. These should be located in `FirebaseFoo/Sources/Private`.
-  [Xcode](https://stackoverflow.com/a/8016333) and CocoaPods refer to these as "Private Headers".
-  Note that we are deprecating the usage of CocoaPods `private_headers` and should instead
-  publish them with `preserve_paths` and access them with a repo-relative import.
+## Imports - For Header File Consumers
 
-## Imports
+* *Headers within the Library* - Use a repo-relative path for all of the header types above.
+  * *Exception* - Public header imports from other public headers should do an unqualified
+  import like `import "publicHeader.h"` to avoid public module collisions.
 
-* *Headers within the Library* - Use a repo-relative path. The one exception is
-  that public header imports from other public headers should do an unqualified
-  import like `import "publicHeader.h"` to avoid colliding with the public module import.
-
-* *Headers within the Repo* - Import an umbrella header like
-  `FirebaseCore/Sources/Private/FirebaseCoreInternal.h`. Any package manager
-  complexity should be localized to the internal umbrella.
+* *Headers within the Repo, including Interop headers* - Import a private umbrella header like
+  `FirebaseCore/Sources/Private/FirebaseCoreInternal.h`. For CocoaPods, these files should be
+  added to the podspec in the `preserved_path` attribute like:
+```
+  s.preserve_paths = 'Interop/Auth/Public/*.h', 'FirebaseCore/Sources/Private/*.h'
+```
 
 * *Headers from an external dependency* - Do a module import for Swift Package Manager and an
   umbrella header import otherwise, like: 
