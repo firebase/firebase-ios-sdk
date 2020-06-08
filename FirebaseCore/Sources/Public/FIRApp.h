@@ -23,6 +23,18 @@ NS_ASSUME_NONNULL_BEGIN
 /** A block that takes a BOOL and has no return value. */
 typedef void (^FIRAppVoidBoolCallback)(BOOL success) NS_SWIFT_NAME(FirebaseAppVoidBoolCallback);
 
+/** Runtime data collection states. Use this enum along with */
+typedef NS_ENUM(NSInteger, FIRDataCollectionState) {
+  /** The default data collection state. Defaults to enabled when no Plist entries are set. */
+  FIRDataCollectionStateDefault = 0,
+
+  /** Data collection is explicitly enabled. */
+  FIRDataCollectionStateEnabled = 1,
+
+  /** Data collection is explicitly disabled. */
+  FIRDataCollectionStateDisabled = 2,
+} NS_SWIFT_NAME(DataCollectionState);
+
 /**
  * The entry point of Firebase SDKs.
  *
@@ -120,7 +132,16 @@ NS_SWIFT_NAME(FirebaseApp)
  * collection.
  */
 @property(nonatomic, readwrite, getter=isDataCollectionDefaultEnabled)
-    BOOL dataCollectionDefaultEnabled;
+    BOOL dataCollectionDefaultEnabled DEPRECATED_MSG_ATTRIBUTE(
+        "Use `dataCollectionDefaultState` instead.");
+
+/**
+ * Gets or sets whether automatic data collection is enabled for all products. Defaults to
+ * `.default` unless `FirebaseDataCollectionDefaultEnabled` is set to `NO` in your app's Info.plist.
+ * This runtime value is persisted across runs of the app so that it can be set once when users have
+ * consented to collection.
+ */
+@property(nonatomic, readwrite) FIRDataCollectionState dataCollectionDefaultState;
 
 @end
 

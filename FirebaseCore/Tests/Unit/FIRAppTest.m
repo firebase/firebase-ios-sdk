@@ -32,6 +32,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 - (BOOL)configureCore;
 + (NSError *)errorForInvalidAppID;
 - (BOOL)isAppIDValid;
+- (BOOL)isGlobalDataCollectionEnabled;
 + (NSString *)actualBundleID;
 + (NSNumber *)mapFromServiceStringToTypeEnum:(NSString *)serviceString;
 + (NSString *)deviceModel;
@@ -582,31 +583,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 
 #pragma mark - Automatic Data Collection Tests
 
-- (void)testGlobalDataCollectionNoFlags {
-  // Test: No flags set.
-  NSString *name = NSStringFromSelector(_cmd);
-  FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
-                                                    GCMSenderID:kGCMSenderID];
-  FIRApp *app = [[FIRApp alloc] initInstanceWithName:name options:options];
-  OCMStub([self.appClassMock readDataCollectionSwitchFromPlist]).andReturn(nil);
-  OCMStub([self.appClassMock readDataCollectionSwitchFromUserDefaultsForApp:OCMOCK_ANY])
-      .andReturn(nil);
-
-  XCTAssertTrue(app.isDataCollectionDefaultEnabled);
-}
-
-- (void)testGlobalDataCollectionPlistSetEnabled {
-  // Test: Plist set to enabled, no override.
-  NSString *name = NSStringFromSelector(_cmd);
-  FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
-                                                    GCMSenderID:kGCMSenderID];
-  FIRApp *app = [[FIRApp alloc] initInstanceWithName:name options:options];
-  OCMStub([self.appClassMock readDataCollectionSwitchFromPlist]).andReturn(@YES);
-  OCMStub([self.appClassMock readDataCollectionSwitchFromUserDefaultsForApp:OCMOCK_ANY])
-      .andReturn(nil);
-
-  XCTAssertTrue(app.isDataCollectionDefaultEnabled);
-}
+#pragma mark Reading Plist and User Defaults Combinations
 
 - (void)testGlobalDataCollectionPlistSetDisabled {
   // Test: Plist set to disabled, no override.
@@ -618,7 +595,15 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   OCMStub([self.appClassMock readDataCollectionSwitchFromUserDefaultsForApp:OCMOCK_ANY])
       .andReturn(nil);
 
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   XCTAssertFalse(app.isDataCollectionDefaultEnabled);
+#pragma clang diagnostic pop
+
+  // Test the internal flag and the state matches.
+  XCTAssertFalse(app.isGlobalDataCollectionEnabled);
+
+  // Note: this is still `default` because it's the runtime flag. It wasn't explicitly set.
+  XCTAssertEqual(app.dataCollectionDefaultState, FIRDataCollectionStateDefault);
 }
 
 - (void)testGlobalDataCollectionUserSpecifiedEnabled {
@@ -631,7 +616,13 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   OCMStub([self.appClassMock readDataCollectionSwitchFromUserDefaultsForApp:OCMOCK_ANY])
       .andReturn(@YES);
 
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   XCTAssertTrue(app.isDataCollectionDefaultEnabled);
+#pragma clang diagnostic pop
+
+  // Test the internal flag and the state matches.
+  XCTAssertTrue(app.isGlobalDataCollectionEnabled);
+  XCTAssertEqual(app.dataCollectionDefaultState, FIRDataCollectionStateEnabled);
 }
 
 - (void)testGlobalDataCollectionUserSpecifiedDisabled {
@@ -644,7 +635,13 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   OCMStub([self.appClassMock readDataCollectionSwitchFromUserDefaultsForApp:OCMOCK_ANY])
       .andReturn(@NO);
 
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   XCTAssertFalse(app.isDataCollectionDefaultEnabled);
+#pragma clang diagnostic pop
+
+  // Test the internal flag and the state matches.
+  XCTAssertFalse(app.isGlobalDataCollectionEnabled);
+  XCTAssertEqual(app.dataCollectionDefaultState, FIRDataCollectionStateDisabled);
 }
 
 - (void)testGlobalDataCollectionUserOverriddenEnabled {
@@ -657,7 +654,13 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   OCMStub([self.appClassMock readDataCollectionSwitchFromUserDefaultsForApp:OCMOCK_ANY])
       .andReturn(@YES);
 
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   XCTAssertTrue(app.isDataCollectionDefaultEnabled);
+#pragma clang diagnostic pop
+
+  // Test the internal flag and the state matches.
+  XCTAssertTrue(app.isGlobalDataCollectionEnabled);
+  XCTAssertEqual(app.dataCollectionDefaultState, FIRDataCollectionStateEnabled);
 }
 
 - (void)testGlobalDataCollectionUserOverriddenDisabled {
@@ -670,36 +673,50 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   OCMStub([self.appClassMock readDataCollectionSwitchFromUserDefaultsForApp:OCMOCK_ANY])
       .andReturn(@NO);
 
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   XCTAssertFalse(app.isDataCollectionDefaultEnabled);
+#pragma clang diagnostic pop
+
+  // Test the internal flag and the state matches.
+  XCTAssertFalse(app.isGlobalDataCollectionEnabled);
+  XCTAssertEqual(app.dataCollectionDefaultState, FIRDataCollectionStateDisabled);
 }
 
-- (void)testGlobalDataCollectionWriteToDefaults {
+#pragma mark Enum: Plist and User Defaults Cominations
+
+- (void)testGlobalDataCollectionEnumWriteToDefaults {
   id defaultsMock = OCMPartialMock([NSUserDefaults standardUserDefaults]);
   NSString *name = NSStringFromSelector(_cmd);
   FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
                                                     GCMSenderID:kGCMSenderID];
   [FIRApp configureWithName:name options:options];
   FIRApp *app = [FIRApp appNamed:name];
-  app.dataCollectionDefaultEnabled = YES;
+
+  app.dataCollectionDefaultState = FIRDataCollectionStateEnabled;
   NSString *key =
       [NSString stringWithFormat:kFIRGlobalAppDataCollectionEnabledDefaultsKeyFormat, app.name];
   OCMVerify([defaultsMock setObject:@YES forKey:key]);
 
-  app.dataCollectionDefaultEnabled = NO;
+  app.dataCollectionDefaultState = FIRDataCollectionStateDisabled;
+
   OCMVerify([defaultsMock setObject:@NO forKey:key]);
 
   [defaultsMock stopMocking];
 }
 
-- (void)testGlobalDataCollectionClearedAfterDelete {
+- (void)testGlobalDataCollectionEnumClearedAfterDelete {
   // Configure and disable data collection for the default FIRApp.
   NSString *name = NSStringFromSelector(_cmd);
   FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
                                                     GCMSenderID:kGCMSenderID];
   [FIRApp configureWithName:name options:options];
   FIRApp *app = [FIRApp appNamed:name];
-  app.dataCollectionDefaultEnabled = NO;
-  XCTAssertFalse(app.isDataCollectionDefaultEnabled);
+
+  app.dataCollectionDefaultState = FIRDataCollectionStateDisabled;
+
+  // Test the internal flag and the state matches.
+  XCTAssertFalse(app.isGlobalDataCollectionEnabled);
+  XCTAssertEqual(app.dataCollectionDefaultState, FIRDataCollectionStateDisabled);
 
   // Delete the app, and verify that the switch was reset.
   XCTestExpectation *deleteFinished =
@@ -714,14 +731,20 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 
   // Set up an app with the same name again, and check the data collection flag.
   [FIRApp configureWithName:name options:options];
-  XCTAssertTrue([FIRApp appNamed:name].isDataCollectionDefaultEnabled);
+
+  // Test the internal flag and the state matches.
+  XCTAssertTrue(app.isGlobalDataCollectionEnabled);
+  XCTAssertEqual(app.dataCollectionDefaultState, FIRDataCollectionStateDefault);
 }
 
-- (void)testGlobalDataCollectionNoDiagnosticsSent {
+- (void)testGlobalDataCollectionEnumNoDiagnosticsSent {
   FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
                                                     GCMSenderID:kGCMSenderID];
   FIRApp *app = [[FIRApp alloc] initInstanceWithName:NSStringFromSelector(_cmd) options:options];
-  app.dataCollectionDefaultEnabled = NO;
+  app.dataCollectionDefaultState = FIRDataCollectionStateDisabled;
+
+  XCTAssertFalse(app.isGlobalDataCollectionEnabled);
+  XCTAssertEqual(app.dataCollectionDefaultState, FIRDataCollectionStateDisabled);
 
   // Add an observer for the diagnostics notification. Currently no object is sent, but in the
   // future that could change so leave it as OCMOCK_ANY.
@@ -743,9 +766,101 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   OCMVerifyAll(self.observerMock);
 }
 
-#pragma mark - Analytics Flag Tests
+#pragma mark Deprecated Flag: Plist and User Defaults Combinations
 
-- (void)testAnalyticsSetByGlobalDataCollectionSwitch {
+- (void)testGlobalDataCollectionWriteToDefaults {
+  id defaultsMock = OCMPartialMock([NSUserDefaults standardUserDefaults]);
+  NSString *name = NSStringFromSelector(_cmd);
+  FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
+                                                    GCMSenderID:kGCMSenderID];
+  [FIRApp configureWithName:name options:options];
+  FIRApp *app = [FIRApp appNamed:name];
+
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+  app.dataCollectionDefaultEnabled = YES;
+  NSString *key =
+      [NSString stringWithFormat:kFIRGlobalAppDataCollectionEnabledDefaultsKeyFormat, app.name];
+  OCMVerify([defaultsMock setObject:@YES forKey:key]);
+
+  app.dataCollectionDefaultEnabled = NO;
+#pragma clang diagnostic pop
+
+  OCMVerify([defaultsMock setObject:@NO forKey:key]);
+
+  [defaultsMock stopMocking];
+}
+
+- (void)testGlobalDataCollectionClearedAfterDelete {
+  // Configure and disable data collection for the default FIRApp.
+  NSString *name = NSStringFromSelector(_cmd);
+  FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
+                                                    GCMSenderID:kGCMSenderID];
+  [FIRApp configureWithName:name options:options];
+  FIRApp *app = [FIRApp appNamed:name];
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+  app.dataCollectionDefaultEnabled = NO;
+  XCTAssertFalse(app.isDataCollectionDefaultEnabled);
+#pragma clang diagnostic pop
+
+  // Test the internal flag and the state matches.
+  XCTAssertFalse(app.isGlobalDataCollectionEnabled);
+  XCTAssertEqual(app.dataCollectionDefaultState, FIRDataCollectionStateDisabled);
+
+  // Delete the app, and verify that the switch was reset.
+  XCTestExpectation *deleteFinished =
+      [self expectationWithDescription:@"The app should successfully delete."];
+  [app deleteApp:^(BOOL success) {
+    XCTAssertTrue(success);
+    [deleteFinished fulfill];
+  }];
+
+  // Wait for the delete to complete.
+  [self waitForExpectations:@[ deleteFinished ] timeout:1];
+
+  // Set up an app with the same name again, and check the data collection flag.
+  [FIRApp configureWithName:name options:options];
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+  XCTAssertTrue([FIRApp appNamed:name].isDataCollectionDefaultEnabled);
+#pragma clang diagnostic pop
+
+  // Test the internal flag and the state matches.
+  XCTAssertTrue(app.isGlobalDataCollectionEnabled);
+  XCTAssertEqual(app.dataCollectionDefaultState, FIRDataCollectionStateDefault);
+}
+
+- (void)testGlobalDataCollectionBoolNoDiagnosticsSent {
+  FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
+                                                    GCMSenderID:kGCMSenderID];
+  FIRApp *app = [[FIRApp alloc] initInstanceWithName:NSStringFromSelector(_cmd) options:options];
+  app.dataCollectionDefaultEnabled = NO;
+
+  // Test the internal flag and the state matches.
+  XCTAssertFalse(app.isGlobalDataCollectionEnabled);
+  XCTAssertEqual(app.dataCollectionDefaultState, FIRDataCollectionStateDisabled);
+
+  // Add an observer for the diagnostics notification. Currently no object is sent, but in the
+  // future that could change so leave it as OCMOCK_ANY.
+  [self.notificationCenter addMockObserver:self.observerMock
+                                      name:kFIRAppDiagnosticsNotification
+                                    object:OCMOCK_ANY];
+
+  // Stub out reading from user defaults since stubbing out the BOOL has issues. If the data
+  // collection switch is disabled, the `sendLogs` call should return immediately and not fire a
+  // notification.
+  OCMStub([self.appClassMock readDataCollectionSwitchFromUserDefaultsForApp:OCMOCK_ANY])
+      .andReturn(@NO);
+
+  // Ensure configure doesn't fire a notification.
+  [FIRApp configure];
+
+  // The observer mock is strict and will raise an exception when an unexpected notification is
+  // received.
+  OCMVerifyAll(self.observerMock);
+}
+
+#pragma mark Deprecated Flag: Analytics Flag Tests
+
+- (void)testAnalyticsSetByGlobalDataCollectionBoolSwitch {
   // Test that the global data collection switch triggers setting Analytics when no explicit flag is
   // set.
   id optionsMock = OCMClassMock([FIROptions class]);
@@ -757,7 +872,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   id configurationMock = OCMClassMock([FIRAnalyticsConfiguration class]);
   OCMStub([configurationMock sharedInstance]).andReturn(configurationMock);
 
-  // Ensure Analytics is set after the global flag is set. It needs to
+  // Ensure Analytics is set after the global flag is set.
   [defaultApp setDataCollectionDefaultEnabled:YES];
   OCMVerify([configurationMock setAnalyticsCollectionEnabled:YES persistSetting:NO]);
 
@@ -765,7 +880,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   OCMVerify([configurationMock setAnalyticsCollectionEnabled:NO persistSetting:NO]);
 }
 
-- (void)testAnalyticsNotSetByGlobalDataCollectionSwitch {
+- (void)testAnalyticsNotSetByGlobalDataCollectionBoolSwitch {
   // Test that the global data collection switch doesn't override an explicitly set Analytics flag.
   id optionsMock = OCMClassMock([FIROptions class]);
   OCMStub([optionsMock isAnalyticsCollectionExplicitlySet]).andReturn(YES);
@@ -782,6 +897,31 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   OCMReject([configurationMock setAnalyticsCollectionEnabled:NO persistSetting:YES]);
   OCMReject([configurationMock setAnalyticsCollectionEnabled:NO persistSetting:NO]);
   [app setDataCollectionDefaultEnabled:NO];
+}
+
+#pragma mark Enum: Analytics Flag Tests
+
+- (void)testAnalyticsSetByGlobalDataCollectionEnumSwitch {
+  // Test that the global data collection switch triggers setting Analytics when no explicit flag is
+  // set.
+  id optionsMock = OCMClassMock([FIROptions class]);
+  OCMStub([optionsMock isAnalyticsCollectionExplicitlySet]).andReturn(NO);
+
+  // We need to use the default app name since Analytics only associates with the default app.
+  FIRApp *defaultApp = [[FIRApp alloc] initInstanceWithName:kFIRDefaultAppName options:optionsMock];
+
+  id configurationMock = OCMClassMock([FIRAnalyticsConfiguration class]);
+  OCMStub([configurationMock sharedInstance]).andReturn(configurationMock);
+
+  // Ensure Analytics is set after the global flag is set.
+  defaultApp.dataCollectionDefaultState = FIRDataCollectionStateEnabled;
+  OCMVerify([configurationMock setAnalyticsCollectionEnabled:YES persistSetting:NO]);
+
+  defaultApp.dataCollectionDefaultState = FIRDataCollectionStateDisabled;
+  OCMVerify([configurationMock setAnalyticsCollectionEnabled:NO persistSetting:NO]);
+
+  defaultApp.dataCollectionDefaultState = FIRDataCollectionStateDefault;
+  OCMVerify([configurationMock setAnalyticsCollectionEnabled:YES persistSetting:NO]);
 }
 
 #pragma mark - Internal Methods

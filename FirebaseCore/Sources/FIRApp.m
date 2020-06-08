@@ -412,6 +412,13 @@ static dispatch_once_t sFirebaseUserAgentOnceToken;
 }
 
 - (BOOL)isDataCollectionDefaultEnabled {
+  return [self isGlobalDataCollectionEnabled];
+}
+
+/// Returns a BOOL indicating if data collection is enabled based on various Info.plist and runtime
+/// flags. Each product can override this themselves with their own product specific flags, but if
+/// no product specific flags are used this is the default.
+- (BOOL)isGlobalDataCollectionEnabled {
   // Check if it's been manually set before in code, and use that as the higher priority value.
   NSNumber *defaultsObject = [[self class] readDataCollectionSwitchFromUserDefaultsForApp:self];
   if (defaultsObject != nil) {
@@ -447,6 +454,68 @@ static dispatch_once_t sFirebaseUserAgentOnceToken;
   }
 #endif  // DEBUG
   return YES;
+}
+
+- (void)setDataCollectionDefaultState:(FIRDataCollectionState)state {
+#ifdef DEBUG
+  FIRLogDebug(kFIRLoggerCore, @"I-COR000034", @"Explicitly set collection flag to *INSERT ME*.");
+  self.alreadyOutputDataCollectionFlag = YES;
+#endif  // DEBUG
+
+  NSString *key =
+      [NSString stringWithFormat:kFIRGlobalAppDataCollectionEnabledDefaultsKeyFormat, self.name];
+
+  switch (state) {
+    case FIRDataCollectionStateDefault:
+      // Remove the runtime flag, defaults to whatever is set by the Info.plist otherwise defaults
+      // to enabled.
+      [[NSUserDefaults standardUserDefaults] removeObjectForKey:key];
+      break;
+    case FIRDataCollectionStateEnabled:
+      [[NSUserDefaults standardUserDefaults] setBool:YES forKey:key];
+      break;
+    case FIRDataCollectionStateDisabled:
+      [[NSUserDefaults standardUserDefaults] setBool:NO forKey:key];
+      break;
+  }
+
+  // Core also controls the FirebaseAnalytics flag, so check if the Analytics flags are set
+  // within FIROptions and change the Analytics value if necessary. Analytics only works with the
+  // default app, so return if this isn't the default app.
+  if (!self.isDefaultApp) {
+    return;
+  }
+
+  // Check if the Analytics flag is explicitly set. If so, no further actions are necessary.
+  if ([self.options isAnalyticsCollectionExplicitlySet]) {
+    return;
+  }
+
+// The Analytics flag has not been explicitly set, so update with the value being set.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+  [[FIRAnalyticsConfiguration sharedInstance]
+      setAnalyticsCollectionEnabled:[self isGlobalDataCollectionEnabled]
+                     persistSetting:NO];
+#pragma clang diagnostic pop
+}
+
+- (FIRDataCollectionState)dataCollectionDefaultState {
+  // The mechanism used to be a BOOL value, use that underlying storage to determine what the state
+  // is.
+  NSNumber *defaultsObject = [[self class] readDataCollectionSwitchFromUserDefaultsForApp:self];
+  if (!defaultsObject) {
+    // No value was saved, it's the default state.
+    return FIRDataCollectionStateDefault;
+  }
+
+  // There's a value stored, check what it is and compare it to the enum values.
+  BOOL isCollectionEnabled = [defaultsObject boolValue];
+  if (isCollectionEnabled) {
+    return FIRDataCollectionStateEnabled;
+  } else {
+    return FIRDataCollectionStateDisabled;
+  }
 }
 
 #pragma mark - private
@@ -930,7 +999,7 @@ static dispatch_once_t sFirebaseUserAgentOnceToken;
 }
 
 - (void)logCoreTelemetryIfEnabled {
-  if ([self isDataCollectionDefaultEnabled]) {
+  if ([self isGlobalDataCollectionEnabled]) {
     [FIRCoreDiagnosticsConnector logCoreTelemetryWithOptions:_options];
   }
 }
