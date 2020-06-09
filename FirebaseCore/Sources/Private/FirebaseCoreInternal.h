@@ -12,6 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// An umbrella header, for any other libraries in this repo to access Firebase Public and Private
+// headers. Any package manager complexity should be handled here.
+
 #if SWIFT_PACKAGE
 @import FirebaseCore;
 #else
