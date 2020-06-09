@@ -359,7 +359,7 @@ NSString *const gGDTCORFlatFileStorageQoSTierPathKey = @"QoSTierPath";
                                               mappingIDs:nil
                                                 qosTiers:nil];
   id<GDTCORStorageEventIterator> iter = [self iteratorWithSelector:eventSelector];
-  return [iter nextEvent];
+  return [iter nextEvent] != nil;
 }
 
 - (nullable id<GDTCORStorageEventIterator>)iteratorWithSelector:
