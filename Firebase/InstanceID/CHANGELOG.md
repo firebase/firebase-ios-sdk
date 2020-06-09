@@ -1,5 +1,5 @@
 # 2020-06 -- 4.4.0
-# Standardize FirebaseCore import headers. (#5758)
+# [changed] Standardize FirebaseCore import headers. (#5758)
 
 # 2020-04 -- 4.3.4
 - [changed] Internal cleanup and remove repetitive local notification. (#5339)
