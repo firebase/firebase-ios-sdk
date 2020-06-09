@@ -28,26 +28,26 @@ NS_ASSUME_NONNULL_BEGIN
 @property(readonly, nonatomic) GDTCORTarget selectedTarget;
 
 /** Finds a specific event. */
-@property(nullable, readonly, nonatomic) NSSet<NSNumber *> *selectedEventIDs;
+@property(nullable, readonly, nonatomic) NSNumber *selectedEventID;
 
 /** Finds all events of a mappingID. */
-@property(nullable, readonly, nonatomic) NSSet<NSString *> *selectedMappingIDs;
+@property(nullable, readonly, nonatomic) NSString *selectedMappingID;
 
 /** Finds all events matching the qosTiers in this list. */
-@property(nullable, readonly, nonatomic) NSSet<NSNumber *> *selectedQosTiers;
+@property(nullable, readonly, nonatomic) NSArray<NSNumber *> *selectedQosTiers;
 
 /** Instantiates an event selector.
  *
  * @param target The selected target.
- * @param eventIDs Optional param to find an event matching this eventID.
- * @param mappingIDs Optional param to find events matching this mappingID.
+ * @param eventID Optional param to find an event matching this eventID.
+ * @param mappingID Optional param to find events matching this mappingID.
  * @param qosTiers Optional param to find events matching the given QoS tiers.
  * @return An immutable event selector instance.
  */
 - (instancetype)initWithTarget:(GDTCORTarget)target
-                      eventIDs:(nullable NSSet<NSNumber *> *)eventIDs
-                    mappingIDs:(nullable NSSet<NSString *> *)mappingIDs
-                      qosTiers:(nullable NSSet<NSNumber *> *)qosTiers;
+                eventIDEqualTo:(nullable NSNumber *)eventID
+              mappingIDEqualTo:(nullable NSString *)mappingID
+                      qosTiers:(nullable NSArray<NSNumber *> *)qosTiers;
 @end
 
 NS_ASSUME_NONNULL_END

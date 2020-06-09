@@ -25,10 +25,21 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/** The key of the event data path if a path dictionary is returned. */
+FOUNDATION_EXPORT NSString *const gGDTCORFlatFileStorageEventDataPathKey;
+
+/** The key of the event's mapping ID path if a path dictionary is returned. */
+FOUNDATION_EXPORT NSString *const gGDTCORFlatFileStorageMappingIDPathKey;
+
+/** The key of the event's qos tier path if a path dictionary is returned. */
+FOUNDATION_EXPORT NSString *const gGDTCORFlatFileStorageQoSTierPathKey;
+
 /** Manages the storage of events. This class is thread-safe.
  *
  * Event files will be stored as follows:
- *   <app cache>/gdt_event_data/<target>/<eventID>.<qosTier>.<mappingID>
+ *   <app cache>/gdt_event_data/<target>/<eventID> as a normal file write
+ *   <app cache>/gdt_event_data/<target>/<qosTier>/<eventID> as a symbolic link
+ *   <app cache>/gdt_event_data/<target>/<mappingID>/<eventID> as a symbolic link
  *
  * Library data will be stored as follows:
  *   <app cache>/gdt_library_data/<key of library data>
@@ -74,29 +85,24 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (NSString *)libraryDataStoragePath;
 
-/** Returns a constructed storage path based on the given values. This path may not exist.
+/** Returns storage paths for the given event, though the paths may not exist.
+ *
+ * @note The keys of this dictionary are declared in this header.
+ * @param event The event to map to storage paths.
+ */
++ (NSDictionary<NSString *, NSString *> *)pathsForEvent:(GDTCOREvent *)event;
+
+/** Returns a storage path to events for the given target, qosTier, and mapping ID. The path may not
+ * exist.
  *
  * @param target The target, which is necessary to be given a path.
- * @param eventID The eventID.
- * @param qosTier The qosTier.
- * @param mappingID The mappingID.
+ * @param qosTier An optional parameter to get a more specific path.
+ * @param mappingID An optional parameter to get a more specific path.
  * @return The path representing the combination of the given parameters.
  */
 + (NSString *)pathForTarget:(GDTCORTarget)target
-                    eventID:(NSNumber *)eventID
-                    qosTier:(NSNumber *)qosTier
-                  mappingID:(NSString *)mappingID;
-
-/** Returns extant paths that match all of the given parameters.
- *
- * @param eventIDs The list of eventIDs to look for, or nil for any.
- * @param qosTiers The list of qosTiers to look for, or nil for any.
- * @param mappingIDs The list of mappingIDs to look for, or nil for any.
- */
-+ (NSSet<NSString *> *)pathsForTarget:(GDTCORTarget)target
-                             eventIDs:(nullable NSSet<NSNumber *> *)eventIDs
-                             qosTiers:(nullable NSSet<NSNumber *> *)qosTiers
-                           mappingIDs:(nullable NSSet<NSString *> *)mappingIDs;
+                    qosTier:(nullable NSNumber *)qosTier
+                  mappingID:(nullable NSString *)mappingID;
 
 /** Returns a list of paths that will contain events for the given event selector.
  *
