@@ -102,21 +102,67 @@ NSString *const gGDTCORFlatFileStorageQoSTierPathKey = @"QoSTierPath";
   return libraryDataPath;
 }
 
-+ (NSDictionary<NSString *, NSString *> *)pathsForEvent:(GDTCOREvent *)event {
-  NSString *dataPath =
-      [NSString stringWithFormat:@"%@/%ld/%@", [GDTCORFlatFileStorage baseEventStoragePath],
-                                 (long)event.target, event.eventID];
-  NSString *mappingIDPath =
-      [NSString stringWithFormat:@"%@/%ld/%@/%@", [GDTCORFlatFileStorage baseEventStoragePath],
-                                 (long)event.target, event.mappingID, event.eventID];
-  NSString *qosTierPath =
-      [NSString stringWithFormat:@"%@/%ld/%ld/%@", [GDTCORFlatFileStorage baseEventStoragePath],
-                                 (long)event.target, (long)event.qosTier, event.eventID];
-  return @{
-    gGDTCORFlatFileStorageEventDataPathKey : dataPath,
-    gGDTCORFlatFileStorageMappingIDPathKey : mappingIDPath,
-    gGDTCORFlatFileStorageQoSTierPathKey : qosTierPath
-  };
++ (NSString *)pathForTarget:(GDTCORTarget)target
+                    eventID:(NSNumber *)eventID
+                    qosTier:(NSNumber *)qosTier
+                  mappingID:(NSNumber *)mappingID {
+  return
+      [NSString stringWithFormat:@"%@/%ld/%@.%ld.%@", [GDTCORFlatFileStorage baseEventStoragePath],
+                                 (long)target, eventID, (long)qosTier, mappingID];
+}
+
++ (NSSet<NSString *> *)pathsForTarget:(GDTCORTarget)target
+                             eventIDs:(nullable NSSet<NSNumber *> *)eventIDs
+                             qosTiers:(nullable NSSet<NSNumber *> *)qosTiers
+                           mappingIDs:(nullable NSSet<NSString *> *)mappingIDs {
+  NSMutableSet<NSString *> *paths = [[NSMutableSet alloc] init];
+  NSFileManager *fileManager = [NSFileManager defaultManager];
+  NSString *targetPath = [NSString
+      stringWithFormat:@"%@/%ld", [GDTCORFlatFileStorage baseEventStoragePath], (long)target];
+  NSError *error;
+  NSArray<NSString *> *dirPaths = [fileManager contentsOfDirectoryAtPath:targetPath error:&error];
+  if (error) {
+    GDTCORLogDebug(@"There was an error reading the contents of the target path: %@", error);
+    return paths;
+  }
+  BOOL checkingIDs = eventIDs != nil && eventIDs.count > 0;
+  BOOL checkingQosTiers = qosTiers != nil && qosTiers.count > 0;
+  BOOL checkingMappingIDs = mappingIDs != nil && mappingIDs.count > 0;
+  BOOL checkingAnything = checkingIDs == NO && checkingQosTiers == NO && checkingMappingIDs == NO;
+  for (NSString *path in dirPaths) {
+    if (checkingAnything) {
+      [paths addObject:path];
+      continue;
+    }
+    NSString *filename = [path lastPathComponent];
+    NSArray<NSString *> *components = [filename componentsSeparatedByString:@"."];
+    if (components.count != 3) {
+      GDTCORLogDebug(@"There was an error reading the filename components: %@", components);
+      return paths;
+    }
+    NSNumber *eventID = @(components[0].integerValue);
+    NSNumber *qosTier = @(components[1].integerValue);
+    NSString *mappingID = components[2];
+    if (eventID == nil || qosTier == nil) {
+      GDTCORLogDebug(@"There was an error parsing the filename components: %@", components);
+      return paths;
+    }
+    NSNumber *eventIDMatch = checkingIDs ? @([eventIDs containsObject:eventID]) : nil;
+    NSNumber *qosTierMatch = checkingQosTiers ? @([qosTiers containsObject:qosTier]) : nil;
+    NSNumber *mappingIDMatch = checkingMappingIDs ? @([mappingIDs containsObject:mappingID]) : nil;
+    if ((eventIDMatch == nil || eventIDMatch.boolValue) &&
+        (qosTierMatch == nil || qosTierMatch.boolValue) &&
+        (mappingIDMatch == nil || mappingIDMatch.boolValue)) {
+      [paths addObject:path];
+    }
+  }
+  return paths;
+}
+
++ (NSString *)pathForEvent:(GDTCOREvent *)event {
+  return [NSString
+      stringWithFormat:@"%@/%ld/%@.%ld.%@", [GDTCORFlatFileStorage baseEventStoragePath],
+                       (long)event.target, event.eventID, (long)event.qosTier, event.mappingID];
 }
 
 + (NSString *)pathForTarget:(GDTCORTarget)target
@@ -145,31 +191,11 @@ NSString *const gGDTCORFlatFileStorageQoSTierPathKey = @"QoSTierPath";
 }
 
 + (NSArray<NSString *> *)searchPathsWithEventSelector:(GDTCORStorageEventSelector *)eventSelector {
-  NSMutableArray<NSString *> *searchPaths = [[NSMutableArray alloc] init];
-  if (eventSelector.selectedQosTiers && eventSelector.selectedQosTiers.count > 0) {
-    for (NSNumber *qosTier in eventSelector.selectedQosTiers) {
-      NSString *searchPath = [self pathForTarget:eventSelector.selectedTarget
-                                         qosTier:qosTier
-                                       mappingID:eventSelector.selectedMappingID];
-      BOOL isDirectory;
-      if ([[NSFileManager defaultManager] fileExistsAtPath:searchPath isDirectory:&isDirectory]) {
-        if (isDirectory) {
-          [searchPaths addObject:searchPath];
-        }
-      }
-    }
-  } else {
-    NSString *searchPath = [self pathForTarget:eventSelector.selectedTarget
-                                       qosTier:nil
-                                     mappingID:eventSelector.selectedMappingID];
-    BOOL isDirectory;
-    if ([[NSFileManager defaultManager] fileExistsAtPath:searchPath isDirectory:&isDirectory]) {
-      if (isDirectory) {
-        [searchPaths addObject:searchPath];
-      }
-    }
-  }
-  return searchPaths;
+  NSSet *searchPaths = [GDTCORFlatFileStorage pathsForTarget:eventSelector.selectedTarget
+                                                    eventIDs:eventSelector.selectedEventIDs
+                                                    qosTiers:eventSelector.selectedQosTiers
+                                                  mappingIDs:eventSelector.selectedMappingIDs];
+  return [searchPaths allObjects];
 }
 
 + (instancetype)sharedInstance {
@@ -372,23 +398,9 @@ NSString *const gGDTCORFlatFileStorageQoSTierPathKey = @"QoSTierPath";
     (nonnull GDTCORStorageEventSelector *)eventSelector {
   __block GDTCORFlatFileStorageIterator *iterator;
   dispatch_sync(_storageQueue, ^{
-    NSMutableArray<NSString *> *filePaths;
     NSArray<NSString *> *searchPaths =
         [GDTCORFlatFileStorage searchPathsWithEventSelector:eventSelector];
-    for (NSString *searchPath in searchPaths) {
-      NSDirectoryEnumerator *enumerator =
-          [[NSFileManager defaultManager] enumeratorAtPath:searchPath];
-      NSString *nextFile;
-      while ((nextFile = [enumerator nextObject])) {
-        NSFileAttributeType fileType = enumerator.fileAttributes[NSFileType];
-        if ([fileType isEqual:NSFileTypeRegular]) {
-          [filePaths addObject:nextFile];
-        }
-      }
-      iterator = [[GDTCORFlatFileStorageIterator alloc] initWithTarget:eventSelector.selectedTarget
-                                                                 queue:self->_storageQueue];
-      iterator.eventFiles = filePaths;
-    }
+    iterator.eventFiles = searchPaths;
   });
   return iterator;
 }
