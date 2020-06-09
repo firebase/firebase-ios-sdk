@@ -19,14 +19,14 @@
 @implementation GDTCORStorageEventSelector
 
 - (instancetype)initWithTarget:(GDTCORTarget)target
-                eventIDEqualTo:(nullable NSNumber *)eventID
-              mappingIDEqualTo:(nullable NSString *)mappingID
-                      qosTiers:(nullable NSArray<NSNumber *> *)qosTiers {
+                      eventIDs:(nullable NSSet<NSNumber *> *)eventIDs
+                    mappingIDs:(nullable NSSet<NSString *> *)mappingIDs
+                      qosTiers:(nullable NSSet<NSNumber *> *)qosTiers {
   self = [super init];
   if (self) {
     _selectedTarget = target;
-    _selectedEventID = eventID;
-    _selectedMappingID = mappingID;
+    _selectedEventIDs = eventIDs;
+    _selectedMappingIDs = mappingIDs;
     _selectedQosTiers = qosTiers;
   }
   return self;

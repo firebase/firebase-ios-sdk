@@ -525,49 +525,23 @@ static NSInteger target = kGDTCORTargetCCT;
   [self waitForExpectations:@[ expectation ] timeout:10.0];
 }
 
-/** Tests that -pathsForEvent returns 3 file paths of the appropriate structure. */
-- (void)testPathsForEvent {
-  GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"test" target:kGDTCORTargetTest];
-  NSDictionary<NSString *, NSString *> *eventPaths = [GDTCORFlatFileStorage pathsForEvent:event];
-
-  NSString *dataPathSuffix = event.eventID.stringValue;
-  XCTAssertTrue([eventPaths[gGDTCORFlatFileStorageEventDataPathKey] hasSuffix:dataPathSuffix]);
-
-  NSString *qosTierSuffix =
-      [NSString stringWithFormat:@"%ld/%@/%@", (long)event.target, @(event.qosTier), event.eventID];
-  XCTAssertTrue([eventPaths[gGDTCORFlatFileStorageQoSTierPathKey] hasSuffix:qosTierSuffix]);
-
-  NSString *mappingIDSuffix =
-      [NSString stringWithFormat:@"%ld/%@/%@", (long)event.target, event.mappingID, event.eventID];
-  XCTAssertTrue([eventPaths[gGDTCORFlatFileStorageMappingIDPathKey] hasSuffix:mappingIDSuffix]);
-}
-
 /** Tests that -pathForTarget:qosTier:mappingID: returns the correctly structured path. */
-- (void)testPathForTargetQoSTier {
-  // Target only.
-  NSString *expectedSuffix = [NSString stringWithFormat:@"%ld", (long)kGDTCORTargetTest];
-  NSString *path = [GDTCORFlatFileStorage pathForTarget:kGDTCORTargetTest
-                                                qosTier:nil
-                                              mappingID:nil];
-  XCTAssertTrue([path hasSuffix:expectedSuffix]);
+- (void)testPathsForTargetEventIDQoSTierMappingID {
+  // TODO(mikehaney24): Complete below tests once events are being saved to disk.
 
-  // qosTier is given.
-  path = [GDTCORFlatFileStorage pathForTarget:kGDTCORTargetTest
-                                      qosTier:@(GDTCOREventQoSFast)
-                                    mappingID:nil];
-  XCTAssertTrue([path hasSuffix:@(GDTCOREventQoSFast).stringValue]);
+  // Store some predictably generated events across > 1 target.
 
-  // mappingID is given.
-  path = [GDTCORFlatFileStorage pathForTarget:kGDTCORTargetTest qosTier:nil mappingID:@"test"];
-  XCTAssertTrue([path hasSuffix:@"test"]);
+  // Search for all events (by target).
 
-  // Both qosTier and mappingID are given.
-  path = [GDTCORFlatFileStorage pathForTarget:kGDTCORTargetTest
-                                      qosTier:@(GDTCOREventQoSFast)
-                                    mappingID:@"test"];
-  expectedSuffix = [NSString
-      stringWithFormat:@"%ld/%ld/%@", (long)kGDTCORTargetTest, (long)GDTCOREventQoSFast, @"test"];
-  XCTAssertTrue([path hasSuffix:expectedSuffix]);
+  // Search for events by eventID.
+
+  // Search for events by qosTier.
+
+  // Search for events by mappingID.
+
+  // Search for events by eventID and qosTier.
+
+  // Search for events by qosTier and mappingID.
 }
 
 /** Tests that searchPathsWithEventSelector: returns the appropriate event search paths. */
@@ -586,8 +560,8 @@ static NSInteger target = kGDTCORTargetCCT;
 - (void)testIteratorWithSelector {
   GDTCORStorageEventSelector *eventSelector =
       [[GDTCORStorageEventSelector alloc] initWithTarget:kGDTCORTargetTest
-                                          eventIDEqualTo:nil
-                                        mappingIDEqualTo:nil
+                                                eventIDs:nil
+                                              mappingIDs:nil
                                                 qosTiers:nil];
   id<GDTCORStorageEventIterator> iter =
       [[GDTCORFlatFileStorage sharedInstance] iteratorWithSelector:eventSelector];
