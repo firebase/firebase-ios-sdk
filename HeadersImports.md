@@ -67,6 +67,17 @@ We support building with CocoaPods, cmake, internal Google build system, and Swi
 Manager (in development). Using repo-relative headers is a key enabler since it allows all headers
 to be found with a single path specifier no matter what the build system.
 
+#### CocoaPods Build Systems
+CocoaPods itself has a range of options that impact the functionality of header imports.
+
+The `use_frameworks!` option enables `@import {module-name}`. CocoaPods creates a directory structure
+such that `#import <pod-name/header>` works whether or not frameworks are built.
+
+CocoaPods builds a different directory structure for a `Development Pods` install versus an install
+from a published podspec. This can hide errors resulting from header search path pointing outside
+of a particular pod's sources.
+
+
 ### "Internal" versus "Private"
 
 "Internal" and "Private" are often used interchangeably since
