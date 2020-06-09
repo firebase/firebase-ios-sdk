@@ -107,8 +107,8 @@ NSString *const gGDTCORFlatFileStorageQoSTierPathKey = @"QoSTierPath";
                     qosTier:(NSNumber *)qosTier
                   mappingID:(NSNumber *)mappingID {
   return
-      [NSString stringWithFormat:@"%@/%ld/%@.%ld.%@", [GDTCORFlatFileStorage baseEventStoragePath],
-                                 (long)target, eventID, (long)qosTier, mappingID];
+      [NSString stringWithFormat:@"%@/%ld/%@.%@.%@", [GDTCORFlatFileStorage baseEventStoragePath],
+                                 (long)target, eventID, qosTier, mappingID];
 }
 
 + (NSSet<NSString *> *)pathsForTarget:(GDTCORTarget)target
