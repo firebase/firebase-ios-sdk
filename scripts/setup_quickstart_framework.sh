@@ -17,4 +17,3 @@ git clone https://github.com/firebase/quickstart-ios.git
 cd quickstart-ios/"${SAMPLE}"
 chmod +x ../scripts/info_script.rb
 ruby ../scripts/info_script.rb "${SAMPLE}"
-cd ~
