@@ -25,11 +25,9 @@
   dispatch_sync(self.storageQueue, ^{
     [self.targetToEventSet removeAllObjects];
     [self.storedEvents removeAllObjects];
-    [[NSFileManager defaultManager] removeItemAtPath:[GDTCORFlatFileStorage archivePath] error:nil];
-    [[NSFileManager defaultManager] removeItemAtPath:[GDTCORFlatFileStorage baseEventStoragePath]
-                                               error:nil];
-    [[NSFileManager defaultManager] removeItemAtPath:[GDTCORFlatFileStorage libraryDataStoragePath]
-                                               error:nil];
+    NSError *error;
+    [[NSFileManager defaultManager] removeItemAtPath:[GDTCORFlatFileStorage archivePath]
+                                               error:&error];
   });
 }
 
