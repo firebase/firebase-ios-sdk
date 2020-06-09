@@ -535,7 +535,7 @@ extern NSArray *ABTExperimentsToClearFromPayloads(
 
   NSArray *experiments = [_mockCUPController experimentsWithOrigin:gABTTestOrigin];
 
-  FIRAConditionalUserProperty *userPropertyForExperiment = [experiments firstObject];
+  NSDictionary *userPropertyForExperiment = [experiments firstObject];
 
   // Verify that the triggerEventName is cleared, making this experiment active.
   XCTAssertNil([userPropertyForExperiment valueForKeyPath:@"triggerEventName"]);
