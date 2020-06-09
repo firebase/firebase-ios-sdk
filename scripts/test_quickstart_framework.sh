@@ -29,9 +29,9 @@ source scripts/check_secrets.sh
 if check_secrets; then
   cd quickstart-ios
   if [ "$platform" = "swift" ]; then
-    have_secrets=true SAMPLE="$sample" SWIFT_SUFFIX="Swift" ../scripts/framework_test.sh
+    have_secrets=true SAMPLE="$sample" SWIFT_SUFFIX="Swift" scripts/framework_test.sh
   else
-    have_secrets=true SAMPLE="$sample" ../scripts/framework_test.sh
+    have_secrets=true SAMPLE="$sample" scripts/framework_test.sh
   fi
 
 fi
