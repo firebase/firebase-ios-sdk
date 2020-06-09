@@ -31,6 +31,9 @@ NSTimeInterval kFIRStorageIntegrationTestTimeout = 60;
   rules_version = '2';
   service firebase.storage {
     match /b/{bucket}/o {
+      match /{allPaths=**} {
+        allow read: if request.auth != null;
+      }
       match /ios {
         match /public/{allPaths=**} {
           allow write: if request.auth != null;
@@ -768,7 +771,7 @@ NSString *const kTestPassword = KPASSWORD;
 }
 
 - (void)testListAllFiles {
-  XCTestExpectation *expectation = [self expectationWithDescription:@"testPagedListFiles"];
+  XCTestExpectation *expectation = [self expectationWithDescription:@"testListAllFiles"];
 
   FIRStorageReference *ref = [self.storage referenceWithPath:@"ios/public/list"];
 
@@ -781,6 +784,22 @@ NSString *const kTestPassword = KPASSWORD;
     XCTAssertEqualObjects(listResult.prefixes, @[ [ref child:@"prefix"] ]);
     XCTAssertNil(listResult.pageToken);
 
+    [expectation fulfill];
+  }];
+
+  [self waitForExpectations];
+}
+
+- (void)testListFilesAtRoot {
+  XCTestExpectation *expectation = [self expectationWithDescription:@"testListFilesAtRoot"];
+
+  FIRStorageReference *ref = [self.storage referenceWithPath:@""];
+
+  [ref listAllWithCompletion:^(FIRStorageListResult *_Nullable listResult,
+                               NSError *_Nullable error) {
+    XCTAssertNotNil(listResult);
+    XCTAssertNil(error);
+    XCTAssertNil(listResult.pageToken);
     [expectation fulfill];
   }];
 
