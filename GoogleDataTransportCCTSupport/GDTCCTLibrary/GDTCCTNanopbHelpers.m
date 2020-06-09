@@ -31,7 +31,7 @@
 #import <nanopb/pb_decode.h>
 #import <nanopb/pb_encode.h>
 
-#import "GDTCCTLibrary/Private/GDTCOREvent+GDTCCTSupport.h"
+#import "GDTCCTLibrary/Public/GDTCOREvent+GDTCCTSupport.h"
 
 #pragma mark - General purpose encoders
 

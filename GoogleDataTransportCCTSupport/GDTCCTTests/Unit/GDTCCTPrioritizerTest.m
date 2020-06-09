@@ -20,7 +20,7 @@
 
 #import "GDTCCTLibrary/Private/GDTCCTNanopbHelpers.h"
 #import "GDTCCTLibrary/Private/GDTCCTPrioritizer.h"
-#import "GDTCCTLibrary/Private/GDTCOREvent+GDTCCTSupport.h"
+#import "GDTCCTLibrary/Public/GDTCOREvent+GDTCCTSupport.h"
 
 @interface GDTCCTPrioritizerTest : XCTestCase
 

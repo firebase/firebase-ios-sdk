@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "GDTCCTLibrary/Private/GDTCOREvent+GDTCCTSupport.h"
+#import "GDTCCTLibrary/Public/GDTCOREvent+GDTCCTSupport.h"
 
 #import <GoogleDataTransport/GDTCORConsoleLogger.h>
 

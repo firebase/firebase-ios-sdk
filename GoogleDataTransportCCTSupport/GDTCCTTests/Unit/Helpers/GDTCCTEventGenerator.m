@@ -21,7 +21,7 @@
 #import <GoogleDataTransport/GDTCORPlatform.h>
 #import <GoogleDataTransport/GDTCORTargets.h>
 
-#import "GDTCCTLibrary/Private/GDTCOREvent+GDTCCTSupport.h"
+#import "GDTCCTLibrary/Public/GDTCOREvent+GDTCCTSupport.h"
 
 @interface GDTCCTEventGeneratorDataObject : NSObject <GDTCOREventDataObject>
 
