@@ -125,9 +125,9 @@ NSString *const gGDTCORFlatFileStorageQoSTierPathKey = @"QoSTierPath";
     GDTCORLogDebug(@"There was an error reading the contents of the target path: %@", error);
     return paths;
   }
-  BOOL checkingIDs = eventIDs != nil && eventIDs.count > 0;
-  BOOL checkingQosTiers = qosTiers != nil && qosTiers.count > 0;
-  BOOL checkingMappingIDs = mappingIDs != nil && mappingIDs.count > 0;
+  BOOL checkingIDs = eventIDs.count > 0;
+  BOOL checkingQosTiers = qosTiers.count > 0;
+  BOOL checkingMappingIDs = mappingIDs.count > 0;
   BOOL checkingAnything = checkingIDs == NO && checkingQosTiers == NO && checkingMappingIDs == NO;
   for (NSString *path in dirPaths) {
     if (checkingAnything) {
@@ -138,14 +138,16 @@ NSString *const gGDTCORFlatFileStorageQoSTierPathKey = @"QoSTierPath";
     NSArray<NSString *> *components = [filename componentsSeparatedByString:@"."];
     if (components.count != 3) {
       GDTCORLogDebug(@"There was an error reading the filename components: %@", components);
-      return paths;
+      [[NSFileManager defaultManager] removeItemAtPath:path error:nil];
+      continue;
     }
     NSNumber *eventID = @(components[0].integerValue);
     NSNumber *qosTier = @(components[1].integerValue);
     NSString *mappingID = components[2];
     if (eventID == nil || qosTier == nil) {
       GDTCORLogDebug(@"There was an error parsing the filename components: %@", components);
-      return paths;
+      [[NSFileManager defaultManager] removeItemAtPath:path error:nil];
+      continue;
     }
     NSNumber *eventIDMatch = checkingIDs ? @([eventIDs containsObject:eventID]) : nil;
     NSNumber *qosTierMatch = checkingQosTiers ? @([qosTiers containsObject:qosTier]) : nil;
