@@ -16,10 +16,11 @@
 
 #import <Foundation/Foundation.h>
 
-#if __cplusplus
-#import <FirebaseCore/FIRLoggerLevel.h>
-#else
+#if SWIFT_PACKAGE
+// TODO(paulb777): Investigate if there's a common strategy for both Cocoapods and Swift PM.
 #import "FIRLoggerLevel.h"
+#else
+#import <FirebaseCore/FIRLoggerLevel.h>
 #endif
 
 NS_ASSUME_NONNULL_BEGIN

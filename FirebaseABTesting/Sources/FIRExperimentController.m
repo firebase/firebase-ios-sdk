@@ -19,7 +19,7 @@
 #import "FirebaseABTesting/Sources/ABTConstants.h"
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
-#import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
+#import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 
 #ifndef FIRABTesting_VERSION
 #error "FIRABTesting_VERSION is not defined: \

@@ -19,17 +19,20 @@ Pod::Spec.new do |s|
   s.static_framework = true
   s.prefix_header_file = false
 
-  s.source_files = 'Crashlytics/Crashlytics/**/*.{c,h,m,mm}',
+  s.source_files = [
+    'Crashlytics/Crashlytics/**/*.{c,h,m,mm}',
     'Crashlytics/Protogen/**/*.{c,h,m,mm}',
     'Crashlytics/Shared/**/*.{c,h,m,mm}',
-    'Crashlytics/third_party/**/*.{c,h,m,mm}'
+    'Crashlytics/third_party/**/*.{c,h,m,mm}',
+    'FirebaseCore/Sources/Private/*.h',
+    'Interop/Analytics/Public/*.h',
+  ]
 
   s.public_header_files = [
     'Crashlytics/Crashlytics/Public/*.h'
   ]
 
   s.preserve_paths = [
-    'FirebaseCore/Sources/Private/*.h',
     'Crashlytics/README.md',
     'run',
     'upload-symbols',
@@ -44,7 +47,6 @@ Pod::Spec.new do |s|
 
   s.dependency 'FirebaseCore', '~> 6.8'
   s.dependency 'FirebaseInstallations', '~> 1.1'
-  s.dependency 'FirebaseAnalyticsInterop', '~> 1.2'
   s.dependency 'PromisesObjC', '~> 1.2'
   s.dependency 'GoogleDataTransport', '~> 6.1'
   s.dependency 'GoogleDataTransportCCTSupport', '~> 3.1'

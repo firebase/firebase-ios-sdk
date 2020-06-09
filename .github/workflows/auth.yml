@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
     - 'FirebaseAuth**'
+    - 'Interop/Auth/Public/*.h'
     - '.github/workflows/auth.yml'
     - 'Gemfile'
   schedule:

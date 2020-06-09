@@ -27,8 +27,7 @@ let podfile = CommandLine.arguments[1]
 let implicitPods = ["FirebaseCore", "FirebaseInstanceID", "FirebaseInstallations", "Firebase",
                     "GoogleDataTransport", "GoogleDataTransportCCTSupport", "GoogleUtilities",
                     "FirebaseAuth", "FirebaseABTesting",
-                    "FirebaseAnalyticsInterop", "FirebaseAuthInterop", "FirebaseCoreDiagnostics",
-                    "FirebaseCoreDiagnosticsInterop", "FirebaseRemoteConfig", "FirebaseAuthInterop"]
+                    "FirebaseCoreDiagnostics", "FirebaseRemoteConfig"]
 var didImplicits = false
 
 var fileContents = ""

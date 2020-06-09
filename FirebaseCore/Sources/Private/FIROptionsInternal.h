@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-#if __cplusplus
-#import <FirebaseCore/FIROptions.h>
-#else
+#if SWIFT_PACKAGE
+// TODO(paulb777): Investigate if there's a common strategy for both Cocoapods and Swift PM.
 #import "FIROptions.h"
+#else
+#import <FirebaseCore/FIROptions.h>
 #endif
 
 /**
