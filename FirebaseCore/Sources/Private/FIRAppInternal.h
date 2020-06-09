@@ -100,6 +100,11 @@ extern NSString *const FIRAuthStateDidChangeInternalNotificationUIDKey;
 @property(nonatomic) FIRComponentContainer *container;
 
 /**
+ * A property to determine if data collection is enabled on the global level, set by the developer.
+ */
+@property(nonatomic, readonly) BOOL isGlobalDataCollectionEnabled;
+
+/**
  * Creates an error for failing to configure a subspec service. This method is called by each
  * FIRApp notification listener.
  */

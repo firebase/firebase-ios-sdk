@@ -307,17 +307,20 @@ class FirebaseAppTests: XCTestCase {
   }
 
   func testFirebaseDataCollectionDefaultEnabled() throws {
-    let app = FirebaseApp(instanceWithName: "emptyApp", options: FirebaseOptions())
+    let options = FirebaseOptions(googleAppID: Constants.Options.googleAppID,
+                                  gcmSenderID: Constants.Options.gcmSenderID)
+    let app = FirebaseApp(instanceWithName: "emptyApp", options: options)
 
     // defaults to true unless otherwise set to no in app's Info.plist
-    XCTAssertTrue(app.isDataCollectionDefaultEnabled)
+    XCTAssertEqual(app.dataCollectionDefaultState, .default)
+    XCTAssertTrue(app.isGlobalDataCollectionEnabled)
 
-    app.isDataCollectionDefaultEnabled = false
-    XCTAssertFalse(app.isDataCollectionDefaultEnabled)
+    app.dataCollectionDefaultState = .disabled
+    XCTAssertEqual(app.dataCollectionDefaultState, .disabled)
+    XCTAssertFalse(app.isGlobalDataCollectionEnabled)
 
-    // Cleanup
-    app.isDataCollectionDefaultEnabled = true
-
+    // Cleanup.
+    app.dataCollectionDefaultState = .default
     let expecation = expectation(description: #function)
     app.delete { success in
       expecation.fulfill()

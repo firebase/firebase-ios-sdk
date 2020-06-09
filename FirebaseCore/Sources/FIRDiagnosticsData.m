@@ -48,7 +48,7 @@
   }
   if (!_diagnosticObjects[kFIRCDIsDataCollectionDefaultEnabledKey]) {
     _diagnosticObjects[kFIRCDIsDataCollectionDefaultEnabledKey] =
-        @([[FIRApp defaultApp] isDataCollectionDefaultEnabled]);
+        @([[FIRApp defaultApp] isGlobalDataCollectionEnabled]);
   }
   if (!_diagnosticObjects[kFIRCDFirebaseUserAgentKey]) {
     _diagnosticObjects[kFIRCDFirebaseUserAgentKey] = [FIRApp firebaseUserAgent];

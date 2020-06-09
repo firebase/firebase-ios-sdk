@@ -595,6 +595,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   OCMStub([self.appClassMock readDataCollectionSwitchFromUserDefaultsForApp:OCMOCK_ANY])
       .andReturn(nil);
 
+#pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
   XCTAssertTrue(app.isDataCollectionDefaultEnabled);
 #pragma clang diagnostic pop
@@ -614,6 +615,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   OCMStub([self.appClassMock readDataCollectionSwitchFromUserDefaultsForApp:OCMOCK_ANY])
       .andReturn(nil);
 
+#pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
   XCTAssertTrue(app.isDataCollectionDefaultEnabled);
 #pragma clang diagnostic pop
@@ -635,6 +637,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   OCMStub([self.appClassMock readDataCollectionSwitchFromUserDefaultsForApp:OCMOCK_ANY])
       .andReturn(nil);
 
+#pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
   XCTAssertFalse(app.isDataCollectionDefaultEnabled);
 #pragma clang diagnostic pop
@@ -656,6 +659,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   OCMStub([self.appClassMock readDataCollectionSwitchFromUserDefaultsForApp:OCMOCK_ANY])
       .andReturn(@YES);
 
+#pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
   XCTAssertTrue(app.isDataCollectionDefaultEnabled);
 #pragma clang diagnostic pop
@@ -675,6 +679,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   OCMStub([self.appClassMock readDataCollectionSwitchFromUserDefaultsForApp:OCMOCK_ANY])
       .andReturn(@NO);
 
+#pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
   XCTAssertFalse(app.isDataCollectionDefaultEnabled);
 #pragma clang diagnostic pop
@@ -694,6 +699,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   OCMStub([self.appClassMock readDataCollectionSwitchFromUserDefaultsForApp:OCMOCK_ANY])
       .andReturn(@YES);
 
+#pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
   XCTAssertTrue(app.isDataCollectionDefaultEnabled);
 #pragma clang diagnostic pop
@@ -713,6 +719,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   OCMStub([self.appClassMock readDataCollectionSwitchFromUserDefaultsForApp:OCMOCK_ANY])
       .andReturn(@NO);
 
+#pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
   XCTAssertFalse(app.isDataCollectionDefaultEnabled);
 #pragma clang diagnostic pop
@@ -816,6 +823,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   [FIRApp configureWithName:name options:options];
   FIRApp *app = [FIRApp appNamed:name];
 
+#pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
   app.dataCollectionDefaultEnabled = YES;
   NSString *key =
@@ -837,6 +845,8 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
                                                     GCMSenderID:kGCMSenderID];
   [FIRApp configureWithName:name options:options];
   FIRApp *app = [FIRApp appNamed:name];
+
+#pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
   app.dataCollectionDefaultEnabled = NO;
   XCTAssertFalse(app.isDataCollectionDefaultEnabled);
@@ -859,6 +869,8 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 
   // Set up an app with the same name again, and check the data collection flag.
   [FIRApp configureWithName:name options:options];
+
+#pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
   XCTAssertTrue([FIRApp appNamed:name].isDataCollectionDefaultEnabled);
 #pragma clang diagnostic pop
@@ -872,7 +884,11 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
                                                     GCMSenderID:kGCMSenderID];
   FIRApp *app = [[FIRApp alloc] initInstanceWithName:NSStringFromSelector(_cmd) options:options];
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   app.dataCollectionDefaultEnabled = NO;
+#pragma clang diagnostic pop
 
   // Test the internal flag and the state matches.
   XCTAssertFalse(app.isGlobalDataCollectionEnabled);
@@ -912,11 +928,14 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   id configurationMock = OCMClassMock([FIRAnalyticsConfiguration class]);
   OCMStub([configurationMock sharedInstance]).andReturn(configurationMock);
 
-  // Ensure Analytics is set after the global flag is set.
+// Ensure Analytics is set after the global flag is set.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   [defaultApp setDataCollectionDefaultEnabled:YES];
   OCMVerify([configurationMock setAnalyticsCollectionEnabled:YES persistSetting:NO]);
 
   [defaultApp setDataCollectionDefaultEnabled:NO];
+#pragma clang diagnostic pop
   OCMVerify([configurationMock setAnalyticsCollectionEnabled:NO persistSetting:NO]);
 }
 
@@ -932,11 +951,14 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   // Reject any changes to Analytics when the data collection changes.
   OCMReject([configurationMock setAnalyticsCollectionEnabled:YES persistSetting:YES]);
   OCMReject([configurationMock setAnalyticsCollectionEnabled:YES persistSetting:NO]);
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   [app setDataCollectionDefaultEnabled:YES];
 
   OCMReject([configurationMock setAnalyticsCollectionEnabled:NO persistSetting:YES]);
   OCMReject([configurationMock setAnalyticsCollectionEnabled:NO persistSetting:NO]);
   [app setDataCollectionDefaultEnabled:NO];
+#pragma clang diagnostic pop
 }
 
 #pragma mark Enum: Analytics Flag Tests

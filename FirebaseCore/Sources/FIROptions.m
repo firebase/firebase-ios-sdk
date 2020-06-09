@@ -430,7 +430,10 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
     }
 
     // Fall back to the default app's collection switch when the key is not in the dictionary.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     return [FIRApp defaultApp].isDataCollectionDefaultEnabled;
+#pragma clang diagnostic pop
   }
   return [value boolValue];
 }
