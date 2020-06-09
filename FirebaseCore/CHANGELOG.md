@@ -1,3 +1,10 @@
+# Unreleased
+- [added] Introduced new property (`dataCollectionDefaultState`) and enum (`DataCollectionState`)
+  for better control over the default data collection behaviour. The `dataCollectionDefaultState`
+  property is a runtime override and replaces the existing `isDataCollectionDefaultEnabled` flag,
+  which is now deprecated. The previous flag value is still honored, but the new enum will allow for
+  clearing the persisted value (by setting the value to `.default`).
+
 # v6.7.1 -- M71
 - [fixed] Fixed `FirebaseApp`s `bundleID` verification, allowing exact `bundleID` matches
   for extensions. (#5126)
