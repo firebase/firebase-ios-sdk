@@ -32,6 +32,7 @@ device, and it is completely free.
   s.source_files = base_dir + 'Sources/**/*.[mh]'
   s.requires_arc = base_dir + 'Sources/*.m'
   s.public_header_files = base_dir + 'Sources/Public/*.h'
+  s.preserve_paths = 'FirebaseCore/Sources/Private/*.h'
   s.library = 'sqlite3'
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
@@ -46,7 +47,7 @@ device, and it is completely free.
   s.osx.framework = 'SystemConfiguration'
   s.weak_framework = 'UserNotifications'
   s.dependency 'FirebaseAnalyticsInterop', '~> 1.5'
-  s.dependency 'FirebaseCore', '~> 6.6'
+  s.dependency 'FirebaseCore', '~> 6.8'
   s.dependency 'FirebaseInstanceID', '~> 4.3'
   s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 6.5'
   s.dependency 'GoogleUtilities/Reachability', '~> 6.5'

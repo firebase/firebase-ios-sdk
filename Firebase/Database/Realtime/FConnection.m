@@ -16,7 +16,7 @@
 
 #import "FConnection.h"
 #import "FConstants.h"
-#import <FirebaseCore/FIRLogger.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 typedef enum {
     REALTIME_STATE_CONNECTING = 0,

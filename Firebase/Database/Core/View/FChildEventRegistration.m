@@ -21,7 +21,7 @@
 #import "FIRDatabaseQuery_Private.h"
 #import "FQueryParams.h"
 #import "FQuerySpec.h"
-#import <FirebaseCore/FIRLogger.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 @interface FChildEventRegistration ()
 @property(nonatomic, strong) FRepo *repo;

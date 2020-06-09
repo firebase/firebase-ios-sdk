@@ -24,7 +24,7 @@
 #import "FIRDatabase_Private.h"
 #import "FStringUtilities.h"
 #import "FWebSocketConnection.h"
-#import <FirebaseCore/FIRLogger.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 #if TARGET_OS_IOS || TARGET_OS_TV
 #import <UIKit/UIKit.h>

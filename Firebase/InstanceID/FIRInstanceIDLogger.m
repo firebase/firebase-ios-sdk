@@ -16,7 +16,7 @@
 
 #import "FIRInstanceIDLogger.h"
 
-#import <FirebaseCore/FIRLogger.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 // Re-definition of FIRLogger service, as it is not included in :FIRAppHeaders target
 NSString *const kFIRInstanceIDLoggerService = @"[Firebase/InstanceID]";

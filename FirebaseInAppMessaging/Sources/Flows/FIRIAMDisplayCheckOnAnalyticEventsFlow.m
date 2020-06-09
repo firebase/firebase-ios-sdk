@@ -16,7 +16,7 @@
 
 #import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
 #import <FirebaseAnalyticsInterop/FIRAnalyticsInteropListener.h>
-#import <FirebaseCore/FIRLogger.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 #import "FIRCore+InAppMessaging.h"
 #import "FIRIAMDisplayCheckOnAnalyticEventsFlow.h"

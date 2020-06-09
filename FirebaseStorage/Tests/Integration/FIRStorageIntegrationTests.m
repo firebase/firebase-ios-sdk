@@ -16,8 +16,7 @@
 #import <FirebaseStorage/FirebaseStorage.h>
 #import <XCTest/XCTest.h>
 
-#import <FirebaseCore/FIRApp.h>
-#import <FirebaseCore/FIROptions.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 #import "Credentials.h"
 

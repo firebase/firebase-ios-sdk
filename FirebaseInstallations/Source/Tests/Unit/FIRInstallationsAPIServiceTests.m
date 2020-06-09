@@ -26,8 +26,7 @@
 #import "FIRInstallationsStoredAuthToken.h"
 #import "FIRInstallationsVersion.h"
 
-#import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseCore/FIRHeartbeatInfo.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
 

@@ -18,6 +18,7 @@
 #import <Foundation/Foundation.h>
 
 @class FIRInstallationsIDController;
+@class FIROptions;
 
 NS_ASSUME_NONNULL_BEGIN
 

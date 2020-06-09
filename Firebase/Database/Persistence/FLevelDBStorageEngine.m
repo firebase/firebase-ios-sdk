@@ -27,7 +27,7 @@
 #import "FTrackedQuery.h"
 #import "FUtilities.h"
 #import "FWriteRecord.h"
-#import <FirebaseCore/FIRLogger.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 @interface FLevelDBStorageEngine ()
 

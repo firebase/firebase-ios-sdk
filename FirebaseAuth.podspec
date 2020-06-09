@@ -29,6 +29,7 @@ supports email and password accounts, as well as several 3rd party authenticatio
   s.source_files = source + '**/*.[mh]'
   s.public_header_files = source + 'Public/*.h'
   s.preserve_paths = [
+    'FirebaseCore/Sources/Private/*.h',
     'FirebaseAuth/README.md',
     'FirebaseAuth/CHANGELOG.md'
   ]
@@ -42,7 +43,7 @@ supports email and password accounts, as well as several 3rd party authenticatio
   s.framework = 'Security'
   s.ios.framework = 'SafariServices'
   s.dependency 'FirebaseAuthInterop', '~> 1.0'
-  s.dependency 'FirebaseCore', '~> 6.6'
+  s.dependency 'FirebaseCore', '~> 6.8'
   s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 6.5'
   s.dependency 'GoogleUtilities/Environment', '~> 6.5'
   s.dependency 'GTMSessionFetcher/Core', '~> 1.1'
