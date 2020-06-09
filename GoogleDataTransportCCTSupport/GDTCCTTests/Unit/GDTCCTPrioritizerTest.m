@@ -20,7 +20,7 @@
 
 #import "GDTCCTLibrary/Private/GDTCCTNanopbHelpers.h"
 #import "GDTCCTLibrary/Private/GDTCCTPrioritizer.h"
-#import "GDTCCTLibrary/Private/GDTCOREvent+NetworkConnectionInfo.h"
+#import "GDTCCTLibrary/Public/GDTCOREvent+GDTCCTSupport.h"
 
 @interface GDTCCTPrioritizerTest : XCTestCase
 
@@ -168,12 +168,42 @@
   GDTCCTPrioritizer *prioritizer = [[GDTCCTPrioritizer alloc] init];
   GDTCOREvent *event = [_CCTGenerator generateEvent:GDTCOREventQosDefault];
   event.needsNetworkConnectionInfoPopulated = YES;
+  event.eventCode = @(1405);
   [prioritizer prioritizeEvent:event];
   NSData *networkConnectionInfoData = event.networkConnectionInfoData;
   XCTAssertNotNil(networkConnectionInfoData);
+  XCTAssertNotNil(event.eventCode);
+  XCTAssertEqualObjects(event.eventCode, @(1405));
   gdt_cct_NetworkConnectionInfo info;
   [networkConnectionInfoData getBytes:&info length:networkConnectionInfoData.length];
   XCTAssertNotEqual(info.network_type, gdt_cct_NetworkConnectionInfo_NetworkType_NONE);
+}
+
+/** Tests getting and setting the eventCode. */
+- (void)testEventCode {
+  NSNumber *const testCode = @(1405);
+  GDTCOREvent *event = [_CCTGenerator generateEvent:GDTCOREventQosDefault];
+  event.eventCode = testCode;
+  XCTAssertEqualObjects(event.eventCode, testCode);
+
+  event.needsNetworkConnectionInfoPopulated = NO;
+  XCTAssertEqualObjects(event.eventCode, testCode);
+
+  event.needsNetworkConnectionInfoPopulated = YES;
+  XCTAssertEqualObjects(event.eventCode, testCode);
+
+  NSData *testData = [@"test" dataUsingEncoding:kCFStringEncodingUTF8];
+  event.networkConnectionInfoData = testData;
+  XCTAssertEqualObjects(event.eventCode, testCode);
+
+  event.networkConnectionInfoData = nil;
+  XCTAssertEqualObjects(event.eventCode, testCode);
+
+  event.eventCode = nil;
+  event.networkConnectionInfoData = testData;
+  XCTAssertEqualObjects(event.eventCode, nil);
+  XCTAssertNotNil(event.networkConnectionInfoData);
+  XCTAssertEqualObjects(event.networkConnectionInfoData, testData);
 }
 
 /** Tests encoding and decoding a clock using a keyed archiver. */

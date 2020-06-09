@@ -30,6 +30,7 @@ Support library to provide event prioritization and uploading for the GoogleData
 
   s.source_files = 'GoogleDataTransportCCTSupport/GDTCCTLibrary/**/*'
   s.private_header_files = 'GoogleDataTransportCCTSupport/GDTCCTLibrary/Private/*.h'
+  s.public_header_files = 'GoogleDataTransportCCTSupport/GDTCCTLibrary/Public/*.h'
   s.ios.frameworks = 'SystemConfiguration', 'CoreTelephony'
   s.osx.frameworks = 'SystemConfiguration', 'CoreTelephony'
   s.tvos.frameworks = 'SystemConfiguration'
