@@ -105,7 +105,7 @@ NSString *const gGDTCORFlatFileStorageQoSTierPathKey = @"QoSTierPath";
 + (NSString *)pathForTarget:(GDTCORTarget)target
                     eventID:(NSNumber *)eventID
                     qosTier:(NSNumber *)qosTier
-                  mappingID:(NSNumber *)mappingID {
+                  mappingID:(NSString *)mappingID {
   return
       [NSString stringWithFormat:@"%@/%ld/%@.%@.%@", [GDTCORFlatFileStorage baseEventStoragePath],
                                  (long)target, eventID, qosTier, mappingID];
@@ -157,37 +157,6 @@ NSString *const gGDTCORFlatFileStorageQoSTierPathKey = @"QoSTierPath";
     }
   }
   return paths;
-}
-
-+ (NSString *)pathForEvent:(GDTCOREvent *)event {
-  return [NSString
-      stringWithFormat:@"%@/%ld/%@.%ld.%@", [GDTCORFlatFileStorage baseEventStoragePath],
-                       (long)event.target, event.eventID, (long)event.qosTier, event.mappingID];
-}
-
-+ (NSString *)pathForTarget:(GDTCORTarget)target
-                    qosTier:(nullable NSNumber *)qosTier
-                  mappingID:(nullable NSString *)mappingID {
-  NSString *baseEventPath = [GDTCORFlatFileStorage baseEventStoragePath];
-  // If only a target was given, return the target path.
-  if (qosTier == nil && mappingID == nil) {
-    return [NSString stringWithFormat:@"%@/%ld", baseEventPath, (long)target];
-  }
-
-  // If only a target and mappingID were given, return the mapping ID path.
-  if (qosTier == nil) {
-    return [NSString stringWithFormat:@"%@/%ld/%@", baseEventPath, (long)target, mappingID];
-  }
-
-  // If only a target and qosTier were given, return the QoS tier path.
-  if (mappingID == nil) {
-    return [NSString stringWithFormat:@"%@/%ld/%@", baseEventPath, (long)target, qosTier];
-  }
-
-  // If a target, mappingID, and qosTier were all given, return a single target/qosTier/mappingID
-  // directory.
-  return
-      [NSString stringWithFormat:@"%@/%ld/%@/%@", baseEventPath, (long)target, qosTier, mappingID];
 }
 
 + (NSArray<NSString *> *)searchPathsWithEventSelector:(GDTCORStorageEventSelector *)eventSelector {
@@ -383,15 +352,14 @@ NSString *const gGDTCORFlatFileStorageQoSTierPathKey = @"QoSTierPath";
 }
 
 - (BOOL)hasEventsForTarget:(GDTCORTarget)target {
-  NSString *searchPath = [GDTCORFlatFileStorage pathForTarget:target qosTier:nil mappingID:nil];
-  NSFileManager *fm = [NSFileManager defaultManager];
-  NSDirectoryEnumerator *enumerator = [fm enumeratorAtPath:searchPath];
-  while ([enumerator nextObject]) {
-    if ([enumerator.fileAttributes[NSFileType] isEqual:NSFileTypeRegular]) {
-      return YES;
-    }
-  }
-  return NO;
+  // TODO(mikehaney24): Increase the performance of this call.
+  GDTCORStorageEventSelector *eventSelector =
+      [[GDTCORStorageEventSelector alloc] initWithTarget:target
+                                                eventIDs:nil
+                                              mappingIDs:nil
+                                                qosTiers:nil];
+  id<GDTCORStorageEventIterator> iter = [self iteratorWithSelector:eventSelector];
+  return [iter nextEvent];
 }
 
 - (nullable id<GDTCORStorageEventIterator>)iteratorWithSelector:

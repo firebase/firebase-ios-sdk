@@ -85,7 +85,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (NSString *)pathForTarget:(GDTCORTarget)target
                     eventID:(NSNumber *)eventID
                     qosTier:(NSNumber *)qosTier
-                  mappingID:(NSNumber *)mappingID;
+                  mappingID:(NSString *)mappingID;
 
 /** Returns extant paths that match all of the given parameters.
  *
