@@ -1,3 +1,6 @@
+# v3.2.0
+- Expose a new public API to collect network or event code data.
+
 # v3.1.0
 - watchOS extension and independent apps now supported. (#4292)
 - iOS extensions better supported.
