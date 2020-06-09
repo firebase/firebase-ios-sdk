@@ -193,11 +193,14 @@
   }
 
   NSError *fileReachabilityError;
-  if (![_fileURL checkResourceIsReachableAndReturnError:&fileReachabilityError]) {
+  if (![_fileURL checkResourceIsReachableAndReturnError:&fileReachabilityError] ||
+      ![self fileURLisFile:_fileURL]) {
     if (outError != NULL) {
       NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithCapacity:2];
-      userInfo[NSLocalizedDescriptionKey] =
-          [NSString stringWithFormat:@"File at URL: %@ is not reachable.", _fileURL.absoluteString];
+      userInfo[NSLocalizedDescriptionKey] = [NSString
+          stringWithFormat:@"File at URL: %@ is not reachable. "
+                           @"Ensure file URL is not a directory, symbolic link, or invalid url.",
+                           _fileURL.absoluteString];
 
       if (fileReachabilityError) {
         userInfo[NSUnderlyingErrorKey] = fileReachabilityError;
@@ -255,6 +258,14 @@
     [weakSelf fireHandlersForStatus:FIRStorageTaskStatusResume snapshot:weakSelf.snapshot];
     weakSelf.state = FIRStorageTaskStateRunning;
   }];
+}
+
+#pragma mark - Private Helpers
+
+- (BOOL)fileURLisFile:(NSURL *)fileURL {
+  NSNumber *isFile = [NSNumber numberWithBool:NO];
+  [fileURL getResourceValue:&isFile forKey:NSURLIsRegularFileKey error:nil];
+  return [isFile boolValue];
 }
 
 @end

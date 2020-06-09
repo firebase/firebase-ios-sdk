@@ -215,13 +215,6 @@
 - (FIRStorageUploadTask *)putFile:(NSURL *)fileURL
                          metadata:(nullable FIRStorageMetadata *)metadata
                        completion:(nullable FIRStorageVoidMetadataError)completion {
-  if (![self fileURLisFile:fileURL]) {
-    NSError *error = [FIRStorageErrors
-        errorWithCustomMessage:@"Failed to recognize file for file URL. Ensure file URL is not a "
-                               @"directory, symbolic link, or invalid url."];
-    completion(nil, error);
-  }
-
   if (!metadata) {
     metadata = [[FIRStorageMetadata alloc] init];
   }
@@ -490,14 +483,6 @@
                                         dispatchQueue:_storage.dispatchQueue
                                            completion:completion];
   [task enqueue];
-}
-
-#pragma mark - Private Helpers
-
-- (BOOL)fileURLisFile:(NSURL *)fileURL {
-  NSNumber *isFile = [NSNumber numberWithBool:NO];
-  [fileURL getResourceValue:&isFile forKey:NSURLIsRegularFileKey error:nil];
-  return [isFile boolValue];
 }
 
 @end
