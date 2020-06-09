@@ -32,7 +32,7 @@ typedef NS_ENUM(NSInteger, FIRErrorCode) {
   FIRErrorCodeInvalidAppID = -101,
 
   /**
-   * Error code for failing to configure a specific service. Deprectated, but
+   * Error code for failing to configure a specific service. It's deprecated, but
    * still used after copybara.
    */
   FIRErrorCodeConfigFailed = -114,
