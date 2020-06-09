@@ -17,6 +17,7 @@
 #import <Foundation/Foundation.h>
 
 #import <GoogleDataTransport/GDTCORLifecycle.h>
+#import <GoogleDataTransport/GDTCORStorageEventSelector.h>
 #import <GoogleDataTransport/GDTCORStorageProtocol.h>
 
 @class GDTCOREvent;
@@ -24,7 +25,14 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-/** Manages the storage of events. This class is thread-safe. */
+/** Manages the storage of events. This class is thread-safe.
+ *
+ * Event files will be stored as follows:
+ *   <app cache>/gdt_event_data/<target>/<eventID>.<qosTier>.<mappingID>
+ *
+ * Library data will be stored as follows:
+ *   <app cache>/gdt_library_data/<key of library data>
+ */
 @interface GDTCORFlatFileStorage
     : NSObject <NSSecureCoding, GDTCORStorageProtocol, GDTCORLifecycleProtocol>
 
@@ -53,6 +61,49 @@ NS_ASSUME_NONNULL_BEGIN
  * @return File path to serialized singleton.
  */
 + (NSString *)archivePath;
+
+/** Returns the base directory under which all events will be stored.
+ *
+ * @return The base directory under which all events will be stored.
+ */
++ (NSString *)baseEventStoragePath;
+
+/** Returns the base directory under which all library data will be stored.
+ *
+ * @return The base directory under which all library data will be stored.
+ */
++ (NSString *)libraryDataStoragePath;
+
+/** Returns a constructed storage path based on the given values. This path may not exist.
+ *
+ * @param target The target, which is necessary to be given a path.
+ * @param eventID The eventID.
+ * @param qosTier The qosTier.
+ * @param mappingID The mappingID.
+ * @return The path representing the combination of the given parameters.
+ */
++ (NSString *)pathForTarget:(GDTCORTarget)target
+                    eventID:(NSNumber *)eventID
+                    qosTier:(NSNumber *)qosTier
+                  mappingID:(NSString *)mappingID;
+
+/** Returns extant paths that match all of the given parameters.
+ *
+ * @param eventIDs The list of eventIDs to look for, or nil for any.
+ * @param qosTiers The list of qosTiers to look for, or nil for any.
+ * @param mappingIDs The list of mappingIDs to look for, or nil for any.
+ */
++ (NSSet<NSString *> *)pathsForTarget:(GDTCORTarget)target
+                             eventIDs:(nullable NSSet<NSNumber *> *)eventIDs
+                             qosTiers:(nullable NSSet<NSNumber *> *)qosTiers
+                           mappingIDs:(nullable NSSet<NSString *> *)mappingIDs;
+
+/** Returns a list of paths that will contain events for the given event selector.
+ *
+ * @param eventSelector The event selector to process.
+ * @return A list of paths that exist and could contain events.
+ */
++ (NSArray<NSString *> *)searchPathsWithEventSelector:(GDTCORStorageEventSelector *)eventSelector;
 
 @end
 
