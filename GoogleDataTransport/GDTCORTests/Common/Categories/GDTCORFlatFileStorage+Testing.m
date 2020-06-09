@@ -31,12 +31,6 @@
     [[NSFileManager defaultManager] removeItemAtPath:[GDTCORFlatFileStorage libraryDataStoragePath]
                                                error:nil];
   });
-  dispatch_semaphore_t sema = dispatch_semaphore_create(0);
-  [[GDTCORFlatFileStorage sharedInstance] storageSizeWithCallback:^(uint64_t storageSize) {
-    NSAssert(storageSize == 0, @"Storage should contain nothing after a reset");
-    dispatch_semaphore_signal(sema);
-  }];
-  dispatch_semaphore_wait(sema, DISPATCH_TIME_FOREVER);
 }
 
 @end
