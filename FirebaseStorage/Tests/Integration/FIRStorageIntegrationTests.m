@@ -31,7 +31,7 @@ NSTimeInterval kFIRStorageIntegrationTestTimeout = 60;
   rules_version = '2';
   service firebase.storage {
     match /b/{bucket}/o {
-      match /{allPaths=**} {
+      match /{directChild=*} {
         allow read: if request.auth != null;
       }
       match /ios {
