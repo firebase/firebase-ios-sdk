@@ -516,7 +516,7 @@ static dispatch_once_t sFirebaseUserAgentOnceToken;
   // The mechanism used to be a BOOL value, use that underlying storage to determine what the state
   // is.
   NSNumber *defaultsObject = [[self class] readDataCollectionSwitchFromUserDefaultsForApp:self];
-  if (!defaultsObject) {
+  if (defaultsObject == nil) {
     // No value was saved, it's the default state.
     return FIRDataCollectionStateDefault;
   }
