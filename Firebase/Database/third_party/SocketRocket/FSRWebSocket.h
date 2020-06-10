@@ -43,9 +43,9 @@ extern NSString *const FSRWebSocketErrorDomain;
 @property (nonatomic, readonly, copy) NSString *protocol;
 
 // Protocols should be an array of strings that turn into Sec-WebSocket-Protocol
-- (id)initWithURLRequest:(NSURLRequest *)request protocols:(NSArray *)protocols queue:(dispatch_queue_t)queue andUserAgent:(NSString *)userAgent;
+- (id)initWithURLRequest:(NSURLRequest *)request protocols:(NSArray *)protocols queue:(dispatch_queue_t)queue googleAppID:(NSString*)googleAppID andUserAgent:(NSString *)userAgent;
 - (id)initWithURLRequest:(NSURLRequest *)request protocols:(NSArray *)protocols;
-- (id)initWithURLRequest:(NSURLRequest *)request queue:(dispatch_queue_t)queue andUserAgent:(NSString *)userAgent;
+- (id)initWithURLRequest:(NSURLRequest *)request queue:(dispatch_queue_t)queue googleAppID:(NSString*)googleAppID andUserAgent:(NSString *)userAgent;
 - (id)initWithURLRequest:(NSURLRequest *)request;
 
 // Some helper constructors

@@ -23,7 +23,7 @@
 #import "FTrackedQuery.h"
 #import "FTrackedQueryManager.h"
 #import "FUtilities.h"
-#import <FirebaseCore/FIRLogger.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 @interface FPersistenceManager ()
 

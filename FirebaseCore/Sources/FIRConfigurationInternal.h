@@ -14,22 +14,16 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
+#import "FIRConfiguration.h"
 
-#import <FirebaseCoreDiagnosticsInterop/FIRCoreDiagnosticsData.h>
+@class FIRAnalyticsConfiguration;
 
-NS_ASSUME_NONNULL_BEGIN
+@interface FIRConfiguration ()
 
-/** Implements the FIRCoreDiagnosticsData protocol to log diagnostics data. */
-@interface FIRDiagnosticsData : NSObject <FIRCoreDiagnosticsData>
-
-/** Inserts values into the diagnosticObjects dictionary if the value isn't nil.
- *
- * @param value The value to insert if it's not nil.
- * @param key The key to associate it with.
+/**
+ * The configuration class for Firebase Analytics. This should be removed once the logic for
+ * enabling and disabling Analytics is moved to Analytics.
  */
-- (void)insertValue:(nullable id)value forKey:(NSString *)key;
+@property(nonatomic, readwrite) FIRAnalyticsConfiguration *analyticsConfiguration;
 
 @end
-
-NS_ASSUME_NONNULL_END

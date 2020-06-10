@@ -1,4 +1,5 @@
-# Unreleased
+# 3.7.0
+- [fixed] Fixed a crash when listAll() was called at the root location. (#5772)
 
 # 3.6.1
 - [fixed] Fix a rare case where a StorageTask would call its completion callbacks more than

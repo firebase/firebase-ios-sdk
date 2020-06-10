@@ -16,11 +16,8 @@
 
 #import "FTestHelpers.h"
 
-#import <FirebaseAuthInterop/FIRAuthInterop.h>
-#import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseCore/FIRComponent.h>
-#import <FirebaseCore/FIRComponentContainer.h>
-#import <FirebaseCore/FIROptions.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "Interop/Auth/Public/FIRAuthInterop.h"
 
 #import "FConstants.h"
 #import "FIRAuthInteropFake.h"
@@ -58,6 +55,7 @@
   id<FIRAuthInterop> auth = [[FIRAuthInteropFake alloc] initWithToken:nil userID:nil error:nil];
   id<FAuthTokenProvider> authTokenProvider = [FAuthTokenProvider authTokenProviderWithAuth:auth];
   return [[FIRDatabaseConfig alloc] initWithSessionIdentifier:name
+                                                  googleAppID:@"fake-app-id"
                                             authTokenProvider:authTokenProvider];
 }
 

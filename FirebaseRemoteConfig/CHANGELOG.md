@@ -1,3 +1,6 @@
+# v4.6.0
+- [changed] Removed typedefs from public API method signatures to improve Swift API usage from Xcode. (#5748)
+
 # v4.5.0
 - [changed] Updated `fetchAndActivateWithCompletionHandler:` implementation to activate asynchronously. (#5617)
 - [fixed] Remove undefined class via removing unused proto generated source files. (#4334)

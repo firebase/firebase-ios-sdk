@@ -29,7 +29,11 @@ device, and it is completely free.
   s.prefix_header_file = false
 
   base_dir = "FirebaseMessaging/"
-  s.source_files = base_dir + 'Sources/**/*.[mh]'
+  s.source_files = [
+    base_dir + 'Sources/**/*.[mh]',
+    'Interop/Analytics/Public/*.h',
+    'FirebaseCore/Sources/Private/*.h',
+  ]
   s.requires_arc = base_dir + 'Sources/*.m'
   s.public_header_files = base_dir + 'Sources/Public/*.h'
   s.library = 'sqlite3'
@@ -45,8 +49,7 @@ device, and it is completely free.
   s.tvos.framework = 'SystemConfiguration'
   s.osx.framework = 'SystemConfiguration'
   s.weak_framework = 'UserNotifications'
-  s.dependency 'FirebaseAnalyticsInterop', '~> 1.5'
-  s.dependency 'FirebaseCore', '~> 6.6'
+  s.dependency 'FirebaseCore', '~> 6.8'
   s.dependency 'FirebaseInstanceID', '~> 4.3'
   s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 6.5'
   s.dependency 'GoogleUtilities/Reachability', '~> 6.5'

@@ -48,7 +48,7 @@
 #import "FWriteRecord.h"
 #import "FWriteTree.h"
 #import "FWriteTreeRef.h"
-#import <FirebaseCore/FIRLogger.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 // Size after which we start including the compound hash
 static const NSUInteger kFSizeThresholdForCompoundHash = 1024;

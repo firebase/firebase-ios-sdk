@@ -5,6 +5,8 @@ on:
     paths:
     # Messaging sources
     - 'FirebaseMessaging/**'
+    # Interop headers
+    - 'Interop/Analytics/Public/*.h'
     # Podspec
     - 'FirebaseMessaging.podspec'
     # This file

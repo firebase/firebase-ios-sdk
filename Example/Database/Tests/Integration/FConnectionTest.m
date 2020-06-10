@@ -16,8 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import <FirebaseCore/FIRApp.h>
-#import <FirebaseCore/FIROptions.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 #import "FConnection.h"
 #import "FIRDatabaseQuery_Private.h"
@@ -59,6 +58,7 @@
   FRepoInfo *info = [[FRepoInfo alloc] initWithHost:host isSecure:YES withNamespace:@"default"];
   FConnection *conn = [[FConnection alloc] initWith:info
                                    andDispatchQueue:[FIRDatabaseQuery sharedQueue]
+                                        googleAppID:@"fake-app-id"
                                       lastSessionID:nil];
   FTestConnectionDelegate *delegate = [[FTestConnectionDelegate alloc] init];
 

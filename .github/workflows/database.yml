@@ -9,6 +9,7 @@ on:
     - 'FirebaseDatabase**'
     - 'Firebase/Database/**'
     - 'Example/Database/**'
+    - 'Interop/Auth/Public/*.h'
     - '.github/workflows/database.yml'
     - 'Gemfile'
   schedule:

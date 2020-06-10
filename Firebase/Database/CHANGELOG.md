@@ -1,6 +1,8 @@
 # v6.2.2
 - [fixed] Addressed crash that prevented the SDK from opening when the versioning file was
   corrupted. (#5686)
+- [changed] Added internal HTTP header to the WebChannel connection.
+
 
 # v6.2.1
 - [fixed] Fixed documentation typos. (#5406, #5418)

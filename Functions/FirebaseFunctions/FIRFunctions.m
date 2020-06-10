@@ -15,11 +15,8 @@
 #import "FIRFunctions.h"
 #import "FIRFunctions+Internal.h"
 
-#import <FirebaseAuthInterop/FIRAuthInterop.h>
-#import <FirebaseCore/FIRComponent.h>
-#import <FirebaseCore/FIRComponentContainer.h>
-#import <FirebaseCore/FIRDependency.h>
-#import <FirebaseCore/FIRLibrary.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "Interop/Auth/Public/FIRAuthInterop.h"
 
 #import "FIRError.h"
 #import "FIRHTTPSCallable+Internal.h"
@@ -29,9 +26,6 @@
 #import "FUNSerializer.h"
 #import "FUNUsageValidation.h"
 
-#import <FirebaseCore/FIRApp.h>
-#import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseCore/FIROptions.h>
 #import <GTMSessionFetcher/GTMSessionFetcherService.h>
 
 // The following two macros supply the incantation so that the C

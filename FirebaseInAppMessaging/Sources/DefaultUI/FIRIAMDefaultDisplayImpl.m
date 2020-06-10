@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import <FirebaseCore/FIRAppInternal.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 #import <FirebaseInAppMessaging/FIRInAppMessaging.h>
 #import <FirebaseInAppMessaging/FIRInAppMessagingRendering.h>
