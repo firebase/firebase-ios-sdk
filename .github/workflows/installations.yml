@@ -82,12 +82,8 @@ jobs:
         mv "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/* quickstart-ios/"${SDK}"/Firebase/
         cd quickstart-ios/"${SDK}"
         ../scripts/add_framework_script.rb  "${SDK}" InstallationsExample Firebase
-    - name: Install Secret GoogleService-Info.plist
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-installations.plist.gpg \
-        quickstart-ios/"${SDK}"/GoogleService-Info.plist "$plist_secret"
-    - name: Install Secret FIREGSignInInfo.h
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/FIREGSignInInfo.h.gpg \
-        quickstart-ios/TestUtils/FIREGSignInInfo.h "$signin_secret"
+    - name: Copy mock plist
+      run: cp quickstart-ios/mock-GoogleService-Info.plist quickstart-ios/installations/GoogleService-Info.plist
     - name: Test Quickstart
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}")
     - name: Display xcodebuild setup
