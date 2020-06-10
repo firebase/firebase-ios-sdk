@@ -173,9 +173,18 @@ NSData *_Nullable GDTCOREncodeArchive(id<NSSecureCoding> obj,
       return nil;
     }
     if (archivePath) {
-      BOOL result = [resultData writeToFile:archivePath options:NSDataWritingAtomic error:error];
+      BOOL result = [[NSFileManager defaultManager]
+                createDirectoryAtPath:[archivePath stringByDeletingLastPathComponent]
+          withIntermediateDirectories:YES
+                           attributes:nil
+                                error:error];
       if (result == NO || *error) {
-        GDTCORLogDebug(@"Attempt to write archive failed: URL:%@ error:%@", archivePath, *error);
+        GDTCORLogDebug(@"Attempt to create directory failed: path:%@ error:%@", archivePath,
+                       *error);
+      }
+      result = [resultData writeToFile:archivePath options:NSDataWritingAtomic error:error];
+      if (result == NO || *error) {
+        GDTCORLogDebug(@"Attempt to write archive failed: path:%@ error:%@", archivePath, *error);
       } else {
         GDTCORLogDebug(@"Writing archive succeeded: %@", archivePath);
       }

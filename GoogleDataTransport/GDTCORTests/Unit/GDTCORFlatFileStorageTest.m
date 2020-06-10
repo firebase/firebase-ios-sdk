@@ -25,6 +25,7 @@
 
 #import "GDTCORTests/Unit/Helpers/GDTCORAssertHelper.h"
 #import "GDTCORTests/Unit/Helpers/GDTCORDataObjectTesterClasses.h"
+#import "GDTCORTests/Unit/Helpers/GDTCOREventGenerator.h"
 #import "GDTCORTests/Unit/Helpers/GDTCORTestPrioritizer.h"
 #import "GDTCORTests/Unit/Helpers/GDTCORTestUploader.h"
 
@@ -33,7 +34,28 @@
 #import "GDTCORTests/Common/Categories/GDTCORFlatFileStorage+Testing.h"
 #import "GDTCORTests/Common/Categories/GDTCORRegistrar+Testing.h"
 
-static NSInteger target = kGDTCORTargetCCT;
+/** A category that adds finding a random element to NSSet. NSSet's -anyObject isn't random. */
+@interface NSSet (GDTCORRandomElement)
+
+/** Returns a random element of the set.
+ *
+ * @return A random element of the set.
+ */
+- (id)randomElement;
+
+@end
+
+@implementation NSSet (GDTCORRandomElement)
+
+- (id)randomElement {
+  if (self.count) {
+    NSArray *elements = [self allObjects];
+    return elements[arc4random_uniform((uint32_t)self.count)];
+  }
+  return nil;
+}
+
+@end
 
 @interface GDTCORFlatFileStorageTest : GDTCORTestCase
 
@@ -54,10 +76,15 @@ static NSInteger target = kGDTCORTargetCCT;
   [super setUp];
   self.testBackend = [[GDTCORTestUploader alloc] init];
   self.testPrioritizer = [[GDTCORTestPrioritizer alloc] init];
-  [[GDTCORRegistrar sharedInstance] registerUploader:_testBackend target:target];
-  [[GDTCORRegistrar sharedInstance] registerPrioritizer:_testPrioritizer target:target];
+  [[GDTCORRegistrar sharedInstance] reset];
+  [[GDTCORFlatFileStorage sharedInstance] reset];
+  [[GDTCORRegistrar sharedInstance] registerUploader:_testBackend target:kGDTCORTargetTest];
+  [[GDTCORRegistrar sharedInstance] registerUploader:_testBackend target:kGDTCORTargetFLL];
+  [[GDTCORRegistrar sharedInstance] registerPrioritizer:_testPrioritizer target:kGDTCORTargetTest];
+  [[GDTCORRegistrar sharedInstance] registerPrioritizer:_testPrioritizer target:kGDTCORTargetFLL];
   self.uploaderFake = [[GDTCORUploadCoordinatorFake alloc] init];
   [GDTCORFlatFileStorage sharedInstance].uploadCoordinator = self.uploaderFake;
+  [[GDTCORFlatFileStorage sharedInstance] reset];
 }
 
 - (void)tearDown {
@@ -67,11 +94,36 @@ static NSInteger target = kGDTCORTargetCCT;
   // Destroy these objects before the next test begins.
   self.testBackend = nil;
   self.testPrioritizer = nil;
-  [[GDTCORRegistrar sharedInstance] reset];
-  [[GDTCORFlatFileStorage sharedInstance] reset];
   [GDTCORFlatFileStorage sharedInstance].uploadCoordinator =
       [GDTCORUploadCoordinator sharedInstance];
   self.uploaderFake = nil;
+}
+
+/** Generates and returns a set of events that are generated randomly and stored.
+ *
+ * @return A set of randomly generated and stored events.
+ */
+- (NSSet<GDTCOREvent *> *)generateEventsForStorageTesting {
+  GDTCORFlatFileStorage *storage = [GDTCORFlatFileStorage sharedInstance];
+  NSMutableSet<GDTCOREvent *> *generatedEvents = [[NSMutableSet alloc] init];
+  // Generate 100 test target events
+  for (int i = 0; i < 100; i++) {
+    GDTCOREvent *event = [GDTCOREventGenerator generateEventForTarget:kGDTCORTargetTest
+                                                              qosTier:nil
+                                                            mappingID:nil];
+    [generatedEvents addObject:event];
+    [storage storeEvent:event onComplete:nil];
+  }
+
+  // Generate 50 FLL target events.
+  for (int i = 0; i < 50; i++) {
+    GDTCOREvent *event = [GDTCOREventGenerator generateEventForTarget:kGDTCORTargetFLL
+                                                              qosTier:nil
+                                                            mappingID:nil];
+    [generatedEvents addObject:event];
+    [storage storeEvent:event onComplete:nil];
+  }
+  return generatedEvents;
 }
 
 /** Tests the singleton pattern. */
@@ -81,7 +133,7 @@ static NSInteger target = kGDTCORTargetCCT;
 
 /** Tests storing an event. */
 - (void)testStoreEvent {
-  GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"404" target:target];
+  GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"404" target:kGDTCORTargetTest];
   event.dataObject = [[GDTCORDataObjectTesterSimple alloc] initWithString:@"testString"];
   event.clockSnapshot = [GDTCORClock snapshot];
   XCTestExpectation *writtenExpectation = [self expectationWithDescription:@"event written"];
@@ -96,7 +148,8 @@ static NSInteger target = kGDTCORTargetCCT;
 
   dispatch_sync([GDTCORFlatFileStorage sharedInstance].storageQueue, ^{
     XCTAssertEqual([GDTCORFlatFileStorage sharedInstance].storedEvents.count, 1);
-    XCTAssertEqual([GDTCORFlatFileStorage sharedInstance].targetToEventSet[@(target)].count, 1);
+    XCTAssertEqual(
+        [GDTCORFlatFileStorage sharedInstance].targetToEventSet[@(kGDTCORTargetTest)].count, 1);
     NSURL *eventFile = event.fileURL;
     XCTAssertNotNil(eventFile);
     XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:eventFile.path]);
@@ -108,7 +161,7 @@ static NSInteger target = kGDTCORTargetCCT;
 
 /** Tests removing an event. */
 - (void)testRemoveEvent {
-  GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"404" target:target];
+  GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"404" target:kGDTCORTargetTest];
   event.dataObject = [[GDTCORDataObjectTesterSimple alloc] initWithString:@"testString"];
   event.clockSnapshot = [GDTCORClock snapshot];
   XCTestExpectation *writtenExpectation = [self expectationWithDescription:@"event written"];
@@ -132,7 +185,8 @@ static NSInteger target = kGDTCORTargetCCT;
   dispatch_sync([GDTCORFlatFileStorage sharedInstance].storageQueue, ^{
     XCTAssertFalse([[NSFileManager defaultManager] fileExistsAtPath:eventFile.path]);
     XCTAssertEqual([GDTCORFlatFileStorage sharedInstance].storedEvents.count, 0);
-    XCTAssertEqual([GDTCORFlatFileStorage sharedInstance].targetToEventSet[@(target)].count, 0);
+    XCTAssertEqual(
+        [GDTCORFlatFileStorage sharedInstance].targetToEventSet[@(kGDTCORTargetTest)].count, 0);
   });
 }
 
@@ -140,7 +194,7 @@ static NSInteger target = kGDTCORTargetCCT;
 - (void)testRemoveEvents {
   GDTCORFlatFileStorage *storage = [GDTCORFlatFileStorage sharedInstance];
 
-  GDTCOREvent *event1 = [[GDTCOREvent alloc] initWithMappingID:@"404" target:target];
+  GDTCOREvent *event1 = [[GDTCOREvent alloc] initWithMappingID:@"404" target:kGDTCORTargetTest];
   event1.dataObject = [[GDTCORDataObjectTesterSimple alloc] initWithString:@"testString1"];
   XCTestExpectation *writtenExpectation = [self expectationWithDescription:@"event written"];
   XCTAssertNoThrow([[GDTCORFlatFileStorage sharedInstance]
@@ -152,7 +206,7 @@ static NSInteger target = kGDTCORTargetCCT;
       }]);
   [self waitForExpectations:@[ writtenExpectation ] timeout:10.0];
 
-  GDTCOREvent *event2 = [[GDTCOREvent alloc] initWithMappingID:@"100" target:target];
+  GDTCOREvent *event2 = [[GDTCOREvent alloc] initWithMappingID:@"100" target:kGDTCORTargetTest];
   event2.dataObject = [[GDTCORDataObjectTesterSimple alloc] initWithString:@"testString2"];
   writtenExpectation = [self expectationWithDescription:@"event written"];
   XCTAssertNoThrow([[GDTCORFlatFileStorage sharedInstance]
@@ -164,7 +218,7 @@ static NSInteger target = kGDTCORTargetCCT;
       }]);
   [self waitForExpectations:@[ writtenExpectation ] timeout:10.0];
 
-  GDTCOREvent *event3 = [[GDTCOREvent alloc] initWithMappingID:@"404" target:target];
+  GDTCOREvent *event3 = [[GDTCOREvent alloc] initWithMappingID:@"404" target:kGDTCORTargetTest];
   event3.dataObject = [[GDTCORDataObjectTesterSimple alloc] initWithString:@"testString3"];
   writtenExpectation = [self expectationWithDescription:@"event written"];
   XCTAssertNoThrow([[GDTCORFlatFileStorage sharedInstance]
@@ -184,7 +238,7 @@ static NSInteger target = kGDTCORTargetCCT;
     XCTAssertNil(storage.storedEvents[event1.eventID]);
     XCTAssertNil(storage.storedEvents[event2.eventID]);
     XCTAssertNil(storage.storedEvents[event3.eventID]);
-    XCTAssertEqual(storage.targetToEventSet[@(target)].count, 0);
+    XCTAssertEqual(storage.targetToEventSet[@(kGDTCORTargetTest)].count, 0);
     for (GDTCOREvent *event in eventSet) {
       XCTAssertFalse([[NSFileManager defaultManager] fileExistsAtPath:event.fileURL.path]);
     }
@@ -193,7 +247,7 @@ static NSInteger target = kGDTCORTargetCCT;
 
 /** Tests storing a few different events. */
 - (void)testStoreMultipleEvents {
-  GDTCOREvent *event1 = [[GDTCOREvent alloc] initWithMappingID:@"404" target:target];
+  GDTCOREvent *event1 = [[GDTCOREvent alloc] initWithMappingID:@"404" target:kGDTCORTargetTest];
   event1.dataObject = [[GDTCORDataObjectTesterSimple alloc] initWithString:@"testString1"];
   XCTestExpectation *writtenExpectation = [self expectationWithDescription:@"event written"];
   XCTAssertNoThrow([[GDTCORFlatFileStorage sharedInstance]
@@ -206,7 +260,7 @@ static NSInteger target = kGDTCORTargetCCT;
   [self waitForExpectations:@[ writtenExpectation ] timeout:10.0];
   XCTAssertNotNil(event1.fileURL);
 
-  GDTCOREvent *event2 = [[GDTCOREvent alloc] initWithMappingID:@"100" target:target];
+  GDTCOREvent *event2 = [[GDTCOREvent alloc] initWithMappingID:@"100" target:kGDTCORTargetTest];
   event2.dataObject = [[GDTCORDataObjectTesterSimple alloc] initWithString:@"testString2"];
   writtenExpectation = [self expectationWithDescription:@"event written"];
   XCTAssertNoThrow([[GDTCORFlatFileStorage sharedInstance]
@@ -219,7 +273,7 @@ static NSInteger target = kGDTCORTargetCCT;
   [self waitForExpectations:@[ writtenExpectation ] timeout:10.0];
   XCTAssertNotNil(event2.fileURL);
 
-  GDTCOREvent *event3 = [[GDTCOREvent alloc] initWithMappingID:@"404" target:target];
+  GDTCOREvent *event3 = [[GDTCOREvent alloc] initWithMappingID:@"404" target:kGDTCORTargetTest];
   event3.dataObject = [[GDTCORDataObjectTesterSimple alloc] initWithString:@"testString3"];
   writtenExpectation = [self expectationWithDescription:@"event written"];
   XCTAssertNoThrow([[GDTCORFlatFileStorage sharedInstance]
@@ -234,7 +288,8 @@ static NSInteger target = kGDTCORTargetCCT;
 
   dispatch_sync([GDTCORFlatFileStorage sharedInstance].storageQueue, ^{
     XCTAssertEqual([GDTCORFlatFileStorage sharedInstance].storedEvents.count, 3);
-    XCTAssertEqual([GDTCORFlatFileStorage sharedInstance].targetToEventSet[@(target)].count, 3);
+    XCTAssertEqual(
+        [GDTCORFlatFileStorage sharedInstance].targetToEventSet[@(kGDTCORTargetTest)].count, 3);
 
     NSURL *event1File = event1.fileURL;
     XCTAssertNotNil(event1File);
@@ -266,7 +321,7 @@ static NSInteger target = kGDTCORTargetCCT;
   __weak NSData *weakDataObjectTransportBytes;
   GDTCOREvent *event;
   @autoreleasepool {
-    event = [[GDTCOREvent alloc] initWithMappingID:@"404" target:target];
+    event = [[GDTCOREvent alloc] initWithMappingID:@"404" target:kGDTCORTargetTest];
     weakDataObjectTransportBytes = [event.dataObject transportBytes];
     event.dataObject = [[GDTCORDataObjectTesterSimple alloc] initWithString:@"testString"];
     event.clockSnapshot = [GDTCORClock snapshot];
@@ -300,14 +355,15 @@ static NSInteger target = kGDTCORTargetCCT;
   dispatch_sync([GDTCORFlatFileStorage sharedInstance].storageQueue, ^{
     XCTAssertFalse([[NSFileManager defaultManager] fileExistsAtPath:eventFile.path]);
     XCTAssertEqual([GDTCORFlatFileStorage sharedInstance].storedEvents.count, 0);
-    XCTAssertEqual([GDTCORFlatFileStorage sharedInstance].targetToEventSet[@(target)].count, 0);
+    XCTAssertEqual(
+        [GDTCORFlatFileStorage sharedInstance].targetToEventSet[@(kGDTCORTargetTest)].count, 0);
   });
 }
 
 /** Tests encoding and decoding the storage singleton correctly. */
 - (void)testNSSecureCoding {
   XCTAssertTrue([GDTCORFlatFileStorage supportsSecureCoding]);
-  GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"404" target:target];
+  GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"404" target:kGDTCORTargetTest];
   event.clockSnapshot = [GDTCORClock snapshot];
   event.dataObject = [[GDTCORDataObjectTesterSimple alloc] initWithString:@"testString"];
   XCTestExpectation *writtenExpectation = [self expectationWithDescription:@"event written"];
@@ -345,7 +401,7 @@ static NSInteger target = kGDTCORTargetCCT;
 
 /** Tests encoding and decoding the storage singleton when calling -sharedInstance. */
 - (void)testNSSecureCodingWithSharedInstance {
-  GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"404" target:target];
+  GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"404" target:kGDTCORTargetTest];
   event.dataObject = [[GDTCORDataObjectTesterSimple alloc] initWithString:@"testString"];
   event.clockSnapshot = [GDTCORClock snapshot];
   XCTestExpectation *writtenExpectation = [self expectationWithDescription:@"event written"];
@@ -386,7 +442,7 @@ static NSInteger target = kGDTCORTargetCCT;
 
 /** Tests sending a fast priority event causes an upload attempt. */
 - (void)testQoSTierFast {
-  GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"404" target:target];
+  GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"404" target:kGDTCORTargetTest];
   event.dataObject = [[GDTCORDataObjectTesterSimple alloc] initWithString:@"testString"];
   event.qosTier = GDTCOREventQoSFast;
   event.clockSnapshot = [GDTCORClock snapshot];
@@ -404,7 +460,8 @@ static NSInteger target = kGDTCORTargetCCT;
   dispatch_sync([GDTCORFlatFileStorage sharedInstance].storageQueue, ^{
     XCTAssertTrue(self.uploaderFake.forceUploadCalled);
     XCTAssertEqual([GDTCORFlatFileStorage sharedInstance].storedEvents.count, 1);
-    XCTAssertEqual([GDTCORFlatFileStorage sharedInstance].targetToEventSet[@(target)].count, 1);
+    XCTAssertEqual(
+        [GDTCORFlatFileStorage sharedInstance].targetToEventSet[@(kGDTCORTargetTest)].count, 1);
     NSURL *eventFile = event.fileURL;
     XCTAssertNotNil(eventFile);
     XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:eventFile.path]);
@@ -423,7 +480,7 @@ static NSInteger target = kGDTCORTargetCCT;
   int numberOfIterations = 1000;
   for (int i = 0; i < numberOfIterations; i++) {
     NSString *testString = [NSString stringWithFormat:@"testString %d", i];
-    GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"404" target:target];
+    GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"404" target:kGDTCORTargetTest];
     event.dataObject = [[GDTCORDataObjectTesterSimple alloc] initWithString:testString];
     event.clockSnapshot = [GDTCORClock snapshot];
     XCTestExpectation *writtenExpectation = [self expectationWithDescription:@"event written"];
@@ -525,35 +582,207 @@ static NSInteger target = kGDTCORTargetCCT;
   [self waitForExpectations:@[ expectation ] timeout:10.0];
 }
 
-/** Tests that -pathForTarget:qosTier:mappingID: returns the correctly structured path. */
-- (void)testPathsForTargetEventIDQoSTierMappingID {
-  // TODO(mikehaney24): Complete below tests once events are being saved to disk.
+/** Tests -pathForTarget:qosTier:mappingID: searching by target. */
+- (void)testSearchingPathsByTarget {
+  GDTCORFlatFileStorage *storage = [GDTCORFlatFileStorage sharedInstance];
+  NSSet<GDTCOREvent *> *generatedEvents = [self generateEventsForStorageTesting];
+  NSSet<GDTCOREvent *> *expectedEvents = [generatedEvents
+      filteredSetUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(
+                                                 GDTCOREvent *_Nullable event,
+                                                 NSDictionary<NSString *, id> *_Nullable bindings) {
+        return event.target == kGDTCORTargetTest;
+      }]];
 
-  // Store some predictably generated events across > 1 target.
-
-  // Search for all events (by target).
-
-  // Search for events by eventID.
-
-  // Search for events by qosTier.
-
-  // Search for events by mappingID.
-
-  // Search for events by eventID and qosTier.
-
-  // Search for events by qosTier and mappingID.
+  XCTestExpectation *expectation = [self expectationWithDescription:@"paths found"];
+  [storage pathsForTarget:kGDTCORTargetTest
+                 eventIDs:nil
+                 qosTiers:nil
+               mappingIDs:nil
+               onComplete:^(NSSet<NSString *> *paths) {
+                 XCTAssertEqual(paths.count, expectedEvents.count);
+                 [expectation fulfill];
+               }];
+  [self waitForExpectations:@[ expectation ] timeout:1.0];
 }
 
-/** Tests that searchPathsWithEventSelector: returns the appropriate event search paths. */
-- (void)testSearchPathsWithEventSelector {
-  // TODO(mikehaney24): Implement when events are actually being stored.
+/** Tests -pathForTarget:qosTier:mappingID: searching by eventID. */
+- (void)testSearchingPathWithEventID {
+  GDTCORFlatFileStorage *storage = [GDTCORFlatFileStorage sharedInstance];
+  NSSet<GDTCOREvent *> *generatedEvents = [self generateEventsForStorageTesting];
+  GDTCOREvent *anyEvent = [generatedEvents randomElement];
+  NSSet<GDTCOREvent *> *expectedEvents = [generatedEvents
+      filteredSetUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(
+                                                 GDTCOREvent *_Nullable event,
+                                                 NSDictionary<NSString *, id> *_Nullable bindings) {
+        return anyEvent.target == event.target && [event.eventID isEqualToNumber:anyEvent.eventID];
+      }]];
+
+  XCTestExpectation *expectation = [self expectationWithDescription:@"paths found"];
+  [storage pathsForTarget:anyEvent.target
+                 eventIDs:[NSSet setWithObject:anyEvent.eventID]
+                 qosTiers:nil
+               mappingIDs:nil
+               onComplete:^(NSSet<NSString *> *paths) {
+                 XCTAssertEqual(paths.count, expectedEvents.count);
+                 [expectation fulfill];
+               }];
+  [self waitForExpectations:@[ expectation ] timeout:1.0];
+
+  GDTCOREvent *anotherEvent;
+  do {
+    anotherEvent = [generatedEvents randomElement];
+  } while (anotherEvent == anyEvent || anotherEvent.target != anyEvent.target);
+
+  expectedEvents = [generatedEvents
+      filteredSetUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(
+                                                 GDTCOREvent *_Nullable event,
+                                                 NSDictionary<NSString *, id> *_Nullable bindings) {
+        return (anyEvent.target == event.target &&
+                [event.eventID isEqualToNumber:anyEvent.eventID]) ||
+               (anotherEvent.target == event.target &&
+                [event.eventID isEqualToNumber:anotherEvent.eventID]);
+      }]];
+
+  expectation = [self expectationWithDescription:@"paths found"];
+  [storage pathsForTarget:anyEvent.target
+                 eventIDs:[NSSet setWithObjects:anyEvent.eventID, anotherEvent.eventID, nil]
+                 qosTiers:nil
+               mappingIDs:nil
+               onComplete:^(NSSet<NSString *> *paths) {
+                 XCTAssertEqual(paths.count, expectedEvents.count);
+                 [expectation fulfill];
+               }];
+  [self waitForExpectations:@[ expectation ] timeout:1.0];
+}
+
+/** Tests -pathForTarget:qosTier:mappingID: searching by qosTier. */
+- (void)testSearchingPathWithQoSTier {
+  GDTCORFlatFileStorage *storage = [GDTCORFlatFileStorage sharedInstance];
+  NSSet<GDTCOREvent *> *generatedEvents = [self generateEventsForStorageTesting];
+  GDTCOREvent *anyEvent = [generatedEvents randomElement];
+  NSSet<GDTCOREvent *> *expectedEvents = [generatedEvents
+      filteredSetUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(
+                                                 GDTCOREvent *_Nullable event,
+                                                 NSDictionary<NSString *, id> *_Nullable bindings) {
+        return event.target == anyEvent.target && event.qosTier == anyEvent.qosTier;
+      }]];
+
+  XCTestExpectation *expectation = [self expectationWithDescription:@"paths found"];
+  [storage pathsForTarget:anyEvent.target
+                 eventIDs:nil
+                 qosTiers:[NSSet setWithObject:@(anyEvent.qosTier)]
+               mappingIDs:nil
+               onComplete:^(NSSet<NSString *> *paths) {
+                 XCTAssertEqual(paths.count, expectedEvents.count);
+                 [expectation fulfill];
+               }];
+  [self waitForExpectations:@[ expectation ] timeout:1.0];
+}
+
+/** Tests -pathForTarget:qosTier:mappingID: searching by mappingID. */
+- (void)testSearchingPathWithMappingID {
+  GDTCORFlatFileStorage *storage = [GDTCORFlatFileStorage sharedInstance];
+  NSSet<GDTCOREvent *> *generatedEvents = [self generateEventsForStorageTesting];
+  GDTCOREvent *anyEvent = [generatedEvents randomElement];
+  NSSet<GDTCOREvent *> *expectedEvents = [generatedEvents
+      filteredSetUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(
+                                                 GDTCOREvent *_Nullable event,
+                                                 NSDictionary<NSString *, id> *_Nullable bindings) {
+        return event.target == anyEvent.target &&
+               [event.mappingID isEqualToString:anyEvent.mappingID];
+      }]];
+
+  XCTestExpectation *expectation = [self expectationWithDescription:@"paths found"];
+  [storage pathsForTarget:anyEvent.target
+                 eventIDs:nil
+                 qosTiers:nil
+               mappingIDs:[NSSet setWithObject:anyEvent.mappingID]
+               onComplete:^(NSSet<NSString *> *paths) {
+                 XCTAssertEqual(paths.count, expectedEvents.count);
+                 [expectation fulfill];
+               }];
+  [self waitForExpectations:@[ expectation ] timeout:1.0];
+}
+
+/** Tests -pathForTarget:qosTier:mappingID: searching by eventID and qosTier. */
+- (void)testSearchingPathWithEventIDAndQoSTier {
+  GDTCORFlatFileStorage *storage = [GDTCORFlatFileStorage sharedInstance];
+  NSSet<GDTCOREvent *> *generatedEvents = [self generateEventsForStorageTesting];
+  GDTCOREvent *anyEvent = [generatedEvents randomElement];
+  NSSet<GDTCOREvent *> *expectedEvents = [generatedEvents
+      filteredSetUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(
+                                                 GDTCOREvent *_Nullable event,
+                                                 NSDictionary<NSString *, id> *_Nullable bindings) {
+        return event.target == anyEvent.target &&
+               [event.eventID isEqualToNumber:anyEvent.eventID] &&
+               event.qosTier == anyEvent.qosTier;
+      }]];
+
+  XCTestExpectation *expectation = [self expectationWithDescription:@"paths found"];
+  [storage pathsForTarget:anyEvent.target
+                 eventIDs:[NSSet setWithObject:anyEvent.eventID]
+                 qosTiers:[NSSet setWithObject:@(anyEvent.qosTier)]
+               mappingIDs:nil
+               onComplete:^(NSSet<NSString *> *paths) {
+                 XCTAssertEqual(paths.count, expectedEvents.count);
+                 [expectation fulfill];
+               }];
+  [self waitForExpectations:@[ expectation ] timeout:1.0];
+}
+
+/** Tests -pathForTarget:qosTier:mappingID: searching by eventID and qosTier without results. */
+- (void)testSearchingPathWithEventIDAndQoSTierNoResults {
+  GDTCORFlatFileStorage *storage = [GDTCORFlatFileStorage sharedInstance];
+  NSSet<GDTCOREvent *> *generatedEvents = [self generateEventsForStorageTesting];
+  XCTAssertGreaterThan(generatedEvents.count, 0);
+  XCTestExpectation *expectation = [self expectationWithDescription:@"paths found"];
+  [storage pathsForTarget:kGDTCORTargetFLL
+                 eventIDs:[NSSet setWithObject:@"made up"]
+                 qosTiers:nil
+               mappingIDs:nil
+               onComplete:^(NSSet<NSString *> *paths) {
+                 XCTAssertEqual(paths.count, 0);
+                 [expectation fulfill];
+               }];
+  [self waitForExpectations:@[ expectation ] timeout:1.0];
+}
+
+/** Tests -pathForTarget:qosTier:mappingID: searching by qosTier and mappingID. */
+- (void)testSearchingPathWithQoSTierAndMappingID {
+  GDTCORFlatFileStorage *storage = [GDTCORFlatFileStorage sharedInstance];
+  NSSet<GDTCOREvent *> *generatedEvents = [self generateEventsForStorageTesting];
+  GDTCOREvent *anyEvent = [generatedEvents randomElement];
+  NSSet<GDTCOREvent *> *expectedEvents = [generatedEvents
+      filteredSetUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(
+                                                 GDTCOREvent *_Nullable event,
+                                                 NSDictionary<NSString *, id> *_Nullable bindings) {
+        return event.target == anyEvent.target && event.qosTier == anyEvent.qosTier &&
+               [event.mappingID isEqualToString:anyEvent.mappingID];
+      }]];
+
+  XCTestExpectation *expectation = [self expectationWithDescription:@"paths found"];
+  [storage pathsForTarget:anyEvent.target
+                 eventIDs:nil
+                 qosTiers:[NSSet setWithObject:@(anyEvent.qosTier)]
+               mappingIDs:[NSSet setWithObject:anyEvent.mappingID]
+               onComplete:^(NSSet<NSString *> *paths) {
+                 XCTAssertEqual(paths.count, expectedEvents.count);
+                 [expectation fulfill];
+               }];
+  [self waitForExpectations:@[ expectation ] timeout:1.0];
 }
 
 /** Tests hasEventsForTarget: returns YES when events are stored and NO otherwise. */
 - (void)testHasEventsForTarget {
   XCTAssertFalse([[GDTCORFlatFileStorage sharedInstance] hasEventsForTarget:kGDTCORTargetTest]);
 
-  // TODO(mikehaney24): Store events and test for YES.
+  GDTCOREvent *event = [GDTCOREventGenerator generateEventForTarget:kGDTCORTargetTest
+                                                            qosTier:nil
+                                                          mappingID:nil];
+  [[GDTCORFlatFileStorage sharedInstance] storeEvent:event onComplete:nil];
+  dispatch_sync([GDTCORFlatFileStorage sharedInstance].storageQueue, ^{
+    XCTAssertTrue([[GDTCORFlatFileStorage sharedInstance] hasEventsForTarget:kGDTCORTargetTest]);
+  });
 }
 
 /** Tests -iteratorWithSelector produces a usable iterator. */
@@ -567,7 +796,29 @@ static NSInteger target = kGDTCORTargetCCT;
       [[GDTCORFlatFileStorage sharedInstance] iteratorWithSelector:eventSelector];
   XCTAssertNil([iter nextEvent]);
 
-  // TODO(mikehaney24): Store events and test.
+  NSMutableSet<NSNumber *> *eventIDs = [[NSMutableSet alloc] init];
+  NSSet<GDTCOREvent *> *generatedEvents = [self generateEventsForStorageTesting];
+  int testTargetEventCounter = 0;
+  for (GDTCOREvent *event in generatedEvents) {
+    [eventIDs addObject:event.eventID];
+    [[GDTCORFlatFileStorage sharedInstance] storeEvent:event onComplete:nil];
+    if (event.target == kGDTCORTargetTest) {
+      testTargetEventCounter++;
+    }
+  }
+
+  eventSelector = [[GDTCORStorageEventSelector alloc] initWithTarget:kGDTCORTargetTest
+                                                            eventIDs:nil
+                                                          mappingIDs:nil
+                                                            qosTiers:nil];
+  iter = [[GDTCORFlatFileStorage sharedInstance] iteratorWithSelector:eventSelector];
+  GDTCOREvent *event;
+  int eventCounter = 0;
+  while ((event = [iter nextEvent]) != nil) {
+    XCTAssertTrue([eventIDs containsObject:event.eventID]);
+    eventCounter++;
+  }
+  XCTAssertEqual(eventCounter, testTargetEventCounter);
 }
 
 /** Tests -purgeEventsFromBefore:onComplete: removes prior to an arbitrary time. */
@@ -577,6 +828,7 @@ static NSInteger target = kGDTCORTargetCCT;
 
 /** Tests that the size of the storage is returned accurately. */
 - (void)testStorageSizeWithCallback {
+  NSUInteger ongoingSize = 0;
   XCTestExpectation *expectation = [self expectationWithDescription:@"storageSize complete"];
   [[GDTCORFlatFileStorage sharedInstance] storageSizeWithCallback:^(uint64_t storageSize) {
     XCTAssertEqual(storageSize, 0);
@@ -586,14 +838,29 @@ static NSInteger target = kGDTCORTargetCCT;
 
   expectation = [self expectationWithDescription:@"storageSize complete"];
   NSData *data = [@"this is a test" dataUsingEncoding:NSUTF8StringEncoding];
+  ongoingSize += data.length;
   [[GDTCORFlatFileStorage sharedInstance] storeLibraryData:data forKey:@"testKey" onComplete:nil];
   [[GDTCORFlatFileStorage sharedInstance] storageSizeWithCallback:^(uint64_t storageSize) {
-    XCTAssertEqual(storageSize, data.length);
+    XCTAssertEqual(storageSize, ongoingSize);
     [expectation fulfill];
   }];
   [self waitForExpectations:@[ expectation ] timeout:10.0];
 
-  // TODO(mikehaney24): Complete this test when events are actually being stored.
+  NSSet<GDTCOREvent *> *generatedEvents = [self generateEventsForStorageTesting];
+  for (GDTCOREvent *event in generatedEvents) {
+    [[GDTCORFlatFileStorage sharedInstance] storeEvent:event onComplete:nil];
+    NSError *error;
+    NSData *serializedEventData = GDTCOREncodeArchive(event, nil, &error);
+    XCTAssertNil(error);
+    ongoingSize += serializedEventData.length;
+  }
+  expectation = [self expectationWithDescription:@"storageSize complete"];
+  [[GDTCORFlatFileStorage sharedInstance] storageSizeWithCallback:^(uint64_t storageSize) {
+    // TODO(mikehaney24): Figure out why storageSize is ~2% higher than ongoingSize.
+    XCTAssertGreaterThanOrEqual(storageSize, ongoingSize);
+    [expectation fulfill];
+  }];
+  [self waitForExpectations:@[ expectation ] timeout:10.0];
 }
 
 /** Tests migration from v1 of the storage format to v2. */
