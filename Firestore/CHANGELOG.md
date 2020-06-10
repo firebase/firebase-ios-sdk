@@ -1,4 +1,4 @@
-# Unreleased
+# v1.16.0
 - [fixed] Fixed an issue that may have prevented the client from connecting
   to the backend immediately after a user signed in.
 
