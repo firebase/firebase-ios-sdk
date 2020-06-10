@@ -16,13 +16,10 @@
 
 #import <XCTest/XCTest.h>
 
-#import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
-#import <FirebaseCore/FIRApp.h>
-#import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseCore/FIROptions.h>
 #import <GoogleUtilities/GULSwizzler+Unswizzle.h>
 #import <GoogleUtilities/GULSwizzler.h>
 #import <OCMock/OCMock.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "FirebaseDynamicLinks/Sources/FIRDLDefaultRetrievalProcessV2.h"
 #import "FirebaseDynamicLinks/Sources/FIRDLRetrievalProcessFactory.h"
 #import "FirebaseDynamicLinks/Sources/FIRDLRetrievalProcessResult+Private.h"
@@ -31,6 +28,7 @@
 #import "FirebaseDynamicLinks/Sources/FIRDynamicLinks+FirstParty.h"
 #import "FirebaseDynamicLinks/Sources/FIRDynamicLinks+Private.h"
 #import "FirebaseDynamicLinks/Sources/Utilities/FDLUtilities.h"
+#import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 
 static NSString *const kAPIKey = @"myAPIKey";
 static NSString *const kClientID = @"myClientID.apps.googleusercontent.com";

@@ -18,12 +18,11 @@
 
 #import <OCMock/OCMock.h>
 
-#import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseCore/FIROptionsInternal.h>
 #import "FBLPromise+Testing.h"
 #import "FIRInstallations+Tests.h"
 #import "FIRInstallationsErrorUtil+Tests.h"
 #import "FIRInstallationsItem+Tests.h"
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 #import "FIRInstallations.h"
 #import "FIRInstallationsAuthTokenResultInternal.h"

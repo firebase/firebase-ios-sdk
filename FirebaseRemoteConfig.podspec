@@ -27,7 +27,11 @@ app update.
   s.prefix_header_file = false
 
   base_dir = "FirebaseRemoteConfig/Sources/"
-  s.source_files = base_dir + '**/*.[mh]'
+  s.source_files = [
+    base_dir + '**/*.[mh]',
+    'Interop/Analytics/Public/*.h',
+    'FirebaseCore/Sources/Private/*.h',
+  ]
   s.public_header_files = base_dir + 'Public/*.h'
   s.private_header_files = base_dir + 'Private/*.h'
   s.pod_target_xcconfig = {
@@ -37,9 +41,8 @@ app update.
       'FIRRemoteConfig_VERSION=' + String(s.version),
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
   }
-  s.dependency 'FirebaseAnalyticsInterop', '~> 1.4'
   s.dependency 'FirebaseABTesting', '~> 3.1'
-  s.dependency 'FirebaseCore', '~> 6.2'
+  s.dependency 'FirebaseCore', '~> 6.8'
   s.dependency 'FirebaseInstallations', '~> 1.1'
   s.dependency 'GoogleUtilities/Environment', '~> 6.2'
   s.dependency 'GoogleUtilities/NSData+zlib', '~> 6.2'

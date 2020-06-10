@@ -16,7 +16,7 @@
 
 #import "FIRInstallationsItem+Tests.h"
 
-#import <FirebaseCore/FIRAppInternal.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 #import "FIRInstallationsStoredAuthToken.h"
 

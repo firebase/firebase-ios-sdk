@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseCore'
-  s.version          = '6.7.2'
+  s.version          = '6.8.0'
   s.summary          = 'Firebase Core'
 
   s.description      = <<-DESC
@@ -25,16 +25,19 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
   s.static_framework = true
   s.prefix_header_file = false
 
-  s.source_files = 'FirebaseCore/Sources/**/*.[mh]'
+  s.source_files = [
+    'FirebaseCore/Sources/**/*.[mh]',
+    'Interop/CoreDiagnostics/Public/*.h',
+  ]
   s.public_header_files = 'FirebaseCore/Sources/Public/*.h', 'FirebaseCore/Sources/Private/*.h'
   s.private_header_files = 'FirebaseCore/Sources/Private/*.h'
+
   s.framework = 'Foundation'
   s.ios.framework = 'UIKit'
   s.osx.framework = 'AppKit'
   s.tvos.framework = 'UIKit'
   s.dependency 'GoogleUtilities/Environment', '~> 6.5'
   s.dependency 'GoogleUtilities/Logger', '~> 6.5'
-  s.dependency 'FirebaseCoreDiagnosticsInterop', '~> 1.2'
   s.dependency 'FirebaseCoreDiagnostics', '~> 1.3'
 
   s.pod_target_xcconfig = {

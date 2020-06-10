@@ -20,6 +20,9 @@ on:
     # Firestore sources
     - 'Firestore/**'
 
+    # Interop headers
+    - 'Interop/Auth/Public/*.h'
+
     # Podspec
     - 'FirebaseFirestore.podspec'
 

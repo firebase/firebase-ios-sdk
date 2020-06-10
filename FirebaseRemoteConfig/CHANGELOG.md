@@ -1,4 +1,4 @@
-# v4.5.1
+# v4.6.0
 - [changed] Removed typedefs from public API method signatures to improve Swift API usage from Xcode. (#5748)
 
 # v4.5.0

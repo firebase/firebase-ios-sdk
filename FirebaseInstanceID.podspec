@@ -28,17 +28,20 @@ services.
   s.prefix_header_file = false
 
   base_dir = "Firebase/InstanceID/"
-  s.source_files = base_dir + '**/*.[mh]'
+  s.source_files = [
+    base_dir + '**/*.[mh]',
+    'FirebaseCore/Sources/Private/*.h',
+  ]
   s.requires_arc = base_dir + '*.m'
   s.public_header_files = base_dir + 'Public/*.h', base_dir + 'Private/*.h'
   s.private_header_files = base_dir + 'Private/*.h'
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
-    'GCC_PREPROCESSOR_DEFINITIONS' =>
-      'FIRInstanceID_LIB_VERSION=' + String(s.version)
+    'GCC_PREPROCESSOR_DEFINITIONS' => 'FIRInstanceID_LIB_VERSION=' + String(s.version),
+    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
   }
   s.framework = 'Security'
-  s.dependency 'FirebaseCore', '~> 6.6'
+  s.dependency 'FirebaseCore', '~> 6.8'
   s.dependency 'FirebaseInstallations', '~> 1.0'
   s.dependency 'GoogleUtilities/UserDefaults', '~> 6.5'
   s.dependency 'GoogleUtilities/Environment', '~> 6.5'

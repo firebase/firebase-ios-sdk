@@ -33,7 +33,7 @@
 #import "FTupleCallbackStatus.h"
 #import "FTupleOnDisconnect.h"
 #import "FUtilities.h"
-#import <FirebaseCore/FIRLogger.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import <SystemConfiguration/SystemConfiguration.h>
 #import <dlfcn.h>
 #import <netinet/in.h>
@@ -511,6 +511,7 @@ typedef enum {
     self->connectionState = ConnectionStateConnecting;
     self.realtime = [[FConnection alloc] initWith:self.repoInfo
                                  andDispatchQueue:self.dispatchQueue
+                                      googleAppID:self.config.googleAppID
                                     lastSessionID:self.lastSessionID];
     self.realtime.delegate = self;
     [self.realtime open];

@@ -98,7 +98,7 @@ Instructions for installing binary frameworks via
 To develop Firebase software in this repository, ensure that you have at least
 the following software:
 
-  * Xcode 10.1 (or later)
+  * Xcode 10.3 (or later)
   * CocoaPods 1.7.2 (or later)
   * [CocoaPods generate](https://github.com/square/cocoapods-generate)
 
@@ -128,6 +128,10 @@ Firestore has a self contained Xcode project. See
 ### Adding a New Firebase Pod
 
 See [AddNewPod.md](AddNewPod.md).
+
+### Managing Headers and Imports
+
+See [HeadersImports.md](HeadersImports.md).
 
 ### Code Formatting
 

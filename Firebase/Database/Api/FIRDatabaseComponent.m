@@ -20,13 +20,8 @@
 #import "FIRDatabase_Private.h"
 #import "FRepoManager.h"
 
-#import <FirebaseAuthInterop/FIRAuthInterop.h>
-#import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseCore/FIRComponent.h>
-#import <FirebaseCore/FIRComponentContainer.h>
-#import <FirebaseCore/FIRDependency.h>
-#import <FirebaseCore/FIRLibrary.h>
-#import <FirebaseCore/FIROptions.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "Interop/Auth/Public/FIRAuthInterop.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -157,6 +152,7 @@ typedef NSMutableDictionary<NSString *, FIRDatabase *> FIRDatabaseDictionary;
 
             FIRDatabaseConfig *config = [[FIRDatabaseConfig alloc]
                 initWithSessionIdentifier:sessionIdentifier
+                              googleAppID:app.options.googleAppID
                         authTokenProvider:authTokenProvider];
             database = [[FIRDatabase alloc] initWithApp:app
                                                repoInfo:parsedUrl.repoInfo

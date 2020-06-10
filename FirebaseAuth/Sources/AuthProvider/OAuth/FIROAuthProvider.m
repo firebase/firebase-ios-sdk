@@ -18,8 +18,7 @@
 #import <FirebaseAuth/FIRFacebookAuthProvider.h>
 #import <FirebaseAuth/FIROAuthCredential.h>
 #import <FirebaseAuth/FIROAuthProvider.h>
-#import <FirebaseCore/FIRApp.h>
-#import <FirebaseCore/FIROptions.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"

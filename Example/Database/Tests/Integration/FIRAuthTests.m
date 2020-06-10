@@ -16,10 +16,8 @@
 
 #import <XCTest/XCTest.h>
 
-#import <FirebaseAuthInterop/FIRAuthInterop.h>
-#import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseCore/FIRComponent.h>
-#import <FirebaseCore/FIRComponentContainer.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "Interop/Auth/Public/FIRAuthInterop.h"
 
 #import "FIRAuthInteropFake.h"
 #import "FIRDatabaseConfig_Private.h"

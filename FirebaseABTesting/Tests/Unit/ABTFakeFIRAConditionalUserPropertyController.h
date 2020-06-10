@@ -15,7 +15,7 @@
 #import <Foundation/Foundation.h>
 
 #ifdef COCOAPODS
-#import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
+#import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 #else
 #import "third_party/firebase/ios/Releases/FirebaseInterop/Analytics/Public/FIRAnalyticsInterop.h"
 #endif

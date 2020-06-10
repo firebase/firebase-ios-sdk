@@ -22,17 +22,21 @@ iOS SDK for App Distribution for Firebase.
   s.prefix_header_file = false
 
   base_dir = "FirebaseAppDistribution/Sources/"
-  s.source_files = base_dir + '**/*.{c,h,m,mm}'
+  s.source_files = [
+    base_dir + '**/*.{c,h,m,mm}',
+    'FirebaseCore/Sources/Private/*.h',
+  ]
   s.public_header_files = base_dir + 'Public/*.h'
   s.private_header_files = base_dir + 'Private/*.h'
 
-  s.dependency 'FirebaseCore', '~> 6.6'
+  s.dependency 'FirebaseCore', '~> 6.8'
   s.dependency 'AppAuth', '~> 1.2.0'
   s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 6.5'
 
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
-    'GCC_PREPROCESSOR_DEFINITIONS' => 'FIRAppDistribution_VERSION=' + s.version.to_s
+    'GCC_PREPROCESSOR_DEFINITIONS' => 'FIRAppDistribution_VERSION=' + s.version.to_s,
+    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
   }
 
   s.test_spec 'unit' do |unit_tests|

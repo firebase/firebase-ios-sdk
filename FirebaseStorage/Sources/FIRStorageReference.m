@@ -31,8 +31,7 @@
 #import "FirebaseStorage/Sources/FIRStorageUtils.h"
 #import "FirebaseStorage/Sources/FIRStorage_Private.h"
 
-#import <FirebaseCore/FIRApp.h>
-#import <FirebaseCore/FIROptions.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 #import <GTMSessionFetcher/GTMSessionFetcher.h>
 #import <GTMSessionFetcher/GTMSessionFetcherService.h>

@@ -15,16 +15,11 @@
 #import <FirebaseABTesting/FIRExperimentController.h>
 
 #import <FirebaseABTesting/FIRLifecycleEvents.h>
-#import <FirebaseCore/FIRLogger.h>
 #import "FirebaseABTesting/Sources/ABTConditionalUserPropertyController.h"
 #import "FirebaseABTesting/Sources/ABTConstants.h"
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
-#import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
-#import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseCore/FIRComponent.h>
-#import <FirebaseCore/FIRComponentContainer.h>
-#import <FirebaseCore/FIRDependency.h>
-#import <FirebaseCore/FIRLibrary.h>
+#import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 
 #ifndef FIRABTesting_VERSION
 #error "FIRABTesting_VERSION is not defined: \

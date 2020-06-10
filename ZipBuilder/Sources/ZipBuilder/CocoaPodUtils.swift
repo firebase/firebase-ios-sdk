@@ -432,16 +432,14 @@ enum CocoaPodUtils {
     }
 
     // If we're using local pods, explicitly add FirebaseInstanceID, FirebaseInstallations,
-    // the Interop pods, and any Google* podspecs if they exist and there are no
-    // explicit versions in the Podfile. Note there are versions for local podspecs if we're doing
-    // the secondary install for module map building.
+    // and any Google* podspecs if they exist and there are no explicit versions in the Podfile.
+    // Note there are versions for local podspecs if we're doing the secondary install for module
+    // map building.
     if !versionsSpecified, let localURL = LaunchArgs.shared.localPodspecPath {
       let podspecs = try! FileManager.default.contentsOfDirectory(atPath: localURL.path)
       for podspec in podspecs {
         if (podspec == "FirebaseInstanceID.podspec" ||
           podspec == "FirebaseInstallations.podspec" ||
-          podspec == "FirebaseAnalyticsInterop.podspec" ||
-          podspec == "FirebaseAuthInterop.podspec" ||
           podspec == "FirebaseCoreDiagnostics.podspec") ||
           podspec.starts(with: "Google"), podspec.hasSuffix(".podspec") {
           let podName = podspec.replacingOccurrences(of: ".podspec", with: "")

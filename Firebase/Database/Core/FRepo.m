@@ -49,7 +49,7 @@
 #import "FTupleTransaction.h"
 #import "FValueEventRegistration.h"
 #import "FWriteRecord.h"
-#import <FirebaseCore/FIRLogger.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import <dlfcn.h>
 
 #if TARGET_OS_IOS || TARGET_OS_TV

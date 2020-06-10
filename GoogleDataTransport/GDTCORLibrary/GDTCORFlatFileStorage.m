@@ -20,20 +20,11 @@
 #import <GoogleDataTransport/GDTCORConsoleLogger.h>
 #import <GoogleDataTransport/GDTCOREvent.h>
 #import <GoogleDataTransport/GDTCORLifecycle.h>
-#import <GoogleDataTransport/GDTCORPlatform.h>
 #import <GoogleDataTransport/GDTCORPrioritizer.h>
-#import <GoogleDataTransport/GDTCORStorageEventSelector.h>
 
 #import "GDTCORLibrary/Private/GDTCOREvent_Private.h"
-#import "GDTCORLibrary/Private/GDTCORFlatFileStorageIterator.h"
 #import "GDTCORLibrary/Private/GDTCORRegistrar_Private.h"
 #import "GDTCORLibrary/Private/GDTCORUploadCoordinator.h"
-
-NSString *const gGDTCORFlatFileStorageEventDataPathKey = @"DataPath";
-
-NSString *const gGDTCORFlatFileStorageMappingIDPathKey = @"MappingIDPath";
-
-NSString *const gGDTCORFlatFileStorageQoSTierPathKey = @"QoSTierPath";
 
 @implementation GDTCORFlatFileStorage
 
@@ -60,28 +51,7 @@ NSString *const gGDTCORFlatFileStorageQoSTierPathKey = @"QoSTierPath";
   return archivePath;
 }
 
-+ (NSString *)baseEventStoragePath {
-  static NSString *eventDataPath;
-  static dispatch_once_t onceToken;
-  dispatch_once(&onceToken, ^{
-    eventDataPath =
-        [GDTCORRootDirectory() URLByAppendingPathComponent:NSStringFromClass([self class])
-                                               isDirectory:YES]
-            .path;
-    eventDataPath = [eventDataPath stringByAppendingPathComponent:@"gdt_event_data"];
-    if (![[NSFileManager defaultManager] fileExistsAtPath:eventDataPath isDirectory:NULL]) {
-      NSError *error;
-      [[NSFileManager defaultManager] createDirectoryAtPath:eventDataPath
-                                withIntermediateDirectories:YES
-                                                 attributes:0
-                                                      error:&error];
-      GDTCORAssert(error == nil, @"Creating the library data path failed: %@", error);
-    }
-  });
-  return eventDataPath;
-}
-
-+ (NSString *)libraryDataStoragePath {
++ (NSString *)libraryDataPath {
   static NSString *libraryDataPath;
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
@@ -90,86 +60,16 @@ NSString *const gGDTCORFlatFileStorageQoSTierPathKey = @"QoSTierPath";
                                                isDirectory:YES]
             .path;
     libraryDataPath = [libraryDataPath stringByAppendingPathComponent:@"gdt_library_data"];
+    if (![[NSFileManager defaultManager] fileExistsAtPath:libraryDataPath isDirectory:NULL]) {
+      NSError *error;
+      [[NSFileManager defaultManager] createDirectoryAtPath:libraryDataPath
+                                withIntermediateDirectories:YES
+                                                 attributes:0
+                                                      error:&error];
+      GDTCORAssert(error == nil, @"Creating the library data path failed: %@", error);
+    }
   });
-  if (![[NSFileManager defaultManager] fileExistsAtPath:libraryDataPath isDirectory:NULL]) {
-    NSError *error;
-    [[NSFileManager defaultManager] createDirectoryAtPath:libraryDataPath
-                              withIntermediateDirectories:YES
-                                               attributes:0
-                                                    error:&error];
-    GDTCORAssert(error == nil, @"Creating the library data path failed: %@", error);
-  }
   return libraryDataPath;
-}
-
-+ (NSDictionary<NSString *, NSString *> *)pathsForEvent:(GDTCOREvent *)event {
-  NSString *dataPath =
-      [NSString stringWithFormat:@"%@/%ld/%@", [GDTCORFlatFileStorage baseEventStoragePath],
-                                 (long)event.target, event.eventID];
-  NSString *mappingIDPath =
-      [NSString stringWithFormat:@"%@/%ld/%@/%@", [GDTCORFlatFileStorage baseEventStoragePath],
-                                 (long)event.target, event.mappingID, event.eventID];
-  NSString *qosTierPath =
-      [NSString stringWithFormat:@"%@/%ld/%ld/%@", [GDTCORFlatFileStorage baseEventStoragePath],
-                                 (long)event.target, (long)event.qosTier, event.eventID];
-  return @{
-    gGDTCORFlatFileStorageEventDataPathKey : dataPath,
-    gGDTCORFlatFileStorageMappingIDPathKey : mappingIDPath,
-    gGDTCORFlatFileStorageQoSTierPathKey : qosTierPath
-  };
-}
-
-+ (NSString *)pathForTarget:(GDTCORTarget)target
-                    qosTier:(nullable NSNumber *)qosTier
-                  mappingID:(nullable NSString *)mappingID {
-  NSString *baseEventPath = [GDTCORFlatFileStorage baseEventStoragePath];
-  // If only a target was given, return the target path.
-  if (qosTier == nil && mappingID == nil) {
-    return [NSString stringWithFormat:@"%@/%ld", baseEventPath, (long)target];
-  }
-
-  // If only a target and mappingID were given, return the mapping ID path.
-  if (qosTier == nil) {
-    return [NSString stringWithFormat:@"%@/%ld/%@", baseEventPath, (long)target, mappingID];
-  }
-
-  // If only a target and qosTier were given, return the QoS tier path.
-  if (mappingID == nil) {
-    return [NSString stringWithFormat:@"%@/%ld/%@", baseEventPath, (long)target, qosTier];
-  }
-
-  // If a target, mappingID, and qosTier were all given, return a single target/qosTier/mappingID
-  // directory.
-  return
-      [NSString stringWithFormat:@"%@/%ld/%@/%@", baseEventPath, (long)target, qosTier, mappingID];
-}
-
-+ (NSArray<NSString *> *)searchPathsWithEventSelector:(GDTCORStorageEventSelector *)eventSelector {
-  NSMutableArray<NSString *> *searchPaths = [[NSMutableArray alloc] init];
-  if (eventSelector.selectedQosTiers && eventSelector.selectedQosTiers.count > 0) {
-    for (NSNumber *qosTier in eventSelector.selectedQosTiers) {
-      NSString *searchPath = [self pathForTarget:eventSelector.selectedTarget
-                                         qosTier:qosTier
-                                       mappingID:eventSelector.selectedMappingID];
-      BOOL isDirectory;
-      if ([[NSFileManager defaultManager] fileExistsAtPath:searchPath isDirectory:&isDirectory]) {
-        if (isDirectory) {
-          [searchPaths addObject:searchPath];
-        }
-      }
-    }
-  } else {
-    NSString *searchPath = [self pathForTarget:eventSelector.selectedTarget
-                                       qosTier:nil
-                                     mappingID:eventSelector.selectedMappingID];
-    BOOL isDirectory;
-    if ([[NSFileManager defaultManager] fileExistsAtPath:searchPath isDirectory:&isDirectory]) {
-      if (isDirectory) {
-        [searchPaths addObject:searchPath];
-      }
-    }
-  }
-  return searchPaths;
 }
 
 + (instancetype)sharedInstance {
@@ -314,7 +214,7 @@ NSString *const gGDTCORFlatFileStorageQoSTierPathKey = @"QoSTierPath";
                onComplete:
                    (nonnull void (^)(NSData *_Nullable, NSError *_Nullable error))onComplete {
   dispatch_async(_storageQueue, ^{
-    NSString *dataPath = [[[self class] libraryDataStoragePath] stringByAppendingPathComponent:key];
+    NSString *dataPath = [[[self class] libraryDataPath] stringByAppendingPathComponent:key];
     NSError *error;
     NSData *data = [NSData dataWithContentsOfFile:dataPath options:0 error:&error];
     if (onComplete) {
@@ -325,7 +225,7 @@ NSString *const gGDTCORFlatFileStorageQoSTierPathKey = @"QoSTierPath";
 
 - (void)storeLibraryData:(NSData *)data
                   forKey:(nonnull NSString *)key
-              onComplete:(nullable void (^)(NSError *_Nullable error))onComplete {
+              onComplete:(nonnull void (^)(NSError *_Nullable error))onComplete {
   if (!data || data.length <= 0) {
     if (onComplete) {
       onComplete([NSError errorWithDomain:NSInternalInconsistencyException code:-1 userInfo:nil]);
@@ -334,7 +234,7 @@ NSString *const gGDTCORFlatFileStorageQoSTierPathKey = @"QoSTierPath";
   }
   dispatch_async(_storageQueue, ^{
     NSError *error;
-    NSString *dataPath = [[[self class] libraryDataStoragePath] stringByAppendingPathComponent:key];
+    NSString *dataPath = [[[self class] libraryDataPath] stringByAppendingPathComponent:key];
     [data writeToFile:dataPath options:NSDataWritingAtomic error:&error];
     if (onComplete) {
       onComplete(error);
@@ -346,82 +246,12 @@ NSString *const gGDTCORFlatFileStorageQoSTierPathKey = @"QoSTierPath";
                      onComplete:(nonnull void (^)(NSError *_Nullable error))onComplete {
   dispatch_async(_storageQueue, ^{
     NSError *error;
-    NSString *dataPath = [[[self class] libraryDataStoragePath] stringByAppendingPathComponent:key];
+    NSString *dataPath = [[[self class] libraryDataPath] stringByAppendingPathComponent:key];
     if ([[NSFileManager defaultManager] fileExistsAtPath:dataPath]) {
       [[NSFileManager defaultManager] removeItemAtPath:dataPath error:&error];
       if (onComplete) {
         onComplete(error);
       }
-    }
-  });
-}
-
-- (BOOL)hasEventsForTarget:(GDTCORTarget)target {
-  NSString *searchPath = [GDTCORFlatFileStorage pathForTarget:target qosTier:nil mappingID:nil];
-  NSFileManager *fm = [NSFileManager defaultManager];
-  NSDirectoryEnumerator *enumerator = [fm enumeratorAtPath:searchPath];
-  while ([enumerator nextObject]) {
-    if ([enumerator.fileAttributes[NSFileType] isEqual:NSFileTypeRegular]) {
-      return YES;
-    }
-  }
-  return NO;
-}
-
-- (nullable id<GDTCORStorageEventIterator>)iteratorWithSelector:
-    (nonnull GDTCORStorageEventSelector *)eventSelector {
-  __block GDTCORFlatFileStorageIterator *iterator;
-  dispatch_sync(_storageQueue, ^{
-    NSMutableArray<NSString *> *filePaths;
-    NSArray<NSString *> *searchPaths =
-        [GDTCORFlatFileStorage searchPathsWithEventSelector:eventSelector];
-    for (NSString *searchPath in searchPaths) {
-      NSDirectoryEnumerator *enumerator =
-          [[NSFileManager defaultManager] enumeratorAtPath:searchPath];
-      NSString *nextFile;
-      while ((nextFile = [enumerator nextObject])) {
-        NSFileAttributeType fileType = enumerator.fileAttributes[NSFileType];
-        if ([fileType isEqual:NSFileTypeRegular]) {
-          [filePaths addObject:nextFile];
-        }
-      }
-      iterator = [[GDTCORFlatFileStorageIterator alloc] initWithTarget:eventSelector.selectedTarget
-                                                                 queue:self->_storageQueue];
-      iterator.eventFiles = filePaths;
-    }
-  });
-  return iterator;
-}
-
-- (void)purgeEventsFromBefore:(GDTCORClock *)beforeSnapshot
-                   onComplete:(void (^)(NSError *_Nullable error))onComplete {
-  // TODO(mikehaney24): Figure out how we're going to deal with this.
-}
-
-- (void)storageSizeWithCallback:(void (^)(uint64_t storageSize))onComplete {
-  dispatch_async(_storageQueue, ^{
-    unsigned long long totalBytes = 0;
-    NSString *eventDataPath = [GDTCORFlatFileStorage baseEventStoragePath];
-    NSString *libraryDataPath = [GDTCORFlatFileStorage libraryDataStoragePath];
-    NSDirectoryEnumerator *enumerator =
-        [[NSFileManager defaultManager] enumeratorAtPath:eventDataPath];
-    while ([enumerator nextObject]) {
-      NSFileAttributeType fileType = enumerator.fileAttributes[NSFileType];
-      if ([fileType isEqual:NSFileTypeRegular]) {
-        NSNumber *fileSize = enumerator.fileAttributes[NSFileSize];
-        totalBytes += fileSize.unsignedLongLongValue;
-      }
-    }
-    enumerator = [[NSFileManager defaultManager] enumeratorAtPath:libraryDataPath];
-    while ([enumerator nextObject]) {
-      NSFileAttributeType fileType = enumerator.fileAttributes[NSFileType];
-      if ([fileType isEqual:NSFileTypeRegular]) {
-        NSNumber *fileSize = enumerator.fileAttributes[NSFileSize];
-        totalBytes += fileSize.unsignedLongLongValue;
-      }
-    }
-    if (onComplete) {
-      onComplete(totalBytes);
     }
   });
 }
@@ -480,8 +310,8 @@ NSString *const gGDTCORFlatFileStorageQoSTierPathKey = @"QoSTierPath";
 
 - (void)appWillBackground:(GDTCORApplication *)app {
   dispatch_async(_storageQueue, ^{
-    // Immediately request a background task to run until the end of the current queue of work,
-    // and cancel it once the work is done.
+    // Immediately request a background task to run until the end of the current queue of work, and
+    // cancel it once the work is done.
     __block GDTCORBackgroundIdentifier bgID =
         [app beginBackgroundTaskWithName:@"GDTStorage"
                        expirationHandler:^{
