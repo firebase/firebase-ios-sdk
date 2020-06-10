@@ -10,7 +10,7 @@
   "FirebaseFunctions" : "2.6.0",
   "FirebaseInAppMessaging" : "0.21.0",
   "FirebaseInstallations" : "1.4.0",
-  "FirebaseInstanceID" : "",
+  "FirebaseInstanceID" : "4.4.0",
   "FirebaseMessaging" : "4.5.0",
   "FirebaseRemoteConfig" : "4.6.0",
   "FirebaseStorage" : "3.7.0",
