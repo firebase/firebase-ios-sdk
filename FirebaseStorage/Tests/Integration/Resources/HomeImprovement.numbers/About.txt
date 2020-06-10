@@ -1,0 +1,1 @@
+The `HomeImprovement.numbers` directory exists to test Firebase Storage's ability to fail gracefully when one attempts to upload a directory. Since git doesn't track track empty directories. This .txt file exists to provide context and make git track the folder.
