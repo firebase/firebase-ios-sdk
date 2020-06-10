@@ -385,9 +385,8 @@ struct ZipBuilder {
     // Loop through each installedPod item and get the name so we can fetch the framework and copy
     // it to the destination directory.
     for podName in installedPods {
-      // Skip the Firebase pod, any Interop pods, and specifically ignored frameworks.
+      // Skip the Firebase pod and specifically ignored frameworks.
       guard podName != "Firebase",
-        !podName.contains("Interop"),
         !podsToIgnore.contains(podName) else {
         continue
       }
@@ -557,9 +556,8 @@ struct ZipBuilder {
                                                .duplicateFrameworksToRemove(pod: podName))
 
     let copiedFrameworks = namedFrameworks.filter {
-      // Only return the frameworks that aren't contained in the "podsToIgnore" array, aren't an
-      // interop framework (since they don't compile to frameworks), or the Firebase pod itself.
-      !(podsToIgnore.contains($0) || $0.hasSuffix("Interop") || $0 == "Firebase")
+      // Skip frameworks that aren't contained in the "podsToIgnore" array and the Firebase pod.
+      !(podsToIgnore.contains($0) || $0 == "Firebase")
     }
 
     return (productDir, copiedFrameworks)
@@ -688,9 +686,8 @@ struct ZipBuilder {
     for (podName, podInfo) in pods {
       var frameworks: [URL] = []
       var carthageFrameworks: [URL] = []
-      // Ignore any Interop pods or the Firebase umbrella pod.
-      guard !podName.contains("Interop"),
-        podName != "Firebase" else {
+      // Ignore the Firebase umbrella pod.
+      guard podName != "Firebase" else {
         continue
       }
 
