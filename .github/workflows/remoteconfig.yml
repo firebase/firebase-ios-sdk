@@ -11,8 +11,9 @@ on:
     - '.github/workflows/remoteconfig.yml'
     - 'Gemfile'
   schedule:
-    # Run every day at 11pm (PST) - cron uses UTC times
-    - cron:  '0 7 * * *'
+    # Run every day at 3am (PST) - cron uses UTC times
+    # This is set to 3 hours after zip workflow so zip testing can run after.
+    - cron:  '0 11 * * *'
 
 jobs:
 
@@ -61,6 +62,60 @@ jobs:
     - name: Setup project and Build for Catalyst
       # Only build the unit tests on Catalyst. Test stopped working when GHA moved to Xcode 11.4.1.
       run: scripts/test_catalyst.sh FirebaseRemoteConfig build FirebaseRemoteConfig-Unit-unit
+
+  quickstart_framework:
+    env:
+      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+      signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+      FRAMEWORK_ZIP: "Firebase-actions-dir.zip"
+      SDK: "Config"
+    runs-on: macOS-latest
+    # Make sure tests run after the zip workflow finishes.
+    if: github.event_name == 'schedule'
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install gcloud tool
+      run: scripts/install_gcloud.sh
+    - name: Access GCS bucket
+      run: |
+        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/firebase-ios-testing.json.gpg firebase-ios-testing.json "$plist_secret"
+        gcloud auth activate-service-account --key-file firebase-ios-testing.json
+    - name: Pull framework zip files from GCS and unzip
+      run: scripts/get_latest_zip_from_gcs.sh "$FRAMEWORK_ZIP" "${HOME}/ios_frameworks"
+    - name: Setup quickstart
+      run: scripts/setup_quickstart_framework.sh "$SDK"
+    - name: Move frameworks to xcode project
+      run: |
+        mkdir -p quickstart-ios/"${SDK}"/Firebase/
+        mv "${HOME}"/ios_frameworks/Firebase/Firebase.h quickstart-ios/"${SDK}"/Firebase/
+        mv "${HOME}"/ios_frameworks/Firebase/module.modulemap quickstart-ios/"${SDK}"/Firebase/
+        mv "${HOME}"/ios_frameworks/Firebase/FirebaseRemoteConfig/* quickstart-ios/"${SDK}"/Firebase/
+        mv "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/* quickstart-ios/"${SDK}"/Firebase/
+        cd quickstart-ios/"${SDK}"
+        ../scripts/add_framework_script.rb  "${SDK}" ConfigExample Firebase
+    - name: Install Secret GoogleService-Info.plist
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-config.plist.gpg \
+        quickstart-ios/config/GoogleService-Info.plist "$plist_secret"
+    - name: Install Secret FIREGSignInInfo.h
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/FIREGSignInInfo.h.gpg \
+        quickstart-ios/TestUtils/FIREGSignInInfo.h "$signin_secret"
+    - name: Test Quickstart
+      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}")
+    - name: Display xcodebuild setup
+      if: ${{ failure() }}
+      run: |
+        cd quickstart-ios/config
+        xcodebuild -project ConfigExample.xcodeproj -target "ConfigExample" -showBuildSettings
+    - name: Remove data before upload
+      if: ${{ failure() }}
+      run: |
+        rm -f quickstart-ios/config/GoogleSerivce-info.plist
+        rm -f quickstart-ios/TestUtils/FIREGSignInInfo.h
+    - uses: actions/upload-artifact@v2
+      if: ${{ failure() }}
+      with:
+        name: quickstart_artifacts
+        path: quickstart-ios/
 
   quickstart:
     env:
