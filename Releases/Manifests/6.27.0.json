@@ -3,6 +3,7 @@
   "FirebaseABTesting" : "3.3.0",
   "FirebaseAuth" : "6.6.0",
   "FirebaseCore" : "6.8.0",
+  "FirebaseCoreDiagnostics": "1.4.0",
   "FirebaseCrashlytics" : "4.2.0",
   "FirebaseDatabase" : "6.3.0",
   "FirebaseDynamicLinks" : "4.1.0",
