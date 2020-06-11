@@ -46,4 +46,18 @@
   return set;
 }
 
++ (GDTCOREvent *)generateEventForTarget:(GDTCORTarget)target
+                                qosTier:(nullable NSNumber *)qosTier
+                              mappingID:(nullable NSString *)mappingID {
+  GDTCOREventQoS determinedQosTier =
+      qosTier == nil ? arc4random_uniform(GDTCOREventQoSWifiOnly) : qosTier.intValue;
+  NSString *determinedMappingID = mappingID == nil ? [NSDate date].description : mappingID;
+
+  GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:determinedMappingID target:target];
+  event.clockSnapshot = [GDTCORClock snapshot];
+  event.qosTier = determinedQosTier;
+  event.dataObject = [[GDTCORDataObjectTesterSimple alloc] initWithString:@"testing!"];
+  return event;
+}
+
 @end

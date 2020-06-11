@@ -34,11 +34,7 @@
 }
 
 - (nullable GDTCOREvent *)nextEvent {
-  if (_currentIndex == -1) {
-    return nil;
-  }
-  if (!_eventFiles) {
-    GDTCORLogDebug(@"%@", @"eventFiles property not set, so -nextEvent will be nil.");
+  if (_currentIndex == -1 || _currentIndex >= _eventFiles.count) {
     return nil;
   }
   dispatch_queue_t queue = _queue;
@@ -60,6 +56,7 @@
       }
     }
   });
+  _currentIndex++;
   return nextEvent;
 }
 

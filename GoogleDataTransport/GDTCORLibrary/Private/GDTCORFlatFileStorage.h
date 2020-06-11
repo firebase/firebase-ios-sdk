@@ -28,7 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
 /** Manages the storage of events. This class is thread-safe.
  *
  * Event files will be stored as follows:
- *   <app cache>/gdt_event_data/<target>/<eventID>.<qosTier>.<mappingID>
+ * <app cache>/google-sdk-events/<classname>/gdt_event_data/<target>/<eventID>.<qosTier>.<mappingID>
  *
  * Library data will be stored as follows:
  *   <app cache>/gdt_library_data/<key of library data>
@@ -92,18 +92,13 @@ NS_ASSUME_NONNULL_BEGIN
  * @param eventIDs The list of eventIDs to look for, or nil for any.
  * @param qosTiers The list of qosTiers to look for, or nil for any.
  * @param mappingIDs The list of mappingIDs to look for, or nil for any.
+ * @param onComplete The completion to call once the paths have been discovered.
  */
-+ (NSSet<NSString *> *)pathsForTarget:(GDTCORTarget)target
-                             eventIDs:(nullable NSSet<NSNumber *> *)eventIDs
-                             qosTiers:(nullable NSSet<NSNumber *> *)qosTiers
-                           mappingIDs:(nullable NSSet<NSString *> *)mappingIDs;
-
-/** Returns a list of paths that will contain events for the given event selector.
- *
- * @param eventSelector The event selector to process.
- * @return A list of paths that exist and could contain events.
- */
-+ (NSArray<NSString *> *)searchPathsWithEventSelector:(GDTCORStorageEventSelector *)eventSelector;
+- (void)pathsForTarget:(GDTCORTarget)target
+              eventIDs:(nullable NSSet<NSNumber *> *)eventIDs
+              qosTiers:(nullable NSSet<NSNumber *> *)qosTiers
+            mappingIDs:(nullable NSSet<NSString *> *)mappingIDs
+            onComplete:(void (^)(NSSet<NSString *> *paths))onComplete;
 
 @end
 
