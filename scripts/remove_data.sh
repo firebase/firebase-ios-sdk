@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-set -x 
+set -x
 
 SDK="$1"
 rm -f quickstart-ios/"${SDK}"/GoogleSerivce-info.plist
