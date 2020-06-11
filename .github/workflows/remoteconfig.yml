@@ -71,12 +71,11 @@ jobs:
       SDK: "Config"
     runs-on: macOS-latest
     # Make sure tests run after the zip workflow finishes.
-    # if: github.event_name == 'schedule'
+    if: github.event_name == 'schedule'
     steps:
     - uses: actions/checkout@v2
     - name: Pull zip from GCS
-      run: |
-              scripts/pull_zip_gcloud.sh "$plist_secret" "$FRAMEWORK_ZIP" "${HOME}/ios_frameworks"
+      run: scripts/pull_zip_gcloud.sh "$plist_secret" "$FRAMEWORK_ZIP" "${HOME}/ios_frameworks"
     - name: Setup quickstart
       run: SAMPLE="$SDK" TARGET="${SDK}Example" scripts/setup_quickstart_framework.sh \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseRemoteConfig/* \
@@ -88,8 +87,7 @@ jobs:
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/FIREGSignInInfo.h.gpg \
         quickstart-ios/TestUtils/FIREGSignInInfo.h "$signin_secret"
     - name: Test Quickstart
-      run: |
-              ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}")
+      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}")
     - name: Remove data before upload
       if: ${{ failure() }}
       run: scripts/remove_data.sh "${SDK}"
