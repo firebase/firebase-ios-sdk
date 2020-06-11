@@ -68,13 +68,19 @@ NS_ASSUME_NONNULL_BEGIN
 
   NSURLSession *URLSession = [NSURLSession
       sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]];
-  FIRDeviceCheckAPIService *APIService =
-      [[FIRDeviceCheckAPIService alloc] initWithURLSession:URLSession
-                                                    APIKey:app.options.APIKey
+
+  FIRAppCheckAPIService *APIService =
+      [[FIRAppCheckAPIService alloc] initWithURLSession:URLSession
+                                                 APIKey:app.options.APIKey
+                                              projectID:app.options.projectID
+                                                  appID:app.options.googleAppID];
+
+  FIRDeviceCheckAPIService *deviceCheckAPIService =
+      [[FIRDeviceCheckAPIService alloc] initWithAPIService:APIService
                                                  projectID:app.options.projectID
                                                      appID:app.options.googleAppID];
 
-  return [self initWithAPIService:APIService];
+  return [self initWithAPIService:deviceCheckAPIService];
 }
 
 + (NSArray<NSString *> *)missingFieldsInOptions:(FIROptions *)options {

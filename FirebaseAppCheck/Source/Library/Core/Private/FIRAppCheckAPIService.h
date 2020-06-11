@@ -16,22 +16,26 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FirebaseAppCheck/Source/Library/Core/Private/FIRAppCheckAPIService.h"
+#import "FirebaseAppCheck/Source/Library/Core/Private/FIRAppCheckHTTPResponse.h"
 
 @class FBLPromise<Result>;
-@class FIRAppCheckToken;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@protocol FIRDeviceCheckAPIServiceProtocol <NSObject>
+@protocol FIRAppCheckAPIServiceProtocol <NSObject>
 
-- (FBLPromise<FIRAppCheckToken *> *)appCheckTokenWithDeviceToken:(NSData *)deviceToken;
+- (FBLPromise<FIRAppCheckHTTPResponse *> *)
+    sendRequestWithURL:(NSURL *)requestURL
+            HTTPMethod:(NSString *)HTTPMethod
+                  body:(NSData *)body
+     additionalHeaders:(nullable NSDictionary<NSString *, NSString *> *)additionalHeaders;
 
 @end
 
-@interface FIRDeviceCheckAPIService : NSObject <FIRDeviceCheckAPIServiceProtocol>
+@interface FIRAppCheckAPIService : NSObject <FIRAppCheckAPIServiceProtocol>
 
-- (instancetype)initWithAPIService:(id<FIRAppCheckAPIServiceProtocol>)APIService
+- (instancetype)initWithURLSession:(NSURLSession *)session
+                            APIKey:(NSString *)APIKey
                          projectID:(NSString *)projectID
                              appID:(NSString *)appID;
 

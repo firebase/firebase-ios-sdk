@@ -34,7 +34,8 @@ Pod::Spec.new do |s|
   preprocessor_definitions = 'FIRAppCheck_LIB_VERSION=' + String(s.version)
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
-    'GCC_PREPROCESSOR_DEFINITIONS' => preprocessor_definitions
+    'GCC_PREPROCESSOR_DEFINITIONS' => preprocessor_definitions,
+    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
   }
 
   # TODO: Consider less generic name instead of "Core"
@@ -59,7 +60,8 @@ Pod::Spec.new do |s|
   s.test_spec 'unit' do |unit_tests|
     unit_tests.platforms = {:ios => '11.0', :osx => '10.11', :tvos => '11.0'}
     unit_tests.source_files = base_dir + 'Tests/Unit/**/*.[mh]',
-                              base_dir + 'Tests/Utils/**/*.[mh]'
+                              base_dir + 'Tests/Utils/**/*.[mh]',
+                              'TestUtilities/**/*'
     unit_tests.resources = base_dir + 'Tests/Fixture/**/*'
     unit_tests.requires_app_host = true
     unit_tests.dependency 'OCMock'

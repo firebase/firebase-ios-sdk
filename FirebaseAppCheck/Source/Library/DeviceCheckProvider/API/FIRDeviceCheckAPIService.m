@@ -55,8 +55,8 @@ static NSString *const kUserAgentKey = @"X-firebase-client";
 
 @interface FIRDeviceCheckAPIService ()
 
-@property(nonatomic, readonly) NSURLSession *URLSession;
-@property(nonatomic, readonly) NSString *APIKey;
+@property(nonatomic, readonly) id<FIRAppCheckAPIServiceProtocol> APIService;
+
 @property(nonatomic, readonly) NSString *projectID;
 @property(nonatomic, readonly) NSString *appID;
 
@@ -64,14 +64,12 @@ static NSString *const kUserAgentKey = @"X-firebase-client";
 
 @implementation FIRDeviceCheckAPIService
 
-- (instancetype)initWithURLSession:(NSURLSession *)session
-                            APIKey:(NSString *)APIKey
+- (instancetype)initWithAPIService:(id<FIRAppCheckAPIServiceProtocol>)APIService
                          projectID:(NSString *)projectID
                              appID:(NSString *)appID {
   self = [super init];
   if (self) {
-    _URLSession = session;
-    _APIKey = APIKey;
+    _APIService = APIService;
     _projectID = projectID;
     _appID = appID;
   }
@@ -81,86 +79,23 @@ static NSString *const kUserAgentKey = @"X-firebase-client";
 #pragma mark - Public API
 
 - (FBLPromise<FIRAppCheckToken *> *)appCheckTokenWithDeviceToken:(NSData *)deviceToken {
-  return [self createCheckTokenWithDeviceToken:deviceToken]
-      .then(^id _Nullable(NSURLRequest *_Nullable request) {
-        return [self URLRequestPromise:request];
-      })
-      .then(^id _Nullable(FIRDeviceCheckURLSessionResponse *_Nullable response) {
+  NSString *baseURL = @"https://firebaseappcheck.googleapis.com/v1alpha1";
+  NSString *URLString =
+      [NSString stringWithFormat:@"%@/projects/%@/apps/%@:exchangeDeviceCheckToken", baseURL,
+                                 self.projectID, self.appID];
+  NSURL *URL = [NSURL URLWithString:URLString];
+
+  return [self.APIService sendRequestWithURL:URL
+                                  HTTPMethod:@"POST"
+                                        body:deviceToken
+                           additionalHeaders:nil]
+      .then(^id _Nullable(FIRAppCheckHTTPResponse *_Nullable response) {
         return [self appCheckTokenWithAPIResponse:response];
       });
 }
 
-#pragma mark - URL request
-
-- (FBLPromise<FIRDeviceCheckURLSessionResponse *> *)URLRequestPromise:(NSURLRequest *)request {
-  return [FBLPromise async:^(FBLPromiseFulfillBlock fulfill, FBLPromiseRejectBlock reject) {
-           NSURLSessionDataTask *dataTask = [self.URLSession
-               dataTaskWithRequest:request
-                 completionHandler:^(NSData *_Nullable data, NSURLResponse *_Nullable response,
-                                     NSError *_Nullable error) {
-                   if (error) {
-                     reject(error);
-                   } else {
-                     fulfill([[FIRDeviceCheckURLSessionResponse alloc]
-                         initWithResponse:(NSHTTPURLResponse *)response
-                                     data:data]);
-                   }
-                 }];
-           [dataTask resume];
-         }]
-      .recover(^id(NSError *networkError) {
-        // Wrap raw network error into App Check domain error.
-        return [FIRAppCheckErrorUtil APIErrorWithNetworkError:networkError];
-      })
-      .then(^id _Nullable(FIRDeviceCheckURLSessionResponse *response) {
-        return [self validateHTTPResponseStatusCode:response];
-      });
-}
-
-- (FBLPromise<FIRDeviceCheckURLSessionResponse *> *)validateHTTPResponseStatusCode:
-    (FIRDeviceCheckURLSessionResponse *)response {
-  NSInteger statusCode = response.HTTPResponse.statusCode;
-  return [FBLPromise do:^id _Nullable {
-    if (statusCode < 200 || statusCode >= 300) {
-      FIRLogDebug(kFIRLoggerAppCheck, kFIRLoggerAppCheckMessageCodeUnknown,
-                  @"Unexpected API response: %@, body: %@.", response.HTTPResponse,
-                  [[NSString alloc] initWithData:response.data encoding:NSUTF8StringEncoding]);
-      return [FIRAppCheckErrorUtil APIErrorWithHTTPResponse:response.HTTPResponse
-                                                       data:response.data];
-    }
-    return response;
-  }];
-}
-
-#pragma mark - Device Check request
-
-- (FBLPromise<NSURLRequest *> *)createCheckTokenWithDeviceToken:(NSData *)deviceToken {
-  return [FBLPromise
-      onQueue:dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0)
-           do:^id _Nullable {
-             NSString *baseURL = @"https://firebaseappcheck.googleapis.com/v1alpha1";
-             NSString *URLString =
-                 [NSString stringWithFormat:@"%@/projects/%@/apps/%@:exchangeDeviceCheckToken",
-                                            baseURL, self.projectID, self.appID];
-             NSURL *URL = [NSURL URLWithString:URLString];
-
-             NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL];
-             request.HTTPBody = deviceToken;
-
-             [request setValue:self.APIKey forHTTPHeaderField:kAPIKeyHeaderKey];
-             // User agent header.
-             [request setValue:[FIRApp firebaseUserAgent] forHTTPHeaderField:kUserAgentKey];
-             // Heartbeat header.
-             [request setValue:@([FIRHeartbeatInfo heartbeatCodeForTag:kHeartbeatStorageTag])
-                                   .stringValue
-                 forHTTPHeaderField:kHeartbeatKey];
-
-             return [request copy];
-           }];
-}
-
 - (FBLPromise<FIRAppCheckToken *> *)appCheckTokenWithAPIResponse:
-    (FIRDeviceCheckURLSessionResponse *)response {
+    (FIRAppCheckHTTPResponse *)response {
   return [FBLPromise do:^id _Nullable {
     NSError *error;
 

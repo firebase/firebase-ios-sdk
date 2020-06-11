@@ -19,9 +19,13 @@
 #import <OCMock/OCMock.h>
 #import "FBLPromise+Testing.h"
 
-#import "FIRAppCheckErrorUtil.h"
-#import "FIRAppCheckToken.h"
-#import "FIRDeviceCheckAPIService.h"
+#import "FirebaseAppCheck/Source/Library/Core/Errors/FIRAppCheckErrorUtil.h"
+#import "FirebaseAppCheck/Source/Library/Core/Private/FIRAppCheckAPIService.h"
+#import "FirebaseAppCheck/Source/Library/Core/Public/FIRAppCheckToken.h"
+#import "FirebaseAppCheck/Source/Library/DeviceCheckProvider/API/FIRDeviceCheckAPIService.h"
+
+#import "TestUtilities/Date/FIRDateTestUtils.h"
+#import "TestUtilities/URLSession/FIRURLSessionOCMockStub.h"
 
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIRHeartbeatInfo.h>
@@ -31,10 +35,8 @@ typedef BOOL (^FIRRequestValidationBlock)(NSURLRequest *request);
 @interface FIRDeviceCheckAPIServiceTests : XCTestCase
 @property(nonatomic) FIRDeviceCheckAPIService *APIService;
 
-@property(nonatomic) id mockURLSession;
-@property(nonatomic) id mockHeartbeatInfo;
+@property(nonatomic) id mockAPIService;
 
-@property(nonatomic) NSString *APIKey;
 @property(nonatomic) NSString *projectID;
 @property(nonatomic) NSString *appID;
 
@@ -45,59 +47,45 @@ typedef BOOL (^FIRRequestValidationBlock)(NSURLRequest *request);
 - (void)setUp {
   [super setUp];
 
-  self.APIKey = @"api_key";
   self.projectID = @"project_id";
   self.appID = @"app_id";
 
-  // Stub FIRHeartbeatInfo.
-  self.mockHeartbeatInfo = OCMClassMock([FIRHeartbeatInfo class]);
-  OCMStub([self.mockHeartbeatInfo heartbeatCodeForTag:@"fire-app-check"])
-      .andDo(^(NSInvocation *invocation) {
-        XCTAssertFalse([NSThread isMainThread]);
-      })
-      .andReturn(FIRHeartbeatInfoCodeCombined);
-
-  self.mockURLSession = OCMStrictClassMock([NSURLSession class]);
-
-  self.APIService = [[FIRDeviceCheckAPIService alloc] initWithURLSession:self.mockURLSession
-                                                                  APIKey:self.APIKey
+  self.mockAPIService = OCMProtocolMock(@protocol(FIRAppCheckAPIServiceProtocol));
+  self.APIService = [[FIRDeviceCheckAPIService alloc] initWithAPIService:self.mockAPIService
                                                                projectID:self.projectID
                                                                    appID:self.appID];
 }
 
 - (void)tearDown {
-  [super tearDown];
-
   self.APIService = nil;
-  [self.mockURLSession stopMocking];
-  self.mockURLSession = nil;
-  [self.mockHeartbeatInfo stopMocking];
-  self.mockHeartbeatInfo = nil;
+  [self.mockAPIService stopMocking];
+  self.mockAPIService = nil;
+
+  [super tearDown];
 }
 
 - (void)testAppCheckTokenSuccess {
   NSData *deviceTokenData = [@"device_token" dataUsingEncoding:NSUTF8StringEncoding];
   NSString *expectedToken = @"valid_app_check_token";
 
-  // 1. Stub URL session.
-  FIRRequestValidationBlock requestValidation = ^BOOL(NSURLRequest *request) {
-    XCTAssertEqualObjects(request.URL.absoluteString,
+  // 1. Stub API service.
+  id URLValidationArg = [OCMArg checkWithBlock:^BOOL(NSURL *URL) {
+    XCTAssertEqualObjects(URL.absoluteString,
                           @"https://firebaseappcheck.googleapis.com/v1alpha1/projects/project_id/"
                           @"apps/app_id:exchangeDeviceCheckToken");
-    XCTAssertEqualObjects(request.allHTTPHeaderFields[@"x-firebase-client"],
-                          [FIRApp firebaseUserAgent]);
-    XCTAssertEqualObjects(request.allHTTPHeaderFields[@"X-firebase-client-log-type"], @"3");
-    XCTAssertEqualObjects(request.allHTTPHeaderFields[@"X-Goog-Api-Key"], self.APIKey);
-
-    XCTAssertEqualObjects(request.HTTPBody, deviceTokenData);
     return YES;
-  };
+  }];
 
-  NSData *HTTPResponseBody = [self loadFixtureNamed:@"DeviceCheckResponseSuccess.json"];
-  id mockURLDataTask = [self stubURLSessionDataTaskWithResponse:[self HTTPResponseWithCode:200]
-                                                           body:HTTPResponseBody
-                                                          error:nil
-                                         requestValidationBlock:requestValidation];
+  NSData *responseBody = [self loadFixtureNamed:@"DeviceCheckResponseSuccess.json"];
+  NSHTTPURLResponse *HTTPResponse = [FIRURLSessionOCMockStub HTTPResponseWithCode:200];
+  FIRAppCheckHTTPResponse *APIResponse =
+      [[FIRAppCheckHTTPResponse alloc] initWithResponse:HTTPResponse data:responseBody];
+
+  OCMExpect([self.mockAPIService sendRequestWithURL:URLValidationArg
+                                         HTTPMethod:@"POST"
+                                               body:deviceTokenData
+                                  additionalHeaders:nil])
+      .andReturn([FBLPromise resolvedWith:APIResponse]);
 
   // 2. Send request.
   __auto_type tokenPromise = [self.APIService appCheckTokenWithDeviceToken:deviceTokenData];
@@ -109,24 +97,29 @@ typedef BOOL (^FIRRequestValidationBlock)(NSURLRequest *request);
   XCTAssertNil(tokenPromise.error);
 
   XCTAssertEqualObjects(tokenPromise.value.token, expectedToken);
-  [self assertDate:tokenPromise.value.expirationDate
-      isApproximatelyEqualCurrentPlusTimeInterval:1800];
 
-  OCMVerifyAll(mockURLDataTask);
-  OCMVerifyAll(self.mockURLSession);
+  XCTAssertTrue([FIRDateTestUtils isDate:tokenPromise.value.expirationDate
+      approximatelyEqualCurrentPlusTimeInterval:1800
+                                      precision:10]);
+
+  OCMVerifyAll(self.mockAPIService);
 }
 
 - (void)testAppCheckTokenNetworkError {
   NSData *deviceTokenData = [@"device_token" dataUsingEncoding:NSUTF8StringEncoding];
-  NSError *networkError = [NSError errorWithDomain:@"testAppCheckTokenNetworkError"
-                                              code:-1
-                                          userInfo:nil];
+  NSError *APIError = [NSError errorWithDomain:@"testAppCheckTokenNetworkError"
+                                          code:-1
+                                      userInfo:nil];
 
-  // 1. Stub URL session.
-  id mockURLDataTask = [self stubURLSessionDataTaskWithResponse:nil
-                                                           body:nil
-                                                          error:networkError
-                                         requestValidationBlock:nil];
+  // 1. Stub API service.
+  FBLPromise *rejectedPromise = [FBLPromise pendingPromise];
+  [rejectedPromise reject:APIError];
+
+  OCMExpect([self.mockAPIService sendRequestWithURL:[OCMArg any]
+                                         HTTPMethod:@"POST"
+                                               body:deviceTokenData
+                                  additionalHeaders:nil])
+      .andReturn(rejectedPromise);
 
   // 2. Send request.
   __auto_type tokenPromise = [self.APIService appCheckTokenWithDeviceToken:deviceTokenData];
@@ -136,27 +129,26 @@ typedef BOOL (^FIRRequestValidationBlock)(NSURLRequest *request);
 
   XCTAssertTrue(tokenPromise.isRejected);
   XCTAssertNil(tokenPromise.value);
+  XCTAssertEqualObjects(tokenPromise.error, APIError);
 
-  XCTAssertNotNil(tokenPromise.error);
-  XCTAssertEqualObjects(tokenPromise.error.domain, kFIRAppCheckErrorDomain);
-  XCTAssertEqual(tokenPromise.error.code, FIRAppCheckErrorCodeUnknown);
-  XCTAssertEqualObjects(tokenPromise.error.userInfo[NSUnderlyingErrorKey], networkError);
-
-  OCMVerifyAll(mockURLDataTask);
-  OCMVerifyAll(self.mockURLSession);
+  OCMVerifyAll(self.mockAPIService);
 }
 
 - (void)testAppCheckTokenInvalidDeviceToken {
   NSData *deviceTokenData = [@"device_token" dataUsingEncoding:NSUTF8StringEncoding];
   NSString *responseBodyString = @"Token verification failed.";
 
-  // 1. Stub URL session.
+  // 1. Stub API service.
+  NSData *responseBody = [responseBodyString dataUsingEncoding:NSUTF8StringEncoding];
+  NSHTTPURLResponse *HTTPResponse = [FIRURLSessionOCMockStub HTTPResponseWithCode:200];
+  FIRAppCheckHTTPResponse *APIResponse =
+      [[FIRAppCheckHTTPResponse alloc] initWithResponse:HTTPResponse data:responseBody];
 
-  id mockURLDataTask = [self
-      stubURLSessionDataTaskWithResponse:[self HTTPResponseWithCode:300]
-                                    body:[responseBodyString dataUsingEncoding:NSUTF8StringEncoding]
-                                   error:nil
-                  requestValidationBlock:nil];
+  OCMExpect([self.mockAPIService sendRequestWithURL:[OCMArg any]
+                                         HTTPMethod:@"POST"
+                                               body:deviceTokenData
+                                  additionalHeaders:nil])
+      .andReturn([FBLPromise resolvedWith:APIResponse]);
 
   // 2. Send request.
   __auto_type tokenPromise = [self.APIService appCheckTokenWithDeviceToken:deviceTokenData];
@@ -173,11 +165,9 @@ typedef BOOL (^FIRRequestValidationBlock)(NSURLRequest *request);
 
   // Expect response body and HTTP status code to be included in the error.
   NSString *failureReason = tokenPromise.error.userInfo[NSLocalizedFailureReasonErrorKey];
-  XCTAssertTrue([failureReason containsString:@"300"]);
-  XCTAssertTrue([failureReason containsString:responseBodyString]);
+  XCTAssertEqualObjects(failureReason, @"JSON serialization error.");
 
-  OCMVerifyAll(mockURLDataTask);
-  OCMVerifyAll(self.mockURLSession);
+  OCMVerifyAll(self.mockAPIService);
 }
 
 - (void)testAppCheckTokenResponseMissingFields {
@@ -195,12 +185,18 @@ typedef BOOL (^FIRRequestValidationBlock)(NSURLRequest *request);
                               missingField:(NSString *)fieldName {
   NSData *deviceTokenData = [@"device_token" dataUsingEncoding:NSUTF8StringEncoding];
 
-  // 1. Stub URL session.
+  // 1. Stub API service.
   NSData *missingFiledBody = [self loadFixtureNamed:fixtureName];
-  id mockURLDataTask = [self stubURLSessionDataTaskWithResponse:[self HTTPResponseWithCode:200]
-                                                           body:missingFiledBody
-                                                          error:nil
-                                         requestValidationBlock:nil];
+
+  NSHTTPURLResponse *HTTPResponse = [FIRURLSessionOCMockStub HTTPResponseWithCode:200];
+  FIRAppCheckHTTPResponse *APIResponse =
+      [[FIRAppCheckHTTPResponse alloc] initWithResponse:HTTPResponse data:missingFiledBody];
+
+  OCMExpect([self.mockAPIService sendRequestWithURL:[OCMArg any]
+                                         HTTPMethod:@"POST"
+                                               body:deviceTokenData
+                                  additionalHeaders:nil])
+      .andReturn([FBLPromise resolvedWith:APIResponse]);
 
   // 2. Send request.
   __auto_type tokenPromise = [self.APIService appCheckTokenWithDeviceToken:deviceTokenData];
@@ -222,49 +218,7 @@ typedef BOOL (^FIRRequestValidationBlock)(NSURLRequest *request);
                 @"Fixture `%@`: expected missing field %@ error not found", fixtureName,
                 fieldNameString);
 
-  OCMVerifyAll(mockURLDataTask);
-  OCMVerifyAll(self.mockURLSession);
-}
-
-- (id)stubURLSessionDataTaskWithResponse:(NSHTTPURLResponse *)response
-                                    body:(NSData *)body
-                                   error:(NSError *)error
-                  requestValidationBlock:(FIRRequestValidationBlock)requestValidationBlock {
-  __block id mockDataTask = OCMStrictClassMock([NSURLSessionDataTask class]);
-
-  // Validate request content.
-  FIRRequestValidationBlock nonOptionalRequestValidationBlock =
-      requestValidationBlock ?: ^BOOL(id request) {
-        return YES;
-      };
-
-  id URLRequestValidationArg = [OCMArg checkWithBlock:nonOptionalRequestValidationBlock];
-
-  // Save task completion to be called on the `[NSURLSessionDataTask resume]`
-  __block void (^taskCompletion)(NSData *, NSURLResponse *, NSError *);
-  id completionArg = [OCMArg checkWithBlock:^BOOL(id obj) {
-    taskCompletion = obj;
-    return YES;
-  }];
-
-  // Expect `dataTaskWithRequest` to be called.
-  OCMExpect([self.mockURLSession dataTaskWithRequest:URLRequestValidationArg
-                                   completionHandler:completionArg])
-      .andReturn(mockDataTask);
-
-  // Expect the task to be resumed and call the task completion.
-  OCMExpect([(NSURLSessionDataTask *)mockDataTask resume]).andDo(^(NSInvocation *invocation) {
-    taskCompletion(body, response, error);
-  });
-
-  return mockDataTask;
-}
-
-- (NSHTTPURLResponse *)HTTPResponseWithCode:(NSInteger)statusCode {
-  return [[NSHTTPURLResponse alloc] initWithURL:[NSURL URLWithString:@"http://localhost"]
-                                     statusCode:statusCode
-                                    HTTPVersion:@"HTTP/1.1"
-                                   headerFields:nil];
+  OCMVerifyAll(self.mockAPIService);
 }
 
 - (NSData *)loadFixtureNamed:(NSString *)fileName {
@@ -277,16 +231,6 @@ typedef BOOL (^FIRRequestValidationBlock)(NSURLRequest *request);
   XCTAssertNotNil(data, @"File name: %@ Error: %@", fileName, error);
 
   return data;
-}
-
-- (void)assertDate:(NSDate *)date
-    isApproximatelyEqualCurrentPlusTimeInterval:(NSTimeInterval)timeInterval {
-  NSDate *expectedDate = [NSDate dateWithTimeIntervalSinceNow:timeInterval];
-
-  NSTimeInterval precision = 10;
-  XCTAssert(ABS([date timeIntervalSinceDate:expectedDate]) <= precision,
-            @"date: %@ is not equal to expected %@ with precision %f - %@", date, expectedDate,
-            precision, self.name);
 }
 
 @end

@@ -16,24 +16,13 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FirebaseAppCheck/Source/Library/Core/Private/FIRAppCheckAPIService.h"
-
-@class FBLPromise<Result>;
-@class FIRAppCheckToken;
-
 NS_ASSUME_NONNULL_BEGIN
 
-@protocol FIRDeviceCheckAPIServiceProtocol <NSObject>
+@interface FIRDateTestUtils : NSObject
 
-- (FBLPromise<FIRAppCheckToken *> *)appCheckTokenWithDeviceToken:(NSData *)deviceToken;
-
-@end
-
-@interface FIRDeviceCheckAPIService : NSObject <FIRDeviceCheckAPIServiceProtocol>
-
-- (instancetype)initWithAPIService:(id<FIRAppCheckAPIServiceProtocol>)APIService
-                         projectID:(NSString *)projectID
-                             appID:(NSString *)appID;
++ (BOOL)isDate:(NSDate *)date
+    approximatelyEqualCurrentPlusTimeInterval:(NSTimeInterval)timeInterval
+                                    precision:(NSTimeInterval)precision;
 
 @end
 
