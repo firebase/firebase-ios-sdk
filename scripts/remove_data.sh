@@ -12,20 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-set -e
-
 set -x
 
-git clone https://github.com/firebase/quickstart-ios.git
-cd quickstart-ios/"${SAMPLE}"
-chmod +x ../scripts/info_script.rb
-ruby ../scripts/info_script.rb "${SAMPLE}"
-
-mkdir -p Firebase/
-mv "${HOME}"/ios_frameworks/Firebase/Firebase.h Firebase/
-mv "${HOME}"/ios_frameworks/Firebase/module.modulemap Firebase/
-for file in "$@"
-do
-  mv ${file} Firebase/
-done
-../scripts/add_framework_script.rb  "${SAMPLE}" "${TARGET}" Firebase
+SDK="$1"
+rm -f quickstart-ios/"${SDK}"/GoogleSerivce-Info.plist
+rm -f quickstart-ios/TestUtils/FIREGSignInInfo.h
