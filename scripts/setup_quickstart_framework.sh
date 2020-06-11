@@ -22,6 +22,6 @@ mv "${HOME}"/ios_frameworks/Firebase/Firebase.h Firebase/
 mv "${HOME}"/ios_frameworks/Firebase/module.modulemap Firebase/
 for file in "$@"
 do
-  mv '${file}' Firebase/
+  mv ${file} Firebase/
 done
 ../scripts/add_framework_script.rb  "${SAMPLE}" "${TARGET}" Firebase
