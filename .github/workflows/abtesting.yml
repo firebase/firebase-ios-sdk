@@ -11,8 +11,9 @@ on:
     - '.github/workflows/abtesting.yml'
     - 'Gemfile'
   schedule:
-    # Run every day at 11pm (PST) - cron uses UTC times
-    - cron:  '0 7 * * *'
+    # Run every day at 3am (PST) - cron uses UTC times
+    # This is set to 3 hours after zip workflow so zip testing can run after.
+    - cron:  '0 11 * * *'
 
 jobs:
   pod-lib-lint:
@@ -47,7 +48,7 @@ jobs:
       SDK: "ABTesting"
     runs-on: macOS-latest
     # Make sure tests run after the zip workflow finishes.
-    if: github.event_name == 'schedule'
+    # if: github.event_name == 'schedule'
     steps:
     - uses: actions/checkout@v2
     - name: Pull zip from GCS
