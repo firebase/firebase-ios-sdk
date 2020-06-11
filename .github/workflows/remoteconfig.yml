@@ -74,14 +74,8 @@ jobs:
     if: github.event_name == 'schedule'
     steps:
     - uses: actions/checkout@v2
-    - name: Install gcloud tool
-      run: scripts/install_gcloud.sh
-    - name: Access GCS bucket
-      run: |
-        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/firebase-ios-testing.json.gpg firebase-ios-testing.json "$plist_secret"
-        gcloud auth activate-service-account --key-file firebase-ios-testing.json
-    - name: Pull framework zip files from GCS and unzip
-      run: scripts/get_latest_zip_from_gcs.sh "$FRAMEWORK_ZIP" "${HOME}/ios_frameworks"
+    - name: Pull zip from GCS
+      run: scripts/pull_zip_gcloud.sh "$plist_secret" "$FRAMEWORK_ZIP" "${HOME}/ios_frameworks"
     - name: Setup quickstart
       run: scripts/setup_quickstart_framework.sh "$SDK"
     - name: Move frameworks to xcode project
