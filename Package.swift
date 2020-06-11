@@ -238,15 +238,15 @@ let package = Package(
       dependencies: ["FirebaseStorage"],
       path: "FirebaseStorageSwift/Sources"
     ),
-    // .target(
-    //   name: "GoogleDataTransport",
-    //   path: "GoogleDataTransport/GDTCORLibrary",
-    //   publicHeadersPath: "Public",
-    //   cSettings: [
-    //     .headerSearchPath("../"),
-    //     .define("GDTCOR_VERSION", to: "0.0.1"),
-    //   ]
-    // ),
+    .target(
+      name: "GoogleDataTransport",
+      path: "GoogleDataTransport/GDTCORLibrary",
+      publicHeadersPath: "Public",
+      cSettings: [
+        .headerSearchPath("../"),
+        .define("GDTCOR_VERSION", to: "0.0.1"),
+      ]
+    ),
     // .target(
     //   name: "GoogleDataTransportCCTSupport",
     //   dependencies: ["GoogleDataTransport", "nanopb"],
