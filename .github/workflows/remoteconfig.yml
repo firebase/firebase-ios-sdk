@@ -75,11 +75,14 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Pull zip from GCS
-      run: scripts/pull_zip_gcloud.sh "$plist_secret" "$FRAMEWORK_ZIP" "${HOME}/ios_frameworks"
+      run: |
+              scripts/pull_zip_gcloud.sh "$plist_secret" "$FRAMEWORK_ZIP" "${HOME}/ios_frameworks"
+              ls  "${HOME}/ios_frameworks"
+              ls  "${HOME}/ios_frameworks/Firebase"
     - name: Setup quickstart
-      run: SAMPLE="$SDK" scripts/setup_quickstart_framework.sh \
-                        "${HOME}"/ios_frameworks/Firebase/FirebaseRemoteConfig/* \
-                        "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
+      run: SAMPLE="$SDK" TARGET="${SDK}Example" scripts/setup_quickstart_framework.sh \
+                                               "${HOME}"/ios_frameworks/Firebase/FirebaseRemoteConfig/* \
+                                               "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-config.plist.gpg \
         quickstart-ios/config/GoogleService-Info.plist "$plist_secret"
