@@ -24,6 +24,7 @@ ZIP_DEST_DIR="$3"
 curl https://sdk.cloud.google.com > install.sh
 bash install.sh --disable-prompts
 echo "::add-path::${HOME}/google-cloud-sdk/bin/"
+export PATH="${HOME}/google-cloud-sdk/bin/:${PATH}"
 
 # Access gcloud storage bucket
 scripts/decrypt_gha_secret.sh scripts/gha-encrypted/firebase-ios-testing.json.gpg firebase-ios-testing.json "$plist_secret"
