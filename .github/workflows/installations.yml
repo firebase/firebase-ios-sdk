@@ -74,7 +74,10 @@ jobs:
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/FirebaseCore.xcframework \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/FirebaseCore.xcframework \
     - name: Copy mock plist
-      run: cp quickstart-ios/mock-GoogleService-Info.plist quickstart-ios/installations/GoogleService-Info.plist
+      run: |
+              ls
+              ls "quickstart-ios/"
+              cp quickstart-ios/mock-GoogleService-Info.plist quickstart-ios/"${SDK}"/GoogleService-Info.plist
     - name: Test Quickstart
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}")
     - name: Remove data before upload
