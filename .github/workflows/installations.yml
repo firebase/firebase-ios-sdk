@@ -11,6 +11,7 @@ on:
     - 'Gemfile'
   schedule:
     # Run every day at 3am (PST) - cron uses UTC times
+    # This is set to 3 hours after zip workflow so zip testing can run after.
     - cron:  '0 11 * * *'
 
 jobs:
@@ -62,7 +63,7 @@ jobs:
       SDK: "Installations"
     runs-on: macOS-latest
     # Make sure tests run after the zip workflow finishes.
-    # if: github.event_name == 'schedule'
+    if: github.event_name == 'schedule'
     steps:
     - uses: actions/checkout@v2
     - name: Pull zip from GCS
