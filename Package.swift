@@ -247,17 +247,17 @@ let package = Package(
         .define("GDTCOR_VERSION", to: "0.0.1"),
       ]
     ),
-    .target(
-      name: "GoogleDataTransportCCTSupport",
-      dependencies: ["GoogleDataTransport", "nanopb"],
-      path: "GoogleDataTransportCCTSupport/GDTCCTLibrary",
-      cSettings: [
-        .headerSearchPath("../"),
-        .define("PB_FIELD_32BIT", to: "1"),
-        .define("PB_NO_PACKED_STRUCTS", to: "1"),
-        .define("PB_ENABLE_MALLOC", to: "1"),
-      ]
-    ),
+    // .target(
+    //   name: "GoogleDataTransportCCTSupport",
+    //   dependencies: ["GoogleDataTransport", "nanopb"],
+    //   path: "GoogleDataTransportCCTSupport/GDTCCTLibrary",
+    //   cSettings: [
+    //     .headerSearchPath("../"),
+    //     .define("PB_FIELD_32BIT", to: "1"),
+    //     .define("PB_NO_PACKED_STRUCTS", to: "1"),
+    //     .define("PB_ENABLE_MALLOC", to: "1"),
+    //   ]
+    // ),
 //       linkerSettings: [
 //         .linkedFramework("CoreServices", .when(platforms: [.macOS])),
 //         .linkedFramework("MobileCoreServices", .when(platforms: [.iOS, .tvOS])),
