@@ -77,7 +77,16 @@ jobs:
     - name: Pull zip from GCS
       run: scripts/pull_zip_gcloud.sh "$plist_secret" "$FRAMEWORK_ZIP" "${HOME}/ios_frameworks"
     - name: Setup quickstart
-      run: SAMPLE="$SDK" TARGET="${SDK}Example" scripts/setup_quickstart_framework.sh "FirebaseRemoteConfig/*" "FirebaseAnalytics/*"
+      run: SAMPLE="$SDK" scripts/setup_quickstart_framework.sh "FirebaseRemoteConfig/"* "FirebaseAnalytics/"*
+    - name: Move frameworks to xcode project
+      run: |
+        mkdir -p quickstart-ios/"${SDK}"/Firebase/
+        mv "${HOME}"/ios_frameworks/Firebase/Firebase.h quickstart-ios/"${SDK}"/Firebase/
+        mv "${HOME}"/ios_frameworks/Firebase/module.modulemap quickstart-ios/"${SDK}"/Firebase/
+        mv "${HOME}"/ios_frameworks/Firebase/FirebaseRemoteConfig/* quickstart-ios/"${SDK}"/Firebase/
+        mv "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/* quickstart-ios/"${SDK}"/Firebase/
+        cd quickstart-ios/"${SDK}"
+        ../scripts/add_framework_script.rb  "${SDK}" ConfigExample Firebase
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-config.plist.gpg \
         quickstart-ios/config/GoogleService-Info.plist "$plist_secret"
@@ -85,7 +94,9 @@ jobs:
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/FIREGSignInInfo.h.gpg \
         quickstart-ios/TestUtils/FIREGSignInInfo.h "$signin_secret"
     - name: Test Quickstart
-      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}")
+      run: |
+              ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}")
+              exit 1
     - name: Remove data before upload
       if: ${{ failure() }}
       run: scripts/remove_data.sh "${SDK}"
