@@ -12,6 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+set -e
+
+set -x
+
 git clone https://github.com/firebase/quickstart-ios.git
 cd quickstart-ios/"${SAMPLE}"
 chmod +x ../scripts/info_script.rb

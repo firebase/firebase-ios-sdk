@@ -77,8 +77,6 @@ jobs:
     - name: Pull zip from GCS
       run: |
               scripts/pull_zip_gcloud.sh "$plist_secret" "$FRAMEWORK_ZIP" "${HOME}/ios_frameworks"
-              ls  "${HOME}/ios_frameworks"
-              ls  "${HOME}/ios_frameworks/Firebase"
     - name: Setup quickstart
       run: SAMPLE="$SDK" TARGET="${SDK}Example" scripts/setup_quickstart_framework.sh \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseRemoteConfig/* \
