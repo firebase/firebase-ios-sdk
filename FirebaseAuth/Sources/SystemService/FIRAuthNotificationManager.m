@@ -145,8 +145,9 @@ static const NSTimeInterval kProbingTimeout = 1;
       [self->_application.delegate application:self->_application
                   didReceiveRemoteNotification:proberNotification];
 #pragma clang diagnostic pop
+    }
 #endif  // !TARGET_OS_TV && !TARGET_OS_WATCH
-    } else {
+    else {
       FIRLogWarning(kFIRLoggerAuth, @"I-AUT000015",
                     @"The UIApplicationDelegate must handle remote notification for phone number "
                     @"authentication to work.");
