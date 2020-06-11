@@ -22,8 +22,8 @@
 #import "FirebaseStorage/Sources/Public/FIRStorage.h"
 #import "FirebaseStorage/Sources/Public/FIRStorageReference.h"
 
-#import "Interop/Auth/Public/FIRAuthInterop.h"
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "Interop/Auth/Public/FIRAuthInterop.h"
 
 #import "FirebaseStorage/Sources/FIRStorageComponent.h"
 #import "FirebaseStorage/Sources/FIRStorageConstants_Private.h"
