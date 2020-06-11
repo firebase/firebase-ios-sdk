@@ -58,8 +58,8 @@ jobs:
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseABTesting/* \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/FirebaseCore.xcframework
     - name: Install Secret GoogleService-Info.plist
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-config.plist.gpg \
-        quickstart-ios/config/GoogleService-Info.plist "$plist_secret"
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-abtesting.plist.gpg \
+        quickstart-ios/abtesting/GoogleService-Info.plist "$plist_secret"
     - name: Install Secret FIREGSignInInfo.h
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/FIREGSignInInfo.h.gpg \
         quickstart-ios/TestUtils/FIREGSignInInfo.h "$signin_secret"
