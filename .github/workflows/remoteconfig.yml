@@ -71,7 +71,7 @@ jobs:
       SDK: "Config"
     runs-on: macOS-latest
     # Make sure tests run after the zip workflow finishes.
-    if: github.event_name == 'schedule'
+    # if: github.event_name == 'schedule'
     steps:
     - uses: actions/checkout@v2
     - name: Pull zip from GCS
@@ -95,18 +95,10 @@ jobs:
         quickstart-ios/TestUtils/FIREGSignInInfo.h "$signin_secret"
     - name: Test Quickstart
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}")
-    - name: Display xcodebuild setup
+    - name: Remove data and upload
       if: ${{ failure() }}
-      run: |
-        cd quickstart-ios/config
-        xcodebuild -project ConfigExample.xcodeproj -target "ConfigExample" -showBuildSettings
-    - name: Remove data before upload
-      if: ${{ failure() }}
-      run: |
-        rm -f quickstart-ios/config/GoogleSerivce-info.plist
-        rm -f quickstart-ios/TestUtils/FIREGSignInInfo.h
-    - uses: actions/upload-artifact@v2
-      if: ${{ failure() }}
+      run: scripts/remove_data.sh "${SDK}"
+      uses: actions/upload-artifact@v2
       with:
         name: quickstart_artifacts
         path: quickstart-ios/
