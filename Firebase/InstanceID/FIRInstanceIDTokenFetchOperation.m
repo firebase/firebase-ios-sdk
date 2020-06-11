@@ -16,13 +16,13 @@
 
 #import "FIRInstanceIDTokenFetchOperation.h"
 
-#import "Firebase/InstanceID/Private/FIRInstanceIDCheckinPreferences.h"
 #import "FIRInstanceIDConstants.h"
 #import "FIRInstanceIDDefines.h"
 #import "FIRInstanceIDLogger.h"
 #import "FIRInstanceIDTokenOperation+Private.h"
 #import "FIRInstanceIDURLQueryItem.h"
 #import "FIRInstanceIDUtilities.h"
+#import "Firebase/InstanceID/Private/FIRInstanceIDCheckinPreferences.h"
 #import "NSError+FIRInstanceID.h"
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
