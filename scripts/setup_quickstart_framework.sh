@@ -12,9 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-set -e
-
-set -x
+set -ex
 
 git clone https://github.com/firebase/quickstart-ios.git
 cd quickstart-ios/"${SAMPLE}"
