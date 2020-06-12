@@ -18,11 +18,22 @@ import FirebaseCore
 import XCTest
 
 class APITests: APITestBase {
+  var console: RemoteConfigConsole!
+
   override func setUp() {
     super.setUp()
     if APITests.useFakeConfig {
       fakeConsole.config = ["Key1": "Value1"]
+    } else {
+      console = RemoteConfigConsole()
+      console.updateRemoteConfigValue("Obi-Wan", for: "Jedi")
+      console.removeRemoteConfigValue(for: "Sith_Lord")
     }
+  }
+
+  override func tearDown() {
+    super.tearDown()
+    console.updateRemoteConfigValue("Obi-Wan", for: "Jedi")
   }
 
   func testFetchThenActivate() {
@@ -137,6 +148,154 @@ class APITests: APITestBase {
     }
     waitForExpectations()
   }
+
+  func testFetchAndActivateUnchangedConfig() {
+    let expectation = self.expectation(description: #function)
+
+    XCTAssertEqual(config.settings.minimumFetchInterval, 0)
+
+    let serialQueue = DispatchQueue(label: "\(#function)Queue")
+    let group = DispatchGroup()
+    group.enter()
+    serialQueue.async {
+      // Represents pre-fetch occuring sometime in past
+      self.config.fetch { status, error in
+        XCTAssertNil(error, "Fetch Error \(error!)")
+        XCTAssertEqual(status, .success)
+        group.leave()
+      }
+    }
+
+    serialQueue.async {
+      group.wait()
+      group.enter()
+      // Represents a `fetchAndActivate` being made to pull
+      // latest changes from remote config
+      self.config.fetchAndActivate { status, error in
+        XCTAssertNil(error, "Fetch & Activate Error \(error!)")
+        // Since no updates to remote config have occurred
+        // we use the `.successUsingPreFetchedData`
+        XCTAssertEqual(status, .successUsingPreFetchedData)
+        // The `lastETagUpdateTime` should either be older or
+        // the same time as `lastFetchTime`
+        XCTAssertLessThanOrEqual(Double(self.config.settings.lastETagUpdateTime),
+                                 Double(self.config.lastFetchTime?.timeIntervalSince1970 ?? 0))
+        expectation.fulfill()
+      }
+    }
+
+    waitForExpectations()
+  }
+
+  // MARK: - Real Console Tests
+
+  func testFetchConfigThenUpdateConsoleThenFetchAgain() {
+    // In `setup()`, we set remote config value to be "Obi-Wan"
+
+    let expectation = self.expectation(description: #function)
+
+    let jedi = "Jedi"; let yoda = "Yoda"
+
+    config.fetchAndActivate { status, error in
+      XCTAssertNil(error, "Fetch & Activate Error \(error!)")
+
+      if let configValue = self.config.configValue(forKey: jedi).stringValue {
+        XCTAssertEqual(configValue, "Obi-Wan")
+      } else {
+        XCTFail("Could not unwrap config value for key: \(jedi)")
+      }
+      expectation.fulfill()
+    }
+    waitForExpectations()
+
+    // Synchronously update the console
+    console.updateRemoteConfigValue(yoda, for: jedi)
+
+    let expectation2 = self.expectation(description: #function + "2")
+    config.fetchAndActivate { status, error in
+      XCTAssertNil(error, "Fetch & Activate Error \(error!)")
+
+      if let configValue = self.config.configValue(forKey: jedi).stringValue {
+        XCTAssertEqual(configValue, yoda)
+      } else {
+        XCTFail("Could not unwrap config value for key: \(jedi)")
+      }
+
+      expectation2.fulfill()
+    }
+    waitForExpectations()
+  }
+
+  func testFetchConfigThenAddValueOnConsoleThenFetchAgain() {
+    // In `setup()`, we set remote config value to be "Obi-Wan"
+
+    let expectation = self.expectation(description: #function)
+
+    let sithLord = "Sith_Lord"; let palpatine = "Darth Sideous"
+
+    config.fetchAndActivate { status, error in
+      XCTAssertNil(error, "Fetch & Activate Error \(error!)")
+
+      XCTAssertTrue(self.config.configValue(forKey: sithLord).dataValue.isEmpty)
+
+      expectation.fulfill()
+    }
+    waitForExpectations()
+
+    // Synchronously update the console
+    console.updateRemoteConfigValue(palpatine, for: sithLord)
+
+    let expectation2 = self.expectation(description: #function + "2")
+    config.fetchAndActivate { status, error in
+      XCTAssertNil(error, "Fetch & Activate Error \(error!)")
+
+      if let configValue = self.config.configValue(forKey: sithLord).stringValue {
+        XCTAssertEqual(configValue, palpatine)
+      } else {
+        XCTFail("Could not unwrap config value for key: \(sithLord)")
+      }
+
+      expectation2.fulfill()
+    }
+    waitForExpectations()
+  }
+
+  // Longer than a ObjC method name!
+  func testFetchConfigThenDeleteValueOnConsoleThenFetchAgain() {
+    // In `setup()`, we set remote config value to be "Obi-Wan"
+
+    let expectation = self.expectation(description: #function)
+
+    let jedi = "Jedi"
+
+    config.fetchAndActivate { status, error in
+      XCTAssertNil(error, "Fetch & Activate Error \(error!)")
+
+      if let configValue = self.config.configValue(forKey: jedi).stringValue {
+        XCTAssertEqual(configValue, "Obi-Wan")
+      } else {
+        XCTFail("Could not unwrap config value for key: \(jedi)")
+      }
+      expectation.fulfill()
+    }
+    waitForExpectations()
+
+    // Synchronously delete value on the console
+    console.removeRemoteConfigValue(for: jedi)
+
+    let expectation2 = self.expectation(description: #function + "2")
+    config.fetchAndActivate { status, error in
+      XCTAssertNil(error, "Fetch & Activate Error \(error!)")
+
+      XCTAssertTrue(self.config.configValue(forKey: jedi).dataValue.isEmpty,
+                    "Remote config should have been deleted.")
+
+      expectation2.fulfill()
+    }
+    waitForExpectations()
+  }
+
+  // MARK: - Private Helpers
 
   private func waitForExpectations() {
     let kFIRStorageIntegrationTestTimeout = 10.0
