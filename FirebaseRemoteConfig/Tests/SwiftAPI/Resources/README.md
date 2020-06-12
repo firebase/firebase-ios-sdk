@@ -1,6 +1,6 @@
 # Remote Config Console API
 
-`RemoteConfigConsole.swift` provides a simple API for interacting with an app's remote config on the Firebase console.
+[`RemoteConfigConsole.swift`](https://github.com/firebase/firebase-ios-sdk/blob/nc-rc-console-api/FirebaseRemoteConfig/Tests/SwiftAPI/RemoteConfigConsole.swift) provides a simple API for interacting with an app's remote config on the Firebase console.
 
 ## Setup
 
