@@ -1,3 +1,6 @@
+# Unreleased
+- [added] Added basic watchOS support. (#4621)
+
 # v6.5.3
 - [changed] Remove unused mfa request field "mfa_provider" (#5397)
 - [fixed] Suppress deprecation warnings when targeting iOS versions up to iOS 13. (#5437)
