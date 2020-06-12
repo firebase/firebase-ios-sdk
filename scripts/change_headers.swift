@@ -15,25 +15,24 @@
  * limitations under the License.
  */
 
- // Utility script for updating to repo-relative headers.
+// Utility script for updating to repo-relative headers.
 
 import Foundation
 
-let findHeaders : Set = ["GoogleUtilities"]
-let changeImports : Set = ["GoogleUtilities"]
+let findHeaders: Set = ["GoogleUtilities"]
+let changeImports: Set = ["GoogleUtilities"]
 
 // Get a Dictionary mapping a simple header name to a repo-relative path.
 
-func getHeaderMap(_ url: URL) -> Dictionary<String, String> {
+func getHeaderMap(_ url: URL) -> [String: String] {
   var headerMap = [String: String]()
   for root in findHeaders {
     let rootURL = url.appendingPathComponent(root)
     let enumerator = FileManager.default.enumerator(atPath: rootURL.path)
     while let file = enumerator?.nextObject() as? String {
-
       if let fType = enumerator?.fileAttributes?[FileAttributeKey.type] as? FileAttributeType,
         fType == .typeRegular {
-        let url = URL(string:file)
+        let url = URL(string: file)
         let filename = url!.lastPathComponent
         if filename.hasSuffix(".h") {
           headerMap[filename] = root + "/" + file
@@ -46,10 +45,10 @@ func getHeaderMap(_ url: URL) -> Dictionary<String, String> {
 
 func getImportFile(_ line: String) -> String? {
   return line.components(separatedBy: " ")[1]
-                 .replacingOccurrences(of:"\"", with: "")
-                 .replacingOccurrences(of:"<", with: "")
-                 .replacingOccurrences(of:">", with: "")
-                 .components(separatedBy:"/").last
+    .replacingOccurrences(of: "\"", with: "")
+    .replacingOccurrences(of: "<", with: "")
+    .replacingOccurrences(of: ">", with: "")
+    .components(separatedBy: "/").last
 }
 
 func transformFile(_ file: String) {
@@ -65,11 +64,11 @@ func transformFile(_ file: String) {
   var inSwiftPackage = false
   let lines = fileContents.components(separatedBy: .newlines)
   for line in lines {
-    if line.starts(with:"#if SWIFT_PACKAGE") {
+    if line.starts(with: "#if SWIFT_PACKAGE") {
       inSwiftPackage = true
-    } else if inSwiftPackage && line.starts(with:"#else") {
+    } else if inSwiftPackage, line.starts(with: "#else") {
       inSwiftPackage = false
-    } else if line.starts(with:"@import") {
+    } else if line.starts(with: "@import") {
       if !inSwiftPackage {
         fatalError("@import should not be used in CocoaPods library code: \(file):\(line)")
       }
@@ -84,13 +83,12 @@ func transformFile(_ file: String) {
   }
   // Write out the changed file.
   do {
-   try outBuffer.dropLast()
-     .write(toFile: file, atomically: false, encoding: String.Encoding.utf8)
+    try outBuffer.dropLast()
+      .write(toFile: file, atomically: false, encoding: String.Encoding.utf8)
   } catch {
     fatalError("Failed to write \(file). \(error)")
   }
 }
-
 
 // Search the path upwards to find the root of the firebase-ios-sdk repo.
 var url = URL(fileURLWithPath: FileManager().currentDirectoryPath)
@@ -104,7 +102,7 @@ print(url)
 
 let headerMap = getHeaderMap(url)
 
-//print(headerMap)
+// print(headerMap)
 
 for root in changeImports {
   let rootURL = url.appendingPathComponent(root)

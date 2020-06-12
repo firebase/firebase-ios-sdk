@@ -17,9 +17,9 @@
 
 #import "GoogleUtilities/Logger/Private/GULLogger.h"
 #import "GoogleUtilities/NSData+zlib/GULNSData+zlib.h"
-#import "GoogleUtilities/Reachability/Private/GULReachabilityChecker.h"
 #import "GoogleUtilities/Network/Private/GULMutableDictionary.h"
 #import "GoogleUtilities/Network/Private/GULNetworkConstants.h"
+#import "GoogleUtilities/Reachability/Private/GULReachabilityChecker.h"
 
 /// Constant string for request header Content-Encoding.
 static NSString *const kGULNetworkContentCompressionKey = @"Content-Encoding";

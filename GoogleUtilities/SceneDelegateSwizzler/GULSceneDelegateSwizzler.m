@@ -15,12 +15,12 @@
 #import "TargetConditionals.h"
 
 #import "GoogleUtilities/AppDelegateSwizzler/Private/GULAppDelegateSwizzler.h"
+#import "GoogleUtilities/Common/GULLoggerCodes.h"
 #import "GoogleUtilities/Environment/third_party/GULAppEnvironmentUtil.h"
 #import "GoogleUtilities/Logger/Private/GULLogger.h"
 #import "GoogleUtilities/Network/Private/GULMutableDictionary.h"
-#import "GoogleUtilities/SceneDelegateSwizzler/Private/GULSceneDelegateSwizzler.h"
-#import "GoogleUtilities/Common/GULLoggerCodes.h"
 #import "GoogleUtilities/SceneDelegateSwizzler/Internal/GULSceneDelegateSwizzler_Private.h"
+#import "GoogleUtilities/SceneDelegateSwizzler/Private/GULSceneDelegateSwizzler.h"
 
 #import <objc/runtime.h>
 
