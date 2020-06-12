@@ -9,7 +9,7 @@ You can start by generating the `FirebaseRemoteConfig` project:
 pod gen FirebaseRemoteConfig.podspec --local-sources=./ --auto-open --platforms=ios
 ```
 
-Then drag in a `GoogleService-Info.plist`. I throw it in the `fake-console-tests/Resources/` directory and add it to the `FirebaseRemoteConfig` and `FirebaseRemoteConfig-Unit-swift-apit-tests` (not sure how important this part is).
+Then drag in a `GoogleService-Info.plist`. I throw it in the `fake-console-tests/Resources/` directory and add it to the `FirebaseRemoteConfig` and `FirebaseRemoteConfig-Unit-swift-apit-tests` targets (not sure how important this part is).
 
 
 While the `RemoteConfigConsole` API basically just makes simple network calls, we will need to include an `access token` so our requests do the proper "handshake" with the Firebase console.
@@ -69,7 +69,7 @@ With this set, I would think can add [Auth Library for Swift](https://github.com
 
 Once generated we will need to be able to read it from  `RemoteConfigConsole.swift`. We can write the access code to a `.plist` or `.txt` file that can be placed in the testing directory to be read from upon inititialization of a `RemoteConfigConsole` instance.  
 
-After that, we should be able to all the remote config tests using a real console that we want!
+After that, we should be able to do all the remote config tests using a real console that we want!
 
 
 ## Troubleshooting
