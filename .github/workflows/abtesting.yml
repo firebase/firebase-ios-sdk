@@ -115,4 +115,3 @@ jobs:
       run: |
         scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb \
           FirebaseABTesting.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}
-
