@@ -39,18 +39,18 @@ $ swift run TokenSource
 ```
 If your access token wasn't generated, scroll down to the **Troubleshooting** section.  
 
-Copy the access token and paste it into [`RemoteConfigConsole.swift`](https://github.com/firebase/firebase-ios-sdk/blob/master/FirebaseRemoteConfig/Tests/SwiftAPI/RemoteConfigConsole.swift). I have included a comment that you can replace with the token. It will be a long `String` but I would avoid trying to reformat it as to not clip any characters or add unneeded spacing.
+Copy the access token and paste it into [`RemoteConfigConsole.swift`](https://github.com/firebase/firebase-ios-sdk/blob/nc-rc-console-api/FirebaseRemoteConfig/Tests/SwiftAPI/RemoteConfigConsole.swift). I have included a comment that you can replace with the token. It will be a long `String` but I would avoid trying to reformat it as to not clip any characters or add unneeded spacing.
 
 🚀 Everything is ready to go! I recommend having the Firebase console up in one window so you can see the parameters change when the Xcode tests trigger changes. 
 
 ## See it in action
 
-Note: In the current [`APITests.swift`](https://github.com/firebase/firebase-ios-sdk/blob/master/FirebaseRemoteConfig/Tests/SwiftAPI/APITests.swift) tests, all of the tests that don't involve the `RemoteConfigConsole` expect there to be one remote config value already set up. If your app's remote config is empty and you want these tests to pass, manually add a parameter mapping `"Key1"` to `"Value1"`.
+Note: In the current [`APITests.swift`](https://github.com/firebase/firebase-ios-sdk/blob/nc-rc-console-api/FirebaseRemoteConfig/Tests/SwiftAPI/APITests.swift) tests, all of the tests that don't involve the `RemoteConfigConsole` expect there to be one remote config value already set up. If your app's remote config is empty and you want these tests to pass, manually add a parameter mapping `"Key1"` to `"Value1"`.
 
-I have included a few tests in [`APITests.swift`](https://github.com/firebase/firebase-ios-sdk/blob/master/FirebaseRemoteConfig/Tests/SwiftAPI/APITests.swift) showcasing the  `RemoteConfigConsole` in action. Check out the following tests in [`APITests.swift`](https://github.com/firebase/firebase-ios-sdk/blob/master/FirebaseRemoteConfig/Tests/SwiftAPI/APITests.swift):
-- [`testFetchConfigThenUpdateConsoleThenFetchAgain`](https://github.com/firebase/firebase-ios-sdk/blob/master/FirebaseRemoteConfig/Tests/SwiftAPI/APITests.swift#L192)
-- [`testFetchConfigThenAddValueOnConsoleThenFetchAgain`](https://github.com/firebase/firebase-ios-sdk/blob/master/FirebaseRemoteConfig/Tests/SwiftAPI/APITests.swift#L229)
-- [`testFetchConfigThenDeleteValueOnConsoleThenFetchAgain`](https://github.com/firebase/firebase-ios-sdk/blob/master/FirebaseRemoteConfig/Tests/SwiftAPI/APITests.swift#L264)
+I have included a few tests in [`APITests.swift`](https://github.com/firebase/firebase-ios-sdk/blob/nc-rc-console-api/FirebaseRemoteConfig/Tests/SwiftAPI/APITests.swift) showcasing the  `RemoteConfigConsole` in action. Check out the following tests in [`APITests.swift`](https://github.com/firebase/firebase-ios-sdk/blob/nc-rc-console-api/FirebaseRemoteConfig/Tests/SwiftAPI/APITests.swift):
+- [`testFetchConfigThenUpdateConsoleThenFetchAgain`](https://github.com/firebase/firebase-ios-sdk/blob/nc-rc-console-api/FirebaseRemoteConfig/Tests/SwiftAPI/APITests.swift#L192)
+- [`testFetchConfigThenAddValueOnConsoleThenFetchAgain`](https://github.com/firebase/firebase-ios-sdk/blob/nc-rc-console-api/FirebaseRemoteConfig/Tests/SwiftAPI/APITests.swift#L229)
+- [`testFetchConfigThenDeleteValueOnConsoleThenFetchAgain`](https://github.com/firebase/firebase-ios-sdk/blob/nc-rc-console-api/FirebaseRemoteConfig/Tests/SwiftAPI/APITests.swift#L264)
 
 ## Next steps
 A big goal was trying to make sure everything here can be run in automated tests. Applying what I know about the `Firebase Storage` integration tests that make use of GitHub secrets for authentication, I wanted to highlight my current understanding/proposal for how these tests can be run.
