@@ -15,7 +15,7 @@
  */
 
 #include <TargetConditionals.h>
-#if !TARGET_OS_OSX
+#if !TARGET_OS_OSX && !TARGET_OS_WATCH
 
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
@@ -39,17 +39,10 @@ static const NSTimeInterval kRegistrationTimeout = 5;
 static const NSTimeInterval kLegacyRegistrationTimeout = 30;
 
 @implementation FIRAuthAPNSTokenManager {
-#if TARGET_OS_WATCH
-  /** @var _application
-      @brief The @c WKExtension to request the token from.
-  */
-  WKExtension *_application;
-#else
   /** @var _application
       @brief The @c UIApplication to request the token from.
    */
   UIApplication *_application;
-#endif  // TARGET_OS_WATCH
 
   /** @var _pendingCallbacks
       @brief The list of all pending callbacks for the APNs token.
@@ -57,11 +50,7 @@ static const NSTimeInterval kLegacyRegistrationTimeout = 30;
   NSMutableArray<FIRAuthAPNSTokenCallback> *_pendingCallbacks;
 }
 
-#if TARGET_OS_WATCH
-- (instancetype)initWithApplication:(WKExtension *)application {
-#else
 - (instancetype)initWithApplication:(UIApplication *)application {
-#endif  // TARGET_OS_WATCH
   self = [super init];
   if (self) {
     _application = application;

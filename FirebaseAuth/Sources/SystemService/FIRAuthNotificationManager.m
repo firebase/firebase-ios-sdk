@@ -15,7 +15,7 @@
  */
 
 #include <TargetConditionals.h>
-#if !TARGET_OS_OSX
+#if !TARGET_OS_OSX && !TARGET_OS_WATCH
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
@@ -52,17 +52,10 @@ static NSString *const kNotificationProberKey = @"warning";
 static const NSTimeInterval kProbingTimeout = 1;
 
 @implementation FIRAuthNotificationManager {
-#if TARGET_OS_WATCH
-  /** @var _application
-      @brief The extension.
-   */
-  WKExtension *_application;
-#else
   /** @var _application
       @brief The application.
    */
   UIApplication *_application;
-#endif
 
   /** @var _appCredentialManager
       @brief The object to handle app credentials delivered via notification.
@@ -85,11 +78,7 @@ static const NSTimeInterval kProbingTimeout = 1;
   NSMutableArray<FIRAuthNotificationForwardingCallback> *_pendingCallbacks;
 }
 
-#if TARGET_OS_WATCH
-- (instancetype)initWithApplication:(WKExtension *)application
-#else
 - (instancetype)initWithApplication:(UIApplication *)application
-#endif
                appCredentialManager:(FIRAuthAppCredentialManager *)appCredentialManager {
   self = [super init];
   if (self) {
@@ -118,14 +107,6 @@ static const NSTimeInterval kProbingTimeout = 1;
         kNotificationProberKey : @"This fake notification should be forwarded to Firebase Auth."
       }
     };
-#if TARGET_OS_WATCH
-    if ([self->_application.delegate respondsToSelector:@selector(didReceiveRemoteNotification:
-                                                                        fetchCompletionHandler:)]) {
-      [self->_application.delegate didReceiveRemoteNotification:proberNotification
-                                         fetchCompletionHandler:^(WKBackgroundFetchResult result){
-                                         }];
-    }
-#else
     if ([self->_application.delegate
             respondsToSelector:@selector(application:
                                    didReceiveRemoteNotification:fetchCompletionHandler:)]) {
@@ -133,21 +114,15 @@ static const NSTimeInterval kProbingTimeout = 1;
                   didReceiveRemoteNotification:proberNotification
                         fetchCompletionHandler:^(UIBackgroundFetchResult result){
                         }];
-    }
-#endif
-#if !TARGET_OS_TV && !TARGET_OS_WATCH
-    // Broke `else if` style guidelines to make it more readable with the platform conditionals.
-    else if ([self->_application.delegate respondsToSelector:@selector(application:
-                                                                 didReceiveRemoteNotification:)]) {
+    } else if ([self->_application.delegate
+                   respondsToSelector:@selector(application:didReceiveRemoteNotification:)]) {
 // iOS 10 deprecation
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
       [self->_application.delegate application:self->_application
                   didReceiveRemoteNotification:proberNotification];
 #pragma clang diagnostic pop
-    }
-#endif  // !TARGET_OS_TV && !TARGET_OS_WATCH
-    else {
+    } else {
       FIRLogWarning(kFIRLoggerAuth, @"I-AUT000015",
                     @"The UIApplicationDelegate must handle remote notification for phone number "
                     @"authentication to work.");

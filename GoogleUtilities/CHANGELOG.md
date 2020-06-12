@@ -1,3 +1,6 @@
+# 6.7.0
+- Add support for custom keys in archiving and unarchiving with `GULSecureCoding`.
+
 # 6.6.0 -- M69
 - Keychain utilities and Keychain based key-value storage added to
   `GoogleUtilities/Environment`. (#5329)

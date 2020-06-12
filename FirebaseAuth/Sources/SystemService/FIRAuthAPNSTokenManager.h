@@ -15,14 +15,10 @@
  */
 
 #include <TargetConditionals.h>
-#if !TARGET_OS_OSX
+#if !TARGET_OS_OSX && !TARGET_OS_WATCH
 
 #import <Foundation/Foundation.h>
-#if TARGET_OS_WATCH
-#import <WatchKit/WatchKit.h>
-#else
 #import <UIKit/UIKit.h>
-#endif  // TARGET_OS_WATCH
 
 @class FIRAuthAPNSToken;
 
@@ -60,21 +56,12 @@ typedef void (^FIRAuthAPNSTokenCallback)(FIRAuthAPNSToken *_Nullable token,
  */
 - (instancetype)init NS_UNAVAILABLE;
 
-#if TARGET_OS_WATCH
-/** @fn initWithApplication:
-    @brief Initializes the instance.
-    @param application The @c WKExtension  to request the token from.
-    @return The initialized instance.
- */
-- (instancetype)initWithApplication:(WKExtension *)application NS_DESIGNATED_INITIALIZER;
-#else
 /** @fn initWithApplication:
     @brief Initializes the instance.
     @param application The @c UIApplication to request the token from.
     @return The initialized instance.
  */
 - (instancetype)initWithApplication:(UIApplication *)application NS_DESIGNATED_INITIALIZER;
-#endif  // TARGET_OS_WATCH
 
 /** @fn getTokenWithCallback:
     @brief Attempts to get the APNs token.

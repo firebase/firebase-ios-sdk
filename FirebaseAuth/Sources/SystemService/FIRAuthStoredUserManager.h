@@ -49,7 +49,7 @@ NS_ASSUME_NONNULL_BEGIN
     @brief Get the user access group stored locally.
     @param outError Return value for any error which occurs.
  */
-- (NSString *_Nullable)getStoredUserAccessGroupWithError:(NSError *_Nullable *_Nullable)outError;
+- (nullable NSString *)getStoredUserAccessGroupWithError:(NSError *_Nullable *_Nullable)outError;
 
 /** @fn setStoredUserAccessGroup:error:
     @brief The setter of the user access group stored locally.
@@ -66,7 +66,7 @@ NS_ASSUME_NONNULL_BEGIN
         we use API KEY.
     @param outError Return value for any error which occurs.
  */
-- (FIRUser *_Nullable)getStoredUserForAccessGroup:(NSString *)accessGroup
+- (nullable FIRUser *)getStoredUserForAccessGroup:(NSString *)accessGroup
                                 projectIdentifier:(NSString *)projectIdentifier
                                             error:(NSError *_Nullable *_Nullable)outError;
 
