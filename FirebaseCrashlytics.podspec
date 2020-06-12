@@ -63,7 +63,6 @@ Pod::Spec.new do |s|
       # For nanopb:
       'PB_FIELD_32BIT=1 PB_NO_PACKED_STRUCTS=1 PB_ENABLE_MALLOC=1',
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"',
-    'OTHER_LD_FLAGS' => '$(inherited) -sectcreate __TEXT __info_plist'
   }
 
   s.osx.pod_target_xcconfig = {
@@ -74,7 +73,6 @@ Pod::Spec.new do |s|
       # For nanopb:
       'PB_FIELD_32BIT=1 PB_NO_PACKED_STRUCTS=1 PB_ENABLE_MALLOC=1',
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"',
-    'OTHER_LD_FLAGS' => '$(inherited) -sectcreate __TEXT __info_plist'
   }
 
   s.tvos.pod_target_xcconfig = {
@@ -85,7 +83,6 @@ Pod::Spec.new do |s|
       # For nanopb:
       'PB_FIELD_32BIT=1 PB_NO_PACKED_STRUCTS=1 PB_ENABLE_MALLOC=1',
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"',
-    'OTHER_LD_FLAGS' => '$(inherited) -sectcreate __TEXT __info_plist'
   }
 
   s.test_spec 'unit' do |unit_tests|
