@@ -33,7 +33,10 @@ class APITests: APITestBase {
 
   override func tearDown() {
     super.tearDown()
-    console.updateRemoteConfigValue("Obi-Wan", for: "Jedi")
+    // If using real console, reset remote config value.
+    if !APITests.useFakeConfig {
+        console.updateRemoteConfigValue("Obi-Wan", for: "Jedi")
+    }
   }
 
   func testFetchThenActivate() {
@@ -150,6 +153,8 @@ class APITests: APITestBase {
   }
 
   func testFetchAndActivateUnchangedConfig() {
+    guard !APITests.useFakeConfig else { return }
+    
     let expectation = self.expectation(description: #function)
 
     XCTAssertEqual(config.settings.minimumFetchInterval, 0)
@@ -190,11 +195,13 @@ class APITests: APITestBase {
   // MARK: - Real Console Tests
 
   func testFetchConfigThenUpdateConsoleThenFetchAgain() {
+    guard !APITests.useFakeConfig else { return }
     // In `setup()`, we set remote config value to be "Obi-Wan"
 
     let expectation = self.expectation(description: #function)
 
-    let jedi = "Jedi"; let yoda = "Yoda"
+    let jedi = "Jedi"
+    let yoda = "Yoda"
 
     config.fetchAndActivate { status, error in
       XCTAssertNil(error, "Fetch & Activate Error \(error!)")
@@ -227,6 +234,7 @@ class APITests: APITestBase {
   }
 
   func testFetchConfigThenAddValueOnConsoleThenFetchAgain() {
+    guard !APITests.useFakeConfig else { return }
     // In `setup()`, we set remote config value to be "Obi-Wan"
 
     let expectation = self.expectation(description: #function)
@@ -260,8 +268,8 @@ class APITests: APITestBase {
     waitForExpectations()
   }
 
-  // Longer than a ObjC method name!
   func testFetchConfigThenDeleteValueOnConsoleThenFetchAgain() {
+    guard !APITests.useFakeConfig else { return }
     // In `setup()`, we set remote config value to be "Obi-Wan"
 
     let expectation = self.expectation(description: #function)

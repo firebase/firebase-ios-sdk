@@ -87,7 +87,8 @@ app update.
     swift_api.pod_target_xcconfig = {
       'SWIFT_OBJC_BRIDGING_HEADER' => '$(PODS_TARGET_SRCROOT)/FirebaseRemoteConfig/Tests/FakeUtils/Bridging-Header.h'
     }
-    swift_api.resources = 'FirebaseRemoteConfig/Tests/SwiftAPI/GoogleService-Info.plist'
+    swift_api.resources = 'FirebaseRemoteConfig/Tests/SwiftAPI/GoogleService-Info.plist',
+                          'FirebaseRemoteConfig/Tests/SwiftAPI/AccessToken.json'
     swift_api.dependency 'OCMock'
   end
 

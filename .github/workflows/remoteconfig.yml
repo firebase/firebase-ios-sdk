@@ -30,6 +30,15 @@ jobs:
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/RemoteConfigSwiftAPI/GoogleService-Info.plist.gpg \
           FirebaseRemoteConfig/Tests/SwiftAPI/GoogleService-Info.plist "$plist_secret"
+    - name: Install ServiceAccount.json (RemoteConfigConsoleAPI)
+      run: |
+        mkdir -p ~/.credentials/
+        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/RemoteConfigSwiftAPI/ServiceAccount.json.gpg \
+        ~/.credentials/ServiceAccount.json "$plist_secret"
+    - name: Generate Access Token (RemoteConfigConsoleAPI)
+      run: scripts/generate_access_token.sh FirebaseRemoteConfig/Tests/SwiftAPI/AccessToken.json
+      env:
+        GOOGLE_APPLICATION_CREDENTIALS: ~/.credentials/ServiceAccount.json
     - name: BuildAndUnitTest # can be replaced with pod lib lint with CocoaPods 1.10
       run: scripts/third_party/travis/retry.sh scripts/build.sh RemoteConfig ${{ matrix.target }} unit
     - name: Fake Console API Tests
