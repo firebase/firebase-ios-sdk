@@ -457,7 +457,7 @@ NS_SWIFT_NAME(Auth)
 - (void)signInWithEmail:(NSString *)email
                    link:(NSString *)link
              completion:(nullable FIRAuthDataResultCallback)completion
-API_UNAVAILABLE(tvos, watchos);
+API_UNAVAILABLE(watchos);
 
 /** @fn signInWithProvider:UIDelegate:completion:
     @brief Signs in using the provided auth provider instance.
@@ -738,7 +738,7 @@ API_UNAVAILABLE(tvos, watchos);
 - (void)sendSignInLinkToEmail:(NSString *)email
            actionCodeSettings:(FIRActionCodeSettings *)actionCodeSettings
                    completion:(nullable FIRSendSignInLinkToEmailCallback)completion
-API_UNAVAILABLE(tvos, watchos);
+API_UNAVAILABLE(watchos);
 
 /** @fn signOut:
     @brief Signs out the current user.
@@ -764,7 +764,7 @@ API_UNAVAILABLE(tvos, watchos);
     @param link The email sign-in link.
     @return @YES when the link passed matches the expected format of an email sign-in link.
  */
-- (BOOL)isSignInWithEmailLink:(NSString *)link API_UNAVAILABLE(tvos, watchos);
+- (BOOL)isSignInWithEmailLink:(NSString *)link API_UNAVAILABLE(watchos);
 
 /** @fn addAuthStateDidChangeListener:
     @brief Registers a block as an "auth state did change" listener. To be invoked when:
