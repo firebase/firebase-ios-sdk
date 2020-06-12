@@ -47,7 +47,7 @@ jobs:
       run: |
               curl https://sdk.cloud.google.com > install.sh
               bash install.sh --disable-prompts
-              echo "::add-path::${HOME}/google-cloud-sdk/bin/" 
+              echo "::add-path::${HOME}/google-cloud-sdk/bin/"
     - name: Access gcloud account
       if: ${{ always() }}
       run: |
