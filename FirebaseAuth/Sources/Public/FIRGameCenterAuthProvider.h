@@ -44,7 +44,7 @@ typedef void (^FIRGameCenterCredentialCallback)(FIRAuthCredential *_Nullable cre
     @brief A concrete implementation of @c FIRAuthProvider for Game Center Sign In. Not available on
            watchOS.
  */
-API_AVAILABLE(ios(8.0), macosx(10.11), tvos(10.0))
+API_UNAVAILABLE(watchos)
 NS_SWIFT_NAME(GameCenterAuthProvider)
 @interface FIRGameCenterAuthProvider : NSObject
 
