@@ -22,7 +22,7 @@
 #import "FirebaseRemoteConfig/Sources/RCNDevice.h"
 #import "FirebaseRemoteConfig/Sources/RCNUserDefaultsManager.h"
 
-#import <GoogleUtilities/GULAppEnvironmentUtil.h>
+#import "GoogleUtilities/Environment/third_party/GULAppEnvironmentUtil.h"
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 static NSString *const kRCNGroupPrefix = @"frc.group.";

@@ -22,9 +22,9 @@
 #import <GoogleDataTransport/GDTCORTargets.h>
 #import <GoogleDataTransport/GDTCORTransport.h>
 
-#import <GoogleUtilities/GULAppEnvironmentUtil.h>
-#import <GoogleUtilities/GULHeartbeatDateStorage.h>
-#import <GoogleUtilities/GULLogger.h>
+#import "GoogleUtilities/Environment/third_party/GULAppEnvironmentUtil.h"
+#import "GoogleUtilities/Environment/Public/GULHeartbeatDateStorage.h"
+#import "GoogleUtilities/Logger/Private/GULLogger.h"
 
 #import "Interop/CoreDiagnostics/Public/FIRCoreDiagnosticsData.h"
 #import "Interop/CoreDiagnostics/Public/FIRCoreDiagnosticsInterop.h"

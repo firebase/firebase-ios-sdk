@@ -22,7 +22,7 @@
 #import "FBLPromises.h"
 #endif
 
-#import <GoogleUtilities/GULKeychainUtils.h>
+#import "GoogleUtilities/Environment/Public/GULKeychainUtils.h"
 
 #import "FIRInstallationsErrorUtil.h"
 

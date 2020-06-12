@@ -18,8 +18,8 @@
 
 #import <OCMock/OCMock.h>
 
-#import <GoogleUtilities/GULSwizzler+Unswizzle.h>
-#import <GoogleUtilities/GULSwizzler.h>
+#import "GoogleUtilities/SwizzlerTestHelpers/GULSwizzler+Unswizzle.h"
+#import "GoogleUtilities/MethodSwizzler/Private/GULSwizzler.h"
 #import "FirebaseDynamicLinks/Sources/FIRDynamicLinkNetworking+Private.h"
 
 static NSString *const kAPIKey = @"myfakeapikey";

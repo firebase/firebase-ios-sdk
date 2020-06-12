@@ -16,7 +16,7 @@
 
 #import "FIRInstallationsStore.h"
 
-#import <GoogleUtilities/GULUserDefaults.h>
+#import "GoogleUtilities/UserDefaults/Private/GULUserDefaults.h"
 
 #if __has_include(<FBLPromises/FBLPromises.h>)
 #import <FBLPromises/FBLPromises.h>
@@ -24,7 +24,7 @@
 #import "FBLPromises.h"
 #endif
 
-#import <GoogleUtilities/GULKeychainStorage.h>
+#import "GoogleUtilities/Environment/Public/GULKeychainStorage.h"
 
 #import "FIRInstallationsErrorUtil.h"
 #import "FIRInstallationsItem.h"

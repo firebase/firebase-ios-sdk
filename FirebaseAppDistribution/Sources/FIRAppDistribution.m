@@ -19,7 +19,7 @@
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
-#import <GoogleUtilities/GULAppDelegateSwizzler.h>
+#import "GoogleUtilities/AppDelegateSwizzler/Private/GULAppDelegateSwizzler.h"
 #import "FIRAppDistributionAppDelegateInterceptor.h"
 
 /// Empty protocol to register with FirebaseCore's component system.

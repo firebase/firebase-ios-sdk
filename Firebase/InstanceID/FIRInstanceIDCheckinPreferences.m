@@ -16,7 +16,7 @@
 
 #import "FIRInstanceIDCheckinPreferences.h"
 
-#import <GoogleUtilities/GULUserDefaults.h>
+#import "GoogleUtilities/UserDefaults/Private/GULUserDefaults.h"
 #import "FIRInstanceIDCheckinService.h"
 #import "FIRInstanceIDUtilities.h"
 

@@ -16,8 +16,8 @@
 
 #import <XCTest/XCTest.h>
 
-#import <GoogleUtilities/GULSwizzler+Unswizzle.h>
-#import <GoogleUtilities/GULSwizzler.h>
+#import "GoogleUtilities/SwizzlerTestHelpers/GULSwizzler+Unswizzle.h"
+#import "GoogleUtilities/MethodSwizzler/Private/GULSwizzler.h"
 #import <OCMock/OCMock.h>
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "FirebaseDynamicLinks/Sources/FIRDLDefaultRetrievalProcessV2.h"

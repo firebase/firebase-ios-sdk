@@ -25,7 +25,7 @@
 
 #import "FirebaseRemoteConfig/Tests/Unit/RCNTestUtilities.h"
 
-#import <GoogleUtilities/GULNSData+zlib.h>
+#import "GoogleUtilities/NSData+zlib/GULNSData+zlib.h"
 #import <OCMock/OCMStubRecorder.h>
 #import <OCMock/OCMock.h>
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
