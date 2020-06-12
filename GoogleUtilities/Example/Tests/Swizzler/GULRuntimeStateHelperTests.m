@@ -15,7 +15,7 @@
 #import <XCTest/XCTest.h>
 #import <objc/runtime.h>
 
-#import <GoogleUtilities/GULRuntimeStateHelper.h>
+#import "GoogleUtilities/SwizzlerTestHelpers/GULRuntimeStateHelper.h"
 
 @interface GULRuntimeStateHelperTestHelperClass : NSObject
 

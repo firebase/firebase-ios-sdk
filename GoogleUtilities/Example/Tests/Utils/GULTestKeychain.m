@@ -16,7 +16,7 @@
 
 #if TARGET_OS_OSX
 
-#import "GULTestKeychain.h"
+#import "GoogleUtilities/Example/Tests/Utils/GULTestKeychain.h"
 
 #import <XCTest/XCTest.h>
 

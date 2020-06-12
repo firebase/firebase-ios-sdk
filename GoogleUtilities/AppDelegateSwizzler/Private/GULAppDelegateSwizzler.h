@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import <GoogleUtilities/GULApplication.h>
+#import "GoogleUtilities/AppDelegateSwizzler/Private/GULApplication.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

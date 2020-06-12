@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import <GoogleUtilities/GULHeartbeatDateStorage.h>
+#import "GoogleUtilities/Environment/Public/GULHeartbeatDateStorage.h"
 #import <XCTest/XCTest.h>
 
 @interface GULHeartbeatDateStorageTest : XCTestCase

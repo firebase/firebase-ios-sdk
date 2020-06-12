@@ -17,9 +17,9 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
-#import <GoogleUtilities/GULNSData+zlib.h>
-#import <GoogleUtilities/GULNetwork.h>
-#import <GoogleUtilities/GULReachabilityChecker.h>
+#import "GoogleUtilities/NSData+zlib/GULNSData+zlib.h"
+#import "GoogleUtilities/Network/Private/GULNetwork.h"
+#import "GoogleUtilities/Reachability/Private/GULReachabilityChecker.h"
 
 @interface GULNetwork ()
 

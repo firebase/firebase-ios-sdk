@@ -14,10 +14,10 @@
 
 #import <TargetConditionals.h>
 
-#import <GoogleUtilities/GULAppDelegateSwizzler.h>
-#import <GoogleUtilities/GULAppEnvironmentUtil.h>
-#import <GoogleUtilities/GULLogger.h>
-#import <GoogleUtilities/GULMutableDictionary.h>
+#import "GoogleUtilities/AppDelegateSwizzler/Private/GULAppDelegateSwizzler.h"
+#import "GoogleUtilities/Environment/third_party/GULAppEnvironmentUtil.h"
+#import "GoogleUtilities/Logger/Private/GULLogger.h"
+#import "GoogleUtilities/Network/Private/GULMutableDictionary.h"
 #import "GoogleUtilities/AppDelegateSwizzler/Internal/GULAppDelegateSwizzler_Private.h"
 #import "GoogleUtilities/Common/GULLoggerCodes.h"
 
