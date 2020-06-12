@@ -12,6 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+if(NOT FIREBASE_IOS_BUILD_TESTS)
+  return()
+endif()
+
 file(GLOB sources *.cc)
 firebase_ios_add_test(firestore_core_test ${sources})
 
