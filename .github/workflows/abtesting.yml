@@ -55,6 +55,7 @@ jobs:
       run: scripts/pull_zip_gcloud.sh "$plist_secret" "$FRAMEWORK_ZIP" "${HOME}/ios_frameworks"
     - name: Setup quickstart
       run: SAMPLE="$SDK" TARGET="${SDK}Example" scripts/setup_quickstart_framework.sh \
+                                               "${HOME}"/ios_frameworks/Firebase/FirebaseMessaging/FirebaseInstanceID.xcframework \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseRemoteConfig/* \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/FirebaseCore.xcframework
     - name: Install Secret GoogleService-Info.plist
