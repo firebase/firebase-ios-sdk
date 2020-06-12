@@ -16,13 +16,11 @@
 
 #import <XCTest/XCTest.h>
 
-#import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
-#import <FirebaseCore/FIRApp.h>
-#import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseCore/FIROptions.h>
 #import <GoogleUtilities/GULSwizzler+Unswizzle.h>
 #import <GoogleUtilities/GULSwizzler.h>
 #import <OCMock/OCMock.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseDynamicLinks/Sources/FIRDLDefaultRetrievalProcessV2.h"
 #import "FirebaseDynamicLinks/Sources/FIRDLRetrievalProcessFactory.h"
 #import "FirebaseDynamicLinks/Sources/FIRDLRetrievalProcessResult+Private.h"
 #import "FirebaseDynamicLinks/Sources/FIRDynamicLink+Private.h"
@@ -30,6 +28,7 @@
 #import "FirebaseDynamicLinks/Sources/FIRDynamicLinks+FirstParty.h"
 #import "FirebaseDynamicLinks/Sources/FIRDynamicLinks+Private.h"
 #import "FirebaseDynamicLinks/Sources/Utilities/FDLUtilities.h"
+#import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 
 static NSString *const kAPIKey = @"myAPIKey";
 static NSString *const kClientID = @"myClientID.apps.googleusercontent.com";
@@ -1169,6 +1168,31 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
   [GULSwizzler unswizzleClass:[FIRDLRetrievalProcessFactory class]
                      selector:selectorToSwizzle
               isClassSelector:NO];
+}
+
+- (void)test_retrievePendingDeepLinkShouldSetkFIRDLOpenURLKeyRegardlessOfFailures {
+  [self.service setUpWithLaunchOptions:nil
+                                apiKey:kAPIKey
+                              clientID:kClientID
+                             urlScheme:nil
+                          userDefaults:[NSUserDefaults standardUserDefaults]];
+  FIRDynamicLinks<FIRDLRetrievalProcessDelegate> *deleagte =
+      (FIRDynamicLinks<FIRDLRetrievalProcessDelegate> *)self.service;
+
+  // Error Result to pass
+  FIRDLRetrievalProcessResult *result = [[FIRDLRetrievalProcessResult alloc]
+      initWithDynamicLink:nil
+                    error:[NSError errorWithDomain:@"unknown domain" code:500 userInfo:nil]
+                  message:nil
+              matchSource:nil];
+
+  FIRDLDefaultRetrievalProcessV2 *defaultRetrievalProcess = [FIRDLDefaultRetrievalProcessV2 alloc];
+
+  [deleagte retrievalProcess:defaultRetrievalProcess completedWithResult:result];
+
+  NSString *kFIRDLOpenURLKey = @"com.google.appinvite.openURL";
+  XCTAssertEqual([[NSUserDefaults standardUserDefaults] boolForKey:kFIRDLOpenURLKey], YES,
+                 @"kFIRDLOpenURL key should be set regardless of failures");
 }
 
 #pragma mark - Self-diagnose tests

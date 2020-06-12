@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google
+ * Copyright 2019 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,6 +54,8 @@ class Firestore : public std::enable_shared_from_this<Firestore> {
             void* extension);
 
   ~Firestore();
+
+  void Dispose();
 
   const model::DatabaseId& database_id() const {
     return database_id_;

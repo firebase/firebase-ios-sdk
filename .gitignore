@@ -8,6 +8,8 @@ FirebaseAuth/Tests/Sample/SwiftApiTests/Credentials.swift
 
 Example/Database/App/GoogleService-Info.plist
 
+FirebaseRemoteConfig/Tests/SwiftAPI/Resources/GoogleService-Info.plist
+
 # FirebaseStorage integration tests GoogleService-Info.plist
 FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist
 
@@ -21,6 +23,11 @@ Example/InstanceID/Resources/GoogleService-Info.plist
 FirebaseMessaging/Tests/IntegrationTests/Resources/GoogleService-Info.plist
 # FirebaseMessaging test app GoogleService-Info.plist
 FirebaseMessaging/Apps/Sample/Sample/GoogleService-Info.plist
+
+# Credentials for Firebase Storage Integration Tests
+FirebaseStorage/Tests/Integration/Credentials.h
+FirebaseStorage/Tests/SwiftIntegration/Credentials.swift
+FirebaseStorageSwift/Tests/Integration/Credentials.swift
 
 Secrets.tar
 

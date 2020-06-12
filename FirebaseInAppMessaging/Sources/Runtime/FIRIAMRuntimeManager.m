@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import <FirebaseCore/FIRLogger.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 #import "FIRCore+InAppMessaging.h"
 #import "FIRIAMActivityLogger.h"
@@ -385,10 +385,11 @@ static NSString *const kFirebaseInAppMessagingAutoDataCollectionKey =
                                                                          NSString
                                                                              *_Nullable FISToken,
                                                                          NSError *_Nullable error) {
-                                                                       // Always dump the instance
-                                                                       // id into log on startup to
-                                                                       // help developers to find it
-                                                                       // for their app instance.
+                                                                       // Always dump the
+                                                                       // installation ID into log
+                                                                       // on startup to help
+                                                                       // developers to find it for
+                                                                       // their app instance.
                                                                        FIRLogDebug(
                                                                            kFIRLoggerInAppMessaging,
                                                                            @"I-IAM180017",
@@ -396,7 +397,8 @@ static NSString *const kFirebaseInAppMessagingAutoDataCollectionKey =
                                                                            @"InAppMessaging "
                                                                            @"runtime "
                                                                            @"with "
-                                                                            "Instance ID %@",
+                                                                            "Firebase Installation "
+                                                                            "ID %@",
                                                                            FID);
                                                                      }];
 

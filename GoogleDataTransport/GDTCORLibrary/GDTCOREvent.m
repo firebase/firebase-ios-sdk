@@ -33,8 +33,8 @@
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
     eventIDQueue = dispatch_queue_create("com.google.GDTCOREventIDQueue", DISPATCH_QUEUE_SERIAL);
-    counterPath = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)[0];
-    counterPath = [NSString stringWithFormat:@"%@/google-sdks-events/count", counterPath];
+    counterPath = GDTCORRootDirectory().path;
+    counterPath = [NSString stringWithFormat:@"%@/count", counterPath];
     NSError *error;
     NSString *countText = [NSString stringWithContentsOfFile:counterPath
                                                     encoding:NSUTF8StringEncoding

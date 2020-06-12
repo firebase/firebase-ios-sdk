@@ -445,6 +445,86 @@ static NSInteger target = kGDTCORTargetCCT;
   }
 }
 
+- (void)testSaveAndLoadLibraryData {
+  __weak NSData *weakData;
+  NSString *dataKey = NSStringFromSelector(_cmd);
+  @autoreleasepool {
+    NSData *data = [@"test data" dataUsingEncoding:NSUTF8StringEncoding];
+    weakData = data;
+    XCTestExpectation *expectation = [self expectationWithDescription:@"storage completion called"];
+    [[GDTCORFlatFileStorage sharedInstance] storeLibraryData:data
+                                                      forKey:dataKey
+                                                  onComplete:^(NSError *_Nullable error) {
+                                                    XCTAssertNil(error);
+                                                    [expectation fulfill];
+                                                  }];
+    [self waitForExpectations:@[ expectation ] timeout:10.0];
+  }
+  XCTAssertNil(weakData);
+  XCTestExpectation *expectation = [self expectationWithDescription:@"retrieval completion called"];
+  [[GDTCORFlatFileStorage sharedInstance]
+      libraryDataForKey:dataKey
+             onComplete:^(NSData *_Nullable data, NSError *_Nullable error) {
+               [expectation fulfill];
+               XCTAssertNil(error);
+               XCTAssertEqualObjects(@"test data",
+                                     [[NSString alloc] initWithData:data
+                                                           encoding:NSUTF8StringEncoding]);
+             }];
+  [self waitForExpectations:@[ expectation ] timeout:10.0];
+}
+
+- (void)testSavingNilLibraryData {
+  XCTestExpectation *expectation = [self expectationWithDescription:@"storage completion called"];
+  [[GDTCORFlatFileStorage sharedInstance] storeLibraryData:[NSData data]
+                                                    forKey:@"test data key"
+                                                onComplete:^(NSError *_Nullable error) {
+                                                  XCTAssertNotNil(error);
+                                                  [expectation fulfill];
+                                                }];
+  [self waitForExpectations:@[ expectation ] timeout:10.0];
+}
+
+- (void)testSaveAndRemoveLibraryData {
+  NSString *dataKey = NSStringFromSelector(_cmd);
+  NSData *data = [@"test data" dataUsingEncoding:NSUTF8StringEncoding];
+  XCTestExpectation *expectation = [self expectationWithDescription:@"storage completion called"];
+  [[GDTCORFlatFileStorage sharedInstance] storeLibraryData:data
+                                                    forKey:dataKey
+                                                onComplete:^(NSError *_Nullable error) {
+                                                  XCTAssertNil(error);
+                                                  [expectation fulfill];
+                                                }];
+  [self waitForExpectations:@[ expectation ] timeout:10.0];
+  expectation = [self expectationWithDescription:@"retrieval completion called"];
+  [[GDTCORFlatFileStorage sharedInstance]
+      libraryDataForKey:dataKey
+             onComplete:^(NSData *_Nullable data, NSError *_Nullable error) {
+               [expectation fulfill];
+               XCTAssertNil(error);
+               XCTAssertEqualObjects(@"test data",
+                                     [[NSString alloc] initWithData:data
+                                                           encoding:NSUTF8StringEncoding]);
+             }];
+  [self waitForExpectations:@[ expectation ] timeout:10.0];
+  expectation = [self expectationWithDescription:@"removal completion called"];
+  [[GDTCORFlatFileStorage sharedInstance] removeLibraryDataForKey:dataKey
+                                                       onComplete:^(NSError *error) {
+                                                         [expectation fulfill];
+                                                         XCTAssertNil(error);
+                                                       }];
+  [self waitForExpectations:@[ expectation ] timeout:10.0];
+  expectation = [self expectationWithDescription:@"retrieval completion called"];
+  [[GDTCORFlatFileStorage sharedInstance]
+      libraryDataForKey:dataKey
+             onComplete:^(NSData *_Nullable data, NSError *_Nullable error) {
+               [expectation fulfill];
+               XCTAssertNotNil(error);
+               XCTAssertNil(data);
+             }];
+  [self waitForExpectations:@[ expectation ] timeout:10.0];
+}
+
 /** Tests migration from v1 of the storage format to v2. */
 - (void)testMigrationFromOldVersion {
   static NSString *base64EncodedArchive =

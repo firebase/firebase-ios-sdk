@@ -7,6 +7,9 @@ on:
   pull_request:
     paths:
     - 'FirebaseDatabase**'
+    - 'Firebase/Database/**'
+    - 'Example/Database/**'
+    - 'Interop/Auth/Public/*.h'
     - '.github/workflows/database.yml'
     - 'Gemfile'
   schedule:
@@ -14,6 +17,39 @@ on:
     - cron:  '0 7 * * *'
 
 jobs:
+  unit:
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        target: [iOS, tvOS, macOS]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: BuildAndTest # can be replaced with pod lib lint with CocoaPods 1.10
+      run: scripts/third_party/travis/retry.sh scripts/build.sh Database ${{ matrix.target }} unit
+
+  integration:
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        target: [iOS, tvOS, macOS]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: IntegrationTest
+      run: scripts/third_party/travis/retry.sh scripts/build.sh Database ${{ matrix.target }} integration
+
+  catalyst:
+    runs-on: macOS-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Setup project and Build for Catalyst
+      # Only build the unit tests on Catalyst. Test stopped working when GHA moved to Xcode 11.4.1.
+      run: scripts/test_catalyst.sh FirebaseDatabase build FirebaseDatabase-Unit-unit
 
   quickstart:
     env:
@@ -30,6 +66,38 @@ jobs:
     - name: Install Secret FIREGSignInInfo.h
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/FIREGSignInInfo.h.gpg \
           quickstart-ios/TestUtils/FIREGSignInInfo.h "$signin_secret"
-    - name: Test quickstart
+    - name: Test objc quickstart
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Database)
+    - name: Test swift quickstart
+      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Database swift)
 
+  pod-lib-lint:
+    runs-on: macOS-latest
+
+    strategy:
+      matrix:
+        target: [ios, tvos, macos]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Build and test
+      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseDatabase.podspec --skip-tests --platforms=${{ matrix.target }}
+
+  database-cron-only:
+    runs-on: macos-latest
+    if: github.event_name == 'schedule'
+    strategy:
+      matrix:
+        target: [ios, tvos, macos]
+        flags: [
+          '--skip-tests --use-modular-headers',
+          '--skip-tests --use-libraries'
+        ]
+    needs: pod-lib-lint
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: PodLibLint database Cron
+      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseDatabase.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}

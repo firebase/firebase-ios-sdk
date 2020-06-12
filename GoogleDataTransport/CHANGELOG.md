@@ -1,3 +1,13 @@
+# v6.2.1
+- Stopped GDTCORUploadCoordinator from blocking main thread. (#5707, #5708)
+
+# v6.2.0
+- Added an API for arbitrary data persistence on storage instances.
+- Added an API for fetching storage instances specific to a target.
+
+# v6.1.1
+- Fixes writing event counts in a directory that doesn't yet exist. (#5549)
+
 # v6.1.0
 - watchOS extension and independent apps now supported. (#4292)
 - iOS extensions better supported.

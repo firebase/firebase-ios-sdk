@@ -1,4 +1,16 @@
-# Unreleased
+# v1.16.0
+- [fixed] Fixed an issue that may have prevented the client from connecting
+  to the backend immediately after a user signed in.
+
+# v1.15.0
+- [changed] Internal improvements for future C++ and Unity support. Includes a
+  breaking change for the Firestore C++ Alpha SDK, but does not affect
+  Objective-C or Swift users.
+
+# v1.14.0
+- [changed] Internal improvements for future C++ and Unity support. Includes a
+  breaking change for the Firestore C++ Alpha SDK, but does not affect
+  Objective-C or Swift users.
 
 # v1.13.0
 - [changed] Firestore now limits the number of concurrent document lookups it

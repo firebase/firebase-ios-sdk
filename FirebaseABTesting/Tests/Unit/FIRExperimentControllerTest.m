@@ -16,14 +16,13 @@
 
 #import <FirebaseABTesting/FIRExperimentController.h>
 #import <FirebaseABTesting/FIRLifecycleEvents.h>
-#import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
-#import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseCore/FIROptionsInternal.h>
 #import <OCMock/OCMock.h>
 #import "FirebaseABTesting/Sources/ABTConditionalUserPropertyController.h"
 #import "FirebaseABTesting/Sources/ABTConstants.h"
 #import "FirebaseABTesting/Tests/Unit/ABTFakeFIRAConditionalUserPropertyController.h"
 #import "FirebaseABTesting/Tests/Unit/ABTTestUniversalConstants.h"
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 
 extern ABTExperimentPayload *ABTDeserializeExperimentPayload(NSData *payload);
 
@@ -536,7 +535,7 @@ extern NSArray *ABTExperimentsToClearFromPayloads(
 
   NSArray *experiments = [_mockCUPController experimentsWithOrigin:gABTTestOrigin];
 
-  FIRAConditionalUserProperty *userPropertyForExperiment = [experiments firstObject];
+  NSDictionary *userPropertyForExperiment = [experiments firstObject];
 
   // Verify that the triggerEventName is cleared, making this experiment active.
   XCTAssertNil([userPropertyForExperiment valueForKeyPath:@"triggerEventName"]);

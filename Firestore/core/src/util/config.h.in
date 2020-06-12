@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2018 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,11 @@
 #cmakedefine HAVE_ARC4RANDOM 1
 #if COCOAPODS
 #  define HAVE_ARC4RANDOM 1
+#endif
+
+#cmakedefine HAVE_LIBDISPATCH 1
+#if COCOAPODS
+#  define HAVE_LIBDISPATCH 1
 #endif
 
 #cmakedefine HAVE_OPENSSL_RAND_H 1

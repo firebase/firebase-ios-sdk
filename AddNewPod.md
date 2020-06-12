@@ -46,6 +46,10 @@ explicit import by other Firebase pods)
 * `FirebaseFoo/Tests/Sample` - Optional
 * `FirebaseFoo/Tests/{Other}` - Optional
 
+## Headers and Imports
+
+See [Headers and Imports](HeadersImports.md) for details on managing headers and imports.
+
 ## Continous Integration
 
 Set up a GitHub Action workflow for the pod. A good example template is
@@ -58,3 +62,20 @@ the GitHub Action check phase. Run [scripts/style.sh](scripts/style.sh).
 
 For GitHub tag management and public header change detection, add a GitHub api tag and update
 [Dangerfile](Dangerfile).
+
+## Firebase Integration
+
+For top-level Firebase pods that map to documented products:
+
+* Make sure the public umbrella header is imported via [Firebase.h](CoreOnly/Sources/Firebase.h)
+  wrapped in `__has_include`. Follow the existing examples for details.
+* Update [Firebase.podspec](Firebase.podspec).
+* Register library via registerInternalLibrary API like this
+  [Storage example](FirebaseStorage/Sources/FIRStorageComponent.m).
+* Add to the [ZipBuilder pod list](ZipBuilder/Sources/ZipBuilder/CocoaPod.swift).
+* Add a [quickstart](https://github.com/firebase/quickstart-ios).
+
+## Review and Release
+
+* Contact icore-eng@ at least a month in advance of desired release date to coordinate the
+  initial launch plan.

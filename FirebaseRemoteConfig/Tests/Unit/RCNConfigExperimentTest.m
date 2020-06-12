@@ -28,9 +28,8 @@
 #import <FirebaseABTesting/ExperimentPayload.pbobjc.h>
 #import <FirebaseABTesting/FIRExperimentController.h>
 
-#import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
 #import <OCMock/OCMock.h>
-#import "FirebaseRemoteConfig/Sources/Protos/wireless/android/config/proto/Config.pbobjc.h"
+#import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 
 // Surface the internal FIRExperimentController initializer.
 @interface FIRExperimentController ()
@@ -115,8 +114,6 @@
 }
 
 - (void)testUpdateExperiment {
-  RCNAppConfigTable *appTable = [[RCNAppConfigTable alloc] init];
-  appTable.appName = [NSBundle mainBundle].bundleIdentifier;
   NSDictionary<NSString *, NSString *> *payload1 = @{@"experimentId" : @"exp1"};
   NSDictionary<NSString *, NSString *> *payload2 = @{@"experimentId" : @"exp2"};
   NSDictionary<NSString *, NSString *> *payload3 = @{@"experimentId" : @"exp3"};

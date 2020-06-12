@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseInstallations'
-  s.version          = '1.2.0'
+  s.version          = '1.3.0'
   s.summary          = 'Firebase Installations'
 
   s.description      = <<-DESC
@@ -26,11 +26,14 @@ Pod::Spec.new do |s|
   s.prefix_header_file = false
 
   base_dir = "FirebaseInstallations/Source/"
-  s.source_files = base_dir + 'Library/**/*.[mh]'
+  s.source_files = [
+    base_dir + 'Library/**/*.[mh]',
+    'FirebaseCore/Sources/Private/*.h'
+  ]
   s.public_header_files = base_dir + 'Library/Public/*.h'
 
   s.framework = 'Security'
-  s.dependency 'FirebaseCore', '~> 6.6'
+  s.dependency 'FirebaseCore', '~> 6.8'
   s.dependency 'PromisesObjC', '~> 1.2'
   s.dependency 'GoogleUtilities/Environment', '~> 6.6'
   s.dependency 'GoogleUtilities/UserDefaults', '~> 6.6'
@@ -42,7 +45,8 @@ Pod::Spec.new do |s|
   end
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
-    'GCC_PREPROCESSOR_DEFINITIONS' => preprocessor_definitions
+    'GCC_PREPROCESSOR_DEFINITIONS' => preprocessor_definitions,
+    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
   }
 
   s.test_spec 'unit' do |unit_tests|

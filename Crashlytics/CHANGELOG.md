@@ -1,4 +1,8 @@
-# Unreleased
+# v4.1.1
+
+- [fixed] Fixed a crash that could occur if certain plist fields necessary to create Crashlytics records were missing at runtime. Also added some diagnostic logging to make the issue cause more explicit (#5565).
+
+# v4.1.0
 
 - [fixed] Fixed unchecked `malloc`s in Crashlytics (#5428).
 - [fixed] Fixed an instance of undefined behavior when loading files from disk (#5454).

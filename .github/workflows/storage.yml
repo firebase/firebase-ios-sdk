@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
     - 'FirebaseStorage**'
+    - 'Interop/Auth/Public/*.h'
     - '.github/workflows/storage.yml'
     - 'scripts/**'
     # Rebuild on Ruby infrastructure changes.
@@ -27,6 +28,14 @@ jobs:
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/storage-db-plist.gpg \
           FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist "$plist_secret"
+    - name: Install Credentials.h
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/Storage/Credentials.h.gpg \
+          FirebaseStorage/Tests/Integration/Credentials.h "$plist_secret"
+    - name: Install Credentials.swift
+      run: |
+        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/Storage/Credentials.swift.gpg \
+          FirebaseStorage/Tests/SwiftIntegration/Credentials.swift "$plist_secret"
+        cp FirebaseStorage/Tests/SwiftIntegration/Credentials.swift FirebaseStorageSwift/Tests/Integration/
     - name: BuildAndTest # can be replaced with pod lib lint with CocoaPods 1.10
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/build.sh ${{ matrix.pod }} all)
 
@@ -55,15 +64,19 @@ jobs:
     - name: Install Secret FIREGSignInInfo.h
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/FIREGSignInInfo.h.gpg \
           quickstart-ios/TestUtils/FIREGSignInInfo.h "$signin_secret"
-    - name: Test quickstart
+    - name: Test objc quickstart
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Storage)
+    - name: Test swift quickstart
+      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Storage swift)
 
   pod-lib-lint:
     runs-on: macOS-latest
 
     strategy:
       matrix:
-        target: [ios, tvos, macos, watchos]
+        # watchos is disabled since pod lib lint cannot handle test Auth dep even if the dep is only
+        # specified for the other three platforms.
+        target: [ios, tvos, macos]
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
@@ -78,7 +91,7 @@ jobs:
     if: github.event_name == 'schedule'
     strategy:
       matrix:
-        target: [ios, tvos, macos, watchos]
+        target: [ios, tvos, macos]
         flags: [
           '--skip-tests --use-modular-headers',
           '--skip-tests --use-libraries'

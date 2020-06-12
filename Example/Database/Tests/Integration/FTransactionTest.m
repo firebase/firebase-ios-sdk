@@ -895,7 +895,7 @@ withBlock:^(FIRDataSnapshot *snapshot) { ready = [[snapshot value] boolValue];
 
 - (void)testPendingTransactionsAreCancelledOnDisconnect {
   FIRDatabaseConfig *cfg = [FTestHelpers configForName:@"pending-transactions"];
-  FIRDatabaseReference *ref = [[[FIRDatabaseReference alloc] initWithConfig:cfg] childByAutoId];
+  FIRDatabaseReference *ref = [[[FTestHelpers databaseForConfig:cfg] reference] childByAutoId];
 
   __block BOOL done = NO;
   [[ref child:@"a"] setValue:@"initial"
@@ -1517,7 +1517,7 @@ withBlock:^(FIRDataSnapshot *snapshot) { ready = [[snapshot value] boolValue];
   config.authTokenProvider = [[FIROneBadTokenProvider alloc] init];
 
   // Queue a transaction offline.
-  FIRDatabaseReference *root = [[FIRDatabaseReference alloc] initWithConfig:config];
+  FIRDatabaseReference *root = [[FTestHelpers databaseForConfig:config] reference];
   [root.database goOffline];
   __block BOOL done = NO;
   [[root childByAutoId]

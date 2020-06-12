@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-#import <FirebaseCore/FIRApp.h>
-#import <FirebaseCore/FIROptions.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 #import "FIRDatabaseQuery_Private.h"
 #import "FIRTestAuthTokenProvider.h"
@@ -35,7 +34,7 @@
   [super setUp];
 
   [FIRDatabase setLoggingEnabled:YES];
-  _databaseURL = [[FIRApp defaultApp] options].databaseURL;
+  _databaseURL = [FTestHelpers databaseURL];
 
   // Disabled normally since they slow down the tests and don't actually assert anything (they just
   // NSLog timings).

@@ -14,13 +14,11 @@
  * limitations under the License.
  */
 
-#import "FirebaseRemoteConfig/Sources/RCNConfigFetch.h"
+#import "FirebaseRemoteConfig/Sources/Private/RCNConfigFetch.h"
 
-#import <FirebaseCore/FIRApp.h>
-#import <FirebaseCore/FIRLogger.h>
-#import <FirebaseCore/FIROptions.h>
 #import <FirebaseInstallations/FirebaseInstallations.h>
 #import <GoogleUtilities/GULNSData+zlib.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "FirebaseRemoteConfig/Sources/Private/RCNConfigSettings.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigContent.h"
@@ -64,9 +62,7 @@ static NSInteger const kRCNFetchResponseHTTPStatusCodeServiceUnavailable = 503;
 static NSInteger const kRCNFetchResponseHTTPStatusCodeGatewayTimeout = 504;
 
 // Deprecated error code previously from FirebaseCore
-static const NSInteger FIRErrorCodeConfigFailed = -114;
-
-static RCNConfigFetcherTestBlock gGlobalTestBlock;
+static const NSInteger sFIRErrorCodeConfigFailed = -114;
 
 #pragma mark - RCNConfig
 
@@ -162,7 +158,7 @@ static RCNConfigFetcherTestBlock gGlobalTestBlock;
                     @"A fetch is already in progress. Ignoring duplicate request.");
         NSError *error =
             [NSError errorWithDomain:FIRRemoteConfigErrorDomain
-                                code:FIRErrorCodeConfigFailed
+                                code:sFIRErrorCodeConfigFailed
                             userInfo:@{
                               NSLocalizedDescriptionKey :
                                   @"FetchError: Duplicate request while the previous one is pending"
@@ -271,19 +267,21 @@ static RCNConfigFetcherTestBlock gGlobalTestBlock;
 
         FIRLogInfo(kFIRLoggerRemoteConfig, @"I-RCN000022", @"Success to get iid : %@.",
                    strongSelfQueue->_settings.configInstallationsIdentifier);
-        [strongSelf
-            getAnalyticsUserPropertiesWithCompletionHandler:^(NSDictionary *userProperties) {
-              dispatch_async(strongSelf->_lockQueue, ^{
-                [strongSelf fetchWithUserProperties:userProperties
-                                  completionHandler:completionHandler];
-              });
-            }];
+        [strongSelf doFetchCall:completionHandler];
       });
     }];
   };
 
   FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000039", @"Starting requesting token.");
   [installations authTokenWithCompletion:installationsTokenHandler];
+}
+
+- (void)doFetchCall:(FIRRemoteConfigFetchCompletion)completionHandler {
+  [self getAnalyticsUserPropertiesWithCompletionHandler:^(NSDictionary *userProperties) {
+    dispatch_async(self->_lockQueue, ^{
+      [self fetchWithUserProperties:userProperties completionHandler:completionHandler];
+    });
+  }];
 }
 
 - (void)getAnalyticsUserPropertiesWithCompletionHandler:
@@ -489,21 +487,11 @@ static RCNConfigFetcherTestBlock gGlobalTestBlock;
     });
   };
 
-  if (gGlobalTestBlock) {
-    gGlobalTestBlock(fetcherCompletion);
-    return;
-  }
   FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000061", @"Making remote config fetch.");
 
   NSURLSessionDataTask *dataTask = [self URLSessionDataTaskWithContent:compressedContent
                                                      completionHandler:fetcherCompletion];
   [dataTask resume];
-}
-
-+ (void)setGlobalTestBlock:(RCNConfigFetcherTestBlock)block {
-  FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000027",
-              @"Set global test block for NSSessionFetcher, it will not fetch from server.");
-  gGlobalTestBlock = [block copy];
 }
 
 - (NSString *)constructServerURL {

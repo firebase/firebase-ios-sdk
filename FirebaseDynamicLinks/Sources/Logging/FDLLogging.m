@@ -17,7 +17,7 @@
 #import "FirebaseDynamicLinks/Sources/Logging/FDLLogging.h"
 
 #ifdef GIN_SCION_LOGGING
-#import <FirebaseCore/FIRLogger.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 FIRLoggerService kFIRLoggerDynamicLinks = @"[Firebase/DynamicLinks]";
 #endif  // GIN_SCION_LOGGING

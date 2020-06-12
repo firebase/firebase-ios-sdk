@@ -1,0 +1,102 @@
+name: installations
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    paths:
+    - 'FirebaseInstallations**'
+    - '.github/workflows/installations.yml'
+    - 'Gemfile'
+  schedule:
+    # Run every day at 11pm (PST) - cron uses UTC times
+    - cron:  '0 7 * * *'
+
+jobs:
+  pod-lib-lint:
+    runs-on: macOS-latest
+    env:
+      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+    strategy:
+      matrix:
+        target: [ios, tvos, macos]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Install GoogleService-Info.plist
+      run: |
+        mkdir -p FirebaseInstallations/Source/Tests/Resources
+        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/Installations/GoogleService-Info.plist.gpg \
+          FirebaseInstallations/Source/Tests/Resources/GoogleService-Info.plist "$plist_secret"
+    - name: Get boolean for secrets available
+      id: secrets
+      run: echo "::set-output name=val::$([[ -z $plist_secret ]] && echo "0" || echo "1")"
+    - name: Build and test
+      run: |
+       export FIS_INTEGRATION_TESTS_REQUIRED=${{ steps.secrets.outputs.val }}
+       export FIS_ALLOWS_INCOMPATIBLE_IID_VERSION="1"
+       scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseInstallations.podspec \
+         --platforms=${{ matrix.target }} --ignore-local-podspecs=FirebaseInstanceID.podspec
+
+  # TODO - Catalyst is disabled because `pod gen` does not have a way to get some dependent pods
+  # from a local path and the Installations podspec requires that FirebaseInstanceID.podspec not be
+  # the local version.
+  #
+  # catalyst:
+  #   runs-on: macOS-latest
+  #   steps:
+  #   - uses: actions/checkout@v2
+  #   - name: Setup Bundler
+  #     run: scripts/setup_bundler.sh
+  #   - name: Setup project and Build for Catalyst
+  #     # Only build the unit tests on Catalyst. Test stopped working when GHA moved to Xcode 11.4.1.
+  #     run: scripts/test_catalyst.sh FirebaseInstallations build FirebaseInstallations-Unit-unit
+
+  quickstart:
+    runs-on: macOS-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup quickstart
+      run: scripts/setup_quickstart.sh installations
+    - name: Copy mock plist
+      run: cp quickstart-ios/mock-GoogleService-Info.plist quickstart-ios/installations/GoogleService-Info.plist
+    - name: Test objc quickstart
+      run: scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Installations
+    - name: Test swift quickstart
+      run: scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Installations swift
+
+  installations-cron-only:
+    runs-on: macos-latest
+    if: github.event_name == 'schedule'
+    env:
+      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+      FIR_IID_INTEGRATION_TESTS_REQUIRED: ${{ secrets.GHASecretsGPGPassphrase1 }}
+    strategy:
+      matrix:
+        target: [ios, tvos, macos]
+        flags: [
+          '--use-modular-headers',
+          '--use-libraries'
+        ]
+    needs: pod-lib-lint
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Install GoogleService-Info.plist
+      run: |
+        mkdir -p FirebaseInstallations/Source/Tests/Resources
+        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/Installations/GoogleService-Info.plist.gpg \
+          FirebaseInstallations/Source/Tests/Resources/GoogleService-Info.plist "$plist_secret"
+    - name: Get boolean for secrets available
+      id: secrets
+      run: echo "::set-output name=val::$([[ -z $plist_secret ]] && echo "0" || echo "1")"
+    - name: PodLibLint Installations Cron
+      run: |
+       export FIS_INTEGRATION_TESTS_REQUIRED=${{ steps.secrets.outputs.val }}
+       export FIS_ALLOWS_INCOMPATIBLE_IID_VERSION="1"
+       scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseInstallations.podspec \
+         --platforms=${{ matrix.target }} ${{ matrix.flags }} \
+         --ignore-local-podspecs=FirebaseInstanceID.podspec

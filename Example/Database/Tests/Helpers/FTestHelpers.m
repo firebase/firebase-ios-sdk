@@ -16,15 +16,13 @@
 
 #import "FTestHelpers.h"
 
-#import <FirebaseAuthInterop/FIRAuthInterop.h>
-#import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseCore/FIRComponent.h>
-#import <FirebaseCore/FIRComponentContainer.h>
-#import <FirebaseCore/FIROptions.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "Interop/Auth/Public/FIRAuthInterop.h"
 
 #import "FConstants.h"
 #import "FIRAuthInteropFake.h"
 #import "FIRDatabaseConfig_Private.h"
+#import "FIRDatabase_Private.h"
 #import "FTestAuthTokenGenerator.h"
 
 @implementation FTestHelpers
@@ -57,7 +55,30 @@
   id<FIRAuthInterop> auth = [[FIRAuthInteropFake alloc] initWithToken:nil userID:nil error:nil];
   id<FAuthTokenProvider> authTokenProvider = [FAuthTokenProvider authTokenProviderWithAuth:auth];
   return [[FIRDatabaseConfig alloc] initWithSessionIdentifier:name
+                                                  googleAppID:@"fake-app-id"
                                             authTokenProvider:authTokenProvider];
+}
+
++ (NSString *)databaseURL {
+  FIROptions *options = [FIROptions defaultOptions];
+  if (options && ![options.databaseURL isEqualToString:@"https://abc-xyz-123.firebaseio.com"]) {
+    return options.databaseURL;
+  }
+  // If no custom GoogleServices.plist is provided, we default to the Emulator URL.
+  return @"http://localhost:9000";
+}
+
++ (FIRDatabase *)databaseForConfig:(FIRDatabaseConfig *)config {
+  FParsedUrl *parsedUrl = [FUtilities parseUrl:[FTestHelpers databaseURL]];
+  return [FIRDatabase createDatabaseForTests:parsedUrl.repoInfo config:config];
+}
+
++ (FIRDatabase *)defaultDatabase {
+  static FIRDatabase *database = nil;
+  if (database == nil) {
+    database = [FTestHelpers databaseForConfig:[self defaultConfig]];
+  }
+  return database;
 }
 
 + (NSArray *)getRandomNodes:(int)num persistence:(BOOL)persistence {
@@ -73,18 +94,13 @@
 
   NSMutableArray *refs = (persistence) ? persistenceRefs : noPersistenceRefs;
 
-  id<FIRAuthInterop> auth = [[FIRAuthInteropFake alloc] initWithToken:nil userID:nil error:nil];
-  id<FAuthTokenProvider> authTokenProvider = [FAuthTokenProvider authTokenProviderWithAuth:auth];
-
   while (num > refs.count) {
     NSString *sessionIdentifier =
         [NSString stringWithFormat:@"test-config-%@persistence-%lu", (persistence) ? @"" : @"no-",
                                    (unsigned long)refs.count];
-    FIRDatabaseConfig *config =
-        [[FIRDatabaseConfig alloc] initWithSessionIdentifier:sessionIdentifier
-                                           authTokenProvider:authTokenProvider];
+    FIRDatabaseConfig *config = [self configForName:sessionIdentifier];
     config.persistenceEnabled = persistence;
-    FIRDatabaseReference *ref = [[FIRDatabaseReference alloc] initWithConfig:config];
+    FIRDatabaseReference *ref = [[self databaseForConfig:config] reference];
     [refs addObject:ref];
   }
 

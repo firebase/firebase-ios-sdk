@@ -26,8 +26,7 @@
 #import "FStringUtilities.h"
 #import "FUtilities.h"
 #import "FValidation.h"
-#import <FirebaseCore/FIRApp.h>
-#import <FirebaseCore/FIROptions.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 @implementation FIRDatabaseReference
 

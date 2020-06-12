@@ -383,8 +383,8 @@ static NSString *const kFIRAuthErrorMessageInvalidAppCredential =
 /** @var kFIRAuthErrorMessageQuotaExceeded
     @brief Message for @c FIRAuthErrorCodeQuotaExceeded error code.
  */
-static NSString *const kFIRAuthErrorMessageQuotaExceeded = @"The phone verification quota for this "
-                                                            "project has been exceeded.";
+static NSString *const kFIRAuthErrorMessageQuotaExceeded = @"The quota for this operation "
+                                                            "has been exceeded.";
 
 /** @var kFIRAuthErrorMessageMissingAppToken
     @brief Message for @c FIRAuthErrorCodeMissingAppToken error code.

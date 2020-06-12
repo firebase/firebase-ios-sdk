@@ -26,6 +26,7 @@
 
 - (id)initWith:(FRepoInfo *)aRepoInfo
     andDispatchQueue:(dispatch_queue_t)queue
+         googleAppID:(NSString *)googleAppID
        lastSessionID:(NSString *)lastSessionID;
 
 - (void)open;

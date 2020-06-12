@@ -56,7 +56,7 @@
 
 - (void)testInfoConnectedGoesToFalseOnDisconnect {
   FIRDatabaseConfig *cfg = [FTestHelpers configForName:@"test-config"];
-  FIRDatabaseReference *rootRef = [[FIRDatabaseReference alloc] initWithConfig:cfg];
+  FIRDatabaseReference *rootRef = [[FTestHelpers databaseForConfig:cfg] reference];
   __block BOOL everConnected = NO;
   __block NSMutableString *connectedHistory = [[NSMutableString alloc] init];
   [[rootRef child:@".info/connected"]
@@ -87,7 +87,7 @@
 
 - (void)testInfoServerTimeOffset {
   FIRDatabaseConfig *cfg = [FTestHelpers configForName:@"test-config"];
-  FIRDatabaseReference *ref = [[FIRDatabaseReference alloc] initWithConfig:cfg];
+  FIRDatabaseReference *ref = [[FTestHelpers databaseForConfig:cfg] reference];
 
   // make sure childByAutoId works
   [ref childByAutoId];
@@ -116,8 +116,8 @@
   FIRDatabaseConfig *cfg = [FTestHelpers configForName:@"test-config"];
   FIRDatabaseConfig *altCfg = [FTestHelpers configForName:@"alt-config"];
 
-  FIRDatabaseReference *ref = [[FIRDatabaseReference alloc] initWithConfig:cfg];
-  FIRDatabaseReference *refAlt = [[FIRDatabaseReference alloc] initWithConfig:altCfg];
+  FIRDatabaseReference *ref = [[FTestHelpers databaseForConfig:cfg] reference];
+  FIRDatabaseReference *refAlt = [[FTestHelpers databaseForConfig:altCfg] reference];
 
   // Wait until we're connected to both Firebases
   __block BOOL ready = NO;
@@ -168,7 +168,7 @@
   }];
 
   // Ensure that we don't automatically reconnect upon new Firebase creation
-  FIRDatabaseReference *refDup = [[FIRDatabaseReference alloc] initWithConfig:altCfg];
+  FIRDatabaseReference *refDup = [[refAlt database] reference];
   [[refDup child:@".info/connected"] observeEventType:FIRDataEventTypeValue
                                             withBlock:^(FIRDataSnapshot *snapshot) {
                                               if ([[snapshot value] boolValue]) {

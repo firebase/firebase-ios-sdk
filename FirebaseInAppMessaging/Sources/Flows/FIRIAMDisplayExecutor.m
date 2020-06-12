@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import <FirebaseCore/FIRLogger.h>
 #import <UIKit/UIKit.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 #import "FIRCore+InAppMessaging.h"
 #import "FIRIAMActivityLogger.h"
@@ -105,16 +105,18 @@
     [self recordValidImpression:_currentMsgBeingDisplayed.renderData.messageID
                 withMessageName:_currentMsgBeingDisplayed.renderData.name];
 
-    [self.analyticsEventLogger
-        logAnalyticsEventForType:FIRIAMAnalyticsEventActionURLFollow
-                   forCampaignID:_currentMsgBeingDisplayed.renderData.messageID
-                withCampaignName:_currentMsgBeingDisplayed.renderData.name
-                   eventTimeInMs:nil
-                      completion:^(BOOL success) {
-                        FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400032",
-                                    @"Logging analytics event for url following %@",
-                                    success ? @"succeeded" : @"failed");
-                      }];
+    if (action.actionURL) {
+      [self.analyticsEventLogger
+          logAnalyticsEventForType:FIRIAMAnalyticsEventActionURLFollow
+                     forCampaignID:_currentMsgBeingDisplayed.renderData.messageID
+                  withCampaignName:_currentMsgBeingDisplayed.renderData.name
+                     eventTimeInMs:nil
+                        completion:^(BOOL success) {
+                          FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400032",
+                                      @"Logging analytics event for url following %@",
+                                      success ? @"succeeded" : @"failed");
+                        }];
+    }
   }
 
   NSURL *actionURL = action.actionURL;
@@ -565,6 +567,7 @@
     case FIRIAMRenderAsCardView:
       // Image data should never nil for a valid card message.
       if (imageData == nil) {
+        NSAssert(NO, @"Image data should never nil for a valid card message.");
         return nil;
       }
       return [self cardDisplayMessageWithMessageDefinition:definition

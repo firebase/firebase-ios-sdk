@@ -25,8 +25,7 @@
 #import "FIRInstanceIDUtilities.h"
 #import "NSError+FIRInstanceID.h"
 
-#import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseCore/FIRHeartbeatInfo.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 // We can have a static int since this error should theoretically only
 // happen once (for the first time). If it repeats there is something

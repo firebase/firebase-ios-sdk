@@ -16,9 +16,8 @@
 
 #import <XCTest/XCTest.h>
 
-#import <FirebaseCore/FIRApp.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
-#import <FirebaseCore/FIROptions.h>
 #import "FIRDatabase.h"
 #import "FIRDatabaseConfig_Private.h"
 #import "FIRDatabaseReference.h"
@@ -184,7 +183,7 @@ static NSString *kFirebaseTestAltNamespace = @"https://foobar.firebaseio.com";
   FIRDatabaseConfig *config = [FTestHelpers configForName:name];
   config.persistenceEnabled = YES;
   config.forceStorageEngine = engine;
-  return [[FIRDatabaseReference alloc] initWithConfig:config];
+  return [[FTestHelpers databaseForConfig:config] reference];
 }
 
 - (void)testPurgeWritesPurgesAllWrites {
@@ -474,15 +473,14 @@ static NSString *kFirebaseTestAltNamespace = @"https://foobar.firebaseio.com";
 }
 
 - (FIRDatabase *)databaseForURL:(NSString *)url name:(NSString *)name {
-  id app = nil;
   NSString *defaultDatabaseURL = [NSString stringWithFormat:@"url:%@", self.databaseURL];
   if ([url isEqualToString:self.databaseURL] && [name isEqualToString:defaultDatabaseURL]) {
     // Use the default app for the default URL to avoid getting out of sync with FRepoManager
     // when calling ensureRepo during tests that don't create their own FIRFakeApp.
-    app = [FIRApp defaultApp];
+    return [FTestHelpers defaultDatabase];
   } else {
-    app = [[FIRFakeApp alloc] initWithName:name URL:url];
+    id app = [[FIRFakeApp alloc] initWithName:name URL:url];
+    return [FIRDatabase databaseForApp:app];
   }
-  return [FIRDatabase databaseForApp:app];
 }
 @end

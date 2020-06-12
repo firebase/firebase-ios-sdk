@@ -17,7 +17,7 @@
 #include <TargetConditionals.h>
 #if !TARGET_OS_OSX
 
-#import <FirebaseCore/FIRLogger.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
 #import "FirebaseAuth/Sources/SystemService/FIRAuthAppCredential.h"

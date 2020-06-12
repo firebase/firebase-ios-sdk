@@ -24,8 +24,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseCore/FIROptionsInternal.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 #import "FBLPromise+Testing.h"
 #import "FIRInstallations+Tests.h"
@@ -54,8 +53,7 @@ static BOOL sFIRInstallationsFirebaseDefaultAppConfigured = NO;
 
 - (void)tearDown {
   // Delete the installation.
-  [self.installations deleteWithCompletion:^(NSError *_Nullable error) {
-    XCTAssertNil(error);
+  [self.installations deleteWithCompletion:^(NSError *_Nullable error){
   }];
 
   // Wait for any pending background job to be completed.

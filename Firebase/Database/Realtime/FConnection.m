@@ -16,7 +16,7 @@
 
 #import "FConnection.h"
 #import "FConstants.h"
-#import <FirebaseCore/FIRLogger.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 typedef enum {
     REALTIME_STATE_CONNECTING = 0,
@@ -47,6 +47,7 @@ typedef enum {
 
 - (id)initWith:(FRepoInfo *)aRepoInfo
     andDispatchQueue:(dispatch_queue_t)queue
+         googleAppID:googleAppID
        lastSessionID:(NSString *)lastSessionID {
     self = [super init];
     if (self) {
@@ -54,6 +55,7 @@ typedef enum {
         self.repoInfo = aRepoInfo;
         self.conn = [[FWebSocketConnection alloc] initWith:self.repoInfo
                                                   andQueue:queue
+                                               googleAppID:googleAppID
                                              lastSessionID:lastSessionID];
         self.conn.delegate = self;
     }
