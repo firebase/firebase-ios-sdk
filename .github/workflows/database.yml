@@ -59,7 +59,7 @@ jobs:
       SDK: "Database"
     runs-on: macOS-latest
     # Make sure tests run after the zip workflow finishes.
-    if: github.event_name == 'schedule'
+    # if: github.event_name == 'schedule'
     steps:
     - uses: actions/checkout@v2
     - name: Pull zip from GCS
