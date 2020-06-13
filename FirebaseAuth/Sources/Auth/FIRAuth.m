@@ -24,7 +24,7 @@
 
 #import <FirebaseAuth/FirebaseAuth.h>
 #import "GoogleUtilities/AppDelegateSwizzler/Private/GULAppDelegateSwizzler.h"
-#import "GoogleUtilities/Environment/third_party/GULAppEnvironmentUtil.h"
+#import "GoogleUtilities/Environment/Private/GULAppEnvironmentUtil.h"
 #import "GoogleUtilities/SceneDelegateSwizzler/Private/GULSceneDelegateSwizzler.h"
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 

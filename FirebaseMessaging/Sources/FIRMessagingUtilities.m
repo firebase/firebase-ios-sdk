@@ -20,7 +20,7 @@
 
 #import "FirebaseMessaging/Sources/FIRMessagingLogger.h"
 
-#import "GoogleUtilities/Environment/third_party/GULAppEnvironmentUtil.h"
+#import "GoogleUtilities/Environment/Private/GULAppEnvironmentUtil.h"
 
 // Convert the macro to a string
 #define STR_EXPAND(x) #x

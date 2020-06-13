@@ -20,7 +20,7 @@
 #import "FirebaseCore/Sources/Private/FIRCoreDiagnosticsConnector.h"
 #import "FirebaseCore/Sources/Private/FIROptionsInternal.h"
 
-#import "GoogleUtilities/Environment/third_party/GULAppEnvironmentUtil.h"
+#import "GoogleUtilities/Environment/Private/GULAppEnvironmentUtil.h"
 
 NSString *const kFIRTestAppName1 = @"test_app_name_1";
 NSString *const kFIRTestAppName2 = @"test-app-name-2";

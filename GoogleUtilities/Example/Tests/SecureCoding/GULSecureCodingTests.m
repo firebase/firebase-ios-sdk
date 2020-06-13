@@ -14,7 +14,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "GoogleUtilities/Environment/Public/GULSecureCoding.h"
+#import "GoogleUtilities/Environment/Private/GULSecureCoding.h"
 
 @interface SecureCodingIncompatibleObject : NSObject <NSCoding>
 @end

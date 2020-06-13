@@ -16,7 +16,7 @@
 
 #include <asl.h>
 
-#import "GoogleUtilities/Environment/third_party/GULAppEnvironmentUtil.h"
+#import "GoogleUtilities/Environment/Private/GULAppEnvironmentUtil.h"
 #import "GoogleUtilities/Logger/Public/GULLoggerLevel.h"
 
 /// ASL client facility name used by GULLogger.

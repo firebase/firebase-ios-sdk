@@ -15,7 +15,7 @@
  */
 
 #import <XCTest/XCTest.h>
-#import "GoogleUtilities/Environment/Public/GULHeartbeatDateStorage.h"
+#import "GoogleUtilities/Environment/Private/GULHeartbeatDateStorage.h"
 
 @interface GULHeartbeatDateStorageTest : XCTestCase
 @property(nonatomic) NSURL *fileURL;

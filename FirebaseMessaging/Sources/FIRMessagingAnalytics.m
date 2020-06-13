@@ -17,7 +17,7 @@
 #import "FirebaseMessaging/Sources/FIRMessagingAnalytics.h"
 
 #import "GoogleUtilities/AppDelegateSwizzler/Private/GULAppDelegateSwizzler.h"
-#import "GoogleUtilities/Environment/third_party/GULAppEnvironmentUtil.h"
+#import "GoogleUtilities/Environment/Private/GULAppEnvironmentUtil.h"
 #import "Interop/Analytics/Public/FIRInteropEventNames.h"
 #import "Interop/Analytics/Public/FIRInteropParameterNames.h"
 
