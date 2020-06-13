@@ -15,8 +15,6 @@
 #import "FirebaseCore/Sources/FIRBundleUtil.h"
 
 #import "GoogleUtilities/Environment/Private/GULAppEnvironmentUtil.h"
-@import GoogleUtilities;
-
 
 @implementation FIRBundleUtil
 

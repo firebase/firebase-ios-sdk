@@ -33,7 +33,7 @@
 #import "Firebase/InstanceID/NSError+FIRInstanceID.h"
 
 #import <FirebaseInstallations/FirebaseInstallations.h>
-#import <GoogleUtilities/GULHeartbeatDateStorage.h>
+#import "GoogleUtilities/Environment/Private/GULHeartbeatDateStorage.h"
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 static NSString *kDeviceID = @"fakeDeviceID";

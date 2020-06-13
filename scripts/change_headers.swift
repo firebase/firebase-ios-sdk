@@ -23,9 +23,10 @@ let findHeaders = ["GoogleUtilities"]
 let changeImports = ["GoogleUtilities", "FirebaseAuth", "FirebaseCore", "Firebase",
                           "FirebaseDynamicLinks", "FirebaseInAppMessaging", "FirebaseMessaging",
                           "FirebaseRemoteConfig", "FirebaseInstallations",
-                          "FirebaseAppDistribution"]
+                          "FirebaseAppDistribution", "Example"]
 let skipDirPatterns = ["/Sample/", "FirebaseABTesting/Tests/Integration",
-                "FirebaseInAppMessaging/Tests/Integration/"]
+                "FirebaseInAppMessaging/Tests/Integration/", "Example/Database/App",
+                "Example/InstanceID/App"]
 
 // Get a Dictionary mapping a simple header name to a repo-relative path.
 
@@ -121,12 +122,13 @@ for root in changeImports {
       if file.range(of:"/Public/") != nil {
         continue
       }
+      let fullTransformPath = root + "/" + file
       for dirPattern in skipDirPatterns {
-        if file.range(of:dirPattern) != nil {
+        if fullTransformPath.range(of:dirPattern) != nil {
           continue whileLoop
         }
       }
-      transformFile(root + "/" + file)
+      transformFile(fullTransformPath)
     }
   }
 }

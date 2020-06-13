@@ -24,8 +24,8 @@
 #import <GoogleDataTransport/GDTCORTransport.h>
 #import <GoogleDataTransportCCTSupport/GDTCCTPrioritizer.h>
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
-#import <GoogleUtilities/GULHeartbeatDateStorage.h>
-#import <GoogleUtilities/GULUserDefaults.h>
+#import "GoogleUtilities/Environment/Private/GULHeartbeatDateStorage.h"
+#import "GoogleUtilities/UserDefaults/Private/GULUserDefaults.h"
 #import <OCMock/OCMock.h>
 #import <nanopb/pb_decode.h>
 #import <nanopb/pb_encode.h>
