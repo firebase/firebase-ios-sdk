@@ -18,23 +18,29 @@ import UIKit
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
-
   weak var backgroundFetchHandler: BackgroundFetchHandler?
-  
-  func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+
+  func application(_ application: UIApplication,
+                   didFinishLaunchingWithOptions launchOptions: [UIApplication
+                     .LaunchOptionsKey: Any]?) -> Bool {
     // Override point for customization after application launch.
     return true
   }
-  
+
   // MARK: UISceneSession Lifecycle
-  
-  func application(_ application: UIApplication, configurationForConnecting connectingSceneSession: UISceneSession, options: UIScene.ConnectionOptions) -> UISceneConfiguration {
+
+  func application(_ application: UIApplication,
+                   configurationForConnecting connectingSceneSession: UISceneSession,
+                   options: UIScene.ConnectionOptions) -> UISceneConfiguration {
     // Called when a new scene session is being created.
     // Use this method to select a configuration to create the new scene with.
-    return UISceneConfiguration(name: "Default Configuration", sessionRole: connectingSceneSession.role)
+    return UISceneConfiguration(name: "Default Configuration",
+                                sessionRole: connectingSceneSession.role)
   }
 
-  func application(_ application: UIApplication, performFetchWithCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
+  func application(_ application: UIApplication,
+                   performFetchWithCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult)
+                     -> Void) {
     if let backgroundFetchHandler = self.backgroundFetchHandler {
       backgroundFetchHandler.performFetchWithCompletionHandler(completionHandler: completionHandler)
     } else {
@@ -42,4 +48,3 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
   }
 }
-

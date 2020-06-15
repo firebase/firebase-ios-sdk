@@ -24,27 +24,32 @@ import GoogleUtilities
 import Promises
 
 protocol BackgroundFetchHandler: AnyObject {
-  func performFetchWithCompletionHandler(completionHandler: @escaping (UIBackgroundFetchResult) -> Void)
+  func performFetchWithCompletionHandler(completionHandler: @escaping (UIBackgroundFetchResult)
+    -> Void)
 }
 
 class KeychainViewModel: ObservableObject {
   let valueKey = "SingleValueStorage.ValueKey"
   let keychainStorage: GULKeychainStorage
 
-  internal init(keychainStorage: GULKeychainStorage = GULKeychainStorage(service: Bundle.main.bundleIdentifier ?? "GULKeychainStorageTestApp")) {
+  internal init(keychainStorage: GULKeychainStorage = GULKeychainStorage(service: Bundle.main
+      .bundleIdentifier ?? "GULKeychainStorageTestApp")) {
     self.keychainStorage = keychainStorage
 
-    self.registerBackgroundFetchHandler()
+    registerBackgroundFetchHandler()
   }
 
-  // MARK: -- Keychain
+  // MARK: - - Keychain
+
   private func getValue() -> Promise<String?> {
-    return Promise<String?>(keychainStorage.getObjectForKey(valueKey, objectClass: NSString.self, accessGroup: nil))
+    return Promise<String?>(keychainStorage
+      .getObjectForKey(valueKey, objectClass: NSString.self, accessGroup: nil))
   }
 
   private func set(value: String?) -> Promise<NSNull> {
     if let value = value {
-      return Promise<NSNull>(keychainStorage.setObject(value as NSString, forKey: valueKey, accessGroup: nil))
+      return Promise<NSNull>(keychainStorage
+        .setObject(value as NSString, forKey: valueKey, accessGroup: nil))
     } else {
       return Promise<NSNull>(keychainStorage.removeObject(forKey: valueKey, accessGroup: nil))
     }
@@ -54,22 +59,24 @@ class KeychainViewModel: ObservableObject {
     return Promise(UUID().uuidString)
   }
 
-  // MARK: -- Log
+  // MARK: - - Log
+
   private func log(message: String) {
     log = "\(message)\n\(log)"
     print(message)
   }
 
-  // MARK: -- View Model API
+  // MARK: - - View Model API
+
   @Published var log = ""
 
   func readButtonPressed() {
     getValue()
-    .then { value in
-      self.log(message: "Get value: \(value ?? "nil")")
-    }.catch { error in
-      self.log(message: "Get value error: \(error)")
-    }
+      .then { value in
+        self.log(message: "Get value: \(value ?? "nil")")
+      }.catch { error in
+        self.log(message: "Get value error: \(error)")
+      }
   }
 
   func generateAndSaveButtonPressed(completion: (() -> Void)? = nil) {
@@ -81,31 +88,32 @@ class KeychainViewModel: ObservableObject {
       .catch { error in
         self.log(message: "Save value error: \(error)")
       }
-    .always {
-      completion?()
-    }
-
+      .always {
+        completion?()
+      }
   }
 
-  // MARK: -- Background fetch
+  // MARK: - - Background fetch
+
   let backgroundFetchTaskID = "KeychainViewModel.fetch"
   private func registerBackgroundFetchHandler() {
-    BGTaskScheduler.shared.register(forTaskWithIdentifier: backgroundFetchTaskID, using: nil) { task in
-      self.log(message: "Background fetch:")
+    BGTaskScheduler.shared
+      .register(forTaskWithIdentifier: backgroundFetchTaskID, using: nil) { task in
+        self.log(message: "Background fetch:")
 
-      // Schedule next refresh.
-      self.registerBackgroundFetchHandler()
+        // Schedule next refresh.
+        self.registerBackgroundFetchHandler()
 
-      self.generateAndSaveButtonPressed {
-        task.setTaskCompleted(success: true)
+        self.generateAndSaveButtonPressed {
+          task.setTaskCompleted(success: true)
+        }
       }
-    }
 
     let request = BGAppRefreshTaskRequest(identifier: backgroundFetchTaskID)
     request.earliestBeginDate = Date(timeIntervalSinceNow: 5)
 
     do {
-       try BGTaskScheduler.shared.submit(request)
+      try BGTaskScheduler.shared.submit(request)
       print("Background app refresh scheduled.")
     } catch {
       print("Could not schedule app refresh: \(error)")
@@ -114,20 +122,21 @@ class KeychainViewModel: ObservableObject {
 }
 
 extension KeychainViewModel: BackgroundFetchHandler {
-  func performFetchWithCompletionHandler(completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
-    self.log(message: "Background fetch:")
-    self.log(message: "isProtectedDataAvailable: \(UIApplication.shared.isProtectedDataAvailable)")
+  func performFetchWithCompletionHandler(completionHandler: @escaping (UIBackgroundFetchResult)
+    -> Void) {
+    log(message: "Background fetch:")
+    log(message: "isProtectedDataAvailable: \(UIApplication.shared.isProtectedDataAvailable)")
 
-    self.readButtonPressed()
+    readButtonPressed()
 
-    self.generateAndSaveButtonPressed {
+    generateAndSaveButtonPressed {
       self.showNotification(message: self.log)
       completionHandler(.newData)
     }
   }
 
   private func showNotification(message: String) {
-    UNUserNotificationCenter.current().requestAuthorization(options: .alert) { (granted, error) in
+    UNUserNotificationCenter.current().requestAuthorization(options: .alert) { granted, error in
       guard granted else {
         self.log(message: "Cannot display User Notification - access denied.")
         return
@@ -136,7 +145,8 @@ extension KeychainViewModel: BackgroundFetchHandler {
       let content = UNMutableNotificationContent()
       content.body = message
       content.title = "Background fetch."
-      let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: nil)
+      let request = UNNotificationRequest(identifier: UUID().uuidString, content: content,
+                                          trigger: nil)
       UNUserNotificationCenter.current().add(request, withCompletionHandler: nil)
     }
   }

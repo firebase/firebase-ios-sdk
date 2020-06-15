@@ -20,15 +20,13 @@ import SwiftUI
 import GoogleUtilities
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
-
   var window: UIWindow?
 
-
-  func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
-
+  func scene(_ scene: UIScene, willConnectTo session: UISceneSession,
+             options connectionOptions: UIScene.ConnectionOptions) {
     let viewModel = KeychainViewModel()
     (UIApplication.shared.delegate as? AppDelegate)?.backgroundFetchHandler = viewModel
-    let contentView = KeychainView(viewModel:viewModel)
+    let contentView = KeychainView(viewModel: viewModel)
 
     // Use a UIHostingController as window root view controller.
     if let windowScene = scene as? UIWindowScene {
@@ -66,7 +64,4 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     // Use this method to save data, release shared resources, and store enough scene-specific state information
     // to restore the scene back to its current state.
   }
-
-
 }
-

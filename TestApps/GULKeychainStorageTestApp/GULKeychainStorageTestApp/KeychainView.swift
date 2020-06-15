@@ -79,8 +79,6 @@ struct KeychainView: View {
 //    log = "\(message)\n\(log)"
 //    print(message)
 //  }
-
-  
 }
 
 struct ContentView_Previews: PreviewProvider {
