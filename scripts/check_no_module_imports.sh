@@ -30,6 +30,7 @@ function exit_with_error {
 git grep "${options[@]}" \
   -- ':(exclude,glob)**/Example/**' ':(exclude,glob)**/Sample/**' \
      ':(exclude)FirebaseCore/Sources/Private/FirebaseCoreInternal.h' \
+     ':(exclude)GoogleUtilities/NSData+zlib/Private/GULNSDataInternal.h' \
      ':(exclude)HeadersImports.md' && exit_with_error
 
 # Tests are under the Example directory, so we have to separately grep them for
