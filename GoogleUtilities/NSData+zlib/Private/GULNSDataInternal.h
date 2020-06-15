@@ -16,7 +16,7 @@
 // headers. Any package manager complexity should be handled here.
 
 #if SWIFT_PACKAGE
-@import TBD;
+@import GoogleUtilities_NSData;
 #else
 #import <GoogleUtilities/GULNSData+zlib.h>
 #endif
