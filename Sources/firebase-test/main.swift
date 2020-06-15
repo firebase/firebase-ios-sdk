@@ -23,8 +23,14 @@ import FirebaseCore
 // import FirebaseStorageSwift
 // import GoogleDataTransport
 // import GoogleDataTransportCCTSupport
+import GoogleUtilities_AppDelegateSwizzler
 import GoogleUtilities_Environment
 import GoogleUtilities_Logger
+import GoogleUtilities_MethodSwizzler
+import GoogleUtilities_Network
+import GoogleUtilities_NSData
+import GoogleUtilities_Reachability
+import GoogleUtilities_UserDefaults
 
 print("Hello world!")
 print("Is app store receipt sandbox? Answer: \(GULAppEnvironmentUtil.isAppStoreReceiptSandbox())")
@@ -36,6 +42,6 @@ print("Is App extension? Answer: \(GULAppEnvironmentUtil.isAppExtension())")
 print("Is iOS 7 or higher? Answer: \(GULAppEnvironmentUtil.isIOS7OrHigher())")
 
 print("Is there a default app? Answer: \(FirebaseApp.app() != nil)")
-//print("Storage Version String? Answer: \(String(cString: StorageVersionString))")
+// print("Storage Version String? Answer: \(String(cString: StorageVersionString))")
 
 // print("InstanceIDScopeFirebaseMessaging? Answer: \(InstanceIDScopeFirebaseMessaging)")

@@ -75,14 +75,22 @@ let package = Package(
     // Targets can depend on other targets in this package, and on products in packages which this package depends on.
     .target(
       name: "firebase-test",
-      dependencies: [ 
-      // "FirebaseAuth", "FirebaseFunctions",
-      //  "Firebase",
+      dependencies: [
+        // "FirebaseAuth", "FirebaseFunctions",
+        //  "Firebase",
         "FirebaseCore",
-      //  "FirebaseInstallations", "FirebaseInstanceID",
+        //  "FirebaseInstallations", "FirebaseInstanceID",
         // "FirebaseStorage",
         // "FirebaseStorageSwift",
-        "GoogleUtilities_Environment", "GoogleUtilities_Logger",
+        "GoogleUtilities_AppDelegateSwizzler",
+        "GoogleUtilities_Environment",
+        // "GoogleUtilities_ISASwizzler", // Build needs to disable ARC.
+        "GoogleUtilities_Logger",
+        "GoogleUtilities_MethodSwizzler",
+        "GoogleUtilities_Network",
+        "GoogleUtilities_NSData",
+        "GoogleUtilities_Reachability",
+        "GoogleUtilities_UserDefaults",
       ]
     ),
     .target(
@@ -95,6 +103,7 @@ let package = Package(
         "SceneDelegateSwizzler/",
         "Common/*.h",
       ],
+      publicHeadersPath: "AppDelegateSwizzler/Public",
       cSettings: [
         .headerSearchPath("../"),
       ]
@@ -103,6 +112,7 @@ let package = Package(
       name: "GoogleUtilities_Environment",
       dependencies: ["FBLPromises"],
       path: "GoogleUtilities/Environment",
+      publicHeadersPath: "Private",
       cSettings: [
         .headerSearchPath("../../"),
       ]
@@ -119,11 +129,24 @@ let package = Package(
         .headerSearchPath("../../"),
       ]
     ),
+
+    // TODO: ISA_Swizzler requires building without ARC.
+
+    .target(
+      name: "GoogleUtilities_MethodSwizzler",
+      dependencies: ["GoogleUtilities_Logger"],
+      path: "GoogleUtilities/MethodSwizzler",
+      publicHeadersPath: "Private",
+      cSettings: [
+        .headerSearchPath("../../"),
+      ]
+    ),
     .target(
       name: "GoogleUtilities_Network",
       dependencies: ["GoogleUtilities_Logger", "GoogleUtilities_NSData",
                      "GoogleUtilities_Reachability"],
       path: "GoogleUtilities/Network",
+      publicHeadersPath: "Public",
       cSettings: [
         .headerSearchPath("../.."),
       ]
@@ -146,6 +169,7 @@ let package = Package(
       name: "GoogleUtilities_Reachability",
       dependencies: ["GoogleUtilities_Logger"],
       path: "GoogleUtilities/Reachability",
+      publicHeadersPath: "Private",
       cSettings: [
         .headerSearchPath("../../"),
       ]
@@ -154,6 +178,7 @@ let package = Package(
       name: "GoogleUtilities_UserDefaults",
       dependencies: ["GoogleUtilities_Logger"],
       path: "GoogleUtilities/UserDefaults",
+      publicHeadersPath: "Private",
       cSettings: [
         .headerSearchPath("../../"),
       ]
@@ -186,7 +211,7 @@ let package = Package(
 //         .headerSearchPath("../../"),
 //         .define("FIRAuth_VERSION", to: "0.0.1"), // TODO: Fix version
 //         .define("FIRAuth_MINOR_VERSION", to: "1.1"), // TODO: Fix version
-// //        .define("DEBUG", .when(configuration: .debug)), // TODO - destroys other settings in DEBUG config
+    // //        .define("DEBUG", .when(configuration: .debug)), // TODO - destroys other settings in DEBUG config
 //         // linkerSettings: [
 //         //   .linkedFramework("Security"),
 //         //  .linkedFramework("SafariServices", .when(platforms: [.iOS])),
