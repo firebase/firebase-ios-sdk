@@ -356,7 +356,7 @@ static NSString *const gBatchesToEventsIDsKey = @"GDTCORFlatFileStorageBatchIDCo
                 onComplete:(nonnull void (^)(NSNumber *_Nullable batchID,
                                              NSSet<GDTCOREvent *> *_Nullable events))onComplete {
   NSNumber *batchID = [self nextBatchID];
-  if (!batchID) {
+  if (batchID == nil) {
     return nil;
   }
   dispatch_semaphore_t sema = dispatch_semaphore_create(0);
