@@ -16,17 +16,6 @@
 
 #import <Foundation/Foundation.h>
 
-typedef NS_ENUM(NSInteger, FIRRemoteConfigFetchStatus) {
-  /// Config has never been fetched.
-  FIRRemoteConfigFetchStatusNoFetchYet,
-  /// Config fetch succeeded.
-  FIRRemoteConfigFetchStatusSuccess,
-  /// Config fetch failed.
-  FIRRemoteConfigFetchStatusFailure,
-  /// Config fetch was throttled.
-  FIRRemoteConfigFetchStatusThrottled,
-} NS_SWIFT_NAME(RemoteConfigFetchStatus);
-
 @interface GULAppEnvironmentUtil : NSObject
 
 /// Indicates whether the app is from Apple Store or not. Returns NO if the app is on simulator,
