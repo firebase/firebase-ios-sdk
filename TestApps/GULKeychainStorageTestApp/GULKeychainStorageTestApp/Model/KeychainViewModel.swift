@@ -105,6 +105,7 @@ class KeychainViewModel: ObservableObject {
         self.registerBackgroundFetchHandler()
 
         self.generateAndSaveButtonPressed {
+          self.showNotification(message: self.log)
           task.setTaskCompleted(success: true)
         }
       }
