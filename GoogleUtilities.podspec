@@ -59,8 +59,8 @@ other Google CocoaPods. They're not intended for direct public usage.
   end
 
   s.subspec 'NSData+zlib' do |ns|
-    ns.source_files = 'GoogleUtilities/NSData+zlib/*.[mh]'
-    ns.public_header_files = 'GoogleUtilities/NSData+zlib/GULNSData+zlib.h'
+    ns.source_files = 'GoogleUtilities/NSData+zlib/**/*.[mh]'
+    ns.public_header_files = 'GoogleUtilities/NSData+zlib/Public/GULNSData+zlib.h'
     ns.libraries = [
       'z'
     ]
