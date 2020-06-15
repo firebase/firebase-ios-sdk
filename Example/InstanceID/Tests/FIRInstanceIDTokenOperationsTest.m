@@ -33,8 +33,8 @@
 #import "Firebase/InstanceID/NSError+FIRInstanceID.h"
 
 #import <FirebaseInstallations/FirebaseInstallations.h>
-#import "GoogleUtilities/Environment/Private/GULHeartbeatDateStorage.h"
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "GoogleUtilities/Environment/Private/GULHeartbeatDateStorage.h"
 
 static NSString *kDeviceID = @"fakeDeviceID";
 static NSString *kSecretToken = @"fakeSecretToken";

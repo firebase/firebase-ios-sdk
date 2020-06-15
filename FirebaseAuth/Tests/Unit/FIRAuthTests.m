@@ -21,10 +21,10 @@
 #import <FirebaseAuth/FIRGoogleAuthProvider.h>
 #import <FirebaseAuth/FIROAuthProvider.h>
 #import <Foundation/Foundation.h>
-#import "GoogleUtilities/AppDelegateSwizzler/Private/GULAppDelegateSwizzler.h"
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "GoogleUtilities/AppDelegateSwizzler/Private/GULAppDelegateSwizzler.h"
 #import "Interop/Auth/Public/FIRAuthInterop.h"
 
 #import "FirebaseAuth/Sources/Auth/FIRAuthDispatcher.h"

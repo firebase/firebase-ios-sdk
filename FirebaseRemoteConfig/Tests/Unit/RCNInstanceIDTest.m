@@ -26,9 +26,9 @@
 #import "FirebaseRemoteConfig/Tests/Unit/RCNTestUtilities.h"
 
 #import <FirebaseInstallations/FirebaseInstallations.h>
-#import "GoogleUtilities/NSData+zlib/Private/GULNSDataInternal.h"
 #import <OCMock/OCMock.h>
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "GoogleUtilities/NSData+zlib/Private/GULNSDataInternal.h"
 
 @interface RCNConfigFetch (ForTest)
 - (instancetype)initWithContent:(RCNConfigContent *)content
