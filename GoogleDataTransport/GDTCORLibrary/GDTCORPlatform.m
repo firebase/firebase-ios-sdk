@@ -168,7 +168,7 @@ NSData *_Nullable GDTCOREncodeArchive(id<NSSecureCoding> obj,
     resultData = [NSKeyedArchiver archivedDataWithRootObject:obj
                                        requiringSecureCoding:YES
                                                        error:error];
-    if (*error) {
+    if (resultData == nil && *error) {
       GDTCORLogDebug(@"Encoding an object failed: %@", *error);
       return nil;
     }

@@ -25,27 +25,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-/** Defines an iterator API for processing or fetching events. */
-@protocol GDTCORStorageEventIterator <NSObject>
-
-@required
-
-/** Initializes an iterator instance with the given target and queue.
- *
- * @param target The target for which the events are stored.
- * @param queue The queue on which the iterator should run.
- * @return An iterator instance.
- */
-- (instancetype)initWithTarget:(GDTCORTarget)target queue:(dispatch_queue_t)queue;
-
-/** Returns the next event or nil if there are no more events to iterate over.
- *
- * @return A GDTCOREvent instance or nil if the iterator has iterated through all the events.
- */
-- (nullable GDTCOREvent *)nextEvent;
-
-@end
-
 /** Defines the interface a storage subsystem is expected to implement. */
 @protocol GDTCORStorageProtocol <NSObject, GDTCORLifecycleProtocol>
 
@@ -62,6 +41,37 @@ NS_ASSUME_NONNULL_BEGIN
 /** Removes the events from storage. */
 - (void)removeEvents:(NSSet<NSNumber *> *)eventIDs;
 
+/** Constructs an event batch with the given event selector. Events in this batch will not be
+ * returned in any queries or other batches until the batch is removed.
+ *
+ * @param eventSelector The event selector used to find the events.
+ * @param expiration The expiration time of the batch. If removeBatchWithID:deleteEvents:onComplete:
+ * is not called within this time frame, the batch will be removed with its events deleted.
+ * @param onComplete The completion handler to be called when the events have been fetched.
+ * @return The batchID or nil if the batch could not be created (e.g. if there were no events).
+ */
+- (nullable NSNumber *)batchWithEventSelector:(GDTCORStorageEventSelector *)eventSelector
+                              batchExpiration:(GDTCORClock *)expiration
+                                   onComplete:
+                                       (void (^)(NSNumber *_Nullable batchID,
+                                                 NSSet<GDTCOREvent *> *_Nullable events))onComplete;
+
+/** Removes the event batch.
+ *
+ * @param batchID The batchID to remove.
+ * @param deleteEvents If YES, the events in this batch are deleted.
+ * @param onComplete The completion handler to call when the batch removal process has completed.
+ */
+- (void)removeBatchWithID:(NSNumber *)batchID
+             deleteEvents:(BOOL)deleteEvents
+               onComplete:(void (^_Nullable)(void))onComplete;
+
+/** Returns YES if some events have been stored for the given target, NO otherwise.
+ *
+ * @return YES if the storage contains events for the given target, NO otherwise.
+ */
+- (BOOL)hasEventsForTarget:(GDTCORTarget)target;
+
 /** Persists the given data with the given key.
  *
  * @param data The data to store.
@@ -72,13 +82,15 @@ NS_ASSUME_NONNULL_BEGIN
                   forKey:(NSString *)key
               onComplete:(nullable void (^)(NSError *_Nullable error))onComplete;
 
-/** Retrieves the stored data for the given key.
+/** Retrieves the stored data for the given key and optionally sets a new value.
  *
  * @param key The key corresponding to the desired data.
- * @param onComplete The callback to invoke with the data once it's retrieved.
+ * @param onComplete The callback to invoke with the data once it's retrieved. If NSData is returned
+ * by the completion block, the library data will be set with this new value.
  */
 - (void)libraryDataForKey:(NSString *)key
-               onComplete:(void (^)(NSData *_Nullable data, NSError *_Nullable error))onComplete;
+               onComplete:(nullable NSData * (^)(NSData *_Nullable data,
+                                                 NSError *_Nullable error))onComplete;
 
 /** Removes data from storage and calls the callback when complete.
  *
@@ -87,20 +99,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)removeLibraryDataForKey:(NSString *)key
                      onComplete:(void (^)(NSError *_Nullable error))onComplete;
-
-/** Returns YES if some events have been stored for the given target, NO otherwise.
- *
- * @return YES if the storage contains events for the given target, NO otherwise.
- */
-- (BOOL)hasEventsForTarget:(GDTCORTarget)target;
-
-/** Returns an iterator object that can be used to iterate over events that match the eventSelector.
- *
- * @param eventSelector The event selector to match events with.
- * @return An iterator instance.
- */
-- (nullable id<GDTCORStorageEventIterator>)iteratorWithSelector:
-    (GDTCORStorageEventSelector *)eventSelector;
 
 /** Removes events from before the given time.
  *

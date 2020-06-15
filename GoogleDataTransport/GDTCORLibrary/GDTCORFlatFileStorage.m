@@ -25,15 +25,14 @@
 #import <GoogleDataTransport/GDTCORStorageEventSelector.h>
 
 #import "GDTCORLibrary/Private/GDTCOREvent_Private.h"
-#import "GDTCORLibrary/Private/GDTCORFlatFileStorageIterator.h"
 #import "GDTCORLibrary/Private/GDTCORRegistrar_Private.h"
 #import "GDTCORLibrary/Private/GDTCORUploadCoordinator.h"
 
-NSString *const gGDTCORFlatFileStorageEventDataPathKey = @"DataPath";
+/** A library data key this class uses to track batchIDs. */
+static NSString *const gBatchIDCounterKey = @"GDTCORFlatFileStorageBatchIDCounter";
 
-NSString *const gGDTCORFlatFileStorageMappingIDPathKey = @"MappingIDPath";
-
-NSString *const gGDTCORFlatFileStorageQoSTierPathKey = @"QoSTierPath";
+/** A library data key this classes uses to track batches and their associated eventIDs. */
+static NSString *const gBatchesToEventsIDsKey = @"GDTCORFlatFileStorageBatchIDCounter";
 
 @implementation GDTCORFlatFileStorage
 
@@ -60,7 +59,7 @@ NSString *const gGDTCORFlatFileStorageQoSTierPathKey = @"QoSTierPath";
   return archivePath;
 }
 
-+ (NSString *)baseEventStoragePath {
++ (NSString *)eventDataStoragePath {
   static NSString *eventDataPath;
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
@@ -79,6 +78,27 @@ NSString *const gGDTCORFlatFileStorageQoSTierPathKey = @"QoSTierPath";
     }
   });
   return eventDataPath;
+}
+
++ (NSString *)batchDataStoragePath {
+  static NSString *batchDataPath;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    batchDataPath =
+        [GDTCORRootDirectory() URLByAppendingPathComponent:NSStringFromClass([self class])
+                                               isDirectory:YES]
+            .path;
+    batchDataPath = [batchDataPath stringByAppendingPathComponent:@"gdt_batch_data"];
+    if (![[NSFileManager defaultManager] fileExistsAtPath:batchDataPath isDirectory:NULL]) {
+      NSError *error;
+      [[NSFileManager defaultManager] createDirectoryAtPath:batchDataPath
+                                withIntermediateDirectories:YES
+                                                 attributes:0
+                                                      error:&error];
+      GDTCORAssert(error == nil, @"Creating the batch data path failed: %@", error);
+    }
+  });
+  return batchDataPath;
 }
 
 + (NSString *)libraryDataStoragePath {
@@ -102,12 +122,17 @@ NSString *const gGDTCORFlatFileStorageQoSTierPathKey = @"QoSTierPath";
   return libraryDataPath;
 }
 
++ (NSString *)batchPathForTarget:(GDTCORTarget)target batchID:(NSNumber *)batchID {
+  return [NSString stringWithFormat:@"%@/%ld.%@", [GDTCORFlatFileStorage batchDataStoragePath],
+                                    (long)target, batchID];
+}
+
 + (NSString *)pathForTarget:(GDTCORTarget)target
                     eventID:(NSNumber *)eventID
                     qosTier:(NSNumber *)qosTier
                   mappingID:(NSString *)mappingID {
   return
-      [NSString stringWithFormat:@"%@/%ld/%@.%@.%@", [GDTCORFlatFileStorage baseEventStoragePath],
+      [NSString stringWithFormat:@"%@/%ld/%@.%@.%@", [GDTCORFlatFileStorage eventDataStoragePath],
                                  (long)target, eventID, qosTier, mappingID];
 }
 
@@ -121,7 +146,7 @@ NSString *const gGDTCORFlatFileStorageQoSTierPathKey = @"QoSTierPath";
     NSMutableSet<NSString *> *paths = [[NSMutableSet alloc] init];
     NSFileManager *fileManager = [NSFileManager defaultManager];
     NSString *targetPath = [NSString
-        stringWithFormat:@"%@/%ld", [GDTCORFlatFileStorage baseEventStoragePath], (long)target];
+        stringWithFormat:@"%@/%ld", [GDTCORFlatFileStorage eventDataStoragePath], (long)target];
     [fileManager createDirectoryAtPath:targetPath
            withIntermediateDirectories:YES
                             attributes:nil
@@ -197,6 +222,8 @@ NSString *const gGDTCORFlatFileStorageQoSTierPathKey = @"QoSTierPath";
   return self;
 }
 
+#pragma mark - GDTCORStorageProtocol
+
 - (void)storeEvent:(GDTCOREvent *)event
         onComplete:(void (^_Nullable)(BOOL wasWritten, NSError *_Nullable error))completion {
   GDTCORLogDebug(@"Saving event: %@", event);
@@ -225,17 +252,6 @@ NSString *const gGDTCORFlatFileStorageQoSTierPathKey = @"QoSTierPath";
     // Check that a backend implementation is available for this target.
     NSInteger target = event.target;
 
-    NSString *filePath = [GDTCORFlatFileStorage pathForTarget:target
-                                                      eventID:event.eventID
-                                                      qosTier:@(event.qosTier)
-                                                    mappingID:event.mappingID];
-    NSError *error;
-    GDTCOREncodeArchive(event, filePath, &error);
-    if (error) {
-      completion(NO, error);
-      return;
-    }
-
     // Check that a prioritizer is available for this target.
     id<GDTCORPrioritizer> prioritizer =
         [GDTCORRegistrar sharedInstance].targetToPrioritizer[@(target)];
@@ -245,7 +261,7 @@ NSString *const gGDTCORFlatFileStorageQoSTierPathKey = @"QoSTierPath";
     // Write the transport bytes to disk, get a filename.
     GDTCORAssert([event.dataObject transportBytes],
                  @"The event should have been serialized to bytes");
-    error = nil;
+    NSError *error;
     NSURL *eventFile = [self saveEventBytesToDisk:event eventHash:event.hash error:&error];
     if (!eventFile || error) {
       GDTCORLogError(GDTCORMCEFileWriteError, @"Event failed to save to disk: %@", error);
@@ -265,6 +281,17 @@ NSString *const gGDTCORFlatFileStorageQoSTierPathKey = @"QoSTierPath";
       [prioritizer saveState];
       GDTCORLogDebug(@"Prioritizer %@ has saved state due to an event's onComplete block.",
                      prioritizer);
+    }
+
+    NSString *filePath = [GDTCORFlatFileStorage pathForTarget:target
+                                                      eventID:event.eventID
+                                                      qosTier:@(event.qosTier)
+                                                    mappingID:event.mappingID];
+    error = nil;
+    GDTCOREncodeArchive(event, filePath, &error);
+    if (error) {
+      completion(NO, error);
+      return;
     }
 
     // Check the QoS, if it's high priority, notify the target that it has a high priority event.
@@ -323,17 +350,128 @@ NSString *const gGDTCORFlatFileStorageQoSTierPathKey = @"QoSTierPath";
   });
 }
 
-#pragma mark - GDTCORStorageProtocol
+- (nullable NSNumber *)
+    batchWithEventSelector:(nonnull GDTCORStorageEventSelector *)eventSelector
+           batchExpiration:(nonnull GDTCORClock *)expiration
+                onComplete:(nonnull void (^)(NSNumber *_Nullable batchID,
+                                             NSSet<GDTCOREvent *> *_Nullable events))onComplete {
+  NSNumber *batchID = [self nextBatchID];
+  if (!batchID) {
+    return nil;
+  }
+  dispatch_semaphore_t sema = dispatch_semaphore_create(0);
+  __block NSSet<NSString *> *eventPaths;
+  [self pathsForTarget:eventSelector.selectedTarget
+              eventIDs:eventSelector.selectedEventIDs
+              qosTiers:eventSelector.selectedQosTiers
+            mappingIDs:eventSelector.selectedMappingIDs
+            onComplete:^(NSSet<NSString *> *_Nonnull paths) {
+              eventPaths = paths;
+              dispatch_semaphore_signal(sema);
+            }];
+  if (dispatch_semaphore_wait(sema, dispatch_time(DISPATCH_TIME_NOW, 10 * NSEC_PER_SEC)) != 0) {
+    return nil;
+  }
+  if (eventPaths.count == 0) {
+    return nil;
+  }
+  dispatch_async(_storageQueue, ^{
+    NSMutableSet<GDTCOREvent *> *events = [[NSMutableSet alloc] init];
+    for (NSString *eventPath in eventPaths) {
+      NSError *error;
+      GDTCOREvent *event =
+          (GDTCOREvent *)GDTCORDecodeArchive([GDTCOREvent class], eventPath, nil, &error);
+      if (event == nil || error) {
+        GDTCORLogDebug(@"Error deserializing event: %@", error);
+        [[NSFileManager defaultManager] removeItemAtPath:eventPath error:nil];
+        continue;
+      } else {
+        NSString *fileName = [eventPath lastPathComponent];
+        NSString *batchPath = [GDTCORFlatFileStorage batchPathForTarget:eventSelector.selectedTarget
+                                                                batchID:batchID];
+        [[NSFileManager defaultManager] createDirectoryAtPath:batchPath
+                                  withIntermediateDirectories:YES
+                                                   attributes:nil
+                                                        error:nil];
+        NSString *destinationPath = [batchPath stringByAppendingPathComponent:fileName];
+        error = nil;
+        [[NSFileManager defaultManager] moveItemAtPath:eventPath
+                                                toPath:destinationPath
+                                                 error:&error];
+        if (error) {
+          GDTCORLogDebug(@"An event file wasn't not moveable into the batch directory: %@", error);
+        }
+        [events addObject:event];
+      }
+    }
+    if (onComplete) {
+      onComplete(batchID, events);
+    }
+  });
+  return batchID;
+}
+
+- (void)removeBatchWithID:(nonnull NSNumber *)batchID
+             deleteEvents:(BOOL)deleteEvents
+               onComplete:(void (^_Nullable)(void))onComplete {
+  dispatch_async(_storageQueue, ^{
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSError *error;
+    NSArray<NSString *> *batches =
+        [fileManager contentsOfDirectoryAtPath:[GDTCORFlatFileStorage batchDataStoragePath]
+                                         error:&error];
+    if (error) {
+      if (onComplete) {
+        onComplete();
+      }
+      return;
+    }
+    for (NSString *path in batches) {
+      NSArray<NSString *> *components = [[path lastPathComponent] componentsSeparatedByString:@"."];
+      if (components.count != 2) {
+        GDTCORLogDebug(@"The name of the batch folder couldn't be parsed: %@", path);
+      }
+      NSString *targetString = components[0];
+      NSString *batchID = components[1];
+      if ([[path lastPathComponent] hasSuffix:batchID]) {
+        if (deleteEvents) {
+          NSString *deletionPath =
+              [[GDTCORFlatFileStorage batchDataStoragePath] stringByAppendingPathComponent:path];
+          [fileManager removeItemAtPath:deletionPath error:nil];
+        } else {
+          NSString *destinationPath = [[GDTCORFlatFileStorage eventDataStoragePath]
+              stringByAppendingPathComponent:targetString];
+          [fileManager moveItemAtPath:path toPath:destinationPath error:&error];
+          if (error) {
+            GDTCORLogDebug(@"Error encountered whilst moving events back: %@", error);
+          }
+        }
+      }
+    }
+    if (onComplete) {
+      onComplete();
+    }
+  });
+}
 
 - (void)libraryDataForKey:(nonnull NSString *)key
                onComplete:
-                   (nonnull void (^)(NSData *_Nullable, NSError *_Nullable error))onComplete {
+                   (nullable NSData * (^)(NSData *_Nullable, NSError *_Nullable error))onComplete {
   dispatch_async(_storageQueue, ^{
     NSString *dataPath = [[[self class] libraryDataStoragePath] stringByAppendingPathComponent:key];
     NSError *error;
     NSData *data = [NSData dataWithContentsOfFile:dataPath options:0 error:&error];
     if (onComplete) {
-      onComplete(data, error);
+      NSData *newValue = onComplete(data, error);
+      // The -isKindOfClass check is necessary because without an explicit 'return nil' in the block
+      // the implicit return value will be the block itself. The compiler doesn't detect this.
+      if (newValue && [newValue isKindOfClass:[NSData class]] && newValue.length) {
+        NSError *newValueError;
+        [newValue writeToFile:dataPath options:NSDataWritingAtomic error:&newValueError];
+        if (newValueError) {
+          GDTCORLogDebug(@"Error writing new value in libraryDataForKey: %@", newValueError);
+        }
+      }
     }
   });
 }
@@ -374,33 +512,13 @@ NSString *const gGDTCORFlatFileStorageQoSTierPathKey = @"QoSTierPath";
 - (BOOL)hasEventsForTarget:(GDTCORTarget)target {
   NSFileManager *fileManager = [NSFileManager defaultManager];
   NSString *targetPath = [NSString
-      stringWithFormat:@"%@/%ld", [GDTCORFlatFileStorage baseEventStoragePath], (long)target];
+      stringWithFormat:@"%@/%ld", [GDTCORFlatFileStorage eventDataStoragePath], (long)target];
   [fileManager createDirectoryAtPath:targetPath
          withIntermediateDirectories:YES
                           attributes:nil
                                error:nil];
   NSDirectoryEnumerator *enumerator = [fileManager enumeratorAtPath:targetPath];
   return [enumerator nextObject] != nil;
-}
-
-- (nullable id<GDTCORStorageEventIterator>)iteratorWithSelector:
-    (nonnull GDTCORStorageEventSelector *)eventSelector {
-  GDTCORFlatFileStorageIterator *iterator =
-      [[GDTCORFlatFileStorageIterator alloc] initWithTarget:eventSelector.selectedTarget
-                                                      queue:_storageQueue];
-  dispatch_semaphore_t sema = dispatch_semaphore_create(0);
-  [self pathsForTarget:eventSelector.selectedTarget
-              eventIDs:eventSelector.selectedEventIDs
-              qosTiers:eventSelector.selectedQosTiers
-            mappingIDs:eventSelector.selectedMappingIDs
-            onComplete:^(NSSet<NSString *> *_Nonnull paths) {
-              iterator.eventFiles = [paths allObjects];
-              dispatch_semaphore_signal(sema);
-            }];
-  if (dispatch_semaphore_wait(sema, dispatch_time(DISPATCH_TIME_NOW, 10 * NSEC_PER_SEC)) != 0) {
-    return nil;
-  };
-  return iterator;
 }
 
 - (void)purgeEventsFromBefore:(GDTCORClock *)beforeSnapshot
@@ -411,8 +529,9 @@ NSString *const gGDTCORFlatFileStorageQoSTierPathKey = @"QoSTierPath";
 - (void)storageSizeWithCallback:(void (^)(uint64_t storageSize))onComplete {
   dispatch_async(_storageQueue, ^{
     unsigned long long totalBytes = 0;
-    NSString *eventDataPath = [GDTCORFlatFileStorage baseEventStoragePath];
+    NSString *eventDataPath = [GDTCORFlatFileStorage eventDataStoragePath];
     NSString *libraryDataPath = [GDTCORFlatFileStorage libraryDataStoragePath];
+    NSString *batchDataPath = [GDTCORFlatFileStorage batchDataStoragePath];
     NSDirectoryEnumerator *enumerator =
         [[NSFileManager defaultManager] enumeratorAtPath:eventDataPath];
     while ([enumerator nextObject]) {
@@ -423,6 +542,14 @@ NSString *const gGDTCORFlatFileStorageQoSTierPathKey = @"QoSTierPath";
       }
     }
     enumerator = [[NSFileManager defaultManager] enumeratorAtPath:libraryDataPath];
+    while ([enumerator nextObject]) {
+      NSFileAttributeType fileType = enumerator.fileAttributes[NSFileType];
+      if ([fileType isEqual:NSFileTypeRegular]) {
+        NSNumber *fileSize = enumerator.fileAttributes[NSFileSize];
+        totalBytes += fileSize.unsignedLongLongValue;
+      }
+    }
+    enumerator = [[NSFileManager defaultManager] enumeratorAtPath:batchDataPath];
     while ([enumerator nextObject]) {
       NSFileAttributeType fileType = enumerator.fileAttributes[NSFileType];
       if ([fileType isEqual:NSFileTypeRegular]) {
@@ -473,6 +600,27 @@ NSString *const gGDTCORFlatFileStorageQoSTierPathKey = @"QoSTierPath";
   events = events ? events : [[NSMutableSet alloc] init];
   [events addObject:event];
   _targetToEventSet[target] = events;
+}
+
+- (nullable NSNumber *)nextBatchID {
+  __block int32_t lastBatchID = -1;
+  dispatch_semaphore_t sema = dispatch_semaphore_create(0);
+  [self libraryDataForKey:gBatchIDCounterKey
+               onComplete:^NSData *_Nonnull(NSData *_Nullable data, NSError *_Nullable error) {
+                 if (!error) {
+                   [data getBytes:(void *)&lastBatchID length:sizeof(int32_t)];
+                 }
+                 if (data == nil) {
+                   lastBatchID = 0;
+                 }
+                 dispatch_semaphore_signal(sema);
+                 int32_t incrementedValue = lastBatchID + 1;
+                 return [NSData dataWithBytes:&incrementedValue length:sizeof(int32_t)];
+               }];
+  if (dispatch_semaphore_wait(sema, dispatch_time(DISPATCH_TIME_NOW, 10 * NSEC_PER_SEC)) != 0) {
+    return nil;
+  }
+  return @(lastBatchID);
 }
 
 #pragma mark - GDTCORLifecycleProtocol

@@ -36,6 +36,13 @@ NS_ASSUME_NONNULL_BEGIN
 /** Finds all events matching the qosTiers in this list. */
 @property(nullable, readonly, nonatomic) NSSet<NSNumber *> *selectedQosTiers;
 
+/** Initializes an event selector that will find all events for the given target.
+ *
+ * @param target The selected target.
+ * @return An immutable event selector instance.
+ */
++ (instancetype)eventSelectorForTarget:(GDTCORTarget)target;
+
 /** Instantiates an event selector.
  *
  * @param target The selected target.
@@ -48,6 +55,7 @@ NS_ASSUME_NONNULL_BEGIN
                       eventIDs:(nullable NSSet<NSNumber *> *)eventIDs
                     mappingIDs:(nullable NSSet<NSString *> *)mappingIDs
                       qosTiers:(nullable NSSet<NSNumber *> *)qosTiers;
+
 @end
 
 NS_ASSUME_NONNULL_END

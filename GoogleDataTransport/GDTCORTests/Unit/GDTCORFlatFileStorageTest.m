@@ -521,12 +521,13 @@
   XCTestExpectation *expectation = [self expectationWithDescription:@"retrieval completion called"];
   [[GDTCORFlatFileStorage sharedInstance]
       libraryDataForKey:dataKey
-             onComplete:^(NSData *_Nullable data, NSError *_Nullable error) {
+             onComplete:^NSData *_Nullable(NSData *_Nullable data, NSError *_Nullable error) {
                [expectation fulfill];
                XCTAssertNil(error);
                XCTAssertEqualObjects(@"test data",
                                      [[NSString alloc] initWithData:data
                                                            encoding:NSUTF8StringEncoding]);
+               return nil;
              }];
   [self waitForExpectations:@[ expectation ] timeout:10.0];
 }
@@ -556,12 +557,13 @@
   expectation = [self expectationWithDescription:@"retrieval completion called"];
   [[GDTCORFlatFileStorage sharedInstance]
       libraryDataForKey:dataKey
-             onComplete:^(NSData *_Nullable data, NSError *_Nullable error) {
-               [expectation fulfill];
+             onComplete:^NSData *_Nullable(NSData *_Nullable data, NSError *_Nullable error) {
                XCTAssertNil(error);
                XCTAssertEqualObjects(@"test data",
                                      [[NSString alloc] initWithData:data
                                                            encoding:NSUTF8StringEncoding]);
+               [expectation fulfill];
+               // On purpose, send back an implicit return value.
              }];
   [self waitForExpectations:@[ expectation ] timeout:10.0];
   expectation = [self expectationWithDescription:@"removal completion called"];
@@ -574,10 +576,11 @@
   expectation = [self expectationWithDescription:@"retrieval completion called"];
   [[GDTCORFlatFileStorage sharedInstance]
       libraryDataForKey:dataKey
-             onComplete:^(NSData *_Nullable data, NSError *_Nullable error) {
-               [expectation fulfill];
+             onComplete:^NSData *_Nullable(NSData *_Nullable data, NSError *_Nullable error) {
                XCTAssertNotNil(error);
                XCTAssertNil(data);
+               [expectation fulfill];
+               return nil;
              }];
   [self waitForExpectations:@[ expectation ] timeout:10.0];
 }
@@ -785,42 +788,6 @@
   });
 }
 
-/** Tests -iteratorWithSelector produces a usable iterator. */
-- (void)testIteratorWithSelector {
-  GDTCORStorageEventSelector *eventSelector =
-      [[GDTCORStorageEventSelector alloc] initWithTarget:kGDTCORTargetTest
-                                                eventIDs:nil
-                                              mappingIDs:nil
-                                                qosTiers:nil];
-  id<GDTCORStorageEventIterator> iter =
-      [[GDTCORFlatFileStorage sharedInstance] iteratorWithSelector:eventSelector];
-  XCTAssertNil([iter nextEvent]);
-
-  NSMutableSet<NSNumber *> *eventIDs = [[NSMutableSet alloc] init];
-  NSSet<GDTCOREvent *> *generatedEvents = [self generateEventsForStorageTesting];
-  int testTargetEventCounter = 0;
-  for (GDTCOREvent *event in generatedEvents) {
-    [eventIDs addObject:event.eventID];
-    [[GDTCORFlatFileStorage sharedInstance] storeEvent:event onComplete:nil];
-    if (event.target == kGDTCORTargetTest) {
-      testTargetEventCounter++;
-    }
-  }
-
-  eventSelector = [[GDTCORStorageEventSelector alloc] initWithTarget:kGDTCORTargetTest
-                                                            eventIDs:nil
-                                                          mappingIDs:nil
-                                                            qosTiers:nil];
-  iter = [[GDTCORFlatFileStorage sharedInstance] iteratorWithSelector:eventSelector];
-  GDTCOREvent *event;
-  int eventCounter = 0;
-  while ((event = [iter nextEvent]) != nil) {
-    XCTAssertTrue([eventIDs containsObject:event.eventID]);
-    eventCounter++;
-  }
-  XCTAssertEqual(eventCounter, testTargetEventCounter);
-}
-
 /** Tests -purgeEventsFromBefore:onComplete: removes prior to an arbitrary time. */
 - (void)testPurgeEvents {
   // TODO(mikehaney24): Complete when purge events is implemented.
@@ -861,6 +828,167 @@
     [expectation fulfill];
   }];
   [self waitForExpectations:@[ expectation ] timeout:10.0];
+}
+
+/** Tests generating the next batchID. */
+- (void)testNextBatchID {
+  BOOL originalContinueAfterFailure = self.continueAfterFailure;
+  self.continueAfterFailure = NO;
+  NSNumber *expectedBatchID = @0;
+  NSNumber *batchID = [[GDTCORFlatFileStorage sharedInstance] nextBatchID];
+  XCTAssertNotNil(batchID);
+  XCTAssertEqualObjects(batchID, expectedBatchID);
+
+  expectedBatchID = @1;
+  batchID = [[GDTCORFlatFileStorage sharedInstance] nextBatchID];
+  XCTAssertNotNil(batchID);
+  XCTAssertEqualObjects(batchID, expectedBatchID);
+
+  for (int i = 0; i < 1000; i++) {
+    NSNumber *batchID = [[GDTCORFlatFileStorage sharedInstance] nextBatchID];
+    NSNumber *expectedBatchID = @(i + 2);  // 2 because of the 2 we generated.
+    XCTAssertEqualObjects(batchID, expectedBatchID);
+  }
+  self.continueAfterFailure = originalContinueAfterFailure;
+}
+
+/** Tests basic batch creation and removal. */
+- (void)testBatchIDWithTarget {
+  GDTCORFlatFileStorage *storage = [GDTCORFlatFileStorage sharedInstance];
+  NSSet<GDTCOREvent *> *generatedEvents = [self generateEventsForStorageTesting];
+  for (GDTCOREvent *event in generatedEvents) {
+    [[GDTCORFlatFileStorage sharedInstance] storeEvent:event onComplete:nil];
+  }
+  NSSet<GDTCOREvent *> *testTargetEvents = [generatedEvents
+      filteredSetUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(
+                                                 GDTCOREvent *_Nullable event,
+                                                 NSDictionary<NSString *, id> *_Nullable bindings) {
+        return event.target == kGDTCORTargetTest;
+      }]];
+  XCTAssertNotNil(testTargetEvents);
+  XCTestExpectation *expectation = [self expectationWithDescription:@"batch callback invoked"];
+  GDTCORStorageEventSelector *eventSelector =
+      [GDTCORStorageEventSelector eventSelectorForTarget:kGDTCORTargetTest];
+  NSNumber *batchID = [storage batchWithEventSelector:eventSelector
+                                      batchExpiration:[GDTCORClock clockSnapshotInTheFuture:60000]
+                                           onComplete:^(NSNumber *_Nullable batchID,
+                                                        NSSet<GDTCOREvent *> *_Nullable events) {
+                                             XCTAssertNotNil(batchID);
+                                             XCTAssertEqual(events.count, testTargetEvents.count);
+                                             [expectation fulfill];
+                                           }];
+  XCTAssertNotNil(batchID);
+  [self waitForExpectations:@[ expectation ] timeout:10];
+  expectation = [self expectationWithDescription:@"pathsForTarget completion invoked"];
+  [storage pathsForTarget:kGDTCORTargetTest
+                 eventIDs:nil
+                 qosTiers:nil
+               mappingIDs:nil
+               onComplete:^(NSSet<NSString *> *_Nonnull paths) {
+                 XCTAssertEqual(paths.count, 0);
+                 [expectation fulfill];
+               }];
+  [self waitForExpectations:@[ expectation ] timeout:10];
+}
+
+/** Tests creating a batch and then deleting the files. */
+- (void)testRemoveBatchWithIDDeletingEvents {
+  GDTCORFlatFileStorage *storage = [GDTCORFlatFileStorage sharedInstance];
+  NSSet<GDTCOREvent *> *generatedEvents = [self generateEventsForStorageTesting];
+  for (GDTCOREvent *event in generatedEvents) {
+    [[GDTCORFlatFileStorage sharedInstance] storeEvent:event onComplete:nil];
+  }
+  __block NSUInteger testTargetSize = 0;
+  NSSet<GDTCOREvent *> *testTargetEvents = [generatedEvents
+      filteredSetUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(
+                                                 GDTCOREvent *_Nullable event,
+                                                 NSDictionary<NSString *, id> *_Nullable bindings) {
+        testTargetSize +=
+            event.target == kGDTCORTargetTest ? GDTCOREncodeArchive(event, nil, nil).length : 0;
+        return event.target == kGDTCORTargetTest;
+      }]];
+  XCTAssertNotNil(testTargetEvents);
+
+  __block NSUInteger totalSize;
+  [storage storageSizeWithCallback:^(uint64_t storageSize) {
+    totalSize = storageSize;
+  }];
+
+  XCTestExpectation *expectation = [self expectationWithDescription:@"batch callback invoked"];
+  GDTCORStorageEventSelector *eventSelector =
+      [GDTCORStorageEventSelector eventSelectorForTarget:kGDTCORTargetTest];
+  NSNumber *batchID = [storage batchWithEventSelector:eventSelector
+                                      batchExpiration:[GDTCORClock clockSnapshotInTheFuture:60000]
+                                           onComplete:^(NSNumber *_Nullable batchID,
+                                                        NSSet<GDTCOREvent *> *_Nullable events) {
+                                             XCTAssertNotNil(batchID);
+                                             XCTAssertEqual(events.count, testTargetEvents.count);
+                                             [expectation fulfill];
+                                           }];
+  [self waitForExpectations:@[ expectation ] timeout:10];
+  expectation = [self expectationWithDescription:@"batch removal completion invoked"];
+  [storage removeBatchWithID:batchID
+                deleteEvents:YES
+                  onComplete:^{
+                    [expectation fulfill];
+                  }];
+  [self waitForExpectations:@[ expectation ] timeout:10];
+  expectation = [self expectationWithDescription:@"storageSize callback invoked"];
+  [storage storageSizeWithCallback:^(uint64_t storageSize) {
+    XCTAssertLessThan(storageSize * .95, totalSize - testTargetSize);  // .95 to allow overhead
+    [expectation fulfill];
+  }];
+  [self waitForExpectations:@[ expectation ] timeout:10];
+}
+
+/** Tests creating a batch and then deleting the files. */
+- (void)testRemoveBatchWithID {
+  GDTCORFlatFileStorage *storage = [GDTCORFlatFileStorage sharedInstance];
+  NSSet<GDTCOREvent *> *generatedEvents = [self generateEventsForStorageTesting];
+  for (GDTCOREvent *event in generatedEvents) {
+    [[GDTCORFlatFileStorage sharedInstance] storeEvent:event onComplete:nil];
+  }
+  __block NSUInteger testTargetSize = 0;
+  NSSet<GDTCOREvent *> *testTargetEvents = [generatedEvents
+      filteredSetUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(
+                                                 GDTCOREvent *_Nullable event,
+                                                 NSDictionary<NSString *, id> *_Nullable bindings) {
+        testTargetSize +=
+            event.target == kGDTCORTargetTest ? GDTCOREncodeArchive(event, nil, nil).length : 0;
+        return event.target == kGDTCORTargetTest;
+      }]];
+  XCTAssertNotNil(testTargetEvents);
+
+  __block NSUInteger totalSize;
+  [storage storageSizeWithCallback:^(uint64_t storageSize) {
+    totalSize = storageSize;
+  }];
+
+  XCTestExpectation *expectation = [self expectationWithDescription:@"batch callback invoked"];
+  GDTCORStorageEventSelector *eventSelector =
+      [GDTCORStorageEventSelector eventSelectorForTarget:kGDTCORTargetTest];
+  NSNumber *batchID = [storage batchWithEventSelector:eventSelector
+                                      batchExpiration:[GDTCORClock clockSnapshotInTheFuture:60000]
+                                           onComplete:^(NSNumber *_Nullable batchID,
+                                                        NSSet<GDTCOREvent *> *_Nullable events) {
+                                             XCTAssertNotNil(batchID);
+                                             XCTAssertEqual(events.count, testTargetEvents.count);
+                                             [expectation fulfill];
+                                           }];
+  [self waitForExpectations:@[ expectation ] timeout:10];
+  expectation = [self expectationWithDescription:@"batch removal completion invoked"];
+  [storage removeBatchWithID:batchID
+                deleteEvents:YES
+                  onComplete:^{
+                    [expectation fulfill];
+                  }];
+  [self waitForExpectations:@[ expectation ] timeout:10];
+  expectation = [self expectationWithDescription:@"storageSize callback invoked"];
+  [storage storageSizeWithCallback:^(uint64_t storageSize) {
+    XCTAssertLessThan(storageSize * .95, totalSize - testTargetSize);  // .95 to allow overhead
+    [expectation fulfill];
+  }];
+  [self waitForExpectations:@[ expectation ] timeout:10];
 }
 
 /** Tests migration from v1 of the storage format to v2. */

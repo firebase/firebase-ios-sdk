@@ -66,13 +66,22 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @return The base directory under which all events will be stored.
  */
-+ (NSString *)baseEventStoragePath;
++ (NSString *)eventDataStoragePath;
 
 /** Returns the base directory under which all library data will be stored.
  *
  * @return The base directory under which all library data will be stored.
  */
 + (NSString *)libraryDataStoragePath;
+
+/** Returns the base directory under which all batch data will be stored.
+ *
+ * @return The base directory under which all batch data will be stored.
+ */
++ (NSString *)batchDataStoragePath;
+
+/** */
++ (NSString *)batchPathForTarget:(GDTCORTarget)target batchID:(NSNumber *)batchID;
 
 /** Returns a constructed storage path based on the given values. This path may not exist.
  *
@@ -99,6 +108,13 @@ NS_ASSUME_NONNULL_BEGIN
               qosTiers:(nullable NSSet<NSNumber *> *)qosTiers
             mappingIDs:(nullable NSSet<NSString *> *)mappingIDs
             onComplete:(void (^)(NSSet<NSString *> *paths))onComplete;
+
+/** Fetches the current batchID counter value from library storage, increments it, and sets the new
+ * value. Returns nil if a batchID was not able to be created for some reason.
+ *
+ * @return The current value of the batchID counter.
+ */
+- (nullable NSNumber *)nextBatchID;
 
 @end
 

@@ -16,21 +16,45 @@
 
 #import "GDTCORTests/Common/Fakes/GDTCORStorageFake.h"
 
-@implementation GDTCORStorageFake
+#import <GoogleDataTransport/GDTCOREvent.h>
+
+@implementation GDTCORStorageFake {
+  /** Store the events in memory. */
+  NSMutableDictionary<NSNumber *, GDTCOREvent *> *_storedEvents;
+}
 
 - (void)storeEvent:(GDTCOREvent *)event
         onComplete:(void (^_Nullable)(BOOL wasWritten, NSError *_Nullable))completion {
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    _storedEvents = [[NSMutableDictionary alloc] init];
+  });
+  _storedEvents[event.eventID] = event;
   if (completion) {
     completion(YES, nil);
   }
 }
 
 - (void)removeEvents:(NSSet<NSNumber *> *)eventIDs {
+  [_storedEvents removeObjectsForKeys:[eventIDs allObjects]];
+}
+
+- (NSNumber *)batchWithEventSelector:(nonnull GDTCORStorageEventSelector *)eventSelector
+                     batchExpiration:(nonnull GDTCORClock *)expiration
+                          onComplete:
+                              (nonnull void (^)(NSNumber *_Nullable batchID,
+                                                NSSet<GDTCOREvent *> *_Nullable events))onComplete {
+  return nil;
+}
+
+- (void)removeBatchWithID:(nonnull NSNumber *)batchID
+             deleteEvents:(BOOL)deleteEvents
+               onComplete:(void (^_Nullable)(void))onComplete {
 }
 
 - (void)libraryDataForKey:(nonnull NSString *)key
                onComplete:
-                   (nonnull void (^)(NSData *_Nullable, NSError *_Nullable error))onComplete {
+                   (nullable NSData * (^)(NSData *_Nullable, NSError *_Nullable error))onComplete {
   if (onComplete) {
     onComplete(nil, nil);
   }
@@ -53,11 +77,6 @@
 
 - (BOOL)hasEventsForTarget:(GDTCORTarget)target {
   return NO;
-}
-
-- (nullable id<GDTCORStorageEventIterator>)iteratorWithSelector:
-    (nonnull GDTCORStorageEventSelector *)eventSelector {
-  return nil;
 }
 
 - (void)purgeEventsFromBefore:(GDTCORClock *)beforeSnapshot
