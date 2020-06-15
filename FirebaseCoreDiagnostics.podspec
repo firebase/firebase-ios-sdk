@@ -45,22 +45,27 @@ non-Cocoapod integration. This library also respects the Firebase global data co
 
   s.source_files = [
     'Firebase/CoreDiagnostics/FIRCDLibrary/**/*.[cmh]',
+    'GoogleUtilities/Environment/Private/*.h',
+    'GoogleUtilities/Logger/Private/*.h',
     'Interop/CoreDiagnostics/Public/*.h',
   ]
 
   s.framework = 'Foundation'
 
   s.dependency 'GoogleDataTransportCCTSupport', '~> 3.1'
-  s.dependency 'GoogleUtilities/Environment', '~> 6.5'
-  s.dependency 'GoogleUtilities/Logger', '~> 6.5'
+  s.dependency 'GoogleUtilities/Environment', '~> 6.7'
+  s.dependency 'GoogleUtilities/Logger', '~> 6.7'
   s.dependency 'nanopb', '~> 1.30905.0'
 
   s.test_spec 'unit' do |unit_tests|
     unit_tests.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
     unit_tests.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
-    unit_tests.dependency 'GoogleUtilities/UserDefaults', '~> 6.2'
+    unit_tests.dependency 'GoogleUtilities/UserDefaults', '~> 6.7'
     unit_tests.dependency 'OCMock'
-    unit_tests.source_files = 'Example/CoreDiagnostics/Tests/**/*.[mh]'
+    unit_tests.source_files = [
+      'Example/CoreDiagnostics/Tests/**/*.[mh]',
+      'GoogleUtilities/UserDefaults/Private/*.h',
+    ]
     unit_tests.requires_app_host = false
   end
 end
