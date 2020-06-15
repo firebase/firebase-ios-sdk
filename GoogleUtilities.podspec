@@ -86,7 +86,7 @@ other Google CocoaPods. They're not intended for direct public usage.
   s.subspec 'AppDelegateSwizzler' do |adss|
     adss.source_files = [
       'GoogleUtilities/AppDelegateSwizzler/Internal/*.h',
-      'GoogleUtilities/AppDelegateSwizzler/Private/*.h'
+      'GoogleUtilities/AppDelegateSwizzler/Private/*.h',
       'GoogleUtilities/AppDelegateSwizzler/*.m',
       'GoogleUtilities/SceneDelegateSwizzler/**/*.[mh]',
       'GoogleUtilities/Common/*.h',
