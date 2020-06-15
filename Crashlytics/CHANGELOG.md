@@ -1,3 +1,7 @@
+# Unreleased
+
+- [changed] Removed an unnecessary linker rule for embedding the Info.plist (#5804)
+
 # v4.1.1
 
 - [fixed] Fixed a crash that could occur if certain plist fields necessary to create Crashlytics records were missing at runtime. Also added some diagnostic logging to make the issue cause more explicit (#5565).
