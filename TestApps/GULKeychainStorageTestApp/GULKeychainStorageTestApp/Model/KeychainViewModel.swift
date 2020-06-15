@@ -18,6 +18,7 @@ import Foundation
 
 import Combine
 import BackgroundTasks
+import UserNotifications
 
 import GoogleUtilities
 import Promises
@@ -115,11 +116,28 @@ class KeychainViewModel: ObservableObject {
 extension KeychainViewModel: BackgroundFetchHandler {
   func performFetchWithCompletionHandler(completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
     self.log(message: "Background fetch:")
+    self.log(message: "isProtectedDataAvailable: \(UIApplication.shared.isProtectedDataAvailable)")
 
     self.readButtonPressed()
 
     self.generateAndSaveButtonPressed {
+      self.showNotification(message: self.log)
       completionHandler(.newData)
+    }
+  }
+
+  private func showNotification(message: String) {
+    UNUserNotificationCenter.current().requestAuthorization(options: .alert) { (granted, error) in
+      guard granted else {
+        self.log(message: "Cannot display User Notification - access denied.")
+        return
+      }
+
+      let content = UNMutableNotificationContent()
+      content.body = message
+      content.title = "Background fetch."
+      let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: nil)
+      UNUserNotificationCenter.current().add(request, withCompletionHandler: nil)
     }
   }
 }
