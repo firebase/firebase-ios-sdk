@@ -1,0 +1,8 @@
+platform :ios, '13.0'
+
+target 'GULKeychainStorageTestApp' do
+  use_frameworks!
+
+  pod 'GoogleUtilities/Environment', :path => '../../'
+  pod 'PromisesSwift'
+end

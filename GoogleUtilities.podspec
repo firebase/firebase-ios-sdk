@@ -33,7 +33,7 @@ other Google CocoaPods. They're not intended for direct public usage.
   s.subspec 'Environment' do |es|
     es.source_files = 'GoogleUtilities/Environment/**/*.[mh]'
     es.public_header_files = 'GoogleUtilities/Environment/**/*.h'
-    es.private_header_files = 'GoogleUtilities/Environment/**/*.h'
+    # es.private_header_files = 'GoogleUtilities/Environment/**/*.h'
 
     es.dependency 'PromisesObjC', '~> 1.2'
   end

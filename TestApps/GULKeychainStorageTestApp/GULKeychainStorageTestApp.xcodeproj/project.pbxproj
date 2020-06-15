@@ -1,0 +1,433 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 51;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		9AE8D22B2497C224006E515D /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AE8D22A2497C224006E515D /* AppDelegate.swift */; };
+		9AE8D22D2497C224006E515D /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AE8D22C2497C224006E515D /* SceneDelegate.swift */; };
+		9AE8D22F2497C224006E515D /* KeychainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AE8D22E2497C224006E515D /* KeychainView.swift */; };
+		9AE8D2312497C225006E515D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9AE8D2302497C225006E515D /* Assets.xcassets */; };
+		9AE8D2342497C225006E515D /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9AE8D2332497C225006E515D /* Preview Assets.xcassets */; };
+		9AE8D2372497C225006E515D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9AE8D2352497C225006E515D /* LaunchScreen.storyboard */; };
+		9AE8D2402497C8B2006E515D /* KeychainViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AE8D23F2497C8B2006E515D /* KeychainViewModel.swift */; };
+		E355ED50311A91D2BDF12275 /* Pods_GULKeychainStorageTestApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 66DA1EB41A6FAE22F8057287 /* Pods_GULKeychainStorageTestApp.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		09AFB6C5DD075305C54792AE /* Pods-GULKeychainStorageTestApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-GULKeychainStorageTestApp.debug.xcconfig"; path = "Target Support Files/Pods-GULKeychainStorageTestApp/Pods-GULKeychainStorageTestApp.debug.xcconfig"; sourceTree = "<group>"; };
+		66DA1EB41A6FAE22F8057287 /* Pods_GULKeychainStorageTestApp.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_GULKeychainStorageTestApp.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		6ADF3D8329C2F2D01F6C32A3 /* Pods-GULKeychainStorageTestApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-GULKeychainStorageTestApp.release.xcconfig"; path = "Target Support Files/Pods-GULKeychainStorageTestApp/Pods-GULKeychainStorageTestApp.release.xcconfig"; sourceTree = "<group>"; };
+		9AE8D2272497C224006E515D /* GULKeychainStorageTestApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GULKeychainStorageTestApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		9AE8D22A2497C224006E515D /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		9AE8D22C2497C224006E515D /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
+		9AE8D22E2497C224006E515D /* KeychainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainView.swift; sourceTree = "<group>"; };
+		9AE8D2302497C225006E515D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		9AE8D2332497C225006E515D /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		9AE8D2362497C225006E515D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		9AE8D2382497C225006E515D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		9AE8D23F2497C8B2006E515D /* KeychainViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainViewModel.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		9AE8D2242497C224006E515D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E355ED50311A91D2BDF12275 /* Pods_GULKeychainStorageTestApp.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		7C9E62ABF3EA59EA58248597 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				09AFB6C5DD075305C54792AE /* Pods-GULKeychainStorageTestApp.debug.xcconfig */,
+				6ADF3D8329C2F2D01F6C32A3 /* Pods-GULKeychainStorageTestApp.release.xcconfig */,
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
+		80A94EB02F728EE38E891009 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				66DA1EB41A6FAE22F8057287 /* Pods_GULKeychainStorageTestApp.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		9AE8D21E2497C224006E515D = {
+			isa = PBXGroup;
+			children = (
+				9AE8D2292497C224006E515D /* GULKeychainStorageTestApp */,
+				9AE8D2282497C224006E515D /* Products */,
+				7C9E62ABF3EA59EA58248597 /* Pods */,
+				80A94EB02F728EE38E891009 /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		9AE8D2282497C224006E515D /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				9AE8D2272497C224006E515D /* GULKeychainStorageTestApp.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		9AE8D2292497C224006E515D /* GULKeychainStorageTestApp */ = {
+			isa = PBXGroup;
+			children = (
+				9AE8D23E2497C89D006E515D /* Model */,
+				9AE8D22A2497C224006E515D /* AppDelegate.swift */,
+				9AE8D22C2497C224006E515D /* SceneDelegate.swift */,
+				9AE8D22E2497C224006E515D /* KeychainView.swift */,
+				9AE8D2302497C225006E515D /* Assets.xcassets */,
+				9AE8D2352497C225006E515D /* LaunchScreen.storyboard */,
+				9AE8D2382497C225006E515D /* Info.plist */,
+				9AE8D2322497C225006E515D /* Preview Content */,
+			);
+			path = GULKeychainStorageTestApp;
+			sourceTree = "<group>";
+		};
+		9AE8D2322497C225006E515D /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				9AE8D2332497C225006E515D /* Preview Assets.xcassets */,
+			);
+			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		9AE8D23E2497C89D006E515D /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				9AE8D23F2497C8B2006E515D /* KeychainViewModel.swift */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		9AE8D2262497C224006E515D /* GULKeychainStorageTestApp */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 9AE8D23B2497C225006E515D /* Build configuration list for PBXNativeTarget "GULKeychainStorageTestApp" */;
+			buildPhases = (
+				69C14AEC68F4B8C897ED18B3 /* [CP] Check Pods Manifest.lock */,
+				9AE8D2232497C224006E515D /* Sources */,
+				9AE8D2242497C224006E515D /* Frameworks */,
+				9AE8D2252497C224006E515D /* Resources */,
+				A1E82ED2CB3DDC5F14F4F3DA /* [CP] Embed Pods Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = GULKeychainStorageTestApp;
+			productName = GULKeychainStorageTestApp;
+			productReference = 9AE8D2272497C224006E515D /* GULKeychainStorageTestApp.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		9AE8D21F2497C224006E515D /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 1150;
+				LastUpgradeCheck = 1150;
+				ORGANIZATIONNAME = "Google Inc.";
+				TargetAttributes = {
+					9AE8D2262497C224006E515D = {
+						CreatedOnToolsVersion = 11.5;
+					};
+				};
+			};
+			buildConfigurationList = 9AE8D2222497C224006E515D /* Build configuration list for PBXProject "GULKeychainStorageTestApp" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 9AE8D21E2497C224006E515D;
+			productRefGroup = 9AE8D2282497C224006E515D /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				9AE8D2262497C224006E515D /* GULKeychainStorageTestApp */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		9AE8D2252497C224006E515D /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9AE8D2372497C225006E515D /* LaunchScreen.storyboard in Resources */,
+				9AE8D2342497C225006E515D /* Preview Assets.xcassets in Resources */,
+				9AE8D2312497C225006E515D /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		69C14AEC68F4B8C897ED18B3 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-GULKeychainStorageTestApp-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		A1E82ED2CB3DDC5F14F4F3DA /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-GULKeychainStorageTestApp/Pods-GULKeychainStorageTestApp-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-GULKeychainStorageTestApp/Pods-GULKeychainStorageTestApp-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-GULKeychainStorageTestApp/Pods-GULKeychainStorageTestApp-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		9AE8D2232497C224006E515D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9AE8D22B2497C224006E515D /* AppDelegate.swift in Sources */,
+				9AE8D2402497C8B2006E515D /* KeychainViewModel.swift in Sources */,
+				9AE8D22D2497C224006E515D /* SceneDelegate.swift in Sources */,
+				9AE8D22F2497C224006E515D /* KeychainView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		9AE8D2352497C225006E515D /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				9AE8D2362497C225006E515D /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		9AE8D2392497C225006E515D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.5;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		9AE8D23A2497C225006E515D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.5;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		9AE8D23C2497C225006E515D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 09AFB6C5DD075305C54792AE /* Pods-GULKeychainStorageTestApp.debug.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_ASSET_PATHS = "\"GULKeychainStorageTestApp/Preview Content\"";
+				DEVELOPMENT_TEAM = EQHXZ8M8AV;
+				ENABLE_PREVIEWS = YES;
+				INFOPLIST_FILE = GULKeychainStorageTestApp/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = firebase.google.com.GULKeychainStorageTestApp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "Google Development";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		9AE8D23D2497C225006E515D /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 6ADF3D8329C2F2D01F6C32A3 /* Pods-GULKeychainStorageTestApp.release.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_ASSET_PATHS = "\"GULKeychainStorageTestApp/Preview Content\"";
+				DEVELOPMENT_TEAM = EQHXZ8M8AV;
+				ENABLE_PREVIEWS = YES;
+				INFOPLIST_FILE = GULKeychainStorageTestApp/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = firebase.google.com.GULKeychainStorageTestApp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "Google Development";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		9AE8D2222497C224006E515D /* Build configuration list for PBXProject "GULKeychainStorageTestApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9AE8D2392497C225006E515D /* Debug */,
+				9AE8D23A2497C225006E515D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		9AE8D23B2497C225006E515D /* Build configuration list for PBXNativeTarget "GULKeychainStorageTestApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9AE8D23C2497C225006E515D /* Debug */,
+				9AE8D23D2497C225006E515D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 9AE8D21F2497C224006E515D /* Project object */;
+}
