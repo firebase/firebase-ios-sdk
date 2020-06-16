@@ -26,9 +26,11 @@
     [self.targetToEventSet removeAllObjects];
     [self.storedEvents removeAllObjects];
     [[NSFileManager defaultManager] removeItemAtPath:[GDTCORFlatFileStorage archivePath] error:nil];
-    [[NSFileManager defaultManager] removeItemAtPath:[GDTCORFlatFileStorage baseEventStoragePath]
+    [[NSFileManager defaultManager] removeItemAtPath:[GDTCORFlatFileStorage eventDataStoragePath]
                                                error:nil];
     [[NSFileManager defaultManager] removeItemAtPath:[GDTCORFlatFileStorage libraryDataStoragePath]
+                                               error:nil];
+    [[NSFileManager defaultManager] removeItemAtPath:[GDTCORFlatFileStorage batchDataStoragePath]
                                                error:nil];
   });
   dispatch_semaphore_t sema = dispatch_semaphore_create(0);

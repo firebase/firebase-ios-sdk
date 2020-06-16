@@ -32,7 +32,7 @@
 
 - (void)setUp {
   [super setUp];
-  _target = 23;
+  _target = kGDTCORTargetTest;
 }
 
 /** Tests the default initializer. */
