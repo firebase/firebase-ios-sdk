@@ -18,7 +18,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-// Stand-in for NSURLQueryItem, which is only available on iOS 8.0 and up.
 @interface FIRInstanceIDURLQueryItem : NSObject
 
 @property(nonatomic, readonly) NSString *name;
@@ -30,9 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 /**
- *  Given an array of query items, construct a URL query. On iOS 8.0 and above, this will use
- *  NSURLQueryItems internally to perform the string creation, and will be done manually in iOS
- *  7 and below.
+ *  Given an array of query items, construct a URL query.
  */
 NSString *FIRInstanceIDQueryFromQueryItems(NSArray<FIRInstanceIDURLQueryItem *> *queryItems);
 

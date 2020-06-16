@@ -33,23 +33,11 @@
 @end
 
 NSString *FIRInstanceIDQueryFromQueryItems(NSArray<FIRInstanceIDURLQueryItem *> *queryItems) {
-  if ([NSURLQueryItem class]) {
-    // We are iOS 8.0 and above. Convert to NSURLQueryItems and get query that way
-    // to take advantage of any automatic encoding
-    NSMutableArray<NSURLQueryItem *> *urlItems =
-        [NSMutableArray arrayWithCapacity:queryItems.count];
-    for (FIRInstanceIDURLQueryItem *queryItem in queryItems) {
-      [urlItems addObject:[NSURLQueryItem queryItemWithName:queryItem.name value:queryItem.value]];
-    }
-    NSURLComponents *components = [[NSURLComponents alloc] init];
-    components.queryItems = urlItems;
-    return components.query;
-  } else {
-    // We are on iOS 7.0. Manually create the query string
-    NSMutableArray<NSString *> *pairs = [NSMutableArray arrayWithCapacity:queryItems.count];
-    for (FIRInstanceIDURLQueryItem *queryItem in queryItems) {
-      [pairs addObject:[NSString stringWithFormat:@"%@=%@", queryItem.name, queryItem.value]];
-    }
-    return [pairs componentsJoinedByString:@"&"];
+  NSMutableArray<NSURLQueryItem *> *urlItems = [NSMutableArray arrayWithCapacity:queryItems.count];
+  for (FIRInstanceIDURLQueryItem *queryItem in queryItems) {
+    [urlItems addObject:[NSURLQueryItem queryItemWithName:queryItem.name value:queryItem.value]];
   }
+  NSURLComponents *components = [[NSURLComponents alloc] init];
+  components.queryItems = urlItems;
+  return components.query;
 }
