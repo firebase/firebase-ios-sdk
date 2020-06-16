@@ -100,7 +100,7 @@ else
       ;;
 
     GoogleUtilitiesComponents-*)
-      check_changes '^(GoogleUtilitiesComponents|GoogleUtilitiesComponents.podspec)'
+      check_changes '^(GoogleUtilities|GoogleUtilitiesComponents|GoogleUtilitiesComponents.podspec)'
       ;;
 
     InAppMessaging-*)
