@@ -83,7 +83,7 @@ let package = Package(
         // "FirebaseAuth", "FirebaseFunctions",
         //  "Firebase",
         "FirebaseCore",
-        "FirebaseInstallations", 
+        "FirebaseInstallations",
         // "FirebaseInstanceID",
         // "FirebaseStorage",
         // "FirebaseStorageSwift",
