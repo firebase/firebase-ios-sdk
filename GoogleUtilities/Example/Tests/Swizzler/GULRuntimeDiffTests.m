@@ -14,8 +14,8 @@
 
 #import <XCTest/XCTest.h>
 
-#import <GoogleUtilities/GULRuntimeClassDiff.h>
-#import <GoogleUtilities/GULRuntimeDiff.h>
+#import "GoogleUtilities/SwizzlerTestHelpers/GULRuntimeClassDiff.h"
+#import "GoogleUtilities/SwizzlerTestHelpers/GULRuntimeDiff.h"
 
 @interface GULRuntimeDiffTests : XCTestCase
 
