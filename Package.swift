@@ -50,10 +50,10 @@ let package = Package(
     // .library(
     //   name: "FirebaseFunctions",
     //   targets: ["FirebaseFunctions"]),
-    // .library(
-    //   name: "FirebaseInstallations",
-    //   targets: ["FirebaseInstallations"]
-    // ),
+    .library(
+      name: "FirebaseInstallations",
+      targets: ["FirebaseInstallations"]
+    ),
     // .library(
     //   name: "FirebaseInstanceID",
     //   targets: ["FirebaseInstanceID"]
@@ -83,7 +83,8 @@ let package = Package(
         // "FirebaseAuth", "FirebaseFunctions",
         //  "Firebase",
         "FirebaseCore",
-        //  "FirebaseInstallations", "FirebaseInstanceID",
+        "FirebaseInstallations", 
+        // "FirebaseInstanceID",
         // "FirebaseStorage",
         // "FirebaseStorageSwift",
         "GoogleUtilities_AppDelegateSwizzler",
@@ -243,16 +244,16 @@ let package = Package(
     //     .define("FIRInstanceID_LIB_VERSION", to: "0.0.1"), // TODO: Fix version
     //   ]
     // ),
-    // .target(
-    //   name: "FirebaseInstallations",
-    //   dependencies: ["FirebaseCore", "FBLPromises",
-    //                  "GoogleUtilities_Environment", "GoogleUtilities_UserDefaults"],
-    //   path: "FirebaseInstallations/Source/Library",
-    //   publicHeadersPath: "Public",
-    //   cSettings: [
-    //     .headerSearchPath("../../../"),
-    //   ]
-    // ),
+    .target(
+      name: "FirebaseInstallations",
+      dependencies: ["FirebaseCore", "FBLPromises",
+                     "GoogleUtilities_Environment", "GoogleUtilities_UserDefaults"],
+      path: "FirebaseInstallations/Source/Library",
+      publicHeadersPath: "Public",
+      cSettings: [
+        .headerSearchPath("../../../"),
+      ]
+    ),
     // .target(
     //   name: "FirebaseStorage",
     //   dependencies: ["FirebaseCore", "GTMSessionFetcherCore"],

@@ -25,14 +25,14 @@
 #import "FirebaseInstallations/Source/Tests/Utils/FIRInstallationsErrorUtil+Tests.h"
 #import "FirebaseInstallations/Source/Tests/Utils/FIRInstallationsItem+Tests.h"
 
-#import "FirebaseInstallations/Source/Library/Public/FIRInstallations.h"
-#import "FirebaseInstallations/Source/Library/InstallationsAPI/FIRInstallationsAPIService.h"
 #import "FirebaseInstallations/Source/Library/Errors/FIRInstallationsErrorUtil.h"
 #import "FirebaseInstallations/Source/Library/Errors/FIRInstallationsHTTPError.h"
-#import "FirebaseInstallations/Source/Library/InstallationsIDController/FIRInstallationsIDController.h"
 #import "FirebaseInstallations/Source/Library/IIDMigration/FIRInstallationsIIDStore.h"
 #import "FirebaseInstallations/Source/Library/IIDMigration/FIRInstallationsIIDTokenStore.h"
+#import "FirebaseInstallations/Source/Library/InstallationsAPI/FIRInstallationsAPIService.h"
+#import "FirebaseInstallations/Source/Library/InstallationsIDController/FIRInstallationsIDController.h"
 #import "FirebaseInstallations/Source/Library/InstallationsStore/FIRInstallationsStore.h"
+#import "FirebaseInstallations/Source/Library/Public/FIRInstallations.h"
 
 #import "FirebaseInstallations/Source/Library/InstallationsStore/FIRInstallationsStoredAuthToken.h"
 

@@ -88,7 +88,7 @@ func transformFile(_ file: String) {
     if line.starts(with: "#import"),
       let importFile = getImportFile(line),
       let path = headerMap[importFile] {
-      if (file.starts(with:"FirebaseInstallations/")) {
+      if file.starts(with: "FirebaseInstallations/") {
         outBuffer += "#import \"\(path)\"\n"
       } else {
         outBuffer += "#import " +
