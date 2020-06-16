@@ -92,7 +92,7 @@ func transformFile(_ file: String) {
         outBuffer += "#import \"\(path)\"\n"
       } else {
         outBuffer += "#import " +
-          "\"FirebaseInstallations/Source/Private/FirebaseInstallationsInternal.h\"\n"
+          "\"FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h\"\n"
       }
     } else {
       outBuffer += line + "\n"

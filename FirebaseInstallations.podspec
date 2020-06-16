@@ -32,7 +32,10 @@ Pod::Spec.new do |s|
     'GoogleUtilities/Environment/Private/*.h',
     'GoogleUtilities/UserDefaults/Private/*.h',
   ]
-  s.public_header_files = base_dir + 'Library/Public/*.h' + base_dir + 'Library/Private/*.h'
+  s.public_header_files = [ 
+    base_dir + 'Library/Public/*.h',
+    base_dir + 'Library/Private/*.h',
+  ]
   s.private_header_files = base_dir + 'Library/Private/*.h'
 
   s.framework = 'Security'

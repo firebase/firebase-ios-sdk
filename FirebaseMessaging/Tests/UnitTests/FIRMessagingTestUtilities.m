@@ -21,7 +21,7 @@
 #import "FirebaseMessaging/Tests/UnitTests/FIRMessagingTestUtilities.h"
 
 #import <FirebaseInstanceID/FirebaseInstanceID.h>
-#import "FirebaseInstallations/Source/Private/FirebaseInstallationsInternal.h"
+#import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
 #import "GoogleUtilities/UserDefaults/Private/GULUserDefaults.h"
 #import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 

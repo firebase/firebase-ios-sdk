@@ -18,7 +18,7 @@
 #import <XCTest/XCTest.h>
 
 #import <FirebaseInstanceID/FIRInstanceID_Private.h>
-#import "FirebaseInstallations/Source/Private/FirebaseInstallationsInternal.h"
+#import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
 #import "GoogleUtilities/Reachability/Private/GULReachabilityChecker.h"
 
 #import "FirebaseMessaging/Sources/FIRMessagingClient.h"
