@@ -15,9 +15,9 @@
 #import <XCTest/XCTest.h>
 #import <objc/runtime.h>
 
-#import <GoogleUtilities/GULOriginalIMPConvenienceMacros.h>
-#import <GoogleUtilities/GULSwizzler+Unswizzle.h>
-#import <GoogleUtilities/GULSwizzler.h>
+#import "GoogleUtilities/MethodSwizzler/Private/GULOriginalIMPConvenienceMacros.h"
+#import "GoogleUtilities/MethodSwizzler/Private/GULSwizzler.h"
+#import "GoogleUtilities/SwizzlerTestHelpers/GULSwizzler+Unswizzle.h"
 
 @interface TestObject : NSObject
 

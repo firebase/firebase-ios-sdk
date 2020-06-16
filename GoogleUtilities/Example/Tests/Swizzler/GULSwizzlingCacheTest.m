@@ -15,8 +15,8 @@
 #import <XCTest/XCTest.h>
 #import <objc/runtime.h>
 
-#import <GoogleUtilities/GULSwizzlingCache.h>
-#import <GoogleUtilities/GULSwizzlingCache_Private.h>
+#import "GoogleUtilities/SwizzlerTestHelpers/GULSwizzlingCache.h"
+#import "GoogleUtilities/SwizzlerTestHelpers/GULSwizzlingCache_Private.h"
 @interface GULSwizzlingCacheTest : XCTestCase
 
 @end
