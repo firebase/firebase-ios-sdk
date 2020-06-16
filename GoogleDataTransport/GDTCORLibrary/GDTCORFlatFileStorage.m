@@ -350,65 +350,77 @@ static NSString *const gBatchesToEventsIDsKey = @"GDTCORFlatFileStorageBatchIDCo
   });
 }
 
-- (nullable NSNumber *)
-    batchWithEventSelector:(nonnull GDTCORStorageEventSelector *)eventSelector
-           batchExpiration:(nonnull GDTCORClock *)expiration
-                onComplete:(nonnull void (^)(NSNumber *_Nullable batchID,
-                                             NSSet<GDTCOREvent *> *_Nullable events))onComplete {
-  NSNumber *batchID = [self nextBatchID];
-  if (batchID == nil) {
-    return nil;
-  }
-  dispatch_semaphore_t sema = dispatch_semaphore_create(0);
-  __block NSSet<NSString *> *eventPaths;
-  [self pathsForTarget:eventSelector.selectedTarget
-              eventIDs:eventSelector.selectedEventIDs
-              qosTiers:eventSelector.selectedQosTiers
-            mappingIDs:eventSelector.selectedMappingIDs
-            onComplete:^(NSSet<NSString *> *_Nonnull paths) {
-              eventPaths = paths;
-              dispatch_semaphore_signal(sema);
-            }];
-  if (dispatch_semaphore_wait(sema, dispatch_time(DISPATCH_TIME_NOW, 10 * NSEC_PER_SEC)) != 0) {
-    return nil;
-  }
-  if (eventPaths.count == 0) {
-    return nil;
-  }
-  dispatch_async(_storageQueue, ^{
-    NSMutableSet<GDTCOREvent *> *events = [[NSMutableSet alloc] init];
-    for (NSString *eventPath in eventPaths) {
-      NSError *error;
-      GDTCOREvent *event =
-          (GDTCOREvent *)GDTCORDecodeArchive([GDTCOREvent class], eventPath, nil, &error);
-      if (event == nil || error) {
-        GDTCORLogDebug(@"Error deserializing event: %@", error);
-        [[NSFileManager defaultManager] removeItemAtPath:eventPath error:nil];
-        continue;
-      } else {
-        NSString *fileName = [eventPath lastPathComponent];
-        NSString *batchPath = [GDTCORFlatFileStorage batchPathForTarget:eventSelector.selectedTarget
-                                                                batchID:batchID];
-        [[NSFileManager defaultManager] createDirectoryAtPath:batchPath
-                                  withIntermediateDirectories:YES
-                                                   attributes:nil
-                                                        error:nil];
-        NSString *destinationPath = [batchPath stringByAppendingPathComponent:fileName];
-        error = nil;
-        [[NSFileManager defaultManager] moveItemAtPath:eventPath
-                                                toPath:destinationPath
-                                                 error:&error];
-        if (error) {
-          GDTCORLogDebug(@"An event file wasn't not moveable into the batch directory: %@", error);
+- (void)batchWithEventSelector:(nonnull GDTCORStorageEventSelector *)eventSelector
+               batchExpiration:(nonnull GDTCORClock *)expiration
+                    onComplete:
+                        (nonnull void (^)(NSNumber *_Nullable batchID,
+                                          NSSet<GDTCOREvent *> *_Nullable events))onComplete {
+  dispatch_queue_t queue = _storageQueue;
+  void (^onPathsForTargetComplete)(NSNumber *, NSSet<NSString *> *_Nonnull) = ^(
+      NSNumber *batchID, NSSet<NSString *> *_Nonnull paths) {
+    dispatch_async(queue, ^{
+      NSMutableSet<GDTCOREvent *> *events = [[NSMutableSet alloc] init];
+      for (NSString *eventPath in paths) {
+        NSError *error;
+        GDTCOREvent *event =
+            (GDTCOREvent *)GDTCORDecodeArchive([GDTCOREvent class], eventPath, nil, &error);
+        if (event == nil || error) {
+          GDTCORLogDebug(@"Error deserializing event: %@", error);
+          [[NSFileManager defaultManager] removeItemAtPath:eventPath error:nil];
+          continue;
+        } else {
+          NSString *fileName = [eventPath lastPathComponent];
+          NSString *batchPath =
+              [GDTCORFlatFileStorage batchPathForTarget:eventSelector.selectedTarget
+                                                batchID:batchID];
+          [[NSFileManager defaultManager] createDirectoryAtPath:batchPath
+                                    withIntermediateDirectories:YES
+                                                     attributes:nil
+                                                          error:nil];
+          NSString *destinationPath = [batchPath stringByAppendingPathComponent:fileName];
+          error = nil;
+          [[NSFileManager defaultManager] moveItemAtPath:eventPath
+                                                  toPath:destinationPath
+                                                   error:&error];
+          if (error) {
+            GDTCORLogDebug(@"An event file wasn't moveable into the batch directory: %@", error);
+          }
+          [events addObject:event];
         }
-        [events addObject:event];
       }
+      if (onComplete) {
+        onComplete(batchID, events);
+      }
+    });
+  };
+
+  void (^onBatchIDFetchComplete)(NSNumber *) = ^(NSNumber *batchID) {
+    dispatch_async(queue, ^{
+      if (batchID == nil) {
+        if (onComplete) {
+          onComplete(nil, nil);
+          return;
+        }
+      }
+      [self pathsForTarget:eventSelector.selectedTarget
+                  eventIDs:eventSelector.selectedEventIDs
+                  qosTiers:eventSelector.selectedQosTiers
+                mappingIDs:eventSelector.selectedMappingIDs
+                onComplete:^(NSSet<NSString *> *_Nonnull paths) {
+                  onPathsForTargetComplete(batchID, paths);
+                }];
+    });
+  };
+
+  [self nextBatchID:^(NSNumber *_Nonnull batchID) {
+    if (batchID == nil) {
+      if (onComplete) {
+        onComplete(nil, nil);
+      }
+    } else {
+      onBatchIDFetchComplete(batchID);
     }
-    if (onComplete) {
-      onComplete(batchID, events);
-    }
-  });
-  return batchID;
+  }];
 }
 
 - (void)removeBatchWithID:(nonnull NSNumber *)batchID
@@ -430,6 +442,7 @@ static NSString *const gBatchesToEventsIDsKey = @"GDTCORFlatFileStorageBatchIDCo
       NSArray<NSString *> *components = [[path lastPathComponent] componentsSeparatedByString:@"."];
       if (components.count != 2) {
         GDTCORLogDebug(@"The name of the batch folder couldn't be parsed: %@", path);
+        continue;
       }
       NSString *targetString = components[0];
       NSString *batchID = components[1];
@@ -453,19 +466,21 @@ static NSString *const gBatchesToEventsIDsKey = @"GDTCORFlatFileStorageBatchIDCo
     }
   });
 }
-
 - (void)libraryDataForKey:(nonnull NSString *)key
-               onComplete:
-                   (nullable NSData * (^)(NSData *_Nullable, NSError *_Nullable error))onComplete {
+          onFetchComplete:(nonnull void (^)(NSData *_Nullable, NSError *_Nullable))onFetchComplete
+              setNewValue:(NSData *_Nullable (^_Nullable)(void))setValueBlock {
   dispatch_async(_storageQueue, ^{
     NSString *dataPath = [[[self class] libraryDataStoragePath] stringByAppendingPathComponent:key];
     NSError *error;
     NSData *data = [NSData dataWithContentsOfFile:dataPath options:0 error:&error];
-    if (onComplete) {
-      NSData *newValue = onComplete(data, error);
+    if (onFetchComplete) {
+      onFetchComplete(data, error);
+    }
+    if (setValueBlock) {
+      NSData *newValue = setValueBlock();
       // The -isKindOfClass check is necessary because without an explicit 'return nil' in the block
       // the implicit return value will be the block itself. The compiler doesn't detect this.
-      if (newValue && [newValue isKindOfClass:[NSData class]] && newValue.length) {
+      if (newValue != nil && [newValue isKindOfClass:[NSData class]] && newValue.length) {
         NSError *newValueError;
         [newValue writeToFile:dataPath options:NSDataWritingAtomic error:&newValueError];
         if (newValueError) {
@@ -602,25 +617,27 @@ static NSString *const gBatchesToEventsIDsKey = @"GDTCORFlatFileStorageBatchIDCo
   _targetToEventSet[target] = events;
 }
 
-- (nullable NSNumber *)nextBatchID {
+- (void)nextBatchID:(void (^)(NSNumber *batchID))nextBatchID {
   __block int32_t lastBatchID = -1;
-  dispatch_semaphore_t sema = dispatch_semaphore_create(0);
   [self libraryDataForKey:gBatchIDCounterKey
-               onComplete:^NSData *_Nonnull(NSData *_Nullable data, NSError *_Nullable error) {
-                 if (!error) {
-                   [data getBytes:(void *)&lastBatchID length:sizeof(int32_t)];
-                 }
-                 if (data == nil) {
-                   lastBatchID = 0;
-                 }
-                 dispatch_semaphore_signal(sema);
-                 int32_t incrementedValue = lastBatchID + 1;
-                 return [NSData dataWithBytes:&incrementedValue length:sizeof(int32_t)];
-               }];
-  if (dispatch_semaphore_wait(sema, dispatch_time(DISPATCH_TIME_NOW, 10 * NSEC_PER_SEC)) != 0) {
-    return nil;
-  }
-  return @(lastBatchID);
+      onFetchComplete:^(NSData *_Nullable data, NSError *_Nullable getValueError) {
+        if (!getValueError) {
+          [data getBytes:(void *)&lastBatchID length:sizeof(int32_t)];
+        }
+        if (data == nil) {
+          lastBatchID = 0;
+        }
+        if (nextBatchID) {
+          nextBatchID(@(lastBatchID));
+        }
+      }
+      setNewValue:^NSData *_Nullable(void) {
+        if (lastBatchID != -1) {
+          int32_t incrementedValue = lastBatchID + 1;
+          return [NSData dataWithBytes:&incrementedValue length:sizeof(int32_t)];
+        }
+        return nil;
+      }];
 }
 
 #pragma mark - GDTCORLifecycleProtocol

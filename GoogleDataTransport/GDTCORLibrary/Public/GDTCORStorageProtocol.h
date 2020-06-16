@@ -41,6 +41,12 @@ NS_ASSUME_NONNULL_BEGIN
 /** Removes the events from storage. */
 - (void)removeEvents:(NSSet<NSNumber *> *)eventIDs;
 
+/** Returns YES if some events have been stored for the given target, NO otherwise.
+ *
+ * @return YES if the storage contains events for the given target, NO otherwise.
+ */
+- (BOOL)hasEventsForTarget:(GDTCORTarget)target;
+
 /** Constructs an event batch with the given event selector. Events in this batch will not be
  * returned in any queries or other batches until the batch is removed.
  *
@@ -48,12 +54,10 @@ NS_ASSUME_NONNULL_BEGIN
  * @param expiration The expiration time of the batch. If removeBatchWithID:deleteEvents:onComplete:
  * is not called within this time frame, the batch will be removed with its events deleted.
  * @param onComplete The completion handler to be called when the events have been fetched.
- * @return The batchID or nil if the batch could not be created (e.g. if there were no events).
  */
-- (nullable NSNumber *)batchWithEventSelector:(GDTCORStorageEventSelector *)eventSelector
-                              batchExpiration:(GDTCORClock *)expiration
-                                   onComplete:
-                                       (void (^)(NSNumber *_Nullable batchID,
+- (void)batchWithEventSelector:(nonnull GDTCORStorageEventSelector *)eventSelector
+               batchExpiration:(nonnull GDTCORClock *)expiration
+                    onComplete:(nonnull void (^)(NSNumber *_Nullable batchID,
                                                  NSSet<GDTCOREvent *> *_Nullable events))onComplete;
 
 /** Removes the event batch.
@@ -65,12 +69,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)removeBatchWithID:(NSNumber *)batchID
              deleteEvents:(BOOL)deleteEvents
                onComplete:(void (^_Nullable)(void))onComplete;
-
-/** Returns YES if some events have been stored for the given target, NO otherwise.
- *
- * @return YES if the storage contains events for the given target, NO otherwise.
- */
-- (BOOL)hasEventsForTarget:(GDTCORTarget)target;
 
 /** Persists the given data with the given key.
  *
@@ -85,12 +83,13 @@ NS_ASSUME_NONNULL_BEGIN
 /** Retrieves the stored data for the given key and optionally sets a new value.
  *
  * @param key The key corresponding to the desired data.
- * @param onComplete The callback to invoke with the data once it's retrieved. If NSData is returned
- * by the completion block, the library data will be set with this new value.
+ * @param onFetchComplete The callback to invoke with the data once it's retrieved.
+ * @param setValueBlock This optional block can provide a new value to set.
  */
-- (void)libraryDataForKey:(NSString *)key
-               onComplete:(nullable NSData * (^)(NSData *_Nullable data,
-                                                 NSError *_Nullable error))onComplete;
+- (void)libraryDataForKey:(nonnull NSString *)key
+          onFetchComplete:(nonnull void (^)(NSData *_Nullable data,
+                                            NSError *_Nullable error))onFetchComplete
+              setNewValue:(NSData *_Nullable (^_Nullable)(void))setValueBlock;
 
 /** Removes data from storage and calls the callback when complete.
  *

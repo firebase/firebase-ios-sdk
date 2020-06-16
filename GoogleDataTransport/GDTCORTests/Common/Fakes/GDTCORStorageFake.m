@@ -39,12 +39,11 @@
   [_storedEvents removeObjectsForKeys:[eventIDs allObjects]];
 }
 
-- (NSNumber *)batchWithEventSelector:(nonnull GDTCORStorageEventSelector *)eventSelector
-                     batchExpiration:(nonnull GDTCORClock *)expiration
-                          onComplete:
-                              (nonnull void (^)(NSNumber *_Nullable batchID,
-                                                NSSet<GDTCOREvent *> *_Nullable events))onComplete {
-  return nil;
+- (void)batchWithEventSelector:(nonnull GDTCORStorageEventSelector *)eventSelector
+               batchExpiration:(nonnull GDTCORClock *)expiration
+                    onComplete:
+                        (nonnull void (^)(NSNumber *_Nullable batchID,
+                                          NSSet<GDTCOREvent *> *_Nullable events))onComplete {
 }
 
 - (void)removeBatchWithID:(nonnull NSNumber *)batchID
@@ -53,10 +52,10 @@
 }
 
 - (void)libraryDataForKey:(nonnull NSString *)key
-               onComplete:
-                   (nullable NSData * (^)(NSData *_Nullable, NSError *_Nullable error))onComplete {
-  if (onComplete) {
-    onComplete(nil, nil);
+          onFetchComplete:(nonnull void (^)(NSData *_Nullable, NSError *_Nullable))onFetchComplete
+              setNewValue:(NSData *_Nullable (^_Nullable)(void))setValueBlock {
+  if (onFetchComplete) {
+    onFetchComplete(nil, nil);
   }
 }
 

@@ -31,7 +31,11 @@ NS_ASSUME_NONNULL_BEGIN
  * <app cache>/google-sdk-events/<classname>/gdt_event_data/<target>/<eventID>.<qosTier>.<mappingID>
  *
  * Library data will be stored as follows:
- *   <app cache>/gdt_library_data/<key of library data>
+ * <app cache>/google-sdk-events/<classname>/gdt_library_data/<libraryDataKey>
+ *
+ * Batch data will be stored as follows:
+ * <app
+ * cache>/google-sdk-events/<classname>/gdt_batch_data/<target>.<batchID>/<eventID>.<qosTier>.<mappingID>
  */
 @interface GDTCORFlatFileStorage
     : NSObject <NSSecureCoding, GDTCORStorageProtocol, GDTCORLifecycleProtocol>
@@ -112,9 +116,9 @@ NS_ASSUME_NONNULL_BEGIN
 /** Fetches the current batchID counter value from library storage, increments it, and sets the new
  * value. Returns nil if a batchID was not able to be created for some reason.
  *
- * @return The current value of the batchID counter.
+ * @param onComplete A block to execute when creating the next batchID is complete.
  */
-- (nullable NSNumber *)nextBatchID;
+- (void)nextBatchID:(void (^)(NSNumber *batchID))onComplete;
 
 @end
 
