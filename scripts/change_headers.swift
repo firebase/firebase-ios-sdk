@@ -19,8 +19,14 @@
 
 import Foundation
 
-let findHeaders: Set = ["GoogleUtilities"]
-let changeImports: Set = ["GoogleUtilities"]
+let findHeaders = ["GoogleUtilities"]
+let changeImports = ["GoogleUtilities", "FirebaseAuth", "FirebaseCore", "Firebase",
+                     "FirebaseDynamicLinks", "FirebaseInAppMessaging", "FirebaseMessaging",
+                     "FirebaseRemoteConfig", "FirebaseInstallations",
+                     "FirebaseAppDistribution", "Example"]
+let skipDirPatterns = ["/Sample/", "FirebaseABTesting/Tests/Integration",
+                       "FirebaseInAppMessaging/Tests/Integration/", "Example/Database/App",
+                       "Example/InstanceID/App"]
 
 // Get a Dictionary mapping a simple header name to a repo-relative path.
 
@@ -107,16 +113,22 @@ let headerMap = getHeaderMap(url)
 for root in changeImports {
   let rootURL = url.appendingPathComponent(root)
   let enumerator = FileManager.default.enumerator(atPath: rootURL.path)
-  while let file = enumerator?.nextObject() as? String {
+  whileLoop: while let file = enumerator?.nextObject() as? String {
     if let fType = enumerator?.fileAttributes?[FileAttributeKey.type] as? FileAttributeType,
       fType == .typeRegular {
       if file.starts(with: ".") {
         continue
       }
-      if file.rangeOfString("/Public/") != nil {
+      if file.range(of: "/Public/") != nil {
         continue
       }
-      transformFile(root + "/" + file)
+      let fullTransformPath = root + "/" + file
+      for dirPattern in skipDirPatterns {
+        if fullTransformPath.range(of: dirPattern) != nil {
+          continue whileLoop
+        }
+      }
+      transformFile(fullTransformPath)
     }
   }
 }

@@ -12,11 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#if SWIFT_PACKAGE
+// Need to import the public header here, since the module won't exist yet.
+// Restructure the GULLogger headers for Firebase 7.
+#import "GoogleUtilities/Logger/Public/GULLoggerLevel.h"
+#endif
+
 #import "GoogleUtilities/Logger/Private/GULLogger.h"
 
 #include <asl.h>
 
-#import "GoogleUtilities/Environment/third_party/GULAppEnvironmentUtil.h"
+#import "GoogleUtilities/Environment/Private/GULAppEnvironmentUtil.h"
 #import "GoogleUtilities/Logger/Public/GULLoggerLevel.h"
 
 /// ASL client facility name used by GULLogger.
