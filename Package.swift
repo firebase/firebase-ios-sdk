@@ -15,6 +15,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// This Package.swift is a Work in Progress, primarily for CI at this point.
+// Those interested in experimenting with Swift Package Manager should use the
+// spm-master2020 branch for now.
+
 import PackageDescription
 
 let package = Package(
