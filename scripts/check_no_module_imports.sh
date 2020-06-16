@@ -30,6 +30,7 @@ function exit_with_error {
 git grep "${options[@]}" \
   -- ':(exclude,glob)**/Example/**' ':(exclude,glob)**/Sample/**' \
      ':(exclude)FirebaseCore/Sources/Private/FirebaseCoreInternal.h' \
+     ':(exclude)FirebaseInstallations/Source/Private/FirebaseInstallationsInternal.h' \
      ':(exclude)GoogleUtilities/NSData+zlib/Private/GULNSDataInternal.h' \
      ':(exclude)GoogleUtilities/Logger/Private/GULLogger.h' \
      ':(exclude)HeadersImports.md' && exit_with_error
