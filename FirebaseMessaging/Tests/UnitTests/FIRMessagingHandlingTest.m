@@ -20,8 +20,8 @@
 
 #import <FirebaseInstanceID/FirebaseInstanceID.h>
 #import <FirebaseMessaging/FIRMessaging.h>
-#import <GoogleUtilities/GULUserDefaults.h>
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "GoogleUtilities/UserDefaults/Private/GULUserDefaults.h"
 #import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 
 #import "FirebaseMessaging/Sources/FIRMessagingAnalytics.h"

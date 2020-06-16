@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "GoogleUtilities/Logger/Public/GULLoggerLevel.h"
+#import "GoogleUtilities/Logger/Private/GULLogger.h"
 
 #import "GoogleUtilities/Network/Private/GULNetworkMessageCode.h"
 

@@ -31,6 +31,8 @@ services.
   s.source_files = [
     base_dir + '**/*.[mh]',
     'FirebaseCore/Sources/Private/*.h',
+    'GoogleUtilities/Environment/Private/*.h',
+    'GoogleUtilities/UserDefaults/Private/*.h',
   ]
   s.requires_arc = base_dir + '*.m'
   s.public_header_files = base_dir + 'Public/*.h', base_dir + 'Private/*.h'
@@ -43,8 +45,8 @@ services.
   s.framework = 'Security'
   s.dependency 'FirebaseCore', '~> 6.8'
   s.dependency 'FirebaseInstallations', '~> 1.0'
-  s.dependency 'GoogleUtilities/UserDefaults', '~> 6.5'
-  s.dependency 'GoogleUtilities/Environment', '~> 6.5'
+  s.dependency 'GoogleUtilities/UserDefaults', '~> 6.7'
+  s.dependency 'GoogleUtilities/Environment', '~> 6.7'
 
   s.test_spec 'unit' do |unit_tests|
     unit_tests.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}

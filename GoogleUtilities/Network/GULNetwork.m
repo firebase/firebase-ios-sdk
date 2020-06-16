@@ -16,7 +16,7 @@
 #import "GoogleUtilities/Network/Private/GULNetworkMessageCode.h"
 
 #import "GoogleUtilities/Logger/Private/GULLogger.h"
-#import "GoogleUtilities/NSData+zlib/GULNSData+zlib.h"
+#import "GoogleUtilities/NSData+zlib/Private/GULNSDataInternal.h"
 #import "GoogleUtilities/Network/Private/GULMutableDictionary.h"
 #import "GoogleUtilities/Network/Private/GULNetworkConstants.h"
 #import "GoogleUtilities/Reachability/Private/GULReachabilityChecker.h"
