@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import <FirebaseInstallations/FirebaseInstallations.h>
+#import "FirebaseInstallations/Source/Private/FirebaseInstallationsInternal.h"
 
 @interface FIRMockInstallations : FIRInstallations
 

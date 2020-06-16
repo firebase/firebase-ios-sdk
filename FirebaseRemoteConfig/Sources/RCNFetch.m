@@ -16,7 +16,7 @@
 
 #import "FirebaseRemoteConfig/Sources/Private/RCNConfigFetch.h"
 
-#import <FirebaseInstallations/FirebaseInstallations.h>
+#import "FirebaseInstallations/Source/Private/FirebaseInstallationsInternal.h"
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "FirebaseRemoteConfig/Sources/Private/RCNConfigSettings.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"

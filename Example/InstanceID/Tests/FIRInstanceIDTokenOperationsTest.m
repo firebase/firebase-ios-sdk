@@ -32,7 +32,7 @@
 #import "Firebase/InstanceID/FIRInstanceIDTokenOperation.h"
 #import "Firebase/InstanceID/NSError+FIRInstanceID.h"
 
-#import <FirebaseInstallations/FirebaseInstallations.h>
+#import "FirebaseInstallations/Source/Private/FirebaseInstallationsInternal.h"
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "GoogleUtilities/Environment/Private/GULHeartbeatDateStorage.h"
 

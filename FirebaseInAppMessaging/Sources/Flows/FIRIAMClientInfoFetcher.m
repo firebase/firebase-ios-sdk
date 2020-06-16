@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import <FirebaseInstallations/FirebaseInstallations.h>
+#import "FirebaseInstallations/Source/Private/FirebaseInstallationsInternal.h"
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 #import "FIRCore+InAppMessaging.h"

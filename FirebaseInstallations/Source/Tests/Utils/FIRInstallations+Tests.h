@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import <FirebaseInstallations/FIRInstallations.h>
+#import "FirebaseInstallations/Source/Library/Public/FIRInstallations.h"
 #import <Foundation/Foundation.h>
 
 @class FIRInstallationsIDController;

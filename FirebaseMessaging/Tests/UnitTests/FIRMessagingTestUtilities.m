@@ -20,7 +20,7 @@
 
 #import "FirebaseMessaging/Tests/UnitTests/FIRMessagingTestUtilities.h"
 
-#import <FirebaseInstallations/FIRInstallations.h>
+#import "FirebaseInstallations/Source/Private/FirebaseInstallationsInternal.h"
 #import <FirebaseInstanceID/FirebaseInstanceID.h>
 #import "GoogleUtilities/UserDefaults/Private/GULUserDefaults.h"
 #import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
