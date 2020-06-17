@@ -19,6 +19,7 @@ import Foundation
 import Combine
 import BackgroundTasks
 import UserNotifications
+import CoreLocation
 
 import GoogleUtilities
 import Promises
@@ -28,15 +29,18 @@ protocol BackgroundFetchHandler: AnyObject {
     -> Void)
 }
 
-class KeychainViewModel: ObservableObject {
+class KeychainViewModel: NSObject, ObservableObject {
   let valueKey = "SingleValueStorage.ValueKey"
   let keychainStorage: GULKeychainStorage
+  let locationManager = CLLocationManager()
 
   internal init(keychainStorage: GULKeychainStorage = GULKeychainStorage(service: Bundle.main
       .bundleIdentifier ?? "GULKeychainStorageTestApp")) {
     self.keychainStorage = keychainStorage
+    super.init()
 
-    registerBackgroundFetchHandler()
+    self.registerBackgroundFetchHandler()
+    self.startLocationUpdates()
   }
 
   // MARK: - - Keychain
@@ -64,6 +68,33 @@ class KeychainViewModel: ObservableObject {
   private func log(message: String) {
     log = "\(message)\n\(log)"
     print(message)
+  }
+
+  private func showNotification(message: String) {
+    UNUserNotificationCenter.current().requestAuthorization(options: .alert) { granted, error in
+      guard granted else {
+        self.log(message: "Cannot display User Notification - access denied.")
+        return
+      }
+
+      let content = UNMutableNotificationContent()
+      content.body = message
+      content.title = "Background fetch."
+      let request = UNNotificationRequest(identifier: "keychain_test", content: content,
+                                          trigger: nil)
+      UNUserNotificationCenter.current().add(request, withCompletionHandler: nil)
+    }
+  }
+
+  private func updateAndLogValue(completion: @escaping () -> Void) {
+    log(message: "isProtectedDataAvailable: \(UIApplication.shared.isProtectedDataAvailable)")
+
+    readButtonPressed()
+
+    generateAndSaveButtonPressed {
+      self.showNotification(message: self.log)
+      completion()
+    }
   }
 
   // MARK: - - View Model API
@@ -104,8 +135,8 @@ class KeychainViewModel: ObservableObject {
         // Schedule next refresh.
         self.registerBackgroundFetchHandler()
 
-        self.generateAndSaveButtonPressed {
-          self.showNotification(message: self.log)
+        // Do.
+        self.updateAndLogValue {
           task.setTaskCompleted(success: true)
         }
       }
@@ -126,29 +157,43 @@ extension KeychainViewModel: BackgroundFetchHandler {
   func performFetchWithCompletionHandler(completionHandler: @escaping (UIBackgroundFetchResult)
     -> Void) {
     log(message: "Background fetch:")
-    log(message: "isProtectedDataAvailable: \(UIApplication.shared.isProtectedDataAvailable)")
-
-    readButtonPressed()
-
-    generateAndSaveButtonPressed {
-      self.showNotification(message: self.log)
+    updateAndLogValue {
       completionHandler(.newData)
     }
   }
+}
 
-  private func showNotification(message: String) {
-    UNUserNotificationCenter.current().requestAuthorization(options: .alert) { granted, error in
-      guard granted else {
-        self.log(message: "Cannot display User Notification - access denied.")
-        return
-      }
+extension KeychainViewModel: CLLocationManagerDelegate {
+  func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+    log(message: "Location update")
+    DispatchQueue.main.async {
+      self.updateAndLogValue {}
+    }
 
-      let content = UNMutableNotificationContent()
-      content.body = message
-      content.title = "Background fetch."
-      let request = UNNotificationRequest(identifier: UUID().uuidString, content: content,
-                                          trigger: nil)
-      UNUserNotificationCenter.current().add(request, withCompletionHandler: nil)
+  }
+
+  func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
+    _ = startLocationUpdates(with: status)
+  }
+
+  private func startLocationUpdates() {
+    locationManager.delegate = self
+    locationManager.allowsBackgroundLocationUpdates = true
+
+    if !startLocationUpdates(with: CLLocationManager.authorizationStatus()) {
+      locationManager.requestAlwaysAuthorization()
+    }
+  }
+
+  private func startLocationUpdates(with status: CLAuthorizationStatus) -> Bool {
+    switch status {
+    case .authorizedAlways:
+      locationManager.startUpdatingLocation()
+      print("Location updates started")
+      return true
+    default:
+      print("CLLocationManager wrong auth status: \(status.rawValue)")
+      return false
     }
   }
 }

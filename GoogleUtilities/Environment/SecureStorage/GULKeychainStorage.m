@@ -50,7 +50,7 @@
     _inMemoryCacheQueue =
         dispatch_queue_create("com.gul.KeychainStorage.InMemoryCache", DISPATCH_QUEUE_SERIAL);
     _service = [service copy];
-    _inMemoryCache = cache;
+//    _inMemoryCache = cache;
   }
   return self;
 }
@@ -60,22 +60,22 @@
 - (FBLPromise<id<NSSecureCoding>> *)getObjectForKey:(NSString *)key
                                         objectClass:(Class)objectClass
                                         accessGroup:(nullable NSString *)accessGroup {
-  return [FBLPromise onQueue:self.inMemoryCacheQueue
-                          do:^id _Nullable {
-                            // Return cached object or fail otherwise.
-                            id object = [self.inMemoryCache objectForKey:key];
-                            return object
-                                       ?: [[NSError alloc]
-                                              initWithDomain:FBLPromiseErrorDomain
-                                                        code:FBLPromiseErrorCodeValidationFailure
-                                                    userInfo:nil];
-                          }]
-      .recover(^id _Nullable(NSError *error) {
+//  return [FBLPromise onQueue:self.inMemoryCacheQueue
+//                          do:^id _Nullable {
+//                            // Return cached object or fail otherwise.
+//                            id object = [self.inMemoryCache objectForKey:key];
+//                            return object
+//                                       ?: [[NSError alloc]
+//                                              initWithDomain:FBLPromiseErrorDomain
+//                                                        code:FBLPromiseErrorCodeValidationFailure
+//                                                    userInfo:nil];
+//                          }]
+//      .recover(^id _Nullable(NSError *error) {
         // Look for the object in the keychain.
         return [self getObjectFromKeychainForKey:key
                                      objectClass:objectClass
                                      accessGroup:accessGroup];
-      });
+//      });
 }
 
 - (FBLPromise<NSNull *> *)setObject:(id<NSSecureCoding>)object

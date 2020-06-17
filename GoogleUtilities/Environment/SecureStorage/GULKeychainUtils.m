@@ -61,7 +61,7 @@ NSString *const kGULKeychainUtilsErrorDomain = @"com.gul.keychain.ErrorDomain";
 
   NSMutableDictionary *mutableQuery = [query mutableCopy];
   mutableQuery[(__bridge id)kSecAttrAccessible] =
-      (__bridge id)kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly;
+      (__bridge id)kSecAttrAccessibleWhenUnlockedThisDeviceOnly;
 
   OSStatus status;
   if (!existingItem) {
