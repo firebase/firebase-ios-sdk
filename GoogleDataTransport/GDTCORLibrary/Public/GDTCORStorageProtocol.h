@@ -56,7 +56,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @param onComplete The completion handler to be called when the events have been fetched.
  */
 - (void)batchWithEventSelector:(nonnull GDTCORStorageEventSelector *)eventSelector
-               batchExpiration:(nonnull GDTCORClock *)expiration
+               batchExpiration:(nonnull NSDate *)expiration
                     onComplete:(nonnull void (^)(NSNumber *_Nullable batchID,
                                                  NSSet<GDTCOREvent *> *_Nullable events))onComplete;
 
@@ -69,6 +69,17 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)removeBatchWithID:(NSNumber *)batchID
              deleteEvents:(BOOL)deleteEvents
                onComplete:(void (^_Nullable)(void))onComplete;
+
+/** Finds the batchIDs for the given target and calls the callback block.
+ *
+ * @param target The target.
+ * @param onComplete The block to invoke with the set of current batchIDs.
+ */
+- (void)batchIDsForTarget:(GDTCORTarget)target
+               onComplete:(void (^)(NSSet<NSNumber *> *_Nullable batchIDs))onComplete;
+
+/** Checks the storage for expired events and batches, deletes them if they're expired. */
+- (void)checkForExpirations;
 
 /** Persists the given data with the given key.
  *
@@ -98,14 +109,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)removeLibraryDataForKey:(NSString *)key
                      onComplete:(void (^)(NSError *_Nullable error))onComplete;
-
-/** Removes events from before the given time.
- *
- * @param beforeSnapshot The time at which all events prior should be deleted.
- * @param onComplete The callback that will be invoked when deleting events is complete.
- */
-- (void)purgeEventsFromBefore:(GDTCORClock *)beforeSnapshot
-                   onComplete:(void (^)(NSError *_Nullable error))onComplete;
 
 /** Calculates and returns the total disk size that this storage consumes.
  *

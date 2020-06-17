@@ -64,6 +64,9 @@ typedef NS_ENUM(NSInteger, GDTCOREventQoS) {
 /** The clock snapshot at the time of the event. */
 @property(nonatomic) GDTCORClock *clockSnapshot;
 
+/** The expiration date of the event. Default is 604800 seconds (7 days) from creation. */
+@property(nonatomic) NSDate *expirationDate;
+
 /** The resulting file URL when [dataObject -transportBytes] has been saved to disk.*/
 @property(nullable, readonly, nonatomic) NSURL *fileURL;
 

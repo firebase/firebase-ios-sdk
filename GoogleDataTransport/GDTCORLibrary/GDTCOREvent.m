@@ -74,6 +74,7 @@
     _mappingID = mappingID;
     _target = target;
     _qosTier = GDTCOREventQosDefault;
+    _expirationDate = [NSDate dateWithTimeIntervalSinceNow:604800];  // 7 days.
   }
   GDTCORLogDebug(@"Event %@ created. mappingID: %@ target:%ld", self, mappingID, (long)target);
   return self;
@@ -169,6 +170,9 @@ static NSString *fileURLKey = @"_fileURL";
 /** NSCoding key for GDTFilePath property. */
 static NSString *kGDTFilePathKey = @"_GDTFilePath";
 
+/** NSCoding key for expirationDate property. */
+static NSString *kExpirationDateKey = @"GDTCOREventExpirationDateKey";
+
 /** NSCoding key for backwards compatibility of GDTCORStoredEvent mappingID property.*/
 static NSString *kStoredEventMappingIDKey = @"GDTCORStoredEventMappingIDKey";
 
@@ -215,6 +219,7 @@ static NSString *kCustomDataKey = @"GDTCOREventCustomDataKey";
       _GDTFilePath = [aDecoder decodeObjectOfClass:[NSString class] forKey:kGDTFilePathKey];
     }
     _customBytes = [aDecoder decodeObjectOfClass:[NSData class] forKey:kCustomDataKey];
+    _expirationDate = [aDecoder decodeObjectOfClass:[NSDate class] forKey:kExpirationDateKey];
   }
   return self;
 }
@@ -253,6 +258,7 @@ static NSString *kCustomDataKey = @"GDTCOREventCustomDataKey";
   [aCoder encodeObject:_clockSnapshot forKey:clockSnapshotKey];
   [aCoder encodeObject:_GDTFilePath forKey:kGDTFilePathKey];
   [aCoder encodeObject:_customBytes forKey:kCustomDataKey];
+  [aCoder encodeObject:_expirationDate forKey:kExpirationDateKey];
 }
 
 @end

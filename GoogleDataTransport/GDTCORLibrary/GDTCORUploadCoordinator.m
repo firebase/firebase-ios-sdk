@@ -123,6 +123,12 @@
   });
 }
 
+- (void)signalToStoragesToCheckExpirations {
+  for (id<GDTCORStorageProtocol> storage in [_registrar.targetToStorage allValues]) {
+    [storage checkForExpirations];
+  }
+}
+
 /** Returns the registered storage for the given NSNumber wrapped GDTCORTarget.
  *
  * @param target The NSNumber wrapping of a GDTCORTarget to find the storage instance of.
@@ -193,6 +199,7 @@ static NSString *const ktargetToInFlightPackagesKey =
 - (void)appWillForeground:(GDTCORApplication *)app {
   // -startTimer is thread-safe.
   [self startTimer];
+  [self signalToStoragesToCheckExpirations];
 }
 
 - (void)appWillBackground:(GDTCORApplication *)app {
