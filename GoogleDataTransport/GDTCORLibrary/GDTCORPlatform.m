@@ -159,7 +159,7 @@ GDTCORNetworkMobileSubtype GDTCORNetworkMobileSubTypeMessage() {
 
 NSString *_Nonnull GDTCORDeviceModel() {
   __block NSString *deviceModel = @"Unknown";
-  
+
 #if TARGET_OS_IOS || TARGET_OS_TV
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
