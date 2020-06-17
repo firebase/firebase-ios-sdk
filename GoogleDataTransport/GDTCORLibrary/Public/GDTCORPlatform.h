@@ -127,15 +127,9 @@ GDTCORNetworkType GDTCORNetworkTypeMessage(void);
 GDTCORNetworkMobileSubtype GDTCORNetworkMobileSubTypeMessage(void);
 
 /** Identifies the model of the device on which the library is currently working on.
-<<<<<<< HEAD
  *
  * @return A NSString representing the device model.
  */
-=======
-*
-* @return A NSString representing the device model.
-*/
->>>>>>> 28d7e54c6... Address comments to centralize the device model extraction.
 NSString *_Nonnull GDTCORDeviceModel(void);
 
 /** Writes the given object to the given fileURL and populates the given error if it fails.
