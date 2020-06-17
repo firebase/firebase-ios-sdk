@@ -16,9 +16,7 @@
 
 #import "FIRMessagingAuthService.h"
 
-#import "FIRMessagingCheckinPreferences+Internal.h"
 #import "FIRMessagingCheckinPreferences.h"
-#import "FIRMessagingCheckinPreferences_Private.h"
 #import "FIRMessagingConstants.h"
 #import "FIRMessagingDefines.h"
 #import "FIRMessagingLogger.h"

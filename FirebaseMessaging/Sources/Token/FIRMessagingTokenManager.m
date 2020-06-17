@@ -96,7 +96,7 @@
                                     scope:(NSString *)scope
                                instanceID:(NSString *)instanceID
                                   options:(NSDictionary *)options
-                                  handler:(FIRMessagingTokenHandler)handler {
+                                  handler:(FIRMessagingFCMTokenFetchCompletion)handler {
   FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTokenManager000,
                            @"Fetch new token for authorizedEntity: %@, scope: %@", authorizedEntity,
                            scope);
@@ -167,7 +167,7 @@
 - (void)deleteTokenWithAuthorizedEntity:(NSString *)authorizedEntity
                                   scope:(NSString *)scope
                              instanceID:(NSString *)instanceID
-                                handler:(FIRMessagingDeleteTokenHandler)handler {
+                                handler:(FIRMessagingDeleteFCMTokenCompletion)handler {
   if ([self.instanceIDStore tokenInfoWithAuthorizedEntity:authorizedEntity scope:scope]) {
     [self.instanceIDStore removeCachedTokenWithAuthorizedEntity:authorizedEntity scope:scope];
   }
@@ -193,7 +193,7 @@
 }
 
 - (void)deleteAllTokensWithInstanceID:(NSString *)instanceID
-                              handler:(FIRMessagingDeleteHandler)handler {
+                              handler:(void(^)(NSError *))handler {
   // delete all tokens
   FIRMessagingCheckinPreferences *checkinPreferences = self.authService.checkinPreferences;
   if (!checkinPreferences) {
