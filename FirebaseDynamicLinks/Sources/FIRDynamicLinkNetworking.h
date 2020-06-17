@@ -31,6 +31,7 @@ typedef void (^FIRPostInstallAttributionCompletionHandler)(
 
 /** A definition for a block used to return data and errors after an asynchronous task. */
 typedef void (^FIRNetworkRequestCompletionHandler)(NSData *_Nullable data,
+                                                   NSURLResponse *_Nullable response,
                                                    NSError *_Nullable error);
 
 // these enums must be in sync with google/firebase/dynamiclinks/v1/dynamic_links.proto

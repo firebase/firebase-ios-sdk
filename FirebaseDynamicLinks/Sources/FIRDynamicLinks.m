@@ -338,10 +338,6 @@ static const NSInteger FIRErrorCodeDurableDeepLinkFailed = -119;
   return [self dynamicLinkFromCustomSchemeURL:url];
 }
 
-- (nullable FIRDynamicLink *)deepLinkFromUniversalLinkURL:(NSURL *)url {
-  return [self dynamicLinkFromUniversalLinkURL:url];
-}
-
 - (BOOL)shouldHandleDeepLinkFromCustomSchemeURL:(NSURL *)url {
   return [self shouldHandleDynamicLinkFromCustomSchemeURL:url];
 }
@@ -397,7 +393,8 @@ static const NSInteger FIRErrorCodeDurableDeepLinkFailed = -119;
   return nil;
 }
 
-- (nullable FIRDynamicLink *)dynamicLinkFromUniversalLinkURL:(NSURL *)url {
+- (void)dynamicLinkFromUniversalLinkURL:(NSURL *)url
+                             completion:(FIRDynamicLinkUniversalLinkHandler)completion {
   if ([self canParseUniversalLinkURL:url]) {
     if (url.query.length > 0) {
       NSDictionary *parameters = FIRDLDictionaryFromQuery(url.query);
@@ -409,25 +406,23 @@ static const NSInteger FIRErrorCodeDurableDeepLinkFailed = -119;
           dynamicLink.url = deepLinkURL;
           dynamicLink.matchType = FIRDLMatchTypeUnique;
           dynamicLink.minimumAppVersion = parameters[kFIRDLParameterMinimumAppVersion];
-          // Call resolveShortLink:completion: to do logging.
-          // TODO: Create dedicated logging function to prevent this.
           [self.dynamicLinkNetworking
               resolveShortLink:url
                  FDLSDKVersion:FIRFirebaseVersion()
                     completion:^(NSURL *_Nullable resolverURL, NSError *_Nullable resolverError){
-                        // Nothing to do
+                      completion(dynamicLink, resolverError);
                     }];
 #ifdef GIN_SCION_LOGGING
           FIRDLLogEventToScion(FIRDLLogEventAppOpen, parameters[kFIRDLParameterSource],
                                parameters[kFIRDLParameterMedium],
                                parameters[kFIRDLParameterCampaign], _analytics);
 #endif
-          return dynamicLink;
         }
       }
     }
+  } else {
+    completion(nil, nil);
   }
-  return nil;
 }
 
 - (BOOL)handleUniversalLink:(NSURL *)universalLinkURL
@@ -448,14 +443,13 @@ static const NSInteger FIRErrorCodeDurableDeepLinkFailed = -119;
                 }];
     return YES;
   } else {
-    FIRDynamicLink *dynamicLink = [self dynamicLinkFromUniversalLinkURL:universalLinkURL];
-    if (dynamicLink) {
-      completion(dynamicLink, nil);
+    [self dynamicLinkFromUniversalLinkURL:universalLinkURL completion:completion];
+    if ([self canParseUniversalLinkURL:universalLinkURL] && universalLinkURL.query.length > 0 &&
+        FIRDLDictionaryFromQuery(universalLinkURL.query)[kFIRDLParameterLink]) {
       return YES;
     }
+    return NO;
   }
-
-  return NO;
 }
 
 - (void)resolveShortLink:(NSURL *)url completion:(FIRDynamicLinkResolverHandler)completion {

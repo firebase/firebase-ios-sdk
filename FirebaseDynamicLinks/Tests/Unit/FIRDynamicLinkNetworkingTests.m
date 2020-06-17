@@ -73,7 +73,7 @@ static const NSTimeInterval kAsyncTestTimout = 0.5;
   void (^executeRequestBlock)(id, NSDictionary *, NSString *, FIRNetworkRequestCompletionHandler) =
       ^(id p1, NSDictionary *requestBody, NSString *requestURLString,
         FIRNetworkRequestCompletionHandler handler) {
-        handler(nil, nil);
+        handler(nil, nil, nil);
       };
 
   SEL executeRequestSelector = @selector(executeOnePlatformRequest:forURL:completionHandler:);

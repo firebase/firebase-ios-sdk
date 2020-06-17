@@ -107,7 +107,8 @@ NS_ASSUME_NONNULL_BEGIN
  * @abstract Method for compatibility with old interface of the GINDurableDeepLinkService
  */
 - (nullable FIRDynamicLink *)deepLinkFromUniversalLinkURL:(NSURL *)url
-    DEPRECATED_MSG_ATTRIBUTE("Use [FIRDynamicLinks dynamicLinkFromUniversalLinkURL:] instead.");
+    __attribute__((
+        unavailable("Use [FIRDynamicLinks dynamicLinkFromUniversalLinkURL:completion:] instead.")));
 
 /**
  * @method shouldHandleDeepLinkFromCustomSchemeURL:
