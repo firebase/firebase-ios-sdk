@@ -17,6 +17,8 @@
 set -ex
 
 cd "${REPO}"/ZipBuilder
+
+# This file will have non Firebase SDKs that will be built by ZipBuilder.
 ZIP_POD_JSON="non_firebase_sdk.json"
 rm -f "${ZIP_POD_JSON}"
 IFS=' ,' read -a NON_FIREBASE_SDKS <<< "${NON_FIREBASE_SDKS}"
@@ -25,11 +27,11 @@ num_sdk="${#NON_FIREBASE_SDKS[@]}"
 echo "[" >> "${ZIP_POD_JSON}"
 for sdk in "${NON_FIREBASE_SDKS[@]}"
 do
-				echo "{\"name\":\"${sdk}\"}" >>  "${ZIP_POD_JSON}"
-				if [ "$num_sdk" -ne 1 ]; then
-								echo ",">>  "${ZIP_POD_JSON}"
-				fi
-				num_sdk=$((num_sdk-1))
+  echo "{\"name\":\"${sdk}\"}" >>  "${ZIP_POD_JSON}"
+  if [ "$num_sdk" -ne 1 ]; then
+    echo ",">>  "${ZIP_POD_JSON}"
+  fi
+  num_sdk=$((num_sdk-1))
 done
 echo "]" >>  "${ZIP_POD_JSON}"
 mkdir -p "${REPO}"/sdk_zip
@@ -37,6 +39,7 @@ swift run ReleasePackager -keepBuildArtifacts true -updatePodRepo true -template
 
 unzip "${REPO}"/sdk_zip/Frameworks.zip -d "${HOME}"/ios_frameworks/Firebase/
 
+# Move Frameworks to Firebase dir, so be align with Firebase SDKs.
 mv "${HOME}"/ios_frameworks/Firebase/staging "${HOME}"/ios_frameworks/Firebase/NonFirebaseSDKs/
 
 
