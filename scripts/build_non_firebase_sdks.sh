@@ -18,7 +18,6 @@ set -ex
 
 cd "${REPO}"/ZipBuilder
 ZIP_POD_JSON="non_firebase_sdk.json"
-echo "${REPO}"
 rm -f "${ZIP_POD_JSON}"
 IFS=' ,' read -a NON_FIREBASE_SDKS <<< "${NON_FIREBASE_SDKS}"
 

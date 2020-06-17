@@ -29,6 +29,6 @@ do
 done
 
 if [[ ! -z "$NON_FIREBASE_SDKS" ]]; then
-  NON_FIREBASE_SDKS="${NON_FIREBASE_SDKS}" "${REPO}"/scripts/build_non_firebase_sdks.sh
+  REPO="$REPO" NON_FIREBASE_SDKS="${NON_FIREBASE_SDKS}" "${REPO}"/scripts/build_non_firebase_sdks.sh
 fi
 ../scripts/add_framework_script.rb  "${SAMPLE}" "${TARGET}" Firebase
