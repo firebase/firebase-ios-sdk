@@ -18,6 +18,7 @@
 
 #if TARGET_OS_IOS || TARGET_OS_TV
 #import <UIKit/UIKit.h>
+#import <sys/sysctl.h>
 #elif TARGET_OS_OSX
 #import <AppKit/AppKit.h>
 #endif  // TARGET_OS_IOS || TARGET_OS_TV
@@ -48,6 +49,37 @@ pb_bytes_array_t *GDTCCTEncodeData(NSData *data) {
   }
   return pbBytesArray;
 }
+
+#pragma mark - General purpose device info collectors
+
+#if TARGET_OS_IOS || TARGET_OS_TV
+
+static NSString *CCTSystemInfo(const char *name) {
+  size_t size;
+  sysctlbyname(name, NULL, &size, NULL, 0);
+  if (size <= 0) {
+    return @"";
+  }
+
+  char *machine = malloc(size);
+  sysctlbyname(name, machine, &size, NULL, 0);
+  NSString *value = [NSString stringWithCString:machine encoding:NSUTF8StringEncoding];
+  free(machine);
+
+  return value;
+}
+
+static NSString *CCTDeviceModel() {
+  static NSString *deviceModel;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    deviceModel = CCTSystemInfo("hw.machine");
+  });
+
+  return deviceModel;
+}
+
+#endif
 
 #pragma mark - CCT object constructors
 
@@ -198,7 +230,7 @@ gdt_cct_IosClientInfo GDTCCTConstructiOSClientInfo() {
   if (countryCode) {
     iOSClientInfo.country = GDTCCTEncodeString([locale objectForKey:NSLocaleCountryCode]);
   }
-  iOSClientInfo.model = GDTCCTEncodeString(device.model);
+  iOSClientInfo.model = GDTCCTEncodeString(CCTDeviceModel());
   NSString *languageCode = bundle.preferredLocalizations.firstObject;
   iOSClientInfo.language_code =
       languageCode ? GDTCCTEncodeString(languageCode) : GDTCCTEncodeString(@"en");
