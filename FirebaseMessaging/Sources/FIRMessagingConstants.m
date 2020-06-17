@@ -56,3 +56,31 @@ NSString *const kFIRMessagingRegistrationTokenRefreshNotification =
     @"com.firebase.iid.notif.refresh-token";
 
 const int kFIRMessagingSendTtlDefault = 24 * 60 * 60;  // 24 hours
+
+// Commands
+NSString *const kFIRMessaging_CMD_RST = @"RST";
+
+// NOTIFICATIONS
+NSString *const kFIRMessagingCheckinFetchedNotification = @"com.google.gcm.notif-checkin-fetched";
+NSString *const kFIRMessagingAPNSTokenNotification = @"com.firebase.iid.notif.apns-token";
+NSString *const kFIRMessagingDefaultGCMTokenFailNotification =
+    @"com.firebase.iid.notif.fcm-token-fail";
+
+NSString *const kFIRMessagingIdentityInvalidatedNotification = @"com.google.iid.identity-invalid";
+
+// Miscellaneous
+NSString *const kFIRMessagingAllScopeIdentifier = @"iid-all";
+NSString *const kFIRMessagingDefaultTokenScope = @"*";
+NSString *const kFIRMessagingSubDirectoryName = @"Google/FirebaseInstanceID";
+
+// Registration Options
+NSString *const kFIRMessagingTokenOptionsAPNSKey = @"apns_token";
+NSString *const kFIRMessagingTokenOptionsAPNSIsSandboxKey = @"apns_sandbox";
+NSString *const kFIRMessagingTokenOptionsFirebaseAppIDKey = @"gmp_app_id";
+
+NSString *const kFIRMessagingAppDelegateProxyEnabledInfoPlistKey =
+    @"FirebaseAppDelegateProxyEnabled";
+
+// iOS Keychain error https://forums.developer.apple.com/thread/4743
+// An undocumented error code hence need to be redeclared.
+const int kFIRMessagingSecMissingEntitlementErrorCode = -34018;

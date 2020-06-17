@@ -34,7 +34,12 @@ typedef NS_OPTIONS(NSUInteger, FIRMessagingInvalidTokenReason) {
  */
 @interface FIRMessagingTokenManager : NSObject
 
--(instancetype)sharedInstance;
+@property(nonatomic, readonly, strong) NSString *deviceAuthID;
+@property(nonatomic, readonly, strong) NSString *secretToken;
+@property(nonatomic, readonly, strong) NSString *versionInfo;
+
+
++ (instancetype)sharedInstance;
 
 /// Expose the auth service, so it can be used by others
 @property(nonatomic, readonly, strong) FIRMessagingAuthService *authService;
