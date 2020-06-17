@@ -1,5 +1,5 @@
 # unreleased
-- [changed] Remove FIRInstanceIDURLQueryItem in favor of NSURLQueryItem. (5835)
+- [changed] Remove FIRInstanceIDURLQueryItem in favor of NSURLQueryItem. (#5835)
 
 # 2020-06 -- 4.4.0
 - [changed] Standardize FirebaseCore import headers. (#5758)

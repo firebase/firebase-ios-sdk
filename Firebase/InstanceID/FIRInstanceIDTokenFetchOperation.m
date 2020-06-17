@@ -72,7 +72,7 @@ NSString *const kFIRInstanceIDHeartbeatTag = @"fire-iid";
 
   if (self.instanceID.length > 0) {
     [queryItems addObject:[NSURLQueryItem queryItemWithName:kFIRInstanceIDParamInstanceID
-                                                    value:self.instanceID]];
+                                                      value:self.instanceID]];
   }
   // Create query items from passed-in options
   id apnsTokenData = self.options[kFIRInstanceIDTokenOptionsAPNSKey];

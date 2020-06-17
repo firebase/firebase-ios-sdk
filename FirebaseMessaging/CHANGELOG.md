@@ -1,5 +1,5 @@
 # unreleased
-- [changed] Remove logic that is executed for iOS 7 and below. (5835)
+- [changed] Remove logic that is executed for iOS 7 and below. (#5835)
 
 # 2020-06 -- v4.5.0
 - [changed] Use UNNotificationRequest to schedule local notification for local timezone notification for iOS 10 and above. This should also fix the issue that '%' was not properly shown in title and body. (#5667)
