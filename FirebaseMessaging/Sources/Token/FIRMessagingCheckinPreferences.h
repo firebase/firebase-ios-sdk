@@ -14,9 +14,56 @@
  * limitations under the License.
  */
 
-#import <FirebaseInstanceID/FIRMessagingCheckinPreferences.h>
+#import <Foundation/Foundation.h>
 
-@interface FIRMessagingCheckinPreferences (Internal)
+FOUNDATION_EXPORT const NSTimeInterval kFIRMessagingDefaultCheckinInterval;
+
+/**
+ *  The preferences InstanceID loads from checkin server. The deviceID and secret that checkin
+ *  provides is used to authenticate all future requests to the server. Besides the deviceID
+ *  and secret the other information that checkin provides is stored in a plist on the device.
+ *  The deviceID and secret are persisted in the device keychain.
+ */
+@interface FIRMessagingCheckinPreferences : NSObject
+
+/**
+ *  DeviceID and secretToken are the checkin auth credentials and are stored in the Keychain.
+ */
+@property(nonatomic, readonly, copy) NSString *deviceID;
+@property(nonatomic, readonly, copy) NSString *secretToken;
+
+/**
+ *  All the other checkin preferences other than deviceID and secret are stored in a plist.
+ */
+@property(nonatomic, readonly, copy) NSString *deviceDataVersion;
+@property(nonatomic, readonly, copy) NSString *digest;
+@property(nonatomic, readonly, copy) NSString *versionInfo;
+@property(nonatomic, readonly, assign) int64_t lastCheckinTimestampMillis;
+
+/**
+ *  The content retrieved from checkin server that should be persisted in a plist. This
+ *  doesn't contain the deviceID and secret which are stored in the Keychain since they
+ *  should be more private.
+ *
+ *  @return The checkin preferences that should be persisted in a plist.
+ */
+- (NSDictionary *)checkinPlistContents;
+
+/**
+ *  Return whether checkin info exists, valid or not.
+ */
+- (BOOL)hasCheckinInfo;
+
+/**
+ *  Verify if checkin preferences are valid or not.
+ *
+ *  @return YES if valid checkin preferences else NO.
+ */
+- (BOOL)hasValidCheckinInfo;
+
+
+- (BOOL)hasPreCachedAuthCredentials;
+- (void)setHasPreCachedAuthCredentials:(BOOL)hasPreCachedAuthCredentials;
 
 /**
  *  Parse the checkin auth credentials saved in the Keychain to initialize checkin
