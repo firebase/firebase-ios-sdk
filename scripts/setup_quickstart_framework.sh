@@ -21,6 +21,9 @@ chmod +x ../scripts/info_script.rb
 ruby ../scripts/info_script.rb "${SAMPLE}"
 
 mkdir -p Firebase/
+if [[ ! -z "$NON_FIREBASE_SDKS" ]]; then
+  REPO="${REPO}" NON_FIREBASE_SDKS="${NON_FIREBASE_SDKS}" "${REPO}"/scripts/build_non_firebase_sdks.sh
+fi
 mv "${HOME}"/ios_frameworks/Firebase/Firebase.h Firebase/
 mv "${HOME}"/ios_frameworks/Firebase/module.modulemap Firebase/
 for file in "$@"
@@ -28,7 +31,4 @@ do
   mv ${file} Firebase/
 done
 
-if [[ ! -z "$NON_FIREBASE_SDKS" ]]; then
-  REPO="${REPO}" NON_FIREBASE_SDKS="${NON_FIREBASE_SDKS}" "${REPO}"/scripts/build_non_firebase_sdks.sh
-fi
 ../scripts/add_framework_script.rb  "${SAMPLE}" "${TARGET}" Firebase
