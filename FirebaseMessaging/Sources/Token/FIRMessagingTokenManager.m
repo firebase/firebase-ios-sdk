@@ -42,7 +42,13 @@
 @implementation FIRMessagingTokenManager
 
 
--(instancetype)sharedInstance {
++ (instancetype)sharedInstance {
+  static FIRMessagingTokenManager *sharedInstance = nil;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    sharedInstance = [[FIRMessagingTokenManager alloc] init];
+  });
+  return sharedInstance;
 }
 
 - (instancetype)init {
