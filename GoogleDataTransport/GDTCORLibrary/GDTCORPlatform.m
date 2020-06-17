@@ -158,7 +158,7 @@ GDTCORNetworkMobileSubtype GDTCORNetworkMobileSubTypeMessage() {
 }
 
 NSString *_Nonnull GDTCORDeviceModel() {
-  __block NSString *deviceModel = [UIDevice currentDevice].model;
+  __block NSString *deviceModel = @"";
   
   #if TARGET_OS_IOS || TARGET_OS_TV
     static dispatch_once_t onceToken;
@@ -171,6 +171,8 @@ NSString *_Nonnull GDTCORDeviceModel() {
         sysctlbyname(keyToExtract, machine, &size, NULL, 0);
         deviceModel = [NSString stringWithCString:machine encoding:NSUTF8StringEncoding];
         free(machine);
+      } else {
+        deviceModel = [UIDevice currentDevice].model;
       }
     });
   #endif
