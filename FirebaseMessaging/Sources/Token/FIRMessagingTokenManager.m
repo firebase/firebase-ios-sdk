@@ -63,6 +63,7 @@
 
 - (void)dealloc {
   [self stopAllTokenOperations];
+  [super dealloc];
 }
 
 
