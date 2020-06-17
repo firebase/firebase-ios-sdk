@@ -40,7 +40,7 @@
 }
 
 - (void)batchWithEventSelector:(nonnull GDTCORStorageEventSelector *)eventSelector
-               batchExpiration:(nonnull GDTCORClock *)expiration
+               batchExpiration:(nonnull NSDate *)expiration
                     onComplete:
                         (nonnull void (^)(NSNumber *_Nullable batchID,
                                           NSSet<GDTCOREvent *> *_Nullable events))onComplete {
@@ -78,11 +78,14 @@
   return NO;
 }
 
-- (void)purgeEventsFromBefore:(GDTCORClock *)beforeSnapshot
-                   onComplete:(void (^)(NSError *_Nullable error))onComplete {
+- (void)storageSizeWithCallback:(void (^)(uint64_t storageSize))onComplete {
 }
 
-- (void)storageSizeWithCallback:(void (^)(uint64_t storageSize))onComplete {
+- (void)batchIDsForTarget:(GDTCORTarget)target
+               onComplete:(nonnull void (^)(NSSet<NSNumber *> *_Nonnull))onComplete {
+}
+
+- (void)checkForExpirations {
 }
 
 @end

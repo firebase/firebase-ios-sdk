@@ -787,11 +787,6 @@
   });
 }
 
-/** Tests -purgeEventsFromBefore:onComplete: removes prior to an arbitrary time. */
-- (void)testPurgeEvents {
-  // TODO(mikehaney24): Complete when purge events is implemented.
-}
-
 /** Tests that the size of the storage is returned accurately. */
 - (void)testStorageSizeWithCallback {
   NSUInteger ongoingSize = 0;
@@ -910,7 +905,7 @@
       [GDTCORStorageEventSelector eventSelectorForTarget:kGDTCORTargetTest];
   __block NSNumber *batchID;
   [storage batchWithEventSelector:eventSelector
-                  batchExpiration:[GDTCORClock clockSnapshotInTheFuture:60000]
+                  batchExpiration:[NSDate dateWithTimeIntervalSinceNow:600]
                        onComplete:^(NSNumber *_Nullable newBatchID,
                                     NSSet<GDTCOREvent *> *_Nullable events) {
                          batchID = newBatchID;
@@ -960,7 +955,7 @@
       [GDTCORStorageEventSelector eventSelectorForTarget:kGDTCORTargetTest];
   __block NSNumber *batchID;
   [storage batchWithEventSelector:eventSelector
-                  batchExpiration:[GDTCORClock clockSnapshotInTheFuture:60000]
+                  batchExpiration:[NSDate dateWithTimeIntervalSinceNow:600]
                        onComplete:^(NSNumber *_Nullable newBatchID,
                                     NSSet<GDTCOREvent *> *_Nullable events) {
                          batchID = newBatchID;
@@ -1012,7 +1007,7 @@
       [GDTCORStorageEventSelector eventSelectorForTarget:kGDTCORTargetTest];
   __block NSNumber *batchID;
   [storage batchWithEventSelector:eventSelector
-                  batchExpiration:[GDTCORClock clockSnapshotInTheFuture:60000]
+                  batchExpiration:[NSDate dateWithTimeIntervalSinceNow:600]
                        onComplete:^(NSNumber *_Nullable newBatchID,
                                     NSSet<GDTCOREvent *> *_Nullable events) {
                          batchID = newBatchID;
@@ -1034,6 +1029,77 @@
     [expectation fulfill];
   }];
   [self waitForExpectations:@[ expectation ] timeout:10];
+}
+
+// TODO(mikehaney24): Re-enable this test once storing an event is exclusively file-based.
+///** Tests events expiring at a given time. */
+//- (void)testCheckEventExpiration {
+//  NSTimeInterval delay = 30.0;
+//  XCTAssertFalse([[GDTCORFlatFileStorage sharedInstance] hasEventsForTarget:kGDTCORTargetTest]);
+//  GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"testing"
+//  target:kGDTCORTargetTest]; event.expirationDate = [NSDate dateWithTimeIntervalSinceNow:delay];
+//  event.clockSnapshot = [GDTCORClock snapshot];
+//  event.dataObject = @"fake data";
+//  XCTestExpectation *expectation = [self expectationWithDescription:@"storeEvent completion"];
+//  [[GDTCORFlatFileStorage sharedInstance] storeEvent:event onComplete:^(BOOL wasWritten, NSError *
+//  _Nullable error) {
+//    XCTAssertTrue(wasWritten);
+//    XCTAssertNil(error);
+//    [expectation fulfill];
+//  }];
+//  [self waitForExpectations:@[expectation] timeout:10.0];
+//  XCTAssertTrue([[GDTCORFlatFileStorage sharedInstance] hasEventsForTarget:kGDTCORTargetTest]);
+//  [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:delay]];
+//  [[GDTCORFlatFileStorage sharedInstance] checkForExpirations];
+//  XCTAssertFalse([[GDTCORFlatFileStorage sharedInstance] hasEventsForTarget:kGDTCORTargetTest]);
+//}
+
+/** Tests batch expiring at a given time. */
+- (void)testCheckBatchExpiration {
+  GDTCORFlatFileStorage *storage = [GDTCORFlatFileStorage sharedInstance];
+  NSTimeInterval delay = 10.0;
+  [[self generateEventsForStorageTesting]
+      enumerateObjectsUsingBlock:^(GDTCOREvent *_Nonnull event, BOOL *_Nonnull stop) {
+        [storage storeEvent:event onComplete:nil];
+      }];
+  XCTAssertTrue([storage hasEventsForTarget:kGDTCORTargetTest]);
+
+  XCTestExpectation *expectation = [self expectationWithDescription:@"no batches exist"];
+  [storage batchIDsForTarget:kGDTCORTargetTest
+                  onComplete:^(NSSet<NSNumber *> *_Nonnull newBatchIDs) {
+                    XCTAssertEqual(newBatchIDs.count, 0);
+                    [expectation fulfill];
+                  }];
+  [self waitForExpectations:@[ expectation ] timeout:10];
+  expectation = [self expectationWithDescription:@"batch created"];
+  __block NSNumber *batchID;
+  [storage
+      batchWithEventSelector:[GDTCORStorageEventSelector eventSelectorForTarget:kGDTCORTargetTest]
+             batchExpiration:[NSDate dateWithTimeIntervalSinceNow:delay]
+                  onComplete:^(NSNumber *_Nullable newBatchID,
+                               NSSet<GDTCOREvent *> *_Nullable events) {
+                    batchID = newBatchID;
+                    XCTAssertGreaterThan(events.count, 0);
+                    [expectation fulfill];
+                  }];
+  [self waitForExpectations:@[ expectation ] timeout:10];
+  expectation = [self expectationWithDescription:@"a batch now exists"];
+  [storage batchIDsForTarget:kGDTCORTargetTest
+                  onComplete:^(NSSet<NSNumber *> *_Nonnull newBatchIDs) {
+                    XCTAssertEqual(newBatchIDs.count, 1);
+                    [expectation fulfill];
+                  }];
+  [self waitForExpectations:@[ expectation ] timeout:10];
+  [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:delay]];
+  [[GDTCORFlatFileStorage sharedInstance] checkForExpirations];
+  expectation = [self expectationWithDescription:@"no batch exists after expiration"];
+  [storage batchIDsForTarget:kGDTCORTargetTest
+                  onComplete:^(NSSet<NSNumber *> *_Nonnull newBatchIDs) {
+                    XCTAssertEqual(newBatchIDs.count, 0);
+                    XCTAssertFalse([storage hasEventsForTarget:kGDTCORTargetTest]);
+                    [expectation fulfill];
+                  }];
+  [self waitForExpectations:@[ expectation ] timeout:30];
 }
 
 /** Tests migration from v1 of the storage format to v2. */

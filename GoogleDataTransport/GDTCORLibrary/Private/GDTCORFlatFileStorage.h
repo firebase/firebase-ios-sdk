@@ -25,6 +25,27 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/** The event components eventID dictionary key. */
+FOUNDATION_EXPORT NSString *const kGDTCOREventComponentsEventIDKey;
+
+/** The event components qosTier dictionary key. */
+FOUNDATION_EXPORT NSString *const kGDTCOREventComponentsQoSTierKey;
+
+/** The event components mappingID dictionary key. */
+FOUNDATION_EXPORT NSString *const kGDTCOREventComponentsMappingIDKey;
+
+/** The event components expirationDate dictionary key. */
+FOUNDATION_EXPORT NSString *const kGDTCOREventComponentsExpirationKey;
+
+/** The batch components target dictionary key. */
+FOUNDATION_EXPORT NSString *const kGDTCORBatchComponentsTargetKey;
+
+/** The batch components batchID dictionary key. */
+FOUNDATION_EXPORT NSString *const kGDTCORBatchComponentsBatchIDKey;
+
+/** The batch components expiration dictionary key. */
+FOUNDATION_EXPORT NSString *const kGDTCORBatchComponentsExpirationKey;
+
 /** Manages the storage of events. This class is thread-safe.
  *
  * Event files will be stored as follows:
@@ -85,19 +106,23 @@ NS_ASSUME_NONNULL_BEGIN
 + (NSString *)batchDataStoragePath;
 
 /** */
-+ (NSString *)batchPathForTarget:(GDTCORTarget)target batchID:(NSNumber *)batchID;
++ (NSString *)batchPathForTarget:(GDTCORTarget)target
+                         batchID:(NSNumber *)batchID
+                  expirationDate:(NSDate *)expirationDate;
 
 /** Returns a constructed storage path based on the given values. This path may not exist.
  *
  * @param target The target, which is necessary to be given a path.
  * @param eventID The eventID.
  * @param qosTier The qosTier.
+ * @param expirationDate The expirationDate as a 1970-relative time interval.
  * @param mappingID The mappingID.
  * @return The path representing the combination of the given parameters.
  */
 + (NSString *)pathForTarget:(GDTCORTarget)target
                     eventID:(NSNumber *)eventID
                     qosTier:(NSNumber *)qosTier
+             expirationDate:(NSDate *)expirationDate
                   mappingID:(NSString *)mappingID;
 
 /** Returns extant paths that match all of the given parameters.
@@ -119,6 +144,20 @@ NS_ASSUME_NONNULL_BEGIN
  * @param onComplete A block to execute when creating the next batchID is complete.
  */
 - (void)nextBatchID:(void (^)(NSNumber *batchID))onComplete;
+
+/** Constructs a dictionary of event filename components.
+ *
+ * @param fileName The event filename to split.
+ * @return The dictionary of event component keys to their values.
+ */
+- (nullable NSDictionary<NSString *, id> *)eventComponentsFromFilename:(NSString *)fileName;
+
+/** Constructs a dictionary of batch filename components.
+ *
+ * @param fileName The batch folder name to split.
+ * @return The dictionary of batch component keys to their values.
+ */
+- (nullable NSDictionary<NSString *, id> *)batchComponentsFromFilename:(NSString *)fileName;
 
 @end
 
