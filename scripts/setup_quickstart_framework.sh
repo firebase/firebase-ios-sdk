@@ -14,6 +14,7 @@
 
 set -ex
 
+REPO=`pwd`
 git clone https://github.com/firebase/quickstart-ios.git
 cd quickstart-ios/"${SAMPLE}"
 chmod +x ../scripts/info_script.rb
@@ -26,4 +27,8 @@ for file in "$@"
 do
   mv ${file} Firebase/
 done
+
+if [[ ! -z "$NON_FIREBASE_SDKS" ]]; then
+  NON_FIREBASE_SDKS="${NON_FIREBASE_SDKS}" "${REPO}"/scripts/build_non_firebase_sdks.sh
+fi
 ../scripts/add_framework_script.rb  "${SAMPLE}" "${TARGET}" Firebase
