@@ -38,7 +38,7 @@ static NSString *const kCheckinFileName = @"g-checkin";
 - (instancetype)initWithDelegate:(NSObject<FIRMessagingStoreDelegate> *)delegate {
   FIRMessagingCheckinStore *checkinStore = [[FIRMessagingCheckinStore alloc]
       initWithCheckinPlistFileName:kCheckinFileName
-                  subDirectoryName:kFIRMessagingSubDirectoryName];
+                  subDirectoryName:kFIRInstanceIDSubDirectoryName];
 
   FIRMessagingTokenStore *tokenStore = [FIRMessagingTokenStore defaultStore];
 

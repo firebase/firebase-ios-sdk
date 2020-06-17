@@ -16,7 +16,7 @@
 
 #import "FIRMessagingKeychain.h"
 
-#import "FIRMessagingLogger.h"
+#import "FirebaseMessaging/Sources/FIRMessagingLogger.h"
 
 NSString *const kFIRMessagingKeychainErrorDomain = @"com.google.iid";
 
