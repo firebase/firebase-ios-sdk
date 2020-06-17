@@ -78,7 +78,7 @@ FOUNDATION_EXPORT NSString *const kFIRMessagingAllScopeIdentifier;
 FOUNDATION_EXPORT NSString *const kFIRMessagingDefaultTokenScope;
 
 /// Subdirectory in search path directory to store InstanceID preferences.
-FOUNDATION_EXPORT NSString *const kFIRMessagingSubDirectoryName;
+FOUNDATION_EXPORT NSString *const kFIRInstanceIDSubDirectoryName;
 
 /// The key for APNS token in options dictionary.
 FOUNDATION_EXPORT NSString *const kFIRMessagingTokenOptionsAPNSKey;

@@ -44,7 +44,7 @@ typedef NS_ENUM(NSUInteger, FIRMessagingErrorCode) {
 
   // Already connected with MCS
   kFIRMessagingErrorCodeAlreadyConnected = 2001,
-
+  kFIRMessagingErrorCodeInvalidIdentity = 2006,
   // PubSub errors
   kFIRMessagingErrorCodePubSubClientNotSetup = 3004,
   kFIRMessagingErrorCodePubSubOperationIsCancelled = 3005,
