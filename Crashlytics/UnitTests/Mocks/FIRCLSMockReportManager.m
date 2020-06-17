@@ -18,7 +18,7 @@
 #import "FIRCLSMockNetworkClient.h"
 #import "FIRCLSMockReportUploader.h"
 
-#import "FIRInstallations.h"
+#import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
 
 @interface FIRCLSMockReportManager () {
   FIRCLSMockReportUploader *_uploader;
