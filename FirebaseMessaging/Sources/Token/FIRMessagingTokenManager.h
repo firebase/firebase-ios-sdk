@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRMessaging.h"
+#import <FirebaseMessaging/FIRMessaging.h>
 
 @class FIRMessagingAuthService;
 @class FIRMessagingCheckinPreferences;
@@ -63,7 +63,7 @@ typedef NS_OPTIONS(NSUInteger, FIRMessagingInvalidTokenReason) {
                                     scope:(NSString *)scope
                                instanceID:(NSString *)instanceID
                                   options:(NSDictionary *)options
-                                  handler:(FIRMessagingTokenHandler)handler;
+                                  handler:(FIRMessagingFCMTokenFetchCompletion)handler;
 
 /**
  *  Return the cached token info, if one exists, for the given authorizedEntity and scope.
@@ -94,7 +94,7 @@ typedef NS_OPTIONS(NSUInteger, FIRMessagingInvalidTokenReason) {
 - (void)deleteTokenWithAuthorizedEntity:(NSString *)authorizedEntity
                                   scope:(NSString *)scope
                              instanceID:(NSString *)instanceID
-                                handler:(FIRMessagingDeleteTokenHandler)handler;
+                                handler:(FIRMessagingDeleteFCMTokenCompletion)handler;
 
 /**
  *  Deletes all cached tokens from the persistent store. This method should only be triggered
@@ -107,7 +107,7 @@ typedef NS_OPTIONS(NSUInteger, FIRMessagingInvalidTokenReason) {
  *                    and be called asynchronously.
  */
 - (void)deleteAllTokensWithInstanceID:(NSString *)instanceID
-                              handler:(FIRMessagingDeleteHandler)handler;
+                              handler:(FIRMessagingDeleteFCMTokenCompletion)handler;
 
 /**
  *  Deletes all cached tokens from the persistent store.
