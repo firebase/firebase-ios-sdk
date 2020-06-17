@@ -20,9 +20,10 @@
 #import "FIRInstanceIDDefines.h"
 #import "FIRInstanceIDLogger.h"
 #import "FIRInstanceIDTokenOperation+Private.h"
-#import "FIRInstanceIDURLQueryItem.h"
 #import "FIRInstanceIDUtilities.h"
 #import "NSError+FIRInstanceID.h"
+
+static NSString *const kFIRInstanceIDParamInstanceID = @"appid";
 
 @implementation FIRInstanceIDTokenDeleteOperation
 
@@ -47,24 +48,25 @@
 
   // Build form-encoded body
   NSString *deviceAuthID = self.checkinPreferences.deviceID;
-  NSMutableArray<FIRInstanceIDURLQueryItem *> *queryItems =
+  NSMutableArray<NSURLQueryItem *> *queryItems =
       [FIRInstanceIDTokenOperation standardQueryItemsWithDeviceID:deviceAuthID scope:self.scope];
-  [queryItems addObject:[FIRInstanceIDURLQueryItem queryItemWithName:@"delete" value:@"true"]];
+  [queryItems addObject:[NSURLQueryItem queryItemWithName:@"delete" value:@"true"]];
   if (self.action == FIRInstanceIDTokenActionDeleteTokenAndIID) {
-    [queryItems addObject:[FIRInstanceIDURLQueryItem queryItemWithName:@"iid-operation"
-                                                                 value:@"delete"]];
+    [queryItems addObject:[NSURLQueryItem queryItemWithName:@"iid-operation" value:@"delete"]];
   }
   if (self.authorizedEntity) {
-    [queryItems addObject:[FIRInstanceIDURLQueryItem queryItemWithName:@"sender"
-                                                                 value:self.authorizedEntity]];
+    [queryItems addObject:[NSURLQueryItem queryItemWithName:@"sender" value:self.authorizedEntity]];
   }
   // Typically we include our public key-signed url items, but in some cases (like deleting all FCM
   // tokens), we don't.
   if (self.instanceID.length > 0) {
-    [queryItems addObjectsFromArray:[self queryItemsWithInstanceID:self.instanceID]];
+    [queryItems addObject:[NSURLQueryItem queryItemWithName:kFIRInstanceIDParamInstanceID
+                                                      value:self.instanceID]];
   }
 
-  NSString *content = FIRInstanceIDQueryFromQueryItems(queryItems);
+  NSURLComponents *components = [[NSURLComponents alloc] init];
+  components.queryItems = queryItems;
+  NSString *content = components.query;
   request.HTTPBody = [content dataUsingEncoding:NSUTF8StringEncoding];
   FIRInstanceIDLoggerDebug(kFIRInstanceIDMessageCodeTokenDeleteOperationFetchRequest,
                            @"Unregister request to %@ content: %@", FIRInstanceIDRegisterServer(),
