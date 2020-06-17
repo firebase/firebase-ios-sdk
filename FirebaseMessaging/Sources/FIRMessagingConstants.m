@@ -77,6 +77,8 @@ NSString *const kFIRMessagingSubDirectoryName = @"Google/FirebaseInstanceID";
 NSString *const kFIRMessagingTokenOptionsAPNSKey = @"apns_token";
 NSString *const kFIRMessagingTokenOptionsAPNSIsSandboxKey = @"apns_sandbox";
 NSString *const kFIRMessagingTokenOptionsFirebaseAppIDKey = @"gmp_app_id";
+NSString *const kFIRMessagingeIDParamInstanceID = @"appid";
+
 
 NSString *const kFIRMessagingAppDelegateProxyEnabledInfoPlistKey =
     @"FirebaseAppDelegateProxyEnabled";

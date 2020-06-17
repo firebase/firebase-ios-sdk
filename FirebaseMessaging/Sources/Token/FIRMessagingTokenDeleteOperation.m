@@ -17,10 +17,10 @@
 #import "FIRMessagingTokenDeleteOperation.h"
 
 #import "FIRMessagingCheckinPreferences.h"
+#import "FIRMessagingConstants.h"
 #import "FIRMessagingDefines.h"
 #import "FIRMessagingLogger.h"
 #import "FIRMessagingTokenOperation+Private.h"
-#import "FIRMessagingURLQueryItem.h"
 #import "FIRMessagingUtilities.h"
 #import "NSError+FIRMessaging.h"
 
@@ -47,27 +47,30 @@
 
   // Build form-encoded body
   NSString *deviceAuthID = self.checkinPreferences.deviceID;
-  NSMutableArray<FIRMessagingURLQueryItem *> *queryItems =
+  NSMutableArray<NSURLQueryItem *> *queryItems =
       [FIRMessagingTokenOperation standardQueryItemsWithDeviceID:deviceAuthID scope:self.scope];
-  [queryItems addObject:[FIRMessagingURLQueryItem queryItemWithName:@"delete" value:@"true"]];
+  [queryItems addObject:[NSURLQueryItem queryItemWithName:@"delete" value:@"true"]];
   if (self.action == FIRMessagingTokenActionDeleteTokenAndIID) {
-    [queryItems addObject:[FIRMessagingURLQueryItem queryItemWithName:@"iid-operation"
+    [queryItems addObject:[NSURLQueryItem queryItemWithName:@"iid-operation"
                                                                  value:@"delete"]];
   }
   if (self.authorizedEntity) {
-    [queryItems addObject:[FIRMessagingURLQueryItem queryItemWithName:@"sender"
+    [queryItems addObject:[NSURLQueryItem queryItemWithName:@"sender"
                                                                  value:self.authorizedEntity]];
   }
   // Typically we include our public key-signed url items, but in some cases (like deleting all FCM
   // tokens), we don't.
   if (self.instanceID.length > 0) {
-    [queryItems addObjectsFromArray:[self queryItemsWithInstanceID:self.instanceID]];
+    [queryItems addObject:[NSURLQueryItem queryItemWithName:kFIRMessagingParamInstanceID
+                                                      value:self.instanceID]];
   }
 
-  NSString *content = FIRMessagingQueryFromQueryItems(queryItems);
+  NSURLComponents *components = [[NSURLComponents alloc] init];
+  components.queryItems = queryItems;
+  NSString *content = components.query;
   request.HTTPBody = [content dataUsingEncoding:NSUTF8StringEncoding];
   FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTokenDeleteOperationFetchRequest,
-                           @"Unregister request to %@ content: %@", FIRMessagingRegisterServer(),
+                           @"Unregister request to %@ content: %@", FIRMessagingTokenRegisterServer(),
                            content);
 
   FIRMessaging_WEAKIFY(self);
@@ -76,12 +79,6 @@
         FIRMessaging_STRONGIFY(self);
         [self handleResponseWithData:data response:response error:error];
       };
-
-  // Test block
-  if (self.testBlock) {
-    self.testBlock(request, requestHandler);
-    return;
-  }
 
   NSURLSession *session = [FIRMessagingTokenOperation sharedURLSession];
   self.dataTask = [session dataTaskWithRequest:request completionHandler:requestHandler];
@@ -94,7 +91,7 @@
   if (error) {
     FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTokenDeleteOperationRequestError,
                              @"Device unregister HTTP fetch error. Error code: %ld",
-                             _FIRMessaging_L(error.code));
+                             error.code);
     [self finishWithResult:FIRMessagingTokenOperationError token:nil error:error];
     return;
   }

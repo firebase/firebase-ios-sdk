@@ -21,7 +21,6 @@
 #import "FIRMessagingDefines.h"
 #import "FIRMessagingLogger.h"
 #import "FIRMessagingTokenOperation+Private.h"
-#import "FIRMessagingURLQueryItem.h"
 #import "FIRMessagingUtilities.h"
 #import "NSError+FIRMessaging.h"
 
@@ -65,15 +64,17 @@ NSString *const kFIRMessagingHeartbeatTag = @"fire-iid";
 
   // Build form-encoded body
   NSString *deviceAuthID = self.checkinPreferences.deviceID;
-  NSMutableArray<FIRMessagingURLQueryItem *> *queryItems =
+  NSMutableArray<NSURLQueryItem *> *queryItems =
       [[self class] standardQueryItemsWithDeviceID:deviceAuthID scope:self.scope];
-  [queryItems addObject:[FIRMessagingURLQueryItem queryItemWithName:@"sender"
+  [queryItems addObject:[NSURLQueryItem queryItemWithName:@"sender"
                                                                value:self.authorizedEntity]];
-  [queryItems addObject:[FIRMessagingURLQueryItem queryItemWithName:@"X-subtype"
+  [queryItems addObject:[NSURLQueryItem queryItemWithName:@"X-subtype"
                                                                value:self.authorizedEntity]];
 
-  [queryItems addObjectsFromArray:[self queryItemsWithInstanceID:self.instanceID]];
-
+  if (self.instanceID.length > 0) {
+    [queryItems addObject:[NSURLQueryItem queryItemWithName:kFIRMessagingParamInstanceID
+                                                      value:self.instanceID]];
+  }
   // Create query items from passed-in options
   id apnsTokenData = self.options[kFIRMessagingTokenOptionsAPNSKey];
   id apnsSandboxValue = self.options[kFIRMessagingTokenOptionsAPNSIsSandboxKey];
@@ -82,24 +83,26 @@ NSString *const kFIRMessagingHeartbeatTag = @"fire-iid";
     NSString *APNSString = FIRMessagingAPNSTupleStringForTokenAndServerType(
         apnsTokenData, ((NSNumber *)apnsSandboxValue).boolValue);
     // The name of the query item happens to be the same as the dictionary key
-    FIRMessagingURLQueryItem *item =
-        [FIRMessagingURLQueryItem queryItemWithName:kFIRMessagingTokenOptionsAPNSKey
+    NSURLQueryItem *item =
+        [NSURLQueryItem queryItemWithName:kFIRMessagingTokenOptionsAPNSKey
                                                value:APNSString];
     [queryItems addObject:item];
   }
   id firebaseAppID = self.options[kFIRMessagingTokenOptionsFirebaseAppIDKey];
   if ([firebaseAppID isKindOfClass:[NSString class]]) {
     // The name of the query item happens to be the same as the dictionary key
-    FIRMessagingURLQueryItem *item =
-        [FIRMessagingURLQueryItem queryItemWithName:kFIRMessagingTokenOptionsFirebaseAppIDKey
+    NSURLQueryItem *item =
+        [NSURLQueryItem queryItemWithName:kFIRMessagingTokenOptionsFirebaseAppIDKey
                                                value:(NSString *)firebaseAppID];
     [queryItems addObject:item];
   }
 
-  NSString *content = FIRMessagingQueryFromQueryItems(queryItems);
+  NSURLComponents *components = [[NSURLComponents alloc] init];
+  components.queryItems = queryItems;
+  NSString *content = components.query;
   request.HTTPBody = [content dataUsingEncoding:NSUTF8StringEncoding];
   FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTokenFetchOperationFetchRequest,
-                           @"Register request to %@ content: %@", FIRMessagingRegisterServer(),
+                           @"Register request to %@ content: %@", FIRMessagingTokenRegisterServer(),
                            content);
 
   FIRMessaging_WEAKIFY(self);
@@ -109,11 +112,6 @@ NSString *const kFIRMessagingHeartbeatTag = @"fire-iid";
         [self handleResponseWithData:data response:response error:error];
       };
 
-  // Test block
-  if (self.testBlock) {
-    self.testBlock(request, requestHandler);
-    return;
-  }
 
   NSURLSession *session = [FIRMessagingTokenOperation sharedURLSession];
   self.dataTask = [session dataTaskWithRequest:request completionHandler:requestHandler];

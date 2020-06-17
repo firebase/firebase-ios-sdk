@@ -18,8 +18,8 @@
 
 #import "FIRMessagingAuthKeyChain.h"
 #import "FIRMessagingBackupExcludedPlist.h"
-#import "FIRMessagingCheckinPreferences+Internal.h"
-#import "FIRMessagingCheckinPreferences_Private.h"
+#import "FIRMessagingCode.h"
+#import "FIRMessagingCheckinPreferences.h"
 #import "FIRMessagingCheckinService.h"
 #import "FIRMessagingLogger.h"
 #import "FIRMessagingUtilities.h"
@@ -83,11 +83,12 @@ NSString *const kFIRMessagingCheckinKeychainService = @"com.google.iid.checkin";
   NSString *checkinKeychainContent = [preferences checkinKeychainContent];
 
   if (![checkinKeychainContent length]) {
+    NSString *failureReason = @"Failed to get checkin keychain content from memory.";
     FIRMessagingLoggerDebug(kFIRMessagingMessageCodeCheckinStore000,
-                             @"Failed to get checkin keychain content from memory.");
+                             failureReason);
     if (handler) {
       handler([NSError
-          errorWithFIRMessagingErrorCode:kFIRMessagingErrorCodeRegistrarFailedToCheckIn]);
+          messagingErrorWithCode:kFIRMessagingErrorCodeRegistrarFailedToCheckIn failureReason:failureReason]);
     }
     return;
   }

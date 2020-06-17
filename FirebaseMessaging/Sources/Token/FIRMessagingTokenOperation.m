@@ -20,7 +20,6 @@
 
 #import "FIRMessagingCheckinPreferences.h"
 #import "FIRMessagingLogger.h"
-#import "FIRMessagingURLQueryItem.h"
 #import "FIRMessagingUtilities.h"
 #import "NSError+FIRMessaging.h"
 
@@ -205,7 +204,7 @@ static NSString *const kFIRMessagingParamFCMLibVersion = @"X-cliv";
   return request;
 }
 
-+ (NSMutableArray<FIRMessagingURLQueryItem *> *)standardQueryItemsWithDeviceID:(NSString *)deviceID
++ (NSMutableArray<NSURLQueryItem *> *)standardQueryItemsWithDeviceID:(NSString *)deviceID
                                                                           scope:(NSString *)scope {
   NSMutableArray<FIRMessagingURLQueryItem *> *queryItems = [NSMutableArray arrayWithCapacity:8];
 
@@ -241,11 +240,6 @@ static NSString *const kFIRMessagingParamFCMLibVersion = @"X-cliv";
   }
 
   return queryItems;
-}
-
-- (NSArray<FIRMessagingURLQueryItem *> *)queryItemsWithInstanceID:(NSString *)instanceID {
-  return @[ [FIRMessagingURLQueryItem queryItemWithName:kFIRMessagingParamInstanceID
-                                                   value:instanceID] ];
 }
 
 #pragma mark - HTTP Header

@@ -96,5 +96,8 @@ FOUNDATION_EXPORT NSString *const kFIRMessagingAppDelegateProxyEnabledInfoPlistK
 /// https://forums.developer.apple.com/thread/4743
 FOUNDATION_EXPORT const int kFIRMessagingSecMissingEntitlementErrorCode;
 
+/// The key for InstallationID or InstanceID in token request.
+FOUNDATION_EXPORT NSString *const kFIRMessagingParamInstanceID;
+
 
 #endif

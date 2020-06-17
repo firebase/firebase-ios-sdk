@@ -25,6 +25,9 @@ typedef NS_ENUM(NSUInteger, FIRMessagingErrorCode) {
   kFIRMessagingErrorCodeUnknown = 0,
 
   kFIRMessagingErrorCodeNetwork = 4,
+  
+  // Failed to perform device check in.
+  kFIRMessagingErrorCodeRegistrarFailedToCheckIn = 6,
 
   kFIRMessagingErrorCodeInvalidRequest = 7,
 
