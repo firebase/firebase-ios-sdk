@@ -34,7 +34,6 @@ static const int kMaxPhoneRegistrationErrorRetryCount = 10;
 NSString *const kFIRInstanceIDFirebaseUserAgentKey = @"X-firebase-client";
 NSString *const kFIRInstanceIDFirebaseHeartbeatKey = @"X-firebase-client-log-type";
 NSString *const kFIRInstanceIDHeartbeatTag = @"fire-iid";
-static NSString *const kFIRInstanceIDParamInstanceID = @"appid";
 
 @implementation FIRInstanceIDTokenFetchOperation
 
@@ -71,9 +70,10 @@ static NSString *const kFIRInstanceIDParamInstanceID = @"appid";
   [queryItems addObject:[NSURLQueryItem queryItemWithName:@"X-subtype"
                                                     value:self.authorizedEntity]];
 
-  [queryItems addObject:[NSURLQueryItem queryItemWithName:kFIRInstanceIDParamInstanceID
+  if (self.instanceID.length > 0) {
+    [queryItems addObject:[NSURLQueryItem queryItemWithName:kFIRInstanceIDParamInstanceID
                                                     value:self.instanceID]];
-
+  }
   // Create query items from passed-in options
   id apnsTokenData = self.options[kFIRInstanceIDTokenOptionsAPNSKey];
   id apnsSandboxValue = self.options[kFIRInstanceIDTokenOptionsAPNSIsSandboxKey];

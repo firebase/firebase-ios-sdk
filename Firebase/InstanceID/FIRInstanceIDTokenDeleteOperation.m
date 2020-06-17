@@ -17,13 +17,12 @@
 #import "FIRInstanceIDTokenDeleteOperation.h"
 
 #import "FIRInstanceIDCheckinPreferences.h"
+#import "FIRInstanceIDConstants.h"
 #import "FIRInstanceIDDefines.h"
 #import "FIRInstanceIDLogger.h"
 #import "FIRInstanceIDTokenOperation+Private.h"
 #import "FIRInstanceIDUtilities.h"
 #import "NSError+FIRInstanceID.h"
-
-static NSString *const kFIRInstanceIDParamInstanceID = @"appid";
 
 @implementation FIRInstanceIDTokenDeleteOperation
 
