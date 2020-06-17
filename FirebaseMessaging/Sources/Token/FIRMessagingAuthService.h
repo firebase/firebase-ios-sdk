@@ -19,7 +19,19 @@
 
 @class FIRMessagingCheckinPreferences;
 @class FIRMessagingStore;
-
+/**
+ *  @related FIRInstanceIDCheckinService
+ *
+ *  The completion handler invoked once the fetch from Checkin server finishes.
+ *  For successful fetches we returned checkin information by the checkin service
+ *  and `nil` error, else we return the appropriate error object as reported by the
+ *  Checkin Service.
+ *
+ *  @param checkinPreferences The checkin preferences as fetched from the server.
+ *  @param error              The error object which fetching GServices data.
+ */
+typedef void (^FIRMessagingDeviceCheckinCompletion)(
+    FIRMessagingCheckinPreferences *_Nullable checkinPreferences, NSError *_Nullable error);
 /**
  *  FIRMessagingAuthService is responsible for retrieving, caching, and supplying checkin info
  *  for the rest of Instance ID. A checkin can be scheduled, meaning that it will keep retrying the
@@ -57,7 +69,7 @@
  *  @param handler The completion handler to invoke once the checkin info has been
  *                 refreshed.
  */
-- (void)fetchCheckinInfoWithHandler:(void (^)(FIRMessagingCheckinPreferences *_Nullable checkinPreferences, NSError *_Nullable error))handler;
+- (void)fetchCheckinInfoWithHandler:(nullable FIRMessagingDeviceCheckinCompletion)handler;
 
 /**
  *  Schedule checkin. Will hit the network only if the currently loaded checkin

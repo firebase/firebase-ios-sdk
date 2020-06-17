@@ -98,15 +98,16 @@
 
   NSString *dataResponse = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
   if (dataResponse.length == 0) {
-    NSError *error = [NSError errorWithFIRMessagingErrorCode:kFIRMessagingErrorCodeUnknown];
+    NSError *error = [NSError messagingErrorWithCode:kFIRMessagingErrorCodeUnknown failureReason:@"Empty response."];
     [self finishWithResult:FIRMessagingTokenOperationError token:nil error:error];
     return;
   }
 
   if (![dataResponse hasPrefix:@"deleted="] && ![dataResponse hasPrefix:@"token="]) {
+    NSString *failureReason = [NSString stringWithFormat: @"Invalid unregister response %@", response];
     FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTokenDeleteOperationBadResponse,
-                             @"Invalid unregister response %@", response);
-    NSError *error = [NSError errorWithFIRMessagingErrorCode:kFIRMessagingErrorCodeUnknown];
+                            @"%@", failureReason);
+    NSError *error = [NSError messagingErrorWithCode:kFIRMessagingErrorCodeUnknown failureReason:failureReason];
     [self finishWithResult:FIRMessagingTokenOperationError token:nil error:error];
     return;
   }

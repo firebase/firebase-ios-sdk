@@ -161,7 +161,7 @@ static const int64_t kMaxCheckinRetryIntervalInSeconds = 1 << 5;
   return [self.checkinPreferences hasValidCheckinInfo];
 }
 
-- (void)fetchCheckinInfoWithHandler:(nonnull FIRMessagingDeviceCheckinCompletion)handler {
+- (void)fetchCheckinInfoWithHandler:(FIRMessagingDeviceCheckinCompletion)handler {
   // Perform any changes to self.checkinHandlers and _isCheckinInProgress in a thread-safe way.
   @synchronized(self) {
     [self.checkinHandlers addObject:handler];
