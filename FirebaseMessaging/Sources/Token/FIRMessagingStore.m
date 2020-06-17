@@ -26,9 +26,6 @@
 // NOTE: These values should be in sync with what InstanceID saves in as.
 static NSString *const kCheckinFileName = @"g-checkin";
 
-// APNS token (use the old key value i.e. with prefix GMS)
-static NSString *const kFIRMessagingLibraryVersion = @"GMSInstanceID-version";
-
 @interface FIRMessagingStore ()
 
 @property(nonatomic, readwrite, strong) FIRMessagingCheckinStore *checkinStore;
