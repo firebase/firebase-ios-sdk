@@ -1,6 +1,6 @@
 #!/usr/bin/swift
 /*
- * Copyright 2020 LLC Google
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -98,13 +98,13 @@ func checkFile(_ file: String) {
     } else if inSwiftPackage {
       continue
     } else if line.starts(with: "@import") {
-      print("@import should not be used in CocoaPods library code: \(file):\(lineNum)")
+      genError("@import should not be used in CocoaPods library code: \(file):\(lineNum)")
     }
     if line.starts(with: "#import") || line.starts(with: "#include") {
       let importFile = line.components(separatedBy: " ")[1]
       if inSwiftPackageElse {
         if importFile.first != "<" {
-          print("Import error: \(file):\(lineNum) Import in SWIFT_PACKAGE #else should start with \"<\".")
+          genError("Import error: \(file):\(lineNum) Import in SWIFT_PACKAGE #else should start with \"<\".")
         }
         continue
       }
@@ -118,7 +118,7 @@ func checkFile(_ file: String) {
               continue nextLine
             }
           }
-          print("Import error: \(file):\(lineNum) Import \(importFileRaw) does not exist.")
+          genError("Import error: \(file):\(lineNum) Import \(importFileRaw) does not exist.")
         }
       }
     }
@@ -164,7 +164,6 @@ for rootURL in contents {
           continue whileLoop
         }
       }
-//      print(fullTransformPath)
       checkFile(fullTransformPath)
     }
   }
