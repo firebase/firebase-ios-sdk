@@ -45,14 +45,14 @@ const ABTExperimentPayloadExperimentOverflowPolicy FIRDefaultExperimentOverflowP
 
 /// Deserialize the experiment payloads.
 ABTExperimentPayload *ABTDeserializeExperimentPayload(NSData *payload) {
+  // Verify that we have a JSON object.
   NSError *error;
-  ABTExperimentPayload *experimentPayload = [ABTExperimentPayload parseFromData:payload
-                                                                          error:&error];
-  if (error) {
+  id JSONObject = [NSJSONSerialization JSONObjectWithData:payload options:kNilOptions error:&error];
+  if (JSONObject == nil) {
     FIRLogError(kFIRLoggerABTesting, @"I-ABT000001", @"Failed to parse experiment payload: %@",
                 error.debugDescription);
   }
-  return experimentPayload;
+  return [ABTExperimentPayload parseFromData:payload];
 }
 
 /// Returns a list of experiments to be set given the payloads and current list of experiments from
@@ -331,7 +331,7 @@ NSArray *ABTExperimentsToClearFromPayloads(
   FIRLifecycleEvents *lifecycleEvents = [[FIRLifecycleEvents alloc] init];
 
   // Ensure that trigger event is nil, which will immediately set the experiment to active.
-  experimentPayload.triggerEvent = nil;
+  [experimentPayload clearTriggerEvent];
 
   [controller setExperimentWithOrigin:origin
                               payload:experimentPayload

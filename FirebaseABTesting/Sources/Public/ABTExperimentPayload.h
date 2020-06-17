@@ -17,33 +17,43 @@
 NS_ASSUME_NONNULL_BEGIN
 
 typedef NS_ENUM(int32_t, ABTExperimentPayloadExperimentOverflowPolicy) {
-    ABTExperimentPayloadExperimentOverflowPolicyUnrecognizedValue = 69696969,
-    ABTExperimentPayloadExperimentOverflowPolicyUnspecified = 0,
-    ABTExperimentPayloadExperimentOverflowPolicyDiscardOldest = 1,
-    ABTExperimentPayloadExperimentOverflowPolicyIgnoreNewest = 2,
+  ABTExperimentPayloadExperimentOverflowPolicyUnrecognizedValue = 999,
+  ABTExperimentPayloadExperimentOverflowPolicyUnspecified = 0,
+  ABTExperimentPayloadExperimentOverflowPolicyDiscardOldest = 1,
+  ABTExperimentPayloadExperimentOverflowPolicyIgnoreNewest = 2,
 };
 
 @interface ABTExperimentLite : NSObject
-
-@property(nonatomic, readwrite, copy, null_resettable) NSString *experimentId;
-
+@property(nonatomic, readwrite, copy) NSString *experimentId;
 @end
 
 @interface ABTExperimentPayload : NSObject
 
-@property(nonatomic, readwrite, copy) NSString *experimentId;
-@property(nonatomic, readwrite, copy) NSString *variantId;
-@property(nonatomic, readwrite) int64_t experimentStartTimeMillis;
-@property(nonatomic, readwrite, copy) NSString *triggerEvent;
-@property(nonatomic, readwrite) int64_t triggerTimeoutMillis;
-@property(nonatomic, readwrite) int64_t timeToLiveMillis;
-@property(nonatomic, readwrite, copy) NSString *setEventToLog;
-@property(nonatomic, readwrite, copy) NSString *activateEventToLog;
-@property(nonatomic, readwrite, copy) NSString *clearEventToLog;
-@property(nonatomic, readwrite, copy) NSString *timeoutEventToLog;
-@property(nonatomic, readwrite, copy) NSString *ttlExpiryEventToLog;
-@property(nonatomic, readwrite) ABTExperimentPayloadExperimentOverflowPolicy overflowPolicy;
-@property(nonatomic, readwrite, strong) NSMutableArray<ABTExperimentLite*> *ongoingExperimentsArray;
+@property(nonatomic, readonly, copy) NSString *experimentId;
+@property(nonatomic, readonly, copy) NSString *variantId;
+@property(nonatomic, readonly) int64_t experimentStartTimeMillis;
+@property(nonatomic, nullable, readonly, copy) NSString *triggerEvent;
+@property(nonatomic, readonly) int64_t triggerTimeoutMillis;
+@property(nonatomic, readonly) int64_t timeToLiveMillis;
+@property(nonatomic, readonly, copy) NSString *setEventToLog;
+@property(nonatomic, readonly, copy) NSString *activateEventToLog;
+@property(nonatomic, readonly, copy) NSString *clearEventToLog;
+@property(nonatomic, readonly, copy) NSString *timeoutEventToLog;
+@property(nonatomic, readonly, copy) NSString *ttlExpiryEventToLog;
+@property(nonatomic, readonly) ABTExperimentPayloadExperimentOverflowPolicy overflowPolicy;
+@property(nonatomic, readonly) NSArray<ABTExperimentLite *> *ongoingExperimentsArray;
+
+/// Parse from JSON data.
+/// @param data  JSON object as NSData.
++ (instancetype)parseFromData:(NSData *)data;
+
+/// Clears the trigger event associated with this payload.
+- (void)clearTriggerEvent;
+
+/// Checks if the overflow policy is a valid enum object.
+- (BOOL)overflowPolicyIsValid;
+
+- (instancetype)init NS_UNAVAILABLE;
 
 @end
 
