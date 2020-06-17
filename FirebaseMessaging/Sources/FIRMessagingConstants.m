@@ -71,7 +71,7 @@ NSString *const kFIRMessagingIdentityInvalidatedNotification = @"com.google.iid.
 // Miscellaneous
 NSString *const kFIRMessagingAllScopeIdentifier = @"iid-all";
 NSString *const kFIRMessagingDefaultTokenScope = @"*";
-NSString *const kFIRMessagingSubDirectoryName = @"Google/FirebaseInstanceID";
+NSString *const kFIRInstanceIDSubDirectoryName = @"Google/FirebaseInstanceID";
 
 // Registration Options
 NSString *const kFIRMessagingTokenOptionsAPNSKey = @"apns_token";

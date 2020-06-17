@@ -132,7 +132,7 @@ NSString *const kFIRMessagingHeartbeatTag = @"fire-iid";
   NSString *dataResponse = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
 
   if (dataResponse.length == 0) {
-    NSError *error = [NSError errorWithFIRMessagingErrorCode:kFIRMessagingErrorCodeUnknown];
+    NSError *error = [NSError messagingErrorWithCode:kFIRMessagingErrorCodeUnknown failureReason:@"Empty response."];
     [self finishWithResult:FIRMessagingTokenOperationError token:nil error:error];
     return;
   }
@@ -174,16 +174,18 @@ NSString *const kFIRMessagingHeartbeatTag = @"fire-iid";
       NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
       [center postNotificationName:kFIRMessagingIdentityInvalidatedNotification object:nil];
 
+      NSString *failureReason = @"Identity is invalid. Server request identity reset.";
       FIRMessagingLoggerDebug(kFIRMessagingMessageCodeInternal001,
-                               @"Identity is invalid. Server request identity reset.");
+                               failureReason);
       responseError =
-          [NSError errorWithFIRMessagingErrorCode:kFIRMessagingErrorCodeInvalidIdentity];
+          [NSError messagingErrorWithCode:kFIRMessagingErrorCodeInvalidIdentity failureReason:failureReason];
     }
   }
   if (!responseError) {
+    NSString *failureReason =@"Invalid fetch response, expected 'token' or 'Error' key";
     FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTokenFetchOperationBadResponse,
-                             @"Invalid fetch response, expected 'token' or 'Error' key");
-    responseError = [NSError errorWithFIRMessagingErrorCode:kFIRMessagingErrorCodeUnknown];
+                             failureReason);
+    responseError = [NSError messagingErrorWithCode:kFIRMessagingErrorCodeUnknown failureReason:failureReason];
   }
   [self finishWithResult:FIRMessagingTokenOperationError token:nil error:responseError];
 }

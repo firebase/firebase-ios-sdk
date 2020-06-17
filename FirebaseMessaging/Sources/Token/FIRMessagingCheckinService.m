@@ -38,8 +38,6 @@ static NSUInteger const kCheckinType = 2;  // DeviceType IOS in l/w/a/_checkin.p
 static NSUInteger const kCheckinVersion = 2;
 static NSUInteger const kFragment = 0;
 
-static FIRMessagingURLRequestTestBlock testBlock;
-
 @interface FIRMessagingCheckinService ()
 
 @property(nonatomic, readwrite, strong) NSURLSession *session;
@@ -63,7 +61,6 @@ static FIRMessagingURLRequestTestBlock testBlock;
 }
 
 - (void)dealloc {
-  testBlock = nil;
   [self.session invalidateAndCancel];
 }
 
