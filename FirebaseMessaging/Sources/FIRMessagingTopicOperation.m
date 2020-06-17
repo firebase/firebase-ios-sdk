@@ -20,6 +20,7 @@
 #import "FirebaseMessaging/Sources/FIRMessagingLogger.h"
 #import "FirebaseMessaging/Sources/FIRMessagingUtilities.h"
 #import "FirebaseMessaging/Sources/NSError+FIRMessaging.h"
+#import "FirebaseMessaging/Sources/Token/FIRMessagingTokenManager.h"
 
 static NSString *const kFIRMessagingSubscribeServerHost =
     @"https://iid.googleapis.com/iid/register";
@@ -157,12 +158,12 @@ NSString *FIRMessagingSubscriptionsServer() {
   NSURL *url = [NSURL URLWithString:FIRMessagingSubscriptionsServer()];
   NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
   NSString *appIdentifier = FIRMessagingAppIdentifier();
-  NSString *deviceAuthID = [FIRInstanceID instanceID].deviceAuthID;
-  NSString *secretToken = [FIRInstanceID instanceID].secretToken;
+  NSString *deviceAuthID = [FIRMessagingTokenManager sharedInstance].deviceAuthID;
+  NSString *secretToken = [FIRMessagingTokenManager sharedInstance].secretToken;
   NSString *authString = [NSString stringWithFormat:@"AidLogin %@:%@", deviceAuthID, secretToken];
   [request setValue:authString forHTTPHeaderField:@"Authorization"];
   [request setValue:appIdentifier forHTTPHeaderField:@"app"];
-  [request setValue:[FIRInstanceID instanceID].versionInfo forHTTPHeaderField:@"info"];
+  [request setValue:[FIRMessagingTokenManager sharedInstance].versionInfo forHTTPHeaderField:@"info"];
 
   // Topic can contain special characters (like `%`) so encode the value.
   NSCharacterSet *characterSet = [NSCharacterSet URLQueryAllowedCharacterSet];

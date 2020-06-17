@@ -65,6 +65,19 @@
   [self stopAllTokenOperations];
 }
 
+
+- (NSString *)deviceAuthID {
+  return [_authService checkinPreferences].deviceID;
+}
+
+- (NSString *)secretToken {
+  return [_authService checkinPreferences].secretToken;
+}
+
+- (NSString *)versionInfo {
+  return [_authService checkinPreferences].versionInfo;
+}
+
 - (void)configureTokenOperations {
   _tokenOperations = [[NSOperationQueue alloc] init];
   _tokenOperations.name = @"com.google.iid-token-operations";
