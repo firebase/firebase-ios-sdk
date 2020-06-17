@@ -21,6 +21,7 @@
 #import "GoogleUtilities/UserDefaults/Private/GULUserDefaults.h"
 
 const NSTimeInterval kFIRMessagingDefaultCheckinInterval = 7 * 24 * 60 * 60;  // 7 days.
+static NSString *const kCheckinKeychainContentSeparatorString = @"|";
 
 @interface FIRMessagingCheckinPreferences ()
 
@@ -43,6 +44,33 @@ const NSTimeInterval kFIRMessagingDefaultCheckinInterval = 7 * 24 * 60 * 60;  //
 
 @implementation FIRMessagingCheckinPreferences
 
++ (FIRMessagingCheckinPreferences *)preferencesFromKeychainContents:(NSString *)keychainContent {
+  NSString *deviceID = [self checkinDeviceIDFromKeychainContent:keychainContent];
+  NSString *secret = [self checkinSecretFromKeychainContent:keychainContent];
+  if ([deviceID length] && [secret length]) {
+    return [[FIRMessagingCheckinPreferences alloc] initWithDeviceID:deviceID secretToken:secret];
+  } else {
+    return nil;
+  }
+}
+
+- (instancetype)initWithDeviceID:(NSString *)deviceID secretToken:(NSString *)secretToken {
+  self = [super init];
+  if (self) {
+    self.deviceID = [deviceID copy];
+    self.secretToken = [secretToken copy];
+  }
+  return self;
+}
+- (void)reset {
+  self.deviceID = nil;
+  self.secretToken = nil;
+  self.digest = nil;
+  self.versionInfo = nil;
+  self.gServicesData = nil;
+  self.deviceDataVersion = nil;
+  self.lastCheckinTimestampMillis = 0;
+}
 - (NSDictionary *)checkinPlistContents {
   NSMutableDictionary *checkinPlistContents = [NSMutableDictionary dictionary];
   checkinPlistContents[kFIRMessagingDigestStringKey] = self.digest ?: @"";
@@ -90,6 +118,50 @@ const NSTimeInterval kFIRMessagingDefaultCheckinInterval = 7 * 24 * 60 * 60;  //
 
 - (void)setHasPreCachedAuthCredentials:(BOOL)hasPreCachedAuthCredentials {
   _hasPreCachedAuthCredentials = hasPreCachedAuthCredentials;
+}
+
+- (NSString *)checkinKeychainContent {
+  if ([self.deviceID length] && [self.secretToken length]) {
+    return [NSString stringWithFormat:@"%@%@%@", self.deviceID,
+                                      kCheckinKeychainContentSeparatorString, self.secretToken];
+  } else {
+    return nil;
+  }
+}
+
+- (void)updateWithCheckinPlistContents:(NSDictionary *)checkinPlistContent {
+  for (NSString *key in checkinPlistContent) {
+    if ([kFIRMessagingDigestStringKey isEqualToString:key]) {
+      self.digest = [checkinPlistContent[key] copy];
+    } else if ([kFIRMessagingVersionInfoStringKey isEqualToString:key]) {
+      self.versionInfo = [checkinPlistContent[key] copy];
+    } else if ([kFIRMessagingLastCheckinTimeKey isEqualToString:key]) {
+      self.lastCheckinTimestampMillis = [checkinPlistContent[key] longLongValue];
+    } else if ([kFIRMessagingGServicesDictionaryKey isEqualToString:key]) {
+      self.gServicesData = [checkinPlistContent[key] mutableCopy];
+    } else if ([kFIRMessagingDeviceDataVersionKey isEqualToString:key]) {
+      self.deviceDataVersion = [checkinPlistContent[key] copy];
+    }
+    // Otherwise we have some keys we don't care about
+  }
+}
+
++ (NSString *)checkinDeviceIDFromKeychainContent:(NSString *)keychainContent {
+  return [self checkinKeychainContent:keychainContent forIndex:0];
+}
+
++ (NSString *)checkinSecretFromKeychainContent:(NSString *)keychainContent {
+  return [self checkinKeychainContent:keychainContent forIndex:1];
+}
+
++ (NSString *)checkinKeychainContent:(NSString *)keychainContent forIndex:(int)index {
+  NSArray *keychainComponents =
+      [keychainContent componentsSeparatedByString:kCheckinKeychainContentSeparatorString];
+  if (index >= 0 && index < 2 && [keychainComponents count] == 2) {
+    return keychainComponents[index];
+  } else {
+    return nil;
+  }
 }
 
 @end
