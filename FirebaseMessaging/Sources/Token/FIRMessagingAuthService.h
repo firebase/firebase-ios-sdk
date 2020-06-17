@@ -57,7 +57,7 @@
  *  @param handler The completion handler to invoke once the checkin info has been
  *                 refreshed.
  */
-- (void)fetchCheckinInfoWithHandler:(FIRMessagingDeviceCheckinCompletion)handler;
+- (void)fetchCheckinInfoWithHandler:(void (^)(FIRMessagingCheckinPreferences *_Nullable checkinPreferences, NSError *_Nullable error))handler;
 
 /**
  *  Schedule checkin. Will hit the network only if the currently loaded checkin

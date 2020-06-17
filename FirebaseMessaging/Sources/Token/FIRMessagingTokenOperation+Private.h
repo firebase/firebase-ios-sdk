@@ -18,8 +18,6 @@
 
 #import "FIRMessagingUtilities.h"
 
-@class FIRMessagingURLQueryItem;
-
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRMessagingTokenOperation (Private)
@@ -28,8 +26,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property(readonly, strong)
     NSMutableArray<FIRMessagingTokenOperationCompletion> *completionHandlers;
 
-// For testing only
-@property(nonatomic, readwrite, copy) FIRMessagingURLRequestTestBlock testBlock;
 
 + (NSURLSession *)sharedURLSession;
 
@@ -42,10 +38,9 @@ NS_ASSUME_NONNULL_BEGIN
                     instanceID:(NSString *)instanceID;
 
 #pragma mark - Request Construction
-+ (NSMutableArray<FIRMessagingURLQueryItem *> *)standardQueryItemsWithDeviceID:(NSString *)deviceID
++ (NSMutableArray<NSURLQueryItem *> *)standardQueryItemsWithDeviceID:(NSString *)deviceID
                                                                           scope:(NSString *)scope;
 - (NSMutableURLRequest *)tokenRequest;
-- (NSArray<FIRMessagingURLQueryItem *> *)queryItemsWithInstanceID:(NSString *)instanceID;
 
 #pragma mark - HTTP Headers
 /**
