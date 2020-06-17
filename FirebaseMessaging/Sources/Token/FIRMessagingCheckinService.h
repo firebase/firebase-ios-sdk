@@ -47,20 +47,13 @@ FOUNDATION_EXPORT NSString *const kFIRMessagingDeviceDataVersionKey;
  *  @param completion Completion hander called on success or failure of device checkin.
  */
 - (void)checkinWithExistingCheckin:(nullable FIRMessagingCheckinPreferences *)existingCheckin
-                        completion:(FIRMessagingDeviceCheckinCompletion)completion;
+                        completion:( void (^)(FIRMessagingCheckinPreferences *_Nullable checkinPreferences, NSError *_Nullable error))completion;
 
 /**
  *  This would stop any request that the service made to the checkin backend and also
  *  release any callback handlers that it holds.
  */
 - (void)stopFetching;
-
-/**
- *  Set test block for mock testing network requests.
- *
- *  @param block The block to invoke as a mock response from the network.
- */
-+ (void)setCheckinTestBlock:(nullable FIRMessagingURLRequestTestBlock)block;
 
 @end
 
