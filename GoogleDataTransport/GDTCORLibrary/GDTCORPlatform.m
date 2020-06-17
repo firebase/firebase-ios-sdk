@@ -160,22 +160,22 @@ GDTCORNetworkMobileSubtype GDTCORNetworkMobileSubTypeMessage() {
 NSString *_Nonnull GDTCORDeviceModel() {
   __block NSString *deviceModel = @"";
   
-  #if TARGET_OS_IOS || TARGET_OS_TV
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-      size_t size;
-      char *keyToExtract = "hw.machine";
-      sysctlbyname(keyToExtract, NULL, &size, NULL, 0);
-      if (size > 0) {
-        char *machine = calloc(1, size);
-        sysctlbyname(keyToExtract, machine, &size, NULL, 0);
-        deviceModel = [NSString stringWithCString:machine encoding:NSUTF8StringEncoding];
-        free(machine);
-      } else {
-        deviceModel = [UIDevice currentDevice].model;
-      }
-    });
-  #endif
+#if TARGET_OS_IOS || TARGET_OS_TV
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    size_t size;
+    char *keyToExtract = "hw.machine";
+    sysctlbyname(keyToExtract, NULL, &size, NULL, 0);
+    if (size > 0) {
+      char *machine = calloc(1, size);
+      sysctlbyname(keyToExtract, machine, &size, NULL, 0);
+      deviceModel = [NSString stringWithCString:machine encoding:NSUTF8StringEncoding];
+      free(machine);
+    } else {
+      deviceModel = [UIDevice currentDevice].model;
+    }
+  });
+#endif
 
   return deviceModel;
 }
