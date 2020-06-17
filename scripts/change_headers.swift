@@ -19,12 +19,18 @@
 
 import Foundation
 
-let findHeaders = ["GoogleUtilities"]
+// Update with directories in which to find headers.
+let findHeaders = ["FirebaseInstallations"]
+
+// Update with directories in which to change imports.
 let changeImports = ["GoogleUtilities", "FirebaseAuth", "FirebaseCore", "Firebase",
                      "FirebaseDynamicLinks", "FirebaseInAppMessaging", "FirebaseMessaging",
                      "FirebaseRemoteConfig", "FirebaseInstallations",
-                     "FirebaseAppDistribution", "Example"]
-let skipDirPatterns = ["/Sample/", "FirebaseABTesting/Tests/Integration",
+                     "FirebaseAppDistribution", "Example", "Crashlytics"]
+
+// Skip these directories. Imports should only be repo-relative in libraries
+// and unit tests.
+let skipDirPatterns = ["/Sample/", "/Pods/", "FirebaseABTesting/Tests/Integration",
                        "FirebaseInAppMessaging/Tests/Integration/", "Example/Database/App",
                        "Example/InstanceID/App"]
 
@@ -82,7 +88,12 @@ func transformFile(_ file: String) {
     if line.starts(with: "#import"),
       let importFile = getImportFile(line),
       let path = headerMap[importFile] {
-      outBuffer += "#import \"\(path)\"\n"
+      if file.starts(with: "FirebaseInstallations/") {
+        outBuffer += "#import \"\(path)\"\n"
+      } else {
+        outBuffer += "#import " +
+          "\"FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h\"\n"
+      }
     } else {
       outBuffer += line + "\n"
     }
@@ -117,6 +128,12 @@ for root in changeImports {
     if let fType = enumerator?.fileAttributes?[FileAttributeKey.type] as? FileAttributeType,
       fType == .typeRegular {
       if file.starts(with: ".") {
+        continue
+      }
+      if !(file.hasSuffix(".h") ||
+        file.hasSuffix(".m") ||
+        file.hasSuffix(".mm") ||
+        file.hasSuffix(".c")) {
         continue
       }
       if file.range(of: "/Public/") != nil {
