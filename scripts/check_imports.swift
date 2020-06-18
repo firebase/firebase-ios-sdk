@@ -15,18 +15,10 @@
  * limitations under the License.
  */
 
-// Utility script for updating to repo-relative headers.
+// Utility script for verifying `import` and `include` syntax. This ensures a
+// consistent style as well as functionality across multiple package managers.
 
 import Foundation
-
-// Update with directories in which to find headers.
-let findHeaders = ["FirebaseInstallations"]
-
-// Update with directories in which to change imports.
-let changeImports = ["GoogleUtilities", "FirebaseAuth", "FirebaseCore", "Firebase",
-                     "FirebaseDynamicLinks", "FirebaseInAppMessaging", "FirebaseMessaging",
-                     "FirebaseRemoteConfig", "FirebaseInstallations",
-                     "FirebaseAppDistribution", "Example", "Crashlytics"]
 
 // Skip these directories. Imports should only be repo-relative in libraries
 // and unit tests.
@@ -34,10 +26,16 @@ let skipDirPatterns = ["/Sample/", "/Pods/", "FirebaseABTesting/Tests/Integratio
                        "FirebaseInAppMessaging/Tests/Integration/", "Example/Database/App",
                        "Example/InstanceID/App", "SymbolCollisionTest/", "/gen/",
                        "CocoapodsIntegrationTest/"] +
+  [
+    "CoreOnly/Sources", // Skip Firebase.h
+  ] +
 
   // The following are temporary skips pending working through a first pass of the repo:
   [
+    "FirebaseABTesting",
     "FirebaseAppDistribution",
+    "FirebaseAuth",
+    "FirebaseCore/Sources/Private", // Fixes require breaking private API changes. For Firebase 7.
     "FirebaseDynamicLinks",
     "Firebase/CoreDiagnostics",
     "Firebase/Database",
@@ -46,7 +44,7 @@ let skipDirPatterns = ["/Sample/", "/Pods/", "FirebaseABTesting/Tests/Integratio
     "FirebaseInstallations/Source/Tests/Unit/",
     "Firebase/InstanceID",
     "FirebaseMessaging",
-    "FirebaseRemoteConfig/Tests/",
+    "FirebaseRemoteConfig",
     "FirebaseStorage",
     "Crashlytics",
     "Firestore",
@@ -56,15 +54,9 @@ let skipDirPatterns = ["/Sample/", "/Pods/", "FirebaseABTesting/Tests/Integratio
   ]
 
 // Skip existence test for patterns that start with the following:
-let skipImportPatterns = ["FBLPromise"]
-
-func getImportFile(_ line: String) -> String? {
-  return line.components(separatedBy: " ")[1]
-    .replacingOccurrences(of: "\"", with: "")
-    .replacingOccurrences(of: "<", with: "")
-    .replacingOccurrences(of: ">", with: "")
-    .components(separatedBy: "/").last
-}
+let skipImportPatterns = [
+  "FBLPromise",
+]
 
 var foundError = false
 
@@ -73,12 +65,12 @@ func genError(_ message: String) {
   foundError = true
 }
 
-func checkFile(_ file: String) {
+func checkFile(_ file: String, isPublic: Bool) {
   var fileContents = ""
   do {
     fileContents = try String(contentsOfFile: file, encoding: .utf8)
   } catch {
-    print("Could not read \(file). \(error)")
+    genError("Could not read \(file). \(error)")
     // Not a source file, give up and return.
     return
   }
@@ -86,7 +78,8 @@ func checkFile(_ file: String) {
   var inSwiftPackageElse = false
   let lines = fileContents.components(separatedBy: .newlines)
   var lineNum = 0
-  nextLine: for line in lines {
+  nextLine: for rawLine in lines {
+    let line = rawLine.trimmingCharacters(in: .whitespaces)
     lineNum += 1
     if line.starts(with: "#if SWIFT_PACKAGE") {
       inSwiftPackage = true
@@ -98,8 +91,11 @@ func checkFile(_ file: String) {
     } else if inSwiftPackage {
       continue
     } else if line.starts(with: "@import") {
+      // "@import" is only allowed for Swift Package Manager.
       genError("@import should not be used in CocoaPods library code: \(file):\(lineNum)")
     }
+
+    // "The #else of a SWIFT_PACKAGE check should only do CocoaPods module-style imports."
     if line.starts(with: "#import") || line.starts(with: "#include") {
       let importFile = line.components(separatedBy: " ")[1]
       if inSwiftPackageElse {
@@ -111,14 +107,29 @@ func checkFile(_ file: String) {
       let importFileRaw = importFile.replacingOccurrences(of: "\"", with: "")
         .replacingOccurrences(of: "<", with: "")
         .replacingOccurrences(of: ">", with: "")
+
       if importFile.first == "\"" {
-        if !FileManager.default.fileExists(atPath: repoURL.path + "/" + importFileRaw) {
+        // Public Headers should only use simple file names without paths.
+        if isPublic {
+          if importFile.contains("/") {
+            genError("Import error: \(file):\(lineNum) Public header import should not include \"/\"")
+          }
+
+        } else if !FileManager.default.fileExists(atPath: repoURL.path + "/" + importFileRaw) {
+          // All non-public header imports should be repo-relative paths.
           for skip in skipImportPatterns {
             if importFileRaw.starts(with: skip) {
               continue nextLine
             }
           }
           genError("Import error: \(file):\(lineNum) Import \(importFileRaw) does not exist.")
+        }
+      } else if importFile.first == "<" {
+        // Verify that double quotes are always used for intra-module imports.
+        if importFileRaw.starts(with: "Firebase") ||
+          importFileRaw.starts(with: "GoogleUtilities") ||
+          importFileRaw.starts(with: "GoogleDataTransport") {
+          genError("Import error: \(file):\(lineNum) Imports internal to the repo should use double quotes not \"<\"")
         }
       }
     }
@@ -155,16 +166,13 @@ for rootURL in contents {
         file.hasSuffix(".c")) {
         continue
       }
-      if file.range(of: "/Public/") != nil {
-        continue
-      }
       let fullTransformPath = rootURL.path + "/" + file
       for dirPattern in skipDirPatterns {
         if fullTransformPath.range(of: dirPattern) != nil {
           continue whileLoop
         }
       }
-      checkFile(fullTransformPath)
+      checkFile(fullTransformPath, isPublic: file.range(of: "/Public/") != nil)
     }
   }
 }
