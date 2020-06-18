@@ -13,7 +13,7 @@ on:
 
 jobs:
   pod-lib-lint:
-    if: ${{ secrets.PUBLIC_REPO_FLAG == 'true' }}
+    if: github.repository == 'firebase/firebase-ios-sdk'
     runs-on: macOS-latest
 
     strategy:
