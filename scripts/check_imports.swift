@@ -18,6 +18,8 @@
 // Utility script for verifying `import` and `include` syntax. This ensures a
 // consistent style as well as functionality across multiple package managers.
 
+// For more context, see https://github.com/firebase/firebase-ios-sdk/blob/master/HeadersImports.md.
+
 import Foundation
 
 // Skip these directories. Imports should only be repo-relative in libraries
