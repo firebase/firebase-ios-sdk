@@ -155,7 +155,7 @@ struct ZipBuilder {
 
     let podsToBuild = LaunchArgs.shared.buildDependencies ? installedPods :
       installedPods.filter {
-        podsToInstall.map { $0.name.components(separatedBy: "/")[0] }.contains($0.key)
+        podsToInstall.map { $0.name.components(separatedBy: "/").first }.contains($0.key)
       }
 
     // Generate the frameworks. Each key is the pod name and the URLs are all frameworks to be
