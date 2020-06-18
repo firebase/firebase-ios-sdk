@@ -58,6 +58,8 @@ on:
 
 jobs:
   check:
+    # Don't run on private repo unless it is a PR.
+    if: github.repository != 'FirebasePrivate/firebase-ios-sdk' || github.event_name == 'pull_request'
     runs-on: macos-latest
     steps:
     - uses: actions/checkout@v2
@@ -70,6 +72,8 @@ jobs:
 
 
   cmake:
+    # Don't run on private repo unless it is a PR.
+    if: github.repository != 'FirebasePrivate/firebase-ios-sdk' || github.event_name == 'pull_request'
     needs: check
 
     strategy:
@@ -96,6 +100,8 @@ jobs:
 
 
   sanitizers:
+    # Don't run on private repo unless it is a PR.
+    if: github.repository != 'FirebasePrivate/firebase-ios-sdk' || github.event_name == 'pull_request'
     runs-on: macos-latest
     needs: check
 
@@ -125,6 +131,8 @@ jobs:
 
 
   xcodebuild:
+    # Don't run on private repo unless it is a PR.
+    if: github.repository != 'FirebasePrivate/firebase-ios-sdk' || github.event_name == 'pull_request'
     runs-on: macos-latest
     needs: check
 
@@ -143,6 +151,8 @@ jobs:
 
 
   pod-lib-lint:
+    # Don't run on private repo unless it is a PR.
+    if: github.repository != 'FirebasePrivate/firebase-ios-sdk' || github.event_name == 'pull_request'
     runs-on: macos-latest
     needs: check
 
@@ -195,6 +205,8 @@ jobs:
         path: quickstart-ios/
 
   quickstart:
+    # Don't run on private repo unless it is a PR.
+    if: github.repository != 'FirebasePrivate/firebase-ios-sdk' || github.event_name == 'pull_request'
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}

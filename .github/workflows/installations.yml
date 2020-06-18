@@ -1,9 +1,6 @@
 name: installations
 
 on:
-  push:
-    branches:
-      - master
   pull_request:
     paths:
     - 'FirebaseInstallations**'
