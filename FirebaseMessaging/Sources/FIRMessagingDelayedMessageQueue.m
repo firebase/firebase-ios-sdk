@@ -16,7 +16,7 @@
 
 #import "FirebaseMessaging/Sources/FIRMessagingDelayedMessageQueue.h"
 
-#import "FirebaseMessaging/Sources/Protos/GtalkCore.pbobjc.h"
+#import "FirebaseMessaging/Sources/nanopb/gtalk_core.nanopb.h"
 
 #import "FirebaseMessaging/Sources/FIRMessagingDefines.h"
 #import "FirebaseMessaging/Sources/FIRMessagingRmqManager.h"

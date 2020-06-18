@@ -24,7 +24,7 @@
 #import "FirebaseMessaging/Sources/FIRMessagingPersistentSyncMessage.h"
 #import "FirebaseMessaging/Sources/FIRMessagingUtilities.h"
 #import "FirebaseMessaging/Sources/NSError+FIRMessaging.h"
-#import "FirebaseMessaging/Sources/Protos/GtalkCore.pbobjc.h"
+#import "FirebaseMessaging/Sources/nanopb/gtalk_core.nanopb.h"
 
 #ifndef _FIRMessagingRmqLogAndExit
 #define _FIRMessagingRmqLogAndExit(stmt, return_value) \

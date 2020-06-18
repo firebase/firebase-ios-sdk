@@ -16,7 +16,7 @@
 
 #import "FirebaseMessaging/Sources/FIRMessagingUtilities.h"
 
-#import "FirebaseMessaging/Sources/Protos/GtalkCore.pbobjc.h"
+#import "FirebaseMessaging/Sources/nanopb/gtalk_core.nanopb.h"
 
 #import "FirebaseMessaging/Sources/FIRMessagingLogger.h"
 

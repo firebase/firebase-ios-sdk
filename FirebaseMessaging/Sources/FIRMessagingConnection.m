@@ -18,8 +18,7 @@
 
 #import <FirebaseMessaging/FIRMessaging.h>
 
-#import "FirebaseMessaging/Sources/Protos/GtalkCore.pbobjc.h"
-#import "FirebaseMessaging/Sources/Protos/GtalkExtensions.pbobjc.h"
+#import "FirebaseMessaging/Sources/nanopb/gtalk_core.nanopb.h"
 
 #import "FirebaseMessaging/Sources/FIRMessagingDataMessageManager.h"
 #import "FirebaseMessaging/Sources/FIRMessagingDefines.h"
@@ -308,7 +307,7 @@ static NSString *const kRemoteFromAddress = @"from";
   }
 }
 
-+ (GtalkLoginRequest *)loginRequestWithToken:(NSString *)token authID:(NSString *)authID {
++ (mobilegtalk_LoginRequest *)loginRequestWithToken:(NSString *)token authID:(NSString *)authID {
   GtalkLoginRequest *login = [[GtalkLoginRequest alloc] init];
   login.accountId = 1000000;
   login.authService = GtalkLoginRequest_AuthService_AndroidId;

@@ -16,9 +16,6 @@
 
 #import "FirebaseMessaging/Sources/FIRMessagingSecureSocket.h"
 
-#import <Protobuf/GPBCodedOutputStream.h>
-#import <Protobuf/GPBMessage.h>
-#import <Protobuf/GPBUtilities.h>
 
 #import "FirebaseMessaging/Sources/FIRMessagingCodedInputStream.h"
 #import "FirebaseMessaging/Sources/FIRMessagingDefines.h"
