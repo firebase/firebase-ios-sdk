@@ -13,7 +13,7 @@ on:
 
 jobs:
   pod-lib-lint:
-    if: github.repository == 'firebase/firebase-ios-sdk'
+    if: github.event_name == 'pull_request' || github.repository != 'firebase/firebase-ios-sdk'
     runs-on: macOS-latest
 
     strategy:
