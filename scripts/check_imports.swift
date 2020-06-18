@@ -177,8 +177,4 @@ for rootURL in contents {
   }
 }
 
-if foundError {
-  exit(1)
-} else {
-  exit(0)
-}
+exit(foundError ? 1 : 0)
