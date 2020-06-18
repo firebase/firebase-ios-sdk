@@ -19,5 +19,5 @@
 #if SWIFT_PACKAGE
 @import FirebaseInstallations;
 #else
-#import "FirebaseInstallations/Source/Library/Public/FirebaseInstallations.h"
+#import <FirebaseInstallations/FirebaseInstallations.h>
 #endif
