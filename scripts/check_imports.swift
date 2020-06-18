@@ -24,7 +24,7 @@ import Foundation
 
 // Skip these directories. Imports should only be repo-relative in libraries
 // and unit tests.
-let skipDirPatterns = ["/Sample/", "/Pods/", "FirebaseABTesting/Tests/Integration",
+let skipDirPatterns = ["/Sample/", "/Pods/", "/Tests/Integration",
                        "FirebaseInAppMessaging/Tests/Integration/", "Example/Database/App",
                        "Example/InstanceID/App", "SymbolCollisionTest/", "/gen/",
                        "CocoapodsIntegrationTest/"] +
@@ -47,7 +47,6 @@ let skipDirPatterns = ["/Sample/", "/Pods/", "FirebaseABTesting/Tests/Integratio
     "Firebase/InstanceID",
     "FirebaseMessaging",
     "FirebaseRemoteConfig",
-    "FirebaseStorage",
     "Crashlytics",
     "Firestore",
     "Functions",

@@ -14,7 +14,7 @@
 
 #import "FirebaseStorage/Sources/FIRStorageGetMetadataTask.h"
 
-#import <FirebaseStorage/FIRStorageConstants.h>
+#import "FirebaseStorage/Sources/Public/FIRStorageConstants.h"
 #import "FirebaseStorage/Sources/FIRStorageMetadata_Private.h"
 #import "FirebaseStorage/Sources/FIRStorageTask_Private.h"
 #import "FirebaseStorage/Sources/FIRStorageUtils.h"

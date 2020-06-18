@@ -13,12 +13,12 @@
 // limitations under the License.
 
 #import <FirebaseAuth/FirebaseAuth.h>
-#import <FirebaseStorage/FirebaseStorage.h>
+#import "FirebaseStorage/Sources/Public/FirebaseStorage.h"
 #import <XCTest/XCTest.h>
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
-#import "Credentials.h"
+#import "FirebaseStorage/Tests/Integration/Credentials.h"
 
 NSTimeInterval kFIRStorageIntegrationTestTimeout = 60;
 
