@@ -13,6 +13,7 @@ on:
 
 jobs:
   pod-lib-lint:
+    if: github.event_name == 'schedule'
     runs-on: macOS-latest
 
     strategy:
@@ -25,30 +26,30 @@ jobs:
     - name: Build and test
       run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseCore.podspec --platforms=${{ matrix.target }}
 
-  catalyst:
-    runs-on: macOS-latest
-    steps:
-    - uses: actions/checkout@v2
-    - name: Setup Bundler
-      run: scripts/setup_bundler.sh
-    - name: Setup project and Build Catalyst
-      run: scripts/test_catalyst.sh FirebaseCore build
+  # catalyst:
+  #   runs-on: macOS-latest
+  #   steps:
+  #   - uses: actions/checkout@v2
+  #   - name: Setup Bundler
+  #     run: scripts/setup_bundler.sh
+  #   - name: Setup project and Build Catalyst
+  #     run: scripts/test_catalyst.sh FirebaseCore build
 
-  core-cron-only:
-    runs-on: macos-latest
-    if: github.event_name == 'schedule'
-    strategy:
-      matrix:
-        target: [ios, tvos, macos]
-        flags: [
-          '--use-modular-headers',
-          # Tests are skipped since the Swift tests need modules.
-          '--skip-tests --use-libraries'
-        ]
-    needs: pod-lib-lint
-    steps:
-    - uses: actions/checkout@v2
-    - name: Setup Bundler
-      run: scripts/setup_bundler.sh
-    - name: PodLibLint Core Cron
-      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseCore.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}
+  # core-cron-only:
+  #   runs-on: macos-latest
+  #   if: github.event_name == 'schedule'
+  #   strategy:
+  #     matrix:
+  #       target: [ios, tvos, macos]
+  #       flags: [
+  #         '--use-modular-headers',
+  #         # Tests are skipped since the Swift tests need modules.
+  #         '--skip-tests --use-libraries'
+  #       ]
+  #   needs: pod-lib-lint
+  #   steps:
+  #   - uses: actions/checkout@v2
+  #   - name: Setup Bundler
+  #     run: scripts/setup_bundler.sh
+  #   - name: PodLibLint Core Cron
+  #     run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseCore.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}
