@@ -16,6 +16,8 @@
 
 #import "FirebaseMessaging/Sources/FIRMessagingRmqManager.h"
 
+#import <nanopb/pb.h>
+
 #import <sqlite3.h>
 
 #import "FirebaseMessaging/Sources/FIRMessagingConstants.h"

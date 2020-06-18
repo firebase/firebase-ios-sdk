@@ -16,8 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-@class GtalkDataMessageStanza;
-@class GPBMessage;
+@class mobilegtalk_DataMessageStanza;
 
 @class FIRMessagingPersistentSyncMessage;
 

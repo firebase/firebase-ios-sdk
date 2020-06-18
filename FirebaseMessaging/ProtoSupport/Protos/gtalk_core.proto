@@ -1,0 +1,83 @@
+syntax = "proto2";
+
+package mobilegtalk;
+
+message HeartbeatPing {
+}
+
+message HeartbeatAck {
+}
+
+message ErrorInfo {
+}
+
+message Setting {
+  required string name = 1;
+  required string value = 2;
+}
+
+message LoginRequest {
+
+  enum AuthService {
+    ANDROID_ID = 2;
+  }
+  required string id = 1;
+  required string domain = 2;
+  required string user = 3;
+  required string resource = 4;
+  required string auth_token = 5;
+  optional string device_id = 6;
+  optional int64 last_rmq_id = 7;
+  repeated Setting setting = 8;
+  optional bool use_rmq2 = 14;
+  optional int64 account_id = 15;
+  optional AuthService auth_service = 16;
+  optional int32 network_type = 17;
+}
+
+message LoginResponse {
+  required string id = 1;
+  optional ErrorInfo error = 3;
+  optional int64 server_timestamp = 8;
+}
+
+message Close {}
+
+message Extension {
+  required int32 id = 1;
+  required string data = 2;
+}
+
+
+message IqStanza {
+  required string id = 3;
+  optional Extension extension = 7;
+  optional string persistent_id = 8;
+}
+
+message AppData {
+  required string key = 1;
+  required string value = 2;
+}
+
+message DataMessageStanza {
+  required string from = 3;
+
+  required string category = 5;
+
+  optional string token = 6;
+
+  repeated AppData app_data = 7;
+
+  optional string persistent_id = 9;
+
+  optional int32 last_stream_id_received = 11;
+
+  optional int64 sent = 18;
+
+  optional bytes raw_data = 21;
+
+  optional int32 max_delay = 22;
+
+  optional bool immediate_ack = 24;
+}

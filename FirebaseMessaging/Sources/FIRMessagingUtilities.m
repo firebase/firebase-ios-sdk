@@ -31,19 +31,19 @@ static const uint64_t kBytesToMegabytesDivisor = 1024 * 1024LL;
 #pragma mark - Protocol Buffers
 
 FIRMessagingProtoTag FIRMessagingGetTagForProto(GPBMessage *proto) {
-  if ([proto isKindOfClass:[GtalkHeartbeatPing class]]) {
+  if ([proto isKindOfClass:[mobilegtalk_HeartbeatPing class]]) {
     return kFIRMessagingProtoTagHeartbeatPing;
-  } else if ([proto isKindOfClass:[GtalkHeartbeatAck class]]) {
+  } else if ([proto isKindOfClass:[mobilegtalk_HeartbeatAck class]]) {
     return kFIRMessagingProtoTagHeartbeatAck;
-  } else if ([proto isKindOfClass:[GtalkLoginRequest class]]) {
+  } else if ([proto isKindOfClass:[mobilegtalk_LoginRequest class]]) {
     return kFIRMessagingProtoTagLoginRequest;
-  } else if ([proto isKindOfClass:[GtalkLoginResponse class]]) {
+  } else if ([proto isKindOfClass:[mobilegtalk_LoginResponse class]]) {
     return kFIRMessagingProtoTagLoginResponse;
-  } else if ([proto isKindOfClass:[GtalkClose class]]) {
+  } else if ([proto isKindOfClass:[mobilegtalk_Close class]]) {
     return kFIRMessagingProtoTagClose;
-  } else if ([proto isKindOfClass:[GtalkIqStanza class]]) {
+  } else if ([proto isKindOfClass:[mobilegtalk_IqStanza class]]) {
     return kFIRMessagingProtoTagIqStanza;
-  } else if ([proto isKindOfClass:[GtalkDataMessageStanza class]]) {
+  } else if ([proto isKindOfClass:[mobilegtalk_DataMessageStanza class]]) {
     return kFIRMessagingProtoTagDataMessageStanza;
   }
   return kFIRMessagingProtoTagInvalid;

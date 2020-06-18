@@ -61,7 +61,7 @@ static const int kMaxQueuedMessageCount = 10;
   return self;
 }
 
-- (BOOL)queueMessage:(GtalkDataMessageStanza *)message {
+- (BOOL)queueMessage:(mobilegtalk_DataMessageStanza *)message {
   if (self.messages.count >= kMaxQueuedMessageCount) {
     return NO;
   }
@@ -71,7 +71,7 @@ static const int kMaxQueuedMessageCount = 10;
   } else {
     self.persistedMessageCount++;
   }
-  int64_t timeoutMillis = [self calculateTimeoutInMillisWithDelayInSeconds:message.maxDelay];
+  int64_t timeoutMillis = [self calculateTimeoutInMillisWithDelayInSeconds:message.max_delay];
   if (![self isTimeoutScheduled] || timeoutMillis < self.scheduledTimeoutMilliseconds) {
     [self scheduleTimeoutInMillis:timeoutMillis];
   }

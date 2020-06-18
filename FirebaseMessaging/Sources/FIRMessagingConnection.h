@@ -21,7 +21,6 @@
 @class FIRMessagingRmqManager;
 
 @class GtalkDataMessageStanza;
-@class GPBMessage;
 
 typedef void (^FIRMessagingMessageHandler)(NSDictionary *);
 

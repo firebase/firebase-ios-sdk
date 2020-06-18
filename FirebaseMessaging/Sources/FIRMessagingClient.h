@@ -17,7 +17,6 @@
 #import <FirebaseMessaging/FIRMessaging.h>
 
 @class GULReachabilityChecker;
-@class GPBMessage;
 
 @class FIRMessagingConnection;
 @class FIRMessagingDataMessageManager;
