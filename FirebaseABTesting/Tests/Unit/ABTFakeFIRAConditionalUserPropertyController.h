@@ -14,11 +14,7 @@
 
 #import <Foundation/Foundation.h>
 
-#ifdef COCOAPODS
 #import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
-#else
-#import "third_party/firebase/ios/Releases/FirebaseInterop/Analytics/Public/FIRAnalyticsInterop.h"
-#endif
 
 @class FIRAConditionalUserProperty;
 @class FIRAEvent;
