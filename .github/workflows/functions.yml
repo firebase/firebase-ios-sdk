@@ -1,9 +1,6 @@
 name: functions
 
 on:
-  push:
-    branches:
-      - master
   pull_request:
     paths:
     - 'Functions**'

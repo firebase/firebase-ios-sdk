@@ -1,9 +1,6 @@
 name: instanceid
 
 on:
-  push:
-    branches:
-      - master
   pull_request:
     paths:
     - 'FirebaseInstanceID**'

@@ -1,9 +1,6 @@
 name: database
 
 on:
-  push:
-    branches:
-      - master
   pull_request:
     paths:
     - 'FirebaseDatabase**'

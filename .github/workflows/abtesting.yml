@@ -1,9 +1,6 @@
 name: abtesting
 
 on:
-  push:
-    branches:
-      - master
   pull_request:
     paths:
     - 'FirebaseABTesting**'
