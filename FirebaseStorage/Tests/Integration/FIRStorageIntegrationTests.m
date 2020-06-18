@@ -12,9 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import <FirebaseAuth/FirebaseAuth.h>
-#import "FirebaseStorage/Sources/Public/FirebaseStorage.h"
 #import <XCTest/XCTest.h>
+
+#import "FirebaseStorage/Sources/Public/FirebaseStorage.h"
+
+#import <FirebaseAuth/FirebaseAuth.h>
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
