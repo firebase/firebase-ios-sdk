@@ -49,10 +49,10 @@ typedef void (*GULRealDidFailToRegisterForRemoteNotificationsIMP)(id,
 
 typedef void (*GULRealDidReceiveRemoteNotificationIMP)(id, SEL, GULApplication *, NSDictionary *);
 
-#if !TARGET_OS_WATCH && !TARGET_OS_MAC
+#if !TARGET_OS_WATCH && !TARGET_OS_OSX
 typedef void (*GULRealDidReceiveRemoteNotificationWithCompletionIMP)(
     id, SEL, GULApplication *, NSDictionary *, void (^)(UIBackgroundFetchResult));
-#endif  // !TARGET_OS_WATCH && !TARGET_OS_MAC
+#endif  // !TARGET_OS_WATCH && !TARGET_OS_OSX
 
 typedef void (^GULAppDelegateInterceptorCallback)(id<GULApplicationDelegate>);
 
@@ -511,7 +511,7 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
        storeDestinationImplementationTo:realImplementationsBySelector];
 
   // For application:didReceiveRemoteNotification:fetchCompletionHandler:
-#if !TARGET_OS_WATCH && !TARGET_OS_MAC
+#if !TARGET_OS_WATCH && !TARGET_OS_OSX
   SEL didReceiveRemoteNotificationWithCompletionSEL =
       NSSelectorFromString(kGULDidReceiveRemoteNotificationWithCompletionSEL);
   SEL didReceiveRemoteNotificationWithCompletionDonorSEL =
@@ -530,7 +530,7 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
                                 realClass:realClass
          storeDestinationImplementationTo:realImplementationsBySelector];
   }
-#endif  // !TARGET_OS_WATCH && !TARGET_OS_MAC
+#endif  // !TARGET_OS_WATCH && !TARGET_OS_OSX
 }
 
 /// We have to do this to invalidate the cache that caches the original respondsToSelector of
@@ -871,7 +871,7 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
   }
 }
 
-#if !TARGET_OS_WATCH && !TARGET_OS_MAC
+#if !TARGET_OS_WATCH && !TARGET_OS_OSX
 - (void)application:(GULApplication *)application
     donor_didReceiveRemoteNotification:(NSDictionary *)userInfo
                 fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
@@ -901,7 +901,7 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
                                                   completionHandler);
   }
 }
-#endif  // !TARGET_OS_WATCH && !TARGET_OS_MAC
+#endif  // !TARGET_OS_WATCH && !TARGET_OS_OSX
 
 - (void)application:(GULApplication *)application
     donor_didReceiveRemoteNotification:(NSDictionary *)userInfo {
