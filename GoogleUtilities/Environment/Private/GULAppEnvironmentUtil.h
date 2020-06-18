@@ -41,6 +41,7 @@
 + (BOOL)isAppExtension;
 
 /// @return Returns @YES when is run on iOS version greater or equal to 7.0
-+ (BOOL)isIOS7OrHigher;
++ (BOOL)isIOS7OrHigher DEPRECATED_MSG_ATTRIBUTE(
+    "Always `YES` because only iOS 8 and higher supported. The method will be removed.");
 
 @end
