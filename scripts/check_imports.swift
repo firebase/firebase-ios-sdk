@@ -36,7 +36,6 @@ let skipDirPatterns = ["/Sample/", "/Pods/", "/Tests/Integration",
   [
     "FirebaseABTesting",
     "FirebaseAppDistribution",
-    "FirebaseAuth",
     "FirebaseCore/Sources/Private", // Fixes require breaking private API changes. For Firebase 7.
     "FirebaseDynamicLinks",
     "Firebase/CoreDiagnostics",
