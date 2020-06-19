@@ -67,6 +67,7 @@ static const int64_t kMaxCheckinRetryIntervalInSeconds = 1 << 5;
 
 - (void)dealloc {
   [_scheduledCheckinTimer invalidate];
+  [super dealloc];
 }
 
 - (instancetype)initWithStore:(FIRMessagingStore *)store {
@@ -242,7 +243,7 @@ static const int64_t kMaxCheckinRetryIntervalInSeconds = 1 << 5;
                                                  dispatch_async(dispatch_get_main_queue(), ^{
                                                    [[NSNotificationCenter defaultCenter]
                                                        postNotificationName:
-                                                           kFIRMessagingCheckinFetchedNotification
+                                                    kFIRMessagingCheckinFetchedNotification
                                                                      object:nil];
                                                  });
                                                }
