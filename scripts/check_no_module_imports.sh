@@ -33,6 +33,7 @@ git grep "${options[@]}" \
      ':(exclude)FirebaseCore/Sources/Private/FirebaseCoreInternal.h' \
      ':(exclude)FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h' \
      ':(exclude,glob)FirebaseStorage/**' \
+     ':(exclude)Functions/FirebaseFunctions/FIRFunctions.m' \
      ':(exclude)GoogleUtilities/NSData+zlib/Private/GULNSDataInternal.h' \
      ':(exclude)GoogleUtilities/Logger/Private/GULLogger.h' \
      ':(exclude)HeadersImports.md' && exit_with_error
