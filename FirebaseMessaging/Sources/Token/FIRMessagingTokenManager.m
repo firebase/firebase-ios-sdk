@@ -16,6 +16,8 @@
 
 #import "FIRMessagingTokenManager.h"
 
+#import <FirebaseInstallations/FIRInstallations.h>
+
 #import "FIRMessagingAuthKeyChain.h"
 #import "FIRMessagingAuthService.h"
 #import "FIRMessagingCheckinPreferences.h"
@@ -36,6 +38,7 @@
 @property(nonatomic, readonly, strong) NSOperationQueue *tokenOperations;
 
 @property(nonatomic, readwrite, strong) FIRMessagingAPNSInfo *currentAPNSInfo;
+@property(nonatomic, readwrite) FIRInstallations *installations;
 
 @end
 
@@ -56,6 +59,7 @@
   if (self) {
     _instanceIDStore = [[FIRMessagingStore alloc] initWithDelegate:self];
     _authService = [[FIRMessagingAuthService alloc] initWithStore:_instanceIDStore];
+    _installations = [FIRInstallations installations];
     [self configureTokenOperations];
   }
   return self;
@@ -74,7 +78,7 @@
   FIRMessagingTokenInfo *cachedTokenInfo =
   [self cachedTokenInfoWithAuthorizedEntity:self.fcmSenderID
                                                    scope:kFIRMessagingDefaultTokenScope];
-  NSString cachedToken = cachedTokenInfo.token;
+  NSString *cachedToken = cachedTokenInfo.token;
 
   if (cachedToken) {
     return cachedToken;
@@ -86,14 +90,11 @@
 
 -(NSDictionary *)tokenOptions {
   NSDictionary *instanceIDOptions = @{};
-  if (self.apnsTokenData) {
-    BOOL isSandboxApp = (self.apnsTokenType == FIRMessagingAPNSTokenTypeSandbox);
-    if (self.apnsTokenType == FIRMessagingAPNSTokenTypeUnknown) {
-      isSandboxApp = [self isSandboxApp];
-    }
+  NSData * apnsTokenData =self.currentAPNSInfo.deviceToken;
+  if (apnsTokenData) {
     instanceIDOptions = @{
-      kFIRMessagingTokenOptionsAPNSKey : self.apnsTokenData,
-      kFIRMessagingTokenOptionsAPNSIsSandboxKey : @(isSandboxApp),
+      kFIRMessagingTokenOptionsAPNSKey : apnsTokenData,
+      kFIRMessagingTokenOptionsAPNSIsSandboxKey : @(self.currentAPNSInfo.isSandbox),
     };
   }
 
@@ -143,71 +144,61 @@
     [tokenOptions addEntriesFromDictionary:options];
   }
 
-  NSString *APNSKey = kFIRMessagingTokenOptionsAPNSKey;
-  NSString *serverTypeKey = kFIRMessagingTokenOptionsAPNSIsSandboxKey;
-  if (tokenOptions[APNSKey] != nil && tokenOptions[serverTypeKey] == nil) {
+  if (tokenOptions[kFIRMessagingTokenOptionsAPNSKey] != nil && tokenOptions[kFIRMessagingTokenOptionsAPNSIsSandboxKey] == nil) {
     // APNS key was given, but server type is missing. Supply the server type with automatic
     // checking. This can happen when the token is requested from FCM, which does not include a
     // server type during its request.
-    tokenOptions[serverTypeKey] = @([self isSandboxApp]);
+    tokenOptions[serverTypeKey] = @(FIRMessagingIsSandboxApp());
   }
   if (self.firebaseAppID) {
-    tokenOptions[kFIRInstanceIDTokenOptionsFirebaseAppIDKey] = self.firebaseAppID;
+    tokenOptions[kFIRMessagingTokenOptionsFirebaseAppIDKey] = self.firebaseAppID;
   }
 
   // comparing enums to ints directly throws a warning
-  FIRInstanceIDErrorCode noError = INT_MAX;
-  FIRInstanceIDErrorCode errorCode = noError;
-  if (FIRInstanceIDIsValidGCMScope(scope) && !tokenOptions[APNSKey]) {
-    errorCode = kFIRInstanceIDErrorCodeMissingAPNSToken;
-  } else if (FIRInstanceIDIsValidGCMScope(scope) &&
-             ![tokenOptions[APNSKey] isKindOfClass:[NSData class]]) {
-    errorCode = kFIRInstanceIDErrorCodeInvalidRequest;
-  } else if (![authorizedEntity length]) {
-    errorCode = kFIRInstanceIDErrorCodeInvalidAuthorizedEntity;
+  FIRMessagingErrorCode noError = INT_MAX;
+  FIRMessagingErrorCode errorCode = noError;
+  if (![authorizedEntity length]) {
+    errorCode = kFIRMessagingErrorCodeMissingAuthorizedEntity;
   } else if (![scope length]) {
-    errorCode = kFIRInstanceIDErrorCodeInvalidScope;
+    errorCode = kFIRMessagingErrorCodeMissingScope;
   } else if (!self.installations) {
-    errorCode = kFIRInstanceIDErrorCodeInvalidStart;
+    errorCode = kFIRMessagingErrorCodeMissingFid;
   }
 
-  FIRInstanceIDTokenHandler newHandler = ^(NSString *token, NSError *error) {
+  FIRMessagingFCMTokenFetchCompletion newHandler = ^(NSString *token, NSError *error) {
     dispatch_async(dispatch_get_main_queue(), ^{
       handler(token, error);
     });
   };
 
   if (errorCode != noError) {
-    newHandler(nil, [NSError errorWithFIRInstanceIDErrorCode:errorCode]);
+    newHandler(nil, [NSError messagingErrorWithCode:errorCode failureReason:@"Failed to send token request, missing critical info."]);
     return;
   }
 
-  FIRInstanceID_WEAKIFY(self);
-  FIRInstanceIDAuthService *authService = self.tokenManager.authService;
-  [authService fetchCheckinInfoWithHandler:^(FIRInstanceIDCheckinPreferences *preferences,
+  FIRMessaging_WEAKIFY(self);
+  FIRMessagingAuthService *authService = self.authService;
+  [authService fetchCheckinInfoWithHandler:^(FIRMessagingCheckinPreferences *preferences,
                                              NSError *error) {
-    FIRInstanceID_STRONGIFY(self);
+    FIRMessaging_STRONGIFY(self);
     if (error) {
       newHandler(nil, error);
       return;
     }
 
-    FIRInstanceID_WEAKIFY(self);
+    FIRMessaging_WEAKIFY(self);
     [self.installations installationIDWithCompletion:^(NSString *_Nullable identifier,
                                                        NSError *_Nullable error) {
-      FIRInstanceID_STRONGIFY(self);
+      FIRMessaging_STRONGIFY(self);
 
       if (error) {
-        NSError *newError =
-            [NSError errorWithFIRInstanceIDErrorCode:kFIRInstanceIDErrorCodeInvalidKeyPair];
-        newHandler(nil, newError);
-
+        newHandler(nil, error);
       } else {
-        FIRInstanceIDTokenInfo *cachedTokenInfo =
-            [self.tokenManager cachedTokenInfoWithAuthorizedEntity:authorizedEntity scope:scope];
+        FIRMessagingTokenInfo *cachedTokenInfo =
+            [self cachedTokenInfoWithAuthorizedEntity:authorizedEntity scope:scope];
         if (cachedTokenInfo) {
-          FIRInstanceIDAPNSInfo *optionsAPNSInfo =
-              [[FIRInstanceIDAPNSInfo alloc] initWithTokenOptionsDictionary:tokenOptions];
+          FIRMessagingAPNSInfo *optionsAPNSInfo =
+              [[FIRMessagingAPNSInfo alloc] initWithTokenOptionsDictionary:tokenOptions];
           // Check if APNS Info is changed
           if ((!cachedTokenInfo.APNSInfo && !optionsAPNSInfo) ||
               [cachedTokenInfo.APNSInfo isEqualToAPNSInfo:optionsAPNSInfo]) {
@@ -218,7 +209,7 @@
             }
           }
         }
-        [self.tokenManager fetchNewTokenWithAuthorizedEntity:[authorizedEntity copy]
+        [self fetchNewTokenWithAuthorizedEntity:[authorizedEntity copy]
                                                        scope:[scope copy]
                                                   instanceID:identifier
                                                      options:tokenOptions
@@ -505,7 +496,7 @@
                              NSStringFromClass([notification.object class]));
     return;
   }
-  NSInteger type = [userInfo[kFIRInstanceIDAPNSTokenType] integerValue];
+  NSInteger type = [userInfo[kFIRMessagingAPNSTokenType] integerValue];
 
   // The APNS token is being added, or has changed (rare)
   if ([self.apnsTokenData isEqualToData:APNSToken]) {
@@ -514,13 +505,12 @@
     return;
   }
   // Use this token type for when we have to automatically fetch tokens in the future
-  self.apnsTokenType = type;
-  BOOL isSandboxApp = (type == FIRInstanceIDAPNSTokenTypeSandbox);
-  if (self.apnsTokenType == FIRInstanceIDAPNSTokenTypeUnknown) {
+  BOOL isSandboxApp = (type == FIRMessagingAPNSTokenTypeSandbox);
+  if (type == FIRMessagingAPNSTokenTypeUnknown) {
     isSandboxApp = [self isSandboxApp];
   }
   self.apnsTokenData = [token copy];
-  self.APNSTupleString = FIRInstanceIDAPNSTupleStringForTokenAndServerType(token, isSandboxApp);
+  self.currentAPNSInfo = [[FIRMessagingAPNSInfo alloc] initWithDeviceToken:APNSToken isSandbox:isSandboxApp];
 
   // Pro-actively invalidate the default token, if the APNs change makes it
   // invalid. Previously, we invalidated just before fetching the token.
@@ -572,6 +562,11 @@
           }
         }];
   }
+}
+
+#pragma mark - checkin
+-(BOOL)hasValidCheckinInfo {
+  return self.authService.checkinPreferences.hasValidCheckinInfo;
 }
 
 @end
