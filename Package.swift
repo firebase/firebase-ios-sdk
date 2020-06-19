@@ -39,10 +39,10 @@ let package = Package(
       name: "FirebaseCore",
       targets: ["FirebaseCore"]
     ),
-    // .library(
-    //   name: "FirebaseAuth",
-    //   targets: ["FirebaseAuth"]
-    // ),
+    .library(
+      name: "FirebaseAuth",
+      targets: ["FirebaseAuth"]
+    ),
     // .library(
     //   name: "FirebaseCrashlytics",
     //   targets: ["FirebaseCrashlytics"]
@@ -80,7 +80,8 @@ let package = Package(
     .target(
       name: "firebase-test",
       dependencies: [
-        // "FirebaseAuth", "FirebaseFunctions",
+        "FirebaseAuth",
+        // "FirebaseFunctions",
         //  "Firebase",
         "FirebaseCore",
         "FirebaseInstallations",
@@ -205,23 +206,20 @@ let package = Package(
         // TODO: - Add support for cflags cSetting so that we can set the -fno-autolink option
       ]
     ),
-//     .target(
-//       name: "FirebaseAuth",
-//       dependencies: ["FirebaseCore", "GoogleUtilities_Environment",
-//                      "GoogleUtilities_AppDelegateSwizzler",
-//                      "GTMSessionFetcherCore"],
-//       path: "FirebaseAuth/Sources",
-//       publicHeadersPath: "Public",
-//       cSettings: [
-//         .headerSearchPath("../../"),
-//         .define("FIRAuth_VERSION", to: "0.0.1"), // TODO: Fix version
-//         .define("FIRAuth_MINOR_VERSION", to: "1.1"), // TODO: Fix version
-    // //        .define("DEBUG", .when(configuration: .debug)), // TODO - destroys other settings in DEBUG config
-//         // linkerSettings: [
-//         //   .linkedFramework("Security"),
-//         //  .linkedFramework("SafariServices", .when(platforms: [.iOS])),
-//       ]
-//    ),
+    .target(
+      name: "FirebaseAuth",
+      dependencies: ["FirebaseCore",
+                     "GoogleUtilities_Environment",
+                     "GoogleUtilities_AppDelegateSwizzler",
+                     "GTMSessionFetcherCore"],
+      path: "FirebaseAuth/Sources",
+      publicHeadersPath: "Public",
+      cSettings: [
+        .headerSearchPath("../../"),
+        .define("FIRAuth_VERSION", to: "0.0.1"), // TODO: Fix version
+        .define("FIRAuth_MINOR_VERSION", to: "1.1"), // TODO: Fix version
+      ]
+    ),
 //     .target(
 //       name: "FirebaseFunctions",
 //       dependencies: ["FirebaseCore", "GTMSessionFetcher_Core"],
