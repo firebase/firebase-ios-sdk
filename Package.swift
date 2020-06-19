@@ -58,14 +58,14 @@ let package = Package(
     //   name: "FirebaseInstanceID",
     //   targets: ["FirebaseInstanceID"]
     // ),
-    // .library(
-    //   name: "FirebaseStorage",
-    //   targets: ["FirebaseStorage"]
-    // ),
-    // .library(
-    //   name: "FirebaseStorageSwift",
-    //   targets: ["FirebaseStorageSwift"]
-    // ),
+    .library(
+      name: "FirebaseStorage",
+      targets: ["FirebaseStorage"]
+    ),
+    .library(
+      name: "FirebaseStorageSwift",
+      targets: ["FirebaseStorageSwift"]
+    ),
   ],
   dependencies: [
     .package(url: "https://github.com/google/promises.git", "1.2.8" ..< "1.3.0"),
@@ -85,8 +85,8 @@ let package = Package(
         "FirebaseCore",
         "FirebaseInstallations",
         // "FirebaseInstanceID",
-        // "FirebaseStorage",
-        // "FirebaseStorageSwift",
+        "FirebaseStorage",
+        "FirebaseStorageSwift",
         "GoogleUtilities_AppDelegateSwizzler",
         "GoogleUtilities_Environment",
         // "GoogleUtilities_ISASwizzler", // Build needs to disable ARC.
@@ -254,21 +254,21 @@ let package = Package(
         .headerSearchPath("../../../"),
       ]
     ),
-    // .target(
-    //   name: "FirebaseStorage",
-    //   dependencies: ["FirebaseCore", "GTMSessionFetcherCore"],
-    //   path: "FirebaseStorage/Sources",
-    //   publicHeadersPath: "Public",
-    //   cSettings: [
-    //     .headerSearchPath("../../"),
-    //     .define("FIRStorage_VERSION", to: "0.0.1"), // TODO: Fix version
-    //   ]
-    // ),
-    // .target(
-    //   name: "FirebaseStorageSwift",
-    //   dependencies: ["FirebaseStorage"],
-    //   path: "FirebaseStorageSwift/Sources"
-    // ),
+    .target(
+      name: "FirebaseStorage",
+      dependencies: ["FirebaseCore", "GTMSessionFetcherCore"],
+      path: "FirebaseStorage/Sources",
+      publicHeadersPath: "Public",
+      cSettings: [
+        .headerSearchPath("../../"),
+        .define("FIRStorage_VERSION", to: "0.0.1"), // TODO: Fix version
+      ]
+    ),
+    .target(
+      name: "FirebaseStorageSwift",
+      dependencies: ["FirebaseStorage"],
+      path: "FirebaseStorageSwift/Sources"
+    ),
     // .target(
     //   name: "GoogleDataTransport",
     //   path: "GoogleDataTransport/GDTCORLibrary",

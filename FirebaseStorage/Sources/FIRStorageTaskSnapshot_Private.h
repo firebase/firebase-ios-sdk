@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import <FirebaseStorage/FIRStorageTaskSnapshot.h>
+#import "FirebaseStorage/Sources/Public/FIRStorageTaskSnapshot.h"
 
 #import "FirebaseStorage/Sources/FIRStorageConstants_Private.h"
 
