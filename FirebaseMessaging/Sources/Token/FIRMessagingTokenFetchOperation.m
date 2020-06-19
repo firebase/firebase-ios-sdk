@@ -176,7 +176,7 @@ NSString *const kFIRMessagingHeartbeatTag = @"fire-iid";
 
       NSString *failureReason = @"Identity is invalid. Server request identity reset.";
       FIRMessagingLoggerDebug(kFIRMessagingMessageCodeInternal001,
-                               failureReason);
+                              @"%@", failureReason);
       responseError =
           [NSError messagingErrorWithCode:kFIRMessagingErrorCodeInvalidIdentity failureReason:failureReason];
     }
@@ -184,7 +184,7 @@ NSString *const kFIRMessagingHeartbeatTag = @"fire-iid";
   if (!responseError) {
     NSString *failureReason =@"Invalid fetch response, expected 'token' or 'Error' key";
     FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTokenFetchOperationBadResponse,
-                             failureReason);
+                            @"%@", failureReason);
     responseError = [NSError messagingErrorWithCode:kFIRMessagingErrorCodeUnknown failureReason:failureReason];
   }
   [self finishWithResult:FIRMessagingTokenOperationError token:nil error:responseError];

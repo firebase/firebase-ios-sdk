@@ -18,7 +18,6 @@
 
 #import "FirebaseMessaging/Sources/Protos/GtalkCore.pbobjc.h"
 
-#import <FirebaseInstanceID/FIRInstanceID_Private.h>
 #import <FirebaseMessaging/FIRMessaging.h>
 #import "GoogleUtilities/Reachability/Private/GULReachabilityChecker.h"
 
@@ -507,7 +506,7 @@ static NSUInteger FIRMessagingServerPort() {
 
   FIRMessagingLoggerDebug(kFIRMessagingMessageCodeClient011,
                           @"Failed to sign in to MCS, retry in %lu seconds",
-                          _FIRMessaging_UL(retryInterval));
+                          (_FIRMessaging_UL)(retryInterval));
   [self performSelector:@selector(tryToConnect) withObject:nil afterDelay:retryInterval];
 }
 
