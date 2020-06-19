@@ -59,7 +59,7 @@ using util::Status;
 constexpr int kMaxPendingWrites = 10;
 
 RemoteStore::RemoteStore(
-    local::LocalStore* local_store,
+    LocalStore* local_store,
     std::shared_ptr<Datastore> datastore,
     const std::shared_ptr<util::AsyncQueue>& worker_queue,
     ConnectivityMonitor* connectivity_monitor,
@@ -81,7 +81,13 @@ void RemoteStore::Start() {
   EnableNetwork();
 
   connectivity_monitor_->AddCallback(
-      [this](ConnectivityMonitor::NetworkStatus /*ignored*/) {
+      [this](ConnectivityMonitor::NetworkStatus network_status) {
+        if (network_status == ConnectivityMonitor::NetworkStatus::Unavailable) {
+            LOG_DEBUG("RemoteStore %s ignoring connectivity callback for unavailable network",
+                      this);
+            return;
+        }
+
         if (CanUseNetwork()) {
           LOG_DEBUG("RemoteStore %s restarting streams as connectivity changed",
                     this);
