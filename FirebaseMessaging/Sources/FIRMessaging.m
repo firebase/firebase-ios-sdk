@@ -76,8 +76,7 @@ NSString *const FIRMessagingRegistrationTokenRefreshedNotification =
 NSString *const kFIRMessagingUserDefaultsKeyAutoInitEnabled =
     @"com.firebase.messaging.auto-init.enabled";  // Auto Init Enabled key stored in NSUserDefaults
 
-NSString *const kFIRMessagingAPNSTokenType =
-    @"APNSTokenType";  // APNS Token type key stored in user info.
+
 
 NSString *const kFIRMessagingPlistAutoInitEnabled =
     @"FirebaseMessagingAutoInitEnabled";  // Auto Init Enabled key stored in Info.plist
