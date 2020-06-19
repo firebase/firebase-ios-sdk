@@ -14,7 +14,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRHTTPSCallable.h"
+#import "Functions/FirebaseFunctions/Public/FIRHTTPSCallable.h"
 
 @class FIRFunctions;
 

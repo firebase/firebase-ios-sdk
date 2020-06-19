@@ -47,9 +47,10 @@ let package = Package(
     //   name: "FirebaseCrashlytics",
     //   targets: ["FirebaseCrashlytics"]
     // ),
-    // .library(
-    //   name: "FirebaseFunctions",
-    //   targets: ["FirebaseFunctions"]),
+    .library(
+      name: "FirebaseFunctions",
+      targets: ["FirebaseFunctions"]
+    ),
     .library(
       name: "FirebaseInstallations",
       targets: ["FirebaseInstallations"]
@@ -81,7 +82,7 @@ let package = Package(
       name: "firebase-test",
       dependencies: [
         "FirebaseAuth",
-        // "FirebaseFunctions",
+        "FirebaseFunctions",
         //  "Firebase",
         "FirebaseCore",
         "FirebaseInstallations",
@@ -220,17 +221,17 @@ let package = Package(
         .define("FIRAuth_MINOR_VERSION", to: "1.1"), // TODO: Fix version
       ]
     ),
-//     .target(
-//       name: "FirebaseFunctions",
-//       dependencies: ["FirebaseCore", "GTMSessionFetcher_Core"],
-//       path: "Functions/FirebaseFunctions",
-//       publicHeadersPath: "Public",
-//       cSettings: [
-//          // SPM doesn't support interface frameworks or private headers
-//         .headerSearchPath("../../"),
-//         .define("FIRFunctions_VERSION", to: "0.0.1"),  // TODO Fix version
-//         .define("SWIFT_PACKAGE", to: "1"),  // SPM loses defaults if other cSettings
-//       ]),
+    .target(
+      name: "FirebaseFunctions",
+      dependencies: ["FirebaseCore", "GTMSessionFetcherCore"],
+      path: "Functions/FirebaseFunctions",
+      publicHeadersPath: "Public",
+      cSettings: [
+        .headerSearchPath("../../"),
+        .define("FIRFunctions_VERSION", to: "0.0.1"), // TODO: Fix version
+        .define("SWIFT_PACKAGE", to: "1"), // SPM loses defaults if other cSettings
+      ]
+    ),
     // .target(
     //   name: "FirebaseInstanceID",
     //   dependencies: ["FirebaseCore", "FirebaseInstallations",
