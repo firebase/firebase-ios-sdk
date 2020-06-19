@@ -83,9 +83,11 @@ void RemoteStore::Start() {
   connectivity_monitor_->AddCallback(
       [this](ConnectivityMonitor::NetworkStatus network_status) {
         if (network_status == ConnectivityMonitor::NetworkStatus::Unavailable) {
-            LOG_DEBUG("RemoteStore %s ignoring connectivity callback for unavailable network",
-                      this);
-            return;
+          LOG_DEBUG(
+              "RemoteStore %s ignoring connectivity callback for unavailable "
+              "network",
+              this);
+          return;
         }
 
         if (CanUseNetwork()) {
