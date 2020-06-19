@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import <FirebaseAuth/FIRAdditionalUserInfo.h>
-#import <FirebaseAuth/FIROAuthCredential.h>
-#import <FirebaseAuth/FIRUser.h>
+#import "FirebaseAuth/Sources/Public/FIRAdditionalUserInfo.h"
+#import "FirebaseAuth/Sources/Public/FIROAuthCredential.h"
+#import "FirebaseAuth/Sources/Public/FIRUser.h"
 
 #import "FirebaseAuth/Sources/Auth/FIRAuthDataResult_Internal.h"
 

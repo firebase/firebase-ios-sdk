@@ -17,8 +17,8 @@
 #include <TargetConditionals.h>
 #if TARGET_OS_IOS
 
-#import <FirebaseAuth/FIRPhoneAuthCredential.h>
 #import <Foundation/Foundation.h>
+#import "FirebaseAuth/Sources/Public/FIRPhoneAuthCredential.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
