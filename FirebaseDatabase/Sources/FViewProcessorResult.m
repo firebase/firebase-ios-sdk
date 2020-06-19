@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import "FViewProcessorResult.h"
-#import "FViewCache.h"
+#import "FirebaseDatabase/Sources/FViewProcessorResult.h"
+#import "FirebaseDatabase/Sources/Core/View/FViewCache.h"
 
 @interface FViewProcessorResult ()
 @property(nonatomic, strong, readwrite) FViewCache *viewCache;

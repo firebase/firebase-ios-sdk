@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#import "FIRDataEventType.h"
-#import "FPersistentConnection.h"
-#import "FRepoInfo.h"
-#import "FTupleUserCallback.h"
+#import "FirebaseDatabase/Sources/Core/FPersistentConnection.h"
+#import "FirebaseDatabase/Sources/Core/FRepoInfo.h"
+#import "FirebaseDatabase/Sources/Public/FIRDataEventType.h"
+#import "FirebaseDatabase/Sources/Utilities/Tuples/FTupleUserCallback.h"
 #import <Foundation/Foundation.h>
 
 @class FQuerySpec;

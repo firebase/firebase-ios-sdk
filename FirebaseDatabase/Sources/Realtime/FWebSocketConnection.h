@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import "FSRWebSocket.h"
-#import "FUtilities.h"
+#import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
+#import "FirebaseDatabase/Sources/third_party/SocketRocket/FSRWebSocket.h"
 #import <Foundation/Foundation.h>
 
 @protocol FWebSocketDelegate;

@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-#import "FIRDataSnapshot.h"
-#import "FChildrenNode.h"
-#import "FIRDataSnapshot_Private.h"
-#import "FIRDatabaseReference.h"
-#import "FTransformedEnumerator.h"
-#import "FValidation.h"
+#import "FirebaseDatabase/Sources/Public/FIRDataSnapshot.h"
+#import "FirebaseDatabase/Sources/Api/Private/FIRDataSnapshot_Private.h"
+#import "FirebaseDatabase/Sources/FTransformedEnumerator.h"
+#import "FirebaseDatabase/Sources/Public/FIRDatabaseReference.h"
+#import "FirebaseDatabase/Sources/Snapshot/FChildrenNode.h"
+#import "FirebaseDatabase/Sources/Utilities/FValidation.h"
 
 @interface FIRDataSnapshot ()
 @property(nonatomic, strong) FIRDatabaseReference *ref;

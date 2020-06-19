@@ -16,11 +16,11 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FCompoundWrite.h"
-#import "FNode.h"
-#import "FPath.h"
-#import "FQuerySpec.h"
-#import "FStorageEngine.h"
+#import "FirebaseDatabase/Sources/Core/FQuerySpec.h"
+#import "FirebaseDatabase/Sources/Core/Utilities/FPath.h"
+#import "FirebaseDatabase/Sources/Persistence/FStorageEngine.h"
+#import "FirebaseDatabase/Sources/Snapshot/FCompoundWrite.h"
+#import "FirebaseDatabase/Sources/Snapshot/FNode.h"
 
 @class FCacheNode;
 @class FTrackedQuery;

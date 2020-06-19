@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import "FRepo.h"
-#import "FSparseSnapshotTree.h"
+#import "FirebaseDatabase/Sources/Core/FRepo.h"
+#import "FirebaseDatabase/Sources/Core/FSparseSnapshotTree.h"
 
 @class FSyncTree;
 @class FAtomicNumber;

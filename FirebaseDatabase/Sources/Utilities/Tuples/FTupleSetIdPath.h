@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FPath.h"
+#import "FirebaseDatabase/Sources/Core/Utilities/FPath.h"
 #import <Foundation/Foundation.h>
 
 @interface FTupleSetIdPath : NSObject

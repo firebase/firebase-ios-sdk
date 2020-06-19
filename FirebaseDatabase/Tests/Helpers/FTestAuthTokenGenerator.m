@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "FTestAuthTokenGenerator.h"
+#import "FirebaseDatabase/Tests/Helpers/FTestAuthTokenGenerator.h"
 #import <CommonCrypto/CommonHMAC.h>
-#import "Base64.h"
+#import "FirebaseDatabase/Tests/third_party/Base64.h"
 
 @implementation FTestAuthTokenGenerator
 

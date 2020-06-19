@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-#import "FIRDatabaseQuery.h"
-#import "FPath.h"
-#import "FQueryParams.h"
-#import "FRepo.h"
-#import "FRepoManager.h"
-#import "FTypedefs_Private.h"
+#import "FirebaseDatabase/Sources/Api/Private/FTypedefs_Private.h"
+#import "FirebaseDatabase/Sources/Core/FQueryParams.h"
+#import "FirebaseDatabase/Sources/Core/FRepo.h"
+#import "FirebaseDatabase/Sources/Core/FRepoManager.h"
+#import "FirebaseDatabase/Sources/Core/Utilities/FPath.h"
+#import "FirebaseDatabase/Sources/Public/FIRDatabaseQuery.h"
 
 @interface FIRDatabaseQuery ()
 

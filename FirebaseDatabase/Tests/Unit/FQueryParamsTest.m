@@ -17,15 +17,15 @@
 #import <Foundation/Foundation.h>
 #import <XCTest/XCTest.h>
 
-#import "FEmptyNode.h"
-#import "FIndex.h"
-#import "FKeyIndex.h"
-#import "FLeafNode.h"
-#import "FPathIndex.h"
-#import "FPriorityIndex.h"
-#import "FQueryParams.h"
-#import "FSnapshotUtilities.h"
-#import "FValueIndex.h"
+#import "FirebaseDatabase/Sources/Core/FQueryParams.h"
+#import "FirebaseDatabase/Sources/FIndex.h"
+#import "FirebaseDatabase/Sources/FKeyIndex.h"
+#import "FirebaseDatabase/Sources/FPathIndex.h"
+#import "FirebaseDatabase/Sources/FPriorityIndex.h"
+#import "FirebaseDatabase/Sources/FValueIndex.h"
+#import "FirebaseDatabase/Sources/Snapshot/FEmptyNode.h"
+#import "FirebaseDatabase/Sources/Snapshot/FLeafNode.h"
+#import "FirebaseDatabase/Sources/Snapshot/FSnapshotUtilities.h"
 
 @interface FQueryParamsTest : XCTestCase
 

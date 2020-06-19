@@ -1,5 +1,5 @@
-#import "FLLRBEmptyNode.h"
-#import "FLLRBValueNode.h"
+#import "FirebaseDatabase/Sources/third_party/FImmutableSortedDictionary/FImmutableSortedDictionary/FLLRBEmptyNode.h"
+#import "FirebaseDatabase/Sources/third_party/FImmutableSortedDictionary/FImmutableSortedDictionary/FLLRBValueNode.h"
 
 @implementation FLLRBEmptyNode
 

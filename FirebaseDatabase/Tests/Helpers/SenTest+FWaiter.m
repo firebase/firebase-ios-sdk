@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import "FTestContants.h"
-#import "SenTest+FWaiter.h"
+#import "FirebaseDatabase/Tests/Helpers/FTestContants.h"
+#import "FirebaseDatabase/Tests/Helpers/SenTest+FWaiter.h"
 
 @implementation XCTestCase (FWaiter)
 

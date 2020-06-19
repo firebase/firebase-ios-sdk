@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import "FAuthTokenProvider.h"
-#import "FIRDatabaseConfig.h"
+#import "FirebaseDatabase/Sources/Api/FIRDatabaseConfig.h"
+#import "FirebaseDatabase/Sources/Login/FAuthTokenProvider.h"
 
 @protocol FStorageEngine;
 

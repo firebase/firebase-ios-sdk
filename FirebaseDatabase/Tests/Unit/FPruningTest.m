@@ -16,11 +16,11 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FEmptyNode.h"
-#import "FLevelDBStorageEngine.h"
-#import "FMockStorageEngine.h"
-#import "FPruneForest.h"
-#import "FTestHelpers.h"
+#import "FirebaseDatabase/Sources/Persistence/FLevelDBStorageEngine.h"
+#import "FirebaseDatabase/Sources/Persistence/FPruneForest.h"
+#import "FirebaseDatabase/Sources/Snapshot/FEmptyNode.h"
+#import "FirebaseDatabase/Tests/Helpers/FMockStorageEngine.h"
+#import "FirebaseDatabase/Tests/Helpers/FTestHelpers.h"
 
 @interface FPruningTest : XCTestCase
 

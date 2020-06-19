@@ -17,8 +17,8 @@
 #import <Foundation/Foundation.h>
 #import <XCTest/XCTest.h>
 
-#import "FRepoInfo.h"
-#import "FTestHelpers.h"
+#import "FirebaseDatabase/Sources/Core/FRepoInfo.h"
+#import "FirebaseDatabase/Tests/Helpers/FTestHelpers.h"
 @interface FRepoInfoTest : XCTestCase
 
 @end

@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import "FTupleTransaction.h"
-#import "FUtilities.h"
+#import "FirebaseDatabase/Sources/Utilities/Tuples/FTupleTransaction.h"
+#import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
 
 @interface FTupleTransaction ()
 

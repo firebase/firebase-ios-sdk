@@ -63,7 +63,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "fbase64.h"
+#include "FirebaseDatabase/Sources/third_party/SocketRocket/fbase64.h"
 
 static const char Base64[] =
 "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";

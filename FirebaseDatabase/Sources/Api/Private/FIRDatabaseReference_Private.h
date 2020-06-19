@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#import "FIRDatabaseConfig.h"
-#import "FIRDatabaseReference.h"
-#import "FRepo.h"
-#import "FTypedefs_Private.h"
+#import "FirebaseDatabase/Sources/Api/FIRDatabaseConfig.h"
+#import "FirebaseDatabase/Sources/Api/Private/FTypedefs_Private.h"
+#import "FirebaseDatabase/Sources/Core/FRepo.h"
+#import "FirebaseDatabase/Sources/Public/FIRDatabaseReference.h"
 
 @interface FIRDatabaseReference ()
 

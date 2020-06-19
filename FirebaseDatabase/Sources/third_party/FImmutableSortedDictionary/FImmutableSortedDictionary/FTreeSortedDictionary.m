@@ -1,7 +1,7 @@
-#import "FTreeSortedDictionary.h"
-#import "FLLRBEmptyNode.h"
-#import "FLLRBValueNode.h"
-#import "FTreeSortedDictionaryEnumerator.h"
+#import "FirebaseDatabase/Sources/third_party/FImmutableSortedDictionary/FImmutableSortedDictionary/FTreeSortedDictionary.h"
+#import "FirebaseDatabase/Sources/third_party/FImmutableSortedDictionary/FImmutableSortedDictionary/FLLRBEmptyNode.h"
+#import "FirebaseDatabase/Sources/third_party/FImmutableSortedDictionary/FImmutableSortedDictionary/FLLRBValueNode.h"
+#import "FirebaseDatabase/Sources/third_party/FImmutableSortedDictionary/FImmutableSortedDictionary/FTreeSortedDictionaryEnumerator.h"
 
 typedef void (^fbt_void_nsnumber_int)(NSNumber* color, NSUInteger chunkSize);
 

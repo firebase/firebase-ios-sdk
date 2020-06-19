@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-#import "FEventGenerator.h"
-#import "FChange.h"
-#import "FDataEvent.h"
-#import "FEvent.h"
-#import "FEventRegistration.h"
-#import "FIRDatabaseQuery_Private.h"
-#import "FNamedNode.h"
-#import "FNode.h"
-#import "FQueryParams.h"
-#import "FQuerySpec.h"
+#import "FirebaseDatabase/Sources/FEventGenerator.h"
+#import "FirebaseDatabase/Sources/Api/Private/FIRDatabaseQuery_Private.h"
+#import "FirebaseDatabase/Sources/Core/FQueryParams.h"
+#import "FirebaseDatabase/Sources/Core/FQuerySpec.h"
+#import "FirebaseDatabase/Sources/Core/View/FChange.h"
+#import "FirebaseDatabase/Sources/Core/View/FDataEvent.h"
+#import "FirebaseDatabase/Sources/Core/View/FEvent.h"
+#import "FirebaseDatabase/Sources/Core/View/FEventRegistration.h"
+#import "FirebaseDatabase/Sources/FNamedNode.h"
+#import "FirebaseDatabase/Sources/Snapshot/FNode.h"
 
 @interface FEventGenerator ()
 @property(nonatomic, strong) FQuerySpec *query;

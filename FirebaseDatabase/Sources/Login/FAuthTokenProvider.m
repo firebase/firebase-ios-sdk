@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-#import "FAuthTokenProvider.h"
+#import "FirebaseDatabase/Sources/Login/FAuthTokenProvider.h"
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "Interop/Auth/Public/FIRAuthInterop.h"
 
-#import "FIRDatabaseQuery_Private.h"
-#import "FIRNoopAuthTokenProvider.h"
-#import "FUtilities.h"
+#import "FirebaseDatabase/Sources/Api/Private/FIRDatabaseQuery_Private.h"
+#import "FirebaseDatabase/Sources/Login/FIRNoopAuthTokenProvider.h"
+#import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
 
 @interface FAuthStateListenerWrapper : NSObject
 

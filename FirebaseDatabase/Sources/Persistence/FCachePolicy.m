@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FCachePolicy.h"
+#import "FirebaseDatabase/Sources/Persistence/FCachePolicy.h"
 
 @interface FLRUCachePolicy ()
 

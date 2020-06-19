@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FNode.h"
+#import "FirebaseDatabase/Sources/Snapshot/FNode.h"
 
 @interface FCompoundHashBuilder : NSObject
 
