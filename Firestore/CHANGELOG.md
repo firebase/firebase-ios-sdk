@@ -1,7 +1,7 @@
 # Unreleased
-- [fixed] Removed delay that may have prevented Firestore from immediately
-  establishing network connections if a connectivity change occurred while
-  in the background.
+- [fixed] Removed a delay that may have prevented Firestore from immediately
+  establishing a network connection if a connectivity change occurred while
+  the app was in the background.
 
 # v1.16.0
 - [fixed] Fixed an issue that may have prevented the client from connecting
