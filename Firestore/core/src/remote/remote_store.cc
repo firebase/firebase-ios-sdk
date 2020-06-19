@@ -62,10 +62,12 @@ RemoteStore::RemoteStore(
     LocalStore* local_store,
     std::shared_ptr<Datastore> datastore,
     const std::shared_ptr<AsyncQueue>& worker_queue,
-    std::function<void(model::OnlineState)> online_state_handler)
+    std::function<void(model::OnlineState)> online_state_handler,
+    ConnectivityMonitor* connectivity_monitor)
     : local_store_{local_store},
       datastore_{std::move(datastore)},
-      online_state_tracker_{worker_queue, std::move(online_state_handler)} {
+      online_state_tracker_{worker_queue, std::move(online_state_handler)},
+      connectivity_monitor_{NOT_NULL(connectivity_monitor)} {
   datastore_->Start();
 
   // Create streams (but note they're not started yet)
@@ -77,6 +79,15 @@ void RemoteStore::Start() {
   // For now, all setup is handled by `EnableNetwork`. We might expand on this
   // in the future.
   EnableNetwork();
+
+  connectivity_monitor_->AddCallback(
+      [this](ConnectivityMonitor::NetworkStatus /*ignored*/) {
+        if (CanUseNetwork()) {
+          LOG_DEBUG("RemoteStore %s restarting streams as connectivity changed",
+                    this);
+          RestartNetwork();
+        }
+      });
 }
 
 void RemoteStore::EnableNetwork() {
@@ -528,16 +539,22 @@ absl::optional<TargetData> RemoteStore::GetTargetDataForTarget(
                                         : absl::optional<TargetData>{};
 }
 
+void RemoteStore::RestartNetwork() {
+  is_network_enabled_ = false;
+  DisableNetworkInternal();
+  online_state_tracker_.UpdateState(OnlineState::Unknown);
+  write_stream_->InhibitBackoff();
+  watch_stream_->InhibitBackoff();
+  EnableNetwork();
+}
+
 void RemoteStore::HandleCredentialChange() {
   if (CanUseNetwork()) {
     // Tear down and re-create our network streams. This will ensure we get a
     // fresh auth token for the new user and re-fill the write pipeline with new
     // mutations from the `LocalStore` (since mutations are per-user).
     LOG_DEBUG("RemoteStore %s restarting streams for new credential", this);
-    is_network_enabled_ = false;
-    DisableNetworkInternal();
-    online_state_tracker_.UpdateState(OnlineState::Unknown);
-    EnableNetwork();
+    RestartNetwork();
   }
 }
 
