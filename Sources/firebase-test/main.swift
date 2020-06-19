@@ -16,7 +16,7 @@ import Foundation
 // import Firebase
 import FirebaseCore
 import FirebaseAuth
-// import FirebaseFunctions
+import FirebaseFunctions
 import FirebaseInstallations
 // import FirebaseInstanceID
 import FirebaseStorage
