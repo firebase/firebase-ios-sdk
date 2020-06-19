@@ -19,8 +19,8 @@ import FirebaseCore
 // import FirebaseFunctions
 import FirebaseInstallations
 // import FirebaseInstanceID
-// import FirebaseStorage
-// import FirebaseStorageSwift
+import FirebaseStorage
+import FirebaseStorageSwift
 // import GoogleDataTransport
 // import GoogleDataTransportCCTSupport
 import GoogleUtilities_AppDelegateSwizzler

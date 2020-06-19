@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import <FirebaseStorage/FIRStorageConstants.h>
+#import "FirebaseStorage/Sources/Public/FIRStorageConstants.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
