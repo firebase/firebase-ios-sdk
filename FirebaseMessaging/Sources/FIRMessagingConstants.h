@@ -87,6 +87,8 @@ FOUNDATION_EXPORT NSString *const kFIRMessagingTokenOptionsAPNSIsSandboxKey;
 /// The key for GMP AppID sent in registration requests.
 FOUNDATION_EXPORT NSString *const kFIRMessagingTokenOptionsFirebaseAppIDKey;
 
+FOUNDATION_EXPORT NSString *const kFIRMessagingAPNSTokenType;
+
 /// The key to enable auto-register by swizzling AppDelegate's methods.
 FOUNDATION_EXPORT NSString *const kFIRMessagingAppDelegateProxyEnabledInfoPlistKey;
 

@@ -17,6 +17,7 @@
 #import "FIRMessagingTokenOperation.h"
 
 #import <FirebaseInstallations/FirebaseInstallations.h>
+#import "GoogleUtilities/Environment/Private/GULAppEnvironmentUtil.h"
 
 #import "FIRMessagingCheckinPreferences.h"
 #import "FIRMessagingLogger.h"
@@ -44,9 +45,6 @@ static NSString *const kFIRMessagingParamFCMLibVersion = @"X-cliv";
     NSMutableArray<FIRMessagingTokenOperationCompletion> *completionHandlers;
 
 @property(atomic, strong, nullable) NSString *FISAuthToken;
-
-// For testing only
-@property(nonatomic, readwrite, copy) FIRMessagingURLRequestTestBlock testBlock;
 
 @end
 
@@ -87,7 +85,6 @@ static NSString *const kFIRMessagingParamFCMLibVersion = @"X-cliv";
 }
 
 - (void)dealloc {
-  _testBlock = nil;
   _authorizedEntity = nil;
   _scope = nil;
   _options = nil;
@@ -95,6 +92,7 @@ static NSString *const kFIRMessagingParamFCMLibVersion = @"X-cliv";
   _instanceID = nil;
   [_completionHandlers removeAllObjects];
   _completionHandlers = nil;
+  [super dealloc];
 }
 
 - (void)addCompletionHandler:(FIRMessagingTokenOperationCompletion)handler {
@@ -137,7 +135,7 @@ static NSString *const kFIRMessagingParamFCMLibVersion = @"X-cliv";
     FIRMessagingErrorCode errorCode = kFIRMessagingErrorCodeRegistrarFailedToCheckIn;
     [self finishWithResult:FIRMessagingTokenOperationError
                      token:nil
-                     error:[NSError errorWithFIRMessagingErrorCode:errorCode]];
+                     error:[NSError messagingErrorWithCode:errorCode failureReason:@"Failed to checkin before token registration."]];
     return;
   }
 
@@ -191,7 +189,7 @@ static NSString *const kFIRMessagingParamFCMLibVersion = @"X-cliv";
 #pragma mark - Request Construction
 + (NSMutableURLRequest *)requestWithAuthHeader:(NSString *)authHeaderString
                                   FISAuthToken:(NSString *)FISAuthToken {
-  NSURL *url = [NSURL URLWithString:FIRMessagingRegisterServer()];
+  NSURL *url = [NSURL URLWithString:FIRMessagingTokenRegisterServer()];
   NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
 
   // Add HTTP headers
@@ -209,7 +207,7 @@ static NSString *const kFIRMessagingParamFCMLibVersion = @"X-cliv";
   NSMutableArray<FIRMessagingURLQueryItem *> *queryItems = [NSMutableArray arrayWithCapacity:8];
 
   // E.g. X-osv=10.2.1
-  NSString *systemVersion = FIRMessagingOperatingSystemVersion();
+  NSString *systemVersion = [GULAppEnvironmentUtil systemVersion];
   [queryItems addObject:[FIRMessagingURLQueryItem queryItemWithName:@"X-osv" value:systemVersion]];
   // E.g. device=
   if (deviceID) {

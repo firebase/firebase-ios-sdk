@@ -148,7 +148,7 @@
     // APNS key was given, but server type is missing. Supply the server type with automatic
     // checking. This can happen when the token is requested from FCM, which does not include a
     // server type during its request.
-    tokenOptions[serverTypeKey] = @(FIRMessagingIsSandboxApp());
+    tokenOptions[kFIRMessagingTokenOptionsAPNSIsSandboxKey] = @(FIRMessagingIsSandboxApp());
   }
   if (self.firebaseAppID) {
     tokenOptions[kFIRMessagingTokenOptionsFirebaseAppIDKey] = self.firebaseAppID;
@@ -490,67 +490,60 @@
 
 #pragma mark - APNS Token
 - (void)setAPNSToken:(NSData *)APNSToken withUserInfo:(NSDictionary *)userInfo {
-  NSData *APNSToken = notification.object;
   if (!APNSToken || ![APNSToken isKindOfClass:[NSData class]]) {
-    FIRInstanceIDLoggerDebug(kFIRInstanceIDMessageCodeInternal002, @"Invalid APNS token type %@",
-                             NSStringFromClass([notification.object class]));
+    FIRMessagingLoggerDebug(kFIRMessagingMessageCodeInternal002, @"Invalid APNS token type %@",
+                             NSStringFromClass([APNSToken class]));
     return;
   }
   NSInteger type = [userInfo[kFIRMessagingAPNSTokenType] integerValue];
 
   // The APNS token is being added, or has changed (rare)
-  if ([self.apnsTokenData isEqualToData:APNSToken]) {
-    FIRInstanceIDLoggerDebug(kFIRInstanceIDMessageCodeInstanceID011,
+  if ([self.currentAPNSInfo.deviceToken isEqualToData:APNSToken]) {
+    FIRMessagingLoggerDebug(kFIRMessagingMessageCodeInstanceID011,
                              @"Trying to reset APNS token to the same value. Will return");
     return;
   }
   // Use this token type for when we have to automatically fetch tokens in the future
   BOOL isSandboxApp = (type == FIRMessagingAPNSTokenTypeSandbox);
   if (type == FIRMessagingAPNSTokenTypeUnknown) {
-    isSandboxApp = [self isSandboxApp];
+    isSandboxApp = FIRMessagingIsSandboxApp();
   }
-  self.apnsTokenData = [token copy];
-  self.currentAPNSInfo = [[FIRMessagingAPNSInfo alloc] initWithDeviceToken:APNSToken isSandbox:isSandboxApp];
+  self.currentAPNSInfo = [[FIRMessagingAPNSInfo alloc] initWithDeviceToken:[APNSToken copy] isSandbox:isSandboxApp];
 
   // Pro-actively invalidate the default token, if the APNs change makes it
   // invalid. Previously, we invalidated just before fetching the token.
-  NSArray<FIRInstanceIDTokenInfo *> *invalidatedTokens =
-      [self.tokenManager updateTokensToAPNSDeviceToken:self.apnsTokenData isSandbox:isSandboxApp];
+  NSArray<FIRMessagingTokenInfo *> *invalidatedTokens =
+      [self updateTokensToAPNSDeviceToken:APNSToken isSandbox:isSandboxApp];
 
   // Re-fetch any invalidated tokens automatically, this time with the current APNs token, so that
   // they are up-to-date.
   if (invalidatedTokens.count > 0) {
-    FIRInstanceID_WEAKIFY(self);
+    FIRMessaging_WEAKIFY(self);
 
     [self.installations
         installationIDWithCompletion:^(NSString *_Nullable identifier, NSError *_Nullable error) {
-          FIRInstanceID_STRONGIFY(self);
+          FIRMessaging_STRONGIFY(self);
           if (self == nil) {
-            FIRInstanceIDLoggerError(kFIRInstanceIDMessageCodeInstanceID017,
+            FIRMessagingLoggerError(kFIRMessagingMessageCodeInstanceID017,
                                      @"Instance ID shut down during token reset. Aborting");
             return;
           }
-          if (self.apnsTokenData == nil) {
-            FIRInstanceIDLoggerError(kFIRInstanceIDMessageCodeInstanceID018,
+          if (self.currentAPNSInfo == nil) {
+            FIRMessagingLoggerError(kFIRMessagingMessageCodeInstanceID018,
                                      @"apnsTokenData was set to nil during token reset. Aborting");
             return;
           }
 
           NSMutableDictionary *tokenOptions = [@{
-            kFIRInstanceIDTokenOptionsAPNSKey : self.apnsTokenData,
-            kFIRInstanceIDTokenOptionsAPNSIsSandboxKey : @(isSandboxApp)
+            kFIRMessagingTokenOptionsAPNSKey : self.currentAPNSInfo.deviceToken,
+            kFIRMessagingTokenOptionsAPNSIsSandboxKey : @(isSandboxApp)
           } mutableCopy];
           if (self.firebaseAppID) {
-            tokenOptions[kFIRInstanceIDTokenOptionsFirebaseAppIDKey] = self.firebaseAppID;
+            tokenOptions[kFIRMessagingTokenOptionsFirebaseAppIDKey] = self.firebaseAppID;
           }
 
-          for (FIRInstanceIDTokenInfo *tokenInfo in invalidatedTokens) {
-            if ([tokenInfo.token isEqualToString:self.defaultFCMToken]) {
-              // We will perform a special fetch for the default FCM token, so that the delegate
-              // methods are called. For all others, we will do an internal re-fetch.
-              [self defaultTokenWithHandler:nil];
-            } else {
-              [self.tokenManager fetchNewTokenWithAuthorizedEntity:tokenInfo.authorizedEntity
+          for (FIRMessagingTokenInfo *tokenInfo in invalidatedTokens) {
+            [self fetchNewTokenWithAuthorizedEntity:tokenInfo.authorizedEntity
                                                              scope:tokenInfo.scope
                                                         instanceID:identifier
                                                            options:tokenOptions
@@ -558,7 +551,6 @@
                                                                      NSError *_Nullable error){
 
                                                            }];
-            }
           }
         }];
   }
