@@ -1,5 +1,5 @@
 # Unreleased
-- [fixed] Removed delay that may have prevented Firestore from immediately
+- [fixed] Removed a delay that may have prevented Firestore from immediately
   establishing a network connections if a connectivity change occurred while
   the app was in the background.
 
