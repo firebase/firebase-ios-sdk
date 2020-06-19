@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FUNFakeInstanceID.h"
+#import "Functions/Example/TestUtils/FUNFakeInstanceID.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

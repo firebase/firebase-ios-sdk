@@ -20,19 +20,19 @@
 import Foundation
 
 // Update with directories in which to find headers.
-let findHeaders = ["FirebaseAuth"]
+let findHeaders = ["Functions"]
 
 // Update with directories in which to change imports.
 let changeImports = ["GoogleUtilities", "FirebaseAuth", "FirebaseCore", "Firebase",
                      "FirebaseDynamicLinks", "FirebaseInAppMessaging", "FirebaseMessaging",
-                     "FirebaseRemoteConfig", "FirebaseInstallations",
+                     "FirebaseRemoteConfig", "FirebaseInstallations", "Functions",
                      "FirebaseAppDistribution", "Example", "Crashlytics", "FirebaseStorage"]
 
 // Skip these directories. Imports should only be repo-relative in libraries
 // and unit tests.
 let skipDirPatterns = ["/Sample/", "/Pods/", "Tests/Integration",
                        "FirebaseInAppMessaging/Tests/Integration/", "Example/Database/App",
-                       "Example/InstanceID/App", ".build/"]
+                       "Example/InstanceID/App", ".build/", "Functions/Example/FirebaseFunctions"]
 
 // Get a Dictionary mapping a simple header name to a repo-relative path.
 
