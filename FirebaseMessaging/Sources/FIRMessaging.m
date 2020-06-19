@@ -608,7 +608,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
     FIRMessagingLoggerError(kFIRMessagingMessageCodeSenderIDNotSuppliedForTokenFetch, @"%@",
                             description);
     if (completion) {
-      NSError *error = [NSError messagingErrorWithCode:kFIRMessagingErrorCodeInvalidRequest
+      NSError *error = [NSError messagingErrorWithCode:kFIRMessagingErrorCodeMissingAuthorizedEntity
                                          failureReason:description];
       completion(nil, error);
     }
@@ -656,6 +656,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
     } else {
        [self.tokenManager deleteTokenWithAuthorizedEntity:senderID scope:kFIRMessagingDefaultTokenScope instanceID:identifier handler:completion];
     }
+  }];
 }
 
 #pragma mark - FIRMessagingDelegate helper methods
@@ -801,8 +802,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
                            topic, [FIRMessagingPubSub removePrefixFromTopic:topic]);
   }
   __weak FIRMessaging *weakSelf = self;
-  [self.instanceID instanceIDWithHandler:^(FIRInstanceIDResult *_Nullable result,
-                                           NSError *_Nullable error) {
+  [self retrieveFCMTokenForSenderID:[FIRMessagingTokenManager sharedInstance].fcmSenderID completion:^(NSString * _Nullable FCMToken, NSError * _Nullable error) {
     if (error) {
       FIRMessagingLoggerError(
           kFIRMessagingMessageCodeMessaging010,
@@ -841,8 +841,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
                            topic, [FIRMessagingPubSub removePrefixFromTopic:topic]);
   }
   __weak FIRMessaging *weakSelf = self;
-  [self.instanceID instanceIDWithHandler:^(FIRInstanceIDResult *_Nullable result,
-                                           NSError *_Nullable error) {
+  [self retrieveFCMTokenForSenderID:[FIRMessagingTokenManager sharedInstance].fcmSenderID completion:^(NSString * _Nullable FCMToken, NSError * _Nullable error) {
     if (error) {
       FIRMessagingLoggerError(
           kFIRMessagingMessageCodeMessaging012,

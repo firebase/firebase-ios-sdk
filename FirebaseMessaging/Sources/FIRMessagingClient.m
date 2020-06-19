@@ -31,6 +31,7 @@
 #import "FirebaseMessaging/Sources/FIRMessagingTopicsCommon.h"
 #import "FirebaseMessaging/Sources/FIRMessagingUtilities.h"
 #import "FirebaseMessaging/Sources/NSError+FIRMessaging.h"
+#import "FirebaseMessaging/Sources/Token/FIRMessagingTokenManager.h"
 
 static const NSTimeInterval kConnectTimeoutInterval = 40.0;
 static const NSTimeInterval kReconnectDelayInSeconds = 2 * 60;  // 2 minutes
@@ -187,7 +188,7 @@ static NSUInteger FIRMessagingServerPort() {
     }
   };
 
-  if ([[FIRInstanceID instanceID] tryToLoadValidCheckinInfo]) {
+  if ([[FIRMessagingTokenManager sharedInstance] hasValidCheckinInfo]) {
     [self.registrar updateSubscriptionToTopic:topic
                                     withToken:token
                                       options:options
@@ -288,7 +289,7 @@ static NSUInteger FIRMessagingServerPort() {
   }
 
   self.stayConnected = YES;
-  if (![[FIRInstanceID instanceID] tryToLoadValidCheckinInfo]) {
+  if (![[FIRMessagingTokenManager sharedInstance] hasValidCheckinInfo]) {
     // Checkin info is not available. This may be due to the checkin still being fetched.
     NSString *failureReason = @"Failed to connect to MCS. No deviceID and secret found.";
     if (self.connectHandler) {
@@ -377,8 +378,8 @@ static NSUInteger FIRMessagingServerPort() {
   self.connectRetryCount = 0;
   self.lastConnectedTimestamp = FIRMessagingCurrentTimestampInMilliseconds();
 
-  [self.dataMessageManager setDeviceAuthID:[FIRInstanceID instanceID].deviceAuthID
-                               secretToken:[FIRInstanceID instanceID].secretToken];
+  [self.dataMessageManager setDeviceAuthID:[FIRMessagingTokenManager sharedInstance].deviceAuthID
+                               secretToken:[FIRMessagingTokenManager sharedInstance].secretToken];
   if (self.connectHandler) {
     self.connectHandler(nil);
     // notified the third party app with the registrationId.
@@ -429,8 +430,8 @@ static NSUInteger FIRMessagingServerPort() {
     self.connection.delegate = nil;
   }
   self.connection =
-      [[FIRMessagingConnection alloc] initWithAuthID:[FIRInstanceID instanceID].deviceAuthID
-                                               token:[FIRInstanceID instanceID].secretToken
+      [[FIRMessagingConnection alloc] initWithAuthID:[FIRMessagingTokenManager sharedInstance].deviceAuthID
+                                               token:[FIRMessagingTokenManager sharedInstance].secretToken
                                                 host:host
                                                 port:port
                                              runLoop:[NSRunLoop mainRunLoop]
@@ -448,8 +449,8 @@ static NSUInteger FIRMessagingServerPort() {
   [NSObject cancelPreviousPerformRequestsWithTarget:self
                                            selector:@selector(tryToConnect)
                                              object:nil];
-  NSString *deviceAuthID = [FIRInstanceID instanceID].deviceAuthID;
-  NSString *secretToken = [FIRInstanceID instanceID].secretToken;
+  NSString *deviceAuthID = [FIRMessagingTokenManager sharedInstance].deviceAuthID;
+  NSString *secretToken = [FIRMessagingTokenManager sharedInstance].secretToken;
   if (deviceAuthID.length == 0 || secretToken.length == 0 || !self.connection) {
     FIRMessagingLoggerWarn(
         kFIRMessagingMessageCodeClientInvalidState,
@@ -506,7 +507,7 @@ static NSUInteger FIRMessagingServerPort() {
 
   FIRMessagingLoggerDebug(kFIRMessagingMessageCodeClient011,
                           @"Failed to sign in to MCS, retry in %lu seconds",
-                          (_FIRMessaging_UL)(retryInterval));
+                          _FIRMessaging_UL(retryInterval));
   [self performSelector:@selector(tryToConnect) withObject:nil afterDelay:retryInterval];
 }
 

@@ -166,4 +166,6 @@ options:(NSDictionary *)options
  */
 - (void)setAPNSToken:(NSData *)APNSToken withUserInfo:(NSDictionary *)userInfo;
 
+-(BOOL)hasValidCheckinInfo;
+
 @end
