@@ -56,7 +56,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.test_spec 'integration' do |int_tests|
     int_tests.source_files = 'FirebaseDatabase/Tests/Integration/*.[mh]',
                              'FirebaseDatabase/Tests/Helpers/*.[mh]',
-                             'FirebaseDatabase/FIRAuthInteropFake.[mh]'
+                             'Example/Shared//FIRAuthInteropFake.[mh]'
     int_tests.resources = 'FirebaseDatabase/Tests/Resources/GoogleService-Info.plist'
   end
 end
