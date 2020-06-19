@@ -229,7 +229,6 @@ let package = Package(
       cSettings: [
         .headerSearchPath("../../"),
         .define("FIRFunctions_VERSION", to: "0.0.1"), // TODO: Fix version
-        .define("SWIFT_PACKAGE", to: "1"), // SPM loses defaults if other cSettings
       ]
     ),
     // .target(
