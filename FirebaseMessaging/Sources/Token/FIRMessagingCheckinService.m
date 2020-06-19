@@ -16,6 +16,9 @@
 
 #import "FIRMessagingCheckinService.h"
 
+#import "GoogleUtilities/Environment/Private/GULAppEnvironmentUtil.h"
+
+#import "FIRMessagingAuthService.h"
 #import "FIRMessagingCheckinPreferences.h"
 #import "FIRMessagingDefines.h"
 #import "FIRMessagingLogger.h"
@@ -62,15 +65,16 @@ static NSUInteger const kFragment = 0;
 
 - (void)dealloc {
   [self.session invalidateAndCancel];
+  [super dealloc];
 }
 
 - (void)checkinWithExistingCheckin:(FIRMessagingCheckinPreferences *)existingCheckin
                         completion:(FIRMessagingDeviceCheckinCompletion)completion {
   if (self.session == nil) {
+    NSString *failureReason =@"Inconsistent state: NSURLSession has been invalidated";
     FIRMessagingLoggerError(kFIRMessagingInvalidNetworkSession,
-                             @"Inconsistent state: NSURLSession has been invalidated");
-    NSError *error =
-        [NSError errorWithFIRMessagingErrorCode:kFIRMessagingErrorCodeRegistrarFailedToCheckIn];
+                            @"%@", failureReason);
+    NSError *error = [NSError messagingErrorWithCode:kFIRMessagingErrorCodeRegistrarFailedToCheckIn failureReason:failureReason];
     if (completion) {
       completion(nil, error);
     }
@@ -106,7 +110,7 @@ static NSUInteger const kFragment = 0;
         if (serializationError) {
           FIRMessagingLoggerDebug(kFIRMessagingMessageCodeService001,
                                    @"Error serializing json object. Error Code: %ld",
-                                   _FIRMessaging_L(serializationError.code));
+                                   (long)serializationError.code);
           if (completion) {
             completion(nil, serializationError);
           }
@@ -174,13 +178,7 @@ static NSUInteger const kFragment = 0;
           completion(checkinPreferences, nil);
         }
       };
-  // Test block
-  if (testBlock) {
-    FIRMessagingLoggerDebug(kFIRMessagingMessageCodeService005,
-                             @"Test block set, will not hit the server");
-    testBlock(request, handler);
-    return;
-  }
+
 
   NSURLSessionDataTask *task = [self.session dataTaskWithRequest:request completionHandler:handler];
   [task resume];
@@ -196,8 +194,8 @@ static NSUInteger const kFragment = 0;
 
 - (NSDictionary *)checkinParametersWithExistingCheckin:
     (nullable FIRMessagingCheckinPreferences *)checkinPreferences {
-  NSString *deviceModel = FIRMessagingDeviceModel();
-  NSString *systemVersion = FIRMessagingOperatingSystemVersion();
+  NSString *deviceModel = [GULAppEnvironmentUtil deviceModel];
+  NSString *systemVersion = [GULAppEnvironmentUtil systemVersion];
   NSString *osVersion = [NSString stringWithFormat:@"IOS_%@", systemVersion];
 
   // Get locale from GCM if GCM exists else use system API.
@@ -231,8 +229,5 @@ static NSUInteger const kFragment = 0;
   return checkinParameters;
 }
 
-+ (void)setCheckinTestBlock:(FIRMessagingURLRequestTestBlock)block {
-  testBlock = [block copy];
-}
 
 @end

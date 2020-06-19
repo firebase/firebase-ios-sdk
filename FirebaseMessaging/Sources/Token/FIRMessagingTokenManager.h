@@ -37,6 +37,9 @@ typedef NS_OPTIONS(NSUInteger, FIRMessagingInvalidTokenReason) {
 @property(nonatomic, readonly, strong) NSString *deviceAuthID;
 @property(nonatomic, readonly, strong) NSString *secretToken;
 @property(nonatomic, readonly, strong) NSString *versionInfo;
+@property(nonatomic, readonly, strong) NSString *token;
+@property(nonatomic, readwrite, strong) NSString *fcmSenderID;
+@property(nonatomic, readwrite, strong) NSString *firebaseAppID;
 
 
 + (instancetype)sharedInstance;
@@ -64,6 +67,11 @@ typedef NS_OPTIONS(NSUInteger, FIRMessagingInvalidTokenReason) {
                                instanceID:(NSString *)instanceID
                                   options:(NSDictionary *)options
                                   handler:(FIRMessagingFCMTokenFetchCompletion)handler;
+
+- (void)tokenWithAuthorizedEntity:(NSString *)authorizedEntity
+  scope:(NSString *)scope
+options:(NSDictionary *)options
+                          handler:(FIRMessagingFCMTokenFetchCompletion)handler;
 
 /**
  *  Return the cached token info, if one exists, for the given authorizedEntity and scope.
@@ -152,5 +160,10 @@ typedef NS_OPTIONS(NSUInteger, FIRMessagingInvalidTokenReason) {
  */
 - (NSArray<FIRMessagingTokenInfo *> *)updateTokensToAPNSDeviceToken:(NSData *)deviceToken
                                                            isSandbox:(BOOL)isSandbox;
+
+/*
+ * Set APNS token
+ */
+- (void)setAPNSToken:(NSData *)APNSToken withUserInfo:(NSDictionary *)userInfo;
 
 @end
