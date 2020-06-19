@@ -59,11 +59,11 @@ using util::Status;
 constexpr int kMaxPendingWrites = 10;
 
 RemoteStore::RemoteStore(
-    LocalStore* local_store,
+    local::LocalStore* local_store,
     std::shared_ptr<Datastore> datastore,
-    const std::shared_ptr<AsyncQueue>& worker_queue,
-    std::function<void(model::OnlineState)> online_state_handler,
-    ConnectivityMonitor* connectivity_monitor)
+    const std::shared_ptr<util::AsyncQueue>& worker_queue,
+    ConnectivityMonitor* connectivity_monitor,
+    std::function<void(model::OnlineState)> online_state_handler)
     : local_store_{local_store},
       datastore_{std::move(datastore)},
       online_state_tracker_{worker_queue, std::move(online_state_handler)},

@@ -224,7 +224,7 @@ class RemoteStoreEventCapture : public RemoteStoreCallback {
   DatabaseInfo _databaseInfo;
   SimpleQueryEngine _queryEngine;
 
-  std::shared_ptr<ConnectivityMonitor> _connectivityMonitor;
+  std::unique_ptr<ConnectivityMonitor> _connectivityMonitor;
   std::shared_ptr<Datastore> _datastore;
   std::unique_ptr<RemoteStore> _remoteStore;
 }
@@ -253,9 +253,8 @@ class RemoteStoreEventCapture : public RemoteStoreCallback {
   _localStore =
       absl::make_unique<LocalStore>(_persistence.get(), &_queryEngine, User::Unauthenticated());
 
-  _remoteStore = absl::make_unique<RemoteStore>(
-      _localStore.get(), _datastore, _testWorkerQueue, [](OnlineState) {},
-      _connectivityMonitor.get());
+  _remoteStore = absl::make_unique<RemoteStore>(_localStore.get(), _datastore, _testWorkerQueue,
+                                                _connectivityMonitor.get(), [](OnlineState) {});
 
   _testWorkerQueue->Enqueue([=] { _remoteStore->Start(); });
 }

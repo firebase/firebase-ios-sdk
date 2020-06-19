@@ -111,8 +111,8 @@ class RemoteStore : public TargetMetadataProvider,
   RemoteStore(local::LocalStore* local_store,
               std::shared_ptr<Datastore> datastore,
               const std::shared_ptr<util::AsyncQueue>& worker_queue,
-              std::function<void(model::OnlineState)> online_state_handler,
-              ConnectivityMonitor* connectivity_monitor);
+              ConnectivityMonitor* connectivity_monitor,
+              std::function<void(model::OnlineState)> online_state_handler);
 
   void set_sync_engine(RemoteStoreCallback* sync_engine) {
     sync_engine_ = sync_engine;

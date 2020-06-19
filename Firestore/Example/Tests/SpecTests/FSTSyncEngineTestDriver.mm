@@ -223,9 +223,8 @@ NS_ASSUME_NONNULL_BEGIN
                                                  std::make_shared<EmptyCredentialsProvider>(),
                                                  _connectivityMonitor.get());
     _remoteStore = absl::make_unique<RemoteStore>(
-        _localStore.get(), _datastore, _workerQueue,
-        [self](OnlineState onlineState) { _syncEngine->HandleOnlineStateChange(onlineState); },
-        _connectivityMonitor.get());
+        _localStore.get(), _datastore, _workerQueue, _connectivityMonitor.get(),
+        [self](OnlineState onlineState) { _syncEngine->HandleOnlineStateChange(onlineState); });
     ;
 
     _syncEngine = absl::make_unique<SyncEngine>(_localStore.get(), _remoteStore.get(), initialUser,

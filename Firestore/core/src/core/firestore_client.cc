@@ -202,10 +202,9 @@ void FirestoreClient::Initialize(const User& user, const Settings& settings) {
 
   remote_store_ = absl::make_unique<RemoteStore>(
       local_store_.get(), std::move(datastore), worker_queue_,
-      [this](OnlineState online_state) {
+      connectivity_monitor_.get(), [this](OnlineState online_state) {
         sync_engine_->HandleOnlineStateChange(online_state);
-      },
-      connectivity_monitor_.get());
+      });
 
   sync_engine_ =
       absl::make_unique<SyncEngine>(local_store_.get(), remote_store_.get(),
