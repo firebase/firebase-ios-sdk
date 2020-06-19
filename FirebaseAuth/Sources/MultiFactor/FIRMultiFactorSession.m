@@ -16,8 +16,8 @@
 #include <TargetConditionals.h>
 #if TARGET_OS_IOS
 
-#import <FirebaseAuth/FIRAuth.h>
-#import <FirebaseAuth/FIRMultiFactorSession.h>
+#import "FirebaseAuth/Sources/Public/FIRAuth.h"
+#import "FirebaseAuth/Sources/Public/FIRMultiFactorSession.h"
 
 #import "FirebaseAuth/Sources/MultiFactor/FIRMultiFactorSession+Internal.h"
 #import "FirebaseAuth/Sources/User/FIRUser_Internal.h"

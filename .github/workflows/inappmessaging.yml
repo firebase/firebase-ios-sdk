@@ -1,9 +1,6 @@
 name: inappmessaging
 
 on:
-  push:
-    branches:
-      - master
   pull_request:
     paths:
     - 'FirebaseInAppMessaging**'
@@ -18,14 +15,15 @@ on:
 jobs:
 
   quickstart_framework:
+    # Don't run on private repo.
+    if: github.event_name == 'schedule' && github.repository != 'FirebasePrivate/firebase-ios-sdk'
+
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       FRAMEWORK_ZIP: "Firebase-actions-dir.zip"
       SDK: "InAppMessaging"
     runs-on: macOS-latest
-    # Make sure tests run after the zip workflow finishes.
-    if: github.event_name == 'schedule'
     steps:
     - uses: actions/checkout@v2
     - name: Pull zip from GCS
@@ -53,6 +51,9 @@ jobs:
         path: quickstart-ios/
 
   quickstart:
+    # Don't run on private repo unless it is a PR.
+    if: github.repository != 'FirebasePrivate/firebase-ios-sdk' || github.event_name == 'pull_request'
+
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}

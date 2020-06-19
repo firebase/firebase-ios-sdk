@@ -39,10 +39,10 @@ let package = Package(
       name: "FirebaseCore",
       targets: ["FirebaseCore"]
     ),
-    // .library(
-    //   name: "FirebaseAuth",
-    //   targets: ["FirebaseAuth"]
-    // ),
+    .library(
+      name: "FirebaseAuth",
+      targets: ["FirebaseAuth"]
+    ),
     // .library(
     //   name: "FirebaseCrashlytics",
     //   targets: ["FirebaseCrashlytics"]
@@ -50,22 +50,22 @@ let package = Package(
     // .library(
     //   name: "FirebaseFunctions",
     //   targets: ["FirebaseFunctions"]),
-    // .library(
-    //   name: "FirebaseInstallations",
-    //   targets: ["FirebaseInstallations"]
-    // ),
+    .library(
+      name: "FirebaseInstallations",
+      targets: ["FirebaseInstallations"]
+    ),
     // .library(
     //   name: "FirebaseInstanceID",
     //   targets: ["FirebaseInstanceID"]
     // ),
-    // .library(
-    //   name: "FirebaseStorage",
-    //   targets: ["FirebaseStorage"]
-    // ),
-    // .library(
-    //   name: "FirebaseStorageSwift",
-    //   targets: ["FirebaseStorageSwift"]
-    // ),
+    .library(
+      name: "FirebaseStorage",
+      targets: ["FirebaseStorage"]
+    ),
+    .library(
+      name: "FirebaseStorageSwift",
+      targets: ["FirebaseStorageSwift"]
+    ),
   ],
   dependencies: [
     .package(url: "https://github.com/google/promises.git", "1.2.8" ..< "1.3.0"),
@@ -80,12 +80,14 @@ let package = Package(
     .target(
       name: "firebase-test",
       dependencies: [
-        // "FirebaseAuth", "FirebaseFunctions",
+        "FirebaseAuth",
+        // "FirebaseFunctions",
         //  "Firebase",
         "FirebaseCore",
-        //  "FirebaseInstallations", "FirebaseInstanceID",
-        // "FirebaseStorage",
-        // "FirebaseStorageSwift",
+        "FirebaseInstallations",
+        // "FirebaseInstanceID",
+        "FirebaseStorage",
+        "FirebaseStorageSwift",
         "GoogleUtilities_AppDelegateSwizzler",
         "GoogleUtilities_Environment",
         // "GoogleUtilities_ISASwizzler", // Build needs to disable ARC.
@@ -204,23 +206,20 @@ let package = Package(
         // TODO: - Add support for cflags cSetting so that we can set the -fno-autolink option
       ]
     ),
-//     .target(
-//       name: "FirebaseAuth",
-//       dependencies: ["FirebaseCore", "GoogleUtilities_Environment",
-//                      "GoogleUtilities_AppDelegateSwizzler",
-//                      "GTMSessionFetcherCore"],
-//       path: "FirebaseAuth/Sources",
-//       publicHeadersPath: "Public",
-//       cSettings: [
-//         .headerSearchPath("../../"),
-//         .define("FIRAuth_VERSION", to: "0.0.1"), // TODO: Fix version
-//         .define("FIRAuth_MINOR_VERSION", to: "1.1"), // TODO: Fix version
-    // //        .define("DEBUG", .when(configuration: .debug)), // TODO - destroys other settings in DEBUG config
-//         // linkerSettings: [
-//         //   .linkedFramework("Security"),
-//         //  .linkedFramework("SafariServices", .when(platforms: [.iOS])),
-//       ]
-//    ),
+    .target(
+      name: "FirebaseAuth",
+      dependencies: ["FirebaseCore",
+                     "GoogleUtilities_Environment",
+                     "GoogleUtilities_AppDelegateSwizzler",
+                     "GTMSessionFetcherCore"],
+      path: "FirebaseAuth/Sources",
+      publicHeadersPath: "Public",
+      cSettings: [
+        .headerSearchPath("../../"),
+        .define("FIRAuth_VERSION", to: "0.0.1"), // TODO: Fix version
+        .define("FIRAuth_MINOR_VERSION", to: "1.1"), // TODO: Fix version
+      ]
+    ),
 //     .target(
 //       name: "FirebaseFunctions",
 //       dependencies: ["FirebaseCore", "GTMSessionFetcher_Core"],
@@ -243,31 +242,31 @@ let package = Package(
     //     .define("FIRInstanceID_LIB_VERSION", to: "0.0.1"), // TODO: Fix version
     //   ]
     // ),
-    // .target(
-    //   name: "FirebaseInstallations",
-    //   dependencies: ["FirebaseCore", "FBLPromises",
-    //                  "GoogleUtilities_Environment", "GoogleUtilities_UserDefaults"],
-    //   path: "FirebaseInstallations/Source/Library",
-    //   publicHeadersPath: "Public",
-    //   cSettings: [
-    //     .headerSearchPath("../../../"),
-    //   ]
-    // ),
-    // .target(
-    //   name: "FirebaseStorage",
-    //   dependencies: ["FirebaseCore", "GTMSessionFetcherCore"],
-    //   path: "FirebaseStorage/Sources",
-    //   publicHeadersPath: "Public",
-    //   cSettings: [
-    //     .headerSearchPath("../../"),
-    //     .define("FIRStorage_VERSION", to: "0.0.1"), // TODO: Fix version
-    //   ]
-    // ),
-    // .target(
-    //   name: "FirebaseStorageSwift",
-    //   dependencies: ["FirebaseStorage"],
-    //   path: "FirebaseStorageSwift/Sources"
-    // ),
+    .target(
+      name: "FirebaseInstallations",
+      dependencies: ["FirebaseCore", "FBLPromises",
+                     "GoogleUtilities_Environment", "GoogleUtilities_UserDefaults"],
+      path: "FirebaseInstallations/Source/Library",
+      publicHeadersPath: "Public",
+      cSettings: [
+        .headerSearchPath("../../../"),
+      ]
+    ),
+    .target(
+      name: "FirebaseStorage",
+      dependencies: ["FirebaseCore", "GTMSessionFetcherCore"],
+      path: "FirebaseStorage/Sources",
+      publicHeadersPath: "Public",
+      cSettings: [
+        .headerSearchPath("../../"),
+        .define("FIRStorage_VERSION", to: "0.0.1"), // TODO: Fix version
+      ]
+    ),
+    .target(
+      name: "FirebaseStorageSwift",
+      dependencies: ["FirebaseStorage"],
+      path: "FirebaseStorageSwift/Sources"
+    ),
     // .target(
     //   name: "GoogleDataTransport",
     //   path: "GoogleDataTransport/GDTCORLibrary",

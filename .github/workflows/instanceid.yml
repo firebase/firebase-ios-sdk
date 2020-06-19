@@ -1,9 +1,6 @@
 name: instanceid
 
 on:
-  push:
-    branches:
-      - master
   pull_request:
     paths:
     - 'FirebaseInstanceID**'
@@ -17,6 +14,8 @@ on:
 
 jobs:
   pod-lib-lint:
+    # Don't run on private repo unless it is a PR.
+    if: github.repository != 'FirebasePrivate/firebase-ios-sdk' || github.event_name == 'pull_request'
     runs-on: macOS-latest
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -41,6 +40,8 @@ jobs:
        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --platforms=${{ matrix.target }}
 
   catalyst:
+    # Don't run on private repo unless it is a PR.
+    if: github.repository != 'FirebasePrivate/firebase-ios-sdk' || github.event_name == 'pull_request'
     runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v2
@@ -51,8 +52,9 @@ jobs:
       run: scripts/test_catalyst.sh FirebaseInstanceID build FirebaseInstanceID-Unit-unit
 
   instanceid-cron-only:
+    # Don't run on private repo.
+    if: github.event_name == 'schedule' && github.repository != 'FirebasePrivate/firebase-ios-sdk'
     runs-on: macos-latest
-    if: github.event_name == 'schedule'
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       FIR_IID_INTEGRATION_TESTS_REQUIRED: ${{ secrets.GHASecretsGPGPassphrase1 }}

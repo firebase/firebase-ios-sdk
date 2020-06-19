@@ -17,10 +17,10 @@
 #include <TargetConditionals.h>
 #if TARGET_OS_IOS
 
-#import <FirebaseAuth/FIRAuthSettings.h>
-#import <FirebaseAuth/FIRMultiFactorResolver.h>
-#import <FirebaseAuth/FIRPhoneAuthProvider.h>
-#import <FirebaseAuth/FirebaseAuthVersion.h>
+#import "FirebaseAuth/Sources/Public/FIRAuthSettings.h"
+#import "FirebaseAuth/Sources/Public/FIRMultiFactorResolver.h"
+#import "FirebaseAuth/Sources/Public/FIRPhoneAuthProvider.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuthVersion.h"
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"

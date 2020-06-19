@@ -12,9 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRStorageTestHelpers.h"
+#import "FirebaseStorage/Tests/Unit/FIRStorageTestHelpers.h"
 
-#import <FirebaseStorage/FIRStorageReference.h>
+#import "FirebaseStorage/Sources/Public/FIRStorageReference.h"
+
 #import "Example/Shared/FIRComponentTestUtilities.h"
 #import "FirebaseStorage/Sources/FIRStorageComponent.h"
 #import "FirebaseStorage/Sources/FIRStorageReference_Private.h"
