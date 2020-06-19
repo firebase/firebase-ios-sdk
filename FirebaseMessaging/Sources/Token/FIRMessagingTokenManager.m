@@ -66,6 +66,39 @@
   [super dealloc];
 }
 
+- (NSString *)token {
+  if (!self.fcmSenderID.length) {
+    return nil;
+  }
+
+  FIRMessagingTokenInfo *cachedTokenInfo =
+  [self cachedTokenInfoWithAuthorizedEntity:self.fcmSenderID
+                                                   scope:kFIRMessagingDefaultTokenScope];
+  NSString cachedToken = cachedTokenInfo.token;
+
+  if (cachedToken) {
+    return cachedToken;
+  } else {
+    [self tokenWithAuthorizedEntity:self.fcmSenderID scope:kFIRMessagingDefaultTokenScope options:[self tokenOptions] handler:nil];
+    return nil;
+  }
+}
+
+-(NSDictionary *)tokenOptions {
+  NSDictionary *instanceIDOptions = @{};
+  if (self.apnsTokenData) {
+    BOOL isSandboxApp = (self.apnsTokenType == FIRMessagingAPNSTokenTypeSandbox);
+    if (self.apnsTokenType == FIRMessagingAPNSTokenTypeUnknown) {
+      isSandboxApp = [self isSandboxApp];
+    }
+    instanceIDOptions = @{
+      kFIRMessagingTokenOptionsAPNSKey : self.apnsTokenData,
+      kFIRMessagingTokenOptionsAPNSIsSandboxKey : @(isSandboxApp),
+    };
+  }
+
+  return instanceIDOptions;
+}
 
 - (NSString *)deviceAuthID {
   return [_authService checkinPreferences].deviceID;
@@ -91,6 +124,108 @@
   if ([_tokenOperations respondsToSelector:@selector(qualityOfService)]) {
     _tokenOperations.qualityOfService = NSOperationQualityOfServiceUtility;
   }
+}
+
+
+- (void)tokenWithAuthorizedEntity:(NSString *)authorizedEntity
+                            scope:(NSString *)scope
+                          options:(NSDictionary *)options
+                          handler:(FIRMessagingFCMTokenFetchCompletion)handler {
+  if (!handler) {
+    FIRMessagingLoggerError(kFIRMessagingMessageCodeInstanceID000,
+                             @"Invalid nil handler");
+    return;
+  }
+
+  // Add internal options
+  NSMutableDictionary *tokenOptions = [NSMutableDictionary dictionary];
+  if (options.count) {
+    [tokenOptions addEntriesFromDictionary:options];
+  }
+
+  NSString *APNSKey = kFIRMessagingTokenOptionsAPNSKey;
+  NSString *serverTypeKey = kFIRMessagingTokenOptionsAPNSIsSandboxKey;
+  if (tokenOptions[APNSKey] != nil && tokenOptions[serverTypeKey] == nil) {
+    // APNS key was given, but server type is missing. Supply the server type with automatic
+    // checking. This can happen when the token is requested from FCM, which does not include a
+    // server type during its request.
+    tokenOptions[serverTypeKey] = @([self isSandboxApp]);
+  }
+  if (self.firebaseAppID) {
+    tokenOptions[kFIRInstanceIDTokenOptionsFirebaseAppIDKey] = self.firebaseAppID;
+  }
+
+  // comparing enums to ints directly throws a warning
+  FIRInstanceIDErrorCode noError = INT_MAX;
+  FIRInstanceIDErrorCode errorCode = noError;
+  if (FIRInstanceIDIsValidGCMScope(scope) && !tokenOptions[APNSKey]) {
+    errorCode = kFIRInstanceIDErrorCodeMissingAPNSToken;
+  } else if (FIRInstanceIDIsValidGCMScope(scope) &&
+             ![tokenOptions[APNSKey] isKindOfClass:[NSData class]]) {
+    errorCode = kFIRInstanceIDErrorCodeInvalidRequest;
+  } else if (![authorizedEntity length]) {
+    errorCode = kFIRInstanceIDErrorCodeInvalidAuthorizedEntity;
+  } else if (![scope length]) {
+    errorCode = kFIRInstanceIDErrorCodeInvalidScope;
+  } else if (!self.installations) {
+    errorCode = kFIRInstanceIDErrorCodeInvalidStart;
+  }
+
+  FIRInstanceIDTokenHandler newHandler = ^(NSString *token, NSError *error) {
+    dispatch_async(dispatch_get_main_queue(), ^{
+      handler(token, error);
+    });
+  };
+
+  if (errorCode != noError) {
+    newHandler(nil, [NSError errorWithFIRInstanceIDErrorCode:errorCode]);
+    return;
+  }
+
+  FIRInstanceID_WEAKIFY(self);
+  FIRInstanceIDAuthService *authService = self.tokenManager.authService;
+  [authService fetchCheckinInfoWithHandler:^(FIRInstanceIDCheckinPreferences *preferences,
+                                             NSError *error) {
+    FIRInstanceID_STRONGIFY(self);
+    if (error) {
+      newHandler(nil, error);
+      return;
+    }
+
+    FIRInstanceID_WEAKIFY(self);
+    [self.installations installationIDWithCompletion:^(NSString *_Nullable identifier,
+                                                       NSError *_Nullable error) {
+      FIRInstanceID_STRONGIFY(self);
+
+      if (error) {
+        NSError *newError =
+            [NSError errorWithFIRInstanceIDErrorCode:kFIRInstanceIDErrorCodeInvalidKeyPair];
+        newHandler(nil, newError);
+
+      } else {
+        FIRInstanceIDTokenInfo *cachedTokenInfo =
+            [self.tokenManager cachedTokenInfoWithAuthorizedEntity:authorizedEntity scope:scope];
+        if (cachedTokenInfo) {
+          FIRInstanceIDAPNSInfo *optionsAPNSInfo =
+              [[FIRInstanceIDAPNSInfo alloc] initWithTokenOptionsDictionary:tokenOptions];
+          // Check if APNS Info is changed
+          if ((!cachedTokenInfo.APNSInfo && !optionsAPNSInfo) ||
+              [cachedTokenInfo.APNSInfo isEqualToAPNSInfo:optionsAPNSInfo]) {
+            // check if token is fresh
+            if ([cachedTokenInfo isFreshWithIID:identifier]) {
+              newHandler(cachedTokenInfo.token, nil);
+              return;
+            }
+          }
+        }
+        [self.tokenManager fetchNewTokenWithAuthorizedEntity:[authorizedEntity copy]
+                                                       scope:[scope copy]
+                                                  instanceID:identifier
+                                                     options:tokenOptions
+                                                     handler:newHandler];
+      }
+    }];
+  }];
 }
 
 - (void)fetchNewTokenWithAuthorizedEntity:(NSString *)authorizedEntity
@@ -169,6 +304,7 @@
                                   scope:(NSString *)scope
                              instanceID:(NSString *)instanceID
                                 handler:(FIRMessagingDeleteFCMTokenCompletion)handler {
+  
   if ([self.instanceIDStore tokenInfoWithAuthorizedEntity:authorizedEntity scope:scope]) {
     [self.instanceIDStore removeCachedTokenWithAuthorizedEntity:authorizedEntity scope:scope];
   }
@@ -359,6 +495,83 @@
                                                           scope:tokenInfoToDelete.scope];
   }
   return tokenInfosToDelete;
+}
+
+#pragma mark - APNS Token
+- (void)setAPNSToken:(NSData *)APNSToken withUserInfo:(NSDictionary *)userInfo {
+  NSData *APNSToken = notification.object;
+  if (!APNSToken || ![APNSToken isKindOfClass:[NSData class]]) {
+    FIRInstanceIDLoggerDebug(kFIRInstanceIDMessageCodeInternal002, @"Invalid APNS token type %@",
+                             NSStringFromClass([notification.object class]));
+    return;
+  }
+  NSInteger type = [userInfo[kFIRInstanceIDAPNSTokenType] integerValue];
+
+  // The APNS token is being added, or has changed (rare)
+  if ([self.apnsTokenData isEqualToData:APNSToken]) {
+    FIRInstanceIDLoggerDebug(kFIRInstanceIDMessageCodeInstanceID011,
+                             @"Trying to reset APNS token to the same value. Will return");
+    return;
+  }
+  // Use this token type for when we have to automatically fetch tokens in the future
+  self.apnsTokenType = type;
+  BOOL isSandboxApp = (type == FIRInstanceIDAPNSTokenTypeSandbox);
+  if (self.apnsTokenType == FIRInstanceIDAPNSTokenTypeUnknown) {
+    isSandboxApp = [self isSandboxApp];
+  }
+  self.apnsTokenData = [token copy];
+  self.APNSTupleString = FIRInstanceIDAPNSTupleStringForTokenAndServerType(token, isSandboxApp);
+
+  // Pro-actively invalidate the default token, if the APNs change makes it
+  // invalid. Previously, we invalidated just before fetching the token.
+  NSArray<FIRInstanceIDTokenInfo *> *invalidatedTokens =
+      [self.tokenManager updateTokensToAPNSDeviceToken:self.apnsTokenData isSandbox:isSandboxApp];
+
+  // Re-fetch any invalidated tokens automatically, this time with the current APNs token, so that
+  // they are up-to-date.
+  if (invalidatedTokens.count > 0) {
+    FIRInstanceID_WEAKIFY(self);
+
+    [self.installations
+        installationIDWithCompletion:^(NSString *_Nullable identifier, NSError *_Nullable error) {
+          FIRInstanceID_STRONGIFY(self);
+          if (self == nil) {
+            FIRInstanceIDLoggerError(kFIRInstanceIDMessageCodeInstanceID017,
+                                     @"Instance ID shut down during token reset. Aborting");
+            return;
+          }
+          if (self.apnsTokenData == nil) {
+            FIRInstanceIDLoggerError(kFIRInstanceIDMessageCodeInstanceID018,
+                                     @"apnsTokenData was set to nil during token reset. Aborting");
+            return;
+          }
+
+          NSMutableDictionary *tokenOptions = [@{
+            kFIRInstanceIDTokenOptionsAPNSKey : self.apnsTokenData,
+            kFIRInstanceIDTokenOptionsAPNSIsSandboxKey : @(isSandboxApp)
+          } mutableCopy];
+          if (self.firebaseAppID) {
+            tokenOptions[kFIRInstanceIDTokenOptionsFirebaseAppIDKey] = self.firebaseAppID;
+          }
+
+          for (FIRInstanceIDTokenInfo *tokenInfo in invalidatedTokens) {
+            if ([tokenInfo.token isEqualToString:self.defaultFCMToken]) {
+              // We will perform a special fetch for the default FCM token, so that the delegate
+              // methods are called. For all others, we will do an internal re-fetch.
+              [self defaultTokenWithHandler:nil];
+            } else {
+              [self.tokenManager fetchNewTokenWithAuthorizedEntity:tokenInfo.authorizedEntity
+                                                             scope:tokenInfo.scope
+                                                        instanceID:identifier
+                                                           options:tokenOptions
+                                                           handler:^(NSString *_Nullable token,
+                                                                     NSError *_Nullable error){
+
+                                                           }];
+            }
+          }
+        }];
+  }
 }
 
 @end

@@ -18,15 +18,16 @@
 #error FIRMessagingLib should be compiled with ARC.
 #endif
 
-#import <FirebaseInstanceID/FIRInstanceID_Private.h>
-#import <FirebaseInstanceID/FirebaseInstanceID.h>
 #import <FirebaseMessaging/FIRMessaging.h>
 #import <FirebaseMessaging/FIRMessagingExtensionHelper.h>
+#import <FirebaseInstallations/FIRInstallations.h>
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "GoogleUtilities/AppDelegateSwizzler/Private/GULAppDelegateSwizzler.h"
 #import "GoogleUtilities/Reachability/Private/GULReachabilityChecker.h"
 #import "GoogleUtilities/UserDefaults/Private/GULUserDefaults.h"
 #import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
+#import "GoogleUtilities/Environment/Private/GULAppEnvironmentUtil.h"
+
 
 #import "FirebaseMessaging/Sources/FIRMessagingAnalytics.h"
 #import "FirebaseMessaging/Sources/FIRMessagingClient.h"
@@ -44,10 +45,10 @@
 #import "FirebaseMessaging/Sources/FIRMessagingVersionUtilities.h"
 #import "FirebaseMessaging/Sources/FIRMessaging_Private.h"
 #import "FirebaseMessaging/Sources/NSError+FIRMessaging.h"
+#import "FirebaseMessaging/Sources/Token/FIRMessagingTokenManager.h"
 
 static NSString *const kFIRMessagingMessageViaAPNSRootKey = @"aps";
 static NSString *const kFIRMessagingReachabilityHostname = @"www.google.com";
-static NSString *const kFIRMessagingDefaultTokenScope = @"*";
 static NSString *const kFIRMessagingFCMTokenFetchAPNSOption = @"apns_token";
 
 #if defined(__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
@@ -142,8 +143,6 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 @property(nonatomic, readwrite, strong) NSData *apnsTokenData;
 @property(nonatomic, readwrite, strong) NSString *defaultFcmToken;
 
-@property(nonatomic, readwrite, strong) FIRInstanceID *instanceID;
-
 @property(nonatomic, readwrite, strong) FIRMessagingClient *client;
 @property(nonatomic, readwrite, strong) GULReachabilityChecker *reachability;
 @property(nonatomic, readwrite, strong) FIRMessagingDataMessageManager *dataMessageManager;
@@ -152,6 +151,9 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 @property(nonatomic, readwrite, strong) FIRMessagingReceiver *receiver;
 @property(nonatomic, readwrite, strong) FIRMessagingSyncMessageManager *syncMessageManager;
 @property(nonatomic, readwrite, strong) GULUserDefaults *messagingUserDefaults;
+@property(nonatomic, readwrite, strong) FIRInstallations *installations;
+@property(nonatomic, readwrite, strong) FIRMessagingTokenManager *tokenManager;
+
 
 /// Message ID's logged for analytics. This prevents us from logging the same message twice
 /// which can happen if the user inadvertently calls `appDidReceiveMessage` along with us
@@ -191,12 +193,10 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 }
 
 - (instancetype)initWithAnalytics:(nullable id<FIRAnalyticsInterop>)analytics
-                   withInstanceID:(FIRInstanceID *)instanceID
                  withUserDefaults:(GULUserDefaults *)defaults {
   self = [super init];
   if (self != nil) {
     _loggedMessageIDs = [NSMutableSet set];
-    _instanceID = instanceID;
     _messagingUserDefaults = defaults;
     _analytics = analytics;
   }
@@ -234,9 +234,10 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
     id<FIRAnalyticsInterop> analytics = FIR_COMPONENT(FIRAnalyticsInterop, container);
     FIRMessaging *messaging =
         [[FIRMessaging alloc] initWithAnalytics:analytics
-                                 withInstanceID:[FIRInstanceID instanceID]
                                withUserDefaults:[GULUserDefaults standardUserDefaults]];
     [messaging start];
+    [messaging configureMessagingWithOptions:container.app.options];
+
     [messaging configureNotificationSwizzlingIfEnabled];
     return messaging;
   };
@@ -249,6 +250,34 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   return @[ messagingProvider ];
 }
 
+
+- (void)configureMessagingWithOptions:(FIROptions *)options {
+  NSString *GCMSenderID = options.GCMSenderID;
+  if (!GCMSenderID.length) {
+    FIRMessagingLoggerError(kFIRMessagingMessageCodeFIRApp000,
+                             @"Firebase not set up correctly, nil or empty senderID.");
+    [NSException raise:kFIRMessagingDomain
+                format:@"Could not configure Firebase InstanceID. GCMSenderID must not be nil or "
+                       @"empty."];
+  }
+
+  [FIRMessagingTokenManager sharedInstance].fcmSenderID = GCMSenderID;
+  [FIRMessagingTokenManager sharedInstance].firebaseAppID = options.googleAppID;
+
+  // FCM generates a FCM token during app start for sending push notification to device.
+  // This is not needed for app extension except for watch.
+#if TARGET_OS_WATCH
+  [self didCompleteConfigure];
+#else
+  if (![GULAppEnvironmentUtil isAppExtension]) {
+    [self didCompleteConfigure];
+  }
+#endif
+}
+
+- (void)didCompleteConfigure {
+  
+}
 - (void)configureNotificationSwizzlingIfEnabled {
   // Swizzle remote-notification-related methods (app delegate and UNUserNotificationCenter)
   if ([FIRMessagingRemoteNotificationsProxy canSwizzleMethods]) {
@@ -267,6 +296,9 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 }
 
 - (void)start {
+  self.installations = [FIRInstallations installations];
+  // TODO(chliang) make this non-singleton to support multi app.
+  self.tokenManager = [FIRMessagingTokenManager sharedInstance];
   [self setupFileManagerSubDirectory];
   [self setupNotificationListeners];
 
@@ -512,11 +544,8 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 
   // Notify InstanceID that APNS Token has been set.
   NSDictionary *userInfo = @{kFIRMessagingAPNSTokenType : @(type)};
-  NSNotification *notification =
-      [NSNotification notificationWithName:kFIRMessagingAPNSTokenNotification
-                                    object:[apnsToken copy]
-                                  userInfo:userInfo];
-  [[NSNotificationQueue defaultQueue] enqueueNotification:notification postingStyle:NSPostASAP];
+  
+  [[FIRMessagingTokenManager sharedInstance] setAPNSToken:[apnsToken copy] withUserInfo:userInfo];
 }
 
 #pragma mark - FCM
@@ -558,7 +587,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
                            forKey:kFIRMessagingUserDefaultsKeyAutoInitEnabled];
   [_messagingUserDefaults synchronize];
   if (!isFCMAutoInitEnabled && autoInitEnabled) {
-    self.defaultFcmToken = self.instanceID.token;
+    self.defaultFcmToken = [FIRMessagingTokenManager sharedInstance].token;
   }
 }
 
@@ -566,7 +595,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   NSString *token = self.defaultFcmToken;
   if (!token) {
     // We may not have received it from Instance ID yet (via NSNotification), so extract it directly
-    token = self.instanceID.token;
+    token = self.tokenManager.token;
   }
   return token;
 }
@@ -596,7 +625,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
                            @"set.",
                            senderID);
   }
-  [self.instanceID tokenWithAuthorizedEntity:senderID
+  [[FIRMessagingTokenManager sharedInstance] tokenWithAuthorizedEntity:senderID
                                        scope:kFIRMessagingDefaultTokenScope
                                      options:options
                                      handler:completion];
@@ -616,9 +645,17 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
     }
     return;
   }
-  [self.instanceID deleteTokenWithAuthorizedEntity:senderID
-                                             scope:kFIRMessagingDefaultTokenScope
-                                           handler:completion];
+  FIRMessaging_WEAKIFY(self)
+  [self.installations installationIDWithCompletion:^(NSString *_Nullable identifier,
+                                                            NSError *_Nullable error) {
+    FIRMessaging_STRONGIFY(self)
+    if (error) {
+      NSError *newError = [NSError messagingErrorWithCode:kFIRMessagingErrorCodeInvalidIdentity failureReason:@"Failed to get installation ID."];
+      completion(newError);
+
+    } else {
+       [self.tokenManager deleteTokenWithAuthorizedEntity:senderID scope:kFIRMessagingDefaultTokenScope instanceID:identifier handler:completion];
+    }
 }
 
 #pragma mark - FIRMessagingDelegate helper methods

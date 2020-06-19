@@ -17,6 +17,8 @@
 #import <Foundation/Foundation.h>
 #import "FIRMessagingCheckinService.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 @class FIRMessagingCheckinPreferences;
 @class FIRMessagingStore;
 /**
@@ -101,3 +103,5 @@ typedef void (^FIRMessagingDeviceCheckinCompletion)(
 - (void)resetCheckinWithHandler:(void (^)(NSError *error))handler;
 
 @end
+
+NS_ASSUME_NONNULL_END

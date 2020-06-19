@@ -16,7 +16,6 @@ import Combine
 import SwiftUI
 import FirebaseCore
 import FirebaseMessaging
-import FirebaseInstanceID
 import FirebaseInstallations
 
 struct ContentView: View {

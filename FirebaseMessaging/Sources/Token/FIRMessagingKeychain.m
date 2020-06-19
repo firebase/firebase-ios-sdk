@@ -98,7 +98,7 @@ NSString *const kFIRMessagingKeychainErrorDomain = @"com.google.iid";
     if (handler) {
       NSError *error;
       if (status != noErr) {
-        FIRMessagingLoggerWarning(kFIRMessagingKeychainAddItemError,
+        FIRMessagingLoggerWarn(kFIRMessagingKeychainAddItemError,
                                    @"Couldn't add item to Keychain OSStatus: %d", (int)status);
         error = [NSError errorWithDomain:kFIRMessagingKeychainErrorDomain
                                     code:status
