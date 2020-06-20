@@ -44,7 +44,6 @@
 
 @implementation FIRMessagingTokenManager
 
-
 + (instancetype)sharedInstance {
   static FIRMessagingTokenManager *sharedInstance = nil;
   static dispatch_once_t onceToken;
@@ -76,21 +75,24 @@
   }
 
   FIRMessagingTokenInfo *cachedTokenInfo =
-  [self cachedTokenInfoWithAuthorizedEntity:self.fcmSenderID
-                                                   scope:kFIRMessagingDefaultTokenScope];
+      [self cachedTokenInfoWithAuthorizedEntity:self.fcmSenderID
+                                          scope:kFIRMessagingDefaultTokenScope];
   NSString *cachedToken = cachedTokenInfo.token;
 
   if (cachedToken) {
     return cachedToken;
   } else {
-    [self tokenWithAuthorizedEntity:self.fcmSenderID scope:kFIRMessagingDefaultTokenScope options:[self tokenOptions] handler:nil];
+    [self tokenWithAuthorizedEntity:self.fcmSenderID
+                              scope:kFIRMessagingDefaultTokenScope
+                            options:[self tokenOptions]
+                            handler:nil];
     return nil;
   }
 }
 
--(NSDictionary *)tokenOptions {
+- (NSDictionary *)tokenOptions {
   NSDictionary *instanceIDOptions = @{};
-  NSData * apnsTokenData =self.currentAPNSInfo.deviceToken;
+  NSData *apnsTokenData = self.currentAPNSInfo.deviceToken;
   if (apnsTokenData) {
     instanceIDOptions = @{
       kFIRMessagingTokenOptionsAPNSKey : apnsTokenData,
@@ -127,14 +129,12 @@
   }
 }
 
-
 - (void)tokenWithAuthorizedEntity:(NSString *)authorizedEntity
                             scope:(NSString *)scope
                           options:(NSDictionary *)options
                           handler:(FIRMessagingFCMTokenFetchCompletion)handler {
   if (!handler) {
-    FIRMessagingLoggerError(kFIRMessagingMessageCodeInstanceID000,
-                             @"Invalid nil handler");
+    FIRMessagingLoggerError(kFIRMessagingMessageCodeInstanceID000, @"Invalid nil handler");
     return;
   }
 
@@ -144,7 +144,8 @@
     [tokenOptions addEntriesFromDictionary:options];
   }
 
-  if (tokenOptions[kFIRMessagingTokenOptionsAPNSKey] != nil && tokenOptions[kFIRMessagingTokenOptionsAPNSIsSandboxKey] == nil) {
+  if (tokenOptions[kFIRMessagingTokenOptionsAPNSKey] != nil &&
+      tokenOptions[kFIRMessagingTokenOptionsAPNSIsSandboxKey] == nil) {
     // APNS key was given, but server type is missing. Supply the server type with automatic
     // checking. This can happen when the token is requested from FCM, which does not include a
     // server type during its request.
@@ -172,51 +173,54 @@
   };
 
   if (errorCode != noError) {
-    newHandler(nil, [NSError messagingErrorWithCode:errorCode failureReason:@"Failed to send token request, missing critical info."]);
+    newHandler(
+        nil,
+        [NSError messagingErrorWithCode:errorCode
+                          failureReason:@"Failed to send token request, missing critical info."]);
     return;
   }
 
   FIRMessaging_WEAKIFY(self);
   FIRMessagingAuthService *authService = self.authService;
-  [authService fetchCheckinInfoWithHandler:^(FIRMessagingCheckinPreferences *preferences,
-                                             NSError *error) {
-    FIRMessaging_STRONGIFY(self);
-    if (error) {
-      newHandler(nil, error);
-      return;
-    }
-
-    FIRMessaging_WEAKIFY(self);
-    [self.installations installationIDWithCompletion:^(NSString *_Nullable identifier,
-                                                       NSError *_Nullable error) {
-      FIRMessaging_STRONGIFY(self);
-
-      if (error) {
-        newHandler(nil, error);
-      } else {
-        FIRMessagingTokenInfo *cachedTokenInfo =
-            [self cachedTokenInfoWithAuthorizedEntity:authorizedEntity scope:scope];
-        if (cachedTokenInfo) {
-          FIRMessagingAPNSInfo *optionsAPNSInfo =
-              [[FIRMessagingAPNSInfo alloc] initWithTokenOptionsDictionary:tokenOptions];
-          // Check if APNS Info is changed
-          if ((!cachedTokenInfo.APNSInfo && !optionsAPNSInfo) ||
-              [cachedTokenInfo.APNSInfo isEqualToAPNSInfo:optionsAPNSInfo]) {
-            // check if token is fresh
-            if ([cachedTokenInfo isFreshWithIID:identifier]) {
-              newHandler(cachedTokenInfo.token, nil);
-              return;
-            }
-          }
+  [authService
+      fetchCheckinInfoWithHandler:^(FIRMessagingCheckinPreferences *preferences, NSError *error) {
+        FIRMessaging_STRONGIFY(self);
+        if (error) {
+          newHandler(nil, error);
+          return;
         }
-        [self fetchNewTokenWithAuthorizedEntity:[authorizedEntity copy]
-                                                       scope:[scope copy]
-                                                  instanceID:identifier
-                                                     options:tokenOptions
-                                                     handler:newHandler];
-      }
-    }];
-  }];
+
+        FIRMessaging_WEAKIFY(self);
+        [self.installations installationIDWithCompletion:^(NSString *_Nullable identifier,
+                                                           NSError *_Nullable error) {
+          FIRMessaging_STRONGIFY(self);
+
+          if (error) {
+            newHandler(nil, error);
+          } else {
+            FIRMessagingTokenInfo *cachedTokenInfo =
+                [self cachedTokenInfoWithAuthorizedEntity:authorizedEntity scope:scope];
+            if (cachedTokenInfo) {
+              FIRMessagingAPNSInfo *optionsAPNSInfo =
+                  [[FIRMessagingAPNSInfo alloc] initWithTokenOptionsDictionary:tokenOptions];
+              // Check if APNS Info is changed
+              if ((!cachedTokenInfo.APNSInfo && !optionsAPNSInfo) ||
+                  [cachedTokenInfo.APNSInfo isEqualToAPNSInfo:optionsAPNSInfo]) {
+                // check if token is fresh
+                if ([cachedTokenInfo isFreshWithIID:identifier]) {
+                  newHandler(cachedTokenInfo.token, nil);
+                  return;
+                }
+              }
+            }
+            [self fetchNewTokenWithAuthorizedEntity:[authorizedEntity copy]
+                                              scope:[scope copy]
+                                         instanceID:identifier
+                                            options:tokenOptions
+                                            handler:newHandler];
+          }
+        }];
+      }];
 }
 
 - (void)fetchNewTokenWithAuthorizedEntity:(NSString *)authorizedEntity
@@ -225,8 +229,8 @@
                                   options:(NSDictionary *)options
                                   handler:(FIRMessagingFCMTokenFetchCompletion)handler {
   FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTokenManager000,
-                           @"Fetch new token for authorizedEntity: %@, scope: %@", authorizedEntity,
-                           scope);
+                          @"Fetch new token for authorizedEntity: %@, scope: %@", authorizedEntity,
+                          scope);
   FIRMessagingTokenFetchOperation *operation =
       [self createFetchOperationWithAuthorizedEntity:authorizedEntity
                                                scope:scope
@@ -242,12 +246,12 @@
           return;
         }
         NSString *firebaseAppID = options[kFIRMessagingTokenOptionsFirebaseAppIDKey];
-        FIRMessagingTokenInfo *tokenInfo = [[FIRMessagingTokenInfo alloc]
-            initWithAuthorizedEntity:authorizedEntity
-                               scope:scope
-                               token:token
-                          appVersion:FIRMessagingCurrentAppVersion()
-                       firebaseAppID:firebaseAppID];
+        FIRMessagingTokenInfo *tokenInfo =
+            [[FIRMessagingTokenInfo alloc] initWithAuthorizedEntity:authorizedEntity
+                                                              scope:scope
+                                                              token:token
+                                                         appVersion:FIRMessagingCurrentAppVersion()
+                                                      firebaseAppID:firebaseAppID];
         tokenInfo.APNSInfo = [[FIRMessagingAPNSInfo alloc] initWithTokenOptionsDictionary:options];
 
         [self.instanceIDStore
@@ -287,7 +291,7 @@
 }
 
 - (FIRMessagingTokenInfo *)cachedTokenInfoWithAuthorizedEntity:(NSString *)authorizedEntity
-                                                          scope:(NSString *)scope {
+                                                         scope:(NSString *)scope {
   return [self.instanceIDStore tokenInfoWithAuthorizedEntity:authorizedEntity scope:scope];
 }
 
@@ -295,7 +299,6 @@
                                   scope:(NSString *)scope
                              instanceID:(NSString *)instanceID
                                 handler:(FIRMessagingDeleteFCMTokenCompletion)handler {
-  
   if ([self.instanceIDStore tokenInfoWithAuthorizedEntity:authorizedEntity scope:scope]) {
     [self.instanceIDStore removeCachedTokenWithAuthorizedEntity:authorizedEntity scope:scope];
   }
@@ -320,8 +323,7 @@
   [self.tokenOperations addOperation:operation];
 }
 
-- (void)deleteAllTokensWithInstanceID:(NSString *)instanceID
-                              handler:(void(^)(NSError *))handler {
+- (void)deleteAllTokensWithInstanceID:(NSString *)instanceID handler:(void (^)(NSError *))handler {
   // delete all tokens
   FIRMessagingCheckinPreferences *checkinPreferences = self.authService.checkinPreferences;
   if (!checkinPreferences) {
@@ -383,7 +385,7 @@
       FIRMessagingLoggerDebug(code, @"Failed to delete GCM server registrations on app reset.");
     } else {
       FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTokenManagerDeletedFCMTokensOnAppReset,
-                               @"Successfully deleted GCM server registrations on app reset");
+                              @"Successfully deleted GCM server registrations on app reset");
     }
   }];
 
@@ -400,10 +402,10 @@
   FIRMessagingCheckinPreferences *checkinPreferences = self.authService.checkinPreferences;
   FIRMessagingTokenFetchOperation *operation =
       [[FIRMessagingTokenFetchOperation alloc] initWithAuthorizedEntity:authorizedEntity
-                                                                   scope:scope
-                                                                 options:options
-                                                      checkinPreferences:checkinPreferences
-                                                              instanceID:instanceID];
+                                                                  scope:scope
+                                                                options:options
+                                                     checkinPreferences:checkinPreferences
+                                                             instanceID:instanceID];
   return operation;
 }
 
@@ -416,10 +418,10 @@
                                        action:(FIRMessagingTokenAction)action {
   FIRMessagingTokenDeleteOperation *operation =
       [[FIRMessagingTokenDeleteOperation alloc] initWithAuthorizedEntity:authorizedEntity
-                                                                    scope:scope
-                                                       checkinPreferences:checkinPreferences
-                                                               instanceID:instanceID
-                                                                   action:action];
+                                                                   scope:scope
+                                                      checkinPreferences:checkinPreferences
+                                                              instanceID:instanceID
+                                                                  action:action];
   return operation;
 }
 
@@ -457,11 +459,11 @@
 }
 
 - (NSArray<FIRMessagingTokenInfo *> *)updateTokensToAPNSDeviceToken:(NSData *)deviceToken
-                                                           isSandbox:(BOOL)isSandbox {
+                                                          isSandbox:(BOOL)isSandbox {
   // Each cached IID token that is missing an APNSInfo, or has an APNSInfo associated should be
   // checked and invalidated if needed.
   FIRMessagingAPNSInfo *APNSInfo = [[FIRMessagingAPNSInfo alloc] initWithDeviceToken:deviceToken
-                                                                             isSandbox:isSandbox];
+                                                                           isSandbox:isSandbox];
   if ([self.currentAPNSInfo isEqualToAPNSInfo:APNSInfo]) {
     return @[];
   }
@@ -480,8 +482,8 @@
   }
   for (FIRMessagingTokenInfo *tokenInfoToDelete in tokenInfosToDelete) {
     FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTokenManagerAPNSChangedTokenInvalidated,
-                             @"Invalidating cached token for %@ (%@) due to APNs token change.",
-                             tokenInfoToDelete.authorizedEntity, tokenInfoToDelete.scope);
+                            @"Invalidating cached token for %@ (%@) due to APNs token change.",
+                            tokenInfoToDelete.authorizedEntity, tokenInfoToDelete.scope);
     [self.instanceIDStore removeCachedTokenWithAuthorizedEntity:tokenInfoToDelete.authorizedEntity
                                                           scope:tokenInfoToDelete.scope];
   }
@@ -492,7 +494,7 @@
 - (void)setAPNSToken:(NSData *)APNSToken withUserInfo:(NSDictionary *)userInfo {
   if (!APNSToken || ![APNSToken isKindOfClass:[NSData class]]) {
     FIRMessagingLoggerDebug(kFIRMessagingMessageCodeInternal002, @"Invalid APNS token type %@",
-                             NSStringFromClass([APNSToken class]));
+                            NSStringFromClass([APNSToken class]));
     return;
   }
   NSInteger type = [userInfo[kFIRMessagingAPNSTokenType] integerValue];
@@ -500,7 +502,7 @@
   // The APNS token is being added, or has changed (rare)
   if ([self.currentAPNSInfo.deviceToken isEqualToData:APNSToken]) {
     FIRMessagingLoggerDebug(kFIRMessagingMessageCodeInstanceID011,
-                             @"Trying to reset APNS token to the same value. Will return");
+                            @"Trying to reset APNS token to the same value. Will return");
     return;
   }
   // Use this token type for when we have to automatically fetch tokens in the future
@@ -508,7 +510,8 @@
   if (type == FIRMessagingAPNSTokenTypeUnknown) {
     isSandboxApp = FIRMessagingIsSandboxApp();
   }
-  self.currentAPNSInfo = [[FIRMessagingAPNSInfo alloc] initWithDeviceToken:[APNSToken copy] isSandbox:isSandboxApp];
+  self.currentAPNSInfo = [[FIRMessagingAPNSInfo alloc] initWithDeviceToken:[APNSToken copy]
+                                                                 isSandbox:isSandboxApp];
 
   // Pro-actively invalidate the default token, if the APNs change makes it
   // invalid. Previously, we invalidated just before fetching the token.
@@ -525,12 +528,12 @@
           FIRMessaging_STRONGIFY(self);
           if (self == nil) {
             FIRMessagingLoggerError(kFIRMessagingMessageCodeInstanceID017,
-                                     @"Instance ID shut down during token reset. Aborting");
+                                    @"Instance ID shut down during token reset. Aborting");
             return;
           }
           if (self.currentAPNSInfo == nil) {
             FIRMessagingLoggerError(kFIRMessagingMessageCodeInstanceID018,
-                                     @"apnsTokenData was set to nil during token reset. Aborting");
+                                    @"apnsTokenData was set to nil during token reset. Aborting");
             return;
           }
 
@@ -544,20 +547,20 @@
 
           for (FIRMessagingTokenInfo *tokenInfo in invalidatedTokens) {
             [self fetchNewTokenWithAuthorizedEntity:tokenInfo.authorizedEntity
-                                                             scope:tokenInfo.scope
-                                                        instanceID:identifier
-                                                           options:tokenOptions
-                                                           handler:^(NSString *_Nullable token,
-                                                                     NSError *_Nullable error){
+                                              scope:tokenInfo.scope
+                                         instanceID:identifier
+                                            options:tokenOptions
+                                            handler:^(NSString *_Nullable token,
+                                                      NSError *_Nullable error){
 
-                                                           }];
+                                            }];
           }
         }];
   }
 }
 
 #pragma mark - checkin
--(BOOL)hasValidCheckinInfo {
+- (BOOL)hasValidCheckinInfo {
   return self.authService.checkinPreferences.hasValidCheckinInfo;
 }
 

@@ -57,8 +57,8 @@ NSString *const kFIRMessagingKeychainErrorDomain = @"com.google.iid";
         CFRelease(keyRef);
       }
       FIRMessagingLoggerDebug(kFIRMessagingKeychainReadItemError,
-                               @"Info is not found in Keychain. OSStatus: %d. Keychain query: %@",
-                               (int)status, keychainQuery);
+                              @"Info is not found in Keychain. OSStatus: %d. Keychain query: %@",
+                              (int)status, keychainQuery);
     }
   });
   return keyRef;
@@ -80,9 +80,7 @@ NSString *const kFIRMessagingKeychainErrorDomain = @"com.google.iid";
       // When item is not found, it should NOT be considered as an error. The operation should
       // continue.
       if (status != noErr && status != errSecItemNotFound) {
-        error = [NSError errorWithDomain:kFIRMessagingKeychainErrorDomain
-                                    code:status
-                                userInfo:nil];
+        error = [NSError errorWithDomain:kFIRMessagingKeychainErrorDomain code:status userInfo:nil];
       }
       dispatch_async(dispatch_get_main_queue(), ^{
         handler(error);
@@ -99,10 +97,8 @@ NSString *const kFIRMessagingKeychainErrorDomain = @"com.google.iid";
       NSError *error;
       if (status != noErr) {
         FIRMessagingLoggerWarn(kFIRMessagingKeychainAddItemError,
-                                   @"Couldn't add item to Keychain OSStatus: %d", (int)status);
-        error = [NSError errorWithDomain:kFIRMessagingKeychainErrorDomain
-                                    code:status
-                                userInfo:nil];
+                               @"Couldn't add item to Keychain OSStatus: %d", (int)status);
+        error = [NSError errorWithDomain:kFIRMessagingKeychainErrorDomain code:status userInfo:nil];
       }
       dispatch_async(dispatch_get_main_queue(), ^{
         handler(error);

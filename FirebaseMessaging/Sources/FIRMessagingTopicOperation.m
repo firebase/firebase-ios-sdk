@@ -163,7 +163,8 @@ NSString *FIRMessagingSubscriptionsServer() {
   NSString *authString = [NSString stringWithFormat:@"AidLogin %@:%@", deviceAuthID, secretToken];
   [request setValue:authString forHTTPHeaderField:@"Authorization"];
   [request setValue:appIdentifier forHTTPHeaderField:@"app"];
-  [request setValue:[FIRMessagingTokenManager sharedInstance].versionInfo forHTTPHeaderField:@"info"];
+  [request setValue:[FIRMessagingTokenManager sharedInstance].versionInfo
+      forHTTPHeaderField:@"info"];
 
   // Topic can contain special characters (like `%`) so encode the value.
   NSCharacterSet *characterSet = [NSCharacterSet URLQueryAllowedCharacterSet];

@@ -195,9 +195,8 @@ NSString *const kFIRMessagingKeychainWildcardIdentifier = @"*";
 
                                keychainQuery[(__bridge id)kSecAttrAccessible] =
                                    (__bridge id)kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly;
-                               [[FIRMessagingKeychain sharedInstance]
-                                   addItemWithQuery:keychainQuery
-                                            handler:handler];
+                               [[FIRMessagingKeychain sharedInstance] addItemWithQuery:keychainQuery
+                                                                               handler:handler];
                              }
                            }];
   // Set the cache value. This must happen after removeItemsMatchingService:account:handler was

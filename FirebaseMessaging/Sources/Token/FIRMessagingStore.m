@@ -101,13 +101,13 @@ static NSString *const kCheckinFileName = @"g-checkin";
                                                     error:&error];
     if (error) {
       FIRMessagingLoggerError(kFIRMessagingMessageCodeStore000,
-                               @"Cannot create directory %@, error: %@", subDirectoryPath, error);
+                              @"Cannot create directory %@, error: %@", subDirectoryPath, error);
       return NO;
     }
   } else {
     if (!hasSubDirectory) {
       FIRMessagingLoggerError(kFIRMessagingMessageCodeStore001,
-                               @"Found file instead of directory at %@", subDirectoryPath);
+                              @"Found file instead of directory at %@", subDirectoryPath);
       return NO;
     }
   }
@@ -158,15 +158,15 @@ static NSString *const kCheckinFileName = @"g-checkin";
       }
       if (oldCheckinPreferences.deviceID.length && oldCheckinPreferences.secretToken.length) {
         FIRMessagingLoggerDebug(kFIRMessagingMessageCodeStore006,
-                                 @"App reset detected. Will delete server registrations.");
+                                @"App reset detected. Will delete server registrations.");
         // We don't really need to delete old FCM tokens created via IID auth tokens since
         // those tokens are already hashed by APNS token as the has so creating a new
         // token should automatically delete the old-token.
         [self.delegate store:self didDeleteFCMScopedTokensForCheckin:oldCheckinPreferences];
       } else {
         FIRMessagingLoggerDebug(kFIRMessagingMessageCodeStore009,
-                                 @"App reset detected but no valid checkin auth preferences found."
-                                 @" Will not delete server registrations.");
+                                @"App reset detected but no valid checkin auth preferences found."
+                                @" Will not delete server registrations.");
       }
     }];
   }
@@ -175,7 +175,7 @@ static NSString *const kCheckinFileName = @"g-checkin";
 #pragma mark - Get
 
 - (FIRMessagingTokenInfo *)tokenInfoWithAuthorizedEntity:(NSString *)authorizedEntity
-                                                    scope:(NSString *)scope {
+                                                   scope:(NSString *)scope {
   // TODO(chliangGoogle): If we don't have the token plist we should delete all the tokens from
   // the keychain. This is because not having the plist signifies a backup and restore operation.
   // In case the keychain has any tokens these would now be stale and therefore should be
@@ -184,7 +184,7 @@ static NSString *const kCheckinFileName = @"g-checkin";
     return nil;
   }
   FIRMessagingTokenInfo *info = [self.tokenStore tokenInfoWithAuthorizedEntity:authorizedEntity
-                                                                          scope:scope];
+                                                                         scope:scope];
   return info;
 }
 
@@ -194,8 +194,7 @@ static NSString *const kCheckinFileName = @"g-checkin";
 
 #pragma mark - Save
 
-- (void)saveTokenInfo:(FIRMessagingTokenInfo *)tokenInfo
-              handler:(void (^)(NSError *error))handler {
+- (void)saveTokenInfo:(FIRMessagingTokenInfo *)tokenInfo handler:(void (^)(NSError *error))handler {
   [self.tokenStore saveTokenInfo:tokenInfo handler:handler];
 }
 
@@ -204,8 +203,8 @@ static NSString *const kCheckinFileName = @"g-checkin";
 - (void)removeCachedTokenWithAuthorizedEntity:(NSString *)authorizedEntity scope:(NSString *)scope {
   if (![authorizedEntity length] || ![scope length]) {
     FIRMessagingLoggerError(kFIRMessagingMessageCodeStore012,
-                             @"Will not delete token with invalid entity: %@, scope: %@",
-                             authorizedEntity, scope);
+                            @"Will not delete token with invalid entity: %@, scope: %@",
+                            authorizedEntity, scope);
     return;
   }
   [self.tokenStore removeTokenWithAuthorizedEntity:authorizedEntity scope:scope];

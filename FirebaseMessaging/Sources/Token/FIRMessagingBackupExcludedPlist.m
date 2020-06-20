@@ -41,7 +41,7 @@
   NSString *path = [self plistPathInDirectory];
   if (![dict writeToFile:path atomically:YES]) {
     FIRMessagingLoggerError(kFIRMessagingMessageCodeBackupExcludedPlist000,
-                             @"Failed to write to %@.plist", self.fileName);
+                            @"Failed to write to %@.plist", self.fileName);
     return NO;
   }
 
@@ -62,8 +62,8 @@
   BOOL success = [URL setResourceValue:@(YES) forKey:NSURLIsExcludedFromBackupKey error:error];
   if (!success) {
     FIRMessagingLoggerError(kFIRMessagingMessageCodeBackupExcludedPlist001,
-                             @"Error excluding %@ from backup, %@", [URL lastPathComponent],
-                             error ? *error : @"");
+                            @"Error excluding %@ from backup, %@", [URL lastPathComponent],
+                            error ? *error : @"");
   }
   return success;
 }

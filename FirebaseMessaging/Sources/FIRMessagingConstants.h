@@ -99,5 +99,4 @@ FOUNDATION_EXPORT const int kFIRMessagingSecMissingEntitlementErrorCode;
 /// The key for InstallationID or InstanceID in token request.
 FOUNDATION_EXPORT NSString *const kFIRMessagingParamInstanceID;
 
-
 #endif
