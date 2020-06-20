@@ -16,7 +16,7 @@
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
-#import "Example/Shared/FIRAuthInteropFake.h"
+#import "FIRAuthInteropFake.h"
 #import "Functions/Example/TestUtils/FUNFakeInstanceID.h"
 #import "Functions/FirebaseFunctions/FIRFunctions+Internal.h"
 #import "Functions/FirebaseFunctions/Public/FIRError.h"
