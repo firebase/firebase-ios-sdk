@@ -71,10 +71,10 @@ static NSUInteger const kFragment = 0;
 - (void)checkinWithExistingCheckin:(FIRMessagingCheckinPreferences *)existingCheckin
                         completion:(FIRMessagingDeviceCheckinCompletion)completion {
   if (self.session == nil) {
-    NSString *failureReason =@"Inconsistent state: NSURLSession has been invalidated";
-    FIRMessagingLoggerError(kFIRMessagingInvalidNetworkSession,
-                            @"%@", failureReason);
-    NSError *error = [NSError messagingErrorWithCode:kFIRMessagingErrorCodeRegistrarFailedToCheckIn failureReason:failureReason];
+    NSString *failureReason = @"Inconsistent state: NSURLSession has been invalidated";
+    FIRMessagingLoggerError(kFIRMessagingInvalidNetworkSession, @"%@", failureReason);
+    NSError *error = [NSError messagingErrorWithCode:kFIRMessagingErrorCodeRegistrarFailedToCheckIn
+                                       failureReason:failureReason];
     if (completion) {
       completion(nil, error);
     }
@@ -95,8 +95,8 @@ static NSUInteger const kFragment = 0;
       ^(NSData *data, NSURLResponse *response, NSError *error) {
         if (error) {
           FIRMessagingLoggerDebug(kFIRMessagingMessageCodeService000,
-                                   @"Device checkin HTTP fetch error. Error Code: %ld",
-                                   (long)error.code);
+                                  @"Device checkin HTTP fetch error. Error Code: %ld",
+                                  (long)error.code);
           if (completion) {
             completion(nil, error);
           }
@@ -109,8 +109,8 @@ static NSUInteger const kFragment = 0;
                                                                        error:&serializationError];
         if (serializationError) {
           FIRMessagingLoggerDebug(kFIRMessagingMessageCodeService001,
-                                   @"Error serializing json object. Error Code: %ld",
-                                   (long)serializationError.code);
+                                  @"Error serializing json object. Error Code: %ld",
+                                  (long)serializationError.code);
           if (completion) {
             completion(nil, serializationError);
           }
@@ -143,10 +143,10 @@ static NSUInteger const kFragment = 0;
         NSString *digest = dataResponse[@"digest"] ?: @"";
 
         FIRMessagingLoggerDebug(kFIRMessagingMessageCodeService003,
-                                 @"Checkin successful with authId: %@, "
-                                 @"digest: %@, "
-                                 @"lastCheckinTimestamp: %lld",
-                                 deviceAuthID, digest, lastCheckinTimestampMillis);
+                                @"Checkin successful with authId: %@, "
+                                @"digest: %@, "
+                                @"lastCheckinTimestamp: %lld",
+                                deviceAuthID, digest, lastCheckinTimestampMillis);
 
         NSString *versionInfo = dataResponse[@"version_info"] ?: @"";
         NSMutableDictionary *gservicesData = [NSMutableDictionary dictionary];
@@ -158,14 +158,14 @@ static NSUInteger const kFragment = 0;
             gservicesData[dict[@"name"]] = dict[@"value"];
           } else {
             FIRMessagingLoggerDebug(kFIRMessagingInvalidSettingResponse,
-                                     @"Invalid setting in checkin response: (%@: %@)",
-                                     dict[@"name"], dict[@"value"]);
+                                    @"Invalid setting in checkin response: (%@: %@)", dict[@"name"],
+                                    dict[@"value"]);
           }
         }
 
         FIRMessagingCheckinPreferences *checkinPreferences =
             [[FIRMessagingCheckinPreferences alloc] initWithDeviceID:deviceAuthID
-                                                          secretToken:secretToken];
+                                                         secretToken:secretToken];
         NSDictionary *preferences = @{
           kFIRMessagingDigestStringKey : digest,
           kFIRMessagingVersionInfoStringKey : versionInfo,
@@ -178,7 +178,6 @@ static NSUInteger const kFragment = 0;
           completion(checkinPreferences, nil);
         }
       };
-
 
   NSURLSessionDataTask *task = [self.session dataTaskWithRequest:request completionHandler:handler];
   [task resume];
@@ -225,9 +224,8 @@ static NSUInteger const kFragment = 0;
   };
 
   FIRMessagingLoggerDebug(kFIRMessagingMessageCodeService006, @"Checkin parameters: %@",
-                           checkinParameters);
+                          checkinParameters);
   return checkinParameters;
 }
-
 
 @end

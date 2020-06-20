@@ -429,14 +429,14 @@ static NSUInteger FIRMessagingServerPort() {
     [self.connection signOut];
     self.connection.delegate = nil;
   }
-  self.connection =
-      [[FIRMessagingConnection alloc] initWithAuthID:[FIRMessagingTokenManager sharedInstance].deviceAuthID
-                                               token:[FIRMessagingTokenManager sharedInstance].secretToken
-                                                host:host
-                                                port:port
-                                             runLoop:[NSRunLoop mainRunLoop]
-                                         rmq2Manager:self.rmq2Manager
-                                          fcmManager:self.dataMessageManager];
+  self.connection = [[FIRMessagingConnection alloc]
+      initWithAuthID:[FIRMessagingTokenManager sharedInstance].deviceAuthID
+               token:[FIRMessagingTokenManager sharedInstance].secretToken
+                host:host
+                port:port
+             runLoop:[NSRunLoop mainRunLoop]
+         rmq2Manager:self.rmq2Manager
+          fcmManager:self.dataMessageManager];
   self.connection.delegate = self;
 }
 

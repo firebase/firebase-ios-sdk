@@ -69,6 +69,6 @@ FOUNDATION_EXPORT NSString *const kFIRInstanceIDUserDefaultsKeyLocale;
 
 FOUNDATION_EXPORT NSString *FIRMessagingStringForAPNSDeviceToken(NSData *deviceToken);
 FOUNDATION_EXPORT NSString *FIRMessagingAPNSTupleStringForTokenAndServerType(NSData *deviceToken,
-                                                                              BOOL isSandbox);
+                                                                             BOOL isSandbox);
 
 FOUNDATION_EXPORT BOOL FIRMessagingIsSandboxApp(void);

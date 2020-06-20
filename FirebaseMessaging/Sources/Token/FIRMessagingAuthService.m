@@ -86,7 +86,7 @@ static const int64_t kMaxCheckinRetryIntervalInSeconds = 1 << 5;
   // Checkin is already scheduled, so this (non-immediate) request can be ignored.
   if (!immediately && [self.scheduledCheckinTimer isValid]) {
     FIRMessagingLoggerDebug(kFIRMessagingMessageCodeAuthService000,
-                             @"Checkin sync already scheduled. Will not schedule.");
+                            @"Checkin sync already scheduled. Will not schedule.");
     return;
   }
 
@@ -128,24 +128,22 @@ static const int64_t kMaxCheckinRetryIntervalInSeconds = 1 << 5;
   }
 
   FIRMessaging_WEAKIFY(self);
-  [self
-      fetchCheckinInfoWithHandler:^(FIRMessagingCheckinPreferences *preferences, NSError *error) {
-        FIRMessaging_STRONGIFY(self);
-        self.checkinRetryCount++;
+  [self fetchCheckinInfoWithHandler:^(FIRMessagingCheckinPreferences *preferences, NSError *error) {
+    FIRMessaging_STRONGIFY(self);
+    self.checkinRetryCount++;
 
-        if (error) {
-          FIRMessagingLoggerDebug(kFIRMessagingMessageCodeAuthService001, @"Checkin error %@.",
-                                   error);
+    if (error) {
+      FIRMessagingLoggerDebug(kFIRMessagingMessageCodeAuthService001, @"Checkin error %@.", error);
 
-          dispatch_async(dispatch_get_main_queue(), ^{
-            // Schedule another checkin
-            [self scheduleCheckin:NO];
-          });
+      dispatch_async(dispatch_get_main_queue(), ^{
+        // Schedule another checkin
+        [self scheduleCheckin:NO];
+      });
 
-        } else {
-          FIRMessagingLoggerDebug(kFIRMessagingMessageCodeAuthService002, @"Checkin success.");
-        }
-      }];
+    } else {
+      FIRMessagingLoggerDebug(kFIRMessagingMessageCodeAuthService002, @"Checkin success.");
+    }
+  }];
 }
 
 - (int64_t)calculateNextCheckinRetryIntervalInSeconds {
@@ -170,7 +168,7 @@ static const int64_t kMaxCheckinRetryIntervalInSeconds = 1 << 5;
     if (_isCheckinInProgress) {
       // Nothing more to do until our checkin request is done
       FIRMessagingLoggerDebug(kFIRMessagingMessageCodeAuthServiceCheckinInProgress,
-                               @"Checkin is in progress\n");
+                              @"Checkin is in progress\n");
       return;
     }
   }
@@ -193,13 +191,13 @@ static const int64_t kMaxCheckinRetryIntervalInSeconds = 1 << 5;
                         }
                         if (error) {
                           FIRMessagingLoggerDebug(kFIRMessagingMessageCodeAuthService003,
-                                                   @"Failed to checkin device %@", error);
+                                                  @"Failed to checkin device %@", error);
                           [self notifyCheckinHandlersWithCheckin:nil error:error];
                           return;
                         }
 
                         FIRMessagingLoggerDebug(kFIRMessagingMessageCodeAuthService004,
-                                                 @"Successfully got checkin credentials");
+                                                @"Successfully got checkin credentials");
                         BOOL hasSameCachedPreferences =
                             [self cachedCheckinMatchesCheckin:checkinPreferences];
                         checkinPreferences.hasPreCachedAuthCredentials = hasSameCachedPreferences;
@@ -243,7 +241,7 @@ static const int64_t kMaxCheckinRetryIntervalInSeconds = 1 << 5;
                                                  dispatch_async(dispatch_get_main_queue(), ^{
                                                    [[NSNotificationCenter defaultCenter]
                                                        postNotificationName:
-                                                    kFIRMessagingCheckinFetchedNotification
+                                                           kFIRMessagingCheckinFetchedNotification
                                                                      object:nil];
                                                  });
                                                }
