@@ -38,7 +38,7 @@ jobs:
       run: scripts/setup_bundler.sh
     - name: IntegrationTest
       # Only iOS to mitigate flakes.
-      run: scripts/third_party/travis/retry.sh scripts/build.sh Database ${{ matrix.target }} iOS
+      run: scripts/third_party/travis/retry.sh scripts/build.sh Database iOS integration
 
   catalyst:
     # Don't run on private repo unless it is a PR.
