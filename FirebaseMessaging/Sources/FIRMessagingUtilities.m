@@ -31,7 +31,7 @@
 
 static const uint64_t kBytesToMegabytesDivisor = 1024 * 1024LL;
 NSString *const kFIRInstanceIDUserDefaultsKeyLocale =
-@"com.firebase.instanceid.user_defaults.locale";  // locale key stored in GULUserDefaults
+    @"com.firebase.instanceid.user_defaults.locale";  // locale key stored in GULUserDefaults
 static NSString *const kFIRMessagingAPNSSandboxPrefix = @"s_";
 static NSString *const kFIRMessagingAPNSProdPrefix = @"p_";
 
@@ -42,7 +42,6 @@ static NSString *const kEntitlementsAPSEnvironmentKey =
     @"Entitlements.com.apple.developer.aps-environment";
 #endif
 static NSString *const kAPSEnvironmentDevelopmentValue = @"development";
-
 
 #pragma mark - URL Helpers
 
@@ -193,7 +192,6 @@ NSString *FIRMessagingAppIdentifier(void) {
 #endif
 }
 
-
 NSString *FIRMessagingFirebaseAppID() {
   return [FIROptions defaultOptions].googleAppID;
 }
@@ -229,7 +227,7 @@ NSSearchPathDirectory FIRMessagingSupportedDirectory(void) {
 
 #pragma mark - Locales
 
-NSDictionary *FIRMessagingFirebaselocalesMap () {
+NSDictionary *FIRMessagingFirebaselocalesMap() {
   return @{
     // Albanian
     @"sq" : @[ @"sq_AL" ],
@@ -378,7 +376,6 @@ BOOL FIRMessagingHasLocaleChanged() {
   return YES;
 }
 
-
 NSString *FIRMessagingStringForAPNSDeviceToken(NSData *deviceToken) {
   NSMutableString *APNSToken = [NSMutableString string];
   unsigned char *bytes = (unsigned char *)[deviceToken bytes];
@@ -400,55 +397,54 @@ NSString *FIRMessagingAPNSTupleStringForTokenAndServerType(NSData *deviceToken, 
   return APNSTupleString;
 }
 
-
-
 BOOL FIRMessagingIsProductionApp(void) {
-    const BOOL defaultAppTypeProd = YES;
+  const BOOL defaultAppTypeProd = YES;
 
-    NSError *error = nil;
-    if ([GULAppEnvironmentUtil isSimulator]) {
-      FIRMessagingLoggerError(kFIRMessagingMessageCodeInstanceID014,@"Running InstanceID on a simulator doesn't have APNS. "
-                                      @"Use prod profile by default.");
-      return defaultAppTypeProd;
+  NSError *error = nil;
+  if ([GULAppEnvironmentUtil isSimulator]) {
+    FIRMessagingLoggerError(kFIRMessagingMessageCodeInstanceID014,
+                            @"Running InstanceID on a simulator doesn't have APNS. "
+                            @"Use prod profile by default.");
+    return defaultAppTypeProd;
+  }
+
+  if ([GULAppEnvironmentUtil isFromAppStore]) {
+    // Apps distributed via AppStore or TestFlight use the Production APNS certificates.
+    return defaultAppTypeProd;
+  }
+#if TARGET_OS_OSX || TARGET_OS_MACCATALYST
+  NSString *path = [[[[NSBundle mainBundle] resourcePath] stringByDeletingLastPathComponent]
+      stringByAppendingPathComponent:@"embedded.provisionprofile"];
+#elif TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_WATCH
+  NSString *path = [[[NSBundle mainBundle] bundlePath]
+      stringByAppendingPathComponent:@"embedded.mobileprovision"];
+#endif
+
+  if ([GULAppEnvironmentUtil isAppStoreReceiptSandbox] && !path.length) {
+    // Distributed via TestFlight
+    return defaultAppTypeProd;
+  }
+
+  NSMutableData *profileData = [NSMutableData dataWithContentsOfFile:path options:0 error:&error];
+
+  if (!profileData.length || error) {
+    NSString *errorString =
+        [NSString stringWithFormat:@"Error while reading embedded mobileprovision %@", error];
+    FIRMessagingLoggerError(kFIRMessagingMessageCodeInstanceID014, errorString);
+    return defaultAppTypeProd;
+  }
+
+  // The "embedded.mobileprovision" sometimes contains characters with value 0, which signals the
+  // end of a c-string and halts the ASCII parser, or with value > 127, which violates strict 7-bit
+  // ASCII. Replace any 0s or invalid characters in the input.
+  uint8_t *profileBytes = (uint8_t *)profileData.bytes;
+  for (int i = 0; i < profileData.length; i++) {
+    uint8_t currentByte = profileBytes[i];
+    if (!currentByte || currentByte > 127) {
+      profileBytes[i] = '.';
     }
+  }
 
-    if ([GULAppEnvironmentUtil isFromAppStore]) {
-      // Apps distributed via AppStore or TestFlight use the Production APNS certificates.
-      return defaultAppTypeProd;
-    }
-  #if TARGET_OS_OSX || TARGET_OS_MACCATALYST
-    NSString *path = [[[[NSBundle mainBundle] resourcePath] stringByDeletingLastPathComponent]
-        stringByAppendingPathComponent:@"embedded.provisionprofile"];
-  #elif TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_WATCH
-    NSString *path = [[[NSBundle mainBundle] bundlePath]
-        stringByAppendingPathComponent:@"embedded.mobileprovision"];
-  #endif
-
-    if ([GULAppEnvironmentUtil isAppStoreReceiptSandbox] && !path.length) {
-      // Distributed via TestFlight
-      return defaultAppTypeProd;
-    }
-
-    NSMutableData *profileData = [NSMutableData dataWithContentsOfFile:path options:0 error:&error];
-
-    if (!profileData.length || error) {
-      NSString *errorString =
-          [NSString stringWithFormat:@"Error while reading embedded mobileprovision %@", error];
-      FIRMessagingLoggerError(kFIRMessagingMessageCodeInstanceID014, errorString);
-      return defaultAppTypeProd;
-    }
-
-    // The "embedded.mobileprovision" sometimes contains characters with value 0, which signals the
-    // end of a c-string and halts the ASCII parser, or with value > 127, which violates strict 7-bit
-    // ASCII. Replace any 0s or invalid characters in the input.
-    uint8_t *profileBytes = (uint8_t *)profileData.bytes;
-    for (int i = 0; i < profileData.length; i++) {
-      uint8_t currentByte = profileBytes[i];
-      if (!currentByte || currentByte > 127) {
-        profileBytes[i] = '.';
-      }
-    }
-  
   NSString *embeddedProfile = [[NSString alloc] initWithBytesNoCopy:profileBytes
                                                              length:profileData.length
                                                            encoding:NSASCIIStringEncoding
@@ -475,7 +471,8 @@ BOOL FIRMessagingIsProductionApp(void) {
 
   NSData *data = [plistContents dataUsingEncoding:NSUTF8StringEncoding];
   if (!data.length) {
-    FIRMessagingLoggerError(kFIRMessagingMessageCodeInstanceID014, @"Couldn't read plist fetched from embedded mobileprovision");
+    FIRMessagingLoggerError(kFIRMessagingMessageCodeInstanceID014,
+                            @"Couldn't read plist fetched from embedded mobileprovision");
     return defaultAppTypeProd;
   }
 
@@ -495,31 +492,31 @@ BOOL FIRMessagingIsProductionApp(void) {
 
   if ([plistMap valueForKeyPath:@"ProvisionedDevices"]) {
     FIRMessagingLoggerDebug(kFIRMessagingMessageCodeInstanceID012,
-                             @"Provisioning profile has specifically provisioned devices, "
-                             @"most likely a Dev profile.");
+                            @"Provisioning profile has specifically provisioned devices, "
+                            @"most likely a Dev profile.");
   }
-  
+
   NSString *apsEnvironment = [plistMap valueForKeyPath:kEntitlementsAPSEnvironmentKey];
-   NSString *debugString __unused =
-       [NSString stringWithFormat:@"APNS Environment in profile: %@", apsEnvironment];
-   FIRMessagingLoggerDebug(kFIRMessagingMessageCodeInstanceID013, @"%@", debugString);
+  NSString *debugString __unused =
+      [NSString stringWithFormat:@"APNS Environment in profile: %@", apsEnvironment];
+  FIRMessagingLoggerDebug(kFIRMessagingMessageCodeInstanceID013, @"%@", debugString);
 
-   // No aps-environment in the profile.
-   if (!apsEnvironment.length) {
-     FIRMessagingLoggerError(kFIRMessagingMessageCodeInstanceID014, @"No aps-environment set. If testing on a device APNS is not "
-                                     @"correctly configured. Please recheck your provisioning "
-                                     @"profiles. If testing on a simulator this is fine since APNS "
-                                     @"doesn't work on the simulator.");
-     return defaultAppTypeProd;
-   }
+  // No aps-environment in the profile.
+  if (!apsEnvironment.length) {
+    FIRMessagingLoggerError(kFIRMessagingMessageCodeInstanceID014,
+                            @"No aps-environment set. If testing on a device APNS is not "
+                            @"correctly configured. Please recheck your provisioning "
+                            @"profiles. If testing on a simulator this is fine since APNS "
+                            @"doesn't work on the simulator.");
+    return defaultAppTypeProd;
+  }
 
-   if ([apsEnvironment isEqualToString:kAPSEnvironmentDevelopmentValue]) {
-     return NO;
-   }
+  if ([apsEnvironment isEqualToString:kAPSEnvironmentDevelopmentValue]) {
+    return NO;
+  }
 
-   return defaultAppTypeProd;
+  return defaultAppTypeProd;
 }
-
 
 BOOL FIRMessagingIsSandboxApp(void) {
   static BOOL isSandboxApp = YES;
@@ -528,5 +525,4 @@ BOOL FIRMessagingIsSandboxApp(void) {
     isSandboxApp = !FIRMessagingIsProductionApp();
   });
   return isSandboxApp;
-  
 }

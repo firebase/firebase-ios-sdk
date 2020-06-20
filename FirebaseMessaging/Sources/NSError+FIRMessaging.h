@@ -23,16 +23,16 @@ FOUNDATION_EXPORT NSString *const kFIRMessagingDomain;
 // FIRMessaging Internal Error Code
 typedef NS_ENUM(NSUInteger, FIRMessagingErrorCode) {
   kFIRMessagingErrorCodeUnknown = 0,
-  
+
   kFIRMessagingErrorCodeNetwork = 4,
-  
+
   // Failed to perform device check in.
   kFIRMessagingErrorCodeRegistrarFailedToCheckIn = 6,
 
   kFIRMessagingErrorCodeInvalidRequest = 7,
 
   kFIRMessagingErrorCodeInvalidTopicName = 8,
-  
+
   // FIRMessaging generic errors
   kFIRMessagingErrorCodeMissingDeviceID = 501,
   kFIRMessagingErrorCodeMissingAuthorizedEntity = 502,

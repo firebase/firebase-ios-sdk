@@ -18,16 +18,15 @@
 #error FIRMessagingLib should be compiled with ARC.
 #endif
 
+#import <FirebaseInstallations/FIRInstallations.h>
 #import <FirebaseMessaging/FIRMessaging.h>
 #import <FirebaseMessaging/FIRMessagingExtensionHelper.h>
-#import <FirebaseInstallations/FIRInstallations.h>
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "GoogleUtilities/AppDelegateSwizzler/Private/GULAppDelegateSwizzler.h"
+#import "GoogleUtilities/Environment/Private/GULAppEnvironmentUtil.h"
 #import "GoogleUtilities/Reachability/Private/GULReachabilityChecker.h"
 #import "GoogleUtilities/UserDefaults/Private/GULUserDefaults.h"
 #import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
-#import "GoogleUtilities/Environment/Private/GULAppEnvironmentUtil.h"
-
 
 #import "FirebaseMessaging/Sources/FIRMessagingAnalytics.h"
 #import "FirebaseMessaging/Sources/FIRMessagingClient.h"
@@ -75,8 +74,6 @@ NSString *const FIRMessagingRegistrationTokenRefreshedNotification =
 
 NSString *const kFIRMessagingUserDefaultsKeyAutoInitEnabled =
     @"com.firebase.messaging.auto-init.enabled";  // Auto Init Enabled key stored in NSUserDefaults
-
-
 
 NSString *const kFIRMessagingPlistAutoInitEnabled =
     @"FirebaseMessagingAutoInitEnabled";  // Auto Init Enabled key stored in Info.plist
@@ -152,7 +149,6 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 @property(nonatomic, readwrite, strong) GULUserDefaults *messagingUserDefaults;
 @property(nonatomic, readwrite, strong) FIRInstallations *installations;
 @property(nonatomic, readwrite, strong) FIRMessagingTokenManager *tokenManager;
-
 
 /// Message ID's logged for analytics. This prevents us from logging the same message twice
 /// which can happen if the user inadvertently calls `appDidReceiveMessage` along with us
@@ -249,12 +245,11 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   return @[ messagingProvider ];
 }
 
-
 - (void)configureMessagingWithOptions:(FIROptions *)options {
   NSString *GCMSenderID = options.GCMSenderID;
   if (!GCMSenderID.length) {
     FIRMessagingLoggerError(kFIRMessagingMessageCodeFIRApp000,
-                             @"Firebase not set up correctly, nil or empty senderID.");
+                            @"Firebase not set up correctly, nil or empty senderID.");
     [NSException raise:kFIRMessagingDomain
                 format:@"Could not configure Firebase InstanceID. GCMSenderID must not be nil or "
                        @"empty."];
@@ -275,7 +270,6 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 }
 
 - (void)didCompleteConfigure {
-  
 }
 - (void)configureNotificationSwizzlingIfEnabled {
   // Swizzle remote-notification-related methods (app delegate and UNUserNotificationCenter)
@@ -543,7 +537,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 
   // Notify InstanceID that APNS Token has been set.
   NSDictionary *userInfo = @{kFIRMessagingAPNSTokenType : @(type)};
-  
+
   [[FIRMessagingTokenManager sharedInstance] setAPNSToken:[apnsToken copy] withUserInfo:userInfo];
 }
 
@@ -624,10 +618,11 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
                            @"set.",
                            senderID);
   }
-  [[FIRMessagingTokenManager sharedInstance] tokenWithAuthorizedEntity:senderID
-                                       scope:kFIRMessagingDefaultTokenScope
-                                     options:options
-                                     handler:completion];
+  [[FIRMessagingTokenManager sharedInstance]
+      tokenWithAuthorizedEntity:senderID
+                          scope:kFIRMessagingDefaultTokenScope
+                        options:options
+                        handler:completion];
 }
 
 - (void)deleteFCMTokenForSenderID:(nonnull NSString *)senderID
@@ -644,18 +639,20 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
     }
     return;
   }
-  FIRMessaging_WEAKIFY(self)
-  [self.installations installationIDWithCompletion:^(NSString *_Nullable identifier,
-                                                            NSError *_Nullable error) {
-    FIRMessaging_STRONGIFY(self)
-    if (error) {
-      NSError *newError = [NSError messagingErrorWithCode:kFIRMessagingErrorCodeInvalidIdentity failureReason:@"Failed to get installation ID."];
-      completion(newError);
-
-    } else {
-       [self.tokenManager deleteTokenWithAuthorizedEntity:senderID scope:kFIRMessagingDefaultTokenScope instanceID:identifier handler:completion];
-    }
-  }];
+  FIRMessaging_WEAKIFY(self)[self.installations
+      installationIDWithCompletion:^(NSString *_Nullable identifier, NSError *_Nullable error) {
+        FIRMessaging_STRONGIFY(self) if (error) {
+          NSError *newError = [NSError messagingErrorWithCode:kFIRMessagingErrorCodeInvalidIdentity
+                                                failureReason:@"Failed to get installation ID."];
+          completion(newError);
+        }
+        else {
+          [self.tokenManager deleteTokenWithAuthorizedEntity:senderID
+                                                       scope:kFIRMessagingDefaultTokenScope
+                                                  instanceID:identifier
+                                                     handler:completion];
+        }
+      }];
 }
 
 #pragma mark - FIRMessagingDelegate helper methods
@@ -801,30 +798,36 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
                            topic, [FIRMessagingPubSub removePrefixFromTopic:topic]);
   }
   __weak FIRMessaging *weakSelf = self;
-  [self retrieveFCMTokenForSenderID:[FIRMessagingTokenManager sharedInstance].fcmSenderID completion:^(NSString * _Nullable FCMToken, NSError * _Nullable error) {
-    if (error) {
-      FIRMessagingLoggerError(
-          kFIRMessagingMessageCodeMessaging010,
-          @"The subscription operation failed due to an error getting the FCM token: %@.", error);
-      if (completion) {
-        completion(error);
-      }
-      return;
-    }
-    FIRMessaging *strongSelf = weakSelf;
-    NSString *normalizeTopic = [[strongSelf class] normalizeTopic:topic];
-    if (normalizeTopic.length) {
-      [strongSelf.pubsub subscribeToTopic:normalizeTopic handler:completion];
-      return;
-    }
-    NSString *failureReason =
-        [NSString stringWithFormat:@"Cannot parse topic name: '%@'. Will not subscribe.", topic];
-    FIRMessagingLoggerError(kFIRMessagingMessageCodeMessaging009, @"%@", failureReason);
-    if (completion) {
-      completion([NSError messagingErrorWithCode:kFIRMessagingErrorCodeInvalidTopicName
-                                   failureReason:failureReason]);
-    }
-  }];
+  [self
+      retrieveFCMTokenForSenderID:[FIRMessagingTokenManager sharedInstance].fcmSenderID
+                       completion:^(NSString *_Nullable FCMToken, NSError *_Nullable error) {
+                         if (error) {
+                           FIRMessagingLoggerError(kFIRMessagingMessageCodeMessaging010,
+                                                   @"The subscription operation failed due to an "
+                                                   @"error getting the FCM token: %@.",
+                                                   error);
+                           if (completion) {
+                             completion(error);
+                           }
+                           return;
+                         }
+                         FIRMessaging *strongSelf = weakSelf;
+                         NSString *normalizeTopic = [[strongSelf class] normalizeTopic:topic];
+                         if (normalizeTopic.length) {
+                           [strongSelf.pubsub subscribeToTopic:normalizeTopic handler:completion];
+                           return;
+                         }
+                         NSString *failureReason = [NSString
+                             stringWithFormat:@"Cannot parse topic name: '%@'. Will not subscribe.",
+                                              topic];
+                         FIRMessagingLoggerError(kFIRMessagingMessageCodeMessaging009, @"%@",
+                                                 failureReason);
+                         if (completion) {
+                           completion([NSError
+                               messagingErrorWithCode:kFIRMessagingErrorCodeInvalidTopicName
+                                        failureReason:failureReason]);
+                         }
+                       }];
 }
 
 - (void)unsubscribeFromTopic:(NSString *)topic {
@@ -840,30 +843,36 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
                            topic, [FIRMessagingPubSub removePrefixFromTopic:topic]);
   }
   __weak FIRMessaging *weakSelf = self;
-  [self retrieveFCMTokenForSenderID:[FIRMessagingTokenManager sharedInstance].fcmSenderID completion:^(NSString * _Nullable FCMToken, NSError * _Nullable error) {
-    if (error) {
-      FIRMessagingLoggerError(
-          kFIRMessagingMessageCodeMessaging012,
-          @"The unsubscription operation failed due to an error getting the FCM token: %@.", error);
-      if (completion) {
-        completion(error);
-      }
-      return;
-    }
-    FIRMessaging *strongSelf = weakSelf;
-    NSString *normalizeTopic = [[strongSelf class] normalizeTopic:topic];
-    if (normalizeTopic.length) {
-      [strongSelf.pubsub unsubscribeFromTopic:normalizeTopic handler:completion];
-      return;
-    }
-    NSString *failureReason =
-        [NSString stringWithFormat:@"Cannot parse topic name: '%@'. Will not unsubscribe.", topic];
-    FIRMessagingLoggerError(kFIRMessagingMessageCodeMessaging011, @"%@", failureReason);
-    if (completion) {
-      completion([NSError messagingErrorWithCode:kFIRMessagingErrorCodeInvalidTopicName
-                                   failureReason:failureReason]);
-    }
-  }];
+  [self retrieveFCMTokenForSenderID:[FIRMessagingTokenManager sharedInstance].fcmSenderID
+                         completion:^(NSString *_Nullable FCMToken, NSError *_Nullable error) {
+                           if (error) {
+                             FIRMessagingLoggerError(kFIRMessagingMessageCodeMessaging012,
+                                                     @"The unsubscription operation failed due to "
+                                                     @"an error getting the FCM token: %@.",
+                                                     error);
+                             if (completion) {
+                               completion(error);
+                             }
+                             return;
+                           }
+                           FIRMessaging *strongSelf = weakSelf;
+                           NSString *normalizeTopic = [[strongSelf class] normalizeTopic:topic];
+                           if (normalizeTopic.length) {
+                             [strongSelf.pubsub unsubscribeFromTopic:normalizeTopic
+                                                             handler:completion];
+                             return;
+                           }
+                           NSString *failureReason = [NSString
+                               stringWithFormat:
+                                   @"Cannot parse topic name: '%@'. Will not unsubscribe.", topic];
+                           FIRMessagingLoggerError(kFIRMessagingMessageCodeMessaging011, @"%@",
+                                                   failureReason);
+                           if (completion) {
+                             completion([NSError
+                                 messagingErrorWithCode:kFIRMessagingErrorCodeInvalidTopicName
+                                          failureReason:failureReason]);
+                           }
+                         }];
 }
 
 #pragma mark - Send
@@ -895,12 +904,6 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   fcmMessage[KFIRMessagingSendMessageAppData] =
       [NSMutableDictionary dictionaryWithDictionary:message];
   return fcmMessage;
-}
-
-#pragma mark - IID dependencies
-
-+ (NSString *)FIRMessagingSDKVersion {
-  return FIRMessagingCurrentLibraryVersion();
 }
 
 #pragma mark - FIRMessagingReceiverDelegate
@@ -1032,6 +1035,5 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   }
   return YES;
 }
-
 
 @end

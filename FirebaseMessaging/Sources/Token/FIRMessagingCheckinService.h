@@ -47,7 +47,9 @@ FOUNDATION_EXPORT NSString *const kFIRMessagingDeviceDataVersionKey;
  *  @param completion Completion hander called on success or failure of device checkin.
  */
 - (void)checkinWithExistingCheckin:(nullable FIRMessagingCheckinPreferences *)existingCheckin
-                        completion:( void (^)(FIRMessagingCheckinPreferences *_Nullable checkinPreferences, NSError *_Nullable error))completion;
+                        completion:
+                            (void (^)(FIRMessagingCheckinPreferences *_Nullable checkinPreferences,
+                                      NSError *_Nullable error))completion;
 
 /**
  *  This would stop any request that the service made to the checkin backend and also

@@ -49,8 +49,8 @@ typedef NS_ENUM(NSInteger, FIRMessagingTokenOperationResult) {
  *                 in case the operation was successful, or if the operation was cancelled.
  */
 typedef void (^FIRMessagingTokenOperationCompletion)(FIRMessagingTokenOperationResult result,
-                                                      NSString *_Nullable token,
-                                                      NSError *_Nullable error);
+                                                     NSString *_Nullable token,
+                                                     NSError *_Nullable error);
 
 @interface FIRMessagingTokenOperation : NSOperation
 

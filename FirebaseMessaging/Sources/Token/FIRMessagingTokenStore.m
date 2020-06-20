@@ -53,7 +53,7 @@ static NSString *const kFIRMessagingTokenKeychainId = @"com.google.iid-tokens";
 }
 
 - (nullable FIRMessagingTokenInfo *)tokenInfoWithAuthorizedEntity:(NSString *)authorizedEntity
-                                                             scope:(NSString *)scope {
+                                                            scope:(NSString *)scope {
   NSString *account = FIRMessagingAppIdentifier();
   NSString *service = [[self class] serviceKeyForAuthorizedEntity:authorizedEntity scope:scope];
   NSData *item = [self.keychain dataForService:service account:account];
@@ -95,8 +95,8 @@ static NSString *const kFIRMessagingTokenKeychainId = @"com.google.iid-tokens";
 
     } @catch (NSException *exception) {
       FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTokenStoreExceptionUnarchivingTokenInfo,
-                               @"Unable to parse token info from Keychain item; item was in an "
-                               @"invalid format");
+                              @"Unable to parse token info from Keychain item; item was in an "
+                              @"invalid format");
       tokenInfo = nil;
     } @finally {
     }

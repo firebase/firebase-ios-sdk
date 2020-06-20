@@ -15,7 +15,6 @@
 import Combine
 import UIKit
 import SwiftUI
-import FirebaseInstanceID
 import FirebaseMessaging
 import FirebaseInstallations
 

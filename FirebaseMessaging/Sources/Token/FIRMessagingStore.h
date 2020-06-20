@@ -97,7 +97,7 @@ NS_ASSUME_NONNULL_BEGIN
  *          returns nil.
  */
 - (nullable FIRMessagingTokenInfo *)tokenInfoWithAuthorizedEntity:(NSString *)authorizedEntity
-                                                             scope:(NSString *)scope;
+                                                            scope:(NSString *)scope;
 /**
  *  Return all cached token infos from the Keychain.
  *

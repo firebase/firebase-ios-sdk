@@ -41,7 +41,6 @@ typedef NS_OPTIONS(NSUInteger, FIRMessagingInvalidTokenReason) {
 @property(nonatomic, readwrite, strong) NSString *fcmSenderID;
 @property(nonatomic, readwrite, strong) NSString *firebaseAppID;
 
-
 + (instancetype)sharedInstance;
 
 /// Expose the auth service, so it can be used by others
@@ -69,8 +68,8 @@ typedef NS_OPTIONS(NSUInteger, FIRMessagingInvalidTokenReason) {
                                   handler:(FIRMessagingFCMTokenFetchCompletion)handler;
 
 - (void)tokenWithAuthorizedEntity:(NSString *)authorizedEntity
-  scope:(NSString *)scope
-options:(NSDictionary *)options
+                            scope:(NSString *)scope
+                          options:(NSDictionary *)options
                           handler:(FIRMessagingFCMTokenFetchCompletion)handler;
 
 /**
@@ -82,7 +81,7 @@ options:(NSDictionary *)options
  *  @return The cached token info, if available, matching the parameters.
  */
 - (FIRMessagingTokenInfo *)cachedTokenInfoWithAuthorizedEntity:(NSString *)authorizedEntity
-                                                          scope:(NSString *)scope;
+                                                         scope:(NSString *)scope;
 
 /**
  *  Delete the token for the given authorizedEntity and scope. If the token has
@@ -159,13 +158,13 @@ options:(NSDictionary *)options
  *  @return The array of FIRMessagingTokenInfo objects which were invalidated.
  */
 - (NSArray<FIRMessagingTokenInfo *> *)updateTokensToAPNSDeviceToken:(NSData *)deviceToken
-                                                           isSandbox:(BOOL)isSandbox;
+                                                          isSandbox:(BOOL)isSandbox;
 
 /*
  * Set APNS token
  */
 - (void)setAPNSToken:(NSData *)APNSToken withUserInfo:(NSDictionary *)userInfo;
 
--(BOOL)hasValidCheckinInfo;
+- (BOOL)hasValidCheckinInfo;
 
 @end

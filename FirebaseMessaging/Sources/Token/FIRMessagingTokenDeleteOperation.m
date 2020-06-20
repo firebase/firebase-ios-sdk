@@ -51,12 +51,10 @@
       [FIRMessagingTokenOperation standardQueryItemsWithDeviceID:deviceAuthID scope:self.scope];
   [queryItems addObject:[NSURLQueryItem queryItemWithName:@"delete" value:@"true"]];
   if (self.action == FIRMessagingTokenActionDeleteTokenAndIID) {
-    [queryItems addObject:[NSURLQueryItem queryItemWithName:@"iid-operation"
-                                                                 value:@"delete"]];
+    [queryItems addObject:[NSURLQueryItem queryItemWithName:@"iid-operation" value:@"delete"]];
   }
   if (self.authorizedEntity) {
-    [queryItems addObject:[NSURLQueryItem queryItemWithName:@"sender"
-                                                                 value:self.authorizedEntity]];
+    [queryItems addObject:[NSURLQueryItem queryItemWithName:@"sender" value:self.authorizedEntity]];
   }
   // Typically we include our public key-signed url items, but in some cases (like deleting all FCM
   // tokens), we don't.
@@ -70,8 +68,8 @@
   NSString *content = components.query;
   request.HTTPBody = [content dataUsingEncoding:NSUTF8StringEncoding];
   FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTokenDeleteOperationFetchRequest,
-                           @"Unregister request to %@ content: %@", FIRMessagingTokenRegisterServer(),
-                           content);
+                          @"Unregister request to %@ content: %@",
+                          FIRMessagingTokenRegisterServer(), content);
 
   FIRMessaging_WEAKIFY(self);
   void (^requestHandler)(NSData *, NSURLResponse *, NSError *) =
@@ -90,24 +88,26 @@
                          error:(NSError *)error {
   if (error) {
     FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTokenDeleteOperationRequestError,
-                             @"Device unregister HTTP fetch error. Error code: %ld",
-                             error.code);
+                            @"Device unregister HTTP fetch error. Error code: %ld", error.code);
     [self finishWithResult:FIRMessagingTokenOperationError token:nil error:error];
     return;
   }
 
   NSString *dataResponse = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
   if (dataResponse.length == 0) {
-    NSError *error = [NSError messagingErrorWithCode:kFIRMessagingErrorCodeUnknown failureReason:@"Empty response."];
+    NSError *error = [NSError messagingErrorWithCode:kFIRMessagingErrorCodeUnknown
+                                       failureReason:@"Empty response."];
     [self finishWithResult:FIRMessagingTokenOperationError token:nil error:error];
     return;
   }
 
   if (![dataResponse hasPrefix:@"deleted="] && ![dataResponse hasPrefix:@"token="]) {
-    NSString *failureReason = [NSString stringWithFormat: @"Invalid unregister response %@", response];
-    FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTokenDeleteOperationBadResponse,
-                            @"%@", failureReason);
-    NSError *error = [NSError messagingErrorWithCode:kFIRMessagingErrorCodeUnknown failureReason:failureReason];
+    NSString *failureReason =
+        [NSString stringWithFormat:@"Invalid unregister response %@", response];
+    FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTokenDeleteOperationBadResponse, @"%@",
+                            failureReason);
+    NSError *error = [NSError messagingErrorWithCode:kFIRMessagingErrorCodeUnknown
+                                       failureReason:failureReason];
     [self finishWithResult:FIRMessagingTokenOperationError token:nil error:error];
     return;
   }

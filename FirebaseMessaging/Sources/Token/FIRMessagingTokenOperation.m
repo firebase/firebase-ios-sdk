@@ -22,11 +22,11 @@
 #import "FIRMessagingCheckinPreferences.h"
 #import "FIRMessagingLogger.h"
 #import "FIRMessagingUtilities.h"
+#import "FIRMessagingVersionUtilities.h"
 #import "NSError+FIRMessaging.h"
 
 static const NSInteger kFIRMessagingPlatformVersionIOS = 2;
 
-static NSString *const kFIRMessagingParamInstanceID = @"appid";
 // Scope parameter that defines the service using the token
 static NSString *const kFIRMessagingParamScope = @"X-scope";
 // Defines the SDK version
@@ -135,7 +135,9 @@ static NSString *const kFIRMessagingParamFCMLibVersion = @"X-cliv";
     FIRMessagingErrorCode errorCode = kFIRMessagingErrorCodeRegistrarFailedToCheckIn;
     [self finishWithResult:FIRMessagingTokenOperationError
                      token:nil
-                     error:[NSError messagingErrorWithCode:errorCode failureReason:@"Failed to checkin before token registration."]];
+                     error:[NSError messagingErrorWithCode:errorCode
+                                             failureReason:
+                                                 @"Failed to checkin before token registration."]];
     return;
   }
 
@@ -187,6 +189,7 @@ static NSString *const kFIRMessagingParamFCMLibVersion = @"X-cliv";
 }
 
 #pragma mark - Request Construction
+
 + (NSMutableURLRequest *)requestWithAuthHeader:(NSString *)authHeaderString
                                   FISAuthToken:(NSString *)FISAuthToken {
   NSURL *url = [NSURL URLWithString:FIRMessagingTokenRegisterServer()];
@@ -203,44 +206,42 @@ static NSString *const kFIRMessagingParamFCMLibVersion = @"X-cliv";
 }
 
 + (NSMutableArray<NSURLQueryItem *> *)standardQueryItemsWithDeviceID:(NSString *)deviceID
-                                                                          scope:(NSString *)scope {
-  NSMutableArray<FIRMessagingURLQueryItem *> *queryItems = [NSMutableArray arrayWithCapacity:8];
+                                                               scope:(NSString *)scope {
+  NSMutableArray<NSURLQueryItem *> *queryItems = [NSMutableArray arrayWithCapacity:8];
 
   // E.g. X-osv=10.2.1
   NSString *systemVersion = [GULAppEnvironmentUtil systemVersion];
-  [queryItems addObject:[FIRMessagingURLQueryItem queryItemWithName:@"X-osv" value:systemVersion]];
+  [queryItems addObject:[NSURLQueryItem queryItemWithName:@"X-osv" value:systemVersion]];
   // E.g. device=
   if (deviceID) {
-    [queryItems addObject:[FIRMessagingURLQueryItem queryItemWithName:@"device" value:deviceID]];
+    [queryItems addObject:[NSURLQueryItem queryItemWithName:@"device" value:deviceID]];
   }
   // E.g. X-scope=fcm
   if (scope) {
-    [queryItems addObject:[FIRMessagingURLQueryItem queryItemWithName:kFIRMessagingParamScope
-                                                                 value:scope]];
+    [queryItems addObject:[NSURLQueryItem queryItemWithName:kFIRMessagingParamScope value:scope]];
   }
   // E.g. plat=2
   NSString *platform = [NSString stringWithFormat:@"%ld", (long)kFIRMessagingPlatformVersionIOS];
-  [queryItems addObject:[FIRMessagingURLQueryItem queryItemWithName:@"plat" value:platform]];
+  [queryItems addObject:[NSURLQueryItem queryItemWithName:@"plat" value:platform]];
   // E.g. app=com.myapp.foo
   NSString *appIdentifier = FIRMessagingAppIdentifier();
-  [queryItems addObject:[FIRMessagingURLQueryItem queryItemWithName:@"app" value:appIdentifier]];
+  [queryItems addObject:[NSURLQueryItem queryItemWithName:@"app" value:appIdentifier]];
   // E.g. app_ver=1.5
   NSString *appVersion = FIRMessagingCurrentAppVersion();
-  [queryItems addObject:[FIRMessagingURLQueryItem queryItemWithName:@"app_ver" value:appVersion]];
+  [queryItems addObject:[NSURLQueryItem queryItemWithName:@"app_ver" value:appVersion]];
   // E.g. X-cliv=fiid-1.2.3
   NSString *fcmLibraryVersion =
-      [NSString stringWithFormat:@"fiid-%@", FIRMessagingCurrentGCMVersion()];
+      [NSString stringWithFormat:@"fiid-%@", FIRMessagingCurrentLibraryVersion()];
   if (fcmLibraryVersion.length) {
-    FIRMessagingURLQueryItem *gcmLibVersion =
-        [FIRMessagingURLQueryItem queryItemWithName:kFIRMessagingParamFCMLibVersion
-                                               value:fcmLibraryVersion];
+    NSURLQueryItem *gcmLibVersion =
+        [NSURLQueryItem queryItemWithName:kFIRMessagingParamFCMLibVersion value:fcmLibraryVersion];
     [queryItems addObject:gcmLibVersion];
   }
 
   return queryItems;
 }
 
-#pragma mark - HTTP Header
+#pragma mark -  Header
 
 + (NSString *)HTTPAuthHeaderFromCheckin:(FIRMessagingCheckinPreferences *)checkin {
   NSString *deviceID = checkin.deviceID;

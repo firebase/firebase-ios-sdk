@@ -99,13 +99,16 @@ struct ContentView: View {
   }
 
   func getToken() {
-    InstanceID.instanceID().instanceID { result, error in
-      guard let result = result, error == nil else {
+    guard let app = FirebaseApp.app() else {
+      return
+    }
+    let senderID = app.options.gcmSenderID
+    Messaging.messaging().retrieveFCMToken(forSenderID: senderID) { token, error in
+      guard let token = token, error == nil else {
         self.log = "Failed getting iid and token: \(String(describing: error))"
         return
       }
-      self.identity.token = result.token
-      self.identity.instanceID = result.instanceID
+      self.identity.token = token
       self.log = "Successfully got token."
     }
   }
@@ -125,13 +128,13 @@ struct ContentView: View {
   }
 
   func deleteID() {
-    InstanceID.instanceID().deleteID { error in
-      if let error = error as NSError? {
-        self.log = "Failed deleting ID: \(error)"
-        return
-      }
-      self.log = "Successfully deleted ID."
-    }
+//    InstanceID.instanceID().deleteID { error in
+//      if let error = error as NSError? {
+//        self.log = "Failed deleting ID: \(error)"
+//        return
+//      }
+//      self.log = "Successfully deleted ID."
+//    }
   }
 
   func deleteFID() {

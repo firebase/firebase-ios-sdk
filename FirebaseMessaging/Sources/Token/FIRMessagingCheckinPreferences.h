@@ -61,7 +61,6 @@ FOUNDATION_EXPORT const NSTimeInterval kFIRMessagingDefaultCheckinInterval;
  */
 - (BOOL)hasValidCheckinInfo;
 
-
 - (BOOL)hasPreCachedAuthCredentials;
 - (void)setHasPreCachedAuthCredentials:(BOOL)hasPreCachedAuthCredentials;
 

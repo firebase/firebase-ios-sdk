@@ -26,7 +26,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property(readonly, strong)
     NSMutableArray<FIRMessagingTokenOperationCompletion> *completionHandlers;
 
-
 + (NSURLSession *)sharedURLSession;
 
 #pragma mark - Initialization
@@ -39,7 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - Request Construction
 + (NSMutableArray<NSURLQueryItem *> *)standardQueryItemsWithDeviceID:(NSString *)deviceID
-                                                                          scope:(NSString *)scope;
+                                                               scope:(NSString *)scope;
 - (NSMutableURLRequest *)tokenRequest;
 
 #pragma mark - HTTP Headers
