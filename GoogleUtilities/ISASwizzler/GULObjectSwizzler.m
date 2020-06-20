@@ -177,7 +177,8 @@
     // TODO: Consider adding a flag that can be set by the host application to dispose the class
     // pair unconditionally. It may be used by apps that use ISA Swizzling themself and are
     // confident in disposing their subclasses.
-    BOOL isSwizzledObjectInstanceOfGeneratedClass = object_getClass(_swizzledObject) == _generatedClass;
+    BOOL isSwizzledObjectInstanceOfGeneratedClass =
+        object_getClass(_swizzledObject) == _generatedClass;
 
     if (isSwizzledObjectInstanceOfGeneratedClass) {
       Class generatedClass = _generatedClass;

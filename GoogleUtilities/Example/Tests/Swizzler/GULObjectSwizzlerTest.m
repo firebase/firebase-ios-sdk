@@ -330,12 +330,12 @@
     NSObject *object = [[NSObject alloc] init];
     GULProxy *proxyObject = [GULProxy proxyWithDelegate:object];
 
-      GULObjectSwizzler *swizzler = [[GULObjectSwizzler alloc] initWithObject:proxyObject];
-      weakSwizzler = swizzler;
-      [swizzler copySelector:@selector(donorDescription)
-                   fromClass:[GULObjectSwizzlerTest class]
-             isClassSelector:NO];
-      [swizzler swizzle];
+    GULObjectSwizzler *swizzler = [[GULObjectSwizzler alloc] initWithObject:proxyObject];
+    weakSwizzler = swizzler;
+    [swizzler copySelector:@selector(donorDescription)
+                 fromClass:[GULObjectSwizzlerTest class]
+           isClassSelector:NO];
+    [swizzler swizzle];
 
     // Someone else ISA Swizzles the same object after GULObjectSwizzler.
     Class originalClass = object_getClass(proxyObject);
@@ -358,7 +358,8 @@
   Class generatedClass = nil;
   __weak GULObjectSwizzler *weakSwizzler;
 
-  XCTestExpectation *swizzlerDeallocatedExpectation = [self expectationWithDescription:@"swizzlerDeallocatedExpectation"];
+  XCTestExpectation *swizzlerDeallocatedExpectation =
+      [self expectationWithDescription:@"swizzlerDeallocatedExpectation"];
 
   @autoreleasepool {
     NSObject *object = [[NSObject alloc] init];
@@ -374,20 +375,23 @@
 
     // Someone else ISA Swizzles the same object after GULObjectSwizzler.
     Class originalClass = object_getClass(object);
-    NSString *newClassName = [NSString
-        stringWithFormat:@"gul_test_%p_%@", object, NSStringFromClass(originalClass)];
+    NSString *newClassName =
+        [NSString stringWithFormat:@"gul_test_%p_%@", object, NSStringFromClass(originalClass)];
     generatedClass = objc_allocateClassPair(originalClass, newClassName.UTF8String, 0);
     objc_registerClassPair(generatedClass);
     object_setClass(object, generatedClass);
 
-
     // Release GULObjectSwizzler
-    [GULObjectSwizzler setAssociatedObject:object key:kSwizzlerAssociatedObjectKey value:nil association:GUL_ASSOCIATION_RETAIN];
+    [GULObjectSwizzler setAssociatedObject:object
+                                       key:kSwizzlerAssociatedObjectKey
+                                     value:nil
+                               association:GUL_ASSOCIATION_RETAIN];
 
     // Wait for a while
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-      [swizzlerDeallocatedExpectation fulfill];
-    });
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0 * NSEC_PER_SEC)),
+                   dispatch_get_main_queue(), ^{
+                     [swizzlerDeallocatedExpectation fulfill];
+                   });
 
     [self waitForExpectations:@[ swizzlerDeallocatedExpectation ] timeout:2];
 
@@ -400,11 +404,13 @@
   objc_disposeClassPair(generatedClass);
 }
 
-// The test is disabled because in the case of success it should crash with SIGABRT, so it is not suitable for CI.
+// The test is disabled because in the case of success it should crash with SIGABRT, so it is not
+// suitable for CI.
 - (void)disabledForCI_testSwizzlerDisposesGeneratedClass {
   __weak GULObjectSwizzler *weakSwizzler;
 
-  XCTestExpectation *swizzlerDeallocatedExpectation = [self expectationWithDescription:@"swizzlerDeallocatedExpectation"];
+  XCTestExpectation *swizzlerDeallocatedExpectation =
+      [self expectationWithDescription:@"swizzlerDeallocatedExpectation"];
 
   @autoreleasepool {
     NSObject *object = [[NSObject alloc] init];
@@ -419,12 +425,16 @@
     }
 
     // Release GULObjectSwizzler
-    [GULObjectSwizzler setAssociatedObject:object key:kSwizzlerAssociatedObjectKey value:nil association:GUL_ASSOCIATION_RETAIN];
+    [GULObjectSwizzler setAssociatedObject:object
+                                       key:kSwizzlerAssociatedObjectKey
+                                     value:nil
+                               association:GUL_ASSOCIATION_RETAIN];
 
     // Wait for a while until GULObjectSwizzler has disposed the generated class.
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-      [swizzlerDeallocatedExpectation fulfill];
-    });
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0 * NSEC_PER_SEC)),
+                   dispatch_get_main_queue(), ^{
+                     [swizzlerDeallocatedExpectation fulfill];
+                   });
 
     [self waitForExpectations:@[ swizzlerDeallocatedExpectation ] timeout:2];
 
