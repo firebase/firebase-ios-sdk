@@ -85,8 +85,8 @@ const NSTimeInterval kDefaultFetchTokenInterval = 7 * 24 * 60 * 60;  // 7 days.
   NSString *currentAppVersion = FIRMessagingCurrentAppVersion();
   if (!_appVersion || ![_appVersion isEqualToString:currentAppVersion]) {
     FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTokenManager004,
-                             @"Invalidating cached token for %@ (%@) due to app version change.",
-                             _authorizedEntity, _scope);
+                            @"Invalidating cached token for %@ (%@) due to app version change.",
+                            _authorizedEntity, _scope);
     return NO;
   }
 
@@ -104,7 +104,7 @@ const NSTimeInterval kDefaultFetchTokenInterval = 7 * 24 * 60 * 60;  // 7 days.
   // information.
   if (FIRMessagingHasLocaleChanged()) {
     FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTokenInfoLocaleChanged,
-                             @"Invalidating cached token due to locale change");
+                            @"Invalidating cached token due to locale change");
     return NO;
   }
 
@@ -166,7 +166,7 @@ const NSTimeInterval kDefaultFetchTokenInterval = 7 * 24 * 60 * 60;  // 7 days.
 #pragma clang diagnostic pop
     } @catch (NSException *exception) {
       FIRMessagingLoggerInfo(kFIRMessagingMessageCodeTokenInfoBadAPNSInfo,
-                              @"Could not parse raw APNS Info while parsing archived token info.");
+                             @"Could not parse raw APNS Info while parsing archived token info.");
       APNSInfo = nil;
     } @finally {
     }

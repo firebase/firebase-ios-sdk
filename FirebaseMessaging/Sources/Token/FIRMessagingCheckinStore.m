@@ -18,9 +18,9 @@
 
 #import "FIRMessagingAuthKeyChain.h"
 #import "FIRMessagingBackupExcludedPlist.h"
-#import "FIRMessagingCode.h"
 #import "FIRMessagingCheckinPreferences.h"
 #import "FIRMessagingCheckinService.h"
+#import "FIRMessagingCode.h"
 #import "FIRMessagingLogger.h"
 #import "FIRMessagingUtilities.h"
 #import "FIRMessagingVersionUtilities.h"
@@ -47,7 +47,7 @@ NSString *const kFIRMessagingCheckinKeychainService = @"com.google.iid.checkin";
                             subDirectoryName:(NSString *)subDirectoryName {
   FIRMessagingBackupExcludedPlist *plist =
       [[FIRMessagingBackupExcludedPlist alloc] initWithFileName:checkinFilename
-                                                    subDirectory:subDirectoryName];
+                                                   subDirectory:subDirectoryName];
 
   FIRMessagingAuthKeychain *keychain =
       [[FIRMessagingAuthKeychain alloc] initWithIdentifier:kFIRMessagingCheckinKeychainGeneric];
@@ -84,20 +84,19 @@ NSString *const kFIRMessagingCheckinKeychainService = @"com.google.iid.checkin";
 
   if (![checkinKeychainContent length]) {
     NSString *failureReason = @"Failed to get checkin keychain content from memory.";
-    FIRMessagingLoggerDebug(kFIRMessagingMessageCodeCheckinStore000,
-                             failureReason);
+    FIRMessagingLoggerDebug(kFIRMessagingMessageCodeCheckinStore000, failureReason);
     if (handler) {
-      handler([NSError
-          messagingErrorWithCode:kFIRMessagingErrorCodeRegistrarFailedToCheckIn failureReason:failureReason]);
+      handler([NSError messagingErrorWithCode:kFIRMessagingErrorCodeRegistrarFailedToCheckIn
+                                failureReason:failureReason]);
     }
     return;
   }
   if (![checkinPlistContents count]) {
     FIRMessagingLoggerDebug(kFIRMessagingMessageCodeCheckinStore001,
-                             @"Failed to get checkin plist contents from memory.");
+                            @"Failed to get checkin plist contents from memory.");
     if (handler) {
-      handler([NSError
-          errorWithFIRMessagingErrorCode:kFIRMessagingErrorCodeRegistrarFailedToCheckIn]);
+      handler(
+          [NSError errorWithFIRMessagingErrorCode:kFIRMessagingErrorCodeRegistrarFailedToCheckIn]);
     }
     return;
   }
@@ -106,8 +105,8 @@ NSString *const kFIRMessagingCheckinKeychainService = @"com.google.iid.checkin";
   NSError *error;
   if (![self.plist writeDictionary:checkinPlistContents error:&error]) {
     FIRMessagingLoggerDebug(kFIRMessagingMessageCodeCheckinStore003,
-                             @"Failed to save checkin plist contents."
-                             @"Will delete auth credentials");
+                            @"Failed to save checkin plist contents."
+                            @"Will delete auth credentials");
     [self.keychain removeItemsMatchingService:kFIRMessagingCheckinKeychainService
                                       account:self.bundleIdentifierForKeychainAccount
                                       handler:nil];
@@ -117,7 +116,7 @@ NSString *const kFIRMessagingCheckinKeychainService = @"com.google.iid.checkin";
     return;
   }
   FIRMessagingLoggerDebug(kFIRMessagingMessageCodeCheckinStoreCheckinPlistSaved,
-                           @"Checkin plist file is saved");
+                          @"Checkin plist file is saved");
 
   // Save the deviceID and secret in the Keychain
   if (!preferences.hasPreCachedAuthCredentials) {
@@ -149,7 +148,7 @@ NSString *const kFIRMessagingCheckinKeychainService = @"com.google.iid.checkin";
     return;
   }
   FIRMessagingLoggerDebug(kFIRMessagingMessageCodeCheckinStoreCheckinPlistDeleted,
-                           @"Deleted checkin plist file.");
+                          @"Deleted checkin plist file.");
   // Remove deviceID and secret from Keychain
   [self.keychain removeItemsMatchingService:kFIRMessagingCheckinKeychainService
                                     account:self.bundleIdentifierForKeychainAccount
@@ -181,7 +180,7 @@ NSString *const kFIRMessagingCheckinKeychainService = @"com.google.iid.checkin";
       // Couldn't find checkin credentials in keychain but found them in the plist.
       checkinPreferences =
           [[FIRMessagingCheckinPreferences alloc] initWithDeviceID:plistDeviceAuthID
-                                                        secretToken:plistSecretToken];
+                                                       secretToken:plistSecretToken];
     } else {
       // Couldn't find checkin credentials in keychain nor plist
       return nil;

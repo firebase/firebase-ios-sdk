@@ -66,10 +66,9 @@ NSString *const kFIRMessagingHeartbeatTag = @"fire-iid";
   NSString *deviceAuthID = self.checkinPreferences.deviceID;
   NSMutableArray<NSURLQueryItem *> *queryItems =
       [[self class] standardQueryItemsWithDeviceID:deviceAuthID scope:self.scope];
-  [queryItems addObject:[NSURLQueryItem queryItemWithName:@"sender"
-                                                               value:self.authorizedEntity]];
+  [queryItems addObject:[NSURLQueryItem queryItemWithName:@"sender" value:self.authorizedEntity]];
   [queryItems addObject:[NSURLQueryItem queryItemWithName:@"X-subtype"
-                                                               value:self.authorizedEntity]];
+                                                    value:self.authorizedEntity]];
 
   if (self.instanceID.length > 0) {
     [queryItems addObject:[NSURLQueryItem queryItemWithName:kFIRMessagingParamInstanceID
@@ -83,9 +82,8 @@ NSString *const kFIRMessagingHeartbeatTag = @"fire-iid";
     NSString *APNSString = FIRMessagingAPNSTupleStringForTokenAndServerType(
         apnsTokenData, ((NSNumber *)apnsSandboxValue).boolValue);
     // The name of the query item happens to be the same as the dictionary key
-    NSURLQueryItem *item =
-        [NSURLQueryItem queryItemWithName:kFIRMessagingTokenOptionsAPNSKey
-                                               value:APNSString];
+    NSURLQueryItem *item = [NSURLQueryItem queryItemWithName:kFIRMessagingTokenOptionsAPNSKey
+                                                       value:APNSString];
     [queryItems addObject:item];
   }
   id firebaseAppID = self.options[kFIRMessagingTokenOptionsFirebaseAppIDKey];
@@ -93,7 +91,7 @@ NSString *const kFIRMessagingHeartbeatTag = @"fire-iid";
     // The name of the query item happens to be the same as the dictionary key
     NSURLQueryItem *item =
         [NSURLQueryItem queryItemWithName:kFIRMessagingTokenOptionsFirebaseAppIDKey
-                                               value:(NSString *)firebaseAppID];
+                                    value:(NSString *)firebaseAppID];
     [queryItems addObject:item];
   }
 
@@ -102,8 +100,8 @@ NSString *const kFIRMessagingHeartbeatTag = @"fire-iid";
   NSString *content = components.query;
   request.HTTPBody = [content dataUsingEncoding:NSUTF8StringEncoding];
   FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTokenFetchOperationFetchRequest,
-                           @"Register request to %@ content: %@", FIRMessagingTokenRegisterServer(),
-                           content);
+                          @"Register request to %@ content: %@", FIRMessagingTokenRegisterServer(),
+                          content);
 
   FIRMessaging_WEAKIFY(self);
   void (^requestHandler)(NSData *, NSURLResponse *, NSError *) =
@@ -111,7 +109,6 @@ NSString *const kFIRMessagingHeartbeatTag = @"fire-iid";
         FIRMessaging_STRONGIFY(self);
         [self handleResponseWithData:data response:response error:error];
       };
-
 
   NSURLSession *session = [FIRMessagingTokenOperation sharedURLSession];
   self.dataTask = [session dataTaskWithRequest:request completionHandler:requestHandler];
@@ -125,14 +122,15 @@ NSString *const kFIRMessagingHeartbeatTag = @"fire-iid";
                          error:(NSError *)error {
   if (error) {
     FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTokenFetchOperationRequestError,
-                             @"Token fetch HTTP error. Error Code: %ld", (long)error.code);
+                            @"Token fetch HTTP error. Error Code: %ld", (long)error.code);
     [self finishWithResult:FIRMessagingTokenOperationError token:nil error:error];
     return;
   }
   NSString *dataResponse = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
 
   if (dataResponse.length == 0) {
-    NSError *error = [NSError messagingErrorWithCode:kFIRMessagingErrorCodeUnknown failureReason:@"Empty response."];
+    NSError *error = [NSError messagingErrorWithCode:kFIRMessagingErrorCodeUnknown
+                                       failureReason:@"Empty response."];
     [self finishWithResult:FIRMessagingTokenOperationError token:nil error:error];
     return;
   }
@@ -175,17 +173,17 @@ NSString *const kFIRMessagingHeartbeatTag = @"fire-iid";
       [center postNotificationName:kFIRMessagingIdentityInvalidatedNotification object:nil];
 
       NSString *failureReason = @"Identity is invalid. Server request identity reset.";
-      FIRMessagingLoggerDebug(kFIRMessagingMessageCodeInternal001,
-                              @"%@", failureReason);
-      responseError =
-          [NSError messagingErrorWithCode:kFIRMessagingErrorCodeInvalidIdentity failureReason:failureReason];
+      FIRMessagingLoggerDebug(kFIRMessagingMessageCodeInternal001, @"%@", failureReason);
+      responseError = [NSError messagingErrorWithCode:kFIRMessagingErrorCodeInvalidIdentity
+                                        failureReason:failureReason];
     }
   }
   if (!responseError) {
-    NSString *failureReason =@"Invalid fetch response, expected 'token' or 'Error' key";
-    FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTokenFetchOperationBadResponse,
-                            @"%@", failureReason);
-    responseError = [NSError messagingErrorWithCode:kFIRMessagingErrorCodeUnknown failureReason:failureReason];
+    NSString *failureReason = @"Invalid fetch response, expected 'token' or 'Error' key";
+    FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTokenFetchOperationBadResponse, @"%@",
+                            failureReason);
+    responseError = [NSError messagingErrorWithCode:kFIRMessagingErrorCodeUnknown
+                                      failureReason:failureReason];
   }
   [self finishWithResult:FIRMessagingTokenOperationError token:nil error:responseError];
 }
