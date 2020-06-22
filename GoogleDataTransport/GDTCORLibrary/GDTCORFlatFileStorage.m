@@ -21,7 +21,6 @@
 #import <GoogleDataTransport/GDTCOREvent.h>
 #import <GoogleDataTransport/GDTCORLifecycle.h>
 #import <GoogleDataTransport/GDTCORPlatform.h>
-#import <GoogleDataTransport/GDTCORPrioritizer.h>
 #import <GoogleDataTransport/GDTCORStorageEventSelector.h>
 
 #import "GDTCORLibrary/Private/GDTCOREvent_Private.h"
@@ -54,6 +53,9 @@ NSString *const kGDTCORBatchComponentsExpirationKey = @"GDTCORBatchComponentsExp
 @implementation GDTCORFlatFileStorage
 
 + (void)load {
+#if !NDEBUG
+  [[GDTCORRegistrar sharedInstance] registerStorage:[self sharedInstance] target:kGDTCORTargetTest];
+#endif  // !NDEBUG
   [[GDTCORRegistrar sharedInstance] registerStorage:[self sharedInstance] target:kGDTCORTargetCCT];
   [[GDTCORRegistrar sharedInstance] registerStorage:[self sharedInstance] target:kGDTCORTargetFLL];
   [[GDTCORRegistrar sharedInstance] registerStorage:[self sharedInstance] target:kGDTCORTargetCSH];
@@ -64,160 +66,6 @@ NSString *const kGDTCORBatchComponentsExpirationKey = @"GDTCORBatchComponentsExp
   // unless the class name is mapped early.
   [NSKeyedUnarchiver setClass:[GDTCOREvent class] forClassName:@"GDTCORStoredEvent"];
   [NSKeyedUnarchiver setClass:[GDTCORFlatFileStorage class] forClassName:@"GDTCORStorage"];
-}
-
-+ (NSString *)archivePath {
-  static NSString *archivePath;
-  static dispatch_once_t onceToken;
-  dispatch_once(&onceToken, ^{
-    archivePath =
-        [GDTCORRootDirectory() URLByAppendingPathComponent:@"GDTCORFlatFileStorageArchive"].path;
-  });
-  return archivePath;
-}
-
-+ (NSString *)eventDataStoragePath {
-  static NSString *eventDataPath;
-  static dispatch_once_t onceToken;
-  dispatch_once(&onceToken, ^{
-    eventDataPath =
-        [GDTCORRootDirectory() URLByAppendingPathComponent:NSStringFromClass([self class])
-                                               isDirectory:YES]
-            .path;
-    eventDataPath = [eventDataPath stringByAppendingPathComponent:@"gdt_event_data"];
-    if (![[NSFileManager defaultManager] fileExistsAtPath:eventDataPath isDirectory:NULL]) {
-      NSError *error;
-      [[NSFileManager defaultManager] createDirectoryAtPath:eventDataPath
-                                withIntermediateDirectories:YES
-                                                 attributes:0
-                                                      error:&error];
-      GDTCORAssert(error == nil, @"Creating the library data path failed: %@", error);
-    }
-  });
-  return eventDataPath;
-}
-
-+ (NSString *)batchDataStoragePath {
-  static NSString *batchDataPath;
-  static dispatch_once_t onceToken;
-  dispatch_once(&onceToken, ^{
-    batchDataPath =
-        [GDTCORRootDirectory() URLByAppendingPathComponent:NSStringFromClass([self class])
-                                               isDirectory:YES]
-            .path;
-    batchDataPath = [batchDataPath stringByAppendingPathComponent:@"gdt_batch_data"];
-    if (![[NSFileManager defaultManager] fileExistsAtPath:batchDataPath isDirectory:NULL]) {
-      NSError *error;
-      [[NSFileManager defaultManager] createDirectoryAtPath:batchDataPath
-                                withIntermediateDirectories:YES
-                                                 attributes:0
-                                                      error:&error];
-      GDTCORAssert(error == nil, @"Creating the batch data path failed: %@", error);
-    }
-  });
-  return batchDataPath;
-}
-
-+ (NSString *)libraryDataStoragePath {
-  static NSString *libraryDataPath;
-  static dispatch_once_t onceToken;
-  dispatch_once(&onceToken, ^{
-    libraryDataPath =
-        [GDTCORRootDirectory() URLByAppendingPathComponent:NSStringFromClass([self class])
-                                               isDirectory:YES]
-            .path;
-    libraryDataPath = [libraryDataPath stringByAppendingPathComponent:@"gdt_library_data"];
-  });
-  if (![[NSFileManager defaultManager] fileExistsAtPath:libraryDataPath isDirectory:NULL]) {
-    NSError *error;
-    [[NSFileManager defaultManager] createDirectoryAtPath:libraryDataPath
-                              withIntermediateDirectories:YES
-                                               attributes:0
-                                                    error:&error];
-    GDTCORAssert(error == nil, @"Creating the library data path failed: %@", error);
-  }
-  return libraryDataPath;
-}
-
-+ (NSString *)batchPathForTarget:(GDTCORTarget)target
-                         batchID:(NSNumber *)batchID
-                  expirationDate:(NSDate *)expirationDate {
-  return
-      [NSString stringWithFormat:@"%@/%ld%@%@%@%llu", [GDTCORFlatFileStorage batchDataStoragePath],
-                                 (long)target, kMetadataSeparator, batchID, kMetadataSeparator,
-                                 ((uint64_t)expirationDate.timeIntervalSince1970)];
-}
-
-+ (NSString *)pathForTarget:(GDTCORTarget)target
-                    eventID:(NSNumber *)eventID
-                    qosTier:(NSNumber *)qosTier
-             expirationDate:(NSDate *)expirationDate
-                  mappingID:(NSString *)mappingID {
-  return [NSString stringWithFormat:@"%@/%ld/%@%@%@%@%llu%@%@",
-                                    [GDTCORFlatFileStorage eventDataStoragePath], (long)target,
-                                    eventID, kMetadataSeparator, qosTier, kMetadataSeparator,
-                                    ((uint64_t)expirationDate.timeIntervalSince1970),
-                                    kMetadataSeparator, mappingID];
-}
-
-- (void)pathsForTarget:(GDTCORTarget)target
-              eventIDs:(nullable NSSet<NSNumber *> *)eventIDs
-              qosTiers:(nullable NSSet<NSNumber *> *)qosTiers
-            mappingIDs:(nullable NSSet<NSString *> *)mappingIDs
-            onComplete:(void (^)(NSSet<NSString *> *paths))onComplete {
-  void (^completion)(NSSet<NSString *> *) = onComplete == nil ? ^(NSSet<NSString *> *paths){} : onComplete;
-  dispatch_async(_storageQueue, ^{
-    NSMutableSet<NSString *> *paths = [[NSMutableSet alloc] init];
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    NSString *targetPath = [NSString
-        stringWithFormat:@"%@/%ld", [GDTCORFlatFileStorage eventDataStoragePath], (long)target];
-    [fileManager createDirectoryAtPath:targetPath
-           withIntermediateDirectories:YES
-                            attributes:nil
-                                 error:nil];
-    NSError *error;
-    NSArray<NSString *> *dirPaths = [fileManager contentsOfDirectoryAtPath:targetPath error:&error];
-    if (error) {
-      GDTCORLogDebug(@"There was an error reading the contents of the target path: %@", error);
-      completion(paths);
-      return;
-    }
-    BOOL checkingIDs = eventIDs.count > 0;
-    BOOL checkingQosTiers = qosTiers.count > 0;
-    BOOL checkingMappingIDs = mappingIDs.count > 0;
-    BOOL checkingAnything = checkingIDs == NO && checkingQosTiers == NO && checkingMappingIDs == NO;
-    for (NSString *path in dirPaths) {
-      // Skip hidden files that are created as part of atomic file creation.
-      if ([path hasPrefix:@"."]) {
-        continue;
-      }
-      NSString *filePath = [targetPath stringByAppendingPathComponent:path];
-      if (checkingAnything) {
-        [paths addObject:filePath];
-        continue;
-      }
-      NSString *filename = [path lastPathComponent];
-      NSDictionary<NSString *, id> *eventComponents = [self eventComponentsFromFilename:filename];
-      if (!eventComponents) {
-        GDTCORLogDebug(@"There was an error reading the filename components: %@", eventComponents);
-        continue;
-      }
-      NSNumber *eventID = eventComponents[kGDTCOREventComponentsEventIDKey];
-      NSNumber *qosTier = eventComponents[kGDTCOREventComponentsQoSTierKey];
-      NSString *mappingID = eventComponents[kGDTCOREventComponentsMappingIDKey];
-
-      NSNumber *eventIDMatch = checkingIDs ? @([eventIDs containsObject:eventID]) : nil;
-      NSNumber *qosTierMatch = checkingQosTiers ? @([qosTiers containsObject:qosTier]) : nil;
-      NSNumber *mappingIDMatch =
-          checkingMappingIDs ? @([mappingIDs containsObject:mappingID]) : nil;
-      if ((eventIDMatch == nil || eventIDMatch.boolValue) &&
-          (qosTierMatch == nil || qosTierMatch.boolValue) &&
-          (mappingIDMatch == nil || mappingIDMatch.boolValue)) {
-        [paths addObject:filePath];
-      }
-    }
-    completion(paths);
-  });
 }
 
 + (instancetype)sharedInstance {
@@ -234,8 +82,6 @@ NSString *const kGDTCORBatchComponentsExpirationKey = @"GDTCORBatchComponentsExp
   if (self) {
     _storageQueue =
         dispatch_queue_create("com.google.GDTCORFlatFileStorage", DISPATCH_QUEUE_SERIAL);
-    _targetToEventSet = [[NSMutableDictionary alloc] init];
-    _storedEvents = [[NSMutableDictionary alloc] init];
     _uploadCoordinator = [GDTCORUploadCoordinator sharedInstance];
   }
   return self;
@@ -245,12 +91,16 @@ NSString *const kGDTCORBatchComponentsExpirationKey = @"GDTCORBatchComponentsExp
 
 - (void)storeEvent:(GDTCOREvent *)event
         onComplete:(void (^_Nullable)(BOOL wasWritten, NSError *_Nullable error))completion {
-  GDTCORLogDebug(@"Saving event: %@", event);
-  if (event == nil) {
+  //  GDTCORLogDebug(@"Saving event: %@", event);
+  if (event == nil || event.serializedDataObjectBytes == nil) {
     GDTCORLogDebug(@"%@", @"The event was nil, so it was not saved.");
+    if (completion) {
+      completion(NO, [NSError errorWithDomain:NSInternalInconsistencyException
+                                         code:-1
+                                     userInfo:nil]);
+    }
     return;
   }
-  BOOL hadOriginalCompletion = completion != nil;
   if (!completion) {
     completion = ^(BOOL wasWritten, NSError *_Nullable error) {
       GDTCORLogDebug(@"event %@ stored. success:%@ error:%@", event, wasWritten ? @"YES" : @"NO",
@@ -269,49 +119,19 @@ NSString *const kGDTCORBatchComponentsExpirationKey = @"GDTCORBatchComponentsExp
 
   dispatch_async(_storageQueue, ^{
     // Check that a backend implementation is available for this target.
-    NSInteger target = event.target;
-
-    // Check that a prioritizer is available for this target.
-    id<GDTCORPrioritizer> prioritizer =
-        [GDTCORRegistrar sharedInstance].targetToPrioritizer[@(target)];
-    GDTCORAssert(prioritizer, @"There's no prioritizer registered for the given target. Are you "
-                              @"sure you've added the support library for the backend you need?");
-
-    // Write the transport bytes to disk, get a filename.
-    GDTCORAssert([event.dataObject transportBytes],
-                 @"The event should have been serialized to bytes");
-    NSError *error;
-    NSURL *eventFile = [self saveEventBytesToDisk:event eventHash:event.hash error:&error];
-    if (!eventFile || error) {
-      GDTCORLogError(GDTCORMCEFileWriteError, @"Event failed to save to disk: %@", error);
-      completion(NO, error);
-      return;
-    } else {
-      GDTCORLogDebug(@"Event saved to disk: %@", eventFile);
-      completion(YES, error);
-    }
-
-    // Add event to tracking collections.
-    [self addEventToTrackingCollections:event];
-
-    // Have the prioritizer prioritize the event and save state if there was an onComplete block.
-    [prioritizer prioritizeEvent:event];
-    if (hadOriginalCompletion && [prioritizer respondsToSelector:@selector(saveState)]) {
-      [prioritizer saveState];
-      GDTCORLogDebug(@"Prioritizer %@ has saved state due to an event's onComplete block.",
-                     prioritizer);
-    }
-
+    GDTCORTarget target = event.target;
     NSString *filePath = [GDTCORFlatFileStorage pathForTarget:target
                                                       eventID:event.eventID
                                                       qosTier:@(event.qosTier)
                                                expirationDate:event.expirationDate
                                                     mappingID:event.mappingID];
-    error = nil;
+    NSError *error;
     GDTCOREncodeArchive(event, filePath, &error);
     if (error) {
       completion(NO, error);
       return;
+    } else {
+      completion(YES, nil);
     }
 
     // Check the QoS, if it's high priority, notify the target that it has a high priority event.
@@ -319,54 +139,9 @@ NSString *const kGDTCORBatchComponentsExpirationKey = @"GDTCORBatchComponentsExp
       [self.uploadCoordinator forceUploadForTarget:target];
     }
 
-    // Write state to disk if there was an onComplete block or if we're in the background.
-    if (hadOriginalCompletion || [[GDTCORApplication sharedApplication] isRunningInBackground]) {
-      if (hadOriginalCompletion) {
-        GDTCORLogDebug(@"%@",
-                       @"Saving flat file storage state because a completion block was passed.");
-      } else {
-        GDTCORLogDebug(
-            @"%@", @"Saving flat file storage state because the app is running in the background");
-      }
-      NSError *error;
-      GDTCOREncodeArchive(self, [GDTCORFlatFileStorage archivePath], &error);
-      if (error) {
-        GDTCORLogDebug(@"Serializing GDTCORFlatFileStorage to an archive failed: %@", error);
-      }
-    }
-
     // Cancel or end the associated background task if it's still valid.
     [[GDTCORApplication sharedApplication] endBackgroundTask:bgID];
     bgID = GDTCORBackgroundIdentifierInvalid;
-    GDTCORLogDebug(@"Event %@ is stored. There are %ld events stored on disk", event,
-                   (unsigned long)self->_storedEvents.count);
-  });
-}
-
-- (void)removeEvents:(NSSet<NSNumber *> *)eventIDs {
-  NSSet<NSNumber *> *eventsToRemove = [eventIDs copy];
-  dispatch_async(_storageQueue, ^{
-    for (NSNumber *eventID in eventsToRemove) {
-      // Remove from disk, first and foremost.
-      GDTCOREvent *event = self->_storedEvents[eventID];
-      if (event) {
-        NSError *error;
-        if (event.fileURL) {
-          NSURL *fileURL = event.fileURL;
-          BOOL result = [[NSFileManager defaultManager] removeItemAtPath:fileURL.path error:&error];
-          if (!result || error) {
-            GDTCORLogWarning(GDTCORMCWFileReadError,
-                             @"There was an error removing an event file: %@", error);
-          } else {
-            GDTCORLogDebug(@"Removed event from disk: %@", fileURL);
-          }
-        }
-
-        // Remove from the tracking collections.
-        [self.storedEvents removeObjectForKey:event.eventID];
-        [self.targetToEventSet[@(event.target)] removeObject:event];
-      }
-    }
   });
 }
 
@@ -667,41 +442,148 @@ NSString *const kGDTCORBatchComponentsExpirationKey = @"GDTCORBatchComponentsExp
 
 #pragma mark - Private helper methods
 
-/** Saves the event's dataObject to a file using NSData mechanisms.
- *
- * @note This method should only be called from a method within a block on _storageQueue to maintain
- * thread safety.
- *
- * @param event The event.
- * @param eventHash The hash value of the event.
- * @return The filename
- */
-- (NSURL *)saveEventBytesToDisk:(GDTCOREvent *)event
-                      eventHash:(NSUInteger)eventHash
-                          error:(NSError **)error {
-  NSString *eventFileName = [NSString stringWithFormat:@"event-%lu", (unsigned long)eventHash];
-  NSError *writingError;
-  [event writeToGDTPath:eventFileName error:&writingError];
-  if (writingError) {
-    GDTCORLogDebug(@"There was an error saving an event to disk: %@", writingError);
-  }
-  return event.fileURL;
++ (NSString *)eventDataStoragePath {
+  static NSString *eventDataPath;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    eventDataPath =
+        [GDTCORRootDirectory() URLByAppendingPathComponent:NSStringFromClass([self class])
+                                               isDirectory:YES]
+            .path;
+    eventDataPath = [eventDataPath stringByAppendingPathComponent:@"gdt_event_data"];
+    if (![[NSFileManager defaultManager] fileExistsAtPath:eventDataPath isDirectory:NULL]) {
+      NSError *error;
+      [[NSFileManager defaultManager] createDirectoryAtPath:eventDataPath
+                                withIntermediateDirectories:YES
+                                                 attributes:0
+                                                      error:&error];
+      GDTCORAssert(error == nil, @"Creating the library data path failed: %@", error);
+    }
+  });
+  return eventDataPath;
 }
 
-/** Adds the event to internal tracking collections.
- *
- * @note This method should only be called from a method within a block on _storageQueue to maintain
- * thread safety.
- *
- * @param event The event to track.
- */
-- (void)addEventToTrackingCollections:(GDTCOREvent *)event {
-  _storedEvents[event.eventID] = event;
-  NSNumber *target = @(event.target);
-  NSMutableSet<GDTCOREvent *> *events = self.targetToEventSet[target];
-  events = events ? events : [[NSMutableSet alloc] init];
-  [events addObject:event];
-  _targetToEventSet[target] = events;
++ (NSString *)batchDataStoragePath {
+  static NSString *batchDataPath;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    batchDataPath =
+        [GDTCORRootDirectory() URLByAppendingPathComponent:NSStringFromClass([self class])
+                                               isDirectory:YES]
+            .path;
+    batchDataPath = [batchDataPath stringByAppendingPathComponent:@"gdt_batch_data"];
+    if (![[NSFileManager defaultManager] fileExistsAtPath:batchDataPath isDirectory:NULL]) {
+      NSError *error;
+      [[NSFileManager defaultManager] createDirectoryAtPath:batchDataPath
+                                withIntermediateDirectories:YES
+                                                 attributes:0
+                                                      error:&error];
+      GDTCORAssert(error == nil, @"Creating the batch data path failed: %@", error);
+    }
+  });
+  return batchDataPath;
+}
+
++ (NSString *)libraryDataStoragePath {
+  static NSString *libraryDataPath;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    libraryDataPath =
+        [GDTCORRootDirectory() URLByAppendingPathComponent:NSStringFromClass([self class])
+                                               isDirectory:YES]
+            .path;
+    libraryDataPath = [libraryDataPath stringByAppendingPathComponent:@"gdt_library_data"];
+  });
+  if (![[NSFileManager defaultManager] fileExistsAtPath:libraryDataPath isDirectory:NULL]) {
+    NSError *error;
+    [[NSFileManager defaultManager] createDirectoryAtPath:libraryDataPath
+                              withIntermediateDirectories:YES
+                                               attributes:0
+                                                    error:&error];
+    GDTCORAssert(error == nil, @"Creating the library data path failed: %@", error);
+  }
+  return libraryDataPath;
+}
+
++ (NSString *)batchPathForTarget:(GDTCORTarget)target
+                         batchID:(NSNumber *)batchID
+                  expirationDate:(NSDate *)expirationDate {
+  return
+      [NSString stringWithFormat:@"%@/%ld%@%@%@%llu", [GDTCORFlatFileStorage batchDataStoragePath],
+                                 (long)target, kMetadataSeparator, batchID, kMetadataSeparator,
+                                 ((uint64_t)expirationDate.timeIntervalSince1970)];
+}
+
++ (NSString *)pathForTarget:(GDTCORTarget)target
+                    eventID:(NSNumber *)eventID
+                    qosTier:(NSNumber *)qosTier
+             expirationDate:(NSDate *)expirationDate
+                  mappingID:(NSString *)mappingID {
+  return [NSString stringWithFormat:@"%@/%ld/%@%@%@%@%llu%@%@",
+                                    [GDTCORFlatFileStorage eventDataStoragePath], (long)target,
+                                    eventID, kMetadataSeparator, qosTier, kMetadataSeparator,
+                                    ((uint64_t)expirationDate.timeIntervalSince1970),
+                                    kMetadataSeparator, mappingID];
+}
+
+- (void)pathsForTarget:(GDTCORTarget)target
+              eventIDs:(nullable NSSet<NSNumber *> *)eventIDs
+              qosTiers:(nullable NSSet<NSNumber *> *)qosTiers
+            mappingIDs:(nullable NSSet<NSString *> *)mappingIDs
+            onComplete:(void (^)(NSSet<NSString *> *paths))onComplete {
+  void (^completion)(NSSet<NSString *> *) = onComplete == nil ? ^(NSSet<NSString *> *paths){} : onComplete;
+  dispatch_async(_storageQueue, ^{
+    NSMutableSet<NSString *> *paths = [[NSMutableSet alloc] init];
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSString *targetPath = [NSString
+        stringWithFormat:@"%@/%ld", [GDTCORFlatFileStorage eventDataStoragePath], (long)target];
+    [fileManager createDirectoryAtPath:targetPath
+           withIntermediateDirectories:YES
+                            attributes:nil
+                                 error:nil];
+    NSError *error;
+    NSArray<NSString *> *dirPaths = [fileManager contentsOfDirectoryAtPath:targetPath error:&error];
+    if (error) {
+      GDTCORLogDebug(@"There was an error reading the contents of the target path: %@", error);
+      completion(paths);
+      return;
+    }
+    BOOL checkingIDs = eventIDs.count > 0;
+    BOOL checkingQosTiers = qosTiers.count > 0;
+    BOOL checkingMappingIDs = mappingIDs.count > 0;
+    BOOL checkingAnything = checkingIDs == NO && checkingQosTiers == NO && checkingMappingIDs == NO;
+    for (NSString *path in dirPaths) {
+      // Skip hidden files that are created as part of atomic file creation.
+      if ([path hasPrefix:@"."]) {
+        continue;
+      }
+      NSString *filePath = [targetPath stringByAppendingPathComponent:path];
+      if (checkingAnything) {
+        [paths addObject:filePath];
+        continue;
+      }
+      NSString *filename = [path lastPathComponent];
+      NSDictionary<NSString *, id> *eventComponents = [self eventComponentsFromFilename:filename];
+      if (!eventComponents) {
+        GDTCORLogDebug(@"There was an error reading the filename components: %@", eventComponents);
+        continue;
+      }
+      NSNumber *eventID = eventComponents[kGDTCOREventComponentsEventIDKey];
+      NSNumber *qosTier = eventComponents[kGDTCOREventComponentsQoSTierKey];
+      NSString *mappingID = eventComponents[kGDTCOREventComponentsMappingIDKey];
+
+      NSNumber *eventIDMatch = checkingIDs ? @([eventIDs containsObject:eventID]) : nil;
+      NSNumber *qosTierMatch = checkingQosTiers ? @([qosTiers containsObject:qosTier]) : nil;
+      NSNumber *mappingIDMatch =
+          checkingMappingIDs ? @([mappingIDs containsObject:mappingID]) : nil;
+      if ((eventIDMatch == nil || eventIDMatch.boolValue) &&
+          (qosTierMatch == nil || qosTierMatch.boolValue) &&
+          (mappingIDMatch == nil || mappingIDMatch.boolValue)) {
+        [paths addObject:filePath];
+      }
+    }
+    completion(paths);
+  });
 }
 
 - (void)nextBatchID:(void (^)(NSNumber *batchID))nextBatchID {
@@ -772,17 +654,6 @@ NSString *const kGDTCORBatchComponentsExpirationKey = @"GDTCORBatchComponentsExp
 
 #pragma mark - GDTCORLifecycleProtocol
 
-- (void)appWillForeground:(GDTCORApplication *)app {
-  dispatch_async(_storageQueue, ^{
-    NSError *error;
-    GDTCORDecodeArchive([GDTCORFlatFileStorage class], [GDTCORFlatFileStorage archivePath], nil,
-                        &error);
-    if (error) {
-      GDTCORLogDebug(@"Deserializing GDTCORFlatFileStorage from an archive failed: %@", error);
-    }
-  });
-}
-
 - (void)appWillBackground:(GDTCORApplication *)app {
   dispatch_async(_storageQueue, ^{
     // Immediately request a background task to run until the end of the current queue of work,
@@ -793,15 +664,6 @@ NSString *const kGDTCORBatchComponentsExpirationKey = @"GDTCORBatchComponentsExp
                          [app endBackgroundTask:bgID];
                          bgID = GDTCORBackgroundIdentifierInvalid;
                        }];
-    NSError *error;
-    GDTCOREncodeArchive(self, [GDTCORFlatFileStorage archivePath], &error);
-    if (error) {
-      GDTCORLogDebug(@"Serializing GDTCORFlatFileStorage to an archive failed: %@", error);
-    } else {
-      GDTCORLogDebug(@"Serialized GDTCORFlatFileStorage to %@",
-                     [GDTCORFlatFileStorage archivePath]);
-    }
-
     // End the background task if it's still valid.
     [app endBackgroundTask:bgID];
     bgID = GDTCORBackgroundIdentifierInvalid;
@@ -810,77 +672,7 @@ NSString *const kGDTCORBatchComponentsExpirationKey = @"GDTCORBatchComponentsExp
 
 - (void)appWillTerminate:(GDTCORApplication *)application {
   dispatch_sync(_storageQueue, ^{
-    NSError *error;
-    GDTCOREncodeArchive(self, [GDTCORFlatFileStorage archivePath], &error);
-    if (error) {
-      GDTCORLogDebug(@"Serializing GDTCORFlatFileStorage to an archive failed: %@", error);
-    } else {
-      GDTCORLogDebug(@"Serialized GDTCORFlatFileStorage to %@",
-                     [GDTCORFlatFileStorage archivePath]);
-    }
-  });
-}
-
-#pragma mark - NSSecureCoding
-
-/** The NSKeyedCoder key for the storedEvents property. */
-static NSString *const kGDTCORFlatFileStorageStoredEventsKey = @"GDTCORStorageStoredEventsKey";
-
-/** The NSKeyedCoder key for the targetToEventSet property. */
-static NSString *const kGDTCORFlatFileStorageTargetToEventSetKey =
-    @"GDTCORStorageTargetToEventSetKey";
-
-/** The NSKeyedCoder key for the uploadCoordinator property. */
-static NSString *const kGDTCORFlatFileStorageUploadCoordinatorKey =
-    @"GDTCORStorageUploadCoordinatorKey";
-
-+ (BOOL)supportsSecureCoding {
-  return YES;
-}
-
-- (instancetype)initWithCoder:(NSCoder *)aDecoder {
-  // Create the singleton and populate its ivars.
-  GDTCORFlatFileStorage *sharedInstance = [self.class sharedInstance];
-  NSSet *classes = [NSSet setWithObjects:[NSMutableOrderedSet class], [NSMutableDictionary class],
-                                         [GDTCOREvent class], nil];
-  id storedEvents = [aDecoder decodeObjectOfClasses:classes
-                                             forKey:kGDTCORFlatFileStorageStoredEventsKey];
-  NSMutableDictionary<NSNumber *, GDTCOREvent *> *events = [[NSMutableDictionary alloc] init];
-  if ([storedEvents isKindOfClass:[NSMutableOrderedSet class]]) {
-    [(NSMutableOrderedSet *)storedEvents
-        enumerateObjectsUsingBlock:^(GDTCOREvent *_Nonnull obj, NSUInteger idx,
-                                     BOOL *_Nonnull stop) {
-          events[obj.eventID] = obj;
-        }];
-  } else if ([storedEvents isKindOfClass:[NSMutableDictionary class]]) {
-    events = (NSMutableDictionary *)storedEvents;
-  }
-  sharedInstance->_storedEvents = events;
-  classes = [NSSet
-      setWithObjects:[NSMutableDictionary class], [NSMutableSet class], [GDTCOREvent class], nil];
-  sharedInstance->_targetToEventSet =
-      [aDecoder decodeObjectOfClasses:classes forKey:kGDTCORFlatFileStorageTargetToEventSetKey];
-  sharedInstance->_uploadCoordinator =
-      [aDecoder decodeObjectOfClass:[GDTCORUploadCoordinator class]
-                             forKey:kGDTCORFlatFileStorageUploadCoordinatorKey];
-  return sharedInstance;
-}
-
-- (void)encodeWithCoder:(NSCoder *)aCoder {
-  GDTCORFlatFileStorage *sharedInstance = [self.class sharedInstance];
-  NSMutableDictionary<NSNumber *, GDTCOREvent *> *storedEvents = sharedInstance->_storedEvents;
-  if (storedEvents) {
-    [aCoder encodeObject:storedEvents forKey:kGDTCORFlatFileStorageStoredEventsKey];
-  }
-  NSMutableDictionary<NSNumber *, NSMutableSet<GDTCOREvent *> *> *targetToEventSet =
-      sharedInstance->_targetToEventSet;
-  if (targetToEventSet) {
-    [aCoder encodeObject:targetToEventSet forKey:kGDTCORFlatFileStorageTargetToEventSetKey];
-  }
-  GDTCORUploadCoordinator *uploadCoordinator = sharedInstance->_uploadCoordinator;
-  if (uploadCoordinator) {
-    [aCoder encodeObject:uploadCoordinator forKey:kGDTCORFlatFileStorageUploadCoordinatorKey];
-  }
+                });
 }
 
 @end

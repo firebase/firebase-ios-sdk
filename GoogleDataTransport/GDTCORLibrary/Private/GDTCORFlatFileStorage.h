@@ -58,18 +58,10 @@ FOUNDATION_EXPORT NSString *const kGDTCORBatchComponentsExpirationKey;
  * <app
  * cache>/google-sdk-events/<classname>/gdt_batch_data/<target>.<batchID>/<eventID>.<qosTier>.<mappingID>
  */
-@interface GDTCORFlatFileStorage
-    : NSObject <NSSecureCoding, GDTCORStorageProtocol, GDTCORLifecycleProtocol>
+@interface GDTCORFlatFileStorage : NSObject <GDTCORStorageProtocol, GDTCORLifecycleProtocol>
 
 /** The queue on which all storage work will occur. */
 @property(nonatomic) dispatch_queue_t storageQueue;
-
-/** A map of targets to a set of stored events. */
-@property(nonatomic)
-    NSMutableDictionary<NSNumber *, NSMutableSet<GDTCOREvent *> *> *targetToEventSet;
-
-/** All the events that have been stored. */
-@property(readonly, nonatomic) NSMutableDictionary<NSNumber *, GDTCOREvent *> *storedEvents;
 
 /** The upload coordinator instance used by this storage instance. */
 @property(nonatomic) GDTCORUploadCoordinator *uploadCoordinator;
@@ -79,13 +71,6 @@ FOUNDATION_EXPORT NSString *const kGDTCORBatchComponentsExpirationKey;
  * @return The storage singleton.
  */
 + (instancetype)sharedInstance;
-
-/** Returns the path to the keyed archive of the singleton. This is where the singleton is saved
- * to disk during certain app lifecycle events.
- *
- * @return File path to serialized singleton.
- */
-+ (NSString *)archivePath;
 
 /** Returns the base directory under which all events will be stored.
  *

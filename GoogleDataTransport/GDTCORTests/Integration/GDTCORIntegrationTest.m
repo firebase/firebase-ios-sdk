@@ -21,9 +21,9 @@
 #import <GoogleDataTransport/GDTCOREventTransformer.h>
 #import <GoogleDataTransport/GDTCORTransport.h>
 
+#import "GDTCORTests/Common/Categories/GDTCORFlatFileStorage+Testing.h"
 #import "GDTCORTests/Common/Categories/GDTCORUploadCoordinator+Testing.h"
 
-#import "GDTCORTests/Integration/Helpers/GDTCORIntegrationTestPrioritizer.h"
 #import "GDTCORTests/Integration/Helpers/GDTCORIntegrationTestUploader.h"
 #import "GDTCORTests/Integration/TestServer/GDTCORTestServer.h"
 
@@ -64,9 +64,6 @@
 
 @interface GDTCORIntegrationTest : XCTestCase
 
-/** A test prioritizer. */
-@property(nonatomic) GDTCORIntegrationTestPrioritizer *prioritizer;
-
 /** A test uploader. */
 @property(nonatomic) GDTCORIntegrationTestUploader *uploader;
 
@@ -81,9 +78,7 @@
 @implementation GDTCORIntegrationTest
 
 - (void)tearDown {
-  dispatch_sync([GDTCORFlatFileStorage sharedInstance].storageQueue, ^{
-    XCTAssertEqual([GDTCORFlatFileStorage sharedInstance].storedEvents.count, 0);
-  });
+  [[GDTCORFlatFileStorage sharedInstance] reset];
 }
 
 - (void)testEndToEndEvent {
@@ -116,8 +111,7 @@
            transformers:@[ [[GDTCORIntegrationTestTransformer alloc] init] ]
                  target:kGDTCORTargetTest];
 
-  // Create a prioritizer and uploader.
-  self.prioritizer = [[GDTCORIntegrationTestPrioritizer alloc] init];
+  // Create an uploader.
   self.uploader = [[GDTCORIntegrationTestUploader alloc] initWithServerURL:testServer.serverURL];
 
   // Set the interval to be much shorter than the standard timer.
@@ -125,8 +119,7 @@
   [GDTCORUploadCoordinator sharedInstance].timerLeeway = NSEC_PER_SEC * 0.01;
 
   // Confirm no events are in disk.
-  XCTAssertEqual([GDTCORFlatFileStorage sharedInstance].storedEvents.count, 0);
-  XCTAssertEqual([GDTCORFlatFileStorage sharedInstance].targetToEventSet.count, 0);
+  XCTAssertFalse([[GDTCORFlatFileStorage sharedInstance] hasEventsForTarget:kGDTCORTargetTest]);
 
   // Generate some events data.
   [self generateEvents];
@@ -137,8 +130,7 @@
 
   // Confirm events are on disk.
   dispatch_sync([GDTCORFlatFileStorage sharedInstance].storageQueue, ^{
-    XCTAssertGreaterThan([GDTCORFlatFileStorage sharedInstance].storedEvents.count, 0);
-    XCTAssertGreaterThan([GDTCORFlatFileStorage sharedInstance].targetToEventSet.count, 0);
+    XCTAssertTrue([[GDTCORFlatFileStorage sharedInstance] hasEventsForTarget:kGDTCORTargetTest]);
   });
 
   // Confirm events were sent and received.

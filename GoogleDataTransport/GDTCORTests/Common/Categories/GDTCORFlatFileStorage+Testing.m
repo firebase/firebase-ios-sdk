@@ -23,9 +23,6 @@
 
 - (void)reset {
   dispatch_sync(self.storageQueue, ^{
-    [self.targetToEventSet removeAllObjects];
-    [self.storedEvents removeAllObjects];
-    [[NSFileManager defaultManager] removeItemAtPath:[GDTCORFlatFileStorage archivePath] error:nil];
     [[NSFileManager defaultManager] removeItemAtPath:[GDTCORFlatFileStorage eventDataStoragePath]
                                                error:nil];
     [[NSFileManager defaultManager] removeItemAtPath:[GDTCORFlatFileStorage libraryDataStoragePath]
@@ -39,6 +36,7 @@
     dispatch_semaphore_signal(sema);
   }];
   dispatch_semaphore_wait(sema, DISPATCH_TIME_FOREVER);
+  [GDTCORFlatFileStorage load];
 }
 
 @end

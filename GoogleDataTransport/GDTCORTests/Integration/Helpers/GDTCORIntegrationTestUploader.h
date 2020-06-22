@@ -18,8 +18,6 @@
 
 #import <GoogleDataTransport/GDTCORUploader.h>
 
-#import "GDTCORTests/Integration/Helpers/GDTCORIntegrationTestPrioritizer.h"
-
 /** An integration test uploader. */
 @interface GDTCORIntegrationTestUploader : NSObject <GDTCORUploader>
 

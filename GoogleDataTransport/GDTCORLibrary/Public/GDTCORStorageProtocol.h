@@ -38,9 +38,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)storeEvent:(GDTCOREvent *)event
         onComplete:(void (^_Nullable)(BOOL wasWritten, NSError *_Nullable error))completion;
 
-/** Removes the events from storage. */
-- (void)removeEvents:(NSSet<NSNumber *> *)eventIDs;
-
 /** Returns YES if some events have been stored for the given target, NO otherwise.
  *
  * @return YES if the storage contains events for the given target, NO otherwise.
@@ -57,8 +54,9 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)batchWithEventSelector:(nonnull GDTCORStorageEventSelector *)eventSelector
                batchExpiration:(nonnull NSDate *)expiration
-                    onComplete:(nonnull void (^)(NSNumber *_Nullable batchID,
-                                                 NSSet<GDTCOREvent *> *_Nullable events))onComplete;
+                    onComplete:
+                        (nonnull void (^)(NSNumber *_Nullable newBatchID,
+                                          NSSet<GDTCOREvent *> *_Nullable batchEvents))onComplete;
 
 /** Removes the event batch.
  *

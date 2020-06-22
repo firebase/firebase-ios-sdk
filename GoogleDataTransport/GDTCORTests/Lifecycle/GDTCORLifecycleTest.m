@@ -23,7 +23,6 @@
 #import "GDTCORLibrary/Private/GDTCORTransformer_Private.h"
 #import "GDTCORLibrary/Private/GDTCORUploadCoordinator.h"
 
-#import "GDTCORTests/Lifecycle/Helpers/GDTCORLifecycleTestPrioritizer.h"
 #import "GDTCORTests/Lifecycle/Helpers/GDTCORLifecycleTestUploader.h"
 
 #import "GDTCORTests/Common/Categories/GDTCORFlatFileStorage+Testing.h"
@@ -64,9 +63,6 @@
 
 @interface GDTCORLifecycleTest : XCTestCase
 
-/** The test prioritizer. */
-@property(nonatomic) GDTCORLifecycleTestPrioritizer *prioritizer;
-
 /** The test uploader. */
 @property(nonatomic) GDTCORLifecycleTestUploader *uploader;
 
@@ -76,24 +72,14 @@
 
 - (void)setUp {
   [super setUp];
-  [[GDTCORRegistrar sharedInstance] registerStorage:[GDTCORFlatFileStorage sharedInstance]
-                                             target:kGDTCORTargetTest];
-
-  // Don't check the error, because it'll be populated in cases where the file doesn't exist.
-  NSError *error;
-  [[NSFileManager defaultManager] removeItemAtPath:[GDTCORFlatFileStorage archivePath]
-                                             error:&error];
+  [[GDTCORFlatFileStorage sharedInstance] reset];
   self.uploader = [[GDTCORLifecycleTestUploader alloc] init];
   [[GDTCORRegistrar sharedInstance] registerUploader:self.uploader target:kGDTCORTargetTest];
-
-  self.prioritizer = [[GDTCORLifecycleTestPrioritizer alloc] init];
-  [[GDTCORRegistrar sharedInstance] registerPrioritizer:self.prioritizer target:kGDTCORTargetTest];
 }
 
 - (void)tearDown {
   [super tearDown];
   self.uploader = nil;
-  self.prioritizer = nil;
 
   [[GDTCORRegistrar sharedInstance] reset];
   [[GDTCORFlatFileStorage sharedInstance] reset];
@@ -108,62 +94,22 @@
   GDTCORTransport *transport = [[GDTCORTransport alloc] initWithMappingID:@"test"
                                                              transformers:nil
                                                                    target:kGDTCORTargetTest];
-  GDTCOREvent *event = [transport eventForTransport];
-  event.dataObject = [[GDTCORLifecycleTestEvent alloc] init];
-  XCTAssertEqual([GDTCORFlatFileStorage sharedInstance].storedEvents.count, 0);
-  [transport sendDataEvent:event];
-  GDTCORWaitForBlock(
-      ^BOOL {
-        return [GDTCORFlatFileStorage sharedInstance].storedEvents.count > 0;
-      },
-      5.0);
 
   NSNotificationCenter *notifCenter = [NSNotificationCenter defaultCenter];
   [notifCenter postNotificationName:UIApplicationDidEnterBackgroundNotification object:nil];
   XCTAssertTrue([GDTCORApplication sharedApplication].isRunningInBackground);
 
-  GDTCORWaitForBlock(
-      ^BOOL {
-        NSFileManager *fm = [NSFileManager defaultManager];
-        return [fm fileExistsAtPath:[GDTCORFlatFileStorage archivePath] isDirectory:NULL];
-      },
-      5.0);
-}
-
-/** Tests that the library deserializes itself from disk when the app foregrounds. */
-- (void)testForegrounding {
-  GDTCORTransport *transport = [[GDTCORTransport alloc] initWithMappingID:@"test"
-                                                             transformers:nil
-                                                                   target:kGDTCORTargetTest];
   GDTCOREvent *event = [transport eventForTransport];
   event.dataObject = [[GDTCORLifecycleTestEvent alloc] init];
-  XCTAssertEqual([GDTCORFlatFileStorage sharedInstance].storedEvents.count, 0);
+  XCTAssertFalse([[GDTCORFlatFileStorage sharedInstance] hasEventsForTarget:kGDTCORTargetTest]);
   [transport sendDataEvent:event];
   GDTCORWaitForBlock(
       ^BOOL {
-        return [GDTCORFlatFileStorage sharedInstance].storedEvents.count > 0;
-      },
-      5.0);
-
-  NSNotificationCenter *notifCenter = [NSNotificationCenter defaultCenter];
-  [notifCenter postNotificationName:UIApplicationDidEnterBackgroundNotification object:nil];
-
-  GDTCORWaitForBlock(
-      ^BOOL {
-        NSFileManager *fm = [NSFileManager defaultManager];
-        return [fm fileExistsAtPath:[GDTCORFlatFileStorage archivePath] isDirectory:NULL];
-      },
-      5.0);
-
-  [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
-  [notifCenter postNotificationName:UIApplicationWillEnterForegroundNotification object:nil];
-  XCTAssertFalse([GDTCORApplication sharedApplication].isRunningInBackground);
-  GDTCORWaitForBlock(
-      ^BOOL {
-        return [GDTCORFlatFileStorage sharedInstance].storedEvents.count > 0;
+        return [[GDTCORFlatFileStorage sharedInstance] hasEventsForTarget:kGDTCORTargetTest] == YES;
       },
       5.0);
 }
+
 #endif  // #if TARGET_OS_IOS || TARGET_OS_TV
 
 /** Tests that the library gracefully stops doing stuff when terminating. */
@@ -171,22 +117,16 @@
   GDTCORTransport *transport = [[GDTCORTransport alloc] initWithMappingID:@"test"
                                                              transformers:nil
                                                                    target:kGDTCORTargetTest];
+  NSNotificationCenter *notifCenter = [NSNotificationCenter defaultCenter];
+  [notifCenter postNotificationName:kGDTCORApplicationWillTerminateNotification object:nil];
+
   GDTCOREvent *event = [transport eventForTransport];
   event.dataObject = [[GDTCORLifecycleTestEvent alloc] init];
-  XCTAssertEqual([GDTCORFlatFileStorage sharedInstance].storedEvents.count, 0);
+  XCTAssertFalse([[GDTCORFlatFileStorage sharedInstance] hasEventsForTarget:kGDTCORTargetTest]);
   [transport sendDataEvent:event];
   GDTCORWaitForBlock(
       ^BOOL {
-        return [GDTCORFlatFileStorage sharedInstance].storedEvents.count > 0;
-      },
-      5.0);
-
-  NSNotificationCenter *notifCenter = [NSNotificationCenter defaultCenter];
-  [notifCenter postNotificationName:kGDTCORApplicationWillTerminateNotification object:nil];
-  GDTCORWaitForBlock(
-      ^BOOL {
-        NSFileManager *fm = [NSFileManager defaultManager];
-        return [fm fileExistsAtPath:[GDTCORFlatFileStorage archivePath] isDirectory:NULL];
+        return [[GDTCORFlatFileStorage sharedInstance] hasEventsForTarget:kGDTCORTargetTest] == YES;
       },
       5.0);
 }

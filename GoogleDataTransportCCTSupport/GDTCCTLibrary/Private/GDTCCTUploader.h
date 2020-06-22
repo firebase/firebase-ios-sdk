@@ -37,9 +37,6 @@ extern NSNotificationName const GDTCCTUploadCompleteNotification;
 /** The current upload task. */
 @property(nullable, nonatomic, readonly) NSURLSessionUploadTask *currentTask;
 
-/** Current upload package. */
-@property(nullable, nonatomic) GDTCORUploadPackage *currentUploadPackage;
-
 /** The next upload time for the CCT target. */
 @property(nullable, nonatomic) GDTCORClock *CCTNextUploadTime;
 

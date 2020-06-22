@@ -33,11 +33,11 @@ import GoogleDataTransport
 
   public class ViewController: UIViewController {
     let cctTransport: GDTCORTransport = GDTCORTransport(mappingID: "1018", transformers: nil,
-                                                        target: GDTCORTarget.CCT.rawValue)!
+                                                        target: GDTCORTarget.CCT)!
     let fllTransport: GDTCORTransport = GDTCORTransport(mappingID: "1018", transformers: nil,
-                                                        target: GDTCORTarget.FLL.rawValue)!
+                                                        target: GDTCORTarget.FLL)!
     let cshTransport: GDTCORTransport = GDTCORTransport(mappingID: "1018", transformers: nil,
-                                                        target: GDTCORTarget.CSH.rawValue)!
+                                                        target: GDTCORTarget.CSH)!
 
     @IBOutlet var backendSwitch: UISegmentedControl?
 
@@ -98,11 +98,11 @@ import GoogleDataTransport
 
   public class ViewController: NSViewController {
     let cctTransport: GDTCORTransport = GDTCORTransport(mappingID: "1018", transformers: nil,
-                                                        target: GDTCORTarget.CCT.rawValue)!
+                                                        target: GDTCORTarget.CCT)!
     let fllTransport: GDTCORTransport = GDTCORTransport(mappingID: "1018", transformers: nil,
-                                                        target: GDTCORTarget.FLL.rawValue)!
+                                                        target: GDTCORTarget.FLL)!
     let cshTransport: GDTCORTransport = GDTCORTransport(mappingID: "1018", transformers: nil,
-                                                        target: GDTCORTarget.CSH.rawValue)!
+                                                        target: GDTCORTarget.CSH)!
 
     @IBOutlet var backendSwitch: NSSegmentedControl?
 

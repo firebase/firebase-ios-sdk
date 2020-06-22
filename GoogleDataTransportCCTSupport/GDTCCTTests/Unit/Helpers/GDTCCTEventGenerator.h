@@ -33,9 +33,6 @@
 
 - (instancetype)init NS_UNAVAILABLE;
 
-/** Deletes the empty files created in a temporary directory. */
-- (void)deleteGeneratedFilesFromDisk;
-
 /** Instantiates an instance with the given target.
  *
  * @param target The GDT target to send events to.
