@@ -58,23 +58,25 @@ static NSString *const kNextEventIDKey = @"GDTCOREventEventIDCounter";
   if (mappingID == nil || mappingID.length == 0 || target <= 0) {
     return nil;
   }
+  __block NSNumber *eventID;
+  dispatch_semaphore_t sema = dispatch_semaphore_create(0);
+  [GDTCOREvent nextEventIDForTarget:target
+                         onComplete:^(NSNumber *_Nullable newEventID) {
+                           eventID = newEventID;
+                           dispatch_semaphore_signal(sema);
+                         }];
+  if (dispatch_semaphore_wait(sema, dispatch_time(DISPATCH_TIME_NOW, 5 * NSEC_PER_SEC)) != 0) {
+    return nil;
+  }
   self = [super init];
   if (self) {
-    dispatch_semaphore_t sema = dispatch_semaphore_create(0);
-    [GDTCOREvent nextEventIDForTarget:target
-                           onComplete:^(NSNumber *_Nullable eventID) {
-                             self->_eventID = eventID;
-                             dispatch_semaphore_signal(sema);
-                           }];
-    if (dispatch_semaphore_wait(sema, dispatch_time(DISPATCH_TIME_NOW, 5 * NSEC_PER_SEC)) != 0) {
-      return nil;
-    }
+    _eventID = eventID;
     _mappingID = mappingID;
     _target = target;
     _qosTier = GDTCOREventQosDefault;
     _expirationDate = [NSDate dateWithTimeIntervalSinceNow:604800];  // 7 days.
   }
-  GDTCORLogDebug(@"Event %@ created. ID:%@ mappingID: %@ target:%ld", self, _eventID, mappingID,
+  GDTCORLogDebug(@"Event %@ created. ID:%@ mappingID: %@ target:%ld", self, eventID, mappingID,
                  (long)target);
   return self;
 }
