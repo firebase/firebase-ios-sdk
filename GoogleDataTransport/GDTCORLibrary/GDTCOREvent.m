@@ -55,9 +55,6 @@ static NSString *const kNextEventIDKey = @"GDTCOREventEventIDCounter";
 - (nullable instancetype)initWithMappingID:(NSString *)mappingID target:(NSInteger)target {
   GDTCORAssert(mappingID.length > 0, @"Please give a valid mapping ID");
   GDTCORAssert(target > 0, @"A target cannot be negative or 0");
-  if (mappingID == nil || mappingID.length == 0 || target <= 0) {
-    return nil;
-  }
   __block NSNumber *eventID;
   dispatch_semaphore_t sema = dispatch_semaphore_create(0);
   [GDTCOREvent nextEventIDForTarget:target
@@ -66,6 +63,9 @@ static NSString *const kNextEventIDKey = @"GDTCOREventEventIDCounter";
                            dispatch_semaphore_signal(sema);
                          }];
   if (dispatch_semaphore_wait(sema, dispatch_time(DISPATCH_TIME_NOW, 5 * NSEC_PER_SEC)) != 0) {
+    return nil;
+  }
+  if (mappingID == nil || mappingID.length == 0 || target <= 0 || eventID == nil) {
     return nil;
   }
   self = [super init];
@@ -161,7 +161,8 @@ static NSString *kCustomDataKey = @"GDTCOREventCustomDataKey";
                                self->_eventID = eventID;
                                dispatch_semaphore_signal(sema);
                              }];
-      if (dispatch_semaphore_wait(sema, dispatch_time(DISPATCH_TIME_NOW, 5 * NSEC_PER_SEC)) != 0) {
+      if (dispatch_semaphore_wait(sema, dispatch_time(DISPATCH_TIME_NOW, 5 * NSEC_PER_SEC)) != 0 ||
+          _eventID == nil) {
         return nil;
       }
     }
