@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FParsedUrl.h"
+#import "FirebaseDatabase/Sources/Utilities/FParsedUrl.h"
 
 @implementation FParsedUrl
 

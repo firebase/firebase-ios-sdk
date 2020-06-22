@@ -15,8 +15,8 @@
  */
 
 #import <XCTest/XCTest.h>
-#import "FTestHelpers.h"
-#import "SenTest+FWaiter.h"
+#import "FirebaseDatabase/Tests/Helpers/FTestHelpers.h"
+#import "FirebaseDatabase/Tests/Helpers/SenTest+FWaiter.h"
 
 @interface FTestBase : XCTestCase {
   BOOL runPerfTests;

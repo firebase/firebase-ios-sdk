@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#import "FIRDatabaseQueryTests.h"
-#import "FIRDatabaseQuery_Private.h"
-#import "FQuerySpec.h"
-#import "FTestExpectations.h"
+#import "FirebaseDatabase/Tests/Integration/FIRDatabaseQueryTests.h"
+#import "FirebaseDatabase/Sources/Api/Private/FIRDatabaseQuery_Private.h"
+#import "FirebaseDatabase/Sources/Core/FQuerySpec.h"
+#import "FirebaseDatabase/Tests/Helpers/FTestExpectations.h"
 
 @implementation FIRDatabaseQueryTests
 

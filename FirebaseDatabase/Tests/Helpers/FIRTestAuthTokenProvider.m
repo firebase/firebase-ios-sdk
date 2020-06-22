@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import "FIRTestAuthTokenProvider.h"
-#import "FIRDatabaseQuery_Private.h"
+#import "FirebaseDatabase/Tests/Helpers/FIRTestAuthTokenProvider.h"
+#import "FirebaseDatabase/Sources/Api/Private/FIRDatabaseQuery_Private.h"
 
 @interface FIRTestAuthTokenProvider ()
 

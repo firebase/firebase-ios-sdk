@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FTypedefs_Private.h"
+#import "FirebaseDatabase/Sources/Api/Private/FTypedefs_Private.h"
 #import <Foundation/Foundation.h>
 
 @interface FTupleCallbackStatus : NSObject

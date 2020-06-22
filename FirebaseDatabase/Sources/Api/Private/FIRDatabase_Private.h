@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRDatabase.h"
+#import "FirebaseDatabase/Sources/Public/FIRDatabase.h"
 
 @class FRepo;
 @class FRepoInfo;

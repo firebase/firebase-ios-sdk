@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#import "FNamedNode.h"
-#import "FEmptyNode.h"
-#import "FIndex.h"
-#import "FMaxNode.h"
-#import "FUtilities.h"
+#import "FirebaseDatabase/Sources/FNamedNode.h"
+#import "FirebaseDatabase/Sources/FIndex.h"
+#import "FirebaseDatabase/Sources/FMaxNode.h"
+#import "FirebaseDatabase/Sources/Snapshot/FEmptyNode.h"
+#import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
 
 @interface FNamedNode ()
 @property(nonatomic, strong, readwrite) NSString *name;

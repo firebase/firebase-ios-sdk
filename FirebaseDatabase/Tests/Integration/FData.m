@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-#import "FData.h"
+#import "FirebaseDatabase/Tests/Integration/FData.h"
 #import <limits.h>
-#import "FEventTester.h"
-#import "FIRDatabaseConfig_Private.h"
-#import "FIRDatabaseQuery_Private.h"
-#import "FIRServerValue.h"
-#import "FRepo_Private.h"
-#import "FTestHelpers.h"
-#import "FTupleEventTypeString.h"
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseDatabase/Sources/Api/Private/FIRDatabaseQuery_Private.h"
+#import "FirebaseDatabase/Sources/Core/FRepo_Private.h"
+#import "FirebaseDatabase/Sources/FIRDatabaseConfig_Private.h"
+#import "FirebaseDatabase/Sources/Public/FIRServerValue.h"
+#import "FirebaseDatabase/Tests/Helpers/FEventTester.h"
+#import "FirebaseDatabase/Tests/Helpers/FTestHelpers.h"
+#import "FirebaseDatabase/Tests/Helpers/FTupleEventTypeString.h"
 
 @implementation FData
 

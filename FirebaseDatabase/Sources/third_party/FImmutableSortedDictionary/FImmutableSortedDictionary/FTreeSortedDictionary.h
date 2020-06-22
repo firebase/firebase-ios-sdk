@@ -13,8 +13,8 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "FImmutableSortedDictionary.h"
-#import "FLLRBNode.h"
+#import "FirebaseDatabase/Sources/third_party/FImmutableSortedDictionary/FImmutableSortedDictionary/FImmutableSortedDictionary.h"
+#import "FirebaseDatabase/Sources/third_party/FImmutableSortedDictionary/FImmutableSortedDictionary/FLLRBNode.h"
 
 @interface FTreeSortedDictionary : FImmutableSortedDictionary
 

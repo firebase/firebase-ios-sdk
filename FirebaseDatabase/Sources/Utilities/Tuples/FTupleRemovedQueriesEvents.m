@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FTupleRemovedQueriesEvents.h"
+#import "FirebaseDatabase/Sources/Utilities/Tuples/FTupleRemovedQueriesEvents.h"
 
 @interface FTupleRemovedQueriesEvents ()
 @property(nonatomic, strong, readwrite) NSArray *removedQueries;

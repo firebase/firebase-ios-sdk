@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import "FIRMutableData.h"
-#import "FIRTransactionResult.h"
+#import "FirebaseDatabase/Sources/Public/FIRMutableData.h"
+#import "FirebaseDatabase/Sources/Public/FIRTransactionResult.h"
 
 @interface FIRTransactionResult ()
 

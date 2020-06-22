@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#import "FValueIndex.h"
-#import "FMaxNode.h"
-#import "FNamedNode.h"
-#import "FSnapshotUtilities.h"
-#import "FUtilities.h"
+#import "FirebaseDatabase/Sources/FValueIndex.h"
+#import "FirebaseDatabase/Sources/FMaxNode.h"
+#import "FirebaseDatabase/Sources/FNamedNode.h"
+#import "FirebaseDatabase/Sources/Snapshot/FSnapshotUtilities.h"
+#import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
 
 @implementation FValueIndex
 

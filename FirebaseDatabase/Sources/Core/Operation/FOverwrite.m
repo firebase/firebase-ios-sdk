@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "FOverwrite.h"
-#import "FNode.h"
-#import "FOperationSource.h"
+#import "FirebaseDatabase/Sources/Core/Operation/FOverwrite.h"
+#import "FirebaseDatabase/Sources/Core/Operation/FOperationSource.h"
+#import "FirebaseDatabase/Sources/Snapshot/FNode.h"
 
 @interface FOverwrite ()
 @property(nonatomic, strong, readwrite) FOperationSource *source;

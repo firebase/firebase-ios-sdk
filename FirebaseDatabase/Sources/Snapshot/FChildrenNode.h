@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#import "FImmutableSortedDictionary.h"
-#import "FNode.h"
-#import "FTypedefs.h"
-#import "FTypedefs_Private.h"
+#import "FirebaseDatabase/Sources/Api/Private/FTypedefs_Private.h"
+#import "FirebaseDatabase/Sources/Snapshot/FNode.h"
+#import "FirebaseDatabase/Sources/Utilities/FTypedefs.h"
+#import "FirebaseDatabase/Sources/third_party/FImmutableSortedDictionary/FImmutableSortedDictionary/FImmutableSortedDictionary.h"
 #import <Foundation/Foundation.h>
 
 @class FNamedNode;

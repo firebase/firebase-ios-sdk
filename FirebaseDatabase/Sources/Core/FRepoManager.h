@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "FIRDatabaseConfig.h"
-#import "FRepo.h"
-#import "FRepoInfo.h"
+#import "FirebaseDatabase/Sources/Api/FIRDatabaseConfig.h"
+#import "FirebaseDatabase/Sources/Core/FRepo.h"
+#import "FirebaseDatabase/Sources/Core/FRepoInfo.h"
 #import <Foundation/Foundation.h>
 
 @interface FRepoManager : NSObject

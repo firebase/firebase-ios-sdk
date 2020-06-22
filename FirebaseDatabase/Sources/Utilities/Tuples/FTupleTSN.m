@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FTupleTSN.h"
+#import "FirebaseDatabase/Sources/Utilities/Tuples/FTupleTSN.h"
 
 @implementation FTupleTSN
 

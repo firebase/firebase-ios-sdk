@@ -1,6 +1,6 @@
-#import "FImmutableSortedDictionary.h"
-#import "FArraySortedDictionary.h"
-#import "FTreeSortedDictionary.h"
+#import "FirebaseDatabase/Sources/third_party/FImmutableSortedDictionary/FImmutableSortedDictionary/FImmutableSortedDictionary.h"
+#import "FirebaseDatabase/Sources/third_party/FImmutableSortedDictionary/FImmutableSortedDictionary/FArraySortedDictionary.h"
+#import "FirebaseDatabase/Sources/third_party/FImmutableSortedDictionary/FImmutableSortedDictionary/FTreeSortedDictionary.h"
 
 #define THROW_ABSTRACT_METHOD_EXCEPTION(sel) do { \
   @throw [NSException exceptionWithName:NSInternalInconsistencyException \

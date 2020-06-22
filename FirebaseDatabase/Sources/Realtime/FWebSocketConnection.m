@@ -19,12 +19,12 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FConstants.h"
-#import "FIRDatabaseReference.h"
-#import "FIRDatabase_Private.h"
-#import "FStringUtilities.h"
-#import "FWebSocketConnection.h"
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseDatabase/Sources/Api/Private/FIRDatabase_Private.h"
+#import "FirebaseDatabase/Sources/Constants/FConstants.h"
+#import "FirebaseDatabase/Sources/Public/FIRDatabaseReference.h"
+#import "FirebaseDatabase/Sources/Realtime/FWebSocketConnection.h"
+#import "FirebaseDatabase/Sources/Utilities/FStringUtilities.h"
 
 #if TARGET_OS_IOS || TARGET_OS_TV
 #import <UIKit/UIKit.h>

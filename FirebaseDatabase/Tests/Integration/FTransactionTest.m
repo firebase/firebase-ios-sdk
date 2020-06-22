@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-#import "FTransactionTest.h"
-#import "FEventTester.h"
-#import "FIRDatabaseConfig_Private.h"
-#import "FIRDatabaseQuery_Private.h"
-#import "FTestHelpers.h"
-#import "FTupleEventTypeString.h"
+#import "FirebaseDatabase/Tests/Integration/FTransactionTest.h"
+#import "FirebaseDatabase/Sources/Api/Private/FIRDatabaseQuery_Private.h"
+#import "FirebaseDatabase/Sources/FIRDatabaseConfig_Private.h"
+#import "FirebaseDatabase/Tests/Helpers/FEventTester.h"
+#import "FirebaseDatabase/Tests/Helpers/FTestHelpers.h"
+#import "FirebaseDatabase/Tests/Helpers/FTupleEventTypeString.h"
 
 // HACK used by testUnsentTransactionsAreNotCancelledOnDisconnect to return one bad token and then a
 // nil token.

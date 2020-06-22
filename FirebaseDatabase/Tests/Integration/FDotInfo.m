@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "FDotInfo.h"
-#import "FIRDatabaseConfig_Private.h"
-#import "FTestHelpers.h"
+#import "FirebaseDatabase/Tests/Integration/FDotInfo.h"
+#import "FirebaseDatabase/Sources/FIRDatabaseConfig_Private.h"
+#import "FirebaseDatabase/Tests/Helpers/FTestHelpers.h"
 
 @implementation FDotInfo
 

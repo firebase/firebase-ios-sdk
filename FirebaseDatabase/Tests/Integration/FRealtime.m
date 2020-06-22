@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-#import "FRealtime.h"
-#import "FIRDatabaseConfig_Private.h"
-#import "FParsedUrl.h"
-#import "FRepoManager.h"
-#import "FTestHelpers.h"
-#import "FTupleFirebase.h"
-#import "FUtilities.h"
+#import "FirebaseDatabase/Tests/Integration/FRealtime.h"
+#import "FirebaseDatabase/Sources/Core/FRepoManager.h"
+#import "FirebaseDatabase/Sources/FIRDatabaseConfig_Private.h"
+#import "FirebaseDatabase/Sources/Utilities/FParsedUrl.h"
+#import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
+#import "FirebaseDatabase/Sources/Utilities/Tuples/FTupleFirebase.h"
+#import "FirebaseDatabase/Tests/Helpers/FTestHelpers.h"
 
 @implementation FRealtime
 

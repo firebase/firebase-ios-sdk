@@ -17,10 +17,10 @@
 #import <Foundation/Foundation.h>
 #import <XCTest/XCTest.h>
 
-#import "FChildrenNode.h"
-#import "FEmptyNode.h"
-#import "FLeafNode.h"
-#import "FSnapshotUtilities.h"
+#import "FirebaseDatabase/Sources/Snapshot/FChildrenNode.h"
+#import "FirebaseDatabase/Sources/Snapshot/FEmptyNode.h"
+#import "FirebaseDatabase/Sources/Snapshot/FLeafNode.h"
+#import "FirebaseDatabase/Sources/Snapshot/FSnapshotUtilities.h"
 
 @interface FNodeTests : XCTestCase
 

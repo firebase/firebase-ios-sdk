@@ -15,9 +15,9 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "FIRDataEventType.h"
-#import "FIRDatabaseReference.h"
-#import "FTypedefs.h"
+#import "FirebaseDatabase/Sources/Public/FIRDataEventType.h"
+#import "FirebaseDatabase/Sources/Public/FIRDatabaseReference.h"
+#import "FirebaseDatabase/Sources/Utilities/FTypedefs.h"
 
 @interface FTupleEventTypeString : NSObject
 

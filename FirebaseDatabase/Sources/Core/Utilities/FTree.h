@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import "FPath.h"
-#import "FTreeNode.h"
+#import "FirebaseDatabase/Sources/Core/Utilities/FPath.h"
+#import "FirebaseDatabase/Sources/Core/Utilities/FTreeNode.h"
 #import <Foundation/Foundation.h>
 
 @interface FTree : NSObject

@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#import "FIRFakeApp.h"
+#import "FirebaseDatabase/Tests/Helpers/FIRFakeApp.h"
 
-#import "FIRAuthInteropFake.h"
-#import "FIRComponentTestUtilities.h"
-#import "FIRDatabaseComponent.h"
+#import "Example/Shared/FIRAuthInteropFake.h"
+#import "Example/Shared/FIRComponentTestUtilities.h"
+#import "FirebaseDatabase/Sources/Api/FIRDatabaseComponent.h"
 
 @interface FIRFakeOptions : NSObject
 @property(nonatomic, readonly, copy) NSString *databaseURL;

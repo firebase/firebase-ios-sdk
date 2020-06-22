@@ -18,14 +18,14 @@
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
-#import "FIRDatabase.h"
-#import "FIRDatabaseConfig_Private.h"
-#import "FIRDatabaseReference.h"
-#import "FIRDatabaseReference_Private.h"
-#import "FIRFakeApp.h"
-#import "FMockStorageEngine.h"
-#import "FTestBase.h"
-#import "FTestHelpers.h"
+#import "FirebaseDatabase/Sources/Api/Private/FIRDatabaseReference_Private.h"
+#import "FirebaseDatabase/Sources/FIRDatabaseConfig_Private.h"
+#import "FirebaseDatabase/Sources/Public/FIRDatabase.h"
+#import "FirebaseDatabase/Sources/Public/FIRDatabaseReference.h"
+#import "FirebaseDatabase/Tests/Helpers/FIRFakeApp.h"
+#import "FirebaseDatabase/Tests/Helpers/FMockStorageEngine.h"
+#import "FirebaseDatabase/Tests/Helpers/FTestBase.h"
+#import "FirebaseDatabase/Tests/Helpers/FTestHelpers.h"
 
 @interface FIRDatabaseTests : FTestBase
 

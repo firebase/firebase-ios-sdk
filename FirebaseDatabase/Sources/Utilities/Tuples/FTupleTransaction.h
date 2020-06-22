@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "FPath.h"
-#import "FTypedefs.h"
-#import "FTypedefs_Private.h"
+#import "FirebaseDatabase/Sources/Api/Private/FTypedefs_Private.h"
+#import "FirebaseDatabase/Sources/Core/Utilities/FPath.h"
+#import "FirebaseDatabase/Sources/Utilities/FTypedefs.h"
 #import <Foundation/Foundation.h>
 
 @interface FTupleTransaction : NSObject

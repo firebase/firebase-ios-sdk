@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#import "FIRDatabaseConfig.h"
+#import "FirebaseDatabase/Sources/Api/FIRDatabaseConfig.h"
 
-#import "FAuthTokenProvider.h"
-#import "FIRDatabaseConfig_Private.h"
-#import "FIRNoopAuthTokenProvider.h"
+#import "FirebaseDatabase/Sources/FIRDatabaseConfig_Private.h"
+#import "FirebaseDatabase/Sources/Login/FAuthTokenProvider.h"
+#import "FirebaseDatabase/Sources/Login/FIRNoopAuthTokenProvider.h"
 
 @interface FIRDatabaseConfig (Private)
 

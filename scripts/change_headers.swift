@@ -20,17 +20,18 @@
 import Foundation
 
 // Update with directories in which to find headers.
-let findHeaders = ["Functions"]
+let findHeaders = ["FirebaseDatabase", "Example/Shared"]
 
 // Update with directories in which to change imports.
 let changeImports = ["GoogleUtilities", "FirebaseAuth", "FirebaseCore", "Firebase",
+                     "FirebaseDatabase",
                      "FirebaseDynamicLinks", "FirebaseInAppMessaging", "FirebaseMessaging",
                      "FirebaseRemoteConfig", "FirebaseInstallations", "Functions",
                      "FirebaseAppDistribution", "Example", "Crashlytics", "FirebaseStorage"]
 
 // Skip these directories. Imports should only be repo-relative in libraries
 // and unit tests.
-let skipDirPatterns = ["/Sample/", "/Pods/", "Tests/Integration",
+let skipDirPatterns = ["/Sample/", "/Pods/", "FirebaseStorage/Tests/Integration",
                        "FirebaseInAppMessaging/Tests/Integration/",
                        "Example/InstanceID/App", ".build/", "Functions/Example/FirebaseFunctions"]
 
@@ -89,6 +90,10 @@ func transformFile(_ file: String) {
       let importFile = getImportFile(line),
       let path = headerMap[importFile] {
       outBuffer += "#import \"\(path)\"\n"
+    } else if line.starts(with: "#include"),
+      let importFile = getImportFile(line),
+      let path = headerMap[importFile] {
+      outBuffer += "#include \"\(path)\"\n"
     } else {
       outBuffer += line + "\n"
     }

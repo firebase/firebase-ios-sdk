@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FTupleEventTypeString.h"
+#import "FirebaseDatabase/Tests/Helpers/FTupleEventTypeString.h"
 
 @implementation FTupleEventTypeString
 

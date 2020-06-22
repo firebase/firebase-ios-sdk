@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import "FRepoInfo.h"
-#import "FConstants.h"
+#import "FirebaseDatabase/Sources/Core/FRepoInfo.h"
+#import "FirebaseDatabase/Sources/Constants/FConstants.h"
 
 @interface FRepoInfo ()
 

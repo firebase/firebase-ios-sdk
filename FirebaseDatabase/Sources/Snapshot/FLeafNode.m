@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-#import "FLeafNode.h"
-#import "FChildrenNode.h"
-#import "FConstants.h"
-#import "FEmptyNode.h"
-#import "FImmutableSortedDictionary.h"
-#import "FSnapshotUtilities.h"
-#import "FStringUtilities.h"
-#import "FUtilities.h"
+#import "FirebaseDatabase/Sources/Snapshot/FLeafNode.h"
+#import "FirebaseDatabase/Sources/Constants/FConstants.h"
+#import "FirebaseDatabase/Sources/Snapshot/FChildrenNode.h"
+#import "FirebaseDatabase/Sources/Snapshot/FEmptyNode.h"
+#import "FirebaseDatabase/Sources/Snapshot/FSnapshotUtilities.h"
+#import "FirebaseDatabase/Sources/Utilities/FStringUtilities.h"
+#import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
+#import "FirebaseDatabase/Sources/third_party/FImmutableSortedDictionary/FImmutableSortedDictionary/FImmutableSortedDictionary.h"
 
 @interface FLeafNode ()
 @property(nonatomic, strong) id<FNode> priorityNode;

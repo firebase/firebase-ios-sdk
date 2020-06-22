@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "FListenComplete.h"
-#import "FOperationSource.h"
-#import "FPath.h"
+#import "FirebaseDatabase/Sources/FListenComplete.h"
+#import "FirebaseDatabase/Sources/Core/Operation/FOperationSource.h"
+#import "FirebaseDatabase/Sources/Core/Utilities/FPath.h"
 
 @interface FListenComplete ()
 @property(nonatomic, strong, readwrite) FOperationSource *source;

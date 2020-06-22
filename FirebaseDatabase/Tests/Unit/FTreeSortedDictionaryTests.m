@@ -16,10 +16,10 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FLLRBEmptyNode.h"
-#import "FLLRBNode.h"
-#import "FLLRBValueNode.h"
-#import "FTreeSortedDictionary.h"
+#import "FirebaseDatabase/Sources/third_party/FImmutableSortedDictionary/FImmutableSortedDictionary/FLLRBEmptyNode.h"
+#import "FirebaseDatabase/Sources/third_party/FImmutableSortedDictionary/FImmutableSortedDictionary/FLLRBNode.h"
+#import "FirebaseDatabase/Sources/third_party/FImmutableSortedDictionary/FImmutableSortedDictionary/FLLRBValueNode.h"
+#import "FirebaseDatabase/Sources/third_party/FImmutableSortedDictionary/FImmutableSortedDictionary/FTreeSortedDictionary.h"
 
 @interface FLLRBValueNode (Tests)
 - (id<FLLRBNode>)rotateLeft;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FPendingPut.h"
+#import "FirebaseDatabase/Sources/Persistence/FPendingPut.h"
 
 @implementation FPendingPut
 

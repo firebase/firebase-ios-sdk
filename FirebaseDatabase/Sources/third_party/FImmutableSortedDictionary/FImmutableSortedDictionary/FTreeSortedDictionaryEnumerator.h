@@ -1,5 +1,5 @@
 #import <Foundation/Foundation.h>
-#import "FTreeSortedDictionary.h"
+#import "FirebaseDatabase/Sources/third_party/FImmutableSortedDictionary/FImmutableSortedDictionary/FTreeSortedDictionary.h"
 
 @interface FTreeSortedDictionaryEnumerator : NSEnumerator
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FOperation.h"
+#import "FirebaseDatabase/Sources/Core/Operation/FOperation.h"
 #import <Foundation/Foundation.h>
 
 @interface FListenComplete : NSObject <FOperation>

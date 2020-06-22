@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FTestBase.h"
+#import "FirebaseDatabase/Tests/Helpers/FTestBase.h"
 
 @interface FPathTests : FTestBase
 

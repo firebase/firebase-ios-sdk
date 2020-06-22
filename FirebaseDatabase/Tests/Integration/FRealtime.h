@@ -15,7 +15,7 @@
  */
 
 #import <XCTest/XCTest.h>
-#import "FTestBase.h"
+#import "FirebaseDatabase/Tests/Helpers/FTestBase.h"
 
 @interface FRealtime : FTestBase
 
