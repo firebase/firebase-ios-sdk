@@ -119,7 +119,6 @@
                                                                    target:kGDTCORTargetTest];
   NSNotificationCenter *notifCenter = [NSNotificationCenter defaultCenter];
   [notifCenter postNotificationName:kGDTCORApplicationWillTerminateNotification object:nil];
-  XCTAssertTrue([GDTCORApplication sharedApplication].isRunningInBackground);
 
   GDTCOREvent *event = [transport eventForTransport];
   event.dataObject = [[GDTCORLifecycleTestEvent alloc] init];
