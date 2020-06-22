@@ -31,7 +31,6 @@ class InterfaceController: WKInterfaceController {
 
   override func willActivate() {
     GDTCORRegistrar.sharedInstance().register(TestUploader(), target: GDTCORTarget.test)
-    GDTCORRegistrar.sharedInstance().register(TestPrioritizer(), target: GDTCORTarget.test)
     super.willActivate()
   }
 
