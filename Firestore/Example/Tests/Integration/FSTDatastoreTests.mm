@@ -39,6 +39,7 @@
 #include "Firestore/core/src/model/mutation_batch_result.h"
 #include "Firestore/core/src/model/precondition.h"
 #include "Firestore/core/src/model/set_mutation.h"
+#include "Firestore/core/src/remote/connectivity_monitor.h"
 #include "Firestore/core/src/remote/datastore.h"
 #include "Firestore/core/src/remote/remote_event.h"
 #include "Firestore/core/src/remote/remote_store.h"
@@ -46,6 +47,7 @@
 #include "Firestore/core/src/util/hard_assert.h"
 #include "Firestore/core/src/util/status.h"
 #include "Firestore/core/src/util/string_apple.h"
+#include "Firestore/core/test/unit/remote/create_noop_connectivity_monitor.h"
 #include "Firestore/core/test/unit/testutil/async_testing.h"
 #include "Firestore/core/test/unit/testutil/testutil.h"
 #include "absl/memory/memory.h"
@@ -72,6 +74,8 @@ using firebase::firestore::model::MutationBatchResult;
 using firebase::firestore::model::Precondition;
 using firebase::firestore::model::OnlineState;
 using firebase::firestore::model::TargetId;
+using firebase::firestore::remote::ConnectivityMonitor;
+using firebase::firestore::remote::CreateNoOpConnectivityMonitor;
 using firebase::firestore::remote::Datastore;
 using firebase::firestore::remote::GrpcConnection;
 using firebase::firestore::remote::RemoteEvent;
@@ -219,6 +223,8 @@ class RemoteStoreEventCapture : public RemoteStoreCallback {
 
   DatabaseInfo _databaseInfo;
   SimpleQueryEngine _queryEngine;
+
+  std::unique_ptr<ConnectivityMonitor> _connectivityMonitor;
   std::shared_ptr<Datastore> _datastore;
   std::unique_ptr<RemoteStore> _remoteStore;
 }
@@ -238,15 +244,17 @@ class RemoteStoreEventCapture : public RemoteStoreCallback {
       DatabaseInfo(database_id, "test-key", util::MakeString(settings.host), settings.sslEnabled);
 
   _testWorkerQueue = testutil::AsyncQueueForTesting();
+  _connectivityMonitor = CreateNoOpConnectivityMonitor();
   _datastore = std::make_shared<Datastore>(_databaseInfo, _testWorkerQueue,
-                                           std::make_shared<EmptyCredentialsProvider>());
+                                           std::make_shared<EmptyCredentialsProvider>(),
+                                           _connectivityMonitor.get());
 
   _persistence = MemoryPersistence::WithEagerGarbageCollector();
   _localStore =
       absl::make_unique<LocalStore>(_persistence.get(), &_queryEngine, User::Unauthenticated());
 
   _remoteStore = absl::make_unique<RemoteStore>(_localStore.get(), _datastore, _testWorkerQueue,
-                                                [](OnlineState) {});
+                                                _connectivityMonitor.get(), [](OnlineState) {});
 
   _testWorkerQueue->Enqueue([=] { _remoteStore->Start(); });
 }
