@@ -31,7 +31,7 @@ let changeImports = ["GoogleUtilities", "FirebaseAuth", "FirebaseCore", "Firebas
 // Skip these directories. Imports should only be repo-relative in libraries
 // and unit tests.
 let skipDirPatterns = ["/Sample/", "/Pods/", "Tests/Integration",
-                       "FirebaseInAppMessaging/Tests/Integration/", "Example/Database/App",
+                       "FirebaseInAppMessaging/Tests/Integration/",
                        "Example/InstanceID/App", ".build/", "Functions/Example/FirebaseFunctions"]
 
 // Get a Dictionary mapping a simple header name to a repo-relative path.

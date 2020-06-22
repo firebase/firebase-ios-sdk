@@ -24,7 +24,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.static_framework = true
   s.prefix_header_file = false
 
-  base_dir = "Firebase/Database/"
+  base_dir = "FirebaseDatabase/Sources/"
   s.source_files = [
     base_dir + '**/*.[mh]',
     base_dir + 'third_party/Wrap-leveldb/APLevelDB.mm',
@@ -44,20 +44,19 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   }
 
   s.test_spec 'unit' do |unit_tests|
-    unit_tests.source_files = 'Example/Database/Tests/Unit/*.[mh]',
-                              'Example/Database/Tests/Helpers/*.[mh]',
-                              'Example/Database/Tests/third_party/*.[mh]',
+    unit_tests.source_files = 'FirebaseDatabase/Tests/Unit/*.[mh]',
+                              'FirebaseDatabase/Tests/Helpers/*.[mh]',
+                              'FirebaseDatabase/Tests/third_party/*.[mh]',
                               'Example/Shared/FIRAuthInteropFake.[mh]',
                               'Example/Shared/FIRComponentTestUtilities.h'
-    unit_tests.resources = 'Example/Database/Tests/infoPlist.strings',
-                           'Example/Database/Tests/syncPointSpec.json',
-                           'Example/Database/App/GoogleService-Info.plist'
+    unit_tests.resources = 'FirebaseDatabase/Tests/Resources/syncPointSpec.json',
+                           'FirebaseDatabase/Tests/Resources/GoogleService-Info.plist'
   end
 
   s.test_spec 'integration' do |int_tests|
-    int_tests.source_files = 'Example/Database/Tests/Integration/*.[mh]',
-                             'Example/Database/Tests/Helpers/*.[mh]',
+    int_tests.source_files = 'FirebaseDatabase/Tests/Integration/*.[mh]',
+                             'FirebaseDatabase/Tests/Helpers/*.[mh]',
                              'Example/Shared/FIRAuthInteropFake.[mh]'
-    int_tests.resources = 'Example/Database/App/GoogleService-Info.plist'
+    int_tests.resources = 'FirebaseDatabase/Tests/Resources/GoogleService-Info.plist'
   end
 end
