@@ -19,11 +19,14 @@
 
 #import <GoogleDataTransport/GDTCORClock.h>
 #import <GoogleDataTransport/GDTCORPlatform.h>
+#import <GoogleDataTransport/GDTCORRegistrar.h>
+#import <GoogleDataTransport/GDTCORStorageProtocol.h>
 
 #import "GDTCORTests/Unit/GDTCORTestCase.h"
 #import "GDTCORTests/Unit/Helpers/GDTCORDataObjectTesterClasses.h"
 
 #import "GDTCORLibrary/Private/GDTCOREvent_Private.h"
+#import "GDTCORLibrary/Private/GDTCORFlatFileStorage.h"
 
 @interface GDTCOREventTest : GDTCORTestCase
 
@@ -95,13 +98,21 @@
   [event1.clockSnapshot setValue:@(1552576634359451) forKeyPath:@"kernelBootTime"];
   [event1.clockSnapshot setValue:@(961141365197) forKeyPath:@"uptime"];
   event1.qosTier = GDTCOREventQosDefault;
+  event1.dataObject = [[GDTCORDataObjectTesterSimple alloc] initWithString:@"someData"];
   NSError *error1;
   event1.customBytes = [NSJSONSerialization dataWithJSONObject:@{@"customParam1" : @"aValue1"}
                                                        options:0
                                                          error:&error1];
   XCTAssertNil(error1);
-  [event1 writeToGDTPath:@"/tmp/fake.txt" error:&error1];
-  XCTAssertNil(error1);
+  id<GDTCORStorageProtocol> storage = GDTCORStorageInstanceForTarget(event1.target);
+  XCTAssertNotNil(storage);
+  XCTestExpectation *expectation = [self expectationWithDescription:@"event written"];
+  [storage storeEvent:event1
+           onComplete:^(BOOL wasWritten, NSError *_Nullable error) {
+             XCTAssertNil(error);
+             [expectation fulfill];
+           }];
+  [self waitForExpectations:@[ expectation ] timeout:10];
 
   GDTCOREvent *event2 = [[GDTCOREvent alloc] initWithMappingID:@"1018" target:kGDTCORTargetTest];
   event2.eventID = @123;
@@ -111,13 +122,21 @@
   [event2.clockSnapshot setValue:@(1552576634359451) forKeyPath:@"kernelBootTime"];
   [event2.clockSnapshot setValue:@(961141365197) forKeyPath:@"uptime"];
   event2.qosTier = GDTCOREventQosDefault;
+  event2.dataObject = [[GDTCORDataObjectTesterSimple alloc] initWithString:@"someData"];
   NSError *error2;
   event2.customBytes = [NSJSONSerialization dataWithJSONObject:@{@"customParam1" : @"aValue1"}
                                                        options:0
                                                          error:&error2];
   XCTAssertNil(error2);
-  [event2 writeToGDTPath:@"/tmp/fake.txt" error:&error2];
-  XCTAssertNil(error2);
+
+  storage = GDTCORStorageInstanceForTarget(event2.target);
+  expectation = [self expectationWithDescription:@"event written"];
+  [storage storeEvent:event2
+           onComplete:^(BOOL wasWritten, NSError *_Nullable error) {
+             XCTAssertNil(error);
+             [expectation fulfill];
+           }];
+  [self waitForExpectations:@[ expectation ] timeout:10];
 
   XCTAssertEqual([event1 hash], [event2 hash]);
   XCTAssertEqualObjects(event1, event2);
@@ -131,17 +150,22 @@
 
 /** Tests generating event IDs. */
 - (void)testGenerateEventIDs {
-  NSNumber *initialValue;
+  __block NSNumber *initialValue;
   NSMutableSet *generatedValues = [[NSMutableSet alloc] init];
   for (int i = 0; i < 100000; i++) {
-    NSNumber *eventID;
-    XCTAssertNoThrow(eventID = [GDTCOREvent nextEventID]);
-    XCTAssertFalse([generatedValues containsObject:eventID]);
-    [generatedValues addObject:eventID];
-    if (i == 0) {
-      initialValue = eventID;
-    }
-    XCTAssertEqual(eventID.integerValue, initialValue.integerValue + i);
+    XCTestExpectation *expectation = [self expectationWithDescription:@"eventID created"];
+    [GDTCOREvent nextEventIDForTarget:kGDTCORTargetTest
+                           onComplete:^(NSNumber *_Nullable eventID) {
+                             XCTAssertNotNil(eventID);
+                             XCTAssertFalse([generatedValues containsObject:eventID]);
+                             [generatedValues addObject:eventID];
+                             if (i == 0) {
+                               initialValue = eventID;
+                             }
+                             XCTAssertEqual(eventID.integerValue, initialValue.integerValue + i);
+                             [expectation fulfill];
+                           }];
+    [self waitForExpectations:@[ expectation ] timeout:1];
   }
 }
 

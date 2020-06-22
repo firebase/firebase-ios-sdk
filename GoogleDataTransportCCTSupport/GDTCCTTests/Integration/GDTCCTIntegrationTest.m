@@ -22,7 +22,6 @@
 
 #import <SystemConfiguration/SCNetworkReachability.h>
 
-#import "GDTCCTLibrary/Private/GDTCCTPrioritizer.h"
 #import "GDTCCTLibrary/Private/GDTCCTUploader.h"
 
 typedef void (^GDTCCTIntegrationTestBlock)(NSURLSessionUploadTask *_Nullable);

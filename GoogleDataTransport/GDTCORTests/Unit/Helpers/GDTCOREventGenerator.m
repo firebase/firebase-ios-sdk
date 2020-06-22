@@ -38,8 +38,6 @@
     [[NSFileManager defaultManager] createFileAtPath:filePath
                                             contents:[NSData data]
                                           attributes:nil];
-    NSError *error = nil;
-    [event writeToGDTPath:filePath error:&error];
     [set addObject:event];
     counter++;
   }

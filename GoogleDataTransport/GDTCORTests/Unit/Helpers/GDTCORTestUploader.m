@@ -18,16 +18,10 @@
 
 @implementation GDTCORTestUploader
 
-- (void)uploadPackage:(GDTCORUploadPackage *)package {
-  if (_uploadPackageBlock) {
-    _uploadPackageBlock(package);
-  } else {
-    [package completeDelivery];
+- (void)uploadTarget:(GDTCORTarget)target withConditions:(GDTCORUploadConditions)conditions {
+  if (self.uploadWithConditionsBlock) {
+    self.uploadWithConditionsBlock(target, conditions);
   }
-}
-
-- (BOOL)readyToUploadTarget:(GDTCORTarget)target conditions:(GDTCORUploadConditions)conditions {
-  return YES;
 }
 
 @end

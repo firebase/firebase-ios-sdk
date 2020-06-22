@@ -58,6 +58,9 @@ typedef NS_ENUM(NSInteger, GDTCOREventQoS) {
  * the GDTCOREventDataObject protocol. */
 @property(nullable, nonatomic) id<GDTCOREventDataObject> dataObject;
 
+/** The serialized bytes from calling [dataObject transportBytes]. */
+@property(nullable, readonly, nonatomic) NSData *serializedDataObjectBytes;
+
 /** The quality of service tier this event belongs to. */
 @property(nonatomic) GDTCOREventQoS qosTier;
 
@@ -66,9 +69,6 @@ typedef NS_ENUM(NSInteger, GDTCOREventQoS) {
 
 /** The expiration date of the event. Default is 604800 seconds (7 days) from creation. */
 @property(nonatomic) NSDate *expirationDate;
-
-/** The resulting file URL when [dataObject -transportBytes] has been saved to disk.*/
-@property(nullable, readonly, nonatomic) NSURL *fileURL;
 
 /** Bytes that can be used by a prioritizer or uploader later on. It's the prioritizer or uploader's
  * responsibility to serialize and deserialize these bytes.

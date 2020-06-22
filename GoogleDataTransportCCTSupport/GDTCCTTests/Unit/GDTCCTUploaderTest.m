@@ -16,10 +16,13 @@
 
 #import <XCTest/XCTest.h>
 
-#import <GoogleDataTransport/GDTCORUploadPackage.h>
+#import <GoogleDataTransport/GDTCORRegistrar.h>
+#import <GoogleDataTransport/GDTCORStorageProtocol.h>
 
 #import "GDTCCTLibrary/Private/GDTCCTNanopbHelpers.h"
 #import "GDTCCTLibrary/Private/GDTCCTUploader.h"
+
+#import "GDTCCTTests/Common/TestStorage/GDTCCTTestStorage.h"
 
 #import "GDTCCTTests/Unit/Helpers/GDTCCTEventGenerator.h"
 #import "GDTCCTTests/Unit/TestServer/GDTCCTTestServer.h"
@@ -37,7 +40,9 @@
 @implementation GDTCCTUploaderTest
 
 - (void)setUp {
-  self.generator = [[GDTCCTEventGenerator alloc] initWithTarget:kGDTCORTargetCCT];
+  [[GDTCORRegistrar sharedInstance] registerStorage:[[GDTCCTTestStorage alloc] init]
+                                             target:kGDTCORTargetTest];
+  self.generator = [[GDTCCTEventGenerator alloc] initWithTarget:kGDTCORTargetTest];
   self.testServer = [[GDTCCTTestServer alloc] init];
   [self.testServer registerLogBatchPath];
   [self.testServer start];
@@ -46,16 +51,17 @@
 
 - (void)tearDown {
   [super tearDown];
-  [self.generator deleteGeneratedFilesFromDisk];
   [self.testServer stop];
 }
 
 - (void)testCCTUploadGivenConditions {
-  NSArray<GDTCOREvent *> *storedEventsA = [self.generator generateTheFiveConsistentEvents];
-  NSSet<GDTCOREvent *> *storedEvents = [NSSet setWithArray:storedEventsA];
+  id<GDTCORStorageProtocol> storage = GDTCORStorageInstanceForTarget(kGDTCORTargetTest);
+  XCTAssertNotNil(storage);
+  [[self.generator generateTheFiveConsistentEvents]
+      enumerateObjectsUsingBlock:^(GDTCOREvent *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
+        [storage storeEvent:obj onComplete:nil];
+      }];
 
-  GDTCORUploadPackage *package = [[GDTCORUploadPackage alloc] initWithTarget:kGDTCORTargetCCT];
-  package.events = storedEvents;
   GDTCCTUploader *uploader = [[GDTCCTUploader alloc] init];
   uploader.testServerURL = [self.testServer.serverURL URLByAppendingPathComponent:@"logBatch"];
   __weak id weakSelf = self;
@@ -69,7 +75,7 @@
         XCTAssertEqual(response.statusCode, 200);
         XCTAssertTrue(response.hasBody);
       };
-  [uploader uploadPackage:package];
+  [uploader uploadTarget:kGDTCORTargetTest withConditions:GDTCORUploadConditionWifiData];
   dispatch_sync(uploader.uploaderQueue, ^{
     XCTAssertNotNil(uploader.currentTask);
   });
