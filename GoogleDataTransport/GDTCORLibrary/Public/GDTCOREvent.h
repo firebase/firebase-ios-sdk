@@ -70,9 +70,7 @@ typedef NS_ENUM(NSInteger, GDTCOREventQoS) {
 /** The expiration date of the event. Default is 604800 seconds (7 days) from creation. */
 @property(nonatomic) NSDate *expirationDate;
 
-/** Bytes that can be used by a prioritizer or uploader later on. It's the prioritizer or uploader's
- * responsibility to serialize and deserialize these bytes.
- */
+/** Bytes that can be used by an uploader later on. */
 @property(nullable, nonatomic) NSData *customBytes;
 
 // Please use the designated initializer.
