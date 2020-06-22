@@ -150,6 +150,8 @@
 
 /** Tests generating event IDs. */
 - (void)testGenerateEventIDs {
+  BOOL originalContinueAfterFailureValue = self.continueAfterFailure;
+  self.continueAfterFailure = NO;
   __block NSNumber *initialValue;
   NSMutableSet *generatedValues = [[NSMutableSet alloc] init];
   for (int i = 0; i < 100000; i++) {
@@ -165,8 +167,9 @@
                              XCTAssertEqual(eventID.integerValue, initialValue.integerValue + i);
                              [expectation fulfill];
                            }];
-    [self waitForExpectations:@[ expectation ] timeout:1];
+    [self waitForExpectations:@[ expectation ] timeout:10];
   }
+  self.continueAfterFailure = originalContinueAfterFailureValue;
 }
 
 @end

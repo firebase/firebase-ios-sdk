@@ -30,7 +30,7 @@
 
 - (instancetype)initWithMappingID:(NSString *)mappingID
                      transformers:(nullable NSArray<id<GDTCOREventTransformer>> *)transformers
-                           target:(NSInteger)target {
+                           target:(GDTCORTarget)target {
   self = [super initWithMappingID:mappingID transformers:transformers target:target];
 
   if (self) {
