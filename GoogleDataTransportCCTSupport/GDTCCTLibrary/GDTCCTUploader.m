@@ -410,8 +410,9 @@ NSNotificationName const GDTCCTUploadCompleteNotification = @"com.GDTCCTUploader
  * @return A new NSURLRequest ready to be sent to FLL.
  */
 - (nullable NSURLRequest *)constructRequestForTarget:(GDTCORTarget)target data:(NSData *)data {
-  if (!data || data.length == 0) {
+  if (data == nil || data.length == 0) {
     GDTCORLogDebug(@"There was no data to construct a request for target %ld.", (long)target);
+    return nil;
   }
   NSURL *URL = [self serverURLForTarget:target];
   NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL];
