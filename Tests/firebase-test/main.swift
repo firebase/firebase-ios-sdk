@@ -31,16 +31,23 @@ import GoogleUtilities_Network
 import GoogleUtilities_NSData
 import GoogleUtilities_Reachability
 import GoogleUtilities_UserDefaults
+import nanopb
 
-print("Hello world!")
-print("Is app store receipt sandbox? Answer: \(GULAppEnvironmentUtil.isAppStoreReceiptSandbox())")
-print("Is from app store? Answer: \(GULAppEnvironmentUtil.isFromAppStore())")
-print("Is this the simulator? Answer: \(GULAppEnvironmentUtil.isSimulator())")
-print("Device model? Answer: \(GULAppEnvironmentUtil.deviceModel() ?? "NONE")")
-print("System version? Answer: \(GULAppEnvironmentUtil.systemVersion() ?? "NONE")")
-print("Is App extension? Answer: \(GULAppEnvironmentUtil.isAppExtension())")
+import XCTest
 
-print("Is there a default app? Answer: \(FirebaseApp.app() != nil)")
-// print("Storage Version String? Answer: \(String(cString: StorageVersionString))")
+class importTest: XCTestCase {
+  func testImports() {
+    XCTAssertFalse(GULAppEnvironmentUtil.isAppStoreReceiptSandbox())
+    XCTAssertFalse(GULAppEnvironmentUtil.isFromAppStore())
+    XCTAssertFalse(GULAppEnvironmentUtil.isSimulator())
+    XCTAssertFalse(GULAppEnvironmentUtil.isAppExtension())
+    XCTAssertNil(FirebaseApp.app())
+    XCTAssertEqual(GULAppEnvironmentUtil.deviceModel(), "x86_64")
 
-// print("InstanceIDScopeFirebaseMessaging? Answer: \(InstanceIDScopeFirebaseMessaging)")
+    print("System version? Answer: \(GULAppEnvironmentUtil.systemVersion() ?? "NONE")")
+
+    print("Storage Version String? Answer: \(String(cString: StorageVersionString))")
+
+    // print("InstanceIDScopeFirebaseMessaging? Answer: \(InstanceIDScopeFirebaseMessaging)")
+  }
+}
