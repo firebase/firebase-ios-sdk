@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import "FPathTests.h"
-#import "FPath.h"
+#import "FirebaseDatabase/Tests/Unit/FPathTests.h"
+#import "FirebaseDatabase/Sources/Core/Utilities/FPath.h"
 
 @implementation FPathTests
 

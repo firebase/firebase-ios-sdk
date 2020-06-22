@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRSampleAppUtilities.h"
+#import "Example/Shared/FIRSampleAppUtilities.h"
 
 #import <SafariServices/SafariServices.h>
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"

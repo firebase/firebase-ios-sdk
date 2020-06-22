@@ -14,8 +14,8 @@
 //   limitations under the License.
 //
 
-#import "NSData+SRB64Additions.h"
-#import "fbase64.h"
+#import "FirebaseDatabase/Sources/third_party/SocketRocket/NSData+SRB64Additions.h"
+#import "FirebaseDatabase/Sources/third_party/SocketRocket/fbase64.h"
 
 @implementation FSRUtilities
 

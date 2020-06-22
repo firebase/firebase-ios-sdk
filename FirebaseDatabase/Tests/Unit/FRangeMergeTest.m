@@ -18,10 +18,10 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FEmptyNode.h"
-#import "FNode.h"
-#import "FRangeMerge.h"
-#import "FTestHelpers.h"
+#import "FirebaseDatabase/Sources/Core/FRangeMerge.h"
+#import "FirebaseDatabase/Sources/Snapshot/FEmptyNode.h"
+#import "FirebaseDatabase/Sources/Snapshot/FNode.h"
+#import "FirebaseDatabase/Tests/Helpers/FTestHelpers.h"
 
 @interface FRangeMergeTest : XCTestCase
 

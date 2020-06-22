@@ -17,7 +17,7 @@
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import <Foundation/Foundation.h>
 
-#import "FParsedUrl.h"
+#import "FirebaseDatabase/Sources/Utilities/FParsedUrl.h"
 
 @interface FUtilities : NSObject
 

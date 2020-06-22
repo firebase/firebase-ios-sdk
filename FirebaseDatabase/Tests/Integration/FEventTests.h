@@ -15,7 +15,7 @@
  */
 
 #import <XCTest/XCTest.h>
-#import "FTestBase.h"
+#import "FirebaseDatabase/Tests/Helpers/FTestBase.h"
 
 @interface FEventTests : FTestBase {
   BOOL rl;

@@ -16,10 +16,10 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FCompoundHash.h"
-#import "FEmptyNode.h"
-#import "FStringUtilities.h"
-#import "FTestHelpers.h"
+#import "FirebaseDatabase/Sources/Core/FCompoundHash.h"
+#import "FirebaseDatabase/Sources/Snapshot/FEmptyNode.h"
+#import "FirebaseDatabase/Sources/Utilities/FStringUtilities.h"
+#import "FirebaseDatabase/Tests/Helpers/FTestHelpers.h"
 
 @interface FCompoundHashTest : XCTestCase
 

@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FSRWebSocket.h"
+#import "FirebaseDatabase/Sources/third_party/SocketRocket/FSRWebSocket.h"
 
 #if __has_include(<unicode/utf8.h>)
 #define HAS_ICU
@@ -36,8 +36,8 @@
 
 #import <CommonCrypto/CommonDigest.h>
 #import <Security/SecRandom.h>
-#import "fbase64.h"
-#import "NSData+SRB64Additions.h"
+#import "FirebaseDatabase/Sources/third_party/SocketRocket/fbase64.h"
+#import "FirebaseDatabase/Sources/third_party/SocketRocket/NSData+SRB64Additions.h"
 
 #if OS_OBJECT_USE_OBJC_RETAIN_RELEASE
 #define sr_dispatch_retain(x)

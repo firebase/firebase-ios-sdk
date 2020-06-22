@@ -1,5 +1,5 @@
 #import <Foundation/Foundation.h>
-#import "FImmutableSortedDictionary.h"
+#import "FirebaseDatabase/Sources/third_party/FImmutableSortedDictionary/FImmutableSortedDictionary/FImmutableSortedDictionary.h"
 
 /**
  * This is an array backed implementation of FImmutableSortedDictionary. It uses arrays and linear lookups to achieve

@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FClock.h"
+#import "FirebaseDatabase/Sources/FClock.h"
 
 @interface FTestClock : NSObject <FClock>
 

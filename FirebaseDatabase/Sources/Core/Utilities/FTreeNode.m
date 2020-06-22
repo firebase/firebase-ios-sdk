@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FTreeNode.h"
+#import "FirebaseDatabase/Sources/Core/Utilities/FTreeNode.h"
 
 @implementation FTreeNode
 

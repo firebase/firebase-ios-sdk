@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "FMaxNode.h"
-#import "FEmptyNode.h"
-#import "FUtilities.h"
+#import "FirebaseDatabase/Sources/FMaxNode.h"
+#import "FirebaseDatabase/Sources/Snapshot/FEmptyNode.h"
+#import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
 
 @implementation FMaxNode {
 }

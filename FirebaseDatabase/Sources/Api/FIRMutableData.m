@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-#import "FIRMutableData.h"
-#import "FChildrenNode.h"
-#import "FIRMutableData_Private.h"
-#import "FIndexedNode.h"
-#import "FNamedNode.h"
-#import "FSnapshotHolder.h"
-#import "FSnapshotUtilities.h"
-#import "FTransformedEnumerator.h"
+#import "FirebaseDatabase/Sources/Public/FIRMutableData.h"
+#import "FirebaseDatabase/Sources/Api/Private/FIRMutableData_Private.h"
+#import "FirebaseDatabase/Sources/Core/FSnapshotHolder.h"
+#import "FirebaseDatabase/Sources/FNamedNode.h"
+#import "FirebaseDatabase/Sources/FTransformedEnumerator.h"
+#import "FirebaseDatabase/Sources/Snapshot/FChildrenNode.h"
+#import "FirebaseDatabase/Sources/Snapshot/FIndexedNode.h"
+#import "FirebaseDatabase/Sources/Snapshot/FSnapshotUtilities.h"
 
 @interface FIRMutableData ()
 

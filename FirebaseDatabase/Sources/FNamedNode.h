@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FNode.h"
+#import "FirebaseDatabase/Sources/Snapshot/FNode.h"
 #import <Foundation/Foundation.h>
 
 @interface FNamedNode : NSObject <NSCopying>

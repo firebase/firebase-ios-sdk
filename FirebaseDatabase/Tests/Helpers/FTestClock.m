@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FTestClock.h"
+#import "FirebaseDatabase/Tests/Helpers/FTestClock.h"
 
 @implementation FTestClock
 

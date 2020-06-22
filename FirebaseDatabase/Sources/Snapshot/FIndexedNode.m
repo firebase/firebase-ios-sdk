@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-#import "FIndexedNode.h"
+#import "FirebaseDatabase/Sources/Snapshot/FIndexedNode.h"
 
-#import "FChildrenNode.h"
-#import "FImmutableSortedSet.h"
-#import "FIndex.h"
-#import "FKeyIndex.h"
-#import "FPriorityIndex.h"
+#import "FirebaseDatabase/Sources/FIndex.h"
+#import "FirebaseDatabase/Sources/FKeyIndex.h"
+#import "FirebaseDatabase/Sources/FPriorityIndex.h"
+#import "FirebaseDatabase/Sources/Snapshot/FChildrenNode.h"
+#import "FirebaseDatabase/Sources/third_party/FImmutableSortedDictionary/FImmutableSortedDictionary/FImmutableSortedSet.h"
 
 static FImmutableSortedSet *FALLBACK_INDEX;
 

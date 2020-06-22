@@ -16,14 +16,14 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FEmptyNode.h"
-#import "FLevelDBStorageEngine.h"
-#import "FPathIndex.h"
-#import "FQueryParams.h"
-#import "FSnapshotUtilities.h"
-#import "FTestHelpers.h"
-#import "FTrackedQuery.h"
-#import "FWriteRecord.h"
+#import "FirebaseDatabase/Sources/Core/FQueryParams.h"
+#import "FirebaseDatabase/Sources/Core/FWriteRecord.h"
+#import "FirebaseDatabase/Sources/FPathIndex.h"
+#import "FirebaseDatabase/Sources/Persistence/FLevelDBStorageEngine.h"
+#import "FirebaseDatabase/Sources/Persistence/FTrackedQuery.h"
+#import "FirebaseDatabase/Sources/Snapshot/FEmptyNode.h"
+#import "FirebaseDatabase/Sources/Snapshot/FSnapshotUtilities.h"
+#import "FirebaseDatabase/Tests/Helpers/FTestHelpers.h"
 
 @interface FLevelDBStorageEngineTests : XCTestCase
 

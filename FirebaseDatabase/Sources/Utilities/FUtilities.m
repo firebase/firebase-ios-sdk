@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#import "FUtilities.h"
-#import "FAtomicNumber.h"
-#import "FConstants.h"
-#import "FStringUtilities.h"
+#import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseDatabase/Sources/Constants/FConstants.h"
+#import "FirebaseDatabase/Sources/Utilities/FAtomicNumber.h"
+#import "FirebaseDatabase/Sources/Utilities/FStringUtilities.h"
 
 #define ARC4RANDOM_MAX 0x100000000
 #define INTEGER_32_MIN (-2147483648)

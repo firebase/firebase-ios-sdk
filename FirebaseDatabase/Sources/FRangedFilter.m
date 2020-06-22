@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-#import "FRangedFilter.h"
-#import "FChildChangeAccumulator.h"
-#import "FChildrenNode.h"
-#import "FEmptyNode.h"
-#import "FIndexedFilter.h"
-#import "FIndexedNode.h"
-#import "FNamedNode.h"
-#import "FQueryParams.h"
+#import "FirebaseDatabase/Sources/FRangedFilter.h"
+#import "FirebaseDatabase/Sources/Core/FQueryParams.h"
+#import "FirebaseDatabase/Sources/Core/View/Filter/FChildChangeAccumulator.h"
+#import "FirebaseDatabase/Sources/Core/View/Filter/FIndexedFilter.h"
+#import "FirebaseDatabase/Sources/FNamedNode.h"
+#import "FirebaseDatabase/Sources/Snapshot/FChildrenNode.h"
+#import "FirebaseDatabase/Sources/Snapshot/FEmptyNode.h"
+#import "FirebaseDatabase/Sources/Snapshot/FIndexedNode.h"
 
 @interface FRangedFilter ()
 @property(nonatomic, strong, readwrite) id<FNodeFilter> indexedFilter;

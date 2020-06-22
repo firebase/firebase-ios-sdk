@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FKeepSyncedEventRegistration.h"
+#import "FirebaseDatabase/Sources/Core/View/FKeepSyncedEventRegistration.h"
 
 @interface FKeepSyncedEventRegistration ()
 

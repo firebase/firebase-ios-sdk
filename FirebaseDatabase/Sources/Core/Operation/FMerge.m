@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-#import "FMerge.h"
-#import "FCompoundWrite.h"
-#import "FNode.h"
-#import "FOperationSource.h"
-#import "FOverwrite.h"
-#import "FPath.h"
+#import "FirebaseDatabase/Sources/Core/Operation/FMerge.h"
+#import "FirebaseDatabase/Sources/Core/Operation/FOperationSource.h"
+#import "FirebaseDatabase/Sources/Core/Operation/FOverwrite.h"
+#import "FirebaseDatabase/Sources/Core/Utilities/FPath.h"
+#import "FirebaseDatabase/Sources/Snapshot/FCompoundWrite.h"
+#import "FirebaseDatabase/Sources/Snapshot/FNode.h"
 
 @interface FMerge ()
 @property(nonatomic, strong, readwrite) FOperationSource *source;

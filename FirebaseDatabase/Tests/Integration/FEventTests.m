@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#import "FEventTests.h"
-#import "FEventTester.h"
-#import "FTestHelpers.h"
-#import "FTupleEventTypeString.h"
+#import "FirebaseDatabase/Tests/Integration/FEventTests.h"
+#import "FirebaseDatabase/Tests/Helpers/FEventTester.h"
+#import "FirebaseDatabase/Tests/Helpers/FTestHelpers.h"
+#import "FirebaseDatabase/Tests/Helpers/FTupleEventTypeString.h"
 
 @implementation FEventTests
 

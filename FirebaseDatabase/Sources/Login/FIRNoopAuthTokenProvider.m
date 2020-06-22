@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "FIRNoopAuthTokenProvider.h"
-#import "FAuthTokenProvider.h"
-#import "FIRDatabaseQuery_Private.h"
+#import "FirebaseDatabase/Sources/Login/FIRNoopAuthTokenProvider.h"
+#import "FirebaseDatabase/Sources/Api/Private/FIRDatabaseQuery_Private.h"
+#import "FirebaseDatabase/Sources/Login/FAuthTokenProvider.h"
 
 @implementation FIRNoopAuthTokenProvider
 

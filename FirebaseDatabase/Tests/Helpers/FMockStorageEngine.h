@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FStorageEngine.h"
+#import "FirebaseDatabase/Sources/Persistence/FStorageEngine.h"
 
 @interface FMockStorageEngine : NSObject <FStorageEngine>
 

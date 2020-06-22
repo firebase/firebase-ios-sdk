@@ -30,7 +30,7 @@
 //  3. This notice may not be removed or altered from any source distribution.
 //
 
-#import "Base64.h"
+#import "FirebaseDatabase/Tests/third_party/Base64.h"
 
 
 #import <Availability.h>

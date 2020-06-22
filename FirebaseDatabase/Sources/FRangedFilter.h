@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FNodeFilter.h"
+#import "FirebaseDatabase/Sources/Core/View/Filter/FNodeFilter.h"
 #import <Foundation/Foundation.h>
 
 @class FQueryParams;

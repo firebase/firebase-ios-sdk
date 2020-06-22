@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FConstants.h"
+#import "FirebaseDatabase/Sources/Constants/FConstants.h"
 
 #pragma mark -
 #pragma mark Wire Protocol Envelope Constants

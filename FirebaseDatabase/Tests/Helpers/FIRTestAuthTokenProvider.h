@@ -15,7 +15,7 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "FAuthTokenProvider.h"
+#import "FirebaseDatabase/Sources/Login/FAuthTokenProvider.h"
 
 @interface FIRTestAuthTokenProvider : NSObject <FAuthTokenProvider>
 

@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import "FNextPushId.h"
-#import "FUtilities.h"
+#import "FirebaseDatabase/Sources/Utilities/FNextPushId.h"
+#import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
 
 static NSString *const PUSH_CHARS =
     @"-0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz";
