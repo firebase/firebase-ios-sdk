@@ -24,8 +24,8 @@
 @property(nonatomic) BOOL sendDataEvent_wasWritten;
 
 - (instancetype)initWithMappingID:(NSString *)mappingID
-                     transformers:(NSArray<id<GDTCOREventTransformer>> *)transformers
-                           target:(NSInteger)target NS_DESIGNATED_INITIALIZER;
+                     transformers:(nullable NSArray<id<GDTCOREventTransformer>> *)transformers
+                           target:(GDTCORTarget)target NS_DESIGNATED_INITIALIZER;
 
 - (void)sendDataEvent:(GDTCOREvent *)event
            onComplete:(void (^)(BOOL wasWritten, NSError *error))completion;
