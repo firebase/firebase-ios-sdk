@@ -59,8 +59,8 @@ let package = Package(
       name: "FirebaseStorage",
       targets: ["FirebaseStorage"]
     ),
-    .library(name: "FirebaseStorageBinary",
-             targets: ["FirebaseStorageBinary", "FirebaseCore"]),
+//    .library(name: "FirebaseStorageBinary",
+//             targets: ["FirebaseStorageBinary", "FirebaseCore"]),
     .library(
       name: "FirebaseStorageSwift",
       targets: ["FirebaseStorageSwift"]
@@ -261,11 +261,11 @@ let package = Package(
         .define("FIRStorage_VERSION", to: "0.0.1"), // TODO: Fix version
       ]
     ),
-    .binaryTarget(
-      name: "FirebaseStorageBinary",
-      url: "https://dl.google.com/firebase/ios/swiftpm/6.27.0/FirebaseStorage.zip",
-      checksum: "5179d686b874bc58aa42eed039cf122c89b51c6cc0e76c038c5955c85bdbd5e1"
-    ),
+//    .binaryTarget(
+//      name: "FirebaseStorageBinary",
+//      url: "https://dl.google.com/firebase/ios/swiftpm/6.27.0/FirebaseStorage.zip",
+//      checksum: "5179d686b874bc58aa42eed039cf122c89b51c6cc0e76c038c5955c85bdbd5e1"
+//    ),
     .target(
       name: "FirebaseStorageSwift",
       dependencies: ["FirebaseStorage"],
