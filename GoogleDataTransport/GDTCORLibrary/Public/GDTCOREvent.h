@@ -17,6 +17,7 @@
 #import <Foundation/Foundation.h>
 
 #import <GoogleDataTransport/GDTCOREventDataObject.h>
+#import <GoogleDataTransport/GDTCORTargets.h>
 
 @class GDTCORClock;
 
@@ -46,13 +47,13 @@ typedef NS_ENUM(NSInteger, GDTCOREventQoS) {
 @interface GDTCOREvent : NSObject <NSSecureCoding>
 
 /** The unique ID of the event. */
-@property(nonatomic, readonly) NSNumber *eventID;
+@property(readonly, nonatomic) NSNumber *eventID;
 
 /** The mapping identifier, to allow backends to map the transport bytes to a proto. */
-@property(readonly, nonatomic) NSString *mappingID;
+@property(nullable, readonly, nonatomic) NSString *mappingID;
 
 /** The identifier for the backend this event will eventually be sent to. */
-@property(readonly, nonatomic) NSInteger target;
+@property(readonly, nonatomic) GDTCORTarget target;
 
 /** The data object encapsulated in the transport of your choice, as long as it implements
  * the GDTCOREventDataObject protocol. */
@@ -73,17 +74,13 @@ typedef NS_ENUM(NSInteger, GDTCOREventQoS) {
 /** Bytes that can be used by an uploader later on. */
 @property(nullable, nonatomic) NSData *customBytes;
 
-// Please use the designated initializer.
-- (instancetype)init NS_UNAVAILABLE;
-
 /** Initializes an instance using the given mappingID.
  *
  * @param mappingID The mapping identifier.
  * @param target The event's target identifier.
  * @return An instance of this class.
  */
-- (nullable instancetype)initWithMappingID:(NSString *)mappingID
-                                    target:(NSInteger)target NS_DESIGNATED_INITIALIZER;
+- (nullable instancetype)initWithMappingID:(NSString *)mappingID target:(GDTCORTarget)target;
 
 @end
 
