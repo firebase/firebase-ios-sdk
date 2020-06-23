@@ -16,11 +16,13 @@
 
 @interface FIRMockGDTCORTransport : GDTCORTransport
 
-@property(nonatomic, copy) NSString *mappingID;
+NS_ASSUME_NONNULL_BEGIN
+
+@property(nullable, nonatomic, copy) NSString *mappingID;
 @property(nonatomic) NSInteger target;
 
-@property(nonatomic, strong) GDTCOREvent *sendDataEvent_event;
-@property(nonatomic, strong) NSError *sendDataEvent_error;
+@property(nullable, nonatomic, strong) GDTCOREvent *sendDataEvent_event;
+@property(nullable, nonatomic, strong) NSError *sendDataEvent_error;
 @property(nonatomic) BOOL sendDataEvent_wasWritten;
 
 - (instancetype)initWithMappingID:(NSString *)mappingID
@@ -28,6 +30,8 @@
                            target:(GDTCORTarget)target NS_DESIGNATED_INITIALIZER;
 
 - (void)sendDataEvent:(GDTCOREvent *)event
-           onComplete:(void (^)(BOOL wasWritten, NSError *error))completion;
+           onComplete:(nullable void (^)(BOOL wasWritten, NSError *_Nullable error))completion;
 
 @end
+
+NS_ASSUME_NONNULL_END
