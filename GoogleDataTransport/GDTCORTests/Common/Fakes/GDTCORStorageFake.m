@@ -27,7 +27,7 @@
         onComplete:(void (^_Nullable)(BOOL wasWritten, NSError *_Nullable))completion {
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
-    _storedEvents = [[NSMutableDictionary alloc] init];
+    self->_storedEvents = [[NSMutableDictionary alloc] init];
   });
   _storedEvents[event.eventID] = event;
   if (completion) {
