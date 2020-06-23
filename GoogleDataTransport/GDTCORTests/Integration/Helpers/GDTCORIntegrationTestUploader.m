@@ -27,13 +27,13 @@
   NSURLSessionUploadTask *_currentUploadTask;
 
   /** The server URL to upload to. */
-  NSURL *_serverURL;
+  GDTCORTestServer *_testServer;
 }
 
-- (instancetype)initWithServerURL:(NSURL *)serverURL {
+- (instancetype)initWithServer:(GDTCORTestServer *)testServer {
   self = [super init];
   if (self) {
-    _serverURL = serverURL;
+    _testServer = testServer;
     [[GDTCORRegistrar sharedInstance] registerUploader:self target:kGDTCORTargetTest];
   }
   return self;
@@ -55,8 +55,8 @@
                     }
                     NSURL *serverURL =
                         arc4random_uniform(2)
-                            ? [self->_serverURL URLByAppendingPathComponent:@"log"]
-                            : [self->_serverURL URLByAppendingPathComponent:@"logBatch"];
+                            ? [self->_testServer.serverURL URLByAppendingPathComponent:@"log"]
+                            : [self->_testServer.serverURL URLByAppendingPathComponent:@"logBatch"];
                     NSURLSession *session = [NSURLSession sharedSession];
                     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:serverURL];
                     request.HTTPMethod = @"POST";
@@ -93,7 +93,7 @@
 }
 
 - (BOOL)readyToUploadTarget:(GDTCORTarget)target conditions:(GDTCORUploadConditions)conditions {
-  return _currentUploadTask ? NO : YES;
+  return _currentUploadTask != nil && _testServer.isRunning;
 }
 
 @end

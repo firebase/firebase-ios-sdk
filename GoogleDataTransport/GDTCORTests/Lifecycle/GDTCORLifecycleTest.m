@@ -101,13 +101,23 @@
 
   GDTCOREvent *event = [transport eventForTransport];
   event.dataObject = [[GDTCORLifecycleTestEvent alloc] init];
-  XCTAssertFalse([[GDTCORFlatFileStorage sharedInstance] hasEventsForTarget:kGDTCORTargetTest]);
+  XCTestExpectation *expectation = [self expectationWithDescription:@"hasEvent completion called"];
+  [[GDTCORFlatFileStorage sharedInstance] hasEventsForTarget:kGDTCORTargetTest
+                                                  onComplete:^(BOOL hasEvents) {
+                                                    XCTAssertFalse(hasEvents);
+                                                    [expectation fulfill];
+                                                  }];
+  [self waitForExpectations:@[ expectation ] timeout:10];
   [transport sendDataEvent:event];
-  GDTCORWaitForBlock(
-      ^BOOL {
-        return [[GDTCORFlatFileStorage sharedInstance] hasEventsForTarget:kGDTCORTargetTest] == YES;
-      },
-      5.0);
+  dispatch_sync([GDTCORTransformer sharedInstance].eventWritingQueue, ^{
+                });
+  expectation = [self expectationWithDescription:@"hasEvent completion called"];
+  [[GDTCORFlatFileStorage sharedInstance] hasEventsForTarget:kGDTCORTargetTest
+                                                  onComplete:^(BOOL hasEvents) {
+                                                    XCTAssertTrue(hasEvents);
+                                                    [expectation fulfill];
+                                                  }];
+  [self waitForExpectations:@[ expectation ] timeout:10];
 }
 
 #endif  // #if TARGET_OS_IOS || TARGET_OS_TV
@@ -122,13 +132,23 @@
 
   GDTCOREvent *event = [transport eventForTransport];
   event.dataObject = [[GDTCORLifecycleTestEvent alloc] init];
-  XCTAssertFalse([[GDTCORFlatFileStorage sharedInstance] hasEventsForTarget:kGDTCORTargetTest]);
+  XCTestExpectation *expectation = [self expectationWithDescription:@"hasEvent completion called"];
+  [[GDTCORFlatFileStorage sharedInstance] hasEventsForTarget:kGDTCORTargetTest
+                                                  onComplete:^(BOOL hasEvents) {
+                                                    XCTAssertFalse(hasEvents);
+                                                    [expectation fulfill];
+                                                  }];
+  [self waitForExpectations:@[ expectation ] timeout:10];
   [transport sendDataEvent:event];
-  GDTCORWaitForBlock(
-      ^BOOL {
-        return [[GDTCORFlatFileStorage sharedInstance] hasEventsForTarget:kGDTCORTargetTest] == YES;
-      },
-      5.0);
+  dispatch_sync([GDTCORTransformer sharedInstance].eventWritingQueue, ^{
+                });
+  expectation = [self expectationWithDescription:@"hasEvent completion called"];
+  [[GDTCORFlatFileStorage sharedInstance] hasEventsForTarget:kGDTCORTargetTest
+                                                  onComplete:^(BOOL hasEvents) {
+                                                    XCTAssertTrue(hasEvents);
+                                                    [expectation fulfill];
+                                                  }];
+  [self waitForExpectations:@[ expectation ] timeout:10];
 }
 
 @end

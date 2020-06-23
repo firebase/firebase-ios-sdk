@@ -112,14 +112,20 @@
                  target:kGDTCORTargetTest];
 
   // Create an uploader.
-  self.uploader = [[GDTCORIntegrationTestUploader alloc] initWithServerURL:testServer.serverURL];
+  self.uploader = [[GDTCORIntegrationTestUploader alloc] initWithServer:testServer];
 
   // Set the interval to be much shorter than the standard timer.
   [GDTCORUploadCoordinator sharedInstance].timerInterval = NSEC_PER_SEC * 0.1;
   [GDTCORUploadCoordinator sharedInstance].timerLeeway = NSEC_PER_SEC * 0.01;
 
   // Confirm no events are in disk.
-  XCTAssertFalse([[GDTCORFlatFileStorage sharedInstance] hasEventsForTarget:kGDTCORTargetTest]);
+  XCTestExpectation *hasEventsExpectation = [self expectationWithDescription:@"hasEvents called"];
+  [[GDTCORFlatFileStorage sharedInstance] hasEventsForTarget:kGDTCORTargetTest
+                                                  onComplete:^(BOOL hasEvents) {
+                                                    XCTAssertFalse(hasEvents);
+                                                    [hasEventsExpectation fulfill];
+                                                  }];
+  [self waitForExpectations:@[ hasEventsExpectation ] timeout:10];
 
   // Generate some events data.
   [self generateEvents];
@@ -129,9 +135,13 @@
                 });
 
   // Confirm events are on disk.
-  dispatch_sync([GDTCORFlatFileStorage sharedInstance].storageQueue, ^{
-    XCTAssertTrue([[GDTCORFlatFileStorage sharedInstance] hasEventsForTarget:kGDTCORTargetTest]);
-  });
+  hasEventsExpectation = [self expectationWithDescription:@"hasEvents called"];
+  [[GDTCORFlatFileStorage sharedInstance] hasEventsForTarget:kGDTCORTargetTest
+                                                  onComplete:^(BOOL hasEvents) {
+                                                    XCTAssertTrue(hasEvents);
+                                                    [hasEventsExpectation fulfill];
+                                                  }];
+  [self waitForExpectations:@[ hasEventsExpectation ] timeout:10];
 
   // Confirm events were sent and received.
   [self waitForExpectations:@[ expectation ] timeout:10.0];

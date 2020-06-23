@@ -104,15 +104,6 @@
                                                        options:0
                                                          error:&error1];
   XCTAssertNil(error1);
-  id<GDTCORStorageProtocol> storage = GDTCORStorageInstanceForTarget(event1.target);
-  XCTAssertNotNil(storage);
-  XCTestExpectation *expectation = [self expectationWithDescription:@"event written"];
-  [storage storeEvent:event1
-           onComplete:^(BOOL wasWritten, NSError *_Nullable error) {
-             XCTAssertNil(error);
-             [expectation fulfill];
-           }];
-  [self waitForExpectations:@[ expectation ] timeout:10];
 
   GDTCOREvent *event2 = [[GDTCOREvent alloc] initWithMappingID:@"1018" target:kGDTCORTargetTest];
   event2.eventID = @123;
@@ -128,16 +119,6 @@
                                                        options:0
                                                          error:&error2];
   XCTAssertNil(error2);
-
-  storage = GDTCORStorageInstanceForTarget(event2.target);
-  expectation = [self expectationWithDescription:@"event written"];
-  [storage storeEvent:event2
-           onComplete:^(BOOL wasWritten, NSError *_Nullable error) {
-             XCTAssertNil(error);
-             [expectation fulfill];
-           }];
-  [self waitForExpectations:@[ expectation ] timeout:10];
-
   XCTAssertEqual([event1 hash], [event2 hash]);
   XCTAssertEqualObjects(event1, event2);
 

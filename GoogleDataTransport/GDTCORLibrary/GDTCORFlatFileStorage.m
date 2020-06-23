@@ -346,16 +346,21 @@ NSString *const kGDTCORBatchComponentsExpirationKey = @"GDTCORBatchComponentsExp
   });
 }
 
-- (BOOL)hasEventsForTarget:(GDTCORTarget)target {
-  NSFileManager *fileManager = [NSFileManager defaultManager];
-  NSString *targetPath = [NSString
-      stringWithFormat:@"%@/%ld", [GDTCORFlatFileStorage eventDataStoragePath], (long)target];
-  [fileManager createDirectoryAtPath:targetPath
-         withIntermediateDirectories:YES
-                          attributes:nil
-                               error:nil];
-  NSDirectoryEnumerator *enumerator = [fileManager enumeratorAtPath:targetPath];
-  return [enumerator nextObject] != nil;
+- (void)hasEventsForTarget:(GDTCORTarget)target onComplete:(void (^)(BOOL hasEvents))onComplete {
+  dispatch_async(_storageQueue, ^{
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSString *targetPath = [NSString
+        stringWithFormat:@"%@/%ld", [GDTCORFlatFileStorage eventDataStoragePath], (long)target];
+    [fileManager createDirectoryAtPath:targetPath
+           withIntermediateDirectories:YES
+                            attributes:nil
+                                 error:nil];
+    NSDirectoryEnumerator *enumerator = [fileManager enumeratorAtPath:targetPath];
+    BOOL hasEventAtLeastOneEvent = [enumerator nextObject] != nil;
+    if (onComplete) {
+      onComplete(hasEventAtLeastOneEvent);
+    }
+  });
 }
 
 - (void)checkForExpirations {

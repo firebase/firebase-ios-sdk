@@ -40,9 +40,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** Returns YES if some events have been stored for the given target, NO otherwise.
  *
- * @return YES if the storage contains events for the given target, NO otherwise.
+ * @param onComplete The completion block to invoke when determining if there are events is done.
  */
-- (BOOL)hasEventsForTarget:(GDTCORTarget)target;
+- (void)hasEventsForTarget:(GDTCORTarget)target onComplete:(void (^)(BOOL hasEvents))onComplete;
 
 /** Constructs an event batch with the given event selector. Events in this batch will not be
  * returned in any queries or other batches until the batch is removed.

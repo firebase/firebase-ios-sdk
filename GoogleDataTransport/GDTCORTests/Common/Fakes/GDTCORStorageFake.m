@@ -74,8 +74,10 @@
   }
 }
 
-- (BOOL)hasEventsForTarget:(GDTCORTarget)target {
-  return NO;
+- (void)hasEventsForTarget:(GDTCORTarget)target onComplete:(void (^)(BOOL hasEvents))onComplete {
+  if (onComplete) {
+    onComplete(NO);
+  }
 }
 
 - (void)storageSizeWithCallback:(void (^)(uint64_t storageSize))onComplete {

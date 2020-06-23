@@ -23,12 +23,7 @@
 
 - (void)reset {
   dispatch_sync(self.storageQueue, ^{
-    [[NSFileManager defaultManager] removeItemAtPath:[GDTCORFlatFileStorage eventDataStoragePath]
-                                               error:nil];
-    [[NSFileManager defaultManager] removeItemAtPath:[GDTCORFlatFileStorage libraryDataStoragePath]
-                                               error:nil];
-    [[NSFileManager defaultManager] removeItemAtPath:[GDTCORFlatFileStorage batchDataStoragePath]
-                                               error:nil];
+    [[NSFileManager defaultManager] removeItemAtPath:GDTCORRootDirectory().path error:nil];
   });
   dispatch_semaphore_t sema = dispatch_semaphore_create(0);
   [[GDTCORFlatFileStorage sharedInstance] storageSizeWithCallback:^(uint64_t storageSize) {

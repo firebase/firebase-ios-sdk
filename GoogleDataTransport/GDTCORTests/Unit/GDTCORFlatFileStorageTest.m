@@ -129,7 +129,13 @@
   GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"404" target:kGDTCORTargetTest];
   event.dataObject = [[GDTCORDataObjectTesterSimple alloc] initWithString:@"testString"];
   event.clockSnapshot = [GDTCORClock snapshot];
-  XCTAssertFalse([storage hasEventsForTarget:kGDTCORTargetTest]);
+  XCTestExpectation *expectation = [self expectationWithDescription:@"hasEvents completion called"];
+  [storage hasEventsForTarget:kGDTCORTargetTest
+                   onComplete:^(BOOL hasEvents) {
+                     XCTAssertFalse(hasEvents);
+                     [expectation fulfill];
+                   }];
+  [self waitForExpectations:@[ expectation ] timeout:10];
   XCTestExpectation *writtenExpectation = [self expectationWithDescription:@"event written"];
   XCTAssertNoThrow([storage storeEvent:event
                             onComplete:^(BOOL wasWritten, NSError *_Nullable error) {
@@ -139,11 +145,17 @@
                               [writtenExpectation fulfill];
                             }]);
   [self waitForExpectations:@[ writtenExpectation ] timeout:10.0];
-  XCTAssertTrue([storage hasEventsForTarget:kGDTCORTargetTest]);
+  expectation = [self expectationWithDescription:@"hasEvents completion called"];
+  [storage hasEventsForTarget:kGDTCORTargetTest
+                   onComplete:^(BOOL hasEvents) {
+                     XCTAssertTrue(hasEvents);
+                     [expectation fulfill];
+                   }];
+  [self waitForExpectations:@[ expectation ] timeout:10];
 
   GDTCORStorageEventSelector *eventSelector =
       [GDTCORStorageEventSelector eventSelectorForTarget:kGDTCORTargetTest];
-  XCTestExpectation *expectation = [self expectationWithDescription:@"batch fetched"];
+  expectation = [self expectationWithDescription:@"batch fetched"];
   [storage batchWithEventSelector:eventSelector
                   batchExpiration:[NSDate dateWithTimeIntervalSinceNow:60]
                        onComplete:^(NSNumber *_Nullable batchID,
@@ -539,15 +551,25 @@
 
 /** Tests hasEventsForTarget: returns YES when events are stored and NO otherwise. */
 - (void)testHasEventsForTarget {
-  XCTAssertFalse([[GDTCORFlatFileStorage sharedInstance] hasEventsForTarget:kGDTCORTargetTest]);
+  XCTestExpectation *expectation = [self expectationWithDescription:@"hasEvent completion called"];
+  [[GDTCORFlatFileStorage sharedInstance] hasEventsForTarget:kGDTCORTargetTest
+                                                  onComplete:^(BOOL hasEvents) {
+                                                    XCTAssertFalse(hasEvents);
+                                                    [expectation fulfill];
+                                                  }];
+  [self waitForExpectations:@[ expectation ] timeout:10];
 
   GDTCOREvent *event = [GDTCOREventGenerator generateEventForTarget:kGDTCORTargetTest
                                                             qosTier:nil
                                                           mappingID:nil];
   [[GDTCORFlatFileStorage sharedInstance] storeEvent:event onComplete:nil];
-  dispatch_sync([GDTCORFlatFileStorage sharedInstance].storageQueue, ^{
-    XCTAssertTrue([[GDTCORFlatFileStorage sharedInstance] hasEventsForTarget:kGDTCORTargetTest]);
-  });
+  expectation = [self expectationWithDescription:@"hasEvent completion called"];
+  [[GDTCORFlatFileStorage sharedInstance] hasEventsForTarget:kGDTCORTargetTest
+                                                  onComplete:^(BOOL hasEvents) {
+                                                    XCTAssertTrue(hasEvents);
+                                                    [expectation fulfill];
+                                                  }];
+  [self waitForExpectations:@[ expectation ] timeout:10];
 }
 
 /** Tests that the size of the storage is returned accurately. */
@@ -797,12 +819,18 @@
 /** Tests events expiring at a given time. */
 - (void)testCheckEventExpiration {
   NSTimeInterval delay = 10.0;
-  XCTAssertFalse([[GDTCORFlatFileStorage sharedInstance] hasEventsForTarget:kGDTCORTargetTest]);
+  XCTestExpectation *expectation = [self expectationWithDescription:@"hasEvent completion called"];
+  [[GDTCORFlatFileStorage sharedInstance] hasEventsForTarget:kGDTCORTargetTest
+                                                  onComplete:^(BOOL hasEvents) {
+                                                    XCTAssertFalse(hasEvents);
+                                                    [expectation fulfill];
+                                                  }];
+  [self waitForExpectations:@[ expectation ] timeout:10];
   GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"testing" target:kGDTCORTargetTest];
   event.expirationDate = [NSDate dateWithTimeIntervalSinceNow:delay];
   event.clockSnapshot = [GDTCORClock snapshot];
   event.dataObject = [[GDTCORDataObjectTesterSimple alloc] initWithString:@"testString"];
-  XCTestExpectation *expectation = [self expectationWithDescription:@"storeEvent completion"];
+  expectation = [self expectationWithDescription:@"storeEvent completion"];
   [[GDTCORFlatFileStorage sharedInstance] storeEvent:event
                                           onComplete:^(BOOL wasWritten, NSError *_Nullable error) {
                                             XCTAssertTrue(wasWritten);
@@ -810,12 +838,22 @@
                                             [expectation fulfill];
                                           }];
   [self waitForExpectations:@[ expectation ] timeout:5.0];
-  XCTAssertTrue([[GDTCORFlatFileStorage sharedInstance] hasEventsForTarget:kGDTCORTargetTest]);
+  expectation = [self expectationWithDescription:@"hasEvent completion called"];
+  [[GDTCORFlatFileStorage sharedInstance] hasEventsForTarget:kGDTCORTargetTest
+                                                  onComplete:^(BOOL hasEvents) {
+                                                    XCTAssertTrue(hasEvents);
+                                                    [expectation fulfill];
+                                                  }];
+  [self waitForExpectations:@[ expectation ] timeout:10];
   [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:delay]];
   [[GDTCORFlatFileStorage sharedInstance] checkForExpirations];
-  dispatch_sync([GDTCORFlatFileStorage sharedInstance].storageQueue, ^{
-                });
-  XCTAssertFalse([[GDTCORFlatFileStorage sharedInstance] hasEventsForTarget:kGDTCORTargetTest]);
+  expectation = [self expectationWithDescription:@"hasEvent completion called"];
+  [[GDTCORFlatFileStorage sharedInstance] hasEventsForTarget:kGDTCORTargetTest
+                                                  onComplete:^(BOOL hasEvents) {
+                                                    XCTAssertFalse(hasEvents);
+                                                    [expectation fulfill];
+                                                  }];
+  [self waitForExpectations:@[ expectation ] timeout:10];
 }
 
 /** Tests batch expiring at a given time. */
@@ -826,9 +864,15 @@
       enumerateObjectsUsingBlock:^(GDTCOREvent *_Nonnull event, BOOL *_Nonnull stop) {
         [storage storeEvent:event onComplete:nil];
       }];
-  XCTAssertTrue([storage hasEventsForTarget:kGDTCORTargetTest]);
+  XCTestExpectation *expectation = [self expectationWithDescription:@"hasEvent completion called"];
+  [storage hasEventsForTarget:kGDTCORTargetTest
+                   onComplete:^(BOOL hasEvents) {
+                     XCTAssertTrue(hasEvents);
+                     [expectation fulfill];
+                   }];
+  [self waitForExpectations:@[ expectation ] timeout:10];
 
-  XCTestExpectation *expectation = [self expectationWithDescription:@"no batches exist"];
+  expectation = [self expectationWithDescription:@"no batches exist"];
   [storage batchIDsForTarget:kGDTCORTargetTest
                   onComplete:^(NSSet<NSNumber *> *_Nonnull newBatchIDs) {
                     XCTAssertEqual(newBatchIDs.count, 0);
@@ -860,10 +904,16 @@
   [storage batchIDsForTarget:kGDTCORTargetTest
                   onComplete:^(NSSet<NSNumber *> *_Nonnull newBatchIDs) {
                     XCTAssertEqual(newBatchIDs.count, 0);
-                    XCTAssertFalse([storage hasEventsForTarget:kGDTCORTargetTest]);
                     [expectation fulfill];
                   }];
   [self waitForExpectations:@[ expectation ] timeout:30];
+  expectation = [self expectationWithDescription:@"hasEvent completion called"];
+  [storage hasEventsForTarget:kGDTCORTargetTest
+                   onComplete:^(BOOL hasEvents) {
+                     XCTAssertFalse(hasEvents);
+                     [expectation fulfill];
+                   }];
+  [self waitForExpectations:@[ expectation ] timeout:10];
 }
 
 @end
