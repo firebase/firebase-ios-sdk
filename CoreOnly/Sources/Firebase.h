@@ -161,7 +161,7 @@ Firebase Remote Config works as intended."
     #import "GoogleMobileAds.h"
   #endif
 
-  #if __has_include(Fabric.h")
+  #if __has_include("Fabric.h")
     #import "Fabric.h"
   #endif
 
