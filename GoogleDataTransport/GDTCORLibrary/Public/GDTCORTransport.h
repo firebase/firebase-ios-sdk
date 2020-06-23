@@ -17,6 +17,7 @@
 #import <Foundation/Foundation.h>
 
 #import <GoogleDataTransport/GDTCOREventTransformer.h>
+#import <GoogleDataTransport/GDTCORTargets.h>
 
 @class GDTCOREvent;
 
@@ -38,7 +39,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (nullable instancetype)initWithMappingID:(NSString *)mappingID
                               transformers:
                                   (nullable NSArray<id<GDTCOREventTransformer>> *)transformers
-                                    target:(NSInteger)target NS_DESIGNATED_INITIALIZER;
+                                    target:(GDTCORTarget)target NS_DESIGNATED_INITIALIZER;
 
 /** Copies and sends an internal telemetry event. Events sent using this API are lower in priority,
  * and sometimes won't be sent on their own.

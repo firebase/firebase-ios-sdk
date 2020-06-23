@@ -19,6 +19,7 @@
 #import <GoogleDataTransport/GDTCORAssert.h>
 #import <GoogleDataTransport/GDTCOREventDataObject.h>
 #import <GoogleDataTransport/GDTCORPlatform.h>
+#import <GoogleDataTransport/GDTCORStorageProtocol.h>
 #import <GoogleDataTransport/GDTCORTargets.h>
 
 #import "GDTCCTLibrary/Public/GDTCOREvent+GDTCCTSupport.h"
@@ -48,24 +49,6 @@
   return self;
 }
 
-- (void)deleteGeneratedFilesFromDisk {
-  for (GDTCOREvent *event in self.allGeneratedEvents) {
-    NSError *error;
-    [[NSFileManager defaultManager] removeItemAtPath:event.fileURL.path error:&error];
-    GDTCORAssert(error == nil, @"There was an error deleting a temporary event file.");
-  }
-}
-
-- (void)writeEvent:(GDTCOREvent *)event toGDTPath:(NSString *)path error:(NSError **)error {
-  SEL sel = NSSelectorFromString(@"writeToGDTPath:error:");
-  IMP imp = [event methodForSelector:sel];
-  GDTCORFatalAssert(imp, @"writeToGDTPath:error: must be implemented by GDTCOREvent");
-  if (imp) {
-    typedef void *(*WriteToGDTPathIMP)(id, SEL, NSString *, NSError **);
-    ((WriteToGDTPathIMP)imp)(event, sel, path, error);
-  }
-}
-
 - (GDTCOREvent *)generateEvent:(GDTCOREventQoS)qosTier {
   CFAbsoluteTime currentTime = CFAbsoluteTimeGetCurrent();
   NSURL *testDataFile = [GDTCORRootDirectory()
@@ -81,9 +64,12 @@
   dataObject.dataFile = testDataFile;
   event.dataObject = dataObject;
   event.eventCode = @(1405);
-  NSString *eventPath = [NSString stringWithFormat:@"test-event-%lf", CFAbsoluteTimeGetCurrent()];
   NSError *error;
-  [self writeEvent:event toGDTPath:eventPath error:&error];
+  id<GDTCORStorageProtocol> storage = GDTCORStorageInstanceForTarget(event.target);
+  [storage storeEvent:event
+           onComplete:^(BOOL wasWritten, NSError *_Nullable error) {
+             GDTCORFatalAssert(wasWritten && error == nil, @"Writing a generated event failed.");
+           }];
   GDTCORFatalAssert(error == nil, @"Generating an event failed: %@", error);
   [self.allGeneratedEvents addObject:event];
   return event;
@@ -98,9 +84,11 @@
   event.dataObject = dataObject;
   event.eventCode = @(1405);
   NSError *error;
-  [self writeEvent:event
-         toGDTPath:[NSString stringWithFormat:@"test-event-%lf", CFAbsoluteTimeGetCurrent()]
-             error:&error];
+  id<GDTCORStorageProtocol> storage = GDTCORStorageInstanceForTarget(event.target);
+  [storage storeEvent:event
+           onComplete:^(BOOL wasWritten, NSError *_Nullable error) {
+             GDTCORFatalAssert(wasWritten && error == nil, @"Writing a generated event failed.");
+           }];
   GDTCORFatalAssert(error == nil, @"Generating an event failed: %@", error);
   [self.allGeneratedEvents addObject:event];
   return event;
@@ -132,6 +120,7 @@
     [event.clockSnapshot setValue:@(1111111111111222) forKeyPath:@"kernelBootTime"];
     [event.clockSnapshot setValue:@(1235567890) forKeyPath:@"uptime"];
     event.qosTier = GDTCOREventQosDefault;
+    event.eventCode = @1986;
     NSError *error;
     event.customBytes = [NSJSONSerialization dataWithJSONObject:@{
       @"customParam" : @1337
@@ -144,9 +133,11 @@
     dataObject.dataFile = messageDataURL;
     event.dataObject = dataObject;
     error = nil;
-    [self writeEvent:event
-           toGDTPath:[NSString stringWithFormat:@"test-event-%lf", CFAbsoluteTimeGetCurrent()]
-               error:&error];
+    id<GDTCORStorageProtocol> storage = GDTCORStorageInstanceForTarget(event.target);
+    [storage storeEvent:event
+             onComplete:^(BOOL wasWritten, NSError *_Nullable error) {
+               GDTCORFatalAssert(wasWritten && error == nil, @"Writing a generated event failed.");
+             }];
     GDTCORFatalAssert(error == nil, @"Generating an event failed: %@", error);
     [events addObject:event];
   }
@@ -163,10 +154,13 @@
     GDTCCTEventGeneratorDataObject *dataObject = [[GDTCCTEventGeneratorDataObject alloc] init];
     dataObject.dataFile = messageDataURL;
     event.dataObject = dataObject;
+    event.needsNetworkConnectionInfoPopulated = YES;
     NSError *error;
-    [self writeEvent:event
-           toGDTPath:[NSString stringWithFormat:@"test-event-%lf", CFAbsoluteTimeGetCurrent()]
-               error:&error];
+    id<GDTCORStorageProtocol> storage = GDTCORStorageInstanceForTarget(event.target);
+    [storage storeEvent:event
+             onComplete:^(BOOL wasWritten, NSError *_Nullable error) {
+               GDTCORFatalAssert(wasWritten && error == nil, @"Writing a generated event failed.");
+             }];
     GDTCORFatalAssert(error == nil, @"Generating an event failed: %@", error);
     [events addObject:event];
   }
@@ -184,9 +178,11 @@
     dataObject.dataFile = messageDataURL;
     event.dataObject = dataObject;
     NSError *error;
-    [self writeEvent:event
-           toGDTPath:[NSString stringWithFormat:@"test-event-%lf", CFAbsoluteTimeGetCurrent()]
-               error:&error];
+    id<GDTCORStorageProtocol> storage = GDTCORStorageInstanceForTarget(event.target);
+    [storage storeEvent:event
+             onComplete:^(BOOL wasWritten, NSError *_Nullable error) {
+               GDTCORFatalAssert(wasWritten && error == nil, @"Writing a generated event failed.");
+             }];
     GDTCORFatalAssert(error == nil, @"Generating an event failed: %@", error);
     [events addObject:event];
   }
@@ -209,9 +205,11 @@
     dataObject.dataFile = messageDataURL;
     event.dataObject = dataObject;
     error = nil;
-    [self writeEvent:event
-           toGDTPath:[NSString stringWithFormat:@"test-event-%lf", CFAbsoluteTimeGetCurrent()]
-               error:&error];
+    id<GDTCORStorageProtocol> storage = GDTCORStorageInstanceForTarget(event.target);
+    [storage storeEvent:event
+             onComplete:^(BOOL wasWritten, NSError *_Nullable error) {
+               GDTCORFatalAssert(wasWritten && error == nil, @"Writing a generated event failed.");
+             }];
     GDTCORFatalAssert(error == nil, @"Generating an event failed: %@", error);
     [events addObject:event];
   }
@@ -236,9 +234,11 @@
     dataObject.dataFile = messageDataURL;
     event.dataObject = dataObject;
     error = nil;
-    [self writeEvent:event
-           toGDTPath:[NSString stringWithFormat:@"test-event-%lf", CFAbsoluteTimeGetCurrent()]
-               error:&error];
+    id<GDTCORStorageProtocol> storage = GDTCORStorageInstanceForTarget(event.target);
+    [storage storeEvent:event
+             onComplete:^(BOOL wasWritten, NSError *_Nullable error) {
+               GDTCORFatalAssert(wasWritten && error == nil, @"Writing a generated event failed.");
+             }];
     GDTCORFatalAssert(error == nil, @"Generating an event failed: %@", error);
     [events addObject:event];
   }

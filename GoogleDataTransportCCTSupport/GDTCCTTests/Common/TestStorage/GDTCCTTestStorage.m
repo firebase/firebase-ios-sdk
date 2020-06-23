@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,16 @@
  * limitations under the License.
  */
 
-#import "GDTCORTests/Common/Fakes/GDTCORStorageFake.h"
+#import "GDTCCTTests/Common/TestStorage/GDTCCTTestStorage.h"
 
 #import <GoogleDataTransport/GDTCOREvent.h>
 
-@implementation GDTCORStorageFake {
+@implementation GDTCCTTestStorage {
   /** Store the events in memory. */
   NSMutableDictionary<NSNumber *, GDTCOREvent *> *_storedEvents;
+
+  /** Store the batches in memory. */
+  NSMutableDictionary<NSNumber *, NSSet<GDTCOREvent *> *> *_batches;
 }
 
 - (void)storeEvent:(GDTCOREvent *)event
@@ -44,11 +47,28 @@
                     onComplete:
                         (nonnull void (^)(NSNumber *_Nullable batchID,
                                           NSSet<GDTCOREvent *> *_Nullable events))onComplete {
+  static NSInteger count = 0;
+  NSNumber *batchID = @(count);
+  count++;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    self->_batches = [[NSMutableDictionary alloc] init];
+  });
+  NSSet<GDTCOREvent *> *batchEvents = [NSSet setWithArray:[_storedEvents allValues]];
+  _batches[batchID] = batchEvents;
+  [_storedEvents removeAllObjects];
+  if (onComplete) {
+    onComplete(batchID, batchEvents);
+  }
 }
 
 - (void)removeBatchWithID:(nonnull NSNumber *)batchID
              deleteEvents:(BOOL)deleteEvents
                onComplete:(void (^_Nullable)(void))onComplete {
+  [_batches removeObjectForKey:batchID];
+  if (onComplete) {
+    onComplete();
+  }
 }
 
 - (void)libraryDataForKey:(nonnull NSString *)key
@@ -74,7 +94,7 @@
   }
 }
 
-- (void)hasEventsForTarget:(GDTCORTarget)target onComplete:(void (^)(BOOL hasEvents))onComplete {
+- (void)hasEventsForTarget:(GDTCORTarget)target onComplete:(nonnull void (^)(BOOL))onComplete {
   if (onComplete) {
     onComplete(NO);
   }
@@ -84,7 +104,10 @@
 }
 
 - (void)batchIDsForTarget:(GDTCORTarget)target
-               onComplete:(nonnull void (^)(NSSet<NSNumber *> *_Nonnull))onComplete {
+               onComplete:(nonnull void (^)(NSSet<NSNumber *> *_Nullable))onComplete {
+  if (onComplete) {
+    onComplete(nil);
+  }
 }
 
 - (void)checkForExpirations {
