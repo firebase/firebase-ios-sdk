@@ -50,9 +50,14 @@ jobs:
     - name: Pull zip from GCS
       run: scripts/pull_zip_gcloud.sh "$plist_secret" "$FRAMEWORK_ZIP" "${HOME}/ios_frameworks"
     - name: Setup quickstart
-      run: SAMPLE="$SDK" TARGET="${SDK}Example" scripts/setup_quickstart_framework.sh \
+      run: |
+              SAMPLE="$SDK" TARGET="${SDK}Example" scripts/setup_quickstart_framework.sh \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseCrashlytics/* \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
+              cp quickstart-ios/crashlytics/Firebase/run quickstart-ios/crashlytics
+              cp quickstart-ios/crashlytics/Firebase/upload-symbols quickstart-ios/crashlytics
+              chmod +x run
+              chmod +x upload-symbols
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-crashlytics.plist.gpg \
         quickstart-ios/crashlytics/GoogleService-Info.plist "$plist_secret"
