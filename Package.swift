@@ -27,10 +27,10 @@ let package = Package(
   products: [
     // Products define the executables and libraries produced by a package, and make them visible to
     // other packages.
-    // .library(
-    //   name: "Firebase",
-    //   targets: ["Firebase"]
-    // ),
+    .library(
+      name: "Firebase",
+      targets: ["Firebase"]
+    ),
     .library(
       name: "FirebaseCore",
       targets: ["FirebaseCore"]
@@ -79,7 +79,7 @@ let package = Package(
       dependencies: [
         "FirebaseAuth",
         "FirebaseFunctions",
-        //  "Firebase",
+        "Firebase",
         "FirebaseCore",
         "FirebaseInstallations",
         // "FirebaseInstanceID",
@@ -154,9 +154,6 @@ let package = Package(
       cSettings: [
         .headerSearchPath("../.."),
       ]
-      // linkerSettings: [
-      //   .linkedFramework("Security"),
-      // ]
     ),
     .target(
       name: "GoogleUtilities_NSData",
@@ -187,11 +184,11 @@ let package = Package(
         .headerSearchPath("../../"),
       ]
     ),
-    // .target(
-    //   name: "Firebase",
-    //   path: "Firebase/Sources",
-    //   publicHeadersPath: "Public"
-    // ),
+    .target(
+      name: "Firebase",
+      path: "Firebase/Sources",
+      publicHeadersPath: "Public"
+    ),
     .target(
       name: "FirebaseCore",
       dependencies: ["GoogleUtilities_Environment", "GoogleUtilities_Logger"],
