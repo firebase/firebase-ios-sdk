@@ -55,12 +55,12 @@ let package = Package(
     //   name: "FirebaseInstanceID",
     //   targets: ["FirebaseInstanceID"]
     // ),
-    .library(
-      name: "FirebaseStorage",
-      targets: ["FirebaseStorage"]
-    ),
-    .library(name: "FirebaseStorageBinary",
-             targets: ["FirebaseStorageBinary", "FirebaseCore"]),
+//    .library(
+//      name: "FirebaseStorage",
+//      targets: ["FirebaseStorage"]
+//    ),
+    .library(name: "FirebaseStorage",
+             targets: ["FirebaseStorage", "FirebaseCore"]),
     .library(
       name: "FirebaseStorageSwift",
       targets: ["FirebaseStorageSwift"]
@@ -273,19 +273,19 @@ let package = Package(
         .headerSearchPath("../../../"),
       ]
     ),
-    .target(
-      name: "FirebaseStorage",
-      dependencies: ["FirebaseCore", .
-                     product(name: "GTMSessionFetcherCore", package: "GTMSessionFetcher")],
-      path: "FirebaseStorage/Sources",
-      publicHeadersPath: "Public",
-      cSettings: [
-        .headerSearchPath("../../"),
-        .define("FIRStorage_VERSION", to: "0.0.1"), // TODO: Fix version
-      ]
-    ),
+//    .target(
+//      name: "FirebaseStorage",
+//      dependencies: ["FirebaseCore", .
+//                     product(name: "GTMSessionFetcherCore", package: "GTMSessionFetcher")],
+//      path: "FirebaseStorage/Sources",
+//      publicHeadersPath: "Public",
+//      cSettings: [
+//        .headerSearchPath("../../"),
+//        .define("FIRStorage_VERSION", to: "0.0.1"), // TODO: Fix version
+//      ]
+//    ),
     .binaryTarget(
-      name: "FirebaseStorageBinary",
+      name: "FirebaseStorage",
       url: "https://dl.google.com/firebase/ios/swiftpm/6.27.0/FirebaseStorage.zip",
       checksum: "5179d686b874bc58aa42eed039cf122c89b51c6cc0e76c038c5955c85bdbd5e1"
     ),
