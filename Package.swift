@@ -27,10 +27,6 @@ let package = Package(
   products: [
     // Products define the executables and libraries produced by a package, and make them visible to
     // other packages.
-    // This is a test-only executable for us to try `swift run` and use all imported modules from a
-    // Swift target.
-    .executable(name: "firebase-test", targets: ["firebase-test"]),
-    //
     // .library(
     //   name: "Firebase",
     //   targets: ["Firebase"]
@@ -78,7 +74,7 @@ let package = Package(
   targets: [
     // Targets are the basic building blocks of a package. A target can define a module or a test suite.
     // Targets can depend on other targets in this package, and on products in packages which this package depends on.
-    .target(
+    .testTarget(
       name: "firebase-test",
       dependencies: [
         "FirebaseAuth",
@@ -98,6 +94,7 @@ let package = Package(
         "GoogleUtilities_NSData",
         "GoogleUtilities_Reachability",
         "GoogleUtilities_UserDefaults",
+        "nanopb",
       ]
     ),
     .target(

@@ -24,8 +24,8 @@ import Foundation
 
 // Skip these directories. Imports should only be repo-relative in libraries
 // and unit tests.
-let skipDirPatterns = ["/Sample/", "/Pods/", "/Tests/Integration",
-                       "FirebaseInAppMessaging/Tests/Integration/", "Example/Database/App",
+let skipDirPatterns = ["/Sample/", "/Pods/", "FirebaseStorage/Tests/Integration",
+                       "FirebaseInAppMessaging/Tests/Integration/",
                        "Example/InstanceID/App", "SymbolCollisionTest/", "/gen/",
                        "CocoapodsIntegrationTest/"] +
   [
@@ -39,7 +39,7 @@ let skipDirPatterns = ["/Sample/", "/Pods/", "/Tests/Integration",
     "FirebaseCore/Sources/Private", // Fixes require breaking private API changes. For Firebase 7.
     "FirebaseDynamicLinks",
     "Firebase/CoreDiagnostics",
-    "Firebase/Database",
+    "FirebaseDatabase/Sources/third_party/Wrap-leveldb", // Pending SwiftPM for leveldb.
     "Example",
     "FirebaseInAppMessaging",
     "FirebaseInstallations/Source/Tests/Unit/",
