@@ -186,8 +186,8 @@ let package = Package(
     ),
     .target(
       name: "Firebase",
-      path: "Firebase/Sources",
-      publicHeadersPath: "Public"
+      path: "CoreOnly/Sources",
+      publicHeadersPath: "./"
     ),
     .target(
       name: "FirebaseCore",
