@@ -25,8 +25,7 @@ class RemoteConfigConsole {
   }
 
   private var accessToken: String {
-    // PASTE ACCESS TOKEN HERE
-    "12837498639736566939736476397"
+    "PASTE ACCESS TOKEN HERE"
   }
 
   /// Synchronously fetches and returns currently active
@@ -123,26 +122,26 @@ class RemoteConfigConsole {
   // MARK: - Networking
 
   private enum ConfigRequest {
-    case get, post(data: Data)
+    case get, put(data: Data)
 
     var httpMethod: String {
       switch self {
       case .get: return "GET"
-      case .post(data: _): return "PUT"
+      case .put(data: _): return "PUT"
       }
     }
 
     var httpBody: Data? {
       switch self {
       case .get: return nil
-      case let .post(data: data): return data
+      case let .put(data: data): return data
       }
     }
 
     var HTTPHeaderFields: [String: String]? {
       switch self {
       case .get: return nil
-      case .post(data: _):
+      case .put(data: _):
         return ["Content-Type": "application/json; UTF8", "If-Match": "*"]
       }
     }
@@ -191,7 +190,7 @@ class RemoteConfigConsole {
   /// and updates`latestConfig`
   private func publish(config: [String: Any]) {
     if let configData = data(with: config) {
-      perform(configRequest: .post(data: configData))
+      perform(configRequest: .put(data: configData))
     }
     save(config)
   }
