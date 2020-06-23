@@ -24,24 +24,27 @@ typedef NS_ENUM(int32_t, ABTExperimentPayloadExperimentOverflowPolicy) {
 };
 
 @interface ABTExperimentLite : NSObject
-@property(nonatomic, readwrite, copy) NSString *experimentId;
+@property(nonatomic, readonly, copy) NSString *experimentId;
+
+- (instancetype)initWithExperimentId:(NSString *)experimentId;
+
 @end
 
 @interface ABTExperimentPayload : NSObject
 
 @property(nonatomic, readonly, copy) NSString *experimentId;
 @property(nonatomic, readonly, copy) NSString *variantId;
-@property(nonatomic, readonly) int64_t experimentStartTimeMillis;
+@property(nonatomic, readonly) NSInteger experimentStartTimeMillis;
 @property(nonatomic, nullable, readonly, copy) NSString *triggerEvent;
-@property(nonatomic, readonly) int64_t triggerTimeoutMillis;
-@property(nonatomic, readonly) int64_t timeToLiveMillis;
+@property(nonatomic, readonly) NSInteger triggerTimeoutMillis;
+@property(nonatomic, readonly) NSInteger timeToLiveMillis;
 @property(nonatomic, readonly, copy) NSString *setEventToLog;
 @property(nonatomic, readonly, copy) NSString *activateEventToLog;
 @property(nonatomic, readonly, copy) NSString *clearEventToLog;
 @property(nonatomic, readonly, copy) NSString *timeoutEventToLog;
 @property(nonatomic, readonly, copy) NSString *ttlExpiryEventToLog;
 @property(nonatomic, readonly) ABTExperimentPayloadExperimentOverflowPolicy overflowPolicy;
-@property(nonatomic, readonly) NSArray<ABTExperimentLite *> *ongoingExperimentsArray;
+@property(nonatomic, readonly) NSArray<ABTExperimentLite *> *ongoingExperiments;
 
 /// Parse from JSON data.
 /// @param data  JSON object as NSData.
@@ -52,8 +55,6 @@ typedef NS_ENUM(int32_t, ABTExperimentPayloadExperimentOverflowPolicy) {
 
 /// Checks if the overflow policy is a valid enum object.
 - (BOOL)overflowPolicyIsValid;
-
-- (instancetype)init NS_UNAVAILABLE;
 
 @end
 

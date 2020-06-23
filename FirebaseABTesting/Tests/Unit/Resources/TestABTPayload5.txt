@@ -1,0 +1,12 @@
+{
+  "experimentId": "exp_5",
+  "variantId": "var_1",
+  "experimentStartTime": "2021-02-09T00:00:00.000Z",
+  "triggerTimeoutMillis": 17392000000,
+  "timeToLiveMillis": 17392000000,
+  "setEventToLog": "set_event",
+  "activateEventToLog": "activate_event",
+  "clearEventToLog": "clear_event",
+  "timeoutEventToLog": "timeout_event",
+  "ttlExpiryEventToLog": "ttl_expiry_event"
+}

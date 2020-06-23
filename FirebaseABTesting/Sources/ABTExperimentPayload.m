@@ -26,6 +26,18 @@ static NSString *const kExperimentPayloadKeyClearEventToLog = @"clearEventToLog"
 static NSString *const kExperimentPayloadKeyTimeoutEventToLog = @"timeoutEventToLog";
 static NSString *const kExperimentPayloadKeyTTLExpiryEventToLog = @"ttlExpiryEventToLog";
 static NSString *const kExperimentPayloadKeyOverflowPolicy = @"overflowPolicy";
+static NSString *const kExperimentPayloadKeyOngoingExperiments = @"ongoingExperiments";
+
+@implementation ABTExperimentLite
+
+- (instancetype)initWithExperimentId:(NSString *)experimentId {
+  if (self = [super init]) {
+    _experimentId = experimentId;
+  }
+  return self;
+}
+
+@end
 
 @implementation ABTExperimentPayload
 
@@ -43,7 +55,7 @@ static NSString *const kExperimentPayloadKeyOverflowPolicy = @"overflowPolicy";
 + (instancetype)parseFromData:(NSData *)data {
   NSError *error;
   NSDictionary *experimentDictionary = [NSJSONSerialization JSONObjectWithData:data
-                                                                       options:kNilOptions
+                                                                       options:NSJSONReadingAllowFragments
                                                                          error:&error];
   if (error != nil) {
     return nil;
@@ -70,14 +82,25 @@ static NSString *const kExperimentPayloadKeyOverflowPolicy = @"overflowPolicy";
     _experimentStartTimeMillis =
         [@([experimentStartTime timeIntervalSince1970] * 1000) longLongValue];
 
-    _triggerTimeoutMillis =
-        dictionary[kExperimentPayloadKeyTriggerTimeoutMillis]
-            ? atoll([dictionary[kExperimentPayloadKeyTriggerTimeoutMillis] UTF8String])
-            : 0;
-    _timeToLiveMillis = dictionary[kExperimentPayloadKeyTimeToLiveMillis]
-                            ? atoll([dictionary[kExperimentPayloadKeyTimeToLiveMillis] UTF8String])
-                            : 0;
+    _triggerTimeoutMillis = [dictionary[kExperimentPayloadKeyTriggerTimeoutMillis] longLongValue];
+    _timeToLiveMillis = [dictionary[kExperimentPayloadKeyTimeToLiveMillis] longLongValue];
     _overflowPolicy = [dictionary[kExperimentPayloadKeyOverflowPolicy] intValue];
+
+    NSMutableArray<ABTExperimentLite *> *ongoingExperiments = [[NSMutableArray alloc] init];
+
+    NSArray<NSDictionary<NSString *, NSString *> *> *ongoingExperimentsArray =
+        dictionary[kExperimentPayloadKeyOngoingExperiments];
+
+    for (NSDictionary<NSString *, NSString *> *experimentDictionary in ongoingExperimentsArray) {
+      NSString *experimentId = experimentDictionary[kExperimentPayloadKeyExperimentID];
+      if (experimentId) {
+        ABTExperimentLite *liteExperiment =
+            [[ABTExperimentLite alloc] initWithExperimentId:experimentId];
+        [ongoingExperiments addObject:liteExperiment];
+      }
+    }
+
+    _ongoingExperiments = [ongoingExperiments copy];
   }
   return self;
 }
@@ -86,9 +109,13 @@ static NSString *const kExperimentPayloadKeyOverflowPolicy = @"overflowPolicy";
   _triggerEvent = nil;
 }
 
-- (BOOL)isOverflowPolicyValid {
+- (BOOL)overflowPolicyIsValid {
   return self.overflowPolicy == ABTExperimentPayloadExperimentOverflowPolicyIgnoreNewest ||
-      self.overflowPolicy == ABTExperimentPayloadExperimentOverflowPolicyDiscardOldest;
+         self.overflowPolicy == ABTExperimentPayloadExperimentOverflowPolicyDiscardOldest;
+}
+
+- (void)setOverflowPolicy:(ABTExperimentPayloadExperimentOverflowPolicy)overflowPolicy {
+  _overflowPolicy = overflowPolicy;
 }
 
 @end

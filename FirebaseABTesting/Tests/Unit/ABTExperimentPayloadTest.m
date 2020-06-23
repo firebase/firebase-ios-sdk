@@ -34,13 +34,13 @@
   XCTAssertEqualObjects(testPayload.experimentId, @"exp_1");
   XCTAssertEqualObjects(testPayload.variantId, @"var_1");
   XCTAssertEqualObjects(testPayload.triggerEvent, @"customTrigger");
-  
+
   // From the experiment resource file.
   NSString *startTimeString = @"2020-04-08T16:44:39.023Z";
   NSDate *startTime = [self dateFromFormattedDateString:startTimeString];
   NSTimeInterval startTimeInterval = [startTime timeIntervalSince1970];
   XCTAssertEqual(testPayload.experimentStartTimeMillis, startTimeInterval * ABT_MSEC_PER_SEC);
-  
+
   XCTAssertEqual(testPayload.triggerTimeoutMillis, 15552000000);
   XCTAssertEqual(testPayload.timeToLiveMillis, 15552000000);
   XCTAssertEqualObjects(testPayload.setEventToLog, @"set_event");
@@ -49,21 +49,24 @@
   XCTAssertEqualObjects(testPayload.timeoutEventToLog, @"timeout_event");
   XCTAssertEqualObjects(testPayload.ttlExpiryEventToLog, @"ttl_expiry_event");
   XCTAssertEqual(testPayload.overflowPolicy,
-                 ABTExperimentPayloadExperimentOverflowPolicyDiscardOldest);
+                 ABTExperimentPayloadExperimentOverflowPolicyIgnoreNewest);
+  XCTAssertEqual(testPayload.ongoingExperiments.count, 1);
+  ABTExperimentLite *liteExperiment = testPayload.ongoingExperiments.firstObject;
+  XCTAssertEqualObjects(liteExperiment.experimentId, @"exp_1");
 }
 
 - (void)testPayloadWithoutTrigger {
   ABTExperimentPayload *testPayload = [self payloadFromTestFilename:@"TestABTPayload2"];
   XCTAssertEqualObjects(testPayload.experimentId, @"exp_2");
-  XCTAssertEqualObjects(testPayload.variantId, @"var_1");
+  XCTAssertEqualObjects(testPayload.variantId, @"v200");
   XCTAssertNil(testPayload.triggerEvent);
-  
+
   // From the experiment resource file.
   NSString *startTimeString = @"2020-06-01T16:00:00.000Z";
   NSDate *startTime = [self dateFromFormattedDateString:startTimeString];
   NSTimeInterval startTimeInterval = [startTime timeIntervalSince1970];
   XCTAssertEqual(testPayload.experimentStartTimeMillis, startTimeInterval * ABT_MSEC_PER_SEC);
-  
+
   XCTAssertEqual(testPayload.triggerTimeoutMillis, 15452000000);
   XCTAssertEqual(testPayload.timeToLiveMillis, 15452000000);
   XCTAssertEqualObjects(testPayload.setEventToLog, @"set_event_override");
@@ -72,16 +75,16 @@
   XCTAssertEqualObjects(testPayload.timeoutEventToLog, @"timeout_event_override");
   XCTAssertEqualObjects(testPayload.ttlExpiryEventToLog, @"ttl_expiry_event_override");
   XCTAssertEqual(testPayload.overflowPolicy,
-                 ABTExperimentPayloadExperimentOverflowPolicyIgnoreNewest);
+                 ABTExperimentPayloadExperimentOverflowPolicyDiscardOldest);
 }
 
 - (void)testUtilityMethods {
   ABTExperimentPayload *testPayload1 = [self payloadFromTestFilename:@"TestABTPayload1"];
   XCTAssertTrue([testPayload1 overflowPolicyIsValid]);
-  
+
   // Clear trigger event and make sure it's now nil.
   [testPayload1 clearTriggerEvent];
-  
+
   // This one has an unspecified overflow policy.
   ABTExperimentPayload *testPayload3 = [self payloadFromTestFilename:@"TestABTPayload3"];
   XCTAssertFalse([testPayload3 overflowPolicyIsValid]);
@@ -95,9 +98,10 @@
                                                        encoding:NSUTF8StringEncoding
                                                           error:&readTextError];
   if (readTextError) {
-    NSAssert(NO, @"");
+    NSAssert(NO, readTextError.localizedDescription);
     return nil;
   }
+  NSLog(@"FIRFIRFIR: %@", fileText);
   return [ABTExperimentPayload parseFromData:[fileText dataUsingEncoding:NSUTF8StringEncoding]];
 }
 
