@@ -35,11 +35,6 @@
   self.generator = [[GDTCCTEventGenerator alloc] initWithTarget:kGDTCORTargetCCT];
 }
 
-- (void)tearDown {
-  [super tearDown];
-  [self.generator deleteGeneratedFilesFromDisk];
-}
-
 /** Tests that the event generator is generating consistent events. */
 - (void)testGeneratingFiveConsistentEvents {
   NSArray<GDTCOREvent *> *events1 = [self.generator generateTheFiveConsistentEvents];
@@ -49,9 +44,8 @@
   for (int i = 0; i < events1.count; i++) {
     GDTCOREvent *storedEvent1 = events1[i];
     GDTCOREvent *storedEvent2 = events2[i];
-    NSData *storedEvent1Data = [NSData dataWithContentsOfURL:storedEvent1.fileURL];
-    NSData *storedEvent2Data = [NSData dataWithContentsOfURL:storedEvent2.fileURL];
-    XCTAssertEqualObjects(storedEvent1Data, storedEvent2Data);
+    XCTAssertEqualObjects(storedEvent1.serializedDataObjectBytes,
+                          storedEvent2.serializedDataObjectBytes);
   }
 }
 

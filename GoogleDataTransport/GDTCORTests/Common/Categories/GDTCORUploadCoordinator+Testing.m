@@ -26,7 +26,6 @@
 - (void)reset {
   dispatch_sync(self.coordinationQueue, ^{
     self.registrar = [GDTCORRegistrar sharedInstance];
-    [self.targetToInFlightPackages removeAllObjects];
   });
 }
 

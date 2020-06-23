@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
-#import <GoogleDataTransport/GDTCORPrioritizer.h>
+#import <GoogleDataTransport/GDTCORStorageProtocol.h>
 
-/** An integration test prioritization class. */
-@interface GDTCORLifecycleTestPrioritizer : NSObject <GDTCORPrioritizer>
+@interface GDTCCTTestStorage : NSObject <GDTCORStorageProtocol>
 
 @end
