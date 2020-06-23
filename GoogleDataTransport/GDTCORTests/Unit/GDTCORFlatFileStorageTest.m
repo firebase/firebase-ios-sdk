@@ -168,6 +168,51 @@
   [self waitForExpectations:@[ expectation ] timeout:10];
 }
 
+/** Tests storing an event whose mappingID contains path components. */
+- (void)testStoreEventWithPathComponentsInMappingID {
+  GDTCORFlatFileStorage *storage = [GDTCORFlatFileStorage sharedInstance];
+  GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"this/messes/up/things"
+                                                       target:kGDTCORTargetTest];
+  event.dataObject = [[GDTCORDataObjectTesterSimple alloc] initWithString:@"testString"];
+  event.clockSnapshot = [GDTCORClock snapshot];
+  XCTestExpectation *expectation = [self expectationWithDescription:@"hasEvents completion called"];
+  [storage hasEventsForTarget:kGDTCORTargetTest
+                   onComplete:^(BOOL hasEvents) {
+                     XCTAssertFalse(hasEvents);
+                     [expectation fulfill];
+                   }];
+  [self waitForExpectations:@[ expectation ] timeout:10];
+  XCTestExpectation *writtenExpectation = [self expectationWithDescription:@"event written"];
+  XCTAssertNoThrow([storage storeEvent:event
+                            onComplete:^(BOOL wasWritten, NSError *_Nullable error) {
+                              XCTAssertTrue(wasWritten);
+                              XCTAssertNotEqualObjects(event.eventID, @0);
+                              XCTAssertNil(error);
+                              [writtenExpectation fulfill];
+                            }]);
+  [self waitForExpectations:@[ writtenExpectation ] timeout:10.0];
+  expectation = [self expectationWithDescription:@"hasEvents completion called"];
+  [storage hasEventsForTarget:kGDTCORTargetTest
+                   onComplete:^(BOOL hasEvents) {
+                     XCTAssertTrue(hasEvents);
+                     [expectation fulfill];
+                   }];
+  [self waitForExpectations:@[ expectation ] timeout:10];
+
+  GDTCORStorageEventSelector *eventSelector =
+      [GDTCORStorageEventSelector eventSelectorForTarget:kGDTCORTargetTest];
+  expectation = [self expectationWithDescription:@"batch fetched"];
+  [storage batchWithEventSelector:eventSelector
+                  batchExpiration:[NSDate dateWithTimeIntervalSinceNow:60]
+                       onComplete:^(NSNumber *_Nullable batchID,
+                                    NSSet<GDTCOREvent *> *_Nullable events) {
+                         XCTAssertEqual(events.count, 1);
+                         XCTAssertEqualObjects(event.eventID, [events anyObject].eventID);
+                         [expectation fulfill];
+                       }];
+  [self waitForExpectations:@[ expectation ] timeout:10];
+}
+
 /** Tests storing a few different events. */
 - (void)testStoreMultipleEvents {
   GDTCORFlatFileStorage *storage = [GDTCORFlatFileStorage sharedInstance];
@@ -475,6 +520,28 @@
                  eventIDs:nil
                  qosTiers:nil
                mappingIDs:[NSSet setWithObject:anyEvent.mappingID]
+               onComplete:^(NSSet<NSString *> *paths) {
+                 XCTAssertEqual(paths.count, expectedEvents.count);
+                 [expectation fulfill];
+               }];
+  [self waitForExpectations:@[ expectation ] timeout:1.0];
+}
+
+/** Tests -pathForTarget:qosTier:mappingID: searching by mappingID that contains path components. */
+- (void)testSearchingPathWithMappingIDThatHasPathComponents {
+  GDTCORFlatFileStorage *storage = [GDTCORFlatFileStorage sharedInstance];
+  GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"this/messes/up/things"
+                                                       target:kGDTCORTargetTest];
+  event.dataObject = [[GDTCORDataObjectTesterSimple alloc] initWithString:@"testString"];
+  event.clockSnapshot = [GDTCORClock snapshot];
+  [storage storeEvent:event onComplete:nil];
+  NSSet<GDTCOREvent *> *expectedEvents = [NSSet setWithObject:event];
+
+  XCTestExpectation *expectation = [self expectationWithDescription:@"paths found"];
+  [storage pathsForTarget:event.target
+                 eventIDs:nil
+                 qosTiers:nil
+               mappingIDs:[NSSet setWithObject:event.mappingID]
                onComplete:^(NSSet<NSString *> *paths) {
                  XCTAssertEqual(paths.count, expectedEvents.count);
                  [expectation fulfill];

@@ -507,6 +507,9 @@ NSString *const kGDTCORBatchComponentsExpirationKey = @"GDTCORBatchComponentsExp
                     qosTier:(NSNumber *)qosTier
              expirationDate:(NSDate *)expirationDate
                   mappingID:(NSString *)mappingID {
+  NSMutableCharacterSet *allowedChars = [[NSCharacterSet alphanumericCharacterSet] mutableCopy];
+  [allowedChars addCharactersInString:@"-"];
+  mappingID = [mappingID stringByAddingPercentEncodingWithAllowedCharacters:allowedChars];
   return [NSString stringWithFormat:@"%@/%ld/%@%@%@%@%llu%@%@",
                                     [GDTCORFlatFileStorage eventDataStoragePath], (long)target,
                                     eventID, kMetadataSeparator, qosTier, kMetadataSeparator,
@@ -563,7 +566,9 @@ NSString *const kGDTCORBatchComponentsExpirationKey = @"GDTCORBatchComponentsExp
       NSNumber *eventIDMatch = checkingIDs ? @([eventIDs containsObject:eventID]) : nil;
       NSNumber *qosTierMatch = checkingQosTiers ? @([qosTiers containsObject:qosTier]) : nil;
       NSNumber *mappingIDMatch =
-          checkingMappingIDs ? @([mappingIDs containsObject:mappingID]) : nil;
+          checkingMappingIDs
+              ? @([mappingIDs containsObject:[mappingID stringByRemovingPercentEncoding]])
+              : nil;
       if ((eventIDMatch == nil || eventIDMatch.boolValue) &&
           (qosTierMatch == nil || qosTierMatch.boolValue) &&
           (mappingIDMatch == nil || mappingIDMatch.boolValue)) {
