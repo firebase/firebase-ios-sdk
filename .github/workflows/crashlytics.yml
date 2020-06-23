@@ -56,8 +56,8 @@ jobs:
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
               cp quickstart-ios/crashlytics/Firebase/run quickstart-ios/crashlytics
               cp quickstart-ios/crashlytics/Firebase/upload-symbols quickstart-ios/crashlytics
-              chmod +x run
-              chmod +x upload-symbols
+              chmod +x quickstart-ios/crashlytics/run
+              chmod +x quickstart-ios/crashlytics/upload-symbols
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-crashlytics.plist.gpg \
         quickstart-ios/crashlytics/GoogleService-Info.plist "$plist_secret"
