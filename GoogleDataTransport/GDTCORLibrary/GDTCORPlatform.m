@@ -156,6 +156,18 @@ GDTCORNetworkMobileSubtype GDTCORNetworkMobileSubTypeMessage() {
 NSData *_Nullable GDTCOREncodeArchive(id<NSSecureCoding> obj,
                                       NSString *archivePath,
                                       NSError *_Nullable *error) {
+  BOOL result = NO;
+  if (archivePath.length > 0) {
+    result = [[NSFileManager defaultManager]
+              createDirectoryAtPath:[archivePath stringByDeletingLastPathComponent]
+        withIntermediateDirectories:YES
+                         attributes:nil
+                              error:error];
+    if (result == NO || *error) {
+      GDTCORLogDebug(@"Attempt to create directory failed: path:%@ error:%@", archivePath, *error);
+      return nil;
+    }
+  }
   NSData *resultData;
 #if (defined(__IPHONE_11_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 110000) || \
     (defined(__MAC_10_13) && MAC_OS_X_VERSION_MAX_ALLOWED >= 101300) ||      \
@@ -170,16 +182,7 @@ NSData *_Nullable GDTCOREncodeArchive(id<NSSecureCoding> obj,
       GDTCORLogDebug(@"Encoding an object failed: %@", *error);
       return nil;
     }
-    if (archivePath) {
-      BOOL result = [[NSFileManager defaultManager]
-                createDirectoryAtPath:[archivePath stringByDeletingLastPathComponent]
-          withIntermediateDirectories:YES
-                           attributes:nil
-                                error:error];
-      if (result == NO || *error) {
-        GDTCORLogDebug(@"Attempt to create directory failed: path:%@ error:%@", archivePath,
-                       *error);
-      }
+    if (archivePath.length > 0) {
       result = [resultData writeToFile:archivePath options:NSDataWritingAtomic error:error];
       if (result == NO || *error) {
         GDTCORLogDebug(@"Attempt to write archive failed: path:%@ error:%@", archivePath, *error);
@@ -189,22 +192,12 @@ NSData *_Nullable GDTCOREncodeArchive(id<NSSecureCoding> obj,
     }
   } else {
 #endif
-    BOOL result = NO;
     @try {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
       resultData = [NSKeyedArchiver archivedDataWithRootObject:obj];
 #pragma clang diagnostic pop
-      if (archivePath) {
-        BOOL result = [[NSFileManager defaultManager]
-                  createDirectoryAtPath:[archivePath stringByDeletingLastPathComponent]
-            withIntermediateDirectories:YES
-                             attributes:nil
-                                  error:error];
-        if (result == NO || *error) {
-          GDTCORLogDebug(@"Attempt to create directory failed: path:%@ error:%@", archivePath,
-                         *error);
-        }
+      if (archivePath.length > 0) {
         result = [resultData writeToFile:archivePath options:NSDataWritingAtomic error:error];
         if (result == NO || *error) {
           GDTCORLogDebug(@"Attempt to write archive failed: URL:%@ error:%@", archivePath, *error);

@@ -662,7 +662,6 @@
 
   NSSet<GDTCOREvent *> *generatedEvents = [self generateEventsForStorageTesting];
   for (GDTCOREvent *event in generatedEvents) {
-    [[GDTCORFlatFileStorage sharedInstance] storeEvent:event onComplete:nil];
     NSError *error;
     NSData *serializedEventData = GDTCOREncodeArchive(event, nil, &error);
     XCTAssertNil(error);
@@ -743,9 +742,6 @@
 - (void)testBatchIDWithTarget {
   GDTCORFlatFileStorage *storage = [GDTCORFlatFileStorage sharedInstance];
   NSSet<GDTCOREvent *> *generatedEvents = [self generateEventsForStorageTesting];
-  for (GDTCOREvent *event in generatedEvents) {
-    [[GDTCORFlatFileStorage sharedInstance] storeEvent:event onComplete:nil];
-  }
   NSSet<GDTCOREvent *> *testTargetEvents = [generatedEvents
       filteredSetUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(
                                                  GDTCOREvent *_Nullable event,
@@ -784,16 +780,15 @@
 - (void)testRemoveBatchWithIDDeletingEvents {
   GDTCORFlatFileStorage *storage = [GDTCORFlatFileStorage sharedInstance];
   NSSet<GDTCOREvent *> *generatedEvents = [self generateEventsForStorageTesting];
-  for (GDTCOREvent *event in generatedEvents) {
-    [[GDTCORFlatFileStorage sharedInstance] storeEvent:event onComplete:nil];
-  }
   __block NSUInteger testTargetSize = 0;
   NSSet<GDTCOREvent *> *testTargetEvents = [generatedEvents
       filteredSetUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(
                                                  GDTCOREvent *_Nullable event,
                                                  NSDictionary<NSString *, id> *_Nullable bindings) {
+        NSError *error;
         testTargetSize +=
-            event.target == kGDTCORTargetTest ? GDTCOREncodeArchive(event, nil, nil).length : 0;
+            event.target == kGDTCORTargetTest ? GDTCOREncodeArchive(event, nil, &error).length : 0;
+        XCTAssertNil(error);
         return event.target == kGDTCORTargetTest;
       }]];
   XCTAssertNotNil(testTargetEvents);
@@ -836,16 +831,15 @@
 - (void)testRemoveBatchWithID {
   GDTCORFlatFileStorage *storage = [GDTCORFlatFileStorage sharedInstance];
   NSSet<GDTCOREvent *> *generatedEvents = [self generateEventsForStorageTesting];
-  for (GDTCOREvent *event in generatedEvents) {
-    [[GDTCORFlatFileStorage sharedInstance] storeEvent:event onComplete:nil];
-  }
   __block NSUInteger testTargetSize = 0;
   NSSet<GDTCOREvent *> *testTargetEvents = [generatedEvents
       filteredSetUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(
                                                  GDTCOREvent *_Nullable event,
                                                  NSDictionary<NSString *, id> *_Nullable bindings) {
+        NSError *error;
         testTargetSize +=
-            event.target == kGDTCORTargetTest ? GDTCOREncodeArchive(event, nil, nil).length : 0;
+            event.target == kGDTCORTargetTest ? GDTCOREncodeArchive(event, nil, &error).length : 0;
+        XCTAssertNil(error);
         return event.target == kGDTCORTargetTest;
       }]];
   XCTAssertNotNil(testTargetEvents);
@@ -928,10 +922,7 @@
 - (void)testCheckBatchExpiration {
   GDTCORFlatFileStorage *storage = [GDTCORFlatFileStorage sharedInstance];
   NSTimeInterval delay = 10.0;
-  [[self generateEventsForStorageTesting]
-      enumerateObjectsUsingBlock:^(GDTCOREvent *_Nonnull event, BOOL *_Nonnull stop) {
-        [storage storeEvent:event onComplete:nil];
-      }];
+  [self generateEventsForStorageTesting];
   XCTestExpectation *expectation = [self expectationWithDescription:@"hasEvent completion called"];
   [storage hasEventsForTarget:kGDTCORTargetTest
                    onComplete:^(BOOL hasEvents) {
