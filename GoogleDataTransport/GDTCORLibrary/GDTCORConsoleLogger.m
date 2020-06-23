@@ -16,7 +16,7 @@
 
 #import "GDTCORLibrary/Public/GDTCORConsoleLogger.h"
 
-volatile NSInteger GDTCORConsoleLoggerLoggingLevel = GDTCORLoggingLevelErrors;
+volatile NSInteger GDTCORConsoleLoggerLoggingLevel = GDTCORLoggingLevelDebug;
 
 /** The console logger prefix. */
 static NSString *kGDTCORConsoleLogger = @"[GoogleDataTransport]";
