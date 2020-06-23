@@ -196,6 +196,15 @@ NSData *_Nullable GDTCOREncodeArchive(id<NSSecureCoding> obj,
       resultData = [NSKeyedArchiver archivedDataWithRootObject:obj];
 #pragma clang diagnostic pop
       if (archivePath) {
+        BOOL result = [[NSFileManager defaultManager]
+                  createDirectoryAtPath:[archivePath stringByDeletingLastPathComponent]
+            withIntermediateDirectories:YES
+                             attributes:nil
+                                  error:error];
+        if (result == NO || *error) {
+          GDTCORLogDebug(@"Attempt to create directory failed: path:%@ error:%@", archivePath,
+                         *error);
+        }
         result = [resultData writeToFile:archivePath options:NSDataWritingAtomic error:error];
         if (result == NO || *error) {
           GDTCORLogDebug(@"Attempt to write archive failed: URL:%@ error:%@", archivePath, *error);
