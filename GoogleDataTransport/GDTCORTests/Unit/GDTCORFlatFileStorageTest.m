@@ -708,7 +708,7 @@
       }]];
   XCTAssertNotNil(testTargetEvents);
 
-  __block NSUInteger totalSize;
+  __block uint64_t totalSize;
   [storage storageSizeWithCallback:^(uint64_t storageSize) {
     totalSize = storageSize;
   }];
@@ -760,7 +760,7 @@
       }]];
   XCTAssertNotNil(testTargetEvents);
 
-  __block NSUInteger totalSize;
+  __block uint64_t totalSize;
   [storage storageSizeWithCallback:^(uint64_t storageSize) {
     totalSize = storageSize;
   }];
