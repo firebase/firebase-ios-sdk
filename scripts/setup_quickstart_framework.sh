@@ -15,7 +15,9 @@
 set -ex
 
 REPO=`pwd`
-git clone https://github.com/firebase/quickstart-ios.git
+if [ ! -d "quickstart-ios" ]; then
+  git clone https://github.com/firebase/quickstart-ios.git
+fi
 cd quickstart-ios/"${SAMPLE}"
 chmod +x ../scripts/info_script.rb
 ruby ../scripts/info_script.rb "${SAMPLE}"
@@ -25,12 +27,17 @@ mkdir -p Firebase/
 if [[ ! -z "$NON_FIREBASE_SDKS" ]]; then
   REPO="${REPO}" NON_FIREBASE_SDKS="${NON_FIREBASE_SDKS}" "${REPO}"/scripts/build_non_firebase_sdks.sh
 fi
-mv "${HOME}"/ios_frameworks/Firebase/Firebase.h Firebase/
-mv "${HOME}"/ios_frameworks/Firebase/module.modulemap Firebase/
+if [ ! -f "Firebase/Firebase.h" ]; then
+  mv "${HOME}"/ios_frameworks/Firebase/Firebase.h Firebase/
+fi
+if [ ! -f "Firebase/module.modulemap" ]; then
+  mv "${HOME}"/ios_frameworks/Firebase/module.modulemap Firebase/
+fi
 for file in "$@"
 do
-  # Not override framework if a framework with the same name was moved early..
-  mv -n ${file} Firebase/
+  if [ ! -f "Firebase/${file}" ]; then
+    mv -n ${file} Firebase/
+  fi
 done
 
 ../scripts/add_framework_script.rb  "${SAMPLE}" "${TARGET}" Firebase
