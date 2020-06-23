@@ -183,6 +183,8 @@ NSNotificationName const GDTCCTUploadCompleteNotification = @"com.GDTCCTUploader
   return defaultServerKey;
 }
 
+#
+
 - (void)uploadTarget:(GDTCORTarget)target withConditions:(GDTCORUploadConditions)conditions {
   __block GDTCORBackgroundIdentifier bgID = GDTCORBackgroundIdentifierInvalid;
   bgID = [[GDTCORApplication sharedApplication]
@@ -318,7 +320,18 @@ NSNotificationName const GDTCCTUploadCompleteNotification = @"com.GDTCCTUploader
 - (BOOL)readyToUploadTarget:(GDTCORTarget)target conditions:(GDTCORUploadConditions)conditions {
   id<GDTCORStorageProtocol> storage = GDTCORStorageInstanceForTarget(target);
   if (target == kGDTCORTargetCSH) {
-    return [storage hasEventsForTarget:target];
+    __block BOOL hasCSHEvents = NO;
+    dispatch_semaphore_t sema = dispatch_semaphore_create(0);
+    [storage hasEventsForTarget:target
+                     onComplete:^(BOOL hasEvents) {
+                       hasCSHEvents = hasEvents;
+                       dispatch_semaphore_signal(sema);
+                     }];
+    if (dispatch_semaphore_wait(sema, dispatch_time(DISPATCH_TIME_NOW, 10 * NSEC_PER_SEC)) != 0) {
+      GDTCORLogDebug(@"Timed out waiting for hasEventsForTarget: %ld", (long)target);
+      return NO;
+    }
+    return hasCSHEvents;
   }
   __block NSSet<NSNumber *> *batchIDs;
   dispatch_semaphore_t sema = dispatch_semaphore_create(0);
