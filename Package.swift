@@ -121,7 +121,7 @@ let package = Package(
         "README.md",
         "Reachability",
         "SwizzlerTestHelpers",
-        "UserDefaults",y :P
+        "UserDefaults",
       ],
       sources: [
         "AppDelegateSwizzler/",
