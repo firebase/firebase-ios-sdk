@@ -16,6 +16,7 @@
 
 #import <FirebaseABTesting/ABTExperimentPayload.h>
 #import "ABTConstants.h"
+#import "ABTTestUtilities.h"
 
 @interface ABTExperimentPayload (ClassTesting)
 
@@ -30,7 +31,7 @@
 @implementation ABTExperimentPayloadTest
 
 - (void)testPayloadWithTrigger {
-  ABTExperimentPayload *testPayload = [self payloadFromTestFilename:@"TestABTPayload1"];
+  ABTExperimentPayload *testPayload = [ABTTestUtilities payloadFromTestFilename:@"TestABTPayload1"];
   XCTAssertEqualObjects(testPayload.experimentId, @"exp_1");
   XCTAssertEqualObjects(testPayload.variantId, @"var_1");
   XCTAssertEqualObjects(testPayload.triggerEvent, @"customTrigger");
@@ -56,7 +57,7 @@
 }
 
 - (void)testPayloadWithoutTrigger {
-  ABTExperimentPayload *testPayload = [self payloadFromTestFilename:@"TestABTPayload2"];
+  ABTExperimentPayload *testPayload = [ABTTestUtilities payloadFromTestFilename:@"TestABTPayload2"];
   XCTAssertEqualObjects(testPayload.experimentId, @"exp_2");
   XCTAssertEqualObjects(testPayload.variantId, @"v200");
   XCTAssertNil(testPayload.triggerEvent);
@@ -79,30 +80,17 @@
 }
 
 - (void)testUtilityMethods {
-  ABTExperimentPayload *testPayload1 = [self payloadFromTestFilename:@"TestABTPayload1"];
+  ABTExperimentPayload *testPayload1 =
+      [ABTTestUtilities payloadFromTestFilename:@"TestABTPayload1"];
   XCTAssertTrue([testPayload1 overflowPolicyIsValid]);
 
   // Clear trigger event and make sure it's now nil.
   [testPayload1 clearTriggerEvent];
 
   // This one has an unspecified overflow policy.
-  ABTExperimentPayload *testPayload3 = [self payloadFromTestFilename:@"TestABTPayload3"];
+  ABTExperimentPayload *testPayload3 =
+      [ABTTestUtilities payloadFromTestFilename:@"TestABTPayload3"];
   XCTAssertFalse([testPayload3 overflowPolicyIsValid]);
-}
-
-- (ABTExperimentPayload *)payloadFromTestFilename:(NSString *)fileName {
-  NSString *testJsonDataFilePath = [[NSBundle bundleForClass:[self class]] pathForResource:fileName
-                                                                                    ofType:@"txt"];
-  NSError *readTextError = nil;
-  NSString *fileText = [[NSString alloc] initWithContentsOfFile:testJsonDataFilePath
-                                                       encoding:NSUTF8StringEncoding
-                                                          error:&readTextError];
-  if (readTextError) {
-    NSAssert(NO, readTextError.localizedDescription);
-    return nil;
-  }
-  NSLog(@"FIRFIRFIR: %@", fileText);
-  return [ABTExperimentPayload parseFromData:[fileText dataUsingEncoding:NSUTF8StringEncoding]];
 }
 
 - (NSDate *)dateFromFormattedDateString:(NSString *)dateString {
