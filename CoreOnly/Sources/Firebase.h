@@ -97,6 +97,7 @@ Firebase In App Messaging works as intended."
 `Firebase/Analytics` to your Podfile or add FirebaseAnalytics.framework to your project to ensure \
 Firebase Messaging works as intended."
       #endif // #ifndef FIREBASE_ANALYTICS_SUPPRESS_WARNING
+    #endif
   #elif __has_include("FirebaseMessaging.h")
     #import "FirebaseMessaging.h"
   #endif
