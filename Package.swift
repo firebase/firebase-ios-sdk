@@ -67,9 +67,9 @@ let package = Package(
     ),
   ],
   dependencies: [
-    .package(url: "https://github.com/google/promises.git", "1.2.8" ..< "1.3.0"),
-    .package(url: "https://github.com/google/gtm-session-fetcher.git", "1.4.0" ..< "2.0.0"),
-    .package(url: "https://github.com/paulb777/nanopb.git", .branch("swift-package-manager")),
+    .package(name: "Promises", url: "https://github.com/google/promises.git", "1.2.8" ..< "1.3.0"),
+    .package(name: "GTMSessionFetcher", url: "https://github.com/google/gtm-session-fetcher.git", "1.4.0" ..< "2.0.0"),
+    .package(name: "nanopb", url: "https://github.com/paulb777/nanopb.git", .branch("swift-package-manager")),
     // Branches need a force update with a run with the revision set like below.
     //   .package(url: "https://github.com/paulb777/nanopb.git", .revision("564392bd87bd093c308a3aaed3997466efb95f74"))
   ],
@@ -104,6 +104,25 @@ let package = Package(
       dependencies: ["GoogleUtilities_Environment", "GoogleUtilities_Logger",
                      "GoogleUtilities_Network"],
       path: "GoogleUtilities",
+      exclude: [
+        // Due to the directory structure of GoogleUtilities, we now need to explicitly exclude any
+        // files that aren't part of the `sources` section.
+        "AppDelegateSwizzler/README.md",
+        "CHANGELOG.md",
+        "CMakeLists.txt",
+        "Environment",
+        "Example",
+        "ISASwizzler",
+        "LICENSE",
+        "Logger",
+        "MethodSwizzler",
+        "NSData+zlib",
+        "Network",
+        "README.md",
+        "Reachability",
+        "SwizzlerTestHelpers",
+        "UserDefaults",y :P
+      ],
       sources: [
         "AppDelegateSwizzler/",
         "SceneDelegateSwizzler/",
@@ -116,8 +135,9 @@ let package = Package(
     ),
     .target(
       name: "GoogleUtilities_Environment",
-      dependencies: ["FBLPromises"],
+      dependencies: [.product(name: "FBLPromises", package: "Promises")],
       path: "GoogleUtilities/Environment",
+      exclude: [ "third_party/LICENSE" ],
       publicHeadersPath: "Private",
       cSettings: [
         .headerSearchPath("../../"),
@@ -211,7 +231,7 @@ let package = Package(
       dependencies: ["FirebaseCore",
                      "GoogleUtilities_Environment",
                      "GoogleUtilities_AppDelegateSwizzler",
-                     "GTMSessionFetcherCore"],
+                     .product(name: "GTMSessionFetcherCore", package: "GTMSessionFetcher")],
       path: "FirebaseAuth/Sources",
       publicHeadersPath: "Public",
       cSettings: [
@@ -222,7 +242,8 @@ let package = Package(
     ),
     .target(
       name: "FirebaseFunctions",
-      dependencies: ["FirebaseCore", "GTMSessionFetcherCore"],
+      dependencies: ["FirebaseCore",
+                     .product(name: "GTMSessionFetcherCore", package: "GTMSessionFetcher")],
       path: "Functions/FirebaseFunctions",
       publicHeadersPath: "Public",
       cSettings: [
@@ -243,7 +264,8 @@ let package = Package(
     // ),
     .target(
       name: "FirebaseInstallations",
-      dependencies: ["FirebaseCore", "FBLPromises",
+      dependencies: ["FirebaseCore",
+                     .product(name: "FBLPromises", package: "Promises"),
                      "GoogleUtilities_Environment", "GoogleUtilities_UserDefaults"],
       path: "FirebaseInstallations/Source/Library",
       publicHeadersPath: "Public",
@@ -253,7 +275,8 @@ let package = Package(
     ),
     .target(
       name: "FirebaseStorage",
-      dependencies: ["FirebaseCore", "GTMSessionFetcherCore"],
+      dependencies: ["FirebaseCore", .
+                     product(name: "GTMSessionFetcherCore", package: "GTMSessionFetcher")],
       path: "FirebaseStorage/Sources",
       publicHeadersPath: "Public",
       cSettings: [
