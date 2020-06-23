@@ -360,25 +360,19 @@ NSString *const kGDTCORBatchComponentsExpirationKey = @"GDTCORBatchComponentsExp
 
 - (void)checkForExpirations {
   dispatch_async(_storageQueue, ^{
+    NSMutableSet<NSString *> *pathsToDelete = [[NSMutableSet alloc] init];
     GDTCORLogDebug(@"%@", @"Checking for expired events and batches");
     NSTimeInterval now = [NSDate date].timeIntervalSince1970;
     NSFileManager *fileManager = [NSFileManager defaultManager];
     NSString *eventDataPath = [GDTCORFlatFileStorage eventDataStoragePath];
-    NSArray<NSString *> *eventDataPaths = [fileManager contentsOfDirectoryAtPath:eventDataPath
-                                                                           error:nil];
-    for (NSString *path in eventDataPaths) {
+    NSDirectoryEnumerator *enumerator = [fileManager enumeratorAtPath:eventDataPath];
+    NSString *path;
+    while ((path = [enumerator nextObject])) {
       NSString *fileName = [path lastPathComponent];
       NSDictionary<NSString *, id> *eventComponents = [self eventComponentsFromFilename:fileName];
       NSDate *expirationDate = eventComponents[kGDTCOREventComponentsExpirationKey];
       if (expirationDate != nil && expirationDate.timeIntervalSince1970 < now) {
-        NSError *error;
-        [fileManager removeItemAtPath:[eventDataPath stringByAppendingPathComponent:path]
-                                error:&error];
-        if (error) {
-          GDTCORLogDebug(@"There was an error deleting an expired event: %@", error);
-        } else {
-          GDTCORLogDebug(@"Event deleted because it expired: %@", path);
-        }
+        [pathsToDelete addObject:[eventDataPath stringByAppendingPathComponent:path]];
       }
     }
 
@@ -390,14 +384,17 @@ NSString *const kGDTCORBatchComponentsExpirationKey = @"GDTCORBatchComponentsExp
       NSDictionary<NSString *, id> *batchComponents = [self batchComponentsFromFilename:fileName];
       NSDate *expirationDate = batchComponents[kGDTCORBatchComponentsExpirationKey];
       if (expirationDate != nil && expirationDate.timeIntervalSince1970 < now) {
-        NSError *error;
-        [fileManager removeItemAtPath:[batchDataPath stringByAppendingPathComponent:path]
-                                error:&error];
-        if (error) {
-          GDTCORLogDebug(@"There was an error deleting an expired batch: %@", error);
-        } else {
-          GDTCORLogDebug(@"Batch deleted because it expired: %@", path);
-        }
+        [pathsToDelete addObject:[batchDataPath stringByAppendingPathComponent:path]];
+      }
+    }
+
+    for (NSString *path in pathsToDelete) {
+      NSError *error;
+      [fileManager removeItemAtPath:path error:&error];
+      if (error != nil) {
+        GDTCORLogDebug(@"There was an error deleting an expired item: %@", error);
+      } else {
+        GDTCORLogDebug(@"Item deleted because it expired: %@", path);
       }
     }
   });

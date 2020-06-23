@@ -794,28 +794,29 @@
   [self waitForExpectations:@[ expectation ] timeout:10];
 }
 
-// TODO(mikehaney24): Re-enable this test once storing an event is exclusively file-based.
-///** Tests events expiring at a given time. */
-//- (void)testCheckEventExpiration {
-//  NSTimeInterval delay = 30.0;
-//  XCTAssertFalse([[GDTCORFlatFileStorage sharedInstance] hasEventsForTarget:kGDTCORTargetTest]);
-//  GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"testing"
-//  target:kGDTCORTargetTest]; event.expirationDate = [NSDate dateWithTimeIntervalSinceNow:delay];
-//  event.clockSnapshot = [GDTCORClock snapshot];
-//  event.dataObject = @"fake data";
-//  XCTestExpectation *expectation = [self expectationWithDescription:@"storeEvent completion"];
-//  [[GDTCORFlatFileStorage sharedInstance] storeEvent:event onComplete:^(BOOL wasWritten, NSError *
-//  _Nullable error) {
-//    XCTAssertTrue(wasWritten);
-//    XCTAssertNil(error);
-//    [expectation fulfill];
-//  }];
-//  [self waitForExpectations:@[expectation] timeout:10.0];
-//  XCTAssertTrue([[GDTCORFlatFileStorage sharedInstance] hasEventsForTarget:kGDTCORTargetTest]);
-//  [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:delay]];
-//  [[GDTCORFlatFileStorage sharedInstance] checkForExpirations];
-//  XCTAssertFalse([[GDTCORFlatFileStorage sharedInstance] hasEventsForTarget:kGDTCORTargetTest]);
-//}
+/** Tests events expiring at a given time. */
+- (void)testCheckEventExpiration {
+  NSTimeInterval delay = 10.0;
+  XCTAssertFalse([[GDTCORFlatFileStorage sharedInstance] hasEventsForTarget:kGDTCORTargetTest]);
+  GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"testing" target:kGDTCORTargetTest];
+  event.expirationDate = [NSDate dateWithTimeIntervalSinceNow:delay];
+  event.clockSnapshot = [GDTCORClock snapshot];
+  event.dataObject = [[GDTCORDataObjectTesterSimple alloc] initWithString:@"testString"];
+  XCTestExpectation *expectation = [self expectationWithDescription:@"storeEvent completion"];
+  [[GDTCORFlatFileStorage sharedInstance] storeEvent:event
+                                          onComplete:^(BOOL wasWritten, NSError *_Nullable error) {
+                                            XCTAssertTrue(wasWritten);
+                                            XCTAssertNil(error);
+                                            [expectation fulfill];
+                                          }];
+  [self waitForExpectations:@[ expectation ] timeout:5.0];
+  XCTAssertTrue([[GDTCORFlatFileStorage sharedInstance] hasEventsForTarget:kGDTCORTargetTest]);
+  [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:delay]];
+  [[GDTCORFlatFileStorage sharedInstance] checkForExpirations];
+  dispatch_sync([GDTCORFlatFileStorage sharedInstance].storageQueue, ^{
+                });
+  XCTAssertFalse([[GDTCORFlatFileStorage sharedInstance] hasEventsForTarget:kGDTCORTargetTest]);
+}
 
 /** Tests batch expiring at a given time. */
 - (void)testCheckBatchExpiration {
