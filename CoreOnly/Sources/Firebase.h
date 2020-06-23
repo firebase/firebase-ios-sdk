@@ -20,7 +20,7 @@
           import the headers individually."
 #else
   #if __has_include(<FirebaseCore/FirebaseCore.h>)
-    #import <FirebaseAuth/FirebaseCore.h>
+    #import <FirebaseCore/FirebaseCore.h>
   #elif __has_include("FirebaseCore.h")
     #import "FirebaseCore.h"
   #endif
