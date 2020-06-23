@@ -34,7 +34,7 @@ static NSString *const gBatchIDCounterKey = @"GDTCORFlatFileStorageBatchIDCounte
 static NSString *const gBatchesToEventsIDsKey = @"GDTCORFlatFileStorageBatchIDCounter";
 
 /** The separator used between metadata elements in filenames. */
-static NSString *const kMetadataSeparator = @"|";
+static NSString *const kMetadataSeparator = @"-";
 
 NSString *const kGDTCOREventComponentsEventIDKey = @"GDTCOREventComponentsEventIDKey";
 
@@ -91,7 +91,7 @@ NSString *const kGDTCORBatchComponentsExpirationKey = @"GDTCORBatchComponentsExp
 
 - (void)storeEvent:(GDTCOREvent *)event
         onComplete:(void (^_Nullable)(BOOL wasWritten, NSError *_Nullable error))completion {
-  //  GDTCORLogDebug(@"Saving event: %@", event);
+  GDTCORLogDebug(@"Saving event: %@", event);
   if (event == nil || event.serializedDataObjectBytes == nil) {
     GDTCORLogDebug(@"%@", @"The event was nil, so it was not saved.");
     if (completion) {
