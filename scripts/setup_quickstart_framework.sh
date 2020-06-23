@@ -16,7 +16,7 @@ set -ex
 
 REPO=`pwd`
 if [ ! -d "quickstart-ios" ]; then
-				git clone https://github.com/firebase/quickstart-ios.git
+  git clone https://github.com/firebase/quickstart-ios.git
 fi
 cd quickstart-ios/"${SAMPLE}"
 chmod +x ../scripts/info_script.rb
@@ -36,9 +36,8 @@ fi
 for file in "$@"
 do
   if [ ! -f "Firebase/${file}" ]; then
-  # Not override framework if a framework with the same name was moved early..
     mv -n ${file} Firebase/
-	fi
+  fi
 done
 
 ../scripts/add_framework_script.rb  "${SAMPLE}" "${TARGET}" Firebase
