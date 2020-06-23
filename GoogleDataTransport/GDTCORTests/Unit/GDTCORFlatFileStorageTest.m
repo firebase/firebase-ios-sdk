@@ -78,6 +78,7 @@
   self.uploaderFake = [[GDTCORUploadCoordinatorFake alloc] init];
   [GDTCORFlatFileStorage sharedInstance].uploadCoordinator = self.uploaderFake;
   [[GDTCORFlatFileStorage sharedInstance] reset];
+  [[NSFileManager defaultManager] fileExistsAtPath:[GDTCORFlatFileStorage eventDataStoragePath]];
 }
 
 - (void)tearDown {

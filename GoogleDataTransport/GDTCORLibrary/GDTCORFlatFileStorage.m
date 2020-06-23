@@ -208,7 +208,7 @@ NSString *const kGDTCORBatchComponentsExpirationKey = @"GDTCORBatchComponentsExp
     });
   };
 
-  [self nextBatchID:^(NSNumber *_Nonnull batchID) {
+  [self nextBatchID:^(NSNumber *_Nullable batchID) {
     if (batchID == nil) {
       if (onComplete) {
         onComplete(nil, nil);
@@ -448,20 +448,15 @@ NSString *const kGDTCORBatchComponentsExpirationKey = @"GDTCORBatchComponentsExp
   static NSString *eventDataPath;
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
-    eventDataPath =
-        [GDTCORRootDirectory() URLByAppendingPathComponent:NSStringFromClass([self class])
-                                               isDirectory:YES]
-            .path;
-    eventDataPath = [eventDataPath stringByAppendingPathComponent:@"gdt_event_data"];
-    if (![[NSFileManager defaultManager] fileExistsAtPath:eventDataPath isDirectory:NULL]) {
-      NSError *error;
-      [[NSFileManager defaultManager] createDirectoryAtPath:eventDataPath
-                                withIntermediateDirectories:YES
-                                                 attributes:0
-                                                      error:&error];
-      GDTCORAssert(error == nil, @"Creating the library data path failed: %@", error);
-    }
+    eventDataPath = [NSString stringWithFormat:@"%@/%@/gdt_event_data", GDTCORRootDirectory().path,
+                                               NSStringFromClass([self class])];
   });
+  NSError *error;
+  [[NSFileManager defaultManager] createDirectoryAtPath:eventDataPath
+                            withIntermediateDirectories:YES
+                                             attributes:0
+                                                  error:&error];
+  GDTCORAssert(error == nil, @"Creating the library data path failed: %@", error);
   return eventDataPath;
 }
 
@@ -469,20 +464,15 @@ NSString *const kGDTCORBatchComponentsExpirationKey = @"GDTCORBatchComponentsExp
   static NSString *batchDataPath;
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
-    batchDataPath =
-        [GDTCORRootDirectory() URLByAppendingPathComponent:NSStringFromClass([self class])
-                                               isDirectory:YES]
-            .path;
-    batchDataPath = [batchDataPath stringByAppendingPathComponent:@"gdt_batch_data"];
-    if (![[NSFileManager defaultManager] fileExistsAtPath:batchDataPath isDirectory:NULL]) {
-      NSError *error;
-      [[NSFileManager defaultManager] createDirectoryAtPath:batchDataPath
-                                withIntermediateDirectories:YES
-                                                 attributes:0
-                                                      error:&error];
-      GDTCORAssert(error == nil, @"Creating the batch data path failed: %@", error);
-    }
+    batchDataPath = [NSString stringWithFormat:@"%@/%@/gdt_batch_data", GDTCORRootDirectory().path,
+                                               NSStringFromClass([self class])];
   });
+  NSError *error;
+  [[NSFileManager defaultManager] createDirectoryAtPath:batchDataPath
+                            withIntermediateDirectories:YES
+                                             attributes:0
+                                                  error:&error];
+  GDTCORAssert(error == nil, @"Creating the batch data path failed: %@", error);
   return batchDataPath;
 }
 
@@ -491,19 +481,15 @@ NSString *const kGDTCORBatchComponentsExpirationKey = @"GDTCORBatchComponentsExp
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
     libraryDataPath =
-        [GDTCORRootDirectory() URLByAppendingPathComponent:NSStringFromClass([self class])
-                                               isDirectory:YES]
-            .path;
-    libraryDataPath = [libraryDataPath stringByAppendingPathComponent:@"gdt_library_data"];
+        [NSString stringWithFormat:@"%@/%@/gdt_library_data", GDTCORRootDirectory().path,
+                                   NSStringFromClass([self class])];
   });
-  if (![[NSFileManager defaultManager] fileExistsAtPath:libraryDataPath isDirectory:NULL]) {
-    NSError *error;
-    [[NSFileManager defaultManager] createDirectoryAtPath:libraryDataPath
-                              withIntermediateDirectories:YES
-                                               attributes:0
-                                                    error:&error];
-    GDTCORAssert(error == nil, @"Creating the library data path failed: %@", error);
-  }
+  NSError *error;
+  [[NSFileManager defaultManager] createDirectoryAtPath:libraryDataPath
+                            withIntermediateDirectories:YES
+                                             attributes:0
+                                                  error:&error];
+  GDTCORAssert(error == nil, @"Creating the library data path failed: %@", error);
   return libraryDataPath;
 }
 
@@ -588,7 +574,7 @@ NSString *const kGDTCORBatchComponentsExpirationKey = @"GDTCORBatchComponentsExp
   });
 }
 
-- (void)nextBatchID:(void (^)(NSNumber *batchID))nextBatchID {
+- (void)nextBatchID:(void (^)(NSNumber *_Nullable batchID))nextBatchID {
   __block int32_t lastBatchID = -1;
   [self libraryDataForKey:gBatchIDCounterKey
       onFetchComplete:^(NSData *_Nullable data, NSError *_Nullable getValueError) {

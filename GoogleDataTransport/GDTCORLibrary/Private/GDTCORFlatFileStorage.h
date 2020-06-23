@@ -128,7 +128,7 @@ FOUNDATION_EXPORT NSString *const kGDTCORBatchComponentsExpirationKey;
  *
  * @param onComplete A block to execute when creating the next batchID is complete.
  */
-- (void)nextBatchID:(void (^)(NSNumber *batchID))onComplete;
+- (void)nextBatchID:(void (^)(NSNumber *_Nullable batchID))onComplete;
 
 /** Constructs a dictionary of event filename components.
  *

@@ -30,7 +30,7 @@
         onComplete:(void (^_Nullable)(BOOL wasWritten, NSError *_Nullable))completion {
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
-    _storedEvents = [[NSMutableDictionary alloc] init];
+    self->_storedEvents = [[NSMutableDictionary alloc] init];
   });
   _storedEvents[event.eventID] = event;
   if (completion) {
@@ -52,7 +52,7 @@
   count++;
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
-    _batches = [[NSMutableDictionary alloc] init];
+    self->_batches = [[NSMutableDictionary alloc] init];
   });
   NSSet<GDTCOREvent *> *batchEvents = [NSSet setWithArray:[_storedEvents allValues]];
   _batches[batchID] = batchEvents;
