@@ -62,7 +62,7 @@ static NSString *const kNextEventIDKey = @"GDTCOREventEventIDCounter";
                            eventID = newEventID;
                            dispatch_semaphore_signal(sema);
                          }];
-  if (dispatch_semaphore_wait(sema, DISPATCH_TIME_FOREVER) != 0) {
+  if (dispatch_semaphore_wait(sema, dispatch_time(DISPATCH_TIME_NOW, 5 * NSEC_PER_SEC)) != 0) {
     return nil;
   }
   if (mappingID == nil || mappingID.length == 0 || target <= 0 || eventID == nil) {
@@ -161,7 +161,8 @@ static NSString *kCustomDataKey = @"GDTCOREventCustomDataKey";
                                self->_eventID = eventID;
                                dispatch_semaphore_signal(sema);
                              }];
-      if (dispatch_semaphore_wait(sema, DISPATCH_TIME_FOREVER) != 0 || _eventID == nil) {
+      if (dispatch_semaphore_wait(sema, dispatch_time(DISPATCH_TIME_NOW, 5 * NSEC_PER_SEC)) != 0 ||
+          _eventID == nil) {
         return nil;
       }
     }

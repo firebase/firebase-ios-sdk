@@ -87,7 +87,7 @@ typedef void (^GDTCCTIntegrationTestBlock)(NSURLSessionUploadTask *_Nullable);
                dispatch_semaphore_signal(sema);
              }];
   [task resume];
-  dispatch_semaphore_wait(sema, DISPATCH_TIME_FOREVER);
+  dispatch_semaphore_wait(sema, dispatch_time(DISPATCH_TIME_NOW, 10.0 * NSEC_PER_SEC));
 }
 
 - (void)tearDown {

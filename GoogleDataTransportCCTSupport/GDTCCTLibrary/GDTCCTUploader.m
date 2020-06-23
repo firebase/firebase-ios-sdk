@@ -327,7 +327,7 @@ NSNotificationName const GDTCCTUploadCompleteNotification = @"com.GDTCCTUploader
                        hasCSHEvents = hasEvents;
                        dispatch_semaphore_signal(sema);
                      }];
-    if (dispatch_semaphore_wait(sema, DISPATCH_TIME_FOREVER) != 0) {
+    if (dispatch_semaphore_wait(sema, dispatch_time(DISPATCH_TIME_NOW, 10 * NSEC_PER_SEC)) != 0) {
       GDTCORLogDebug(@"Timed out waiting for hasEventsForTarget: %ld", (long)target);
       return NO;
     }
@@ -340,7 +340,7 @@ NSNotificationName const GDTCCTUploadCompleteNotification = @"com.GDTCCTUploader
                     batchIDs = storedBatches;
                     dispatch_semaphore_signal(sema);
                   }];
-  if (dispatch_semaphore_wait(sema, DISPATCH_TIME_FOREVER) != 0) {
+  if (dispatch_semaphore_wait(sema, dispatch_time(DISPATCH_TIME_NOW, 10 * NSEC_PER_SEC)) != 0) {
     GDTCORLogDebug(@"Timed out waiting for in-flight batch IDs for target: %ld", (long)target);
     return NO;
   }
