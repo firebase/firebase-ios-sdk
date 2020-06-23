@@ -12,14 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Simple filename works for source distros for both CocoaPods and
+// Swift Package Manager.
+// A module qualified import is needed for binary CocoaPods distributions.
+// TBD - binary Swift Package Manager distributions.
+
 #import "FirebaseCore.h"
 
 #if !defined(__has_include)
   #error "Firebase.h won't import anything if your compiler doesn't support __has_include. Please \
           import the headers individually."
 #else
-  #if __has_include("FirebaseAnalytics.h")
-    #import "FirebaseAnalytics.h"
+  #if __has_include(<FirebaseAnalytics/FirebaseAnalytics.h>)
+    #import <FirebaseAnalytics/FirebaseAnalytics.h>
   #endif
 
   #if __has_include("FirebaseAuth.h")
@@ -79,61 +84,61 @@ Firebase Messaging works as intended."
     #endif
 #endif
 
-  #if __has_include("FirebaseMLCommon.h")
-    #import "FirebaseMLCommon.h"
+  #if __has_include(<FirebaseMLCommon/FirebaseMLCommon.h>)
+    #import <FirebaseMLCommon/FirebaseMLCommon.h>
   #endif
 
-  #if __has_include("FirebaseMLModelInterpreter.h")
-    #import "FirebaseMLModelInterpreter.h"
+  #if __has_include(<FirebaseMLModelInterpreter/FirebaseMLModelInterpreter.h>)
+    #import <FirebaseMLModelInterpreter/FirebaseMLModelInterpreter.h>
   #endif
 
-  #if __has_include("FirebaseMLNLLanguageID.h")
-    #import "FirebaseMLNLLanguageID.h"
+  #if __has_include(<FirebaseMLNLLanguageID/FirebaseMLNLLanguageID.h>)
+    #import <FirebaseMLNLLanguageID/FirebaseMLNLLanguageID.h>
   #endif
 
-  #if __has_include("FirebaseMLNLSmartReply.h")
-    #import "FirebaseMLNLSmartReply.h"
+  #if __has_include(<FirebaseMLNLSmartReply/FirebaseMLNLSmartReply.h>)
+    #import <FirebaseMLNLSmartReply/FirebaseMLNLSmartReply.h>
   #endif
 
-  #if __has_include("FirebaseMLNLTranslate.h")
-    #import "FirebaseMLNLTranslate.h"
+  #if __has_include(<FirebaseMLNLTranslate/FirebaseMLNLTranslate.h>)
+    #import <FirebaseMLNLTranslate/FirebaseMLNLTranslate.h>
   #endif
 
-  #if __has_include("FirebaseMLNaturalLanguage.h")
-    #import "FirebaseMLNaturalLanguage.h"
+  #if __has_include(<FirebaseMLNaturalLanguage/FirebaseMLNaturalLanguage.h>)
+    #import <FirebaseMLNaturalLanguage/FirebaseMLNaturalLanguage.h>
   #endif
 
-  #if __has_include("FirebaseMLVision.h")
-    #import "FirebaseMLVision.h"
+  #if __has_include(<FirebaseMLVision/FirebaseMLVision.h>)
+    #import <FirebaseMLVision/FirebaseMLVision.h>
   #endif
 
-  #if __has_include("FirebaseMLVisionAutoML.h")
-    #import "FirebaseMLVisionAutoML.h"
+  #if __has_include(<FirebaseMLVisionAutoML/FirebaseMLVisionAutoML.h>)
+    #import <FirebaseMLVisionAutoML/FirebaseMLVisionAutoML.h>
   #endif
 
-  #if __has_include("FirebaseMLVisionBarcodeModel.h")
-    #import "FirebaseMLVisionBarcodeModel.h"
+  #if __has_include(<FirebaseMLVisionBarcodeModel/FirebaseMLVisionBarcodeModel.h>)
+    #import <FirebaseMLVisionBarcodeModel/FirebaseMLVisionBarcodeModel.h>
   #endif
 
-  #if __has_include("FirebaseMLVisionFaceModel.h")
-    #import "FirebaseMLVisionFaceModel.h"
+  #if __has_include(<FirebaseMLVisionFaceModel/FirebaseMLVisionFaceModel.h>)
+    #import <FirebaseMLVisionFaceModel/FirebaseMLVisionFaceModel.h>
   #endif
 
-  #if __has_include("FirebaseMLVisionLabelModel.h")
-    #import "FirebaseMLVisionLabelModel.h"
+  #if __has_include(<FirebaseMLVisionLabelModel/FirebaseMLVisionLabelModel.h>)
+    #import <FirebaseMLVisionLabelModel/FirebaseMLVisionLabelModel.h>
   #endif
 
-  #if __has_include("FirebaseMLVisionObjectDetection.h")
-    #import "FirebaseMLVisionObjectDetection.h"
+  #if __has_include(<FirebaseMLVisionObjectDetection/FirebaseMLVisionObjectDetection.h>)
+    #import <FirebaseMLVisionObjectDetection/FirebaseMLVisionObjectDetection.h>
   #endif
 
-  #if __has_include("FirebaseMLVisionTextModel.h")
-    #import "FirebaseMLVisionTextModel.h"
+  #if __has_include(<FirebaseMLVisionTextModel/FirebaseMLVisionTextModel.h>)
+    #import <FirebaseMLVisionTextModel/FirebaseMLVisionTextModel.h>
   #endif
 
-  #if __has_include("FirebasePerformance.h")
-    #import "FirebasePerformance.h"
-    #if !__has_include("FirebaseAnalytics.h")
+  #if __has_include(<FirebasePerformance/FirebasePerformance.h>)
+    #import <FirebasePerformance/FirebasePerformance.h>
+    #if !__has_include(<FirebaseAnalytics/FirebaseAnalytics.h>)
       #ifndef FIREBASE_ANALYTICS_SUPPRESS_WARNING
         #warning "FirebaseAnalytics.framework is not included in your target. Please add \
 `Firebase/Analytics` to your Podfile or add FirebaseAnalytics.framework to your project to ensure \
@@ -157,16 +162,16 @@ Firebase Remote Config works as intended."
     #import "FirebaseStorage.h"
   #endif
 
-  #if __has_include("GoogleMobileAds.h")
-    #import "GoogleMobileAds.h"
+  #if __has_include(<GoogleMobileAds/GoogleMobileAds.h>)
+    #import <GoogleMobileAds/GoogleMobileAds.h>
   #endif
 
-  #if __has_include("Fabric.h")
-    #import "Fabric.h"
+  #if __has_include(<Fabric/Fabric.h>)
+    #import <Fabric/Fabric.h>
   #endif
 
-  #if __has_include("Crashlytics.h")
-    #import "Crashlytics.h"
+  #if __has_include(<Crashlytics/Crashlytics.h>)
+    #import <Crashlytics/Crashlytics.h>
   #endif
 
 #endif  // defined(__has_include)
