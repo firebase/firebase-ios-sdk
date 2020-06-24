@@ -318,7 +318,10 @@ NS_ASSUME_NONNULL_BEGIN
   } else {
 #endif  // defined(__IPHONE_14_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 140000
     pasteboardContents = [UIPasteboard generalPasteboard].string;
+#if defined(__IPHONE_14_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 140000
   }
+#endif  // defined(__IPHONE_14_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 140000
+
   return pasteboardContents;
 }
 
