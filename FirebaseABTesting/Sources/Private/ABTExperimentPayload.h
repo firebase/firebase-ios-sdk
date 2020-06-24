@@ -16,7 +16,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-/// Policy for handling the case where there's an overflow of experiments for an installation instance.
+/// Policy for handling the case where there's an overflow of experiments for an installation
+/// instance.
 typedef NS_ENUM(int32_t, ABTExperimentPayloadExperimentOverflowPolicy) {
   ABTExperimentPayloadExperimentOverflowPolicyUnrecognizedValue = 999,
   ABTExperimentPayloadExperimentOverflowPolicyUnspecified = 0,
@@ -70,8 +71,8 @@ typedef NS_ENUM(int32_t, ABTExperimentPayloadExperimentOverflowPolicy) {
 
 @property(nonatomic, readonly) ABTExperimentPayloadExperimentOverflowPolicy overflowPolicy;
 
-/// A list of all other ongoing (started, and not yet stopped) experiments at the time this experiment was started.
-/// Does not include this experiment; only the others.
+/// A list of all other ongoing (started, and not yet stopped) experiments at the time this
+/// experiment was started. Does not include this experiment; only the others.
 @property(nonatomic, readonly) NSArray<ABTExperimentLite *> *ongoingExperiments;
 
 /// Parses an ABTExperimentPayload directly from JSON data.
