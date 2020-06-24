@@ -50,7 +50,7 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Prereqs
-      run: scripts/install_prereqs.sh ${{ matrix.pod }} watchOS xcodebuild
+      run: scripts/install_prereqs.sh GoogleDataTransport watchOS xcodebuild
     - name: Setup project and build watchOS test app
       run: scripts/third_party/travis/retry.sh scripts/build.sh GoogleDataTransport watchOS xcodebuild
 
