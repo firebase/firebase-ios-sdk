@@ -17,8 +17,8 @@
 @implementation FIRMockGDTCORTransport
 
 - (instancetype)initWithMappingID:(NSString *)mappingID
-                     transformers:(NSArray<id<GDTCOREventTransformer>> *)transformers
-                           target:(NSInteger)target {
+                     transformers:(nullable NSArray<id<GDTCOREventTransformer>> *)transformers
+                           target:(GDTCORTarget)target {
   _mappingID = mappingID;
   _target = target;
   _sendDataEvent_wasWritten = YES;

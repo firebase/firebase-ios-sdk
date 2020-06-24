@@ -17,8 +17,8 @@
 #import "FirebaseMessaging/Sources/FIRMessagingPubSub.h"
 
 #import <FirebaseMessaging/FIRMessaging.h>
-#import <GoogleUtilities/GULSecureCoding.h>
-#import <GoogleUtilities/GULUserDefaults.h>
+#import "GoogleUtilities/Environment/Private/GULSecureCoding.h"
+#import "GoogleUtilities/UserDefaults/Private/GULUserDefaults.h"
 
 #import "FirebaseMessaging/Sources/FIRMessagingClient.h"
 #import "FirebaseMessaging/Sources/FIRMessagingDefines.h"
@@ -280,7 +280,7 @@ static NSString *const kTopicRegexPattern = @"/topics/([a-zA-Z0-9-_.~%]+)";
 /**
  *  Gets the class describing occurences of topic names and sender IDs in the sender.
  *
- *  @param expression The topic expression used to generate a pubsub topic
+ *  @param topic The topic expression used to generate a pubsub topic
  *
  *  @return Representation of captured subexpressions in topic regular expression
  */

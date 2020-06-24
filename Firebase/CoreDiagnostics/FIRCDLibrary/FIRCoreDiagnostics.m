@@ -22,12 +22,12 @@
 #import <GoogleDataTransport/GDTCORTargets.h>
 #import <GoogleDataTransport/GDTCORTransport.h>
 
-#import <GoogleUtilities/GULAppEnvironmentUtil.h>
-#import <GoogleUtilities/GULHeartbeatDateStorage.h>
-#import <GoogleUtilities/GULLogger.h>
+#import "GoogleUtilities/Environment/Private/GULAppEnvironmentUtil.h"
+#import "GoogleUtilities/Environment/Private/GULHeartbeatDateStorage.h"
+#import "GoogleUtilities/Logger/Private/GULLogger.h"
 
-#import <FirebaseCoreDiagnosticsInterop/FIRCoreDiagnosticsData.h>
-#import <FirebaseCoreDiagnosticsInterop/FIRCoreDiagnosticsInterop.h>
+#import "Interop/CoreDiagnostics/Public/FIRCoreDiagnosticsData.h"
+#import "Interop/CoreDiagnostics/Public/FIRCoreDiagnosticsInterop.h"
 
 #import <nanopb/pb.h>
 #import <nanopb/pb_decode.h>

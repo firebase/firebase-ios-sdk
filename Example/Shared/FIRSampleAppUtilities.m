@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#import "FIRSampleAppUtilities.h"
+#import "Example/Shared/FIRSampleAppUtilities.h"
 
-#import <FirebaseCore/FIROptionsInternal.h>
 #import <SafariServices/SafariServices.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 NSString *const kGoogleAppIDPlistKey = @"GOOGLE_APP_ID";
 // Dummy plist GOOGLE_APP_ID

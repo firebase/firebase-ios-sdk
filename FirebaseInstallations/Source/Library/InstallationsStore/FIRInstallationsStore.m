@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "FIRInstallationsStore.h"
+#import "FirebaseInstallations/Source/Library/InstallationsStore/FIRInstallationsStore.h"
 
-#import <GoogleUtilities/GULUserDefaults.h>
+#import "GoogleUtilities/UserDefaults/Private/GULUserDefaults.h"
 
 #if __has_include(<FBLPromises/FBLPromises.h>)
 #import <FBLPromises/FBLPromises.h>
@@ -24,11 +24,11 @@
 #import "FBLPromises.h"
 #endif
 
-#import <GoogleUtilities/GULKeychainStorage.h>
+#import "GoogleUtilities/Environment/Private/GULKeychainStorage.h"
 
-#import "FIRInstallationsErrorUtil.h"
-#import "FIRInstallationsItem.h"
-#import "FIRInstallationsStoredItem.h"
+#import "FirebaseInstallations/Source/Library/Errors/FIRInstallationsErrorUtil.h"
+#import "FirebaseInstallations/Source/Library/FIRInstallationsItem.h"
+#import "FirebaseInstallations/Source/Library/InstallationsStore/FIRInstallationsStoredItem.h"
 
 NSString *const kFIRInstallationsStoreUserDefaultsID = @"com.firebase.FIRInstallations";
 

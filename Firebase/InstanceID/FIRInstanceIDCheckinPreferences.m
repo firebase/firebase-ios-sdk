@@ -16,9 +16,9 @@
 
 #import "FIRInstanceIDCheckinPreferences.h"
 
-#import <GoogleUtilities/GULUserDefaults.h>
 #import "FIRInstanceIDCheckinService.h"
 #import "FIRInstanceIDUtilities.h"
+#import "GoogleUtilities/UserDefaults/Private/GULUserDefaults.h"
 
 const NSTimeInterval kFIRInstanceIDDefaultCheckinInterval = 7 * 24 * 60 * 60;  // 7 days.
 

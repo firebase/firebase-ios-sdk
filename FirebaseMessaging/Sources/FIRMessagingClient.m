@@ -20,7 +20,7 @@
 
 #import <FirebaseInstanceID/FIRInstanceID_Private.h>
 #import <FirebaseMessaging/FIRMessaging.h>
-#import <GoogleUtilities/GULReachabilityChecker.h>
+#import "GoogleUtilities/Reachability/Private/GULReachabilityChecker.h"
 
 #import "FirebaseMessaging/Sources/FIRMessagingConnection.h"
 #import "FirebaseMessaging/Sources/FIRMessagingConstants.h"

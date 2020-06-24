@@ -46,6 +46,10 @@ explicit import by other Firebase pods)
 * `FirebaseFoo/Tests/Sample` - Optional
 * `FirebaseFoo/Tests/{Other}` - Optional
 
+## Headers and Imports
+
+See [Headers and Imports](HeadersImports.md) for details on managing headers and imports.
+
 ## Continous Integration
 
 Set up a GitHub Action workflow for the pod. A good example template is
@@ -61,7 +65,10 @@ For GitHub tag management and public header change detection, add a GitHub api t
 
 ## Firebase Integration
 
-* Make sure the public headers are imported via [Firebase.h](CoreOnly/Sources/Firebase.h).
+For top-level Firebase pods that map to documented products:
+
+* Make sure the public umbrella header is imported via [Firebase.h](CoreOnly/Sources/Firebase.h)
+  wrapped in `__has_include`. Follow the existing examples for details.
 * Update [Firebase.podspec](Firebase.podspec).
 * Register library via registerInternalLibrary API like this
   [Storage example](FirebaseStorage/Sources/FIRStorageComponent.m).

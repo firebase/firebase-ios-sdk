@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import <FirebaseCore/FIRLogger.h>
 #import <UIKit/UIKit.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 #import "FIRCore+InAppMessaging.h"
 #import "FIRIAMActivityLogger.h"
@@ -567,6 +567,7 @@
     case FIRIAMRenderAsCardView:
       // Image data should never nil for a valid card message.
       if (imageData == nil) {
+        NSAssert(NO, @"Image data should never nil for a valid card message.");
         return nil;
       }
       return [self cardDisplayMessageWithMessageDefinition:definition

@@ -61,10 +61,8 @@ def configure_local_pods()
 
   # Pull in local sources conditionally.
   maybe_local_pod 'FirebaseAuth'
-  maybe_local_pod 'FirebaseAuthInterop'
 
   maybe_local_pod 'FirebaseCoreDiagnostics'
-  maybe_local_pod 'FirebaseCoreDiagnosticsInterop'
   maybe_local_pod 'GoogleDataTransport'
   maybe_local_pod 'GoogleDataTransportCCTSupport'
 end

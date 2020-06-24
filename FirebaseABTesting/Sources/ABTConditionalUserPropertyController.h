@@ -13,8 +13,9 @@
 // limitations under the License.
 
 #import <FirebaseABTesting/ABTExperimentPayload.h>
-#import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
 #import <Foundation/Foundation.h>
+
+#import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

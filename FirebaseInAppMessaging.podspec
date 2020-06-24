@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseInAppMessaging'
-  s.version          = '0.20.1'
+  s.version          = '0.21.0'
   s.summary          = 'Firebase In-App Messaging for iOS'
 
   s.description      = <<-DESC
@@ -24,7 +24,13 @@ See more product details at https://firebase.google.com/products/in-app-messagin
   s.prefix_header_file = false
 
   base_dir = "FirebaseInAppMessaging/"
-  s.source_files = base_dir + "Sources/**/*.[cmh]"
+  s.source_files = [
+    base_dir + "Sources/**/*.[cmh]",
+    'Interop/Analytics/Public/*.h',
+    'FirebaseCore/Sources/Private/*.h',
+    'FirebaseInstallations/Source/Private/*.h',
+    'GoogleUtilities/Environment/Private/*.h',
+  ]
   s.public_header_files = base_dir + 'Sources/Public/*.h'
   s.private_header_files = base_dir + 'Sources/Private/**/*.h'
 
@@ -34,19 +40,20 @@ See more product details at https://firebase.google.com/products/in-app-messagin
                                    base_dir + 'Resources/*.png']
   }
 
-  s.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' =>
+  s.pod_target_xcconfig = {
+    'GCC_PREPROCESSOR_DEFINITIONS' =>
 			'GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS=1 ' +
       '$(inherited) ' +
       'FIRInAppMessaging_LIB_VERSION=' + String(s.version) + ' ' +
-      'PB_FIELD_32BIT=1 PB_NO_PACKED_STRUCTS=1 PB_ENABLE_MALLOC=1'
+      'PB_FIELD_32BIT=1 PB_NO_PACKED_STRUCTS=1 PB_ENABLE_MALLOC=1',
+    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
   }
 
-  s.dependency 'FirebaseCore', '~> 6.2'
-  s.ios.dependency 'FirebaseAnalyticsInterop', '~> 1.3'
+  s.dependency 'FirebaseCore', '~> 6.8'
   s.dependency 'FirebaseInstallations', '~> 1.1'
-  s.dependency 'GoogleDataTransportCCTSupport', '~> 3.1'
+  s.dependency 'GoogleDataTransportCCTSupport', '~> 4.0'
   s.dependency 'FirebaseABTesting', '~> 3.2'
-  s.dependency 'GoogleUtilities/Environment', '~> 6.5'
+  s.dependency 'GoogleUtilities/Environment', '~> 6.7'
   s.dependency 'nanopb', '~> 1.30905.0'
 
   s.test_spec 'unit' do |unit_tests|

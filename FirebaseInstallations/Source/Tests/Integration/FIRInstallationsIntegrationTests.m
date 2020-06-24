@@ -24,15 +24,14 @@
 
 #import <XCTest/XCTest.h>
 
-#import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseCore/FIROptionsInternal.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 #import "FBLPromise+Testing.h"
-#import "FIRInstallations+Tests.h"
-#import "FIRInstallationsItem+Tests.h"
+#import "FirebaseInstallations/Source/Tests/Utils/FIRInstallations+Tests.h"
+#import "FirebaseInstallations/Source/Tests/Utils/FIRInstallationsItem+Tests.h"
 
-#import <FirebaseInstallations/FIRInstallations.h>
-#import <FirebaseInstallations/FIRInstallationsAuthTokenResult.h>
+#import "FirebaseInstallations/Source/Library/Public/FIRInstallations.h"
+#import "FirebaseInstallations/Source/Library/Public/FIRInstallationsAuthTokenResult.h"
 
 static BOOL sFIRInstallationsFirebaseDefaultAppConfigured = NO;
 

@@ -18,7 +18,7 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
-#import <GoogleUtilities/GULLogger.h>
+#import "GoogleUtilities/Logger/Private/GULLogger.h"
 
 #import <asl.h>
 

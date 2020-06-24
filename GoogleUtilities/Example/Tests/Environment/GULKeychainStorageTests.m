@@ -18,9 +18,9 @@
 
 #import <OCMock/OCMock.h>
 #import "FBLPromise+Testing.h"
-#import "GULTestKeychain.h"
+#import "GoogleUtilities/Example/Tests/Utils/GULTestKeychain.h"
 
-#import <GoogleUtilities/GULKeychainStorage.h>
+#import "GoogleUtilities/Environment/Private/GULKeychainStorage.h"
 
 @interface GULKeychainStorage (Tests)
 - (instancetype)initWithService:(NSString *)service cache:(NSCache *)cache;

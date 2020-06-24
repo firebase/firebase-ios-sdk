@@ -256,6 +256,18 @@ class StorageIntegration: XCTestCase {
     waitForExpectations()
   }
 
+  func testAttemptToUploadDirectoryShouldFail() throws {
+    // This `.numbers` file is actually a directory.
+    let fileName = "HomeImprovement.numbers"
+    let bundle = Bundle(for: StorageIntegration.self)
+    let fileURL = try XCTUnwrap(bundle.url(forResource: fileName, withExtension: ""),
+                                "Failed to get filePath")
+    let ref = storage.reference(withPath: "ios/public/" + fileName)
+    ref.putFile(from: fileURL) { result in
+      self.assertResultFailure(result)
+    }
+  }
+
   func testPutFileWithSpecialCharacters() throws {
     let expectation = self.expectation(description: #function)
 
@@ -605,6 +617,16 @@ class StorageIntegration: XCTestCase {
       XCTAssertNotNil(value, file: file, line: line)
     case let .failure(error):
       XCTFail("Unexpected error \(error)")
+    }
+  }
+
+  private func assertResultFailure<T>(_ result: Result<T, Error>,
+                                      file: StaticString = #file, line: UInt = #line) {
+    switch result {
+    case let .success(value):
+      XCTFail("Unexpected success with value: \(value)")
+    case let .failure(error):
+      XCTAssertNotNil(error, file: file, line: line)
     }
   }
 }

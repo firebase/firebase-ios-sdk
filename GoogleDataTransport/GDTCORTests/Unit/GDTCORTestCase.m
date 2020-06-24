@@ -16,6 +16,7 @@
 
 #import "GDTCORTests/Unit/GDTCORTestCase.h"
 
+#import "GDTCORTests/Common/Categories/GDTCORFlatFileStorage+Testing.h"
 #import "GDTCORTests/Common/Categories/GDTCORUploadCoordinator+Testing.h"
 
 #import "GDTCORLibrary/Private/GDTCORReachability_Private.h"
@@ -26,6 +27,7 @@
   [GDTCORReachability sharedInstance].flags = kSCNetworkReachabilityFlagsReachable;
   [[GDTCORUploadCoordinator sharedInstance] stopTimer];
   [[GDTCORUploadCoordinator sharedInstance] reset];
+  [[GDTCORFlatFileStorage sharedInstance] reset];
 }
 
 - (void)tearDown {

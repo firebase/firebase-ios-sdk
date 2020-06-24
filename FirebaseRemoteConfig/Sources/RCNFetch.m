@@ -16,16 +16,14 @@
 
 #import "FirebaseRemoteConfig/Sources/Private/RCNConfigFetch.h"
 
-#import <FirebaseCore/FIRApp.h>
-#import <FirebaseCore/FIRLogger.h>
-#import <FirebaseCore/FIROptions.h>
-#import <FirebaseInstallations/FirebaseInstallations.h>
-#import <GoogleUtilities/GULNSData+zlib.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
 #import "FirebaseRemoteConfig/Sources/Private/RCNConfigSettings.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigContent.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigExperiment.h"
 #import "FirebaseRemoteConfig/Sources/RCNDevice.h"
+#import "GoogleUtilities/NSData+zlib/Private/GULNSDataInternal.h"
 
 #ifdef RCN_STAGING_SERVER
 static NSString *const kServerURLDomain =
@@ -64,7 +62,7 @@ static NSInteger const kRCNFetchResponseHTTPStatusCodeServiceUnavailable = 503;
 static NSInteger const kRCNFetchResponseHTTPStatusCodeGatewayTimeout = 504;
 
 // Deprecated error code previously from FirebaseCore
-static const NSInteger FIRErrorCodeConfigFailed = -114;
+static const NSInteger sFIRErrorCodeConfigFailed = -114;
 
 #pragma mark - RCNConfig
 
@@ -160,7 +158,7 @@ static const NSInteger FIRErrorCodeConfigFailed = -114;
                     @"A fetch is already in progress. Ignoring duplicate request.");
         NSError *error =
             [NSError errorWithDomain:FIRRemoteConfigErrorDomain
-                                code:FIRErrorCodeConfigFailed
+                                code:sFIRErrorCodeConfigFailed
                             userInfo:@{
                               NSLocalizedDescriptionKey :
                                   @"FetchError: Duplicate request while the previous one is pending"

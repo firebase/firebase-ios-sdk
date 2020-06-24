@@ -14,14 +14,14 @@
 
 #import <XCTest/XCTest.h>
 
-#import <FirebaseCore/FIROptions.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 #import "FIRAuthInteropFake.h"
-#import "FIRError.h"
-#import "FIRFunctions+Internal.h"
-#import "FIRFunctions.h"
-#import "FIRHTTPSCallable.h"
-#import "FUNFakeInstanceID.h"
+#import "Functions/Example/TestUtils/FUNFakeInstanceID.h"
+#import "Functions/FirebaseFunctions/FIRFunctions+Internal.h"
+#import "Functions/FirebaseFunctions/Public/FIRError.h"
+#import "Functions/FirebaseFunctions/Public/FIRFunctions.h"
+#import "Functions/FirebaseFunctions/Public/FIRHTTPSCallable.h"
 
 // Project ID used by these tests.
 static NSString *const kDefaultProjectID = @"functions-integration-test";

@@ -22,7 +22,6 @@
 
 - (void)reset {
   // These calls occur on the queue.
-  [self.targetToPrioritizer removeAllObjects];
   [self.targetToUploader removeAllObjects];
   [self.targetToStorage removeAllObjects];
   dispatch_sync(self.registrarQueue, ^{

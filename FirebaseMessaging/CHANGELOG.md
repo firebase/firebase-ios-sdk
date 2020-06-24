@@ -1,3 +1,10 @@
+# 2020-06 -- Unreleased
+- [fixed] Fix documentation warning exposed by Xcode 12. (#5876)
+
+# 2020-06 -- v4.5.0
+- [changed] Use UNNotificationRequest to schedule local notification for local timezone notification for iOS 10 and above. This should also fix the issue that '%' was not properly shown in title and body. (#5667)
+- [fixed] Fixed Maltese language key for language targeting. (#5702)
+
 # 2020-05 -- v4.4.1
 - [changed] Updated NSError with a failure reason to give more details on the error. (#5511)
 

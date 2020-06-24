@@ -17,9 +17,9 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
-#import <FirebaseInstallations/FIRInstallations.h>
 #import <FirebaseInstanceID/FIRInstanceID_Private.h>
-#import <GoogleUtilities/GULReachabilityChecker.h>
+#import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
+#import "GoogleUtilities/Reachability/Private/GULReachabilityChecker.h"
 
 #import "FirebaseMessaging/Sources/FIRMessagingClient.h"
 #import "FirebaseMessaging/Sources/FIRMessagingConnection.h"

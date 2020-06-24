@@ -16,9 +16,6 @@
 
 #import <objc/runtime.h>
 
-#import <FirebaseCore/FIRApp.h>
-#import <FirebaseCore/FIRAppInternal.h>
-
 #import "AppManager.h"
 #import "AuthCredentials.h"
 #import "FacebookAuthProvider.h"

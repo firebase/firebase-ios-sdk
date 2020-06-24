@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRStorageTestHelpers.h"
+#import "FirebaseStorage/Tests/Unit/FIRStorageTestHelpers.h"
 
-#import <FirebaseCore/FIRAppInternal.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 #import "Example/Shared/FIRAuthInteropFake.h"
 

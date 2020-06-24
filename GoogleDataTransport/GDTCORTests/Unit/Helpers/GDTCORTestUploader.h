@@ -28,7 +28,8 @@ NS_ASSUME_NONNULL_BEGIN
 @interface GDTCORTestUploader : NSObject <GDTCORUploader>
 
 /** A block that can be ran in -uploadPackage:. */
-@property(nullable, nonatomic) void (^uploadPackageBlock)(GDTCORUploadPackage *package);
+@property(nullable, nonatomic) void (^uploadWithConditionsBlock)
+    (GDTCORTarget target, GDTCORUploadConditions conditions);
 
 @end
 

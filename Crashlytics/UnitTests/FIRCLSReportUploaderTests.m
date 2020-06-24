@@ -65,9 +65,9 @@ NSString *const TestEndpoint = @"https://reports.crashlytics.com";
                                                        client:self.networkClient
                                                   fileManager:self.fileManager
                                                     analytics:nil];
-  self.mockDataTransport = [[FIRMockGDTCORTransport alloc] initWithMappingID:@"mappingID"
+  self.mockDataTransport = [[FIRMockGDTCORTransport alloc] initWithMappingID:@"1206"
                                                                 transformers:nil
-                                                                      target:1206];
+                                                                      target:kGDTCORTargetCSH];
 }
 
 - (void)tearDown {

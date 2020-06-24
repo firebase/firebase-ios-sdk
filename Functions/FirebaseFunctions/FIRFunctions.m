@@ -12,27 +12,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRFunctions.h"
-#import "FIRFunctions+Internal.h"
+#import "Functions/FirebaseFunctions/Public/FIRFunctions.h"
+#import "Functions/FirebaseFunctions/FIRFunctions+Internal.h"
 
-#import <FirebaseAuthInterop/FIRAuthInterop.h>
-#import <FirebaseCore/FIRComponent.h>
-#import <FirebaseCore/FIRComponentContainer.h>
-#import <FirebaseCore/FIRDependency.h>
-#import <FirebaseCore/FIRLibrary.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "Interop/Auth/Public/FIRAuthInterop.h"
 
-#import "FIRError.h"
-#import "FIRHTTPSCallable+Internal.h"
-#import "FIRHTTPSCallable.h"
-#import "FUNContext.h"
-#import "FUNError.h"
-#import "FUNSerializer.h"
-#import "FUNUsageValidation.h"
+#import "Functions/FirebaseFunctions/FIRHTTPSCallable+Internal.h"
+#import "Functions/FirebaseFunctions/FUNContext.h"
+#import "Functions/FirebaseFunctions/FUNError.h"
+#import "Functions/FirebaseFunctions/FUNSerializer.h"
+#import "Functions/FirebaseFunctions/FUNUsageValidation.h"
+#import "Functions/FirebaseFunctions/Public/FIRError.h"
+#import "Functions/FirebaseFunctions/Public/FIRHTTPSCallable.h"
 
-#import <FirebaseCore/FIRApp.h>
-#import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseCore/FIROptions.h>
+#if SWIFT_PACKAGE
+@import GTMSessionFetcherCore;
+#else
 #import <GTMSessionFetcher/GTMSessionFetcherService.h>
+#endif
 
 // The following two macros supply the incantation so that the C
 // preprocessor does not try to parse the version as a floating

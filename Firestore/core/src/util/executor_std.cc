@@ -41,12 +41,6 @@ Executor::TimePoint Immediate() {
   return Executor::TimePoint{};
 }
 
-// The minimum time point, used to enqueue things at the absolute front of the
-// schedule.
-Executor::TimePoint Min() {
-  return Executor::TimePoint{Executor::TimePoint::duration::min()};
-}
-
 // The only guarantee is that different `thread_id`s will produce different
 // values.
 std::string ThreadIdToString(const std::thread::id thread_id) {
@@ -99,7 +93,7 @@ void ExecutorStd::Dispose() {
   // this destructor, the kShutdownTag Task will execute after the destructor
   // completes.
   for (size_t i = 0; i < worker_thread_pool_.size(); ++i) {
-    PushOnScheduleLocked(Min(), kShutdownTag, [] {});
+    PushOnScheduleLocked(Immediate(), kShutdownTag, [] {});
   }
 
   state_ = nullptr;

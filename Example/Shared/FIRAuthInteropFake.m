@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "FIRAuthInteropFake.h"
+#import "Example/Shared/FIRAuthInteropFake.h"
 
-#import <FirebaseAuthInterop/FIRAuthInterop.h>
+#import "Interop/Auth/Public/FIRAuthInterop.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -1,3 +1,7 @@
+# v4.0.0
+- Removed prioritizer, use new storage to persist state.
+- Device model is captured more accurately.
+
 # v3.1.0
 - watchOS extension and independent apps now supported. (#4292)
 - iOS extensions better supported.

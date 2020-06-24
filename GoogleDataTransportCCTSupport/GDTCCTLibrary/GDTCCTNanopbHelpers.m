@@ -31,7 +31,7 @@
 #import <nanopb/pb_decode.h>
 #import <nanopb/pb_encode.h>
 
-#import "GDTCCTLibrary/Private/GDTCOREvent+NetworkConnectionInfo.h"
+#import "GDTCCTLibrary/Public/GDTCOREvent+GDTCCTSupport.h"
 
 #pragma mark - General purpose encoders
 
@@ -145,15 +145,15 @@ gdt_cct_LogEvent GDTCCTConstructLogEvent(GDTCOREvent *event) {
                                    length:networkConnectionInfoData.length];
       logEvent.has_network_connection_info = 1;
     }
+    NSNumber *eventCode = event.eventCode;
+    if (eventCode != nil) {
+      logEvent.has_event_code = 1;
+      logEvent.event_code = [eventCode intValue];
+    }
   }
   NSError *error;
   NSData *extensionBytes;
-  if (event.fileURL) {
-    extensionBytes = [NSData dataWithContentsOfFile:event.fileURL.path options:0 error:&error];
-  } else {
-    GDTCORLogError(GDTCORMCEFileReadError, @"%@", @"An event's fileURL property was nil.");
-    return logEvent;
-  }
+  extensionBytes = event.serializedDataObjectBytes;
   if (error) {
     GDTCORLogWarning(GDTCORMCWFileReadError,
                      @"There was an error reading extension bytes from disk: %@", error);
@@ -193,7 +193,7 @@ gdt_cct_IosClientInfo GDTCCTConstructiOSClientInfo() {
   if (countryCode) {
     iOSClientInfo.country = GDTCCTEncodeString([locale objectForKey:NSLocaleCountryCode]);
   }
-  iOSClientInfo.model = GDTCCTEncodeString(device.model);
+  iOSClientInfo.model = GDTCCTEncodeString(GDTCORDeviceModel());
   NSString *languageCode = bundle.preferredLocalizations.firstObject;
   iOSClientInfo.language_code =
       languageCode ? GDTCCTEncodeString(languageCode) : GDTCCTEncodeString(@"en");

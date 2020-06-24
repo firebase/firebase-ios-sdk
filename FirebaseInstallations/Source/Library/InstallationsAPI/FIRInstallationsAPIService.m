@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "FIRInstallationsAPIService.h"
+#import "FirebaseInstallations/Source/Library/InstallationsAPI/FIRInstallationsAPIService.h"
 
-#import <FirebaseInstallations/FIRInstallationsVersion.h>
+#import "FirebaseInstallations/Source/Library/Public/FIRInstallationsVersion.h"
 
 #if __has_include(<FBLPromises/FBLPromises.h>)
 #import <FBLPromises/FBLPromises.h>
@@ -24,11 +24,10 @@
 #import "FBLPromises.h"
 #endif
 
-#import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseCore/FIRHeartbeatInfo.h>
-#import "FIRInstallationsErrorUtil.h"
-#import "FIRInstallationsItem+RegisterInstallationAPI.h"
-#import "FIRInstallationsLogger.h"
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseInstallations/Source/Library/Errors/FIRInstallationsErrorUtil.h"
+#import "FirebaseInstallations/Source/Library/FIRInstallationsLogger.h"
+#import "FirebaseInstallations/Source/Library/InstallationsAPI/FIRInstallationsItem+RegisterInstallationAPI.h"
 
 NSString *const kFIRInstallationsAPIBaseURL = @"https://firebaseinstallations.googleapis.com";
 NSString *const kFIRInstallationsAPIKey = @"X-Goog-Api-Key";

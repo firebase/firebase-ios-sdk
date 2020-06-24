@@ -17,13 +17,12 @@
 #import <FirebaseABTesting/ABTExperimentPayload.h>
 #import <FirebaseABTesting/FIRExperimentController.h>
 #import <FirebaseABTesting/FIRLifecycleEvents.h>
-#import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseCore/FIROptionsInternal.h>
 #import <OCMock/OCMock.h>
 #import "FirebaseABTesting/Sources/ABTConditionalUserPropertyController.h"
 #import "FirebaseABTesting/Sources/ABTConstants.h"
 #import "FirebaseABTesting/Tests/Unit/ABTFakeFIRAConditionalUserPropertyController.h"
 #import "FirebaseABTesting/Tests/Unit/ABTTestUniversalConstants.h"
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 @interface ABTConditionalUserPropertyController (ExposedForTest)
 - (NSInteger)maxNumberOfExperimentsOfOrigin:(NSString *)origin;
@@ -347,7 +346,7 @@ typedef void (^FakeAnalyticsLogEventWithOriginNameParametersHandler)(
   id payload1 = OCMClassMock([ABTExperimentPayload class]);
   OCMStub([payload1 experimentId]).andReturn(@"exp_1");
   OCMStub([payload1 variantId]).andReturn(@"variant_group_A");
-  
+
   XCTAssertFalse([_ABTCUPController isExperiment:experiment theSameAsPayload:payload1]);
 
   id payloadJustRight = OCMClassMock([ABTExperimentPayload class]);
@@ -359,7 +358,7 @@ typedef void (^FakeAnalyticsLogEventWithOriginNameParametersHandler)(
 - (void)testOverflowPolicyWithPayload {
   ABTExperimentPayload *payloadUnspecifiedPolicy = [[ABTExperimentPayload alloc] init];
   payloadUnspecifiedPolicy.overflowPolicy = ABTExperimentPayloadExperimentOverflowPolicyUnspecified;
-  
+
   XCTAssertEqual(ABTExperimentPayloadExperimentOverflowPolicyDiscardOldest,
                  [_ABTCUPController overflowPolicyWithPayload:payloadUnspecifiedPolicy
                                                originalPolicy:-1000],

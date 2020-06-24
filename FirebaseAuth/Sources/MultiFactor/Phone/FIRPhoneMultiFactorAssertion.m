@@ -17,7 +17,7 @@
 #include <TargetConditionals.h>
 #if TARGET_OS_IOS
 
-#import <FirebaseAuth/FIRPhoneMultiFactorAssertion.h>
+#import "FirebaseAuth/Sources/Public/FIRPhoneMultiFactorAssertion.h"
 
 #import "FirebaseAuth/Sources/MultiFactor/FIRMultiFactorAssertion+Internal.h"
 #import "FirebaseAuth/Sources/MultiFactor/Phone/FIRPhoneMultiFactorAssertion+Internal.h"

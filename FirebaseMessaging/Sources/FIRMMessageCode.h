@@ -90,12 +90,13 @@ typedef NS_ENUM(NSInteger, FIRMessagingMessageCode) {
   kFIRMessagingMessageCodeConnection022 = 5022,  // I-FCM005022
   kFIRMessagingMessageCodeConnection023 = 5023,  // I-FCM005023
   // FIRMessagingContextManagerService.m
-  kFIRMessagingMessageCodeContextManagerService000 = 6000,  // I-FCM006000
-  kFIRMessagingMessageCodeContextManagerService001 = 6001,  // I-FCM006001
-  kFIRMessagingMessageCodeContextManagerService002 = 6002,  // I-FCM006002
-  kFIRMessagingMessageCodeContextManagerService003 = 6003,  // I-FCM006003
-  kFIRMessagingMessageCodeContextManagerService004 = 6004,  // I-FCM006004
-  kFIRMessagingMessageCodeContextManagerService005 = 6005,  // I-FCM006005
+  kFIRMessagingMessageCodeContextManagerService000 = 6000,                  // I-FCM006000
+  kFIRMessagingMessageCodeContextManagerService001 = 6001,                  // I-FCM006001
+  kFIRMessagingMessageCodeContextManagerService002 = 6002,                  // I-FCM006002
+  kFIRMessagingMessageCodeContextManagerService003 = 6003,                  // I-FCM006003
+  kFIRMessagingMessageCodeContextManagerService004 = 6004,                  // I-FCM006004
+  kFIRMessagingMessageCodeContextManagerService005 = 6005,                  // I-FCM006005
+  kFIRMessagingMessageCodeContextManagerServiceFailedLocalSchedule = 6006,  // I-FCM006006
   // FIRMessagingDataMessageManager.m
   // DO NOT USE 7005
   kFIRMessagingMessageCodeDataMessageManager000 = 7000,  // I-FCM007000

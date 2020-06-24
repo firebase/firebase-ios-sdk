@@ -15,8 +15,8 @@
 #import <XCTest/XCTest.h>
 #import <objc/runtime.h>
 
-#import <GoogleUtilities/GULRuntimeDiff.h>
-#import <GoogleUtilities/GULRuntimeSnapshot.h>
+#import "GoogleUtilities/SwizzlerTestHelpers/GULRuntimeDiff.h"
+#import "GoogleUtilities/SwizzlerTestHelpers/GULRuntimeSnapshot.h"
 
 @interface GULRuntimeSnapshotTestsTestClass : NSObject
 

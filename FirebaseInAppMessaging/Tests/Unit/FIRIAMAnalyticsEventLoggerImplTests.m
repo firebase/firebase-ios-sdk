@@ -20,9 +20,9 @@
 #import "FIRIAMAnalyticsEventLoggerImpl.h"
 #import "FIRIAMClearcutLogger.h"
 
-#import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
-#import <FirebaseAnalyticsInterop/FIRInteropEventNames.h>
-#import <FirebaseAnalyticsInterop/FIRInteropParameterNames.h>
+#import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
+#import "Interop/Analytics/Public/FIRInteropEventNames.h"
+#import "Interop/Analytics/Public/FIRInteropParameterNames.h"
 
 @interface FIRIAMAnalyticsEventLoggerImplTests : XCTestCase
 @property(nonatomic) FIRIAMClearcutLogger *mockClearcutLogger;

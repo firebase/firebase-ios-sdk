@@ -14,9 +14,9 @@
 
 #import <Foundation/Foundation.h>
 
-#import <FirebaseCore/FIRComponent.h>
-#import <FirebaseCore/FIRComponentContainer.h>
-#import <FirebaseCore/FIRLibrary.h>
+#import "FirebaseCore/Sources/Private/FIRComponent.h"
+#import "FirebaseCore/Sources/Private/FIRComponentContainer.h"
+#import "FirebaseCore/Sources/Private/FIRLibrary.h"
 
 @protocol FIRComponentRegistrant;
 

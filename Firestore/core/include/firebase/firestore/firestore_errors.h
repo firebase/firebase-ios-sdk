@@ -30,6 +30,8 @@ enum Error {
   // Note: NSError objects will never have a code with this value.
   kErrorOk = 0,
 
+  kErrorNone = 0,
+
   /** The operation was cancelled (typically by the caller). */
   kErrorCancelled = 1,
 

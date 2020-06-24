@@ -13,6 +13,8 @@ on:
 
 jobs:
   build:
+    # Don't run on private repo unless it is a PR.
+    if: github.repository != 'FirebasePrivate/firebase-ios-sdk' || github.event_name == 'pull_request'
     runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v2
@@ -22,10 +24,12 @@ jobs:
         swift build -v
 
   package:
+    # Don't run on private repo.
+    if: github.event_name == 'schedule' && github.repository != 'FirebasePrivate/firebase-ios-sdk'
     needs: build
+    env:
+      gcs_key: ${{ secrets.GHASecretsGPGPassphrase1 }}
     runs-on: macOS-latest
-    # Only run the `package` job for the cron job, not PRs.
-    if: github.event_name == 'schedule'
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
@@ -34,10 +38,25 @@ jobs:
       run: |
          mkdir -p zip_output_dir
          sh -x scripts/build_zip.sh zip_output_dir
-
     - uses: actions/upload-artifact@v1
       with:
         name: Firebase-actions-dir
         # Zip the entire output directory since the builder adds subdirectories we don't know the
         # name of.
         path: zip_output_dir
+    - name: Install gcloud tool
+      if: ${{ always() }}
+      run: |
+              curl https://sdk.cloud.google.com > install.sh
+              bash install.sh --disable-prompts
+              echo "::add-path::${HOME}/google-cloud-sdk/bin/"
+    - name: Access gcloud account
+      if: ${{ always() }}
+      run: |
+         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/firebase-ios-testing.json.gpg firebase-ios-testing.json "$gcs_key"
+         gcloud auth activate-service-account --key-file firebase-ios-testing.json
+    - name: Update commit hash on GCS if any previous steps failed
+      if: ${{ failure() }}
+      run: scripts/upload_to_gcs.sh "${GITHUB_SHA}" "Fail"
+    - name: Upload zip file to GCS
+      run: scripts/upload_to_gcs.sh "${GITHUB_SHA}" "zip_output_dir"

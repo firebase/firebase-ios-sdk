@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'GoogleUtilities'
-  s.version          = '6.6.0'
+  s.version          = '6.7.0'
   s.summary          = 'Google Utilities for iOS (plus community support for macOS and tvOS)'
 
   s.description      = <<-DESC
@@ -32,8 +32,8 @@ other Google CocoaPods. They're not intended for direct public usage.
 
   s.subspec 'Environment' do |es|
     es.source_files = 'GoogleUtilities/Environment/**/*.[mh]'
-    es.public_header_files = 'GoogleUtilities/Environment/**/*.h'
-    es.private_header_files = 'GoogleUtilities/Environment/**/*.h'
+    es.public_header_files = 'GoogleUtilities/Environment/Private/*.h'
+    es.private_header_files = 'GoogleUtilities/Environment/Private/*.h'
 
     es.dependency 'PromisesObjC', '~> 1.2'
   end
@@ -47,7 +47,7 @@ other Google CocoaPods. They're not intended for direct public usage.
 
 
   s.subspec 'Network' do |ns|
-    ns.source_files = 'GoogleUtilities/Network/**/*.[mh]'
+    ns.source_files = 'GoogleUtilities/Network/*.m', 'GoogleUtilities/Network/Private/*.h'
     ns.public_header_files = 'GoogleUtilities/Network/Private/*.h'
     ns.private_header_files = 'GoogleUtilities/Network/Private/*.h'
     ns.dependency 'GoogleUtilities/NSData+zlib'
@@ -59,8 +59,9 @@ other Google CocoaPods. They're not intended for direct public usage.
   end
 
   s.subspec 'NSData+zlib' do |ns|
-    ns.source_files = 'GoogleUtilities/NSData+zlib/*.[mh]'
-    ns.public_header_files = 'GoogleUtilities/NSData+zlib/GULNSData+zlib.h'
+    ns.source_files = 'GoogleUtilities/NSData+zlib/**/*.[mh]'
+    ns.public_header_files = 'GoogleUtilities/NSData+zlib/Public/*.h', 'GoogleUtilities/NSData+zlib/Private/*.h'
+    ns.private_header_files = 'GoogleUtilities/NSData+zlib/Private/*.h'
     ns.libraries = [
       'z'
     ]
@@ -83,7 +84,13 @@ other Google CocoaPods. They're not intended for direct public usage.
   end
 
   s.subspec 'AppDelegateSwizzler' do |adss|
-    adss.source_files = 'GoogleUtilities/AppDelegateSwizzler/**/*.[mh]', 'GoogleUtilities/SceneDelegateSwizzler/**/*.[mh]', 'GoogleUtilities/Common/*.h'
+    adss.source_files = [
+      'GoogleUtilities/AppDelegateSwizzler/Internal/*.h',
+      'GoogleUtilities/AppDelegateSwizzler/Private/*.h',
+      'GoogleUtilities/AppDelegateSwizzler/*.m',
+      'GoogleUtilities/SceneDelegateSwizzler/**/*.[mh]',
+      'GoogleUtilities/Common/*.h',
+    ]
     adss.public_header_files = 'GoogleUtilities/AppDelegateSwizzler/Private/*.h', 'GoogleUtilities/SceneDelegateSwizzler/Private/*.h'
     adss.private_header_files = 'GoogleUtilities/AppDelegateSwizzler/Private/*.h', 'GoogleUtilities/SceneDelegateSwizzler/Private/*.h'
     adss.dependency 'GoogleUtilities/Logger'

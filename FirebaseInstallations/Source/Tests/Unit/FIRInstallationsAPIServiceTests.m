@@ -18,16 +18,15 @@
 
 #import <OCMock/OCMock.h>
 #import "FBLPromise+Testing.h"
-#import "FIRInstallationsItem+Tests.h"
+#import "FirebaseInstallations/Source/Tests/Utils/FIRInstallationsItem+Tests.h"
 
-#import "FIRInstallationsAPIService.h"
-#import "FIRInstallationsErrorUtil.h"
-#import "FIRInstallationsHTTPError.h"
-#import "FIRInstallationsStoredAuthToken.h"
-#import "FIRInstallationsVersion.h"
+#import "FirebaseInstallations/Source/Library/Errors/FIRInstallationsErrorUtil.h"
+#import "FirebaseInstallations/Source/Library/Errors/FIRInstallationsHTTPError.h"
+#import "FirebaseInstallations/Source/Library/InstallationsAPI/FIRInstallationsAPIService.h"
+#import "FirebaseInstallations/Source/Library/InstallationsStore/FIRInstallationsStoredAuthToken.h"
+#import "FirebaseInstallations/Source/Library/Public/FIRInstallationsVersion.h"
 
-#import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseCore/FIRHeartbeatInfo.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
 
