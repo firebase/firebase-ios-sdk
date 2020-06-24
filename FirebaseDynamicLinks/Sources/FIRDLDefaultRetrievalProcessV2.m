@@ -297,12 +297,11 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSString *)retrievePasteboardContents {
-  __block NSString *pasteboardContents;
-
+  NSString *pasteboardContents;
+#if defined(__IPHONE_14_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 140000
   if (@available(iOS 14.0, *)) {
-    dispatch_group_t pasteboardGroup = dispatch_group_create();
-    dispatch_group_enter(pasteboardGroup);
-
+    dispatch_semaphore_t sem = dispatch_semaphore_create(0);
+    __block NSString *detectedContents;
     NSSet<UIPasteboardDetectionPattern> *detectionPatterns =
         [NSSet setWithArray:@[ UIPasteboardDetectionPatternProbableWebURL ]];
     [[UIPasteboard generalPasteboard]
@@ -310,15 +309,16 @@ NS_ASSUME_NONNULL_BEGIN
                 completionHandler:^(NSSet<UIPasteboardDetectionPattern> *patternSet,
                                     NSError *error) {
                   if ([patternSet containsObject:UIPasteboardDetectionPatternProbableWebURL]) {
-                    pasteboardContents = [UIPasteboard generalPasteboard].string;
+                    detectedContents = [UIPasteboard generalPasteboard].string;
                   }
-                  dispatch_group_leave(pasteboardGroup);
+                  dispatch_semaphore_signal(sem);
                 }];
-
+    dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
+    pasteboardContents = detectedContents;
   } else {
+#endif  // defined(__IPHONE_14_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 140000
     pasteboardContents = [UIPasteboard generalPasteboard].string;
   }
-
   return pasteboardContents;
 }
 
