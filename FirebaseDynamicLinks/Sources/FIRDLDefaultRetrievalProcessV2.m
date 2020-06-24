@@ -298,27 +298,23 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSString *)retrievePasteboardContents {
   NSString *pasteboardContents;
-#if defined(__IPHONE_14_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 140000
-  if (@available(iOS 14.0, *)) {
-    dispatch_semaphore_t sem = dispatch_semaphore_create(0);
-    __block NSString *detectedContents;
-    NSSet<UIPasteboardDetectionPattern> *detectionPatterns =
-        [NSSet setWithArray:@[ UIPasteboardDetectionPatternProbableWebURL ]];
-    [[UIPasteboard generalPasteboard]
-        detectPatternsForPatterns:detectionPatterns
-                completionHandler:^(NSSet<UIPasteboardDetectionPattern> *patternSet,
-                                    NSError *error) {
-                  if ([patternSet containsObject:UIPasteboardDetectionPatternProbableWebURL]) {
-                    detectedContents = [UIPasteboard generalPasteboard].string;
-                  }
-                  dispatch_semaphore_signal(sem);
-                }];
-    dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
-    pasteboardContents = detectedContents;
-  } else {
-#endif  // defined(__IPHONE_14_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 140000
-    pasteboardContents = [UIPasteboard generalPasteboard].string;
-  }
+  #if defined(__IPHONE_14_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 140000
+    if (@available(iOS 14.0, *)) {
+      dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+      __block NSString *detectedContents;
+      NSSet<UIPasteboardDetectionPattern> *detectionPatterns = [NSSet setWithArray:@[UIPasteboardDetectionPatternProbableWebURL]];
+      [[UIPasteboard generalPasteboard] detectPatternsForPatterns:detectionPatterns completionHandler:^(NSSet<UIPasteboardDetectionPattern> *patternSet, NSError *error) {
+        if ([patternSet containsObject:UIPasteboardDetectionPatternProbableWebURL]) {
+          detectedContents = [UIPasteboard generalPasteboard].string;
+        }
+        dispatch_semaphore_signal(semaphore);
+      }];
+      dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
+      pasteboardContents = detectedContents;
+    } else {
+  #endif  // defined(__IPHONE_14_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 140000
+      pasteboardContents = [UIPasteboard generalPasteboard].string;
+    }
   return pasteboardContents;
 }
 
