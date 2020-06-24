@@ -79,6 +79,30 @@
                  ABTExperimentPayloadExperimentOverflowPolicyDiscardOldest);
 }
 
+/// Verifies that we initialize the payload if it has a start time parameter with millis, rather
+/// than a date string.
+- (void)testPayloadInitializesStartTimeWithMillis {
+  ABTExperimentPayload *testPayload = [ABTTestUtilities payloadFromTestFilename:@"TestABTPayload5"];
+  XCTAssertEqual(testPayload.experimentStartTimeMillis, 143);
+}
+
+- (void)testPayloadInitializationWithString {
+  ABTExperimentPayload *unrecognizedOverflowPolicyString =
+      [[ABTExperimentPayload alloc] initWithDictionary:@{@"overflowPolicy" : @"WWDC"}];
+  XCTAssertEqual(unrecognizedOverflowPolicyString.overflowPolicy,
+                 ABTExperimentPayloadExperimentOverflowPolicyUnrecognizedValue);
+
+  ABTExperimentPayload *ignoreNewestOverflowPolicyString =
+      [[ABTExperimentPayload alloc] initWithDictionary:@{@"overflowPolicy" : @"IGNORE_NEWEST"}];
+  XCTAssertEqual(ignoreNewestOverflowPolicyString.overflowPolicy,
+                 ABTExperimentPayloadExperimentOverflowPolicyIgnoreNewest);
+
+  ABTExperimentPayload *discardOldestOverflowPolicyString =
+      [[ABTExperimentPayload alloc] initWithDictionary:@{@"overflowPolicy" : @"DISCARD_OLDEST"}];
+  XCTAssertEqual(discardOldestOverflowPolicyString.overflowPolicy,
+                 ABTExperimentPayloadExperimentOverflowPolicyDiscardOldest);
+}
+
 - (void)testUtilityMethods {
   ABTExperimentPayload *testPayload1 =
       [ABTTestUtilities payloadFromTestFilename:@"TestABTPayload1"];

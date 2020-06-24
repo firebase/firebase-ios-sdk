@@ -16,7 +16,11 @@
 
 static NSString *const kExperimentPayloadKeyExperimentID = @"experimentId";
 static NSString *const kExperimentPayloadKeyVariantID = @"variantId";
+
+// Start time can either be a date string or integer (milliseconds since 1970).
 static NSString *const kExperimentPayloadKeyExperimentStartTime = @"experimentStartTime";
+static NSString *const kExperimentPayloadKeyExperimentStartTimeMillis =
+    @"experimentStartTimeMillis";
 static NSString *const kExperimentPayloadKeyTriggerEvent = @"triggerEvent";
 static NSString *const kExperimentPayloadKeyTriggerTimeoutMillis = @"triggerTimeoutMillis";
 static NSString *const kExperimentPayloadKeyTimeToLiveMillis = @"timeToLiveMillis";
@@ -25,7 +29,11 @@ static NSString *const kExperimentPayloadKeyActivateEventToLog = @"activateEvent
 static NSString *const kExperimentPayloadKeyClearEventToLog = @"clearEventToLog";
 static NSString *const kExperimentPayloadKeyTimeoutEventToLog = @"timeoutEventToLog";
 static NSString *const kExperimentPayloadKeyTTLExpiryEventToLog = @"ttlExpiryEventToLog";
+
 static NSString *const kExperimentPayloadKeyOverflowPolicy = @"overflowPolicy";
+static NSString *const kExperimentPayloadValueDiscardOldestOverflowPolicy = @"DISCARD_OLDEST";
+static NSString *const kExperimentPayloadValueIgnoreNewestOverflowPolicy = @"IGNORE_NEWEST";
+
 static NSString *const kExperimentPayloadKeyOngoingExperiments = @"ongoingExperiments";
 
 @implementation ABTExperimentLite
@@ -67,7 +75,6 @@ static NSString *const kExperimentPayloadKeyOngoingExperiments = @"ongoingExperi
 
 - (instancetype)initWithDictionary:(NSDictionary<NSString *, id> *)dictionary {
   if (self = [super init]) {
-    // Strings.
     _experimentId = dictionary[kExperimentPayloadKeyExperimentID];
     _variantId = dictionary[kExperimentPayloadKeyVariantID];
     _triggerEvent = dictionary[kExperimentPayloadKeyTriggerEvent];
@@ -77,15 +84,37 @@ static NSString *const kExperimentPayloadKeyOngoingExperiments = @"ongoingExperi
     _timeoutEventToLog = dictionary[kExperimentPayloadKeyTimeoutEventToLog];
     _ttlExpiryEventToLog = dictionary[kExperimentPayloadKeyTTLExpiryEventToLog];
 
-    // Other.
-    NSDate *experimentStartTime = [[[self class] experimentStartTimeFormatter]
-        dateFromString:dictionary[kExperimentPayloadKeyExperimentStartTime]];
-    _experimentStartTimeMillis =
-        [@([experimentStartTime timeIntervalSince1970] * 1000) longLongValue];
+    // Experiment start time can either be in the form of a date string or milliseconds since 1970.
+    if (dictionary[kExperimentPayloadKeyExperimentStartTime]) {
+      // Convert from date string.
+      NSDate *experimentStartTime = [[[self class] experimentStartTimeFormatter]
+          dateFromString:dictionary[kExperimentPayloadKeyExperimentStartTime]];
+      _experimentStartTimeMillis =
+          [@([experimentStartTime timeIntervalSince1970] * 1000) longLongValue];
+    } else if (dictionary[kExperimentPayloadKeyExperimentStartTimeMillis]) {
+      // Simply store milliseconds.
+      _experimentStartTimeMillis =
+          [dictionary[kExperimentPayloadKeyExperimentStartTimeMillis] longLongValue];
+      ;
+    }
 
     _triggerTimeoutMillis = [dictionary[kExperimentPayloadKeyTriggerTimeoutMillis] longLongValue];
     _timeToLiveMillis = [dictionary[kExperimentPayloadKeyTimeToLiveMillis] longLongValue];
-    _overflowPolicy = [dictionary[kExperimentPayloadKeyOverflowPolicy] intValue];
+
+    // Overflow policy can be an integer, or string e.g. "DISCARD_OLDEST" or "IGNORE_NEWEST".
+    if ([dictionary[kExperimentPayloadKeyOverflowPolicy] isKindOfClass:[NSString class]]) {
+      // If it's a string, pick against the preset string values.
+      NSString *policy = dictionary[kExperimentPayloadKeyOverflowPolicy];
+      if ([policy isEqualToString:kExperimentPayloadValueDiscardOldestOverflowPolicy]) {
+        _overflowPolicy = ABTExperimentPayloadExperimentOverflowPolicyDiscardOldest;
+      } else if ([policy isEqualToString:kExperimentPayloadValueIgnoreNewestOverflowPolicy]) {
+        _overflowPolicy = ABTExperimentPayloadExperimentOverflowPolicyIgnoreNewest;
+      } else {
+        _overflowPolicy = ABTExperimentPayloadExperimentOverflowPolicyUnrecognizedValue;
+      }
+    } else {
+      _overflowPolicy = [dictionary[kExperimentPayloadKeyOverflowPolicy] intValue];
+    }
 
     NSMutableArray<ABTExperimentLite *> *ongoingExperiments = [[NSMutableArray alloc] init];
 

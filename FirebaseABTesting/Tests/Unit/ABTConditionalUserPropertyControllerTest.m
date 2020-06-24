@@ -22,6 +22,7 @@
 #import "FirebaseABTesting/Sources/ABTConstants.h"
 #import "FirebaseABTesting/Tests/Unit/ABTFakeFIRAConditionalUserPropertyController.h"
 #import "FirebaseABTesting/Tests/Unit/ABTTestUniversalConstants.h"
+#import "FirebaseABTesting/Tests/Unit/Utilities/ABTTestUtilities.h"
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 @interface ABTConditionalUserPropertyController (ExposedForTest)
@@ -356,8 +357,8 @@ typedef void (^FakeAnalyticsLogEventWithOriginNameParametersHandler)(
 }
 
 - (void)testOverflowPolicyWithPayload {
-  ABTExperimentPayload *payloadUnspecifiedPolicy = [[ABTExperimentPayload alloc] init];
-  payloadUnspecifiedPolicy.overflowPolicy = ABTExperimentPayloadExperimentOverflowPolicyUnspecified;
+  ABTExperimentPayload *payloadUnspecifiedPolicy =
+      [ABTTestUtilities payloadFromTestFilename:@"TestABTPayload3"];
 
   XCTAssertEqual(ABTExperimentPayloadExperimentOverflowPolicyDiscardOldest,
                  [_ABTCUPController overflowPolicyWithPayload:payloadUnspecifiedPolicy
@@ -373,7 +374,8 @@ typedef void (^FakeAnalyticsLogEventWithOriginNameParametersHandler)(
       @"Payload policy is unspecified, original policy is valid, use "
       @"original policy.");
 
-  ABTExperimentPayload *payloadDiscardOldest = [[ABTExperimentPayload alloc] init];
+  ABTExperimentPayload *payloadDiscardOldest =
+      [ABTTestUtilities payloadFromTestFilename:@"TestABTPayload1"];
   payloadDiscardOldest.overflowPolicy = ABTExperimentPayloadExperimentOverflowPolicyDiscardOldest;
   XCTAssertEqual(
       ABTExperimentPayloadExperimentOverflowPolicyDiscardOldest,

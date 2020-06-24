@@ -46,9 +46,15 @@ typedef NS_ENUM(int32_t, ABTExperimentPayloadExperimentOverflowPolicy) {
 @property(nonatomic, readonly) ABTExperimentPayloadExperimentOverflowPolicy overflowPolicy;
 @property(nonatomic, readonly) NSArray<ABTExperimentLite *> *ongoingExperiments;
 
-/// Parse from JSON data.
-/// @param data  JSON object as NSData.
+/// Parses an ABTExperimentPayload directly from JSON data.
+/// @param data  JSON object as NSData. Must be reconstructible as an NSDictionary<NSString* , id>.
 + (instancetype)parseFromData:(NSData *)data;
+
+/// Initializes an ABTExperimentPayload from a dictionary with experiment metadata.
+- (instancetype)initWithDictionary:(NSDictionary<NSString *, id> *)dictionary
+    NS_DESIGNATED_INITIALIZER;
+
+- (instancetype)init NS_UNAVAILABLE;
 
 /// Clears the trigger event associated with this payload.
 - (void)clearTriggerEvent;
