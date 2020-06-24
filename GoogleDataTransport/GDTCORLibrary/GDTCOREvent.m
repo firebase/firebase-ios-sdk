@@ -45,9 +45,11 @@
     _target = target;
     _qosTier = GDTCOREventQosDefault;
     _expirationDate = [NSDate dateWithTimeIntervalSinceNow:604800];  // 7 days.
+    
+    GDTCORLogDebug(@"Event %@ created. ID:%@ mappingID: %@ target:%ld", self, _eventID, mappingID,
+    (long)target);
   }
-  GDTCORLogDebug(@"Event %@ created. ID:%@ mappingID: %@ target:%ld", self, _eventID, mappingID,
-                 (long)target);
+
   return self;
 }
 
