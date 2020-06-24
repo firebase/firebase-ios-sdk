@@ -99,9 +99,7 @@ func checkFile(_ file: String, isPublic: Bool) {
       let importFile = line.components(separatedBy: " ")[1]
       if inSwiftPackageElse {
         if importFile.first != "<" {
-          genError(
-            "Import error: \(file):\(lineNum) Import in SWIFT_PACKAGE #else should start with \"<\"."
-          )
+          genError("Import error: \(file):\(lineNum) Import in SWIFT_PACKAGE #else should start with \"<\".")
         }
         continue
       }
@@ -113,9 +111,7 @@ func checkFile(_ file: String, isPublic: Bool) {
         // Public Headers should only use simple file names without paths.
         if isPublic {
           if importFile.contains("/") {
-            genError(
-              "Import error: \(file):\(lineNum) Public header import should not include \"/\""
-            )
+            genError("Import error: \(file):\(lineNum) Public header import should not include \"/\"")
           }
 
         } else if !FileManager.default.fileExists(atPath: repoURL.path + "/" + importFileRaw) {
@@ -132,9 +128,7 @@ func checkFile(_ file: String, isPublic: Bool) {
         if importFileRaw.starts(with: "Firebase") ||
           importFileRaw.starts(with: "GoogleUtilities") ||
           importFileRaw.starts(with: "GoogleDataTransport") {
-          genError(
-            "Import error: \(file):\(lineNum) Imports internal to the repo should use double quotes not \"<\""
-          )
+          genError("Import error: \(file):\(lineNum) Imports internal to the repo should use double quotes not \"<\"")
         }
       }
     }
