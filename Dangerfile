@@ -102,7 +102,7 @@ has_license_changes = didModify(["LICENSE"])
 @has_storage_changes = hasChangesIn("FirebaseStorage/")
 @has_storage_api_changes = hasChangesIn("FirebaseStorage/Sources/Public/")
 
-@has_gdt_changes = hasChangesIn(["GoogleDataTransport/", "GoogleDataTransportCCTSupport/"])
+@has_gdt_changes = hasChangesIn(["GoogleDataTransport/"])
 @has_gdt_api_changes = hasChangesIn("GoogleDataTransport/GDTCORLibrary/Public")
 @has_googleutilities_changes = hasChangesIn("GoogleUtilities/")
 @has_zipbuilder_changes = hasChangesIn("ZipBuilder/")

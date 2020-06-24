@@ -24,10 +24,10 @@ readonly DIR="$( git rev-parse --show-toplevel )"
 
 # Current release of nanopb being used  to build the CCT protos
 readonly NANOPB_VERSION="0.3.9.5"
-readonly NANOPB_TEMPDIR="${DIR}/GoogleDataTransportCCTSupport/nanopb_temp"
+readonly NANOPB_TEMPDIR="${DIR}/GoogleDataTransport/nanopb_temp"
 
-readonly LIBRARY_DIR="${DIR}/GoogleDataTransportCCTSupport/GDTCCTLibrary/"
-readonly PROTO_DIR="${DIR}/GoogleDataTransportCCTSupport/ProtoSupport/Protos/"
+readonly LIBRARY_DIR="${DIR}/GoogleDataTransport/GDTCCTLibrary/"
+readonly PROTO_DIR="${DIR}/GoogleDataTransport/ProtoSupport/Protos/"
 readonly PROTOGEN_DIR="${LIBRARY_DIR}/Protogen/"
 
 rm -rf "${NANOPB_TEMPDIR}"
@@ -46,7 +46,7 @@ echo "Removing existing CCT protos..."
 rm -rf "${PROTOGEN_DIR}/*"
 
 echo "Generating CCT protos..."
-python "${DIR}/GoogleDataTransportCCTSupport/ProtoSupport/proto_generator.py" \
+python "${DIR}/GoogleDataTransport/ProtoSupport/proto_generator.py" \
   --nanopb \
   --protos_dir="${PROTO_DIR}" \
   --pythonpath="${NANOPB_TEMPDIR}/${NANOPB_BIN_DIR}/generator" \

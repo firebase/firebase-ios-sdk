@@ -40,7 +40,6 @@ product can be one of:
   StorageSwift
   SymbolCollision
   GoogleDataTransport
-  GoogleDataTransportCCTSupport
 
 platform can be one of:
   iOS (default)
@@ -506,15 +505,14 @@ case "$product-$platform-$method" in
       build
     ;;
 
-  GoogleDataTransportCCTSupport-watchOS-xcodebuild)
     RunXcodebuild \
-      -workspace 'GoogleDataTransportCCTSupport/GDTCCTWatchOSTestApp/GDTCCTWatchOSTestApp.xcworkspace' \
+      -workspace 'GoogleDataTransport/GDTCCTWatchOSTestApp/GDTCCTWatchOSTestApp.xcworkspace' \
       -scheme "GDTCCTWatchOSIndependentTestAppWatchKitApp" \
       "${xcb_flags[@]}" \
       build
 
     RunXcodebuild \
-      -workspace 'GoogleDataTransportCCTSupport/GDTCCTWatchOSTestApp/GDTCCTWatchOSTestApp.xcworkspace' \
+      -workspace 'GoogleDataTransport/GDTCCTWatchOSTestApp/GDTCCTWatchOSTestApp.xcworkspace' \
       -scheme "GDTCCTWatchOSCompanionTestApp" \
       "${xcb_flags[@]}" \
       build
