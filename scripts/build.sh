@@ -503,7 +503,6 @@ case "$product-$platform-$method" in
       -scheme "GDTWatchOSTestAppWatchKitApp" \
       "${xcb_flags[@]}" \
       build
-    ;;
 
     RunXcodebuild \
       -workspace 'GoogleDataTransport/GDTCCTWatchOSTestApp/GDTCCTWatchOSTestApp.xcworkspace' \
