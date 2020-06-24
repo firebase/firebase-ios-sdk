@@ -76,7 +76,7 @@ std::set<std::string> CollectUserSet(LevelDbTransaction* transaction) {
 
 }  // namespace
 
-util::StatusOr<std::unique_ptr<LevelDbPersistence>> LevelDbPersistence::Create(
+StatusOr<std::unique_ptr<LevelDbPersistence>> LevelDbPersistence::Create(
     util::Path dir, LocalSerializer serializer, const LruParams& lru_params) {
   auto* fs = Filesystem::Default();
   Status status = EnsureDirectory(dir);
@@ -178,10 +178,12 @@ util::Status LevelDbPersistence::ClearPersistence(
   return fs->RecursivelyRemove(leveldb_dir);
 }
 
-util::StatusOr<int64_t> LevelDbPersistence::CalculateByteSize() {
+StatusOr<int64_t> LevelDbPersistence::CalculateByteSize() {
   auto* fs = Filesystem::Default();
 
-  int64_t count = 0;
+  // Accumulate the total size in an unsigned quantity to avoid undefined
+  // behavior on overflow.
+  uint64_t count = 0;
   auto iter = util::DirectoryIterator::Create(directory_);
   for (; iter->Valid(); iter->Next()) {
     StatusOr<int64_t> maybe_size = fs->FileSize(iter->file());
@@ -190,19 +192,21 @@ util::StatusOr<int64_t> LevelDbPersistence::CalculateByteSize() {
                                maybe_size.status());
     }
 
+    uint64_t old_count = count;
     int64_t file_size = maybe_size.ValueOrDie();
     count += file_size;
+
+    if (count < old_count || count > std::numeric_limits<int64_t>::max()) {
+      return Status(Error::kErrorOutOfRange,
+                    "Failed to size LevelDB: count overflowed");
+    }
   }
 
   if (!iter->status().ok()) {
     return Status::FromCause("Failed to iterate over LevelDB files",
                              iter->status());
   }
-  if (count < 0) {
-    return Status(Error::kErrorOutOfRange,
-                  "Failed to size LevelDB: count overflowed");
-  }
-  return count;
+  return static_cast<int64_t>(count);
 }
 
 // MARK: - Persistence

@@ -37,7 +37,7 @@ Status Status::FromCause(std::string message, const Status& cause) {
     return cause;
   }
 
-  return Status(cause.code(), message).CausedBy(cause);
+  return Status(cause.code(), std::move(message)).CausedBy(cause);
 }
 
 void Status::Update(const Status& new_status) {
