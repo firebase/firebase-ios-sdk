@@ -1,3 +1,6 @@
+# 2020-07-06 -- v0.21.1
+- [changed] Updated In-App Messaging to consume the Protobuf-less AB Testing SDK (#5890).
+
 # 2020-06-02 -- v0.20.2
 - [fixed] Fixed log message for in-app messaging test on device flow (#5680).
 
