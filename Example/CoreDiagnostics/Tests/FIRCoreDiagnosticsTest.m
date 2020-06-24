@@ -22,7 +22,6 @@
 #import <GoogleDataTransport/GDTCOREvent.h>
 #import <GoogleDataTransport/GDTCOREventDataObject.h>
 #import <GoogleDataTransport/GDTCORTransport.h>
-#import <GoogleDataTransportCCTSupport/GDTCCTPrioritizer.h>
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import <OCMock/OCMock.h>
 #import <nanopb/pb_decode.h>
