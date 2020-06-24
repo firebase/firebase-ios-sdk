@@ -23,14 +23,10 @@ NS_ASSUME_NONNULL_BEGIN
 @interface GDTCOREvent ()
 
 /** The unique ID of the event. This property is for testing only. */
-@property(nonatomic, readwrite) NSNumber *eventID;
+@property(nonatomic, readwrite) NSString *eventID;
 
-/** Generates incrementing event IDs, stored in a file in the app's cache.
- *
- * @param onComplete The block to run once the next event ID has been generated.
- */
-+ (void)nextEventIDForTarget:(GDTCORTarget)target
-                  onComplete:(void (^)(NSNumber *_Nullable eventID))onComplete;
+/** Generates a unique event ID. */
++ (NSString *)nextEventID;
 
 @end
 

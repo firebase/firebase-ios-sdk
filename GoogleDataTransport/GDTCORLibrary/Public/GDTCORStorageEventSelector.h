@@ -28,7 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(readonly, nonatomic) GDTCORTarget selectedTarget;
 
 /** Finds a specific event. */
-@property(nullable, readonly, nonatomic) NSSet<NSNumber *> *selectedEventIDs;
+@property(nullable, readonly, nonatomic) NSSet<NSString *> *selectedEventIDs;
 
 /** Finds all events of a mappingID. */
 @property(nullable, readonly, nonatomic) NSSet<NSString *> *selectedMappingIDs;
@@ -52,7 +52,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @return An immutable event selector instance.
  */
 - (instancetype)initWithTarget:(GDTCORTarget)target
-                      eventIDs:(nullable NSSet<NSNumber *> *)eventIDs
+                      eventIDs:(nullable NSSet<NSString *> *)eventIDs
                     mappingIDs:(nullable NSSet<NSString *> *)mappingIDs
                       qosTiers:(nullable NSSet<NSNumber *> *)qosTiers;
 

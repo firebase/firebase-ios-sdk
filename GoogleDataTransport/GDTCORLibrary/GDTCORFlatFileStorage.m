@@ -30,11 +30,8 @@
 /** A library data key this class uses to track batchIDs. */
 static NSString *const gBatchIDCounterKey = @"GDTCORFlatFileStorageBatchIDCounter";
 
-/** A library data key this classes uses to track batches and their associated eventIDs. */
-static NSString *const gBatchesToEventsIDsKey = @"GDTCORFlatFileStorageBatchIDCounter";
-
 /** The separator used between metadata elements in filenames. */
-static NSString *const kMetadataSeparator = @"-";
+static NSString *const kMetadataSeparator = @"|";
 
 NSString *const kGDTCOREventComponentsEventIDKey = @"GDTCOREventComponentsEventIDKey";
 
@@ -503,12 +500,12 @@ NSString *const kGDTCORBatchComponentsExpirationKey = @"GDTCORBatchComponentsExp
 }
 
 + (NSString *)pathForTarget:(GDTCORTarget)target
-                    eventID:(NSNumber *)eventID
+                    eventID:(NSString *)eventID
                     qosTier:(NSNumber *)qosTier
              expirationDate:(NSDate *)expirationDate
                   mappingID:(NSString *)mappingID {
   NSMutableCharacterSet *allowedChars = [[NSCharacterSet alphanumericCharacterSet] mutableCopy];
-  [allowedChars addCharactersInString:@"-"];
+  [allowedChars addCharactersInString:kMetadataSeparator];
   mappingID = [mappingID stringByAddingPercentEncodingWithAllowedCharacters:allowedChars];
   return [NSString stringWithFormat:@"%@/%ld/%@%@%@%@%llu%@%@",
                                     [GDTCORFlatFileStorage eventDataStoragePath], (long)target,
@@ -518,7 +515,7 @@ NSString *const kGDTCORBatchComponentsExpirationKey = @"GDTCORBatchComponentsExp
 }
 
 - (void)pathsForTarget:(GDTCORTarget)target
-              eventIDs:(nullable NSSet<NSNumber *> *)eventIDs
+              eventIDs:(nullable NSSet<NSString *> *)eventIDs
               qosTiers:(nullable NSSet<NSNumber *> *)qosTiers
             mappingIDs:(nullable NSSet<NSString *> *)mappingIDs
             onComplete:(void (^)(NSSet<NSString *> *paths))onComplete {
@@ -559,7 +556,7 @@ NSString *const kGDTCORBatchComponentsExpirationKey = @"GDTCORBatchComponentsExp
         GDTCORLogDebug(@"There was an error reading the filename components: %@", eventComponents);
         continue;
       }
-      NSNumber *eventID = eventComponents[kGDTCOREventComponentsEventIDKey];
+      NSString *eventID = eventComponents[kGDTCOREventComponentsEventIDKey];
       NSNumber *qosTier = eventComponents[kGDTCOREventComponentsQoSTierKey];
       NSString *mappingID = eventComponents[kGDTCOREventComponentsMappingIDKey];
 
@@ -605,7 +602,7 @@ NSString *const kGDTCORBatchComponentsExpirationKey = @"GDTCORBatchComponentsExp
 - (nullable NSDictionary<NSString *, id> *)eventComponentsFromFilename:(NSString *)fileName {
   NSArray<NSString *> *components = [fileName componentsSeparatedByString:kMetadataSeparator];
   if (components.count >= 4) {
-    NSNumber *eventID = @(components[0].integerValue);
+    NSString *eventID = components[0];
     NSNumber *qosTier = @(components[1].integerValue);
     NSDate *expirationDate = [NSDate dateWithTimeIntervalSince1970:components[2].longLongValue];
     NSString *mappingID = [[components subarrayWithRange:NSMakeRange(3, components.count - 3)]

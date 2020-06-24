@@ -437,7 +437,7 @@
       filteredSetUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(
                                                  GDTCOREvent *_Nullable event,
                                                  NSDictionary<NSString *, id> *_Nullable bindings) {
-        return anyEvent.target == event.target && [event.eventID isEqualToNumber:anyEvent.eventID];
+        return anyEvent.target == event.target && [event.eventID isEqualToString:anyEvent.eventID];
       }]];
 
   XCTestExpectation *expectation = [self expectationWithDescription:@"paths found"];
@@ -461,9 +461,9 @@
                                                  GDTCOREvent *_Nullable event,
                                                  NSDictionary<NSString *, id> *_Nullable bindings) {
         return (anyEvent.target == event.target &&
-                [event.eventID isEqualToNumber:anyEvent.eventID]) ||
+                [event.eventID isEqualToString:anyEvent.eventID]) ||
                (anotherEvent.target == event.target &&
-                [event.eventID isEqualToNumber:anotherEvent.eventID]);
+                [event.eventID isEqualToString:anotherEvent.eventID]);
       }]];
 
   expectation = [self expectationWithDescription:@"paths found"];
@@ -559,7 +559,7 @@
                                                  GDTCOREvent *_Nullable event,
                                                  NSDictionary<NSString *, id> *_Nullable bindings) {
         return event.target == anyEvent.target &&
-               [event.eventID isEqualToNumber:anyEvent.eventID] &&
+               [event.eventID isEqualToString:anyEvent.eventID] &&
                event.qosTier == anyEvent.qosTier;
       }]];
 
