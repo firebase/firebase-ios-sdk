@@ -83,14 +83,18 @@ jobs:
       run: SAMPLE="$SDK" TARGET="${SDK}Example" scripts/setup_quickstart_framework.sh \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseRemoteConfig/* \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
+    - name: Setup swift quickstart
+      run: SAMPLE="$SDK" TARGET="${SDK}ExampleSwift" scripts/setup_quickstart_framework.sh
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-config.plist.gpg \
         quickstart-ios/config/GoogleService-Info.plist "$plist_secret"
     - name: Install Secret FIREGSignInInfo.h
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/FIREGSignInInfo.h.gpg \
         quickstart-ios/TestUtils/FIREGSignInInfo.h "$signin_secret"
-    - name: Test Quickstart
+    - name: Test objc Quickstart
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}")
+    - name: Test swift Quickstart
+      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}" swift)
     - name: Remove data before upload
       if: ${{ failure() }}
       run: scripts/remove_data.sh "${SDK}"

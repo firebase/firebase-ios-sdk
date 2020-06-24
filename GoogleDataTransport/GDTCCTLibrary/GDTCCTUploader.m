@@ -31,13 +31,13 @@
 
 #import "GDTCCTLibrary/Protogen/nanopb/cct.nanopb.h"
 
-#ifdef GDTCCTSUPPORT_VERSION
+#ifdef GDTCOR_VERSION
 #define STR(x) STR_EXPAND(x)
 #define STR_EXPAND(x) #x
-static NSString *const kGDTCCTSupportSDKVersion = @STR(GDTCCTSUPPORT_VERSION);
+static NSString *const kGDTCCTSupportSDKVersion = @STR(GDTCOR_VERSION);
 #else
 static NSString *const kGDTCCTSupportSDKVersion = @"UNKNOWN";
-#endif  // GDTCCTSUPPORT_VERSION
+#endif  // GDTCOR_VERSION
 
 /** */
 static NSInteger kWeekday;
