@@ -270,7 +270,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (nullable NSURL *)uniqueMatchLinkToCheck {
   _clipboardContentAtMatchProcessStart = nil;
-  NSString *pasteboardContents = [UIPasteboard generalPasteboard].string;
+  NSString *pasteboardContents = [self retrievePasteboardContents];
   NSInteger linkStringMinimumLength =
       expectedCopiedLinkStringSuffix.length + /* ? or & */ 1 + /* http:// */ 7;
   if ((pasteboardContents.length >= linkStringMinimumLength) &&
@@ -294,6 +294,32 @@ NS_ASSUME_NONNULL_BEGIN
     }
   }
   return nil;
+}
+
+- (NSString *)retrievePasteboardContents {
+  __block NSString *pasteboardContents;
+
+  if (@available(iOS 14.0, *)) {
+    dispatch_group_t pasteboardGroup = dispatch_group_create();
+    dispatch_group_enter(pasteboardGroup);
+
+    NSSet<UIPasteboardDetectionPattern> *detectionPatterns =
+        [NSSet setWithArray:@[ UIPasteboardDetectionPatternProbableWebURL ]];
+    [[UIPasteboard generalPasteboard]
+        detectPatternsForPatterns:detectionPatterns
+                completionHandler:^(NSSet<UIPasteboardDetectionPattern> *patternSet,
+                                    NSError *error) {
+                  if ([patternSet containsObject:UIPasteboardDetectionPatternProbableWebURL]) {
+                    pasteboardContents = [UIPasteboard generalPasteboard].string;
+                  }
+                  dispatch_group_leave(pasteboardGroup);
+                }];
+
+  } else {
+    pasteboardContents = [UIPasteboard generalPasteboard].string;
+  }
+
+  return pasteboardContents;
 }
 
 - (void)clearUsedUniqueMatchLinkToCheckFromClipboard {
