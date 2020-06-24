@@ -54,9 +54,10 @@ static NSString *const kExperimentPayloadKeyOngoingExperiments = @"ongoingExperi
 
 + (instancetype)parseFromData:(NSData *)data {
   NSError *error;
-  NSDictionary *experimentDictionary = [NSJSONSerialization JSONObjectWithData:data
-                                                                       options:NSJSONReadingAllowFragments
-                                                                         error:&error];
+  NSDictionary *experimentDictionary =
+      [NSJSONSerialization JSONObjectWithData:data
+                                      options:NSJSONReadingAllowFragments
+                                        error:&error];
   if (error != nil) {
     return nil;
   } else {
