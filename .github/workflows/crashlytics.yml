@@ -66,7 +66,7 @@ jobs:
               chmod +x quickstart-ios/crashlytics/run
               chmod +x quickstart-ios/crashlytics/upload-symbols
     - name: Setup swift quickstart
-      run: SAMPLE="$SDK" TARGET="${SDK}Example" scripts/setup_quickstart_framework.sh
+      run: SAMPLE="$SDK" TARGET="${SDK}ExampleSwift" scripts/setup_quickstart_framework.sh
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-crashlytics.plist.gpg \
         quickstart-ios/crashlytics/GoogleService-Info.plist "$plist_secret"
