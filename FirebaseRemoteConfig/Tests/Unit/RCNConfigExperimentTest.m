@@ -237,7 +237,7 @@
 #pragma mark Helpers.
 
 - (ABTExperimentPayload *)deserializeABTData:(NSData *)payload {
-    return [ABTExperimentPayload parseFromData:payload];
+  return [ABTExperimentPayload parseFromData:payload];
 }
 
 - (int64_t)convertTimeToMillis:(NSString *)time {
@@ -254,8 +254,7 @@
 
 + (NSData *)payloadDataFromTestFile {
   NSString *testJsonDataFilePath =
-      [[NSBundle bundleForClass:[self class]] pathForResource:@"TestABTPayload"
-                                                       ofType:@"txt"];
+      [[NSBundle bundleForClass:[self class]] pathForResource:@"TestABTPayload" ofType:@"txt"];
   NSError *readTextError = nil;
   NSString *fileText = [[NSString alloc] initWithContentsOfFile:testJsonDataFilePath
                                                        encoding:NSUTF8StringEncoding
