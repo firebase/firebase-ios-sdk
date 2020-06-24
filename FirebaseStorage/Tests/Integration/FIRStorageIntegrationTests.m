@@ -12,13 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import <FirebaseAuth/FirebaseAuth.h>
-#import <FirebaseStorage/FirebaseStorage.h>
 #import <XCTest/XCTest.h>
+
+#import "FirebaseStorage/Sources/Public/FirebaseStorage.h"
+
+#import <FirebaseAuth/FirebaseAuth.h>
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
-#import "Credentials.h"
+#import "FirebaseStorage/Tests/Integration/Credentials.h"
 
 NSTimeInterval kFIRStorageIntegrationTestTimeout = 60;
 

@@ -16,8 +16,6 @@
 
 #import <XCTest/XCTest.h>
 
-#import <GoogleUtilities/GULSwizzler+Unswizzle.h>
-#import <GoogleUtilities/GULSwizzler.h>
 #import <OCMock/OCMock.h>
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "FirebaseDynamicLinks/Sources/FIRDLDefaultRetrievalProcessV2.h"
@@ -28,6 +26,8 @@
 #import "FirebaseDynamicLinks/Sources/FIRDynamicLinks+FirstParty.h"
 #import "FirebaseDynamicLinks/Sources/FIRDynamicLinks+Private.h"
 #import "FirebaseDynamicLinks/Sources/Utilities/FDLUtilities.h"
+#import "GoogleUtilities/MethodSwizzler/Private/GULSwizzler.h"
+#import "GoogleUtilities/SwizzlerTestHelpers/GULSwizzler+Unswizzle.h"
 #import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 
 static NSString *const kAPIKey = @"myAPIKey";

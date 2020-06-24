@@ -1,7 +1,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'GoogleDataTransportCCTSupport'
-  s.version          = '3.1.0'
+  s.version          = '4.0.0'
   s.summary          = 'Support library for the GoogleDataTransport CCT backend target.'
 
 
@@ -37,7 +37,7 @@ Support library to provide event prioritization and uploading for the GoogleData
 
   s.libraries = ['z']
 
-  s.dependency 'GoogleDataTransport', '~> 6.1'
+  s.dependency 'GoogleDataTransport', '~> 7.0'
   s.dependency 'nanopb', '~> 1.30905.0'
 
   header_search_paths = {
@@ -72,11 +72,13 @@ Support library to provide event prioritization and uploading for the GoogleData
     end
   end
 
+  common_test_sources = ['GoogleDataTransportCCTSupport/GDTCCTTests/Common/**/*.{h,m}']
+
   # Test specs
   s.test_spec 'Tests-Unit' do |test_spec|
     test_spec.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
     test_spec.requires_app_host = false
-    test_spec.source_files = 'GoogleDataTransportCCTSupport/GDTCCTTests/Unit/**/*.{h,m}'
+    test_spec.source_files = ['GoogleDataTransportCCTSupport/GDTCCTTests/Unit/**/*.{h,m}'] + common_test_sources
     test_spec.resources = ['GoogleDataTransportCCTSupport/GDTCCTTests/Data/**/*']
     test_spec.pod_target_xcconfig = header_search_paths
     test_spec.dependency 'GCDWebServer'
@@ -85,7 +87,7 @@ Support library to provide event prioritization and uploading for the GoogleData
   s.test_spec 'Tests-Integration' do |test_spec|
     test_spec.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
     test_spec.requires_app_host = false
-    test_spec.source_files = 'GoogleDataTransportCCTSupport/GDTCCTTests/Integration/**/*.{h,m}'
+    test_spec.source_files = ['GoogleDataTransportCCTSupport/GDTCCTTests/Integration/**/*.{h,m}'] + common_test_sources
     test_spec.resources = ['GoogleDataTransportCCTSupport/GDTCCTTests/Data/**/*']
     test_spec.pod_target_xcconfig = header_search_paths
   end
@@ -97,7 +99,7 @@ Support library to provide event prioritization and uploading for the GoogleData
       test_spec.requires_app_host = true
       test_spec.app_host_name = 'GoogleDataTransportCCTSupport/TestApp'
       test_spec.dependency 'GoogleDataTransportCCTSupport/TestApp'
-      test_spec.source_files = ['GoogleDataTransportCCTSupport/GDTCCTTests/Monkey/**/*.{swift}']
+      test_spec.source_files = ['GoogleDataTransportCCTSupport/GDTCCTTests/Monkey/**/*.{swift}'] + common_test_sources
       test_spec.info_plist = {
         'GDT_MONKEYTEST' => '1'
       }

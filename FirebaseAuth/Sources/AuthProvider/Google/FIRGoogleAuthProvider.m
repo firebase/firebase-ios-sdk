@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import <FirebaseAuth/FIRGoogleAuthProvider.h>
+#import "FirebaseAuth/Sources/Public/FIRGoogleAuthProvider.h"
 
 #import "FirebaseAuth/Sources/AuthProvider/Google/FIRGoogleAuthCredential.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthExceptionUtils.h"

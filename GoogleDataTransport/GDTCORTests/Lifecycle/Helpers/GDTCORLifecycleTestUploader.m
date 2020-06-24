@@ -18,11 +18,7 @@
 
 @implementation GDTCORLifecycleTestUploader
 
-- (void)uploadPackage:(GDTCORUploadPackage *)package {
-}
-
-- (BOOL)readyToUploadTarget:(GDTCORTarget)target conditions:(GDTCORUploadConditions)conditions {
-  return YES;
+- (void)uploadTarget:(GDTCORTarget)target withConditions:(GDTCORUploadConditions)conditions {
 }
 
 @end

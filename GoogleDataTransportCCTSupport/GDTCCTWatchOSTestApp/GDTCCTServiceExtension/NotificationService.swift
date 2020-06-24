@@ -23,7 +23,7 @@ class NotificationService: UNNotificationServiceExtension {
   var bestAttemptContent: UNMutableNotificationContent?
 
   var transport: GDTCORTransport = GDTCORTransport(mappingID: "1018", transformers: nil,
-                                                   target: GDTCORTarget.FLL.rawValue)!
+                                                   target: GDTCORTarget.FLL)!
 
   override func didReceive(_ request: UNNotificationRequest,
                            withContentHandler contentHandler: @escaping (UNNotificationContent)

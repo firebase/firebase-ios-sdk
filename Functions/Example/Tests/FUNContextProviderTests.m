@@ -15,7 +15,7 @@
 #import <XCTest/XCTest.h>
 
 #import "FIRAuthInteropFake.h"
-#import "FUNContext.h"
+#import "Functions/FirebaseFunctions/FUNContext.h"
 
 @interface FUNContextProviderTests : XCTestCase
 @end

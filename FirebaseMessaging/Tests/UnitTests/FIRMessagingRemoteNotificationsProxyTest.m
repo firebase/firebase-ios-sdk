@@ -22,7 +22,7 @@
 #import <XCTest/XCTest.h>
 
 #import <FirebaseMessaging/FIRMessaging.h>
-#import <GoogleUtilities/GULAppDelegateSwizzler.h>
+#import "GoogleUtilities/AppDelegateSwizzler/Private/GULAppDelegateSwizzler.h"
 
 #import "FirebaseMessaging/Sources/FIRMessagingRemoteNotificationsProxy.h"
 

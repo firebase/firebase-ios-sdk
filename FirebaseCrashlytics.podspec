@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseCrashlytics'
-  s.version          = '4.1.1'
+  s.version          = '4.2.0'
   s.summary          = 'Best and lightest-weight crash reporting for mobile, desktop and tvOS.'
   s.description      = 'Firebase Crashlytics helps you track, prioritize, and fix stability issues that erode app quality.'
   s.homepage         = 'https://firebase.google.com/'
@@ -25,6 +25,7 @@ Pod::Spec.new do |s|
     'Crashlytics/Shared/**/*.{c,h,m,mm}',
     'Crashlytics/third_party/**/*.{c,h,m,mm}',
     'FirebaseCore/Sources/Private/*.h',
+    'FirebaseInstallations/Source/Private/*.h',
     'Interop/Analytics/Public/*.h',
   ]
 
@@ -48,8 +49,8 @@ Pod::Spec.new do |s|
   s.dependency 'FirebaseCore', '~> 6.8'
   s.dependency 'FirebaseInstallations', '~> 1.1'
   s.dependency 'PromisesObjC', '~> 1.2'
-  s.dependency 'GoogleDataTransport', '~> 6.1'
-  s.dependency 'GoogleDataTransportCCTSupport', '~> 3.1'
+  s.dependency 'GoogleDataTransport', '~> 7.0'
+  s.dependency 'GoogleDataTransportCCTSupport', '~> 4.0'
   s.dependency 'nanopb', '~> 1.30905.0'
 
   s.libraries = 'c++', 'z'

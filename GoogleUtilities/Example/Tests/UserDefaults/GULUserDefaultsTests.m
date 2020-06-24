@@ -15,8 +15,8 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
-#import <GoogleUtilities/GULMutableDictionary.h>
-#import <GoogleUtilities/GULUserDefaults.h>
+#import "GoogleUtilities/Network/Private/GULMutableDictionary.h"
+#import "GoogleUtilities/UserDefaults/Private/GULUserDefaults.h"
 
 static const double sEpsilon = 0.001;
 

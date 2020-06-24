@@ -153,12 +153,7 @@ gdt_cct_LogEvent GDTCCTConstructLogEvent(GDTCOREvent *event) {
   }
   NSError *error;
   NSData *extensionBytes;
-  if (event.fileURL) {
-    extensionBytes = [NSData dataWithContentsOfFile:event.fileURL.path options:0 error:&error];
-  } else {
-    GDTCORLogError(GDTCORMCEFileReadError, @"%@", @"An event's fileURL property was nil.");
-    return logEvent;
-  }
+  extensionBytes = event.serializedDataObjectBytes;
   if (error) {
     GDTCORLogWarning(GDTCORMCWFileReadError,
                      @"There was an error reading extension bytes from disk: %@", error);
@@ -198,7 +193,7 @@ gdt_cct_IosClientInfo GDTCCTConstructiOSClientInfo() {
   if (countryCode) {
     iOSClientInfo.country = GDTCCTEncodeString([locale objectForKey:NSLocaleCountryCode]);
   }
-  iOSClientInfo.model = GDTCCTEncodeString(device.model);
+  iOSClientInfo.model = GDTCCTEncodeString(GDTCORDeviceModel());
   NSString *languageCode = bundle.preferredLocalizations.firstObject;
   iOSClientInfo.language_code =
       languageCode ? GDTCCTEncodeString(languageCode) : GDTCCTEncodeString(@"en");

@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import <FirebaseInstallations/FIRInstallationsErrors.h>
+#import "FirebaseInstallations/Source/Library/Public/FIRInstallationsErrors.h"
 
 @class FIRInstallationsHTTPError;
 
