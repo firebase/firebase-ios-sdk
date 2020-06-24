@@ -24,6 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (ABTExperimentPayload *)payloadFromTestFilename:(NSString *)filename;
 
 /// Generates a serialized JSON object from the test file directory.
+/// @param modifiedStartTime clobbers the start time for the experiment from the test file.
 + (NSData *)payloadJSONDataFromFile:(NSString *)filename
                   modifiedStartTime:(nullable NSDate *)modifiedStartTime;
 
