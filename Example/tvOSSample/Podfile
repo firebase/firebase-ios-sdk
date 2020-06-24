@@ -11,6 +11,5 @@ target 'tvOSSample' do
   pod 'FirebaseDatabase', :path => '../../'
   pod 'FirebaseStorage', :path => '../../'
   pod 'GoogleDataTransport', :path => '../../'
-  pod 'GoogleDataTransportCCTSupport', :path => '../../'
 
 end

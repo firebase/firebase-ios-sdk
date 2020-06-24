@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import Foundation
-// import Firebase
+import Firebase
 import FirebaseCore
 import FirebaseAuth
 import FirebaseFunctions
@@ -22,7 +22,6 @@ import FirebaseInstallations
 import FirebaseStorage
 import FirebaseStorageSwift
 // import GoogleDataTransport
-// import GoogleDataTransportCCTSupport
 import GoogleUtilities_AppDelegateSwizzler
 import GoogleUtilities_Environment
 import GoogleUtilities_Logger
