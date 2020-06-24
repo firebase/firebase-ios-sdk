@@ -16,8 +16,19 @@
 #
 
 # From https://stackoverflow.com/questions/59895/getting-the-source-directory-of-a-bash-script-from-within
+
+# USAGE: build.sh [platform]
+# platform is ios, macos, or tvos
+
+platform="ios"
+if [[ $# -gt 0 ]]; then
+  platform="$1"
+fi
+
+echo $platform
+
 readonly DIR="$(git rev-parse --show-toplevel)"
 
 "$DIR/GoogleDataTransport/ProtoSupport/generate_cct_protos.sh" || echo "Something went wrong generating protos.";
 
-pod gen "$DIR/GoogleDataTransport.podspec" --auto-open --gen-directory="$DIR/gen" --platforms=ios,macos,tvos --clean
+pod gen "$DIR/GoogleDataTransport.podspec" --auto-open --gen-directory="$DIR/gen" --platforms=${platform} --clean
