@@ -36,10 +36,10 @@ typedef NS_ENUM(int32_t, ABTExperimentPayloadExperimentOverflowPolicy) {
 
 @property(nonatomic, readonly, copy) NSString *experimentId;
 @property(nonatomic, readonly, copy) NSString *variantId;
-@property(nonatomic, readonly) NSInteger experimentStartTimeMillis;
+@property(nonatomic, readonly) NSUInteger experimentStartTimeMillis;
 @property(nonatomic, nullable, readonly, copy) NSString *triggerEvent;
-@property(nonatomic, readonly) NSInteger triggerTimeoutMillis;
-@property(nonatomic, readonly) NSInteger timeToLiveMillis;
+@property(nonatomic, readonly) NSUInteger triggerTimeoutMillis;
+@property(nonatomic, readonly) NSUInteger timeToLiveMillis;
 @property(nonatomic, readonly, copy) NSString *setEventToLog;
 @property(nonatomic, readonly, copy) NSString *activateEventToLog;
 @property(nonatomic, readonly, copy) NSString *clearEventToLog;
