@@ -21,8 +21,8 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation ABTTestUtilities
 
 + (ABTExperimentPayload *)payloadFromTestFilename:(NSString *)filename {
-  NSString *testJsonDataFilePath = [[NSBundle bundleForClass:[ABTTestUtilities class]] pathForResource:filename
-                                                                                    ofType:@"txt"];
+  NSString *testJsonDataFilePath =
+      [[NSBundle bundleForClass:[ABTTestUtilities class]] pathForResource:filename ofType:@"txt"];
   NSError *readTextError = nil;
   NSString *fileText = [[NSString alloc] initWithContentsOfFile:testJsonDataFilePath
                                                        encoding:NSUTF8StringEncoding
@@ -34,19 +34,43 @@ NS_ASSUME_NONNULL_BEGIN
   return [ABTExperimentPayload parseFromData:[fileText dataUsingEncoding:NSUTF8StringEncoding]];
 }
 
-+ (NSData *)JSONDataFromFile:(NSString *)filename {
-  NSString *testJsonDataFilePath = [[NSBundle bundleForClass:[ABTTestUtilities class]] pathForResource:filename
-                                                                                    ofType:@"txt"];
++ (NSData *)payloadJSONDataFromFile:(NSString *)filename
+                  modifiedStartTime:(nullable NSDate *)modifiedStartTime {
+  NSString *testJsonDataFilePath =
+      [[NSBundle bundleForClass:[ABTTestUtilities class]] pathForResource:filename ofType:@"txt"];
   NSError *readTextError = nil;
   NSString *fileText = [[NSString alloc] initWithContentsOfFile:testJsonDataFilePath
                                                        encoding:NSUTF8StringEncoding
                                                           error:&readTextError];
-  
-  NSError *jsonError = nil;
-  
-  return [NSJSONSerialization dataWithJSONObject:fileText
-                                         options:NSJSONWritingFragmentsAllowed
-                                           error:&jsonError];
+
+  NSData *fileData = [fileText dataUsingEncoding:kCFStringEncodingUTF8];
+
+  NSError *jsonDictionaryError = nil;
+  NSMutableDictionary *jsonDictionary =
+      [[NSJSONSerialization JSONObjectWithData:fileData
+                                       options:kNilOptions
+                                         error:&jsonDictionaryError] mutableCopy];
+  if (modifiedStartTime) {
+    jsonDictionary[@"experimentStartTime"] =
+        [[ABTTestUtilities class] dateStringForStartTime:modifiedStartTime];
+  }
+
+  NSError *jsonDataError = nil;
+  return [NSJSONSerialization dataWithJSONObject:jsonDictionary
+                                         options:kNilOptions
+                                           error:&jsonDataError];
+}
+
++ (NSString *)dateStringForStartTime:(NSDate *)startTime {
+  NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+  [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"];
+  [dateFormatter setTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0]];
+  // Locale needs to be hardcoded. See
+  // https://developer.apple.com/library/ios/#qa/qa1480/_index.html for more details.
+  [dateFormatter setLocale:[[NSLocale alloc] initWithLocaleIdentifier:@"en_US_POSIX"]];
+  [dateFormatter setTimeZone:[NSTimeZone timeZoneWithAbbreviation:@"UTC"]];
+
+  return [dateFormatter stringFromDate:startTime];
 }
 
 @end

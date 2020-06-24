@@ -1,6 +1,6 @@
 {
-  "experimentId": "exp_5",
-  "variantId": "var_1",
+  "experimentId": "exp_2",
+  "variantId": "v2",
   "experimentStartTime": "2021-02-09T00:00:00.000Z",
   "triggerTimeoutMillis": 17392000000,
   "timeToLiveMillis": 17392000000,

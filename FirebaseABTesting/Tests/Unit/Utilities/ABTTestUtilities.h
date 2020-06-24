@@ -20,9 +20,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface ABTTestUtilities : NSObject
 
+/// Generates an ABTExperimentPayload object from the test file directory.
 + (ABTExperimentPayload *)payloadFromTestFilename:(NSString *)filename;
 
-+ (NSData *)JSONDataFromFile:(NSString *)filename;
+/// Generates a serialized JSON object from the test file directory.
++ (NSData *)payloadJSONDataFromFile:(NSString *)filename
+                  modifiedStartTime:(nullable NSDate *)modifiedStartTime;
 
 @end
 
