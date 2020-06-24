@@ -12,7 +12,6 @@ target 'Sample' do
   pod 'FirebaseInstanceID', :path => '../../../'
   pod 'FirebaseCoreDiagnostics', :path => '../../../'
   pod 'GoogleDataTransport', :path => '../../../'
-  pod 'GoogleDataTransportCCTSupport', :path => '../../../'
   pod 'FirebaseInstallations', :path => '../../../'
 
 end

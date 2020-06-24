@@ -9,7 +9,6 @@ target 'GDTCCTWatchOSIndependentTestAppWatchKitExtension' do
   # Pods for GDTCCTWatchOSIndependentTestAppWatchKitExtension
   pod 'SwiftProtobuf', '~> 1.0'
   pod 'GoogleDataTransport', :path => '../../'
-  pod 'GoogleDataTransportCCTSupport', :path => '../../'
   pod 'FirebaseCore', :path => '../../'
   pod 'GoogleUtilities', :path => '../../'
   pod 'FirebaseMessaging', :path => '../../'
@@ -28,7 +27,6 @@ target 'GDTCCTServiceExtension' do
   pod 'FirebaseInstanceID', :path => '../../'
   pod 'SwiftProtobuf', '~> 1.0'
   pod 'GoogleDataTransport', :path => '../../'
-  pod 'GoogleDataTransportCCTSupport', :path => '../../'
 end
 
 target 'GDTCCTWatchOSCompanionTestAppExtension' do
@@ -37,6 +35,5 @@ target 'GDTCCTWatchOSCompanionTestAppExtension' do
   # Pods for GDTCCTWatchOSCompanionTestAppExtension
   pod 'SwiftProtobuf', '~> 1.0'
   pod 'GoogleDataTransport', :path => '../../'
-  pod 'GoogleDataTransportCCTSupport', :path => '../../'
 
 end

@@ -22,7 +22,6 @@ import FirebaseInstallations
 import FirebaseStorage
 import FirebaseStorageSwift
 // import GoogleDataTransport
-// import GoogleDataTransportCCTSupport
 import GoogleUtilities_AppDelegateSwizzler
 import GoogleUtilities_Environment
 import GoogleUtilities_Logger
