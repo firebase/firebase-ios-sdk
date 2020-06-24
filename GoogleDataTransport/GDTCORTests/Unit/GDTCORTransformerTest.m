@@ -14,22 +14,22 @@
  * limitations under the License.
  */
 
-#import "GDTCORTests/Unit/GDTCORTestCase.h"
+#import "GoogleDataTransport/GDTCORTests/Unit/GDTCORTestCase.h"
 
-#import <GoogleDataTransport/GDTCOREvent.h>
-#import <GoogleDataTransport/GDTCOREventTransformer.h>
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCOREvent.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCOREventTransformer.h"
 
-#import "GDTCORLibrary/Private/GDTCORFlatFileStorage.h"
-#import "GDTCORLibrary/Private/GDTCORRegistrar_Private.h"
-#import "GDTCORLibrary/Private/GDTCORTransformer.h"
-#import "GDTCORLibrary/Private/GDTCORTransformer_Private.h"
+#import "GoogleDataTransport/GDTCORLibrary/Private/GDTCORFlatFileStorage.h"
+#import "GoogleDataTransport/GDTCORLibrary/Private/GDTCORRegistrar_Private.h"
+#import "GoogleDataTransport/GDTCORLibrary/Private/GDTCORTransformer.h"
+#import "GoogleDataTransport/GDTCORLibrary/Private/GDTCORTransformer_Private.h"
 
-#import "GDTCORTests/Unit/Helpers/GDTCORAssertHelper.h"
-#import "GDTCORTests/Unit/Helpers/GDTCORDataObjectTesterClasses.h"
+#import "GoogleDataTransport/GDTCORTests/Unit/Helpers/GDTCORAssertHelper.h"
+#import "GoogleDataTransport/GDTCORTests/Unit/Helpers/GDTCORDataObjectTesterClasses.h"
 
-#import "GDTCORTests/Common/Categories/GDTCORRegistrar+Testing.h"
+#import "GoogleDataTransport/GDTCORTests/Common/Categories/GDTCORRegistrar+Testing.h"
 
-#import "GDTCORTests/Common/Fakes/GDTCORStorageFake.h"
+#import "GoogleDataTransport/GDTCORTests/Common/Fakes/GDTCORStorageFake.h"
 
 @interface GDTCORTransformerTestNilingTransformer : NSObject <GDTCOREventTransformer>
 

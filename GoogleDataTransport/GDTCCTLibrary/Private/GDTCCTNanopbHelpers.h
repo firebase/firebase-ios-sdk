@@ -16,10 +16,10 @@
 
 #import <Foundation/Foundation.h>
 
-#import <GoogleDataTransport/GDTCOREvent.h>
-#import <GoogleDataTransport/GDTCORReachability.h>
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCOREvent.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORReachability.h"
 
-#import "GDTCCTLibrary/Protogen/nanopb/cct.nanopb.h"
+#import "GoogleDataTransport/GDTCCTLibrary/Protogen/nanopb/cct.nanopb.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

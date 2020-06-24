@@ -20,11 +20,11 @@
 import Foundation
 
 // Update with directories in which to find headers.
-let findHeaders = ["FirebaseDatabase", "Example/Shared"]
+let findHeaders = ["GoogleDataTransport"]
 
 // Update with directories in which to change imports.
 let changeImports = ["GoogleUtilities", "FirebaseAuth", "FirebaseCore", "Firebase",
-                     "FirebaseDatabase",
+                     "FirebaseDatabase", "GoogleDataTransport",
                      "FirebaseDynamicLinks", "FirebaseInAppMessaging", "FirebaseMessaging",
                      "FirebaseRemoteConfig", "FirebaseInstallations", "Functions",
                      "FirebaseAppDistribution", "Example", "Crashlytics", "FirebaseStorage"]
@@ -45,10 +45,11 @@ func getHeaderMap(_ url: URL) -> [String: String] {
     while let file = enumerator?.nextObject() as? String {
       if let fType = enumerator?.fileAttributes?[FileAttributeKey.type] as? FileAttributeType,
         fType == .typeRegular {
-        let url = URL(string: file)
-        let filename = url!.lastPathComponent
-        if filename.hasSuffix(".h") {
-          headerMap[filename] = root + "/" + file
+        if let url = URL(string: file) {
+          let filename = url.lastPathComponent
+          if filename.hasSuffix(".h") {
+            headerMap[filename] = root + "/" + file
+          }
         }
       }
     }

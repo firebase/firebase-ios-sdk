@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "GDTCORTests/Lifecycle/Helpers/GDTCORLifecycleTestUploader.h"
+#import "GoogleDataTransport/GDTCORTests/Lifecycle/Helpers/GDTCORLifecycleTestUploader.h"
 
 @implementation GDTCORLifecycleTestUploader
 
