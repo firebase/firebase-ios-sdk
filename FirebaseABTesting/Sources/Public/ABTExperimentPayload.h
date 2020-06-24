@@ -26,7 +26,9 @@ typedef NS_ENUM(int32_t, ABTExperimentPayloadExperimentOverflowPolicy) {
 @interface ABTExperimentLite : NSObject
 @property(nonatomic, readonly, copy) NSString *experimentId;
 
-- (instancetype)initWithExperimentId:(NSString *)experimentId;
+- (instancetype)initWithExperimentId:(NSString *)experimentId NS_DESIGNATED_INITIALIZER;
+
+- (instancetype)init NS_UNAVAILABLE;
 
 @end
 
