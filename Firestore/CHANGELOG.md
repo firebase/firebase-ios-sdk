@@ -1,3 +1,8 @@
+# Unreleased
+- [fixed] Fixed a rare crash that could happen if the garbage collection
+  process for old documents in the cache happened to run during a LevelDB
+  compaction (#5881).
+
 # v1.16.0
 - [fixed] Fixed an issue that may have prevented the client from connecting
   to the backend immediately after a user signed in.
