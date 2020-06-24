@@ -90,11 +90,11 @@ static NSString *const kExperimentPayloadKeyOngoingExperiments = @"ongoingExperi
       NSDate *experimentStartTime = [[[self class] experimentStartTimeFormatter]
           dateFromString:dictionary[kExperimentPayloadKeyExperimentStartTime]];
       _experimentStartTimeMillis =
-          [@([experimentStartTime timeIntervalSince1970] * 1000) integerValue];
+          [@([experimentStartTime timeIntervalSince1970] * 1000) unsignedIntegerValue];
     } else if (dictionary[kExperimentPayloadKeyExperimentStartTimeMillis]) {
       // Simply store milliseconds.
       _experimentStartTimeMillis =
-          [dictionary[kExperimentPayloadKeyExperimentStartTimeMillis] integerValue];
+          [dictionary[kExperimentPayloadKeyExperimentStartTimeMillis] unsignedIntegerValue];
       ;
     }
 
