@@ -62,6 +62,10 @@ private class ErrorLogger {
     print(message)
     foundError = true
   }
+
+  class func importLog(_ message: String, _ file: String, _ line: Int) {
+    log("Import Error: \(file):\(line) \(message)")
+  }
 }
 
 private func checkFile(_ file: String, inRepo repoURL: URL, isPublic: Bool) {
@@ -91,7 +95,7 @@ private func checkFile(_ file: String, inRepo repoURL: URL, isPublic: Bool) {
       continue
     } else if line.starts(with: "@import") {
       // "@import" is only allowed for Swift Package Manager.
-      ErrorLogger.log("@import should not be used in CocoaPods library code: \(file):\(lineNum)")
+      ErrorLogger.importLog("@import should not be used in CocoaPods library code", file, lineNum)
     }
 
     // "The #else of a SWIFT_PACKAGE check should only do CocoaPods module-style imports."
@@ -99,7 +103,8 @@ private func checkFile(_ file: String, inRepo repoURL: URL, isPublic: Bool) {
       let importFile = line.components(separatedBy: " ")[1]
       if inSwiftPackageElse {
         if importFile.first != "<" {
-          ErrorLogger.log("Import error: \(file):\(lineNum) Import in SWIFT_PACKAGE #else should start with \"<\".")
+          ErrorLogger
+            .importLog("Import in SWIFT_PACKAGE #else should start with \"<\".", file, lineNum)
         }
         continue
       }
@@ -111,7 +116,7 @@ private func checkFile(_ file: String, inRepo repoURL: URL, isPublic: Bool) {
         // Public Headers should only use simple file names without paths.
         if isPublic {
           if importFile.contains("/") {
-            ErrorLogger.log("Import error: \(file):\(lineNum) Public header import should not include \"/\"")
+            ErrorLogger.importLog("Public header import should not include \"/\"", file, lineNum)
           }
 
         } else if !FileManager.default.fileExists(atPath: repoURL.path + "/" + importFileRaw) {
@@ -121,14 +126,16 @@ private func checkFile(_ file: String, inRepo repoURL: URL, isPublic: Bool) {
               continue nextLine
             }
           }
-          ErrorLogger.log("Import error: \(file):\(lineNum) Import \(importFileRaw) does not exist.")
+          ErrorLogger.importLog("Import \(importFileRaw) does not exist.", file, lineNum)
         }
       } else if importFile.first == "<" {
         // Verify that double quotes are always used for intra-module imports.
         if importFileRaw.starts(with: "Firebase") ||
           importFileRaw.starts(with: "GoogleUtilities") ||
           importFileRaw.starts(with: "GoogleDataTransport") {
-          ErrorLogger.log("Import error: \(file):\(lineNum) Imports internal to the repo should use double quotes not \"<\"")
+          ErrorLogger
+            .importLog("Imports internal to the repo should use double quotes not \"<\"", file,
+                       lineNum)
         }
       }
     }
