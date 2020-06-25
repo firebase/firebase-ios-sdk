@@ -143,10 +143,12 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
 
 - (FSTTransactionTester *)withExistingDoc {
   self.fromExistingDoc = YES;
+  return self;
 }
 
 - (FSTTransactionTester *)withNonexistentDoc {
   self.fromExistingDoc = NO;
+  return self;
 }
 
 - (FSTTransactionTester *)runWithStages:(NSArray<TransactionStage> *)stages {
