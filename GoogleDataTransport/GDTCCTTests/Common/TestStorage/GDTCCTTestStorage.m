@@ -20,7 +20,7 @@
 
 @implementation GDTCCTTestStorage {
   /** Store the events in memory. */
-  NSMutableDictionary<NSNumber *, GDTCOREvent *> *_storedEvents;
+  NSMutableDictionary<NSString *, GDTCOREvent *> *_storedEvents;
 
   /** Store the batches in memory. */
   NSMutableDictionary<NSNumber *, NSSet<GDTCOREvent *> *> *_batches;
@@ -38,7 +38,7 @@
   }
 }
 
-- (void)removeEvents:(NSSet<NSNumber *> *)eventIDs {
+- (void)removeEvents:(NSSet<NSString *> *)eventIDs {
   [_storedEvents removeObjectsForKeys:[eventIDs allObjects]];
 }
 
