@@ -181,7 +181,7 @@ util::Status LevelDbPersistence::ClearPersistence(
 StatusOr<int64_t> LevelDbPersistence::CalculateByteSize() {
   auto* fs = Filesystem::Default();
 
-  // Accumulate the total size in an unsigned quantity to avoid undefined
+  // Accumulate the total size in an unsigned integer to avoid undefined
   // behavior on overflow.
   uint64_t count = 0;
   auto iter = util::DirectoryIterator::Create(directory_);
