@@ -1,3 +1,10 @@
+# Unreleased
+- [added] Introduced new property (`dataCollectionDefaultState`) and enum (`DataCollectionState`)
+  for better control over the default data collection behaviour. The `dataCollectionDefaultState`
+  property is a runtime override and replaces the existing `isDataCollectionDefaultEnabled` flag,
+  which is now deprecated. The previous flag value is still honored, but the new enum will allow for
+  clearing the persisted value (by setting the value to `.default`).
+
 # v6.8.0 -- M73
 - [changed] Functionally neutral refactor to simplify FirebaseCore's header usage and replace
   Interop pods with headers only. This change is the reason most of the Firebase pods have a minor

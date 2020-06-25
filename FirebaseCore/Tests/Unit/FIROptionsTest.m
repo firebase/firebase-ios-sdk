@@ -443,7 +443,10 @@ extern NSString *const kFIRLibraryVersionID;
   id appMock = OCMClassMock([FIRApp class]);
   OCMStub([appMock isDefaultAppConfigured]).andReturn(YES);
   OCMStub([appMock defaultApp]).andReturn(appMock);
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   OCMStub([appMock isDataCollectionDefaultEnabled]).andReturn(YES);
+#pragma clang diagnostic pop
 
   // With no other settings, Analytics collection should default to the app's flag.
   FIROptions *options = [[FIROptions alloc] initInternalWithOptionsDictionary:@{}];
@@ -458,7 +461,10 @@ extern NSString *const kFIRLibraryVersionID;
   id appMock = OCMClassMock([FIRApp class]);
   OCMStub([appMock isDefaultAppConfigured]).andReturn(YES);
   OCMStub([appMock defaultApp]).andReturn(appMock);
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   OCMStub([appMock isDataCollectionDefaultEnabled]).andReturn(NO);
+#pragma clang diagnostic pop
 
   // With no other settings, Analytics collection should default to the app's flag.
   FIROptions *options = [[FIROptions alloc] initInternalWithOptionsDictionary:@{}];
@@ -473,7 +479,10 @@ extern NSString *const kFIRLibraryVersionID;
   id appMock = OCMClassMock([FIRApp class]);
   OCMStub([appMock isDefaultAppConfigured]).andReturn(YES);
   OCMStub([appMock defaultApp]).andReturn(appMock);
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   OCMStub([appMock isDataCollectionDefaultEnabled]).andReturn(YES);
+#pragma clang diagnostic pop
 
   // Test the three Analytics flags that override to disable Analytics collection.
   FIROptions *collectionEnabledOptions = [[FIROptions alloc]
@@ -494,7 +503,10 @@ extern NSString *const kFIRLibraryVersionID;
   id appMock = OCMClassMock([FIRApp class]);
   OCMStub([appMock isDefaultAppConfigured]).andReturn(YES);
   OCMStub([appMock defaultApp]).andReturn(appMock);
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   OCMStub([appMock isDataCollectionDefaultEnabled]).andReturn(NO);
+#pragma clang diagnostic pop
 
   // Test the two Analytics flags that can override and enable collection.
   FIROptions *collectionEnabledOptions = [[FIROptions alloc]
