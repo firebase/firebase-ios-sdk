@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-@class FIROptions;
+@class FIROptions, FIREmulatorSettings;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -121,6 +121,11 @@ NS_SWIFT_NAME(FirebaseApp)
  */
 @property(nonatomic, readwrite, getter=isDataCollectionDefaultEnabled)
     BOOL dataCollectionDefaultEnabled;
+
+/**
+ * The emulator settings for the given app. Defaults to nil.
+ */
+@property(nonatomic, copy, nullable) FIREmulatorSettings *emulatorSettings;
 
 @end
 

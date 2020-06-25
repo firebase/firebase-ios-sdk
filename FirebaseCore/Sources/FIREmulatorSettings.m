@@ -65,8 +65,8 @@ NSString *const FIREmulatorServiceFunctions = @"FIREmulatorServiceFunctions";
 
 - (instancetype)initWithSettings:
     (NSDictionary<FIREmulatorService, FIREmulatorServiceSettings *> *)settings {
-  NSAssert(settings.count > 0,
-           @"Creating emulator settings requires non-empty service settings list.");
+  NSAssert(settings != nil,
+           @"Creating emulator settings requires nonnull service settings list.");
   self = [super init];
   if (self != nil) {
     _settings = [settings copy];
@@ -74,19 +74,45 @@ NSString *const FIREmulatorServiceFunctions = @"FIREmulatorServiceFunctions";
   return self;
 }
 
-- (instancetype)initWithServiceSettings:(FIREmulatorServiceSettings *)settings
+- (instancetype)initWithServiceSettings:(FIREmulatorServiceSettings *)serviceSettings
                              forService:(FIREmulatorService)service {
-  NSAssert(settings != nil);
-  NSAssert(service != nil);
-  NSDictionary *settings = @{service : settings};
+  NSAssert(serviceSettings != nil, @"Service settings must be nonnull");
+  NSAssert(service != nil, @"Service name must be nonnull");
+  NSDictionary *settings = @{service : serviceSettings};
   return [self initWithSettings:settings];
+}
+
+- (instancetype)settingsByCombiningSettings:(FIREmulatorSettings *)settings {
+  NSMutableDictionary *mutableSettings = [self.settings mutableCopy];
+  NSDictionary *otherSettings = settings->settings;
+  for (FIREmulatorService key in otherSettings.allKeys) {
+    mutableSettings[key] = otherSettings[key];
+  }
+  return [[FIREmulatorSettings alloc] initWithSettings:mutableSettings];
+}
+
+- (instancetype)settingsByRemovingSettingsForService:(FIREmulatorService)service {
+  NSMutableDictionary *mutableSettings = [self.settings mutableCopy];
+  [mutableSettings removeObjectForKey:service];
+  return [[FIREmulatorSettings alloc] initWithSettings:mutableSettings];
+}
+
+- (instancetype)settingsByAddingSettings:(FIREmulatorServiceSettings *)settings 
+                              forService:(FIREmulatorService)service {
+  NSMutableDictionary *mutableSettings = [self.settings mutableCopy];
+  [mutableSettings addObject:settings];
+  return [[FIREmulatorSettings alloc] initWithSettings:mutableSettings];
+}
+
+- (NSDictionary *)getAllServiceSettings {
+  return [self.settings copy];
 }
 
 - (instancetype)copyWithZone:(NSZone *)zone {
   return self;  // immutable, so return self
 }
 
-- (FIREmulatorSettings *)settingsForService:(FIREmulatorService)service {
+- (FIREmulatorServiceSettings *)settingsForService:(FIREmulatorService)service {
   return self.settings[service];
 }
 

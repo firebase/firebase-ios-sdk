@@ -55,18 +55,34 @@ NS_SWIFT_NAME(EmulatorServiceSettings)
 NS_SWIFT_NAME(EmulatorSettings)
 @interface FIREmulatorSettings : NSObject <NSCopying>
 
+/// Returns a dictionary containing all service settings.
+@property (nonatomic, readonly, copy) 
+        NSDictionary<FIREmulatorService, FIREmulatorServiceSettings *> *allServiceSettings;
+
 /// Initializes an app-level settings instance with the given emulator service settings.
 - (instancetype)initWithServiceSettings:(FIREmulatorServiceSettings *)settings
                              forService:(FIREmulatorService)service;
 
 /// Initializes an app-level settings instance with all of the provided settings.
-/// The provided settings dictionary must not be empty.
 - (instancetype)initWithSettings:
     (NSDictionary<FIREmulatorService, FIREmulatorServiceSettings *> *)settings
     NS_DESIGNATED_INITIALIZER;
 
+/// Returns a new settings object that is the union of the receiver and the settings argument.
+/// Settings in the settings argument overwrite pre-existing settings in the receiver.
+- (instancetype)settingsByCombiningSettings:(FIREmulatorSettings *)settings;
+
+/// Returns a new settings object that is the result of removing the settings for a given
+/// service.
+- (instancetype)settingsByRemovingSettingsForService:(FIREmulatorService)service;
+
+/// Returns a new settings object that is the result of adding new settings for a given
+/// service.
+- (instancetype)settingsByAddingSettings:(FIREmulatorServiceSettings *)settings 
+                              forService:(FIREmulatorService)service
+
 /// Returns the service-level settings object for a given emulated service, if it exists.
-- (FIREmulatorSettings *_Nullable)settingsForService:(FIREmulatorService)service;
+- (FIREmulatorServiceSettings *_Nullable)settingsForService:(FIREmulatorService)service;
 
 /** :nodoc: */
 - (instancetype)init NS_UNAVAILABLE;
