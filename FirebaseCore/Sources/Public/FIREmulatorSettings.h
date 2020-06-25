@@ -22,16 +22,16 @@ NS_ASSUME_NONNULL_BEGIN
 typedef NSString *FIREmulatorService NS_TYPED_EXTENSIBLE_ENUM NS_SWIFT_NAME(EmulatorSettings);
 
 /** :nodoc: */
-NSString *const FIREmulatorServiceDatabase;
+FIREmulatorService const FIREmulatorServiceDatabase;
 
 /** :nodoc: */
-NSString *const FIREmulatorServiceFirestore;
+FIREmulatorService const FIREmulatorServiceFirestore;
 
 /** :nodoc: */
-NSString *const FIREmulatorServiceAuth;
+FIREmulatorService const FIREmulatorServiceAuth;
 
 /** :nodoc: */
-NSString *const FIREmulatorServiceFunctions;
+FIREmulatorService const FIREmulatorServiceFunctions;
 
 /// A class representing the connection settings for an emulated Firebase service.
 NS_SWIFT_NAME(EmulatorServiceSettings)
@@ -57,16 +57,16 @@ NS_SWIFT_NAME(EmulatorSettings)
 
 /// Initializes an app-level settings instance with the given emulator service settings.
 - (instancetype)initWithServiceSettings:(FIREmulatorServiceSettings *)settings
-                             forService:(FIREmulatorService *)service;
+                             forService:(FIREmulatorService)service;
 
 /// Initializes an app-level settings instance with all of the provided settings.
 /// The provided settings dictionary must not be empty.
 - (instancetype)initWithSettings:
-    (NSDictionary<FIREmulatorService *, FIREmulatorServiceSettings *> *)settings
+    (NSDictionary<FIREmulatorService, FIREmulatorServiceSettings *> *)settings
     NS_DESIGNATED_INITIALIZER;
 
 /// Returns the service-level settings object for a given emulated service, if it exists.
-- (FIREmulatorSettings *_Nullable)settingsForService:(FIREmulatorService *)service;
+- (FIREmulatorSettings *_Nullable)settingsForService:(FIREmulatorService)service;
 
 /** :nodoc: */
 - (instancetype)init NS_UNAVAILABLE;

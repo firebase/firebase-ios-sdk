@@ -53,7 +53,7 @@ NSString *const FIREmulatorServiceFunctions = @"FIREmulatorServiceFunctions";
 @interface FIREmulatorSettings ()
 
 @property(nonatomic, copy, nonnull)
-    NSDictionary<FIREmulatorService *, FIREmulatorServiceSettings *> *settings;
+    NSDictionary<FIREmulatorService, FIREmulatorServiceSettings *> *settings;
 
 @end
 
@@ -64,7 +64,7 @@ NSString *const FIREmulatorServiceFunctions = @"FIREmulatorServiceFunctions";
 }
 
 - (instancetype)initWithSettings:
-    (NSDictionary<FIREmulatorService *, FIREmulatorServiceSettings *> *)settings {
+    (NSDictionary<FIREmulatorService, FIREmulatorServiceSettings *> *)settings {
   NSAssert(settings.count > 0,
            @"Creating emulator settings requires non-empty service settings list.");
   self = [super init];
@@ -75,7 +75,7 @@ NSString *const FIREmulatorServiceFunctions = @"FIREmulatorServiceFunctions";
 }
 
 - (instancetype)initWithServiceSettings:(FIREmulatorServiceSettings *)settings
-                             forService:(FIREmulatorService *)service {
+                             forService:(FIREmulatorService)service {
   NSAssert(settings != nil);
   NSAssert(service != nil);
   NSDictionary *settings = @{service : settings};
@@ -86,7 +86,7 @@ NSString *const FIREmulatorServiceFunctions = @"FIREmulatorServiceFunctions";
   return self;  // immutable, so return self
 }
 
-- (FIREmulatorSettings *)settingsForService:(FIREmulatorService *)service {
+- (FIREmulatorSettings *)settingsForService:(FIREmulatorService)service {
   return self.settings[service];
 }
 
