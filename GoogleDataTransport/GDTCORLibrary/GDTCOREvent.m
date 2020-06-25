@@ -24,60 +24,34 @@
 
 #import "GoogleDataTransport/GDTCORLibrary/Private/GDTCOREvent_Private.h"
 
-static NSString *const kNextEventIDKey = @"GDTCOREventEventIDCounter";
-
 @implementation GDTCOREvent
 
-+ (void)nextEventIDForTarget:(GDTCORTarget)target
-                  onComplete:(void (^)(NSNumber *_Nonnull eventID))onComplete {
-  __block int32_t lastEventID = -1;
-  id<GDTCORStorageProtocol> storage = GDTCORStorageInstanceForTarget(target);
-  [storage libraryDataForKey:kNextEventIDKey
-      onFetchComplete:^(NSData *_Nullable data, NSError *_Nullable getValueError) {
-        if (getValueError != nil || data == nil || data.length == 0) {
-          lastEventID = 1;
-        } else {
-          [data getBytes:(void *)&lastEventID length:sizeof(int32_t)];
-        }
-        if (onComplete) {
-          onComplete(@(lastEventID));
-        }
-      }
-      setNewValue:^NSData *_Nullable(void) {
-        if (lastEventID != -1) {
-          int32_t incrementedValue = lastEventID + 1;
-          return [NSData dataWithBytes:&incrementedValue length:sizeof(int32_t)];
-        }
-        return nil;
-      }];
++ (NSString *)nextEventID {
+  // TODO: Consider a way to make the eventIDs incremental without introducing a storage dependency
+  // to the object.
+  //
+  // Replace special non-alphanumeric characters to avoid potential conflicts with storage logic.
+  return [[NSUUID UUID].UUIDString stringByReplacingOccurrencesOfString:@"-" withString:@""];
 }
 
 - (nullable instancetype)initWithMappingID:(NSString *)mappingID target:(GDTCORTarget)target {
   GDTCORAssert(mappingID.length > 0, @"Please give a valid mapping ID");
   GDTCORAssert(target > 0, @"A target cannot be negative or 0");
-  __block NSNumber *eventID;
-  dispatch_semaphore_t sema = dispatch_semaphore_create(0);
-  [GDTCOREvent nextEventIDForTarget:target
-                         onComplete:^(NSNumber *_Nullable newEventID) {
-                           eventID = newEventID;
-                           dispatch_semaphore_signal(sema);
-                         }];
-  if (dispatch_semaphore_wait(sema, dispatch_time(DISPATCH_TIME_NOW, 5 * NSEC_PER_SEC)) != 0) {
-    return nil;
-  }
-  if (mappingID == nil || mappingID.length == 0 || target <= 0 || eventID == nil) {
+  if (mappingID.length == 0 || target <= 0) {
     return nil;
   }
   self = [super init];
   if (self) {
-    _eventID = eventID;
+    _eventID = [GDTCOREvent nextEventID];
     _mappingID = mappingID;
     _target = target;
     _qosTier = GDTCOREventQosDefault;
     _expirationDate = [NSDate dateWithTimeIntervalSinceNow:604800];  // 7 days.
+
+    GDTCORLogDebug(@"Event %@ created. ID:%@ mappingID: %@ target:%ld", self, _eventID, mappingID,
+                   (long)target);
   }
-  GDTCORLogDebug(@"Event %@ created. ID:%@ mappingID: %@ target:%ld", self, eventID, mappingID,
-                 (long)target);
+
   return self;
 }
 
@@ -153,19 +127,8 @@ static NSString *kCustomDataKey = @"GDTCOREventCustomDataKey";
   if (self) {
     _mappingID = [aDecoder decodeObjectOfClass:[NSString class] forKey:kMappingIDKey];
     _target = [aDecoder decodeIntegerForKey:kTargetKey];
-    _eventID = [aDecoder decodeObjectOfClass:[NSNumber class] forKey:kEventIDKey];
-    if (_eventID == nil) {
-      dispatch_semaphore_t sema = dispatch_semaphore_create(0);
-      [GDTCOREvent nextEventIDForTarget:_target
-                             onComplete:^(NSNumber *_Nullable eventID) {
-                               self->_eventID = eventID;
-                               dispatch_semaphore_signal(sema);
-                             }];
-      if (dispatch_semaphore_wait(sema, dispatch_time(DISPATCH_TIME_NOW, 5 * NSEC_PER_SEC)) != 0 ||
-          _eventID == nil) {
-        return nil;
-      }
-    }
+    _eventID = [aDecoder decodeObjectOfClass:[NSString class] forKey:kEventIDKey]
+                   ?: [GDTCOREvent nextEventID];
     _qosTier = [aDecoder decodeIntegerForKey:kQoSTierKey];
     _clockSnapshot = [aDecoder decodeObjectOfClass:[GDTCORClock class] forKey:kClockSnapshotKey];
     _customBytes = [aDecoder decodeObjectOfClass:[NSData class] forKey:kCustomDataKey];

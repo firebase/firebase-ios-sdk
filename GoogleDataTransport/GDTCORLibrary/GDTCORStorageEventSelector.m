@@ -23,7 +23,7 @@
 }
 
 - (instancetype)initWithTarget:(GDTCORTarget)target
-                      eventIDs:(nullable NSSet<NSNumber *> *)eventIDs
+                      eventIDs:(nullable NSSet<NSString *> *)eventIDs
                     mappingIDs:(nullable NSSet<NSString *> *)mappingIDs
                       qosTiers:(nullable NSSet<NSNumber *> *)qosTiers {
   self = [super init];
