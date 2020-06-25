@@ -31,7 +31,7 @@ app update.
     base_dir + '**/*.[mh]',
     'Interop/Analytics/Public/*.h',
     'FirebaseCore/Sources/Private/*.h',
-    'FirebaseInstallations/Source/Public/*.h',
+    'FirebaseInstallations/Source/Library/Public/*.h',
     'GoogleUtilities/Environment/Private/*.h',
     'GoogleUtilities/NSData+zlib/Private/*.h',
   ]

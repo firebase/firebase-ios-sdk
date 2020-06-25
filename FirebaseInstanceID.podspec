@@ -31,7 +31,7 @@ services.
   s.source_files = [
     base_dir + '**/*.[mh]',
     'FirebaseCore/Sources/Private/*.h',
-    'FirebaseInstallations/Source/Public/*.h',
+    'FirebaseInstallations/Source/Library/Public/*.h',
     'GoogleUtilities/Environment/Private/*.h',
     'GoogleUtilities/UserDefaults/Private/*.h',
   ]
