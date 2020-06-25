@@ -57,23 +57,23 @@ let skipImportPatterns = [
 ]
 
 private class ErrorLogger {
-  static var foundError = false
-  class func log(_ message: String) {
+  var foundError = false
+  func log(_ message: String) {
     print(message)
     foundError = true
   }
 
-  class func importLog(_ message: String, _ file: String, _ line: Int) {
+  func importLog(_ message: String, _ file: String, _ line: Int) {
     log("Import Error: \(file):\(line) \(message)")
   }
 }
 
-private func checkFile(_ file: String, inRepo repoURL: URL, isPublic: Bool) {
+private func checkFile(_ file: String, logger: ErrorLogger, inRepo repoURL: URL, isPublic: Bool) {
   var fileContents = ""
   do {
     fileContents = try String(contentsOfFile: file, encoding: .utf8)
   } catch {
-    ErrorLogger.log("Could not read \(file). \(error)")
+    logger.log("Could not read \(file). \(error)")
     // Not a source file, give up and return.
     return
   }
@@ -95,7 +95,7 @@ private func checkFile(_ file: String, inRepo repoURL: URL, isPublic: Bool) {
       continue
     } else if line.starts(with: "@import") {
       // "@import" is only allowed for Swift Package Manager.
-      ErrorLogger.importLog("@import should not be used in CocoaPods library code", file, lineNum)
+      logger.importLog("@import should not be used in CocoaPods library code", file, lineNum)
     }
 
     // "The #else of a SWIFT_PACKAGE check should only do CocoaPods module-style imports."
@@ -103,7 +103,7 @@ private func checkFile(_ file: String, inRepo repoURL: URL, isPublic: Bool) {
       let importFile = line.components(separatedBy: " ")[1]
       if inSwiftPackageElse {
         if importFile.first != "<" {
-          ErrorLogger
+          logger
             .importLog("Import in SWIFT_PACKAGE #else should start with \"<\".", file, lineNum)
         }
         continue
@@ -116,7 +116,7 @@ private func checkFile(_ file: String, inRepo repoURL: URL, isPublic: Bool) {
         // Public Headers should only use simple file names without paths.
         if isPublic {
           if importFile.contains("/") {
-            ErrorLogger.importLog("Public header import should not include \"/\"", file, lineNum)
+            logger.importLog("Public header import should not include \"/\"", file, lineNum)
           }
 
         } else if !FileManager.default.fileExists(atPath: repoURL.path + "/" + importFileRaw) {
@@ -126,14 +126,14 @@ private func checkFile(_ file: String, inRepo repoURL: URL, isPublic: Bool) {
               continue nextLine
             }
           }
-          ErrorLogger.importLog("Import \(importFileRaw) does not exist.", file, lineNum)
+          logger.importLog("Import \(importFileRaw) does not exist.", file, lineNum)
         }
       } else if importFile.first == "<" {
         // Verify that double quotes are always used for intra-module imports.
         if importFileRaw.starts(with: "Firebase") ||
           importFileRaw.starts(with: "GoogleUtilities") ||
           importFileRaw.starts(with: "GoogleDataTransport") {
-          ErrorLogger
+          logger
             .importLog("Imports internal to the repo should use double quotes not \"<\"", file,
                        lineNum)
         }
@@ -142,7 +142,8 @@ private func checkFile(_ file: String, inRepo repoURL: URL, isPublic: Bool) {
   }
 }
 
-private func main() {
+private func main() -> Int32 {
+  let logger = ErrorLogger()
   // Search the path upwards to find the root of the firebase-ios-sdk repo.
   var url = URL(fileURLWithPath: FileManager().currentDirectoryPath)
   while url.path != "/", url.lastPathComponent != "firebase-ios-sdk" {
@@ -153,8 +154,8 @@ private func main() {
                                                                     includingPropertiesForKeys: nil,
                                                                     options: [.skipsHiddenFiles])
   else {
-    ErrorLogger.log("Failed to get repo contents \(repoURL)")
-    return
+    logger.log("Failed to get repo contents \(repoURL)")
+    return 1
   }
 
   for rootURL in contents {
@@ -183,11 +184,11 @@ private func main() {
         let isPublic = file.range(of: "/Public/") != nil &&
           // TODO: Skip legacy GDTCCTLibrary file that isn't Public and should be moved.
           file.range(of: "GDTCCTLibrary/Public/GDTCOREvent+GDTCCTSupport.h") == nil
-        checkFile(fullTransformPath, inRepo: repoURL, isPublic: isPublic)
+        checkFile(fullTransformPath, logger: logger, inRepo: repoURL, isPublic: isPublic)
       }
     }
   }
+  return logger.foundError ? 1 : 0
 }
 
-main()
-exit(ErrorLogger.foundError ? 1 : 0)
+exit(main())
