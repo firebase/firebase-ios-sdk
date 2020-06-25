@@ -105,7 +105,7 @@ FOUNDATION_EXPORT NSString *const kGDTCORBatchComponentsExpirationKey;
  * @return The path representing the combination of the given parameters.
  */
 + (NSString *)pathForTarget:(GDTCORTarget)target
-                    eventID:(NSNumber *)eventID
+                    eventID:(NSString *)eventID
                     qosTier:(NSNumber *)qosTier
              expirationDate:(NSDate *)expirationDate
                   mappingID:(NSString *)mappingID;
@@ -118,7 +118,7 @@ FOUNDATION_EXPORT NSString *const kGDTCORBatchComponentsExpirationKey;
  * @param onComplete The completion to call once the paths have been discovered.
  */
 - (void)pathsForTarget:(GDTCORTarget)target
-              eventIDs:(nullable NSSet<NSNumber *> *)eventIDs
+              eventIDs:(nullable NSSet<NSString *> *)eventIDs
               qosTiers:(nullable NSSet<NSNumber *> *)qosTiers
             mappingIDs:(nullable NSSet<NSString *> *)mappingIDs
             onComplete:(void (^)(NSSet<NSString *> *paths))onComplete;
