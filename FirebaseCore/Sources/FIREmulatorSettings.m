@@ -16,16 +16,9 @@
 
 #import "FirebaseCore/Sources/Public/FIREmulatorSettings.h"
 
-/** :nodoc: */
 NSString *const FIREmulatorServiceDatabase = @"FIREmulatorServiceDatabase";
-
-/** :nodoc: */
 NSString *const FIREmulatorServiceFirestore = @"FIREmulatorServiceFirestore";
-
-/** :nodoc: */
 NSString *const FIREmulatorServiceAuth = @"FIREmulatorServiceAuth";
-
-/** :nodoc: */
 NSString *const FIREmulatorServiceFunctions = @"FIREmulatorServiceFunctions";
 
 @implementation FIREmulatorServiceSettings
