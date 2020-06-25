@@ -81,6 +81,38 @@ extern NSString *const kFIRLibraryVersionID;
   XCTAssertEqualObjects(options.deepLinkURLScheme, kDeepLinkURLScheme);
 }
 
+- (void)testDefaultOptionsAreInitializedOnce {
+  id mockBundleUtil = OCMClassMock([FIRBundleUtil class]);
+  OCMExpect([mockBundleUtil optionsDictionaryPathWithResourceName:kServiceInfoFileName
+                                                      andFileType:kServiceInfoFileType
+                                                        inBundles:[FIRBundleUtil relevantBundles]])
+      .andReturn([self validGoogleServicesInfoPlistPath]);
+  XCTAssertNotNil([FIROptions defaultOptions]);
+  OCMVerifyAll(mockBundleUtil);
+
+  OCMReject([mockBundleUtil optionsDictionaryPathWithResourceName:OCMOCK_ANY
+                                                      andFileType:OCMOCK_ANY
+                                                        inBundles:OCMOCK_ANY]);
+  XCTAssertNotNil([FIROptions defaultOptions]);
+  OCMVerifyAll(mockBundleUtil);
+}
+
+- (void)testDefaultOptionsDictionaryIsInitializedOnce {
+  id mockBundleUtil = OCMClassMock([FIRBundleUtil class]);
+  OCMExpect([mockBundleUtil optionsDictionaryPathWithResourceName:kServiceInfoFileName
+                                                      andFileType:kServiceInfoFileType
+                                                        inBundles:[FIRBundleUtil relevantBundles]])
+      .andReturn([self validGoogleServicesInfoPlistPath]);
+  XCTAssertNotNil([FIROptions defaultOptionsDictionary]);
+  OCMVerifyAll(mockBundleUtil);
+
+  OCMReject([mockBundleUtil optionsDictionaryPathWithResourceName:OCMOCK_ANY
+                                                      andFileType:OCMOCK_ANY
+                                                        inBundles:OCMOCK_ANY]);
+  XCTAssertNotNil([FIROptions defaultOptionsDictionary]);
+  OCMVerifyAll(mockBundleUtil);
+}
+
 - (void)testInitCustomizedOptions {
   FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
                                                     GCMSenderID:kGCMSenderID];
@@ -98,13 +130,7 @@ extern NSString *const kFIRLibraryVersionID;
 }
 
 - (void)testInitWithContentsOfFile {
-  NSString *filePath = [[NSBundle mainBundle] pathForResource:@"GoogleService-Info"
-                                                       ofType:@"plist"];
-  if (filePath == nil) {
-    // Use bundleForClass to allow GoogleService-Info.plist to be in the test target's bundle.
-    NSBundle *bundle = [NSBundle bundleForClass:[self class]];
-    filePath = [bundle pathForResource:@"GoogleService-Info" ofType:@"plist"];
-  }
+  NSString *filePath = [self validGoogleServicesInfoPlistPath];
   FIROptions *options = [[FIROptions alloc] initWithContentsOfFile:filePath];
   [self assertOptionsMatchDefaults:options andProjectID:YES];
   XCTAssertNil(options.deepLinkURLScheme);
@@ -625,6 +651,21 @@ extern NSString *const kFIRLibraryVersionID;
                                  [[kFIRLibraryVersionID substringWithRange:minor] intValue],
                                  [[kFIRLibraryVersionID substringWithRange:patch] intValue]];
   XCTAssertEqualObjects(str, [NSString stringWithUTF8String:(const char *)FIRCoreVersionString]);
+}
+
+#pragma mark - Helpers
+
+- (NSString *)validGoogleServicesInfoPlistPath {
+  NSString *filePath = [[NSBundle mainBundle] pathForResource:@"GoogleService-Info"
+                                                       ofType:@"plist"];
+  if (filePath == nil) {
+    // Use bundleForClass to allow GoogleService-Info.plist to be in the test target's bundle.
+    NSBundle *bundle = [NSBundle bundleForClass:[self class]];
+    filePath = [bundle pathForResource:@"GoogleService-Info" ofType:@"plist"];
+  }
+
+  XCTAssertNotNil(filePath);
+  return filePath;
 }
 
 @end
