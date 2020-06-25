@@ -1,6 +1,9 @@
+# 3.8.0
+- [changed] Add error for attempt to upload directory (#5750)
+- [changed] Functionally neutral source reorganization. (#5851)
+
 # 3.7.0
 - [fixed] Fixed a crash when listAll() was called at the root location. (#5772)
-
 - [added] Added a check to FIRStorageUploadTask's `putFile:` to check if the passed in `fileURL` is a directory, and provides a clear error if it is. (#5750)
 
 # 3.6.1

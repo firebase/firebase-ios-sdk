@@ -1,3 +1,6 @@
+# v6.4.0
+- [changed] Functionally neutral source reorganization. (#5861)
+
 # v6.2.2
 - [fixed] Addressed crash that prevented the SDK from opening when the versioning file was
   corrupted. (#5686)
