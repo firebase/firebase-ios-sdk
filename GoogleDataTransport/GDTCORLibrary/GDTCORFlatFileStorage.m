@@ -31,7 +31,7 @@
 static NSString *const gBatchIDCounterKey = @"GDTCORFlatFileStorageBatchIDCounter";
 
 /** The separator used between metadata elements in filenames. */
-static NSString *const kMetadataSeparator = @"|";
+static NSString *const kMetadataSeparator = @"-";
 
 NSString *const kGDTCOREventComponentsEventIDKey = @"GDTCOREventComponentsEventIDKey";
 

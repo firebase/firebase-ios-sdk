@@ -29,13 +29,15 @@
 + (NSString *)nextEventID {
   // TODO: Consider a way to make the eventIDs incremental without introducing a storage dependency
   // to the object.
-  return [NSUUID UUID].UUIDString;
+  //
+  // Replace special non-alphanumeric characters to avoid potential conflicts with storage logic.
+  return [[NSUUID UUID].UUIDString stringByReplacingOccurrencesOfString:@"-" withString:@""];
 }
 
 - (nullable instancetype)initWithMappingID:(NSString *)mappingID target:(GDTCORTarget)target {
   GDTCORAssert(mappingID.length > 0, @"Please give a valid mapping ID");
   GDTCORAssert(target > 0, @"A target cannot be negative or 0");
-  if (mappingID == nil || mappingID.length == 0 || target <= 0) {
+  if (mappingID.length == 0 || target <= 0) {
     return nil;
   }
   self = [super init];
