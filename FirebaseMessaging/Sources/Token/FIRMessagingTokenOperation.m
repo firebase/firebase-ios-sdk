@@ -40,10 +40,6 @@ static NSString *const kFIRMessagingParamFCMLibVersion = @"X-cliv";
 @property(nonatomic, readwrite, strong) FIRMessagingCheckinPreferences *checkinPreferences;
 @property(nonatomic, readwrite, strong) NSString *instanceID;
 
-@property(atomic, strong) NSURLSessionDataTask *dataTask;
-@property(readonly, strong)
-    NSMutableArray<FIRMessagingTokenOperationCompletion> *completionHandlers;
-
 @property(atomic, strong, nullable) NSString *FISAuthToken;
 
 @end

@@ -44,21 +44,15 @@
 
 @implementation FIRMessagingTokenManager
 
-+ (instancetype)sharedInstance {
-  static FIRMessagingTokenManager *sharedInstance = nil;
-  static dispatch_once_t onceToken;
-  dispatch_once(&onceToken, ^{
-    sharedInstance = [[FIRMessagingTokenManager alloc] init];
-  });
-  return sharedInstance;
-}
-
 - (instancetype)init {
   self = [super init];
   if (self) {
     _instanceIDStore = [[FIRMessagingStore alloc] initWithDelegate:self];
     _authService = [[FIRMessagingAuthService alloc] initWithStore:_instanceIDStore];
     _installations = [FIRInstallations installations];
+    if (![FIRMessagingStore hasSubDirectory:kFIRInstanceIDSubDirectoryName]) {
+      [FIRMessagingStore createSubDirectory:kFIRInstanceIDSubDirectoryName];
+    }
     [self configureTokenOperations];
   }
   return self;
@@ -66,7 +60,6 @@
 
 - (void)dealloc {
   [self stopAllTokenOperations];
-  [super dealloc];
 }
 
 - (NSString *)token {
@@ -85,7 +78,9 @@
     [self tokenWithAuthorizedEntity:self.fcmSenderID
                               scope:kFIRMessagingDefaultTokenScope
                             options:[self tokenOptions]
-                            handler:nil];
+                            handler:^(NSString * _Nullable FCMToken, NSError * _Nullable error) {
+      
+    }];
     return nil;
   }
 }
@@ -181,8 +176,7 @@
   }
 
   FIRMessaging_WEAKIFY(self);
-  FIRMessagingAuthService *authService = self.authService;
-  [authService
+  [_authService
       fetchCheckinInfoWithHandler:^(FIRMessagingCheckinPreferences *preferences, NSError *error) {
         FIRMessaging_STRONGIFY(self);
         if (error) {
