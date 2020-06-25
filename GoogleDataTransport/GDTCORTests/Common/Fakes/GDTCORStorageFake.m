@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "GDTCORTests/Common/Fakes/GDTCORStorageFake.h"
+#import "GoogleDataTransport/GDTCORTests/Common/Fakes/GDTCORStorageFake.h"
 
-#import <GoogleDataTransport/GDTCOREvent.h>
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCOREvent.h"
 
 @implementation GDTCORStorageFake {
   /** Store the events in memory. */

@@ -17,10 +17,7 @@
 #import <objc/runtime.h>
 #include <sys/utsname.h>
 
-#import <GoogleDataTransport/GDTCORConsoleLogger.h>
-#import <GoogleDataTransport/GDTCOREvent.h>
-#import <GoogleDataTransport/GDTCORTargets.h>
-#import <GoogleDataTransport/GDTCORTransport.h>
+#import "GoogleDataTransport/GDTCORLibrary/Internal/GoogleDataTransportInternal.h"
 
 #import "GoogleUtilities/Environment/Private/GULAppEnvironmentUtil.h"
 #import "GoogleUtilities/Environment/Private/GULHeartbeatDateStorage.h"

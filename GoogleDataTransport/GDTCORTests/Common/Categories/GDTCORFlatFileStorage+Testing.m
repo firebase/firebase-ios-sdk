@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#import "GDTCORTests/Common/Categories/GDTCORFlatFileStorage+Testing.h"
+#import "GoogleDataTransport/GDTCORTests/Common/Categories/GDTCORFlatFileStorage+Testing.h"
 
-#import <GoogleDataTransport/GDTCORClock.h>
-#import <GoogleDataTransport/GDTCOREvent.h>
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORClock.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCOREvent.h"
 
 @implementation GDTCORFlatFileStorage (Testing)
 

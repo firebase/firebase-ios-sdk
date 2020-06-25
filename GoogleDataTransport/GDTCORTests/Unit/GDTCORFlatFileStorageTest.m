@@ -14,24 +14,24 @@
  * limitations under the License.
  */
 
-#import "GDTCORTests/Unit/GDTCORTestCase.h"
+#import "GoogleDataTransport/GDTCORTests/Unit/GDTCORTestCase.h"
 
-#import "GDTCORLibrary/Private/GDTCORFlatFileStorage.h"
-#import "GDTCORLibrary/Private/GDTCORRegistrar_Private.h"
+#import "GoogleDataTransport/GDTCORLibrary/Private/GDTCORFlatFileStorage.h"
+#import "GoogleDataTransport/GDTCORLibrary/Private/GDTCORRegistrar_Private.h"
 
-#import "GDTCORLibrary/Public/GDTCOREvent.h"
-#import "GDTCORLibrary/Public/GDTCORPlatform.h"
-#import "GDTCORLibrary/Public/GDTCORRegistrar.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCOREvent.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORPlatform.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORRegistrar.h"
 
-#import "GDTCORTests/Unit/Helpers/GDTCORAssertHelper.h"
-#import "GDTCORTests/Unit/Helpers/GDTCORDataObjectTesterClasses.h"
-#import "GDTCORTests/Unit/Helpers/GDTCOREventGenerator.h"
-#import "GDTCORTests/Unit/Helpers/GDTCORTestUploader.h"
+#import "GoogleDataTransport/GDTCORTests/Unit/Helpers/GDTCORAssertHelper.h"
+#import "GoogleDataTransport/GDTCORTests/Unit/Helpers/GDTCORDataObjectTesterClasses.h"
+#import "GoogleDataTransport/GDTCORTests/Unit/Helpers/GDTCOREventGenerator.h"
+#import "GoogleDataTransport/GDTCORTests/Unit/Helpers/GDTCORTestUploader.h"
 
-#import "GDTCORTests/Common/Fakes/GDTCORUploadCoordinatorFake.h"
+#import "GoogleDataTransport/GDTCORTests/Common/Fakes/GDTCORUploadCoordinatorFake.h"
 
-#import "GDTCORTests/Common/Categories/GDTCORFlatFileStorage+Testing.h"
-#import "GDTCORTests/Common/Categories/GDTCORRegistrar+Testing.h"
+#import "GoogleDataTransport/GDTCORTests/Common/Categories/GDTCORFlatFileStorage+Testing.h"
+#import "GoogleDataTransport/GDTCORTests/Common/Categories/GDTCORRegistrar+Testing.h"
 
 /** A category that adds finding a random element to NSSet. NSSet's -anyObject isn't random. */
 @interface NSSet (GDTCORRandomElement)

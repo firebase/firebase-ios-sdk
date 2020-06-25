@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "GDTCORLibrary/Private/GDTCORFlatFileStorage.h"
+#import "GoogleDataTransport/GDTCORLibrary/Private/GDTCORFlatFileStorage.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

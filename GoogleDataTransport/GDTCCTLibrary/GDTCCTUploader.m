@@ -14,22 +14,22 @@
  * limitations under the License.
  */
 
-#import "GDTCCTLibrary/Private/GDTCCTUploader.h"
+#import "GoogleDataTransport/GDTCCTLibrary/Private/GDTCCTUploader.h"
 
-#import <GoogleDataTransport/GDTCORConsoleLogger.h>
-#import <GoogleDataTransport/GDTCOREvent.h>
-#import <GoogleDataTransport/GDTCORPlatform.h>
-#import <GoogleDataTransport/GDTCORRegistrar.h>
-#import <GoogleDataTransport/GDTCORStorageProtocol.h>
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORConsoleLogger.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCOREvent.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORPlatform.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORRegistrar.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORStorageProtocol.h"
 
 #import <nanopb/pb.h>
 #import <nanopb/pb_decode.h>
 #import <nanopb/pb_encode.h>
 
-#import "GDTCCTLibrary/Private/GDTCCTCompressionHelper.h"
-#import "GDTCCTLibrary/Private/GDTCCTNanopbHelpers.h"
+#import "GoogleDataTransport/GDTCCTLibrary/Private/GDTCCTCompressionHelper.h"
+#import "GoogleDataTransport/GDTCCTLibrary/Private/GDTCCTNanopbHelpers.h"
 
-#import "GDTCCTLibrary/Protogen/nanopb/cct.nanopb.h"
+#import "GoogleDataTransport/GDTCCTLibrary/Protogen/nanopb/cct.nanopb.h"
 
 #ifdef GDTCOR_VERSION
 #define STR(x) STR_EXPAND(x)
