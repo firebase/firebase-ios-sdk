@@ -1560,7 +1560,14 @@ std::unique_ptr<WatchChange> Serializer::DecodeWatchChange(
     case google_firestore_v1_ListenResponse_filter_tag:
       return DecodeExistenceFilterWatchChange(reader, watch_change.filter);
   }
-  UNREACHABLE();
+
+  // Occasionally Watch will send response_type == 0 (which isn't a valid tag in
+  // the enumeration). This has only been observed in tests running against the
+  // emulator on Forge. Failing here causes the stream to restart with no ill
+  // effects.
+  reader->Fail(StringFormat("Unknown WatchChange.response_type: %s",
+                            watch_change.which_response_type));
+  return {};
 }
 
 SnapshotVersion Serializer::DecodeVersionFromListenResponse(
