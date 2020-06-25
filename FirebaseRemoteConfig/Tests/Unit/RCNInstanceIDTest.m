@@ -27,7 +27,7 @@
 
 #import <OCMock/OCMock.h>
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
-#import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
+#import "FirebaseInstallations/Source/Library/Public/FirebaseInstallations.h"
 #import "GoogleUtilities/NSData+zlib/Private/GULNSDataInternal.h"
 
 @interface RCNConfigFetch (ForTest)

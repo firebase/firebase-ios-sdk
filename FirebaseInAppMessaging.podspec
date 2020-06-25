@@ -28,7 +28,7 @@ See more product details at https://firebase.google.com/products/in-app-messagin
     base_dir + "Sources/**/*.[cmh]",
     'Interop/Analytics/Public/*.h',
     'FirebaseCore/Sources/Private/*.h',
-    'FirebaseInstallations/Source/Private/*.h',
+    'FirebaseInstallations/Source/Public/*.h',
     'GoogleUtilities/Environment/Private/*.h',
   ]
   s.public_header_files = base_dir + 'Sources/Public/*.h'

@@ -16,7 +16,7 @@
 
 #import "FIRInstanceID+Private.h"
 
-#import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
+#import "FirebaseInstallations/Source/Library/Public/FirebaseInstallations.h"
 
 #import <FirebaseInstanceID/FIRInstanceID_Private.h>
 #import "FIRInstanceIDAuthService.h"

@@ -20,7 +20,7 @@
 #import "FIRIAMClientInfoFetcher.h"
 #import "FIRIAMSDKRuntimeErrorCodes.h"
 
-#import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
+#import "FirebaseInstallations/Source/Library/Public/FirebaseInstallations.h"
 
 @interface FIRInstallationsAuthTokenResult (Tests)
 - (instancetype)initWithToken:(NSString *)token expirationDate:(NSDate *)expirationDate;

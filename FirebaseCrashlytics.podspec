@@ -25,7 +25,7 @@ Pod::Spec.new do |s|
     'Crashlytics/Shared/**/*.{c,h,m,mm}',
     'Crashlytics/third_party/**/*.{c,h,m,mm}',
     'FirebaseCore/Sources/Private/*.h',
-    'FirebaseInstallations/Source/Private/*.h',
+    'FirebaseInstallations/Source/Public/*.h',
     'GoogleDataTransport/GDTCORLibrary/Internal/*.h',
     'Interop/Analytics/Public/*.h',
   ]

@@ -31,7 +31,7 @@ git grep "${options[@]}" \
   -- ':(exclude,glob)**/Example/**' ':(exclude,glob)**/Sample/**' \
      ':(exclude)FirebaseAuth/Sources/Backend/FIRAuthBackend.m' \
      ':(exclude)FirebaseCore/Sources/Private/FirebaseCoreInternal.h' \
-     ':(exclude)FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h' \
+     ':(exclude)FirebaseInstallations/Source/Library/Public/FirebaseInstallations.h' \
      ':(exclude,glob)FirebaseStorage/**' \
      ':(exclude)Functions/FirebaseFunctions/FIRFunctions.m' \
      ':(exclude)GoogleDataTransport/GDTCORLibrary/Internal/GoogleDataTransportInternal.h' \

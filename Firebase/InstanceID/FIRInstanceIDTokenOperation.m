@@ -16,7 +16,7 @@
 
 #import "FIRInstanceIDTokenOperation.h"
 
-#import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
+#import "FirebaseInstallations/Source/Library/Public/FirebaseInstallations.h"
 
 #import "FIRInstanceIDCheckinPreferences.h"
 #import "FIRInstanceIDLogger.h"

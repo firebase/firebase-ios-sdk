@@ -14,7 +14,7 @@
 
 #import "FIRCLSInstallIdentifierModel.h"
 
-#import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
+#import "FirebaseInstallations/Source/Library/Public/FirebaseInstallations.h"
 
 #import "FIRCLSByteUtility.h"
 #import "FIRCLSLogger.h"

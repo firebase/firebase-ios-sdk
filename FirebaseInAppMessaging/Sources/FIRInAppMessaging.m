@@ -19,7 +19,7 @@
 #import <Foundation/Foundation.h>
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
-#import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
+#import "FirebaseInstallations/Source/Library/Public/FirebaseInstallations.h"
 #import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 
 #import "FIRCore+InAppMessaging.h"
