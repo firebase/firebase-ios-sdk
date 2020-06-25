@@ -1,3 +1,6 @@
+# v6.7.0
+- [changed] Functionally neutral source reorganization for preliminary Swift Package Manager support. (#5856)
+
 # v6.5.3
 - [changed] Remove unused mfa request field "mfa_provider" (#5397)
 - [fixed] Suppress deprecation warnings when targeting iOS versions up to iOS 13. (#5437)
