@@ -1,5 +1,5 @@
 # v3.4.0
-- [changed] Removed Protbuf dependency (#5890).
+- [changed] Removed Protobuf dependency (#5890).
 
 # v3.2.0
 - [added] Added completion handler for FIRExperimentController's updateExperimentsWithServiceOrigin method.
