@@ -36,8 +36,7 @@
 #import "FIRCLSMultipartMimeStreamEncoder.h"
 #import "FIRCLSURLBuilder.h"
 
-#import <GoogleDataTransport/GDTCOREvent.h>
-#import <GoogleDataTransport/GDTCORTransport.h>
+#import "GoogleDataTransport/GDTCORLibrary/Internal/GoogleDataTransportInternal.h"
 
 @interface FIRCLSReportUploader () {
   id<FIRAnalyticsInterop> _analytics;

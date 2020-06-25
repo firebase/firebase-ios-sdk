@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "GDTCORTests/Unit/Helpers/GDTCORTestUploader.h"
+#import "GoogleDataTransport/GDTCORTests/Unit/Helpers/GDTCORTestUploader.h"
 
 @implementation GDTCORTestUploader
 

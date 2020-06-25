@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import <GoogleDataTransport/GDTCORTargets.h>
+#import "GDTCORTargets.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

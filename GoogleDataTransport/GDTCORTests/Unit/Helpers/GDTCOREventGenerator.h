@@ -15,8 +15,8 @@
  */
 #import <Foundation/Foundation.h>
 
-#import <GoogleDataTransport/GDTCOREvent.h>
-#import <GoogleDataTransport/GDTCORTargets.h>
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCOREvent.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORTargets.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
