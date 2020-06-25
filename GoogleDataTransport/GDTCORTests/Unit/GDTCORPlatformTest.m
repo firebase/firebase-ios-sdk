@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#import <GoogleDataTransport/GDTCORPlatform.h>
-#import <GoogleDataTransport/GDTCORReachability.h>
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORPlatform.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORReachability.h"
 
-#import "GDTCORTests/Unit/GDTCORTestCase.h"
+#import "GoogleDataTransport/GDTCORTests/Unit/GDTCORTestCase.h"
 
 @interface GDTCORPlatformTest : GDTCORTestCase
 

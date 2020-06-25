@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-#import "GDTCCTTests/Unit/TestServer/GDTCCTTestServer.h"
+#import "GoogleDataTransport/GDTCCTTests/Unit/TestServer/GDTCCTTestServer.h"
 
-#import <GoogleDataTransport/GDTCORAssert.h>
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORAssert.h"
 
 #import <nanopb/pb_decode.h>
 #import <nanopb/pb_encode.h>
 
-#import "GDTCCTLibrary/Private/GDTCCTNanopbHelpers.h"
+#import "GoogleDataTransport/GDTCCTLibrary/Private/GDTCCTNanopbHelpers.h"
 
-#import "GDTCCTLibrary/Protogen/nanopb/cct.nanopb.h"
+#import "GoogleDataTransport/GDTCCTLibrary/Protogen/nanopb/cct.nanopb.h"
 
 @interface GDTCCTTestServer ()
 

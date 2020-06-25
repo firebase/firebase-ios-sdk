@@ -45,6 +45,7 @@ non-Cocoapod integration. This library also respects the Firebase global data co
 
   s.source_files = [
     'Firebase/CoreDiagnostics/FIRCDLibrary/**/*.[cmh]',
+    'GoogleDataTransport/GDTCORLibrary/Internal/*.h',
     'GoogleUtilities/Environment/Private/*.h',
     'GoogleUtilities/Logger/Private/*.h',
     'Interop/CoreDiagnostics/Public/*.h',

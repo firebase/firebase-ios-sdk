@@ -51,8 +51,7 @@ See more product details at https://firebase.google.com/products/in-app-messagin
 
   s.dependency 'FirebaseCore', '~> 6.8'
   s.dependency 'FirebaseInstallations', '~> 1.1'
-  s.dependency 'FirebaseABTesting', '~> 3.4'
-  s.dependency 'GoogleDataTransport', '~> 7.0'
+  s.dependency 'FirebaseABTesting', '~> 3.2'
   s.dependency 'GoogleUtilities/Environment', '~> 6.7'
   s.dependency 'nanopb', '~> 1.30905.0'
 

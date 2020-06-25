@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "GDTCORTests/Common/Fakes/GDTCORUploadCoordinatorFake.h"
+#import "GoogleDataTransport/GDTCORTests/Common/Fakes/GDTCORUploadCoordinatorFake.h"
 
 @implementation GDTCORUploadCoordinatorFake
 

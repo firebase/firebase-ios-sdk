@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-#import "GDTCCTTests/Unit/Helpers/GDTCCTEventGenerator.h"
+#import "GoogleDataTransport/GDTCCTTests/Unit/Helpers/GDTCCTEventGenerator.h"
 
-#import <GoogleDataTransport/GDTCORAssert.h>
-#import <GoogleDataTransport/GDTCOREventDataObject.h>
-#import <GoogleDataTransport/GDTCORPlatform.h>
-#import <GoogleDataTransport/GDTCORStorageProtocol.h>
-#import <GoogleDataTransport/GDTCORTargets.h>
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORAssert.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCOREventDataObject.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORPlatform.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORStorageProtocol.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORTargets.h"
 
-#import "GDTCCTLibrary/Public/GDTCOREvent+GDTCCTSupport.h"
+#import "GoogleDataTransport/GDTCCTLibrary/Public/GDTCOREvent+GDTCCTSupport.h"
 
 @interface GDTCCTEventGeneratorDataObject : NSObject <GDTCOREventDataObject>
 

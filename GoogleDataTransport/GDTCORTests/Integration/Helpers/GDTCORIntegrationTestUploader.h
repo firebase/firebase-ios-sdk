@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import <GoogleDataTransport/GDTCORUploader.h>
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORUploader.h"
 
 @class GDTCORTestServer;
 

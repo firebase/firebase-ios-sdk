@@ -16,16 +16,16 @@
 
 #import <XCTest/XCTest.h>
 
-#import <GoogleDataTransport/GDTCORRegistrar.h>
-#import <GoogleDataTransport/GDTCORStorageProtocol.h>
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORRegistrar.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORStorageProtocol.h"
 
-#import "GDTCCTLibrary/Private/GDTCCTNanopbHelpers.h"
-#import "GDTCCTLibrary/Private/GDTCCTUploader.h"
+#import "GoogleDataTransport/GDTCCTLibrary/Private/GDTCCTNanopbHelpers.h"
+#import "GoogleDataTransport/GDTCCTLibrary/Private/GDTCCTUploader.h"
 
-#import "GDTCCTTests/Common/TestStorage/GDTCCTTestStorage.h"
+#import "GoogleDataTransport/GDTCCTTests/Common/TestStorage/GDTCCTTestStorage.h"
 
-#import "GDTCCTTests/Unit/Helpers/GDTCCTEventGenerator.h"
-#import "GDTCCTTests/Unit/TestServer/GDTCCTTestServer.h"
+#import "GoogleDataTransport/GDTCCTTests/Unit/Helpers/GDTCCTEventGenerator.h"
+#import "GoogleDataTransport/GDTCCTTests/Unit/TestServer/GDTCCTTestServer.h"
 
 @interface GDTCCTUploaderTest : XCTestCase
 
