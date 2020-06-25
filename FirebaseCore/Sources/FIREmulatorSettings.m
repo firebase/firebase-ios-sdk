@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIREmulatorSettings.h"
+#import "FirebaseCore/Sources/Public/FIREmulatorSettings.h"
 
 /** :nodoc: */
 NSString *const FIREmulatorServiceDatabase = @"FIREmulatorServiceDatabase";
