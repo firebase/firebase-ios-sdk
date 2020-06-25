@@ -38,7 +38,7 @@ Shared library for iOS SDK data transport needs.
   s.dependency 'nanopb', '~> 1.30905.0'
 
   header_search_paths = {
-    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}/GoogleDataTransport/"'
+    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}/"'
   }
 
   s.pod_target_xcconfig = {

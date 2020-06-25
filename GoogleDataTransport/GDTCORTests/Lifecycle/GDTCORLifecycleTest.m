@@ -16,18 +16,18 @@
 
 #import <XCTest/XCTest.h>
 
-#import <GoogleDataTransport/GDTCOREvent.h>
-#import <GoogleDataTransport/GDTCOREventDataObject.h>
-#import <GoogleDataTransport/GDTCORTransport.h>
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCOREvent.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCOREventDataObject.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORTransport.h"
 
-#import "GDTCORLibrary/Private/GDTCORTransformer_Private.h"
-#import "GDTCORLibrary/Private/GDTCORUploadCoordinator.h"
+#import "GoogleDataTransport/GDTCORLibrary/Private/GDTCORTransformer_Private.h"
+#import "GoogleDataTransport/GDTCORLibrary/Private/GDTCORUploadCoordinator.h"
 
-#import "GDTCORTests/Lifecycle/Helpers/GDTCORLifecycleTestUploader.h"
+#import "GoogleDataTransport/GDTCORTests/Lifecycle/Helpers/GDTCORLifecycleTestUploader.h"
 
-#import "GDTCORTests/Common/Categories/GDTCORFlatFileStorage+Testing.h"
-#import "GDTCORTests/Common/Categories/GDTCORRegistrar+Testing.h"
-#import "GDTCORTests/Common/Categories/GDTCORUploadCoordinator+Testing.h"
+#import "GoogleDataTransport/GDTCORTests/Common/Categories/GDTCORFlatFileStorage+Testing.h"
+#import "GoogleDataTransport/GDTCORTests/Common/Categories/GDTCORRegistrar+Testing.h"
+#import "GoogleDataTransport/GDTCORTests/Common/Categories/GDTCORUploadCoordinator+Testing.h"
 
 /** Waits for the result of waitBlock to be YES, or times out and fails.
  *

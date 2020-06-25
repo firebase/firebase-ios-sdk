@@ -48,7 +48,6 @@ let skipDirPatterns = ["/Sample/", "/Pods/", "FirebaseStorage/Tests/Integration"
     "FirebaseRemoteConfig",
     "Crashlytics",
     "Firestore",
-    "GoogleDataTransport",
     "GoogleUtilitiesComponents",
   ]
 
@@ -171,7 +170,10 @@ for rootURL in contents {
           continue whileLoop
         }
       }
-      checkFile(fullTransformPath, isPublic: file.range(of: "/Public/") != nil)
+      let isPublic = file.range(of: "/Public/") != nil &&
+        // TODO: Skip legacy GDTCCTLibrary file that isn't Public and should be moved.
+        file.range(of: "GDTCCTLibrary/Public/GDTCOREvent+GDTCCTSupport.h") == nil
+      checkFile(fullTransformPath, isPublic: isPublic)
     }
   }
 }

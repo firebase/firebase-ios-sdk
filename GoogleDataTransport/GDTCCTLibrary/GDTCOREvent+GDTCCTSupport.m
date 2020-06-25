@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "GDTCCTLibrary/Public/GDTCOREvent+GDTCCTSupport.h"
+#import "GoogleDataTransport/GDTCCTLibrary/Public/GDTCOREvent+GDTCCTSupport.h"
 
-#import <GoogleDataTransport/GDTCORConsoleLogger.h>
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORConsoleLogger.h"
 
 NSString *const GDTCCTNeedsNetworkConnectionInfo = @"needs_network_connection_info";
 

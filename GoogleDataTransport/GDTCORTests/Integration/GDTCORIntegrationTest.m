@@ -16,20 +16,20 @@
 
 #import <XCTest/XCTest.h>
 
-#import <GoogleDataTransport/GDTCOREvent.h>
-#import <GoogleDataTransport/GDTCOREventDataObject.h>
-#import <GoogleDataTransport/GDTCOREventTransformer.h>
-#import <GoogleDataTransport/GDTCORTransport.h>
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCOREvent.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCOREventDataObject.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCOREventTransformer.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORTransport.h"
 
-#import "GDTCORTests/Common/Categories/GDTCORFlatFileStorage+Testing.h"
-#import "GDTCORTests/Common/Categories/GDTCORUploadCoordinator+Testing.h"
+#import "GoogleDataTransport/GDTCORTests/Common/Categories/GDTCORFlatFileStorage+Testing.h"
+#import "GoogleDataTransport/GDTCORTests/Common/Categories/GDTCORUploadCoordinator+Testing.h"
 
-#import "GDTCORTests/Integration/Helpers/GDTCORIntegrationTestUploader.h"
-#import "GDTCORTests/Integration/TestServer/GDTCORTestServer.h"
+#import "GoogleDataTransport/GDTCORTests/Integration/Helpers/GDTCORIntegrationTestUploader.h"
+#import "GoogleDataTransport/GDTCORTests/Integration/TestServer/GDTCORTestServer.h"
 
-#import "GDTCORLibrary/Private/GDTCORFlatFileStorage.h"
-#import "GDTCORLibrary/Private/GDTCORReachability_Private.h"
-#import "GDTCORLibrary/Private/GDTCORTransformer_Private.h"
+#import "GoogleDataTransport/GDTCORLibrary/Private/GDTCORFlatFileStorage.h"
+#import "GoogleDataTransport/GDTCORLibrary/Private/GDTCORReachability_Private.h"
+#import "GoogleDataTransport/GDTCORLibrary/Private/GDTCORTransformer_Private.h"
 
 /** A test-only event data object used in this integration test. */
 @interface GDTCORIntegrationTestEvent : NSObject <GDTCOREventDataObject>

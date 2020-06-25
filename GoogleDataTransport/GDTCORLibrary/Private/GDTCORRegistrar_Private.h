@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import <GoogleDataTransport/GDTCORRegistrar.h>
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORRegistrar.h"
 
 @interface GDTCORRegistrar ()
 
