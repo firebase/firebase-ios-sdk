@@ -20,7 +20,7 @@
 #import "FIRMessagingConstants.h"
 #import "FIRMessagingDefines.h"
 #import "FIRMessagingLogger.h"
-#import "FIRMessagingTokenOperation+Private.h"
+#import "FIRMessagingTokenOperation.h"
 #import "FIRMessagingUtilities.h"
 #import "NSError+FIRMessaging.h"
 
@@ -144,7 +144,7 @@ NSString *const kFIRMessagingHeartbeatTag = @"fire-iid";
   }
 
   NSString *errorValue = parsedResponse[@"Error"];
-  NSError *responseError;
+  NSError *responseError = nil;
   if (errorValue.length) {
     NSArray *errorComponents = [errorValue componentsSeparatedByString:@":"];
     // HACK (Kansas replication delay), PHONE_REGISTRATION_ERROR on App

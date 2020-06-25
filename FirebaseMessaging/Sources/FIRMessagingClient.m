@@ -85,6 +85,7 @@ static NSUInteger FIRMessagingServerPort() {
 // FIRMessagingService owns these instances
 @property(nonatomic, readwrite, weak) FIRMessagingRmqManager *rmq2Manager;
 @property(nonatomic, readwrite, weak) GULReachabilityChecker *reachability;
+@property(nonatomic, readwrite, weak) FIRMessagingTokenManager * tokenManager;
 
 @property(nonatomic, readwrite, assign) int64_t lastConnectedTimestamp;
 @property(nonatomic, readwrite, assign) int64_t lastDisconnectedTimestamp;
@@ -114,12 +115,14 @@ static NSUInteger FIRMessagingServerPort() {
 
 - (instancetype)initWithDelegate:(id<FIRMessagingClientDelegate>)delegate
                     reachability:(GULReachabilityChecker *)reachability
-                     rmq2Manager:(FIRMessagingRmqManager *)rmq2Manager {
+                     rmq2Manager:(FIRMessagingRmqManager *)rmq2Manager
+                    tokenManager:(FIRMessagingTokenManager *)tokenManager{
   self = [super init];
   if (self) {
     _reachability = reachability;
     _clientDelegate = delegate;
     _rmq2Manager = rmq2Manager;
+    _tokenManager = tokenManager;
     _registrar = [[FIRMessagingPubSubRegistrar alloc] init];
     _connectionTimeoutInterval = kConnectTimeoutInterval;
     // Listen for checkin fetch notifications, as connecting to MCS may have failed due to
@@ -188,9 +191,9 @@ static NSUInteger FIRMessagingServerPort() {
     }
   };
 
-  if ([[FIRMessagingTokenManager sharedInstance] hasValidCheckinInfo]) {
+  if ([_tokenManager hasValidCheckinInfo]) {
     [self.registrar updateSubscriptionToTopic:topic
-                                    withToken:token
+                                    withTokenManager:_tokenManager
                                       options:options
                                  shouldDelete:shouldDelete
                                       handler:completion];
@@ -289,7 +292,7 @@ static NSUInteger FIRMessagingServerPort() {
   }
 
   self.stayConnected = YES;
-  if (![[FIRMessagingTokenManager sharedInstance] hasValidCheckinInfo]) {
+  if (![_tokenManager hasValidCheckinInfo]) {
     // Checkin info is not available. This may be due to the checkin still being fetched.
     NSString *failureReason = @"Failed to connect to MCS. No deviceID and secret found.";
     if (self.connectHandler) {
@@ -378,8 +381,8 @@ static NSUInteger FIRMessagingServerPort() {
   self.connectRetryCount = 0;
   self.lastConnectedTimestamp = FIRMessagingCurrentTimestampInMilliseconds();
 
-  [self.dataMessageManager setDeviceAuthID:[FIRMessagingTokenManager sharedInstance].deviceAuthID
-                               secretToken:[FIRMessagingTokenManager sharedInstance].secretToken];
+  [self.dataMessageManager setDeviceAuthID:_tokenManager.deviceAuthID
+                               secretToken:_tokenManager.secretToken];
   if (self.connectHandler) {
     self.connectHandler(nil);
     // notified the third party app with the registrationId.
@@ -430,8 +433,8 @@ static NSUInteger FIRMessagingServerPort() {
     self.connection.delegate = nil;
   }
   self.connection = [[FIRMessagingConnection alloc]
-      initWithAuthID:[FIRMessagingTokenManager sharedInstance].deviceAuthID
-               token:[FIRMessagingTokenManager sharedInstance].secretToken
+      initWithAuthID:_tokenManager.deviceAuthID
+               token:_tokenManager.secretToken
                 host:host
                 port:port
              runLoop:[NSRunLoop mainRunLoop]
@@ -449,8 +452,8 @@ static NSUInteger FIRMessagingServerPort() {
   [NSObject cancelPreviousPerformRequestsWithTarget:self
                                            selector:@selector(tryToConnect)
                                              object:nil];
-  NSString *deviceAuthID = [FIRMessagingTokenManager sharedInstance].deviceAuthID;
-  NSString *secretToken = [FIRMessagingTokenManager sharedInstance].secretToken;
+  NSString *deviceAuthID = _tokenManager.deviceAuthID;
+  NSString *secretToken = _tokenManager.secretToken;
   if (deviceAuthID.length == 0 || secretToken.length == 0 || !self.connection) {
     FIRMessagingLoggerWarn(
         kFIRMessagingMessageCodeClientInvalidState,

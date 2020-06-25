@@ -430,7 +430,7 @@ BOOL FIRMessagingIsProductionApp(void) {
   if (!profileData.length || error) {
     NSString *errorString =
         [NSString stringWithFormat:@"Error while reading embedded mobileprovision %@", error];
-    FIRMessagingLoggerError(kFIRMessagingMessageCodeInstanceID014, errorString);
+    FIRMessagingLoggerError(kFIRMessagingMessageCodeInstanceID014, @"%@", errorString);
     return defaultAppTypeProd;
   }
 
