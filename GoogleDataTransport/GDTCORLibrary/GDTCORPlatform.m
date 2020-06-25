@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-#import "GDTCORLibrary/Public/GDTCORPlatform.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORPlatform.h"
 
 #import <sys/sysctl.h>
 
-#import <GoogleDataTransport/GDTCORAssert.h>
-#import <GoogleDataTransport/GDTCORConsoleLogger.h>
-#import <GoogleDataTransport/GDTCORReachability.h>
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORAssert.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORConsoleLogger.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORReachability.h"
 
-#import "GDTCORLibrary/Private/GDTCORRegistrar_Private.h"
+#import "GoogleDataTransport/GDTCORLibrary/Private/GDTCORRegistrar_Private.h"
 
 #ifdef GDTCOR_VERSION
 #define STR(x) STR_EXPAND(x)

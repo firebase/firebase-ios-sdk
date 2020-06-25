@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "GDTCORTests/Common/Fakes/GDTCORTransportFake.h"
+#import "GoogleDataTransport/GDTCORTests/Common/Fakes/GDTCORTransportFake.h"
 
 @interface GDTCORTransportFake ()
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "GDTCORLibrary/Public/GDTCORStorageEventSelector.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORStorageEventSelector.h"
 
 @implementation GDTCORStorageEventSelector
 

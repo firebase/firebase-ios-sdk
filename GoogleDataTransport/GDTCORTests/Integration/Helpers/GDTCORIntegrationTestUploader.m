@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-#import "GDTCORTests/Integration/Helpers/GDTCORIntegrationTestUploader.h"
+#import "GoogleDataTransport/GDTCORTests/Integration/Helpers/GDTCORIntegrationTestUploader.h"
 
-#import <GoogleDataTransport/GDTCORAssert.h>
-#import <GoogleDataTransport/GDTCOREvent.h>
-#import <GoogleDataTransport/GDTCORRegistrar.h>
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORAssert.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCOREvent.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORRegistrar.h"
 
-#import "GDTCORTests/Integration/TestServer/GDTCORTestServer.h"
+#import "GoogleDataTransport/GDTCORTests/Integration/TestServer/GDTCORTestServer.h"
 
 @implementation GDTCORIntegrationTestUploader {
   /** The current upload task. */

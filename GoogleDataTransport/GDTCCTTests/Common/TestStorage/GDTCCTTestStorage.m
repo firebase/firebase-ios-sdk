@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "GDTCCTTests/Common/TestStorage/GDTCCTTestStorage.h"
+#import "GoogleDataTransport/GDTCCTTests/Common/TestStorage/GDTCCTTestStorage.h"
 
-#import <GoogleDataTransport/GDTCOREvent.h>
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCOREvent.h"
 
 @implementation GDTCCTTestStorage {
   /** Store the events in memory. */

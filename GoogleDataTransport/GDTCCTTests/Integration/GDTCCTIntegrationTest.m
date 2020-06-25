@@ -16,13 +16,13 @@
 
 #import <XCTest/XCTest.h>
 
-#import <GoogleDataTransport/GDTCOREvent.h>
-#import <GoogleDataTransport/GDTCOREventDataObject.h>
-#import <GoogleDataTransport/GDTCORTransport.h>
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCOREvent.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCOREventDataObject.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORTransport.h"
 
 #import <SystemConfiguration/SCNetworkReachability.h>
 
-#import "GDTCCTLibrary/Private/GDTCCTUploader.h"
+#import "GoogleDataTransport/GDTCCTLibrary/Private/GDTCCTUploader.h"
 
 typedef void (^GDTCCTIntegrationTestBlock)(NSURLSessionUploadTask *_Nullable);
 

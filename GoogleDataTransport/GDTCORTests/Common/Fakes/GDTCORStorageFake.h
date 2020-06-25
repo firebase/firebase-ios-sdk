@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import <GoogleDataTransport/GDTCORStorageProtocol.h>
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORStorageProtocol.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

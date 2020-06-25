@@ -16,7 +16,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "GDTCORTests/Unit/Helpers/GDTCORAssertHelper.h"
+#import "GoogleDataTransport/GDTCORTests/Unit/Helpers/GDTCORAssertHelper.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
