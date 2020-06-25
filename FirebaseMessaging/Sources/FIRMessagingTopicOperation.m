@@ -47,7 +47,7 @@ NSString *FIRMessagingSubscriptionsServer() {
 
 @property(nonatomic, readwrite, copy) NSString *topic;
 @property(nonatomic, readwrite, assign) FIRMessagingTopicAction action;
-@property(nonatomic, readwrite, copy) NSString *token;
+@property(nonatomic, readwrite, strong) FIRMessagingTokenManager *tokenManager;
 @property(nonatomic, readwrite, copy) NSDictionary *options;
 @property(nonatomic, readwrite, copy) FIRMessagingTopicOperationCompletion completion;
 
@@ -71,13 +71,13 @@ NSString *FIRMessagingSubscriptionsServer() {
 
 - (instancetype)initWithTopic:(NSString *)topic
                        action:(FIRMessagingTopicAction)action
-                        token:(NSString *)token
+                        tokenManager:(FIRMessagingTokenManager *)tokenManager
                       options:(NSDictionary *)options
                    completion:(FIRMessagingTopicOperationCompletion)completion {
   if (self = [super init]) {
     _topic = topic;
     _action = action;
-    _token = token;
+    _tokenManager = tokenManager;
     _options = options;
     _completion = completion;
 
@@ -158,12 +158,10 @@ NSString *FIRMessagingSubscriptionsServer() {
   NSURL *url = [NSURL URLWithString:FIRMessagingSubscriptionsServer()];
   NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
   NSString *appIdentifier = FIRMessagingAppIdentifier();
-  NSString *deviceAuthID = [FIRMessagingTokenManager sharedInstance].deviceAuthID;
-  NSString *secretToken = [FIRMessagingTokenManager sharedInstance].secretToken;
-  NSString *authString = [NSString stringWithFormat:@"AidLogin %@:%@", deviceAuthID, secretToken];
+  NSString *authString = [NSString stringWithFormat:@"AidLogin %@:%@", _tokenManager.deviceAuthID, _tokenManager.secretToken];
   [request setValue:authString forHTTPHeaderField:@"Authorization"];
   [request setValue:appIdentifier forHTTPHeaderField:@"app"];
-  [request setValue:[FIRMessagingTokenManager sharedInstance].versionInfo
+  [request setValue:_tokenManager.versionInfo
       forHTTPHeaderField:@"info"];
 
   // Topic can contain special characters (like `%`) so encode the value.
@@ -182,7 +180,7 @@ NSString *FIRMessagingSubscriptionsServer() {
   NSMutableString *content = [NSMutableString
       stringWithFormat:@"sender=%@&app=%@&device=%@&"
                        @"app_ver=%@&X-gcm.topic=%@&X-scope=%@",
-                       self.token, appIdentifier, deviceAuthID, FIRMessagingCurrentAppVersion(),
+                       _tokenManager.token, appIdentifier, _tokenManager.deviceAuthID, FIRMessagingCurrentAppVersion(),
                        encodedTopic, encodedTopic];
 
   if (self.action == FIRMessagingTopicActionUnsubscribe) {

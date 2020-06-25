@@ -16,6 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
+
+
 @class FIRMessagingCheckinPreferences;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -37,6 +39,7 @@ typedef NS_ENUM(NSInteger, FIRMessagingTokenOperationResult) {
   FIRMessagingTokenOperationError,
   FIRMessagingTokenOperationCancelled,
 };
+
 
 /**
  *  Callback to invoke once the HTTP call to FIRMessaging backend for updating
@@ -63,10 +66,32 @@ typedef void (^FIRMessagingTokenOperationCompletion)(FIRMessagingTokenOperationR
 
 @property(nonatomic, readonly) FIRMessagingTokenOperationResult result;
 
+@property(atomic, strong, nullable) NSURLSessionDataTask *dataTask;
+@property(readonly, strong)
+    NSMutableArray<FIRMessagingTokenOperationCompletion> *completionHandlers;
+
++ (NSURLSession *)sharedURLSession;
+
+#pragma mark - Request Construction
++ (NSMutableArray<NSURLQueryItem *> *)standardQueryItemsWithDeviceID:(NSString *)deviceID
+                                                               scope:(NSString *)scope;
+- (NSMutableURLRequest *)tokenRequest;
 - (instancetype)init NS_UNAVAILABLE;
+
+#pragma mark - Initialization
+- (instancetype)initWithAction:(FIRMessagingTokenAction)action
+           forAuthorizedEntity:(nullable NSString *)authorizedEntity
+                         scope:(NSString *)scope
+                       options:(nullable NSDictionary<NSString *, NSString *> *)options
+            checkinPreferences:(FIRMessagingCheckinPreferences *)checkinPreferences
+                    instanceID:(NSString *)instanceID;
 
 - (void)addCompletionHandler:(FIRMessagingTokenOperationCompletion)handler;
 
+#pragma mark - Result
+- (void)finishWithResult:(FIRMessagingTokenOperationResult)result
+                   token:(nullable NSString *)token
+                   error:(nullable NSError *)error;
 @end
 
 NS_ASSUME_NONNULL_END

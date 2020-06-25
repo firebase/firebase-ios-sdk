@@ -76,7 +76,7 @@ NSString *const kFIRMessagingKeychainErrorDomain = @"com.google.iid";
     }
 
     if (handler) {
-      NSError *error;
+      NSError *error = nil;
       // When item is not found, it should NOT be considered as an error. The operation should
       // continue.
       if (status != noErr && status != errSecItemNotFound) {
@@ -94,7 +94,7 @@ NSString *const kFIRMessagingKeychainErrorDomain = @"com.google.iid";
     OSStatus status = SecItemAdd((__bridge CFDictionaryRef)keychainQuery, NULL);
 
     if (handler) {
-      NSError *error;
+      NSError *error = nil;
       if (status != noErr) {
         FIRMessagingLoggerWarn(kFIRMessagingKeychainAddItemError,
                                @"Couldn't add item to Keychain OSStatus: %d", (int)status);

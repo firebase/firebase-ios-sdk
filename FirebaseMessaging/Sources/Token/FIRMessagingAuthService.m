@@ -60,7 +60,7 @@ static const int64_t kMaxCheckinRetryIntervalInSeconds = 1 << 5;
     _store = store;
     _checkinPreferences = [_store cachedCheckinPreferences];
     _checkinService = checkinService;
-    _checkinHandlers = [NSMutableArray array];
+    _checkinHandlers = [[NSMutableArray alloc] init];
   }
   return self;
 }
@@ -163,7 +163,7 @@ static const int64_t kMaxCheckinRetryIntervalInSeconds = 1 << 5;
 - (void)fetchCheckinInfoWithHandler:(FIRMessagingDeviceCheckinCompletion)handler {
   // Perform any changes to self.checkinHandlers and _isCheckinInProgress in a thread-safe way.
   @synchronized(self) {
-    [self.checkinHandlers addObject:handler];
+   // [self.checkinHandlers addObject:handler];
 
     if (_isCheckinInProgress) {
       // Nothing more to do until our checkin request is done

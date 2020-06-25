@@ -20,9 +20,9 @@
 #import "FIRMessagingConstants.h"
 #import "FIRMessagingDefines.h"
 #import "FIRMessagingLogger.h"
-#import "FIRMessagingTokenOperation+Private.h"
 #import "FIRMessagingUtilities.h"
 #import "NSError+FIRMessaging.h"
+#import "FIRMessagingTokenOperation.h"
 
 @implementation FIRMessagingTokenDeleteOperation
 

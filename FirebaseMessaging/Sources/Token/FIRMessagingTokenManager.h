@@ -41,8 +41,6 @@ typedef NS_OPTIONS(NSUInteger, FIRMessagingInvalidTokenReason) {
 @property(nonatomic, readwrite, strong) NSString *fcmSenderID;
 @property(nonatomic, readwrite, strong) NSString *firebaseAppID;
 
-+ (instancetype)sharedInstance;
-
 /// Expose the auth service, so it can be used by others
 @property(nonatomic, readonly, strong) FIRMessagingAuthService *authService;
 

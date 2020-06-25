@@ -51,8 +51,7 @@ NSString *const kFIRMessagingSubDirectoryName = @"Google/FirebaseMessaging";
 
 // Notifications
 NSString *const kFIRMessagingCheckinFetchedNotification = @"com.google.gcm.notif-checkin-fetched";
-NSString *const kFIRMessagingRegistrationTokenRefreshNotification =
-    @"com.firebase.iid.notif.refresh-token";
+
 
 const int kFIRMessagingSendTtlDefault = 24 * 60 * 60;  // 24 hours
 
