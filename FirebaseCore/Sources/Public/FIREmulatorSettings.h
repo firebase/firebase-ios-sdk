@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import Foundation
+#import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -35,13 +35,13 @@ NSString *const FIREmulatorServiceFunctions;
 
 /// A class representing the connection settings for an emulated Firebase service.
 NS_SWIFT_NAME(EmulatorServiceSettings)
-@interface FIREmulatorServiceSettings: NSObject <NSCopying>
+@interface FIREmulatorServiceSettings : NSObject <NSCopying>
 
 /// The host of the emulated service, "localhost" for example.
-@property (nonatomic, readonly) NSString *host;
+@property(nonatomic, readonly) NSString *host;
 
 /// The port number of the emulated service.
-@property (nonatomic, readonly) NSInteger port;
+@property(nonatomic, readonly) NSInteger port;
 
 /// Creates a new instance with the specified host name and port number.
 - (instancetype)initWithHost:(NSString *)host port:(NSInteger)port NS_DESIGNATED_INITIALIZER;
@@ -53,7 +53,7 @@ NS_SWIFT_NAME(EmulatorServiceSettings)
 
 /// A class representing per-app settings for emulated Firebase services.
 NS_SWIFT_NAME(EmulatorSettings)
-@interface FIREmulatorSettings: NSObject <NSCopying>
+@interface FIREmulatorSettings : NSObject <NSCopying>
 
 /// Initializes an app-level settings instance with the given emulator service settings.
 - (instancetype)initWithServiceSettings:(FIREmulatorServiceSettings *)settings
@@ -61,7 +61,9 @@ NS_SWIFT_NAME(EmulatorSettings)
 
 /// Initializes an app-level settings instance with all of the provided settings.
 /// The provided settings dictionary must not be empty.
-- (instancetype)initWithSettings:(NSDictionary<FIREmulatorService *, FIREmulatorServiceSettings *> *)settings NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithSettings:
+    (NSDictionary<FIREmulatorService *, FIREmulatorServiceSettings *> *)settings
+    NS_DESIGNATED_INITIALIZER;
 
 /// Returns the service-level settings object for a given emulated service, if it exists.
 - (FIREmulatorSettings *_Nullable)settingsForService:(FIREmulatorService *)service;
