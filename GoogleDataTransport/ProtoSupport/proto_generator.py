@@ -18,11 +18,11 @@
 
 Example usage:
 
-python GoogleDataTransportCCTSupport/GoogleDataTransportCCTSupport/ProtoSupport/build_protos.py \
+python GoogleDataTransport/GoogleDataTransportCCTSupport/ProtoSupport/build_protos.py \
   --nanopb \
-  --protos_dir=GoogleDataTransportCCTSupport/GoogleDataTransportCCTSupport/Classes/Protos/ \
+  --protos_dir=GoogleDataTransport/GoogleDataTransportCCTSupport/Classes/Protos/ \
   --pythonpath=~/Downloads/nanopb-0.3.9.2-macosx-x86/generator/ \
-  --output_dir=GoogleDataTransportCCTSupport/GoogleDataTransportCCTSupport/Classes/Protogen/
+  --output_dir=GoogleDataTransport/GoogleDataTransportCCTSupport/Classes/Protogen/
 """
 
 from __future__ import print_function

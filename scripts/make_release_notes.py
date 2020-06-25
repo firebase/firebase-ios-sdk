@@ -44,7 +44,6 @@ PRODUCTS = {
     'FirebaseRemoteConfig/CHANGELOG.md': '{{remote_config}}',
 
     # 'GoogleDataTransport/CHANGELOG.md': '?',
-    # 'GoogleDataTransportCCTSupport/CHANGELOG.md': '?',
 }
 
 
