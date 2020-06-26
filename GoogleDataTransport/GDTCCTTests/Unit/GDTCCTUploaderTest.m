@@ -43,8 +43,7 @@
 
 - (void)setUp {
   self.testStorage = [[GDTCCTTestStorage alloc] init];
-  [[GDTCORRegistrar sharedInstance] registerStorage:self.testStorage
-                                             target:kGDTCORTargetTest];
+  [[GDTCORRegistrar sharedInstance] registerStorage:self.testStorage target:kGDTCORTargetTest];
   self.generator = [[GDTCCTEventGenerator alloc] initWithTarget:kGDTCORTargetTest];
   self.testServer = [[GDTCCTTestServer alloc] init];
   [self.testServer registerLogBatchPath];
@@ -75,7 +74,8 @@
   [self waitForExpectations:@[ responseSentExpectation ] timeout:30.0];
 
   // Wait for upload operation to finish.
-  XCTestExpectation *uploadFinishedExpectation = [self expectationWithDescription:@"uploadFinishedExpectation"];
+  XCTestExpectation *uploadFinishedExpectation =
+      [self expectationWithDescription:@"uploadFinishedExpectation"];
   dispatch_sync(uploader.uploaderQueue, ^{
     [uploadFinishedExpectation fulfill];
     XCTAssertNil(uploader.currentTask);
@@ -90,7 +90,8 @@
   [self batchEvents];
 
   // Expect batch IDs to be requested.
-  self.testStorage.batchIDsForTargetExpectation = [self expectationWithDescription:@"batchIDsForTargetExpectation"];
+  self.testStorage.batchIDsForTargetExpectation =
+      [self expectationWithDescription:@"batchIDsForTargetExpectation"];
 
   // Expect a batch to be uploaded.
   XCTestExpectation *responseSentExpectation = [self expectationTestServerSuccessRequestResponse];
@@ -98,14 +99,19 @@
   // TODO: Validate request content.
 
   // Expect batch to be removed on success.
-  XCTestExpectation *removeBatchExpectation = [self expectationWithDescription:@"removeBatchExpectation"];
+  XCTestExpectation *removeBatchExpectation =
+      [self expectationWithDescription:@"removeBatchExpectation"];
 
   // Create uploader and start upload.
   GDTCCTUploader *uploader = [[GDTCCTUploader alloc] init];
   uploader.testServerURL = [self.testServer.serverURL URLByAppendingPathComponent:@"logBatch"];
   [uploader uploadTarget:kGDTCORTargetTest withConditions:GDTCORUploadConditionWifiData];
 
-  [self waitForExpectations:@[self.testStorage.batchIDsForTargetExpectation, responseSentExpectation, removeBatchExpectation] timeout:10 enforceOrder:YES];
+  [self waitForExpectations:@[
+    self.testStorage.batchIDsForTargetExpectation, responseSentExpectation, removeBatchExpectation
+  ]
+                    timeout:10
+               enforceOrder:YES];
 }
 
 #pragma mark - Helpers
@@ -113,11 +119,15 @@
 - (NSNumber *)batchEvents {
   XCTestExpectation *eventsBatched = [self expectationWithDescription:@"eventsBatched"];
   __block NSNumber *batchID;
-  [self.testStorage batchWithEventSelector:[GDTCORStorageEventSelector eventSelectorForTarget:kGDTCORTargetTest] batchExpiration:[NSDate distantFuture] onComplete:^(NSNumber * _Nullable newBatchID, NSSet<GDTCOREvent *> * _Nullable batchEvents) {
-    [eventsBatched fulfill];
-    batchID = newBatchID;
-  }];
-  [self waitForExpectations:@[eventsBatched] timeout:0.5];
+  [self.testStorage
+      batchWithEventSelector:[GDTCORStorageEventSelector eventSelectorForTarget:kGDTCORTargetTest]
+             batchExpiration:[NSDate distantFuture]
+                  onComplete:^(NSNumber *_Nullable newBatchID,
+                               NSSet<GDTCOREvent *> *_Nullable batchEvents) {
+                    [eventsBatched fulfill];
+                    batchID = newBatchID;
+                  }];
+  [self waitForExpectations:@[ eventsBatched ] timeout:0.5];
 
   XCTAssertNotNil(batchID);
   return batchID;

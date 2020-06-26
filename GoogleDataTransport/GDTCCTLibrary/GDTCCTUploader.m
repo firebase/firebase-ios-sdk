@@ -31,6 +31,8 @@
 
 #import "GoogleDataTransport/GDTCCTLibrary/Protogen/nanopb/cct.nanopb.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 #ifdef GDTCOR_VERSION
 #define STR(x) STR_EXPAND(x)
 #define STR_EXPAND(x) #x
@@ -51,6 +53,12 @@ static NSString *const kLibraryDataFLLNextUploadTimeKey = @"GDTCCTUploaderFLLNex
 #if !NDEBUG
 NSNotificationName const GDTCCTUploadCompleteNotification = @"com.GDTCCTUploader.UploadComplete";
 #endif  // #if !NDEBUG
+
+typedef void (^GDTCCTUploaderURLTaskCompletion)(NSNumber *batchID,
+                                                NSSet<GDTCOREvent *> *_Nullable events,
+                                                NSData *_Nullable data,
+                                                NSURLResponse *_Nullable response,
+                                                NSError *_Nullable error);
 
 @interface GDTCCTUploader () <NSURLSessionDelegate>
 
@@ -205,116 +213,141 @@ NSNotificationName const GDTCCTUploadCompleteNotification = @"com.GDTCCTUploader
     if (![self readyToUploadTarget:target conditions:conditions]) {
       return;
     }
-    __block NSNumber *batchID;
 
+    id URLUploadCompletionHandler = ^(NSNumber *batchID, NSSet<GDTCOREvent *> *_Nullable events,
+                                      NSData *_Nullable data, NSURLResponse *_Nullable response,
+                                      NSError *_Nullable error) {
+      dispatch_async(self.uploaderQueue, ^{
+        [self handleURLSessionResponse:response
+                                  data:data
+                                 error:error
+                                target:target
+                               storage:storage
+                               batchID:batchID];
 #if !NDEBUG
-    __block NSSet<GDTCOREvent *> *events;
-#endif  // !NDEBUG
-
-    id completionHandler = ^(NSData *_Nullable data, NSURLResponse *_Nullable response,
-                             NSError *_Nullable error) {
-      GDTCORLogDebug(@"%@", @"CCT: request completed");
-      if (error) {
-        GDTCORLogWarning(GDTCORMCWUploadFailed, @"There was an error uploading events: %@", error);
-      }
-      NSError *decodingError;
-      GDTCORClock *futureUploadTime;
-      if (data) {
-        gdt_cct_LogResponse logResponse = GDTCCTDecodeLogResponse(data, &decodingError);
-        if (!decodingError && logResponse.has_next_request_wait_millis) {
-          GDTCORLogDebug(
-              @"CCT: The backend responded asking to not upload for %lld millis from now.",
-              logResponse.next_request_wait_millis);
-          futureUploadTime =
-              [GDTCORClock clockSnapshotInTheFuture:logResponse.next_request_wait_millis];
-        } else if (decodingError) {
-          GDTCORLogDebug(@"There was a response decoding error: %@", decodingError);
-        }
-        pb_release(gdt_cct_LogResponse_fields, &logResponse);
-      }
-      if (!futureUploadTime) {
-        GDTCORLogDebug(@"%@", @"CCT: The backend response failed to parse, so the next request "
-                              @"won't occur until 15 minutes from now");
-        // 15 minutes from now.
-        futureUploadTime = [GDTCORClock clockSnapshotInTheFuture:15 * 60 * 1000];
-      }
-      switch (target) {
-        case kGDTCORTargetCCT:
-          self->_CCTNextUploadTime = futureUploadTime;
-          break;
-
-        case kGDTCORTargetFLL:
-          // Falls through.
-        case kGDTCORTargetCSH:
-          self->_FLLNextUploadTime = futureUploadTime;
-        default:
-          break;
-      }
-
-      // Only retry if one of these codes is returned, or there was an error.
-      if (error || ((NSHTTPURLResponse *)response).statusCode == 429 ||
-          ((NSHTTPURLResponse *)response).statusCode == 503) {
-        [storage removeBatchWithID:batchID deleteEvents:NO onComplete:nil];
-      } else {
-        GDTCORLogDebug(@"%@", @"CCT: package delivered");
-        [storage removeBatchWithID:batchID deleteEvents:YES onComplete:nil];
-      }
-
-#if !NDEBUG
-      // Post a notification when in DEBUG mode to state how many packages were uploaded. Useful
-      // for validation during tests.
-      [[NSNotificationCenter defaultCenter] postNotificationName:GDTCCTUploadCompleteNotification
-                                                          object:@(events.count)];
+        // Post a notification when in DEBUG mode to state how many packages
+        // were uploaded. Useful for validation during tests.
+        [[NSNotificationCenter defaultCenter] postNotificationName:GDTCCTUploadCompleteNotification
+                                                            object:@(events.count)];
 #endif  // #if !NDEBUG
 
-      // End the background task if there was one.
-      if (bgID != GDTCORBackgroundIdentifierInvalid) {
-        [[GDTCORApplication sharedApplication] endBackgroundTask:bgID];
-        bgID = GDTCORBackgroundIdentifierInvalid;
-      }
-      self.currentTask = nil;
+        // End the background task if there was one.
+        if (bgID != GDTCORBackgroundIdentifierInvalid) {
+          [[GDTCORApplication sharedApplication] endBackgroundTask:bgID];
+          bgID = GDTCORBackgroundIdentifierInvalid;
+        }
+      });
     };
 
+    // Fetch events to upload.
     GDTCORStorageEventSelector *eventSelector = [self eventSelectorTarget:target
                                                            withConditions:conditions];
     if (eventSelector != nil) {
       [storage batchWithEventSelector:eventSelector
                       batchExpiration:[NSDate dateWithTimeIntervalSinceNow:600]
-                           onComplete:^(NSNumber *_Nullable newBatchID,
+                           onComplete:^(NSNumber *_Nullable batchID,
                                         NSSet<GDTCOREvent *> *_Nullable batchEvents) {
-                             if (!batchEvents || batchEvents.count == 0) {
-                               GDTCORLogDebug(@"Target %ld reported as ready for upload, but no "
-                                              @"events were selected",
-                                              (long)target);
-                               return;
-                             }
-                             batchID = newBatchID;
-#if !NDEBUG
-                             events = batchEvents;
-#endif  // !NDEBUG
-                             NSData *requestProtoData =
-                                 [self constructRequestProtoWithEvents:batchEvents];
-                             NSData *gzippedData =
-                                 [GDTCCTCompressionHelper gzippedData:requestProtoData];
-                             BOOL usingGzipData =
-                                 gzippedData != nil && gzippedData.length < requestProtoData.length;
-                             NSData *dataToSend = usingGzipData ? gzippedData : requestProtoData;
-                             NSURLRequest *request = [self constructRequestForTarget:target
-                                                                                data:dataToSend];
-                             GDTCORLogDebug(@"CTT: request containing %lu events created: %@",
-                                            (unsigned long)batchEvents.count, request);
-
-        // TODO: Remove after debug.
-//        NSAssert(self.currentTask == nil, @"There is an upload task.");
-                             self.currentTask =
-                                 [self.uploaderSession uploadTaskWithRequest:request
-                                                                    fromData:dataToSend
-                                                           completionHandler:completionHandler];
-                             GDTCORLogDebug(@"%@", @"CCT: The upload task is about to begin.");
-                             [self.currentTask resume];
+                            // Upload events.
+                             [self sendURLRequestForBatchWithID:batchID
+                                                         events:batchEvents
+                                                         target:target
+                                              completionHandler:URLUploadCompletionHandler];
                            }];
     }
   });
+}
+
+#pragma mark - Upload implementation details
+
+- (void)sendURLRequestForBatchWithID:(nullable NSNumber *)batchID
+                              events:(nullable NSSet<GDTCOREvent *> *)events
+                              target:(GDTCORTarget)target
+                   completionHandler:(GDTCCTUploaderURLTaskCompletion)completionHandler {
+  if (!events || events.count == 0) {
+    GDTCORLogDebug(@"Target %ld reported as ready for upload, but no "
+                   @"events were selected",
+                   (long)target);
+    return;
+  }
+
+  NSData *requestProtoData = [self constructRequestProtoWithEvents:events];
+  NSData *gzippedData = [GDTCCTCompressionHelper gzippedData:requestProtoData];
+  BOOL usingGzipData = gzippedData != nil && gzippedData.length < requestProtoData.length;
+  NSData *dataToSend = usingGzipData ? gzippedData : requestProtoData;
+  NSURLRequest *request = [self constructRequestForTarget:target data:dataToSend];
+  GDTCORLogDebug(@"CTT: request containing %lu events created: %@", (unsigned long)events.count,
+                 request);
+
+  // TODO: Remove after debug.
+  //        NSAssert(self.currentTask == nil, @"There is an upload task.");
+  NSSet<GDTCOREvent *> *eventsForDebug;
+#if !NDEBUG
+  eventsForDebug = events;
+#endif
+  self.currentTask = [self.uploaderSession
+      uploadTaskWithRequest:request
+                   fromData:dataToSend
+          completionHandler:^(NSData *_Nullable data, NSURLResponse *_Nullable response,
+                              NSError *_Nullable error) {
+            completionHandler(batchID, eventsForDebug, data, response, error);
+          }];
+  GDTCORLogDebug(@"%@", @"CCT: The upload task is about to begin.");
+  [self.currentTask resume];
+}
+
+- (void)handleURLSessionResponse:(nullable NSURLResponse *)response
+                            data:(nullable NSData *)data
+                           error:(nullable NSError *)error
+                          target:(GDTCORTarget)target
+                         storage:(id<GDTCORStorageProtocol>)storage
+                         batchID:(NSNumber *)batchID {
+  GDTCORLogDebug(@"%@", @"CCT: request completed");
+  if (error) {
+    GDTCORLogWarning(GDTCORMCWUploadFailed, @"There was an error uploading events: %@", error);
+  }
+  NSError *decodingError;
+  GDTCORClock *futureUploadTime;
+  if (data) {
+    gdt_cct_LogResponse logResponse = GDTCCTDecodeLogResponse(data, &decodingError);
+    if (!decodingError && logResponse.has_next_request_wait_millis) {
+      GDTCORLogDebug(@"CCT: The backend responded asking to not upload for %lld millis from now.",
+                     logResponse.next_request_wait_millis);
+      futureUploadTime =
+          [GDTCORClock clockSnapshotInTheFuture:logResponse.next_request_wait_millis];
+    } else if (decodingError) {
+      GDTCORLogDebug(@"There was a response decoding error: %@", decodingError);
+    }
+    pb_release(gdt_cct_LogResponse_fields, &logResponse);
+  }
+  if (!futureUploadTime) {
+    GDTCORLogDebug(@"%@", @"CCT: The backend response failed to parse, so the next request "
+                          @"won't occur until 15 minutes from now");
+    // 15 minutes from now.
+    futureUploadTime = [GDTCORClock clockSnapshotInTheFuture:15 * 60 * 1000];
+  }
+  switch (target) {
+    case kGDTCORTargetCCT:
+      self->_CCTNextUploadTime = futureUploadTime;
+      break;
+
+    case kGDTCORTargetFLL:
+      // Falls through.
+    case kGDTCORTargetCSH:
+      self->_FLLNextUploadTime = futureUploadTime;
+    default:
+      break;
+  }
+
+  // Only retry if one of these codes is returned, or there was an error.
+  if (error || ((NSHTTPURLResponse *)response).statusCode == 429 ||
+      ((NSHTTPURLResponse *)response).statusCode == 503) {
+    [storage removeBatchWithID:batchID deleteEvents:NO onComplete:nil];
+  } else {
+    GDTCORLogDebug(@"%@", @"CCT: package delivered");
+    [storage removeBatchWithID:batchID deleteEvents:YES onComplete:nil];
+  }
+
+  self.currentTask = nil;
 }
 
 #pragma mark - Private helper methods
@@ -545,3 +578,5 @@ NSNotificationName const GDTCCTUploadCompleteNotification = @"com.GDTCCTUploader
 }
 
 @end
+
+NS_ASSUME_NONNULL_END

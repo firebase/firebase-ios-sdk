@@ -21,7 +21,7 @@
 
 @interface GDTCCTTestStorage : NSObject <GDTCORStorageProtocol>
 
-@property (nonatomic, nullable) XCTestExpectation *removeBatchWithIDExpectation;
-@property (nonatomic, nullable) XCTestExpectation *batchIDsForTargetExpectation;
+@property(nonatomic, nullable) XCTestExpectation *removeBatchWithIDExpectation;
+@property(nonatomic, nullable) XCTestExpectation *batchIDsForTargetExpectation;
 
 @end
