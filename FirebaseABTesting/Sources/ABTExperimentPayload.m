@@ -90,16 +90,16 @@ static NSString *const kExperimentPayloadKeyOngoingExperiments = @"ongoingExperi
       NSDate *experimentStartTime = [[[self class] experimentStartTimeFormatter]
           dateFromString:dictionary[kExperimentPayloadKeyExperimentStartTime]];
       _experimentStartTimeMillis =
-          [@([experimentStartTime timeIntervalSince1970] * 1000) integerValue];
+          [@([experimentStartTime timeIntervalSince1970] * 1000) longLongValue];
     } else if (dictionary[kExperimentPayloadKeyExperimentStartTimeMillis]) {
       // Simply store milliseconds.
       _experimentStartTimeMillis =
-          [dictionary[kExperimentPayloadKeyExperimentStartTimeMillis] integerValue];
+          [dictionary[kExperimentPayloadKeyExperimentStartTimeMillis] longLongValue];
       ;
     }
 
-    _triggerTimeoutMillis = [dictionary[kExperimentPayloadKeyTriggerTimeoutMillis] integerValue];
-    _timeToLiveMillis = [dictionary[kExperimentPayloadKeyTimeToLiveMillis] integerValue];
+    _triggerTimeoutMillis = [dictionary[kExperimentPayloadKeyTriggerTimeoutMillis] longLongValue];
+    _timeToLiveMillis = [dictionary[kExperimentPayloadKeyTimeToLiveMillis] longLongValue];
 
     // Overflow policy can be an integer, or string e.g. "DISCARD_OLDEST" or "IGNORE_NEWEST".
     if ([dictionary[kExperimentPayloadKeyOverflowPolicy] isKindOfClass:[NSString class]]) {
