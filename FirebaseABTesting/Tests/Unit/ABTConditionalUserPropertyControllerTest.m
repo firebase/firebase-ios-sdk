@@ -257,12 +257,12 @@ typedef void (^FakeAnalyticsLogEventWithOriginNameParametersHandler)(
   id payload = OCMClassMock([ABTExperimentPayload class]);
   OCMStub([payload experimentId]).andReturn(@"exp_1");
   OCMStub([payload variantId]).andReturn(@"variant_B");
-  long startTimeMillis = now * ABT_MSEC_PER_SEC;
+  int64_t startTimeMillis = now * ABT_MSEC_PER_SEC;
   OCMStub([payload experimentStartTimeMillis]).andReturn(startTimeMillis);
   OCMStub([payload triggerEvent]).andReturn(@"");
-  long triggerTimeoutMillis = (now + 1500) * ABT_MSEC_PER_SEC;
+  int64_t triggerTimeoutMillis = (now + 1500) * ABT_MSEC_PER_SEC;
   OCMStub([payload triggerTimeoutMillis]).andReturn(triggerTimeoutMillis);
-  long timeToLiveMillis = (now + 60000) * ABT_MSEC_PER_SEC;
+  int64_t timeToLiveMillis = (now + 60000) * ABT_MSEC_PER_SEC;
   OCMStub([payload timeToLiveMillis]).andReturn(timeToLiveMillis);
 
   FIRLifecycleEvents *events = [[FIRLifecycleEvents alloc] init];
