@@ -119,13 +119,14 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
 - (void)expectDoc:(NSObject *)expected;
 - (void)expectNoDoc;
 - (void)expectError:(FIRFirestoreErrorCode)expected;
+
+@property(atomic, strong, readwrite) NSArray<TransactionStage> *stages;
+@property(atomic, strong, readwrite) FIRDocumentReference *docRef;
+@property(atomic, assign, readwrite) BOOL fromExistingDoc;
 @end
 
 @implementation FSTTransactionTester {
   FIRFirestore *_db;
-  FIRDocumentReference *_docRef;
-  BOOL _fromExistingDoc;
-  NSArray<TransactionStage> *_stages;
   FSTTransactionTests *_testCase;
   NSMutableArray<XCTestExpectation *> *_testExpectations;
 }
@@ -141,17 +142,17 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
 }
 
 - (FSTTransactionTester *)withExistingDoc {
-  _fromExistingDoc = YES;
+  self.fromExistingDoc = YES;
   return self;
 }
 
 - (FSTTransactionTester *)withNonexistentDoc {
-  _fromExistingDoc = NO;
+  self.fromExistingDoc = NO;
   return self;
 }
 
 - (FSTTransactionTester *)runWithStages:(NSArray<TransactionStage> *)stages {
-  _stages = stages;
+  self.stages = stages;
   return self;
 }
 
@@ -160,7 +161,7 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
   [self runSuccessfulTransaction];
 
   XCTestExpectation *expectation = [_testCase expectationWithDescription:@"expectDoc"];
-  [_docRef getDocumentWithCompletion:^(FIRDocumentSnapshot *snapshot, NSError *error) {
+  [self.docRef getDocumentWithCompletion:^(FIRDocumentSnapshot *snapshot, NSError *error) {
     [self->_testCase assertSnapshot:snapshot equalsObject:expected error:error];
     [expectation fulfill];
   }];
@@ -174,7 +175,7 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
   [self runSuccessfulTransaction];
 
   XCTestExpectation *expectation = [_testCase expectationWithDescription:@"expectNoDoc"];
-  [_docRef getDocumentWithCompletion:^(FIRDocumentSnapshot *snapshot, NSError *error) {
+  [self.docRef getDocumentWithCompletion:^(FIRDocumentSnapshot *snapshot, NSError *error) {
     [self->_testCase assertDoesNotExistWithSnapshot:snapshot error:error];
     [expectation fulfill];
   }];
@@ -191,9 +192,9 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
 }
 
 - (void)prepareDoc {
-  _docRef = [[_db collectionWithPath:@"nonexistent"] documentWithAutoID];
+  self.docRef = [[_db collectionWithPath:@"nonexistent"] documentWithAutoID];
   if (_fromExistingDoc) {
-    NSError *setError = [self writeDocumentRef:_docRef data:@{@"foo" : @"bar"}];
+    NSError *setError = [self writeDocumentRef:self.docRef data:@{@"foo" : @"bar"}];
     NSString *message = [NSString stringWithFormat:@"Failed set at %@", [self stageNames]];
     [_testCase assertNilError:setError message:message];
   }
@@ -217,8 +218,8 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
       [_testCase expectationWithDescription:@"runSuccessfulTransaction"];
   [_db
       runTransactionWithBlock:^id _Nullable(FIRTransaction *transaction, NSError **) {
-        for (TransactionStage stage in self->_stages) {
-          stage(transaction, self->_docRef);
+        for (TransactionStage stage in self.stages) {
+          stage(transaction, self.docRef);
         }
         return @YES;
       }
@@ -239,8 +240,8 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
       [_testCase expectationWithDescription:@"runFailingTransactionWithError"];
   [_db
       runTransactionWithBlock:^id _Nullable(FIRTransaction *transaction, NSError **) {
-        for (TransactionStage stage in self->_stages) {
-          stage(transaction, self->_docRef);
+        for (TransactionStage stage in self.stages) {
+          stage(transaction, self.docRef);
         }
         return @YES;
       }
@@ -256,14 +257,14 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
 }
 
 - (void)cleanupTester {
-  _stages = [NSArray array];
+  self.stages = [NSArray array];
   // Set the docRef to something else to lose the original reference.
-  _docRef = [[self->_db collectionWithPath:@"reset"] documentWithAutoID];
+  self.docRef = [[self->_db collectionWithPath:@"reset"] documentWithAutoID];
 }
 
 - (NSString *)stageNames {
   NSMutableArray<NSString *> *seqList = [NSMutableArray array];
-  for (TransactionStage stage in _stages) {
+  for (TransactionStage stage in self.stages) {
     if (stage == delete1) {
       [seqList addObject:@"delete"];
     } else if (stage == update1 || stage == update2) {
