@@ -297,7 +297,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSString *)retrievePasteboardContents {
-  NSString *pasteboardContents;
+  NSString *pasteboardContents = @"";
   if (@available(iOS 10.0, *)) {
     if ([[UIPasteboard generalPasteboard] hasURLs]) {
       pasteboardContents = [UIPasteboard generalPasteboard].string;
