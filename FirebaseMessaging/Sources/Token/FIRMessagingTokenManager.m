@@ -47,12 +47,13 @@
 - (instancetype)init {
   self = [super init];
   if (self) {
-    _instanceIDStore = [[FIRMessagingStore alloc] initWithDelegate:self];
-    _authService = [[FIRMessagingAuthService alloc] initWithStore:_instanceIDStore];
-    _installations = [FIRInstallations installations];
     if (![FIRMessagingStore hasSubDirectory:kFIRInstanceIDSubDirectoryName]) {
       [FIRMessagingStore createSubDirectory:kFIRInstanceIDSubDirectoryName];
     }
+    _instanceIDStore = [[FIRMessagingStore alloc] initWithDelegate:self];
+    _authService = [[FIRMessagingAuthService alloc] initWithStore:_instanceIDStore];
+    _installations = [FIRInstallations installations];
+
     [self configureTokenOperations];
   }
   return self;
@@ -60,6 +61,7 @@
 
 - (void)dealloc {
   [self stopAllTokenOperations];
+  [super dealloc];
 }
 
 - (NSString *)token {

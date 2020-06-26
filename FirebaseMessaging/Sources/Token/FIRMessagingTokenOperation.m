@@ -105,7 +105,7 @@ static NSString *const kFIRMessagingParamFCMLibVersion = @"X-cliv";
 
 - (void)setExecuting:(BOOL)executing {
   [self willChangeValueForKey:@"isExecuting"];
-  _isExecuting = executing;
+    _isExecuting = executing;
   [self didChangeValueForKey:@"isExecuting"];
 }
 

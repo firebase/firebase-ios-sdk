@@ -31,15 +31,12 @@
                       checkinPreferences:(FIRMessagingCheckinPreferences *)checkinPreferences
                               instanceID:(NSString *)instanceID
                                   action:(FIRMessagingTokenAction)action {
-  self = [super initWithAction:action
+  return [super initWithAction:action
            forAuthorizedEntity:authorizedEntity
                          scope:scope
                        options:nil
             checkinPreferences:checkinPreferences
                     instanceID:instanceID];
-  if (self) {
-  }
-  return self;
 }
 
 - (void)performTokenOperation {

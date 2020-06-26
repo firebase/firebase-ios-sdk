@@ -128,7 +128,7 @@ static const int64_t kMaxCheckinRetryIntervalInSeconds = 1 << 5;
   }
 
   FIRMessaging_WEAKIFY(self);
-  [self fetchCheckinInfoWithHandler:^(FIRMessagingCheckinPreferences *preferences, NSError *error) {
+  [self fetchCheckinInfoWithHandler:^(FIRMessagingCheckinPreferences * _Nullable checkinPreferences, NSError * _Nullable error) {
     FIRMessaging_STRONGIFY(self);
     self.checkinRetryCount++;
 
@@ -160,10 +160,10 @@ static const int64_t kMaxCheckinRetryIntervalInSeconds = 1 << 5;
   return [self.checkinPreferences hasValidCheckinInfo];
 }
 
-- (void)fetchCheckinInfoWithHandler:(FIRMessagingDeviceCheckinCompletion)handler {
+- (void)fetchCheckinInfoWithHandler:(nullable FIRMessagingDeviceCheckinCompletion)handler {
   // Perform any changes to self.checkinHandlers and _isCheckinInProgress in a thread-safe way.
   @synchronized(self) {
-   // [self.checkinHandlers addObject:handler];
+    [self.checkinHandlers addObject:[handler copy]];
 
     if (_isCheckinInProgress) {
       // Nothing more to do until our checkin request is done
@@ -283,6 +283,10 @@ static const int64_t kMaxCheckinRetryIntervalInSeconds = 1 << 5;
     }
     [self.checkinHandlers removeAllObjects];
   }
+}
+
+-(void)setCheckinHandlers:(NSMutableArray<FIRMessagingDeviceCheckinCompletion> *)checkinHandlers {
+  NSLog(@"%lu", (unsigned long)self.checkinHandlers.count);
 }
 
 /**
