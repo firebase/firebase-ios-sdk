@@ -22,8 +22,8 @@
 #import "FBLPromises.h"
 #endif
 
-#import "Crashlytics/UnitTests/Mocks/FIRAppFake.h"
 #import "Crashlytics/Crashlytics/FIRCLSUserDefaults/FIRCLSUserDefaults.h"
+#import "Crashlytics/UnitTests/Mocks/FIRAppFake.h"
 
 #pragma mark - Tests for FIRCLSDataCollectionArbiter
 

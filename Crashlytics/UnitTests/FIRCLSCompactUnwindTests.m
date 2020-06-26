@@ -19,9 +19,9 @@
 
 #import "Crashlytics/Shared/FIRCLSMachO/FIRCLSMachO.h"
 
-#include "Crashlytics/Crashlytics/Unwind/Compact/FIRCLSCompactUnwind_Private.h"
 #include "Crashlytics/Crashlytics/Components/FIRCLSContext.h"
 #include "Crashlytics/Crashlytics/Components/FIRCLSGlobals.h"
+#include "Crashlytics/Crashlytics/Unwind/Compact/FIRCLSCompactUnwind_Private.h"
 #include "Crashlytics/Crashlytics/Unwind/FIRCLSUnwind_x86.h"
 
 @interface FIRCLSCompactUnwindTests : XCTestCase

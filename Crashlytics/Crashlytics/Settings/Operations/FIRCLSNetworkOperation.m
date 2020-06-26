@@ -15,10 +15,10 @@
 #import "Crashlytics/Crashlytics/Settings/Operations/FIRCLSNetworkOperation.h"
 
 #import "Crashlytics/Crashlytics/Components/FIRCLSApplication.h"
-#import "Crashlytics/Shared/FIRCLSConstants.h"
 #import "Crashlytics/Crashlytics/DataCollection/FIRCLSDataCollectionToken.h"
 #import "Crashlytics/Crashlytics/Helpers/FIRCLSDefines.h"
 #import "Crashlytics/Crashlytics/Helpers/FIRCLSLogger.h"
+#import "Crashlytics/Shared/FIRCLSConstants.h"
 
 @interface FIRCLSNetworkOperation ()
 

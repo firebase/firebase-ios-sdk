@@ -15,8 +15,8 @@
 #import "Crashlytics/Crashlytics/Settings/Models/FIRCLSApplicationIdentifierModel.h"
 
 #import "Crashlytics/Crashlytics/Components/FIRCLSApplication.h"
-#import "Crashlytics/Shared/FIRCLSByteUtility.h"
 #import "Crashlytics/Crashlytics/Helpers/FIRCLSDefines.h"
+#import "Crashlytics/Shared/FIRCLSByteUtility.h"
 #import "Crashlytics/Shared/FIRCLSMachO/FIRCLSMachO.h"
 #import "Crashlytics/Shared/FIRCLSUUID.h"
 

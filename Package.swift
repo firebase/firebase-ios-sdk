@@ -216,7 +216,7 @@ let package = Package(
         .define("FIRAuth_VERSION", to: "0.0.1"), // TODO: Fix version
         .define("FIRAuth_MINOR_VERSION", to: "1.1"), // TODO: Fix version
       ]
-    ),    
+    ),
     .target(
       name: "FirebaseCrashlytics",
       dependencies: ["FirebaseCore", "FirebaseInstallations", "FBLPromises",

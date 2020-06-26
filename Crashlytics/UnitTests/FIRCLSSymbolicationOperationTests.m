@@ -17,8 +17,8 @@
 #import <Foundation/Foundation.h>
 #import <XCTest/XCTest.h>
 
-#import "Crashlytics/UnitTests/Mocks/FIRCLSMockSymbolResolver.h"
 #import "Crashlytics/Crashlytics/Private/FIRStackFrame_Private.h"
+#import "Crashlytics/UnitTests/Mocks/FIRCLSMockSymbolResolver.h"
 
 @interface FIRCLSSymbolicationOperationTests : XCTestCase
 

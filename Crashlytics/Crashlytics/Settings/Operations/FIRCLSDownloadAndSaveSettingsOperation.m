@@ -14,11 +14,11 @@
 
 #import "Crashlytics/Crashlytics/Settings/Operations/FIRCLSDownloadAndSaveSettingsOperation.h"
 
+#import "Crashlytics/Crashlytics/Helpers/FIRCLSLogger.h"
+#import "Crashlytics/Crashlytics/Models/FIRCLSInstallIdentifierModel.h"
 #import "Crashlytics/Shared/FIRCLSConstants.h"
 #import "Crashlytics/Shared/FIRCLSFABHost.h"
 #import "Crashlytics/Shared/FIRCLSNetworking/FIRCLSFABNetworkClient.h"
-#import "Crashlytics/Crashlytics/Models/FIRCLSInstallIdentifierModel.h"
-#import "Crashlytics/Crashlytics/Helpers/FIRCLSLogger.h"
 
 @interface FIRCLSDownloadAndSaveSettingsOperation ()
 

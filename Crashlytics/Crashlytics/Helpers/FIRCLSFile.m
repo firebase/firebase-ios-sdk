@@ -14,8 +14,8 @@
 
 #include "Crashlytics/Crashlytics/Helpers/FIRCLSFile.h"
 
-#include "Crashlytics/Shared/FIRCLSByteUtility.h"
 #include "Crashlytics/Crashlytics/Helpers/FIRCLSUtility.h"
+#include "Crashlytics/Shared/FIRCLSByteUtility.h"
 
 #if TARGET_OS_MAC
 #include <Foundation/Foundation.h>

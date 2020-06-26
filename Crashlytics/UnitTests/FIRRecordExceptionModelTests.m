@@ -17,10 +17,10 @@
 #import "Crashlytics/Crashlytics/Public/FIRExceptionModel.h"
 #import "Crashlytics/Crashlytics/Public/FIRStackFrame.h"
 
-#import "Crashlytics/UnitTests/Mocks/FABMockApplicationIdentifierModel.h"
 #import "Crashlytics/Crashlytics/Components/FIRCLSContext.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSInstallIdentifierModel.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSInternalReport.h"
+#import "Crashlytics/UnitTests/Mocks/FABMockApplicationIdentifierModel.h"
 #import "Crashlytics/UnitTests/Mocks/FIRCLSMockFileManager.h"
 #import "Crashlytics/UnitTests/Mocks/FIRCLSMockSettings.h"
 #import "Crashlytics/UnitTests/Mocks/FIRMockInstallations.h"

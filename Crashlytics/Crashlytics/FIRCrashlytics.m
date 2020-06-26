@@ -20,24 +20,24 @@
 #import "FBLPromises.h"
 #endif
 
-#import "Crashlytics/Crashlytics/Settings/Models/FIRCLSApplicationIdentifierModel.h"
 #include "Crashlytics/Crashlytics/Components/FIRCLSCrashedMarkerFile.h"
-#import "Crashlytics/Crashlytics/DataCollection/FIRCLSDataCollectionArbiter.h"
-#import "Crashlytics/Crashlytics/Helpers/FIRCLSDefines.h"
-#include "Crashlytics/Crashlytics/Handlers/FIRCLSException.h"
-#import "Crashlytics/Crashlytics/Models/FIRCLSFileManager.h"
 #include "Crashlytics/Crashlytics/Components/FIRCLSGlobals.h"
 #import "Crashlytics/Crashlytics/Components/FIRCLSHost.h"
+#include "Crashlytics/Crashlytics/Components/FIRCLSUserLogging.h"
+#import "Crashlytics/Crashlytics/DataCollection/FIRCLSDataCollectionArbiter.h"
+#import "Crashlytics/Crashlytics/FIRCLSUserDefaults/FIRCLSUserDefaults.h"
+#include "Crashlytics/Crashlytics/Handlers/FIRCLSException.h"
+#import "Crashlytics/Crashlytics/Helpers/FIRCLSDefines.h"
 #include "Crashlytics/Crashlytics/Helpers/FIRCLSProfiling.h"
+#include "Crashlytics/Crashlytics/Helpers/FIRCLSUtility.h"
+#import "Crashlytics/Crashlytics/Models/FIRCLSFileManager.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSReport_Private.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSSettings.h"
-#import "Crashlytics/Crashlytics/FIRCLSUserDefaults/FIRCLSUserDefaults.h"
-#include "Crashlytics/Crashlytics/Components/FIRCLSUserLogging.h"
-#include "Crashlytics/Crashlytics/Helpers/FIRCLSUtility.h"
+#import "Crashlytics/Crashlytics/Settings/Models/FIRCLSApplicationIdentifierModel.h"
 
+#import "Crashlytics/Crashlytics/Helpers/FIRCLSLogger.h"
 #import "Crashlytics/Shared/FIRCLSByteUtility.h"
 #import "Crashlytics/Shared/FIRCLSFABHost.h"
-#import "Crashlytics/Crashlytics/Helpers/FIRCLSLogger.h"
 
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSReportManager.h"
 

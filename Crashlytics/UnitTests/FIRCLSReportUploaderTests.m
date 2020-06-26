@@ -16,16 +16,16 @@
 
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSReportUploader_Private.h"
 
-#import "Crashlytics/UnitTests/Mocks/FABMockApplicationIdentifierModel.h"
 #import "Crashlytics/Crashlytics/Components/FIRCLSApplication.h"
-#include "Crashlytics/Shared/FIRCLSConstants.h"
 #include "Crashlytics/Crashlytics/DataCollection/FIRCLSDataCollectionToken.h"
 #include "Crashlytics/Crashlytics/Helpers/FIRCLSDefines.h"
 #include "Crashlytics/Crashlytics/Models/FIRCLSFileManager.h"
 #include "Crashlytics/Crashlytics/Models/FIRCLSInternalReport.h"
+#include "Crashlytics/Crashlytics/Models/FIRCLSSettings.h"
+#include "Crashlytics/Shared/FIRCLSConstants.h"
+#import "Crashlytics/UnitTests/Mocks/FABMockApplicationIdentifierModel.h"
 #include "Crashlytics/UnitTests/Mocks/FIRCLSMockNetworkClient.h"
 #include "Crashlytics/UnitTests/Mocks/FIRCLSMockSettings.h"
-#include "Crashlytics/Crashlytics/Models/FIRCLSSettings.h"
 #include "Crashlytics/UnitTests/Mocks/FIRCLSTempMockFileManager.h"
 #include "Crashlytics/UnitTests/Mocks/FIRMockGDTCoreTransport.h"
 

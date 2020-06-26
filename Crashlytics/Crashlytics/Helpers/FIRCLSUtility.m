@@ -18,9 +18,9 @@
 
 #include <dlfcn.h>
 
+#include "Crashlytics/Crashlytics/Components/FIRCLSGlobals.h"
 #include "Crashlytics/Crashlytics/Helpers/FIRCLSFeatures.h"
 #include "Crashlytics/Crashlytics/Helpers/FIRCLSFile.h"
-#include "Crashlytics/Crashlytics/Components/FIRCLSGlobals.h"
 
 #import "Crashlytics/Shared/FIRCLSByteUtility.h"
 #import "Crashlytics/Shared/FIRCLSUUID.h"

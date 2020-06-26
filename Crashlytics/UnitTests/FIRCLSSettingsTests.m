@@ -23,8 +23,8 @@
 #import "FBLPromises.h"
 #endif
 
-#import "Crashlytics/UnitTests/Mocks/FABMockApplicationIdentifierModel.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSFileManager.h"
+#import "Crashlytics/UnitTests/Mocks/FABMockApplicationIdentifierModel.h"
 #import "Crashlytics/UnitTests/Mocks/FIRCLSMockFileManager.h"
 
 const NSString *FIRCLSTestSettingsActivated =

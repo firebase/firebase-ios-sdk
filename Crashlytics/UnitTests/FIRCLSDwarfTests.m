@@ -19,9 +19,9 @@
 #import "Crashlytics/Shared/FIRCLSMachO/FIRCLSMachO.h"
 
 #include "Crashlytics/Crashlytics/Components/FIRCLSContext.h"
+#include "Crashlytics/Crashlytics/Components/FIRCLSGlobals.h"
 #include "Crashlytics/Crashlytics/Helpers/FIRCLSDefines.h"
 #include "Crashlytics/Crashlytics/Unwind/Dwarf/FIRCLSDwarfUnwind.h"
-#include "Crashlytics/Crashlytics/Components/FIRCLSGlobals.h"
 #include "Crashlytics/Crashlytics/Unwind/FIRCLSUnwind_arch.h"
 
 @interface FIRCLSDwarfTests : XCTestCase

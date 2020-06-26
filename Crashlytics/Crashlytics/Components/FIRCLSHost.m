@@ -19,11 +19,11 @@
 #include <sys/sysctl.h>
 
 #import "Crashlytics/Crashlytics/Components/FIRCLSApplication.h"
-#include "Crashlytics/Crashlytics/Helpers/FIRCLSDefines.h"
-#import "Crashlytics/Shared/FIRCLSFABHost.h"
-#include "Crashlytics/Crashlytics/Helpers/FIRCLSFile.h"
 #include "Crashlytics/Crashlytics/Components/FIRCLSGlobals.h"
+#include "Crashlytics/Crashlytics/Helpers/FIRCLSDefines.h"
+#include "Crashlytics/Crashlytics/Helpers/FIRCLSFile.h"
 #include "Crashlytics/Crashlytics/Helpers/FIRCLSUtility.h"
+#import "Crashlytics/Shared/FIRCLSFABHost.h"
 
 #if TARGET_OS_IPHONE
 #import <UIKit/UIKit.h>
