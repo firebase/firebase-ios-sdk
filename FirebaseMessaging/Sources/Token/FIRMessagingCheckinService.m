@@ -107,15 +107,15 @@ static NSUInteger const kFragment = 0;
         NSDictionary *dataResponse = [NSJSONSerialization JSONObjectWithData:data
                                                                      options:0
                                                                        error:&serializationError];
-//        if (serializationError) {
-//          FIRMessagingLoggerDebug(kFIRMessagingMessageCodeService001,
-//                                  @"Error serializing json object. Error Code: %ld",
-//                                  (long)serializationError.code);
-//          if (completion) {
-//            completion(nil, serializationError);
-//          }
-//          return;
-//        }
+        if (serializationError) {
+          FIRMessagingLoggerDebug(kFIRMessagingMessageCodeService001,
+                                  @"Error serializing json object. Error Code: %ld",
+                                  (long)serializationError.code);
+          if (completion) {
+            completion(nil, serializationError);
+          }
+          return;
+        }
 
         NSString *deviceAuthID = [dataResponse[@"android_id"] stringValue];
         NSString *secretToken = [dataResponse[@"security_token"] stringValue];
@@ -177,11 +177,11 @@ static NSUInteger const kFragment = 0;
           completion(checkinPreferences, nil);
         }
       };
-  NSURLSessionConfiguration *config = [NSURLSessionConfiguration defaultSessionConfiguration];
-  config.timeoutIntervalForResource = 60.0f;  // 1 minute
-  config.allowsCellularAccess = YES;
-  _session = [NSURLSession sessionWithConfiguration:config];
-  _session.sessionDescription = @"com.google.iid-checkin";
+//  NSURLSessionConfiguration *config = [NSURLSessionConfiguration defaultSessionConfiguration];
+//  config.timeoutIntervalForResource = 60.0f;  // 1 minute
+//  config.allowsCellularAccess = YES;
+//  _session = [NSURLSession sessionWithConfiguration:config];
+//  _session.sessionDescription = @"com.google.iid-checkin";
   NSURLSessionDataTask *task = [self.session dataTaskWithRequest:request completionHandler:handler];
   [task resume];
 }

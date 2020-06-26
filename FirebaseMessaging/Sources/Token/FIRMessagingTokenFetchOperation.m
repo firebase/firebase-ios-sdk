@@ -42,15 +42,12 @@ NSString *const kFIRMessagingHeartbeatTag = @"fire-iid";
                                  options:(nullable NSDictionary<NSString *, NSString *> *)options
                       checkinPreferences:(FIRMessagingCheckinPreferences *)checkinPreferences
                               instanceID:(NSString *)instanceID {
-  self = [super initWithAction:FIRMessagingTokenActionFetch
+  return [super initWithAction:FIRMessagingTokenActionFetch
            forAuthorizedEntity:authorizedEntity
                          scope:scope
                        options:options
             checkinPreferences:checkinPreferences
                     instanceID:instanceID];
-  if (self) {
-  }
-  return self;
 }
 
 - (void)performTokenOperation {

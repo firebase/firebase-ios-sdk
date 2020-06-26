@@ -271,29 +271,28 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 }
 
 - (void)didCompleteConfigure {
-//  self.tokenManager = [FIRMessagingTokenManager sharedInstance];
-////  NSString *cachedToken = [self.tokenManager cachedTokenInfoWithAuthorizedEntity:self.tokenManager.fcmSenderID scope:kFIRMessagingDefaultTokenScope].token;
-//  NSString *cachedToken;
-//  // When there is a cached token, do the token refresh.
-//  if (cachedToken) {
-//    // Clean up expired tokens by checking the token refresh policy.
-//    [self.installations
-//        installationIDWithCompletion:^(NSString *_Nullable identifier, NSError *_Nullable error) {
-//          if ([self.tokenManager checkTokenRefreshPolicyWithIID:identifier]) {
-//            // Default token is expired, fetch default token from server.
-//            [self retrieveFCMTokenForSenderID:self.tokenManager.fcmSenderID completion:^(NSString * _Nullable FCMToken, NSError * _Nullable error) {
-//              self.defaultFcmToken = FCMToken;
-//            }];
-//          }
-//        }];
-//  } else if (self.isAutoInitEnabled) {
-//    // When there is no cached token, must check auto init is enabled.
-//    // If it's disabled, don't initiate token generation/refresh.
-//    // If no cache token and auto init is enabled, fetch a token from server.
-//    [self retrieveFCMTokenForSenderID:self.tokenManager.fcmSenderID completion:^(NSString * _Nullable FCMToken, NSError * _Nullable error) {
-//      self.defaultFcmToken = FCMToken;
-//    }];
-//  }
+//  NSString *cachedToken = [self.tokenManager cachedTokenInfoWithAuthorizedEntity:self.tokenManager.fcmSenderID scope:kFIRMessagingDefaultTokenScope].token;
+  NSString *cachedToken;
+  // When there is a cached token, do the token refresh.
+  if (cachedToken) {
+    // Clean up expired tokens by checking the token refresh policy.
+    [self.installations
+        installationIDWithCompletion:^(NSString *_Nullable identifier, NSError *_Nullable error) {
+          if ([self.tokenManager checkTokenRefreshPolicyWithIID:identifier]) {
+            // Default token is expired, fetch default token from server.
+            [self retrieveFCMTokenForSenderID:self.tokenManager.fcmSenderID completion:^(NSString * _Nullable FCMToken, NSError * _Nullable error) {
+              self.defaultFcmToken = FCMToken;
+            }];
+          }
+        }];
+  } else if (self.isAutoInitEnabled) {
+    // When there is no cached token, must check auto init is enabled.
+    // If it's disabled, don't initiate token generation/refresh.
+    // If no cache token and auto init is enabled, fetch a token from server.
+    [self retrieveFCMTokenForSenderID:self.tokenManager.fcmSenderID completion:^(NSString * _Nullable FCMToken, NSError * _Nullable error) {
+      self.defaultFcmToken = FCMToken;
+    }];
+  }
 }
 
 - (void)configureNotificationSwizzlingIfEnabled {
@@ -314,11 +313,13 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 }
 
 - (void)start {
-  self.installations = [FIRInstallations installations];
-  // TODO(chliang) make this non-singleton to support multi app.
-  self.tokenManager = [[FIRMessagingTokenManager alloc] init];
+
   [self setupFileManagerSubDirectory];
   [self setupNotificationListeners];
+  // TODO(chliang) make this non-singleton to support multi app.
+  self.tokenManager = [[FIRMessagingTokenManager alloc] init];
+  self.installations = [FIRInstallations installations];
+
 
 #if !TARGET_OS_WATCH
   // Print the library version for logging.
