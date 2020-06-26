@@ -39,7 +39,7 @@ version="${version/ (*)/}"
 version="${version/.*/}"
 
 case "$version" in
-  9)
+  10)
     ;;
   google3-trunk)
     echo "Please use a publicly released clang-format; a recent LLVM release"
@@ -48,9 +48,9 @@ case "$version" in
     exit 1
     ;;
   *)
-    echo "Please upgrade to clang-format version 9."
+    echo "Please upgrade to clang-format version 10."
     echo "If it's installed via homebrew you can run:"
-    echo "brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/c6f1cbd/Formula/clang-format.rb"
+    echo "brew install clang-format"
     exit 1
     ;;
 esac
