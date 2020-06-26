@@ -358,8 +358,8 @@
         return NO;
     if (self->_limit != other->_limit)
         return NO;
-    if ((self->_index != other->_index) && !
-                                           [self->_index isEqual:other->_index])
+    if ((self->_index != other->_index) &&
+        ![self->_index isEqual:other->_index])
         return NO;
     if ((self->_indexStartKey != other->_indexStartKey) &&
         ![self->_indexStartKey isEqualToString:other->_indexStartKey])
