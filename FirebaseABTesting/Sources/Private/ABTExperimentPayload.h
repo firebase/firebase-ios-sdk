@@ -43,16 +43,16 @@ typedef NS_ENUM(int32_t, ABTExperimentPayloadExperimentOverflowPolicy) {
 @property(nonatomic, readonly, copy) NSString *variantId;
 
 /// Epoch time that represents when the experiment was started.
-@property(nonatomic, readonly) long long experimentStartTimeMillis;
+@property(nonatomic, readonly) int64_t experimentStartTimeMillis;
 
 /// The event that triggers this experiment into ON state.
 @property(nonatomic, nullable, readonly, copy) NSString *triggerEvent;
 
 /// Duration in milliseconds for which the experiment can stay in STANDBY state (un-triggered).
-@property(nonatomic, readonly) long long triggerTimeoutMillis;
+@property(nonatomic, readonly) int64_t triggerTimeoutMillis;
 
 /// Duration in milliseconds for which the experiment can stay in ON state (triggered).
-@property(nonatomic, readonly) long long timeToLiveMillis;
+@property(nonatomic, readonly) int64_t timeToLiveMillis;
 
 /// The event logged when impact service sets the experiment.
 @property(nonatomic, readonly, copy) NSString *setEventToLog;
