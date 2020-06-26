@@ -1,4 +1,5 @@
-# v4.6.1
+# v4.7.0
+- [changed] Functionally neutral updated import references for dependencies. (#5824)
 - [changed] Updated Remote Config to consume the Protobuf-less AB Testing SDK (#5890).
 
 # v4.6.0

@@ -36,9 +36,7 @@
 
 /** Tests the designated initializer. */
 - (void)testInit {
-  XCTAssertGreaterThan(
-      [[GDTCOREvent alloc] initWithMappingID:@"1" target:kGDTCORTargetTest].eventID.integerValue,
-      0);
+  XCTAssertNotNil([[GDTCOREvent alloc] initWithMappingID:@"1" target:kGDTCORTargetTest].eventID);
   XCTAssertNotNil([[GDTCOREvent alloc] initWithMappingID:@"1" target:kGDTCORTargetTest]);
   XCTAssertNil([[GDTCOREvent alloc] initWithMappingID:@"" target:kGDTCORTargetTest]);
 }
@@ -91,7 +89,7 @@
 /** Tests equality between GDTCOREvents. */
 - (void)testIsEqualAndHash {
   GDTCOREvent *event1 = [[GDTCOREvent alloc] initWithMappingID:@"1018" target:kGDTCORTargetTest];
-  event1.eventID = @123;
+  event1.eventID = @"123";
   event1.clockSnapshot = [GDTCORClock snapshot];
   [event1.clockSnapshot setValue:@(1553534573010) forKeyPath:@"timeMillis"];
   [event1.clockSnapshot setValue:@(-25200) forKeyPath:@"timezoneOffsetSeconds"];
@@ -106,7 +104,7 @@
   XCTAssertNil(error1);
 
   GDTCOREvent *event2 = [[GDTCOREvent alloc] initWithMappingID:@"1018" target:kGDTCORTargetTest];
-  event2.eventID = @123;
+  event2.eventID = @"123";
   event2.clockSnapshot = [GDTCORClock snapshot];
   [event2.clockSnapshot setValue:@(1553534573010) forKeyPath:@"timeMillis"];
   [event2.clockSnapshot setValue:@(-25200) forKeyPath:@"timezoneOffsetSeconds"];
@@ -133,22 +131,12 @@
 - (void)testGenerateEventIDs {
   BOOL originalContinueAfterFailureValue = self.continueAfterFailure;
   self.continueAfterFailure = NO;
-  __block NSNumber *initialValue;
   NSMutableSet *generatedValues = [[NSMutableSet alloc] init];
   for (int i = 0; i < 100000; i++) {
-    XCTestExpectation *expectation = [self expectationWithDescription:@"eventID created"];
-    [GDTCOREvent nextEventIDForTarget:kGDTCORTargetTest
-                           onComplete:^(NSNumber *_Nullable eventID) {
-                             XCTAssertNotNil(eventID);
-                             XCTAssertFalse([generatedValues containsObject:eventID]);
-                             [generatedValues addObject:eventID];
-                             if (i == 0) {
-                               initialValue = eventID;
-                             }
-                             XCTAssertEqual(eventID.integerValue, initialValue.integerValue + i);
-                             [expectation fulfill];
-                           }];
-    [self waitForExpectations:@[ expectation ] timeout:10];
+    NSString *eventID = [GDTCOREvent nextEventID];
+    XCTAssertNotNil(eventID);
+    XCTAssertFalse([generatedValues containsObject:eventID]);
+    [generatedValues addObject:eventID];
   }
   self.continueAfterFailure = originalContinueAfterFailureValue;
 }

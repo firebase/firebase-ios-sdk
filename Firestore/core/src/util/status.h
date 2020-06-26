@@ -77,6 +77,10 @@ class ABSL_MUST_USE_RESULT Status {
   NSError* ToNSError() const;
 #endif  // defined(__OBJC__)
 
+  /// Creates a status object with the given cause's code, and a message
+  /// combining the given error message with the cause's error message.
+  static Status FromCause(std::string message, const Status& cause);
+
   /// Returns true iff the status indicates success.
   bool ok() const {
     return state_ == nullptr;

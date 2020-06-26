@@ -1,3 +1,6 @@
+# v4.3.0
+- [changed] Functionally neutral updated import references for dependencies. (#5824)
+
 # v4.1.0
 - [fixed] Fixing unwanted pending dynamic links checks on subsequent app restarts. (#5665)
 
