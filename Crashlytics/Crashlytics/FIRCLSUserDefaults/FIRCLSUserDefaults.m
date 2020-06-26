@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRCLSUserDefaults.h"
+#import "Crashlytics/Crashlytics/FIRCLSUserDefaults/FIRCLSUserDefaults.h"
 
-#import "FIRCLSApplication.h"
-#import "FIRCLSLogger.h"
+#import "Crashlytics/Crashlytics/Components/FIRCLSApplication.h"
+#import "Crashlytics/Crashlytics/Helpers/FIRCLSLogger.h"
 
 #define CLS_USER_DEFAULTS_SERIAL_DISPATCH_QUEUE "com.crashlytics.CLSUserDefaults.access"
 #define CLS_USER_DEFAULTS_SYNC_QUEUE "com.crashlytics.CLSUserDefaults.io"

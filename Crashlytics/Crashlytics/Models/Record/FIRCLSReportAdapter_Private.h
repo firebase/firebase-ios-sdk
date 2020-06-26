@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#import "FIRCLSReportAdapter.h"
+#import "Crashlytics/Crashlytics/Models/Record/FIRCLSReportAdapter.h"
 
-#import "FIRCLSRecordApplication.h"
-#import "FIRCLSRecordHost.h"
-#import "FIRCLSRecordIdentity.h"
+#import "Crashlytics/Crashlytics/Models/Record/FIRCLSRecordApplication.h"
+#import "Crashlytics/Crashlytics/Models/Record/FIRCLSRecordHost.h"
+#import "Crashlytics/Crashlytics/Models/Record/FIRCLSRecordIdentity.h"
 
 pb_bytes_array_t *FIRCLSEncodeString(NSString *string);
 pb_bytes_array_t *FIRCLSEncodeData(NSData *data);

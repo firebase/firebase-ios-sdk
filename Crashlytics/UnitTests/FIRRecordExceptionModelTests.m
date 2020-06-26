@@ -14,16 +14,16 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FIRExceptionModel.h"
-#import "FIRStackFrame.h"
+#import "Crashlytics/Crashlytics/Public/FIRExceptionModel.h"
+#import "Crashlytics/Crashlytics/Public/FIRStackFrame.h"
 
-#import "FABMockApplicationIdentifierModel.h"
-#import "FIRCLSContext.h"
-#import "FIRCLSInstallIdentifierModel.h"
-#import "FIRCLSInternalReport.h"
-#import "FIRCLSMockFileManager.h"
-#import "FIRCLSMockSettings.h"
-#import "FIRMockInstallations.h"
+#import "Crashlytics/UnitTests/Mocks/FABMockApplicationIdentifierModel.h"
+#import "Crashlytics/Crashlytics/Components/FIRCLSContext.h"
+#import "Crashlytics/Crashlytics/Models/FIRCLSInstallIdentifierModel.h"
+#import "Crashlytics/Crashlytics/Models/FIRCLSInternalReport.h"
+#import "Crashlytics/UnitTests/Mocks/FIRCLSMockFileManager.h"
+#import "Crashlytics/UnitTests/Mocks/FIRCLSMockSettings.h"
+#import "Crashlytics/UnitTests/Mocks/FIRMockInstallations.h"
 
 #define TEST_BUNDLE_ID (@"com.crashlytics.test")
 

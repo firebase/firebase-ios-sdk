@@ -20,7 +20,7 @@
 import Foundation
 
 // Update with directories in which to find headers.
-let findHeaders = ["GoogleDataTransport"]
+let findHeaders = ["Crashlytics"]
 
 // Update with directories in which to change imports.
 let changeImports = ["GoogleUtilities", "FirebaseAuth", "FirebaseCore", "Firebase",

@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#include "crashlytics.nanopb.h"
+#include "Crashlytics/Protogen/nanopb/crashlytics.nanopb.h"
 
 #import "GoogleDataTransport/GDTCORLibrary/Internal/GoogleDataTransportInternal.h"
 

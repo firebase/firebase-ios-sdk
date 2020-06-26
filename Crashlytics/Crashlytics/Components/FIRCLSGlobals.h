@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "FIRCLSContext.h"
+#include "Crashlytics/Crashlytics/Components/FIRCLSContext.h"
 
 __BEGIN_DECLS
 

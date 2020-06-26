@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRCLSFABAsyncOperation.h"
+#import "Crashlytics/Shared/FIRCLSOperation/FIRCLSFABAsyncOperation.h"
 
 /**
  * If the compound operation is sent a @c -[cancel] message while executing, it will attempt to
