@@ -277,7 +277,7 @@ typedef void (^FakeAnalyticsLogEventWithOriginNameParametersHandler)(
   XCTAssertEqualObjects([experiment objectForKey:@"value"], @"variant_B");
   XCTAssertEqualObjects(gABTTestOrigin, [experiment objectForKey:@"origin"]);
   XCTAssertEqualWithAccuracy(
-      now, [(NSNumber *)[experiment objectForKey:@"creationTimestamp"] longLongValue], 1.0);
+      now, [[experiment objectForKey:@"creationTimestamp"] longLongValue], 1.0);
 
   // Trigger event
   XCTAssertEqualObjects(gABTTestOrigin, triggeredEvent[@"origin"]);
@@ -303,11 +303,11 @@ typedef void (^FakeAnalyticsLogEventWithOriginNameParametersHandler)(
 
   // trigger timeout
   XCTAssertEqualWithAccuracy(
-      now + 1500, [(NSNumber *)([experiment objectForKey:@"triggerTimeout"]) longLongValue], 1.0);
+      now + 1500, [[experiment objectForKey:@"triggerTimeout"] longLongValue], 1.0);
 
   // time to live
   XCTAssertEqualWithAccuracy(
-      now + 60000, [(NSNumber *)[experiment objectForKey:@"timeToLive"] longLongValue], 1.0);
+      now + 60000, [[experiment objectForKey:@"timeToLive"] longLongValue], 1.0);
 
   // Overwrite all event names
   id payloadWithCustomEventNames = OCMClassMock([ABTExperimentPayload class]);
