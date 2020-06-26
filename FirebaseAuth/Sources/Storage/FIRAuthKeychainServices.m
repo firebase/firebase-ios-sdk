@@ -129,11 +129,18 @@ NS_ASSUME_NONNULL_BEGIN
 
   if (status == noErr && result != NULL) {
     NSArray *items = (__bridge_transfer NSArray *)result;
-    if (items.count != 1) {
+    if (items.count == 0) {
       if (error) {
+        // The keychain query returned no error, but there were no items found.
         *error = [FIRAuthErrorUtils keychainErrorWithFunction:@"SecItemCopyMatching" status:status];
       }
       return nil;
+    } else if (items.count > 1) {
+      // More than one keychain item was found, all but the first will be ignored.
+      FIRLogError(
+          kFIRLoggerAuth, @"I-AUT000005",
+          @"Keychain query returned multiple results, all but the first will be ignored: %@",
+          items);
     }
 
     if (error) {

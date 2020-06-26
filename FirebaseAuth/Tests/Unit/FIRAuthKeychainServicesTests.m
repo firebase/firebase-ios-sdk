@@ -116,6 +116,17 @@ static NSError *fakeError() {
   [self deletePasswordWithAccount:accountFromKey(kKey) service:kService];
 }
 
+- (void)testReadMultiple {
+  [self addPassword:kData account:accountFromKey(kKey) service:kService];
+  [self addPassword:kOtherData account:accountFromKey(kKey) service:kService];
+  FIRAuthKeychainServices *keychain = [[FIRAuthKeychainServices alloc] initWithService:kService];
+  NSError *error = fakeError();
+  XCTAssertEqualObjects([keychain dataForKey:kKey error:&error], dataFromString(kData));
+  XCTAssertNil(error);
+  [self deletePasswordWithAccount:accountFromKey(kKey) service:kService];
+  [self deletePasswordWithAccount:accountFromKey(kKey) service:kService];
+}
+
 /** @fn testNotReadOtherService
     @brief Tests not reading keychain item belonging to other service.
  */
