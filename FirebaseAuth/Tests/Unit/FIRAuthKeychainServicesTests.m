@@ -84,6 +84,13 @@ static NSError *fakeError() {
   return [NSError errorWithDomain:@"ERROR" code:-1 userInfo:nil];
 }
 
+@interface FIRAuthKeychainServices ()
+
+// Exposed for testing.
+- (nullable NSData *)itemWithQuery:(NSDictionary *)query error:(NSError **_Nullable)error;
+
+@end
+
 /** @class FIRAuthKeychainTests
     @brief Tests for @c FIRAuthKeychainTests .
  */
@@ -116,15 +123,23 @@ static NSError *fakeError() {
   [self deletePasswordWithAccount:accountFromKey(kKey) service:kService];
 }
 
+/** @fn testReadMultiple
+    @brief Tests reading multiple items from keychain returns only the first item.
+ */
 - (void)testReadMultiple {
   [self addPassword:kData account:accountFromKey(kKey) service:kService];
-  [self addPassword:kOtherData account:accountFromKey(kKey) service:kService];
+  [self addPassword:kOtherData account:accountFromKey(kKey) service:kOtherService];
   FIRAuthKeychainServices *keychain = [[FIRAuthKeychainServices alloc] initWithService:kService];
+  NSString *queriedAccount = accountFromKey(kKey);
+  NSDictionary *query = @{
+    (__bridge id)kSecClass : (__bridge id)kSecClassGenericPassword,
+    (__bridge id)kSecAttrAccount : queriedAccount,
+  };
   NSError *error = fakeError();
-  XCTAssertEqualObjects([keychain dataForKey:kKey error:&error], dataFromString(kData));
+  XCTAssertEqualObjects([keychain itemWithQuery:query error:&error], dataFromString(kData));
   XCTAssertNil(error);
   [self deletePasswordWithAccount:accountFromKey(kKey) service:kService];
-  [self deletePasswordWithAccount:accountFromKey(kKey) service:kService];
+  [self deletePasswordWithAccount:accountFromKey(kKey) service:kOtherService];
 }
 
 /** @fn testNotReadOtherService
