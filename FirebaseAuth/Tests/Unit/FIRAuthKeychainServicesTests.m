@@ -136,7 +136,12 @@ static NSError *fakeError() {
     (__bridge id)kSecAttrAccount : queriedAccount,
   };
   NSError *error = fakeError();
-  XCTAssertEqualObjects([keychain itemWithQuery:query error:&error], dataFromString(kData));
+  // Keychain on macOS returns items in a different order than keychain on iOS,
+  // so test that the returned object is one of any of the added objects.
+  NSData *queriedData = [keychain itemWithQuery:query error:&error];
+  BOOL isValidKeychainItem =
+      [@[ dataFromString(kData), dataFromString(kOtherData) ] containsObject:queriedData];
+  XCTAssertTrue(isValidKeychainItem);
   XCTAssertNil(error);
   [self deletePasswordWithAccount:accountFromKey(kKey) service:kService];
   [self deletePasswordWithAccount:accountFromKey(kKey) service:kOtherService];
