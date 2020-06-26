@@ -63,12 +63,12 @@ if [[ "$system" == "Darwin" ]]; then
     echo "Found: $version"
   fi
   version="${version/*version /}"
-  # Ensure the swiftformat version is at least 0.35.x since (as of 2019-02-01)
-  # travis runs 0.35.7. We may need to be more strict about version checks in
+  # Ensure the swiftformat version is at least 0.44.14 since (as of 2020-06-26)
+  # We may need to be more strict about version checks in
   # the future if we run into different versions making incompatible format
   # changes.
   if [[ ! "$version" =~ ^0.[4-9] ]]; then
-    echo "Version $version installed. Please upgrade to at least swiftformat 0.44.6"
+    echo "Version $version installed. Please upgrade to at least swiftformat 0.44.14"
     echo "If it's installed via homebrew you can run: brew upgrade swiftformat"
     exit 1
   fi
