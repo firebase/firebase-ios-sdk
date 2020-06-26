@@ -20,7 +20,7 @@
 
 @implementation GDTCORStorageFake {
   /** Store the events in memory. */
-  NSMutableDictionary<NSNumber *, GDTCOREvent *> *_storedEvents;
+  NSMutableDictionary<NSString *, GDTCOREvent *> *_storedEvents;
 }
 
 - (void)storeEvent:(GDTCOREvent *)event
@@ -35,7 +35,7 @@
   }
 }
 
-- (void)removeEvents:(NSSet<NSNumber *> *)eventIDs {
+- (void)removeEvents:(NSSet<NSString *> *)eventIDs {
   [_storedEvents removeObjectsForKeys:[eventIDs allObjects]];
 }
 

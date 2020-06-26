@@ -1,4 +1,5 @@
-# 2020-07-06 -- v0.21.1
+# 2020-07-06 -- v0.22.0
+- [changed] Functionally neutral updated import references for dependencies. (#5902)
 - [changed] Updated In-App Messaging to consume the Protobuf-less AB Testing SDK (#5890).
 
 # 2020-06-02 -- v0.20.2
