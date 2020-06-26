@@ -303,6 +303,9 @@ NSNotificationName const GDTCCTUploadCompleteNotification = @"com.GDTCCTUploader
                                                                                 data:dataToSend];
                              GDTCORLogDebug(@"CTT: request containing %lu events created: %@",
                                             (unsigned long)batchEvents.count, request);
+
+        // TODO: Remove after debug.
+//        NSAssert(self.currentTask == nil, @"There is an upload task.");
                              self.currentTask =
                                  [self.uploaderSession uploadTaskWithRequest:request
                                                                     fromData:dataToSend
@@ -354,10 +357,7 @@ NSNotificationName const GDTCCTUploadCompleteNotification = @"com.GDTCCTUploader
     GDTCORLogDebug(@"%@", @"CCT: can't upload because a package is in flight");
     return NO;
   }
-  if (self->_currentTask) {
-    GDTCORLogDebug(@"%@", @"CCT: can't upload because a task is in progress");
-    return NO;
-  }
+
   if ((conditions & GDTCORUploadConditionHighPriority) == GDTCORUploadConditionHighPriority) {
     GDTCORLogDebug(@"%@", @"CCT: a high priority event is allowing an upload");
     return YES;

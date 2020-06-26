@@ -35,12 +35,15 @@
 /** The local HTTP server to use for testing. */
 @property(nonatomic) GDTCCTTestServer *testServer;
 
+@property(nonatomic) GDTCCTTestStorage *testStorage;
+
 @end
 
 @implementation GDTCCTUploaderTest
 
 - (void)setUp {
-  [[GDTCORRegistrar sharedInstance] registerStorage:[[GDTCCTTestStorage alloc] init]
+  self.testStorage = [[GDTCCTTestStorage alloc] init];
+  [[GDTCORRegistrar sharedInstance] registerStorage:self.testStorage
                                              target:kGDTCORTargetTest];
   self.generator = [[GDTCCTEventGenerator alloc] initWithTarget:kGDTCORTargetTest];
   self.testServer = [[GDTCCTTestServer alloc] init];
@@ -64,6 +67,63 @@
 
   GDTCCTUploader *uploader = [[GDTCCTUploader alloc] init];
   uploader.testServerURL = [self.testServer.serverURL URLByAppendingPathComponent:@"logBatch"];
+  XCTestExpectation *responseSentExpectation = [self expectationTestServerSuccessRequestResponse];
+  [uploader uploadTarget:kGDTCORTargetTest withConditions:GDTCORUploadConditionWifiData];
+  dispatch_sync(uploader.uploaderQueue, ^{
+    XCTAssertNotNil(uploader.currentTask);
+  });
+  [self waitForExpectations:@[ responseSentExpectation ] timeout:30.0];
+
+  // Wait for upload operation to finish.
+  XCTestExpectation *uploadFinishedExpectation = [self expectationWithDescription:@"uploadFinishedExpectation"];
+  dispatch_sync(uploader.uploaderQueue, ^{
+    [uploadFinishedExpectation fulfill];
+    XCTAssertNil(uploader.currentTask);
+  });
+  [self waitForExpectations:@[ uploadFinishedExpectation ] timeout:0.5];
+}
+
+- (void)testUploadTargetWhenThereIsStoredBatchThenItIsUploadedFirst {
+  // Generate and store and event.
+  [self.generator generateEvent:GDTCOREventQoSFast];
+  // Batch the event.
+  [self batchEvents];
+
+  // Expect batch IDs to be requested.
+  self.testStorage.batchIDsForTargetExpectation = [self expectationWithDescription:@"batchIDsForTargetExpectation"];
+
+  // Expect a batch to be uploaded.
+  XCTestExpectation *responseSentExpectation = [self expectationTestServerSuccessRequestResponse];
+
+  // TODO: Validate request content.
+
+  // Expect batch to be removed on success.
+  XCTestExpectation *removeBatchExpectation = [self expectationWithDescription:@"removeBatchExpectation"];
+
+  // Create uploader and start upload.
+  GDTCCTUploader *uploader = [[GDTCCTUploader alloc] init];
+  uploader.testServerURL = [self.testServer.serverURL URLByAppendingPathComponent:@"logBatch"];
+  [uploader uploadTarget:kGDTCORTargetTest withConditions:GDTCORUploadConditionWifiData];
+
+  [self waitForExpectations:@[self.testStorage.batchIDsForTargetExpectation, responseSentExpectation, removeBatchExpectation] timeout:10 enforceOrder:YES];
+}
+
+#pragma mark - Helpers
+
+- (NSNumber *)batchEvents {
+  XCTestExpectation *eventsBatched = [self expectationWithDescription:@"eventsBatched"];
+  __block NSNumber *batchID;
+  [self.testStorage batchWithEventSelector:[GDTCORStorageEventSelector eventSelectorForTarget:kGDTCORTargetTest] batchExpiration:[NSDate distantFuture] onComplete:^(NSNumber * _Nullable newBatchID, NSSet<GDTCOREvent *> * _Nullable batchEvents) {
+    [eventsBatched fulfill];
+    batchID = newBatchID;
+  }];
+  [self waitForExpectations:@[eventsBatched] timeout:0.5];
+
+  XCTAssertNotNil(batchID);
+  return batchID;
+}
+
+- (XCTestExpectation *)expectationTestServerSuccessRequestResponse {
   __weak id weakSelf = self;
   XCTestExpectation *responseSentExpectation = [self expectationWithDescription:@"response sent"];
   self.testServer.responseCompletedBlock =
@@ -75,14 +135,7 @@
         XCTAssertEqual(response.statusCode, 200);
         XCTAssertTrue(response.hasBody);
       };
-  [uploader uploadTarget:kGDTCORTargetTest withConditions:GDTCORUploadConditionWifiData];
-  dispatch_sync(uploader.uploaderQueue, ^{
-    XCTAssertNotNil(uploader.currentTask);
-  });
-  [self waitForExpectations:@[ responseSentExpectation ] timeout:30.0];
-  dispatch_sync(uploader.uploaderQueue, ^{
-    XCTAssertNil(uploader.currentTask);
-  });
+  return responseSentExpectation;
 }
 
 @end

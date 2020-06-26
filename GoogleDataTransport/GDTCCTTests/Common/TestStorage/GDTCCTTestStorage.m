@@ -92,6 +92,7 @@
   if (onComplete) {
     onComplete(nil);
   }
+  [self.removeBatchWithIDExpectation fulfill];
 }
 
 - (void)hasEventsForTarget:(GDTCORTarget)target onComplete:(nonnull void (^)(BOOL))onComplete {
@@ -106,8 +107,9 @@
 - (void)batchIDsForTarget:(GDTCORTarget)target
                onComplete:(nonnull void (^)(NSSet<NSNumber *> *_Nullable))onComplete {
   if (onComplete) {
-    onComplete(nil);
+    onComplete([NSSet setWithArray:[self->_batches allKeys]]);
   }
+  [self.batchIDsForTargetExpectation fulfill];
 }
 
 - (void)checkForExpirations {

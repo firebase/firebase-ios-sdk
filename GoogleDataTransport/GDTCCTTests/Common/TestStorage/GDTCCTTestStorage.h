@@ -15,9 +15,13 @@
  */
 
 #import <Foundation/Foundation.h>
+#import <XCTest/XCTest.h>
 
 #import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORStorageProtocol.h"
 
 @interface GDTCCTTestStorage : NSObject <GDTCORStorageProtocol>
+
+@property (nonatomic, nullable) XCTestExpectation *removeBatchWithIDExpectation;
+@property (nonatomic, nullable) XCTestExpectation *batchIDsForTargetExpectation;
 
 @end
