@@ -285,6 +285,12 @@ NSString *const kGDTCORBatchComponentsExpirationKey = @"GDTCORBatchComponentsExp
   });
 }
 
+- (void)eventsInBatchWithID:(NSNumber *)batchID
+                 onComplete:(void (^)(NSSet<GDTCOREvent *> *_Nullable events))onComplete {
+  // TODO: Implement.
+  onComplete(nil);
+}
+
 - (void)libraryDataForKey:(nonnull NSString *)key
           onFetchComplete:(nonnull void (^)(NSData *_Nullable, NSError *_Nullable))onFetchComplete
               setNewValue:(NSData *_Nullable (^_Nullable)(void))setValueBlock {
@@ -378,6 +384,10 @@ NSString *const kGDTCORBatchComponentsExpirationKey = @"GDTCORBatchComponentsExp
       }
     }
 
+    // TODO: Events from expired batches with not expired events must be moved back to queue to
+    // avoid data loss.
+    // TODO: Storage may not have enough context to remove batches because a batch may be being
+    // uploaded but the storage has not context of it.
     NSString *batchDataPath = [GDTCORFlatFileStorage batchDataStoragePath];
     NSArray<NSString *> *batchDataPaths = [fileManager contentsOfDirectoryAtPath:batchDataPath
                                                                            error:nil];

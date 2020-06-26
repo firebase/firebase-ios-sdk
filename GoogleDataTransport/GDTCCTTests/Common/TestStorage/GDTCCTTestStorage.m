@@ -57,6 +57,8 @@
   NSSet<GDTCOREvent *> *batchEvents = [NSSet setWithArray:[_storedEvents allValues]];
   _batches[batchID] = batchEvents;
   [_storedEvents removeAllObjects];
+
+  [self.batchWithEventSelectorExpectation fulfill];
   if (onComplete) {
     onComplete(batchID, batchEvents);
   }
@@ -66,6 +68,8 @@
              deleteEvents:(BOOL)deleteEvents
                onComplete:(void (^_Nullable)(void))onComplete {
   [_batches removeObjectForKey:batchID];
+
+  [self.removeBatchWithIDExpectation fulfill];
   if (onComplete) {
     onComplete();
   }
@@ -92,7 +96,6 @@
   if (onComplete) {
     onComplete(nil);
   }
-  [self.removeBatchWithIDExpectation fulfill];
 }
 
 - (void)hasEventsForTarget:(GDTCORTarget)target onComplete:(nonnull void (^)(BOOL))onComplete {
@@ -106,10 +109,18 @@
 
 - (void)batchIDsForTarget:(GDTCORTarget)target
                onComplete:(nonnull void (^)(NSSet<NSNumber *> *_Nullable))onComplete {
+  [self.batchIDsForTargetExpectation fulfill];
   if (onComplete) {
     onComplete([NSSet setWithArray:[self->_batches allKeys]]);
   }
-  [self.batchIDsForTargetExpectation fulfill];
+}
+
+- (void)eventsInBatchWithID:(NSNumber *)batchID
+                 onComplete:(void (^)(NSSet<GDTCOREvent *> *_Nullable events))onComplete {
+  [self.eventsInBatchWithIDExpectation fulfill];
+  if (onComplete) {
+    onComplete(self->_batches[batchID]);
+  }
 }
 
 - (void)checkForExpirations {

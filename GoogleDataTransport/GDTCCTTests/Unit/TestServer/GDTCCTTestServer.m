@@ -110,12 +110,14 @@
         [[GCDWebServerDataResponse alloc] initWithData:[self responseData]
                                            contentType:@"application/text"];
     response.gzipContentEncodingEnabled = YES;
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1 * NSEC_PER_SEC),
-                   dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-                     if (self.responseCompletedBlock) {
-                       self.responseCompletedBlock(request, response);
-                     }
-                   });
+    //    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1 * NSEC_PER_SEC),
+    //                   dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    //
+    //                   });
+    if (self.responseCompletedBlock) {
+      self.responseCompletedBlock(request, response);
+    }
+
     return response;
   };
   [self.server addHandlerForMethod:@"POST"

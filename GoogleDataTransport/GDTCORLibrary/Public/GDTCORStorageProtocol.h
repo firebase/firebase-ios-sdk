@@ -76,6 +76,11 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)batchIDsForTarget:(GDTCORTarget)target
                onComplete:(void (^)(NSSet<NSNumber *> *_Nullable batchIDs))onComplete;
 
+/** Retrieves events for a batch with the specified ID. If a batch with ID is not found,  passes
+ * `nil` to the completion. */
+- (void)eventsInBatchWithID:(NSNumber *)batchID
+                 onComplete:(void (^)(NSSet<GDTCOREvent *> *_Nullable events))onComplete;
+
 /** Checks the storage for expired events and batches, deletes them if they're expired. */
 - (void)checkForExpirations;
 

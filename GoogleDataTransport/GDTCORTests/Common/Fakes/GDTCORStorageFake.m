@@ -87,6 +87,10 @@
                onComplete:(nonnull void (^)(NSSet<NSNumber *> *_Nonnull))onComplete {
 }
 
+- (void)eventsInBatchWithID:(nonnull NSNumber *)batchID
+                 onComplete:(nonnull void (^)(NSSet<GDTCOREvent *> *_Nullable))onComplete {
+}
+
 - (void)checkForExpirations {
 }
 
