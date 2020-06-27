@@ -16,7 +16,6 @@
 
 #import <GoogleUtilitiesComponents/GULCCComponent.h>
 #import <GoogleUtilitiesComponents/GULCCComponentContainerInternal.h>
-#import <OCMock/OCMock.h>
 
 #import "GULCCTestComponents.h"
 
