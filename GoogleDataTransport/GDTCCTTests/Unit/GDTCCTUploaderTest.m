@@ -42,9 +42,12 @@
 @implementation GDTCCTUploaderTest
 
 - (void)setUp {
+  [super setUp];
+
   self.testStorage = [[GDTCCTTestStorage alloc] init];
   [[GDTCORRegistrar sharedInstance] registerStorage:self.testStorage target:kGDTCORTargetTest];
   self.generator = [[GDTCCTEventGenerator alloc] initWithTarget:kGDTCORTargetTest];
+
   self.testServer = [[GDTCCTTestServer alloc] init];
   [self.testServer registerLogBatchPath];
   [self.testServer start];
@@ -52,6 +55,7 @@
 }
 
 - (void)tearDown {
+  self.testServer.responseCompletedBlock = nil;
   [self.testServer stop];
   self.testStorage = nil;
   [super tearDown];
@@ -67,25 +71,14 @@
       }];
 
   // 1. Set up expectations.
-  // 1.1. Expect batch IDs to be requested.
-  self.testStorage.batchIDsForTargetExpectation =
-      [self expectationWithDescription:@"batchIDsForTargetExpectation"];
+  // 1.1. Set up all relevant storage expectations.
+  [self setUpStorageExpectations];
 
   // 1.2. Don't expect previously batched events to be requested.
-  self.testStorage.eventsInBatchWithIDExpectation =
-      [self expectationWithDescription:@"eventsInBatchWithIDExpectation"];
   self.testStorage.eventsInBatchWithIDExpectation.inverted = YES;
 
-  // 1.3. Expect events batched.
-  self.testStorage.batchWithEventSelectorExpectation =
-      [self expectationWithDescription:@"batchWithEventSelectorExpectation"];
-
-  // 1.4. Expect a batch to be uploaded.
+  // 1.3. Expect a batch to be uploaded.
   XCTestExpectation *responseSentExpectation = [self expectationTestServerSuccessRequestResponse];
-
-  // 1.5. Expect batch to be removed.
-  self.testStorage.removeBatchWithIDExpectation =
-      [self expectationWithDescription:@"removeBatchWithIDExpectation"];
 
   // 2. Create uploader and start upload.
   GDTCCTUploader *uploader = [[GDTCCTUploader alloc] init];
@@ -102,13 +95,7 @@
                enforceOrder:YES];
 
   // 4. Wait for upload operation to finish.
-  XCTestExpectation *uploadFinishedExpectation =
-      [self expectationWithDescription:@"uploadFinishedExpectation"];
-  dispatch_sync(uploader.uploaderQueue, ^{
-    [uploadFinishedExpectation fulfill];
-    XCTAssertNil(uploader.currentTask);
-  });
-  [self waitForExpectations:@[ uploadFinishedExpectation ] timeout:0.5];
+  [self waitForUploadOperationsToFinish:uploader];
 }
 
 - (void)testUploadTargetWhenThereIsStoredBatchThenItIsUploadedFirst {
@@ -119,25 +106,14 @@
   [self batchEvents];
 
   // 1. Set up expectations.
-  // 1.1. Expect batch IDs to be requested.
-  self.testStorage.batchIDsForTargetExpectation =
-      [self expectationWithDescription:@"batchIDsForTargetExpectation"];
+  // 1.1. Set up all relevant storage expectations.
+  [self setUpStorageExpectations];
 
-  // 1.2. Expect previously batched events to be requested.
-  self.testStorage.eventsInBatchWithIDExpectation =
-      [self expectationWithDescription:@"eventsInBatchWithIDExpectation"];
-
-  // 1.3. Don't Expect events batched.
-  self.testStorage.batchWithEventSelectorExpectation =
-      [self expectationWithDescription:@"batchWithEventSelectorExpectation"];
+  // 1.2. Don't Expect events batched.
   self.testStorage.batchWithEventSelectorExpectation.inverted = YES;
 
-  // 1.4. Expect a batch to be uploaded.
+  // 1.3. Expect a batch to be uploaded.
   XCTestExpectation *responseSentExpectation = [self expectationTestServerSuccessRequestResponse];
-
-  // 1.5. Expect batch to be removed.
-  self.testStorage.removeBatchWithIDExpectation =
-      [self expectationWithDescription:@"removeBatchWithIDExpectation"];
 
   // 2. Create uploader and start upload.
   GDTCCTUploader *uploader = [[GDTCCTUploader alloc] init];
@@ -150,40 +126,23 @@
     self.testStorage.batchWithEventSelectorExpectation, responseSentExpectation,
     self.testStorage.removeBatchWithIDExpectation
   ]
-                    timeout:50
+                    timeout:5
                enforceOrder:YES];
 
   // 4. Wait for upload operation to finish.
-  XCTestExpectation *uploadFinishedExpectation =
-      [self expectationWithDescription:@"uploadFinishedExpectation"];
-  dispatch_sync(uploader.uploaderQueue, ^{
-    [uploadFinishedExpectation fulfill];
-    XCTAssertNil(uploader.currentTask);
-  });
-  [self waitForExpectations:@[ uploadFinishedExpectation ] timeout:0.5];
+  [self waitForUploadOperationsToFinish:uploader];
 }
 
 - (void)testUploadTargetWhenThereIsOngoingUploadThenNoOp {
   // 1. Set up expectations.
-  // 1.1. Expect batch IDs to be requested.
-  self.testStorage.batchIDsForTargetExpectation =
-      [self expectationWithDescription:@"batchIDsForTargetExpectation"];
+  // 1.1. Set up all relevant storage expectations.
+  [self setUpStorageExpectations];
 
   // 1.2. Don't expect previously batched events to be requested.
-  self.testStorage.eventsInBatchWithIDExpectation =
-      [self expectationWithDescription:@"eventsInBatchWithIDExpectation"];
   self.testStorage.eventsInBatchWithIDExpectation.inverted = YES;
 
-  // 1.3. Expect events batched.
-  self.testStorage.batchWithEventSelectorExpectation =
-      [self expectationWithDescription:@"batchWithEventSelectorExpectation"];
-
-  // 1.4. Expect a batch to be uploaded.
+  // 1.3. Expect a batch to be uploaded.
   XCTestExpectation *responseSentExpectation = [self expectationTestServerSuccessRequestResponse];
-
-  // 1.5. Expect batch to be removed.
-  self.testStorage.removeBatchWithIDExpectation =
-      [self expectationWithDescription:@"removeBatchWithIDExpectation"];
 
   // 2. Create uploader and start upload.
   GDTCCTUploader *uploader = [[GDTCCTUploader alloc] init];
@@ -203,17 +162,11 @@
     self.testStorage.batchWithEventSelectorExpectation, responseSentExpectation,
     self.testStorage.removeBatchWithIDExpectation
   ]
-                    timeout:50
+                    timeout:5
                enforceOrder:YES];
 
   // 4. Wait for upload operation to finish.
-  XCTestExpectation *uploadFinishedExpectation =
-      [self expectationWithDescription:@"uploadFinishedExpectation"];
-  dispatch_sync(uploader.uploaderQueue, ^{
-    [uploadFinishedExpectation fulfill];
-    XCTAssertNil(uploader.currentTask);
-  });
-  [self waitForExpectations:@[ uploadFinishedExpectation ] timeout:0.5];
+  [self waitForUploadOperationsToFinish:uploader];
 }
 
 #pragma mark - Helpers
@@ -249,6 +202,27 @@
         XCTAssertTrue(response.hasBody);
       };
   return responseSentExpectation;
+}
+
+- (void)setUpStorageExpectations {
+  self.testStorage.batchIDsForTargetExpectation =
+      [self expectationWithDescription:@"batchIDsForTargetExpectation"];
+  self.testStorage.eventsInBatchWithIDExpectation =
+      [self expectationWithDescription:@"eventsInBatchWithIDExpectation"];
+  self.testStorage.batchWithEventSelectorExpectation =
+      [self expectationWithDescription:@"batchWithEventSelectorExpectation"];
+  self.testStorage.removeBatchWithIDExpectation =
+      [self expectationWithDescription:@"removeBatchWithIDExpectation"];
+}
+
+- (void)waitForUploadOperationsToFinish:(GDTCCTUploader *)uploader {
+  XCTestExpectation *uploadFinishedExpectation =
+      [self expectationWithDescription:@"uploadFinishedExpectation"];
+  dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), uploader.uploaderQueue, ^{
+    [uploadFinishedExpectation fulfill];
+    XCTAssertNil(uploader.currentTask);
+  });
+  [self waitForExpectations:@[ uploadFinishedExpectation ] timeout:1];
 }
 
 @end
