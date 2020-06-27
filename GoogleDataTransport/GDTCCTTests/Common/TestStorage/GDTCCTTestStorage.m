@@ -26,8 +26,7 @@
   NSMutableDictionary<NSNumber *, NSSet<GDTCOREvent *> *> *_batches;
 }
 
-- (instancetype)init
-{
+- (instancetype)init {
   self = [super init];
   if (self) {
     _storedEvents = [[NSMutableDictionary alloc] init];

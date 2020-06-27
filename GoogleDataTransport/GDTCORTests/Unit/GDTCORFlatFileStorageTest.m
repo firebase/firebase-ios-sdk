@@ -97,10 +97,21 @@
  * @return A set of randomly generated and stored events.
  */
 - (NSSet<GDTCOREvent *> *)generateEventsForStorageTesting {
-  GDTCORFlatFileStorage *storage = [GDTCORFlatFileStorage sharedInstance];
   NSMutableSet<GDTCOREvent *> *generatedEvents = [[NSMutableSet alloc] init];
   // Generate 100 test target events
-  for (int i = 0; i < 100; i++) {
+  [generatedEvents unionSet:[self generateEventsForTarget:kGDTCORTargetTest count:100]];
+
+  // Generate 50 FLL target events.
+  [generatedEvents unionSet:[self generateEventsForTarget:kGDTCORTargetFLL count:50]];
+
+  return generatedEvents;
+}
+
+- (NSSet<GDTCOREvent *> *)generateEventsForTarget:(GDTCORTarget)target count:(NSInteger)count {
+  GDTCORFlatFileStorage *storage = [GDTCORFlatFileStorage sharedInstance];
+  NSMutableSet<GDTCOREvent *> *generatedEvents = [[NSMutableSet alloc] init];
+
+  for (int i = 0; i < count; i++) {
     GDTCOREvent *event = [GDTCOREventGenerator generateEventForTarget:kGDTCORTargetTest
                                                               qosTier:nil
                                                             mappingID:nil];
@@ -108,14 +119,6 @@
     [storage storeEvent:event onComplete:nil];
   }
 
-  // Generate 50 FLL target events.
-  for (int i = 0; i < 50; i++) {
-    GDTCOREvent *event = [GDTCOREventGenerator generateEventForTarget:kGDTCORTargetFLL
-                                                              qosTier:nil
-                                                            mappingID:nil];
-    [generatedEvents addObject:event];
-    [storage storeEvent:event onComplete:nil];
-  }
   return generatedEvents;
 }
 
@@ -923,12 +926,14 @@
 
   XCTestExpectation *batchIDsExpectation = [self expectationWithDescription:@"batchIDsExpectation"];
 
-  [[GDTCORFlatFileStorage sharedInstance] batchIDsForTarget:kGDTCORTargetTest onComplete:^(NSSet<NSNumber *> * _Nullable batchIDs) {
-    [batchIDsExpectation fulfill];
+  [[GDTCORFlatFileStorage sharedInstance]
+      batchIDsForTarget:kGDTCORTargetTest
+             onComplete:^(NSSet<NSNumber *> *_Nullable batchIDs) {
+               [batchIDsExpectation fulfill];
 
-    XCTAssertEqual(batchIDs.count, 1);
-    XCTAssertEqualObjects([expectedBatch.allKeys firstObject], [batchIDs anyObject]);
-  }];
+               XCTAssertEqual(batchIDs.count, 1);
+               XCTAssertEqualObjects([expectedBatch.allKeys firstObject], [batchIDs anyObject]);
+             }];
 
   [self waitForExpectations:@[ batchIDsExpectation ] timeout:5];
 }
@@ -937,13 +942,18 @@
   __auto_type expectedBatch = [self generateAndBatchEvents];
   NSNumber *batchID = [expectedBatch.allKeys firstObject];
 
-  XCTestExpectation *eventsInBatchWithIDExpectation = [self expectationWithDescription:@"eventsInBatchWithIDExpectation"];
+  XCTestExpectation *eventsInBatchWithIDExpectation =
+      [self expectationWithDescription:@"eventsInBatchWithIDExpectation"];
 
-  [[GDTCORFlatFileStorage sharedInstance] eventsInBatchWithID:batchID onComplete:^(NSSet<GDTCOREvent *> * _Nullable events) {
-    [eventsInBatchWithIDExpectation fulfill];
+  [[GDTCORFlatFileStorage sharedInstance]
+      eventsInBatchWithID:batchID
+               onComplete:^(NSSet<GDTCOREvent *> *_Nullable events) {
+                 [eventsInBatchWithIDExpectation fulfill];
 
-    XCTAssertEqualObjects(events, expectedBatch[batchID]);
-  }];
+                 NSSet *eventIDs = [events valueForKeyPath:@"eventID"];
+                 NSSet *expectedEventIDs = [expectedBatch[batchID] valueForKeyPath:@"eventID"];
+                 XCTAssertEqualObjects(eventIDs, expectedEventIDs);
+               }];
 
   [self waitForExpectations:@[ eventsInBatchWithIDExpectation ] timeout:5];
 }
@@ -1009,8 +1019,9 @@
 
 - (NSDictionary<NSNumber *, NSSet<GDTCOREvent *> *> *)generateAndBatchEvents {
   GDTCORFlatFileStorage *storage = [GDTCORFlatFileStorage sharedInstance];
-  NSSet<GDTCOREvent *> *events = [self generateEventsForStorageTesting];
-  XCTestExpectation *eventsGeneratedExpectation = [self expectationWithDescription:@"eventsGeneratedExpectation"];
+  NSSet<GDTCOREvent *> *events = [self generateEventsForTarget:kGDTCORTargetTest count:100];
+  XCTestExpectation *eventsGeneratedExpectation =
+      [self expectationWithDescription:@"eventsGeneratedExpectation"];
   [storage hasEventsForTarget:kGDTCORTargetTest
                    onComplete:^(BOOL hasEvents) {
                      XCTAssertTrue(hasEvents);
@@ -1018,8 +1029,9 @@
                    }];
   [self waitForExpectations:@[ eventsGeneratedExpectation ] timeout:5];
 
-  // 0.2. Batch the generated events.
-  XCTestExpectation *batchCreatedExpectation = [self expectationWithDescription:@"batchCreatedExpectation"];
+  // Batch generated events.
+  XCTestExpectation *batchCreatedExpectation =
+      [self expectationWithDescription:@"batchCreatedExpectation"];
   __block NSNumber *batchID;
   [storage
       batchWithEventSelector:[GDTCORStorageEventSelector eventSelectorForTarget:kGDTCORTargetTest]
@@ -1032,7 +1044,7 @@
                   }];
   [self waitForExpectations:@[ batchCreatedExpectation ] timeout:5];
 
-  return @{ batchID : events };
+  return @{batchID : events};
 }
 
 @end
