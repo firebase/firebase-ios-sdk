@@ -169,6 +169,8 @@
   [self waitForUploadOperationsToFinish:uploader];
 }
 
+// TODO: Test for lost batch first regular batch next.
+
 #pragma mark - Helpers
 
 - (NSNumber *)batchEvents {
