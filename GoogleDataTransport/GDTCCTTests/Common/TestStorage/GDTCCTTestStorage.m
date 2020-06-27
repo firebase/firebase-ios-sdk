@@ -26,12 +26,18 @@
   NSMutableDictionary<NSNumber *, NSSet<GDTCOREvent *> *> *_batches;
 }
 
+- (instancetype)init
+{
+  self = [super init];
+  if (self) {
+    _storedEvents = [[NSMutableDictionary alloc] init];
+    _batches = [[NSMutableDictionary alloc] init];
+  }
+  return self;
+}
+
 - (void)storeEvent:(GDTCOREvent *)event
         onComplete:(void (^_Nullable)(BOOL wasWritten, NSError *_Nullable))completion {
-  static dispatch_once_t onceToken;
-  dispatch_once(&onceToken, ^{
-    self->_storedEvents = [[NSMutableDictionary alloc] init];
-  });
   _storedEvents[event.eventID] = event;
   if (completion) {
     completion(YES, nil);
@@ -50,10 +56,7 @@
   static NSInteger count = 0;
   NSNumber *batchID = @(count);
   count++;
-  static dispatch_once_t onceToken;
-  dispatch_once(&onceToken, ^{
-    self->_batches = [[NSMutableDictionary alloc] init];
-  });
+
   NSSet<GDTCOREvent *> *batchEvents = [NSSet setWithArray:[_storedEvents allValues]];
   _batches[batchID] = batchEvents;
   [_storedEvents removeAllObjects];
