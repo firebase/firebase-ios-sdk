@@ -112,7 +112,7 @@
   NSMutableSet<GDTCOREvent *> *generatedEvents = [[NSMutableSet alloc] init];
 
   for (int i = 0; i < count; i++) {
-    GDTCOREvent *event = [GDTCOREventGenerator generateEventForTarget:kGDTCORTargetTest
+    GDTCOREvent *event = [GDTCOREventGenerator generateEventForTarget:target
                                                               qosTier:nil
                                                             mappingID:nil];
     [generatedEvents addObject:event];
