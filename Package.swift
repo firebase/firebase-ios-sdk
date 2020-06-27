@@ -232,7 +232,9 @@ let package = Package(
       cSettings: [
         .headerSearchPath(".."),
         .define("DISPLAY_VERSION", to: "0.0.1"), // TODO: Fix version
-        .define("CLS_SDK_NAME", to: "Crashlytics iOS SDK"), // TODO: Handle other plato
+        .define("CLS_SDK_NAME", to: "Crashlytics iOS SDK", .when(platforms: .some([.iOS]))),
+        .define("CLS_SDK_NAME", to: "Crashlytics macOS SDK", .when(platforms: .some([.macOS]))),
+        .define("CLS_SDK_NAME", to: "Crashlytics tvOS SDK", .when(platforms: .some([.tvOS]))),
         .define("PB_FIELD_32BIT", to: "1"),
         .define("PB_NO_PACKED_STRUCTS", to: "1"),
         .define("PB_ENABLE_MALLOC", to: "1"),
