@@ -303,62 +303,55 @@
 
 - (void)testStorageSelectorWhenConditionsHighPriority {
   __weak id weakSelf = self;
-  [self assertUploadTargetStorageSelectorWithCondition:GDTCORUploadConditionHighPriority
-                                       validationBlock:^(
-                                           GDTCORStorageEventSelector *_Nullable eventSelector,
-                                           NSDate *expiration) {
-                                         id self = weakSelf;
-                                         XCTAssertLessThan([expiration timeIntervalSinceNow], 600);
-                                         XCTAssertEqual(eventSelector.selectedTarget,
-                                                        kGDTCORTargetTest);
-                                         XCTAssertNil(eventSelector.selectedEventIDs);
-                                         XCTAssertNil(eventSelector.selectedMappingIDs);
-                                         XCTAssertNil(eventSelector.selectedQosTiers);
-                                       }];
+  [self assertStorageSelectorWithCondition:GDTCORUploadConditionHighPriority
+                           validationBlock:^(GDTCORStorageEventSelector *_Nullable eventSelector,
+                                             NSDate *expiration) {
+                             id self = weakSelf;
+                             XCTAssertLessThan([expiration timeIntervalSinceNow], 600);
+                             XCTAssertEqual(eventSelector.selectedTarget, kGDTCORTargetTest);
+                             XCTAssertNil(eventSelector.selectedEventIDs);
+                             XCTAssertNil(eventSelector.selectedMappingIDs);
+                             XCTAssertNil(eventSelector.selectedQosTiers);
+                           }];
 }
 
 - (void)testStorageSelectorWhenConditionsMobileData {
   __weak id weakSelf = self;
-  [self assertUploadTargetStorageSelectorWithCondition:GDTCORUploadConditionMobileData
-                                       validationBlock:^(
-                                           GDTCORStorageEventSelector *_Nullable eventSelector,
+  [self
+      assertStorageSelectorWithCondition:GDTCORUploadConditionMobileData
+                         validationBlock:^(GDTCORStorageEventSelector *_Nullable eventSelector,
                                            NSDate *expiration) {
-                                         id self = weakSelf;
-                                         XCTAssertLessThan([expiration timeIntervalSinceNow], 600);
-                                         XCTAssertEqual(eventSelector.selectedTarget,
-                                                        kGDTCORTargetTest);
-                                         XCTAssertNil(eventSelector.selectedEventIDs);
-                                         XCTAssertNil(eventSelector.selectedMappingIDs);
+                           id self = weakSelf;
+                           XCTAssertLessThan([expiration timeIntervalSinceNow], 600);
+                           XCTAssertEqual(eventSelector.selectedTarget, kGDTCORTargetTest);
+                           XCTAssertNil(eventSelector.selectedEventIDs);
+                           XCTAssertNil(eventSelector.selectedMappingIDs);
 
-                                         NSSet *expectedQoSTiers = [NSSet setWithArray:@[
-                                           @(GDTCOREventQoSFast), @(GDTCOREventQosDefault)
-                                         ]];
-                                         XCTAssertEqualObjects(eventSelector.selectedQosTiers,
-                                                               expectedQoSTiers);
-                                       }];
+                           NSSet *expectedQoSTiers = [NSSet
+                               setWithArray:@[ @(GDTCOREventQoSFast), @(GDTCOREventQosDefault) ]];
+                           XCTAssertEqualObjects(eventSelector.selectedQosTiers, expectedQoSTiers);
+                         }];
 }
 
 - (void)testStorageSelectorWhenConditionsWifiData {
   __weak id weakSelf = self;
-  [self assertUploadTargetStorageSelectorWithCondition:GDTCORUploadConditionWifiData
-                                       validationBlock:^(
-                                           GDTCORStorageEventSelector *_Nullable eventSelector,
+  [self
+      assertStorageSelectorWithCondition:GDTCORUploadConditionWifiData
+                         validationBlock:^(GDTCORStorageEventSelector *_Nullable eventSelector,
                                            NSDate *expiration) {
-                                         id self = weakSelf;
-                                         XCTAssertLessThan([expiration timeIntervalSinceNow], 600);
-                                         XCTAssertEqual(eventSelector.selectedTarget,
-                                                        kGDTCORTargetTest);
-                                         XCTAssertNil(eventSelector.selectedEventIDs);
-                                         XCTAssertNil(eventSelector.selectedMappingIDs);
+                           id self = weakSelf;
+                           XCTAssertLessThan([expiration timeIntervalSinceNow], 600);
+                           XCTAssertEqual(eventSelector.selectedTarget, kGDTCORTargetTest);
+                           XCTAssertNil(eventSelector.selectedEventIDs);
+                           XCTAssertNil(eventSelector.selectedMappingIDs);
 
-                                         NSSet *expectedQoSTiers = [NSSet setWithArray:@[
-                                           @(GDTCOREventQoSFast), @(GDTCOREventQoSWifiOnly),
-                                           @(GDTCOREventQosDefault), @(GDTCOREventQoSTelemetry),
-                                           @(GDTCOREventQoSUnknown)
-                                         ]];
-                                         XCTAssertEqualObjects(eventSelector.selectedQosTiers,
-                                                               expectedQoSTiers);
-                                       }];
+                           NSSet *expectedQoSTiers = [NSSet setWithArray:@[
+                             @(GDTCOREventQoSFast), @(GDTCOREventQoSWifiOnly),
+                             @(GDTCOREventQosDefault), @(GDTCOREventQoSTelemetry),
+                             @(GDTCOREventQoSUnknown)
+                           ]];
+                           XCTAssertEqualObjects(eventSelector.selectedQosTiers, expectedQoSTiers);
+                         }];
 }
 
 #pragma mark - Helpers
@@ -418,9 +411,8 @@
   [self waitForExpectations:@[ uploadFinishedExpectation ] timeout:1];
 }
 
-- (void)assertUploadTargetStorageSelectorWithCondition:(GDTCORUploadConditions)conditions
-                                       validationBlock:
-                                           (void (^)(GDTCORStorageEventSelector *_Nullable selector,
+- (void)assertStorageSelectorWithCondition:(GDTCORUploadConditions)conditions
+                           validationBlock:(void (^)(GDTCORStorageEventSelector *_Nullable selector,
                                                      NSDate *expirationDate))validationBlock {
   GDTCCTUploader *uploader = [[GDTCCTUploader alloc] init];
 
