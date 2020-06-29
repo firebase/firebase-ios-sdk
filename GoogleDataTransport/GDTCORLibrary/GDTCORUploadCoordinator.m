@@ -23,6 +23,12 @@
 
 #import "GoogleDataTransport/GDTCORLibrary/Private/GDTCORRegistrar_Private.h"
 
+@interface GDTCORUploadCoordinator ()
+
+@property(nonatomic) NSArray<NSNumber *> *highPriorityTargets;
+
+@end
+
 @implementation GDTCORUploadCoordinator
 
 + (instancetype)sharedInstance {
@@ -43,6 +49,7 @@
     _registrar = [GDTCORRegistrar sharedInstance];
     _timerInterval = 30 * NSEC_PER_SEC;
     _timerLeeway = 5 * NSEC_PER_SEC;
+    _highPriorityTargets = @[ @(kGDTCORTargetCSH) ];
   }
   return self;
 }
@@ -93,14 +100,30 @@
  */
 - (void)uploadTargets:(NSArray<NSNumber *> *)targets conditions:(GDTCORUploadConditions)conditions {
   dispatch_async(_coordinationQueue, ^{
+    // TODO: The reachability signal may be not reliable enough to prevent an upload attempt.
+    // See https://developer.apple.com/videos/play/wwdc2019/712/ (49:40) for more details.
     if ((conditions & GDTCORUploadConditionNoNetwork) == GDTCORUploadConditionNoNetwork) {
       return;
     }
+
+    // Upload high priority targets first if still there are any pending events.
+    for (NSNumber *target in self.highPriorityTargets) {
+      GDTCORUploadConditions highPriorityConditions = conditions;
+      highPriorityConditions |= GDTCORUploadConditionHighPriority;
+      [self uploadTarget:target conditions:highPriorityConditions];
+    }
+
+    // Upload the rest of events after.
     for (NSNumber *target in targets) {
-      id<GDTCORUploader> uploader = self->_registrar.targetToUploader[target];
-      [uploader uploadTarget:target.intValue withConditions:conditions];
+      [self uploadTarget:target conditions:conditions];
     }
   });
+}
+
+- (void)uploadTarget:(NSNumber * /* @(GDTCORTarget) */)target
+          conditions:(GDTCORUploadConditions)conditions {
+  id<GDTCORUploader> uploader = self->_registrar.targetToUploader[target];
+  [uploader uploadTarget:target.intValue withConditions:conditions];
 }
 
 - (void)signalToStoragesToCheckExpirations {
