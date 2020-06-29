@@ -221,7 +221,7 @@ NSString *const kGDTCORBatchComponentsExpirationKey = @"GDTCORBatchComponentsExp
                onComplete:(void (^_Nullable)(void))onComplete {
   dispatch_async(_storageQueue, ^{
     NSError *error;
-    NSArray<NSString *> *batchDirPaths = [self batchDirPatchPathsForBatchID:batchID error:&error];
+    NSArray<NSString *> *batchDirPaths = [self batchDirPathsForBatchID:batchID error:&error];
 
     if (batchDirPaths == nil) {
       if (onComplete) {
@@ -306,6 +306,8 @@ NSString *const kGDTCORBatchComponentsExpirationKey = @"GDTCORBatchComponentsExp
         [[NSFileManager defaultManager] removeItemAtPath:eventPath error:nil];
       }
     }
+
+    // TODO: Delete batch directory if no events found.
 
     if (onComplete) {
       onComplete([events copy]);
@@ -472,9 +474,15 @@ NSString *const kGDTCORBatchComponentsExpirationKey = @"GDTCORBatchComponentsExp
 }
 
 #pragma mark - Private not thread safe methods
-
-- (nullable NSArray<NSString *> *)batchDirPatchPathsForBatchID:(NSNumber *)batchID
-                                                         error:(NSError **)outError {
+/** Looks for directory paths containing events for a batch with the specified ID.
+ * @param batchID A batch ID.
+ * @param outError A pointer to `NSError *` to assign as possible error to.
+ * @return An array of an array of paths to directories for event batches with a specified batch ID
+ * or `nil` in the case of an error. Usually returns a single path but potentially return more in
+ * cases when the app is terminated while uploading a batch.
+ */
+- (nullable NSArray<NSString *> *)batchDirPathsForBatchID:(NSNumber *)batchID
+                                                    error:(NSError **)outError {
   NSFileManager *fileManager = [NSFileManager defaultManager];
   NSError *error;
   NSArray<NSString *> *batches =
@@ -503,7 +511,7 @@ NSString *const kGDTCORBatchComponentsExpirationKey = @"GDTCORBatchComponentsExp
 - (nullable NSArray<NSString *> *)eventPathsForBatchID:(NSNumber *)batchID
                                                  error:(NSError **)outError {
   NSError *error;
-  NSArray<NSString *> *batchDirPaths = [self batchDirPatchPathsForBatchID:batchID error:&error];
+  NSArray<NSString *> *batchDirPaths = [self batchDirPathsForBatchID:batchID error:&error];
 
   if (batchDirPaths == nil) {
     *outError = error;

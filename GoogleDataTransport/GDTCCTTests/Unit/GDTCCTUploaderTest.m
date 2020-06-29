@@ -171,7 +171,7 @@
 
 - (void)testUploadTarget_WhenThereAreBothStoredBatchAndEvents_ThenUploadBatchThenEvents {
   GDTCCTUploader *uploader = [[GDTCCTUploader alloc] init];
-  
+
   // 0. Generate test events.
   // 0.1. Generate and store and an event.
   [self.generator generateEvent:GDTCOREventQoSFast];
@@ -292,8 +292,6 @@
   // 2.4. Wait for upload operation to finish.
   [self waitForUploadOperationsToFinish:uploader];
 }
-
-// TODO: Tests for empty batch then non-empty batch.
 
 #pragma mark - Helpers
 
