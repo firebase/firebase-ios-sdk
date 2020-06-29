@@ -23,12 +23,6 @@
 
 #import "GoogleDataTransport/GDTCORLibrary/Private/GDTCORRegistrar_Private.h"
 
-@interface GDTCORUploadCoordinator ()
-
-@property(nonatomic) NSArray<NSNumber *> *highPriorityTargets;
-
-@end
-
 @implementation GDTCORUploadCoordinator
 
 + (instancetype)sharedInstance {
@@ -49,7 +43,6 @@
     _registrar = [GDTCORRegistrar sharedInstance];
     _timerInterval = 30 * NSEC_PER_SEC;
     _timerLeeway = 5 * NSEC_PER_SEC;
-    _highPriorityTargets = @[ @(kGDTCORTargetCSH) ];
   }
   return self;
 }
@@ -105,25 +98,11 @@
     if ((conditions & GDTCORUploadConditionNoNetwork) == GDTCORUploadConditionNoNetwork) {
       return;
     }
-
-    // Upload high priority targets first if still there are any pending events.
-    for (NSNumber *target in self.highPriorityTargets) {
-      GDTCORUploadConditions highPriorityConditions = conditions;
-      highPriorityConditions |= GDTCORUploadConditionHighPriority;
-      [self uploadTarget:target conditions:highPriorityConditions];
-    }
-
-    // Upload the rest of events after.
     for (NSNumber *target in targets) {
-      [self uploadTarget:target conditions:conditions];
+      id<GDTCORUploader> uploader = self->_registrar.targetToUploader[target];
+      [uploader uploadTarget:target.intValue withConditions:conditions];
     }
   });
-}
-
-- (void)uploadTarget:(NSNumber * /* @(GDTCORTarget) */)target
-          conditions:(GDTCORUploadConditions)conditions {
-  id<GDTCORUploader> uploader = self->_registrar.targetToUploader[target];
-  [uploader uploadTarget:target.intValue withConditions:conditions];
 }
 
 - (void)signalToStoragesToCheckExpirations {

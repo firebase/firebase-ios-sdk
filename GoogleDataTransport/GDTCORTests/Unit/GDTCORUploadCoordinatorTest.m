@@ -137,6 +137,4 @@
   });
 }
 
-// TODO: Tests for high priority targets.
-
 @end
