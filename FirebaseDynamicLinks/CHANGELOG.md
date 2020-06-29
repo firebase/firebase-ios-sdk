@@ -1,4 +1,5 @@
 # Unversioned
+- Adding plist property"FirebaseDeepLinkPasteBoardRetrievalEnabled" to enable/disable fetching dynamic links from PasteBoard.
 - [fixed] Reduce frequency of iOS14 pasteboard notifications by only reading from it when it contains URL(s). (#5905)
 
 # v4.3.0
