@@ -297,6 +297,11 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSString *)retrievePasteboardContents {
+  if (![self isPasteBoardRetrievalEnabled]) {
+    // Pasteboard check for dynamic link is disabled by user.
+    return @"";
+  }
+
   NSString *pasteboardContents = @"";
   if (@available(iOS 10.0, *)) {
     if ([[UIPasteboard generalPasteboard] hasURLs]) {
@@ -306,6 +311,21 @@ NS_ASSUME_NONNULL_BEGIN
     pasteboardContents = [UIPasteboard generalPasteboard].string;
   }
   return pasteboardContents;
+}
+
+/**
+ Property to enable or disable dynamic link retrieval from PasteBoard.
+ This property is added because of iOS 14 feature where pop up is displayed while accessing
+ PasteBoard. So if developers don't want their users to see the PasteBoard popup, they can set
+ "FirebaseDeepLinkPasteBoardRetrievalEnabled" to false in their plist.
+ */
+- (BOOL)isPasteBoardRetrievalEnabled {
+  id retrievalEnabledValue =
+      [[NSBundle mainBundle] infoDictionary][@"FirebaseDeepLinkPasteBoardRetrievalEnabled"];
+  if ([retrievalEnabledValue respondsToSelector:@selector(boolValue)]) {
+    return [retrievalEnabledValue boolValue];
+  }
+  return YES;
 }
 
 - (void)clearUsedUniqueMatchLinkToCheckFromClipboard {
