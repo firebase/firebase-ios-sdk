@@ -1,4 +1,4 @@
-# v3.4.0
+# v4.0.0
 - [changed] Removed Protobuf dependency (#5890).
 
 # v3.2.0

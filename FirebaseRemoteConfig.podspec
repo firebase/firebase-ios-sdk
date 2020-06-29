@@ -44,7 +44,7 @@ app update.
       'FIRRemoteConfig_VERSION=' + String(s.version),
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
   }
-  s.dependency 'FirebaseABTesting', '~> 3.4'
+  s.dependency 'FirebaseABTesting', '~> 4.0'
   s.dependency 'FirebaseCore', '~> 6.8'
   s.dependency 'FirebaseInstallations', '~> 1.1'
   s.dependency 'GoogleUtilities/Environment', '~> 6.7'
