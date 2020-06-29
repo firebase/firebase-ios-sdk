@@ -1,5 +1,5 @@
-# Unversioned 
-- [fixed] Reduce frequency of iOS14 pasteboard notifications by only reading from it when it contains URL(s) (#5905)
+# Unversioned
+- [fixed] Reduce frequency of iOS14 pasteboard notifications by only reading from it when it contains URL(s). (#5905)
 
 # v4.3.0
 - [changed] Functionally neutral updated import references for dependencies. (#5824)
