@@ -419,20 +419,26 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
   }
 
   id<GDTCORStorageProtocol> storage = GDTCORStorageInstanceForTarget(target);
-  if (target == kGDTCORTargetCSH) {
+  __block BOOL hasEventsForTarget = NO;
+  dispatch_semaphore_t sema = dispatch_semaphore_create(0);
+  [storage hasEventsForTarget:target
+                   onComplete:^(BOOL hasEvents) {
+                     hasEventsForTarget = hasEvents;
+                     dispatch_semaphore_signal(sema);
+                   }];
+  if (dispatch_semaphore_wait(sema, dispatch_time(DISPATCH_TIME_NOW, 10 * NSEC_PER_SEC)) != 0) {
+    GDTCORLogDebug(@"Timed out waiting for hasEventsForTarget: %ld", (long)target);
+    return NO;
+  }
+
+  if (!hasEventsForTarget) {
+    // Nothing to upload.
+    return NO;
+  }
+
+  if (target == kGDTCORTargetCSH && hasEventsForTarget) {
     // Upload events when there are with no additional conditions for kGDTCORTargetCSH.
-    __block BOOL hasCSHEvents = NO;
-    dispatch_semaphore_t sema = dispatch_semaphore_create(0);
-    [storage hasEventsForTarget:target
-                     onComplete:^(BOOL hasEvents) {
-                       hasCSHEvents = hasEvents;
-                       dispatch_semaphore_signal(sema);
-                     }];
-    if (dispatch_semaphore_wait(sema, dispatch_time(DISPATCH_TIME_NOW, 10 * NSEC_PER_SEC)) != 0) {
-      GDTCORLogDebug(@"Timed out waiting for hasEventsForTarget: %ld", (long)target);
-      return NO;
-    }
-    return hasCSHEvents;
+    return YES;
   }
 
   if ((conditions & GDTCORUploadConditionHighPriority) == GDTCORUploadConditionHighPriority) {

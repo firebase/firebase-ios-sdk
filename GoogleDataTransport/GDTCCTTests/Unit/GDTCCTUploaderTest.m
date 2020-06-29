@@ -354,6 +354,8 @@
                          }];
 }
 
+// TODO: Tests for uploading several empty targets and then non-empty target.
+
 #pragma mark - Helpers
 
 - (NSNumber *)batchEvents {
