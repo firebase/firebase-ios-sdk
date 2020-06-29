@@ -268,7 +268,7 @@ let package = Package(
       path: ".",
       sources: [
         "GoogleDataTransport/GDTCORLibrary",
-        "GoogleDataTransportCCTSupport/GDTCCTLibrary",
+        "GoogleDataTransport/GDTCCTLibrary",
       ],
       publicHeadersPath: "GoogleDataTransport/GDTCORLibrary/Public",
       cSettings: [
