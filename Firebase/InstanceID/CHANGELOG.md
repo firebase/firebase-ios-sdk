@@ -1,3 +1,7 @@
+
+# 2020-07 -- 4.5.0
+- [changed] Functionally neutral updated import references for dependencies. (#5824)
+
 # 2020-06 -- 4.4.0
 - [changed] Standardize FirebaseCore import headers. (#5758)
 

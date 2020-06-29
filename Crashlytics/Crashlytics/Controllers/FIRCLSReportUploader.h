@@ -14,7 +14,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import <GoogleDataTransport/GDTCORTransport.h>
+#import "GoogleDataTransport/GDTCORLibrary/Internal/GoogleDataTransportInternal.h"
 
 @class FIRCLSDataCollectionToken;
 @class FIRCLSInternalReport;

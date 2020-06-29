@@ -14,8 +14,8 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FIRFunctions+Internal.h"
-#import "FIRFunctions.h"
+#import "Functions/FirebaseFunctions/FIRFunctions+Internal.h"
+#import "Functions/FirebaseFunctions/Public/FIRFunctions.h"
 
 @interface FIRFunctionsTests : XCTestCase
 @end

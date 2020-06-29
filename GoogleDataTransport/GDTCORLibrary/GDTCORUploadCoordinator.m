@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-#import "GDTCORLibrary/Private/GDTCORUploadCoordinator.h"
+#import "GoogleDataTransport/GDTCORLibrary/Private/GDTCORUploadCoordinator.h"
 
-#import <GoogleDataTransport/GDTCORAssert.h>
-#import <GoogleDataTransport/GDTCORClock.h>
-#import <GoogleDataTransport/GDTCORConsoleLogger.h>
-#import <GoogleDataTransport/GDTCORReachability.h>
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORAssert.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORClock.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORConsoleLogger.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORReachability.h"
 
-#import "GDTCORLibrary/Private/GDTCORRegistrar_Private.h"
+#import "GoogleDataTransport/GDTCORLibrary/Private/GDTCORRegistrar_Private.h"
 
 @implementation GDTCORUploadCoordinator
 
@@ -43,7 +43,6 @@
     _registrar = [GDTCORRegistrar sharedInstance];
     _timerInterval = 30 * NSEC_PER_SEC;
     _timerLeeway = 5 * NSEC_PER_SEC;
-    _targetToInFlightPackages = [[NSMutableDictionary alloc] init];
   }
   return self;
 }
@@ -98,29 +97,16 @@
       return;
     }
     for (NSNumber *target in targets) {
-      // Don't trigger uploads for targets that have an in-flight package already.
-      if (self->_targetToInFlightPackages[target]) {
-        GDTCORLogDebug(@"Target %@ will not upload, there's an upload in flight", target);
-        continue;
-      }
-      // Ask the uploader if they can upload and do so, if it can.
-      id<GDTCORUploader> uploader = self.registrar.targetToUploader[target];
-      if ([uploader readyToUploadTarget:target.intValue conditions:conditions]) {
-        id<GDTCORPrioritizer> prioritizer = self.registrar.targetToPrioritizer[target];
-        GDTCORUploadPackage *package = [prioritizer uploadPackageWithTarget:target.intValue
-                                                                 conditions:conditions];
-        if (package.events.count) {
-          self->_targetToInFlightPackages[target] = package;
-          GDTCORLogDebug(@"Package of %ld events is being handed over to an uploader",
-                         (long)package.events.count);
-          [uploader uploadPackage:package];
-        } else {
-          [package completeDelivery];
-        }
-      }
-      GDTCORLogDebug(@"Target %@ is not ready to upload", target);
+      id<GDTCORUploader> uploader = self->_registrar.targetToUploader[target];
+      [uploader uploadTarget:target.intValue withConditions:conditions];
     }
   });
+}
+
+- (void)signalToStoragesToCheckExpirations {
+  for (id<GDTCORStorageProtocol> storage in [_registrar.targetToStorage allValues]) {
+    [storage checkForExpirations];
+  }
 }
 
 /** Returns the registered storage for the given NSNumber wrapped GDTCORTarget.
@@ -152,47 +138,12 @@
   }
 }
 
-#pragma mark - NSSecureCoding support
-
-/** The NSKeyedCoder key for the targetToInFlightPackages property. */
-static NSString *const ktargetToInFlightPackagesKey =
-    @"GDTCORUploadCoordinatortargetToInFlightPackages";
-
-+ (BOOL)supportsSecureCoding {
-  return YES;
-}
-
-- (instancetype)initWithCoder:(NSCoder *)aDecoder {
-  GDTCORUploadCoordinator *sharedCoordinator = [GDTCORUploadCoordinator sharedInstance];
-  dispatch_sync(sharedCoordinator->_coordinationQueue, ^{
-    @try {
-      NSSet *classes =
-          [NSSet setWithObjects:[NSMutableDictionary class], [GDTCORUploadPackage class], nil];
-      sharedCoordinator->_targetToInFlightPackages =
-          [aDecoder decodeObjectOfClasses:classes forKey:ktargetToInFlightPackagesKey];
-
-    } @catch (NSException *exception) {
-      sharedCoordinator->_targetToInFlightPackages = [NSMutableDictionary dictionary];
-    }
-  });
-  return sharedCoordinator;
-}
-
-- (void)encodeWithCoder:(NSCoder *)aCoder {
-  dispatch_sync(_coordinationQueue, ^{
-    // All packages that have been given to uploaders need to be tracked so that their expiration
-    // timers can be called.
-    if (self->_targetToInFlightPackages.count > 0) {
-      [aCoder encodeObject:self->_targetToInFlightPackages forKey:ktargetToInFlightPackagesKey];
-    }
-  });
-}
-
 #pragma mark - GDTCORLifecycleProtocol
 
 - (void)appWillForeground:(GDTCORApplication *)app {
   // -startTimer is thread-safe.
   [self startTimer];
+  [self signalToStoragesToCheckExpirations];
 }
 
 - (void)appWillBackground:(GDTCORApplication *)app {
@@ -204,71 +155,6 @@ static NSString *const ktargetToInFlightPackagesKey =
 - (void)appWillTerminate:(GDTCORApplication *)application {
   dispatch_sync(_coordinationQueue, ^{
     [self stopTimer];
-  });
-}
-
-#pragma mark - GDTCORUploadPackageProtocol
-
-- (void)packageDelivered:(GDTCORUploadPackage *)package successful:(BOOL)successful {
-  if (!_coordinationQueue) {
-    return;
-  }
-  dispatch_async(_coordinationQueue, ^{
-    NSNumber *targetNumber = @(package.target);
-    NSMutableDictionary<NSNumber *, GDTCORUploadPackage *> *targetToInFlightPackages =
-        self->_targetToInFlightPackages;
-    GDTCORRegistrar *registrar = self->_registrar;
-    if (targetToInFlightPackages) {
-      [targetToInFlightPackages removeObjectForKey:targetNumber];
-    }
-    NSSet<GDTCOREvent *> *packageEvents = [package.events copy];
-    if (registrar) {
-      id<GDTCORPrioritizer> prioritizer = registrar.targetToPrioritizer[targetNumber];
-      if (!prioritizer) {
-        GDTCORLogError(GDTCORMCEPrioritizerError,
-                       @"A prioritizer should be registered for this target: %@", targetNumber);
-      }
-      if ([prioritizer respondsToSelector:@selector(packageDelivered:successful:)]) {
-        [prioritizer packageDelivered:[package copy] successful:successful];
-      }
-    }
-    if (successful && packageEvents.count) {
-      NSMutableSet *eventIDs = [[NSMutableSet alloc] init];
-      for (GDTCOREvent *event in packageEvents) {
-        NSNumber *eventID = event.eventID;
-        if (eventID != nil) {
-          [eventIDs addObject:eventID];
-        } else {
-          GDTCORLogDebug(@"An event was missing its ID: %@", event);
-        }
-      }
-      [[self storageForTarget:@(package.target)] removeEvents:eventIDs];
-    }
-  });
-}
-
-- (void)packageExpired:(GDTCORUploadPackage *)package {
-  if (!_coordinationQueue) {
-    return;
-  }
-  dispatch_async(_coordinationQueue, ^{
-    NSNumber *targetNumber = @(package.target);
-    NSMutableDictionary<NSNumber *, GDTCORUploadPackage *> *targetToInFlightPackages =
-        self->_targetToInFlightPackages;
-    GDTCORRegistrar *registrar = self->_registrar;
-    if (targetToInFlightPackages) {
-      [targetToInFlightPackages removeObjectForKey:targetNumber];
-    }
-    if (registrar) {
-      id<GDTCORPrioritizer> prioritizer = registrar.targetToPrioritizer[targetNumber];
-      id<GDTCORUploader> uploader = registrar.targetToUploader[targetNumber];
-      if ([prioritizer respondsToSelector:@selector(packageExpired:)]) {
-        [prioritizer packageExpired:package];
-      }
-      if ([uploader respondsToSelector:@selector(packageExpired:)]) {
-        [uploader packageExpired:package];
-      }
-    }
   });
 }
 

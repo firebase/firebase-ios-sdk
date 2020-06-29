@@ -1,3 +1,6 @@
+# 2020-07 -- v0.22.0
+- [changed] Functionally neutral updated import references for dependencies. (#5902)
+
 # 2020-06-02 -- v0.20.2
 - [fixed] Fixed log message for in-app messaging test on device flow (#5680).
 

@@ -14,8 +14,9 @@
 
 #import "FirebaseStorage/Sources/FIRStorageTokenAuthorizer.h"
 
-#import <FirebaseStorage/FIRStorage.h>
-#import <FirebaseStorage/FIRStorageConstants.h>
+#import "FirebaseStorage/Sources/Public/FIRStorage.h"
+#import "FirebaseStorage/Sources/Public/FIRStorageConstants.h"
+
 #import "FirebaseStorage/Sources/FIRStorageConstants_Private.h"
 #import "FirebaseStorage/Sources/FIRStorageErrors.h"
 

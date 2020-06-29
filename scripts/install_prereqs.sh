@@ -142,11 +142,7 @@ case "$project-$platform-$method" in
   GoogleDataTransport-watchOS-xcodebuild)
     install_xcpretty
     bundle exec pod install --project-directory=GoogleDataTransport/GDTWatchOSTestApp/ --repo-update
-    ;;
-
-  GoogleDataTransportCCTSupport-watchOS-xcodebuild)
-    install_xcpretty
-    bundle exec pod install --project-directory=GoogleDataTransportCCTSupport/GDTCCTWatchOSTestApp/ --repo-update
+    bundle exec pod install --project-directory=GoogleDataTransport/GDTCCTWatchOSTestApp/
     ;;
 
   *-pod-lib-lint)

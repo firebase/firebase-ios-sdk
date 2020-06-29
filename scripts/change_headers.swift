@@ -1,6 +1,6 @@
 #!/usr/bin/swift
 /*
- * Copyright 2020 LLC Google
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,19 +20,20 @@
 import Foundation
 
 // Update with directories in which to find headers.
-let findHeaders = ["FirebaseInstallations"]
+let findHeaders = ["GoogleDataTransport"]
 
 // Update with directories in which to change imports.
 let changeImports = ["GoogleUtilities", "FirebaseAuth", "FirebaseCore", "Firebase",
+                     "FirebaseDatabase", "GoogleDataTransport",
                      "FirebaseDynamicLinks", "FirebaseInAppMessaging", "FirebaseMessaging",
-                     "FirebaseRemoteConfig", "FirebaseInstallations",
-                     "FirebaseAppDistribution", "Example", "Crashlytics"]
+                     "FirebaseRemoteConfig", "FirebaseInstallations", "Functions",
+                     "FirebaseAppDistribution", "Example", "Crashlytics", "FirebaseStorage"]
 
 // Skip these directories. Imports should only be repo-relative in libraries
 // and unit tests.
-let skipDirPatterns = ["/Sample/", "/Pods/", "FirebaseABTesting/Tests/Integration",
-                       "FirebaseInAppMessaging/Tests/Integration/", "Example/Database/App",
-                       "Example/InstanceID/App"]
+let skipDirPatterns = ["/Sample/", "/Pods/", "FirebaseStorage/Tests/Integration",
+                       "FirebaseInAppMessaging/Tests/Integration/",
+                       "Example/InstanceID/App", ".build/", "Functions/Example/FirebaseFunctions"]
 
 // Get a Dictionary mapping a simple header name to a repo-relative path.
 
@@ -44,10 +45,11 @@ func getHeaderMap(_ url: URL) -> [String: String] {
     while let file = enumerator?.nextObject() as? String {
       if let fType = enumerator?.fileAttributes?[FileAttributeKey.type] as? FileAttributeType,
         fType == .typeRegular {
-        let url = URL(string: file)
-        let filename = url!.lastPathComponent
-        if filename.hasSuffix(".h") {
-          headerMap[filename] = root + "/" + file
+        if let url = URL(string: file) {
+          let filename = url.lastPathComponent
+          if filename.hasSuffix(".h") {
+            headerMap[filename] = root + "/" + file
+          }
         }
       }
     }
@@ -88,12 +90,11 @@ func transformFile(_ file: String) {
     if line.starts(with: "#import"),
       let importFile = getImportFile(line),
       let path = headerMap[importFile] {
-      if file.starts(with: "FirebaseInstallations/") {
-        outBuffer += "#import \"\(path)\"\n"
-      } else {
-        outBuffer += "#import " +
-          "\"FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h\"\n"
-      }
+      outBuffer += "#import \"\(path)\"\n"
+    } else if line.starts(with: "#include"),
+      let importFile = getImportFile(line),
+      let path = headerMap[importFile] {
+      outBuffer += "#include \"\(path)\"\n"
     } else {
       outBuffer += line + "\n"
     }

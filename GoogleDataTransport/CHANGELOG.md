@@ -1,3 +1,10 @@
+# v7.0.0
+- Storage has been completely reimplemented to a flat-file system. It
+is not backwards compatible with previously saved events.
+- Prioritizers, data futures, and upload packages have been removed.
+- Consolidated GoogleDataTransportCCTSupport with GoogleDataTransport. Starting
+with this version, GoogleDataTransportCCTSupport should no longer be linked.
+
 # v6.2.1
 - Stopped GDTCORUploadCoordinator from blocking main thread. (#5707, #5708)
 

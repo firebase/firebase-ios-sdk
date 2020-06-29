@@ -37,9 +37,9 @@ echo "]" >>  "${ZIP_POD_JSON}"
 mkdir -p "${REPO}"/sdk_zip
 swift run ReleasePackager -keepBuildArtifacts true -updatePodRepo true -templateDir "${REPO}"/ZipBuilder/Template -zipPods "${ZIP_POD_JSON}" -outputDir "${REPO}"/sdk_zip -buildDependencies false
 
-unzip "${REPO}"/sdk_zip/Frameworks.zip -d "${HOME}"/ios_frameworks/Firebase/
+unzip -o "${REPO}"/sdk_zip/Frameworks.zip -d "${HOME}"/ios_frameworks/Firebase/
 
 # Move Frameworks to Firebase dir, so be align with Firebase SDKs.
-mv "${HOME}"/ios_frameworks/Firebase/staging "${HOME}"/ios_frameworks/Firebase/NonFirebaseSDKs/
+mv -n "${HOME}"/ios_frameworks/Firebase/staging "${HOME}"/ios_frameworks/Firebase/NonFirebaseSDKs/
 
 

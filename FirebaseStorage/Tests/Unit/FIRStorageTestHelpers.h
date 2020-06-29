@@ -20,10 +20,11 @@
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
-#import <FirebaseStorage/FIRStorageConstants.h>
-#import <FirebaseStorage/FIRStorageMetadata.h>
-#import <FirebaseStorage/FIRStorageReference.h>
-#import <FirebaseStorage/FIRStorageTask.h>
+#import "FirebaseStorage/Sources/Public/FIRStorageConstants.h"
+#import "FirebaseStorage/Sources/Public/FIRStorageMetadata.h"
+#import "FirebaseStorage/Sources/Public/FIRStorageReference.h"
+#import "FirebaseStorage/Sources/Public/FIRStorageTask.h"
+
 #import "FirebaseStorage/Sources/FIRStorageConstants_Private.h"
 #import "FirebaseStorage/Sources/FIRStorageErrors.h"
 #import "FirebaseStorage/Sources/FIRStorageReference_Private.h"

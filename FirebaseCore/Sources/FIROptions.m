@@ -90,40 +90,40 @@ NSString *const kFIRExceptionBadModification =
 
 static FIROptions *sDefaultOptions = nil;
 static NSDictionary *sDefaultOptionsDictionary = nil;
+static dispatch_once_t sDefaultOptionsOnceToken;
+static dispatch_once_t sDefaultOptionsDictionaryOnceToken;
 
 #pragma mark - Public only for internal class methods
 
 + (FIROptions *)defaultOptions {
-  if (sDefaultOptions != nil) {
-    return sDefaultOptions;
-  }
+  dispatch_once(&sDefaultOptionsOnceToken, ^{
+    NSDictionary *defaultOptionsDictionary = [self defaultOptionsDictionary];
+    if (defaultOptionsDictionary != nil) {
+      sDefaultOptions =
+          [[FIROptions alloc] initInternalWithOptionsDictionary:defaultOptionsDictionary];
+    }
+  });
 
-  NSDictionary *defaultOptionsDictionary = [self defaultOptionsDictionary];
-  if (defaultOptionsDictionary == nil) {
-    return nil;
-  }
-
-  sDefaultOptions = [[FIROptions alloc] initInternalWithOptionsDictionary:defaultOptionsDictionary];
   return sDefaultOptions;
 }
 
 #pragma mark - Private class methods
 
 + (NSDictionary *)defaultOptionsDictionary {
-  if (sDefaultOptionsDictionary != nil) {
-    return sDefaultOptionsDictionary;
-  }
-  NSString *plistFilePath = [FIROptions plistFilePathWithName:kServiceInfoFileName];
-  if (plistFilePath == nil) {
-    return nil;
-  }
-  sDefaultOptionsDictionary = [NSDictionary dictionaryWithContentsOfFile:plistFilePath];
-  if (sDefaultOptionsDictionary == nil) {
-    FIRLogError(kFIRLoggerCore, @"I-COR000011",
-                @"The configuration file is not a dictionary: "
-                @"'%@.%@'.",
-                kServiceInfoFileName, kServiceInfoFileType);
-  }
+  dispatch_once(&sDefaultOptionsDictionaryOnceToken, ^{
+    NSString *plistFilePath = [FIROptions plistFilePathWithName:kServiceInfoFileName];
+    if (plistFilePath == nil) {
+      return;
+    }
+    sDefaultOptionsDictionary = [NSDictionary dictionaryWithContentsOfFile:plistFilePath];
+    if (sDefaultOptionsDictionary == nil) {
+      FIRLogError(kFIRLoggerCore, @"I-COR000011",
+                  @"The configuration file is not a dictionary: "
+                  @"'%@.%@'.",
+                  kServiceInfoFileName, kServiceInfoFileType);
+    }
+  });
+
   return sDefaultOptionsDictionary;
 }
 
@@ -144,6 +144,8 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
 + (void)resetDefaultOptions {
   sDefaultOptions = nil;
   sDefaultOptionsDictionary = nil;
+  sDefaultOptionsOnceToken = 0;
+  sDefaultOptionsDictionaryOnceToken = 0;
 }
 
 #pragma mark - Private instance methods

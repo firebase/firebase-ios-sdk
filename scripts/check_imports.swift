@@ -24,8 +24,8 @@ import Foundation
 
 // Skip these directories. Imports should only be repo-relative in libraries
 // and unit tests.
-let skipDirPatterns = ["/Sample/", "/Pods/", "FirebaseABTesting/Tests/Integration",
-                       "FirebaseInAppMessaging/Tests/Integration/", "Example/Database/App",
+let skipDirPatterns = ["/Sample/", "/Pods/", "FirebaseStorage/Tests/Integration",
+                       "FirebaseInAppMessaging/Tests/Integration/",
                        "Example/InstanceID/App", "SymbolCollisionTest/", "/gen/",
                        "CocoapodsIntegrationTest/"] +
   [
@@ -36,22 +36,18 @@ let skipDirPatterns = ["/Sample/", "/Pods/", "FirebaseABTesting/Tests/Integratio
   [
     "FirebaseABTesting",
     "FirebaseAppDistribution",
-    "FirebaseAuth",
     "FirebaseCore/Sources/Private", // Fixes require breaking private API changes. For Firebase 7.
     "FirebaseDynamicLinks",
     "Firebase/CoreDiagnostics",
-    "Firebase/Database",
+    "FirebaseDatabase/Sources/third_party/Wrap-leveldb", // Pending SwiftPM for leveldb.
     "Example",
     "FirebaseInAppMessaging",
     "FirebaseInstallations/Source/Tests/Unit/",
     "Firebase/InstanceID",
     "FirebaseMessaging",
     "FirebaseRemoteConfig",
-    "FirebaseStorage",
     "Crashlytics",
     "Firestore",
-    "Functions",
-    "GoogleDataTransport",
     "GoogleUtilitiesComponents",
   ]
 
@@ -60,19 +56,24 @@ let skipImportPatterns = [
   "FBLPromise",
 ]
 
-var foundError = false
+private class ErrorLogger {
+  var foundError = false
+  func log(_ message: String) {
+    print(message)
+    foundError = true
+  }
 
-func genError(_ message: String) {
-  print(message)
-  foundError = true
+  func importLog(_ message: String, _ file: String, _ line: Int) {
+    log("Import Error: \(file):\(line) \(message)")
+  }
 }
 
-func checkFile(_ file: String, isPublic: Bool) {
+private func checkFile(_ file: String, logger: ErrorLogger, inRepo repoURL: URL, isPublic: Bool) {
   var fileContents = ""
   do {
     fileContents = try String(contentsOfFile: file, encoding: .utf8)
   } catch {
-    genError("Could not read \(file). \(error)")
+    logger.log("Could not read \(file). \(error)")
     // Not a source file, give up and return.
     return
   }
@@ -94,7 +95,7 @@ func checkFile(_ file: String, isPublic: Bool) {
       continue
     } else if line.starts(with: "@import") {
       // "@import" is only allowed for Swift Package Manager.
-      genError("@import should not be used in CocoaPods library code: \(file):\(lineNum)")
+      logger.importLog("@import should not be used in CocoaPods library code", file, lineNum)
     }
 
     // "The #else of a SWIFT_PACKAGE check should only do CocoaPods module-style imports."
@@ -102,7 +103,8 @@ func checkFile(_ file: String, isPublic: Bool) {
       let importFile = line.components(separatedBy: " ")[1]
       if inSwiftPackageElse {
         if importFile.first != "<" {
-          genError("Import error: \(file):\(lineNum) Import in SWIFT_PACKAGE #else should start with \"<\".")
+          logger
+            .importLog("Import in SWIFT_PACKAGE #else should start with \"<\".", file, lineNum)
         }
         continue
       }
@@ -114,7 +116,7 @@ func checkFile(_ file: String, isPublic: Bool) {
         // Public Headers should only use simple file names without paths.
         if isPublic {
           if importFile.contains("/") {
-            genError("Import error: \(file):\(lineNum) Public header import should not include \"/\"")
+            logger.importLog("Public header import should not include \"/\"", file, lineNum)
           }
 
         } else if !FileManager.default.fileExists(atPath: repoURL.path + "/" + importFileRaw) {
@@ -124,59 +126,69 @@ func checkFile(_ file: String, isPublic: Bool) {
               continue nextLine
             }
           }
-          genError("Import error: \(file):\(lineNum) Import \(importFileRaw) does not exist.")
+          logger.importLog("Import \(importFileRaw) does not exist.", file, lineNum)
         }
       } else if importFile.first == "<" {
         // Verify that double quotes are always used for intra-module imports.
         if importFileRaw.starts(with: "Firebase") ||
           importFileRaw.starts(with: "GoogleUtilities") ||
           importFileRaw.starts(with: "GoogleDataTransport") {
-          genError("Import error: \(file):\(lineNum) Imports internal to the repo should use double quotes not \"<\"")
+          logger
+            .importLog("Imports internal to the repo should use double quotes not \"<\"", file,
+                       lineNum)
         }
       }
     }
   }
 }
 
-// Search the path upwards to find the root of the firebase-ios-sdk repo.
-var url = URL(fileURLWithPath: FileManager().currentDirectoryPath)
-while url.path != "/", url.lastPathComponent != "firebase-ios-sdk" {
-  url = url.deletingLastPathComponent()
-}
-
-let repoURL = url
-
-let contents =
-  try FileManager.default.contentsOfDirectory(at: repoURL,
-                                              includingPropertiesForKeys: nil,
-                                              options: [.skipsHiddenFiles])
-
-for rootURL in contents {
-  if !rootURL.hasDirectoryPath {
-    continue
+private func main() -> Int32 {
+  let logger = ErrorLogger()
+  // Search the path upwards to find the root of the firebase-ios-sdk repo.
+  var url = URL(fileURLWithPath: FileManager().currentDirectoryPath)
+  while url.path != "/", url.lastPathComponent != "firebase-ios-sdk" {
+    url = url.deletingLastPathComponent()
   }
-  let enumerator = FileManager.default.enumerator(atPath: rootURL.path)
-  whileLoop: while let file = enumerator?.nextObject() as? String {
-    if let fType = enumerator?.fileAttributes?[FileAttributeKey.type] as? FileAttributeType,
-      fType == .typeRegular {
-      if file.starts(with: ".") {
-        continue
-      }
-      if !(file.hasSuffix(".h") ||
-        file.hasSuffix(".m") ||
-        file.hasSuffix(".mm") ||
-        file.hasSuffix(".c")) {
-        continue
-      }
-      let fullTransformPath = rootURL.path + "/" + file
-      for dirPattern in skipDirPatterns {
-        if fullTransformPath.range(of: dirPattern) != nil {
-          continue whileLoop
+  let repoURL = url
+  guard let contents = try? FileManager.default.contentsOfDirectory(at: repoURL,
+                                                                    includingPropertiesForKeys: nil,
+                                                                    options: [.skipsHiddenFiles])
+  else {
+    logger.log("Failed to get repo contents \(repoURL)")
+    return 1
+  }
+
+  for rootURL in contents {
+    if !rootURL.hasDirectoryPath {
+      continue
+    }
+    let enumerator = FileManager.default.enumerator(atPath: rootURL.path)
+    whileLoop: while let file = enumerator?.nextObject() as? String {
+      if let fType = enumerator?.fileAttributes?[FileAttributeKey.type] as? FileAttributeType,
+        fType == .typeRegular {
+        if file.starts(with: ".") {
+          continue
         }
+        if !(file.hasSuffix(".h") ||
+          file.hasSuffix(".m") ||
+          file.hasSuffix(".mm") ||
+          file.hasSuffix(".c")) {
+          continue
+        }
+        let fullTransformPath = rootURL.path + "/" + file
+        for dirPattern in skipDirPatterns {
+          if fullTransformPath.range(of: dirPattern) != nil {
+            continue whileLoop
+          }
+        }
+        let isPublic = file.range(of: "/Public/") != nil &&
+          // TODO: Skip legacy GDTCCTLibrary file that isn't Public and should be moved.
+          file.range(of: "GDTCCTLibrary/Public/GDTCOREvent+GDTCCTSupport.h") == nil
+        checkFile(fullTransformPath, logger: logger, inRepo: repoURL, isPublic: isPublic)
       }
-      checkFile(fullTransformPath, isPublic: file.range(of: "/Public/") != nil)
     }
   }
+  return logger.foundError ? 1 : 0
 }
 
-exit(foundError ? 1 : 0)
+exit(main())

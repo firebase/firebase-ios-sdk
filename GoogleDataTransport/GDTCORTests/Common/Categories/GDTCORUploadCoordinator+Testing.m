@@ -14,19 +14,18 @@
  * limitations under the License.
  */
 
-#import "GDTCORTests/Common/Categories/GDTCORUploadCoordinator+Testing.h"
+#import "GoogleDataTransport/GDTCORTests/Common/Categories/GDTCORUploadCoordinator+Testing.h"
 
 #import <objc/runtime.h>
 
-#import "GDTCORLibrary/Private/GDTCORFlatFileStorage.h"
-#import "GDTCORLibrary/Public/GDTCORRegistrar.h"
+#import "GoogleDataTransport/GDTCORLibrary/Private/GDTCORFlatFileStorage.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORRegistrar.h"
 
 @implementation GDTCORUploadCoordinator (Testing)
 
 - (void)reset {
   dispatch_sync(self.coordinationQueue, ^{
     self.registrar = [GDTCORRegistrar sharedInstance];
-    [self.targetToInFlightPackages removeAllObjects];
   });
 }
 

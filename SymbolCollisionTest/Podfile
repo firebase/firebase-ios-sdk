@@ -12,6 +12,7 @@ target 'SymbolCollisionTest' do
   # Firebase Pods
     pod 'Firebase', :path => '../'
     pod 'FirebaseABTesting', :path => '../'
+    pod 'FirebaseAppDistribution', :path => '../'
     pod 'FirebaseAnalytics'
     pod 'FirebaseAuth', :path => '../'
     pod 'FirebaseCore', :path => '../'
@@ -25,18 +26,18 @@ target 'SymbolCollisionTest' do
     pod 'FirebaseInstanceID', :path => '../'
     pod 'FirebaseInstallations', :path => '../'
     pod 'FirebaseMessaging', :path => '../'
-    pod 'FirebaseMLCommon'
-    pod 'FirebaseMLModelInterpreter'
-    pod 'FirebaseMLVision'
-    pod 'FirebaseMLVisionBarcodeModel'
-    pod 'FirebaseMLVisionFaceModel'
-    pod 'FirebaseMLVisionLabelModel'
-    pod 'FirebaseMLVisionTextModel'
+    # Restore ML pods when #5746 is fixed.
+    # pod 'FirebaseMLCommon'
+    # pod 'FirebaseMLModelInterpreter'
+    # pod 'FirebaseMLVision'
+    # pod 'FirebaseMLVisionBarcodeModel'
+    # pod 'FirebaseMLVisionFaceModel'
+    # pod 'FirebaseMLVisionLabelModel'
+    # pod 'FirebaseMLVisionTextModel'
     pod 'FirebasePerformance'
     pod 'FirebaseRemoteConfig', :path => '../'
     pod 'FirebaseStorage', :path => '../'
     pod 'GoogleDataTransport', :path => '../'
-    pod 'GoogleDataTransportCCTSupport', :path => '../'
     pod 'GoogleUtilities', :path => '../'
 
 #    pod 'FirebaseUI'. - requires use_frameworks!
@@ -77,7 +78,6 @@ target 'SymbolCollisionTest' do
     pod 'nanopb'
 #    pod 'NearbyMessages' # - conflicts with google-cast-sdk
     pod 'Protobuf'
-#    pod 'TensorFlow-experimental' -- conflicts with TensorFlowLiteC
 
   # Non-Google Pods
 

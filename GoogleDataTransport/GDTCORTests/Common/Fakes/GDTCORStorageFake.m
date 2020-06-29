@@ -14,31 +14,54 @@
  * limitations under the License.
  */
 
-#import "GDTCORTests/Common/Fakes/GDTCORStorageFake.h"
+#import "GoogleDataTransport/GDTCORTests/Common/Fakes/GDTCORStorageFake.h"
 
-@implementation GDTCORStorageFake
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCOREvent.h"
+
+@implementation GDTCORStorageFake {
+  /** Store the events in memory. */
+  NSMutableDictionary<NSString *, GDTCOREvent *> *_storedEvents;
+}
 
 - (void)storeEvent:(GDTCOREvent *)event
         onComplete:(void (^_Nullable)(BOOL wasWritten, NSError *_Nullable))completion {
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    self->_storedEvents = [[NSMutableDictionary alloc] init];
+  });
+  _storedEvents[event.eventID] = event;
   if (completion) {
     completion(YES, nil);
   }
 }
 
-- (void)removeEvents:(NSSet<NSNumber *> *)eventIDs {
+- (void)removeEvents:(NSSet<NSString *> *)eventIDs {
+  [_storedEvents removeObjectsForKeys:[eventIDs allObjects]];
+}
+
+- (void)batchWithEventSelector:(nonnull GDTCORStorageEventSelector *)eventSelector
+               batchExpiration:(nonnull NSDate *)expiration
+                    onComplete:
+                        (nonnull void (^)(NSNumber *_Nullable batchID,
+                                          NSSet<GDTCOREvent *> *_Nullable events))onComplete {
+}
+
+- (void)removeBatchWithID:(nonnull NSNumber *)batchID
+             deleteEvents:(BOOL)deleteEvents
+               onComplete:(void (^_Nullable)(void))onComplete {
 }
 
 - (void)libraryDataForKey:(nonnull NSString *)key
-               onComplete:
-                   (nonnull void (^)(NSData *_Nullable, NSError *_Nullable error))onComplete {
-  if (onComplete) {
-    onComplete(nil, nil);
+          onFetchComplete:(nonnull void (^)(NSData *_Nullable, NSError *_Nullable))onFetchComplete
+              setNewValue:(NSData *_Nullable (^_Nullable)(void))setValueBlock {
+  if (onFetchComplete) {
+    onFetchComplete(nil, nil);
   }
 }
 
 - (void)storeLibraryData:(NSData *)data
                   forKey:(nonnull NSString *)key
-              onComplete:(nonnull void (^)(NSError *_Nullable error))onComplete {
+              onComplete:(nullable void (^)(NSError *_Nullable error))onComplete {
   if (onComplete) {
     onComplete(nil);
   }
@@ -49,6 +72,22 @@
   if (onComplete) {
     onComplete(nil);
   }
+}
+
+- (void)hasEventsForTarget:(GDTCORTarget)target onComplete:(void (^)(BOOL hasEvents))onComplete {
+  if (onComplete) {
+    onComplete(NO);
+  }
+}
+
+- (void)storageSizeWithCallback:(void (^)(uint64_t storageSize))onComplete {
+}
+
+- (void)batchIDsForTarget:(GDTCORTarget)target
+               onComplete:(nonnull void (^)(NSSet<NSNumber *> *_Nonnull))onComplete {
+}
+
+- (void)checkForExpirations {
 }
 
 @end
