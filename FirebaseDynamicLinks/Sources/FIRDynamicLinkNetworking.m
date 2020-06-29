@@ -65,7 +65,8 @@ NSString *_Nullable FIRDynamicLinkAPIKeyParameter(NSString *apiKey) {
 }
 
 void FIRMakeHTTPRequest(NSURLRequest *request, FIRNetworkRequestCompletionHandler completion) {
-  NSURLSessionConfiguration *sessionConfig = [NSURLSessionConfiguration defaultSessionConfiguration];
+  NSURLSessionConfiguration *sessionConfig =
+      [NSURLSessionConfiguration defaultSessionConfiguration];
   NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConfig];
   NSURLSessionDataTask *dataTask =
       [session dataTaskWithRequest:request
