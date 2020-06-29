@@ -232,7 +232,6 @@ NSString *const kGDTCORBatchComponentsExpirationKey = @"GDTCORBatchComponentsExp
 
     NSFileManager *fileManager = [NSFileManager defaultManager];
     for (NSString *batchDirPath in batchDirPaths) {
-
       if (deleteEvents) {
         [fileManager removeItemAtPath:batchDirPath error:nil];
       } else {
