@@ -19,11 +19,33 @@
 
 #import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORStorageProtocol.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
+typedef void (^GDTCCTTestStorageBatchHandler)(GDTCORStorageEventSelector *_Nullable eventSelector,
+                                              NSDate *_Nullable expiration,
+                                              GDTCORStorageBatchBlock _Nullable completion);
+
 @interface GDTCCTTestStorage : NSObject <GDTCORStorageProtocol>
+
+#pragma mark - Method call expectations.
 
 @property(nonatomic, nullable) XCTestExpectation *batchWithEventSelectorExpectation;
 @property(nonatomic, nullable) XCTestExpectation *removeBatchWithIDExpectation;
 @property(nonatomic, nullable) XCTestExpectation *batchIDsForTargetExpectation;
 @property(nonatomic, nullable) XCTestExpectation *eventsInBatchWithIDExpectation;
 
+#pragma mark - Blocks to provide custom implementations for the methods.
+
+/// A block to override `batchWithEventSelector:batchExpiration:onComplete:` implementation.
+@property(nonatomic, copy, nullable) GDTCCTTestStorageBatchHandler batchWithEventSelectorHandler;
+
+#pragma mark - Default test implementations
+
+/// Default test implementation for `batchWithEventSelector:batchExpiration:onComplete:`  method.
+- (void)defaultBatchWithEventSelector:(nonnull GDTCORStorageEventSelector *)eventSelector
+                      batchExpiration:(nonnull NSDate *)expiration
+                           onComplete:(nonnull GDTCORStorageBatchBlock)onComplete;
+
 @end
+
+NS_ASSUME_NONNULL_END

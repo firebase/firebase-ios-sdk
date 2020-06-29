@@ -125,13 +125,13 @@ Shared library for iOS SDK data transport needs.
     end
   end
 
-  common_test_sources = ['GoogleDataTransport/GDTCCTTests/Common/**/*.{h,m}']
+  common_cct_test_sources = ['GoogleDataTransport/GDTCCTTests/Common/**/*.{h,m}']
 
   # Test specs
   s.test_spec 'CCT-Tests-Unit' do |test_spec|
     test_spec.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
     test_spec.requires_app_host = false
-    test_spec.source_files = ['GoogleDataTransport/GDTCCTTests/Unit/**/*.{h,m}'] + common_test_sources
+    test_spec.source_files = ['GoogleDataTransport/GDTCCTTests/Unit/**/*.{h,m}'] + common_cct_test_sources + common_test_sources
     test_spec.resources = ['GoogleDataTransport/GDTCCTTests/Data/**/*']
     test_spec.pod_target_xcconfig = header_search_paths
     test_spec.dependency 'GCDWebServer'
@@ -140,7 +140,7 @@ Shared library for iOS SDK data transport needs.
   s.test_spec 'CCT-Tests-Integration' do |test_spec|
     test_spec.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
     test_spec.requires_app_host = false
-    test_spec.source_files = ['GoogleDataTransport/GDTCCTTests/Integration/**/*.{h,m}'] + common_test_sources
+    test_spec.source_files = ['GoogleDataTransport/GDTCCTTests/Integration/**/*.{h,m}'] + common_cct_test_sources
     test_spec.resources = ['GoogleDataTransport/GDTCCTTests/Data/**/*']
     test_spec.pod_target_xcconfig = header_search_paths
   end
@@ -152,7 +152,7 @@ Shared library for iOS SDK data transport needs.
       test_spec.requires_app_host = true
       test_spec.app_host_name = 'GoogleDataTransport/CCTTestApp'
       test_spec.dependency 'GoogleDataTransport/CCTTestApp'
-      test_spec.source_files = ['GoogleDataTransport/GDTCCTTests/Monkey/**/*.{swift}'] + common_test_sources
+      test_spec.source_files = ['GoogleDataTransport/GDTCCTTests/Monkey/**/*.{swift}'] + common_cct_test_sources
       test_spec.info_plist = {
         'GDT_MONKEYTEST' => '1'
       }

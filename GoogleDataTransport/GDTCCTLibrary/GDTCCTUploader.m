@@ -292,9 +292,6 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
     NSURLRequest *request = [self constructRequestForTarget:target data:dataToSend];
     GDTCORLogDebug(@"CTT: request containing %lu events created: %@", (unsigned long)events.count,
                    request);
-
-    // TODO: Remove after debug.
-    //        NSAssert(self.currentTask == nil, @"There is an upload task.");
     NSSet<GDTCOREvent *> *eventsForDebug;
 #if !NDEBUG
     eventsForDebug = events;
@@ -557,12 +554,12 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
   NSMutableSet<NSNumber *> *qosTiers = [[NSMutableSet alloc] init];
   if (conditions & GDTCORUploadConditionWifiData) {
     [qosTiers addObjectsFromArray:@[
-      @(GDTCOREventQoSWifiOnly), @(GDTCOREventQosDefault), @(GDTCOREventQoSTelemetry),
-      @(GDTCOREventQoSUnknown)
+      @(GDTCOREventQoSFast), @(GDTCOREventQoSWifiOnly), @(GDTCOREventQosDefault),
+      @(GDTCOREventQoSTelemetry), @(GDTCOREventQoSUnknown)
     ]];
   }
   if (conditions & GDTCORUploadConditionMobileData) {
-    [qosTiers addObjectsFromArray:@[ @(GDTCOREventQosDefault) ]];
+    [qosTiers addObjectsFromArray:@[ @(GDTCOREventQoSFast), @(GDTCOREventQosDefault) ]];
   }
 
   __block NSInteger lastDayOfDailyUpload;

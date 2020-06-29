@@ -49,20 +49,13 @@
 
 - (void)batchWithEventSelector:(nonnull GDTCORStorageEventSelector *)eventSelector
                batchExpiration:(nonnull NSDate *)expiration
-                    onComplete:
-                        (nonnull void (^)(NSNumber *_Nullable batchID,
-                                          NSSet<GDTCOREvent *> *_Nullable events))onComplete {
-  static NSInteger count = 0;
-  NSNumber *batchID = @(count);
-  count++;
-
-  NSSet<GDTCOREvent *> *batchEvents = [NSSet setWithArray:[_storedEvents allValues]];
-  _batches[batchID] = batchEvents;
-  [_storedEvents removeAllObjects];
-
-  [self.batchWithEventSelectorExpectation fulfill];
-  if (onComplete) {
-    onComplete(batchID, batchEvents);
+                    onComplete:(nonnull GDTCORStorageBatchBlock)onComplete {
+  if (self.batchWithEventSelectorHandler) {
+    self.batchWithEventSelectorHandler(eventSelector, expiration, onComplete);
+  } else {
+    [self defaultBatchWithEventSelector:eventSelector
+                        batchExpiration:expiration
+                             onComplete:onComplete];
   }
 }
 
@@ -126,6 +119,25 @@
 }
 
 - (void)checkForExpirations {
+}
+
+#pragma mark - Default Implementations
+
+- (void)defaultBatchWithEventSelector:(nonnull GDTCORStorageEventSelector *)eventSelector
+                      batchExpiration:(nonnull NSDate *)expiration
+                           onComplete:(nonnull GDTCORStorageBatchBlock)onComplete {
+  static NSInteger count = 0;
+  NSNumber *batchID = @(count);
+  count++;
+
+  NSSet<GDTCOREvent *> *batchEvents = [NSSet setWithArray:[_storedEvents allValues]];
+  _batches[batchID] = batchEvents;
+  [_storedEvents removeAllObjects];
+
+  [self.batchWithEventSelectorExpectation fulfill];
+  if (onComplete) {
+    onComplete(batchID, batchEvents);
+  }
 }
 
 @end

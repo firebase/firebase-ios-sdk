@@ -16,8 +16,8 @@
 
 #import <XCTest/XCTest.h>
 
-#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORRegistrar.h"
 #import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORStorageProtocol.h"
+#import "GoogleDataTransport/GDTCORTests/Common/Categories/GDTCORRegistrar+Testing.h"
 
 #import "GoogleDataTransport/GDTCCTLibrary/Private/GDTCCTNanopbHelpers.h"
 #import "GoogleDataTransport/GDTCCTLibrary/Private/GDTCCTUploader.h"
@@ -45,7 +45,11 @@
   [super setUp];
 
   self.testStorage = [[GDTCCTTestStorage alloc] init];
+
+  // Reset registrar to avoid real object access storage along with the tests.
+  [[GDTCORRegistrar sharedInstance] reset];
   [[GDTCORRegistrar sharedInstance] registerStorage:self.testStorage target:kGDTCORTargetTest];
+
   self.generator = [[GDTCCTEventGenerator alloc] initWithTarget:kGDTCORTargetTest];
 
   self.testServer = [[GDTCCTTestServer alloc] init];
@@ -60,6 +64,8 @@
   self.testStorage = nil;
   [super tearDown];
 }
+
+#pragma mark - Upload flow tests
 
 - (void)testUploadTargetWhenThereAreEventsToUpload {
   // 0. Generate test events.
@@ -91,7 +97,7 @@
     self.testStorage.batchWithEventSelectorExpectation, responseSentExpectation,
     self.testStorage.removeBatchWithIDExpectation
   ]
-                    timeout:5
+                    timeout:3
                enforceOrder:YES];
 
   // 4. Wait for upload operation to finish.
@@ -126,7 +132,7 @@
     self.testStorage.batchWithEventSelectorExpectation, responseSentExpectation,
     self.testStorage.removeBatchWithIDExpectation
   ]
-                    timeout:5
+                    timeout:3
                enforceOrder:YES];
 
   // 4. Wait for upload operation to finish.
@@ -162,7 +168,7 @@
     self.testStorage.batchWithEventSelectorExpectation, responseSentExpectation,
     self.testStorage.removeBatchWithIDExpectation
   ]
-                    timeout:5
+                    timeout:3
                enforceOrder:YES];
 
   // 4. Wait for upload operation to finish.
@@ -293,6 +299,68 @@
   [self waitForUploadOperationsToFinish:uploader];
 }
 
+#pragma mark - Storage interaction tests
+
+- (void)testStorageSelectorWhenConditionsHighPriority {
+  __weak id weakSelf = self;
+  [self assertUploadTargetStorageSelectorWithCondition:GDTCORUploadConditionHighPriority
+                                       validationBlock:^(
+                                           GDTCORStorageEventSelector *_Nullable eventSelector,
+                                           NSDate *expiration) {
+                                         id self = weakSelf;
+                                         XCTAssertLessThan([expiration timeIntervalSinceNow], 600);
+                                         XCTAssertEqual(eventSelector.selectedTarget,
+                                                        kGDTCORTargetTest);
+                                         XCTAssertNil(eventSelector.selectedEventIDs);
+                                         XCTAssertNil(eventSelector.selectedMappingIDs);
+                                         XCTAssertNil(eventSelector.selectedQosTiers);
+                                       }];
+}
+
+- (void)testStorageSelectorWhenConditionsMobileData {
+  __weak id weakSelf = self;
+  [self assertUploadTargetStorageSelectorWithCondition:GDTCORUploadConditionMobileData
+                                       validationBlock:^(
+                                           GDTCORStorageEventSelector *_Nullable eventSelector,
+                                           NSDate *expiration) {
+                                         id self = weakSelf;
+                                         XCTAssertLessThan([expiration timeIntervalSinceNow], 600);
+                                         XCTAssertEqual(eventSelector.selectedTarget,
+                                                        kGDTCORTargetTest);
+                                         XCTAssertNil(eventSelector.selectedEventIDs);
+                                         XCTAssertNil(eventSelector.selectedMappingIDs);
+
+                                         NSSet *expectedQoSTiers = [NSSet setWithArray:@[
+                                           @(GDTCOREventQoSFast), @(GDTCOREventQosDefault)
+                                         ]];
+                                         XCTAssertEqualObjects(eventSelector.selectedQosTiers,
+                                                               expectedQoSTiers);
+                                       }];
+}
+
+- (void)testStorageSelectorWhenConditionsWifiData {
+  __weak id weakSelf = self;
+  [self assertUploadTargetStorageSelectorWithCondition:GDTCORUploadConditionWifiData
+                                       validationBlock:^(
+                                           GDTCORStorageEventSelector *_Nullable eventSelector,
+                                           NSDate *expiration) {
+                                         id self = weakSelf;
+                                         XCTAssertLessThan([expiration timeIntervalSinceNow], 600);
+                                         XCTAssertEqual(eventSelector.selectedTarget,
+                                                        kGDTCORTargetTest);
+                                         XCTAssertNil(eventSelector.selectedEventIDs);
+                                         XCTAssertNil(eventSelector.selectedMappingIDs);
+
+                                         NSSet *expectedQoSTiers = [NSSet setWithArray:@[
+                                           @(GDTCOREventQoSFast), @(GDTCOREventQoSWifiOnly),
+                                           @(GDTCOREventQosDefault), @(GDTCOREventQoSTelemetry),
+                                           @(GDTCOREventQoSUnknown)
+                                         ]];
+                                         XCTAssertEqualObjects(eventSelector.selectedQosTiers,
+                                                               expectedQoSTiers);
+                                       }];
+}
+
 #pragma mark - Helpers
 
 - (NSNumber *)batchEvents {
@@ -348,6 +416,30 @@
                    XCTAssertNil(uploader.currentTask);
                  });
   [self waitForExpectations:@[ uploadFinishedExpectation ] timeout:1];
+}
+
+- (void)assertUploadTargetStorageSelectorWithCondition:(GDTCORUploadConditions)conditions
+                                       validationBlock:
+                                           (void (^)(GDTCORStorageEventSelector *_Nullable selector,
+                                                     NSDate *expirationDate))validationBlock {
+  GDTCCTUploader *uploader = [[GDTCCTUploader alloc] init];
+
+  XCTestExpectation *storageBatchExpectation =
+      [self expectationWithDescription:@"storageBatchExpectation"];
+
+  self.testStorage.batchWithEventSelectorHandler =
+      ^(GDTCORStorageEventSelector *_Nullable eventSelector, NSDate *_Nullable expiration,
+        GDTCORStorageBatchBlock _Nullable completion) {
+        // Redefining the self var addresses strong self capturing in the XCTAssert macros.
+        [storageBatchExpectation fulfill];
+
+        validationBlock(eventSelector, expiration);
+        completion(nil, nil);
+      };
+
+  [uploader uploadTarget:kGDTCORTargetTest withConditions:conditions];
+
+  [self waitForExpectations:@[ storageBatchExpectation ] timeout:1];
 }
 
 @end
