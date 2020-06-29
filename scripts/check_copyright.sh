@@ -18,13 +18,15 @@ options=(
   -E  # Use extended regexps
   -I  # Exclude binary files
   -L  # Show files that don't have a match
-  'Copyright [0-9]{4}.*Google'
+  'Copyright [0-9]{4}.*Google LLC'
 )
 
-git grep "${options[@]}" -- \
+# Allow copyrights before 2020 without LLC.
+grep -L 'Copyright 201[0-9].*Google' \
+$(git grep "${options[@]}" -- \
     '*.'{c,cc,cmake,h,js,m,mm,py,rb,sh,swift} \
     CMakeLists.txt '**/CMakeLists.txt' \
-    ':(exclude)**/third_party/**'
+    ':(exclude)**/third_party/**')
 if [[ $? == 0 ]]; then
   echo "ERROR: Missing copyright notices in the files above. Please fix."
   exit 1
