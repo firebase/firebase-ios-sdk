@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRMessagingTokenInfo.h"
+#import "FIRInstanceIDTokenInfo.h"
 
 #import "FIRMessagingConstants.h"
 #import "FIRMessagingLogger.h"
@@ -48,7 +48,7 @@ static NSString *const kFIRMessagingCacheTimeKey = @"cache_time";
 /// Default interval that token stays fresh.
 const NSTimeInterval kDefaultFetchTokenInterval = 7 * 24 * 60 * 60;  // 7 days.
 
-@implementation FIRMessagingTokenInfo
+@implementation FIRInstanceIDTokenInfo
 
 - (instancetype)initWithAuthorizedEntity:(NSString *)authorizedEntity
                                    scope:(NSString *)scope
@@ -156,7 +156,7 @@ const NSTimeInterval kDefaultFetchTokenInterval = 7 * 24 * 60 * 60;  // 7 days.
     return nil;
   }
 
-  FIRMessagingAPNSInfo *APNSInfo = nil;
+  FIRInstanceIDAPNSInfo *APNSInfo = nil;
   if (rawAPNSInfo) {
     // TODO(chliangGoogle: Use the new API and secureCoding protocol.
     @try {

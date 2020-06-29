@@ -19,7 +19,7 @@
 #import "FIRMessagingAuthKeyChain.h"
 #import "FIRMessagingConstants.h"
 #import "FIRMessagingLogger.h"
-#import "FIRMessagingTokenInfo.h"
+#import "FIRInstanceIDTokenInfo.h"
 #import "FIRMessagingUtilities.h"
 
 static NSString *const kFIRMessagingTokenKeychainId = @"com.google.iid-tokens";
@@ -52,7 +52,7 @@ static NSString *const kFIRMessagingTokenKeychainId = @"com.google.iid-tokens";
   return [NSString stringWithFormat:@"%@:%@", authorizedEntity, scope];
 }
 
-- (nullable FIRMessagingTokenInfo *)tokenInfoWithAuthorizedEntity:(NSString *)authorizedEntity
+- (nullable FIRInstanceIDTokenInfo *)tokenInfoWithAuthorizedEntity:(NSString *)authorizedEntity
                                                             scope:(NSString *)scope {
   NSString *account = FIRMessagingAppIdentifier();
   NSString *service = [[self class] serviceKeyForAuthorizedEntity:authorizedEntity scope:scope];
@@ -61,18 +61,18 @@ static NSString *const kFIRMessagingTokenKeychainId = @"com.google.iid-tokens";
     return nil;
   }
   // Token infos created from legacy storage don't have appVersion, firebaseAppID, or APNSInfo.
-  FIRMessagingTokenInfo *tokenInfo = [[self class] tokenInfoFromKeychainItem:item];
+  FIRInstanceIDTokenInfo *tokenInfo = [[self class] tokenInfoFromKeychainItem:item];
   return tokenInfo;
 }
 
-- (NSArray<FIRMessagingTokenInfo *> *)cachedTokenInfos {
+- (NSArray<FIRInstanceIDTokenInfo *> *)cachedTokenInfos {
   NSString *account = FIRMessagingAppIdentifier();
   NSArray<NSData *> *items =
       [self.keychain itemsMatchingService:kFIRMessagingKeychainWildcardIdentifier account:account];
-  NSMutableArray<FIRMessagingTokenInfo *> *tokenInfos =
+  NSMutableArray<FIRInstanceIDTokenInfo *> *tokenInfos =
       [NSMutableArray arrayWithCapacity:items.count];
   for (NSData *item in items) {
-    FIRMessagingTokenInfo *tokenInfo = [[self class] tokenInfoFromKeychainItem:item];
+    FIRInstanceIDTokenInfo *tokenInfo = [[self class] tokenInfoFromKeychainItem:item];
     if (tokenInfo) {
       [tokenInfos addObject:tokenInfo];
     }
@@ -80,9 +80,9 @@ static NSString *const kFIRMessagingTokenKeychainId = @"com.google.iid-tokens";
   return tokenInfos;
 }
 
-+ (nullable FIRMessagingTokenInfo *)tokenInfoFromKeychainItem:(NSData *)item {
++ (nullable FIRInstanceIDTokenInfo *)tokenInfoFromKeychainItem:(NSData *)item {
   // Check if it is saved as an archived FIRMessagingTokenInfo, otherwise return nil.
-  FIRMessagingTokenInfo *tokenInfo = nil;
+  FIRInstanceIDTokenInfo *tokenInfo = nil;
   // NOTE: Passing in nil to unarchiveObjectWithData will result in an iOS error logged
   // in the console on iOS 10 and below. Avoid by checking item.data's existence.
   if (item) {
@@ -108,7 +108,7 @@ static NSString *const kFIRMessagingTokenKeychainId = @"com.google.iid-tokens";
 // Token Infos will be saved under these Keychain keys:
 // Account: <Main App Bundle ID> (e.g. com.mycompany.myapp)
 // Service: <Sender ID>:<Scope> (e.g. 1234567890:*)
-- (void)saveTokenInfo:(FIRMessagingTokenInfo *)tokenInfo
+- (void)saveTokenInfo:(FIRInstanceIDTokenInfo *)tokenInfo
               handler:(void (^)(NSError *))handler {  // Keep the cachetime up-to-date.
   tokenInfo.cacheTime = [NSDate date];
   // Always write to the Keychain, so that the cacheTime is up-to-date.

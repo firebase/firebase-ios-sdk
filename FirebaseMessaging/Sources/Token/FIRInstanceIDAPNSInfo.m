@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRMessagingAPNSInfo.h"
+#import "FIRInstanceIDAPNSInfo.h"
 
 #import "FIRMessagingConstants.h"
 
@@ -23,7 +23,7 @@ NSString *const kFIRMessagingAPNSInfoTokenKey = @"device_token";
 /// The key used to find the sandbox value in an archive.
 NSString *const kFIRMessagingAPNSInfoSandboxKey = @"sandbox";
 
-@implementation FIRMessagingAPNSInfo
+@implementation FIRInstanceIDAPNSInfo
 
 - (instancetype)initWithDeviceToken:(NSData *)deviceToken isSandbox:(BOOL)isSandbox {
   self = [super init];
@@ -68,7 +68,7 @@ NSString *const kFIRMessagingAPNSInfoSandboxKey = @"sandbox";
   [aCoder encodeBool:self.sandbox forKey:kFIRMessagingAPNSInfoSandboxKey];
 }
 
-- (BOOL)isEqualToAPNSInfo:(FIRMessagingAPNSInfo *)otherInfo {
+- (BOOL)isEqualToAPNSInfo:(FIRInstanceIDAPNSInfo *)otherInfo {
   if ([super isEqual:otherInfo]) {
     return YES;
   }

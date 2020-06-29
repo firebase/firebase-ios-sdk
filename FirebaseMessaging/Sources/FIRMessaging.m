@@ -45,7 +45,7 @@
 #import "FirebaseMessaging/Sources/FIRMessaging_Private.h"
 #import "FirebaseMessaging/Sources/NSError+FIRMessaging.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingTokenManager.h"
-#import "FirebaseMessaging/Sources/Token/FIRMessagingTokenInfo.h"
+#import "FirebaseMessaging/Sources/Token/FIRInstanceIDTokenInfo.h"
 
 static NSString *const kFIRMessagingMessageViaAPNSRootKey = @"aps";
 static NSString *const kFIRMessagingReachabilityHostname = @"www.google.com";
@@ -272,27 +272,27 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 
 - (void)didCompleteConfigure {
 //  NSString *cachedToken = [self.tokenManager cachedTokenInfoWithAuthorizedEntity:self.tokenManager.fcmSenderID scope:kFIRMessagingDefaultTokenScope].token;
-  NSString *cachedToken;
-  // When there is a cached token, do the token refresh.
-  if (cachedToken) {
-    // Clean up expired tokens by checking the token refresh policy.
-    [self.installations
-        installationIDWithCompletion:^(NSString *_Nullable identifier, NSError *_Nullable error) {
-          if ([self.tokenManager checkTokenRefreshPolicyWithIID:identifier]) {
-            // Default token is expired, fetch default token from server.
-            [self retrieveFCMTokenForSenderID:self.tokenManager.fcmSenderID completion:^(NSString * _Nullable FCMToken, NSError * _Nullable error) {
-              self.defaultFcmToken = FCMToken;
-            }];
-          }
-        }];
-  } else if (self.isAutoInitEnabled) {
-    // When there is no cached token, must check auto init is enabled.
-    // If it's disabled, don't initiate token generation/refresh.
-    // If no cache token and auto init is enabled, fetch a token from server.
-    [self retrieveFCMTokenForSenderID:self.tokenManager.fcmSenderID completion:^(NSString * _Nullable FCMToken, NSError * _Nullable error) {
-      self.defaultFcmToken = FCMToken;
-    }];
-  }
+//  NSString *cachedToken;
+//  // When there is a cached token, do the token refresh.
+//  if (cachedToken) {
+//    // Clean up expired tokens by checking the token refresh policy.
+//    [self.installations
+//        installationIDWithCompletion:^(NSString *_Nullable identifier, NSError *_Nullable error) {
+//          if ([self.tokenManager checkTokenRefreshPolicyWithIID:identifier]) {
+//            // Default token is expired, fetch default token from server.
+//            [self retrieveFCMTokenForSenderID:self.tokenManager.fcmSenderID completion:^(NSString * _Nullable FCMToken, NSError * _Nullable error) {
+//              self.defaultFcmToken = FCMToken;
+//            }];
+//          }
+//        }];
+//  } else if (self.isAutoInitEnabled) {
+//    // When there is no cached token, must check auto init is enabled.
+//    // If it's disabled, don't initiate token generation/refresh.
+//    // If no cache token and auto init is enabled, fetch a token from server.
+//    [self retrieveFCMTokenForSenderID:self.tokenManager.fcmSenderID completion:^(NSString * _Nullable FCMToken, NSError * _Nullable error) {
+//      self.defaultFcmToken = FCMToken;
+//    }];
+//  }
 }
 
 - (void)configureNotificationSwizzlingIfEnabled {

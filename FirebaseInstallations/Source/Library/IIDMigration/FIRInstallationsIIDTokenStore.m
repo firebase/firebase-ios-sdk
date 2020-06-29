@@ -99,7 +99,7 @@ static NSString *const kFIRInstallationsIIDTokenKeychainId = @"com.google.iid-to
     return resultPromise;
   }
 
-  [unarchiver setClass:[FIRInstallationsIIDTokenInfo class] forClassName:@"FIRMessagingTokenInfo"];
+  [unarchiver setClass:[FIRInstallationsIIDTokenInfo class] forClassName:@"FIRInstanceIDTokenInfo"];
   FIRInstallationsIIDTokenInfo *IIDTokenInfo =
       [unarchiver decodeObjectOfClass:[FIRInstallationsIIDTokenInfo class]
                                forKey:NSKeyedArchiveRootObjectKey];
