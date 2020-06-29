@@ -277,6 +277,7 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
       GDTCORLogDebug(@"Target %ld reported as ready for upload, but no "
                      @"events were selected",
                      (long)target);
+      self.isCurrentlyUploading = NO;
       return;
     }
 

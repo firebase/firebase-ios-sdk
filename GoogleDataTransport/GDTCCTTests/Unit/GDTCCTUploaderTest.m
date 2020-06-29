@@ -171,6 +171,8 @@
 
 // TODO: Test for lost batch first regular batch next.
 
+// TODO: Tests for empty batch then non-empty batch.
+
 #pragma mark - Helpers
 
 - (NSNumber *)batchEvents {
