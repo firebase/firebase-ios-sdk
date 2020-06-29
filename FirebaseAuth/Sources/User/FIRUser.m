@@ -324,7 +324,7 @@ static void callInMainThreadWithAuthDataResultAndError(
                                                  forKey:kPhoneNumberCodingKey];
   BOOL emailVerified = [aDecoder decodeBoolForKey:kEmailVerifiedCodingKey];
   NSSet *providerDataClasses =
-      [NSSet setWithArray:@ [[NSDictionary class], [NSString class], [FIRUserInfoImpl class]]];
+      [NSSet setWithArray:@[ [NSDictionary class], [NSString class], [FIRUserInfoImpl class] ]];
   NSDictionary<NSString *, FIRUserInfoImpl *> *providerData =
       [aDecoder decodeObjectOfClasses:providerDataClasses forKey:kProviderDataKey];
   FIRSecureTokenService *tokenService = [aDecoder decodeObjectOfClass:[FIRSecureTokenService class]

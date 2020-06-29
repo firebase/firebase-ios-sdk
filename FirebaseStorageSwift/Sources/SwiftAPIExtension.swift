@@ -22,9 +22,9 @@ import FirebaseStorage
 ///                 an `Error`.
 /// - Returns: A closure parameterized with an optional generic and optional `Error` to match
 ///            Objective C APIs.
-private func getResultCallback<T>(
-  completion: @escaping (Result<T, Error>) -> Void
-) -> (_: T?, _: Error?) -> Void {
+private func getResultCallback<T>(completion: @escaping (Result<T, Error>) -> Void) -> (_: T?,
+                                                                                        _: Error?)
+  -> Void {
   return { (value: T?, error: Error?) -> Void in
     if let value = value {
       completion(.success(value))
