@@ -61,7 +61,7 @@
   [super tearDown];
 }
 
-- (void)testCCTUploadGivenConditions {
+- (void)testUploadTargetWhenThereAreEventsToUpload {
   // 0. Generate test events.
   id<GDTCORStorageProtocol> storage = GDTCORStorageInstanceForTarget(kGDTCORTargetTest);
   XCTAssertNotNil(storage);
@@ -169,7 +169,171 @@
   [self waitForUploadOperationsToFinish:uploader];
 }
 
-// TODO: Test for lost batch first regular batch next.
+- (void)testUploadTargetWhenNoConnectionThenNoOp {
+  // 0. Generate test events.
+  // 0.1. Generate and store and an event.
+  [self.generator generateEvent:GDTCOREventQoSFast];
+  // 0.2. Batch the event.
+  [self batchEvents];
+
+  // 1. Set up expectations.
+  // 1.1. Set up all relevant storage expectations.
+  [self setUpStorageExpectations];
+
+  // 1.2. Don't expect storage requests.
+  self.testStorage.batchIDsForTargetExpectation.inverted = YES;
+  self.testStorage.eventsInBatchWithIDExpectation.inverted = YES;
+  self.testStorage.removeBatchWithIDExpectation.inverted = YES;
+  self.testStorage.batchWithEventSelectorExpectation.inverted = YES;
+
+  // 1.3. Don't expect a batch to be uploaded.
+  XCTestExpectation *responseSentExpectation = [self expectationTestServerSuccessRequestResponse];
+  responseSentExpectation.inverted = NO;
+
+  // 2. Create uploader and start upload.
+  GDTCCTUploader *uploader = [[GDTCCTUploader alloc] init];
+  uploader.testServerURL = [self.testServer.serverURL URLByAppendingPathComponent:@"logBatch"];
+  [uploader uploadTarget:kGDTCORTargetTest withConditions:GDTCORUploadConditionNoNetwork];
+
+  // 3. Wait for operations to complete in the specified order.
+  [self waitForExpectations:@[
+    self.testStorage.batchIDsForTargetExpectation, self.testStorage.eventsInBatchWithIDExpectation,
+    self.testStorage.batchWithEventSelectorExpectation, responseSentExpectation,
+    self.testStorage.removeBatchWithIDExpectation
+  ]
+                    timeout:5
+               enforceOrder:YES];
+
+  // 4. Wait for upload operation to finish.
+  [self waitForUploadOperationsToFinish:uploader];
+}
+
+- (void)testUploadTarget_WhenThereAreBothStoredBatchAndEvents_ThenUploadBatchThenEvents {
+  GDTCCTUploader *uploader = [[GDTCCTUploader alloc] init];
+  
+  // 0. Generate test events.
+  // 0.1. Generate and store and an event.
+  [self.generator generateEvent:GDTCOREventQoSFast];
+  // 0.2. Batch the event.
+  [self batchEvents];
+  // 0.3. Generate one more event.
+  [self.generator generateEvent:GDTCOREventQoSFast];
+
+  // 1. Test stored batch upload.
+  // 1.1. Set up expectations.
+  // 1.1.1. Set up all relevant storage expectations.
+  [self setUpStorageExpectations];
+
+  // 1.1.2. Don't Expect events batched.
+  self.testStorage.batchWithEventSelectorExpectation.inverted = YES;
+
+  // 1.1.3. Expect a batch to be uploaded.
+  XCTestExpectation *responseSentExpectation1 = [self expectationTestServerSuccessRequestResponse];
+
+  // 1.2. Create uploader and start upload.
+  uploader.testServerURL = [self.testServer.serverURL URLByAppendingPathComponent:@"logBatch"];
+  [uploader uploadTarget:kGDTCORTargetTest withConditions:GDTCORUploadConditionWifiData];
+
+  // 1.3. Wait for operations to complete in the specified order.
+  [self waitForExpectations:@[
+    self.testStorage.batchIDsForTargetExpectation, self.testStorage.eventsInBatchWithIDExpectation,
+    self.testStorage.batchWithEventSelectorExpectation, responseSentExpectation1,
+    self.testStorage.removeBatchWithIDExpectation
+  ]
+                    timeout:3
+               enforceOrder:YES];
+
+  // 1.4. Wait for upload operation to finish.
+  [self waitForUploadOperationsToFinish:uploader];
+
+  // 2. Test stored events upload.
+  // 2.1. Set up expectations.
+  // 2.1.1. Set up all relevant storage expectations.
+  [self setUpStorageExpectations];
+
+  // 2.1.2. Don't expect previously batched events to be requested.
+  self.testStorage.eventsInBatchWithIDExpectation.inverted = YES;
+
+  // 2.1.3. Expect a batch to be uploaded.
+  XCTestExpectation *responseSentExpectation = [self expectationTestServerSuccessRequestResponse];
+
+  // 2.2. Start upload.
+  [uploader uploadTarget:kGDTCORTargetTest withConditions:GDTCORUploadConditionWifiData];
+
+  // 2.3. Wait for operations to complete in the specified order.
+  [self waitForExpectations:@[
+    self.testStorage.batchIDsForTargetExpectation, self.testStorage.eventsInBatchWithIDExpectation,
+    self.testStorage.batchWithEventSelectorExpectation, responseSentExpectation,
+    self.testStorage.removeBatchWithIDExpectation
+  ]
+                    timeout:3
+               enforceOrder:YES];
+
+  // 2.4. Wait for upload operation to finish.
+  [self waitForUploadOperationsToFinish:uploader];
+}
+
+- (void)testUploadTarget_ThereAreNoEventsFirstThenEventsAdded_ThenUploadNewEvent {
+  GDTCCTUploader *uploader = [[GDTCCTUploader alloc] init];
+  uploader.testServerURL = [self.testServer.serverURL URLByAppendingPathComponent:@"logBatch"];
+
+  // 1. Test stored batch upload.
+  // 1.1. Set up expectations.
+  // 1.1.1. Set up all relevant storage expectations.
+  [self setUpStorageExpectations];
+
+  // 1.1.2. Don't expect events batched or deleted.
+  self.testStorage.eventsInBatchWithIDExpectation.inverted = YES;
+  self.testStorage.removeBatchWithIDExpectation.inverted = YES;
+
+  // 1.1.3. Don't expect a batch to be uploaded.
+  XCTestExpectation *responseSentExpectation1 = [self expectationTestServerSuccessRequestResponse];
+  responseSentExpectation1.inverted = YES;
+
+  // 1.2. Create uploader and start upload.
+  [uploader uploadTarget:kGDTCORTargetTest withConditions:GDTCORUploadConditionWifiData];
+
+  // 1.3. Wait for operations to complete in the specified order.
+  [self waitForExpectations:@[
+    self.testStorage.batchIDsForTargetExpectation, self.testStorage.eventsInBatchWithIDExpectation,
+    self.testStorage.batchWithEventSelectorExpectation, responseSentExpectation1,
+    self.testStorage.removeBatchWithIDExpectation
+  ]
+                    timeout:3
+               enforceOrder:YES];
+
+  // 1.4. Wait for upload operation to finish.
+  [self waitForUploadOperationsToFinish:uploader];
+
+  // 2. Test stored events upload.
+  // 2.0. Generate and store and an event.
+  [self.generator generateEvent:GDTCOREventQoSFast];
+
+  // 2.1. Set up expectations.
+  // 2.1.1. Set up all relevant storage expectations.
+  [self setUpStorageExpectations];
+
+  // 2.1.2. Don't expect previously batched events to be requested.
+//  self.testStorage.eventsInBatchWithIDExpectation.inverted = YES;
+
+  // 2.1.3. Expect a batch to be uploaded.
+  XCTestExpectation *responseSentExpectation = [self expectationTestServerSuccessRequestResponse];
+
+  // 2.2. Start upload.
+  [uploader uploadTarget:kGDTCORTargetTest withConditions:GDTCORUploadConditionWifiData];
+
+  // 2.3. Wait for operations to complete in the specified order.
+  [self waitForExpectations:@[
+    self.testStorage.batchIDsForTargetExpectation, self.testStorage.eventsInBatchWithIDExpectation,
+    self.testStorage.batchWithEventSelectorExpectation, responseSentExpectation,
+    self.testStorage.removeBatchWithIDExpectation
+  ]
+                    timeout:3
+               enforceOrder:YES];
+
+  // 2.4. Wait for upload operation to finish.
+  [self waitForUploadOperationsToFinish:uploader];
+}
 
 // TODO: Tests for empty batch then non-empty batch.
 
