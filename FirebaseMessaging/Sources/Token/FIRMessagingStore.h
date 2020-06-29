@@ -21,7 +21,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class FIRMessagingBackupExcludedPlist;
 @class FIRMessagingCheckinPreferences;
 @class FIRMessagingCheckinStore;
-@class FIRMessagingTokenInfo;
+@class FIRInstanceIDTokenInfo;
 @class FIRMessagingTokenStore;
 
 @class FIRMessagingStore;
@@ -83,7 +83,7 @@ NS_ASSUME_NONNULL_BEGIN
  *  @param handler       The callback handler which is invoked when the operation is complete,
  *                       with an error if there is any.
  */
-- (void)saveTokenInfo:(FIRMessagingTokenInfo *)tokenInfo handler:(void (^)(NSError *))handler;
+- (void)saveTokenInfo:(FIRInstanceIDTokenInfo *)tokenInfo handler:(void (^)(NSError *))handler;
 
 #pragma mark - Get
 
@@ -96,14 +96,14 @@ NS_ASSUME_NONNULL_BEGIN
  *  @return The cached token info if any for the given authorizedEntity and scope else
  *          returns nil.
  */
-- (nullable FIRMessagingTokenInfo *)tokenInfoWithAuthorizedEntity:(NSString *)authorizedEntity
+- (nullable FIRInstanceIDTokenInfo *)tokenInfoWithAuthorizedEntity:(NSString *)authorizedEntity
                                                             scope:(NSString *)scope;
 /**
  *  Return all cached token infos from the Keychain.
  *
  *  @return The cached token infos, if any, that are stored in the Keychain.
  */
-- (NSArray<FIRMessagingTokenInfo *> *)cachedTokenInfos;
+- (NSArray<FIRInstanceIDTokenInfo *> *)cachedTokenInfos;
 
 #pragma mark - Delete
 

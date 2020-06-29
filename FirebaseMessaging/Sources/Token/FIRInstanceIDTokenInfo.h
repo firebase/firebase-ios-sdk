@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRMessagingAPNSInfo.h"
+#import "FIRInstanceIDAPNSInfo.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -25,7 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
  *  associated with it. It can read from and write to an NSDictionary object, for
  *  simple serialization.
  */
-@interface FIRMessagingTokenInfo : NSObject <NSCoding>
+@interface FIRInstanceIDTokenInfo : NSObject <NSCoding>
 
 /// The authorized entity (also known as Sender ID), associated with the token.
 @property(nonatomic, readonly, copy) NSString *authorizedEntity;
@@ -44,7 +44,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// Tokens may not always be associated with an APNs token, and may be associated after
 /// being created.
-@property(nonatomic, strong, nullable) FIRMessagingAPNSInfo *APNSInfo;
+@property(nonatomic, strong, nullable) FIRInstanceIDAPNSInfo *APNSInfo;
 /// The time that this token info was updated. The cache time is writeable, since in
 /// some cases the token info may be refreshed from the server. In those situations,
 /// the cacheTime would be updated.

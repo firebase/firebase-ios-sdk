@@ -161,9 +161,10 @@ static NSString *const kFIRMessagingParamFCMLibVersion = @"X-cliv";
   self.dataTask = nil;
   _result = result;
   // TODO(chliangGoogle): Call these in the main thread?
+  if (self.completionHandlers) {
   for (FIRMessagingTokenOperationCompletion completionHandler in self.completionHandlers) {
     completionHandler(result, token, error);
-  }
+  }}
 
   [self setExecuting:NO];
   [self setFinished:YES];

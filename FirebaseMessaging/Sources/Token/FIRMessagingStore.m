@@ -174,7 +174,7 @@ static NSString *const kCheckinFileName = @"g-checkin";
 
 #pragma mark - Get
 
-- (FIRMessagingTokenInfo *)tokenInfoWithAuthorizedEntity:(NSString *)authorizedEntity
+- (FIRInstanceIDTokenInfo *)tokenInfoWithAuthorizedEntity:(NSString *)authorizedEntity
                                                    scope:(NSString *)scope {
   // TODO(chliangGoogle): If we don't have the token plist we should delete all the tokens from
   // the keychain. This is because not having the plist signifies a backup and restore operation.
@@ -183,18 +183,18 @@ static NSString *const kCheckinFileName = @"g-checkin";
   if (![authorizedEntity length] || ![scope length]) {
     return nil;
   }
-  FIRMessagingTokenInfo *info = [self.tokenStore tokenInfoWithAuthorizedEntity:authorizedEntity
+  FIRInstanceIDTokenInfo *info = [self.tokenStore tokenInfoWithAuthorizedEntity:authorizedEntity
                                                                          scope:scope];
   return info;
 }
 
-- (NSArray<FIRMessagingTokenInfo *> *)cachedTokenInfos {
+- (NSArray<FIRInstanceIDTokenInfo *> *)cachedTokenInfos {
   return [self.tokenStore cachedTokenInfos];
 }
 
 #pragma mark - Save
 
-- (void)saveTokenInfo:(FIRMessagingTokenInfo *)tokenInfo handler:(void (^)(NSError *error))handler {
+- (void)saveTokenInfo:(FIRInstanceIDTokenInfo *)tokenInfo handler:(void (^)(NSError *error))handler {
   [self.tokenStore saveTokenInfo:tokenInfo handler:handler];
 }
 
