@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRCLSdSYMTests.h"
+#import "Crashlytics/UnitTests/FIRCLSMachO/FIRCLSdSYMTests.h"
 
-#import "FIRCLSdSYM.h"
+#import "Crashlytics/Shared/FIRCLSMachO/FIRCLSdSYM.h"
 
 @implementation FIRCLSdSYMTests
 

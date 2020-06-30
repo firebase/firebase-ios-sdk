@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRCLSFCRAnalytics.h"
+#import "Crashlytics/Crashlytics/Helpers/FIRCLSFCRAnalytics.h"
 
-#import "FIRCLSInternalLogging.h"
-#import "FIRCLSSettings.h"
+#import "Crashlytics/Crashlytics/Helpers/FIRCLSInternalLogging.h"
+#import "Crashlytics/Crashlytics/Models/FIRCLSSettings.h"
 
 #import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 

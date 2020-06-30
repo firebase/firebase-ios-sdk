@@ -12,20 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRCLSSettingsOnboardingManager.h"
+#import "Crashlytics/Crashlytics/Settings/FIRCLSSettingsOnboardingManager.h"
 
-#import "FIRCLSApplicationIdentifierModel.h"
-#import "FIRCLSConstants.h"
-#import "FIRCLSDataCollectionToken.h"
-#import "FIRCLSDefines.h"
-#import "FIRCLSDownloadAndSaveSettingsOperation.h"
-#import "FIRCLSFABNetworkClient.h"
-#import "FIRCLSFileManager.h"
-#import "FIRCLSInstallIdentifierModel.h"
-#import "FIRCLSLogger.h"
-#import "FIRCLSOnboardingOperation.h"
-#import "FIRCLSSettings.h"
-#import "FIRCLSURLBuilder.h"
+#import "Crashlytics/Crashlytics/DataCollection/FIRCLSDataCollectionToken.h"
+#import "Crashlytics/Crashlytics/Helpers/FIRCLSDefines.h"
+#import "Crashlytics/Crashlytics/Helpers/FIRCLSLogger.h"
+#import "Crashlytics/Crashlytics/Models/FIRCLSFileManager.h"
+#import "Crashlytics/Crashlytics/Models/FIRCLSInstallIdentifierModel.h"
+#import "Crashlytics/Crashlytics/Models/FIRCLSSettings.h"
+#import "Crashlytics/Crashlytics/Settings/Models/FIRCLSApplicationIdentifierModel.h"
+#import "Crashlytics/Crashlytics/Settings/Operations/FIRCLSDownloadAndSaveSettingsOperation.h"
+#import "Crashlytics/Crashlytics/Settings/Operations/FIRCLSOnboardingOperation.h"
+#import "Crashlytics/Shared/FIRCLSConstants.h"
+#import "Crashlytics/Shared/FIRCLSNetworking/FIRCLSFABNetworkClient.h"
+#import "Crashlytics/Shared/FIRCLSNetworking/FIRCLSURLBuilder.h"
 
 @interface FIRCLSSettingsOnboardingManager () <FIRCLSDownloadAndSaveSettingsOperationDelegate,
                                                FIRCLSOnboardingOperationDelegate>

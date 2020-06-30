@@ -39,10 +39,10 @@ let package = Package(
       name: "FirebaseAuth",
       targets: ["FirebaseAuth"]
     ),
-    // .library(
-    //   name: "FirebaseCrashlytics",
-    //   targets: ["FirebaseCrashlytics"]
-    // ),
+    .library(
+      name: "FirebaseCrashlytics",
+      targets: ["FirebaseCrashlytics"]
+    ),
     .library(
       name: "FirebaseFunctions",
       targets: ["FirebaseFunctions"]
@@ -80,6 +80,7 @@ let package = Package(
         "FirebaseAuth",
         "FirebaseFunctions",
         "Firebase",
+        "FirebaseCrashlytics",
         "FirebaseCore",
         "FirebaseInstallations",
         // "FirebaseInstanceID",
@@ -214,6 +215,29 @@ let package = Package(
         .headerSearchPath("../../"),
         .define("FIRAuth_VERSION", to: "0.0.1"), // TODO: Fix version
         .define("FIRAuth_MINOR_VERSION", to: "1.1"), // TODO: Fix version
+      ]
+    ),
+    .target(
+      name: "FirebaseCrashlytics",
+      dependencies: ["FirebaseCore", "FirebaseInstallations", "FBLPromises",
+                     "GoogleDataTransport", "nanopb"],
+      path: "Crashlytics",
+      sources: [
+        "Crashlytics/",
+        "Protogen/",
+        "Shared/",
+        "third_party/libunwind/dwarf.h",
+      ],
+      publicHeadersPath: "Crashlytics/Public",
+      cSettings: [
+        .headerSearchPath(".."),
+        .define("DISPLAY_VERSION", to: "0.0.1"), // TODO: Fix version
+        .define("CLS_SDK_NAME", to: "Crashlytics iOS SDK", .when(platforms: .some([.iOS]))),
+        .define("CLS_SDK_NAME", to: "Crashlytics macOS SDK", .when(platforms: .some([.macOS]))),
+        .define("CLS_SDK_NAME", to: "Crashlytics tvOS SDK", .when(platforms: .some([.tvOS]))),
+        .define("PB_FIELD_32BIT", to: "1"),
+        .define("PB_NO_PACKED_STRUCTS", to: "1"),
+        .define("PB_ENABLE_MALLOC", to: "1"),
       ]
     ),
     .target(
