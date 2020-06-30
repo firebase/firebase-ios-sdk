@@ -61,7 +61,7 @@ jobs:
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseDynamicLinks/* \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
     - name: Setup swift quickstart
-      run: SAMPLE="$SDK" TARGET="${SDK}Example" scripts/setup_quickstart_framework.sh
+      run: SAMPLE="$SDK" TARGET="${SDK}ExampleSwift" scripts/setup_quickstart_framework.sh
     - name: Update Environment Variable For DynamicLinks
       run: |
         sed -i '' 's#DYNAMIC_LINK_DOMAIN#https://qpf6m.app.goo.gl#' quickstart-ios/dynamiclinks/DynamicLinksExample/DynamicLinksExample.entitlements
