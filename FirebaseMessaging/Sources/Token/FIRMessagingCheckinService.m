@@ -41,14 +41,12 @@ static NSUInteger const kCheckinType = 2;  // DeviceType IOS in l/w/a/_checkin.p
 static NSUInteger const kCheckinVersion = 2;
 static NSUInteger const kFragment = 0;
 
-@interface FIRMessagingCheckinService ()
-
-@property(nonatomic, readwrite, strong) NSURLSession *session;
-
+@interface FIRMessagingCheckinService () {
+  NSURLSession *_session;
+}
 @end
 
 @implementation FIRMessagingCheckinService
-;
 
 - (instancetype)init {
   self = [super init];
@@ -64,13 +62,14 @@ static NSUInteger const kFragment = 0;
 }
 
 - (void)dealloc {
-  [self.session invalidateAndCancel];
+  [_session invalidateAndCancel];
+  [_session release];
   [super dealloc];
 }
 
 - (void)checkinWithExistingCheckin:(FIRMessagingCheckinPreferences *)existingCheckin
                         completion:(FIRMessagingDeviceCheckinCompletion)completion {
-  if (self.session == nil) {
+  if (_session == nil) {
     NSString *failureReason = @"Inconsistent state: NSURLSession has been invalidated";
     FIRMessagingLoggerError(kFIRMessagingInvalidNetworkSession, @"%@", failureReason);
     NSError *error = [NSError messagingErrorWithCode:kFIRMessagingErrorCodeRegistrarFailedToCheckIn
@@ -108,13 +107,13 @@ static NSUInteger const kFragment = 0;
                                                                      options:0
                                                                        error:&serializationError];
         if (serializationError) {
-          FIRMessagingLoggerDebug(kFIRMessagingMessageCodeService001,
-                                  @"Error serializing json object. Error Code: %ld",
-                                  (long)serializationError.code);
-          if (completion) {
-            completion(nil, serializationError);
-          }
-          return;
+//          FIRMessagingLoggerDebug(kFIRMessagingMessageCodeService001,
+//                                  @"Error serializing json object. Error Code: %ld",
+//                                  (long)serializationError.code);
+//          if (completion) {
+//            completion(nil, serializationError);
+//          }
+//          return;
         }
 
         NSString *deviceAuthID = [dataResponse[@"android_id"] stringValue];
@@ -177,19 +176,19 @@ static NSUInteger const kFragment = 0;
           completion(checkinPreferences, nil);
         }
       };
-//  NSURLSessionConfiguration *config = [NSURLSessionConfiguration defaultSessionConfiguration];
-//  config.timeoutIntervalForResource = 60.0f;  // 1 minute
-//  config.allowsCellularAccess = YES;
-//  _session = [NSURLSession sessionWithConfiguration:config];
-//  _session.sessionDescription = @"com.google.iid-checkin";
-  NSURLSessionDataTask *task = [self.session dataTaskWithRequest:request completionHandler:handler];
+  NSURLSessionConfiguration *config = [NSURLSessionConfiguration defaultSessionConfiguration];
+  config.timeoutIntervalForResource = 60.0f;  // 1 minute
+  config.allowsCellularAccess = YES;
+  _session = [NSURLSession sessionWithConfiguration:config];
+  _session.sessionDescription = @"com.google.iid-checkin";
+  NSURLSessionDataTask *task = [_session dataTaskWithRequest:request completionHandler:handler];
   [task resume];
 }
 
 - (void)stopFetching {
-  [self.session invalidateAndCancel];
+  [_session invalidateAndCancel];
   // The session cannot be reused after invalidation. Dispose it to prevent accident reusing.
-  self.session = nil;
+  _session = nil;
 }
 
 #pragma mark - Private

@@ -58,6 +58,13 @@ static NSString *const kCheckinFileName = @"g-checkin";
   return self;
 }
 
+- (void)dealloc {
+  [_checkinStore release];
+  [_tokenStore release];
+  _delegate = nil;
+  [super dealloc];
+}
+
 #pragma mark - Upgrades
 
 + (BOOL)hasSubDirectory:(NSString *)subDirectoryName {

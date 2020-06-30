@@ -89,7 +89,6 @@ NSString *FIRMessagingSubscriptionsServer() {
 
 - (void)dealloc {
   _topic = nil;
-  _token = nil;
   _completion = nil;
 }
 

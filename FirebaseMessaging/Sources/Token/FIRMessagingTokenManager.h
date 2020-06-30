@@ -153,7 +153,7 @@ typedef NS_OPTIONS(NSUInteger, FIRMessagingInvalidTokenReason) {
  *  @param deviceToken  The APNS device token, provided by the operating system.
  *  @param isSandbox    YES if the device token is for the sandbox environment, NO otherwise.
  *
- *  @return The array of FIRMessagingTokenInfo objects which were invalidated.
+ *  @return The array of FIRInstanceIDTokenInfo objects which were invalidated.
  */
 - (NSArray<FIRInstanceIDTokenInfo *> *)updateTokensToAPNSDeviceToken:(NSData *)deviceToken
                                                           isSandbox:(BOOL)isSandbox;

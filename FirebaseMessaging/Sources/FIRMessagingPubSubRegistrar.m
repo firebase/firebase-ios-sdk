@@ -60,7 +60,7 @@
   FIRMessagingTopicOperation *operation =
       [[FIRMessagingTopicOperation alloc] initWithTopic:topic
                                                  action:action
-                                                  tokenManager:tokenManager
+                                           tokenManager:tokenManager
                                                 options:options
                                              completion:handler];
   [self.topicOperations addOperation:operation];

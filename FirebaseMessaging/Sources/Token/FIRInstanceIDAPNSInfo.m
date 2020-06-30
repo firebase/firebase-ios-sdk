@@ -19,9 +19,9 @@
 #import "FIRMessagingConstants.h"
 
 /// The key used to find the APNs device token in an archive.
-NSString *const kFIRMessagingAPNSInfoTokenKey = @"device_token";
+NSString *const kFIRInstanceIDAPNSInfoTokenKey = @"device_token";
 /// The key used to find the sandbox value in an archive.
-NSString *const kFIRMessagingAPNSInfoSandboxKey = @"sandbox";
+NSString *const kFIRInstanceIDAPNSInfoSandboxKey = @"sandbox";
 
 @implementation FIRInstanceIDAPNSInfo
 
@@ -52,20 +52,26 @@ NSString *const kFIRMessagingAPNSInfoSandboxKey = @"sandbox";
   return self;
 }
 
+-(void)dealloc {
+  [_deviceToken release];
+  
+  [super dealloc];
+}
+
 #pragma mark - NSCoding
 
 - (nullable instancetype)initWithCoder:(NSCoder *)aDecoder {
-  id deviceToken = [aDecoder decodeObjectForKey:kFIRMessagingAPNSInfoTokenKey];
+  id deviceToken = [aDecoder decodeObjectForKey:kFIRInstanceIDAPNSInfoTokenKey];
   if (![deviceToken isKindOfClass:[NSData class]]) {
     return nil;
   }
-  BOOL isSandbox = [aDecoder decodeBoolForKey:kFIRMessagingAPNSInfoSandboxKey];
+  BOOL isSandbox = [aDecoder decodeBoolForKey:kFIRInstanceIDAPNSInfoSandboxKey];
   return [self initWithDeviceToken:(NSData *)deviceToken isSandbox:isSandbox];
 }
 
 - (void)encodeWithCoder:(NSCoder *)aCoder {
-  [aCoder encodeObject:self.deviceToken forKey:kFIRMessagingAPNSInfoTokenKey];
-  [aCoder encodeBool:self.sandbox forKey:kFIRMessagingAPNSInfoSandboxKey];
+  [aCoder encodeObject:self.deviceToken forKey:kFIRInstanceIDAPNSInfoTokenKey];
+  [aCoder encodeBool:self.sandbox forKey:kFIRInstanceIDAPNSInfoSandboxKey];
 }
 
 - (BOOL)isEqualToAPNSInfo:(FIRInstanceIDAPNSInfo *)otherInfo {
