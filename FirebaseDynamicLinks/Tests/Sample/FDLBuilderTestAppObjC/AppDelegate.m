@@ -17,8 +17,9 @@
 #import "AppDelegate.h"
 #import "ViewController.h"
 
+#import <FirebaseCore/FirebaseCore.h>
 #import <FirebaseDynamicLinks/FIRDynamicLinks.h>
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+
 
 @implementation AppDelegate
 
