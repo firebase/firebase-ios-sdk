@@ -46,6 +46,11 @@ static NSString *const kFIRMessagingTokenKeychainId = @"com.google.iid-tokens";
   return self;
 }
 
+- (void)dealloc {
+  [_keychain release];
+  [super dealloc];
+}
+
 #pragma mark - Get
 
 + (NSString *)serviceKeyForAuthorizedEntity:(NSString *)authorizedEntity scope:(NSString *)scope {
@@ -81,7 +86,7 @@ static NSString *const kFIRMessagingTokenKeychainId = @"com.google.iid-tokens";
 }
 
 + (nullable FIRInstanceIDTokenInfo *)tokenInfoFromKeychainItem:(NSData *)item {
-  // Check if it is saved as an archived FIRMessagingTokenInfo, otherwise return nil.
+  // Check if it is saved as an archived FIRInstanceIDTokenInfo, otherwise return nil.
   FIRInstanceIDTokenInfo *tokenInfo = nil;
   // NOTE: Passing in nil to unarchiveObjectWithData will result in an iOS error logged
   // in the console on iOS 10 and below. Avoid by checking item.data's existence.

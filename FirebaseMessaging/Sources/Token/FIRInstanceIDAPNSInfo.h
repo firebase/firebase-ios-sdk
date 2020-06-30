@@ -38,21 +38,21 @@ NS_ASSUME_NONNULL_BEGIN
  *         operating system.
  *  @param isSandbox   YES if the APNs device token is for the sandbox
  *                     environment, or NO if it is for production.
- *  @return An instance of FIRMessagingAPNSInfo.
+ *  @return An instance of FIRInstanceIDAPNSInfo.
  */
 - (instancetype)initWithDeviceToken:(NSData *)deviceToken isSandbox:(BOOL)isSandbox;
 
 /**
  *  Initializes the receiver from a token options dictionary containing data
- *  within the `kFIRMessagingTokenOptionsAPNSKey` and
- *  `kFIRMessagingTokenOptionsAPNSIsSandboxKey` keys. The token should be an
+ *  within the `kFIRInstanceIDTokenOptionsAPNSKey` and
+ *  `kFIRInstanceIDTokenOptionsAPNSIsSandboxKey` keys. The token should be an
  *  NSData blob, and the sandbox value should be an NSNumber
  *  representing a boolean value.
  *
  *  @param dictionary A dictionary containing values under the keys
- *          `kFIRMessagingTokenOptionsAPNSKey` and
- *          `kFIRMessagingTokenOptionsAPNSIsSandboxKey`.
- *  @return An instance of FIRMessagingAPNSInfo, or nil if the
+ *          `kFIRInstanceIDTokenOptionsAPNSKey` and
+ *          `kFIRInstanceIDTokenOptionsAPNSIsSandboxKey`.
+ *  @return An instance of FIRInstanceIDAPNSInfo, or nil if the
  *          dictionary data was invalid or missing.
  */
 - (nullable instancetype)initWithTokenOptionsDictionary:(NSDictionary *)dictionary;

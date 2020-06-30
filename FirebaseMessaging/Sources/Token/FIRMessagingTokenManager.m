@@ -52,15 +52,18 @@
     }
     _instanceIDStore = [[FIRMessagingStore alloc] initWithDelegate:self];
     _authService = [[FIRMessagingAuthService alloc] initWithStore:_instanceIDStore];
-    _installations = [FIRInstallations installations];
 
     [self configureTokenOperations];
+    _installations = [FIRInstallations installations];
+
   }
   return self;
 }
 
 - (void)dealloc {
   [self stopAllTokenOperations];
+  _fcmSenderID = nil;
+  _currentAPNSInfo = nil;
   [super dealloc];
 }
 
@@ -187,7 +190,7 @@
         }
 
         FIRMessaging_WEAKIFY(self);
-        [self.installations installationIDWithCompletion:^(NSString *_Nullable identifier,
+        [_installations installationIDWithCompletion:^(NSString *_Nullable identifier,
                                                            NSError *_Nullable error) {
           FIRMessaging_STRONGIFY(self);
 

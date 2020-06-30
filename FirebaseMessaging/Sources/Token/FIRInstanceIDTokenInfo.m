@@ -28,23 +28,23 @@
  */
 /// Specifies a dictonary key whose value represents the authorized entity, or
 /// Sender ID for the token.
-static NSString *const kFIRMessagingAuthorizedEntityKey = @"authorized_entity";
+static NSString *const kFIRInstanceIDAuthorizedEntityKey = @"authorized_entity";
 /// Specifies a dictionary key whose value represents the scope of the token,
 /// typically "*".
-static NSString *const kFIRMessagingScopeKey = @"scope";
+static NSString *const kFIRInstanceIDScopeKey = @"scope";
 /// Specifies a dictionary key which represents the token value itself.
-static NSString *const kFIRMessagingTokenKey = @"token";
+static NSString *const kFIRInstanceIDTokenKey = @"token";
 /// Specifies a dictionary key which represents the app version associated
 /// with the token.
-static NSString *const kFIRMessagingAppVersionKey = @"app_version";
+static NSString *const kFIRInstanceIDAppVersionKey = @"app_version";
 /// Specifies a dictionary key which represents the GMP App ID associated with
 /// the token.
-static NSString *const kFIRMessagingFirebaseAppIDKey = @"firebase_app_id";
+static NSString *const kFIRInstanceIDFirebaseAppIDKey = @"firebase_app_id";
 /// Specifies a dictionary key representing an archive for a
-/// `FIRMessagingAPNSInfo` object.
-static NSString *const kFIRMessagingAPNSInfoKey = @"apns_info";
+/// `FIRInstanceIDAPNSInfo` object.
+static NSString *const kFIRInstanceIDAPNSInfoKey = @"apns_info";
 /// Specifies a dictionary key representing the "last cached" time for the token.
-static NSString *const kFIRMessagingCacheTimeKey = @"cache_time";
+static NSString *const kFIRInstanceIDCacheTimeKey = @"cache_time";
 /// Default interval that token stays fresh.
 const NSTimeInterval kDefaultFetchTokenInterval = 7 * 24 * 60 * 60;  // 7 days.
 
@@ -66,6 +66,11 @@ const NSTimeInterval kDefaultFetchTokenInterval = 7 * 24 * 60 * 60;  // 7 days.
   return self;
 }
 
+-(void)dealloc {
+  [_authorizedEntity dealloc];
+  [super dealloc];
+}
+
 - (BOOL)isFreshWithIID:(NSString *)IID {
   // Last fetch token cache time could be null if token is from legacy storage format. Then token is
   // considered not fresh and should be refreshed and overwrite with the latest storage format.
@@ -85,8 +90,8 @@ const NSTimeInterval kDefaultFetchTokenInterval = 7 * 24 * 60 * 60;  // 7 days.
   NSString *currentAppVersion = FIRMessagingCurrentAppVersion();
   if (!_appVersion || ![_appVersion isEqualToString:currentAppVersion]) {
     FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTokenManager004,
-                            @"Invalidating cached token for %@ (%@) due to app version change.",
-                            _authorizedEntity, _scope);
+                             @"Invalidating cached token for %@ (%@) due to app version change.",
+                             _authorizedEntity, _scope);
     return NO;
   }
 
@@ -94,7 +99,7 @@ const NSTimeInterval kDefaultFetchTokenInterval = 7 * 24 * 60 * 60;  // 7 days.
   NSString *currentFirebaseAppID = FIRMessagingFirebaseAppID();
   if (!_firebaseAppID || ![_firebaseAppID isEqualToString:currentFirebaseAppID]) {
     FIRMessagingLoggerDebug(
-        kFIRMessagingMessageCodeTokenInfoFirebaseAppIDChanged,
+                             kFIRMessagingMessageCodeTokenInfoFirebaseAppIDChanged,
         @"Invalidating cached token due to Firebase App IID change from %@ to %@", _firebaseAppID,
         currentFirebaseAppID);
     return NO;
@@ -104,7 +109,7 @@ const NSTimeInterval kDefaultFetchTokenInterval = 7 * 24 * 60 * 60;  // 7 days.
   // information.
   if (FIRMessagingHasLocaleChanged()) {
     FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTokenInfoLocaleChanged,
-                            @"Invalidating cached token due to locale change");
+                             @"Invalidating cached token due to locale change");
     return NO;
   }
 
@@ -124,34 +129,34 @@ const NSTimeInterval kDefaultFetchTokenInterval = 7 * 24 * 60 * 60;  // 7 days.
 - (nullable instancetype)initWithCoder:(NSCoder *)aDecoder {
   // These value cannot be nil
 
-  id authorizedEntity = [aDecoder decodeObjectForKey:kFIRMessagingAuthorizedEntityKey];
+  id authorizedEntity = [aDecoder decodeObjectForKey:kFIRInstanceIDAuthorizedEntityKey];
   if (![authorizedEntity isKindOfClass:[NSString class]]) {
     return nil;
   }
 
-  id scope = [aDecoder decodeObjectForKey:kFIRMessagingScopeKey];
+  id scope = [aDecoder decodeObjectForKey:kFIRInstanceIDScopeKey];
   if (![scope isKindOfClass:[NSString class]]) {
     return nil;
   }
 
-  id token = [aDecoder decodeObjectForKey:kFIRMessagingTokenKey];
+  id token = [aDecoder decodeObjectForKey:kFIRInstanceIDTokenKey];
   if (![token isKindOfClass:[NSString class]]) {
     return nil;
   }
 
   // These values are nullable, so only fail the decode if the type does not match
 
-  id appVersion = [aDecoder decodeObjectForKey:kFIRMessagingAppVersionKey];
+  id appVersion = [aDecoder decodeObjectForKey:kFIRInstanceIDAppVersionKey];
   if (appVersion && ![appVersion isKindOfClass:[NSString class]]) {
     return nil;
   }
 
-  id firebaseAppID = [aDecoder decodeObjectForKey:kFIRMessagingFirebaseAppIDKey];
+  id firebaseAppID = [aDecoder decodeObjectForKey:kFIRInstanceIDFirebaseAppIDKey];
   if (firebaseAppID && ![firebaseAppID isKindOfClass:[NSString class]]) {
     return nil;
   }
 
-  id rawAPNSInfo = [aDecoder decodeObjectForKey:kFIRMessagingAPNSInfoKey];
+  id rawAPNSInfo = [aDecoder decodeObjectForKey:kFIRInstanceIDAPNSInfoKey];
   if (rawAPNSInfo && ![rawAPNSInfo isKindOfClass:[NSData class]]) {
     return nil;
   }
@@ -166,13 +171,13 @@ const NSTimeInterval kDefaultFetchTokenInterval = 7 * 24 * 60 * 60;  // 7 days.
 #pragma clang diagnostic pop
     } @catch (NSException *exception) {
       FIRMessagingLoggerInfo(kFIRMessagingMessageCodeTokenInfoBadAPNSInfo,
-                             @"Could not parse raw APNS Info while parsing archived token info.");
+                              @"Could not parse raw APNS Info while parsing archived token info.");
       APNSInfo = nil;
     } @finally {
     }
   }
 
-  id cacheTime = [aDecoder decodeObjectForKey:kFIRMessagingCacheTimeKey];
+  id cacheTime = [aDecoder decodeObjectForKey:kFIRInstanceIDCacheTimeKey];
   if (cacheTime && ![cacheTime isKindOfClass:[NSDate class]]) {
     return nil;
   }
@@ -191,11 +196,11 @@ const NSTimeInterval kDefaultFetchTokenInterval = 7 * 24 * 60 * 60;  // 7 days.
 }
 
 - (void)encodeWithCoder:(NSCoder *)aCoder {
-  [aCoder encodeObject:self.authorizedEntity forKey:kFIRMessagingAuthorizedEntityKey];
-  [aCoder encodeObject:self.scope forKey:kFIRMessagingScopeKey];
-  [aCoder encodeObject:self.token forKey:kFIRMessagingTokenKey];
-  [aCoder encodeObject:self.appVersion forKey:kFIRMessagingAppVersionKey];
-  [aCoder encodeObject:self.firebaseAppID forKey:kFIRMessagingFirebaseAppIDKey];
+  [aCoder encodeObject:self.authorizedEntity forKey:kFIRInstanceIDAuthorizedEntityKey];
+  [aCoder encodeObject:self.scope forKey:kFIRInstanceIDScopeKey];
+  [aCoder encodeObject:self.token forKey:kFIRInstanceIDTokenKey];
+  [aCoder encodeObject:self.appVersion forKey:kFIRInstanceIDAppVersionKey];
+  [aCoder encodeObject:self.firebaseAppID forKey:kFIRInstanceIDFirebaseAppIDKey];
   NSData *rawAPNSInfo;
   if (self.APNSInfo) {
     // TODO(chliangGoogle: Use the new API and secureCoding protocol.
@@ -204,9 +209,9 @@ const NSTimeInterval kDefaultFetchTokenInterval = 7 * 24 * 60 * 60;  // 7 days.
     rawAPNSInfo = [NSKeyedArchiver archivedDataWithRootObject:self.APNSInfo];
 #pragma clang diagnostic pop
 
-    [aCoder encodeObject:rawAPNSInfo forKey:kFIRMessagingAPNSInfoKey];
+    [aCoder encodeObject:rawAPNSInfo forKey:kFIRInstanceIDAPNSInfoKey];
   }
-  [aCoder encodeObject:self.cacheTime forKey:kFIRMessagingCacheTimeKey];
+  [aCoder encodeObject:self.cacheTime forKey:kFIRInstanceIDCacheTimeKey];
 }
 
 @end

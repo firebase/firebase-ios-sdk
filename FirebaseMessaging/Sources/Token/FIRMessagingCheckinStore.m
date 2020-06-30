@@ -64,6 +64,12 @@ NSString *const kFIRMessagingCheckinKeychainService = @"com.google.iid.checkin";
   return self;
 }
 
+- (void)dealloc {
+  [_plist release];
+  [_keychain release];
+  [super dealloc];
+}
+
 - (BOOL)hasCheckinPlist {
   return [self.plist doesFileExist];
 }
@@ -167,7 +173,7 @@ NSString *const kFIRMessagingCheckinKeychainService = @"com.google.iid.checkin";
   NSString *checkinKeychainContent = [[NSString alloc] initWithData:item
                                                            encoding:NSUTF8StringEncoding];
   FIRMessagingCheckinPreferences *checkinPreferences =
-      [FIRMessagingCheckinPreferences preferencesFromKeychainContents:checkinKeychainContent];
+      [FIRMessagingCheckinPreferences preferencesFromKeychainContents:[checkinKeychainContent copy]];
 
   NSDictionary *checkinPlistContents = [self.plist contentAsDictionary];
 

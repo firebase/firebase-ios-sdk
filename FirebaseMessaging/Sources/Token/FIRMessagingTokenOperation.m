@@ -85,9 +85,10 @@ static NSString *const kFIRMessagingParamFCMLibVersion = @"X-cliv";
   _scope = nil;
   _options = nil;
   _checkinPreferences = nil;
-  _instanceID = nil;
   [_completionHandlers removeAllObjects];
-  _completionHandlers = nil;
+  [_FISAuthToken release];
+  [_checkinPreferences release];
+  [_instanceID release];
   [super dealloc];
 }
 

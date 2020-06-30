@@ -51,7 +51,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, copy, nullable) NSDate *cacheTime;
 
 /**
- *  Initializes a FIRMessagingTokenInfo object with the required parameters. These
+ *  Initializes a FIRInstanceIDTokenInfo object with the required parameters. These
  *  parameters represent all the relevant associated data with a token.
  *
  *  @param authorizedEntity The authorized entity (also known as Sender ID).
@@ -60,7 +60,7 @@ NS_ASSUME_NONNULL_BEGIN
  *  @param token            The token value itself.
  *  @param appVersion       The application version that this token is associated with.
  *  @param firebaseAppID    The Firebase app ID which this token is associated with.
- *  @return An instance of FIRMessagingTokenInfo.
+ *  @return An instance of FIRInstanceIDTokenInfo.
  */
 - (instancetype)initWithAuthorizedEntity:(NSString *)authorizedEntity
                                    scope:(NSString *)scope
