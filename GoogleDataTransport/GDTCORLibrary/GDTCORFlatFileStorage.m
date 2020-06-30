@@ -244,7 +244,8 @@ NSString *const kGDTCORBatchComponentsExpirationKey = @"GDTCORBatchComponentsExp
           GDTCORLogDebug(@"Error encountered whilst moving events back: %@", error);
         }
 
-        // Even if not all events where moved back to the storage, there is not much can be done at this point, so cleanup batch directory now to avoid clattering.
+        // Even if not all events where moved back to the storage, there is not much can be done at
+        // this point, so cleanup batch directory now to avoid clattering.
         [fileManager removeItemAtPath:batchDirPath error:nil];
       }
     }
@@ -562,7 +563,10 @@ NSString *const kGDTCORBatchComponentsExpirationKey = @"GDTCORBatchComponentsExp
     NSString *contentSourcePath = [sourcePath stringByAppendingPathComponent:path];
 
     NSError *moveError;
-    if (![fileManager moveItemAtPath:contentSourcePath toPath:contentDestinationPath error:&moveError] && moveError) {
+    if (![fileManager moveItemAtPath:contentSourcePath
+                              toPath:contentDestinationPath
+                               error:&moveError] &&
+        moveError) {
       [errors addObject:moveError];
     }
   }
@@ -570,7 +574,9 @@ NSString *const kGDTCORBatchComponentsExpirationKey = @"GDTCORBatchComponentsExp
   if (errors.count == 0) {
     return YES;
   } else {
-    NSError *combinedError = [NSError errorWithDomain:@"GDTCORFlatFileStorage" code:-1 userInfo:@{ NSUnderlyingErrorKey: errors }];
+    NSError *combinedError = [NSError errorWithDomain:@"GDTCORFlatFileStorage"
+                                                 code:-1
+                                             userInfo:@{NSUnderlyingErrorKey : errors}];
     *outError = combinedError;
     return NO;
   }

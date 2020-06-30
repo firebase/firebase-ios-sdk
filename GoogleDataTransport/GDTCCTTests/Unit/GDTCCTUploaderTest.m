@@ -72,7 +72,8 @@
 //  id<GDTCORStorageProtocol> storage = GDTCORStorageInstanceForTarget(kGDTCORTargetTest);
 //  XCTAssertNotNil(storage);
 //  [[self.generator generateTheFiveConsistentEvents]
-//      enumerateObjectsUsingBlock:^(GDTCOREvent *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
+//      enumerateObjectsUsingBlock:^(GDTCOREvent *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop)
+//      {
 //        [storage storeEvent:obj onComplete:nil];
 //      }];
 //
@@ -81,7 +82,8 @@
 //  [self setUpStorageExpectations];
 //
 //  // 1.2. Expect `hasEventsForTarget:onComplete:` to be called.
-//  XCTestExpectation *hasEventsExpectation = [self expectStorageHasEventsForTarget:kGDTCORTargetTest
+//  XCTestExpectation *hasEventsExpectation = [self
+//  expectStorageHasEventsForTarget:kGDTCORTargetTest
 //                                                                           result:YES];
 //
 //  // 1.3. Don't expect previously batched events to be requested.
@@ -121,13 +123,15 @@
 //  [self setUpStorageExpectations];
 //
 //  // 1.2. Expect `hasEventsForTarget:onComplete:` to be called.
-//  XCTestExpectation *hasEventsExpectation = [self expectStorageHasEventsForTarget:kGDTCORTargetTest
+//  XCTestExpectation *hasEventsExpectation = [self
+//  expectStorageHasEventsForTarget:kGDTCORTargetTest
 //                                                                           result:YES];
 //
 //  // 1.3. Don't Expect events batched.
 //  self.testStorage.batchWithEventSelectorExpectation.inverted = YES;
 //
-//  // 1.4. Expect `batchIDsForTarget:onComplete:` to be called twice - to check if there are batches
+//  // 1.4. Expect `batchIDsForTarget:onComplete:` to be called twice - to check if there are
+//  batches
 //  // to upload and to fetch events for the batch.
 //  self.testStorage.batchIDsForTargetExpectation.expectedFulfillmentCount = 2;
 //
@@ -178,7 +182,8 @@
 //
 //  // 3. Wait for operations to complete in the specified order.
 //  [self waitForExpectations:@[
-//    self.testStorage.batchIDsForTargetExpectation, self.testStorage.eventsInBatchWithIDExpectation,
+//    self.testStorage.batchIDsForTargetExpectation,
+//    self.testStorage.eventsInBatchWithIDExpectation,
 //    self.testStorage.batchWithEventSelectorExpectation, responseSentExpectation,
 //    self.testStorage.removeBatchWithIDExpectation
 //  ]
@@ -209,7 +214,8 @@
 //  self.testStorage.batchWithEventSelectorExpectation.inverted = YES;
 //
 //  // 1.1.3. Expect a batch to be uploaded.
-//  XCTestExpectation *responseSentExpectation1 = [self expectationTestServerSuccessRequestResponse];
+//  XCTestExpectation *responseSentExpectation1 = [self
+//  expectationTestServerSuccessRequestResponse];
 //
 //  // 1.2. Create uploader and start upload.
 //  uploader.testServerURL = [self.testServer.serverURL URLByAppendingPathComponent:@"logBatch"];
@@ -217,7 +223,8 @@
 //
 //  // 1.3. Wait for operations to complete in the specified order.
 //  [self waitForExpectations:@[
-//    self.testStorage.batchIDsForTargetExpectation, self.testStorage.eventsInBatchWithIDExpectation,
+//    self.testStorage.batchIDsForTargetExpectation,
+//    self.testStorage.eventsInBatchWithIDExpectation,
 //    self.testStorage.batchWithEventSelectorExpectation, responseSentExpectation1,
 //    self.testStorage.removeBatchWithIDExpectation
 //  ]
@@ -243,7 +250,8 @@
 //
 //  // 2.3. Wait for operations to complete in the specified order.
 //  [self waitForExpectations:@[
-//    self.testStorage.batchIDsForTargetExpectation, self.testStorage.eventsInBatchWithIDExpectation,
+//    self.testStorage.batchIDsForTargetExpectation,
+//    self.testStorage.eventsInBatchWithIDExpectation,
 //    self.testStorage.batchWithEventSelectorExpectation, responseSentExpectation,
 //    self.testStorage.removeBatchWithIDExpectation
 //  ]
@@ -268,15 +276,16 @@
 //  self.testStorage.removeBatchWithIDExpectation.inverted = YES;
 //
 //  // 1.1.3. Don't expect a batch to be uploaded.
-//  XCTestExpectation *responseSentExpectation1 = [self expectationTestServerSuccessRequestResponse];
-//  responseSentExpectation1.inverted = YES;
+//  XCTestExpectation *responseSentExpectation1 = [self
+//  expectationTestServerSuccessRequestResponse]; responseSentExpectation1.inverted = YES;
 //
 //  // 1.2. Create uploader and start upload.
 //  [uploader uploadTarget:kGDTCORTargetTest withConditions:GDTCORUploadConditionWifiData];
 //
 //  // 1.3. Wait for operations to complete in the specified order.
 //  [self waitForExpectations:@[
-//    self.testStorage.batchIDsForTargetExpectation, self.testStorage.eventsInBatchWithIDExpectation,
+//    self.testStorage.batchIDsForTargetExpectation,
+//    self.testStorage.eventsInBatchWithIDExpectation,
 //    self.testStorage.batchWithEventSelectorExpectation, responseSentExpectation1,
 //    self.testStorage.removeBatchWithIDExpectation
 //  ]
@@ -302,7 +311,8 @@
 //
 //  // 2.3. Wait for operations to complete in the specified order.
 //  [self waitForExpectations:@[
-//    self.testStorage.batchIDsForTargetExpectation, self.testStorage.eventsInBatchWithIDExpectation,
+//    self.testStorage.batchIDsForTargetExpectation,
+//    self.testStorage.eventsInBatchWithIDExpectation,
 //    self.testStorage.batchWithEventSelectorExpectation, responseSentExpectation,
 //    self.testStorage.removeBatchWithIDExpectation
 //  ]
@@ -343,7 +353,8 @@
 //
 //                           NSSet *expectedQoSTiers = [NSSet
 //                               setWithArray:@[ @(GDTCOREventQoSFast), @(GDTCOREventQosDefault) ]];
-//                           XCTAssertEqualObjects(eventSelector.selectedQosTiers, expectedQoSTiers);
+//                           XCTAssertEqualObjects(eventSelector.selectedQosTiers,
+//                           expectedQoSTiers);
 //                         }];
 //}
 //
@@ -364,7 +375,8 @@
 //                             @(GDTCOREventQosDefault), @(GDTCOREventQoSTelemetry),
 //                             @(GDTCOREventQoSUnknown)
 //                           ]];
-//                           XCTAssertEqualObjects(eventSelector.selectedQosTiers, expectedQoSTiers);
+//                           XCTAssertEqualObjects(eventSelector.selectedQosTiers,
+//                           expectedQoSTiers);
 //                         }];
 //}
 //
@@ -444,7 +456,8 @@
 //}
 //
 //- (void)assertStorageSelectorWithCondition:(GDTCORUploadConditions)conditions
-//                           validationBlock:(void (^)(GDTCORStorageEventSelector *_Nullable selector,
+//                           validationBlock:(void (^)(GDTCORStorageEventSelector *_Nullable
+//                           selector,
 //                                                     NSDate *expirationDate))validationBlock {
 //  GDTCCTUploader *uploader = [[GDTCCTUploader alloc] init];
 //
