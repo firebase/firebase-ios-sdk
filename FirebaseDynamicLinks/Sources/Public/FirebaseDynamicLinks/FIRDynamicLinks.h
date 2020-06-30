@@ -83,7 +83,6 @@ NS_SWIFT_NAME(DynamicLinks)
     NS_SWIFT_NAME(dynamicLink(fromUniversalLink:completion:));
 
 /**
- * @deprecated Use the `dynamicLinkFromUniversalLinkURL:completion:` instead.
  * @method dynamicLinkFromUniversalLinkURL:
  * @abstract Get a Dynamic Link from a universal link URL. This method parses universal link
  *     URLs, for instance,
@@ -95,7 +94,7 @@ NS_SWIFT_NAME(DynamicLinks)
  */
 - (nullable FIRDynamicLink *)dynamicLinkFromUniversalLinkURL:(NSURL *)url
     NS_SWIFT_NAME(dynamicLink(fromUniversalLink:))
-        __attribute__((unavailable("Use dynamicLinkFromUniversalLinkURL:completion: instead.")));
+        DEPRECATED_MSG_ATTRIBUTE("Use dynamicLinkFromUniversalLinkURL:completion: instead.");
 
 /**
  * @method handleUniversalLink:completion:

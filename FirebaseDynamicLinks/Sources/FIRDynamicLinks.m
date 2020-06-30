@@ -338,6 +338,10 @@ static const NSInteger FIRErrorCodeDurableDeepLinkFailed = -119;
   return [self dynamicLinkFromCustomSchemeURL:url];
 }
 
+- (nullable FIRDynamicLink *)deepLinkFromUniversalLinkURL:(NSURL *)url {
+  return [self dynamicLinkFromUniversalLinkURL:url];
+}
+
 - (BOOL)shouldHandleDeepLinkFromCustomSchemeURL:(NSURL *)url {
   return [self shouldHandleDynamicLinkFromCustomSchemeURL:url];
 }
@@ -393,6 +397,39 @@ static const NSInteger FIRErrorCodeDurableDeepLinkFailed = -119;
   return nil;
 }
 
+- (nullable FIRDynamicLink *)dynamicLinkFromUniversalLinkURL:(NSURL *)url {
+  if ([self canParseUniversalLinkURL:url]) {
+    if (url.query.length > 0) {
+      NSDictionary *parameters = FIRDLDictionaryFromQuery(url.query);
+      if (parameters[kFIRDLParameterLink]) {
+        FIRDynamicLink *dynamicLink = [[FIRDynamicLink alloc] init];
+        NSString *urlString = parameters[kFIRDLParameterLink];
+        NSURL *deepLinkURL = [NSURL URLWithString:urlString];
+        if (deepLinkURL) {
+          dynamicLink.url = deepLinkURL;
+          dynamicLink.matchType = FIRDLMatchTypeUnique;
+          dynamicLink.minimumAppVersion = parameters[kFIRDLParameterMinimumAppVersion];
+          // Call resolveShortLink:completion: to do logging.
+          // TODO: Create dedicated logging function to prevent this.
+          [self.dynamicLinkNetworking
+              resolveShortLink:url
+                 FDLSDKVersion:kFIRDLVersion
+                    completion:^(NSURL *_Nullable resolverURL, NSError *_Nullable resolverError){
+                        // Nothing to do
+                    }];
+#ifdef GIN_SCION_LOGGING
+          FIRDLLogEventToScion(FIRDLLogEventAppOpen, parameters[kFIRDLParameterSource],
+                               parameters[kFIRDLParameterMedium],
+                               parameters[kFIRDLParameterCampaign], _analytics);
+#endif
+          return dynamicLink;
+        }
+      }
+    }
+  }
+  return nil;
+}
+
 - (void)dynamicLinkFromUniversalLinkURL:(NSURL *)url
                              completion:(FIRDynamicLinkUniversalLinkHandler)completion {
   if ([self canParseUniversalLinkURL:url]) {
@@ -443,12 +480,20 @@ static const NSInteger FIRErrorCodeDurableDeepLinkFailed = -119;
                 }];
     return YES;
   } else {
-    [self dynamicLinkFromUniversalLinkURL:universalLinkURL completion:completion];
-    if ([self canParseUniversalLinkURL:universalLinkURL] && universalLinkURL.query.length > 0 &&
-        FIRDLDictionaryFromQuery(universalLinkURL.query)[kFIRDLParameterLink]) {
-      return YES;
+    if ([self respondsToSelector:@selector(dynamicLinkFromUniversalLinkURL:completion:)]) {
+      [self dynamicLinkFromUniversalLinkURL:universalLinkURL completion:completion];
+      BOOL canHandleUniversalLink =
+          [self canParseUniversalLinkURL:universalLinkURL] && universalLinkURL.query.length > 0 &&
+          FIRDLDictionaryFromQuery(universalLinkURL.query)[kFIRDLParameterLink];
+      return canHandleUniversalLink;
+    } else {
+      FIRDynamicLink *dynamicLink = [self dynamicLinkFromUniversalLinkURL:universalLinkURL];
+      if (dynamicLink) {
+        completion(dynamicLink, nil);
+        return YES;
+      }
+      return NO;
     }
-    return NO;
   }
 }
 
