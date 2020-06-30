@@ -243,6 +243,9 @@ NSString *const kGDTCORBatchComponentsExpirationKey = @"GDTCORBatchComponentsExp
         if (![self moveContentsOfDirectoryAtPath:batchDirPath to:destinationPath error:&error]) {
           GDTCORLogDebug(@"Error encountered whilst moving events back: %@", error);
         }
+
+        // Even if not all events where moved back to the storage, there is not much can be done at this point, so cleanup batch directory now to avoid clattering.
+        [fileManager removeItemAtPath:batchDirPath error:nil];
       }
     }
 
