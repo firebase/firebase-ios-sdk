@@ -235,12 +235,12 @@ NSString *const kGDTCORBatchComponentsExpirationKey = @"GDTCORBatchComponentsExp
       if (deleteEvents) {
         [fileManager removeItemAtPath:batchDirPath error:nil];
       } else {
-        NSDictionary<NSString *, id> *components = [self batchComponentsFromFilename:batchDirPath];
+        NSString *batchDirName = [batchDirPath lastPathComponent];
+        NSDictionary<NSString *, id> *components = [self batchComponentsFromFilename:batchDirName];
         NSNumber *target = components[kGDTCORBatchComponentsTargetKey];
         NSString *destinationPath = [[GDTCORFlatFileStorage eventDataStoragePath]
             stringByAppendingPathComponent:target.stringValue];
-        [fileManager moveItemAtPath:batchDirPath toPath:destinationPath error:&error];
-        if (error) {
+        if (![self moveContentsOfDirectoryAtPath:batchDirPath to:destinationPath error:&error]) {
           GDTCORLogDebug(@"Error encountered whilst moving events back: %@", error);
         }
       }
@@ -537,6 +537,40 @@ NSString *const kGDTCORBatchComponentsExpirationKey = @"GDTCORBatchComponentsExp
   }
 
   return [eventPathsForBatchID copy];
+}
+
+/** Makes a copy of the contents of a directory to a directory at the specified path.*/
+- (BOOL)moveContentsOfDirectoryAtPath:(NSString *)sourcePath
+                                   to:(NSString *)destinationPath
+                                error:(NSError **)outError {
+  NSFileManager *fileManager = [NSFileManager defaultManager];
+
+  NSError *error;
+  NSArray<NSString *> *contentsPaths = [fileManager contentsOfDirectoryAtPath:sourcePath
+                                                                        error:&error];
+  if (contentsPaths == nil) {
+    *outError = error;
+    return NO;
+  }
+
+  NSMutableArray<NSError *> *errors = [NSMutableArray array];
+  for (NSString *path in contentsPaths) {
+    NSString *contentDestinationPath = [destinationPath stringByAppendingPathComponent:path];
+    NSString *contentSourcePath = [sourcePath stringByAppendingPathComponent:path];
+
+    NSError *moveError;
+    if (![fileManager moveItemAtPath:contentSourcePath toPath:contentDestinationPath error:&moveError] && moveError) {
+      [errors addObject:moveError];
+    }
+  }
+
+  if (errors.count == 0) {
+    return YES;
+  } else {
+    NSError *combinedError = [NSError errorWithDomain:@"GDTCORFlatFileStorage" code:-1 userInfo:@{ NSUnderlyingErrorKey: errors }];
+    *outError = combinedError;
+    return NO;
+  }
 }
 
 #pragma mark - Private helper methods
