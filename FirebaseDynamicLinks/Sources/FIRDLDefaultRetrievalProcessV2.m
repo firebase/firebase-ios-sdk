@@ -270,7 +270,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (nullable NSURL *)uniqueMatchLinkToCheck {
   _clipboardContentAtMatchProcessStart = nil;
-  NSString *pasteboardContents = [UIPasteboard generalPasteboard].string;
+  NSString *pasteboardContents = [self retrievePasteboardContents];
   NSInteger linkStringMinimumLength =
       expectedCopiedLinkStringSuffix.length + /* ? or & */ 1 + /* http:// */ 7;
   if ((pasteboardContents.length >= linkStringMinimumLength) &&
@@ -294,6 +294,18 @@ NS_ASSUME_NONNULL_BEGIN
     }
   }
   return nil;
+}
+
+- (NSString *)retrievePasteboardContents {
+  NSString *pasteboardContents = @"";
+  if (@available(iOS 10.0, *)) {
+    if ([[UIPasteboard generalPasteboard] hasURLs]) {
+      pasteboardContents = [UIPasteboard generalPasteboard].string;
+    }
+  } else {
+    pasteboardContents = [UIPasteboard generalPasteboard].string;
+  }
+  return pasteboardContents;
 }
 
 - (void)clearUsedUniqueMatchLinkToCheckFromClipboard {
