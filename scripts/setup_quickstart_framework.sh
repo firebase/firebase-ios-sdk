@@ -41,7 +41,7 @@ do
 done
 
 if [[ "${SAMPLE}" == "Authentication" ]]; then
-  cp "/usr/lib/libc++.dylib" Firebase/
+  cp "/usr/lib/libc++.1.dylib" Firebase/
 	cp -r "/Applications/Xcode_11.5.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/System/Library/Frameworks/Accelerate.framework" Firebase/
 fi
 
