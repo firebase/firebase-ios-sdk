@@ -25,6 +25,10 @@ typedef void (^GDTCCTTestStorageBatchHandler)(GDTCORStorageEventSelector *_Nulla
                                               NSDate *_Nullable expiration,
                                               GDTCORStorageBatchBlock _Nullable completion);
 
+typedef void (^GDTCCTTestStorageHasEventsCompletion)(BOOL hasEvents);
+typedef void (^GDTCCTTestStorageHasEventsHandler)(GDTCORTarget target,
+                                                  GDTCCTTestStorageHasEventsCompletion completion);
+
 @interface GDTCCTTestStorage : NSObject <GDTCORStorageProtocol>
 
 #pragma mark - Method call expectations.
@@ -38,6 +42,8 @@ typedef void (^GDTCCTTestStorageBatchHandler)(GDTCORStorageEventSelector *_Nulla
 
 /// A block to override `batchWithEventSelector:batchExpiration:onComplete:` implementation.
 @property(nonatomic, copy, nullable) GDTCCTTestStorageBatchHandler batchWithEventSelectorHandler;
+/// A block to override `hasEventsForTarget:onComplete:` implementation.
+@property(nonatomic, copy, nullable) GDTCCTTestStorageHasEventsHandler hasEventsForTargetHandler;
 
 #pragma mark - Default test implementations
 

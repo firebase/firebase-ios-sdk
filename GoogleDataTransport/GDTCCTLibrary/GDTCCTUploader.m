@@ -206,85 +206,103 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
 #
 
 - (void)uploadTarget:(GDTCORTarget)target withConditions:(GDTCORUploadConditions)conditions {
-  __block GDTCORBackgroundIdentifier bgID = GDTCORBackgroundIdentifierInvalid;
-  bgID = [[GDTCORApplication sharedApplication]
+  __block GDTCORBackgroundIdentifier backgroundTaskID = GDTCORBackgroundIdentifierInvalid;
+
+  dispatch_block_t backgroundTaskCompletion = ^{
+    // End the background task if there was one.
+    if (backgroundTaskID != GDTCORBackgroundIdentifierInvalid) {
+      [[GDTCORApplication sharedApplication] endBackgroundTask:backgroundTaskID];
+      backgroundTaskID = GDTCORBackgroundIdentifierInvalid;
+    }
+  };
+
+  backgroundTaskID = [[GDTCORApplication sharedApplication]
       beginBackgroundTaskWithName:@"GDTCCTUploader-upload"
                 expirationHandler:^{
-                  if (bgID != GDTCORBackgroundIdentifierInvalid) {
+                  if (backgroundTaskID != GDTCORBackgroundIdentifierInvalid) {
                     // Cancel the upload and complete delivery.
                     [self.currentTask cancel];
 
                     // End the background task.
-                    [[GDTCORApplication sharedApplication] endBackgroundTask:bgID];
+                    backgroundTaskCompletion();
                   }
                 }];
 
   dispatch_async(_uploaderQueue, ^{
     id<GDTCORStorageProtocol> storage = GDTCORStorageInstanceForTarget(target);
 
-    if (![self readyToUploadTarget:target conditions:conditions]) {
-      return;
-    }
+    // 1. Fetch events to upload.
+    [self batchToUploadForTarget:target
+                         storage:storage
+                      conditions:conditions
+                      completion:^(NSNumber *_Nullable batchID,
+                                   NSSet<GDTCOREvent *> *_Nullable events) {
+                        // 2. Check if there are events to upload.
+                        if (!events || events.count == 0) {
+                          dispatch_async(self.uploaderQueue, ^{
+                            GDTCORLogDebug(@"Target %ld reported as ready for upload, but no "
+                                           @"events were selected",
+                                           (long)target);
+                            self.isCurrentlyUploading = NO;
+                            backgroundTaskCompletion();
+                          });
 
-    self.isCurrentlyUploading = YES;
-
-    id URLUploadCompletionHandler = ^(NSNumber *batchID, NSSet<GDTCOREvent *> *_Nullable events,
-                                      NSData *_Nullable data, NSURLResponse *_Nullable response,
-                                      NSError *_Nullable error) {
-      dispatch_async(self.uploaderQueue, ^{
-        [self handleURLSessionResponse:response
-                                  data:data
-                                 error:error
-                                target:target
-                               storage:storage
-                               batchID:batchID];
-#if !NDEBUG
-        // Post a notification when in DEBUG mode to state how many packages
-        // were uploaded. Useful for validation during tests.
-        [[NSNotificationCenter defaultCenter] postNotificationName:GDTCCTUploadCompleteNotification
-                                                            object:@(events.count)];
-#endif  // #if !NDEBUG
-
-        // End the background task if there was one.
-        if (bgID != GDTCORBackgroundIdentifierInvalid) {
-          [[GDTCORApplication sharedApplication] endBackgroundTask:bgID];
-          bgID = GDTCORBackgroundIdentifierInvalid;
-        }
-
-        self.isCurrentlyUploading = NO;
-      });
-    };
-
-    // Fetch events to upload.
-    [self eventBatchToUploadForTarget:target
-                              storage:storage
-                           conditions:conditions
-                           completion:^(NSNumber *_Nullable batchID,
-                                        NSSet<GDTCOREvent *> *_Nullable batchEvents) {
-                             // Upload events.
-                             [self sendURLRequestForBatchWithID:batchID
-                                                         events:batchEvents
-                                                         target:target
-                                              completionHandler:URLUploadCompletionHandler];
-                           }];
+                          return;
+                        }
+                        // 3. Upload events.
+                        [self uploadBatchWithID:batchID
+                                         events:events
+                                         target:target
+                                        storage:storage
+                                     completion:^{
+                                       backgroundTaskCompletion();
+                                     }];
+                      }];
   });
 }
 
 #pragma mark - Upload implementation details
 
+/** Performs URL request, handles the result and updates the uploader state. */
+- (void)uploadBatchWithID:(nullable NSNumber *)batchID
+                   events:(nullable NSSet<GDTCOREvent *> *)events
+                   target:(GDTCORTarget)target
+                  storage:(id<GDTCORStorageProtocol>)storage
+               completion:(dispatch_block_t)completion {
+  [self
+      sendURLRequestForBatchWithID:batchID
+                            events:events
+                            target:target
+                 completionHandler:^(NSNumber *_Nonnull batchID,
+                                     NSSet<GDTCOREvent *> *_Nullable events, NSData *_Nullable data,
+                                     NSURLResponse *_Nullable response, NSError *_Nullable error) {
+                   dispatch_async(self.uploaderQueue, ^{
+                     [self handleURLResponse:response
+                                        data:data
+                                       error:error
+                                      target:target
+                                     storage:storage
+                                     batchID:batchID];
+#if !NDEBUG
+                     // Post a notification when in DEBUG mode to state how many packages
+                     // were uploaded. Useful for validation during tests.
+                     [[NSNotificationCenter defaultCenter]
+                         postNotificationName:GDTCCTUploadCompleteNotification
+                                       object:@(events.count)];
+#endif  // #if !NDEBUG
+                     self.isCurrentlyUploading = NO;
+                     completion();
+                   });
+                 }];
+}
+
+/** Validates events and sends URL request and calls completion with the result. Modifies uploading
+ * state in the case of the failure.*/
 - (void)sendURLRequestForBatchWithID:(nullable NSNumber *)batchID
                               events:(nullable NSSet<GDTCOREvent *> *)events
                               target:(GDTCORTarget)target
                    completionHandler:(GDTCCTUploaderURLTaskCompletion)completionHandler {
   dispatch_async(self.uploaderQueue, ^{
-    if (!events || events.count == 0) {
-      GDTCORLogDebug(@"Target %ld reported as ready for upload, but no "
-                     @"events were selected",
-                     (long)target);
-      self.isCurrentlyUploading = NO;
-      return;
-    }
-
     NSData *requestProtoData = [self constructRequestProtoWithEvents:events];
     NSData *gzippedData = [GDTCCTCompressionHelper gzippedData:requestProtoData];
     BOOL usingGzipData = gzippedData != nil && gzippedData.length < requestProtoData.length;
@@ -308,12 +326,13 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
   });
 }
 
-- (void)handleURLSessionResponse:(nullable NSURLResponse *)response
-                            data:(nullable NSData *)data
-                           error:(nullable NSError *)error
-                          target:(GDTCORTarget)target
-                         storage:(id<GDTCORStorageProtocol>)storage
-                         batchID:(NSNumber *)batchID {
+/** Handles URL request response. */
+- (void)handleURLResponse:(nullable NSURLResponse *)response
+                     data:(nullable NSData *)data
+                    error:(nullable NSError *)error
+                   target:(GDTCORTarget)target
+                  storage:(id<GDTCORStorageProtocol>)storage
+                  batchID:(NSNumber *)batchID {
   GDTCORLogDebug(@"%@", @"CCT: request completed");
   if (error) {
     GDTCORLogWarning(GDTCORMCWUploadFailed, @"There was an error uploading events: %@", error);
@@ -363,99 +382,148 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
   self.currentTask = nil;
 }
 
-- (void)eventBatchToUploadForTarget:(GDTCORTarget)target
-                            storage:(id<GDTCORStorageProtocol>)storage
-                         conditions:(GDTCORUploadConditions)conditions
-                         completion:(GDTCCTUploaderEventBatchBlock)completion {
-  // Check if there are any not uploaded batches from previous app launches and upload them first.
-  [self batchedEventsForTarget:target
-                       storage:storage
-                    completion:^(NSNumber *_Nullable batchID,
-                                 NSSet<GDTCOREvent *> *_Nullable previouslyBatchedEvents) {
-                      // Upload previously batched events first.
-                      if (batchID != nil && previouslyBatchedEvents.count > 0) {
-                        completion(batchID, previouslyBatchedEvents);
-                        return;
-                      }
+#pragma mark - Stored events upload
 
-                      // If there are no previously batched events, then try to create a new batch.
-                      GDTCORStorageEventSelector *eventSelector =
-                          [self eventSelectorTarget:target withConditions:conditions];
-                      if (eventSelector != nil) {
-                        [storage batchWithEventSelector:eventSelector
-                                        batchExpiration:[NSDate dateWithTimeIntervalSinceNow:600]
-                                             onComplete:completion];
-                      }
+/** Fetches a batch of pending events for the specified target and conditions. Passes `nil` to
+ * completion if there are no suitable events to upload. */
+- (void)batchToUploadForTarget:(GDTCORTarget)target
+                       storage:(id<GDTCORStorageProtocol>)storage
+                    conditions:(GDTCORUploadConditions)conditions
+                    completion:(GDTCCTUploaderEventBatchBlock)completion {
+  // 1. Check if the conditions for the target are suitable.
+  if (![self readyToUploadTarget:target conditions:conditions storage:storage]) {
+    completion(nil, nil);
+    return;
+  }
+
+  // 2. Remove previously attempted batches
+  [self removeBatchesForTarget:target
+                       storage:storage
+                    onComplete:^{
+                      // There may be a big amount of events stored, so creating a batch may be an
+                      // expensive operation.
+
+                      // 3. Do a lightweight check if there are any events for the target first to
+                      // finish early if there are no.
+                      [storage hasEventsForTarget:target
+                                       onComplete:^(BOOL hasEvents) {
+                                         // 4. Proceed with fetching the events.
+                                         [self batchToUploadForTarget:target
+                                                              storage:storage
+                                                           conditions:conditions
+                                                            hasEvents:hasEvents
+                                                           completion:completion];
+                                       }];
                     }];
 }
 
-- (void)batchedEventsForTarget:(GDTCORTarget)target
+/** Makes final checks before and makes */
+- (void)batchToUploadForTarget:(GDTCORTarget)target
                        storage:(id<GDTCORStorageProtocol>)storage
+                    conditions:(GDTCORUploadConditions)conditions
+                     hasEvents:(BOOL)hasEvents
                     completion:(GDTCCTUploaderEventBatchBlock)completion {
+  dispatch_async(self.uploaderQueue, ^{
+    if (!hasEvents) {
+      // No events to upload.
+      completion(nil, nil);
+      return;
+    }
+
+    // Check if the conditions are still met before starting upload.
+    if (![self readyToUploadTarget:target conditions:conditions storage:storage]) {
+      completion(nil, nil);
+      return;
+    }
+
+    // All conditions have been checked and met. Lock uploader for this target to prevent other
+    // targets upload attempts.
+    self.isCurrentlyUploading = YES;
+
+    // Fetch a batch to upload and pass along.
+    GDTCORStorageEventSelector *eventSelector = [self eventSelectorTarget:target
+                                                           withConditions:conditions];
+    [storage batchWithEventSelector:eventSelector
+                    batchExpiration:[NSDate dateWithTimeIntervalSinceNow:600]
+                         onComplete:completion];
+  });
+}
+
+- (void)removeBatchesForTarget:(GDTCORTarget)target
+                       storage:(id<GDTCORStorageProtocol>)storage
+                    onComplete:(dispatch_block_t)onComplete {
   [storage batchIDsForTarget:target
                   onComplete:^(NSSet<NSNumber *> *_Nullable batchIDs) {
+                    // No stored batches, no need to remove anything.
                     if (batchIDs.count < 1) {
-                      completion(nil, nil);
+                      onComplete();
                       return;
                     }
 
-                    // Try to upload a batch.
-                    NSNumber *batchID = [batchIDs anyObject];
-                    [storage eventsInBatchWithID:batchID
-                                      onComplete:^(NSSet<GDTCOREvent *> *_Nullable events) {
-                                        completion(batchID, events);
+                    dispatch_group_t dispatchGroup = dispatch_group_create();
+                    for (NSNumber *batchID in batchIDs) {
+                      dispatch_group_enter(dispatchGroup);
+
+                      // Remove batches and moves events back to the storage.
+                      [storage removeBatchWithID:batchID
+                                    deleteEvents:NO
+                                      onComplete:^{
+                                        dispatch_group_leave(dispatchGroup);
                                       }];
+                    }
+
+                    // Wait until all batches are removed and call completion handler.
+                    dispatch_group_notify(dispatchGroup, self.uploaderQueue, ^{
+                      onComplete();
+                    });
                   }];
 }
 
 #pragma mark - Private helper methods
 
 /** */
-- (BOOL)readyToUploadTarget:(GDTCORTarget)target conditions:(GDTCORUploadConditions)conditions {
-  if (self.isCurrentlyUploading || self.currentTask) {
-    GDTCORLogWarning(GDTCORMCWUploadFailed, @"%@",
-                     @"An upload shouldn't be initiated with another in progress.");
+- (BOOL)readyToUploadTarget:(GDTCORTarget)target
+                 conditions:(GDTCORUploadConditions)conditions
+                    storage:(id<GDTCORStorageProtocol>)storage {
+  if (self.isCurrentlyUploading) {
+    GDTCORLogDebug(@"%@", @"CCT: Wait until previous upload finishes. The current version supports "
+                          @"only a single batch uploading at the time.");
     return NO;
   }
 
-  id<GDTCORStorageProtocol> storage = GDTCORStorageInstanceForTarget(target);
-  __block BOOL hasEventsForTarget = NO;
-  dispatch_semaphore_t sema = dispatch_semaphore_create(0);
-  [storage hasEventsForTarget:target
-                   onComplete:^(BOOL hasEvents) {
-                     hasEventsForTarget = hasEvents;
-                     dispatch_semaphore_signal(sema);
-                   }];
-  if (dispatch_semaphore_wait(sema, dispatch_time(DISPATCH_TIME_NOW, 10 * NSEC_PER_SEC)) != 0) {
-    GDTCORLogDebug(@"Timed out waiting for hasEventsForTarget: %ld", (long)target);
+  // Not ready to upload with not network connection.
+  // TODO: Reconsider using reachability to prevent an upload attempt.
+  // See https://developer.apple.com/videos/play/wwdc2019/712/ (49:40) for more details.
+  if (conditions & GDTCORUploadConditionNoNetwork) {
+    GDTCORLogDebug(@"%@", @"CCT: Not ready to upload without a network connection.");
     return NO;
   }
 
-  if (!hasEventsForTarget) {
-    // Nothing to upload.
-    return NO;
-  }
-
-  if (target == kGDTCORTargetCSH && hasEventsForTarget) {
-    // Upload events when there are with no additional conditions for kGDTCORTargetCSH.
+  // Upload events when there are with no additional conditions for kGDTCORTargetCSH.
+  if (target == kGDTCORTargetCSH) {
+    GDTCORLogDebug(@"%@",
+                   @"CCT: kGDTCORTargetCSH events are allowed to be uploaded straight away.");
     return YES;
   }
 
+  // Upload events with no additional conditions if high priority.
   if ((conditions & GDTCORUploadConditionHighPriority) == GDTCORUploadConditionHighPriority) {
     GDTCORLogDebug(@"%@", @"CCT: a high priority event is allowing an upload");
     return YES;
   }
-  BOOL result = NO;
+
+  // Check next upload time for the target.
+  BOOL isAfterNextUploadTime = NO;
   switch (target) {
     case kGDTCORTargetCCT:
       if (self->_CCTNextUploadTime) {
-        result = [[GDTCORClock snapshot] isAfter:self->_CCTNextUploadTime];
+        isAfterNextUploadTime = [[GDTCORClock snapshot] isAfter:self->_CCTNextUploadTime];
       }
       break;
 
     case kGDTCORTargetFLL:
       if (self->_FLLNextUploadTime) {
-        result = [[GDTCORClock snapshot] isAfter:self->_FLLNextUploadTime];
+        isAfterNextUploadTime = [[GDTCORClock snapshot] isAfter:self->_FLLNextUploadTime];
       }
       break;
 
@@ -463,16 +531,18 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
       // The CSH backend should be handled above.
       break;
   }
-  if (result) {
+
+  if (isAfterNextUploadTime) {
     GDTCORLogDebug(@"CCT: can upload to target %ld because the request wait time has transpired",
                    (long)target);
   } else {
     GDTCORLogDebug(@"CCT: can't upload to target %ld because the backend asked to wait",
                    (long)target);
   }
-  result = YES;
+
+  isAfterNextUploadTime = YES;
   GDTCORLogDebug(@"CCT: can upload to target %ld because nothing is preventing it", (long)target);
-  return result;
+  return isAfterNextUploadTime;
 }
 
 /** Constructs data given an upload package.
@@ -551,9 +621,6 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
 - (nullable GDTCORStorageEventSelector *)eventSelectorTarget:(GDTCORTarget)target
                                               withConditions:(GDTCORUploadConditions)conditions {
   id<GDTCORStorageProtocol> storage = GDTCORStorageInstanceForTarget(target);
-  if (conditions & GDTCORUploadConditionNoNetwork) {
-    return nil;
-  }
   if ((conditions & GDTCORUploadConditionHighPriority) == GDTCORUploadConditionHighPriority) {
     return [GDTCORStorageEventSelector eventSelectorForTarget:target];
   }

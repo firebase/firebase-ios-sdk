@@ -94,7 +94,9 @@
 }
 
 - (void)hasEventsForTarget:(GDTCORTarget)target onComplete:(nonnull void (^)(BOOL))onComplete {
-  if (onComplete) {
+  if (self.hasEventsForTargetHandler) {
+    self.hasEventsForTargetHandler(target, onComplete);
+  } else if (onComplete) {
     onComplete(NO);
   }
 }
