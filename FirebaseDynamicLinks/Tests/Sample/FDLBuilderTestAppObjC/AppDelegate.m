@@ -20,7 +20,6 @@
 #import <FirebaseCore/FirebaseCore.h>
 #import <FirebaseDynamicLinks/FIRDynamicLinks.h>
 
-
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application
