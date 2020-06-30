@@ -77,9 +77,15 @@ NS_SWIFT_NAME(EmulatorSettings)
 - (instancetype)settingsByRemovingSettingsForService:(FIREmulatorService)service;
 
 /// Returns a new settings object that is the result of adding new settings for a given
-/// service.
+/// service. Overwrites a pre-existing settings entry for the given key, if it exists.
 - (instancetype)settingsByAddingSettings:(FIREmulatorServiceSettings *)settings 
                               forService:(FIREmulatorService)service
+
+/// Returns a new settings object that is the result of adding new settings for a given
+/// service. Overwrites a pre-existing settings entry for the given key, if it exists.
+- (instancetype)settingsByAddingSettingsWithHost:(NSString *)host
+                                            port:(NSInteger)port 
+                                      forService:(FIREmulatorService)service;
 
 /// Returns the service-level settings object for a given emulated service, if it exists.
 - (FIREmulatorServiceSettings *_Nullable)settingsForService:(FIREmulatorService)service;

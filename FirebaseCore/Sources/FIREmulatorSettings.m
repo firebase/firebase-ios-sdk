@@ -93,8 +93,16 @@ NSString *const FIREmulatorServiceFunctions = @"FIREmulatorServiceFunctions";
 - (instancetype)settingsByAddingSettings:(FIREmulatorServiceSettings *)settings 
                               forService:(FIREmulatorService)service {
   NSMutableDictionary *mutableSettings = [self.settings mutableCopy];
-  [mutableSettings addObject:settings];
+  [mutableSettings setObject:settings forKey:service];
   return [[FIREmulatorSettings alloc] initWithSettings:mutableSettings];
+}
+
+- (instancetype)settingsByAddingSettingsWithHost:(NSString *)host
+                                            port:(NSInteger)port 
+                                      forService:(FIREmulatorService)service {
+  FIREmulatorServiceSettings *settings =
+      [[FIREmulatorServiceSettings alloc] initWithHost:host port:port];
+  return [self settingsByAddingSettings:settings forService:service];
 }
 
 - (NSDictionary *)getAllServiceSettings {
@@ -102,7 +110,7 @@ NSString *const FIREmulatorServiceFunctions = @"FIREmulatorServiceFunctions";
 }
 
 - (instancetype)copyWithZone:(NSZone *)zone {
-  return self;  // immutable, so return self
+  return self; // immutable, so return self
 }
 
 - (FIREmulatorServiceSettings *)settingsForService:(FIREmulatorService)service {
