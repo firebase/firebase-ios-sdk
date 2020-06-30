@@ -46,7 +46,6 @@ let skipDirPatterns = ["/Sample/", "/Pods/", "FirebaseStorage/Tests/Integration"
     "Firebase/InstanceID",
     "FirebaseMessaging",
     "FirebaseRemoteConfig",
-    "Crashlytics",
     "Firestore",
     "GoogleUtilitiesComponents",
   ]

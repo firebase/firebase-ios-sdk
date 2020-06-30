@@ -12,17 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRCLSURLSessionAvailability.h"
+#import "Crashlytics/Crashlytics/FIRCLSURLSession/FIRCLSURLSessionAvailability.h"
 
 #if FIRCLSURLSESSION_REQUIRED
-#import "FIRCLSURLSession.h"
+#import "Crashlytics/Crashlytics/FIRCLSURLSession/FIRCLSURLSession.h"
 
-#import "FIRCLSURLSessionDataTask.h"
-#import "FIRCLSURLSessionDataTask_PrivateMethods.h"
-#import "FIRCLSURLSessionDownloadTask.h"
-#import "FIRCLSURLSessionDownloadTask_PrivateMethods.h"
-#import "FIRCLSURLSessionTask_PrivateMethods.h"
-#import "FIRCLSURLSessionUploadTask.h"
+#import "Crashlytics/Crashlytics/FIRCLSURLSession/Tasks/FIRCLSURLSessionDataTask.h"
+#import "Crashlytics/Crashlytics/FIRCLSURLSession/Tasks/FIRCLSURLSessionDataTask_PrivateMethods.h"
+#import "Crashlytics/Crashlytics/FIRCLSURLSession/Tasks/FIRCLSURLSessionDownloadTask.h"
+#import "Crashlytics/Crashlytics/FIRCLSURLSession/Tasks/FIRCLSURLSessionDownloadTask_PrivateMethods.h"
+#import "Crashlytics/Crashlytics/FIRCLSURLSession/Tasks/FIRCLSURLSessionTask_PrivateMethods.h"
+#import "Crashlytics/Crashlytics/FIRCLSURLSession/Tasks/FIRCLSURLSessionUploadTask.h"
 
 #define DELEGATE ((id<NSURLSessionDataDelegate, NSURLSessionDownloadDelegate>)self->_delegate)
 

@@ -16,6 +16,7 @@ import Foundation
 import Firebase
 import FirebaseCore
 import FirebaseAuth
+import FirebaseCrashlytics
 import FirebaseFunctions
 import FirebaseInstallations
 // import FirebaseInstanceID

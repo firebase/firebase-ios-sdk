@@ -14,7 +14,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRStackFrame.h"
+#import "Crashlytics/Crashlytics/Public/FIRStackFrame.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
