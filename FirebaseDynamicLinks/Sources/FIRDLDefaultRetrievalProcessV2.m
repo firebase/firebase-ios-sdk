@@ -321,7 +321,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (BOOL)isPasteBoardRetrievalEnabled {
   id retrievalEnabledValue =
-      [[NSBundle mainBundle] infoDictionary][@"FirebaseDeepLinkPasteBoardRetrievalEnabled"];
+      [[NSBundle mainBundle] infoDictionary][@"FirebaseDeepLinkPasteboardRetrievalEnabled"];
   if ([retrievalEnabledValue respondsToSelector:@selector(boolValue)]) {
     return [retrievalEnabledValue boolValue];
   }
