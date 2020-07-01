@@ -19,13 +19,17 @@ require 'set'
 require 'optparse'
 
 options = {}
-source_tree = "SOURCE_ROOT"
+options[:source_tree] = "SOURCE_ROOT"
 OptionParser.new do |opt|
-  opt.on('--sdk SDK') { |o| sdk = o }
-  opt.on('--target TARGET') { |o| target = o }
-  opt.on('--framework_path FRAMEWORK_PATH') { |o| framework_path = o }
-  opt.on('--source_tree SOURCE_TREE') { |o| source_tree = o }
+  opt.on('--sdk SDK') { |o| options[:sdk] = o }
+  opt.on('--target TARGET') { |o| options[:target] = o }
+  opt.on('--framework_path FRAMEWORK_PATH') { |o| options[:framework_path] = o }
+  opt.on('--source_tree SOURCE_TREE') { |o| options[:source_tree] = o }
 end.parse!
+sdk = options[:sdk]
+target = options[:target]
+framework_path = options[:framework_path]
+source_tree = options[:source_tree]
 project_path = "#{sdk}Example.xcodeproj"
 project = Xcodeproj::Project.open(project_path)
 
