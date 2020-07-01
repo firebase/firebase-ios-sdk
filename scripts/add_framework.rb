@@ -43,7 +43,7 @@ def add_ref(framework_group, framework, source_tree, framework_build_phase)
 end
 
 if File.directory?(framework_path)
-  framework_group = Dir.glob(File.join(framework_path, "*{framework,dylib}"))
+  framework_group = Dir.glob(File.join(framework_path, "*{framework,dylib,modulemap}"))
 
   project.targets.each do |project_target|
     next unless project_target.name == target
