@@ -53,7 +53,7 @@ let skipDirPatterns = ["/Sample/", "/Pods/", "FirebaseStorage/Tests/Integration"
 // Skip existence test for patterns that start with the following:
 let skipImportPatterns = [
   "FBLPromise",
-  "OCMock"
+  "OCMock",
 ]
 
 private class ErrorLogger {
