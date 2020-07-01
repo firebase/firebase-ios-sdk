@@ -39,6 +39,12 @@ typedef void (^FSTVoidErrorBlock)(NSError *_Nullable error);
 - (void)awaitExpectations;
 
 /**
+ * Await a specific expectation with a reasonable timeout. If the expectation fails, XCTFail the
+ * test.
+ */
+- (void)awaitExpectation:(XCTestExpectation *)expectation;
+
+/**
  * Returns a reasonable timeout for testing against Firestore.
  */
 - (double)defaultExpectationWaitSeconds;
@@ -48,6 +54,11 @@ typedef void (^FSTVoidErrorBlock)(NSError *_Nullable error);
  * name.
  */
 - (FSTVoidErrorBlock)completionForExpectationWithName:(NSString *)expectationName;
+
+/**
+ * Returns a completion block that fulfills the given expectation.
+ */
+- (FSTVoidErrorBlock)completionForExpectation:(XCTestExpectation *)expectation;
 
 @end
 
