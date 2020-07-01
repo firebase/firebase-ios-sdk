@@ -57,7 +57,7 @@ if File.directory?(framework_path)
               project_target.frameworks_build_phase)
     end
   end
-else 
+else
   project.targets.each do |project_target|
     next unless project_target.name == target
     puts "The following file is added to #{project_target}"
