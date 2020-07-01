@@ -1485,6 +1485,71 @@ using firebase::firestore::util::TimerId;
   [listenerRegistration remove];
 }
 
+- (void)testListenerCallbackBlocksRemove {
+  // This tests a guarantee required for C++ that doesn't strictly matter for Objective-C and has no
+  // equivalent on other platforms.
+  //
+  // The problem for C++ is that users can register a listener that refers to some state, then call
+  // `ListenerRegistration::Remove()` and expect to be able to immediately delete that state. The
+  // trouble is that there may be a callback in progress against that listener so the implementation
+  // now blocks the remove call until the callback is complete.
+  XCTestExpectation *running = [self expectationWithDescription:@"listener running"];
+  XCTestExpectation *allowCompletion =
+      [self expectationWithDescription:@"allow listener to complete"];
+  XCTestExpectation *removing = [self expectationWithDescription:@"attempting to remove listener"];
+  XCTestExpectation *removed = [self expectationWithDescription:@"listener removed"];
+
+  NSMutableString *steps = [NSMutableString string];
+
+  FIRDocumentReference *doc = [self documentRef];
+  [self writeDocumentRef:doc data:@{@"foo" : @"bar"}];
+
+  __block bool firstTime = true;
+
+  id<FIRListenerRegistration> listener =
+      [doc addSnapshotListener:^(FIRDocumentSnapshot *, NSError *) {
+        @synchronized(self) {
+          if (!firstTime) {
+            return;
+          }
+          firstTime = false;
+        }
+
+        [steps appendString:@"1"];
+        [running fulfill];
+
+        [self awaitExpectation:allowCompletion];
+        [steps appendString:@"3"];
+      }];
+
+  // Call remove asynchronously to avoid blocking the main test thread.
+  dispatch_queue_t async = dispatch_queue_create("firestore.async", DISPATCH_QUEUE_SERIAL);
+  dispatch_async(async, ^{
+    [self awaitExpectation:running];
+    [steps appendString:@"2"];
+
+    [removing fulfill];
+    [listener remove];
+
+    [steps appendString:@"4"];
+    [removed fulfill];
+  });
+
+  // Perform a write to `doc` which will trigger the listener callback. Don't wait for completion
+  // though because that completion handler is in line behind the listener callback that the test
+  // is blocking.
+  XCTestExpectation *setData = [self expectationWithDescription:@"setData"];
+  [doc setData:@{@"foo" : @"bar"} completion:[self completionForExpectation:setData]];
+
+  [self awaitExpectation:removing];
+  [allowCompletion fulfill];
+
+  [self awaitExpectation:removed];
+  XCTAssertEqualObjects(steps, @"1234");
+
+  [self awaitExpectation:setData];
+}
+
 - (void)testWaitForPendingWritesCompletes {
   FIRDocumentReference *doc = [self documentRef];
   FIRFirestore *firestore = doc.firestore;
