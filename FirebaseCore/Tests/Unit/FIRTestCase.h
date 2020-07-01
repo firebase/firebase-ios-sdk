@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import <OCMock/OCMock.h>
+#import "OCMock.h"
 #import <XCTest/XCTest.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -39,7 +39,7 @@ extern NSString *const kProjectID;
  * Base test case for Firebase Core SDK tests.
  */
 @interface FIRTestCase : XCTestCase
-
+- (void)mockFIROptions;
 @end
 
 NS_ASSUME_NONNULL_END

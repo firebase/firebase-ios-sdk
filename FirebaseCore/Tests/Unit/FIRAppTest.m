@@ -68,6 +68,10 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   _observerMock = OCMObserverMock();
   _mockCoreDiagnosticsConnector = OCMClassMock([FIRCoreDiagnosticsConnector class]);
 
+#if SWIFT_PACKAGE
+  [self mockFIROptions];
+#endif
+
   OCMStub(ClassMethod([self.mockCoreDiagnosticsConnector logCoreTelemetryWithOptions:[OCMArg any]]))
       .andDo(^(NSInvocation *invocation){
       });
