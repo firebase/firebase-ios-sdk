@@ -67,7 +67,6 @@ const NSTimeInterval kDefaultFetchTokenInterval = 7 * 24 * 60 * 60;  // 7 days.
 }
 
 -(void)dealloc {
-  [_authorizedEntity dealloc];
   [super dealloc];
 }
 
@@ -184,12 +183,12 @@ const NSTimeInterval kDefaultFetchTokenInterval = 7 * 24 * 60 * 60;  // 7 days.
 
   self = [super init];
   if (self) {
-    _authorizedEntity = authorizedEntity;
-    _scope = scope;
-    _token = token;
-    _appVersion = appVersion;
-    _firebaseAppID = firebaseAppID;
-    _APNSInfo = APNSInfo;
+    _authorizedEntity = [authorizedEntity copy];
+    _scope = [scope copy];
+    _token = [token copy];
+    _appVersion = [appVersion copy];
+    _firebaseAppID = [firebaseAppID copy];
+    _APNSInfo = [APNSInfo copy];
     _cacheTime = cacheTime;
   }
   return self;
