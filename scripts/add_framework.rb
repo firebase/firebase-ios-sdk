@@ -40,8 +40,7 @@ def add_ref(framework_group, framework, source_tree, framework_build_phase)
   ref.source_tree = source_tree
   framework_build_phase.add_file_reference(ref)
   puts ref
-  return ref
-
+end
 
 if File.directory?(framework_path)
   framework_group = Dir.glob(File.join(framework_path, "*{framework,dylib}"))
