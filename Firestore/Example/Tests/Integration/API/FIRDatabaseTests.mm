@@ -566,6 +566,7 @@ using firebase::firestore::util::TimerId;
   }];
 
   [self writeDocumentRef:ref data:@{@"foo" : @3}];
+  [self awaitExpectation:done];
 }
 
 - (void)testSnapshotsInSyncRemoveIsIdempotent {

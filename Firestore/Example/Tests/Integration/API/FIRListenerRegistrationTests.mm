@@ -158,6 +158,7 @@
 
   FIRDocumentReference *docRef2 = [collectionRef documentWithPath:documentID];
   [self writeDocumentRef:docRef2 data:@{@"foo" : @"bar"}];
+  [self awaitExpectation:seen];
 
   [registration remove];
 }
