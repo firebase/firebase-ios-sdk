@@ -32,37 +32,40 @@ framework_path = options[:framework_path]
 source_tree = options[:source_tree]
 project_path = "#{sdk}Example.xcodeproj"
 project = Xcodeproj::Project.open(project_path)
+project_framework_group = project.frameworks_group
+
+def add_ref(framework_group, framework, source_tree, framework_build_phase)
+  ref = framework_group.new_reference("#{framework}")
+  ref.name = "#{File.basename(framework)}"
+  ref.source_tree = source_tree
+  framework_build_phase.add_file_reference(ref)
+  puts ref
+  return ref
+
 
 if File.directory?(framework_path)
   framework_group = Dir.glob(File.join(framework_path, "*{framework,dylib}"))
 
   project.targets.each do |project_target|
     next unless project_target.name == target
-    project_framework_group = project.frameworks_group
-    framework_build_phase = project_target.frameworks_build_phase
     framework_set = project_target.frameworks_build_phase.files.to_set
     puts "The following frameworks are added to #{project_target}"
     framework_group.each do |framework|
       next if framework_set.size == framework_set.add(framework).size
-      ref = project_framework_group.new_reference("#{framework}")
-      ref.name = "#{File.basename(framework)}"
-      ref.source_tree = source_tree
-      framework_build_phase.add_file_reference(ref)
-      puts ref
+      add_ref(project_framework_group,
+              framework,
+              source_tree,
+              project_target.frameworks_build_phase)
     end
   end
-  project.save()
 else 
   project.targets.each do |project_target|
     next unless project_target.name == target
-    project_framework_group = project.frameworks_group
-    framework_build_phase = project_target.frameworks_build_phase
     puts "The following file is added to #{project_target}"
-    ref = project_framework_group.new_reference("#{framework_path}")
-    ref.name = "#{File.basename(framework_path)}"
-    ref.source_tree = source_tree
-    framework_build_phase.add_file_reference(ref)
-    puts ref
+    add_ref(project_framework_group,
+            framework,
+            source_tree,
+            project_target.frameworks_build_phase)
   end
-  project.save()
 end
+project.save()
