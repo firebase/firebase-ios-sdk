@@ -21,6 +21,8 @@ jobs:
       run: sudo xcode-select -s /Applications/Xcode_12_beta.app/Contents/Developer
     - name: Build
       run: swift build
+    - name: Initialize xcodebuild
+      run: xcodebuild -list
     - name: Core ObjC Unit Tests macOS
       run: xcodebuild -scheme CoreUnit test
     - name: Core ObjC Unit Tests iOS
