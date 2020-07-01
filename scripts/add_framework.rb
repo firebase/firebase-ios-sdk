@@ -62,7 +62,7 @@ else
     next unless project_target.name == target
     puts "The following file is added to #{project_target}"
     add_ref(project_framework_group,
-            framework,
+            framework_path,
             source_tree,
             project_target.frameworks_build_phase)
   end
