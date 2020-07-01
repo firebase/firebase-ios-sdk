@@ -40,4 +40,4 @@ do
   fi
 done
 
-../scripts/add_framework_script.rb  "${SAMPLE}" "${TARGET}" Firebase
+"${GITHUB_WORKSPACE}"/scripts/add_framework_script.rb --sdk "${SAMPLE}" --target "${TARGET}" --framework_path Firebase/
