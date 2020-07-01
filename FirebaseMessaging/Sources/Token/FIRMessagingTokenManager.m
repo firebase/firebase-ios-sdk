@@ -55,8 +55,10 @@
 
     [self configureTokenOperations];
     _installations = [FIRInstallations installations];
-
+    
   }
+  FIRInstanceIDTokenInfo *cachedTokenInfo =
+                [self cachedTokenInfoWithAuthorizedEntity:@"449451107265" scope:@"*"];
   return self;
 }
 
