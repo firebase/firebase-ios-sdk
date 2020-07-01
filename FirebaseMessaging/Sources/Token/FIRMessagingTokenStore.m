@@ -16,10 +16,10 @@
 
 #import "FIRMessagingTokenStore.h"
 
+#import "FIRInstanceIDTokenInfo.h"
 #import "FIRMessagingAuthKeyChain.h"
 #import "FIRMessagingConstants.h"
 #import "FIRMessagingLogger.h"
-#import "FIRInstanceIDTokenInfo.h"
 #import "FIRMessagingUtilities.h"
 
 static NSString *const kFIRMessagingTokenKeychainId = @"com.google.iid-tokens";
@@ -58,7 +58,7 @@ static NSString *const kFIRMessagingTokenKeychainId = @"com.google.iid-tokens";
 }
 
 - (nullable FIRInstanceIDTokenInfo *)tokenInfoWithAuthorizedEntity:(NSString *)authorizedEntity
-                                                            scope:(NSString *)scope {
+                                                             scope:(NSString *)scope {
   NSString *account = FIRMessagingAppIdentifier();
   NSString *service = [[self class] serviceKeyForAuthorizedEntity:authorizedEntity scope:scope];
   NSData *item = [self.keychain dataForService:service account:account];

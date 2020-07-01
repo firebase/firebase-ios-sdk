@@ -128,24 +128,24 @@ struct ContentView: View {
   }
 
   func deleteID() {
-  guard let app = FirebaseApp.app() else {
-    return
-  }
-let senderID = app.options.gcmSenderID
-Messaging.messaging().deleteFCMToken(forSenderID: senderID) { error in
-  if let error = error as NSError? {
-    self.log = "Failed deleting token: \(error)"
-    return
-  }
-  self.log = "Successfully deleted token."
-  Installations.installations().delete { error in
-    if let error = error as NSError? {
-      self.log = "Failed deleting FID: \(error)"
+    guard let app = FirebaseApp.app() else {
       return
     }
-    self.log = "Successfully deleted all identity."
-  }
-}
+    let senderID = app.options.gcmSenderID
+    Messaging.messaging().deleteFCMToken(forSenderID: senderID) { error in
+      if let error = error as NSError? {
+        self.log = "Failed deleting token: \(error)"
+        return
+      }
+      self.log = "Successfully deleted token."
+      Installations.installations().delete { error in
+        if let error = error as NSError? {
+          self.log = "Failed deleting FID: \(error)"
+          return
+        }
+        self.log = "Successfully deleted all identity."
+      }
+    }
   }
 
   func deleteFID() {

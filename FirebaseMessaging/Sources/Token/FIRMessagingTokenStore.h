@@ -61,7 +61,7 @@ NS_ASSUME_NONNULL_BEGIN
  *          nil.
  */
 - (nullable FIRInstanceIDTokenInfo *)tokenInfoWithAuthorizedEntity:(NSString *)authorizedEntity
-                                                            scope:(NSString *)scope;
+                                                             scope:(NSString *)scope;
 
 /**
  *  Return all cached token infos from the Keychain.

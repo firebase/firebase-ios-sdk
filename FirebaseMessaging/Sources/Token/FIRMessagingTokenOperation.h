@@ -16,8 +16,6 @@
 
 #import <Foundation/Foundation.h>
 
-
-
 @class FIRMessagingCheckinPreferences;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -39,7 +37,6 @@ typedef NS_ENUM(NSInteger, FIRMessagingTokenOperationResult) {
   FIRMessagingTokenOperationError,
   FIRMessagingTokenOperationCancelled,
 };
-
 
 /**
  *  Callback to invoke once the HTTP call to FIRMessaging backend for updating
@@ -67,8 +64,6 @@ typedef void (^FIRMessagingTokenOperationCompletion)(FIRMessagingTokenOperationR
 @property(nonatomic, readonly) FIRMessagingTokenOperationResult result;
 
 @property(atomic, strong, nullable) NSURLSessionDataTask *dataTask;
-@property(readonly, strong)
-    NSMutableArray<FIRMessagingTokenOperationCompletion> *completionHandlers;
 
 + (NSURLSession *)sharedURLSession;
 

@@ -22,7 +22,6 @@
 #import "FirebaseMessaging/Sources/NSError+FIRMessaging.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingTokenManager.h"
 
-
 @interface FIRMessagingPubSubRegistrar ()
 
 @property(nonatomic, readonly, strong) NSOperationQueue *topicOperations;
@@ -49,7 +48,7 @@
 }
 
 - (void)updateSubscriptionToTopic:(NSString *)topic
-                        withTokenManager:(FIRMessagingTokenManager *)tokenManager
+                 withTokenManager:(FIRMessagingTokenManager *)tokenManager
                           options:(NSDictionary *)options
                      shouldDelete:(BOOL)shouldDelete
                           handler:(FIRMessagingTopicOperationCompletion)handler {

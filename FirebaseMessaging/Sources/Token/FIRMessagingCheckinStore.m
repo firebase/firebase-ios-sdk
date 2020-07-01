@@ -99,11 +99,10 @@ NSString *const kFIRMessagingCheckinKeychainService = @"com.google.iid.checkin";
   }
   if (![checkinPlistContents count]) {
     NSString *failureReason = @"Failed to get checkin plist contents from memory.";
-    FIRMessagingLoggerDebug(kFIRMessagingMessageCodeCheckinStore001,
-                            @"%@", failureReason);
+    FIRMessagingLoggerDebug(kFIRMessagingMessageCodeCheckinStore001, @"%@", failureReason);
     if (handler) {
-      handler(
-          [NSError messagingErrorWithCode:kFIRMessagingErrorCodeRegistrarFailedToCheckIn failureReason:failureReason]);
+      handler([NSError messagingErrorWithCode:kFIRMessagingErrorCodeRegistrarFailedToCheckIn
+                                failureReason:failureReason]);
     }
     return;
   }
@@ -172,8 +171,8 @@ NSString *const kFIRMessagingCheckinKeychainService = @"com.google.iid.checkin";
   // Check info found in keychain
   NSString *checkinKeychainContent = [[NSString alloc] initWithData:item
                                                            encoding:NSUTF8StringEncoding];
-  FIRMessagingCheckinPreferences *checkinPreferences =
-      [FIRMessagingCheckinPreferences preferencesFromKeychainContents:[checkinKeychainContent copy]];
+  FIRMessagingCheckinPreferences *checkinPreferences = [FIRMessagingCheckinPreferences
+      preferencesFromKeychainContents:[checkinKeychainContent copy]];
 
   NSDictionary *checkinPlistContents = [self.plist contentAsDictionary];
 

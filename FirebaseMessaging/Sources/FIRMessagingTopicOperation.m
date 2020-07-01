@@ -71,7 +71,7 @@ NSString *FIRMessagingSubscriptionsServer() {
 
 - (instancetype)initWithTopic:(NSString *)topic
                        action:(FIRMessagingTopicAction)action
-                        tokenManager:(FIRMessagingTokenManager *)tokenManager
+                 tokenManager:(FIRMessagingTokenManager *)tokenManager
                       options:(NSDictionary *)options
                    completion:(FIRMessagingTopicOperationCompletion)completion {
   if (self = [super init]) {
@@ -157,11 +157,11 @@ NSString *FIRMessagingSubscriptionsServer() {
   NSURL *url = [NSURL URLWithString:FIRMessagingSubscriptionsServer()];
   NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
   NSString *appIdentifier = FIRMessagingAppIdentifier();
-  NSString *authString = [NSString stringWithFormat:@"AidLogin %@:%@", _tokenManager.deviceAuthID, _tokenManager.secretToken];
+  NSString *authString = [NSString
+      stringWithFormat:@"AidLogin %@:%@", _tokenManager.deviceAuthID, _tokenManager.secretToken];
   [request setValue:authString forHTTPHeaderField:@"Authorization"];
   [request setValue:appIdentifier forHTTPHeaderField:@"app"];
-  [request setValue:_tokenManager.versionInfo
-      forHTTPHeaderField:@"info"];
+  [request setValue:_tokenManager.versionInfo forHTTPHeaderField:@"info"];
 
   // Topic can contain special characters (like `%`) so encode the value.
   NSCharacterSet *characterSet = [NSCharacterSet URLQueryAllowedCharacterSet];
@@ -179,8 +179,8 @@ NSString *FIRMessagingSubscriptionsServer() {
   NSMutableString *content = [NSMutableString
       stringWithFormat:@"sender=%@&app=%@&device=%@&"
                        @"app_ver=%@&X-gcm.topic=%@&X-scope=%@",
-                       _tokenManager.token, appIdentifier, _tokenManager.deviceAuthID, FIRMessagingCurrentAppVersion(),
-                       encodedTopic, encodedTopic];
+                       _tokenManager.token, appIdentifier, _tokenManager.deviceAuthID,
+                       FIRMessagingCurrentAppVersion(), encodedTopic, encodedTopic];
 
   if (self.action == FIRMessagingTopicActionUnsubscribe) {
     [content appendString:@"&delete=true"];
