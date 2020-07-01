@@ -37,7 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithTopic:(NSString *)topic
                        action:(FIRMessagingTopicAction)action
-                        tokenManager:(FIRMessagingTokenManager *)tokenManager
+                 tokenManager:(FIRMessagingTokenManager *)tokenManager
                       options:(nullable NSDictionary *)options
                    completion:(FIRMessagingTopicOperationCompletion)completion;
 

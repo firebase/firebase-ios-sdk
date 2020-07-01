@@ -66,7 +66,6 @@ static const int64_t kMaxCheckinRetryIntervalInSeconds = 1 << 5;
 }
 
 - (void)dealloc {
-  
   [_scheduledCheckinTimer invalidate];
   [_checkinHandlers release];
   [_checkinPreferences release];
@@ -133,7 +132,8 @@ static const int64_t kMaxCheckinRetryIntervalInSeconds = 1 << 5;
   }
 
   FIRMessaging_WEAKIFY(self);
-  [self fetchCheckinInfoWithHandler:^(FIRMessagingCheckinPreferences * _Nullable checkinPreferences, NSError * _Nullable error) {
+  [self fetchCheckinInfoWithHandler:^(FIRMessagingCheckinPreferences *_Nullable checkinPreferences,
+                                      NSError *_Nullable error) {
     FIRMessaging_STRONGIFY(self);
     self.checkinRetryCount++;
 
@@ -290,7 +290,7 @@ static const int64_t kMaxCheckinRetryIntervalInSeconds = 1 << 5;
   }
 }
 
--(void)setCheckinHandlers:(NSMutableArray<FIRMessagingDeviceCheckinCompletion> *)checkinHandlers {
+- (void)setCheckinHandlers:(NSMutableArray<FIRMessagingDeviceCheckinCompletion> *)checkinHandlers {
   NSLog(@"%lu", (unsigned long)self.checkinHandlers.count);
 }
 

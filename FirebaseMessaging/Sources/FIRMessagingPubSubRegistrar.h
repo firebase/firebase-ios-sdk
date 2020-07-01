@@ -36,7 +36,7 @@
  *                      finishes.
  */
 - (void)updateSubscriptionToTopic:(NSString *)topic
-                        withTokenManager:(FIRMessagingTokenManager *)tokenManager
+                 withTokenManager:(FIRMessagingTokenManager *)tokenManager
                           options:(NSDictionary *)options
                      shouldDelete:(BOOL)shouldDelete
                           handler:(FIRMessagingTopicOperationCompletion)handler;

@@ -35,6 +35,7 @@ static NSString *const kFIRMessagingParamFCMLibVersion = @"X-cliv";
 @interface FIRMessagingTokenOperation () {
   BOOL _isFinished;
   BOOL _isExecuting;
+  NSMutableArray<FIRMessagingTokenOperationCompletion> *_completionHandlers;
 }
 
 @property(nonatomic, readwrite, strong) FIRMessagingCheckinPreferences *checkinPreferences;
@@ -72,7 +73,7 @@ static NSString *const kFIRMessagingParamFCMLibVersion = @"X-cliv";
     _options = [options copy];
     _checkinPreferences = checkinPreferences;
     _instanceID = instanceID;
-    _completionHandlers = [NSMutableArray array];
+    _completionHandlers = [[NSMutableArray alloc] init];
 
     _isExecuting = NO;
     _isFinished = NO;
@@ -93,7 +94,7 @@ static NSString *const kFIRMessagingParamFCMLibVersion = @"X-cliv";
 }
 
 - (void)addCompletionHandler:(FIRMessagingTokenOperationCompletion)handler {
-  [self.completionHandlers addObject:handler];
+  [_completionHandlers addObject:[handler copy]];
 }
 
 - (BOOL)isAsynchronous {
@@ -106,7 +107,7 @@ static NSString *const kFIRMessagingParamFCMLibVersion = @"X-cliv";
 
 - (void)setExecuting:(BOOL)executing {
   [self willChangeValueForKey:@"isExecuting"];
-    _isExecuting = executing;
+  _isExecuting = executing;
   [self didChangeValueForKey:@"isExecuting"];
 }
 
@@ -161,11 +162,9 @@ static NSString *const kFIRMessagingParamFCMLibVersion = @"X-cliv";
   }
   self.dataTask = nil;
   _result = result;
-  // TODO(chliangGoogle): Call these in the main thread?
-  if (self.completionHandlers) {
-  for (FIRMessagingTokenOperationCompletion completionHandler in self.completionHandlers) {
+  for (FIRMessagingTokenOperationCompletion completionHandler in _completionHandlers) {
     completionHandler(result, token, error);
-  }}
+  }
 
   [self setExecuting:NO];
   [self setFinished:YES];

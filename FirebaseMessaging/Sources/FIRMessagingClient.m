@@ -85,7 +85,7 @@ static NSUInteger FIRMessagingServerPort() {
 // FIRMessagingService owns these instances
 @property(nonatomic, readwrite, weak) FIRMessagingRmqManager *rmq2Manager;
 @property(nonatomic, readwrite, weak) GULReachabilityChecker *reachability;
-@property(nonatomic, readwrite, weak) FIRMessagingTokenManager * tokenManager;
+@property(nonatomic, readwrite, weak) FIRMessagingTokenManager *tokenManager;
 
 @property(nonatomic, readwrite, assign) int64_t lastConnectedTimestamp;
 @property(nonatomic, readwrite, assign) int64_t lastDisconnectedTimestamp;
@@ -116,7 +116,7 @@ static NSUInteger FIRMessagingServerPort() {
 - (instancetype)initWithDelegate:(id<FIRMessagingClientDelegate>)delegate
                     reachability:(GULReachabilityChecker *)reachability
                      rmq2Manager:(FIRMessagingRmqManager *)rmq2Manager
-                    tokenManager:(FIRMessagingTokenManager *)tokenManager{
+                    tokenManager:(FIRMessagingTokenManager *)tokenManager {
   self = [super init];
   if (self) {
     _reachability = reachability;
@@ -193,7 +193,7 @@ static NSUInteger FIRMessagingServerPort() {
 
   if ([_tokenManager hasValidCheckinInfo]) {
     [self.registrar updateSubscriptionToTopic:topic
-                                    withTokenManager:_tokenManager
+                             withTokenManager:_tokenManager
                                       options:options
                                  shouldDelete:shouldDelete
                                       handler:completion];
@@ -432,14 +432,13 @@ static NSUInteger FIRMessagingServerPort() {
     [self.connection signOut];
     self.connection.delegate = nil;
   }
-  self.connection = [[FIRMessagingConnection alloc]
-      initWithAuthID:_tokenManager.deviceAuthID
-               token:_tokenManager.secretToken
-                host:host
-                port:port
-             runLoop:[NSRunLoop mainRunLoop]
-         rmq2Manager:self.rmq2Manager
-          fcmManager:self.dataMessageManager];
+  self.connection = [[FIRMessagingConnection alloc] initWithAuthID:_tokenManager.deviceAuthID
+                                                             token:_tokenManager.secretToken
+                                                              host:host
+                                                              port:port
+                                                           runLoop:[NSRunLoop mainRunLoop]
+                                                       rmq2Manager:self.rmq2Manager
+                                                        fcmManager:self.dataMessageManager];
   self.connection.delegate = self;
 }
 

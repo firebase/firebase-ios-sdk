@@ -18,6 +18,7 @@
 
 #import <FirebaseInstallations/FIRInstallations.h>
 
+#import "FIRInstanceIDTokenInfo.h"
 #import "FIRMessagingAuthKeyChain.h"
 #import "FIRMessagingAuthService.h"
 #import "FIRMessagingCheckinPreferences.h"
@@ -27,7 +28,6 @@
 #import "FIRMessagingStore.h"
 #import "FIRMessagingTokenDeleteOperation.h"
 #import "FIRMessagingTokenFetchOperation.h"
-#import "FIRInstanceIDTokenInfo.h"
 #import "FIRMessagingTokenOperation.h"
 #import "NSError+FIRMessaging.h"
 
@@ -82,9 +82,9 @@
     [self tokenWithAuthorizedEntity:self.fcmSenderID
                               scope:kFIRMessagingDefaultTokenScope
                             options:[self tokenOptions]
-                            handler:^(NSString * _Nullable FCMToken, NSError * _Nullable error) {
-      
-    }];
+                            handler:^(NSString *_Nullable FCMToken, NSError *_Nullable error){
+
+                            }];
     return nil;
   }
 }
@@ -190,7 +190,7 @@
 
         FIRMessaging_WEAKIFY(self);
         [_installations installationIDWithCompletion:^(NSString *_Nullable identifier,
-                                                           NSError *_Nullable error) {
+                                                       NSError *_Nullable error) {
           FIRMessaging_STRONGIFY(self);
 
           if (error) {
@@ -246,10 +246,10 @@
         NSString *firebaseAppID = options[kFIRMessagingTokenOptionsFirebaseAppIDKey];
         FIRInstanceIDTokenInfo *tokenInfo =
             [[FIRInstanceIDTokenInfo alloc] initWithAuthorizedEntity:authorizedEntity
-                                                              scope:scope
-                                                              token:token
-                                                         appVersion:FIRMessagingCurrentAppVersion()
-                                                      firebaseAppID:firebaseAppID];
+                                                               scope:scope
+                                                               token:token
+                                                          appVersion:FIRMessagingCurrentAppVersion()
+                                                       firebaseAppID:firebaseAppID];
         tokenInfo.APNSInfo = [[FIRInstanceIDAPNSInfo alloc] initWithTokenOptionsDictionary:options];
 
         [self.instanceIDStore
@@ -289,7 +289,7 @@
 }
 
 - (FIRInstanceIDTokenInfo *)cachedTokenInfoWithAuthorizedEntity:(NSString *)authorizedEntity
-                                                         scope:(NSString *)scope {
+                                                          scope:(NSString *)scope {
   return [self.instanceIDStore tokenInfoWithAuthorizedEntity:authorizedEntity scope:scope];
 }
 
@@ -457,11 +457,11 @@
 }
 
 - (NSArray<FIRInstanceIDTokenInfo *> *)updateTokensToAPNSDeviceToken:(NSData *)deviceToken
-                                                          isSandbox:(BOOL)isSandbox {
+                                                           isSandbox:(BOOL)isSandbox {
   // Each cached IID token that is missing an APNSInfo, or has an APNSInfo associated should be
   // checked and invalidated if needed.
   FIRInstanceIDAPNSInfo *APNSInfo = [[FIRInstanceIDAPNSInfo alloc] initWithDeviceToken:deviceToken
-                                                                           isSandbox:isSandbox];
+                                                                             isSandbox:isSandbox];
   if ([self.currentAPNSInfo isEqualToAPNSInfo:APNSInfo]) {
     return @[];
   }
@@ -509,7 +509,7 @@
     isSandboxApp = FIRMessagingIsSandboxApp();
   }
   self.currentAPNSInfo = [[FIRInstanceIDAPNSInfo alloc] initWithDeviceToken:[APNSToken copy]
-                                                                 isSandbox:isSandboxApp];
+                                                                  isSandbox:isSandboxApp];
 
   // Pro-actively invalidate the default token, if the APNs change makes it
   // invalid. Previously, we invalidated just before fetching the token.

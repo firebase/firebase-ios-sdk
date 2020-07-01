@@ -52,9 +52,9 @@ NSString *const kFIRInstanceIDAPNSInfoSandboxKey = @"sandbox";
   return self;
 }
 
--(void)dealloc {
+- (void)dealloc {
   [_deviceToken release];
-  
+
   [super dealloc];
 }
 

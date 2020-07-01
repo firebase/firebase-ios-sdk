@@ -107,19 +107,20 @@ static NSUInteger const kFragment = 0;
                                                                      options:0
                                                                        error:&serializationError];
         if (serializationError) {
-//          FIRMessagingLoggerDebug(kFIRMessagingMessageCodeService001,
-//                                  @"Error serializing json object. Error Code: %ld",
-//                                  (long)serializationError.code);
-//          if (completion) {
-//            completion(nil, serializationError);
-//          }
-//          return;
+          //          FIRMessagingLoggerDebug(kFIRMessagingMessageCodeService001,
+          //                                  @"Error serializing json object. Error Code: %ld",
+          //                                  (long)serializationError.code);
+          //          if (completion) {
+          //            completion(nil, serializationError);
+          //          }
+          //          return;
         }
 
         NSString *deviceAuthID = [dataResponse[@"android_id"] stringValue];
         NSString *secretToken = [dataResponse[@"security_token"] stringValue];
         if ([deviceAuthID length] == 0) {
-          NSError *error = [NSError messagingErrorWithCode:kFIRMessagingErrorCodeInvalidRequest failureReason:@"Invalid device auth ID."];
+          NSError *error = [NSError messagingErrorWithCode:kFIRMessagingErrorCodeInvalidRequest
+                                             failureReason:@"Invalid device auth ID."];
           if (completion) {
             completion(nil, error);
           }
@@ -176,11 +177,6 @@ static NSUInteger const kFragment = 0;
           completion(checkinPreferences, nil);
         }
       };
-  NSURLSessionConfiguration *config = [NSURLSessionConfiguration defaultSessionConfiguration];
-  config.timeoutIntervalForResource = 60.0f;  // 1 minute
-  config.allowsCellularAccess = YES;
-  _session = [NSURLSession sessionWithConfiguration:config];
-  _session.sessionDescription = @"com.google.iid-checkin";
   NSURLSessionDataTask *task = [_session dataTaskWithRequest:request completionHandler:handler];
   [task resume];
 }

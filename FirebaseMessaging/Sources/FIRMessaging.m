@@ -44,8 +44,8 @@
 #import "FirebaseMessaging/Sources/FIRMessagingVersionUtilities.h"
 #import "FirebaseMessaging/Sources/FIRMessaging_Private.h"
 #import "FirebaseMessaging/Sources/NSError+FIRMessaging.h"
-#import "FirebaseMessaging/Sources/Token/FIRMessagingTokenManager.h"
 #import "FirebaseMessaging/Sources/Token/FIRInstanceIDTokenInfo.h"
+#import "FirebaseMessaging/Sources/Token/FIRMessagingTokenManager.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingTokenStore.h"
 
 static NSString *const kFIRMessagingMessageViaAPNSRootKey = @"aps";
@@ -272,26 +272,32 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 }
 
 - (void)didCompleteConfigure {
-  NSString *cachedToken = [self.tokenManager cachedTokenInfoWithAuthorizedEntity:self.tokenManager.fcmSenderID scope:kFIRMessagingDefaultTokenScope].token;
+  NSString *cachedToken =
+      [self.tokenManager cachedTokenInfoWithAuthorizedEntity:self.tokenManager.fcmSenderID
+                                                       scope:kFIRMessagingDefaultTokenScope]
+          .token;
   // When there is a cached token, do the token refresh.
   if (cachedToken) {
     // Clean up expired tokens by checking the token refresh policy.
-    [self.installations
-        installationIDWithCompletion:^(NSString *_Nullable identifier, NSError *_Nullable error) {
-          if ([self.tokenManager checkTokenRefreshPolicyWithIID:identifier]) {
-            // Default token is expired, fetch default token from server.
-            [self retrieveFCMTokenForSenderID:self.tokenManager.fcmSenderID completion:^(NSString * _Nullable FCMToken, NSError * _Nullable error) {
-              self.defaultFcmToken = FCMToken;
-            }];
-          }
-        }];
+    [self.installations installationIDWithCompletion:^(NSString *_Nullable identifier,
+                                                       NSError *_Nullable error) {
+      if ([self.tokenManager checkTokenRefreshPolicyWithIID:identifier]) {
+        // Default token is expired, fetch default token from server.
+        [self
+            retrieveFCMTokenForSenderID:self.tokenManager.fcmSenderID
+                             completion:^(NSString *_Nullable FCMToken, NSError *_Nullable error) {
+                               self.defaultFcmToken = FCMToken;
+                             }];
+      }
+    }];
   } else if (self.isAutoInitEnabled) {
     // When there is no cached token, must check auto init is enabled.
     // If it's disabled, don't initiate token generation/refresh.
     // If no cache token and auto init is enabled, fetch a token from server.
-    [self retrieveFCMTokenForSenderID:self.tokenManager.fcmSenderID completion:^(NSString * _Nullable FCMToken, NSError * _Nullable error) {
-      self.defaultFcmToken = FCMToken;
-    }];
+    [self retrieveFCMTokenForSenderID:self.tokenManager.fcmSenderID
+                           completion:^(NSString *_Nullable FCMToken, NSError *_Nullable error) {
+                             self.defaultFcmToken = FCMToken;
+                           }];
   }
 }
 
@@ -313,12 +319,10 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 }
 
 - (void)start {
-
   [self setupFileManagerSubDirectory];
   [self setupNotificationListeners];
   // TODO(chliang) make this non-singleton to support multi app.
   self.tokenManager = [[FIRMessagingTokenManager alloc] init];
-  
 
   self.installations = [FIRInstallations installations];
 
@@ -376,7 +380,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   self.client = [[FIRMessagingClient alloc] initWithDelegate:self
                                                 reachability:self.reachability
                                                  rmq2Manager:self.rmq2Manager
-                 tokenManager:_tokenManager];
+                                                tokenManager:_tokenManager];
 }
 
 - (void)setupDataMessageManager {
@@ -642,11 +646,10 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
                            @"set.",
                            senderID);
   }
-  [self.tokenManager
-      tokenWithAuthorizedEntity:senderID
-                          scope:kFIRMessagingDefaultTokenScope
-                        options:options
-                        handler:completion];
+  [self.tokenManager tokenWithAuthorizedEntity:senderID
+                                         scope:kFIRMessagingDefaultTokenScope
+                                       options:options
+                                       handler:completion];
 }
 
 - (void)deleteFCMTokenForSenderID:(nonnull NSString *)senderID
@@ -666,13 +669,12 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   FIRMessaging_WEAKIFY(self);
   [self.installations
       installationIDWithCompletion:^(NSString *_Nullable identifier, NSError *_Nullable error) {
-    FIRMessaging_STRONGIFY(self);
-    if (error) {
+        FIRMessaging_STRONGIFY(self);
+        if (error) {
           NSError *newError = [NSError messagingErrorWithCode:kFIRMessagingErrorCodeInvalidIdentity
                                                 failureReason:@"Failed to get installation ID."];
           completion(newError);
-        }
-        else {
+        } else {
           [self.tokenManager deleteTokenWithAuthorizedEntity:senderID
                                                        scope:kFIRMessagingDefaultTokenScope
                                                   instanceID:identifier
