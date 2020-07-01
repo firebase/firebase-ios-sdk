@@ -112,17 +112,16 @@ NSData *_Nullable FIRDataWithDictionary(NSDictionary *dictionary, NSError **_Nul
   FIRNetworkRequestCompletionHandler resolveLinkCallback = ^(NSData *data, NSURLResponse *response,
                                                              NSError *error) {
     NSURL *resolvedURL = nil;
-    NSHTTPURLResponse *resp = nil;
 
     if (![response isKindOfClass:[NSHTTPURLResponse class]]) {
-      NSError *err = [NSError
+      NSError *responseTypeError = [NSError
           errorWithDomain:kGenericErrorDomain
                      code:0
                  userInfo:@{@"message" : @"Response should be of type NSHTTPURLResponse."}];
-      handler(resolvedURL, error ? error : err);
+      handler(resolvedURL, error ? error : responseTypeError);
     } else {
-      resp = (NSHTTPURLResponse *)response;
-      if (resp.statusCode >= 200 && resp.statusCode < 300) {
+      NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
+      if (statusCode >= 200 && statusCode < 300) {
         if (!error && data) {
           NSDictionary *result = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
           if ([result isKindOfClass:[NSDictionary class]]) {
@@ -154,7 +153,7 @@ NSData *_Nullable FIRDataWithDictionary(NSDictionary *dictionary, NSError **_Nul
         if ([result isKindOfClass:[NSDictionary class]] && [result objectForKey:@"error"]) {
           id err = [result objectForKey:@"error"];
           NSError *customError = [NSError errorWithDomain:kGenericErrorDomain
-                                                     code:resp.statusCode
+                                                     code:statusCode
                                                  userInfo:err];
           handler(resolvedURL, customError);
         } else {
