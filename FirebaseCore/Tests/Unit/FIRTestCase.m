@@ -55,7 +55,7 @@ NSString *const kProjectID = @"abc-xyz-123";
   NSString *const kFIRBundleID = @"BUNDLE_ID";
   NSString *const kFIRProjectID = @"PROJECT_ID";
 
-  NSDictionary <NSString *, NSString *> * mockDictionary = @{
+  NSDictionary<NSString *, NSString *> *mockDictionary = @{
     kFIRAPIKey : kAPIKey,
     kFIRBundleID : kBundleID,
     kFIRClientID : kClientID,

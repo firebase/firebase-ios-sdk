@@ -66,8 +66,16 @@ let package = Package(
   ],
   dependencies: [
     .package(name: "Promises", url: "https://github.com/google/promises.git", "1.2.8" ..< "1.3.0"),
-    .package(name: "GTMSessionFetcher", url: "https://github.com/google/gtm-session-fetcher.git", "1.4.0" ..< "2.0.0"),
-    .package(name: "nanopb", url: "https://github.com/paulb777/nanopb.git", .branch("swift-package-manager")),
+    .package(
+      name: "GTMSessionFetcher",
+      url: "https://github.com/google/gtm-session-fetcher.git",
+      "1.4.0" ..< "2.0.0"
+    ),
+    .package(
+      name: "nanopb",
+      url: "https://github.com/paulb777/nanopb.git",
+      .branch("swift-package-manager")
+    ),
     .package(name: "OCMock", url: "https://github.com/paulb777/ocmock.git",
              .revision("70d8463")),
     // Branches need a force update with a run with the revision set like below.
@@ -137,7 +145,7 @@ let package = Package(
       name: "GoogleUtilities_Environment",
       dependencies: [.product(name: "FBLPromises", package: "Promises")],
       path: "GoogleUtilities/Environment",
-      exclude: [ "third_party/LICENSE" ],
+      exclude: ["third_party/LICENSE"],
       publicHeadersPath: "Private",
       cSettings: [
         .headerSearchPath("../../"),
@@ -225,7 +233,7 @@ let package = Package(
     ),
     .testTarget(
       name: "CoreUnit",
-      dependencies: [ "FirebaseCore", "OCMock" ],
+      dependencies: ["FirebaseCore", "OCMock"],
       path: "FirebaseCore/Tests/Unit",
       exclude: ["Resources/GoogleService-Info.plist"],
       cSettings: [
@@ -271,7 +279,10 @@ let package = Package(
     ),
     .target(
       name: "FirebaseFunctions",
-      dependencies: ["FirebaseCore", .product(name: "GTMSessionFetcherCore", package: "GTMSessionFetcher")],
+      dependencies: [
+        "FirebaseCore",
+        .product(name: "GTMSessionFetcherCore", package: "GTMSessionFetcher"),
+      ],
       path: "Functions/FirebaseFunctions",
       publicHeadersPath: "Public",
       cSettings: [
@@ -302,7 +313,10 @@ let package = Package(
     ),
     .target(
       name: "FirebaseStorage",
-      dependencies: ["FirebaseCore", .product(name: "GTMSessionFetcherCore", package: "GTMSessionFetcher")],
+      dependencies: [
+        "FirebaseCore",
+        .product(name: "GTMSessionFetcherCore", package: "GTMSessionFetcher"),
+      ],
       path: "FirebaseStorage/Sources",
       publicHeadersPath: "Public",
       cSettings: [
