@@ -183,7 +183,11 @@ NSString *const kGDTCORBatchComponentsExpirationKey = @"GDTCORBatchComponentsExp
         }
       }
       if (onComplete) {
-        onComplete(batchID, events);
+        if (events.count == 0) {
+          onComplete(nil, nil);
+        } else {
+          onComplete(batchID, events);
+        }
       }
     });
   };
