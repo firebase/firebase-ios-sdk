@@ -105,25 +105,36 @@
 #pragma mark - HTTP Path handling methods
 
 - (void)registerLogBatchPath {
-  id processBlock = ^GCDWebServerResponse *(__kindof GCDWebServerRequest *request) {
-    GCDWebServerDataResponse *response =
-        [[GCDWebServerDataResponse alloc] initWithData:[self responseData]
-                                           contentType:@"application/text"];
-    response.gzipContentEncodingEnabled = YES;
-    //    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1 * NSEC_PER_SEC),
-    //                   dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-    //
-    //                   });
-    if (self.responseCompletedBlock) {
-      self.responseCompletedBlock(request, response);
-    }
-
-    return response;
-  };
+  __auto_type __weak weakSelf = self;
   [self.server addHandlerForMethod:@"POST"
                               path:@"/logBatch"
                       requestClass:[GCDWebServerRequest class]
-                      processBlock:processBlock];
+                 asyncProcessBlock:^(__kindof GCDWebServerRequest *_Nonnull request,
+                                     GCDWebServerCompletionBlock _Nonnull completionBlock) {
+                   if (!weakSelf) {
+                     return;
+                   }
+                   __auto_type self = weakSelf;
+
+                   GCDWebServerDataResponse *response =
+                       [[GCDWebServerDataResponse alloc] initWithData:[self responseData]
+                                                          contentType:@"application/text"];
+                   response.gzipContentEncodingEnabled = YES;
+
+                   GCDWebServerCompletionBlock completionWithHook =
+                       ^(GCDWebServerResponse *_Nullable response) {
+                         if (self.responseCompletedBlock) {
+                           self.responseCompletedBlock(request, response);
+                         }
+                         completionBlock(response);
+                       };
+
+                   if (self.requestHandler) {
+                     self.requestHandler(request, response, completionWithHook);
+                   } else {
+                     completionWithHook(response);
+                   }
+                 }];
 }
 
 - (void)registerRedirectPaths {
