@@ -76,13 +76,13 @@
 }
 
 - (void)tearDown {
-  [super tearDown];
   dispatch_sync([GDTCORFlatFileStorage sharedInstance].storageQueue, ^{
                 });
   // Destroy these objects before the next test begins.
   [GDTCORFlatFileStorage sharedInstance].uploadCoordinator =
       [GDTCORUploadCoordinator sharedInstance];
   self.uploaderFake = nil;
+  [super tearDown];
 }
 
 /** Generates and returns a set of events that are generated randomly and stored.
