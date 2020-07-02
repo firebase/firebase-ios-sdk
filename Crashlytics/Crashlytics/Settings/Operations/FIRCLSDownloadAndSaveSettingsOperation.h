@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #import <Foundation/Foundation.h>
-#import "FIRCLSNetworkOperation.h"
+#import "Crashlytics/Crashlytics/Settings/Operations/FIRCLSNetworkOperation.h"
 
 @class FIRCLSDownloadAndSaveSettingsOperation;
 @class FIRCLSFABNetworkClient;

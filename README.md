@@ -140,20 +140,12 @@ To ensure that the code is formatted consistently, run the script
 before creating a PR.
 
 Travis will verify that any code changes are done in a style compliant way. Install
-`clang-format` and `swiftformat`.
-These commands will get the right versions:
+`clang-format` and `swiftformat`:
 
 ```
-brew upgrade https://raw.githubusercontent.com/Homebrew/homebrew-core/c6f1cbd/Formula/clang-format.rb
-brew upgrade https://raw.githubusercontent.com/Homebrew/homebrew-core/c13eda8/Formula/swiftformat.rb
+brew install clang-format
+brew install swiftformat
 ```
-
-Note: if you already have a newer version of these installed you may need to
-`brew switch` to this version.
-
-To update this section, find the versions of clang-format and swiftformat.rb to
-match the versions in the CI failure logs
-[here](https://github.com/Homebrew/homebrew-core/tree/master/Formula).
 
 ### Running Unit Tests
 

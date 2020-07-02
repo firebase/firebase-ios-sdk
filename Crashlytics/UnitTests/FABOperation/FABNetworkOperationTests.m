@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRCLSNetworkOperation.h"
+#import "Crashlytics/Crashlytics/Settings/Operations/FIRCLSNetworkOperation.h"
 
 #import <XCTest/XCTest.h>
 
-#import "FIRCLSConstants.h"
+#import "Crashlytics/Shared/FIRCLSConstants.h"
 
-#import "FIRCLSDataCollectionToken.h"
+#import "Crashlytics/Crashlytics/DataCollection/FIRCLSDataCollectionToken.h"
 
 @interface FABNetworkOperationTests : XCTestCase
 

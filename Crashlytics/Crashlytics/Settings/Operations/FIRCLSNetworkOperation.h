@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #import <Foundation/Foundation.h>
-#import "FIRCLSOperation.h"
+#import "Crashlytics/Shared/FIRCLSOperation/FIRCLSOperation.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

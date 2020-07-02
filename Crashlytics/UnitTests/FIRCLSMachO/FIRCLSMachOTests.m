@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRCLSMachOTests.h"
+#import "Crashlytics/UnitTests/FIRCLSMachO/FIRCLSMachOTests.h"
 
-#import "FIRCLSMachO.h"
+#import "Crashlytics/Shared/FIRCLSMachO/FIRCLSMachO.h"
 
-#import "FIRCLSMachOBinary.h"
-#import "FIRCLSMachOSlice.h"
-#import "FIRCLSdSYM.h"
+#import "Crashlytics/Shared/FIRCLSMachO/FIRCLSMachOBinary.h"
+#import "Crashlytics/Shared/FIRCLSMachO/FIRCLSMachOSlice.h"
+#import "Crashlytics/Shared/FIRCLSMachO/FIRCLSdSYM.h"
 
 @implementation FIRCLSMachOTests
 

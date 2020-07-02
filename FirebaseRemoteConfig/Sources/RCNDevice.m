@@ -224,8 +224,8 @@ BOOL FIRRemoteConfigHasDeviceContextChanged(NSDictionary *deviceContext,
   if (![deviceContext[RCNDeviceContextKeyBuild] isEqual:FIRRemoteConfigAppBuildVersion()]) {
     return YES;
   }
-  if (!
-      [deviceContext[RCNDeviceContextKeyOSVersion] isEqual:[GULAppEnvironmentUtil systemVersion]]) {
+  if (![deviceContext[RCNDeviceContextKeyOSVersion]
+          isEqual:[GULAppEnvironmentUtil systemVersion]]) {
     return YES;
   }
   if (![deviceContext[RCNDeviceContextKeyDeviceLocale] isEqual:FIRRemoteConfigDeviceLocale()]) {

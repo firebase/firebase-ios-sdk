@@ -32,8 +32,10 @@ struct OSSManifestGenerator: ParsableCommand {
           transform: URL.init(fileURLWithPath:))
   var currentRelease: URL
 
-  @Option(help: "The file path to a textproto file containing all existing Pods, of type `ZipBuilder_FirebaseSDKs.",
-          transform: URL.init(fileURLWithPath:))
+  @Option(
+    help: "The file path to a textproto file containing all existing Pods, of type `ZipBuilder_FirebaseSDKs.",
+    transform: URL.init(fileURLWithPath:)
+  )
   var existingVersions: URL
 
   mutating func validate() throws {
