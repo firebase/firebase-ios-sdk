@@ -62,9 +62,16 @@
 - (void)removeBatchWithID:(nonnull NSNumber *)batchID
              deleteEvents:(BOOL)deleteEvents
                onComplete:(void (^_Nullable)(void))onComplete {
-  [_batches removeObjectForKey:batchID];
+  if (deleteEvents) {
+    [_batches removeObjectForKey:batchID];
+    [self.removeBatchAndDeleteEventsExpectation fulfill];
+  } else {
+    for (GDTCOREvent *batchedEvent in _batches[batchID]) {
+      _storedEvents[batchedEvent.eventID] = batchedEvent;
+    }
+    [self.removeBatchWithoutDeletingEventsExpectation fulfill];
+  }
 
-  [self.removeBatchWithIDExpectation fulfill];
   if (onComplete) {
     onComplete();
   }
@@ -114,10 +121,10 @@
 
 - (void)eventsInBatchWithID:(NSNumber *)batchID
                  onComplete:(void (^)(NSSet<GDTCOREvent *> *_Nullable events))onComplete {
-  [self.eventsInBatchWithIDExpectation fulfill];
-  if (onComplete) {
-    onComplete(self->_batches[batchID]);
-  }
+  //  [self.eventsInBatchWithIDExpectation fulfill];
+  //  if (onComplete) {
+  //    onComplete(self->_batches[batchID]);
+  //  }
 }
 
 - (void)checkForExpirations {

@@ -391,7 +391,7 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
                     conditions:(GDTCORUploadConditions)conditions
                     completion:(GDTCCTUploaderEventBatchBlock)completion {
   // 1. Check if the conditions for the target are suitable.
-  if (![self readyToUploadTarget:target conditions:conditions storage:storage]) {
+  if (![self readyToUploadTarget:target conditions:conditions]) {
     completion(nil, nil);
     return;
   }
@@ -431,7 +431,7 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
     }
 
     // Check if the conditions are still met before starting upload.
-    if (![self readyToUploadTarget:target conditions:conditions storage:storage]) {
+    if (![self readyToUploadTarget:target conditions:conditions]) {
       completion(nil, nil);
       return;
     }
@@ -482,9 +482,7 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
 #pragma mark - Private helper methods
 
 /** */
-- (BOOL)readyToUploadTarget:(GDTCORTarget)target
-                 conditions:(GDTCORUploadConditions)conditions
-                    storage:(id<GDTCORStorageProtocol>)storage {
+- (BOOL)readyToUploadTarget:(GDTCORTarget)target conditions:(GDTCORUploadConditions)conditions {
   if (self.isCurrentlyUploading) {
     GDTCORLogDebug(@"%@", @"CCT: Wait until previous upload finishes. The current version supports "
                           @"only a single batch uploading at the time.");

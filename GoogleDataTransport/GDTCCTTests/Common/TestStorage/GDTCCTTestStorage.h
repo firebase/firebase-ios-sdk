@@ -34,9 +34,9 @@ typedef void (^GDTCCTTestStorageHasEventsHandler)(GDTCORTarget target,
 #pragma mark - Method call expectations.
 
 @property(nonatomic, nullable) XCTestExpectation *batchWithEventSelectorExpectation;
-@property(nonatomic, nullable) XCTestExpectation *removeBatchWithIDExpectation;
+@property(nonatomic, nullable) XCTestExpectation *removeBatchAndDeleteEventsExpectation;
+@property(nonatomic, nullable) XCTestExpectation *removeBatchWithoutDeletingEventsExpectation;
 @property(nonatomic, nullable) XCTestExpectation *batchIDsForTargetExpectation;
-@property(nonatomic, nullable) XCTestExpectation *eventsInBatchWithIDExpectation;
 
 #pragma mark - Blocks to provide custom implementations for the methods.
 
