@@ -146,7 +146,8 @@
   [self waitForUploadOperationsToFinish:uploader];
 }
 
-/** Tests that when there is an ongoing upload no other uploads are started until the 1st finishes. Once 1st finished, another one can be started. */
+/** Tests that when there is an ongoing upload no other uploads are started until the 1st finishes.
+ * Once 1st finished, another one can be started. */
 - (void)testUploadTargetWhenThereIsOngoingUploadThenNoOp {
   GDTCCTUploader *uploader = [[GDTCCTUploader alloc] init];
 
@@ -157,20 +158,22 @@
   // Block to call to finish the 1st request.
   __block dispatch_block_t requestCompletionBlock;
   __auto_type __weak weakSelf = self;
-  XCTestExpectation *serverRequestExpectation1 = [self expectationWithDescription:@"serverRequestExpectation1"];
-  self.testServer.requestHandler = ^(GCDWebServerRequest * _Nonnull request, GCDWebServerResponse * _Nullable suggestedResponse, GCDWebServerCompletionBlock  _Nonnull completionBlock) {
+  XCTestExpectation *serverRequestExpectation1 =
+      [self expectationWithDescription:@"serverRequestExpectation1"];
+  self.testServer.requestHandler =
+      ^(GCDWebServerRequest *_Nonnull request, GCDWebServerResponse *_Nullable suggestedResponse,
+        GCDWebServerCompletionBlock _Nonnull completionBlock) {
+        weakSelf.testServer.requestHandler = nil;
+        requestCompletionBlock = ^{
+          completionBlock(suggestedResponse);
+        };
 
-    weakSelf.testServer.requestHandler = nil;
-    requestCompletionBlock = ^{
-      completionBlock(suggestedResponse);
-    };
-
-    [serverRequestExpectation1 fulfill];
-  };
+        [serverRequestExpectation1 fulfill];
+      };
 
   // 0.3. Configure storage.
   XCTestExpectation *hasEventsExpectation1 = [self expectStorageHasEventsForTarget:kGDTCORTargetTest
-  result:YES];
+                                                                            result:YES];
 
   // 0.4. Start upload 1st upload.
   uploader.testServerURL = [self.testServer.serverURL URLByAppendingPathComponent:@"logBatch"];
@@ -182,7 +185,7 @@
   // 1. Test 2nd request.
   // 1.0 Generate and store and an event.
   [self.generator generateEvent:GDTCOREventQoSFast];
-  
+
   // 1.1. Configure expectations for the 2nd request.
   // 1.1.1. Set up all relevant storage expectations.
   [self setUpStorageExpectations];
@@ -194,7 +197,7 @@
   self.testStorage.removeBatchAndDeleteEventsExpectation.inverted = YES;
 
   XCTestExpectation *hasEventsExpectation2 = [self expectStorageHasEventsForTarget:kGDTCORTargetTest
-  result:YES];
+                                                                            result:YES];
   hasEventsExpectation2.inverted = YES;
 
   // 1.2. Start upload 2nd time.
@@ -202,8 +205,7 @@
 
   // 1.3. Wait for expectations.
   [self waitForExpectations:@[
-    self.testStorage.batchIDsForTargetExpectation,
-    hasEventsExpectation2,
+    self.testStorage.batchIDsForTargetExpectation, hasEventsExpectation2,
     self.testStorage.batchWithEventSelectorExpectation,
     self.testStorage.removeBatchWithoutDeletingEventsExpectation,
     self.testStorage.removeBatchAndDeleteEventsExpectation
@@ -220,7 +222,7 @@
 
   // 3.1.2. Expect `hasEventsForTarget:onComplete:` to be called.
   XCTestExpectation *hasEventsExpectation3 = [self expectStorageHasEventsForTarget:kGDTCORTargetTest
-                                                                           result:YES];
+                                                                            result:YES];
 
   // 3.1.3. Don't expect previously batched events to be removed (no batch present).
   self.testStorage.removeBatchWithoutDeletingEventsExpectation.inverted = YES;

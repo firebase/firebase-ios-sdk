@@ -133,6 +133,7 @@ NSString *const kGDTCORBatchComponentsExpirationKey = @"GDTCORBatchComponentsExp
 
     // Check the QoS, if it's high priority, notify the target that it has a high priority event.
     if (event.qosTier == GDTCOREventQoSFast) {
+      // TODO: Remove a direct dependency on the upload coordinator.
       [self.uploadCoordinator forceUploadForTarget:target];
     }
 
@@ -298,40 +299,6 @@ NSString *const kGDTCORBatchComponentsExpirationKey = @"GDTCORBatchComponentsExp
     }
     if (onComplete) {
       onComplete(batchIDs);
-    }
-  });
-}
-
-- (void)eventsInBatchWithID:(NSNumber *)batchID
-                 onComplete:(void (^)(NSSet<GDTCOREvent *> *_Nullable events))onComplete {
-  dispatch_async(_storageQueue, ^{
-    NSError *error;
-    NSArray<NSString *> *batchEventPaths = [self eventPathsForBatchID:batchID error:&error];
-
-    if (batchEventPaths == nil) {
-      if (onComplete) {
-        onComplete(nil);
-      }
-      return;
-    }
-
-    NSMutableSet<GDTCOREvent *> *events = [NSMutableSet set];
-
-    for (NSString *eventPath in batchEventPaths) {
-      GDTCOREvent *event =
-          (GDTCOREvent *)GDTCORDecodeArchive([GDTCOREvent class], eventPath, nil, &error);
-      if (event) {
-        [events addObject:event];
-      } else {
-        GDTCORLogDebug(@"Error deserializing event: %@", error);
-        [[NSFileManager defaultManager] removeItemAtPath:eventPath error:nil];
-      }
-    }
-
-    // TODO: Delete batch directory if no events found.
-
-    if (onComplete) {
-      onComplete([events copy]);
     }
   });
 }

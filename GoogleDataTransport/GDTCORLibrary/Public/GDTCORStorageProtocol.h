@@ -77,15 +77,6 @@ typedef void (^GDTCORStorageBatchBlock)(NSNumber *_Nullable newBatchID,
 - (void)batchIDsForTarget:(GDTCORTarget)target
                onComplete:(void (^)(NSSet<NSNumber *> *_Nullable batchIDs))onComplete;
 
-/** Retrieves events for a batch with the specified ID. If a batch with ID is not found, passes
- * `nil` to the completion.
- * @param batchID A batch ID to fetch events for.
- * @param onComplete The completion handler to call when the events have been fetched. A set of
- * events will be passed to if there are or `nil` in case of an error or no events found.
- */
-- (void)eventsInBatchWithID:(NSNumber *)batchID
-                 onComplete:(void (^)(NSSet<GDTCOREvent *> *_Nullable events))onComplete;
-
 /** Checks the storage for expired events and batches, deletes them if they're expired. */
 - (void)checkForExpirations;
 

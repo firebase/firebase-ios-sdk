@@ -58,9 +58,6 @@
 
 @interface GDTCORFlatFileStorageTest : GDTCORTestCase
 
-/** The test backend implementation. */
-@property(nullable, nonatomic) GDTCORTestUploader *testBackend;
-
 /** The uploader fake. */
 @property(nonatomic) GDTCORUploadCoordinatorFake *uploaderFake;
 
@@ -70,11 +67,8 @@
 
 - (void)setUp {
   [super setUp];
-  self.testBackend = [[GDTCORTestUploader alloc] init];
   [[GDTCORRegistrar sharedInstance] reset];
   [[GDTCORFlatFileStorage sharedInstance] reset];
-  [[GDTCORRegistrar sharedInstance] registerUploader:_testBackend target:kGDTCORTargetTest];
-  [[GDTCORRegistrar sharedInstance] registerUploader:_testBackend target:kGDTCORTargetFLL];
   self.uploaderFake = [[GDTCORUploadCoordinatorFake alloc] init];
   [GDTCORFlatFileStorage sharedInstance].uploadCoordinator = self.uploaderFake;
   [[GDTCORFlatFileStorage sharedInstance] reset];
@@ -86,7 +80,6 @@
   dispatch_sync([GDTCORFlatFileStorage sharedInstance].storageQueue, ^{
                 });
   // Destroy these objects before the next test begins.
-  self.testBackend = nil;
   [GDTCORFlatFileStorage sharedInstance].uploadCoordinator =
       [GDTCORUploadCoordinator sharedInstance];
   self.uploaderFake = nil;
@@ -936,26 +929,6 @@
              }];
 
   [self waitForExpectations:@[ batchIDsExpectation ] timeout:5];
-}
-
-- (void)testEventsInBatchWithID {
-  __auto_type expectedBatch = [self generateAndBatchEvents];
-  NSNumber *batchID = [expectedBatch.allKeys firstObject];
-
-  XCTestExpectation *eventsInBatchWithIDExpectation =
-      [self expectationWithDescription:@"eventsInBatchWithIDExpectation"];
-
-  [[GDTCORFlatFileStorage sharedInstance]
-      eventsInBatchWithID:batchID
-               onComplete:^(NSSet<GDTCOREvent *> *_Nullable events) {
-                 [eventsInBatchWithIDExpectation fulfill];
-
-                 NSSet *eventIDs = [events valueForKeyPath:@"eventID"];
-                 NSSet *expectedEventIDs = [expectedBatch[batchID] valueForKeyPath:@"eventID"];
-                 XCTAssertEqualObjects(eventIDs, expectedEventIDs);
-               }];
-
-  [self waitForExpectations:@[ eventsInBatchWithIDExpectation ] timeout:5];
 }
 
 /** Tests batch expiring at a given time. */

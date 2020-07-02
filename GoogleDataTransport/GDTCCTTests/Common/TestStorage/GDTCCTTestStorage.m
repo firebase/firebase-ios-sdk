@@ -119,14 +119,6 @@
   }
 }
 
-- (void)eventsInBatchWithID:(NSNumber *)batchID
-                 onComplete:(void (^)(NSSet<GDTCOREvent *> *_Nullable events))onComplete {
-  //  [self.eventsInBatchWithIDExpectation fulfill];
-  //  if (onComplete) {
-  //    onComplete(self->_batches[batchID]);
-  //  }
-}
-
 - (void)checkForExpirations {
 }
 
