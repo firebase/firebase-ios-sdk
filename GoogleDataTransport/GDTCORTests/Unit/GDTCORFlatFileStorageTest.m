@@ -903,27 +903,9 @@
   GDTCORFlatFileStorage *storage = [[GDTCORFlatFileStorage alloc] init];
 
   // 0. Prepare a batch to remove.
-  __auto_type generatedEvents = [self generateEventsForTarget:kGDTCORTargetTest count:10];
-  __block NSNumber *batchIDToRemove;
-  XCTestExpectation *eventsBatchedExpectation1 =
-      [self expectationWithDescription:@"eventsBatchedExpectation1"];
-
-  GDTCORStorageEventSelector *testEventsSelector =
-      [[GDTCORStorageEventSelector alloc] initWithTarget:kGDTCORTargetTest
-                                                eventIDs:nil
-                                              mappingIDs:nil
-                                                qosTiers:nil];
-  [storage batchWithEventSelector:testEventsSelector
-                  batchExpiration:[NSDate distantFuture]
-                       onComplete:^(NSNumber *_Nullable newBatchID,
-                                    NSSet<GDTCOREvent *> *_Nullable batchEvents) {
-                         [eventsBatchedExpectation1 fulfill];
-                         XCTAssertNotNil(newBatchID);
-                         XCTAssertEqual(generatedEvents.count, batchEvents.count);
-
-                         batchIDToRemove = newBatchID;
-                       }];
-  [self waitForExpectations:@[ eventsBatchedExpectation1 ] timeout:0.5];
+  __auto_type generatedBatch = [self generateAndBatchEvents];
+  NSNumber *batchIDToRemove = [generatedBatch.allKeys firstObject];
+  NSSet<GDTCOREvent *> *generatedEvents = generatedBatch[batchIDToRemove];
 
   // 2. Remove batch.
   XCTestExpectation *batchRemovedExpectation =
@@ -935,7 +917,15 @@
                   }];
   [self waitForExpectations:@[ batchRemovedExpectation ] timeout:0.5];
 
-  // 3. Validate events.
+  // 3. Validate no batches.
+  [self assertBatchIDs:nil inStorage:storage];
+
+  // 4. Validate events.
+  GDTCORStorageEventSelector *testEventsSelector =
+      [[GDTCORStorageEventSelector alloc] initWithTarget:kGDTCORTargetTest
+                                                eventIDs:nil
+                                              mappingIDs:nil
+                                                qosTiers:nil];
   XCTestExpectation *eventsBatchedExpectation2 =
       [self expectationWithDescription:@"eventsBatchedExpectation1"];
   [storage batchWithEventSelector:testEventsSelector
@@ -955,15 +945,42 @@
   [self waitForExpectations:@[ eventsBatchedExpectation2 ] timeout:0.5];
 }
 
-- (void)testRemoveBatchWithIDDeletingEvents {
+- (void)testRemoveBatchWithIDWithNoDeletingEventsConflictingEvents {
   GDTCORFlatFileStorage *storage = [[GDTCORFlatFileStorage alloc] init];
 
-  // 0. Prepare a batch to remove.
-  __auto_type generatedEvents = [self generateEventsForTarget:kGDTCORTargetTest count:10];
-  __block NSNumber *batchIDToRemove;
-  XCTestExpectation *eventsBatchedExpectation1 =
-      [self expectationWithDescription:@"eventsBatchedExpectation1"];
+  // 0.1. Prepare a batch to remove.
+  __auto_type generatedBatch = [self generateAndBatchEvents];
+  NSNumber *batchIDToRemove = [generatedBatch.allKeys firstObject];
+  NSSet<GDTCOREvent *> *generatedEvents = generatedBatch[batchIDToRemove];
 
+  // 0.2. Store an event with conflicting ID.
+  [self storeEvent:[generatedEvents anyObject] inStorage:storage];
+
+  // 0.3. Store another event.
+  GDTCOREvent *differentEvent = [GDTCOREventGenerator generateEventForTarget:kGDTCORTargetTest
+                                                                     qosTier:nil
+                                                                   mappingID:nil];
+  [self storeEvent:differentEvent inStorage:storage];
+
+  NSMutableSet<GDTCOREvent *> *expectedEvents = [generatedEvents mutableCopy];
+  [expectedEvents addObject:differentEvent];
+
+  // 2. Remove batch.
+  XCTestExpectation *batchRemovedExpectation =
+      [self expectationWithDescription:@"batchRemovedExpectation"];
+  [storage removeBatchWithID:batchIDToRemove
+                deleteEvents:NO
+                  onComplete:^{
+                    [batchRemovedExpectation fulfill];
+                  }];
+  [self waitForExpectations:@[ batchRemovedExpectation ] timeout:0.5];
+
+  // 3. Validate no batches.
+  [self assertBatchIDs:nil inStorage:storage];
+
+  // 4. Validate events.
+  XCTestExpectation *eventsBatchedExpectation2 =
+      [self expectationWithDescription:@"eventsBatchedExpectation1"];
   GDTCORStorageEventSelector *testEventsSelector =
       [[GDTCORStorageEventSelector alloc] initWithTarget:kGDTCORTargetTest
                                                 eventIDs:nil
@@ -973,13 +990,25 @@
                   batchExpiration:[NSDate distantFuture]
                        onComplete:^(NSNumber *_Nullable newBatchID,
                                     NSSet<GDTCOREvent *> *_Nullable batchEvents) {
-                         [eventsBatchedExpectation1 fulfill];
+                         [eventsBatchedExpectation2 fulfill];
                          XCTAssertNotNil(newBatchID);
-                         XCTAssertEqual(generatedEvents.count, batchEvents.count);
+                         XCTAssertEqual(expectedEvents.count, batchEvents.count);
 
-                         batchIDToRemove = newBatchID;
+                         NSSet<NSString *> *batchEventsIDs =
+                             [batchEvents valueForKeyPath:@"eventID"];
+                         NSSet<NSString *> *expectedEventsIDs =
+                             [expectedEvents valueForKeyPath:@"eventID"];
+                         XCTAssertEqualObjects(batchEventsIDs, expectedEventsIDs);
                        }];
-  [self waitForExpectations:@[ eventsBatchedExpectation1 ] timeout:0.5];
+  [self waitForExpectations:@[ eventsBatchedExpectation2 ] timeout:0.5];
+}
+
+- (void)testRemoveBatchWithIDDeletingEvents {
+  GDTCORFlatFileStorage *storage = [[GDTCORFlatFileStorage alloc] init];
+
+  // 0. Prepare a batch to remove.
+  __auto_type generatedBatch = [self generateAndBatchEvents];
+  NSNumber *batchIDToRemove = [generatedBatch.allKeys firstObject];
 
   // 2. Remove batch.
   XCTestExpectation *batchRemovedExpectation =
@@ -991,9 +1020,17 @@
                   }];
   [self waitForExpectations:@[ batchRemovedExpectation ] timeout:0.5];
 
-  // 3. Validate events.
+  // 3. Validate no batches.
+  [self assertBatchIDs:nil inStorage:storage];
+
+  // 4. Validate events.
   XCTestExpectation *eventsBatchedExpectation2 =
       [self expectationWithDescription:@"eventsBatchedExpectation1"];
+  GDTCORStorageEventSelector *testEventsSelector =
+      [[GDTCORStorageEventSelector alloc] initWithTarget:kGDTCORTargetTest
+                                                eventIDs:nil
+                                              mappingIDs:nil
+                                                qosTiers:nil];
   [storage batchWithEventSelector:testEventsSelector
                   batchExpiration:[NSDate distantFuture]
                        onComplete:^(NSNumber *_Nullable newBatchID,
@@ -1086,6 +1123,32 @@
   [self waitForExpectations:@[ batchCreatedExpectation ] timeout:5];
 
   return @{batchID : events};
+}
+
+- (void)assertBatchIDs:(NSSet<NSNumber *> *)expectedBatchIDs
+             inStorage:(GDTCORFlatFileStorage *)storage {
+  XCTestExpectation *batchIDsFetchedExpectation =
+      [self expectationWithDescription:@"batchIDsFetchedExpectation"];
+
+  [storage batchIDsForTarget:kGDTCORTargetTest
+                  onComplete:^(NSSet<NSNumber *> *_Nullable batchIDs) {
+                    [batchIDsFetchedExpectation fulfill];
+                    XCTAssertEqualObjects(batchIDs, expectedBatchIDs);
+                  }];
+
+  [self waitForExpectations:@[ batchIDsFetchedExpectation ] timeout:0.5];
+}
+
+- (void)storeEvent:(GDTCOREvent *)event inStorage:(GDTCORFlatFileStorage *)storage {
+  XCTestExpectation *eventStoredExpectation =
+      [self expectationWithDescription:@"eventStoredExpectation"];
+  [storage storeEvent:event
+           onComplete:^(BOOL wasWritten, NSError *_Nullable error) {
+             [eventStoredExpectation fulfill];
+             XCTAssertTrue(wasWritten);
+             XCTAssertNil(error);
+           }];
+  [self waitForExpectations:@[ eventStoredExpectation ] timeout:0.5];
 }
 
 @end
