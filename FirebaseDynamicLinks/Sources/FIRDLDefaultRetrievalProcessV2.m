@@ -157,8 +157,7 @@ NS_ASSUME_NONNULL_BEGIN
   // Disable deprecated warning for internal methods.
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  // If not unique match, we send request twice, since there are two server calls:
-  // one for IPv4, another for IPV6.
+  // If there is not a unique match, we will send an additional request for fingerprinting.
   [_networkingService
       retrievePendingDynamicLinkWithIOSVersion:[UIDevice currentDevice].systemVersion
                               resolutionHeight:resolutionHeight
