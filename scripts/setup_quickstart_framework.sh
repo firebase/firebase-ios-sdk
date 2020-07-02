@@ -41,8 +41,9 @@ do
 done
 
 if [[ "${SAMPLE}" == "Authentication" ]]; then
-  cp "/usr/lib/libc++.dylib" Firebase/
-	cp -avr "/Applications/Xcode_11.5.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/System/Library/Frameworks/Accelerate.framework" Firebase/
+../scripts/add_framework_script.rb --sdk "${SAMPLE}" --target "${TARGET}" --framework_path usr/lib/libc++.dylib
+../scripts/add_framework_script.rb --sdk "${SAMPLE}" --target "${TARGET}" --framework_path accelerate.framework --source_tree DEVELOPER_FRAMEWORKS_DIR
 fi
 
-../scripts/add_framework_script.rb  "${SAMPLE}" "${TARGET}" Firebase
+../scripts/add_framework_script.rb --sdk "${SAMPLE}" --target "${TARGET}" --framework_path Firebase/
+
