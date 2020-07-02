@@ -500,37 +500,6 @@ NSString *const kGDTCORBatchComponentsExpirationKey = @"GDTCORBatchComponentsExp
   return [batchDirPaths copy];
 }
 
-- (nullable NSArray<NSString *> *)eventPathsForBatchID:(NSNumber *)batchID
-                                                 error:(NSError **)outError {
-  NSError *error;
-  NSArray<NSString *> *batchDirPaths = [self batchDirPathsForBatchID:batchID error:&error];
-
-  if (batchDirPaths == nil) {
-    *outError = error;
-    return nil;
-  }
-
-  NSFileManager *fileManager = [NSFileManager defaultManager];
-
-  NSMutableArray<NSString *> *eventPathsForBatchID = [NSMutableArray array];
-
-  for (NSString *batchDirPath in batchDirPaths) {
-    NSArray<NSString *> *eventPaths = [fileManager contentsOfDirectoryAtPath:batchDirPath
-                                                                       error:&error];
-
-    for (NSString *eventFilePath in eventPaths) {
-      NSString *fileName = [eventFilePath lastPathComponent];
-      NSDictionary<NSString *, id> *eventComponents = [self eventComponentsFromFilename:fileName];
-      if (eventComponents) {
-        [eventPathsForBatchID
-            addObject:[batchDirPath stringByAppendingPathComponent:eventFilePath]];
-      }
-    }
-  }
-
-  return [eventPathsForBatchID copy];
-}
-
 /** Makes a copy of the contents of a directory to a directory at the specified path.*/
 - (BOOL)moveContentsOfDirectoryAtPath:(NSString *)sourcePath
                                    to:(NSString *)destinationPath
