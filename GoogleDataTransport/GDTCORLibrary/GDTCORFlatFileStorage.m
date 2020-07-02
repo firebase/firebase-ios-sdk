@@ -231,22 +231,36 @@ NSString *const kGDTCORBatchComponentsExpirationKey = @"GDTCORBatchComponentsExp
     }
 
     NSFileManager *fileManager = [NSFileManager defaultManager];
+
+    void(^removeBatchDir)(NSString *batchDirPath)  = ^(NSString *batchDirPath) {
+      NSError *error;
+      if ([fileManager removeItemAtPath:batchDirPath error:&error]) {
+        GDTCORLogDebug(@"Batch removed at path: %@", batchDirPath);
+      } else {
+        GDTCORLogDebug(@"Failed to remove batch at path: %@", batchDirPath);
+      }
+    };
+
     for (NSString *batchDirPath in batchDirPaths) {
       if (deleteEvents) {
-        [fileManager removeItemAtPath:batchDirPath error:nil];
+        removeBatchDir(batchDirPath);
       } else {
         NSString *batchDirName = [batchDirPath lastPathComponent];
         NSDictionary<NSString *, id> *components = [self batchComponentsFromFilename:batchDirName];
         NSNumber *target = components[kGDTCORBatchComponentsTargetKey];
         NSString *destinationPath = [[GDTCORFlatFileStorage eventDataStoragePath]
             stringByAppendingPathComponent:target.stringValue];
-        if (![self moveContentsOfDirectoryAtPath:batchDirPath to:destinationPath error:&error]) {
+
+        // `- [NSFileManager moveItemAtPath:toPath:error:] method fails if an item by the destination path already exists (which usually is the case for the current method). Move the events one by one instead.
+        if ([self moveContentsOfDirectoryAtPath:batchDirPath to:destinationPath error:&error]) {
+          GDTCORLogDebug(@"Batched events at path: %@ moved back to the storage: %@", batchDirPath, destinationPath);
+        } else {
           GDTCORLogDebug(@"Error encountered whilst moving events back: %@", error);
         }
 
         // Even if not all events where moved back to the storage, there is not much can be done at
         // this point, so cleanup batch directory now to avoid clattering.
-        [fileManager removeItemAtPath:batchDirPath error:nil];
+        removeBatchDir(batchDirPath);
       }
     }
 
