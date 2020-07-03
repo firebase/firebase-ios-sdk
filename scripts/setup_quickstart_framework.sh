@@ -40,4 +40,9 @@ do
   fi
 done
 
+if [[ "${SAMPLE}" == "Authentication" ]]; then
+../scripts/add_framework_script.rb --sdk "${SAMPLE}" --target "${TARGET}" --framework_path usr/lib/libc++.dylib
+../scripts/add_framework_script.rb --sdk "${SAMPLE}" --target "${TARGET}" --framework_path accelerate.framework --source_tree DEVELOPER_FRAMEWORKS_DIR
+fi
+
 ../scripts/add_framework_script.rb --sdk "${SAMPLE}" --target "${TARGET}" --framework_path Firebase/
