@@ -50,8 +50,8 @@ jobs:
       FRAMEWORK_ZIP: "Firebase-actions-dir.zip"
       SDK: "Crashlytics"
     runs-on: macOS-latest
-    # Make sure tests run after the zip workflow finishes.
-    if: github.event_name == 'schedule'
+    # Don't run on private repo.
+    if: github.event_name == 'schedule' && github.repository != 'FirebasePrivate/firebase-ios-sdk'
     steps:
     - uses: actions/checkout@v2
     - name: Pull zip from GCS
