@@ -1,4 +1,5 @@
 # v4.2.0
+- [fixed] Fix attempts to connect to invalid ipv6 domain by updating ipv4 and ipv6 to use a single, valid endpoint (#5032)
 - [Added] Plist property `FirebaseDeepLinkPasteboardRetrievalEnabled` to enable/disable fetching dynamic links from Pasteboard.
 - [fixed] Reduce frequency of iOS14 pasteboard notifications by only reading from it when it contains URL(s). (#5905)
 - [changed] Functionally neutral updated import references for dependencies. (#5824)
