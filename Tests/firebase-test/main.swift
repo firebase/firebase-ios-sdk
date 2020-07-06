@@ -39,7 +39,11 @@ class importTest: XCTestCase {
   func testImports() {
     XCTAssertFalse(GULAppEnvironmentUtil.isAppStoreReceiptSandbox())
     XCTAssertFalse(GULAppEnvironmentUtil.isFromAppStore())
-    XCTAssertFalse(GULAppEnvironmentUtil.isSimulator())
+    #if targetEnvironment(simulator)
+      XCTAssertTrue(GULAppEnvironmentUtil.isSimulator())
+    #else
+      XCTAssertFalse(GULAppEnvironmentUtil.isSimulator())
+    #endif
     XCTAssertFalse(GULAppEnvironmentUtil.isAppExtension())
     XCTAssertNil(FirebaseApp.app())
     XCTAssertEqual(GULAppEnvironmentUtil.deviceModel(), "x86_64")
