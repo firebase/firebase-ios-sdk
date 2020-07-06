@@ -43,6 +43,7 @@
     [GCDWebServer setLogLevel:3];
     _server = [[GCDWebServer alloc] init];
     _registeredTestPaths = [[NSMutableDictionary alloc] init];
+    _responseNextRequestWaitTime = 42.42;
   }
   return self;
 }
@@ -81,7 +82,7 @@
  */
 - (NSData *)responseData {
   gdt_cct_LogResponse logResponse = gdt_cct_LogResponse_init_default;
-  logResponse.next_request_wait_millis = 42424;
+  logResponse.next_request_wait_millis = self.responseNextRequestWaitTime * 1000;
   logResponse.has_next_request_wait_millis = 1;
 
   pb_ostream_t sizestream = PB_OSTREAM_SIZING;
