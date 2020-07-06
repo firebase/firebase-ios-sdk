@@ -24,6 +24,8 @@
 #import "FIRInAppMessaging.h"
 #import "FIRInAppMessagingRenderingPrivate.h"
 
+#import <FirebaseABTesting/ABTExperimentPayload.h>
+
 // A class implementing protocol FIRIAMMessageContentData to be used for unit testing
 @interface FIRIAMMessageContentDataForTesting : NSObject <FIRIAMMessageContentData>
 @property(nonatomic, readwrite, nonnull) NSString *titleText;
@@ -323,13 +325,16 @@ typedef NS_ENUM(NSInteger, FIRInAppMessagingDelegateInteraction) {
                                              contentData:m4ContentData
                                          renderingEffect:renderSetting4];
 
-  ABTExperimentPayload *experimentPayload = [ABTExperimentPayload message];
-  experimentPayload.experimentId = @"_exp_1";
-  experimentPayload.experimentStartTimeMillis = 1582143484729;
-  experimentPayload.overflowPolicy = ABTExperimentPayload_ExperimentOverflowPolicy_DiscardOldest;
-  experimentPayload.timeToLiveMillis = 15552000000;
-  experimentPayload.triggerTimeoutMillis = 15552000000;
-  experimentPayload.variantId = @"1";
+  NSDictionary *experimentPayloadDictionary = @{
+    @"experimentId" : @"_exp_1",
+    @"experimentStartTimeMillis" : @1582143484729,
+    @"overflowPolicy" : @"DISCARD_OLDEST",
+    @"timeToLiveMillis" : @15552000000,
+    @"triggerTimeoutMillis" : @15552000000,
+    @"variantId" : @"1"
+  };
+  ABTExperimentPayload *experimentPayload =
+      [[ABTExperimentPayload alloc] initWithDictionary:experimentPayloadDictionary];
 
   self.m4 = [[FIRIAMMessageDefinition alloc] initWithRenderData:renderData4
                                                       startTime:activeStartTime
