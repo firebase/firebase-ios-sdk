@@ -21,7 +21,7 @@
 @property(nonatomic) GULHeartbeatDateStorage *storage;
 @end
 
-NSString *const GULStorageHeartbeatTestFileName = @"GULStorageHeartbeatTest";
+static NSString *const kTestFileName = @"GULStorageHeartbeatTest";
 
 @implementation GULHeartbeatDateStorageTest
 
@@ -40,7 +40,7 @@ NSString *const GULStorageHeartbeatTestFileName = @"GULStorageHeartbeatTest";
               @"Error: %@", error);
   }
 
-  self.storage = [[GULHeartbeatDateStorage alloc] initWithFileName:GULStorageHeartbeatTestFileName];
+  self.storage = [[GULHeartbeatDateStorage alloc] initWithFileName:kTestFileName];
 
   [self assertInitializationDoesNotAccessFileSystem];
 }
@@ -71,8 +71,7 @@ NSString *const GULStorageHeartbeatTestFileName = @"GULStorageHeartbeatTest";
 - (NSURL *)heartbeatFileURL {
   NSString *documentsPath = [NSSearchPathForDirectoriesInDomains(
       NSApplicationSupportDirectory, NSUserDomainMask, YES) firstObject];
-  NSArray<NSString *> *components =
-      @[ documentsPath, @"Google/FIRApp", GULStorageHeartbeatTestFileName ];
+  NSArray<NSString *> *components = @[ documentsPath, @"Google/FIRApp", kTestFileName ];
   NSString *fileString = [NSString pathWithComponents:components];
   NSURL *fileURL = [NSURL fileURLWithPath:fileString];
   return fileURL;
