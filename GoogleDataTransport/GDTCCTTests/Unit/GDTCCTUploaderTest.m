@@ -29,6 +29,8 @@
 
 @interface GDTCCTUploaderTest : XCTestCase
 
+@property(nonatomic) GDTCCTUploader *uploader;
+
 /** An event generator for testing. */
 @property(nonatomic) GDTCCTEventGenerator *generator;
 
@@ -56,6 +58,9 @@
   [self.testServer registerLogBatchPath];
   [self.testServer start];
   XCTAssertTrue(self.testServer.isRunning);
+
+  self.uploader = [[GDTCCTUploader alloc] init];
+  self.uploader.testServerURL = [self.testServer.serverURL URLByAppendingPathComponent:@"logBatch"];
 }
 
 - (void)tearDown {
@@ -91,9 +96,7 @@
   XCTestExpectation *responseSentExpectation = [self expectationTestServerSuccessRequestResponse];
 
   // 2. Create uploader and start upload.
-  GDTCCTUploader *uploader = [[GDTCCTUploader alloc] init];
-  uploader.testServerURL = [self.testServer.serverURL URLByAppendingPathComponent:@"logBatch"];
-  [uploader uploadTarget:kGDTCORTargetTest withConditions:GDTCORUploadConditionWifiData];
+  [self.uploader uploadTarget:kGDTCORTargetTest withConditions:GDTCORUploadConditionWifiData];
 
   // 3. Wait for operations to complete in the specified order.
   [self waitForExpectations:@[
@@ -106,7 +109,7 @@
                enforceOrder:YES];
 
   // 4. Wait for upload operation to finish.
-  [self waitForUploadOperationsToFinish:uploader];
+  [self waitForUploadOperationsToFinish:self.uploader];
 }
 
 - (void)testUploadTargetWhenThereIsStoredBatchThenItIsUploadedFirst {
@@ -128,9 +131,7 @@
   XCTestExpectation *responseSentExpectation = [self expectationTestServerSuccessRequestResponse];
 
   // 2. Create uploader and start upload.
-  GDTCCTUploader *uploader = [[GDTCCTUploader alloc] init];
-  uploader.testServerURL = [self.testServer.serverURL URLByAppendingPathComponent:@"logBatch"];
-  [uploader uploadTarget:kGDTCORTargetTest withConditions:GDTCORUploadConditionWifiData];
+  [self.uploader uploadTarget:kGDTCORTargetTest withConditions:GDTCORUploadConditionWifiData];
 
   // 3. Wait for operations to complete in the specified order.
   [self waitForExpectations:@[
@@ -143,14 +144,12 @@
                enforceOrder:NO];
 
   // 4. Wait for upload operation to finish.
-  [self waitForUploadOperationsToFinish:uploader];
+  [self waitForUploadOperationsToFinish:self.uploader];
 }
 
 /** Tests that when there is an ongoing upload no other uploads are started until the 1st finishes.
  * Once 1st finished, another one can be started. */
 - (void)testUploadTargetWhenThereIsOngoingUploadThenNoOp {
-  GDTCCTUploader *uploader = [[GDTCCTUploader alloc] init];
-
   // 0. Set up expectations to track 1st upload progress.
   // 0.1. Generate and store and an event.
   [self.generator generateEvent:GDTCOREventQoSFast];
@@ -176,8 +175,7 @@
                                                                             result:YES];
 
   // 0.4. Start upload 1st upload.
-  uploader.testServerURL = [self.testServer.serverURL URLByAppendingPathComponent:@"logBatch"];
-  [uploader uploadTarget:kGDTCORTargetTest withConditions:GDTCORUploadConditionWifiData];
+  [self.uploader uploadTarget:kGDTCORTargetTest withConditions:GDTCORUploadConditionWifiData];
 
   // 0.4. Wait for server request to be sent.
   [self waitForExpectations:@[ hasEventsExpectation1, serverRequestExpectation1 ] timeout:1];
@@ -201,7 +199,7 @@
   hasEventsExpectation2.inverted = YES;
 
   // 1.2. Start upload 2nd time.
-  [uploader uploadTarget:kGDTCORTargetTest withConditions:GDTCORUploadConditionWifiData];
+  [self.uploader uploadTarget:kGDTCORTargetTest withConditions:GDTCORUploadConditionWifiData];
 
   // 1.3. Wait for expectations.
   [self waitForExpectations:@[
@@ -214,7 +212,7 @@
 
   // 1.4. Wait for 1st upload finish.
   requestCompletionBlock();
-  [self waitForUploadOperationsToFinish:uploader];
+  [self waitForUploadOperationsToFinish:self.uploader];
 
   // 3. Test another upload after the 1st finished.
   // 3.1.1. Set up all relevant storage expectations.
@@ -231,7 +229,7 @@
   XCTestExpectation *responseSentExpectation = [self expectationTestServerSuccessRequestResponse];
 
   // 3.3.2. Start 3rd upload.
-  [uploader uploadTarget:kGDTCORTargetTest withConditions:GDTCORUploadConditionWifiData];
+  [self.uploader uploadTarget:kGDTCORTargetTest withConditions:GDTCORUploadConditionWifiData];
 
   // 3.3. Wait for operations to complete in the specified order.
   [self waitForExpectations:@[
@@ -244,12 +242,10 @@
                enforceOrder:YES];
 
   // 3.4. Wait for upload operation to finish.
-  [self waitForUploadOperationsToFinish:uploader];
+  [self waitForUploadOperationsToFinish:self.uploader];
 }
 
 - (void)testUploadTarget_WhenThereAreBothStoredBatchAndEvents_ThenRemoveBatchAndBatchThenAllEvents {
-  GDTCCTUploader *uploader = [[GDTCCTUploader alloc] init];
-
   // 0. Generate test events.
   // 0.1. Generate and store and an event.
   [self.generator generateEvent:GDTCOREventQoSFast];
@@ -270,8 +266,8 @@
   XCTestExpectation *responseSentExpectation = [self expectationTestServerSuccessRequestResponse];
 
   // 1.2. Start upload.
-  uploader.testServerURL = [self.testServer.serverURL URLByAppendingPathComponent:@"logBatch"];
-  [uploader uploadTarget:kGDTCORTargetTest withConditions:GDTCORUploadConditionWifiData];
+  self.uploader.testServerURL = [self.testServer.serverURL URLByAppendingPathComponent:@"logBatch"];
+  [self.uploader uploadTarget:kGDTCORTargetTest withConditions:GDTCORUploadConditionWifiData];
 
   // 1.3. Wait for operations to complete in the specified order.
   [self waitForExpectations:@[
@@ -284,12 +280,11 @@
                enforceOrder:YES];
 
   // 1.4. Wait for upload operation to finish.
-  [self waitForUploadOperationsToFinish:uploader];
+  [self waitForUploadOperationsToFinish:self.uploader];
 }
 
 - (void)testUploadTarget_WhenThereAreNoEventsFirstThenEventsAdded_ThenUploadNewEvent {
-  GDTCCTUploader *uploader = [[GDTCCTUploader alloc] init];
-  uploader.testServerURL = [self.testServer.serverURL URLByAppendingPathComponent:@"logBatch"];
+  self.uploader.testServerURL = [self.testServer.serverURL URLByAppendingPathComponent:@"logBatch"];
 
   // 1. Test stored batch upload.
   // 1.1. Set up expectations.
@@ -310,7 +305,7 @@
   responseSentExpectation1.inverted = YES;
 
   // 1.2. Create uploader and start upload.
-  [uploader uploadTarget:kGDTCORTargetTest withConditions:GDTCORUploadConditionWifiData];
+  [self.uploader uploadTarget:kGDTCORTargetTest withConditions:GDTCORUploadConditionWifiData];
 
   // 1.3. Wait for operations to complete in the specified order.
   [self waitForExpectations:@[
@@ -323,7 +318,7 @@
                enforceOrder:YES];
 
   // 1.4. Wait for upload operation to finish.
-  [self waitForUploadOperationsToFinish:uploader];
+  [self waitForUploadOperationsToFinish:self.uploader];
 
   // 2. Test stored events upload.
   // 2.0. Generate and store and an event.
@@ -343,7 +338,7 @@
   XCTestExpectation *responseSentExpectation = [self expectationTestServerSuccessRequestResponse];
 
   // 2.2. Create uploader and start upload.
-  [uploader uploadTarget:kGDTCORTargetTest withConditions:GDTCORUploadConditionWifiData];
+  [self.uploader uploadTarget:kGDTCORTargetTest withConditions:GDTCORUploadConditionWifiData];
 
   // 2.3. Wait for operations to complete in the specified order.
   [self waitForExpectations:@[
@@ -356,7 +351,7 @@
                enforceOrder:YES];
 
   // 2.4. Wait for upload operation to finish.
-  [self waitForUploadOperationsToFinish:uploader];
+  [self waitForUploadOperationsToFinish:self.uploader];
 }
 
 #pragma mark - Storage interaction tests
@@ -412,6 +407,12 @@
                            ]];
                            XCTAssertEqualObjects(eventSelector.selectedQosTiers, expectedQoSTiers);
                          }];
+}
+
+#pragma mark - Test ready for upload based on conditions
+
+- (void)testUploadTarget_WhenNoConnection_ThenDoNotUpload {
+
 }
 
 //// TODO: Tests for uploading several empty targets and then non-empty target.
@@ -492,8 +493,6 @@
 - (void)assertStorageSelectorWithCondition:(GDTCORUploadConditions)conditions
                            validationBlock:(void (^)(GDTCORStorageEventSelector *_Nullable selector,
                                                      NSDate *expirationDate))validationBlock {
-  GDTCCTUploader *uploader = [[GDTCCTUploader alloc] init];
-
   XCTestExpectation *hasEventsExpectation = [self expectStorageHasEventsForTarget:kGDTCORTargetTest
                                                                            result:YES];
 
@@ -510,7 +509,7 @@
         completion(nil, nil);
       };
 
-  [uploader uploadTarget:kGDTCORTargetTest withConditions:conditions];
+  [self.uploader uploadTarget:kGDTCORTargetTest withConditions:conditions];
 
   [self waitForExpectations:@[ hasEventsExpectation, storageBatchExpectation ] timeout:1];
 }
