@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#if __has_include(<UIKit/UIKit.h>)
 #import <UIKit/UIKit.h>
 
 NS_SWIFT_NAME(SampleAppUtilities)
@@ -24,3 +25,4 @@ NS_SWIFT_NAME(SampleAppUtilities)
     NS_SWIFT_NAME(presentAlertForInvalidServiceInfoPlistFrom(_:));
 
 @end
+#endif

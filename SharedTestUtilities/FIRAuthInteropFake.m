@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "Example/Shared/FIRAuthInteropFake.h"
+#import "SharedTestUtilities/FIRAuthInteropFake.h"
 
 #import "Interop/Auth/Public/FIRAuthInterop.h"
 

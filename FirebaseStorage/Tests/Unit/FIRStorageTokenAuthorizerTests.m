@@ -16,7 +16,7 @@
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
-#import "Example/Shared/FIRAuthInteropFake.h"
+#import "SharedTestUtilities/FIRAuthInteropFake.h"
 
 @interface FIRStorageTokenAuthorizerTests : XCTestCase
 
