@@ -326,6 +326,15 @@ let package = Package(
       ]
     ),
     .target(
+      name: "SharedTestUtilities",
+      dependencies: ["FirebaseCore"],
+      path: "SharedTestUtilities",
+      publicHeadersPath: "Public",
+      cSettings: [
+        .headerSearchPath("../"),
+      ]
+    ),
+    .target(
       name: "FirebaseStorage",
       dependencies: [
         "FirebaseCore",
@@ -336,6 +345,14 @@ let package = Package(
       cSettings: [
         .headerSearchPath("../../"),
         .define("FIRStorage_VERSION", to: "0.0.1"), // TODO: Fix version
+      ]
+    ),
+    .testTarget(
+      name: "StorageUnit",
+      dependencies: ["FirebaseStorage", "OCMock", "SharedTestUtilities"],
+      path: "FirebaseStorage/Tests/Unit",
+      cSettings: [
+        .headerSearchPath("../../.."),
       ]
     ),
     .target(

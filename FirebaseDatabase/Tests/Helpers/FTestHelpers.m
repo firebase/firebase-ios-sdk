@@ -19,7 +19,7 @@
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "Interop/Auth/Public/FIRAuthInterop.h"
 
-#import "Example/Shared/FIRAuthInteropFake.h"
+#import "SharedTestUtilities/FIRAuthInteropFake.h"
 #import "FirebaseDatabase/Sources/Api/Private/FIRDatabase_Private.h"
 #import "FirebaseDatabase/Sources/Constants/FConstants.h"
 #import "FirebaseDatabase/Sources/FIRDatabaseConfig_Private.h"

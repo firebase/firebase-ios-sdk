@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-#import "Example/Shared/FIRSampleAppUtilities.h"
+#if __has_include(<UIKit/UIKit.h>)
+#import "SharedTestUtilities/FIRSampleAppUtilities.h"
 
 #import <SafariServices/SafariServices.h>
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
@@ -108,3 +109,4 @@ NSString *const kInvalidPlistAlertMessage = @"This sample app needs to be update
 }
 
 @end
+#endif

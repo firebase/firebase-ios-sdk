@@ -14,7 +14,7 @@
 
 #import "FirebaseStorage/Tests/Unit/FIRStorageTestHelpers.h"
 
-#import "Example/Shared/FIRComponentTestUtilities.h"
+#import "SharedTestUtilities/FIRComponentTestUtilities.h"
 #import "FirebaseStorage/Sources/FIRStorageComponent.h"
 
 NSString *const kGoogleHTTPErrorDomain = @"com.google.HTTPStatus";

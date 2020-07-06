@@ -14,7 +14,7 @@
 
 #import "FirebaseStorage/Sources/Public/FIRStorage.h"
 
-#import "Example/Shared/FIRComponentTestUtilities.h"
+#import "SharedTestUtilities/FIRComponentTestUtilities.h"
 #import "FirebaseStorage/Sources/FIRStorageComponent.h"
 #import "FirebaseStorage/Sources/FIRStorageReference_Private.h"
 #import "FirebaseStorage/Tests/Unit/FIRStorageTestHelpers.h"
