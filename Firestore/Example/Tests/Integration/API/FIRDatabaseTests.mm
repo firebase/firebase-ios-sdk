@@ -1550,6 +1550,39 @@ using firebase::firestore::util::TimerId;
   [self awaitExpectation:setData];
 }
 
+- (void)testListenerCallbackCanCallRemoveWithoutBlocking {
+  // This tests a guarantee required for C++ that doesn't strictly matter for Objective-C and has no
+  // equivalent on other platforms. See `testListenerCallbackBlocksRemove` for background.
+  XCTestExpectation *removed = [self expectationWithDescription:@"listener removed"];
+
+  NSMutableString *steps = [NSMutableString string];
+
+  FIRDocumentReference *doc = [self documentRef];
+  [self writeDocumentRef:doc data:@{@"foo" : @"bar"}];
+
+  __block id<FIRListenerRegistration> listener = nil;
+
+  @synchronized(self) {
+    listener = [doc addSnapshotListener:^(FIRDocumentSnapshot *, NSError *) {
+      [steps appendString:@"1"];
+
+      @synchronized(self) {
+        // This test is successful if this method does not block.
+        [listener remove];
+      }
+
+      [steps appendString:@"2"];
+      [removed fulfill];
+    }];
+  }
+
+  // Perform a write to `doc` which will trigger the listener callback.
+  [self writeDocumentRef:doc data:@{@"foo" : @"bar2"}];
+
+  [self awaitExpectation:removed];
+  XCTAssertEqualObjects(steps, @"12");
+}
+
 - (void)testWaitForPendingWritesCompletes {
   FIRDocumentReference *doc = [self documentRef];
   FIRFirestore *firestore = doc.firestore;
