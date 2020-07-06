@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRCLSDemangleOperation.h"
+#import "Crashlytics/Crashlytics/Operations/Symbolication/FIRCLSDemangleOperation.h"
 
 #import <Foundation/Foundation.h>
 #import <XCTest/XCTest.h>
 
-#import "FIRStackFrame_Private.h"
+#import "Crashlytics/Crashlytics/Private/FIRStackFrame_Private.h"
 
 @interface FIRCLSDemangleOperationTests : XCTestCase
 

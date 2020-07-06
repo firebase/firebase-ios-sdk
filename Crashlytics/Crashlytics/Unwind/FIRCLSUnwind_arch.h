@@ -14,10 +14,10 @@
 
 #pragma once
 
-#include "FIRCLSFeatures.h"
-#include "FIRCLSThreadState.h"
+#include "Crashlytics/Crashlytics/Helpers/FIRCLSFeatures.h"
+#include "Crashlytics/Crashlytics/Helpers/FIRCLSThreadState.h"
 #if CLS_COMPACT_UNWINDING_SUPPORTED
-#include "FIRCLSCompactUnwind.h"
+#include "Crashlytics/Crashlytics/Unwind/Compact/FIRCLSCompactUnwind.h"
 #endif
 
 bool FIRCLSUnwindWithFramePointer(FIRCLSThreadContext *registers, bool allowScanning);

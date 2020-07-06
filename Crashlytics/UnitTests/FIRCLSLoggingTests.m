@@ -14,11 +14,11 @@
 
 #import <XCTest/XCTest.h>
 
-#include "FIRCLSContext.h"
-#include "FIRCLSFile.h"
-#include "FIRCLSGlobals.h"
-#import "FIRCLSInternalReport.h"
-#include "FIRCLSUserLogging.h"
+#include "Crashlytics/Crashlytics/Components/FIRCLSContext.h"
+#include "Crashlytics/Crashlytics/Components/FIRCLSGlobals.h"
+#include "Crashlytics/Crashlytics/Components/FIRCLSUserLogging.h"
+#include "Crashlytics/Crashlytics/Helpers/FIRCLSFile.h"
+#import "Crashlytics/Crashlytics/Models/FIRCLSInternalReport.h"
 
 @interface FIRCLSLoggingTests : XCTestCase
 

@@ -568,6 +568,15 @@ using firebase::firestore::util::TimerId;
   [self writeDocumentRef:ref data:@{@"foo" : @3}];
 }
 
+- (void)testSnapshotsInSyncRemoveIsIdempotent {
+  // This test merely verifies that calling remove multiple times doesn't
+  // explode.
+  auto listener = [self.db addSnapshotsInSyncListener:^(){
+  }];
+  [listener remove];
+  [listener remove];
+}
+
 - (void)testListenCanBeCalledMultipleTimes {
   FIRCollectionReference *coll = [self.db collectionWithPath:@"collection"];
   FIRDocumentReference *doc = [coll documentWithAutoID];

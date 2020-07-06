@@ -46,7 +46,6 @@ let skipDirPatterns = ["/Sample/", "/Pods/", "FirebaseStorage/Tests/Integration"
     "Firebase/InstanceID",
     "FirebaseMessaging",
     "FirebaseRemoteConfig",
-    "Crashlytics",
     "Firestore",
     "GoogleUtilitiesComponents",
   ]
@@ -146,7 +145,11 @@ private func main() -> Int32 {
   let logger = ErrorLogger()
   // Search the path upwards to find the root of the firebase-ios-sdk repo.
   var url = URL(fileURLWithPath: FileManager().currentDirectoryPath)
-  while url.path != "/", url.lastPathComponent != "firebase-ios-sdk" {
+  while url.path != "/" {
+    let script = url.appendingPathComponent("scripts/check_imports.swift")
+    if FileManager.default.fileExists(atPath: script.path) {
+      break
+    }
     url = url.deletingLastPathComponent()
   }
   let repoURL = url

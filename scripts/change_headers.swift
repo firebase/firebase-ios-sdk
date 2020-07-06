@@ -1,6 +1,6 @@
 #!/usr/bin/swift
 /*
- * Copyright 2020 LLC Google
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@
 import Foundation
 
 // Update with directories in which to find headers.
-let findHeaders = ["GoogleDataTransport"]
+let findHeaders = ["Crashlytics"]
 
 // Update with directories in which to change imports.
 let changeImports = ["GoogleUtilities", "FirebaseAuth", "FirebaseCore", "Firebase",
