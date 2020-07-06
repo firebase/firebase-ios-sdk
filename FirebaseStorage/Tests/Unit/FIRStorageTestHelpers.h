@@ -15,8 +15,8 @@
  */
 
 #import <Foundation/Foundation.h>
-#import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
+#import "OCMock.h"
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
@@ -32,7 +32,11 @@
 #import "FirebaseStorage/Sources/FIRStorageTokenAuthorizer.h"
 #import "FirebaseStorage/Sources/FIRStorageUtils.h"
 
+#if SWIFT_PACKAGE
+@import GTMSessionFetcherCore;
+#else
 #import <GTMSessionFetcher/GTMSessionFetcher.h>
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
 
