@@ -1,4 +1,4 @@
-// swift-tools-version:5.0
+// swift-tools-version:5.3
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 // Copyright 2020 Google LLC
@@ -65,9 +65,19 @@ let package = Package(
     ),
   ],
   dependencies: [
-    .package(url: "https://github.com/google/promises.git", "1.2.8" ..< "1.3.0"),
-    .package(url: "https://github.com/google/gtm-session-fetcher.git", "1.4.0" ..< "2.0.0"),
-    .package(url: "https://github.com/paulb777/nanopb.git", .branch("swift-package-manager")),
+    .package(name: "Promises", url: "https://github.com/google/promises.git", "1.2.8" ..< "1.3.0"),
+    .package(
+      name: "GTMSessionFetcher",
+      url: "https://github.com/google/gtm-session-fetcher.git",
+      "1.4.0" ..< "2.0.0"
+    ),
+    .package(
+      name: "nanopb",
+      url: "https://github.com/paulb777/nanopb.git",
+      .branch("swift-package-manager")
+    ),
+    .package(name: "OCMock", url: "https://github.com/paulb777/ocmock.git",
+             .revision("70d8463")),
     // Branches need a force update with a run with the revision set like below.
     //   .package(url: "https://github.com/paulb777/nanopb.git", .revision("564392bd87bd093c308a3aaed3997466efb95f74"))
   ],
@@ -104,6 +114,23 @@ let package = Package(
       dependencies: ["GoogleUtilities_Environment", "GoogleUtilities_Logger",
                      "GoogleUtilities_Network"],
       path: "GoogleUtilities",
+      exclude: [
+        "CHANGELOG.md",
+        "CMakeLists.txt",
+        "LICENSE",
+        "README.md",
+        "AppDelegateSwizzler/README.md",
+        "Environment/",
+        "Example/",
+        "Network/",
+        "ISASwizzler/",
+        "Logger/",
+        "MethodSwizzler/",
+        "NSData+zlib/",
+        "Reachability",
+        "SwizzlerTestHelpers/",
+        "UserDefaults/",
+      ],
       sources: [
         "AppDelegateSwizzler/",
         "SceneDelegateSwizzler/",
@@ -116,8 +143,9 @@ let package = Package(
     ),
     .target(
       name: "GoogleUtilities_Environment",
-      dependencies: ["FBLPromises"],
+      dependencies: [.product(name: "FBLPromises", package: "Promises")],
       path: "GoogleUtilities/Environment",
+      exclude: ["third_party/LICENSE"],
       publicHeadersPath: "Private",
       cSettings: [
         .headerSearchPath("../../"),
@@ -203,12 +231,21 @@ let package = Package(
         // TODO: - Add support for cflags cSetting so that we can set the -fno-autolink option
       ]
     ),
+    .testTarget(
+      name: "CoreUnit",
+      dependencies: ["FirebaseCore", "OCMock"],
+      path: "FirebaseCore/Tests/Unit",
+      exclude: ["Resources/GoogleService-Info.plist"],
+      cSettings: [
+        .headerSearchPath("../../.."),
+      ]
+    ),
     .target(
       name: "FirebaseAuth",
       dependencies: ["FirebaseCore",
                      "GoogleUtilities_Environment",
                      "GoogleUtilities_AppDelegateSwizzler",
-                     "GTMSessionFetcherCore"],
+                     .product(name: "GTMSessionFetcherCore", package: "GTMSessionFetcher")],
       path: "FirebaseAuth/Sources",
       publicHeadersPath: "Public",
       cSettings: [
@@ -219,9 +256,23 @@ let package = Package(
     ),
     .target(
       name: "FirebaseCrashlytics",
-      dependencies: ["FirebaseCore", "FirebaseInstallations", "FBLPromises",
+      dependencies: ["FirebaseCore", "FirebaseInstallations",
+                     .product(name: "FBLPromises", package: "Promises"),
                      "GoogleDataTransport", "nanopb"],
       path: "Crashlytics",
+      exclude: [
+        "run",
+        "CHANGELOG.md",
+        "LICENSE",
+        "README.md",
+        "Data/",
+        "Protos/",
+        "ProtoSupport/",
+        "UnitTests/",
+        "generate_project.sh",
+        "upload-symbols",
+        "third_party/libunwind/LICENSE",
+      ],
       sources: [
         "Crashlytics/",
         "Protogen/",
@@ -242,7 +293,10 @@ let package = Package(
     ),
     .target(
       name: "FirebaseFunctions",
-      dependencies: ["FirebaseCore", "GTMSessionFetcherCore"],
+      dependencies: [
+        "FirebaseCore",
+        .product(name: "GTMSessionFetcherCore", package: "GTMSessionFetcher"),
+      ],
       path: "Functions/FirebaseFunctions",
       publicHeadersPath: "Public",
       cSettings: [
@@ -263,7 +317,7 @@ let package = Package(
     // ),
     .target(
       name: "FirebaseInstallations",
-      dependencies: ["FirebaseCore", "FBLPromises",
+      dependencies: ["FirebaseCore", .product(name: "FBLPromises", package: "Promises"),
                      "GoogleUtilities_Environment", "GoogleUtilities_UserDefaults"],
       path: "FirebaseInstallations/Source/Library",
       publicHeadersPath: "Public",
@@ -273,7 +327,10 @@ let package = Package(
     ),
     .target(
       name: "FirebaseStorage",
-      dependencies: ["FirebaseCore", "GTMSessionFetcherCore"],
+      dependencies: [
+        "FirebaseCore",
+        .product(name: "GTMSessionFetcherCore", package: "GTMSessionFetcher"),
+      ],
       path: "FirebaseStorage/Sources",
       publicHeadersPath: "Public",
       cSettings: [
@@ -289,14 +346,26 @@ let package = Package(
     .target(
       name: "GoogleDataTransport",
       dependencies: ["nanopb"],
-      path: ".",
-      sources: [
-        "GoogleDataTransport/GDTCORLibrary",
-        "GoogleDataTransport/GDTCCTLibrary",
+      path: "GoogleDataTransport",
+      exclude: [
+        "CHANGELOG.md",
+        "README.md",
+        "generate_project.sh",
+        "GDTCCTWatchOSTestApp/",
+        "GDTWatchOSTestApp/",
+        "GDTCCTTestApp/",
+        "GDTTestApp/",
+        "GDTCCTTests/",
+        "GDTCORTests/",
+        "ProtoSupport/",
       ],
-      publicHeadersPath: "GoogleDataTransport/GDTCORLibrary/Public",
+      sources: [
+        "GDTCORLibrary",
+        "GDTCCTLibrary",
+      ],
+      publicHeadersPath: "GDTCORLibrary/Public",
       cSettings: [
-        .headerSearchPath("."),
+        .headerSearchPath("../"),
         .define("GDTCOR_VERSION", to: "0.0.1"),
         .define("PB_FIELD_32BIT", to: "1"),
         .define("PB_NO_PACKED_STRUCTS", to: "1"),
