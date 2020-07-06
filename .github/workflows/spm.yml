@@ -24,6 +24,6 @@ jobs:
     - name: Initialize xcodebuild
       run: xcodebuild -list
     - name: Core ObjC Unit Tests macOS
-      run: xcodebuild -scheme CoreUnit test
+      run: xcodebuild -scheme Firebase-Package test
     - name: Core ObjC Unit Tests iOS
-      run: xcodebuild -scheme CoreUnit test -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 11'
+      run: xcodebuild -scheme Firebase-Package test -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 11'
