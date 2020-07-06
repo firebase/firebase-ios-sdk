@@ -311,7 +311,7 @@ class FakeCredentialsProvider : public EmptyCredentialsProvider {
         }];
 
     // Wait for watch to initialize and deliver first event.
-    [self awaitExpectations];
+    [self awaitExpectation:watchInitialized];
 
     watchUpdateReceived = [self expectationWithDescription:@"Prime backend: Watch update received"];
 
@@ -340,17 +340,18 @@ class FakeCredentialsProvider : public EmptyCredentialsProvider {
 }
 
 - (void)terminateFirestore:(FIRFirestore *)firestore {
-  [firestore terminateWithCompletion:[self completionForExpectationWithName:@"shutdown"]];
-  [self awaitExpectations];
+  XCTestExpectation *expectation = [self expectationWithDescription:@"shutdown"];
+  [firestore terminateWithCompletion:[self completionForExpectation:expectation]];
+  [self awaitExpectation:expectation];
 }
 
 - (void)deleteApp:(FIRApp *)app {
-  XCTestExpectation *expectation = [self expectationWithDescription:@"Delete app"];
+  XCTestExpectation *expectation = [self expectationWithDescription:@"deleteApp"];
   [app deleteApp:^(BOOL completion) {
     XCTAssertTrue(completion);
     [expectation fulfill];
   }];
-  [self awaitExpectations];
+  [self awaitExpectation:expectation];
 }
 
 - (NSString *)documentPath {
@@ -412,7 +413,7 @@ class FakeCredentialsProvider : public EmptyCredentialsProvider {
                     result = doc;
                     [expectation fulfill];
                   }];
-  [self awaitExpectations];
+  [self awaitExpectation:expectation];
 
   return result;
 }
@@ -431,7 +432,7 @@ class FakeCredentialsProvider : public EmptyCredentialsProvider {
                        result = documentSet;
                        [expectation fulfill];
                      }];
-  [self awaitExpectations];
+  [self awaitExpectation:expectation];
 
   return result;
 }
@@ -452,61 +453,63 @@ class FakeCredentialsProvider : public EmptyCredentialsProvider {
                                              }
                                            }];
 
-  [self awaitExpectations];
+  [self awaitExpectation:expectation];
   [listener remove];
 
   return result;
 }
 
 - (void)writeDocumentRef:(FIRDocumentReference *)ref data:(NSDictionary<NSString *, id> *)data {
-  [ref setData:data completion:[self completionForExpectationWithName:@"setData"]];
-  [self awaitExpectations];
+  XCTestExpectation *expectation = [self expectationWithDescription:@"setData"];
+  [ref setData:data completion:[self completionForExpectation:expectation]];
+  [self awaitExpectation:expectation];
 }
 
 - (void)updateDocumentRef:(FIRDocumentReference *)ref data:(NSDictionary<id, id> *)data {
-  [ref updateData:data completion:[self completionForExpectationWithName:@"updateData"]];
-  [self awaitExpectations];
+  XCTestExpectation *expectation = [self expectationWithDescription:@"updateData"];
+  [ref updateData:data completion:[self completionForExpectation:expectation]];
+  [self awaitExpectation:expectation];
 }
 
 - (void)deleteDocumentRef:(FIRDocumentReference *)ref {
-  [ref deleteDocumentWithCompletion:[self completionForExpectationWithName:@"deleteDocument"]];
-  [self awaitExpectations];
+  XCTestExpectation *expectation = [self expectationWithDescription:@"deleteDocument"];
+  [ref deleteDocumentWithCompletion:[self completionForExpectation:expectation]];
+  [self awaitExpectation:expectation];
 }
 
 - (FIRDocumentReference *)addDocumentRef:(FIRCollectionReference *)ref
                                     data:(NSDictionary<NSString *, id> *)data {
-  FIRDocumentReference *doc =
-      [ref addDocumentWithData:data
-                    completion:[self completionForExpectationWithName:@"addDocument"]];
-  [self awaitExpectations];
+  XCTestExpectation *expectation = [self expectationWithDescription:@"addDocument"];
+  FIRDocumentReference *doc = [ref addDocumentWithData:data
+                                            completion:[self completionForExpectation:expectation]];
+  [self awaitExpectation:expectation];
   return doc;
 }
 
 - (void)mergeDocumentRef:(FIRDocumentReference *)ref data:(NSDictionary<NSString *, id> *)data {
-  [ref setData:data
-           merge:YES
-      completion:[self completionForExpectationWithName:@"setDataWithMerge"]];
-  [self awaitExpectations];
+  XCTestExpectation *expectation = [self expectationWithDescription:@"setDataWithMerge"];
+  [ref setData:data merge:YES completion:[self completionForExpectation:expectation]];
+  [self awaitExpectation:expectation];
 }
 
 - (void)mergeDocumentRef:(FIRDocumentReference *)ref
                     data:(NSDictionary<NSString *, id> *)data
                   fields:(NSArray<id> *)fields {
-  [ref setData:data
-      mergeFields:fields
-       completion:[self completionForExpectationWithName:@"setDataWithMerge"]];
-  [self awaitExpectations];
+  XCTestExpectation *expectation = [self expectationWithDescription:@"setDataWithMerge"];
+  [ref setData:data mergeFields:fields completion:[self completionForExpectation:expectation]];
+  [self awaitExpectation:expectation];
 }
 
 - (void)disableNetwork {
-  [self.db
-      disableNetworkWithCompletion:[self completionForExpectationWithName:@"Disable Network."]];
-  [self awaitExpectations];
+  XCTestExpectation *expectation = [self expectationWithDescription:@"disableNetwork"];
+  [self.db disableNetworkWithCompletion:[self completionForExpectation:expectation]];
+  [self awaitExpectation:expectation];
 }
 
 - (void)enableNetwork {
-  [self.db enableNetworkWithCompletion:[self completionForExpectationWithName:@"Enable Network."]];
-  [self awaitExpectations];
+  XCTestExpectation *expectation = [self expectationWithDescription:@"enableNetwork"];
+  [self.db enableNetworkWithCompletion:[self completionForExpectation:expectation]];
+  [self awaitExpectation:expectation];
 }
 
 - (const std::shared_ptr<util::AsyncQueue> &)queueForFirestore:(FIRFirestore *)firestore {
