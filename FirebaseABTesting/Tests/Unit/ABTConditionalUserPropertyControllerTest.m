@@ -14,12 +14,12 @@
 
 #import <XCTest/XCTest.h>
 
-#import <FirebaseABTesting/ABTExperimentPayload.h>
 #import <FirebaseABTesting/FIRExperimentController.h>
 #import <FirebaseABTesting/FIRLifecycleEvents.h>
 #import <OCMock/OCMock.h>
 #import "FirebaseABTesting/Sources/ABTConditionalUserPropertyController.h"
 #import "FirebaseABTesting/Sources/ABTConstants.h"
+#import "FirebaseABTesting/Sources/Private/ABTExperimentPayload.h"
 #import "FirebaseABTesting/Tests/Unit/ABTFakeFIRAConditionalUserPropertyController.h"
 #import "FirebaseABTesting/Tests/Unit/ABTTestUniversalConstants.h"
 #import "FirebaseABTesting/Tests/Unit/Utilities/ABTTestUtilities.h"
