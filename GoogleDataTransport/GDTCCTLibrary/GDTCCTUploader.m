@@ -513,7 +513,7 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
   }
 
   // Check next upload time for the target.
-  BOOL isAfterNextUploadTime = NO;
+  BOOL isAfterNextUploadTime = YES;
   switch (target) {
     case kGDTCORTargetCCT:
       if (self->_CCTNextUploadTime) {
@@ -540,8 +540,6 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
                    (long)target);
   }
 
-  isAfterNextUploadTime = YES;
-  GDTCORLogDebug(@"CCT: can upload to target %ld because nothing is preventing it", (long)target);
   return isAfterNextUploadTime;
 }
 
