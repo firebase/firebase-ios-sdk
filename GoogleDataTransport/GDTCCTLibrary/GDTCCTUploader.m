@@ -366,6 +366,7 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
       // Falls through.
     case kGDTCORTargetCSH:
       self->_FLLNextUploadTime = futureUploadTime;
+      break;
     default:
       break;
   }
@@ -373,6 +374,7 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
   // Only retry if one of these codes is returned, or there was an error.
   if (error || ((NSHTTPURLResponse *)response).statusCode == 429 ||
       ((NSHTTPURLResponse *)response).statusCode == 503) {
+    // Move the events back to the main storage to be uploaded on the next attempt.
     [storage removeBatchWithID:batchID deleteEvents:NO onComplete:nil];
   } else {
     GDTCORLogDebug(@"%@", @"CCT: package delivered");
@@ -489,7 +491,7 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
     return NO;
   }
 
-  // Not ready to upload with not network connection.
+  // Not ready to upload with no network connection.
   // TODO: Reconsider using reachability to prevent an upload attempt.
   // See https://developer.apple.com/videos/play/wwdc2019/712/ (49:40) for more details.
   if (conditions & GDTCORUploadConditionNoNetwork) {
