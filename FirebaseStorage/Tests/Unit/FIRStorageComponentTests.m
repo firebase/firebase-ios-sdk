@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-#import "OCMock.h"
 #import <XCTest/XCTest.h>
+#import "OCMock.h"
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
-#import "SharedTestUtilities/FIRComponentTestUtilities.h"
 #import "FirebaseStorage/Sources/FIRStorageComponent.h"
+#import "SharedTestUtilities/FIRComponentTestUtilities.h"
 
 // Make FIRComponentRegistrant conformance visible to the tests and expose the initializer.
 @interface FIRStorageComponent () <FIRLibrary>
