@@ -460,7 +460,8 @@
                                         expectRequest:NO];
 }
 
-- (void)testUploadTarget_WhenBeforeServerNextUploadTimeForCCTAndFLLTargetsAndHighPriority_ThenUpload {
+- (void)
+    testUploadTarget_WhenBeforeServerNextUploadTimeForCCTAndFLLTargetsAndHighPriority_ThenUpload {
   [self assertUploadTargetRespectsNextRequestWaitTime:60
                                             forTarget:kGDTCORTargetCCT
                                                   QoS:GDTCOREventQoSFast
@@ -507,8 +508,6 @@
                          shouldWaitForNextRequestTime:YES
                                         expectRequest:YES];
 }
-
-
 
 //// TODO: Tests for uploading several empty targets and then non-empty target.
 
@@ -618,8 +617,8 @@
   [self setUpStorageExpectations];
 
   // 1.2. Expect `hasEventsForTarget:onComplete:` to be called.
-  XCTestExpectation *hasEventsExpectation = [self expectStorageHasEventsForTarget:self.generator.target
-                                                                           result:YES];
+  XCTestExpectation *hasEventsExpectation =
+      [self expectStorageHasEventsForTarget:self.generator.target result:YES];
 
   // 1.3. Don't expect previously batched events to be removed (no batch present).
   self.testStorage.removeBatchWithoutDeletingEventsExpectation.inverted = YES;
@@ -664,14 +663,15 @@
 
   // 0.6. Wait for the next request time.
   if (shouldWaitForNextRequestTime) {
-    [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:nextRequestWaitTime + 0.5]];
+    [[NSRunLoop currentRunLoop]
+        runUntilDate:[NSDate dateWithTimeIntervalSinceNow:nextRequestWaitTime + 0.5]];
   }
 
   // 1. Configure expectations for the 2nd request.
   // 1.1. Set up all relevant storage expectations.
   [self setUpStorageExpectations];
-  XCTestExpectation *hasEventsExpectation2 = [self expectStorageHasEventsForTarget:self.generator.target
-  result:YES];
+  XCTestExpectation *hasEventsExpectation2 =
+      [self expectStorageHasEventsForTarget:self.generator.target result:YES];
 
   // 1.2. Upload response expectation.
   XCTestExpectation *responseSentExpectation = [self expectationTestServerSuccessRequestResponse];
@@ -693,8 +693,7 @@
   // 3. Wait for expectations.
   [self waitForExpectations:@[
     self.testStorage.batchIDsForTargetExpectation, hasEventsExpectation2,
-    self.testStorage.batchWithEventSelectorExpectation,
-    responseSentExpectation,
+    self.testStorage.batchWithEventSelectorExpectation, responseSentExpectation,
     self.testStorage.removeBatchWithoutDeletingEventsExpectation,
     self.testStorage.removeBatchAndDeleteEventsExpectation
   ]
