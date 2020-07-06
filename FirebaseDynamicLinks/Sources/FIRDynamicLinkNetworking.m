@@ -278,28 +278,12 @@ NSData *_Nullable FIRDataWithDictionary(NSDictionary *dictionary, NSError **_Nul
           });
           return;
         }
+
         NSString *matchMessage = nil;
         NSError *parsingError = nil;
         NSDictionary *parsedDynamicLinkParameters =
             parserBlock(requestURLString, data, &matchMessage, &parsingError);
 
-        // If request was made with pasteboard contents, verify if we got a unique match. If we got
-        // a "none" match, we were unable to get a unique match or deduce using fingerprinting.
-        // In this case, resend requests to IPV4 and IPV6 endpoints for fingerprinting. b/79704203
-        if (requestBody[@"uniqueMatchLinkToCheck"] && parsedDynamicLinkParameters &&
-            (!parsedDynamicLinkParameters[kFIRDLParameterMatchType] ||
-             [parsedDynamicLinkParameters[kFIRDLParameterMatchType] isEqualToString:@"none"])) {
-          NSMutableDictionary *requestBodyMutable = [requestBody mutableCopy];
-          [requestBodyMutable removeObjectForKey:@"uniqueMatchLinkToCheck"];
-
-          [self sendRequestWithBaseURLString:kIosPostInstallAttributionRestBaseUrl
-                                 requestBody:requestBodyMutable
-                                endpointPath:@"installAttribution"
-                                 parserBlock:parserBlock
-                                  completion:handler];
-        }
-        // We want to return out the result of the unique match check irrespective of
-        // success/failure as it is the first fingerprinting request as well.
         dispatch_async(dispatch_get_main_queue(), ^{
           handler(parsedDynamicLinkParameters, matchMessage, parsingError);
         });
