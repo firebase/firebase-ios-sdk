@@ -106,8 +106,9 @@ NSString *const kFIRMessagingHeartbeatTag = @"fire-iid";
         FIRMessaging_STRONGIFY(self);
         [self handleResponseWithData:data response:response error:error];
       };
-
-  NSURLSession *session = [FIRMessagingTokenOperation sharedURLSession];
+  NSURLSessionConfiguration *config = NSURLSessionConfiguration.defaultSessionConfiguration;
+  config.timeoutIntervalForResource = 60.0f;  // 1 minute
+  NSURLSession *session = [NSURLSession sessionWithConfiguration:config];
   self.dataTask = [session dataTaskWithRequest:request completionHandler:requestHandler];
   [self.dataTask resume];
 }

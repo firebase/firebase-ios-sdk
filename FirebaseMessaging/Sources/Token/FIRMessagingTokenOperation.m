@@ -36,9 +36,9 @@ static NSString *const kFIRMessagingParamFCMLibVersion = @"X-cliv";
   BOOL _isFinished;
   BOOL _isExecuting;
   NSMutableArray<FIRMessagingTokenOperationCompletion> *_completionHandlers;
+  FIRMessagingCheckinPreferences *_checkinPreferences;
 }
 
-@property(nonatomic, readwrite, strong) FIRMessagingCheckinPreferences *checkinPreferences;
 @property(nonatomic, readwrite, strong) NSString *instanceID;
 
 @property(atomic, strong, nullable) NSString *FISAuthToken;
@@ -46,18 +46,6 @@ static NSString *const kFIRMessagingParamFCMLibVersion = @"X-cliv";
 @end
 
 @implementation FIRMessagingTokenOperation
-
-+ (NSURLSession *)sharedURLSession {
-  static NSURLSession *tokenOperationSharedSession;
-  static dispatch_once_t onceToken;
-  dispatch_once(&onceToken, ^{
-    NSURLSessionConfiguration *config = [NSURLSessionConfiguration defaultSessionConfiguration];
-    config.timeoutIntervalForResource = 60.0f;  // 1 minute
-    tokenOperationSharedSession = [NSURLSession sessionWithConfiguration:config];
-    tokenOperationSharedSession.sessionDescription = @"com.google.iid.tokens.session";
-  });
-  return tokenOperationSharedSession;
-}
 
 - (instancetype)initWithAction:(FIRMessagingTokenAction)action
            forAuthorizedEntity:(NSString *)authorizedEntity
@@ -82,14 +70,11 @@ static NSString *const kFIRMessagingParamFCMLibVersion = @"X-cliv";
 }
 
 - (void)dealloc {
-  _authorizedEntity = nil;
-  _scope = nil;
-  _options = nil;
-  _checkinPreferences = nil;
   [_completionHandlers removeAllObjects];
   [_FISAuthToken release];
   [_checkinPreferences release];
   [_instanceID release];
+  [_dataTask release];
   [super dealloc];
 }
 

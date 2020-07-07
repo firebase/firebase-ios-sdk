@@ -33,7 +33,7 @@ NSString *const kFIRMessagingKeychainWildcardIdentifier = @"*";
 // cachedKeychainData is keyed by service and account, the value is an array of NSData.
 // It is used to cache the tokens per service, per account, as well as checkin data per service,
 // per account inside the keychain.
-@property(nonatomic)
+@property(nonatomic, strong)
     NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, NSArray<NSData *> *> *>
         *cachedKeychainData;
 
@@ -51,8 +51,9 @@ NSString *const kFIRMessagingKeychainWildcardIdentifier = @"*";
 }
 
 - (void)dealloc {
-  _generic = nil;
-  _cachedKeychainData = nil;
+  [_generic release];
+  [_cachedKeychainData release];
+
   [super dealloc];
 }
 

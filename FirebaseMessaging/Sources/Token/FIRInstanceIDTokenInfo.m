@@ -67,6 +67,13 @@ const NSTimeInterval kDefaultFetchTokenInterval = 7 * 24 * 60 * 60;  // 7 days.
 }
 
 - (void)dealloc {
+  [_authorizedEntity release];
+  [_scope release];
+  [_token release];
+  [_appVersion release];
+  [_firebaseAppID release];
+  [_APNSInfo release];
+  [_cacheTime release];
   [super dealloc];
 }
 

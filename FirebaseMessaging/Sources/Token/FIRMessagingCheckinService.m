@@ -51,11 +51,8 @@ static NSUInteger const kFragment = 0;
 - (instancetype)init {
   self = [super init];
   if (self) {
-    // Create an URLSession once, even though checkin should happen about once a day
-    NSURLSessionConfiguration *config = [NSURLSessionConfiguration defaultSessionConfiguration];
-    config.timeoutIntervalForResource = 60.0f;  // 1 minute
-    config.allowsCellularAccess = YES;
-    _session = [NSURLSession sessionWithConfiguration:config];
+    _session = [NSURLSession
+        sessionWithConfiguration:NSURLSessionConfiguration.defaultSessionConfiguration];
     _session.sessionDescription = @"com.google.iid-checkin";
   }
   return self;
@@ -107,13 +104,13 @@ static NSUInteger const kFragment = 0;
                                                                      options:0
                                                                        error:&serializationError];
         if (serializationError) {
-          //          FIRMessagingLoggerDebug(kFIRMessagingMessageCodeService001,
-          //                                  @"Error serializing json object. Error Code: %ld",
-          //                                  (long)serializationError.code);
-          //          if (completion) {
-          //            completion(nil, serializationError);
-          //          }
-          //          return;
+          FIRMessagingLoggerDebug(kFIRMessagingMessageCodeService001,
+                                  @"Error serializing json object. Error Code: %ld",
+                                  (long)serializationError.code);
+          if (completion) {
+            completion(nil, serializationError);
+          }
+          return;
         }
 
         NSString *deviceAuthID = [dataResponse[@"android_id"] stringValue];
@@ -177,6 +174,10 @@ static NSUInteger const kFragment = 0;
           completion(checkinPreferences, nil);
         }
       };
+  NSURLSessionConfiguration *config = NSURLSessionConfiguration.defaultSessionConfiguration;
+  config.timeoutIntervalForResource = 60.0f;  // 1 minute
+  _session = [NSURLSession sessionWithConfiguration:config];
+  _session.sessionDescription = @"com.google.iid-checkin";
   NSURLSessionDataTask *task = [_session dataTaskWithRequest:request completionHandler:handler];
   [task resume];
 }

@@ -283,20 +283,18 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
                                                        NSError *_Nullable error) {
       if ([self.tokenManager checkTokenRefreshPolicyWithIID:identifier]) {
         // Default token is expired, fetch default token from server.
-        [self
-            retrieveFCMTokenForSenderID:self.tokenManager.fcmSenderID
-                             completion:^(NSString *_Nullable FCMToken, NSError *_Nullable error) {
-                               self.defaultFcmToken = FCMToken;
-                             }];
+        [self retrieveFCMTokenForSenderID:self.tokenManager.fcmSenderID
+                               completion:^(NSString *_Nullable FCMToken, NSError *_Nullable error){
+                               }];
       }
+      [self setDefaultFcmToken:cachedToken];
     }];
   } else if (self.isAutoInitEnabled) {
     // When there is no cached token, must check auto init is enabled.
     // If it's disabled, don't initiate token generation/refresh.
     // If no cache token and auto init is enabled, fetch a token from server.
     [self retrieveFCMTokenForSenderID:self.tokenManager.fcmSenderID
-                           completion:^(NSString *_Nullable FCMToken, NSError *_Nullable error) {
-                             self.defaultFcmToken = FCMToken;
+                           completion:^(NSString *_Nullable FCMToken, NSError *_Nullable error){
                            }];
   }
 }
@@ -612,6 +610,8 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   }
 }
 
+#pragma mark - FCM Token
+
 - (NSString *)FCMToken {
   NSString *token = self.defaultFcmToken;
   if (!token) {
@@ -646,10 +646,18 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
                            @"set.",
                            senderID);
   }
-  [self.tokenManager tokenWithAuthorizedEntity:senderID
-                                         scope:kFIRMessagingDefaultTokenScope
-                                       options:options
-                                       handler:completion];
+  [self.tokenManager
+      tokenWithAuthorizedEntity:senderID
+                          scope:kFIRMessagingDefaultTokenScope
+                        options:options
+                        handler:^(NSString *_Nullable FCMToken, NSError *_Nullable error) {
+                          if (!error) {
+                            [self setDefaultFcmToken:FCMToken];
+                          }
+                          if (completion) {
+                            completion(FCMToken, error);
+                          }
+                        }];
 }
 
 - (void)deleteFCMTokenForSenderID:(nonnull NSString *)senderID
@@ -678,7 +686,14 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
           [self.tokenManager deleteTokenWithAuthorizedEntity:senderID
                                                        scope:kFIRMessagingDefaultTokenScope
                                                   instanceID:identifier
-                                                     handler:completion];
+                                                     handler:^(NSError *_Nullable error) {
+                                                       if (!error) {
+                                                         [self setDefaultFcmToken:nil];
+                                                       }
+                                                       if (completion) {
+                                                         completion(error);
+                                                       }
+                                                     }];
         }
       }];
 }
@@ -1007,6 +1022,12 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
       [self updateAutomaticClientConnection];
     }
 #pragma clang diagnostic pop
+    if (!_defaultFcmToken && self.isAutoInitEnabled) {
+      [self retrieveFCMTokenForSenderID:self.tokenManager.fcmSenderID
+                             completion:^(NSString *_Nullable FCMToken, NSError *_Nullable error){
+
+                             }];
+    }
   }
 }
 
