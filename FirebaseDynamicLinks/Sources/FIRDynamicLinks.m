@@ -53,9 +53,6 @@ NSString *const kFIRDLVersion = @STR(FIRDynamicLinks_VERSION);
 NSString *const kFIRDLReadDeepLinkAfterInstallKey =
     @"com.google.appinvite.readDeeplinkAfterInstall";
 
-// We should only open url once. We use the following key to store the state in the user defaults.
-static NSString *const kFIRDLOpenURLKey = @"com.google.appinvite.openURL";
-
 // Custom domains to be whitelisted are optionally added as an array to the info.plist.
 static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustomDomains";
 
@@ -397,10 +394,6 @@ static const NSInteger FIRErrorCodeDurableDeepLinkFailed = -119;
                              _analytics);
       }
 #endif
-      // Make sure we don't call |checkForPendingDynamicLink| again if we did this already.
-      if ([_userDefaults boolForKey:kFIRDLOpenURLKey]) {
-        [_userDefaults setBool:YES forKey:kFIRDLReadDeepLinkAfterInstallKey];
-      }
       return dynamicLink;
     }
   }
@@ -549,12 +542,12 @@ static const NSInteger FIRErrorCodeDurableDeepLinkFailed = -119;
   self.retrievingPendingDynamicLink = NO;
   _retrievalProcess = nil;
 
-  if (![_userDefaults boolForKey:kFIRDLOpenURLKey]) {
+  if (![_userDefaults boolForKey:kFIRDLReadDeepLinkAfterInstallKey]) {
     // Once we complete the Pending dynamic link retrieval, regardless of whether the retrieval is
     // success or failure, we don't want to do the retrieval again on next app start.
     // If we try to redo the retrieval again because of some error, the user will experience
     // unwanted deeplinking when they restart the app next time.
-    [_userDefaults setBool:YES forKey:kFIRDLOpenURLKey];
+    [_userDefaults setBool:YES forKey:kFIRDLReadDeepLinkAfterInstallKey];
   }
 
   NSURL *linkToPassToApp = [result URLWithCustomURLScheme:_URLScheme];
