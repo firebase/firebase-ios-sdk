@@ -39,7 +39,7 @@ class KeychainViewModel: NSObject, ObservableObject {
     self.keychainStorage = keychainStorage
     super.init()
 
-    self.registerBackgroundFetchHandler()
+//    self.registerBackgroundFetchHandler()
     self.startLocationUpdates()
   }
 
@@ -128,7 +128,7 @@ class KeychainViewModel: NSObject, ObservableObject {
 
   let backgroundFetchTaskID = "KeychainViewModel.fetch"
   private func registerBackgroundFetchHandler() {
-    BGTaskScheduler.shared
+    let registered = BGTaskScheduler.shared
       .register(forTaskWithIdentifier: backgroundFetchTaskID, using: nil) { task in
         self.log(message: "Background fetch:")
 
@@ -139,7 +139,12 @@ class KeychainViewModel: NSObject, ObservableObject {
         self.updateAndLogValue {
           task.setTaskCompleted(success: true)
         }
-      }
+    }
+    
+    guard registered else {
+      log(message: "Failed to register for background fetch.")
+      return
+    }
 
     let request = BGAppRefreshTaskRequest(identifier: backgroundFetchTaskID)
     request.earliestBeginDate = Date(timeIntervalSinceNow: 5)
@@ -169,7 +174,13 @@ extension KeychainViewModel: CLLocationManagerDelegate {
     DispatchQueue.main.async {
       self.updateAndLogValue {}
     }
+  }
 
+  func locationManager(_ manager: CLLocationManager, didVisit visit: CLVisit) {
+    log(message: "Visit")
+    DispatchQueue.main.async {
+      self.updateAndLogValue {}
+    }
   }
 
   func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
@@ -188,11 +199,12 @@ extension KeychainViewModel: CLLocationManagerDelegate {
   private func startLocationUpdates(with status: CLAuthorizationStatus) -> Bool {
     switch status {
     case .authorizedAlways:
-      locationManager.startUpdatingLocation()
-      print("Location updates started")
+//      locationManager.startUpdatingLocation()
+      locationManager.startMonitoringVisits()
+      log(message: "Location updates started")
       return true
     default:
-      print("CLLocationManager wrong auth status: \(status.rawValue)")
+      log(message: "CLLocationManager wrong auth status: \(status.rawValue)")
       return false
     }
   }
