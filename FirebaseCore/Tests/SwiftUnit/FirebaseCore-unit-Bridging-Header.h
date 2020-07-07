@@ -13,4 +13,4 @@
 // limitations under the License.
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
-#import "FirebaseCore/Tests/Unit/Swift/SwiftTestingUtilities/ExceptionCatcher.h"
+#import "FirebaseCore/Tests/SwiftUnit/SwiftTestingUtilities/ExceptionCatcher.h"

@@ -16,9 +16,9 @@
 
 #import "FirebaseDatabase/Tests/Helpers/FIRFakeApp.h"
 
-#import "Example/Shared/FIRAuthInteropFake.h"
-#import "Example/Shared/FIRComponentTestUtilities.h"
 #import "FirebaseDatabase/Sources/Api/FIRDatabaseComponent.h"
+#import "SharedTestUtilities/FIRAuthInteropFake.h"
+#import "SharedTestUtilities/FIRComponentTestUtilities.h"
 
 @interface FIRFakeOptions : NSObject
 @property(nonatomic, readonly, copy) NSString *databaseURL;

@@ -25,15 +25,25 @@ NS_ASSUME_NONNULL_BEGIN
 @class GCDWebServerRequest;
 @class GCDWebServerResponse;
 
+typedef void (^GDTCCTTestServerRequestHandler)(GCDWebServerRequest *request,
+                                               GCDWebServerResponse *_Nullable suggestedResponse,
+                                               GCDWebServerCompletionBlock completionBlock);
+
 /** This class provides a hermetic test service that runs on the test device/simulator. */
 @interface GDTCCTTestServer : NSObject
 
 /** The URL of the server. */
 @property(nonatomic, readonly) NSURL *serverURL;
 
+/** The value will be passed to `gdt_cct_LogResponse.next_request_wait_millis`. */
+@property(nonatomic) NSTimeInterval responseNextRequestWaitTime;
+
 /** Just before responding, this block will be scheduled to run on a global queue. */
 @property(nonatomic, copy, nullable) void (^responseCompletedBlock)
     (GCDWebServerRequest *request, GCDWebServerResponse *response);
+
+/** The provides an opportunity to overwrite or delay response to a request. */
+@property(nonatomic, copy, nullable) GDTCCTTestServerRequestHandler requestHandler;
 
 /** YES if the server is running, NO otherwise. */
 @property(nonatomic, readonly) BOOL isRunning;

@@ -19,8 +19,10 @@
 #import <OCMock/OCMock.h>
 #import "FirebaseABTesting/Sources/ABTConditionalUserPropertyController.h"
 #import "FirebaseABTesting/Sources/ABTConstants.h"
+#import "FirebaseABTesting/Sources/Private/ABTExperimentPayload.h"
 #import "FirebaseABTesting/Tests/Unit/ABTFakeFIRAConditionalUserPropertyController.h"
 #import "FirebaseABTesting/Tests/Unit/ABTTestUniversalConstants.h"
+#import "FirebaseABTesting/Tests/Unit/Utilities/ABTTestUtilities.h"
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 
@@ -40,7 +42,7 @@ extern NSArray *ABTExperimentsToClearFromPayloads(
     updateExperimentConditionalUserPropertiesWithServiceOrigin:(NSString *)origin
                                                         events:(FIRLifecycleEvents *)events
                                                         policy:
-                                                            (ABTExperimentPayload_ExperimentOverflowPolicy)
+                                                            (ABTExperimentPayloadExperimentOverflowPolicy)
                                                                 policy
                                                  lastStartTime:(NSTimeInterval)lastStartTime
                                                       payloads:(NSArray<NSData *> *)payloads
@@ -59,9 +61,9 @@ extern NSArray *ABTExperimentsToClearFromPayloads(
 - (id)createExperimentFromOrigin:(NSString *)origin
                          payload:(ABTExperimentPayload *)payload
                           events:(FIRLifecycleEvents *)events;
-- (ABTExperimentPayload_ExperimentOverflowPolicy)
+- (ABTExperimentPayloadExperimentOverflowPolicy)
     overflowPolicyWithPayload:(ABTExperimentPayload *)payload
-               originalPolicy:(ABTExperimentPayload_ExperimentOverflowPolicy)originalPolicy;
+               originalPolicy:(ABTExperimentPayloadExperimentOverflowPolicy)originalPolicy;
 @end
 
 @interface FIRExperimentControllerTest : XCTestCase {
@@ -98,7 +100,6 @@ extern NSArray *ABTExperimentsToClearFromPayloads(
   NSString *sampleString = @"sample_invalid_payload";
   NSData *invalidData = [sampleString dataUsingEncoding:NSUTF8StringEncoding];
   XCTAssertNil(ABTDeserializeExperimentPayload(invalidData));
-  XCTAssertNotNil(ABTDeserializeExperimentPayload(nil));
 }
 
 - (void)testLifecycleEvents {
@@ -144,52 +145,35 @@ extern NSArray *ABTExperimentsToClearFromPayloads(
       setExperimentWithOrigin:[OCMArg any]
                       payload:[OCMArg any]
                        events:[OCMArg any]
-                       policy:ABTExperimentPayload_ExperimentOverflowPolicy_DiscardOldest];
+                       policy:ABTExperimentPayloadExperimentOverflowPolicyDiscardOldest];
   NSString *sampleString = @"sample_invalid_payload";
   NSData *invalidData = [sampleString dataUsingEncoding:NSUTF8StringEncoding];
   XCTAssertNil(ABTDeserializeExperimentPayload(invalidData));
 }
 
 - (void)testUpdateExperiments {
-  NSTimeInterval now = [[NSDate date] timeIntervalSince1970];
+  NSDate *now = [NSDate date];
 
-  ABTExperimentPayload *payload2 = [[ABTExperimentPayload alloc] init];
-  payload2.experimentId = @"exp_2";
-  payload2.variantId = @"v200";
-  payload2.experimentStartTimeMillis =
-      (now + 1500) * ABT_MSEC_PER_SEC;  // start time > last start time, do set
-  ABTExperimentLite *ongoingExperiment = [[ABTExperimentLite alloc] init];
-  ongoingExperiment.experimentId = @"exp_1";
-  [payload2.ongoingExperimentsArray addObject:ongoingExperiment];
-
-  ABTExperimentPayload *payload3 = [[ABTExperimentPayload alloc] init];
-  payload3.experimentId = @"exp_3";
-  payload3.variantId = @"v200";
-  payload3.experimentStartTimeMillis =
-      (now + 900) * ABT_MSEC_PER_SEC;  // start time > last start time, do set
-  ongoingExperiment = [[ABTExperimentLite alloc] init];
-  ongoingExperiment.experimentId = @"exp_2";
-  [payload3.ongoingExperimentsArray addObject:ongoingExperiment];
-
-  ABTExperimentPayload *payload4 = [[ABTExperimentPayload alloc] init];
-  payload4.experimentId = @"exp_4";
-  payload4.variantId = @"v200";
-  payload4.experimentStartTimeMillis =
-      (now - 900) * ABT_MSEC_PER_SEC;  // start time < last start time, do not set.
-  ongoingExperiment = [[ABTExperimentLite alloc] init];
-  ongoingExperiment.experimentId = @"exp_2";
-  [payload4.ongoingExperimentsArray addObject:ongoingExperiment];
+  NSData *payload2Data =
+      [ABTTestUtilities payloadJSONDataFromFile:@"TestABTPayload2"
+                              modifiedStartTime:[now dateByAddingTimeInterval:1500]];
+  NSData *payload3Data =
+      [ABTTestUtilities payloadJSONDataFromFile:@"TestABTPayload3"
+                              modifiedStartTime:[now dateByAddingTimeInterval:900]];
+  NSData *payload4Data =
+      [ABTTestUtilities payloadJSONDataFromFile:@"TestABTPayload4"
+                              modifiedStartTime:[now dateByAddingTimeInterval:-900]];
 
   __block BOOL completionHandlerCalled = NO;
 
   FIRLifecycleEvents *events = [[FIRLifecycleEvents alloc] init];
-  NSArray *payloads = @[ [payload2 data], [payload3 data], [payload4 data] ];
+  NSArray *payloads = @[ payload2Data, payload3Data, payload4Data ];
   [_experimentController
       updateExperimentConditionalUserPropertiesWithServiceOrigin:gABTTestOrigin
                                                           events:events
                                                           policy:
-                                                              ABTExperimentPayload_ExperimentOverflowPolicy_DiscardOldest  // NOLINT
-                                                   lastStartTime:now
+                                                              ABTExperimentPayloadExperimentOverflowPolicyDiscardOldest  // NOLINT
+                                                   lastStartTime:[now timeIntervalSince1970]
                                                         payloads:payloads
                                                completionHandler:^(NSError *_Nullable error) {
                                                  completionHandlerCalled = YES;
@@ -199,13 +183,13 @@ extern NSArray *ABTExperimentsToClearFromPayloads(
   XCTAssertTrue(completionHandlerCalled);
 
   // Second time update exp_1 no longer exist, should be cleared from experiments.
-  payloads = @[ [payload3 data], [payload4 data] ];
+  payloads = @[ payload3Data, payload4Data ];
   [_experimentController
       updateExperimentConditionalUserPropertiesWithServiceOrigin:gABTTestOrigin
                                                           events:events
                                                           policy:
-                                                              ABTExperimentPayload_ExperimentOverflowPolicy_DiscardOldest  // NOLINT
-                                                   lastStartTime:now
+                                                              ABTExperimentPayloadExperimentOverflowPolicyDiscardOldest  // NOLINT
+                                                   lastStartTime:[now timeIntervalSince1970]
                                                         payloads:payloads
                                                completionHandler:nil];
 
@@ -215,37 +199,35 @@ extern NSArray *ABTExperimentsToClearFromPayloads(
 - (void)testLatestExperimentStartTimestamps {
   // Mock incoming payloads
   NSMutableArray<NSData *> *payloads = [[NSMutableArray alloc] init];
-  NSTimeInterval now = [[NSDate date] timeIntervalSince1970];
 
-  ABTExperimentPayload *payload1 = [[ABTExperimentPayload alloc] init];
-  payload1.experimentId = @"exp_1";
-  payload1.variantId = @"v3";
-  payload1.experimentStartTimeMillis = now * ABT_MSEC_PER_SEC;
-  [payloads addObject:[payload1 data]];
+  NSDate *now = [NSDate date];
+  NSTimeInterval nowInterval = [now timeIntervalSince1970];
 
-  ABTExperimentPayload *payload2 = [[ABTExperimentPayload alloc] init];
-  payload2.experimentId = @"exp_2";
-  payload2.variantId = @"v2";
-  payload2.experimentStartTimeMillis = (now + 500) * ABT_MSEC_PER_SEC;
-  [payloads addObject:[payload2 data]];
+  NSData *payload2Data = [ABTTestUtilities payloadJSONDataFromFile:@"TestABTPayload2"
+                                                 modifiedStartTime:now];
+  [payloads addObject:payload2Data];
+  NSData *payload3Data =
+      [ABTTestUtilities payloadJSONDataFromFile:@"TestABTPayload3"
+                              modifiedStartTime:[now dateByAddingTimeInterval:500]];
+  [payloads addObject:payload3Data];
 
   NSString *sampleString = @"sample_invalid_payload";
   NSData *invalidPayload = [sampleString dataUsingEncoding:NSUTF8StringEncoding];
   [payloads addObject:invalidPayload];
 
   XCTAssertEqualWithAccuracy(
-      now + 500,
-      [_experimentController latestExperimentStartTimestampBetweenTimestamp:now + 200
+      [now timeIntervalSince1970] + 500,
+      [_experimentController latestExperimentStartTimestampBetweenTimestamp:nowInterval + 200
                                                                 andPayloads:payloads],
       1);
   XCTAssertEqualWithAccuracy(
-      now + 1000,
-      [_experimentController latestExperimentStartTimestampBetweenTimestamp:now + 1000
+      [now timeIntervalSince1970] + 1000,
+      [_experimentController latestExperimentStartTimestampBetweenTimestamp:nowInterval + 1000
                                                                 andPayloads:payloads],
       1);
   XCTAssertEqualWithAccuracy(
-      now + 500,
-      [_experimentController latestExperimentStartTimestampBetweenTimestamp:now - 10000
+      [now timeIntervalSince1970] + 500,
+      [_experimentController latestExperimentStartTimestampBetweenTimestamp:nowInterval - 10000
                                                                 andPayloads:payloads],
       1);
 }
@@ -257,20 +239,16 @@ extern NSArray *ABTExperimentsToClearFromPayloads(
   NSDictionary<NSString *, NSString *> *CUP1 = @{@"name" : @"exp_1", @"value" : @"v1"};
   [currentExperiments addObject:CUP1];
 
-  NSDictionary<NSString *, NSString *> *CUP2 = @{@"name" : @"exp_2", @"value" : @"v2"};
+  NSDictionary<NSString *, NSString *> *CUP2 = @{@"name" : @"exp_2", @"value" : @"v200"};
   [currentExperiments addObject:CUP2];
 
-  // Mock incoming payloads
   NSMutableArray<NSData *> *payloads = [[NSMutableArray alloc] init];
-  ABTExperimentPayload *payload1 = [[ABTExperimentPayload alloc] init];
-  payload1.experimentId = @"exp_1";
-  payload1.variantId = @"v3";
-  [payloads addObject:[payload1 data]];
-
-  ABTExperimentPayload *payload2 = [[ABTExperimentPayload alloc] init];
-  payload2.experimentId = @"exp_2";
-  payload2.variantId = @"v2";
-  [payloads addObject:[payload2 data]];
+  NSData *payload1Data = [ABTTestUtilities payloadJSONDataFromFile:@"TestABTPayload1"
+                                                 modifiedStartTime:nil];
+  [payloads addObject:payload1Data];
+  NSData *payload2Data = [ABTTestUtilities payloadJSONDataFromFile:@"TestABTPayload2"
+                                                 modifiedStartTime:nil];
+  [payloads addObject:payload2Data];
 
   NSString *sampleString = @"sample_invalid_payload";
   NSData *invalidPayload = [sampleString dataUsingEncoding:NSUTF8StringEncoding];
@@ -282,10 +260,10 @@ extern NSArray *ABTExperimentsToClearFromPayloads(
   XCTAssertEqual(experimentsToSet.count, 1);
   ABTExperimentPayload *payloadToAdd = experimentsToSet.firstObject;
   XCTAssertEqualObjects(payloadToAdd.experimentId, @"exp_1");
-  XCTAssertEqualObjects(payloadToAdd.variantId, @"v3");
+  XCTAssertEqualObjects(payloadToAdd.variantId, @"var_1");
 }
 
-- (void)testExperimentsToClearFromPaylods {
+- (void)testExperimentsToClearFromPayloads {
   // Mock conditional user property objects in experiments.
   NSMutableArray *currentExperiments = [[NSMutableArray alloc] init];
 
@@ -295,17 +273,13 @@ extern NSArray *ABTExperimentsToClearFromPayloads(
   NSDictionary<NSString *, NSString *> *CUP2 = @{@"name" : @"exp_2", @"value" : @"v2"};
   [currentExperiments addObject:CUP2];
 
-  // Mock incoming payloads
   NSMutableArray<NSData *> *payloads = [[NSMutableArray alloc] init];
-  ABTExperimentPayload *payload1 = [[ABTExperimentPayload alloc] init];
-  payload1.experimentId = @"exp_1";
-  payload1.variantId = @"v3";
-  [payloads addObject:[payload1 data]];
-
-  ABTExperimentPayload *payload2 = [[ABTExperimentPayload alloc] init];
-  payload2.experimentId = @"exp_2";
-  payload2.variantId = @"v2";
-  [payloads addObject:[payload2 data]];
+  NSData *payload1Data = [ABTTestUtilities payloadJSONDataFromFile:@"TestABTPayload4"
+                                                 modifiedStartTime:nil];
+  [payloads addObject:payload1Data];
+  NSData *payload2Data = [ABTTestUtilities payloadJSONDataFromFile:@"TestABTPayload5"
+                                                 modifiedStartTime:nil];
+  [payloads addObject:payload2Data];
 
   NSString *sampleString = @"sample_invalid_payload";
   NSData *invalidPayload = [sampleString dataUsingEncoding:NSUTF8StringEncoding];
@@ -325,12 +299,12 @@ extern NSArray *ABTExperimentsToClearFromPayloads(
       setExperimentWithOrigin:[OCMArg any]
                       payload:[OCMArg any]
                        events:[OCMArg any]
-                       policy:ABTExperimentPayload_ExperimentOverflowPolicy_DiscardOldest];
+                       policy:ABTExperimentPayloadExperimentOverflowPolicyDiscardOldest];
   [[_mockCUPController reject]
       setExperimentWithOrigin:[OCMArg any]
                       payload:[OCMArg any]
                        events:[OCMArg any]
-                       policy:ABTExperimentPayload_ExperimentOverflowPolicy_DiscardOldest];
+                       policy:ABTExperimentPayloadExperimentOverflowPolicyDiscardOldest];
 
   OCMStub([_mockCUPController experimentsWithOrigin:gABTTestOrigin]).andReturn(nil);
   NSMutableArray<NSData *> *payloads = [[NSMutableArray alloc] init];
@@ -342,7 +316,7 @@ extern NSArray *ABTExperimentsToClearFromPayloads(
       updateExperimentConditionalUserPropertiesWithServiceOrigin:gABTTestOrigin
                                                           events:events
                                                           policy:
-                                                              ABTExperimentPayload_ExperimentOverflowPolicy_DiscardOldest  // NOLINT
+                                                              ABTExperimentPayloadExperimentOverflowPolicyDiscardOldest  // NOLINT
                                                    lastStartTime:-1
                                                         payloads:payloads
                                                completionHandler:^(NSError *_Nullable error) {
@@ -362,8 +336,8 @@ extern NSArray *ABTExperimentsToClearFromPayloads(
 
   NSString *mockOrigin = @"mockOrigin";
   FIRLifecycleEvents *mockLifecycleEvents = [[FIRLifecycleEvents alloc] init];
-  ABTExperimentPayload_ExperimentOverflowPolicy mockOverflowPolicy =
-      ABTExperimentPayload_ExperimentOverflowPolicy_DiscardOldest;
+  ABTExperimentPayloadExperimentOverflowPolicy mockOverflowPolicy =
+      ABTExperimentPayloadExperimentOverflowPolicyDiscardOldest;
   NSTimeInterval mockLastStartTime = 100;
   NSArray *mockPayloads = @[];
 
@@ -390,34 +364,23 @@ extern NSArray *ABTExperimentsToClearFromPayloads(
 }
 
 - (void)testValidateRunningExperimentsWithEmptyArray {
-  NSTimeInterval now = [[NSDate date] timeIntervalSince1970];
+  NSDate *now = [NSDate date];
 
-  ABTExperimentPayload *payload2 = [[ABTExperimentPayload alloc] init];
-  payload2.experimentId = @"exp_2";
-  payload2.variantId = @"v200";
-  payload2.experimentStartTimeMillis =
-      (now + 1500) * ABT_MSEC_PER_SEC;  // start time > last start time, do set
-  ABTExperimentLite *ongoingExperiment = [[ABTExperimentLite alloc] init];
-  ongoingExperiment.experimentId = @"exp_1";
-  [payload2.ongoingExperimentsArray addObject:ongoingExperiment];
-
-  ABTExperimentPayload *payload3 = [[ABTExperimentPayload alloc] init];
-  payload3.experimentId = @"exp_3";
-  payload3.variantId = @"v200";
-  payload3.experimentStartTimeMillis =
-      (now + 900) * ABT_MSEC_PER_SEC;  // start time > last start time, do set
-  ongoingExperiment = [[ABTExperimentLite alloc] init];
-  ongoingExperiment.experimentId = @"exp_2";
-  [payload3.ongoingExperimentsArray addObject:ongoingExperiment];
+  NSData *payload2Data =
+      [ABTTestUtilities payloadJSONDataFromFile:@"TestABTPayload2"
+                              modifiedStartTime:[now dateByAddingTimeInterval:1500]];
+  NSData *payload3Data =
+      [ABTTestUtilities payloadJSONDataFromFile:@"TestABTPayload3"
+                              modifiedStartTime:[now dateByAddingTimeInterval:900]];
 
   FIRLifecycleEvents *events = [[FIRLifecycleEvents alloc] init];
-  NSArray *payloads = @[ [payload2 data], [payload3 data] ];
+  NSArray *payloads = @[ payload2Data, payload3Data ];
   [_experimentController
       updateExperimentConditionalUserPropertiesWithServiceOrigin:gABTTestOrigin
                                                           events:events
                                                           policy:
-                                                              ABTExperimentPayload_ExperimentOverflowPolicy_DiscardOldest  // NOLINT
-                                                   lastStartTime:now
+                                                              ABTExperimentPayloadExperimentOverflowPolicyDiscardOldest  // NOLINT
+                                                   lastStartTime:[now timeIntervalSince1970]
                                                         payloads:payloads
                                                completionHandler:nil];
 
@@ -431,42 +394,30 @@ extern NSArray *ABTExperimentsToClearFromPayloads(
 }
 
 - (void)testValidateRunningExperimentsClearingOne {
-  NSTimeInterval now = [[NSDate date] timeIntervalSince1970];
+  NSDate *now = [NSDate date];
 
-  ABTExperimentPayload *payload2 = [[ABTExperimentPayload alloc] init];
-  payload2.experimentId = @"exp_2";
-  payload2.variantId = @"v200";
-  payload2.experimentStartTimeMillis =
-      (now + 1500) * ABT_MSEC_PER_SEC;  // start time > last start time, do set
-  ABTExperimentLite *ongoingExperiment = [[ABTExperimentLite alloc] init];
-  ongoingExperiment.experimentId = @"exp_1";
-  [payload2.ongoingExperimentsArray addObject:ongoingExperiment];
-
-  ABTExperimentPayload *payload3 = [[ABTExperimentPayload alloc] init];
-  payload3.experimentId = @"exp_3";
-  payload3.variantId = @"v200";
-  payload3.experimentStartTimeMillis =
-      (now + 900) * ABT_MSEC_PER_SEC;  // start time > last start time, do set
-  ongoingExperiment = [[ABTExperimentLite alloc] init];
-  ongoingExperiment.experimentId = @"exp_2";
-  [payload3.ongoingExperimentsArray addObject:ongoingExperiment];
+  NSData *payload2Data =
+      [ABTTestUtilities payloadJSONDataFromFile:@"TestABTPayload2"
+                              modifiedStartTime:[now dateByAddingTimeInterval:1500]];
+  NSData *payload3Data =
+      [ABTTestUtilities payloadJSONDataFromFile:@"TestABTPayload3"
+                              modifiedStartTime:[now dateByAddingTimeInterval:900]];
 
   FIRLifecycleEvents *events = [[FIRLifecycleEvents alloc] init];
-  NSArray *payloads = @[ [payload2 data], [payload3 data] ];
+  NSArray *payloads = @[ payload2Data, payload3Data ];
   [_experimentController
       updateExperimentConditionalUserPropertiesWithServiceOrigin:gABTTestOrigin
                                                           events:events
                                                           policy:
-                                                              ABTExperimentPayload_ExperimentOverflowPolicy_DiscardOldest  // NOLINT
-                                                   lastStartTime:now
+                                                              ABTExperimentPayloadExperimentOverflowPolicyDiscardOldest  // NOLINT
+                                                   lastStartTime:[now timeIntervalSince1970]
                                                         payloads:payloads
                                                completionHandler:nil];
 
   XCTAssertEqual([_mockCUPController experimentsWithOrigin:gABTTestOrigin].count, 2);
 
-  ABTExperimentPayload *validatingPayload2 = [[ABTExperimentPayload alloc] init];
-  validatingPayload2.experimentId = @"exp_2";
-  validatingPayload2.variantId = @"v200";
+  ABTExperimentPayload *validatingPayload2 =
+      [ABTTestUtilities payloadFromTestFilename:@"TestABTPayload2"];
 
   [_experimentController validateRunningExperimentsForServiceOrigin:gABTTestOrigin
                                           runningExperimentPayloads:@[ validatingPayload2 ]];
@@ -476,46 +427,32 @@ extern NSArray *ABTExperimentsToClearFromPayloads(
 }
 
 - (void)testValidateRunningExperimentsKeepingAll {
-  NSTimeInterval now = [[NSDate date] timeIntervalSince1970];
+  NSDate *now = [NSDate date];
 
-  ABTExperimentPayload *payload2 = [[ABTExperimentPayload alloc] init];
-  payload2.experimentId = @"exp_2";
-  payload2.variantId = @"v200";
-  payload2.experimentStartTimeMillis =
-      (now + 1500) * ABT_MSEC_PER_SEC;  // start time > last start time, do set
-  ABTExperimentLite *ongoingExperiment = [[ABTExperimentLite alloc] init];
-  ongoingExperiment.experimentId = @"exp_1";
-  [payload2.ongoingExperimentsArray addObject:ongoingExperiment];
-
-  ABTExperimentPayload *payload3 = [[ABTExperimentPayload alloc] init];
-  payload3.experimentId = @"exp_3";
-  payload3.variantId = @"v200";
-  payload3.experimentStartTimeMillis =
-      (now + 900) * ABT_MSEC_PER_SEC;  // start time > last start time, do set
-  ongoingExperiment = [[ABTExperimentLite alloc] init];
-  ongoingExperiment.experimentId = @"exp_2";
-  [payload3.ongoingExperimentsArray addObject:ongoingExperiment];
+  NSData *payload2Data =
+      [ABTTestUtilities payloadJSONDataFromFile:@"TestABTPayload2"
+                              modifiedStartTime:[now dateByAddingTimeInterval:1500]];
+  NSData *payload3Data =
+      [ABTTestUtilities payloadJSONDataFromFile:@"TestABTPayload3"
+                              modifiedStartTime:[now dateByAddingTimeInterval:900]];
 
   FIRLifecycleEvents *events = [[FIRLifecycleEvents alloc] init];
-  NSArray *payloads = @[ [payload2 data], [payload3 data] ];
+  NSArray *payloads = @[ payload2Data, payload3Data ];
   [_experimentController
       updateExperimentConditionalUserPropertiesWithServiceOrigin:gABTTestOrigin
                                                           events:events
                                                           policy:
-                                                              ABTExperimentPayload_ExperimentOverflowPolicy_DiscardOldest  // NOLINT
-                                                   lastStartTime:now
+                                                              ABTExperimentPayloadExperimentOverflowPolicyDiscardOldest  // NOLINT
+                                                   lastStartTime:[now timeIntervalSince1970]
                                                         payloads:payloads
                                                completionHandler:nil];
 
   XCTAssertEqual([_mockCUPController experimentsWithOrigin:gABTTestOrigin].count, 2);
 
-  ABTExperimentPayload *validatingPayload2 = [[ABTExperimentPayload alloc] init];
-  validatingPayload2.experimentId = @"exp_2";
-  validatingPayload2.variantId = @"v200";
-
-  ABTExperimentPayload *validatingPayload3 = [[ABTExperimentPayload alloc] init];
-  validatingPayload3.experimentId = @"exp_3";
-  validatingPayload3.variantId = @"v200";
+  ABTExperimentPayload *validatingPayload2 =
+      [ABTTestUtilities payloadFromTestFilename:@"TestABTPayload2"];
+  ABTExperimentPayload *validatingPayload3 =
+      [ABTTestUtilities payloadFromTestFilename:@"TestABTPayload3"];
 
   [_experimentController
       validateRunningExperimentsForServiceOrigin:gABTTestOrigin
@@ -526,10 +463,8 @@ extern NSArray *ABTExperimentsToClearFromPayloads(
 }
 
 - (void)testActivateExperiment {
-  ABTExperimentPayload *activeExperiment = [[ABTExperimentPayload alloc] init];
-  activeExperiment.experimentId = @"exp_3";
-  activeExperiment.variantId = @"v200";
-  activeExperiment.triggerEvent = @"trigger";
+  ABTExperimentPayload *activeExperiment =
+      [ABTTestUtilities payloadFromTestFilename:@"TestABTPayload1"];
 
   [_experimentController activateExperiment:activeExperiment forServiceOrigin:gABTTestOrigin];
 

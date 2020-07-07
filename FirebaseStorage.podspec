@@ -47,8 +47,8 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
 
   s.test_spec 'unit' do |unit_tests|
     unit_tests.source_files = 'FirebaseStorage/Tests/Unit/*.[mh]',
-                              'Example/Shared/FIRComponentTestUtilities.*',
-                              'Example/Shared/FIRAuthInteropFake.*'
+                              'SharedTestUtilities/FIRComponentTestUtilities.*',
+                              'SharedTestUtilities/FIRAuthInteropFake.*'
     unit_tests.dependency 'OCMock'
   end
 

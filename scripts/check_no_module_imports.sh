@@ -43,7 +43,7 @@ git grep "${options[@]}" \
 # Tests are under the Example directory, so we have to separately grep them for
 # @import statements (otherwise they'd be excluded).
 git grep "${options[@]}" \
-  -- ':(glob)**/Tests/**' ':(glob)**/TestUtils/**' ':(glob)**/IntegrationTests/**' && \
+  -- ':(glob)**/TestUtils/**' ':(glob)**/IntegrationTests/**' && \
   exit_with_error
 
 # We need to explicitly exit 0, since we expect `git grep` to return an error

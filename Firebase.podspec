@@ -61,7 +61,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
 
   s.subspec 'ABTesting' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseABTesting', '~> 3.3.0'
+    ss.dependency 'FirebaseABTesting', '~> 4.0.0'
   end
 
   s.subspec 'AdMob' do |ss|

@@ -93,6 +93,8 @@
  */
 - (void)uploadTargets:(NSArray<NSNumber *> *)targets conditions:(GDTCORUploadConditions)conditions {
   dispatch_async(_coordinationQueue, ^{
+    // TODO: The reachability signal may be not reliable enough to prevent an upload attempt.
+    // See https://developer.apple.com/videos/play/wwdc2019/712/ (49:40) for more details.
     if ((conditions & GDTCORUploadConditionNoNetwork) == GDTCORUploadConditionNoNetwork) {
       return;
     }
