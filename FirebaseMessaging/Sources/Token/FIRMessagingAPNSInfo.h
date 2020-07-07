@@ -22,10 +22,10 @@ NS_ASSUME_NONNULL_BEGIN
  *  Represents an APNS device token and whether its environment is for sandbox.
  *  It can read from and write to an NSDictionary for simple serialization.
  */
-@interface FIRInstanceIDAPNSInfo : NSObject <NSCoding>
+@interface FIRMessagingAPNSInfo : NSObject <NSCoding>
 
 /// The APNs device token, provided by the OS to the application delegate
-@property(nonatomic, readonly, strong) NSData *deviceToken;
+@property(nonatomic, readonly, copy) NSData *deviceToken;
 /// Represents whether or not this is deviceToken is for the sandbox
 /// environment, or production.
 @property(nonatomic, readonly, getter=isSandbox) BOOL sandbox;
@@ -57,7 +57,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (nullable instancetype)initWithTokenOptionsDictionary:(NSDictionary *)dictionary;
 
-- (BOOL)isEqualToAPNSInfo:(FIRInstanceIDAPNSInfo *)otherInfo;
+- (BOOL)isEqualToAPNSInfo:(FIRMessagingAPNSInfo *)otherInfo;
 
 @end
 

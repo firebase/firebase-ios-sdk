@@ -16,9 +16,9 @@
 
 #import <Foundation/Foundation.h>
 
-@class FIRInstanceIDAPNSInfo;
+@class FIRMessagingAPNSInfo;
 @class FIRMessagingAuthKeychain;
-@class FIRInstanceIDTokenInfo;
+@class FIRMessagingTokenInfo;
 
 /**
  *  This class is responsible for retrieving and saving `FIRMessagingTokenInfo` objects from the
@@ -60,7 +60,7 @@ NS_ASSUME_NONNULL_BEGIN
  *  @return The cached token info if any for the given authorizedEntity and scope else
  *          nil.
  */
-- (nullable FIRInstanceIDTokenInfo *)tokenInfoWithAuthorizedEntity:(NSString *)authorizedEntity
+- (nullable FIRMessagingTokenInfo *)tokenInfoWithAuthorizedEntity:(NSString *)authorizedEntity
                                                              scope:(NSString *)scope;
 
 /**
@@ -68,7 +68,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  *  @return The cached token infos, if any, that are stored in the Keychain.
  */
-- (NSArray<FIRInstanceIDTokenInfo *> *)cachedTokenInfos;
+- (NSArray<FIRMessagingTokenInfo *> *)cachedTokenInfos;
 
 #pragma mark - Save
 
@@ -79,7 +79,7 @@ NS_ASSUME_NONNULL_BEGIN
  *  @param handler          The callback handler which is invoked when token saving is complete,
  *                          with an error if there is any.
  */
-- (void)saveTokenInfo:(FIRInstanceIDTokenInfo *)tokenInfo
+- (void)saveTokenInfo:(FIRMessagingTokenInfo *)tokenInfo
               handler:(nullable void (^)(NSError *))handler;
 
 #pragma mark - Delete

@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRInstanceIDAPNSInfo.h"
+#import "FIRMessagingAPNSInfo.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -25,7 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
  *  associated with it. It can read from and write to an NSDictionary object, for
  *  simple serialization.
  */
-@interface FIRInstanceIDTokenInfo : NSObject <NSCoding>
+@interface FIRMessagingTokenInfo : NSObject <NSCoding>
 
 /// The authorized entity (also known as Sender ID), associated with the token.
 @property(nonatomic, readonly, copy) NSString *authorizedEntity;
@@ -44,14 +44,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// Tokens may not always be associated with an APNs token, and may be associated after
 /// being created.
-@property(nonatomic, strong, nullable) FIRInstanceIDAPNSInfo *APNSInfo;
+@property(nonatomic, strong, nullable) FIRMessagingAPNSInfo *APNSInfo;
 /// The time that this token info was updated. The cache time is writeable, since in
 /// some cases the token info may be refreshed from the server. In those situations,
 /// the cacheTime would be updated.
 @property(nonatomic, copy, nullable) NSDate *cacheTime;
 
 /**
- *  Initializes a FIRInstanceIDTokenInfo object with the required parameters. These
+ *  Initializes a FIRMessagingTokenInfo object with the required parameters. These
  *  parameters represent all the relevant associated data with a token.
  *
  *  @param authorizedEntity The authorized entity (also known as Sender ID).
@@ -60,7 +60,7 @@ NS_ASSUME_NONNULL_BEGIN
  *  @param token            The token value itself.
  *  @param appVersion       The application version that this token is associated with.
  *  @param firebaseAppID    The Firebase app ID which this token is associated with.
- *  @return An instance of FIRInstanceIDTokenInfo.
+ *  @return An instance of FIRMessagingTokenInfo.
  */
 - (instancetype)initWithAuthorizedEntity:(NSString *)authorizedEntity
                                    scope:(NSString *)scope

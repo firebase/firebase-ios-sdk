@@ -44,7 +44,7 @@
 #import "FirebaseMessaging/Sources/FIRMessagingVersionUtilities.h"
 #import "FirebaseMessaging/Sources/FIRMessaging_Private.h"
 #import "FirebaseMessaging/Sources/NSError+FIRMessaging.h"
-#import "FirebaseMessaging/Sources/Token/FIRInstanceIDTokenInfo.h"
+#import "FirebaseMessaging/Sources/Token/FIRMessagingTokenInfo.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingTokenManager.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingTokenStore.h"
 
@@ -350,6 +350,9 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 - (void)setupFileManagerSubDirectory {
   if (![[self class] hasSubDirectory:kFIRMessagingSubDirectoryName]) {
     [[self class] createSubDirectory:kFIRMessagingSubDirectoryName];
+  }
+  if (![[self class] hasSubDirectory:kFIRInstanceIDSubDirectoryName]) {
+    [[self class] createSubDirectory:kFIRInstanceIDSubDirectoryName];
   }
 }
 

@@ -16,7 +16,7 @@
 
 #import "FIRMessagingTokenStore.h"
 
-#import "FIRInstanceIDTokenInfo.h"
+#import "FIRMessagingTokenInfo.h"
 #import "FIRMessagingAuthKeyChain.h"
 #import "FIRMessagingConstants.h"
 #import "FIRMessagingLogger.h"
@@ -57,7 +57,7 @@ static NSString *const kFIRMessagingTokenKeychainId = @"com.google.iid-tokens";
   return [NSString stringWithFormat:@"%@:%@", authorizedEntity, scope];
 }
 
-- (nullable FIRInstanceIDTokenInfo *)tokenInfoWithAuthorizedEntity:(NSString *)authorizedEntity
+- (nullable FIRMessagingTokenInfo *)tokenInfoWithAuthorizedEntity:(NSString *)authorizedEntity
                                                              scope:(NSString *)scope {
   NSString *account = FIRMessagingAppIdentifier();
   NSString *service = [[self class] serviceKeyForAuthorizedEntity:authorizedEntity scope:scope];
@@ -66,18 +66,18 @@ static NSString *const kFIRMessagingTokenKeychainId = @"com.google.iid-tokens";
     return nil;
   }
   // Token infos created from legacy storage don't have appVersion, firebaseAppID, or APNSInfo.
-  FIRInstanceIDTokenInfo *tokenInfo = [[self class] tokenInfoFromKeychainItem:item];
+  FIRMessagingTokenInfo *tokenInfo = [[self class] tokenInfoFromKeychainItem:item];
   return tokenInfo;
 }
 
-- (NSArray<FIRInstanceIDTokenInfo *> *)cachedTokenInfos {
+- (NSArray<FIRMessagingTokenInfo *> *)cachedTokenInfos {
   NSString *account = FIRMessagingAppIdentifier();
   NSArray<NSData *> *items =
       [self.keychain itemsMatchingService:kFIRMessagingKeychainWildcardIdentifier account:account];
-  NSMutableArray<FIRInstanceIDTokenInfo *> *tokenInfos =
+  NSMutableArray<FIRMessagingTokenInfo *> *tokenInfos =
       [NSMutableArray arrayWithCapacity:items.count];
   for (NSData *item in items) {
-    FIRInstanceIDTokenInfo *tokenInfo = [[self class] tokenInfoFromKeychainItem:item];
+    FIRMessagingTokenInfo *tokenInfo = [[self class] tokenInfoFromKeychainItem:item];
     if (tokenInfo) {
       [tokenInfos addObject:tokenInfo];
     }
@@ -85,9 +85,9 @@ static NSString *const kFIRMessagingTokenKeychainId = @"com.google.iid-tokens";
   return tokenInfos;
 }
 
-+ (nullable FIRInstanceIDTokenInfo *)tokenInfoFromKeychainItem:(NSData *)item {
-  // Check if it is saved as an archived FIRInstanceIDTokenInfo, otherwise return nil.
-  FIRInstanceIDTokenInfo *tokenInfo = nil;
++ (nullable FIRMessagingTokenInfo *)tokenInfoFromKeychainItem:(NSData *)item {
+  // Check if it is saved as an archived FIRMessagingTokenInfo, otherwise return nil.
+  FIRMessagingTokenInfo *tokenInfo = nil;
   // NOTE: Passing in nil to unarchiveObjectWithData will result in an iOS error logged
   // in the console on iOS 10 and below. Avoid by checking item.data's existence.
   if (item) {
@@ -95,6 +95,7 @@ static NSString *const kFIRMessagingTokenKeychainId = @"com.google.iid-tokens";
     @try {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
+      [NSKeyedUnarchiver setClass:[FIRMessagingTokenInfo class] forClassName:@"FIRInstanceIDTokenInfo"];
       tokenInfo = [NSKeyedUnarchiver unarchiveObjectWithData:item];
 #pragma clang diagnostic pop
 
@@ -113,12 +114,13 @@ static NSString *const kFIRMessagingTokenKeychainId = @"com.google.iid-tokens";
 // Token Infos will be saved under these Keychain keys:
 // Account: <Main App Bundle ID> (e.g. com.mycompany.myapp)
 // Service: <Sender ID>:<Scope> (e.g. 1234567890:*)
-- (void)saveTokenInfo:(FIRInstanceIDTokenInfo *)tokenInfo
+- (void)saveTokenInfo:(FIRMessagingTokenInfo *)tokenInfo
               handler:(void (^)(NSError *))handler {  // Keep the cachetime up-to-date.
   tokenInfo.cacheTime = [NSDate date];
   // Always write to the Keychain, so that the cacheTime is up-to-date.
   NSData *tokenInfoData;
   // TODO(chliangGoogle: Use the new API and secureCoding protocol.
+  [NSKeyedArchiver setClassName:@"FIRInstanceIDTokenInfo" forClass:[FIRMessagingTokenInfo class]];
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
   tokenInfoData = [NSKeyedArchiver archivedDataWithRootObject:tokenInfo];

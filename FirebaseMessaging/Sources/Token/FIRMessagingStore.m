@@ -67,18 +67,6 @@ static NSString *const kCheckinFileName = @"g-checkin";
 
 #pragma mark - Upgrades
 
-+ (BOOL)hasSubDirectory:(NSString *)subDirectoryName {
-  NSString *subDirectoryPath = [self pathForSupportSubDirectory:subDirectoryName];
-  BOOL isDirectory;
-  if (![[NSFileManager defaultManager] fileExistsAtPath:subDirectoryPath
-                                            isDirectory:&isDirectory]) {
-    return NO;
-  } else if (!isDirectory) {
-    return NO;
-  }
-  return YES;
-}
-
 + (NSSearchPathDirectory)supportedDirectory {
 #if TARGET_OS_TV
   return NSCachesDirectory;
@@ -93,44 +81,6 @@ static NSString *const kCheckinFileName = @"g-checkin";
   NSString *dirPath = directoryPaths.lastObject;
   NSArray *components = @[ dirPath, subDirectoryName ];
   return [NSString pathWithComponents:components];
-}
-
-+ (BOOL)createSubDirectory:(NSString *)subDirectoryName {
-  NSString *subDirectoryPath = [self pathForSupportSubDirectory:subDirectoryName];
-  BOOL hasSubDirectory;
-
-  if (![[NSFileManager defaultManager] fileExistsAtPath:subDirectoryPath
-                                            isDirectory:&hasSubDirectory]) {
-    NSError *error;
-    [[NSFileManager defaultManager] createDirectoryAtPath:subDirectoryPath
-                              withIntermediateDirectories:YES
-                                               attributes:nil
-                                                    error:&error];
-    if (error) {
-      FIRMessagingLoggerError(kFIRMessagingMessageCodeStore000,
-                              @"Cannot create directory %@, error: %@", subDirectoryPath, error);
-      return NO;
-    }
-  } else {
-    if (!hasSubDirectory) {
-      FIRMessagingLoggerError(kFIRMessagingMessageCodeStore001,
-                              @"Found file instead of directory at %@", subDirectoryPath);
-      return NO;
-    }
-  }
-  return YES;
-}
-
-+ (BOOL)removeSubDirectory:(NSString *)subDirectoryName error:(NSError **)error {
-  if ([self hasSubDirectory:subDirectoryName]) {
-    NSString *subDirectoryPath = [self pathForSupportSubDirectory:subDirectoryName];
-    BOOL isDirectory;
-    if ([[NSFileManager defaultManager] fileExistsAtPath:subDirectoryPath
-                                             isDirectory:&isDirectory]) {
-      return [[NSFileManager defaultManager] removeItemAtPath:subDirectoryPath error:error];
-    }
-  }
-  return YES;
 }
 
 /**
@@ -181,7 +131,7 @@ static NSString *const kCheckinFileName = @"g-checkin";
 
 #pragma mark - Get
 
-- (FIRInstanceIDTokenInfo *)tokenInfoWithAuthorizedEntity:(NSString *)authorizedEntity
+- (FIRMessagingTokenInfo *)tokenInfoWithAuthorizedEntity:(NSString *)authorizedEntity
                                                     scope:(NSString *)scope {
   // TODO(chliangGoogle): If we don't have the token plist we should delete all the tokens from
   // the keychain. This is because not having the plist signifies a backup and restore operation.
@@ -190,18 +140,18 @@ static NSString *const kCheckinFileName = @"g-checkin";
   if (![authorizedEntity length] || ![scope length]) {
     return nil;
   }
-  FIRInstanceIDTokenInfo *info = [self.tokenStore tokenInfoWithAuthorizedEntity:authorizedEntity
+  FIRMessagingTokenInfo *info = [self.tokenStore tokenInfoWithAuthorizedEntity:authorizedEntity
                                                                           scope:scope];
   return info;
 }
 
-- (NSArray<FIRInstanceIDTokenInfo *> *)cachedTokenInfos {
+- (NSArray<FIRMessagingTokenInfo *> *)cachedTokenInfos {
   return [self.tokenStore cachedTokenInfos];
 }
 
 #pragma mark - Save
 
-- (void)saveTokenInfo:(FIRInstanceIDTokenInfo *)tokenInfo
+- (void)saveTokenInfo:(FIRMessagingTokenInfo *)tokenInfo
               handler:(void (^)(NSError *error))handler {
   [self.tokenStore saveTokenInfo:tokenInfo handler:handler];
 }
