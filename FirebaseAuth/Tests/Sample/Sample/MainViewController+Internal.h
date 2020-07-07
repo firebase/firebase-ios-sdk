@@ -51,7 +51,7 @@ typedef void (^TestAutomationCallback)(NSError *_Nullable error);
 
 @property(nonatomic) NSURL *actionCodeContinueURL;
 
-@property(nonatomic) NSString *appleNonce;
+@property(nonatomic, copy) NSString *appleRawNonce;
 
 @property(nonatomic) FIROAuthProvider *googleOAuthProvider;
 @property(nonatomic) FIROAuthProvider *microsoftOAuthProvider;
