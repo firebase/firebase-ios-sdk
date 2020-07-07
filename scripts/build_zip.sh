@@ -14,6 +14,13 @@
 set -x
 REPO=`pwd`
 
+if [[ $# -lt 1 ]]; then
+  cat 1>&2 <<EOF
+USAGE: $0 [output_directory]
+EOF
+  exit 1
+fi
+
 # The first and only argument to this script should be the name of the
 # output directory.
 OUTPUT_DIR="$REPO/$1"
