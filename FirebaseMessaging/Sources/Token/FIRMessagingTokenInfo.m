@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRInstanceIDTokenInfo.h"
+#import "FIRMessagingTokenInfo.h"
 
 #import "FIRMessagingConstants.h"
 #import "FIRMessagingLogger.h"
@@ -48,7 +48,7 @@ static NSString *const kFIRInstanceIDCacheTimeKey = @"cache_time";
 /// Default interval that token stays fresh.
 const NSTimeInterval kDefaultFetchTokenInterval = 7 * 24 * 60 * 60;  // 7 days.
 
-@implementation FIRInstanceIDTokenInfo
+@implementation FIRMessagingTokenInfo
 
 - (instancetype)initWithAuthorizedEntity:(NSString *)authorizedEntity
                                    scope:(NSString *)scope
@@ -167,10 +167,11 @@ const NSTimeInterval kDefaultFetchTokenInterval = 7 * 24 * 60 * 60;  // 7 days.
     return nil;
   }
 
-  FIRInstanceIDAPNSInfo *APNSInfo = nil;
+  FIRMessagingAPNSInfo *APNSInfo = nil;
   if (rawAPNSInfo) {
     // TODO(chliangGoogle: Use the new API and secureCoding protocol.
     @try {
+      [NSKeyedUnarchiver setClass:[FIRMessagingAPNSInfo class] forClassName:@"FIRInstanceIDAPNSInfo"];
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
       APNSInfo = [NSKeyedUnarchiver unarchiveObjectWithData:rawAPNSInfo];
@@ -210,6 +211,7 @@ const NSTimeInterval kDefaultFetchTokenInterval = 7 * 24 * 60 * 60;  // 7 days.
   NSData *rawAPNSInfo;
   if (self.APNSInfo) {
     // TODO(chliangGoogle: Use the new API and secureCoding protocol.
+    [NSKeyedArchiver setClassName:@"FIRInstanceIDAPNSInfo" forClass:[FIRMessagingAPNSInfo class]];
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
     rawAPNSInfo = [NSKeyedArchiver archivedDataWithRootObject:self.APNSInfo];

@@ -18,7 +18,7 @@
 
 @class FIRMessagingAuthService;
 @class FIRMessagingCheckinPreferences;
-@class FIRInstanceIDTokenInfo;
+@class FIRMessagingTokenInfo;
 @class FIRMessagingStore;
 
 typedef NS_OPTIONS(NSUInteger, FIRMessagingInvalidTokenReason) {
@@ -78,7 +78,7 @@ typedef NS_OPTIONS(NSUInteger, FIRMessagingInvalidTokenReason) {
  *
  *  @return The cached token info, if available, matching the parameters.
  */
-- (FIRInstanceIDTokenInfo *)cachedTokenInfoWithAuthorizedEntity:(NSString *)authorizedEntity
+- (FIRMessagingTokenInfo *)cachedTokenInfoWithAuthorizedEntity:(NSString *)authorizedEntity
                                                           scope:(NSString *)scope;
 
 /**
@@ -153,9 +153,9 @@ typedef NS_OPTIONS(NSUInteger, FIRMessagingInvalidTokenReason) {
  *  @param deviceToken  The APNS device token, provided by the operating system.
  *  @param isSandbox    YES if the device token is for the sandbox environment, NO otherwise.
  *
- *  @return The array of FIRInstanceIDTokenInfo objects which were invalidated.
+ *  @return The array of FIRMessagingTokenInfo objects which were invalidated.
  */
-- (NSArray<FIRInstanceIDTokenInfo *> *)updateTokensToAPNSDeviceToken:(NSData *)deviceToken
+- (NSArray<FIRMessagingTokenInfo *> *)updateTokensToAPNSDeviceToken:(NSData *)deviceToken
                                                            isSandbox:(BOOL)isSandbox;
 
 /*

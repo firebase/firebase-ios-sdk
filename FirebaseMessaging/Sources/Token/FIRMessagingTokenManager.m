@@ -18,7 +18,7 @@
 
 #import <FirebaseInstallations/FIRInstallations.h>
 
-#import "FIRInstanceIDTokenInfo.h"
+#import "FIRMessagingTokenInfo.h"
 #import "FIRMessagingAuthKeyChain.h"
 #import "FIRMessagingAuthService.h"
 #import "FIRMessagingCheckinPreferences.h"
@@ -37,7 +37,7 @@
 @property(nonatomic, readwrite, strong) FIRMessagingAuthService *authService;
 @property(nonatomic, readonly, strong) NSOperationQueue *tokenOperations;
 
-@property(nonatomic, readwrite, strong) FIRInstanceIDAPNSInfo *currentAPNSInfo;
+@property(nonatomic, readwrite, strong) FIRMessagingAPNSInfo *currentAPNSInfo;
 @property(nonatomic, readwrite) FIRInstallations *installations;
 
 @end
@@ -47,9 +47,6 @@
 - (instancetype)init {
   self = [super init];
   if (self) {
-    if (![FIRMessagingStore hasSubDirectory:kFIRInstanceIDSubDirectoryName]) {
-      [FIRMessagingStore createSubDirectory:kFIRInstanceIDSubDirectoryName];
-    }
     _instanceIDStore = [[FIRMessagingStore alloc] initWithDelegate:self];
     _authService = [[FIRMessagingAuthService alloc] initWithStore:_instanceIDStore];
 
@@ -73,7 +70,7 @@
     return nil;
   }
 
-  FIRInstanceIDTokenInfo *cachedTokenInfo =
+  FIRMessagingTokenInfo *cachedTokenInfo =
       [self cachedTokenInfoWithAuthorizedEntity:self.fcmSenderID
                                           scope:kFIRMessagingDefaultTokenScope];
   NSString *cachedToken = cachedTokenInfo.token;
@@ -198,11 +195,11 @@
           if (error) {
             newHandler(nil, error);
           } else {
-            FIRInstanceIDTokenInfo *cachedTokenInfo =
+            FIRMessagingTokenInfo *cachedTokenInfo =
                 [self cachedTokenInfoWithAuthorizedEntity:authorizedEntity scope:scope];
             if (cachedTokenInfo) {
-              FIRInstanceIDAPNSInfo *optionsAPNSInfo =
-                  [[FIRInstanceIDAPNSInfo alloc] initWithTokenOptionsDictionary:tokenOptions];
+              FIRMessagingAPNSInfo *optionsAPNSInfo =
+                  [[FIRMessagingAPNSInfo alloc] initWithTokenOptionsDictionary:tokenOptions];
               // Check if APNS Info is changed
               if ((!cachedTokenInfo.APNSInfo && !optionsAPNSInfo) ||
                   [cachedTokenInfo.APNSInfo isEqualToAPNSInfo:optionsAPNSInfo]) {
@@ -246,13 +243,13 @@
           return;
         }
         NSString *firebaseAppID = options[kFIRMessagingTokenOptionsFirebaseAppIDKey];
-        FIRInstanceIDTokenInfo *tokenInfo =
-            [[FIRInstanceIDTokenInfo alloc] initWithAuthorizedEntity:authorizedEntity
+        FIRMessagingTokenInfo *tokenInfo =
+            [[FIRMessagingTokenInfo alloc] initWithAuthorizedEntity:authorizedEntity
                                                                scope:scope
                                                                token:token
                                                           appVersion:FIRMessagingCurrentAppVersion()
                                                        firebaseAppID:firebaseAppID];
-        tokenInfo.APNSInfo = [[FIRInstanceIDAPNSInfo alloc] initWithTokenOptionsDictionary:options];
+        tokenInfo.APNSInfo = [[FIRMessagingAPNSInfo alloc] initWithTokenOptionsDictionary:options];
 
         [self.instanceIDStore
             saveTokenInfo:tokenInfo
@@ -290,7 +287,7 @@
   [self.tokenOperations addOperation:operation];
 }
 
-- (FIRInstanceIDTokenInfo *)cachedTokenInfoWithAuthorizedEntity:(NSString *)authorizedEntity
+- (FIRMessagingTokenInfo *)cachedTokenInfoWithAuthorizedEntity:(NSString *)authorizedEntity
                                                           scope:(NSString *)scope {
   return [self.instanceIDStore tokenInfoWithAuthorizedEntity:authorizedEntity scope:scope];
 }
@@ -429,11 +426,11 @@
 - (BOOL)checkTokenRefreshPolicyWithIID:(NSString *)IID {
   // We know at least one cached token exists.
   BOOL shouldFetchDefaultToken = NO;
-  NSArray<FIRInstanceIDTokenInfo *> *tokenInfos = [self.instanceIDStore cachedTokenInfos];
+  NSArray<FIRMessagingTokenInfo *> *tokenInfos = [self.instanceIDStore cachedTokenInfos];
 
-  NSMutableArray<FIRInstanceIDTokenInfo *> *tokenInfosToDelete =
+  NSMutableArray<FIRMessagingTokenInfo *> *tokenInfosToDelete =
       [NSMutableArray arrayWithCapacity:tokenInfos.count];
-  for (FIRInstanceIDTokenInfo *tokenInfo in tokenInfos) {
+  for (FIRMessagingTokenInfo *tokenInfo in tokenInfos) {
     if ([tokenInfo isFreshWithIID:IID]) {
       // Token is fresh and in right format, do nothing
       continue;
@@ -451,28 +448,28 @@
         @"Invalidating cached token for %@ (%@) due to token is no longer fresh.",
         tokenInfo.authorizedEntity, tokenInfo.scope);
   }
-  for (FIRInstanceIDTokenInfo *tokenInfoToDelete in tokenInfosToDelete) {
+  for (FIRMessagingTokenInfo *tokenInfoToDelete in tokenInfosToDelete) {
     [self.instanceIDStore removeCachedTokenWithAuthorizedEntity:tokenInfoToDelete.authorizedEntity
                                                           scope:tokenInfoToDelete.scope];
   }
   return shouldFetchDefaultToken;
 }
 
-- (NSArray<FIRInstanceIDTokenInfo *> *)updateTokensToAPNSDeviceToken:(NSData *)deviceToken
+- (NSArray<FIRMessagingTokenInfo *> *)updateTokensToAPNSDeviceToken:(NSData *)deviceToken
                                                            isSandbox:(BOOL)isSandbox {
   // Each cached IID token that is missing an APNSInfo, or has an APNSInfo associated should be
   // checked and invalidated if needed.
-  FIRInstanceIDAPNSInfo *APNSInfo = [[FIRInstanceIDAPNSInfo alloc] initWithDeviceToken:deviceToken
+  FIRMessagingAPNSInfo *APNSInfo = [[FIRMessagingAPNSInfo alloc] initWithDeviceToken:deviceToken
                                                                              isSandbox:isSandbox];
   if ([self.currentAPNSInfo isEqualToAPNSInfo:APNSInfo]) {
     return @[];
   }
   self.currentAPNSInfo = APNSInfo;
 
-  NSArray<FIRInstanceIDTokenInfo *> *tokenInfos = [self.instanceIDStore cachedTokenInfos];
-  NSMutableArray<FIRInstanceIDTokenInfo *> *tokenInfosToDelete =
+  NSArray<FIRMessagingTokenInfo *> *tokenInfos = [self.instanceIDStore cachedTokenInfos];
+  NSMutableArray<FIRMessagingTokenInfo *> *tokenInfosToDelete =
       [NSMutableArray arrayWithCapacity:tokenInfos.count];
-  for (FIRInstanceIDTokenInfo *cachedTokenInfo in tokenInfos) {
+  for (FIRMessagingTokenInfo *cachedTokenInfo in tokenInfos) {
     // Check if the cached APNSInfo is nil, or if it is an old APNSInfo.
     if (!cachedTokenInfo.APNSInfo ||
         ![cachedTokenInfo.APNSInfo isEqualToAPNSInfo:self.currentAPNSInfo]) {
@@ -480,7 +477,7 @@
       [tokenInfosToDelete addObject:cachedTokenInfo];
     }
   }
-  for (FIRInstanceIDTokenInfo *tokenInfoToDelete in tokenInfosToDelete) {
+  for (FIRMessagingTokenInfo *tokenInfoToDelete in tokenInfosToDelete) {
     FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTokenManagerAPNSChangedTokenInvalidated,
                             @"Invalidating cached token for %@ (%@) due to APNs token change.",
                             tokenInfoToDelete.authorizedEntity, tokenInfoToDelete.scope);
@@ -510,12 +507,12 @@
   if (type == FIRMessagingAPNSTokenTypeUnknown) {
     isSandboxApp = FIRMessagingIsSandboxApp();
   }
-  self.currentAPNSInfo = [[FIRInstanceIDAPNSInfo alloc] initWithDeviceToken:[APNSToken copy]
+  self.currentAPNSInfo = [[FIRMessagingAPNSInfo alloc] initWithDeviceToken:[APNSToken copy]
                                                                   isSandbox:isSandboxApp];
 
   // Pro-actively invalidate the default token, if the APNs change makes it
   // invalid. Previously, we invalidated just before fetching the token.
-  NSArray<FIRInstanceIDTokenInfo *> *invalidatedTokens =
+  NSArray<FIRMessagingTokenInfo *> *invalidatedTokens =
       [self updateTokensToAPNSDeviceToken:APNSToken isSandbox:isSandboxApp];
 
   // Re-fetch any invalidated tokens automatically, this time with the current APNs token, so that
@@ -545,7 +542,7 @@
             tokenOptions[kFIRMessagingTokenOptionsFirebaseAppIDKey] = self.firebaseAppID;
           }
 
-          for (FIRInstanceIDTokenInfo *tokenInfo in invalidatedTokens) {
+          for (FIRMessagingTokenInfo *tokenInfo in invalidatedTokens) {
             [self fetchNewTokenWithAuthorizedEntity:tokenInfo.authorizedEntity
                                               scope:tokenInfo.scope
                                          instanceID:identifier

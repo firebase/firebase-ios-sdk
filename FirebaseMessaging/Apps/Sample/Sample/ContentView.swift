@@ -110,6 +110,7 @@ struct ContentView: View {
       }
       self.identity.token = token
       self.log = "Successfully got token."
+      print("Token: ", token)
     }
   }
 
