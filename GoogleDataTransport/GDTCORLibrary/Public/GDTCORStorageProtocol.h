@@ -25,6 +25,9 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+typedef void (^GDTCORStorageBatchBlock)(NSNumber *_Nullable newBatchID,
+                                        NSSet<GDTCOREvent *> *_Nullable batchEvents);
+
 /** Defines the interface a storage subsystem is expected to implement. */
 @protocol GDTCORStorageProtocol <NSObject, GDTCORLifecycleProtocol>
 
@@ -54,9 +57,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)batchWithEventSelector:(nonnull GDTCORStorageEventSelector *)eventSelector
                batchExpiration:(nonnull NSDate *)expiration
-                    onComplete:
-                        (nonnull void (^)(NSNumber *_Nullable newBatchID,
-                                          NSSet<GDTCOREvent *> *_Nullable batchEvents))onComplete;
+                    onComplete:(nonnull GDTCORStorageBatchBlock)onComplete;
 
 /** Removes the event batch.
  *
