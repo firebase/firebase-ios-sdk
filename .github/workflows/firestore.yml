@@ -52,8 +52,9 @@ on:
     - 'Gemfile'
 
   schedule:
-    # Run every day at 11pm (PST) - cron uses UTC times
-    - cron:  '0 7 * * *'
+    # Run every day at 3am (PST) - cron uses UTC times
+    # This is set to 3 hours after zip workflow so zip testing can run after.
+    - cron:  '0 11 * * *'
 
 jobs:
   check:
@@ -174,8 +175,8 @@ jobs:
       FRAMEWORK_ZIP: "Firebase-actions-dir.zip"
       SDK: "Firestore"
     runs-on: macOS-latest
-    # Make sure tests run after the zip workflow finishes.
-    # if: github.event_name == 'schedule'
+    # Don't run on private repo.
+    if: github.event_name == 'schedule' && github.repository != 'FirebasePrivate/firebase-ios-sdk'
     steps:
     - uses: actions/checkout@v2
     - name: Pull zip from GCS
