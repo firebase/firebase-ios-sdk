@@ -65,8 +65,6 @@ typedef void (^FIRMessagingTokenOperationCompletion)(FIRMessagingTokenOperationR
 
 @property(atomic, strong, nullable) NSURLSessionDataTask *dataTask;
 
-+ (NSURLSession *)sharedURLSession;
-
 #pragma mark - Request Construction
 + (NSMutableArray<NSURLQueryItem *> *)standardQueryItemsWithDeviceID:(NSString *)deviceID
                                                                scope:(NSString *)scope;

@@ -61,8 +61,10 @@
 
 - (void)dealloc {
   [self stopAllTokenOperations];
-  _fcmSenderID = nil;
-  _currentAPNSInfo = nil;
+  [_fcmSenderID release];
+  [_currentAPNSInfo release];
+  [_firebaseAppID release];
+  [_instanceIDStore release];
   [super dealloc];
 }
 

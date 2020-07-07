@@ -62,6 +62,12 @@ static NSString *const kCheckinKeychainContentSeparatorString = @"|";
   }
   return self;
 }
+
+- (void)dealloc {
+  [self reset];
+  [super dealloc];
+}
+
 - (void)reset {
   self.deviceID = nil;
   self.secretToken = nil;
