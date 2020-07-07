@@ -17,6 +17,7 @@
 #import "FIRAppDistributionMachO+Private.h"
 #import "FIRAppDistributionRelease+Private.h"
 #import "FIRFADLogger.h"
+#import <AuthenticationServices/AuthenticationServices.h>
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
@@ -60,13 +61,13 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
 - (BOOL)isTesterSignedIn {
 //  FIRFADInfoLog(@"Checking if tester is signed in");
 //  return [self tryInitializeAuthState];
-    return self.isTesterSignedIn;
+    return NO;
 }
 
 #pragma mark - Singleton Support
 
 - (instancetype)initWithApp:(FIRApp *)app appInfo:(NSDictionary *)appInfo {
-  FIRFADInfoLog(@"Initializing Firebase App Distribution");
+  //FIRFADInfoLog(@"Initializing Firebase App Distribution");
   self = [super init];
 
   if (self) {
@@ -135,7 +136,7 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
 }
 
 - (void)signInTesterWithCompletion:(void (^)(NSError *_Nullable error))completion {
-    FIRFADInfoLog(@"App Distribution tester sign in");
+    //FIRFADInfoLog(@"App Distribution tester sign in");
 //  if ([self tryInitializeAuthState]) {
 //    FIRFADInfoLog(@"Tester already signed in.");
 //    completion(nil);
@@ -151,12 +152,37 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
 //                                                                  error:error
 //                                        appDistributionSignInCompletion:completion];
 //                                 }];
-    self.isTesterSignedIn = true;
-    completion(nil);
+    
+    if (@available(iOS 12.0, *)) {
+        ASWebAuthenticationSession *authenticationVC =
+        [[ASWebAuthenticationSession alloc] initWithURL:[[NSURL alloc]  initWithString:@"https://partnerdash.google.com/apps/appdistribution/testerApps/1:461235515410:ios:1417e7b887ae94c9bfe8cb/installations/fid1234/createInstallationLink?appName=Bee%20Plus"]
+                                      callbackURLScheme:@"com.firebase.appdistribution://"
+                                      completionHandler:^(NSURL * _Nullable callbackURL,
+                                                          NSError * _Nullable error) {
+            if(callbackURL) {
+                self.isTesterSignedIn = true;
+                completion(nil);
+            } else {
+                self.isTesterSignedIn = false;
+                completion(error);
+            }
+        }];
+        
+        if (@available(iOS 13.0, *)) {
+            authenticationVC.presentationContextProvider = self;
+        } else {
+            // Fallback on earlier versions
+        }
+
+        [authenticationVC start];
+    } else {
+        // Fallback on earlier versions
+    }
+
 }
 
 - (void)signOutTester {
-  FIRFADInfoLog(@"Tester sign out");
+  //FIRFADInfoLog(@"Tester sign out");
 //  NSError *error;
 //  BOOL didClearAuthState = [self.authPersistence clearAuthState:&error];
 //  if (!didClearAuthState) {
@@ -196,8 +222,8 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
                                                  NSString *_Nonnull idToken,
                                                  NSError *_Nullable error) {
     if (error) {
-      FIRFADErrorLog(@"Error getting fresh auth tokens. Will sign out tester. Error: %@",
-                     [error localizedDescription]);
+//      FIRFADErrorLog(@"Error getting fresh auth tokens. Will sign out tester. Error: %@",
+//                     [error localizedDescription]);
       // TODO: Do we need a less aggresive strategy here? maybe a retry?
       [self signOutTester];
       NSError *HTTPError =
@@ -217,8 +243,8 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
     NSString *URLString =
         [NSString stringWithFormat:kReleasesEndpointURL, [[FIRApp defaultApp] options].googleAppID];
 
-    FIRFADInfoLog(@"Requesting releases for app id - %@",
-                  [[FIRApp defaultApp] options].googleAppID);
+    //FIRFADInfoLog(@"Requesting releases for app id - %@",
+//                  [[FIRApp defaultApp] options].googleAppID);
     [request setURL:[NSURL URLWithString:URLString]];
     [request setHTTPMethod:@"GET"];
     [request setValue:[NSString stringWithFormat:@"Bearer %@", accessToken]
@@ -250,8 +276,8 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
                                                         message:@""];
               }
 
-              FIRFADErrorLog(@"App Tester API service error - %@",
-                             [HTTPError localizedDescription]);
+//              FIRFADErrorLog(@"App Tester API service error - %@",
+//                             [HTTPError localizedDescription]);
               dispatch_async(dispatch_get_main_queue(), ^{
                 completion(nil, HTTPError);
               });
@@ -375,6 +401,11 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
 //  return true;
 //}
 
+- (ASPresentationAnchor)presentationAnchorForWebAuthenticationSession:(ASWebAuthenticationSession *)session API_AVAILABLE(ios(13.0)){
+    [self setupUIWindowForLogin];
+  return self.window;
+}
+
 - (void)setupUIWindowForLogin {
   if (self.window) {
     return;
@@ -413,7 +444,7 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
                                                                        error:&error];
 
   if (error) {
-    FIRFADErrorLog(@"Tester API - Error serializing json response");
+//    FIRFADErrorLog(@"Tester API - Error serializing json response");
     NSString *message =
         error.userInfo[NSLocalizedDescriptionKey] ? error.userInfo[NSLocalizedDescriptionKey] : @"";
     NSError *error = [self NSErrorForErrorCodeAndMessage:FIRAppDistributionErrorUnknown
@@ -428,19 +459,19 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
   NSArray *releaseList = [serializedResponse objectForKey:kReleasesKey];
   for (NSDictionary *releaseDict in releaseList) {
     if ([[releaseDict objectForKey:kLatestReleaseKey] boolValue]) {
-      FIRFADInfoLog(@"Tester API - found latest release in response. Checking if code hash match");
+//      FIRFADInfoLog(@"Tester API - found latest release in response. Checking if code hash match");
       NSString *codeHash = [releaseDict objectForKey:kCodeHashKey];
       NSString *executablePath = [[NSBundle mainBundle] executablePath];
       FIRAppDistributionMachO *machO =
           [[FIRAppDistributionMachO alloc] initWithPath:executablePath];
 
-      FIRFADInfoLog(@"Code hash for the app on device - %@", machO.codeHash);
-      FIRFADInfoLog(@"Code hash for the release from the service response - %@", codeHash);
+//      FIRFADInfoLog(@"Code hash for the app on device - %@", machO.codeHash);
+//      FIRFADInfoLog(@"Code hash for the release from the service response - %@", codeHash);
       if (codeHash && ![codeHash isEqualToString:machO.codeHash]) {
         FIRAppDistributionRelease *release =
             [[FIRAppDistributionRelease alloc] initWithDictionary:releaseDict];
         dispatch_async(dispatch_get_main_queue(), ^{
-          FIRFADInfoLog(@"Found new release");
+          //FIRFADInfoLog(@"Found new release");
           completion(release, nil);
         });
 
@@ -451,7 +482,7 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
     }
   }
 
-  FIRFADInfoLog(@"Tester API - No new release found");
+  //FIRFADInfoLog(@"Tester API - No new release found");
   dispatch_async(dispatch_get_main_queue(), ^{
     completion(nil, nil);
   });
