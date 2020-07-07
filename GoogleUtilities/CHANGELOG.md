@@ -1,4 +1,5 @@
 # 6.7.0 -- M75
+- Lazily access filesystem outside of `GULHeartbeatDateStorage` initializer. (#5969)
 - Update source imports to use repo-relative headers. (#5824)
 - Source cleanups to remove pre-iOS 8 code. (#5841)
 

@@ -18,9 +18,10 @@
 #import "GoogleUtilities/Environment/Private/GULHeartbeatDateStorage.h"
 
 @interface GULHeartbeatDateStorageTest : XCTestCase
-@property(nonatomic) NSURL *fileURL;
 @property(nonatomic) GULHeartbeatDateStorage *storage;
 @end
+
+static NSString *const kTestFileName = @"GULStorageHeartbeatTest";
 
 @implementation GULHeartbeatDateStorageTest
 
@@ -38,7 +39,10 @@
                                                              error:&error],
               @"Error: %@", error);
   }
-  self.storage = [[GULHeartbeatDateStorage alloc] initWithFileName:@"GULStorageHeartbeatTest"];
+
+  self.storage = [[GULHeartbeatDateStorage alloc] initWithFileName:kTestFileName];
+
+  [self assertInitializationDoesNotAccessFileSystem];
 }
 
 - (void)tearDown {
@@ -51,6 +55,26 @@
   [self.storage setHearbeatDate:now forTag:@"fire-iid"];
   XCTAssertEqual([now timeIntervalSinceReferenceDate],
                  [[self.storage heartbeatDateForTag:@"fire-iid"] timeIntervalSinceReferenceDate]);
+}
+
+#pragma mark - Private Helpers
+
+- (void)assertInitializationDoesNotAccessFileSystem {
+  NSURL *fileURL = [self heartbeatFileURL];
+  NSError *error;
+  BOOL fileIsReachable = [fileURL checkResourceIsReachableAndReturnError:&error];
+  XCTAssertFalse(fileIsReachable,
+                 @"GULHeartbeatDateStorage initialization should not access the file system.");
+  XCTAssertNotNil(error, @"Error: %@", error);
+}
+
+- (NSURL *)heartbeatFileURL {
+  NSString *documentsPath = [NSSearchPathForDirectoriesInDomains(
+      NSApplicationSupportDirectory, NSUserDomainMask, YES) firstObject];
+  NSArray<NSString *> *components = @[ documentsPath, @"Google/FIRApp", kTestFileName ];
+  NSString *fileString = [NSString pathWithComponents:components];
+  NSURL *fileURL = [NSURL fileURLWithPath:fileString];
+  return fileURL;
 }
 
 @end
