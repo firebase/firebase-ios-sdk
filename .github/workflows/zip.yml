@@ -96,7 +96,7 @@ jobs:
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}")
     - name: Remove data before upload
       if: ${{ failure() }}
-      run: scripts/remove_data.sh "${SDK}"
+      run: scripts/remove_data.sh config
     - uses: actions/upload-artifact@v2
       if: ${{ failure() }}
       with:
