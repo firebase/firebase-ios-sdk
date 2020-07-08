@@ -46,6 +46,7 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
   }
 
   s.test_spec 'unit' do |unit_tests|
+    unit_tests.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
     unit_tests.source_files = 'FirebaseStorage/Tests/Unit/*.[mh]',
                               'SharedTestUtilities/FIRComponentTestUtilities.*',
                               'SharedTestUtilities/FIRAuthInteropFake.*'
@@ -53,6 +54,7 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
   end
 
   s.test_spec 'integration' do |int_tests|
+    int_tests.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
     int_tests.source_files = 'FirebaseStorage/Tests/Integration/*.[mh]'
     int_tests.requires_app_host = true
     int_tests.resources = 'FirebaseStorage/Tests/Integration/Resources/1mb.dat',
