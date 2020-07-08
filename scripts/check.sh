@@ -281,6 +281,7 @@ if [ -z "${GITHUB_WORKFLOW-}" ]; then
   fi
 fi
 
+set -x
 # Check lint errors.
 "${top_dir}/scripts/check_whitespace.sh"
 "${top_dir}/scripts/check_filename_spaces.sh"
