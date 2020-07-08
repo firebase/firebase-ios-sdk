@@ -121,7 +121,6 @@ let package = Package(
         "README.md",
         "AppDelegateSwizzler/README.md",
         "Environment/",
-        "Example/",
         "Network/",
         "ISASwizzler/",
         "Logger/",
@@ -129,6 +128,7 @@ let package = Package(
         "NSData+zlib/",
         "Reachability",
         "SwizzlerTestHelpers/",
+        "Tests",
         "UserDefaults/",
       ],
       sources: [
@@ -214,6 +214,30 @@ let package = Package(
         .headerSearchPath("../../"),
       ]
     ),
+    // TODO: - need to port Network/third_party/GTMHTTPServer.m to ARC.
+    // .testTarget(
+    //   name: "UtilitiesUnit",
+    //   dependencies: [
+    //     "OCMock",
+    //     "GoogleUtilities_AppDelegateSwizzler",
+    //     "GoogleUtilities_Environment",
+    //     // "GoogleUtilities_ISASwizzler", // Build needs to disable ARC.
+    //     "GoogleUtilities_Logger",
+    //     "GoogleUtilities_MethodSwizzler",
+    //     "GoogleUtilities_Network",
+    //     "GoogleUtilities_NSData",
+    //     "GoogleUtilities_Reachability",
+    //     "GoogleUtilities_UserDefaults",
+    //   ],
+    //   path: "GoogleUtilities/Tests/Unit",
+    //   exclude: [
+    //     "Network/third_party/LICENSE",
+    //     "Network/third_party/GTMHTTPServer.m", // Requires disabling ARC
+    //   ],
+    //   cSettings: [
+    //     .headerSearchPath("../../.."),
+    //   ]
+    // ),
     .target(
       name: "Firebase",
       path: "CoreOnly/Sources",
