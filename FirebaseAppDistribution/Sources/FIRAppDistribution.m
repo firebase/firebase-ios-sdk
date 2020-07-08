@@ -23,13 +23,13 @@
 
 #import "FIRAppDistributionAppDelegateInterceptor.h"
 #import "GoogleUtilities/AppDelegateSwizzler/Private/GULAppDelegateSwizzler.h"
-
+#import "FirebaseInstallations.h"
 
 /// Empty protocol to register with FirebaseCore's component system.
 @protocol FIRAppDistributionInstanceProvider <NSObject>
 @end
 
-@interface FIRAppDistribution () <FIRLibrary, FIRAppDistributionInstanceProvider>
+@interface FIRAppDistribution () <FIRLibrary, FIRAppDistributionInstanceProvider, ASWebAuthenticationPresentationContextProviding>
 @property(nonatomic) BOOL isTesterSignedIn;
 @end
 
@@ -57,6 +57,8 @@ NSString *const kAuthErrorMessage = @"Unable to authenticate the tester";
 NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
 
 @synthesize isTesterSignedIn = _isTesterSignedIn;
+
+ASWebAuthenticationSession *_webAuthenticationVC;
 
 - (BOOL)isTesterSignedIn {
 //  FIRFADInfoLog(@"Checking if tester is signed in");
@@ -132,10 +134,54 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
 
   // In the component creation block, we return an instance of `FIRAppDistribution`. Cast it and
   // return it.
+    NSLog(@"Instance returned! %@", instance);
   return (FIRAppDistribution *)instance;
 }
 
 - (void)signInTesterWithCompletion:(void (^)(NSError *_Nullable error))completion {
+    NSLog(@"Testing: App Distribution sign in");
+    [self setupUIWindowForLogin];
+    FIRInstallations *installations = [FIRInstallations installations];
+
+    // Get a Firebase Installation ID (FID).
+    [installations installationIDWithCompletion:^(NSString *__nullable identifier, NSError *__nullable error) {
+        if(error) {
+            completion(error);
+            return;
+        }
+        if (@available(iOS 12.0, *)) {
+             NSString *url = [NSString stringWithFormat: @"https://localhost.corp.google.com:9443/apps/appdistribution/pub/apps/%@/installations/%@/buildalerts", [[FIRApp defaultApp] options].googleAppID, identifier];
+            
+            ASWebAuthenticationSession *authenticationVC =
+            [[ASWebAuthenticationSession alloc] initWithURL:[[NSURL alloc]  initWithString:url]
+                                          callbackURLScheme:@"com.firebase.appdistribution"
+                                          completionHandler:^(NSURL * _Nullable callbackURL,
+                                                              NSError * _Nullable error) {
+                [self cleanupUIWindow];
+                NSLog(@"Testing: Sign in Complete!");
+                if(callbackURL) {
+                    self.isTesterSignedIn = true;
+                    completion(nil);
+                } else {
+                    self.isTesterSignedIn = false;
+                    completion(error);
+                }
+            }];
+            
+            if (@available(iOS 13.0, *)) {
+                authenticationVC.presentationContextProvider = self;
+            } else {
+                // Fallback on earlier versions
+            }
+            
+            _webAuthenticationVC = authenticationVC;
+
+            [authenticationVC start];
+        } else {
+            // Fallback on earlier versions
+        }
+    }];
+
     //FIRFADInfoLog(@"App Distribution tester sign in");
 //  if ([self tryInitializeAuthState]) {
 //    FIRFADInfoLog(@"Tester already signed in.");
@@ -152,32 +198,6 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
 //                                                                  error:error
 //                                        appDistributionSignInCompletion:completion];
 //                                 }];
-    
-    if (@available(iOS 12.0, *)) {
-        ASWebAuthenticationSession *authenticationVC =
-        [[ASWebAuthenticationSession alloc] initWithURL:[[NSURL alloc]  initWithString:@"https://partnerdash.google.com/apps/appdistribution/testerApps/1:461235515410:ios:1417e7b887ae94c9bfe8cb/installations/fid1234/createInstallationLink?appName=Bee%20Plus"]
-                                      callbackURLScheme:@"com.firebase.appdistribution://"
-                                      completionHandler:^(NSURL * _Nullable callbackURL,
-                                                          NSError * _Nullable error) {
-            if(callbackURL) {
-                self.isTesterSignedIn = true;
-                completion(nil);
-            } else {
-                self.isTesterSignedIn = false;
-                completion(error);
-            }
-        }];
-        
-        if (@available(iOS 13.0, *)) {
-            authenticationVC.presentationContextProvider = self;
-        } else {
-            // Fallback on earlier versions
-        }
-
-        [authenticationVC start];
-    } else {
-        // Fallback on earlier versions
-    }
 
 }
 
@@ -218,9 +238,12 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
 //}
 
 - (void)fetchReleases:(FIRAppDistributionUpdateCheckCompletion)completion {
-  [self.authState performActionWithFreshTokens:^(NSString *_Nonnull accessToken,
-                                                 NSString *_Nonnull idToken,
-                                                 NSError *_Nullable error) {
+    // OR for default FIRApp:
+    FIRInstallations *installations = [FIRInstallations installations];
+
+    // Get a FIS Authentication Token.
+
+    [installations authTokenWithCompletion:^(FIRInstallationTokenResult *__nullable authTokenResult, NSError *__nullable error)  {
     if (error) {
 //      FIRFADErrorLog(@"Error getting fresh auth tokens. Will sign out tester. Error: %@",
 //                     [error localizedDescription]);
@@ -247,7 +270,7 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
 //                  [[FIRApp defaultApp] options].googleAppID);
     [request setURL:[NSURL URLWithString:URLString]];
     [request setHTTPMethod:@"GET"];
-    [request setValue:[NSString stringWithFormat:@"Bearer %@", accessToken]
+    [request setValue:[NSString stringWithFormat:@"X-Goog-Firebase-Installations-Auth %@", authTokenResult.authToken]
         forHTTPHeaderField:@"Authorization"];
 
     NSURLSessionDataTask *listReleasesDataTask = [URLSession
@@ -402,8 +425,7 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
 //}
 
 - (ASPresentationAnchor)presentationAnchorForWebAuthenticationSession:(ASWebAuthenticationSession *)session API_AVAILABLE(ios(13.0)){
-    [self setupUIWindowForLogin];
-  return self.window;
+  return self.safariHostingViewController.view.window;
 }
 
 - (void)setupUIWindowForLogin {
@@ -488,7 +510,8 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
   });
 }
 - (void)checkForUpdateWithCompletion:(FIRAppDistributionUpdateCheckCompletion)completion {
-  if (self.isTesterSignedIn) {
+    NSLog(@"CheckForUpdateWithCompletion");
+  if (false) {
     [self fetchReleases:completion];
   } else {
     UIAlertController *alert = [UIAlertController
