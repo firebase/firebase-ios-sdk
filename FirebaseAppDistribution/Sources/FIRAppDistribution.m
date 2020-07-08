@@ -243,7 +243,7 @@ ASWebAuthenticationSession *_webAuthenticationVC;
 
     // Get a FIS Authentication Token.
 
-    [installations authTokenWithCompletion:^(FIRInstallationTokenResult *__nullable authTokenResult, NSError *__nullable error)  {
+    [installations authTokenWithCompletion:^(FIRInstallationsAuthTokenResult * _Nullable authTokenResult, NSError * _Nullable error)  {
     if (error) {
 //      FIRFADErrorLog(@"Error getting fresh auth tokens. Will sign out tester. Error: %@",
 //                     [error localizedDescription]);
