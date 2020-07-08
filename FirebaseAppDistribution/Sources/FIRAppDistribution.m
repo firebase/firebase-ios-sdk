@@ -48,7 +48,7 @@ NSString *const kOIDScopeTesterAPI = @"https://www.googleapis.com/auth/cloud-pla
 
 // The App Distribution Tester API endpoint used to retrieve releases
 NSString *const kReleasesEndpointURL =
-    @"https://firebaseapptesters.googleapis.com/v1alpha/devices/-/testerApps/%@/releases";
+    @"https://firebaseapptesters.googleapis.com/v1alpha/devices/-/testerApps/%@/installations/%@/releases";
 NSString *const kTesterAPIClientID =
     @"319754533822-osu3v3hcci24umq6diathdm0dipds1fb.apps.googleusercontent.com";
 NSString *const kIssuerURL = @"https://accounts.google.com";
@@ -155,8 +155,9 @@ ASWebAuthenticationSession *_webAuthenticationVC;
             return;
         }
         if (@available(iOS 12.0, *)) {
-             NSString *url = [NSString stringWithFormat: @"https://localhost.corp.google.com:9443/apps/appdistribution/pub/apps/%@/installations/%@/buildalerts", [[FIRApp defaultApp] options].googleAppID, identifier];
+             NSString *url = [NSString stringWithFormat: @"https://partnerdash.google.com/apps/appdistribution/testerApps/%@/installations/%@/createInstallationLink", [[FIRApp defaultApp] options].googleAppID, identifier];
             
+            NSLog(@"Registration URL: %@", url);
             ASWebAuthenticationSession *authenticationVC =
             [[ASWebAuthenticationSession alloc] initWithURL:[[NSURL alloc]  initWithString:url]
                                           callbackURLScheme:@"com.firebase.appdistribution"
@@ -264,58 +265,66 @@ ASWebAuthenticationSession *_webAuthenticationVC;
 
       return;
     }
+        
+    [installations installationIDWithCompletion:^(NSString *__nullable identifier, NSError *__nullable error) {
 
-    // perform your API request using the tokens
-    NSURLSession *URLSession = [NSURLSession sharedSession];
-    NSMutableURLRequest *request = [[NSMutableURLRequest alloc] init];
-    NSString *URLString =
-        [NSString stringWithFormat:kReleasesEndpointURL, [[FIRApp defaultApp] options].googleAppID];
+        // perform your API request using the tokens
+        NSURLSession *URLSession = [NSURLSession sharedSession];
+        NSMutableURLRequest *request = [[NSMutableURLRequest alloc] init];
+        NSString *URLString =
+            [NSString stringWithFormat:kReleasesEndpointURL, [[FIRApp defaultApp] options].googleAppID, identifier];
 
     //FIRFADInfoLog(@"Requesting releases for app id - %@",
 //                  [[FIRApp defaultApp] options].googleAppID);
-    [request setURL:[NSURL URLWithString:URLString]];
-    [request setHTTPMethod:@"GET"];
-    [request setValue:[NSString stringWithFormat:@"X-Goog-Firebase-Installations-Auth %@", authTokenResult.authToken]
-        forHTTPHeaderField:@"Authorization"];
+        [request setURL:[NSURL URLWithString:URLString]];
+        [request setHTTPMethod:@"GET"];
+        [request setValue:authTokenResult.authToken
+            forHTTPHeaderField:@"X-Goog-Firebase-Installations-Auth"];
+        
+        [request setValue:@"AIzaSyCc_0xemKE7jV0gAtDkQ7uRf0hEWMvv3_4"
+            forHTTPHeaderField:@"X-Goog-Api-Key"];
+        
+        
+        NSLog(@"Url : %@, Auth token: %@", URLString, authTokenResult.authToken);
+        NSURLSessionDataTask *listReleasesDataTask = [URLSession
+            dataTaskWithRequest:request
+              completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+                NSHTTPURLResponse *HTTPResponse = (NSHTTPURLResponse *)response;
+            NSLog(@"HTTPResonse status code %ld", (long)HTTPResponse.statusCode);
+                if (error || HTTPResponse.statusCode != 200) {
+                  NSError *HTTPError = nil;
+                  if (HTTPResponse == nil && error) {
+                    // Handles network timeouts or no internet connectivity
+                    NSString *message = error.userInfo[NSLocalizedDescriptionKey]
+                                            ? error.userInfo[NSLocalizedDescriptionKey]
+                                            : @"";
 
-    NSURLSessionDataTask *listReleasesDataTask = [URLSession
-        dataTaskWithRequest:request
-          completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
-            NSHTTPURLResponse *HTTPResponse = (NSHTTPURLResponse *)response;
+                    HTTPError =
+                        [self NSErrorForErrorCodeAndMessage:FIRAppDistributionErrorNetworkFailure
+                                                    message:message];
+                  } else if (HTTPResponse.statusCode == 401) {
+                    // TODO: Maybe sign out tester?
+                    HTTPError =
+                        [self NSErrorForErrorCodeAndMessage:FIRAppDistributionErrorAuthenticationFailure
+                                                    message:kAuthErrorMessage];
+                  } else {
+                    HTTPError = [self NSErrorForErrorCodeAndMessage:FIRAppDistributionErrorUnknown
+                                                            message:@""];
+                  }
 
-            if (error || HTTPResponse.statusCode != 200) {
-              NSError *HTTPError = nil;
-              if (HTTPResponse == nil && error) {
-                // Handles network timeouts or no internet connectivity
-                NSString *message = error.userInfo[NSLocalizedDescriptionKey]
-                                        ? error.userInfo[NSLocalizedDescriptionKey]
-                                        : @"";
+    //              FIRFADErrorLog(@"App Tester API service error - %@",
+    //                             [HTTPError localizedDescription]);
+                  dispatch_async(dispatch_get_main_queue(), ^{
+                    completion(nil, HTTPError);
+                  });
 
-                HTTPError =
-                    [self NSErrorForErrorCodeAndMessage:FIRAppDistributionErrorNetworkFailure
-                                                message:message];
-              } else if (HTTPResponse.statusCode == 401) {
-                // TODO: Maybe sign out tester?
-                HTTPError =
-                    [self NSErrorForErrorCodeAndMessage:FIRAppDistributionErrorAuthenticationFailure
-                                                message:kAuthErrorMessage];
-              } else {
-                HTTPError = [self NSErrorForErrorCodeAndMessage:FIRAppDistributionErrorUnknown
-                                                        message:@""];
-              }
+                } else {
+                  [self handleReleasesAPIResponseWithData:data completion:completion];
+                }
+              }];
 
-//              FIRFADErrorLog(@"App Tester API service error - %@",
-//                             [HTTPError localizedDescription]);
-              dispatch_async(dispatch_get_main_queue(), ^{
-                completion(nil, HTTPError);
-              });
-
-            } else {
-              [self handleReleasesAPIResponseWithData:data completion:completion];
-            }
-          }];
-
-    [listReleasesDataTask resume];
+            [listReleasesDataTask resume];
+        }];
   }];
 }
 
