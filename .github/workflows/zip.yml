@@ -80,7 +80,7 @@ jobs:
     - uses: actions/checkout@v2
     - name: Pull zip from GCS
       run: |
-        unzip "${FRAMEWORK_ZIP}" -d "${OUTPUT_DIR}"
+        unzip "${GITHUB_WORKSPACE}/${FRAMEWORK_ZIP}" -d "${OUTPUT_DIR}"
         find "${OUTPUT_DIR}" -name "*.zip" -maxdepth 3 -exec unzip -d "${OUTPUT_DIR}" {} +
     - name: Setup Swift Quickstart
       run: SAMPLE="$SDK" TARGET="${SDK}Example" scripts/setup_quickstart_framework.sh \
