@@ -64,7 +64,7 @@ jobs:
   quickstart_zip_remoteconfig:
     # Don't run on private repo.
     if: github.event_name == 'schedule' && github.repository != 'FirebasePrivate/firebase-ios-sdk'
-    needs: package 
+    needs: package
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
