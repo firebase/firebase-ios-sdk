@@ -17,10 +17,12 @@ set -ex
 REPO=`pwd`
 if [ ! -d "quickstart-ios" ]; then
   git clone https://github.com/firebase/quickstart-ios.git
+  cd quickstart-ios/"${SAMPLE}"
+  chmod +x ../scripts/info_script.rb
+  ruby ../scripts/info_script.rb "${SAMPLE}"
 fi
-cd quickstart-ios/"${SAMPLE}"
-chmod +x ../scripts/info_script.rb
-ruby ../scripts/info_script.rb "${SAMPLE}"
+
+cd "${REPO}"/quickstart-ios/"${SAMPLE}"
 
 mkdir -p Firebase/
 # Create non Firebase Frameworks and move to Firebase/ dir.
