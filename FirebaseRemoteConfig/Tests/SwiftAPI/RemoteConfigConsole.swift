@@ -23,10 +23,20 @@ class RemoteConfigConsole {
     let endpoint = "/v1/projects/\(projectID)/remoteConfig"
     return URL(string: api + endpoint)!
   }
-
-  private var accessToken: String {
-    "PASTE ACCESS TOKEN HERE"
-  }
+  
+  // TODO: Cleanup once the GHA workflow works
+  lazy private var accessToken: String = {
+    let fileURL = Bundle(for: type(of: self)).url(forResource: "AccessToken", withExtension: "json")!
+    let data = try! Data(contentsOf: fileURL)
+    let json = try! JSONSerialization.jsonObject(with: data, options: .allowFragments)
+    if let json = json as? [String: Any] {
+      if let access_token = json["access_token"] as? String {
+        print("it worked!!!!")
+        return access_token
+      }
+    }
+    return ""
+  }()
 
   /// Synchronously fetches and returns currently active
   /// remote config, if it exists
