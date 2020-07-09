@@ -899,8 +899,6 @@
   // 0.1. Generate and batch events
   __unused __auto_type generatedBatch = [self generateAndBatchEventsExpiringIn:eventsExpireIn
                                                                batchExpiringIn:batchExpiresIn];
-  //  NSNumber *generatedBatchID = [[generatedBatch allKeys] firstObject];
-  //  NSSet<GDTCOREvent *> *generatedEvents = generatedBatch[generatedBatchID];
   // 0.2. Wait for batch expiration.
   [[NSRunLoop currentRunLoop]
       runUntilDate:[NSDate dateWithTimeIntervalSinceNow:batchExpiresIn + 0.5]];
