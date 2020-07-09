@@ -32,8 +32,6 @@
 #     "access_token":"1234567890ABCDEFG"
 # }
 
-set -x
-
 GHA_SECRET="$1"
 SERVICE_ACCOUNT="$2"
 OUTPUT="$3"
