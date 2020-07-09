@@ -18,14 +18,14 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-/** The class represents a result of the Installation auth token request. */
+/** The class represents a result of the Installation Auth Token request. */
 NS_SWIFT_NAME(InstallationsAuthTokenResult)
 @interface FIRInstallationsAuthTokenResult : NSObject
 
-/** The Installation auth token string. */
+/** The Installation Auth Token string. */
 @property(nonatomic, readonly) NSString *authToken;
 
-/** The Installation auth token expiration date. */
+/** The Installation Auth Token expiration date. */
 @property(nonatomic, readonly) NSDate *expirationDate;
 
 @end

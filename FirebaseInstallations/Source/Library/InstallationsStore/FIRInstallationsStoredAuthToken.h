@@ -19,7 +19,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * The enum represent possible states of the Installation auth token.
+ * The enum represent possible states of the Installation Auth Token.
  *
  * WARNING: The enum is stored to Keychain as a part of `FIRInstallationsStoredAuthToken`.
  * Modification of it can lead to incompatibility with previous version. Any modification must be
@@ -45,9 +45,9 @@ typedef NS_ENUM(NSInteger, FIRInstallationsAuthTokenStatus) {
 @interface FIRInstallationsStoredAuthToken : NSObject <NSSecureCoding, NSCopying>
 @property FIRInstallationsAuthTokenStatus status;
 
-/// The Installation auth token string that can be used to authorize requests to Firebase backend.
+/// The Installation Auth Token string that can be used to authorize requests to Firebase backend.
 @property(nullable, copy) NSString *token;
-/// The Installation auth token expiration date.
+/// The Installation Auth Token expiration date.
 @property(nullable, copy) NSDate *expirationDate;
 
 /// The version of local storage.
