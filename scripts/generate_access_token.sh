@@ -15,11 +15,15 @@
 # limitations under the License.
 
 # This script generates access tokens that are needed to make admin API
-# calls to the Firebase Console. The script takes a single argument
-# `output` which represents the location for where the outputted access
-# token will be stored. This script uses Google's Swift Auth Client Library.
+# calls to the Firebase Console.
 #
-# Visit the repo: https://github.com/googleapis/google-auth-library-swift
+# The script takes a three arguments:
+# - GHA_SECRET: The password for decrypting GitHub secrets.
+# - SERVICE_ACCOUNT: The path to the encrypted service account secret.
+# - OUTPUT: The path to file where generated access token will be stored.
+#
+# This script uses Google's Swift Auth Client Library.
+# - https://github.com/googleapis/google-auth-library-swift
 #
 # Generated tokens are `JSON` in the form:
 # {
@@ -28,21 +32,21 @@
 #     "access_token":"1234567890ABCDEFG"
 # }
 
-gha_secret="$1"
-service_account_path="$2"
-output="$3"
+GHA_SECRET="$1"
+SERVICE_ACCOUNT="$2"
+OUTPUT="$3"
 
-echo $gha_secret
-echo $service_account_path
-echo $output
+echo "GHA_SECRET: ***"
+echo "SERVICE_ACCOUNT: ${SERVICE_ACCOUNT}"
+echo "OUTPUT: ${OUTPUT}"
 
-if [[ ! -f $service_account_path ]]; then
-    echo ERROR: Cannot find encrypted secret at $service_account_path, aborting.
+if [[ ! -f $SERVICE_ACCOUNT ]]; then
+    echo ERROR: Cannot find encrypted secret at $SERVICE_ACCOUNT, aborting.
     exit 1
 fi
 
-if [[ ! -f $output ]]; then
-    echo ERROR: Cannot find $output, aborting.
+if [[ ! -f $OUTPUT ]]; then
+    echo ERROR: Cannot find $OUTPUT, aborting.
     exit 1
 fi
 
@@ -51,25 +55,29 @@ fi
 #
 # The following stores the decrypted service account JSON file in `$HOME/.credentials/` and points
 # the GOOGLE_APPLICATION_CREDENTIALS env var to it.
-service_account_file=$(basename $service_account_path .gpg)
+SERVICE_ACCOUNT_FILE=$(basename $SERVICE_ACCOUNT .gpg)
+
+echo "Creating ~/.credentials/ directory and decrypting ${SERVICE_ACCOUNT_FILE}.gpg"
 
 mkdir -p ~/.credentials/
-scripts/decrypt_gha_secret.sh $service_account_path ~/.credentials/$service_account_file "$plist_secret"
+scripts/decrypt_GHA_SECRET.sh $SERVICE_ACCOUNT ~/.credentials/$SERVICE_ACCOUNT_FILE "$plist_secret"
 
-echo "::set-env name=GOOGLE_APPLICATION_CREDENTIALS::${HOME}/.credentials/${service_account_file}"
-export GOOGLE_APPLICATION_CREDENTIALS="${HOME}/.credentials/${service_account_file}"
+echo "::set-env name=GOOGLE_APPLICATION_CREDENTIALS::${HOME}/.credentials/${SERVICE_ACCOUNT_FILE}"
+export GOOGLE_APPLICATION_CREDENTIALS="${HOME}/.credentials/${SERVICE_ACCOUNT_FILE}"
 
+# Clone Google's Swift Auth Client Library and use it to generate a token.
+# The generated token is piped to the OUTPUT file.
 git clone https://github.com/googleapis/google-auth-library-swift.git
 cd google-auth-library-swift
 git checkout --quiet 7b1c9cd4ffd8cb784bcd8b7fd599794b69a810cf # Working main branch as of 7/9/20.
 make -f Makefile
 
-# Prepend output path with ../ since we cd'd into `google-auth-library-swift`
-swift run TokenSource > ../$output
+# Prepend OUTPUT path with ../ since we cd'd into `google-auth-library-swift`
+swift run TokenSource > ../$OUTPUT
 
-if grep -q "access_token" ../$output; then
-   echo Token successfully generated and placed at $output
+if grep -q "access_token" ../$OUTPUT; then
+   echo "Token successfully generated and placed at ${OUTPUT}"
 else
-   echo ERROR: "$(cat ../$output)"
+   echo "ERROR: $(cat ../$OUTPUT)"
    exit 1
 fi
