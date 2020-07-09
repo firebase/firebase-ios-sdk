@@ -28,17 +28,36 @@
 #     "access_token":"1234567890ABCDEFG"
 # }
 
-output="$1"
+gha_secret="$1"
+service_account_path="$2"
+output="$3"
+
+echo $gha_secret
+echo $service_account_path
+echo $output
+
+if [[ ! -f $service_account_path ]]; then
+    echo ERROR: Cannot find encrypted secret at $service_account_path, aborting.
+    exit 1
+fi
 
 if [[ ! -f $output ]]; then
     echo ERROR: Cannot find $output, aborting.
     exit 1
 fi
 
-# The access token is generated using a downloaded Service Account from a Firebase Project.
-# This can be downloaded from Firebase console under 'Project Settings'.
-# Store the downloaded .json file in `$HOME/.credentials/` and point the env var to it.
-#export GOOGLE_APPLICATION_CREDENTIALS="$HOME/.credentials/ServiceAccount.json"
+# The access token is generated using a downloaded Service Account JSON file from a
+# Firebase Project. This can be downloaded from Firebase console under 'Project Settings'.
+#
+# The following stores the decrypted service account JSON file in `$HOME/.credentials/` and points
+# the GOOGLE_APPLICATION_CREDENTIALS env var to it.
+service_account_file=$(basename $service_account_path .gpg)
+
+mkdir -p ~/.credentials/
+scripts/decrypt_gha_secret.sh $service_account_path ~/.credentials/$service_account_file "$plist_secret"
+
+echo "::set-env name=GOOGLE_APPLICATION_CREDENTIALS::${HOME}/.credentials/${service_account_file}"
+export GOOGLE_APPLICATION_CREDENTIALS="${HOME}/.credentials/${service_account_file}"
 
 git clone https://github.com/googleapis/google-auth-library-swift.git
 cd google-auth-library-swift
