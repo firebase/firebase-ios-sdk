@@ -16,10 +16,10 @@
 
 #import "FIRMessagingTokenStore.h"
 
-#import "FIRMessagingTokenInfo.h"
 #import "FIRMessagingAuthKeyChain.h"
 #import "FIRMessagingConstants.h"
 #import "FIRMessagingLogger.h"
+#import "FIRMessagingTokenInfo.h"
 #import "FIRMessagingUtilities.h"
 
 static NSString *const kFIRMessagingTokenKeychainId = @"com.google.iid-tokens";
@@ -58,7 +58,7 @@ static NSString *const kFIRMessagingTokenKeychainId = @"com.google.iid-tokens";
 }
 
 - (nullable FIRMessagingTokenInfo *)tokenInfoWithAuthorizedEntity:(NSString *)authorizedEntity
-                                                             scope:(NSString *)scope {
+                                                            scope:(NSString *)scope {
   NSString *account = FIRMessagingAppIdentifier();
   NSString *service = [[self class] serviceKeyForAuthorizedEntity:authorizedEntity scope:scope];
   NSData *item = [self.keychain dataForService:service account:account];
@@ -95,7 +95,8 @@ static NSString *const kFIRMessagingTokenKeychainId = @"com.google.iid-tokens";
     @try {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-      [NSKeyedUnarchiver setClass:[FIRMessagingTokenInfo class] forClassName:@"FIRInstanceIDTokenInfo"];
+      [NSKeyedUnarchiver setClass:[FIRMessagingTokenInfo class]
+                     forClassName:@"FIRInstanceIDTokenInfo"];
       tokenInfo = [NSKeyedUnarchiver unarchiveObjectWithData:item];
 #pragma clang diagnostic pop
 

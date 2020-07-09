@@ -18,7 +18,6 @@
 
 #import <FirebaseInstallations/FIRInstallations.h>
 
-#import "FIRMessagingTokenInfo.h"
 #import "FIRMessagingAuthKeyChain.h"
 #import "FIRMessagingAuthService.h"
 #import "FIRMessagingCheckinPreferences.h"
@@ -28,6 +27,7 @@
 #import "FIRMessagingStore.h"
 #import "FIRMessagingTokenDeleteOperation.h"
 #import "FIRMessagingTokenFetchOperation.h"
+#import "FIRMessagingTokenInfo.h"
 #import "FIRMessagingTokenOperation.h"
 #import "NSError+FIRMessaging.h"
 
@@ -245,10 +245,10 @@
         NSString *firebaseAppID = options[kFIRMessagingTokenOptionsFirebaseAppIDKey];
         FIRMessagingTokenInfo *tokenInfo =
             [[FIRMessagingTokenInfo alloc] initWithAuthorizedEntity:authorizedEntity
-                                                               scope:scope
-                                                               token:token
-                                                          appVersion:FIRMessagingCurrentAppVersion()
-                                                       firebaseAppID:firebaseAppID];
+                                                              scope:scope
+                                                              token:token
+                                                         appVersion:FIRMessagingCurrentAppVersion()
+                                                      firebaseAppID:firebaseAppID];
         tokenInfo.APNSInfo = [[FIRMessagingAPNSInfo alloc] initWithTokenOptionsDictionary:options];
 
         [self.instanceIDStore
@@ -288,7 +288,7 @@
 }
 
 - (FIRMessagingTokenInfo *)cachedTokenInfoWithAuthorizedEntity:(NSString *)authorizedEntity
-                                                          scope:(NSString *)scope {
+                                                         scope:(NSString *)scope {
   return [self.instanceIDStore tokenInfoWithAuthorizedEntity:authorizedEntity scope:scope];
 }
 
@@ -456,11 +456,11 @@
 }
 
 - (NSArray<FIRMessagingTokenInfo *> *)updateTokensToAPNSDeviceToken:(NSData *)deviceToken
-                                                           isSandbox:(BOOL)isSandbox {
+                                                          isSandbox:(BOOL)isSandbox {
   // Each cached IID token that is missing an APNSInfo, or has an APNSInfo associated should be
   // checked and invalidated if needed.
   FIRMessagingAPNSInfo *APNSInfo = [[FIRMessagingAPNSInfo alloc] initWithDeviceToken:deviceToken
-                                                                             isSandbox:isSandbox];
+                                                                           isSandbox:isSandbox];
   if ([self.currentAPNSInfo isEqualToAPNSInfo:APNSInfo]) {
     return @[];
   }
@@ -508,7 +508,7 @@
     isSandboxApp = FIRMessagingIsSandboxApp();
   }
   self.currentAPNSInfo = [[FIRMessagingAPNSInfo alloc] initWithDeviceToken:[APNSToken copy]
-                                                                  isSandbox:isSandboxApp];
+                                                                 isSandbox:isSandboxApp];
 
   // Pro-actively invalidate the default token, if the APNs change makes it
   // invalid. Previously, we invalidated just before fetching the token.

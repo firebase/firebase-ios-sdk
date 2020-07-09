@@ -250,7 +250,6 @@ typedef NS_ENUM(NSInteger, FIRMessagingMessageCode) {
   kFIRMessagingMessageCodeService004 = 27004,
   kFIRMessagingMessageCodeService005 = 27005,
   kFIRMessagingMessageCodeService006 = 27006,
-  kFIRMessagingInvalidNetworkSession = 27007,
   kFIRMessagingInvalidSettingResponse = 27008,
   // FIRMessagingCheckinStore.m
   // DO NOT USE 8002, 8004 - 8008

@@ -79,7 +79,7 @@ typedef NS_OPTIONS(NSUInteger, FIRMessagingInvalidTokenReason) {
  *  @return The cached token info, if available, matching the parameters.
  */
 - (FIRMessagingTokenInfo *)cachedTokenInfoWithAuthorizedEntity:(NSString *)authorizedEntity
-                                                          scope:(NSString *)scope;
+                                                         scope:(NSString *)scope;
 
 /**
  *  Delete the token for the given authorizedEntity and scope. If the token has
@@ -156,7 +156,7 @@ typedef NS_OPTIONS(NSUInteger, FIRMessagingInvalidTokenReason) {
  *  @return The array of FIRMessagingTokenInfo objects which were invalidated.
  */
 - (NSArray<FIRMessagingTokenInfo *> *)updateTokensToAPNSDeviceToken:(NSData *)deviceToken
-                                                           isSandbox:(BOOL)isSandbox;
+                                                          isSandbox:(BOOL)isSandbox;
 
 /*
  * Set APNS token

@@ -410,6 +410,11 @@ NS_SWIFT_NAME(Messaging)
                        completion:(FIRMessagingDeleteFCMTokenCompletion)completion
     NS_SWIFT_NAME(deleteFCMToken(forSenderID:completion:));
 
+/**
+ * GDPR
+ */
+- (void)delete;
+
 #pragma mark - Topics
 
 /**
