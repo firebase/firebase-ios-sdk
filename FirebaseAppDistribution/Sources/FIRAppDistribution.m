@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#import <AuthenticationServices/AuthenticationServices.h>
+#import <SafariServices/SafariServices.h>
 #import "FIRAppDistribution+Private.h"
 #import "FIRAppDistributionAuthPersistence+Private.h"
 #import "FIRAppDistributionMachO+Private.h"
 #import "FIRAppDistributionRelease+Private.h"
 #import "FIRFADLogger.h"
-#import <AuthenticationServices/AuthenticationServices.h>
-#import <SafariServices/SafariServices.h>
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
@@ -30,7 +30,10 @@
 @protocol FIRAppDistributionInstanceProvider <NSObject>
 @end
 
-@interface FIRAppDistribution () <FIRLibrary, FIRAppDistributionInstanceProvider, ASWebAuthenticationPresentationContextProviding, SFSafariViewControllerDelegate>
+@interface FIRAppDistribution () <FIRLibrary,
+                                  FIRAppDistributionInstanceProvider,
+                                  ASWebAuthenticationPresentationContextProviding,
+                                  SFSafariViewControllerDelegate>
 @property(nonatomic) BOOL isTesterSignedIn;
 @end
 
@@ -43,8 +46,8 @@ NSString *const FIRAppDistributionErrorDetailsKey = @"details";
 NSString *const kOIDScopeTesterAPI = @"https://www.googleapis.com/auth/cloud-platform";
 
 // The App Distribution Tester API endpoint used to retrieve releases
-NSString *const kReleasesEndpointURL =
-    @"https://firebaseapptesters.googleapis.com/v1alpha/devices/-/testerApps/%@/installations/%@/releases";
+NSString *const kReleasesEndpointURL = @"https://firebaseapptesters.googleapis.com/v1alpha/devices/"
+                                       @"-/testerApps/%@/installations/%@/releases";
 NSString *const kTesterAPIClientID =
     @"319754533822-osu3v3hcci24umq6diathdm0dipds1fb.apps.googleusercontent.com";
 NSString *const kIssuerURL = @"https://accounts.google.com";
@@ -69,15 +72,15 @@ API_AVAILABLE(ios(11.0))
 SFAuthenticationSession *_safariAuthenticationVC;
 
 - (BOOL)isTesterSignedIn {
-//  FIRFADInfoLog(@"Checking if tester is signed in");
-//  return [self tryInitializeAuthState];
-    return NO;
+  //  FIRFADInfoLog(@"Checking if tester is signed in");
+  //  return [self tryInitializeAuthState];
+  return NO;
 }
 
 #pragma mark - Singleton Support
 
 - (instancetype)initWithApp:(FIRApp *)app appInfo:(NSDictionary *)appInfo {
-  //FIRFADInfoLog(@"Initializing Firebase App Distribution");
+  // FIRFADInfoLog(@"Initializing Firebase App Distribution");
   self = [super init];
 
   if (self) {
@@ -90,8 +93,8 @@ SFAuthenticationSession *_safariAuthenticationVC;
     [GULAppDelegateSwizzler registerAppDelegateInterceptor:interceptor];
   }
 
-//  self.authPersistence = [[FIRAppDistributionAuthPersistence alloc]
-//      initWithAppId:[[FIRApp defaultApp] options].googleAppID];
+  //  self.authPersistence = [[FIRAppDistributionAuthPersistence alloc]
+  //      initWithAppId:[[FIRApp defaultApp] options].googleAppID];
 
   return self;
 }
@@ -142,90 +145,106 @@ SFAuthenticationSession *_safariAuthenticationVC;
 
   // In the component creation block, we return an instance of `FIRAppDistribution`. Cast it and
   // return it.
-    NSLog(@"Instance returned! %@", instance);
+  NSLog(@"Instance returned! %@", instance);
   return (FIRAppDistribution *)instance;
 }
 
 - (void)signInTesterWithCompletion:(void (^)(NSError *_Nullable error))completion {
-    NSLog(@"Testing: App Distribution sign in");
-    
-    // TODO: Check if tester is already signed in
-    
-    [self setupUIWindowForLogin];
-    FIRInstallations *installations = [FIRInstallations installations];
+  NSLog(@"Testing: App Distribution sign in");
 
-    // Get a Firebase Installation ID (FID).
-    [installations installationIDWithCompletion:^(NSString *__nullable identifier, NSError *__nullable error) {
-        if(error) {
-            completion(error);
-            return;
-        }
-      NSString *requestURL = [NSString stringWithFormat: @"https://partnerdash.google.com/apps/appdistribution/pub/apps/%@/installations/%@/buildalerts?appName=%@", [[FIRApp defaultApp] options].googleAppID, identifier, [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleDisplayName"]];
+  // TODO: Check if tester is already signed in
 
-      NSLog(@"Registration URL: %@", requestURL);
+  [self setupUIWindowForLogin];
+  FIRInstallations *installations = [FIRInstallations installations];
 
-        if (@available(iOS 12.0, *)) {
-            ASWebAuthenticationSession *authenticationVC =
-            [[ASWebAuthenticationSession alloc] initWithURL:[[NSURL alloc]  initWithString:requestURL]
-                                          callbackURLScheme:@"com.firebase.appdistribution"
-                                          completionHandler:^(NSURL * _Nullable callbackURL,
-                                                              NSError * _Nullable error) {
-                [self cleanupUIWindow];
-                NSLog(@"Testing: Sign in Complete!");
-                if(callbackURL) {
-                    self.isTesterSignedIn = true;
-                    completion(nil);
-                } else {
-                    self.isTesterSignedIn = false;
-                    completion(error);
-                }
-            }];
-            
-            if (@available(iOS 13.0, *)) {
-                authenticationVC.presentationContextProvider = self;
-            }
-            
-            _webAuthenticationVC = authenticationVC;
+  // Get a Firebase Installation ID (FID).
+  [installations installationIDWithCompletion:^(NSString *__nullable identifier,
+                                                NSError *__nullable error) {
+    if (error) {
+      completion(error);
+      return;
+    }
 
-            [authenticationVC start];
-        } else if (@available(iOS 11.0, *)) {
-          _safariAuthenticationVC =
-          [[SFAuthenticationSession alloc] initWithURL:[[NSURL alloc] initWithString:requestURL]
-                                         callbackURLScheme:@"com.firebase.appdistribution"
-                                         completionHandler:^(NSURL * _Nullable callbackURL,
-                                                             NSError * _Nullable error) {
+    NSString *requestURL = [NSString
+        stringWithFormat:@"https://partnerdash.google.com/apps/appdistribution/pub/apps/%@/"
+                         @"installations/%@/buildalerts?appName=%@",
+                         [[FIRApp defaultApp] options].googleAppID, identifier, [self getAppName]];
+
+    NSLog(@"Registration URL: %@", requestURL);
+
+    if (@available(iOS 12.0, *)) {
+      ASWebAuthenticationSession *authenticationVC = [[ASWebAuthenticationSession alloc]
+                initWithURL:[[NSURL alloc] initWithString:requestURL]
+          callbackURLScheme:@"com.firebase.appdistribution"
+          completionHandler:^(NSURL *_Nullable callbackURL, NSError *_Nullable error) {
             [self cleanupUIWindow];
             NSLog(@"Testing: Sign in Complete!");
-            if(callbackURL) {
-                self.isTesterSignedIn = true;
-                completion(nil);
+            if (callbackURL) {
+              self.isTesterSignedIn = true;
+              completion(nil);
             } else {
-                self.isTesterSignedIn = false;
-                completion(error);
+              self.isTesterSignedIn = false;
+              completion(error);
             }
           }];
-        } else {
-          SFSafariViewController *safariVC =
-          [[SFSafariViewController alloc] initWithURL:requestURL];
-          
-          safariVC.delegate = self;
-          _safariVC = safariVC;
-          [self->_safariHostingViewController presentViewController:safariVC animated:YES completion:nil];
-        }
-    }];
+
+      if (@available(iOS 13.0, *)) {
+        authenticationVC.presentationContextProvider = self;
+      }
+
+      _webAuthenticationVC = authenticationVC;
+
+      [authenticationVC start];
+    } else if (@available(iOS 11.0, *)) {
+      _safariAuthenticationVC = [[SFAuthenticationSession alloc]
+                initWithURL:[[NSURL alloc] initWithString:requestURL]
+          callbackURLScheme:@"com.firebase.appdistribution"
+          completionHandler:^(NSURL *_Nullable callbackURL, NSError *_Nullable error) {
+            [self cleanupUIWindow];
+            NSLog(@"Testing: Sign in Complete!");
+            if (callbackURL) {
+              self.isTesterSignedIn = true;
+              completion(nil);
+            } else {
+              self.isTesterSignedIn = false;
+              completion(error);
+            }
+          }];
+    } else {
+      SFSafariViewController *safariVC = [[SFSafariViewController alloc] initWithURL:requestURL];
+
+      safariVC.delegate = self;
+      _safariVC = safariVC;
+      [self->_safariHostingViewController presentViewController:safariVC
+                                                       animated:YES
+                                                     completion:nil];
+    }
+  }];
+}
+
+- (NSString *)getAppName {
+  NSBundle *mainBundle = [NSBundle mainBundle];
+
+  NSString *name = [mainBundle objectForInfoDictionaryKey:@"CFBundleName"];
+
+  if (name) return name;
+
+  name = [mainBundle objectForInfoDictionaryKey:@"CFBundleDisplayName"];
+
+  return name;
 }
 
 - (void)signOutTester {
-  //FIRFADInfoLog(@"Tester sign out");
-//  NSError *error;
-//  BOOL didClearAuthState = [self.authPersistence clearAuthState:&error];
-//  if (!didClearAuthState) {
-//    FIRFADErrorLog(@"Error clearing token from keychain: %@", [error localizedDescription]);
-//    [self logUnderlyingKeychainError:error];
-//
-//  } else {
-//    FIRFADInfoLog(@"Successfully cleared auth state from keychain");
-//  }
+  // FIRFADInfoLog(@"Tester sign out");
+  //  NSError *error;
+  //  BOOL didClearAuthState = [self.authPersistence clearAuthState:&error];
+  //  if (!didClearAuthState) {
+  //    FIRFADErrorLog(@"Error clearing token from keychain: %@", [error localizedDescription]);
+  //    [self logUnderlyingKeychainError:error];
+  //
+  //  } else {
+  //    FIRFADInfoLog(@"Successfully cleared auth state from keychain");
+  //  }
 
   self.authState = nil;
   self.isTesterSignedIn = false;
@@ -238,15 +257,17 @@ SFAuthenticationSession *_safariAuthenticationVC;
 }
 
 - (void)fetchReleases:(FIRAppDistributionUpdateCheckCompletion)completion {
-    // OR for default FIRApp:
-    FIRInstallations *installations = [FIRInstallations installations];
+  // OR for default FIRApp:
+  FIRInstallations *installations = [FIRInstallations installations];
 
-    // Get a FIS Authentication Token.
+  // Get a FIS Authentication Token.
 
-    [installations authTokenWithCompletion:^(FIRInstallationsAuthTokenResult * _Nullable authTokenResult, NSError * _Nullable error)  {
+  [installations authTokenWithCompletion:^(
+                     FIRInstallationsAuthTokenResult *_Nullable authTokenResult,
+                     NSError *_Nullable error) {
     if (error) {
-//      FIRFADErrorLog(@"Error getting fresh auth tokens. Will sign out tester. Error: %@",
-//                     [error localizedDescription]);
+      //      FIRFADErrorLog(@"Error getting fresh auth tokens. Will sign out tester. Error: %@",
+      //                     [error localizedDescription]);
       // TODO: Do we need a less aggresive strategy here? maybe a retry?
       [self signOutTester];
       NSError *HTTPError =
@@ -259,70 +280,72 @@ SFAuthenticationSession *_safariAuthenticationVC;
 
       return;
     }
-        
-    [installations installationIDWithCompletion:^(NSString *__nullable identifier, NSError *__nullable error) {
 
-        // perform your API request using the tokens
-        NSURLSession *URLSession = [NSURLSession sharedSession];
-        NSMutableURLRequest *request = [[NSMutableURLRequest alloc] init];
-        NSString *URLString =
-            [NSString stringWithFormat:kReleasesEndpointURL, [[FIRApp defaultApp] options].googleAppID, identifier];
+    [installations installationIDWithCompletion:^(NSString *__nullable identifier,
+                                                  NSError *__nullable error) {
+      // perform your API request using the tokens
+      NSURLSession *URLSession = [NSURLSession sharedSession];
+      NSMutableURLRequest *request = [[NSMutableURLRequest alloc] init];
+      NSString *URLString =
+          [NSString stringWithFormat:kReleasesEndpointURL,
+                                     [[FIRApp defaultApp] options].googleAppID, identifier];
 
-    //FIRFADInfoLog(@"Requesting releases for app id - %@",
-//                  [[FIRApp defaultApp] options].googleAppID);
-        [request setURL:[NSURL URLWithString:URLString]];
-        [request setHTTPMethod:@"GET"];
-        [request setValue:authTokenResult.authToken
-            forHTTPHeaderField:@"X-Goog-Firebase-Installations-Auth"];
-        
-        [request setValue:[[FIRApp defaultApp] options].APIKey
-            forHTTPHeaderField:@"X-Goog-Api-Key"];
-        
-        
-        NSLog(@"Url : %@, Auth token: %@ API KEY: %@", URLString, authTokenResult.authToken, [[FIRApp defaultApp] options].APIKey);
-        NSURLSessionDataTask *listReleasesDataTask = [URLSession
-            dataTaskWithRequest:request
-              completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
-                NSHTTPURLResponse *HTTPResponse = (NSHTTPURLResponse *)response;
-            NSLog(@"HTTPResonse status code %ld response %@", (long)HTTPResponse.statusCode, HTTPResponse);
-                if (error || HTTPResponse.statusCode != 200) {
-                  NSError *HTTPError = nil;
-                  if (HTTPResponse == nil && error) {
-                    // Handles network timeouts or no internet connectivity
-                    NSString *message = error.userInfo[NSLocalizedDescriptionKey]
-                                            ? error.userInfo[NSLocalizedDescriptionKey]
-                                            : @"";
+      // FIRFADInfoLog(@"Requesting releases for app id - %@",
+      //                  [[FIRApp defaultApp] options].googleAppID);
+      [request setURL:[NSURL URLWithString:URLString]];
+      [request setHTTPMethod:@"GET"];
+      [request setValue:authTokenResult.authToken
+          forHTTPHeaderField:@"X-Goog-Firebase-Installations-Auth"];
 
-                    HTTPError =
-                        [self NSErrorForErrorCodeAndMessage:FIRAppDistributionErrorNetworkFailure
-                                                    message:message];
-                  } else if (HTTPResponse.statusCode == 401) {
-                    // TODO: Maybe sign out tester?
-                    HTTPError =
-                        [self NSErrorForErrorCodeAndMessage:FIRAppDistributionErrorAuthenticationFailure
-                                                    message:kAuthErrorMessage];
-                  } else {
-                    HTTPError = [self NSErrorForErrorCodeAndMessage:FIRAppDistributionErrorUnknown
-                                                            message:@""];
-                  }
+      [request setValue:[[FIRApp defaultApp] options].APIKey forHTTPHeaderField:@"X-Goog-Api-Key"];
 
-    //              FIRFADErrorLog(@"App Tester API service error - %@",
-    //                             [HTTPError localizedDescription]);
-                  dispatch_async(dispatch_get_main_queue(), ^{
-                    completion(nil, HTTPError);
-                  });
+      NSLog(@"Url : %@, Auth token: %@ API KEY: %@", URLString, authTokenResult.authToken,
+            [[FIRApp defaultApp] options].APIKey);
+      NSURLSessionDataTask *listReleasesDataTask = [URLSession
+          dataTaskWithRequest:request
+            completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+              NSHTTPURLResponse *HTTPResponse = (NSHTTPURLResponse *)response;
+              NSLog(@"HTTPResonse status code %ld response %@", (long)HTTPResponse.statusCode,
+                    HTTPResponse);
+              if (error || HTTPResponse.statusCode != 200) {
+                NSError *HTTPError = nil;
+                if (HTTPResponse == nil && error) {
+                  // Handles network timeouts or no internet connectivity
+                  NSString *message = error.userInfo[NSLocalizedDescriptionKey]
+                                          ? error.userInfo[NSLocalizedDescriptionKey]
+                                          : @"";
 
+                  HTTPError =
+                      [self NSErrorForErrorCodeAndMessage:FIRAppDistributionErrorNetworkFailure
+                                                  message:message];
+                } else if (HTTPResponse.statusCode == 401) {
+                  // TODO: Maybe sign out tester?
+                  HTTPError = [self
+                      NSErrorForErrorCodeAndMessage:FIRAppDistributionErrorAuthenticationFailure
+                                            message:kAuthErrorMessage];
                 } else {
-                  [self handleReleasesAPIResponseWithData:data completion:completion];
+                  HTTPError = [self NSErrorForErrorCodeAndMessage:FIRAppDistributionErrorUnknown
+                                                          message:@""];
                 }
-              }];
 
-            [listReleasesDataTask resume];
-        }];
+                //              FIRFADErrorLog(@"App Tester API service error - %@",
+                //                             [HTTPError localizedDescription]);
+                dispatch_async(dispatch_get_main_queue(), ^{
+                  completion(nil, HTTPError);
+                });
+
+              } else {
+                [self handleReleasesAPIResponseWithData:data completion:completion];
+              }
+            }];
+
+      [listReleasesDataTask resume];
+    }];
   }];
 }
 
-- (ASPresentationAnchor)presentationAnchorForWebAuthenticationSession:(ASWebAuthenticationSession *)session API_AVAILABLE(ios(13.0)){
+- (ASPresentationAnchor)presentationAnchorForWebAuthenticationSession:
+    (ASWebAuthenticationSession *)session API_AVAILABLE(ios(13.0)) {
   return self.safariHostingViewController.view.window;
 }
 
@@ -346,7 +369,7 @@ SFAuthenticationSession *_safariAuthenticationVC;
     self.window.hidden = YES;
     self.window = nil;
   }
-  
+
   _safariAuthenticationVC = nil;
   _safariVC = nil;
   _webAuthenticationVC = nil;
@@ -368,7 +391,7 @@ SFAuthenticationSession *_safariAuthenticationVC;
                                                                        error:&error];
 
   if (error) {
-//    FIRFADErrorLog(@"Tester API - Error serializing json response");
+    //    FIRFADErrorLog(@"Tester API - Error serializing json response");
     NSString *message =
         error.userInfo[NSLocalizedDescriptionKey] ? error.userInfo[NSLocalizedDescriptionKey] : @"";
     NSError *error = [self NSErrorForErrorCodeAndMessage:FIRAppDistributionErrorUnknown
@@ -383,19 +406,20 @@ SFAuthenticationSession *_safariAuthenticationVC;
   NSArray *releaseList = [serializedResponse objectForKey:kReleasesKey];
   for (NSDictionary *releaseDict in releaseList) {
     if ([[releaseDict objectForKey:kLatestReleaseKey] boolValue]) {
-//      FIRFADInfoLog(@"Tester API - found latest release in response. Checking if code hash match");
+      //      FIRFADInfoLog(@"Tester API - found latest release in response. Checking if code hash
+      //      match");
       NSString *codeHash = [releaseDict objectForKey:kCodeHashKey];
       NSString *executablePath = [[NSBundle mainBundle] executablePath];
       FIRAppDistributionMachO *machO =
           [[FIRAppDistributionMachO alloc] initWithPath:executablePath];
 
-//      FIRFADInfoLog(@"Code hash for the app on device - %@", machO.codeHash);
-//      FIRFADInfoLog(@"Code hash for the release from the service response - %@", codeHash);
+      //      FIRFADInfoLog(@"Code hash for the app on device - %@", machO.codeHash);
+      //      FIRFADInfoLog(@"Code hash for the release from the service response - %@", codeHash);
       if (codeHash && ![codeHash isEqualToString:machO.codeHash]) {
         FIRAppDistributionRelease *release =
             [[FIRAppDistributionRelease alloc] initWithDictionary:releaseDict];
         dispatch_async(dispatch_get_main_queue(), ^{
-          //FIRFADInfoLog(@"Found new release");
+          // FIRFADInfoLog(@"Found new release");
           completion(release, nil);
         });
 
@@ -406,14 +430,14 @@ SFAuthenticationSession *_safariAuthenticationVC;
     }
   }
 
-  //FIRFADInfoLog(@"Tester API - No new release found");
+  // FIRFADInfoLog(@"Tester API - No new release found");
   dispatch_async(dispatch_get_main_queue(), ^{
     completion(nil, nil);
   });
 }
 
 - (void)checkForUpdateWithCompletion:(FIRAppDistributionUpdateCheckCompletion)completion {
-    NSLog(@"CheckForUpdateWithCompletion");
+  NSLog(@"CheckForUpdateWithCompletion");
   if (false) {
     [self fetchReleases:completion];
   } else {
@@ -452,7 +476,6 @@ SFAuthenticationSession *_safariAuthenticationVC;
     [self setupUIWindowForLogin];
     [self.window.rootViewController presentViewController:alert animated:YES completion:nil];
   }
-  
 }
 
 - (void)safariViewControllerDidFinish:(SFSafariViewController *)controller NS_AVAILABLE_IOS(9.0) {
