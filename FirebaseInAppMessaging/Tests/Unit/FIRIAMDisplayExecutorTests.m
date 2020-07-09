@@ -24,7 +24,7 @@
 #import "FIRInAppMessaging.h"
 #import "FIRInAppMessagingRenderingPrivate.h"
 
-#import <FirebaseABTesting/ABTExperimentPayload.h>
+#import "FirebaseABTesting/Sources/Private/ABTExperimentPayload.h"
 
 // A class implementing protocol FIRIAMMessageContentData to be used for unit testing
 @interface FIRIAMMessageContentDataForTesting : NSObject <FIRIAMMessageContentData>
