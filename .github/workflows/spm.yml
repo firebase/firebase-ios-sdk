@@ -27,3 +27,5 @@ jobs:
       run: xcodebuild -scheme Firebase-Package test
     - name: Core ObjC Unit Tests iOS
       run: xcodebuild -scheme Firebase-Package test -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 11'
+    - name: Core ObjC Unit Tests tvOS
+      run: xcodebuild -scheme Firebase-Package test -sdk appletvsimulator -destination 'platform=tvOS Simulator,name=Apple TV'

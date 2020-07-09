@@ -15,6 +15,7 @@
  */
 
 #import <XCTest/XCTest.h>
+
 #import "FirebaseAuth/Sources/Public/FIRTwitterAuthProvider.h"
 
 #import "FirebaseAuth/Sources/AuthProvider/FIRAuthCredential_Internal.h"

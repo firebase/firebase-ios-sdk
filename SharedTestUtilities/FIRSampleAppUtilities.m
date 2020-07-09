@@ -17,7 +17,10 @@
 #if __has_include(<UIKit/UIKit.h>)
 #import "SharedTestUtilities/FIRSampleAppUtilities.h"
 
+#if __has_include(<SafariServices/SafariServices.h>)
 #import <SafariServices/SafariServices.h>
+#endif
+
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 NSString *const kGoogleAppIDPlistKey = @"GOOGLE_APP_ID";
@@ -100,12 +103,16 @@ NSString *const kInvalidPlistAlertMessage = @"This sample app needs to be update
 }
 
 + (void)navigateToURL:(NSURL *)url fromViewController:(UIViewController *)viewController {
+#if __has_include(<SafariServices/SafariServices.h>)
   if ([SFSafariViewController class]) {
     SFSafariViewController *safariController = [[SFSafariViewController alloc] initWithURL:url];
     [viewController showDetailViewController:safariController sender:nil];
   } else {
+#endif
     [[UIApplication sharedApplication] openURL:url];
+#if __has_include(<SafariServices/SafariServices.h>)
   }
+#endif
 }
 
 @end

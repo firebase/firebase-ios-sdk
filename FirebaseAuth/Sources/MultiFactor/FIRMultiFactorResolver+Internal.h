@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <TargetConditionals.h>
+#import <TargetConditionals.h>
 #if TARGET_OS_IOS
 
 #import "FirebaseAuth/Sources/Public/FIRMultiFactorResolver.h"
