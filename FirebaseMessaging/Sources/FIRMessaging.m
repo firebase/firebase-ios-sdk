@@ -47,7 +47,6 @@
 #import "FirebaseMessaging/Sources/Token/FIRMessagingAuthService.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingTokenInfo.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingTokenManager.h"
-#import "FirebaseMessaging/Sources/Token/FIRMessagingTokenStore.h"
 
 static NSString *const kFIRMessagingMessageViaAPNSRootKey = @"aps";
 static NSString *const kFIRMessagingReachabilityHostname = @"www.google.com";

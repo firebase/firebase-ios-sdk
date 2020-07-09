@@ -267,10 +267,8 @@ typedef NS_ENUM(NSInteger, FIRMessagingMessageCode) {
 
   // DO NOT USE 12000 - 12014
 
-  // FIRMessagingStore.m
   // DO NOT USE 13004, 13005, 13007, 13008, 13010, 13011, 13013, 13014
   kFIRMessagingMessageCodeStore000 = 33000,
-  kFIRMessagingMessageCodeStore001 = 33001,
   kFIRMessagingMessageCodeStore002 = 33002,
   kFIRMessagingMessageCodeStore003 = 33003,
   kFIRMessagingMessageCodeStore006 = 33006,

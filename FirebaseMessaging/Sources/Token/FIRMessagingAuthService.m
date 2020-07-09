@@ -20,7 +20,7 @@
 #import "FIRMessagingConstants.h"
 #import "FIRMessagingDefines.h"
 #import "FIRMessagingLogger.h"
-#import "FIRMessagingStore.h"
+#import "FIRMessagingCheckinStore.h"
 #import "NSError+FIRMessaging.h"
 
 // Max time interval between checkin retry in seconds.
@@ -29,7 +29,7 @@ static const int64_t kMaxCheckinRetryIntervalInSeconds = 1 << 5;
 @interface FIRMessagingAuthService ()
 
 // Used to retrieve and cache the checkin info to disk and Keychain.
-@property(nonatomic, readwrite, strong) FIRMessagingStore *store;
+@property(nonatomic, readwrite, strong) FIRMessagingCheckinStore *checkinStore;
 // Used to perform single checkin fetches.
 @property(nonatomic, readwrite, strong) FIRMessagingCheckinService *checkinService;
 // The current checkin info. It will be compared to what is retrieved to determine whether it is
@@ -53,13 +53,12 @@ static const int64_t kMaxCheckinRetryIntervalInSeconds = 1 << 5;
 
 @implementation FIRMessagingAuthService
 
-- (instancetype)initWithCheckinService:(FIRMessagingCheckinService *)checkinService
-                                 store:(FIRMessagingStore *)store {
+- (instancetype)initWithCheckinStore:(FIRMessagingCheckinStore *)checkinStore {
   self = [super init];
   if (self) {
-    _store = store;
-    _checkinPreferences = [_store cachedCheckinPreferences];
-    _checkinService = checkinService;
+    _checkinStore = checkinStore;
+    _checkinPreferences = [_checkinStore cachedCheckinPreferences];
+    _checkinService = [[FIRMessagingCheckinService alloc] init];
     _checkinHandlers = [[NSMutableArray alloc] init];
   }
   return self;
@@ -70,13 +69,8 @@ static const int64_t kMaxCheckinRetryIntervalInSeconds = 1 << 5;
   [_checkinHandlers release];
   [_checkinPreferences release];
   [_checkinService release];
-  [_store release];
+  [_checkinStore release];
   [super dealloc];
-}
-
-- (instancetype)initWithStore:(FIRMessagingStore *)store {
-  FIRMessagingCheckinService *checkinService = [[FIRMessagingCheckinService alloc] init];
-  return [self initWithCheckinService:checkinService store:store];
 }
 
 #pragma mark - Schedule Checkin
@@ -213,7 +207,7 @@ static const int64_t kMaxCheckinRetryIntervalInSeconds = 1 << 5;
                         // Save the checkin info to disk
                         // Keychain might not be accessible, so confirm that checkin preferences can
                         // be saved
-                        [self.store
+                        [self->_checkinStore
                             saveCheckinPreferences:checkinPreferences
                                            handler:^(NSError *checkinSaveError) {
                                              if (checkinSaveError && !hasSameCachedPreferences) {
@@ -264,7 +258,7 @@ static const int64_t kMaxCheckinRetryIntervalInSeconds = 1 << 5;
 }
 
 - (void)resetCheckinWithHandler:(void (^)(NSError *error))handler {
-  [self.store removeCheckinPreferencesWithHandler:^(NSError *error) {
+  [_checkinStore removeCheckinPreferencesWithHandler:^(NSError *error) {
     if (!error) {
       self.checkinPreferences = nil;
     }

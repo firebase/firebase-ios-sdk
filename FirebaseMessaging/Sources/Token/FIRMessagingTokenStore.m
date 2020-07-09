@@ -32,16 +32,11 @@ static NSString *const kFIRMessagingTokenKeychainId = @"com.google.iid-tokens";
 
 @implementation FIRMessagingTokenStore
 
-+ (instancetype)defaultStore {
-  FIRMessagingAuthKeychain *tokenKeychain =
-      [[FIRMessagingAuthKeychain alloc] initWithIdentifier:kFIRMessagingTokenKeychainId];
-  return [[FIRMessagingTokenStore alloc] initWithKeychain:tokenKeychain];
-}
 
-- (instancetype)initWithKeychain:(FIRMessagingAuthKeychain *)keychain {
+- (instancetype)init {
   self = [super init];
   if (self) {
-    _keychain = keychain;
+    _keychain = [[FIRMessagingAuthKeychain alloc] initWithIdentifier:kFIRMessagingTokenKeychainId];
   }
   return self;
 }
@@ -59,6 +54,13 @@ static NSString *const kFIRMessagingTokenKeychainId = @"com.google.iid-tokens";
 
 - (nullable FIRMessagingTokenInfo *)tokenInfoWithAuthorizedEntity:(NSString *)authorizedEntity
                                                             scope:(NSString *)scope {
+  // TODO(chliangGoogle): If we don't have the token plist we should delete all the tokens from
+  // the keychain. This is because not having the plist signifies a backup and restore operation.
+  // In case the keychain has any tokens these would now be stale and therefore should be
+  // deleted.
+  if (![authorizedEntity length] || ![scope length]) {
+    return nil;
+  }
   NSString *account = FIRMessagingAppIdentifier();
   NSString *service = [[self class] serviceKeyForAuthorizedEntity:authorizedEntity scope:scope];
   NSData *item = [self.keychain dataForService:service account:account];
@@ -136,6 +138,12 @@ static NSString *const kFIRMessagingTokenKeychainId = @"com.google.iid-tokens";
 
 - (void)removeTokenWithAuthorizedEntity:(nonnull NSString *)authorizedEntity
                                   scope:(nonnull NSString *)scope {
+  if (![authorizedEntity length] || ![scope length]) {
+    FIRMessagingLoggerError(kFIRMessagingMessageCodeStore012,
+                            @"Will not delete token with invalid entity: %@, scope: %@",
+                            authorizedEntity, scope);
+    return;
+  }
   NSString *account = FIRMessagingAppIdentifier();
   NSString *service = [[self class] serviceKeyForAuthorizedEntity:authorizedEntity scope:scope];
   [self.keychain removeItemsMatchingService:service account:account handler:nil];

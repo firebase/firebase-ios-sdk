@@ -19,7 +19,6 @@
 @class FIRMessagingAuthService;
 @class FIRMessagingCheckinPreferences;
 @class FIRMessagingTokenInfo;
-@class FIRMessagingStore;
 
 typedef NS_OPTIONS(NSUInteger, FIRMessagingInvalidTokenReason) {
   FIRMessagingInvalidTokenReasonNone = 0,               // 0
@@ -29,7 +28,7 @@ typedef NS_OPTIONS(NSUInteger, FIRMessagingInvalidTokenReason) {
 
 /**
  *  Manager for the InstanceID token requests i.e `newToken` and `deleteToken`. This
- *  manages the overall interaction of the `InstanceIDStore`, the token register
+ *  manages the overall interaction of the `FIRMessagingTokenStore`, the token register
  *  service and the callbacks associated with `GCMInstanceID`.
  */
 @interface FIRMessagingTokenManager : NSObject

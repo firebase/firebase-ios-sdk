@@ -22,7 +22,6 @@
 #import "FIRMessagingCheckinPreferences.h"
 #import "FIRMessagingDefines.h"
 #import "FIRMessagingLogger.h"
-#import "FIRMessagingStore.h"
 #import "FIRMessagingUtilities.h"
 #import "NSError+FIRMessaging.h"
 
