@@ -858,7 +858,7 @@
   NSSet<GDTCOREvent *> *generatedEvents = generatedBatch[generatedBatchID];
   // 0.2. Wait for batch expiration.
   [[NSRunLoop currentRunLoop]
-      runUntilDate:[NSDate dateWithTimeIntervalSinceNow:batchExpiresIn + 0.5]];
+      runUntilDate:[NSDate dateWithTimeIntervalSinceNow:batchExpiresIn]];
 
   // 1. Check for expiration.
   [[GDTCORFlatFileStorage sharedInstance] checkForExpirations];
@@ -901,7 +901,7 @@
                                                                batchExpiringIn:batchExpiresIn];
   // 0.2. Wait for batch expiration.
   [[NSRunLoop currentRunLoop]
-      runUntilDate:[NSDate dateWithTimeIntervalSinceNow:batchExpiresIn + 0.5]];
+      runUntilDate:[NSDate dateWithTimeIntervalSinceNow:batchExpiresIn]];
 
   // 1. Check for expiration.
   [[GDTCORFlatFileStorage sharedInstance] checkForExpirations];
