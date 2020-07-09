@@ -54,7 +54,7 @@ let skipDirPatterns = ["/Sample/", "/Pods/", "FirebaseStorage/Tests/Integration"
 let skipImportPatterns = [
   "FBLPromise",
   "OCMock",
-  "OCMStubRecorder"
+  "OCMStubRecorder",
 ]
 
 private class ErrorLogger {
