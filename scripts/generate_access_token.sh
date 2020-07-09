@@ -32,6 +32,8 @@
 #     "access_token":"1234567890ABCDEFG"
 # }
 
+set -x
+
 GHA_SECRET="$1"
 SERVICE_ACCOUNT="$2"
 OUTPUT="$3"
@@ -66,7 +68,7 @@ echo "::set-env name=GOOGLE_APPLICATION_CREDENTIALS::${HOME}/.credentials/${SERV
 export GOOGLE_APPLICATION_CREDENTIALS="${HOME}/.credentials/${SERVICE_ACCOUNT_FILE}"
 
 # Clone Google's Swift Auth Client Library and use it to generate a token.
-# The generated token is piped to the OUTPUT file.
+# The generated token is piped to the specified OUTPUT file.
 git clone https://github.com/googleapis/google-auth-library-swift.git
 cd google-auth-library-swift
 git checkout --quiet 7b1c9cd4ffd8cb784bcd8b7fd599794b69a810cf # Working main branch as of 7/9/20.

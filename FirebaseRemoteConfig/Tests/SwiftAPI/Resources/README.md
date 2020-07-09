@@ -32,7 +32,7 @@ As you can see below when we set the `GOOGLE_APPLICATION_CREDENTIALS` env variab
 $ git clone git@github.com:googleapis/google-auth-library-swift.git
 $ cd google-auth-library-swift
 $ make -f Makefile
-$ export GOOGLE_APPLICATION_CREDENTIALS="$HOME/.credentials/tokensource.json"
+$ export GOOGLE_APPLICATION_CREDENTIALS="$HOME/.credentials/ServiceAccount.json"
 $ swift run TokenSource
 > After a few seconds, the access token should print here 🥳
 ```
@@ -40,19 +40,14 @@ If your access token wasn't generated, scroll down to the **Troubleshooting** se
 
 Copy the access token and paste it into [`RemoteConfigConsole.swift`](https://github.com/firebase/firebase-ios-sdk/blob/nc-rc-test-api/FirebaseRemoteConfig/Tests/SwiftAPI/RemoteConfigConsole.swift). I have included a comment that you can replace with the token. It will be a long `String` but I would avoid trying to reformat it as to not clip any characters or add unneeded spacing.
 
-🚀 Everything is ready to go! I recommend having the Firebase console up in one window so you can see the parameters change when the Xcode tests trigger changes.
+🚀 Everything is ready to go!
 
 ## See it in action
-
-Note: In the current [`APITests.swift`](https://github.com/firebase/firebase-ios-sdk/blob/nc-rc-test-api/FirebaseRemoteConfig/Tests/SwiftAPI/APITests.swift) tests, all of the tests that don't involve the `RemoteConfigConsole` expect there to be one remote config value already set up. If your app's remote config is empty and you want these tests to pass, manually add a parameter mapping `"Key1"` to `"Value1"`.
 
 I have included a few tests in [`APITests.swift`](https://github.com/firebase/firebase-ios-sdk/blob/nc-rc-test-api/FirebaseRemoteConfig/Tests/SwiftAPI/APITests.swift) showcasing the  `RemoteConfigConsole` in action. Check out the following tests in [`APITests.swift`](https://github.com/firebase/firebase-ios-sdk/blob/nc-rc-test-api/FirebaseRemoteConfig/Tests/SwiftAPI/APITests.swift):
 - [`testFetchConfigThenUpdateConsoleThenFetchAgain`](https://github.com/firebase/firebase-ios-sdk/blob/nc-rc-test-api/FirebaseRemoteConfig/Tests/SwiftAPI/APITests.swift#L192)
 - [`testFetchConfigThenAddValueOnConsoleThenFetchAgain`](https://github.com/firebase/firebase-ios-sdk/blob/nc-rc-test-api/FirebaseRemoteConfig/Tests/SwiftAPI/APITests.swift#L229)
 - [`testFetchConfigThenDeleteValueOnConsoleThenFetchAgain`](https://github.com/firebase/firebase-ios-sdk/blob/nc-rc-test-api/FirebaseRemoteConfig/Tests/SwiftAPI/APITests.swift#L264)
-
-The **Firebase Service Account Private Key** only needs to be downloaded once. We can download it for the *internal remote config sample app* and upload it to GitHub secrets. Then we can decrypt and store it in the `$HOME/.credentials/` directory of the testing container when the pre-test scripts run.
-
 
 ## Troubleshooting
 Initially, I ran into an issue where `$ swift run TokenSource` outputted:
@@ -64,8 +59,8 @@ If you run into this issue, try running: `$ xcode-select -p`. If you see:
 ```
 /Library/Developer/CommandLineTools
 ```
-Then the fix is simple! Run `$ sudo xcode-select -s /Applications/Xcode.app/Contents/Developer` and verify it worked by running  `$ xcode-select -p` again. If you see:
+Then the fix is simple. Run `$ sudo xcode-select -s /Applications/Xcode.app/Contents/Developer` and verify it worked by running  `$ xcode-select -p` again. If you see:
 ```
 /Applications/Xcode.app/Contents/Developer
 ```
-Then you should be good to go! Try running `$ swift run TokenSource` again!
+...then you should be good to go. Try running `$ swift run TokenSource` again.
