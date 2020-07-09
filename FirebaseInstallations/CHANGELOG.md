@@ -1,3 +1,7 @@
+
+# v1.5.1 -- Unreleased
+- [changed] API docs updated to use term "Installation auth token" consistently. (#6014)
+
 # v1.5.0 -- M75
 - [changed] Functionally neutral source reorganization. (#5832)
 
