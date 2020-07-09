@@ -17,8 +17,8 @@
 #include <TargetConditionals.h>
 #if TARGET_OS_IOS
 
-#import "OCMock.h"
 #import <XCTest/XCTest.h>
+#import "OCMock.h"
 
 #import "FirebaseAuth/Sources/SystemService/FIRAuthAPNSToken.h"
 #import "FirebaseAuth/Sources/SystemService/FIRAuthAPNSTokenManager.h"

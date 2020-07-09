@@ -15,7 +15,6 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "OCMock.h"
 #import <XCTest/XCTest.h>
 #import "FirebaseAuth/Sources/Public/FIRActionCodeSettings.h"
 #import "FirebaseAuth/Sources/Public/FIRAdditionalUserInfo.h"
@@ -26,6 +25,7 @@
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "GoogleUtilities/AppDelegateSwizzler/Private/GULAppDelegateSwizzler.h"
 #import "Interop/Auth/Public/FIRAuthInterop.h"
+#import "OCMock.h"
 
 #import "FirebaseAuth/Sources/Auth/FIRAuthDispatcher.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"

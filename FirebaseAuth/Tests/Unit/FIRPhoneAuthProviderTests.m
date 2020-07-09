@@ -17,7 +17,6 @@
 #include <TargetConditionals.h>
 #if TARGET_OS_IOS
 
-#import "OCMock.h"
 #import <SafariServices/SafariServices.h>
 #import <XCTest/XCTest.h>
 #import "FirebaseAuth/Sources/Public/FIRAuth.h"
@@ -25,6 +24,7 @@
 #import "FirebaseAuth/Sources/Public/FIRAuthUIDelegate.h"
 #import "FirebaseAuth/Sources/Public/FIRPhoneAuthProvider.h"
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "OCMock.h"
 
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
