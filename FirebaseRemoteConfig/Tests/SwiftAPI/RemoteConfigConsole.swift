@@ -26,9 +26,13 @@ class RemoteConfigConsole {
   
   // TODO: Cleanup once the GHA workflow works
   lazy private var accessToken: String = {
+    print("Accessing Bundle: \(Bundle(for: type(of: self)).description)")
     let fileURL = Bundle(for: type(of: self)).url(forResource: "AccessToken", withExtension: "json")!
+    print("FileURL: \(fileURL.absoluteString)")
     let data = try! Data(contentsOf: fileURL)
+    print("Data generated!")
     let json = try! JSONSerialization.jsonObject(with: data, options: .allowFragments)
+    print("JSON: \(json)")
     if let json = json as? [String: Any] {
       if let access_token = json["access_token"] as? String {
         print("it worked!!!!")

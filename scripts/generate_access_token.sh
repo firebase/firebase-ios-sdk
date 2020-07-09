@@ -23,3 +23,4 @@ make -f Makefile
 #export GOOGLE_APPLICATION_CREDENTIALS="$HOME/.credentials/ServiceAccount.json"
 swift run TokenSource > $output
 echo Access token generated!
+cat $output
