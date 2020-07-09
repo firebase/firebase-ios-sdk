@@ -35,7 +35,7 @@ class APITests: APITestBase {
     super.tearDown()
     // If using real console, reset remote config value.
     if !APITests.useFakeConfig {
-        console.updateRemoteConfigValue("Obi-Wan", for: "Jedi")
+      console.updateRemoteConfigValue("Obi-Wan", for: "Jedi")
     }
   }
 
@@ -154,7 +154,7 @@ class APITests: APITestBase {
 
   func testFetchAndActivateUnchangedConfig() {
     guard !APITests.useFakeConfig else { return }
-    
+
     let expectation = self.expectation(description: #function)
 
     XCTAssertEqual(config.settings.minimumFetchInterval, 0)
