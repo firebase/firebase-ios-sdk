@@ -58,6 +58,7 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
 
 @synthesize isTesterSignedIn = _isTesterSignedIn;
 
+API_AVAILABLE(ios(12.0))
 ASWebAuthenticationSession *_webAuthenticationVC;
 
 - (BOOL)isTesterSignedIn {
@@ -140,6 +141,9 @@ ASWebAuthenticationSession *_webAuthenticationVC;
 
 - (void)signInTesterWithCompletion:(void (^)(NSError *_Nullable error))completion {
     NSLog(@"Testing: App Distribution sign in");
+    
+    // TODO: Check if tester is already signed in
+    
     [self setupUIWindowForLogin];
     FIRInstallations *installations = [FIRInstallations installations];
 
@@ -150,7 +154,7 @@ ASWebAuthenticationSession *_webAuthenticationVC;
             return;
         }
         if (@available(iOS 12.0, *)) {
-             NSString *url = [NSString stringWithFormat: @"https://partnerdash.google.com/apps/appdistribution/testerApps/%@/installations/%@/createInstallationLink", [[FIRApp defaultApp] options].googleAppID, identifier];
+             NSString *url = [NSString stringWithFormat: @"https://partnerdash.google.com/apps/appdistribution/pub/apps/%@/installations/%@/buildalerts?appName=Bee_Plus", [[FIRApp defaultApp] options].googleAppID, identifier];
             
             NSLog(@"Registration URL: %@", url);
             ASWebAuthenticationSession *authenticationVC =
@@ -276,16 +280,16 @@ ASWebAuthenticationSession *_webAuthenticationVC;
         [request setValue:authTokenResult.authToken
             forHTTPHeaderField:@"X-Goog-Firebase-Installations-Auth"];
         
-        [request setValue:@"AIzaSyCc_0xemKE7jV0gAtDkQ7uRf0hEWMvv3_4"
+        [request setValue:[[FIRApp defaultApp] options].APIKey
             forHTTPHeaderField:@"X-Goog-Api-Key"];
         
         
-        NSLog(@"Url : %@, Auth token: %@", URLString, authTokenResult.authToken);
+        NSLog(@"Url : %@, Auth token: %@ API KEY: %@", URLString, authTokenResult.authToken, [[FIRApp defaultApp] options].APIKey);
         NSURLSessionDataTask *listReleasesDataTask = [URLSession
             dataTaskWithRequest:request
               completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
                 NSHTTPURLResponse *HTTPResponse = (NSHTTPURLResponse *)response;
-            NSLog(@"HTTPResonse status code %ld", (long)HTTPResponse.statusCode);
+            NSLog(@"HTTPResonse status code %ld response %@", (long)HTTPResponse.statusCode, HTTPResponse);
                 if (error || HTTPResponse.statusCode != 200) {
                   NSError *HTTPError = nil;
                   if (HTTPResponse == nil && error) {
