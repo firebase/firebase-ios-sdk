@@ -20,7 +20,7 @@ git clone https://github.com/googleapis/google-auth-library-swift.git
 cd google-auth-library-swift
 git checkout --quiet 7b1c9cd4ffd8cb784bcd8b7fd599794b69a810cf # This commit will work.
 make -f Makefile
-#export GOOGLE_APPLICATION_CREDENTIALS="$HOME/.credentials/ServiceAccount.json"
+export GOOGLE_APPLICATION_CREDENTIALS="$HOME/.credentials/ServiceAccount.json"
 swift run TokenSource > $output
 echo Access token generated!
 cat $output
