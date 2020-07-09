@@ -16,6 +16,8 @@
 
 #import <Foundation/Foundation.h>
 #import <XCTest/XCTest.h>
+#import "OCMock.h"
+
 #import "FirebaseAuth/Sources/Public/FIRActionCodeSettings.h"
 #import "FirebaseAuth/Sources/Public/FIRAdditionalUserInfo.h"
 #import "FirebaseAuth/Sources/Public/FIREmailAuthProvider.h"
@@ -25,7 +27,6 @@
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "GoogleUtilities/AppDelegateSwizzler/Private/GULAppDelegateSwizzler.h"
 #import "Interop/Auth/Public/FIRAuthInterop.h"
-#import "OCMock.h"
 
 #import "FirebaseAuth/Sources/Auth/FIRAuthDispatcher.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
@@ -2145,7 +2146,6 @@ static const NSTimeInterval kWaitInterval = .5;
 
 #pragma mark - Automatic Token Refresh Tests.
 
-#if !SWIFT_PACKAGE
 /** @fn testAutomaticTokenRefresh
     @brief Tests a successful flow to automatically refresh tokens for a signed in user.
  */
@@ -2262,9 +2262,8 @@ static const NSTimeInterval kWaitInterval = .5;
   XCTAssertEqualObjects([FIRAuth auth].currentUser.rawAccessToken, kNewAccessToken);
   OCMVerifyAll(_mockBackend);
 }
-#endif
 
-#if TARGET_OS_IOS && !defined(SWIFT_PACKAGE)
+#if TARGET_OS_IOS
 /** @fn testAutomaticTokenRefreshInvalidTokenFailure
     @brief Tests that app foreground notification triggers the scheduling of an automatic token
         refresh task.

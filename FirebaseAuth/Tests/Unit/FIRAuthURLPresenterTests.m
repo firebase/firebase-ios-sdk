@@ -14,14 +14,15 @@
  * limitations under the License.
  */
 
-#include <TargetConditionals.h>
+#import <TargetConditionals.h>
 #if TARGET_OS_IOS
 
 #import <Foundation/Foundation.h>
 #import <SafariServices/SafariServices.h>
 #import <XCTest/XCTest.h>
-#import "FirebaseAuth/Sources/Public/FIRAuthUIDelegate.h"
 #import "OCMock.h"
+
+#import "FirebaseAuth/Sources/Public/FIRAuthUIDelegate.h"
 
 #import "FirebaseAuth/Sources/Utilities/FIRAuthURLPresenter.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthWebViewController.h"
