@@ -92,15 +92,21 @@
 - (NSSet<GDTCOREvent *> *)generateEventsForStorageTesting {
   NSMutableSet<GDTCOREvent *> *generatedEvents = [[NSMutableSet alloc] init];
   // Generate 100 test target events
-  [generatedEvents unionSet:[self generateEventsForTarget:kGDTCORTargetTest count:100]];
+  [generatedEvents unionSet:[self generateEventsForTarget:kGDTCORTargetTest
+                                               expiringIn:1000
+                                                    count:100]];
 
   // Generate 50 FLL target events.
-  [generatedEvents unionSet:[self generateEventsForTarget:kGDTCORTargetFLL count:50]];
+  [generatedEvents unionSet:[self generateEventsForTarget:kGDTCORTargetFLL
+                                               expiringIn:1000
+                                                    count:50]];
 
   return generatedEvents;
 }
 
-- (NSSet<GDTCOREvent *> *)generateEventsForTarget:(GDTCORTarget)target count:(NSInteger)count {
+- (NSSet<GDTCOREvent *> *)generateEventsForTarget:(GDTCORTarget)target
+                                       expiringIn:(NSTimeInterval)eventsExpireIn
+                                            count:(NSInteger)count {
   GDTCORFlatFileStorage *storage = [GDTCORFlatFileStorage sharedInstance];
   NSMutableSet<GDTCOREvent *> *generatedEvents = [[NSMutableSet alloc] init];
 
@@ -112,6 +118,7 @@
     GDTCOREvent *event = [GDTCOREventGenerator generateEventForTarget:target
                                                               qosTier:nil
                                                             mappingID:nil];
+    event.expirationDate = [NSDate dateWithTimeIntervalSinceNow:eventsExpireIn];
     [generatedEvents addObject:event];
     [storage storeEvent:event
              onComplete:^(BOOL wasWritten, NSError *_Nullable error) {
@@ -783,8 +790,27 @@
   [self waitForExpectations:@[ expectation ] timeout:10];
 }
 
+- (void)testBatchIDsForTarget {
+  __auto_type expectedBatch = [self generateAndBatchEvents];
+
+  XCTestExpectation *batchIDsExpectation = [self expectationWithDescription:@"batchIDsExpectation"];
+
+  [[GDTCORFlatFileStorage sharedInstance]
+      batchIDsForTarget:kGDTCORTargetTest
+             onComplete:^(NSSet<NSNumber *> *_Nullable batchIDs) {
+               [batchIDsExpectation fulfill];
+
+               XCTAssertEqual(batchIDs.count, 1);
+               XCTAssertEqualObjects([expectedBatch.allKeys firstObject], [batchIDs anyObject]);
+             }];
+
+  [self waitForExpectations:@[ batchIDsExpectation ] timeout:5];
+}
+
+#pragma mark - Expiration tests
+
 /** Tests events expiring at a given time. */
-- (void)testCheckForExpirations {
+- (void)testCheckForExpirations_WhenEventsExpire {
   NSTimeInterval delay = 10.0;
   XCTestExpectation *expectation = [self expectationWithDescription:@"hasEvent completion called"];
   [[GDTCORFlatFileStorage sharedInstance] hasEventsForTarget:kGDTCORTargetTest
@@ -826,12 +852,13 @@
 - (void)testCheckForExpirations_WhenBatchWithNotExpiredEventsExpires {
   NSTimeInterval batchExpiresIn = 0.5;
   // 0.1. Generate and batch events
-  __auto_type generatedBatch = [self generateAndBatchEventsWithBatchExpiringIn:batchExpiresIn];
+  __auto_type generatedBatch = [self generateAndBatchEventsExpiringIn:1000
+                                                      batchExpiringIn:batchExpiresIn];
   NSNumber *generatedBatchID = [[generatedBatch allKeys] firstObject];
   NSSet<GDTCOREvent *> *generatedEvents = generatedBatch[generatedBatchID];
   // 0.2. Wait for batch expiration.
   [[NSRunLoop currentRunLoop]
-      runUntilDate:[NSDate dateWithTimeIntervalSinceNow:batchExpiresIn + 5]];
+      runUntilDate:[NSDate dateWithTimeIntervalSinceNow:batchExpiresIn + 0.5]];
 
   // 1. Check for expiration.
   [[GDTCORFlatFileStorage sharedInstance] checkForExpirations];
@@ -866,78 +893,46 @@
   [self waitForExpectations:@[ getBatchesExpectation, getEventsExpectation ] timeout:0.5];
 }
 
-- (void)testBatchIDsForTarget {
-  __auto_type expectedBatch = [self generateAndBatchEvents];
+- (void)testCheckForExpirations_WhenBatchWithExpiredEventsExpires {
+  NSTimeInterval batchExpiresIn = 0.5;
+  NSTimeInterval eventsExpireIn = 0.5;
+  // 0.1. Generate and batch events
+  __unused __auto_type generatedBatch = [self generateAndBatchEventsExpiringIn:eventsExpireIn
+                                                               batchExpiringIn:batchExpiresIn];
+  //  NSNumber *generatedBatchID = [[generatedBatch allKeys] firstObject];
+  //  NSSet<GDTCOREvent *> *generatedEvents = generatedBatch[generatedBatchID];
+  // 0.2. Wait for batch expiration.
+  [[NSRunLoop currentRunLoop]
+      runUntilDate:[NSDate dateWithTimeIntervalSinceNow:batchExpiresIn + 0.5]];
 
-  XCTestExpectation *batchIDsExpectation = [self expectationWithDescription:@"batchIDsExpectation"];
+  // 1. Check for expiration.
+  [[GDTCORFlatFileStorage sharedInstance] checkForExpirations];
 
+  // 2. Check events.
+  // 2.1. Expect no batches left.
+  XCTestExpectation *getBatchesExpectation =
+      [self expectationWithDescription:@"getBatchesExpectation"];
   [[GDTCORFlatFileStorage sharedInstance]
       batchIDsForTarget:kGDTCORTargetTest
              onComplete:^(NSSet<NSNumber *> *_Nullable batchIDs) {
-               [batchIDsExpectation fulfill];
-
-               XCTAssertEqual(batchIDs.count, 1);
-               XCTAssertEqualObjects([expectedBatch.allKeys firstObject], [batchIDs anyObject]);
+               [getBatchesExpectation fulfill];
+               XCTAssertEqual(batchIDs.count, 0);
              }];
 
-  [self waitForExpectations:@[ batchIDsExpectation ] timeout:5];
-}
-
-/** Tests batch expiring at a given time. */
-- (void)testCheckBatchExpiration {
-  GDTCORFlatFileStorage *storage = [GDTCORFlatFileStorage sharedInstance];
-  NSTimeInterval delay = 10.0;
-  [self generateEventsForStorageTesting];
-  XCTestExpectation *expectation = [self expectationWithDescription:@"hasEvent completion called"];
-  [storage hasEventsForTarget:kGDTCORTargetTest
-                   onComplete:^(BOOL hasEvents) {
-                     XCTAssertTrue(hasEvents);
-                     [expectation fulfill];
-                   }];
-  [self waitForExpectations:@[ expectation ] timeout:10];
-
-  expectation = [self expectationWithDescription:@"no batches exist"];
-  [storage batchIDsForTarget:kGDTCORTargetTest
-                  onComplete:^(NSSet<NSNumber *> *_Nonnull newBatchIDs) {
-                    XCTAssertEqual(newBatchIDs.count, 0);
-                    [expectation fulfill];
-                  }];
-  [self waitForExpectations:@[ expectation ] timeout:10];
-  expectation = [self expectationWithDescription:@"batch created"];
-  __block NSNumber *batchID;
-  [storage
+  // 2.2. Expect events to be deleted.
+  XCTestExpectation *getEventsExpectation =
+      [self expectationWithDescription:@"getEventsExpectation"];
+  [[GDTCORFlatFileStorage sharedInstance]
       batchWithEventSelector:[GDTCORStorageEventSelector eventSelectorForTarget:kGDTCORTargetTest]
-             batchExpiration:[NSDate dateWithTimeIntervalSinceNow:delay]
+             batchExpiration:[NSDate dateWithTimeIntervalSinceNow:1000]
                   onComplete:^(NSNumber *_Nullable newBatchID,
-                               NSSet<GDTCOREvent *> *_Nullable events) {
-                    batchID = newBatchID;
-                    XCTAssertGreaterThan(events.count, 0);
-                    [expectation fulfill];
+                               NSSet<GDTCOREvent *> *_Nullable batchEvents) {
+                    [getEventsExpectation fulfill];
+                    XCTAssertNil(newBatchID);
+                    XCTAssertEqual(batchEvents.count, 0);
                   }];
-  [self waitForExpectations:@[ expectation ] timeout:10];
-  expectation = [self expectationWithDescription:@"a batch now exists"];
-  [storage batchIDsForTarget:kGDTCORTargetTest
-                  onComplete:^(NSSet<NSNumber *> *_Nonnull newBatchIDs) {
-                    XCTAssertEqual(newBatchIDs.count, 1);
-                    [expectation fulfill];
-                  }];
-  [self waitForExpectations:@[ expectation ] timeout:10];
-  [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:delay]];
-  [[GDTCORFlatFileStorage sharedInstance] checkForExpirations];
-  expectation = [self expectationWithDescription:@"no batch exists after expiration"];
-  [storage batchIDsForTarget:kGDTCORTargetTest
-                  onComplete:^(NSSet<NSNumber *> *_Nonnull newBatchIDs) {
-                    XCTAssertEqual(newBatchIDs.count, 0);
-                    [expectation fulfill];
-                  }];
-  [self waitForExpectations:@[ expectation ] timeout:30];
-  expectation = [self expectationWithDescription:@"hasEvent completion called"];
-  [storage hasEventsForTarget:kGDTCORTargetTest
-                   onComplete:^(BOOL hasEvents) {
-                     XCTAssertFalse(hasEvents);
-                     [expectation fulfill];
-                   }];
-  [self waitForExpectations:@[ expectation ] timeout:10];
+
+  [self waitForExpectations:@[ getBatchesExpectation, getEventsExpectation ] timeout:0.5];
 }
 
 #pragma mark - Remove Batch tests
@@ -1139,13 +1134,16 @@
 #pragma mark - Helpers
 
 - (NSDictionary<NSNumber *, NSSet<GDTCOREvent *> *> *)generateAndBatchEvents {
-  return [self generateAndBatchEventsWithBatchExpiringIn:1000];
+  return [self generateAndBatchEventsExpiringIn:1000 batchExpiringIn:1000];
 }
 
-- (NSDictionary<NSNumber *, NSSet<GDTCOREvent *> *> *)generateAndBatchEventsWithBatchExpiringIn:
-    (NSTimeInterval)batchExpiresIn {
+- (NSDictionary<NSNumber *, NSSet<GDTCOREvent *> *> *)
+    generateAndBatchEventsExpiringIn:(NSTimeInterval)eventsExpireIn
+                     batchExpiringIn:(NSTimeInterval)batchExpiresIn {
   GDTCORFlatFileStorage *storage = [GDTCORFlatFileStorage sharedInstance];
-  NSSet<GDTCOREvent *> *events = [self generateEventsForTarget:kGDTCORTargetTest count:100];
+  NSSet<GDTCOREvent *> *events = [self generateEventsForTarget:kGDTCORTargetTest
+                                                    expiringIn:eventsExpireIn
+                                                         count:100];
   XCTestExpectation *eventsGeneratedExpectation =
       [self expectationWithDescription:@"eventsGeneratedExpectation"];
   [storage hasEventsForTarget:kGDTCORTargetTest
