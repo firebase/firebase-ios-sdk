@@ -30,24 +30,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-/**
- *  Create a default InstanceID token store. Uses a valid Keychain object as it's
- *  persistent backing store.
- *
- *  @return A valid token store object.
- */
-+ (instancetype)defaultStore;
-
-- (instancetype)init __attribute__((unavailable("Use -initWithKeychain: instead.")));
-
-/**
- *  Initialize a token store object with a Keychain object. Used for testing.
- *
- *  @param keychain The Keychain object to use as the backing store for tokens.
- *
- *  @return A valid token store object with the given Keychain as backing store.
- */
-- (instancetype)initWithKeychain:(FIRMessagingAuthKeychain *)keychain;
+- (instancetype)init;
 
 #pragma mark - Get
 

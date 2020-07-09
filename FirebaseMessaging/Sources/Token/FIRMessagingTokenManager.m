@@ -24,16 +24,22 @@
 #import "FIRMessagingConstants.h"
 #import "FIRMessagingDefines.h"
 #import "FIRMessagingLogger.h"
-#import "FIRMessagingStore.h"
 #import "FIRMessagingTokenDeleteOperation.h"
 #import "FIRMessagingTokenFetchOperation.h"
 #import "FIRMessagingTokenInfo.h"
 #import "FIRMessagingTokenOperation.h"
 #import "NSError+FIRMessaging.h"
+#import "FirebaseMessaging/Sources/Token/FIRMessagingTokenStore.h"
+#import "FirebaseMessaging/Sources/Token/FIRMessagingCheckinStore.h"
 
-@interface FIRMessagingTokenManager () <FIRMessagingStoreDelegate>
+// NOTE: These values should be in sync with what InstanceID saves in as.
+static NSString *const kCheckinFileName = @"g-checkin";
 
-@property(nonatomic, readwrite, strong) FIRMessagingStore *instanceIDStore;
+@interface FIRMessagingTokenManager () {
+  FIRMessagingTokenStore *_tokenStore;
+  FIRMessagingCheckinStore *_checkinStore;
+}
+
 @property(nonatomic, readwrite, strong) FIRMessagingAuthService *authService;
 @property(nonatomic, readonly, strong) NSOperationQueue *tokenOperations;
 
@@ -47,9 +53,12 @@
 - (instancetype)init {
   self = [super init];
   if (self) {
-    _instanceIDStore = [[FIRMessagingStore alloc] initWithDelegate:self];
-    _authService = [[FIRMessagingAuthService alloc] initWithStore:_instanceIDStore];
-
+    _tokenStore = [[FIRMessagingTokenStore alloc] init];
+    _checkinStore = [[FIRMessagingCheckinStore alloc]
+        initWithCheckinPlistFileName:kCheckinFileName
+                    subDirectoryName:kFIRInstanceIDSubDirectoryName];
+    _authService = [[FIRMessagingAuthService alloc] initWithCheckinStore:_checkinStore];
+    [self resetCredentialsIfNeeded];
     [self configureTokenOperations];
     _installations = [FIRInstallations installations];
   }
@@ -61,7 +70,6 @@
   [_fcmSenderID release];
   [_currentAPNSInfo release];
   [_firebaseAppID release];
-  [_instanceIDStore release];
   [super dealloc];
 }
 
@@ -251,7 +259,7 @@
                                                       firebaseAppID:firebaseAppID];
         tokenInfo.APNSInfo = [[FIRMessagingAPNSInfo alloc] initWithTokenOptionsDictionary:options];
 
-        [self.instanceIDStore
+        [self->_tokenStore
             saveTokenInfo:tokenInfo
                   handler:^(NSError *error) {
                     if (!error) {
@@ -289,15 +297,15 @@
 
 - (FIRMessagingTokenInfo *)cachedTokenInfoWithAuthorizedEntity:(NSString *)authorizedEntity
                                                          scope:(NSString *)scope {
-  return [self.instanceIDStore tokenInfoWithAuthorizedEntity:authorizedEntity scope:scope];
+  return [_tokenStore tokenInfoWithAuthorizedEntity:authorizedEntity scope:scope];
 }
 
 - (void)deleteTokenWithAuthorizedEntity:(NSString *)authorizedEntity
                                   scope:(NSString *)scope
                              instanceID:(NSString *)instanceID
                                 handler:(FIRMessagingDeleteFCMTokenCompletion)handler {
-  if ([self.instanceIDStore tokenInfoWithAuthorizedEntity:authorizedEntity scope:scope]) {
-    [self.instanceIDStore removeCachedTokenWithAuthorizedEntity:authorizedEntity scope:scope];
+  if ([_tokenStore tokenInfoWithAuthorizedEntity:authorizedEntity scope:scope]) {
+    [_tokenStore removeTokenWithAuthorizedEntity:authorizedEntity scope:scope];
   }
   // Does not matter if we cannot find it in the cache. Still make an effort to unregister
   // from the server.
@@ -349,7 +357,7 @@
 }
 
 - (void)deleteAllTokensLocallyWithHandler:(void (^)(NSError *error))handler {
-  [self.instanceIDStore removeAllCachedTokensWithHandler:handler];
+  [_tokenStore removeAllTokensWithHandler:handler];
 }
 
 - (void)stopAllTokenOperations {
@@ -357,10 +365,56 @@
   [self.tokenOperations cancelAllOperations];
 }
 
-#pragma mark - FIRMessagingStoreDelegate
+#pragma mark - CheckinStore
 
-- (void)store:(FIRMessagingStore *)store
-    didDeleteFCMScopedTokensForCheckin:(FIRMessagingCheckinPreferences *)checkin {
+/**
+ *  Reset the keychain preferences if the app had been deleted earlier and then reinstalled.
+ *  Keychain preferences are not cleared in the above scenario so explicitly clear them.
+ *
+ *  In case of an iCloud backup and restore the Keychain preferences should already be empty
+ *  since the Keychain items are marked with `*BackupThisDeviceOnly`.
+ */
+- (void)resetCredentialsIfNeeded {
+  BOOL checkinPlistExists = [_checkinStore hasCheckinPlist];
+  // Checkin info existed in backup excluded plist. Should not be a fresh install.
+  if (checkinPlistExists) {
+    return;
+  }
+
+  // Resets checkin in keychain if a fresh install.
+  // Keychain can still exist even if app is uninstalled.
+  FIRMessagingCheckinPreferences *oldCheckinPreferences =
+      [_checkinStore cachedCheckinPreferences];
+
+  if (oldCheckinPreferences) {
+    [_checkinStore removeCheckinPreferencesWithHandler:^(NSError *error) {
+      if (!error) {
+        FIRMessagingLoggerDebug(
+            kFIRMessagingMessageCodeStore002,
+            @"Removed cached checkin preferences from Keychain because this is a fresh install.");
+      } else {
+        FIRMessagingLoggerError(
+            kFIRMessagingMessageCodeStore003,
+            @"Couldn't remove cached checkin preferences for a fresh install. Error: %@", error);
+      }
+      if (oldCheckinPreferences.deviceID.length && oldCheckinPreferences.secretToken.length) {
+        FIRMessagingLoggerDebug(kFIRMessagingMessageCodeStore006,
+                                @"App reset detected. Will delete server registrations.");
+        // We don't really need to delete old FCM tokens created via IID auth tokens since
+        // those tokens are already hashed by APNS token as the has so creating a new
+        // token should automatically delete the old-token.
+        [self didDeleteFCMScopedTokensForCheckin:oldCheckinPreferences];
+      } else {
+        FIRMessagingLoggerDebug(kFIRMessagingMessageCodeStore009,
+                                @"App reset detected but no valid checkin auth preferences found."
+                                @" Will not delete server registrations.");
+      }
+    }];
+  }
+}
+
+
+- (void)didDeleteFCMScopedTokensForCheckin:(FIRMessagingCheckinPreferences *)checkin {
   // Make a best effort try to delete the old client related state on the FCM server. This is
   // required to delete old pubusb registrations which weren't cleared when the app was deleted.
   //
@@ -426,7 +480,7 @@
 - (BOOL)checkTokenRefreshPolicyWithIID:(NSString *)IID {
   // We know at least one cached token exists.
   BOOL shouldFetchDefaultToken = NO;
-  NSArray<FIRMessagingTokenInfo *> *tokenInfos = [self.instanceIDStore cachedTokenInfos];
+  NSArray<FIRMessagingTokenInfo *> *tokenInfos = [_tokenStore cachedTokenInfos];
 
   NSMutableArray<FIRMessagingTokenInfo *> *tokenInfosToDelete =
       [NSMutableArray arrayWithCapacity:tokenInfos.count];
@@ -449,8 +503,8 @@
         tokenInfo.authorizedEntity, tokenInfo.scope);
   }
   for (FIRMessagingTokenInfo *tokenInfoToDelete in tokenInfosToDelete) {
-    [self.instanceIDStore removeCachedTokenWithAuthorizedEntity:tokenInfoToDelete.authorizedEntity
-                                                          scope:tokenInfoToDelete.scope];
+    [_tokenStore removeTokenWithAuthorizedEntity:tokenInfoToDelete.authorizedEntity scope:tokenInfoToDelete.scope];
+
   }
   return shouldFetchDefaultToken;
 }
@@ -466,7 +520,7 @@
   }
   self.currentAPNSInfo = APNSInfo;
 
-  NSArray<FIRMessagingTokenInfo *> *tokenInfos = [self.instanceIDStore cachedTokenInfos];
+  NSArray<FIRMessagingTokenInfo *> *tokenInfos = [_tokenStore cachedTokenInfos];
   NSMutableArray<FIRMessagingTokenInfo *> *tokenInfosToDelete =
       [NSMutableArray arrayWithCapacity:tokenInfos.count];
   for (FIRMessagingTokenInfo *cachedTokenInfo in tokenInfos) {
@@ -481,8 +535,8 @@
     FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTokenManagerAPNSChangedTokenInvalidated,
                             @"Invalidating cached token for %@ (%@) due to APNs token change.",
                             tokenInfoToDelete.authorizedEntity, tokenInfoToDelete.scope);
-    [self.instanceIDStore removeCachedTokenWithAuthorizedEntity:tokenInfoToDelete.authorizedEntity
-                                                          scope:tokenInfoToDelete.scope];
+    [_tokenStore removeTokenWithAuthorizedEntity:tokenInfoToDelete.authorizedEntity scope:tokenInfoToDelete.scope];
+
   }
   return tokenInfosToDelete;
 }
