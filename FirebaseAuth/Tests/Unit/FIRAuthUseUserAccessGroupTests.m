@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import <OCMock/OCMock.h>
+#import "OCMock.h"
 #import <XCTest/XCTest.h>
 #import "FirebaseAuth/Sources/Public/FirebaseAuth.h"
 

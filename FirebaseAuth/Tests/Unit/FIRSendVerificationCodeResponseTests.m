@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+#include <TargetConditionals.h>
+#if TARGET_OS_IOS
+
 #import <XCTest/XCTest.h>
 #import "FirebaseAuth/Sources/Public/FIRAuthErrors.h"
 
@@ -270,3 +273,5 @@ static NSString *const kCaptchaCheckFailedErrorMessage = @"CAPTCHA_CHECK_FAILED"
 }
 
 @end
+
+#endif

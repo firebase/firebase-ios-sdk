@@ -77,7 +77,7 @@ let package = Package(
       .branch("swift-package-manager")
     ),
     .package(name: "OCMock", url: "https://github.com/paulb777/ocmock.git",
-             .revision("70d8463")),
+             .revision("7291762")),
     // Branches need a force update with a run with the revision set like below.
     //   .package(url: "https://github.com/paulb777/nanopb.git", .revision("564392bd87bd093c308a3aaed3997466efb95f74"))
   ],
@@ -276,6 +276,19 @@ let package = Package(
         .headerSearchPath("../../"),
         .define("FIRAuth_VERSION", to: "0.0.1"), // TODO: Fix version
         .define("FIRAuth_MINOR_VERSION", to: "1.1"), // TODO: Fix version
+      ]
+    ),
+    .testTarget(
+      name: "AuthUnit",
+      dependencies: ["FirebaseAuth", "OCMock"],
+      path: "FirebaseAuth/Tests/Unit",
+      exclude: [
+        "FIRAuthKeychainServicesTests.m", // TODO: figure out SPM keychain testing
+        "FIRAuthTests.m",
+        "FIRUserTests.m",
+      ],
+      cSettings: [
+        .headerSearchPath("../../.."),
       ]
     ),
     .target(

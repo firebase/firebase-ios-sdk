@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 
-#import <OCMock/OCMock.h>
+#include <TargetConditionals.h>
+#if TARGET_OS_IOS
+
+#import "OCMock.h"
 #import <XCTest/XCTest.h>
 #import "FirebaseAuth/Sources/Public/FIRAuthErrors.h"
 #import "FirebaseAuth/Sources/Public/FIRAuthUIDelegate.h"
@@ -809,3 +812,5 @@ static NSString *const kUnknownErrorString =
 }
 
 @end
+
+#endif

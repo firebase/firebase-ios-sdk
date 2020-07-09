@@ -15,7 +15,7 @@
  */
 
 #import <Foundation/Foundation.h>
-#import <OCMock/OCMock.h>
+#import "OCMock.h"
 #import <XCTest/XCTest.h>
 #import "FirebaseAuth/Sources/Public/FIRAuthTokenResult.h"
 #import "FirebaseAuth/Sources/Public/FIREmailAuthProvider.h"

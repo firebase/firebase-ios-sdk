@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 
+#include <TargetConditionals.h>
+#if TARGET_OS_IOS
+
 #import <Foundation/Foundation.h>
-#import <OCMock/OCMock.h>
+#import "OCMock.h"
 #import <SafariServices/SafariServices.h>
 #import <XCTest/XCTest.h>
 #import "FirebaseAuth/Sources/Public/FIRAuthUIDelegate.h"
@@ -140,3 +143,5 @@ static NSTimeInterval kExpectationTimeout = 2;
 }
 
 @end
+
+#endif
