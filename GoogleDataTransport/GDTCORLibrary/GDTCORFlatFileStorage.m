@@ -348,7 +348,7 @@ NSString *const kGDTCORBatchComponentsExpirationKey = @"GDTCORBatchComponentsExp
     // TODO: Storage may not have enough context to remove batches because a batch may be being
     // uploaded but the storage has not context of it.
 
-    // Find expired batches and remove them moving the events back to the main storage.
+    // Find expired batches and move their events back to the main storage.
     NSString *batchDataPath = [GDTCORFlatFileStorage batchDataStoragePath];
     NSArray<NSString *> *batchDataPaths = [fileManager contentsOfDirectoryAtPath:batchDataPath
                                                                            error:nil];
