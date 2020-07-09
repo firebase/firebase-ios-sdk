@@ -25,7 +25,7 @@
 #import "FIRIAMTimeFetcher.h"
 #import "UIColor+FIRIAMHexString.h"
 
-#import <FirebaseABTesting/ABTExperimentPayload.h>
+#import "FirebaseABTesting/Sources/Private/ABTExperimentPayload.h"
 
 @interface FIRIAMFetchResponseParser ()
 @property(nonatomic) id<FIRIAMTimeFetcher> timeFetcher;

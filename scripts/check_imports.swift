@@ -34,7 +34,6 @@ let skipDirPatterns = ["/Sample/", "/Pods/", "FirebaseStorage/Tests/Integration"
 
   // The following are temporary skips pending working through a first pass of the repo:
   [
-    "FirebaseABTesting",
     "FirebaseAppDistribution",
     "FirebaseCore/Sources/Private", // Fixes require breaking private API changes. For Firebase 7.
     "FirebaseDynamicLinks",

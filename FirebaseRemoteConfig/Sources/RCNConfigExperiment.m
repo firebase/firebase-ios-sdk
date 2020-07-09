@@ -16,9 +16,9 @@
 
 #import "FirebaseRemoteConfig/Sources/RCNConfigExperiment.h"
 
-#import <FirebaseABTesting/ABTExperimentPayload.h>
-#import <FirebaseABTesting/FIRExperimentController.h>
-#import <FirebaseABTesting/FIRLifecycleEvents.h>
+#import "FirebaseABTesting/Sources/Private/ABTExperimentPayload.h"
+#import "FirebaseABTesting/Sources/Public/FIRExperimentController.h"
+#import "FirebaseABTesting/Sources/Public/FIRLifecycleEvents.h"
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigDBManager.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigDefines.h"
