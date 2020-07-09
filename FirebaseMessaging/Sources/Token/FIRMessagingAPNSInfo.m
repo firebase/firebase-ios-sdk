@@ -62,8 +62,15 @@ NSString *const kFIRInstanceIDAPNSInfoSandboxKey = @"sandbox";
 
 - (void)dealloc {
   [_deviceToken release];
-
   [super dealloc];
+}
+
+#pragma mark - NSCopying
+- (id)copyWithZone:(NSZone *)zone {
+  FIRMessagingAPNSInfo *clone = [[FIRMessagingAPNSInfo alloc] init];
+  clone.deviceToken = [_deviceToken copy];
+  clone.sandbox = _sandbox;
+  return clone;
 }
 
 #pragma mark - NSCoding

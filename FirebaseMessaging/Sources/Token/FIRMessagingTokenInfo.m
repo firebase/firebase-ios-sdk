@@ -171,7 +171,8 @@ const NSTimeInterval kDefaultFetchTokenInterval = 7 * 24 * 60 * 60;  // 7 days.
   if (rawAPNSInfo) {
     // TODO(chliangGoogle: Use the new API and secureCoding protocol.
     @try {
-      [NSKeyedUnarchiver setClass:[FIRMessagingAPNSInfo class] forClassName:@"FIRInstanceIDAPNSInfo"];
+      [NSKeyedUnarchiver setClass:[FIRMessagingAPNSInfo class]
+                     forClassName:@"FIRInstanceIDAPNSInfo"];
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
       APNSInfo = [NSKeyedUnarchiver unarchiveObjectWithData:rawAPNSInfo];

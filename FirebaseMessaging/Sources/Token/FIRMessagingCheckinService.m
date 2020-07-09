@@ -48,16 +48,6 @@ static NSUInteger const kFragment = 0;
 
 @implementation FIRMessagingCheckinService
 
-- (instancetype)init {
-  self = [super init];
-  if (self) {
-    _session = [NSURLSession
-        sessionWithConfiguration:NSURLSessionConfiguration.defaultSessionConfiguration];
-    _session.sessionDescription = @"com.google.iid-checkin";
-  }
-  return self;
-}
-
 - (void)dealloc {
   [_session invalidateAndCancel];
   [_session release];
@@ -66,17 +56,6 @@ static NSUInteger const kFragment = 0;
 
 - (void)checkinWithExistingCheckin:(FIRMessagingCheckinPreferences *)existingCheckin
                         completion:(FIRMessagingDeviceCheckinCompletion)completion {
-  if (_session == nil) {
-    NSString *failureReason = @"Inconsistent state: NSURLSession has been invalidated";
-    FIRMessagingLoggerError(kFIRMessagingInvalidNetworkSession, @"%@", failureReason);
-    NSError *error = [NSError messagingErrorWithCode:kFIRMessagingErrorCodeRegistrarFailedToCheckIn
-                                       failureReason:failureReason];
-    if (completion) {
-      completion(nil, error);
-    }
-    return;
-  }
-
   NSURL *url = [NSURL URLWithString:kDeviceCheckinURL];
   NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
   [request setValue:@"application/json" forHTTPHeaderField:@"content-type"];
@@ -99,7 +78,7 @@ static NSUInteger const kFragment = 0;
           return;
         }
 
-        NSError *serializationError;
+        NSError *serializationError = nil;
         NSDictionary *dataResponse = [NSJSONSerialization JSONObjectWithData:data
                                                                      options:0
                                                                        error:&serializationError];

@@ -44,6 +44,7 @@
 #import "FirebaseMessaging/Sources/FIRMessagingVersionUtilities.h"
 #import "FirebaseMessaging/Sources/FIRMessaging_Private.h"
 #import "FirebaseMessaging/Sources/NSError+FIRMessaging.h"
+#import "FirebaseMessaging/Sources/Token/FIRMessagingAuthService.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingTokenInfo.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingTokenManager.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingTokenStore.h"
@@ -570,7 +571,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   [self.tokenManager setAPNSToken:[apnsToken copy] withUserInfo:userInfo];
 }
 
-#pragma mark - FCM
+#pragma mark - FCM Token
 
 - (BOOL)isAutoInitEnabled {
   // Defer to the class method since we're just reading from regular userDefaults and we need to
@@ -612,8 +613,6 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
     self.defaultFcmToken = self.tokenManager.token;
   }
 }
-
-#pragma mark - FCM Token
 
 - (NSString *)FCMToken {
   NSString *token = self.defaultFcmToken;
@@ -699,6 +698,23 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
                                                      }];
         }
       }];
+}
+
+- (void)delete {
+  [self.tokenManager.authService resetCheckinWithHandler:^(NSError *_Nonnull error) {
+    if (error) {
+      FIRMessagingLoggerError(kFIRMessagingMessageCodeStore000, @"%@", error);
+      return;
+    }
+    // Only request new token if FCM auto initialization is
+    // enabled.
+    if ([self isAutoInitEnabled]) {
+      // Deletion succeeds! Requesting new checkin, IID and token.
+      [self retrieveFCMTokenForSenderID:self.tokenManager.fcmSenderID
+                             completion:^(NSString *_Nullable FCMToken, NSError *_Nullable error){
+                             }];
+    }
+  }];
 }
 
 #pragma mark - FIRMessagingDelegate helper methods
