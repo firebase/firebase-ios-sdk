@@ -36,7 +36,7 @@ jobs:
         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/RemoteConfigSwiftAPI/ServiceAccount.json.gpg \
         ~/.credentials/ServiceAccount.json "$plist_secret"
     - name: Generate Access Token (RemoteConfigConsoleAPI)
-      run: scripts/generate_access_token.sh ../FirebaseRemoteConfig/Tests/SwiftAPI/AccessToken.json
+      run: scripts/generate_access_token.sh FirebaseRemoteConfig/Tests/SwiftAPI/AccessToken.json
       env:
         GOOGLE_APPLICATION_CREDENTIALS: ~/.credentials/ServiceAccount.json
     - name: IntegrationTest
