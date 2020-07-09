@@ -349,6 +349,8 @@ NSString *const kGDTCORBatchComponentsExpirationKey = @"GDTCORBatchComponentsExp
     // uploaded but the storage has not context of it.
 
     // Find expired batches and move their events back to the main storage.
+    // If a batch contains expired events they are expected to be removed further in the method
+    // together with other expired events in the main storage.
     NSString *batchDataPath = [GDTCORFlatFileStorage batchDataStoragePath];
     NSArray<NSString *> *batchDataPaths = [fileManager contentsOfDirectoryAtPath:batchDataPath
                                                                            error:nil];
@@ -527,7 +529,7 @@ NSString *const kGDTCORBatchComponentsExpirationKey = @"GDTCORBatchComponentsExp
       NSString *destinationPath = [[GDTCORFlatFileStorage eventDataStoragePath]
           stringByAppendingPathComponent:target.stringValue];
 
-      // `- [NSFileManager moveItemAtPath:toPath:error:] method fails if an item by the
+      // `- [NSFileManager moveItemAtPath:toPath:error:]` method fails if an item by the
       // destination path already exists (which usually is the case for the current method). Move
       // the events one by one instead.
       if ([self moveContentsOfDirectoryAtPath:batchDirPath to:destinationPath error:&error]) {
