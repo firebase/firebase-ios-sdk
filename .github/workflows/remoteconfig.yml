@@ -38,7 +38,7 @@ jobs:
     - name: Generate Access Token (RemoteConfigConsoleAPI)
       run: scripts/generate_access_token.sh FirebaseRemoteConfig/Tests/SwiftAPI/AccessToken.json
       env:
-        GOOGLE_APPLICATION_CREDENTIALS: ~/.credentials/ServiceAccount.json
+        GOOGLE_APPLICATION_CREDENTIALS: "${HOME}"/.credentials/ServiceAccount.json
     - name: IntegrationTest
       if: matrix.target == 'iOS'
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/build.sh RemoteConfig iOS integration)

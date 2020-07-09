@@ -38,7 +38,7 @@ fi
 # The access token is generated using a downloaded Service Account from a Firebase Project.
 # This can be downloaded from Firebase console under 'Project Settings'.
 # Store the downloaded .json file in `$HOME/.credentials/` and point the env var to it.
-export GOOGLE_APPLICATION_CREDENTIALS="$HOME/.credentials/ServiceAccount.json"
+#export GOOGLE_APPLICATION_CREDENTIALS="$HOME/.credentials/ServiceAccount.json"
 
 git clone https://github.com/googleapis/google-auth-library-swift.git
 cd google-auth-library-swift
