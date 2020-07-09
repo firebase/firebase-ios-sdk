@@ -68,7 +68,7 @@ jobs:
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      FRAMEWORK_ZIP: "Firebase-actions-dir.zip"
+      FRAMEWORK_ZIP: "Firebase-actions-dir"
       OUTPUT_DIR: "${HOME}/ios_frameworks/"
       SDK: "Config"
     runs-on: macOS-latest
