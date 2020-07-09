@@ -30,6 +30,11 @@
 
 output="$1"
 
+if [[ ! -f $output ]]; then
+    echo ERROR: Cannot find $output, aborting.
+    exit 1
+fi
+
 # The access token is generated using a downloaded Service Account from a Firebase Project.
 # This can be downloaded from Firebase console under 'Project Settings'.
 # Store the downloaded .json file in `$HOME/.credentials/` and point the env var to it.
@@ -39,4 +44,13 @@ git clone https://github.com/googleapis/google-auth-library-swift.git
 cd google-auth-library-swift
 git checkout --quiet 7b1c9cd4ffd8cb784bcd8b7fd599794b69a810cf # Working main branch as of 7/9/20.
 make -f Makefile
-swift run TokenSource > $output
+
+# Prepend output path with ../ since we cd'd into `google-auth-library-swift`
+swift run TokenSource > ../$output
+
+if grep -q "access_token" ../$output; then
+   echo Token successfully generated and placed at $output
+else
+   echo ERROR: "$(cat ../$output)"
+   exit 1
+fi
