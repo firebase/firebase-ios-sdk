@@ -699,23 +699,6 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
       }];
 }
 
-- (void)delete {
-  [self.tokenManager.authService resetCheckinWithHandler:^(NSError *_Nonnull error) {
-    if (error) {
-      FIRMessagingLoggerError(kFIRMessagingMessageCodeStore000, @"%@", error);
-      return;
-    }
-    // Only request new token if FCM auto initialization is
-    // enabled.
-    if ([self isAutoInitEnabled]) {
-      // Deletion succeeds! Requesting new checkin, IID and token.
-      [self retrieveFCMTokenForSenderID:self.tokenManager.fcmSenderID
-                             completion:^(NSString *_Nullable FCMToken, NSError *_Nullable error){
-                             }];
-    }
-  }];
-}
-
 #pragma mark - FIRMessagingDelegate helper methods
 - (void)setDelegate:(id<FIRMessagingDelegate>)delegate {
   _delegate = delegate;

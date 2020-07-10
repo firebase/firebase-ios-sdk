@@ -17,6 +17,7 @@ import SwiftUI
 import FirebaseCore
 import FirebaseMessaging
 import FirebaseInstallations
+import FirebaseInstanceID
 
 struct ContentView: View {
   @EnvironmentObject var identity: Identity
@@ -129,24 +130,12 @@ struct ContentView: View {
   }
 
   func deleteID() {
-    guard let app = FirebaseApp.app() else {
-      return
-    }
-
-    Installations.installations().delete { error in
+    InstanceID.instanceID().deleteID { error in
       if let error = error as NSError? {
-        self.log = "Failed deleting FID: \(error)"
+        self.log = "Failed deleting ID: \(error)"
         return
       }
-      let senderID = app.options.gcmSenderID
-      Messaging.messaging().deleteFCMToken(forSenderID: senderID) { error in
-        if let error = error as NSError? {
-          self.log = "Failed deleting token: \(error)"
-          return
-        }
-        self.log = "Successfully deleted token."
-        self.log = "Successfully deleted all identity."
-      }
+      self.log = "Successfully deleted ID."
     }
   }
 

@@ -9,6 +9,7 @@ target 'Sample' do
   pod 'FirebaseCore', :path => '../../../'
   pod 'GoogleUtilities', :path => '../../../'
   pod 'FirebaseMessaging', :path => '../../../'
+  pod 'FirebaseInstanceID', :path => '../../../'
   pod 'FirebaseCoreDiagnostics', :path => '../../../'
   pod 'GoogleDataTransport', :path => '../../../'
   pod 'FirebaseInstallations', :path => '../../../'
