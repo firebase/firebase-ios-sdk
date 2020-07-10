@@ -14,20 +14,20 @@
 
 #import <AuthenticationServices/AuthenticationServices.h>
 #import <SafariServices/SafariServices.h>
-#import "FIRAppDistribution+Private.h"
-#import "FIRAppDistributionAuthPersistence+Private.h"
-#import "FIRAppDistributionMachO+Private.h"
-#import "FIRAppDistributionRelease+Private.h"
-#import "FIRFADLogger.h"
 
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIRComponent.h>
 #import <FirebaseCore/FIRComponentContainer.h>
 #import <FirebaseCore/FIROptions.h>
-
+#import <FirebaseInstallations/FirebaseInstallations.h>
 #import <GoogleUtilities/GULAppDelegateSwizzler.h>
+
+#import "FIRAppDistribution+Private.h"
+#import "FIRAppDistributionAuthPersistence+Private.h"
+#import "FIRAppDistributionMachO+Private.h"
+#import "FIRAppDistributionRelease+Private.h"
+#import "FIRFADLogger.h"
 #import "FIRAppDistributionAppDelegateInterceptor.h"
-#import "FirebaseInstallations.h"
 
 /// Empty protocol to register with FirebaseCore's component system.
 @protocol FIRAppDistributionInstanceProvider <NSObject>
