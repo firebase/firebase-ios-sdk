@@ -354,7 +354,7 @@ let package = Package(
       name: "FirebaseDatabase",
       dependencies: [
         "FirebaseCore",
-        "leveldb"
+        "leveldb",
       ],
       path: "FirebaseDatabase/Sources",
       exclude: [
@@ -374,7 +374,7 @@ let package = Package(
       dependencies: ["FirebaseDatabase", "OCMock", "SharedTestUtilities"],
       path: "FirebaseDatabase/Tests/",
       exclude: [
-        "Integration/"
+        "Integration/",
       ],
       resources: [.process("Resources")],
       cSettings: [
