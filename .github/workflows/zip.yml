@@ -73,11 +73,11 @@ jobs:
       SDK: "Config"
     runs-on: macOS-latest
     steps:
+    - uses: actions/checkout@v2
     - name: Get framework zip file
       uses: actions/download-artifact@v1
       with:
         name: Firebase-actions-dir
-    - uses: actions/checkout@v2
     - name: Pull zip from GCS
       run: |
         unzip "${GITHUB_WORKSPACE}/${FRAMEWORK_ZIP}" -d "${OUTPUT_DIR}"
