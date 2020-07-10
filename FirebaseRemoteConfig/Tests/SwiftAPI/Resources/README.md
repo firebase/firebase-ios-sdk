@@ -39,7 +39,7 @@ the **Service accounts** tab and and then generate the private key by clicking
 the blue button that says "Generate new private key".
 
 A `.json` file will be downloaded. Go ahead and rename this file
-to `ServiceAccount.json` and move it to your `$HOME/.credentials/` directory. 
+to `ServiceAccount.json` and move it to your `$HOME/.credentials/` directory.
 You may have to create the `.credentials/` directory.
 
 ### Create the Access Token
