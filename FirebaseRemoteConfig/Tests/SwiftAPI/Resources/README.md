@@ -43,7 +43,8 @@ You may have to create the `$HOME/.credentials/` directory.
 
 ### Create the Access Token
 We use Google's [Auth Library for Swift](https://github.com/googleapis/google-auth-library-swift)
-to generate the access token. There are a few example use cases provided. We use the [`TokenSource`](https://github.com/googleapis/google-auth-library-swift/blob/master/Sources/Examples/TokenSource/main.swift)
+to generate the access token. There are a few example use cases provided. We use the 
+[`TokenSource`](https://github.com/googleapis/google-auth-library-swift/blob/master/Sources/Examples/TokenSource/main.swift)
 example.
 
 In the local development and GHA scripts, the `GOOGLE_APPLICATION_CREDENTIALS`
