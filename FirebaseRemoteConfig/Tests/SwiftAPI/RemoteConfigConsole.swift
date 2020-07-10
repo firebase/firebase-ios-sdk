@@ -24,22 +24,22 @@ class RemoteConfigConsole {
     return URL(string: api + endpoint)!
   }
 
-  // TODO: Cleanup once the GHA workflow works
   private lazy var accessToken: String = {
-    let fileURL = Bundle(for: type(of: self))
-      .url(forResource: "AccessToken", withExtension: "json")!
-    let data = try! Data(contentsOf: fileURL)
-    let json = try! JSONSerialization.jsonObject(with: data, options: .allowFragments)
-    if let json = json as? [String: Any] {
-      if let access_token = json["access_token"] as? String {
-        return access_token
-      }
+    guard let fileURL = Bundle(for: type(of: self))
+      .url(forResource: "AccessToken", withExtension: "json") else {
+      fatalError("Could not find AccessToken.json in bundle.")
     }
-    return ""
+    guard let data = try? Data(contentsOf: fileURL),
+      let json = try? JSONSerialization.jsonObject(with: data, options: .allowFragments),
+      let jsonDict = json as? [String: Any],
+      let accessToken = jsonDict["access_token"] as? String else {
+      fatalError("Could not retrieve access token.")
+    }
+    return accessToken
   }()
 
   /// Synchronously fetches and returns currently active
-  /// remote config, if it exists
+  /// remote config, if it exists.
   public var activeRemoteConfig: [String: Any]? {
     var config: [String: Any]?
     perform(configRequest: .get) { latestConfigJSON in
@@ -60,7 +60,7 @@ class RemoteConfigConsole {
   }
 
   /// This initializer will attempt to read from a
-  /// `GoogleService-Info.plist` to set `projectID`
+  /// `GoogleService-Info.plist` to set `projectID`.
   convenience init() {
     let currentBundle = Bundle(for: type(of: self))
     let projectID = currentBundle.plistValue(for: "PROJECT_ID", from: "GoogleService-Info.plist")
@@ -124,11 +124,6 @@ class RemoteConfigConsole {
     publish(config: updatedConfig)
   }
 
-  // Other possible API's
-  public func currentRemoteConfigValue(for key: String) -> Any { "" }
-
-  public func validateRemoteConfig(with values: [String: Any]) -> Bool { false }
-
   // MARK: - Networking
 
   private enum ConfigRequest {
@@ -179,14 +174,17 @@ class RemoteConfigConsole {
         return
       }
 
-      // TODO: Handle errors. As of now, errors are returned in `data` and will be
-      // noticed in the Xcode console when the following line runs
-//            print(String(data: data, encoding: .utf8)!)
+      let json = try? JSONSerialization.jsonObject(with: data, options: .fragmentsAllowed)
+      if let json = json as? [String: Any] {
+        if let response = response as? HTTPURLResponse {
+          if response.statusCode >= 400 {
+            print(String(describing: json["error"]!))
+          }
+        }
 
-      if let completion = completion {
-        let json = try! JSONSerialization
-          .jsonObject(with: data, options: .fragmentsAllowed) as! [String: Any]
-        completion(json)
+        if let completion = completion {
+          completion(json)
+        }
       }
 
       semaphore.signal()
@@ -197,7 +195,7 @@ class RemoteConfigConsole {
   }
 
   /// Publishes a config object to the live console
-  /// and updates`latestConfig`
+  /// and updates`latestConfig`.
   private func publish(config: [String: Any]) {
     if let configData = data(with: config) {
       perform(configRequest: .put(data: configData))
@@ -208,7 +206,7 @@ class RemoteConfigConsole {
   // MARK: - Private Helpers
 
   /// Creates an optional Data object given a config object
-  /// Used for serializing config objects before posting them to live console
+  /// Used for serializing config objects before posting them to live console.
   private func data(with config: [String: Any]) -> Data? {
     let dictionary = NSDictionary(dictionary: config, copyItems: true)
     let data = try? JSONSerialization.data(withJSONObject: dictionary, options: .fragmentsAllowed)
@@ -224,7 +222,7 @@ class RemoteConfigConsole {
     }
   }
 
-  /// A more intuitively named setter for `latestConfig`
+  /// A more intuitively named setter for `latestConfig`.
   private func save(_ config: [String: Any]) {
     latestConfig = config
   }

@@ -27,15 +27,16 @@ class APITests: APITestBase {
     } else {
       console = RemoteConfigConsole()
       console.updateRemoteConfigValue("Obi-Wan", for: "Jedi")
-      console.removeRemoteConfigValue(for: "Sith_Lord")
     }
   }
 
   override func tearDown() {
     super.tearDown()
-    // If using real console, reset remote config value.
+
+    // If using RemoteConfigConsole, reset remote config values.
     if !APITests.useFakeConfig {
-      console.updateRemoteConfigValue("Obi-Wan", for: "Jedi")
+      console.removeRemoteConfigValue(for: "Sith_Lord")
+      console.removeRemoteConfigValue(for: "Jedi")
     }
   }
 
@@ -153,7 +154,6 @@ class APITests: APITestBase {
   }
 
   func testFetchAndActivateUnchangedConfig() {
-    guard !APITests.useFakeConfig else { return }
 
     let expectation = self.expectation(description: #function)
 
@@ -163,7 +163,7 @@ class APITests: APITestBase {
     let group = DispatchGroup()
     group.enter()
     serialQueue.async {
-      // Represents pre-fetch occuring sometime in past
+      // Represents pre-fetch occuring sometime in past.
       self.config.fetch { status, error in
         XCTAssertNil(error, "Fetch Error \(error!)")
         XCTAssertEqual(status, .success)
@@ -175,14 +175,14 @@ class APITests: APITestBase {
       group.wait()
       group.enter()
       // Represents a `fetchAndActivate` being made to pull
-      // latest changes from remote config
+      // latest changes from remote config.
       self.config.fetchAndActivate { status, error in
         XCTAssertNil(error, "Fetch & Activate Error \(error!)")
         // Since no updates to remote config have occurred
-        // we use the `.successUsingPreFetchedData`
+        // we use the `.successUsingPreFetchedData`.
         XCTAssertEqual(status, .successUsingPreFetchedData)
         // The `lastETagUpdateTime` should either be older or
-        // the same time as `lastFetchTime`
+        // the same time as `lastFetchTime`.
         XCTAssertLessThanOrEqual(Double(self.config.settings.lastETagUpdateTime),
                                  Double(self.config.lastFetchTime?.timeIntervalSince1970 ?? 0))
         expectation.fulfill()
@@ -192,11 +192,12 @@ class APITests: APITestBase {
     waitForExpectations()
   }
 
-  // MARK: - Real Console Tests
+  // MARK: - RemoteConfigConsole Tests
 
   func testFetchConfigThenUpdateConsoleThenFetchAgain() {
-    guard !APITests.useFakeConfig else { return }
-    // In `setup()`, we set remote config value to be "Obi-Wan"
+    if APITests.useFakeConfig {
+        return
+    }
 
     let expectation = self.expectation(description: #function)
 
@@ -215,7 +216,7 @@ class APITests: APITestBase {
     }
     waitForExpectations()
 
-    // Synchronously update the console
+    // Synchronously update the console.
     console.updateRemoteConfigValue(yoda, for: jedi)
 
     let expectation2 = self.expectation(description: #function + "2")
@@ -234,12 +235,14 @@ class APITests: APITestBase {
   }
 
   func testFetchConfigThenAddValueOnConsoleThenFetchAgain() {
-    guard !APITests.useFakeConfig else { return }
-    // In `setup()`, we set remote config value to be "Obi-Wan"
+    if APITests.useFakeConfig {
+        return
+    }
 
     let expectation = self.expectation(description: #function)
 
-    let sithLord = "Sith_Lord"; let palpatine = "Darth Sideous"
+    let sithLord = "Sith_Lord"
+    let palpatine = "Darth Sideous"
 
     config.fetchAndActivate { status, error in
       XCTAssertNil(error, "Fetch & Activate Error \(error!)")
@@ -269,8 +272,9 @@ class APITests: APITestBase {
   }
 
   func testFetchConfigThenDeleteValueOnConsoleThenFetchAgain() {
-    guard !APITests.useFakeConfig else { return }
-    // In `setup()`, we set remote config value to be "Obi-Wan"
+    if APITests.useFakeConfig {
+        return
+    }
 
     let expectation = self.expectation(description: #function)
 
@@ -288,7 +292,7 @@ class APITests: APITestBase {
     }
     waitForExpectations()
 
-    // Synchronously delete value on the console
+    // Synchronously delete value on the console.
     console.removeRemoteConfigValue(for: jedi)
 
     let expectation2 = self.expectation(description: #function + "2")

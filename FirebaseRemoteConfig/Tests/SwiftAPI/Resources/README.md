@@ -1,66 +1,56 @@
 # Remote Config Console API
 
-[`RemoteConfigConsole.swift`](https://github.com/firebase/firebase-ios-sdk/blob/nc-rc-test-api/FirebaseRemoteConfig/Tests/SwiftAPI/RemoteConfigConsole.swift) provides a simple API for interacting with an app's remote config on the Firebase console.
+[`RemoteConfigConsole.swift`](https://github.com/firebase/firebase-ios-sdk/blob/master/FirebaseRemoteConfig/Tests/SwiftAPI/RemoteConfigConsole.swift)
+provides a simple API for interacting with an app's remote config on the
+Firebase console.
 
 ## Local Development Setup
-
-You can start by generating the `FirebaseRemoteConfig` project:
+1. Create a Firebase project on the Firebase Console and download
+the  `GoogleService-Info.plist`.
+2. Navigate to your project's settings. Click on the **Service accounts** tab and
+then download a private key by clicking the blue button that says "Generate new private key".
+3. Rename this private key file to **ServiceAccount.json** and move it to
+the `$HOME/.credentials/` directory. You may have to create this directory.
+4. Within the `firebase-ios-sdk`, run:
+```bash
+./scripts/generate_access_token_local_dev.sh ServiceAccount.json FirebaseRemoteConfig/Tests/SwiftAPI/AccessToken.json
+```
+5. Generate the `FirebaseRemoteConfig` project:
 ```bash
 pod gen FirebaseRemoteConfig.podspec --local-sources=./ --auto-open --platforms=ios
 ```
+6. Copy the `GoogleService-Info.plist` downloaded earlier into the generated
+Xcode project.
 
-Next, create an accompanying Firebase project on the console and download the  `GoogleService-Info.plist`. Then, drag the `GoogleService-Info.plist` into the generated Remote Config Xcode project.
+🚀 Everything is ready to go! Run the tests in the `swift-api-tests` target.
 
-While the `RemoteConfigConsole` API basically just makes simple network calls, we will need to include an `access token` so our requests do the proper "handshake" with the Firebase console.
 
-To generate the access token, we will need a **Firebase Service Account Private Key**
+## How it works
 
-### Generating the Firebase Service Account Private Key
-This private key is needed to create an access token with the valid parameters that authorizes our requests to programmtically make changes to remote config on the Firebase console.
+While the `RemoteConfigConsole` API basically just makes simple network calls,
+we need to include an `access token` so our requests do the proper "handshake" with the Firebase console.
 
-Go to the Firebase console and navigate to your project's settings. Click on the **Service accounts** tab and and then generate the private key by clicking the blue button that says "Generate new private key"
+### Firebase Service Account Private Key
+This private key is needed to create an access token with the valid parameters
+that authorizes our requests to programmatically make changes to remote config on the Firebase console.
 
-A `.json` file will be downloaded. Go ahead and rename this file to `ServiceAccount.json` and move it to your `$HOME/.credentials/` directory. You may have to create the `.credentials/` directory.
+The private key can be located on the Firebase console and navigate to your project's settings. Click on
+the **Service accounts** tab and and then generate the private key by clicking
+the blue button that says "Generate new private key".
+
+A `.json` file will be downloaded. Go ahead and rename this file
+to `ServiceAccount.json` and move it to your `$HOME/.credentials/` directory. 
+You may have to create the `.credentials/` directory.
 
 ### Create the Access Token
-We use Google's [Auth Library for Swift](https://github.com/googleapis/google-auth-library-swift) to generate the access token. There are a few example use cases provided. We will use the [`TokenSource`](https://github.com/googleapis/google-auth-library-swift/blob/master/Sources/Examples/TokenSource/main.swift) example.
+We use Google's [Auth Library for Swift](https://github.com/googleapis/google-auth-library-swift)
+to generate the access token. There are a few example use cases provided. We use the [`TokenSource`](https://github.com/googleapis/google-auth-library-swift/blob/master/Sources/Examples/TokenSource/main.swift)
+example.
 
-As you can see below when we set the `GOOGLE_APPLICATION_CREDENTIALS` env variable. This library will use the `ServiceAccount.json` file we generated earlier to create our access token.
+In the local development and GHA scripts, the `GOOGLE_APPLICATION_CREDENTIALS`
+env variable is set to the path of the `ServiceAccount.json` file we setup earlier.
 
-#### Terminal Commands
-```bash
-$ git clone git@github.com:googleapis/google-auth-library-swift.git
-$ cd google-auth-library-swift
-$ make -f Makefile
-$ export GOOGLE_APPLICATION_CREDENTIALS="$HOME/.credentials/ServiceAccount.json"
-$ swift run TokenSource
-> After a few seconds, the access token should print here 🥳
-```
-If your access token wasn't generated, scroll down to the **Troubleshooting** section.
-
-Copy the access token and paste it into [`RemoteConfigConsole.swift`](https://github.com/firebase/firebase-ios-sdk/blob/nc-rc-test-api/FirebaseRemoteConfig/Tests/SwiftAPI/RemoteConfigConsole.swift). I have included a comment that you can replace with the token. It will be a long `String` but I would avoid trying to reformat it as to not clip any characters or add unneeded spacing.
-
-🚀 Everything is ready to go!
-
-## See it in action
-
-I have included a few tests in [`APITests.swift`](https://github.com/firebase/firebase-ios-sdk/blob/nc-rc-test-api/FirebaseRemoteConfig/Tests/SwiftAPI/APITests.swift) showcasing the  `RemoteConfigConsole` in action. Check out the following tests in [`APITests.swift`](https://github.com/firebase/firebase-ios-sdk/blob/nc-rc-test-api/FirebaseRemoteConfig/Tests/SwiftAPI/APITests.swift):
-- [`testFetchConfigThenUpdateConsoleThenFetchAgain`](https://github.com/firebase/firebase-ios-sdk/blob/nc-rc-test-api/FirebaseRemoteConfig/Tests/SwiftAPI/APITests.swift#L192)
-- [`testFetchConfigThenAddValueOnConsoleThenFetchAgain`](https://github.com/firebase/firebase-ios-sdk/blob/nc-rc-test-api/FirebaseRemoteConfig/Tests/SwiftAPI/APITests.swift#L229)
-- [`testFetchConfigThenDeleteValueOnConsoleThenFetchAgain`](https://github.com/firebase/firebase-ios-sdk/blob/nc-rc-test-api/FirebaseRemoteConfig/Tests/SwiftAPI/APITests.swift#L264)
-
-## Troubleshooting
-Initially, I ran into an issue where `$ swift run TokenSource` outputted:
-```bash
-error: terminated(72): xcrun --sdk macosx --find xctest output:
-        xcrun: error: unable to find utility "xctest", not a developer tool or in PATH
-```
-If you run into this issue, try running: `$ xcode-select -p`. If you see:
-```
-/Library/Developer/CommandLineTools
-```
-Then the fix is simple. Run `$ sudo xcode-select -s /Applications/Xcode.app/Contents/Developer` and verify it worked by running  `$ xcode-select -p` again. If you see:
-```
-/Applications/Xcode.app/Contents/Developer
-```
-...then you should be good to go. Try running `$ swift run TokenSource` again.
+### Remote Config API Tests
+There is a [section](https://github.com/firebase/firebase-ios-sdk/blob/master/FirebaseRemoteConfig/Tests/SwiftAPI/APITests.swift#L195)
+of tests in [`APITests.swift`](https://github.com/firebase/firebase-ios-sdk/blob/master/FirebaseRemoteConfig/Tests/SwiftAPI/APITests.swift)
+showcasing the  `RemoteConfigConsole` in action.
