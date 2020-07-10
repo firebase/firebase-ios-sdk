@@ -39,7 +39,7 @@ the blue button that says "Generate new private key".
 
 ### Create the Access Token
 We use Google's [Auth Library for Swift](https://github.com/googleapis/google-auth-library-swift)
-to generate the access token. There are a few example use cases provided. We use the 
+to generate the access token. There are a few example use cases provided. We use the
 [`TokenSource`](https://github.com/googleapis/google-auth-library-swift/blob/master/Sources/Examples/TokenSource/main.swift)
 example.
 
