@@ -95,6 +95,7 @@ let package = Package(
         "FirebaseCore",
         "FirebaseInstallations",
         // "FirebaseInstanceID",
+        "FirebaseRemoteConfig",
         "FirebaseStorage",
         "FirebaseStorageSwift",
         "GoogleDataTransport",
@@ -394,6 +395,41 @@ let package = Package(
       publicHeadersPath: "Public",
       cSettings: [
         .headerSearchPath("../"),
+      ]
+    ),
+    .target(
+      name: "FirebaseRemoteConfig",
+      dependencies: [
+        "FirebaseCore",
+        "FirebaseABTesting",
+        "FirebaseInstallations",
+        "GoogleUtilities_NSData",
+      ],
+      path: "FirebaseRemoteConfig/Sources",
+      publicHeadersPath: "Public",
+      cSettings: [
+        .headerSearchPath("../../"),
+        .define("FIRRemoteConfig_VERSION", to: "0.0.1"), // TODO: Fix version
+      ]
+    ),
+    .testTarget(
+      name: "RemoteConfigUnit",
+      dependencies: ["FirebaseRemoteConfig", "OCMock"],
+      path: "FirebaseRemoteConfig/Tests/Unit",
+      exclude: [
+        // Need to be evaluated/ported to RC V2.
+        "RCNConfigAnalyticsTest.m",
+        "RCNConfigSettingsTest.m",
+        "RCNConfigTest.m",
+        "RCNRemoteConfig+FIRAppTest.m",
+        "RCNThrottlingTests.m",
+        // Handle Resources.
+        "SecondApp-GoogleService-Info.plist",
+        "Defaults-testInfo.plist",
+        "TestABTPayload.txt",
+      ],
+      cSettings: [
+        .headerSearchPath("../../.."),
       ]
     ),
     .target(

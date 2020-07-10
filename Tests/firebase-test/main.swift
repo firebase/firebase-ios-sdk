@@ -21,6 +21,7 @@ import FirebaseCrashlytics
 import FirebaseFunctions
 import FirebaseInstallations
 // import FirebaseInstanceID
+import FirebaseRemoteConfig
 import FirebaseStorage
 import FirebaseStorageSwift
 import GoogleDataTransport

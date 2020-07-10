@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
+#import <XCTest/XCTest.h>
+#import "OCMock.h"
+
 #import "FirebaseRemoteConfig/Sources/RCNConfigExperiment.h"
 
-#import <XCTest/XCTest.h>
-
-#import <FirebaseRemoteConfig/FIRRemoteConfig.h>
 #import "FirebaseRemoteConfig/Sources/Private/RCNConfigSettings.h"
+#import "FirebaseRemoteConfig/Sources/Public/FIRRemoteConfig.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigDBManager.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigDefines.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigValue_Internal.h"
@@ -28,7 +29,6 @@
 #import "FirebaseABTesting/Sources/Private/ABTExperimentPayload.h"
 #import "FirebaseABTesting/Sources/Public/FIRExperimentController.h"
 
-#import <OCMock/OCMock.h>
 #import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 
 // Surface the internal FIRExperimentController initializer.
@@ -203,6 +203,7 @@
   XCTAssertEqual(time, originalTime);
 }
 
+#if !SWIFT_PACKAGE
 - (void)testUpdateExperiments {
   FIRExperimentController *experimentController =
       [[FIRExperimentController alloc] initWithAnalytics:nil];
@@ -233,6 +234,7 @@
   [experiment updateExperiments];
   XCTAssertEqualObjects(experiment.experimentMetadata[@"last_experiment_start_time"], @(12345678));
 }
+#endif
 
 #pragma mark Helpers.
 
