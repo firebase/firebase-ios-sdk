@@ -34,13 +34,13 @@ jobs:
       if: matrix.target == 'iOS'
       run: scripts/generate_access_token.sh "$plist_secret" scripts/gha-encrypted/RemoteConfigSwiftAPI/ServiceAccount.json.gpg
           FirebaseRemoteConfig/Tests/SwiftAPI/AccessToken.json
-    - name: IntegrationTest
-      if: matrix.target == 'iOS'
-      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/build.sh RemoteConfig iOS integration)
     - name: BuildAndUnitTest # can be replaced with pod lib lint with CocoaPods 1.10
       run: scripts/third_party/travis/retry.sh scripts/build.sh RemoteConfig ${{ matrix.target }} unit
     - name: Fake Console API Tests
       run: scripts/third_party/travis/retry.sh scripts/build.sh RemoteConfig iOS fakeconsole
+    - name: IntegrationTest
+      if: matrix.target == 'iOS'
+      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/build.sh RemoteConfig iOS integration)
 
   pod-lib-lint:
     # Don't run on private repo unless it is a PR.
