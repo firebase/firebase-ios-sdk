@@ -76,8 +76,8 @@ let package = Package(
       url: "https://github.com/paulb777/nanopb.git",
       .branch("swift-package-manager")
     ),
-    .package(name: "OCMock", url: "https://github.com/paulb777/ocmock.git",
-             .revision("7291762")),
+    .package(name: "OCMock", url: "https://github.com/paulb777/ocmock.git", .revision("7291762")),
+    .package(name: "leveldb", url: "https://github.com/paulb777/leveldb.git", .revision("3f04697")),
     // Branches need a force update with a run with the revision set like below.
     //   .package(url: "https://github.com/paulb777/nanopb.git", .revision("564392bd87bd093c308a3aaed3997466efb95f74"))
   ],
@@ -93,6 +93,7 @@ let package = Package(
         "Firebase",
         "FirebaseCrashlytics",
         "FirebaseCore",
+        "FirebaseDatabase",
         "FirebaseInstallations",
         // "FirebaseInstanceID",
         "FirebaseRemoteConfig",
@@ -350,6 +351,38 @@ let package = Package(
       ]
     ),
     .target(
+      name: "FirebaseDatabase",
+      dependencies: [
+        "FirebaseCore",
+        "leveldb"
+      ],
+      path: "FirebaseDatabase/Sources",
+      exclude: [
+        "third_party/Wrap-leveldb/LICENSE",
+        "third_party/SocketRocket/LICENSE",
+        "third_party/FImmutableSortedDictionary/LICENSE",
+        "third_party/SocketRocket/aa2297808c225710e267afece4439c256f6efdb3",
+      ],
+      publicHeadersPath: "Public",
+      cSettings: [
+        .headerSearchPath("../../"),
+        .define("FIRDatabase_VERSION", to: "0.0.1"), // TODO: Fix version
+      ]
+    ),
+    .testTarget(
+      name: "DatabaseUnit",
+      dependencies: ["FirebaseDatabase", "OCMock", "SharedTestUtilities"],
+      path: "FirebaseDatabase/Tests/",
+      exclude: [
+        "Integration/"
+      ],
+      resources: [.process("Resources")],
+      cSettings: [
+        .headerSearchPath("../.."),
+      ]
+    ),
+
+    .target(
       name: "FirebaseFunctions",
       dependencies: [
         "FirebaseCore",
@@ -484,5 +517,6 @@ let package = Package(
       ]
     ),
   ],
-  cLanguageStandard: .c99
+  cLanguageStandard: .c99,
+  cxxLanguageStandard: CXXLanguageStandard.gnucxx14
 )
