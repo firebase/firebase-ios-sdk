@@ -1143,11 +1143,22 @@ static NSString *UTCToLocal(NSString *utcTime) {
   return [dateFormatter stringFromDate:date];
 }
 
-#if !SWIFT_PACKAGE
+#if SWIFT_PACKAGE
+- (NSDictionary *)getSPMDefaults {
+  NSBundle *bundle = Firebase_RemoteConfigUnit_SWIFTPM_MODULE_BUNDLE();
+  NSString *plistFile = [bundle pathForResource:@"Defaults-testInfo" ofType:@"plist"];
+  return [[NSDictionary alloc] initWithContentsOfFile:plistFile];
+}
+#endif
+
 - (void)testSetDefaultsFromPlist {
   for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
     FIRRemoteConfig *config = _configInstances[i];
+#if SWIFT_PACKAGE
+    [config setDefaults:[self getSPMDefaults]];
+#else
     [config setDefaultsFromPlistFileName:@"Defaults-testInfo"];
+#endif
     XCTAssertEqualObjects(_configInstances[i][@"lastCheckTime"].stringValue,
                           UTCToLocal(@"2016-02-28 18:33:31"));
     XCTAssertEqual(_configInstances[i][@"isPaidUser"].boolValue, YES);
@@ -1174,8 +1185,12 @@ static NSString *UTCToLocal(NSString *utcTime) {
 - (void)testSetDefaultsAndNamespaceFromPlist {
   for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
     if (i == RCNTestRCInstanceDefault) {
+#if SWIFT_PACKAGE
+      [_configInstances[i] setDefaults:[self getSPMDefaults] namespace:RCNTestsPerfNamespace];
+#else
       [_configInstances[i] setDefaultsFromPlistFileName:@"Defaults-testInfo"
                                               namespace:RCNTestsPerfNamespace];
+#endif
       XCTAssertEqualObjects([_configInstances[i] configValueForKey:@"lastCheckTime"
                                                          namespace:RCNTestsPerfNamespace]
                                 .stringValue,
@@ -1222,7 +1237,6 @@ static NSString *UTCToLocal(NSString *utcTime) {
     }
   }
 }
-#endif
 
 - (void)testSetDeveloperMode {
   for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {

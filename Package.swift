@@ -423,11 +423,12 @@ let package = Package(
         "RCNConfigTest.m",
         "RCNRemoteConfig+FIRAppTest.m",
         "RCNThrottlingTests.m",
-        // Handle Resources.
-        "SecondApp-GoogleService-Info.plist",
-        "Defaults-testInfo.plist",
-        "TestABTPayload.txt",
       ],
+      resources: [
+        .process("SecondApp-GoogleService-Info.plist"),
+        .process("Defaults-testInfo.plist"),
+        .process("TestABTPayload.txt"),
+        ],
       cSettings: [
         .headerSearchPath("../../.."),
       ]

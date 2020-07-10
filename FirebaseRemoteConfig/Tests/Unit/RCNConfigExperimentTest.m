@@ -203,7 +203,6 @@
   XCTAssertEqual(time, originalTime);
 }
 
-#if !SWIFT_PACKAGE
 - (void)testUpdateExperiments {
   FIRExperimentController *experimentController =
       [[FIRExperimentController alloc] initWithAnalytics:nil];
@@ -234,7 +233,6 @@
   [experiment updateExperiments];
   XCTAssertEqualObjects(experiment.experimentMetadata[@"last_experiment_start_time"], @(12345678));
 }
-#endif
 
 #pragma mark Helpers.
 
@@ -255,8 +253,12 @@
 }
 
 + (NSData *)payloadDataFromTestFile {
-  NSString *testJsonDataFilePath =
-      [[NSBundle bundleForClass:[self class]] pathForResource:@"TestABTPayload" ofType:@"txt"];
+#if SWIFT_PACKAGE
+  NSBundle *bundle = Firebase_RemoteConfigUnit_SWIFTPM_MODULE_BUNDLE();
+#else
+  NSBundle *bundle = [NSBundle bundleForClass:[self class]];
+#endif
+  NSString *testJsonDataFilePath = [bundle pathForResource:@"TestABTPayload" ofType:@"txt"];
   NSError *readTextError = nil;
   NSString *fileText = [[NSString alloc] initWithContentsOfFile:testJsonDataFilePath
                                                        encoding:NSUTF8StringEncoding
