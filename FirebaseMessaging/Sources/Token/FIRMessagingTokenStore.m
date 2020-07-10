@@ -32,7 +32,6 @@ static NSString *const kFIRMessagingTokenKeychainId = @"com.google.iid-tokens";
 
 @implementation FIRMessagingTokenStore
 
-
 - (instancetype)init {
   self = [super init];
   if (self) {

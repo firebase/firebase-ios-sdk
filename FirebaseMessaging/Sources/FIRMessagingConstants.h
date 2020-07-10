@@ -63,8 +63,6 @@ FOUNDATION_EXPORT NSString *const kFIRMessaging_CMD_RST;
 FOUNDATION_EXPORT NSString *const kFIRMessagingCheckinFetchedNotification;
 FOUNDATION_EXPORT NSString *const kFIRMessagingDefaultGCMTokenFailNotification;
 
-FOUNDATION_EXPORT NSString *const kFIRMessagingIdentityInvalidatedNotification;
-
 #pragma mark - Miscellaneous
 
 /// The scope used to save the IID "*" scope token. This is used for saving the

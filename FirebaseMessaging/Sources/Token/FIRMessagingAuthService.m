@@ -17,10 +17,10 @@
 #import "FIRMessagingAuthService.h"
 
 #import "FIRMessagingCheckinPreferences.h"
+#import "FIRMessagingCheckinStore.h"
 #import "FIRMessagingConstants.h"
 #import "FIRMessagingDefines.h"
 #import "FIRMessagingLogger.h"
-#import "FIRMessagingCheckinStore.h"
 #import "NSError+FIRMessaging.h"
 
 // Max time interval between checkin retry in seconds.
