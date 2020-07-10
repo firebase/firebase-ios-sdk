@@ -154,6 +154,9 @@ class APITests: APITestBase {
   }
 
   func testFetchAndActivateUnchangedConfig() {
+    if APITests.useFakeConfig {
+      return
+    }
 
     let expectation = self.expectation(description: #function)
 
@@ -196,7 +199,7 @@ class APITests: APITestBase {
 
   func testFetchConfigThenUpdateConsoleThenFetchAgain() {
     if APITests.useFakeConfig {
-        return
+      return
     }
 
     let expectation = self.expectation(description: #function)
@@ -236,7 +239,7 @@ class APITests: APITestBase {
 
   func testFetchConfigThenAddValueOnConsoleThenFetchAgain() {
     if APITests.useFakeConfig {
-        return
+      return
     }
 
     let expectation = self.expectation(description: #function)
@@ -273,7 +276,7 @@ class APITests: APITestBase {
 
   func testFetchConfigThenDeleteValueOnConsoleThenFetchAgain() {
     if APITests.useFakeConfig {
-        return
+      return
     }
 
     let expectation = self.expectation(description: #function)
