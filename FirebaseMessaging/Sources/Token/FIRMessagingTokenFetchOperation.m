@@ -166,10 +166,6 @@ NSString *const kFIRMessagingHeartbeatTag = @"fire-iid";
         return;
       }
     } else if ([errorComponents containsObject:kFIRMessaging_CMD_RST]) {
-      // Server detected the identity we use is no longer valid.
-      NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
-      [center postNotificationName:kFIRMessagingIdentityInvalidatedNotification object:nil];
-
       NSString *failureReason = @"Identity is invalid. Server request identity reset.";
       FIRMessagingLoggerDebug(kFIRMessagingMessageCodeInternal001, @"%@", failureReason);
       responseError = [NSError messagingErrorWithCode:kFIRMessagingErrorCodeInvalidIdentity

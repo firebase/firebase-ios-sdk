@@ -28,9 +28,9 @@
 #import "FIRMessagingTokenFetchOperation.h"
 #import "FIRMessagingTokenInfo.h"
 #import "FIRMessagingTokenOperation.h"
-#import "NSError+FIRMessaging.h"
-#import "FirebaseMessaging/Sources/Token/FIRMessagingTokenStore.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingCheckinStore.h"
+#import "FirebaseMessaging/Sources/Token/FIRMessagingTokenStore.h"
+#import "NSError+FIRMessaging.h"
 
 // NOTE: These values should be in sync with what InstanceID saves in as.
 static NSString *const kCheckinFileName = @"g-checkin";
@@ -383,8 +383,7 @@ static NSString *const kCheckinFileName = @"g-checkin";
 
   // Resets checkin in keychain if a fresh install.
   // Keychain can still exist even if app is uninstalled.
-  FIRMessagingCheckinPreferences *oldCheckinPreferences =
-      [_checkinStore cachedCheckinPreferences];
+  FIRMessagingCheckinPreferences *oldCheckinPreferences = [_checkinStore cachedCheckinPreferences];
 
   if (oldCheckinPreferences) {
     [_checkinStore removeCheckinPreferencesWithHandler:^(NSError *error) {
@@ -412,7 +411,6 @@ static NSString *const kCheckinFileName = @"g-checkin";
     }];
   }
 }
-
 
 - (void)didDeleteFCMScopedTokensForCheckin:(FIRMessagingCheckinPreferences *)checkin {
   // Make a best effort try to delete the old client related state on the FCM server. This is
@@ -503,8 +501,8 @@ static NSString *const kCheckinFileName = @"g-checkin";
         tokenInfo.authorizedEntity, tokenInfo.scope);
   }
   for (FIRMessagingTokenInfo *tokenInfoToDelete in tokenInfosToDelete) {
-    [_tokenStore removeTokenWithAuthorizedEntity:tokenInfoToDelete.authorizedEntity scope:tokenInfoToDelete.scope];
-
+    [_tokenStore removeTokenWithAuthorizedEntity:tokenInfoToDelete.authorizedEntity
+                                           scope:tokenInfoToDelete.scope];
   }
   return shouldFetchDefaultToken;
 }
@@ -535,8 +533,8 @@ static NSString *const kCheckinFileName = @"g-checkin";
     FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTokenManagerAPNSChangedTokenInvalidated,
                             @"Invalidating cached token for %@ (%@) due to APNs token change.",
                             tokenInfoToDelete.authorizedEntity, tokenInfoToDelete.scope);
-    [_tokenStore removeTokenWithAuthorizedEntity:tokenInfoToDelete.authorizedEntity scope:tokenInfoToDelete.scope];
-
+    [_tokenStore removeTokenWithAuthorizedEntity:tokenInfoToDelete.authorizedEntity
+                                           scope:tokenInfoToDelete.scope];
   }
   return tokenInfosToDelete;
 }

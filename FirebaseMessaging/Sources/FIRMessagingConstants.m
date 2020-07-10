@@ -61,8 +61,6 @@ NSString *const kFIRMessaging_CMD_RST = @"RST";
 NSString *const kFIRMessagingDefaultGCMTokenFailNotification =
     @"com.firebase.iid.notif.fcm-token-fail";
 
-NSString *const kFIRMessagingIdentityInvalidatedNotification = @"com.google.iid.identity-invalid";
-
 // Miscellaneous
 NSString *const kFIRMessagingAllScopeIdentifier = @"iid-all";
 NSString *const kFIRMessagingDefaultTokenScope = @"*";

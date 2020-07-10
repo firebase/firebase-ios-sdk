@@ -16,8 +16,8 @@ import Combine
 import SwiftUI
 import FirebaseCore
 import FirebaseMessaging
-import FirebaseInstallations
 import FirebaseInstanceID
+import FirebaseInstallations
 
 struct ContentView: View {
   @EnvironmentObject var identity: Identity

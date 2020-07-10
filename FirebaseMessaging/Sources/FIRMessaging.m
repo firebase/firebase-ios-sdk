@@ -319,9 +319,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 - (void)start {
   [self setupFileManagerSubDirectory];
   [self setupNotificationListeners];
-  // TODO(chliang) make this non-singleton to support multi app.
   self.tokenManager = [[FIRMessagingTokenManager alloc] init];
-
   self.installations = [FIRInstallations installations];
 
 #if !TARGET_OS_WATCH
