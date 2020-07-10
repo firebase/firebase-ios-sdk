@@ -20,9 +20,17 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation ABTTestUtilities
 
++ (NSBundle *)getBundle {
+#if SWIFT_PACKAGE
+  return Firebase_ABTestingUnit_SWIFTPM_MODULE_BUNDLE();
+#else
+  return abtBundle = [NSBundle bundleForClass:[ABTTestUtilities class]];
+#endif
+}
+
 + (ABTExperimentPayload *)payloadFromTestFilename:(NSString *)filename {
-  NSString *testJsonDataFilePath =
-      [[NSBundle bundleForClass:[ABTTestUtilities class]] pathForResource:filename ofType:@"txt"];
+  NSBundle *abtBundle = [self getBundle];
+  NSString *testJsonDataFilePath = [abtBundle pathForResource:filename ofType:@"txt"];
   NSError *readTextError = nil;
   NSString *fileText = [[NSString alloc] initWithContentsOfFile:testJsonDataFilePath
                                                        encoding:NSUTF8StringEncoding
@@ -36,8 +44,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (NSData *)payloadJSONDataFromFile:(NSString *)filename
                   modifiedStartTime:(nullable NSDate *)modifiedStartTime {
-  NSString *testJsonDataFilePath =
-      [[NSBundle bundleForClass:[ABTTestUtilities class]] pathForResource:filename ofType:@"txt"];
+  NSBundle *abtBundle = [self getBundle];
+  NSString *testJsonDataFilePath = [abtBundle pathForResource:filename ofType:@"txt"];
   NSError *readTextError = nil;
   NSString *fileText = [[NSString alloc] initWithContentsOfFile:testJsonDataFilePath
                                                        encoding:NSUTF8StringEncoding

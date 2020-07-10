@@ -275,20 +275,15 @@ let package = Package(
         .define("FIRABTesting_VERSION", to: "0.0.1"), // TODO: Fix version
       ]
     ),
-    // Disabled. Pending resolution of accessing SPM resources from Objective C.
-    // See https://forums.swift.org/t/finding-swift-package-manager-resources/38058
-//    .testTarget(
-//      name: "ABTestingUnit",
-//      dependencies: ["FirebaseABTesting", "OCMock"],
-//      path: "FirebaseABTesting/Tests/Unit",
-//      resources: [.process("Resources")],
-    ////      resources: [
-    ////
-    ////        "Resources/TestABTPayload1.txt"],
-//      cSettings: [
-//        .headerSearchPath("../../.."),
-//      ]
-//    ),
+    .testTarget(
+      name: "ABTestingUnit",
+      dependencies: ["FirebaseABTesting", "OCMock"],
+      path: "FirebaseABTesting/Tests/Unit",
+      resources: [.process("Resources")],
+      cSettings: [
+        .headerSearchPath("../../.."),
+      ]
+    ),
     .target(
       name: "FirebaseAuth",
       dependencies: ["FirebaseCore",
