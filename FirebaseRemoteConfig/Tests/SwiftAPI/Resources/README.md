@@ -9,17 +9,16 @@ Firebase console.
 the  `GoogleService-Info.plist`.
 2. Navigate to your project's settings. Click on the **Service accounts** tab and
 then download a private key by clicking the blue button that says "Generate new private key".
-3. Rename this private key file to **ServiceAccount.json** and move it to
-the `$HOME/.credentials/` directory. You may have to create this directory.
-4. Within the `firebase-ios-sdk`, run:
+Rename it `ServiceAccount.json`.
+3. Within the `firebase-ios-sdk`, run:
 ```bash
-./scripts/generate_access_token_local_dev.sh ServiceAccount.json FirebaseRemoteConfig/Tests/SwiftAPI/AccessToken.json
+./scripts/generate_access_token.sh local_dev PATH/TO/ServiceAccount.json FirebaseRemoteConfig/Tests/SwiftAPI/AccessToken.json
 ```
-5. Generate the `FirebaseRemoteConfig` project:
+4. Generate the `FirebaseRemoteConfig` project:
 ```bash
 pod gen FirebaseRemoteConfig.podspec --local-sources=./ --auto-open --platforms=ios
 ```
-6. Copy the `GoogleService-Info.plist` downloaded earlier into the generated
+5. Copy the `GoogleService-Info.plist` you downloaded earlier into the generated
 Xcode project.
 
 🚀 Everything is ready to go! Run the tests in the `swift-api-tests` target.
@@ -40,7 +39,7 @@ the blue button that says "Generate new private key".
 
 A `.json` file will be downloaded. Go ahead and rename this file
 to `ServiceAccount.json` and move it to your `$HOME/.credentials/` directory.
-You may have to create the `.credentials/` directory.
+You may have to create the `$HOME/.credentials/` directory.
 
 ### Create the Access Token
 We use Google's [Auth Library for Swift](https://github.com/googleapis/google-auth-library-swift)

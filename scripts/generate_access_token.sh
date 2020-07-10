@@ -36,7 +36,7 @@ GHA_SECRET="$1"
 SERVICE_ACCOUNT="$2"
 OUTPUT="$3"
 
-echo "GHA_SECRET: ***"
+echo "GHA_SECRET: ***" # Pass in `local_dev` if the SERVICE_ACCOUNT does not to be decrypted.
 echo "SERVICE_ACCOUNT: ${SERVICE_ACCOUNT}"
 echo "OUTPUT: ${OUTPUT}"
 
@@ -57,10 +57,17 @@ fi
 # the GOOGLE_APPLICATION_CREDENTIALS env var to it.
 SERVICE_ACCOUNT_FILE=$(basename $SERVICE_ACCOUNT .gpg)
 
-echo "Creating ~/.credentials/ directory and decrypting ${SERVICE_ACCOUNT_FILE}.gpg"
-
+echo "Creating ~/.credentials/ directory"
 mkdir -p ~/.credentials/
-scripts/decrypt_GHA_SECRET.sh $SERVICE_ACCOUNT ~/.credentials/$SERVICE_ACCOUNT_FILE "$plist_secret"
+
+if [[ $GHA_SECRET == "local_dev" ]]; then
+    echo "Local Development Mode"
+    echo "Copying ${SERVICE_ACCOUNT_FILE} to ~/.credentials/"
+    cp $SERVICE_ACCOUNT ~/.credentials/
+else
+    echo "Decrypting ${SERVICE_ACCOUNT_FILE}.gpg"
+    scripts/decrypt_GHA_SECRET.sh $SERVICE_ACCOUNT ~/.credentials/$SERVICE_ACCOUNT_FILE "$plist_secret"
+fi
 
 echo "::set-env name=GOOGLE_APPLICATION_CREDENTIALS::${HOME}/.credentials/${SERVICE_ACCOUNT_FILE}"
 export GOOGLE_APPLICATION_CREDENTIALS="${HOME}/.credentials/${SERVICE_ACCOUNT_FILE}"
