@@ -428,7 +428,7 @@ let package = Package(
         .process("SecondApp-GoogleService-Info.plist"),
         .process("Defaults-testInfo.plist"),
         .process("TestABTPayload.txt"),
-        ],
+      ],
       cSettings: [
         .headerSearchPath("../../.."),
       ]
