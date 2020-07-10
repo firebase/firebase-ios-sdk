@@ -17,7 +17,7 @@
 #import <XCTest/XCTest.h>
 #import "OCMock.h"
 
-#import "sqlite3.h"
+#import <sqlite3.h>
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "FirebaseRemoteConfig/Sources/Private/RCNConfigSettings.h"
