@@ -19,9 +19,9 @@
 #import "FIRMessagingConstants.h"
 
 /// The key used to find the APNs device token in an archive.
-NSString *const kFIRInstanceIDAPNSInfoTokenKey = @"device_token";
+static NSString *const kFIRInstanceIDAPNSInfoTokenKey = @"device_token";
 /// The key used to find the sandbox value in an archive.
-NSString *const kFIRInstanceIDAPNSInfoSandboxKey = @"sandbox";
+static NSString *const kFIRInstanceIDAPNSInfoSandboxKey = @"sandbox";
 
 @interface FIRMessagingAPNSInfo ()
 /// The APNs device token, provided by the OS to the application delegate

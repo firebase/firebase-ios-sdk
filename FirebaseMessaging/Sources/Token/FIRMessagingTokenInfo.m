@@ -46,7 +46,7 @@ static NSString *const kFIRInstanceIDAPNSInfoKey = @"apns_info";
 /// Specifies a dictionary key representing the "last cached" time for the token.
 static NSString *const kFIRInstanceIDCacheTimeKey = @"cache_time";
 /// Default interval that token stays fresh.
-const NSTimeInterval kDefaultFetchTokenInterval = 7 * 24 * 60 * 60;  // 7 days.
+static const NSTimeInterval kDefaultFetchTokenInterval = 7 * 24 * 60 * 60;  // 7 days.
 
 @implementation FIRMessagingTokenInfo
 
