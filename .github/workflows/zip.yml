@@ -78,7 +78,7 @@ jobs:
       uses: actions/download-artifact@v1
       with:
         name: Firebase-actions-dir
-    - name: Pull zip from GCS
+    - name: Unzip frameworks
       run: |
         unzip "${GITHUB_WORKSPACE}/${FRAMEWORK_ZIP}" -d "${OUTPUT_DIR}"
         find "${OUTPUT_DIR}" -name "*.zip" -maxdepth 3 -exec unzip -d "${OUTPUT_DIR}" {} +
