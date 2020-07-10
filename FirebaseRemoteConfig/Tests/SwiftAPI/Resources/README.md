@@ -43,7 +43,7 @@ to generate the access token. There are a few example use cases provided. We use
 [`TokenSource`](https://github.com/googleapis/google-auth-library-swift/blob/master/Sources/Examples/TokenSource/main.swift)
 example.
 
-For the access token to be generated, the `GOOGLE_APPLICATION_CREDENTIALS` env var should be set to point to where the 
+For the access token to be generated, the `GOOGLE_APPLICATION_CREDENTIALS` env var should be set to point to where the
 Firebase project's service account key is stored. This is set in the `generate_access_token.sh` script.
 
 ### Remote Config API Tests
