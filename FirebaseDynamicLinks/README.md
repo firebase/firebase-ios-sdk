@@ -7,7 +7,7 @@ Please visit [our developer site]
 (https://firebase.google.com/docs/dynamic-links/) for integration instructions,
 documentations, support information, and terms of service.
 
-## Release Notes
+## Managing the Pasteboard
 
 ### V 4.2.0
 
