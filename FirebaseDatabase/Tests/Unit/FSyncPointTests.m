@@ -464,10 +464,13 @@ typedef NSDictionary * (^fbt_nsdictionary_void)(void);
 
 - (NSArray *)loadSpecs {
   static NSArray *json;
+#if SWIFT_PACKAGE
+  NSBundle *bundle = Firebase_DatabaseUnit_SWIFTPM_MODULE_BUNDLE();
+#else
+  NSBundle *bundle = [NSBundle bundleForClass:[FSyncPointTests class]];
+#endif
   if (json == nil) {
-    NSString *syncPointSpec =
-        [[NSBundle bundleForClass:[FSyncPointTests class]] pathForResource:@"syncPointSpec"
-                                                                    ofType:@"json"];
+    NSString *syncPointSpec = [bundle pathForResource:@"syncPointSpec" ofType:@"json"];
     NSLog(@"%@", syncPointSpec);
     NSData *specData = [NSData dataWithContentsOfFile:syncPointSpec];
     NSError *error = nil;
