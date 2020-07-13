@@ -12,8 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import <FirebaseStorage/FIRStorageListResult.h>
-#import <FirebaseStorage/FIRStorageReference.h>
+#import "FirebaseStorage/Sources/Public/FIRStorageListResult.h"
+#import "FirebaseStorage/Sources/Public/FIRStorageReference.h"
+
 #import "FirebaseStorage/Sources/FIRStorageConstants_Private.h"
 
 @implementation FIRStorageListResult

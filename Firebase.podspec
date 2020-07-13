@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'Firebase'
-  s.version          = '6.27.0'
+  s.version          = '6.27.1'
   s.summary          = 'Firebase'
 
   s.description      = <<-DESC
@@ -31,12 +31,12 @@ Simplify your app development, grow your user base, and monetize more effectivel
   s.default_subspec = 'Core'
 
   s.subspec 'Core' do |ss|
-    ss.ios.dependency 'FirebaseAnalytics', '6.6.1'
+    ss.ios.dependency 'FirebaseAnalytics', '6.6.2'
     ss.dependency 'Firebase/CoreOnly'
   end
 
   s.subspec 'CoreOnly' do |ss|
-    ss.dependency 'FirebaseCore', '6.8.0'
+    ss.dependency 'FirebaseCore', '6.8.1'
     ss.source_files = 'CoreOnly/Sources/Firebase.h'
     ss.preserve_paths = 'CoreOnly/Sources/module.modulemap'
     if ENV['FIREBASE_POD_REPO_FOR_DEV_POD'] then
@@ -61,7 +61,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
 
   s.subspec 'ABTesting' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseABTesting', '~> 3.3.0'
+    ss.dependency 'FirebaseABTesting', '~> 4.0.0'
   end
 
   s.subspec 'AdMob' do |ss|

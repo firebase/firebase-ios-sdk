@@ -52,11 +52,14 @@ on:
     - 'Gemfile'
 
   schedule:
-    # Run every day at 11pm (PST) - cron uses UTC times
-    - cron:  '0 7 * * *'
+    # Run every day at 3am (PST) - cron uses UTC times
+    # This is set to 3 hours after zip workflow so zip testing can run after.
+    - cron:  '0 11 * * *'
 
 jobs:
   check:
+    # Don't run on private repo unless it is a PR.
+    if: github.repository != 'FirebasePrivate/firebase-ios-sdk' || github.event_name == 'pull_request'
     runs-on: macos-latest
     steps:
     - uses: actions/checkout@v2
@@ -69,6 +72,8 @@ jobs:
 
 
   cmake:
+    # Don't run on private repo unless it is a PR.
+    if: github.repository != 'FirebasePrivate/firebase-ios-sdk' || github.event_name == 'pull_request'
     needs: check
 
     strategy:
@@ -95,6 +100,8 @@ jobs:
 
 
   sanitizers:
+    # Don't run on private repo unless it is a PR.
+    if: github.repository != 'FirebasePrivate/firebase-ios-sdk' || github.event_name == 'pull_request'
     runs-on: macos-latest
     needs: check
 
@@ -124,6 +131,8 @@ jobs:
 
 
   xcodebuild:
+    # Don't run on private repo unless it is a PR.
+    if: github.repository != 'FirebasePrivate/firebase-ios-sdk' || github.event_name == 'pull_request'
     runs-on: macos-latest
     needs: check
 
@@ -142,6 +151,8 @@ jobs:
 
 
   pod-lib-lint:
+    # Don't run on private repo unless it is a PR.
+    if: github.repository != 'FirebasePrivate/firebase-ios-sdk' || github.event_name == 'pull_request'
     runs-on: macos-latest
     needs: check
 
@@ -157,7 +168,45 @@ jobs:
             --platforms=ios \
             --allow-warnings
 
+  quickstart_framework:
+    env:
+      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+      signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+      FRAMEWORK_ZIP: "Firebase-actions-dir.zip"
+      SDK: "Firestore"
+    runs-on: macOS-latest
+    # Don't run on private repo.
+    if: github.event_name == 'schedule' && github.repository != 'FirebasePrivate/firebase-ios-sdk'
+    steps:
+    - uses: actions/checkout@v2
+    - name: Pull zip from GCS
+      run: scripts/pull_zip_gcloud.sh "$plist_secret" "$FRAMEWORK_ZIP" "${HOME}/ios_frameworks"
+    - name: Setup quickstart
+      run: SAMPLE="$SDK" TARGET="${SDK}Example" NON_FIREBASE_SDKS="SDWebImage FirebaseUI/Auth FirebaseUI/Email FirebaseFirestoreSwift" scripts/setup_quickstart_framework.sh \
+                                               "${HOME}"/ios_frameworks/Firebase/NonFirebaseSDKs/* \
+                                               "${HOME}"/ios_frameworks/Firebase/FirebaseFirestore/* \
+                                               "${HOME}"/ios_frameworks/Firebase/FirebaseAuth/* \
+                                               "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
+    - name: Install Secret GoogleService-Info.plist
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-firestore.plist.gpg \
+        quickstart-ios/firestore/GoogleService-Info.plist "$plist_secret"
+    - name: Install Secret FIREGSignInInfo.h
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/FIREGSignInInfo.h.gpg \
+        quickstart-ios/TestUtils/FIREGSignInInfo.h "$signin_secret"
+    - name: Test Quickstart
+      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}")
+    - name: Remove data before upload
+      if: ${{ failure() }}
+      run: scripts/remove_data.sh "${SDK}"
+    - uses: actions/upload-artifact@v2
+      if: ${{ failure() }}
+      with:
+        name: quickstart_artifacts
+        path: quickstart-ios/
+
   quickstart:
+    # Don't run on private repo unless it is a PR.
+    if: github.repository != 'FirebasePrivate/firebase-ios-sdk' || github.event_name == 'pull_request'
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}

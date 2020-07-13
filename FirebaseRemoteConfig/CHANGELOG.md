@@ -1,3 +1,7 @@
+# v4.7.0
+- [changed] Functionally neutral updated import references for dependencies. (#5824)
+- [changed] Updated Remote Config to consume the Protobuf-less AB Testing SDK (#5890).
+
 # v4.6.0
 - [changed] Removed typedefs from public API method signatures to improve Swift API usage from Xcode. (#5748)
 

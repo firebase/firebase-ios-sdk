@@ -363,6 +363,44 @@ TEST_P(ExecutorTest, DestructorWaitsForExecutingTasks) {
   ASSERT_EQ(result, "1234");
 }
 
+TEST_P(ExecutorTest, DisposeAvoidsDeadlockingWithCancellation) {
+  Expectation running;
+  Expectation shutdown_started;
+  Expectation cancelled;
+
+  std::string result;
+
+  DelayedOperation operation;
+  operation = executor->Schedule(Executor::Milliseconds(0), 42, [&] {
+    result += "1";
+    running.Fulfill();
+
+    Await(shutdown_started);
+
+    result += "3";
+    operation.Cancel();
+
+    result += "4";
+    cancelled.Fulfill();
+  });
+
+  Expectation shutdown_complete;
+  Async([&] {
+    Await(running);
+    result += "2";
+
+    shutdown_started.Fulfill();
+    executor->Dispose();
+    result += "5";
+
+    shutdown_complete.Fulfill();
+  });
+
+  Await(cancelled);
+  Await(shutdown_complete);
+  ASSERT_EQ(result, "12345");
+}
+
 TEST_P(ExecutorTest, DestructorAvoidsDeadlockWhenDeletingSelf) {
   Expectation complete;
   std::string result;

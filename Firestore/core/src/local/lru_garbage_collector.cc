@@ -26,16 +26,18 @@
 #include "Firestore/core/src/local/target_data.h"
 #include "Firestore/core/src/model/document_key.h"
 #include "Firestore/core/src/util/log.h"
+#include "Firestore/core/src/util/statusor.h"
 
 namespace firebase {
 namespace firestore {
 namespace local {
 namespace {
 
-using firebase::firestore::api::Settings;
-using firebase::firestore::model::DocumentKey;
-using firebase::firestore::model::ListenSequenceNumber;
-using firebase::firestore::model::TargetId;
+using api::Settings;
+using model::DocumentKey;
+using model::ListenSequenceNumber;
+using model::TargetId;
+using util::StatusOr;
 
 using Millis = std::chrono::milliseconds;
 
@@ -108,13 +110,26 @@ LruGarbageCollector::LruGarbageCollector(LruDelegate* delegate,
     : delegate_(delegate), params_(std::move(params)) {
 }
 
+StatusOr<int64_t> LruGarbageCollector::CalculateByteSize() const {
+  return delegate_->CalculateByteSize();
+}
+
 LruResults LruGarbageCollector::Collect(const LiveQueryMap& live_targets) {
   if (params_.min_bytes_threshold == Settings::CacheSizeUnlimited) {
     LOG_DEBUG("Garbage collection skipped; disabled");
     return LruResults::DidNotRun();
   }
 
-  int64_t current_size = CalculateByteSize();
+  StatusOr<int64_t> maybe_current_size = CalculateByteSize();
+  if (!maybe_current_size.ok()) {
+    LOG_ERROR(
+        "Garbage collection skipped; failed to estimate the size of the "
+        "cache: %s",
+        maybe_current_size.status().ToString());
+    return LruResults::DidNotRun();
+  }
+
+  int64_t current_size = maybe_current_size.ValueOrDie();
   if (current_size < params_.min_bytes_threshold) {
     // Not enough on disk to warrant collection. Wait another timeout cycle.
     LOG_DEBUG(

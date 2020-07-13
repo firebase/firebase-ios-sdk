@@ -102,7 +102,7 @@ NSDictionary<NSString *, NSArray *> *FIRRemoteConfigFirebaseLocaleMap() {
     // Malay
     @"ms" : @[ @"ms_MY" ],
     // Maltese
-    @"ms" : @[ @"mt_MT" ],
+    @"mt" : @[ @"mt_MT" ],
     // Polish
     @"pl" : @[ @"pl", @"pl_PL", @"pl-PL" ],
     // Romanian
@@ -224,8 +224,8 @@ BOOL FIRRemoteConfigHasDeviceContextChanged(NSDictionary *deviceContext,
   if (![deviceContext[RCNDeviceContextKeyBuild] isEqual:FIRRemoteConfigAppBuildVersion()]) {
     return YES;
   }
-  if (!
-      [deviceContext[RCNDeviceContextKeyOSVersion] isEqual:[GULAppEnvironmentUtil systemVersion]]) {
+  if (![deviceContext[RCNDeviceContextKeyOSVersion]
+          isEqual:[GULAppEnvironmentUtil systemVersion]]) {
     return YES;
   }
   if (![deviceContext[RCNDeviceContextKeyDeviceLocale] isEqual:FIRRemoteConfigDeviceLocale()]) {

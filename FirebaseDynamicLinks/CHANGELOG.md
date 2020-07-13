@@ -1,3 +1,9 @@
+# v4.2.0
+- [fixed] Fixed crashes that occur when a dynamic link is opened for the second time while an app is in the foreground (#5880)
+- [Added] Plist property `FirebaseDeepLinkPasteboardRetrievalEnabled` to enable/disable fetching dynamic links from Pasteboard.
+- [fixed] Reduce frequency of iOS14 pasteboard notifications by only reading from it when it contains URL(s). (#5905)
+- [changed] Functionally neutral updated import references for dependencies. (#5824)
+
 # v4.1.0
 - [fixed] Fixing unwanted pending dynamic links checks on subsequent app restarts. (#5665)
 

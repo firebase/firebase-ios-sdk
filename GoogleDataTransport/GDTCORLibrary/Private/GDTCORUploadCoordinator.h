@@ -16,10 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
-#import <GoogleDataTransport/GDTCORLifecycle.h>
-#import <GoogleDataTransport/GDTCORRegistrar.h>
-
-#import "GDTCORLibrary/Private/GDTCORUploadPackage_Private.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORLifecycle.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORRegistrar.h"
 
 @class GDTCORClock;
 
@@ -28,8 +26,7 @@ NS_ASSUME_NONNULL_BEGIN
 /** This class connects storage and uploader implementations, providing events to an uploader
  * and informing the storage what events were successfully uploaded or not.
  */
-@interface GDTCORUploadCoordinator
-    : NSObject <NSSecureCoding, GDTCORLifecycleProtocol, GDTCORUploadPackageProtocol>
+@interface GDTCORUploadCoordinator : NSObject <GDTCORLifecycleProtocol>
 
 /** The queue on which all upload coordination will occur. Also used by a dispatch timer. */
 /** Creates and/or returrns the singleton.
@@ -49,10 +46,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** Some leeway given to libdispatch for the timer interval event. */
 @property(nonatomic, readonly) uint64_t timerLeeway;
-
-/** The map of targets to in-flight packages. */
-@property(nonatomic, readonly)
-    NSMutableDictionary<NSNumber *, GDTCORUploadPackage *> *targetToInFlightPackages;
 
 /** The registrar object the coordinator will use. Generally used for testing. */
 @property(nonatomic) GDTCORRegistrar *registrar;

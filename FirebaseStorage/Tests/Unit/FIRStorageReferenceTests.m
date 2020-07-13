@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import <FirebaseStorage/FIRStorage.h>
+#import "FirebaseStorage/Sources/Public/FIRStorage.h"
 
-#import "Example/Shared/FIRComponentTestUtilities.h"
 #import "FirebaseStorage/Sources/FIRStorageComponent.h"
 #import "FirebaseStorage/Sources/FIRStorageReference_Private.h"
 #import "FirebaseStorage/Tests/Unit/FIRStorageTestHelpers.h"
+#import "SharedTestUtilities/FIRComponentTestUtilities.h"
 
 @interface FIRStorageReferenceTests : XCTestCase
 

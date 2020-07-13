@@ -31,6 +31,7 @@ app update.
     base_dir + '**/*.[mh]',
     'Interop/Analytics/Public/*.h',
     'FirebaseCore/Sources/Private/*.h',
+    'FirebaseInstallations/Source/Library/Private/*.h',
     'GoogleUtilities/Environment/Private/*.h',
     'GoogleUtilities/NSData+zlib/Private/*.h',
   ]
@@ -43,7 +44,7 @@ app update.
       'FIRRemoteConfig_VERSION=' + String(s.version),
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
   }
-  s.dependency 'FirebaseABTesting', '~> 3.1'
+  s.dependency 'FirebaseABTesting', '~> 4.1'
   s.dependency 'FirebaseCore', '~> 6.8'
   s.dependency 'FirebaseInstallations', '~> 1.1'
   s.dependency 'GoogleUtilities/Environment', '~> 6.7'
@@ -69,7 +70,8 @@ app update.
     # Supply plist custom plist testing.
     unit_tests.resources =
         'FirebaseRemoteConfig/Tests/Unit/Defaults-testInfo.plist',
-        'FirebaseRemoteConfig/Tests/Unit/SecondApp-GoogleService-Info.plist'
+        'FirebaseRemoteConfig/Tests/Unit/SecondApp-GoogleService-Info.plist',
+        'FirebaseRemoteConfig/Tests/Unit/TestABTPayload.txt'
     unit_tests.requires_app_host = true
     unit_tests.dependency 'OCMock'
     unit_tests.requires_arc = true

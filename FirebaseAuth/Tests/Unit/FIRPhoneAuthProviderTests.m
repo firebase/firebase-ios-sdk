@@ -14,14 +14,17 @@
  * limitations under the License.
  */
 
-#import <FirebaseAuth/FIRAuth.h>
-#import <FirebaseAuth/FIRAuthSettings.h>
-#import <FirebaseAuth/FIRAuthUIDelegate.h>
-#import <FirebaseAuth/FIRPhoneAuthProvider.h>
-#import <OCMock/OCMock.h>
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
+
 #import <SafariServices/SafariServices.h>
 #import <XCTest/XCTest.h>
+#import "FirebaseAuth/Sources/Public/FIRAuth.h"
+#import "FirebaseAuth/Sources/Public/FIRAuthSettings.h"
+#import "FirebaseAuth/Sources/Public/FIRAuthUIDelegate.h"
+#import "FirebaseAuth/Sources/Public/FIRPhoneAuthProvider.h"
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "OCMock.h"
 
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
@@ -1392,3 +1395,5 @@ static const NSTimeInterval kExpectationTimeout = 2;
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif

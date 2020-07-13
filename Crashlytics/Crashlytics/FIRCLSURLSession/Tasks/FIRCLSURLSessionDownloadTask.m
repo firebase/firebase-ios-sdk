@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRCLSURLSessionAvailability.h"
+#import "Crashlytics/Crashlytics/FIRCLSURLSession/FIRCLSURLSessionAvailability.h"
 
 #if FIRCLSURLSESSION_REQUIRED
-#import "FIRCLSURLSessionDownloadTask.h"
+#import "Crashlytics/Crashlytics/FIRCLSURLSession/Tasks/FIRCLSURLSessionDownloadTask.h"
 
-#import "FIRCLSURLSessionDownloadTask_PrivateMethods.h"
+#import "Crashlytics/Crashlytics/FIRCLSURLSession/Tasks/FIRCLSURLSessionDownloadTask_PrivateMethods.h"
 
 #define DELEGATE ((id<FIRCLSURLSessionDownloadDelegate>)[self delegate])
 

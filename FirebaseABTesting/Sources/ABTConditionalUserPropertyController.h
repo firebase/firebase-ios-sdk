@@ -13,8 +13,7 @@
 // limitations under the License.
 
 #import <Foundation/Foundation.h>
-
-#import "FirebaseABTesting/Sources/Protos/developers/mobile/abt/proto/ExperimentPayload.pbobjc.h"
+#import "FirebaseABTesting/Sources/Private/ABTExperimentPayload.h"
 
 #import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 
@@ -69,7 +68,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)setExperimentWithOrigin:(NSString *)origin
                         payload:(ABTExperimentPayload *)payload
                          events:(FIRLifecycleEvents *)events
-                         policy:(ABTExperimentPayload_ExperimentOverflowPolicy)policy;
+                         policy:(ABTExperimentPayloadExperimentOverflowPolicy)policy;
 
 /**
  *  Unavailable. Use sharedInstanceWithAnalytics: instead.

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "FIRCLSBinaryImage.h"
+#include "Crashlytics/Crashlytics/Components/FIRCLSBinaryImage.h"
 
 #include <libkern/OSAtomic.h>
 #include <mach-o/dyld.h>
@@ -21,13 +21,13 @@
 
 #include <stdatomic.h>
 
-#include "FIRCLSByteUtility.h"
-#include "FIRCLSFeatures.h"
-#include "FIRCLSFile.h"
-#include "FIRCLSGlobals.h"
-#include "FIRCLSHost.h"
-#include "FIRCLSMachO.h"
-#include "FIRCLSUtility.h"
+#include "Crashlytics/Crashlytics/Components/FIRCLSGlobals.h"
+#include "Crashlytics/Crashlytics/Components/FIRCLSHost.h"
+#include "Crashlytics/Crashlytics/Helpers/FIRCLSFeatures.h"
+#include "Crashlytics/Crashlytics/Helpers/FIRCLSFile.h"
+#include "Crashlytics/Crashlytics/Helpers/FIRCLSUtility.h"
+#include "Crashlytics/Shared/FIRCLSByteUtility.h"
+#include "Crashlytics/Shared/FIRCLSMachO/FIRCLSMachO.h"
 
 #include <dispatch/dispatch.h>
 

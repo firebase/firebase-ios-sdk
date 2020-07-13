@@ -18,7 +18,7 @@
 
 #import <OCMock/OCMock.h>
 
-#import <FirebaseInstallations/FirebaseInstallations.h>
+#import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
 
 #import "FIRInstanceIDFakeKeychain.h"
 #import "FIRInstanceIDTokenManager+Test.h"

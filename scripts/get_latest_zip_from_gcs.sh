@@ -15,6 +15,7 @@
 # limitations under the License.
 
 set -x
+set -eo pipefail
 
 FRAMEWORK_ZIP="$1"
 OUTPUT_DIR="$2"

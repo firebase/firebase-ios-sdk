@@ -68,7 +68,9 @@ public struct TableUpdate: Encodable {
         row.append(currentTime)
         metrics.append(row)
       } else {
-        print("WARNING - target \(target.name) is being filtered out from coverage collection. Skipping...")
+        print(
+          "WARNING - target \(target.name) is being filtered out from coverage collection. Skipping..."
+        )
       }
     }
     let columnNames = ["product_name", "pull_request_id", "coverage_total", "collection_time"]

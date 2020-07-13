@@ -14,6 +14,6 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRCLSCompoundOperation.h"
-#import "FIRCLSFABAsyncOperation.h"
-#import "FIRCLSFABAsyncOperation_Private.h"
+#import "Crashlytics/Shared/FIRCLSOperation/FIRCLSCompoundOperation.h"
+#import "Crashlytics/Shared/FIRCLSOperation/FIRCLSFABAsyncOperation.h"
+#import "Crashlytics/Shared/FIRCLSOperation/FIRCLSFABAsyncOperation_Private.h"

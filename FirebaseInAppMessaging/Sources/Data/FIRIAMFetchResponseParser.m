@@ -25,7 +25,7 @@
 #import "FIRIAMTimeFetcher.h"
 #import "UIColor+FIRIAMHexString.h"
 
-#import <FirebaseABTesting/ExperimentPayload.pbobjc.h>
+#import "FirebaseABTesting/Sources/Private/ABTExperimentPayload.h"
 
 @interface FIRIAMFetchResponseParser ()
 @property(nonatomic) id<FIRIAMTimeFetcher> timeFetcher;
@@ -161,18 +161,8 @@
     NSDictionary *experimentPayloadDictionary = payloadNode[@"experimentPayload"];
 
     if (experimentPayloadDictionary) {
-      experimentPayload = [ABTExperimentPayload message];
-      experimentPayload.experimentId = experimentPayloadDictionary[@"experimentId"];
-      experimentPayload.experimentStartTimeMillis =
-          [experimentPayloadDictionary[@"experimentStartTimeMillis"] integerValue];
-      // FIAM experiments always use the "discard oldest" overflow policy.
-      experimentPayload.overflowPolicy =
-          ABTExperimentPayload_ExperimentOverflowPolicy_DiscardOldest;
-      experimentPayload.timeToLiveMillis =
-          [experimentPayloadDictionary[@"timeToLiveMillis"] integerValue];
-      experimentPayload.triggerTimeoutMillis =
-          [experimentPayloadDictionary[@"triggerTimeoutMillis"] integerValue];
-      experimentPayload.variantId = experimentPayloadDictionary[@"variantId"];
+      experimentPayload =
+          [[ABTExperimentPayload alloc] initWithDictionary:experimentPayloadDictionary];
     }
 
     NSTimeInterval startTimeInSeconds = 0;

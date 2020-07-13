@@ -1,9 +1,6 @@
 name: inappmessaging
 
 on:
-  push:
-    branches:
-      - master
   pull_request:
     paths:
     - 'FirebaseInAppMessaging**'
@@ -18,14 +15,15 @@ on:
 jobs:
 
   quickstart_framework:
+    # Don't run on private repo.
+    if: github.event_name == 'schedule' && github.repository != 'FirebasePrivate/firebase-ios-sdk'
+
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       FRAMEWORK_ZIP: "Firebase-actions-dir.zip"
       SDK: "InAppMessaging"
     runs-on: macOS-latest
-    # Make sure tests run after the zip workflow finishes.
-    if: github.event_name == 'schedule'
     steps:
     - uses: actions/checkout@v2
     - name: Pull zip from GCS
@@ -35,6 +33,8 @@ jobs:
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseDynamicLinks/* \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseInAppMessaging/* \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
+    - name: Setup swift quickstart
+      run: SAMPLE="$SDK" TARGET="${SDK}ExampleSwift" scripts/setup_quickstart_framework.sh
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-inappmessaging.plist.gpg \
         quickstart-ios/inappmessaging/GoogleService-Info.plist "$plist_secret"
@@ -43,6 +43,8 @@ jobs:
         quickstart-ios/TestUtils/FIREGSignInInfo.h "$signin_secret"
     - name: Test Quickstart
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}")
+    - name: Test Swift Quickstart
+      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}" swift)
     - name: Remove data before upload
       if: ${{ failure() }}
       run: scripts/remove_data.sh "${SDK}"
@@ -53,6 +55,9 @@ jobs:
         path: quickstart-ios/
 
   quickstart:
+    # Don't run on private repo unless it is a PR.
+    if: github.repository != 'FirebasePrivate/firebase-ios-sdk' || github.event_name == 'pull_request'
+
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}

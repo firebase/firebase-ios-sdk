@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#import "FIRInstallationsItem+Tests.h"
+#import "FirebaseInstallations/Source/Tests/Utils/FIRInstallationsItem+Tests.h"
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
-#import "FIRInstallationsStoredAuthToken.h"
+#import "FirebaseInstallations/Source/Library/InstallationsStore/FIRInstallationsStoredAuthToken.h"
 
 @implementation FIRInstallationsItem (Tests)
 
