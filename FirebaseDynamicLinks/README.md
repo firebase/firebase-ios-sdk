@@ -1,10 +1,9 @@
 # Firebase Dynamic Links SDK for iOS
 
-Firebase Dynamic Links are links that work the way you want, on multiple platforms, and whether or not your app is already installed.
-For more info : https://firebase.google.com/products/dynamic-links
+Firebase Dynamic Links are universal deep links that persist across app installs.
+For more info, see the [Firebase website](https://firebase.google.com/products/dynamic-links).
 
-Please visit [our developer site]
-(https://firebase.google.com/docs/dynamic-links/) for integration instructions,
+Please visit [our developer site](https://firebase.google.com/docs/dynamic-links/) for integration instructions,
 documentations, support information, and terms of service.
 
 ## Managing the Pasteboard
