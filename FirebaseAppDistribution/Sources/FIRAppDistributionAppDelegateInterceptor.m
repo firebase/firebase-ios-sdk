@@ -59,6 +59,8 @@ SFAuthenticationSession *_safariAuthenticationVC;
                                                          animated:YES
                                                        completion:nil];
         
+        self.registrationFlowCompletion = completion;
+        
 //        if (@available(iOS 12.0, *)) {
 //          ASWebAuthenticationSession *authenticationVC = [[ASWebAuthenticationSession alloc]
 //                    initWithURL:URL
@@ -122,7 +124,8 @@ SFAuthenticationSession *_safariAuthenticationVC;
 - (BOOL)application:(UIApplication *)application
             openURL:(NSURL *)URL
             options:(NSDictionary<NSString *, id> *)options {
-  
+  self.registrationFlowCompletion(nil);
+    [self resetUIState];
   return NO;
 }
 
@@ -147,6 +150,8 @@ SFAuthenticationSession *_safariAuthenticationVC;
     self.window.hidden = YES;
     self.window = nil;
   }
+    
+    self.registrationFlowCompletion = nil;
 
     if (@available(iOS 11.0, *)) {
         _safariAuthenticationVC = nil;
