@@ -80,7 +80,9 @@ jobs:
       with:
         name: Firebase-actions-dir
     - name: Move frameworks
-      run: mv "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}" "${OUTPUT_DIR}"
+      run: | 
+        mkdir -p "${OUTPUT_DIR}"
+        mv "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}" "${OUTPUT_DIR}"
       #    - name: Setup Swift Quickstart
       #      run: SAMPLE="$SDK" TARGET="${SDK}Example" scripts/setup_quickstart_framework.sh \
       #                                               "${HOME}"/ios_frameworks/Firebase/FirebaseRemoteConfig/* \
