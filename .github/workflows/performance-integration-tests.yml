@@ -8,7 +8,8 @@ on:
   #   - https://crontab.guru/
   schedule:
     # Runs every 1 hours.
-    # TODO: It is unclear when the timer starts.
+    # TODO: Revert job run frequency back to 4 hours after validation.
+    # TODO: Validate when the timer starts after job is triggered.
     - cron:  '0 */1 * * *'
 
 jobs:
