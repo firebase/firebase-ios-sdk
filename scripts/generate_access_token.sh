@@ -82,9 +82,13 @@ make -f Makefile
 # Prepend OUTPUT path with ../ since we cd'd into `google-auth-library-swift`
 swift run TokenSource > ../$OUTPUT
 
-if grep -q "access_token" ../$OUTPUT; then
+# Remove cloned Swift Auth Client Library
+cd ..
+rm -rf google-auth-library-swift
+
+if grep -q "access_token" $OUTPUT; then
    echo "Token successfully generated and placed at ${OUTPUT}"
 else
-   echo "ERROR: $(cat ../$OUTPUT)"
+   echo "ERROR: $(cat $OUTPUT)"
    exit 1
 fi
