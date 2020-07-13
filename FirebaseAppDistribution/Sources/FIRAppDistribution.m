@@ -32,6 +32,9 @@
 @interface FIRAppDistribution () <FIRLibrary,
                                   FIRAppDistributionInstanceProvider>
 @property(nonatomic) BOOL isTesterSignedIn;
+
+@property(nullable, nonatomic) FIRAppDistributionAppDelegateInterceptor* appDelegateInterceptor;
+
 @end
 
 NSString *const FIRAppDistributionErrorDomain = @"com.firebase.appdistribution";
@@ -39,15 +42,10 @@ NSString *const FIRAppDistributionErrorDetailsKey = @"details";
 
 @implementation FIRAppDistribution
 
-// The OAuth scope needed to authorize the App Distribution Tester API
-NSString *const kOIDScopeTesterAPI = @"https://www.googleapis.com/auth/cloud-platform";
-
 // The App Distribution Tester API endpoint used to retrieve releases
 NSString *const kReleasesEndpointURL = @"https://firebaseapptesters.googleapis.com/v1alpha/devices/"
                                        @"-/testerApps/%@/installations/%@/releases";
-NSString *const kTesterAPIClientID =
-    @"319754533822-osu3v3hcci24umq6diathdm0dipds1fb.apps.googleusercontent.com";
-NSString *const kIssuerURL = @"https://accounts.google.com";
+
 NSString *const kAppDistroLibraryName = @"fire-fad";
 
 NSString *const kReleasesKey = @"releases";
@@ -73,10 +71,8 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
 
   if (self) {
     [GULAppDelegateSwizzler proxyOriginalDelegate];
-
-    FIRAppDistributionAppDelegatorInterceptor *interceptor =
-        [FIRAppDistributionAppDelegatorInterceptor sharedInstance];
-    [GULAppDelegateSwizzler registerAppDelegateInterceptor:interceptor];
+    self.appDelegateInterceptor = [FIRAppDistributionAppDelegateInterceptor sharedInstance];
+    [GULAppDelegateSwizzler registerAppDelegateInterceptor:self.appDelegateInterceptor];
   }
 
   return self;
@@ -137,7 +133,7 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
 
   // TODO: Check if tester is already signed in
 
-  [self setupUIWindowForLogin];
+  [self.appDelegateInterceptor initializeUIState];
   FIRInstallations *installations = [FIRInstallations installations];
 
   // Get a Firebase Installation ID (FID).
@@ -154,64 +150,12 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
                          [[FIRApp defaultApp] options].googleAppID, identifier, [self getAppName]];
 
     NSLog(@"Registration URL: %@", requestURL);
-
-    SFSafariViewController *safariVC = [[SFSafariViewController alloc] initWithURL:[NSURL URLWithString:requestURL]];
-
-    safariVC.delegate = self;
-    _safariVC = safariVC;
-    [self->_safariHostingViewController presentViewController:safariVC
-                                                     animated:YES
-                                                   completion:nil];
+      
+      [self.appDelegateInterceptor appDistributionRegistrationFlow:[[NSURL alloc] initWithString:requestURL] withCompletion:^(NSError * _Nullable error) {
+          NSLog(@"Sign in flow is in completion!!");
+          completion(error);
+      }];
     
-//    if (@available(iOS 12.0, *)) {
-//      ASWebAuthenticationSession *authenticationVC = [[ASWebAuthenticationSession alloc]
-//                initWithURL:[[NSURL alloc] initWithString:requestURL]
-//          callbackURLScheme:@"com.firebase.appdistribution"
-//          completionHandler:^(NSURL *_Nullable callbackURL, NSError *_Nullable error) {
-//            [self cleanupUIWindow];
-//            NSLog(@"Testing: Sign in Complete!");
-//            if (callbackURL) {
-//              self.isTesterSignedIn = true;
-//              completion(nil);
-//            } else {
-//              self.isTesterSignedIn = false;
-//              completion(error);
-//            }
-//          }];
-//
-//      if (@available(iOS 13.0, *)) {
-//        authenticationVC.presentationContextProvider = self;
-//      }
-//
-//      _webAuthenticationVC = authenticationVC;
-//
-//      [authenticationVC start];
-//    } else if (@available(iOS 11.0, *)) {
-//      _safariAuthenticationVC = [[SFAuthenticationSession alloc]
-//                initWithURL:[[NSURL alloc] initWithString:requestURL]
-//          callbackURLScheme:@"com.firebase.appdistribution"
-//          completionHandler:^(NSURL *_Nullable callbackURL, NSError *_Nullable error) {
-//            [self cleanupUIWindow];
-//            NSLog(@"Testing: Sign in Complete!");
-//            if (callbackURL) {
-//              self.isTesterSignedIn = true;
-//              completion(nil);
-//            } else {
-//              self.isTesterSignedIn = false;
-//              completion(error);
-//            }
-//          }];
-//
-//      [_safariAuthenticationVC start];
-//    } else {
-//      SFSafariViewController *safariVC = [[SFSafariViewController alloc] initWithURL:[NSURL URLWithString:requestURL]]];
-//
-//      safariVC.delegate = self;
-//      _safariVC = safariVC;
-//      [self->_safariHostingViewController presentViewController:safariVC
-//                                                       animated:YES
-//                                                     completion:nil];
-//    }
   }];
 }
 
@@ -337,37 +281,6 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
   }];
 }
 
-- (ASPresentationAnchor)presentationAnchorForWebAuthenticationSession:
-    (ASWebAuthenticationSession *)session API_AVAILABLE(ios(13.0)) {
-  return self.safariHostingViewController.view.window;
-}
-
-- (void)setupUIWindowForLogin {
-  if (self.window) {
-    return;
-  }
-  // Create an empty window + viewController to host the Safari UI.
-  self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
-  self.window.rootViewController = self.safariHostingViewController;
-
-  // Place it at the highest level within the stack.
-  self.window.windowLevel = +CGFLOAT_MAX;
-
-  // Run it.
-  [self.window makeKeyAndVisible];
-}
-
-- (void)cleanupUIWindow {
-  if (self.window) {
-    self.window.hidden = YES;
-    self.window = nil;
-  }
-
-  _safariAuthenticationVC = nil;
-  _safariVC = nil;
-  _webAuthenticationVC = nil;
-}
-
 //- (void)logUnderlyingKeychainError:(NSError *)error {
 //  NSError *underlyingError = [error.userInfo objectForKey:NSUnderlyingErrorKey];
 //  if (underlyingError) {
@@ -458,7 +371,7 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
                                                        style:UIAlertActionStyleDefault
                                                      handler:^(UIAlertAction *action) {
                                                        // precaution to ensure window gets destroyed
-                                                       [self cleanupUIWindow];
+                                                       [self.appDelegateInterceptor resetUIState];
                                                        completion(nil, nil);
                                                      }];
 
@@ -466,12 +379,7 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
     [alert addAction:yesButton];
 
     // Create an empty window + viewController to host the Safari UI.
-    [self setupUIWindowForLogin];
-    [self.window.rootViewController presentViewController:alert animated:YES completion:nil];
+    [self.appDelegateInterceptor showUIAlert:alert];
   }
-}
-
-- (void)safariViewControllerDidFinish:(SFSafariViewController *)controller NS_AVAILABLE_IOS(9.0) {
-  [self cleanupUIWindow];
 }
 @end

@@ -22,7 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// An instance of this class is meant to be registered as an AppDelegate interceptor, and
 /// implements the logic that my SDK needs to perform when certain app delegate methods are invoked.
-@interface FIRAppDistributionAppDelegatorInterceptor : NSObject <UIApplicationDelegate, ASWebAuthenticationPresentationContextProviding,SFSafariViewControllerDelegate>
+@interface FIRAppDistributionAppDelegateInterceptor : NSObject <UIApplicationDelegate, ASWebAuthenticationPresentationContextProviding,SFSafariViewControllerDelegate>
 
 /// Returns the FIRAppDistributionAppDelegatorInterceptor singleton.
 /// Always register just this singleton as the app delegate interceptor. This instance is
@@ -37,6 +37,18 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nullable, nonatomic) UIWindow *window;
 
 
+typedef void (^AppDistributionRegistrationFlowCompletion)(NSError *_Nullable error);
+
+/** *
+ */
+- (void)appDistributionRegistrationFlow:(NSURL *)URL
+                         withCompletion:(AppDistributionRegistrationFlowCompletion)completion;
+
+-(void)showUIAlert:(UIAlertController *)alertController;
+
+- (void)initializeUIState;
+
+-(void)resetUIState;
 @end
 
 NS_ASSUME_NONNULL_END
