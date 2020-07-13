@@ -8,7 +8,7 @@ documentations, support information, and terms of service.
 
 ## Managing the Pasteboard
 
-This release of the FDL SDK use a plist property (FirebaseDeepLinkPasteboardRetrievalEnabled) that a developer can set to enable/disable the use of iOS pasteboard by the SDK.
+Firebase Dynamic Links 4.2.0 and higher use a plist property (FirebaseDeepLinkPasteboardRetrievalEnabled) that a developer can set to enable/disable the use of iOS pasteboard by the SDK.
 
 FDL SDK uses the pasteboard for deep-linking post app install (to enable deferred deep-linking, where the link is copied on the [app preview page](https://firebase.google.com/docs/dynamic-links/link-previews#app_preview_pages)) and app install attribution; otherwise, FDL does not use the pasteboard for anything else.
 
