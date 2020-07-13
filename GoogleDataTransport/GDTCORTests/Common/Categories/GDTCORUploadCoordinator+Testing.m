@@ -31,12 +31,17 @@
 
 - (void)setTimerInterval:(uint64_t)timerInterval {
   [self setValue:@(timerInterval) forKey:@"_timerInterval"];
-  dispatch_source_set_timer(self.timer, DISPATCH_TIME_NOW, timerInterval, self.timerLeeway);
+  if (self.timer) {
+    dispatch_source_set_timer(self.timer, DISPATCH_TIME_NOW, timerInterval, self.timerLeeway);
+  }
+
 }
 
 - (void)setTimerLeeway:(uint64_t)timerLeeway {
   [self setValue:@(timerLeeway) forKey:@"_timerLeeway"];
-  dispatch_source_set_timer(self.timer, DISPATCH_TIME_NOW, self.timerInterval, timerLeeway);
+  if (self.timer) {
+    dispatch_source_set_timer(self.timer, DISPATCH_TIME_NOW, self.timerInterval, timerLeeway);
+  }
 }
 
 @end
