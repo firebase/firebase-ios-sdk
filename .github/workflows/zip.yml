@@ -37,8 +37,7 @@ jobs:
     - name: ZipBuildingTest
       run: |
          mkdir -p zip_output_dir
-         touch zip_output_dir/test.txt
-         # sh -x scripts/build_zip.sh zip_output_dir
+         sh -x scripts/build_zip.sh zip_output_dir
     - uses: actions/upload-artifact@v1
       with:
         name: Firebase-actions-dir
@@ -83,23 +82,23 @@ jobs:
       run: | 
         mkdir -p "${OUTPUT_DIR}"
         mv "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}" "${OUTPUT_DIR}"
-      #    - name: Setup Swift Quickstart
-      #      run: SAMPLE="$SDK" TARGET="${SDK}Example" scripts/setup_quickstart_framework.sh \
-      #                                               "${HOME}"/ios_frameworks/Firebase/FirebaseRemoteConfig/* \
-      #                                               "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
-      #    - name: Install Secret GoogleService-Info.plist
-      #      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-config.plist.gpg \
-      #        quickstart-ios/config/GoogleService-Info.plist "$plist_secret"
-      #    - name: Install Secret FIREGSignInInfo.h
-      #      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/FIREGSignInInfo.h.gpg \
-      #        quickstart-ios/TestUtils/FIREGSignInInfo.h "$signin_secret"
-      #    - name: Test Swift Quickstart
-      #      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}")
-      #    - name: Remove data before upload
-      #      if: ${{ failure() }}
-      #      run: scripts/remove_data.sh config
-      #    - uses: actions/upload-artifact@v2
-      #      if: ${{ failure() }}
-      #      with:
-      #        name: quickstart_artifacts
-      #        path: quickstart-ios/
+    - name: Setup Swift Quickstart
+      run: SAMPLE="$SDK" TARGET="${SDK}Example" scripts/setup_quickstart_framework.sh \
+                                               "${HOME}"/ios_frameworks/Firebase/FirebaseRemoteConfig/* \
+                                               "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
+    - name: Install Secret GoogleService-Info.plist
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-config.plist.gpg \
+        quickstart-ios/config/GoogleService-Info.plist "$plist_secret"
+    - name: Install Secret FIREGSignInInfo.h
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/FIREGSignInInfo.h.gpg \
+        quickstart-ios/TestUtils/FIREGSignInInfo.h "$signin_secret"
+    - name: Test Swift Quickstart
+      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}")
+    - name: Remove data before upload
+      if: ${{ failure() }}
+      run: scripts/remove_data.sh config
+    - uses: actions/upload-artifact@v2
+      if: ${{ failure() }}
+      with:
+        name: quickstart_artifacts
+        path: quickstart-ios/
