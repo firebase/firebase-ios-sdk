@@ -37,6 +37,7 @@ jobs:
     - name: ZipBuildingTest
       run: |
          mkdir -p zip_output_dir
+         touch zip_output_dir/test.txt
          # sh -x scripts/build_zip.sh zip_output_dir
     - uses: actions/upload-artifact@v1
       with:
