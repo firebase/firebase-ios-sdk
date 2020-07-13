@@ -72,7 +72,7 @@
         dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, self->_coordinationQueue);
     dispatch_source_set_timer(self->_timer, DISPATCH_TIME_NOW, self->_timerInterval,
                               self->_timerLeeway);
-    
+
     dispatch_source_set_event_handler(self->_timer, ^{
       if (![[GDTCORApplication sharedApplication] isRunningInBackground]) {
         GDTCORUploadConditions conditions = [self uploadConditions];
