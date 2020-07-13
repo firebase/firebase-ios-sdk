@@ -1,6 +1,3 @@
-# v7.0.1
-- `GDTCORFlatFileStorage`: keep not expired events when expired batch removed. (#6010)
-
 # v7.0.0
 - Storage has been completely reimplemented to a flat-file system. It
 is not backwards compatible with previously saved events.
