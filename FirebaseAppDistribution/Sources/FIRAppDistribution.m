@@ -12,9 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import <AuthenticationServices/AuthenticationServices.h>
-#import <SafariServices/SafariServices.h>
-
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIRComponent.h>
 #import <FirebaseCore/FIRComponentContainer.h>
@@ -23,7 +20,6 @@
 #import <GoogleUtilities/GULAppDelegateSwizzler.h>
 
 #import "FIRAppDistribution+Private.h"
-#import "FIRAppDistributionAuthPersistence+Private.h"
 #import "FIRAppDistributionMachO+Private.h"
 #import "FIRAppDistributionRelease+Private.h"
 #import "FIRFADLogger.h"
@@ -34,9 +30,7 @@
 @end
 
 @interface FIRAppDistribution () <FIRLibrary,
-                                  FIRAppDistributionInstanceProvider,
-                                  ASWebAuthenticationPresentationContextProviding,
-                                  SFSafariViewControllerDelegate>
+                                  FIRAppDistributionInstanceProvider>
 @property(nonatomic) BOOL isTesterSignedIn;
 @end
 
@@ -65,15 +59,6 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
 
 @synthesize isTesterSignedIn = _isTesterSignedIn;
 
-API_AVAILABLE(ios(9.0))
-SFSafariViewController *_safariVC;
-
-API_AVAILABLE(ios(12.0))
-ASWebAuthenticationSession *_webAuthenticationVC;
-
-API_AVAILABLE(ios(11.0))
-SFAuthenticationSession *_safariAuthenticationVC;
-
 - (BOOL)isTesterSignedIn {
   //  FIRFADInfoLog(@"Checking if tester is signed in");
   //  return [self tryInitializeAuthState];
@@ -87,17 +72,12 @@ SFAuthenticationSession *_safariAuthenticationVC;
   self = [super init];
 
   if (self) {
-    self.safariHostingViewController = [[UIViewController alloc] init];
-
     [GULAppDelegateSwizzler proxyOriginalDelegate];
 
     FIRAppDistributionAppDelegatorInterceptor *interceptor =
         [FIRAppDistributionAppDelegatorInterceptor sharedInstance];
     [GULAppDelegateSwizzler registerAppDelegateInterceptor:interceptor];
   }
-
-  //  self.authPersistence = [[FIRAppDistributionAuthPersistence alloc]
-  //      initWithAppId:[[FIRApp defaultApp] options].googleAppID];
 
   return self;
 }
@@ -175,53 +155,63 @@ SFAuthenticationSession *_safariAuthenticationVC;
 
     NSLog(@"Registration URL: %@", requestURL);
 
-    if (@available(iOS 12.0, *)) {
-      ASWebAuthenticationSession *authenticationVC = [[ASWebAuthenticationSession alloc]
-                initWithURL:[[NSURL alloc] initWithString:requestURL]
-          callbackURLScheme:@"com.firebase.appdistribution"
-          completionHandler:^(NSURL *_Nullable callbackURL, NSError *_Nullable error) {
-            [self cleanupUIWindow];
-            NSLog(@"Testing: Sign in Complete!");
-            if (callbackURL) {
-              self.isTesterSignedIn = true;
-              completion(nil);
-            } else {
-              self.isTesterSignedIn = false;
-              completion(error);
-            }
-          }];
+    SFSafariViewController *safariVC = [[SFSafariViewController alloc] initWithURL:[NSURL URLWithString:requestURL]];
 
-      if (@available(iOS 13.0, *)) {
-        authenticationVC.presentationContextProvider = self;
-      }
-
-      _webAuthenticationVC = authenticationVC;
-
-      [authenticationVC start];
-    } else if (@available(iOS 11.0, *)) {
-      _safariAuthenticationVC = [[SFAuthenticationSession alloc]
-                initWithURL:[[NSURL alloc] initWithString:requestURL]
-          callbackURLScheme:@"com.firebase.appdistribution"
-          completionHandler:^(NSURL *_Nullable callbackURL, NSError *_Nullable error) {
-            [self cleanupUIWindow];
-            NSLog(@"Testing: Sign in Complete!");
-            if (callbackURL) {
-              self.isTesterSignedIn = true;
-              completion(nil);
-            } else {
-              self.isTesterSignedIn = false;
-              completion(error);
-            }
-          }];
-    } else {
-      SFSafariViewController *safariVC = [[SFSafariViewController alloc] initWithURL:requestURL];
-
-      safariVC.delegate = self;
-      _safariVC = safariVC;
-      [self->_safariHostingViewController presentViewController:safariVC
-                                                       animated:YES
-                                                     completion:nil];
-    }
+    safariVC.delegate = self;
+    _safariVC = safariVC;
+    [self->_safariHostingViewController presentViewController:safariVC
+                                                     animated:YES
+                                                   completion:nil];
+    
+//    if (@available(iOS 12.0, *)) {
+//      ASWebAuthenticationSession *authenticationVC = [[ASWebAuthenticationSession alloc]
+//                initWithURL:[[NSURL alloc] initWithString:requestURL]
+//          callbackURLScheme:@"com.firebase.appdistribution"
+//          completionHandler:^(NSURL *_Nullable callbackURL, NSError *_Nullable error) {
+//            [self cleanupUIWindow];
+//            NSLog(@"Testing: Sign in Complete!");
+//            if (callbackURL) {
+//              self.isTesterSignedIn = true;
+//              completion(nil);
+//            } else {
+//              self.isTesterSignedIn = false;
+//              completion(error);
+//            }
+//          }];
+//
+//      if (@available(iOS 13.0, *)) {
+//        authenticationVC.presentationContextProvider = self;
+//      }
+//
+//      _webAuthenticationVC = authenticationVC;
+//
+//      [authenticationVC start];
+//    } else if (@available(iOS 11.0, *)) {
+//      _safariAuthenticationVC = [[SFAuthenticationSession alloc]
+//                initWithURL:[[NSURL alloc] initWithString:requestURL]
+//          callbackURLScheme:@"com.firebase.appdistribution"
+//          completionHandler:^(NSURL *_Nullable callbackURL, NSError *_Nullable error) {
+//            [self cleanupUIWindow];
+//            NSLog(@"Testing: Sign in Complete!");
+//            if (callbackURL) {
+//              self.isTesterSignedIn = true;
+//              completion(nil);
+//            } else {
+//              self.isTesterSignedIn = false;
+//              completion(error);
+//            }
+//          }];
+//
+//      [_safariAuthenticationVC start];
+//    } else {
+//      SFSafariViewController *safariVC = [[SFSafariViewController alloc] initWithURL:[NSURL URLWithString:requestURL]]];
+//
+//      safariVC.delegate = self;
+//      _safariVC = safariVC;
+//      [self->_safariHostingViewController presentViewController:safariVC
+//                                                       animated:YES
+//                                                     completion:nil];
+//    }
   }];
 }
 
@@ -230,11 +220,12 @@ SFAuthenticationSession *_safariAuthenticationVC;
 
   NSString *name = [mainBundle objectForInfoDictionaryKey:@"CFBundleName"];
 
-  if (name) return name;
+  if (name)
+    return [name stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
 
   name = [mainBundle objectForInfoDictionaryKey:@"CFBundleDisplayName"];
 
-  return name;
+  return [name stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
 }
 
 - (void)signOutTester {
@@ -249,7 +240,6 @@ SFAuthenticationSession *_safariAuthenticationVC;
   //    FIRFADInfoLog(@"Successfully cleared auth state from keychain");
   //  }
 
-  self.authState = nil;
   self.isTesterSignedIn = false;
 }
 
