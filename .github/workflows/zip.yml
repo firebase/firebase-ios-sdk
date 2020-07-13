@@ -79,7 +79,7 @@ jobs:
       with:
         name: Firebase-actions-dir
     - name: Move frameworks
-      run: | 
+      run: |
         mkdir -p "${OUTPUT_DIR}"
         mv "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}" "${OUTPUT_DIR}"
     - name: Setup Swift Quickstart
