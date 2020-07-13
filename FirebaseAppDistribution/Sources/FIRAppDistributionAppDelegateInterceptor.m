@@ -50,66 +50,45 @@ SFAuthenticationSession *_safariAuthenticationVC;
 - (void)appDistributionRegistrationFlow:(NSURL *)URL
                          withCompletion:(void (^)(NSError *_Nullable error))completion {
      NSLog(@"Registration URL: %@", URL);
-
-        SFSafariViewController *safariVC = [[SFSafariViewController alloc] initWithURL:URL];
-
-        safariVC.delegate = self;
-        _safariVC = safariVC;
-        [self->_safariHostingViewController presentViewController:safariVC
-                                                         animated:YES
-                                                       completion:nil];
         
-//        if (@available(iOS 12.0, *)) {
-//          ASWebAuthenticationSession *authenticationVC = [[ASWebAuthenticationSession alloc]
-//                    initWithURL:URL
-//              callbackURLScheme:@"com.firebase.appdistribution"
-//              completionHandler:^(NSURL *_Nullable callbackURL, NSError *_Nullable error) {
-//                [self resetUIState];
-//                NSLog(@"Testing: Sign in Complete!");
-//                completion(error);
-////                if (callbackURL) {
-////                  self.isTesterSignedIn = true;
-////                  completion(nil);
-////                } else {
-////                  self.isTesterSignedIn = false;
-////                  completion(error);
-////                }
-//              }];
-//
-//          if (@available(iOS 13.0, *)) {
-//            authenticationVC.presentationContextProvider = self;
-//          }
-//
-//          _webAuthenticationVC = authenticationVC;
-//
-//          [authenticationVC start];
-//        } else if (@available(iOS 11.0, *)) {
-//          _safariAuthenticationVC = [[SFAuthenticationSession alloc]
-//                    initWithURL:URL
-//              callbackURLScheme:@"com.firebase.appdistribution"
-//              completionHandler:^(NSURL *_Nullable callbackURL, NSError *_Nullable error) {
-//                [self resetUIState];
-//                NSLog(@"Testing: Sign in Complete!");
-//                completion(error);
-////                if (callbackURL) {
-////                  self.isTesterSignedIn = true;
-////                  completion(nil);
-////                } else {
-////                  self.isTesterSignedIn = false;
-////                  completion(error);
-////                }
-//              }];
-//
-//          [_safariAuthenticationVC start];
-//        } else {
-//          SFSafariViewController *safariVC = [[SFSafariViewController alloc] initWithURL:URL];
-//
-//          safariVC.delegate = self;
-//          _safariVC = safariVC;
-//          [self->_safariHostingViewController presentViewController:safariVC
-//                                                           animated:YES
-//                                                         completion:nil];
-//        }
+        if (@available(iOS 12.0, *)) {
+          ASWebAuthenticationSession *authenticationVC = [[ASWebAuthenticationSession alloc]
+                    initWithURL:URL
+              callbackURLScheme:@"com.firebase.appdistribution"
+              completionHandler:^(NSURL *_Nullable callbackURL, NSError *_Nullable error) {
+                [self resetUIState];
+                NSLog(@"Testing: Sign in Complete!");
+                completion(error);
+              }];
+
+          if (@available(iOS 13.0, *)) {
+            authenticationVC.presentationContextProvider = self;
+          }
+
+          _webAuthenticationVC = authenticationVC;
+
+          [authenticationVC start];
+        } else if (@available(iOS 11.0, *)) {
+          _safariAuthenticationVC = [[SFAuthenticationSession alloc]
+                    initWithURL:URL
+              callbackURLScheme:@"com.firebase.appdistribution"
+              completionHandler:^(NSURL *_Nullable callbackURL, NSError *_Nullable error) {
+                [self resetUIState];
+                NSLog(@"Testing: Sign in Complete!");
+                completion(error);
+              }];
+
+          [_safariAuthenticationVC start];
+        } else {
+          SFSafariViewController *safariVC = [[SFSafariViewController alloc] initWithURL:URL];
+
+          safariVC.delegate = self;
+          _safariVC = safariVC;
+          [self->_safariHostingViewController presentViewController:safariVC
+                                                           animated:YES
+                                                         completion:nil];
+          self.registrationFlowCompletion = completion;
+        }
 }
 
 
@@ -122,7 +101,8 @@ SFAuthenticationSession *_safariAuthenticationVC;
 - (BOOL)application:(UIApplication *)application
             openURL:(NSURL *)URL
             options:(NSDictionary<NSString *, id> *)options {
-  
+  self.registrationFlowCompletion(nil);
+    [self resetUIState];
   return NO;
 }
 
@@ -147,6 +127,8 @@ SFAuthenticationSession *_safariAuthenticationVC;
     self.window.hidden = YES;
     self.window = nil;
   }
+    
+    self.registrationFlowCompletion = nil;
 
     if (@available(iOS 11.0, *)) {
         _safariAuthenticationVC = nil;

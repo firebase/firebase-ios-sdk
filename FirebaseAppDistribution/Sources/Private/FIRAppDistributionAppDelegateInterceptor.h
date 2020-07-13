@@ -29,6 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// retained. The App Delegate Swizzler only retains weak references and so this is needed.
 + (instancetype)sharedInstance;
 
+typedef void (^AppDistributionRegistrationFlowCompletion)(NSError *_Nullable error);
 /**
  * Current view controller presenting the `SFSafariViewController` if any.
  */
@@ -36,8 +37,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property(nullable, nonatomic) UIWindow *window;
 
+@property(nullable, nonatomic) AppDistributionRegistrationFlowCompletion registrationFlowCompletion;
 
-typedef void (^AppDistributionRegistrationFlowCompletion)(NSError *_Nullable error);
 
 /** *
  */
