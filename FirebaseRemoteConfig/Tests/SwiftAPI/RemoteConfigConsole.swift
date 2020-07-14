@@ -27,13 +27,13 @@ class RemoteConfigConsole {
   private lazy var accessToken: String = {
     guard let fileURL = Bundle(for: type(of: self))
       .url(forResource: "AccessToken", withExtension: "json") else {
-        fatalError("Could not find AccessToken.json in bundle.")
+      fatalError("Could not find AccessToken.json in bundle.")
     }
     guard let data = try? Data(contentsOf: fileURL),
       let json = try? JSONSerialization.jsonObject(with: data, options: .allowFragments),
       let jsonDict = json as? [String: Any],
       let accessToken = jsonDict["access_token"] as? String else {
-        fatalError("Could not retrieve access token.")
+      fatalError("Could not retrieve access token.")
     }
     return accessToken
   }()
@@ -60,7 +60,10 @@ class RemoteConfigConsole {
   /// This initializer will attempt to read from a `GoogleService-Info.plist` to set `projectID`.
   convenience init() {
     let currentBundle = Bundle(for: type(of: self))
-    let projectID = currentBundle.plistValue(forKey: "PROJECT_ID", fromPlist: "GoogleService-Info.plist")
+    let projectID = currentBundle.plistValue(
+      forKey: "PROJECT_ID",
+      fromPlist: "GoogleService-Info.plist"
+    )
     self.init(projectID: projectID! as! String)
   }
 
@@ -168,7 +171,7 @@ class RemoteConfigConsole {
     let task = URLSession.shared.dataTask(with: request) { data, response, error in
       // Signal the semaphore when this scope is escaped.
       defer { semaphore.signal() }
-      
+
       guard let data = data else {
         print(String(describing: error))
         return
@@ -186,7 +189,6 @@ class RemoteConfigConsole {
           completion(json)
         }
       }
-
     }
 
     task.resume()

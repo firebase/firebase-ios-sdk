@@ -19,13 +19,13 @@ import XCTest
 
 /// String constants used for testing.
 private enum Constants {
-    static let key1 = "Key1"
-    static let jedi = "Jedi"
-    static let sith = "Sith_Lord"
-    static let value1 = "Value1"
-    static let obiwan = "Obi-Wan"
-    static let yoda = "Yoda"
-    static let darthSidious = "Darth Sidious"
+  static let key1 = "Key1"
+  static let jedi = "Jedi"
+  static let sith = "Sith_Lord"
+  static let value1 = "Value1"
+  static let obiwan = "Obi-Wan"
+  static let yoda = "Yoda"
+  static let darthSidious = "Darth Sidious"
 }
 
 class APITests: APITestBase {
@@ -34,10 +34,10 @@ class APITests: APITestBase {
   override func setUp() {
     super.setUp()
     if APITests.useFakeConfig {
-        fakeConsole.config = [Constants.key1: Constants.value1]
+      fakeConsole.config = [Constants.key1: Constants.value1]
     } else {
       console = RemoteConfigConsole()
-        console.updateRemoteConfigValue(Constants.obiwan, forKey: Constants.jedi)
+      console.updateRemoteConfigValue(Constants.obiwan, forKey: Constants.jedi)
     }
   }
 
@@ -46,8 +46,8 @@ class APITests: APITestBase {
 
     // If using RemoteConfigConsole, reset remote config values.
     if !APITests.useFakeConfig {
-        console.removeRemoteConfigValue(for: Constants.sith)
-        console.removeRemoteConfigValue(for: Constants.jedi)
+      console.removeRemoteConfigValue(for: Constants.sith)
+      console.removeRemoteConfigValue(for: Constants.jedi)
     }
   }
 
@@ -198,7 +198,7 @@ class APITests: APITestBase {
         } else {
           XCTFail("Could not unwrap lastFetchTime.")
         }
-        
+
         expectation.fulfill()
       }
     }
@@ -248,11 +248,11 @@ class APITests: APITestBase {
 
     // Ensure no Sith Lord has been written to Remote Config yet.
     let expectation = self.expectation(description: #function)
-    
+
     config.fetchAndActivate { status, error in
       XCTAssertNil(error, "Fetch & Activate Error \(error!)")
 
-        XCTAssertTrue(self.config.configValue(forKey: Constants.sith).dataValue.isEmpty)
+      XCTAssertTrue(self.config.configValue(forKey: Constants.sith).dataValue.isEmpty)
 
       expectation.fulfill()
     }
@@ -263,7 +263,7 @@ class APITests: APITestBase {
 
     // Verify the Sith Lord can now be fetched from Remote Config.
     let expectation2 = self.expectation(description: #function + "2")
-    
+
     config.fetchAndActivate { status, error in
       XCTAssertNil(error, "Fetch & Activate Error \(error!)")
 
