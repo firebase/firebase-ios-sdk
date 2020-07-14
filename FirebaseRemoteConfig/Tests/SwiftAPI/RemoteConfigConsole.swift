@@ -156,7 +156,7 @@ class RemoteConfigConsole {
 
   /// Performs a given `ConfigRequest` synchronously.
   private func perform(configRequest: ConfigRequest,
-                       _ completion: (([String: Any]) -> Void)? = nil) {
+                       _ completion: (([String: Any]?) -> Void)? = nil) {
     let request = configRequest.secureRequest(url: consoleURL, with: accessToken, requestTimeout)
 
     let semaphore = DispatchSemaphore(value: 0)
@@ -171,17 +171,15 @@ class RemoteConfigConsole {
       }
 
       let json = try? JSONSerialization.jsonObject(with: data, options: .fragmentsAllowed)
-      if let json = json as? [String: Any] {
-        if let response = response as? HTTPURLResponse {
-          if response.statusCode >= 400 {
-            print(String(describing: json["error"]!))
-          }
-        }
 
-        if let completion = completion {
-          completion(json)
+      if let response = response as? HTTPURLResponse,
+        let json = json as? [String: Any] {
+        if response.statusCode >= 400 {
+          print("RemoteConfigConsole Error: \(String(describing: json["error"]!))")
         }
       }
+
+      completion?(json as? [String: Any])
     }
 
     task.resume()
