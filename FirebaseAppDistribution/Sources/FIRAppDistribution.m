@@ -24,6 +24,7 @@
 #import "FIRFADApiService+Private.h"
 #import "FIRFADLogger+Private.h"
 
+
 /// Empty protocol to register with FirebaseCore's component system.
 @protocol FIRAppDistributionInstanceProvider <NSObject>
 @end

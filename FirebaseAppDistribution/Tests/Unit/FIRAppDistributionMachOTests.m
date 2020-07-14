@@ -18,6 +18,7 @@
 #import "FIRAppDistributionMachO+Private.h"
 #import "FirebaseAppDistribution/FIRAppDistributionMachO+Private.h"
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseAppDistribution/FIRAppDistributionMachO+Private.h"
 
 @interface FIRAppDistributionMachOTests : XCTestCase
 @end
