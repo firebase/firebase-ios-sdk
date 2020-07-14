@@ -129,8 +129,8 @@ other Google CocoaPods. They're not intended for direct public usage.
   s.test_spec 'unit' do |unit_tests|
     # All tests require arc except Tests/Network/third_party/GTMHTTPServer.m
     unit_tests.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
-    unit_tests.source_files = 'GoogleUtilities/Example/Tests/**/*.[mh]'
-    unit_tests.requires_arc = 'GoogleUtilities/Example/Tests/*/*.[mh]'
+    unit_tests.source_files = 'GoogleUtilities/Tests/Unit/**/*.[mh]'
+    unit_tests.requires_arc = 'GoogleUtilities/Tests/Unit/*/*.[mh]'
     unit_tests.requires_app_host = true
     unit_tests.dependency 'OCMock'
   end

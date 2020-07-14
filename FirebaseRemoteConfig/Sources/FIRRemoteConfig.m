@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import <FirebaseRemoteConfig/FIRRemoteConfig.h>
+#import "FirebaseRemoteConfig/Sources/Public/FIRRemoteConfig.h"
 
-#import <FirebaseABTesting/FIRExperimentController.h>
+#import "FirebaseABTesting/Sources/Public/FIRExperimentController.h"
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "FirebaseRemoteConfig/Sources/FIRRemoteConfigComponent.h"
 #import "FirebaseRemoteConfig/Sources/Private/FIRRemoteConfig_Private.h"

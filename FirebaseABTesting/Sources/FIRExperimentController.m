@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import <FirebaseABTesting/FIRExperimentController.h>
+#import "FirebaseABTesting/Sources/Public/FIRExperimentController.h"
 
-#import <FirebaseABTesting/FIRLifecycleEvents.h>
 #import "FirebaseABTesting/Sources/ABTConditionalUserPropertyController.h"
 #import "FirebaseABTesting/Sources/ABTConstants.h"
 #import "FirebaseABTesting/Sources/Private/ABTExperimentPayload.h"
+#import "FirebaseABTesting/Sources/Public/FIRLifecycleEvents.h"
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 #import "Interop/Analytics/Public/FIRAnalyticsInterop.h"

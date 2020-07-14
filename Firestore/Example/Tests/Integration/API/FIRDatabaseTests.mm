@@ -1493,6 +1493,15 @@ using firebase::firestore::util::TimerId;
   // `ListenerRegistration::Remove()` and expect to be able to immediately delete that state. The
   // trouble is that there may be a callback in progress against that listener so the implementation
   // now blocks the remove call until the callback is complete.
+  //
+  // To make this work, user callbacks can't be on the main thread because the main thread is
+  // blocked waiting for the test to complete (that is, you can't await expectations on the main
+  // thread and then have the user callback additionally await expectations).
+  dispatch_queue_t userQueue = dispatch_queue_create("firestore.test.user", DISPATCH_QUEUE_SERIAL);
+  FIRFirestoreSettings *settings = self.db.settings;
+  settings.dispatchQueue = userQueue;
+  self.db.settings = settings;
+
   XCTestExpectation *running = [self expectationWithDescription:@"listener running"];
   XCTestExpectation *allowCompletion =
       [self expectationWithDescription:@"allow listener to complete"];

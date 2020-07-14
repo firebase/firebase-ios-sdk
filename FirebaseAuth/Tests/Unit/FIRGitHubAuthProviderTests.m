@@ -15,6 +15,7 @@
  */
 
 #import <XCTest/XCTest.h>
+
 #import "FirebaseAuth/Sources/Public/FIRGitHubAuthProvider.h"
 
 #import "FirebaseAuth/Sources/AuthProvider/FIRAuthCredential_Internal.h"

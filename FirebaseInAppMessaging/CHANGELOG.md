@@ -1,4 +1,7 @@
-# 2020-07-06 -- v0.22.0
+# 2020-07 -- v0.22.1
+- [fixed] Fixed an inaccurate doc comment in `InAppMessagingDisplay` (#5972).
+
+# 2020-07 -- v0.22.0
 - [changed] Functionally neutral updated import references for dependencies. (#5902)
 - [changed] Updated In-App Messaging to consume the Protobuf-less AB Testing SDK (#5890).
 
