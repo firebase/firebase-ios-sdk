@@ -44,8 +44,8 @@ to generate the access token. There are a few example use cases provided. We use
 example.
 
 For the access token to be generated, the `GOOGLE_APPLICATION_CREDENTIALS` env var should be set to point to where the
-Firebase project's service account key is stored. This is set in the 
-[`generate_access_token.sh`](https://github.com/firebase/firebase-ios-sdk/blob/master/scripts/generate_access_token.sh) 
+Firebase project's service account key is stored. This is set in the
+[`generate_access_token.sh`](https://github.com/firebase/firebase-ios-sdk/blob/master/scripts/generate_access_token.sh)
 script.
 
 ### Remote Config API Tests
