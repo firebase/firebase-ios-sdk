@@ -37,7 +37,9 @@ jobs:
     - name: ZipBuildingTest
       run: |
          mkdir -p zip_output_dir
-         sh -x scripts/build_zip.sh zip_output_dir
+         mkdir -p "${HOME}"/ios_frameworks/Firebase/
+         touch "${HOME}"/ios_frameworks/Firebase/Firebase.h
+         # sh -x scripts/build_zip.sh zip_output_dir
     - uses: actions/upload-artifact@v1
       with:
         name: Firebase-actions-dir
@@ -82,7 +84,11 @@ jobs:
       run: |
         mkdir -p "${OUTPUT_DIR}"
         mv "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}" "${OUTPUT_DIR}"
-        find "${OUTPUT_DIR}" -name "*.zip" -maxdepth 3 -exec unzip -d "${OUTPUT_DIR}" {} +
+        mkdir -p Firebase/
+        ls "${HOME}"/ios_frameworks/
+        ls "${HOME}"/ios_frameworks/Firebase/
+        mv "${HOME}"/ios_frameworks/Firebase/Firebase.h Firebase/
+        # find "${OUTPUT_DIR}" -name "*.zip" -maxdepth 3 -exec unzip -d "${OUTPUT_DIR}" {} +
     - name: Setup Swift Quickstart
       run: SAMPLE="$SDK" TARGET="${SDK}Example" scripts/setup_quickstart_framework.sh \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseRemoteConfig/* \
