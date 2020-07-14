@@ -36,7 +36,7 @@ typedef NS_OPTIONS(NSUInteger, FIRMessagingInvalidTokenReason) {
 @property(nonatomic, readonly, strong) NSString *deviceAuthID;
 @property(nonatomic, readonly, strong) NSString *secretToken;
 @property(nonatomic, readonly, strong) NSString *versionInfo;
-@property(nonatomic, readonly, strong) NSString *token;
+@property(nonatomic, readonly, strong) NSString *defaultFCMToken;
 @property(nonatomic, readwrite, strong) NSString *fcmSenderID;
 @property(nonatomic, readwrite, strong) NSString *firebaseAppID;
 
@@ -163,5 +163,9 @@ typedef NS_OPTIONS(NSUInteger, FIRMessagingInvalidTokenReason) {
 - (void)setAPNSToken:(NSData *)APNSToken withUserInfo:(NSDictionary *)userInfo;
 
 - (BOOL)hasValidCheckinInfo;
+
+- (NSString *)tokenAndRequestIfNotExist;
+
+- (void)setDefaultFCMTokenWithoutUpdate:(NSString *)defaultFcmToken;
 
 @end

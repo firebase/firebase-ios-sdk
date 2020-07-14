@@ -41,7 +41,6 @@ FOUNDATION_EXPORT NSString *const kFIRMessagingPlistUseMessagingDelegate;
 
 #pragma mark - Private API
 
-- (NSString *)defaultFcmToken;
 - (FIRMessagingClient *)client;
 - (FIRMessagingPubSub *)pubsub;
 

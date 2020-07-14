@@ -179,7 +179,7 @@ NSString *FIRMessagingSubscriptionsServer() {
   NSMutableString *content = [NSMutableString
       stringWithFormat:@"sender=%@&app=%@&device=%@&"
                        @"app_ver=%@&X-gcm.topic=%@&X-scope=%@",
-                       _tokenManager.token, appIdentifier, _tokenManager.deviceAuthID,
+                       _tokenManager.defaultFCMToken, appIdentifier, _tokenManager.deviceAuthID,
                        FIRMessagingCurrentAppVersion(), encodedTopic, encodedTopic];
 
   if (self.action == FIRMessagingTopicActionUnsubscribe) {

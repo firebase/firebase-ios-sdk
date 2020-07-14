@@ -90,9 +90,6 @@ static NSString *const kFIRInstanceIDAPNSInfoSandboxKey = @"sandbox";
 }
 
 - (BOOL)isEqualToAPNSInfo:(FIRMessagingAPNSInfo *)otherInfo {
-  if ([super isEqual:otherInfo]) {
-    return YES;
-  }
   return ([self.deviceToken isEqualToData:otherInfo.deviceToken] &&
           self.isSandbox == otherInfo.isSandbox);
 }

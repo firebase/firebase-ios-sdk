@@ -38,6 +38,7 @@ static NSString *const kCheckinFileName = @"g-checkin";
 @interface FIRMessagingTokenManager () {
   FIRMessagingTokenStore *_tokenStore;
   FIRMessagingCheckinStore *_checkinStore;
+  NSString *_defaultFCMToken;
 }
 
 @property(nonatomic, readwrite, strong) FIRMessagingAuthService *authService;
@@ -56,7 +57,7 @@ static NSString *const kCheckinFileName = @"g-checkin";
     _tokenStore = [[FIRMessagingTokenStore alloc] init];
     _checkinStore = [[FIRMessagingCheckinStore alloc]
         initWithCheckinPlistFileName:kCheckinFileName
-                    subDirectoryName:kFIRInstanceIDSubDirectoryName];
+                    subDirectoryName:kFIRMessagingInstanceIDSubDirectoryName];
     _authService = [[FIRMessagingAuthService alloc] initWithCheckinStore:_checkinStore];
     [self resetCredentialsIfNeeded];
     [self configureTokenOperations];
@@ -73,9 +74,12 @@ static NSString *const kCheckinFileName = @"g-checkin";
   [super dealloc];
 }
 
-- (NSString *)token {
+- (NSString *)tokenAndRequestIfNotExist {
   if (!self.fcmSenderID.length) {
     return nil;
+  }
+  if (_defaultFCMToken.length) {
+    return _defaultFCMToken;
   }
 
   FIRMessagingTokenInfo *cachedTokenInfo =
@@ -94,6 +98,21 @@ static NSString *const kCheckinFileName = @"g-checkin";
                             }];
     return nil;
   }
+}
+
+- (NSString *)defaultFCMToken {
+  return _defaultFCMToken;
+}
+
+- (void)setDefaultFCMToken:(NSString *)defaultFcmToken {
+  // Should always trigger the token refresh notification when the delegate method is called
+  NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
+  [center postNotificationName:kFIRMessagingRegistrationTokenRefreshNotification
+                        object:defaultFcmToken];
+}
+
+- (void)setDefaultFCMTokenWithoutUpdate:(NSString *)defaultFcmToken {
+  _defaultFCMToken = defaultFcmToken;
 }
 
 - (NSDictionary *)tokenOptions {
@@ -250,6 +269,9 @@ static NSString *const kCheckinFileName = @"g-checkin";
           handler(nil, error);
           return;
         }
+        if ([self isDefaultTokenWithAuthorizedEntity:authorizedEntity scope:scope]) {
+          [self setDefaultFCMToken:token];
+        }
         NSString *firebaseAppID = options[kFIRMessagingTokenOptionsFirebaseAppIDKey];
         FIRMessagingTokenInfo *tokenInfo =
             [[FIRMessagingTokenInfo alloc] initWithAuthorizedEntity:authorizedEntity
@@ -297,7 +319,22 @@ static NSString *const kCheckinFileName = @"g-checkin";
 
 - (FIRMessagingTokenInfo *)cachedTokenInfoWithAuthorizedEntity:(NSString *)authorizedEntity
                                                          scope:(NSString *)scope {
-  return [_tokenStore tokenInfoWithAuthorizedEntity:authorizedEntity scope:scope];
+  FIRMessagingTokenInfo *tokenInfo = [_tokenStore tokenInfoWithAuthorizedEntity:authorizedEntity
+                                                                          scope:scope];
+  //  if ([self isDefaultTokenWithAuthorizedEntity:authorizedEntity scope:scope]) {
+  //    [self setDefaultFCMToken:tokenInfo.token];
+  //  }
+  return tokenInfo;
+}
+
+- (BOOL)isDefaultTokenWithAuthorizedEntity:(NSString *)authorizedEntity scope:(NSString *)scope {
+  if (_fcmSenderID.length != authorizedEntity.length) {
+    return NO;
+  }
+  if (![_fcmSenderID isEqualToString:authorizedEntity]) {
+    return NO;
+  }
+  return [scope isEqualToString:kFIRMessagingDefaultTokenScope];
 }
 
 - (void)deleteTokenWithAuthorizedEntity:(NSString *)authorizedEntity
@@ -320,6 +357,9 @@ static NSString *const kCheckinFileName = @"g-checkin";
   if (handler) {
     [operation addCompletionHandler:^(FIRMessagingTokenOperationResult result,
                                       NSString *_Nullable token, NSError *_Nullable error) {
+      if ([self isDefaultTokenWithAuthorizedEntity:authorizedEntity scope:scope]) {
+        [self setDefaultFCMToken:nil];
+      }
       dispatch_async(dispatch_get_main_queue(), ^{
         handler(error);
       });
@@ -348,6 +388,7 @@ static NSString *const kCheckinFileName = @"g-checkin";
   if (handler) {
     [operation addCompletionHandler:^(FIRMessagingTokenOperationResult result,
                                       NSString *_Nullable token, NSError *_Nullable error) {
+      [self setDefaultFCMToken:nil];
       dispatch_async(dispatch_get_main_queue(), ^{
         handler(error);
       });

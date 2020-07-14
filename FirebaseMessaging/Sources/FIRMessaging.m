@@ -139,7 +139,6 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 
 // FIRApp properties
 @property(nonatomic, readwrite, strong) NSData *apnsTokenData;
-@property(nonatomic, readwrite, strong) NSString *defaultFcmToken;
 
 @property(nonatomic, readwrite, strong) FIRMessagingClient *client;
 @property(nonatomic, readwrite, strong) GULReachabilityChecker *reachability;
@@ -287,7 +286,6 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
                                completion:^(NSString *_Nullable FCMToken, NSError *_Nullable error){
                                }];
       }
-      [self setDefaultFcmToken:cachedToken];
     }];
   } else if (self.isAutoInitEnabled) {
     // When there is no cached token, must check auto init is enabled.
@@ -349,8 +347,8 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   if (![[self class] hasSubDirectory:kFIRMessagingSubDirectoryName]) {
     [[self class] createSubDirectory:kFIRMessagingSubDirectoryName];
   }
-  if (![[self class] hasSubDirectory:kFIRInstanceIDSubDirectoryName]) {
-    [[self class] createSubDirectory:kFIRInstanceIDSubDirectoryName];
+  if (![[self class] hasSubDirectory:kFIRMessagingInstanceIDSubDirectoryName]) {
+    [[self class] createSubDirectory:kFIRMessagingInstanceIDSubDirectoryName];
   }
 }
 
@@ -358,6 +356,10 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   // To prevent multiple notifications remove self as observer for all events.
   NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
   [center removeObserver:self];
+  [center addObserver:self
+             selector:@selector(defaultInstanceIDTokenWasRefreshed:)
+                 name:kFIRMessagingRegistrationTokenRefreshNotification
+               object:nil];
 #if TARGET_OS_IOS || TARGET_OS_TV
   [center addObserver:self
              selector:@selector(applicationStateChanged)
@@ -368,6 +370,37 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
                  name:UIApplicationDidEnterBackgroundNotification
                object:nil];
 #endif
+}
+
+- (void)defaultInstanceIDTokenWasRefreshed:(NSNotification *)notification {
+  if (notification.object && ![notification.object isKindOfClass:[NSString class]]) {
+    FIRMessagingLoggerDebug(kFIRMessagingMessageCodeMessaging015,
+                            @"Invalid default FCM token type %@",
+                            NSStringFromClass([notification.object class]));
+    return;
+  }
+  // Retrieve the Instance ID default token, and should notify delegate and
+  // trigger notification as long as the token is different from previous state.
+  NSString *oldToken = self.tokenManager.defaultFCMToken;
+  NSString *newToken = [(NSString *)notification.object copy];
+  if ((newToken.length && oldToken.length && ![newToken isEqualToString:oldToken]) ||
+      newToken.length != oldToken.length) {
+    [self.tokenManager setDefaultFCMTokenWithoutUpdate:newToken];
+    [self notifyRefreshedFCMToken];
+    [self.pubsub scheduleSync:YES];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+    if (self.shouldEstablishDirectChannel) {
+      [self updateAutomaticClientConnection];
+    }
+#pragma clang diagnostic pop
+    if (!self.tokenManager.defaultFCMToken && self.isAutoInitEnabled) {
+      [self retrieveFCMTokenForSenderID:self.tokenManager.fcmSenderID
+                             completion:^(NSString *_Nullable FCMToken, NSError *_Nullable error){
+
+                             }];
+    }
+  }
 }
 
 - (void)setupReceiver {
@@ -607,17 +640,12 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
                            forKey:kFIRMessagingUserDefaultsKeyAutoInitEnabled];
   [_messagingUserDefaults synchronize];
   if (!isFCMAutoInitEnabled && autoInitEnabled) {
-    self.defaultFcmToken = self.tokenManager.token;
+    [self.tokenManager tokenAndRequestIfNotExist];
   }
 }
 
 - (NSString *)FCMToken {
-  NSString *token = self.defaultFcmToken;
-  if (!token) {
-    // We may not have received it from Instance ID yet (via NSNotification), so extract it directly
-    token = [FIRMessaging messaging].tokenManager.token;
-  }
-  return token;
+  return [[FIRMessaging messaging].tokenManager tokenAndRequestIfNotExist];
 }
 
 - (void)retrieveFCMTokenForSenderID:(nonnull NSString *)senderID
@@ -650,9 +678,6 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
                           scope:kFIRMessagingDefaultTokenScope
                         options:options
                         handler:^(NSString *_Nullable FCMToken, NSError *_Nullable error) {
-                          if (!error) {
-                            [self setDefaultFcmToken:FCMToken];
-                          }
                           if (completion) {
                             completion(FCMToken, error);
                           }
@@ -686,9 +711,6 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
                                                        scope:kFIRMessagingDefaultTokenScope
                                                   instanceID:identifier
                                                      handler:^(NSError *_Nullable error) {
-                                                       if (!error) {
-                                                         [self setDefaultFcmToken:nil];
-                                                       }
                                                        if (completion) {
                                                          completion(error);
                                                        }
@@ -728,12 +750,13 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
     return;
   }
   if ([self.delegate respondsToSelector:@selector(messaging:didReceiveRegistrationToken:)]) {
-    [self.delegate messaging:self didReceiveRegistrationToken:self.defaultFcmToken];
+    [self.delegate messaging:self didReceiveRegistrationToken:self.tokenManager.defaultFCMToken];
   }
+
   // Should always trigger the token refresh notification when the delegate method is called
   NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
   [center postNotificationName:FIRMessagingRegistrationTokenRefreshedNotification
-                        object:self.defaultFcmToken];
+                        object:self.tokenManager.defaultFCMToken];
 }
 
 #pragma mark - Application State Changes
@@ -766,7 +789,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   return NO;
 #else
   // We require a token from Instance ID
-  NSString *token = self.defaultFcmToken;
+  NSString *token = self.tokenManager.defaultFCMToken;
   // Only on foreground connections
   UIApplication *application = [GULAppDelegateSwizzler sharedApplication];
   if (!application) {
@@ -1000,33 +1023,6 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
     return kFIRMessagingReachabilityReachableViaWWAN;
   } else {
     return kFIRMessagingReachabilityReachableViaWiFi;
-  }
-}
-
-#pragma mark - Notifications
-
-- (void)setDefaultFcmToken:(NSString *)defaultFcmToken {
-  // Retrieve the Instance ID default token, and should notify delegate and
-  // trigger notification as long as the token is different from previous state.
-  NSString *oldToken = _defaultFcmToken;
-  _defaultFcmToken = defaultFcmToken;
-  if ((_defaultFcmToken.length && oldToken.length &&
-       ![_defaultFcmToken isEqualToString:oldToken]) ||
-      _defaultFcmToken.length != oldToken.length) {
-    [self notifyRefreshedFCMToken];
-    [self.pubsub scheduleSync:YES];
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    if (self.shouldEstablishDirectChannel) {
-      [self updateAutomaticClientConnection];
-    }
-#pragma clang diagnostic pop
-    if (!_defaultFcmToken && self.isAutoInitEnabled) {
-      [self retrieveFCMTokenForSenderID:self.tokenManager.fcmSenderID
-                             completion:^(NSString *_Nullable FCMToken, NSError *_Nullable error){
-
-                             }];
-    }
   }
 }
 

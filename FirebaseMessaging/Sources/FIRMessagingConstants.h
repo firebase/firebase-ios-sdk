@@ -62,6 +62,7 @@ FOUNDATION_EXPORT NSString *const kFIRMessaging_CMD_RST;
 /// Notification used to deliver GCM messages for InstanceID.
 FOUNDATION_EXPORT NSString *const kFIRMessagingCheckinFetchedNotification;
 FOUNDATION_EXPORT NSString *const kFIRMessagingDefaultGCMTokenFailNotification;
+FOUNDATION_EXPORT NSString *const kFIRMessagingRegistrationTokenRefreshNotification;
 
 #pragma mark - Miscellaneous
 
@@ -73,7 +74,7 @@ FOUNDATION_EXPORT NSString *const kFIRMessagingAllScopeIdentifier;
 FOUNDATION_EXPORT NSString *const kFIRMessagingDefaultTokenScope;
 
 /// Subdirectory in search path directory to store InstanceID preferences.
-FOUNDATION_EXPORT NSString *const kFIRInstanceIDSubDirectoryName;
+FOUNDATION_EXPORT NSString *const kFIRMessagingInstanceIDSubDirectoryName;
 
 /// The key for APNS token in options dictionary.
 FOUNDATION_EXPORT NSString *const kFIRMessagingTokenOptionsAPNSKey;
