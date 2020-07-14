@@ -39,7 +39,7 @@ jobs:
          mkdir -p zip_output_dir
          mkdir -p zip_output_dir/Firebase/
          touch zip_output_dir/Firebase/Firebase.h
-         echo "asdf" > Firebase.h
+         echo "asdf" > zip_output_dir/Firebase/Firebase.h
          # sh -x scripts/build_zip.sh zip_output_dir
     - uses: actions/upload-artifact@v1
       with:
@@ -84,12 +84,12 @@ jobs:
     - name: Move frameworks
       run: |
         mkdir -p "${OUTPUT_DIR}"
+        ls "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}"
+        ls "${OUTPUT_DIR}"
         mv "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}" "${OUTPUT_DIR}"
         mkdir -p Firebase/
         echo "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}"
         echo "${OUTPUT_DIR}"
-        ls "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}"
-        ls "${OUTPUT_DIR}"
         ls "${HOME}"/ios_frameworks/
         ls "${HOME}"/ios_frameworks/Firebase/
         mv "${HOME}"/ios_frameworks/Firebase/Firebase.h Firebase/
