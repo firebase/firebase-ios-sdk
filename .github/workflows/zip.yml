@@ -37,8 +37,8 @@ jobs:
     - name: ZipBuildingTest
       run: |
          mkdir -p zip_output_dir
-         mkdir -p "${HOME}"/ios_frameworks/Firebase/
-         touch "${HOME}"/ios_frameworks/Firebase/Firebase.h
+         mkdir -p zip_output_dir/Firebase/
+         touch zip_output_dir/Firebase/Firebase.h
          # sh -x scripts/build_zip.sh zip_output_dir
     - uses: actions/upload-artifact@v1
       with:
