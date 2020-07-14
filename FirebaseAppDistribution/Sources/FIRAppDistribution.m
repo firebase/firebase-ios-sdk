@@ -11,19 +11,18 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#import <Foundation/Foundation.h>
 
-#import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseCore/FIRComponent.h>
-#import <FirebaseCore/FIRComponentContainer.h>
-#import <FirebaseCore/FIROptions.h>
-#import <FirebaseInstallations/FirebaseInstallations.h>
-#import <GoogleUtilities/GULAppDelegateSwizzler.h>
+#import "GoogleUtilities/AppDelegateSwizzler/Private/GULAppDelegateSwizzler.h"
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
 
 #import "FIRAppDistribution+Private.h"
 #import "FIRAppDistributionMachO+Private.h"
 #import "FIRAppDistributionRelease+Private.h"
-#import "FIRFADLogger.h"
+#import "FIRFADLogger+Private.h"
 #import "FIRAppDistributionAppDelegateInterceptor.h"
+#import "FIRFADApiService+Private.h"
 
 /// Empty protocol to register with FirebaseCore's component system.
 @protocol FIRAppDistributionInstanceProvider <NSObject>
@@ -194,6 +193,37 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
 }
 
 - (void)fetchReleases:(FIRAppDistributionUpdateCheckCompletion)completion {
+  [FIRFADApiService fetchReleasesWithCompletion:^(NSArray* _Nullable releases, NSError * _Nullable error) {
+    if(error){
+      NSLog(@"Error retrieving releases: @%", [error localizedDescription]);
+      completion(nil, error);
+      return;
+    }
+
+    for (NSDictionary *releaseDict in releases) {
+      if ([[releaseDict objectForKey:kLatestReleaseKey] boolValue]) {
+        //      FIRFADInfoLog(@"Tester API - found latest release in response. Checking if code hash
+        //      match");
+        NSString *codeHash = [releaseDict objectForKey:kCodeHashKey];
+        NSString *executablePath = [[NSBundle mainBundle] executablePath];
+        FIRAppDistributionMachO *machO =
+        [[FIRAppDistributionMachO alloc] initWithPath:executablePath];
+
+        //      FIRFADInfoLog(@"Code hash for the app on device - %@", machO.codeHash);
+        //      FIRFADInfoLog(@"Code hash for the release from the service response - %@", codeHash);
+        if (codeHash && ![codeHash isEqualToString:machO.codeHash]) {
+          FIRAppDistributionRelease *release =
+          [[FIRAppDistributionRelease alloc] initWithDictionary:releaseDict];
+          dispatch_async(dispatch_get_main_queue(), ^{
+            // FIRFADInfoLog(@"Found new release");
+            completion(release, nil);
+          });
+
+          return;
+        }
+      }
+    }
+  }];
   // OR for default FIRApp:
   FIRInstallations *installations = [FIRInstallations installations];
 
