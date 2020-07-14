@@ -69,29 +69,22 @@ class RemoteConfigConsole {
 
   // MARK: - Public API
 
-  public func updateRemoteConfig(parameters: [String: Any]) {
+  /// Update Remote Config with multiple String key value pairs.
+  /// - Parameter parameters: Dictionary representation of config key value pairs.
+  public func updateRemoteConfig(with parameters: [String: String]) {
     var updatedConfig: [String: Any] = latestConfig
 
     let latestParameters = latestConfig["parameters"] as? [String: Any]
-    if var updatedParameters = latestParameters {
-      for (key, value) in parameters {
-        updatedParameters.updateValue(["defaultValue": ["value": value]], forKey: key)
-      }
-      updatedConfig.updateValue(updatedParameters, forKey: "parameters")
-
-    } else {
-      var newParameters = [String: Any]()
-
-      for (key, value) in parameters {
-        newParameters.updateValue(["defaultValue": ["value": value]], forKey: key)
-      }
-      updatedConfig.updateValue(newParameters, forKey: "parameters")
+    var updatedParameters = latestParameters ?? [String: Any]()
+    for (key, value) in parameters {
+      updatedParameters.updateValue(["defaultValue": ["value": value]], forKey: key)
     }
+    updatedConfig.updateValue(updatedParameters, forKey: "parameters")
 
     publish(config: updatedConfig)
   }
 
-  public func updateRemoteConfigValue(_ value: Any, forKey key: String) {
+  public func updateRemoteConfigValue(_ value: String, forKey key: String) {
     var updatedConfig: [String: Any] = latestConfig
 
     let latestParameters = latestConfig["parameters"] as? [String: Any]
@@ -106,7 +99,7 @@ class RemoteConfigConsole {
     publish(config: updatedConfig)
   }
 
-  public func removeRemoteConfigValue(for key: String) {
+  public func removeRemoteConfigValue(forKey key: String) {
     var updatedConfig: [String: Any] = latestConfig
 
     let latestParameters = latestConfig["parameters"] as? [String: Any]

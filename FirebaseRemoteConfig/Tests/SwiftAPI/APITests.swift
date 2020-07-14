@@ -46,8 +46,8 @@ class APITests: APITestBase {
 
     // If using RemoteConfigConsole, reset remote config values.
     if !APITests.useFakeConfig {
-      console.removeRemoteConfigValue(for: Constants.sith)
-      console.removeRemoteConfigValue(for: Constants.jedi)
+      console.removeRemoteConfigValue(forKey: Constants.sith)
+      console.removeRemoteConfigValue(forKey: Constants.jedi)
     }
   }
 
@@ -296,7 +296,7 @@ class APITests: APITestBase {
     waitForExpectations()
 
     // Synchronously delete value on the console.
-    console.removeRemoteConfigValue(for: Constants.jedi)
+    console.removeRemoteConfigValue(forKey: Constants.jedi)
 
     let expectation2 = self.expectation(description: #function + "2")
     config.fetchAndActivate { status, error in
