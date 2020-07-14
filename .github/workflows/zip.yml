@@ -73,7 +73,7 @@ jobs:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       FRAMEWORK_DIR: "Firebase-actions-dir"
-      OUTPUT_DIR: "${HOME}/ios_frameworks/"
+      OUTPUT_DIR:
       SDK: "Config"
     runs-on: macOS-latest
     steps:
@@ -84,8 +84,8 @@ jobs:
         name: Firebase-actions-dir
     - name: Move frameworks
       run: |
-        mkdir -p "${OUTPUT_DIR}"
-        find "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}" -name "*.zip" -maxdepth 3 -exec unzip -d "${OUTPUT_DIR}" {} +
+        mkdir -p "${HOME}"/ios_frameworks/
+        find "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}" -name "*.zip" -maxdepth 3 -exec unzip -d "${HOME}"/ios_frameworks/ {} +
     - name: Setup Swift Quickstart
       run: SAMPLE="$SDK" TARGET="${SDK}Example" scripts/setup_quickstart_framework.sh \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseRemoteConfig/* \
