@@ -17,7 +17,7 @@
 # This script generates access tokens that are needed to make admin API
 # calls to the Firebase Console.
 #
-# The script takes a three arguments:
+# The script takes three arguments:
 # - GHA_SECRET: The password for decrypting GitHub secrets.
 # - SERVICE_ACCOUNT: The path to the encrypted service account secret.
 # - OUTPUT: The path to file where generated access token will be stored.
@@ -32,11 +32,11 @@
 #     "access_token":"1234567890ABCDEFG"
 # }
 
-GHA_SECRET="$1"
+GHA_SECRET="$1" # Pass in `local_dev` if the SERVICE_ACCOUNT does not to be decrypted.
 SERVICE_ACCOUNT="$2"
 OUTPUT="$3"
 
-echo "GHA_SECRET: ***" # Pass in `local_dev` if the SERVICE_ACCOUNT does not to be decrypted.
+echo "GHA_SECRET: ***"
 echo "SERVICE_ACCOUNT: ${SERVICE_ACCOUNT}"
 echo "OUTPUT: ${OUTPUT}"
 
@@ -79,10 +79,10 @@ cd google-auth-library-swift
 git checkout --quiet 7b1c9cd4ffd8cb784bcd8b7fd599794b69a810cf # Working main branch as of 7/9/20.
 make -f Makefile
 
-# Prepend OUTPUT path with ../ since we cd'd into `google-auth-library-swift`
+# Prepend OUTPUT path with ../ since we cd'd into `google-auth-library-swift`.
 swift run TokenSource > ../$OUTPUT
 
-# Remove cloned Swift Auth Client Library
+# Remove cloned Swift Auth Client Library.
 cd ..
 rm -rf google-auth-library-swift
 

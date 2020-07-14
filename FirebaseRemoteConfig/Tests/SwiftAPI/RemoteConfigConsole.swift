@@ -27,43 +27,40 @@ class RemoteConfigConsole {
   private lazy var accessToken: String = {
     guard let fileURL = Bundle(for: type(of: self))
       .url(forResource: "AccessToken", withExtension: "json") else {
-      fatalError("Could not find AccessToken.json in bundle.")
+        fatalError("Could not find AccessToken.json in bundle.")
     }
     guard let data = try? Data(contentsOf: fileURL),
       let json = try? JSONSerialization.jsonObject(with: data, options: .allowFragments),
       let jsonDict = json as? [String: Any],
       let accessToken = jsonDict["access_token"] as? String else {
-      fatalError("Could not retrieve access token.")
+        fatalError("Could not retrieve access token.")
     }
     return accessToken
   }()
 
-  /// Synchronously fetches and returns currently active
-  /// remote config, if it exists.
+  /// Synchronously fetches and returns currently active Remote Config, if it exists.
   public var activeRemoteConfig: [String: Any]? {
     var config: [String: Any]?
     perform(configRequest: .get) { latestConfigJSON in
       config = latestConfigJSON
     }
     if let config = config {
-      save(config)
+      saveConfig(config)
     }
     return config
   }
 
-  /// Exposing this initializer allows us to
-  /// create`RemoteConfigConsole` instances without
-  /// dependence on a`GoogleService-Info.plist`.
+  /// Exposing this initializer allows us to create`RemoteConfigConsole` instances without
+  /// depending on a `GoogleService-Info.plist`.
   init(projectID: String) {
     self.projectID = projectID
     syncWithConsole()
   }
 
-  /// This initializer will attempt to read from a
-  /// `GoogleService-Info.plist` to set `projectID`.
+  /// This initializer will attempt to read from a `GoogleService-Info.plist` to set `projectID`.
   convenience init() {
     let currentBundle = Bundle(for: type(of: self))
-    let projectID = currentBundle.plistValue(for: "PROJECT_ID", from: "GoogleService-Info.plist")
+    let projectID = currentBundle.plistValue(forKey: "PROJECT_ID", fromPlist: "GoogleService-Info.plist")
     self.init(projectID: projectID! as! String)
   }
 
@@ -91,7 +88,7 @@ class RemoteConfigConsole {
     publish(config: updatedConfig)
   }
 
-  public func updateRemoteConfigValue(_ value: Any, for key: String) {
+  public func updateRemoteConfigValue(_ value: Any, forKey key: String) {
     var updatedConfig: [String: Any] = latestConfig
 
     let latestParameters = latestConfig["parameters"] as? [String: Any]
@@ -127,7 +124,7 @@ class RemoteConfigConsole {
   // MARK: - Networking
 
   private enum ConfigRequest {
-    case get, put(data: Data)
+    case get, put(_ data: Data)
 
     var httpMethod: String {
       switch self {
@@ -143,7 +140,7 @@ class RemoteConfigConsole {
       }
     }
 
-    var HTTPHeaderFields: [String: String]? {
+    var httpHeaderFields: [String: String]? {
       switch self {
       case .get: return nil
       case .put(data: _):
@@ -154,7 +151,7 @@ class RemoteConfigConsole {
     func secureRequest(url: URL, with token: String, _ timeout: TimeInterval = 10) -> URLRequest {
       var request = URLRequest(url: url, timeoutInterval: timeout)
       request.httpMethod = self.httpMethod
-      request.allHTTPHeaderFields = self.HTTPHeaderFields
+      request.allHTTPHeaderFields = self.httpHeaderFields
       request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
       request.httpBody = self.httpBody
       return request
@@ -169,6 +166,9 @@ class RemoteConfigConsole {
     let semaphore = DispatchSemaphore(value: 0)
 
     let task = URLSession.shared.dataTask(with: request) { data, response, error in
+      // Signal the semaphore when this scope is escaped.
+      defer { semaphore.signal() }
+      
       guard let data = data else {
         print(String(describing: error))
         return
@@ -187,29 +187,26 @@ class RemoteConfigConsole {
         }
       }
 
-      semaphore.signal()
     }
 
     task.resume()
     semaphore.wait()
   }
 
-  /// Publishes a config object to the live console
-  /// and updates`latestConfig`.
+  /// Publishes a config object to the live console and updates `latestConfig`.
   private func publish(config: [String: Any]) {
-    if let configData = data(with: config) {
-      perform(configRequest: .put(data: configData))
-    }
-    save(config)
+    let configData = data(withConfig: config)
+    perform(configRequest: .put(configData))
+    saveConfig(config)
   }
 
   // MARK: - Private Helpers
 
-  /// Creates an optional Data object given a config object
+  /// Creates an optional Data object given a config object.
   /// Used for serializing config objects before posting them to live console.
-  private func data(with config: [String: Any]) -> Data? {
+  private func data(withConfig config: [String: Any]) -> Data {
     let dictionary = NSDictionary(dictionary: config, copyItems: true)
-    let data = try? JSONSerialization.data(withJSONObject: dictionary, options: .fragmentsAllowed)
+    let data = try! JSONSerialization.data(withJSONObject: dictionary, options: .fragmentsAllowed)
     return data
   }
 
@@ -218,12 +215,12 @@ class RemoteConfigConsole {
     if let consoleConfig = activeRemoteConfig {
       latestConfig = consoleConfig
     } else {
-      print("Could not sync with console.")
+      fatalError("Could not sync with console.")
     }
   }
 
   /// A more intuitively named setter for `latestConfig`.
-  private func save(_ config: [String: Any]) {
+  private func saveConfig(_ config: [String: Any]) {
     latestConfig = config
   }
 }
@@ -231,7 +228,7 @@ class RemoteConfigConsole {
 // MARK: - Extensions
 
 extension Bundle {
-  func plistValue(for key: String, from plist: String) -> Any? {
+  func plistValue(forKey key: String, fromPlist plist: String) -> Any? {
     guard let plistURL = url(forResource: plist, withExtension: "") else {
       print("Could not find plist file \(plist) in bundle.")
       return nil

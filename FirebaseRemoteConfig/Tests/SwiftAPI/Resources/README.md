@@ -1,7 +1,7 @@
 # Remote Config Console API
 
 [`RemoteConfigConsole.swift`](https://github.com/firebase/firebase-ios-sdk/blob/master/FirebaseRemoteConfig/Tests/SwiftAPI/RemoteConfigConsole.swift)
-provides a simple API for interacting with an app's remote config on the
+provides a simple API for interacting with an app's Remote Config on the
 Firebase console.
 
 ## Local Development Setup
@@ -44,9 +44,11 @@ to generate the access token. There are a few example use cases provided. We use
 example.
 
 For the access token to be generated, the `GOOGLE_APPLICATION_CREDENTIALS` env var should be set to point to where the
-Firebase project's service account key is stored. This is set in the `generate_access_token.sh` script.
+Firebase project's service account key is stored. This is set in the 
+[`generate_access_token.sh`](https://github.com/firebase/firebase-ios-sdk/blob/master/scripts/generate_access_token.sh) 
+script.
 
 ### Remote Config API Tests
-There is a [section](https://github.com/firebase/firebase-ios-sdk/blob/master/FirebaseRemoteConfig/Tests/SwiftAPI/APITests.swift#L195)
+There is a [section](https://github.com/firebase/firebase-ios-sdk/blob/master/FirebaseRemoteConfig/Tests/SwiftAPI/APITests.swift#L210)
 of tests in [`APITests.swift`](https://github.com/firebase/firebase-ios-sdk/blob/master/FirebaseRemoteConfig/Tests/SwiftAPI/APITests.swift)
 showcasing the  `RemoteConfigConsole` in action.
