@@ -28,8 +28,6 @@ jobs:
     if: github.event_name == 'schedule' && github.repository != 'FirebasePrivate/firebase-ios-sdk'
     needs: build
     env:
-      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      FRAMEWORK_ZIP: "Firebase-actions-dir.zip"
       gcs_key: ${{ secrets.GHASecretsGPGPassphrase1 }}
     runs-on: macOS-latest
     steps:
