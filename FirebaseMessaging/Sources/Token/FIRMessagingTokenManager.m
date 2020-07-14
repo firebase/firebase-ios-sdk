@@ -559,13 +559,14 @@ static NSString *const kCheckinFileName = @"g-checkin";
   if (type == FIRMessagingAPNSTokenTypeUnknown) {
     isSandboxApp = FIRMessagingIsSandboxApp();
   }
-  self.currentAPNSInfo = [[FIRMessagingAPNSInfo alloc] initWithDeviceToken:[APNSToken copy]
-                                                                 isSandbox:isSandboxApp];
 
   // Pro-actively invalidate the default token, if the APNs change makes it
   // invalid. Previously, we invalidated just before fetching the token.
   NSArray<FIRMessagingTokenInfo *> *invalidatedTokens =
       [self updateTokensToAPNSDeviceToken:APNSToken isSandbox:isSandboxApp];
+
+  self.currentAPNSInfo = [[FIRMessagingAPNSInfo alloc] initWithDeviceToken:[APNSToken copy]
+                                                                 isSandbox:isSandboxApp];
 
   // Re-fetch any invalidated tokens automatically, this time with the current APNs token, so that
   // they are up-to-date.
