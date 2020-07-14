@@ -85,6 +85,10 @@ jobs:
         mkdir -p "${OUTPUT_DIR}"
         mv "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}" "${OUTPUT_DIR}"
         mkdir -p Firebase/
+        echo "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}"
+        echo "${OUTPUT_DIR}"
+        ls "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}"
+        ls "${OUTPUT_DIR}"
         ls "${HOME}"/ios_frameworks/
         ls "${HOME}"/ios_frameworks/Firebase/
         mv "${HOME}"/ios_frameworks/Firebase/Firebase.h Firebase/
