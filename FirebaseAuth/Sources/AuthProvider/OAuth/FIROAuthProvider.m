@@ -203,8 +203,13 @@ static NSString *const kAuthTypeSignInWithRedirect = @"signInWithRedirect";
   if (self) {
     _auth = auth;
     _providerID = providerID;
-    _callbackScheme = [[[_auth.app.options.clientID componentsSeparatedByString:@"."]
-                           reverseObjectEnumerator].allObjects componentsJoinedByString:@"."];
+    if (_auth.app.options.clientID) {
+      _callbackScheme = [[[_auth.app.options.clientID componentsSeparatedByString:@"."]
+                             reverseObjectEnumerator].allObjects componentsJoinedByString:@"."];
+    } else {
+      _callbackScheme = [_auth.app.options.googleAppID stringByReplacingOccurrencesOfString:@":"
+                                                                                 withString:@"%3A"];
+    }
   }
   return self;
 }
@@ -272,19 +277,25 @@ static NSString *const kAuthTypeSignInWithRedirect = @"signInWithRedirect";
                                      }
                                      __strong __typeof__(self) strongSelf = weakSelf;
                                      NSString *bundleID = [NSBundle mainBundle].bundleIdentifier;
-                                     NSString *clienID = strongSelf->_auth.app.options.clientID;
+                                     NSString *clientID = strongSelf->_auth.app.options.clientID;
+                                     NSString *firebaseAppID =
+                                         strongSelf->_auth.app.options.googleAppID;
                                      NSString *apiKey =
                                          strongSelf->_auth.requestConfiguration.APIKey;
                                      NSMutableDictionary *urlArguments = [@{
                                        @"apiKey" : apiKey,
                                        @"authType" : @"signInWithRedirect",
                                        @"ibi" : bundleID ?: @"",
-                                       @"clientId" : clienID,
                                        @"sessionId" : [strongSelf hashforString:sessionID],
                                        @"v" : [FIRAuthBackend authUserAgent],
                                        @"eventId" : eventID,
                                        @"providerId" : strongSelf->_providerID,
                                      } mutableCopy];
+                                     if (clientID) {
+                                       urlArguments[@"clientId"] = clientID;
+                                     } else {
+                                       urlArguments[@"firebaseAppId"] = firebaseAppID;
+                                     }
                                      if (strongSelf.scopes.count) {
                                        urlArguments[@"scopes"] =
                                            [strongSelf.scopes componentsJoinedByString:@","];

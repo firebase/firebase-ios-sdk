@@ -111,8 +111,13 @@ extern NSString *const FIRPhoneMultiFactorID;
   self = [super init];
   if (self) {
     _auth = auth;
-    _callbackScheme = [[[_auth.app.options.clientID componentsSeparatedByString:@"."]
-                           reverseObjectEnumerator].allObjects componentsJoinedByString:@"."];
+    if (_auth.app.options.clientID) {
+      _callbackScheme = [[[_auth.app.options.clientID componentsSeparatedByString:@"."]
+                             reverseObjectEnumerator].allObjects componentsJoinedByString:@"."];
+    } else {
+      _callbackScheme = [_auth.app.options.googleAppID stringByReplacingOccurrencesOfString:@":"
+                                                                                 withString:@"%3A"];
+    }
   }
   return self;
 }
@@ -675,6 +680,7 @@ extern NSString *const FIRPhoneMultiFactorID;
                                      }
                                      NSString *bundleID = [NSBundle mainBundle].bundleIdentifier;
                                      NSString *clientID = self->_auth.app.options.clientID;
+                                     NSString *firebaseAppID = self->_auth.app.options.googleAppID;
                                      NSString *apiKey = self->_auth.requestConfiguration.APIKey;
                                      NSMutableArray<NSURLQueryItem *> *queryItems = [@[
                                        [NSURLQueryItem queryItemWithName:@"apiKey" value:apiKey],
@@ -682,13 +688,20 @@ extern NSString *const FIRPhoneMultiFactorID;
                                                                    value:kAuthTypeVerifyApp],
                                        [NSURLQueryItem queryItemWithName:@"ibi"
                                                                    value:bundleID ?: @""],
-                                       [NSURLQueryItem queryItemWithName:@"clientId"
-                                                                   value:clientID],
                                        [NSURLQueryItem
                                            queryItemWithName:@"v"
                                                        value:[FIRAuthBackend authUserAgent]],
                                        [NSURLQueryItem queryItemWithName:@"eventId" value:eventID]
                                      ] mutableCopy];
+                                     if (clientID) {
+                                       [queryItems
+                                           addObject:[NSURLQueryItem queryItemWithName:@"clientId"
+                                                                                 value:clientID]];
+                                     } else {
+                                       [queryItems addObject:[NSURLQueryItem
+                                                                 queryItemWithName:@"firebaseAppId"
+                                                                             value:firebaseAppID]];
+                                     }
 
                                      if (self->_auth.requestConfiguration.languageCode) {
                                        [queryItems
