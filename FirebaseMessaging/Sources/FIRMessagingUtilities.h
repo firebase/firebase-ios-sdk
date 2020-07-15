@@ -65,7 +65,7 @@ FOUNDATION_EXPORT NSSearchPathDirectory FIRMessagingSupportedDirectory(void);
 FOUNDATION_EXPORT NSString *FIRMessagingCurrentLocale(void);
 FOUNDATION_EXPORT BOOL FIRMessagingHasLocaleChanged(void);
 /// locale key stored in GULUserDefaults
-FOUNDATION_EXPORT NSString *const kFIRInstanceIDUserDefaultsKeyLocale;
+FOUNDATION_EXPORT NSString *const kFIRMessagingInstanceIDUserDefaultsKeyLocale;
 
 FOUNDATION_EXPORT NSString *FIRMessagingStringForAPNSDeviceToken(NSData *deviceToken);
 FOUNDATION_EXPORT NSString *FIRMessagingAPNSTupleStringForTokenAndServerType(NSData *deviceToken,

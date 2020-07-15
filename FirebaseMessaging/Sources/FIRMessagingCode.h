@@ -36,10 +36,10 @@ typedef NS_ENUM(NSInteger, FIRMessagingMessageCode) {
   kFIRMessagingMessageCodeMessaging012 = 2012,                  // I-FCM002012
   kFIRMessagingMessageCodeMessaging013 = 2013,                  // I-FCM002013
   kFIRMessagingMessageCodeMessaging014 = 2014,                  // I-FCM002014
-  kFIRMessagingMessageCodeMessaging015 = 2015,
-  kFIRMessagingMessageCodeMessaging016 = 2016,  // I-FCM002016 - no longer used
-  kFIRMessagingMessageCodeMessaging017 = 2017,  // I-FCM002017
-  kFIRMessagingMessageCodeMessaging018 = 2018,  // I-FCM002018
+  kFIRMessagingMessageCodeMessaging015 = 2015,                  // I-FCM002015
+  kFIRMessagingMessageCodeMessaging016 = 2016,                  // I-FCM002016 - no longer used
+  kFIRMessagingMessageCodeMessaging017 = 2017,                  // I-FCM002017
+  kFIRMessagingMessageCodeMessaging018 = 2018,                  // I-FCM002018
   kFIRMessagingMessageCodeRemoteMessageDelegateMethodNotImplemented = 2019,  // I-FCM002019
   kFIRMessagingMessageCodeSenderIDNotSuppliedForTokenFetch = 2020,           // I-FCM002020
   kFIRMessagingMessageCodeSenderIDNotSuppliedForTokenDelete = 2021,          // I-FCM002021

@@ -30,7 +30,7 @@
 #define STR(x) STR_EXPAND(x)
 
 static const uint64_t kBytesToMegabytesDivisor = 1024 * 1024LL;
-NSString *const kFIRInstanceIDUserDefaultsKeyLocale =
+NSString *const kFIRMessagingInstanceIDUserDefaultsKeyLocale =
     @"com.firebase.instanceid.user_defaults.locale";  // locale key stored in GULUserDefaults
 static NSString *const kFIRMessagingAPNSSandboxPrefix = @"s_";
 static NSString *const kFIRMessagingAPNSProdPrefix = @"p_";
@@ -365,8 +365,8 @@ NSString *FIRMessagingCurrentLocale() {
 }
 
 BOOL FIRMessagingHasLocaleChanged() {
-  NSString *lastLocale =
-      [[GULUserDefaults standardUserDefaults] stringForKey:kFIRInstanceIDUserDefaultsKeyLocale];
+  NSString *lastLocale = [[GULUserDefaults standardUserDefaults]
+      stringForKey:kFIRMessagingInstanceIDUserDefaultsKeyLocale];
   NSString *currentLocale = FIRMessagingCurrentLocale();
   if (lastLocale) {
     if ([currentLocale isEqualToString:lastLocale]) {

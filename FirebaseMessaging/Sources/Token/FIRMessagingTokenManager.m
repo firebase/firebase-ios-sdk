@@ -321,9 +321,6 @@ static NSString *const kCheckinFileName = @"g-checkin";
                                                          scope:(NSString *)scope {
   FIRMessagingTokenInfo *tokenInfo = [_tokenStore tokenInfoWithAuthorizedEntity:authorizedEntity
                                                                           scope:scope];
-  //  if ([self isDefaultTokenWithAuthorizedEntity:authorizedEntity scope:scope]) {
-  //    [self setDefaultFCMToken:tokenInfo.token];
-  //  }
   return tokenInfo;
 }
 

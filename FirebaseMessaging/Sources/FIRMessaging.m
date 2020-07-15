@@ -597,6 +597,13 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 
   // Notify InstanceID that APNS Token has been set.
   NSDictionary *userInfo = @{kFIRMessagingAPNSTokenType : @(type)};
+  // TODO(chliang) This is sent to InstanceID in case users are still using the deprecated SDK.
+  // Should be safe to remove once InstanceID is removed.
+  NSNotification *notification =
+      [NSNotification notificationWithName:kFIRMessagingAPNSTokenNotification
+                                    object:[apnsToken copy]
+                                  userInfo:userInfo];
+  [[NSNotificationQueue defaultQueue] enqueueNotification:notification postingStyle:NSPostASAP];
 
   [self.tokenManager setAPNSToken:[apnsToken copy] withUserInfo:userInfo];
 }

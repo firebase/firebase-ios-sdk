@@ -97,15 +97,15 @@ static NSString *const kCheckinKeychainContentSeparatorString = @"|";
   int64_t timeSinceLastCheckinInMillis = currentTimestampInMillis - self.lastCheckinTimestampMillis;
 
   BOOL hasCheckinInfo = [self hasCheckinInfo];
-  NSString *lastLocale =
-      [[GULUserDefaults standardUserDefaults] stringForKey:kFIRInstanceIDUserDefaultsKeyLocale];
+  NSString *lastLocale = [[GULUserDefaults standardUserDefaults]
+      stringForKey:kFIRMessagingInstanceIDUserDefaultsKeyLocale];
   // If it's app's first time open and checkin is already fetched and no locale information is
   // stored, then checkin info is valid. We should not checkin again because locale is considered
   // "changed".
   if (hasCheckinInfo && !lastLocale) {
     NSString *currentLocale = FIRMessagingCurrentLocale();
     [[GULUserDefaults standardUserDefaults] setObject:currentLocale
-                                               forKey:kFIRInstanceIDUserDefaultsKeyLocale];
+                                               forKey:kFIRMessagingInstanceIDUserDefaultsKeyLocale];
     return YES;
   }
 
@@ -114,7 +114,7 @@ static NSString *const kCheckinKeychainContentSeparatorString = @"|";
   if (FIRMessagingHasLocaleChanged()) {
     NSString *currentLocale = FIRMessagingCurrentLocale();
     [[GULUserDefaults standardUserDefaults] setObject:currentLocale
-                                               forKey:kFIRInstanceIDUserDefaultsKeyLocale];
+                                               forKey:kFIRMessagingInstanceIDUserDefaultsKeyLocale];
     return NO;
   }
 
