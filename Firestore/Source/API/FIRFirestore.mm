@@ -171,7 +171,9 @@ NS_ASSUME_NONNULL_BEGIN
     _settings = settings;
     _firestore->set_settings([settings internalSettings]);
 
-#if HAVE_LIBDISPATCH
+#ifndef HAVE_LIBDISPATCH
+#error HAVE_LIBDISPATCH must be set to 1 or 0; verify the #include directive for config.h.
+#elif HAVE_LIBDISPATCH
     std::unique_ptr<util::Executor> user_executor =
         absl::make_unique<util::ExecutorLibdispatch>(settings.dispatchQueue);
 #else

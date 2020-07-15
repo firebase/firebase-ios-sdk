@@ -243,7 +243,9 @@ Task* ExecutorStd::PopFromSchedule() {
 
 // Only defined on non-Apple platforms. On Apple platforms, see the alternative
 // definition in executor_libdispatch.mm.
-#if !HAVE_LIBDISPATCH
+#ifndef HAVE_LIBDISPATCH
+#error HAVE_LIBDISPATCH must be set to 1 or 0; verify the #include directive for config.h.
+#elif !HAVE_LIBDISPATCH
 
 std::unique_ptr<Executor> Executor::CreateSerial(const char*) {
   return absl::make_unique<ExecutorStd>(/*threads=*/1);

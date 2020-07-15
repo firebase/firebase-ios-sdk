@@ -18,7 +18,9 @@
 
 #include "Firestore/core/src/util/config.h"
 
-#if HAVE_ARC4RANDOM
+#ifndef HAVE_ARC4RANDOM
+#error HAVE_ARC4RANDOM must be set to 1 or 0; verify the #include directive for config.h.
+#elif HAVE_ARC4RANDOM
 
 #include <cstdlib>
 

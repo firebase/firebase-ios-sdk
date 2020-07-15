@@ -25,16 +25,16 @@
 // building this way we can't test the presence of features before building so
 // predefine all the platform-support feature macros to their expected values.
 
-#cmakedefine HAVE_ARC4RANDOM 1
+#cmakedefine01 HAVE_ARC4RANDOM
 #if COCOAPODS
 #  define HAVE_ARC4RANDOM 1
 #endif
 
-#cmakedefine HAVE_LIBDISPATCH 1
+#cmakedefine01 HAVE_LIBDISPATCH
 #if COCOAPODS
 #  define HAVE_LIBDISPATCH 1
 #endif
 
-#cmakedefine HAVE_OPENSSL_RAND_H 1
+#cmakedefine01 HAVE_OPENSSL_RAND_H
 
 #endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_CONFIG_H_
