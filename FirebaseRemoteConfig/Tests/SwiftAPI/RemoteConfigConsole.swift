@@ -71,25 +71,29 @@ class RemoteConfigConsole {
 
   /// Update Remote Config with multiple String key value pairs.
   /// - Parameter parameters: Dictionary representation of config key value pairs.
-  public func updateRemoteConfig(with parameters: [String: String]) {
+  public func updateRemoteConfig(with parameters: [String: CustomStringConvertible]) {
     var updatedConfig: [String: Any] = latestConfig
 
     let latestParameters = latestConfig["parameters"] as? [String: Any]
     var updatedParameters = latestParameters ?? [String: Any]()
     for (key, value) in parameters {
-      updatedParameters.updateValue(["defaultValue": ["value": value]], forKey: key)
+      updatedParameters.updateValue(["defaultValue": ["value": value.description]], forKey: key)
     }
     updatedConfig.updateValue(updatedParameters, forKey: "parameters")
 
     publish(config: updatedConfig)
   }
 
-  public func updateRemoteConfigValue(_ value: String, forKey key: String) {
+  /// Updates a Remote Config value for a given key.
+  /// - Parameters:
+  ///   - value: Use strings, numbers, and booleans to represent Remote Config values.
+  ///   - key: The corresponding string key that maps to the given value.
+  public func updateRemoteConfigValue(_ value: CustomStringConvertible, forKey key: String) {
     var updatedConfig: [String: Any] = latestConfig
 
     let latestParameters = latestConfig["parameters"] as? [String: Any]
     if var parameters = latestParameters {
-      parameters.updateValue(["defaultValue": ["value": value]], forKey: key)
+      parameters.updateValue(["defaultValue": ["value": value.description]], forKey: key)
       updatedConfig.updateValue(parameters, forKey: "parameters")
 
     } else {
