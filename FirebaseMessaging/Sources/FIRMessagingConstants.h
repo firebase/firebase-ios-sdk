@@ -49,8 +49,6 @@ FOUNDATION_EXPORT NSString *const kFIRMessagingSubDirectoryName;
 #pragma mark - Notifications
 
 FOUNDATION_EXPORT NSString *const kFIRMessagingCheckinFetchedNotification;
-FOUNDATION_EXPORT NSString *const kFIRMessagingAPNSTokenNotification;
-FOUNDATION_EXPORT NSString *const kFIRMessagingRegistrationTokenRefreshNotification;
 
 FOUNDATION_EXPORT const int kFIRMessagingSendTtlDefault;  // 24 hours
 
@@ -59,6 +57,13 @@ FOUNDATION_EXPORT const int kFIRMessagingSendTtlDefault;  // 24 hours
  *  an identity reset.
  */
 FOUNDATION_EXPORT NSString *const kFIRMessaging_CMD_RST;
+
+#pragma mark - Notifications
+
+/// Notification used to deliver GCM messages for InstanceID.
+FOUNDATION_EXPORT NSString *const kFIRMessagingCheckinFetchedNotification;
+FOUNDATION_EXPORT NSString *const kFIRMessagingDefaultGCMTokenFailNotification;
+FOUNDATION_EXPORT NSString *const kFIRMessagingRegistrationTokenRefreshNotification;
 
 #pragma mark - Miscellaneous
 
