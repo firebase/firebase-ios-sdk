@@ -37,6 +37,11 @@ NS_SWIFT_NAME(StorageTask)
  */
 @property(strong, readonly, nonatomic, nonnull) FIRStorageTaskSnapshot *snapshot;
 
+/**
+ * Set to YES to prevent GTMSessionFetcher from using background NSURLSession sessions
+ */
+@property BOOL forbidBackgroundSessions;
+
 @end
 
 /**

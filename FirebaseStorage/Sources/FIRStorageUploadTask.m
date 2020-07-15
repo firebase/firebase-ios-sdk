@@ -120,6 +120,9 @@
                                                 chunkSize:kGTMSessionUploadFetcherStandardChunkSize
                                            fetcherService:self.fetcherService];
 
+    if (strongSelf.forbidBackgroundSessions) {
+      [uploadFetcher setUseBackgroundSession:NO];
+    }
     if (strongSelf->_uploadData) {
       [uploadFetcher setUploadData:strongSelf->_uploadData];
       uploadFetcher.comment = @"Data UploadTask";

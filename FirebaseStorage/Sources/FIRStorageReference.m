@@ -163,6 +163,13 @@
 - (FIRStorageUploadTask *)putData:(NSData *)uploadData
                          metadata:(nullable FIRStorageMetadata *)metadata
                        completion:(nullable FIRStorageVoidMetadataError)completion {
+  return [self putData:uploadData metadata:metadata forbidBackgroundSessions:NO completion:completion];
+}
+
+- (FIRStorageUploadTask *)putData:(NSData *)uploadData
+                         metadata:(nullable FIRStorageMetadata *)metadata
+         forbidBackgroundSessions:(BOOL)forbidBackgroundSessions
+                       completion:(nullable FIRStorageVoidMetadataError)completion {
   if (!metadata) {
     metadata = [[FIRStorageMetadata alloc] init];
   }
@@ -176,6 +183,7 @@
                                                  data:uploadData
                                              metadata:metadata];
 
+  task.forbidBackgroundSessions = forbidBackgroundSessions;
   if (completion) {
     __block BOOL completed = NO;
     dispatch_queue_t callbackQueue = _storage.fetcherServiceForApp.callbackQueue;
@@ -218,6 +226,13 @@
 - (FIRStorageUploadTask *)putFile:(NSURL *)fileURL
                          metadata:(nullable FIRStorageMetadata *)metadata
                        completion:(nullable FIRStorageVoidMetadataError)completion {
+  return [self putFile:fileURL metadata:metadata forbidBackgroundSessions:NO completion:completion];
+}
+
+- (FIRStorageUploadTask *)putFile:(NSURL *)fileURL
+                         metadata:(nullable FIRStorageMetadata *)metadata
+         forbidBackgroundSessions:(BOOL)forbidBackgroundSessions
+                       completion:(nullable FIRStorageVoidMetadataError)completion {
   if (!metadata) {
     metadata = [[FIRStorageMetadata alloc] init];
   }
@@ -231,6 +246,7 @@
                                                  file:fileURL
                                              metadata:metadata];
 
+  task.forbidBackgroundSessions = forbidBackgroundSessions;
   if (completion) {
     __block BOOL completed = NO;
     dispatch_queue_t callbackQueue = _storage.fetcherServiceForApp.callbackQueue;
@@ -321,11 +337,18 @@
 
 - (FIRStorageDownloadTask *)writeToFile:(NSURL *)fileURL
                              completion:(FIRStorageVoidURLError)completion {
+  return [self writeToFile:fileURL forbidBackgroundSessions:NO completion:completion];
+}
+
+- (FIRStorageDownloadTask *)writeToFile:(NSURL *)fileURL
+               forbidBackgroundSessions:(BOOL)forbidBackgroundSessions
+                             completion:(FIRStorageVoidURLError)completion {
   FIRStorageDownloadTask *task =
       [[FIRStorageDownloadTask alloc] initWithReference:self
                                          fetcherService:_storage.fetcherServiceForApp
                                           dispatchQueue:_storage.dispatchQueue
                                                    file:fileURL];
+  task.forbidBackgroundSessions = forbidBackgroundSessions;
   if (completion) {
     __block BOOL completed = NO;
     dispatch_queue_t callbackQueue = _storage.fetcherServiceForApp.callbackQueue;
