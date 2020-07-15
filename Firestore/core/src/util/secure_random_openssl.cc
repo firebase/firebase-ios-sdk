@@ -19,7 +19,7 @@
 #include "Firestore/core/src/util/config.h"
 
 #ifndef HAVE_OPENSSL_RAND_H
-#error HAVE_OPENSSL_RAND_H must be set to 1 or 0; verify the #include directive for config.h.
+#error HAVE_OPENSSL_RAND_H must be set to 1 or 0; verify #include for config.h.
 #elif HAVE_OPENSSL_RAND_H
 
 #include "openssl/err.h"
