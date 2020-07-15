@@ -99,7 +99,7 @@ jobs:
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}")
     - name: Remove data before upload
       if: ${{ failure() }}
-      run: scripts/remove_data.sh "${SDK}"
+      run: scripts/remove_data.sh abtesting
     - uses: actions/upload-artifact@v2
       if: ${{ failure() }}
       with:
@@ -143,7 +143,7 @@ jobs:
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}")
     - name: Remove data before upload
       if: ${{ failure() }}
-      run: scripts/remove_data.sh "${SDK}"
+      run: scripts/remove_data.sh authentiation
     - uses: actions/upload-artifact@v2
       if: ${{ failure() }}
       with:
@@ -234,7 +234,7 @@ jobs:
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}" swift)
     - name: Remove data before upload
       if: ${{ failure() }}
-      run: scripts/remove_data.sh "${SDK}"
+      run: scripts/remove_data.sh crashlytics
     - uses: actions/upload-artifact@v2
       if: ${{ failure() }}
       with:
@@ -279,11 +279,11 @@ jobs:
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}")
     - name: Remove data before upload
       if: ${{ failure() }}
-      run: scripts/remove_data.sh "${SDK}"
+      run: scripts/remove_data.sh database
     - uses: actions/upload-artifact@v2
       if: ${{ failure() }}
       with:
-        name: quickstart_artifacts
+        name: quickstart_artifacts database
         path: quickstart-ios/
 
   quickstart_framework_dynamiclinks:
@@ -372,7 +372,7 @@ jobs:
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}")
     - name: Remove data before upload
       if: ${{ failure() }}
-      run: scripts/remove_data.sh "${SDK}"
+      run: scripts/remove_data.sh firestore
     - uses: actions/upload-artifact@v2
       if: ${{ failure() }}
       with:
@@ -418,7 +418,7 @@ jobs:
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}" swift)
     - name: Remove data before upload
       if: ${{ failure() }}
-      run: scripts/remove_data.sh "${SDK}"
+      run: scripts/remove_data.sh inappmessaging
     - uses: actions/upload-artifact@v2
       if: ${{ failure() }}
       with:
@@ -463,7 +463,7 @@ jobs:
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}" swift)
     - name: Remove data before upload
       if: ${{ failure() }}
-      run: scripts/remove_data.sh "${SDK}"
+      run: scripts/remove_data.sh messaging
     - uses: actions/upload-artifact@v2
       if: ${{ failure() }}
       with:
@@ -510,7 +510,7 @@ jobs:
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}" swift)
     - name: Remove data before upload
       if: ${{ failure() }}
-      run: scripts/remove_data.sh "${SDK}"
+      run: scripts/remove_data.sh storage
     - uses: actions/upload-artifact@v2
       if: ${{ failure() }}
       with:
