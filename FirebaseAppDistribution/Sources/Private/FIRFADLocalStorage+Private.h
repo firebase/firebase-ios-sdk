@@ -16,14 +16,14 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRFADLocalStorage : NSObject
+// Checks whether a user has a persisted sign in state
++ (BOOL)isTesterSignedIn;
 
-- (instancetype)init NS_UNAVAILABLE;
+// Persists that a tester has signed in
++ (void)registerSignIn;
 
-- (BOOL)isTesterSignedIn;
-
-- (BOOL)persistSignInState:(NSError *_Nullable)error;
-
-- (BOOL)clearSignInState:(NSError *_Nullable)error;
+// Persists that a tester has signed out
++ (void)registerSignOut;
 
 @end
 

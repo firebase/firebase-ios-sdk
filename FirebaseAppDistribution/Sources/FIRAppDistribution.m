@@ -22,6 +22,7 @@
 #import "FIRAppDistributionMachO+Private.h"
 #import "FIRAppDistributionRelease+Private.h"
 #import "FIRFADApiService+Private.h"
+#import "FIRFADLocalStorage+Private.h"
 #import "FIRFADLogger+Private.h"
 
 /// Empty protocol to register with FirebaseCore's component system.
@@ -56,9 +57,8 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
 @synthesize isTesterSignedIn = _isTesterSignedIn;
 
 - (BOOL)isTesterSignedIn {
-  //  FIRFADInfoLog(@"Checking if tester is signed in");
-  //  return [self tryInitializeAuthState];
-  return NO;
+  FIRFADInfoLog(@"Tester is %@signed in.", [FIRFADLocalStorage isTesterSignedIn] ? @"" : @"not ");
+  return [FIRFADLocalStorage isTesterSignedIn];
 }
 
 #pragma mark - Singleton Support
@@ -122,14 +122,16 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
 
   // In the component creation block, we return an instance of `FIRAppDistribution`. Cast it and
   // return it.
-  NSLog(@"Instance returned! %@", instance);
+  FIRFADDebugLog(@"Instance returned: %@", instance);
   return (FIRAppDistribution *)instance;
 }
 
 - (void)signInTesterWithCompletion:(void (^)(NSError *_Nullable error))completion {
-  NSLog(@"Testing: App Distribution sign in");
+  FIRFADDebugLog(@"Prompting tester for sign in");
 
-  // TODO: Check if tester is already signed in
+  if([self isTesterSignedIn]){
+    completion(nil);
+  }
 
   [self.appDelegateInterceptor initializeUIState];
   FIRInstallations *installations = [FIRInstallations installations];
@@ -147,14 +149,26 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
                          @"installations/%@/buildalerts?appName=%@",
                          [[FIRApp defaultApp] options].googleAppID, identifier, [self getAppName]];
 
-    NSLog(@"Registration URL: %@", requestURL);
+    FIRFADDebugLog(@"Registration URL: %@", requestURL);
 
     [self.appDelegateInterceptor
         appDistributionRegistrationFlow:[[NSURL alloc] initWithString:requestURL]
                          withCompletion:^(NSError *_Nullable error) {
-                           NSLog(@"Sign in flow is in completion!!");
+                           FIRFADInfoLog(@"Tester sign in complete.");
+                           [self persistTesterSignInState];
                            completion(error);
                          }];
+  }];
+}
+
+- (void) persistTesterSignInState{
+  [FIRFADApiService
+   fetchReleasesWithCompletion:^(NSArray *_Nullable releases, NSError *_Nullable error) {
+    if (error) {
+      FIRFADErrorLog(@"Could not fetch releases with code %ld - %@", [error code], [error localizedDescription]);
+      return;
+    }
+    [FIRFADLocalStorage registerSignIn];
   }];
 }
 
@@ -175,18 +189,7 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
 }
 
 - (void)signOutTester {
-  // FIRFADInfoLog(@"Tester sign out");
-  //  NSError *error;
-  //  BOOL didClearAuthState = [self.authPersistence clearAuthState:&error];
-  //  if (!didClearAuthState) {
-  //    FIRFADErrorLog(@"Error clearing token from keychain: %@", [error localizedDescription]);
-  //    [self logUnderlyingKeychainError:error];
-  //
-  //  } else {
-  //    FIRFADInfoLog(@"Successfully cleared auth state from keychain");
-  //  }
-
-  self.isTesterSignedIn = false;
+  return [FIRFADLocalStorage registerSignOut];
 }
 
 - (NSError *)NSErrorForErrorCodeAndMessage:(FIRAppDistributionError)errorCode
@@ -246,8 +249,8 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
 }
 
 - (void)checkForUpdateWithCompletion:(FIRAppDistributionUpdateCheckCompletion)completion {
-  NSLog(@"CheckForUpdateWithCompletion");
-  if (false) {
+  FIRFADInfoLog(@"CheckForUpdateWithCompletion");
+  if ([self isTesterSignedIn]) {
     [self fetchReleases:completion];
   } else {
     UIAlertController *alert = [UIAlertController
