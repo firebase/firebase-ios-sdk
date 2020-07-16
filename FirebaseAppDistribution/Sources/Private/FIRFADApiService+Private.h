@@ -11,9 +11,9 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#import <FirebaseInstallations/FirebaseInstallations.h>
 #import <Foundation/Foundation.h>
 #import "FIRAppDistributionRelease.h"
-#import <FirebaseInstallations/FirebaseInstallations.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -27,9 +27,8 @@ NS_ASSUME_NONNULL_BEGIN
  *  @param release  The new release that is available to be installed.
  *  @param error     The error describing why the new build request failed.
  */
-typedef void (^FIRFADFetchReleasesCompletion)
-  (NSArray *_Nullable releases, NSError *_Nullable error)
-  NS_SWIFT_NAME(AppDistributionFetchReleasesCompletion);
+typedef void (^FIRFADFetchReleasesCompletion)(NSArray *_Nullable releases, NSError *_Nullable error)
+    NS_SWIFT_NAME(AppDistributionFetchReleasesCompletion);
 
 /**
  *  @related FIRFADApiError
@@ -42,12 +41,10 @@ typedef void (^FIRFADFetchReleasesCompletion)
  *  @param authTokenResult The installation auth token result.
  *  @param error     The error describing why the new build request failed.
  */
-typedef void (^FIRFADGenerateAuthTokenCompletion)
-(NSString *_Nullable identifier,
- FIRInstallationsAuthTokenResult *_Nullable authTokenResult,
- NSError *_Nullable error)
-NS_SWIFT_NAME(AppDistributionGenerateAuthTokenCompletion);
-
+typedef void (^FIRFADGenerateAuthTokenCompletion)(
+    NSString *_Nullable identifier,
+    FIRInstallationsAuthTokenResult *_Nullable authTokenResult,
+    NSError *_Nullable error) NS_SWIFT_NAME(AppDistributionGenerateAuthTokenCompletion);
 
 // Label exceptions from AppDistributionApi calls.
 FOUNDATION_EXPORT NSString *const kFIRFADApiErrorDomain;
@@ -64,8 +61,8 @@ FOUNDATION_EXPORT NSString *const kFIRFADApiErrorDomain;
 @end
 
 /**
-*  @enum AppDistributionApiError
-*/
+ *  @enum AppDistributionApiError
+ */
 typedef NS_ENUM(NSUInteger, FIRFADApiError) {
   // Timeout error.
   FIRFADApiErrorTimeout = 0,

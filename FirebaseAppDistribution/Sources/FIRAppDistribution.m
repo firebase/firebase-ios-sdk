@@ -13,26 +13,25 @@
 // limitations under the License.
 #import <Foundation/Foundation.h>
 
-#import "GoogleUtilities/AppDelegateSwizzler/Private/GULAppDelegateSwizzler.h"
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
+#import "GoogleUtilities/AppDelegateSwizzler/Private/GULAppDelegateSwizzler.h"
 
 #import "FIRAppDistribution+Private.h"
+#import "FIRAppDistributionAppDelegateInterceptor.h"
 #import "FIRAppDistributionMachO+Private.h"
 #import "FIRAppDistributionRelease+Private.h"
-#import "FIRFADLogger+Private.h"
-#import "FIRAppDistributionAppDelegateInterceptor.h"
 #import "FIRFADApiService+Private.h"
+#import "FIRFADLogger+Private.h"
 
 /// Empty protocol to register with FirebaseCore's component system.
 @protocol FIRAppDistributionInstanceProvider <NSObject>
 @end
 
-@interface FIRAppDistribution () <FIRLibrary,
-                                  FIRAppDistributionInstanceProvider>
+@interface FIRAppDistribution () <FIRLibrary, FIRAppDistributionInstanceProvider>
 @property(nonatomic) BOOL isTesterSignedIn;
 
-@property(nullable, nonatomic) FIRAppDistributionAppDelegateInterceptor* appDelegateInterceptor;
+@property(nullable, nonatomic) FIRAppDistributionAppDelegateInterceptor *appDelegateInterceptor;
 
 @end
 
@@ -149,12 +148,13 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
                          [[FIRApp defaultApp] options].googleAppID, identifier, [self getAppName]];
 
     NSLog(@"Registration URL: %@", requestURL);
-      
-      [self.appDelegateInterceptor appDistributionRegistrationFlow:[[NSURL alloc] initWithString:requestURL] withCompletion:^(NSError * _Nullable error) {
-          NSLog(@"Sign in flow is in completion!!");
-          completion(error);
-      }];
-    
+
+    [self.appDelegateInterceptor
+        appDistributionRegistrationFlow:[[NSURL alloc] initWithString:requestURL]
+                         withCompletion:^(NSError *_Nullable error) {
+                           NSLog(@"Sign in flow is in completion!!");
+                           completion(error);
+                         }];
   }];
 }
 
@@ -164,11 +164,14 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
   NSString *name = [mainBundle objectForInfoDictionaryKey:@"CFBundleName"];
 
   if (name)
-    return [name stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
+    return
+        [name stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet
+                                                                     URLHostAllowedCharacterSet]];
 
   name = [mainBundle objectForInfoDictionaryKey:@"CFBundleDisplayName"];
 
-  return [name stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
+  return [name stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet
+                                                                      URLHostAllowedCharacterSet]];
 }
 
 - (void)signOutTester {
@@ -192,123 +195,57 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
   return [NSError errorWithDomain:FIRAppDistributionErrorDomain code:errorCode userInfo:userInfo];
 }
 
+- (NSError *_Nullable)handleFetchReleasesError:(NSError*)error {
+  FIRFADErrorLog(@"Failed to retrieve releases: %ld", (long)[error code]);
+  switch([error code]){
+    case FIRFADApiErrorTimeout:
+      return [self NSErrorForErrorCodeAndMessage:FIRAppDistributionErrorNetworkFailure message:@"Failed to fetch releases due to timeout."];
+    case FIRFADApiErrorUnauthenticated:
+    case FIRFADApiErrorUnauthorized:
+    case FIRFADApiTokenGenerationFailure:
+    case FIRFADApiInstallationIdentifierError:
+      return [self NSErrorForErrorCodeAndMessage:FIRAppDistributionErrorAuthenticationFailure message:@"Could not authenticate tester"];
+    case FIRApiErrorUnknownFailure:
+    case FIRApiErrorParseFailure:
+      return [self NSErrorForErrorCodeAndMessage:FIRAppDistributionErrorUnknown message:@"Failed to fetch releases for unknown reason."];
+    default:
+      return nil;
+  }
+}
+
 - (void)fetchReleases:(FIRAppDistributionUpdateCheckCompletion)completion {
-  [FIRFADApiService fetchReleasesWithCompletion:^(NSArray* _Nullable releases, NSError * _Nullable error) {
-    if(error){
-      NSLog(@"Error retrieving releases: @%", [error localizedDescription]);
-      completion(nil, error);
-      return;
-    }
-
-    for (NSDictionary *releaseDict in releases) {
-      if ([[releaseDict objectForKey:kLatestReleaseKey] boolValue]) {
-        //      FIRFADInfoLog(@"Tester API - found latest release in response. Checking if code hash
-        //      match");
-        NSString *codeHash = [releaseDict objectForKey:kCodeHashKey];
-        NSString *executablePath = [[NSBundle mainBundle] executablePath];
-        FIRAppDistributionMachO *machO =
-        [[FIRAppDistributionMachO alloc] initWithPath:executablePath];
-
-        //      FIRFADInfoLog(@"Code hash for the app on device - %@", machO.codeHash);
-        //      FIRFADInfoLog(@"Code hash for the release from the service response - %@", codeHash);
-        if (codeHash && ![codeHash isEqualToString:machO.codeHash]) {
-          FIRAppDistributionRelease *release =
-          [[FIRAppDistributionRelease alloc] initWithDictionary:releaseDict];
-          dispatch_async(dispatch_get_main_queue(), ^{
-            // FIRFADInfoLog(@"Found new release");
-            completion(release, nil);
-          });
-
+  [FIRFADApiService
+      fetchReleasesWithCompletion:^(NSArray *_Nullable releases, NSError *_Nullable error) {
+        if (error) {
+          completion(nil, [self handleFetchReleasesError:error]);
           return;
         }
-      }
-    }
-  }];
-  // OR for default FIRApp:
-  FIRInstallations *installations = [FIRInstallations installations];
 
-  // Get a FIS Authentication Token.
+        for (NSDictionary *releaseDict in releases) {
+          if ([[releaseDict objectForKey:kLatestReleaseKey] boolValue]) {
+            //      FIRFADInfoLog(@"Tester API - found latest release in response. Checking if code
+            //      hash match");
+            NSString *codeHash = [releaseDict objectForKey:kCodeHashKey];
+            NSString *executablePath = [[NSBundle mainBundle] executablePath];
+            FIRAppDistributionMachO *machO =
+                [[FIRAppDistributionMachO alloc] initWithPath:executablePath];
 
-  [installations authTokenWithCompletion:^(
-                     FIRInstallationsAuthTokenResult *_Nullable authTokenResult,
-                     NSError *_Nullable error) {
-    if (error) {
-      //      FIRFADErrorLog(@"Error getting fresh auth tokens. Will sign out tester. Error: %@",
-      //                     [error localizedDescription]);
-      // TODO: Do we need a less aggresive strategy here? maybe a retry?
-      [self signOutTester];
-      NSError *HTTPError =
-          [self NSErrorForErrorCodeAndMessage:FIRAppDistributionErrorAuthenticationFailure
-                                      message:kAuthErrorMessage];
+            //      FIRFADInfoLog(@"Code hash for the app on device - %@", machO.codeHash);
+            //      FIRFADInfoLog(@"Code hash for the release from the service response - %@",
+            //      codeHash);
+            if (codeHash && ![codeHash isEqualToString:machO.codeHash]) {
+              FIRAppDistributionRelease *release =
+                  [[FIRAppDistributionRelease alloc] initWithDictionary:releaseDict];
+              dispatch_async(dispatch_get_main_queue(), ^{
+                // FIRFADInfoLog(@"Found new release");
+                completion(release, nil);
+              });
 
-      dispatch_async(dispatch_get_main_queue(), ^{
-        completion(nil, HTTPError);
-      });
-
-      return;
-    }
-
-    [installations installationIDWithCompletion:^(NSString *__nullable identifier,
-                                                  NSError *__nullable error) {
-      // perform your API request using the tokens
-      NSURLSession *URLSession = [NSURLSession sharedSession];
-      NSMutableURLRequest *request = [[NSMutableURLRequest alloc] init];
-      NSString *URLString =
-          [NSString stringWithFormat:kReleasesEndpointURL,
-                                     [[FIRApp defaultApp] options].googleAppID, identifier];
-
-      // FIRFADInfoLog(@"Requesting releases for app id - %@",
-      //                  [[FIRApp defaultApp] options].googleAppID);
-      [request setURL:[NSURL URLWithString:URLString]];
-      [request setHTTPMethod:@"GET"];
-      [request setValue:authTokenResult.authToken
-          forHTTPHeaderField:@"X-Goog-Firebase-Installations-Auth"];
-
-      [request setValue:[[FIRApp defaultApp] options].APIKey forHTTPHeaderField:@"X-Goog-Api-Key"];
-
-      NSLog(@"Url : %@, Auth token: %@ API KEY: %@", URLString, authTokenResult.authToken,
-            [[FIRApp defaultApp] options].APIKey);
-      NSURLSessionDataTask *listReleasesDataTask = [URLSession
-          dataTaskWithRequest:request
-            completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
-              NSHTTPURLResponse *HTTPResponse = (NSHTTPURLResponse *)response;
-              NSLog(@"HTTPResonse status code %ld response %@", (long)HTTPResponse.statusCode,
-                    HTTPResponse);
-              if (error || HTTPResponse.statusCode != 200) {
-                NSError *HTTPError = nil;
-                if (HTTPResponse == nil && error) {
-                  // Handles network timeouts or no internet connectivity
-                  NSString *message = error.userInfo[NSLocalizedDescriptionKey]
-                                          ? error.userInfo[NSLocalizedDescriptionKey]
-                                          : @"";
-
-                  HTTPError =
-                      [self NSErrorForErrorCodeAndMessage:FIRAppDistributionErrorNetworkFailure
-                                                  message:message];
-                } else if (HTTPResponse.statusCode == 401) {
-                  // TODO: Maybe sign out tester?
-                  HTTPError = [self
-                      NSErrorForErrorCodeAndMessage:FIRAppDistributionErrorAuthenticationFailure
-                                            message:kAuthErrorMessage];
-                } else {
-                  HTTPError = [self NSErrorForErrorCodeAndMessage:FIRAppDistributionErrorUnknown
-                                                          message:@""];
-                }
-
-                //              FIRFADErrorLog(@"App Tester API service error - %@",
-                //                             [HTTPError localizedDescription]);
-                dispatch_async(dispatch_get_main_queue(), ^{
-                  completion(nil, HTTPError);
-                });
-
-              } else {
-                [self handleReleasesAPIResponseWithData:data completion:completion];
-              }
-            }];
-
-      [listReleasesDataTask resume];
-    }];
-  }];
+              return;
+            }
+          }
+        }
+      }];
 }
 
 //- (void)logUnderlyingKeychainError:(NSError *)error {

@@ -66,7 +66,6 @@ NS_SWIFT_NAME(AppDistribution)
  */
 - (void)signOutTester;
 
-
 /**
  * Accesses the singleton App Distribution instance.
  *
