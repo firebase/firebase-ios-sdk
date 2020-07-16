@@ -97,7 +97,10 @@ class RemoteConfigConsole {
       updatedConfig.updateValue(parameters, forKey: "parameters")
 
     } else {
-      updatedConfig.updateValue([key: ["defaultValue": ["value": value]]], forKey: "parameters")
+      updatedConfig.updateValue(
+        [key: ["defaultValue": ["value": value.description]]],
+        forKey: "parameters"
+      )
     }
 
     publish(config: updatedConfig)
