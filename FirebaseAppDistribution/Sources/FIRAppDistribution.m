@@ -195,19 +195,22 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
   return [NSError errorWithDomain:FIRAppDistributionErrorDomain code:errorCode userInfo:userInfo];
 }
 
-- (NSError *_Nullable)handleFetchReleasesError:(NSError*)error {
+- (NSError *_Nullable)handleFetchReleasesError:(NSError *)error {
   FIRFADErrorLog(@"Failed to retrieve releases: %ld", (long)[error code]);
-  switch([error code]){
+  switch ([error code]) {
     case FIRFADApiErrorTimeout:
-      return [self NSErrorForErrorCodeAndMessage:FIRAppDistributionErrorNetworkFailure message:@"Failed to fetch releases due to timeout."];
+      return [self NSErrorForErrorCodeAndMessage:FIRAppDistributionErrorNetworkFailure
+                                         message:@"Failed to fetch releases due to timeout."];
     case FIRFADApiErrorUnauthenticated:
     case FIRFADApiErrorUnauthorized:
     case FIRFADApiTokenGenerationFailure:
     case FIRFADApiInstallationIdentifierError:
-      return [self NSErrorForErrorCodeAndMessage:FIRAppDistributionErrorAuthenticationFailure message:@"Could not authenticate tester"];
+      return [self NSErrorForErrorCodeAndMessage:FIRAppDistributionErrorAuthenticationFailure
+                                         message:@"Could not authenticate tester"];
     case FIRApiErrorUnknownFailure:
     case FIRApiErrorParseFailure:
-      return [self NSErrorForErrorCodeAndMessage:FIRAppDistributionErrorUnknown message:@"Failed to fetch releases for unknown reason."];
+      return [self NSErrorForErrorCodeAndMessage:FIRAppDistributionErrorUnknown
+                                         message:@"Failed to fetch releases for unknown reason."];
     default:
       return nil;
   }
@@ -223,7 +226,8 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
 
         for (NSDictionary *releaseDict in releases) {
           if ([[releaseDict objectForKey:kLatestReleaseKey] boolValue]) {
-            FIRFADInfoLog(@"Tester API - found latest release in response. Checking if code hash match");
+            FIRFADInfoLog(
+                @"Tester API - found latest release in response. Checking if code hash match");
             NSString *codeHash = [releaseDict objectForKey:kCodeHashKey];
             NSString *executablePath = [[NSBundle mainBundle] executablePath];
             FIRAppDistributionMachO *machO =
