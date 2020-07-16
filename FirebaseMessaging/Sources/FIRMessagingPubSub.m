@@ -160,7 +160,7 @@ static NSString *const kPendingSubscriptionsListKey =
 }
 
 - (void)scheduleSync:(BOOL)immediately {
-  NSString *fcmToken = [FIRMessaging messaging].FCMToken;
+  NSString *fcmToken = [FIRMessaging messaging].cachedToken;
   if (fcmToken.length) {
     [self.pendingTopicUpdates resumeOperationsIfNeeded];
   }
@@ -172,7 +172,7 @@ static NSString *const kPendingSubscriptionsListKey =
     requestedUpdateForTopic:(NSString *)topic
                      action:(FIRMessagingTopicAction)action
                  completion:(FIRMessagingTopicOperationCompletion)completion {
-  NSString *fcmToken = [FIRMessaging messaging].FCMToken;
+  NSString *fcmToken = [FIRMessaging messaging].cachedToken;
   if (action == FIRMessagingTopicActionSubscribe) {
     [self subscribeWithToken:fcmToken topic:topic options:nil handler:completion];
   } else {
@@ -185,7 +185,7 @@ static NSString *const kPendingSubscriptionsListKey =
 }
 
 - (BOOL)pendingTopicsListCanRequestTopicUpdates:(FIRMessagingPendingTopicsList *)list {
-  NSString *fcmToken = [FIRMessaging messaging].FCMToken;
+  NSString *fcmToken = [FIRMessaging messaging].cachedToken;
   return (fcmToken.length > 0);
 }
 

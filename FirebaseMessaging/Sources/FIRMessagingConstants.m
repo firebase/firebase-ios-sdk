@@ -51,6 +51,7 @@ NSString *const kFIRMessagingSubDirectoryName = @"Google/FirebaseMessaging";
 
 // Notifications
 NSString *const kFIRMessagingCheckinFetchedNotification = @"com.google.gcm.notif-checkin-fetched";
+NSString *const kFIRMessagingAPNSTokenNotification = @"com.firebase.iid.notif.apns-token";
 NSString *const kFIRMessagingRegistrationTokenRefreshNotification =
     @"com.firebase.iid.notif.refresh-token";
 

@@ -394,12 +394,6 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
       [self updateAutomaticClientConnection];
     }
 #pragma clang diagnostic pop
-    if (!self.tokenManager.defaultFCMToken && self.isAutoInitEnabled) {
-      [self retrieveFCMTokenForSenderID:self.tokenManager.fcmSenderID
-                             completion:^(NSString *_Nullable FCMToken, NSError *_Nullable error){
-
-                             }];
-    }
   }
 }
 
@@ -653,6 +647,10 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 
 - (NSString *)FCMToken {
   return [[FIRMessaging messaging].tokenManager tokenAndRequestIfNotExist];
+}
+
+- (NSString *)cachedToken {
+  return self.tokenManager.defaultFCMToken;
 }
 
 - (void)retrieveFCMTokenForSenderID:(nonnull NSString *)senderID

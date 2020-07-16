@@ -365,13 +365,8 @@ NSString *FIRMessagingCurrentLocale() {
 }
 
 BOOL FIRMessagingHasLocaleChanged() {
-<<<<<<< HEAD
   NSString *lastLocale = [[GULUserDefaults standardUserDefaults]
       stringForKey:kFIRMessagingInstanceIDUserDefaultsKeyLocale];
-=======
-  NSString *lastLocale =
-      [[GULUserDefaults standardUserDefaults] stringForKey:kFIRInstanceIDUserDefaultsKeyLocale];
->>>>>>> dbdf3581cb775583e827b4ea73ef231540d155b7
   NSString *currentLocale = FIRMessagingCurrentLocale();
   if (lastLocale) {
     if ([currentLocale isEqualToString:lastLocale]) {
