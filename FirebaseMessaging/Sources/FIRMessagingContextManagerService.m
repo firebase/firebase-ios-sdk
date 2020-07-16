@@ -216,13 +216,9 @@ typedef NS_ENUM(NSUInteger, FIRMessagingContextManagerMessageType) {
   if ([apsDictionary[kFIRMessagingContextManagerBodyKey] length]) {
     notification.alertBody = apsDictionary[kFIRMessagingContextManagerBodyKey];
   }
-  if ([apsDictionary[kFIRMessagingContextManagerTitleKey] length]) {
-    // |alertTitle| is iOS 8.2+, so check if we can set it
-    if ([notification respondsToSelector:@selector(setAlertTitle:)]) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunguarded-availability"
+  if (@available(iOS 8.2, *)) {
+    if ([apsDictionary[kFIRMessagingContextManagerTitleKey] length]) {
       notification.alertTitle = apsDictionary[kFIRMessagingContextManagerTitleKey];
-#pragma clang diagnostic pop
     }
   }
 
@@ -234,10 +230,7 @@ typedef NS_ENUM(NSUInteger, FIRMessagingContextManagerMessageType) {
         [apsDictionary[kFIRMessagingContextManagerBadgeKey] integerValue];
   }
   if (apsDictionary[kFIRMessagingContextManagerCategoryKey]) {
-    // |category| is iOS 8.0+, so check if we can set it
-    if ([notification respondsToSelector:@selector(setCategory:)]) {
-      notification.category = apsDictionary[kFIRMessagingContextManagerCategoryKey];
-    }
+    notification.category = apsDictionary[kFIRMessagingContextManagerCategoryKey];
   }
 
   NSDictionary *userInfo = [self parseDataFromMessage:message];

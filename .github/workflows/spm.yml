@@ -17,7 +17,15 @@ jobs:
     runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v2
+    - name: Xcode 12
+      run: sudo xcode-select -s /Applications/Xcode_12_beta.app/Contents/Developer
     - name: Build
       run: swift build
-    - name: Run
-      run: swift test
+    - name: Initialize xcodebuild
+      run: xcodebuild -list
+    - name: Core ObjC Unit Tests macOS
+      run: xcodebuild -scheme Firebase-Package test
+    - name: Core ObjC Unit Tests iOS
+      run: xcodebuild -scheme Firebase-Package test -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 11'
+    - name: Core ObjC Unit Tests tvOS
+      run: xcodebuild -scheme Firebase-Package test -sdk appletvsimulator -destination 'platform=tvOS Simulator,name=Apple TV'

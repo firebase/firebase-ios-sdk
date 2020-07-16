@@ -43,6 +43,9 @@ extern NSString *const kFIRLibraryVersionID;
 }
 
 - (void)testInit {
+#if SWIFT_PACKAGE
+  [self mockFIROptions];
+#endif
   NSDictionary *optionsDictionary = [FIROptions defaultOptionsDictionary];
   FIROptions *options = [[FIROptions alloc] initInternalWithOptionsDictionary:optionsDictionary];
   [self assertOptionsMatchDefaults:options andProjectID:YES];
@@ -72,6 +75,9 @@ extern NSString *const kFIRLibraryVersionID;
 }
 
 - (void)testDefaultOptions {
+#if SWIFT_PACKAGE
+  [self mockFIROptions];
+#endif
   FIROptions *options = [FIROptions defaultOptions];
   [self assertOptionsMatchDefaults:options andProjectID:YES];
   XCTAssertNil(options.deepLinkURLScheme);
@@ -80,6 +86,60 @@ extern NSString *const kFIRLibraryVersionID;
   options.deepLinkURLScheme = kDeepLinkURLScheme;
   XCTAssertEqualObjects(options.deepLinkURLScheme, kDeepLinkURLScheme);
 }
+
+#ifndef SWIFT_PACKAGE
+// Another strategy is needed for these tests to pass with SWIFT_PACKAGE, since the mocking
+// prevents the file path traversals.
+
+- (void)testDefaultOptionsAreInitializedOnce {
+  id mockBundleUtil = OCMClassMock([FIRBundleUtil class]);
+  OCMExpect([mockBundleUtil optionsDictionaryPathWithResourceName:kServiceInfoFileName
+                                                      andFileType:kServiceInfoFileType
+                                                        inBundles:[FIRBundleUtil relevantBundles]])
+      .andReturn([self validGoogleServicesInfoPlistPath]);
+  XCTAssertNotNil([FIROptions defaultOptions]);
+  OCMVerifyAll(mockBundleUtil);
+
+  OCMReject([mockBundleUtil optionsDictionaryPathWithResourceName:OCMOCK_ANY
+                                                      andFileType:OCMOCK_ANY
+                                                        inBundles:OCMOCK_ANY]);
+  XCTAssertNotNil([FIROptions defaultOptions]);
+  OCMVerifyAll(mockBundleUtil);
+}
+
+- (void)testDefaultOptionsDictionaryIsInitializedOnce {
+  id mockBundleUtil = OCMClassMock([FIRBundleUtil class]);
+  OCMExpect([mockBundleUtil optionsDictionaryPathWithResourceName:kServiceInfoFileName
+                                                      andFileType:kServiceInfoFileType
+                                                        inBundles:[FIRBundleUtil relevantBundles]])
+      .andReturn([self validGoogleServicesInfoPlistPath]);
+  XCTAssertNotNil([FIROptions defaultOptionsDictionary]);
+  OCMVerifyAll(mockBundleUtil);
+
+  OCMReject([mockBundleUtil optionsDictionaryPathWithResourceName:OCMOCK_ANY
+                                                      andFileType:OCMOCK_ANY
+                                                        inBundles:OCMOCK_ANY]);
+  XCTAssertNotNil([FIROptions defaultOptionsDictionary]);
+  OCMVerifyAll(mockBundleUtil);
+}
+
+- (void)testInitWithContentsOfFile {
+  NSString *filePath = [self validGoogleServicesInfoPlistPath];
+  FIROptions *options = [[FIROptions alloc] initWithContentsOfFile:filePath];
+  [self assertOptionsMatchDefaults:options andProjectID:YES];
+  XCTAssertNil(options.deepLinkURLScheme);
+  XCTAssertFalse(options.usingOptionsFromDefaultPlist);
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnonnull"
+  FIROptions *emptyOptions = [[FIROptions alloc] initWithContentsOfFile:nil];
+#pragma clang diagnostic pop
+  XCTAssertNil(emptyOptions);
+
+  FIROptions *invalidOptions = [[FIROptions alloc] initWithContentsOfFile:@"invalid.plist"];
+  XCTAssertNil(invalidOptions);
+}
+#endif
 
 - (void)testInitCustomizedOptions {
   FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
@@ -95,29 +155,6 @@ extern NSString *const kFIRLibraryVersionID;
   [self assertOptionsMatchDefaults:options andProjectID:YES];
   XCTAssertEqualObjects(options.deepLinkURLScheme, kDeepLinkURLScheme);
   XCTAssertFalse(options.usingOptionsFromDefaultPlist);
-}
-
-- (void)testInitWithContentsOfFile {
-  NSString *filePath = [[NSBundle mainBundle] pathForResource:@"GoogleService-Info"
-                                                       ofType:@"plist"];
-  if (filePath == nil) {
-    // Use bundleForClass to allow GoogleService-Info.plist to be in the test target's bundle.
-    NSBundle *bundle = [NSBundle bundleForClass:[self class]];
-    filePath = [bundle pathForResource:@"GoogleService-Info" ofType:@"plist"];
-  }
-  FIROptions *options = [[FIROptions alloc] initWithContentsOfFile:filePath];
-  [self assertOptionsMatchDefaults:options andProjectID:YES];
-  XCTAssertNil(options.deepLinkURLScheme);
-  XCTAssertFalse(options.usingOptionsFromDefaultPlist);
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnonnull"
-  FIROptions *emptyOptions = [[FIROptions alloc] initWithContentsOfFile:nil];
-#pragma clang diagnostic pop
-  XCTAssertNil(emptyOptions);
-
-  FIROptions *invalidOptions = [[FIROptions alloc] initWithContentsOfFile:@"invalid.plist"];
-  XCTAssertNil(invalidOptions);
 }
 
 - (void)assertOptionsMatchDefaults:(FIROptions *)options andProjectID:(BOOL)matchProjectID {
@@ -205,6 +242,9 @@ extern NSString *const kFIRLibraryVersionID;
 }
 
 - (void)testCopyWithZone {
+#if SWIFT_PACKAGE
+  [self mockFIROptions];
+#endif
   // default options
   FIROptions *options = [FIROptions defaultOptions];
   options.deepLinkURLScheme = kDeepLinkURLScheme;
@@ -625,6 +665,21 @@ extern NSString *const kFIRLibraryVersionID;
                                  [[kFIRLibraryVersionID substringWithRange:minor] intValue],
                                  [[kFIRLibraryVersionID substringWithRange:patch] intValue]];
   XCTAssertEqualObjects(str, [NSString stringWithUTF8String:(const char *)FIRCoreVersionString]);
+}
+
+#pragma mark - Helpers
+
+- (NSString *)validGoogleServicesInfoPlistPath {
+  NSString *filePath = [[NSBundle mainBundle] pathForResource:@"GoogleService-Info"
+                                                       ofType:@"plist"];
+  if (filePath == nil) {
+    // Use bundleForClass to allow GoogleService-Info.plist to be in the test target's bundle.
+    NSBundle *bundle = [NSBundle bundleForClass:[self class]];
+    filePath = [bundle pathForResource:@"GoogleService-Info" ofType:@"plist"];
+  }
+
+  XCTAssertNotNil(filePath);
+  return filePath;
 }
 
 @end

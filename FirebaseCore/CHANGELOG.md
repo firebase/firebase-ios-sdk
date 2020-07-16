@@ -1,3 +1,8 @@
+# v6.9.0 -- M75
+- [changed] Added thread safety to `[FIROptions defaultOptions]` method. (#5915)
+- [changed] Updated GoogleUtilities and GoogleDataTransport imports. The GoogleDataTransportCCTSupport
+  pod/framework should no longer be linked along with Firebase. (#5824)
+
 # v6.8.0 -- M73
 - [changed] Functionally neutral refactor to simplify FirebaseCore's header usage and replace
   Interop pods with headers only. This change is the reason most of the Firebase pods have a minor

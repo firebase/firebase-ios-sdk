@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseMessaging'
-  s.version          = '4.5.0'
+  s.version          = '4.6.0'
   s.summary          = 'Firebase Messaging'
 
   s.description      = <<-DESC
@@ -33,7 +33,7 @@ device, and it is completely free.
     base_dir + 'Sources/**/*.[mh]',
     'Interop/Analytics/Public/*.h',
     'FirebaseCore/Sources/Private/*.h',
-    'FirebaseInstallations/Source/Private/*.h',
+    'FirebaseInstallations/Source/Library/Private/*.h',
     'GoogleUtilities/AppDelegateSwizzler/Private/*.h',
     'GoogleUtilities/Environment/Private/*.h',
     'GoogleUtilities/Reachability/Private/*.h',

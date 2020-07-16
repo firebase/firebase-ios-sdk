@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseDatabase'
-  s.version          = '6.3.0'
+  s.version          = '6.4.0'
   s.summary          = 'Firebase Realtime Database'
 
   s.description      = <<-DESC
@@ -47,8 +47,8 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
     unit_tests.source_files = 'FirebaseDatabase/Tests/Unit/*.[mh]',
                               'FirebaseDatabase/Tests/Helpers/*.[mh]',
                               'FirebaseDatabase/Tests/third_party/*.[mh]',
-                              'Example/Shared/FIRAuthInteropFake.[mh]',
-                              'Example/Shared/FIRComponentTestUtilities.h'
+                              'SharedTestUtilities/FIRAuthInteropFake.[mh]',
+                              'SharedTestUtilities/FIRComponentTestUtilities.h'
     unit_tests.resources = 'FirebaseDatabase/Tests/Resources/syncPointSpec.json',
                            'FirebaseDatabase/Tests/Resources/GoogleService-Info.plist'
   end
@@ -56,7 +56,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.test_spec 'integration' do |int_tests|
     int_tests.source_files = 'FirebaseDatabase/Tests/Integration/*.[mh]',
                              'FirebaseDatabase/Tests/Helpers/*.[mh]',
-                             'Example/Shared/FIRAuthInteropFake.[mh]'
+                             'SharedTestUtilities/FIRAuthInteropFake.[mh]'
     int_tests.resources = 'FirebaseDatabase/Tests/Resources/GoogleService-Info.plist'
   end
 end

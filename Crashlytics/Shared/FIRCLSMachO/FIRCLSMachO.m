@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "FIRCLSMachO.h"
+#include "Crashlytics/Shared/FIRCLSMachO/FIRCLSMachO.h"
 
 #include <Foundation/Foundation.h>
 

@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'GoogleDataTransport'
-  s.version          = '6.2.1'
+  s.version          = '7.0.0'
   s.summary          = 'Google iOS SDK data transport.'
 
   s.description      = <<-DESC
@@ -26,22 +26,30 @@ Shared library for iOS SDK data transport needs.
   s.static_framework = true
   s.prefix_header_file = false
 
-  s.source_files = 'GoogleDataTransport/GDTCORLibrary/**/*'
+  s.source_files = ['GoogleDataTransport/GDTCORLibrary/**/*',
+                    'GoogleDataTransport/GDTCCTLibrary/**/*']
   s.public_header_files = 'GoogleDataTransport/GDTCORLibrary/Public/*.h'
-  s.private_header_files = 'GoogleDataTransport/GDTCORLibrary/Private/*.h'
   s.ios.frameworks = 'SystemConfiguration', 'CoreTelephony'
   s.osx.frameworks = 'SystemConfiguration', 'CoreTelephony'
   s.tvos.frameworks = 'SystemConfiguration'
 
+  s.libraries = ['z']
+
+  s.dependency 'nanopb', '~> 1.30905.0'
+
   header_search_paths = {
-    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}/GoogleDataTransport/"'
+    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}/"'
   }
 
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'GCC_TREAT_WARNINGS_AS_ERRORS' => 'YES',
     'CLANG_UNDEFINED_BEHAVIOR_SANITIZER_NULLABILITY' => 'YES',
-    'GCC_PREPROCESSOR_DEFINITIONS' => 'GDTCOR_VERSION=' + s.version.to_s
+    'GCC_PREPROCESSOR_DEFINITIONS' =>
+      # The nanopb pod sets these defs, so we must too. (We *do* require 16bit
+      # (or larger) fields, so we'd have to set at least PB_FIELD_16BIT
+      # anyways.)
+      'PB_FIELD_32BIT=1 PB_NO_PACKED_STRUCTS=1 PB_ENABLE_MALLOC=1 GDTCOR_VERSION=' + s.version.to_s,
   }.merge(header_search_paths)
 
   common_test_sources = ['GoogleDataTransport/GDTCORTests/Common/**/*.{h,m}']
@@ -100,4 +108,54 @@ Shared library for iOS SDK data transport needs.
     end
   end
 
+  # CCT Tests follow
+  if ENV['GDT_DEV'] && ENV['GDT_DEV'] == '1' then
+    s.app_spec 'CCTTestApp' do |app_spec|
+      app_spec.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
+      app_spec.source_files = 'GoogleDataTransport/GDTCCTTestApp/**/*.swift'
+      app_spec.ios.resources = ['GoogleDataTransport/GDTCCTTestApp/ios/*.storyboard']
+      app_spec.macos.resources = ['GoogleDataTransport/GDTCCTTestApp/macos/*.storyboard']
+      app_spec.tvos.resources = ['GoogleDataTransport/GDTCCTTestApp/tvos/*.storyboard']
+      app_spec.dependency 'SwiftProtobuf'
+      app_spec.info_plist = {
+        'UILaunchStoryboardName' => 'Main',
+        'UIMainStoryboardFile' => 'Main',
+        'NSMainStoryboardFile' => 'Main'
+      }
+    end
+  end
+
+  common_cct_test_sources = ['GoogleDataTransport/GDTCCTTests/Common/**/*.{h,m}']
+
+  # Test specs
+  s.test_spec 'CCT-Tests-Unit' do |test_spec|
+    test_spec.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
+    test_spec.requires_app_host = false
+    test_spec.source_files = ['GoogleDataTransport/GDTCCTTests/Unit/**/*.{h,m}'] + common_cct_test_sources + common_test_sources
+    test_spec.resources = ['GoogleDataTransport/GDTCCTTests/Data/**/*']
+    test_spec.pod_target_xcconfig = header_search_paths
+    test_spec.dependency 'GCDWebServer'
+  end
+
+  s.test_spec 'CCT-Tests-Integration' do |test_spec|
+    test_spec.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
+    test_spec.requires_app_host = false
+    test_spec.source_files = ['GoogleDataTransport/GDTCCTTests/Integration/**/*.{h,m}'] + common_cct_test_sources
+    test_spec.resources = ['GoogleDataTransport/GDTCCTTests/Data/**/*']
+    test_spec.pod_target_xcconfig = header_search_paths
+  end
+
+  # Monkey test specs, only enabled for development.
+  if ENV['GDT_DEV'] && ENV['GDT_DEV'] == '1' then
+    s.test_spec 'CCT-Tests-Monkey' do |test_spec|
+      test_spec.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
+      test_spec.requires_app_host = true
+      test_spec.app_host_name = 'GoogleDataTransport/CCTTestApp'
+      test_spec.dependency 'GoogleDataTransport/CCTTestApp'
+      test_spec.source_files = ['GoogleDataTransport/GDTCCTTests/Monkey/**/*.{swift}'] + common_cct_test_sources
+      test_spec.info_plist = {
+        'GDT_MONKEYTEST' => '1'
+      }
+    end
+  end
 end

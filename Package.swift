@@ -1,4 +1,4 @@
-// swift-tools-version:5.0
+// swift-tools-version:5.3
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 // Copyright 2020 Google LLC
@@ -27,10 +27,10 @@ let package = Package(
   products: [
     // Products define the executables and libraries produced by a package, and make them visible to
     // other packages.
-    // .library(
-    //   name: "Firebase",
-    //   targets: ["Firebase"]
-    // ),
+    .library(
+      name: "Firebase",
+      targets: ["Firebase"]
+    ),
     .library(
       name: "FirebaseCore",
       targets: ["FirebaseCore"]
@@ -39,10 +39,10 @@ let package = Package(
       name: "FirebaseAuth",
       targets: ["FirebaseAuth"]
     ),
-    // .library(
-    //   name: "FirebaseCrashlytics",
-    //   targets: ["FirebaseCrashlytics"]
-    // ),
+    .library(
+      name: "FirebaseCrashlytics",
+      targets: ["FirebaseCrashlytics"]
+    ),
     .library(
       name: "FirebaseFunctions",
       targets: ["FirebaseFunctions"]
@@ -65,9 +65,19 @@ let package = Package(
     ),
   ],
   dependencies: [
-    .package(url: "https://github.com/google/promises.git", "1.2.8" ..< "1.3.0"),
-    .package(url: "https://github.com/google/gtm-session-fetcher.git", "1.4.0" ..< "2.0.0"),
-    .package(url: "https://github.com/paulb777/nanopb.git", .branch("swift-package-manager")),
+    .package(name: "Promises", url: "https://github.com/google/promises.git", "1.2.8" ..< "1.3.0"),
+    .package(
+      name: "GTMSessionFetcher",
+      url: "https://github.com/google/gtm-session-fetcher.git",
+      "1.4.0" ..< "2.0.0"
+    ),
+    .package(
+      name: "nanopb",
+      url: "https://github.com/paulb777/nanopb.git",
+      .branch("swift-package-manager")
+    ),
+    .package(name: "OCMock", url: "https://github.com/paulb777/ocmock.git", .revision("7291762")),
+    .package(name: "leveldb", url: "https://github.com/paulb777/leveldb.git", .revision("3f04697")),
     // Branches need a force update with a run with the revision set like below.
     //   .package(url: "https://github.com/paulb777/nanopb.git", .revision("564392bd87bd093c308a3aaed3997466efb95f74"))
   ],
@@ -78,13 +88,18 @@ let package = Package(
       name: "firebase-test",
       dependencies: [
         "FirebaseAuth",
+        "FirebaseABTesting",
         "FirebaseFunctions",
-        //  "Firebase",
+        "Firebase",
+        "FirebaseCrashlytics",
         "FirebaseCore",
+        "FirebaseDatabase",
         "FirebaseInstallations",
         // "FirebaseInstanceID",
+        "FirebaseRemoteConfig",
         "FirebaseStorage",
         "FirebaseStorageSwift",
+        "GoogleDataTransport",
         "GoogleUtilities_AppDelegateSwizzler",
         "GoogleUtilities_Environment",
         // "GoogleUtilities_ISASwizzler", // Build needs to disable ARC.
@@ -102,6 +117,23 @@ let package = Package(
       dependencies: ["GoogleUtilities_Environment", "GoogleUtilities_Logger",
                      "GoogleUtilities_Network"],
       path: "GoogleUtilities",
+      exclude: [
+        "CHANGELOG.md",
+        "CMakeLists.txt",
+        "LICENSE",
+        "README.md",
+        "AppDelegateSwizzler/README.md",
+        "Environment/",
+        "Network/",
+        "ISASwizzler/",
+        "Logger/",
+        "MethodSwizzler/",
+        "NSData+zlib/",
+        "Reachability",
+        "SwizzlerTestHelpers/",
+        "Tests",
+        "UserDefaults/",
+      ],
       sources: [
         "AppDelegateSwizzler/",
         "SceneDelegateSwizzler/",
@@ -114,8 +146,9 @@ let package = Package(
     ),
     .target(
       name: "GoogleUtilities_Environment",
-      dependencies: ["FBLPromises"],
+      dependencies: [.product(name: "FBLPromises", package: "Promises")],
       path: "GoogleUtilities/Environment",
+      exclude: ["third_party/LICENSE"],
       publicHeadersPath: "Private",
       cSettings: [
         .headerSearchPath("../../"),
@@ -154,9 +187,6 @@ let package = Package(
       cSettings: [
         .headerSearchPath("../.."),
       ]
-      // linkerSettings: [
-      //   .linkedFramework("Security"),
-      // ]
     ),
     .target(
       name: "GoogleUtilities_NSData",
@@ -187,11 +217,35 @@ let package = Package(
         .headerSearchPath("../../"),
       ]
     ),
-    // .target(
-    //   name: "Firebase",
-    //   path: "Firebase/Sources",
-    //   publicHeadersPath: "Public"
+    // TODO: - need to port Network/third_party/GTMHTTPServer.m to ARC.
+    // .testTarget(
+    //   name: "UtilitiesUnit",
+    //   dependencies: [
+    //     "OCMock",
+    //     "GoogleUtilities_AppDelegateSwizzler",
+    //     "GoogleUtilities_Environment",
+    //     // "GoogleUtilities_ISASwizzler", // Build needs to disable ARC.
+    //     "GoogleUtilities_Logger",
+    //     "GoogleUtilities_MethodSwizzler",
+    //     "GoogleUtilities_Network",
+    //     "GoogleUtilities_NSData",
+    //     "GoogleUtilities_Reachability",
+    //     "GoogleUtilities_UserDefaults",
+    //   ],
+    //   path: "GoogleUtilities/Tests/Unit",
+    //   exclude: [
+    //     "Network/third_party/LICENSE",
+    //     "Network/third_party/GTMHTTPServer.m", // Requires disabling ARC
+    //   ],
+    //   cSettings: [
+    //     .headerSearchPath("../../.."),
+    //   ]
     // ),
+    .target(
+      name: "Firebase",
+      path: "CoreOnly/Sources",
+      publicHeadersPath: "./"
+    ),
     .target(
       name: "FirebaseCore",
       dependencies: ["GoogleUtilities_Environment", "GoogleUtilities_Logger"],
@@ -204,12 +258,40 @@ let package = Package(
         // TODO: - Add support for cflags cSetting so that we can set the -fno-autolink option
       ]
     ),
+    .testTarget(
+      name: "CoreUnit",
+      dependencies: ["FirebaseCore", "OCMock"],
+      path: "FirebaseCore/Tests/Unit",
+      exclude: ["Resources/GoogleService-Info.plist"],
+      cSettings: [
+        .headerSearchPath("../../.."),
+      ]
+    ),
+    .target(
+      name: "FirebaseABTesting",
+      dependencies: ["FirebaseCore"],
+      path: "FirebaseABTesting/Sources",
+      publicHeadersPath: "Public",
+      cSettings: [
+        .headerSearchPath("../../"),
+        .define("FIRABTesting_VERSION", to: "0.0.1"), // TODO: Fix version
+      ]
+    ),
+    .testTarget(
+      name: "ABTestingUnit",
+      dependencies: ["FirebaseABTesting", "OCMock"],
+      path: "FirebaseABTesting/Tests/Unit",
+      resources: [.process("Resources")],
+      cSettings: [
+        .headerSearchPath("../../.."),
+      ]
+    ),
     .target(
       name: "FirebaseAuth",
       dependencies: ["FirebaseCore",
                      "GoogleUtilities_Environment",
                      "GoogleUtilities_AppDelegateSwizzler",
-                     "GTMSessionFetcherCore"],
+                     .product(name: "GTMSessionFetcherCore", package: "GTMSessionFetcher")],
       path: "FirebaseAuth/Sources",
       publicHeadersPath: "Public",
       cSettings: [
@@ -218,9 +300,94 @@ let package = Package(
         .define("FIRAuth_MINOR_VERSION", to: "1.1"), // TODO: Fix version
       ]
     ),
+    .testTarget(
+      name: "AuthUnit",
+      dependencies: ["FirebaseAuth", "OCMock"],
+      path: "FirebaseAuth/Tests/Unit",
+      exclude: [
+        "FIRAuthKeychainServicesTests.m", // TODO: figure out SPM keychain testing
+        "FIRAuthTests.m",
+        "FIRUserTests.m",
+      ],
+      cSettings: [
+        .headerSearchPath("../../.."),
+      ]
+    ),
+    .target(
+      name: "FirebaseCrashlytics",
+      dependencies: ["FirebaseCore", "FirebaseInstallations",
+                     .product(name: "FBLPromises", package: "Promises"),
+                     "GoogleDataTransport", "nanopb"],
+      path: "Crashlytics",
+      exclude: [
+        "run",
+        "CHANGELOG.md",
+        "LICENSE",
+        "README.md",
+        "Data/",
+        "Protos/",
+        "ProtoSupport/",
+        "UnitTests/",
+        "generate_project.sh",
+        "upload-symbols",
+        "third_party/libunwind/LICENSE",
+      ],
+      sources: [
+        "Crashlytics/",
+        "Protogen/",
+        "Shared/",
+        "third_party/libunwind/dwarf.h",
+      ],
+      publicHeadersPath: "Crashlytics/Public",
+      cSettings: [
+        .headerSearchPath(".."),
+        .define("DISPLAY_VERSION", to: "0.0.1"), // TODO: Fix version
+        .define("CLS_SDK_NAME", to: "Crashlytics iOS SDK", .when(platforms: .some([.iOS]))),
+        .define("CLS_SDK_NAME", to: "Crashlytics macOS SDK", .when(platforms: .some([.macOS]))),
+        .define("CLS_SDK_NAME", to: "Crashlytics tvOS SDK", .when(platforms: .some([.tvOS]))),
+        .define("PB_FIELD_32BIT", to: "1"),
+        .define("PB_NO_PACKED_STRUCTS", to: "1"),
+        .define("PB_ENABLE_MALLOC", to: "1"),
+      ]
+    ),
+    .target(
+      name: "FirebaseDatabase",
+      dependencies: [
+        "FirebaseCore",
+        "leveldb",
+      ],
+      path: "FirebaseDatabase/Sources",
+      exclude: [
+        "third_party/Wrap-leveldb/LICENSE",
+        "third_party/SocketRocket/LICENSE",
+        "third_party/FImmutableSortedDictionary/LICENSE",
+        "third_party/SocketRocket/aa2297808c225710e267afece4439c256f6efdb3",
+      ],
+      publicHeadersPath: "Public",
+      cSettings: [
+        .headerSearchPath("../../"),
+        .define("FIRDatabase_VERSION", to: "0.0.1"), // TODO: Fix version
+      ]
+    ),
+    .testTarget(
+      name: "DatabaseUnit",
+      dependencies: ["FirebaseDatabase", "OCMock", "SharedTestUtilities"],
+      path: "FirebaseDatabase/Tests/",
+      exclude: [
+        "Integration/",
+      ],
+      resources: [.process("Resources")],
+      cSettings: [
+        .headerSearchPath("../.."),
+      ]
+    ),
+
     .target(
       name: "FirebaseFunctions",
-      dependencies: ["FirebaseCore", "GTMSessionFetcherCore"],
+      dependencies: [
+        "FirebaseCore",
+        .product(name: "GTMSessionFetcherCore", package: "GTMSessionFetcher"),
+      ],
       path: "Functions/FirebaseFunctions",
       publicHeadersPath: "Public",
       cSettings: [
@@ -241,7 +408,7 @@ let package = Package(
     // ),
     .target(
       name: "FirebaseInstallations",
-      dependencies: ["FirebaseCore", "FBLPromises",
+      dependencies: ["FirebaseCore", .product(name: "FBLPromises", package: "Promises"),
                      "GoogleUtilities_Environment", "GoogleUtilities_UserDefaults"],
       path: "FirebaseInstallations/Source/Library",
       publicHeadersPath: "Public",
@@ -250,8 +417,56 @@ let package = Package(
       ]
     ),
     .target(
+      name: "SharedTestUtilities",
+      dependencies: ["FirebaseCore"],
+      path: "SharedTestUtilities",
+      publicHeadersPath: "Public",
+      cSettings: [
+        .headerSearchPath("../"),
+      ]
+    ),
+    .target(
+      name: "FirebaseRemoteConfig",
+      dependencies: [
+        "FirebaseCore",
+        "FirebaseABTesting",
+        "FirebaseInstallations",
+        "GoogleUtilities_NSData",
+      ],
+      path: "FirebaseRemoteConfig/Sources",
+      publicHeadersPath: "Public",
+      cSettings: [
+        .headerSearchPath("../../"),
+        .define("FIRRemoteConfig_VERSION", to: "0.0.1"), // TODO: Fix version
+      ]
+    ),
+    .testTarget(
+      name: "RemoteConfigUnit",
+      dependencies: ["FirebaseRemoteConfig", "OCMock"],
+      path: "FirebaseRemoteConfig/Tests/Unit",
+      exclude: [
+        // Need to be evaluated/ported to RC V2.
+        "RCNConfigAnalyticsTest.m",
+        "RCNConfigSettingsTest.m",
+        "RCNConfigTest.m",
+        "RCNRemoteConfig+FIRAppTest.m",
+        "RCNThrottlingTests.m",
+      ],
+      resources: [
+        .process("SecondApp-GoogleService-Info.plist"),
+        .process("Defaults-testInfo.plist"),
+        .process("TestABTPayload.txt"),
+      ],
+      cSettings: [
+        .headerSearchPath("../../.."),
+      ]
+    ),
+    .target(
       name: "FirebaseStorage",
-      dependencies: ["FirebaseCore", "GTMSessionFetcherCore"],
+      dependencies: [
+        "FirebaseCore",
+        .product(name: "GTMSessionFetcherCore", package: "GTMSessionFetcher"),
+      ],
       path: "FirebaseStorage/Sources",
       publicHeadersPath: "Public",
       cSettings: [
@@ -259,35 +474,49 @@ let package = Package(
         .define("FIRStorage_VERSION", to: "0.0.1"), // TODO: Fix version
       ]
     ),
+    .testTarget(
+      name: "StorageUnit",
+      dependencies: ["FirebaseStorage", "OCMock", "SharedTestUtilities"],
+      path: "FirebaseStorage/Tests/Unit",
+      cSettings: [
+        .headerSearchPath("../../.."),
+      ]
+    ),
     .target(
       name: "FirebaseStorageSwift",
       dependencies: ["FirebaseStorage"],
       path: "FirebaseStorageSwift/Sources"
     ),
-    // .target(
-    //   name: "GoogleDataTransport",
-    //   path: "GoogleDataTransport/GDTCORLibrary",
-    //   publicHeadersPath: "Public",
-    //   cSettings: [
-    //     .headerSearchPath("../"),
-    //     .define("GDTCOR_VERSION", to: "0.0.1"),
-    //   ]
-    // ),
-    // .target(
-    //   name: "GoogleDataTransportCCTSupport",
-    //   dependencies: ["GoogleDataTransport", "nanopb"],
-    //   path: "GoogleDataTransportCCTSupport/GDTCCTLibrary",
-    //   cSettings: [
-    //     .headerSearchPath("../"),
-    //     .define("PB_FIELD_32BIT", to: "1"),
-    //     .define("PB_NO_PACKED_STRUCTS", to: "1"),
-    //     .define("PB_ENABLE_MALLOC", to: "1"),
-    //   ]
-    // ),
-//       linkerSettings: [
-//         .linkedFramework("CoreServices", .when(platforms: [.macOS])),
-//         .linkedFramework("MobileCoreServices", .when(platforms: [.iOS, .tvOS])),
-//       ]),
+    .target(
+      name: "GoogleDataTransport",
+      dependencies: ["nanopb"],
+      path: "GoogleDataTransport",
+      exclude: [
+        "CHANGELOG.md",
+        "README.md",
+        "generate_project.sh",
+        "GDTCCTWatchOSTestApp/",
+        "GDTWatchOSTestApp/",
+        "GDTCCTTestApp/",
+        "GDTTestApp/",
+        "GDTCCTTests/",
+        "GDTCORTests/",
+        "ProtoSupport/",
+      ],
+      sources: [
+        "GDTCORLibrary",
+        "GDTCCTLibrary",
+      ],
+      publicHeadersPath: "GDTCORLibrary/Public",
+      cSettings: [
+        .headerSearchPath("../"),
+        .define("GDTCOR_VERSION", to: "0.0.1"),
+        .define("PB_FIELD_32BIT", to: "1"),
+        .define("PB_NO_PACKED_STRUCTS", to: "1"),
+        .define("PB_ENABLE_MALLOC", to: "1"),
+      ]
+    ),
   ],
-  cLanguageStandard: .c99
+  cLanguageStandard: .c99,
+  cxxLanguageStandard: CXXLanguageStandard.gnucxx14
 )

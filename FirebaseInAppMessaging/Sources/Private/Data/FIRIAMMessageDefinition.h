@@ -20,7 +20,7 @@
 
 @class FIRIAMDisplayTriggerDefinition;
 
-#import <FirebaseABTesting/ExperimentPayload.pbobjc.h>
+@class ABTExperimentPayload;
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseInstanceID'
-  s.version          = '4.4.0'
+  s.version          = '4.5.0'
   s.summary          = 'Firebase InstanceID'
 
   s.description      = <<-DESC
@@ -31,7 +31,7 @@ services.
   s.source_files = [
     base_dir + '**/*.[mh]',
     'FirebaseCore/Sources/Private/*.h',
-    'FirebaseInstallations/Source/Private/*.h',
+    'FirebaseInstallations/Source/Library/Private/*.h',
     'GoogleUtilities/Environment/Private/*.h',
     'GoogleUtilities/UserDefaults/Private/*.h',
   ]

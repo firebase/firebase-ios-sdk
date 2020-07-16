@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseCoreDiagnostics'
-  s.version          = '1.4.0'
+  s.version          = '1.5.0'
   s.summary          = 'Firebase Core Diagnostics'
 
   s.description      = <<-DESC
@@ -45,6 +45,7 @@ non-Cocoapod integration. This library also respects the Firebase global data co
 
   s.source_files = [
     'Firebase/CoreDiagnostics/FIRCDLibrary/**/*.[cmh]',
+    'GoogleDataTransport/GDTCORLibrary/Internal/*.h',
     'GoogleUtilities/Environment/Private/*.h',
     'GoogleUtilities/Logger/Private/*.h',
     'Interop/CoreDiagnostics/Public/*.h',
@@ -52,7 +53,7 @@ non-Cocoapod integration. This library also respects the Firebase global data co
 
   s.framework = 'Foundation'
 
-  s.dependency 'GoogleDataTransportCCTSupport', '~> 3.1'
+  s.dependency 'GoogleDataTransport', '~> 7.0'
   s.dependency 'GoogleUtilities/Environment', '~> 6.7'
   s.dependency 'GoogleUtilities/Logger', '~> 6.7'
   s.dependency 'nanopb', '~> 1.30905.0'

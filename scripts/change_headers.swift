@@ -1,6 +1,6 @@
 #!/usr/bin/swift
 /*
- * Copyright 2020 LLC Google
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,13 +20,14 @@
 import Foundation
 
 // Update with directories in which to find headers.
-let findHeaders = ["FirebaseDatabase", "Example/Shared"]
+let findHeaders = ["FirebaseRemoteConfig"]
 
 // Update with directories in which to change imports.
 let changeImports = ["GoogleUtilities", "FirebaseAuth", "FirebaseCore", "Firebase",
-                     "FirebaseDatabase",
+                     "FirebaseDatabase", "GoogleDataTransport",
                      "FirebaseDynamicLinks", "FirebaseInAppMessaging", "FirebaseMessaging",
                      "FirebaseRemoteConfig", "FirebaseInstallations", "Functions",
+                     "FirebaseABTesting",
                      "FirebaseAppDistribution", "Example", "Crashlytics", "FirebaseStorage"]
 
 // Skip these directories. Imports should only be repo-relative in libraries
@@ -45,10 +46,11 @@ func getHeaderMap(_ url: URL) -> [String: String] {
     while let file = enumerator?.nextObject() as? String {
       if let fType = enumerator?.fileAttributes?[FileAttributeKey.type] as? FileAttributeType,
         fType == .typeRegular {
-        let url = URL(string: file)
-        let filename = url!.lastPathComponent
-        if filename.hasSuffix(".h") {
-          headerMap[filename] = root + "/" + file
+        if let url = URL(string: file) {
+          let filename = url.lastPathComponent
+          if filename.hasSuffix(".h") {
+            headerMap[filename] = root + "/" + file
+          }
         }
       }
     }

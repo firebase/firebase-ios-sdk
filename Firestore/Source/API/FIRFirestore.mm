@@ -42,6 +42,7 @@
 #include "Firestore/core/src/core/transaction.h"
 #include "Firestore/core/src/model/database_id.h"
 #include "Firestore/core/src/util/async_queue.h"
+#include "Firestore/core/src/util/config.h"
 #include "Firestore/core/src/util/empty.h"
 #include "Firestore/core/src/util/error_apple.h"
 #include "Firestore/core/src/util/exception.h"
@@ -170,8 +171,16 @@ NS_ASSUME_NONNULL_BEGIN
     _settings = settings;
     _firestore->set_settings([settings internalSettings]);
 
+#if HAVE_LIBDISPATCH
     std::unique_ptr<util::Executor> user_executor =
         absl::make_unique<util::ExecutorLibdispatch>(settings.dispatchQueue);
+#else
+    // It's possible to build without libdispatch on macOS for testing purposes.
+    // In this case, avoid breaking the build.
+    std::unique_ptr<util::Executor> user_executor =
+        util::Executor::CreateSerial("com.google.firebase.firestore.user");
+#endif  // HAVE_LIBDISPATCH
+
     _firestore->set_user_executor(std::move(user_executor));
   }
 }

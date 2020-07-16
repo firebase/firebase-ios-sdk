@@ -163,7 +163,7 @@ std::unique_ptr<ListenerRegistration> Query::AddSnapshotListener(
       QuerySnapshot result(firestore_, query_, std::move(snapshot),
                            std::move(metadata));
 
-      user_listener_->OnEvent(result);
+      user_listener_->OnEvent(std::move(result));
     }
 
    private:

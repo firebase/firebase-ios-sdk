@@ -1,6 +1,11 @@
-# Unreleased
+# v4.3.0
 
-- [changed] Removed an unnecessary linker rule for embedding the Info.plist (#5804)
+- [changed] Add dispatch_once for opening sdk log file. (#5904)
+- [changed] Functionally neutral updated import references for dependencies. (#5902)
+
+# v4.2.0
+
+- [changed] Removed an unnecessary linker rule for embedding the Info.plist. (#5804)
 
 # v4.1.1
 

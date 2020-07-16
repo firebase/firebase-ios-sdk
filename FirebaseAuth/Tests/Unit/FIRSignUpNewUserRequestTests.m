@@ -15,6 +15,7 @@
  */
 
 #import <XCTest/XCTest.h>
+
 #import "FirebaseAuth/Sources/Public/FIRAuthErrors.h"
 
 #import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"

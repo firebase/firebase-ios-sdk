@@ -13,16 +13,18 @@
 // limitations under the License.
 
 import Foundation
-// import Firebase
+import Firebase
 import FirebaseCore
 import FirebaseAuth
+import FirebaseABTesting
+import FirebaseCrashlytics
 import FirebaseFunctions
 import FirebaseInstallations
 // import FirebaseInstanceID
+import FirebaseRemoteConfig
 import FirebaseStorage
 import FirebaseStorageSwift
-// import GoogleDataTransport
-// import GoogleDataTransportCCTSupport
+import GoogleDataTransport
 import GoogleUtilities_AppDelegateSwizzler
 import GoogleUtilities_Environment
 import GoogleUtilities_Logger
@@ -39,7 +41,11 @@ class importTest: XCTestCase {
   func testImports() {
     XCTAssertFalse(GULAppEnvironmentUtil.isAppStoreReceiptSandbox())
     XCTAssertFalse(GULAppEnvironmentUtil.isFromAppStore())
-    XCTAssertFalse(GULAppEnvironmentUtil.isSimulator())
+    #if targetEnvironment(simulator)
+      XCTAssertTrue(GULAppEnvironmentUtil.isSimulator())
+    #else
+      XCTAssertFalse(GULAppEnvironmentUtil.isSimulator())
+    #endif
     XCTAssertFalse(GULAppEnvironmentUtil.isAppExtension())
     XCTAssertNil(FirebaseApp.app())
     XCTAssertEqual(GULAppEnvironmentUtil.deviceModel(), "x86_64")

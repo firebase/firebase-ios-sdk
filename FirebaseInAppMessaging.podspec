@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseInAppMessaging'
-  s.version          = '0.21.0'
+  s.version          = '0.22.0'
   s.summary          = 'Firebase In-App Messaging for iOS'
 
   s.description      = <<-DESC
@@ -28,7 +28,7 @@ See more product details at https://firebase.google.com/products/in-app-messagin
     base_dir + "Sources/**/*.[cmh]",
     'Interop/Analytics/Public/*.h',
     'FirebaseCore/Sources/Private/*.h',
-    'FirebaseInstallations/Source/Private/*.h',
+    'FirebaseInstallations/Source/Library/Private/*.h',
     'GoogleUtilities/Environment/Private/*.h',
   ]
   s.public_header_files = base_dir + 'Sources/Public/*.h'
@@ -51,8 +51,7 @@ See more product details at https://firebase.google.com/products/in-app-messagin
 
   s.dependency 'FirebaseCore', '~> 6.8'
   s.dependency 'FirebaseInstallations', '~> 1.1'
-  s.dependency 'GoogleDataTransportCCTSupport', '~> 3.1'
-  s.dependency 'FirebaseABTesting', '~> 3.2'
+  s.dependency 'FirebaseABTesting', '~> 4.1'
   s.dependency 'GoogleUtilities/Environment', '~> 6.7'
   s.dependency 'nanopb', '~> 1.30905.0'
 

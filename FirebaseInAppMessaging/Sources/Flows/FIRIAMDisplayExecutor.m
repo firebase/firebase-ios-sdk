@@ -26,7 +26,7 @@
 #import "FIRInAppMessaging.h"
 #import "FIRInAppMessagingRenderingPrivate.h"
 
-#import <FirebaseABTesting/FIRExperimentController.h>
+#import "FirebaseABTesting/Sources/Public/FIRExperimentController.h"
 
 @implementation FIRIAMDisplaySetting
 @end

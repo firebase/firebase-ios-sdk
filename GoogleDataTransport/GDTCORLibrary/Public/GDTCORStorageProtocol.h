@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,17 @@
 
 #import <Foundation/Foundation.h>
 
-#import <GoogleDataTransport/GDTCORLifecycle.h>
-#import <GoogleDataTransport/GDTCORTargets.h>
+#import "GDTCORLifecycle.h"
+#import "GDTCORStorageEventSelector.h"
+#import "GDTCORTargets.h"
 
 @class GDTCOREvent;
+@class GDTCORClock;
 
 NS_ASSUME_NONNULL_BEGIN
+
+typedef void (^GDTCORStorageBatchBlock)(NSNumber *_Nullable newBatchID,
+                                        NSSet<GDTCOREvent *> *_Nullable batchEvents);
 
 /** Defines the interface a storage subsystem is expected to implement. */
 @protocol GDTCORStorageProtocol <NSObject, GDTCORLifecycleProtocol>
@@ -36,8 +41,44 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)storeEvent:(GDTCOREvent *)event
         onComplete:(void (^_Nullable)(BOOL wasWritten, NSError *_Nullable error))completion;
 
-/** Removes the events from storage. */
-- (void)removeEvents:(NSSet<NSNumber *> *)eventIDs;
+/** Returns YES if some events have been stored for the given target, NO otherwise.
+ *
+ * @param onComplete The completion block to invoke when determining if there are events is done.
+ */
+- (void)hasEventsForTarget:(GDTCORTarget)target onComplete:(void (^)(BOOL hasEvents))onComplete;
+
+/** Constructs an event batch with the given event selector. Events in this batch will not be
+ * returned in any queries or other batches until the batch is removed.
+ *
+ * @param eventSelector The event selector used to find the events.
+ * @param expiration The expiration time of the batch. If removeBatchWithID:deleteEvents:onComplete:
+ * is not called within this time frame, the batch will be removed with its events deleted.
+ * @param onComplete The completion handler to be called when the events have been fetched.
+ */
+- (void)batchWithEventSelector:(nonnull GDTCORStorageEventSelector *)eventSelector
+               batchExpiration:(nonnull NSDate *)expiration
+                    onComplete:(nonnull GDTCORStorageBatchBlock)onComplete;
+
+/** Removes the event batch.
+ *
+ * @param batchID The batchID to remove.
+ * @param deleteEvents If YES, the events in this batch are deleted.
+ * @param onComplete The completion handler to call when the batch removal process has completed.
+ */
+- (void)removeBatchWithID:(NSNumber *)batchID
+             deleteEvents:(BOOL)deleteEvents
+               onComplete:(void (^_Nullable)(void))onComplete;
+
+/** Finds the batchIDs for the given target and calls the callback block.
+ *
+ * @param target The target.
+ * @param onComplete The block to invoke with the set of current batchIDs.
+ */
+- (void)batchIDsForTarget:(GDTCORTarget)target
+               onComplete:(void (^)(NSSet<NSNumber *> *_Nullable batchIDs))onComplete;
+
+/** Checks the storage for expired events and batches, deletes them if they're expired. */
+- (void)checkForExpirations;
 
 /** Persists the given data with the given key.
  *
@@ -47,15 +88,18 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)storeLibraryData:(NSData *)data
                   forKey:(NSString *)key
-              onComplete:(void (^)(NSError *_Nullable error))onComplete;
+              onComplete:(nullable void (^)(NSError *_Nullable error))onComplete;
 
-/** Retrieves the stored data for the given key.
+/** Retrieves the stored data for the given key and optionally sets a new value.
  *
  * @param key The key corresponding to the desired data.
- * @param onComplete The callback to invoke with the data once it's retrieved.
+ * @param onFetchComplete The callback to invoke with the data once it's retrieved.
+ * @param setValueBlock This optional block can provide a new value to set.
  */
-- (void)libraryDataForKey:(NSString *)key
-               onComplete:(void (^)(NSData *_Nullable data, NSError *_Nullable error))onComplete;
+- (void)libraryDataForKey:(nonnull NSString *)key
+          onFetchComplete:(nonnull void (^)(NSData *_Nullable data,
+                                            NSError *_Nullable error))onFetchComplete
+              setNewValue:(NSData *_Nullable (^_Nullable)(void))setValueBlock;
 
 /** Removes data from storage and calls the callback when complete.
  *
@@ -64,6 +108,12 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)removeLibraryDataForKey:(NSString *)key
                      onComplete:(void (^)(NSError *_Nullable error))onComplete;
+
+/** Calculates and returns the total disk size that this storage consumes.
+ *
+ * @param onComplete The callback that will be invoked once storage size calculation is complete.
+ */
+- (void)storageSizeWithCallback:(void (^)(uint64_t storageSize))onComplete;
 
 @end
 

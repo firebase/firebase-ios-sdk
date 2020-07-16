@@ -466,7 +466,7 @@ NS_SWIFT_NAME(InAppMessagingDisplay)
 @protocol FIRInAppMessagingDisplay
 
 /**
- * Method for rendering a specified message on client side. It's called from main thread.
+ * Method for rendering a specified message on client side. Invoked on a background thread.
  * @param messageForDisplay the message object. It would be of one of the three message
  *   types at runtime.
  * @param displayDelegate the callback object used to trigger notifications about certain

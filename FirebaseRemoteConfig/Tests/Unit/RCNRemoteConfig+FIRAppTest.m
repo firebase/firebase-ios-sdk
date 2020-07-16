@@ -15,12 +15,12 @@
  */
 
 #import <XCTest/XCTest.h>
+#import "OCMock.h"
 
 //#import "FIRRemoteConfig+FIRApp.h"
-#import <OCMock/OCMock.h>
-#import "FIRRemoteConfig_Private.h"
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
-#import "third_party/firebase/ios/Releases/FirebaseCore/Tests/FIRTestCase.h"
+#import "FirebaseRemoteConfig/Sources/Private/FIRRemoteConfig_Private.h"
+//#import "third_party/firebase/ios/Releases/FirebaseCore/Tests/FIRTestCase.h"
 
 @interface RCNRemoteConfig_FIRAppTest : FIRTestCase
 
