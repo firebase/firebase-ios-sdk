@@ -646,6 +646,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 }
 
 - (NSString *)FCMToken {
+  // Gets the current default token, and requets a new one if it doesn't exist.
   return [[FIRMessaging messaging].tokenManager tokenAndRequestIfNotExist];
 }
 

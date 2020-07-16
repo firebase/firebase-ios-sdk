@@ -158,12 +158,15 @@ typedef NS_OPTIONS(NSUInteger, FIRMessagingInvalidTokenReason) {
                                                           isSandbox:(BOOL)isSandbox;
 
 /*
- * Set APNS token
+ * Sets APNS token
  */
 - (void)setAPNSToken:(NSData *)APNSToken withUserInfo:(NSDictionary *)userInfo;
 
 - (BOOL)hasValidCheckinInfo;
 
+/*
+ * Gets the current default token, if not exist, request a new one from server.
+ */
 - (NSString *)tokenAndRequestIfNotExist;
 
 - (void)setDefaultFCMTokenWithoutUpdate:(NSString *)defaultFcmToken;
