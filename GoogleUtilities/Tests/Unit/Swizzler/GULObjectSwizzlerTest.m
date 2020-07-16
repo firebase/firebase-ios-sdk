@@ -450,25 +450,29 @@
   NSObject *object = [[NSObject alloc] init];
 
   __weak GULObjectSwizzler *existingSwizzler;
-  NSInteger swizzleCount = 10;
-  for (NSInteger i = 0; i < swizzleCount; i++) {
-    GULObjectSwizzler *swizzler = [[GULObjectSwizzler alloc] initWithObject:object];
 
-    if (i > 0) {
-      XCTAssertEqualObjects(swizzler, existingSwizzler,
-                            @"There must be a single swizzler per object.");
-    } else {
-      existingSwizzler = swizzler;
+  // Use @autoreleasepool to make the memory management in the test more deterministic.
+  @autoreleasepool {
+    NSInteger swizzleCount = 10;
+    for (NSInteger i = 0; i < swizzleCount; i++) {
+      GULObjectSwizzler *swizzler = [[GULObjectSwizzler alloc] initWithObject:object];
+
+      if (i > 0) {
+        XCTAssertEqualObjects(swizzler, existingSwizzler,
+                              @"There must be a single swizzler per object.");
+      } else {
+        existingSwizzler = swizzler;
+      }
+
+      [swizzler copySelector:@selector(donorDescription)
+                   fromClass:[GULObjectSwizzlerTest class]
+             isClassSelector:NO];
+      [swizzler swizzle];
     }
 
-    [swizzler copySelector:@selector(donorDescription)
-                 fromClass:[GULObjectSwizzlerTest class]
-           isClassSelector:NO];
-    [swizzler swizzle];
+    XCTAssertNoThrow([object performSelector:@selector(donorDescription)]);
+    object = nil;
   }
-
-  XCTAssertNoThrow([object performSelector:@selector(donorDescription)]);
-  object = nil;
 
   XCTAssertNil(existingSwizzler,
                @"GULObjectSwizzler must be deallocated after the object deallocation.");
