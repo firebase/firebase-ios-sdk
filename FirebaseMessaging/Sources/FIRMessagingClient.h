@@ -46,6 +46,7 @@ typedef void (^FIRMessagingConnectCompletionHandler)(NSError *error);
 
 @property(nonatomic, readonly, strong) FIRMessagingConnection *connection;
 @property(nonatomic, readwrite, weak) FIRMessagingDataMessageManager *dataMessageManager;
+@property(nonatomic, readonly, strong) FIRMessagingTokenManager *tokenManager;
 
 // Designated initializer
 - (instancetype)initWithDelegate:(id<FIRMessagingClientDelegate>)delegate

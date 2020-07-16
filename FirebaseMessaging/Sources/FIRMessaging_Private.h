@@ -54,6 +54,5 @@ FOUNDATION_EXPORT NSString *const kFIRMessagingPlistUseMessagingDelegate;
 
 - (BOOL)isNetworkAvailable;
 - (FIRMessagingNetworkStatus)networkType;
-- (NSString *)cachedToken;
 
 @end

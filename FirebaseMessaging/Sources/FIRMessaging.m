@@ -649,10 +649,6 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   return [[FIRMessaging messaging].tokenManager tokenAndRequestIfNotExist];
 }
 
-- (NSString *)cachedToken {
-  return self.tokenManager.defaultFCMToken;
-}
-
 - (void)retrieveFCMTokenForSenderID:(nonnull NSString *)senderID
                          completion:(nonnull FIRMessagingFCMTokenFetchCompletion)completion {
   if (!senderID.length) {

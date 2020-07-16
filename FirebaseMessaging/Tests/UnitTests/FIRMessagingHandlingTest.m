@@ -18,7 +18,6 @@
 
 #import <OCMock/OCMock.h>
 
-#import <FirebaseInstanceID/FirebaseInstanceID.h>
 #import <FirebaseMessaging/FIRMessaging.h>
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "GoogleUtilities/UserDefaults/Private/GULUserDefaults.h"
@@ -36,9 +35,6 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
 static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
 
 @interface FIRMessaging ()
-
-@property(nonatomic, readwrite, strong) NSString *defaultFcmToken;
-@property(nonatomic, readwrite, strong) FIRInstanceID *instanceID;
 
 - (BOOL)handleContextManagerMessage:(NSDictionary *)message;
 - (void)handleIncomingLinkIfNeededFromMessage:(NSDictionary *)message;

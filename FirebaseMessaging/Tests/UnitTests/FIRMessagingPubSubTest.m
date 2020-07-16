@@ -131,7 +131,8 @@ static NSString *const kTopicName = @"topic-Name";
   id mockRmqManager = OCMClassMock([FIRMessagingRmqManager class]);
   FIRMessagingClient *client = [[FIRMessagingClient alloc] initWithDelegate:mockClientDelegate
                                                                reachability:mockReachability
-                                                                rmq2Manager:mockRmqManager];
+                                                                rmq2Manager:mockRmqManager
+                                                               tokenManager:nil];
   FIRMessagingPubSub *pubSub = [[FIRMessagingPubSub alloc] initWithClient:client];
   [pubSub archivePendingTopicsList:topicList];
   [pubSub restorePendingTopicsList];

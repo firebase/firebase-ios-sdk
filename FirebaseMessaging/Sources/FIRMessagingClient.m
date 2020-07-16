@@ -85,7 +85,7 @@ static NSUInteger FIRMessagingServerPort() {
 // FIRMessagingService owns these instances
 @property(nonatomic, readwrite, weak) FIRMessagingRmqManager *rmq2Manager;
 @property(nonatomic, readwrite, weak) GULReachabilityChecker *reachability;
-@property(nonatomic, readwrite, weak) FIRMessagingTokenManager *tokenManager;
+@property(nonatomic, readwrite, strong) FIRMessagingTokenManager *tokenManager;
 
 @property(nonatomic, readwrite, assign) int64_t lastConnectedTimestamp;
 @property(nonatomic, readwrite, assign) int64_t lastDisconnectedTimestamp;
