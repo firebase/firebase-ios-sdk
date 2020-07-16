@@ -82,7 +82,7 @@ NSString *const kResponseReleasesKey = @"releases";
                           response:(NSURLResponse *)response
                              error:(NSError **_Nullable)error {
   NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
-  FIRFADInfoLog(@"HTTPResonse status code %ld response %@", (long)httpResponse.statusCode,
+  FIRFADInfoLog(@"HTTPResonse status code %ld response %@", (long)[httpResponse statusCode],
                 httpResponse);
 
   if (*error || !httpResponse) {
@@ -94,8 +94,8 @@ NSString *const kResponseReleasesKey = @"releases";
     return nil;
   }
 
-  if (httpResponse.statusCode != 200) {
-    [self handleErrorWithStatusCode:httpResponse.statusCode error:error];
+  if ([httpResponse statusCode] != 200) {
+    [self handleErrorWithStatusCode:[httpResponse statusCode] error:error];
     return nil;
   }
 
