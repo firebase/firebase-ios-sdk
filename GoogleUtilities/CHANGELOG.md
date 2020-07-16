@@ -1,4 +1,4 @@
-  # 6.7.1 -- Unreleased
+# 6.7.1 -- Unreleased
 - Fix import regression when mixing 6.7.0 with earlier Firebase versions. (#6047)
 - Refactor `GULSwizzledObject` to ARC to unblock SwiftPM support. (#5862)
 
