@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import <FirebaseAuth/FIREmailAuthProvider.h>
+#import "FirebaseAuth/Sources/Public/FIREmailAuthProvider.h"
 
 #import "FirebaseAuth/Sources/AuthProvider/Email/FIREmailPasswordAuthCredential.h"
 

@@ -12,10 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "FIRCLSInternalLogging.h"
-#include "FIRCLSContext.h"
-#include "FIRCLSGlobals.h"
-#include "FIRCLSUtility.h"
+#include <dispatch/dispatch.h>
+
+#include "Crashlytics/Crashlytics/Helpers/FIRCLSInternalLogging.h"
+#include "Crashlytics/Crashlytics/Components/FIRCLSContext.h"
+#include "Crashlytics/Crashlytics/Components/FIRCLSGlobals.h"
+#include "Crashlytics/Crashlytics/Helpers/FIRCLSUtility.h"
 
 void FIRCLSSDKFileLog(FIRCLSInternalLogLevel level, const char* format, ...) {
   if (!_firclsContext.readonly || !_firclsContext.writable) {
@@ -31,9 +33,12 @@ void FIRCLSSDKFileLog(FIRCLSInternalLogLevel level, const char* format, ...) {
     return;
   }
 
-  if (_firclsContext.writable->internalLogging.logFd == -1) {
-    _firclsContext.writable->internalLogging.logFd = open(path, O_WRONLY | O_CREAT | O_APPEND, 0644);
-  }
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    if (_firclsContext.writable->internalLogging.logFd == -1) {
+      _firclsContext.writable->internalLogging.logFd = open(path, O_WRONLY | O_CREAT | O_APPEND, 0644);
+    }
+  });
 
   const int fd = _firclsContext.writable->internalLogging.logFd;
   if (fd < 0) {

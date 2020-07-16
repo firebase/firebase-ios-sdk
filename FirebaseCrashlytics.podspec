@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseCrashlytics'
-  s.version          = '4.1.1'
+  s.version          = '4.3.0'
   s.summary          = 'Best and lightest-weight crash reporting for mobile, desktop and tvOS.'
   s.description      = 'Firebase Crashlytics helps you track, prioritize, and fix stability issues that erode app quality.'
   s.homepage         = 'https://firebase.google.com/'
@@ -25,6 +25,8 @@ Pod::Spec.new do |s|
     'Crashlytics/Shared/**/*.{c,h,m,mm}',
     'Crashlytics/third_party/**/*.{c,h,m,mm}',
     'FirebaseCore/Sources/Private/*.h',
+    'FirebaseInstallations/Source/Library/Private/*.h',
+    'GoogleDataTransport/GDTCORLibrary/Internal/*.h',
     'Interop/Analytics/Public/*.h',
   ]
 
@@ -48,8 +50,7 @@ Pod::Spec.new do |s|
   s.dependency 'FirebaseCore', '~> 6.8'
   s.dependency 'FirebaseInstallations', '~> 1.1'
   s.dependency 'PromisesObjC', '~> 1.2'
-  s.dependency 'GoogleDataTransport', '~> 6.1'
-  s.dependency 'GoogleDataTransportCCTSupport', '~> 3.1'
+  s.dependency 'GoogleDataTransport', '~> 7.0'
   s.dependency 'nanopb', '~> 1.30905.0'
 
   s.libraries = 'c++', 'z'
@@ -63,7 +64,6 @@ Pod::Spec.new do |s|
       # For nanopb:
       'PB_FIELD_32BIT=1 PB_NO_PACKED_STRUCTS=1 PB_ENABLE_MALLOC=1',
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"',
-    'OTHER_LD_FLAGS' => '$(inherited) -sectcreate __TEXT __info_plist'
   }
 
   s.osx.pod_target_xcconfig = {
@@ -74,7 +74,6 @@ Pod::Spec.new do |s|
       # For nanopb:
       'PB_FIELD_32BIT=1 PB_NO_PACKED_STRUCTS=1 PB_ENABLE_MALLOC=1',
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"',
-    'OTHER_LD_FLAGS' => '$(inherited) -sectcreate __TEXT __info_plist'
   }
 
   s.tvos.pod_target_xcconfig = {
@@ -85,7 +84,6 @@ Pod::Spec.new do |s|
       # For nanopb:
       'PB_FIELD_32BIT=1 PB_NO_PACKED_STRUCTS=1 PB_ENABLE_MALLOC=1',
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"',
-    'OTHER_LD_FLAGS' => '$(inherited) -sectcreate __TEXT __info_plist'
   }
 
   s.test_spec 'unit' do |unit_tests|

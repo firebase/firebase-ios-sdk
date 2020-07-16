@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#import <FirebaseRemoteConfig/FIRRemoteConfig.h>
+#import "FirebaseRemoteConfig/Sources/Public/FIRRemoteConfig.h"
 
-#import <FirebaseRemoteConfig/RCNConfigFetch.h>
-#import <FirebaseRemoteConfig/RCNConfigSettings.h>
+#import "FirebaseRemoteConfig/Sources/Private/RCNConfigFetch.h"
+#import "FirebaseRemoteConfig/Sources/Private/RCNConfigSettings.h"
 #import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 
 @class FIROptions;

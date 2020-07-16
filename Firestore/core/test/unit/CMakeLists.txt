@@ -18,6 +18,10 @@
 # Xcode, but that's not necessary in CMake which directly supports running
 # GoogleTest-based tests.
 
+if(NOT FIREBASE_IOS_BUILD_TESTS)
+  return()
+endif()
+
 file(GLOB sources *.cc)  # not .mm
 firebase_ios_add_test(firestore_types_test ${sources})
 

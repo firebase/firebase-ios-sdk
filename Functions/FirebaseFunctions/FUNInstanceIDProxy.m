@@ -16,7 +16,7 @@
 
 // Note: This is forked from FIRMessagingInstanceIDProxy.m
 
-#import "FUNInstanceIDProxy.h"
+#import "Functions/FirebaseFunctions/FUNInstanceIDProxy.h"
 
 @implementation FUNInstanceIDProxy
 

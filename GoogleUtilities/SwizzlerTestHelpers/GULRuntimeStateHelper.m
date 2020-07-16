@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "GULRuntimeStateHelper.h"
+#import "GoogleUtilities/SwizzlerTestHelpers/GULRuntimeStateHelper.h"
 
 #import <objc/runtime.h>
 
-#import "GULRuntimeSnapshot.h"
+#import "GoogleUtilities/SwizzlerTestHelpers/GULRuntimeSnapshot.h"
 
 @implementation GULRuntimeStateHelper
 

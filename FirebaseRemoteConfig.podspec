@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseRemoteConfig'
-  s.version          = '4.5.0'
+  s.version          = '4.7.0'
   s.summary          = 'Firebase Remote Config'
 
   s.description      = <<-DESC
@@ -31,6 +31,9 @@ app update.
     base_dir + '**/*.[mh]',
     'Interop/Analytics/Public/*.h',
     'FirebaseCore/Sources/Private/*.h',
+    'FirebaseInstallations/Source/Library/Private/*.h',
+    'GoogleUtilities/Environment/Private/*.h',
+    'GoogleUtilities/NSData+zlib/Private/*.h',
   ]
   s.public_header_files = base_dir + 'Public/*.h'
   s.private_header_files = base_dir + 'Private/*.h'
@@ -41,11 +44,11 @@ app update.
       'FIRRemoteConfig_VERSION=' + String(s.version),
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
   }
-  s.dependency 'FirebaseABTesting', '~> 3.1'
+  s.dependency 'FirebaseABTesting', '~> 4.1'
   s.dependency 'FirebaseCore', '~> 6.8'
   s.dependency 'FirebaseInstallations', '~> 1.1'
-  s.dependency 'GoogleUtilities/Environment', '~> 6.2'
-  s.dependency 'GoogleUtilities/NSData+zlib', '~> 6.2'
+  s.dependency 'GoogleUtilities/Environment', '~> 6.7'
+  s.dependency 'GoogleUtilities/NSData+zlib', '~> 6.7'
 
   s.test_spec 'unit' do |unit_tests|
     # TODO(dmandar) - Update or delete the commented files.
@@ -67,7 +70,8 @@ app update.
     # Supply plist custom plist testing.
     unit_tests.resources =
         'FirebaseRemoteConfig/Tests/Unit/Defaults-testInfo.plist',
-        'FirebaseRemoteConfig/Tests/Unit/SecondApp-GoogleService-Info.plist'
+        'FirebaseRemoteConfig/Tests/Unit/SecondApp-GoogleService-Info.plist',
+        'FirebaseRemoteConfig/Tests/Unit/TestABTPayload.txt'
     unit_tests.requires_app_host = true
     unit_tests.dependency 'OCMock'
     unit_tests.requires_arc = true
@@ -83,7 +87,8 @@ app update.
     swift_api.pod_target_xcconfig = {
       'SWIFT_OBJC_BRIDGING_HEADER' => '$(PODS_TARGET_SRCROOT)/FirebaseRemoteConfig/Tests/FakeUtils/Bridging-Header.h'
     }
-    swift_api.resources = 'FirebaseRemoteConfig/Tests/SwiftAPI/GoogleService-Info.plist'
+    swift_api.resources = 'FirebaseRemoteConfig/Tests/SwiftAPI/GoogleService-Info.plist',
+                          'FirebaseRemoteConfig/Tests/SwiftAPI/AccessToken.json'
     swift_api.dependency 'OCMock'
   end
 

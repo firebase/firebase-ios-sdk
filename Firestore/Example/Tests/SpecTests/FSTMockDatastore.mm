@@ -51,7 +51,6 @@ using firebase::firestore::model::MutationResult;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
 using firebase::firestore::remote::ConnectivityMonitor;
-using firebase::firestore::remote::CreateNoOpConnectivityMonitor;
 using firebase::firestore::remote::GrpcConnection;
 using firebase::firestore::remote::WatchChange;
 using firebase::firestore::remote::WatchStream;
@@ -243,8 +242,9 @@ class MockWriteStream : public WriteStream {
 
 MockDatastore::MockDatastore(const core::DatabaseInfo& database_info,
                              const std::shared_ptr<util::AsyncQueue>& worker_queue,
-                             std::shared_ptr<auth::CredentialsProvider> credentials)
-    : Datastore{database_info, worker_queue, credentials, CreateNoOpConnectivityMonitor()},
+                             std::shared_ptr<auth::CredentialsProvider> credentials,
+                             ConnectivityMonitor* connectivity_monitor)
+    : Datastore{database_info, worker_queue, credentials, connectivity_monitor},
       database_info_{&database_info},
       worker_queue_{worker_queue},
       credentials_{credentials} {

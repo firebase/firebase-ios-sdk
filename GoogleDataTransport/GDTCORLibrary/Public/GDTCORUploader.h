@@ -16,32 +16,43 @@
 
 #import <Foundation/Foundation.h>
 
-#import <GoogleDataTransport/GDTCORClock.h>
-#import <GoogleDataTransport/GDTCORLifecycle.h>
-#import <GoogleDataTransport/GDTCORPrioritizer.h>
-#import <GoogleDataTransport/GDTCORTargets.h>
-#import <GoogleDataTransport/GDTCORUploadPackage.h>
+#import "GDTCORClock.h"
+#import "GDTCORLifecycle.h"
+#import "GDTCORTargets.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
+/** Options that define a set of upload conditions. This is used to help minimize end user data
+ * consumption impact.
+ */
+typedef NS_OPTIONS(NSInteger, GDTCORUploadConditions) {
+
+  /** An upload shouldn't be attempted, because there's no network. */
+  GDTCORUploadConditionNoNetwork = 1 << 0,
+
+  /** An upload would likely use mobile data. */
+  GDTCORUploadConditionMobileData = 1 << 1,
+
+  /** An upload would likely use wifi data. */
+  GDTCORUploadConditionWifiData = 1 << 2,
+
+  /** An upload uses some sort of network connection, but it's unclear which. */
+  GDTCORUploadConditionUnclearConnection = 1 << 3,
+
+  /** A high priority event has occurred. */
+  GDTCORUploadConditionHighPriority = 1 << 4,
+};
+
 /** This protocol defines the common interface for uploader implementations. */
-@protocol GDTCORUploader <NSObject, GDTCORLifecycleProtocol, GDTCORUploadPackageProtocol>
+@protocol GDTCORUploader <NSObject, GDTCORLifecycleProtocol>
 
 @required
 
-/** Returns YES if the uploader can make an upload attempt, NO otherwise.
- *
- * @param target The target being checked.
- * @param conditions The conditions that the upload attempt is likely to occur under.
- * @return YES if the uploader can make an upload attempt, NO otherwise.
- */
-- (BOOL)readyToUploadTarget:(GDTCORTarget)target conditions:(GDTCORUploadConditions)conditions;
-
 /** Uploads events to the backend using this specific backend's chosen format.
  *
- * @param package The event package to upload. Make sure to call -completeDelivery.
+ * @param conditions The conditions that the upload attempt is likely to occur under.
  */
-- (void)uploadPackage:(GDTCORUploadPackage *)package;
+- (void)uploadTarget:(GDTCORTarget)target withConditions:(GDTCORUploadConditions)conditions;
 
 @end
 

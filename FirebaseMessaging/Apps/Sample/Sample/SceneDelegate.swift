@@ -38,8 +38,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, MessagingDelegate {
       window
         .rootViewController = UIHostingController(rootView: contentView
           .environmentObject(identity)
-          .environmentObject(settings)
-        )
+          .environmentObject(settings))
 
       self.window = window
       window.makeKeyAndVisible()

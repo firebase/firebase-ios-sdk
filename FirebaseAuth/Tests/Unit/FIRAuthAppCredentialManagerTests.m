@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 
-#import <OCMock/OCMock.h>
+#import <TargetConditionals.h>
+#if !TARGET_OS_OSX
+
 #import <XCTest/XCTest.h>
+#import "OCMock.h"
 
 #import "FirebaseAuth/Sources/Storage/FIRAuthKeychainServices.h"
 #import "FirebaseAuth/Sources/SystemService/FIRAuthAppCredential.h"
@@ -311,3 +314,5 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif

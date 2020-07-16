@@ -1,3 +1,6 @@
+# v4.0.0
+- [changed] Removed Protobuf dependency (#5890).
+
 # v3.2.0
 - [added] Added completion handler for FIRExperimentController's updateExperimentsWithServiceOrigin method.
 - [deprecated] Deprecated `FIRExperimentController.updateExperiments(serviceOrigin:events:policy:lastStartTime:payloads:)`.

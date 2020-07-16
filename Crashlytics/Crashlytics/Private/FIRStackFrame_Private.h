@@ -1,4 +1,4 @@
-// Copyright 2020 Google
+// Copyright 2020 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRStackFrame.h"
+#import "Crashlytics/Crashlytics/Public/FIRStackFrame.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

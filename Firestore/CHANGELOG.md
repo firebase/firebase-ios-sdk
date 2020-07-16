@@ -1,3 +1,17 @@
+# Unreleased
+
+# v1.16.2
+- [fixed] Fixed a configuration issue where listeners were no longer being
+  called back on the main thread by default.
+
+# v1.16.1
+- [fixed] Removed a delay that may have prevented Firestore from immediately
+  establishing a network connection if a connectivity change occurred while
+  the app was in the background (#5783).
+- [fixed] Fixed a rare crash that could happen if the garbage collection
+  process for old documents in the cache happened to run during a LevelDB
+  compaction (#5881).
+
 # v1.16.0
 - [fixed] Fixed an issue that may have prevented the client from connecting
   to the backend immediately after a user signed in.

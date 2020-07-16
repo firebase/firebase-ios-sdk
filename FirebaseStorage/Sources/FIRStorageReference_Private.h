@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import <FirebaseStorage/FIRStorageReference.h>
+#import "FirebaseStorage/Sources/Public/FIRStorageReference.h"
 
 #import "FirebaseStorage/Sources/FIRStoragePath.h"
 

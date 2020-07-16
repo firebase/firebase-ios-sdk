@@ -16,8 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
-#import "GULRuntimeClassDiff.h"
-#import "GULRuntimeDiff.h"
+#import "GoogleUtilities/SwizzlerTestHelpers/GULRuntimeClassDiff.h"
+#import "GoogleUtilities/SwizzlerTestHelpers/GULRuntimeDiff.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

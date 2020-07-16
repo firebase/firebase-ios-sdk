@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "FIRCLSUnwind.h"
-#include "FIRCLSBinaryImage.h"
-#include "FIRCLSCompactUnwind.h"
-#include "FIRCLSFeatures.h"
-#include "FIRCLSGlobals.h"
-#include "FIRCLSUtility.h"
+#include "Crashlytics/Crashlytics/Unwind/FIRCLSUnwind.h"
+#include "Crashlytics/Crashlytics/Components/FIRCLSBinaryImage.h"
+#include "Crashlytics/Crashlytics/Unwind/Compact/FIRCLSCompactUnwind.h"
+#include "Crashlytics/Crashlytics/Helpers/FIRCLSFeatures.h"
+#include "Crashlytics/Crashlytics/Components/FIRCLSGlobals.h"
+#include "Crashlytics/Crashlytics/Helpers/FIRCLSUtility.h"
 
 #include <mach/mach.h>
 #include <signal.h>

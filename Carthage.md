@@ -90,6 +90,8 @@ binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseStorageBinary.jso
     - Download
      [upload-symbols](https://github.com/firebase/firebase-ios-sdk/raw/master/Crashlytics/upload-symbols)
      and [run](https://github.com/firebase/firebase-ios-sdk/raw/master/Crashlytics/run).
+     Note: please see the [discussion](https://github.com/firebase/firebase-ios-sdk/issues/4720#issuecomment-577213858)
+     for details why it has to be done manually.
     - Put these in the directory where your `.xcodeproj` file lives, eg. `scripts/run` and `scripts/upload-symbols`
     - Make sure that the files are executable - `chmod +x scripts/run scripts/upload-symbols`
     - Open your project in Xcode, then select its project file in the left navigator.

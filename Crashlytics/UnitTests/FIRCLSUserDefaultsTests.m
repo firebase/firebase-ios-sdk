@@ -14,7 +14,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FIRCLSUserDefaults_private.h"
+#import "Crashlytics/Crashlytics/FIRCLSUserDefaults/FIRCLSUserDefaults_private.h"
 
 @interface FIRCLSUserDefaultsTests : XCTestCase {
   FIRCLSUserDefaults* _userDefaults;

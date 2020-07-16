@@ -15,10 +15,10 @@
  */
 
 #import <XCTest/XCTest.h>
+#import "OCMock.h"
 
-#import <FirebaseInstanceID/FIRInstanceID+Private.h>
-#import <FirebaseInstanceID/FIRInstanceIDCheckinPreferences.h>
-#import <OCMock/OCMock.h>
+//#import <FirebaseInstanceID/FIRInstanceID+Private.h>
+//#import <FirebaseInstanceID/FIRInstanceIDCheckinPreferences.h>
 #import "FirebaseRemoteConfig/Sources/Private/RCNConfigFetch.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigContent.h"

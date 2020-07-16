@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,9 @@
 
 #import <Foundation/Foundation.h>
 
-#include "crashlytics.nanopb.h"
+#include "Crashlytics/Protogen/nanopb/crashlytics.nanopb.h"
 
-#import <GoogleDataTransport/GDTCOREventDataObject.h>
+#import "GoogleDataTransport/GDTCORLibrary/Internal/GoogleDataTransportInternal.h"
 
 /// This class is responsible for reading the persisted crash reports from disk and converting them
 /// the information into the nanopb model to be used with GoogleDataTransport

@@ -12,11 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import <FirebaseABTesting/FIRExperimentController.h>
+#import "FirebaseABTesting/Sources/Public/FIRExperimentController.h"
 
-#import <FirebaseABTesting/FIRLifecycleEvents.h>
 #import "FirebaseABTesting/Sources/ABTConditionalUserPropertyController.h"
 #import "FirebaseABTesting/Sources/ABTConstants.h"
+#import "FirebaseABTesting/Sources/Private/ABTExperimentPayload.h"
+#import "FirebaseABTesting/Sources/Public/FIRLifecycleEvents.h"
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 #import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
@@ -34,19 +35,19 @@ add -DFIRABTesting_VERSION=... to the build invocation"
 #define STR_EXPAND(x) #x
 
 /// Default experiment overflow policy.
-const ABTExperimentPayload_ExperimentOverflowPolicy FIRDefaultExperimentOverflowPolicy =
-    ABTExperimentPayload_ExperimentOverflowPolicy_DiscardOldest;
+const ABTExperimentPayloadExperimentOverflowPolicy FIRDefaultExperimentOverflowPolicy =
+    ABTExperimentPayloadExperimentOverflowPolicyDiscardOldest;
 
 /// Deserialize the experiment payloads.
 ABTExperimentPayload *ABTDeserializeExperimentPayload(NSData *payload) {
+  // Verify that we have a JSON object.
   NSError *error;
-  ABTExperimentPayload *experimentPayload = [ABTExperimentPayload parseFromData:payload
-                                                                          error:&error];
-  if (error) {
+  id JSONObject = [NSJSONSerialization JSONObjectWithData:payload options:kNilOptions error:&error];
+  if (JSONObject == nil) {
     FIRLogError(kFIRLoggerABTesting, @"I-ABT000001", @"Failed to parse experiment payload: %@",
                 error.debugDescription);
   }
-  return experimentPayload;
+  return [ABTExperimentPayload parseFromData:payload];
 }
 
 /// Returns a list of experiments to be set given the payloads and current list of experiments from
@@ -173,7 +174,7 @@ NSArray *ABTExperimentsToClearFromPayloads(
 
 - (void)updateExperimentsWithServiceOrigin:(NSString *)origin
                                     events:(FIRLifecycleEvents *)events
-                                    policy:(ABTExperimentPayload_ExperimentOverflowPolicy)policy
+                                    policy:(ABTExperimentPayloadExperimentOverflowPolicy)policy
                              lastStartTime:(NSTimeInterval)lastStartTime
                                   payloads:(NSArray<NSData *> *)payloads
                          completionHandler:
@@ -192,7 +193,7 @@ NSArray *ABTExperimentsToClearFromPayloads(
 
 - (void)updateExperimentsWithServiceOrigin:(NSString *)origin
                                     events:(FIRLifecycleEvents *)events
-                                    policy:(ABTExperimentPayload_ExperimentOverflowPolicy)policy
+                                    policy:(ABTExperimentPayloadExperimentOverflowPolicy)policy
                              lastStartTime:(NSTimeInterval)lastStartTime
                                   payloads:(NSArray<NSData *> *)payloads {
   [self updateExperimentsWithServiceOrigin:origin
@@ -207,7 +208,7 @@ NSArray *ABTExperimentsToClearFromPayloads(
     updateExperimentConditionalUserPropertiesWithServiceOrigin:(NSString *)origin
                                                         events:(FIRLifecycleEvents *)events
                                                         policy:
-                                                            (ABTExperimentPayload_ExperimentOverflowPolicy)
+                                                            (ABTExperimentPayloadExperimentOverflowPolicy)
                                                                 policy
                                                  lastStartTime:(NSTimeInterval)lastStartTime
                                                       payloads:(NSArray<NSData *> *)payloads
@@ -325,7 +326,7 @@ NSArray *ABTExperimentsToClearFromPayloads(
   FIRLifecycleEvents *lifecycleEvents = [[FIRLifecycleEvents alloc] init];
 
   // Ensure that trigger event is nil, which will immediately set the experiment to active.
-  experimentPayload.triggerEvent = nil;
+  [experimentPayload clearTriggerEvent];
 
   [controller setExperimentWithOrigin:origin
                               payload:experimentPayload

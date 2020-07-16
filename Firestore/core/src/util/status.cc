@@ -32,6 +32,14 @@ Status::Status(Error code, std::string msg) {
   state_ = State::MakePtr(code, std::move(msg));
 }
 
+Status Status::FromCause(std::string message, const Status& cause) {
+  if (cause.ok()) {
+    return cause;
+  }
+
+  return Status(cause.code(), std::move(message)).CausedBy(cause);
+}
+
 void Status::Update(const Status& new_status) {
   if (ok()) {
     *this = new_status;

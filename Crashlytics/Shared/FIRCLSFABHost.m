@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "FIRCLSFABHost.h"
+#include "Crashlytics/Shared/FIRCLSFABHost.h"
 
 #if TARGET_OS_WATCH
 #import <WatchKit/WatchKit.h>
