@@ -1,3 +1,6 @@
+# 6.7.1 -- Unreleased
+- Refactor `GULSwizzledObject` to ARC to unblock SwiftPM support. (#5862)
+
 # 6.7.0 -- M75
 - Lazily access filesystem outside of `GULHeartbeatDateStorage` initializer. (#5969)
 - Update source imports to use repo-relative headers. (#5824)
