@@ -92,6 +92,45 @@ NSData *_Nullable FIRDataWithDictionary(NSDictionary *dictionary, NSError **_Nul
   return self;
 }
 
++ (nullable NSError *)extractErrorForShortLink:(NSURL *)url
+                                          data:(NSData *)data
+                                      response:(NSURLResponse *)response
+                                         error:(nullable NSError *)error {
+  if (error) {
+    return error;
+  }
+
+  NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
+  NSError *customError = nil;
+
+  if (![response isKindOfClass:[NSHTTPURLResponse class]]) {
+    customError =
+        [NSError errorWithDomain:kGenericErrorDomain
+                            code:0
+                        userInfo:@{@"message" : @"Response should be of type NSHTTPURLResponse."}];
+  } else if (statusCode < 200 || statusCode >= 300) {
+    NSDictionary *result = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+    if ([result isKindOfClass:[NSDictionary class]] && [result objectForKey:@"error"]) {
+      id err = [result objectForKey:@"error"];
+      NSError *passedError = [NSError errorWithDomain:kGenericErrorDomain
+                                                 code:statusCode
+                                             userInfo:err];
+      customError = passedError;
+    } else {
+      NSError *err = [NSError
+          errorWithDomain:kGenericErrorDomain
+                     code:0
+                 userInfo:@{
+                   @"message" :
+                       [NSString stringWithFormat:@"Failed to resolve link: %@", url.absoluteString]
+                 }];
+      customError = err;
+    }
+  }
+
+  return customError;
+}
+
 #pragma mark - Public interface
 
 - (void)resolveShortLink:(NSURL *)url
@@ -109,20 +148,15 @@ NSData *_Nullable FIRDataWithDictionary(NSDictionary *dictionary, NSError **_Nul
     @"sdk_version" : FDLSDKVersion
   };
 
-  FIRNetworkRequestCompletionHandler resolveLinkCallback = ^(NSData *data, NSURLResponse *response,
-                                                             NSError *error) {
-    NSURL *resolvedURL = nil;
+  FIRNetworkRequestCompletionHandler resolveLinkCallback =
+      ^(NSData *data, NSURLResponse *response, NSError *error) {
+        NSURL *resolvedURL = nil;
+        NSError *extractedError = [FIRDynamicLinkNetworking extractErrorForShortLink:url
+                                                                                data:data
+                                                                            response:response
+                                                                               error:error];
 
-    if (![response isKindOfClass:[NSHTTPURLResponse class]]) {
-      NSError *responseTypeError = [NSError
-          errorWithDomain:kGenericErrorDomain
-                     code:0
-                 userInfo:@{@"message" : @"Response should be of type NSHTTPURLResponse."}];
-      handler(resolvedURL, error ? error : responseTypeError);
-    } else {
-      NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
-      if (statusCode >= 200 && statusCode < 300) {
-        if (!error && data) {
+        if (!extractedError && data) {
           NSDictionary *result = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
           if ([result isKindOfClass:[NSDictionary class]]) {
             id invitationIDObject = [result objectForKey:@"invitationId"];
@@ -145,30 +179,8 @@ NSData *_Nullable FIRDataWithDictionary(NSDictionary *dictionary, NSError **_Nul
                                                        minAppVersion, self->_URLScheme, nil);
           }
         }
-        handler(resolvedURL, error);
-      } else if (error) {
-        handler(resolvedURL, error);
-      } else {
-        NSDictionary *result = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
-        if ([result isKindOfClass:[NSDictionary class]] && [result objectForKey:@"error"]) {
-          id err = [result objectForKey:@"error"];
-          NSError *customError = [NSError errorWithDomain:kGenericErrorDomain
-                                                     code:statusCode
-                                                 userInfo:err];
-          handler(resolvedURL, customError);
-        } else {
-          NSError *err = [NSError
-              errorWithDomain:kGenericErrorDomain
-                         code:0
-                     userInfo:@{
-                       @"message" : [NSString
-                           stringWithFormat:@"Failed to resolve link: %@", url.absoluteString]
-                     }];
-          handler(resolvedURL, err);
-        }
-      }
-    }
-  };
+        handler(resolvedURL, extractedError);
+      };
 
   NSString *requestURLString =
       [NSString stringWithFormat:@"%@/reopenAttribution%@", kiOSReopenRestBaseUrl,

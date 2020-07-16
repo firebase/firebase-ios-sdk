@@ -480,20 +480,11 @@ static const NSInteger FIRErrorCodeDurableDeepLinkFailed = -119;
                 }];
     return YES;
   } else {
-    if ([self respondsToSelector:@selector(dynamicLinkFromUniversalLinkURL:completion:)]) {
-      [self dynamicLinkFromUniversalLinkURL:universalLinkURL completion:completion];
-      BOOL canHandleUniversalLink =
-          [self canParseUniversalLinkURL:universalLinkURL] && universalLinkURL.query.length > 0 &&
-          FIRDLDictionaryFromQuery(universalLinkURL.query)[kFIRDLParameterLink];
-      return canHandleUniversalLink;
-    } else {
-      FIRDynamicLink *dynamicLink = [self dynamicLinkFromUniversalLinkURL:universalLinkURL];
-      if (dynamicLink) {
-        completion(dynamicLink, nil);
-        return YES;
-      }
-      return NO;
-    }
+    [self dynamicLinkFromUniversalLinkURL:universalLinkURL completion:completion];
+    BOOL canHandleUniversalLink =
+        [self canParseUniversalLinkURL:universalLinkURL] && universalLinkURL.query.length > 0 &&
+        FIRDLDictionaryFromQuery(universalLinkURL.query)[kFIRDLParameterLink];
+    return canHandleUniversalLink;
   }
 }
 
