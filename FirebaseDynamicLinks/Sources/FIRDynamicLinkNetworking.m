@@ -92,6 +92,15 @@ NSData *_Nullable FIRDataWithDictionary(NSDictionary *dictionary, NSError **_Nul
   return self;
 }
 
++ (NSError *)genericErrorForUrl:(NSURL *)url {
+  return [NSError errorWithDomain:kGenericErrorDomain
+                             code:0
+                         userInfo:@{
+                           @"message" : [NSString
+                               stringWithFormat:@"Failed to resolve link: %@", url.absoluteString]
+                         }];
+}
+
 + (nullable NSError *)extractErrorForShortLink:(NSURL *)url
                                           data:(NSData *)data
                                       response:(NSURLResponse *)response
@@ -109,22 +118,18 @@ NSData *_Nullable FIRDataWithDictionary(NSDictionary *dictionary, NSError **_Nul
                             code:0
                         userInfo:@{@"message" : @"Response should be of type NSHTTPURLResponse."}];
   } else if (statusCode < 200 || statusCode >= 300) {
-    NSDictionary *result = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
-    if ([result isKindOfClass:[NSDictionary class]] && [result objectForKey:@"error"]) {
-      id err = [result objectForKey:@"error"];
-      NSError *passedError = [NSError errorWithDomain:kGenericErrorDomain
-                                                 code:statusCode
-                                             userInfo:err];
-      customError = passedError;
+    if (data) {
+      NSDictionary *result = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+      if ([result isKindOfClass:[NSDictionary class]] && [result objectForKey:@"error"]) {
+        id err = [result objectForKey:@"error"];
+        customError = [NSError errorWithDomain:kGenericErrorDomain
+                                                   code:statusCode
+                                               userInfo:err];
+      } else {
+        customError = [FIRDynamicLinkNetworking genericErrorForUrl:url];
+      }
     } else {
-      NSError *err = [NSError
-          errorWithDomain:kGenericErrorDomain
-                     code:0
-                 userInfo:@{
-                   @"message" :
-                       [NSString stringWithFormat:@"Failed to resolve link: %@", url.absoluteString]
-                 }];
-      customError = err;
+      customError = [FIRDynamicLinkNetworking genericErrorForUrl:url];
     }
   }
 
