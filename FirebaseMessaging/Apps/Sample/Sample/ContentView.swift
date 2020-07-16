@@ -100,18 +100,14 @@ struct ContentView: View {
   }
 
   func getToken() {
-    guard let app = FirebaseApp.app() else {
-      return
-    }
-    let senderID = app.options.gcmSenderID
-    Messaging.messaging().retrieveFCMToken(forSenderID: senderID) { token, error in
-      guard let token = token, error == nil else {
+    InstanceID.instanceID().instanceID { result, error in
+      guard let result = result, error == nil else {
         self.log = "Failed getting iid and token: \(String(describing: error))"
         return
       }
-      self.identity.token = token
+      self.identity.token = result.token
+      self.identity.instanceID = result.instanceID
       self.log = "Successfully got token."
-      print("Token: ", token)
     }
   }
 
