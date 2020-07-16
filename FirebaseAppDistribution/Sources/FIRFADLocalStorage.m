@@ -13,24 +13,22 @@
 // limitations under the License.
 #import "FIRFADLocalStorage+Private.h"
 
+static NSString *const kSignInStateKey = @"FIRFADSignInState";
 @implementation FIRFADLocalStorage
 
-- (instancetype)init {
-  self = [super init];
-
-  return self;
++ (BOOL)isTesterSignedIn {
+  NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+  return [userDefaults boolForKey:kSignInStateKey];
 }
 
-- (BOOL)isTesterSignedIn {
-  return YES;
++ (void)registerSignIn {
+  NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+  [userDefaults setBool:YES forKey:kSignInStateKey];
 }
 
-- (BOOL)persistSignInState:(NSError *_Nullable)error {
-  return YES;
-}
-
-- (BOOL)clearSignInState:(NSError *_Nullable)error {
-  return YES;
++ (void)registerSignOut {
+  NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+  [userDefaults setBool:YES forKey:kSignInStateKey];
 }
 
 @end
