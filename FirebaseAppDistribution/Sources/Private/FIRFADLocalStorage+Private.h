@@ -21,9 +21,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (BOOL)isTesterSignedIn;
 
-- (BOOL)persistSignInState:(NSError **_Nullable)error;
+- (BOOL)persistSignInState:(NSError *_Nullable)error;
 
-- (BOOL)clearSignInState:(NSError **_Nullable)error;
+- (BOOL)clearSignInState:(NSError *_Nullable)error;
 
 @end
 

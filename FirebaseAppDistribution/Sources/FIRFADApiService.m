@@ -31,7 +31,6 @@ NSString *const kResponseReleasesKey = @"releases";
 @implementation FIRFADApiService
 
 + (void)generateAuthTokenWithCompletion:(FIRFADGenerateAuthTokenCompletion)completion {
-  // OR for default FIRApp:
   FIRInstallations *installations = [FIRInstallations installations];
 
   // Get a FIS Authentication Token.
@@ -67,12 +66,12 @@ NSString *const kResponseReleasesKey = @"releases";
 }
 
 + (NSMutableURLRequest *)createHTTPRequest:(NSString *)method
-                                   withUrl:(NSString *)URLString
+                                   withUrl:(NSString *)urlString
                              withAuthToken:(FIRInstallationsAuthTokenResult *)authTokenResult {
   NSMutableURLRequest *request = [[NSMutableURLRequest alloc] init];
 
   FIRFADInfoLog(@"Requesting releases for app id - %@", [[FIRApp defaultApp] options].googleAppID);
-  [request setURL:[NSURL URLWithString:URLString]];
+  [request setURL:[NSURL URLWithString:urlString]];
   [request setHTTPMethod:method];
   [request setValue:authTokenResult.authToken forHTTPHeaderField:kInstallationAuthHeader];
   [request setValue:[[FIRApp defaultApp] options].APIKey forHTTPHeaderField:kApiHeaderKey];
@@ -82,11 +81,11 @@ NSString *const kResponseReleasesKey = @"releases";
 + (NSArray *)handleReleaseResponse:(NSData *)data
                           response:(NSURLResponse *)response
                              error:(NSError **_Nullable)error {
-  NSHTTPURLResponse *HTTPResponse = (NSHTTPURLResponse *)response;
-  FIRFADInfoLog(@"HTTPResonse status code %ld response %@", (long)HTTPResponse.statusCode,
-                HTTPResponse);
+  NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
+  FIRFADInfoLog(@"HTTPResonse status code %ld response %@", (long)httpResponse.statusCode,
+                httpResponse);
 
-  if (*error || !HTTPResponse) {
+  if (*error || !httpResponse) {
     [self handleError:error
           description:@"Unknown http error occurred"
                  code:FIRApiErrorUnknownFailure];
@@ -95,8 +94,8 @@ NSString *const kResponseReleasesKey = @"releases";
     return nil;
   }
 
-  if (HTTPResponse.statusCode != 200) {
-    [self handleErrorWithStatusCode:HTTPResponse.statusCode error:error];
+  if (httpResponse.statusCode != 200) {
+    [self handleErrorWithStatusCode:httpResponse.statusCode error:error];
     return nil;
   }
 

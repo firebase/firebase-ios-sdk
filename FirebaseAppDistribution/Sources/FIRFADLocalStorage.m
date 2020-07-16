@@ -25,11 +25,11 @@
   return YES;
 }
 
-- (BOOL)persistSignInState:(NSError **_Nullable)error {
+- (BOOL)persistSignInState:(NSError *_Nullable)error {
   return YES;
 }
 
-- (BOOL)clearSignInState:(NSError **_Nullable)error {
+- (BOOL)clearSignInState:(NSError *_Nullable)error {
   return YES;
 }
 

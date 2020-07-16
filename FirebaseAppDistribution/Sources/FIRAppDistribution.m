@@ -223,21 +223,18 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
 
         for (NSDictionary *releaseDict in releases) {
           if ([[releaseDict objectForKey:kLatestReleaseKey] boolValue]) {
-            //      FIRFADInfoLog(@"Tester API - found latest release in response. Checking if code
-            //      hash match");
+            FIRFADInfoLog(@"Tester API - found latest release in response. Checking if code hash match");
             NSString *codeHash = [releaseDict objectForKey:kCodeHashKey];
             NSString *executablePath = [[NSBundle mainBundle] executablePath];
             FIRAppDistributionMachO *machO =
                 [[FIRAppDistributionMachO alloc] initWithPath:executablePath];
-
-            //      FIRFADInfoLog(@"Code hash for the app on device - %@", machO.codeHash);
-            //      FIRFADInfoLog(@"Code hash for the release from the service response - %@",
-            //      codeHash);
+            FIRFADInfoLog(@"Code hash for the app on device - %@", machO.codeHash);
+            FIRFADInfoLog(@"Code hash for the release from the service response - %@", codeHash);
             if (codeHash && ![codeHash isEqualToString:machO.codeHash]) {
               FIRAppDistributionRelease *release =
                   [[FIRAppDistributionRelease alloc] initWithDictionary:releaseDict];
               dispatch_async(dispatch_get_main_queue(), ^{
-                // FIRFADInfoLog(@"Found new release");
+                FIRFADInfoLog(@"Found new release with version: %@", [release displayVersion]);
                 completion(release, nil);
               });
 
@@ -246,67 +243,6 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
           }
         }
       }];
-}
-
-//- (void)logUnderlyingKeychainError:(NSError *)error {
-//  NSError *underlyingError = [error.userInfo objectForKey:NSUnderlyingErrorKey];
-//  if (underlyingError) {
-//    FIRFADErrorLog(@"Keychain error - %@", [underlyingError localizedDescription]);
-//  }
-//}
-
-- (void)handleReleasesAPIResponseWithData:data
-                               completion:(FIRAppDistributionUpdateCheckCompletion)completion {
-  NSError *error = nil;
-
-  NSDictionary *serializedResponse = [NSJSONSerialization JSONObjectWithData:data
-                                                                     options:0
-                                                                       error:&error];
-
-  if (error) {
-    //    FIRFADErrorLog(@"Tester API - Error serializing json response");
-    NSString *message =
-        error.userInfo[NSLocalizedDescriptionKey] ? error.userInfo[NSLocalizedDescriptionKey] : @"";
-    NSError *error = [self NSErrorForErrorCodeAndMessage:FIRAppDistributionErrorUnknown
-                                                 message:message];
-    dispatch_async(dispatch_get_main_queue(), ^{
-      completion(nil, error);
-    });
-
-    return;
-  }
-
-  NSArray *releaseList = [serializedResponse objectForKey:kReleasesKey];
-  for (NSDictionary *releaseDict in releaseList) {
-    if ([[releaseDict objectForKey:kLatestReleaseKey] boolValue]) {
-      //      FIRFADInfoLog(@"Tester API - found latest release in response. Checking if code hash
-      //      match");
-      NSString *codeHash = [releaseDict objectForKey:kCodeHashKey];
-      NSString *executablePath = [[NSBundle mainBundle] executablePath];
-      FIRAppDistributionMachO *machO =
-          [[FIRAppDistributionMachO alloc] initWithPath:executablePath];
-
-      //      FIRFADInfoLog(@"Code hash for the app on device - %@", machO.codeHash);
-      //      FIRFADInfoLog(@"Code hash for the release from the service response - %@", codeHash);
-      if (codeHash && ![codeHash isEqualToString:machO.codeHash]) {
-        FIRAppDistributionRelease *release =
-            [[FIRAppDistributionRelease alloc] initWithDictionary:releaseDict];
-        dispatch_async(dispatch_get_main_queue(), ^{
-          // FIRFADInfoLog(@"Found new release");
-          completion(release, nil);
-        });
-
-        return;
-      }
-
-      break;
-    }
-  }
-
-  // FIRFADInfoLog(@"Tester API - No new release found");
-  dispatch_async(dispatch_get_main_queue(), ^{
-    completion(nil, nil);
-  });
 }
 
 - (void)checkForUpdateWithCompletion:(FIRAppDistributionUpdateCheckCompletion)completion {
