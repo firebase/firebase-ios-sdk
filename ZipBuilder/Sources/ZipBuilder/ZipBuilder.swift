@@ -554,8 +554,7 @@ struct ZipBuilder {
                                              toDirectory: productDir,
                                              frameworkLocations: builtFrameworks,
                                              podsToIgnore: podsToIgnore,
-                                             foldersToIgnore: FirebasePods
-                                               .duplicateFrameworksToRemove(pod: podName))
+                                             foldersToIgnore: [])
 
     let copiedFrameworks = namedFrameworks.filter {
       // Skip frameworks that aren't contained in the "podsToIgnore" array and the Firebase pod.
