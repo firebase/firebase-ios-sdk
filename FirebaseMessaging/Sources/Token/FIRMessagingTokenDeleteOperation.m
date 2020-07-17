@@ -87,7 +87,7 @@
                          error:(NSError *)error {
   if (error) {
     FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTokenDeleteOperationRequestError,
-                            @"Device unregister HTTP fetch error. Error code: %ld", error.code);
+                            @"Device unregister HTTP fetch error. Error code: %ld", (long)error.code);
     [self finishWithResult:FIRMessagingTokenOperationError token:nil error:error];
     return;
   }
