@@ -29,6 +29,12 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRAuthURLPresenter () <SFSafariViewControllerDelegate, FIRAuthWebViewControllerDelegate>
+
+/// The completion handler for the current presentaion, if one is active.
+/// Prefer using this over the _completion instance variable directly because
+/// this property is thread-safe.
+@property (nonatomic, copy, nullable) FIRAuthURLPresentationCompletion completion;
+
 @end
 
 // Disable unguarded availability warnings because SFSafariViewController is been used throughout
@@ -67,6 +73,20 @@ NS_ASSUME_NONNULL_BEGIN
       @remarks This variable is also used as a flag to indicate a presentation is active.
    */
   FIRAuthURLPresentationCompletion _Nullable _completion;
+
+  /** @var _completionLock
+      @brief A lock object used to serialize access to `_completion`, which may be
+      set on one thread and read from another.
+   */
+   NSLock *_completionLock;
+}
+
+- (instancetype)init {
+  self = [super init];
+  if (self != nil) {
+    _completionLock = [[NSLock alloc] init];
+  }
+  return self;
 }
 
 - (void)presentURL:(NSURL *)URL
@@ -75,12 +95,15 @@ NS_ASSUME_NONNULL_BEGIN
          completion:(FIRAuthURLPresentationCompletion)completion {
   if (_isPresenting) {
     // Unable to start a new presentation on top of another.
-    _completion(nil, [FIRAuthErrorUtils webContextAlreadyPresentedErrorWithMessage:nil]);
+    dispatch_async(dispatch_get_main_queue(), ^() {
+      self.completion(nil, [FIRAuthErrorUtils webContextAlreadyPresentedErrorWithMessage:nil]);
+      self.completion = NULL;
+    });
     return;
   }
   _isPresenting = YES;
   _callbackMatcher = callbackMatcher;
-  _completion = completion;
+  self.completion = completion;
   dispatch_async(dispatch_get_main_queue(), ^() {
     self->_UIDelegate = UIDelegate ?: [FIRAuthDefaultUIDelegate defaultUIDelegate];
     if ([SFSafariViewController class]) {
@@ -162,8 +185,8 @@ NS_ASSUME_NONNULL_BEGIN
   _callbackMatcher = nil;
   id<FIRAuthUIDelegate> UIDelegate = _UIDelegate;
   _UIDelegate = nil;
-  FIRAuthURLPresentationCompletion completion = _completion;
-  _completion = nil;
+  FIRAuthURLPresentationCompletion completion = self.completion;
+  self.completion = nil;
   void (^finishBlock)(void) = ^() {
     self->_isPresenting = NO;
     completion(URL, error);
@@ -182,6 +205,20 @@ NS_ASSUME_NONNULL_BEGIN
   } else {
     finishBlock();
   }
+}
+
+- (FIRAuthURLPresentationCompletion)completion {
+  FIRAuthURLPresentationCompletion value = NULL;
+  [_completionLock lock];
+  value = [_completion copy];
+  [_completionLock unlock];
+  return value;
+}
+
+- (void)setCompletion:(FIRAuthURLPresentationCompletion)completion {
+  [_completionLock lock];
+  _completion = [completion copy];
+  [_completionLock unlock];
 }
 
 #pragma clang diagnostic pop  // ignored "-Wunguarded-availability"
