@@ -131,6 +131,7 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
 
   if ([self isTesterSignedIn]) {
     completion(nil);
+    return;
   }
 
   [self.appDelegateInterceptor initializeUIState];
@@ -140,7 +141,8 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
   [installations installationIDWithCompletion:^(NSString *__nullable identifier,
                                                 NSError *__nullable error) {
     if (error) {
-      completion(error);
+      NSString *description = error.userInfo[NSLocalizedDescriptionKey] ? error.userInfo[NSLocalizedDescriptionKey] : @"Failed to retrieve Installation ID.";
+      completion([self NSErrorForErrorCodeAndMessage:FIRAppDistributionErrorUnknown message:description]);
       return;
     }
 
@@ -155,7 +157,9 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
         appDistributionRegistrationFlow:[[NSURL alloc] initWithString:requestURL]
                          withCompletion:^(NSError *_Nullable error) {
                            FIRFADInfoLog(@"Tester sign in complete.");
-                           [self persistTesterSignInState];
+                           if(!error){
+                             [self persistTesterSignInState];
+                           }
                            completion(error);
                          }];
   }];
@@ -190,7 +194,7 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
 }
 
 - (void)signOutTester {
-  return [FIRFADLocalStorage registerSignOut];
+  [FIRFADLocalStorage registerSignOut];
 }
 
 - (NSError *)NSErrorForErrorCodeAndMessage:(FIRAppDistributionError)errorCode
@@ -200,27 +204,31 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
 }
 
 - (NSError *_Nullable)handleFetchReleasesError:(NSError *)error {
-  FIRFADErrorLog(@"Failed to retrieve releases: %ld", (long)[error code]);
-  switch ([error code]) {
-    case FIRFADApiErrorTimeout:
-      return [self NSErrorForErrorCodeAndMessage:FIRAppDistributionErrorNetworkFailure
-                                         message:@"Failed to fetch releases due to timeout."];
-    case FIRFADApiErrorUnauthenticated:
-    case FIRFADApiErrorUnauthorized:
-    case FIRFADApiTokenGenerationFailure:
-    case FIRFADApiInstallationIdentifierError:
-      return [self NSErrorForErrorCodeAndMessage:FIRAppDistributionErrorAuthenticationFailure
-                                         message:@"Could not authenticate tester"];
-    case FIRApiErrorUnknownFailure:
-    case FIRApiErrorParseFailure:
-      return [self NSErrorForErrorCodeAndMessage:FIRAppDistributionErrorUnknown
-                                         message:@"Failed to fetch releases for unknown reason."];
-    default:
-      return nil;
+  if([error domain] == kFIRFADApiErrorDomain){
+    FIRFADErrorLog(@"Failed to retrieve releases: %ld", (long)[error code]);
+    switch ([error code]) {
+      case FIRFADApiErrorTimeout:
+        return [self NSErrorForErrorCodeAndMessage:FIRAppDistributionErrorNetworkFailure
+                                           message:@"Failed to fetch releases due to timeout."];
+      case FIRFADApiErrorUnauthenticated:
+      case FIRFADApiErrorUnauthorized:
+      case FIRFADApiTokenGenerationFailure:
+      case FIRFADApiInstallationIdentifierError:
+      case FIRFADApiErrorNotFound:
+        return [self NSErrorForErrorCodeAndMessage:FIRAppDistributionErrorAuthenticationFailure
+                                           message:@"Could not authenticate tester"];
+      default:
+        return [self NSErrorForErrorCodeAndMessage:FIRAppDistributionErrorUnknown
+                                                  message:@"Failed to fetch releases for unknown reason."];
+    }
   }
+
+  FIRFADErrorLog(@"Failed to retrieve releases with unexpected domain %@: %ld", [error domain], (long)[error code]);
+  return [self NSErrorForErrorCodeAndMessage:FIRAppDistributionErrorUnknown
+                                     message:@"Failed to fetch releases for unknown reason."];
 }
 
-- (void)fetchReleases:(FIRAppDistributionUpdateCheckCompletion)completion {
+- (void)fetchNewLatestRelease:(FIRAppDistributionUpdateCheckCompletion)completion {
   [FIRFADApiService
       fetchReleasesWithCompletion:^(NSArray *_Nullable releases, NSError *_Nullable error) {
         if (error) {
@@ -256,7 +264,7 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
 - (void)checkForUpdateWithCompletion:(FIRAppDistributionUpdateCheckCompletion)completion {
   FIRFADInfoLog(@"CheckForUpdateWithCompletion");
   if ([self isTesterSignedIn]) {
-    [self fetchReleases:completion];
+    [self fetchNewLatestRelease:completion];
   } else {
     UIAlertController *alert = [UIAlertController
         alertControllerWithTitle:@"Enable in-app alerts"
@@ -274,7 +282,7 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
                                      return;
                                    }
 
-                                   [self fetchReleases:completion];
+                                   [self fetchNewLatestRelease:completion];
                                  }];
                                }];
 

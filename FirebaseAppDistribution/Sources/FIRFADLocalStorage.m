@@ -12,23 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 #import "FIRFADLocalStorage+Private.h"
+#import "GoogleUtilities/UserDefaults/Private/GULUserDefaults.h"
 
-static NSString *const kSignInStateKey = @"FIRFADSignInState";
+static NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
 @implementation FIRFADLocalStorage
 
 + (BOOL)isTesterSignedIn {
-  NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
-  return [userDefaults boolForKey:kSignInStateKey];
+  return [[GULUserDefaults standardUserDefaults] boolForKey:kFIRFADSignInStateKey];
 }
 
 + (void)registerSignIn {
-  NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
-  [userDefaults setBool:YES forKey:kSignInStateKey];
+  [[GULUserDefaults standardUserDefaults] setBool:YES forKey:kFIRFADSignInStateKey];
 }
 
 + (void)registerSignOut {
-  NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
-  [userDefaults setBool:YES forKey:kSignInStateKey];
+  [[GULUserDefaults standardUserDefaults] setBool:NO forKey:kFIRFADSignInStateKey];
 }
 
 @end
