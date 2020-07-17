@@ -30,7 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRAuthURLPresenter () <SFSafariViewControllerDelegate, FIRAuthWebViewControllerDelegate>
 
-/// The completion handler for the current presentaion, if one is active.
+/// The completion handler for the current presentation, if one is active.
 /// Prefer using this over the _completion instance variable directly because
 /// this property is thread-safe.
 @property (nonatomic, copy, nullable) FIRAuthURLPresentationCompletion completion;
@@ -69,7 +69,7 @@ NS_ASSUME_NONNULL_BEGIN
   id<FIRAuthUIDelegate> _UIDelegate;
 
   /** @var _completion
-      @brief The completion handler for the current presentaion, if one is active.
+      @brief The completion handler for the current presentation, if one is active.
       @remarks This variable is also used as a flag to indicate a presentation is active.
    */
   FIRAuthURLPresentationCompletion _Nullable _completion;
