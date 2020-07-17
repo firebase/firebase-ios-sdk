@@ -25,7 +25,6 @@
 #import "FIRFADLocalStorage+Private.h"
 #import "FIRFADLogger+Private.h"
 
-
 /// Empty protocol to register with FirebaseCore's component system.
 @protocol FIRAppDistributionInstanceProvider <NSObject>
 @end
@@ -141,8 +140,11 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
   [installations installationIDWithCompletion:^(NSString *__nullable identifier,
                                                 NSError *__nullable error) {
     if (error) {
-      NSString *description = error.userInfo[NSLocalizedDescriptionKey] ? error.userInfo[NSLocalizedDescriptionKey] : @"Failed to retrieve Installation ID.";
-      completion([self NSErrorForErrorCodeAndMessage:FIRAppDistributionErrorUnknown message:description]);
+      NSString *description = error.userInfo[NSLocalizedDescriptionKey]
+                                  ? error.userInfo[NSLocalizedDescriptionKey]
+                                  : @"Failed to retrieve Installation ID.";
+      completion([self NSErrorForErrorCodeAndMessage:FIRAppDistributionErrorUnknown
+                                             message:description]);
       return;
     }
 
@@ -157,7 +159,7 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
         appDistributionRegistrationFlow:[[NSURL alloc] initWithString:requestURL]
                          withCompletion:^(NSError *_Nullable error) {
                            FIRFADInfoLog(@"Tester sign in complete.");
-                           if(!error){
+                           if (!error) {
                              [self persistTesterSignInState];
                            }
                            completion(error);
@@ -204,7 +206,7 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
 }
 
 - (NSError *_Nullable)handleFetchReleasesError:(NSError *)error {
-  if([error domain] == kFIRFADApiErrorDomain){
+  if ([error domain] == kFIRFADApiErrorDomain) {
     FIRFADErrorLog(@"Failed to retrieve releases: %ld", (long)[error code]);
     switch ([error code]) {
       case FIRFADApiErrorTimeout:
@@ -219,11 +221,12 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
                                            message:@"Could not authenticate tester"];
       default:
         return [self NSErrorForErrorCodeAndMessage:FIRAppDistributionErrorUnknown
-                                                  message:@"Failed to fetch releases for unknown reason."];
+                                           message:@"Failed to fetch releases for unknown reason."];
     }
   }
 
-  FIRFADErrorLog(@"Failed to retrieve releases with unexpected domain %@: %ld", [error domain], (long)[error code]);
+  FIRFADErrorLog(@"Failed to retrieve releases with unexpected domain %@: %ld", [error domain],
+                 (long)[error code]);
   return [self NSErrorForErrorCodeAndMessage:FIRAppDistributionErrorUnknown
                                      message:@"Failed to fetch releases for unknown reason."];
 }

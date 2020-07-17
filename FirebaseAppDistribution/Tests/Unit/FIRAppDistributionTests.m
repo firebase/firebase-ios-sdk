@@ -18,8 +18,8 @@
 
 #import "FirebaseAppDistribution/FIRAppDistribution.h"
 #import "FirebaseAppDistribution/FIRAppDistributionAppDelegateInterceptor.h"
-#import "FirebaseAppDistribution/FIRFADApiService+Private.h"
 #import "FirebaseAppDistribution/FIRAppDistributionMachO+Private.h"
+#import "FirebaseAppDistribution/FIRFADApiService+Private.h"
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
 #import "GoogleUtilities/AppDelegateSwizzler/Private/GULAppDelegateSwizzler.h"
@@ -60,15 +60,16 @@
   _mockCodeHash = @"this-is-a-fake-code-hash";
   _mockFIRAppClass = OCMClassMock([FIRApp class]);
   _mockFIRFADApiService = OCMClassMock([FIRFADApiService class]);
-  _mockAppDelegateInterceptor = OCMClassMock([FIRAppDistributionAppDelegateInterceptor
-                                              class]);
+  _mockAppDelegateInterceptor = OCMClassMock([FIRAppDistributionAppDelegateInterceptor class]);
   _mockFIRInstallations = OCMClassMock([FIRInstallations class]);
   _mockInstallationToken = OCMClassMock([FIRInstallationsAuthTokenResult class]);
   _mockMachO = OCMClassMock([FIRAppDistributionMachO class]);
   id mockBundle = OCMClassMock([NSBundle class]);
   OCMStub([_mockFIRAppClass defaultApp]).andReturn(_mockFIRAppClass);
   OCMStub([_mockAppDelegateInterceptor sharedInstance]).andReturn(_mockAppDelegateInterceptor);
-  OCMStub([_mockAppDelegateInterceptor initializeUIState]).andDo(^(NSInvocation *invocation) {});
+  OCMStub([_mockAppDelegateInterceptor initializeUIState])
+      .andDo(^(NSInvocation *invocation){
+      });
   OCMStub([_mockFIRInstallations installations]).andReturn(_mockFIRInstallations);
   OCMStub([_mockInstallationToken authToken]).andReturn(_mockAuthToken);
   OCMStub([_mockMachO alloc]).andReturn(_mockMachO);
@@ -81,22 +82,22 @@
 
   _mockInstallationId = @"this-id-is-fake-ccccc";
   _mockReleases = @[
-      @{
-        @"codeHash" : @"this-is-another-code-hash",
-        @"displayVersion" : @"1.0.0",
-        @"buildVersion" : @"111",
-        @"releaseNotes" : @"This is a release",
-        @"downloadUrl" : @"http://faketyfakefake.download"
-      },
-      @{
-        @"latest" : @YES,
-        @"codeHash" : _mockCodeHash,
-        @"displayVersion" : @"1.0.1",
-        @"buildVersion" : @"112",
-        @"releaseNotes" : @"This is a release too",
-        @"downloadUrl" : @"http://faketyfakefake.download"
-      }
-    ];
+    @{
+      @"codeHash" : @"this-is-another-code-hash",
+      @"displayVersion" : @"1.0.0",
+      @"buildVersion" : @"111",
+      @"releaseNotes" : @"This is a release",
+      @"downloadUrl" : @"http://faketyfakefake.download"
+    },
+    @{
+      @"latest" : @YES,
+      @"codeHash" : _mockCodeHash,
+      @"displayVersion" : @"1.0.1",
+      @"buildVersion" : @"112",
+      @"releaseNotes" : @"This is a release too",
+      @"downloadUrl" : @"http://faketyfakefake.download"
+    }
+  ];
 }
 
 - (void)tearDown {
@@ -107,29 +108,30 @@
 - (void)mockInstallationIdCompletion:(NSString *_Nullable)identifier
                                error:(NSError *_Nullable)error {
   [OCMStub([_mockFIRInstallations installationIDWithCompletion:OCMOCK_ANY])
-   andDo:^(NSInvocation *invocation) {
-    void (^handler)(NSString *identifier, NSError *_Nullable error);
-    [invocation getArgument:&handler atIndex:2];
-    handler(identifier, error);
-  }];
+      andDo:^(NSInvocation *invocation) {
+        void (^handler)(NSString *identifier, NSError *_Nullable error);
+        [invocation getArgument:&handler atIndex:2];
+        handler(identifier, error);
+      }];
 }
 
 - (void)mockAppDelegateCompletion:(NSError *_Nullable)error {
-  [OCMStub([_mockAppDelegateInterceptor appDistributionRegistrationFlow:OCMOCK_ANY withCompletion:OCMOCK_ANY])
-   andDo:^(NSInvocation *invocation) {
-    void (^handler)(NSError *_Nullable error);
-    [invocation getArgument:&handler atIndex:3];
-    handler(error);
-  }];
+  [OCMStub([_mockAppDelegateInterceptor appDistributionRegistrationFlow:OCMOCK_ANY
+                                                         withCompletion:OCMOCK_ANY])
+      andDo:^(NSInvocation *invocation) {
+        void (^handler)(NSError *_Nullable error);
+        [invocation getArgument:&handler atIndex:3];
+        handler(error);
+      }];
 }
 
 - (void)mockFetchReleasesCompletion:(NSArray *)releases error:(NSError *)error {
   [OCMStub([_mockFIRFADApiService fetchReleasesWithCompletion:OCMOCK_ANY])
-   andDo:^(NSInvocation *invocation) {
-    void (^handler)(NSArray *releases, NSError *_Nullable error);
-    [invocation getArgument:&handler atIndex:2];
-    handler(releases, error);
-  }];
+      andDo:^(NSInvocation *invocation) {
+        void (^handler)(NSArray *releases, NSError *_Nullable error);
+        [invocation getArgument:&handler atIndex:2];
+        handler(releases, error);
+      }];
 }
 
 - (void)testInitWithApp {
@@ -141,9 +143,9 @@
   [self mockAppDelegateCompletion:nil];
   [self mockFetchReleasesCompletion:_mockReleases error:nil];
   XCTestExpectation *expectation =
-  [self expectationWithDescription:@"Persist sign in state succeeds."];
+      [self expectationWithDescription:@"Persist sign in state succeeds."];
 
-  [[self appDistribution] signInTesterWithCompletion:^(NSError * _Nullable error) {
+  [[self appDistribution] signInTesterWithCompletion:^(NSError *_Nullable error) {
     XCTAssertNil(error);
     [expectation fulfill];
   }];
@@ -152,32 +154,38 @@
 }
 
 - (void)testSignInWithCompletionInstallationIDNotFoundFailure {
-  NSError *mockError = [NSError errorWithDomain:@"this.is.fake" code:3 userInfo:@{NSLocalizedDescriptionKey: @"This is unfortunate."}];
+  NSError *mockError =
+      [NSError errorWithDomain:@"this.is.fake"
+                          code:3
+                      userInfo:@{NSLocalizedDescriptionKey : @"This is unfortunate."}];
   [self mockInstallationIdCompletion:_mockInstallationId error:mockError];
   [self mockAppDelegateCompletion:nil];
   [self mockFetchReleasesCompletion:_mockReleases error:nil];
   XCTestExpectation *expectation =
-  [self expectationWithDescription:@"Persist sign in state fails."];
+      [self expectationWithDescription:@"Persist sign in state fails."];
 
-  [[self appDistribution] signInTesterWithCompletion:^(NSError * _Nullable error) {
+  [[self appDistribution] signInTesterWithCompletion:^(NSError *_Nullable error) {
     XCTAssertNotNil(error);
     XCTAssertEqual([error code], FIRAppDistributionErrorUnknown);
     [expectation fulfill];
   }];
   [self waitForExpectations:@[ expectation ] timeout:5.0];
   XCTAssertFalse([[self appDistribution] isTesterSignedIn]);
-
 }
 
 - (void)testSignInWithCompletionDelegateFailureDoesNotPersist {
-  NSError *mockError = [NSError errorWithDomain:@"fake.app.delegate.domain" code:4 userInfo:@{NSLocalizedDescriptionKey: @"This is unfortunate."}];
+  NSError *mockError =
+      [NSError errorWithDomain:@"fake.app.delegate.domain"
+                          code:4
+                      userInfo:@{NSLocalizedDescriptionKey : @"This is unfortunate."}];
   [self mockInstallationIdCompletion:_mockInstallationId error:nil];
   [self mockAppDelegateCompletion:mockError];
   [self mockFetchReleasesCompletion:_mockReleases error:nil];
   XCTestExpectation *expectation =
-  [self expectationWithDescription:@"Persist sign in state fails when the delegate recieves a failure."];
+      [self expectationWithDescription:
+                @"Persist sign in state fails when the delegate recieves a failure."];
 
-  [[self appDistribution] signInTesterWithCompletion:^(NSError * _Nullable error) {
+  [[self appDistribution] signInTesterWithCompletion:^(NSError *_Nullable error) {
     XCTAssertNotNil(error);
     // TODO (b/161538029): Map these errors to AppDistribution error codes
     XCTAssertEqual([error code], 4);
@@ -189,13 +197,16 @@
 }
 
 - (void)testSignInWithCompletionFetchReleasesFailureDoesNotPersist {
-  NSError *mockError = [NSError errorWithDomain:kFIRFADApiErrorDomain code:FIRFADApiErrorTimeout userInfo:@{NSLocalizedDescriptionKey: @"This is unfortunate."}];
+  NSError *mockError =
+      [NSError errorWithDomain:kFIRFADApiErrorDomain
+                          code:FIRFADApiErrorTimeout
+                      userInfo:@{NSLocalizedDescriptionKey : @"This is unfortunate."}];
   [self mockInstallationIdCompletion:_mockInstallationId error:nil];
   [self mockAppDelegateCompletion:nil];
   [self mockFetchReleasesCompletion:_mockReleases error:mockError];
-  XCTestExpectation *expectation =
-  [self expectationWithDescription:@"Persist sign in state fails when we fail to fetch releases."];
-  [[self appDistribution] signInTesterWithCompletion:^(NSError * _Nullable error) {
+  XCTestExpectation *expectation = [self
+      expectationWithDescription:@"Persist sign in state fails when we fail to fetch releases."];
+  [[self appDistribution] signInTesterWithCompletion:^(NSError *_Nullable error) {
     XCTAssertNil(error);
     [expectation fulfill];
   }];
@@ -208,9 +219,9 @@
   [self mockAppDelegateCompletion:nil];
   [self mockFetchReleasesCompletion:_mockReleases error:nil];
   XCTestExpectation *expectation =
-  [self expectationWithDescription:@"Persist sign out state succeeds."];
+      [self expectationWithDescription:@"Persist sign out state succeeds."];
 
-  [[self appDistribution] signInTesterWithCompletion:^(NSError * _Nullable error) {
+  [[self appDistribution] signInTesterWithCompletion:^(NSError *_Nullable error) {
     XCTAssertTrue([[self appDistribution] isTesterSignedIn]);
     XCTAssertNil(error);
     [expectation fulfill];
@@ -224,14 +235,14 @@
   [self mockFetchReleasesCompletion:_mockReleases error:nil];
   OCMStub([_mockMachO codeHash]).andReturn(@"this-is-old");
   XCTestExpectation *expectation =
-  [self expectationWithDescription:@"Fetch latest release succeeds."];
-  [[self appDistribution] fetchNewLatestRelease:^(FIRAppDistributionRelease * _Nullable release, NSError * _Nullable error) {
+      [self expectationWithDescription:@"Fetch latest release succeeds."];
+  [[self appDistribution] fetchNewLatestRelease:^(FIRAppDistributionRelease *_Nullable release,
+                                                  NSError *_Nullable error) {
     XCTAssertNotNil(release);
     XCTAssertNil(error);
     [expectation fulfill];
   }];
   [self waitForExpectations:@[ expectation ] timeout:5.0];
-
 }
 
 - (void)testFetchNewLatestReleaseNoNewRelease {
@@ -239,28 +250,31 @@
   OCMStub([_mockMachO codeHash]).andReturn(_mockCodeHash);
 
   XCTestExpectation *expectation =
-  [self expectationWithDescription:@"Fetch latest release with no new release succeeds."];
+      [self expectationWithDescription:@"Fetch latest release with no new release succeeds."];
   [expectation setInverted:YES];
 
-  [[self appDistribution] fetchNewLatestRelease:^(FIRAppDistributionRelease * _Nullable release, NSError * _Nullable error) {
+  [[self appDistribution] fetchNewLatestRelease:^(FIRAppDistributionRelease *_Nullable release,
+                                                  NSError *_Nullable error) {
     XCTAssertNil(release);
     XCTAssertNil(error);
     [expectation fulfill];
   }];
 
   [self waitForExpectations:@[ expectation ] timeout:5.0];
-
 }
 
 - (void)testFetchNewLatestReleaseFailure {
-  NSError *mockError = [NSError errorWithDomain:kFIRFADApiErrorDomain code:FIRFADApiErrorTimeout userInfo:@{NSLocalizedDescriptionKey: @"This is unfortunate."}];
+  NSError *mockError =
+      [NSError errorWithDomain:kFIRFADApiErrorDomain
+                          code:FIRFADApiErrorTimeout
+                      userInfo:@{NSLocalizedDescriptionKey : @"This is unfortunate."}];
   [self mockFetchReleasesCompletion:nil error:mockError];
   OCMStub([_mockMachO codeHash]).andReturn(@"this-is-old");
 
-  XCTestExpectation *expectation =
-  [self expectationWithDescription:@"Fetch latest release fails."];
+  XCTestExpectation *expectation = [self expectationWithDescription:@"Fetch latest release fails."];
 
-  [[self appDistribution] fetchNewLatestRelease:^(FIRAppDistributionRelease * _Nullable release, NSError * _Nullable error) {
+  [[self appDistribution] fetchNewLatestRelease:^(FIRAppDistributionRelease *_Nullable release,
+                                                  NSError *_Nullable error) {
     XCTAssertNil(release);
     XCTAssertNotNil(error);
     XCTAssertEqual([error code], FIRAppDistributionErrorNetworkFailure);
@@ -272,7 +286,10 @@
 }
 
 - (void)testHandleFetchReleasesErrorTimeout {
-  NSError *mockError = [NSError errorWithDomain:kFIRFADApiErrorDomain code:FIRFADApiErrorTimeout userInfo:@{NSLocalizedDescriptionKey: @"This is unfortunate."}];
+  NSError *mockError =
+      [NSError errorWithDomain:kFIRFADApiErrorDomain
+                          code:FIRFADApiErrorTimeout
+                      userInfo:@{NSLocalizedDescriptionKey : @"This is unfortunate."}];
   NSError *handledError = [[self appDistribution] handleFetchReleasesError:mockError];
   XCTAssertNotNil(handledError);
   XCTAssertEqual([handledError code], FIRAppDistributionErrorNetworkFailure);
@@ -280,7 +297,10 @@
 }
 
 - (void)testHandleFetchReleasesErrorUnauthenticated {
-  NSError *mockError = [NSError errorWithDomain:kFIRFADApiErrorDomain code:FIRFADApiErrorUnauthenticated userInfo:@{NSLocalizedDescriptionKey: @"This is unfortunate."}];
+  NSError *mockError =
+      [NSError errorWithDomain:kFIRFADApiErrorDomain
+                          code:FIRFADApiErrorUnauthenticated
+                      userInfo:@{NSLocalizedDescriptionKey : @"This is unfortunate."}];
   NSError *handledError = [[self appDistribution] handleFetchReleasesError:mockError];
   XCTAssertNotNil(handledError);
   XCTAssertEqual([handledError code], FIRAppDistributionErrorAuthenticationFailure);
@@ -288,7 +308,10 @@
 }
 
 - (void)testHandleFetchReleasesErrorUnauthorized {
-  NSError *mockError = [NSError errorWithDomain:kFIRFADApiErrorDomain code:FIRFADApiErrorUnauthorized userInfo:@{NSLocalizedDescriptionKey: @"This is unfortunate."}];
+  NSError *mockError =
+      [NSError errorWithDomain:kFIRFADApiErrorDomain
+                          code:FIRFADApiErrorUnauthorized
+                      userInfo:@{NSLocalizedDescriptionKey : @"This is unfortunate."}];
   NSError *handledError = [[self appDistribution] handleFetchReleasesError:mockError];
   XCTAssertNotNil(handledError);
   XCTAssertEqual([handledError code], FIRAppDistributionErrorAuthenticationFailure);
@@ -296,7 +319,10 @@
 }
 
 - (void)testHandleFetchReleasesErrorTokenGenerationFailure {
-  NSError *mockError = [NSError errorWithDomain:kFIRFADApiErrorDomain code:FIRFADApiTokenGenerationFailure userInfo:@{NSLocalizedDescriptionKey: @"This is unfortunate."}];
+  NSError *mockError =
+      [NSError errorWithDomain:kFIRFADApiErrorDomain
+                          code:FIRFADApiTokenGenerationFailure
+                      userInfo:@{NSLocalizedDescriptionKey : @"This is unfortunate."}];
   NSError *handledError = [[self appDistribution] handleFetchReleasesError:mockError];
   XCTAssertNotNil(handledError);
   XCTAssertEqual([handledError code], FIRAppDistributionErrorAuthenticationFailure);
@@ -304,7 +330,10 @@
 }
 
 - (void)testHandleFetchReleasesErrorInstallationIdentifierFailure {
-  NSError *mockError = [NSError errorWithDomain:kFIRFADApiErrorDomain code:FIRFADApiInstallationIdentifierError userInfo:@{NSLocalizedDescriptionKey: @"This is unfortunate."}];
+  NSError *mockError =
+      [NSError errorWithDomain:kFIRFADApiErrorDomain
+                          code:FIRFADApiInstallationIdentifierError
+                      userInfo:@{NSLocalizedDescriptionKey : @"This is unfortunate."}];
   NSError *handledError = [[self appDistribution] handleFetchReleasesError:mockError];
   XCTAssertNotNil(handledError);
   XCTAssertEqual([handledError code], FIRAppDistributionErrorAuthenticationFailure);
@@ -312,7 +341,10 @@
 }
 
 - (void)testHandleFetchReleasesErrorNotFound {
-  NSError *mockError = [NSError errorWithDomain:kFIRFADApiErrorDomain code:FIRFADApiErrorNotFound userInfo:@{NSLocalizedDescriptionKey: @"This is unfortunate."}];
+  NSError *mockError =
+      [NSError errorWithDomain:kFIRFADApiErrorDomain
+                          code:FIRFADApiErrorNotFound
+                      userInfo:@{NSLocalizedDescriptionKey : @"This is unfortunate."}];
   NSError *handledError = [[self appDistribution] handleFetchReleasesError:mockError];
   XCTAssertNotNil(handledError);
   XCTAssertEqual([handledError code], FIRAppDistributionErrorAuthenticationFailure);
@@ -320,7 +352,10 @@
 }
 
 - (void)testHandleFetchReleasesErrorApiDomainErrorUnknown {
-  NSError *mockError = [NSError errorWithDomain:kFIRFADApiErrorDomain code:209 userInfo:@{NSLocalizedDescriptionKey: @"This is unfortunate."}];
+  NSError *mockError =
+      [NSError errorWithDomain:kFIRFADApiErrorDomain
+                          code:209
+                      userInfo:@{NSLocalizedDescriptionKey : @"This is unfortunate."}];
   NSError *handledError = [[self appDistribution] handleFetchReleasesError:mockError];
   XCTAssertNotNil(handledError);
   XCTAssertEqual([handledError code], FIRAppDistributionErrorUnknown);
@@ -328,7 +363,10 @@
 }
 
 - (void)testHandleFetchReleasesErrorUnknownDomainError {
-  NSError *mockError = [NSError errorWithDomain:@"this.is.not.an.api.failure" code:4 userInfo:@{NSLocalizedDescriptionKey: @"This is unfortunate."}];
+  NSError *mockError =
+      [NSError errorWithDomain:@"this.is.not.an.api.failure"
+                          code:4
+                      userInfo:@{NSLocalizedDescriptionKey : @"This is unfortunate."}];
   NSError *handledError = [[self appDistribution] handleFetchReleasesError:mockError];
   XCTAssertNotNil(handledError);
   XCTAssertEqual([handledError code], FIRAppDistributionErrorUnknown);

@@ -124,12 +124,11 @@ NSString *const kFakeErrorDomain = @"test.failure.domain";
         XCTAssertNotNil(identifier);
         XCTAssertNil(error);
         XCTAssertEqual(identifier, self->_mockInstallationId);
-        XCTAssertEqual([authTokenResult authToken], self->_mockAuthToken);
+        XCTAssertEqual([authTokenResult authToken], self -> _mockAuthToken);
         [expectation fulfill];
       }];
 
   [self waitForExpectations:@[ expectation ] timeout:5.0];
-
 }
 
 - (void)testGenerateAuthTokenWithCompletionAuthTokenFailure {
@@ -177,7 +176,6 @@ NSString *const kFakeErrorDomain = @"test.failure.domain";
       }];
 
   [self waitForExpectations:@[ expectation ] timeout:5.0];
-
 }
 
 - (void)testFetchReleasesWithCompletionSuccess {
@@ -210,14 +208,14 @@ NSString *const kFakeErrorDomain = @"test.failure.domain";
                       response:fakeResponse
                          error:[NSError errorWithDomain:kFakeErrorDomain code:1 userInfo:@{}]];
   XCTestExpectation *expectation =
-    [self expectationWithDescription:@"Fetch releases fails with unknown error."];
+      [self expectationWithDescription:@"Fetch releases fails with unknown error."];
 
   [FIRFADApiService
       fetchReleasesWithCompletion:^(NSArray *_Nullable releases, NSError *_Nullable error) {
         XCTAssertNil(releases);
         XCTAssertNotNil(error);
         XCTAssertEqual(error.code, FIRApiErrorUnknownFailure);
-    [expectation fulfill];
+        [expectation fulfill];
       }];
   [self waitForExpectations:@[ expectation ] timeout:5.0];
 }
@@ -230,14 +228,14 @@ NSString *const kFakeErrorDomain = @"test.failure.domain";
   [self mockUrlSessionResponse:_mockReleases response:fakeResponse error:nil];
 
   XCTestExpectation *expectation =
-  [self expectationWithDescription:@"Fetch releases fails with unknown error."];
+      [self expectationWithDescription:@"Fetch releases fails with unknown error."];
 
   [FIRFADApiService
       fetchReleasesWithCompletion:^(NSArray *_Nullable releases, NSError *_Nullable error) {
         XCTAssertNil(releases);
         XCTAssertNotNil(error);
         XCTAssertEqual(error.code, FIRFADApiErrorUnauthenticated);
-    [expectation fulfill];
+        [expectation fulfill];
       }];
   [self waitForExpectations:@[ expectation ] timeout:5.0];
 }
@@ -254,14 +252,13 @@ NSString *const kFakeErrorDomain = @"test.failure.domain";
 
   [FIRFADApiService
       fetchReleasesWithCompletion:^(NSArray *_Nullable releases, NSError *_Nullable error) {
-    XCTAssertNil(releases);
-    XCTAssertNotNil(error);
-    XCTAssertEqual([error code], FIRFADApiErrorUnauthorized);
+        XCTAssertNil(releases);
+        XCTAssertNotNil(error);
+        XCTAssertEqual([error code], FIRFADApiErrorUnauthorized);
         [expectation fulfill];
       }];
 
   [self waitForExpectations:@[ expectation ] timeout:5.0];
-
 }
 
 - (void)testFetchReleasesWithCompletionUnauthorized403Failure {
@@ -275,9 +272,9 @@ NSString *const kFakeErrorDomain = @"test.failure.domain";
 
   [FIRFADApiService
       fetchReleasesWithCompletion:^(NSArray *_Nullable releases, NSError *_Nullable error) {
-    XCTAssertNil(releases);
-    XCTAssertNotNil(error);
-    XCTAssertEqual([error code], FIRFADApiErrorUnauthorized);
+        XCTAssertNil(releases);
+        XCTAssertNotNil(error);
+        XCTAssertEqual([error code], FIRFADApiErrorUnauthorized);
         [expectation fulfill];
       }];
 
@@ -295,9 +292,9 @@ NSString *const kFakeErrorDomain = @"test.failure.domain";
 
   [FIRFADApiService
       fetchReleasesWithCompletion:^(NSArray *_Nullable releases, NSError *_Nullable error) {
-    XCTAssertNil(releases);
-    XCTAssertNotNil(error);
-    XCTAssertEqual([error code], FIRFADApiErrorUnauthorized);
+        XCTAssertNil(releases);
+        XCTAssertNotNil(error);
+        XCTAssertEqual([error code], FIRFADApiErrorUnauthorized);
         [expectation fulfill];
       }];
 
@@ -335,9 +332,9 @@ NSString *const kFakeErrorDomain = @"test.failure.domain";
 
   [FIRFADApiService
       fetchReleasesWithCompletion:^(NSArray *_Nullable releases, NSError *_Nullable error) {
-    XCTAssertNil(releases);
-    XCTAssertNotNil(error);
-    XCTAssertEqual([error code], FIRFADApiErrorTimeout);
+        XCTAssertNil(releases);
+        XCTAssertNotNil(error);
+        XCTAssertEqual([error code], FIRFADApiErrorTimeout);
         [expectation fulfill];
       }];
 
@@ -355,14 +352,13 @@ NSString *const kFakeErrorDomain = @"test.failure.domain";
 
   [FIRFADApiService
       fetchReleasesWithCompletion:^(NSArray *_Nullable releases, NSError *_Nullable error) {
-    XCTAssertNil(releases);
-    XCTAssertNotNil(error);
-    XCTAssertEqual([error code], FIRApiErrorUnknownFailure);
+        XCTAssertNil(releases);
+        XCTAssertNotNil(error);
+        XCTAssertEqual([error code], FIRApiErrorUnknownFailure);
         [expectation fulfill];
       }];
 
   [self waitForExpectations:@[ expectation ] timeout:5.0];
-
 }
 
 - (void)testFetchReleasesWithCompletionNoReleasesFoundSuccess {
@@ -376,9 +372,9 @@ NSString *const kFakeErrorDomain = @"test.failure.domain";
 
   [FIRFADApiService
       fetchReleasesWithCompletion:^(NSArray *_Nullable releases, NSError *_Nullable error) {
-    XCTAssertNotNil(releases);
-    XCTAssertNil(error);
-    XCTAssertEqual([releases count], 0);
+        XCTAssertNotNil(releases);
+        XCTAssertNil(error);
+        XCTAssertEqual([releases count], 0);
         [expectation fulfill];
       }];
 
@@ -399,9 +395,9 @@ NSString *const kFakeErrorDomain = @"test.failure.domain";
 
   [FIRFADApiService
       fetchReleasesWithCompletion:^(NSArray *_Nullable releases, NSError *_Nullable error) {
-    XCTAssertNil(releases);
-    XCTAssertNotNil(error);
-    XCTAssertEqual([error code], FIRApiErrorParseFailure);
+        XCTAssertNil(releases);
+        XCTAssertNotNil(error);
+        XCTAssertEqual([error code], FIRApiErrorParseFailure);
         [expectation fulfill];
       }];
 
