@@ -112,4 +112,5 @@
   }
   [self finishWithResult:FIRMessagingTokenOperationSucceeded token:nil error:nil];
 }
+
 @end
