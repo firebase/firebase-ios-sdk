@@ -22,6 +22,7 @@
 #import "FirebaseMessaging/Sources/FIRMessagingTopicsCommon.h"
 
 @class GULUserDefaults;
+@class XCTestCase;
 
 NS_ASSUME_NONNULL_BEGIN
 
