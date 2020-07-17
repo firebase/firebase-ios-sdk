@@ -66,11 +66,6 @@ static const int64_t kMaxCheckinRetryIntervalInSeconds = 1 << 5;
 
 - (void)dealloc {
   [_scheduledCheckinTimer invalidate];
-  [_checkinHandlers release];
-  [_checkinPreferences release];
-  [_checkinService release];
-  [_checkinStore release];
-  [super dealloc];
 }
 
 #pragma mark - Schedule Checkin

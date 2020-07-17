@@ -68,10 +68,6 @@ static NSString *const kCheckinFileName = @"g-checkin";
 
 - (void)dealloc {
   [self stopAllTokenOperations];
-  [_fcmSenderID release];
-  [_currentAPNSInfo release];
-  [_firebaseAppID release];
-  [super dealloc];
 }
 
 - (NSString *)tokenAndRequestIfNotExist {
@@ -215,7 +211,7 @@ static NSString *const kCheckinFileName = @"g-checkin";
         }
 
         FIRMessaging_WEAKIFY(self);
-        [_installations installationIDWithCompletion:^(NSString *_Nullable identifier,
+        [self->_installations installationIDWithCompletion:^(NSString *_Nullable identifier,
                                                        NSError *_Nullable error) {
           FIRMessaging_STRONGIFY(self);
 

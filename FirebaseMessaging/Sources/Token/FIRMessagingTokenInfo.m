@@ -66,17 +66,6 @@ static const NSTimeInterval kDefaultFetchTokenInterval = 7 * 24 * 60 * 60;  // 7
   return self;
 }
 
-- (void)dealloc {
-  [_authorizedEntity release];
-  [_scope release];
-  [_token release];
-  [_appVersion release];
-  [_firebaseAppID release];
-  [_APNSInfo release];
-  [_cacheTime release];
-  [super dealloc];
-}
-
 - (BOOL)isFreshWithIID:(NSString *)IID {
   // Last fetch token cache time could be null if token is from legacy storage format. Then token is
   // considered not fresh and should be refreshed and overwrite with the latest storage format.

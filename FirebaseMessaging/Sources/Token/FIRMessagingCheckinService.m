@@ -49,8 +49,6 @@ static NSUInteger const kFragment = 0;
 
 - (void)dealloc {
   [_session invalidateAndCancel];
-  [_session release];
-  [super dealloc];
 }
 
 - (void)checkinWithExistingCheckin:(FIRMessagingCheckinPreferences *)existingCheckin

@@ -64,12 +64,6 @@ NSString *const kFIRMessagingCheckinKeychainService = @"com.google.iid.checkin";
   return self;
 }
 
-- (void)dealloc {
-  [_plist release];
-  [_keychain release];
-  [super dealloc];
-}
-
 - (BOOL)hasCheckinPlist {
   return [self.plist doesFileExist];
 }

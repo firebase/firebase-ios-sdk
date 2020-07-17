@@ -50,13 +50,6 @@ NSString *const kFIRMessagingKeychainWildcardIdentifier = @"*";
   return self;
 }
 
-- (void)dealloc {
-  [_generic release];
-  [_cachedKeychainData release];
-
-  [super dealloc];
-}
-
 + (NSMutableDictionary *)keychainQueryForService:(NSString *)service
                                          account:(NSString *)account
                                          generic:(NSString *)generic {

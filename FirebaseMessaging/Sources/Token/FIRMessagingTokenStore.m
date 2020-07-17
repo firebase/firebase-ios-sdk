@@ -40,11 +40,6 @@ static NSString *const kFIRMessagingTokenKeychainId = @"com.google.iid-tokens";
   return self;
 }
 
-- (void)dealloc {
-  [_keychain release];
-  [super dealloc];
-}
-
 #pragma mark - Get
 
 + (NSString *)serviceKeyForAuthorizedEntity:(NSString *)authorizedEntity scope:(NSString *)scope {

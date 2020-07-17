@@ -71,11 +71,6 @@ static NSString *const kFIRMessagingParamFCMLibVersion = @"X-cliv";
 
 - (void)dealloc {
   [_completionHandlers removeAllObjects];
-  [_FISAuthToken release];
-  [_checkinPreferences release];
-  [_instanceID release];
-  [_dataTask release];
-  [super dealloc];
 }
 
 - (void)addCompletionHandler:(FIRMessagingTokenOperationCompletion)handler {

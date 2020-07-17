@@ -37,13 +37,6 @@
   return self;
 }
 
-- (void)dealloc {
-  [_cachedPlistContents release];
-  [_subDirectoryName release];
-  [_fileName release];
-  [super dealloc];
-}
-
 - (BOOL)writeDictionary:(NSDictionary *)dict error:(NSError **)error {
   NSString *path = [self plistPathInDirectory];
   if (![dict writeToFile:path atomically:YES]) {
