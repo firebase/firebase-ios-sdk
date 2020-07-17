@@ -111,7 +111,6 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
 
 + (instancetype)appDistribution {
   // The container will return the same instance since isCacheable is set
-
   FIRApp *defaultApp = [FIRApp defaultApp];  // Missing configure will be logged here.
 
   // Get the instance from the `FIRApp`'s container. This will create a new instance the
