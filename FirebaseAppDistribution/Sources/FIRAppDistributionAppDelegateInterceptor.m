@@ -57,6 +57,7 @@ SFAuthenticationSession *_safariAuthenticationVC;
         completionHandler:^(NSURL *_Nullable callbackURL, NSError *_Nullable error) {
           [self resetUIState];
           NSLog(@"Testing: Sign in Complete!");
+          // TODO (b/161538029): Map these errors to AppDistribution error codes
           completion(error);
         }];
 
@@ -74,6 +75,7 @@ SFAuthenticationSession *_safariAuthenticationVC;
         completionHandler:^(NSURL *_Nullable callbackURL, NSError *_Nullable error) {
           [self resetUIState];
           NSLog(@"Testing: Sign in Complete!");
+          // TODO (b/161538029): Map these errors to AppDistribution error codes
           completion(error);
         }];
 
