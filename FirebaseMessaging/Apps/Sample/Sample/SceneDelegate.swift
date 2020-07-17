@@ -66,8 +66,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, MessagingDelegate {
             return
           }
           self.identity.instanceID = fid
-          })
         })
+      })
       .store(in: &cancellables)
   }
 
