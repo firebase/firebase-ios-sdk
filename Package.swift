@@ -48,6 +48,10 @@ let package = Package(
       targets: ["FirebaseDatabase"]
     ),
     .library(
+      name: "FirebaseFirestore",
+      targets: ["FirebaseCrashlytics"]
+    ),
+    .library(
       name: "FirebaseFunctions",
       targets: ["FirebaseFunctions"]
     ),
@@ -84,6 +88,8 @@ let package = Package(
       url: "https://github.com/paulb777/nanopb.git",
       .revision("82230e9998a35a3d2144884204db64f045c880c4")
     ),
+    .package(name: "abseil", url: "https://github.com/paulb777/abseil-cpp.git", .revision("6a901b3")),
+    .package(name: "gRPC", url: "https://github.com/paulb777/grpc.git", .revision("31aa24ffd9")),
     .package(name: "OCMock", url: "https://github.com/paulb777/ocmock.git", .revision("7291762")),
     .package(name: "leveldb", url: "https://github.com/paulb777/leveldb.git", .revision("3f04697")),
     // Branches need a force update with a run with the revision set like below.
@@ -387,6 +393,61 @@ let package = Package(
       resources: [.process("Resources")],
       cSettings: [
         .headerSearchPath("../.."),
+      ]
+    ),
+
+    .target(
+      name: "FirebaseFirestore",
+      dependencies: [
+        "FirebaseCore",
+        "leveldb",
+        "nanopb",
+        .product(name:"abseil", package: "abseil"),
+        .product(name: "gRPC", package: "gRPC"),
+      ],
+      path: "Firestore",
+      exclude: [
+        "Example/",
+        "core/test/",
+        "Protos/cpp/",
+        "Protos/protos/",
+        "Protos/Podfile",
+        "Swift/",
+        "fuzzing/",
+        "third_party/",
+        "CHANGELOG.md",
+        "README.md",
+        "Protos/CMakeLists.txt",
+        "CMakeLists.txt",
+        "Protos/lib/__init__.py",
+        "Protos/README.md",
+        "test.sh",
+        "Protos/build_protos.py",
+        "Protos/nanopb_cpp_generator.py",
+        "Protos/lib/pretty_printing.py",
+        "core/CMakeLists.txt",
+      ],
+      sources: [
+        "Source/",
+        "Protos/nanopb/",
+        "Protos/objc/",
+        "core/include/",
+        "core/src",
+      ],
+      publicHeadersPath: "Public",
+      cSettings: [
+        .headerSearchPath("../"),
+        .headerSearchPath("Source/Public"),
+        .headerSearchPath("Protos/nanopb"),
+        .headerSearchPath("Protos/objc/google/api"),
+        .headerSearchPath("Protos/objc/google/firestore/v1"),
+        .headerSearchPath("Protos/objc/google/rpc"),
+        .headerSearchPath("Protos/objc/google/type"),
+
+        .define("PB_FIELD_32BIT", to: "1"),
+        .define("PB_NO_PACKED_STRUCTS", to: "1"),
+        .define("PB_ENABLE_MALLOC", to: "1"),
+        .define("FIRFirestore_VERSION", to: "0.0.1"), // TODO: Fix version
       ]
     ),
 
