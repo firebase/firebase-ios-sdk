@@ -71,20 +71,6 @@ NS_ASSUME_NONNULL_BEGIN
       @remarks This variable is also used as a flag to indicate a presentation is active.
    */
   FIRAuthURLPresentationCompletion _Nullable _completion;
-
-  /** @var _completionLock
-      @brief A lock object used to serialize access to `_completion`, which may be
-      set on one thread and read from another.
-   */
-  NSLock *_completionLock;
-}
-
-- (instancetype)init {
-  self = [super init];
-  if (self != nil) {
-    _completionLock = [[NSLock alloc] init];
-  }
-  return self;
 }
 
 - (void)presentURL:(NSURL *)URL
