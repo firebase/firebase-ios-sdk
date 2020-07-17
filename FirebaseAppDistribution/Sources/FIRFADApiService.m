@@ -190,12 +190,6 @@ NSString *const kResponseReleasesKey = @"releases";
   }
 
   NSArray *releases = [serializedResponse objectForKey:kResponseReleasesKey];
-  if (releases.count == 0) {
-    [self handleError:error
-          description:@"No releases found for tester."
-                 code:FIRFADApiErrorNotFound];
-    return nil;
-  }
 
   return releases;
 }
