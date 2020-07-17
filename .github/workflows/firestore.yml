@@ -40,6 +40,9 @@ on:
     # already trigger the check workflow.
     - 'scripts/binary_to_array.py'
     - 'scripts/build.sh'
+    - 'scripts/check_cmake_includes.sh'
+    - 'scripts/check_cmake_includes.py'
+    - 'scripts/check_cmake_includes_test.py'
     - 'scripts/install_prereqs.sh'
     - 'scripts/localize_podfile.swift'
     - 'scripts/pod_lib_lint.rb'
