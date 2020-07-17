@@ -33,7 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// The completion handler for the current presentation, if one is active.
 /// Prefer using this over the _completion instance variable directly because
 /// this property is thread-safe.
-@property (nonatomic, copy, nullable) FIRAuthURLPresentationCompletion completion;
+@property(nonatomic, copy, nullable) FIRAuthURLPresentationCompletion completion;
 
 @end
 
@@ -78,7 +78,7 @@ NS_ASSUME_NONNULL_BEGIN
       @brief A lock object used to serialize access to `_completion`, which may be
       set on one thread and read from another.
    */
-   NSLock *_completionLock;
+  NSLock *_completionLock;
 }
 
 - (instancetype)init {
@@ -207,7 +207,7 @@ NS_ASSUME_NONNULL_BEGIN
   }
 }
 
-- (FIRAuthURLPresentationCompletion)completion {
+- (FIRAuthURLPresentationCompletion _Nullable)completion {
   FIRAuthURLPresentationCompletion value = NULL;
   [_completionLock lock];
   value = [_completion copy];
@@ -215,7 +215,7 @@ NS_ASSUME_NONNULL_BEGIN
   return value;
 }
 
-- (void)setCompletion:(FIRAuthURLPresentationCompletion)completion {
+- (void)setCompletion:(FIRAuthURLPresentationCompletion _Nullable)completion {
   [_completionLock lock];
   _completion = [completion copy];
   [_completionLock unlock];
