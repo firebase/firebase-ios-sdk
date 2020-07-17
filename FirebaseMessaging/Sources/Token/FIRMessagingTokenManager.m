@@ -212,7 +212,7 @@ static NSString *const kCheckinFileName = @"g-checkin";
 
         FIRMessaging_WEAKIFY(self);
         [self->_installations installationIDWithCompletion:^(NSString *_Nullable identifier,
-                                                       NSError *_Nullable error) {
+                                                             NSError *_Nullable error) {
           FIRMessaging_STRONGIFY(self);
 
           if (error) {
