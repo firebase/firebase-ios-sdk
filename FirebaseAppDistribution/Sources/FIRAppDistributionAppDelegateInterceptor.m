@@ -13,6 +13,9 @@
 // limitations under the License.
 
 #import "FIRAppDistributionAppDelegateInterceptor.h"
+#import "FIRFADLogger+Private.h"
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+
 #import <AuthenticationServices/AuthenticationServices.h>
 #import <SafariServices/SafariServices.h>
 #import <UIKit/UIKit.h>
@@ -48,16 +51,20 @@ SFAuthenticationSession *_safariAuthenticationVC;
 
 - (void)appDistributionRegistrationFlow:(NSURL *)URL
                          withCompletion:(void (^)(NSError *_Nullable error))completion {
-  NSLog(@"Registration URL: %@", URL);
+  NSString *callbackURL = [NSString stringWithFormat:@"appdistribution-%@", [self encodedAppId]];
+
+  FIRFADInfoLog(@"Registration URL: %@", URL);
+  FIRFADInfoLog(@"Callback URL: %@", callbackURL);
 
   if (@available(iOS 12.0, *)) {
     ASWebAuthenticationSession *authenticationVC = [[ASWebAuthenticationSession alloc]
               initWithURL:URL
-        callbackURLScheme:@"com.firebase.appdistribution"
+        callbackURLScheme:callbackURL
         completionHandler:^(NSURL *_Nullable callbackURL, NSError *_Nullable error) {
           [self resetUIState];
-          NSLog(@"Testing: Sign in Complete!");
+          FIRFADInfoLog(@"Sign in complete using ASWebAuthenticationSession");
           // TODO (b/161538029): Map these errors to AppDistribution error codes
+
           completion(error);
         }];
 
@@ -71,16 +78,17 @@ SFAuthenticationSession *_safariAuthenticationVC;
   } else if (@available(iOS 11.0, *)) {
     _safariAuthenticationVC = [[SFAuthenticationSession alloc]
               initWithURL:URL
-        callbackURLScheme:@"com.firebase.appdistribution"
+        callbackURLScheme:callbackURL
         completionHandler:^(NSURL *_Nullable callbackURL, NSError *_Nullable error) {
           [self resetUIState];
-          NSLog(@"Testing: Sign in Complete!");
+          FIRFADInfoLog(@"Sign in complete using SFAuthenticationSession");
           // TODO (b/161538029): Map these errors to AppDistribution error codes
+
           completion(error);
         }];
 
     [_safariAuthenticationVC start];
-  } else {
+  } else if (@available(iOS 9.0, *)) {
     SFSafariViewController *safariVC = [[SFSafariViewController alloc] initWithURL:URL];
 
     safariVC.delegate = self;
@@ -88,6 +96,11 @@ SFAuthenticationSession *_safariAuthenticationVC;
     [self->_safariHostingViewController presentViewController:safariVC animated:YES completion:nil];
     self.registrationFlowCompletion = completion;
   }
+}
+
+- (NSString *)encodedAppId {
+  return [[[FIRApp defaultApp] options].googleAppID stringByReplacingOccurrencesOfString:@":"
+                                                                              withString:@""];
 }
 
 - (void)showUIAlert:(UIAlertController *)alertController {
@@ -100,7 +113,8 @@ SFAuthenticationSession *_safariAuthenticationVC;
 - (BOOL)application:(UIApplication *)application
             openURL:(NSURL *)URL
             options:(NSDictionary<NSString *, id> *)options {
-  self.registrationFlowCompletion(nil);
+  FIRFADDebugLog(@"Continuing registration flow: %@", [self registrationFlowCompletion]);
+  if (self.registrationFlowCompletion) self.registrationFlowCompletion(nil);
   [self resetUIState];
   return NO;
 }

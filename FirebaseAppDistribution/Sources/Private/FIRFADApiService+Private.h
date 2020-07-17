@@ -24,7 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
  *  If the call fails we return the appropriate `error code`, described by
  *  `AppDistributionApiError`.
  *
- *  @param release  The new release that is available to be installed.
+ *  @param releases  The releases that are available to be installed.
  *  @param error     The error describing why the new build request failed.
  */
 typedef void (^FIRFADFetchReleasesCompletion)(NSArray *_Nullable releases, NSError *_Nullable error)
