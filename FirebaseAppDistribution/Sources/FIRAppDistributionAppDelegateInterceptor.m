@@ -30,10 +30,9 @@ SFAuthenticationSession *_safariAuthenticationVC;
 
 - (instancetype)init {
   self = [super init];
-  
+
   self.safariHostingViewController = [[UIViewController alloc] init];
 
-  
   return self;
 }
 
@@ -49,60 +48,58 @@ SFAuthenticationSession *_safariAuthenticationVC;
 
 - (void)appDistributionRegistrationFlow:(NSURL *)URL
                          withCompletion:(void (^)(NSError *_Nullable error))completion {
-     NSLog(@"Registration URL: %@", URL);
-        
-        if (@available(iOS 12.0, *)) {
-          ASWebAuthenticationSession *authenticationVC = [[ASWebAuthenticationSession alloc]
-                    initWithURL:URL
-              callbackURLScheme:@"com.firebase.appdistribution"
-              completionHandler:^(NSURL *_Nullable callbackURL, NSError *_Nullable error) {
-                [self resetUIState];
-                NSLog(@"Testing: Sign in Complete!");
-                completion(error);
-              }];
+  NSLog(@"Registration URL: %@", URL);
 
-          if (@available(iOS 13.0, *)) {
-            authenticationVC.presentationContextProvider = self;
-          }
+  if (@available(iOS 12.0, *)) {
+    ASWebAuthenticationSession *authenticationVC = [[ASWebAuthenticationSession alloc]
+              initWithURL:URL
+        callbackURLScheme:@"com.firebase.appdistribution"
+        completionHandler:^(NSURL *_Nullable callbackURL, NSError *_Nullable error) {
+          [self resetUIState];
+          NSLog(@"Testing: Sign in Complete!");
+          completion(error);
+        }];
 
-          _webAuthenticationVC = authenticationVC;
+    if (@available(iOS 13.0, *)) {
+      authenticationVC.presentationContextProvider = self;
+    }
 
-          [authenticationVC start];
-        } else if (@available(iOS 11.0, *)) {
-          _safariAuthenticationVC = [[SFAuthenticationSession alloc]
-                    initWithURL:URL
-              callbackURLScheme:@"com.firebase.appdistribution"
-              completionHandler:^(NSURL *_Nullable callbackURL, NSError *_Nullable error) {
-                [self resetUIState];
-                NSLog(@"Testing: Sign in Complete!");
-                completion(error);
-              }];
+    _webAuthenticationVC = authenticationVC;
 
-          [_safariAuthenticationVC start];
-        } else {
-          SFSafariViewController *safariVC = [[SFSafariViewController alloc] initWithURL:URL];
+    [authenticationVC start];
+  } else if (@available(iOS 11.0, *)) {
+    _safariAuthenticationVC = [[SFAuthenticationSession alloc]
+              initWithURL:URL
+        callbackURLScheme:@"com.firebase.appdistribution"
+        completionHandler:^(NSURL *_Nullable callbackURL, NSError *_Nullable error) {
+          [self resetUIState];
+          NSLog(@"Testing: Sign in Complete!");
+          completion(error);
+        }];
 
-          safariVC.delegate = self;
-          _safariVC = safariVC;
-          [self->_safariHostingViewController presentViewController:safariVC
-                                                           animated:YES
-                                                         completion:nil];
-          self.registrationFlowCompletion = completion;
-        }
+    [_safariAuthenticationVC start];
+  } else {
+    SFSafariViewController *safariVC = [[SFSafariViewController alloc] initWithURL:URL];
+
+    safariVC.delegate = self;
+    _safariVC = safariVC;
+    [self->_safariHostingViewController presentViewController:safariVC animated:YES completion:nil];
+    self.registrationFlowCompletion = completion;
+  }
 }
 
-
--(void)showUIAlert:(UIAlertController *)alertController {
-    [self initializeUIState];
-    [self.window.rootViewController presentViewController:alertController animated:YES completion:nil];
+- (void)showUIAlert:(UIAlertController *)alertController {
+  [self initializeUIState];
+  [self.window.rootViewController presentViewController:alertController
+                                               animated:YES
+                                             completion:nil];
 }
-
 
 - (BOOL)application:(UIApplication *)application
             openURL:(NSURL *)URL
             options:(NSDictionary<NSString *, id> *)options {
   self.registrationFlowCompletion(nil);
-    [self resetUIState];
+  [self resetUIState];
   return NO;
 }
 
@@ -121,27 +118,22 @@ SFAuthenticationSession *_safariAuthenticationVC;
   [self.window makeKeyAndVisible];
 }
 
-
-- (void) resetUIState {
+- (void)resetUIState {
   if (self.window) {
     self.window.hidden = YES;
     self.window = nil;
   }
-    
-    self.registrationFlowCompletion = nil;
 
-    if (@available(iOS 11.0, *)) {
-        _safariAuthenticationVC = nil;
-    }
-    else if (@available(iOS 12.0, *)) {
-        _webAuthenticationVC = nil;
-    }
-    else if (@available(iOS 9.0, *)) {
-        _safariVC = nil;
-    }
+  self.registrationFlowCompletion = nil;
+
+  if (@available(iOS 11.0, *)) {
+    _safariAuthenticationVC = nil;
+  } else if (@available(iOS 12.0, *)) {
+    _webAuthenticationVC = nil;
+  } else if (@available(iOS 9.0, *)) {
+    _safariVC = nil;
+  }
 }
-
-
 
 - (void)safariViewControllerDidFinish:(SFSafariViewController *)controller NS_AVAILABLE_IOS(9.0) {
   [self resetUIState];

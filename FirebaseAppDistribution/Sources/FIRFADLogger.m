@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRFADLogger.h"
+#import "FIRFADLogger+Private.h"
 
 #import <FirebaseCore/FIRLogger.h>
 
