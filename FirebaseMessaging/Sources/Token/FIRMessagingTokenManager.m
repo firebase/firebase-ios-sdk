@@ -576,8 +576,12 @@ static NSString *const kCheckinFileName = @"g-checkin";
 #pragma mark - APNS Token
 - (void)setAPNSToken:(NSData *)APNSToken withUserInfo:(NSDictionary *)userInfo {
   if (!APNSToken || ![APNSToken isKindOfClass:[NSData class]]) {
-    FIRMessagingLoggerDebug(kFIRMessagingMessageCodeInternal002, @"Invalid APNS token type %@",
-                            NSStringFromClass([APNSToken class]));
+    if ([APNSToken class]) {
+      FIRMessagingLoggerDebug(kFIRMessagingMessageCodeInternal002, @"Invalid APNS token type %@",
+                              NSStringFromClass([APNSToken class]));
+    } else {
+      FIRMessagingLoggerDebug(kFIRMessagingMessageCodeInternal002, @"Empty APNS token type");
+    }
     return;
   }
   NSInteger type = [userInfo[kFIRMessagingAPNSTokenType] integerValue];
