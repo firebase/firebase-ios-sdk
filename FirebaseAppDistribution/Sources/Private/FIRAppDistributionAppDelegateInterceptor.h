@@ -12,17 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import <Foundation/Foundation.h>
-#import <UIKit/UIKit.h>
 #import <AuthenticationServices/AuthenticationServices.h>
+#import <Foundation/Foundation.h>
 #import <SafariServices/SafariServices.h>
+#import <UIKit/UIKit.h>
 #import "FIRAppDistribution+Private.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 /// An instance of this class is meant to be registered as an AppDelegate interceptor, and
 /// implements the logic that my SDK needs to perform when certain app delegate methods are invoked.
-@interface FIRAppDistributionAppDelegateInterceptor : NSObject <UIApplicationDelegate, ASWebAuthenticationPresentationContextProviding,SFSafariViewControllerDelegate>
+@interface FIRAppDistributionAppDelegateInterceptor
+    : NSObject <UIApplicationDelegate,
+                ASWebAuthenticationPresentationContextProviding,
+                SFSafariViewControllerDelegate>
 
 /// Returns the FIRAppDistributionAppDelegatorInterceptor singleton.
 /// Always register just this singleton as the app delegate interceptor. This instance is
@@ -39,17 +42,16 @@ typedef void (^AppDistributionRegistrationFlowCompletion)(NSError *_Nullable err
 
 @property(nullable, nonatomic) AppDistributionRegistrationFlowCompletion registrationFlowCompletion;
 
-
 /** *
  */
 - (void)appDistributionRegistrationFlow:(NSURL *)URL
                          withCompletion:(AppDistributionRegistrationFlowCompletion)completion;
 
--(void)showUIAlert:(UIAlertController *)alertController;
+- (void)showUIAlert:(UIAlertController *)alertController;
 
 - (void)initializeUIState;
 
--(void)resetUIState;
+- (void)resetUIState;
 @end
 
 NS_ASSUME_NONNULL_END
