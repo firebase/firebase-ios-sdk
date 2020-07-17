@@ -16,13 +16,13 @@
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
 #import "GoogleUtilities/AppDelegateSwizzler/Private/GULAppDelegateSwizzler.h"
+#import "GoogleUtilities/UserDefaults/Private/GULUserDefaults.h"
 
 #import "FIRAppDistribution+Private.h"
 #import "FIRAppDistributionAppDelegateInterceptor.h"
 #import "FIRAppDistributionMachO+Private.h"
 #import "FIRAppDistributionRelease+Private.h"
 #import "FIRFADApiService+Private.h"
-#import "FIRFADLocalStorage+Private.h"
 #import "FIRFADLogger+Private.h"
 
 /// Empty protocol to register with FirebaseCore's component system.
@@ -53,12 +53,14 @@ NSString *const kCodeHashKey = @"codeHash";
 
 NSString *const kAuthErrorMessage = @"Unable to authenticate the tester";
 NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
+NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
 
 @synthesize isTesterSignedIn = _isTesterSignedIn;
 
 - (BOOL)isTesterSignedIn {
-  FIRFADInfoLog(@"Tester is %@signed in.", [FIRFADLocalStorage isTesterSignedIn] ? @"" : @"not ");
-  return [FIRFADLocalStorage isTesterSignedIn];
+  BOOL signInState = [[GULUserDefaults standardUserDefaults] boolForKey:kFIRFADSignInStateKey];
+  FIRFADInfoLog(@"Tester is %@signed in.", signInState ? @"" : @"not ");
+  return signInState;
 }
 
 #pragma mark - Singleton Support
@@ -175,7 +177,7 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
                          [error localizedDescription]);
           return;
         }
-        [FIRFADLocalStorage registerSignIn];
+        [[GULUserDefaults standardUserDefaults] setBool:YES forKey:kFIRFADSignInStateKey];
       }];
 }
 
@@ -196,7 +198,8 @@ NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
 }
 
 - (void)signOutTester {
-  [FIRFADLocalStorage registerSignOut];
+  FIRFADDebugLog(@"Tester is signed out.");
+  [[GULUserDefaults standardUserDefaults] setBool:NO forKey:kFIRFADSignInStateKey];
 }
 
 - (NSError *)NSErrorForErrorCodeAndMessage:(FIRAppDistributionError)errorCode

@@ -103,6 +103,12 @@
 - (void)tearDown {
   [super tearDown];
   [[GULUserDefaults standardUserDefaults] removeObjectForKey:@"FIRFADSignInState"];
+  [_mockFIRAppClass stopMocking];
+  [_mockFIRFADApiService stopMocking];
+  [_mockAppDelegateInterceptor stopMocking];
+  [_mockFIRInstallations stopMocking];
+  [_mockInstallationToken stopMocking];
+  [_mockMachO stopMocking];
 }
 
 - (void)mockInstallationIdCompletion:(NSString *_Nullable)identifier

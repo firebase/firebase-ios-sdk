@@ -69,6 +69,10 @@ NSString *const kFakeErrorDomain = @"test.failure.domain";
 
 - (void)tearDown {
   [super tearDown];
+  [_mockFIRAppClass stopMocking];
+  [_mockFIRInstallations stopMocking];
+  [_mockInstallationToken stopMocking];
+  [_mockURLSession stopMocking];
 }
 
 - (void)mockInstallationAuthCompletion:(FIRInstallationsAuthTokenResult *_Nullable)token
