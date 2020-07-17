@@ -112,7 +112,7 @@ static NSString *const kCheckinFileName = @"g-checkin";
 }
 
 - (void)setDefaultFCMTokenWithoutUpdate:(NSString *)defaultFcmToken {
-  _defaultFCMToken = defaultFcmToken;
+  _defaultFCMToken = [defaultFcmToken copy];
 }
 
 - (NSDictionary *)tokenOptions {

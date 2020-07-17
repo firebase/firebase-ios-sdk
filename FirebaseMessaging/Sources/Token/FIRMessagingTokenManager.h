@@ -33,12 +33,12 @@ typedef NS_OPTIONS(NSUInteger, FIRMessagingInvalidTokenReason) {
  */
 @interface FIRMessagingTokenManager : NSObject
 
-@property(nonatomic, readonly, strong) NSString *deviceAuthID;
-@property(nonatomic, readonly, strong) NSString *secretToken;
-@property(nonatomic, readonly, strong) NSString *versionInfo;
-@property(nonatomic, readonly, strong) NSString *defaultFCMToken;
-@property(nonatomic, readwrite, strong) NSString *fcmSenderID;
-@property(nonatomic, readwrite, strong) NSString *firebaseAppID;
+@property(nonatomic, readonly, copy) NSString *deviceAuthID;
+@property(nonatomic, readonly, copy) NSString *secretToken;
+@property(nonatomic, readonly, copy) NSString *versionInfo;
+@property(nonatomic, readonly, copy) NSString *defaultFCMToken;
+@property(nonatomic, readwrite, copy) NSString *fcmSenderID;
+@property(nonatomic, readwrite, copy) NSString *firebaseAppID;
 
 /// Expose the auth service, so it can be used by others
 @property(nonatomic, readonly, strong) FIRMessagingAuthService *authService;
