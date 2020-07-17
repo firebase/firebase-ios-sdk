@@ -103,7 +103,7 @@ jobs:
     - uses: actions/upload-artifact@v2
       if: ${{ failure() }}
       with:
-        name: quickstart_artifacts
+        name: quickstart_artifacts_abtesting
         path: quickstart-ios/
 
   quickstart_framework_auth:
@@ -147,7 +147,7 @@ jobs:
     - uses: actions/upload-artifact@v2
       if: ${{ failure() }}
       with:
-        name: quickstart_artifacts
+        name: quickstart_artifacts_auth
         path: quickstart-ios/
 
   quickstart_framework_config:
@@ -188,7 +188,7 @@ jobs:
     - uses: actions/upload-artifact@v2
       if: ${{ failure() }}
       with:
-        name: quickstart_artifacts
+        name: quickstart_artifacts_config
         path: quickstart-ios/
 
   quickstart_framework_crashlytics:
@@ -238,7 +238,7 @@ jobs:
     - uses: actions/upload-artifact@v2
       if: ${{ failure() }}
       with:
-        name: quickstart_artifacts
+        name: quickstart_artifacts_crashlytics
         path: quickstart-ios/
 
   quickstart_framework_database:
@@ -333,7 +333,7 @@ jobs:
     - uses: actions/upload-artifact@v2
       if: ${{ failure() }}
       with:
-        name: quickstart_artifacts
+        name: quickstart_artifacts_dynamiclinks
         path: quickstart-ios/
 
   quickstart_framework_firestore:
@@ -376,7 +376,7 @@ jobs:
     - uses: actions/upload-artifact@v2
       if: ${{ failure() }}
       with:
-        name: quickstart_artifacts
+        name: quickstart_artifacts_firestore
         path: quickstart-ios/
 
   quickstart_framework_inappmessaging:
@@ -422,7 +422,7 @@ jobs:
     - uses: actions/upload-artifact@v2
       if: ${{ failure() }}
       with:
-        name: quickstart_artifacts
+        name: quickstart_artifacts_ihappmessaging
         path: quickstart-ios/
 
   quickstart_framework_messaging:
@@ -467,7 +467,7 @@ jobs:
     - uses: actions/upload-artifact@v2
       if: ${{ failure() }}
       with:
-        name: quickstart_artifacts
+        name: quickstart_artifacts_messaging
         path: quickstart-ios/
 
   quickstart_framework_storage:
@@ -514,5 +514,5 @@ jobs:
     - uses: actions/upload-artifact@v2
       if: ${{ failure() }}
       with:
-        name: quickstart_artifacts
+        name: quickstart_artifacts_storage
         path: quickstart-ios/
