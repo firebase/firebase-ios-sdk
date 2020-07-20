@@ -30,8 +30,14 @@
 #  endif
 #endif  // defined(__has_include)
 
-#if FIRESTORE_HAVE_CONFIG_DETECTED_H
-#  include "Firestore/core/src/util/config_detected.h"
+#if defined(FIRESTORE_HAVE_CONFIG_DETECTED_H)
+// If FIRESTORE_HAVE_CONFIG_DETECTED_H is defined, assume the configuration is
+// correct. You can define FIRESTORE_HAVE_CONFIG_DETECTED_H=0 to configure the
+// correct HAVE_ values via the compiler command-line.
+#  if FIRESTORE_HAVE_CONFIG_DETECTED_H
+#    include "Firestore/core/src/util/config_detected.h"
+#  endif
+#endif
 
 #elif __APPLE__ && (SWIFT_PACKAGE || COCOAPODS)
 // Swift Package Manager does not support configure-time feature testing and
