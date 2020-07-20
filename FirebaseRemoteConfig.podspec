@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseRemoteConfig'
-  s.version          = '4.6.0'
+  s.version          = '4.7.0'
   s.summary          = 'Firebase Remote Config'
 
   s.description      = <<-DESC
@@ -87,7 +87,8 @@ app update.
     swift_api.pod_target_xcconfig = {
       'SWIFT_OBJC_BRIDGING_HEADER' => '$(PODS_TARGET_SRCROOT)/FirebaseRemoteConfig/Tests/FakeUtils/Bridging-Header.h'
     }
-    swift_api.resources = 'FirebaseRemoteConfig/Tests/SwiftAPI/GoogleService-Info.plist'
+    swift_api.resources = 'FirebaseRemoteConfig/Tests/SwiftAPI/GoogleService-Info.plist',
+                          'FirebaseRemoteConfig/Tests/SwiftAPI/AccessToken.json'
     swift_api.dependency 'OCMock'
   end
 
