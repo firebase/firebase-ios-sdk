@@ -37,7 +37,6 @@
 #  if FIRESTORE_HAVE_CONFIG_DETECTED_H
 #    include "Firestore/core/src/util/config_detected.h"
 #  endif
-#endif
 
 #elif __APPLE__ && (SWIFT_PACKAGE || COCOAPODS)
 // Swift Package Manager does not support configure-time feature testing and
