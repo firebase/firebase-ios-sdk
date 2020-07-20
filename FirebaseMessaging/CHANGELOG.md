@@ -1,4 +1,4 @@
-# unreleased
+# 2020-07 -- v4.6.1
 - [changed] Remove logic that is executed for iOS 7 and below. (#5835)
 
 # 2020-07 -- v4.6.0
