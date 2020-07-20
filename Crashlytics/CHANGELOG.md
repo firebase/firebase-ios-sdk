@@ -1,5 +1,5 @@
 # v4.3.1
-- [fixed] Fixed a segmentation fault that could occur when writing crash context to disk (#6048).
+- [fixed] Fixed a segmentation fault that could occur when writing crash contexts to disk (#6048).
 
 # v4.3.0
 
