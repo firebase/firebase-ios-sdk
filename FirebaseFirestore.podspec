@@ -100,13 +100,5 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
       '"${PODS_TARGET_SRCROOT}/Firestore/Protos/objc/google/type"',
   }
 
-  # Generate a version of the config.h header suitable for building with
-  # CocoaPods.
-  s.prepare_command = <<-CMD
-    sed '/^#cmakedefine/ d' \
-        Firestore/core/src/util/config.h.in > \
-        Firestore/core/src/util/config.h
-  CMD
-
   s.compiler_flags = '$(inherited) -Wreorder -Werror=reorder -Wno-comma'
 end
