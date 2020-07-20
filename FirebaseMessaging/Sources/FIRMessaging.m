@@ -252,7 +252,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
     FIRMessagingLoggerError(kFIRMessagingMessageCodeFIRApp000,
                             @"Firebase not set up correctly, nil or empty senderID.");
     [NSException raise:kFIRMessagingDomain
-                format:@"Could not configure Firebase InstanceID. GCMSenderID must not be nil or "
+                format:@"Could not configure Firebase Messaging. GCMSenderID must not be nil or "
                        @"empty."];
   }
 

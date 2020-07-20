@@ -145,6 +145,6 @@ class APITests: APITestBase {
                           if let error = error {
                             print(error)
                           }
-    })
+                        })
   }
 }
