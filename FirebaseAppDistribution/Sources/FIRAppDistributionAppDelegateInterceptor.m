@@ -49,9 +49,14 @@ SFAuthenticationSession *_safariAuthenticationVC;
   return sharedInstance;
 }
 
++ (NSString *)encodedAppId {
+  return [[[FIRApp defaultApp] options].googleAppID stringByReplacingOccurrencesOfString:@":"
+                                                                              withString:@""];
+}
+
 - (void)appDistributionRegistrationFlow:(NSURL *)URL
                          withCompletion:(void (^)(NSError *_Nullable error))completion {
-  NSString *callbackURL = [NSString stringWithFormat:@"appdistribution-%@", [self encodedAppId]];
+  NSString *callbackURL = [NSString stringWithFormat:@"appdistribution-%@", [[self class] encodedAppId]];
 
   FIRFADInfoLog(@"Registration URL: %@", URL);
   FIRFADInfoLog(@"Callback URL: %@", callbackURL);
@@ -96,11 +101,6 @@ SFAuthenticationSession *_safariAuthenticationVC;
     [self->_safariHostingViewController presentViewController:safariVC animated:YES completion:nil];
     self.registrationFlowCompletion = completion;
   }
-}
-
-- (NSString *)encodedAppId {
-  return [[[FIRApp defaultApp] options].googleAppID stringByReplacingOccurrencesOfString:@":"
-                                                                              withString:@""];
 }
 
 - (void)showUIAlert:(UIAlertController *)alertController {
