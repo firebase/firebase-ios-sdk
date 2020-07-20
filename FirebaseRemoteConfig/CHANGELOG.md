@@ -1,3 +1,6 @@
+# v4.8.0
+- [changed] Functionally neutral source reorganization for preliminary Swift Package Manager support. (#6013)
+
 # v4.7.0
 - [changed] Functionally neutral updated import references for dependencies. (#5824)
 - [changed] Updated Remote Config to consume the Protobuf-less AB Testing SDK (#5890).
