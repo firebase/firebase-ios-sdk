@@ -108,7 +108,7 @@ SFAuthenticationSession *_safariAuthenticationVC;
 - (BOOL)application:(UIApplication *)application
             openURL:(NSURL *)URL
             options:(NSDictionary<NSString *, id> *)options {
-  self.registrationFlowCompletion(nil);
+  [self setRegistrationFlowCompletion:nil];
   [self resetUIState];
   return NO;
 }
