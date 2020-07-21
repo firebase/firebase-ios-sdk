@@ -50,7 +50,7 @@ static int64_t KernelBootTimeInNanoseconds() {
   if (rc != 0) {
     return 0;
   }
-  return (int64_t)boottime.tv_sec * NSEC_PER_MSEC + (int64_t)boottime.tv_usec;
+  return (int64_t)boottime.tv_sec * NSEC_PER_SEC + (int64_t)boottime.tv_usec * NSEC_PER_USEC;
 }
 
 /** Returns value of gettimeofday, in nanoseconds.
@@ -60,17 +60,18 @@ static int64_t KernelBootTimeInNanoseconds() {
  * @return The value of gettimeofday, in nanoseconds.
  */
 static int64_t UptimeInNanoseconds() {
-  int64_t before_now;
-  int64_t after_now;
+  int64_t before_now_nsec;
+  int64_t after_now_nsec;
   struct timeval now;
 
-  before_now = KernelBootTimeInNanoseconds();
+  before_now_nsec = KernelBootTimeInNanoseconds();
   // Addresses a race condition in which the system time has updated, but the boottime has not.
   do {
     gettimeofday(&now, NULL);
-    after_now = KernelBootTimeInNanoseconds();
-  } while (after_now != before_now);
-  return (int64_t)now.tv_sec * NSEC_PER_MSEC + (int64_t)now.tv_usec - before_now;
+    after_now_nsec = KernelBootTimeInNanoseconds();
+  } while (after_now_nsec != before_now_nsec);
+  return (int64_t)now.tv_sec * NSEC_PER_SEC + (int64_t)now.tv_usec * NSEC_PER_USEC -
+         before_now_nsec;
 }
 
 // TODO: Consider adding a 'trustedTime' property that can be populated by the response from a BE.
@@ -112,6 +113,10 @@ static int64_t UptimeInNanoseconds() {
     // is returned. This can be altered by changing the system time and rebooting.
     return kernelBootTimeDiff < 0 ? YES : NO;
   }
+}
+
+- (int64_t)uptimeMilliseconds {
+  return self.uptime / NSEC_PER_MSEC;
 }
 
 - (NSUInteger)hash {
