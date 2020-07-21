@@ -208,7 +208,7 @@ NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
   return [NSError errorWithDomain:FIRAppDistributionErrorDomain code:errorCode userInfo:userInfo];
 }
 
-- (NSError *_Nullable)handleFetchReleasesError:(NSError *)error {
+- (NSError *_Nullable)mapFetchReleasesError:(NSError *)error {
   if ([error domain] == kFIRFADApiErrorDomain) {
     FIRFADErrorLog(@"Failed to retrieve releases: %ld", (long)[error code]);
     switch ([error code]) {
@@ -238,7 +238,7 @@ NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
   [FIRFADApiService
       fetchReleasesWithCompletion:^(NSArray *_Nullable releases, NSError *_Nullable error) {
         if (error) {
-          completion(nil, [self handleFetchReleasesError:error]);
+          completion(nil, [self mapFetchReleasesError:error]);
           return;
         }
 
