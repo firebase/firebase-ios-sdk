@@ -56,7 +56,8 @@ SFAuthenticationSession *_safariAuthenticationVC;
 
 - (void)appDistributionRegistrationFlow:(NSURL *)URL
                          withCompletion:(void (^)(NSError *_Nullable error))completion {
-  NSString *callbackURL = [NSString stringWithFormat:@"appdistribution-%@", [[self class] encodedAppId]];
+  NSString *callbackURL =
+      [NSString stringWithFormat:@"appdistribution-%@", [[self class] encodedAppId]];
 
   FIRFADInfoLog(@"Registration URL: %@", URL);
   FIRFADInfoLog(@"Callback URL: %@", callbackURL);
