@@ -12,15 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRAppDistributionAppDelegateInterceptor.h"
-#import "FIRFADLogger+Private.h"
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
-
+#import "FIRAppDistributionUIService.h"
 #import <AuthenticationServices/AuthenticationServices.h>
 #import <SafariServices/SafariServices.h>
 #import <UIKit/UIKit.h>
+#import "FIRAppDistribution.h"
+#import "FIRFADLogger+Private.h"
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
-@implementation FIRAppDistributionAppDelegateInterceptor
+@implementation FIRAppDistributionUIService
 
 API_AVAILABLE(ios(9.0))
 SFSafariViewController *_safariVC;
@@ -41,9 +41,9 @@ SFAuthenticationSession *_safariAuthenticationVC;
 
 + (instancetype)sharedInstance {
   static dispatch_once_t once;
-  static FIRAppDistributionAppDelegateInterceptor *sharedInstance;
+  static FIRAppDistributionUIService *sharedInstance;
   dispatch_once(&once, ^{
-    sharedInstance = [[FIRAppDistributionAppDelegateInterceptor alloc] init];
+    sharedInstance = [[FIRAppDistributionUIService alloc] init];
   });
 
   return sharedInstance;
@@ -68,10 +68,20 @@ SFAuthenticationSession *_safariAuthenticationVC;
         callbackURLScheme:callbackURL
         completionHandler:^(NSURL *_Nullable callbackURL, NSError *_Nullable error) {
           [self resetUIState];
-          FIRFADInfoLog(@"Sign in complete using ASWebAuthenticationSession");
-          // TODO (b/161538029): Map these errors to AppDistribution error codes
+          [self logRegistrationCompletion:error authType:[ASWebAuthenticationSession description]];
+          if (error) {
+            FIRAppDistributionError appDistributionError;
+            if (error.code == ASWebAuthenticationSessionErrorCodeCanceledLogin) {
+              appDistributionError = FIRAppDistributionErrorAuthenticationCancelled;
+            } else {
+              appDistributionError = FIRAppDistributionErrorAuthenticationFailure;
+            }
 
-          completion(error);
+            completion([self getAppDistributionError:appDistributionError]);
+            return;
+          }
+
+          completion(nil);
         }];
 
     if (@available(iOS 13.0, *)) {
@@ -87,10 +97,20 @@ SFAuthenticationSession *_safariAuthenticationVC;
         callbackURLScheme:callbackURL
         completionHandler:^(NSURL *_Nullable callbackURL, NSError *_Nullable error) {
           [self resetUIState];
-          FIRFADInfoLog(@"Sign in complete using SFAuthenticationSession");
-          // TODO (b/161538029): Map these errors to AppDistribution error codes
+          [self logRegistrationCompletion:error authType:[SFAuthenticationSession description]];
+          if (error) {
+            FIRAppDistributionError appDistributionError;
+            if (error.code == SFAuthenticationErrorCanceledLogin) {
+              appDistributionError = FIRAppDistributionErrorAuthenticationCancelled;
+            } else {
+              appDistributionError = FIRAppDistributionErrorAuthenticationFailure;
+            }
 
-          completion(error);
+            completion([self getAppDistributionError:appDistributionError]);
+            return;
+          }
+
+          completion(nil);
         }];
 
     [_safariAuthenticationVC start];
@@ -115,9 +135,34 @@ SFAuthenticationSession *_safariAuthenticationVC;
             openURL:(NSURL *)URL
             options:(NSDictionary<NSString *, id> *)options {
   FIRFADDebugLog(@"Continuing registration flow: %@", [self registrationFlowCompletion]);
-  if (self.registrationFlowCompletion) self.registrationFlowCompletion(nil);
   [self resetUIState];
+  if (self.registrationFlowCompletion) {
+    if (@available(iOS 9.0, *)) {
+      [self logRegistrationCompletion:nil authType:[SFSafariViewController description]];
+    }
+    self.registrationFlowCompletion(nil);
+  }
   return NO;
+}
+
+- (void)logRegistrationCompletion:(NSError *)error authType:(NSString *)authType {
+  if (error) {
+    FIRFADErrorLog(@"Failed to complete App Distribution registration flow. Auth type - %@, Error "
+                   @"- %@: %ld. Details - %@",
+                   authType, [error domain], (long)[error code], [error localizedDescription]);
+  } else {
+    FIRFADInfoLog(@"App Distribution Registration complete. Auth type - %@", authType);
+  }
+}
+
+- (NSError *)getAppDistributionError:(FIRAppDistributionError)appDistributionErrorCode {
+  NSString *message = appDistributionErrorCode == FIRAppDistributionErrorAuthenticationCancelled
+                          ? @"User cancelled sign-in flow"
+                          : @"Failed to authenticate the user";
+  NSDictionary *userInfo = @{FIRAppDistributionErrorDetailsKey : message};
+  return [NSError errorWithDomain:FIRAppDistributionErrorDomain
+                             code:appDistributionErrorCode
+                         userInfo:userInfo];
 }
 
 - (void)initializeUIState {
@@ -153,6 +198,12 @@ SFAuthenticationSession *_safariAuthenticationVC;
 }
 
 - (void)safariViewControllerDidFinish:(SFSafariViewController *)controller NS_AVAILABLE_IOS(9.0) {
+  NSError *error = [self getAppDistributionError:FIRAppDistributionErrorAuthenticationCancelled];
+  [self logRegistrationCompletion:error authType:[SFSafariViewController description]];
+
+  if (self.registrationFlowCompletion) {
+    self.registrationFlowCompletion(error);
+  }
   [self resetUIState];
 }
 

@@ -19,9 +19,9 @@
 #import "GoogleUtilities/UserDefaults/Private/GULUserDefaults.h"
 
 #import "FIRAppDistribution+Private.h"
-#import "FIRAppDistributionAppDelegateInterceptor.h"
 #import "FIRAppDistributionMachO+Private.h"
 #import "FIRAppDistributionRelease+Private.h"
+#import "FIRAppDistributionUIService.h"
 #import "FIRFADApiService+Private.h"
 #import "FIRFADLogger+Private.h"
 
@@ -32,7 +32,7 @@
 @interface FIRAppDistribution () <FIRLibrary, FIRAppDistributionInstanceProvider>
 @property(nonatomic) BOOL isTesterSignedIn;
 
-@property(nullable, nonatomic) FIRAppDistributionAppDelegateInterceptor *appDelegateInterceptor;
+@property(nullable, nonatomic) FIRAppDistributionUIService *UIService;
 
 @end
 
@@ -71,8 +71,8 @@ NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
 
   if (self) {
     [GULAppDelegateSwizzler proxyOriginalDelegate];
-    self.appDelegateInterceptor = [FIRAppDistributionAppDelegateInterceptor sharedInstance];
-    [GULAppDelegateSwizzler registerAppDelegateInterceptor:self.appDelegateInterceptor];
+    self.UIService = [FIRAppDistributionUIService sharedInstance];
+    [GULAppDelegateSwizzler registerAppDelegateInterceptor:self.UIService];
   }
 
   return self;
@@ -135,7 +135,7 @@ NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
     return;
   }
 
-  [self.appDelegateInterceptor initializeUIState];
+  [self.UIService initializeUIState];
   FIRInstallations *installations = [FIRInstallations installations];
 
   // Get a Firebase Installation ID (FID).
@@ -147,6 +147,8 @@ NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
                                   : @"Failed to retrieve Installation ID.";
       completion([self NSErrorForErrorCodeAndMessage:FIRAppDistributionErrorUnknown
                                              message:description]);
+
+      [self.UIService resetUIState];
       return;
     }
 
@@ -157,28 +159,33 @@ NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
 
     FIRFADDebugLog(@"Registration URL: %@", requestURL);
 
-    [self.appDelegateInterceptor
+    [self.UIService
         appDistributionRegistrationFlow:[[NSURL alloc] initWithString:requestURL]
                          withCompletion:^(NSError *_Nullable error) {
                            FIRFADInfoLog(@"Tester sign in complete.");
-                           if (!error) {
-                             [self persistTesterSignInState];
+                           if (error) {
+                             completion(error);
+                             return;
                            }
-                           completion(error);
+                           [self persistTesterSignInStateAndHandleCompletion:completion];
                          }];
   }];
 }
 
-- (void)persistTesterSignInState {
-  [FIRFADApiService
-      fetchReleasesWithCompletion:^(NSArray *_Nullable releases, NSError *_Nullable error) {
-        if (error) {
-          FIRFADErrorLog(@"Could not fetch releases with code %ld - %@", [error code],
-                         [error localizedDescription]);
-          return;
-        }
-        [[GULUserDefaults standardUserDefaults] setBool:YES forKey:kFIRFADSignInStateKey];
-      }];
+- (void)persistTesterSignInStateAndHandleCompletion:(void (^)(NSError *_Nullable error))completion {
+  [FIRFADApiService fetchReleasesWithCompletion:^(NSArray *_Nullable releases,
+                                                  NSError *_Nullable error) {
+    if (error) {
+      FIRFADErrorLog(@"Could not fetch releases with code %ld - %@", [error code],
+                     [error localizedDescription]);
+      completion([self NSErrorForErrorCodeAndMessage:FIRAppDistributionErrorAuthenticationFailure
+                                             message:@"Failed to authenticate the user"]);
+      return;
+    }
+
+    [[GULUserDefaults standardUserDefaults] setBool:YES forKey:kFIRFADSignInStateKey];
+    completion(nil);
+  }];
 }
 
 - (NSString *)getAppName {
@@ -296,7 +303,7 @@ NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
                                                        style:UIAlertActionStyleDefault
                                                      handler:^(UIAlertAction *action) {
                                                        // precaution to ensure window gets destroyed
-                                                       [self.appDelegateInterceptor resetUIState];
+                                                       [self.UIService resetUIState];
                                                        completion(nil, nil);
                                                      }];
 
@@ -304,7 +311,7 @@ NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
     [alert addAction:yesButton];
 
     // Create an empty window + viewController to host the Safari UI.
-    [self.appDelegateInterceptor showUIAlert:alert];
+    [self.UIService showUIAlert:alert];
   }
 }
 @end
