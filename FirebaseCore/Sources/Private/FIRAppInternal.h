@@ -14,12 +14,7 @@
  * limitations under the License.
  */
 
-#if SWIFT_PACKAGE
-// TODO(paulb777): Investigate if there's a common strategy for both Cocoapods and Swift PM.
-#import "FIRApp.h"
-#else
 #import <FirebaseCore/FIRApp.h>
-#endif
 
 // The has_include is a workaround so the old IID needed for the FIS tests can find FIRErrors.h
 #if __has_include("FirebaseCore/Sources/Private/FIRErrors.h")
