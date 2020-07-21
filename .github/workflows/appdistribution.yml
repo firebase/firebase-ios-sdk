@@ -27,7 +27,7 @@ jobs:
     - name: Build and test
       run: |
        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseAppDistribution.podspec \
-         --platforms=${{ matrix.target }} --ignore-local-podspecs=FirebaseAppDistribution.podspec
+         --platforms=${{ matrix.target }}
 
   appdistribution-cron-only:
     if: github.event_name == 'schedule' && github.repository != 'FirebasePrivate/firebase-ios-sdk'
@@ -35,7 +35,7 @@ jobs:
     runs-on: macos-latest
     strategy:
       matrix:
-        target: [ios, tvos, macos]
+        target: [ios]
         flags: [
           '--use-modular-headers',
           '--use-libraries'
@@ -48,5 +48,4 @@ jobs:
     - name: PodLibLint App Distribution Cron
       run: |
        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseAppDistribution.podspec \
-         --platforms=${{ matrix.target }} ${{ matrix.flags }} \
-         --ignore-local-podspecs=FirebaseAppDistribution.podspec
+         --platforms=${{ matrix.target }} ${{ matrix.flags }}
