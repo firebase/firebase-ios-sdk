@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_CONFIG_DETECTED_H_
-#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_CONFIG_DETECTED_H_
+#ifndef FIRESTORE_CORE_SRC_UTIL_CONFIG_DETECTED_H_
+#define FIRESTORE_CORE_SRC_UTIL_CONFIG_DETECTED_H_
 
 // This header defines macros for all available platform configuration values.
 // When building with CMake, it will substitute the lines marked with
@@ -27,4 +27,4 @@
 
 #cmakedefine HAVE_OPENSSL_RAND_H 1
 
-#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_CONFIG_DETECTED_H_
+#endif  // FIRESTORE_CORE_SRC_UTIL_CONFIG_DETECTED_H_

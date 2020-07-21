@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_CONFIG_H_
-#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_CONFIG_H_
+#ifndef FIRESTORE_CORE_SRC_UTIL_CONFIG_H_
+#define FIRESTORE_CORE_SRC_UTIL_CONFIG_H_
 
 // This header provides static definitions of platform configuration values for
 // build systems that cannot auto-detect their current configuration. This
@@ -25,18 +25,18 @@
 // template used by CMake when detecting the availability of platform features.
 
 #if defined(__has_include)
-#  if __has_include("Firestore/core/src/util/config_detected.h")
-#    define FIRESTORE_HAVE_CONFIG_DETECTED_H 1
-#  endif
+#if __has_include("Firestore/core/src/util/config_detected.h")
+#define FIRESTORE_HAVE_CONFIG_DETECTED_H 1
+#endif
 #endif  // defined(__has_include)
 
 #if defined(FIRESTORE_HAVE_CONFIG_DETECTED_H)
 // If FIRESTORE_HAVE_CONFIG_DETECTED_H is defined, assume the configuration is
 // correct. You can define FIRESTORE_HAVE_CONFIG_DETECTED_H=0 to configure the
 // correct HAVE_ values via the compiler command-line.
-#  if FIRESTORE_HAVE_CONFIG_DETECTED_H
-#    include "Firestore/core/src/util/config_detected.h"
-#  endif
+#if FIRESTORE_HAVE_CONFIG_DETECTED_H
+#include "Firestore/core/src/util/config_detected.h"
+#endif
 
 #elif __APPLE__ && (SWIFT_PACKAGE || COCOAPODS)
 // Swift Package Manager does not support configure-time feature testing and
@@ -44,14 +44,14 @@
 // running a sed command to generate config.h before building.
 //
 // Handle CocoaPods the same way since the settings are the same.
-#  define HAVE_ARC4RANDOM 1
-#  define HAVE_LIBDISPATCH 1
+#define HAVE_ARC4RANDOM 1
+#define HAVE_LIBDISPATCH 1
 
 #elif __linux__ && SWIFT_PACKAGE
-#  define HAVE_OPENSSL_RAND_H 1
+#define HAVE_OPENSSL_RAND_H 1
 
 #else
-#  error "Unknown build configuration"
+#error "Unknown build configuration"
 #endif  // FIRESTORE_HAVE_CONFIG_DETECTED_H
 
-#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_CONFIG_H_
+#endif  // FIRESTORE_CORE_SRC_UTIL_CONFIG_H_
