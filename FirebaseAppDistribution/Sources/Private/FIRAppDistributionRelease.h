@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRAppDistribution.h"
-
-#define STR(x) STR_EXPAND(x)
-#define STR_EXPAND(x) #x
+#import "FirebaseAppDistribution/Sources/Public/FIRAppDistributionRelease.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRAppDistribution ()
+@interface FIRAppDistributionRelease ()
+
+- (instancetype)initWithDictionary:(NSDictionary *)dict;
+
 @end
 
 NS_ASSUME_NONNULL_END
