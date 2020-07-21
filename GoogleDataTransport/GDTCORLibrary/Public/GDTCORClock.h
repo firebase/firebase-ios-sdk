@@ -52,7 +52,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (BOOL)isAfter:(GDTCORClock *)otherClock;
 
-/**Returns value of `uptime` property in milliseconds. */
+/** Returns value of `uptime` property in milliseconds. */
 - (int64_t)uptimeMilliseconds;
 
 @end
