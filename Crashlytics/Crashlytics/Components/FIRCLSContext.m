@@ -72,6 +72,7 @@ FIRCLSContextInitData FIRCLSContextBuildInitData(FIRCLSInternalReport* report,
   initData.maxErrorLogSize = [settings errorLogBufferSize];
   initData.maxLogSize = [settings logBufferSize];
   initData.maxKeyValues = [settings maxCustomKeys];
+  initData.betaToken = "";
 
   // If this is set, then we could attempt to do a synchronous submission for certain kinds of
   // events (exceptions). This is a very cool feature, but adds complexity to the backend. For now,

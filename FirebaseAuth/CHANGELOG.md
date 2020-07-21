@@ -1,4 +1,4 @@
-# Unreleased
+# v6.7.1
 - [fixed] Fixed a multithreaded memory access issue on iOS (#5979).
 
 # v6.7.0
