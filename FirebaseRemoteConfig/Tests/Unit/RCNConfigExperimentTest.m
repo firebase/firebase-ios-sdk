@@ -26,8 +26,7 @@
 #import "FirebaseRemoteConfig/Sources/RCNConfigValue_Internal.h"
 #import "FirebaseRemoteConfig/Tests/Unit/RCNTestUtilities.h"
 
-#import "FirebaseABTesting/Sources/Private/ABTExperimentPayload.h"
-#import "FirebaseABTesting/Sources/Public/FIRExperimentController.h"
+#import "FirebaseABTesting/Sources/Private/FirebaseABTestingInternal.h"
 
 #import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 
