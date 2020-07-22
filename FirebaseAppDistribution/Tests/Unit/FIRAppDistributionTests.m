@@ -193,7 +193,6 @@
 
   [[self appDistribution] signInTesterWithCompletion:^(NSError *_Nullable error) {
     XCTAssertNotNil(error);
-    // TODO (b/161538029): Map these errors to AppDistribution error codes
     XCTAssertEqual([error code], 4);
     [expectation fulfill];
   }];
