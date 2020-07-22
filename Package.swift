@@ -44,6 +44,10 @@ let package = Package(
       targets: ["FirebaseCrashlytics"]
     ),
     .library(
+      name: "FirebaseDatabase",
+      targets: ["FirebaseDatabase"]
+    ),
+    .library(
       name: "FirebaseFunctions",
       targets: ["FirebaseFunctions"]
     ),
@@ -55,6 +59,10 @@ let package = Package(
     //   name: "FirebaseInstanceID",
     //   targets: ["FirebaseInstanceID"]
     // ),
+    .library(
+      name: "FirebaseRemoteConfig",
+      targets: ["FirebaseRemoteConfig"]
+    ),
     .library(
       name: "FirebaseStorage",
       targets: ["FirebaseStorage"]
