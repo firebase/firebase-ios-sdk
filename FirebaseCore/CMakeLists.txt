@@ -16,7 +16,7 @@ if(NOT APPLE)
   return()
 endif()
 
-file(GLOB headers Sources/Private/*.h Sources/Public/*.h)
+file(GLOB headers Sources/Private/*.h Sources/Public/FirebaseCore/*.h)
 file(GLOB sources Sources/*.m)
 
 podspec_version(version ${PROJECT_SOURCE_DIR}/FirebaseCore.podspec)
