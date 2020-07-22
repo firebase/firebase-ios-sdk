@@ -20,7 +20,15 @@
 
 import Foundation
 
+let arg_cnts:Int = Int(CommandLine.argc)
+
 let podfile = CommandLine.arguments[1]
+
+var releaseTesting = false
+
+if arg_cnts > 2 {
+  releaseTesting = CommandLine.arguments[1..<arg_cnts].contains("release_testing")
+}
 
 // Always add these, since they may not be in the Podfile, but we still want the local
 // versions when they're dependencies of other requested local pods.
@@ -48,7 +56,7 @@ let lines = fileContents.components(separatedBy: .newlines)
 var outBuffer = "source 'https://github.com/firebase/SpecsStaging.git'\n" +
   "source 'https://cdn.cocoapods.org/'\n"
 for line in lines {
-  var newLine = line
+  var newLine = line.trimmingCharacters(in: .whitespacesAndNewlines)
   let tokens = line.components(separatedBy: [" ", ","] as CharacterSet)
   if tokens.first == "pod" {
     let podNameRaw = String(tokens[1]).replacingOccurrences(of: "'", with: "")
@@ -65,14 +73,14 @@ for line in lines {
         didImplicits = true
         for implicit in implicitPods {
           let implicitPodspec = repo.appendingPathComponent(implicit + ".podspec").path
-          outBuffer += "pod '\(implicit)', :path => '\(implicitPodspec)'\n"
+          outBuffer += releaseTesting ?  "pod '\(implicit)'\n" : "pod '\(implicit)', :path => '\(implicitPodspec)'\n"
         }
       }
-      newLine = "pod '\(podName)', :path => '\(podspec)'"
+      newLine = releaseTesting ? "pod '\(podName)'" : "pod '\(podName)', :path => '\(podspec)'"
     } else if podNameRaw.starts(with: "Firebase/") {
       // Update closed source pods referenced via a subspec from the Firebase pod.
       let firebasePodspec = repo.appendingPathComponent("Firebase.podspec").path
-      newLine = "pod '\(podNameRaw)', :path => '\(firebasePodspec)'"
+      newLine = releaseTesting ? "pod '\(podNameRaw)'" :  "pod '\(podNameRaw)', :path => '\(firebasePodspec)'"
     }
   }
   outBuffer += newLine + "\n"
