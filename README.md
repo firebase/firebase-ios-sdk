@@ -3,6 +3,7 @@
 [![Platform](https://img.shields.io/cocoapods/p/Firebase.svg?style=flat)](https://cocoapods.org/pods/Firebase)
 
 [![Actions Status][gh-abtesting-badge]][gh-actions]
+[![Actions Status][gh-appdistribution-badge]][gh-actions]
 [![Actions Status][gh-auth-badge]][gh-actions]
 [![Actions Status][gh-core-badge]][gh-actions]
 [![Actions Status][gh-crashlytics-badge]][gh-actions]
