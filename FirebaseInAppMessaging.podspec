@@ -27,6 +27,7 @@ See more product details at https://firebase.google.com/products/in-app-messagin
   s.source_files = [
     base_dir + "Sources/**/*.[cmh]",
     'Interop/Analytics/Public/*.h',
+    'FirebaseABTesting/Sources/Private/*.h',
     'FirebaseCore/Sources/Private/*.h',
     'FirebaseInstallations/Source/Library/Private/*.h',
     'GoogleUtilities/Environment/Private/*.h',

@@ -30,6 +30,7 @@ app update.
   s.source_files = [
     base_dir + '**/*.[mh]',
     'Interop/Analytics/Public/*.h',
+    'FirebaseABTesting/Sources/Private/*.h',
     'FirebaseCore/Sources/Private/*.h',
     'FirebaseInstallations/Source/Library/Private/*.h',
     'GoogleUtilities/Environment/Private/*.h',
