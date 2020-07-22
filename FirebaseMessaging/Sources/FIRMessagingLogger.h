@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRMMessageCode.h"
+#import "FIRMessagingCode.h"
 
 // The convenience macros are only defined if they haven't already been defined.
 #ifndef FIRMessagingLoggerInfo

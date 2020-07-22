@@ -54,7 +54,7 @@ class NotificationsController: NSObject {
                               completionHandler: { granted, error in
                                 NotificationCenter.default
                                   .post(name: UserNotificationsChangedNotification, object: nil)
-        })
+      })
     } else if #available(iOS 8.0, *) {
       let userNotificationSettings = UIUserNotificationSettings(types: [.alert, .badge, .sound],
                                                                 categories: [])

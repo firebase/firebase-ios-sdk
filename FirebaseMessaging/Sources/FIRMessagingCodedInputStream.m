@@ -16,7 +16,7 @@
 
 #import "FirebaseMessaging/Sources/FIRMessagingCodedInputStream.h"
 
-#import "FirebaseMessaging/Sources/FIRMMessageCode.h"
+#import "FirebaseMessaging/Sources/FIRMessagingCode.h"
 #import "FirebaseMessaging/Sources/FIRMessagingLogger.h"
 
 typedef struct {

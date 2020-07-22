@@ -15,7 +15,6 @@
 import Combine
 import UIKit
 import SwiftUI
-import FirebaseInstanceID
 import FirebaseMessaging
 import FirebaseInstallations
 
@@ -67,8 +66,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, MessagingDelegate {
             return
           }
           self.identity.instanceID = fid
-          })
         })
+      })
       .store(in: &cancellables)
   }
 

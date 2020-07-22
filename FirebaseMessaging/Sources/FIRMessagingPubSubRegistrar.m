@@ -20,6 +20,7 @@
 #import "FirebaseMessaging/Sources/FIRMessagingPubSubRegistrar.h"
 #import "FirebaseMessaging/Sources/FIRMessagingTopicsCommon.h"
 #import "FirebaseMessaging/Sources/NSError+FIRMessaging.h"
+#import "FirebaseMessaging/Sources/Token/FIRMessagingTokenManager.h"
 
 @interface FIRMessagingPubSubRegistrar ()
 
@@ -47,7 +48,7 @@
 }
 
 - (void)updateSubscriptionToTopic:(NSString *)topic
-                        withToken:(NSString *)token
+                 withTokenManager:(FIRMessagingTokenManager *)tokenManager
                           options:(NSDictionary *)options
                      shouldDelete:(BOOL)shouldDelete
                           handler:(FIRMessagingTopicOperationCompletion)handler {
@@ -58,7 +59,7 @@
   FIRMessagingTopicOperation *operation =
       [[FIRMessagingTopicOperation alloc] initWithTopic:topic
                                                  action:action
-                                                  token:token
+                                           tokenManager:tokenManager
                                                 options:options
                                              completion:handler];
   [self.topicOperations addOperation:operation];

@@ -28,7 +28,7 @@
  *  Update subscription status for a given topic with FIRMessaging's backend.
  *
  *  @param topic        The topic to subscribe to.
- *  @param token        The registration token to be used.
+ *  @param tokenManager        The token manager to be used.
  *  @param options      The options to be passed in during subscription request.
  *  @param shouldDelete NO if the subscription is being added else YES if being
  *                      removed.
@@ -36,7 +36,7 @@
  *                      finishes.
  */
 - (void)updateSubscriptionToTopic:(NSString *)topic
-                        withToken:(NSString *)token
+                 withTokenManager:(FIRMessagingTokenManager *)tokenManager
                           options:(NSDictionary *)options
                      shouldDelete:(BOOL)shouldDelete
                           handler:(FIRMessagingTopicOperationCompletion)handler;
