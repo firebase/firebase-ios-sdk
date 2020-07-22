@@ -345,6 +345,6 @@ class FirebaseAppTests: XCTestCase {
                     XCTFail("Failed to unwrap notification user info")
                   }
                   return false
-                })
+    })
   }
 }
