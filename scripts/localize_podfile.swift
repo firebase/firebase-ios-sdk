@@ -27,7 +27,7 @@ let podfile = CommandLine.arguments[1]
 var releaseTesting = false
 
 if arg_cnts > 2 {
-  releaseTesting = CommandLine.arguments[1..<arg_cnts].contains("release_testing")
+  releaseTesting = CommandLine.arguments[1 ..< arg_cnts].contains("release_testing")
 }
 
 // Always add these, since they may not be in the Podfile, but we still want the local
@@ -57,7 +57,7 @@ let repo = url
 let lines = fileContents.components(separatedBy: .newlines)
 var outBuffer =
   "source 'https://github.com/firebase/SpecsStaging.git'\n"
-  + "source 'https://cdn.cocoapods.org/'\n"
+    + "source 'https://cdn.cocoapods.org/'\n"
 for line in lines {
   var newLine = line.trimmingCharacters(in: .whitespacesAndNewlines)
   let tokens = line.components(separatedBy: [" ", ","] as CharacterSet)
@@ -87,7 +87,7 @@ for line in lines {
       let firebasePodspec = repo.appendingPathComponent("Firebase.podspec").path
       newLine =
         releaseTesting
-        ? "pod '\(podNameRaw)'" : "pod '\(podNameRaw)', :path => '\(firebasePodspec)'"
+          ? "pod '\(podNameRaw)'" : "pod '\(podNameRaw)', :path => '\(firebasePodspec)'"
     }
   }
   outBuffer += newLine + "\n"
