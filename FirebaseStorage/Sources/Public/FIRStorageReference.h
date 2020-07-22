@@ -135,6 +135,26 @@ NS_SWIFT_NAME(putData(_:metadata:));
 // clang-format on
 
 /**
+ * Asynchronously uploads data to the currently specified FIRStorageReference.
+ * This is not recommended for large files, and one should instead upload a file from disk.
+ * @param uploadData The NSData to upload.
+ * @param metadata FIRStorageMetadata containing additional information (MIME type, etc.)
+ * about the object being uploaded.
+ * @param forbidBackgroundSessions If set to true, prevents GTMSessionFetcher from creating background NSURLSession sessions.
+ * @param completion A completion block that either returns the object metadata on success,
+ * or an error on failure.
+ * @return An instance of FIRStorageUploadTask, which can be used to monitor or manage the upload.
+ */
+// clang-format off
+- (FIRStorageUploadTask *)putData:(NSData *)uploadData
+                         metadata:(nullable FIRStorageMetadata *)metadata
+         forbidBackgroundSessions:(BOOL)forbidBackgroundSessions
+                       completion:(nullable void (^)(FIRStorageMetadata *_Nullable metadata,
+                                                     NSError *_Nullable error))completion
+            NS_SWIFT_NAME(putData(_:metadata:forbidBackgroundSessions:completion:));
+// clang-format on
+
+/**
  * Asynchronously uploads a file to the currently specified FIRStorageReference,
  * without additional metadata.
  * @param fileURL A URL representing the system file path of the object to be uploaded.
@@ -170,6 +190,25 @@ NS_SWIFT_NAME(putData(_:metadata:));
                        completion:(nullable void (^)(FIRStorageMetadata *_Nullable metadata,
                                                      NSError *_Nullable error))completion
            NS_SWIFT_NAME(putFile(from:metadata:completion:));
+// clang-format on
+
+/**
+ * Asynchronously uploads a file to the currently specified FIRStorageReference.
+ * @param fileURL A URL representing the system file path of the object to be uploaded.
+ * @param metadata FIRStorageMetadata containing additional information (MIME type, etc.)
+ * about the object being uploaded.
+ * @param forbidBackgroundSessions If set to true, prevents GTMSessionFetcher from creating background NSURLSession sessions.
+ * @param completion A completion block that either returns the object metadata on success,
+ * or an error on failure.
+ * @return An instance of FIRStorageUploadTask, which can be used to monitor or manage the upload.
+ */
+// clang-format off
+- (FIRStorageUploadTask *)putFile:(NSURL *)fileURL
+                         metadata:(nullable FIRStorageMetadata *)metadata
+         forbidBackgroundSessions:(BOOL)forbidBackgroundSessions
+                       completion:(nullable void (^)(FIRStorageMetadata *_Nullable metadata,
+                                                     NSError *_Nullable error))completion
+           NS_SWIFT_NAME(putFile(from:metadata:forbidBackgroundSessions:completion:));
 // clang-format on
 
 #pragma mark - Downloads
@@ -219,6 +258,21 @@ NS_SWIFT_NAME(putData(_:metadata:));
 - (FIRStorageDownloadTask *)writeToFile:(NSURL *)fileURL
                              completion:(nullable void (^)(NSURL *_Nullable URL,
                                                            NSError *_Nullable error))completion;
+
+/**
+ * Asynchronously downloads the object at the current path to a specified system filepath.
+ * @param fileURL A file system URL representing the path the object should be downloaded to.
+ * @param forbidBackgroundSessions If set to true, prevents GTMSessionFetcher from creating background NSURLSession sessions.
+ * @param completion A completion block that fires when the file download completes.
+ * Returns an NSURL pointing to the file path of the downloaded file on success,
+ * or an error on failure.
+ * @return An FIRStorageDownloadTask that can be used to monitor or manage the download.
+ */
+- (FIRStorageDownloadTask *)writeToFile:(NSURL *)fileURL
+               forbidBackgroundSessions:(BOOL)forbidBackgroundSessions
+                             completion:(nullable void (^)(NSURL *_Nullable URL,
+                                                           NSError *_Nullable error))completion;
+
 #pragma mark - List Support
 
 /**

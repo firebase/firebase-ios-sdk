@@ -72,6 +72,10 @@
       fetcher = [strongSelf.fetcherService fetcherWithRequest:request];
       fetcher.comment = @"Starting DownloadTask";
     }
+      
+    if (strongSelf.forbidBackgroundSessions) {
+      [fetcher setUseBackgroundSession:NO];
+    }
 
     [fetcher setResumeDataBlock:^(NSData *data) {
       FIRStorageDownloadTask *strong = weakSelf;
