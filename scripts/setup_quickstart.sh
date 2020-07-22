@@ -28,7 +28,7 @@ source $scripts_dir/check_secrets.sh
 
 SAMPLE=$1
 
-RELEASE_TESTING=$2
+RELEASE_TESTING=${2-}
 
 # Installations is the only quickstart that doesn't need a real
 # GoogleService-Info.plist for its tests.
