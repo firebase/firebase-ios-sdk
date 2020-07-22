@@ -17,8 +17,8 @@
 #import <XCTest/XCTest.h>
 
 #import "FirebaseAppDistribution/FIRAppDistribution.h"
-#import "FirebaseAppDistribution/FIRAppDistributionAppDelegateInterceptor.h"
 #import "FirebaseAppDistribution/FIRAppDistributionMachO+Private.h"
+#import "FirebaseAppDistribution/FIRAppDistributionUIService.h"
 #import "FirebaseAppDistribution/FIRFADApiService+Private.h"
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
@@ -60,7 +60,7 @@
   _mockCodeHash = @"this-is-a-fake-code-hash";
   _mockFIRAppClass = OCMClassMock([FIRApp class]);
   _mockFIRFADApiService = OCMClassMock([FIRFADApiService class]);
-  _mockAppDelegateInterceptor = OCMClassMock([FIRAppDistributionAppDelegateInterceptor class]);
+  _mockAppDelegateInterceptor = OCMClassMock([FIRAppDistributionUIService class]);
   _mockFIRInstallations = OCMClassMock([FIRInstallations class]);
   _mockInstallationToken = OCMClassMock([FIRInstallationsAuthTokenResult class]);
   _mockMachO = OCMClassMock([FIRAppDistributionMachO class]);
@@ -212,7 +212,9 @@
   XCTestExpectation *expectation = [self
       expectationWithDescription:@"Persist sign in state fails when we fail to fetch releases."];
   [[self appDistribution] signInTesterWithCompletion:^(NSError *_Nullable error) {
-    XCTAssertNil(error);
+    XCTAssertNotNil(error);
+    XCTAssertEqual([error code], FIRAppDistributionErrorAuthenticationFailure);
+    XCTAssertEqual([error domain], FIRAppDistributionErrorDomain);
     [expectation fulfill];
   }];
   [self waitForExpectations:@[ expectation ] timeout:5.0];
