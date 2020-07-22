@@ -37,11 +37,10 @@ NSString *const kResponseReleasesKey = @"releases";
   [installations authTokenWithCompletion:^(
                      FIRInstallationsAuthTokenResult *_Nullable authTokenResult,
                      NSError *_Nullable error) {
-    if (error) {
+    if ([self handleError:&error
+              description:@"Failed to generate Firebase Installation Auth Token."
+                     code:FIRFADApiTokenGenerationFailure]) {
       FIRFADErrorLog(@"Error getting fresh auth tokens. Error: %@", [error localizedDescription]);
-      [self handleError:&error
-            description:@"Failed to generate Firebase Installation Auth Token."
-                   code:FIRFADApiTokenGenerationFailure];
 
       completion(nil, nil, error);
       return;
@@ -49,11 +48,10 @@ NSString *const kResponseReleasesKey = @"releases";
 
     [installations installationIDWithCompletion:^(NSString *__nullable identifier,
                                                   NSError *__nullable error) {
-      if (error) {
+      if ([self handleError:&error
+                description:@"Failed to fetch Firebase Installation ID."
+                       code:FIRFADApiInstallationIdentifierError]) {
         FIRFADErrorLog(@"Error getting installation id. Error: %@", [error localizedDescription]);
-        [self handleError:&error
-              description:@"Failed to fetch Firebase Installation ID."
-                     code:FIRFADApiInstallationIdentifierError];
 
         completion(nil, nil, error);
 
@@ -85,17 +83,8 @@ NSString *const kResponseReleasesKey = @"releases";
   FIRFADInfoLog(@"HTTPResonse status code %ld response %@", (long)[httpResponse statusCode],
                 httpResponse);
 
-  if (*error || !httpResponse) {
-    [self handleError:error
-          description:@"Unknown http error occurred"
-                 code:FIRApiErrorUnknownFailure];
-
+  if ([self handleHttpResponseError:httpResponse error:error]) {
     FIRFADErrorLog(@"App Tester API service error - %@", [*error localizedDescription]);
-    return nil;
-  }
-
-  if ([httpResponse statusCode] != 200) {
-    [self handleErrorWithStatusCode:[httpResponse statusCode] error:error];
     return nil;
   }
 
@@ -133,46 +122,61 @@ NSString *const kResponseReleasesKey = @"releases";
   [self generateAuthTokenWithCompletion:executeFetch];
 }
 
-+ (void)handleErrorWithStatusCode:(NSInteger)statusCode error:(NSError **_Nullable)error {
++ (BOOL)handleHttpResponseError:(NSHTTPURLResponse *)httpResponse error:(NSError **_Nullable)error {
+  if (*error || !httpResponse) {
+    return [self handleError:error
+                 description:@"Unknown http error occurred"
+                        code:FIRApiErrorUnknownFailure];
+    ;
+  }
+
+  if ([httpResponse statusCode] != 200) {
+    *error = [self createErrorFromStatusCode:[httpResponse statusCode]];
+    return YES;
+  }
+
+  return NO;
+}
+
++ (NSError *)createErrorFromStatusCode:(NSInteger)statusCode {
   if (statusCode == 401) {
-    [self handleError:error
-          description:@"Tester not authenticated."
-                 code:FIRFADApiErrorUnauthenticated];
-    return;
+    return [self createErrorWithDescription:@"Tester not authenticated."
+                                       code:FIRFADApiErrorUnauthenticated];
   }
 
   if (statusCode == 403 || statusCode == 400) {
-    [self handleError:error description:@"Tester not authorized." code:FIRFADApiErrorUnauthorized];
-    return;
+    return [self createErrorWithDescription:@"Tester not authorized."
+                                       code:FIRFADApiErrorUnauthorized];
   }
 
   if (statusCode == 404) {
-    [self handleError:error
-          description:@"Tester or releases not found"
-                 code:FIRFADApiErrorUnauthorized];
-    return;
+    return [self createErrorWithDescription:@"Tester or releases not found"
+                                       code:FIRFADApiErrorUnauthorized];
   }
 
   if (statusCode == 408 || statusCode == 504) {
-    [self handleError:error description:@"Request timeout." code:FIRFADApiErrorTimeout];
-    return;
+    return [self createErrorWithDescription:@"Request timeout." code:FIRFADApiErrorTimeout];
   }
 
   FIRFADErrorLog(@"Encountered unmapped status code: %ld", (long)statusCode);
-  NSString *description =
-      (*error).userInfo[NSLocalizedDescriptionKey]
-          ? (*error).userInfo[NSLocalizedDescriptionKey]
-          : [NSString stringWithFormat:@"Unknown status code: %ld", (long)statusCode];
-  [self handleError:error description:description code:FIRApiErrorUnknownFailure];
+  NSString *description = [NSString stringWithFormat:@"Unknown status code: %ld", (long)statusCode];
+  return [self createErrorWithDescription:description code:FIRApiErrorUnknownFailure];
 }
 
-+ (void)handleError:(NSError **_Nullable)error
++ (BOOL)handleError:(NSError **_Nullable)error
         description:(NSString *)description
                code:(FIRFADApiError)code {
-  if (error) {
-    NSDictionary *userInfo = @{NSLocalizedDescriptionKey : description};
-    *error = [NSError errorWithDomain:kFIRFADApiErrorDomain code:code userInfo:userInfo];
+  if (*error) {
+    *error = [self createErrorWithDescription:description code:code];
+    return YES;
   }
+
+  return NO;
+}
+
++ (NSError *)createErrorWithDescription:description code:(FIRFADApiError)code {
+  NSDictionary *userInfo = @{NSLocalizedDescriptionKey : description};
+  return [NSError errorWithDomain:kFIRFADApiErrorDomain code:code userInfo:userInfo];
 }
 
 + (NSArray *_Nullable)parseApiResponseWithData:(NSData *)data error:(NSError **_Nullable)error {
