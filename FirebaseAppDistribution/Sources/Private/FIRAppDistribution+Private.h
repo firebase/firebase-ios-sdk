@@ -13,7 +13,6 @@
 // limitations under the License.
 
 #import "FIRAppDistribution.h"
-#import "FIRAppDistributionAppDelegateInterceptor.h"
 
 #define STR(x) STR_EXPAND(x)
 #define STR_EXPAND(x) #x

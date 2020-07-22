@@ -19,13 +19,12 @@
 #import "FIRAppDistribution+Private.h"
 
 NS_ASSUME_NONNULL_BEGIN
-
+/// An instance of this class provides UI services required for the App Distribution sdk
 /// An instance of this class is meant to be registered as an AppDelegate interceptor, and
 /// implements the logic that my SDK needs to perform when certain app delegate methods are invoked.
-@interface FIRAppDistributionAppDelegateInterceptor
-    : NSObject <UIApplicationDelegate,
-                ASWebAuthenticationPresentationContextProviding,
-                SFSafariViewControllerDelegate>
+@interface FIRAppDistributionUIService : NSObject <UIApplicationDelegate,
+                                                   ASWebAuthenticationPresentationContextProviding,
+                                                   SFSafariViewControllerDelegate>
 
 /// Returns the FIRAppDistributionAppDelegatorInterceptor singleton.
 /// Always register just this singleton as the app delegate interceptor. This instance is
@@ -33,17 +32,13 @@ NS_ASSUME_NONNULL_BEGIN
 + (instancetype)sharedInstance;
 
 typedef void (^AppDistributionRegistrationFlowCompletion)(NSError *_Nullable error);
-/**
- * Current view controller presenting the `SFSafariViewController` if any.
- */
+
 @property(nullable, nonatomic) UIViewController *safariHostingViewController;
 
 @property(nullable, nonatomic) UIWindow *window;
 
 @property(nullable, nonatomic) AppDistributionRegistrationFlowCompletion registrationFlowCompletion;
 
-/** *
- */
 - (void)appDistributionRegistrationFlow:(NSURL *)URL
                          withCompletion:(AppDistributionRegistrationFlowCompletion)completion;
 
