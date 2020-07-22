@@ -28,10 +28,16 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, readonly) int64_t timezoneOffsetSeconds;
 
 /** The kernel boot time when this clock was created in nanoseconds. */
-@property(nonatomic, readonly) int64_t kernelBootTime;
+@property(nonatomic, readonly) int64_t kernelBootTimeNanoseconds;
 
 /** The device uptime when this clock was created in nanoseconds. */
-@property(nonatomic, readonly) int64_t uptime;
+@property(nonatomic, readonly) int64_t uptimeNanoseconds;
+
+@property(nonatomic, readonly) int64_t kernelBootTime DEPRECATED_MSG_ATTRIBUTE(
+    "Please use `kernelBootTimeNanoseconds` instead");
+
+@property(nonatomic, readonly)
+    int64_t uptime DEPRECATED_MSG_ATTRIBUTE("Please use `uptimeNanoseconds` instead");
 
 /** Creates a GDTCORClock object using the current time and offsets.
  *

@@ -87,8 +87,9 @@
   [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:timeDiff]];
   GDTCORClock *clock2 = [GDTCORClock snapshot];
 
-  XCTAssertGreaterThan(clock2.uptime, clock1.uptime);
-  NSTimeInterval uptimeDiff = (clock2.uptime - clock1.uptime) / (NSTimeInterval)NSEC_PER_SEC;
+  XCTAssertGreaterThan(clock2.uptimeNanoseconds, clock1.uptimeNanoseconds);
+  NSTimeInterval uptimeDiff =
+      (clock2.uptimeNanoseconds - clock1.uptimeNanoseconds) / (NSTimeInterval)NSEC_PER_SEC;
   NSTimeInterval accuracy = 0.01;
 
   // Assert that uptime difference reflects the actually passed time.
@@ -101,7 +102,7 @@
   [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:timeDiff]];
   GDTCORClock *clock2 = [GDTCORClock snapshot];
 
-  XCTAssertGreaterThan(clock2.uptime, clock1.uptime);
+  XCTAssertGreaterThan(clock2.uptimeNanoseconds, clock1.uptimeNanoseconds);
 
   NSTimeInterval millisecondsPerSecond = 1000;
   NSTimeInterval uptimeDiff =
