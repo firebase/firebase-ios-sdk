@@ -20,7 +20,7 @@
 
 import Foundation
 
-let arg_cnts:Int = Int(CommandLine.argc)
+let arg_cnts: Int = Int(CommandLine.argc)
 
 let podfile = CommandLine.arguments[1]
 
@@ -32,10 +32,12 @@ if arg_cnts > 2 {
 
 // Always add these, since they may not be in the Podfile, but we still want the local
 // versions when they're dependencies of other requested local pods.
-let implicitPods = ["FirebaseCore", "FirebaseInstanceID", "FirebaseInstallations", "Firebase",
-                    "GoogleDataTransport", "GoogleUtilities",
-                    "FirebaseAuth", "FirebaseABTesting",
-                    "FirebaseCoreDiagnostics", "FirebaseRemoteConfig"]
+let implicitPods = [
+  "FirebaseCore", "FirebaseInstanceID", "FirebaseInstallations", "Firebase",
+  "GoogleDataTransport", "GoogleUtilities",
+  "FirebaseAuth", "FirebaseABTesting",
+  "FirebaseCoreDiagnostics", "FirebaseRemoteConfig",
+]
 var didImplicits = false
 
 var fileContents = ""
@@ -53,8 +55,9 @@ while url.path != "/", url.lastPathComponent != "firebase-ios-sdk" {
 
 let repo = url
 let lines = fileContents.components(separatedBy: .newlines)
-var outBuffer = "source 'https://github.com/firebase/SpecsStaging.git'\n" +
-  "source 'https://cdn.cocoapods.org/'\n"
+var outBuffer =
+  "source 'https://github.com/firebase/SpecsStaging.git'\n"
+  + "source 'https://cdn.cocoapods.org/'\n"
 for line in lines {
   var newLine = line.trimmingCharacters(in: .whitespacesAndNewlines)
   let tokens = line.components(separatedBy: [" ", ","] as CharacterSet)
@@ -73,14 +76,18 @@ for line in lines {
         didImplicits = true
         for implicit in implicitPods {
           let implicitPodspec = repo.appendingPathComponent(implicit + ".podspec").path
-          outBuffer += releaseTesting ?  "pod '\(implicit)'\n" : "pod '\(implicit)', :path => '\(implicitPodspec)'\n"
+          outBuffer +=
+            releaseTesting
+            ? "pod '\(implicit)'\n" : "pod '\(implicit)', :path => '\(implicitPodspec)'\n"
         }
       }
       newLine = releaseTesting ? "pod '\(podName)'" : "pod '\(podName)', :path => '\(podspec)'"
     } else if podNameRaw.starts(with: "Firebase/") {
       // Update closed source pods referenced via a subspec from the Firebase pod.
       let firebasePodspec = repo.appendingPathComponent("Firebase.podspec").path
-      newLine = releaseTesting ? "pod '\(podNameRaw)'" :  "pod '\(podNameRaw)', :path => '\(firebasePodspec)'"
+      newLine =
+        releaseTesting
+        ? "pod '\(podNameRaw)'" : "pod '\(podNameRaw)', :path => '\(firebasePodspec)'"
     }
   }
   outBuffer += newLine + "\n"
