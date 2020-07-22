@@ -89,7 +89,7 @@
 
   XCTAssertGreaterThan(clock2.uptimeNanoseconds, clock1.uptimeNanoseconds);
   NSTimeInterval uptimeDiff =
-      (clock2.uptimeNanoseconds - clock1.uptimeNanoseconds) / (NSTimeInterval)NSEC_PER_SEC;
+      (clock2.uptimeNanoseconds - clock1.uptimeNanoseconds) / (double)NSEC_PER_SEC;
   NSTimeInterval accuracy = 0.01;
 
   // Assert that uptime difference reflects the actually passed time.
