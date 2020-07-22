@@ -37,7 +37,7 @@
 
 - (void)fetchNewLatestRelease:(FIRAppDistributionUpdateCheckCompletion)completion;
 
-- (NSError *)handleFetchReleasesError:(NSError *)error;
+- (NSError *)mapFetchReleasesError:(NSError *)error;
 
 @end
 
@@ -296,7 +296,7 @@
       [NSError errorWithDomain:kFIRFADApiErrorDomain
                           code:FIRFADApiErrorTimeout
                       userInfo:@{NSLocalizedDescriptionKey : @"This is unfortunate."}];
-  NSError *handledError = [[self appDistribution] handleFetchReleasesError:mockError];
+  NSError *handledError = [[self appDistribution] mapFetchReleasesError:mockError];
   XCTAssertNotNil(handledError);
   XCTAssertEqual([handledError code], FIRAppDistributionErrorNetworkFailure);
   XCTAssertEqual([handledError domain], FIRAppDistributionErrorDomain);
@@ -307,7 +307,7 @@
       [NSError errorWithDomain:kFIRFADApiErrorDomain
                           code:FIRFADApiErrorUnauthenticated
                       userInfo:@{NSLocalizedDescriptionKey : @"This is unfortunate."}];
-  NSError *handledError = [[self appDistribution] handleFetchReleasesError:mockError];
+  NSError *handledError = [[self appDistribution] mapFetchReleasesError:mockError];
   XCTAssertNotNil(handledError);
   XCTAssertEqual([handledError code], FIRAppDistributionErrorAuthenticationFailure);
   XCTAssertEqual([handledError domain], FIRAppDistributionErrorDomain);
@@ -318,7 +318,7 @@
       [NSError errorWithDomain:kFIRFADApiErrorDomain
                           code:FIRFADApiErrorUnauthorized
                       userInfo:@{NSLocalizedDescriptionKey : @"This is unfortunate."}];
-  NSError *handledError = [[self appDistribution] handleFetchReleasesError:mockError];
+  NSError *handledError = [[self appDistribution] mapFetchReleasesError:mockError];
   XCTAssertNotNil(handledError);
   XCTAssertEqual([handledError code], FIRAppDistributionErrorAuthenticationFailure);
   XCTAssertEqual([handledError domain], FIRAppDistributionErrorDomain);
@@ -329,7 +329,7 @@
       [NSError errorWithDomain:kFIRFADApiErrorDomain
                           code:FIRFADApiTokenGenerationFailure
                       userInfo:@{NSLocalizedDescriptionKey : @"This is unfortunate."}];
-  NSError *handledError = [[self appDistribution] handleFetchReleasesError:mockError];
+  NSError *handledError = [[self appDistribution] mapFetchReleasesError:mockError];
   XCTAssertNotNil(handledError);
   XCTAssertEqual([handledError code], FIRAppDistributionErrorAuthenticationFailure);
   XCTAssertEqual([handledError domain], FIRAppDistributionErrorDomain);
@@ -340,7 +340,7 @@
       [NSError errorWithDomain:kFIRFADApiErrorDomain
                           code:FIRFADApiInstallationIdentifierError
                       userInfo:@{NSLocalizedDescriptionKey : @"This is unfortunate."}];
-  NSError *handledError = [[self appDistribution] handleFetchReleasesError:mockError];
+  NSError *handledError = [[self appDistribution] mapFetchReleasesError:mockError];
   XCTAssertNotNil(handledError);
   XCTAssertEqual([handledError code], FIRAppDistributionErrorAuthenticationFailure);
   XCTAssertEqual([handledError domain], FIRAppDistributionErrorDomain);
@@ -351,7 +351,7 @@
       [NSError errorWithDomain:kFIRFADApiErrorDomain
                           code:FIRFADApiErrorNotFound
                       userInfo:@{NSLocalizedDescriptionKey : @"This is unfortunate."}];
-  NSError *handledError = [[self appDistribution] handleFetchReleasesError:mockError];
+  NSError *handledError = [[self appDistribution] mapFetchReleasesError:mockError];
   XCTAssertNotNil(handledError);
   XCTAssertEqual([handledError code], FIRAppDistributionErrorAuthenticationFailure);
   XCTAssertEqual([handledError domain], FIRAppDistributionErrorDomain);
@@ -362,7 +362,7 @@
       [NSError errorWithDomain:kFIRFADApiErrorDomain
                           code:209
                       userInfo:@{NSLocalizedDescriptionKey : @"This is unfortunate."}];
-  NSError *handledError = [[self appDistribution] handleFetchReleasesError:mockError];
+  NSError *handledError = [[self appDistribution] mapFetchReleasesError:mockError];
   XCTAssertNotNil(handledError);
   XCTAssertEqual([handledError code], FIRAppDistributionErrorUnknown);
   XCTAssertEqual([handledError domain], FIRAppDistributionErrorDomain);
@@ -373,7 +373,7 @@
       [NSError errorWithDomain:@"this.is.not.an.api.failure"
                           code:4
                       userInfo:@{NSLocalizedDescriptionKey : @"This is unfortunate."}];
-  NSError *handledError = [[self appDistribution] handleFetchReleasesError:mockError];
+  NSError *handledError = [[self appDistribution] mapFetchReleasesError:mockError];
   XCTAssertNotNil(handledError);
   XCTAssertEqual([handledError code], FIRAppDistributionErrorUnknown);
   XCTAssertEqual([handledError domain], FIRAppDistributionErrorDomain);
