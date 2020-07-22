@@ -23,7 +23,7 @@
 
 @interface FIRAppDistributionMachO ()
 @property(nonatomic, copy) NSFileHandle* file;
-@property(nonatomic, copy) NSMutableArray* slices;
+@property(nonatomic, strong) NSMutableArray* slices;
 @end
 
 @implementation FIRAppDistributionMachO
