@@ -49,7 +49,7 @@ let package = Package(
     ),
     .library(
       name: "FirebaseFirestore",
-      targets: ["FirebaseCrashlytics"]
+      targets: ["FirebaseFirestore"]
     ),
     .library(
       name: "FirebaseFunctions",
@@ -89,15 +89,13 @@ let package = Package(
       .revision("82230e9998a35a3d2144884204db64f045c880c4")
     ),
     .package(name: "abseil", url: "https://github.com/paulb777/abseil-cpp.git", .revision("6a901b3")),
-    .package(name: "gRPC", url: "https://github.com/paulb777/grpc.git", .revision("9fcce7b88b")),
+    .package(name: "gRPC", url: "https://github.com/paulb777/grpc.git", .revision("7213628c6b")),
     .package(name: "OCMock", url: "https://github.com/paulb777/ocmock.git", .revision("7291762")),
     .package(name: "leveldb", url: "https://github.com/paulb777/leveldb.git", .revision("3f04697")),
     // Branches need a force update with a run with the revision set like below.
     //   .package(url: "https://github.com/paulb777/nanopb.git", .revision("564392bd87bd093c308a3aaed3997466efb95f74"))
   ],
   targets: [
-    // Targets are the basic building blocks of a package. A target can define a module or a test suite.
-    // Targets can depend on other targets in this package, and on products in packages which this package depends on.
     .testTarget(
       name: "firebase-test",
       dependencies: [
@@ -108,6 +106,7 @@ let package = Package(
         "FirebaseCrashlytics",
         "FirebaseCore",
         "FirebaseDatabase",
+        "FirebaseFirestore",
         "FirebaseInstallations",
         // "FirebaseInstanceID",
         "FirebaseRemoteConfig",
@@ -427,6 +426,14 @@ let package = Package(
         "Protos/lib/pretty_printing.py",
         "core/CMakeLists.txt",
         "core/src/util/config.h.in",
+
+        // Exclude alternate implementations for other platforms
+        "core/src/api/input_validation_std.cc",
+        "core/src/remote/connectivity_monitor_noop.cc",
+        "core/src/util/filesystem_win.cc",
+        "core/src/util/hard_assert_stdio.cc",
+        "core/src/util/log_stdio.cc",
+        "core/src/util/secure_random_openssl.cc",
       ],
       sources: [
         "Source/",
