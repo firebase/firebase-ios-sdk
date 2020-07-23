@@ -51,7 +51,7 @@ SFAuthenticationSession *_safariAuthenticationVC;
 
 + (NSString *)encodedAppId {
   return [[[FIRApp defaultApp] options].googleAppID stringByReplacingOccurrencesOfString:@":"
-                                                                              withString:@""];
+                                                                              withString:@"-"];
 }
 
 + (NSError *)getAppDistributionError:(FIRAppDistributionError)appDistributionErrorCode {
