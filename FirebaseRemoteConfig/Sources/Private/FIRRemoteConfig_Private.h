@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-#import "FirebaseRemoteConfig/Sources/Public/FIRRemoteConfig.h"
-
-#import "FirebaseRemoteConfig/Sources/Private/RCNConfigFetch.h"
-#import "FirebaseRemoteConfig/Sources/Private/RCNConfigSettings.h"
-#import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
+#import <FirebaseRemoteConfig/FIRRemoteConfig.h>
 
 @class FIROptions;
 @class RCNConfigContent;
 @class RCNConfigDBManager;
+@class RCNConfigFetch;
+@class RCNConfigSettings;
+@protocol FIRAnalyticsInterop;
 
 NS_ASSUME_NONNULL_BEGIN
 
