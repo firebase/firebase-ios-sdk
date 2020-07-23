@@ -54,6 +54,34 @@ SFAuthenticationSession *_safariAuthenticationVC;
                                                                               withString:@""];
 }
 
++ (NSError *)getAppDistributionError:(FIRAppDistributionError)appDistributionErrorCode {
+  NSString *message = appDistributionErrorCode == FIRAppDistributionErrorAuthenticationCancelled
+                          ? @"User cancelled sign-in flow"
+                          : @"Failed to authenticate the user";
+  NSDictionary *userInfo = @{FIRAppDistributionErrorDetailsKey : message};
+  return [NSError errorWithDomain:FIRAppDistributionErrorDomain
+                             code:appDistributionErrorCode
+                         userInfo:userInfo];
+}
+
++ (NSError *_Nullable)mapErrorToAppDistributionError:(NSError *_Nullable)error {
+  if (!error) {
+    return nil;
+  }
+
+  if (@available(iOS 12.0, *)) {
+    if ([error code] == ASWebAuthenticationSessionErrorCodeCanceledLogin) {
+      return [self getAppDistributionError:FIRAppDistributionErrorAuthenticationCancelled];
+    }
+  } else if (@available(iOS 11.0, *)) {
+    if ([error code] == SFAuthenticationErrorCanceledLogin) {
+      return [self getAppDistributionError:FIRAppDistributionErrorAuthenticationCancelled];
+    }
+  }
+
+  return [self getAppDistributionError:FIRAppDistributionErrorAuthenticationFailure];
+}
+
 - (void)appDistributionRegistrationFlow:(NSURL *)URL
                          withCompletion:(void (^)(NSError *_Nullable error))completion {
   NSString *callbackURL =
@@ -69,19 +97,9 @@ SFAuthenticationSession *_safariAuthenticationVC;
         completionHandler:^(NSURL *_Nullable callbackURL, NSError *_Nullable error) {
           [self resetUIState];
           [self logRegistrationCompletion:error authType:[ASWebAuthenticationSession description]];
-          if (error) {
-            FIRAppDistributionError appDistributionError;
-            if (error.code == ASWebAuthenticationSessionErrorCodeCanceledLogin) {
-              appDistributionError = FIRAppDistributionErrorAuthenticationCancelled;
-            } else {
-              appDistributionError = FIRAppDistributionErrorAuthenticationFailure;
-            }
-
-            completion([self getAppDistributionError:appDistributionError]);
-            return;
-          }
-
-          completion(nil);
+          NSError *_Nullable appDistributionError =
+              [[self class] mapErrorToAppDistributionError:error];
+          completion(appDistributionError);
         }];
 
     if (@available(iOS 13.0, *)) {
@@ -98,19 +116,9 @@ SFAuthenticationSession *_safariAuthenticationVC;
         completionHandler:^(NSURL *_Nullable callbackURL, NSError *_Nullable error) {
           [self resetUIState];
           [self logRegistrationCompletion:error authType:[SFAuthenticationSession description]];
-          if (error) {
-            FIRAppDistributionError appDistributionError;
-            if (error.code == SFAuthenticationErrorCanceledLogin) {
-              appDistributionError = FIRAppDistributionErrorAuthenticationCancelled;
-            } else {
-              appDistributionError = FIRAppDistributionErrorAuthenticationFailure;
-            }
-
-            completion([self getAppDistributionError:appDistributionError]);
-            return;
-          }
-
-          completion(nil);
+          NSError *_Nullable appDistributionError =
+              [[self class] mapErrorToAppDistributionError:error];
+          completion(appDistributionError);
         }];
 
     [_safariAuthenticationVC start];
@@ -155,16 +163,6 @@ SFAuthenticationSession *_safariAuthenticationVC;
   }
 }
 
-- (NSError *)getAppDistributionError:(FIRAppDistributionError)appDistributionErrorCode {
-  NSString *message = appDistributionErrorCode == FIRAppDistributionErrorAuthenticationCancelled
-                          ? @"User cancelled sign-in flow"
-                          : @"Failed to authenticate the user";
-  NSDictionary *userInfo = @{FIRAppDistributionErrorDetailsKey : message};
-  return [NSError errorWithDomain:FIRAppDistributionErrorDomain
-                             code:appDistributionErrorCode
-                         userInfo:userInfo];
-}
-
 - (void)initializeUIState {
   if (self.window) {
     return;
@@ -198,7 +196,8 @@ SFAuthenticationSession *_safariAuthenticationVC;
 }
 
 - (void)safariViewControllerDidFinish:(SFSafariViewController *)controller NS_AVAILABLE_IOS(9.0) {
-  NSError *error = [self getAppDistributionError:FIRAppDistributionErrorAuthenticationCancelled];
+  NSError *error =
+      [[self class] getAppDistributionError:FIRAppDistributionErrorAuthenticationCancelled];
   [self logRegistrationCompletion:error authType:[SFSafariViewController description]];
 
   if (self.registrationFlowCompletion) {

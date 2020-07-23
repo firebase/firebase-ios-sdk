@@ -19,9 +19,8 @@
 #import "FIRAppDistribution+Private.h"
 
 NS_ASSUME_NONNULL_BEGIN
-/// An instance of this class provides UI services required for the App Distribution sdk
-/// An instance of this class is meant to be registered as an AppDelegate interceptor, and
-/// implements the logic that my SDK needs to perform when certain app delegate methods are invoked.
+/// An instance of this class provides UI elements required for the App Distribution tester
+/// authentication flow as an AppDelegate interceptor.
 @interface FIRAppDistributionUIService : NSObject <UIApplicationDelegate,
                                                    ASWebAuthenticationPresentationContextProviding,
                                                    SFSafariViewControllerDelegate>
