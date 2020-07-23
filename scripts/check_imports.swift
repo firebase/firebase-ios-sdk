@@ -35,7 +35,7 @@ let skipDirPatterns = ["/Sample/", "/Pods/", "FirebaseStorage/Tests/Integration"
   // The following are temporary skips pending working through a first pass of the repo:
   [
     "FirebaseAppDistribution",
-    "FirebaseCore/Sources/Private", // Fixes require breaking private API changes. For Firebase 7.
+    "FirebaseCore/Sources/Private", // TODO: work through adding this back.
     "FirebaseDynamicLinks",
     "Firebase/CoreDiagnostics",
     "FirebaseDatabase/Sources/third_party/Wrap-leveldb", // Pending SwiftPM for leveldb.
@@ -67,7 +67,7 @@ private class ErrorLogger {
   }
 }
 
-private func checkFile(_ file: String, logger: ErrorLogger, inRepo repoURL: URL, isPublic: Bool) {
+private func checkFile(_ file: String, logger: ErrorLogger, inRepo repoURL: URL) {
   var fileContents = ""
   do {
     fileContents = try String(contentsOfFile: file, encoding: .utf8)
@@ -76,6 +76,10 @@ private func checkFile(_ file: String, logger: ErrorLogger, inRepo repoURL: URL,
     // Not a source file, give up and return.
     return
   }
+  let isPublic = file.range(of: "/Public/") != nil &&
+    // TODO: Skip legacy GDTCCTLibrary file that isn't Public and should be moved.
+    file.range(of: "GDTCCTLibrary/Public/GDTCOREvent+GDTCCTSupport.h") == nil
+  let isPrivate = file.range(of: "/Sources/Private/") != nil
   var inSwiftPackage = false
   var inSwiftPackageElse = false
   let lines = fileContents.components(separatedBy: .newlines)
@@ -127,7 +131,7 @@ private func checkFile(_ file: String, logger: ErrorLogger, inRepo repoURL: URL,
           }
           logger.importLog("Import \(importFileRaw) does not exist.", file, lineNum)
         }
-      } else if importFile.first == "<" {
+      } else if importFile.first == "<" && !isPrivate {
         // Verify that double quotes are always used for intra-module imports.
         if importFileRaw.starts(with: "Firebase") ||
           importFileRaw.starts(with: "GoogleUtilities") ||
@@ -184,10 +188,7 @@ private func main() -> Int32 {
             continue whileLoop
           }
         }
-        let isPublic = file.range(of: "/Public/") != nil &&
-          // TODO: Skip legacy GDTCCTLibrary file that isn't Public and should be moved.
-          file.range(of: "GDTCCTLibrary/Public/GDTCOREvent+GDTCCTSupport.h") == nil
-        checkFile(fullTransformPath, logger: logger, inRepo: repoURL, isPublic: isPublic)
+        checkFile(fullTransformPath, logger: logger, inRepo: repoURL)
       }
     }
   }
