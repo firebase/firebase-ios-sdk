@@ -123,13 +123,16 @@ private func checkFile(_ file: String, logger: ErrorLogger, inRepo repoURL: URL)
           }
 
         } else if !FileManager.default.fileExists(atPath: repoURL.path + "/" + importFileRaw) {
-          // All non-public header imports should be repo-relative paths.
-          for skip in skipImportPatterns {
-            if importFileRaw.starts(with: skip) {
-              continue nextLine
+          // Non-public header imports should be repo-relative paths. Unqualified imports are
+          // allowed in private headers.
+          if !isPrivate || importFile.contains("/") {
+            for skip in skipImportPatterns {
+              if importFileRaw.starts(with: skip) {
+                continue nextLine
+              }
             }
+            logger.importLog("Import \(importFileRaw) does not exist.", file, lineNum)
           }
-          logger.importLog("Import \(importFileRaw) does not exist.", file, lineNum)
         }
       } else if importFile.first == "<", !isPrivate {
         // Verify that double quotes are always used for intra-module imports.
