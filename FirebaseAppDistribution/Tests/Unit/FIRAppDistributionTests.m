@@ -204,7 +204,7 @@
 - (void)testSignInWithCompletionFetchReleasesFailureDoesNotPersist {
   NSError *mockError =
       [NSError errorWithDomain:kFIRFADApiErrorDomain
-                          code:FIRFADApiErrorTimeout
+                          code:FIRFADApiErrorUnauthenticated
                       userInfo:@{NSLocalizedDescriptionKey : @"This is unfortunate."}];
   [self mockInstallationIdCompletion:_mockInstallationId error:nil];
   [self mockAppDelegateCompletion:nil];
