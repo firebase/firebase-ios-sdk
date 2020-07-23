@@ -457,8 +457,6 @@ let package = Package(
         .define("PB_NO_PACKED_STRUCTS", to: "1"),
         .define("PB_ENABLE_MALLOC", to: "1"),
         .define("FIRFirestore_VERSION", to: "0.0.1"), // TODO: Fix version
-        .define("HAVE_ARC4RANDOM", to: "1"), // TODO get from config.h?
-        .define("HAVE_LIBDISPATCH", to: "1"), // TODO get from config.h?
       ]
     ),
 
