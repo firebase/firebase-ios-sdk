@@ -17,8 +17,8 @@
 #ifndef FIRESTORE_CORE_SRC_REMOTE_GRPC_NANOPB_H_
 #define FIRESTORE_CORE_SRC_REMOTE_GRPC_NANOPB_H_
 
-#include <pb.h>
-#include <pb_decode.h>
+#include <nanopb.h>
+//#include <pb_decode.h>
 
 #include <vector>
 

@@ -17,8 +17,8 @@
 #ifndef FIRESTORE_CORE_SRC_NANOPB_WRITER_H_
 #define FIRESTORE_CORE_SRC_NANOPB_WRITER_H_
 
-#include <pb.h>
-#include <pb_encode.h>
+#include <nanopb.h>
+//#include <pb_encode.h>
 
 #include <cstdint>
 #include <string>

@@ -19,7 +19,7 @@
 
 #ifndef PB_FIRESTORE_CLIENT_TARGET_NANOPB_H_INCLUDED
 #define PB_FIRESTORE_CLIENT_TARGET_NANOPB_H_INCLUDED
-#include <pb.h>
+#include <nanopb.h>
 
 #include "google/firestore/v1/firestore.nanopb.h"
 
