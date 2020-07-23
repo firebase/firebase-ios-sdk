@@ -173,19 +173,18 @@ NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
 }
 
 - (void)persistTesterSignInStateAndHandleCompletion:(void (^)(NSError *_Nullable error))completion {
-  [FIRFADApiService fetchReleasesWithCompletion:^(NSArray *_Nullable releases,
-                                                  NSError *_Nullable error) {
-    if (error) {
-      FIRFADErrorLog(@"Could not fetch releases with code %ld - %@", [error code],
-                     [error localizedDescription]);
-      completion([self NSErrorForErrorCodeAndMessage:FIRAppDistributionErrorAuthenticationFailure
-                                             message:@"Failed to authenticate the user"]);
-      return;
-    }
+  [FIRFADApiService
+      fetchReleasesWithCompletion:^(NSArray *_Nullable releases, NSError *_Nullable error) {
+        if (error) {
+          FIRFADErrorLog(@"Tester Sign in persistence. Could not fetch releases with code %ld - %@",
+                         [error code], [error localizedDescription]);
+          completion([self mapFetchReleasesError:error]);
+          return;
+        }
 
-    [[GULUserDefaults standardUserDefaults] setBool:YES forKey:kFIRFADSignInStateKey];
-    completion(nil);
-  }];
+        [[GULUserDefaults standardUserDefaults] setBool:YES forKey:kFIRFADSignInStateKey];
+        completion(nil);
+      }];
 }
 
 - (NSString *)getAppName {
