@@ -23,6 +23,10 @@ on:
     # Interop headers
     - 'Interop/Auth/Public/*.h'
 
+    # FirebaseCore header change
+    - 'FirebaseCore/Sources/Private'
+    - 'FirebaseCore/Sources/Public'
+
     # Podspec
     - 'FirebaseFirestore.podspec'
 
