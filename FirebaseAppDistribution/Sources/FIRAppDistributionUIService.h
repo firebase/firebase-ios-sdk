@@ -16,6 +16,7 @@
 #import <Foundation/Foundation.h>
 #import <SafariServices/SafariServices.h>
 #import <UIKit/UIKit.h>
+
 #import "FirebaseAppDistribution/Sources/Private/FIRAppDistribution.h"
 
 NS_ASSUME_NONNULL_BEGIN
