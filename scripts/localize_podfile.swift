@@ -72,13 +72,11 @@ for line in lines {
     }
     let podspec = repo.appendingPathComponent(podName + ".podspec").path
     if FileManager().fileExists(atPath: podspec) {
-      if didImplicits == false {
+      if didImplicits == false && releaseTesting{
         didImplicits = true
         for implicit in implicitPods {
           let implicitPodspec = repo.appendingPathComponent(implicit + ".podspec").path
-          outBuffer +=
-            releaseTesting
-            ? "pod '\(implicit)'\n" : "pod '\(implicit)', :path => '\(implicitPodspec)'\n"
+          outBuffer += "pod '\(implicit)', :path => '\(implicitPodspec)'\n"
         }
       }
       newLine = releaseTesting ? "pod '\(podName)'" : "pod '\(podName)', :path => '\(podspec)'"
