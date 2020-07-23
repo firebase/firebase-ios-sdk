@@ -30,7 +30,7 @@ device, and it is completely free.
 
   base_dir = "FirebaseMessaging/"
   s.source_files = [
-    base_dir + 'Sources/**/*.[mh]',
+    base_dir + 'Sources/**/*',
     'Interop/Analytics/Public/*.h',
     'FirebaseCore/Sources/Private/*.h',
     'FirebaseInstallations/Source/Library/Private/*.h',
@@ -61,6 +61,8 @@ device, and it is completely free.
   s.dependency 'GoogleUtilities/Environment', '~> 6.7'
   s.dependency 'GoogleUtilities/UserDefaults', '~> 6.7'
   s.dependency 'Protobuf', '~> 3.9', '>= 3.9.2'
+  s.dependency 'nanopb', '~> 1.30905.0'
+
 
   s.test_spec 'unit' do |unit_tests|
     unit_tests.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}

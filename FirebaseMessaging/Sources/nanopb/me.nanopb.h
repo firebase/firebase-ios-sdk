@@ -59,19 +59,19 @@ typedef enum _MessagingClientEvent_Event {
 
 /* Struct definitions */
 typedef struct _MessagingClientEvent {
-    int64_t *project_number;
+    int64_t project_number;
     pb_bytes_array_t *message_id;
     pb_bytes_array_t *instance_id;
-    MessagingClientEvent_MessageType *message_type;
-    MessagingClientEvent_SDKPlatform *sdk_platform;
+    MessagingClientEvent_MessageType message_type;
+    MessagingClientEvent_SDKPlatform sdk_platform;
     pb_bytes_array_t *package_name;
-    int32_t *priority;
-    int32_t *ttl;
+    int32_t priority;
+    int32_t ttl;
     pb_bytes_array_t *topic;
-    int64_t *bulk_id;
-    MessagingClientEvent_Event *event;
+    int64_t bulk_id;
+    MessagingClientEvent_Event event;
     pb_bytes_array_t *analytics_label;
-    int64_t *campaign_id;
+    int64_t campaign_id;
     pb_bytes_array_t *composer_label;
 /* @@protoc_insertion_point(struct:MessagingClientEvent) */
 } MessagingClientEvent;
@@ -79,8 +79,8 @@ typedef struct _MessagingClientEvent {
 /* Default values for struct fields */
 
 /* Initializer values for message structs */
-#define MessagingClientEvent_init_default        {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}
-#define MessagingClientEvent_init_zero           {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}
+#define MessagingClientEvent_init_default        {0, NULL, NULL, _MessagingClientEvent_MessageType_MIN, _MessagingClientEvent_SDKPlatform_MIN, NULL, 0, 0, NULL, 0, _MessagingClientEvent_Event_MIN, NULL, 0, NULL}
+#define MessagingClientEvent_init_zero           {0, NULL, NULL, _MessagingClientEvent_MessageType_MIN, _MessagingClientEvent_SDKPlatform_MIN, NULL, 0, 0, NULL, 0, _MessagingClientEvent_Event_MIN, NULL, 0, NULL}
 
 /* Field tags (for use in manual encoding/decoding) */
 #define MessagingClientEvent_project_number_tag  1

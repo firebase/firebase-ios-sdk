@@ -15,3 +15,9 @@ target 'Sample' do
   pod 'FirebaseInstallations', :path => '../../../'
 
 end
+
+target 'NotificationService' do
+  platform :ios, '10.0'
+  pod 'FirebaseMessaging', :path => '../../../'
+
+end

@@ -15,19 +15,11 @@
 
 # me.protos
 
-MessagingClientEvent.project_number type:FT_POINTER
 MessagingClientEvent.message_id type:FT_POINTER
 MessagingClientEvent.instance_id type:FT_POINTER
-MessagingClientEvent.message_type type:FT_POINTER
-MessagingClientEvent.sdk_platform type:FT_POINTER
 MessagingClientEvent.package_name type:FT_POINTER
-MessagingClientEvent.priority type:FT_POINTER
-MessagingClientEvent.ttl type:FT_POINTER
 MessagingClientEvent.topic type:FT_POINTER
-MessagingClientEvent.bulk_id type:FT_POINTER
-MessagingClientEvent.event type:FT_POINTER
 MessagingClientEvent.analytics_label type:FT_POINTER
-MessagingClientEvent.campaign_id type:FT_POINTER
 MessagingClientEvent.composer_label type:FT_POINTER
 MessagingClientEvent.MessageType type:FT_POINTER
 MessagingClientEvent.SDKPlatform type:FT_POINTER
