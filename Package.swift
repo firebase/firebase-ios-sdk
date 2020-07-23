@@ -424,8 +424,9 @@ let package = Package(
         "Protos/build_protos.py",
         "Protos/nanopb_cpp_generator.py",
         "Protos/lib/pretty_printing.py",
+        "Source/CMakeLists.txt",
         "core/CMakeLists.txt",
-        "core/src/util/config.h.in",
+        "core/src/util/config_detected.h.in",
 
         // Exclude alternate implementations for other platforms
         "core/src/api/input_validation_std.cc",
