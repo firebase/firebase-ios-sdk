@@ -12,5 +12,5 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebaseAppDistribution/Sources/Public/FIRAppDistribution.h"
-#import "FirebaseAppDistribution/Sources/Public/FIRAppDistributionRelease.h"
+#import "FIRAppDistribution.h"
+#import "FIRAppDistributionRelease.h"
