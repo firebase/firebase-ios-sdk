@@ -607,7 +607,7 @@ class StorageIntegration: XCTestCase {
                           if let error = error {
                             print(error)
                           }
-    })
+                        })
   }
 
   private func assertResultSuccess<T>(_ result: Result<T, Error>,

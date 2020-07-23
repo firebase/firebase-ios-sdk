@@ -104,6 +104,6 @@ class FakeConsoleTests: APITestBase {
                           if let error = error {
                             print(error)
                           }
-    })
+                        })
   }
 }
