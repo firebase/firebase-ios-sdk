@@ -15,7 +15,7 @@ iOS SDK for App Distribution for Firebase.
     :tag => 'AppDistribution-' + s.version.to_s
   }
 
-  s.ios.deployment_target = '8.0'
+  s.ios.deployment_target = '9.0'
 
   s.cocoapods_version = '>= 1.4.0'
   s.static_framework = true
