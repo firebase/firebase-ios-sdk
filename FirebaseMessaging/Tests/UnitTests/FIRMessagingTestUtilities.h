@@ -16,13 +16,13 @@
 
 #import <Foundation/Foundation.h>
 
-#import <FirebaseInstanceID/FIRInstanceID.h>
 #import <FirebaseMessaging/FIRMessaging.h>
 
 #import "FirebaseMessaging/Sources/FIRMessagingPendingTopicsList.h"
 #import "FirebaseMessaging/Sources/FIRMessagingTopicsCommon.h"
 
 @class GULUserDefaults;
+@class XCTestCase;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -52,12 +52,11 @@ typedef void (^MockDelegateSubscriptionHandler)(NSString *topic,
 
 @interface FIRMessagingTestUtilities : NSObject
 
-@property(nonatomic, strong) id mockInstanceID;
 @property(nonatomic, strong) id mockPubsub;
 @property(nonatomic, strong) id mockMessaging;
 @property(nonatomic, strong) id mockInstallations;
+@property(nonatomic, strong) id mockTokenManager;
 @property(nonatomic, readonly, strong) FIRMessaging *messaging;
-@property(nonatomic, readonly, strong) FIRInstanceID *instanceID;
 
 - (instancetype)initWithUserDefaults:(NSUserDefaults *)userDefaults
                       withRMQManager:(BOOL)withRMQManager;

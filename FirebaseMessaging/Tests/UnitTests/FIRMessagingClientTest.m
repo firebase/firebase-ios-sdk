@@ -17,7 +17,6 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
-#import <FirebaseInstanceID/FIRInstanceID_Private.h>
 #import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
 #import "GoogleUtilities/Reachability/Private/GULReachabilityChecker.h"
 
@@ -29,16 +28,11 @@
 #import "FirebaseMessaging/Sources/FIRMessagingUtilities.h"
 #import "FirebaseMessaging/Sources/NSError+FIRMessaging.h"
 #import "FirebaseMessaging/Sources/Protos/GtalkCore.pbobjc.h"
+#import "FirebaseMessaging/Sources/Token/FIRMessagingTokenManager.h"
 #import "FirebaseMessaging/Tests/UnitTests/FIRMessagingFakeConnection.h"
 
 static NSString *const kDeviceAuthId = @"123456";
 static NSString *const kSecretToken = @"56789";
-
-@interface FIRInstanceID (exposedForTests)
-
-+ (FIRInstanceID *)instanceIDForTests;
-
-@end
 
 @interface FIRMessagingClient () <FIRMessagingConnectionDelegate>
 
@@ -78,7 +72,7 @@ static NSString *const kSecretToken = @"56789";
 @property(nonatomic, readwrite, strong) id mockRmqManager;
 @property(nonatomic, readwrite, strong) id mockClientDelegate;
 @property(nonatomic, readwrite, strong) id mockDataMessageManager;
-@property(nonatomic, readwrite, strong) id mockInstanceID;
+@property(nonatomic, readwrite, strong) id mockTokenManager;
 @property(nonatomic, readwrite, strong) id mockInstallations;
 
 // argument callback blocks
@@ -94,11 +88,21 @@ static NSString *const kSecretToken = @"56789";
   _mockClientDelegate = OCMStrictProtocolMock(@protocol(FIRMessagingClientDelegate));
   _mockReachability = OCMClassMock([GULReachabilityChecker class]);
   _mockRmqManager = OCMClassMock([FIRMessagingRmqManager class]);
+  // `+[FIRInstallations installations]` supposed to be used on `-[FIRInstanceID start]` to get
+  // `FIRInstallations` default instance. Need to stub it before.
+  self.mockInstallations = OCMClassMock([FIRInstallations class]);
+  OCMStub([self.mockInstallations installations]).andReturn(self.mockInstallations);
+
+  _mockTokenManager = OCMPartialMock([[FIRMessagingTokenManager alloc] init]);
+  OCMStub([_mockTokenManager deviceAuthID]).andReturn(kDeviceAuthId);
+  OCMStub([_mockTokenManager secretToken]).andReturn(kSecretToken);
   _client = [[FIRMessagingClient alloc] initWithDelegate:_mockClientDelegate
                                             reachability:_mockReachability
-                                             rmq2Manager:_mockRmqManager];
+                                             rmq2Manager:_mockRmqManager
+                                            tokenManager:_mockTokenManager];
   _mockClient = OCMPartialMock(_client);
   _mockDataMessageManager = OCMClassMock([FIRMessagingDataMessageManager class]);
+
   [_mockClient setDataMessageManager:_mockDataMessageManager];
 }
 
@@ -117,7 +121,6 @@ static NSString *const kSecretToken = @"56789";
 - (void)tearDownMocksAndHandlers {
   self.connectCompletion = nil;
   self.subscribeCompletion = nil;
-  self.mockInstanceID = nil;
   self.mockInstallations = nil;
 }
 
@@ -139,8 +142,6 @@ static NSString *const kSecretToken = @"56789";
 }
 
 - (void)testConnectSuccess_withCachedFcmDefaults {
-  [self addFIRMessagingPreferenceKeysToUserDefaults];
-
   // login request should be successful
   [self setupConnectionWithFakeLoginResult:YES heartbeatTimeout:1.0];
 
@@ -161,7 +162,6 @@ static NSString *const kSecretToken = @"56789";
 - (void)testsConnectWithNoNetworkError_withCachedFcmDefaults {
   // connection timeout interval is 1s
   [[[self.mockClient stub] andReturnValue:@(1)] connectionTimeoutInterval];
-  [self addFIRMessagingPreferenceKeysToUserDefaults];
 
   [self setupFakeConnectionWithClass:[FIRMessagingFakeFailConnection class]
           withSetupCompletionHandler:^(FIRMessagingConnection *connection) {
@@ -189,7 +189,6 @@ static NSString *const kSecretToken = @"56789";
 - (void)testConnectSuccessOnSecondTry_withCachedFcmDefaults {
   // connection timeout interval is 1s
   [[[self.mockClient stub] andReturnValue:@(1)] connectionTimeoutInterval];
-  [self addFIRMessagingPreferenceKeysToUserDefaults];
 
   // the network is available
   [[[self.mockReachability stub] andReturnValue:@(kGULReachabilityViaWifi)] reachabilityStatus];
@@ -218,9 +217,6 @@ static NSString *const kSecretToken = @"56789";
 }
 
 - (void)testDisconnectAfterConnect {
-  // setup the connection
-  [self addFIRMessagingPreferenceKeysToUserDefaults];
-
   // login request should be successful
   // Connection should not timeout because of heartbeat failure. Therefore set heartbeatTimeout
   // to a large value.
@@ -283,18 +279,6 @@ static NSString *const kSecretToken = @"56789";
     self.client.connection.delegate = self.client;
     handler(self.client.connection);
   }] setupConnection];
-}
-
-- (void)addFIRMessagingPreferenceKeysToUserDefaults {
-  // `+[FIRInstallations installations]` supposed to be used on `-[FIRInstanceID start]` to get
-  // `FIRInstallations` default instance. Need to stub it before.
-  self.mockInstallations = OCMClassMock([FIRInstallations class]);
-  OCMStub([self.mockInstallations installations]).andReturn(self.mockInstallations);
-
-  self.mockInstanceID = OCMPartialMock([FIRInstanceID instanceIDForTests]);
-  OCMStub([self.mockInstanceID tryToLoadValidCheckinInfo]).andReturn(YES);
-  OCMStub([self.mockInstanceID deviceAuthID]).andReturn(kDeviceAuthId);
-  OCMStub([self.mockInstanceID secretToken]).andReturn(kSecretToken);
 }
 
 @end

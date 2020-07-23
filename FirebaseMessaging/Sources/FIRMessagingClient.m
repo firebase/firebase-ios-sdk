@@ -18,7 +18,6 @@
 
 #import "FirebaseMessaging/Sources/Protos/GtalkCore.pbobjc.h"
 
-#import <FirebaseInstanceID/FIRInstanceID_Private.h>
 #import <FirebaseMessaging/FIRMessaging.h>
 #import "GoogleUtilities/Reachability/Private/GULReachabilityChecker.h"
 
@@ -32,6 +31,7 @@
 #import "FirebaseMessaging/Sources/FIRMessagingTopicsCommon.h"
 #import "FirebaseMessaging/Sources/FIRMessagingUtilities.h"
 #import "FirebaseMessaging/Sources/NSError+FIRMessaging.h"
+#import "FirebaseMessaging/Sources/Token/FIRMessagingTokenManager.h"
 
 static const NSTimeInterval kConnectTimeoutInterval = 40.0;
 static const NSTimeInterval kReconnectDelayInSeconds = 2 * 60;  // 2 minutes
@@ -85,6 +85,7 @@ static NSUInteger FIRMessagingServerPort() {
 // FIRMessagingService owns these instances
 @property(nonatomic, readwrite, weak) FIRMessagingRmqManager *rmq2Manager;
 @property(nonatomic, readwrite, weak) GULReachabilityChecker *reachability;
+@property(nonatomic, readwrite, strong) FIRMessagingTokenManager *tokenManager;
 
 @property(nonatomic, readwrite, assign) int64_t lastConnectedTimestamp;
 @property(nonatomic, readwrite, assign) int64_t lastDisconnectedTimestamp;
@@ -114,12 +115,14 @@ static NSUInteger FIRMessagingServerPort() {
 
 - (instancetype)initWithDelegate:(id<FIRMessagingClientDelegate>)delegate
                     reachability:(GULReachabilityChecker *)reachability
-                     rmq2Manager:(FIRMessagingRmqManager *)rmq2Manager {
+                     rmq2Manager:(FIRMessagingRmqManager *)rmq2Manager
+                    tokenManager:(FIRMessagingTokenManager *)tokenManager {
   self = [super init];
   if (self) {
     _reachability = reachability;
     _clientDelegate = delegate;
     _rmq2Manager = rmq2Manager;
+    _tokenManager = tokenManager;
     _registrar = [[FIRMessagingPubSubRegistrar alloc] init];
     _connectionTimeoutInterval = kConnectTimeoutInterval;
     // Listen for checkin fetch notifications, as connecting to MCS may have failed due to
@@ -188,9 +191,9 @@ static NSUInteger FIRMessagingServerPort() {
     }
   };
 
-  if ([[FIRInstanceID instanceID] tryToLoadValidCheckinInfo]) {
+  if ([_tokenManager hasValidCheckinInfo]) {
     [self.registrar updateSubscriptionToTopic:topic
-                                    withToken:token
+                             withTokenManager:_tokenManager
                                       options:options
                                  shouldDelete:shouldDelete
                                       handler:completion];
@@ -289,7 +292,7 @@ static NSUInteger FIRMessagingServerPort() {
   }
 
   self.stayConnected = YES;
-  if (![[FIRInstanceID instanceID] tryToLoadValidCheckinInfo]) {
+  if (![_tokenManager hasValidCheckinInfo]) {
     // Checkin info is not available. This may be due to the checkin still being fetched.
     NSString *failureReason = @"Failed to connect to MCS. No deviceID and secret found.";
     if (self.connectHandler) {
@@ -378,8 +381,8 @@ static NSUInteger FIRMessagingServerPort() {
   self.connectRetryCount = 0;
   self.lastConnectedTimestamp = FIRMessagingCurrentTimestampInMilliseconds();
 
-  [self.dataMessageManager setDeviceAuthID:[FIRInstanceID instanceID].deviceAuthID
-                               secretToken:[FIRInstanceID instanceID].secretToken];
+  [self.dataMessageManager setDeviceAuthID:_tokenManager.deviceAuthID
+                               secretToken:_tokenManager.secretToken];
   if (self.connectHandler) {
     self.connectHandler(nil);
     // notified the third party app with the registrationId.
@@ -429,14 +432,13 @@ static NSUInteger FIRMessagingServerPort() {
     [self.connection signOut];
     self.connection.delegate = nil;
   }
-  self.connection =
-      [[FIRMessagingConnection alloc] initWithAuthID:[FIRInstanceID instanceID].deviceAuthID
-                                               token:[FIRInstanceID instanceID].secretToken
-                                                host:host
-                                                port:port
-                                             runLoop:[NSRunLoop mainRunLoop]
-                                         rmq2Manager:self.rmq2Manager
-                                          fcmManager:self.dataMessageManager];
+  self.connection = [[FIRMessagingConnection alloc] initWithAuthID:_tokenManager.deviceAuthID
+                                                             token:_tokenManager.secretToken
+                                                              host:host
+                                                              port:port
+                                                           runLoop:[NSRunLoop mainRunLoop]
+                                                       rmq2Manager:self.rmq2Manager
+                                                        fcmManager:self.dataMessageManager];
   self.connection.delegate = self;
 }
 
@@ -449,8 +451,8 @@ static NSUInteger FIRMessagingServerPort() {
   [NSObject cancelPreviousPerformRequestsWithTarget:self
                                            selector:@selector(tryToConnect)
                                              object:nil];
-  NSString *deviceAuthID = [FIRInstanceID instanceID].deviceAuthID;
-  NSString *secretToken = [FIRInstanceID instanceID].secretToken;
+  NSString *deviceAuthID = _tokenManager.deviceAuthID;
+  NSString *secretToken = _tokenManager.secretToken;
   if (deviceAuthID.length == 0 || secretToken.length == 0 || !self.connection) {
     FIRMessagingLoggerWarn(
         kFIRMessagingMessageCodeClientInvalidState,

@@ -20,7 +20,6 @@
 #if !os(OSX)
 
   import FirebaseCore
-  import FirebaseInstanceID
   import FirebaseMessaging
   import XCTest
 
@@ -36,7 +35,6 @@
 
   class FIRMessagingTokenRefreshTests: XCTestCase {
     var app: FirebaseApp!
-    var instanceID: InstanceID?
     var messaging: Messaging?
 
     override class func setUp() {
@@ -44,12 +42,10 @@
     }
 
     override func setUp() {
-      instanceID = InstanceID.instanceID()
       messaging = Messaging.messaging()
     }
 
     override func tearDown() {
-      instanceID = nil
       messaging = nil
     }
 

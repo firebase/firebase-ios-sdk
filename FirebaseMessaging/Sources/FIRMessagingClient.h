@@ -22,6 +22,7 @@
 @class FIRMessagingConnection;
 @class FIRMessagingDataMessageManager;
 @class FIRMessagingRmqManager;
+@class FIRMessagingTokenManager;
 
 /**
  *  Callback to handle MCS connection requests.
@@ -45,11 +46,13 @@ typedef void (^FIRMessagingConnectCompletionHandler)(NSError *error);
 
 @property(nonatomic, readonly, strong) FIRMessagingConnection *connection;
 @property(nonatomic, readwrite, weak) FIRMessagingDataMessageManager *dataMessageManager;
+@property(nonatomic, readonly, strong) FIRMessagingTokenManager *tokenManager;
 
 // Designated initializer
 - (instancetype)initWithDelegate:(id<FIRMessagingClientDelegate>)delegate
                     reachability:(GULReachabilityChecker *)reachability
-                     rmq2Manager:(FIRMessagingRmqManager *)rmq2Manager;
+                     rmq2Manager:(FIRMessagingRmqManager *)rmq2Manager
+                    tokenManager:(FIRMessagingTokenManager *)tokenManager;
 
 - (void)teardown;
 
