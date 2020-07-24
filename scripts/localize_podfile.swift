@@ -61,7 +61,7 @@ var outBuffer =
 for line in lines {
   var newLine = line.trimmingCharacters(in: .whitespacesAndNewlines)
   let tokens = newLine.components(separatedBy: [" ", ","] as CharacterSet)
-  if tokens.first == "pod" {
+  if tokens.first == "pod", !releaseTesting  {
     let podNameRaw = String(tokens[1]).replacingOccurrences(of: "'", with: "")
     var podName = podNameRaw
 
@@ -72,20 +72,18 @@ for line in lines {
     }
     let podspec = repo.appendingPathComponent(podName + ".podspec").path
     if FileManager().fileExists(atPath: podspec) {
-      if didImplicits == false, !releaseTesting {
+      if didImplicits == false{
         didImplicits = true
         for implicit in implicitPods {
           let implicitPodspec = repo.appendingPathComponent(implicit + ".podspec").path
           outBuffer += "pod '\(implicit)', :path => '\(implicitPodspec)'\n"
         }
       }
-      newLine = releaseTesting ? "pod '\(podName)'" : "pod '\(podName)', :path => '\(podspec)'"
+      newLine = "pod '\(podName)', :path => '\(podspec)'"
     } else if podNameRaw.starts(with: "Firebase/") {
       // Update closed source pods referenced via a subspec from the Firebase pod.
       let firebasePodspec = repo.appendingPathComponent("Firebase.podspec").path
-      newLine =
-        releaseTesting
-          ? "pod '\(podNameRaw)'" : "pod '\(podNameRaw)', :path => '\(firebasePodspec)'"
+      newLine = "pod '\(podNameRaw)', :path => '\(firebasePodspec)'"
     }
   }
   outBuffer += newLine + "\n"
