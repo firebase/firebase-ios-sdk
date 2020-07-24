@@ -61,7 +61,7 @@ var outBuffer =
 for line in lines {
   var newLine = line.trimmingCharacters(in: .whitespacesAndNewlines)
   let tokens = newLine.components(separatedBy: [" ", ","] as CharacterSet)
-  if tokens.first == "pod", !releaseTesting  {
+  if tokens.first == "pod", !releaseTesting {
     let podNameRaw = String(tokens[1]).replacingOccurrences(of: "'", with: "")
     var podName = podNameRaw
 
@@ -72,7 +72,7 @@ for line in lines {
     }
     let podspec = repo.appendingPathComponent(podName + ".podspec").path
     if FileManager().fileExists(atPath: podspec) {
-      if didImplicits == false{
+      if didImplicits == false {
         didImplicits = true
         for implicit in implicitPods {
           let implicitPodspec = repo.appendingPathComponent(implicit + ".podspec").path
