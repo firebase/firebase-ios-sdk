@@ -282,6 +282,10 @@ if [ -z "${GITHUB_WORKFLOW-}" ]; then
 fi
 
 set -x
+
+# Print the versions of tools being used.
+python --version
+
 # Check lint errors.
 "${top_dir}/scripts/check_whitespace.sh"
 "${top_dir}/scripts/check_filename_spaces.sh"
