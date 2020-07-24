@@ -69,6 +69,11 @@ Simplify your app development, grow your user base, and monetize more effectivel
     ss.ios.dependency 'Google-Mobile-Ads-SDK', '~> 7.50'
   end
 
+  s.subspec 'AppDistribution' do |ss|
+    ss.dependency 'Firebase/CoreOnly'
+    ss.dependency 'FirebaseAppDistribution', '~> 0.1.0'
+  end
+
   s.subspec 'Auth' do |ss|
     ss.dependency 'Firebase/CoreOnly'
     ss.dependency 'FirebaseAuth', '~> 6.7.0'
