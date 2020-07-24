@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
     - '.github/workflows/update_specstaging.yml'
+    - '.github/*'
 
 jobs:
 
