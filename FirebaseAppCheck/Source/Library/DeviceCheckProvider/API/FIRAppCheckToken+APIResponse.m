@@ -33,27 +33,30 @@
     return nil;
   }
 
-  NSString *token = responseDict[@"attestation_token"];
+  NSString *token = responseDict[@"attestationToken"];
   if (![token isKindOfClass:[NSString class]]) {
     *outError =
-        [FIRAppCheckErrorUtil appCheckTokenResponseErrorWithMissingField:@"attestation_token"];
+        [FIRAppCheckErrorUtil appCheckTokenResponseErrorWithMissingField:@"attestationToken"];
     return nil;
   }
 
-  NSDictionary<NSString *, NSNumber *> *timeToLiveDict = responseDict[@"time_to_live"];
-  if (timeToLiveDict == nil) {
-    *outError = [FIRAppCheckErrorUtil appCheckTokenResponseErrorWithMissingField:@"time_to_live"];
+  NSString *timeToLiveString = responseDict[@"timeToLive"];
+  if (![token isKindOfClass:[NSString class]] || token.length <= 0) {
+    *outError = [FIRAppCheckErrorUtil appCheckTokenResponseErrorWithMissingField:@"timeToLive"];
     return nil;
   }
 
-  NSNumber *secondsToLive = timeToLiveDict[@"seconds"];
-  if (![secondsToLive isKindOfClass:[NSNumber class]]) {
-    *outError =
-        [FIRAppCheckErrorUtil appCheckTokenResponseErrorWithMissingField:@"time_to_live.seconds"];
+  // Expect a string like "3600s" representing a time interval in seconds.
+  NSString *timeToLiveValueString = [timeToLiveString stringByReplacingOccurrencesOfString:@"s"
+                                                                                withString:@""];
+  NSTimeInterval secondsToLive = timeToLiveValueString.doubleValue;
+
+  if (secondsToLive == 0) {
+    *outError = [FIRAppCheckErrorUtil appCheckTokenResponseErrorWithMissingField:@"timeToLive"];
     return nil;
   }
 
-  NSDate *expirationDate = [requestDate dateByAddingTimeInterval:secondsToLive.doubleValue];
+  NSDate *expirationDate = [requestDate dateByAddingTimeInterval:secondsToLive];
 
   return [self initWithToken:token expirationDate:expirationDate];
 }

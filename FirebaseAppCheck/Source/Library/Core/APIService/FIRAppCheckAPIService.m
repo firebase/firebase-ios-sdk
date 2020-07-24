@@ -42,16 +42,33 @@ static NSString *const kUserAgentKey = @"X-firebase-client";
 
 @implementation FIRAppCheckAPIService
 
+// Synthesize properties declared in a protocol.
+@synthesize baseURL = _baseURL;
+
 - (instancetype)initWithURLSession:(NSURLSession *)session
                             APIKey:(NSString *)APIKey
                          projectID:(NSString *)projectID
                              appID:(NSString *)appID {
+  NSString *defaultBaseURL = @"https://staging-firebaseappcheck-pa.sandbox.googleapis.com/v1alpha";
+  return [self initWithURLSession:session
+                           APIKey:APIKey
+                        projectID:projectID
+                            appID:appID
+                          baseURL:defaultBaseURL];
+}
+
+- (instancetype)initWithURLSession:(NSURLSession *)session
+                            APIKey:(NSString *)APIKey
+                         projectID:(NSString *)projectID
+                             appID:(NSString *)appID
+                           baseURL:(NSString *)baseURL {
   self = [super init];
   if (self) {
     _URLSession = session;
     _APIKey = APIKey;
     _projectID = projectID;
     _appID = appID;
+    _baseURL = baseURL;
   }
   return self;
 }

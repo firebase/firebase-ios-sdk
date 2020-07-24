@@ -1,7 +1,4 @@
 {
-    "attestation_token": "valid_app_check_token",
-    "time_to_live": {
-      "seconds": 1800,
-      "nanos": 0
-    }
-  }
+  "attestationToken": "valid_app_check_token",
+  "timeToLive": "1800s"
+}

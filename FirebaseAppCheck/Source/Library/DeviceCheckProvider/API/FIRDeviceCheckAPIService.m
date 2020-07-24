@@ -79,10 +79,9 @@ static NSString *const kUserAgentKey = @"X-firebase-client";
 #pragma mark - Public API
 
 - (FBLPromise<FIRAppCheckToken *> *)appCheckTokenWithDeviceToken:(NSData *)deviceToken {
-  NSString *baseURL = @"https://firebaseappcheck.googleapis.com/v1alpha1";
   NSString *URLString =
-      [NSString stringWithFormat:@"%@/projects/%@/apps/%@:exchangeDeviceCheckToken", baseURL,
-                                 self.projectID, self.appID];
+      [NSString stringWithFormat:@"%@/projects/%@/apps/%@:exchangeDeviceCheckToken",
+                                 self.APIService.baseURL, self.projectID, self.appID];
   NSURL *URL = [NSURL URLWithString:URLString];
 
   return [self.APIService sendRequestWithURL:URL

@@ -1,6 +1,0 @@
-{
-    "attestation_token": "valid_app_check_token",
-    "time_to_live": {
-      "nanos": 0
-    }
-  }

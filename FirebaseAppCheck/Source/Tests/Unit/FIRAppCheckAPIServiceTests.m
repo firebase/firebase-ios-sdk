@@ -23,8 +23,8 @@
 #import "FirebaseAppCheck/Source/Library/Core/Private/FIRAppCheckAPIService.h"
 #import "FirebaseAppCheck/Source/Library/Core/Public/FIRAppCheckToken.h"
 
-#import "TestUtilities/Date/FIRDateTestUtils.h"
-#import "TestUtilities/URLSession/FIRURLSessionOCMockStub.h"
+#import "SharedTestUtilities/Date/FIRDateTestUtils.h"
+#import "SharedTestUtilities/URLSession/FIRURLSessionOCMockStub.h"
 
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIRHeartbeatInfo.h>

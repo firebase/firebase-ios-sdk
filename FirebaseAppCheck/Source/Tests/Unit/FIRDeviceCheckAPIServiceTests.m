@@ -24,8 +24,8 @@
 #import "FirebaseAppCheck/Source/Library/Core/Public/FIRAppCheckToken.h"
 #import "FirebaseAppCheck/Source/Library/DeviceCheckProvider/API/FIRDeviceCheckAPIService.h"
 
-#import "TestUtilities/Date/FIRDateTestUtils.h"
-#import "TestUtilities/URLSession/FIRURLSessionOCMockStub.h"
+#import "SharedTestUtilities/Date/FIRDateTestUtils.h"
+#import "SharedTestUtilities/URLSession/FIRURLSessionOCMockStub.h"
 
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIRHeartbeatInfo.h>
@@ -51,6 +51,8 @@ typedef BOOL (^FIRRequestValidationBlock)(NSURLRequest *request);
   self.appID = @"app_id";
 
   self.mockAPIService = OCMProtocolMock(@protocol(FIRAppCheckAPIServiceProtocol));
+  OCMStub([self.mockAPIService baseURL]).andReturn(@"https://test.appcheck.url.com/alpha");
+
   self.APIService = [[FIRDeviceCheckAPIService alloc] initWithAPIService:self.mockAPIService
                                                                projectID:self.projectID
                                                                    appID:self.appID];
@@ -69,10 +71,11 @@ typedef BOOL (^FIRRequestValidationBlock)(NSURLRequest *request);
   NSString *expectedToken = @"valid_app_check_token";
 
   // 1. Stub API service.
+  NSString *expectedRequestURL =
+      [NSString stringWithFormat:@"%@%@", [self.mockAPIService baseURL],
+                                 @"/projects/project_id/apps/app_id:exchangeDeviceCheckToken"];
   id URLValidationArg = [OCMArg checkWithBlock:^BOOL(NSURL *URL) {
-    XCTAssertEqualObjects(URL.absoluteString,
-                          @"https://firebaseappcheck.googleapis.com/v1alpha1/projects/project_id/"
-                          @"apps/app_id:exchangeDeviceCheckToken");
+    XCTAssertEqualObjects(URL.absoluteString, expectedRequestURL);
     return YES;
   }];
 
@@ -172,11 +175,9 @@ typedef BOOL (^FIRRequestValidationBlock)(NSURLRequest *request);
 
 - (void)testAppCheckTokenResponseMissingFields {
   [self assertMissingFieldErrorWithFixture:@"DeviceCheckResponseMissingToken.json"
-                              missingField:@"attestation_token"];
+                              missingField:@"attestationToken"];
   [self assertMissingFieldErrorWithFixture:@"DeviceCheckResponseMissingTimeToLive.json"
-                              missingField:@"time_to_live"];
-  [self assertMissingFieldErrorWithFixture:@"DeviceCheckResponseMissingSeconds.json"
-                              missingField:@"time_to_live.seconds"];
+                              missingField:@"timeToLive"];
 }
 
 #pragma mark - Helpers

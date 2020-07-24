@@ -24,6 +24,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @protocol FIRAppCheckAPIServiceProtocol <NSObject>
 
+@property(nonatomic, readonly) NSString *baseURL;
+
 - (FBLPromise<FIRAppCheckHTTPResponse *> *)
     sendRequestWithURL:(NSURL *)requestURL
             HTTPMethod:(NSString *)HTTPMethod

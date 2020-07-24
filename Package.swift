@@ -426,7 +426,7 @@ let package = Package(
     ),
     .target(
       name: "SharedTestUtilities",
-      dependencies: ["FirebaseCore"],
+      dependencies: ["FirebaseCore", "OCMock"],
       path: "SharedTestUtilities",
       publicHeadersPath: "Public",
       cSettings: [
