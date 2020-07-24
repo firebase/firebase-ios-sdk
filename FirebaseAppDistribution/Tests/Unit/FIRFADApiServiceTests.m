@@ -16,7 +16,7 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
-#import "FirebaseAppDistribution/FIRFADApiService+Private.h"
+#import "FirebaseAppDistribution/Sources/FIRFADApiService.h"
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
 

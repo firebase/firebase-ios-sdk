@@ -11,9 +11,9 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#import "FirebaseAppDistribution/Sources/FIRFADApiService.h"
 #import <Foundation/Foundation.h>
-#import "FIRFADApiService+Private.h"
-#import "FIRFADLogger+Private.h"
+#import "FirebaseAppDistribution/Sources/FIRFADLogger.h"
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
 
