@@ -60,7 +60,7 @@ var outBuffer =
     + "source 'https://cdn.cocoapods.org/'\n"
 for line in lines {
   var newLine = line.trimmingCharacters(in: .whitespacesAndNewlines)
-  let tokens = line.components(separatedBy: [" ", ","] as CharacterSet)
+  let tokens = newLine.components(separatedBy: [" ", ","] as CharacterSet)
   if tokens.first == "pod" {
     let podNameRaw = String(tokens[1]).replacingOccurrences(of: "'", with: "")
     var podName = podNameRaw
@@ -72,7 +72,7 @@ for line in lines {
     }
     let podspec = repo.appendingPathComponent(podName + ".podspec").path
     if FileManager().fileExists(atPath: podspec) {
-      if didImplicits == false, releaseTesting {
+      if didImplicits == false, !releaseTesting {
         didImplicits = true
         for implicit in implicitPods {
           let implicitPodspec = repo.appendingPathComponent(implicit + ".podspec").path
