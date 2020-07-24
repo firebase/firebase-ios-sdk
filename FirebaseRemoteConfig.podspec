@@ -30,12 +30,13 @@ app update.
   s.source_files = [
     base_dir + '**/*.[mh]',
     'Interop/Analytics/Public/*.h',
+    'FirebaseABTesting/Sources/Private/*.h',
     'FirebaseCore/Sources/Private/*.h',
     'FirebaseInstallations/Source/Library/Private/*.h',
     'GoogleUtilities/Environment/Private/*.h',
     'GoogleUtilities/NSData+zlib/Private/*.h',
   ]
-  s.public_header_files = base_dir + 'Public/*.h'
+  s.public_header_files = base_dir + 'Public/FirebaseRemoteConfig/*.h'
   s.private_header_files = base_dir + 'Private/*.h'
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',

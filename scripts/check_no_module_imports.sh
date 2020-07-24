@@ -30,6 +30,7 @@ function exit_with_error {
 git grep "${options[@]}" \
   -- ':(exclude,glob)**/Example/**' ':(exclude,glob)**/Sample/**' \
      ':(exclude)FirebaseAuth/Sources/Backend/FIRAuthBackend.m' \
+     ':(exclude)FirebaseABTesting/Sources/Private/FirebaseABTestingInternal.h' \
      ':(exclude)FirebaseCore/Sources/Private/FirebaseCoreInternal.h' \
      ':(exclude)FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h' \
      ':(exclude,glob)Crashlytics/**' \

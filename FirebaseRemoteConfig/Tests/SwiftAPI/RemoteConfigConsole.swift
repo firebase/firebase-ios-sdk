@@ -153,10 +153,10 @@ class RemoteConfigConsole {
 
     func secureRequest(url: URL, with token: String, _ timeout: TimeInterval = 10) -> URLRequest {
       var request = URLRequest(url: url, timeoutInterval: timeout)
-      request.httpMethod = self.httpMethod
-      request.allHTTPHeaderFields = self.httpHeaderFields
+      request.httpMethod = httpMethod
+      request.allHTTPHeaderFields = httpHeaderFields
       request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-      request.httpBody = self.httpBody
+      request.httpBody = httpBody
       return request
     }
   }

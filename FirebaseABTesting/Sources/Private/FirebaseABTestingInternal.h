@@ -15,13 +15,10 @@
 // An umbrella header, for any other libraries in this repo to access Firebase Public and Private
 // headers. Any package manager complexity should be handled here.
 
-#import <FirebaseCore/FirebaseCore.h>
+#if SWIFT_PACKAGE
+@import FirebaseABTesting;
+#else
+#import <FirebaseABTesting/FirebaseABTesting.h>
+#endif
 
-#import "FirebaseCore/Sources/Private/FIRAppInternal.h"
-#import "FirebaseCore/Sources/Private/FIRComponent.h"
-#import "FirebaseCore/Sources/Private/FIRComponentContainer.h"
-#import "FirebaseCore/Sources/Private/FIRDependency.h"
-#import "FirebaseCore/Sources/Private/FIRHeartbeatInfo.h"
-#import "FirebaseCore/Sources/Private/FIRLibrary.h"
-#import "FirebaseCore/Sources/Private/FIRLogger.h"
-#import "FirebaseCore/Sources/Private/FIROptionsInternal.h"
+#import "FirebaseABTesting/Sources/Private/ABTExperimentPayload.h"

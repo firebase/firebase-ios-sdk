@@ -20,6 +20,7 @@
 #import <FirebaseInstallations/FirebaseInstallations.h>
 #import <FirebaseRemoteConfig/FIRRemoteConfig_Private.h>
 #import <FirebaseRemoteConfig/FirebaseRemoteConfig.h>
+#import <FirebaseRemoteConfig/RCNConfigSettings.h>
 #import "FRCLog.h"
 
 static NSString *const FIRPerfNamespace = @"fireperf";
