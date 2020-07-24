@@ -19,7 +19,7 @@ jobs:
     - uses: actions/checkout@v2
     - name: SpecStaging Repo clone
       run: |
-        sudo gem install -n /usr/local/bin cocoapods
+        mkdir -p "${HOME}/.cocoapods/repos" 
         find  "${HOME}/.cocoapods/repos" -type d -maxdepth 1 -exec sh -c 'pod repo remove $(basename {})' \;
         pod repo add specstaging https://github.com/firebase/SpecsStaging.git
         find . -name "FirebaseRemoteConfig.podspec" -print -exec pod repo push local {} --sources=https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org/ --skip-tests --local-only \;
