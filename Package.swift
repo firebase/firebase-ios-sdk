@@ -50,6 +50,10 @@ let package = Package(
       targets: ["FirebaseFirestore"]
     ),
     .library(
+      name: "FirebaseFirestoreSwift",
+      targets: ["FirebaseFirestoreSwift"]
+    ),
+    .library(
       name: "FirebaseFunctions",
       targets: ["FirebaseFunctions"]
     ),
@@ -105,6 +109,7 @@ let package = Package(
         "FirebaseCore",
         "FirebaseDatabase",
         "FirebaseFirestore",
+        "FirebaseFirestoreSwift",
         "FirebaseInstallations",
         // "FirebaseInstanceID",
         "FirebaseRemoteConfig",
@@ -441,7 +446,7 @@ let package = Package(
         "core/include/",
         "core/src",
       ],
-      publicHeadersPath: "Public",
+      publicHeadersPath: "Source/Public",
       cSettings: [
         .headerSearchPath("../"),
         .headerSearchPath("Source/Public"),
@@ -455,6 +460,31 @@ let package = Package(
         .define("PB_NO_PACKED_STRUCTS", to: "1"),
         .define("PB_ENABLE_MALLOC", to: "1"),
         .define("FIRFirestore_VERSION", to: "0.0.1"), // TODO: Fix version
+      ]
+    ),
+    .target(
+      name: "FirebaseFirestoreSwift",
+      dependencies: ["FirebaseFirestore"],
+      path: "Firestore",
+      exclude: [
+        "CHANGELOG.md",
+        "CMakeLists.txt",
+        "Example/",
+        "Protos/",
+        "README.md",
+        "Source/",
+        "core/",
+        "fuzzing/",
+        "test.sh",
+        "Swift/CHANGELOG.md",
+        "Swift/README.md",
+        "Swift/Tests/",
+        "third_party/FirestoreEncoder/LICENSE",
+        "third_party/FirestoreEncoder/METADATA",
+      ],
+      sources: [
+        "Swift/Source/",
+        "third_party/FirestoreEncoder/",
       ]
     ),
 
