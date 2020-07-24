@@ -25,8 +25,6 @@ let package = Package(
   name: "Firebase",
   platforms: [.iOS(.v9), .macOS(.v10_11), .tvOS(.v10)],
   products: [
-    // Products define the executables and libraries produced by a package, and make them visible to
-    // other packages.
     .library(
       name: "Firebase",
       targets: ["Firebase"]
@@ -88,8 +86,8 @@ let package = Package(
       url: "https://github.com/paulb777/nanopb.git",
       .revision("82230e9998a35a3d2144884204db64f045c880c4")
     ),
-    .package(name: "abseil", url: "https://github.com/paulb777/abseil-cpp.git", .revision("6a901b3")),
-    .package(name: "gRPC", url: "https://github.com/paulb777/grpc.git", .revision("7213628c6b")),
+    .package(name: "abseil", url: "https://github.com/paulb777/abseil-cpp.git", .revision("7790dc1")),
+    .package(name: "gRPC", url: "https://github.com/paulb777/grpc.git", .revision("37a9e06cd8")),
     .package(name: "OCMock", url: "https://github.com/paulb777/ocmock.git", .revision("7291762")),
     .package(name: "leveldb", url: "https://github.com/paulb777/leveldb.git", .revision("3f04697")),
     // Branches need a force update with a run with the revision set like below.
