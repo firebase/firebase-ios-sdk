@@ -52,6 +52,11 @@ NSString *const kHeadfulLiteURLStringFormat = @"https://%@/__/auth/handler?%@";
  */
 static NSString *const kAuthTypeSignInWithRedirect = @"signInWithRedirect";
 
+/** @var kCustomUrlSchemePrefix
+    @brief The prefix to append to the Firebase app ID custom callback scheme..
+ */
+static NSString *const kCustomUrlSchemePrefix = @"app-";
+
 @implementation FIROAuthProvider {
   /** @var _auth
       @brief The auth instance used for launching the URL presenter.
@@ -207,8 +212,10 @@ static NSString *const kAuthTypeSignInWithRedirect = @"signInWithRedirect";
       _callbackScheme = [[[_auth.app.options.clientID componentsSeparatedByString:@"."]
                              reverseObjectEnumerator].allObjects componentsJoinedByString:@"."];
     } else {
-      _callbackScheme = [_auth.app.options.googleAppID stringByReplacingOccurrencesOfString:@":"
-                                                                                 withString:@"%3A"];
+      _callbackScheme = [kCustomUrlSchemePrefix
+          stringByAppendingString:[_auth.app.options.googleAppID
+                                      stringByReplacingOccurrencesOfString:@":"
+                                                                withString:@"-"]];
     }
   }
   return self;
@@ -284,7 +291,7 @@ static NSString *const kAuthTypeSignInWithRedirect = @"signInWithRedirect";
                                          strongSelf->_auth.requestConfiguration.APIKey;
                                      NSMutableDictionary *urlArguments = [@{
                                        @"apiKey" : apiKey,
-                                       @"authType" : @"signInWithRedirect",
+                                       @"authType" : kAuthTypeSignInWithRedirect,
                                        @"ibi" : bundleID ?: @"",
                                        @"sessionId" : [strongSelf hashforString:sessionID],
                                        @"v" : [FIRAuthBackend authUserAgent],

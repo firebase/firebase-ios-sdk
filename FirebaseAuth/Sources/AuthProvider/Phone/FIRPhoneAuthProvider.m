@@ -83,6 +83,11 @@ typedef void (^FIRFetchAuthDomainCallback)(NSString *_Nullable authDomain,
  */
 static NSString *const kAuthTypeVerifyApp = @"verifyApp";
 
+/** @var kCustomUrlSchemePrefix
+    @brief The prefix to append to the Firebase app ID custom callback scheme..
+ */
+static NSString *const kCustomUrlSchemePrefix = @"app-";
+
 /** @var kReCAPTCHAURLStringFormat
     @brief The format of the URL used to open the reCAPTCHA page during app verification.
  */
@@ -115,8 +120,10 @@ extern NSString *const FIRPhoneMultiFactorID;
       _callbackScheme = [[[_auth.app.options.clientID componentsSeparatedByString:@"."]
                              reverseObjectEnumerator].allObjects componentsJoinedByString:@"."];
     } else {
-      _callbackScheme = [_auth.app.options.googleAppID stringByReplacingOccurrencesOfString:@":"
-                                                                                 withString:@"%3A"];
+      _callbackScheme = [kCustomUrlSchemePrefix
+          stringByAppendingString:[_auth.app.options.googleAppID
+                                      stringByReplacingOccurrencesOfString:@":"
+                                                                withString:@"-"]];
     }
   }
   return self;
