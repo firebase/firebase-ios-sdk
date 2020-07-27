@@ -26,21 +26,17 @@
 
 
 
-const pb_field_t MessagingClientEvent_fields[15] = {
-    PB_FIELD(  1, INT64   , SINGULAR, STATIC  , FIRST, MessagingClientEvent, project_number, project_number, 0),
-    PB_FIELD(  2, BYTES   , SINGULAR, POINTER , OTHER, MessagingClientEvent, message_id, project_number, 0),
-    PB_FIELD(  3, BYTES   , SINGULAR, POINTER , OTHER, MessagingClientEvent, instance_id, message_id, 0),
-    PB_FIELD(  4, UENUM   , SINGULAR, STATIC  , OTHER, MessagingClientEvent, message_type, instance_id, 0),
-    PB_FIELD(  5, UENUM   , SINGULAR, STATIC  , OTHER, MessagingClientEvent, sdk_platform, message_type, 0),
-    PB_FIELD(  6, BYTES   , SINGULAR, POINTER , OTHER, MessagingClientEvent, package_name, sdk_platform, 0),
-    PB_FIELD(  8, INT32   , SINGULAR, STATIC  , OTHER, MessagingClientEvent, priority, package_name, 0),
-    PB_FIELD(  9, INT32   , SINGULAR, STATIC  , OTHER, MessagingClientEvent, ttl, priority, 0),
-    PB_FIELD( 10, BYTES   , SINGULAR, POINTER , OTHER, MessagingClientEvent, topic, ttl, 0),
-    PB_FIELD( 11, INT64   , SINGULAR, STATIC  , OTHER, MessagingClientEvent, bulk_id, topic, 0),
-    PB_FIELD( 12, UENUM   , SINGULAR, STATIC  , OTHER, MessagingClientEvent, event, bulk_id, 0),
-    PB_FIELD( 13, BYTES   , SINGULAR, POINTER , OTHER, MessagingClientEvent, analytics_label, event, 0),
-    PB_FIELD( 14, INT64   , SINGULAR, STATIC  , OTHER, MessagingClientEvent, campaign_id, analytics_label, 0),
-    PB_FIELD( 15, BYTES   , SINGULAR, POINTER , OTHER, MessagingClientEvent, composer_label, campaign_id, 0),
+const pb_field_t MessagingClientEvent_fields[11] = {
+    PB_FIELD(  1, INT64   , OPTIONAL, STATIC  , FIRST, MessagingClientEvent, project_number, project_number, 0),
+    PB_FIELD(  2, BYTES   , OPTIONAL, POINTER , OTHER, MessagingClientEvent, message_id, project_number, 0),
+    PB_FIELD(  3, BYTES   , OPTIONAL, POINTER , OTHER, MessagingClientEvent, instance_id, message_id, 0),
+    PB_FIELD(  4, INT64   , OPTIONAL, STATIC  , OTHER, MessagingClientEvent, message_type, instance_id, 0),
+    PB_FIELD(  5, UENUM   , OPTIONAL, STATIC  , OTHER, MessagingClientEvent, sdk_platform, message_type, 0),
+    PB_FIELD(  6, BYTES   , OPTIONAL, POINTER , OTHER, MessagingClientEvent, package_name, sdk_platform, 0),
+    PB_FIELD( 12, UENUM   , OPTIONAL, STATIC  , OTHER, MessagingClientEvent, event, package_name, 0),
+    PB_FIELD( 13, BYTES   , OPTIONAL, POINTER , OTHER, MessagingClientEvent, analytics_label, event, 0),
+    PB_FIELD( 14, INT64   , OPTIONAL, STATIC  , OTHER, MessagingClientEvent, campaign_id, analytics_label, 0),
+    PB_FIELD( 15, BYTES   , OPTIONAL, POINTER , OTHER, MessagingClientEvent, composer_label, campaign_id, 0),
     PB_LAST_FIELD
 };
 

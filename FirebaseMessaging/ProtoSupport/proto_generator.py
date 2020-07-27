@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-# Copyright 2019 Google
+# Copyright 2020 Google
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -27,21 +27,6 @@ import subprocess
 OBJC_GENERATOR='nanopb_objc_generator.py'
 
 COPYRIGHT_NOTICE = '''
-/*
- * Copyright 2019 Google
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 '''.lstrip()
 
 
@@ -69,6 +54,7 @@ def main():
   parser.add_argument(
       '--include', '-I', action='append', default=[],
       help='Adds INCLUDE to the proto path.')
+
 
   args = parser.parse_args()
   if args.nanopb is None and args.objc is None:
@@ -131,7 +117,7 @@ class NanopbGenerator(object):
     ]
     nanopb_flags.extend(['-I%s' % path for path in self.args.include])
     cmd.append('--nanopb_out=%s:%s' % (' '.join(nanopb_flags), out_dir))
-    
+
     cmd.extend(self.proto_files)
     run_protoc(self.args, cmd)
 

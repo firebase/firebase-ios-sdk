@@ -59,18 +59,19 @@ typedef enum _MessagingClientEvent_Event {
 
 /* Struct definitions */
 typedef struct _MessagingClientEvent {
+    bool has_project_number;
     int64_t project_number;
     pb_bytes_array_t *message_id;
     pb_bytes_array_t *instance_id;
+    bool has_message_type;
     MessagingClientEvent_MessageType message_type;
+    bool has_sdk_platform;
     MessagingClientEvent_SDKPlatform sdk_platform;
     pb_bytes_array_t *package_name;
-    int32_t priority;
-    int32_t ttl;
-    pb_bytes_array_t *topic;
-    int64_t bulk_id;
+    bool has_event;
     MessagingClientEvent_Event event;
     pb_bytes_array_t *analytics_label;
+    bool has_campaign_id;
     int64_t campaign_id;
     pb_bytes_array_t *composer_label;
 /* @@protoc_insertion_point(struct:MessagingClientEvent) */
@@ -79,8 +80,8 @@ typedef struct _MessagingClientEvent {
 /* Default values for struct fields */
 
 /* Initializer values for message structs */
-#define MessagingClientEvent_init_default        {0, NULL, NULL, _MessagingClientEvent_MessageType_MIN, _MessagingClientEvent_SDKPlatform_MIN, NULL, 0, 0, NULL, 0, _MessagingClientEvent_Event_MIN, NULL, 0, NULL}
-#define MessagingClientEvent_init_zero           {0, NULL, NULL, _MessagingClientEvent_MessageType_MIN, _MessagingClientEvent_SDKPlatform_MIN, NULL, 0, 0, NULL, 0, _MessagingClientEvent_Event_MIN, NULL, 0, NULL}
+#define MessagingClientEvent_init_default        {false, 0, NULL, NULL, false, _MessagingClientEvent_MessageType_MIN, false, _MessagingClientEvent_SDKPlatform_MIN, NULL, false, _MessagingClientEvent_Event_MIN, NULL, false, 0, NULL}
+#define MessagingClientEvent_init_zero           {false, 0, NULL, NULL, false, _MessagingClientEvent_MessageType_MIN, false, _MessagingClientEvent_SDKPlatform_MIN, NULL, false, _MessagingClientEvent_Event_MIN, NULL, false, 0, NULL}
 
 /* Field tags (for use in manual encoding/decoding) */
 #define MessagingClientEvent_project_number_tag  1
@@ -89,17 +90,13 @@ typedef struct _MessagingClientEvent {
 #define MessagingClientEvent_message_type_tag    4
 #define MessagingClientEvent_sdk_platform_tag    5
 #define MessagingClientEvent_package_name_tag    6
-#define MessagingClientEvent_priority_tag        8
-#define MessagingClientEvent_ttl_tag             9
-#define MessagingClientEvent_topic_tag           10
-#define MessagingClientEvent_bulk_id_tag         11
 #define MessagingClientEvent_event_tag           12
 #define MessagingClientEvent_analytics_label_tag 13
 #define MessagingClientEvent_campaign_id_tag     14
 #define MessagingClientEvent_composer_label_tag  15
 
 /* Struct field encoding specification for nanopb */
-extern const pb_field_t MessagingClientEvent_fields[15];
+extern const pb_field_t MessagingClientEvent_fields[11];
 
 /* Maximum encoded size of messages (where known) */
 /* MessagingClientEvent_size depends on runtime parameters */

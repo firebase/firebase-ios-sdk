@@ -14,6 +14,7 @@
 
 import UIKit
 import FirebaseCore
+import FirebaseMessaging
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate {
@@ -51,5 +52,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     // Use this method to select a configuration to create the new scene with.
     return UISceneConfiguration(name: "Default Configuration",
                                 sessionRole: connectingSceneSession.role)
+  }
+  
+  func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
+    // Log delivery signal for data/hidden messages
+    Messaging.serviceExtension().exportDeliveryMetricsToBigQuery(withMessageInfo: userInfo)
+    completionHandler(.newData)
   }
 }

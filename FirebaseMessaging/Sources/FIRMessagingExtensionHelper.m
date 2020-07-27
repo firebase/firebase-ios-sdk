@@ -182,7 +182,8 @@ static NSString *const kPayloadOptionsImageURLName = @"image";
   MessagingClientEvent foo = MessagingClientEvent_init_default;
   foo.project_number = (int64_t)[info[@"google.c.sender.id"] longLongValue];
   foo.message_id = FIRMessagingEncodeString(info[@"gcm.message_id"]);
-  foo.instance_id = FIRMessagingEncodeString(info[@"google.c.fid"]);
+  //foo.instance_id = FIRMessagingEncodeString(info[@"google.c.fid"]);
+  foo.instance_id = FIRMessagingEncodeString(@"c5Qp5Y0yeU27mxFtvR2ubW");
   if ([info[@"aps"][@"content-available"] intValue] == 1) {
     foo.message_type = MessagingClientEvent_MessageType_DATA_MESSAGE;
   } else {
@@ -199,7 +200,7 @@ static NSString *const kPayloadOptionsImageURLName = @"image";
   }
   foo.event = MessagingClientEvent_Event_MESSAGE_DELIVERED;
   foo.analytics_label = FIRMessagingEncodeString(@"_nr");
-  foo.campaign_id = [info[@"campaign_id.c_id"] longLongValue];
+  foo.campaign_id = (int64_t)[info[@"campaign_id.c_id"] longLongValue];
   foo.composer_label = FIRMessagingEncodeString(info[@"google.c.a.c_l"]);
 
   eventExtension.messaging_client_event = &foo;
@@ -207,7 +208,7 @@ static NSString *const kPayloadOptionsImageURLName = @"image";
       [[FIRMessagingMetricsLog alloc] initWithEventExtension:eventExtension];
 
   GDTCOREvent *event = [transport eventForTransport];
-  event.dataObject = log;
+  event.dataObject = (id<GDTCOREventDataObject>)log;
   event.qosTier = GDTCOREventQoSFast;
 
   // Use this API for SDK service data events.
