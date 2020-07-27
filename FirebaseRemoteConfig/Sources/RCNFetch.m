@@ -481,7 +481,7 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
       if (fetchedConfig) {
         // Update config content to cache and DB.
         [strongSelf->_content updateConfigContentWithResponse:fetchedConfig
-                                           forNamespace:self->_FIRNamespace];
+                                           forNamespace:strongSelf->_FIRNamespace];
         // Update experiments.
         [strongSelf->_experiment
             updateExperimentsWithResponse:fetchedConfig[RCNFetchResponseKeyExperimentDescriptions]];
