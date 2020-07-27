@@ -23,16 +23,9 @@ jobs:
           find  "${HOME}/.cocoapods/repos" -type d -maxdepth 1 -exec sh -c 'pod repo remove $(basename {})' \;
         fi
         pod repo add specstaging https://github.com/firebase/SpecsStaging.git
-        find . -name "FirebaseCore.podspec" -print -exec pod repo push specstaging {} --sources=https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org/ --skip-tests --local-only \;
+        SPEC_REPO="specstaging" scripts/add_podspecs.swift
+        #        find . -name "FirebaseCore.podspec" -print -exec pod repo push specstaging {} --sources=https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org/ --skip-tests --local-only \;
         cp  -av "${HOME}/.cocoapods/repos" "${GITHUB_WORKSPACE}/podspec_repo"
-        #    - uses: actions/checkout@v2
-        #    - name: SpecStaging Repo clone
-        #      run: |
-        #        if [ -f "${HOME}/.cocoapods/repos" ]; then
-        #          find  "${HOME}/.cocoapods/repos" -type d -maxdepth 1 -exec sh -c 'pod repo remove $(basename {})' \;
-        #        fi
-        #        pod repo add specstaging https://github.com/firebase/SpecsStaging.git
-        #        SPEC_REPO="specstaging" scripts/add_podspecs.swift
     - uses: actions/upload-artifact@v1
       if: ${{ always() }}
       with:
