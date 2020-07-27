@@ -86,6 +86,14 @@ NSString *const kFakeErrorDomain = @"test.failure.domain";
       }];
 }
 
+- (void)verifyInstallationAuthCompletion {
+  OCMVerify([_mockFIRInstallations authTokenWithCompletion:[OCMArg isNotNil]]);
+}
+
+- (void)rejectInstallationAuthCompletion {
+  OCMReject([_mockFIRInstallations authTokenWithCompletion:[OCMArg isNotNil]]);
+}
+
 - (void)mockInstallationIdCompletion:(NSString *_Nullable)identifier
                                error:(NSError *_Nullable)error {
   [OCMStub([_mockFIRInstallations installationIDWithCompletion:OCMOCK_ANY])
@@ -94,6 +102,14 @@ NSString *const kFakeErrorDomain = @"test.failure.domain";
         [invocation getArgument:&handler atIndex:2];
         handler(identifier, error);
       }];
+}
+
+- (void)verifyInstallationIdCompletion {
+  OCMVerify([_mockFIRInstallations installationIDWithCompletion:[OCMArg isNotNil]]);
+}
+
+- (void)rejectInstallationIdCompletion {
+  OCMReject([_mockFIRInstallations installationIDWithCompletion:[OCMArg isNotNil]]);
 }
 
 - (void)mockUrlSessionResponse:(NSDictionary *)dictionary
@@ -112,6 +128,16 @@ NSString *const kFakeErrorDomain = @"test.failure.domain";
     [invocation getArgument:&handler atIndex:3];
     handler(data, response, error);
   }];
+}
+
+- (void)verifyUrlSessionResponseWithData {
+  OCMVerify([_mockURLSession dataTaskWithRequest:[OCMArg isNotNil]
+                               completionHandler:[OCMArg isNotNil]]);
+}
+
+- (void)rejectUrlSessionResponseWithData {
+  OCMReject([_mockURLSession dataTaskWithRequest:[OCMArg isNotNil]
+                               completionHandler:[OCMArg isNotNil]]);
 }
 
 - (void)testGenerateAuthTokenWithCompletionSuccess {
@@ -133,6 +159,8 @@ NSString *const kFakeErrorDomain = @"test.failure.domain";
       }];
 
   [self waitForExpectations:@[ expectation ] timeout:5.0];
+  [self verifyInstallationAuthCompletion];
+  [self verifyInstallationIdCompletion];
 }
 
 - (void)testGenerateAuthTokenWithCompletionAuthTokenFailure {
@@ -156,6 +184,8 @@ NSString *const kFakeErrorDomain = @"test.failure.domain";
       }];
 
   [self waitForExpectations:@[ expectation ] timeout:5.0];
+  [self verifyInstallationAuthCompletion];
+  [self rejectInstallationIdCompletion];
 }
 
 - (void)testGenerateAuthTokenWithCompletionIDFailure {
@@ -180,6 +210,8 @@ NSString *const kFakeErrorDomain = @"test.failure.domain";
       }];
 
   [self waitForExpectations:@[ expectation ] timeout:5.0];
+  [self verifyInstallationAuthCompletion];
+  [self verifyInstallationIdCompletion];
 }
 
 - (void)testFetchReleasesWithCompletionSuccess {
@@ -201,6 +233,10 @@ NSString *const kFakeErrorDomain = @"test.failure.domain";
       }];
 
   [self waitForExpectations:@[ expectation ] timeout:5.0];
+  [self verifyInstallationAuthCompletion];
+  [self verifyInstallationIdCompletion];
+  [self verifyUrlSessionResponseWithData];
+  OCMVerify([fakeResponse statusCode]);
 }
 
 - (void)testFetchReleasesWithCompletionUnknownFailure {
@@ -222,6 +258,10 @@ NSString *const kFakeErrorDomain = @"test.failure.domain";
         [expectation fulfill];
       }];
   [self waitForExpectations:@[ expectation ] timeout:5.0];
+  [self verifyInstallationAuthCompletion];
+  [self verifyInstallationIdCompletion];
+  [self verifyUrlSessionResponseWithData];
+  OCMVerify([fakeResponse statusCode]);
 }
 
 - (void)testFetchReleasesWithCompletionUnauthenticatedFailure {
@@ -242,6 +282,10 @@ NSString *const kFakeErrorDomain = @"test.failure.domain";
         [expectation fulfill];
       }];
   [self waitForExpectations:@[ expectation ] timeout:5.0];
+  [self verifyInstallationAuthCompletion];
+  [self verifyInstallationIdCompletion];
+  [self verifyUrlSessionResponseWithData];
+  OCMVerify([fakeResponse statusCode]);
 }
 
 - (void)testFetchReleasesWithCompletionUnauthorized400Failure {
@@ -263,6 +307,10 @@ NSString *const kFakeErrorDomain = @"test.failure.domain";
       }];
 
   [self waitForExpectations:@[ expectation ] timeout:5.0];
+  [self verifyInstallationAuthCompletion];
+  [self verifyInstallationIdCompletion];
+  [self verifyUrlSessionResponseWithData];
+  OCMVerify([fakeResponse statusCode]);
 }
 
 - (void)testFetchReleasesWithCompletionUnauthorized403Failure {
@@ -283,6 +331,10 @@ NSString *const kFakeErrorDomain = @"test.failure.domain";
       }];
 
   [self waitForExpectations:@[ expectation ] timeout:5.0];
+  [self verifyInstallationAuthCompletion];
+  [self verifyInstallationIdCompletion];
+  [self verifyUrlSessionResponseWithData];
+  OCMVerify([fakeResponse statusCode]);
 }
 
 - (void)testFetchReleasesWithCompletionUnauthorized404Failure {
@@ -303,6 +355,10 @@ NSString *const kFakeErrorDomain = @"test.failure.domain";
       }];
 
   [self waitForExpectations:@[ expectation ] timeout:5.0];
+  [self verifyInstallationAuthCompletion];
+  [self verifyInstallationIdCompletion];
+  [self verifyUrlSessionResponseWithData];
+  OCMVerify([fakeResponse statusCode]);
 }
 
 - (void)testFetchReleasesWithCompletionTimeout408Failure {
@@ -323,6 +379,10 @@ NSString *const kFakeErrorDomain = @"test.failure.domain";
       }];
 
   [self waitForExpectations:@[ expectation ] timeout:5.0];
+  [self verifyInstallationAuthCompletion];
+  [self verifyInstallationIdCompletion];
+  [self verifyUrlSessionResponseWithData];
+  OCMVerify([fakeResponse statusCode]);
 }
 
 - (void)testFetchReleasesWithCompletionTimeout504Failure {
@@ -343,6 +403,10 @@ NSString *const kFakeErrorDomain = @"test.failure.domain";
       }];
 
   [self waitForExpectations:@[ expectation ] timeout:5.0];
+  [self verifyInstallationAuthCompletion];
+  [self verifyInstallationIdCompletion];
+  [self verifyUrlSessionResponseWithData];
+  OCMVerify([fakeResponse statusCode]);
 }
 
 - (void)testFetchReleasesWithCompletionUnknownStatusCodeFailure {
@@ -363,6 +427,10 @@ NSString *const kFakeErrorDomain = @"test.failure.domain";
       }];
 
   [self waitForExpectations:@[ expectation ] timeout:5.0];
+  [self verifyInstallationAuthCompletion];
+  [self verifyInstallationIdCompletion];
+  [self verifyUrlSessionResponseWithData];
+  OCMVerify([fakeResponse statusCode]);
 }
 
 - (void)testFetchReleasesWithCompletionNoReleasesFoundSuccess {
@@ -383,6 +451,10 @@ NSString *const kFakeErrorDomain = @"test.failure.domain";
       }];
 
   [self waitForExpectations:@[ expectation ] timeout:5.0];
+  [self verifyInstallationAuthCompletion];
+  [self verifyInstallationIdCompletion];
+  [self verifyUrlSessionResponseWithData];
+  OCMVerify([fakeResponse statusCode]);
 }
 
 - (void)testFetchReleasesWithCompletionParsingFailure {
@@ -406,6 +478,10 @@ NSString *const kFakeErrorDomain = @"test.failure.domain";
       }];
 
   [self waitForExpectations:@[ expectation ] timeout:5.0];
+  [self verifyInstallationAuthCompletion];
+  [self verifyInstallationIdCompletion];
+  [self verifyUrlSessionResponseWithData];
+  OCMVerify([fakeResponse statusCode]);
 }
 
 @end
