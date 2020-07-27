@@ -24,7 +24,7 @@ jobs:
         fi
         pod repo add specstaging https://github.com/firebase/SpecsStaging.git
         find . -name "FirebaseCore.podspec" -print -exec pod repo push specstaging {} --sources=https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org/ --skip-tests --local-only \;
-        cp  -av "${HOME}/.cocoapods/repos" "{$GITHUB_WORKSPACE}/podspec_repo"
+        cp  -av "${HOME}/.cocoapods/repos" "${GITHUB_WORKSPACE}/podspec_repo"
         #    - uses: actions/checkout@v2
         #    - name: SpecStaging Repo clone
         #      run: |
