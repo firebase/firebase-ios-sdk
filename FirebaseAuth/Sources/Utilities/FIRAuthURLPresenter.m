@@ -18,7 +18,7 @@
 #if TARGET_OS_IOS
 
 #import <SafariServices/SafariServices.h>
-#import "FirebaseAuth/Sources/Public/FIRAuthUIDelegate.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthUIDelegate.h"
 
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthDefaultUIDelegate.h"

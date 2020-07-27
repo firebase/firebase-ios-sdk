@@ -18,12 +18,12 @@
 #import <XCTest/XCTest.h>
 #import "OCMock.h"
 
-#import "FirebaseAuth/Sources/Public/FIRAuthTokenResult.h"
-#import "FirebaseAuth/Sources/Public/FIREmailAuthProvider.h"
-#import "FirebaseAuth/Sources/Public/FIRFacebookAuthProvider.h"
-#import "FirebaseAuth/Sources/Public/FIRGoogleAuthProvider.h"
-#import "FirebaseAuth/Sources/Public/FIRUserInfo.h"
-#import "FirebaseAuth/Sources/Public/FIRUserMetadata.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthTokenResult.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIREmailAuthProvider.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRFacebookAuthProvider.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRGoogleAuthProvider.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRUserInfo.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRUserMetadata.h"
 
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuthOperationType.h"
@@ -51,7 +51,7 @@
 #import "FirebaseAuth/Tests/Unit/OCMStubRecorder+FIRAuthUnitTests.h"
 
 #if TARGET_OS_IOS
-#import "FirebaseAuth/Sources/Public/FIRPhoneAuthProvider.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRPhoneAuthProvider.h"
 
 #import "FirebaseAuth/Sources/AuthProvider/Phone/FIRPhoneAuthCredential_Internal.h"
 #endif

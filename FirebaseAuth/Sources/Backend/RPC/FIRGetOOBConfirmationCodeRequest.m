@@ -16,7 +16,7 @@
 
 #import "FirebaseAuth/Sources/Backend/RPC/FIRGetOOBConfirmationCodeRequest.h"
 
-#import "FirebaseAuth/Sources/Public/FIRActionCodeSettings.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRActionCodeSettings.h"
 
 #import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthErrorUtils.h"

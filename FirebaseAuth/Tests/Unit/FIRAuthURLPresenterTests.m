@@ -22,7 +22,7 @@
 #import <XCTest/XCTest.h>
 #import "OCMock.h"
 
-#import "FirebaseAuth/Sources/Public/FIRAuthUIDelegate.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthUIDelegate.h"
 
 #import "FirebaseAuth/Sources/Utilities/FIRAuthURLPresenter.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthWebViewController.h"
