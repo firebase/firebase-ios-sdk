@@ -66,7 +66,7 @@ option in your Xcode project/workspace, you will need to add the system
 frameworks and libraries listed in each Firebase framework's
 <Name>.framework/Modules/module.modulemap file to your target's or targets'
 "Link Binary With Libraries" build phase.  Specifically, you may see the error
-'ld: warning: Could not find or use auto-linked framework...' which is an
+`ld: warning: Could not find or use auto-linked framework...` which is an
 indicator that not all system libraries are being brought into your build
 automatically.
 
