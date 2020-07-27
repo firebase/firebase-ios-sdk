@@ -491,7 +491,7 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
       // We had a successful fetch. Update the current eTag in settings if different.
       NSString *latestETag = ((NSHTTPURLResponse *)response).allHeaderFields[kETagHeaderName];
       if (!strongSelf->_settings.lastETag ||
-          !([self->_settings.lastETag isEqualToString:latestETag])) {
+          !([strongSelf->_settings.lastETag isEqualToString:latestETag])) {
         strongSelf->_settings.lastETag = latestETag;
       }
 
