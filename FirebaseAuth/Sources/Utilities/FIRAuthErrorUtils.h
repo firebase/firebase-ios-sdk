@@ -580,6 +580,19 @@ NS_ASSUME_NONNULL_BEGIN
 */
 + (NSError *)missingOrInvalidNonceErrorWithMessage:(nullable NSString *)message;
 
+/** @fn tenantIDMismatchError
+    @brief Constructs an @c NSError with the @c FIRAuthErrorCodeTenantIDMismatch code.
+    @remarks This error is used when an attempt is made to update the current user with a
+        tenantId that differs from the current FirebaseAuth instance's tenantId.
+ */
++ (NSError *)tenantIDMismatchError;
+
+/** @fn unsupportedTenantOperationError
+    @brief Constructs an @c NSError with the @c FIRUnsupportedTenantOperation code.
+    @remarks This error indicates the operation is not supported in a multi-tenant context.
+ */
++ (NSError *)unsupportedTenantOperationError;
+
 @end
 
 NS_ASSUME_NONNULL_END

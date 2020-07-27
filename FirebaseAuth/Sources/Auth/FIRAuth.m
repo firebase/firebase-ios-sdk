@@ -1975,6 +1975,14 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     [self possiblyPostAuthStateChangeNotification];
     return YES;
   }
+  if ((user.tenantID != nil && [self.tenantID isEqualToString:user.tenantID]) ||
+      (self.tenantID != nil && [user.tenantID isEqualToString:self.tenantID])) {
+    if (error) {
+      *error = [FIRAuthErrorUtils tenantIDMismatchError];
+    }
+    return NO;
+  }
+
   BOOL success = YES;
   if (saveToDisk) {
     success = [self saveUser:user error:error];
