@@ -92,4 +92,4 @@ check the build definition to see how the file is used.
 CocoaPods flattens all headers specified in the podspec and makes them available via
 `#import "FirebaseFoo/Header.h"`. Swift Package Manager does not flatten. Therefore, the
 directory structure described above allows clients to import headers from either package manager
-with `#if` checks.
+without `#if` checks.
