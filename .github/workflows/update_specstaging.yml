@@ -34,6 +34,7 @@ jobs:
         #        pod repo add specstaging https://github.com/firebase/SpecsStaging.git
         #        SPEC_REPO="specstaging" scripts/add_podspecs.swift
     - uses: actions/upload-artifact@v1
+      if: ${{ always() }}
       with:
         name: Podspec_repo
         path: podspec_repo
