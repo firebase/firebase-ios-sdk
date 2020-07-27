@@ -90,10 +90,7 @@ NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
   FIRComponentCreationBlock creationBlock =
       ^id _Nullable(FIRComponentContainer *container, BOOL *isCacheable) {
     if (!container.app.isDefaultApp) {
-      // TODO: Remove this and log error
-      @throw([NSException exceptionWithName:@"NotImplementedException"
-                                     reason:@"This code path is not implemented yet"
-                                   userInfo:nil]);
+      FIRFADErrorLog(@"Firebase App Distribution only works with the default app.");
       return nil;
     }
 
@@ -244,7 +241,9 @@ NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
   [FIRFADApiService
       fetchReleasesWithCompletion:^(NSArray *_Nullable releases, NSError *_Nullable error) {
         if (error) {
-          completion(nil, [self mapFetchReleasesError:error]);
+          dispatch_async(dispatch_get_main_queue(), ^{
+            completion(nil, [self mapFetchReleasesError:error]);
+          });
           return;
         }
 

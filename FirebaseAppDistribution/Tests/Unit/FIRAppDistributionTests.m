@@ -121,6 +121,10 @@
       }];
 }
 
+- (void)verifyInstallationIdCompletion {
+  OCMVerify([_mockFIRInstallations installationIDWithCompletion:OCMOCK_ANY]);
+}
+
 - (void)mockAppDelegateCompletion:(NSError *_Nullable)error {
   [OCMStub([_mockAppDelegateInterceptor appDistributionRegistrationFlow:OCMOCK_ANY
                                                          withCompletion:OCMOCK_ANY])
@@ -131,6 +135,16 @@
       }];
 }
 
+- (void)verifyAppDelegateCompletion {
+  OCMVerify([_mockAppDelegateInterceptor appDistributionRegistrationFlow:OCMOCK_ANY
+                                                          withCompletion:OCMOCK_ANY]);
+}
+
+- (void)rejectAppDelegateCompletion {
+  OCMReject([_mockAppDelegateInterceptor appDistributionRegistrationFlow:OCMOCK_ANY
+                                                          withCompletion:OCMOCK_ANY]);
+}
+
 - (void)mockFetchReleasesCompletion:(NSArray *)releases error:(NSError *)error {
   [OCMStub([_mockFIRFADApiService fetchReleasesWithCompletion:OCMOCK_ANY])
       andDo:^(NSInvocation *invocation) {
@@ -138,6 +152,14 @@
         [invocation getArgument:&handler atIndex:2];
         handler(releases, error);
       }];
+}
+
+- (void)verifyFetchReleasesCompletion {
+  OCMVerify([_mockFIRFADApiService fetchReleasesWithCompletion:[OCMArg any]]);
+}
+
+- (void)rejectFetchReleasesCompletion {
+  OCMReject([_mockFIRFADApiService fetchReleasesWithCompletion:[OCMArg any]]);
 }
 
 - (void)testInitWithApp {
@@ -157,6 +179,9 @@
   }];
   [self waitForExpectations:@[ expectation ] timeout:5.0];
   XCTAssertTrue([[self appDistribution] isTesterSignedIn]);
+  [self verifyInstallationIdCompletion];
+  [self verifyAppDelegateCompletion];
+  [self verifyFetchReleasesCompletion];
 }
 
 - (void)testSignInWithCompletionInstallationIDNotFoundFailure {
@@ -177,6 +202,9 @@
   }];
   [self waitForExpectations:@[ expectation ] timeout:5.0];
   XCTAssertFalse([[self appDistribution] isTesterSignedIn]);
+  [self verifyInstallationIdCompletion];
+  [self rejectAppDelegateCompletion];
+  [self rejectFetchReleasesCompletion];
 }
 
 - (void)testSignInWithCompletionDelegateFailureDoesNotPersist {
@@ -199,6 +227,9 @@
 
   [self waitForExpectations:@[ expectation ] timeout:5.0];
   XCTAssertFalse([[self appDistribution] isTesterSignedIn]);
+  [self verifyInstallationIdCompletion];
+  [self verifyAppDelegateCompletion];
+  [self rejectFetchReleasesCompletion];
 }
 
 - (void)testSignInWithCompletionFetchReleasesFailureDoesNotPersist {
@@ -219,6 +250,9 @@
   }];
   [self waitForExpectations:@[ expectation ] timeout:5.0];
   XCTAssertFalse([[self appDistribution] isTesterSignedIn]);
+  [self verifyInstallationIdCompletion];
+  [self verifyAppDelegateCompletion];
+  [self verifyFetchReleasesCompletion];
 }
 
 - (void)testSignOutSuccess {
@@ -236,6 +270,9 @@
   [self waitForExpectations:@[ expectation ] timeout:5.0];
   [[self appDistribution] signOutTester];
   XCTAssertFalse([[self appDistribution] isTesterSignedIn]);
+  [self verifyInstallationIdCompletion];
+  [self verifyAppDelegateCompletion];
+  [self verifyFetchReleasesCompletion];
 }
 
 - (void)testFetchNewLatestReleaseSuccess {
@@ -250,6 +287,7 @@
     [expectation fulfill];
   }];
   [self waitForExpectations:@[ expectation ] timeout:5.0];
+  [self verifyFetchReleasesCompletion];
 }
 
 - (void)testFetchNewLatestReleaseNoNewRelease {
@@ -268,6 +306,7 @@
   }];
 
   [self waitForExpectations:@[ expectation ] timeout:5.0];
+  [self verifyFetchReleasesCompletion];
 }
 
 - (void)testFetchNewLatestReleaseFailure {
@@ -290,6 +329,8 @@
   }];
 
   [self waitForExpectations:@[ expectation ] timeout:5.0];
+  [self verifyFetchReleasesCompletion];
+  OCMReject([_mockMachO codeHash]);
 }
 
 - (void)testHandleFetchReleasesErrorTimeout {
