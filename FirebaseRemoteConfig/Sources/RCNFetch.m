@@ -227,7 +227,6 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
       return;
     }
 
-
     if (!tokenResult || !tokenResult.authToken || error) {
       NSString *errorDescription =
           [NSString stringWithFormat:@"Failed to get installations token. Error : %@.", error];
@@ -351,7 +350,6 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
     FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000050",
                 @"config fetch completed. Error: %@ StatusCode: %ld", (error ? error : @"nil"),
                 (long)[((NSHTTPURLResponse *)response) statusCode]);
-
 
     RCNConfigFetch *fetcherCompletionSelf = weakSelf;
     if (fetcherCompletionSelf == nil) {
@@ -481,7 +479,7 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
       if (fetchedConfig) {
         // Update config content to cache and DB.
         [strongSelf->_content updateConfigContentWithResponse:fetchedConfig
-                                           forNamespace:strongSelf->_FIRNamespace];
+                                                 forNamespace:strongSelf->_FIRNamespace];
         // Update experiments.
         [strongSelf->_experiment
             updateExperimentsWithResponse:fetchedConfig[RCNFetchResponseKeyExperimentDescriptions]];
@@ -492,7 +490,8 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
 
       // We had a successful fetch. Update the current eTag in settings if different.
       NSString *latestETag = ((NSHTTPURLResponse *)response).allHeaderFields[kETagHeaderName];
-      if (!strongSelf->_settings.lastETag || !([self->_settings.lastETag isEqualToString:latestETag])) {
+      if (!strongSelf->_settings.lastETag ||
+          !([self->_settings.lastETag isEqualToString:latestETag])) {
         strongSelf->_settings.lastETag = latestETag;
       }
 
