@@ -28,7 +28,8 @@ class SpecFiles {
   }
 }
 
-func generateOrderOfInstallation(pods: [String], podSpecDict: SpecFiles, parentDeps: inout Set<String>) {
+func generateOrderOfInstallation(pods: [String], podSpecDict: SpecFiles,
+                                 parentDeps: inout Set<String>) {
   if podSpecDict.isEmpty() {
     return
   }
@@ -39,12 +40,12 @@ func generateOrderOfInstallation(pods: [String], podSpecDict: SpecFiles, parentD
     }
     let deps = getTargetedDeps(of: pod, from: podSpecDict)
     if parentDeps.contains(pod) {
-      print ("Circular dependency is detected in \(pod) and \(parentDeps)")
+      print("Circular dependency is detected in \(pod) and \(parentDeps)")
       continue
     }
     parentDeps.insert(pod)
     generateOrderOfInstallation(pods: deps, podSpecDict: podSpecDict, parentDeps: &parentDeps)
-    print ("\(pod) depends on \(deps).")
+    print("\(pod) depends on \(deps).")
     podSpecDict.depInstallOrder.append(pod)
     parentDeps.remove(pod)
     podSpecDict.removeValue(forKey: pod)
@@ -95,19 +96,19 @@ func getTargetedDeps(of pod: String, from podSpecDict: SpecFiles) -> [String] {
 
 @discardableResult
 func shell(_ command: String) -> Int32 {
-    let task = Process()
-    let pipe = Pipe()
+  let task = Process()
+  let pipe = Pipe()
 
-    task.standardOutput = pipe
-    task.arguments = ["-c", command]
-    task.launchPath = "/bin/bash"
-    task.launch()
-    task.waitUntilExit()
+  task.standardOutput = pipe
+  task.arguments = ["-c", command]
+  task.launchPath = "/bin/bash"
+  task.launch()
+  task.waitUntilExit()
 
-    let data = pipe.fileHandleForReading.readDataToEndOfFile()
-    let output = String(data: data, encoding: .utf8)!
+  let data = pipe.fileHandleForReading.readDataToEndOfFile()
+  let output = String(data: data, encoding: .utf8)!
 
-    return task.terminationStatus
+  return task.terminationStatus
 }
 
 let arg_cnts: Int = Int(CommandLine.argc)
@@ -118,7 +119,6 @@ if arg_cnts > 1 {
 } else if arg_cnts > 2 {
   fatalError("Too many arguments.")
 }
-
 
 let fileManager = FileManager.default
 var podSpecFiles: [String: URL] = [:]
@@ -139,13 +139,16 @@ do {
   let specFile = SpecFiles(podSpecFiles)
   generateOrderOfInstallation(
     pods: Array(podSpecFiles.keys),
-    podSpecDict: specFile ,
+    podSpecDict: specFile,
     parentDeps: &tmpSet
   )
-  print (specFile.depInstallOrder.joined(separator: ("\n")))
+  print(specFile.depInstallOrder.joined(separator: "\n"))
   for pod in specFile.depInstallOrder {
-          var exitCode = shell("find \(sdk_repo) -name \(pod).podspec -print -exec pod repo push ${SPEC_REPO} {} --sources=https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org/ --skip-tests --local-only \\;")
-          print("------------exit code : \(exitCode) \(pod)-----------------")
+    var exitCode =
+      shell(
+        "find \(sdk_repo) -name \(pod).podspec -print -exec pod repo push ${SPEC_REPO} {} --sources=https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org/ --skip-tests --local-only \\;"
+      )
+    print("------------exit code : \(exitCode) \(pod)-----------------")
   }
 } catch {
   print("Error while enumerating files \(documentsURL.path): \(error.localizedDescription)")
