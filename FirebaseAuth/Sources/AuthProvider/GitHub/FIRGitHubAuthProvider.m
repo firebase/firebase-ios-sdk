@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FirebaseAuth/Sources/Public/FIRGitHubAuthProvider.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRGitHubAuthProvider.h"
 
 #import "FirebaseAuth/Sources/AuthProvider/GitHub/FIRGitHubAuthCredential.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthExceptionUtils.h"

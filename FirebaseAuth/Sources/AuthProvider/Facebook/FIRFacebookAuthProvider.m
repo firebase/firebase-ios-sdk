@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FirebaseAuth/Sources/Public/FIRFacebookAuthProvider.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRFacebookAuthProvider.h"
 
 #import "FirebaseAuth/Sources/AuthProvider/Facebook/FIRFacebookAuthCredential.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthExceptionUtils.h"

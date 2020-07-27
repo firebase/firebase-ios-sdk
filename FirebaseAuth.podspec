@@ -34,7 +34,7 @@ supports email and password accounts, as well as several 3rd party authenticatio
     'GoogleUtilities/SceneDelegateSwizzler/Private/*.h',
     'Interop/Auth/Public/*.h',
   ]
-  s.public_header_files = source + 'Public/*.h'
+  s.public_header_files = source + 'Public/FirebaseAuth/*.h'
   s.preserve_paths = [
     'FirebaseAuth/README.md',
     'FirebaseAuth/CHANGELOG.md'
