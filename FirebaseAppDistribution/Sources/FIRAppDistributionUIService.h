@@ -22,11 +22,10 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- *  The completion handler invoked when a button is clicked from the UI prompt
- *
- *  @param action  The UI action taken
+ *  The completion handler invoked when a button is clicked from the UI prompt indicating if a user
+ * clicked continue YES or cancelled NO
  */
-typedef void (^FIRFADUIActionCompletion)(UIAlertAction *_Nullable action)
+typedef void (^FIRFADUIActionCompletion)(BOOL continued)
     NS_SWIFT_NAME(AppDistributionActionCompletion);
 
 /// An instance of this class provides UI elements required for the App Distribution tester
@@ -53,8 +52,7 @@ typedef void (^AppDistributionRegistrationFlowCompletion)(NSError *_Nullable err
 
 - (void)showUIAlert:(UIAlertController *)alertController;
 
-- (void)showUIAlertWithYesCompletion:(FIRFADUIActionCompletion)yesAction
-                    withNoCompletion:(FIRFADUIActionCompletion)noAction;
+- (void)showUIAlertWithCompletion:(FIRFADUIActionCompletion)completion;
 
 - (void)initializeUIState;
 

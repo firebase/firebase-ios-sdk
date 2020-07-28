@@ -140,8 +140,7 @@ SFAuthenticationSession *_safariAuthenticationVC;
                                              completion:nil];
 }
 
-- (void)showUIAlertWithYesCompletion:(FIRFADUIActionCompletion)yesAction
-                    withNoCompletion:(FIRFADUIActionCompletion)noAction {
+- (void)showUIAlertWithCompletion:(FIRFADUIActionCompletion)completion {
   UIAlertController *alert = [UIAlertController
       alertControllerWithTitle:@"Enable in-app alerts"
                        message:@"Sign in with your Firebase App Distribution Google account to "
@@ -151,14 +150,14 @@ SFAuthenticationSession *_safariAuthenticationVC;
   UIAlertAction *yesButton = [UIAlertAction actionWithTitle:@"Turn on"
                                                       style:UIAlertActionStyleDefault
                                                     handler:^(UIAlertAction *action) {
-                                                      yesAction(action);
+                                                      completion(YES);
                                                     }];
 
   UIAlertAction *noButton = [UIAlertAction actionWithTitle:@"Not now"
                                                      style:UIAlertActionStyleDefault
                                                    handler:^(UIAlertAction *action) {
                                                      [self resetUIState];
-                                                     noAction(action);
+                                                     completion(NO);
                                                    }];
 
   [alert addAction:noButton];

@@ -48,7 +48,6 @@
   id _mockFIRInstallations;
   id _mockInstallationToken;
   id _mockMachO;
-  UIAlertAction *_mockAlertAction;
   NSString *_mockAuthToken;
   NSString *_mockInstallationId;
   NSArray *_mockReleases;
@@ -65,11 +64,6 @@
   _mockFIRInstallations = OCMClassMock([FIRInstallations class]);
   _mockInstallationToken = OCMClassMock([FIRInstallationsAuthTokenResult class]);
   _mockMachO = OCMClassMock([FIRAppDistributionMachO class]);
-  _mockAlertAction = [UIAlertAction actionWithTitle:@"This is a fake action"
-                                              style:UIAlertActionStyleDefault
-                                            handler:^(UIAlertAction *_Nonnull action) {
-                                              return;
-                                            }];
   id mockBundle = OCMClassMock([NSBundle class]);
   OCMStub([_mockFIRAppClass defaultApp]).andReturn(_mockFIRAppClass);
   OCMStub([_mockFIRAppDistributionUIService initializeUIState]);
@@ -148,34 +142,21 @@
                                                                withCompletion:OCMOCK_ANY]);
 }
 
-- (void)mockUIServiceShowUIYesCompletion {
-  [OCMStub([_mockFIRAppDistributionUIService showUIAlertWithYesCompletion:OCMOCK_ANY
-                                                         withNoCompletion:OCMOCK_ANY])
+- (void)mockUIServiceShowUICompletion:(BOOL)continued {
+  [OCMStub([_mockFIRAppDistributionUIService showUIAlertWithCompletion:OCMOCK_ANY])
       andDo:^(NSInvocation *invocation) {
-        __unsafe_unretained void (^handler)(UIAlertAction *action);
+        __unsafe_unretained void (^handler)(BOOL continued);
         [invocation getArgument:&handler atIndex:2];
-        handler(self->_mockAlertAction);
-      }];
-}
-
-- (void)mockUIServiceShowUINoCompletion {
-  [OCMStub([_mockFIRAppDistributionUIService showUIAlertWithYesCompletion:OCMOCK_ANY
-                                                         withNoCompletion:OCMOCK_ANY])
-      andDo:^(NSInvocation *invocation) {
-        __unsafe_unretained void (^handler)(UIAlertAction *action);
-        [invocation getArgument:&handler atIndex:3];
-        handler(self->_mockAlertAction);
+        handler(continued);
       }];
 }
 
 - (void)verifyShowUICompletion {
-  OCMVerify([_mockFIRAppDistributionUIService showUIAlertWithYesCompletion:OCMOCK_ANY
-                                                          withNoCompletion:OCMOCK_ANY]);
+  OCMVerify([_mockFIRAppDistributionUIService showUIAlertWithCompletion:OCMOCK_ANY]);
 }
 
 - (void)rejectShowUICompletion {
-  OCMReject([_mockFIRAppDistributionUIService showUIAlertWithYesCompletion:OCMOCK_ANY
-                                                          withNoCompletion:OCMOCK_ANY]);
+  OCMReject([_mockFIRAppDistributionUIService showUIAlertWithCompletion:OCMOCK_ANY]);
 }
 
 - (void)mockFetchReleasesCompletion:(NSArray *)releases error:(NSError *)error {
@@ -369,7 +350,7 @@
   [self mockInstallationIdCompletion:_mockInstallationId error:nil];
   [self mockUIServiceRegistrationCompletion:nil];
   [self mockFetchReleasesCompletion:_mockReleases error:nil];
-  [self mockUIServiceShowUIYesCompletion];
+  [self mockUIServiceShowUICompletion:NO];
 
   // Sign in the tester
   XCTestExpectation *expectation =
@@ -401,7 +382,7 @@
   [self mockInstallationIdCompletion:_mockInstallationId error:nil];
   [self mockUIServiceRegistrationCompletion:nil];
   [self mockFetchReleasesCompletion:_mockReleases error:nil];
-  [self mockUIServiceShowUIYesCompletion];
+  [self mockUIServiceShowUICompletion:YES];
   OCMStub([_mockMachO codeHash]).andReturn(@"this-is-old");
 
   XCTestExpectation *checkForUpdateExpectation =
@@ -427,7 +408,7 @@
   [self mockInstallationIdCompletion:_mockInstallationId error:mockError];
   [self mockUIServiceRegistrationCompletion:nil];
   [self mockFetchReleasesCompletion:_mockReleases error:nil];
-  [self mockUIServiceShowUIYesCompletion];
+  [self mockUIServiceShowUICompletion:YES];
 
   XCTestExpectation *checkForUpdateExpectation =
       [self expectationWithDescription:@"Check for update does prompt user"];
@@ -447,14 +428,15 @@
   [self mockInstallationIdCompletion:_mockInstallationId error:nil];
   [self mockUIServiceRegistrationCompletion:nil];
   [self mockFetchReleasesCompletion:_mockReleases error:nil];
-  [self mockUIServiceShowUINoCompletion];
+  [self mockUIServiceShowUICompletion:NO];
 
   XCTestExpectation *checkForUpdateExpectation =
       [self expectationWithDescription:@"Check for update does prompt user"];
   [[self appDistribution]
       checkForUpdateWithCompletion:^(FIRAppDistributionRelease *_Nullable release,
                                      NSError *_Nullable error) {
-        XCTAssertNil(error);
+        XCTAssertNotNil(error);
+        XCTAssertEqual([error code], FIRAppDistributionErrorAuthenticationCancelled);
         XCTAssertNil(release);
         [checkForUpdateExpectation fulfill];
       }];

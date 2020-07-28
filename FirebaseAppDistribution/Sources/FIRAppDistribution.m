@@ -278,23 +278,24 @@ NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
   if ([self isTesterSignedIn]) {
     [self fetchNewLatestRelease:completion];
   } else {
-    FIRFADUIActionCompletion yesActionCompletion = ^(UIAlertAction *action) {
-      [self signInTesterWithCompletion:^(NSError *_Nullable error) {
-        if (error) {
-          completion(nil, error);
-          return;
-        }
+    FIRFADUIActionCompletion actionCompletion = ^(BOOL continued) {
+      if (continued) {
+        [self signInTesterWithCompletion:^(NSError *_Nullable error) {
+          if (error) {
+            completion(nil, error);
+            return;
+          }
 
-        [self fetchNewLatestRelease:completion];
-      }];
+          [self fetchNewLatestRelease:completion];
+        }];
+      } else {
+        completion(
+            nil, [self NSErrorForErrorCodeAndMessage:FIRAppDistributionErrorAuthenticationCancelled
+                                             message:@"Tester cancelled authentication flow."]);
+      }
     };
 
-    FIRFADUIActionCompletion noActionCompletion = ^(UIAlertAction *action) {
-      completion(nil, nil);
-    };
-
-    [[self uiService] showUIAlertWithYesCompletion:yesActionCompletion
-                                  withNoCompletion:noActionCompletion];
+    [[self uiService] showUIAlertWithCompletion:actionCompletion];
   }
 }
 @end
