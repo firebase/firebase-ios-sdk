@@ -159,8 +159,9 @@
   // Update +sharedProxy to always return our test instance
   OCMStub([_mockProxyClass sharedProxy]).andReturn(self.proxy);
   if (@available(macOS 10.14, iOS 10.0, *)) {
-    _mockUserNotificationCenter =
-        OCMPartialMock([UNUserNotificationCenter currentNotificationCenter]);
+    _mockUserNotificationCenter = OCMClassMock([UNUserNotificationCenter class]);
+    OCMStub([_mockUserNotificationCenter currentNotificationCenter])
+        .andReturn(_mockUserNotificationCenter);
   }
 }
 
