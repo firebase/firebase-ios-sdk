@@ -164,7 +164,7 @@ do {
   for pod in specFile.depInstallOrder {
     var exitCode =
       shell(
-        "find \(sdk_repo) -name \(pod).podspec -print -exec pod repo push ${SPEC_REPO} {} --sources=https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org/ --skip-tests --local-only \\;"
+        "find \(sdk_repo) -name \(pod).podspec -print -exec pod repo push ${SPEC_REPO} {} --sources=https://cdn.cocoapods.org/ --skip-tests --local-only \\;"
       )
     print("------------exit code : \(exitCode) \(pod)-----------------")
   }
