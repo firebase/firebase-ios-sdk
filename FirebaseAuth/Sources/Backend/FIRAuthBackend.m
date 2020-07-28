@@ -23,7 +23,7 @@
 #import <GTMSessionFetcher/GTMSessionFetcherService.h>
 #endif
 
-#import "FirebaseAuth/Sources/Public/FirebaseAuth.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FirebaseAuth.h"
 
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
 #import "FirebaseAuth/Sources/AuthProvider/OAuth/FIROAuthCredential_Internal.h"
@@ -64,7 +64,7 @@
 #import "FirebaseAuth/Sources/Utilities/FIRAuthErrorUtils.h"
 
 #if TARGET_OS_IOS
-#import "FirebaseAuth/Sources/Public/FIRPhoneAuthProvider.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRPhoneAuthProvider.h"
 
 #import "FirebaseAuth/Sources/AuthProvider/Phone/FIRPhoneAuthCredential_Internal.h"
 #import "FirebaseAuth/Sources/MultiFactor/Phone/FIRPhoneMultiFactorInfo+Internal.h"
