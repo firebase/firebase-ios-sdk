@@ -27,8 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
  *  @param action  The UI action taken
  */
 typedef void (^FIRFADUIActionCompletion)(UIAlertAction *_Nullable action)
-NS_SWIFT_NAME(AppDistributionActionCompletion);
-
+    NS_SWIFT_NAME(AppDistributionActionCompletion);
 
 /// An instance of this class provides UI elements required for the App Distribution tester
 /// authentication flow as an AppDelegate interceptor.

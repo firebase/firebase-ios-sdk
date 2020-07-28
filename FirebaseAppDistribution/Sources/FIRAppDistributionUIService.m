@@ -143,24 +143,23 @@ SFAuthenticationSession *_safariAuthenticationVC;
 - (void)showUIAlertWithYesCompletion:(FIRFADUIActionCompletion)yesAction
                     withNoCompletion:(FIRFADUIActionCompletion)noAction {
   UIAlertController *alert = [UIAlertController
-                              alertControllerWithTitle:@"Enable in-app alerts"
-                              message:@"Sign in with your Firebase App Distribution Google account to "
-                              @"turn on in-app alerts for new test releases."
-                              preferredStyle:UIAlertControllerStyleAlert];
+      alertControllerWithTitle:@"Enable in-app alerts"
+                       message:@"Sign in with your Firebase App Distribution Google account to "
+                               @"turn on in-app alerts for new test releases."
+                preferredStyle:UIAlertControllerStyleAlert];
 
-  UIAlertAction *yesButton =
-  [UIAlertAction actionWithTitle:@"Turn on"
-                           style:UIAlertActionStyleDefault
-                         handler:^(UIAlertAction *action) {
-    yesAction(action);
-  }];
+  UIAlertAction *yesButton = [UIAlertAction actionWithTitle:@"Turn on"
+                                                      style:UIAlertActionStyleDefault
+                                                    handler:^(UIAlertAction *action) {
+                                                      yesAction(action);
+                                                    }];
 
   UIAlertAction *noButton = [UIAlertAction actionWithTitle:@"Not now"
                                                      style:UIAlertActionStyleDefault
                                                    handler:^(UIAlertAction *action) {
-    [self resetUIState];
-    noAction(action);
-  }];
+                                                     [self resetUIState];
+                                                     noAction(action);
+                                                   }];
 
   [alert addAction:noButton];
   [alert addAction:yesButton];

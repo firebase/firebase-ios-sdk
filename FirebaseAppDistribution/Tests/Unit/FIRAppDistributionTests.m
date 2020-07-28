@@ -48,7 +48,7 @@
   id _mockFIRInstallations;
   id _mockInstallationToken;
   id _mockMachO;
-  UIAlertAction* _mockAlertAction;
+  UIAlertAction *_mockAlertAction;
   NSString *_mockAuthToken;
   NSString *_mockInstallationId;
   NSArray *_mockReleases;
@@ -65,9 +65,11 @@
   _mockFIRInstallations = OCMClassMock([FIRInstallations class]);
   _mockInstallationToken = OCMClassMock([FIRInstallationsAuthTokenResult class]);
   _mockMachO = OCMClassMock([FIRAppDistributionMachO class]);
-  _mockAlertAction = [UIAlertAction actionWithTitle:@"This is a fake action" style: UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-    return;
-  }];
+  _mockAlertAction = [UIAlertAction actionWithTitle:@"This is a fake action"
+                                              style:UIAlertActionStyleDefault
+                                            handler:^(UIAlertAction *_Nonnull action) {
+                                              return;
+                                            }];
   id mockBundle = OCMClassMock([NSBundle class]);
   OCMStub([_mockFIRAppClass defaultApp]).andReturn(_mockFIRAppClass);
   OCMStub([_mockFIRAppDistributionUIService initializeUIState]);
@@ -128,7 +130,7 @@
 
 - (void)mockUIServiceRegistrationCompletion:(NSError *_Nullable)error {
   [OCMStub([_mockFIRAppDistributionUIService appDistributionRegistrationFlow:OCMOCK_ANY
-                                                         withCompletion:OCMOCK_ANY])
+                                                              withCompletion:OCMOCK_ANY])
       andDo:^(NSInvocation *invocation) {
         __unsafe_unretained void (^handler)(NSError *_Nullable error);
         [invocation getArgument:&handler atIndex:3];
@@ -138,32 +140,32 @@
 
 - (void)verifyRegistrationCompletion {
   OCMVerify([_mockFIRAppDistributionUIService appDistributionRegistrationFlow:OCMOCK_ANY
-                                                          withCompletion:OCMOCK_ANY]);
+                                                               withCompletion:OCMOCK_ANY]);
 }
 
 - (void)rejectRegistrationCompletion {
   OCMReject([_mockFIRAppDistributionUIService appDistributionRegistrationFlow:OCMOCK_ANY
-                                                          withCompletion:OCMOCK_ANY]);
+                                                               withCompletion:OCMOCK_ANY]);
 }
 
 - (void)mockUIServiceShowUIYesCompletion {
   [OCMStub([_mockFIRAppDistributionUIService showUIAlertWithYesCompletion:OCMOCK_ANY
-                                                              withNoCompletion:OCMOCK_ANY])
-   andDo:^(NSInvocation *invocation) {
-    __unsafe_unretained void (^handler)(UIAlertAction *action);
-    [invocation getArgument:&handler atIndex:2];
-    handler(self->_mockAlertAction);
-  }];
+                                                         withNoCompletion:OCMOCK_ANY])
+      andDo:^(NSInvocation *invocation) {
+        __unsafe_unretained void (^handler)(UIAlertAction *action);
+        [invocation getArgument:&handler atIndex:2];
+        handler(self->_mockAlertAction);
+      }];
 }
 
 - (void)mockUIServiceShowUINoCompletion {
   [OCMStub([_mockFIRAppDistributionUIService showUIAlertWithYesCompletion:OCMOCK_ANY
                                                          withNoCompletion:OCMOCK_ANY])
-   andDo:^(NSInvocation *invocation) {
-    __unsafe_unretained void (^handler)(UIAlertAction *action);
-    [invocation getArgument:&handler atIndex:3];
-    handler(self->_mockAlertAction);
-  }];
+      andDo:^(NSInvocation *invocation) {
+        __unsafe_unretained void (^handler)(UIAlertAction *action);
+        [invocation getArgument:&handler atIndex:3];
+        handler(self->_mockAlertAction);
+      }];
 }
 
 - (void)verifyShowUICompletion {
@@ -371,7 +373,7 @@
 
   // Sign in the tester
   XCTestExpectation *expectation =
-  [self expectationWithDescription:@"Persist sign in state succeeds."];
+      [self expectationWithDescription:@"Persist sign in state succeeds."];
 
   [[self appDistribution] signInTesterWithCompletion:^(NSError *_Nullable error) {
     XCTAssertNil(error);
@@ -381,12 +383,15 @@
   XCTAssertTrue([[self appDistribution] isTesterSignedIn]);
 
   // Should Call check for update without calling the UIService
-  XCTestExpectation *checkForUpdateExpectation = [self expectationWithDescription:@"Check for update does not prompt user"];
-  [[self appDistribution] checkForUpdateWithCompletion:^(FIRAppDistributionRelease * _Nullable release, NSError * _Nullable error) {
-    XCTAssertNil(error);
-    XCTAssertNotNil(release);
-    [checkForUpdateExpectation fulfill];
-  }];
+  XCTestExpectation *checkForUpdateExpectation =
+      [self expectationWithDescription:@"Check for update does not prompt user"];
+  [[self appDistribution]
+      checkForUpdateWithCompletion:^(FIRAppDistributionRelease *_Nullable release,
+                                     NSError *_Nullable error) {
+        XCTAssertNil(error);
+        XCTAssertNotNil(release);
+        [checkForUpdateExpectation fulfill];
+      }];
 
   [self waitForExpectations:@[ checkForUpdateExpectation ] timeout:5.0];
   [self rejectShowUICompletion];
@@ -399,12 +404,15 @@
   [self mockUIServiceShowUIYesCompletion];
   OCMStub([_mockMachO codeHash]).andReturn(@"this-is-old");
 
-  XCTestExpectation *checkForUpdateExpectation = [self expectationWithDescription:@"Check for update does prompt user"];
-  [[self appDistribution] checkForUpdateWithCompletion:^(FIRAppDistributionRelease * _Nullable release, NSError * _Nullable error) {
-    XCTAssertNil(error);
-    XCTAssertNotNil(release);
-    [checkForUpdateExpectation fulfill];
-  }];
+  XCTestExpectation *checkForUpdateExpectation =
+      [self expectationWithDescription:@"Check for update does prompt user"];
+  [[self appDistribution]
+      checkForUpdateWithCompletion:^(FIRAppDistributionRelease *_Nullable release,
+                                     NSError *_Nullable error) {
+        XCTAssertNil(error);
+        XCTAssertNotNil(release);
+        [checkForUpdateExpectation fulfill];
+      }];
 
   [self waitForExpectations:@[ checkForUpdateExpectation ] timeout:5.0];
   [self verifyShowUICompletion];
@@ -413,20 +421,23 @@
 
 - (void)testCheckForUpdateWithCompletionClicksYesFailure {
   NSError *mockError =
-  [NSError errorWithDomain:@"this.is.fake"
-                      code:3
-                  userInfo:@{NSLocalizedDescriptionKey : @"This is unfortunate."}];
+      [NSError errorWithDomain:@"this.is.fake"
+                          code:3
+                      userInfo:@{NSLocalizedDescriptionKey : @"This is unfortunate."}];
   [self mockInstallationIdCompletion:_mockInstallationId error:mockError];
   [self mockUIServiceRegistrationCompletion:nil];
   [self mockFetchReleasesCompletion:_mockReleases error:nil];
   [self mockUIServiceShowUIYesCompletion];
 
-  XCTestExpectation *checkForUpdateExpectation = [self expectationWithDescription:@"Check for update does prompt user"];
-  [[self appDistribution] checkForUpdateWithCompletion:^(FIRAppDistributionRelease * _Nullable release, NSError * _Nullable error) {
-    XCTAssertNotNil(error);
-    XCTAssertNil(release);
-    [checkForUpdateExpectation fulfill];
-  }];
+  XCTestExpectation *checkForUpdateExpectation =
+      [self expectationWithDescription:@"Check for update does prompt user"];
+  [[self appDistribution]
+      checkForUpdateWithCompletion:^(FIRAppDistributionRelease *_Nullable release,
+                                     NSError *_Nullable error) {
+        XCTAssertNotNil(error);
+        XCTAssertNil(release);
+        [checkForUpdateExpectation fulfill];
+      }];
 
   [self waitForExpectations:@[ checkForUpdateExpectation ] timeout:5.0];
   [self verifyShowUICompletion];
@@ -438,12 +449,15 @@
   [self mockFetchReleasesCompletion:_mockReleases error:nil];
   [self mockUIServiceShowUINoCompletion];
 
-  XCTestExpectation *checkForUpdateExpectation = [self expectationWithDescription:@"Check for update does prompt user"];
-  [[self appDistribution] checkForUpdateWithCompletion:^(FIRAppDistributionRelease * _Nullable release, NSError * _Nullable error) {
-    XCTAssertNil(error);
-    XCTAssertNil(release);
-    [checkForUpdateExpectation fulfill];
-  }];
+  XCTestExpectation *checkForUpdateExpectation =
+      [self expectationWithDescription:@"Check for update does prompt user"];
+  [[self appDistribution]
+      checkForUpdateWithCompletion:^(FIRAppDistributionRelease *_Nullable release,
+                                     NSError *_Nullable error) {
+        XCTAssertNil(error);
+        XCTAssertNil(release);
+        [checkForUpdateExpectation fulfill];
+      }];
 
   [self waitForExpectations:@[ checkForUpdateExpectation ] timeout:5.0];
   [self verifyShowUICompletion];

@@ -278,7 +278,7 @@ NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
   if ([self isTesterSignedIn]) {
     [self fetchNewLatestRelease:completion];
   } else {
-    FIRFADUIActionCompletion yesActionCompletion = ^(UIAlertAction *action){
+    FIRFADUIActionCompletion yesActionCompletion = ^(UIAlertAction *action) {
       [self signInTesterWithCompletion:^(NSError *_Nullable error) {
         if (error) {
           completion(nil, error);
@@ -289,11 +289,12 @@ NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
       }];
     };
 
-    FIRFADUIActionCompletion noActionCompletion = ^(UIAlertAction *action){
+    FIRFADUIActionCompletion noActionCompletion = ^(UIAlertAction *action) {
       completion(nil, nil);
     };
 
-    [[self uiService] showUIAlertWithYesCompletion:yesActionCompletion withNoCompletion:noActionCompletion];
+    [[self uiService] showUIAlertWithYesCompletion:yesActionCompletion
+                                  withNoCompletion:noActionCompletion];
   }
 }
 @end
