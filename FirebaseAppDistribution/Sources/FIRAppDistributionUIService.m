@@ -197,7 +197,6 @@ SFAuthenticationSession *_safariAuthenticationVC;
     return;
   }
 
-#if defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
   if (@available(iOS 13.0, *)) {
     UIWindowScene *foregroundedScene = nil;
     for (UIWindowScene *connectedScene in [UIApplication sharedApplication].connectedScenes) {
@@ -213,10 +212,9 @@ SFAuthenticationSession *_safariAuthenticationVC;
       FIRFADErrorLog(@"No foreground scene found. Cannot display new build alert.");
       return;
     }
+  } else {
+    self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
   }
-#else
-  self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
-#endif
   self.window.rootViewController = self.safariHostingViewController;
 
   // Place it at the highest level within the stack.
