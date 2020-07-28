@@ -44,7 +44,7 @@
 @implementation FIRAppDistributionTests {
   id _mockFIRAppClass;
   id _mockFIRFADApiService;
-  id _mockAppDelegateInterceptor;
+  id _mockFIRAppDistributionUIService;
   id _mockFIRInstallations;
   id _mockInstallationToken;
   id _mockMachO;
@@ -60,16 +60,13 @@
   _mockCodeHash = @"this-is-a-fake-code-hash";
   _mockFIRAppClass = OCMClassMock([FIRApp class]);
   _mockFIRFADApiService = OCMClassMock([FIRFADApiService class]);
-  _mockAppDelegateInterceptor = OCMClassMock([FIRAppDistributionUIService class]);
+  _mockFIRAppDistributionUIService = OCMPartialMock([FIRAppDistributionUIService sharedInstance]);
   _mockFIRInstallations = OCMClassMock([FIRInstallations class]);
   _mockInstallationToken = OCMClassMock([FIRInstallationsAuthTokenResult class]);
   _mockMachO = OCMClassMock([FIRAppDistributionMachO class]);
   id mockBundle = OCMClassMock([NSBundle class]);
   OCMStub([_mockFIRAppClass defaultApp]).andReturn(_mockFIRAppClass);
-  OCMStub([_mockAppDelegateInterceptor sharedInstance]).andReturn(_mockAppDelegateInterceptor);
-  OCMStub([_mockAppDelegateInterceptor initializeUIState])
-      .andDo(^(NSInvocation *invocation){
-      });
+  OCMStub([_mockFIRAppDistributionUIService initializeUIState]);
   OCMStub([_mockFIRInstallations installations]).andReturn(_mockFIRInstallations);
   OCMStub([_mockInstallationToken authToken]).andReturn(_mockAuthToken);
   OCMStub([_mockMachO alloc]).andReturn(_mockMachO);
@@ -105,7 +102,7 @@
   [[GULUserDefaults standardUserDefaults] removeObjectForKey:@"FIRFADSignInState"];
   [_mockFIRAppClass stopMocking];
   [_mockFIRFADApiService stopMocking];
-  [_mockAppDelegateInterceptor stopMocking];
+  [_mockFIRAppDistributionUIService stopMocking];
   [_mockFIRInstallations stopMocking];
   [_mockInstallationToken stopMocking];
   [_mockMachO stopMocking];
@@ -115,7 +112,7 @@
                                error:(NSError *_Nullable)error {
   [OCMStub([_mockFIRInstallations installationIDWithCompletion:OCMOCK_ANY])
       andDo:^(NSInvocation *invocation) {
-        void (^handler)(NSString *identifier, NSError *_Nullable error);
+        __unsafe_unretained void (^handler)(NSString *identifier, NSError *_Nullable error);
         [invocation getArgument:&handler atIndex:2];
         handler(identifier, error);
       }];
@@ -125,30 +122,47 @@
   OCMVerify([_mockFIRInstallations installationIDWithCompletion:OCMOCK_ANY]);
 }
 
-- (void)mockAppDelegateCompletion:(NSError *_Nullable)error {
-  [OCMStub([_mockAppDelegateInterceptor appDistributionRegistrationFlow:OCMOCK_ANY
-                                                         withCompletion:OCMOCK_ANY])
+- (void)mockUIServiceRegistrationCompletion:(NSError *_Nullable)error {
+  [OCMStub([_mockFIRAppDistributionUIService appDistributionRegistrationFlow:OCMOCK_ANY
+                                                              withCompletion:OCMOCK_ANY])
       andDo:^(NSInvocation *invocation) {
-        void (^handler)(NSError *_Nullable error);
+        __unsafe_unretained void (^handler)(NSError *_Nullable error);
         [invocation getArgument:&handler atIndex:3];
         handler(error);
       }];
 }
 
-- (void)verifyAppDelegateCompletion {
-  OCMVerify([_mockAppDelegateInterceptor appDistributionRegistrationFlow:OCMOCK_ANY
-                                                          withCompletion:OCMOCK_ANY]);
+- (void)verifyRegistrationCompletion {
+  OCMVerify([_mockFIRAppDistributionUIService appDistributionRegistrationFlow:OCMOCK_ANY
+                                                               withCompletion:OCMOCK_ANY]);
 }
 
-- (void)rejectAppDelegateCompletion {
-  OCMReject([_mockAppDelegateInterceptor appDistributionRegistrationFlow:OCMOCK_ANY
-                                                          withCompletion:OCMOCK_ANY]);
+- (void)rejectRegistrationCompletion {
+  OCMReject([_mockFIRAppDistributionUIService appDistributionRegistrationFlow:OCMOCK_ANY
+                                                               withCompletion:OCMOCK_ANY]);
+}
+
+- (void)mockUIServiceShowUICompletion:(BOOL)continued {
+  [OCMStub([_mockFIRAppDistributionUIService showUIAlertWithCompletion:OCMOCK_ANY])
+      andDo:^(NSInvocation *invocation) {
+        __unsafe_unretained void (^handler)(BOOL continued);
+        [invocation getArgument:&handler atIndex:2];
+        handler(continued);
+      }];
+}
+
+- (void)verifyShowUICompletion {
+  OCMVerify([_mockFIRAppDistributionUIService showUIAlertWithCompletion:OCMOCK_ANY]);
+}
+
+- (void)rejectShowUICompletion {
+  OCMReject([_mockFIRAppDistributionUIService showUIAlertWithCompletion:OCMOCK_ANY]);
 }
 
 - (void)mockFetchReleasesCompletion:(NSArray *)releases error:(NSError *)error {
   [OCMStub([_mockFIRFADApiService fetchReleasesWithCompletion:OCMOCK_ANY])
       andDo:^(NSInvocation *invocation) {
-        void (^handler)(NSArray *releases, NSError *_Nullable error);
+        __unsafe_unretained void (^handler)(NSArray *releases, NSError *_Nullable error);
         [invocation getArgument:&handler atIndex:2];
         handler(releases, error);
       }];
@@ -168,7 +182,7 @@
 
 - (void)testSignInWithCompletionPersistSignInStateSuccess {
   [self mockInstallationIdCompletion:_mockInstallationId error:nil];
-  [self mockAppDelegateCompletion:nil];
+  [self mockUIServiceRegistrationCompletion:nil];
   [self mockFetchReleasesCompletion:_mockReleases error:nil];
   XCTestExpectation *expectation =
       [self expectationWithDescription:@"Persist sign in state succeeds."];
@@ -180,7 +194,7 @@
   [self waitForExpectations:@[ expectation ] timeout:5.0];
   XCTAssertTrue([[self appDistribution] isTesterSignedIn]);
   [self verifyInstallationIdCompletion];
-  [self verifyAppDelegateCompletion];
+  [self verifyRegistrationCompletion];
   [self verifyFetchReleasesCompletion];
 }
 
@@ -190,7 +204,7 @@
                           code:3
                       userInfo:@{NSLocalizedDescriptionKey : @"This is unfortunate."}];
   [self mockInstallationIdCompletion:_mockInstallationId error:mockError];
-  [self mockAppDelegateCompletion:nil];
+  [self mockUIServiceRegistrationCompletion:nil];
   [self mockFetchReleasesCompletion:_mockReleases error:nil];
   XCTestExpectation *expectation =
       [self expectationWithDescription:@"Persist sign in state fails."];
@@ -203,7 +217,7 @@
   [self waitForExpectations:@[ expectation ] timeout:5.0];
   XCTAssertFalse([[self appDistribution] isTesterSignedIn]);
   [self verifyInstallationIdCompletion];
-  [self rejectAppDelegateCompletion];
+  [self rejectRegistrationCompletion];
   [self rejectFetchReleasesCompletion];
 }
 
@@ -213,7 +227,7 @@
                           code:4
                       userInfo:@{NSLocalizedDescriptionKey : @"This is unfortunate."}];
   [self mockInstallationIdCompletion:_mockInstallationId error:nil];
-  [self mockAppDelegateCompletion:mockError];
+  [self mockUIServiceRegistrationCompletion:mockError];
   [self mockFetchReleasesCompletion:_mockReleases error:nil];
   XCTestExpectation *expectation =
       [self expectationWithDescription:
@@ -228,7 +242,7 @@
   [self waitForExpectations:@[ expectation ] timeout:5.0];
   XCTAssertFalse([[self appDistribution] isTesterSignedIn]);
   [self verifyInstallationIdCompletion];
-  [self verifyAppDelegateCompletion];
+  [self verifyRegistrationCompletion];
   [self rejectFetchReleasesCompletion];
 }
 
@@ -238,7 +252,7 @@
                           code:FIRFADApiErrorUnauthenticated
                       userInfo:@{NSLocalizedDescriptionKey : @"This is unfortunate."}];
   [self mockInstallationIdCompletion:_mockInstallationId error:nil];
-  [self mockAppDelegateCompletion:nil];
+  [self mockUIServiceRegistrationCompletion:nil];
   [self mockFetchReleasesCompletion:_mockReleases error:mockError];
   XCTestExpectation *expectation = [self
       expectationWithDescription:@"Persist sign in state fails when we fail to fetch releases."];
@@ -251,13 +265,13 @@
   [self waitForExpectations:@[ expectation ] timeout:5.0];
   XCTAssertFalse([[self appDistribution] isTesterSignedIn]);
   [self verifyInstallationIdCompletion];
-  [self verifyAppDelegateCompletion];
+  [self verifyRegistrationCompletion];
   [self verifyFetchReleasesCompletion];
 }
 
 - (void)testSignOutSuccess {
   [self mockInstallationIdCompletion:_mockInstallationId error:nil];
-  [self mockAppDelegateCompletion:nil];
+  [self mockUIServiceRegistrationCompletion:nil];
   [self mockFetchReleasesCompletion:_mockReleases error:nil];
   XCTestExpectation *expectation =
       [self expectationWithDescription:@"Persist sign out state succeeds."];
@@ -271,7 +285,7 @@
   [[self appDistribution] signOutTester];
   XCTAssertFalse([[self appDistribution] isTesterSignedIn]);
   [self verifyInstallationIdCompletion];
-  [self verifyAppDelegateCompletion];
+  [self verifyRegistrationCompletion];
   [self verifyFetchReleasesCompletion];
 }
 
@@ -296,7 +310,6 @@
 
   XCTestExpectation *expectation =
       [self expectationWithDescription:@"Fetch latest release with no new release succeeds."];
-  [expectation setInverted:YES];
 
   [[self appDistribution] fetchNewLatestRelease:^(FIRAppDistributionRelease *_Nullable release,
                                                   NSError *_Nullable error) {
@@ -331,6 +344,105 @@
   [self waitForExpectations:@[ expectation ] timeout:5.0];
   [self verifyFetchReleasesCompletion];
   OCMReject([_mockMachO codeHash]);
+}
+
+- (void)testCheckForUpdateWithCompletionTesterSignedIn {
+  [self mockInstallationIdCompletion:_mockInstallationId error:nil];
+  [self mockUIServiceRegistrationCompletion:nil];
+  [self mockFetchReleasesCompletion:_mockReleases error:nil];
+  [self mockUIServiceShowUICompletion:NO];
+
+  // Sign in the tester
+  XCTestExpectation *expectation =
+      [self expectationWithDescription:@"Persist sign in state succeeds."];
+
+  [[self appDistribution] signInTesterWithCompletion:^(NSError *_Nullable error) {
+    XCTAssertNil(error);
+    [expectation fulfill];
+  }];
+  [self waitForExpectations:@[ expectation ] timeout:5.0];
+  XCTAssertTrue([[self appDistribution] isTesterSignedIn]);
+
+  // Should Call check for update without calling the UIService
+  XCTestExpectation *checkForUpdateExpectation =
+      [self expectationWithDescription:@"Check for update does not prompt user"];
+  [[self appDistribution]
+      checkForUpdateWithCompletion:^(FIRAppDistributionRelease *_Nullable release,
+                                     NSError *_Nullable error) {
+        XCTAssertNil(error);
+        XCTAssertNotNil(release);
+        [checkForUpdateExpectation fulfill];
+      }];
+
+  [self waitForExpectations:@[ checkForUpdateExpectation ] timeout:5.0];
+  [self rejectShowUICompletion];
+}
+
+- (void)testCheckForUpdateWithCompletionClicksYesSuccess {
+  [self mockInstallationIdCompletion:_mockInstallationId error:nil];
+  [self mockUIServiceRegistrationCompletion:nil];
+  [self mockFetchReleasesCompletion:_mockReleases error:nil];
+  [self mockUIServiceShowUICompletion:YES];
+  OCMStub([_mockMachO codeHash]).andReturn(@"this-is-old");
+
+  XCTestExpectation *checkForUpdateExpectation =
+      [self expectationWithDescription:@"Check for update does prompt user"];
+  [[self appDistribution]
+      checkForUpdateWithCompletion:^(FIRAppDistributionRelease *_Nullable release,
+                                     NSError *_Nullable error) {
+        XCTAssertNil(error);
+        XCTAssertNotNil(release);
+        [checkForUpdateExpectation fulfill];
+      }];
+
+  [self waitForExpectations:@[ checkForUpdateExpectation ] timeout:5.0];
+  [self verifyShowUICompletion];
+  OCMVerify([_mockMachO codeHash]);
+}
+
+- (void)testCheckForUpdateWithCompletionClicksYesFailure {
+  NSError *mockError =
+      [NSError errorWithDomain:@"this.is.fake"
+                          code:3
+                      userInfo:@{NSLocalizedDescriptionKey : @"This is unfortunate."}];
+  [self mockInstallationIdCompletion:_mockInstallationId error:mockError];
+  [self mockUIServiceRegistrationCompletion:nil];
+  [self mockFetchReleasesCompletion:_mockReleases error:nil];
+  [self mockUIServiceShowUICompletion:YES];
+
+  XCTestExpectation *checkForUpdateExpectation =
+      [self expectationWithDescription:@"Check for update does prompt user"];
+  [[self appDistribution]
+      checkForUpdateWithCompletion:^(FIRAppDistributionRelease *_Nullable release,
+                                     NSError *_Nullable error) {
+        XCTAssertNotNil(error);
+        XCTAssertNil(release);
+        [checkForUpdateExpectation fulfill];
+      }];
+
+  [self waitForExpectations:@[ checkForUpdateExpectation ] timeout:5.0];
+  [self verifyShowUICompletion];
+}
+
+- (void)testCheckForUpdateWithCompletionClicksNo {
+  [self mockInstallationIdCompletion:_mockInstallationId error:nil];
+  [self mockUIServiceRegistrationCompletion:nil];
+  [self mockFetchReleasesCompletion:_mockReleases error:nil];
+  [self mockUIServiceShowUICompletion:NO];
+
+  XCTestExpectation *checkForUpdateExpectation =
+      [self expectationWithDescription:@"Check for update does prompt user"];
+  [[self appDistribution]
+      checkForUpdateWithCompletion:^(FIRAppDistributionRelease *_Nullable release,
+                                     NSError *_Nullable error) {
+        XCTAssertNotNil(error);
+        XCTAssertEqual([error code], FIRAppDistributionErrorAuthenticationCancelled);
+        XCTAssertNil(release);
+        [checkForUpdateExpectation fulfill];
+      }];
+
+  [self waitForExpectations:@[ checkForUpdateExpectation ] timeout:5.0];
+  [self verifyShowUICompletion];
 }
 
 - (void)testHandleFetchReleasesErrorTimeout {

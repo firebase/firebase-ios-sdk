@@ -32,7 +32,7 @@
 @interface FIRAppDistribution () <FIRLibrary, FIRAppDistributionInstanceProvider>
 @property(nonatomic) BOOL isTesterSignedIn;
 
-@property(nullable, nonatomic) FIRAppDistributionUIService *UIService;
+@property(nullable, nonatomic) FIRAppDistributionUIService *uiService;
 
 @end
 
@@ -71,8 +71,8 @@ NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
 
   if (self) {
     [GULAppDelegateSwizzler proxyOriginalDelegate];
-    self.UIService = [FIRAppDistributionUIService sharedInstance];
-    [GULAppDelegateSwizzler registerAppDelegateInterceptor:self.UIService];
+    self.uiService = [FIRAppDistributionUIService sharedInstance];
+    [GULAppDelegateSwizzler registerAppDelegateInterceptor:[self uiService]];
   }
 
   return self;
@@ -132,7 +132,7 @@ NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
     return;
   }
 
-  [self.UIService initializeUIState];
+  [[self uiService] initializeUIState];
   FIRInstallations *installations = [FIRInstallations installations];
 
   // Get a Firebase Installation ID (FID).
@@ -145,7 +145,7 @@ NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
       completion([self NSErrorForErrorCodeAndMessage:FIRAppDistributionErrorUnknown
                                              message:description]);
 
-      [self.UIService resetUIState];
+      [[self uiService] resetUIState];
       return;
     }
 
@@ -156,7 +156,7 @@ NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
 
     FIRFADDebugLog(@"Registration URL: %@", requestURL);
 
-    [self.UIService
+    [[self uiService]
         appDistributionRegistrationFlow:[[NSURL alloc] initWithString:requestURL]
                          withCompletion:^(NSError *_Nullable error) {
                            FIRFADInfoLog(@"Tester sign in complete.");
@@ -269,6 +269,7 @@ NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
             }
           }
         }
+        completion(nil, nil);
       }];
 }
 
@@ -277,39 +278,24 @@ NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
   if ([self isTesterSignedIn]) {
     [self fetchNewLatestRelease:completion];
   } else {
-    UIAlertController *alert = [UIAlertController
-        alertControllerWithTitle:@"Enable in-app alerts"
-                         message:@"Sign in with your Firebase App Distribution Google account to "
-                                 @"turn on in-app alerts for new test releases."
-                  preferredStyle:UIAlertControllerStyleAlert];
+    FIRFADUIActionCompletion actionCompletion = ^(BOOL continued) {
+      if (continued) {
+        [self signInTesterWithCompletion:^(NSError *_Nullable error) {
+          if (error) {
+            completion(nil, error);
+            return;
+          }
 
-    UIAlertAction *yesButton =
-        [UIAlertAction actionWithTitle:@"Turn on"
-                                 style:UIAlertActionStyleDefault
-                               handler:^(UIAlertAction *action) {
-                                 [self signInTesterWithCompletion:^(NSError *_Nullable error) {
-                                   if (error) {
-                                     completion(nil, error);
-                                     return;
-                                   }
+          [self fetchNewLatestRelease:completion];
+        }];
+      } else {
+        completion(
+            nil, [self NSErrorForErrorCodeAndMessage:FIRAppDistributionErrorAuthenticationCancelled
+                                             message:@"Tester cancelled authentication flow."]);
+      }
+    };
 
-                                   [self fetchNewLatestRelease:completion];
-                                 }];
-                               }];
-
-    UIAlertAction *noButton = [UIAlertAction actionWithTitle:@"Not now"
-                                                       style:UIAlertActionStyleDefault
-                                                     handler:^(UIAlertAction *action) {
-                                                       // precaution to ensure window gets destroyed
-                                                       [self.UIService resetUIState];
-                                                       completion(nil, nil);
-                                                     }];
-
-    [alert addAction:noButton];
-    [alert addAction:yesButton];
-
-    // Create an empty window + viewController to host the Safari UI.
-    [self.UIService showUIAlert:alert];
+    [[self uiService] showUIAlertWithCompletion:actionCompletion];
   }
 }
 @end

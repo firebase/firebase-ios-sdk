@@ -140,12 +140,39 @@ SFAuthenticationSession *_safariAuthenticationVC;
                                              completion:nil];
 }
 
+- (void)showUIAlertWithCompletion:(FIRFADUIActionCompletion)completion {
+  UIAlertController *alert = [UIAlertController
+      alertControllerWithTitle:@"Enable in-app alerts"
+                       message:@"Sign in with your Firebase App Distribution Google account to "
+                               @"turn on in-app alerts for new test releases."
+                preferredStyle:UIAlertControllerStyleAlert];
+
+  UIAlertAction *yesButton = [UIAlertAction actionWithTitle:@"Turn on"
+                                                      style:UIAlertActionStyleDefault
+                                                    handler:^(UIAlertAction *action) {
+                                                      completion(YES);
+                                                    }];
+
+  UIAlertAction *noButton = [UIAlertAction actionWithTitle:@"Not now"
+                                                     style:UIAlertActionStyleDefault
+                                                   handler:^(UIAlertAction *action) {
+                                                     [self resetUIState];
+                                                     completion(NO);
+                                                   }];
+
+  [alert addAction:noButton];
+  [alert addAction:yesButton];
+
+  // Create an empty window + viewController to host the Safari UI.
+  [self showUIAlert:alert];
+}
+
 - (BOOL)application:(UIApplication *)application
             openURL:(NSURL *)URL
             options:(NSDictionary<NSString *, id> *)options {
-  FIRFADDebugLog(@"Continuing registration flow: %@", [self registrationFlowCompletion]);
-  [self resetUIState];
   if (self.registrationFlowCompletion) {
+    FIRFADDebugLog(@"Continuing registration flow: %@", [self registrationFlowCompletion]);
+    [self resetUIState];
     if (@available(iOS 9.0, *)) {
       [self logRegistrationCompletion:nil authType:[SFSafariViewController description]];
     }
@@ -168,8 +195,25 @@ SFAuthenticationSession *_safariAuthenticationVC;
   if (self.window) {
     return;
   }
-  // Create an empty window + viewController to host the Safari UI.
-  self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+
+  if (@available(iOS 13.0, *)) {
+    UIWindowScene *foregroundedScene = nil;
+    for (UIWindowScene *connectedScene in [UIApplication sharedApplication].connectedScenes) {
+      if (connectedScene.activationState == UISceneActivationStateForegroundActive) {
+        foregroundedScene = connectedScene;
+        break;
+      }
+    }
+
+    if (foregroundedScene) {
+      self.window = [[UIWindow alloc] initWithWindowScene:foregroundedScene];
+    } else {
+      FIRFADErrorLog(@"No foreground scene found. Cannot display new build alert.");
+      return;
+    }
+  } else {
+    self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+  }
   self.window.rootViewController = self.safariHostingViewController;
 
   // Place it at the highest level within the stack.
