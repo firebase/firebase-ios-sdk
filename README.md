@@ -3,6 +3,7 @@
 [![Platform](https://img.shields.io/cocoapods/p/Firebase.svg?style=flat)](https://cocoapods.org/pods/Firebase)
 
 [![Actions Status][gh-abtesting-badge]][gh-actions]
+[![Actions Status][gh-appdistribution-badge]][gh-actions]
 [![Actions Status][gh-auth-badge]][gh-actions]
 [![Actions Status][gh-core-badge]][gh-actions]
 [![Actions Status][gh-crashlytics-badge]][gh-actions]
@@ -280,6 +281,7 @@ Your use of Firebase is governed by the
 
 [gh-actions]: https://github.com/firebase/firebase-ios-sdk/actions
 [gh-abtesting-badge]: https://github.com/firebase/firebase-ios-sdk/workflows/abtesting/badge.svg
+[gh-appdistribution-badge]: https://github.com/firebase/firebase-ios-sdk/workflows/appdistribution/badge.svg
 [gh-auth-badge]: https://github.com/firebase/firebase-ios-sdk/workflows/auth/badge.svg
 [gh-core-badge]: https://github.com/firebase/firebase-ios-sdk/workflows/core/badge.svg
 [gh-crashlytics-badge]: https://github.com/firebase/firebase-ios-sdk/workflows/crashlytics/badge.svg
