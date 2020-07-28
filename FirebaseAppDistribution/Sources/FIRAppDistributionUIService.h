@@ -20,6 +20,16 @@
 #import "FirebaseAppDistribution/Sources/Private/FIRAppDistribution.h"
 
 NS_ASSUME_NONNULL_BEGIN
+
+/**
+ *  The completion handler invoked when a button is clicked from the UI prompt
+ *
+ *  @param action  The UI action taken
+ */
+typedef void (^FIRFADUIActionCompletion)(UIAlertAction *_Nullable action)
+NS_SWIFT_NAME(AppDistributionActionCompletion);
+
+
 /// An instance of this class provides UI elements required for the App Distribution tester
 /// authentication flow as an AppDelegate interceptor.
 @interface FIRAppDistributionUIService : NSObject <UIApplicationDelegate,
@@ -43,6 +53,9 @@ typedef void (^AppDistributionRegistrationFlowCompletion)(NSError *_Nullable err
                          withCompletion:(AppDistributionRegistrationFlowCompletion)completion;
 
 - (void)showUIAlert:(UIAlertController *)alertController;
+
+- (void)showUIAlertWithYesCompletion:(FIRFADUIActionCompletion)yesAction
+                    withNoCompletion:(FIRFADUIActionCompletion)noAction;
 
 - (void)initializeUIState;
 

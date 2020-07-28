@@ -140,6 +140,35 @@ SFAuthenticationSession *_safariAuthenticationVC;
                                              completion:nil];
 }
 
+- (void)showUIAlertWithYesCompletion:(FIRFADUIActionCompletion)yesAction
+                    withNoCompletion:(FIRFADUIActionCompletion)noAction {
+  UIAlertController *alert = [UIAlertController
+                              alertControllerWithTitle:@"Enable in-app alerts"
+                              message:@"Sign in with your Firebase App Distribution Google account to "
+                              @"turn on in-app alerts for new test releases."
+                              preferredStyle:UIAlertControllerStyleAlert];
+
+  UIAlertAction *yesButton =
+  [UIAlertAction actionWithTitle:@"Turn on"
+                           style:UIAlertActionStyleDefault
+                         handler:^(UIAlertAction *action) {
+    yesAction(action);
+  }];
+
+  UIAlertAction *noButton = [UIAlertAction actionWithTitle:@"Not now"
+                                                     style:UIAlertActionStyleDefault
+                                                   handler:^(UIAlertAction *action) {
+    [self resetUIState];
+    noAction(action);
+  }];
+
+  [alert addAction:noButton];
+  [alert addAction:yesButton];
+
+  // Create an empty window + viewController to host the Safari UI.
+  [self showUIAlert:alert];
+}
+
 - (BOOL)application:(UIApplication *)application
             openURL:(NSURL *)URL
             options:(NSDictionary<NSString *, id> *)options {
@@ -182,11 +211,11 @@ SFAuthenticationSession *_safariAuthenticationVC;
     if (foregroundedScene) {
       self.window = [[UIWindow alloc] initWithWindowScene:foregroundedScene];
     } else {
-      // TODO: figure out if foregroundScene can be nil. If yes, should we return error?
+      FIRFADErrorLog(@"No foreground scene found. Cannot display new build alert.");
       return;
     }
   }
-#else  // defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+#else
   self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
 #endif
   self.window.rootViewController = self.safariHostingViewController;
@@ -196,9 +225,6 @@ SFAuthenticationSession *_safariAuthenticationVC;
 
   // Run it.
   [self.window makeKeyAndVisible];
-
-  if (self.window) {
-  }
 }
 
 - (void)resetUIState {
