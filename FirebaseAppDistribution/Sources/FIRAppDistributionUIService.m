@@ -143,9 +143,9 @@ SFAuthenticationSession *_safariAuthenticationVC;
 - (BOOL)application:(UIApplication *)application
             openURL:(NSURL *)URL
             options:(NSDictionary<NSString *, id> *)options {
-  FIRFADDebugLog(@"Continuing registration flow: %@", [self registrationFlowCompletion]);
-  [self resetUIState];
   if (self.registrationFlowCompletion) {
+    FIRFADDebugLog(@"Continuing registration flow: %@", [self registrationFlowCompletion]);
+    [self resetUIState];
     if (@available(iOS 9.0, *)) {
       [self logRegistrationCompletion:nil authType:[SFSafariViewController description]];
     }
@@ -168,8 +168,27 @@ SFAuthenticationSession *_safariAuthenticationVC;
   if (self.window) {
     return;
   }
-  // Create an empty window + viewController to host the Safari UI.
+
+#if defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+  if (@available(iOS 13.0, *)) {
+    UIWindowScene *foregroundedScene = nil;
+    for (UIWindowScene *connectedScene in [UIApplication sharedApplication].connectedScenes) {
+      if (connectedScene.activationState == UISceneActivationStateForegroundActive) {
+        foregroundedScene = connectedScene;
+        break;
+      }
+    }
+
+    if (foregroundedScene) {
+      self.window = [[UIWindow alloc] initWithWindowScene:foregroundedScene];
+    } else {
+      // TODO: figure out if foregroundScene can be nil. If yes, should we return error?
+      return;
+    }
+  }
+#else  // defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
   self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+#endif
   self.window.rootViewController = self.safariHostingViewController;
 
   // Place it at the highest level within the stack.
@@ -177,6 +196,9 @@ SFAuthenticationSession *_safariAuthenticationVC;
 
   // Run it.
   [self.window makeKeyAndVisible];
+
+  if (self.window) {
+  }
 }
 
 - (void)resetUIState {
