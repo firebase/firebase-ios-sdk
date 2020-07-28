@@ -24,6 +24,8 @@ jobs:
         fi
         pod repo add specstaging https://github.com/firebase/SpecsStaging.git
         cd ~/.cocoapods/repos/specstaging
+        echo "git status"
+        git status
         git reset --hard origin/master
         cd "${GITHUB_WORKSPACE}"
         # SPEC_REPO="specstaging" scripts/add_podspecs.swift
