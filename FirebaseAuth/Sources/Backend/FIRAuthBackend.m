@@ -402,7 +402,8 @@ static NSString *const kCaptchaCheckFailedErrorMessage = @"CAPTCHA_CHECK_FAILED"
 static NSString *const kTenantIDMismatch = @"TENANT_ID_MISMATCH";
 
 /** @var kUnsupportedTenantOperation
-    @brief This is the error message the server will respond with if the operation does not support     multi-tenant.
+    @brief This is the error message the server will respond with if the operation does not support
+   multi-tenant.
  */
 static NSString *const kUnsupportedTenantOperation = @"UNSUPPORTED_TENANT_OPERATION";
 

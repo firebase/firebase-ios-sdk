@@ -342,8 +342,7 @@ static void callInMainThreadWithAuthDataResultAndError(
                                                                forKey:kTokenServiceCodingKey];
   FIRUserMetadata *metadata = [aDecoder decodeObjectOfClass:[FIRUserMetadata class]
                                                      forKey:kMetadataCodingKey];
-  NSString *tenantID =
-      [aDecoder decodeObjectOfClass:[NSString class] forKey:kTenantIDCodingKey];
+  NSString *tenantID = [aDecoder decodeObjectOfClass:[NSString class] forKey:kTenantIDCodingKey];
   NSString *APIKey = [aDecoder decodeObjectOfClass:[NSString class] forKey:kAPIKeyCodingKey];
 #if TARGET_OS_IOS
   FIRMultiFactor *multiFactor = [aDecoder decodeObjectOfClass:[FIRMultiFactor class]

@@ -581,14 +581,16 @@ static NSString *const kFIRAuthErrorMessageMissingOrInvalidNonce =
 /** @var kFIRAuthErrorMessageTenantIDMismatch.
     @brief Message for @c FIRAuthErrorCodeTenantIDMismatch error code.
  */
-static NSString *const kFIRAuthErrorMessageTenantIDMismatch = @"The provided user's tenant ID does"
-    "not match the Auth instance's tenant ID.";
+static NSString *const kFIRAuthErrorMessageTenantIDMismatch =
+    @"The provided user's tenant ID does"
+     "not match the Auth instance's tenant ID.";
 
 /** @var kFIRAuthErrorMessageUnsupportedTenantOperation
     @brief Message for @c FIRAuthErrorCodeUnsupportedTenantOperation error code.
  */
-static NSString *const kFIRAuthErrorMessageUnsupportedTenantOperation = @"This operation is not"
-    "supported in a multi-tenant context.";
+static NSString *const kFIRAuthErrorMessageUnsupportedTenantOperation =
+    @"This operation is not"
+     "supported in a multi-tenant context.";
 
 /** @var FIRAuthErrorDescription
     @brief The error descrioption, based on the error code.
