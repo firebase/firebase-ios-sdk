@@ -16,6 +16,8 @@
 
 #import "FirebaseAuth/Sources/Backend/FIRIdentityToolkitRequest.h"
 
+#import "FIRAuth.h"
+
 NS_ASSUME_NONNULL_BEGIN
 
 static NSString *const kFirebaseAuthAPIURLFormat =
@@ -48,6 +50,7 @@ static NSString *kIdentityPlatformStagingAPIHost =
     _requestConfiguration = requestConfiguration;
     _useIdentityPlatform = NO;
     _useStaging = NO;
+    _tenantID = [FIRAuth auth].tenantID;
   }
   return self;
 }
