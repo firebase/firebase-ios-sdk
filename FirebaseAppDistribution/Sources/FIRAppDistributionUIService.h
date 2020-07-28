@@ -22,7 +22,8 @@
 NS_ASSUME_NONNULL_BEGIN
 /// An instance of this class provides UI elements required for the App Distribution tester
 /// authentication flow as an AppDelegate interceptor.
-@interface FIRAppDistributionUIService : NSObject <UIApplicationDelegate,
+@interface FIRAppDistributionUIService : NSObject <UISceneDelegate,
+                                                   UIApplicationDelegate,
                                                    ASWebAuthenticationPresentationContextProviding,
                                                    SFSafariViewControllerDelegate>
 

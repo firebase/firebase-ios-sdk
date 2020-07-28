@@ -143,9 +143,9 @@ SFAuthenticationSession *_safariAuthenticationVC;
 - (BOOL)application:(UIApplication *)application
             openURL:(NSURL *)URL
             options:(NSDictionary<NSString *, id> *)options {
-  FIRFADDebugLog(@"Continuing registration flow: %@", [self registrationFlowCompletion]);
-  [self resetUIState];
   if (self.registrationFlowCompletion) {
+    FIRFADDebugLog(@"Continuing registration flow: %@", [self registrationFlowCompletion]);
+    [self resetUIState];
     if (@available(iOS 9.0, *)) {
       [self logRegistrationCompletion:nil authType:[SFSafariViewController description]];
     }
@@ -153,6 +153,20 @@ SFAuthenticationSession *_safariAuthenticationVC;
   }
   return NO;
 }
+
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+- (void)scene:(UIScene *)scene openURLContexts:(NSSet<UIOpenURLContext *> *)URLContext API_AVAILABLE(ios(13.0)) {
+  if (self.registrationFlowCompletion) {
+    FIRFADDebugLog(@"Continuing registration flow: %@", [self registrationFlowCompletion]);
+    [self resetUIState];
+
+    if (@available(iOS 9.0, *)) {
+      [self logRegistrationCompletion:nil authType:[SFSafariViewController description]];
+    }
+    self.registrationFlowCompletion(nil);
+  }
+}
+#endif  // __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
 
 - (void)logRegistrationCompletion:(NSError *)error authType:(NSString *)authType {
   if (error) {
