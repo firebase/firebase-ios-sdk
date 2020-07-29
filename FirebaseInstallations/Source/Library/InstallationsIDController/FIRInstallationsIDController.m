@@ -31,6 +31,7 @@
 #import "FirebaseInstallations/Source/Library/IIDMigration/FIRInstallationsIIDStore.h"
 #import "FirebaseInstallations/Source/Library/IIDMigration/FIRInstallationsIIDTokenStore.h"
 #import "FirebaseInstallations/Source/Library/InstallationsAPI/FIRInstallationsAPIService.h"
+#import "FirebaseInstallations/Source/Library/InstallationsIDController/FIRInstallationsBackoffController.h"
 #import "FirebaseInstallations/Source/Library/InstallationsIDController/FIRInstallationsSingleOperationPromiseCache.h"
 #import "FirebaseInstallations/Source/Library/InstallationsStore/FIRInstallationsStore.h"
 
@@ -55,6 +56,8 @@ static NSString *const kKeychainService = @"com.firebase.FIRInstallations.instal
 @property(nonatomic, readonly) FIRInstallationsIIDTokenStore *IIDTokenStore;
 
 @property(nonatomic, readonly) FIRInstallationsAPIService *APIService;
+
+@property(nonatomic, readonly) FIRInstallationsBackoffController *backoffController;
 
 @property(nonatomic, readonly) FIRInstallationsSingleOperationPromiseCache<FIRInstallationsItem *>
     *getInstallationPromiseCache;
@@ -88,12 +91,16 @@ static NSString *const kKeychainService = @"com.firebase.FIRInstallations.instal
   FIRInstallationsIIDTokenStore *IIDCheckingStore =
       [[FIRInstallationsIIDTokenStore alloc] initWithGCMSenderID:GCMSenderID];
 
+  FIRInstallationsBackoffController *backoffController =
+      [[FIRInstallationsBackoffController alloc] init];
+
   return [self initWithGoogleAppID:appID
                            appName:appName
                 installationsStore:installationsStore
                         APIService:apiService
                           IIDStore:IIDStore
-                     IIDTokenStore:IIDCheckingStore];
+                     IIDTokenStore:IIDCheckingStore
+                 backoffController:backoffController];
 }
 
 /// The initializer is supposed to be used by tests to inject `installationsStore`.
@@ -102,7 +109,8 @@ static NSString *const kKeychainService = @"com.firebase.FIRInstallations.instal
                  installationsStore:(FIRInstallationsStore *)installationsStore
                          APIService:(FIRInstallationsAPIService *)APIService
                            IIDStore:(FIRInstallationsIIDStore *)IIDStore
-                      IIDTokenStore:(FIRInstallationsIIDTokenStore *)IIDTokenStore {
+                      IIDTokenStore:(FIRInstallationsIIDTokenStore *)IIDTokenStore
+                  backoffController:(FIRInstallationsBackoffController *)backoffController {
   self = [super init];
   if (self) {
     _appID = appID;
@@ -111,6 +119,7 @@ static NSString *const kKeychainService = @"com.firebase.FIRInstallations.instal
     _APIService = APIService;
     _IIDStore = IIDStore;
     _IIDTokenStore = IIDTokenStore;
+    _backoffController = backoffController;
 
     __weak FIRInstallationsIDController *weakSelf = self;
 

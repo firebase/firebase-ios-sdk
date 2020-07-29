@@ -30,6 +30,7 @@
 #import "FirebaseInstallations/Source/Library/IIDMigration/FIRInstallationsIIDStore.h"
 #import "FirebaseInstallations/Source/Library/IIDMigration/FIRInstallationsIIDTokenStore.h"
 #import "FirebaseInstallations/Source/Library/InstallationsAPI/FIRInstallationsAPIService.h"
+#import "FirebaseInstallations/Source/Library/InstallationsIDController/FIRInstallationsBackoffController.h"
 #import "FirebaseInstallations/Source/Library/InstallationsIDController/FIRInstallationsIDController.h"
 #import "FirebaseInstallations/Source/Library/InstallationsStore/FIRInstallationsStore.h"
 #import "FirebaseInstallations/Source/Library/Public/FIRInstallations.h"
@@ -42,7 +43,8 @@
                  installationsStore:(FIRInstallationsStore *)installationsStore
                          APIService:(FIRInstallationsAPIService *)APIService
                            IIDStore:(FIRInstallationsIIDStore *)IIDStore
-                      IIDTokenStore:(FIRInstallationsIIDTokenStore *)IIDTokenStore;
+                      IIDTokenStore:(FIRInstallationsIIDTokenStore *)IIDTokenStore
+                  backoffController:(FIRInstallationsBackoffController *)backoffController;
 @end
 
 @interface FIRInstallationsIDControllerTests : XCTestCase
@@ -51,6 +53,7 @@
 @property(nonatomic) id mockAPIService;
 @property(nonatomic) id mockIIDStore;
 @property(nonatomic) id mockIIDTokenStore;
+@property(nonatomic) id mockBackoffController;
 @property(nonatomic) NSString *appID;
 @property(nonatomic) NSString *appName;
 @end
@@ -68,6 +71,8 @@
   self.mockAPIService = OCMStrictClassMock([FIRInstallationsAPIService class]);
   self.mockIIDStore = OCMStrictClassMock([FIRInstallationsIIDStore class]);
   self.mockIIDTokenStore = OCMStrictClassMock([FIRInstallationsIIDTokenStore class]);
+  self.mockBackoffController =
+      OCMProtocolMock(@protocol(FIRInstallationsBackoffControllerProtocol));
 
   self.controller =
       [[FIRInstallationsIDController alloc] initWithGoogleAppID:self.appID
@@ -75,7 +80,8 @@
                                              installationsStore:self.mockInstallationsStore
                                                      APIService:self.mockAPIService
                                                        IIDStore:self.mockIIDStore
-                                                  IIDTokenStore:self.mockIIDTokenStore];
+                                                  IIDTokenStore:self.mockIIDTokenStore
+                                              backoffController:self.mockBackoffController];
 }
 
 - (void)tearDown {
