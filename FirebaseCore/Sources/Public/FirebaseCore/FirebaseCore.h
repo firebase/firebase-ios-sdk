@@ -16,6 +16,7 @@
 
 #import "FIRApp.h"
 #import "FIRConfiguration.h"
+#import "FIREmulatorSettings.h"
 #import "FIRLoggerLevel.h"
 #import "FIROptions.h"
 #import "FIRVersion.h"
