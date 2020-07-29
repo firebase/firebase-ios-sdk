@@ -77,6 +77,12 @@ let package = Package(
       name: "FirebaseStorageSwift",
       targets: ["FirebaseStorageSwift"]
     ),
+
+    // Not intended for public consumption, but needed for FirebaseUI.
+    .library(
+      name: "GoogleUtilities_UserDefaults",
+      targets: ["GoogleUtilities_UserDefaults"]
+    ),
   ],
   dependencies: [
     .package(name: "Promises", url: "https://github.com/google/promises.git", "1.2.8" ..< "1.3.0"),
