@@ -1,8 +1,0 @@
-syntax = "proto2";
-
-import "me.proto";
-
-message MessagingClientEventExtension {
-  optional MessagingClientEvent messaging_client_event = 1;
-}
-

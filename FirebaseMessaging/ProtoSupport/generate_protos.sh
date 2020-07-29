@@ -24,7 +24,7 @@ readonly DIR="$( git rev-parse --show-toplevel )"
 
 # Current release of nanopb being used  to build the CCT protos
 readonly NANOPB_VERSION="0.3.9.5"
-readonly NANOPB_TEMPDIR="${DIR}/GoogleDataTransport/nanopb_temp"
+readonly NANOPB_TEMPDIR="${DIR}/FirebaseMessaging/nanopb_temp"
 
 readonly LIBRARY_DIR="${DIR}/FirebaseMessaging/Sources/"
 readonly PROTO_DIR="${DIR}/FirebaseMessaging/ProtoSupport/Protos/"
@@ -46,7 +46,7 @@ echo "Removing existing ME protos..."
 rm -rf "${PROTOGEN_DIR}/*"
 
 echo "Generating ME protos..."
-python "${DIR}/GoogleDataTransport/ProtoSupport/proto_generator.py" \
+python "${DIR}/FirebaseMessaging/ProtoSupport/proto_generator.py" \
   --nanopb \
   --protos_dir="${PROTO_DIR}" \
   --pythonpath="${NANOPB_TEMPDIR}/${NANOPB_BIN_DIR}/generator" \

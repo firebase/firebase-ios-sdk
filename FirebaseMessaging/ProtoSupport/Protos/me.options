@@ -15,6 +15,7 @@
 
 # me.protos
 
+
 MessagingClientEvent.message_id type:FT_POINTER
 MessagingClientEvent.instance_id type:FT_POINTER
 MessagingClientEvent.package_name type:FT_POINTER

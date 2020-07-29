@@ -17,7 +17,6 @@
 #import <FirebaseMessaging/FIRMessagingExtensionHelper.h>
 
 #import "FirebaseMessaging/Sources/nanopb/me.nanopb.h"
-#import "FirebaseMessaging/Sources/nanopb/mee.nanopb.h"
 
 #import <GoogleDataTransport/GDTCOREvent.h>
 #import <GoogleDataTransport/GDTCORTargets.h>
@@ -71,10 +70,6 @@ static NSString *const kPayloadOptionsImageURLName = @"image";
 
   return CFBridgingRelease(dataRef);
 }
-
-//- (void)dealloc {
-//  pb_release(MessagingClientEventExtension_fields, &_eventExtension);
-//}
 
 @end
 
@@ -180,12 +175,15 @@ static NSString *const kPayloadOptionsImageURLName = @"image";
   MessagingClientEventExtension eventExtension = MessagingClientEventExtension_init_default;
 
   MessagingClientEvent foo = MessagingClientEvent_init_default;
-  foo.project_number = (int64_t)[info[@"google.c.sender.id"] longLongValue];
+  foo.project_number = 0;//(int64_t)[info[@"google.c.sender.id"] longLongValue];
   foo.message_id = FIRMessagingEncodeString(info[@"gcm.message_id"]);
-  //foo.instance_id = FIRMessagingEncodeString(info[@"google.c.fid"]);
+////  foo.instance_id = FIRMessagingEncodeString(info[@"google.c.fid"]);
   foo.instance_id = FIRMessagingEncodeString(@"c5Qp5Y0yeU27mxFtvR2ubW");
-  if ([info[@"aps"][@"content-available"] intValue] == 1) {
+
+  if ([info[@"aps"][@"content-available"] intValue] == 1 &&
+      ![GULAppEnvironmentUtil isAppExtension]) {
     foo.message_type = MessagingClientEvent_MessageType_DATA_MESSAGE;
+
   } else {
     foo.message_type = MessagingClientEvent_MessageType_DISPLAY_NOTIFICATION;
   }
@@ -198,17 +196,17 @@ static NSString *const kPayloadOptionsImageURLName = @"image";
   } else {
     foo.package_name = FIRMessagingEncodeString(bundleID);
   }
-  foo.event = MessagingClientEvent_Event_MESSAGE_DELIVERED;
+  //foo.event = MessagingClientEvent_Event_MESSAGE_DELIVERED;
   foo.analytics_label = FIRMessagingEncodeString(@"_nr");
   foo.campaign_id = (int64_t)[info[@"campaign_id.c_id"] longLongValue];
   foo.composer_label = FIRMessagingEncodeString(info[@"google.c.a.c_l"]);
 
-  eventExtension.messaging_client_event = &foo;
+  eventExtension.messaging_client_event = foo;
   FIRMessagingMetricsLog *log =
       [[FIRMessagingMetricsLog alloc] initWithEventExtension:eventExtension];
 
   GDTCOREvent *event = [transport eventForTransport];
-  event.dataObject = (id<GDTCOREventDataObject>)log;
+  event.dataObject = log;
   event.qosTier = GDTCOREventQoSFast;
 
   // Use this API for SDK service data events.
@@ -233,7 +231,11 @@ static NSString *const kPayloadOptionsImageURLName = @"image";
  * @param string The string to encode as pb_bytes.
  */
 pb_bytes_array_t *FIRMessagingEncodeString(NSString *string) {
-  NSData *stringBytes = [string dataUsingEncoding:NSUTF8StringEncoding];
+  if ([string isMemberOfClass:[NSNull class]]) {
+    string = nil;
+  }
+  NSString *stringToEncode = string ? string : @"";
+  NSData *stringBytes = [stringToEncode dataUsingEncoding:NSUTF8StringEncoding];
   return FIRMessagingEncodeData(stringBytes);
 }
 
@@ -243,11 +245,19 @@ pb_bytes_array_t *FIRMessagingEncodeString(NSString *string) {
  * @param data The data to copy into the new bytes array.
  */
 pb_bytes_array_t *FIRMessagingEncodeData(NSData *data) {
-  pb_bytes_array_t *pbBytesArray = calloc(1, PB_BYTES_ARRAY_T_ALLOCSIZE(data.length));
-  if (pbBytesArray != NULL) {
-    [data getBytes:pbBytesArray->bytes length:data.length];
-    pbBytesArray->size = (pb_size_t)data.length;
-  }
-  return pbBytesArray;
+//  pb_bytes_array_t *pbBytesArray = calloc(1, PB_BYTES_ARRAY_T_ALLOCSIZE(data.length));
+//  if (pbBytesArray != NULL) {
+//    [data getBytes:pbBytesArray->bytes length:data.length];
+//    pbBytesArray->size = (pb_size_t)data.length;
+//  }
+//  return pbBytesArray;
+  
+  pb_bytes_array_t *pbBytes = malloc(PB_BYTES_ARRAY_T_ALLOCSIZE(data.length));
+   if (pbBytes == NULL) {
+     return NULL;
+   }
+   memcpy(pbBytes->bytes, [data bytes], data.length);
+   pbBytes->size = (pb_size_t)data.length;
+   return pbBytes;
 }
 @end
