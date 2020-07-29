@@ -23,9 +23,11 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FIRTestCurrentDateProvider : NSObject
 
 /** A date to be returned by `currentDateProvider`. */
-@property (nonatomic, nullable) NSDate *date;
+@property(nonatomic, nullable) NSDate *date;
 
-/** Return a date provider that returns `FIRTestCurrentDateProvider.date` or `[NSDate date] if  `FIRTestCurrentDateProvider.date == nil` or not available (e.g when `FIRTestCurrentDateProvider` instance was deallocated). */
+/** Return a date provider that returns `FIRTestCurrentDateProvider.date` or `[NSDate date] if
+ * `FIRTestCurrentDateProvider.date == nil` or not available (e.g when `FIRTestCurrentDateProvider`
+ * instance was deallocated). */
 - (FIRCurrentDateProvider)currentDateProvider;
 
 @end

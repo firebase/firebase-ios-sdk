@@ -17,7 +17,7 @@
 #import "FIRCurrentDateProvider.h"
 
 FIRCurrentDateProvider FIRRealCurrentDateProvider(void) {
-  return ^ NSDate *(void) {
+  return ^NSDate *(void) {
     return [NSDate date];
   };
 }

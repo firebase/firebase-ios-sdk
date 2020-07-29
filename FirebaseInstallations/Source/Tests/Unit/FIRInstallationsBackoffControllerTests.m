@@ -22,10 +22,10 @@
 
 @interface FIRInstallationsBackoffControllerTests : XCTestCase
 
-@property (nonatomic) FIRInstallationsBackoffController *backoffController;
+@property(nonatomic) FIRInstallationsBackoffController *backoffController;
 
-@property (nonatomic) FIRTestCurrentDateProvider *testDateProvider;
-@property (nonatomic) NSDate *initialCurrentDate;
+@property(nonatomic) FIRTestCurrentDateProvider *testDateProvider;
+@property(nonatomic) NSDate *initialCurrentDate;
 
 @end
 
@@ -35,7 +35,8 @@
   self.initialCurrentDate = [NSDate date];
   self.testDateProvider = [[FIRTestCurrentDateProvider alloc] init];
   self.testDateProvider.date = self.initialCurrentDate;
-  self.backoffController = [[FIRInstallationsBackoffController alloc] initWithCurrentDateProvider:[self.testDateProvider currentDateProvider]];
+  self.backoffController = [[FIRInstallationsBackoffController alloc]
+      initWithCurrentDateProvider:[self.testDateProvider currentDateProvider]];
 }
 
 - (void)tearDown {
@@ -52,7 +53,7 @@
 
   [self.backoffController registerEvent:FIRInstallationsBackoffEventRecoverableFailure];
 
-  [self assertBackoffTimeInterval:24 * 60 * 60]; // 24h
+  [self assertBackoffTimeInterval:24 * 60 * 60];  // 24h
 }
 
 - (void)testIsNextRequestAllowed_AfterRecoverableError {
@@ -66,7 +67,7 @@
   }
 
   [self.backoffController registerEvent:FIRInstallationsBackoffEventRecoverableFailure];
-  [self assertBackoffTimeInterval:24 * 60 * 60]; // 24h
+  [self assertBackoffTimeInterval:24 * 60 * 60];  // 24h
 }
 
 - (void)testIsNextRequestAllowed_WhenSuccessAfterError {
@@ -90,22 +91,29 @@
 - (void)assertBackoffTimeInterval:(NSTimeInterval)expectedBackoffTimeInterval {
   // Expect request denied right after the event.
   self.testDateProvider.date = self.initialCurrentDate;
-  XCTAssertFalse([self.backoffController isNextRequestAllowed], @"Test: %@, interval: %f", self.name, expectedBackoffTimeInterval);
+  XCTAssertFalse([self.backoffController isNextRequestAllowed], @"Test: %@, interval: %f",
+                 self.name, expectedBackoffTimeInterval);
 
   // Expect request denied in the middle of backoff time interval.
   NSTimeInterval halfBackoffInterval = expectedBackoffTimeInterval * 0.5;
-  self.testDateProvider.date = [self.initialCurrentDate dateByAddingTimeInterval:halfBackoffInterval];
-  XCTAssertFalse([self.backoffController isNextRequestAllowed], @"Test: %@, interval: %f", self.name, expectedBackoffTimeInterval);
+  self.testDateProvider.date =
+      [self.initialCurrentDate dateByAddingTimeInterval:halfBackoffInterval];
+  XCTAssertFalse([self.backoffController isNextRequestAllowed], @"Test: %@, interval: %f",
+                 self.name, expectedBackoffTimeInterval);
 
   // Expect request denied close to the end of backoff time interval.
   NSTimeInterval rightBeforeBackoffInterval = expectedBackoffTimeInterval - 1;
-  self.testDateProvider.date = [self.initialCurrentDate dateByAddingTimeInterval:rightBeforeBackoffInterval];
-  XCTAssertFalse([self.backoffController isNextRequestAllowed], @"Test: %@, interval: %f", self.name, expectedBackoffTimeInterval);
+  self.testDateProvider.date =
+      [self.initialCurrentDate dateByAddingTimeInterval:rightBeforeBackoffInterval];
+  XCTAssertFalse([self.backoffController isNextRequestAllowed], @"Test: %@, interval: %f",
+                 self.name, expectedBackoffTimeInterval);
 
   // Expect request allowed right after backoff time interval.
   NSTimeInterval rightAfterBackoffInterval = expectedBackoffTimeInterval + 1;
-  self.testDateProvider.date = [self.initialCurrentDate dateByAddingTimeInterval:rightAfterBackoffInterval];
-  XCTAssertTrue([self.backoffController isNextRequestAllowed], @"Test: %@, interval: %f", self.name, expectedBackoffTimeInterval);
+  self.testDateProvider.date =
+      [self.initialCurrentDate dateByAddingTimeInterval:rightAfterBackoffInterval];
+  XCTAssertTrue([self.backoffController isNextRequestAllowed], @"Test: %@, interval: %f", self.name,
+                expectedBackoffTimeInterval);
 }
 
 @end

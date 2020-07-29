@@ -18,7 +18,7 @@
 
 @interface FIRInstallationsBackoffController ()
 
-@property (nonatomic, readonly) FIRCurrentDateProvider currentDateProvider;
+@property(nonatomic, readonly) FIRCurrentDateProvider currentDateProvider;
 
 @end
 
@@ -38,6 +38,5 @@
 
 - (void)registerEvent:(FIRInstallationsBackoffEvent)event {
 }
-
 
 @end

@@ -19,7 +19,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /** A block returning current date. */
-typedef NSDate *_Nonnull(^FIRCurrentDateProvider)(void);
+typedef NSDate *_Nonnull (^FIRCurrentDateProvider)(void);
 
 /** The function return a `FIRCurrentDateProvider` block that returns a real current date. */
 FIRCurrentDateProvider FIRRealCurrentDateProvider(void);
