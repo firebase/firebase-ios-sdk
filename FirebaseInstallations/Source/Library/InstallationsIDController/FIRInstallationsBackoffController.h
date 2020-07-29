@@ -16,12 +16,16 @@
 
 #import <Foundation/Foundation.h>
 
+#import "FirebaseInstallations/Source/Library/InstallationsIDController/FIRCurrentDateProvider.h"
+
 NS_ASSUME_NONNULL_BEGIN
 
 typedef NS_ENUM(NSInteger, FIRInstallationsBackoffFailureType) {
   FIRInstallationsBackoffFailureTypeRecoverable,
   FIRInstallationsBackoffFailureTypeUnrecoverable
 };
+
+//typedef NSDate *(^FIRInstallationC)(<#arguments#>);
 
 @protocol FIRInstallationsBackoffControllerProtocol <NSObject>
 
@@ -31,6 +35,8 @@ typedef NS_ENUM(NSInteger, FIRInstallationsBackoffFailureType) {
 @end
 
 @interface FIRInstallationsBackoffController : NSObject <FIRInstallationsBackoffControllerProtocol>
+
+- (instancetype)initWithCurrentDateProvider:(FIRCurrentDateProvider)currentDateProvider;
 
 @end
 

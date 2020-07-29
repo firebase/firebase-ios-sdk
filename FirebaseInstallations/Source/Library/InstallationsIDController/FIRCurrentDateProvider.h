@@ -14,29 +14,14 @@
  * limitations under the License.
  */
 
-#import "FIRInstallationsBackoffController.h"
+#import <Foundation/Foundation.h>
 
-@interface FIRInstallationsBackoffController ()
+NS_ASSUME_NONNULL_BEGIN
 
-@property (nonatomic, readonly) FIRCurrentDateProvider currentDateProvider;
+/** A block returning current date. */
+typedef NSDate *_Nonnull(^FIRCurrentDateProvider)(void);
 
-@end
+/** The function return a `FIRCurrentDateProvider` block that returns a real current date. */
+FIRCurrentDateProvider FIRRealCurrentDateProvider(void);
 
-@implementation FIRInstallationsBackoffController
-
-- (instancetype)initWithCurrentDateProvider:(FIRCurrentDateProvider)currentDateProvider {
-  self = [super init];
-  if (self) {
-    _currentDateProvider = [currentDateProvider copy];
-  }
-  return self;
-}
-
-- (BOOL)isNextRequestAllowed {
-  return YES;
-}
-
-- (void)registerFailure:(FIRInstallationsBackoffFailureType)failureType {
-}
-
-@end
+NS_ASSUME_NONNULL_END

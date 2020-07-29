@@ -14,29 +14,10 @@
  * limitations under the License.
  */
 
-#import "FIRInstallationsBackoffController.h"
+#import "FIRCurrentDateProvider.h"
 
-@interface FIRInstallationsBackoffController ()
-
-@property (nonatomic, readonly) FIRCurrentDateProvider currentDateProvider;
-
-@end
-
-@implementation FIRInstallationsBackoffController
-
-- (instancetype)initWithCurrentDateProvider:(FIRCurrentDateProvider)currentDateProvider {
-  self = [super init];
-  if (self) {
-    _currentDateProvider = [currentDateProvider copy];
-  }
-  return self;
+FIRCurrentDateProvider FIRRealCurrentDateProvider(void) {
+  return ^ NSDate *(void) {
+    return [NSDate date];
+  };
 }
-
-- (BOOL)isNextRequestAllowed {
-  return YES;
-}
-
-- (void)registerFailure:(FIRInstallationsBackoffFailureType)failureType {
-}
-
-@end
