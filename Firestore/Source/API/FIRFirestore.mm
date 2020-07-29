@@ -334,6 +334,23 @@ NS_ASSUME_NONNULL_BEGIN
   util::LogSetLevel(logging ? util::kLogLevelDebug : util::kLogLevelNotice);
 }
 
+- (void)useEmulatorWithHost:(NSString *)host port:(NSInteger)port {
+  if (!host.length) {
+    ThrowInvalidArgument("Host cannot be nil or empty.");
+  }
+  if (!_settings.isUsingDefaultHost) {
+    HARD_FAIL("A previously-set host value cannot be overriden by a
+       call to -[FIRFirestore useEmulatorWithHost:port:]. To use an emulator with Firestore,
+       remove the previous call to -[FIRFirestoreSettings setHost].");
+  }
+  // Use a new settings so the new settings are automatically plumbed
+  // to the underlying Firestore objects.
+  NSString *settingsHost = [NSString stringWithFormat:@"%@:%li", host, port];
+  FIRFirestoreSettings *newSettings = [_settings copy];
+  newSettings.host = settingsHost;
+  self.settings = newSettings;
+}
+
 - (void)enableNetworkWithCompletion:(nullable void (^)(NSError *_Nullable error))completion {
   _firestore->EnableNetwork(MakeCallback(completion));
 }
