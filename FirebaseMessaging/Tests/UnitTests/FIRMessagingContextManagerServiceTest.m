@@ -31,6 +31,7 @@ static NSString *const kUserInfoValue2 = @"Yes";
 static NSString *const kMessageIdentifierKey = @"gcm.message_id";
 static NSString *const kMessageIdentifierValue = @"1584748495200141";
 
+API_AVAILABLE(macos(10.14))
 @interface FIRMessagingContextManagerServiceTest : XCTestCase
 
 @property(nonatomic, readwrite, strong) NSDateFormatter *dateFormatter;

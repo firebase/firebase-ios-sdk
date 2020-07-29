@@ -23,6 +23,10 @@ on:
     # Interop headers
     - 'Interop/Auth/Public/*.h'
 
+    # FirebaseCore header change
+    - 'FirebaseCore/Sources/Private'
+    - 'FirebaseCore/Sources/Public'
+
     # Podspec
     - 'FirebaseFirestore.podspec'
 
@@ -62,6 +66,10 @@ jobs:
     runs-on: macos-latest
     steps:
     - uses: actions/checkout@v2
+
+    - uses: actions/setup-python@v2
+      with:
+        python-version: 3.6
 
     - name: Setup check
       run:  scripts/setup_check.sh

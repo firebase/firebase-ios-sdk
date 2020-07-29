@@ -1,3 +1,5 @@
+# 2020-07 -- 4.5.1
+- [changed] Remove FIRInstanceIDURLQueryItem in favor of NSURLQueryItem. (#5835)
 
 # 2020-07 -- 4.5.0
 - [changed] Functionally neutral updated import references for dependencies. (#5824)

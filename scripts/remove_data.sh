@@ -15,5 +15,5 @@
 set -x
 
 SDK="$1"
-rm -f quickstart-ios/"${SDK}"/GoogleSerivce-Info.plist
+rm -f quickstart-ios/"${SDK}"/GoogleService-Info.plist
 rm -f quickstart-ios/TestUtils/FIREGSignInInfo.h

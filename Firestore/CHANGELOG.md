@@ -1,5 +1,12 @@
 # Unreleased
 
+# v1.16.3
+- [changed] Internal improvements for future C++ and Unity support.
+
+# v1.16.2
+- [fixed] Fixed a configuration issue where listeners were no longer being
+  called back on the main thread by default.
+
 # v1.16.1
 - [fixed] Removed a delay that may have prevented Firestore from immediately
   establishing a network connection if a connectivity change occurred while

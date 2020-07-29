@@ -26,7 +26,10 @@
 + (void)setUp {
   static dispatch_once_t once;
   dispatch_once(&once, ^{
+#if !SWIFT_PACKAGE
+    // Disabled for now with SPM. configure is not needed for the unit tests.
     [FIRApp configure];
+#endif
   });
 }
 

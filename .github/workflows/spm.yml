@@ -24,6 +24,10 @@ jobs:
     - name: Initialize xcodebuild
       run: xcodebuild -list
     - name: Core ObjC Unit Tests macOS
-      run: xcodebuild -scheme Firebase-Package test
+      run:  scripts/third_party/travis/retry.sh xcodebuild -scheme Firebase-Package test | xcpretty
     - name: Core ObjC Unit Tests iOS
-      run: xcodebuild -scheme Firebase-Package test -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 11'
+      run: scripts/third_party/travis/retry.sh xcodebuild -scheme Firebase-Package test -sdk
+           iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 11' | xcpretty
+    - name: Core ObjC Unit Tests tvOS
+      run: scripts/third_party/travis/retry.sh xcodebuild -scheme Firebase-Package test -sdk
+           appletvsimulator -destination 'platform=tvOS Simulator,name=Apple TV' | xcpretty

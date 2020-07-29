@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 
-#import <OCMock/OCMock.h>
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
+
 #import <XCTest/XCTest.h>
+#import "OCMock.h"
 
 #import "FirebaseAuth/Sources/SystemService/FIRAuthAPNSToken.h"
 #import "FirebaseAuth/Sources/SystemService/FIRAuthAPNSTokenManager.h"
@@ -272,3 +275,5 @@ static const NSTimeInterval kExpectationTimeout = 2;
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif

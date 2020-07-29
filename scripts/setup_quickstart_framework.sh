@@ -45,4 +45,9 @@ if [[ "${SAMPLE}" == "Authentication" ]]; then
 ../scripts/add_framework_script.rb --sdk "${SAMPLE}" --target "${TARGET}" --framework_path accelerate.framework --source_tree DEVELOPER_FRAMEWORKS_DIR
 fi
 
+if [[ "${SAMPLE}" == "Firestore" ]]; then
+../scripts/add_framework_script.rb --sdk "${SAMPLE}" --target "${TARGET}" --framework_path Firebase/FirebaseUI.xcframework/Resources/FirebaseAuthUI.bundle
+../scripts/add_framework_script.rb --sdk "${SAMPLE}" --target "${TARGET}" --framework_path Firebase/FirebaseUI.xcframework/Resources/FirebaseEmailAuthUI.bundle
+fi
+
 ../scripts/add_framework_script.rb --sdk "${SAMPLE}" --target "${TARGET}" --framework_path Firebase/

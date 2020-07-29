@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRAppDistributionRelease.h"
+#import "FirebaseAppDistribution/Sources/Private/FIRAppDistributionRelease.h"
 
 @interface FIRAppDistributionRelease ()
 @property(nonatomic, copy) NSString *displayVersion;

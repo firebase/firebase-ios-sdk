@@ -44,6 +44,10 @@ let package = Package(
       targets: ["FirebaseCrashlytics"]
     ),
     .library(
+      name: "FirebaseDatabase",
+      targets: ["FirebaseDatabase"]
+    ),
+    .library(
       name: "FirebaseFunctions",
       targets: ["FirebaseFunctions"]
     ),
@@ -55,6 +59,10 @@ let package = Package(
     //   name: "FirebaseInstanceID",
     //   targets: ["FirebaseInstanceID"]
     // ),
+    .library(
+      name: "FirebaseRemoteConfig",
+      targets: ["FirebaseRemoteConfig"]
+    ),
     .library(
       name: "FirebaseStorage",
       targets: ["FirebaseStorage"]
@@ -76,8 +84,8 @@ let package = Package(
       url: "https://github.com/paulb777/nanopb.git",
       .branch("swift-package-manager")
     ),
-    .package(name: "OCMock", url: "https://github.com/paulb777/ocmock.git",
-             .revision("70d8463")),
+    .package(name: "OCMock", url: "https://github.com/paulb777/ocmock.git", .revision("7291762")),
+    .package(name: "leveldb", url: "https://github.com/paulb777/leveldb.git", .revision("3f04697")),
     // Branches need a force update with a run with the revision set like below.
     //   .package(url: "https://github.com/paulb777/nanopb.git", .revision("564392bd87bd093c308a3aaed3997466efb95f74"))
   ],
@@ -88,12 +96,15 @@ let package = Package(
       name: "firebase-test",
       dependencies: [
         "FirebaseAuth",
+        "FirebaseABTesting",
         "FirebaseFunctions",
         "Firebase",
         "FirebaseCrashlytics",
         "FirebaseCore",
+        "FirebaseDatabase",
         "FirebaseInstallations",
         // "FirebaseInstanceID",
+        "FirebaseRemoteConfig",
         "FirebaseStorage",
         "FirebaseStorageSwift",
         "GoogleDataTransport",
@@ -121,7 +132,6 @@ let package = Package(
         "README.md",
         "AppDelegateSwizzler/README.md",
         "Environment/",
-        "Example/",
         "Network/",
         "ISASwizzler/",
         "Logger/",
@@ -129,6 +139,7 @@ let package = Package(
         "NSData+zlib/",
         "Reachability",
         "SwizzlerTestHelpers/",
+        "Tests",
         "UserDefaults/",
       ],
       sources: [
@@ -214,6 +225,30 @@ let package = Package(
         .headerSearchPath("../../"),
       ]
     ),
+    // TODO: - need to port Network/third_party/GTMHTTPServer.m to ARC.
+    // .testTarget(
+    //   name: "UtilitiesUnit",
+    //   dependencies: [
+    //     "OCMock",
+    //     "GoogleUtilities_AppDelegateSwizzler",
+    //     "GoogleUtilities_Environment",
+    //     // "GoogleUtilities_ISASwizzler", // Build needs to disable ARC.
+    //     "GoogleUtilities_Logger",
+    //     "GoogleUtilities_MethodSwizzler",
+    //     "GoogleUtilities_Network",
+    //     "GoogleUtilities_NSData",
+    //     "GoogleUtilities_Reachability",
+    //     "GoogleUtilities_UserDefaults",
+    //   ],
+    //   path: "GoogleUtilities/Tests/Unit",
+    //   exclude: [
+    //     "Network/third_party/LICENSE",
+    //     "Network/third_party/GTMHTTPServer.m", // Requires disabling ARC
+    //   ],
+    //   cSettings: [
+    //     .headerSearchPath("../../.."),
+    //   ]
+    // ),
     .target(
       name: "Firebase",
       path: "CoreOnly/Sources",
@@ -241,6 +276,25 @@ let package = Package(
       ]
     ),
     .target(
+      name: "FirebaseABTesting",
+      dependencies: ["FirebaseCore"],
+      path: "FirebaseABTesting/Sources",
+      publicHeadersPath: "Public",
+      cSettings: [
+        .headerSearchPath("../../"),
+        .define("FIRABTesting_VERSION", to: "0.0.1"), // TODO: Fix version
+      ]
+    ),
+    .testTarget(
+      name: "ABTestingUnit",
+      dependencies: ["FirebaseABTesting", "OCMock"],
+      path: "FirebaseABTesting/Tests/Unit",
+      resources: [.process("Resources")],
+      cSettings: [
+        .headerSearchPath("../../.."),
+      ]
+    ),
+    .target(
       name: "FirebaseAuth",
       dependencies: ["FirebaseCore",
                      "GoogleUtilities_Environment",
@@ -252,6 +306,19 @@ let package = Package(
         .headerSearchPath("../../"),
         .define("FIRAuth_VERSION", to: "0.0.1"), // TODO: Fix version
         .define("FIRAuth_MINOR_VERSION", to: "1.1"), // TODO: Fix version
+      ]
+    ),
+    .testTarget(
+      name: "AuthUnit",
+      dependencies: ["FirebaseAuth", "OCMock"],
+      path: "FirebaseAuth/Tests/Unit",
+      exclude: [
+        "FIRAuthKeychainServicesTests.m", // TODO: figure out SPM keychain testing
+        "FIRAuthTests.m",
+        "FIRUserTests.m",
+      ],
+      cSettings: [
+        .headerSearchPath("../../.."),
       ]
     ),
     .target(
@@ -291,6 +358,38 @@ let package = Package(
         .define("PB_ENABLE_MALLOC", to: "1"),
       ]
     ),
+    .target(
+      name: "FirebaseDatabase",
+      dependencies: [
+        "FirebaseCore",
+        "leveldb",
+      ],
+      path: "FirebaseDatabase/Sources",
+      exclude: [
+        "third_party/Wrap-leveldb/LICENSE",
+        "third_party/SocketRocket/LICENSE",
+        "third_party/FImmutableSortedDictionary/LICENSE",
+        "third_party/SocketRocket/aa2297808c225710e267afece4439c256f6efdb3",
+      ],
+      publicHeadersPath: "Public",
+      cSettings: [
+        .headerSearchPath("../../"),
+        .define("FIRDatabase_VERSION", to: "0.0.1"), // TODO: Fix version
+      ]
+    ),
+    .testTarget(
+      name: "DatabaseUnit",
+      dependencies: ["FirebaseDatabase", "OCMock", "SharedTestUtilities"],
+      path: "FirebaseDatabase/Tests/",
+      exclude: [
+        "Integration/",
+      ],
+      resources: [.process("Resources")],
+      cSettings: [
+        .headerSearchPath("../.."),
+      ]
+    ),
+
     .target(
       name: "FirebaseFunctions",
       dependencies: [
@@ -332,6 +431,42 @@ let package = Package(
       publicHeadersPath: "Public",
       cSettings: [
         .headerSearchPath("../"),
+      ]
+    ),
+    .target(
+      name: "FirebaseRemoteConfig",
+      dependencies: [
+        "FirebaseCore",
+        "FirebaseABTesting",
+        "FirebaseInstallations",
+        "GoogleUtilities_NSData",
+      ],
+      path: "FirebaseRemoteConfig/Sources",
+      publicHeadersPath: "Public",
+      cSettings: [
+        .headerSearchPath("../../"),
+        .define("FIRRemoteConfig_VERSION", to: "0.0.1"), // TODO: Fix version
+      ]
+    ),
+    .testTarget(
+      name: "RemoteConfigUnit",
+      dependencies: ["FirebaseRemoteConfig", "OCMock"],
+      path: "FirebaseRemoteConfig/Tests/Unit",
+      exclude: [
+        // Need to be evaluated/ported to RC V2.
+        "RCNConfigAnalyticsTest.m",
+        "RCNConfigSettingsTest.m",
+        "RCNConfigTest.m",
+        "RCNRemoteConfig+FIRAppTest.m",
+        "RCNThrottlingTests.m",
+      ],
+      resources: [
+        .process("SecondApp-GoogleService-Info.plist"),
+        .process("Defaults-testInfo.plist"),
+        .process("TestABTPayload.txt"),
+      ],
+      cSettings: [
+        .headerSearchPath("../../.."),
       ]
     ),
     .target(
@@ -390,5 +525,6 @@ let package = Package(
       ]
     ),
   ],
-  cLanguageStandard: .c99
+  cLanguageStandard: .c99,
+  cxxLanguageStandard: CXXLanguageStandard.gnucxx14
 )

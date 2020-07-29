@@ -34,9 +34,8 @@ let skipDirPatterns = ["/Sample/", "/Pods/", "FirebaseStorage/Tests/Integration"
 
   // The following are temporary skips pending working through a first pass of the repo:
   [
-    "FirebaseABTesting",
     "FirebaseAppDistribution",
-    "FirebaseCore/Sources/Private", // Fixes require breaking private API changes. For Firebase 7.
+    "FirebaseCore/Sources/Private", // TODO: work through adding this back.
     "FirebaseDynamicLinks",
     "Firebase/CoreDiagnostics",
     "FirebaseDatabase/Sources/third_party/Wrap-leveldb", // Pending SwiftPM for leveldb.
@@ -45,7 +44,6 @@ let skipDirPatterns = ["/Sample/", "/Pods/", "FirebaseStorage/Tests/Integration"
     "FirebaseInstallations/Source/Tests/Unit/",
     "Firebase/InstanceID",
     "FirebaseMessaging",
-    "FirebaseRemoteConfig",
     "Firestore",
     "GoogleUtilitiesComponents",
   ]
@@ -54,6 +52,7 @@ let skipDirPatterns = ["/Sample/", "/Pods/", "FirebaseStorage/Tests/Integration"
 let skipImportPatterns = [
   "FBLPromise",
   "OCMock",
+  "OCMStubRecorder",
 ]
 
 private class ErrorLogger {
@@ -68,7 +67,7 @@ private class ErrorLogger {
   }
 }
 
-private func checkFile(_ file: String, logger: ErrorLogger, inRepo repoURL: URL, isPublic: Bool) {
+private func checkFile(_ file: String, logger: ErrorLogger, inRepo repoURL: URL) {
   var fileContents = ""
   do {
     fileContents = try String(contentsOfFile: file, encoding: .utf8)
@@ -77,6 +76,10 @@ private func checkFile(_ file: String, logger: ErrorLogger, inRepo repoURL: URL,
     // Not a source file, give up and return.
     return
   }
+  let isPublic = file.range(of: "/Public/") != nil &&
+    // TODO: Skip legacy GDTCCTLibrary file that isn't Public and should be moved.
+    file.range(of: "GDTCCTLibrary/Public/GDTCOREvent+GDTCCTSupport.h") == nil
+  let isPrivate = file.range(of: "/Sources/Private/") != nil
   var inSwiftPackage = false
   var inSwiftPackageElse = false
   let lines = fileContents.components(separatedBy: .newlines)
@@ -120,15 +123,18 @@ private func checkFile(_ file: String, logger: ErrorLogger, inRepo repoURL: URL,
           }
 
         } else if !FileManager.default.fileExists(atPath: repoURL.path + "/" + importFileRaw) {
-          // All non-public header imports should be repo-relative paths.
-          for skip in skipImportPatterns {
-            if importFileRaw.starts(with: skip) {
-              continue nextLine
+          // Non-public header imports should be repo-relative paths. Unqualified imports are
+          // allowed in private headers.
+          if !isPrivate || importFile.contains("/") {
+            for skip in skipImportPatterns {
+              if importFileRaw.starts(with: skip) {
+                continue nextLine
+              }
             }
+            logger.importLog("Import \(importFileRaw) does not exist.", file, lineNum)
           }
-          logger.importLog("Import \(importFileRaw) does not exist.", file, lineNum)
         }
-      } else if importFile.first == "<" {
+      } else if importFile.first == "<", !isPrivate {
         // Verify that double quotes are always used for intra-module imports.
         if importFileRaw.starts(with: "Firebase") ||
           importFileRaw.starts(with: "GoogleUtilities") ||
@@ -185,10 +191,7 @@ private func main() -> Int32 {
             continue whileLoop
           }
         }
-        let isPublic = file.range(of: "/Public/") != nil &&
-          // TODO: Skip legacy GDTCCTLibrary file that isn't Public and should be moved.
-          file.range(of: "GDTCCTLibrary/Public/GDTCOREvent+GDTCCTSupport.h") == nil
-        checkFile(fullTransformPath, logger: logger, inRepo: repoURL, isPublic: isPublic)
+        checkFile(fullTransformPath, logger: logger, inRepo: repoURL)
       }
     }
   }

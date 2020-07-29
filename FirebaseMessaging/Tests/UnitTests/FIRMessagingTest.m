@@ -233,7 +233,7 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
       [self expectationWithDescription:@"Included APNS Token data in options dict."];
   // Inspect the 'options' dictionary to tell whether our expectation was fulfilled
   [[[self.mockInstanceID stub] andDo:^(NSInvocation *invocation) {
-    NSDictionary *options;
+    __unsafe_unretained NSDictionary *options;
     [invocation getArgument:&options atIndex:4];
     if (options[@"apns_token"] != nil) {
       [expectation fulfill];
@@ -252,7 +252,7 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
       [self expectationWithDescription:@"Included APNS Token data not included in options dict."];
   // Inspect the 'options' dictionary to tell whether our expectation was fulfilled
   [[[self.mockInstanceID stub] andDo:^(NSInvocation *invocation) {
-    NSDictionary *options;
+    __unsafe_unretained NSDictionary *options;
     [invocation getArgument:&options atIndex:4];
     if (options[@"apns_token"] == nil) {
       [expectation fulfill];

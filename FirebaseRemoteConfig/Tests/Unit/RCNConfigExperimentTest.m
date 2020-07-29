@@ -14,21 +14,20 @@
  * limitations under the License.
  */
 
+#import <XCTest/XCTest.h>
+#import "OCMock.h"
+
 #import "FirebaseRemoteConfig/Sources/RCNConfigExperiment.h"
 
-#import <XCTest/XCTest.h>
-
-#import <FirebaseRemoteConfig/FIRRemoteConfig.h>
 #import "FirebaseRemoteConfig/Sources/Private/RCNConfigSettings.h"
+#import "FirebaseRemoteConfig/Sources/Public/FirebaseRemoteConfig/FIRRemoteConfig.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigDBManager.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigDefines.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigValue_Internal.h"
 #import "FirebaseRemoteConfig/Tests/Unit/RCNTestUtilities.h"
 
-#import <FirebaseABTesting/ABTExperimentPayload.h>
-#import <FirebaseABTesting/FIRExperimentController.h>
+#import "FirebaseABTesting/Sources/Private/FirebaseABTestingInternal.h"
 
-#import <OCMock/OCMock.h>
 #import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 
 // Surface the internal FIRExperimentController initializer.
@@ -253,8 +252,12 @@
 }
 
 + (NSData *)payloadDataFromTestFile {
-  NSString *testJsonDataFilePath =
-      [[NSBundle bundleForClass:[self class]] pathForResource:@"TestABTPayload" ofType:@"txt"];
+#if SWIFT_PACKAGE
+  NSBundle *bundle = Firebase_RemoteConfigUnit_SWIFTPM_MODULE_BUNDLE();
+#else
+  NSBundle *bundle = [NSBundle bundleForClass:[self class]];
+#endif
+  NSString *testJsonDataFilePath = [bundle pathForResource:@"TestABTPayload" ofType:@"txt"];
   NSError *readTextError = nil;
   NSString *fileText = [[NSString alloc] initWithContentsOfFile:testJsonDataFilePath
                                                        encoding:NSUTF8StringEncoding
