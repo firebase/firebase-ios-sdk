@@ -12,47 +12,12 @@
 #endif
 
 
-/* Enum definitions */
-typedef enum _MessagingClientEvent_MessageType {
-    MessagingClientEvent_MessageType_UNKNOWN = 0,
-    MessagingClientEvent_MessageType_DATA_MESSAGE = 1,
-    MessagingClientEvent_MessageType_TOPIC = 2,
-    MessagingClientEvent_MessageType_DISPLAY_NOTIFICATION = 3
-} MessagingClientEvent_MessageType;
-#define _MessagingClientEvent_MessageType_MIN MessagingClientEvent_MessageType_UNKNOWN
-#define _MessagingClientEvent_MessageType_MAX MessagingClientEvent_MessageType_DISPLAY_NOTIFICATION
-#define _MessagingClientEvent_MessageType_ARRAYSIZE ((MessagingClientEvent_MessageType)(MessagingClientEvent_MessageType_DISPLAY_NOTIFICATION+1))
-
-typedef enum _MessagingClientEvent_SDKPlatform {
-    MessagingClientEvent_SDKPlatform_UNKNOWN_OS = 0,
-    MessagingClientEvent_SDKPlatform_ANDROID = 1,
-    MessagingClientEvent_SDKPlatform_IOS = 2,
-    MessagingClientEvent_SDKPlatform_WEB = 3
-} MessagingClientEvent_SDKPlatform;
-#define _MessagingClientEvent_SDKPlatform_MIN MessagingClientEvent_SDKPlatform_UNKNOWN_OS
-#define _MessagingClientEvent_SDKPlatform_MAX MessagingClientEvent_SDKPlatform_WEB
-#define _MessagingClientEvent_SDKPlatform_ARRAYSIZE ((MessagingClientEvent_SDKPlatform)(MessagingClientEvent_SDKPlatform_WEB+1))
-
-typedef enum _MessagingClientEvent_Event {
-    MessagingClientEvent_Event_UNKNOWN_EVENT = 0,
-    MessagingClientEvent_Event_MESSAGE_DELIVERED = 1,
-    MessagingClientEvent_Event_MESSAGE_OPEN = 2
-} MessagingClientEvent_Event;
-#define _MessagingClientEvent_Event_MIN MessagingClientEvent_Event_UNKNOWN_EVENT
-#define _MessagingClientEvent_Event_MAX MessagingClientEvent_Event_MESSAGE_OPEN
-#define _MessagingClientEvent_Event_ARRAYSIZE ((MessagingClientEvent_Event)(MessagingClientEvent_Event_MESSAGE_OPEN+1))
-
 /* Struct definitions */
 typedef struct _MessagingClientEvent {
-    int64_t project_number;
     pb_bytes_array_t *message_id;
     pb_bytes_array_t *instance_id;
-    MessagingClientEvent_MessageType message_type;
-    MessagingClientEvent_SDKPlatform sdk_platform;
     pb_bytes_array_t *package_name;
-    MessagingClientEvent_Event event;
     pb_bytes_array_t *analytics_label;
-    int64_t campaign_id;
     pb_bytes_array_t *composer_label;
 /* @@protoc_insertion_point(struct:MessagingClientEvent) */
 } MessagingClientEvent;
@@ -65,26 +30,21 @@ typedef struct _MessagingClientEventExtension {
 /* Default values for struct fields */
 
 /* Initializer values for message structs */
-#define MessagingClientEvent_init_default        {0, NULL, NULL, _MessagingClientEvent_MessageType_MIN, _MessagingClientEvent_SDKPlatform_MIN, NULL, _MessagingClientEvent_Event_MIN, NULL, 0, NULL}
+#define MessagingClientEvent_init_default        {NULL, NULL, NULL, NULL, NULL}
 #define MessagingClientEventExtension_init_default {MessagingClientEvent_init_default}
-#define MessagingClientEvent_init_zero           {0, NULL, NULL, _MessagingClientEvent_MessageType_MIN, _MessagingClientEvent_SDKPlatform_MIN, NULL, _MessagingClientEvent_Event_MIN, NULL, 0, NULL}
+#define MessagingClientEvent_init_zero           {NULL, NULL, NULL, NULL, NULL}
 #define MessagingClientEventExtension_init_zero  {MessagingClientEvent_init_zero}
 
 /* Field tags (for use in manual encoding/decoding) */
-#define MessagingClientEvent_project_number_tag  1
 #define MessagingClientEvent_message_id_tag      2
 #define MessagingClientEvent_instance_id_tag     3
-#define MessagingClientEvent_message_type_tag    4
-#define MessagingClientEvent_sdk_platform_tag    5
 #define MessagingClientEvent_package_name_tag    6
-#define MessagingClientEvent_event_tag           12
 #define MessagingClientEvent_analytics_label_tag 13
-#define MessagingClientEvent_campaign_id_tag     14
 #define MessagingClientEvent_composer_label_tag  15
 #define MessagingClientEventExtension_messaging_client_event_tag 1
 
 /* Struct field encoding specification for nanopb */
-extern const pb_field_t MessagingClientEvent_fields[11];
+extern const pb_field_t MessagingClientEvent_fields[6];
 extern const pb_field_t MessagingClientEventExtension_fields[2];
 
 /* Maximum encoded size of messages (where known) */

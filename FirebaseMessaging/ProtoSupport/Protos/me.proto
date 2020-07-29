@@ -18,43 +18,13 @@ syntax = "proto3";
 
 message MessagingClientEvent {
 
-  int64 project_number = 1;
-
   string message_id = 2;
 
   string instance_id = 3;
 
-  enum MessageType {
-    UNKNOWN = 0;
-    DATA_MESSAGE = 1;
-    TOPIC = 2;
-    DISPLAY_NOTIFICATION = 3;
-  }
-
-  MessageType message_type = 4;
-
-  enum SDKPlatform {
-    UNKNOWN_OS = 0;
-    ANDROID = 1;
-    IOS = 2;
-    WEB = 3;
-  }
-
-  SDKPlatform sdk_platform = 5;
-
   string package_name = 6;
 
-  enum Event {
-    UNKNOWN_EVENT = 0;
-    MESSAGE_DELIVERED = 1;
-    MESSAGE_OPEN = 2;
-  }
-
-  Event event = 12;
-
   string analytics_label = 13;
-
-  int64 campaign_id = 14;
 
   string composer_label = 15;
 }
