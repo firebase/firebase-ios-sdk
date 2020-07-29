@@ -14,30 +14,20 @@
  * limitations under the License.
  */
 
-#import "FirebaseInstallations/Source/Library/InstallationsIDController/FIRInstallationsBackoffController.h"
+#import <Foundation/Foundation.h>
 
-@interface FIRInstallationsBackoffController ()
+#import "FirebaseInstallations/Source/Library/InstallationsIDController/FIRCurrentDateProvider.h"
 
-@property (nonatomic, readonly) FIRCurrentDateProvider currentDateProvider;
+NS_ASSUME_NONNULL_BEGIN
 
-@end
+@interface FIRTestCurrentDateProvider : NSObject
 
-@implementation FIRInstallationsBackoffController
+/** A date to be returned by `currentDateProvider`. */
+@property (nonatomic, nullable) NSDate *date;
 
-- (instancetype)initWithCurrentDateProvider:(FIRCurrentDateProvider)currentDateProvider {
-  self = [super init];
-  if (self) {
-    _currentDateProvider = [currentDateProvider copy];
-  }
-  return self;
-}
-
-- (BOOL)isNextRequestAllowed {
-  return YES;
-}
-
-- (void)registerEvent:(FIRInstallationsBackoffEvent)event {
-}
-
+/** Return a date provider that returns `FIRTestCurrentDateProvider.date` or `[NSDate date] if  `FIRTestCurrentDateProvider.date == nil` or not available (e.g when `FIRTestCurrentDateProvider` instance was deallocated). */
+- (FIRCurrentDateProvider)currentDateProvider;
 
 @end
+
+NS_ASSUME_NONNULL_END

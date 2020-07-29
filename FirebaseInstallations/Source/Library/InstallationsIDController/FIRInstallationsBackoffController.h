@@ -20,16 +20,15 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-typedef NS_ENUM(NSInteger, FIRInstallationsBackoffFailureType) {
-  FIRInstallationsBackoffFailureTypeRecoverable,
-  FIRInstallationsBackoffFailureTypeUnrecoverable
+typedef NS_ENUM(NSInteger, FIRInstallationsBackoffEvent) {
+  FIRInstallationsBackoffEventSuccess,
+  FIRInstallationsBackoffEventRecoverableFailure,
+  FIRInstallationsBackoffEventUnrecoverableFailure
 };
-
-//typedef NSDate *(^FIRInstallationC)(<#arguments#>);
 
 @protocol FIRInstallationsBackoffControllerProtocol <NSObject>
 
-- (void)registerFailure:(FIRInstallationsBackoffFailureType)failureType;
+- (void)registerEvent:(FIRInstallationsBackoffEvent)event;
 - (BOOL)isNextRequestAllowed;
 
 @end
