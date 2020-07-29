@@ -131,9 +131,11 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
       FIRRemoteConfigHasDeviceContextChanged(_settings.deviceContext, _options.googleAppID);
 
   __weak RCNConfigFetch *weakSelf = self;
-  RCNConfigFetch *fetchWithExpirationSelf = weakSelf;
-  dispatch_async(fetchWithExpirationSelf->_lockQueue, ^{
-    RCNConfigFetch *strongSelf = fetchWithExpirationSelf;
+  dispatch_async(_lockQueue, ^{
+    RCNConfigFetch *strongSelf = weakSelf;
+    if (strongSelf == nil) {
+      return;
+    }
 
     // Check whether we are outside of the minimum fetch interval.
     if (![strongSelf->_settings hasMinimumFetchIntervalElapsed:expirationDuration] &&
@@ -216,15 +218,22 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
                                                     NSLocalizedDescriptionKey : errorDescription
                                                   }]];
   }
+
+  __weak RCNConfigFetch *weakSelf = self;
   FIRInstallationsTokenHandler installationsTokenHandler = ^(
       FIRInstallationsAuthTokenResult *tokenResult, NSError *error) {
+    RCNConfigFetch *strongSelf = weakSelf;
+    if (strongSelf == nil) {
+      return;
+    }
+
     if (!tokenResult || !tokenResult.authToken || error) {
       NSString *errorDescription =
           [NSString stringWithFormat:@"Failed to get installations token. Error : %@.", error];
       FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000073", @"%@",
                   [NSString stringWithFormat:@"%@", errorDescription]);
-      self->_settings.isFetchInProgress = NO;
-      return [self
+      strongSelf->_settings.isFetchInProgress = NO;
+      return [strongSelf
           reportCompletionOnHandler:completionHandler
                          withStatus:FIRRemoteConfigFetchStatusFailure
                           withError:[NSError errorWithDomain:FIRRemoteConfigErrorDomain
@@ -235,14 +244,19 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
     }
 
     // We have a valid token. Get the backing installationID.
-    __weak RCNConfigFetch *weakSelf = self;
     [installations installationIDWithCompletion:^(NSString *_Nullable identifier,
                                                   NSError *_Nullable error) {
       RCNConfigFetch *strongSelf = weakSelf;
+      if (strongSelf == nil) {
+        return;
+      }
 
       // Dispatch to the RC serial queue to update settings on the queue.
       dispatch_async(strongSelf->_lockQueue, ^{
         RCNConfigFetch *strongSelfQueue = weakSelf;
+        if (strongSelfQueue == nil) {
+          return;
+        }
 
         // Update config settings with the IID and token.
         strongSelfQueue->_settings.configInstallationsToken = tokenResult.authToken;
@@ -337,17 +351,17 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
                 @"config fetch completed. Error: %@ StatusCode: %ld", (error ? error : @"nil"),
                 (long)[((NSHTTPURLResponse *)response) statusCode]);
 
-    // The fetch has completed.
-    self->_settings.isFetchInProgress = NO;
-
     RCNConfigFetch *fetcherCompletionSelf = weakSelf;
-    if (!fetcherCompletionSelf) {
+    if (fetcherCompletionSelf == nil) {
       return;
-    };
+    }
+
+    // The fetch has completed.
+    fetcherCompletionSelf->_settings.isFetchInProgress = NO;
 
     dispatch_async(fetcherCompletionSelf->_lockQueue, ^{
       RCNConfigFetch *strongSelf = weakSelf;
-      if (!strongSelf) {
+      if (strongSelf == nil) {
         return;
       }
 
@@ -464,8 +478,8 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
       // Add the fetched config to the database.
       if (fetchedConfig) {
         // Update config content to cache and DB.
-        [self->_content updateConfigContentWithResponse:fetchedConfig
-                                           forNamespace:self->_FIRNamespace];
+        [strongSelf->_content updateConfigContentWithResponse:fetchedConfig
+                                                 forNamespace:strongSelf->_FIRNamespace];
         // Update experiments.
         [strongSelf->_experiment
             updateExperimentsWithResponse:fetchedConfig[RCNFetchResponseKeyExperimentDescriptions]];
@@ -476,11 +490,12 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
 
       // We had a successful fetch. Update the current eTag in settings if different.
       NSString *latestETag = ((NSHTTPURLResponse *)response).allHeaderFields[kETagHeaderName];
-      if (!self->_settings.lastETag || !([self->_settings.lastETag isEqualToString:latestETag])) {
-        self->_settings.lastETag = latestETag;
+      if (!strongSelf->_settings.lastETag ||
+          !([strongSelf->_settings.lastETag isEqualToString:latestETag])) {
+        strongSelf->_settings.lastETag = latestETag;
       }
 
-      [self->_settings updateMetadataWithFetchSuccessStatus:YES];
+      [strongSelf->_settings updateMetadataWithFetchSuccessStatus:YES];
       return [strongSelf reportCompletionOnHandler:completionHandler
                                         withStatus:FIRRemoteConfigFetchStatusSuccess
                                          withError:nil];
