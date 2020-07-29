@@ -53,6 +53,7 @@ let skipImportPatterns = [
   "FBLPromise",
   "OCMock",
   "OCMStubRecorder",
+  "pb",
 ]
 
 private class ErrorLogger {
