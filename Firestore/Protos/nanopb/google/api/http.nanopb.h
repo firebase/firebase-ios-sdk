@@ -19,7 +19,7 @@
 
 #ifndef PB_GOOGLE_API_HTTP_NANOPB_H_INCLUDED
 #define PB_GOOGLE_API_HTTP_NANOPB_H_INCLUDED
-#include <nanopb.h>
+#include <pb.h>
 
 #include <string>
 

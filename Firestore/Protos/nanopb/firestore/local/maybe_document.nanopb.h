@@ -19,7 +19,7 @@
 
 #ifndef PB_FIRESTORE_CLIENT_MAYBE_DOCUMENT_NANOPB_H_INCLUDED
 #define PB_FIRESTORE_CLIENT_MAYBE_DOCUMENT_NANOPB_H_INCLUDED
-#include <nanopb.h>
+#include <pb.h>
 
 #include "google/firestore/v1/document.nanopb.h"
 

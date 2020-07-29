@@ -17,7 +17,7 @@
 #ifndef FIRESTORE_CORE_SRC_NANOPB_PRETTY_PRINTING_H_
 #define FIRESTORE_CORE_SRC_NANOPB_PRETTY_PRINTING_H_
 
-#include <nanopb.h>
+#include <pb.h>
 
 #include <string>
 

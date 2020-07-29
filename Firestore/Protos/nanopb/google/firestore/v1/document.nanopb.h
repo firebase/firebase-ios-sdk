@@ -19,7 +19,7 @@
 
 #ifndef PB_GOOGLE_FIRESTORE_V1_DOCUMENT_NANOPB_H_INCLUDED
 #define PB_GOOGLE_FIRESTORE_V1_DOCUMENT_NANOPB_H_INCLUDED
-#include <nanopb.h>
+#include <pb.h>
 
 #include "google/api/annotations.nanopb.h"
 

@@ -17,8 +17,8 @@
 #ifndef FIRESTORE_CORE_SRC_NANOPB_READER_H_
 #define FIRESTORE_CORE_SRC_NANOPB_READER_H_
 
-#include <nanopb.h>
-//#include <pb_decode.h>
+#include <pb.h>
+#include <pb_decode.h>
 
 #include <string>
 #include <utility>

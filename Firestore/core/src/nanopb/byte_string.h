@@ -17,7 +17,7 @@
 #ifndef FIRESTORE_CORE_SRC_NANOPB_BYTE_STRING_H_
 #define FIRESTORE_CORE_SRC_NANOPB_BYTE_STRING_H_
 
-#include <nanopb.h>
+#include <pb.h>
 
 #include <cstdint>
 #include <initializer_list>

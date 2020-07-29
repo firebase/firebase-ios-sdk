@@ -19,7 +19,7 @@
 
 #ifndef PB_GOOGLE_RPC_STATUS_NANOPB_H_INCLUDED
 #define PB_GOOGLE_RPC_STATUS_NANOPB_H_INCLUDED
-#include <nanopb.h>
+#include <pb.h>
 
 #include "google/protobuf/any.nanopb.h"
 
