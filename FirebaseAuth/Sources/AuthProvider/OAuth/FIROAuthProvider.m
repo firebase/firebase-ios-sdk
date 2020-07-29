@@ -301,7 +301,7 @@ static NSString *const kCustomUrlSchemePrefix = @"app-";
                                      if (clientID) {
                                        urlArguments[@"clientId"] = clientID;
                                      } else {
-                                       urlArguments[@"firebaseAppId"] = firebaseAppID;
+                                       urlArguments[@"appId"] = firebaseAppID;
                                      }
                                      if (strongSelf.scopes.count) {
                                        urlArguments[@"scopes"] =

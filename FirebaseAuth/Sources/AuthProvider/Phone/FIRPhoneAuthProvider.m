@@ -706,7 +706,7 @@ extern NSString *const FIRPhoneMultiFactorID;
                                                                                  value:clientID]];
                                      } else {
                                        [queryItems addObject:[NSURLQueryItem
-                                                                 queryItemWithName:@"firebaseAppId"
+                                                                 queryItemWithName:@"appId"
                                                                              value:firebaseAppID]];
                                      }
 
