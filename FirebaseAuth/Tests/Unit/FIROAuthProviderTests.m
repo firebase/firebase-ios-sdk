@@ -895,7 +895,7 @@ static NSString *const kUnknownErrorString =
         XCTAssertEqualObjects(presentURL.path, @"/__/auth/handler");
         NSDictionary *params = [FIRAuthWebUtils dictionaryWithHttpArgumentsString:presentURL.query];
         XCTAssertEqualObjects(params[@"ibi"], kFakeBundleID);
-        XCTAssertEqualObjects(params[@"firebaseAppId"], kFakeFirebaseAppID);
+        XCTAssertEqualObjects(params[@"appId"], kFakeFirebaseAppID);
         XCTAssertEqualObjects(params[@"apiKey"], kFakeAPIKey);
         XCTAssertEqualObjects(params[@"authType"], @"signInWithRedirect");
         XCTAssertNotNil(params[@"v"]);

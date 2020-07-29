@@ -603,7 +603,7 @@ static const NSTimeInterval kExpectationTimeout = 2;
         NSArray<NSURLQueryItem *> *queryItems = [actualURLComponents queryItems];
         XCTAssertEqualObjects([FIRAuthWebUtils queryItemValue:@"ibi" from:queryItems],
                               kFakeBundleID);
-        XCTAssertEqualObjects([FIRAuthWebUtils queryItemValue:@"firebaseAppId" from:queryItems],
+        XCTAssertEqualObjects([FIRAuthWebUtils queryItemValue:@"appId" from:queryItems],
                               kFakeFirebaseAppID);
         XCTAssertEqualObjects([FIRAuthWebUtils queryItemValue:@"apiKey" from:queryItems],
                               kFakeAPIKey);
