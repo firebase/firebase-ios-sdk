@@ -82,7 +82,7 @@ let package = Package(
     .package(
       name: "nanopb",
       url: "https://github.com/paulb777/nanopb.git",
-      .branch("swift-package-manager")
+      .revision("82230e9998a35a3d2144884204db64f045c880c4")
     ),
     .package(name: "OCMock", url: "https://github.com/paulb777/ocmock.git", .revision("7291762")),
     .package(name: "leveldb", url: "https://github.com/paulb777/leveldb.git", .revision("3f04697")),
