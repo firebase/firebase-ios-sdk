@@ -25,8 +25,20 @@ jobs:
         pod repo add specstaging https://github.com/firebase/SpecsStaging.git
         # SPEC_REPO="specstaging" scripts/add_podspecs.swift
         find . -name "FirebaseCore.podspec" -print -exec pod repo push specstaging {} --sources=https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org/ --skip-tests --local-only \;
+        cd ~/.cocoapods/repos/specstaging
+        echo "git status"
+        git status
+        cd "${GITHUB_WORKSPACE}"
         find . -name "GoogleDataTransport.podspec" -print -exec pod repo push specstaging {} --sources=https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org/ --skip-tests --local-only \;
+        cd ~/.cocoapods/repos/specstaging
+        echo "git status"
+        git status
+        cd "${GITHUB_WORKSPACE}"
         find . -name "FirebaseABTesting.podspec" -print -exec pod repo push specstaging {} --sources=https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org/ --skip-tests --local-only \;
+        cd ~/.cocoapods/repos/specstaging
+        echo "git status"
+        git status
+        cd "${GITHUB_WORKSPACE}"
         cp  -av "${HOME}/.cocoapods/repos" "${GITHUB_WORKSPACE}/podspec_repo"
     - uses: actions/upload-artifact@v1
       if: ${{ always() }}
