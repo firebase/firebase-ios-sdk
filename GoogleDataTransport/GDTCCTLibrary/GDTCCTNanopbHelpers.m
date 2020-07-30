@@ -27,13 +27,9 @@
 #import "GoogleDataTransport/GDTCORLibrary/Public/GDTCOREvent.h"
 #import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORPlatform.h"
 
-#if SWIFT_PACKAGE
-#import "nanopb.h"
-#else
 #import <nanopb/pb.h>
 #import <nanopb/pb_decode.h>
 #import <nanopb/pb_encode.h>
-#endif
 
 #import "GoogleDataTransport/GDTCCTLibrary/Public/GDTCOREvent+GDTCCTSupport.h"
 
