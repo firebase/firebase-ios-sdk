@@ -51,7 +51,7 @@
 - (void)testIsNextRequestAllowed_AfterUnrecoverableError {
   XCTAssertTrue([self.backoffController isNextRequestAllowed]);
 
-  [self.backoffController registerEvent:FIRInstallationsBackoffEventRecoverableFailure];
+  [self.backoffController registerEvent:FIRInstallationsBackoffEventUnrecoverableFailure];
 
   [self assertBackoffTimeInterval:24 * 60 * 60];  // 24h
 }
@@ -59,14 +59,14 @@
 - (void)testIsNextRequestAllowed_AfterRecoverableError {
   XCTAssertTrue([self.backoffController isNextRequestAllowed]);
 
-  for (NSInteger attempt = 0; attempt < 20; attempt++) {
+  for (NSInteger attempt = 1; attempt < 21; attempt++) {
     NSTimeInterval expectedBackoffInterval = MIN(pow(2, attempt), 24 * 60 * 60 /*24h*/);
 
-    [self.backoffController registerEvent:FIRInstallationsBackoffEventUnrecoverableFailure];
+    [self.backoffController registerEvent:FIRInstallationsBackoffEventRecoverableFailure];
     [self assertBackoffTimeInterval:expectedBackoffInterval];
   }
 
-  [self.backoffController registerEvent:FIRInstallationsBackoffEventRecoverableFailure];
+  [self.backoffController registerEvent:FIRInstallationsBackoffEventUnrecoverableFailure];
   [self assertBackoffTimeInterval:24 * 60 * 60];  // 24h
 }
 
@@ -109,11 +109,13 @@
                  self.name, expectedBackoffTimeInterval);
 
   // Expect request allowed right after backoff time interval.
-  NSTimeInterval rightAfterBackoffInterval = expectedBackoffTimeInterval + 1;
+  NSTimeInterval rightAfterBackoffInterval = expectedBackoffTimeInterval + 1.1;
   self.testDateProvider.date =
       [self.initialCurrentDate dateByAddingTimeInterval:rightAfterBackoffInterval];
   XCTAssertTrue([self.backoffController isNextRequestAllowed], @"Test: %@, interval: %f", self.name,
                 expectedBackoffTimeInterval);
+
+  self.testDateProvider.date = self.initialCurrentDate;
 }
 
 @end
