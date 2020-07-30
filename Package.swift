@@ -96,7 +96,11 @@ let package = Package(
       url: "https://github.com/paulb777/nanopb.git",
       .revision("82230e9998a35a3d2144884204db64f045c880c4")
     ),
-    .package(name: "abseil", url: "https://github.com/paulb777/abseil-cpp.git", .revision("7790dc1")),
+    .package(
+      name: "abseil",
+      url: "https://github.com/paulb777/abseil-cpp.git",
+      .revision("7790dc1")
+    ),
     .package(name: "gRPC", url: "https://github.com/paulb777/grpc.git", .revision("37a9e06cd8")),
     .package(name: "OCMock", url: "https://github.com/paulb777/ocmock.git", .revision("7291762")),
     .package(name: "leveldb", url: "https://github.com/paulb777/leveldb.git", .revision("3f04697")),
@@ -131,7 +135,7 @@ let package = Package(
         "GoogleUtilities_NSData",
         "GoogleUtilities_Reachability",
         "GoogleUtilities_UserDefaults",
-        "nanopb",
+        .product(name: "nanopb", package: "nanopb"),
       ]
     ),
     .target(
@@ -337,9 +341,9 @@ let package = Package(
     ),
     .target(
       name: "FirebaseCrashlytics",
-      dependencies: ["FirebaseCore", "FirebaseInstallations",
+      dependencies: ["FirebaseCore", "FirebaseInstallations", "GoogleDataTransport",
                      .product(name: "FBLPromises", package: "Promises"),
-                     "GoogleDataTransport", "nanopb"],
+                     .product(name: "nanopb", package: "nanopb")],
       path: "Crashlytics",
       exclude: [
         "run",
@@ -409,8 +413,8 @@ let package = Package(
       dependencies: [
         "FirebaseCore",
         "leveldb",
-        "nanopb",
-        .product(name:"abseil", package: "abseil"),
+        .product(name: "nanopb", package: "nanopb"),
+        .product(name: "abseil", package: "abseil"),
         .product(name: "gRPC-cpp", package: "gRPC"),
       ],
       path: "Firestore",
@@ -601,7 +605,9 @@ let package = Package(
     ),
     .target(
       name: "GoogleDataTransport",
-      dependencies: ["nanopb"],
+      dependencies: [
+        .product(name: "nanopb", package: "nanopb"),
+      ],
       path: "GoogleDataTransport",
       exclude: [
         "CHANGELOG.md",
