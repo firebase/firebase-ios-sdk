@@ -50,7 +50,7 @@ NSString *const kFIRDLVersion = @STR(FIRDynamicLinks_VERSION);
 
 // We should only read the deeplink after install once. We use the following key to store the state
 // in the user defaults.
-static NSString *const kFIRDLReadDeepLinkAfterInstallKey =
+NSString *const kFIRDLReadDeepLinkAfterInstallKey =
     @"com.google.appinvite.readDeeplinkAfterInstall";
 
 // We should only open url once. We use the following key to store the state in the user defaults.
