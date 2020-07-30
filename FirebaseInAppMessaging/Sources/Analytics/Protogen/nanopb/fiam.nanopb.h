@@ -19,7 +19,7 @@
 
 #ifndef PB_LOGS_PROTO_FIREBASE_INAPPMESSAGING_FIAM_NANOPB_H_INCLUDED
 #define PB_LOGS_PROTO_FIREBASE_INAPPMESSAGING_FIAM_NANOPB_H_INCLUDED
-#include "pb.h"
+#include <nanopb/pb.h>
 
 /* @@protoc_insertion_point(includes) */
 #if PB_PROTO_HEADER_VERSION != 30
