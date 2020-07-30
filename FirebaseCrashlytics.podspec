@@ -31,7 +31,7 @@ Pod::Spec.new do |s|
   ]
 
   s.public_header_files = [
-    'Crashlytics/Crashlytics/Public/*.h'
+    'Crashlytics/Crashlytics/Public/FirebaseCrashlytics/*.h'
   ]
 
   s.preserve_paths = [
