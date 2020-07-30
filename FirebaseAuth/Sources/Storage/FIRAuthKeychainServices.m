@@ -149,13 +149,11 @@ NS_ASSUME_NONNULL_BEGIN
       *error = nil;
     }
     // Return the non-legacy item.
-    for
-      item in items {
-        if item
-          [kSecAttrService] != nil {
-            return item[(__bridge id)kSecValueData];
-          }
+    for (item in items) {
+      if (item[kSecAttrService] != nil) {
+        return item[(__bridge id)kSecValueData];
       }
+    }
 
     // If they were all legacy items, just return the first one.
     // This should not happen, since only one account should be
