@@ -50,11 +50,11 @@ NSString *const kFIRDLVersion = @STR(FIRDynamicLinks_VERSION);
 
 // We should only read the deeplink after install once. We use the following key to store the state
 // in the user defaults.
-NSString *const kFIRDLReadDeepLinkAfterInstallKey =
+static NSString *const kFIRDLReadDeepLinkAfterInstallKey =
     @"com.google.appinvite.readDeeplinkAfterInstall";
 
 // We should only open url once. We use the following key to store the state in the user defaults.
-NSString *const kFIRDLOpenURLKey = @"com.google.appinvite.openURL";
+static NSString *const kFIRDLOpenURLKey = @"com.google.appinvite.openURL";
 
 // Custom domains to be whitelisted are optionally added as an array to the info.plist.
 static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustomDomains";
