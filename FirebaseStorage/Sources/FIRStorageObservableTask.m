@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebaseStorage/Sources/Public/FIRStorageObservableTask.h"
+#import "FirebaseStorage/Sources/Public/FirebaseStorage/FIRStorageObservableTask.h"
 #import "FirebaseStorage/Sources/FIRStorageObservableTask_Private.h"
 #import "FirebaseStorage/Sources/FIRStorageTask_Private.h"
 
