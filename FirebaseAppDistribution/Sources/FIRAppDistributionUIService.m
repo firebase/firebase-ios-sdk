@@ -225,6 +225,7 @@ SFAuthenticationSession *_safariAuthenticationVC;
 
 - (void)resetUIState {
   if (self.window) {
+    self.window.rootViewController = nil;
     self.window.hidden = YES;
     self.window = nil;
   }
