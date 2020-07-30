@@ -285,8 +285,7 @@ static NSString *const kCustomUrlSchemePrefix = @"app-";
                                      __strong __typeof__(self) strongSelf = weakSelf;
                                      NSString *bundleID = [NSBundle mainBundle].bundleIdentifier;
                                      NSString *clientID = strongSelf->_auth.app.options.clientID;
-                                     NSString *firebaseAppID =
-                                         strongSelf->_auth.app.options.googleAppID;
+                                     NSString *appID = strongSelf->_auth.app.options.googleAppID;
                                      NSString *apiKey =
                                          strongSelf->_auth.requestConfiguration.APIKey;
                                      NSMutableDictionary *urlArguments = [@{
@@ -301,7 +300,7 @@ static NSString *const kCustomUrlSchemePrefix = @"app-";
                                      if (clientID) {
                                        urlArguments[@"clientId"] = clientID;
                                      } else {
-                                       urlArguments[@"appId"] = firebaseAppID;
+                                       urlArguments[@"appId"] = appID;
                                      }
                                      if (strongSelf.scopes.count) {
                                        urlArguments[@"scopes"] =

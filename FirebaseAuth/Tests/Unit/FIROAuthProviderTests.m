@@ -88,7 +88,7 @@ static NSString *const kFakeReverseClientID = @"com.googleusercontent.apps.12345
 static NSString *const kFakeFirebaseAppID = @"1:123456789:ios:123abc456def";
 
 /** @var kFakeEncodedFirebaseAppID
-    @brief A fake encoded Firebase app ID to be used as a custom URL scheme..
+    @brief A fake encoded Firebase app ID to be used as a custom URL scheme.
  */
 static NSString *const kFakeEncodedFirebaseAppID = @"app-1-123456789-ios-123abc456def";
 
@@ -98,7 +98,7 @@ static NSString *const kFakeEncodedFirebaseAppID = @"app-1-123456789-ios-123abc4
 static NSString *const kFakeOAuthResponseURL = @"fakeOAuthResponseURL";
 
 /** @var kFakeRedirectURLResponseURL
-    @brief A fake callback URL containing a fake response URL.
+    @brief A fake callback URL (minus the scheme) containing a fake response URL.
  */
 static NSString *const kFakeRedirectURLResponseURL =
     @"://firebaseauth/"
@@ -109,8 +109,8 @@ static NSString *const kFakeRedirectURLResponseURL =
     @brief The base for a fake redirect URL string that contains an error.
  */
 static NSString *const kFakeRedirectURLBaseErrorString =
-    @"://firebaseauth/"
-    @"link?deep_link_id=https%3A%2F%2Fexample.firebaseapp.com%2F__%2Fauth%2Fcallback%3f";
+    @"com.googleusercontent.apps.123456://fire"
+     "baseauth/link?deep_link_id=https%3A%2F%2Fexample.firebaseapp.com%2F__%2Fauth%2Fcallback%3f";
 
 /** @var kNetworkRequestFailedErrorString
     @brief The error message returned if a network request failure occurs within the web context.
@@ -504,9 +504,8 @@ static NSString *const kUnknownErrorString =
         // `callbackMatcher` is at index 4
         [invocation getArgument:&unretainedArgument atIndex:4];
         FIRAuthURLCallbackMatcher callbackMatcher = unretainedArgument;
-        NSMutableString *redirectURL = [NSMutableString
-            stringWithString:[kFakeReverseClientID
-                                 stringByAppendingString:kFakeRedirectURLBaseErrorString]];
+        NSMutableString *redirectURL =
+            [NSMutableString stringWithString:kFakeRedirectURLBaseErrorString];
         [redirectURL appendString:kNetworkRequestFailedErrorString];
         // Verify that the URL is rejected by the callback matcher without the event ID.
         XCTAssertFalse(callbackMatcher([NSURL URLWithString:redirectURL]));
@@ -603,9 +602,8 @@ static NSString *const kUnknownErrorString =
         // `callbackMatcher` is at index 4
         [invocation getArgument:&unretainedArgument atIndex:4];
         FIRAuthURLCallbackMatcher callbackMatcher = unretainedArgument;
-        NSMutableString *redirectURL = [NSMutableString
-            stringWithString:[kFakeReverseClientID
-                                 stringByAppendingString:kFakeRedirectURLBaseErrorString]];
+        NSMutableString *redirectURL =
+            [NSMutableString stringWithString:kFakeRedirectURLBaseErrorString];
         // Add internal error string to redirect URL.
         [redirectURL appendString:kInternalErrorString];
         // Verify that the URL is rejected by the callback matcher without the event ID.
@@ -703,9 +701,8 @@ static NSString *const kUnknownErrorString =
         // `callbackMatcher` is at index 4
         [invocation getArgument:&unretainedArgument atIndex:4];
         FIRAuthURLCallbackMatcher callbackMatcher = unretainedArgument;
-        NSMutableString *redirectURL = [NSMutableString
-            stringWithString:[kFakeReverseClientID
-                                 stringByAppendingString:kFakeRedirectURLBaseErrorString]];
+        NSMutableString *redirectURL =
+            [NSMutableString stringWithString:kFakeRedirectURLBaseErrorString];
         // Add invalid client ID error to redirect URL.
         [redirectURL appendString:kInvalidClientIDString];
         // Verify that the URL is rejected by the callback matcher without the event ID.
@@ -803,9 +800,8 @@ static NSString *const kUnknownErrorString =
         // `callbackMatcher` is at index 4
         [invocation getArgument:&unretainedArgument atIndex:4];
         FIRAuthURLCallbackMatcher callbackMatcher = unretainedArgument;
-        NSMutableString *redirectURL = [NSMutableString
-            stringWithString:[kFakeReverseClientID
-                                 stringByAppendingString:kFakeRedirectURLBaseErrorString]];
+        NSMutableString *redirectURL =
+            [NSMutableString stringWithString:kFakeRedirectURLBaseErrorString];
         // Add unknown error to redirect URL.
         [redirectURL appendString:kUnknownErrorString];
         // Verify that the URL is rejected by the callback matcher without the event ID.

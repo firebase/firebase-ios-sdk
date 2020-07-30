@@ -687,7 +687,7 @@ extern NSString *const FIRPhoneMultiFactorID;
                                      }
                                      NSString *bundleID = [NSBundle mainBundle].bundleIdentifier;
                                      NSString *clientID = self->_auth.app.options.clientID;
-                                     NSString *firebaseAppID = self->_auth.app.options.googleAppID;
+                                     NSString *appID = self->_auth.app.options.googleAppID;
                                      NSString *apiKey = self->_auth.requestConfiguration.APIKey;
                                      NSMutableArray<NSURLQueryItem *> *queryItems = [@[
                                        [NSURLQueryItem queryItemWithName:@"apiKey" value:apiKey],
@@ -705,9 +705,9 @@ extern NSString *const FIRPhoneMultiFactorID;
                                            addObject:[NSURLQueryItem queryItemWithName:@"clientId"
                                                                                  value:clientID]];
                                      } else {
-                                       [queryItems addObject:[NSURLQueryItem
-                                                                 queryItemWithName:@"appId"
-                                                                             value:firebaseAppID]];
+                                       [queryItems
+                                           addObject:[NSURLQueryItem queryItemWithName:@"appId"
+                                                                                 value:appID]];
                                      }
 
                                      if (self->_auth.requestConfiguration.languageCode) {

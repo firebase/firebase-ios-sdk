@@ -106,7 +106,7 @@ static NSString *const kFakeReverseClientID = @"com.googleusercontent.apps.12345
 static NSString *const kFakeFirebaseAppID = @"1:123456789:ios:123abc456def";
 
 /** @var kFakeEncodedFirebaseAppID
-    @brief A fake encoded Firebase app ID to be used as a custom URL scheme..
+    @brief A fake encoded Firebase app ID to be used as a custom URL scheme.
  */
 static NSString *const kFakeEncodedFirebaseAppID = @"app-1-123456789-ios-123abc456def";
 
@@ -131,7 +131,8 @@ static NSString *const kFakeAuthorizedDomain = @"test.firebaseapp.com";
 static NSString *const kFakeReCAPTCHAToken = @"fakeReCAPTCHAToken";
 
 /** @var kFakeRedirectURLStringWithReCAPTCHAToken
-    @brief The format for a fake redirect URL string that contains the fake reCAPTCHA token above.
+    @brief The format for a fake redirect URL string (minus the scheme) that contains the fake
+   reCAPTCHA token above.
  */
 static NSString *const kFakeRedirectURLStringWithReCAPTCHAToken =
     @"://firebaseauth/"
