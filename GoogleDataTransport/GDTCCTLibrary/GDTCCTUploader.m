@@ -22,13 +22,9 @@
 #import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORRegistrar.h"
 #import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORStorageProtocol.h"
 
-#if SWIFT_PACKAGE
-#import "nanopb.h"
-#else
-#import <nanopb/pb.h>
-#import <nanopb/pb_decode.h>
-#import <nanopb/pb_encode.h>
-#endif
+#import "pb.h"
+#import "pb_decode.h"
+#import "pb_encode.h"
 
 #import "GoogleDataTransport/GDTCCTLibrary/Private/GDTCCTCompressionHelper.h"
 #import "GoogleDataTransport/GDTCCTLibrary/Private/GDTCCTNanopbHelpers.h"

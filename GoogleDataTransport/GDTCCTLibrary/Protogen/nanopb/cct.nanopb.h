@@ -19,11 +19,8 @@
 
 #ifndef PB_GDT_CCT_CCT_NANOPB_H_INCLUDED
 #define PB_GDT_CCT_CCT_NANOPB_H_INCLUDED
-#if SWIFT_PACKAGE
-#include "nanopb.h"
-#else
-#include <nanopb/pb.h>
-#endif
+
+#include "pb.h"
 
 /* @@protoc_insertion_point(includes) */
 #if PB_PROTO_HEADER_VERSION != 30
