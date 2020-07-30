@@ -139,7 +139,7 @@ NS_ASSUME_NONNULL_BEGIN
       return nil;
     } else if (items.count > 1) {
       // More than one keychain item was found, all but the first will be ignored.
-      FIRLogError(
+      FIRLogWarning(
           kFIRLoggerAuth, @"I-AUT000005",
           @"Keychain query returned multiple results, all but the first will be ignored: %@",
           items);
@@ -148,8 +148,19 @@ NS_ASSUME_NONNULL_BEGIN
     if (error) {
       *error = nil;
     }
-    NSDictionary *item = items[0];
-    return item[(__bridge id)kSecValueData];
+    // Return the non-legacy item.
+    for
+      item in items {
+        if item
+          [kSecAttrService] != nil {
+            return item[(__bridge id)kSecValueData];
+          }
+      }
+
+    // If they were all legacy items, just return the first one.
+    // This should not happen, since only one account should be
+    // stored.
+    return items[0][(__bridge id)kSecValueData];
   }
 
   if (status == errSecItemNotFound) {
