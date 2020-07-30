@@ -149,7 +149,7 @@ NS_ASSUME_NONNULL_BEGIN
       *error = nil;
     }
     // Return the non-legacy item.
-    for (item in items) {
+    for (NSDictionary *item in items) {
       if (item[kSecAttrService] != nil) {
         return item[(__bridge id)kSecValueData];
       }
