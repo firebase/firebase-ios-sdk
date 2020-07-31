@@ -297,7 +297,6 @@ static NSString *const kKeychainService = @"com.firebase.FIRInstallations.instal
   switch (HTTPError.HTTPResponse.statusCode) {
     // These are the errors that require Firebase configuration change.
     case FIRInstallationsRegistrationHTTPCodeInvalidArgument:
-    case FIRInstallationsRegistrationHTTPCodeInvalidAPIKey:
     case FIRInstallationsRegistrationHTTPCodeAPIKeyToProjectIDMismatch:
     case FIRInstallationsRegistrationHTTPCodeProjectNotFound:
       return YES;
