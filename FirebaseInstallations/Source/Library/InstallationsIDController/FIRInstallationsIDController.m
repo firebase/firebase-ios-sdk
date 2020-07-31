@@ -262,6 +262,11 @@ static NSString *const kKeychainService = @"com.firebase.FIRInstallations.instal
       break;
   }
 
+  // Check for backoff.
+  if (![self.backoffController isNextRequestAllowed]) {
+    return [FIRInstallationsErrorUtil rejectedPromiseWithError:[FIRInstallationsErrorUtil backoffIntervalWaitError]];
+  }
+
   return [self.APIService registerInstallation:installation]
       .catch(^(NSError *_Nonnull error) {
         [self updateBackoffWithSuccess:NO APIError:error];
@@ -344,6 +349,11 @@ static NSString *const kKeychainService = @"com.firebase.FIRInstallations.instal
 
 - (FBLPromise<FIRInstallationsItem *> *)refreshAuthTokenForInstallation:
     (FIRInstallationsItem *)installation {
+  // Check for backoff.
+  if (![self.backoffController isNextRequestAllowed]) {
+    return [FIRInstallationsErrorUtil rejectedPromiseWithError:[FIRInstallationsErrorUtil backoffIntervalWaitError]];
+  }
+
   return [[[self.APIService refreshAuthTokenForInstallation:installation]
            then:^id _Nullable(FIRInstallationsItem *_Nullable refreshedInstallation) {
     [self updateBackoffWithSuccess:YES APIError:nil];
