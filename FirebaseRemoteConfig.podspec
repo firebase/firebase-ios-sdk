@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseRemoteConfig'
-  s.version          = '4.7.0'
+  s.version          = '4.8.0'
   s.summary          = 'Firebase Remote Config'
 
   s.description      = <<-DESC
@@ -36,7 +36,7 @@ app update.
     'GoogleUtilities/Environment/Private/*.h',
     'GoogleUtilities/NSData+zlib/Private/*.h',
   ]
-  s.public_header_files = base_dir + 'Public/*.h'
+  s.public_header_files = base_dir + 'Public/FirebaseRemoteConfig/*.h'
   s.private_header_files = base_dir + 'Private/*.h'
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',

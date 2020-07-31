@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseAuth'
-  s.version          = '6.7.0'
+  s.version          = '6.7.1'
   s.summary          = 'Apple platform client for Firebase Authentication'
 
   s.description      = <<-DESC
@@ -34,7 +34,7 @@ supports email and password accounts, as well as several 3rd party authenticatio
     'GoogleUtilities/SceneDelegateSwizzler/Private/*.h',
     'Interop/Auth/Public/*.h',
   ]
-  s.public_header_files = source + 'Public/*.h'
+  s.public_header_files = source + 'Public/FirebaseAuth/*.h'
   s.preserve_paths = [
     'FirebaseAuth/README.md',
     'FirebaseAuth/CHANGELOG.md'

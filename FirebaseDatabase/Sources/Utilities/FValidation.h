@@ -15,7 +15,7 @@
  */
 
 #import "FirebaseDatabase/Sources/Core/Utilities/FPath.h"
-#import "FirebaseDatabase/Sources/Public/FIRDataEventType.h"
+#import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRDataEventType.h"
 #import "FirebaseDatabase/Sources/Utilities/FParsedUrl.h"
 #import "FirebaseDatabase/Sources/Utilities/FTypedefs.h"
 #import <Foundation/Foundation.h>

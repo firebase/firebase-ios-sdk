@@ -8,9 +8,8 @@ on:
     - '.github/workflows/remoteconfig.yml'
     - 'Gemfile'
   schedule:
-    # Run every day at 3am (PST) - cron uses UTC times
-    # This is set to 3 hours after zip workflow so zip testing can run after.
-    - cron:  '0 11 * * *'
+    # Run every day at 11pm (PST) - cron uses UTC times
+    - cron:  '0 7 * * *'
 
 jobs:
 
@@ -89,6 +88,19 @@ jobs:
           quickstart-ios/TestUtils/FIREGSignInInfo.h "$signin_secret"
     - name: Test Swift Quickstart
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Config)
+
+  sample-build-test:
+    # Don't run on private repo unless it is a PR.
+    if: github.repository != 'FirebasePrivate/firebase-ios-sdk' || github.event_name == 'pull_request'
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Prereqs
+      run: scripts/install_prereqs.sh RemoteConfigSample iOS
+    - name: Build
+      run: scripts/build.sh RemoteConfigSample iOS
 
   remoteconfig-cron-only:
     # Don't run on private repo.

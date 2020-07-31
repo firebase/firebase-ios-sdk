@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseFirestore'
-  s.version          = '1.16.2'
+  s.version          = '1.16.3'
   s.summary          = 'Google Cloud Firestore'
 
   s.description      = <<-DESC
@@ -29,7 +29,6 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
     'Firestore/Source/Public/*.h',
     'Firestore/Source/**/*.{m,mm}',
     'Firestore/Protos/nanopb/**/*.cc',
-    'Firestore/Protos/objc/**/*.m',
     'Firestore/core/include/**/*.{cc,mm}',
     'Firestore/core/src/**/*.{cc,mm}',
     'Interop/Auth/Public/*.h',
@@ -41,7 +40,6 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
     'Firestore/Source/Remote/*.h',
     'Firestore/Source/Util/*.h',
     'Firestore/Protos/nanopb/**/*.h',
-    'Firestore/Protos/objc/**/*.h',
     'Firestore/core/include/**/*.h',
     'Firestore/core/src/**/*.h',
   ]
@@ -93,11 +91,7 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
       '"${PODS_TARGET_SRCROOT}" ' +
       '"${PODS_TARGET_SRCROOT}/Firestore/Source/Public" ' +
       '"${PODS_ROOT}/nanopb" ' +
-      '"${PODS_TARGET_SRCROOT}/Firestore/Protos/nanopb" ' +
-      '"${PODS_TARGET_SRCROOT}/Firestore/Protos/objc/google/api" ' +
-      '"${PODS_TARGET_SRCROOT}/Firestore/Protos/objc/google/firestore/v1" ' +
-      '"${PODS_TARGET_SRCROOT}/Firestore/Protos/objc/google/rpc" ' +
-      '"${PODS_TARGET_SRCROOT}/Firestore/Protos/objc/google/type"',
+      '"${PODS_TARGET_SRCROOT}/Firestore/Protos/nanopb"'
   }
 
   s.compiler_flags = '$(inherited) -Wreorder -Werror=reorder -Wno-comma'

@@ -16,7 +16,7 @@
 
 #import "GoogleDataTransport/GDTCORTests/Common/Fakes/GDTCORStorageFake.h"
 
-#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCOREvent.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCOREvent.h"
 
 @implementation GDTCORStorageFake {
   /** Store the events in memory. */

@@ -27,6 +27,8 @@ brew install swiftformat
 clang-format -version
 swiftformat -version
 
+echo "python --version: $(python --version)"
+pip install --upgrade pip
 pip install flake8
 pip install six
 

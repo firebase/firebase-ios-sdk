@@ -36,6 +36,7 @@ product can be one of:
   Messaging
   MessagingSample
   RemoteConfig
+  RemoteConfigSample
   Storage
   StorageSwift
   SymbolCollision
@@ -433,6 +434,14 @@ case "$product-$platform-$method" in
       "${xcb_flags[@]}" \
       build \
       test
+    ;;
+
+  RemoteConfigSample-*-*)
+    RunXcodebuild \
+      -workspace 'FirebaseRemoteConfig/Tests/Sample/RemoteConfigSampleApp.xcworkspace' \
+      -scheme "RemoteConfigSampleApp" \
+      "${xcb_flags[@]}" \
+      build
     ;;
 
   Storage-*-xcodebuild)

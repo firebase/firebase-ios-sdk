@@ -23,6 +23,10 @@ on:
     # Interop headers
     - 'Interop/Auth/Public/*.h'
 
+    # FirebaseCore header change
+    - 'FirebaseCore/Sources/Private'
+    - 'FirebaseCore/Sources/Public'
+
     # Podspec
     - 'FirebaseFirestore.podspec'
 
@@ -52,9 +56,8 @@ on:
     - 'Gemfile'
 
   schedule:
-    # Run every day at 3am (PST) - cron uses UTC times
-    # This is set to 3 hours after zip workflow so zip testing can run after.
-    - cron:  '0 11 * * *'
+    # Run every day at 11pm (PST) - cron uses UTC times
+    - cron:  '0 7 * * *'
 
 jobs:
   check:
@@ -63,6 +66,10 @@ jobs:
     runs-on: macos-latest
     steps:
     - uses: actions/checkout@v2
+
+    - uses: actions/setup-python@v2
+      with:
+        python-version: 3.6
 
     - name: Setup check
       run:  scripts/setup_check.sh
