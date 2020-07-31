@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCOREvent.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCOREvent.h"
 
-#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORAssert.h"
-#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORClock.h"
-#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORConsoleLogger.h"
-#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORPlatform.h"
-#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORStorageProtocol.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORAssert.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORClock.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORConsoleLogger.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORPlatform.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORStorageProtocol.h"
 
 #import "GoogleDataTransport/GDTCORLibrary/Private/GDTCOREvent_Private.h"
 

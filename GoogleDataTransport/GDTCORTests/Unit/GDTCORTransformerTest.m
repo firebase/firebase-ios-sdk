@@ -16,8 +16,8 @@
 
 #import "GoogleDataTransport/GDTCORTests/Unit/GDTCORTestCase.h"
 
-#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCOREvent.h"
-#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCOREventTransformer.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCOREvent.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCOREventTransformer.h"
 
 #import "GoogleDataTransport/GDTCORLibrary/Private/GDTCORFlatFileStorage.h"
 #import "GoogleDataTransport/GDTCORLibrary/Private/GDTCORRegistrar_Private.h"
