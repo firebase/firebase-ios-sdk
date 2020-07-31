@@ -81,7 +81,9 @@ private func checkFile(_ file: String, logger: ErrorLogger, inRepo repoURL: URL)
     file.range(of: "GDTCCTLibrary/Public/GDTCOREvent+GDTCCTSupport.h") == nil
   let isPrivate = file.range(of: "/Sources/Private/") != nil ||
     // Delete when FirebaseInstallations fixes directory structure.
-    file.range(of: "Source/Library/Private/") != nil
+    file.range(of: "Source/Library/Private/") != nil ||
+    // Delete when GDT fixes directory structure.
+    file.range(of: "GDTCORLibrary/Internal/") != nil
   var inSwiftPackage = false
   var inSwiftPackageElse = false
   let lines = fileContents.components(separatedBy: .newlines)
