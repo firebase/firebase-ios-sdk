@@ -452,6 +452,26 @@ static NSString *const kKeychainService = @"com.firebase.FIRInstallations.instal
                     ?: [self.getInstallationPromiseCache getExistingPendingPromise];
 }
 
+#pragma mark - Backoff
+
+- (void)updateBackoffWithResponse:(NSHTTPURLResponse *)response
+                     networkError:(NSError *)networkError {
+  NSInteger statusCode = response.statusCode;
+
+  if (networkError) {
+    [self.backoffController registerEvent:FIRInstallationsBackoffEventRecoverableFailure];
+    return;
+  } else if (statusCode >= 200 && statusCode < 300) { // Success.
+    [self.backoffController registerEvent:FIRInstallationsBackoffEventSuccess];
+  } else if (statusCode == 400) { //Explicitly unrecoverable errors.
+    [self.backoffController registerEvent:FIRInstallationsBackoffEventUnrecoverableFailure];
+  } else if (statusCode == 403 || statusCode == 429 || statusCode == 500) { // Explicitly recoverable errors.
+    [self.backoffController registerEvent:FIRInstallationsBackoffEventRecoverableFailure];
+  } else { // Treat all unknown errors as recoverable.
+    [self.backoffController registerEvent:FIRInstallationsBackoffEventRecoverableFailure];
+  }
+}
+
 #pragma mark - Notifications
 
 - (void)postFIDDidChangeNotification {
