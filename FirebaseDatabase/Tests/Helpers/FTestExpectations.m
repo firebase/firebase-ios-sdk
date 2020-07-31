@@ -15,7 +15,7 @@
  */
 
 #import "FirebaseDatabase/Tests/Helpers/FTestExpectations.h"
-#import "FirebaseDatabase/Sources/Public/FIRDataSnapshot.h"
+#import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRDataSnapshot.h"
 
 @interface FExpectation : NSObject
 

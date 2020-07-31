@@ -30,7 +30,7 @@
 #import "FirebaseDatabase/Sources/FEventGenerator.h"
 #import "FirebaseDatabase/Sources/FViewProcessor.h"
 #import "FirebaseDatabase/Sources/FViewProcessorResult.h"
-#import "FirebaseDatabase/Sources/Public/FIRDatabaseQuery.h"
+#import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRDatabaseQuery.h"
 #import "FirebaseDatabase/Sources/Snapshot/FEmptyNode.h"
 #import "FirebaseDatabase/Sources/Snapshot/FIndexedNode.h"
 #import "FirebaseDatabase/Sources/Snapshot/FNode.h"

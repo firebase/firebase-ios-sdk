@@ -15,7 +15,7 @@
 #import <Foundation/Foundation.h>
 
 #include "Crashlytics/Crashlytics/Helpers/FIRCLSProfiling.h"
-#include "Crashlytics/Crashlytics/Public/FIRCrashlytics.h"
+#include "Crashlytics/Crashlytics/Public/FirebaseCrashlytics/FIRCrashlytics.h"
 #include "Crashlytics/Crashlytics/Settings/Models/FIRCLSApplicationIdentifierModel.h"
 
 @class FBLPromise<T>;

@@ -208,8 +208,8 @@ SFAuthenticationSession *_safariAuthenticationVC;
     if (foregroundedScene) {
       self.window = [[UIWindow alloc] initWithWindowScene:foregroundedScene];
     } else {
-      FIRFADErrorLog(@"No foreground scene found. Cannot display new build alert.");
-      return;
+      FIRFADInfoLog(@"No foreground scene found.");
+      self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
     }
   } else {
     self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
@@ -225,6 +225,7 @@ SFAuthenticationSession *_safariAuthenticationVC;
 
 - (void)resetUIState {
   if (self.window) {
+    self.window.rootViewController = nil;
     self.window.hidden = YES;
     self.window = nil;
   }

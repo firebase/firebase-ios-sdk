@@ -79,7 +79,9 @@ private func checkFile(_ file: String, logger: ErrorLogger, inRepo repoURL: URL)
   let isPublic = file.range(of: "/Public/") != nil &&
     // TODO: Skip legacy GDTCCTLibrary file that isn't Public and should be moved.
     file.range(of: "GDTCCTLibrary/Public/GDTCOREvent+GDTCCTSupport.h") == nil
-  let isPrivate = file.range(of: "/Sources/Private/") != nil
+  let isPrivate = file.range(of: "/Sources/Private/") != nil ||
+    // Delete when FirebaseInstallations fixes directory structure.
+    file.range(of: "Source/Library/Private/") != nil
   var inSwiftPackage = false
   var inSwiftPackageElse = false
   let lines = fileContents.components(separatedBy: .newlines)
