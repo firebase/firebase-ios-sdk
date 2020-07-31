@@ -264,6 +264,8 @@ static NSString *const kKeychainService = @"com.firebase.FIRInstallations.instal
 
   return [self.APIService registerInstallation:installation]
       .catch(^(NSError *_Nonnull error) {
+        [self updateBackoffWithSuccess:NO APIError:error];
+
         if ([self doesRegistrationErrorRequireConfigChange:error]) {
           FIRLogError(kFIRLoggerInstallations,
                       kFIRInstallationsMessageCodeInvalidFirebaseConfiguration,
@@ -273,6 +275,7 @@ static NSString *const kKeychainService = @"com.firebase.FIRInstallations.instal
         }
       })
       .then(^id(FIRInstallationsItem *registeredInstallation) {
+        [self updateBackoffWithSuccess:YES APIError:nil];
         return [self saveInstallation:registeredInstallation];
       })
       .then(^FIRInstallationsItem *(FIRInstallationsItem *registeredInstallation) {
@@ -342,10 +345,15 @@ static NSString *const kKeychainService = @"com.firebase.FIRInstallations.instal
 
 - (FBLPromise<FIRInstallationsItem *> *)refreshAuthTokenForInstallation:
     (FIRInstallationsItem *)installation {
-  return [[self.APIService refreshAuthTokenForInstallation:installation]
-      then:^id _Nullable(FIRInstallationsItem *_Nullable refreshedInstallation) {
-        return [self saveInstallation:refreshedInstallation];
-      }];
+  return [[[self.APIService refreshAuthTokenForInstallation:installation]
+           then:^id _Nullable(FIRInstallationsItem *_Nullable refreshedInstallation) {
+    [self updateBackoffWithSuccess:YES APIError:nil];
+    return [self saveInstallation:refreshedInstallation];
+  }] recover:^id _Nullable(NSError * _Nonnull error) {
+    // Pass the error to the backoff controller.
+    [self updateBackoffWithSuccess:NO APIError:error];
+    return error;
+  }] ;
 }
 
 - (id)regenerateFIDOnRefreshTokenErrorIfNeeded:(NSError *)error {
@@ -454,19 +462,20 @@ static NSString *const kKeychainService = @"com.firebase.FIRInstallations.instal
 
 #pragma mark - Backoff
 
-- (void)updateBackoffWithResponse:(NSHTTPURLResponse *)response
-                     networkError:(NSError *)networkError {
-  NSInteger statusCode = response.statusCode;
-
-  if (networkError) {
-    [self.backoffController registerEvent:FIRInstallationsBackoffEventRecoverableFailure];
-    return;
-  } else if (statusCode >= 200 && statusCode < 300) { // Success.
+- (void)updateBackoffWithSuccess:(BOOL)success APIError:(nullable NSError *)APIError {
+  if (success) {
     [self.backoffController registerEvent:FIRInstallationsBackoffEventSuccess];
-  } else if (statusCode == 400) { //Explicitly unrecoverable errors.
-    [self.backoffController registerEvent:FIRInstallationsBackoffEventUnrecoverableFailure];
-  } else if (statusCode == 403 || statusCode == 429 || statusCode == 500) { // Explicitly recoverable errors.
-    [self.backoffController registerEvent:FIRInstallationsBackoffEventRecoverableFailure];
+  } else if ([APIError isKindOfClass:[FIRInstallationsHTTPError class]]) {
+    FIRInstallationsHTTPError *HTTPResponseError = (FIRInstallationsHTTPError *)APIError;
+    NSInteger statusCode = HTTPResponseError.HTTPResponse.statusCode;
+
+    if (statusCode == 400) { //Explicitly unrecoverable errors.
+      [self.backoffController registerEvent:FIRInstallationsBackoffEventUnrecoverableFailure];
+    } else if (statusCode == 403 || statusCode == 429 || statusCode == 500) { // Explicitly recoverable errors.
+      [self.backoffController registerEvent:FIRInstallationsBackoffEventRecoverableFailure];
+    } else { // Treat all unknown errors as recoverable.
+      [self.backoffController registerEvent:FIRInstallationsBackoffEventRecoverableFailure];
+    }
   } else { // Treat all unknown errors as recoverable.
     [self.backoffController registerEvent:FIRInstallationsBackoffEventRecoverableFailure];
   }
