@@ -32,7 +32,7 @@
 #import "FirebaseInstallations/Source/Library/InstallationsAPI/FIRInstallationsAPIService.h"
 #import "FirebaseInstallations/Source/Library/InstallationsIDController/FIRInstallationsIDController.h"
 #import "FirebaseInstallations/Source/Library/InstallationsStore/FIRInstallationsStore.h"
-#import "FirebaseInstallations/Source/Library/Public/FIRInstallations.h"
+#import "FirebaseInstallations/Source/Library/Public/FirebaseInstallations/FIRInstallations.h"
 
 #import "FirebaseInstallations/Source/Library/InstallationsStore/FIRInstallationsStoredAuthToken.h"
 

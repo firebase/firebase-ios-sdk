@@ -30,8 +30,8 @@
 #import "FirebaseInstallations/Source/Tests/Utils/FIRInstallations+Tests.h"
 #import "FirebaseInstallations/Source/Tests/Utils/FIRInstallationsItem+Tests.h"
 
-#import "FirebaseInstallations/Source/Library/Public/FIRInstallations.h"
-#import "FirebaseInstallations/Source/Library/Public/FIRInstallationsAuthTokenResult.h"
+#import "FirebaseInstallations/Source/Library/Public/FirebaseInstallations/FIRInstallations.h"
+#import "FirebaseInstallations/Source/Library/Public/FirebaseInstallations/FIRInstallationsAuthTokenResult.h"
 
 static BOOL sFIRInstallationsFirebaseDefaultAppConfigured = NO;
 
