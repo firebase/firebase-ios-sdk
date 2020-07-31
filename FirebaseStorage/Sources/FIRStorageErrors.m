@@ -14,7 +14,7 @@
 
 #import "FirebaseStorage/Sources/FIRStorageErrors.h"
 
-#import "FirebaseStorage/Sources/Public/FIRStorageReference.h"
+#import "FirebaseStorage/Sources/Public/FirebaseStorage/FIRStorageReference.h"
 
 #import "FirebaseStorage/Sources/FIRStorageConstants_Private.h"
 #import "FirebaseStorage/Sources/FIRStorageReference_Private.h"
