@@ -142,9 +142,8 @@ SFAuthenticationSession *_safariAuthenticationVC;
 
 - (void)showUIAlertWithCompletion:(FIRFADUIActionCompletion)completion {
   UIAlertController *alert = [UIAlertController
-      alertControllerWithTitle:@"Enable in-app alerts"
-                       message:@"Sign in with your Firebase App Distribution Google account to "
-                               @"turn on in-app alerts for new test releases."
+      alertControllerWithTitle:@"Enable new build alerts"
+                       message:@"Get in-app alerts when new builds are ready to test."
                 preferredStyle:UIAlertControllerStyleAlert];
 
   UIAlertAction *yesButton = [UIAlertAction actionWithTitle:@"Turn on"
