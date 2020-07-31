@@ -508,6 +508,10 @@
   OCMVerifyAll(self.mockAPIService);
 }
 
+- (void)testGetInstallationItemBackoff {
+
+}
+
 #pragma mark - Get Auth Token
 
 - (void)testGetAuthToken_WhenValidInstallationExists_ThenItIsReturned {
@@ -757,6 +761,10 @@
   XCTAssertNotEqualObjects(promise.value.firebaseInstallationID,
                            storedInstallation.firebaseInstallationID);
   XCTAssertEqualObjects(promise.value, registeredInstallation);
+}
+
+- (void)testGetAuthTokenBackoff {
+
 }
 
 #pragma mark - FID Deletion
@@ -1022,6 +1030,10 @@
   OCMVerifyAll(self.mockInstallationsStore);
   OCMVerifyAll(self.mockAPIService);
   OCMVerifyAll(self.mockIIDStore);
+}
+
+- (void)testDeleteInstallationBackoff {
+  
 }
 
 - (NSArray<XCTestExpectation *> *)expectInstallationToBeDeletedLocally:
