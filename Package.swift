@@ -428,7 +428,7 @@ let package = Package(
       name: "SharedTestUtilities",
       dependencies: ["FirebaseCore"],
       path: "SharedTestUtilities",
-      publicHeadersPath: "Public",
+      publicHeadersPath: "./",
       cSettings: [
         .headerSearchPath("../"),
       ]
