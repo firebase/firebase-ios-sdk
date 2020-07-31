@@ -11,17 +11,17 @@
 
 
 
-const pb_field_t MessagingClientEvent_fields[6] = {
-    PB_FIELD(  2, BYTES   , SINGULAR, POINTER , FIRST, MessagingClientEvent, message_id, message_id, 0),
-    PB_FIELD(  3, BYTES   , SINGULAR, POINTER , OTHER, MessagingClientEvent, instance_id, message_id, 0),
-    PB_FIELD(  6, BYTES   , SINGULAR, POINTER , OTHER, MessagingClientEvent, package_name, instance_id, 0),
-    PB_FIELD( 13, BYTES   , SINGULAR, POINTER , OTHER, MessagingClientEvent, analytics_label, package_name, 0),
-    PB_FIELD( 15, BYTES   , SINGULAR, POINTER , OTHER, MessagingClientEvent, composer_label, analytics_label, 0),
+const pb_field_t firebase_messaging_MessagingClientEvent_fields[6] = {
+    PB_FIELD(  2, BYTES   , OPTIONAL, POINTER , FIRST, firebase_messaging_MessagingClientEvent, message_id, message_id, 0),
+    PB_FIELD(  3, BYTES   , OPTIONAL, POINTER , OTHER, firebase_messaging_MessagingClientEvent, instance_id, message_id, 0),
+    PB_FIELD(  6, BYTES   , OPTIONAL, POINTER , OTHER, firebase_messaging_MessagingClientEvent, package_name, instance_id, 0),
+    PB_FIELD( 13, BYTES   , OPTIONAL, POINTER , OTHER, firebase_messaging_MessagingClientEvent, analytics_label, package_name, 0),
+    PB_FIELD( 15, BYTES   , OPTIONAL, POINTER , OTHER, firebase_messaging_MessagingClientEvent, composer_label, analytics_label, 0),
     PB_LAST_FIELD
 };
 
-const pb_field_t MessagingClientEventExtension_fields[2] = {
-    PB_FIELD(  1, MESSAGE , SINGULAR, STATIC  , FIRST, MessagingClientEventExtension, messaging_client_event, messaging_client_event, &MessagingClientEvent_fields),
+const pb_field_t firebase_messaging_MessagingClientEventExtension_fields[2] = {
+    PB_FIELD(  1, MESSAGE , OPTIONAL, STATIC  , FIRST, firebase_messaging_MessagingClientEventExtension, messaging_client_event, messaging_client_event, &firebase_messaging_MessagingClientEvent_fields),
     PB_LAST_FIELD
 };
 
@@ -35,7 +35,7 @@ const pb_field_t MessagingClientEventExtension_fields[2] = {
  * numbers or field sizes that are larger than what can fit in 8 or 16 bit
  * field descriptors.
  */
-PB_STATIC_ASSERT((pb_membersize(MessagingClientEventExtension, messaging_client_event) < 65536), YOU_MUST_DEFINE_PB_FIELD_32BIT_FOR_MESSAGES_MessagingClientEvent_MessagingClientEventExtension)
+PB_STATIC_ASSERT((pb_membersize(firebase_messaging_MessagingClientEventExtension, messaging_client_event) < 65536), YOU_MUST_DEFINE_PB_FIELD_32BIT_FOR_MESSAGES_firebase_messaging_MessagingClientEvent_firebase_messaging_MessagingClientEventExtension)
 #endif
 
 #if !defined(PB_FIELD_16BIT) && !defined(PB_FIELD_32BIT)
@@ -46,7 +46,7 @@ PB_STATIC_ASSERT((pb_membersize(MessagingClientEventExtension, messaging_client_
  * numbers or field sizes that are larger than what can fit in the default
  * 8 bit descriptors.
  */
-PB_STATIC_ASSERT((pb_membersize(MessagingClientEventExtension, messaging_client_event) < 256), YOU_MUST_DEFINE_PB_FIELD_16BIT_FOR_MESSAGES_MessagingClientEvent_MessagingClientEventExtension)
+PB_STATIC_ASSERT((pb_membersize(firebase_messaging_MessagingClientEventExtension, messaging_client_event) < 256), YOU_MUST_DEFINE_PB_FIELD_16BIT_FOR_MESSAGES_firebase_messaging_MessagingClientEvent_firebase_messaging_MessagingClientEventExtension)
 #endif
 
 

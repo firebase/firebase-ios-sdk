@@ -15,8 +15,8 @@
 
 # me.protos
 
-MessagingClientEvent.message_id type:FT_POINTER
-MessagingClientEvent.instance_id type:FT_POINTER
-MessagingClientEvent.package_name type:FT_POINTER
-MessagingClientEvent.analytics_label type:FT_POINTER
-MessagingClientEvent.composer_label type:FT_POINTER
+firebase_messaging.MessagingClientEvent.message_id type:FT_POINTER
+firebase_messaging.MessagingClientEvent.instance_id type:FT_POINTER
+firebase_messaging.MessagingClientEvent.package_name type:FT_POINTER
+firebase_messaging.MessagingClientEvent.analytics_label type:FT_POINTER
+firebase_messaging.MessagingClientEvent.composer_label type:FT_POINTER

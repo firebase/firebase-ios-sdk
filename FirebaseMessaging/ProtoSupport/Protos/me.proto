@@ -14,21 +14,23 @@
 // limitations under the License.
 //
 
-syntax = "proto3";
+syntax = "proto2";
+
+package firebase_messaging;
 
 message MessagingClientEvent {
 
-  string message_id = 2;
+  optional string message_id = 2;
 
-  string instance_id = 3;
+  optional string instance_id = 3;
 
-  string package_name = 6;
+  optional string package_name = 6;
 
-  string analytics_label = 13;
+  optional string analytics_label = 13;
 
-  string composer_label = 15;
+  optional string composer_label = 15;
 }
 
 message MessagingClientEventExtension {
-  MessagingClientEvent messaging_client_event = 1;
+  optional MessagingClientEvent messaging_client_event = 1;
 }

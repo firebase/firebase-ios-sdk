@@ -43,20 +43,12 @@ static NSString *const kPayloadOptionsImageURLName = @"image";
  * @param data The data to copy into the new bytes array.
  */
 pb_bytes_array_t *FIRMessagingEncodeData(NSData *data) {
-//  pb_bytes_array_t *pbBytesArray = calloc(1, PB_BYTES_ARRAY_T_ALLOCSIZE(data.length));
-//  if (pbBytesArray != NULL) {
-//    [data getBytes:pbBytesArray->bytes length:data.length];
-//    pbBytesArray->size = (pb_size_t)data.length;
-//  }
-//  return pbBytesArray;
-  
-  pb_bytes_array_t *pbBytes = malloc(PB_BYTES_ARRAY_T_ALLOCSIZE(data.length));
-   if (pbBytes == NULL) {
-     return NULL;
-   }
-   memcpy(pbBytes->bytes, [data bytes], data.length);
-   pbBytes->size = (pb_size_t)data.length;
-   return pbBytes;
+  pb_bytes_array_t *pbBytesArray = calloc(1, PB_BYTES_ARRAY_T_ALLOCSIZE(data.length));
+  if (pbBytesArray != NULL) {
+    [data getBytes:pbBytesArray->bytes length:data.length];
+    pbBytesArray->size = (pb_size_t)data.length;
+  }
+  return pbBytesArray;
 }
 /** Callocs a pb_bytes_array and copies the given NSString's bytes into the bytes array.
  *
@@ -85,8 +77,8 @@ gdt_cct_IosClientInfo GDTCCTConstructiOSClientInfo() {
   return iOSClientInfo;
 }
 
-MessagingClientEvent FIRMessagingTestNanopb() {
-  MessagingClientEvent foo = MessagingClientEvent_init_default;
+firebase_messaging_MessagingClientEvent FIRMessagingTestNanopb() {
+  firebase_messaging_MessagingClientEvent foo = firebase_messaging_MessagingClientEvent_init_default;
   foo.message_id= FIRMessagingEncodeString(@"test");
   foo.instance_id =FIRMessagingEncodeString(@"test");
   foo.package_name =FIRMessagingEncodeString(@"test");
@@ -97,14 +89,14 @@ MessagingClientEvent FIRMessagingTestNanopb() {
 
 @interface FIRMessagingMetricsLog : NSObject <GDTCOREventDataObject>
 
-@property(nonatomic) MessagingClientEvent eventExtension;
+@property(nonatomic) firebase_messaging_MessagingClientEvent eventExtension;
 @property(nonatomic) gdt_cct_IosClientInfo info;
 
 @end
 
 @implementation FIRMessagingMetricsLog
 
-- (instancetype)initWithEventExtension:(MessagingClientEvent)eventExtension {
+- (instancetype)initWithEventExtension:(firebase_messaging_MessagingClientEvent)eventExtension {
   self = [super init];
   if (self) {
     _eventExtension = FIRMessagingTestNanopb();//eventExtension;
@@ -119,8 +111,8 @@ MessagingClientEvent FIRMessagingTestNanopb() {
   pb_ostream_t sizestream = PB_OSTREAM_SIZING;
 
   // Encode 1 time to determine the size.
-  //if (!pb_encode(&sizestream, MessagingClientEvent_fields, &_eventExtension)) {
-  if (!pb_encode(&sizestream, gdt_cct_IosClientInfo_fields, &_info)) {
+  if (!pb_encode(&sizestream, firebase_messaging_MessagingClientEvent_fields, &_eventExtension)) {
+ // if (!pb_encode(&sizestream, gdt_cct_IosClientInfo_fields, &_info)) {
 
     FIRMessagingLoggerError(kFIRMessagingServiceExtensionTransportBytesError,
                             @"Error in nanopb encoding for size: %s", PB_GET_ERROR(&sizestream));
@@ -131,8 +123,8 @@ MessagingClientEvent FIRMessagingTestNanopb() {
   CFMutableDataRef dataRef = CFDataCreateMutable(CFAllocatorGetDefault(), bufferSize);
   CFDataSetLength(dataRef, bufferSize);
   pb_ostream_t ostream = pb_ostream_from_buffer((void *)CFDataGetBytePtr(dataRef), bufferSize);
-  //if (!pb_encode(&ostream, MessagingClientEvent_fields, &_eventExtension)) {
-  if (!pb_encode(&ostream, gdt_cct_IosClientInfo_fields, &_info)) {
+  if (!pb_encode(&ostream, firebase_messaging_MessagingClientEvent_fields, &_eventExtension)) {
+  //if (!pb_encode(&ostream, gdt_cct_IosClientInfo_fields, &_info)) {
 
     FIRMessagingLoggerError(kFIRMessagingServiceExtensionTransportBytesError,
                             @"Error in nanopb encoding for bytes: %s", PB_GET_ERROR(&ostream));
@@ -245,7 +237,7 @@ MessagingClientEvent FIRMessagingTestNanopb() {
 
  // MessagingClientEventExtension eventExtension = MessagingClientEventExtension_init_default;
 
-  MessagingClientEvent foo = MessagingClientEvent_init_default;
+  firebase_messaging_MessagingClientEvent foo = firebase_messaging_MessagingClientEvent_init_default;
   //foo.project_number = 0;//(int64_t)[info[@"google.c.sender.id"] longLongValue];
   foo.message_id = FIRMessagingEncodeString(info[@"gcm.message_id"]);
 ////  foo.instance_id = FIRMessagingEncodeString(info[@"google.c.fid"]);
