@@ -22,9 +22,7 @@
 #import <OCMock/OCMock.h>
 #import <nanopb/pb_decode.h>
 #import <nanopb/pb_encode.h>
-#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCOREvent.h"
-#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCOREventDataObject.h"
-#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORTransport.h"
+#import "GoogleDataTransport/GDTCORLibrary/Internal/GoogleDataTransportInternal.h"
 #import "GoogleUtilities/Environment/Private/GULAppEnvironmentUtil.h"
 #import "GoogleUtilities/Environment/Private/GULHeartbeatDateStorage.h"
 #import "GoogleUtilities/UserDefaults/Private/GULUserDefaults.h"
