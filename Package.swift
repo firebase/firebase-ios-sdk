@@ -25,8 +25,6 @@ let package = Package(
   name: "Firebase",
   platforms: [.iOS(.v9), .macOS(.v10_11), .tvOS(.v10)],
   products: [
-    // Products define the executables and libraries produced by a package, and make them visible to
-    // other packages.
     .library(
       name: "Firebase",
       targets: ["Firebase"]
@@ -46,6 +44,14 @@ let package = Package(
     .library(
       name: "FirebaseDatabase",
       targets: ["FirebaseDatabase"]
+    ),
+    .library(
+      name: "FirebaseFirestore",
+      targets: ["FirebaseFirestore"]
+    ),
+    .library(
+      name: "FirebaseFirestoreSwift",
+      targets: ["FirebaseFirestoreSwift"]
     ),
     .library(
       name: "FirebaseFunctions",
@@ -71,6 +77,12 @@ let package = Package(
       name: "FirebaseStorageSwift",
       targets: ["FirebaseStorageSwift"]
     ),
+
+    // Not intended for public consumption, but needed for FirebaseUI.
+    .library(
+      name: "GoogleUtilities_UserDefaults",
+      targets: ["GoogleUtilities_UserDefaults"]
+    ),
   ],
   dependencies: [
     .package(name: "Promises", url: "https://github.com/google/promises.git", "1.2.8" ..< "1.3.0"),
@@ -84,14 +96,18 @@ let package = Package(
       url: "https://github.com/paulb777/nanopb.git",
       .revision("82230e9998a35a3d2144884204db64f045c880c4")
     ),
+    .package(
+      name: "abseil",
+      url: "https://github.com/paulb777/abseil-cpp.git",
+      .revision("7790dc1")
+    ),
+    .package(name: "gRPC", url: "https://github.com/paulb777/grpc.git", .revision("37a9e06cd8")),
     .package(name: "OCMock", url: "https://github.com/paulb777/ocmock.git", .revision("7291762")),
     .package(name: "leveldb", url: "https://github.com/paulb777/leveldb.git", .revision("3f04697")),
     // Branches need a force update with a run with the revision set like below.
     //   .package(url: "https://github.com/paulb777/nanopb.git", .revision("564392bd87bd093c308a3aaed3997466efb95f74"))
   ],
   targets: [
-    // Targets are the basic building blocks of a package. A target can define a module or a test suite.
-    // Targets can depend on other targets in this package, and on products in packages which this package depends on.
     .testTarget(
       name: "firebase-test",
       dependencies: [
@@ -102,6 +118,8 @@ let package = Package(
         "FirebaseCrashlytics",
         "FirebaseCore",
         "FirebaseDatabase",
+        "FirebaseFirestore",
+        "FirebaseFirestoreSwift",
         "FirebaseInstallations",
         // "FirebaseInstanceID",
         "FirebaseRemoteConfig",
@@ -117,7 +135,7 @@ let package = Package(
         "GoogleUtilities_NSData",
         "GoogleUtilities_Reachability",
         "GoogleUtilities_UserDefaults",
-        "nanopb",
+        .product(name: "nanopb", package: "nanopb"),
       ]
     ),
     .target(
@@ -323,9 +341,9 @@ let package = Package(
     ),
     .target(
       name: "FirebaseCrashlytics",
-      dependencies: ["FirebaseCore", "FirebaseInstallations",
+      dependencies: ["FirebaseCore", "FirebaseInstallations", "GoogleDataTransport",
                      .product(name: "FBLPromises", package: "Promises"),
-                     "GoogleDataTransport", "nanopb"],
+                     .product(name: "nanopb", package: "nanopb")],
       path: "Crashlytics",
       exclude: [
         "run",
@@ -387,6 +405,90 @@ let package = Package(
       resources: [.process("Resources")],
       cSettings: [
         .headerSearchPath("../.."),
+      ]
+    ),
+
+    .target(
+      name: "FirebaseFirestore",
+      dependencies: [
+        "FirebaseCore",
+        "leveldb",
+        .product(name: "nanopb", package: "nanopb"),
+        .product(name: "abseil", package: "abseil"),
+        .product(name: "gRPC-cpp", package: "gRPC"),
+      ],
+      path: "Firestore",
+      exclude: [
+        "CHANGELOG.md",
+        "CMakeLists.txt",
+        "Example/",
+        "Protos/CMakeLists.txt",
+        "Protos/Podfile",
+        "Protos/README.md",
+        "Protos/build_protos.py",
+        "Protos/cpp/",
+        "Protos/lib/",
+        "Protos/nanopb_cpp_generator.py",
+        "Protos/protos/",
+        "README.md",
+        "Source/CMakeLists.txt",
+        "Swift/",
+        "core/CMakeLists.txt",
+        "core/src/util/config_detected.h.in",
+        "core/test/",
+        "fuzzing/",
+        "test.sh",
+        "third_party/",
+
+        // Exclude alternate implementations for other platforms
+        "core/src/api/input_validation_std.cc",
+        "core/src/remote/connectivity_monitor_noop.cc",
+        "core/src/util/filesystem_win.cc",
+        "core/src/util/hard_assert_stdio.cc",
+        "core/src/util/log_stdio.cc",
+        "core/src/util/secure_random_openssl.cc",
+      ],
+      sources: [
+        "Source/",
+        "Protos/nanopb/",
+        "core/include/",
+        "core/src",
+      ],
+      publicHeadersPath: "Source/Public",
+      cSettings: [
+        .headerSearchPath("../"),
+        .headerSearchPath("Source/Public"),
+        .headerSearchPath("Protos/nanopb"),
+
+        .define("PB_FIELD_32BIT", to: "1"),
+        .define("PB_NO_PACKED_STRUCTS", to: "1"),
+        .define("PB_ENABLE_MALLOC", to: "1"),
+        .define("FIRFirestore_VERSION", to: "0.0.1"), // TODO: Fix version
+      ]
+    ),
+    .target(
+      name: "FirebaseFirestoreSwift",
+      dependencies: ["FirebaseFirestore"],
+      path: "Firestore",
+      exclude: [
+        "CHANGELOG.md",
+        "CMakeLists.txt",
+        "Example/",
+        "Protos/",
+        "README.md",
+        "Source/",
+        "core/",
+        "fuzzing/",
+        "test.sh",
+        "Swift/CHANGELOG.md",
+        "Swift/README.md",
+        "Swift/Tests/",
+        "third_party/FirestoreEncoder/LICENSE",
+        "third_party/FirestoreEncoder/METADATA",
+      ],
+      sources: [
+        "Swift/Source/",
+        "third_party/FirestoreEncoder/",
       ]
     ),
 
@@ -497,7 +599,9 @@ let package = Package(
     ),
     .target(
       name: "GoogleDataTransport",
-      dependencies: ["nanopb"],
+      dependencies: [
+        .product(name: "nanopb", package: "nanopb"),
+      ],
       path: "GoogleDataTransport",
       exclude: [
         "CHANGELOG.md",

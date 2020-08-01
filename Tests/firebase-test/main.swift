@@ -18,6 +18,8 @@ import FirebaseCore
 import FirebaseAuth
 import FirebaseABTesting
 import FirebaseCrashlytics
+import FirebaseFirestore
+import FirebaseFirestoreSwift
 import FirebaseFunctions
 import FirebaseInstallations
 // import FirebaseInstanceID
