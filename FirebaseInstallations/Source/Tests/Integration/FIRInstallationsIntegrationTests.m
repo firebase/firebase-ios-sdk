@@ -20,6 +20,8 @@
 // macOS requests a user password when accessing the Keychain for the first time,
 // so the tests may fail. Disable integration tests on macOS so far.
 // TODO: Configure the tests to run on macOS without requesting the keychain password.
+
+#import <TargetConditionals.h>
 #if !TARGET_OS_OSX
 
 #import <XCTest/XCTest.h>
