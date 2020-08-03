@@ -137,7 +137,7 @@ let package = Package(
         "GoogleUtilities_UserDefaults",
         .product(name: "nanopb", package: "nanopb"),
       ],
-      path: "SwiftPM-Tests/swift-test"
+      path: "SwiftPMTests/swift-test"
     ),
     .testTarget(
       name: "objc-import-test",
@@ -154,7 +154,7 @@ let package = Package(
         "FirebaseRemoteConfig",
         "FirebaseStorage",
       ],
-      path: "SwiftPM-Tests/objc-import-test"
+      path: "SwiftPMTests/objc-import-test"
     ),
     .target(
       name: "GoogleUtilities_AppDelegateSwizzler",
