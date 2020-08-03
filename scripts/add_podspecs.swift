@@ -163,19 +163,18 @@ do {
   )
   print(specFile.depInstallOrder.joined(separator: "\n"))
 
-do {
-  if fileManager.fileExists(atPath:  "\(sdk_repo)/SpecsStaging") {
-    print("remove specstaging dir.")
+  do {
+    if fileManager.fileExists(atPath: "\(sdk_repo)/SpecsStaging") {
+      print("remove specstaging dir.")
+      try fileManager.removeItem(at: URL(fileURLWithPath: "\(sdk_repo)/SpecsStaging"))
+    }
+    shell("git clone git@github.com:firebase/SpecsStaging.git")
+    shell("cd SpecsStaging; git rm -r *; git commit -m 'Empty repo'; git push")
     try fileManager.removeItem(at: URL(fileURLWithPath: "\(sdk_repo)/SpecsStaging"))
-  }
-  shell("git clone git@github.com:firebase/SpecsStaging.git")
-  shell("cd SpecsStaging; git rm -r *; git commit -m 'Empty repo'; git push")
-  try fileManager.removeItem(at: URL(fileURLWithPath: "\(sdk_repo)/SpecsStaging"))
     print("Specstaging dir is removed.")
-} catch {
-        print ("error occurred.")
-
-}
+  } catch {
+    print("error occurred.")
+  }
   var exitCode: Int32?
   for pod in specFile.depInstallOrder {
     print("----------\(pod)-----------")
