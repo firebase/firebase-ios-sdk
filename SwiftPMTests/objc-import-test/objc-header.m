@@ -14,7 +14,7 @@
 
 #import "FirebaseABTesting/FirebaseABTesting.h"
 #import "FirebaseAuth/FirebaseAuth.h"
-//#import "FirebaseFunctions/FirebaseFunctions.h"
+#import "FirebaseFunctions/FirebaseFunctions.h"
 #import "Firebase.h"
 #import "FirebaseCore/FirebaseCore.h"
 #import "FirebaseCrashlytics/FirebaseCrashlytics.h"
@@ -26,7 +26,7 @@
 
 #import <FirebaseABTesting/FirebaseABTesting.h>
 #import <FirebaseAuth/FirebaseAuth.h>
-//#import <FirebaseFunctions/FirebaseFunctions.h>
+#import <FirebaseFunctions/FirebaseFunctions.h>
 #import <Firebase.h>
 #import <FirebaseCore/FirebaseCore.h>
 #import <FirebaseCrashlytics/FirebaseCrashlytics.h>

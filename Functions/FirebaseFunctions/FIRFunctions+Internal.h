@@ -14,7 +14,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "Functions/FirebaseFunctions/Public/FIRFunctions.h"
+#import "Functions/FirebaseFunctions/Public/FirebaseFunctions/FIRFunctions.h"
 
 @protocol FIRAuthInterop;
 @class FIRHTTPSCallableResult;
