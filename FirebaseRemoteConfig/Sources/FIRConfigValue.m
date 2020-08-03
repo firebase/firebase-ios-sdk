@@ -31,7 +31,7 @@
   dispatch_once(&onceToken, ^{
     formatter = [[NSNumberFormatter alloc] init];
     formatter.numberStyle = NSNumberFormatterDecimalStyle;
-    formatter.locale = [NSLocale autoUpdatingCurrentLocale];
+    formatter.locale = [NSLocale autoupdatingCurrentLocale];
   });
   return formatter;
 }
