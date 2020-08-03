@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-# Copyright 2020 Google
+# Copyright 2019 Google
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,6 +13,17 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+"""Generates and massages protocol buffer outputs.
+
+Example usage:
+
+python GoogleDataTransport/GoogleDataTransportCCTSupport/ProtoSupport/build_protos.py \
+  --nanopb \
+  --protos_dir=GoogleDataTransport/GoogleDataTransportCCTSupport/Classes/Protos/ \
+  --pythonpath=~/Downloads/nanopb-0.3.9.2-macosx-x86/generator/ \
+  --output_dir=GoogleDataTransport/GoogleDataTransportCCTSupport/Classes/Protogen/
+"""
 
 from __future__ import print_function
 
@@ -27,6 +38,21 @@ import subprocess
 OBJC_GENERATOR='nanopb_objc_generator.py'
 
 COPYRIGHT_NOTICE = '''
+/*
+ * Copyright 2019 Google
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 '''.lstrip()
 
 

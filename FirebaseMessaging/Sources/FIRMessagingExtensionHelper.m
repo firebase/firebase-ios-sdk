@@ -94,8 +94,8 @@ firebase_messaging_IosClientInfo testInfo() {
   pb_ostream_t sizestream = PB_OSTREAM_SIZING;
 
   // Encode 1 time to determine the size.
- // if (!pb_encode(&sizestream, gdt_cct_IosClientInfo_fields, &_info)) {
- if (!pb_encode(&sizestream, firebase_messaging_IosClientInfo_fields, &_messaging_info)) {
+  if (!pb_encode(&sizestream, gdt_cct_IosClientInfo_fields, &_info)) {
+ //if (!pb_encode(&sizestream, firebase_messaging_IosClientInfo_fields, &_messaging_info)) {
 
     FIRMessagingLoggerError(kFIRMessagingServiceExtensionTransportBytesError,
                             @"Error in nanopb encoding for size: %s", PB_GET_ERROR(&sizestream));
@@ -106,8 +106,8 @@ firebase_messaging_IosClientInfo testInfo() {
   CFMutableDataRef dataRef = CFDataCreateMutable(CFAllocatorGetDefault(), bufferSize);
   CFDataSetLength(dataRef, bufferSize);
   pb_ostream_t ostream = pb_ostream_from_buffer((void *)CFDataGetBytePtr(dataRef), bufferSize);
-  if (!pb_encode(&ostream, firebase_messaging_IosClientInfo_fields, &_messaging_info)) {
-  //if (!pb_encode(&ostream, gdt_cct_IosClientInfo_fields, &_info)) {
+  //if (!pb_encode(&ostream, firebase_messaging_IosClientInfo_fields, &_messaging_info)) {
+  if (!pb_encode(&ostream, gdt_cct_IosClientInfo_fields, &_info)) {
 
     FIRMessagingLoggerError(kFIRMessagingServiceExtensionTransportBytesError,
                             @"Error in nanopb encoding for bytes: %s", PB_GET_ERROR(&ostream));
