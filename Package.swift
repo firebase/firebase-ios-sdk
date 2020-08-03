@@ -109,7 +109,7 @@ let package = Package(
   ],
   targets: [
     .testTarget(
-      name: "firebase-test",
+      name: "swift-test",
       dependencies: [
         "FirebaseAuth",
         "FirebaseABTesting",
@@ -136,7 +136,25 @@ let package = Package(
         "GoogleUtilities_Reachability",
         "GoogleUtilities_UserDefaults",
         .product(name: "nanopb", package: "nanopb"),
-      ]
+      ],
+      path: "SwiftPM-Tests/swift-test"
+    ),
+    .testTarget(
+      name: "objc-import-test",
+      dependencies: [
+        "FirebaseAuth",
+        "FirebaseABTesting",
+        "FirebaseFunctions",
+        "Firebase",
+        "FirebaseCrashlytics",
+        "FirebaseCore",
+        "FirebaseDatabase",
+        "FirebaseFirestore",
+        "FirebaseInstallations",
+        "FirebaseRemoteConfig",
+        "FirebaseStorage",
+      ],
+      path: "SwiftPM-Tests/objc-import-test"
     ),
     .target(
       name: "GoogleUtilities_AppDelegateSwizzler",
