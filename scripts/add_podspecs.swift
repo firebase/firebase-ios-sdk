@@ -120,6 +120,7 @@ func shell(_ command: String) -> Int32 {
   task.arguments = ["-c", command]
   task.launchPath = "/bin/bash"
   task.launch()
+  print("-----Command:\(command)\n")
   task.waitUntilExit()
 
   let data = pipe.fileHandleForReading.readDataToEndOfFile()
@@ -161,12 +162,40 @@ do {
     parentDeps: &tmpSet
   )
   print(specFile.depInstallOrder.joined(separator: "\n"))
+
+do {
+  if fileManager.fileExists(atPath:  "\(sdk_repo)/SpecsStaging") {
+    print("remove specstaging dir.")
+    try fileManager.removeItem(at: URL(fileURLWithPath: "\(sdk_repo)/SpecsStaging"))
+  }
+  shell("git clone git@github.com:firebase/SpecsStaging.git")
+  shell("cd SpecsStaging; git rm -r *; git commit -m 'Empty repo'; git push")
+  try fileManager.removeItem(at: URL(fileURLWithPath: "\(sdk_repo)/SpecsStaging"))
+    print("Specstaging dir is removed.")
+} catch {
+        print ("error occurred.")
+
+}
+  var exitCode: Int32?
   for pod in specFile.depInstallOrder {
-    var exitCode =
-      shell(
-        "find \(sdk_repo) -name \(pod).podspec -print -exec pod repo push ${SPEC_REPO} {} --sources=https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org/ --skip-tests --local-only --verbose \\;"
-      )
-    print("------------exit code : \(exitCode) \(pod)-----------------")
+    print("----------\(pod)-----------")
+    if pod == "Firebase" {
+      exitCode =
+        shell(
+          "pod repo push --skip-import-validation --skip-tests --use-json  --sources=https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org specstaging Firebase.podspec; pod repo update;"
+        )
+    } else {
+      exitCode =
+        shell(
+          "find \(sdk_repo) -name \(pod).podspec -print -exec pod repo push ${SPEC_REPO} {} --sources=https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org/ --skip-tests \\; -exec pod repo update \\;"
+        )
+    }
+
+    if let code = exitCode {
+      print("------------exit code : \(code) \(pod)-----------------")
+    } else {
+      print(" Does not have a valid exitCode.")
+    }
   }
 } catch {
   print("Error while enumerating files \(documentsURL.path): \(error.localizedDescription)")
