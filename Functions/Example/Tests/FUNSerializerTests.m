@@ -15,7 +15,7 @@
 #import <XCTest/XCTest.h>
 
 #import "Functions/FirebaseFunctions/FUNSerializer.h"
-#import "Functions/FirebaseFunctions/Public/FIRError.h"
+#import "Functions/FirebaseFunctions/Public/FirebaseFunctions/FIRError.h"
 
 @interface FUNSerializerTests : XCTestCase
 @end
