@@ -18,19 +18,33 @@ syntax = "proto2";
 
 package firebase_messaging;
 
-message MessagingClientEvent {
+message IosClientInfo {
 
-  optional string message_id = 2;
+  // The major OS version of an iOS client. Eg: "8", "9".
+  optional string os_major_version = 3;
 
-  optional string instance_id = 3;
+  // The complete OS version of an iOS client. Eg: "8.4", "9.3".
+  optional string os_full_version = 4;
 
-  optional string package_name = 6;
+  // The client application build (from Core Foundation key
+  // "CFBundleVersion").
+  optional string application_build = 5;
 
-  optional string analytics_label = 13;
+  // The chosen country from the client. e.g., "US", "KR", "JP".
+  // This is typically populated based on the value of:
+  //   [[NSLocale currentLocale] objectForKey:NSLocaleCountryCode]
+  optional string country = 6;
 
-  optional string composer_label = 15;
-}
+  // The unix name (uname) for the model from an iOS client. e.g., "iPhone6,1"
+  // for iPhone 5s.
+  optional string model = 7;
 
-message MessagingClientEventExtension {
-  optional MessagingClientEvent messaging_client_event = 1;
+  // The current language displayed to user. e.g., "en", "fr", "en-AU", or "de"
+  // This comes from [[NSBundle mainBundle] preferredLocalizations]; and is:
+  // "[language designator]" or "[language designator]-[region designator]"
+  // format based off of what localization is available and displayed to user.
+  optional string language_code = 8;
+
+  // The bundle name of the application.
+  optional string application_bundle_id = 11;
 }

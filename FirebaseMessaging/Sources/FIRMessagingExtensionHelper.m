@@ -16,7 +16,7 @@
 
 #import <FirebaseMessaging/FIRMessagingExtensionHelper.h>
 
-#import "FirebaseMessaging/Sources/nanopb/me.nanopb.h"
+#import "FirebaseMessaging/Sources/Protogen/nanopb/me.nanopb.h"
 
 #import <GoogleDataTransport/GDTCOREvent.h>
 #import <GoogleDataTransport/GDTCORTargets.h>
@@ -24,8 +24,9 @@
 #import "FirebaseMessaging/Sources/FIRMMessageCode.h"
 #import "FirebaseMessaging/Sources/FIRMessagingLogger.h"
 #import "GoogleUtilities/Environment/Private/GULAppEnvironmentUtil.h"
-
 #import "GoogleDataTransport/GDTCCTLibrary/Protogen/nanopb/cct.nanopb.h"
+#import "GoogleDataTransport/GDTCCTLibrary/Private/GDTCCTNanopbHelpers.h"
+
 
 
 #import <nanopb/pb.h>
@@ -37,70 +38,52 @@ static NSString *const kPayloadOptionsImageURLName = @"image";
 
 #pragma mark - nanopb helper functions
 
-/** Callocs a pb_bytes_array and copies the given NSData bytes into the bytes array.
- *
- * @note Memory needs to be free manually, through pb_free or pb_release.
- * @param data The data to copy into the new bytes array.
- */
-pb_bytes_array_t *FIRMessagingEncodeData(NSData *data) {
-  pb_bytes_array_t *pbBytesArray = calloc(1, PB_BYTES_ARRAY_T_ALLOCSIZE(data.length));
-  if (pbBytesArray != NULL) {
-    [data getBytes:pbBytesArray->bytes length:data.length];
-    pbBytesArray->size = (pb_size_t)data.length;
-  }
-  return pbBytesArray;
-}
-/** Callocs a pb_bytes_array and copies the given NSString's bytes into the bytes array.
- *
- * @note Memory needs to be free manually, through pb_free or pb_release.
- * @param string The string to encode as pb_bytes.
- */
-pb_bytes_array_t *FIRMessagingEncodeString(NSString *string) {
-  if ([string isMemberOfClass:[NSNull class]]) {
-    string = nil;
-  }
-  NSString *stringToEncode = string ? string : @"";
-  NSData *stringBytes = [stringToEncode dataUsingEncoding:NSUTF8StringEncoding];
-  return FIRMessagingEncodeData(stringBytes);
-}
 
-gdt_cct_IosClientInfo GDTCCTConstructiOSClientInfo() {
+gdt_cct_IosClientInfo TestGDTCCTConstructiOSClientInfo() {
   gdt_cct_IosClientInfo iOSClientInfo = gdt_cct_IosClientInfo_init_default;
 
-  iOSClientInfo.os_full_version = FIRMessagingEncodeString(@"test");
-  iOSClientInfo.os_major_version = FIRMessagingEncodeString(@"test");
-  iOSClientInfo.application_build = FIRMessagingEncodeString(@"test");
-  iOSClientInfo.country = FIRMessagingEncodeString(@"test");
-  iOSClientInfo.model = FIRMessagingEncodeString(@"test");
-  iOSClientInfo.language_code = FIRMessagingEncodeString(@"en");
-  iOSClientInfo.application_bundle_id = FIRMessagingEncodeString(@"test");
+  iOSClientInfo.os_full_version = GDTCCTEncodeString(@"test");
+  iOSClientInfo.os_major_version = GDTCCTEncodeString(@"test");
+  iOSClientInfo.application_build = GDTCCTEncodeString(@"test");
+  iOSClientInfo.country = GDTCCTEncodeString(@"test");
+  iOSClientInfo.model = GDTCCTEncodeString(@"test");
+  iOSClientInfo.language_code = GDTCCTEncodeString(@"en");
+  iOSClientInfo.application_bundle_id = GDTCCTEncodeString(@"test");
   return iOSClientInfo;
 }
 
-firebase_messaging_MessagingClientEvent FIRMessagingTestNanopb() {
-  firebase_messaging_MessagingClientEvent foo = firebase_messaging_MessagingClientEvent_init_default;
-  foo.message_id= FIRMessagingEncodeString(@"test");
-  foo.instance_id =FIRMessagingEncodeString(@"test");
-  foo.package_name =FIRMessagingEncodeString(@"test");
-  foo.analytics_label =FIRMessagingEncodeString(@"test");
-  foo.composer_label =FIRMessagingEncodeString(@"test");
-  return foo;
+firebase_messaging_IosClientInfo testInfo() {
+  firebase_messaging_IosClientInfo iOSClientInfo = firebase_messaging_IosClientInfo_init_default;
+
+  iOSClientInfo.os_full_version = GDTCCTEncodeString(@"test");
+  iOSClientInfo.os_major_version = GDTCCTEncodeString(@"test");
+  iOSClientInfo.application_build = GDTCCTEncodeString(@"test");
+  iOSClientInfo.country = GDTCCTEncodeString(@"test");
+  iOSClientInfo.model = GDTCCTEncodeString(@"test");
+  iOSClientInfo.language_code = GDTCCTEncodeString(@"en");
+  iOSClientInfo.application_bundle_id = GDTCCTEncodeString(@"test");
+  return iOSClientInfo;
 }
+
+
 
 @interface FIRMessagingMetricsLog : NSObject <GDTCOREventDataObject>
 
-@property(nonatomic) firebase_messaging_MessagingClientEvent eventExtension;
+//@property(nonatomic) firebase_messaging_MessagingClientEvent eventExtension;
 @property(nonatomic) gdt_cct_IosClientInfo info;
+@property(nonatomic) firebase_messaging_IosClientInfo messaging_info;
 
 @end
 
 @implementation FIRMessagingMetricsLog
 
-- (instancetype)initWithEventExtension:(firebase_messaging_MessagingClientEvent)eventExtension {
+- (instancetype)init {//WithEventExtension:(firebase_messaging_IosClientInfo)eventExtension {
   self = [super init];
   if (self) {
-    _eventExtension = FIRMessagingTestNanopb();//eventExtension;
-    _info = GDTCCTConstructiOSClientInfo();
+   // _eventExtension = FIRMessagingTestNanopb();//eventExtension;
+    //_info = testGDTCCT();
+    _info = TestGDTCCTConstructiOSClientInfo();
+    _messaging_info = testInfo();
   }
   return self;
 }
@@ -111,8 +94,8 @@ firebase_messaging_MessagingClientEvent FIRMessagingTestNanopb() {
   pb_ostream_t sizestream = PB_OSTREAM_SIZING;
 
   // Encode 1 time to determine the size.
-//  if (!pb_encode(&sizestream, firebase_messaging_MessagingClientEvent_fields, &_eventExtension)) {
-  if (!pb_encode(&sizestream, gdt_cct_IosClientInfo_fields, &_info)) {
+ // if (!pb_encode(&sizestream, gdt_cct_IosClientInfo_fields, &_info)) {
+ if (!pb_encode(&sizestream, firebase_messaging_IosClientInfo_fields, &_messaging_info)) {
 
     FIRMessagingLoggerError(kFIRMessagingServiceExtensionTransportBytesError,
                             @"Error in nanopb encoding for size: %s", PB_GET_ERROR(&sizestream));
@@ -123,8 +106,8 @@ firebase_messaging_MessagingClientEvent FIRMessagingTestNanopb() {
   CFMutableDataRef dataRef = CFDataCreateMutable(CFAllocatorGetDefault(), bufferSize);
   CFDataSetLength(dataRef, bufferSize);
   pb_ostream_t ostream = pb_ostream_from_buffer((void *)CFDataGetBytePtr(dataRef), bufferSize);
-  //if (!pb_encode(&ostream, firebase_messaging_MessagingClientEvent_fields, &_eventExtension)) {
-  if (!pb_encode(&ostream, gdt_cct_IosClientInfo_fields, &_info)) {
+  if (!pb_encode(&ostream, firebase_messaging_IosClientInfo_fields, &_messaging_info)) {
+  //if (!pb_encode(&ostream, gdt_cct_IosClientInfo_fields, &_info)) {
 
     FIRMessagingLoggerError(kFIRMessagingServiceExtensionTransportBytesError,
                             @"Error in nanopb encoding for bytes: %s", PB_GET_ERROR(&ostream));
@@ -237,37 +220,37 @@ firebase_messaging_MessagingClientEvent FIRMessagingTestNanopb() {
 
  // MessagingClientEventExtension eventExtension = MessagingClientEventExtension_init_default;
 
-  firebase_messaging_MessagingClientEvent foo = firebase_messaging_MessagingClientEvent_init_default;
+  //firebase_messaging_MessagingClientEvent foo = firebase_messaging_MessagingClientEvent_init_default;
   //foo.project_number = 0;//(int64_t)[info[@"google.c.sender.id"] longLongValue];
-  foo.message_id = FIRMessagingEncodeString(info[@"gcm.message_id"]);
-////  foo.instance_id = FIRMessagingEncodeString(info[@"google.c.fid"]);
-  foo.instance_id = FIRMessagingEncodeString(@"c5Qp5Y0yeU27mxFtvR2ubW");
-
-//  if ([info[@"aps"][@"content-available"] intValue] == 1 &&
-//      ![GULAppEnvironmentUtil isAppExtension]) {
-//    foo.message_type = MessagingClientEvent_MessageType_DATA_MESSAGE;
+//  foo.message_id = FIRMessagingEncodeString(info[@"gcm.message_id"]);
+//////  foo.instance_id = FIRMessagingEncodeString(info[@"google.c.fid"]);
+//  foo.instance_id = FIRMessagingEncodeString(@"c5Qp5Y0yeU27mxFtvR2ubW");
+//
+////  if ([info[@"aps"][@"content-available"] intValue] == 1 &&
+////      ![GULAppEnvironmentUtil isAppExtension]) {
+////    foo.message_type = MessagingClientEvent_MessageType_DATA_MESSAGE;
+////  } else {
+////    foo.message_type = MessagingClientEvent_MessageType_DISPLAY_NOTIFICATION;
+////  }
+////  foo.sdk_platform = MessagingClientEvent_SDKPlatform_IOS;
+//
+//  NSString *bundleID = [NSBundle mainBundle].bundleIdentifier;
+//  if ([GULAppEnvironmentUtil isAppExtension]) {
+//    foo.package_name =
+//        FIRMessagingEncodeString([[self class] bundleIdentifierByRemovingLastPartFrom:bundleID]);
 //  } else {
-//    foo.message_type = MessagingClientEvent_MessageType_DISPLAY_NOTIFICATION;
+//    foo.package_name = FIRMessagingEncodeString(bundleID);
 //  }
-//  foo.sdk_platform = MessagingClientEvent_SDKPlatform_IOS;
-
-  NSString *bundleID = [NSBundle mainBundle].bundleIdentifier;
-  if ([GULAppEnvironmentUtil isAppExtension]) {
-    foo.package_name =
-        FIRMessagingEncodeString([[self class] bundleIdentifierByRemovingLastPartFrom:bundleID]);
-  } else {
-    foo.package_name = FIRMessagingEncodeString(bundleID);
-  }
-  //foo.event = MessagingClientEvent_Event_MESSAGE_DELIVERED;
-  foo.analytics_label = FIRMessagingEncodeString(@"_nr");
-  //foo.campaign_id = (int64_t)[info[@"campaign_id.c_id"] longLongValue];
-  foo.composer_label = FIRMessagingEncodeString(info[@"google.c.a.c_l"]);
-  
+//  //foo.event = MessagingClientEvent_Event_MESSAGE_DELIVERED;
+//  foo.analytics_label = FIRMessagingEncodeString(@"_nr");
+//  //foo.campaign_id = (int64_t)[info[@"campaign_id.c_id"] longLongValue];
+//  foo.composer_label = FIRMessagingEncodeString(info[@"google.c.a.c_l"]);
+//
 
 
   //eventExtension.messaging_client_event = foo;
   FIRMessagingMetricsLog *log =
-      [[FIRMessagingMetricsLog alloc] initWithEventExtension:foo];
+      [[FIRMessagingMetricsLog alloc] init];
 
   GDTCOREvent *event = [transport eventForTransport];
   event.dataObject = log;

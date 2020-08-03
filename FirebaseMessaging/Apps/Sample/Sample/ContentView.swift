@@ -100,6 +100,7 @@ struct ContentView: View {
   }
 
   func getToken() {
+    Messaging.serviceExtension().exportDeliveryMetricsToBigQuery(withMessageInfo: ["":""])
     InstanceID.instanceID().instanceID { result, error in
       guard let result = result, error == nil else {
         self.log = "Failed getting iid and token: \(String(describing: error))"

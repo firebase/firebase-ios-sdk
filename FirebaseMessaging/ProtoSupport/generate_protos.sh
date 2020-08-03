@@ -28,7 +28,7 @@ readonly NANOPB_TEMPDIR="${DIR}/FirebaseMessaging/nanopb_temp"
 
 readonly LIBRARY_DIR="${DIR}/FirebaseMessaging/Sources/"
 readonly PROTO_DIR="${DIR}/FirebaseMessaging/ProtoSupport/Protos/"
-readonly PROTOGEN_DIR="${LIBRARY_DIR}/"
+readonly PROTOGEN_DIR="${LIBRARY_DIR}/Protogen/"
 
 rm -rf "${NANOPB_TEMPDIR}"
 
