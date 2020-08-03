@@ -1,3 +1,6 @@
+# v4.8.2
+- [fixed] Fixed an issue where numerical values would always be zero instead of nil (#6188).
+
 # v4.8.1
 - [fixed] Fixed `FirebaseApp.delete()` related crash in `RC Config Fetch`. (#6123)
 
