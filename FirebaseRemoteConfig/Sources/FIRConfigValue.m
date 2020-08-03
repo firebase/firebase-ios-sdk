@@ -25,6 +25,17 @@
   FIRRemoteConfigSource _source;
 }
 
++ (NSNumberFormatter *)numberFormatter {
+  static NSNumberFormatter *formatter;
+  static dispatch_once_t onceToken = 0;
+  dispatch_once(&onceToken, ^{
+    formatter = [[NSNumberFormatter alloc] init];
+    formatter.numberStyle = NSNumberFormatterDecimalStyle;
+    formatter.locale = [NSLocale autoUpdatingCurrentLocale];
+  });
+  return formatter;
+}
+
 /// Designated initializer
 - (instancetype)initWithData:(NSData *)data source:(FIRRemoteConfigSource)source {
   self = [super init];
@@ -47,7 +58,11 @@
 
 /// Number representation of a UTF-8 string.
 - (NSNumber *)numberValue {
-  return [NSNumber numberWithDouble:self.stringValue.doubleValue];
+  NSString *stringValue = self.stringValue;
+  if (stringValue == nil) {
+    return nil;
+  }
+  return [[FIRRemoteConfigValue numberFormatter] numberFromString:stringValue];
 }
 
 /// Internal representation of the FIRRemoteConfigValue as a NSData object.

@@ -58,8 +58,17 @@
 - (void)testFIRRemoteConfigValueToNumber {
   FIRRemoteConfigValue *value;
 
-  NSString *strValue = @"0.33";
+  NSString *strValue = @"not a number";
   NSData *data = [strValue dataUsingEncoding:NSUTF8StringEncoding];
+  value = [[FIRRemoteConfigValue alloc] initWithData:data source:FIRRemoteConfigSourceRemote];
+  XCTAssertNil(value.numberValue);
+
+  data = nil;
+  value = [[FIRRemoteConfigValue alloc] initWithData:data source:FIRRemoteConfigSourceRemote];
+  XCTAssertNil(value.numberValue);
+
+  strValue = @"0.33";
+  data = [strValue dataUsingEncoding:NSUTF8StringEncoding];
   value = [[FIRRemoteConfigValue alloc] initWithData:data source:FIRRemoteConfigSourceRemote];
   XCTAssertEqual(value.numberValue.floatValue, strValue.floatValue);
 
