@@ -1102,7 +1102,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
                                                       source:FIRRemoteConfigSourceStatic];
       }
       XCTAssertEqualObjects(value.stringValue, @"");
-      XCTAssertEqualObjects(value.numberValue, @(0));
+      XCTAssertNil(value.numberValue);
       XCTAssertEqual(value.boolValue, NO);
 
       XCTAssertEqual(status, FIRRemoteConfigFetchStatusSuccess,
