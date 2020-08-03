@@ -158,7 +158,8 @@ SFAuthenticationSession *_safariAuthenticationVC;
               }];
 
   UIAlertAction *noButton = [UIAlertAction
-      actionWithTitle:NSLocalizedString(@"Not now", @"Button for dismissing the UIAlert")
+      actionWithTitle:NSLocalizedString(@"Not now",
+                                        @"Button for dismissing the new build alerts UIAlert")
                 style:UIAlertActionStyleDefault
               handler:^(UIAlertAction *action) {
                 [self resetUIState];
