@@ -26,7 +26,7 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
 
   s.source_files = [
     'FirebaseCore/Sources/Private/*.h',
-    'Firestore/Source/Public/*.h',
+    'Firestore/Source/Public/FirebaseFirestore/*.h',
     'Firestore/Source/**/*.{m,mm}',
     'Firestore/Protos/nanopb/**/*.cc',
     'Firestore/core/include/**/*.{cc,mm}',
@@ -56,7 +56,7 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
     'Firestore/core/src/util/log_stdio.cc',
     'Firestore/core/src/util/secure_random_openssl.cc'
   ]
-  s.public_header_files = 'Firestore/Source/Public/*.h'
+  s.public_header_files = 'Firestore/Source/Public/FirebaseFirestore/*.h'
 
   s.dependency 'FirebaseCore', '~> 6.8'
 
@@ -89,7 +89,7 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
       'PB_FIELD_32BIT=1 PB_NO_PACKED_STRUCTS=1 PB_ENABLE_MALLOC=1',
     'HEADER_SEARCH_PATHS' =>
       '"${PODS_TARGET_SRCROOT}" ' +
-      '"${PODS_TARGET_SRCROOT}/Firestore/Source/Public" ' +
+      '"${PODS_TARGET_SRCROOT}/Firestore/Source/Public/FirebaseFirestore" ' +
       '"${PODS_ROOT}/nanopb" ' +
       '"${PODS_TARGET_SRCROOT}/Firestore/Protos/nanopb"'
   }

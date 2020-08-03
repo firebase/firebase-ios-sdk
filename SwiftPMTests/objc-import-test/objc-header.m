@@ -19,7 +19,7 @@
 #import "FirebaseCrashlytics/FirebaseCrashlytics.h"
 #import "FirebaseDatabase/FirebaseDatabase.h"
 #import "FirebaseFunctions/FirebaseFunctions.h"
-//#import "FirebaseFirestore/FirebaseFirestore."
+#import "FirebaseFirestore/FirebaseFirestore.h"
 #import "FirebaseInstallations/FirebaseInstallations.h"
 #import "FirebaseRemoteConfig/FirebaseRemoteConfig.h"
 #import "FirebaseStorage/FirebaseStorage.h"
@@ -31,7 +31,7 @@
 #import <FirebaseCrashlytics/FirebaseCrashlytics.h>
 #import <FirebaseDatabase/FirebaseDatabase.h>
 #import <FirebaseFunctions/FirebaseFunctions.h>
-//#import <FirebaseFirestore/FirebaseFirestore.>
+#import <FirebaseFirestore/FirebaseFirestore.h>
 #import <FirebaseInstallations/FirebaseInstallations.h>
 #import <FirebaseRemoteConfig/FirebaseRemoteConfig.h>
 #import <FirebaseStorage/FirebaseStorage.h>
