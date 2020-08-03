@@ -94,7 +94,7 @@ let package = Package(
     .package(
       name: "nanopb",
       url: "https://github.com/paulb777/nanopb.git",
-      .revision("82230e9998a35a3d2144884204db64f045c880c4")
+      .branch("spm2")
     ),
     .package(
       name: "abseil",
