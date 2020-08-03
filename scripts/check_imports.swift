@@ -29,7 +29,8 @@ let skipDirPatterns = ["/Sample/", "/Pods/", "FirebaseStorage/Tests/Integration"
                        "Example/InstanceID/App", "SymbolCollisionTest/", "/gen/",
                        "CocoapodsIntegrationTest/"] +
   [
-    "CoreOnly/Sources", // Skip Firebase.h
+    "CoreOnly/Sources", // Skip Firebase.h.
+    "SwiftPMTests", // The SwiftPM imports test module imports.
   ] +
 
   // The following are temporary skips pending working through a first pass of the repo:
