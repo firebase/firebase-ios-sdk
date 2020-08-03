@@ -175,7 +175,7 @@ class APITests: APITestBase {
     let group = DispatchGroup()
     group.enter()
     serialQueue.async {
-      // Represents pre-fetch occuring sometime in past.
+      // Represents pre-fetch occurring sometime in past.
       self.config.fetch { status, error in
         XCTAssertNil(error, "Fetch Error \(error!)")
         XCTAssertEqual(status, .success)
