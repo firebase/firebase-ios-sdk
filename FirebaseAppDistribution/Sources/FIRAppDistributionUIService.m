@@ -142,22 +142,28 @@ SFAuthenticationSession *_safariAuthenticationVC;
 
 - (void)showUIAlertWithCompletion:(FIRFADUIActionCompletion)completion {
   UIAlertController *alert = [UIAlertController
-      alertControllerWithTitle:@"Enable new build alerts"
-                       message:@"Get in-app alerts when new builds are ready to test."
+      alertControllerWithTitle:NSLocalizedString(
+                                   @"Enable new build alerts",
+                                   @"Title for App Distribution New Build Alerts UIAlert.")
+                       message:NSLocalizedString(
+                                   @"Get in-app alerts when new builds are ready to test.",
+                                   @"Description for enabling new build alerts will do.")
                 preferredStyle:UIAlertControllerStyleAlert];
 
-  UIAlertAction *yesButton = [UIAlertAction actionWithTitle:@"Turn on"
-                                                      style:UIAlertActionStyleDefault
-                                                    handler:^(UIAlertAction *action) {
-                                                      completion(YES);
-                                                    }];
+  UIAlertAction *yesButton = [UIAlertAction
+      actionWithTitle:NSLocalizedString(@"Turn on", @"Button for turning on new build alerts.")
+                style:UIAlertActionStyleDefault
+              handler:^(UIAlertAction *action) {
+                completion(YES);
+              }];
 
-  UIAlertAction *noButton = [UIAlertAction actionWithTitle:@"Not now"
-                                                     style:UIAlertActionStyleDefault
-                                                   handler:^(UIAlertAction *action) {
-                                                     [self resetUIState];
-                                                     completion(NO);
-                                                   }];
+  UIAlertAction *noButton = [UIAlertAction
+      actionWithTitle:NSLocalizedString(@"Not now", @"Button for dismissing the UIAlert")
+                style:UIAlertActionStyleDefault
+              handler:^(UIAlertAction *action) {
+                [self resetUIState];
+                completion(NO);
+              }];
 
   [alert addAction:noButton];
   [alert addAction:yesButton];
