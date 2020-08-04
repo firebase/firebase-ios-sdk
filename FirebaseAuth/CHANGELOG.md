@@ -1,3 +1,6 @@
+# Unreleased
+- [changed] Added support for using GOOGLE_APP_ID in generic IDP and phone auth reCAPTCHA fallback flows. (#6121).
+
 # v6.7.1
 - [fixed] Fixed a multithreaded memory access issue on iOS (#5979).
 

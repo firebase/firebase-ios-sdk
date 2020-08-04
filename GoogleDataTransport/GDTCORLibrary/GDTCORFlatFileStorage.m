@@ -16,12 +16,12 @@
 
 #import "GoogleDataTransport/GDTCORLibrary/Private/GDTCORFlatFileStorage.h"
 
-#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORAssert.h"
-#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORConsoleLogger.h"
-#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCOREvent.h"
-#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORLifecycle.h"
-#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORPlatform.h"
-#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORStorageEventSelector.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORAssert.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORConsoleLogger.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCOREvent.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORLifecycle.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORPlatform.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORStorageEventSelector.h"
 
 #import "GoogleDataTransport/GDTCORLibrary/Private/GDTCOREvent_Private.h"
 #import "GoogleDataTransport/GDTCORLibrary/Private/GDTCORRegistrar_Private.h"

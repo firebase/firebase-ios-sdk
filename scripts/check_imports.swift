@@ -29,7 +29,8 @@ let skipDirPatterns = ["/Sample/", "/Pods/", "FirebaseStorage/Tests/Integration"
                        "Example/InstanceID/App", "SymbolCollisionTest/", "/gen/",
                        "CocoapodsIntegrationTest/"] +
   [
-    "CoreOnly/Sources", // Skip Firebase.h
+    "CoreOnly/Sources", // Skip Firebase.h.
+    "SwiftPMTests", // The SwiftPM imports test module imports.
   ] +
 
   // The following are temporary skips pending working through a first pass of the repo:
@@ -81,7 +82,9 @@ private func checkFile(_ file: String, logger: ErrorLogger, inRepo repoURL: URL)
     file.range(of: "GDTCCTLibrary/Public/GDTCOREvent+GDTCCTSupport.h") == nil
   let isPrivate = file.range(of: "/Sources/Private/") != nil ||
     // Delete when FirebaseInstallations fixes directory structure.
-    file.range(of: "Source/Library/Private/") != nil
+    file.range(of: "Source/Library/Private/") != nil ||
+    // Delete when GDT fixes directory structure.
+    file.range(of: "GDTCORLibrary/Internal/") != nil
   var inSwiftPackage = false
   var inSwiftPackageElse = false
   let lines = fileContents.components(separatedBy: .newlines)

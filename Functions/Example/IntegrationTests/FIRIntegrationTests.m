@@ -19,9 +19,9 @@
 #import "FIRAuthInteropFake.h"
 #import "Functions/Example/TestUtils/FUNFakeInstanceID.h"
 #import "Functions/FirebaseFunctions/FIRFunctions+Internal.h"
-#import "Functions/FirebaseFunctions/Public/FIRError.h"
-#import "Functions/FirebaseFunctions/Public/FIRFunctions.h"
-#import "Functions/FirebaseFunctions/Public/FIRHTTPSCallable.h"
+#import "Functions/FirebaseFunctions/Public/FirebaseFunctions/FIRError.h"
+#import "Functions/FirebaseFunctions/Public/FirebaseFunctions/FIRFunctions.h"
+#import "Functions/FirebaseFunctions/Public/FirebaseFunctions/FIRHTTPSCallable.h"
 
 // Project ID used by these tests.
 static NSString *const kDefaultProjectID = @"functions-integration-test";
