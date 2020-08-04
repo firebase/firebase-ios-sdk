@@ -475,7 +475,7 @@ let package = Package(
       publicHeadersPath: "Source/Public",
       cSettings: [
         .headerSearchPath("../"),
-        .headerSearchPath("Source/Public"),
+        .headerSearchPath("Source/Public/FirebaseFirestore"),
         .headerSearchPath("Protos/nanopb"),
 
         .define("PB_FIELD_32BIT", to: "1"),
