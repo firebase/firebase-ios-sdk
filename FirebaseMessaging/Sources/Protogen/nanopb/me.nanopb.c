@@ -26,22 +26,22 @@
 
 
 
-const pb_field_t MessagingClientEvent_fields[11] = {
-    PB_FIELD(  1, INT64   , SINGULAR, STATIC  , FIRST, MessagingClientEvent, project_number, project_number, 0),
-    PB_FIELD(  2, BYTES   , SINGULAR, POINTER , OTHER, MessagingClientEvent, message_id, project_number, 0),
-    PB_FIELD(  3, BYTES   , SINGULAR, POINTER , OTHER, MessagingClientEvent, instance_id, message_id, 0),
-    PB_FIELD(  4, UENUM   , SINGULAR, STATIC  , OTHER, MessagingClientEvent, message_type, instance_id, 0),
-    PB_FIELD(  5, UENUM   , SINGULAR, STATIC  , OTHER, MessagingClientEvent, sdk_platform, message_type, 0),
-    PB_FIELD(  6, BYTES   , SINGULAR, POINTER , OTHER, MessagingClientEvent, package_name, sdk_platform, 0),
-    PB_FIELD( 12, UENUM   , SINGULAR, STATIC  , OTHER, MessagingClientEvent, event, package_name, 0),
-    PB_FIELD( 13, BYTES   , SINGULAR, POINTER , OTHER, MessagingClientEvent, analytics_label, event, 0),
-    PB_FIELD( 14, INT64   , SINGULAR, STATIC  , OTHER, MessagingClientEvent, campaign_id, analytics_label, 0),
-    PB_FIELD( 15, BYTES   , SINGULAR, POINTER , OTHER, MessagingClientEvent, composer_label, campaign_id, 0),
+const pb_field_t fm_MessagingClientEvent_fields[11] = {
+    PB_FIELD(  1, INT64   , SINGULAR, STATIC  , FIRST, fm_MessagingClientEvent, project_number, project_number, 0),
+    PB_FIELD(  2, BYTES   , SINGULAR, POINTER , OTHER, fm_MessagingClientEvent, message_id, project_number, 0),
+    PB_FIELD(  3, BYTES   , SINGULAR, POINTER , OTHER, fm_MessagingClientEvent, instance_id, message_id, 0),
+    PB_FIELD(  4, UENUM   , SINGULAR, STATIC  , OTHER, fm_MessagingClientEvent, message_type, instance_id, 0),
+    PB_FIELD(  5, UENUM   , SINGULAR, STATIC  , OTHER, fm_MessagingClientEvent, sdk_platform, message_type, 0),
+    PB_FIELD(  6, BYTES   , SINGULAR, POINTER , OTHER, fm_MessagingClientEvent, package_name, sdk_platform, 0),
+    PB_FIELD( 12, UENUM   , SINGULAR, STATIC  , OTHER, fm_MessagingClientEvent, event, package_name, 0),
+    PB_FIELD( 13, BYTES   , SINGULAR, POINTER , OTHER, fm_MessagingClientEvent, analytics_label, event, 0),
+    PB_FIELD( 14, INT64   , SINGULAR, STATIC  , OTHER, fm_MessagingClientEvent, campaign_id, analytics_label, 0),
+    PB_FIELD( 15, BYTES   , SINGULAR, POINTER , OTHER, fm_MessagingClientEvent, composer_label, campaign_id, 0),
     PB_LAST_FIELD
 };
 
-const pb_field_t MessagingClientEventExtension_fields[2] = {
-    PB_FIELD(  1, MESSAGE , SINGULAR, POINTER , FIRST, MessagingClientEventExtension, messaging_client_event, messaging_client_event, &MessagingClientEvent_fields),
+const pb_field_t fm_MessagingClientEventExtension_fields[2] = {
+    PB_FIELD(  1, MESSAGE , SINGULAR, POINTER , FIRST, fm_MessagingClientEventExtension, messaging_client_event, messaging_client_event, &fm_MessagingClientEvent_fields),
     PB_LAST_FIELD
 };
 

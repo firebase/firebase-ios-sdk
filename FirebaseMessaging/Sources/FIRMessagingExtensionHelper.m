@@ -24,10 +24,7 @@
 #import "FirebaseMessaging/Sources/FIRMMessageCode.h"
 #import "FirebaseMessaging/Sources/FIRMessagingLogger.h"
 #import "GoogleUtilities/Environment/Private/GULAppEnvironmentUtil.h"
-#import "GoogleDataTransport/GDTCCTLibrary/Protogen/nanopb/cct.nanopb.h"
 #import "GoogleDataTransport/GDTCCTLibrary/Private/GDTCCTNanopbHelpers.h"
-
-
 
 #import <nanopb/pb.h>
 #import <nanopb/pb_decode.h>
@@ -36,67 +33,29 @@
 static NSString *const kPayloadOptionsName = @"fcm_options";
 static NSString *const kPayloadOptionsImageURLName = @"image";
 
-#pragma mark - nanopb helper functions
-
-
-gdt_cct_IosClientInfo TestGDTCCTConstructiOSClientInfo() {
-  gdt_cct_IosClientInfo iOSClientInfo = gdt_cct_IosClientInfo_init_default;
-
-  iOSClientInfo.os_full_version = GDTCCTEncodeString(@"test");
-  iOSClientInfo.os_major_version = GDTCCTEncodeString(@"test");
-  iOSClientInfo.application_build = GDTCCTEncodeString(@"test");
-  iOSClientInfo.country = GDTCCTEncodeString(@"test");
-  iOSClientInfo.model = GDTCCTEncodeString(@"test");
-  iOSClientInfo.language_code = GDTCCTEncodeString(@"en");
-  iOSClientInfo.application_bundle_id = GDTCCTEncodeString(@"test");
-  return iOSClientInfo;
-}
-
-fm_IosClientInfo testInfo() {
-  fm_IosClientInfo iOSClientInfo = fm_IosClientInfo_init_default;
-
-  iOSClientInfo.os_full_version = GDTCCTEncodeString(@"test");
-  iOSClientInfo.os_major_version = GDTCCTEncodeString(@"test");
-  iOSClientInfo.application_build = GDTCCTEncodeString(@"test");
-  iOSClientInfo.country = GDTCCTEncodeString(@"test");
-  iOSClientInfo.model = GDTCCTEncodeString(@"test");
-  iOSClientInfo.language_code = GDTCCTEncodeString(@"en");
-  iOSClientInfo.application_bundle_id = GDTCCTEncodeString(@"test");
-  return iOSClientInfo;
-}
-
 
 
 @interface FIRMessagingMetricsLog : NSObject <GDTCOREventDataObject>
 
-//@property(nonatomic) firebase_messaging_MessagingClientEvent eventExtension;
-@property(nonatomic) gdt_cct_IosClientInfo info;
-@property(nonatomic) fm_IosClientInfo messaging_info;
+@property(nonatomic) fm_MessagingClientEventExtension eventExtension;
 
 @end
 
 @implementation FIRMessagingMetricsLog
 
-- (instancetype)init {//WithEventExtension:(firebase_messaging_IosClientInfo)eventExtension {
+- (instancetype)initWithEventExtension:(fm_MessagingClientEventExtension)eventExtension {
   self = [super init];
   if (self) {
-   // _eventExtension = FIRMessagingTestNanopb();//eventExtension;
-    //_info = testGDTCCT();
-    _info = TestGDTCCTConstructiOSClientInfo();
-    _messaging_info = testInfo();
+    _eventExtension = eventExtension;
   }
   return self;
 }
-
-
 
 - (NSData *)transportBytes {
   pb_ostream_t sizestream = PB_OSTREAM_SIZING;
 
   // Encode 1 time to determine the size.
-  //if (!pb_encode(&sizestream, gdt_cct_IosClientInfo_fields, &_info)) {
-
-  if (!pb_encode(&sizestream, fm_IosClientInfo_fields, &_messaging_info)) {
+  if (!pb_encode(&sizestream, fm_MessagingClientEventExtension_fields, &_eventExtension)) {
 
     FIRMessagingLoggerError(kFIRMessagingServiceExtensionTransportBytesError,
                             @"Error in nanopb encoding for size: %s", PB_GET_ERROR(&sizestream));
@@ -107,8 +66,7 @@ fm_IosClientInfo testInfo() {
   CFMutableDataRef dataRef = CFDataCreateMutable(CFAllocatorGetDefault(), bufferSize);
   CFDataSetLength(dataRef, bufferSize);
   pb_ostream_t ostream = pb_ostream_from_buffer((void *)CFDataGetBytePtr(dataRef), bufferSize);
-  //if (!pb_encode(&ostream, gdt_cct_IosClientInfo_fields, &_info)) {
-  if (!pb_encode(&ostream, gdt_cct_IosClientInfo_fields, &_messaging_info)) {
+  if (!pb_encode(&ostream, fm_MessagingClientEventExtension_fields, &_eventExtension)) {
 
     FIRMessagingLoggerError(kFIRMessagingServiceExtensionTransportBytesError,
                             @"Error in nanopb encoding for bytes: %s", PB_GET_ERROR(&ostream));
@@ -219,37 +177,38 @@ fm_IosClientInfo testInfo() {
                                                              transformers:nil
                                                                    target:kGDTCORTargetFLL];
 
- // MessagingClientEventExtension eventExtension = MessagingClientEventExtension_init_default;
+  fm_MessagingClientEventExtension eventExtension = fm_MessagingClientEventExtension_init_default;
 
-  //firebase_messaging_MessagingClientEvent foo = firebase_messaging_MessagingClientEvent_init_default;
-  //foo.project_number = 0;//(int64_t)[info[@"google.c.sender.id"] longLongValue];
-//  foo.message_id = FIRMessagingEncodeString(info[@"gcm.message_id"]);
-//////  foo.instance_id = FIRMessagingEncodeString(info[@"google.c.fid"]);
-//  foo.instance_id = FIRMessagingEncodeString(@"c5Qp5Y0yeU27mxFtvR2ubW");
-//
-////  if ([info[@"aps"][@"content-available"] intValue] == 1 &&
-////      ![GULAppEnvironmentUtil isAppExtension]) {
-////    foo.message_type = MessagingClientEvent_MessageType_DATA_MESSAGE;
-////  } else {
-////    foo.message_type = MessagingClientEvent_MessageType_DISPLAY_NOTIFICATION;
-////  }
-////  foo.sdk_platform = MessagingClientEvent_SDKPlatform_IOS;
-//
-//  NSString *bundleID = [NSBundle mainBundle].bundleIdentifier;
-//  if ([GULAppEnvironmentUtil isAppExtension]) {
-//    foo.package_name =
-//        FIRMessagingEncodeString([[self class] bundleIdentifierByRemovingLastPartFrom:bundleID]);
-//  } else {
-//    foo.package_name = FIRMessagingEncodeString(bundleID);
-//  }
-//  //foo.event = MessagingClientEvent_Event_MESSAGE_DELIVERED;
-//  foo.analytics_label = FIRMessagingEncodeString(@"_nr");
-//  //foo.campaign_id = (int64_t)[info[@"campaign_id.c_id"] longLongValue];
-//  foo.composer_label = FIRMessagingEncodeString(info[@"google.c.a.c_l"]);
-//
+  fm_MessagingClientEvent foo = fm_MessagingClientEvent_init_default;
+  foo.project_number = (int64_t)[info[@"google.c.sender.id"] longLongValue];
+  foo.message_id = GDTCCTEncodeString(info[@"gcm.message_id"]);
+////  foo.instance_id = GDTCCTEncodeString(info[@"google.c.fid"]);
+  foo.instance_id = GDTCCTEncodeString(@"c5Qp5Y0yeU27mxFtvR2ubW");
+
+  if ([info[@"aps"][@"content-available"] intValue] == 1 &&
+      ![GULAppEnvironmentUtil isAppExtension]) {
+    foo.message_type = fm_MessagingClientEvent_MessageType_DATA_MESSAGE;
+  } else {
+    
+    foo.message_type = fm_MessagingClientEvent_MessageType_DISPLAY_NOTIFICATION;
+  }
+  foo.sdk_platform = fm_MessagingClientEvent_SDKPlatform_IOS;
+
+  NSString *bundleID = [NSBundle mainBundle].bundleIdentifier;
+  if ([GULAppEnvironmentUtil isAppExtension]) {
+    foo.package_name =
+    GDTCCTEncodeString([[self class] bundleIdentifierByRemovingLastPartFrom:bundleID]);
+  } else {
+    foo.package_name = GDTCCTEncodeString(bundleID);
+  }
+  foo.event = fm_MessagingClientEvent_Event_MESSAGE_DELIVERED;
+  foo.analytics_label = GDTCCTEncodeString(@"_nr");
+  foo.campaign_id = (int64_t)[info[@"campaign_id.c_id"] longLongValue];
+  foo.composer_label = GDTCCTEncodeString(info[@"google.c.a.c_l"]);
 
 
-  //eventExtension.messaging_client_event = foo;
+
+  eventExtension.messaging_client_event = &foo;
   FIRMessagingMetricsLog *log =
       [[FIRMessagingMetricsLog alloc] init];
 

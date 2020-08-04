@@ -16,6 +16,8 @@
 
 syntax = "proto3";
 
+package fm;
+
 message MessagingClientEvent {
 
   int64 project_number = 1;

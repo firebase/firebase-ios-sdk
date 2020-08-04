@@ -33,8 +33,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     }
     application.registerForRemoteNotifications()
     
-    //TODO(chliang) remove this after testing
-    Messaging.serviceExtension().exportDeliveryMetricsToBigQuery(withMessageInfo: ["": ""])
     return true
   }
 

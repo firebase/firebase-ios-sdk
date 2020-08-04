@@ -14,9 +14,9 @@
 #
 
 # Options for mee.protos
-MessagingClientEvent.message_id type:FT_POINTER
-MessagingClientEvent.instance_id type:FT_POINTER
-MessagingClientEvent.package_name type:FT_POINTER
-MessagingClientEvent.analytics_label type:FT_POINTER
-MessagingClientEvent.composer_label type:FT_POINTER
-MessagingClientEventExtension.messaging_client_event type:FT_POINTER 
+fm.MessagingClientEvent.message_id type:FT_POINTER
+fm.MessagingClientEvent.instance_id type:FT_POINTER
+fm.MessagingClientEvent.package_name type:FT_POINTER
+fm.MessagingClientEvent.analytics_label type:FT_POINTER
+fm.MessagingClientEvent.composer_label type:FT_POINTER
+fm.MessagingClientEventExtension.messaging_client_event type:FT_POINTER
