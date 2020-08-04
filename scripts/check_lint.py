@@ -23,7 +23,6 @@ import argparse
 import logging
 import os
 import subprocess
-import sys
 import textwrap
 
 from lib import checker
@@ -125,7 +124,7 @@ def _run_cpplint(options, files):
   scripts_dir = os.path.dirname(os.path.abspath(__file__))
   cpplint = os.path.join(scripts_dir, 'cpplint.py')
 
-  command = [sys.executable, cpplint, '--quiet']
+  command = ['python2', cpplint, '--quiet']
   command.extend(options)
   command.extend(files)
 
