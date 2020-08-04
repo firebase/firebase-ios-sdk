@@ -6127,8 +6127,16 @@ def CheckForIncludeWhatYouUse(filename, clean_lines, include_state, error,
     io: The IO factory to use to read the header file. Provided for unittest
         injection.
   """
-  required = {}  # A map of header name to linenumber and the template entity.
-                 # Example of required: { '<functional>': (1219, 'less<>') }
+  # A map of entity to a tuple of line number and tuple of headers.
+  # Example: { 'less<>': (1219, ('<functional>',)) }
+  # Example: { 'ostream': (1234, ('<iosfwd>', '<ostream>', '<iostream>')) }
+  required = {}
+
+  def Require(entity, linenum, *headers):
+    """Adds an entity at the given line, along with a list of possible headers
+    in which to find it. The first header is treated as the preferred header.
+    """
+    required[entity] = (linenum, headers)
 
   for linenum in xrange(clean_lines.NumLines()):
     line = clean_lines.elided[linenum]
@@ -6142,19 +6150,19 @@ def CheckForIncludeWhatYouUse(filename, clean_lines, include_state, error,
       # (We check only the first match per line; good enough.)
       prefix = line[:matched.start()]
       if prefix.endswith('std::') or not prefix.endswith('::'):
-        required['<string>'] = (linenum, 'string')
+        Require('string', linenum, '<string>')
 
     # Ostream is special too -- also non-templatized
     matched = _RE_PATTERN_OSTREAM.search(line)
     if matched:
       if _IsSourceFilename(filename):
-        required['<ostream>'] = (linenum, 'ostream')
+        Require('ostream', linenum, '<ostream>', '<iostream>')
       else:
-        required['<iosfwd>'] = (linenum, 'ostream')
+        Require('ostream', linenum, '<iosfwd>', '<ostream>', '<iostream>')
 
     for pattern, template, header in _re_pattern_headers_maybe_templates:
       if pattern.search(line):
-        required[header] = (linenum, template)
+        Require(template, linenum, header)
 
     # The following function is just a speed up, no semantics are changed.
     if not '<' in line:  # Reduces the cpu time usage by skipping lines.
@@ -6167,7 +6175,7 @@ def CheckForIncludeWhatYouUse(filename, clean_lines, include_state, error,
         # (We check only the first match per line; good enough.)
         prefix = line[:matched.start()]
         if prefix.endswith('std::') or not prefix.endswith('::'):
-          required[header] = (linenum, template)
+          Require(template, linenum, header)
 
   # The policy is that if you #include something in foo.h you don't need to
   # include it again in foo.cc. Here, we will look at possible includes.
@@ -6209,13 +6217,33 @@ def CheckForIncludeWhatYouUse(filename, clean_lines, include_state, error,
       if filename.endswith('.' + extension):
         return
 
+  # Keep track of which headers have been reported already
+  reported = set()
+
   # All the lines have been processed, report the errors found.
-  for required_header_unstripped in sorted(required, key=required.__getitem__):
-    template = required[required_header_unstripped][1]
-    if required_header_unstripped.strip('<>"') not in include_dict:
-      error(filename, required[required_header_unstripped][0],
+  for template in sorted(required, key=required.__getitem__):
+    (line, headers) = required[template]
+    found = False
+    for required_header_unstripped in headers:
+      if required_header_unstripped in reported:
+        found = True
+        break
+
+      if required_header_unstripped.strip('<>"') in include_dict:
+        found = True
+        break
+
+    if not found:
+      preferred_header = headers[0]
+      reported.add(preferred_header)
+      if len(headers) < 2:
+        alternatives = ''
+      else:
+        alternatives = ' (or ' + ', '.join(headers[1:]) + ')'
+      error(filename, line,
             'build/include_what_you_use', 4,
-            'Add #include ' + required_header_unstripped + ' for ' + template)
+            'Add #include ' + preferred_header + ' for ' + template +
+            alternatives)
 
 
 _RE_PATTERN_EXPLICIT_MAKEPAIR = re.compile(r'\bmake_pair\s*<')
