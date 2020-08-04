@@ -30,7 +30,7 @@ Cloud Functions for Firebase.
   ]
   s.public_header_files = 'Functions/FirebaseFunctions/Public/FirebaseFunctions/*.h'
 
-  s.dependency 'FirebaseCore', '~> 6.8'
+  s.dependency 'FirebaseCore', '~> 6.10'
   s.dependency 'GTMSessionFetcher/Core', '~> 1.1'
 
   s.pod_target_xcconfig = {
