@@ -58,7 +58,7 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
   ]
   s.public_header_files = 'Firestore/Source/Public/FirebaseFirestore/*.h'
 
-  s.dependency 'FirebaseCore', '~> 6.8'
+  s.dependency 'FirebaseCore', '~> 6.10'
 
   abseil_version = '0.20200225.0'
   s.dependency 'abseil/algorithm', abseil_version

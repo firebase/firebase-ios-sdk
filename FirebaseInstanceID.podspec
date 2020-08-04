@@ -44,8 +44,8 @@ services.
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
   }
   s.framework = 'Security'
-  s.dependency 'FirebaseCore', '~> 6.8'
-  s.dependency 'FirebaseInstallations', '~> 1.0'
+  s.dependency 'FirebaseCore', '~> 6.10'
+  s.dependency 'FirebaseInstallations', '~> 1.6'
   s.dependency 'GoogleUtilities/UserDefaults', '~> 6.7'
   s.dependency 'GoogleUtilities/Environment', '~> 6.7'
 
