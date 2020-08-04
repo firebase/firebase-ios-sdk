@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Sources/Public/FIRMutableData.h"
+#import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRMutableData.h"
 #import "FirebaseDatabase/Sources/Snapshot/FNode.h"
 
 @interface FIRMutableData ()

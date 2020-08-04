@@ -307,7 +307,11 @@ static const NSInteger FIRErrorCodeDurableDeepLinkFailed = -119;
 
 - (void)checkForPendingDynamicLink {
   // Make sure this method is called only once after the application was installed.
-  BOOL appInviteDeepLinkRead = [_userDefaults boolForKey:kFIRDLReadDeepLinkAfterInstallKey];
+  // kFIRDLOpenURLKey marks checkForPendingDynamic link had been called already so no need to do it
+  // again. kFIRDLReadDeepLinkAfterInstallKey marks we have already read a deeplink after the
+  // install and so no need to do check for pending dynamic link.
+  BOOL appInviteDeepLinkRead = [_userDefaults boolForKey:kFIRDLOpenURLKey] ||
+                               [_userDefaults boolForKey:kFIRDLReadDeepLinkAfterInstallKey];
 
   if (appInviteDeepLinkRead || self.retrievingPendingDynamicLink) {
     NSString *errorDescription =

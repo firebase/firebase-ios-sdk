@@ -18,7 +18,7 @@
 #if !TARGET_OS_OSX
 
 #import <Foundation/Foundation.h>
-#import "FirebaseAuth/Sources/Public/FIRAuthUIDelegate.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthUIDelegate.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

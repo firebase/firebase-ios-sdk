@@ -15,25 +15,15 @@
  */
 
 #import <Foundation/Foundation.h>
+#import "FirebaseAppDistribution/Sources/FIRAppDistributionMachOSlice.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-// Stand-in for NSURLQueryItem, which is only available on iOS 8.0 and up.
-@interface FIRInstanceIDURLQueryItem : NSObject
+@interface FIRAppDistributionMachO : NSObject
 
-@property(nonatomic, readonly) NSString *name;
-@property(nonatomic, readonly) NSString *value;
-
-+ (instancetype)queryItemWithName:(NSString *)name value:(NSString *)value;
-- (instancetype)initWithName:(NSString *)name value:(NSString *)value;
+- (instancetype)initWithPath:(NSString *)path;
+- (NSString *)codeHash;
 
 @end
-
-/**
- *  Given an array of query items, construct a URL query. On iOS 8.0 and above, this will use
- *  NSURLQueryItems internally to perform the string creation, and will be done manually in iOS
- *  7 and below.
- */
-NSString *FIRInstanceIDQueryFromQueryItems(NSArray<FIRInstanceIDURLQueryItem *> *queryItems);
 
 NS_ASSUME_NONNULL_END

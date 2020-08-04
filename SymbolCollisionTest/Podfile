@@ -1,6 +1,4 @@
-# Uncomment the next line to define a global platform for your project
-platform :ios, '9.0'
-
+platform :ios, '10.0'
 
 source 'https://github.com/firebase/SpecsStaging.git'
 source 'https://cdn.cocoapods.org/'
@@ -59,6 +57,7 @@ target 'SymbolCollisionTest' do
     pod 'GoogleIDFASupport'
     pod 'GoogleInterchangeUtilities'
     pod 'GoogleMaps'
+    pod 'GoogleMLKit'
 #    pod 'GoogleMobileVision' # After Firebase 6.8.0, conflicts with FirebaseML
     pod 'GoogleNetworkingUtilities'
     pod 'GoogleParsingUtilities'

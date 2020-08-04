@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FirebaseStorage/Sources/Public/FIRStorageDownloadTask.h"
+#import "FirebaseStorage/Sources/Public/FirebaseStorage/FIRStorageDownloadTask.h"
 
 @class FIRStorageReference;
 @class GTMSessionFetcherService;

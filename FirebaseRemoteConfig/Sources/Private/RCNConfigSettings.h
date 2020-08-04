@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FirebaseRemoteConfig/Sources/Public/FIRRemoteConfig.h"
+#import <FirebaseRemoteConfig/FIRRemoteConfig.h>
 
 @class RCNConfigDBManager;
 

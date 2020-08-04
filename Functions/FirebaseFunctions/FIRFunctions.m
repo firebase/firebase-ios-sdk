@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "Functions/FirebaseFunctions/Public/FIRFunctions.h"
+#import "Functions/FirebaseFunctions/Public/FirebaseFunctions/FIRFunctions.h"
 #import "Functions/FirebaseFunctions/FIRFunctions+Internal.h"
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
@@ -23,8 +23,8 @@
 #import "Functions/FirebaseFunctions/FUNError.h"
 #import "Functions/FirebaseFunctions/FUNSerializer.h"
 #import "Functions/FirebaseFunctions/FUNUsageValidation.h"
-#import "Functions/FirebaseFunctions/Public/FIRError.h"
-#import "Functions/FirebaseFunctions/Public/FIRHTTPSCallable.h"
+#import "Functions/FirebaseFunctions/Public/FirebaseFunctions/FIRError.h"
+#import "Functions/FirebaseFunctions/Public/FirebaseFunctions/FIRHTTPSCallable.h"
 
 #if SWIFT_PACKAGE
 @import GTMSessionFetcherCore;

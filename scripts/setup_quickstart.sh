@@ -28,6 +28,8 @@ source $scripts_dir/check_secrets.sh
 
 SAMPLE=$1
 
+RELEASE_TESTING=${2-}
+
 # Installations is the only quickstart that doesn't need a real
 # GoogleService-Info.plist for its tests.
 if check_secrets || [[ ${SAMPLE} == "installations" ]]; then
@@ -37,7 +39,7 @@ if check_secrets || [[ ${SAMPLE} == "installations" ]]; then
   export FIREBASE_POD_REPO_FOR_DEV_POD=`pwd`
 
   git clone https://github.com/firebase/quickstart-ios.git
-  $scripts_dir/localize_podfile.swift quickstart-ios/"$SAMPLE"/Podfile
+  $scripts_dir/localize_podfile.swift quickstart-ios/"$SAMPLE"/Podfile "$RELEASE_TESTING"
   cd quickstart-ios/"$SAMPLE"
 
   # To test a branch, uncomment the following line

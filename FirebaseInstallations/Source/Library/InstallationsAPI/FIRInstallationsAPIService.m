@@ -16,7 +16,7 @@
 
 #import "FirebaseInstallations/Source/Library/InstallationsAPI/FIRInstallationsAPIService.h"
 
-#import "FirebaseInstallations/Source/Library/Public/FIRInstallationsVersion.h"
+#import "FirebaseInstallations/Source/Library/Public/FirebaseInstallations/FIRInstallationsVersion.h"
 
 #if __has_include(<FBLPromises/FBLPromises.h>)
 #import <FBLPromises/FBLPromises.h>

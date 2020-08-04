@@ -27,7 +27,7 @@
 #import "FirebaseDatabase/Sources/Core/View/FView.h"
 #import "FirebaseDatabase/Sources/Core/View/FViewCache.h"
 #import "FirebaseDatabase/Sources/Persistence/FPersistenceManager.h"
-#import "FirebaseDatabase/Sources/Public/FIRDatabaseQuery.h"
+#import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRDatabaseQuery.h"
 #import "FirebaseDatabase/Sources/Snapshot/FChildrenNode.h"
 #import "FirebaseDatabase/Sources/Snapshot/FEmptyNode.h"
 #import "FirebaseDatabase/Sources/Snapshot/FNode.h"

@@ -16,7 +16,7 @@
 
 #import "FirebaseDatabase/Sources/Api/FIRDatabaseConfig.h"
 #import "FirebaseDatabase/Sources/Api/Private/FTypedefs_Private.h"
-#import "FirebaseDatabase/Sources/Public/FIRDatabaseQuery.h"
+#import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRDatabaseQuery.h"
 
 @interface FEventEmitter : NSObject
 

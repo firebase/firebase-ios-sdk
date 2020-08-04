@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseCrashlytics'
-  s.version          = '4.2.0'
+  s.version          = '4.3.1'
   s.summary          = 'Best and lightest-weight crash reporting for mobile, desktop and tvOS.'
   s.description      = 'Firebase Crashlytics helps you track, prioritize, and fix stability issues that erode app quality.'
   s.homepage         = 'https://firebase.google.com/'
@@ -31,7 +31,7 @@ Pod::Spec.new do |s|
   ]
 
   s.public_header_files = [
-    'Crashlytics/Crashlytics/Public/*.h'
+    'Crashlytics/Crashlytics/Public/FirebaseCrashlytics/*.h'
   ]
 
   s.preserve_paths = [
@@ -47,10 +47,10 @@ Pod::Spec.new do |s|
     cp -f ./Crashlytics/upload-symbols ./upload-symbols
   PREPARE_COMMAND_END
 
-  s.dependency 'FirebaseCore', '~> 6.8'
-  s.dependency 'FirebaseInstallations', '~> 1.1'
+  s.dependency 'FirebaseCore', '~> 6.10'
+  s.dependency 'FirebaseInstallations', '~> 1.6'
   s.dependency 'PromisesObjC', '~> 1.2'
-  s.dependency 'GoogleDataTransport', '~> 7.0'
+  s.dependency 'GoogleDataTransport', '~> 7.2'
   s.dependency 'nanopb', '~> 1.30905.0'
 
   s.libraries = 'c++', 'z'

@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseStorage'
-  s.version          = '3.7.0'
+  s.version          = '3.8.0'
   s.summary          = 'Firebase Storage'
 
   s.description      = <<-DESC
@@ -31,12 +31,12 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
     'Interop/Auth/Public/*.h',
     'FirebaseCore/Sources/Private/*.h',
   ]
-  s.public_header_files = 'FirebaseStorage/Sources/Public/*.h'
+  s.public_header_files = 'FirebaseStorage/Sources/Public/FirebaseStorage/*.h'
 
   s.ios.framework = 'MobileCoreServices'
   s.osx.framework = 'CoreServices'
 
-  s.dependency 'FirebaseCore', '~> 6.8'
+  s.dependency 'FirebaseCore', '~> 6.10'
   s.dependency 'GTMSessionFetcher/Core', '~> 1.1'
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',

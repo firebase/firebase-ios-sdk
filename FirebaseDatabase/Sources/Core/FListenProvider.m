@@ -15,7 +15,7 @@
  */
 
 #import "FirebaseDatabase/Sources/Core/FListenProvider.h"
-#import "FirebaseDatabase/Sources/Public/FIRDatabaseQuery.h"
+#import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRDatabaseQuery.h"
 
 @implementation FListenProvider
 

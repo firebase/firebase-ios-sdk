@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "Crashlytics/Crashlytics/Public/FIRExceptionModel.h"
+#import "Crashlytics/Crashlytics/Public/FirebaseCrashlytics/FIRExceptionModel.h"
 
 @interface FIRExceptionModel ()
 

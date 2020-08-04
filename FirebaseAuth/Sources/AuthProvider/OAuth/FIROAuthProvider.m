@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#import "FirebaseAuth/Sources/Public/FIROAuthProvider.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIROAuthProvider.h"
 #include <CommonCrypto/CommonCrypto.h>
-#import "FirebaseAuth/Sources/Public/FIRFacebookAuthProvider.h"
-#import "FirebaseAuth/Sources/Public/FIROAuthCredential.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRFacebookAuthProvider.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIROAuthCredential.h"
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"

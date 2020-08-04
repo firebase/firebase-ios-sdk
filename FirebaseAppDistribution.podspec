@@ -15,7 +15,7 @@ iOS SDK for App Distribution for Firebase.
     :tag => 'AppDistribution-' + s.version.to_s
   }
 
-  s.ios.deployment_target = '8.0'
+  s.ios.deployment_target = '9.0'
 
   s.cocoapods_version = '>= 1.4.0'
   s.static_framework = true
@@ -25,14 +25,18 @@ iOS SDK for App Distribution for Firebase.
   s.source_files = [
     base_dir + '**/*.{c,h,m,mm}',
     'FirebaseCore/Sources/Private/*.h',
+    'FirebaseInstallations/Source/Library/Private/*.h',
+    'GoogleDataTransport/GDTCORLibrary/Internal/*.h',
     'GoogleUtilities/AppDelegateSwizzler/Private/*.h',
+    'GoogleUtilities/UserDefaults/Private/*.h',
   ]
   s.public_header_files = base_dir + 'Public/*.h'
-  s.private_header_files = base_dir + 'Private/*.h'
 
-  s.dependency 'FirebaseCore', '~> 6.8'
-  s.dependency 'AppAuth', '~> 1.2.0'
+  s.dependency 'FirebaseCore', '~> 6.10'
   s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 6.7'
+  s.dependency 'GoogleUtilities/UserDefaults', '~> 6.7'
+  s.dependency 'FirebaseInstallations', '~> 1.6'
+  s.dependency 'GoogleDataTransport', '~> 7.2'
 
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',

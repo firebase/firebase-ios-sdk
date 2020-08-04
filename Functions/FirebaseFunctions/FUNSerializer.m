@@ -15,7 +15,7 @@
 #import "Functions/FirebaseFunctions/FUNSerializer.h"
 
 #import "Functions/FirebaseFunctions/FUNUsageValidation.h"
-#import "Functions/FirebaseFunctions/Public/FIRError.h"
+#import "Functions/FirebaseFunctions/Public/FirebaseFunctions/FIRError.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
