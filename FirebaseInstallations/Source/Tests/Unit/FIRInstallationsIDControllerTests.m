@@ -546,6 +546,7 @@
 }
 
 - (void)testGetInstallationItem_WhenBackoff {
+  // TODO: Implement.
 }
 
 #pragma mark - Get Auth Token
@@ -823,6 +824,7 @@
 }
 
 - (void)testGetAuthTokenBackoff {
+  // TODO: Implement.
 }
 
 #pragma mark - FID Deletion
@@ -1117,9 +1119,6 @@
   OCMVerifyAll(self.mockAPIService);
   OCMVerifyAll(self.mockIIDStore);
   OCMVerifyAll(self.mockBackoffController);
-}
-
-- (void)testDeleteInstallationBackoff {
 }
 
 - (NSArray<XCTestExpectation *> *)expectInstallationToBeDeletedLocally:

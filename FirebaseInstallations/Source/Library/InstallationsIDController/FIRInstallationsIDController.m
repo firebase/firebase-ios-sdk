@@ -483,6 +483,8 @@ static NSString *const kKeychainService = @"com.firebase.FIRInstallations.instal
 
     if (statusCode == 400) {  // Explicitly unrecoverable errors.
       [self.backoffController registerEvent:FIRInstallationsBackoffEventUnrecoverableFailure];
+
+      // TODO(mmaksym): Double check if 403 is recoverable.
     } else if (statusCode == 403 || statusCode == 429 ||
                statusCode == 500) {  // Explicitly recoverable errors.
       [self.backoffController registerEvent:FIRInstallationsBackoffEventRecoverableFailure];
