@@ -719,6 +719,7 @@ C_STANDARD_HEADER_FOLDERS = frozenset([
 
 _C_SYSTEM_DIRECTORIES = frozenset([
     'libkern',
+    'mach',
     'sys',
 ])
 
