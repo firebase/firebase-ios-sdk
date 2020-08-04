@@ -57,7 +57,7 @@ static NSString *const kKeychainService = @"com.firebase.FIRInstallations.instal
 
 @property(nonatomic, readonly) FIRInstallationsAPIService *APIService;
 
-@property(nonatomic, readonly) FIRInstallationsBackoffController *backoffController;
+@property(nonatomic, readonly) id<FIRInstallationsBackoffControllerProtocol> backoffController;
 
 @property(nonatomic, readonly) FIRInstallationsSingleOperationPromiseCache<FIRInstallationsItem *>
     *getInstallationPromiseCache;
@@ -110,7 +110,8 @@ static NSString *const kKeychainService = @"com.firebase.FIRInstallations.instal
                          APIService:(FIRInstallationsAPIService *)APIService
                            IIDStore:(FIRInstallationsIIDStore *)IIDStore
                       IIDTokenStore:(FIRInstallationsIIDTokenStore *)IIDTokenStore
-                  backoffController:(FIRInstallationsBackoffController *)backoffController {
+                  backoffController:
+                      (id<FIRInstallationsBackoffControllerProtocol>)backoffController {
   self = [super init];
   if (self) {
     _appID = appID;
@@ -264,7 +265,8 @@ static NSString *const kKeychainService = @"com.firebase.FIRInstallations.instal
 
   // Check for backoff.
   if (![self.backoffController isNextRequestAllowed]) {
-    return [FIRInstallationsErrorUtil rejectedPromiseWithError:[FIRInstallationsErrorUtil backoffIntervalWaitError]];
+    return [FIRInstallationsErrorUtil
+        rejectedPromiseWithError:[FIRInstallationsErrorUtil backoffIntervalWaitError]];
   }
 
   return [self.APIService registerInstallation:installation]
@@ -351,18 +353,19 @@ static NSString *const kKeychainService = @"com.firebase.FIRInstallations.instal
     (FIRInstallationsItem *)installation {
   // Check for backoff.
   if (![self.backoffController isNextRequestAllowed]) {
-    return [FIRInstallationsErrorUtil rejectedPromiseWithError:[FIRInstallationsErrorUtil backoffIntervalWaitError]];
+    return [FIRInstallationsErrorUtil
+        rejectedPromiseWithError:[FIRInstallationsErrorUtil backoffIntervalWaitError]];
   }
 
   return [[[self.APIService refreshAuthTokenForInstallation:installation]
-           then:^id _Nullable(FIRInstallationsItem *_Nullable refreshedInstallation) {
-    [self updateBackoffWithSuccess:YES APIError:nil];
-    return [self saveInstallation:refreshedInstallation];
-  }] recover:^id _Nullable(NSError * _Nonnull error) {
+      then:^id _Nullable(FIRInstallationsItem *_Nullable refreshedInstallation) {
+        [self updateBackoffWithSuccess:YES APIError:nil];
+        return [self saveInstallation:refreshedInstallation];
+      }] recover:^id _Nullable(NSError *_Nonnull error) {
     // Pass the error to the backoff controller.
     [self updateBackoffWithSuccess:NO APIError:error];
     return error;
-  }] ;
+  }];
 }
 
 - (id)regenerateFIDOnRefreshTokenErrorIfNeeded:(NSError *)error {
@@ -478,14 +481,15 @@ static NSString *const kKeychainService = @"com.firebase.FIRInstallations.instal
     FIRInstallationsHTTPError *HTTPResponseError = (FIRInstallationsHTTPError *)APIError;
     NSInteger statusCode = HTTPResponseError.HTTPResponse.statusCode;
 
-    if (statusCode == 400) { //Explicitly unrecoverable errors.
+    if (statusCode == 400) {  // Explicitly unrecoverable errors.
       [self.backoffController registerEvent:FIRInstallationsBackoffEventUnrecoverableFailure];
-    } else if (statusCode == 403 || statusCode == 429 || statusCode == 500) { // Explicitly recoverable errors.
+    } else if (statusCode == 403 || statusCode == 429 ||
+               statusCode == 500) {  // Explicitly recoverable errors.
       [self.backoffController registerEvent:FIRInstallationsBackoffEventRecoverableFailure];
-    } else { // Treat all unknown errors as recoverable.
+    } else {  // Treat all unknown errors as recoverable.
       [self.backoffController registerEvent:FIRInstallationsBackoffEventRecoverableFailure];
     }
-  } else { // Treat all unknown errors as recoverable.
+  } else {  // Treat all unknown errors as recoverable.
     [self.backoffController registerEvent:FIRInstallationsBackoffEventRecoverableFailure];
   }
 }

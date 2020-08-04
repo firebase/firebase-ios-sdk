@@ -87,6 +87,10 @@ static const NSTimeInterval k24Hours = 24 * 60 * 60;
 
 @implementation FIRInstallationsBackoffController
 
+- (instancetype)init {
+  return [self initWithCurrentDateProvider:FIRRealCurrentDateProvider()];
+}
+
 - (instancetype)initWithCurrentDateProvider:(FIRCurrentDateProvider)currentDateProvider {
   self = [super init];
   if (self) {
