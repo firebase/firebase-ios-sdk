@@ -1075,6 +1075,12 @@ def _IsSourceExtension(s):
   return s in GetNonHeaderExtensions()
 
 
+def _IsSourceFilename(filename):
+  ext = os.path.splitext(filename)[-1].lower()
+  ext = ext[1:]  # leading dot
+  return _IsSourceExtension(ext)
+
+
 class _IncludeState(object):
   """Tracks line numbers for includes, and the order in which includes appear.
 
@@ -5959,6 +5965,7 @@ _HEADERS_CONTAINING_TEMPLATES = (
     ('<map>', ('multimap',)),
     ('<memory>', ('allocator', 'make_shared', 'make_unique', 'shared_ptr',
                   'unique_ptr', 'weak_ptr')),
+    ('<ostream>', ('ostream',)),
     ('<queue>', ('queue', 'priority_queue',)),
     ('<set>', ('multiset',)),
     ('<stack>', ('stack',)),
@@ -5984,6 +5991,7 @@ _HEADERS_MAYBE_TEMPLATES = (
     )
 
 _RE_PATTERN_STRING = re.compile(r'\bstring\b')
+_RE_PATTERN_OSTREAM = re.compile(r'\bostream\b')
 
 _re_pattern_headers_maybe_templates = []
 for _header, _templates in _HEADERS_MAYBE_TEMPLATES:
@@ -6135,6 +6143,14 @@ def CheckForIncludeWhatYouUse(filename, clean_lines, include_state, error,
       prefix = line[:matched.start()]
       if prefix.endswith('std::') or not prefix.endswith('::'):
         required['<string>'] = (linenum, 'string')
+
+    # Ostream is special too -- also non-templatized
+    matched = _RE_PATTERN_OSTREAM.search(line)
+    if matched:
+      if _IsSourceFilename(filename):
+        required['<ostream>'] = (linenum, 'ostream')
+      else:
+        required['<iosfwd>'] = (linenum, 'ostream')
 
     for pattern, template, header in _re_pattern_headers_maybe_templates:
       if pattern.search(line):
