@@ -1,5 +1,10 @@
 # Unreleased
 
+# v1.16.4
+- [changed] Rearranged public headers for future Swift Package Manager support.
+  This should have no impact existing users of CocoaPods, Carthage, or zip file
+  distributions.
+
 # v1.16.3
 - [changed] Internal improvements for future C++ and Unity support.
 
