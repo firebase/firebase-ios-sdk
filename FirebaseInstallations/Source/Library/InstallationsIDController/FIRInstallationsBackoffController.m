@@ -67,6 +67,7 @@ static const NSTimeInterval k24Hours = 24 * 60 * 60;
 
 + (NSTimeInterval)recoverableErrorBackoffTimeForAttemptNumber:(NSInteger)attemptNumber {
   NSTimeInterval exponentialInterval = pow(2, attemptNumber) + [self randomMilliseconds];
+  // TODO(mmaksym): Double check the maximum interval value.
   return MIN(exponentialInterval, k24Hours);
 }
 
