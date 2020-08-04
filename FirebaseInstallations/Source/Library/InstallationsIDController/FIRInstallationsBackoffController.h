@@ -26,13 +26,25 @@ typedef NS_ENUM(NSInteger, FIRInstallationsBackoffEvent) {
   FIRInstallationsBackoffEventUnrecoverableFailure
 };
 
+/** The protocol defines API for a class that encapsulates backoff logic that prevents the SDK from
+ * sending unnecessary server requests. See API docs for the methods for more details. */
+
 @protocol FIRInstallationsBackoffControllerProtocol <NSObject>
 
+/** The client must call the method each time a protected server request succeeds of fails. It will
+ * affect the `isNextRequestAllowed` method result for the current time, e.g. when 3 recoverable
+ * errors were logged in a row, then `isNextRequestAllowed` will return `YES` only in `pow(2, 3)`
+ * seconds. */
 - (void)registerEvent:(FIRInstallationsBackoffEvent)event;
+
+/** Returns if sending a next protected is recommended based on the time and the sequence of logged
+ * events and the current time. See also `registerEvent:`. */
 - (BOOL)isNextRequestAllowed;
 
 @end
 
+/** An implementation of `FIRInstallationsBackoffControllerProtocol` with exponential backoff for
+ * recoverable errors and constant backoff for recoverable errors. */
 @interface FIRInstallationsBackoffController : NSObject <FIRInstallationsBackoffControllerProtocol>
 
 - (instancetype)initWithCurrentDateProvider:(FIRCurrentDateProvider)currentDateProvider;
