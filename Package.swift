@@ -15,9 +15,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// This Package.swift is a Work in Progress, primarily for CI at this point.
-// Those interested in experimenting with Swift Package Manager should use the
-// spm-master2020 branch for now.
+// This Package.swift is a Work in Progress. We intend to keep it functional
+// on the master branch, but it is rapidly evolving and may have occasional
+// breakages. Please report any issues at
+// https://github.com/firebase/firebase-ios-sdk/issues/new/choose.
 
 import PackageDescription
 
@@ -108,183 +109,6 @@ let package = Package(
     //   .package(url: "https://github.com/paulb777/nanopb.git", .revision("564392bd87bd093c308a3aaed3997466efb95f74"))
   ],
   targets: [
-    .testTarget(
-      name: "swift-test",
-      dependencies: [
-        "FirebaseAuth",
-        "FirebaseABTesting",
-        "FirebaseFunctions",
-        "Firebase",
-        "FirebaseCrashlytics",
-        "FirebaseCore",
-        "FirebaseDatabase",
-        "FirebaseFirestore",
-        "FirebaseFirestoreSwift",
-        "FirebaseInstallations",
-        // "FirebaseInstanceID",
-        "FirebaseRemoteConfig",
-        "FirebaseStorage",
-        "FirebaseStorageSwift",
-        "GoogleDataTransport",
-        "GoogleUtilities_AppDelegateSwizzler",
-        "GoogleUtilities_Environment",
-        // "GoogleUtilities_ISASwizzler", // Build needs to disable ARC.
-        "GoogleUtilities_Logger",
-        "GoogleUtilities_MethodSwizzler",
-        "GoogleUtilities_Network",
-        "GoogleUtilities_NSData",
-        "GoogleUtilities_Reachability",
-        "GoogleUtilities_UserDefaults",
-        .product(name: "nanopb", package: "nanopb"),
-      ],
-      path: "SwiftPMTests/swift-test"
-    ),
-    .testTarget(
-      name: "objc-import-test",
-      dependencies: [
-        "FirebaseAuth",
-        "FirebaseABTesting",
-        "FirebaseFunctions",
-        "Firebase",
-        "FirebaseCrashlytics",
-        "FirebaseCore",
-        "FirebaseDatabase",
-        "FirebaseFirestore",
-        "FirebaseInstallations",
-        "FirebaseRemoteConfig",
-        "FirebaseStorage",
-      ],
-      path: "SwiftPMTests/objc-import-test"
-    ),
-    .target(
-      name: "GoogleUtilities_AppDelegateSwizzler",
-      dependencies: ["GoogleUtilities_Environment", "GoogleUtilities_Logger",
-                     "GoogleUtilities_Network"],
-      path: "GoogleUtilities",
-      exclude: [
-        "CHANGELOG.md",
-        "CMakeLists.txt",
-        "LICENSE",
-        "README.md",
-        "AppDelegateSwizzler/README.md",
-        "Environment/",
-        "Network/",
-        "ISASwizzler/",
-        "Logger/",
-        "MethodSwizzler/",
-        "NSData+zlib/",
-        "Reachability",
-        "SwizzlerTestHelpers/",
-        "Tests",
-        "UserDefaults/",
-      ],
-      sources: [
-        "AppDelegateSwizzler/",
-        "SceneDelegateSwizzler/",
-        "Common/*.h",
-      ],
-      publicHeadersPath: "AppDelegateSwizzler/Public",
-      cSettings: [
-        .headerSearchPath("../"),
-      ]
-    ),
-    .target(
-      name: "GoogleUtilities_Environment",
-      dependencies: [.product(name: "FBLPromises", package: "Promises")],
-      path: "GoogleUtilities/Environment",
-      exclude: ["third_party/LICENSE"],
-      publicHeadersPath: "Private",
-      cSettings: [
-        .headerSearchPath("../../"),
-      ]
-    ),
-
-    // Tests need OCMock and resource support.
-
-    .target(
-      name: "GoogleUtilities_Logger",
-      dependencies: ["GoogleUtilities_Environment"],
-      path: "GoogleUtilities/Logger",
-      publicHeadersPath: "Public",
-      cSettings: [
-        .headerSearchPath("../../"),
-      ]
-    ),
-
-    // TODO: ISA_Swizzler requires building without ARC.
-
-    .target(
-      name: "GoogleUtilities_MethodSwizzler",
-      dependencies: ["GoogleUtilities_Logger"],
-      path: "GoogleUtilities/MethodSwizzler",
-      publicHeadersPath: "Private",
-      cSettings: [
-        .headerSearchPath("../../"),
-      ]
-    ),
-    .target(
-      name: "GoogleUtilities_Network",
-      dependencies: ["GoogleUtilities_Logger", "GoogleUtilities_NSData",
-                     "GoogleUtilities_Reachability"],
-      path: "GoogleUtilities/Network",
-      publicHeadersPath: "Public",
-      cSettings: [
-        .headerSearchPath("../.."),
-      ]
-    ),
-    .target(
-      name: "GoogleUtilities_NSData",
-      path: "GoogleUtilities/NSData+zlib",
-      publicHeadersPath: "Public",
-      cSettings: [
-        .headerSearchPath("../.."),
-      ],
-      linkerSettings: [
-        .linkedLibrary("z"),
-      ]
-    ),
-    .target(
-      name: "GoogleUtilities_Reachability",
-      dependencies: ["GoogleUtilities_Logger"],
-      path: "GoogleUtilities/Reachability",
-      publicHeadersPath: "Private",
-      cSettings: [
-        .headerSearchPath("../../"),
-      ]
-    ),
-    .target(
-      name: "GoogleUtilities_UserDefaults",
-      dependencies: ["GoogleUtilities_Logger"],
-      path: "GoogleUtilities/UserDefaults",
-      publicHeadersPath: "Private",
-      cSettings: [
-        .headerSearchPath("../../"),
-      ]
-    ),
-    // TODO: - need to port Network/third_party/GTMHTTPServer.m to ARC.
-    // .testTarget(
-    //   name: "UtilitiesUnit",
-    //   dependencies: [
-    //     "OCMock",
-    //     "GoogleUtilities_AppDelegateSwizzler",
-    //     "GoogleUtilities_Environment",
-    //     // "GoogleUtilities_ISASwizzler", // Build needs to disable ARC.
-    //     "GoogleUtilities_Logger",
-    //     "GoogleUtilities_MethodSwizzler",
-    //     "GoogleUtilities_Network",
-    //     "GoogleUtilities_NSData",
-    //     "GoogleUtilities_Reachability",
-    //     "GoogleUtilities_UserDefaults",
-    //   ],
-    //   path: "GoogleUtilities/Tests/Unit",
-    //   exclude: [
-    //     "Network/third_party/LICENSE",
-    //     "Network/third_party/GTMHTTPServer.m", // Requires disabling ARC
-    //   ],
-    //   cSettings: [
-    //     .headerSearchPath("../../.."),
-    //   ]
-    // ),
     .target(
       name: "Firebase",
       path: "CoreOnly/Sources",
@@ -646,6 +470,181 @@ let package = Package(
         .define("PB_ENABLE_MALLOC", to: "1"),
       ]
     ),
+    .testTarget(
+      name: "swift-test",
+      dependencies: [
+        "FirebaseAuth",
+        "FirebaseABTesting",
+        "FirebaseFunctions",
+        "Firebase",
+        "FirebaseCrashlytics",
+        "FirebaseCore",
+        "FirebaseDatabase",
+        "FirebaseFirestore",
+        "FirebaseFirestoreSwift",
+        "FirebaseInstallations",
+        // "FirebaseInstanceID",
+        "FirebaseRemoteConfig",
+        "FirebaseStorage",
+        "FirebaseStorageSwift",
+        "GoogleDataTransport",
+        "GoogleUtilities_AppDelegateSwizzler",
+        "GoogleUtilities_Environment",
+        // "GoogleUtilities_ISASwizzler", // Build needs to disable ARC.
+        "GoogleUtilities_Logger",
+        "GoogleUtilities_MethodSwizzler",
+        "GoogleUtilities_Network",
+        "GoogleUtilities_NSData",
+        "GoogleUtilities_Reachability",
+        "GoogleUtilities_UserDefaults",
+        .product(name: "nanopb", package: "nanopb"),
+      ],
+      path: "SwiftPMTests/swift-test"
+    ),
+    .testTarget(
+      name: "objc-import-test",
+      dependencies: [
+        "FirebaseAuth",
+        "FirebaseABTesting",
+        "FirebaseFunctions",
+        "Firebase",
+        "FirebaseCrashlytics",
+        "FirebaseCore",
+        "FirebaseDatabase",
+        "FirebaseFirestore",
+        "FirebaseInstallations",
+        "FirebaseRemoteConfig",
+        "FirebaseStorage",
+      ],
+      path: "SwiftPMTests/objc-import-test"
+    ),
+    .target(
+      name: "GoogleUtilities_AppDelegateSwizzler",
+      dependencies: ["GoogleUtilities_Environment", "GoogleUtilities_Logger",
+                     "GoogleUtilities_Network"],
+      path: "GoogleUtilities",
+      exclude: [
+        "CHANGELOG.md",
+        "CMakeLists.txt",
+        "LICENSE",
+        "README.md",
+        "AppDelegateSwizzler/README.md",
+        "Environment/",
+        "Network/",
+        "ISASwizzler/",
+        "Logger/",
+        "MethodSwizzler/",
+        "NSData+zlib/",
+        "Reachability",
+        "SwizzlerTestHelpers/",
+        "Tests",
+        "UserDefaults/",
+      ],
+      sources: [
+        "AppDelegateSwizzler/",
+        "SceneDelegateSwizzler/",
+        "Common/*.h",
+      ],
+      publicHeadersPath: "AppDelegateSwizzler/Public",
+      cSettings: [
+        .headerSearchPath("../"),
+      ]
+    ),
+    .target(
+      name: "GoogleUtilities_Environment",
+      dependencies: [.product(name: "FBLPromises", package: "Promises")],
+      path: "GoogleUtilities/Environment",
+      exclude: ["third_party/LICENSE"],
+      publicHeadersPath: "Private",
+      cSettings: [
+        .headerSearchPath("../../"),
+      ]
+    ),
+
+    .target(
+      name: "GoogleUtilities_Logger",
+      dependencies: ["GoogleUtilities_Environment"],
+      path: "GoogleUtilities/Logger",
+      publicHeadersPath: "Public",
+      cSettings: [
+        .headerSearchPath("../../"),
+      ]
+    ),
+
+    // TODO: ISA_Swizzler requires building without ARC.
+
+    .target(
+      name: "GoogleUtilities_MethodSwizzler",
+      dependencies: ["GoogleUtilities_Logger"],
+      path: "GoogleUtilities/MethodSwizzler",
+      publicHeadersPath: "Private",
+      cSettings: [
+        .headerSearchPath("../../"),
+      ]
+    ),
+    .target(
+      name: "GoogleUtilities_Network",
+      dependencies: ["GoogleUtilities_Logger", "GoogleUtilities_NSData",
+                     "GoogleUtilities_Reachability"],
+      path: "GoogleUtilities/Network",
+      publicHeadersPath: "Public",
+      cSettings: [
+        .headerSearchPath("../.."),
+      ]
+    ),
+    .target(
+      name: "GoogleUtilities_NSData",
+      path: "GoogleUtilities/NSData+zlib",
+      publicHeadersPath: "Public",
+      cSettings: [
+        .headerSearchPath("../.."),
+      ],
+      linkerSettings: [
+        .linkedLibrary("z"),
+      ]
+    ),
+    .target(
+      name: "GoogleUtilities_Reachability",
+      dependencies: ["GoogleUtilities_Logger"],
+      path: "GoogleUtilities/Reachability",
+      publicHeadersPath: "Private",
+      cSettings: [
+        .headerSearchPath("../../"),
+      ]
+    ),
+    .target(
+      name: "GoogleUtilities_UserDefaults",
+      dependencies: ["GoogleUtilities_Logger"],
+      path: "GoogleUtilities/UserDefaults",
+      publicHeadersPath: "Private",
+      cSettings: [
+        .headerSearchPath("../../"),
+      ]
+    ),
+    // TODO: - need to port Network/third_party/GTMHTTPServer.m to ARC.
+    // .testTarget(
+    //   name: "UtilitiesUnit",
+    //   dependencies: [
+    //     "OCMock",
+    //     "GoogleUtilities_AppDelegateSwizzler",
+    //     "GoogleUtilities_Environment",
+    //     // "GoogleUtilities_ISASwizzler", // Build needs to disable ARC.
+    //     "GoogleUtilities_Logger",
+    //     "GoogleUtilities_MethodSwizzler",
+    //     "GoogleUtilities_Network",
+    //     "GoogleUtilities_NSData",
+    //     "GoogleUtilities_Reachability",
+    //     "GoogleUtilities_UserDefaults",
+    //   ],
+    //   path: "GoogleUtilities/Tests/Unit",
+    //   exclude: [
+    //     "Network/third_party/LICENSE",
+    //     "Network/third_party/GTMHTTPServer.m", // Requires disabling ARC
+    //   ],
+    //   cSettings: [
+    //     .headerSearchPath("../../.."),
+    //   ]
+    // ),
   ],
   cLanguageStandard: .c99,
   cxxLanguageStandard: CXXLanguageStandard.gnucxx14
