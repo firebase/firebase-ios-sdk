@@ -13,13 +13,10 @@
 # limitations under the License.
 #
 
-# me.protos
-
-
-firebase_messaging.IosClientInfo.os_major_version type:FT_POINTER
-firebase_messaging.IosClientInfo.os_full_version type:FT_POINTER
-firebase_messaging.IosClientInfo.application_build type:FT_POINTER
-firebase_messaging.IosClientInfo.country type:FT_POINTER
-firebase_messaging.IosClientInfo.model type:FT_POINTER
-firebase_messaging.IosClientInfo.language_code type:FT_POINTER
-firebase_messaging.IosClientInfo.application_bundle_id type:FT_POINTER
+# Options for mee.protos
+MessagingClientEvent.message_id type:FT_POINTER
+MessagingClientEvent.instance_id type:FT_POINTER
+MessagingClientEvent.package_name type:FT_POINTER
+MessagingClientEvent.analytics_label type:FT_POINTER
+MessagingClientEvent.composer_label type:FT_POINTER
+MessagingClientEventExtension.messaging_client_event type:FT_POINTER 

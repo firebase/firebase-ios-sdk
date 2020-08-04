@@ -26,16 +26,27 @@
 
 
 
-const pb_field_t firebase_messaging_IosClientInfo_fields[8] = {
-    PB_FIELD(  3, BYTES   , OPTIONAL, POINTER , FIRST, firebase_messaging_IosClientInfo, os_major_version, os_major_version, 0),
-    PB_FIELD(  4, BYTES   , OPTIONAL, POINTER , OTHER, firebase_messaging_IosClientInfo, os_full_version, os_major_version, 0),
-    PB_FIELD(  5, BYTES   , OPTIONAL, POINTER , OTHER, firebase_messaging_IosClientInfo, application_build, os_full_version, 0),
-    PB_FIELD(  6, BYTES   , OPTIONAL, POINTER , OTHER, firebase_messaging_IosClientInfo, country, application_build, 0),
-    PB_FIELD(  7, BYTES   , OPTIONAL, POINTER , OTHER, firebase_messaging_IosClientInfo, model, country, 0),
-    PB_FIELD(  8, BYTES   , OPTIONAL, POINTER , OTHER, firebase_messaging_IosClientInfo, language_code, model, 0),
-    PB_FIELD( 11, BYTES   , OPTIONAL, POINTER , OTHER, firebase_messaging_IosClientInfo, application_bundle_id, language_code, 0),
+const pb_field_t MessagingClientEvent_fields[11] = {
+    PB_FIELD(  1, INT64   , SINGULAR, STATIC  , FIRST, MessagingClientEvent, project_number, project_number, 0),
+    PB_FIELD(  2, BYTES   , SINGULAR, POINTER , OTHER, MessagingClientEvent, message_id, project_number, 0),
+    PB_FIELD(  3, BYTES   , SINGULAR, POINTER , OTHER, MessagingClientEvent, instance_id, message_id, 0),
+    PB_FIELD(  4, UENUM   , SINGULAR, STATIC  , OTHER, MessagingClientEvent, message_type, instance_id, 0),
+    PB_FIELD(  5, UENUM   , SINGULAR, STATIC  , OTHER, MessagingClientEvent, sdk_platform, message_type, 0),
+    PB_FIELD(  6, BYTES   , SINGULAR, POINTER , OTHER, MessagingClientEvent, package_name, sdk_platform, 0),
+    PB_FIELD( 12, UENUM   , SINGULAR, STATIC  , OTHER, MessagingClientEvent, event, package_name, 0),
+    PB_FIELD( 13, BYTES   , SINGULAR, POINTER , OTHER, MessagingClientEvent, analytics_label, event, 0),
+    PB_FIELD( 14, INT64   , SINGULAR, STATIC  , OTHER, MessagingClientEvent, campaign_id, analytics_label, 0),
+    PB_FIELD( 15, BYTES   , SINGULAR, POINTER , OTHER, MessagingClientEvent, composer_label, campaign_id, 0),
     PB_LAST_FIELD
 };
+
+const pb_field_t MessagingClientEventExtension_fields[2] = {
+    PB_FIELD(  1, MESSAGE , SINGULAR, POINTER , FIRST, MessagingClientEventExtension, messaging_client_event, messaging_client_event, &MessagingClientEvent_fields),
+    PB_LAST_FIELD
+};
+
+
+
 
 
 /* @@protoc_insertion_point(eof) */

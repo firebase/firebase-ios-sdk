@@ -52,8 +52,8 @@ gdt_cct_IosClientInfo TestGDTCCTConstructiOSClientInfo() {
   return iOSClientInfo;
 }
 
-firebase_messaging_IosClientInfo testInfo() {
-  firebase_messaging_IosClientInfo iOSClientInfo = firebase_messaging_IosClientInfo_init_default;
+fm_IosClientInfo testInfo() {
+  fm_IosClientInfo iOSClientInfo = fm_IosClientInfo_init_default;
 
   iOSClientInfo.os_full_version = GDTCCTEncodeString(@"test");
   iOSClientInfo.os_major_version = GDTCCTEncodeString(@"test");
@@ -71,7 +71,7 @@ firebase_messaging_IosClientInfo testInfo() {
 
 //@property(nonatomic) firebase_messaging_MessagingClientEvent eventExtension;
 @property(nonatomic) gdt_cct_IosClientInfo info;
-@property(nonatomic) firebase_messaging_IosClientInfo messaging_info;
+@property(nonatomic) fm_IosClientInfo messaging_info;
 
 @end
 
@@ -94,8 +94,9 @@ firebase_messaging_IosClientInfo testInfo() {
   pb_ostream_t sizestream = PB_OSTREAM_SIZING;
 
   // Encode 1 time to determine the size.
-  if (!pb_encode(&sizestream, gdt_cct_IosClientInfo_fields, &_info)) {
- //if (!pb_encode(&sizestream, firebase_messaging_IosClientInfo_fields, &_messaging_info)) {
+  //if (!pb_encode(&sizestream, gdt_cct_IosClientInfo_fields, &_info)) {
+
+  if (!pb_encode(&sizestream, fm_IosClientInfo_fields, &_messaging_info)) {
 
     FIRMessagingLoggerError(kFIRMessagingServiceExtensionTransportBytesError,
                             @"Error in nanopb encoding for size: %s", PB_GET_ERROR(&sizestream));
@@ -106,8 +107,8 @@ firebase_messaging_IosClientInfo testInfo() {
   CFMutableDataRef dataRef = CFDataCreateMutable(CFAllocatorGetDefault(), bufferSize);
   CFDataSetLength(dataRef, bufferSize);
   pb_ostream_t ostream = pb_ostream_from_buffer((void *)CFDataGetBytePtr(dataRef), bufferSize);
-  //if (!pb_encode(&ostream, firebase_messaging_IosClientInfo_fields, &_messaging_info)) {
-  if (!pb_encode(&ostream, gdt_cct_IosClientInfo_fields, &_info)) {
+  //if (!pb_encode(&ostream, gdt_cct_IosClientInfo_fields, &_info)) {
+  if (!pb_encode(&ostream, gdt_cct_IosClientInfo_fields, &_messaging_info)) {
 
     FIRMessagingLoggerError(kFIRMessagingServiceExtensionTransportBytesError,
                             @"Error in nanopb encoding for bytes: %s", PB_GET_ERROR(&ostream));
