@@ -112,21 +112,8 @@ NSString *const FIRCLSNetworkClientBackgroundIdentifierSuffix = @".crash.backgro
   return _session;
 }
 
-#if FIRCLSURLSESSION_REQUIRED
-- (BOOL)NSURLSessionAvailable {
-  if ([[FIRCLSURLSession class] respondsToSelector:@selector(NSURLSessionShouldBeUsed)]) {
-    return [FIRCLSURLSession NSURLSessionShouldBeUsed];
-  }
-
-  return NSClassFromString(@"NSURLSession") != nil;
-}
-#endif
-
 - (BOOL)supportsBackgroundRequests {
   return !FIRCLSApplicationIsExtension()
-#if FIRCLSURLSESSION_REQUIRED
-         && [self NSURLSessionAvailable]
-#endif
          && self.canUseBackgroundSession;
 }
 

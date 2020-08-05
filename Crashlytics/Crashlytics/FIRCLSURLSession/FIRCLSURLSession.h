@@ -32,8 +32,6 @@ NS_ASSUME_NONNULL_BEGIN
   NSString *_sessionDescription;
 }
 
-+ (BOOL)NSURLSessionShouldBeUsed;
-
 + (NSURLSession *)sessionWithConfiguration:(NSURLSessionConfiguration *)configuration;
 + (NSURLSession *)sessionWithConfiguration:(NSURLSessionConfiguration *)configuration
                                   delegate:(nullable id<NSURLSessionDelegate>)delegate

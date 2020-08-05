@@ -41,17 +41,6 @@
 @synthesize configuration = _configuration;
 @synthesize sessionDescription = _sessionDescription;
 
-+ (BOOL)NSURLSessionShouldBeUsed {
-  if (!NSClassFromString(@"NSURLSession")) {
-    return NO;
-  }
-
-  // We use this as a proxy to verify that we are on at least iOS 8 or 10.10. The first OSes that
-  // has NSURLSession were fairly unstable.
-  return [[NSURLSessionConfiguration class]
-      respondsToSelector:@selector(backgroundSessionConfigurationWithIdentifier:)];
-}
-
 + (NSURLSession *)sessionWithConfiguration:(NSURLSessionConfiguration *)configuration {
   return [self sessionWithConfiguration:configuration delegate:nil delegateQueue:nil];
 }
@@ -59,30 +48,13 @@
 + (NSURLSession *)sessionWithConfiguration:(NSURLSessionConfiguration *)configuration
                                   delegate:(nullable id<NSURLSessionDelegate>)delegate
                              delegateQueue:(nullable NSOperationQueue *)queue {
-  if ([self NSURLSessionShouldBeUsed]) {
-    return [NSURLSession sessionWithConfiguration:configuration
-                                         delegate:delegate
-                                    delegateQueue:queue];
-  }
-
   if (!configuration) {
     return nil;
   }
 
-#if __has_feature(objc_arc)
-  FIRCLSURLSession *session = [self new];
-#else
-  FIRCLSURLSession *session = [[self new] autorelease];
-#endif
-  [session setDelegate:delegate];
-  // When delegate exists, but delegateQueue is nil, create a serial queue like NSURLSession
-  // documents.
-  if (delegate && !queue) {
-    queue = [self newDefaultDelegateQueue];
-  }
-  session.delegateQueue = queue;
-  session.configuration = configuration;
-  return (NSURLSession *)session;
+  return [NSURLSession sessionWithConfiguration:configuration
+                                        delegate:delegate
+                                  delegateQueue:queue];
 }
 
 + (NSOperationQueue *)newDefaultDelegateQueue {

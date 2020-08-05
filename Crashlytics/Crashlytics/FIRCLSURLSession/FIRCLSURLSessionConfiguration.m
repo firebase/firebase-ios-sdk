@@ -26,27 +26,11 @@
 @synthesize HTTPCookieAcceptPolicy = _cookiePolicy;
 
 + (NSURLSessionConfiguration *)defaultSessionConfiguration {
-  if ([FIRCLSURLSession NSURLSessionShouldBeUsed]) {
-    return [NSURLSessionConfiguration defaultSessionConfiguration];
-  }
-
-#if __has_feature(objc_arc)
-  return [self new];
-#else
-  return [[self new] autorelease];
-#endif
+  return [NSURLSessionConfiguration defaultSessionConfiguration];
 }
 
 + (NSURLSessionConfiguration *)ephemeralSessionConfiguration {
-  if ([FIRCLSURLSession NSURLSessionShouldBeUsed]) {
-    return [NSURLSessionConfiguration ephemeralSessionConfiguration];
-  }
-
-#if __has_feature(objc_arc)
-  return [self new];
-#else
-  return [[self new] autorelease];
-#endif
+  return [NSURLSessionConfiguration ephemeralSessionConfiguration];
 }
 
 + (NSURLSessionConfiguration *)backgroundSessionConfiguration:(NSString *)identifier {
@@ -54,15 +38,6 @@
 }
 
 + (NSURLSessionConfiguration *)backgroundSessionConfigurationWithIdentifier:(NSString *)identifier {
-  if (![FIRCLSURLSession NSURLSessionShouldBeUsed]) {
-    return nil;
-  }
-
-  if ([[NSURLSessionConfiguration class]
-          respondsToSelector:@selector(backgroundSessionConfigurationWithIdentifier:)]) {
-    return [NSURLSessionConfiguration backgroundSessionConfigurationWithIdentifier:identifier];
-  }
-
   return [NSURLSessionConfiguration backgroundSessionConfigurationWithIdentifier:identifier];
 }
 
