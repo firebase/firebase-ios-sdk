@@ -101,8 +101,7 @@ NSString *const FIRCLSNetworkClientBackgroundIdentifierSuffix = @".crash.backgro
 }
 
 - (BOOL)supportsBackgroundRequests {
-  return !FIRCLSApplicationIsExtension()
-         && self.canUseBackgroundSession;
+  return !FIRCLSApplicationIsExtension() && self.canUseBackgroundSession;
 }
 
 - (void)attemptToReconnectBackgroundSessionWithCompletionBlock:(void (^)(void))completionBlock {
