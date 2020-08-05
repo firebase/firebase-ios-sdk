@@ -164,6 +164,11 @@ let package = Package(
         "FirebaseAnalytics",
         "FIRAnalyticsConnector",
         "GoogleAppMeasurement",
+        "FirebaseCore",
+        "GoogleUtilities_AppDelegateSwizzler",
+        "GoogleUtilities_MethodSwizzler",
+        "GoogleUtilities_NSData",
+        "GoogleUtilities_Network",
       ],
       path: "FirebaseAnalyticsWrapper",
       publicHeadersPath: "Public"
