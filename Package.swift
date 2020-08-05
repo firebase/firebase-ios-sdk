@@ -165,6 +165,7 @@ let package = Package(
         "FIRAnalyticsConnector",
         "GoogleAppMeasurement",
         "FirebaseCore",
+        "FirebaseInstallations",
         "GoogleUtilities_AppDelegateSwizzler",
         "GoogleUtilities_MethodSwizzler",
         "GoogleUtilities_NSData",
