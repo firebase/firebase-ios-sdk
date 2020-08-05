@@ -169,6 +169,7 @@ let package = Package(
         "GoogleUtilities_MethodSwizzler",
         "GoogleUtilities_NSData",
         "GoogleUtilities_Network",
+        .product(name: "nanopb", package: "nanopb"),
       ],
       path: "FirebaseAnalyticsWrapper",
       publicHeadersPath: "Public"
