@@ -16,8 +16,6 @@
 
 #import "Crashlytics/Crashlytics/Components/FIRCLSApplication.h"
 #import "Crashlytics/Crashlytics/DataCollection/FIRCLSDataCollectionToken.h"
-#import "Crashlytics/Crashlytics/FIRCLSURLSession/FIRCLSURLSession.h"
-#import "Crashlytics/Crashlytics/FIRCLSURLSession/FIRCLSURLSessionConfiguration.h"
 #import "Crashlytics/Crashlytics/Helpers/FIRCLSDefines.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSFileManager.h"
 #import "Crashlytics/Shared/FIRCLSByteUtility.h"
@@ -74,16 +72,6 @@ NSString *const FIRCLSNetworkClientBackgroundIdentifierSuffix = @".crash.backgro
 
   NSURLSessionConfiguration *config = nil;
 
-  Class urlSessionClass;
-  Class urlSessionConfigurationClass;
-#if FIRCLSURLSESSION_REQUIRED
-  urlSessionClass = [FIRCLSURLSession class];
-  urlSessionConfigurationClass = [FIRCLSURLSessionConfiguration class];
-#else
-  urlSessionClass = [NSURLSession class];
-  urlSessionConfigurationClass = [NSURLSessionConfiguration class];
-#endif
-
   if (self.supportsBackgroundRequests) {
     NSString *sdkBundleID = FIRCLSApplicationGetSDKBundleID();
     NSString *backgroundConfigName =
@@ -98,12 +86,12 @@ NSString *const FIRCLSNetworkClientBackgroundIdentifierSuffix = @".crash.backgro
   if (!config) {
     // take this code path if we don't support background requests OR if we failed to create a
     // background configuration
-    config = [urlSessionConfigurationClass defaultSessionConfiguration];
+    config = [NSURLSessionConfiguration defaultSessionConfiguration];
   }
 
-  _session = [urlSessionClass sessionWithConfiguration:config
-                                              delegate:self
-                                         delegateQueue:self.operationQueue];
+  _session = [NSURLSession sessionWithConfiguration:config
+                                           delegate:self
+                                      delegateQueue:self.operationQueue];
 
   if (!_session || !config) {
     FIRCLSErrorLog(@"Failed to initialize");
