@@ -25,8 +25,8 @@
 #import "FirebaseMessaging/Sources/FIRMessagingDefines.h"
 #import "FirebaseMessaging/Sources/FIRMessagingLogger.h"
 #import "FirebaseMessaging/Sources/FIRMessagingPendingTopicsList.h"
-#import "FirebaseMessaging/Sources/FIRMessagingTopicsCommon.h"
 #import "FirebaseMessaging/Sources/FIRMessagingTopicOperation.h"
+#import "FirebaseMessaging/Sources/FIRMessagingTopicsCommon.h"
 #import "FirebaseMessaging/Sources/FIRMessagingUtilities.h"
 #import "FirebaseMessaging/Sources/FIRMessaging_Private.h"
 #import "FirebaseMessaging/Sources/NSDictionary+FIRMessaging.h"
@@ -62,7 +62,6 @@ static NSString *const kPendingSubscriptionsListKey =
                      topic:(NSString *)topic
                    options:(NSDictionary *)options
                    handler:(FIRMessagingTopicOperationCompletion)handler {
-
   token = [token copy];
   topic = [topic copy];
 
@@ -89,17 +88,18 @@ static NSString *const kPendingSubscriptionsListKey =
   options = [options fcm_trimNonStringValues];
 
   [self updateSubscriptionWithToken:token
-                                     topic:topic
-                                   options:options
-                              shouldDelete:NO
-                                   handler:^void(NSError *error) {
-                                     handler(error);
-                                   }];
+                              topic:topic
+                            options:options
+                       shouldDelete:NO
+                            handler:^void(NSError *error) {
+                              handler(error);
+                            }];
 }
 
--(void)dealloc {
+- (void)dealloc {
   [self.topicOperations cancelAllOperations];
 }
+
 #pragma mark - FIRMessaging subscribe
 
 - (void)updateSubscriptionWithToken:(NSString *)token
@@ -126,11 +126,17 @@ static NSString *const kPendingSubscriptionsListKey =
   };
 
   if ([[FIRInstanceID instanceID] tryToLoadValidCheckinInfo]) {
-    [self updateSubscriptionToTopic:topic
-                                    withToken:token
-                                      options:options
-                                 shouldDelete:shouldDelete
-                                      handler:completion];
+    FIRMessagingTopicAction action = FIRMessagingTopicActionSubscribe;
+    if (shouldDelete) {
+      action = FIRMessagingTopicActionUnsubscribe;
+    }
+    FIRMessagingTopicOperation *operation =
+        [[FIRMessagingTopicOperation alloc] initWithTopic:topic
+                                                   action:action
+                                                    token:token
+                                                  options:options
+                                               completion:handler];
+    [self.topicOperations addOperation:operation];
   } else {
     NSString *failureReason = @"Device ID and checkin info is not found. Will not proceed with "
                               @"subscription/unsubscription.";
@@ -139,24 +145,6 @@ static NSString *const kPendingSubscriptionsListKey =
                                        failureReason:failureReason];
     handler(error);
   }
-}
-
-- (void)updateSubscriptionToTopic:(NSString *)topic
-                        withToken:(NSString *)token
-                          options:(NSDictionary *)options
-                     shouldDelete:(BOOL)shouldDelete
-                          handler:(FIRMessagingTopicOperationCompletion)handler {
-  FIRMessagingTopicAction action = FIRMessagingTopicActionSubscribe;
-  if (shouldDelete) {
-    action = FIRMessagingTopicActionUnsubscribe;
-  }
-  FIRMessagingTopicOperation *operation =
-      [[FIRMessagingTopicOperation alloc] initWithTopic:topic
-                                                 action:action
-                                                  token:token
-                                                options:options
-                                             completion:handler];
-  [self.topicOperations addOperation:operation];
 }
 
 - (void)unsubscribeWithToken:(NSString *)token
@@ -187,12 +175,12 @@ static NSString *const kPendingSubscriptionsListKey =
   options = [options fcm_trimNonStringValues];
 
   [self updateSubscriptionWithToken:token
-                                     topic:topic
-                                   options:options
-                              shouldDelete:YES
-                                   handler:^void(NSError *error) {
-                                     handler(error);
-                                   }];
+                              topic:topic
+                            options:options
+                       shouldDelete:YES
+                            handler:^void(NSError *error) {
+                              handler(error);
+                            }];
 }
 
 - (void)subscribeToTopic:(NSString *)topic

@@ -1,3 +1,6 @@
+# unreleased
+- [fixed] Fixed an issue that topic doesn't work in watchOS. (#6160) 
+
 # 2020-07 -- v4.6.1
 - [changed] Remove logic that is executed for iOS 7 and below. (#5835)
 
