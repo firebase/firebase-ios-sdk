@@ -1,4 +1,4 @@
-# v4.8.1
+# v4.9.0
 - [fixed] Fixed `FirebaseApp.delete()` related crash in `RC Config Fetch`. (#6123)
 
 # v4.8.0

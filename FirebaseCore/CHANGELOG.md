@@ -1,3 +1,9 @@
+# v6.10.0 -- M77
+- [changed] Functionally neutral public header refactor in preparation for Swift Package
+  Manager support. Applies to FirebaseCore, FirebaseABTesting, FirebaseAuth, FirebaseCrashlytics,
+  FirebaseDatabase, FirebaseFirestore, FirebaseFuncitons, FirebaseInstallations,
+  FirebaseRemoteConfig, FirebaseStorage, and GoogleDataTransport.
+
 # v6.9.0 -- M75
 - [changed] Added thread safety to `[FIROptions defaultOptions]` method. (#5915)
 - [changed] Updated GoogleUtilities and GoogleDataTransport imports. The GoogleDataTransportCCTSupport
