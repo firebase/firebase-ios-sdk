@@ -77,7 +77,7 @@ NSString *const FIRCLSNetworkClientBackgroundIdentifierSuffix = @".crash.backgro
     NSString *backgroundConfigName =
         [sdkBundleID stringByAppendingString:FIRCLSNetworkClientBackgroundIdentifierSuffix];
 
-    config = [urlSessionConfigurationClass backgroundSessionConfiguration:backgroundConfigName];
+    config = [NSURLSessionConfiguration backgroundSessionConfiguration:backgroundConfigName];
 #if TARGET_OS_IPHONE
     [config setSessionSendsLaunchEvents:NO];
 #endif
