@@ -517,7 +517,6 @@ let package = Package(
       dependencies: [
         "FirebaseAuth",
         "FirebaseABTesting",
-        "FirebaseAnalyticsWrapper",
         "FirebaseFunctions",
         "Firebase",
         "FirebaseCrashlytics",
