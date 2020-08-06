@@ -20,7 +20,7 @@ import Foundation
 
 let _DEPENDENCY_LABEL_IN_SPEC = "dependency"
 let _SKIP_LINES_WITH_WORDS = ["unit_tests", "test_spec"]
-let _DEPENDENCY_LINE_SEPARATORS = [" ", ",", "/"]
+let _DEPENDENCY_LINE_SEPARATORS = [" ", ",", "/"] as CharacterSet
 
 class SpecFiles {
   private var specFilesDict: [String: URL]
@@ -88,7 +88,7 @@ func searchDeps(of pod: String, from podSpecFilesObj: SpecFiles) -> [String] {
     }
     if line.contains(_DEPENDENCY_LABEL_IN_SPEC) {
       let newLine = line.trimmingCharacters(in: .whitespacesAndNewlines)
-      let tokens = newLine.components(separatedBy: _DEPENDENCY_LINE_SEPARATORS as CharacterSet)
+      let tokens = newLine.components(separatedBy: _DEPENDENCY_LINE_SEPARATORS)
       if let depPrefix = tokens.first {
         if depPrefix.hasSuffix(_DEPENDENCY_LABEL_IN_SPEC) {
           let podNameRaw = String(tokens[1]).replacingOccurrences(of: "'", with: "")
