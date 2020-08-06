@@ -17,12 +17,16 @@ jobs:
     runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v2
+    - name: Install Secret GoogleService-Info.plist
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
+          bot-access.txt "$plist_secret"
     - name: SpecStaging Repo clone
       run: |
         if [ -f "${HOME}/.cocoapods/repos" ]; then
           find  "${HOME}/.cocoapods/repos" -type d -maxdepth 1 -exec sh -c 'pod repo remove $(basename {})' \;
         fi
-        pod repo add specstaging https://github.com/firebase/SpecsStaging.git
+        botaccess=`cat bot-access.txt`
+        pod repo add specstaging https://"$botaccess"@github.com/firebase/SpecsStaging.git
         SPEC_REPO="specstaging" scripts/add_podspecs.swift
         # find . -name "FirebaseCore.podspec" -print -exec pod repo push specstaging {} --sources=https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org/ --skip-tests --local-only \;
         # find . -name "GoogleDataTransport.podspec" -print -exec pod repo push specstaging {} --sources=https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org/ --skip-tests --local-only \;

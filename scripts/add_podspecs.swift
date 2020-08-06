@@ -178,17 +178,23 @@ do {
   var exitCode: Int32?
   for pod in specFile.depInstallOrder {
     print("----------\(pod)-----------")
-    if pod == "Firebase" {
-      exitCode =
-        shell(
-          "pod repo push --skip-import-validation --skip-tests --use-json  --sources=https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org specstaging Firebase.podspec; pod repo update;"
-        )
-    } else {
+    if pod == "FirebaseCore" {
       exitCode =
         shell(
           "find \(sdk_repo) -name \(pod).podspec -print -exec pod repo push ${SPEC_REPO} {} --sources=https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org/ --skip-tests \\; -exec pod repo update \\;"
         )
     }
+//    if pod == "Firebase" {
+//      exitCode =
+//        shell(
+//          "pod repo push --skip-import-validation --skip-tests --use-json  --sources=https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org specstaging Firebase.podspec; pod repo update;"
+//        )
+//    } else {
+//      exitCode =
+//        shell(
+//          "find \(sdk_repo) -name \(pod).podspec -print -exec pod repo push ${SPEC_REPO} {} --sources=https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org/ --skip-tests \\; -exec pod repo update \\;"
+//        )
+//    }
 
     if let code = exitCode {
       print("------------exit code : \(code) \(pod)-----------------")
