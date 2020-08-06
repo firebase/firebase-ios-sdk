@@ -27,8 +27,6 @@ jobs:
     - uses: actions/checkout@v2
     - name: Xcode 12
       run: sudo xcode-select -s /Applications/Xcode_12_beta.app/Contents/Developer
-    - name: Build
-      run: swift build
     - name: Initialize xcodebuild
       run: xcodebuild -list
     - name: Core ObjC Unit Tests iOS
@@ -44,8 +42,6 @@ jobs:
     - uses: actions/checkout@v2
     - name: Xcode 12
       run: sudo xcode-select -s /Applications/Xcode_12_beta.app/Contents/Developer
-    - name: Build
-      run: swift build
     - name: Initialize xcodebuild
       run: xcodebuild -list
     - name: Core ObjC Unit Tests macOS

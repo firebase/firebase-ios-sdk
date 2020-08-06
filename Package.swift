@@ -35,6 +35,10 @@ let package = Package(
       targets: ["FirebaseCore"]
     ),
     .library(
+      name: "FirebaseAnalytics",
+      targets: ["FirebaseAnalyticsWrapper"]
+    ),
+    .library(
       name: "FirebaseAuth",
       targets: ["FirebaseAuth"]
     ),
@@ -153,6 +157,44 @@ let package = Package(
       cSettings: [
         .headerSearchPath("../../.."),
       ]
+    ),
+    .target(
+      name: "FirebaseAnalyticsWrapper",
+      dependencies: [
+        "FirebaseAnalytics",
+        "FIRAnalyticsConnector",
+        "GoogleAppMeasurement",
+        "FirebaseCore",
+        "FirebaseInstallations",
+        "GoogleUtilities_AppDelegateSwizzler",
+        "GoogleUtilities_MethodSwizzler",
+        "GoogleUtilities_NSData",
+        "GoogleUtilities_Network",
+        .product(name: "nanopb", package: "nanopb"),
+      ],
+      path: "FirebaseAnalyticsWrapper",
+      publicHeadersPath: "Public",
+      linkerSettings: [
+        .linkedLibrary("sqlite3"),
+        .linkedLibrary("c++"),
+        .linkedLibrary("z"),
+        .linkedFramework("StoreKit"),
+      ]
+    ),
+    .binaryTarget(
+      name: "FirebaseAnalytics",
+      url: "https://dl.google.com/firebase/ios/swiftpm/6.30.0/FirebaseAnalytics.zip",
+      checksum: "47c403aeac1ad35dc6dccb3e57256d5ca65863970ebe3ea8407e4220c9f16ea7"
+    ),
+    .binaryTarget(
+      name: "FIRAnalyticsConnector",
+      url: "https://dl.google.com/firebase/ios/swiftpm/6.30.0/FIRAnalyticsConnector.zip",
+      checksum: "b809e8c352ea2e7788d4ee1c6e191de2666582ec616572ea2568420b2d524532"
+    ),
+    .binaryTarget(
+      name: "GoogleAppMeasurement",
+      url: "https://dl.google.com/firebase/ios/swiftpm/6.30.0/GoogleAppMeasurement.zip",
+      checksum: "1cbd0f708981e3bcb7b84399a635c469c9e994bf38266d3e4f1e0caae54eda72"
     ),
     .target(
       name: "FirebaseAuth",
