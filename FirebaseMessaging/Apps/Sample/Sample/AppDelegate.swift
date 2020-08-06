@@ -33,7 +33,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
       }
     }
     application.registerForRemoteNotifications()
-    
+
     return true
   }
 
@@ -55,8 +55,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     return UISceneConfiguration(name: "Default Configuration",
                                 sessionRole: connectingSceneSession.role)
   }
-  
-  func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
+
+  func application(_ application: UIApplication,
+                   didReceiveRemoteNotification userInfo: [AnyHashable: Any],
+                   fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult)
+                     -> Void) {
     // Log delivery signal for data/hidden/background messages
     print("Hidden message arrived:\n" + userInfo.debugDescription)
     Messaging.serviceExtension().exportDeliveryMetricsToBigQuery(withMessageInfo: userInfo)

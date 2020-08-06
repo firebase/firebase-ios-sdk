@@ -34,8 +34,7 @@ NSString *const KFIRMessagingSendMessageAppData = @"google."
 NSString *const kFIRMessagingMessageInternalReservedKeyword = @"gcm.";
 NSString *const kFIRMessagingMessagePersistentIDKey = @"persistent_id";
 
-NSString *const kFIRMessagingMessageIDKey = @"gcm."
-                                            @"message_id";
+NSString *const kFIRMessagingMessageIDKey = @"gcm.message_id";
 NSString *const kFIRMessagingMessageAPNSContentAvailableKey = @"content-available";
 NSString *const kFIRMessagingMessageSyncViaMCSKey = @"gcm."
                                                     @"duplex";
@@ -43,6 +42,11 @@ NSString *const kFIRMessagingMessageSyncMessageTTLKey = @"gcm."
                                                         @"ttl";
 NSString *const kFIRMessagingMessageLinkKey = @"gcm."
                                               @"app_link";
+NSString *const kFIRMessagingSenderID = @"google.c.sender.id";
+NSString *const kFIRMessagingFID = @"google.c.fid";
+NSString *const kFIRMessagingAnalyticsComposerIdentifier = @"google.c.a.c_id";
+NSString *const kFIRMessagingAnalyticsMessageLabel = @"google.c.a.m_l";
+NSString *const kFIRMessagingAnalyticsComposerLabel = @"google.c.a.c_l";
 
 NSString *const kFIRMessagingRemoteNotificationsProxyEnabledInfoPlistKey =
     @"FirebaseAppDelegateProxyEnabled";

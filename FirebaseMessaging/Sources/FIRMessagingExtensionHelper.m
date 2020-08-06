@@ -22,9 +22,10 @@
 #import <GoogleDataTransport/GDTCORTargets.h>
 #import <GoogleDataTransport/GDTCORTransport.h>
 #import "FirebaseMessaging/Sources/FIRMMessageCode.h"
+#import "FirebaseMessaging/Sources/FIRMessagingConstants.h"
 #import "FirebaseMessaging/Sources/FIRMessagingLogger.h"
-#import "GoogleUtilities/Environment/Private/GULAppEnvironmentUtil.h"
 #import "GoogleDataTransport/GDTCCTLibrary/Private/GDTCCTNanopbHelpers.h"
+#import "GoogleUtilities/Environment/Private/GULAppEnvironmentUtil.h"
 
 #import <nanopb/pb.h>
 #import <nanopb/pb_decode.h>
@@ -54,7 +55,6 @@ static NSString *const kPayloadOptionsImageURLName = @"image";
 
   // Encode 1 time to determine the size.
   if (!pb_encode(&sizestream, fm_MessagingClientEventExtension_fields, &_eventExtension)) {
-
     FIRMessagingLoggerError(kFIRMessagingServiceExtensionTransportBytesError,
                             @"Error in nanopb encoding for size: %s", PB_GET_ERROR(&sizestream));
   }
@@ -65,7 +65,6 @@ static NSString *const kPayloadOptionsImageURLName = @"image";
   CFDataSetLength(dataRef, bufferSize);
   pb_ostream_t ostream = pb_ostream_from_buffer((void *)CFDataGetBytePtr(dataRef), bufferSize);
   if (!pb_encode(&ostream, fm_MessagingClientEventExtension_fields, &_eventExtension)) {
-
     FIRMessagingLoggerError(kFIRMessagingServiceExtensionTransportBytesError,
                             @"Error in nanopb encoding for bytes: %s", PB_GET_ERROR(&ostream));
   }
@@ -178,12 +177,11 @@ static NSString *const kPayloadOptionsImageURLName = @"image";
   fm_MessagingClientEventExtension eventExtension = fm_MessagingClientEventExtension_init_default;
 
   fm_MessagingClientEvent foo = fm_MessagingClientEvent_init_default;
-  foo.project_number = (int64_t)[info[@"google.c.sender.id"] longLongValue];
-  foo.message_id = GDTCCTEncodeString(info[@"gcm.message_id"]);
-////  foo.instance_id = GDTCCTEncodeString(info[@"google.c.fid"]);
-  foo.instance_id = GDTCCTEncodeString(@"d945QjezGUcGkj8WPCI902");
+  foo.project_number = (int64_t)[info[kFIRMessagingSenderID] longLongValue];
+  foo.message_id = GDTCCTEncodeString(info[kFIRMessagingMessageIDKey]);
+  foo.instance_id = GDTCCTEncodeString(info[kFIRMessagingFID]);
 
-  if ([info[@"aps"][@"content-available"] intValue] == 1 &&
+  if ([info[@"aps"][kFIRMessagingMessageAPNSContentAvailableKey] intValue] == 1 &&
       ![GULAppEnvironmentUtil isAppExtension]) {
     foo.message_type = fm_MessagingClientEvent_MessageType_DATA_MESSAGE;
   } else {
@@ -194,18 +192,18 @@ static NSString *const kPayloadOptionsImageURLName = @"image";
   NSString *bundleID = [NSBundle mainBundle].bundleIdentifier;
   if ([GULAppEnvironmentUtil isAppExtension]) {
     foo.package_name =
-    GDTCCTEncodeString([[self class] bundleIdentifierByRemovingLastPartFrom:bundleID]);
+        GDTCCTEncodeString([[self class] bundleIdentifierByRemovingLastPartFrom:bundleID]);
   } else {
     foo.package_name = GDTCCTEncodeString(bundleID);
   }
   foo.event = fm_MessagingClientEvent_Event_MESSAGE_DELIVERED;
-  foo.analytics_label = GDTCCTEncodeString(@"_nr");
-  foo.campaign_id = (int64_t)[info[@"google.c.a.c_id"] longLongValue];
-  foo.composer_label = GDTCCTEncodeString(info[@"google.c.a.c_l"]);
+  foo.analytics_label = GDTCCTEncodeString(info[kFIRMessagingAnalyticsMessageLabel]);
+  foo.campaign_id = (int64_t)[info[kFIRMessagingAnalyticsComposerIdentifier] longLongValue];
+  foo.composer_label = GDTCCTEncodeString(info[kFIRMessagingAnalyticsComposerLabel]);
 
   eventExtension.messaging_client_event = &foo;
   FIRMessagingMetricsLog *log =
-      [[FIRMessagingMetricsLog alloc] init];
+      [[FIRMessagingMetricsLog alloc] initWithEventExtension:eventExtension];
 
   GDTCOREvent *event = [transport eventForTransport];
   event.dataObject = log;
@@ -224,6 +222,5 @@ static NSString *const kPayloadOptionsImageURLName = @"image";
 
   return [bundleIDComponents componentsJoinedByString:bundleIDComponentsSeparator];
 }
-
 
 @end

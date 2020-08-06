@@ -41,6 +41,11 @@ FOUNDATION_EXPORT NSString *const kFIRMessagingMessageAPNSContentAvailableKey;
 FOUNDATION_EXPORT NSString *const kFIRMessagingMessageSyncViaMCSKey;
 FOUNDATION_EXPORT NSString *const kFIRMessagingMessageSyncMessageTTLKey;
 FOUNDATION_EXPORT NSString *const kFIRMessagingMessageLinkKey;
+FOUNDATION_EXPORT NSString *const kFIRMessagingSenderID;
+FOUNDATION_EXPORT NSString *const kFIRMessagingFID;
+FOUNDATION_EXPORT NSString *const kFIRMessagingAnalyticsComposerIdentifier;
+FOUNDATION_EXPORT NSString *const kFIRMessagingAnalyticsMessageLabel;
+FOUNDATION_EXPORT NSString *const kFIRMessagingAnalyticsComposerLabel;
 
 FOUNDATION_EXPORT NSString *const kFIRMessagingRemoteNotificationsProxyEnabledInfoPlistKey;
 
