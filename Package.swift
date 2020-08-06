@@ -174,6 +174,8 @@ let package = Package(
       ],
       path: "FirebaseAnalyticsWrapper",
       publicHeadersPath: "Public",
+      // linkerSettings doesn't seem to work. See
+      // https://forums.swift.org/t/swiftpm-binary-linker-questions/39100
       linkerSettings: [
         .linkedLibrary("sqlite3"),
         .linkedLibrary("c++"),

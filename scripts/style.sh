@@ -152,6 +152,9 @@ s%^./%%
 # Sources controlled outside this tree
 \%/third_party/% d
 
+# Public headers for closed sourced FirebaseAnalytics
+\%^(FirebaseAnalyticsWrapper)/% d
+
 # Generated source
 \%/Firestore/core/src/util/config.h% d
 
