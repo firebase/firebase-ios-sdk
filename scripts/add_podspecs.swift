@@ -19,6 +19,8 @@
 import Foundation
 
 let _DEPENDENCY_LABEL_IN_SPEC = "dependency"
+let _SKIP_LINES_WITH_WORDS = ["unit_tests", "test_spec"]
+let _DEPENDENCY_LINE_SEPARATORS = [" ", ",", "/"]
 
 class SpecFiles {
   private var specFilesDict: [String: URL]
@@ -66,7 +68,6 @@ func generateOrderOfInstallation(pods: [String], podSpecDict: SpecFiles,
     podSpecDict.depInstallOrder.append(pod)
     parentDeps.remove(pod)
     podSpecDict.removeValue(forKey: pod)
-    print("\(pod) installed here and will be removed.")
   }
 }
 
@@ -82,9 +83,12 @@ func searchDeps(of pod: String, from podSpecFilesObj: SpecFiles) -> [String] {
     fatalError("Could not read \(pod) podspec from \(podSpecURL.path).")
   }
   for line in fileContents.components(separatedBy: .newlines) {
+    if _SKIP_LINES_WITH_WORDS.contains(where: line.contains) {
+      continue
+    }
     if line.contains(_DEPENDENCY_LABEL_IN_SPEC) {
       let newLine = line.trimmingCharacters(in: .whitespacesAndNewlines)
-      let tokens = newLine.components(separatedBy: [" ", ","] as CharacterSet)
+      let tokens = newLine.components(separatedBy: _DEPENDENCY_LINE_SEPARATORS as CharacterSet)
       if let depPrefix = tokens.first {
         if depPrefix.hasSuffix(_DEPENDENCY_LABEL_IN_SPEC) {
           let podNameRaw = String(tokens[1]).replacingOccurrences(of: "'", with: "")
@@ -178,23 +182,23 @@ do {
   var exitCode: Int32?
   for pod in specFile.depInstallOrder {
     print("----------\(pod)-----------")
-    if pod == "FirebaseCore" {
+    if pod == "Firebase" {
       exitCode =
         shell(
-          "find \(sdk_repo) -name \(pod).podspec -print -exec pod repo push ${SPEC_REPO} {} --sources=https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org/ --skip-tests \\; -exec pod repo update \\;"
+          "pod repo push --skip-import-validation --skip-tests --use-json --local-only --sources=https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org specstaging Firebase.podspec; pod repo update;"
+        )
+    } else if pod == "FirebaseFirestore" {
+      exitCode =
+        shell(
+          "find \(sdk_repo) -name \(pod).podspec -print -exec pod repo push ${SPEC_REPO} {} --sources=https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org/ --local-only --allow-warnings --skip-tests \\; -exec pod repo update \\;"
+        )
+
+    }else {
+      exitCode =
+        shell(
+          "find \(sdk_repo) -name \(pod).podspec -print -exec pod repo push ${SPEC_REPO} {} --sources=https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org/ --local-only --skip-tests \\; -exec pod repo update \\;"
         )
     }
-//    if pod == "Firebase" {
-//      exitCode =
-//        shell(
-//          "pod repo push --skip-import-validation --skip-tests --use-json  --sources=https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org specstaging Firebase.podspec; pod repo update;"
-//        )
-//    } else {
-//      exitCode =
-//        shell(
-//          "find \(sdk_repo) -name \(pod).podspec -print -exec pod repo push ${SPEC_REPO} {} --sources=https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org/ --skip-tests \\; -exec pod repo update \\;"
-//        )
-//    }
 
     if let code = exitCode {
       print("------------exit code : \(code) \(pod)-----------------")

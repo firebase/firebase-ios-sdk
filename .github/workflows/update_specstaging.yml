@@ -17,7 +17,7 @@ jobs:
     runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v2
-    - name: Install Secret GoogleService-Info.plist
+    - name: Get token
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
           bot-access.txt "$plist_secret"
     - name: SpecStaging Repo clone
@@ -33,6 +33,8 @@ jobs:
         # find . -name "FirebaseCore.podspec" -print -exec pod repo push specstaging {} --sources=https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org/ --skip-tests --local-only \;
         # find . -name "GoogleDataTransport.podspec" -print -exec pod repo push specstaging {} --sources=https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org/ --skip-tests --local-only \;
         cp  -av "${HOME}/.cocoapods/repos" "${GITHUB_WORKSPACE}/podspec_repo"
+        pod repo remove specstaging 
+        rm -rf bot-access.txt
     - uses: actions/upload-artifact@v1
       if: ${{ always() }}
       with:
