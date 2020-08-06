@@ -1,0 +1,38 @@
+name: release
+
+on:
+  pull_request:
+    paths:
+    - '.github/workflows/update_specstaging.yml'
+    - '.github/*'
+
+jobs:
+
+  quickstart_release_test:
+    # Don't run on private repo unless it is a PR.
+    # if: github.repository != 'FirebasePrivate/firebase-ios-sdk' || github.event_name == 'pull_request'
+    env:
+      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+      signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+    runs-on: macOS-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install Secret GoogleService-Info.plist
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
+          bot-access.txt "$plist_secret"
+    - name: SpecStaging Repo clone
+      run: |
+        if [ -f "${HOME}/.cocoapods/repos" ]; then
+          find  "${HOME}/.cocoapods/repos" -type d -maxdepth 1 -exec sh -c 'pod repo remove $(basename {})' \;
+        fi
+        botaccess=`cat bot-access.txt`
+        pod repo add specstaging https://"$botaccess"@github.com/firebase/SpecsStaging.git
+        SPEC_REPO="specstaging" scripts/add_podspecs.swift
+        # find . -name "FirebaseCore.podspec" -print -exec pod repo push specstaging {} --sources=https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org/ --skip-tests --local-only \;
+        # find . -name "GoogleDataTransport.podspec" -print -exec pod repo push specstaging {} --sources=https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org/ --skip-tests --local-only \;
+        cp  -av "${HOME}/.cocoapods/repos" "${GITHUB_WORKSPACE}/podspec_repo"
+    - uses: actions/upload-artifact@v1
+      if: ${{ always() }}
+      with:
+        name: Podspec_repo
+        path: podspec_repo
