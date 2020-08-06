@@ -193,7 +193,7 @@ do {
           "find \(sdk_repo) -name \(pod).podspec -print -exec pod repo push ${SPEC_REPO} {} --sources=https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org/ --local-only --allow-warnings --skip-tests \\; -exec pod repo update \\;"
         )
 
-    }else {
+    } else {
       exitCode =
         shell(
           "find \(sdk_repo) -name \(pod).podspec -print -exec pod repo push ${SPEC_REPO} {} --sources=https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org/ --local-only --skip-tests \\; -exec pod repo update \\;"
