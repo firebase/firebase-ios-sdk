@@ -173,7 +173,13 @@ let package = Package(
         .product(name: "nanopb", package: "nanopb"),
       ],
       path: "FirebaseAnalyticsWrapper",
-      publicHeadersPath: "Public"
+      publicHeadersPath: "Public",
+      linkerSettings: [
+        .linkedLibrary("sqlite3"),
+        .linkedLibrary("c++"),
+        .linkedLibrary("z"),
+        .linkedFramework("StoreKit"),
+      ]
     ),
     .binaryTarget(
       name: "FirebaseAnalytics",
