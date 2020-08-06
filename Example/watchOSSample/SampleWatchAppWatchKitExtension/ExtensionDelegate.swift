@@ -38,7 +38,7 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate, MessagingDelegate {
       if error != nil {
         print("error:" + error.debugDescription)
       } else {
-        print("Successfully subscribe to topic")
+        print("Successfully subscribed to topic")
       }
     }
   }

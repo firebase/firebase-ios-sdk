@@ -91,9 +91,7 @@ static NSString *const kPendingSubscriptionsListKey =
                               topic:topic
                             options:options
                        shouldDelete:NO
-                            handler:^void(NSError *error) {
-                              handler(error);
-                            }];
+                            handler:handler];
 }
 
 - (void)dealloc {
@@ -107,35 +105,31 @@ static NSString *const kPendingSubscriptionsListKey =
                             options:(NSDictionary *)options
                        shouldDelete:(BOOL)shouldDelete
                             handler:(FIRMessagingTopicOperationCompletion)handler {
-  FIRMessagingTopicOperationCompletion completion = ^void(NSError *error) {
-    if (error) {
-      FIRMessagingLoggerError(kFIRMessagingMessageCodeClient001, @"Failed to subscribe to topic %@",
-                              error);
-    } else {
-      if (shouldDelete) {
-        FIRMessagingLoggerInfo(kFIRMessagingMessageCodeClient002,
-                               @"Successfully unsubscribed from topic %@", topic);
-      } else {
-        FIRMessagingLoggerInfo(kFIRMessagingMessageCodeClient003,
-                               @"Successfully subscribed to topic %@", topic);
-      }
-    }
-    if (handler) {
-      handler(error);
-    }
-  };
-
   if ([[FIRInstanceID instanceID] tryToLoadValidCheckinInfo]) {
-    FIRMessagingTopicAction action = FIRMessagingTopicActionSubscribe;
-    if (shouldDelete) {
-      action = FIRMessagingTopicActionUnsubscribe;
-    }
+    FIRMessagingTopicAction action = shouldDelete ?
+    FIRMessagingTopicActionUnsubscribe : FIRMessagingTopicActionSubscribe;
     FIRMessagingTopicOperation *operation =
         [[FIRMessagingTopicOperation alloc] initWithTopic:topic
                                                    action:action
                                                     token:token
                                                   options:options
-                                               completion:handler];
+                                               completion:^(NSError * _Nullable error) {
+          if (error) {
+            FIRMessagingLoggerError(kFIRMessagingMessageCodeClient001, @"Failed to subscribe to topic %@",
+                                    error);
+          } else {
+            if (shouldDelete) {
+              FIRMessagingLoggerInfo(kFIRMessagingMessageCodeClient002,
+                                     @"Successfully unsubscribed from topic %@", topic);
+            } else {
+              FIRMessagingLoggerInfo(kFIRMessagingMessageCodeClient003,
+                                     @"Successfully subscribed to topic %@", topic);
+            }
+          }
+          if (handler) {
+            handler(error);
+          }
+        }];
     [self.topicOperations addOperation:operation];
   } else {
     NSString *failureReason = @"Device ID and checkin info is not found. Will not proceed with "
