@@ -33,8 +33,6 @@
 static NSString *const kPayloadOptionsName = @"fcm_options";
 static NSString *const kPayloadOptionsImageURLName = @"image";
 
-
-
 @interface FIRMessagingMetricsLog : NSObject <GDTCOREventDataObject>
 
 @property(nonatomic) fm_MessagingClientEventExtension eventExtension;
@@ -183,13 +181,12 @@ static NSString *const kPayloadOptionsImageURLName = @"image";
   foo.project_number = (int64_t)[info[@"google.c.sender.id"] longLongValue];
   foo.message_id = GDTCCTEncodeString(info[@"gcm.message_id"]);
 ////  foo.instance_id = GDTCCTEncodeString(info[@"google.c.fid"]);
-  foo.instance_id = GDTCCTEncodeString(@"c5Qp5Y0yeU27mxFtvR2ubW");
+  foo.instance_id = GDTCCTEncodeString(@"d945QjezGUcGkj8WPCI902");
 
   if ([info[@"aps"][@"content-available"] intValue] == 1 &&
       ![GULAppEnvironmentUtil isAppExtension]) {
     foo.message_type = fm_MessagingClientEvent_MessageType_DATA_MESSAGE;
   } else {
-    
     foo.message_type = fm_MessagingClientEvent_MessageType_DISPLAY_NOTIFICATION;
   }
   foo.sdk_platform = fm_MessagingClientEvent_SDKPlatform_IOS;
@@ -203,10 +200,8 @@ static NSString *const kPayloadOptionsImageURLName = @"image";
   }
   foo.event = fm_MessagingClientEvent_Event_MESSAGE_DELIVERED;
   foo.analytics_label = GDTCCTEncodeString(@"_nr");
-  foo.campaign_id = (int64_t)[info[@"campaign_id.c_id"] longLongValue];
+  foo.campaign_id = (int64_t)[info[@"google.c.a.c_id"] longLongValue];
   foo.composer_label = GDTCCTEncodeString(info[@"google.c.a.c_l"]);
-
-
 
   eventExtension.messaging_client_event = &foo;
   FIRMessagingMetricsLog *log =

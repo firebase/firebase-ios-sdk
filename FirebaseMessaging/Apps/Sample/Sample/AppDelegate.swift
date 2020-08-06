@@ -22,6 +22,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                    didFinishLaunchingWithOptions launchOptions: [UIApplication
                      .LaunchOptionsKey: Any]?) -> Bool {
     FirebaseApp.configure()
+    application.delegate = self
 
     let center = UNUserNotificationCenter.current()
     center.delegate = self
@@ -56,7 +57,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
   }
   
   func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
-    // Log delivery signal for data/hidden messages
+    // Log delivery signal for data/hidden/background messages
+    print("Hidden message arrived:\n" + userInfo.debugDescription)
     Messaging.serviceExtension().exportDeliveryMetricsToBigQuery(withMessageInfo: userInfo)
     completionHandler(.newData)
   }

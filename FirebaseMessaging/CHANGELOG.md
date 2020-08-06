@@ -1,3 +1,6 @@
+# unreleased
+- [added] Added new API `FIRMessagingExtensionHelper exportDeliveryMetricsToBigQuery` that allows developers to enable notification delivery metrics to BigQuery. (#6181)
+
 # 2020-07 -- v4.6.1
 - [changed] Remove logic that is executed for iOS 7 and below. (#5835)
 

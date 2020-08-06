@@ -108,6 +108,7 @@ struct ContentView: View {
       self.identity.token = result.token
       self.identity.instanceID = result.instanceID
       self.log = "Successfully got token."
+      print("Token:\n" + self.identity.token!)
     }
   }
 
