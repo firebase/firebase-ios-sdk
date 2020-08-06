@@ -168,7 +168,7 @@ do {
       print("remove specstaging dir.")
       try fileManager.removeItem(at: URL(fileURLWithPath: "\(sdk_repo)/SpecsStaging"))
     }
-    shell("git clone git@github.com:firebase/SpecsStaging.git")
+    shell("git clone ${BOT_TOKEN}@github.com:firebase/SpecsStaging.git")
     shell("cd SpecsStaging; git rm -r *; git commit -m 'Empty repo'; git push")
     try fileManager.removeItem(at: URL(fileURLWithPath: "\(sdk_repo)/SpecsStaging"))
     print("Specstaging dir is removed.")
