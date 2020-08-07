@@ -52,7 +52,8 @@ class SpecFiles {
 }
 
 func generateOrderOfInstallation(pods: [String], podSpecDict: SpecFiles,
-                                 parentDeps: inout Set<String>) {
+                                 parentDeps: inout Set<String>)
+{
   if podSpecDict.isEmpty() {
     return
   }
@@ -139,7 +140,8 @@ func shell(_ command: String) -> Int32 {
 }
 
 func push_podspec(_ pod: String, from sdk_repo: String, sources: [String],
-                  flags: [String]) -> Int32? {
+                  flags: [String]) -> Int32?
+{
   let pod_path = sdk_repo + "/" + pod + ".podspec"
   let sources_arg = sources.joined(separator: ",")
   let flags_arg = flags.joined(separator: " ")
