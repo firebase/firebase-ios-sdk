@@ -1,3 +1,6 @@
+# v1.5.1 -- Unreleased
+- [changed] Use ephemeral `NSURLSession` to prevent caching of request/response. (#6226)
+
 # v1.5.0 -- M75
 - [changed] Functionally neutral source reorganization. (#5832)
 
