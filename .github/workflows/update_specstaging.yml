@@ -25,7 +25,7 @@ jobs:
           find  "${HOME}/.cocoapods/repos" -type d -maxdepth 1 -exec sh -c 'pod repo remove $(basename {})' \;
         fi
         git config --global user.email "you@example.com"
-        git config --global user.name "Your Name"
+        git config --global user.name "google-oss-bot"
         botaccess=`cat bot-access.txt`
         pod repo add --silent specstaging https://"$botaccess"@github.com/firebase/SpecsStaging.git
         BOT_TOKEN="${botaccess}" SPEC_REPO="specstaging" scripts/add_podspecs.swift
