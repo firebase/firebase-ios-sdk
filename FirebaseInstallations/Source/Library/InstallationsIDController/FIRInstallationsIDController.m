@@ -481,19 +481,18 @@ static NSString *const kKeychainService = @"com.firebase.FIRInstallations.instal
     FIRInstallationsHTTPError *HTTPResponseError = (FIRInstallationsHTTPError *)APIError;
     NSInteger statusCode = HTTPResponseError.HTTPResponse.statusCode;
 
-    if (statusCode == 400) {  // Explicitly unrecoverable errors.
+    if (statusCode == 400 || statusCode == 403) {  // Explicitly unrecoverable errors.
       [self.backoffController registerEvent:FIRInstallationsBackoffEventUnrecoverableFailure];
-
-      // TODO(mmaksym): Double check if 403 is recoverable.
-    } else if (statusCode == 403 || statusCode == 429 ||
-               statusCode == 500) {  // Explicitly recoverable errors.
+    } else if (statusCode == 429 ||
+               (statusCode >= 500 && statusCode < 600)) {  // Explicitly recoverable errors.
       [self.backoffController registerEvent:FIRInstallationsBackoffEventRecoverableFailure];
     } else {  // Treat all unknown errors as recoverable.
       [self.backoffController registerEvent:FIRInstallationsBackoffEventRecoverableFailure];
     }
-  } else {  // Treat all unknown errors as recoverable.
-    [self.backoffController registerEvent:FIRInstallationsBackoffEventRecoverableFailure];
   }
+
+  // If the error class is not `FIRInstallationsHTTPError` class it indicates a connection error.
+  // Such errors should not change backoff interval.
 }
 
 #pragma mark - Notifications
