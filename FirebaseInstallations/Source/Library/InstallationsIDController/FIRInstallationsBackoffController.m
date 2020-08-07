@@ -17,6 +17,7 @@
 #import "FirebaseInstallations/Source/Library/InstallationsIDController/FIRInstallationsBackoffController.h"
 
 static const NSTimeInterval k24Hours = 24 * 60 * 60;
+static const NSTimeInterval k30Minutes = 30 * 60;
 
 /** The class represents `FIRInstallationsBackoffController` sate required to calculate next allowed
  request time. The properties of the class are intentionally immutable because changing them
@@ -67,8 +68,7 @@ static const NSTimeInterval k24Hours = 24 * 60 * 60;
 
 + (NSTimeInterval)recoverableErrorBackoffTimeForAttemptNumber:(NSInteger)attemptNumber {
   NSTimeInterval exponentialInterval = pow(2, attemptNumber) + [self randomMilliseconds];
-  // TODO(mmaksym): Double check the maximum interval value.
-  return MIN(exponentialInterval, k24Hours);
+  return MIN(exponentialInterval, k30Minutes);
 }
 
 + (NSTimeInterval)randomMilliseconds {

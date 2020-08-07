@@ -60,7 +60,7 @@
   XCTAssertTrue([self.backoffController isNextRequestAllowed]);
 
   for (NSInteger attempt = 1; attempt < 21; attempt++) {
-    NSTimeInterval expectedBackoffInterval = MIN(pow(2, attempt), 24 * 60 * 60 /*24h*/);
+    NSTimeInterval expectedBackoffInterval = MIN(pow(2, attempt), 30 * 60 /*30min*/);
 
     [self.backoffController registerEvent:FIRInstallationsBackoffEventRecoverableFailure];
     [self assertBackoffTimeInterval:expectedBackoffInterval];
