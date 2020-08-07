@@ -123,7 +123,7 @@ let package = Package(
       dependencies: [
         "FirebaseCoreDiagnostics",
         "GoogleUtilities_Environment",
-        "GoogleUtilities_Logger"
+        "GoogleUtilities_Logger",
       ],
       path: "FirebaseCore/Sources",
       publicHeadersPath: "Public",
