@@ -29,8 +29,9 @@ jobs:
         git config --global user.email "you@example.com"
         git config --global user.name "google-oss-bot"
         botaccess=`cat bot-access.txt`
-        pod repo add --silent specstaging https://"$botaccess"@github.com/firebase/SpecsStaging.git
-        BOT_TOKEN="${botaccess}" SPEC_REPO="specstaging" scripts/add_podspecs.swift
+        git clone -b release-6.30.0 https://github.com/firebase/firebase-ios-sdk.git
+        pod repo add --silent specsstaging https://"$botaccess"@github.com/firebase/SpecsStaging.git
+        BOT_TOKEN="${botaccess}" SPEC_REPO="specsstaging" scripts/add_podspecs.swift firebase-ios-sdk/
         # find . -name "FirebaseCore.podspec" -print -exec pod repo push specstaging {} --sources=https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org/ --skip-tests --local-only \;
         # find . -name "GoogleDataTransport.podspec" -print -exec pod repo push specstaging {} --sources=https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org/ --skip-tests --local-only \;
         cp  -av "${HOME}/.cocoapods/repos" "${GITHUB_WORKSPACE}/podspec_repo"

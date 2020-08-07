@@ -135,7 +135,8 @@ func shell(_ command: String) -> Int32 {
 }
 
 let arg_cnts: Int = Int(CommandLine.argc)
-var sdk_repo = FileManager().currentDirectoryPath
+let cur_dir = FileManager().currentDirectoryPath
+var sdk_repo = cur_dir 
 
 if arg_cnts > 1 {
   sdk_repo = CommandLine.arguments[1]
@@ -168,13 +169,13 @@ do {
   print(specFile.depInstallOrder.joined(separator: "\n"))
 
   do {
-    if fileManager.fileExists(atPath: "\(sdk_repo)/SpecsStaging") {
+    if fileManager.fileExists(atPath: "\(cur_dir)/SpecsStaging") {
       print("remove specsstaging dir.")
-      try fileManager.removeItem(at: URL(fileURLWithPath: "\(sdk_repo)/SpecsStaging"))
+      try fileManager.removeItem(at: URL(fileURLWithPath: "\(cur_dir)/SpecsStaging"))
     }
     shell("git clone --quiet https://${BOT_TOKEN}@github.com/firebase/SpecsStaging.git")
     shell("cd SpecsStaging; git rm -r *; git commit -m 'Empty repo'; git push")
-    try fileManager.removeItem(at: URL(fileURLWithPath: "\(sdk_repo)/SpecsStaging"))
+    try fileManager.removeItem(at: URL(fileURLWithPath: "\(cur_dir)/SpecsStaging"))
     print("Specsstaging dir is removed.")
   } catch {
     print("error occurred.")
@@ -185,7 +186,7 @@ do {
     if pod == "Firebase" {
       exitCode =
         shell(
-          "pod repo push --skip-import-validation --skip-tests --use-json --sources=https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org ${SPEC_REPO} Firebase.podspec; pod repo update;"
+          "find \(sdk_repo) -name \(pod).podspec -print -exec pod repo push ${SPEC_REPO} {} --sources=https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org/ --skip-import-validation --skip-tests --use-json \\; -exec pod repo update \\;"
         )
     } else if pod == "FirebaseFirestore" {
       exitCode =
