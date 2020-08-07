@@ -545,8 +545,91 @@
   OCMVerifyAll(self.mockBackoffController);
 }
 
-- (void)testGetInstallationItem_WhenBackoff {
-  // TODO: Implement.
+- (void)testGetInstallationItem_WhenRegistrationError_ThenBackoffEventIsLogged {
+  [self expectBackoffEvent:FIRInstallationsBackoffEventUnrecoverableFailure
+      forRegisterFIDAPIError:[FIRInstallationsErrorUtil APIErrorWithHTTPCode:400]];
+
+  [self expectBackoffEvent:FIRInstallationsBackoffEventUnrecoverableFailure
+      forRegisterFIDAPIError:[FIRInstallationsErrorUtil APIErrorWithHTTPCode:403]];
+
+  [self expectBackoffEvent:FIRInstallationsBackoffEventRecoverableFailure
+      forRegisterFIDAPIError:[FIRInstallationsErrorUtil APIErrorWithHTTPCode:429]];
+
+  [self expectBackoffEvent:FIRInstallationsBackoffEventRecoverableFailure
+      forRegisterFIDAPIError:[FIRInstallationsErrorUtil APIErrorWithHTTPCode:500]];
+
+  [self expectBackoffEvent:FIRInstallationsBackoffEventRecoverableFailure
+      forRegisterFIDAPIError:[FIRInstallationsErrorUtil APIErrorWithHTTPCode:503]];
+
+  // An arbitrary unknown server response.
+  [self expectBackoffEvent:FIRInstallationsBackoffEventRecoverableFailure
+      forRegisterFIDAPIError:[FIRInstallationsErrorUtil APIErrorWithHTTPCode:444]];
+
+  // A connection error.
+  [self expectBackoffEvent:kNoBackoffEvents
+      forRegisterFIDAPIError:[FIRInstallationsErrorUtil
+                                 networkErrorWithError:[NSError errorWithDomain:@"tests"
+                                                                           code:-1
+                                                                       userInfo:nil]]];
+
+  // An unknown error.
+  [self expectBackoffEvent:kNoBackoffEvents
+      forRegisterFIDAPIError:[NSError errorWithDomain:@"tests" code:-1 userInfo:nil]];
+}
+
+- (void)testGetInstallationItem_WhenNextRequestIsNotAllowed {
+  // 1. Stub store get installation.
+  [self expectInstallationsStoreGetInstallationNotFound];
+
+  // 2. Stub store save installation.
+  __block FIRInstallationsItem *createdInstallation;
+
+  OCMExpect([self.mockInstallationsStore
+                saveInstallation:[OCMArg checkWithBlock:^BOOL(FIRInstallationsItem *obj) {
+                  [self assertValidCreatedInstallation:obj];
+
+                  createdInstallation = obj;
+                  return YES;
+                }]])
+      .andReturn([FBLPromise resolvedWith:[NSNull null]]);
+
+  // 3. Expect IIDStore to be checked for existing IID.
+  [self expectStoredIIDNotFound];
+
+  // 4. Stub API register installation.
+  // 4.1. Expect backoff controller to be requested.
+  [self expectIsNextRequestAllowedWithResult:NO];
+  // 4.2. Don't expect for `registerInstallation` to be called.
+  OCMReject([self.mockAPIService registerInstallation:[OCMArg any]]);
+
+  // 4.3. Don't expect backoff updates.
+  [self rejectBackoffEvent];
+
+  // 5. Call get installation and check.
+  FBLPromise<FIRInstallationsItem *> *getInstallationPromise =
+      [self.controller getInstallationItem];
+
+  // 5.1. Wait for the stored item to be read and saved.
+  OCMVerifyAllWithDelay(self.mockInstallationsStore, 0.5);
+
+  // 5.2. Wait for `registerInstallation` to be called.
+  OCMVerifyAllWithDelay(self.mockAPIService, 0.5);
+
+  // 5.3. Don't Expect for the registered installation to be saved.
+  OCMReject([self.mockInstallationsStore saveInstallation:[OCMArg any]]);
+
+  // 5.4. Wait for the task to complete.
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
+
+  XCTAssertNil(getInstallationPromise.error);
+  // We expect the initially created installation to be returned - must not wait for registration to
+  // complete here.
+  XCTAssertEqual(getInstallationPromise.value, createdInstallation);
+
+  // 5.5. Verify registered installation was saved.
+  OCMVerifyAll(self.mockInstallationsStore);
+  OCMVerifyAll(self.mockIIDStore);
+  OCMVerifyAll(self.mockBackoffController);
 }
 
 #pragma mark - Get Auth Token
@@ -823,8 +906,44 @@
   XCTAssertEqualObjects(promise.value, registeredInstallation);
 }
 
-- (void)testGetAuthTokenBackoff {
+- (void)testGetAuthToken_WhenResponse401_ThenCreateNewFID {
   // TODO: Implement.
+}
+
+- (void)testGetAuthToken_WhenNextRequestIsNotAllowed {
+  // 1.1. Expect installation to be requested from the store.
+  FIRInstallationsItem *storedInstallation =
+      [FIRInstallationsItem createRegisteredInstallationItem];
+  storedInstallation.authToken.expirationDate = [NSDate dateWithTimeIntervalSinceNow:60 * 60 - 1];
+  OCMExpect([self.mockInstallationsStore installationForAppID:self.appID appName:self.appName])
+      .andReturn([FBLPromise resolvedWith:storedInstallation]);
+
+  // 1.2 Expect backoff controller to be requested.
+  [self expectIsNextRequestAllowedWithResult:NO];
+
+  // 1.3. Don't expect API request.
+  OCMReject([self.mockAPIService refreshAuthTokenForInstallation:[OCMArg any]]);
+
+  // 1.4. Don't expect new token to be stored.
+  OCMReject([self.mockInstallationsStore saveInstallation:[OCMArg any]]);
+
+  // 1.5. Don't expect backoff events.
+  [self rejectBackoffEvent];
+
+  // 2. Request auth token.
+  FBLPromise<FIRInstallationsItem *> *promise = [self.controller getAuthTokenForcingRefresh:NO];
+
+  // 3. Wait for the promise to resolve.
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
+
+  // 4. Check.
+  OCMVerifyAll(self.mockInstallationsStore);
+  OCMVerifyAll(self.mockAPIService);
+  OCMVerifyAll(self.mockBackoffController);
+
+  XCTAssertNil(promise.value);
+  XCTAssertNotNil(promise.error);
+  XCTAssertEqualObjects(promise.error, [FIRInstallationsErrorUtil backoffIntervalWaitError]);
 }
 
 #pragma mark - FID Deletion
@@ -842,7 +961,7 @@
 
   // 2.1. Don't expect backoff calls for the delete API method.
   OCMReject([self.mockBackoffController isNextRequestAllowed]);
-  OCMReject([self.mockBackoffController registerEvent:FIRInstallationsBackoffEventSuccess]);
+  [self rejectBackoffEvent];
 
   // 3.1. Expect the installation to be removed from the storage.
   OCMExpect([self.mockInstallationsStore removeInstallationForAppID:installation.appID
@@ -882,7 +1001,7 @@
 
   // 2. Don't expect backoff calls for the delete API method.
   OCMReject([self.mockBackoffController isNextRequestAllowed]);
-  OCMReject([self.mockBackoffController registerEvent:FIRInstallationsBackoffEventSuccess]);
+  [self rejectBackoffEvent];
 
   // 3. Don't expect API request to delete installation.
   OCMReject([self.mockAPIService deleteInstallation:[OCMArg any]]);
@@ -932,7 +1051,7 @@
 
   // 2.1. Don't expect backoff calls for the delete API method.
   OCMReject([self.mockBackoffController isNextRequestAllowed]);
-  OCMReject([self.mockBackoffController registerEvent:FIRInstallationsBackoffEventSuccess]);
+  [self rejectBackoffEvent];
 
   // 3.1. Don't expect the installation to be removed from the storage.
   OCMReject([self.mockInstallationsStore removeInstallationForAppID:[OCMArg any]
@@ -975,7 +1094,7 @@
 
   // 2.1. Don't expect backoff calls for the delete API method.
   OCMReject([self.mockBackoffController isNextRequestAllowed]);
-  OCMReject([self.mockBackoffController registerEvent:FIRInstallationsBackoffEventSuccess]);
+  [self rejectBackoffEvent];
 
   // 3. Expect the installation to be removed from the storage.
   OCMExpect([self.mockInstallationsStore removeInstallationForAppID:installation.appID
@@ -1091,7 +1210,7 @@
 
   // 2.1. Don't expect backoff calls for the delete API method.
   OCMReject([self.mockBackoffController isNextRequestAllowed]);
-  OCMReject([self.mockBackoffController registerEvent:FIRInstallationsBackoffEventSuccess]);
+  [self rejectBackoffEvent];
 
   // 3.1. Expect the installation to be removed from the storage.
   OCMExpect([self.mockInstallationsStore removeInstallationForAppID:installation.appID
@@ -1305,6 +1424,88 @@
 
 - (void)expectBackoffEvent:(FIRInstallationsBackoffEvent)event {
   OCMExpect([self.mockBackoffController registerEvent:event]);
+}
+
+- (void)rejectBackoffEvent {
+  OCMReject([self.mockBackoffController registerEvent:FIRInstallationsBackoffEventSuccess]);
+  OCMReject(
+      [self.mockBackoffController registerEvent:FIRInstallationsBackoffEventRecoverableFailure]);
+  OCMReject(
+      [self.mockBackoffController registerEvent:FIRInstallationsBackoffEventUnrecoverableFailure]);
+}
+
+static const NSInteger kNoBackoffEvents = -1;
+
+- (void)expectBackoffEvent:(FIRInstallationsBackoffEvent)event
+    forRegisterFIDAPIError:(NSError *)error {
+  // 1. Stub store get installation.
+  [self expectInstallationsStoreGetInstallationNotFound];
+
+  // 2. Expect IIDStore to be checked for existing IID.
+  [self expectStoredIIDNotFound];
+
+  // 3. Stub store save installation.
+  __block FIRInstallationsItem *createdInstallation;
+
+  OCMExpect([self.mockInstallationsStore
+                saveInstallation:[OCMArg checkWithBlock:^BOOL(FIRInstallationsItem *obj) {
+                  [self assertValidCreatedInstallation:obj];
+
+                  createdInstallation = obj;
+                  return YES;
+                }]])
+      .andReturn([FBLPromise resolvedWith:[NSNull null]]);
+
+  // 4. Stub API register installation.
+
+  // 4.1. Expect backoff controller to be requested.
+  [self expectIsNextRequestAllowedWithResult:YES];
+
+  // 4.2. Verify installation to be registered.
+  id registerInstallationValidation = [OCMArg checkWithBlock:^BOOL(FIRInstallationsItem *obj) {
+    [self assertValidCreatedInstallation:obj];
+    XCTAssertEqual(obj.firebaseInstallationID.length, 22);
+    return YES;
+  }];
+
+  // 4.3. Expect for `registerInstallation` to be called.
+  FBLPromise<FIRInstallationsItem *> *registerPromise = [FBLPromise pendingPromise];
+  OCMExpect([self.mockAPIService registerInstallation:registerInstallationValidation])
+      .andReturn(registerPromise);
+
+  // 4.4. Expect backoff event.
+  if (event == kNoBackoffEvents) {
+    [self rejectBackoffEvent];
+  } else {
+    [self expectBackoffEvent:event];
+  }
+
+  // 5. Call get installation and check.
+  FBLPromise<FIRInstallationsItem *> *getInstallationPromise =
+      [self.controller getInstallationItem];
+
+  // 5.1. Wait for the stored item to be read and saved.
+  OCMVerifyAllWithDelay(self.mockInstallationsStore, 0.5);
+
+  // 5.2. Wait for `registerInstallation` to be called.
+  OCMVerifyAllWithDelay(self.mockAPIService, 0.5);
+
+  // 5.3. Resolve `registerPromise` to simulate finished registration.
+  [registerPromise reject:error];
+
+  // 5.4. Wait for the task to complete.
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
+
+  // Get installation returns a value no matter what.
+  XCTAssertNil(getInstallationPromise.error);
+  // We expect the initially created installation to be returned - must not wait for registration to
+  // complete here.
+  XCTAssertEqual(getInstallationPromise.value, createdInstallation);
+
+  // 5.5. Verify registered installation was saved.
+  OCMVerifyAll(self.mockInstallationsStore);
+  OCMVerifyAll(self.mockIIDStore);
+  OCMVerifyAll(self.mockBackoffController);
 }
 
 @end
