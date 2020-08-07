@@ -43,7 +43,6 @@ typedef NS_ENUM(NSUInteger, FIRMessagingErrorCode) {
   kFIRMessagingErrorCodeAlreadyConnected = 2001,
 
   // PubSub errors
-  kFIRMessagingErrorCodePubSubClientNotSetup = 3004,
   kFIRMessagingErrorCodePubSubOperationIsCancelled = 3005,
 };
 

@@ -72,7 +72,7 @@ NS_ASSUME_NONNULL_END
 
 - (instancetype)initWithAPIKey:(NSString *)APIKey projectID:(NSString *)projectID {
   NSURLSession *URLSession = [NSURLSession
-      sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]];
+      sessionWithConfiguration:[NSURLSessionConfiguration ephemeralSessionConfiguration]];
   return [self initWithURLSession:URLSession APIKey:APIKey projectID:projectID];
 }
 
