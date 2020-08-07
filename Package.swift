@@ -120,7 +120,11 @@ let package = Package(
     ),
     .target(
       name: "FirebaseCore",
-      dependencies: ["GoogleUtilities_Environment", "GoogleUtilities_Logger"],
+      dependencies: [
+        "FirebaseCoreDiagnostics",
+        "GoogleUtilities_Environment",
+        "GoogleUtilities_Logger"
+      ],
       path: "FirebaseCore/Sources",
       publicHeadersPath: "Public",
       cSettings: [
@@ -137,6 +141,23 @@ let package = Package(
       exclude: ["Resources/GoogleService-Info.plist"],
       cSettings: [
         .headerSearchPath("../../.."),
+      ]
+    ),
+    .target(
+      name: "FirebaseCoreDiagnostics",
+      dependencies: [
+        "GoogleDataTransport",
+        "GoogleUtilities_Environment",
+        "GoogleUtilities_Logger",
+        .product(name: "nanopb", package: "nanopb"),
+      ],
+      path: "Firebase/CoreDiagnostics/FIRCDLibrary",
+      publicHeadersPath: ".",
+      cSettings: [
+        .headerSearchPath("../../.."),
+        .define("PB_FIELD_32BIT", to: "1"),
+        .define("PB_NO_PACKED_STRUCTS", to: "1"),
+        .define("PB_ENABLE_MALLOC", to: "1"),
       ]
     ),
     .target(
