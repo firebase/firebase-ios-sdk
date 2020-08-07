@@ -495,8 +495,8 @@ static NSString *const kKeychainService = @"com.firebase.FIRInstallations.instal
     }
   }
 
-  // If the error class is not `FIRInstallationsHTTPError` class it indicates a connection error.
-  // Such errors should not change backoff interval.
+  // If the error class is not `FIRInstallationsHTTPError` it indicates a connection error. Such
+  // errors should not change backoff interval.
 }
 
 #pragma mark - Notifications
