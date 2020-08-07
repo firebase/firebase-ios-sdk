@@ -151,7 +151,7 @@ func push_podspec(_ pod: String, from sdk_repo: String, sources: [String],
   return exit_code
 }
 
-func erase_remote_branch(){
+func erase_remote_branch() {
   shell("git clone --quiet https://${BOT_TOKEN}@github.com/firebase/SpecsStaging.git")
   shell("cd SpecsStaging; git rm -r *; git commit -m 'Empty repo'; git push")
   do {
