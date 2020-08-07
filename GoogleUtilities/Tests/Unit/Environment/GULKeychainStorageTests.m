@@ -23,13 +23,13 @@
 #import "GoogleUtilities/Environment/Private/GULKeychainStorage.h"
 
 @interface GULKeychainStorage (Tests)
-- (instancetype)initWithService:(NSString *)service cache:(NSCache *)cache;
+- (instancetype)initWithService:(NSString *)service cache:(NSMutableDictionary *)cache;
 - (void)resetInMemoryCache;
 @end
 
 @interface GULKeychainStorageTests : XCTestCase
 @property(nonatomic, strong) GULKeychainStorage *storage;
-@property(nonatomic, strong) NSCache *cache;
+@property(nonatomic, strong) NSMutableDictionary *cache;
 @property(nonatomic, strong) id mockCache;
 
 #if TARGET_OS_OSX
@@ -41,7 +41,7 @@
 @implementation GULKeychainStorageTests
 
 - (void)setUp {
-  self.cache = [[NSCache alloc] init];
+  self.cache = [[NSMutableDictionary alloc] init];
   self.mockCache = OCMPartialMock(self.cache);
   self.storage = [[GULKeychainStorage alloc] initWithService:@"com.tests.GULKeychainStorageTests"
                                                        cache:self.mockCache];
