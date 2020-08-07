@@ -13,6 +13,7 @@ jobs:
     # if: github.repository != 'FirebasePrivate/firebase-ios-sdk' || github.event_name == 'pull_request'
     env:
       bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+      local_repo: specsstaging
     runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v2
@@ -26,15 +27,18 @@ jobs:
         fi
         git config --global user.name "google-oss-bot"
         botaccess=`cat bot-access.txt`
-        local_repo="specsstaging"
         git clone -b release-6.30.0 https://github.com/firebase/firebase-ios-sdk.git
         pod repo add --silent "${local_repo}" https://"$botaccess"@github.com/firebase/SpecsStaging.git
         BOT_TOKEN="${botaccess}" SPEC_REPO="specsstaging" scripts/add_podspecs.swift firebase-ios-sdk/
         cp  -av "${HOME}/.cocoapods/repos" "${GITHUB_WORKSPACE}/podspec_repo"
-        pod repo remove "${local_repo}"
-        rm -rf bot-access.txt
     - uses: actions/upload-artifact@v1
       if: ${{ always() }}
       with:
         name: Podspec_repo
         path: podspec_repo
+    - name: Clean Artifacts
+      if: ${{ always() }}
+      run: |
+        pod repo remove "${local_repo}"
+        pod repo remove "${GITHUB_WORKSPACE}/podspec_repo"
+        rm -rf bot-access.txt
