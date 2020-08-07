@@ -136,7 +136,7 @@ func shell(_ command: String) -> Int32 {
 
 let arg_cnts: Int = Int(CommandLine.argc)
 let cur_dir = FileManager().currentDirectoryPath
-var sdk_repo = cur_dir 
+var sdk_repo = cur_dir
 
 if arg_cnts > 1 {
   sdk_repo = CommandLine.arguments[1]
