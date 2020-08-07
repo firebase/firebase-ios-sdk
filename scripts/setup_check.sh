@@ -35,7 +35,7 @@ fi
 
 # Setup mint which installs a versioned swiftformat.
 set -x
-brew upgrade mint || brew install mint || true
+brew install mint
 mint bootstrap --link
 
 brew install clang-format
