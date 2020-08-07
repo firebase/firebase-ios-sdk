@@ -16,7 +16,7 @@
 
 # Prepares a host for running check.sh
 
-#set -euo pipefail
+set -euo pipefail
 
 export HOMEBREW_NO_ANALYTICS=1
 export HOMEBREW_NO_AUTO_UPDATE=1
