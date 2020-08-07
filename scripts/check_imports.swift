@@ -143,8 +143,7 @@ private func checkFile(_ file: String, logger: ErrorLogger, inRepo repoURL: URL)
         // Verify that double quotes are always used for intra-module imports.
         if importFileRaw.starts(with: "Firebase") ||
           importFileRaw.starts(with: "GoogleUtilities") ||
-          importFileRaw.starts(with: "GoogleDataTransport")
-        {
+          importFileRaw.starts(with: "GoogleDataTransport") {
           logger
             .importLog("Imports internal to the repo should use double quotes not \"<\"", file,
                        lineNum)
@@ -181,16 +180,14 @@ private func main() -> Int32 {
     let enumerator = FileManager.default.enumerator(atPath: rootURL.path)
     whileLoop: while let file = enumerator?.nextObject() as? String {
       if let fType = enumerator?.fileAttributes?[FileAttributeKey.type] as? FileAttributeType,
-        fType == .typeRegular
-      {
+        fType == .typeRegular {
         if file.starts(with: ".") {
           continue
         }
         if !(file.hasSuffix(".h") ||
           file.hasSuffix(".m") ||
           file.hasSuffix(".mm") ||
-          file.hasSuffix(".c"))
-        {
+          file.hasSuffix(".c")) {
           continue
         }
         let fullTransformPath = rootURL.path + "/" + file
