@@ -1,3 +1,6 @@
+# 6.7.2
+- Use `NSMutableDictionary` for in-memory cache in `GULKeychainStorage`. (#6224)
+
 # 6.7.1
 - Fix import regression when mixing 6.7.0 with earlier Firebase versions. (#6047)
 
