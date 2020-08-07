@@ -16,7 +16,7 @@
 
 # Prepares a host for running check.sh
 
-set -euo pipefail
+#set -euo pipefail
 
 export HOMEBREW_NO_ANALYTICS=1
 export HOMEBREW_NO_AUTO_UPDATE=1
@@ -36,10 +36,11 @@ fi
 # Setup mint which installs a versioned swiftformat
 set -x
 brew upgrade mint || brew install mint || true
-brew link mint
 mint bootstrap
 
 brew install clang-format
 
 clang-format -version
-swiftformat -version
+which clang-format
+which swiftformat
+/usr/local/bin/swiftformat -version
