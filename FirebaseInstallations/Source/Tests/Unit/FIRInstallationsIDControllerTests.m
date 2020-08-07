@@ -906,10 +906,6 @@
   XCTAssertEqualObjects(promise.value, registeredInstallation);
 }
 
-- (void)testGetAuthToken_WhenResponse401_ThenCreateNewFID {
-  // TODO: Implement.
-}
-
 - (void)testGetAuthToken_WhenNextRequestIsNotAllowed {
   // 1.1. Expect installation to be requested from the store.
   FIRInstallationsItem *storedInstallation =
