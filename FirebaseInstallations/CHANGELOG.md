@@ -1,5 +1,6 @@
-# v1.5.1 -- Unreleased
+# v1.6.0 -- Unreleased
 - [changed] Use ephemeral `NSURLSession` to prevent caching of request/response. (#6226)
+- [changed] Backoff added for some error to prevent unnecessary API requests. (#6232)
 
 # v1.5.0 -- M75
 - [changed] Functionally neutral source reorganization. (#5832)
