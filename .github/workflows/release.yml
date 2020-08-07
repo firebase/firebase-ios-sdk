@@ -4,15 +4,54 @@ on:
   pull_request:
     paths:
     - '.github/workflows/release.yml'
+    - '.github/scripts/add_podspecs.swift'
   schedule:
     # Run every day at 11pm (PST) - cron uses UTC times
     - cron:  '0 7 * * *'
 
 jobs:
 
+  buildup_SpecsStaging_repo:
+    # Don't run on private repo unless it is a PR.
+    # if: github.repository != 'FirebasePrivate/firebase-ios-sdk' || github.event_name == 'pull_request'
+    env:
+      bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+      local_repo: specsstaging
+      podspec_repo_branch: release-6.30.0
+    runs-on: macOS-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Get token
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
+          bot-access.txt "$bot_token_secret"
+    - name: SpecStaging Repo clone
+      run: |
+        if [ -f "${HOME}/.cocoapods/repos" ]; then
+          find  "${HOME}/.cocoapods/repos" -type d -maxdepth 1 -exec sh -c 'pod repo remove $(basename {})' \;
+        fi
+        git config --global user.email "google-oss-bot@example.com"
+        git config --global user.name "google-oss-bot"
+        botaccess=`cat bot-access.txt`
+        git clone -b "${podspec_repo_branch}" https://github.com/firebase/firebase-ios-sdk.git
+        pod repo add --silent "${local_repo}" https://"$botaccess"@github.com/firebase/SpecsStaging.git
+        BOT_TOKEN="${botaccess}" SPEC_REPO="specsstaging" scripts/add_podspecs.swift firebase-ios-sdk/
+        cp  -av "${HOME}/.cocoapods/repos" "${GITHUB_WORKSPACE}/podspec_repo"
+    - uses: actions/upload-artifact@v1
+      if: ${{ always() }}
+      with:
+        name: Podspec_repo
+        path: podspec_repo
+    - name: Clean Artifacts
+      if: ${{ always() }}
+      run: |
+        pod repo remove "${local_repo}"
+        pod repo remove "${GITHUB_WORKSPACE}/podspec_repo"
+        rm -rf bot-access.txt
+
   quickstart_release_test:
     # Don't run on private repo unless it is a PR.
     if: github.repository != 'FirebasePrivate/firebase-ios-sdk' || github.event_name == 'pull_request'
+    needs: buildup_SpecsStaging_repo
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
