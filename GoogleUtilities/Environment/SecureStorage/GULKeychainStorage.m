@@ -30,16 +30,19 @@
 @property(nonatomic, readonly) dispatch_queue_t keychainQueue;
 @property(nonatomic, readonly) dispatch_queue_t inMemoryCacheQueue;
 @property(nonatomic, readonly) NSString *service;
-@property(nonatomic, readonly) NSMutableDictionary<NSString *, id<NSSecureCoding>> *inMemoryCache;
+@property(nonatomic, readonly) NSCache<NSString *, id<NSSecureCoding>> *inMemoryCache;
 @end
 
 @implementation GULKeychainStorage
 
 - (instancetype)initWithService:(NSString *)service {
-  return [self initWithService:service cache:[NSMutableDictionary dictionary]];
+  NSCache *cache = [[NSCache alloc] init];
+  // Cache up to 5 installations.
+  cache.countLimit = 5;
+  return [self initWithService:service cache:cache];
 }
 
-- (instancetype)initWithService:(NSString *)service cache:(NSMutableDictionary *)cache {
+- (instancetype)initWithService:(NSString *)service cache:(NSCache *)cache {
   self = [super init];
   if (self) {
     _keychainQueue =
