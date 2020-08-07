@@ -173,7 +173,7 @@ do {
       try fileManager.removeItem(at: URL(fileURLWithPath: "\(sdk_repo)/SpecsStaging"))
     }
     shell("git clone --quiet https://${BOT_TOKEN}@github.com/firebase/SpecsStaging.git")
-    shell("cd SpecsStaging; git rm -r *; git commit -m 'Empty repo'; git push")
+    shell("cd SpecsStaging; git rm -rf *; git commit -m 'Empty repo'; git push")
     try fileManager.removeItem(at: URL(fileURLWithPath: "\(sdk_repo)/SpecsStaging"))
     print("Specstaging dir is removed.")
   } catch {
@@ -185,18 +185,18 @@ do {
     if pod == "Firebase" {
       exitCode =
         shell(
-          "pod repo push --skip-import-validation --skip-tests --use-json --local-only --sources=https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org specstaging Firebase.podspec; pod repo update;"
+          "pod repo push --skip-import-validation --skip-tests --use-json --sources=https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org specstaging Firebase.podspec; pod repo update;"
         )
     } else if pod == "FirebaseFirestore" {
       exitCode =
         shell(
-          "find \(sdk_repo) -name \(pod).podspec -print -exec pod repo push ${SPEC_REPO} {} --sources=https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org/ --local-only --allow-warnings --skip-tests \\; -exec pod repo update \\;"
+          "find \(sdk_repo) -name \(pod).podspec -print -exec pod repo push ${SPEC_REPO} {} --sources=https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org/ --allow-warnings --skip-tests \\; -exec pod repo update \\;"
         )
 
     } else {
       exitCode =
         shell(
-          "find \(sdk_repo) -name \(pod).podspec -print -exec pod repo push ${SPEC_REPO} {} --sources=https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org/ --local-only --skip-tests \\; -exec pod repo update \\;"
+          "find \(sdk_repo) -name \(pod).podspec -print -exec pod repo push ${SPEC_REPO} {} --sources=https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org/ --skip-tests \\; -exec pod repo update \\;"
         )
     }
 
