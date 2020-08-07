@@ -63,12 +63,12 @@ if [[ "$system" == "Darwin" ]]; then
     echo "Found: $version"
   fi
   version="${version/*version /}"
-  # Ensure the swiftformat version is at least 0.44.17 since (as of 2020-06-26)
+  # Ensure the swiftformat version is at least 0.45.2 since (as of 2020-08-07)
   # We may need to be more strict about version checks in
   # the future if we run into different versions making incompatible format
   # changes.
   if [[ ! "$version" =~ ^0.[4-9] ]]; then
-    echo "Version $version installed. Please upgrade to at least swiftformat 0.44.17"
+    echo "Version $version installed. Please upgrade to at least swiftformat 0.45.2"
     echo "If it's installed via homebrew you can run: brew upgrade swiftformat"
     exit 1
   fi
@@ -92,6 +92,9 @@ swift_disable=(
   # it's correct to remove the unused argument labels, it makes our examples
   # look wrong.
   unusedArguments
+
+  # We prefer trailing braces.
+  wrapMultilineStatementBraces
 )
 
 swift_options=(
