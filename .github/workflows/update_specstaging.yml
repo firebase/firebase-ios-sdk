@@ -16,6 +16,8 @@ jobs:
     runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v2
+      with:
+        ref: release-6.30.0
     - name: Get token
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
           bot-access.txt "$bot_token_secret"
