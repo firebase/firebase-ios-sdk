@@ -87,6 +87,9 @@ jobs:
       matrix:
         os: [macos-latest, ubuntu-latest]
 
+    env:
+      MINT_PATH: ${{ github.workspace }}/mint
+
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v2
@@ -98,6 +101,13 @@ jobs:
         key: firestore-ccache-${{ runner.os }}-${{ github.sha }}
         restore-keys: |
           firestore-ccache-${{ runner.os }}-
+
+    - name: Cache Mint packages
+      uses: actions/cache@v1
+      with:
+        path: ${{ env.MINT_PATH }}
+        key: ${{ runner.os }}-mint-${{ hashFiles('**/Mintfile') }}
+        restore-keys: ${{ runner.os }}-mint-
 
     - name: Setup build
       run:  scripts/install_prereqs.sh Firestore ${{ runner.os }} cmake

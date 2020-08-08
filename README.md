@@ -145,7 +145,8 @@ Travis will verify that any code changes are done in a style compliant way. Inst
 
 ```
 brew install clang-format
-brew install swiftformat
+brew install mint
+mint install swiftformat@0.45.3
 ```
 
 ### Running Unit Tests
