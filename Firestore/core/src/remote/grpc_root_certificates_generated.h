@@ -1,4 +1,4 @@
-// Copyright 2019 Google Inc. All Rights Reserved.
+// Copyright 2019 The Firebase Apple SDK Authors. All Rights Reserved.
 
 #ifndef FIRESTORE_CORE_SRC_REMOTE_GRPC_ROOT_CERTIFICATES_GENERATED_H_
 #define FIRESTORE_CORE_SRC_REMOTE_GRPC_ROOT_CERTIFICATES_GENERATED_H_

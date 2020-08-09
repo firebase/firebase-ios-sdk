@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google
+ * Copyright 2019 The Firebase Apple SDK Authors
  *
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at

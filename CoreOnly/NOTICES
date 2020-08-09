@@ -1880,7 +1880,7 @@ Edge TPU
       same "printed page" as the copyright notice for easier
       identification within third-party archives.
 
-   Copyright 2018 Google LLC
+   Copyright 2018 The Firebase Apple SDK Authors
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -4280,7 +4280,7 @@ FlatBuffers
       same "printed page" as the copyright notice for easier
       identification within third-party archives.
 
-   Copyright 2014 Google Inc.
+   Copyright 2014 The Firebase Apple SDK Authors.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -4800,7 +4800,7 @@ SOFTWARE.
 
 -----
 
-apps/bgu is Copyright 2016 Google Inc. and is Licensed under the Apache License,
+apps/bgu is Copyright 2016 The Firebase Apple SDK Authors. and is Licensed under the Apache License,
 Version 2.0 (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 
@@ -12096,7 +12096,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 -------------------------------------------------------------------------------
 
 
-Copyright 2008 Google Inc.  All rights reserved.
+Copyright 2008 The Firebase Apple SDK Authors.  All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are

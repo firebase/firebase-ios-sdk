@@ -1,4 +1,4 @@
-# Copyright 2018 Google
+# Copyright 2018 The Firebase Apple SDK Authors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,20 +18,16 @@ options=(
   -E  # Use extended regexps
   -I  # Exclude binary files
   -L  # Show files that don't have a match
-  'Copyright [0-9]{4}.*Google LLC'
+  'Copyright [0-9]{4}.*The Firebase Apple SDK Authors'
 )
 
-list=$(git grep "${options[@]}" -- \
+git grep "${options[@]}" -- \
     '*.'{c,cc,cmake,h,js,m,mm,py,rb,sh,swift} \
     CMakeLists.txt '**/CMakeLists.txt' \
     ':(exclude)**/third_party/**' \
-    ':(exclude)FirebaseAnalyticsWrapper/**')
+    ':(exclude)FirebaseAnalyticsWrapper/**'
 
-# Allow copyrights before 2020 without LLC.
-result=$(grep -L 'Copyright 20[0-1][0-9].*Google' $list)
-
-if [[ $result ]]; then
-    echo "$result"
-    echo "ERROR: Missing copyright notices in the files above. Please fix."
-    exit 1
+if [[ $? == 0 ]]; then
+  echo "ERROR: Missing copyright notices in the files above. Please fix."
+  exit 1
 fi
