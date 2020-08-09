@@ -1,4 +1,4 @@
-// Copyright 2019 The Firebase Apple SDK Authors. All Rights Reserved.
+// Copyright 2019 The Firebase SDK Authors. All Rights Reserved.
 
 #include "Firestore/core/src/remote/grpc_root_certificates_generated.h"
 

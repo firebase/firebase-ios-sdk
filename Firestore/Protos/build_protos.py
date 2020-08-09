@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-# Copyright 2018 The Firebase Apple SDK Authors
+# Copyright 2018 The Firebase SDK Authors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ CPP_GENERATOR = 'nanopb_cpp_generator.py'
 
 COPYRIGHT_NOTICE = '''
 /*
- * Copyright 2018 The Firebase Apple SDK Authors
+ * Copyright 2018 The Firebase SDK Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.

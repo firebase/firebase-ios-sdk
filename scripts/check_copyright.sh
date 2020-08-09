@@ -1,4 +1,4 @@
-# Copyright 2018 The Firebase Apple SDK Authors
+# Copyright 2018 The Firebase SDK Authors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ options=(
   -E  # Use extended regexps
   -I  # Exclude binary files
   -L  # Show files that don't have a match
-  'Copyright [0-9]{4}.*The Firebase Apple SDK Authors'
+  'Copyright [0-9]{4}.*The Firebase SDK Authors'
 )
 
 git grep "${options[@]}" -- \

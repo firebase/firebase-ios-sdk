@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 
-# Copyright 2018 The Firebase Apple SDK Authors
+# Copyright 2018 The Firebase SDK Authors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -88,7 +88,7 @@ def header(header_guard, namespaces, array_name, array_size_name, fileid):
 
   data = []
   data.extend([
-      "// Copyright 2019 The Firebase Apple SDK Authors. All Rights Reserved.",
+      "// Copyright 2019 The Firebase SDK Authors. All Rights Reserved.",
       "",
       "#ifndef %s" % header_guard,
       "#define %s" % header_guard,
@@ -157,7 +157,7 @@ def source(namespaces, array_name, array_size_name, fileid, filename,
 
   data = []
   data.extend([
-      "// Copyright 2019 The Firebase Apple SDK Authors. All Rights Reserved.",
+      "// Copyright 2019 The Firebase SDK Authors. All Rights Reserved.",
       "",
       "#include \"%s\"" % include_name,
       "",
