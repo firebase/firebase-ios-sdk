@@ -25,87 +25,87 @@ class ConditionalConformanceTests: XCTestCase {
       let x: Int
     }
 
-    var dict = Dictionary<Model, String>()
+    var dict = [Model: String]()
     dict[Model(x: 42)] = "foo"
     XCTAssertEqual("foo", dict[Model(x: 42)])
   }
 
-#if compiler(>=5.1)
-  func testDocumentIDOfString() {
-    struct Model: Codable, Equatable, Hashable {
-      @DocumentID var x: String?
+  #if compiler(>=5.1)
+    func testDocumentIDOfString() {
+      struct Model: Codable, Equatable, Hashable {
+        @DocumentID var x: String?
+      }
+
+      XCTAssertTrue(Model(x: "42") == Model(x: "42"))
+      XCTAssertFalse(Model(x: "42") == Model(x: "1"))
+
+      let dict: [Model: String] = [Model(x: "42"): "foo"]
+      XCTAssertEqual("foo", dict[Model(x: "42")])
     }
 
-    XCTAssertTrue(Model(x: "42") == Model(x: "42"))
-    XCTAssertFalse(Model(x: "42") == Model(x: "1"))
+    func testDocumentIDOfDocumentReference() {
+      // This works because `FIRDocumentReference` implements a `hash` selector
+      // and that's automatically bridged to conform to Swift `Hashable`.
+      struct Model: Codable, Equatable, Hashable {
+        @DocumentID var x: DocumentReference?
+      }
 
-    let dict: [Model: String] = [Model(x: "42"): "foo"]
-    XCTAssertEqual("foo", dict[Model(x: "42")])
-  }
+      let doc1 = FSTTestDocRef("abc/xyz")
+      let doc2 = FSTTestDocRef("abc/xyz")
+      let doc3 = FSTTestDocRef("abc/def")
 
-  func testDocumentIDOfDocumentReference() {
-    // This works because `FIRDocumentReference` implements a `hash` selector
-    // and that's automatically bridged to conform to Swift `Hashable`.
-    struct Model: Codable, Equatable, Hashable {
-      @DocumentID var x: DocumentReference?
+      XCTAssertTrue(Model(x: doc1) == Model(x: doc2))
+      XCTAssertTrue(Model(x: doc1) != Model(x: doc3))
+      XCTAssertFalse(Model(x: doc1) == Model(x: doc3))
+
+      let dict: [Model: String] = [Model(x: doc1): "foo"]
+      XCTAssertEqual("foo", dict[Model(x: doc2)])
     }
 
-    let doc1 = FSTTestDocRef("abc/xyz")
-    let doc2 = FSTTestDocRef("abc/xyz")
-    let doc3 = FSTTestDocRef("abc/def")
+    func testExplicitNull() {
+      struct Model: Codable, Equatable, Hashable {
+        @ExplicitNull var x: Int?
+      }
 
-    XCTAssertTrue(Model(x: doc1) == Model(x: doc2))
-    XCTAssertTrue(Model(x: doc1) != Model(x: doc3))
-    XCTAssertFalse(Model(x: doc1) == Model(x: doc3))
+      XCTAssertTrue(Model(x: 42) == Model(x: 42))
+      XCTAssertFalse(Model(x: 42) == Model(x: 1))
 
-    let dict: [Model: String] = [Model(x: doc1): "foo"]
-    XCTAssertEqual("foo", dict[Model(x: doc2)])
-  }
-
-  func testExplicitNull() {
-    struct Model: Codable, Equatable, Hashable {
-      @ExplicitNull var x: Int?
+      let dict: [Model: String] = [Model(x: 42): "foo"]
+      XCTAssertEqual("foo", dict[Model(x: 42)])
     }
 
-    XCTAssertTrue(Model(x: 42) == Model(x: 42))
-    XCTAssertFalse(Model(x: 42) == Model(x: 1))
+    func testServerTimestampOfTimestamp() {
+      struct Model: Codable, Equatable, Hashable {
+        @ServerTimestamp var x: Timestamp?
+      }
 
-    let dict: [Model: String] = [Model(x: 42): "foo"]
-    XCTAssertEqual("foo", dict[Model(x: 42)])
-  }
+      let ts1 = Timestamp(seconds: 123, nanoseconds: 456)
+      let ts2 = ts1.copy() as! Timestamp
+      let ts3 = Timestamp(seconds: 789, nanoseconds: 0)
 
-  func testServerTimestampOfTimestamp() {
-    struct Model: Codable, Equatable, Hashable {
-      @ServerTimestamp var x: Timestamp?
+      XCTAssertTrue(Model(x: ts1) == Model(x: ts2))
+      XCTAssertTrue(Model(x: ts1) != Model(x: ts3))
+      XCTAssertFalse(Model(x: ts1) == Model(x: ts3))
+
+      let dict: [Model: String] = [Model(x: ts1): "foo"]
+      XCTAssertEqual("foo", dict[Model(x: ts2)])
     }
 
-    let ts1 = Timestamp(seconds: 123, nanoseconds: 456)
-    let ts2 = ts1.copy() as! Timestamp
-    let ts3 = Timestamp(seconds: 789, nanoseconds: 0)
+    func testServerTimestampOfDate() {
+      struct Model: Codable, Equatable, Hashable {
+        @ServerTimestamp var x: Date?
+      }
 
-    XCTAssertTrue(Model(x: ts1) == Model(x: ts2))
-    XCTAssertTrue(Model(x: ts1) != Model(x: ts3))
-    XCTAssertFalse(Model(x: ts1) == Model(x: ts3))
+      let ts1 = Date(timeIntervalSince1970: 42.0)
+      let ts2 = Date(timeIntervalSince1970: 42.0)
+      let ts3 = Date(timeIntervalSince1970: 100.0)
 
-    let dict: [Model: String] = [Model(x: ts1): "foo"]
-    XCTAssertEqual("foo", dict[Model(x: ts2)])
-  }
+      XCTAssertTrue(Model(x: ts1) == Model(x: ts2))
+      XCTAssertTrue(Model(x: ts1) != Model(x: ts3))
+      XCTAssertFalse(Model(x: ts1) == Model(x: ts3))
 
-  func testServerTimestampOfDate() {
-    struct Model: Codable, Equatable, Hashable {
-      @ServerTimestamp var x: Date?
+      let dict: [Model: String] = [Model(x: ts1): "foo"]
+      XCTAssertEqual("foo", dict[Model(x: ts2)])
     }
-
-    let ts1 = Date(timeIntervalSince1970: 42.0)
-    let ts2 = Date(timeIntervalSince1970: 42.0)
-    let ts3 = Date(timeIntervalSince1970: 100.0)
-
-    XCTAssertTrue(Model(x: ts1) == Model(x: ts2))
-    XCTAssertTrue(Model(x: ts1) != Model(x: ts3))
-    XCTAssertFalse(Model(x: ts1) == Model(x: ts3))
-
-    let dict: [Model: String] = [Model(x: ts1): "foo"]
-    XCTAssertEqual("foo", dict[Model(x: ts2)])
-  }
-#endif // compiler(>=5.1)
+  #endif // compiler(>=5.1)
 }

@@ -50,7 +50,7 @@ class CodableGeoPointTests: XCTestCase {
   func testGeoPointIsHashable() {
     let geoPoint = GeoPoint(latitude: 37.77493, longitude: -122.41942)
     let geoPoint2 = GeoPoint(latitude: 37.77493, longitude: -122.41942)
-    let dictionary: Dictionary<GeoPoint, String> = [geoPoint: "foo"]
+    let dictionary: [GeoPoint: String] = [geoPoint: "foo"]
     XCTAssertEqual("foo", dictionary[geoPoint2])
   }
 }
