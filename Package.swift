@@ -98,8 +98,9 @@ let package = Package(
     ),
     .package(
       name: "nanopb",
-      url: "https://github.com/paulb777/nanopb.git",
-      .branch("spm2")
+      url: "https://github.com/nanopb/nanopb.git",
+      // This revision adds SPM enablement to the 0.3.9.6 release tag.
+      .revision("3cfa212")
     ),
     .package(
       name: "abseil",
