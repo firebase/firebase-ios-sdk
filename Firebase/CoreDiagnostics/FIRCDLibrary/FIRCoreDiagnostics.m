@@ -30,7 +30,7 @@
 #import <nanopb/pb_decode.h>
 #import <nanopb/pb_encode.h>
 
-#import "FIRCDLibrary/Protogen/nanopb/firebasecore.nanopb.h"
+#import "Firebase/CoreDiagnostics/FIRCDLibrary/Protogen/nanopb/firebasecore.nanopb.h"
 
 /** The logger service string to use when printing to the console. */
 static GULLoggerService kFIRCoreDiagnostics = @"[FirebaseCoreDiagnostics/FIRCoreDiagnostics]";
@@ -41,7 +41,9 @@ static BOOL kUsingZipFile = YES;
 static BOOL kUsingZipFile = NO;
 #endif  // FIREBASE_BUILD_ZIP_FILE
 
-#ifdef FIREBASE_BUILD_CARTHAGE
+#if SWIFT_PACKAGE
+#define kDeploymentType logs_proto_mobilesdk_ios_ICoreConfiguration_DeploymentType_SPM
+#elif FIREBASE_BUILD_CARTHAGE
 #define kDeploymentType logs_proto_mobilesdk_ios_ICoreConfiguration_DeploymentType_CARTHAGE
 #elif FIREBASE_BUILD_ZIP_FILE
 #define kDeploymentType logs_proto_mobilesdk_ios_ICoreConfiguration_DeploymentType_ZIP_FILE

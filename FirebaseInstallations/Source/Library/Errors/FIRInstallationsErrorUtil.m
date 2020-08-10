@@ -18,6 +18,12 @@
 
 #import "FirebaseInstallations/Source/Library/Errors/FIRInstallationsHTTPError.h"
 
+#if __has_include(<FBLPromises/FBLPromises.h>)
+#import <FBLPromises/FBLPromises.h>
+#else
+#import "FBLPromises.h"
+#endif
+
 NSString *const kFirebaseInstallationsErrorDomain = @"com.firebase.installations";
 
 void FIRInstallationsItemSetErrorToPointer(NSError *error, NSError **pointer) {
@@ -101,6 +107,12 @@ void FIRInstallationsItemSetErrorToPointer(NSError *error, NSError **pointer) {
                           underlyingError:error];
 }
 
++ (NSError *)backoffIntervalWaitError {
+  return [self installationsErrorWithCode:FIRInstallationsErrorCodeServerUnreachable
+                            failureReason:@"Too many server requests."
+                          underlyingError:nil];
+}
+
 + (NSError *)publicDomainErrorWithError:(NSError *)error {
   if ([error.domain isEqualToString:kFirebaseInstallationsErrorDomain]) {
     return error;
@@ -119,6 +131,12 @@ void FIRInstallationsItemSetErrorToPointer(NSError *error, NSError **pointer) {
   userInfo[NSLocalizedFailureReasonErrorKey] = failureReason;
 
   return [NSError errorWithDomain:kFirebaseInstallationsErrorDomain code:code userInfo:userInfo];
+}
+
++ (FBLPromise *)rejectedPromiseWithError:(NSError *)error {
+  FBLPromise *rejectedPromise = [FBLPromise pendingPromise];
+  [rejectedPromise reject:error];
+  return rejectedPromise;
 }
 
 @end
