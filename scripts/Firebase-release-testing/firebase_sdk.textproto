@@ -5,5 +5,4 @@ sdk {
 sdk {
   sdk_name: "FirebaseAnalytics"
   sdk_version: "6.7.0"
-  
 }
