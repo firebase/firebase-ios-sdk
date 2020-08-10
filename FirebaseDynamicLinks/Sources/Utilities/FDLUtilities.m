@@ -14,8 +14,12 @@
  * limitations under the License.
  */
 
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
+
 #import "FirebaseDynamicLinks/Sources/Utilities/FDLUtilities.h"
 
+#import <UIKit/UIDevice.h>
 #include <sys/sysctl.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -138,6 +142,11 @@ NSURL *FIRDLDeepLinkURLWithInviteID(NSString *_Nullable inviteID,
   NSString *urlString = [NSString stringWithFormat:@"%@://google/link/%@", scheme, queryString];
 
   return [NSURL URLWithString:urlString];
+}
+
+BOOL FIRDLOSVersionSupported(NSString *_Nullable systemVersion, NSString *minSupportedVersion) {
+  systemVersion = systemVersion ?: [UIDevice currentDevice].systemVersion;
+  return [systemVersion compare:minSupportedVersion options:NSNumericSearch] != NSOrderedAscending;
 }
 
 NSDate *_Nullable FIRDLAppInstallationDate() {
@@ -289,3 +298,5 @@ void FIRDLAddToAllowListForCustomDomainsArray(NSArray *_Nonnull customDomains) {
 }
 
 NS_ASSUME_NONNULL_END
+
+#endif
