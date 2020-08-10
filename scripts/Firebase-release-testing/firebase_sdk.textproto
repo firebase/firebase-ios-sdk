@@ -1,0 +1,9 @@
+sdk {
+  sdk_name: "Firebase"
+  sdk_version: "6.30.0"
+}
+sdk {
+  sdk_name: "FirebaseAnalytics"
+  sdk_version: "6.7.0"
+  
+}
