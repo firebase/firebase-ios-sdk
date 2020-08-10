@@ -25,7 +25,7 @@
 #import "FIRInstanceIDTokenInfo.h"
 #import "FIRInstanceIDTokenStore.h"
 
-#import "FIRInstallationsIIDTokenStore.h"
+#import "FirebaseInstallations/Source/Library/IIDMigration/FIRInstallationsIIDTokenStore.h"
 
 static NSString *const kFakeCheckinPlistName = @"com.google.test.IIDStoreTestCheckin";
 static NSString *const kSubDirectoryName = @"FIRInstallationsIIDCheckinStoreTests";

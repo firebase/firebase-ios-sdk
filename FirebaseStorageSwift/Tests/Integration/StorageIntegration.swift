@@ -256,6 +256,18 @@ class StorageIntegration: XCTestCase {
     waitForExpectations()
   }
 
+  func testAttemptToUploadDirectoryShouldFail() throws {
+    // This `.numbers` file is actually a directory.
+    let fileName = "HomeImprovement.numbers"
+    let bundle = Bundle(for: StorageIntegration.self)
+    let fileURL = try XCTUnwrap(bundle.url(forResource: fileName, withExtension: ""),
+                                "Failed to get filePath")
+    let ref = storage.reference(withPath: "ios/public/" + fileName)
+    ref.putFile(from: fileURL) { result in
+      self.assertResultFailure(result)
+    }
+  }
+
   func testPutFileWithSpecialCharacters() throws {
     let expectation = self.expectation(description: #function)
 
@@ -329,6 +341,33 @@ class StorageIntegration: XCTestCase {
         self.assertResultSuccess(result)
         expectation.fulfill()
       }
+    }
+    waitForExpectations()
+  }
+
+  func testSimpleGetDataWithCustomCallbackQueue() {
+    let expectation = self.expectation(description: #function)
+
+    let callbackQueueLabel = "customCallbackQueue"
+    let callbackQueueKey = DispatchSpecificKey<String>()
+    let callbackQueue = DispatchQueue(label: callbackQueueLabel)
+    callbackQueue.setSpecific(key: callbackQueueKey, value: callbackQueueLabel)
+    storage.callbackQueue = callbackQueue
+
+    let ref = storage.reference(withPath: "ios/public/1mb")
+    ref.getData(maxSize: 1024 * 1024) { result in
+      self.assertResultSuccess(result)
+
+      XCTAssertFalse(Thread.isMainThread)
+
+      let currentQueueLabel = DispatchQueue.getSpecific(key: callbackQueueKey)
+      XCTAssertEqual(currentQueueLabel, callbackQueueLabel)
+
+      expectation.fulfill()
+
+      // Reset the callbackQueue to default (main queue).
+      self.storage.callbackQueue = DispatchQueue.main
+      callbackQueue.setSpecific(key: callbackQueueKey, value: nil)
     }
     waitForExpectations()
   }
@@ -568,7 +607,7 @@ class StorageIntegration: XCTestCase {
                           if let error = error {
                             print(error)
                           }
-    })
+                        })
   }
 
   private func assertResultSuccess<T>(_ result: Result<T, Error>,
@@ -578,6 +617,16 @@ class StorageIntegration: XCTestCase {
       XCTAssertNotNil(value, file: file, line: line)
     case let .failure(error):
       XCTFail("Unexpected error \(error)")
+    }
+  }
+
+  private func assertResultFailure<T>(_ result: Result<T, Error>,
+                                      file: StaticString = #file, line: UInt = #line) {
+    switch result {
+    case let .success(value):
+      XCTFail("Unexpected success with value: \(value)")
+    case let .failure(error):
+      XCTAssertNotNil(error, file: file, line: line)
     }
   }
 }

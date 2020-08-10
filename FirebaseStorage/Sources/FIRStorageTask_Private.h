@@ -14,16 +14,21 @@
  * limitations under the License.
  */
 
-#import <FirebaseStorage/FIRStorageReference.h>
-#import <FirebaseStorage/FIRStorageTaskSnapshot.h>
+#import "FirebaseStorage/Sources/Public/FirebaseStorage/FIRStorageReference.h"
+#import "FirebaseStorage/Sources/Public/FirebaseStorage/FIRStorageTaskSnapshot.h"
+
 #import "FirebaseStorage/Sources/FIRStorageConstants_Private.h"
 #import "FirebaseStorage/Sources/FIRStorageErrors.h"
 #import "FirebaseStorage/Sources/FIRStorageReference_Private.h"
 #import "FirebaseStorage/Sources/FIRStorageTaskSnapshot_Private.h"
 #import "FirebaseStorage/Sources/FIRStorageUtils.h"
 
+#if SWIFT_PACKAGE
+@import GTMSessionFetcherCore;
+#else
 #import <GTMSessionFetcher/GTMSessionFetcher.h>
 #import <GTMSessionFetcher/GTMSessionFetcherService.h>
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
 

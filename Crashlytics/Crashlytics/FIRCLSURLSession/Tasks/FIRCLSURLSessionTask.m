@@ -12,15 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRCLSURLSessionAvailability.h"
+#import "Crashlytics/Crashlytics/FIRCLSURLSession/FIRCLSURLSessionAvailability.h"
 
 #if FIRCLSURLSESSION_REQUIRED
-#import "FIRCLSURLSession.h"
+#import "Crashlytics/Crashlytics/FIRCLSURLSession/FIRCLSURLSession.h"
 
-#import "FIRCLSURLSessionTask.h"
+#import "Crashlytics/Crashlytics/FIRCLSURLSession/Tasks/FIRCLSURLSessionTask.h"
 
-#import "FIRCLSURLSessionTask_PrivateMethods.h"
-#import "FIRCLSURLSession_PrivateMethods.h"
+#import "Crashlytics/Crashlytics/FIRCLSURLSession/FIRCLSURLSession_PrivateMethods.h"
+#import "Crashlytics/Crashlytics/FIRCLSURLSession/Tasks/FIRCLSURLSessionTask_PrivateMethods.h"
 
 @implementation FIRCLSURLSessionTask
 

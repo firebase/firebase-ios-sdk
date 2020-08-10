@@ -13,11 +13,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FUNContext.h"
+#import "Functions/FirebaseFunctions/FUNContext.h"
 
-#import <FirebaseAuthInterop/FIRAuthInterop.h>
+#import "Interop/Auth/Public/FIRAuthInterop.h"
 
-#import "FUNInstanceIDProxy.h"
+#import "Functions/FirebaseFunctions/FUNInstanceIDProxy.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

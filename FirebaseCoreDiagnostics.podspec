@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseCoreDiagnostics'
-  s.version          = '1.3.0'
+  s.version          = '1.5.0'
   s.summary          = 'Firebase Core Diagnostics'
 
   s.description      = <<-DESC
@@ -28,7 +28,7 @@ non-Cocoapod integration. This library also respects the Firebase global data co
   s.prefix_header_file = false
 
   header_search_paths = {
-    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}/Firebase/CoreDiagnostics/"'
+    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
   }
 
   s.pod_target_xcconfig = {
@@ -42,21 +42,30 @@ non-Cocoapod integration. This library also respects the Firebase global data co
       'PB_FIELD_32BIT=1 PB_NO_PACKED_STRUCTS=1 PB_ENABLE_MALLOC=1',
   }.merge(header_search_paths)
 
-  s.source_files = 'Firebase/CoreDiagnostics/FIRCDLibrary/**/*.[cmh]'
+  s.source_files = [
+    'Firebase/CoreDiagnostics/FIRCDLibrary/**/*.[cmh]',
+    'GoogleDataTransport/GDTCORLibrary/Internal/*.h',
+    'GoogleUtilities/Environment/Private/*.h',
+    'GoogleUtilities/Logger/Private/*.h',
+    'Interop/CoreDiagnostics/Public/*.h',
+  ]
+
   s.framework = 'Foundation'
 
-  s.dependency 'FirebaseCoreDiagnosticsInterop', '~> 1.2'
-  s.dependency 'GoogleDataTransportCCTSupport', '~> 3.1'
-  s.dependency 'GoogleUtilities/Environment', '~> 6.5'
-  s.dependency 'GoogleUtilities/Logger', '~> 6.5'
+  s.dependency 'GoogleDataTransport', '~> 7.2'
+  s.dependency 'GoogleUtilities/Environment', '~> 6.7'
+  s.dependency 'GoogleUtilities/Logger', '~> 6.7'
   s.dependency 'nanopb', '~> 1.30905.0'
 
   s.test_spec 'unit' do |unit_tests|
     unit_tests.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
     unit_tests.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
-    unit_tests.dependency 'GoogleUtilities/UserDefaults', '~> 6.2'
+    unit_tests.dependency 'GoogleUtilities/UserDefaults', '~> 6.7'
     unit_tests.dependency 'OCMock'
-    unit_tests.source_files = 'Example/CoreDiagnostics/Tests/**/*.[mh]'
+    unit_tests.source_files = [
+      'Example/CoreDiagnostics/Tests/**/*.[mh]',
+      'GoogleUtilities/UserDefaults/Private/*.h',
+    ]
     unit_tests.requires_app_host = false
   end
 end

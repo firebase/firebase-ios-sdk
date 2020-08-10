@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 
-#import <OCMock/OCMock.h>
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
+
 #import <XCTest/XCTest.h>
+#import "OCMock.h"
 
 #import "FirebaseAuth/Sources/SystemService/FIRAuthAppCredential.h"
 #import "FirebaseAuth/Sources/SystemService/FIRAuthAppCredentialManager.h"
@@ -285,3 +288,5 @@ static NSString *const kSecret = @"FAKE_SECRET";
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif

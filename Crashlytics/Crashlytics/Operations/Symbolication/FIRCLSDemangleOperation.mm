@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "FIRCLSDemangleOperation.h"
-#include "FIRStackFrame_Private.h"
+#include "Crashlytics/Crashlytics/Operations/Symbolication/FIRCLSDemangleOperation.h"
+#include "Crashlytics/Crashlytics/Private/FIRStackFrame_Private.h"
 
 #import <cxxabi.h>
 

@@ -16,20 +16,20 @@
 
 #import <XCTest/XCTest.h>
 
-#import <GoogleDataTransport/GDTCOREvent.h>
-#import <GoogleDataTransport/GDTCOREventDataObject.h>
-#import <GoogleDataTransport/GDTCOREventTransformer.h>
-#import <GoogleDataTransport/GDTCORTransport.h>
+#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCOREvent.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCOREventDataObject.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCOREventTransformer.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORTransport.h"
 
-#import "GDTCORTests/Common/Categories/GDTCORUploadCoordinator+Testing.h"
+#import "GoogleDataTransport/GDTCORTests/Common/Categories/GDTCORFlatFileStorage+Testing.h"
+#import "GoogleDataTransport/GDTCORTests/Common/Categories/GDTCORUploadCoordinator+Testing.h"
 
-#import "GDTCORTests/Integration/Helpers/GDTCORIntegrationTestPrioritizer.h"
-#import "GDTCORTests/Integration/Helpers/GDTCORIntegrationTestUploader.h"
-#import "GDTCORTests/Integration/TestServer/GDTCORTestServer.h"
+#import "GoogleDataTransport/GDTCORTests/Integration/Helpers/GDTCORIntegrationTestUploader.h"
+#import "GoogleDataTransport/GDTCORTests/Integration/TestServer/GDTCORTestServer.h"
 
-#import "GDTCORLibrary/Private/GDTCORFlatFileStorage.h"
-#import "GDTCORLibrary/Private/GDTCORReachability_Private.h"
-#import "GDTCORLibrary/Private/GDTCORTransformer_Private.h"
+#import "GoogleDataTransport/GDTCORLibrary/Private/GDTCORFlatFileStorage.h"
+#import "GoogleDataTransport/GDTCORLibrary/Private/GDTCORReachability_Private.h"
+#import "GoogleDataTransport/GDTCORLibrary/Private/GDTCORTransformer_Private.h"
 
 /** A test-only event data object used in this integration test. */
 @interface GDTCORIntegrationTestEvent : NSObject <GDTCOREventDataObject>
@@ -64,9 +64,6 @@
 
 @interface GDTCORIntegrationTest : XCTestCase
 
-/** A test prioritizer. */
-@property(nonatomic) GDTCORIntegrationTestPrioritizer *prioritizer;
-
 /** A test uploader. */
 @property(nonatomic) GDTCORIntegrationTestUploader *uploader;
 
@@ -81,9 +78,7 @@
 @implementation GDTCORIntegrationTest
 
 - (void)tearDown {
-  dispatch_sync([GDTCORFlatFileStorage sharedInstance].storageQueue, ^{
-    XCTAssertEqual([GDTCORFlatFileStorage sharedInstance].storedEvents.count, 0);
-  });
+  [[GDTCORFlatFileStorage sharedInstance] reset];
 }
 
 - (void)testEndToEndEvent {
@@ -116,17 +111,21 @@
            transformers:@[ [[GDTCORIntegrationTestTransformer alloc] init] ]
                  target:kGDTCORTargetTest];
 
-  // Create a prioritizer and uploader.
-  self.prioritizer = [[GDTCORIntegrationTestPrioritizer alloc] init];
-  self.uploader = [[GDTCORIntegrationTestUploader alloc] initWithServerURL:testServer.serverURL];
+  // Create an uploader.
+  self.uploader = [[GDTCORIntegrationTestUploader alloc] initWithServer:testServer];
 
   // Set the interval to be much shorter than the standard timer.
   [GDTCORUploadCoordinator sharedInstance].timerInterval = NSEC_PER_SEC * 0.1;
   [GDTCORUploadCoordinator sharedInstance].timerLeeway = NSEC_PER_SEC * 0.01;
 
   // Confirm no events are in disk.
-  XCTAssertEqual([GDTCORFlatFileStorage sharedInstance].storedEvents.count, 0);
-  XCTAssertEqual([GDTCORFlatFileStorage sharedInstance].targetToEventSet.count, 0);
+  XCTestExpectation *hasEventsExpectation = [self expectationWithDescription:@"hasEvents called"];
+  [[GDTCORFlatFileStorage sharedInstance] hasEventsForTarget:kGDTCORTargetTest
+                                                  onComplete:^(BOOL hasEvents) {
+                                                    XCTAssertFalse(hasEvents);
+                                                    [hasEventsExpectation fulfill];
+                                                  }];
+  [self waitForExpectations:@[ hasEventsExpectation ] timeout:10];
 
   // Generate some events data.
   [self generateEvents];
@@ -136,10 +135,13 @@
                 });
 
   // Confirm events are on disk.
-  dispatch_sync([GDTCORFlatFileStorage sharedInstance].storageQueue, ^{
-    XCTAssertGreaterThan([GDTCORFlatFileStorage sharedInstance].storedEvents.count, 0);
-    XCTAssertGreaterThan([GDTCORFlatFileStorage sharedInstance].targetToEventSet.count, 0);
-  });
+  hasEventsExpectation = [self expectationWithDescription:@"hasEvents called"];
+  [[GDTCORFlatFileStorage sharedInstance] hasEventsForTarget:kGDTCORTargetTest
+                                                  onComplete:^(BOOL hasEvents) {
+                                                    XCTAssertTrue(hasEvents);
+                                                    [hasEventsExpectation fulfill];
+                                                  }];
+  [self waitForExpectations:@[ hasEventsExpectation ] timeout:10];
 
   // Confirm events were sent and received.
   [self waitForExpectations:@[ expectation ] timeout:10.0];

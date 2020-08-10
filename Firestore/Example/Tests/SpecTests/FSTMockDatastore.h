@@ -30,6 +30,7 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
+class ConnectivityMonitor;
 class MockWatchStream;
 class MockWriteStream;
 
@@ -37,7 +38,8 @@ class MockDatastore : public Datastore {
  public:
   MockDatastore(const core::DatabaseInfo& database_info,
                 const std::shared_ptr<util::AsyncQueue>& worker_queue,
-                std::shared_ptr<auth::CredentialsProvider> credentials);
+                std::shared_ptr<auth::CredentialsProvider> credentials,
+                ConnectivityMonitor* connectivity_monitor);
 
   std::shared_ptr<WatchStream> CreateWatchStream(WatchStreamCallback* callback) override;
   std::shared_ptr<WriteStream> CreateWriteStream(WriteStreamCallback* callback) override;

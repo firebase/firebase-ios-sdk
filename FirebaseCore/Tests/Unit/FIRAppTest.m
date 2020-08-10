@@ -15,12 +15,12 @@
 #import "FirebaseCore/Tests/Unit/FIRTestCase.h"
 #import "FirebaseCore/Tests/Unit/FIRTestComponents.h"
 
-#import <FirebaseCore/FIRAnalyticsConfiguration.h>
-#import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseCore/FIRCoreDiagnosticsConnector.h>
-#import <FirebaseCore/FIROptionsInternal.h>
+#import "FirebaseCore/Sources/FIRAnalyticsConfiguration.h"
+#import "FirebaseCore/Sources/Private/FIRAppInternal.h"
+#import "FirebaseCore/Sources/Private/FIRCoreDiagnosticsConnector.h"
+#import "FirebaseCore/Sources/Private/FIROptionsInternal.h"
 
-#import <GoogleUtilities/GULAppEnvironmentUtil.h>
+#import "GoogleUtilities/Environment/Private/GULAppEnvironmentUtil.h"
 
 NSString *const kFIRTestAppName1 = @"test_app_name_1";
 NSString *const kFIRTestAppName2 = @"test-app-name-2";
@@ -68,6 +68,10 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   _observerMock = OCMObserverMock();
   _mockCoreDiagnosticsConnector = OCMClassMock([FIRCoreDiagnosticsConnector class]);
 
+#if SWIFT_PACKAGE
+  [self mockFIROptions];
+#endif
+
   OCMStub(ClassMethod([self.mockCoreDiagnosticsConnector logCoreTelemetryWithOptions:[OCMArg any]]))
       .andDo(^(NSInvocation *invocation){
       });
@@ -88,8 +92,9 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 }
 
 - (void)testConfigure {
-  [self
-      registerLibrariesWithClasses:@ [[FIRTestClassCached class], [FIRTestClassEagerCached class]]];
+  [self registerLibrariesWithClasses:@[
+    [FIRTestClassCached class], [FIRTestClassEagerCached class]
+  ]];
 
   NSDictionary *expectedUserInfo = [self expectedUserInfoWithAppName:kFIRDefaultAppName
                                                         isDefaultApp:YES];
@@ -329,8 +334,9 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 }
 
 - (void)testDeleteApp {
-  [self
-      registerLibrariesWithClasses:@ [[FIRTestClassCached class], [FIRTestClassEagerCached class]]];
+  [self registerLibrariesWithClasses:@[
+    [FIRTestClassCached class], [FIRTestClassEagerCached class]
+  ]];
 
   NSString *name = NSStringFromSelector(_cmd);
   FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID

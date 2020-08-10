@@ -5,6 +5,7 @@ on:
     paths:
     - 'FirebaseDynamicLinks**'
     - '.github/workflows/dynamiclinks.yml'
+    - 'Interop/Analytics/Public/*.h'
     - 'Gemfile'
   schedule:
     # Run every day at 11pm (PST) - cron uses UTC times
@@ -12,6 +13,9 @@ on:
 
 jobs:
   pod_lib_lint:
+    # Don't run on private repo unless it is a PR.
+    if: github.repository != 'FirebasePrivate/firebase-ios-sdk' || github.event_name == 'pull_request'
+
     runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v2
@@ -21,8 +25,10 @@ jobs:
       run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseDynamicLinks.podspec
 
   dynamiclinks-cron-only:
+    # Don't run on private repo.
+    if: github.event_name == 'schedule' && github.repository != 'FirebasePrivate/firebase-ios-sdk'
+
     runs-on: macos-latest
-    if: github.event_name == 'schedule'
     strategy:
       matrix:
         flags: [
@@ -38,6 +44,9 @@ jobs:
       run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseDynamicLinks.podspec --platforms=ios ${{ matrix.flags }}
 
   quickstart:
+    # Don't run on private repo unless it is a PR.
+    if: github.repository != 'FirebasePrivate/firebase-ios-sdk' || github.event_name == 'pull_request'
+
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}

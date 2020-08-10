@@ -20,38 +20,32 @@
 #import "FBLPromises.h"
 #endif
 
-#import "FIRCLSApplicationIdentifierModel.h"
-#include "FIRCLSCrashedMarkerFile.h"
-#import "FIRCLSDataCollectionArbiter.h"
-#import "FIRCLSDefines.h"
-#include "FIRCLSException.h"
-#import "FIRCLSFileManager.h"
-#include "FIRCLSGlobals.h"
-#import "FIRCLSHost.h"
-#include "FIRCLSProfiling.h"
-#import "FIRCLSReport_Private.h"
-#import "FIRCLSSettings.h"
-#import "FIRCLSUserDefaults.h"
-#include "FIRCLSUserLogging.h"
-#include "FIRCLSUtility.h"
+#include "Crashlytics/Crashlytics/Components/FIRCLSCrashedMarkerFile.h"
+#include "Crashlytics/Crashlytics/Components/FIRCLSGlobals.h"
+#import "Crashlytics/Crashlytics/Components/FIRCLSHost.h"
+#include "Crashlytics/Crashlytics/Components/FIRCLSUserLogging.h"
+#import "Crashlytics/Crashlytics/DataCollection/FIRCLSDataCollectionArbiter.h"
+#import "Crashlytics/Crashlytics/FIRCLSUserDefaults/FIRCLSUserDefaults.h"
+#include "Crashlytics/Crashlytics/Handlers/FIRCLSException.h"
+#import "Crashlytics/Crashlytics/Helpers/FIRCLSDefines.h"
+#include "Crashlytics/Crashlytics/Helpers/FIRCLSProfiling.h"
+#include "Crashlytics/Crashlytics/Helpers/FIRCLSUtility.h"
+#import "Crashlytics/Crashlytics/Models/FIRCLSFileManager.h"
+#import "Crashlytics/Crashlytics/Models/FIRCLSReport_Private.h"
+#import "Crashlytics/Crashlytics/Models/FIRCLSSettings.h"
+#import "Crashlytics/Crashlytics/Settings/Models/FIRCLSApplicationIdentifierModel.h"
 
-#import "FIRCLSByteUtility.h"
-#import "FIRCLSFABHost.h"
-#import "FIRCLSLogger.h"
+#import "Crashlytics/Crashlytics/Helpers/FIRCLSLogger.h"
+#import "Crashlytics/Shared/FIRCLSByteUtility.h"
+#import "Crashlytics/Shared/FIRCLSFABHost.h"
 
-#import "FIRCLSReportManager.h"
+#import "Crashlytics/Crashlytics/Controllers/FIRCLSReportManager.h"
 
-#import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
-#import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseCore/FIRComponent.h>
-#import <FirebaseCore/FIRComponentContainer.h>
-#import <FirebaseCore/FIRDependency.h>
-#import <FirebaseCore/FIRLibrary.h>
-#import <FirebaseCore/FIROptionsInternal.h>
-#import <FirebaseInstallations/FirebaseInstallations.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
+#import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 
-#import <GoogleDataTransport/GDTCORTargets.h>
-#import <GoogleDataTransport/GDTCORTransport.h>
+#import "GoogleDataTransport/GDTCORLibrary/Internal/GoogleDataTransportInternal.h"
 
 #if TARGET_OS_IPHONE
 #import <UIKit/UIKit.h>

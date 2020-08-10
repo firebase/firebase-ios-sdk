@@ -1,3 +1,19 @@
+# v6.10.0 -- M77
+- [changed] Functionally neutral public header refactor in preparation for Swift Package
+  Manager support. Applies to FirebaseCore, FirebaseABTesting, FirebaseAuth, FirebaseCrashlytics,
+  FirebaseDatabase, FirebaseFirestore, FirebaseFuncitons, FirebaseInstallations,
+  FirebaseRemoteConfig, FirebaseStorage, and GoogleDataTransport.
+
+# v6.9.0 -- M75
+- [changed] Added thread safety to `[FIROptions defaultOptions]` method. (#5915)
+- [changed] Updated GoogleUtilities and GoogleDataTransport imports. The GoogleDataTransportCCTSupport
+  pod/framework should no longer be linked along with Firebase. (#5824)
+
+# v6.8.0 -- M73
+- [changed] Functionally neutral refactor to simplify FirebaseCore's header usage and replace
+  Interop pods with headers only. This change is the reason most of the Firebase pods have a minor
+  version update and why there may not be another specific release note.
+
 # v6.7.1 -- M71
 - [fixed] Fixed `FirebaseApp`s `bundleID` verification, allowing exact `bundleID` matches
   for extensions. (#5126)

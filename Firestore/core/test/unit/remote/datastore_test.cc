@@ -32,6 +32,7 @@
 #include "Firestore/core/src/util/status.h"
 #include "Firestore/core/src/util/statusor.h"
 #include "Firestore/core/src/util/string_apple.h"
+#include "Firestore/core/test/unit/remote/create_noop_connectivity_monitor.h"
 #include "Firestore/core/test/unit/remote/fake_credentials_provider.h"
 #include "Firestore/core/test/unit/remote/grpc_stream_tester.h"
 #include "Firestore/core/test/unit/testutil/async_testing.h"
@@ -102,9 +103,10 @@ class FakeDatastore : public Datastore {
 std::shared_ptr<FakeDatastore> CreateDatastore(
     const DatabaseInfo& database_info,
     const std::shared_ptr<AsyncQueue>& worker_queue,
-    std::shared_ptr<CredentialsProvider> credentials) {
+    std::shared_ptr<CredentialsProvider> credentials,
+    ConnectivityMonitor* connectivity_monitor) {
   return std::make_shared<FakeDatastore>(database_info, worker_queue,
-                                         credentials);
+                                         credentials, connectivity_monitor);
 }
 
 }  // namespace
@@ -114,7 +116,11 @@ class DatastoreTest : public testing::Test {
   DatastoreTest()
       : database_info{DatabaseId{"p", "d"}, "", "localhost", false},
         worker_queue{testutil::AsyncQueueForTesting()},
-        datastore{CreateDatastore(database_info, worker_queue, credentials)},
+        connectivity_monitor{CreateNoOpConnectivityMonitor()},
+        datastore{CreateDatastore(database_info,
+                                  worker_queue,
+                                  credentials,
+                                  connectivity_monitor.get())},
         fake_grpc_queue{datastore->queue()} {
     // Deliberately don't `Start` the `Datastore` to prevent normal gRPC
     // completion queue polling; the test is using `FakeGrpcQueue`.
@@ -153,9 +159,9 @@ class DatastoreTest : public testing::Test {
       std::make_shared<FakeCredentialsProvider>();
 
   std::shared_ptr<AsyncQueue> worker_queue;
+  std::unique_ptr<ConnectivityMonitor> connectivity_monitor;
   std::shared_ptr<FakeDatastore> datastore;
 
-  std::unique_ptr<ConnectivityMonitor> connectivity_monitor;
   FakeGrpcQueue fake_grpc_queue;
 };
 

@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-#import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseCore/FIRLogger.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 #import "FIRCore+InAppMessaging.h"
 #import "FIRIAMClearcutLogStorage.h"

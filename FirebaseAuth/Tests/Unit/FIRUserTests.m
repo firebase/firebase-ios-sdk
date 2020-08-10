@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 
-#import <FirebaseAuth/FIRAuthTokenResult.h>
-#import <FirebaseAuth/FIREmailAuthProvider.h>
-#import <FirebaseAuth/FIRFacebookAuthProvider.h>
-#import <FirebaseAuth/FIRGoogleAuthProvider.h>
-#import <FirebaseAuth/FIRUserInfo.h>
-#import <FirebaseAuth/FIRUserMetadata.h>
 #import <Foundation/Foundation.h>
-#import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
+#import "OCMock.h"
+
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthTokenResult.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIREmailAuthProvider.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRFacebookAuthProvider.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRGoogleAuthProvider.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRUserInfo.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRUserMetadata.h"
 
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuthOperationType.h"
@@ -50,7 +51,7 @@
 #import "FirebaseAuth/Tests/Unit/OCMStubRecorder+FIRAuthUnitTests.h"
 
 #if TARGET_OS_IOS
-#import <FirebaseAuth/FIRPhoneAuthProvider.h>
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRPhoneAuthProvider.h"
 
 #import "FirebaseAuth/Sources/AuthProvider/Phone/FIRPhoneAuthCredential_Internal.h"
 #endif

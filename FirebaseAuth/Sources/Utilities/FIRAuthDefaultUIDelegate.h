@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#include <TargetConditionals.h>
+#import <TargetConditionals.h>
 #if !TARGET_OS_OSX
 
-#import <FirebaseAuth/FIRAuthUIDelegate.h>
 #import <Foundation/Foundation.h>
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthUIDelegate.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

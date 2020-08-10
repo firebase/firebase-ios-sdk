@@ -38,6 +38,8 @@
 #include "Firestore/core/src/model/precondition.h"
 #include "Firestore/core/src/model/set_mutation.h"
 #include "Firestore/core/src/model/types.h"
+#include "Firestore/core/src/util/statusor.h"
+#include "Firestore/core/test/unit/testutil/status_testing.h"
 #include "Firestore/core/test/unit/testutil/testutil.h"
 #include "absl/strings/str_cat.h"
 #include "gtest/gtest.h"
@@ -58,6 +60,7 @@ using model::ObjectValue;
 using model::Precondition;
 using model::SetMutation;
 using model::TargetId;
+using util::StatusOr;
 
 using testutil::Key;
 using testutil::Query;
@@ -657,7 +660,9 @@ TEST_P(LruGarbageCollectorTest, RemoveTargetsThenGC) {
 TEST_P(LruGarbageCollectorTest, GetsSize) {
   NewTestResources();
 
-  int64_t initial_size = gc_->CalculateByteSize();
+  StatusOr<int64_t> maybe_initial_size = gc_->CalculateByteSize();
+  ASSERT_OK(maybe_initial_size.status());
+  int64_t initial_size = maybe_initial_size.ValueOrDie();
 
   persistence_->Run("fill cache", [&] {
     // Simulate a bunch of ack'd mutations.
@@ -667,7 +672,9 @@ TEST_P(LruGarbageCollectorTest, GetsSize) {
     }
   });
 
-  int64_t final_size = gc_->CalculateByteSize();
+  StatusOr<int64_t> maybe_final_size = gc_->CalculateByteSize();
+  ASSERT_OK(maybe_final_size.status());
+  int64_t final_size = maybe_final_size.ValueOrDie();
   ASSERT_GT(final_size, initial_size);
 }
 
@@ -700,7 +707,9 @@ TEST_P(LruGarbageCollectorTest, CacheTooSmall) {
     }
   });
 
-  int64_t cache_size = gc_->CalculateByteSize();
+  StatusOr<int64_t> maybe_cache_size = gc_->CalculateByteSize();
+  ASSERT_OK(maybe_cache_size.status());
+  int64_t cache_size = maybe_cache_size.ValueOrDie();
   // Verify that we don't have enough in our cache to warrant collection.
   ASSERT_LT(cache_size, params.min_bytes_threshold);
 

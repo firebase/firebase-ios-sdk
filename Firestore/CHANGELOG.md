@@ -1,5 +1,29 @@
 # Unreleased
 
+# v1.16.4
+- [changed] Rearranged public headers for future Swift Package Manager support.
+  This should have no impact existing users of CocoaPods, Carthage, or zip file
+  distributions.
+
+# v1.16.3
+- [changed] Internal improvements for future C++ and Unity support.
+
+# v1.16.2
+- [fixed] Fixed a configuration issue where listeners were no longer being
+  called back on the main thread by default.
+
+# v1.16.1
+- [fixed] Removed a delay that may have prevented Firestore from immediately
+  establishing a network connection if a connectivity change occurred while
+  the app was in the background (#5783).
+- [fixed] Fixed a rare crash that could happen if the garbage collection
+  process for old documents in the cache happened to run during a LevelDB
+  compaction (#5881).
+
+# v1.16.0
+- [fixed] Fixed an issue that may have prevented the client from connecting
+  to the backend immediately after a user signed in.
+
 # v1.15.0
 - [changed] Internal improvements for future C++ and Unity support. Includes a
   breaking change for the Firestore C++ Alpha SDK, but does not affect

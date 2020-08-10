@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import <FirebaseAuth/FIRUser.h>
 #import <Foundation/Foundation.h>
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRUser.h"
 
 #import "FirebaseAuth/Sources/Storage/FIRAuthKeychainServices.h"
 #import "FirebaseAuth/Sources/Storage/FIRAuthUserDefaults.h"

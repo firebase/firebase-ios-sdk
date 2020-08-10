@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,9 @@ import Firebase
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
   func application(_ application: UIApplication,
-                   didFinishLaunchingWithOptions
-                   launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+                   didFinishLaunchingWithOptions launchOptions: [
+                     UIApplication.LaunchOptionsKey: Any
+                   ]?) -> Bool {
     // Override point for customization after application launch.
     FirebaseApp.configure()
     return true

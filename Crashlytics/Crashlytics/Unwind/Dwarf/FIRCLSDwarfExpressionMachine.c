@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "FIRCLSDwarfExpressionMachine.h"
-#include "FIRCLSDataParsing.h"
-#include "FIRCLSDefines.h"
-#include "FIRCLSDwarfUnwindRegisters.h"
-#include "FIRCLSUnwind_arch.h"
-#include "FIRCLSUtility.h"
-#include "dwarf.h"
+#include "Crashlytics/Crashlytics/Unwind/Dwarf/FIRCLSDwarfExpressionMachine.h"
+#include "Crashlytics/Crashlytics/Unwind/Dwarf/FIRCLSDataParsing.h"
+#include "Crashlytics/Crashlytics/Helpers/FIRCLSDefines.h"
+#include "Crashlytics/Crashlytics/Unwind/Dwarf/FIRCLSDwarfUnwindRegisters.h"
+#include "Crashlytics/Crashlytics/Unwind/FIRCLSUnwind_arch.h"
+#include "Crashlytics/Crashlytics/Helpers/FIRCLSUtility.h"
+#include "Crashlytics/third_party/libunwind/dwarf.h"
 
 #if CLS_DWARF_UNWINDING_SUPPORTED
 

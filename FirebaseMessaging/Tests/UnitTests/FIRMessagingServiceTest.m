@@ -18,7 +18,7 @@
 #import <XCTest/XCTest.h>
 
 #import <FirebaseInstanceID/FirebaseInstanceID.h>
-#import <GoogleUtilities/GULUserDefaults.h>
+#import "GoogleUtilities/UserDefaults/Private/GULUserDefaults.h"
 
 #import <FirebaseMessaging/FIRMessaging.h>
 #import "FirebaseMessaging/Sources/FIRMessagingClient.h"
@@ -45,9 +45,15 @@ static NSString *const kFIRMessagingTestsServiceSuiteName = @"com.messaging.test
 
 @end
 
-@interface FIRMessagingPubSub ()
+@interface FIRMessagingPubSub (ExposedForTest)
 
 @property(nonatomic, readwrite, strong) FIRMessagingClient *client;
+
+- (void)updateSubscriptionWithToken:(NSString *)token
+                              topic:(NSString *)topic
+                            options:(NSDictionary *)options
+                       shouldDelete:(BOOL)shouldDelete
+                            handler:(FIRMessagingTopicOperationCompletion)handler;
 
 @end
 
@@ -78,7 +84,6 @@ static NSString *const kFIRMessagingTestsServiceSuiteName = @"com.messaging.test
   _messaging = _testUtil.messaging;
   OCMStub([_mockMessaging defaultFcmToken]).andReturn(kFakeToken);
   _mockPubSub = _testUtil.mockPubsub;
-  [_mockPubSub setClient:nil];
   _mockInstanceID = _testUtil.mockInstanceID;
   _result = [[FIRInstanceIDResult alloc] init];
   _result.token = kFakeToken;
@@ -97,14 +102,13 @@ static NSString *const kFIRMessagingTestsServiceSuiteName = @"com.messaging.test
 - (void)testSubscribe {
   id mockClient = OCMClassMock([FIRMessagingClient class]);
   [_messaging setClient:mockClient];
-  [_mockPubSub setClient:mockClient];
 
   XCTestExpectation *subscribeExpectation =
       [self expectationWithDescription:@"Should call subscribe on FIRMessagingClient"];
   NSString *token = kFakeToken;
   NSString *topic = @"/topics/some-random-topic";
 
-  [[[mockClient stub] andDo:^(NSInvocation *invocation) {
+  [[[_mockPubSub stub] andDo:^(NSInvocation *invocation) {
     [subscribeExpectation fulfill];
   }] updateSubscriptionWithToken:token
                            topic:topic
@@ -130,7 +134,6 @@ static NSString *const kFIRMessagingTestsServiceSuiteName = @"com.messaging.test
 - (void)testUnsubscribe {
   id mockClient = OCMClassMock([FIRMessagingClient class]);
   [_messaging setClient:mockClient];
-  [_mockPubSub setClient:mockClient];
 
   XCTestExpectation *subscribeExpectation =
       [self expectationWithDescription:@"Should call unsubscribe on FIRMessagingClient"];
@@ -138,7 +141,7 @@ static NSString *const kFIRMessagingTestsServiceSuiteName = @"com.messaging.test
   NSString *token = kFakeToken;
   NSString *topic = @"/topics/some-random-topic";
 
-  [[[mockClient stub] andDo:^(NSInvocation *invocation) {
+  [[[_mockPubSub stub] andDo:^(NSInvocation *invocation) {
     [subscribeExpectation fulfill];
   }] updateSubscriptionWithToken:[OCMArg isEqual:token]
                            topic:[OCMArg isEqual:topic]
@@ -163,19 +166,6 @@ static NSString *const kFIRMessagingTestsServiceSuiteName = @"com.messaging.test
                                  XCTAssertNil(error);
                                  [mockClient verify];
                                }];
-}
-
-/**
- *  Test using PubSub without explicitly starting FIRMessagingService.
- */
-- (void)testSubscribeWithoutStart {
-  [_mockPubSub subscribeWithToken:kFakeToken
-                            topic:@"/topics/hello-world"
-                          options:nil
-                          handler:^(NSError *error) {
-                            XCTAssertNotNil(error);
-                            XCTAssertEqual(kFIRMessagingErrorCodePubSubClientNotSetup, error.code);
-                          }];
 }
 
 - (void)testSubscribeWithNoTopicPrefix {

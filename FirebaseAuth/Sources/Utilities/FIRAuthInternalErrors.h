@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import <FirebaseAuth/FIRAuthErrors.h>
 #import <Foundation/Foundation.h>
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthErrors.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

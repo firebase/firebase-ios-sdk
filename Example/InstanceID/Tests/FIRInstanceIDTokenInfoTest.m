@@ -18,11 +18,10 @@
 
 #import <XCTest/XCTest.h>
 
-#import <FirebaseCore/FIROptions.h>
-#import <FirebaseCore/FIROptionsInternal.h>
 #import <OCMock/OCMock.h>
 #import "Firebase/InstanceID/FIRInstanceIDAPNSInfo.h"
 #import "Firebase/InstanceID/FIRInstanceIDUtilities.h"
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 static NSString *const kAuthorizedEntity = @"authorizedEntity";
 static NSString *const kScope = @"scope";

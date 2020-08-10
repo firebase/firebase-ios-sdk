@@ -9,5 +9,6 @@ target 'FDLBuilderTestAppObjC' do
   pod 'FirebaseInstallations', :path => '../../../'
   pod 'FirebaseInstanceID', :path => '../../../'
   pod 'FirebaseDynamicLinks', :path => '../../../'
+  pod 'GoogleUtilities', :path => '../../../'
 
 end

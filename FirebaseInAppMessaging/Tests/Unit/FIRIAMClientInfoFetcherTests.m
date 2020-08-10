@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,7 @@
 #import "FIRIAMClientInfoFetcher.h"
 #import "FIRIAMSDKRuntimeErrorCodes.h"
 
-#import <FirebaseInstallations/FIRInstallations.h>
-#import <FirebaseInstallations/FIRInstallationsAuthTokenResult.h>
+#import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
 
 @interface FIRInstallationsAuthTokenResult (Tests)
 - (instancetype)initWithToken:(NSString *)token expirationDate:(NSDate *)expirationDate;

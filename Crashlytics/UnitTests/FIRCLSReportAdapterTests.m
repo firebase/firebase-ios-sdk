@@ -1,4 +1,4 @@
-// Copyright 2020 Google
+// Copyright 2020 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,17 +15,15 @@
 #import <Foundation/Foundation.h>
 #import <XCTest/XCTest.h>
 
-#import "FIRCLSRecordApplication.h"
-#import "FIRCLSRecordHost.h"
-#import "FIRCLSRecordIdentity.h"
-#import "FIRCLSReportAdapter.h"
-#import "FIRCLSReportAdapter_Private.h"
+#import "Crashlytics/Crashlytics/Models/Record/FIRCLSRecordApplication.h"
+#import "Crashlytics/Crashlytics/Models/Record/FIRCLSRecordHost.h"
+#import "Crashlytics/Crashlytics/Models/Record/FIRCLSRecordIdentity.h"
+#import "Crashlytics/Crashlytics/Models/Record/FIRCLSReportAdapter.h"
+#import "Crashlytics/Crashlytics/Models/Record/FIRCLSReportAdapter_Private.h"
 
-#import "FIRCLSFile.h"
+#import "Crashlytics/Crashlytics/Helpers/FIRCLSFile.h"
 
-#import <GoogleDataTransport/GDTCOREvent.h>
-#import <GoogleDataTransport/GDTCORTargets.h>
-#import <GoogleDataTransport/GDTCORTransport.h>
+#import "GoogleDataTransport/GDTCORLibrary/Internal/GoogleDataTransportInternal.h"
 
 @interface FIRCLSReportAdapterTests : XCTestCase
 

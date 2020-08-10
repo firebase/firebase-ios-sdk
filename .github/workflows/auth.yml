@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
     - 'FirebaseAuth**'
+    - 'Interop/Auth/Public/*.h'
     - '.github/workflows/auth.yml'
     - 'Gemfile'
   schedule:
@@ -13,6 +14,9 @@ on:
 jobs:
 
   pod-lib-lint:
+    # Don't run on private repo unless it is a PR.
+    if: github.repository != 'FirebasePrivate/firebase-ios-sdk' || github.event_name == 'pull_request'
+
     runs-on: macOS-latest
 
     strategy:
@@ -27,6 +31,9 @@ jobs:
         scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseAuth.podspec --platforms=${{ matrix.target }}
 
   integration-tests:
+    # Don't run on private repo unless it is a PR.
+    if: github.repository != 'FirebasePrivate/firebase-ios-sdk' || github.event_name == 'pull_request'
+
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
     runs-on: macos-latest
@@ -57,6 +64,9 @@ jobs:
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/build.sh Auth iOS)
 
   catalyst:
+    # Don't run on private repo unless it is a PR.
+    if: github.repository != 'FirebasePrivate/firebase-ios-sdk' || github.event_name == 'pull_request'
+
     runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v2
@@ -67,6 +77,9 @@ jobs:
       run: scripts/test_catalyst.sh FirebaseAuth build FirebaseAuth-Unit-unit
 
   quickstart:
+    # Don't run on private repo unless it is a PR.
+    if: github.repository != 'FirebasePrivate/firebase-ios-sdk' || github.event_name == 'pull_request'
+
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -81,14 +94,14 @@ jobs:
     - name: Install Secret FIREGSignInInfo.h
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/FIREGSignInInfo.h.gpg \
           quickstart-ios/TestUtils/FIREGSignInInfo.h "$signin_secret"
-    - name: Test objc quickstart
-      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Authentication)
     - name: Test swift quickstart
-      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Authentication swift)
+      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Authentication)
 
   auth-cron-only:
+    # Don't run on private repo.
+    if: github.event_name == 'schedule' && github.repository != 'FirebasePrivate/firebase-ios-sdk'
+
     runs-on: macos-latest
-    if: github.event_name == 'schedule'
     strategy:
       matrix:
         target: [ios, tvos --skip-tests, macos --skip-tests] # The macos and tvos tests can hang

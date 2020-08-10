@@ -1,4 +1,4 @@
-// Copyright 2020 Google
+// Copyright 2020 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,16 +14,16 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FIRExceptionModel.h"
-#import "FIRStackFrame.h"
+#import "Crashlytics/Crashlytics/Public/FirebaseCrashlytics/FIRExceptionModel.h"
+#import "Crashlytics/Crashlytics/Public/FirebaseCrashlytics/FIRStackFrame.h"
 
-#import "FABMockApplicationIdentifierModel.h"
-#import "FIRCLSContext.h"
-#import "FIRCLSInstallIdentifierModel.h"
-#import "FIRCLSInternalReport.h"
-#import "FIRCLSMockFileManager.h"
-#import "FIRCLSMockSettings.h"
-#import "FIRMockInstallations.h"
+#import "Crashlytics/Crashlytics/Components/FIRCLSContext.h"
+#import "Crashlytics/Crashlytics/Models/FIRCLSInstallIdentifierModel.h"
+#import "Crashlytics/Crashlytics/Models/FIRCLSInternalReport.h"
+#import "Crashlytics/UnitTests/Mocks/FABMockApplicationIdentifierModel.h"
+#import "Crashlytics/UnitTests/Mocks/FIRCLSMockFileManager.h"
+#import "Crashlytics/UnitTests/Mocks/FIRCLSMockSettings.h"
+#import "Crashlytics/UnitTests/Mocks/FIRMockInstallations.h"
 
 #define TEST_BUNDLE_ID (@"com.crashlytics.test")
 

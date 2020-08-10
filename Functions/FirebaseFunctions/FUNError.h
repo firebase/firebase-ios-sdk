@@ -14,7 +14,7 @@
 // limitations under the License.
 
 #import <Foundation/Foundation.h>
-#import "FIRError.h"
+#import "Functions/FirebaseFunctions/Public/FirebaseFunctions/FIRError.h"
 
 @class FUNSerializer;
 

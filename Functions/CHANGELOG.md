@@ -1,4 +1,7 @@
-# Unreleased
+# v2.7.0
+- [changed] Functionally neutral source reorganization. (#5858)
+
+# v2.6.0
 - [fixed] Fix internal analyzer issue with error assignment (#4164).
 
 # v2.4.0
