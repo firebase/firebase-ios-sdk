@@ -28,8 +28,7 @@ non-Cocoapod integration. This library also respects the Firebase global data co
   s.prefix_header_file = false
 
   header_search_paths = {
-    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}" ' +
-                             '"${PODS_TARGET_SRCROOT}/Firebase/CoreDiagnostics/"'
+    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
   }
 
   s.pod_target_xcconfig = {

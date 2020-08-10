@@ -98,8 +98,9 @@ let package = Package(
     ),
     .package(
       name: "nanopb",
-      url: "https://github.com/paulb777/nanopb.git",
-      .branch("spm2")
+      url: "https://github.com/nanopb/nanopb.git",
+      // This revision adds SPM enablement to the 0.3.9.6 release tag.
+      .revision("3cfa21200eea012d8765239ad4c50d8a36c283f1")
     ),
     .package(
       name: "abseil",
@@ -120,7 +121,11 @@ let package = Package(
     ),
     .target(
       name: "FirebaseCore",
-      dependencies: ["GoogleUtilities_Environment", "GoogleUtilities_Logger"],
+      dependencies: [
+        "FirebaseCoreDiagnostics",
+        "GoogleUtilities_Environment",
+        "GoogleUtilities_Logger",
+      ],
       path: "FirebaseCore/Sources",
       publicHeadersPath: "Public",
       cSettings: [
@@ -137,6 +142,23 @@ let package = Package(
       exclude: ["Resources/GoogleService-Info.plist"],
       cSettings: [
         .headerSearchPath("../../.."),
+      ]
+    ),
+    .target(
+      name: "FirebaseCoreDiagnostics",
+      dependencies: [
+        "GoogleDataTransport",
+        "GoogleUtilities_Environment",
+        "GoogleUtilities_Logger",
+        .product(name: "nanopb", package: "nanopb"),
+      ],
+      path: "Firebase/CoreDiagnostics/FIRCDLibrary",
+      publicHeadersPath: ".",
+      cSettings: [
+        .headerSearchPath("../../.."),
+        .define("PB_FIELD_32BIT", to: "1"),
+        .define("PB_NO_PACKED_STRUCTS", to: "1"),
+        .define("PB_ENABLE_MALLOC", to: "1"),
       ]
     ),
     .target(

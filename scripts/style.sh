@@ -63,11 +63,11 @@ if [[ "$system" == "Darwin" ]]; then
     echo "Found: $version"
   fi
   version="${version/*version /}"
-  # Ensure the swiftformat version is 0.45.3 (as of 2020-08-07)
+  # Ensure the swiftformat version is 0.45.5 (as of 2020-08-09)
   # Update Mintfile and run command below to update.
-  if [[ "$version" != 0.45.3 ]]; then
-    echo "Version $version installed. Please install swiftformat 0.45.3"
-    echo "brew install mint; mint install nicklockwood/SwiftFormat@0.45.3"
+  if [[ "$version" != 0.45.5 ]]; then
+    echo "Version $version installed. Please install swiftformat 0.45.5"
+    echo "brew install mint; mint install nicklockwood/SwiftFormat@0.45.5"
     exit 1
   fi
 fi
