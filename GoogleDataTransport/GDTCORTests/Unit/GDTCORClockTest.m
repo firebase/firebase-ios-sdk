@@ -113,4 +113,10 @@
   XCTAssertLessThanOrEqual(ABS(uptimeDiff - timeDiff), accuracy);
 }
 
+- (void)testTimezoneOffsetSeconds {
+  GDTCORClock *snapshot = [GDTCORClock snapshot];
+  int64_t expectedTimeZoneOffset = [[NSTimeZone systemTimeZone] secondsFromGMT];
+  XCTAssertEqual(snapshot.timezoneOffsetSeconds, expectedTimeZoneOffset);
+}
+
 @end

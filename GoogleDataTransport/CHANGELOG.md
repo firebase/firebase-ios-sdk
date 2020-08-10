@@ -1,3 +1,6 @@
+# v7.1.1
+- Use `NSTimeZone` instead of `CFTimeZone` to get time zone offset respecting daylight. (#6246)
+
 # v7.1.0
 - Device uptime calculation fixes. (#6102)
 
