@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
+#import <TargetConditionals.h>
 #if TARGET_OS_OSX
 
-#import "FIRTestKeychain.h"
+#import "FirebaseInstallations/Source/Tests/Utils/FIRTestKeychain.h"
 
 #import <XCTest/XCTest.h>
 

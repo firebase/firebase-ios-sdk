@@ -18,9 +18,9 @@
 
 #import <sys/utsname.h>
 
-#import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import "FirebaseRemoteConfig/Sources/Private/RCNConfigSettings.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
+#import "GoogleUtilities/Environment/Private/GULAppEnvironmentUtil.h"
 
 #define STR(x) STR_EXPAND(x)
 #define STR_EXPAND(x) #x
@@ -102,7 +102,7 @@ NSDictionary<NSString *, NSArray *> *FIRRemoteConfigFirebaseLocaleMap() {
     // Malay
     @"ms" : @[ @"ms_MY" ],
     // Maltese
-    @"ms" : @[ @"mt_MT" ],
+    @"mt" : @[ @"mt_MT" ],
     // Polish
     @"pl" : @[ @"pl", @"pl_PL", @"pl-PL" ],
     // Romanian
@@ -202,10 +202,6 @@ NSString *FIRRemoteConfigTimezone() {
   return timezone.name;
 }
 
-int FIRRemoteConfigSDKVersion() {
-  return kRCNMajorVersion * 10000 + kRCNMinorVersion * 100 + kRCNPatchVersion;
-}
-
 NSMutableDictionary *FIRRemoteConfigDeviceContextWithProjectIdentifier(
     NSString *GMPProjectIdentifier) {
   NSMutableDictionary *deviceContext = [[NSMutableDictionary alloc] init];
@@ -228,8 +224,8 @@ BOOL FIRRemoteConfigHasDeviceContextChanged(NSDictionary *deviceContext,
   if (![deviceContext[RCNDeviceContextKeyBuild] isEqual:FIRRemoteConfigAppBuildVersion()]) {
     return YES;
   }
-  if (!
-      [deviceContext[RCNDeviceContextKeyOSVersion] isEqual:[GULAppEnvironmentUtil systemVersion]]) {
+  if (![deviceContext[RCNDeviceContextKeyOSVersion]
+          isEqual:[GULAppEnvironmentUtil systemVersion]]) {
     return YES;
   }
   if (![deviceContext[RCNDeviceContextKeyDeviceLocale] isEqual:FIRRemoteConfigDeviceLocale()]) {

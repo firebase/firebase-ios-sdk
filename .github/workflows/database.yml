@@ -1,14 +1,12 @@
 name: database
 
 on:
-  push:
-    branches:
-      - master
   pull_request:
     paths:
     - 'FirebaseDatabase**'
     - 'Firebase/Database/**'
     - 'Example/Database/**'
+    - 'Interop/Auth/Public/*.h'
     - '.github/workflows/database.yml'
     - 'Gemfile'
   schedule:
@@ -17,6 +15,8 @@ on:
 
 jobs:
   unit:
+    # Don't run on private repo unless it is a PR.
+    if: github.repository != 'FirebasePrivate/firebase-ios-sdk' || github.event_name == 'pull_request'
     runs-on: macos-latest
     strategy:
       matrix:
@@ -29,18 +29,20 @@ jobs:
       run: scripts/third_party/travis/retry.sh scripts/build.sh Database ${{ matrix.target }} unit
 
   integration:
+    # Don't run on private repo unless it is a PR.
+    if: github.repository != 'FirebasePrivate/firebase-ios-sdk' || github.event_name == 'pull_request'
     runs-on: macos-latest
-    strategy:
-      matrix:
-        target: [iOS, tvOS, macOS]
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: IntegrationTest
-      run: scripts/third_party/travis/retry.sh scripts/build.sh Database ${{ matrix.target }} integration
+      # Only iOS to mitigate flakes.
+      run: scripts/third_party/travis/retry.sh scripts/build.sh Database iOS integration
 
   catalyst:
+    # Don't run on private repo unless it is a PR.
+    if: github.repository != 'FirebasePrivate/firebase-ios-sdk' || github.event_name == 'pull_request'
     runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v2
@@ -51,6 +53,8 @@ jobs:
       run: scripts/test_catalyst.sh FirebaseDatabase build FirebaseDatabase-Unit-unit
 
   quickstart:
+    # Don't run on private repo unless it is a PR.
+    if: github.repository != 'FirebasePrivate/firebase-ios-sdk' || github.event_name == 'pull_request'
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -71,6 +75,8 @@ jobs:
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Database swift)
 
   pod-lib-lint:
+    # Don't run on private repo unless it is a PR.
+    if: github.repository != 'FirebasePrivate/firebase-ios-sdk' || github.event_name == 'pull_request'
     runs-on: macOS-latest
 
     strategy:
@@ -84,8 +90,9 @@ jobs:
       run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseDatabase.podspec --skip-tests --platforms=${{ matrix.target }}
 
   database-cron-only:
+    # Don't run on private repo.
+    if: github.event_name == 'schedule' && github.repository != 'FirebasePrivate/firebase-ios-sdk'
     runs-on: macos-latest
-    if: github.event_name == 'schedule'
     strategy:
       matrix:
         target: [ios, tvos, macos]

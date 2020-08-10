@@ -36,6 +36,7 @@ NSString *const kFIRInstanceIDSubDirectoryName = @"Google/FirebaseInstanceID";
 NSString *const kFIRInstanceIDTokenOptionsAPNSKey = @"apns_token";
 NSString *const kFIRInstanceIDTokenOptionsAPNSIsSandboxKey = @"apns_sandbox";
 NSString *const kFIRInstanceIDTokenOptionsFirebaseAppIDKey = @"gmp_app_id";
+NSString *const kFIRInstanceIDParamInstanceID = @"appid";
 
 NSString *const kFIRInstanceIDAppDelegateProxyEnabledInfoPlistKey =
     @"FirebaseAppDelegateProxyEnabled";

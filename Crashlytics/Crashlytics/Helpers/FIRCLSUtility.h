@@ -17,7 +17,7 @@
 #include <mach/vm_types.h>
 #include <stdbool.h>
 #include <stdio.h>
-#include "FIRCLSGlobals.h"
+#include "Crashlytics/Crashlytics/Components/FIRCLSGlobals.h"
 
 #define FIRCLSIsValidPointer(x) ((uintptr_t)x >= 4096)
 #define FIRCLSInvalidCharNybble (255)

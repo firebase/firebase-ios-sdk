@@ -8,6 +8,7 @@ target 'RemoteConfigSampleApp' do
   pod 'FirebaseCore', :path => '../../../'
   pod 'FirebaseInstallations', :path => '../../../'
   pod 'FirebaseRemoteConfig', :path => '../../../'
+  pod 'FirebaseABTesting', :path => '../../..'
 
   # Pods for RemoteConfigSampleApp
 

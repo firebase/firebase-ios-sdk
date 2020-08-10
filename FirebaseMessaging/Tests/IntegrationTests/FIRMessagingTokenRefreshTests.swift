@@ -59,8 +59,8 @@
 
       let notificationExpectation = self.expectation(forNotification: NSNotification.Name
         .MessagingRegistrationTokenRefreshed,
-                                                     object: nil,
-                                                     handler: nil)
+        object: nil,
+        handler: nil)
 
       let testDelegate = fakeAppDelegate()
       messaging?.delegate = testDelegate

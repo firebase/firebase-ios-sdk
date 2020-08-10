@@ -36,11 +36,11 @@ product can be one of:
   Messaging
   MessagingSample
   RemoteConfig
+  RemoteConfigSample
   Storage
   StorageSwift
   SymbolCollision
   GoogleDataTransport
-  GoogleDataTransportCCTSupport
 
 platform can be one of:
   iOS (default)
@@ -436,6 +436,14 @@ case "$product-$platform-$method" in
       test
     ;;
 
+  RemoteConfigSample-*-*)
+    RunXcodebuild \
+      -workspace 'FirebaseRemoteConfig/Tests/Sample/RemoteConfigSampleApp.xcworkspace' \
+      -scheme "RemoteConfigSampleApp" \
+      "${xcb_flags[@]}" \
+      build
+    ;;
+
   Storage-*-xcodebuild)
     pod_gen FirebaseStorage.podspec --platforms=ios
     RunXcodebuild \
@@ -504,17 +512,15 @@ case "$product-$platform-$method" in
       -scheme "GDTWatchOSTestAppWatchKitApp" \
       "${xcb_flags[@]}" \
       build
-    ;;
 
-  GoogleDataTransportCCTSupport-watchOS-xcodebuild)
     RunXcodebuild \
-      -workspace 'GoogleDataTransportCCTSupport/GDTCCTWatchOSTestApp/GDTCCTWatchOSTestApp.xcworkspace' \
+      -workspace 'GoogleDataTransport/GDTCCTWatchOSTestApp/GDTCCTWatchOSTestApp.xcworkspace' \
       -scheme "GDTCCTWatchOSIndependentTestAppWatchKitApp" \
       "${xcb_flags[@]}" \
       build
 
     RunXcodebuild \
-      -workspace 'GoogleDataTransportCCTSupport/GDTCCTWatchOSTestApp/GDTCCTWatchOSTestApp.xcworkspace' \
+      -workspace 'GoogleDataTransport/GDTCCTWatchOSTestApp/GDTCCTWatchOSTestApp.xcworkspace' \
       -scheme "GDTCCTWatchOSCompanionTestApp" \
       "${xcb_flags[@]}" \
       build

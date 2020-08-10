@@ -13,9 +13,7 @@
 // limitations under the License.
 
 @class FIRAppDistributionRelease;
-#import <AppAuth/AppAuth.h>
 #import <Foundation/Foundation.h>
-#import <UIKit/UIKit.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -67,6 +65,7 @@ NS_SWIFT_NAME(AppDistribution)
  * Sign out App Distribution tester
  */
 - (void)signOutTester;
+
 /**
  * Accesses the singleton App Distribution instance.
  *
@@ -75,6 +74,14 @@ NS_SWIFT_NAME(AppDistribution)
 + (instancetype)appDistribution NS_SWIFT_NAME(appDistribution());
 
 @end
+
+// The error domain for codes in the FIRAppDistributionError enum.
+FOUNDATION_EXPORT NSString *const FIRAppDistributionErrorDomain
+    NS_SWIFT_NAME(AppDistributionErrorDomain);
+
+// The key for finding error details in the NSError userInfo.
+FOUNDATION_EXPORT NSString *const FIRAppDistributionErrorDetailsKey
+    NS_SWIFT_NAME(FunctionsErrorDetailsKey);
 
 /**
  *  @enum AppDistributionError

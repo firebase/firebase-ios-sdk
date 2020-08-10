@@ -21,9 +21,8 @@ set -euo pipefail
 export HOMEBREW_NO_ANALYTICS=1
 export HOMEBREW_NO_AUTO_UPDATE=1
 
-brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/c6f1cbd/Formula/clang-format.rb
-brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/c13eda8/Formula/swiftformat.rb
-
+echo "python --version: $(python --version)"
+pip install --upgrade pip
 pip install flake8
 pip install six
 
@@ -33,3 +32,13 @@ if ! git rev-parse origin/master >& /dev/null; then
   git remote set-branches --add origin master
   git fetch origin
 fi
+
+# Setup mint which installs a versioned swiftformat.
+set -x
+brew install mint
+mint bootstrap --link
+
+brew install clang-format
+
+clang-format -version
+swiftformat -version

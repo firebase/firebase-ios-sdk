@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import <FirebaseRemoteConfig/FIRRemoteConfig.h>
+#import "FirebaseRemoteConfig/Sources/Public/FirebaseRemoteConfig/FIRRemoteConfig.h"
 
 /// Firebase Remote Config service default namespace.
 NSString *const FIRNamespaceGoogleMobilePlatform = @"firebase";

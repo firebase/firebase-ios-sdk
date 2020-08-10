@@ -14,14 +14,13 @@
 
 #import <Foundation/Foundation.h>
 
-#import <GoogleDataTransport/GDTCORTransport.h>
-
 @class FIRCLSDataCollectionToken;
 @class FIRCLSInternalReport;
 @class FIRCLSSettings;
 @class FIRCLSFileManager;
 @class FIRCLSNetworkClient;
 @class FIRCLSReportUploader;
+@class GDTCORTransport;
 
 @protocol FIRCLSReportUploaderDelegate;
 @protocol FIRCLSReportUploaderDataSource;

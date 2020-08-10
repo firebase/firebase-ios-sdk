@@ -1,3 +1,12 @@
+# 2020-07 -- 4.5.1
+- [changed] Remove FIRInstanceIDURLQueryItem in favor of NSURLQueryItem. (#5835)
+
+# 2020-07 -- 4.5.0
+- [changed] Functionally neutral updated import references for dependencies. (#5824)
+
+# 2020-06 -- 4.4.0
+- [changed] Standardize FirebaseCore import headers. (#5758)
+
 # 2020-04 -- 4.3.4
 - [changed] Internal cleanup and remove repetitive local notification. (#5339)
 

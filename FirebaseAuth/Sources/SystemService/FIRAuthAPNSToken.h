@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#include <TargetConditionals.h>
+#import <TargetConditionals.h>
 #if !TARGET_OS_OSX
 
-#import <FirebaseAuth/FIRAuthAPNSTokenType.h>
 #import <Foundation/Foundation.h>
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthAPNSTokenType.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

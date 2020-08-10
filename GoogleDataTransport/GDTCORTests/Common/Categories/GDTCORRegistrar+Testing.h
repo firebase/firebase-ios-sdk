@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import <GoogleDataTransport/GDTCORRegistrar.h>
-#import "GDTCORLibrary/Private/GDTCORRegistrar_Private.h"
+#import "GoogleDataTransport/GDTCORLibrary/Private/GDTCORRegistrar_Private.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORRegistrar.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

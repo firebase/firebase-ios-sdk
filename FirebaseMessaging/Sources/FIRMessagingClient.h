@@ -53,39 +53,6 @@ typedef void (^FIRMessagingConnectCompletionHandler)(NSError *error);
 
 - (void)teardown;
 
-- (void)cancelAllRequests;
-
-#pragma mark - FIRMessaging subscribe
-
-/**
- *  Update the subscription associated with the given token and topic.
- *
- *  For a to-be-created subscription we check if the client is already
- *  subscribed to the topic or not. If subscribed we should have the
- *  subscriptionID in the cache and we return from there itself, else we call
- *  the FIRMessaging backend to create a new subscription for the topic for this client.
- *
- *  For delete subscription requests we delete the stored subscription in the
- *  client and then invoke the FIRMessaging backend to delete the existing subscription
- *  completely.
- *
- *  @param token        The token associated with the device.
- *  @param topic        The topic for which the subscription should be updated.
- *  @param options      The options to be passed in to the subscription request.
- *  @param shouldDelete If YES this would delete the subscription from the cache
- *                      and also let the FIRMessaging backend know that we need to delete
- *                      the subscriptionID associated with this topic.
- *                      If NO we try to create a new subscription for the given
- *                      token and topic.
- *  @param handler      The handler to invoke once the subscription request
- *                      finishes.
- */
-- (void)updateSubscriptionWithToken:(NSString *)token
-                              topic:(NSString *)topic
-                            options:(NSDictionary *)options
-                       shouldDelete:(BOOL)shouldDelete
-                            handler:(FIRMessagingTopicOperationCompletion)handler;
-
 #pragma mark - MCS Connection
 
 /**

@@ -18,19 +18,15 @@
 #error FIRMessagingLib should be compiled with ARC.
 #endif
 
-#import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
-#import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseCore/FIRComponent.h>
-#import <FirebaseCore/FIRComponentContainer.h>
-#import <FirebaseCore/FIRDependency.h>
-#import <FirebaseCore/FIRLibrary.h>
 #import <FirebaseInstanceID/FIRInstanceID_Private.h>
 #import <FirebaseInstanceID/FirebaseInstanceID.h>
 #import <FirebaseMessaging/FIRMessaging.h>
 #import <FirebaseMessaging/FIRMessagingExtensionHelper.h>
-#import <GoogleUtilities/GULAppDelegateSwizzler.h>
-#import <GoogleUtilities/GULReachabilityChecker.h>
-#import <GoogleUtilities/GULUserDefaults.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "GoogleUtilities/AppDelegateSwizzler/Private/GULAppDelegateSwizzler.h"
+#import "GoogleUtilities/Reachability/Private/GULReachabilityChecker.h"
+#import "GoogleUtilities/UserDefaults/Private/GULUserDefaults.h"
+#import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 
 #import "FirebaseMessaging/Sources/FIRMessagingAnalytics.h"
 #import "FirebaseMessaging/Sources/FIRMessagingClient.h"
@@ -273,6 +269,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 - (void)start {
   [self setupFileManagerSubDirectory];
   [self setupNotificationListeners];
+  [self setupTopics];
 
 #if !TARGET_OS_WATCH
   // Print the library version for logging.
@@ -292,7 +289,6 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   [self setupClient];
   [self setupSyncMessageManager];
   [self setupDataMessageManager];
-  [self setupTopics];
 
 #endif
 }
@@ -351,11 +347,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 }
 
 - (void)setupTopics {
-  if (!self.client) {
-    FIRMessagingLoggerWarn(kFIRMessagingMessageCodeInvalidClient,
-                           @"Invalid nil client before init pubsub.");
-  }
-  self.pubsub = [[FIRMessagingPubSub alloc] initWithClient:self.client];
+  self.pubsub = [[FIRMessagingPubSub alloc] init];
 }
 
 - (void)setupSyncMessageManager {
@@ -1070,7 +1062,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
     // Malay
     @"ms" : @[ @"ms_MY" ],
     // Maltese
-    @"ms" : @[ @"mt_MT" ],
+    @"mt" : @[ @"mt_MT" ],
     // Polish
     @"pl" : @[ @"pl", @"pl_PL", @"pl-PL" ],
     // Romanian

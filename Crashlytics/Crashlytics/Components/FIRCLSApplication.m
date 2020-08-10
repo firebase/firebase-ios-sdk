@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRCLSApplication.h"
+#import "Crashlytics/Crashlytics/Components/FIRCLSApplication.h"
 
-#import "FIRCLSHost.h"
-#import "FIRCLSUtility.h"
+#import "Crashlytics/Crashlytics/Components/FIRCLSHost.h"
+#import "Crashlytics/Crashlytics/Helpers/FIRCLSUtility.h"
 
 #if CLS_TARGET_OS_OSX
 #import <AppKit/AppKit.h>

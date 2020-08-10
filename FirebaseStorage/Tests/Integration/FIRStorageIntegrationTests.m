@@ -12,14 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import <FirebaseAuth/FirebaseAuth.h>
-#import <FirebaseStorage/FirebaseStorage.h>
 #import <XCTest/XCTest.h>
 
-#import <FirebaseCore/FIRApp.h>
-#import <FirebaseCore/FIROptions.h>
+#import "FirebaseStorage/Sources/Public/FirebaseStorage/FirebaseStorage.h"
 
-#import "Credentials.h"
+#import <FirebaseAuth/FirebaseAuth.h>
+
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+
+#import "FirebaseStorage/Tests/Integration/Credentials.h"
 
 NSTimeInterval kFIRStorageIntegrationTestTimeout = 60;
 
@@ -31,6 +32,9 @@ NSTimeInterval kFIRStorageIntegrationTestTimeout = 60;
   rules_version = '2';
   service firebase.storage {
     match /b/{bucket}/o {
+      match /{directChild=*} {
+        allow read: if request.auth != null;
+      }
       match /ios {
         match /public/{allPaths=**} {
           allow write: if request.auth != null;
@@ -413,6 +417,38 @@ NSString *const kTestPassword = KPASSWORD;
   [self waitForExpectations];
 }
 
+- (void)testGetDataWithCustomCallbackQueue {
+  XCTestExpectation *expectation =
+      [self expectationWithDescription:@"testUnauthenticatedGetDataInCustomCallbackQueue"];
+
+  NSString *callbackQueueLabelString = @"customCallbackQueue";
+  const char *callbackQueueLabel = [callbackQueueLabelString UTF8String];
+  const void *callbackQueueKey = callbackQueueLabel;
+  dispatch_queue_t callbackQueue = dispatch_queue_create(callbackQueueLabel, NULL);
+
+  dispatch_queue_set_specific(callbackQueue, callbackQueueKey, (void *)callbackQueueKey, NULL);
+  _storage.callbackQueue = callbackQueue;
+
+  FIRStorageReference *ref = [self.storage referenceWithPath:@"ios/public/1mb"];
+  [ref dataWithMaxSize:1 * 1024 * 1024
+            completion:^(NSData *data, NSError *error) {
+              XCTAssertNotNil(data, "Data should not be nil");
+              XCTAssertNil(error, "Error should be nil");
+
+              char *currentQueueLabel = dispatch_get_specific(callbackQueueKey);
+              NSString *currentQueueLabelString = [NSString stringWithUTF8String:currentQueueLabel];
+              XCTAssertEqualObjects(currentQueueLabelString, callbackQueueLabelString);
+
+              [expectation fulfill];
+
+              // Reset the callbackQueue to default (main queue).
+              self.storage.callbackQueue = dispatch_get_main_queue();
+              dispatch_queue_set_specific(callbackQueue, callbackQueueKey, NULL, NULL);
+            }];
+
+  [self waitForExpectations];
+}
+
 - (void)testGetDataTooSmall {
   XCTestExpectation *expectation = [self expectationWithDescription:@"testGetDataTooSmall"];
 
@@ -736,7 +772,7 @@ NSString *const kTestPassword = KPASSWORD;
 }
 
 - (void)testListAllFiles {
-  XCTestExpectation *expectation = [self expectationWithDescription:@"testPagedListFiles"];
+  XCTestExpectation *expectation = [self expectationWithDescription:@"testListAllFiles"];
 
   FIRStorageReference *ref = [self.storage referenceWithPath:@"ios/public/list"];
 
@@ -749,6 +785,22 @@ NSString *const kTestPassword = KPASSWORD;
     XCTAssertEqualObjects(listResult.prefixes, @[ [ref child:@"prefix"] ]);
     XCTAssertNil(listResult.pageToken);
 
+    [expectation fulfill];
+  }];
+
+  [self waitForExpectations];
+}
+
+- (void)testListFilesAtRoot {
+  XCTestExpectation *expectation = [self expectationWithDescription:@"testListFilesAtRoot"];
+
+  FIRStorageReference *ref = [self.storage referenceWithPath:@""];
+
+  [ref listAllWithCompletion:^(FIRStorageListResult *_Nullable listResult,
+                               NSError *_Nullable error) {
+    XCTAssertNotNil(listResult);
+    XCTAssertNil(error);
+    XCTAssertNil(listResult.pageToken);
     [expectation fulfill];
   }];
 

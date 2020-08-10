@@ -39,7 +39,7 @@ version="${version/ (*)/}"
 version="${version/.*/}"
 
 case "$version" in
-  9)
+  10)
     ;;
   google3-trunk)
     echo "Please use a publicly released clang-format; a recent LLVM release"
@@ -48,9 +48,9 @@ case "$version" in
     exit 1
     ;;
   *)
-    echo "Please upgrade to clang-format version 9."
+    echo "Please upgrade to clang-format version 10."
     echo "If it's installed via homebrew you can run:"
-    echo "brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/c6f1cbd/Formula/clang-format.rb"
+    echo "brew install clang-format"
     exit 1
     ;;
 esac
@@ -63,13 +63,11 @@ if [[ "$system" == "Darwin" ]]; then
     echo "Found: $version"
   fi
   version="${version/*version /}"
-  # Ensure the swiftformat version is at least 0.35.x since (as of 2019-02-01)
-  # travis runs 0.35.7. We may need to be more strict about version checks in
-  # the future if we run into different versions making incompatible format
-  # changes.
-  if [[ ! "$version" =~ ^0.[4-9] ]]; then
-    echo "Version $version installed. Please upgrade to at least swiftformat 0.44.6"
-    echo "If it's installed via homebrew you can run: brew upgrade swiftformat"
+  # Ensure the swiftformat version is 0.45.5 (as of 2020-08-09)
+  # Update Mintfile and run command below to update.
+  if [[ "$version" != 0.45.5 ]]; then
+    echo "Version $version installed. Please install swiftformat 0.45.5"
+    echo "brew install mint; mint install nicklockwood/SwiftFormat@0.45.5"
     exit 1
   fi
 fi
@@ -92,6 +90,9 @@ swift_disable=(
   # it's correct to remove the unused argument labels, it makes our examples
   # look wrong.
   unusedArguments
+
+  # We prefer trailing braces.
+  wrapMultilineStatementBraces
 )
 
 swift_options=(
@@ -139,6 +140,8 @@ s%^./%%
 \%^Debug/% d
 \%^Release/% d
 \%^cmake-build-debug/% d
+\%^.build/% d
+\%^.swiftpm/% d
 
 # pod gen output
 \%^gen/% d
@@ -149,6 +152,9 @@ s%^./%%
 
 # Sources controlled outside this tree
 \%/third_party/% d
+
+# Public headers for closed sourced FirebaseAnalytics
+\%^(FirebaseAnalyticsWrapper)/% d
 
 # Generated source
 \%/Firestore/core/src/util/config.h% d

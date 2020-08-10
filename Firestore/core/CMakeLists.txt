@@ -117,12 +117,17 @@ endif()
 
 
 configure_file(
-  src/util/config.h.in
-  src/util/config.h  # NOLINT(generated)
+  src/util/config_detected.h.in
+  src/util/config_detected.h  # NOLINT(generated)
 )
 
 
 firebase_ios_add_library(firestore_util EXCLUDE_FROM_ALL ${util_sources})
+
+target_compile_definitions(
+  firestore_util PUBLIC
+  FIRESTORE_HAVE_CONFIG_DETECTED_H
+)
 
 target_link_libraries(
   firestore_util PUBLIC

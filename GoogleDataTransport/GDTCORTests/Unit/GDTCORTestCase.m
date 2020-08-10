@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-#import "GDTCORTests/Unit/GDTCORTestCase.h"
+#import "GoogleDataTransport/GDTCORTests/Unit/GDTCORTestCase.h"
 
-#import "GDTCORTests/Common/Categories/GDTCORUploadCoordinator+Testing.h"
+#import "GoogleDataTransport/GDTCORTests/Common/Categories/GDTCORFlatFileStorage+Testing.h"
+#import "GoogleDataTransport/GDTCORTests/Common/Categories/GDTCORUploadCoordinator+Testing.h"
 
-#import "GDTCORLibrary/Private/GDTCORReachability_Private.h"
+#import "GoogleDataTransport/GDTCORLibrary/Private/GDTCORReachability_Private.h"
 
 @implementation GDTCORTestCase
 
@@ -26,6 +27,7 @@
   [GDTCORReachability sharedInstance].flags = kSCNetworkReachabilityFlagsReachable;
   [[GDTCORUploadCoordinator sharedInstance] stopTimer];
   [[GDTCORUploadCoordinator sharedInstance] reset];
+  [[GDTCORFlatFileStorage sharedInstance] reset];
 }
 
 - (void)tearDown {

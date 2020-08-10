@@ -1,3 +1,17 @@
+# v7.1.0
+- Device uptime calculation fixes. (#6102)
+
+# v7.0.0
+- Storage has been completely reimplemented to a flat-file system. It
+is not backwards compatible with previously saved events.
+- Prioritizers, data futures, and upload packages have been removed.
+- Consolidated GoogleDataTransportCCTSupport with GoogleDataTransport. Starting
+with this version, GoogleDataTransportCCTSupport should no longer be linked.
+- `GDTCORFlatFileStorage`: keep not expired events when expired batch removed. (#6010)
+
+# v6.2.1
+- Stopped GDTCORUploadCoordinator from blocking main thread. (#5707, #5708)
+
 # v6.2.0
 - Added an API for arbitrary data persistence on storage instances.
 - Added an API for fetching storage instances specific to a target.

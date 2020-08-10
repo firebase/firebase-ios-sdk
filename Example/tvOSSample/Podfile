@@ -7,12 +7,9 @@ target 'tvOSSample' do
   # Pods for tvOSSample
   pod 'FirebaseCore', :path => '../../'
   pod 'FirebaseCoreDiagnostics', :path => '../../'
-  pod 'FirebaseCoreDiagnosticsInterop', :path => '../../'
   pod 'FirebaseAuth', :path => '../../'
-  pod 'FirebaseAuthInterop', :path => '../../'
   pod 'FirebaseDatabase', :path => '../../'
   pod 'FirebaseStorage', :path => '../../'
   pod 'GoogleDataTransport', :path => '../../'
-  pod 'GoogleDataTransportCCTSupport', :path => '../../'
 
 end
