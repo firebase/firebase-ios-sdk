@@ -18,7 +18,7 @@
 
 #import "FirebaseDynamicLinks/Sources/FDLURLComponents/FDLURLComponents+Private.h"
 #import "FirebaseDynamicLinks/Sources/FDLURLComponents/FIRDynamicLinkComponentsKeyProvider.h"
-#import "FirebaseDynamicLinks/Sources/Public/FDLURLComponents.h"
+#import "FirebaseDynamicLinks/Sources/Public/FirebaseDynamicLinks/FDLURLComponents.h"
 
 #import "FirebaseDynamicLinks/Sources/Logging/FDLLogging.h"
 #import "FirebaseDynamicLinks/Sources/Utilities/FDLUtilities.h"

@@ -14,6 +14,7 @@
 
 @import FirebaseAuth;
 @import FirebaseABTesting;
+@import FirebaseDynamicLinks;
 @import FirebaseFunctions;
 @import Firebase;
 @import FirebaseCrashlytics;
