@@ -29,7 +29,7 @@
 #import "Interop/CoreDiagnostics/Public/FIRCoreDiagnosticsData.h"
 #import "Interop/CoreDiagnostics/Public/FIRCoreDiagnosticsInterop.h"
 
-#import "FIRCDLibrary/Protogen/nanopb/firebasecore.nanopb.h"
+#import "Firebase/CoreDiagnostics/FIRCDLibrary/Protogen/nanopb/firebasecore.nanopb.h"
 
 extern NSString *const kFIRAppDiagnosticsNotification;
 extern NSString *const kFIRLastCheckinDateKey;
