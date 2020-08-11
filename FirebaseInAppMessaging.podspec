@@ -32,7 +32,7 @@ See more product details at https://firebase.google.com/products/in-app-messagin
     'FirebaseInstallations/Source/Library/Private/*.h',
     'GoogleUtilities/Environment/Private/*.h',
   ]
-  s.public_header_files = base_dir + 'Sources/Public/*.h'
+  s.public_header_files = base_dir + 'Sources/Public/FirebaseInAppMessaging/*.h'
   s.private_header_files = base_dir + 'Sources/Private/**/*.h'
 
   s.resource_bundles = {

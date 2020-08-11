@@ -18,8 +18,8 @@
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
-#import "FirebaseInAppMessaging/Sources/Public/FIRInAppMessaging.h"
-#import "FirebaseInAppMessaging/Sources/Public/FIRInAppMessagingRendering.h"
+#import "FirebaseInAppMessaging/Sources/Public/FirebaseInAppMessaging/FIRInAppMessaging.h"
+#import "FirebaseInAppMessaging/Sources/Public/FirebaseInAppMessaging/FIRInAppMessagingRendering.h"
 #import "FirebaseInAppMessaging/Sources/DefaultUI/FIRCore+InAppMessagingDisplay.h"
 #import "FirebaseInAppMessaging/Sources/DefaultUI/Banner/FIRIAMBannerViewController.h"
 #import "FirebaseInAppMessaging/Sources/DefaultUI/Card/FIRIAMCardViewController.h"

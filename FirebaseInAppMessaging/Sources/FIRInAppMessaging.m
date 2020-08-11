@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FirebaseInAppMessaging/Sources/Public/FIRInAppMessaging.h"
+#import "FirebaseInAppMessaging/Sources/Public/FirebaseInAppMessaging/FIRInAppMessaging.h"
 
 #import <Foundation/Foundation.h>
 

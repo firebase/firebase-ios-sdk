@@ -22,8 +22,8 @@
 #import "FirebaseInAppMessaging/Sources/Private/Analytics/FIRIAMClearcutLogger.h"
 #import "FirebaseInAppMessaging/Sources/Private/Flows/FIRIAMMessageClientCache.h"
 #import "FirebaseInAppMessaging/Sources/Private/Util/FIRIAMTimeFetcher.h"
-#import "FirebaseInAppMessaging/Sources/Public/FIRInAppMessaging.h"
-#import "FirebaseInAppMessaging/Sources/Public/FIRInAppMessagingRendering.h"
+#import "FirebaseInAppMessaging/Sources/Public/FirebaseInAppMessaging/FIRInAppMessaging.h"
+#import "FirebaseInAppMessaging/Sources/Public/FirebaseInAppMessaging/FIRInAppMessagingRendering.h"
 
 NS_ASSUME_NONNULL_BEGIN
 @interface FIRIAMDisplaySetting : NSObject

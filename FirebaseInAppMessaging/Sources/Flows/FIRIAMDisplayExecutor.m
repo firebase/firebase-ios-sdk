@@ -23,7 +23,7 @@
 #import "FirebaseInAppMessaging/Sources/Private/Data/FIRIAMMessageContentData.h"
 #import "FirebaseInAppMessaging/Sources/Private/Data/FIRIAMMessageDefinition.h"
 #import "FirebaseInAppMessaging/Sources/Runtime/FIRIAMSDKRuntimeErrorCodes.h"
-#import "FirebaseInAppMessaging/Sources/Public/FIRInAppMessaging.h"
+#import "FirebaseInAppMessaging/Sources/Public/FirebaseInAppMessaging/FIRInAppMessaging.h"
 #import "FirebaseInAppMessaging/Sources/RenderingObjects/FIRInAppMessagingRenderingPrivate.h"
 
 #import "FirebaseABTesting/Sources/Private/FirebaseABTestingInternal.h"

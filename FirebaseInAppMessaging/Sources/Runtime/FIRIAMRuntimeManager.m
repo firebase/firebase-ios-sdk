@@ -35,7 +35,7 @@
 #import "FirebaseInAppMessaging/Sources/Private/Flows/FIRIAMMsgFetcherUsingRestful.h"
 #import "FirebaseInAppMessaging/Sources/Private/Runtime/FIRIAMRuntimeManager.h"
 #import "FirebaseInAppMessaging/Sources/Private/Runtime/FIRIAMSDKModeManager.h"
-#import "FirebaseInAppMessaging/Sources/Public/FIRInAppMessaging.h"
+#import "FirebaseInAppMessaging/Sources/Public/FirebaseInAppMessaging/FIRInAppMessaging.h"
 #import "FirebaseInAppMessaging/Sources/FIRInAppMessagingPrivate.h"
 
 // A enum indicating 3 different possiblities of a setting about auto data collection.

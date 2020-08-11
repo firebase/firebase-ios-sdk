@@ -15,7 +15,7 @@
  */
 
 #import "FirebaseInAppMessaging/Sources/Private/Runtime/FIRIAMSDKSettings.h"
-#import "FirebaseInAppMessaging/Sources/Public/FIRInAppMessaging.h"
+#import "FirebaseInAppMessaging/Sources/Public/FirebaseInAppMessaging/FIRInAppMessaging.h"
 
 /**
  *  This category extends FIRInAppMessaging with the configurations from FIRApp

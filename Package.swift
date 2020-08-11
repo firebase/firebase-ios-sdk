@@ -67,6 +67,10 @@ let package = Package(
       targets: ["FirebaseFunctions"]
     ),
     .library(
+      name: "FirebaseInAppMessaging",
+      targets: ["FirebaseInAppMessaging"]
+    ),
+    .library(
       name: "FirebaseInstallations",
       targets: ["FirebaseInstallations"]
     ),
@@ -428,6 +432,32 @@ let package = Package(
         .define("FIRFunctions_VERSION", to: "0.0.1"), // TODO: Fix version
       ]
     ),
+
+    .target(
+      name: "FirebaseInAppMessaging",
+      dependencies: [
+        "FirebaseCore",
+        "FirebaseInstallations",
+        "FirebaseABTesting",
+        "GoogleUtilities_Environment",
+        .product(name: "nanopb", package: "nanopb"),
+      ],
+      path: "FirebaseInAppMessaging/Sources",
+      exclude: [
+        "DefaultUI/CHANGELOG.md",
+        "DefaultUI/README.md",
+      ],
+      resources: [.process("Resources")],
+      publicHeadersPath: "Public",
+      cSettings: [
+        .headerSearchPath("../../"),
+        .define("FIRInAppMessaging_LIB_VERSION", to: "0.0.1"), // TODO: Fix version
+        .define("PB_FIELD_32BIT", to: "1"),
+        .define("PB_NO_PACKED_STRUCTS", to: "1"),
+        .define("PB_ENABLE_MALLOC", to: "1"),
+      ]
+    ),
+
     // .target(
     //   name: "FirebaseInstanceID",
     //   dependencies: ["FirebaseCore", "FirebaseInstallations",
@@ -556,7 +586,6 @@ let package = Package(
       dependencies: [
         "FirebaseAuth",
         "FirebaseABTesting",
-        "FirebaseFunctions",
         "Firebase",
         "FirebaseCrashlytics",
         "FirebaseCore",
@@ -564,6 +593,8 @@ let package = Package(
         "FirebaseDynamicLinks",
         "FirebaseFirestore",
         "FirebaseFirestoreSwift",
+        "FirebaseFunctions",
+        "FirebaseInAppMessaging",
         "FirebaseInstallations",
         // "FirebaseInstanceID",
         "FirebaseRemoteConfig",
@@ -588,13 +619,14 @@ let package = Package(
       dependencies: [
         "FirebaseAuth",
         "FirebaseABTesting",
-        "FirebaseFunctions",
         "Firebase",
         "FirebaseCrashlytics",
         "FirebaseCore",
         "FirebaseDatabase",
         "FirebaseDynamicLinks",
         "FirebaseFirestore",
+        "FirebaseFunctions",
+        "FirebaseInAppMessaging",
         "FirebaseInstallations",
         "FirebaseRemoteConfig",
         "FirebaseStorage",
