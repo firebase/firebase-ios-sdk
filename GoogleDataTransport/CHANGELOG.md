@@ -1,3 +1,6 @@
+# v7.2.0
+- Add INT url endpoint. (#6254)
+
 # v7.1.0
 - Device uptime calculation fixes. (#6102)
 
