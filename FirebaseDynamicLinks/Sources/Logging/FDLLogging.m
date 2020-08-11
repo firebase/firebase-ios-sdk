@@ -70,4 +70,4 @@ void FDLLog(FDLLogLevel logLevel, FDLLogIdentifier identifer, NSString *message,
   va_end(args_ptr);
 }
 
-#endif // TARGET_OS_IOS
+#endif  // TARGET_OS_IOS

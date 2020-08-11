@@ -370,4 +370,4 @@ NSData *_Nullable FIRDataWithDictionary(NSDictionary *dictionary, NSError **_Nul
 
 NS_ASSUME_NONNULL_END
 
-#endif // TARGET_OS_IOS
+#endif  // TARGET_OS_IOS
