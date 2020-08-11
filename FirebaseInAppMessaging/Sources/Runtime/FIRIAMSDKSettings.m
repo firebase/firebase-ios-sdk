@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
+
 #import "FirebaseInAppMessaging/Sources/Private/Runtime/FIRIAMSDKSettings.h"
 
 @implementation FIRIAMSDKSettings
@@ -33,3 +36,5 @@
                                  self.firebaseAutoDataCollectionEnabled ? @"enabled" : @"disabled"];
 }
 @end
+
+#endif  // TARGET_OS_IOS

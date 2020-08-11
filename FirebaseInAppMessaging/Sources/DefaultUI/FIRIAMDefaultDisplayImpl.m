@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
+
 #import <Foundation/Foundation.h>
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
@@ -265,3 +268,5 @@
   }
 }
 @end
+
+#endif  // TARGET_OS_IOS

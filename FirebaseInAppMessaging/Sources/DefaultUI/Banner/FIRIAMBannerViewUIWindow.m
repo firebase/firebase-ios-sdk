@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
+
 #import "FirebaseInAppMessaging/Sources/DefaultUI/Banner/FIRIAMBannerViewUIWindow.h"
 
 @implementation FIRIAMBannerViewUIWindow
@@ -28,3 +31,5 @@
   }
 }
 @end
+
+#endif  // TARGET_OS_IOS

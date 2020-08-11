@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
+
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 #import "FirebaseInAppMessaging/Sources/FIRCore+InAppMessaging.h"
@@ -111,3 +114,5 @@ NSInteger const kFIRIAMMaxFetchInNewlyInstalledMode = 5;
   return _sdkMode;
 }
 @end
+
+#endif  // TARGET_OS_IOS

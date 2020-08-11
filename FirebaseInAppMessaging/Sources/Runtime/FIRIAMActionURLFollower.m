@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
+
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
@@ -245,3 +248,5 @@
       [schemeInLowerCase isEqualToString:@"https"] || [schemeInLowerCase isEqualToString:@"http"];
 }
 @end
+
+#endif  // TARGET_OS_IOS

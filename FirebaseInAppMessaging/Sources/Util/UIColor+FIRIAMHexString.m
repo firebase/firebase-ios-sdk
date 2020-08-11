@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
+
 #import "FirebaseInAppMessaging/Sources/Util/UIColor+FIRIAMHexString.h"
 
 @implementation UIColor (HexString)
@@ -37,3 +40,5 @@
                          alpha:1.0];
 }
 @end
+
+#endif  // TARGET_OS_IOS

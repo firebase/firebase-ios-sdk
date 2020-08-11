@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
+
 #import <Foundation/Foundation.h>
 
 @class FIRApp;
@@ -89,3 +92,5 @@ NS_SWIFT_NAME(InAppMessaging)
 
 @end
 NS_ASSUME_NONNULL_END
+
+#endif  // TARGET_OS_IOS

@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
+
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 #import "Interop/Analytics/Public/FIRAnalyticsInteropListener.h"
@@ -64,3 +67,5 @@
 }
 
 @end
+
+#endif  // TARGET_OS_IOS

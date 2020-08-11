@@ -36,14 +36,14 @@ See more product details at https://firebase.google.com/products/in-app-messagin
   s.private_header_files = base_dir + 'Sources/Private/**/*.h'
 
   s.resource_bundles = {
-    'InAppMessagingDisplayResources' => [ base_dir + 'Resources/*.xib',
-                                   base_dir + 'Resources/*.storyboard',
-                                   base_dir + 'Resources/*.png']
+    'InAppMessagingDisplayResources' => [
+       base_dir + 'Resources/*.storyboard',
+       base_dir + 'Resources/*.png'
+     ]
   }
 
   s.pod_target_xcconfig = {
     'GCC_PREPROCESSOR_DEFINITIONS' =>
-			'GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS=1 ' +
       '$(inherited) ' +
       'FIRInAppMessaging_LIB_VERSION=' + String(s.version) + ' ' +
       'PB_FIELD_32BIT=1 PB_NO_PACKED_STRUCTS=1 PB_ENABLE_MALLOC=1',

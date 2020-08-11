@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
+
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 #import "FirebaseInAppMessaging/Sources/FIRCore+InAppMessaging.h"
@@ -273,3 +276,5 @@ static NSInteger const SuccessHTTPStatusCode = 200;
                                       }];
 }
 @end
+
+#endif  // TARGET_OS_IOS

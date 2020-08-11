@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
+
 #import "FirebaseInAppMessaging/Sources/Public/FirebaseInAppMessaging/FIRInAppMessaging.h"
 
 #import <Foundation/Foundation.h>
@@ -148,3 +151,5 @@ static BOOL _autoBootstrapOnFIRAppInit = YES;
 }
 
 @end
+
+#endif  // TARGET_OS_IOS

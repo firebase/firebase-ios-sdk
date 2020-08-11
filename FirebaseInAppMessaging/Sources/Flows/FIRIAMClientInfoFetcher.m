@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
+
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
 
@@ -133,3 +136,5 @@
   return [NSString stringWithUTF8String:STR(FIRInAppMessaging_LIB_VERSION)];
 }
 @end
+
+#endif  // TARGET_OS_IOS

@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
+
 #import "FirebaseInAppMessaging/Sources/Analytics/FIRIAMAnalyticsEventLoggerImpl.h"
 
 #import "FirebaseInAppMessaging/Sources/FIRCore+InAppMessaging.h"
@@ -168,3 +171,5 @@ static NSString *const kFIAMUserDefaualtsKeyForRemoveUserPropertyTimeInSeconds =
                                      completion:completion];
 }
 @end
+
+#endif  // TARGET_OS_IOS

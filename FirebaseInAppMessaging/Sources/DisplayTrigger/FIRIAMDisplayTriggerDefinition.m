@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
+
 #import "FirebaseInAppMessaging/Sources/Private/DisplayTrigger/FIRIAMDisplayTriggerDefinition.h"
 
 @implementation FIRIAMDisplayTriggerDefinition
@@ -39,3 +42,5 @@
   return self;
 }
 @end
+
+#endif  // TARGET_OS_IOS

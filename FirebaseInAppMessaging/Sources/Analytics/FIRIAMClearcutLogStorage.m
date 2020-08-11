@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
+
 #import <UIKit/UIKit.h>
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
@@ -186,3 +189,5 @@ static NSString *const kEventExtensionJson = @"extension_js";
   }
 }
 @end
+
+#endif  // TARGET_OS_IOS

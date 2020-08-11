@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
+
 #import "FirebaseInAppMessaging/Sources/DefaultUI/FIRIAMBaseRenderingViewController.h"
 #import "FirebaseInAppMessaging/Sources/DefaultUI/FIRCore+InAppMessagingDisplay.h"
 #import "FirebaseInAppMessaging/Sources/Private/Util/FIRIAMTimeFetcher.h"
@@ -169,3 +172,5 @@ static const NSTimeInterval kMinValidImpressionTime = 3.0;
   return;
 }
 @end
+
+#endif  // TARGET_OS_IOS

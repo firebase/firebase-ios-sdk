@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
+
 #import "FirebaseInAppMessaging/Sources/Private/Data/FIRIAMMessageDefinition.h"
 
 @implementation FIRIAMMessageRenderData
@@ -104,3 +107,5 @@
   return self.startTime < [[NSDate date] timeIntervalSince1970];
 }
 @end
+
+#endif  // TARGET_OS_IOS

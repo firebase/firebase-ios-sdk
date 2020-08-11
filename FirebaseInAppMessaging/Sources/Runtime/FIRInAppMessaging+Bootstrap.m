@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
+
 #import "FirebaseInAppMessaging/Sources/Private/Runtime/FIRInAppMessaging+Bootstrap.h"
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
@@ -132,3 +135,5 @@ static NSString *_fiamServerHostName = @"firebaseinappmessaging.googleapis.com";
 }
 
 @end
+
+#endif  // TARGET_OS_IOS

@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
+
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 #import "FirebaseInAppMessaging/Sources/FIRCore+InAppMessaging.h"
@@ -258,3 +261,5 @@ static NSTimeInterval kMaxFetchWaitTimeInSeconds = 3 * 24 * 60 * 60;
   self.lastFetchTime = 0;
 }
 @end
+
+#endif  // TARGET_OS_IOS

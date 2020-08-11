@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
+
 #import "FirebaseInAppMessaging/Sources/Private/Util/FIRIAMTimeFetcher.h"
 
 @implementation FIRIAMTimerWithNSDate
@@ -21,3 +24,5 @@
   return [[NSDate date] timeIntervalSince1970];
 }
 @end
+
+#endif  // TARGET_OS_IOS

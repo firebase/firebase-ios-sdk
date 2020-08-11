@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
+
 #import <UIKit/UIKit.h>
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
@@ -220,3 +223,5 @@ static NSString *const kDetailArchiveKey = @"detail";
   return [self.activityRecords copy];
 }
 @end
+
+#endif  // TARGET_OS_IOS

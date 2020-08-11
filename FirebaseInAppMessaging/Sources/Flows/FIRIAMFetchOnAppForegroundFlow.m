@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
+
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 #import "FirebaseInAppMessaging/Sources/FIRCore+InAppMessaging.h"
@@ -57,3 +60,5 @@
   [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 @end
+
+#endif  // TARGET_OS_IOS
