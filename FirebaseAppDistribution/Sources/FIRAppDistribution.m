@@ -50,6 +50,8 @@ NSString *const kAppDistroLibraryName = @"fire-fad";
 NSString *const kReleasesKey = @"releases";
 NSString *const kLatestReleaseKey = @"latest";
 NSString *const kCodeHashKey = @"codeHash";
+NSString *const kBuildVersionKey = @"buildVersion";
+NSString *const kDisplayVersionKey = @"displayVersion";
 
 NSString *const kAuthErrorMessage = @"Unable to authenticate the tester";
 NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
@@ -200,6 +202,14 @@ NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
                                                                       URLHostAllowedCharacterSet]];
 }
 
+- (NSString *)getAppVersion {
+  return [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
+}
+
+- (NSString *)getAppBuild {
+  return [[NSBundle mainBundle] objectForInfoDictionaryKey:(NSString *)kCFBundleVersionKey];
+}
+
 - (void)signOutTester {
   FIRFADDebugLog(@"Tester is signed out.");
   [[GULUserDefaults standardUserDefaults] setBool:NO forKey:kFIRFADSignInStateKey];
@@ -238,39 +248,59 @@ NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
 }
 
 - (void)fetchNewLatestRelease:(FIRAppDistributionUpdateCheckCompletion)completion {
-  [FIRFADApiService
-      fetchReleasesWithCompletion:^(NSArray *_Nullable releases, NSError *_Nullable error) {
-        if (error) {
-          dispatch_async(dispatch_get_main_queue(), ^{
-            completion(nil, [self mapFetchReleasesError:error]);
-          });
+  [FIRFADApiService fetchReleasesWithCompletion:^(NSArray *_Nullable releases,
+                                                  NSError *_Nullable error) {
+    if (error) {
+      dispatch_async(dispatch_get_main_queue(), ^{
+        completion(nil, [self mapFetchReleasesError:error]);
+      });
+      return;
+    }
+
+    for (NSDictionary *releaseDict in releases) {
+      if ([[releaseDict objectForKey:kLatestReleaseKey] boolValue]) {
+        FIRFADInfoLog(@"Tester API - found latest release in response.");
+        NSString *displayVersion = [releaseDict objectForKey:kDisplayVersionKey];
+        NSString *buildVersion = [releaseDict objectForKey:kBuildVersionKey];
+
+        FIRFADInfoLog(@"Checking if version matches");
+        if (![self isCurrentVersion:displayVersion buildVersion:buildVersion]) {
+          FIRFADInfoLog(
+              @"Current version %@ (%@) does not match latest version %@ (%@) from the Tester API",
+              [self getAppVersion], [self getAppBuild], displayVersion, buildVersion);
+          FIRAppDistributionRelease *release =
+              [[FIRAppDistributionRelease alloc] initWithDictionary:releaseDict];
+          completion(release, nil);
+
           return;
         }
 
-        for (NSDictionary *releaseDict in releases) {
-          if ([[releaseDict objectForKey:kLatestReleaseKey] boolValue]) {
-            FIRFADInfoLog(
-                @"Tester API - found latest release in response. Checking if code hash match");
-            NSString *codeHash = [releaseDict objectForKey:kCodeHashKey];
-            NSString *executablePath = [[NSBundle mainBundle] executablePath];
-            FIRAppDistributionMachO *machO =
-                [[FIRAppDistributionMachO alloc] initWithPath:executablePath];
-            FIRFADInfoLog(@"Code hash for the app on device - %@", machO.codeHash);
-            FIRFADInfoLog(@"Code hash for the release from the service response - %@", codeHash);
-            if (codeHash && ![codeHash isEqualToString:machO.codeHash]) {
-              FIRAppDistributionRelease *release =
-                  [[FIRAppDistributionRelease alloc] initWithDictionary:releaseDict];
-              dispatch_async(dispatch_get_main_queue(), ^{
-                FIRFADInfoLog(@"Found new release with version: %@", [release displayVersion]);
-                completion(release, nil);
-              });
+        FIRFADInfoLog(@"Checking if code hash match");
+        NSString *codeHash = [releaseDict objectForKey:kCodeHashKey];
+        NSString *executablePath = [[NSBundle mainBundle] executablePath];
+        FIRAppDistributionMachO *machO =
+            [[FIRAppDistributionMachO alloc] initWithPath:executablePath];
+        FIRFADInfoLog(@"Code hash for the app on device - %@", machO.codeHash);
+        FIRFADInfoLog(@"Code hash for the release from the service response - %@", codeHash);
+        if (codeHash && ![codeHash isEqualToString:machO.codeHash]) {
+          FIRAppDistributionRelease *release =
+              [[FIRAppDistributionRelease alloc] initWithDictionary:releaseDict];
+          dispatch_async(dispatch_get_main_queue(), ^{
+            FIRFADInfoLog(@"Found new release with version: %@", [release displayVersion]);
+            completion(release, nil);
+          });
 
-              return;
-            }
-          }
+          return;
         }
-        completion(nil, nil);
-      }];
+      }
+    }
+    completion(nil, nil);
+  }];
+}
+
+- (BOOL)isCurrentVersion:(NSString *)displayVersion buildVersion:(NSString *)buildVersion {
+  return [displayVersion isEqualToString:[self getAppVersion]] &&
+         [buildVersion isEqualToString:[self getAppBuild]];
 }
 
 - (void)checkForUpdateWithCompletion:(FIRAppDistributionUpdateCheckCompletion)completion {
