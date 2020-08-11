@@ -485,6 +485,9 @@ bool FIRCLSProcessRecordAllThreads(FIRCLSProcess *process, FIRCLSFile *file) {
 
     FIRCLSSDKLogInfo("recording thread %d data\n", i);
     if (!FIRCLSProcessRecordThread(process, thread, file)) {
+      FIRCLSFileWriteArrayEnd(file);
+
+      FIRCLSFileWriteSectionEnd(file);
       return false;
     }
   }

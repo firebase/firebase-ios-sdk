@@ -97,7 +97,8 @@ Pod::Spec.new do |s|
       'CLS_SDK_NAME="Crashlytics watchOS SDK" ' +
       # For nanopb:
       'PB_FIELD_32BIT=1 PB_NO_PACKED_STRUCTS=1 PB_ENABLE_MALLOC=1',
-    'OTHER_LD_FLAGS' => '$(inherited) -sectcreate __TEXT __info_plist'
+    'OTHER_LD_FLAGS' => '$(inherited) -sectcreate __TEXT __info_plist',
+    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"',
   }
 
   s.test_spec 'unit' do |unit_tests|
