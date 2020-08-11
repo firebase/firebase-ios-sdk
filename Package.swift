@@ -106,10 +106,26 @@ let package = Package(
       // This revision adds SPM enablement to the 0.3.9.6 release tag.
       .revision("3cfa21200eea012d8765239ad4c50d8a36c283f1")
     ),
-    .package(name: "abseil", url: "https://github.com/firebase/abseil-cpp.git", .branch("spm")),
-    .package(name: "gRPC", url: "https://github.com/firebase/grpc.git", .branch("spm")),
-    .package(name: "OCMock", url: "https://github.com/firebase/ocmock.git", .branch("spm")),
-    .package(name: "leveldb", url: "https://github.com/firebase/leveldb.git", .branch("spm")),
+    .package(
+      name: "abseil",
+      url: "https://github.com/firebase/abseil-cpp.git",
+      .revision("7790dc1a581cd704ec173e0a30286aabacaaa99d")
+    ),
+    .package(
+      name: "gRPC",
+      url: "https://github.com/firebase/grpc.git",
+      .revision("c603c5a2ea17a1229996693a6fb13bbf7508105b")
+    ),
+    .package(
+      name: "OCMock",
+      url: "https://github.com/firebase/ocmock.git",
+      .revision("7291762d3551c5c7e31c49cce40a0e391a52e889")
+    ),
+    .package(
+      name: "leveldb",
+      url: "https://github.com/firebase/leveldb.git",
+      .revision("3f046978ecffd57ea6eb9a0897cc8a3b45b44df8")
+    ),
     // Branches need a force update with a run with the revision set like below.
     //   .package(url: "https://github.com/paulb777/nanopb.git", .revision("564392bd87bd093c308a3aaed3997466efb95f74"))
   ],
