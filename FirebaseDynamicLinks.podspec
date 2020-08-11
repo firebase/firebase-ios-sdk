@@ -27,7 +27,7 @@ Firebase Dynamic Links are deep links that enhance user experience and increase 
     'Interop/Analytics/Public/*.h',
     'FirebaseCore/Sources/Private/*.h',
   ]
-  s.public_header_files = 'FirebaseDynamicLinks/Sources/Public/*.h'
+  s.public_header_files = 'FirebaseDynamicLinks/Sources/Public/FirebaseDynamicLinks/*.h'
   s.frameworks = 'QuartzCore'
   s.weak_framework = 'WebKit'
   s.dependency 'FirebaseCore', '~> 6.10'
