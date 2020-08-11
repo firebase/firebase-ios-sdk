@@ -108,12 +108,24 @@ let package = Package(
     ),
     .package(
       name: "abseil",
-      url: "https://github.com/paulb777/abseil-cpp.git",
-      .revision("7790dc1")
+      url: "https://github.com/firebase/abseil-cpp.git",
+      .revision("7790dc1a581cd704ec173e0a30286aabacaaa99d")
     ),
-    .package(name: "gRPC", url: "https://github.com/paulb777/grpc.git", .revision("37a9e06cd8")),
-    .package(name: "OCMock", url: "https://github.com/paulb777/ocmock.git", .revision("7291762")),
-    .package(name: "leveldb", url: "https://github.com/paulb777/leveldb.git", .revision("3f04697")),
+    .package(
+      name: "gRPC",
+      url: "https://github.com/firebase/grpc.git",
+      .revision("c603c5a2ea17a1229996693a6fb13bbf7508105b")
+    ),
+    .package(
+      name: "OCMock",
+      url: "https://github.com/firebase/ocmock.git",
+      .revision("7291762d3551c5c7e31c49cce40a0e391a52e889")
+    ),
+    .package(
+      name: "leveldb",
+      url: "https://github.com/firebase/leveldb.git",
+      .revision("3f046978ecffd57ea6eb9a0897cc8a3b45b44df8")
+    ),
     // Branches need a force update with a run with the revision set like below.
     //   .package(url: "https://github.com/paulb777/nanopb.git", .revision("564392bd87bd093c308a3aaed3997466efb95f74"))
   ],
