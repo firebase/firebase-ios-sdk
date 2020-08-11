@@ -12,3 +12,9 @@ telemetry from Google SDKs.
 ## To develop
 
 - Run `generate_project.sh` after installing the prereqs
+
+## When adding new logging endpoint
+
+- Use commands similar to:
+    - `python -c "line='https://www.firebase.com'; print line[0::2]" `
+    - `python -c "line='https://www.firebase.com'; print line[1::2]" `
