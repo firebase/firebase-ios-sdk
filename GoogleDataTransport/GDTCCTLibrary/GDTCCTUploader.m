@@ -82,6 +82,7 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
   [[GDTCORRegistrar sharedInstance] registerUploader:uploader target:kGDTCORTargetCCT];
   [[GDTCORRegistrar sharedInstance] registerUploader:uploader target:kGDTCORTargetFLL];
   [[GDTCORRegistrar sharedInstance] registerUploader:uploader target:kGDTCORTargetCSH];
+  [[GDTCORRegistrar sharedInstance] registerUploader:uploader target:kGDTCORTargetINT];
 }
 
 + (instancetype)sharedInstance {
@@ -157,6 +158,24 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
                           p1[27], p2[27], p1[28], p2[28], p1[29], p2[29], p1[30], p2[30], p1[31],
                           p2[31], p1[32], p2[32], p1[33], p2[33], p1[34], p2[34], p1[35], '\0'};
     CSHServerURL = [NSURL URLWithString:[NSString stringWithUTF8String:URL]];
+
+  static NSURL *INTServerURL;
+  static dispatch_once_t INTOnceToken;
+  dispatch_once(&INTOnceToken, ^{
+    // These strings should be interleaved to construct the real URL. This is just to (hopefully)
+    // fool github URL scanning bots.
+    const char *p1 = "hts/frbslgignenlp.ogepscmv/ieo/eaybtho";
+    const char *p2 = "tp:/ieaeognitra-agolai.o/1frlglgc/aclg";
+    const char URL[77] = {p1[0],  p2[0],  p1[1],  p2[1],  p1[2],  p2[2],  p1[3],  p2[3],  p1[4],
+                          p2[4],  p1[5],  p2[5],  p1[6],  p2[6],  p1[7],  p2[7],  p1[8],  p2[8],
+                          p1[9],  p2[9],  p1[10], p2[10], p1[11], p2[11], p1[12], p2[12], p1[13],
+                          p2[13], p1[14], p2[14], p1[15], p2[15], p1[16], p2[16], p1[17], p2[17],
+                          p1[18], p2[18], p1[19], p2[19], p1[20], p2[20], p1[21], p2[21], p1[22],
+                          p2[22], p1[23], p2[23], p1[24], p2[24], p1[25], p2[25], p1[26], p2[26],
+                          p1[27], p2[27], p1[28], p2[28], p1[29], p2[29], p1[30], p2[30], p1[31],
+                          p2[31], p1[32], p2[32], p1[33], p2[33], p1[34], p2[34], p1[35], p2[35], 
+                          p1[36],p2[36], p1[37], p2[37], '\0'};
+    INTServerURL = [NSURL URLWithString:[NSString stringWithUTF8String:URL]];
   });
 
 #if !NDEBUG
@@ -174,6 +193,9 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
 
     case kGDTCORTargetCSH:
       return CSHServerURL;
+    
+    case kGDTCORTargetINT:
+      return INTServerURL;
 
     default:
       GDTCORLogDebug(@"GDTCCTUploader doesn't support target %ld", (long)target);
@@ -182,7 +204,7 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
   }
 }
 
-- (NSString *)FLLAndCSHAPIKey {
+- (NSString *)FLLAndCSHandINTAPIKey {
   static NSString *defaultServerKey;
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
@@ -360,6 +382,8 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
 
     case kGDTCORTargetFLL:
       // Falls through.
+    case kGDTCORTargetINT:
+      // Falls through.
     case kGDTCORTargetCSH:
       self->_FLLNextUploadTime = futureUploadTime;
       break;
@@ -496,9 +520,9 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
   }
 
   // Upload events when there are with no additional conditions for kGDTCORTargetCSH.
-  if (target == kGDTCORTargetCSH) {
-    GDTCORLogDebug(@"%@",
-                   @"CCT: kGDTCORTargetCSH events are allowed to be uploaded straight away.");
+  if (target == kGDTCORTargetCSH || target == kGDTCORTargetINT) {
+    GDTCORLogDebug(@"%@", @"CCT: kGDTCORTargetCSH and kGDTCORTargetINT events are allowed to be "
+                   @"uploaded straight away.");
     return YES;
   }
 
@@ -589,6 +613,10 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
     case kGDTCORTargetCSH:
       targetString = @"csh";
       break;
+    
+    case kGDTCORTargetCSH:
+      targetString = @"int";
+      break;
 
     default:
       targetString = @"unknown";
@@ -597,8 +625,8 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
   NSString *userAgent =
       [NSString stringWithFormat:@"datatransport/%@ %@support/%@ apple/", kGDTCORVersion,
                                  targetString, kGDTCCTSupportSDKVersion];
-  if (target == kGDTCORTargetFLL || target == kGDTCORTargetCSH) {
-    [request setValue:[self FLLAndCSHAPIKey] forHTTPHeaderField:@"X-Goog-Api-Key"];
+  if (target == kGDTCORTargetFLL || target == kGDTCORTargetCSH || target == kGDTCORTargetINT) {
+    [request setValue:[self FLLAndCSHandINTAPIKey] forHTTPHeaderField:@"X-Goog-Api-Key"];
   }
   if ([GDTCCTCompressionHelper isGzipped:data]) {
     [request setValue:@"gzip" forHTTPHeaderField:@"Content-Encoding"];
