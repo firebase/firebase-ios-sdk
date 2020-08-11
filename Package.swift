@@ -67,7 +67,7 @@ let package = Package(
       targets: ["FirebaseFunctions"]
     ),
     .library(
-      name: "FirebaseInAppMessaging",
+      name: "FirebaseInAppMessaging-Beta",
       targets: ["FirebaseInAppMessaging"]
     ),
     .library(

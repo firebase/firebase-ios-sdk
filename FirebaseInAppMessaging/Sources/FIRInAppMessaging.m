@@ -26,10 +26,10 @@
 #import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 
 #import "FirebaseInAppMessaging/Sources/FIRCore+InAppMessaging.h"
+#import "FirebaseInAppMessaging/Sources/FIRInAppMessagingPrivate.h"
 #import "FirebaseInAppMessaging/Sources/Private/Flows/FIRIAMDisplayExecutor.h"
 #import "FirebaseInAppMessaging/Sources/Private/Runtime/FIRIAMRuntimeManager.h"
 #import "FirebaseInAppMessaging/Sources/Private/Runtime/FIRInAppMessaging+Bootstrap.h"
-#import "FirebaseInAppMessaging/Sources/FIRInAppMessagingPrivate.h"
 
 static BOOL _autoBootstrapOnFIRAppInit = YES;
 
