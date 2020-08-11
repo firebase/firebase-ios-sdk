@@ -1,3 +1,7 @@
+# v4.3.0
+- [changed] Functionally neutral public header refactor to enable Swift Package
+  Manager support.
+
 # v4.2.1
 - [fixed]Check for Pending Dynamic link guard check logic
 

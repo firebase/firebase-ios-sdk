@@ -18,6 +18,7 @@
 #import "FirebaseCore/FirebaseCore.h"
 #import "FirebaseCrashlytics/FirebaseCrashlytics.h"
 #import "FirebaseDatabase/FirebaseDatabase.h"
+#import "FirebaseDynamicLinks/FirebaseDynamicLinks.h"
 #import "FirebaseFirestore/FirebaseFirestore.h"
 #import "FirebaseFunctions/FirebaseFunctions.h"
 #import "FirebaseInstallations/FirebaseInstallations.h"
@@ -30,6 +31,7 @@
 #import <FirebaseCore/FirebaseCore.h>
 #import <FirebaseCrashlytics/FirebaseCrashlytics.h>
 #import <FirebaseDatabase/FirebaseDatabase.h>
+#import <FirebaseDynamicLinks/FirebaseDynamicLinks.h>
 #import <FirebaseFirestore/FirebaseFirestore.h>
 #import <FirebaseFunctions/FirebaseFunctions.h>
 #import <FirebaseInstallations/FirebaseInstallations.h>

@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 
-#import "FirebaseDynamicLinks/Sources/Public/FIRDynamicLinks.h"
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
+
+#import "FirebaseDynamicLinks/Sources/Public/FirebaseDynamicLinks/FIRDynamicLinks.h"
 
 #import <UIKit/UIKit.h>
 
@@ -781,3 +784,5 @@ static NSString *kSelfDiagnoseOutputFooter =
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif  // TARGET_OS_IOS

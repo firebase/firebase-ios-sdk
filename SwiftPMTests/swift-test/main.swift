@@ -18,6 +18,7 @@ import FirebaseCore
 import FirebaseAuth
 import FirebaseABTesting
 import FirebaseCrashlytics
+import FirebaseDynamicLinks
 import FirebaseFirestore
 import FirebaseFirestoreSwift
 import FirebaseFunctions

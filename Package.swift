@@ -51,6 +51,10 @@ let package = Package(
       targets: ["FirebaseDatabase"]
     ),
     .library(
+      name: "FirebaseDynamicLinks",
+      targets: ["FirebaseDynamicLinks"]
+    ),
+    .library(
       name: "FirebaseFirestore",
       targets: ["FirebaseFirestore"]
     ),
@@ -315,6 +319,19 @@ let package = Package(
     ),
 
     .target(
+      name: "FirebaseDynamicLinks",
+      dependencies: ["FirebaseCore"],
+      path: "FirebaseDynamicLinks/Sources",
+      publicHeadersPath: "Public",
+      cSettings: [
+        .headerSearchPath("../../"),
+        .define("FIRDynamicLinks3P", to: "1"),
+        .define("GIN_SCION_LOGGING", to: "1"),
+        .define("FIRDynamicLinks_VERSION", to: "0.0.1"), // TODO: Fix version
+      ]
+    ),
+
+    .target(
       name: "FirebaseFirestore",
       dependencies: [
         "FirebaseCore",
@@ -544,6 +561,7 @@ let package = Package(
         "FirebaseCrashlytics",
         "FirebaseCore",
         "FirebaseDatabase",
+        "FirebaseDynamicLinks",
         "FirebaseFirestore",
         "FirebaseFirestoreSwift",
         "FirebaseInstallations",
@@ -575,6 +593,7 @@ let package = Package(
         "FirebaseCrashlytics",
         "FirebaseCore",
         "FirebaseDatabase",
+        "FirebaseDynamicLinks",
         "FirebaseFirestore",
         "FirebaseInstallations",
         "FirebaseRemoteConfig",

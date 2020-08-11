@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
+
 #import "FirebaseDynamicLinks/Sources/FIRDLScionLogging.h"
 
 #import "Interop/Analytics/Public/FIRInteropParameterNames.h"
@@ -52,3 +55,5 @@ void FIRDLLogEventToScion(FIRDLLogEvent event,
     [analytics logEventWithOrigin:@"fdl" name:name parameters:parameters];
   }
 }
+
+#endif  // TARGET_OS_IOS
