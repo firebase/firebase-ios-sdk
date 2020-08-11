@@ -56,4 +56,4 @@ void FIRDLLogEventToScion(FIRDLLogEvent event,
   }
 }
 
-#endif
+#endif // TARGET_OS_IOS

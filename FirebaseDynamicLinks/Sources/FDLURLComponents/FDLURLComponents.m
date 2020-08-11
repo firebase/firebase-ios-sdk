@@ -697,4 +697,4 @@ static NSString *const kFDLOtherPlatformParametersFallbackURLKey = @"ofl";
 
 @end
 
-#endif
+#endif // TARGET_OS_IOS

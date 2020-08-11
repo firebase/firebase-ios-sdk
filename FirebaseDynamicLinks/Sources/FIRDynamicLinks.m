@@ -785,4 +785,4 @@ static NSString *kSelfDiagnoseOutputFooter =
 
 NS_ASSUME_NONNULL_END
 
-#endif
+#endif // TARGET_OS_IOS
