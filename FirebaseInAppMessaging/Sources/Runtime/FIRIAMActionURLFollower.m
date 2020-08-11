@@ -17,8 +17,8 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
-#import "FIRCore+InAppMessaging.h"
-#import "FIRIAMActionURLFollower.h"
+#import "FirebaseInAppMessaging/Sources/FIRCore+InAppMessaging.h"
+#import "FirebaseInAppMessaging/Sources/Private/Runtime/FIRIAMActionURLFollower.h"
 
 @interface FIRIAMActionURLFollower ()
 @property(nonatomic, readonly, nonnull, copy) NSSet<NSString *> *appCustomURLSchemesSet;

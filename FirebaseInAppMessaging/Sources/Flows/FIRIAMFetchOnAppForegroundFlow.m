@@ -16,8 +16,8 @@
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
-#import "FIRCore+InAppMessaging.h"
-#import "FIRIAMFetchOnAppForegroundFlow.h"
+#import "FirebaseInAppMessaging/Sources/FIRCore+InAppMessaging.h"
+#import "FirebaseInAppMessaging/Sources/Private/Flows/FIRIAMFetchOnAppForegroundFlow.h"
 @implementation FIRIAMFetchOnAppForegroundFlow
 - (void)start {
   FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM600002",

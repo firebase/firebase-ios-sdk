@@ -16,11 +16,11 @@
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
-#import "FIRCore+InAppMessaging.h"
-#import "FIRIAMClearcutHttpRequestSender.h"
-#import "FIRIAMClearcutLogStorage.h"
-#import "FIRIAMClientInfoFetcher.h"
-#import "FIRIAMTimeFetcher.h"
+#import "FirebaseInAppMessaging/Sources/FIRCore+InAppMessaging.h"
+#import "FirebaseInAppMessaging/Sources/Analytics/FIRIAMClearcutHttpRequestSender.h"
+#import "FirebaseInAppMessaging/Sources/Analytics/FIRIAMClearcutLogStorage.h"
+#import "FirebaseInAppMessaging/Sources/Private/Analytics/FIRIAMClientInfoFetcher.h"
+#import "FirebaseInAppMessaging/Sources/Private/Util/FIRIAMTimeFetcher.h"
 
 @interface FIRIAMClearcutHttpRequestSender ()
 @property(readonly, copy, nonatomic) NSString *serverHostName;

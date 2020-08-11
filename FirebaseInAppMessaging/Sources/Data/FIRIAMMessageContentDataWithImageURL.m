@@ -16,10 +16,10 @@
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
-#import "FIRCore+InAppMessaging.h"
-#import "FIRIAMMessageContentData.h"
-#import "FIRIAMMessageContentDataWithImageURL.h"
-#import "FIRIAMSDKRuntimeErrorCodes.h"
+#import "FirebaseInAppMessaging/Sources/FIRCore+InAppMessaging.h"
+#import "FirebaseInAppMessaging/Sources/Private/Data/FIRIAMMessageContentData.h"
+#import "FirebaseInAppMessaging/Sources/Private/Data/FIRIAMMessageContentDataWithImageURL.h"
+#import "FirebaseInAppMessaging/Sources/Runtime/FIRIAMSDKRuntimeErrorCodes.h"
 
 static NSInteger const SuccessHTTPStatusCode = 200;
 

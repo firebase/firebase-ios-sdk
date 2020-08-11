@@ -16,10 +16,10 @@
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
-#import "FIRCore+InAppMessaging.h"
+#import "FirebaseInAppMessaging/Sources/FIRCore+InAppMessaging.h"
 
-#import "FIRIAMDisplayCheckOnFetchDoneNotificationFlow.h"
-#import "FIRIAMDisplayExecutor.h"
+#import "FirebaseInAppMessaging/Sources/Flows/FIRIAMDisplayCheckOnFetchDoneNotificationFlow.h"
+#import "FirebaseInAppMessaging/Sources/Private/Flows/FIRIAMDisplayExecutor.h"
 
 extern NSString *const kFIRIAMFetchIsDoneNotification;
 

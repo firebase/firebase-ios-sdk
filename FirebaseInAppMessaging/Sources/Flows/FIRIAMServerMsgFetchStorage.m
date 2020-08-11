@@ -16,8 +16,8 @@
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
-#import "FIRCore+InAppMessaging.h"
-#import "FIRIAMServerMsgFetchStorage.h"
+#import "FirebaseInAppMessaging/Sources/FIRCore+InAppMessaging.h"
+#import "FirebaseInAppMessaging/Sources/Private/Flows/FIRIAMServerMsgFetchStorage.h"
 @implementation FIRIAMServerMsgFetchStorage
 - (NSString *)determineCacheFilePath {
   NSString *cachePath =

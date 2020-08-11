@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import "FIRIAMBannerViewController.h"
-#import "FIRCore+InAppMessagingDisplay.h"
+#import "FirebaseInAppMessaging/Sources/DefaultUI/Banner/FIRIAMBannerViewController.h"
+#import "FirebaseInAppMessaging/Sources/DefaultUI/FIRCore+InAppMessagingDisplay.h"
 
 @interface FIRIAMBannerViewController ()
 

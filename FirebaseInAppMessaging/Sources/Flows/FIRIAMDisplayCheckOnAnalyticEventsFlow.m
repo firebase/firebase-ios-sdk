@@ -18,10 +18,10 @@
 #import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 #import "Interop/Analytics/Public/FIRAnalyticsInteropListener.h"
 
-#import "FIRCore+InAppMessaging.h"
-#import "FIRIAMDisplayCheckOnAnalyticEventsFlow.h"
-#import "FIRIAMDisplayExecutor.h"
-#import "FIRInAppMessagingPrivate.h"
+#import "FirebaseInAppMessaging/Sources/FIRCore+InAppMessaging.h"
+#import "FirebaseInAppMessaging/Sources/Private/Flows/FIRIAMDisplayCheckOnAnalyticEventsFlow.h"
+#import "FirebaseInAppMessaging/Sources/Private/Flows/FIRIAMDisplayExecutor.h"
+#import "FirebaseInAppMessaging/Sources/FIRInAppMessagingPrivate.h"
 
 @interface FIRIAMDisplayCheckOnAnalyticEventsFlow () <FIRAnalyticsInteropListener>
 @end

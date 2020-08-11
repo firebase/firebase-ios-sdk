@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#import "FIRIAMAnalyticsEventLoggerImpl.h"
+#import "FirebaseInAppMessaging/Sources/Analytics/FIRIAMAnalyticsEventLoggerImpl.h"
 
-#import "FIRCore+InAppMessaging.h"
-#import "FIRIAMClearcutLogger.h"
+#import "FirebaseInAppMessaging/Sources/FIRCore+InAppMessaging.h"
+#import "FirebaseInAppMessaging/Sources/Private/Analytics/FIRIAMClearcutLogger.h"
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 

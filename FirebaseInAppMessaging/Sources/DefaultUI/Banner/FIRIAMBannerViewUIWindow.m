@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRIAMBannerViewUIWindow.h"
+#import "FirebaseInAppMessaging/Sources/DefaultUI/Banner/FIRIAMBannerViewUIWindow.h"
 
 @implementation FIRIAMBannerViewUIWindow
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRIAMMessageDefinition.h"
+#import "FirebaseInAppMessaging/Sources/Private/Data/FIRIAMMessageDefinition.h"
 
 @implementation FIRIAMMessageRenderData
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "UIColor+FIRIAMHexString.h"
+#import "FirebaseInAppMessaging/Sources/Util/UIColor+FIRIAMHexString.h"
 
 @implementation UIColor (HexString)
 + (UIColor *)firiam_colorWithHexString:(nullable NSString *)hexString {

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#import "FIRIAMRenderingEffectSetting.h"
+#import "FirebaseInAppMessaging/Sources/Private/Data/FIRIAMRenderingEffectSetting.h"
 
 @implementation FIRIAMRenderingEffectSetting
 

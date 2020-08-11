@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "FIRIAMBaseRenderingViewController.h"
-#import "FIRCore+InAppMessagingDisplay.h"
-#import "FIRIAMTimeFetcher.h"
+#import "FirebaseInAppMessaging/Sources/DefaultUI/FIRIAMBaseRenderingViewController.h"
+#import "FirebaseInAppMessaging/Sources/DefaultUI/FIRCore+InAppMessagingDisplay.h"
+#import "FirebaseInAppMessaging/Sources/Private/Util/FIRIAMTimeFetcher.h"
 
 @interface FIRIAMBaseRenderingViewController ()
 // For fiam messages, it's required to be kMinValidImpressionTime to

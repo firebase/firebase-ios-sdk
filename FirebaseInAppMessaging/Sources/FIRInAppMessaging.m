@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRInAppMessaging.h"
+#import "FirebaseInAppMessaging/Sources/Public/FIRInAppMessaging.h"
 
 #import <Foundation/Foundation.h>
 
@@ -22,11 +22,11 @@
 #import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
 #import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 
-#import "FIRCore+InAppMessaging.h"
-#import "FIRIAMDisplayExecutor.h"
-#import "FIRIAMRuntimeManager.h"
-#import "FIRInAppMessaging+Bootstrap.h"
-#import "FIRInAppMessagingPrivate.h"
+#import "FirebaseInAppMessaging/Sources/FIRCore+InAppMessaging.h"
+#import "FirebaseInAppMessaging/Sources/Private/Flows/FIRIAMDisplayExecutor.h"
+#import "FirebaseInAppMessaging/Sources/Private/Runtime/FIRIAMRuntimeManager.h"
+#import "FirebaseInAppMessaging/Sources/Private/Runtime/FIRInAppMessaging+Bootstrap.h"
+#import "FirebaseInAppMessaging/Sources/FIRInAppMessagingPrivate.h"
 
 static BOOL _autoBootstrapOnFIRAppInit = YES;
 

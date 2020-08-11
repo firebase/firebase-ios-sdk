@@ -16,8 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRInAppMessagingRendering.h"
-#import "FIRInAppMessagingRenderingPrivate.h"
+#import "FirebaseInAppMessaging/Sources/Public/FIRInAppMessagingRendering.h"
+#import "FirebaseInAppMessaging/Sources/RenderingObjects/FIRInAppMessagingRenderingPrivate.h"
 
 @implementation FIRInAppMessagingDisplayMessage
 

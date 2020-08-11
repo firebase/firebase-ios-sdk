@@ -16,8 +16,8 @@
 
 #import <UIKit/UIKit.h>
 
-#import "FIRCore+InAppMessagingDisplay.h"
-#import "FIRIAMModalViewController.h"
+#import "FirebaseInAppMessaging/Sources/DefaultUI/FIRCore+InAppMessagingDisplay.h"
+#import "FirebaseInAppMessaging/Sources/DefaultUI/Modal/FIRIAMModalViewController.h"
 
 @interface FIRIAMModalViewController ()
 

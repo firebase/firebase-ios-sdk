@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRIAMSDKSettings.h"
+#import "FirebaseInAppMessaging/Sources/Private/Runtime/FIRIAMSDKSettings.h"
 
 @implementation FIRIAMSDKSettings
 

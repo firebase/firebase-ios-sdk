@@ -17,7 +17,7 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
-#import "FIRIAMActionURLFollower.h"
+#import "FirebaseInAppMessaging/Sources/Private/Runtime/FIRIAMActionURLFollower.h"
 
 // since OCMock does support mocking respondsToSelector on mock object, we have to define
 // different delegate classes with different coverages of certain delegate methods:

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRIAMDisplayTriggerDefinition.h"
+#import "FirebaseInAppMessaging/Sources/Private/DisplayTrigger/FIRIAMDisplayTriggerDefinition.h"
 
 @implementation FIRIAMDisplayTriggerDefinition
 

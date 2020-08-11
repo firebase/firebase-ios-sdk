@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRIAMTimeFetcher.h"
+#import "FirebaseInAppMessaging/Sources/Private/Util/FIRIAMTimeFetcher.h"
 
 @implementation FIRIAMTimerWithNSDate
 - (NSTimeInterval)currentTimestampInSeconds {

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "NSString+FIRInterlaceStrings.h"
+#import "FirebaseInAppMessaging/Sources/Private/Util/NSString+FIRInterlaceStrings.h"
 
 @implementation NSString (InterlaceStrings)
 

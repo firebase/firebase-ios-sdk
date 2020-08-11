@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import "FIRIAMCardViewController.h"
-#import "FIRCore+InAppMessagingDisplay.h"
+#import "FirebaseInAppMessaging/Sources/DefaultUI/Card/FIRIAMCardViewController.h"
+#import "FirebaseInAppMessaging/Sources/DefaultUI/FIRCore+InAppMessagingDisplay.h"
 
 @interface FIRIAMCardViewController ()
 

@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import "FIRIAMImageOnlyViewController.h"
-#import "FIRCore+InAppMessagingDisplay.h"
+#import "FirebaseInAppMessaging/Sources/DefaultUI/ImageOnly/FIRIAMImageOnlyViewController.h"
+#import "FirebaseInAppMessaging/Sources/DefaultUI/FIRCore+InAppMessagingDisplay.h"
 
 @interface FIRIAMImageOnlyViewController ()
 
