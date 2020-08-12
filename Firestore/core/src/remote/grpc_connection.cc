@@ -35,6 +35,7 @@
 #include "absl/memory/memory.h"
 #include "absl/strings/str_cat.h"
 #include "grpcpp/create_channel.h"
+#include "grpcpp/grpcpp.h"
 
 namespace firebase {
 namespace firestore {
@@ -119,8 +120,32 @@ class HostConfigMap {
 };
 
 HostConfigMap& Config() {
-  static HostConfigMap config_by_host_;
-  return config_by_host_;
+  static HostConfigMap config_by_host;
+  return config_by_host;
+}
+
+class ClientLanguageHeader {
+  using Guard = std::lock_guard<std::mutex>;
+
+ public:
+  void Set(std::string value) {
+    Guard guard(mutex_);
+    value_ = std::move(value);
+  }
+
+  const std::string& Get() const {
+    Guard guard(mutex_);
+    return value_;
+  }
+
+ private:
+  std::string value_;
+  mutable std::mutex mutex_;
+};
+
+ClientLanguageHeader& LanguageHeader() {
+  static ClientLanguageHeader header;
+  return header;
 }
 
 #if __APPLE__
@@ -173,16 +198,7 @@ std::unique_ptr<grpc::ClientContext> GrpcConnection::CreateContext(
     context->AddMetadata(kAuthorizationHeader, absl::StrCat("Bearer ", token));
   }
 
-  // TODO(dimond): This should ideally also include the gRPC version, however,
-  // gRPC defines the version as a macro, so it would be hardcoded based on
-  // version we have at compile time of the Firestore library, rather than the
-  // version available at runtime/at compile time by the user of the library.
-  //
-  // TODO(varconst): this should be configurable (e.g., "gl-cpp" or similar for
-  // C++ SDK, etc.).
-  context->AddMetadata(
-      kXGoogAPIClientHeader,
-      StringFormat("gl-objc/ fire/%s grpc/", kFirestoreVersionString));
+  AddCloudApiHeaders(*context);
 
   // This header is used to improve routing and project isolation by the
   // backend.
@@ -191,6 +207,13 @@ std::unique_ptr<grpc::ClientContext> GrpcConnection::CreateContext(
                        StringFormat("projects/%s/databases/%s",
                                     db_id.project_id(), db_id.database_id()));
   return context;
+}
+
+void GrpcConnection::AddCloudApiHeaders(grpc::ClientContext& context) {
+  auto api_headers =
+      StringFormat("%s fire/%s grpc/%s", LanguageHeader().Get(),
+                   kFirestoreVersionString, grpc::Version());
+  context.AddMetadata(kXGoogAPIClientHeader, api_headers);
 }
 
 void GrpcConnection::EnsureActiveStub() {
@@ -307,15 +330,18 @@ void GrpcConnection::Unregister(GrpcCall* call) {
   active_calls_.erase(found);
 }
 
-/*static*/ void GrpcConnection::UseTestCertificate(
-    const std::string& host,
-    const Path& certificate_path,
-    const std::string& target_name) {
-  Config().UseTestCertificate(host, certificate_path, target_name);
+void GrpcConnection::SetClientLanguageHeader(std::string language_header) {
+  LanguageHeader().Set(std::move(language_header));
 }
 
-/*static*/ void GrpcConnection::UseInsecureChannel(const std::string& host) {
+void GrpcConnection::UseInsecureChannel(const std::string& host) {
   Config().UseInsecureChannel(host);
+}
+
+void GrpcConnection::UseTestCertificate(const std::string& host,
+                                        const Path& certificate_path,
+                                        const std::string& target_name) {
+  Config().UseTestCertificate(host, certificate_path, target_name);
 }
 
 }  // namespace remote

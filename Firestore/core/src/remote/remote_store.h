@@ -19,6 +19,7 @@
 
 #include <memory>
 #include <unordered_map>
+#include <string>
 #include <vector>
 
 #include "Firestore/core/src/core/transaction.h"
@@ -206,6 +207,8 @@ class RemoteStore : public TargetMetadataProvider,
   void OnWriteStreamMutationResult(
       model::SnapshotVersion commit_version,
       std::vector<model::MutationResult> mutation_results) override;
+
+  static void SetClientLanguageHeader(std::string language_header);
 
  private:
   void RestartNetwork();

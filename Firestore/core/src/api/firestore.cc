@@ -191,6 +191,10 @@ void Firestore::DisableNetwork(util::StatusCallback callback) {
   client_->DisableNetwork(std::move(callback));
 }
 
+void Firestore::SetClientLanguageHeader(std::string language_header) {
+  FirestoreClient::SetClientLanguageHeader(std::move(language_header));
+}
+
 std::unique_ptr<ListenerRegistration> Firestore::AddSnapshotsInSyncListener(
     std::unique_ptr<core::EventListener<Empty>> listener) {
   EnsureClientConfigured();

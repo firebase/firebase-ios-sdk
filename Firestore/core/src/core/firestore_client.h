@@ -18,6 +18,7 @@
 #define FIRESTORE_CORE_SRC_CORE_FIRESTORE_CLIENT_H_
 
 #include <memory>
+#include <string>
 #include <vector>
 
 #include "Firestore/core/src/api/api_fwd.h"
@@ -173,7 +174,10 @@ class FirestoreClient : public std::enable_shared_from_this<FirestoreClient> {
   const std::shared_ptr<util::AsyncQueue>& worker_queue() const {
     return worker_queue_;
   }
+
   bool is_terminated() const;
+
+  static void SetClientLanguageHeader(std::string language_header);
 
  private:
   FirestoreClient(
