@@ -64,15 +64,6 @@ esac
 export MINT_PATH=Mint
 
 system=$(uname -s)
-if [[ "$system" == "Darwin" ]]; then
-  version=$(mint run swiftformat --version)
-  # Log the version in non-interactive use as it can be useful in travis logs.
-  # A version check is not required because `mint bootstrap` ensures the
-  # version in the `Mintfile` is installed.
-  if [[ ! -t 1 ]]; then
-    echo "Found: $version"
-  fi
-fi
 
 # Joins the given arguments with the separator given as the first argument.
 function join() {
