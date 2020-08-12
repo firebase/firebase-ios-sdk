@@ -210,9 +210,8 @@ std::unique_ptr<grpc::ClientContext> GrpcConnection::CreateContext(
 }
 
 void GrpcConnection::AddCloudApiHeaders(grpc::ClientContext& context) {
-  auto api_headers =
-      StringFormat("%s fire/%s grpc/%s", LanguageHeader().Get(),
-                   kFirestoreVersionString, grpc::Version());
+  auto api_headers = StringFormat("%s fire/%s grpc/%s", LanguageHeader().Get(),
+                                  kFirestoreVersionString, grpc::Version());
   context.AddMetadata(kXGoogAPIClientHeader, api_headers);
 }
 

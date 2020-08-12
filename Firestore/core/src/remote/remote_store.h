@@ -18,8 +18,8 @@
 #define FIRESTORE_CORE_SRC_REMOTE_REMOTE_STORE_H_
 
 #include <memory>
-#include <unordered_map>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 #include "Firestore/core/src/core/transaction.h"
