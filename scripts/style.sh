@@ -1,10 +1,13 @@
 #!/bin/bash
 
-# Copyright 2017 Google
+# Copyright 2017 Google LLC
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
+#
 #      http://www.apache.org/licenses/LICENSE-2.0
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -68,7 +71,7 @@ system=$(uname -s)
 if [[ "$system" == "Darwin" ]]; then
   version=$(swiftformat --version)
   # Log the version in non-interactive use as it can be useful in travis logs.
-  # A version check is not requried because `mint bootstrap` ensures the
+  # A version check is not required because `mint bootstrap` ensures the
   # version in the `Mintfile` is installed.
   if [[ ! -t 1 ]]; then
     echo "Found: $version"
