@@ -183,10 +183,10 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
     case kGDTCORTargetCSH:
       return CSHServerURL;
 
-      // copybara:insert_begin(Reserve private endpoint)
-      //    case kGDTCORTargetINT:
-      //      return [NSURL URLWithString:kINTServerURL];
-      // copybara:insert_end
+      /* copybara:insert(Reserve private endpoint)
+      case kGDTCORTargetINT:
+        return [NSURL URLWithString:kINTServerURL];
+      */
 
     default:
       GDTCORLogDebug(@"GDTCCTUploader doesn't support target %ld", (long)target);
