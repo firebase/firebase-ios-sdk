@@ -16,8 +16,8 @@
 
 #import "GoogleDataTransport/GDTCORTests/Unit/GDTCORTestCase.h"
 
-#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORClock.h"
-#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORPlatform.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORClock.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORPlatform.h"
 
 @interface GDTCORClockTest : GDTCORTestCase
 
@@ -111,6 +111,12 @@
 
   // Assert that uptime difference reflects the actually passed time.
   XCTAssertLessThanOrEqual(ABS(uptimeDiff - timeDiff), accuracy);
+}
+
+- (void)testTimezoneOffsetSeconds {
+  GDTCORClock *snapshot = [GDTCORClock snapshot];
+  int64_t expectedTimeZoneOffset = [[NSTimeZone systemTimeZone] secondsFromGMT];
+  XCTAssertEqual(snapshot.timezoneOffsetSeconds, expectedTimeZoneOffset);
 }
 
 @end

@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseInstallations'
-  s.version          = '1.5.0'
+  s.version          = '1.6.0'
   s.summary          = 'Firebase Installations'
 
   s.description      = <<-DESC
@@ -33,13 +33,13 @@ Pod::Spec.new do |s|
     'GoogleUtilities/UserDefaults/Private/*.h',
   ]
   s.public_header_files = [
-    base_dir + 'Library/Public/*.h',
+    base_dir + 'Library/Public/FirebaseInstallations/*.h',
     base_dir + 'Library/Private/*.h',
   ]
   s.private_header_files = base_dir + 'Library/Private/*.h'
 
   s.framework = 'Security'
-  s.dependency 'FirebaseCore', '~> 6.8'
+  s.dependency 'FirebaseCore', '~> 6.10'
   s.dependency 'PromisesObjC', '~> 1.2'
   s.dependency 'GoogleUtilities/Environment', '~> 6.7'
   s.dependency 'GoogleUtilities/UserDefaults', '~> 6.7'

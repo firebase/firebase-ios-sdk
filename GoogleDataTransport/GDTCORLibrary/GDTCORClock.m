@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORClock.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORClock.h"
 
 #import <sys/sysctl.h>
 
@@ -84,9 +84,7 @@ static int64_t UptimeInNanoseconds() {
     _uptimeNanoseconds = UptimeInNanoseconds();
     _timeMillis =
         (int64_t)((CFAbsoluteTimeGetCurrent() + kCFAbsoluteTimeIntervalSince1970) * NSEC_PER_USEC);
-    CFTimeZoneRef timeZoneRef = CFTimeZoneCopySystem();
-    _timezoneOffsetSeconds = CFTimeZoneGetSecondsFromGMT(timeZoneRef, 0);
-    CFRelease(timeZoneRef);
+    _timezoneOffsetSeconds = [[NSTimeZone systemTimeZone] secondsFromGMT];
   }
   return self;
 }

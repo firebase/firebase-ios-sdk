@@ -15,7 +15,7 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "FirebaseInstallations/Source/Library/Public/FIRInstallations.h"
+#import "FirebaseInstallations/Source/Library/Public/FirebaseInstallations/FIRInstallations.h"
 
 @class FIRInstallationsIDController;
 @class FIROptions;

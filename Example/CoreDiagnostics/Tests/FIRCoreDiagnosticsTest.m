@@ -22,16 +22,14 @@
 #import <OCMock/OCMock.h>
 #import <nanopb/pb_decode.h>
 #import <nanopb/pb_encode.h>
-#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCOREvent.h"
-#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCOREventDataObject.h"
-#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORTransport.h"
+#import "GoogleDataTransport/GDTCORLibrary/Internal/GoogleDataTransportInternal.h"
 #import "GoogleUtilities/Environment/Private/GULAppEnvironmentUtil.h"
 #import "GoogleUtilities/Environment/Private/GULHeartbeatDateStorage.h"
 #import "GoogleUtilities/UserDefaults/Private/GULUserDefaults.h"
 #import "Interop/CoreDiagnostics/Public/FIRCoreDiagnosticsData.h"
 #import "Interop/CoreDiagnostics/Public/FIRCoreDiagnosticsInterop.h"
 
-#import "FIRCDLibrary/Protogen/nanopb/firebasecore.nanopb.h"
+#import "Firebase/CoreDiagnostics/FIRCDLibrary/Protogen/nanopb/firebasecore.nanopb.h"
 
 extern NSString *const kFIRAppDiagnosticsNotification;
 extern NSString *const kFIRLastCheckinDateKey;

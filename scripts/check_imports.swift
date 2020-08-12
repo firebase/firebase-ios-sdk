@@ -25,18 +25,19 @@ import Foundation
 // Skip these directories. Imports should only be repo-relative in libraries
 // and unit tests.
 let skipDirPatterns = ["/Sample/", "/Pods/", "FirebaseStorage/Tests/Integration",
+                       "FirebaseDynamicLinks/Tests/Integration",
                        "FirebaseInAppMessaging/Tests/Integration/",
                        "Example/InstanceID/App", "SymbolCollisionTest/", "/gen/",
                        "CocoapodsIntegrationTest/"] +
   [
-    "CoreOnly/Sources", // Skip Firebase.h
+    "CoreOnly/Sources", // Skip Firebase.h.
+    "SwiftPMTests", // The SwiftPM imports test module imports.
   ] +
 
   // The following are temporary skips pending working through a first pass of the repo:
   [
     "FirebaseAppDistribution",
     "FirebaseCore/Sources/Private", // TODO: work through adding this back.
-    "FirebaseDynamicLinks",
     "Firebase/CoreDiagnostics",
     "FirebaseDatabase/Sources/third_party/Wrap-leveldb", // Pending SwiftPM for leveldb.
     "Example",
@@ -79,7 +80,11 @@ private func checkFile(_ file: String, logger: ErrorLogger, inRepo repoURL: URL)
   let isPublic = file.range(of: "/Public/") != nil &&
     // TODO: Skip legacy GDTCCTLibrary file that isn't Public and should be moved.
     file.range(of: "GDTCCTLibrary/Public/GDTCOREvent+GDTCCTSupport.h") == nil
-  let isPrivate = file.range(of: "/Sources/Private/") != nil
+  let isPrivate = file.range(of: "/Sources/Private/") != nil ||
+    // Delete when FirebaseInstallations fixes directory structure.
+    file.range(of: "Source/Library/Private/") != nil ||
+    // Delete when GDT fixes directory structure.
+    file.range(of: "GDTCORLibrary/Internal/") != nil
   var inSwiftPackage = false
   var inSwiftPackageElse = false
   let lines = fileContents.components(separatedBy: .newlines)
