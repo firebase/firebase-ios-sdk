@@ -1977,8 +1977,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     return YES;
   }
   if (user) {
-    if ((user.tenantID != nil && ![self.tenantID isEqualToString:user.tenantID]) ||
-        (self.tenantID != nil && ![user.tenantID isEqualToString:self.tenantID])) {
+    if ((user.tenantID || self.tenantID) && ![self.tenantID isEqualToString:user.tenantID]) {
       if (error) {
         *error = [FIRAuthErrorUtils tenantIDMismatchError];
       }

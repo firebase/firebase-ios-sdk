@@ -922,7 +922,7 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
     case FIRAuthErrorCodeTenantIDMismatch:
       return @"ERROR_TENANT_ID_MISMATCH";
     case FIRAuthErrorCodeUnsupportedTenantOperation:
-      return @"UNSUPPORTED_TENANT_OPERATION";
+      return @"ERROR_UNSUPPORTED_TENANT_OPERATION";
   }
 }
 
