@@ -1,10 +1,13 @@
 #!/bin/bash
 
-# Copyright 2017 Google
+# Copyright 2017 Google LLC
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
+#
 #      http://www.apache.org/licenses/LICENSE-2.0
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -55,22 +58,12 @@ case "$version" in
     ;;
 esac
 
+# Ensure that tools in `Mintfile` are installed locally to avoid permissions
+# problems that would otherwise arise from the default of installing in
+# /usr/local.
+export MINT_PATH=Mint
+
 system=$(uname -s)
-if [[ "$system" == "Darwin" ]]; then
-  version=$(swiftformat --version)
-  # Log the version in non-interactive use as it can be useful in travis logs.
-  if [[ ! -t 1 ]]; then
-    echo "Found: $version"
-  fi
-  version="${version/*version /}"
-  # Ensure the swiftformat version is 0.45.5 (as of 2020-08-09)
-  # Update Mintfile and run command below to update.
-  if [[ "$version" != 0.45.5 ]]; then
-    echo "Version $version installed. Please install swiftformat 0.45.5"
-    echo "brew install mint; mint install nicklockwood/SwiftFormat@0.45.5"
-    exit 1
-  fi
-fi
 
 # Joins the given arguments with the separator given as the first argument.
 function join() {
@@ -162,6 +155,9 @@ s%^./%%
 # Sources pulled in by travis bundler, with and without a leading slash
 \%^/?vendor/bundle/% d
 
+# Sources pulled in by the Mint package manager
+\%^Mint% d
+
 # Auth Sample is not subject to formatting
 \%^(FirebaseAuth/Tests/Sample)/% d
 
@@ -185,7 +181,7 @@ for f in $files; do
       # Match output that says:
       # 1/1 files would have been formatted.  (with --dryrun)
       # 1/1 files formatted.                  (without --dryrun)
-      swiftformat "${swift_options[@]}" "$f" 2>&1 | grep '^1/1 files' > /dev/null
+      mint run swiftformat "${swift_options[@]}" "$f" 2>&1 | grep '^1/1 files' > /dev/null
     else
       false
     fi
