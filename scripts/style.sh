@@ -55,20 +55,23 @@ case "$version" in
     ;;
 esac
 
+# Ensure that tools in `Mintfile` are installed locally to avoid permissions
+# problems that would otherwise arise from the default of installing in
+# /usr/local.
+export MINT_PATH=Mint
+
+function swiftformat() {
+  mint run swiftformat "$@"
+}
+
 system=$(uname -s)
 if [[ "$system" == "Darwin" ]]; then
   version=$(swiftformat --version)
   # Log the version in non-interactive use as it can be useful in travis logs.
+  # A version check is not requried because `mint bootstrap` ensures the
+  # version in the `Mintfile` is installed.
   if [[ ! -t 1 ]]; then
     echo "Found: $version"
-  fi
-  version="${version/*version /}"
-  # Ensure the swiftformat version is 0.45.5 (as of 2020-08-09)
-  # Update Mintfile and run command below to update.
-  if [[ "$version" != 0.45.5 ]]; then
-    echo "Version $version installed. Please install swiftformat 0.45.5"
-    echo "brew install mint; mint install nicklockwood/SwiftFormat@0.45.5"
-    exit 1
   fi
 fi
 
