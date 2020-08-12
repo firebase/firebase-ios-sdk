@@ -296,6 +296,12 @@ NSString *const FIRCLSNetworkClientBackgroundIdentifierSuffix = @".crash.backgro
 - (void)restartTask:(NSURLSessionTask *)task {
   NSURLRequest *request = [task originalRequest];
 
+  if (request == nil) {
+    FIRCLSWarningLog(@"Unable to restart task: Could not retrieve original request from task %@",
+                     task);
+    return;
+  }
+
   [self runAfterRetryValueFromResponse:[task response]
                                  block:^{
                                    NSString *path = [self
