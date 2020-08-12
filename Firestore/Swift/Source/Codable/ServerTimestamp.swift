@@ -69,8 +69,8 @@ import FirebaseFirestore
   /// Then writing `CustomModel(ts: nil)` will tell server to fill `ts` with
   /// current timestamp.
   @propertyWrapper
-  public struct ServerTimestamp<Value>: Codable, Equatable
-    where Value: ServerTimestampWrappable & Codable & Equatable {
+  public struct ServerTimestamp<Value>: Codable
+    where Value: ServerTimestampWrappable & Codable {
     var value: Value?
 
     public init(wrappedValue value: Value?) {
@@ -102,6 +102,10 @@ import FirebaseFirestore
       }
     }
   }
+
+  extension ServerTimestamp: Equatable where Value: Equatable {}
+
+  extension ServerTimestamp: Hashable where Value: Hashable {}
 #endif // compiler(>=5.1)
 
 /// A compatibility version of `ServerTimestamp` that does not use property
