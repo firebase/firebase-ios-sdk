@@ -33,5 +33,10 @@ typedef NS_ENUM(NSInteger, GDTCORTarget) {
   /** The CSH target. The CSH target is a special-purpose backend. Please do not use it without
    * permission.
    */
-  kGDTCORTargetCSH = 1002
+  kGDTCORTargetCSH = 1002,
+
+  // copybara:insert_begin(Reserve private endpoint)
+  //  /** The INT target. */
+  //  kGDTCORTargetINT = 1003,
+  // copybara:insert_end
 };

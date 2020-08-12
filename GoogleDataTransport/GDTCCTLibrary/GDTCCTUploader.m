@@ -50,6 +50,11 @@ static NSString *const kLibraryDataCCTNextUploadTimeKey = @"GDTCCTUploaderFLLNex
 /** */
 static NSString *const kLibraryDataFLLNextUploadTimeKey = @"GDTCCTUploaderFLLNextUploadTimeKey";
 
+// copybara:insert_begin(Reserve private endpoint)
+// static NSString *const kINTServerURL =
+//    @"https://dummyapiverylong-dummy.dummy.com/dummy/api/very/long";
+// copybara:insert_end
+
 #if !NDEBUG
 NSNotificationName const GDTCCTUploadCompleteNotification = @"com.GDTCCTUploader.UploadComplete";
 #endif  // #if !NDEBUG
@@ -82,6 +87,9 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
   [[GDTCORRegistrar sharedInstance] registerUploader:uploader target:kGDTCORTargetCCT];
   [[GDTCORRegistrar sharedInstance] registerUploader:uploader target:kGDTCORTargetFLL];
   [[GDTCORRegistrar sharedInstance] registerUploader:uploader target:kGDTCORTargetCSH];
+  // copybara:insert_begin(Reserve private endpoint)
+  //  [[GDTCORRegistrar sharedInstance] registerUploader:uploader target:kGDTCORTargetINT];
+  // copybara:insert_end
 }
 
 + (instancetype)sharedInstance {
@@ -175,6 +183,11 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
     case kGDTCORTargetCSH:
       return CSHServerURL;
 
+      /* copybara:insert(Reserve private endpoint)
+      case kGDTCORTargetINT:
+        return [NSURL URLWithString:kINTServerURL];
+      */
+
     default:
       GDTCORLogDebug(@"GDTCCTUploader doesn't support target %ld", (long)target);
       return nil;
@@ -182,7 +195,7 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
   }
 }
 
-- (NSString *)FLLAndCSHAPIKey {
+- (NSString *)FLLAndCSHandINTAPIKey {
   static NSString *defaultServerKey;
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
@@ -360,6 +373,10 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
 
     case kGDTCORTargetFLL:
       // Falls through.
+      // copybara:insert_begin(Reserve private endpoint)
+      //    case kGDTCORTargetINT:
+      //      // Falls through.
+      // copybara:insert_end
     case kGDTCORTargetCSH:
       self->_FLLNextUploadTime = futureUploadTime;
       break;
@@ -497,10 +514,18 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
 
   // Upload events when there are with no additional conditions for kGDTCORTargetCSH.
   if (target == kGDTCORTargetCSH) {
-    GDTCORLogDebug(@"%@",
-                   @"CCT: kGDTCORTargetCSH events are allowed to be uploaded straight away.");
+    GDTCORLogDebug(@"%@", @"CCT: kGDTCORTargetCSH events are allowed to be "
+                          @"uploaded straight away.");
     return YES;
   }
+
+  // copybara:insert_begin(Reserve private endpoint)
+  //  if (target == kGDTCORTargetINT) {
+  //    GDTCORLogDebug(@"%@", @"CCT: kGDTCORTargetINT events are allowed to be "
+  //                          @"uploaded straight away.");
+  //    return YES;
+  //  }
+  // copybara:insert_end
 
   // Upload events with no additional conditions if high priority.
   if ((conditions & GDTCORUploadConditionHighPriority) == GDTCORUploadConditionHighPriority) {
@@ -589,6 +614,11 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
     case kGDTCORTargetCSH:
       targetString = @"csh";
       break;
+      // copybara:insert_begin(Reserve private endpoint)
+      //    case kGDTCORTargetINT:
+      //      targetString = @"int";
+      //      break;
+      // copybara:insert_end
 
     default:
       targetString = @"unknown";
@@ -598,8 +628,13 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
       [NSString stringWithFormat:@"datatransport/%@ %@support/%@ apple/", kGDTCORVersion,
                                  targetString, kGDTCCTSupportSDKVersion];
   if (target == kGDTCORTargetFLL || target == kGDTCORTargetCSH) {
-    [request setValue:[self FLLAndCSHAPIKey] forHTTPHeaderField:@"X-Goog-Api-Key"];
+    [request setValue:[self FLLAndCSHandINTAPIKey] forHTTPHeaderField:@"X-Goog-Api-Key"];
   }
+  /* copybara:insert(Reserve private endpoint)
+   if (target == kGDTCORTargetINT) {
+     [request setValue:[self FLLAndCSHandINTAPIKey] forHTTPHeaderField:@"X-Goog-Api-Key"];
+   }
+   */
   if ([GDTCCTCompressionHelper isGzipped:data]) {
     [request setValue:@"gzip" forHTTPHeaderField:@"Content-Encoding"];
   }
