@@ -35,11 +35,11 @@ jobs:
         git clone -b "${podspec_repo_branch}" https://github.com/firebase/firebase-ios-sdk.git
         cd ZipBuilder
         swift build
-        ./.build/debug/firebase-pod-updater --git-root "${GITHUB_WORKSPACE}/firebase-ios-sdk" --releasing-pods "${GITHUB_WORKSPACE}/scripts/create_spec_repo/firebase_sdk.textproto" 
+        ./.build/debug/firebase-pod-updater --git-root "${GITHUB_WORKSPACE}/firebase-ios-sdk" --releasing-pods "${GITHUB_WORKSPACE}/scripts/create_spec_repo/firebase_sdk.textproto"
     - name: Update SpecStaging repo
       run: |
         pod repo add --silent "${local_repo}" https://"$botaccess"@github.com/firebase/SpecsStaging.git
-        BOT_TOKEN="${botaccess}" SPEC_REPO="specsstaging" scripts/create_spec_repo/add_podspecs.swift firebase-ios-sdk/
+        # BOT_TOKEN="${botaccess}" SPEC_REPO="specsstaging" scripts/create_spec_repo/add_podspecs.swift firebase-ios-sdk/
     - name: Clean Artifacts
       if: ${{ always() }}
       run: |
