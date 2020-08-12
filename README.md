@@ -140,8 +140,8 @@ To ensure that the code is formatted consistently, run the script
 [./scripts/check.sh](https://github.com/firebase/firebase-ios-sdk/blob/master/scripts/check.sh)
 before creating a PR.
 
-Travis will verify that any code changes are done in a style compliant way. Install
-`clang-format` and `mint`:
+GitHub Actions will verify that any code changes are done in a style compliant
+way. Install `clang-format` and `mint`:
 
 ```
 brew install clang-format
