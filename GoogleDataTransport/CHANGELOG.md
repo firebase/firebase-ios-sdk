@@ -1,6 +1,3 @@
-# v7.2.0
-- Add INT url endpoint. (#6254)
-
 # v7.1.1
 - Use `NSTimeZone` instead of `CFTimeZone` to get time zone offset respecting daylight. (#6246)
 

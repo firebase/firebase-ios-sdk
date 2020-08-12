@@ -18,3 +18,7 @@ telemetry from Google SDKs.
 - Use commands similar to:
     - `python -c "line='https://www.firebase.com'; print line[0::2]" `
     - `python -c "line='https://www.firebase.com'; print line[1::2]" `
+
+## When adding internal code that shouldn't be easily usable on github
+
+- Consider using go/copybara-library/scrubbing#cc_scrub
