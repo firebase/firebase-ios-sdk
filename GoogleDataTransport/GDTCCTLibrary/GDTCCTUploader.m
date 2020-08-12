@@ -505,8 +505,14 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
   }
 
   // Upload events when there are with no additional conditions for kGDTCORTargetCSH.
-  if (target == kGDTCORTargetCSH || target == kGDTCORTargetINT) {
-    GDTCORLogDebug(@"%@", @"CCT: kGDTCORTargetCSH and kGDTCORTargetINT events are allowed to be "
+  if (target == kGDTCORTargetCSH) {
+    GDTCORLogDebug(@"%@", @"CCT: kGDTCORTargetCSH events are allowed to be "
+                          @"uploaded straight away.");
+    return YES;
+  }
+
+  if (target == kGDTCORTargetINT) {
+    GDTCORLogDebug(@"%@", @"CCT: kGDTCORTargetINT events are allowed to be "
                           @"uploaded straight away.");
     return YES;
   }
