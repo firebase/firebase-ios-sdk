@@ -77,7 +77,7 @@ jobs:
     runs-on: macos-latest
     strategy:
       matrix:
-        target: [ios, tvos, macos] # The macos and tvos tests can hang
+        target: [ios, tvos, macos, watchos --skip-tests] # The macos and tvos tests can hang
         flags: [
           '--use-modular-headers',
           '--use-libraries'
