@@ -2016,7 +2016,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
       [archiver finishEncoding];
 
 #if TARGET_OS_WATCH
-      NSMutableData *archiveData = archiver.encodedData;
+      NSData *archiveData = archiver.encodedData;
 #endif  // TARGET_OS_WATCH
 
       // Save the user object's encoded value.
@@ -2243,7 +2243,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 
 #if TARGET_OS_WATCH
     NSKeyedUnarchiver *unarchiver =
-        [[NSKeyedUnarchiver alloc] initForReadingFromData:encodedUserData error:&outError];
+        [[NSKeyedUnarchiver alloc] initForReadingFromData:encodedUserData error:outError];
     if (outError && *outError) {
       return nil;
     }
