@@ -1,3 +1,6 @@
+# Unreleased
+- [changed] Added support for multi-tenancy (#6142).
+
 # v6.7.1
 - [fixed] Fixed a multithreaded memory access issue on iOS (#5979).
 
