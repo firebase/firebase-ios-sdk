@@ -627,9 +627,14 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
   NSString *userAgent =
       [NSString stringWithFormat:@"datatransport/%@ %@support/%@ apple/", kGDTCORVersion,
                                  targetString, kGDTCCTSupportSDKVersion];
-  if (target == kGDTCORTargetFLL || target == kGDTCORTargetCSH || target == kGDTCORTargetINT) {
+  if (target == kGDTCORTargetFLL || target == kGDTCORTargetCSH) {
     [request setValue:[self FLLAndCSHandINTAPIKey] forHTTPHeaderField:@"X-Goog-Api-Key"];
   }
+  /* copybara:insert(Reserve private endpoint)
+   if (target == kGDTCORTargetINT) {
+     [request setValue:[self FLLAndCSHandINTAPIKey] forHTTPHeaderField:@"X-Goog-Api-Key"];
+   }
+   */
   if ([GDTCCTCompressionHelper isGzipped:data]) {
     [request setValue:@"gzip" forHTTPHeaderField:@"Content-Encoding"];
   }
