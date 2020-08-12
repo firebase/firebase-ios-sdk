@@ -1,3 +1,6 @@
+# Unreleased
+- [added] Added basic watchOS support. (#4621)
+
 # v6.8.0
 - [fixed] Fix bug where multiple keychain entries would result in user persistence failure. (#5906)
 - [changed] Added support for using GOOGLE_APP_ID in generic IDP and phone auth reCAPTCHA fallback flows. (#6121)

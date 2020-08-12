@@ -456,7 +456,7 @@ NS_SWIFT_NAME(Auth)
 
 - (void)signInWithEmail:(NSString *)email
                    link:(NSString *)link
-             completion:(nullable FIRAuthDataResultCallback)completion;
+             completion:(nullable FIRAuthDataResultCallback)completion API_UNAVAILABLE(watchos);
 
 /** @fn signInWithProvider:UIDelegate:completion:
     @brief Signs in using the provided auth provider instance.
@@ -504,7 +504,7 @@ NS_SWIFT_NAME(Auth)
  */
 - (void)signInWithProvider:(id<FIRFederatedAuthProvider>)provider
                 UIDelegate:(nullable id<FIRAuthUIDelegate>)UIDelegate
-                completion:(nullable FIRAuthDataResultCallback)completion;
+                completion:(nullable FIRAuthDataResultCallback)completion API_UNAVAILABLE(watchos);
 
 /** @fn signInAndRetrieveDataWithCredential:completion:
     @brief Please use signInWithCredential:completion: for Objective-C or "
@@ -736,7 +736,8 @@ NS_SWIFT_NAME(Auth)
  */
 - (void)sendSignInLinkToEmail:(NSString *)email
            actionCodeSettings:(FIRActionCodeSettings *)actionCodeSettings
-                   completion:(nullable FIRSendSignInLinkToEmailCallback)completion;
+                   completion:(nullable FIRSendSignInLinkToEmailCallback)completion
+    API_UNAVAILABLE(watchos);
 
 /** @fn signOut:
     @brief Signs out the current user.
@@ -762,7 +763,7 @@ NS_SWIFT_NAME(Auth)
     @param link The email sign-in link.
     @return @YES when the link passed matches the expected format of an email sign-in link.
  */
-- (BOOL)isSignInWithEmailLink:(NSString *)link;
+- (BOOL)isSignInWithEmailLink:(NSString *)link API_UNAVAILABLE(watchos);
 
 /** @fn addAuthStateDidChangeListener:
     @brief Registers a block as an "auth state did change" listener. To be invoked when:

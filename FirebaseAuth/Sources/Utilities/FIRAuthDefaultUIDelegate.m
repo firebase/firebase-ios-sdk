@@ -15,7 +15,7 @@
  */
 
 #import <TargetConditionals.h>
-#if !TARGET_OS_OSX
+#if !TARGET_OS_OSX && !TARGET_OS_WATCH
 
 #import <UIKit/UIKit.h>
 #import "GoogleUtilities/Environment/Private/GULAppEnvironmentUtil.h"

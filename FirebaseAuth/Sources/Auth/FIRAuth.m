@@ -2000,6 +2000,9 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     if (!user) {
       success = [_keychainServices removeDataForKey:userKey error:outError];
     } else {
+#if TARGET_OS_WATCH
+      NSKeyedArchiver *archiver = [[NSKeyedArchiver alloc] initRequiringSecureCoding:false];
+#else
       // Encode the user object.
       NSMutableData *archiveData = [NSMutableData data];
 // iOS 12 deprecation
@@ -2008,8 +2011,13 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
       NSKeyedArchiver *archiver =
           [[NSKeyedArchiver alloc] initForWritingWithMutableData:archiveData];
 #pragma clang diagnostic pop
+#endif  // TARGET_OS_WATCH
       [archiver encodeObject:user forKey:userKey];
       [archiver finishEncoding];
+
+#if TARGET_OS_WATCH
+      NSData *archiveData = archiver.encodedData;
+#endif  // TARGET_OS_WATCH
 
       // Save the user object's encoded value.
       success = [_keychainServices setData:archiveData forKey:userKey error:outError];
@@ -2053,12 +2061,20 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
       *outUser = nil;
       return YES;
     }
+#if TARGET_OS_WATCH
+    NSKeyedUnarchiver *unarchiver =
+        [[NSKeyedUnarchiver alloc] initForReadingFromData:encodedUserData error:error];
+    if (error && *error) {
+      return NO;
+    }
+#else
 // iOS 12 deprecation
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
     NSKeyedUnarchiver *unarchiver =
         [[NSKeyedUnarchiver alloc] initForReadingWithData:encodedUserData];
 #pragma clang diagnostic pop
+#endif  // TARGET_OS_WATCH
     FIRUser *user = [unarchiver decodeObjectOfClass:[FIRUser class] forKey:userKey];
     user.auth = self;
     *outUser = user;
@@ -2225,12 +2241,20 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
       return nil;
     }
 
+#if TARGET_OS_WATCH
+    NSKeyedUnarchiver *unarchiver =
+        [[NSKeyedUnarchiver alloc] initForReadingFromData:encodedUserData error:outError];
+    if (outError && *outError) {
+      return nil;
+    }
+#else
 // iOS 12 deprecation
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
     NSKeyedUnarchiver *unarchiver =
         [[NSKeyedUnarchiver alloc] initForReadingWithData:encodedUserData];
 #pragma clang diagnostic pop
+#endif  // TARGET_OS_WATCH
     user = [unarchiver decodeObjectOfClass:[FIRUser class] forKey:userKey];
   } else {
     user = [self.storedUserManager getStoredUserForAccessGroup:self.userAccessGroup

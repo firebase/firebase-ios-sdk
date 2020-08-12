@@ -21,7 +21,7 @@ jobs:
 
     strategy:
       matrix:
-        target: [ios, tvos, macos]
+        target: [ios, tvos, macos, watchos]
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
@@ -104,7 +104,8 @@ jobs:
     runs-on: macos-latest
     strategy:
       matrix:
-        target: [ios, tvos --skip-tests, macos --skip-tests] # The macos and tvos tests can hang
+        # The macos and tvos tests can hang, and watchOS doesn't have tests.
+        target: [ios, tvos --skip-tests, macos --skip-tests, watchos --skip-tests]
         flags: [
           '--use-modular-headers',
           '--use-libraries'
