@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 
-#import "FIRIAMCardViewController.h"
-#import "FIRCore+InAppMessagingDisplay.h"
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
+
+#import "FirebaseInAppMessaging/Sources/DefaultUI/Card/FIRIAMCardViewController.h"
+#import "FirebaseInAppMessaging/Sources/DefaultUI/FIRCore+InAppMessagingDisplay.h"
 
 @interface FIRIAMCardViewController ()
 
@@ -146,3 +149,5 @@
 }
 
 @end
+
+#endif  // TARGET_OS_IOS

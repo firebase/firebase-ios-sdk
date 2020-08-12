@@ -16,12 +16,12 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRIAMActivityLogger.h"
-#import "FIRIAMBookKeeper.h"
-#import "FIRIAMDisplayExecutor.h"
-#import "FIRIAMMessageClientCache.h"
-#import "FIRIAMSDKSettings.h"
-#import "FIRIAMServerMsgFetchStorage.h"
+#import "FirebaseInAppMessaging/Sources/Private/Flows/FIRIAMActivityLogger.h"
+#import "FirebaseInAppMessaging/Sources/Private/Flows/FIRIAMBookKeeper.h"
+#import "FirebaseInAppMessaging/Sources/Private/Flows/FIRIAMDisplayExecutor.h"
+#import "FirebaseInAppMessaging/Sources/Private/Flows/FIRIAMMessageClientCache.h"
+#import "FirebaseInAppMessaging/Sources/Private/Flows/FIRIAMServerMsgFetchStorage.h"
+#import "FirebaseInAppMessaging/Sources/Private/Runtime/FIRIAMSDKSettings.h"
 
 NS_ASSUME_NONNULL_BEGIN
 // A class for managing the objects/dependencies for supporting different fiam flows at runtime
