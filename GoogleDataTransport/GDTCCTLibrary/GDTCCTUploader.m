@@ -50,8 +50,10 @@ static NSString *const kLibraryDataCCTNextUploadTimeKey = @"GDTCCTUploaderFLLNex
 /** */
 static NSString *const kLibraryDataFLLNextUploadTimeKey = @"GDTCCTUploaderFLLNextUploadTimeKey";
 
-static NSString *const kINTServerURL =
-    @"https://dummyapiverylong-dummy.dummy.com/dummy/api/very/long";
+// copybara:insert_begin(Reserve private endpoint)
+// static NSString *const kINTServerURL =
+//    @"https://dummyapiverylong-dummy.dummy.com/dummy/api/very/long";
+// copybara:insert_end
 
 #if !NDEBUG
 NSNotificationName const GDTCCTUploadCompleteNotification = @"com.GDTCCTUploader.UploadComplete";
@@ -85,7 +87,9 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
   [[GDTCORRegistrar sharedInstance] registerUploader:uploader target:kGDTCORTargetCCT];
   [[GDTCORRegistrar sharedInstance] registerUploader:uploader target:kGDTCORTargetFLL];
   [[GDTCORRegistrar sharedInstance] registerUploader:uploader target:kGDTCORTargetCSH];
-  [[GDTCORRegistrar sharedInstance] registerUploader:uploader target:kGDTCORTargetINT];
+  // copybara:insert_begin(Reserve private endpoint)
+  //  [[GDTCORRegistrar sharedInstance] registerUploader:uploader target:kGDTCORTargetINT];
+  // copybara:insert_end
 }
 
 + (instancetype)sharedInstance {
@@ -179,8 +183,10 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
     case kGDTCORTargetCSH:
       return CSHServerURL;
 
-    case kGDTCORTargetINT:
-      return [NSURL URLWithString:kINTServerURL];
+      // copybara:insert_begin(Reserve private endpoint)
+      //    case kGDTCORTargetINT:
+      //      return [NSURL URLWithString:kINTServerURL];
+      // copybara:insert_end
 
     default:
       GDTCORLogDebug(@"GDTCCTUploader doesn't support target %ld", (long)target);
@@ -367,8 +373,10 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
 
     case kGDTCORTargetFLL:
       // Falls through.
-    case kGDTCORTargetINT:
-      // Falls through.
+      // copybara:insert_begin(Reserve private endpoint)
+      //    case kGDTCORTargetINT:
+      //      // Falls through.
+      // copybara:insert_end
     case kGDTCORTargetCSH:
       self->_FLLNextUploadTime = futureUploadTime;
       break;
@@ -511,11 +519,13 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
     return YES;
   }
 
-  if (target == kGDTCORTargetINT) {
-    GDTCORLogDebug(@"%@", @"CCT: kGDTCORTargetINT events are allowed to be "
-                          @"uploaded straight away.");
-    return YES;
-  }
+  // copybara:insert_begin(Reserve private endpoint)
+  //  if (target == kGDTCORTargetINT) {
+  //    GDTCORLogDebug(@"%@", @"CCT: kGDTCORTargetINT events are allowed to be "
+  //                          @"uploaded straight away.");
+  //    return YES;
+  //  }
+  // copybara:insert_end
 
   // Upload events with no additional conditions if high priority.
   if ((conditions & GDTCORUploadConditionHighPriority) == GDTCORUploadConditionHighPriority) {
@@ -604,10 +614,11 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
     case kGDTCORTargetCSH:
       targetString = @"csh";
       break;
-
-    case kGDTCORTargetINT:
-      targetString = @"int";
-      break;
+      // copybara:insert_begin(Reserve private endpoint)
+      //    case kGDTCORTargetINT:
+      //      targetString = @"int";
+      //      break;
+      // copybara:insert_end
 
     default:
       targetString = @"unknown";
