@@ -28,7 +28,7 @@ import FirebaseFirestore
   /// `DocumentReference`.
   public protocol DocumentIDWrappable {
     /// Creates a new instance by converting from the given `DocumentReference`.
-    static func wrap(_ documentReference: DocumentReference) throws -> Self
+      static func wrap(_ documentReference: DocumentReference) throws -> Self
   }
 
   extension String: DocumentIDWrappable {
