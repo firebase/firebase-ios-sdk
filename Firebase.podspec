@@ -71,7 +71,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
 
   s.subspec 'AppDistribution' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseAppDistribution', '~> 0.1.0'
+    ss.dependency 'FirebaseAppDistribution', '~> 0.9.0'
   end
 
   s.subspec 'Auth' do |ss|
