@@ -63,13 +63,9 @@ esac
 # /usr/local.
 export MINT_PATH=Mint
 
-function swiftformat() {
-  mint run swiftformat "$@"
-}
-
 system=$(uname -s)
 if [[ "$system" == "Darwin" ]]; then
-  version=$(swiftformat --version)
+  version=$(mint run swiftformat --version)
   # Log the version in non-interactive use as it can be useful in travis logs.
   # A version check is not required because `mint bootstrap` ensures the
   # version in the `Mintfile` is installed.
@@ -168,6 +164,9 @@ s%^./%%
 # Sources pulled in by travis bundler, with and without a leading slash
 \%^/?vendor/bundle/% d
 
+# Sources pulled in by the Mint package manager
+\%^Mint% d
+
 # Auth Sample is not subject to formatting
 \%^(FirebaseAuth/Tests/Sample)/% d
 
@@ -191,7 +190,7 @@ for f in $files; do
       # Match output that says:
       # 1/1 files would have been formatted.  (with --dryrun)
       # 1/1 files formatted.                  (without --dryrun)
-      swiftformat "${swift_options[@]}" "$f" 2>&1 | grep '^1/1 files' > /dev/null
+      mint run swiftformat "${swift_options[@]}" "$f" 2>&1 | grep '^1/1 files' > /dev/null
     else
       false
     fi
