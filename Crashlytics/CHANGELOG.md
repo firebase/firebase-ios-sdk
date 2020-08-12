@@ -1,5 +1,6 @@
 # v4.5.0
 - [fixed] Fixed a compiler warning and removed unused networking code (#6210).
+- [fixed] Fixed a crash that occurred rarely when trying to restart a URL session task without a valid request (#5984).
 - [added] Introduced watchOS support (#6262).
 
 # v4.3.1
