@@ -492,7 +492,7 @@
                          shouldWaitForNextRequestTime:NO
                                         expectRequest:YES];
 
-  /* copybara:insert (Reserve private endpoint)
+  /* copybara:insert(Reserve private endpoint)
   [self assertUploadTargetRespectsNextRequestWaitTime:60
                      forTarget:kGDTCORTargetINT
                            QoS:GDTCOREventQosDefault
