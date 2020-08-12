@@ -36,3 +36,6 @@ fi
 # mint installs tools from Mintfile on demand.
 brew install clang-format
 brew install mint
+
+# Explicitly mint bootstrap to show its version in the "Setup check" GHA phase
+mint bootstrap
