@@ -39,7 +39,7 @@ jobs:
     - name: Update SpecStaging repo
       run: |
         pod repo add --silent "${local_repo}" https://"$botaccess"@github.com/firebase/SpecsStaging.git
-        # BOT_TOKEN="${botaccess}" SPEC_REPO="specsstaging" scripts/create_spec_repo/add_podspecs.swift firebase-ios-sdk/
+        BOT_TOKEN="${botaccess}" SPEC_REPO="specsstaging" scripts/create_spec_repo/add_podspecs.swift firebase-ios-sdk/
     - name: Clean Artifacts
       if: ${{ always() }}
       run: |
