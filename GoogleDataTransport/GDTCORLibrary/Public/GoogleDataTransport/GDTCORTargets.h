@@ -35,8 +35,6 @@ typedef NS_ENUM(NSInteger, GDTCORTarget) {
    */
   kGDTCORTargetCSH = 1002,
 
-  // copybara:insert_begin(Reserve private endpoint)
-  //  /** The INT target. */
-  //  kGDTCORTargetINT = 1003,
-  // copybara:insert_end
+  /** The INT target. */
+  kGDTCORTargetINT = 1003,
 };
