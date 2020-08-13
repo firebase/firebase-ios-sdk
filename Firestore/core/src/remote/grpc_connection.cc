@@ -124,7 +124,28 @@ HostConfigMap& Config() {
   return config_by_host;
 }
 
-class ClientLanguageHeader {
+std::string GetCppLanguageToken() {
+  std::string cpp_version = []{
+    switch (__cplusplus) {
+        case 199711L:
+          return "1998";
+        case 201103L:
+          return "2011";
+        case 201402L:
+          return "2014";
+        case 201703L:
+          return "2017";
+        case 202002L:
+          return "2020";
+        default:
+          return "";
+      }
+  }();
+
+  return StringFormat("gl-cpp/%s", cpp_version);
+}
+
+class ClientLanguageToken {
   using Guard = std::lock_guard<std::mutex>;
 
  public:
@@ -139,13 +160,13 @@ class ClientLanguageHeader {
   }
 
  private:
-  std::string value_;
+  std::string value_ = GetCppLanguageToken();
   mutable std::mutex mutex_;
 };
 
-ClientLanguageHeader& LanguageHeader() {
-  static ClientLanguageHeader header;
-  return header;
+ClientLanguageToken& LanguageToken() {
+  static ClientLanguageToken token;
+  return token;
 }
 
 #if __APPLE__
@@ -198,7 +219,7 @@ std::unique_ptr<grpc::ClientContext> GrpcConnection::CreateContext(
     context->AddMetadata(kAuthorizationHeader, absl::StrCat("Bearer ", token));
   }
 
-  AddCloudApiHeaders(*context);
+  AddCloudApiHeader(*context);
 
   // This header is used to improve routing and project isolation by the
   // backend.
@@ -209,10 +230,10 @@ std::unique_ptr<grpc::ClientContext> GrpcConnection::CreateContext(
   return context;
 }
 
-void GrpcConnection::AddCloudApiHeaders(grpc::ClientContext& context) {
-  auto api_headers = StringFormat("%s fire/%s grpc/%s", LanguageHeader().Get(),
+void GrpcConnection::AddCloudApiHeader(grpc::ClientContext& context) {
+  auto api_tokens = StringFormat("%s fire/%s grpc/%s", LanguageToken().Get(),
                                   kFirestoreVersionString, grpc::Version());
-  context.AddMetadata(kXGoogAPIClientHeader, api_headers);
+  context.AddMetadata(kXGoogAPIClientHeader, api_tokens);
 }
 
 void GrpcConnection::EnsureActiveStub() {
@@ -329,8 +350,8 @@ void GrpcConnection::Unregister(GrpcCall* call) {
   active_calls_.erase(found);
 }
 
-void GrpcConnection::SetClientLanguage(std::string language_header) {
-  LanguageHeader().Set(std::move(language_header));
+void GrpcConnection::SetClientLanguage(std::string language_token) {
+  LanguageToken().Set(std::move(language_token));
 }
 
 void GrpcConnection::UseInsecureChannel(const std::string& host) {

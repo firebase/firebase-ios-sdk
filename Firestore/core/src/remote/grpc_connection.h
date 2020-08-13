@@ -85,7 +85,7 @@ class GrpcConnection {
   void Register(GrpcCall* call);
   void Unregister(GrpcCall* call);
 
-  static void SetClientLanguage(std::string language_header);
+  static void SetClientLanguage(std::string language_token);
 
   /**
    * Don't use SSL, send all traffic unencrypted. Call before creating any
@@ -109,7 +109,7 @@ class GrpcConnection {
 
   void RegisterConnectivityMonitor();
 
-  static void AddCloudApiHeaders(grpc::ClientContext& context);
+  static void AddCloudApiHeader(grpc::ClientContext& context);
 
   const core::DatabaseInfo* database_info_ = nullptr;
   std::shared_ptr<util::AsyncQueue> worker_queue_;
