@@ -492,14 +492,12 @@
                          shouldWaitForNextRequestTime:NO
                                         expectRequest:YES];
 
-  /* copybara:insert(Reserve private endpoint)
   [self assertUploadTargetRespectsNextRequestWaitTime:60
-                     forTarget:kGDTCORTargetINT
-                           QoS:GDTCOREventQosDefault
-                    conditions:GDTCORUploadConditionWifiData
-  shouldWaitForNextRequestTime:NO
-                 expectRequest:YES];
-   */
+                                            forTarget:kGDTCORTargetINT
+                                                  QoS:GDTCOREventQosDefault
+                                           conditions:GDTCORUploadConditionWifiData
+                         shouldWaitForNextRequestTime:NO
+                                        expectRequest:YES];
 }
 
 - (void)testUploadTarget_WhenAfterServerNextUploadTimeForCCTAndFLLTargets_ThenUpload {

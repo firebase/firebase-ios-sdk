@@ -50,10 +50,8 @@ static NSString *const kLibraryDataCCTNextUploadTimeKey = @"GDTCCTUploaderFLLNex
 /** */
 static NSString *const kLibraryDataFLLNextUploadTimeKey = @"GDTCCTUploaderFLLNextUploadTimeKey";
 
-// copybara:insert_begin(Reserve private endpoint)
-// static NSString *const kINTServerURL =
-//    @"https://dummyapiverylong-dummy.dummy.com/dummy/api/very/long";
-// copybara:insert_end
+static NSString *const kINTServerURL =
+    @"https://dummyapiverylong-dummy.dummy.com/dummy/api/very/long";
 
 #if !NDEBUG
 NSNotificationName const GDTCCTUploadCompleteNotification = @"com.GDTCCTUploader.UploadComplete";
@@ -87,9 +85,7 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
   [[GDTCORRegistrar sharedInstance] registerUploader:uploader target:kGDTCORTargetCCT];
   [[GDTCORRegistrar sharedInstance] registerUploader:uploader target:kGDTCORTargetFLL];
   [[GDTCORRegistrar sharedInstance] registerUploader:uploader target:kGDTCORTargetCSH];
-  // copybara:insert_begin(Reserve private endpoint)
-  //  [[GDTCORRegistrar sharedInstance] registerUploader:uploader target:kGDTCORTargetINT];
-  // copybara:insert_end
+  [[GDTCORRegistrar sharedInstance] registerUploader:uploader target:kGDTCORTargetINT];
 }
 
 + (instancetype)sharedInstance {
@@ -183,10 +179,8 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
     case kGDTCORTargetCSH:
       return CSHServerURL;
 
-      /* copybara:insert(Reserve private endpoint)
-      case kGDTCORTargetINT:
-        return [NSURL URLWithString:kINTServerURL];
-      */
+    case kGDTCORTargetINT:
+      return [NSURL URLWithString:kINTServerURL];
 
     default:
       GDTCORLogDebug(@"GDTCCTUploader doesn't support target %ld", (long)target);
@@ -373,10 +367,8 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
 
     case kGDTCORTargetFLL:
       // Falls through.
-      // copybara:insert_begin(Reserve private endpoint)
-      //    case kGDTCORTargetINT:
-      //      // Falls through.
-      // copybara:insert_end
+    case kGDTCORTargetINT:
+      // Falls through.
     case kGDTCORTargetCSH:
       self->_FLLNextUploadTime = futureUploadTime;
       break;
@@ -519,13 +511,11 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
     return YES;
   }
 
-  // copybara:insert_begin(Reserve private endpoint)
-  //  if (target == kGDTCORTargetINT) {
-  //    GDTCORLogDebug(@"%@", @"CCT: kGDTCORTargetINT events are allowed to be "
-  //                          @"uploaded straight away.");
-  //    return YES;
-  //  }
-  // copybara:insert_end
+  if (target == kGDTCORTargetINT) {
+    GDTCORLogDebug(@"%@", @"CCT: kGDTCORTargetINT events are allowed to be "
+                          @"uploaded straight away.");
+    return YES;
+  }
 
   // Upload events with no additional conditions if high priority.
   if ((conditions & GDTCORUploadConditionHighPriority) == GDTCORUploadConditionHighPriority) {
@@ -614,11 +604,9 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
     case kGDTCORTargetCSH:
       targetString = @"csh";
       break;
-      // copybara:insert_begin(Reserve private endpoint)
-      //    case kGDTCORTargetINT:
-      //      targetString = @"int";
-      //      break;
-      // copybara:insert_end
+    case kGDTCORTargetINT:
+      targetString = @"int";
+      break;
 
     default:
       targetString = @"unknown";
@@ -630,11 +618,11 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
   if (target == kGDTCORTargetFLL || target == kGDTCORTargetCSH) {
     [request setValue:[self FLLAndCSHandINTAPIKey] forHTTPHeaderField:@"X-Goog-Api-Key"];
   }
-  /* copybara:insert(Reserve private endpoint)
-   if (target == kGDTCORTargetINT) {
-     [request setValue:[self FLLAndCSHandINTAPIKey] forHTTPHeaderField:@"X-Goog-Api-Key"];
-   }
-   */
+
+  if (target == kGDTCORTargetINT) {
+    [request setValue:[self FLLAndCSHandINTAPIKey] forHTTPHeaderField:@"X-Goog-Api-Key"];
+  }
+
   if ([GDTCCTCompressionHelper isGzipped:data]) {
     [request setValue:@"gzip" forHTTPHeaderField:@"Content-Encoding"];
   }
