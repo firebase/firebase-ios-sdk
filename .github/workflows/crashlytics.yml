@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
     - 'Crashlytics**'
+    - 'FirebaseCrashlytics.podspec'
     - '.github/workflows/crashlytics.yml'
     - 'Interop/Analytics/Public/*.h'
     - 'Gemfile'
