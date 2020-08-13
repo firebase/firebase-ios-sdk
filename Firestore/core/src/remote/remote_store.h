@@ -18,7 +18,6 @@
 #define FIRESTORE_CORE_SRC_REMOTE_REMOTE_STORE_H_
 
 #include <memory>
-#include <string>
 #include <unordered_map>
 #include <vector>
 
@@ -207,8 +206,6 @@ class RemoteStore : public TargetMetadataProvider,
   void OnWriteStreamMutationResult(
       model::SnapshotVersion commit_version,
       std::vector<model::MutationResult> mutation_results) override;
-
-  static void SetClientLanguageHeader(std::string language_header);
 
  private:
   void RestartNetwork();

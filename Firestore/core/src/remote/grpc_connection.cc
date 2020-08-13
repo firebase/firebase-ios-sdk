@@ -329,7 +329,7 @@ void GrpcConnection::Unregister(GrpcCall* call) {
   active_calls_.erase(found);
 }
 
-void GrpcConnection::SetClientLanguageHeader(std::string language_header) {
+void GrpcConnection::SetClientLanguage(std::string language_header) {
   LanguageHeader().Set(std::move(language_header));
 }
 

@@ -97,9 +97,9 @@ class Firestore : public std::enable_shared_from_this<Firestore> {
 
   /**
    * Sets the language of the public API in the format of
-   * "gl-<language>/<version>", e.g. `gl-objc/2.0`.
+   * "gl-<language>/<version>" where version might be blank, e.g. `gl-objc/`.
    */
-  static void SetClientLanguageHeader(std::string language_header);
+  static void SetClientLanguage(std::string language_header);
 
  private:
   void EnsureClientConfigured();

@@ -287,10 +287,6 @@ void RemoteStore::OnWatchStreamChange(const WatchChange& change,
   }
 }
 
-void RemoteStore::SetClientLanguageHeader(std::string language_header) {
-  GrpcConnection::SetClientLanguageHeader(std::move(language_header));
-}
-
 void RemoteStore::RaiseWatchSnapshot(const SnapshotVersion& snapshot_version) {
   HARD_ASSERT(snapshot_version != SnapshotVersion::None(),
               "Can't raise event for unknown SnapshotVersion");

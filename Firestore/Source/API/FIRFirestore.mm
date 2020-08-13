@@ -96,9 +96,8 @@ NS_ASSUME_NONNULL_BEGIN
 + (void)initialize {
   if (self == [FIRFirestore class]) {
     SetThrowHandler(ObjcThrowHandler);
+    Firestore::SetClientLanguageHeader("gl-objc/2.0");
   }
-
-  Firestore::SetClientLanguageHeader("gl-objc/2.0");
 }
 
 + (instancetype)firestore {

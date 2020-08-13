@@ -355,10 +355,6 @@ bool FirestoreClient::is_terminated() const {
   return !worker_queue_->is_running();
 }
 
-void FirestoreClient::SetClientLanguageHeader(std::string language_header) {
-  RemoteStore::SetClientLanguageHeader(std::move(language_header));
-}
-
 std::shared_ptr<QueryListener> FirestoreClient::ListenToQuery(
     Query query, ListenOptions options, ViewSnapshotSharedListener&& listener) {
   VerifyNotTerminated();
