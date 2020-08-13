@@ -23,7 +23,7 @@ jobs:
       run: sudo xcode-select -s /Applications/Xcode_12_beta.app/Contents/Developer
     - name: Initialize xcodebuild
       run: xcodebuild -list
-    - name: Core ObjC Unit Tests iOS
+    - name: iOS Unit Tests
       run: scripts/third_party/travis/retry.sh xcodebuild -scheme FirebaseInAppMessaging build -sdk
            iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 11' | xcpretty
 
