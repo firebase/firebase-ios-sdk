@@ -169,6 +169,12 @@ ClientLanguageToken& LanguageToken() {
   return token;
 }
 
+void AddCloudApiHeader(grpc::ClientContext& context) {
+  auto api_tokens = StringFormat("%s fire/%s grpc/%s", LanguageToken().Get(),
+                                 kFirestoreVersionString, grpc::Version());
+  context.AddMetadata(kXGoogAPIClientHeader, api_tokens);
+}
+
 #if __APPLE__
 // Disable CFStream-based transport on Apple platforms due to b/133182964, where
 // CFStream will occasionally fail to raise a has-bytes-available events,
@@ -228,12 +234,6 @@ std::unique_ptr<grpc::ClientContext> GrpcConnection::CreateContext(
                        StringFormat("projects/%s/databases/%s",
                                     db_id.project_id(), db_id.database_id()));
   return context;
-}
-
-void GrpcConnection::AddCloudApiHeader(grpc::ClientContext& context) {
-  auto api_tokens = StringFormat("%s fire/%s grpc/%s", LanguageToken().Get(),
-                                 kFirestoreVersionString, grpc::Version());
-  context.AddMetadata(kXGoogAPIClientHeader, api_tokens);
 }
 
 void GrpcConnection::EnsureActiveStub() {

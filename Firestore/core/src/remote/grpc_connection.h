@@ -109,8 +109,6 @@ class GrpcConnection {
 
   void RegisterConnectivityMonitor();
 
-  static void AddCloudApiHeader(grpc::ClientContext& context);
-
   const core::DatabaseInfo* database_info_ = nullptr;
   std::shared_ptr<util::AsyncQueue> worker_queue_;
   grpc::CompletionQueue* grpc_queue_ = nullptr;
