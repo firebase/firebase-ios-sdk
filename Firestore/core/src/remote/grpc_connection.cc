@@ -125,21 +125,21 @@ HostConfigMap& Config() {
 }
 
 std::string GetCppLanguageToken() {
-  std::string cpp_version = []{
+  std::string cpp_version = [] {
     switch (__cplusplus) {
-        case 199711L:
-          return "1998";
-        case 201103L:
-          return "2011";
-        case 201402L:
-          return "2014";
-        case 201703L:
-          return "2017";
-        case 202002L:
-          return "2020";
-        default:
-          return "";
-      }
+      case 199711L:
+        return "1998";
+      case 201103L:
+        return "2011";
+      case 201402L:
+        return "2014";
+      case 201703L:
+        return "2017";
+      case 202002L:
+        return "2020";
+      default:
+        return "";
+    }
   }();
 
   return StringFormat("gl-cpp/%s", cpp_version);
@@ -232,7 +232,7 @@ std::unique_ptr<grpc::ClientContext> GrpcConnection::CreateContext(
 
 void GrpcConnection::AddCloudApiHeader(grpc::ClientContext& context) {
   auto api_tokens = StringFormat("%s fire/%s grpc/%s", LanguageToken().Get(),
-                                  kFirestoreVersionString, grpc::Version());
+                                 kFirestoreVersionString, grpc::Version());
   context.AddMetadata(kXGoogAPIClientHeader, api_tokens);
 }
 
