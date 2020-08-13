@@ -50,6 +50,7 @@ using core::Transaction;
 using local::LevelDbPersistence;
 using model::DocumentKey;
 using model::ResourcePath;
+using remote::GrpcConnection;
 using util::AsyncQueue;
 using util::Empty;
 using util::Executor;
