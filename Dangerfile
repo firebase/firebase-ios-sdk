@@ -36,6 +36,7 @@ end
 def labelsForModifiedFiles()
   labels = []
   labels.push("api: abtesting") if @has_abtesting_changes
+  labels.push("api: appdistribution") if @has_appdistribution_changes
   labels.push("api: auth") if @has_auth_changes
   labels.push("api: core") if @has_core_changes
   labels.push("api: crashlytics") if @has_crashlytics_changes
@@ -72,6 +73,8 @@ has_license_changes = didModify(["LICENSE"])
 ## Product directories
 @has_abtesting_changes = hasChangesIn("FirebaseABTesting/")
 @has_abtesting_api_changes = hasChangesIn("FirebaseABTesting/Sources/Public/")
+@has_appdistribution_changes = hasChangesIn("FirebaseAppDistribution/")
+@has_appdistribution_api_changes = hasChangesIn("FirebaseAppDistribution/Sources/Public")
 @has_auth_changes = hasChangesIn("FirebaseAuth")
 @has_auth_api_changes = hasChangesIn("FirebaseAuth/Sources/Public/")
 @has_core_changes = hasChangesIn([
@@ -82,7 +85,7 @@ has_license_changes = didModify(["LICENSE"])
 @has_crashlytics_changes = hasChangesIn("Crashlytics/")
 @has_crashlytics_api_changes = hasChangesIn("Crashlytics/Crashlytics/Public/")
 @has_database_changes = hasChangesIn("FirebaseDatabase/")
-@has_database_api_changes = hasChangesIn("FirebaseDatabase/Public/")
+@has_database_api_changes = hasChangesIn("FirebaseDatabase/Sources/Public/")
 @has_dynamiclinks_changes = hasChangesIn("FirebaseDynamicLinks/")
 @has_dynamiclinks_api_changes = hasChangesIn("FirebaseDynamicLinks/Sources/Public/")
 @has_firestore_changes = hasChangesIn("Firestore/")
@@ -110,6 +113,7 @@ has_license_changes = didModify(["LICENSE"])
 # Convenient flag for all API changes.
 @has_api_changes = @has_abtesting_api_changes ||
                      @has_auth_api_changes ||
+                     @has_appdistribution_api_changes ||
                      @has_core_api_changes ||
                      @has_crashlytics_api_changes ||
                      @has_database_api_changes ||

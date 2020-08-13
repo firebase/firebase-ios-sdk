@@ -15,10 +15,6 @@
 // An umbrella header, for any other libraries in this repo to access Firebase Public and Private
 // headers. Any package manager complexity should be handled here.
 
-#if SWIFT_PACKAGE
-@import FirebaseABTesting;
-#else
 #import <FirebaseABTesting/FirebaseABTesting.h>
-#endif
 
 #import "FirebaseABTesting/Sources/Private/ABTExperimentPayload.h"

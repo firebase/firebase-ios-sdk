@@ -124,7 +124,7 @@ jobs:
       env:
         - PROJECT=Crashlytics METHOD=pod-lib-lint
       script:
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseCrashlytics.podspec
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseCrashlytics.podspec --platforms=ios
 
     - stage: test
       env:

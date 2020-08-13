@@ -17,7 +17,7 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
-#import "FIRIAMElapsedTimeTracker.h"
+#import "FirebaseInAppMessaging/Sources/Util/FIRIAMElapsedTimeTracker.h"
 
 @interface FIRIAMElapsedTimeTrackerTests : XCTestCase
 @property id<FIRIAMTimeFetcher> mockTimeFetcher;

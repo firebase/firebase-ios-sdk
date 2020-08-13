@@ -15,7 +15,7 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "FirebaseAuth/Sources/Public/FIRUserMetadata.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRUserMetadata.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

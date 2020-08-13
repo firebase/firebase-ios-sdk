@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
+
 #import <Foundation/Foundation.h>
 
-#import "FIRInAppMessagingRendering.h"
-#import "FIRInAppMessagingRenderingPrivate.h"
+#import "FirebaseInAppMessaging/Sources/Public/FirebaseInAppMessaging/FIRInAppMessagingRendering.h"
+#import "FirebaseInAppMessaging/Sources/RenderingObjects/FIRInAppMessagingRenderingPrivate.h"
 
 @implementation FIRInAppMessagingDisplayMessage
 
@@ -371,3 +374,5 @@
 }
 
 @end
+
+#endif  // TARGET_OS_IOS

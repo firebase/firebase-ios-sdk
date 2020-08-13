@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRIAMBaseRenderingViewController.h"
+#import "FirebaseInAppMessaging/Sources/DefaultUI/FIRIAMBaseRenderingViewController.h"
 
 @class FIRInAppMessagingImageOnlyDisplay;
 @protocol FIRIAMTimeFetcher;

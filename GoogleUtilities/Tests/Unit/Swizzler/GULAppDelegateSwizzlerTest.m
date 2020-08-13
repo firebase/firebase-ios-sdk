@@ -288,7 +288,8 @@ static BOOL gRespondsToHandleBackgroundSession;
 
 - (void)setUp {
   [super setUp];
-  self.mockSharedApplication = OCMPartialMock([GULApplication sharedApplication]);
+  self.mockSharedApplication = OCMClassMock([GULApplication class]);
+  OCMStub([self.mockSharedApplication sharedApplication]).andReturn(self.mockSharedApplication);
 }
 
 - (void)tearDown {

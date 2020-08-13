@@ -14,11 +14,14 @@
  * limitations under the License.
  */
 
-#import "FIRIAMAnalyticsEventLoggerImpl.h"
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
 
-#import "FIRCore+InAppMessaging.h"
-#import "FIRIAMClearcutLogger.h"
+#import "FirebaseInAppMessaging/Sources/Analytics/FIRIAMAnalyticsEventLoggerImpl.h"
+
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseInAppMessaging/Sources/FIRCore+InAppMessaging.h"
+#import "FirebaseInAppMessaging/Sources/Private/Analytics/FIRIAMClearcutLogger.h"
 #import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 
 typedef void (^FIRAUserPropertiesCallback)(NSDictionary *userProperties);
@@ -168,3 +171,5 @@ static NSString *const kFIAMUserDefaualtsKeyForRemoveUserPropertyTimeInSeconds =
                                      completion:completion];
 }
 @end
+
+#endif  // TARGET_OS_IOS

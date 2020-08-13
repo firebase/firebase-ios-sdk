@@ -16,7 +16,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORStorageProtocol.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORStorageProtocol.h"
 #import "GoogleDataTransport/GDTCORTests/Common/Categories/GDTCORRegistrar+Testing.h"
 
 #import "GoogleDataTransport/GDTCCTLibrary/Private/GDTCCTNanopbHelpers.h"
@@ -487,6 +487,13 @@
 
   [self assertUploadTargetRespectsNextRequestWaitTime:60
                                             forTarget:kGDTCORTargetCSH
+                                                  QoS:GDTCOREventQosDefault
+                                           conditions:GDTCORUploadConditionWifiData
+                         shouldWaitForNextRequestTime:NO
+                                        expectRequest:YES];
+
+  [self assertUploadTargetRespectsNextRequestWaitTime:60
+                                            forTarget:kGDTCORTargetINT
                                                   QoS:GDTCOREventQosDefault
                                            conditions:GDTCORUploadConditionWifiData
                          shouldWaitForNextRequestTime:NO

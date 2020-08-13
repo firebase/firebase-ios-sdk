@@ -317,8 +317,10 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 - (void)start {
   [self setupFileManagerSubDirectory];
   [self setupNotificationListeners];
+
   self.tokenManager = [[FIRMessagingTokenManager alloc] init];
   self.installations = [FIRInstallations installations];
+  [self setupTopics];
 
 #if !TARGET_OS_WATCH
   // Print the library version for logging.
@@ -338,7 +340,6 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   [self setupClient];
   [self setupSyncMessageManager];
   [self setupDataMessageManager];
-  [self setupTopics];
 
 #endif
 }
@@ -426,11 +427,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 }
 
 - (void)setupTopics {
-  if (!self.client) {
-    FIRMessagingLoggerWarn(kFIRMessagingMessageCodeInvalidClient,
-                           @"Invalid nil client before init pubsub.");
-  }
-  self.pubsub = [[FIRMessagingPubSub alloc] initWithClient:self.client];
+  self.pubsub = [[FIRMessagingPubSub alloc] init];
 }
 
 - (void)setupSyncMessageManager {

@@ -26,7 +26,6 @@
 #import "FirebaseMessaging/Sources/FIRMessagingDataMessageManager.h"
 #import "FirebaseMessaging/Sources/FIRMessagingDefines.h"
 #import "FirebaseMessaging/Sources/FIRMessagingLogger.h"
-#import "FirebaseMessaging/Sources/FIRMessagingPubSubRegistrar.h"
 #import "FirebaseMessaging/Sources/FIRMessagingRmqManager.h"
 #import "FirebaseMessaging/Sources/FIRMessagingTopicsCommon.h"
 #import "FirebaseMessaging/Sources/FIRMessagingUtilities.h"
@@ -79,7 +78,6 @@ static NSUInteger FIRMessagingServerPort() {
 
 @property(nonatomic, readwrite, weak) id<FIRMessagingClientDelegate> clientDelegate;
 @property(nonatomic, readwrite, strong) FIRMessagingConnection *connection;
-@property(nonatomic, readonly, strong) FIRMessagingPubSubRegistrar *registrar;
 @property(nonatomic, readwrite, strong) NSString *senderId;
 
 // FIRMessagingService owns these instances
@@ -123,7 +121,6 @@ static NSUInteger FIRMessagingServerPort() {
     _clientDelegate = delegate;
     _rmq2Manager = rmq2Manager;
     _tokenManager = tokenManager;
-    _registrar = [[FIRMessagingPubSubRegistrar alloc] init];
     _connectionTimeoutInterval = kConnectTimeoutInterval;
     // Listen for checkin fetch notifications, as connecting to MCS may have failed due to
     // missing checkin info (while it was being fetched).
@@ -147,14 +144,12 @@ static NSUInteger FIRMessagingServerPort() {
 
   [self.connection teardown];
 
-  // Stop all subscription requests
-  [self.registrar stopAllSubscriptionRequests];
-
   [NSObject cancelPreviousPerformRequestsWithTarget:self];
 
   [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
+<<<<<<< HEAD
 - (void)cancelAllRequests {
   // Stop any checkin requests or any subscription requests
   [self.registrar stopAllSubscriptionRequests];
@@ -207,6 +202,8 @@ static NSUInteger FIRMessagingServerPort() {
   }
 }
 
+=======
+>>>>>>> 6c5e04df032e8e9f794a058671dbb0963cb90d95
 #pragma mark - MCS Connection
 
 - (BOOL)isConnected {

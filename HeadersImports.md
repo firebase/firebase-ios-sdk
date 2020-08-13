@@ -11,11 +11,11 @@ In Swift Package Manager, it's a library target.
 ## Header File Types and Locations - For Header File Creators
 
 * *Public Headers* - Headers that define the library's API. They should be located in
-  `FirebaseFoo/Sources/Public`. Any additions require a minor version update. Any changes or
-  deletions require a major version update.
+  `FirebaseFoo/Sources/FirebaseFoo/Public`. Any additions require a minor version update. Any
+  changes or deletions require a major version update.
 
 * *Public Umbrella Header* - A single header that includes the full library's public API located at
-  `FirebaseFoo/Sources/Public/FirebaseFoo.h`.
+  `FirebaseFoo/Sources/Public/FirebaseFoo/FirebaseFoo.h`.
 
 * *Private Headers* - Headers that are available to other libraries in the repo, but are not part
   of the public API. These should be located in `FirebaseFoo/Sources/Private`.
@@ -86,3 +86,10 @@ inconsistent with expectations of C++ developers. "Private" headers are availabl
 via an explicit import. "Internal" or "Project" headers are only available to their enclosing
 library. Many file names in this repo include "Private" or "Internal" do not comply. Always
 check the build definition to see how the file is used.
+
+### Public Header Location Explanation
+
+CocoaPods flattens all headers specified in the podspec and makes them available via
+`#import "FirebaseFoo/Header.h"`. Swift Package Manager does not flatten. Therefore, the
+directory structure described above allows clients to import headers from either package manager
+without `#if` checks.

@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseCrashlytics'
-  s.version          = '4.3.0'
+  s.version          = '4.4.0'
   s.summary          = 'Best and lightest-weight crash reporting for mobile, desktop and tvOS.'
   s.description      = 'Firebase Crashlytics helps you track, prioritize, and fix stability issues that erode app quality.'
   s.homepage         = 'https://firebase.google.com/'
@@ -14,6 +14,7 @@ Pod::Spec.new do |s|
   s.ios.deployment_target = '8.0'
   s.osx.deployment_target = '10.11'
   s.tvos.deployment_target = '10.0'
+  s.watchos.deployment_target = '6.0'
 
   s.cocoapods_version = '>= 1.4.0'
   s.static_framework = true
@@ -31,7 +32,7 @@ Pod::Spec.new do |s|
   ]
 
   s.public_header_files = [
-    'Crashlytics/Crashlytics/Public/*.h'
+    'Crashlytics/Crashlytics/Public/FirebaseCrashlytics/*.h'
   ]
 
   s.preserve_paths = [
@@ -47,14 +48,17 @@ Pod::Spec.new do |s|
     cp -f ./Crashlytics/upload-symbols ./upload-symbols
   PREPARE_COMMAND_END
 
-  s.dependency 'FirebaseCore', '~> 6.8'
-  s.dependency 'FirebaseInstallations', '~> 1.1'
+  s.dependency 'FirebaseCore', '~> 6.10'
+  s.dependency 'FirebaseInstallations', '~> 1.6'
   s.dependency 'PromisesObjC', '~> 1.2'
-  s.dependency 'GoogleDataTransport', '~> 7.0'
+  s.dependency 'GoogleDataTransport', '~> 7.2'
   s.dependency 'nanopb', '~> 1.30905.0'
 
   s.libraries = 'c++', 'z'
-  s.frameworks = 'Security', 'SystemConfiguration'
+  s.ios.frameworks = 'Security', 'SystemConfiguration'
+  s.macos.frameworks = 'Security', 'SystemConfiguration'
+  s.osx.frameworks = 'Security', 'SystemConfiguration'
+  s.watchos.frameworks = 'Security'
 
   s.ios.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
@@ -86,7 +90,20 @@ Pod::Spec.new do |s|
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"',
   }
 
+  s.watchos.pod_target_xcconfig = {
+    'GCC_C_LANGUAGE_STANDARD' => 'c99',
+    'GCC_PREPROCESSOR_DEFINITIONS' =>
+      'DISPLAY_VERSION=' + s.version.to_s + ' ' +
+      'CLS_SDK_NAME="Crashlytics watchOS SDK" ' +
+      # For nanopb:
+      'PB_FIELD_32BIT=1 PB_NO_PACKED_STRUCTS=1 PB_ENABLE_MALLOC=1',
+    'OTHER_LD_FLAGS' => '$(inherited) -sectcreate __TEXT __info_plist',
+    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"',
+  }
+
   s.test_spec 'unit' do |unit_tests|
+    # Unit tests can't run on watchOS.
+    unit_tests.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
     unit_tests.source_files = 'Crashlytics/UnitTests/*.[mh]',
                               'Crashlytics/UnitTests/*/*.[mh]'
     unit_tests.resources = 'Crashlytics/UnitTests/Data/*',

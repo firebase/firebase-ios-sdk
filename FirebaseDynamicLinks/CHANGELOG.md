@@ -1,3 +1,10 @@
+# v4.3.0
+- [changed] Functionally neutral public header refactor to enable Swift Package
+  Manager support.
+
+# v4.2.1
+- [fixed]Check for Pending Dynamic link guard check logic
+
 # v4.2.0
 - [fixed] Fixed crashes that occur when a dynamic link is opened for the second time while an app is in the foreground (#5880)
 - [Added] Plist property `FirebaseDeepLinkPasteboardRetrievalEnabled` to enable/disable fetching dynamic links from Pasteboard.

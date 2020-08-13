@@ -28,8 +28,7 @@ non-Cocoapod integration. This library also respects the Firebase global data co
   s.prefix_header_file = false
 
   header_search_paths = {
-    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}" ' +
-                             '"${PODS_TARGET_SRCROOT}/Firebase/CoreDiagnostics/"'
+    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
   }
 
   s.pod_target_xcconfig = {
@@ -53,7 +52,7 @@ non-Cocoapod integration. This library also respects the Firebase global data co
 
   s.framework = 'Foundation'
 
-  s.dependency 'GoogleDataTransport', '~> 7.0'
+  s.dependency 'GoogleDataTransport', '~> 7.2'
   s.dependency 'GoogleUtilities/Environment', '~> 6.7'
   s.dependency 'GoogleUtilities/Logger', '~> 6.7'
   s.dependency 'nanopb', '~> 1.30905.0'

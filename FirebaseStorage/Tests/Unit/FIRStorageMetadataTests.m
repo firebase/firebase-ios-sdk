@@ -14,9 +14,9 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FirebaseStorage/Sources/Public/FIRStorageMetadata.h"
+#import "FirebaseStorage/Sources/Public/FirebaseStorage/FIRStorageMetadata.h"
 
-#import "FirebaseStorage/Sources/Public/FIRStorageMetadata.h"
+#import "FirebaseStorage/Sources/Public/FirebaseStorage/FIRStorageMetadata.h"
 
 #import "FirebaseStorage/Sources/FIRStorageGetDownloadURLTask.h"
 #import "FirebaseStorage/Sources/FIRStorageGetDownloadURLTask_Private.h"
