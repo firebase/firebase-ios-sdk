@@ -16,7 +16,6 @@
 
 #import "FirebaseMessaging/Sources/FIRMessagingPubSub.h"
 
-#import <FirebaseInstanceID/FIRInstanceID_Private.h>
 #import <FirebaseMessaging/FIRMessaging.h>
 #import "GoogleUtilities/Environment/Private/GULSecureCoding.h"
 #import "GoogleUtilities/UserDefaults/Private/GULUserDefaults.h"
@@ -42,18 +41,20 @@ static NSString *const kPendingSubscriptionsListKey =
 @property(nonatomic, readonly, strong) NSOperationQueue *topicOperations;
 // Common errors, instantiated, to avoid generating multiple copies
 @property(nonatomic, readwrite, strong) NSError *operationInProgressError;
+@property(nonatomic, readwrite, strong) FIRMessagingTokenManager *tokenManager;
 
 @end
 
 @implementation FIRMessagingPubSub
 
-- (instancetype)init {
+- (instancetype)initWithTokenManager:(FIRMessagingTokenManager *)tokenManager {
   self = [super init];
   if (self) {
     _topicOperations = [[NSOperationQueue alloc] init];
     // Do 10 topic operations at a time; it's enough to keep the TCP connection to the host alive,
     // saving hundreds of milliseconds on each request (compared to a serial queue).
     _topicOperations.maxConcurrentOperationCount = 10;
+    _tokenManager = tokenManager;
     [self restorePendingTopicsList];
   }
   return self;
@@ -106,13 +107,13 @@ static NSString *const kPendingSubscriptionsListKey =
                             options:(NSDictionary *)options
                        shouldDelete:(BOOL)shouldDelete
                             handler:(FIRMessagingTopicOperationCompletion)handler {
-  if ([[FIRInstanceID instanceID] tryToLoadValidCheckinInfo]) {
+  if ([_tokenManager hasValidCheckinInfo]) {
     FIRMessagingTopicAction action =
         shouldDelete ? FIRMessagingTopicActionUnsubscribe : FIRMessagingTopicActionSubscribe;
     FIRMessagingTopicOperation *operation = [[FIRMessagingTopicOperation alloc]
         initWithTopic:topic
                action:action
-                token:token
+         tokenManager:_tokenManager
               options:options
            completion:^(NSError *_Nullable error) {
              if (error) {
@@ -193,7 +194,7 @@ static NSString *const kPendingSubscriptionsListKey =
 }
 
 - (void)scheduleSync:(BOOL)immediately {
-  NSString *fcmToken = self.client.tokenManager.defaultFCMToken;
+  NSString *fcmToken = _tokenManager.defaultFCMToken;
   if (fcmToken.length) {
     [self.pendingTopicUpdates resumeOperationsIfNeeded];
   }
@@ -205,7 +206,7 @@ static NSString *const kPendingSubscriptionsListKey =
     requestedUpdateForTopic:(NSString *)topic
                      action:(FIRMessagingTopicAction)action
                  completion:(FIRMessagingTopicOperationCompletion)completion {
-  NSString *fcmToken = self.client.tokenManager.defaultFCMToken;
+  NSString *fcmToken = _tokenManager.defaultFCMToken;
   if (action == FIRMessagingTopicActionSubscribe) {
     [self subscribeWithToken:fcmToken topic:topic options:nil handler:completion];
   } else {
@@ -218,7 +219,7 @@ static NSString *const kPendingSubscriptionsListKey =
 }
 
 - (BOOL)pendingTopicsListCanRequestTopicUpdates:(FIRMessagingPendingTopicsList *)list {
-  NSString *fcmToken = self.client.tokenManager.defaultFCMToken;
+  NSString *fcmToken = _tokenManager.defaultFCMToken;
   return (fcmToken.length > 0);
 }
 

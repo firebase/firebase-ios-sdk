@@ -427,7 +427,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 }
 
 - (void)setupTopics {
-  self.pubsub = [[FIRMessagingPubSub alloc] init];
+  self.pubsub = [[FIRMessagingPubSub alloc] initWithTokenManager:_tokenManager];
 }
 
 - (void)setupSyncMessageManager {

@@ -18,7 +18,7 @@
 
 #import "FirebaseMessaging/Sources/Protos/GtalkCore.pbobjc.h"
 
-#import "FirebaseCore/Sources/Public/FIROptions.h"
+#import "FirebaseCore/Sources/Public/FirebaseCore/FIROptions.h"
 #import "GoogleUtilities/UserDefaults/Private/GULUserDefaults.h"
 
 #import "FirebaseMessaging/Sources/FIRMessagingLogger.h"
