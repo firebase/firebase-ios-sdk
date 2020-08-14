@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 
-#import "FIRIAMRenderingWindowHelper.h"
-#import "FIRIAMBannerViewUIWindow.h"
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
+
+#import "FirebaseInAppMessaging/Sources/DefaultUI/Banner/FIRIAMBannerViewUIWindow.h"
+#import "FirebaseInAppMessaging/Sources/DefaultUI/FIRIAMRenderingWindowHelper.h"
 
 @implementation FIRIAMRenderingWindowHelper
 
@@ -93,3 +96,5 @@
 }
 #endif
 @end
+
+#endif  // TARGET_OS_IOS

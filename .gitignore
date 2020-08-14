@@ -58,6 +58,8 @@ ZipBuilder/Packages
 ZipBuilder/*.xcodeproj
 ZipBuilder/Package.resolved
 
+# Mint package manager
+Mint
 
 # IntelliJ
 .idea

@@ -16,7 +16,7 @@
 
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
-#import "FIRIAMMessageContentDataWithImageURL.h"
+#import "FirebaseInAppMessaging/Sources/Private/Data/FIRIAMMessageContentDataWithImageURL.h"
 
 static NSString *defaultTitle = @"Message Title";
 static NSString *defaultBody = @"Message Body";

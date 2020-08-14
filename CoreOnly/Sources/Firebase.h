@@ -35,6 +35,12 @@
     #import "FirebaseAuth.h"
   #endif
 
+  #if __has_include(<FirebaseAppDistribution/FirebaseAppDistribution.h>)
+    #import <FirebaseAppDistribution/FirebaseAppDistribution.h>
+  #elif  __has_include("FirebaseAppDistribution.h")
+    #import "FirebaseAppDistribution.h"
+  #endif
+
   #if __has_include(<FirebaseCrashlytics/FirebaseCrashlytics.h>)
     #import <FirebaseCrashlytics/FirebaseCrashlytics.h>
   #elif  __has_include("FirebaseCrashlytics.h")

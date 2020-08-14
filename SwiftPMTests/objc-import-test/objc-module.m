@@ -14,13 +14,13 @@
 
 @import FirebaseAuth;
 @import FirebaseABTesting;
-@import FirebaseDynamicLinks;
-@import FirebaseFunctions;
 @import Firebase;
 @import FirebaseCrashlytics;
 @import FirebaseCore;
 @import FirebaseDatabase;
+@import FirebaseDynamicLinks;
 @import FirebaseFirestore;
+@import FirebaseFunctions;
 @import FirebaseInstallations;
 @import FirebaseRemoteConfig;
 @import FirebaseStorage;

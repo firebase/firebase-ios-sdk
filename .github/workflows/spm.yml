@@ -5,7 +5,6 @@ on:
     paths:
     - '.github/workflows/spm.yml'
     - 'Package.swift'
-    - 'Firebase**'
     - 'Google*'
   schedule:
     # Run every day at 11pm (PST) - cron uses UTC times
@@ -29,7 +28,7 @@ jobs:
       run: sudo xcode-select -s /Applications/Xcode_12_beta.app/Contents/Developer
     - name: Initialize xcodebuild
       run: xcodebuild -list
-    - name: Core ObjC Unit Tests iOS
+    - name: iOS Unit Tests
       run: scripts/third_party/travis/retry.sh xcodebuild -scheme Firebase-Package test -sdk
            iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 11' | xcpretty
 
@@ -44,8 +43,8 @@ jobs:
       run: sudo xcode-select -s /Applications/Xcode_12_beta.app/Contents/Developer
     - name: Initialize xcodebuild
       run: xcodebuild -list
-    - name: Core ObjC Unit Tests macOS
+    - name: macOS Unit Tests
       run:  scripts/third_party/travis/retry.sh xcodebuild -scheme Firebase-Package test | xcpretty
-    - name: Core ObjC Unit Tests tvOS
+    - name: tvOS Unit Tests
       run: scripts/third_party/travis/retry.sh xcodebuild -scheme Firebase-Package test -sdk
            appletvsimulator -destination 'platform=tvOS Simulator,name=Apple TV' | xcpretty

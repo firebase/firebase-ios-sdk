@@ -1,5 +1,6 @@
 # Unreleased
-- [changed] Added support for multi-tenancy (#6142).
+- [added] Added support for multi-tenancy (#6142).
+- [added] Added basic watchOS support. (#4621)
 
 # v6.8.0
 - [fixed] Fix bug where multiple keychain entries would result in user persistence failure. (#5906)

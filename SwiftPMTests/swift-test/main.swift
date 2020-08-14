@@ -22,6 +22,7 @@ import FirebaseDynamicLinks
 import FirebaseFirestore
 import FirebaseFirestoreSwift
 import FirebaseFunctions
+import FirebaseInAppMessaging
 import FirebaseInstallations
 // import FirebaseInstanceID
 import FirebaseRemoteConfig
