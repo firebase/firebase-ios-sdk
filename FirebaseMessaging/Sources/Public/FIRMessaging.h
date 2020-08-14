@@ -396,8 +396,8 @@ NS_SWIFT_NAME(Messaging)
  *  @param completion The completion handler to handle the token request.
  */
 - (void)retrieveFCMTokenForSenderID:(NSString *)senderID
-                         completion:(void (^_Nonnull)(NSString *_Nullable FCMToken,
-                                                      NSError *_Nullable error))completion
+                         completion:(void (^)(NSString *_Nullable FCMToken,
+                                              NSError *_Nullable error))completion
     NS_SWIFT_NAME(retrieveFCMToken(forSenderID:completion:));
 
 /**
@@ -408,7 +408,7 @@ NS_SWIFT_NAME(Messaging)
  *  @param completion The completion handler to handle the token deletion.
  */
 - (void)deleteFCMTokenForSenderID:(NSString *)senderID
-                       completion:(void (^_Nonnull)(NSError *_Nullable error))completion
+                       completion:(void (^)(NSError *_Nullable error))completion
     NS_SWIFT_NAME(deleteFCMToken(forSenderID:completion:));
 
 #pragma mark - Topics
