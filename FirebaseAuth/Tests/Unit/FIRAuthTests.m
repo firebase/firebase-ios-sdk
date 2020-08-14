@@ -1985,8 +1985,8 @@ static const NSTimeInterval kWaitInterval = .5;
 }
 
 /** @fn testUpdateCurrentUserFailureTenantIDMismatch
-    @brief Tests the flow of a failed @c updateCurrentUser:completion:
-        call with FIRAuthErrorCodeTenantIDMismatch.
+ @brief Tests the flow of a failed @c updateCurrentUser:completion:
+ call with FIRAuthErrorCodeTenantIDMismatch.
  */
 - (void)testUpdateCurrentUserFailureTenantIDMismatch {
   // User without tenant id
@@ -2005,27 +2005,27 @@ static const NSTimeInterval kWaitInterval = .5;
   XCTestExpectation *expectation1 = [self expectationWithDescription:@"callback"];
   [[FIRAuth auth] updateCurrentUser:user1
                          completion:^(NSError *_Nullable error) {
-                           XCTAssertEqual(error.code, FIRAuthErrorCodeTenantIDMismatch);
-                           [expectation1 fulfill];
-                         }];
+    XCTAssertEqual(error.code, FIRAuthErrorCodeTenantIDMismatch);
+    [expectation1 fulfill];
+  }];
 
   [[FIRAuth auth] signOut:nil];
   [FIRAuth auth].tenantID = @"tenant-id-2";
   XCTestExpectation *expectation2 = [self expectationWithDescription:@"callback"];
   [[FIRAuth auth] updateCurrentUser:user2
                          completion:^(NSError *_Nullable error) {
-                           XCTAssertEqual(error.code, FIRAuthErrorCodeTenantIDMismatch);
-                           [expectation2 fulfill];
-                         }];
+    XCTAssertEqual(error.code, FIRAuthErrorCodeTenantIDMismatch);
+    [expectation2 fulfill];
+  }];
 
   [[FIRAuth auth] signOut:nil];
   [FIRAuth auth].tenantID = nil;
   XCTestExpectation *expectation3 = [self expectationWithDescription:@"callback"];
   [[FIRAuth auth] updateCurrentUser:user2
                          completion:^(NSError *_Nullable error) {
-                           XCTAssertEqual(error.code, FIRAuthErrorCodeTenantIDMismatch);
-                           [expectation3 fulfill];
-                         }];
+    XCTAssertEqual(error.code, FIRAuthErrorCodeTenantIDMismatch);
+    [expectation3 fulfill];
+  }];
 
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
   OCMVerifyAll(_mockBackend);
