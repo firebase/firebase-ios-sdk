@@ -125,7 +125,7 @@ HostConfigMap& Config() {
 }
 
 std::string GetCppLanguageToken() {
-  std::string cpp_version = [] {
+  const char* cpp_version = [] {
     switch (__cplusplus) {
       case 199711L:
         return "1998";
