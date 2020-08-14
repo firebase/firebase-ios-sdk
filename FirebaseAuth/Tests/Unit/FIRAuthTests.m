@@ -1984,6 +1984,45 @@ static const NSTimeInterval kWaitInterval = .5;
   OCMVerifyAll(_mockBackend);
 }
 
+/** @fn testUpdateCurrentUserFailureNUllUser
+    @brief Tests the flow of a failed @c updateCurrentUser:completion:
+        call with FIRAuthErrorCodeNullUser.
+ */
+- (void)testUpdateCurrentUserFailureTenantIDMismatch {
+  [self waitForSignInWithAccessToken:kAccessToken APIKey:kAPIKey completion:nil];
+  FIRUser *user = [FIRAuth auth].currentUser;
+
+  [FIRAuth auth].tenantID = nil;
+  user.tenantID = @"tenant-id";
+  XCTestExpectation *expectation1 = [self expectationWithDescription:@"callback"];
+  [[FIRAuth auth] updateCurrentUser:user
+                         completion:^(NSError *_Nullable error) {
+                           XCTAssertEqual(error.code, FIRAuthErrorCodeTenantIDMismatch);
+                           [expectation1 fulfill];
+                         }];
+
+  [FIRAuth auth].tenantID = @"tenant-id";
+  user.tenantID = nil;
+  XCTestExpectation *expectation2 = [self expectationWithDescription:@"callback"];
+  [[FIRAuth auth] updateCurrentUser:user
+                         completion:^(NSError *_Nullable error) {
+                           XCTAssertEqual(error.code, FIRAuthErrorCodeTenantIDMismatch);
+                           [expectation2 fulfill];
+                         }];
+
+  [FIRAuth auth].tenantID = @"tenant-1";
+  user.tenantID = @"tenant-2";
+  XCTestExpectation *expectation3 = [self expectationWithDescription:@"callback"];
+  [[FIRAuth auth] updateCurrentUser:user
+                         completion:^(NSError *_Nullable error) {
+                           XCTAssertEqual(error.code, FIRAuthErrorCodeTenantIDMismatch);
+                           [expectation3 fulfill];
+                         }];
+
+  [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
+  OCMVerifyAll(_mockBackend);
+}
+
 /** @fn testUpdateCurrentUserSuccess
     @brief Tests the flow of a successful @c updateCurrentUser:completion:
         call with a network error.
