@@ -380,6 +380,22 @@ NS_SWIFT_NAME(Messaging)
 @property(nonatomic, readonly, nullable) NSString *FCMToken NS_SWIFT_NAME(fcmToken);
 
 /**
+ *  Asynchronously getting the default token.
+ *
+ *  @param completion The completion handler to handle the token request.
+ */
+
+- (void)tokenWithCompletion:(FIRMessagingFCMTokenFetchCompletion)completion
+    NS_SWIFT_NAME(token(completion:));
+
+/*
+ *  Asynchronously deleting the default token.
+ *  @param completion The completion handler to handle the token deletion.
+ */
+
+- (void)deleteTokenWithCompletion:(FIRMessagingDeleteFCMTokenCompletion)completion
+    NS_SWIFT_NAME(deleteToken(completion:));
+/**
  *  Retrieves an FCM registration token for a particular Sender ID. This can be used to allow
  *  multiple senders to send notifications to the same device. By providing a different Sender
  *  ID than your default when fetching a token, you can create a new FCM token which you can
@@ -502,6 +518,19 @@ NS_SWIFT_NAME(Messaging)
  *  @return Information about the downstream message.
  */
 - (FIRMessagingMessageInfo *)appDidReceiveMessage:(NSDictionary *)message;
+
+#pragma mark - GDPR
+
+/**
+ * Deletes all the installation data including the unique identifier, fcm tokens and all
+ * related data on the server side. A network connection is required for the method to succeed.
+ * *
+ * @param completion A completion handler which is invoked when the operation completes. `error ==
+ * nil` indicates success.
+*/
+-(void)deleteWithCompletion:(void (^)(NSError *__nullable error))completion
+  NS_SWIFT_NAME(delete(completion:));
+  
 
 @end
 

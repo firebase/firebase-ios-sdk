@@ -169,8 +169,7 @@
   [self.tokenOperations addOperation:operation];
 }
 
-- (void)deleteAllTokensWithInstanceID:(NSString *)instanceID
-                              handler:(FIRInstanceIDDeleteHandler)handler {
+- (void)deleteAllTokensWithHandler:(FIRInstanceIDDeleteHandler)handler {
   // delete all tokens
   FIRInstanceIDCheckinPreferences *checkinPreferences = self.authService.checkinPreferences;
   if (!checkinPreferences) {

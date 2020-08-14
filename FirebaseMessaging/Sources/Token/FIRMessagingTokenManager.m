@@ -361,9 +361,22 @@ static NSString *const kCheckinFileName = @"g-checkin";
   [self.tokenOperations addOperation:operation];
 }
 
-- (void)deleteAllTokensWithInstanceID:(NSString *)instanceID handler:(void (^)(NSError *))handler {
-  // delete all tokens
-  FIRMessagingCheckinPreferences *checkinPreferences = self.authService.checkinPreferences;
+- (void)deleteAllTokensWithHandler:(void (^)(NSError *))handler {
+  FIRMessaging_WEAKIFY(self);
+
+  [self.installations
+       installationIDWithCompletion:^(NSString *_Nullable identifier, NSError *_Nullable error) {
+    FIRMessaging_STRONGIFY(self);
+    if (error) {
+      if (handler) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+          handler(error);
+        });
+      }
+      return;
+    }
+    // delete all tokens
+    FIRMessagingCheckinPreferences *checkinPreferences = self.authService.checkinPreferences;
   if (!checkinPreferences) {
     // The checkin is already deleted. No need to trigger the token delete operation as client no
     // longer has the checkin information for server to delete.
@@ -376,7 +389,7 @@ static NSString *const kCheckinFileName = @"g-checkin";
       [self createDeleteOperationWithAuthorizedEntity:kFIRMessagingKeychainWildcardIdentifier
                                                 scope:kFIRMessagingKeychainWildcardIdentifier
                                    checkinPreferences:checkinPreferences
-                                           instanceID:instanceID
+                                           instanceID:identifier
                                                action:FIRMessagingTokenActionDeleteTokenAndIID];
   if (handler) {
     [operation addCompletionHandler:^(FIRMessagingTokenOperationResult result,
@@ -388,6 +401,7 @@ static NSString *const kCheckinFileName = @"g-checkin";
     }];
   }
   [self.tokenOperations addOperation:operation];
+  }];
 }
 
 - (void)deleteAllTokensLocallyWithHandler:(void (^)(NSError *error))handler {
@@ -397,6 +411,27 @@ static NSString *const kCheckinFileName = @"g-checkin";
 - (void)stopAllTokenOperations {
   [self.authService stopCheckinRequest];
   [self.tokenOperations cancelAllOperations];
+}
+
+-(void)deleteWithHandler:(void (^)(NSError *))handler {
+  FIRMessaging_WEAKIFY(self);
+  [self deleteAllTokensWithHandler:^(NSError * _Nullable error) {
+      FIRMessaging_STRONGIFY(self);
+    if (error) {
+      handler(error);
+      return;
+    }
+    [self deleteAllTokensLocallyWithHandler:^(NSError *localError) {
+      _defaultFCMToken = nil;
+      if (localError) {
+        handler(localError);
+        return;
+      }
+      self.authService resetCheckinWithHandler:^(NSError * _Nonnull authError) {
+        handler(authError);
+      }
+    }];
+  }];
 }
 
 #pragma mark - CheckinStore

@@ -104,14 +104,12 @@ typedef NS_OPTIONS(NSUInteger, FIRMessagingInvalidTokenReason) {
  *  Deletes all cached tokens from the persistent store. This method should only be triggered
  *  when InstanceID is deleted
  *
- *  @param instanceID The unique string identifying the app instance.
  *  @param handler    The handler to be invoked once the delete request to InstanceID backend
  *                    has returned. If the request was successful we invoke the handler with
  *                    a nil error; else we pass in an appropriate error. This should be non-nil
  *                    and be called asynchronously.
  */
-- (void)deleteAllTokensWithInstanceID:(NSString *)instanceID
-                              handler:(FIRMessagingDeleteFCMTokenCompletion)handler;
+- (void)deleteAllTokensWithHandler:(FIRMessagingDeleteFCMTokenCompletion)handler;
 
 /**
  *  Deletes all cached tokens from the persistent store.
@@ -119,7 +117,9 @@ typedef NS_OPTIONS(NSUInteger, FIRMessagingInvalidTokenReason) {
  *                       with an error if there is any.
  *
  */
-- (void)deleteAllTokensLocallyWithHandler:(void (^)(NSError *error))handler;
+
+
+- (void)deleteWithHandler:(void (^)(NSError *))handler;
 
 /**
  *  Stop any ongoing token operations.
