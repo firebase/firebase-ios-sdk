@@ -422,14 +422,14 @@ static NSString *const kCheckinFileName = @"g-checkin";
       return;
     }
     [self deleteAllTokensLocallyWithHandler:^(NSError *localError) {
-      _defaultFCMToken = nil;
+      self->_defaultFCMToken = nil;
       if (localError) {
         handler(localError);
         return;
       }
-      self.authService resetCheckinWithHandler:^(NSError * _Nonnull authError) {
-        handler(authError);
-      }
+      [self.authService resetCheckinWithHandler:^(NSError * _Nonnull authError) {
+              handler(authError);
+      }];
     }];
   }];
 }

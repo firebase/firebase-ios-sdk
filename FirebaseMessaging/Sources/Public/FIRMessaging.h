@@ -385,7 +385,7 @@ NS_SWIFT_NAME(Messaging)
  *  @param completion The completion handler to handle the token request.
  */
 
-- (void)tokenWithCompletion:(FIRMessagingFCMTokenFetchCompletion)completion
+- (void)tokenWithCompletion:(void (^)(NSString *__nullable token, NSError *__nullable error))completion
     NS_SWIFT_NAME(token(completion:));
 
 /*
@@ -393,7 +393,7 @@ NS_SWIFT_NAME(Messaging)
  *  @param completion The completion handler to handle the token deletion.
  */
 
-- (void)deleteTokenWithCompletion:(FIRMessagingDeleteFCMTokenCompletion)completion
+- (void)deleteTokenWithCompletion:(void (^)(NSError *__nullable error))completion
     NS_SWIFT_NAME(deleteToken(completion:));
 /**
  *  Retrieves an FCM registration token for a particular Sender ID. This can be used to allow
