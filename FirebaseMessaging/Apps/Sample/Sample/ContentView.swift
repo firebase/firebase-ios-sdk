@@ -167,7 +167,6 @@ struct ContentView: View {
     }
     let senderID = app.options.gcmSenderID
     InstanceID.instanceID().deleteToken(withAuthorizedEntity: senderID, scope: "*") { error in
-        self.log = "Deleting token: \(error)"
     }
   }
 

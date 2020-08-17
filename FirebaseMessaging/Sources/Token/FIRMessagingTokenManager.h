@@ -118,7 +118,6 @@ typedef NS_OPTIONS(NSUInteger, FIRMessagingInvalidTokenReason) {
  *
  */
 
-
 - (void)deleteWithHandler:(void (^)(NSError *))handler;
 
 /**
@@ -169,6 +168,6 @@ typedef NS_OPTIONS(NSUInteger, FIRMessagingInvalidTokenReason) {
  */
 - (NSString *)tokenAndRequestIfNotExist;
 
-- (void)setDefaultFCMTokenWithoutUpdate:(NSString *)defaultFcmToken;
+- (void)saveDefaultTokenInfo:(NSString *)defaultFcmToken;
 
 @end

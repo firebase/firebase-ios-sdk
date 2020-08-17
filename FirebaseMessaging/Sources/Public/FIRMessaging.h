@@ -385,7 +385,8 @@ NS_SWIFT_NAME(Messaging)
  *  @param completion The completion handler to handle the token request.
  */
 
-- (void)tokenWithCompletion:(void (^)(NSString *__nullable token, NSError *__nullable error))completion
+- (void)tokenWithCompletion:
+    (void (^)(NSString *__nullable token, NSError *__nullable error))completion
     NS_SWIFT_NAME(token(completion:));
 
 /*
@@ -527,10 +528,9 @@ NS_SWIFT_NAME(Messaging)
  * *
  * @param completion A completion handler which is invoked when the operation completes. `error ==
  * nil` indicates success.
-*/
--(void)deleteWithCompletion:(void (^)(NSError *__nullable error))completion
-  NS_SWIFT_NAME(delete(completion:));
-  
+ */
+- (void)deleteWithCompletion:(void (^)(NSError *__nullable error))completion
+    NS_SWIFT_NAME(delete (completion:));
 
 @end
 
