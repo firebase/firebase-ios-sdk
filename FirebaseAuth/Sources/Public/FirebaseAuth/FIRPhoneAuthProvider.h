@@ -113,7 +113,9 @@ NS_SWIFT_NAME(PhoneAuthProvider)
 - (void)verifyPhoneNumberWithMultiFactorInfo:(FIRPhoneMultiFactorInfo *)phoneMultiFactorInfo
                                   UIDelegate:(nullable id<FIRAuthUIDelegate>)UIDelegate
                           multiFactorSession:(nullable FIRMultiFactorSession *)session
-                                  completion:(nullable FIRVerificationResultCallback)completion;
+                                  completion:
+                                      (nullable void (^)(NSString *_Nullable verificationID,
+                                                         NSError *_Nullable error))completion;
 
 /** @fn credentialWithVerificationID:verificationCode:
     @brief Creates an `FIRAuthCredential` for the phone number provider identified by the

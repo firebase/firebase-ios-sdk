@@ -380,14 +380,16 @@ NS_SWIFT_NAME(Auth)
     @param completion Optionally; a block invoked after the user of the calling Auth instance has
         been updated or an error was encountered.
  */
-- (void)updateCurrentUser:(FIRUser *)user completion:(nullable FIRUserUpdateCallback)completion;
+- (void)updateCurrentUser:(FIRUser *)user
+               completion:(nullable void (^)(NSError *_Nullable error))completion;
 
 /** @fn fetchProvidersForEmail:completion:
     @brief Please use fetchSignInMethodsForEmail:completion: for Objective-C or
         fetchSignInMethods(forEmail:completion:) for Swift instead.
  */
 - (void)fetchProvidersForEmail:(NSString *)email
-                    completion:(nullable FIRProviderQueryCallback)completion
+                    completion:(nullable void (^)(NSArray<NSString *> *_Nullable providers,
+                                                  NSError *_Nullable error))completion
     DEPRECATED_MSG_ATTRIBUTE("Please use fetchSignInMethodsForEmail:completion: for Objective-C or "
                              "fetchSignInMethods(forEmail:completion:) for Swift instead.");
 
@@ -407,7 +409,8 @@ NS_SWIFT_NAME(Auth)
  */
 
 - (void)fetchSignInMethodsForEmail:(NSString *)email
-                        completion:(nullable FIRSignInMethodQueryCallback)completion;
+                        completion:(nullable void (^)(NSArray<NSString *> *_Nullable,
+                                                      NSError *_Nullable))completion;
 
 /** @fn signInWithEmail:password:completion:
     @brief Signs in using an email address and password.
@@ -432,7 +435,8 @@ NS_SWIFT_NAME(Auth)
  */
 - (void)signInWithEmail:(NSString *)email
                password:(NSString *)password
-             completion:(nullable FIRAuthDataResultCallback)completion;
+             completion:(nullable void (^)(FIRAuthDataResult *_Nullable authResult,
+                                           NSError *_Nullable error))completion;
 
 /** @fn signInWithEmail:link:completion:
     @brief Signs in using an email address and email sign-in link.
@@ -456,7 +460,9 @@ NS_SWIFT_NAME(Auth)
 
 - (void)signInWithEmail:(NSString *)email
                    link:(NSString *)link
-             completion:(nullable FIRAuthDataResultCallback)completion API_UNAVAILABLE(watchos);
+             completion:(nullable void (^)(FIRAuthDataResult *_Nullable authResult,
+                                           NSError *_Nullable error))completion
+    API_UNAVAILABLE(watchos);
 
 /** @fn signInWithProvider:UIDelegate:completion:
     @brief Signs in using the provided auth provider instance.
@@ -504,14 +510,18 @@ NS_SWIFT_NAME(Auth)
  */
 - (void)signInWithProvider:(id<FIRFederatedAuthProvider>)provider
                 UIDelegate:(nullable id<FIRAuthUIDelegate>)UIDelegate
-                completion:(nullable FIRAuthDataResultCallback)completion API_UNAVAILABLE(watchos);
+                completion:(nullable void (^)(FIRAuthDataResult *_Nullable authResult,
+                                              NSError *_Nullable error))completion
+    API_UNAVAILABLE(watchos);
 
 /** @fn signInAndRetrieveDataWithCredential:completion:
     @brief Please use signInWithCredential:completion: for Objective-C or "
         "signIn(with:completion:) for Swift instead.
  */
 - (void)signInAndRetrieveDataWithCredential:(FIRAuthCredential *)credential
-                                 completion:(nullable FIRAuthDataResultCallback)completion
+                                 completion:
+                                     (nullable void (^)(FIRAuthDataResult *_Nullable authResult,
+                                                        NSError *_Nullable error))completion
     DEPRECATED_MSG_ATTRIBUTE("Please use signInWithCredential:completion: for Objective-C or "
                              "signIn(with:completion:) for Swift instead.");
 
@@ -554,7 +564,8 @@ NS_SWIFT_NAME(Auth)
     @remarks See `FIRAuthErrors` for a list of error codes that are common to all API methods
 */
 - (void)signInWithCredential:(FIRAuthCredential *)credential
-                  completion:(nullable FIRAuthDataResultCallback)completion;
+                  completion:(nullable void (^)(FIRAuthDataResult *_Nullable authResult,
+                                                NSError *_Nullable error))completion;
 
 /** @fn signInAnonymouslyWithCompletion:
     @brief Asynchronously creates and becomes an anonymous user.
@@ -571,7 +582,8 @@ NS_SWIFT_NAME(Auth)
 
     @remarks See `FIRAuthErrors` for a list of error codes that are common to all API methods.
  */
-- (void)signInAnonymouslyWithCompletion:(nullable FIRAuthDataResultCallback)completion;
+- (void)signInAnonymouslyWithCompletion:(nullable void (^)(FIRAuthDataResult *_Nullable authResult,
+                                                           NSError *_Nullable error))completion;
 
 /** @fn signInWithCustomToken:completion:
     @brief Asynchronously signs in to Firebase with the given Auth token.
@@ -590,7 +602,8 @@ NS_SWIFT_NAME(Auth)
     @remarks See `FIRAuthErrors` for a list of error codes that are common to all API methods.
  */
 - (void)signInWithCustomToken:(NSString *)token
-                   completion:(nullable FIRAuthDataResultCallback)completion;
+                   completion:(nullable void (^)(FIRAuthDataResult *_Nullable authResult,
+                                                 NSError *_Nullable error))completion;
 
 /** @fn createUserWithEmail:password:completion:
     @brief Creates and, on success, signs in a user with the given email address and password.
@@ -616,7 +629,8 @@ NS_SWIFT_NAME(Auth)
  */
 - (void)createUserWithEmail:(NSString *)email
                    password:(NSString *)password
-                 completion:(nullable FIRAuthDataResultCallback)completion;
+                 completion:(nullable void (^)(FIRAuthDataResult *_Nullable authResult,
+                                               NSError *_Nullable error))completion;
 
 /** @fn confirmPasswordResetWithCode:newPassword:completion:
     @brief Resets the password given a code sent to the user outside of the app and a new password
@@ -639,7 +653,7 @@ NS_SWIFT_NAME(Auth)
  */
 - (void)confirmPasswordResetWithCode:(NSString *)code
                          newPassword:(NSString *)newPassword
-                          completion:(FIRConfirmPasswordResetCallback)completion;
+                          completion:(void (^)(NSError *_Nullable error))completion;
 
 /** @fn checkActionCode:completion:
     @brief Checks the validity of an out of band code.
@@ -658,7 +672,8 @@ NS_SWIFT_NAME(Auth)
         asynchronously on the main thread in the future.
  */
 - (void)verifyPasswordResetCode:(NSString *)code
-                     completion:(FIRVerifyPasswordResetCodeCallback)completion;
+                     completion:
+                         (void (^)(NSString *_Nullable email, NSError *_Nullable error))completion;
 
 /** @fn applyActionCode:completion:
     @brief Applies out of band code.
@@ -670,7 +685,7 @@ NS_SWIFT_NAME(Auth)
     @remarks This method will not work for out of band codes which require an additional parameter,
         such as password reset code.
  */
-- (void)applyActionCode:(NSString *)code completion:(FIRApplyActionCodeCallback)completion;
+- (void)applyActionCode:(NSString *)code completion:(void (^)(NSError *_Nullable error))completion;
 
 /** @fn sendPasswordResetWithEmail:completion:
     @brief Initiates a password reset for the given email address.
@@ -691,7 +706,7 @@ NS_SWIFT_NAME(Auth)
 
  */
 - (void)sendPasswordResetWithEmail:(NSString *)email
-                        completion:(nullable FIRSendPasswordResetCallback)completion;
+                        completion:(nullable void (^)(NSError *_Nullable error))completion;
 
 /** @fn sendPasswordResetWithEmail:actionCodeSetting:completion:
     @brief Initiates a password reset for the given email address and @FIRActionCodeSettings object.
@@ -723,7 +738,7 @@ NS_SWIFT_NAME(Auth)
  */
 - (void)sendPasswordResetWithEmail:(NSString *)email
                 actionCodeSettings:(FIRActionCodeSettings *)actionCodeSettings
-                        completion:(nullable FIRSendPasswordResetCallback)completion;
+                        completion:(nullable void (^)(NSError *_Nullable error))completion;
 
 /** @fn sendSignInLinkToEmail:actionCodeSettings:completion:
     @brief Sends a sign in with email link to provided email address.
@@ -736,7 +751,7 @@ NS_SWIFT_NAME(Auth)
  */
 - (void)sendSignInLinkToEmail:(NSString *)email
            actionCodeSettings:(FIRActionCodeSettings *)actionCodeSettings
-                   completion:(nullable FIRSendSignInLinkToEmailCallback)completion
+                   completion:(nullable void (^)(NSError *_Nullable error))completion
     API_UNAVAILABLE(watchos);
 
 /** @fn signOut:
@@ -751,8 +766,6 @@ NS_SWIFT_NAME(Auth)
         + `FIRAuthErrorCodeKeychainError` - Indicates an error occurred when accessing the
             keychain. The `NSLocalizedFailureReasonErrorKey` field in the `NSError.userInfo`
             dictionary will contain more information about the error encountered.
-
-
 
  */
 - (BOOL)signOut:(NSError *_Nullable *_Nullable)error;
@@ -783,8 +796,9 @@ NS_SWIFT_NAME(Auth)
 
     @return A handle useful for manually unregistering the block as a listener.
  */
+
 - (FIRAuthStateDidChangeListenerHandle)addAuthStateDidChangeListener:
-    (FIRAuthStateDidChangeListenerBlock)listener;
+    (void (^)(FIRAuth *auth, FIRUser *_Nullable user))listener;
 
 /** @fn removeAuthStateDidChangeListener:
     @brief Unregisters a block as an "auth state did change" listener.
@@ -813,7 +827,7 @@ NS_SWIFT_NAME(Auth)
     @return A handle useful for manually unregistering the block as a listener.
  */
 - (FIRIDTokenDidChangeListenerHandle)addIDTokenDidChangeListener:
-    (FIRIDTokenDidChangeListenerBlock)listener;
+    (void (^)(FIRAuth *auth, FIRUser *_Nullable user))listener;
 
 /** @fn removeIDTokenDidChangeListener:
     @brief Unregisters a block as an "ID token did change" listener.
