@@ -19,9 +19,13 @@
 @property(nonatomic, copy) NSString *buildVersion;
 @property(nonatomic, copy) NSString *releaseNotes;
 @property(nonatomic, strong) NSURL *downloadURL;
+@property(nonatomic) NSDate *expirationTime;
 @end
 
 @implementation FIRAppDistributionRelease
+
+static const NSTimeInterval kDownloadUrlTimeToLive = 59 * 60;  // 59 minutes
+
 - (instancetype)initWithDictionary:(NSDictionary *)dict {
   self = [super init];
   if (self) {
@@ -30,7 +34,12 @@
 
     self.downloadURL = [[NSURL alloc] initWithString:[dict objectForKey:@"downloadUrl"]];
     self.releaseNotes = [dict objectForKey:@"releaseNotes"];
+    self.expirationTime = [NSDate dateWithTimeIntervalSinceNow:kDownloadUrlTimeToLive];
   }
   return self;
+}
+
+- (BOOL)isExpired {
+  return [[NSDate date] compare:_expirationTime] == NSOrderedDescending;
 }
 @end
