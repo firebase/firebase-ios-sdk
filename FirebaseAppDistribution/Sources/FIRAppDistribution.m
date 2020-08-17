@@ -247,7 +247,8 @@ NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
                                      message:@"Failed to fetch releases for unknown reason."];
 }
 
-- (void)fetchNewLatestRelease:(FIRAppDistributionUpdateCheckCompletion)completion {
+- (void)fetchNewLatestRelease:(void (^)(FIRAppDistributionRelease *_Nullable release,
+                                        NSError *_Nullable error))completion {
   [FIRFADApiService
       fetchReleasesWithCompletion:^(NSArray *_Nullable releases, NSError *_Nullable error) {
         if (error) {
@@ -283,7 +284,8 @@ NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
       }];
 }
 
-- (void)checkForUpdateWithCompletion:(FIRAppDistributionUpdateCheckCompletion)completion {
+- (void)checkForUpdateWithCompletion:(void (^)(FIRAppDistributionRelease *_Nullable release,
+                                               NSError *_Nullable error))completion {
   FIRFADInfoLog(@"CheckForUpdateWithCompletion");
   if ([self isTesterSignedIn]) {
     [self fetchNewLatestRelease:completion];

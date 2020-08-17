@@ -35,7 +35,8 @@
 
 - (instancetype)initWithApp:(FIRApp *)app appInfo:(NSDictionary *)appInfo;
 
-- (void)fetchNewLatestRelease:(FIRAppDistributionUpdateCheckCompletion)completion;
+- (void)fetchNewLatestRelease:(void (^)(FIRAppDistributionRelease *_Nullable release,
+                                        NSError *_Nullable error))completion;
 
 - (NSError *)mapFetchReleasesError:(NSError *)error;
 

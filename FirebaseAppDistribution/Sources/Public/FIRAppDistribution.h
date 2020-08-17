@@ -18,20 +18,6 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- *  @related AppDistributionError
- *
- *  The completion handler invoked when the new build request returns.
- *  If the call fails we return the appropriate `error code`, described by
- *  `AppDistributionError`.
- *
- *  @param release  The new release that is available to be installed.
- *  @param error     The error describing why the new build request failed.
- */
-typedef void (^FIRAppDistributionUpdateCheckCompletion)(
-    FIRAppDistributionRelease *_Nullable release, NSError *_Nullable error)
-    NS_SWIFT_NAME(AppDistributionUpdateCheckCompletion);
-
-/**
  * The Firebase App Distribution API provides methods to check for update to
  * the app and returns information that enables updating the app.
  *
@@ -58,7 +44,8 @@ NS_SWIFT_NAME(AppDistribution)
 /**
  * Check to see whether a new distribution is available
  */
-- (void)checkForUpdateWithCompletion:(FIRAppDistributionUpdateCheckCompletion)completion
+- (void)checkForUpdateWithCompletion:
+    (void (^)(FIRAppDistributionRelease *_Nullable release, NSError *_Nullable error))completion
     NS_SWIFT_NAME(checkForUpdate(completion:));
 
 /**
