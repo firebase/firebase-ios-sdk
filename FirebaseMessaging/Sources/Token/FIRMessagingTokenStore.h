@@ -84,6 +84,8 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)removeAllTokensWithHandler:(nullable void (^)(NSError *))handler;
 
+- (void)saveTokenInfoInCache:(FIRMessagingTokenInfo *)tokenInfo;
+
 NS_ASSUME_NONNULL_END
 
 @end

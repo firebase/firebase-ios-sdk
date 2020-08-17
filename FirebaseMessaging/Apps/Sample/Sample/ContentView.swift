@@ -112,7 +112,14 @@ struct ContentView: View {
           }
         }
         }
-
+        HStack {
+        Button(action: getIDAndToken) {
+          HStack {
+            Image(systemName: "arrow.clockwise.circle.fill").font(.body)
+            Text("iid.getID")
+              .fontWeight(.semibold)
+          }
+        }
         Button(action: deleteFID) {
           HStack {
             Image(systemName: "trash.fill").font(.body)
@@ -120,21 +127,37 @@ struct ContentView: View {
               .fontWeight(.semibold)
           }
         }
+        }
         Text("\(log)")
           .lineLimit(10)
           .multilineTextAlignment(.leading)
       }.buttonStyle(IdentityButtonStyle())
     }
   }
-
-  func getToken() {
-    InstanceID.instanceID().instanceID { result, error in
+  
+  func getIDAndToken() {
+    InstanceID.instanceID().instanceID { (result, error) in
       guard let result = result, error == nil else {
         self.log = "Failed getting iid and token: \(String(describing: error))"
         return
       }
       self.identity.token = result.token
       self.identity.instanceID = result.instanceID
+      self.log = "Successfully got iid and token."
+    }
+  }
+
+  func getToken() {
+    guard let app = FirebaseApp.app() else {
+      return
+    }
+    let senderID = app.options.gcmSenderID
+    InstanceID.instanceID().token(withAuthorizedEntity:senderID , scope: "*", options: nil) { token , error in
+      guard let token = token, error == nil else {
+        self.log = "Failed getting token: \(String(describing: error))"
+        return
+      }
+      self.identity.token =  token
       self.log = "Successfully got token."
     }
   }

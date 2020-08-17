@@ -118,9 +118,7 @@ static NSString *const kCheckinFileName = @"g-checkin";
   tokenInfo.APNSInfo =
       [[FIRMessagingAPNSInfo alloc] initWithTokenOptionsDictionary:[self tokenOptions]];
 
-  [self->_tokenStore saveTokenInfo:tokenInfo
-                           handler:^(NSError *error){
-                           }];
+  [self->_tokenStore saveTokenInfoInCache:tokenInfo];
 }
 
 - (NSDictionary *)tokenOptions {
