@@ -167,11 +167,7 @@ struct ContentView: View {
     }
     let senderID = app.options.gcmSenderID
     InstanceID.instanceID().deleteToken(withAuthorizedEntity: senderID, scope: "*") { error in
-      if let error = error as NSError? {
-        self.log = "Failed deleting token: \(error)"
-        return
-      }
-      self.log = "Successfully deleted token."
+        self.log = "Deleting token: \(error)"
     }
   }
 
