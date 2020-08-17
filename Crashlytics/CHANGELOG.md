@@ -1,3 +1,6 @@
+# Unreleased
+- [fixed] Fixed a compiler warning and removed unused networking code (#6210).
+
 # v4.3.1
 - [fixed] Fixed a segmentation fault that could occur when writing crash contexts to disk (#6048).
 
