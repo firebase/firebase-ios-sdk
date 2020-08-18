@@ -78,12 +78,12 @@ struct ContentView: View {
         }
 
         HStack {
-        Button(action: deleteToken) {
-          HStack {
-            Image(systemName: "trash.fill").font(.body)
-            Text("IID.deleteToken")
-              .fontWeight(.semibold)
-          }
+          Button(action: deleteToken) {
+            HStack {
+              Image(systemName: "trash.fill").font(.body)
+              Text("IID.deleteToken")
+                .fontWeight(.semibold)
+            }
           }
           Button(action: deleteFCMToken) {
             HStack {
@@ -95,38 +95,36 @@ struct ContentView: View {
         }
         
         HStack {
-          
-        Button(action: deleteID) {
-          HStack {
-            Image(systemName: "trash.fill").font(.body)
-            Text("IID.deleteID")
-              .fontWeight(.semibold)
+          Button(action: deleteID) {
+            HStack {
+              Image(systemName: "trash.fill").font(.body)
+              Text("IID.deleteID")
+                .fontWeight(.semibold)
+            }
           }
-        }
-      
-        Button(action: deleteFCM) {
-          HStack {
-            Image(systemName: "trash.fill").font(.body)
-            Text("FM.deleteID")
-              .fontWeight(.semibold)
+          Button(action: deleteFCM) {
+            HStack {
+              Image(systemName: "trash.fill").font(.body)
+              Text("FM.deleteID")
+                .fontWeight(.semibold)
+            }
           }
-        }
         }
         HStack {
-        Button(action: getIDAndToken) {
-          HStack {
-            Image(systemName: "arrow.clockwise.circle.fill").font(.body)
-            Text("iid.getID")
-              .fontWeight(.semibold)
+          Button(action: getIDAndToken) {
+            HStack {
+              Image(systemName: "arrow.clockwise.circle.fill").font(.body)
+              Text("iid.getID")
+                .fontWeight(.semibold)
+            }
           }
-        }
-        Button(action: deleteFID) {
-          HStack {
-            Image(systemName: "trash.fill").font(.body)
-            Text("FIS.delete")
-              .fontWeight(.semibold)
+          Button(action: deleteFID) {
+            HStack {
+              Image(systemName: "trash.fill").font(.body)
+              Text("FIS.delete")
+                .fontWeight(.semibold)
+            }
           }
-        }
         }
         Text("\(log)")
           .lineLimit(10)
