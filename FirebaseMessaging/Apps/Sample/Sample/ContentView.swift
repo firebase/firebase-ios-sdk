@@ -93,7 +93,7 @@ struct ContentView: View {
             }
           }
         }
-        
+
         HStack {
           Button(action: deleteID) {
             HStack {
@@ -110,6 +110,7 @@ struct ContentView: View {
             }
           }
         }
+
         HStack {
           Button(action: getIDAndToken) {
             HStack {
