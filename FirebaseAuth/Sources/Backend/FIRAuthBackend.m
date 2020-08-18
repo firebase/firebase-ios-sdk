@@ -396,6 +396,17 @@ static NSString *const kMissingClientIdentifier = @"MISSING_CLIENT_IDENTIFIER";
  */
 static NSString *const kCaptchaCheckFailedErrorMessage = @"CAPTCHA_CHECK_FAILED";
 
+/** @var kTenantIDMismatch
+    @brief This is the error message the server will respond with if the tenant id mismatches.
+ */
+static NSString *const kTenantIDMismatch = @"TENANT_ID_MISMATCH";
+
+/** @var kUnsupportedTenantOperation
+    @brief This is the error message the server will respond with if the operation does not support
+   multi-tenant.
+ */
+static NSString *const kUnsupportedTenantOperation = @"UNSUPPORTED_TENANT_OPERATION";
+
 /** @var kMissingMFAPendingCredentialErrorMessage
  @brief This is the error message the server will respond with if the MFA pending credential is
  missing.
@@ -1378,6 +1389,14 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
   if ([shortErrorMessage isEqualToString:kEmailChangeNeedsVerificationErrorMessage]) {
     return [FIRAuthErrorUtils errorWithCode:FIRAuthInternalErrorCodeEmailChangeNeedsVerification
                                     message:serverErrorMessage];
+  }
+
+  if ([shortErrorMessage isEqualToString:kTenantIDMismatch]) {
+    return [FIRAuthErrorUtils tenantIDMismatchError];
+  }
+
+  if ([shortErrorMessage isEqualToString:kUnsupportedTenantOperation]) {
+    return [FIRAuthErrorUtils unsupportedTenantOperationError];
   }
 
   // In this case we handle an error that might be specified in the underlying errors dictionary,

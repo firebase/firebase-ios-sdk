@@ -1,4 +1,5 @@
 # Unreleased
+- [added] Added support for multi-tenancy (#6142).
 - [added] Added basic watchOS support. (#4621)
 
 # v6.8.0

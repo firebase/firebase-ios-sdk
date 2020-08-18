@@ -111,6 +111,11 @@ NS_SWIFT_NAME(User)
  */
 @property(nonatomic, readonly, nonnull) FIRUserMetadata *metadata;
 
+/** @property tenantID
+    @brief The tenant ID of the current user. nil if none is available.
+ */
+@property(nonatomic, readonly, nullable) NSString *tenantID;
+
 #if TARGET_OS_IOS
 /** @property multiFactor
     @brief Multi factor object associated with the user.

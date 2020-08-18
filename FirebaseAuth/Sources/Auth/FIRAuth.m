@@ -517,6 +517,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
         if (!storedUserAccessGroup) {
           FIRUser *user;
           if ([strongSelf getUser:&user error:&error]) {
+            strongSelf.tenantID = user.tenantID;
             [strongSelf updateCurrentUser:user byForce:NO savingToDisk:NO error:&error];
             self->_lastNotifiedUserToken = user.rawAccessToken;
           } else {
@@ -1975,6 +1976,15 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     [self possiblyPostAuthStateChangeNotification];
     return YES;
   }
+  if (user) {
+    if ((user.tenantID || self.tenantID) && ![self.tenantID isEqualToString:user.tenantID]) {
+      if (error) {
+        *error = [FIRAuthErrorUtils tenantIDMismatchError];
+      }
+      return NO;
+    }
+  }
+
   BOOL success = YES;
   if (saveToDisk) {
     success = [self saveUser:user error:error];
