@@ -51,7 +51,8 @@ NS_SWIFT_NAME(GameCenterAuthProvider)
 /** @fn getCredentialWithCompletion:
     @brief Creates a @c FIRAuthCredential for a Game Center sign in.
  */
-+ (void)getCredentialWithCompletion:(FIRGameCenterCredentialCallback)completion
++ (void)getCredentialWithCompletion:
+    (void (^)(FIRAuthCredential *_Nullable credential, NSError *_Nullable error))completion
     NS_SWIFT_NAME(getCredential(completion:));
 
 /** @fn init
