@@ -302,8 +302,13 @@ static FIRInstanceID *gInstanceID;
   }
 
   FIRInstanceIDTokenHandler newHandler = ^(NSString *token, NSError *error) {
-    self.defaultFCMToken = token;
-    handler(token, error);
+    if (!error) {
+      // The local cache should be updated as it is critical for sending token updates.
+      self.defaultFCMToken = token;
+    }
+    dispatch_async(dispatch_get_main_queue(), ^{
+      handler(token, error);
+    });
   };
 
   if (errorCode != noError) {
