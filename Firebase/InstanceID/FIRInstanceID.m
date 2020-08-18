@@ -302,7 +302,7 @@ static FIRInstanceID *gInstanceID;
   }
 
   FIRInstanceIDTokenHandler newHandler = ^(NSString *token, NSError *error) {
-    if (!error) {
+    if (!error && [self isDefaultTokenWithAuthorizedEntity:authorizedEntity scope:scope]) {
       // The local cache should be updated as it is critical for sending token updates.
       self.defaultFCMToken = token;
     }
@@ -385,8 +385,7 @@ static FIRInstanceID *gInstanceID;
 
   FIRInstanceIDDeleteTokenHandler newHandler = ^(NSError *error) {
     // If a default token is deleted successfully, reset the defaultFCMToken too.
-    if (!error && [authorizedEntity isEqualToString:self.fcmSenderID] &&
-        [scope isEqualToString:kFIRInstanceIDDefaultTokenScope]) {
+    if (!error && [self isDefaultTokenWithAuthorizedEntity:authorizedEntity scope:scope]) {
       self.defaultFCMToken = nil;
     }
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -867,6 +866,11 @@ static FIRInstanceID *gInstanceID;
                    // will be called
                    [self defaultTokenWithRetry:YES handler:nil];
                  });
+}
+
+- (BOOL)isDefaultTokenWithAuthorizedEntity:(NSString *)authorizedEntity scope:(NSString *)scope {
+  return [authorizedEntity isEqualToString:self.fcmSenderID] &&
+         [scope isEqualToString:kFIRInstanceIDDefaultTokenScope];
 }
 
 #pragma mark - APNS Token
