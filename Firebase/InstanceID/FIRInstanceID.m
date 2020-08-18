@@ -1133,7 +1133,7 @@ static FIRInstanceID *gInstanceID;
 
 - (void)messagingTokenDidChangeNotificationReceived:(NSNotification *)notification {
   NSString *tokenUpdatedFromMessaging = notification.object;
-  if ([tokenUpdatedFromMessaging isKindOfClass:[NSString class]]) {
+  if (!tokenUpdatedFromMessaging || [tokenUpdatedFromMessaging isKindOfClass:[NSString class]]) {
     self.defaultFCMToken = tokenUpdatedFromMessaging;
     [self.tokenManager saveDefaultToken:tokenUpdatedFromMessaging
                             withOptions:[self defaultTokenOptions]];
