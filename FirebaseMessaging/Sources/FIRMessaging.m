@@ -648,13 +648,6 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   return [[FIRMessaging messaging].tokenManager tokenAndRequestIfNotExist];
 }
 
-- (void)tokenWithCompletion:(FIRMessagingFCMTokenFetchCompletion)completion {
-  [self retrieveFCMTokenForSenderID:_tokenManager.fcmSenderID completion:completion];
-}
-- (void)deleteTokenWithCompletion:(FIRMessagingDeleteFCMTokenCompletion)completion {
-  [self deleteFCMTokenForSenderID:_tokenManager.fcmSenderID completion:completion];
-}
-
 - (void)retrieveFCMTokenForSenderID:(nonnull NSString *)senderID
                          completion:(nonnull FIRMessagingFCMTokenFetchCompletion)completion {
   if (!senderID.length) {
@@ -724,30 +717,6 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
                                                      }];
         }
       }];
-}
-
-- (void)deleteWithCompletion:(void (^)(NSError *_Nullable))completion {
-  FIRMessaging_WEAKIFY(self);
-  [self.tokenManager deleteWithHandler:^(NSError *error) {
-    FIRMessaging_STRONGIFY(self);
-    if (error) {
-      completion(error);
-      return;
-    }
-    // Only request new token if FCM auto initialization is
-    // enabled.
-    if ([self isAutoInitEnabled]) {
-      // Deletion succeeds! Requesting new checkin, IID and token.
-      // TODO(chliangGoogle) see if dispatch_after is necessary
-      dispatch_after(
-          dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)),
-          dispatch_get_main_queue(), ^{
-            [self tokenWithCompletion:^(NSString *_Nullable token, NSError *_Nullable error){
-            }];
-          });
-    }
-    completion(nil);
-  }];
 }
 
 #pragma mark - FIRMessagingDelegate helper methods

@@ -163,7 +163,11 @@ struct ContentView: View {
   }
   
   func getFCMToken() {
-    Messaging.messaging().token { token, error in
+    guard let app = FirebaseApp.app() else {
+      return
+    }
+    let senderID = app.options.gcmSenderID
+    Messaging.messaging().retrieveFCMToken(forSenderID: senderID) { token, error in
       guard let token = token, error == nil else {
         self.log = "Failed getting iid and token: \(String(describing: error))"
         return
@@ -175,7 +179,11 @@ struct ContentView: View {
   }
   
   func deleteFCMToken() {
-    Messaging.messaging().deleteToken { error in
+    guard let app = FirebaseApp.app() else {
+      return
+    }
+    let senderID = app.options.gcmSenderID
+    Messaging.messaging().deleteFCMToken(forSenderID: senderID) { error in
       if let error = error as NSError? {
         self.log = "Failed deleting token: \(error)"
         return
@@ -204,7 +212,11 @@ struct ContentView: View {
   }
   
   func deleteFCM() {
-    Messaging.messaging().delete { error in
+    guard let app = FirebaseApp.app() else {
+      return
+    }
+    let senderID = app.options.gcmSenderID
+    Messaging.messaging().deleteFCMToken(forSenderID: senderID) { error in
       if let error = error as NSError? {
         self.log = "Failed deleting ID: \(error)"
         return
