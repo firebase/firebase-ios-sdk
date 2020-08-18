@@ -36,6 +36,7 @@ target 'SymbolCollisionTest' do
     pod 'FirebaseStorage', :path => '../'
     pod 'GoogleDataTransport', :path => '../'
     pod 'GoogleUtilities', :path => '../'
+    pod 'GoogleUtilitiesComponents', :path => '../'
 
 #    pod 'FirebaseUI'. - requires use_frameworks!
 
