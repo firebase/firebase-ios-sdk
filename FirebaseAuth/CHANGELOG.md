@@ -1,6 +1,6 @@
 # Unreleased
 - [added] Added basic watchOS support. (#4621)
-- [fixed] Improved Xcode completion of public API completion handlers in Swift. (#6283)
+- [channged] Improved Xcode completion of public API completion handlers in Swift. (#6283)
 
 # v6.8.0
 - [fixed] Fix bug where multiple keychain entries would result in user persistence failure. (#5906)
