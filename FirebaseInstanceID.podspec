@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseInstanceID'
-  s.version          = '4.5.2'
+  s.version          = '4.6.0'
   s.summary          = 'Firebase InstanceID'
 
   s.description      = <<-DESC

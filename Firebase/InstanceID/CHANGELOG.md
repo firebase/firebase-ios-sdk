@@ -1,6 +1,6 @@
-# 2020-08 -- 4.5.2
+# 2020-08 -- 4.6.0
+- [added] Added a new notification listening token refresh from Messaging and update its cache. (#6286)
 - [fixed] Fixed an issue that token refresh notification is not triggered when use `tokenWithAuthorizedEntity:scope:options:handler` to get token. (#6286)
-- [changed] Added a new notification listening token refresh from Messaging and update its cache. (#6286)
 
 # 2020-07 -- 4.5.1
 - [changed] Remove FIRInstanceIDURLQueryItem in favor of NSURLQueryItem. (#5835)
