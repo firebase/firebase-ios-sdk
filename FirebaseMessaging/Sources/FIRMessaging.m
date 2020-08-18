@@ -567,6 +567,15 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   return token;
 }
 
+- (void)tokenWithCompletion:(FIRMessagingFCMTokenFetchCompletion)completion {
+  FIROptions *options = FIRApp.defaultApp.options;
+  [self retrieveFCMTokenForSenderID:options.GCMSenderID completion:completion];
+}
+- (void)deleteTokenWithCompletion:(FIRMessagingDeleteFCMTokenCompletion)completion {
+  FIROptions *options = FIRApp.defaultApp.options;
+  [self deleteFCMTokenForSenderID:options.GCMSenderID completion:completion];
+}
+
 - (void)retrieveFCMTokenForSenderID:(nonnull NSString *)senderID
                          completion:(nonnull FIRMessagingFCMTokenFetchCompletion)completion {
   if (!senderID.length) {
@@ -615,6 +624,31 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   [self.instanceID deleteTokenWithAuthorizedEntity:senderID
                                              scope:kFIRMessagingDefaultTokenScope
                                            handler:completion];
+}
+
+- (void)deleteWithCompletion:(void (^)(NSError *_Nullable))completion {
+  FIRMessaging_WEAKIFY(self);
+  [self.instanceID deleteTokenWithAuthorizedEntity:@"*" scope:@"*" handler:^(NSError * _Nonnull error) {
+    FIRMessaging_STRONGIFY(self);
+    if (error) {
+      completion(error);
+      return;
+    }
+    // Only request new token if FCM auto initialization is
+    // enabled.
+    if ([self isAutoInitEnabled]) {
+      // Deletion succeeds! Requesting new checkin, IID and token.
+      // TODO(chliangGoogle) see if dispatch_after is necessary
+      dispatch_after(
+          dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)),
+          dispatch_get_main_queue(), ^{
+            [self tokenWithCompletion:^(NSString *_Nullable token, NSError *_Nullable error){
+            }];
+          });
+    }
+    completion(nil);
+  }];
+}
 }
 
 #pragma mark - FIRMessagingDelegate helper methods
