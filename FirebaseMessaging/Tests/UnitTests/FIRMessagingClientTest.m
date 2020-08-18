@@ -96,6 +96,7 @@ static NSString *const kSecretToken = @"56789";
   _mockTokenManager = OCMPartialMock([[FIRMessagingTokenManager alloc] init]);
   OCMStub([_mockTokenManager deviceAuthID]).andReturn(kDeviceAuthId);
   OCMStub([_mockTokenManager secretToken]).andReturn(kSecretToken);
+  OCMStub([_mockTokenManager hasValidCheckinInfo]).andReturn(YES);
   _client = [[FIRMessagingClient alloc] initWithDelegate:_mockClientDelegate
                                             reachability:_mockReachability
                                              rmq2Manager:_mockRmqManager
