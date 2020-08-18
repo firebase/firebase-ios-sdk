@@ -302,9 +302,8 @@ static FIRInstanceID *gInstanceID;
   }
 
   FIRInstanceIDTokenHandler newHandler = ^(NSString *token, NSError *error) {
-    dispatch_async(dispatch_get_main_queue(), ^{
-      handler(token, error);
-    });
+    self.defaultFCMToken = token;
+    handler(token, error);
   };
 
   if (errorCode != noError) {
@@ -707,6 +706,7 @@ static FIRInstanceID *gInstanceID;
                  name:kFIRInstanceIDAPNSTokenNotification
                object:nil];
   [self observeFirebaseInstallationIDChanges];
+  [self observeFirebaseMessagingTokenChanges];
 }
 
 #pragma mark - Private Helpers
@@ -763,15 +763,8 @@ static FIRInstanceID *gInstanceID;
 
   NSDictionary *instanceIDOptions = @{};
   BOOL hasFirebaseMessaging = NSClassFromString(kFIRInstanceIDFCMSDKClassString) != nil;
-  if (hasFirebaseMessaging && self.apnsTokenData) {
-    BOOL isSandboxApp = (self.apnsTokenType == FIRInstanceIDAPNSTokenTypeSandbox);
-    if (self.apnsTokenType == FIRInstanceIDAPNSTokenTypeUnknown) {
-      isSandboxApp = [self isSandboxApp];
-    }
-    instanceIDOptions = @{
-      kFIRInstanceIDTokenOptionsAPNSKey : self.apnsTokenData,
-      kFIRInstanceIDTokenOptionsAPNSIsSandboxKey : @(isSandboxApp),
-    };
+  if (hasFirebaseMessaging) {
+    instanceIDOptions = [self defaultTokenOptions];
   }
 
   FIRInstanceID_WEAKIFY(self);
@@ -1115,6 +1108,42 @@ static FIRInstanceID *gInstanceID;
          selector:@selector(installationIDDidChangeNotificationReceived:)
              name:FIRInstallationIDDidChangeNotification
            object:nil];
+}
+
+- (void)observeFirebaseMessagingTokenChanges {
+  [[NSNotificationCenter defaultCenter]
+      removeObserver:self
+                name:kFIRInstanceIDMessagingUpdateTokenNotification
+              object:nil];
+  [[NSNotificationCenter defaultCenter]
+      addObserver:self
+         selector:@selector(messagingTokenDidChangeNotificationReceived:)
+             name:kFIRInstanceIDMessagingUpdateTokenNotification
+           object:nil];
+}
+
+- (void)messagingTokenDidChangeNotificationReceived:(NSNotification *)notification {
+  NSString *tokenUpdatedFromMessaging = notification.object;
+  if ([tokenUpdatedFromMessaging isKindOfClass:[NSString class]]) {
+    self.defaultFCMToken = tokenUpdatedFromMessaging;
+    [self.tokenManager saveDefaultToken:tokenUpdatedFromMessaging
+                            withOptions:[self defaultTokenOptions]];
+  }
+}
+
+- (NSDictionary *)defaultTokenOptions {
+  NSDictionary *tokenOptions = @{};
+  if (self.apnsTokenData) {
+    BOOL isSandboxApp = (self.apnsTokenType == FIRInstanceIDAPNSTokenTypeSandbox);
+    if (self.apnsTokenType == FIRInstanceIDAPNSTokenTypeUnknown) {
+      isSandboxApp = [self isSandboxApp];
+    }
+    tokenOptions = @{
+      kFIRInstanceIDTokenOptionsAPNSKey : self.apnsTokenData,
+      kFIRInstanceIDTokenOptionsAPNSIsSandboxKey : @(isSandboxApp),
+    };
+  }
+  return tokenOptions;
 }
 
 @end
