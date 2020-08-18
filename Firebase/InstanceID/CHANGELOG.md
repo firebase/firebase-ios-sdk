@@ -1,3 +1,6 @@
+# 2020-08 -- 4.5.2
+- [changed] Added a new notification listening token refresh from Messaging and update its cache. (#6286)
+
 # 2020-07 -- 4.5.1
 - [changed] Remove FIRInstanceIDURLQueryItem in favor of NSURLQueryItem. (#5835)
 
