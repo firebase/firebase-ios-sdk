@@ -1,4 +1,4 @@
-# unreleased
+# 2020-08 -- v.4.6.2
 - [fixed] Fixed an issue that topic doesn't work in watchOS. (#6160)
 - [fixed] Improved Xcode completion of public API completion handlers in Swift. (#6278)
 

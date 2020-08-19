@@ -146,4 +146,13 @@ typedef NS_OPTIONS(NSUInteger, FIRInstanceIDInvalidTokenReason) {
 - (NSArray<FIRInstanceIDTokenInfo *> *)updateTokensToAPNSDeviceToken:(NSData *)deviceToken
                                                            isSandbox:(BOOL)isSandbox;
 
+/*
+ * This method is only called when Messaging SDK is installed and a new token is triggered
+ * by Messaging.
+ * Update default token in cache if the token is updated from a newer versio of Messaging.
+ * This is used when newer version of Messaging SDK will update the token in storage
+ * and notify instanceID to update its own cache as well. No need to write to storage again.
+ */
+- (void)saveDefaultToken:(NSString *)defaultToken withOptions:(NSDictionary *)tokenOptions;
+
 @end

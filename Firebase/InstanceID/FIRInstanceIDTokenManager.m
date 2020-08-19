@@ -27,6 +27,7 @@
 #import "FIRInstanceIDTokenFetchOperation.h"
 #import "FIRInstanceIDTokenInfo.h"
 #import "FIRInstanceIDTokenOperation.h"
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "NSError+FIRInstanceID.h"
 
 @interface FIRInstanceIDTokenManager () <FIRInstanceIDStoreDelegate>
@@ -335,6 +336,19 @@
                                                           scope:tokenInfoToDelete.scope];
   }
   return tokenInfosToDelete;
+}
+
+- (void)saveDefaultToken:(NSString *)defaultToken withOptions:(NSDictionary *)tokenOptions {
+  FIROptions *options = FIRApp.defaultApp.options;
+  FIRInstanceIDTokenInfo *tokenInfo =
+      [[FIRInstanceIDTokenInfo alloc] initWithAuthorizedEntity:options.GCMSenderID
+                                                         scope:@"*"
+                                                         token:defaultToken
+                                                    appVersion:FIRInstanceIDCurrentAppVersion()
+                                                 firebaseAppID:options.googleAppID];
+  tokenInfo.APNSInfo = [[FIRInstanceIDAPNSInfo alloc] initWithTokenOptionsDictionary:tokenOptions];
+
+  [self.instanceIDStore saveTokenInfoInCacheOnly:tokenInfo];
 }
 
 @end
