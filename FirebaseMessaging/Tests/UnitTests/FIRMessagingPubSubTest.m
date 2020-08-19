@@ -126,13 +126,6 @@ static NSString *const kTopicName = @"topic-Name";
                        completion:nil];
   XCTAssertEqual(topicList.numberOfBatches, 3);
 
-  id mockClientDelegate = OCMStrictProtocolMock(@protocol(FIRMessagingClientDelegate));
-  id mockReachability = OCMClassMock([GULReachabilityChecker class]);
-  id mockRmqManager = OCMClassMock([FIRMessagingRmqManager class]);
-  FIRMessagingClient *client = [[FIRMessagingClient alloc] initWithDelegate:mockClientDelegate
-                                                               reachability:mockReachability
-                                                                rmq2Manager:mockRmqManager
-                                                               tokenManager:nil];
   FIRMessagingPubSub *pubSub = [[FIRMessagingPubSub alloc] init];
   [pubSub archivePendingTopicsList:topicList];
   [pubSub restorePendingTopicsList];
