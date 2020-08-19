@@ -72,7 +72,7 @@ jobs:
     - name: Move repo
       run: |
         mkdir -p /tmp/test/
-        mv "${GITHUB_WORKSPACE}/${testing_repo}" 
+        mv "${GITHUB_WORKSPACE}/${testing_repo}" /tmp/test/
         find "${GITHUB_WORKSPACE}/${testing_repo}" -name "*.zip" -maxdepth 3 -exec unzip -d /tmp/test/ {} +
         ls /tmp/test/
     - name: Setup quickstart

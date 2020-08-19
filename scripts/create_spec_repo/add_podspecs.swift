@@ -154,13 +154,13 @@ func push_podspec(_ pod: String, from sdk_repo: String, sources: [String],
   return exit_code
 }
 
-func erase_remote_repo(repo_path:String) {
+func erase_remote_repo(repo_path: String) {
   shell("git clone --quiet https://${BOT_TOKEN}@github.com/firebase/SpecsStaging.git")
   let fileManager = FileManager.default
   do {
     let dirs = try fileManager.contentsOfDirectory(atPath: "\(repo_path)/SpecsStaging")
-    for dir in dirs{
-      if !_EXCLUSIVE_PODS.contains(dir), dir != ".git"{
+    for dir in dirs {
+      if !_EXCLUSIVE_PODS.contains(dir), dir != ".git" {
         shell("cd SpecsStaging; git rm -r \(dir)")
       }
     }
@@ -197,7 +197,7 @@ do {
   let podspecURLs = fileURLs.filter { $0.pathExtension == "podspec" }
   for podspecURL in podspecURLs {
     let podName = podspecURL.deletingPathExtension().lastPathComponent
-    if !_EXCLUSIVE_PODS.contains(podName){
+    if !_EXCLUSIVE_PODS.contains(podName) {
       podSpecFiles[podName] = podspecURL
     }
   }
@@ -221,7 +221,7 @@ do {
     try fileManager.removeItem(at: URL(fileURLWithPath: "\(cur_dir)/SpecsStaging"))
   }
   // erase_remote_repo(repo_path: "\(cur_dir)")
-  
+
 } catch {
   print("error occurred. \(error)")
 }
