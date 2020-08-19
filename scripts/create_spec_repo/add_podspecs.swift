@@ -22,9 +22,10 @@ let _DEPENDENCY_LABEL_IN_SPEC = "dependency"
 let _SKIP_LINES_WITH_WORDS = ["unit_tests", "test_spec"]
 let _DEPENDENCY_LINE_SEPARATORS = [" ", ",", "/"] as CharacterSet
 let _POD_SOURCES = ["https://github.com/firebase/SpecsStaging.git", "https://cdn.cocoapods.org/"]
-let _FLAGS = ["--skip-tests"]
+let _FLAGS = ["--skip-tests", "--allow-warnings"]
 let _FIREBASE_FLAGS = _FLAGS + ["--skip-import-validation", "--use-json"]
-let _FIREBASEFIRESTORE_FLAGS = _FLAGS + ["--allow-warnings"]
+let _FIREBASEFIRESTORE_FLAGS = _FLAGS + []
+let _EXCLUSIVE_PODS: Set = ["GoogleAppMeasurement", "FirebaseAnalytics"]
 
 class SpecFiles {
   private var specFilesDict: [String: URL]
@@ -153,12 +154,22 @@ func push_podspec(_ pod: String, from sdk_repo: String, sources: [String],
   return exit_code
 }
 
-func erase_remote_branch() {
+func erase_remote_repo(repo_path:String) {
   shell("git clone --quiet https://${BOT_TOKEN}@github.com/firebase/SpecsStaging.git")
-  shell("cd SpecsStaging; git rm -r *; git commit -m 'Empty repo'; git push")
+  let fileManager = FileManager.default
   do {
-    try fileManager.removeItem(at: URL(fileURLWithPath: "\(cur_dir)/SpecsStaging"))
-    print("Specsstaging dir is removed.")
+    let dirs = try fileManager.contentsOfDirectory(atPath: "\(repo_path)/SpecsStaging")
+    for dir in dirs{
+      if !_EXCLUSIVE_PODS.contains(dir), dir != ".git"{
+        shell("cd SpecsStaging; git rm -r \(dir)")
+      }
+    }
+    shell("cd SpecsStaging; git commit -m 'Empty repo'; git push")
+  } catch {
+    print("Error while enumerating files \(documentsURL.path): \(error.localizedDescription)")
+  }
+  do {
+    try fileManager.removeItem(at: URL(fileURLWithPath: "\(repo_path)/SpecsStaging"))
   } catch {
     print("error occurred. \(error)")
   }
@@ -186,7 +197,9 @@ do {
   let podspecURLs = fileURLs.filter { $0.pathExtension == "podspec" }
   for podspecURL in podspecURLs {
     let podName = podspecURL.deletingPathExtension().lastPathComponent
-    podSpecFiles[podName] = podspecURL
+    if !_EXCLUSIVE_PODS.contains(podName){
+      podSpecFiles[podName] = podspecURL
+    }
   }
 } catch {
   print("Error while enumerating files \(documentsURL.path): \(error.localizedDescription)")
@@ -206,9 +219,9 @@ do {
   if fileManager.fileExists(atPath: "\(cur_dir)/SpecsStaging") {
     print("remove specsstaging dir.")
     try fileManager.removeItem(at: URL(fileURLWithPath: "\(cur_dir)/SpecsStaging"))
-  } else {
-    erase_remote_branch()
   }
+  // erase_remote_repo(repo_path: "\(cur_dir)")
+  
 } catch {
   print("error occurred. \(error)")
 }
