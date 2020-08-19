@@ -72,7 +72,7 @@ For top-level Firebase pods that map to documented products:
 * Update [Firebase.podspec](Firebase.podspec).
 * Register library via registerInternalLibrary API like this
   [Storage example](FirebaseStorage/Sources/FIRStorageComponent.m).
-* Add to the [ZipBuilder pod list](ZipBuilder/Sources/ZipBuilder/CocoaPod.swift).
+* Add to the [ZipBuilder pod list](ZipBuilder/Sources/ZipBuilder/FirebasePods.swift).
 * Add a [quickstart](https://github.com/firebase/quickstart-ios).
 
 ## Review and Release
