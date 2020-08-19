@@ -35,7 +35,7 @@ jobs:
         git clone https://github.com/firebase/firebase-ios-sdk.git /tmp/test/firebase-ios-sdk
         cd /tmp/test/firebase-ios-sdk
         git tag -a "test" -m "release testing"
-        sed  -i "s/\s*:git.*/:git => '\/tmp\/test\/firebase-ios-sdk',/; s/\s*:tag.*/:tag => 'test'/" *.podspec
+        sed  -i "" "s/\s*:git.*/:git => '\/tmp\/test\/firebase-ios-sdk',/; s/\s*:tag.*/:tag => 'test'/" *.podspec
         cd "${GITHUB_WORKSPACE}/ZipBuilder"
         swift build
         # ./.build/debug/firebase-pod-updater --git-root "${GITHUB_WORKSPACE}/firebase-ios-sdk" --releasing-pods "${GITHUB_WORKSPACE}/scripts/create_spec_repo/firebase_sdk.textproto"
