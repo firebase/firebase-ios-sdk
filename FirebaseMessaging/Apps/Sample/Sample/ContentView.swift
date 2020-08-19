@@ -60,6 +60,7 @@ struct ContentView: View {
         .foregroundColor(.blue)
 
         // MARK: Action buttons
+
         HStack {
           Button(action: getToken) {
             HStack {
@@ -135,7 +136,7 @@ struct ContentView: View {
   }
 
   func getIDAndToken() {
-    InstanceID.instanceID().instanceID { (result, error) in
+    InstanceID.instanceID().instanceID { result, error in
       guard let result = result, error == nil else {
         self.log = "Failed getting iid and token: \(String(describing: error))"
         return
@@ -151,14 +152,15 @@ struct ContentView: View {
       return
     }
     let senderID = app.options.gcmSenderID
-    InstanceID.instanceID().token(withAuthorizedEntity:senderID , scope: "*", options: nil) { token , error in
-      guard let token = token, error == nil else {
-        self.log = "Failed getting token: \(String(describing: error))"
-        return
+    InstanceID.instanceID()
+      .token(withAuthorizedEntity: senderID, scope: "*", options: nil) { token, error in
+        guard let token = token, error == nil else {
+          self.log = "Failed getting token: \(String(describing: error))"
+          return
+        }
+        self.identity.token = token
+        self.log = "Successfully got token."
       }
-      self.identity.token =  token
-      self.log = "Successfully got token."
-    }
   }
 
   func getFCMToken() {
@@ -174,7 +176,6 @@ struct ContentView: View {
       self.identity.token = token
       self.log = "Successfully got token."
     }
-
   }
 
   func deleteFCMToken() {
@@ -294,15 +295,13 @@ struct ContentView_Previews: PreviewProvider {
 struct IdentityButtonStyle: ButtonStyle {
   func makeBody(configuration: Self.Configuration) -> some View {
     configuration.label
-      .frame(minWidth: 0, maxWidth: 130
-      )
+      .frame(minWidth: 0, maxWidth: 130)
       .padding()
       .foregroundColor(.white)
       .background(Color.yellow)
       .cornerRadius(20)
       // Push the button down a bit when it's pressed.
       .scaleEffect(configuration.isPressed ? 0.9 : 1)
-      .font(.footnote
-      )
+      .font(.footnote)
   }
 }
