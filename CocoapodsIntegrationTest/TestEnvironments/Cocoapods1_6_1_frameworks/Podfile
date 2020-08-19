@@ -5,6 +5,7 @@ target 'CocoapodsIntegrationTest' do
   use_frameworks!
 
   pod 'FirebaseABTesting', :path => '../'
+  pod 'FirebaseAppDistribution', :path => '../'
   pod 'FirebaseCore', :path => '../'
   pod 'FirebaseCoreDiagnostics', :path => '../'
   pod 'FirebaseCrashlytics', :path => '../'
