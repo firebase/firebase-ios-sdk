@@ -89,5 +89,9 @@ jobs:
       run: scripts/remove_data.sh config
     - uses: actions/upload-artifact@v2
       with:
+        name: test-repo
+        path: /tmp/test/
+    - uses: actions/upload-artifact@v2
+      with:
         name: quickstart_artifacts_config
         path: quickstart-ios/
