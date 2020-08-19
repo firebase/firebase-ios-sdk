@@ -14,16 +14,19 @@
  * limitations under the License.
  */
 
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
+
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
-#import "FIRCore+InAppMessaging.h"
-#import "FIRIAMDisplayTriggerDefinition.h"
-#import "FIRIAMFetchResponseParser.h"
-#import "FIRIAMMessageContentData.h"
-#import "FIRIAMMessageContentDataWithImageURL.h"
-#import "FIRIAMMessageDefinition.h"
-#import "FIRIAMTimeFetcher.h"
-#import "UIColor+FIRIAMHexString.h"
+#import "FirebaseInAppMessaging/Sources/FIRCore+InAppMessaging.h"
+#import "FirebaseInAppMessaging/Sources/Private/Data/FIRIAMFetchResponseParser.h"
+#import "FirebaseInAppMessaging/Sources/Private/Data/FIRIAMMessageContentData.h"
+#import "FirebaseInAppMessaging/Sources/Private/Data/FIRIAMMessageContentDataWithImageURL.h"
+#import "FirebaseInAppMessaging/Sources/Private/Data/FIRIAMMessageDefinition.h"
+#import "FirebaseInAppMessaging/Sources/Private/DisplayTrigger/FIRIAMDisplayTriggerDefinition.h"
+#import "FirebaseInAppMessaging/Sources/Private/Util/FIRIAMTimeFetcher.h"
+#import "FirebaseInAppMessaging/Sources/Util/UIColor+FIRIAMHexString.h"
 
 #import "FirebaseABTesting/Sources/Private/ABTExperimentPayload.h"
 
@@ -372,3 +375,5 @@
   }
 }
 @end
+
+#endif  // TARGET_OS_IOS

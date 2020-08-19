@@ -41,15 +41,18 @@ typedef void (^FIRGameCenterCredentialCallback)(FIRAuthCredential *_Nullable cre
     NS_SWIFT_NAME(GameCenterCredentialCallback);
 
 /** @class FIRGameCenterAuthProvider
-    @brief A concrete implementation of @c FIRAuthProvider for Game Center Sign In.
+    @brief A concrete implementation of @c FIRAuthProvider for Game Center Sign In. Not available on
+           watchOS.
  */
+API_UNAVAILABLE(watchos)
 NS_SWIFT_NAME(GameCenterAuthProvider)
 @interface FIRGameCenterAuthProvider : NSObject
 
 /** @fn getCredentialWithCompletion:
     @brief Creates a @c FIRAuthCredential for a Game Center sign in.
  */
-+ (void)getCredentialWithCompletion:(FIRGameCenterCredentialCallback)completion
++ (void)getCredentialWithCompletion:
+    (void (^)(FIRAuthCredential *_Nullable credential, NSError *_Nullable error))completion
     NS_SWIFT_NAME(getCredential(completion:));
 
 /** @fn init

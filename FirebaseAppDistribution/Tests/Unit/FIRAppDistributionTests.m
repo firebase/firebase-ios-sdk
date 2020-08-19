@@ -35,10 +35,13 @@
 
 - (instancetype)initWithApp:(FIRApp *)app appInfo:(NSDictionary *)appInfo;
 
-- (void)fetchNewLatestRelease:(FIRAppDistributionUpdateCheckCompletion)completion;
+- (void)fetchNewLatestRelease:(void (^)(FIRAppDistributionRelease *_Nullable release,
+                                        NSError *_Nullable error))completion;
 
 - (NSError *)mapFetchReleasesError:(NSError *)error;
 
+- (NSString *)getAppVersion;
+- (NSString *)getAppBuild;
 @end
 
 @implementation FIRAppDistributionTests {
@@ -52,12 +55,16 @@
   NSString *_mockInstallationId;
   NSArray *_mockReleases;
   NSString *_mockCodeHash;
+  NSString *_mockDisplayVersion;
+  NSString *_mockBuildVersion;
 }
 
 - (void)setUp {
   [super setUp];
   _mockAuthToken = @"this-is-an-auth-token";
   _mockCodeHash = @"this-is-a-fake-code-hash";
+  _mockDisplayVersion = @"mock-display-version";
+  _mockBuildVersion = @"mock-build-version";
   _mockFIRAppClass = OCMClassMock([FIRApp class]);
   _mockFIRFADApiService = OCMClassMock([FIRFADApiService class]);
   _mockFIRAppDistributionUIService = OCMPartialMock([FIRAppDistributionUIService sharedInstance]);
@@ -89,8 +96,8 @@
     @{
       @"latest" : @YES,
       @"codeHash" : _mockCodeHash,
-      @"displayVersion" : @"1.0.1",
-      @"buildVersion" : @"112",
+      @"displayVersion" : _mockDisplayVersion,
+      @"buildVersion" : _mockBuildVersion,
       @"releaseNotes" : @"This is a release too",
       @"downloadUrl" : @"http://faketyfakefake.download"
     }
@@ -307,6 +314,8 @@
 - (void)testFetchNewLatestReleaseNoNewRelease {
   [self mockFetchReleasesCompletion:_mockReleases error:nil];
   OCMStub([_mockMachO codeHash]).andReturn(_mockCodeHash);
+  OCMStub([[self appDistribution] getAppVersion]).andReturn(_mockDisplayVersion);
+  OCMStub([[self appDistribution] getAppBuild]).andReturn(_mockBuildVersion);
 
   XCTestExpectation *expectation =
       [self expectationWithDescription:@"Fetch latest release with no new release succeeds."];
@@ -378,11 +387,13 @@
   [self rejectShowUICompletion];
 }
 
-- (void)testCheckForUpdateWithCompletionClicksYesSuccess {
+- (void)testCheckForUpdateWithCompletionDifferentCodeHashClicksYesSuccess {
   [self mockInstallationIdCompletion:_mockInstallationId error:nil];
   [self mockUIServiceRegistrationCompletion:nil];
   [self mockFetchReleasesCompletion:_mockReleases error:nil];
   [self mockUIServiceShowUICompletion:YES];
+  OCMStub([[self appDistribution] getAppVersion]).andReturn(_mockDisplayVersion);
+  OCMStub([[self appDistribution] getAppBuild]).andReturn(_mockBuildVersion);
   OCMStub([_mockMachO codeHash]).andReturn(@"this-is-old");
 
   XCTestExpectation *checkForUpdateExpectation =
@@ -398,6 +409,75 @@
   [self waitForExpectations:@[ checkForUpdateExpectation ] timeout:5.0];
   [self verifyShowUICompletion];
   OCMVerify([_mockMachO codeHash]);
+}
+
+- (void)testCheckForUpdateWithCompletionDifferentVersionAndBuildClicksYesSuccess {
+  [self mockInstallationIdCompletion:_mockInstallationId error:nil];
+  [self mockUIServiceRegistrationCompletion:nil];
+  [self mockFetchReleasesCompletion:_mockReleases error:nil];
+  [self mockUIServiceShowUICompletion:YES];
+  OCMStub([[self appDistribution] getAppVersion]).andReturn(@"different-version");
+  OCMStub([[self appDistribution] getAppBuild]).andReturn(@"different-build");
+  OCMReject([_mockMachO codeHash]);
+
+  XCTestExpectation *checkForUpdateExpectation =
+      [self expectationWithDescription:@"Check for update does prompt user"];
+  [[self appDistribution]
+      checkForUpdateWithCompletion:^(FIRAppDistributionRelease *_Nullable release,
+                                     NSError *_Nullable error) {
+        XCTAssertNil(error);
+        XCTAssertNotNil(release);
+        [checkForUpdateExpectation fulfill];
+      }];
+
+  [self waitForExpectations:@[ checkForUpdateExpectation ] timeout:5.0];
+  [self verifyShowUICompletion];
+}
+
+- (void)testCheckForUpdateWithCompletionDifferentVersionClicksYesSuccess {
+  [self mockInstallationIdCompletion:_mockInstallationId error:nil];
+  [self mockUIServiceRegistrationCompletion:nil];
+  [self mockFetchReleasesCompletion:_mockReleases error:nil];
+  [self mockUIServiceShowUICompletion:YES];
+  OCMStub([[self appDistribution] getAppVersion]).andReturn(@"different-version");
+  OCMStub([[self appDistribution] getAppBuild]).andReturn(_mockBuildVersion);
+  OCMReject([_mockMachO codeHash]);
+
+  XCTestExpectation *checkForUpdateExpectation =
+      [self expectationWithDescription:@"Check for update does prompt user"];
+  [[self appDistribution]
+      checkForUpdateWithCompletion:^(FIRAppDistributionRelease *_Nullable release,
+                                     NSError *_Nullable error) {
+        XCTAssertNil(error);
+        XCTAssertNotNil(release);
+        [checkForUpdateExpectation fulfill];
+      }];
+
+  [self waitForExpectations:@[ checkForUpdateExpectation ] timeout:5.0];
+  [self verifyShowUICompletion];
+}
+
+- (void)testCheckForUpdateWithCompletionDifferentBuildClicksYesSuccess {
+  [self mockInstallationIdCompletion:_mockInstallationId error:nil];
+  [self mockUIServiceRegistrationCompletion:nil];
+  [self mockFetchReleasesCompletion:_mockReleases error:nil];
+  [self mockUIServiceShowUICompletion:YES];
+  OCMStub([[self appDistribution] getAppVersion]).andReturn(_mockDisplayVersion);
+  OCMStub([[self appDistribution] getAppBuild]).andReturn(@"different-build");
+  OCMReject([_mockMachO codeHash]);
+
+  XCTestExpectation *checkForUpdateExpectation =
+      [self expectationWithDescription:@"Check for update does prompt user"];
+  [[self appDistribution]
+      checkForUpdateWithCompletion:^(FIRAppDistributionRelease *_Nullable release,
+                                     NSError *_Nullable error) {
+        XCTAssertNil(error);
+        XCTAssertNotNil(release);
+        [checkForUpdateExpectation fulfill];
+      }];
+
+  [self waitForExpectations:@[ checkForUpdateExpectation ] timeout:5.0];
+  [self verifyShowUICompletion];
 }
 
 - (void)testCheckForUpdateWithCompletionClicksYesFailure {

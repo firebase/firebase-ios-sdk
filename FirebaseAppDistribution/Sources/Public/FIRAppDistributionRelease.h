@@ -35,6 +35,9 @@ NS_SWIFT_NAME(AppDistributionRelease)
 // The URL for the build
 @property(nonatomic, strong, readonly) NSURL *downloadURL;
 
+// Whether the download URL for this release is expired
+@property(nonatomic, readonly) BOOL isExpired;
+
 /** :nodoc: */
 - (instancetype)init NS_UNAVAILABLE;
 

@@ -179,17 +179,17 @@ NSString *_Nonnull GDTCORDeviceModel() {
 }
 
 NSData *_Nullable GDTCOREncodeArchive(id<NSSecureCoding> obj,
-                                      NSString *archivePath,
+                                      NSString *filePath,
                                       NSError *_Nullable *error) {
   BOOL result = NO;
-  if (archivePath.length > 0) {
+  if (filePath.length > 0) {
     result = [[NSFileManager defaultManager]
-              createDirectoryAtPath:[archivePath stringByDeletingLastPathComponent]
+              createDirectoryAtPath:[filePath stringByDeletingLastPathComponent]
         withIntermediateDirectories:YES
                          attributes:nil
                               error:error];
     if (result == NO || *error) {
-      GDTCORLogDebug(@"Attempt to create directory failed: path:%@ error:%@", archivePath, *error);
+      GDTCORLogDebug(@"Attempt to create directory failed: path:%@ error:%@", filePath, *error);
       return nil;
     }
   }
@@ -207,12 +207,12 @@ NSData *_Nullable GDTCOREncodeArchive(id<NSSecureCoding> obj,
       GDTCORLogDebug(@"Encoding an object failed: %@", *error);
       return nil;
     }
-    if (archivePath.length > 0) {
-      result = [resultData writeToFile:archivePath options:NSDataWritingAtomic error:error];
+    if (filePath.length > 0) {
+      result = [resultData writeToFile:filePath options:NSDataWritingAtomic error:error];
       if (result == NO || *error) {
-        GDTCORLogDebug(@"Attempt to write archive failed: path:%@ error:%@", archivePath, *error);
+        GDTCORLogDebug(@"Attempt to write archive failed: path:%@ error:%@", filePath, *error);
       } else {
-        GDTCORLogDebug(@"Writing archive succeeded: %@", archivePath);
+        GDTCORLogDebug(@"Writing archive succeeded: %@", filePath);
       }
     }
   } else {
@@ -222,12 +222,12 @@ NSData *_Nullable GDTCOREncodeArchive(id<NSSecureCoding> obj,
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
       resultData = [NSKeyedArchiver archivedDataWithRootObject:obj];
 #pragma clang diagnostic pop
-      if (archivePath.length > 0) {
-        result = [resultData writeToFile:archivePath options:NSDataWritingAtomic error:error];
+      if (filePath.length > 0) {
+        result = [resultData writeToFile:filePath options:NSDataWritingAtomic error:error];
         if (result == NO || *error) {
-          GDTCORLogDebug(@"Attempt to write archive failed: URL:%@ error:%@", archivePath, *error);
+          GDTCORLogDebug(@"Attempt to write archive failed: URL:%@ error:%@", filePath, *error);
         } else {
-          GDTCORLogDebug(@"Writing archive succeeded: %@", archivePath);
+          GDTCORLogDebug(@"Writing archive succeeded: %@", filePath);
         }
       }
     } @catch (NSException *exception) {
@@ -238,7 +238,7 @@ NSData *_Nullable GDTCOREncodeArchive(id<NSSecureCoding> obj,
                                userInfo:@{NSLocalizedFailureReasonErrorKey : errorString}];
     }
     GDTCORLogDebug(@"Attempt to write archive. successful:%@ URL:%@ error:%@",
-                   result ? @"YES" : @"NO", archivePath, *error);
+                   result ? @"YES" : @"NO", filePath, *error);
   }
   return resultData;
 }

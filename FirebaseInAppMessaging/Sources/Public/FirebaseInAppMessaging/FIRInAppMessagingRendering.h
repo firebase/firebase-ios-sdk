@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
+
 #import <UIKit/UIKit.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -476,3 +479,5 @@ NS_SWIFT_NAME(InAppMessagingDisplay)
        displayDelegate:(id<FIRInAppMessagingDisplayDelegate>)displayDelegate;
 @end
 NS_ASSUME_NONNULL_END
+
+#endif  // TARGET_OS_IOS

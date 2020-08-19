@@ -1,7 +1,13 @@
+# v6.10.1 -- M78
+- [added] Beta release of Swift Package Manager. Details
+  [here]((https://github.com/firebase/firebase-ios-sdk/blob/master/SwiftPackageManager.md). (#3136)
+- [changed] Firebase's dependencies on nanopb are updated from version 0.3.9.5 to
+  version 0.3.9.6 (1.30906.0 in CocoaPods).
+
 # v6.10.0 -- M77
 - [changed] Functionally neutral public header refactor in preparation for Swift Package
   Manager support. Applies to FirebaseCore, FirebaseABTesting, FirebaseAuth, FirebaseCrashlytics,
-  FirebaseDatabase, FirebaseFirestore, FirebaseFuncitons, FirebaseInstallations,
+  FirebaseDatabase, FirebaseFirestore, FirebaseFunctions, FirebaseInstallations,
   FirebaseRemoteConfig, FirebaseStorage, and GoogleDataTransport.
 
 # v6.9.0 -- M75

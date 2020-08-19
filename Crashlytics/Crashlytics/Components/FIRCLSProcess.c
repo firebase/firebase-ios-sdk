@@ -485,6 +485,11 @@ bool FIRCLSProcessRecordAllThreads(FIRCLSProcess *process, FIRCLSFile *file) {
 
     FIRCLSSDKLogInfo("recording thread %d data\n", i);
     if (!FIRCLSProcessRecordThread(process, thread, file)) {
+      FIRCLSSDKLogError("Failed to record thread state. Closing threads JSON to prevent malformed crash report.");
+
+      FIRCLSFileWriteArrayEnd(file);
+
+      FIRCLSFileWriteSectionEnd(file);
       return false;
     }
   }

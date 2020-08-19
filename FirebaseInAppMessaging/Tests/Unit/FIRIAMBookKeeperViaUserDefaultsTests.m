@@ -17,7 +17,7 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
-#import "FIRIAMBookKeeper.h"
+#import "FirebaseInAppMessaging/Sources/Private/Flows/FIRIAMBookKeeper.h"
 
 @interface FIRIAMBookKeeperViaUserDefaultsTests : XCTestCase
 @property(nonatomic) NSUserDefaults *userDefaultsForTesting;

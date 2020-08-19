@@ -14,11 +14,14 @@
  * limitations under the License.
  */
 
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
+
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
-#import "FIRCore+InAppMessaging.h"
-#import "FIRIAMActionURLFollower.h"
+#import "FirebaseInAppMessaging/Sources/FIRCore+InAppMessaging.h"
+#import "FirebaseInAppMessaging/Sources/Private/Runtime/FIRIAMActionURLFollower.h"
 
 @interface FIRIAMActionURLFollower ()
 @property(nonatomic, readonly, nonnull, copy) NSSet<NSString *> *appCustomURLSchemesSet;
@@ -245,3 +248,5 @@
       [schemeInLowerCase isEqualToString:@"https"] || [schemeInLowerCase isEqualToString:@"http"];
 }
 @end
+
+#endif  // TARGET_OS_IOS

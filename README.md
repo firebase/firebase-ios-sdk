@@ -137,16 +137,15 @@ See [HeadersImports.md](HeadersImports.md).
 ### Code Formatting
 
 To ensure that the code is formatted consistently, run the script
-[./scripts/style.sh](https://github.com/firebase/firebase-ios-sdk/blob/master/scripts/style.sh)
+[./scripts/check.sh](https://github.com/firebase/firebase-ios-sdk/blob/master/scripts/check.sh)
 before creating a PR.
 
-Travis will verify that any code changes are done in a style compliant way. Install
-`clang-format` and `swiftformat`:
+GitHub Actions will verify that any code changes are done in a style compliant
+way. Install `clang-format` and `mint`:
 
 ```
 brew install clang-format
 brew install mint
-mint install swiftformat@0.45.5
 ```
 
 ### Running Unit Tests
@@ -245,7 +244,7 @@ To install, add a subset of the following to the Podfile:
 
 ```
 pod 'Firebase/ABTesting'     # No watchOS support yet
-pod 'Firebase/Auth'          # No watchOS support yet
+pod 'Firebase/Auth'          # Limited watchOS support
 pod 'Firebase/Crashlytics'   # No watchOS support yet
 pod 'Firebase/Database'      # No watchOS support yet
 pod 'Firebase/Firestore'     # No watchOS support yet

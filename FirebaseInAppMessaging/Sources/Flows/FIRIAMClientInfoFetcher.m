@@ -14,13 +14,16 @@
  * limitations under the License.
  */
 
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
+
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
 
-#import "FIRCore+InAppMessaging.h"
-#import "FIRIAMClientInfoFetcher.h"
-#import "FIRIAMSDKRuntimeErrorCodes.h"
-#import "FIRInAppMessagingPrivate.h"
+#import "FirebaseInAppMessaging/Sources/FIRCore+InAppMessaging.h"
+#import "FirebaseInAppMessaging/Sources/FIRInAppMessagingPrivate.h"
+#import "FirebaseInAppMessaging/Sources/Private/Analytics/FIRIAMClientInfoFetcher.h"
+#import "FirebaseInAppMessaging/Sources/Runtime/FIRIAMSDKRuntimeErrorCodes.h"
 
 @interface FIRIAMClientInfoFetcher ()
 
@@ -133,3 +136,5 @@
   return [NSString stringWithUTF8String:STR(FIRInAppMessaging_LIB_VERSION)];
 }
 @end
+
+#endif  // TARGET_OS_IOS

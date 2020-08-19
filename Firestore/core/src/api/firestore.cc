@@ -31,6 +31,7 @@
 #include "Firestore/core/src/local/leveldb_persistence.h"
 #include "Firestore/core/src/model/document_key.h"
 #include "Firestore/core/src/model/resource_path.h"
+#include "Firestore/core/src/remote/grpc_connection.h"
 #include "Firestore/core/src/util/async_queue.h"
 #include "Firestore/core/src/util/executor.h"
 #include "Firestore/core/src/util/hard_assert.h"
@@ -49,6 +50,7 @@ using core::Transaction;
 using local::LevelDbPersistence;
 using model::DocumentKey;
 using model::ResourcePath;
+using remote::GrpcConnection;
 using util::AsyncQueue;
 using util::Empty;
 using util::Executor;
@@ -189,6 +191,10 @@ void Firestore::EnableNetwork(util::StatusCallback callback) {
 void Firestore::DisableNetwork(util::StatusCallback callback) {
   EnsureClientConfigured();
   client_->DisableNetwork(std::move(callback));
+}
+
+void Firestore::SetClientLanguage(std::string language_token) {
+  GrpcConnection::SetClientLanguage(std::move(language_token));
 }
 
 std::unique_ptr<ListenerRegistration> Firestore::AddSnapshotsInSyncListener(

@@ -396,7 +396,8 @@ NS_SWIFT_NAME(Messaging)
  *  @param completion The completion handler to handle the token request.
  */
 - (void)retrieveFCMTokenForSenderID:(NSString *)senderID
-                         completion:(FIRMessagingFCMTokenFetchCompletion)completion
+                         completion:(void (^)(NSString *_Nullable FCMToken,
+                                              NSError *_Nullable error))completion
     NS_SWIFT_NAME(retrieveFCMToken(forSenderID:completion:));
 
 /**
@@ -407,7 +408,7 @@ NS_SWIFT_NAME(Messaging)
  *  @param completion The completion handler to handle the token deletion.
  */
 - (void)deleteFCMTokenForSenderID:(NSString *)senderID
-                       completion:(FIRMessagingDeleteFCMTokenCompletion)completion
+                       completion:(void (^)(NSError *_Nullable error))completion
     NS_SWIFT_NAME(deleteFCMToken(forSenderID:completion:));
 
 #pragma mark - Topics
@@ -432,7 +433,7 @@ NS_SWIFT_NAME(Messaging)
  *                     appropriate error object is returned.
  */
 - (void)subscribeToTopic:(nonnull NSString *)topic
-              completion:(nullable FIRMessagingTopicOperationCompletion)completion;
+              completion:(void (^_Nullable)(NSError *_Nullable error))completion;
 
 /**
  *  Asynchronously unsubscribe from a topic.  This uses a FCM Token
@@ -454,7 +455,7 @@ NS_SWIFT_NAME(Messaging)
  *                     appropriate error object is returned.
  */
 - (void)unsubscribeFromTopic:(nonnull NSString *)topic
-                  completion:(nullable FIRMessagingTopicOperationCompletion)completion;
+                  completion:(void (^_Nullable)(NSError *_Nullable error))completion;
 
 #pragma mark - Upstream
 

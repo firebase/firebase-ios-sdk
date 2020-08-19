@@ -33,12 +33,9 @@ if ! git rev-parse origin/master >& /dev/null; then
   git fetch origin
 fi
 
-# Setup mint which installs a versioned swiftformat.
-set -x
-brew install mint
-mint bootstrap --link
-
+# mint installs tools from Mintfile on demand.
 brew install clang-format
+brew install mint
 
-clang-format -version
-swiftformat -version
+# Explicitly mint bootstrap to show its version in the "Setup check" GHA phase
+mint bootstrap

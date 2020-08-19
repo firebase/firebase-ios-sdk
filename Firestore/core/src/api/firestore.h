@@ -95,6 +95,12 @@ class Firestore : public std::enable_shared_from_this<Firestore> {
   void EnableNetwork(util::StatusCallback callback);
   void DisableNetwork(util::StatusCallback callback);
 
+  /**
+   * Sets the language of the public API in the format of
+   * "gl-<language>/<version>" where version might be blank, e.g. `gl-objc/`.
+   */
+  static void SetClientLanguage(std::string language_token);
+
  private:
   void EnsureClientConfigured();
   core::DatabaseInfo MakeDatabaseInfo() const;

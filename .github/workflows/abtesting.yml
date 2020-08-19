@@ -29,6 +29,38 @@ jobs:
         scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseABTesting.podspec \
           --platforms=${{ matrix.target }}
 
+  spm:
+    # Don't run on private repo unless it is a PR.
+    if: github.repository != 'FirebasePrivate/firebase-ios-sdk' || github.event_name == 'pull_request'
+    runs-on: macOS-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Xcode 12
+      run: sudo xcode-select -s /Applications/Xcode_12_beta.app/Contents/Developer
+    - name: Initialize xcodebuild
+      run: xcodebuild -list
+    - name: iOS Unit Tests
+      run: scripts/third_party/travis/retry.sh xcodebuild -scheme ABTestingUnit test -sdk
+           iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 11' | xcpretty
+
+  spm-cron:
+    # Don't run on private repo.
+    if: github.event_name == 'schedule' && github.repository != 'FirebasePrivate/firebase-ios-sdk'
+
+    runs-on: macOS-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Xcode 12
+      run: sudo xcode-select -s /Applications/Xcode_12_beta.app/Contents/Developer
+    - name: Initialize xcodebuild
+      run: xcodebuild -list
+    - name: macOS Unit Tests
+      run:  scripts/third_party/travis/retry.sh xcodebuild -scheme ABTestingUnit test | xcpretty
+    - name: tvOS Unit Tests
+      run: scripts/third_party/travis/retry.sh xcodebuild -scheme ABTestingUnit test -sdk
+           appletvsimulator -destination 'platform=tvOS Simulator,name=Apple TV' | xcpretty
+
+
   catalyst:
     # Don't run on private repo unless it is a PR.
     if: github.repository != 'FirebasePrivate/firebase-ios-sdk' || github.event_name == 'pull_request'

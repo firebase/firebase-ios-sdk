@@ -23,7 +23,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRMultiFactor ()
+@interface FIRMultiFactor () <NSSecureCoding>
 
 @property(nonatomic, weak) FIRUser *user;
 

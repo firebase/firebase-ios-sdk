@@ -21,6 +21,7 @@
 #import "FirebaseDynamicLinks/FirebaseDynamicLinks.h"
 #import "FirebaseFirestore/FirebaseFirestore.h"
 #import "FirebaseFunctions/FirebaseFunctions.h"
+#import "FirebaseInAppMessaging/FirebaseInAppMessaging.h"
 #import "FirebaseInstallations/FirebaseInstallations.h"
 #import "FirebaseRemoteConfig/FirebaseRemoteConfig.h"
 #import "FirebaseStorage/FirebaseStorage.h"
@@ -34,6 +35,7 @@
 #import <FirebaseDynamicLinks/FirebaseDynamicLinks.h>
 #import <FirebaseFirestore/FirebaseFirestore.h>
 #import <FirebaseFunctions/FirebaseFunctions.h>
+#import <FirebaseInAppMessaging/FirebaseInAppMessaging.h>
 #import <FirebaseInstallations/FirebaseInstallations.h>
 #import <FirebaseRemoteConfig/FirebaseRemoteConfig.h>
 #import <FirebaseStorage/FirebaseStorage.h>

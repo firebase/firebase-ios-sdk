@@ -16,6 +16,8 @@
 
 #import "FirebaseAuth/Sources/SystemService/FIRAuthStoredUserManager.h"
 
+#import "FirebaseAuth/Sources/User/FIRUser_Internal.h"
+
 /** @var kUserAccessGroupKey
     @brief Key of user access group stored in user defaults. Used for retrieve the user access
         group at launch.
@@ -80,11 +82,23 @@ static NSString *kStoredUserCoderKey = @"firebase_auth_stored_user_coder_key";
   query[(__bridge id)kSecAttrAccount] = kSharedKeychainAccountValue;
 
   NSData *data = [self.keychainServices getItemWithQuery:query error:outError];
+  // If there's an outError parameter and it's populated, or there's no data, return.
+  if ((outError && *outError) || !data) {
+    return nil;
+  }
+#if TARGET_OS_WATCH
+  NSKeyedUnarchiver *unarchiver = [[NSKeyedUnarchiver alloc] initForReadingFromData:data
+                                                                              error:outError];
+  if (outError && *outError) {
+    return nil;
+  }
+#else
 // iOS 12 deprecation
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
   NSKeyedUnarchiver *unarchiver = [[NSKeyedUnarchiver alloc] initForReadingWithData:data];
 #pragma clang diagnostic pop
+#endif  // TARGET_OS_WATCH
   FIRUser *user = [unarchiver decodeObjectOfClass:[FIRUser class] forKey:kStoredUserCoderKey];
 
   return user;
@@ -103,14 +117,22 @@ static NSString *kStoredUserCoderKey = @"firebase_auth_stored_user_coder_key";
   query[(__bridge id)kSecAttrService] = projectIdentifier;
   query[(__bridge id)kSecAttrAccount] = kSharedKeychainAccountValue;
 
+#if TARGET_OS_WATCH
+  NSKeyedArchiver *archiver = [[NSKeyedArchiver alloc] initRequiringSecureCoding:false];
+#else
   NSMutableData *data = [NSMutableData data];
 // iOS 12 deprecation
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
   NSKeyedArchiver *archiver = [[NSKeyedArchiver alloc] initForWritingWithMutableData:data];
 #pragma clang diagnostic pop
+#endif  // TARGET_OS_WATCH
   [archiver encodeObject:user forKey:kStoredUserCoderKey];
   [archiver finishEncoding];
+
+#if TARGET_OS_WATCH
+  NSData *data = archiver.encodedData;
+#endif  // TARGET_OS_WATCH
 
   return [self.keychainServices setItem:data withQuery:query error:outError];
 }

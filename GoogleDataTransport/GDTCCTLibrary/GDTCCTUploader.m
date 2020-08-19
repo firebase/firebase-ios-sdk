@@ -50,6 +50,9 @@ static NSString *const kLibraryDataCCTNextUploadTimeKey = @"GDTCCTUploaderFLLNex
 /** */
 static NSString *const kLibraryDataFLLNextUploadTimeKey = @"GDTCCTUploaderFLLNextUploadTimeKey";
 
+static NSString *const kINTServerURL =
+    @"https://dummyapiverylong-dummy.dummy.com/dummy/api/very/long";
+
 #if !NDEBUG
 NSNotificationName const GDTCCTUploadCompleteNotification = @"com.GDTCCTUploader.UploadComplete";
 #endif  // #if !NDEBUG
@@ -82,6 +85,7 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
   [[GDTCORRegistrar sharedInstance] registerUploader:uploader target:kGDTCORTargetCCT];
   [[GDTCORRegistrar sharedInstance] registerUploader:uploader target:kGDTCORTargetFLL];
   [[GDTCORRegistrar sharedInstance] registerUploader:uploader target:kGDTCORTargetCSH];
+  [[GDTCORRegistrar sharedInstance] registerUploader:uploader target:kGDTCORTargetINT];
 }
 
 + (instancetype)sharedInstance {
@@ -175,6 +179,9 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
     case kGDTCORTargetCSH:
       return CSHServerURL;
 
+    case kGDTCORTargetINT:
+      return [NSURL URLWithString:kINTServerURL];
+
     default:
       GDTCORLogDebug(@"GDTCCTUploader doesn't support target %ld", (long)target);
       return nil;
@@ -182,7 +189,7 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
   }
 }
 
-- (NSString *)FLLAndCSHAPIKey {
+- (NSString *)FLLAndCSHandINTAPIKey {
   static NSString *defaultServerKey;
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
@@ -360,6 +367,8 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
 
     case kGDTCORTargetFLL:
       // Falls through.
+    case kGDTCORTargetINT:
+      // Falls through.
     case kGDTCORTargetCSH:
       self->_FLLNextUploadTime = futureUploadTime;
       break;
@@ -497,8 +506,14 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
 
   // Upload events when there are with no additional conditions for kGDTCORTargetCSH.
   if (target == kGDTCORTargetCSH) {
-    GDTCORLogDebug(@"%@",
-                   @"CCT: kGDTCORTargetCSH events are allowed to be uploaded straight away.");
+    GDTCORLogDebug(@"%@", @"CCT: kGDTCORTargetCSH events are allowed to be "
+                          @"uploaded straight away.");
+    return YES;
+  }
+
+  if (target == kGDTCORTargetINT) {
+    GDTCORLogDebug(@"%@", @"CCT: kGDTCORTargetINT events are allowed to be "
+                          @"uploaded straight away.");
     return YES;
   }
 
@@ -589,6 +604,9 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
     case kGDTCORTargetCSH:
       targetString = @"csh";
       break;
+    case kGDTCORTargetINT:
+      targetString = @"int";
+      break;
 
     default:
       targetString = @"unknown";
@@ -598,8 +616,13 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
       [NSString stringWithFormat:@"datatransport/%@ %@support/%@ apple/", kGDTCORVersion,
                                  targetString, kGDTCCTSupportSDKVersion];
   if (target == kGDTCORTargetFLL || target == kGDTCORTargetCSH) {
-    [request setValue:[self FLLAndCSHAPIKey] forHTTPHeaderField:@"X-Goog-Api-Key"];
+    [request setValue:[self FLLAndCSHandINTAPIKey] forHTTPHeaderField:@"X-Goog-Api-Key"];
   }
+
+  if (target == kGDTCORTargetINT) {
+    [request setValue:[self FLLAndCSHandINTAPIKey] forHTTPHeaderField:@"X-Goog-Api-Key"];
+  }
+
   if ([GDTCCTCompressionHelper isGzipped:data]) {
     [request setValue:@"gzip" forHTTPHeaderField:@"Content-Encoding"];
   }
