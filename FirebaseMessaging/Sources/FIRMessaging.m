@@ -1074,4 +1074,14 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   return YES;
 }
 
+#pragma mark - Utilities used by InstanceID
+
++ (NSString *)FIRMessagingSDKVersion {
+  return FIRMessagingCurrentLibraryVersion();
+}
+
++ (NSString *)FIRMessagingSDKCurrentLocale {
+  return FIRMessagingCurrentLocale();
+}
+
 @end
