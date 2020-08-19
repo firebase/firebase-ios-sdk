@@ -133,7 +133,7 @@ struct ContentView: View {
       }.buttonStyle(IdentityButtonStyle())
     }
   }
-  
+
   func getIDAndToken() {
     InstanceID.instanceID().instanceID { (result, error) in
       guard let result = result, error == nil else {
@@ -160,7 +160,7 @@ struct ContentView: View {
       self.log = "Successfully got token."
     }
   }
-  
+
   func getFCMToken() {
     guard let app = FirebaseApp.app() else {
       return
@@ -176,7 +176,7 @@ struct ContentView: View {
     }
 
   }
-  
+
   func deleteFCMToken() {
     guard let app = FirebaseApp.app() else {
       return
@@ -209,7 +209,7 @@ struct ContentView: View {
       self.log = "Successfully deleted ID."
     }
   }
-  
+
   func deleteFCM() {
     guard let app = FirebaseApp.app() else {
       return
