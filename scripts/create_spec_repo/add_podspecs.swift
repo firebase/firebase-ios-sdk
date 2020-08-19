@@ -220,7 +220,7 @@ do {
     print("remove specsstaging dir.")
     try fileManager.removeItem(at: URL(fileURLWithPath: "\(cur_dir)/SpecsStaging"))
   }
-  // erase_remote_repo(repo_path: "\(cur_dir)")
+  erase_remote_repo(repo_path: "\(cur_dir)")
 
 } catch {
   print("error occurred. \(error)")
