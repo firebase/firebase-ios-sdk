@@ -73,7 +73,7 @@ jobs:
       run: |
         mkdir -p /tmp/test/
         mv "${GITHUB_WORKSPACE}/${testing_repo}" /tmp/test/
-        find "${GITHUB_WORKSPACE}/${testing_repo}" -name "*.zip" -maxdepth 3 -exec unzip -d /tmp/test/ {} +
+        # find "${GITHUB_WORKSPACE}/${testing_repo}" -name "*.zip" -maxdepth 3 -exec unzip -d /tmp/test/ {} +
         ls /tmp/test/
     - name: Setup quickstart
       run: scripts/setup_quickstart.sh config release_testing
