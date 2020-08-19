@@ -52,7 +52,7 @@ static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
 @end
 
 @interface FIRMessagingRmqManager (ExposedForTest)
-
+- (void)openDatabase;
 - (void)removeDatabase;
 
 @end
@@ -78,6 +78,7 @@ static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
       [[FIRMessagingRmqManager alloc] initWithDatabaseName:kRmqDatabaseName];
   [newRmqManager loadRmqId];
   _mockRmqManager = OCMPartialMock(newRmqManager);
+  OCMStub([_mockRmqManager openDatabase]).andDo(nil);
   _mockSyncMessageManager = OCMClassMock([FIRMessagingSyncMessageManager class]);
   _dataMessageManager =
       [[FIRMessagingDataMessageManager alloc] initWithDelegate:_mockReceiver
