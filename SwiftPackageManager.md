@@ -49,3 +49,6 @@ in the `Build Settings` tab.
 
 Please provide any feedback via a [GitHub 
 Issue](https://github.com/firebase/firebase-ios-sdk/issues/new?template=bug_report.md).
+
+See current open Swift Package Manager issues
+[here](https://github.com/firebase/firebase-ios-sdk/labels/Swift%20Package%20Manager).
