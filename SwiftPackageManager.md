@@ -38,7 +38,7 @@ distribution.
 Choose the Firebase product and any additional products that you want installed
 in your app.
 
-<img src="docs/resources/SPMChoose.png">
+<img src="docs/resources/SPMProducts.png">
 
 If you've installed FirebaseAnalytics, Add the -ObjC option to `Other Linker Flags`
 in the `Build Settings` tab.
