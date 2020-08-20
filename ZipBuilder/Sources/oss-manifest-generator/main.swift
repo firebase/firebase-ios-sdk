@@ -98,7 +98,7 @@ struct OSSManifestGenerator: ParsableCommand {
       // We need to look at the full list of released SDKs to determine if a pod is open source or not.
       guard let existingPod = allSDKs.sdk.filter({ $0.name == pod.sdkName }).first else {
         print("ERROR")
-        print(allSDKs.sdk.map({ $0.name }).joined())
+        print(allSDKs.sdk.map { $0.name }.joined())
         fatalError("Found unexpected pod \(pod.sdkName) that isn't in list of all released SDKs.")
       }
 
