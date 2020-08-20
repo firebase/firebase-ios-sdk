@@ -22,7 +22,7 @@ Install Firebase via Swift Package Manager:
 
 <img src="docs/resources/SPMAddPackage.png">
 
-Select the Firebase GitHub repository:
+Select the Firebase GitHub repository - https://github.com/firebase/firebase-ios-sdk.git:
 
 <img src="docs/resources/SPMChoose.png">
 
