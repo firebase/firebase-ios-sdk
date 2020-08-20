@@ -26,7 +26,7 @@ Select the Firebase GitHub repository:
 
 <img src="docs/resources/SPMChoose.png">
 
-Select the beta branch. 
+Select the beta branch.
 
 Note: Starting with the 6.31.0 release, the versions are specified
 in a format like 6.31-spm-beta. We won't support standard repository
@@ -47,7 +47,7 @@ in the `Build Settings` tab.
 
 ## Questions and Issues
 
-Please provide any feedback via a [GitHub 
+Please provide any feedback via a [GitHub
 Issue](https://github.com/firebase/firebase-ios-sdk/issues/new?template=bug_report.md).
 
 See current open Swift Package Manager issues
