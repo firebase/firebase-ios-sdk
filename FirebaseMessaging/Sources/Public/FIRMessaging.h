@@ -351,8 +351,8 @@ NS_SWIFT_NAME(Messaging)
  *
  * If this flag is disabled, Firebase Messaging does not generate new tokens automatically for
  * message delivery. If this flag is enabled, FCM generates a registration token on application
- * start when there is no existing valid token. FCM also generates a new token when an existing
- * token is deleted.
+ * start when there is no existing valid token and periodically refreshing the token and sending
+ * data to Firebase backend.
  *
  * This setting is persisted, and is applied on future
  * invocations of your application.  Once explicitly set, it overrides any
@@ -382,6 +382,9 @@ NS_SWIFT_NAME(Messaging)
 /**
  *  Asynchronously getting the default token.
  *
+ *  This creates a Firebase Installations ID, if one does not exist, and sends information
+ *  about the application and the device to the Firebase backend.
+ *
  *  @param completion The completion handler to handle the token request.
  */
 
@@ -389,10 +392,16 @@ NS_SWIFT_NAME(Messaging)
 (void (^)(NSString *__nullable token, NSError *__nullable error))completion
 NS_SWIFT_NAME(token(completion:));
 
-/*
-*  Asynchronously deleting the default token.
-*  @param completion The completion handler to handle the token deletion.
-*/
+/**
+ *  Asynchronously deleting the default token.
+ *
+ *  This does not delete all tokens for non-default sender ID, See `FIRMessaging deleteWithCompletion:`
+ *  for deleting all of them.
+ *  This does not delete the Firebase Installations ID that may have been created when
+ *  generating the token. See `FIRInstallations deleteWithCompletion:` for deleting that.
+ *
+ *  @param completion The completion handler to handle the token deletion.
+ */
 
 - (void)deleteTokenWithCompletion:(void (^)(NSError *__nullable error))completion
 NS_SWIFT_NAME(deleteToken(completion:));
@@ -410,6 +419,9 @@ NS_SWIFT_NAME(deleteToken(completion:));
  *  associate it with the FCM token. The default FCM token is automatically associated with
  *  the APNS token, if the APNS token data is available.
  *
+ *  This creates a Firebase Installations ID, if one does not exist, and sends information
+ *  about the application and the device to the Firebase backend.
+ *
  *  @param senderID The Sender ID for a particular Firebase project.
  *  @param completion The completion handler to handle the token request.
  */
@@ -421,6 +433,8 @@ NS_SWIFT_NAME(deleteToken(completion:));
 /**
  *  Invalidates an FCM token for a particular Sender ID. That Sender ID cannot no longer send
  *  notifications to that FCM token.
+ *  This Does not delete the Firebase Installations ID that may have been created when
+ *  generating the token. See `FIRInstallations deleteWithCompletion:` for deleting that.
  *
  *  @param senderID The senderID for a particular Firebase project.
  *  @param completion The completion handler to handle the token deletion.
@@ -434,7 +448,7 @@ NS_SWIFT_NAME(deleteToken(completion:));
 /**
  *  Asynchronously subscribes to a topic. This uses a FCM Token to identify
  *  the app instance and periodically sends data to the Firebase backend. To stop this, see
- *  `[FIRInstanceID deleteIDWithHandler:]`.
+ *  `[FIRMessaging deleteWithCompletion:] and `[FIRInstallations deleteWithCompletion:]`.
  *
  *  @param topic The name of the topic, for example, @"sports".
  */
@@ -443,7 +457,7 @@ NS_SWIFT_NAME(deleteToken(completion:));
 /**
  *  Asynchronously subscribe to the provided topic, retrying on failure. This uses a FCM Token
  *  to identify the app instance and periodically sends data to the Firebase backend. To stop this,
- *  see `[FIRInstanceID deleteIDWithHandler:]`.
+ *  see `[FIRMessaging deleteWithCompletion:] and `[FIRInstallations deleteWithCompletion:]`.
  *
  *  @param topic       The topic name to subscribe to, for example, @"sports".
  *  @param completion  The completion that is invoked once the subscribe call ends.
@@ -456,7 +470,7 @@ NS_SWIFT_NAME(deleteToken(completion:));
 /**
  *  Asynchronously unsubscribe from a topic.  This uses a FCM Token
  *  to identify the app instance and periodically sends data to the Firebase backend. To stop this,
- *  see `[FIRInstanceID deleteIDWithHandler:]`.
+ *  see `[FIRMessaging deleteWithCompletion:] and `[FIRInstallations deleteWithCompletion:]`.
  *
  *  @param topic The name of the topic, for example @"sports".
  */
@@ -465,7 +479,7 @@ NS_SWIFT_NAME(deleteToken(completion:));
 /**
  *  Asynchronously unsubscribe from the provided topic, retrying on failure. This uses a FCM Token
  *  to identify the app instance and periodically sends data to the Firebase backend. To stop this,
- *  see `[FIRInstanceID deleteIDWithHandler:]`.
+ *  see `[FIRMessaging deleteWithCompletion:] and `[FIRInstallations deleteWithCompletion:]`.
  *
  *  @param topic       The topic name to unsubscribe from, for example @"sports".
  *  @param completion  The completion that is invoked once the unsubscribe call ends.
@@ -524,9 +538,12 @@ NS_SWIFT_NAME(deleteToken(completion:));
 
 #pragma mark - GDPR
 /**
- * Deletes all the installation data including the unique identifier, fcm tokens and all
- * related data on the server side. A network connection is required for the method to succeed.
- * *
+ * Deletes all the tokens and checkin data of the Firebase project  and related data on the server side.
+ * A network connection is required for the method to succeed.
+ *
+ * This does not delete the Firebase Installations ID that may have been created when
+ * generating the token. See `FIRInstallations deleteWithCompletion:` for deleting that.
+ *
  * @param completion A completion handler which is invoked when the operation completes. `error ==
  * nil` indicates success.
  */

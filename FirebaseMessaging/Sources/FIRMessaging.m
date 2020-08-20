@@ -649,7 +649,6 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
     completion(nil);
   }];
 }
-}
 
 #pragma mark - FIRMessagingDelegate helper methods
 - (void)setDelegate:(id<FIRMessagingDelegate>)delegate {
