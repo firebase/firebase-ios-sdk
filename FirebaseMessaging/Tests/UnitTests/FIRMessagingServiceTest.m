@@ -77,10 +77,6 @@ static NSString *const kFIRMessagingTestsServiceSuiteName = @"com.messaging.test
   _mockInstallations = _testUtil.mockInstallations;
   OCMStub([_mockTokenManager defaultFCMToken]).andReturn(kFakeToken);
   _mockPubSub = _testUtil.mockPubsub;
-  _mockInstanceID = _testUtil.mockInstanceID;
-  _result = [[FIRInstanceIDResult alloc] init];
-  _result.token = kFakeToken;
-  _result.instanceID = kFakeID;
 }
 
 - (void)tearDown {

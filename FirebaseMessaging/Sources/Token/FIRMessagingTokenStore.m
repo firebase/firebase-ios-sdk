@@ -128,6 +128,22 @@ static NSString *const kFIRMessagingTokenKeychainId = @"com.google.iid-tokens";
   [self.keychain setData:tokenInfoData forService:service account:account handler:handler];
 }
 
+- (void)saveTokenInfoInCache:(FIRMessagingTokenInfo *)tokenInfo {
+  tokenInfo.cacheTime = [NSDate date];
+  // Always write to the Keychain, so that the cacheTime is up-to-date.
+  NSData *tokenInfoData;
+  // TODO(chliangGoogle: Use the new API and secureCoding protocol.
+  [NSKeyedArchiver setClassName:@"FIRInstanceIDTokenInfo" forClass:[FIRMessagingTokenInfo class]];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+  tokenInfoData = [NSKeyedArchiver archivedDataWithRootObject:tokenInfo];
+#pragma clang diagnostic pop
+  NSString *account = FIRMessagingAppIdentifier();
+  NSString *service = [[self class] serviceKeyForAuthorizedEntity:tokenInfo.authorizedEntity
+                                                            scope:tokenInfo.scope];
+  [self.keychain setCacheData:tokenInfoData forService:service account:account];
+}
+
 #pragma mark - Delete
 
 - (void)removeTokenWithAuthorizedEntity:(nonnull NSString *)authorizedEntity

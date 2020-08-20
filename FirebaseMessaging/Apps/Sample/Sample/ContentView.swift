@@ -61,35 +61,71 @@ struct ContentView: View {
 
         // MARK: Action buttons
 
-        Button(action: getToken) {
-          HStack {
-            Image(systemName: "arrow.clockwise.circle.fill").font(.body)
-            Text("Get ID and Token")
-              .fontWeight(.semibold)
+        HStack {
+          Button(action: getToken) {
+            HStack {
+              Image(systemName: "arrow.clockwise.circle.fill").font(.body)
+              Text("IID.getToken")
+                .fontWeight(.semibold)
+            }
+          }
+          Button(action: getFCMToken) {
+            HStack {
+              Image(systemName: "arrow.clockwise.circle.fill").font(.body)
+              Text("FM.getToken")
+                .fontWeight(.semibold)
+            }
           }
         }
 
-        Button(action: deleteToken) {
-          HStack {
-            Image(systemName: "trash.fill").font(.body)
-            Text("Delete Token")
-              .fontWeight(.semibold)
+        HStack {
+          Button(action: deleteToken) {
+            HStack {
+              Image(systemName: "trash.fill").font(.body)
+              Text("IID.deleteToken")
+                .fontWeight(.semibold)
+            }
+          }
+          Button(action: deleteFCMToken) {
+            HStack {
+              Image(systemName: "trash.fill").font(.body)
+              Text("FM.deleteToken")
+                .fontWeight(.semibold)
+            }
           }
         }
 
-        Button(action: deleteID) {
-          HStack {
-            Image(systemName: "trash.fill").font(.body)
-            Text("Delete ID")
-              .fontWeight(.semibold)
+        HStack {
+          Button(action: deleteID) {
+            HStack {
+              Image(systemName: "trash.fill").font(.body)
+              Text("IID.deleteID")
+                .fontWeight(.semibold)
+            }
+          }
+          Button(action: deleteFCM) {
+            HStack {
+              Image(systemName: "trash.fill").font(.body)
+              Text("FM.deleteID")
+                .fontWeight(.semibold)
+            }
           }
         }
 
-        Button(action: deleteFID) {
-          HStack {
-            Image(systemName: "trash.fill").font(.body)
-            Text("Delete FID")
-              .fontWeight(.semibold)
+        HStack {
+          Button(action: getIDAndToken) {
+            HStack {
+              Image(systemName: "arrow.clockwise.circle.fill").font(.body)
+              Text("iid.getID")
+                .fontWeight(.semibold)
+            }
+          }
+          Button(action: deleteFID) {
+            HStack {
+              Image(systemName: "trash.fill").font(.body)
+              Text("FIS.delete")
+                .fontWeight(.semibold)
+            }
           }
         }
         Text("\(log)")
@@ -99,7 +135,7 @@ struct ContentView: View {
     }
   }
 
-  func getToken() {
+  func getIDAndToken() {
     InstanceID.instanceID().instanceID { result, error in
       guard let result = result, error == nil else {
         self.log = "Failed getting iid and token: \(String(describing: error))"
@@ -107,11 +143,42 @@ struct ContentView: View {
       }
       self.identity.token = result.token
       self.identity.instanceID = result.instanceID
+      self.log = "Successfully got iid and token."
+    }
+  }
+
+  func getToken() {
+    guard let app = FirebaseApp.app() else {
+      return
+    }
+    let senderID = app.options.gcmSenderID
+    InstanceID.instanceID()
+      .token(withAuthorizedEntity: senderID, scope: "*", options: nil) { token, error in
+        guard let token = token, error == nil else {
+          self.log = "Failed getting token: \(String(describing: error))"
+          return
+        }
+        self.identity.token = token
+        self.log = "Successfully got token."
+      }
+  }
+
+  func getFCMToken() {
+    guard let app = FirebaseApp.app() else {
+      return
+    }
+    let senderID = app.options.gcmSenderID
+    Messaging.messaging().retrieveFCMToken(forSenderID: senderID) { token, error in
+      guard let token = token, error == nil else {
+        self.log = "Failed getting iid and token: \(String(describing: error))"
+        return
+      }
+      self.identity.token = token
       self.log = "Successfully got token."
     }
   }
 
-  func deleteToken() {
+  func deleteFCMToken() {
     guard let app = FirebaseApp.app() else {
       return
     }
@@ -125,6 +192,15 @@ struct ContentView: View {
     }
   }
 
+  func deleteToken() {
+    guard let app = FirebaseApp.app() else {
+      return
+    }
+    let senderID = app.options.gcmSenderID
+    InstanceID.instanceID().deleteToken(withAuthorizedEntity: senderID, scope: "*") { error in
+    }
+  }
+
   func deleteID() {
     InstanceID.instanceID().deleteID { error in
       if let error = error as NSError? {
@@ -132,6 +208,26 @@ struct ContentView: View {
         return
       }
       self.log = "Successfully deleted ID."
+    }
+  }
+
+  func deleteFCM() {
+    guard let app = FirebaseApp.app() else {
+      return
+    }
+    let senderID = app.options.gcmSenderID
+    Messaging.messaging().deleteFCMToken(forSenderID: senderID) { error in
+      if let error = error as NSError? {
+        self.log = "Failed deleting ID: \(error)"
+        return
+      }
+      Installations.installations().delete { error in
+        if let error = error as NSError? {
+          self.log = "Failed deleting FID: \(error)"
+          return
+        }
+        self.log = "Successfully deleted ID."
+      }
     }
   }
 
@@ -199,12 +295,13 @@ struct ContentView_Previews: PreviewProvider {
 struct IdentityButtonStyle: ButtonStyle {
   func makeBody(configuration: Self.Configuration) -> some View {
     configuration.label
-      .frame(minWidth: 0, maxWidth: 200)
+      .frame(minWidth: 0, maxWidth: 130)
       .padding()
       .foregroundColor(.white)
       .background(Color.yellow)
-      .cornerRadius(40)
+      .cornerRadius(20)
       // Push the button down a bit when it's pressed.
       .scaleEffect(configuration.isPressed ? 0.9 : 1)
+      .font(.footnote)
   }
 }

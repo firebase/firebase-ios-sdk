@@ -386,7 +386,8 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   NSString *newToken = [(NSString *)notification.object copy];
   if ((newToken.length && oldToken.length && ![newToken isEqualToString:oldToken]) ||
       newToken.length != oldToken.length) {
-    [self.tokenManager setDefaultFCMTokenWithoutUpdate:newToken];
+    [self.tokenManager saveDefaultTokenInfo:newToken];
+
     [self notifyRefreshedFCMToken];
     [self.pubsub scheduleSync:YES];
 #pragma clang diagnostic push
@@ -1071,6 +1072,16 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
     }
   }
   return YES;
+}
+
+#pragma mark - Utilities used by InstanceID
+
++ (NSString *)FIRMessagingSDKVersion {
+  return FIRMessagingCurrentLibraryVersion();
+}
+
++ (NSString *)FIRMessagingSDKCurrentLocale {
+  return FIRMessagingCurrentLocale();
 }
 
 @end

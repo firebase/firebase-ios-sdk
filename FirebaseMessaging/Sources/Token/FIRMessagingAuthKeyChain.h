@@ -90,6 +90,14 @@ NS_ASSUME_NONNULL_BEGIN
         account:(NSString *)account
         handler:(nullable void (^)(NSError *))handler;
 
+/*
+ * This method only sets the cache data of token.
+ * It is only used when users still use InstanceID to update token info
+ * After token refreshed by InstanceID, the storage is already updated but not the cache.
+ * use this method to update the cache.
+ */
+- (void)setCacheData:(NSData *)data forService:(NSString *)service account:(NSString *)account;
+
 @end
 
 NS_ASSUME_NONNULL_END

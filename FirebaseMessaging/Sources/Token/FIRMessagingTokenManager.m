@@ -107,8 +107,18 @@ static NSString *const kCheckinFileName = @"g-checkin";
                         object:defaultFcmToken];
 }
 
-- (void)setDefaultFCMTokenWithoutUpdate:(NSString *)defaultFcmToken {
+- (void)saveDefaultTokenInfo:(NSString *)defaultFcmToken {
   _defaultFCMToken = [defaultFcmToken copy];
+  FIRMessagingTokenInfo *tokenInfo =
+      [[FIRMessagingTokenInfo alloc] initWithAuthorizedEntity:_fcmSenderID
+                                                        scope:kFIRMessagingDefaultTokenScope
+                                                        token:defaultFcmToken
+                                                   appVersion:FIRMessagingCurrentAppVersion()
+                                                firebaseAppID:_firebaseAppID];
+  tokenInfo.APNSInfo =
+      [[FIRMessagingAPNSInfo alloc] initWithTokenOptionsDictionary:[self tokenOptions]];
+
+  [self->_tokenStore saveTokenInfoInCache:tokenInfo];
 }
 
 - (NSDictionary *)tokenOptions {
@@ -361,33 +371,47 @@ static NSString *const kCheckinFileName = @"g-checkin";
   [self.tokenOperations addOperation:operation];
 }
 
-- (void)deleteAllTokensWithInstanceID:(NSString *)instanceID handler:(void (^)(NSError *))handler {
-  // delete all tokens
-  FIRMessagingCheckinPreferences *checkinPreferences = self.authService.checkinPreferences;
-  if (!checkinPreferences) {
-    // The checkin is already deleted. No need to trigger the token delete operation as client no
-    // longer has the checkin information for server to delete.
-    dispatch_async(dispatch_get_main_queue(), ^{
-      handler(nil);
-    });
-    return;
-  }
-  FIRMessagingTokenDeleteOperation *operation =
-      [self createDeleteOperationWithAuthorizedEntity:kFIRMessagingKeychainWildcardIdentifier
+- (void)deleteAllTokensWithHandler:(void (^)(NSError *))handler {
+  FIRMessaging_WEAKIFY(self);
+
+  [self.installations
+      installationIDWithCompletion:^(NSString *_Nullable identifier, NSError *_Nullable error) {
+        FIRMessaging_STRONGIFY(self);
+        if (error) {
+          if (handler) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+              handler(error);
+            });
+          }
+          return;
+        }
+        // delete all tokens
+        FIRMessagingCheckinPreferences *checkinPreferences = self.authService.checkinPreferences;
+        if (!checkinPreferences) {
+          // The checkin is already deleted. No need to trigger the token delete operation as client
+          // no longer has the checkin information for server to delete.
+          dispatch_async(dispatch_get_main_queue(), ^{
+            handler(nil);
+          });
+          return;
+        }
+        FIRMessagingTokenDeleteOperation *operation = [self
+            createDeleteOperationWithAuthorizedEntity:kFIRMessagingKeychainWildcardIdentifier
                                                 scope:kFIRMessagingKeychainWildcardIdentifier
                                    checkinPreferences:checkinPreferences
-                                           instanceID:instanceID
+                                           instanceID:identifier
                                                action:FIRMessagingTokenActionDeleteTokenAndIID];
-  if (handler) {
-    [operation addCompletionHandler:^(FIRMessagingTokenOperationResult result,
-                                      NSString *_Nullable token, NSError *_Nullable error) {
-      [self setDefaultFCMToken:nil];
-      dispatch_async(dispatch_get_main_queue(), ^{
-        handler(error);
-      });
-    }];
-  }
-  [self.tokenOperations addOperation:operation];
+        if (handler) {
+          [operation addCompletionHandler:^(FIRMessagingTokenOperationResult result,
+                                            NSString *_Nullable token, NSError *_Nullable error) {
+            [self setDefaultFCMToken:nil];
+            dispatch_async(dispatch_get_main_queue(), ^{
+              handler(error);
+            });
+          }];
+        }
+        [self.tokenOperations addOperation:operation];
+      }];
 }
 
 - (void)deleteAllTokensLocallyWithHandler:(void (^)(NSError *error))handler {
@@ -397,6 +421,27 @@ static NSString *const kCheckinFileName = @"g-checkin";
 - (void)stopAllTokenOperations {
   [self.authService stopCheckinRequest];
   [self.tokenOperations cancelAllOperations];
+}
+
+- (void)deleteWithHandler:(void (^)(NSError *))handler {
+  FIRMessaging_WEAKIFY(self);
+  [self deleteAllTokensWithHandler:^(NSError *_Nullable error) {
+    FIRMessaging_STRONGIFY(self);
+    if (error) {
+      handler(error);
+      return;
+    }
+    [self deleteAllTokensLocallyWithHandler:^(NSError *localError) {
+      self->_defaultFCMToken = nil;
+      if (localError) {
+        handler(localError);
+        return;
+      }
+      [self.authService resetCheckinWithHandler:^(NSError *_Nonnull authError) {
+        handler(authError);
+      }];
+    }];
+  }];
 }
 
 #pragma mark - CheckinStore

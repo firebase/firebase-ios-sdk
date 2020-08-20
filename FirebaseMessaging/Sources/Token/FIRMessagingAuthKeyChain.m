@@ -212,4 +212,16 @@ NSString *const kFIRMessagingKeychainWildcardIdentifier = @"*";
   }
 }
 
+- (void)setCacheData:(NSData *)data forService:(NSString *)service account:(NSString *)account {
+  if (_cachedKeychainData[service]) {
+    if (_cachedKeychainData[service][account]) {
+      _cachedKeychainData[service][account] = @[ data ];
+    } else {
+      [_cachedKeychainData[service] setObject:@[ data ] forKey:account];
+    }
+  } else {
+    [_cachedKeychainData setObject:[@{account : @[ data ]} mutableCopy] forKey:service];
+  }
+}
+
 @end
