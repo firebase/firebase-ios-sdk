@@ -43,9 +43,12 @@ static NSString *const kAppDataItemInvalidKey = @"google.hello";
 
 static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
 
-@interface FIRMessagingDataMessageManager ()
+@interface FIRMessaging (ExposedForTest)
++ (BOOL)hasSubDirectory:(NSString *)subDirectoryName;
++ (BOOL)createSubDirectory:(NSString *)subDirectoryName;
+@end
 
-@property(nonatomic, readwrite, weak) FIRMessagingRmqManager *rmq2Manager;
+@interface FIRMessagingDataMessageManager ()
 
 - (NSString *)categoryForUpstreamMessages;
 
@@ -64,6 +67,7 @@ static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
 @property(nonatomic, readwrite, strong) id mockReceiver;
 @property(nonatomic, readwrite, strong) id mockSyncMessageManager;
 @property(nonatomic, readwrite, strong) FIRMessagingDataMessageManager *dataMessageManager;
+@property(nonatomic, readwrite, strong) FIRMessagingRmqManager *rmqManager;
 @property(nonatomic, readwrite, strong) id mockDataMessageManager;
 
 @end
@@ -72,13 +76,12 @@ static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
 
 - (void)setUp {
   [super setUp];
+  if (![FIRMessaging hasSubDirectory:@"Google/FirebaseMessaging"]) {
+    [FIRMessaging createSubDirectory:@"Google/FirebaseMessaging"];
+  }
   _mockClient = OCMClassMock([FIRMessagingClient class]);
   _mockReceiver = OCMClassMock([FIRMessagingReceiver class]);
-  FIRMessagingRmqManager *newRmqManager =
-      [[FIRMessagingRmqManager alloc] initWithDatabaseName:kRmqDatabaseName];
-  [newRmqManager loadRmqId];
-  _mockRmqManager = OCMPartialMock(newRmqManager);
-  OCMStub([_mockRmqManager openDatabase]).andDo(nil);
+  _mockRmqManager = OCMClassMock([FIRMessagingRmqManager class]);
   _mockSyncMessageManager = OCMClassMock([FIRMessagingSyncMessageManager class]);
   _dataMessageManager =
       [[FIRMessagingDataMessageManager alloc] initWithDelegate:_mockReceiver
@@ -90,9 +93,9 @@ static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
 }
 
 - (void)tearDown {
-  if (_dataMessageManager.rmq2Manager) {
-    [_dataMessageManager.rmq2Manager removeDatabase];
-    [self waitForDrainDatabaseQueueForRmqManager:_dataMessageManager.rmq2Manager];
+  if (_rmqManager) {
+    [_rmqManager removeDatabase];
+    [self waitForDrainDatabaseQueueForRmqManager:_rmqManager];
   }
   [super tearDown];
 }
@@ -474,6 +477,16 @@ static NSString *const kRmqDatabaseName = @"gcm-dmm-test";
  */
 - (void)testResendSavedMessages {
   XCTestExpectation *expectation = [self expectationWithDescription:@"scan is complete"];
+
+  _rmqManager = [[FIRMessagingRmqManager alloc] initWithDatabaseName:kRmqDatabaseName];
+  [_rmqManager loadRmqId];
+  _dataMessageManager =
+      [[FIRMessagingDataMessageManager alloc] initWithDelegate:_mockReceiver
+                                                        client:_mockClient
+                                                   rmq2Manager:_rmqManager
+                                            syncMessageManager:_mockSyncMessageManager];
+  [_dataMessageManager refreshDelayedMessages];
+  _mockDataMessageManager = OCMPartialMock(_dataMessageManager);
 
   static BOOL isClientConnected = NO;
   [[[self.mockClient stub] andReturnValue:@(isClientConnected)] isConnectionActive];
