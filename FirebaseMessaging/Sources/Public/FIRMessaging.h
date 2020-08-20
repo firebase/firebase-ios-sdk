@@ -548,7 +548,7 @@ NS_SWIFT_NAME(deleteToken(completion:));
  * nil` indicates success.
  */
 - (void)deleteWithCompletion:(void (^)(NSError *__nullable error))completion
-    NS_SWIFT_NAME(delete (completion:));
+    NS_SWIFT_NAME(delete(completion:));
 
 @end
 
