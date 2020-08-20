@@ -113,12 +113,12 @@ let package = Package(
     .package(
       name: "abseil",
       url: "https://github.com/firebase/abseil-cpp.git",
-      .revision("7790dc1a581cd704ec173e0a30286aabacaaa99d")
+      .revision("d30bd7751ce343a05fca6413de0dec062163e5e9")
     ),
     .package(
       name: "gRPC",
       url: "https://github.com/firebase/grpc.git",
-      .revision("c603c5a2ea17a1229996693a6fb13bbf7508105b")
+      .revision("cae939a8823bbc39912aa2990cf95e29ace381b3")
     ),
     .package(
       name: "OCMock",

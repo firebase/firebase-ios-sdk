@@ -30,7 +30,7 @@ FOUNDATION_EXPORT NSString *const kFIRInstanceID_CMD_RST;
 FOUNDATION_EXPORT NSString *const kFIRInstanceIDCheckinFetchedNotification;
 FOUNDATION_EXPORT NSString *const kFIRInstanceIDAPNSTokenNotification;
 FOUNDATION_EXPORT NSString *const kFIRInstanceIDDefaultGCMTokenFailNotification;
-
+FOUNDATION_EXPORT NSString *const kFIRInstanceIDMessagingUpdateTokenNotification;
 FOUNDATION_EXPORT NSString *const kFIRInstanceIDIdentityInvalidatedNotification;
 
 #pragma mark - Miscellaneous
