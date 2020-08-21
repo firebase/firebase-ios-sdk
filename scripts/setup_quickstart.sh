@@ -52,7 +52,7 @@ if check_secrets || [[ ${SAMPLE} == "installations" ]]; then
   bundle install
   bundle exec pod install --silent
 
-  sed -i "" "s/.*@github.com\/FirebasePrivate\/SpecsTesting.git'/source 'https://github.com\/FirebasePrivate\/SpecsTesting.git'/g" Podfile
+  sed -i "" "s/.*@github.com\/FirebasePrivate\/SpecsTesting.git'/source 'https:\/\/github.com\/FirebasePrivate\/SpecsTesting.git'/g" Podfile
   # Add GoogleService-Info.plist to Xcode project
   ruby ../scripts/info_script.rb "${SAMPLE}"
   cd -
