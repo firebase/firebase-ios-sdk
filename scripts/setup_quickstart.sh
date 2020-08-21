@@ -40,6 +40,9 @@ if check_secrets || [[ ${SAMPLE} == "installations" ]]; then
 
   git clone https://github.com/firebase/quickstart-ios.git
   $scripts_dir/localize_podfile.swift quickstart-ios/"$SAMPLE"/Podfile "$RELEASE_TESTING"
+  if [ !-z "$RELEASE_TESTING" ]; then 
+    sed -i "" '1i\'$'\n'"source 'https://${BOT_TOKEN}@github.com/FirebasePrivate/SpecsTesting.git'"$'\n' Podfile
+  fi
   cd quickstart-ios/"$SAMPLE"
 
   # To test a branch, uncomment the following line
@@ -47,8 +50,9 @@ if check_secrets || [[ ${SAMPLE} == "installations" ]]; then
 
   bundle update --bundler
   bundle install
-  bundle exec pod install
+  bundle exec pod install --silent
 
+  sed -i "" "s/.*@github.com\/FirebasePrivate\/SpecsTesting.git'/source 'https://github.com\/FirebasePrivate\/SpecsTesting.git'/g" Podfile
   # Add GoogleService-Info.plist to Xcode project
   ruby ../scripts/info_script.rb "${SAMPLE}"
   cd -

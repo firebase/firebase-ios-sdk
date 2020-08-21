@@ -63,10 +63,14 @@ jobs:
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+      bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       testing_repo: "firebase-ios-sdk"
     runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v2
+    - name: Get token
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
+          bot-access.txt "$bot_token_secret"
     - name: Get testing podspec repo
       uses: actions/download-artifact@v1
       with:
@@ -78,7 +82,16 @@ jobs:
         # find "${GITHUB_WORKSPACE}/${testing_repo}" -name "*.zip" -maxdepth 3 -exec unzip -d /tmp/test/ {} +
         ls /tmp/test/
     - name: Setup quickstart
-      run: scripts/setup_quickstart.sh config release_testing
+      run: |
+        botaccess=`cat bot-access.txt`
+        BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh config release_testing
+    - name: Add releasing specrepo
+      run: |
+        botaccess=`cat bot-access.txt`
+        cd quickstart-ios/config/
+        # Insert the source to spec repo
+        sed '1i\'$'\n'"source 'https://${botaccess}@github.com/FirebasePrivate/SpecsTesting.git'"$'\n' Podfile
+
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-config.plist.gpg \
           quickstart-ios/config/GoogleService-Info.plist "$plist_secret"
