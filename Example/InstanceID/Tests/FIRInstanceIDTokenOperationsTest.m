@@ -52,7 +52,7 @@ static NSString *kRegistrationToken = @"token-12345";
 - (instancetype)initWithToken:(NSString *)token expirationDate:(NSDate *)expirationDate;
 @end
 
-// A Fake operation that we have control over the returned error.
+// A Fake operation that allows us to check that perform was called.
 // We are not using mocks here because we have no way of forcing NSOperationQueues to release
 // their operations, and this means that there is always going to be a race condition between
 // when we "stop" our partial mock vs when NSOperationQueue attempts to access the mock object on a
