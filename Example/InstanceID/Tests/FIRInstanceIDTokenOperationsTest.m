@@ -52,6 +52,23 @@ static NSString *kRegistrationToken = @"token-12345";
 - (instancetype)initWithToken:(NSString *)token expirationDate:(NSDate *)expirationDate;
 @end
 
+// A Fake operation that we have control over the returned error.
+// We are not using mocks here because we have no way of forcing NSOperationQueues to release
+// their operations, and this means that there is always going to be a race condition between
+// when we "stop" our partial mock vs when NSOperationQueue attempts to access the mock object on a
+// separate thread. We had mocks previously.
+@interface FIRInstanceIDTokenOperationFake : FIRInstanceIDTokenOperation
+@property(nonatomic, assign) BOOL performWasCalled;
+@end
+
+@implementation FIRInstanceIDTokenOperationFake
+
+- (void)performTokenOperation {
+  self.performWasCalled = YES;
+}
+
+@end
+
 @interface FIRInstanceIDTokenOperationsTest : XCTestCase
 
 @property(strong, readonly, nonatomic) FIRInstanceIDAuthService *authService;
@@ -180,33 +197,29 @@ static NSString *kRegistrationToken = @"token-12345";
       [self expectationWithDescription:@"Operation finished as cancelled"];
   XCTestExpectation *didNotCallPerform =
       [self expectationWithDescription:@"Did not call performTokenOperation"];
-  __block BOOL performWasCalled = NO;
 
   int64_t tenHoursAgo = FIRInstanceIDCurrentTimestampInMilliseconds() - 10 * 60 * 60 * 1000;
   FIRInstanceIDCheckinPreferences *checkinPreferences =
       [self setCheckinPreferencesWithLastCheckinTime:tenHoursAgo];
 
-  FIRInstanceIDTokenOperation *operation =
-      [[FIRInstanceIDTokenOperation alloc] initWithAction:FIRInstanceIDTokenActionFetch
-                                      forAuthorizedEntity:kAuthorizedEntity
-                                                    scope:kScope
-                                                  options:nil
-                                       checkinPreferences:checkinPreferences
-                                               instanceID:self.instanceID];
+  FIRInstanceIDTokenOperationFake *operation =
+      [[FIRInstanceIDTokenOperationFake alloc] initWithAction:FIRInstanceIDTokenActionFetch
+                                          forAuthorizedEntity:kAuthorizedEntity
+                                                        scope:kScope
+                                                      options:nil
+                                           checkinPreferences:checkinPreferences
+                                                   instanceID:self.instanceID];
+  operation.performWasCalled = NO;
   [operation addCompletionHandler:^(FIRInstanceIDTokenOperationResult result,
                                     NSString *_Nullable token, NSError *_Nullable error) {
     if (result == FIRInstanceIDTokenOperationCancelled) {
       [cancelledExpectation fulfill];
     }
 
-    if (!performWasCalled) {
+    if (!operation.performWasCalled) {
       [didNotCallPerform fulfill];
     }
   }];
-  id mockOperation = OCMPartialMock(operation);
-  [[[mockOperation stub] andDo:^(NSInvocation *invocation) {
-    performWasCalled = YES;
-  }] performTokenOperation];
 
   [operation cancel];
   [operation start];
