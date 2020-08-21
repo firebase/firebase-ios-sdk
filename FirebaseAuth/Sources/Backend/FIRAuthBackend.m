@@ -26,6 +26,7 @@
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FirebaseAuth.h"
 
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
+#import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
 #import "FirebaseAuth/Sources/AuthProvider/OAuth/FIROAuthCredential_Internal.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRCreateAuthURIRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRCreateAuthURIResponse.h"
@@ -650,6 +651,10 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
     [request setValue:languageCode forHTTPHeaderField:kFirebaseLocalHeader];
   }
   GTMSessionFetcher *fetcher = [_fetcherService fetcherWithRequest:request];
+  NSString* emulatorURL = [FIRAuth auth].emulatorURL;
+  if (emulatorURL) {
+      fetcher.allowLocalhostRequest = YES;
+  }
   fetcher.bodyData = body;
   [fetcher beginFetchWithCompletionHandler:handler];
 }

@@ -37,6 +37,11 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property(nonatomic, copy, readonly) FIRAuthRequestConfiguration *requestConfiguration;
 
+/** @property emulatorURL
+    @brief If set, the local emulator URL to point to instead of the remote backend.
+ */
+@property(nonatomic, copy) NSString *emulatorURL;
+
 #if TARGET_OS_IOS
 
 /** @property tokenManager

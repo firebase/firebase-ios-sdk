@@ -18,11 +18,17 @@
 
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuth.h"
 
+#import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
+
 NS_ASSUME_NONNULL_BEGIN
 
+static NSString *const kHttpsPrefix = @"https:";
+static NSString *const kHttpPrefix = @"http:";
+
 static NSString *const kFirebaseAuthAPIURLFormat =
-    @"https://%@/identitytoolkit/v3/relyingparty/%@?key=%@";
-static NSString *const kIdentityPlatformAPIURLFormat = @"https://%@/v2/%@?key=%@";
+    @"%@//%@/identitytoolkit/v3/relyingparty/%@?key=%@";
+static NSString *const kIdentityPlatformAPIURLFormat = @"%@//%@/v2/%@?key=%@";
+static NSString *const kEmulatorHostFormat = @"%@/%@";
 
 static NSString *gAPIHost = @"www.googleapis.com";
 
@@ -80,23 +86,35 @@ static NSString *kIdentityPlatformStagingAPIHost =
 
 - (NSURL *)requestURL {
   NSString *apiURLFormat;
+  NSString *apiPrefix;
   NSString *apiHost;
+
+  NSString *emulatorURL = [FIRAuth auth].emulatorURL;
+
   if (_useIdentityPlatform) {
     apiURLFormat = kIdentityPlatformAPIURLFormat;
-    if (_useStaging) {
+    apiPrefix = kHttpsPrefix;
+    if (emulatorURL) {
+      apiPrefix = kHttpPrefix;
+      apiHost = [NSString stringWithFormat:kEmulatorHostFormat, emulatorURL, kIdentityPlatformAPIHost];
+    } else if (_useStaging) {
       apiHost = kIdentityPlatformStagingAPIHost;
     } else {
       apiHost = kIdentityPlatformAPIHost;
     }
   } else {
     apiURLFormat = kFirebaseAuthAPIURLFormat;
-    if (_useStaging) {
+    apiPrefix = kHttpsPrefix;
+    if (emulatorURL) {
+      apiPrefix = kHttpPrefix;
+      apiHost = [NSString stringWithFormat:kEmulatorHostFormat, emulatorURL, kFirebaseAuthAPIHost];
+    } else if (_useStaging) {
       apiHost = kFirebaseAuthStagingAPIHost;
     } else {
       apiHost = kFirebaseAuthAPIHost;
     }
   }
-  NSString *URLString = [NSString stringWithFormat:apiURLFormat, apiHost, _endpoint, _APIKey];
+  NSString *URLString = [NSString stringWithFormat:apiURLFormat, apiPrefix, apiHost, _endpoint, _APIKey];
   NSURL *URL = [NSURL URLWithString:URLString];
   return URL;
 }
