@@ -96,7 +96,8 @@ static NSString *kIdentityPlatformStagingAPIHost =
     apiPrefix = kHttpsPrefix;
     if (emulatorURL) {
       apiPrefix = kHttpPrefix;
-      apiHost = [NSString stringWithFormat:kEmulatorHostFormat, emulatorURL, kIdentityPlatformAPIHost];
+      apiHost =
+          [NSString stringWithFormat:kEmulatorHostFormat, emulatorURL, kIdentityPlatformAPIHost];
     } else if (_useStaging) {
       apiHost = kIdentityPlatformStagingAPIHost;
     } else {
@@ -114,7 +115,8 @@ static NSString *kIdentityPlatformStagingAPIHost =
       apiHost = kFirebaseAuthAPIHost;
     }
   }
-  NSString *URLString = [NSString stringWithFormat:apiURLFormat, apiPrefix, apiHost, _endpoint, _APIKey];
+  NSString *URLString =
+      [NSString stringWithFormat:apiURLFormat, apiPrefix, apiHost, _endpoint, _APIKey];
   NSURL *URL = [NSURL URLWithString:URLString];
   return URL;
 }

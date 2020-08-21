@@ -651,9 +651,9 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
     [request setValue:languageCode forHTTPHeaderField:kFirebaseLocalHeader];
   }
   GTMSessionFetcher *fetcher = [_fetcherService fetcherWithRequest:request];
-  NSString* emulatorURL = [FIRAuth auth].emulatorURL;
+  NSString *emulatorURL = [FIRAuth auth].emulatorURL;
   if (emulatorURL) {
-      fetcher.allowLocalhostRequest = YES;
+    fetcher.allowLocalhostRequest = YES;
   }
   fetcher.bodyData = body;
   [fetcher beginFetchWithCompletionHandler:handler];
