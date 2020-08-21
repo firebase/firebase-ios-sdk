@@ -71,7 +71,6 @@ FOUNDATION_EXPORT NSString *const FIRAppDistributionErrorDetailsKey
     NS_SWIFT_NAME(FunctionsErrorDetailsKey);
 
 /**
- * @enum AppDistributionError
  * Error codes representing sign in or version check failure reasons.
  */
 typedef NS_ENUM(NSUInteger, FIRAppDistributionError) {
