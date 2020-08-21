@@ -10,8 +10,8 @@ Package Manager](https://swift.org/package-manager/) in Beta status.
 
 - Requires at least Xcode 12 beta 4.
 - SwiftUI Previews require Xcode 12 beta 5.
-- Analytics requires clients to add -ObjC linker option.
-- Messaging, Performance, Firebase ML, and App Distribution are not initiallly available.
+- Analytics requires clients to add `-ObjC` linker option.
+- Messaging, Performance, Firebase ML, and App Distribution are not initially available.
 - watchOS support is not initially available.
 
 ## Installation
@@ -22,7 +22,7 @@ Install Firebase via Swift Package Manager:
 
 <img src="docs/resources/SPMAddPackage.png">
 
-Select the Firebase GitHub repository - https://github.com/firebase/firebase-ios-sdk.git:
+Select the Firebase GitHub repository - `https://github.com/firebase/firebase-ios-sdk.git`:
 
 <img src="docs/resources/SPMChoose.png">
 
@@ -40,7 +40,7 @@ in your app.
 
 <img src="docs/resources/SPMProducts.png">
 
-If you've installed FirebaseAnalytics, Add the -ObjC option to `Other Linker Flags`
+If you've installed FirebaseAnalytics, Add the `-ObjC` option to `Other Linker Flags`
 in the `Build Settings` tab.
 
 <img src="docs/resources/SPMObjC.png">
