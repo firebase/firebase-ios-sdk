@@ -41,7 +41,9 @@ if check_secrets || [[ ${SAMPLE} == "installations" ]]; then
   git clone https://github.com/firebase/quickstart-ios.git
   $scripts_dir/localize_podfile.swift quickstart-ios/"$SAMPLE"/Podfile "$RELEASE_TESTING"
   if [ ! -z "$RELEASE_TESTING" ]; then 
-    sed -i "" '1i\'$'\n'"source 'https://${BOT_TOKEN}@github.com/FirebasePrivate/SpecsTesting.git'"$'\n' Podfile
+    set +x
+    sed -i "" '1i\'$'\n'"source 'https://${BOT_TOKEN}@github.com/FirebasePrivate/SpecsTesting.git'"$'\n' quickstart-ios/"$SAMPLE"/Podfile
+    set -x
     echo "Podfile is udpated."
   fi
   cd quickstart-ios/"$SAMPLE"
@@ -53,7 +55,7 @@ if check_secrets || [[ ${SAMPLE} == "installations" ]]; then
   bundle install
   bundle exec pod install --silent
 
-  sed -i "" "s/.*@github.com\/FirebasePrivate\/SpecsTesting.git'/source 'https:\/\/github.com\/FirebasePrivate\/SpecsTesting.git'/g" Podfile
+  sed -i "" "s/.*@github.com\/FirebasePrivate\/SpecsTesting.git'/source 'https:\/\/github.com\/FirebasePrivate\/SpecsTesting.git'/g" quickstart-ios/"$SAMPLE"/Podfile
   # Add GoogleService-Info.plist to Xcode project
   ruby ../scripts/info_script.rb "${SAMPLE}"
   cd -
