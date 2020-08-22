@@ -92,7 +92,7 @@ jobs:
         botaccess=`cat bot-access.txt`
         cd quickstart-ios/config/
         # Insert the source to spec repo
-        sed '1i\'$'\n'"source 'https://${botaccess}@github.com/FirebasePrivate/SpecsTesting.git'"$'\n' Podfile
+        # sed '1i\'$'\n'"source 'https://${botaccess}@github.com/FirebasePrivate/SpecsTesting.git'"$'\n' Podfile
 
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-config.plist.gpg \
