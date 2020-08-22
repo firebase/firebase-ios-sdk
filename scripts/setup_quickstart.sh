@@ -45,7 +45,7 @@ if check_secrets || [[ ${SAMPLE} == "installations" ]]; then
     sed -i "" '1i\'$'\n'"source 'https://${BOT_TOKEN}@github.com/FirebasePrivate/SpecsTesting.git'"$'\n' quickstart-ios/"$SAMPLE"/Podfile
     set -x
     echo "Podfile is udpated."
-    cat quickstart-ios/"$SAMPLE"/Podfile
+    # cat quickstart-ios/"$SAMPLE"/Podfile
   fi
   cd quickstart-ios/"$SAMPLE"
 
@@ -55,6 +55,7 @@ if check_secrets || [[ ${SAMPLE} == "installations" ]]; then
   bundle update --bundler
   bundle install
   bundle exec pod install --silent
+  bundle exec pod update
 
   sed -i "" "s/.*@github.com\/FirebasePrivate\/SpecsTesting.git'/source 'https:\/\/github.com\/FirebasePrivate\/SpecsTesting.git'/g" Podfile
   # Add GoogleService-Info.plist to Xcode project
