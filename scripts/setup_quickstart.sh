@@ -45,7 +45,6 @@ if check_secrets || [[ ${SAMPLE} == "installations" ]]; then
     sed -i "" '1i\'$'\n'"source 'https://${BOT_TOKEN}@github.com/FirebasePrivate/SpecsTesting.git'"$'\n' quickstart-ios/"$SAMPLE"/Podfile
     set -x
     echo "Podfile is udpated."
-    # cat quickstart-ios/"$SAMPLE"/Podfile
   fi
   cd quickstart-ios/"$SAMPLE"
 
