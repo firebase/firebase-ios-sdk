@@ -228,7 +228,7 @@ struct FirebasePodUpdater: ParsableCommand {
                 print("remove \(sdk_repo_name) dir.")
                 try fileManager.removeItem(at: URL(fileURLWithPath: "\(cur_dir)/\(sdk_repo_name)"))
             }
-            // erase_remote_repo(repo_path: "\(cur_dir)", from: github_account, sdk_repo_name)
+            erase_remote_repo(repo_path: "\(cur_dir)", from: github_account, sdk_repo_name)
 
         } catch {
             print("error occurred. \(error)")
