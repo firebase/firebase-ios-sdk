@@ -22,7 +22,7 @@ import Foundation
 let _DEPENDENCY_LABEL_IN_SPEC = "dependency"
 let _SKIP_LINES_WITH_WORDS = ["unit_tests", "test_spec"]
 let _DEPENDENCY_LINE_SEPARATORS = [" ", ",", "/"] as CharacterSet
-let _POD_SOURCES = ["https://github.com/FirebasePrivate/SpecsTesting", "https://cdn.cocoapods.org/"]
+let _POD_SOURCES = ["https://${BOT_TOKEN}@github.com/FirebasePrivate/SpecsTesting", "https://cdn.cocoapods.org/"]
 let _FLAGS = ["--skip-tests", "--allow-warnings"]
 let _FIREBASE_FLAGS = _FLAGS + ["--skip-import-validation", "--use-json"]
 let _FIREBASEFIRESTORE_FLAGS = _FLAGS + []
@@ -66,6 +66,8 @@ struct FirebasePodUpdater: ParsableCommand {
     var sdk_repo_name: String = "SpecsTesting"
     @Option(help: "Local Podspec Repo Name.")
     var local_spec_repo_name: String 
+    // @Flag(help: "Raise error while circular dependency detected.")
+    // var raise_circular_dep_error: Bool
 
     func generateOrderOfInstallation(pods: [String], podSpecDict: SpecFiles,
                                      parentDeps: inout Set<String>)
@@ -186,7 +188,7 @@ struct FirebasePodUpdater: ParsableCommand {
         do {
             try fileManager.removeItem(at: URL(fileURLWithPath: "\(repo_path)/\(sdk_repo_name)"))
         } catch {
-            print("error occurred. \(error)")
+            print("Error occurred while removing \(repo_path)/\(sdk_repo_name): \(error)")
         }
     }
 
