@@ -17,7 +17,7 @@ jobs:
     env:
       bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       local_repo: specsstaging
-      # podspec_repo_branch: release-6.30.0
+      podspec_repo_branch: master
     runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v2
@@ -32,7 +32,7 @@ jobs:
         git config --global user.email "google-oss-bot@example.com"
         git config --global user.name "google-oss-bot"
         mkdir -p /tmp/test/firebase-ios-sdk
-        git clone https://github.com/firebase/firebase-ios-sdk.git /tmp/test/firebase-ios-sdk
+        git clone -b "${podspec_repo_branch}" https://github.com/firebase/firebase-ios-sdk.git /tmp/test/firebase-ios-sdk
         cd /tmp/test/firebase-ios-sdk
         git tag -a "test" -m "release testing"
         sed  -i "" "s/\s*:git.*/:git => '\/tmp\/test\/firebase-ios-sdk',/; s/\s*:tag.*/:tag => 'test'/" *.podspec
@@ -75,25 +75,14 @@ jobs:
       uses: actions/download-artifact@v1
       with:
         name: firebase-ios-sdk
-    - name: Move repo
+    - name: Setup testing repo
       run: |
         mkdir -p /tmp/test/
         mv "${GITHUB_WORKSPACE}/${testing_repo}" /tmp/test/
-        ls /tmp/test/
-        cd /tmp/test/"${testing_repo}"
-        pwd
-        git tag
     - name: Setup quickstart
       run: |
         botaccess=`cat bot-access.txt`
         BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh config release_testing
-    - name: Add releasing specrepo
-      run: |
-        botaccess=`cat bot-access.txt`
-        cd quickstart-ios/config/
-        # Insert the source to spec repo
-        # sed '1i\'$'\n'"source 'https://${botaccess}@github.com/FirebasePrivate/SpecsTesting.git'"$'\n' Podfile
-
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-config.plist.gpg \
           quickstart-ios/config/GoogleService-Info.plist "$plist_secret"
@@ -104,10 +93,10 @@ jobs:
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Config)
     - name: Remove data before upload
       run: scripts/remove_data.sh config
-      #    - uses: actions/upload-artifact@v2
-      #      with:
-      #        name: test-repo
-      #        path: /tmp/test/
+    - uses: actions/upload-artifact@v2
+      with:
+        name: test-repo
+        path: /tmp/test/
     - uses: actions/upload-artifact@v2
       with:
         name: quickstart_artifacts_config
