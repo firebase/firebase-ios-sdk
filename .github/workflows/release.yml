@@ -93,7 +93,10 @@ jobs:
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Config)
     - name: Remove data before upload
       run: |
+          cat quickstart-ios/config/Podfile.lock
           sed -i "" "s/https:\/\/.*@github.com\/FirebasePrivate\/SpecsTesting.git/https:\/\/github.com\/FirebasePrivate\/SpecsTesting.git/g" quickstart-ios/config/Podfile quickstart-ios/config/Podfile.lock
+          echo "---after podfile updated---"
+          cat quickstart-ios/config/Podfile.lock
           scripts/remove_data.sh config
     - uses: actions/upload-artifact@v2
       with:
