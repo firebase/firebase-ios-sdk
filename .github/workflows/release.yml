@@ -92,7 +92,9 @@ jobs:
     - name: Test Swift Quickstart
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Config)
     - name: Remove data before upload
-      run: scripts/remove_data.sh config
+      run: |
+          sed -i "" "s/https:\/\/.*@github.com\/FirebasePrivate\/SpecsTesting.git/https:\/\/github.com\/FirebasePrivate\/SpecsTesting.git/g" quickstart-ios/config/Podfile quickstart-ios/config/Podfile.lock
+          scripts/remove_data.sh config
     - uses: actions/upload-artifact@v2
       with:
         name: test-repo
