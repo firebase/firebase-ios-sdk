@@ -45,7 +45,7 @@ jobs:
         cd scripts/create_spec_repo/
         swift build
         pod repo add --silent "${local_repo}" https://"$botaccess"@github.com/FirebasePrivate/SpecsTesting.git
-        BOT_TOKEN="${botaccess}"  .build/debug/SpecRepoBuilder --local_spec_repo_name "${local_repo}"
+        BOT_TOKEN="${botaccess}"  .build/debug/SpecRepoBuilder --sdk_repo "/tmp/test/firebase-ios-sdk" --local_spec_repo_name "${local_repo}"
     - name: Clean Artifacts
       if: ${{ always() }}
       run: |
