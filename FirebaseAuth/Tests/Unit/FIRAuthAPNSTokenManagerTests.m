@@ -18,7 +18,7 @@
 #if TARGET_OS_IOS
 
 #import <XCTest/XCTest.h>
-#import "OCMock.h"
+#import <OCMock/OCMock.h>
 
 #import "FirebaseAuth/Sources/SystemService/FIRAuthAPNSToken.h"
 #import "FirebaseAuth/Sources/SystemService/FIRAuthAPNSTokenManager.h"

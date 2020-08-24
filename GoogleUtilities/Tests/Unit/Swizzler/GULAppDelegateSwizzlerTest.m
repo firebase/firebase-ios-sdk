@@ -17,7 +17,7 @@
 
 #import <XCTest/XCTest.h>
 #import <objc/runtime.h>
-#import "OCMock.h"
+#import <OCMock/OCMock.h>
 
 #if (defined(__IPHONE_9_0) && (__IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_9_0))
 #define SDK_HAS_USERACTIVITY 1

@@ -17,7 +17,7 @@
 
 #import <XCTest/XCTest.h>
 #import <objc/runtime.h>
-#import "OCMock.h"
+#import <OCMock/OCMock.h>
 
 /** Plist key that allows Firebase developers to disable Scene Delegate Proxying.  Source of truth
  * is the GULAppDelegateSwizzler class.

@@ -17,7 +17,7 @@
 #import <XCTest/XCTest.h>
 
 #import "FirebaseDynamicLinks/Sources/FIRDLScionLogging.h"
-#import "OCMock.h"
+#import <OCMock/OCMock.h>
 
 static const NSTimeInterval kAsyncTestTimout = 0.5;
 

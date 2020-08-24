@@ -123,15 +123,13 @@ let package = Package(
     .package(
       name: "OCMock",
       url: "https://github.com/firebase/ocmock.git",
-      .revision("7291762d3551c5c7e31c49cce40a0e391a52e889")
+      .revision("3c051b78fcf735182a8ba47fde7e0f116eba7b0e")
     ),
     .package(
       name: "leveldb",
       url: "https://github.com/firebase/leveldb.git",
       .revision("3f046978ecffd57ea6eb9a0897cc8a3b45b44df8")
     ),
-    // Branches need a force update with a run with the revision set like below.
-    //   .package(url: "https://github.com/paulb777/nanopb.git", .revision("564392bd87bd093c308a3aaed3997466efb95f74"))
   ],
   targets: [
     .target(

@@ -15,7 +15,7 @@
  */
 
 #import <XCTest/XCTest.h>
-#import "OCMock.h"
+#import <OCMock/OCMock.h>
 
 //#import <FirebaseInstanceID/FIRInstanceID+Private.h>
 //#import <FirebaseInstanceID/FIRInstanceIDCheckinPreferences.h>

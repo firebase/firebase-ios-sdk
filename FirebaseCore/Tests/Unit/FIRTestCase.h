@@ -15,7 +15,7 @@
  */
 
 #import <XCTest/XCTest.h>
-#import "OCMock.h"
+#import <OCMock/OCMock.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

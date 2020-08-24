@@ -18,7 +18,7 @@
 #if TARGET_OS_IOS
 
 #import <XCTest/XCTest.h>
-#import "OCMock.h"
+#import <OCMock/OCMock.h>
 
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthErrors.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthUIDelegate.h"

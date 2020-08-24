@@ -15,7 +15,7 @@
 #import "GoogleUtilities/Tests/Unit/Network/third_party/GTMHTTPServer.h"
 
 #import <XCTest/XCTest.h>
-#import "OCMock.h"
+#import <OCMock/OCMock.h>
 
 #import "GoogleUtilities/NSData+zlib/Private/GULNSDataInternal.h"
 #import "GoogleUtilities/Network/Private/GULNetwork.h"

@@ -18,7 +18,7 @@
 
 #import "FBLPromise+Testing.h"
 #import "GoogleUtilities/Tests/Unit/Utils/GULTestKeychain.h"
-#import "OCMock.h"
+#import <OCMock/OCMock.h>
 
 #import "GoogleUtilities/Environment/Private/GULKeychainStorage.h"
 

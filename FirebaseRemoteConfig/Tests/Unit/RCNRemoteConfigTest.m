@@ -15,8 +15,8 @@
  */
 
 #import <XCTest/XCTest.h>
-#import "OCMStubRecorder.h"
-#import "OCMock.h"
+#import <OCMock/OCMStubRecorder.h>
+#import <OCMock/OCMock.h>
 
 #import "FirebaseRemoteConfig/Sources/Private/FIRRemoteConfig_Private.h"
 #import "FirebaseRemoteConfig/Sources/Private/RCNConfigFetch.h"

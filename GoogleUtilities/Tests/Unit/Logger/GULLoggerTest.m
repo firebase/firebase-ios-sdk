@@ -16,7 +16,7 @@
 // The tests depend upon library methods only built with #ifdef DEBUG
 
 #import <XCTest/XCTest.h>
-#import "OCMock.h"
+#import <OCMock/OCMock.h>
 
 #import "GoogleUtilities/Logger/Private/GULLogger.h"
 
