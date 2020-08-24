@@ -53,6 +53,34 @@ class SpecFiles {
     }
 }
 
+struct Shell {
+    static let shared = Shell()
+    @discardableResult
+    func run(_ command: String, displayCommand: Bool = true, displayFailureResult: Bool = true) -> Int32 {
+        let task = Process()
+        let pipe = Pipe()
+        task.standardOutput = pipe
+        task.launchPath = "/bin/bash"
+        task.arguments = ["-c", command]
+        task.launch()
+        if displayCommand{
+        print("[SpecRepoBuilder] Command:\(command)\n")
+        }
+        task.waitUntilExit()
+        let data = pipe.fileHandleForReading.readDataToEndOfFile()
+        let log = String(data: data, encoding: .utf8)!
+        if displayFailureResult, task.terminationStatus != 0 {
+                print ("-----Exit code: \(task.terminationStatus)")
+                print ("-----Log:\n \(log)")
+        }
+        return task.terminationStatus
+    }
+}
+
+enum SpecRepoBuilderError: Error{
+        case failedToPush(pods: [String])
+}
+
 struct FirebasePodUpdater: ParsableCommand {
     @Option(help: "The root of the firebase-ios-sdk checked out git repo.")
     var sdk_repo: String = FileManager().currentDirectoryPath
@@ -138,50 +166,31 @@ struct FirebasePodUpdater: ParsableCommand {
         return filterTargetDeps(deps, with: podSpecDict)
     }
 
-    @discardableResult
-    func shell(_ command: String) -> Int32 {
-        let task = Process()
-        let pipe = Pipe()
-
-        task.standardOutput = pipe
-        task.arguments = ["-c", command]
-        task.launchPath = "/bin/bash"
-        task.launch()
-        print("-----Command:\(command)\n")
-        task.waitUntilExit()
-
-        let data = pipe.fileHandleForReading.readDataToEndOfFile()
-        let output = String(data: data, encoding: .utf8)!
-        print(output)
-
-        return task.terminationStatus
-    }
-
     func push_podspec(_ pod: String, from sdk_repo: String, sources: [String],
-                      flags: [String]) -> Int32?
+                      flags: [String], shell_cmd:Shell = Shell.shared) -> Int32
     {
         let pod_path = sdk_repo + "/" + pod + ".podspec"
         let sources_arg = sources.joined(separator: ",")
         let flags_arg = flags.joined(separator: " ")
 
-        let exit_code =
-            shell("pod repo push \(local_spec_repo_name) \(pod_path) --sources=\(sources_arg) \(flags_arg)")
-        shell("pod repo update")
+        let outcome =
+            shell_cmd.run("pod repo push \(local_spec_repo_name) \(pod_path) --sources=\(sources_arg) \(flags_arg)")
+        shell_cmd.run("pod repo update")
 
-        return exit_code
+        return outcome
     }
 
-    func erase_remote_repo(repo_path: String, from github_account: String, _ sdk_repo_name: String) {
-        shell("git clone --quiet https://${BOT_TOKEN}@github.com/\(github_account)/\(sdk_repo_name).git")
+    func erase_remote_repo(repo_path: String, from github_account: String, _ sdk_repo_name: String, shell_cmd:Shell = Shell.shared) {
+        shell_cmd.run("git clone --quiet https://${BOT_TOKEN}@github.com/\(github_account)/\(sdk_repo_name).git")
         let fileManager = FileManager.default
         do {
             let dirs = try fileManager.contentsOfDirectory(atPath: "\(repo_path)/\(sdk_repo_name)")
             for dir in dirs {
                 if !_EXCLUSIVE_PODS.contains(dir), dir != ".git" {
-                    shell("cd \(sdk_repo_name); git rm -r \(dir)")
+                    shell_cmd.run("cd \(sdk_repo_name); git rm -r \(dir)")
                 }
             }
-            shell("cd \(sdk_repo_name); git commit -m 'Empty repo'; git push")
+            shell_cmd.run("cd \(sdk_repo_name); git commit -m 'Empty repo'; git push")
         } catch {
             print("Error while enumerating files \(repo_path): \(error.localizedDescription)")
         }
@@ -236,28 +245,33 @@ struct FirebasePodUpdater: ParsableCommand {
             print("error occurred. \(error)")
         }
 
-        var exitCode: Int32?
+        var exitCode: Int32 = 0
+        var failedPods: [String] = []
         for pod in specFile.depInstallOrder {
+            var podExitCode: Int32 = 0
             print("----------\(pod)-----------")
             switch pod {
             case "Firebase":
-                exitCode = push_podspec(pod, from: sdk_repo, sources: pod_sources, flags: _FIREBASE_FLAGS)
+                podExitCode = push_podspec(pod, from: sdk_repo, sources: pod_sources, flags: _FIREBASE_FLAGS)
             case "FirebaseFirestore":
-                exitCode = push_podspec(
+                podExitCode = push_podspec(
                     pod,
                     from: sdk_repo,
                     sources: pod_sources,
                     flags: _FIREBASEFIRESTORE_FLAGS
                 )
             default:
-                exitCode = push_podspec(pod, from: sdk_repo, sources: pod_sources, flags: _FLAGS)
+                podExitCode = push_podspec(pod, from: sdk_repo, sources: pod_sources, flags: _FLAGS)
             }
-            if let code = exitCode {
-                print("------------exit code : \(code) \(pod)-----------------")
-            } else {
-                print(" Does not have a valid exitCode.")
+            if podExitCode != 0 {
+                    exitCode = 1
+                    failedPods.append(pod)
             }
         }
+        if exitCode != 0 { 
+          Self.exit(withError: SpecRepoBuilderError.failedToPush(pods: failedPods))
+        }
+        
     }
 }
 
