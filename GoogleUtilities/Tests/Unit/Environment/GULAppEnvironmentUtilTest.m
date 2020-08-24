@@ -13,8 +13,8 @@
 // limitations under the License.
 
 #import <Foundation/Foundation.h>
-#import <XCTest/XCTest.h>
 #import <OCMock/OCMock.h>
+#import <XCTest/XCTest.h>
 
 #import "GoogleUtilities/Environment/Private/GULAppEnvironmentUtil.h"
 
