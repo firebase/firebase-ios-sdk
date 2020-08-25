@@ -1132,9 +1132,7 @@
   GDTCORFlatFileStorage *storage = [GDTCORFlatFileStorage sharedInstance];
 
   uint64_t storedEventSize = 1052;
-  uint64_t storageSizeLimit = 20 * 1000 * 1000;  // 20 MB
-  uint64_t eventCountLimit = storageSizeLimit / storedEventSize;
-
+  uint64_t eventCountLimit = kGDTCORFlatFileStorageSizeLimit / storedEventSize;
   // 1. Generate and store maximum allowed amount of events.
   [self generateEventsForTarget:kGDTCORTargetTest expiringIn:1000 count:eventCountLimit];
 

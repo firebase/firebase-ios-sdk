@@ -49,6 +49,10 @@ NSString *const kGDTCORBatchComponentsBatchIDKey = @"GDTCORBatchComponentsBatchI
 
 NSString *const kGDTCORBatchComponentsExpirationKey = @"GDTCORBatchComponentsExpirationKey";
 
+NSString *const GDTCORFlatFileStorageErrorDomain = @"GDTCORFlatFileStorage";
+
+const uint64_t kGDTCORFlatFileStorageSizeLimit = 20 * 1000 * 1000;  // 20 MB.
+
 @implementation GDTCORFlatFileStorage
 
 + (void)load {
@@ -126,7 +130,33 @@ NSString *const kGDTCORBatchComponentsExpirationKey = @"GDTCORBatchComponentsExp
                                                expirationDate:event.expirationDate
                                                     mappingID:event.mappingID];
     NSError *error;
-    GDTCOREncodeArchive(event, filePath, &error);
+    NSData *encodedEvent = GDTCOREncodeArchive(event, nil, &error);
+    if (error) {
+      completion(NO, error);
+      return;
+    }
+
+    // Check storage size limit before storing the event.
+    uint64_t resultingStorageSize = [self syncThreadUnsafeStorageSize] + encodedEvent.length;
+    if (resultingStorageSize > kGDTCORFlatFileStorageSizeLimit) {
+      NSError *error = [NSError
+          errorWithDomain:GDTCORFlatFileStorageErrorDomain
+                     code:GDTCORFlatFileStorageErrorSizeLimitReached
+                 userInfo:@{
+                   NSLocalizedFailureReasonErrorKey : @"Storage size limit has been reached."
+                 }];
+      completion(NO, error);
+      return;
+    }
+
+    // Write the encoded event to the file.
+    BOOL writeResult = GDTCORWriteDataToFile(encodedEvent, filePath, &error);
+    if (writeResult == NO || error) {
+      GDTCORLogDebug(@"Attempt to write archive failed: path:%@ error:%@", filePath, error);
+    } else {
+      GDTCORLogDebug(@"Writing archive succeeded: %@", filePath);
+    }
+
     if (error) {
       completion(NO, error);
       return;
@@ -390,39 +420,12 @@ NSString *const kGDTCORBatchComponentsExpirationKey = @"GDTCORBatchComponentsExp
 }
 
 - (void)storageSizeWithCallback:(void (^)(uint64_t storageSize))onComplete {
+  if (!onComplete) {
+    return;
+  }
+
   dispatch_async(_storageQueue, ^{
-    unsigned long long totalBytes = 0;
-    NSString *eventDataPath = [GDTCORFlatFileStorage eventDataStoragePath];
-    NSString *libraryDataPath = [GDTCORFlatFileStorage libraryDataStoragePath];
-    NSString *batchDataPath = [GDTCORFlatFileStorage batchDataStoragePath];
-    NSDirectoryEnumerator *enumerator =
-        [[NSFileManager defaultManager] enumeratorAtPath:eventDataPath];
-    while ([enumerator nextObject]) {
-      NSFileAttributeType fileType = enumerator.fileAttributes[NSFileType];
-      if ([fileType isEqual:NSFileTypeRegular]) {
-        NSNumber *fileSize = enumerator.fileAttributes[NSFileSize];
-        totalBytes += fileSize.unsignedLongLongValue;
-      }
-    }
-    enumerator = [[NSFileManager defaultManager] enumeratorAtPath:libraryDataPath];
-    while ([enumerator nextObject]) {
-      NSFileAttributeType fileType = enumerator.fileAttributes[NSFileType];
-      if ([fileType isEqual:NSFileTypeRegular]) {
-        NSNumber *fileSize = enumerator.fileAttributes[NSFileSize];
-        totalBytes += fileSize.unsignedLongLongValue;
-      }
-    }
-    enumerator = [[NSFileManager defaultManager] enumeratorAtPath:batchDataPath];
-    while ([enumerator nextObject]) {
-      NSFileAttributeType fileType = enumerator.fileAttributes[NSFileType];
-      if ([fileType isEqual:NSFileTypeRegular]) {
-        NSNumber *fileSize = enumerator.fileAttributes[NSFileSize];
-        totalBytes += fileSize.unsignedLongLongValue;
-      }
-    }
-    if (onComplete) {
-      onComplete(totalBytes);
-    }
+    onComplete([self syncThreadUnsafeStorageSize]);
   });
 }
 
@@ -545,6 +548,41 @@ NSString *const kGDTCORBatchComponentsExpirationKey = @"GDTCORBatchComponentsExp
       removeBatchDir(batchDirPath);
     }
   }
+}
+
+// TODO: Size calculation appeared to be too slow with a big amount events (>1k). Need to optimize
+// to be used in `store` method.
+- (uint64_t)syncThreadUnsafeStorageSize {
+  uint64_t totalBytes = 0;
+  NSString *eventDataPath = [GDTCORFlatFileStorage eventDataStoragePath];
+  NSString *libraryDataPath = [GDTCORFlatFileStorage libraryDataStoragePath];
+  NSString *batchDataPath = [GDTCORFlatFileStorage batchDataStoragePath];
+  NSDirectoryEnumerator *enumerator =
+      [[NSFileManager defaultManager] enumeratorAtPath:eventDataPath];
+  while ([enumerator nextObject]) {
+    NSFileAttributeType fileType = enumerator.fileAttributes[NSFileType];
+    if ([fileType isEqual:NSFileTypeRegular]) {
+      NSNumber *fileSize = enumerator.fileAttributes[NSFileSize];
+      totalBytes += fileSize.unsignedLongLongValue;
+    }
+  }
+  enumerator = [[NSFileManager defaultManager] enumeratorAtPath:libraryDataPath];
+  while ([enumerator nextObject]) {
+    NSFileAttributeType fileType = enumerator.fileAttributes[NSFileType];
+    if ([fileType isEqual:NSFileTypeRegular]) {
+      NSNumber *fileSize = enumerator.fileAttributes[NSFileSize];
+      totalBytes += fileSize.unsignedLongLongValue;
+    }
+  }
+  enumerator = [[NSFileManager defaultManager] enumeratorAtPath:batchDataPath];
+  while ([enumerator nextObject]) {
+    NSFileAttributeType fileType = enumerator.fileAttributes[NSFileType];
+    if ([fileType isEqual:NSFileTypeRegular]) {
+      NSNumber *fileSize = enumerator.fileAttributes[NSFileSize];
+      totalBytes += fileSize.unsignedLongLongValue;
+    }
+  }
+  return totalBytes;
 }
 
 #pragma mark - Private helper methods

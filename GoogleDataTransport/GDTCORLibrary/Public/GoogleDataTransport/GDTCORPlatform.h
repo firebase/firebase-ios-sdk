@@ -156,6 +156,8 @@ id<NSSecureCoding> _Nullable GDTCORDecodeArchive(Class archiveClass,
                                                  NSData *_Nullable archiveData,
                                                  NSError *_Nullable *error);
 
+BOOL GDTCORWriteDataToFile(NSData *data, NSString *filePath, NSError **outError);
+
 /** A typedef identify background identifiers. */
 typedef volatile NSUInteger GDTCORBackgroundIdentifier;
 
