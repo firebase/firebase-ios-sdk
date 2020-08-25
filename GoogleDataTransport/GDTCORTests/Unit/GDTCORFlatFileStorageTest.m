@@ -683,7 +683,6 @@
   }
   expectation = [self expectationWithDescription:@"storageSize complete"];
   [[GDTCORFlatFileStorage sharedInstance] storageSizeWithCallback:^(uint64_t storageSize) {
-    // TODO(mikehaney24): Figure out why storageSize is ~2% higher than ongoingSize.
     XCTAssertGreaterThanOrEqual(storageSize, ongoingSize);
     [expectation fulfill];
   }];
@@ -1125,6 +1124,51 @@
     [expectation fulfill];
   }];
   [self waitForExpectations:@[ expectation ] timeout:10];
+}
+
+#pragma mark - Storage Size Limit
+
+- (void)testStoreEvent_WhenSizeLimitReached_ThenNewEventIsSkipped {
+  GDTCORFlatFileStorage *storage = [GDTCORFlatFileStorage sharedInstance];
+
+  uint64_t storedEventSize = 1052;
+  uint64_t storageSizeLimit = 20 * 1000 * 1000;  // 20 MB
+  uint64_t eventCountLimit = storageSizeLimit / storedEventSize;
+
+  // 1. Generate and store maximum allowed amount of events.
+  [self generateEventsForTarget:kGDTCORTargetTest expiringIn:1000 count:eventCountLimit];
+
+  // 2. Check storage size.
+  __block uint64_t storageSize = 0;
+  XCTestExpectation *sizeExpectation1 = [self expectationWithDescription:@"sizeExpectation1"];
+  [storage storageSizeWithCallback:^(uint64_t aStorageSize) {
+    storageSize = aStorageSize;
+    [sizeExpectation1 fulfill];
+  }];
+  [self waitForExpectations:@[ sizeExpectation1 ] timeout:5];
+
+  // 3. Try to add another event.
+  GDTCOREvent *event = [GDTCOREventGenerator generateEventForTarget:kGDTCORTargetTest
+                                                            qosTier:nil
+                                                          mappingID:nil];
+  event.expirationDate = [NSDate dateWithTimeIntervalSinceNow:1000];
+
+  XCTestExpectation *storeExpectation = [self expectationWithDescription:@"storeExpectation"];
+  [storage storeEvent:event
+           onComplete:^(BOOL wasWritten, NSError *_Nullable error) {
+             XCTAssertFalse(wasWritten);
+             XCTAssertNotNil(error);
+             [storeExpectation fulfill];
+           }];
+  [self waitForExpectations:@[ storeExpectation ] timeout:0.5];
+
+  // 4. Check the storage size didn't change.
+  XCTestExpectation *sizeExpectation2 = [self expectationWithDescription:@"sizeExpectation2"];
+  [storage storageSizeWithCallback:^(uint64_t aStorageSize) {
+    XCTAssertEqual(aStorageSize, storageSize);
+    [sizeExpectation2 fulfill];
+  }];
+  [self waitForExpectations:@[ sizeExpectation2 ] timeout:5];
 }
 
 #pragma mark - Helpers
