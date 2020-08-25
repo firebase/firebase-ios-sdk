@@ -29,8 +29,7 @@ let package = Package(
   targets: [
     .target(
       name: "SpecRepoBuilder",
-      dependencies: [.product(name: "ArgumentParser", package: "swift-argument-parser"),]
+      dependencies: [.product(name: "ArgumentParser", package: "swift-argument-parser")]
     ),
   ]
 )
-
