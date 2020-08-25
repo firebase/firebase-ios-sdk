@@ -86,7 +86,7 @@ struct FirebasePodUpdater: ParsableCommand {
     @Option(help: "The root of the firebase-ios-sdk checked out git repo.")
     var sdk_repo: String = FileManager().currentDirectoryPath
     @Option(help: "A list of podspec sources in Podfiles.")
-    var pod_sources: [String] = _POD_SOURCES 
+    var pod_sources: [String] = _POD_SOURCES
     @Option(help: "Podspecs that will not be pushed to repo.")
     var exclude_pods: [String] = _EXCLUSIVE_PODS
     @Option(help: "Github Account Name.")
@@ -94,7 +94,7 @@ struct FirebasePodUpdater: ParsableCommand {
     @Option(help: "Github Repo Name.")
     var sdk_repo_name: String = "SpecsTesting"
     @Option(help: "Local Podspec Repo Name.")
-    var local_spec_repo_name: String 
+    var local_spec_repo_name: String
     @Flag(help: "Raise error while circular dependency detected.")
     var raise_circular_dep_error: Bool = false
     func generateOrderOfInstallation(pods: [String], podSpecDict: SpecFiles,
@@ -271,7 +271,7 @@ struct FirebasePodUpdater: ParsableCommand {
                     failedPods.append(pod)
             }
         }
-        if exitCode != 0 { 
+        if exitCode != 0 {
           Self.exit(withError: SpecRepoBuilderError.failedToPush(pods: failedPods))
         }
 
