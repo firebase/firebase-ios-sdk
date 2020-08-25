@@ -1,3 +1,6 @@
+# Unreleased
+- [added] Added astackFrameWithAddress API for recording custom errors that are symbolicated on the backend (#5975)
+
 # v4.3.1
 - [fixed] Fixed a segmentation fault that could occur when writing crash contexts to disk (#6048).
 
