@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google
+ * Copyright 2019 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -121,6 +121,45 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
           XCTFail("Expect server timestamp is set, but getting .pending")
         }
       }
+    }
+
+    func testServerTimestampBehavior() throws {
+      struct Model: Codable, Equatable {
+        var name: String
+        @ServerTimestamp var ts: Timestamp? = nil
+      }
+
+      disableNetwork()
+      let docToWrite = documentRef()
+      let now = Int64(Date().timeIntervalSince1970)
+      let pastTimestamp = Timestamp(seconds: 807_940_800, nanoseconds: 0)
+
+      // Write a document with a current value to enable testing with .previous.
+      let originalModel = Model(name: "name", ts: pastTimestamp)
+      let completion1 = completionForExpectation(withName: "setData")
+      try docToWrite.setData(from: originalModel, completion: completion1)
+
+      // Overwrite with a nil server timestamp so that ServerTimestampBehavior is testable.
+      let newModel = Model(name: "name")
+      let completion2 = completionForExpectation(withName: "setData")
+      try docToWrite.setData(from: newModel, completion: completion2)
+
+      let snapshot = readDocument(forRef: docToWrite)
+      var decoded = try snapshot.data(as: Model.self, with: .none)
+      XCTAssertNil(decoded?.ts)
+
+      decoded = try snapshot.data(as: Model.self, with: .estimate)
+      XCTAssertNotNil(decoded?.ts)
+      XCTAssertNotNil(decoded?.ts?.seconds)
+      XCTAssertGreaterThanOrEqual(decoded!.ts!.seconds, now)
+
+      decoded = try snapshot.data(as: Model.self, with: .previous)
+      XCTAssertNotNil(decoded?.ts)
+      XCTAssertNotNil(decoded?.ts?.seconds)
+      XCTAssertEqual(decoded!.ts!.seconds, pastTimestamp.seconds)
+
+      enableNetwork()
+      awaitExpectations()
     }
   #endif // swift(>=5.1)
 

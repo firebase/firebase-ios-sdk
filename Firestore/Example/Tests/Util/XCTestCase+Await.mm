@@ -40,6 +40,10 @@ void LoadXCTestCaseAwait() {
   [self waitForExpectations:@[ expectation ] timeout:kExpectationWaitSeconds];
 }
 
+- (void)awaitExpectations:(NSArray<XCTestExpectation *> *)expectations {
+  [self waitForExpectations:expectations timeout:kExpectationWaitSeconds];
+}
+
 - (double)defaultExpectationWaitSeconds {
   return kExpectationWaitSeconds;
 }

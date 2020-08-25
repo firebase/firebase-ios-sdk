@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google
+ * Copyright 2019 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,12 +21,16 @@ extension DocumentSnapshot {
   /// Retrieves all fields in a document and converts them to an instance of
   /// caller-specified type. Returns `nil` if the document does not exist.
   ///
+  /// Server-provided timestamps that have not yet been set to their final value
+  /// will be returned as `NSNull`. You can use `data(as:with:decoder)` to
+  /// configure this behavior.
+  ///
   /// See `Firestore.Decoder` for more details about the decoding process.
   ///
   /// - Parameters
   ///   - type: The type to convert the document fields to.
   ///   - decoder: The decoder to use to convert the document. `nil` to use
-  ///              default decoder.
+  ///     default decoder.
   public func data<T: Decodable>(as type: T.Type,
                                  decoder: Firestore.Decoder? = nil) throws -> T? {
     var d = decoder
@@ -34,6 +38,30 @@ extension DocumentSnapshot {
       d = Firestore.Decoder()
     }
     if let data = data() {
+      return try d?.decode(T.self, from: data, in: reference)
+    }
+    return nil
+  }
+
+  /// Retrieves all fields in a document and converts them to an instance of
+  /// caller-specified type. Returns `nil` if the document does not exist.
+  ///
+  /// See `Firestore.Decoder` for more details about the decoding process.
+  ///
+  /// - Parameters
+  ///   - type: The type to convert the document fields to.
+  ///   - serverTimestampBehavior: Configures how server timestamps that have
+  ///     not yet been set to their final value are returned from the snapshot.
+  ///   - decoder: The decoder to use to convert the document. `nil` to use
+  ///     default decoder.
+  public func data<T: Decodable>(as type: T.Type,
+                                 with serverTimestampBehavior: ServerTimestampBehavior,
+                                 decoder: Firestore.Decoder? = nil) throws -> T? {
+    var d = decoder
+    if d == nil {
+      d = Firestore.Decoder()
+    }
+    if let data = data(with: serverTimestampBehavior) {
       return try d?.decode(T.self, from: data, in: reference)
     }
     return nil
