@@ -78,7 +78,7 @@ struct Shell {
 }
 
 enum SpecRepoBuilderError: Error{
-        case circularDependencies(pods: [String])
+        case circularDependencies(pods: Set<String>)
         case failedToPush(pods: [String])
 }
 
@@ -96,7 +96,7 @@ struct FirebasePodUpdater: ParsableCommand {
     @Option(help: "Local Podspec Repo Name.")
     var local_spec_repo_name: String 
     @Flag(help: "Raise error while circular dependency detected.")
-    var raise_circular_dep_error: Bool
+    var raise_circular_dep_error: Bool = false
     func generateOrderOfInstallation(pods: [String], podSpecDict: SpecFiles,
                                      parentDeps: inout Set<String>)
     {
