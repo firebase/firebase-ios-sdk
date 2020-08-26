@@ -18,8 +18,7 @@
 # USAGE: test_archiving.sh pod platform outputPath
 #
 # Generates the project for the given CocoaPod and attempts to archive it to the provided
-# path. The platform argument also supports "catalyst" which will archive an iOS app
-# built for Mac Catalyst.
+# path.
 
 set -xeuo pipefail
 
@@ -35,7 +34,7 @@ case "$platform" in
   scheme_name="App-iOS"
   ;;
 
-  macos | catalyst)
+  macos)
   scheme_name="App-macOS"
   ;;
 
@@ -49,14 +48,8 @@ case "$platform" in
   ;;
 esac
 
-if [ "$platform" = "catalyst" ]; then
-    pod_gen_platform="ios"
-else
-    pod_gen_platform="$platform"
-fi
-
 bundle exec pod gen --local-sources=./ --sources=https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org/ \
-  "$pod".podspec --platforms="$pod_gen_platform"
+  "$pod".podspec --platforms="$platform"
 
 args=(
   # Run the `archive` command.
@@ -70,15 +63,6 @@ args=(
   # Disable signing.
   "CODE_SIGN_IDENTITY=-" "CODE_SIGNING_REQUIRED=NO" "CODE_SIGNING_ALLOWED=NO"
 )
-
-if [ "$platform" = "catalyst" ]; then
-    args+=(
-      # Specify Catalyst.
-      "ARCHS=x86_64h" "VALID_ARCHS=x86_64h" "SUPPORTS_MACCATALYST=YES"
-      # Run on macOS.
-      "-sdk" "macosx" "-destination platform=\"OS X\"" "TARGETED_DEVICE_FAMILY=2"
-    )
-fi
 
 xcodebuild -version
 xcodebuild "${args[@]}" | xcpretty

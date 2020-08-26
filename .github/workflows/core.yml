@@ -20,7 +20,7 @@ jobs:
 
     strategy:
       matrix:
-        target: [ios, tvos, macos, catalyst]
+        target: [ios, tvos, macos]
 
     steps:
     - uses: actions/checkout@v2
