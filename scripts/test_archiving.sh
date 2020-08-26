@@ -30,14 +30,14 @@ bundle exec pod gen --local-sources=./ --sources=https://github.com/firebase/Spe
 args=(
   # Run the `archive` command.
   "archive"
+  # Write the archive to a given path.
+  "-archivePath $outputPath"
   # The generated workspace.
   "-workspace" "gen/$pod/$pod.xcworkspace"
   # Specify the generated App scheme.
   "-scheme" "App-iOS"
   # Disable signing.
   "CODE_SIGN_IDENTITY=-" "CODE_SIGNING_REQUIRED=NO" "CODE_SIGNING_ALLOWED=NO"
-  # Write the archive to a given path.
-  "-archivePath \"$outputPath\""
 )
 
 xcodebuild -version
