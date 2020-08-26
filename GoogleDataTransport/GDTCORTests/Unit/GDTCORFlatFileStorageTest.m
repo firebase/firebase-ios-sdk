@@ -1136,37 +1136,39 @@
   // 1. Generate and store maximum allowed amount of events.
   [self generateEventsForTarget:kGDTCORTargetTest expiringIn:1000 count:eventCountLimit];
 
-  // 2. Check storage size.
-  __block uint64_t storageSize = 0;
-  XCTestExpectation *sizeExpectation1 = [self expectationWithDescription:@"sizeExpectation1"];
-  [storage storageSizeWithCallback:^(uint64_t aStorageSize) {
-    storageSize = aStorageSize;
-    [sizeExpectation1 fulfill];
-  }];
-  [self waitForExpectations:@[ sizeExpectation1 ] timeout:5];
+//  [self measureBlock:^{
+    // 2. Check storage size.
+    __block uint64_t storageSize = 0;
+    XCTestExpectation *sizeExpectation1 = [self expectationWithDescription:@"sizeExpectation1"];
+    [storage storageSizeWithCallback:^(uint64_t aStorageSize) {
+      storageSize = aStorageSize;
+      [sizeExpectation1 fulfill];
+    }];
+    [self waitForExpectations:@[ sizeExpectation1 ] timeout:5];
 
-  // 3. Try to add another event.
-  GDTCOREvent *event = [GDTCOREventGenerator generateEventForTarget:kGDTCORTargetTest
-                                                            qosTier:nil
-                                                          mappingID:nil];
-  event.expirationDate = [NSDate dateWithTimeIntervalSinceNow:1000];
+    // 3. Try to add another event.
+    GDTCOREvent *event = [GDTCOREventGenerator generateEventForTarget:kGDTCORTargetTest
+                                                              qosTier:nil
+                                                            mappingID:nil];
+    event.expirationDate = [NSDate dateWithTimeIntervalSinceNow:1000];
 
-  XCTestExpectation *storeExpectation = [self expectationWithDescription:@"storeExpectation"];
-  [storage storeEvent:event
-           onComplete:^(BOOL wasWritten, NSError *_Nullable error) {
-             XCTAssertFalse(wasWritten);
-             XCTAssertNotNil(error);
-             [storeExpectation fulfill];
-           }];
-  [self waitForExpectations:@[ storeExpectation ] timeout:0.5];
+    XCTestExpectation *storeExpectation = [self expectationWithDescription:@"storeExpectation"];
+    [storage storeEvent:event
+             onComplete:^(BOOL wasWritten, NSError *_Nullable error) {
+               XCTAssertFalse(wasWritten);
+               XCTAssertNotNil(error);
+               [storeExpectation fulfill];
+             }];
+    [self waitForExpectations:@[ storeExpectation ] timeout:0.5];
 
-  // 4. Check the storage size didn't change.
-  XCTestExpectation *sizeExpectation2 = [self expectationWithDescription:@"sizeExpectation2"];
-  [storage storageSizeWithCallback:^(uint64_t aStorageSize) {
-    XCTAssertEqual(aStorageSize, storageSize);
-    [sizeExpectation2 fulfill];
-  }];
-  [self waitForExpectations:@[ sizeExpectation2 ] timeout:5];
+    // 4. Check the storage size didn't change.
+    XCTestExpectation *sizeExpectation2 = [self expectationWithDescription:@"sizeExpectation2"];
+    [storage storageSizeWithCallback:^(uint64_t aStorageSize) {
+      XCTAssertEqual(aStorageSize, storageSize);
+      [sizeExpectation2 fulfill];
+    }];
+    [self waitForExpectations:@[ sizeExpectation2 ] timeout:5];
+//  }];
 }
 
 #pragma mark - Helpers

@@ -553,35 +553,38 @@ const uint64_t kGDTCORFlatFileStorageSizeLimit = 20 * 1000 * 1000;  // 20 MB.
 // TODO: Size calculation appeared to be too slow with a big amount events (>1k). Need to optimize
 // to be used in `store` method.
 - (uint64_t)syncThreadUnsafeStorageSize {
+  uint64_t totalBytes = [self sizeOfDirectoryAtPath:[GDTCORFlatFileStorage eventDataStoragePath]];
+  totalBytes += [self sizeOfDirectoryAtPath:[GDTCORFlatFileStorage libraryDataStoragePath]];
+  totalBytes += [self sizeOfDirectoryAtPath:[GDTCORFlatFileStorage batchDataStoragePath]];
+
+  return totalBytes;
+}
+
+- (uint64_t)sizeOfDirectoryAtPath:(NSString *)path {
+  NSArray *prefetchedProperties = @[ NSURLIsRegularFileKey, NSURLFileSizeKey ];
+
   uint64_t totalBytes = 0;
-  NSString *eventDataPath = [GDTCORFlatFileStorage eventDataStoragePath];
-  NSString *libraryDataPath = [GDTCORFlatFileStorage libraryDataStoragePath];
-  NSString *batchDataPath = [GDTCORFlatFileStorage batchDataStoragePath];
-  NSDirectoryEnumerator *enumerator =
-      [[NSFileManager defaultManager] enumeratorAtPath:eventDataPath];
-  while ([enumerator nextObject]) {
-    NSFileAttributeType fileType = enumerator.fileAttributes[NSFileType];
-    if ([fileType isEqual:NSFileTypeRegular]) {
-      NSNumber *fileSize = enumerator.fileAttributes[NSFileSize];
+
+  NSURL *directoryURL = [NSURL URLWithString:path];
+
+  NSDirectoryEnumerator *enumerator = [[NSFileManager defaultManager]
+                 enumeratorAtURL:directoryURL
+      includingPropertiesForKeys:prefetchedProperties
+                         options:0
+                    errorHandler:^BOOL(NSURL *_Nonnull url, NSError *_Nonnull error) {
+                      return YES;
+                    }];
+
+  for (NSURL *fileURL in enumerator) {
+    NSNumber *isRegularFile;
+    [fileURL getResourceValue:&isRegularFile forKey:NSURLIsRegularFileKey error:nil];
+    if (isRegularFile.boolValue) {
+      NSNumber *fileSize;
+      [fileURL getResourceValue:&fileSize forKey:NSURLFileSizeKey error:nil];
       totalBytes += fileSize.unsignedLongLongValue;
     }
   }
-  enumerator = [[NSFileManager defaultManager] enumeratorAtPath:libraryDataPath];
-  while ([enumerator nextObject]) {
-    NSFileAttributeType fileType = enumerator.fileAttributes[NSFileType];
-    if ([fileType isEqual:NSFileTypeRegular]) {
-      NSNumber *fileSize = enumerator.fileAttributes[NSFileSize];
-      totalBytes += fileSize.unsignedLongLongValue;
-    }
-  }
-  enumerator = [[NSFileManager defaultManager] enumeratorAtPath:batchDataPath];
-  while ([enumerator nextObject]) {
-    NSFileAttributeType fileType = enumerator.fileAttributes[NSFileType];
-    if ([fileType isEqual:NSFileTypeRegular]) {
-      NSNumber *fileSize = enumerator.fileAttributes[NSFileSize];
-      totalBytes += fileSize.unsignedLongLongValue;
-    }
-  }
+
   return totalBytes;
 }
 
