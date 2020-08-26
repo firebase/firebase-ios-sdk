@@ -46,6 +46,7 @@ case "$platform" in
   *)
   exit 1;
   ;;
+esac
 
 bundle exec pod gen --local-sources=./ --sources=https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org/ \
   "$pod".podspec --platforms="$platform"
