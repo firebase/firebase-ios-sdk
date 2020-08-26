@@ -66,7 +66,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
 
   s.subspec 'AdMob' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.ios.dependency 'Google-Mobile-Ads-SDK', '~> 7.50'
+    ss.ios.dependency 'Google-Mobile-Ads-SDK', '~> 7.64'
   end
 
   s.subspec 'AppDistribution' do |ss|
