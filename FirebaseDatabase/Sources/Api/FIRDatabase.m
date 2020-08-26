@@ -79,7 +79,7 @@ static const char *FIREBASE_SEMVER = (const char *)STR(FIRDatabase_VERSION);
         FFLog(@"I-RDB024002", @"Using default host for project %@",
               app.options.projectID);
         url = [NSString
-               stringWithFormat:@"https://%@-default-rtdb.firebaseio.com",
+            stringWithFormat:@"https://%@-default-rtdb.firebaseio.com",
                              app.options.projectID];
     }
     return [FIRDatabase databaseForApp:app URL:url];
