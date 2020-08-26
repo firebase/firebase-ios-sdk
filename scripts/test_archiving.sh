@@ -49,8 +49,14 @@ case "$platform" in
   ;;
 esac
 
+if [ "$platform" = "catalyst" ]; then
+    pod_gen_platform="ios"
+else
+    pod_gen_platform="$platform"
+fi
+
 bundle exec pod gen --local-sources=./ --sources=https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org/ \
-  "$pod".podspec --platforms="$platform"
+  "$pod".podspec --platforms="$pod_gen_platform"
 
 args=(
   # Run the `archive` command.
