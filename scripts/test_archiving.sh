@@ -31,7 +31,7 @@ args=(
   # Run the `archive` command.
   "archive"
   # Write the archive to a given path.
-  "-archivePath $outputPath"
+  "-archivePath" "$outputPath"
   # The generated workspace.
   "-workspace" "gen/$pod/$pod.xcworkspace"
   # Specify the generated App scheme.
