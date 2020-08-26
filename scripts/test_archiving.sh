@@ -15,27 +15,47 @@
 # limitations under the License.
 
 
-# USAGE: test_archiving.sh pod outputPath
+# USAGE: test_archiving.sh pod platform outputPath
 #
 # Generates the project for the given CocoaPod and attempts to archive it to the provided
 # path.
 
 set -xeuo pipefail
 pod="$1"
-outputPath="$2"
+platform="$2"
+output_path="$3"
+
+# watchOS is unsupported - `pod gen` can't generate the test schemes.
+case "$platform" in
+  ios)
+  scheme_name="App-iOS"
+  ;;
+
+  macos)
+  scheme_name="App-macOS"
+  ;;
+
+  tvos)
+  scheme_name="App-tvOS"
+  ;;
+
+  # Fail for anything else, invalid input.
+  *)
+  exit 1;
+  ;;
 
 bundle exec pod gen --local-sources=./ --sources=https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org/ \
-  "$pod".podspec --platforms=ios
+  "$pod".podspec --platforms="$platform"
 
 args=(
   # Run the `archive` command.
   "archive"
   # Write the archive to a given path.
-  "-archivePath" "$outputPath"
+  "-archivePath" "$output_path"
   # The generated workspace.
   "-workspace" "gen/$pod/$pod.xcworkspace"
   # Specify the generated App scheme.
-  "-scheme" "App-iOS"
+  "-scheme" "$scheme_name"
   # Disable signing.
   "CODE_SIGN_IDENTITY=-" "CODE_SIGNING_REQUIRED=NO" "CODE_SIGNING_ALLOWED=NO"
 )
