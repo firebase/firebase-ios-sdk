@@ -67,7 +67,22 @@ static const char *FIREBASE_SEMVER = (const char *)STR(FIRDatabase_VERSION);
         [NSException raise:@"InvalidFIRApp"
                     format:@"nil FIRApp instance passed to databaseForApp."];
     }
-    return [FIRDatabase databaseForApp:app URL:app.options.databaseURL];
+    NSString *url = app.options.databaseURL;
+    if (!url) {
+        if (!app.options.projectID) {
+            [NSException
+                 raise:@"MissingProjectId"
+                format:@"Can't determine Firebase Database URL. Be sure to "
+                       @"include a Project ID when calling "
+                       @"`FirebaseApp.configure()`."];
+        }
+        FFLog(@"I-RDB024002", @"Using default host for project %@",
+              app.options.projectID);
+        url = [NSString
+            stringWithFormat:@"https://%@-default-rtdb.firebaseio.com",
+                             app.options.projectID];
+    }
+    return [FIRDatabase databaseForApp:app URL:url];
 }
 
 + (FIRDatabase *)databaseForApp:(FIRApp *)app URL:(NSString *)url {
