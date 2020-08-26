@@ -27,6 +27,8 @@
 #import "GoogleDataTransport/GDTCORLibrary/Private/GDTCORRegistrar_Private.h"
 #import "GoogleDataTransport/GDTCORLibrary/Private/GDTCORUploadCoordinator.h"
 
+#import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORDirectorySizeCalculator.h"
+
 NS_ASSUME_NONNULL_BEGIN
 
 /** A library data key this class uses to track batchIDs. */
@@ -52,6 +54,12 @@ NSString *const kGDTCORBatchComponentsExpirationKey = @"GDTCORBatchComponentsExp
 NSString *const GDTCORFlatFileStorageErrorDomain = @"GDTCORFlatFileStorage";
 
 const uint64_t kGDTCORFlatFileStorageSizeLimit = 20 * 1000 * 1000;  // 20 MB.
+
+@interface GDTCORFlatFileStorage ()
+
+@property(nonatomic, readonly) GDTCORDirectorySizeCalculator *sizeCalculator;
+
+@end
 
 @implementation GDTCORFlatFileStorage
 
@@ -87,6 +95,8 @@ const uint64_t kGDTCORFlatFileStorageSizeLimit = 20 * 1000 * 1000;  // 20 MB.
     _storageQueue =
         dispatch_queue_create("com.google.GDTCORFlatFileStorage", DISPATCH_QUEUE_SERIAL);
     _uploadCoordinator = [GDTCORUploadCoordinator sharedInstance];
+    _sizeCalculator =
+        [[GDTCORDirectorySizeCalculator alloc] initWithDirectoryPath:GDTCORRootDirectory().path];
   }
   return self;
 }
@@ -137,7 +147,7 @@ const uint64_t kGDTCORFlatFileStorageSizeLimit = 20 * 1000 * 1000;  // 20 MB.
     }
 
     // Check storage size limit before storing the event.
-    uint64_t resultingStorageSize = [self syncThreadUnsafeStorageSize] + encodedEvent.length;
+    uint64_t resultingStorageSize = self.sizeCalculator.directoryContentSize + encodedEvent.length;
     if (resultingStorageSize > kGDTCORFlatFileStorageSizeLimit) {
       NSError *error = [NSError
           errorWithDomain:GDTCORFlatFileStorageErrorDomain
@@ -163,6 +173,9 @@ const uint64_t kGDTCORFlatFileStorageSizeLimit = 20 * 1000 * 1000;  // 20 MB.
     } else {
       completion(YES, nil);
     }
+
+    // Notify size calculator.
+    [self.sizeCalculator fileWithSize:encodedEvent.length wasAddedAtPath:filePath];
 
     // Check the QoS, if it's high priority, notify the target that it has a high priority event.
     if (event.qosTier == GDTCOREventQoSFast) {
@@ -311,7 +324,12 @@ const uint64_t kGDTCORFlatFileStorageSizeLimit = 20 * 1000 * 1000;  // 20 MB.
       // the implicit return value will be the block itself. The compiler doesn't detect this.
       if (newValue != nil && [newValue isKindOfClass:[NSData class]] && newValue.length) {
         NSError *newValueError;
-        [newValue writeToFile:dataPath options:NSDataWritingAtomic error:&newValueError];
+        if ([newValue writeToFile:dataPath options:NSDataWritingAtomic error:&newValueError]) {
+          // Update storage size.
+          [self.sizeCalculator fileWithSize:data.length wasRemovedAtPath:dataPath];
+          [self.sizeCalculator fileWithSize:newValue.length wasAddedAtPath:dataPath];
+        }
+
         if (newValueError) {
           GDTCORLogDebug(@"Error writing new value in libraryDataForKey: %@", newValueError);
         }
@@ -332,7 +350,9 @@ const uint64_t kGDTCORFlatFileStorageSizeLimit = 20 * 1000 * 1000;  // 20 MB.
   dispatch_async(_storageQueue, ^{
     NSError *error;
     NSString *dataPath = [[[self class] libraryDataStoragePath] stringByAppendingPathComponent:key];
-    [data writeToFile:dataPath options:NSDataWritingAtomic error:&error];
+    if ([data writeToFile:dataPath options:NSDataWritingAtomic error:&error]) {
+      [self.sizeCalculator fileWithSize:data.length wasAddedAtPath:dataPath];
+    }
     if (onComplete) {
       onComplete(error);
     }
@@ -344,8 +364,12 @@ const uint64_t kGDTCORFlatFileStorageSizeLimit = 20 * 1000 * 1000;  // 20 MB.
   dispatch_async(_storageQueue, ^{
     NSError *error;
     NSString *dataPath = [[[self class] libraryDataStoragePath] stringByAppendingPathComponent:key];
+    GDTCORFileSizeBytes fileSize = [self fileSizeAtURL:[NSURL fileURLWithPath:dataPath]];
+
     if ([[NSFileManager defaultManager] fileExistsAtPath:dataPath]) {
-      [[NSFileManager defaultManager] removeItemAtPath:dataPath error:&error];
+      if ([[NSFileManager defaultManager] removeItemAtPath:dataPath error:&error]) {
+        [self.sizeCalculator fileWithSize:fileSize wasRemovedAtPath:dataPath];
+      }
       if (onComplete) {
         onComplete(error);
       }
@@ -416,6 +440,8 @@ const uint64_t kGDTCORFlatFileStorageSizeLimit = 20 * 1000 * 1000;  // 20 MB.
         }
       }
     }
+
+    [self.sizeCalculator resetCachedSize];
   });
 }
 
@@ -425,7 +451,7 @@ const uint64_t kGDTCORFlatFileStorageSizeLimit = 20 * 1000 * 1000;  // 20 MB.
   }
 
   dispatch_async(_storageQueue, ^{
-    onComplete([self syncThreadUnsafeStorageSize]);
+    onComplete([self.sizeCalculator directoryContentSize]);
   });
 }
 
@@ -548,6 +574,8 @@ const uint64_t kGDTCORFlatFileStorageSizeLimit = 20 * 1000 * 1000;  // 20 MB.
       removeBatchDir(batchDirPath);
     }
   }
+
+  [self.sizeCalculator resetCachedSize];
 }
 
 // TODO: Size calculation appeared to be too slow with a big amount events (>1k). Need to optimize
@@ -579,13 +607,17 @@ const uint64_t kGDTCORFlatFileStorageSizeLimit = 20 * 1000 * 1000;  // 20 MB.
     NSNumber *isRegularFile;
     [fileURL getResourceValue:&isRegularFile forKey:NSURLIsRegularFileKey error:nil];
     if (isRegularFile.boolValue) {
-      NSNumber *fileSize;
-      [fileURL getResourceValue:&fileSize forKey:NSURLFileSizeKey error:nil];
-      totalBytes += fileSize.unsignedLongLongValue;
+      totalBytes += [self fileSizeAtURL:fileURL];
     }
   }
 
   return totalBytes;
+}
+
+- (GDTCORFileSizeBytes)fileSizeAtURL:(NSURL *)fileURL {
+  NSNumber *fileSize;
+  [fileURL getResourceValue:&fileSize forKey:NSURLFileSizeKey error:nil];
+  return fileSize.unsignedLongLongValue;
 }
 
 #pragma mark - Private helper methods

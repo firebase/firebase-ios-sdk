@@ -18,6 +18,8 @@
 
 #import "GoogleDataTransport/GDTCORLibrary/Private/GDTCORFlatFileStorage.h"
 
+@class GDTCORDirectorySizeCalculator;
+
 NS_ASSUME_NONNULL_BEGIN
 
 /** Testing-only methods for GDTCORFlatFileStorage. */
@@ -27,6 +29,8 @@ NS_ASSUME_NONNULL_BEGIN
  * doesn't remove stored files from disk.
  */
 - (void)reset;
+
+@property(nonatomic, readonly) GDTCORDirectorySizeCalculator *sizeCalculator;
 
 @end
 
