@@ -27,7 +27,7 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Setup project and archive
-      run: scripts/test_archiving.sh FirebaseCore ArchiveOutputs/$({ matrix.target }).xcarchive $({ matrix.target })
+      run: scripts/test_archiving.sh FirebaseCore $({ matrix.target }) ArchiveOutputs/$({ matrix.target }).xcarchive
     - uses: actions/upload-artifact@v2
       with:
         name: ArchiveOutputs
