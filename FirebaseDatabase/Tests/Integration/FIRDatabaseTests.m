@@ -49,7 +49,6 @@ static NSString *kFirebaseTestAltNamespace = @"https://foobar.firebaseio.com";
 }
 
 - (void)testDatabaseForAppWithInvalidURLs {
-  XCTAssertThrows([self databaseForURL:nil]);
   XCTAssertThrows([self databaseForURL:@"not-a-url"]);
   XCTAssertThrows([self databaseForURL:@"http://x.example.com/paths/are/bad"]);
 }
