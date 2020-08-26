@@ -238,3 +238,23 @@ jobs:
     - name: Test swift quickstart
       run: ([ -z $plist_secret ] ||
             scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Firestore)
+
+  archive-cron:
+    # Don't run on private repo.
+    if: github.repository != 'FirebasePrivate/firebase-ios-sdk'
+
+    runs-on: macOS-latest
+    strategy:
+      matrix:
+        target: [ios, tvos, macos]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Setup project and archive
+      run: scripts/test_archiving.sh FirebaseFirestore ${{ matrix.target }} ArchiveOutputs/${{ matrix.target }}.xcarchive
+    - uses: actions/upload-artifact@v2
+      with:
+        name: ArchiveOutputs
+        # Zip all the archive output directories.
+        path: ArchiveOutputs
