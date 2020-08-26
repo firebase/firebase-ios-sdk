@@ -21,6 +21,9 @@
 # path.
 
 set -xeuo pipefail
+
+echo "Running with arguments: $@"
+
 pod="$1"
 platform="$2"
 output_path="$3"
