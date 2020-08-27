@@ -35,9 +35,9 @@
 #include "Firestore/core/src/util/warnings.h"
 #include "absl/memory/memory.h"
 #include "absl/strings/str_cat.h"
-#include "grpcpp/create_channel.h"
 
 SUPPRESS_DOCUMENTATION_WARNINGS_BEGIN()
+#include "grpcpp/create_channel.h"
 #include "grpcpp/grpcpp.h"
 SUPPRESS_END()
 
