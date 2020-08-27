@@ -25,9 +25,7 @@ cd  "${local_sdk_repo_dir}"
 git tag -a "test" -m "release testing"
 # Update source and tag, e.g.  ":git => 'https://github.com/firebase/firebase-ios-sdk.git'" to
 # ":git => /tmp/test/firebase-ios-sdk"
-# ${local_sdk_repo_dir//\//\\\\\/} is to update the dir so it could be recognized by sed.
-# e.g. /tmp/test/firebase-ios-sdk to \/tmp\/test\/firebase-ios-sdk
-sed  -i "" "s/\s*:git.*/:git => '${local_sdk_repo_dir//\//\\\\\/}',/; s/\s*:tag.*/:tag => 'test'/" *.podspec
+sed  -i "" "s/\s*:git.*/:git => '${local_sdk_repo_dir}',/; s/\s*:tag.*/:tag => 'test'/" *.podspec
 cd "${GITHUB_WORKSPACE}/ZipBuilder"
 swift build
 # Update Pod versions.
