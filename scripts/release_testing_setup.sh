@@ -13,7 +13,7 @@
 # limitations under the License.
 
 if [ -f "${HOME}/.cocoapods/repos" ]; then
-  find  "${HOME}/.cocoapods/repos" -type d -maxdepth 1 -exec sh -c 'pod repo remove $(basename {})' \;
+  find "${HOME}/.cocoapods/repos" -type d -maxdepth 1 -exec sh -c 'pod repo remove $(basename {})' \;
 fi
 git config --global user.email "google-oss-bot@example.com"
 git config --global user.name "google-oss-bot"

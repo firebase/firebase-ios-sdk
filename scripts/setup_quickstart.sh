@@ -40,7 +40,7 @@ if check_secrets || [[ ${SAMPLE} == "installations" ]]; then
 
   git clone https://github.com/firebase/quickstart-ios.git
   $scripts_dir/localize_podfile.swift quickstart-ios/"$SAMPLE"/Podfile "$RELEASE_TESTING"
-  if [ ! -z "$RELEASE_TESTING" ]; then 
+  if [ ! -z "$RELEASE_TESTING" ]; then
     set +x
     sed -i "" '1i\'$'\n'"source 'https://${BOT_TOKEN}@github.com/FirebasePrivate/SpecsTesting.git'"$'\n' quickstart-ios/"$SAMPLE"/Podfile
     set -x
