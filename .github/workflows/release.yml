@@ -11,12 +11,13 @@ on:
 
 jobs:
 
-  buildup_SpecsStaging_repo:
+  buildup_SpecsTesting_repo:
     # Don't run on private repo unless it is a PR.
     # if: github.repository != 'FirebasePrivate/firebase-ios-sdk' || github.event_name == 'pull_request'
     env:
       bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      local_repo: specsstaging
+      local_repo: specstesting
+      local_sdk_repo_dir: /tmp/test/firebase-ios-sdk
       podspec_repo_branch: master
     runs-on: macOS-latest
     steps:
@@ -25,27 +26,14 @@ jobs:
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
           bot-access.txt "$bot_token_secret"
     - name: Update SpecStaging repo setup
-      run: |
-        if [ -f "${HOME}/.cocoapods/repos" ]; then
-          find  "${HOME}/.cocoapods/repos" -type d -maxdepth 1 -exec sh -c 'pod repo remove $(basename {})' \;
-        fi
-        git config --global user.email "google-oss-bot@example.com"
-        git config --global user.name "google-oss-bot"
-        mkdir -p /tmp/test/firebase-ios-sdk
-        git clone -b "${podspec_repo_branch}" https://github.com/firebase/firebase-ios-sdk.git /tmp/test/firebase-ios-sdk
-        cd /tmp/test/firebase-ios-sdk
-        git tag -a "test" -m "release testing"
-        sed  -i "" "s/\s*:git.*/:git => '\/tmp\/test\/firebase-ios-sdk',/; s/\s*:tag.*/:tag => 'test'/" *.podspec
-        cd "${GITHUB_WORKSPACE}/ZipBuilder"
-        swift build
-        ./.build/debug/firebase-pod-updater --git-root "/tmp/test/firebase-ios-sdk" --releasing-pods "${GITHUB_WORKSPACE}/scripts/create_spec_repo/firebase_sdk.textproto"
+      run: scripts/release_testing_setup.sh 
     - name: Update SpecStaging repo
       run: |
         botaccess=`cat bot-access.txt`
         cd scripts/create_spec_repo/
         swift build
         pod repo add --silent "${local_repo}" https://"$botaccess"@github.com/FirebasePrivate/SpecsTesting.git
-        BOT_TOKEN="${botaccess}"  .build/debug/SpecRepoBuilder --sdk_repo "/tmp/test/firebase-ios-sdk" --local_spec_repo_name "${local_repo}"
+        # BOT_TOKEN="${botaccess}"  .build/debug/SpecRepoBuilder --sdk_repo "/tmp/test/firebase-ios-sdk" --local_spec_repo_name "${local_repo}"
     - name: Clean Artifacts
       if: ${{ always() }}
       run: |
