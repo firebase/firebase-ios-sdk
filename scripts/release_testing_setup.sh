@@ -23,7 +23,7 @@ mkdir -p /tmp/test/firebase-ios-sdk
 git clone -b "${podspec_repo_branch}" https://github.com/firebase/firebase-ios-sdk.git "${local_sdk_repo_dir}"
 cd  "${local_sdk_repo_dir}"
 git tag -a "test" -m "release testing"
-# Update source and tag, e.g.  ":git => 'https://github.com/firebase/firebase-ios-sdk.git'" to 
+# Update source and tag, e.g.  ":git => 'https://github.com/firebase/firebase-ios-sdk.git'" to
 # ":git => /tmp/test/firebase-ios-sdk"
 # ${local_sdk_repo_dir//\//\\\\\/} is to update the dir so it could be recognized by sed.
 # e.g. /tmp/test/firebase-ios-sdk to \/tmp\/test\/firebase-ios-sdk
