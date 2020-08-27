@@ -167,8 +167,3 @@ jobs:
       run: scripts/setup_bundler.sh
     - name: Setup project and archive
       run: scripts/test_archiving.sh FirebaseRemoteConfig ${{ matrix.target }} ArchiveOutputs/${{ matrix.target }}.xcarchive
-    - uses: actions/upload-artifact@v2
-      with:
-        name: ArchiveOutputs
-        # Zip all the archive output directories.
-        path: ArchiveOutputs

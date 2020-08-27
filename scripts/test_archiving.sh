@@ -22,8 +22,6 @@
 
 set -xeuo pipefail
 
-echo "Running with arguments: $@"
-
 pod="$1"
 platform="$2"
 output_path="$3"
@@ -66,3 +64,10 @@ args=(
 
 xcodebuild -version
 xcodebuild "${args[@]}" | xcpretty
+
+# Print the size if the Xcode build was successful.
+if [ $? -eq 0 ]; then
+  echo "Size of archive:"
+  # Use `du` to print the file size of all .apps found. The `k` argument prints in KB.
+  du -sk $(find "$output_path" -name "*.app")
+fi
