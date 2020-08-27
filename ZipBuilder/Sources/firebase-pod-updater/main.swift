@@ -49,7 +49,7 @@ struct FirebasePodUpdater: ParsableCommand {
 
     let newVersions = getExpectedVersions()
     updateFirebasePod(newVersions: newVersions)
-    if let firebase_version = newVersions["Firebase"]{
+    if let firebase_version = newVersions["Firebase"] {
       print("Updating Firebase pod for version \(String(describing: firebase_version))")
     }
 
