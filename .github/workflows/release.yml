@@ -42,7 +42,7 @@ jobs:
     - uses: actions/upload-artifact@v2
       with:
         name: firebase-ios-sdk
-        path: "${local_sdk_repo_dir}"
+        path: /tmp/test/firebase-ios-sdk
 
   quickstart_release_test:
     # Don't run on private repo unless it is a PR.
@@ -83,7 +83,7 @@ jobs:
     - uses: actions/upload-artifact@v2
       with:
         name: test-repo
-        path: "${testing_repo_dir}"
+        path: /tmp/test/
     - uses: actions/upload-artifact@v2
       with:
         name: quickstart_artifacts_config
