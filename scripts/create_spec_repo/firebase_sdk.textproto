@@ -3,7 +3,3 @@
 # e.g.
 # Podspec versions will be the same as firebase-ios-sdk podspecs if they are not
 # specified in this file.
-sdk {
-  sdk_name: "Firebase"
-  sdk_version: "6.31.0"
-}
