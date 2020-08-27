@@ -26,6 +26,7 @@ NSString *const kReleasesEndpointURLTemplate =
     @"-/testerApps/%@/installations/%@/releases";
 NSString *const kInstallationAuthHeader = @"X-Goog-Firebase-Installations-Auth";
 NSString *const kApiHeaderKey = @"X-Goog-Api-Key";
+NSString *const kApiBundleKey = @"X-Ios-Bundle-Identifier";
 NSString *const kResponseReleasesKey = @"releases";
 
 @implementation FIRFADApiService
@@ -73,6 +74,7 @@ NSString *const kResponseReleasesKey = @"releases";
   [request setHTTPMethod:method];
   [request setValue:authTokenResult.authToken forHTTPHeaderField:kInstallationAuthHeader];
   [request setValue:[[FIRApp defaultApp] options].APIKey forHTTPHeaderField:kApiHeaderKey];
+  [request setValue:[NSBundle mainBundle].bundleIdentifier forHTTPHeaderField:kApiBundleKey];
   return request;
 }
 
