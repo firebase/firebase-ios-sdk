@@ -1098,94 +1098,66 @@
   GDTCORFlatFileStorage *storage = [GDTCORFlatFileStorage sharedInstance];
 
   NSUInteger ongoingSize = 0;
-  XCTestExpectation *expectation = [self expectationWithDescription:@"storageSize complete"];
-  [[GDTCORFlatFileStorage sharedInstance] storageSizeWithCallback:^(uint64_t storageSize) {
-    XCTAssertEqual(storageSize, 0);
-    [expectation fulfill];
-  }];
-  [self waitForExpectations:@[ expectation ] timeout:1.0];
+  XCTAssertEqual([self storageSize], 0);
 
   // 1. Check add library data.
-  expectation = [self expectationWithDescription:@"storageSize complete"];
   NSData *libData = [@"this is a test" dataUsingEncoding:NSUTF8StringEncoding];
   ongoingSize += libData.length;
-  [[GDTCORFlatFileStorage sharedInstance] storeLibraryData:libData
-                                                    forKey:@"testKey"
-                                                onComplete:nil];
-  [[GDTCORFlatFileStorage sharedInstance] storageSizeWithCallback:^(uint64_t storageSize) {
-    XCTAssertEqual(storageSize, ongoingSize);
-    [expectation fulfill];
-  }];
-  [self waitForExpectations:@[ expectation ] timeout:1.0];
+  [storage storeLibraryData:libData forKey:@"testKey" onComplete:nil];
+  XCTAssertEqual([self storageSize], ongoingSize);
 
   // 2. Check update library data.
-  expectation = [self expectationWithDescription:@"storageSize after lib data update"];
   NSData *updatedLibData = [@"updated" dataUsingEncoding:NSUTF8StringEncoding];
   ongoingSize -= libData.length;
   ongoingSize += updatedLibData.length;
-  [[GDTCORFlatFileStorage sharedInstance] libraryDataForKey:@"testKey"
+  [storage libraryDataForKey:@"testKey"
       onFetchComplete:^(NSData *_Nullable data, NSError *_Nullable error) {
       }
       setNewValue:^NSData *_Nullable {
         return updatedLibData;
       }];
-  [[GDTCORFlatFileStorage sharedInstance] storageSizeWithCallback:^(uint64_t storageSize) {
-    XCTAssertEqual(storageSize, ongoingSize);
-    [expectation fulfill];
-  }];
-  [self waitForExpectations:@[ expectation ] timeout:1.0];
+  XCTAssertEqual([self storageSize], ongoingSize);
 
   // 3. Check store events.
   NSSet<GDTCOREvent *> *generatedEvents = [self generateEventsForStorageTesting];
-  for (GDTCOREvent *event in generatedEvents) {
-    NSError *error;
-    NSData *serializedEventData = GDTCOREncodeArchive(event, nil, &error);
-    XCTAssertNil(error);
-    ongoingSize += serializedEventData.length;
-  }
-  expectation = [self expectationWithDescription:@"storageSize complete"];
-  [[GDTCORFlatFileStorage sharedInstance] storageSizeWithCallback:^(uint64_t storageSize) {
-    XCTAssertEqual(storageSize, ongoingSize);
-    [expectation fulfill];
-  }];
-  [self waitForExpectations:@[ expectation ] timeout:1.0];
+  ongoingSize += [self storageSizeOfEvents:generatedEvents];
+  XCTAssertEqual([self storageSize], ongoingSize);
 
   // 4. Check remove lib data.
-  expectation = [self expectationWithDescription:@"storageSize after lib data remove"];
   ongoingSize -= updatedLibData.length;
-  [[GDTCORFlatFileStorage sharedInstance] removeLibraryDataForKey:@"testKey"
-                                                       onComplete:^(NSError *_Nullable error){
-                                                       }];
-  [[GDTCORFlatFileStorage sharedInstance] storageSizeWithCallback:^(uint64_t storageSize) {
-    XCTAssertEqual(storageSize, ongoingSize);
-    [expectation fulfill];
-  }];
-  [self waitForExpectations:@[ expectation ] timeout:1.0];
+  [storage removeLibraryDataForKey:@"testKey"
+                        onComplete:^(NSError *_Nullable error){
+                        }];
+  XCTAssertEqual([self storageSize], ongoingSize);
 
   // 5. Check batch.
   XCTestExpectation *batchCreatedExpectation =
       [self expectationWithDescription:@"batchCreatedExpectation"];
   __block NSNumber *batchID;
+  __block uint64_t batchedEventSize = 0;
   [storage
       batchWithEventSelector:[GDTCORStorageEventSelector eventSelectorForTarget:kGDTCORTargetTest]
              batchExpiration:[NSDate dateWithTimeIntervalSinceNow:1000]
                   onComplete:^(NSNumber *_Nullable newBatchID,
                                NSSet<GDTCOREvent *> *_Nullable events) {
                     batchID = newBatchID;
-                    XCTAssertGreaterThan(events.count, 0);
+                    batchedEventSize = [self storageSizeOfEvents:events];
+                    // 100 - kGDTCORTargetTest generated events count.
+                    XCTAssertEqual(events.count, 100);
                     [batchCreatedExpectation fulfill];
                   }];
   [self waitForExpectations:@[ batchCreatedExpectation ] timeout:5];
   // Expect size increase due to the batch counter stored in lib data.
   ongoingSize += sizeof(int32_t);
-  expectation = [self expectationWithDescription:@"storageSize after batch"];
-  [[GDTCORFlatFileStorage sharedInstance] storageSizeWithCallback:^(uint64_t storageSize) {
-    XCTAssertEqual(storageSize, ongoingSize);
-    [expectation fulfill];
-  }];
-  [self waitForExpectations:@[ expectation ] timeout:1.0];
+  XCTAssertEqual([self storageSize], ongoingSize);
 
-  // 6. Batch remove
+  // 6. Batch remove.
+  [storage removeBatchWithID:batchID
+                deleteEvents:YES
+                  onComplete:^{
+                  }];
+  ongoingSize -= batchedEventSize;
+  XCTAssertEqual([self storageSize], ongoingSize);
 }
 
 - (void)testStoreEvent_WhenSizeLimitReached_ThenNewEventIsSkipped {
@@ -1295,6 +1267,28 @@
              XCTAssertNil(error);
            }];
   [self waitForExpectations:@[ eventStoredExpectation ] timeout:0.5];
+}
+
+- (uint64_t)storageSize {
+  __block uint64_t storageSize = 0;
+  XCTestExpectation *expectation = [self expectationWithDescription:@"storageSize complete"];
+  [[GDTCORFlatFileStorage sharedInstance] storageSizeWithCallback:^(uint64_t aStorageSize) {
+    storageSize = aStorageSize;
+    [expectation fulfill];
+  }];
+  [self waitForExpectations:@[ expectation ] timeout:1.0];
+  return storageSize;
+}
+
+- (uint64_t)storageSizeOfEvents:(NSSet<GDTCOREvent *> *)events {
+  uint64_t eventsSize = 0;
+  for (GDTCOREvent *event in events) {
+    NSError *error;
+    NSData *serializedEventData = GDTCOREncodeArchive(event, nil, &error);
+    XCTAssertNil(error);
+    eventsSize += serializedEventData.length;
+  }
+  return eventsSize;
 }
 
 @end
