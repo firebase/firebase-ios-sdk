@@ -76,3 +76,18 @@ jobs:
     - name: PodLibLint DataTransport Cron
       run: |
         scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}
+
+  archive-cron:
+    # Don't run on private repo.
+    if: github.event_name == 'schedule' && github.repository != 'FirebasePrivate/firebase-ios-sdk'
+
+    runs-on: macOS-latest
+    strategy:
+      matrix:
+        target: [ios, tvos, macos]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Setup project and archive
+      run: scripts/test_archiving.sh GoogleDataTransport ${{ matrix.target }} ArchiveOutputs/${{ matrix.target }}.xcarchive
