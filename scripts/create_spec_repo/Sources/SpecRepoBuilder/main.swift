@@ -1,5 +1,3 @@
-#!/usr/bin/swift
-
 /*
  * Copyright 2020 Google LLC
  *
@@ -18,32 +16,42 @@
 
 import ArgumentParser
 import Foundation
+private enum Constants {}
 
-let _DEPENDENCY_LABEL_IN_SPEC = "dependency"
-let _SKIP_LINES_WITH_WORDS = ["unit_tests", "test_spec"]
-let _DEPENDENCY_LINE_SEPARATORS = [" ", ",", "/"] as CharacterSet
-let _POD_SOURCES = [
-  "https://${BOT_TOKEN}@github.com/FirebasePrivate/SpecsTesting",
-  "https://cdn.cocoapods.org/",
-]
-let _FLAGS = ["--skip-tests", "--allow-warnings"]
-let _FIREBASE_FLAGS = _FLAGS + ["--skip-import-validation", "--use-json"]
-let _FIREBASEFIRESTORE_FLAGS = _FLAGS + []
-let _EXCLUSIVE_PODS: [String] = ["GoogleAppMeasurement", "FirebaseAnalytics"]
+extension Constants {
+  static let specDependencyLabel = "dependency"
+  static let skipLinesWithWords = ["unit_tests", "test_spec"]
+  static let dependencyLineSeparators = CharacterSet(charactersIn: " ,/")
+  static let podSources = [
+    "https://${BOT_TOKEN}@github.com/FirebasePrivate/SpecsTesting",
+    "https://cdn.cocoapods.org/",
+  ]
+  static let exclusivePods: [String] = ["GoogleAppMeasurement", "FirebaseAnalytics"]
+}
 
+// flags for 'pod push'
+extension Constants {
+  static let flags = ["--skip-tests", "--allow-warnings"]
+  static let umbrellaPodFlags = Constants.flags + ["--skip-import-validation", "--use-json"]
+}
+
+// SpecFiles is a wraper of dict mapping from required pods to their path. This
+// will also contain a sequence of installing podspecs.
 class SpecFiles {
   private var specFilesDict: [String: URL]
   var depInstallOrder: [String]
-  init(_ specDict: [String: URL]) {
+  var specSource: String
+  init(_ specDict: [String: URL], from specSourcePath: String) {
     specFilesDict = specDict
     depInstallOrder = []
+    specSource = specSourcePath
   }
 
-  func removeValue(forKey key: String) {
+  func removePod(_ key: String) {
     specFilesDict.removeValue(forKey: key)
   }
 
-  func get(_ key: String) -> URL! {
+  subscript(key: String) -> URL? {
     return specFilesDict[key]
   }
 
@@ -81,150 +89,196 @@ struct Shell {
   }
 }
 
+// Error types that could occurred when this tool is running.
 enum SpecRepoBuilderError: Error {
+  // Error occurs when circular dependenies are detected and deps will be
+  // displayed.
   case circularDependencies(pods: Set<String>)
+  // Error occurs when there exist a spec failed to push to a spec repo. All
+  // specs failed to push should be displayed.
   case failedToPush(pods: [String])
+  // Error occurs when a podspec is not found in the repo.
+  case podspecNotFound(_ podspec: String, from: String)
 }
 
-struct FirebasePodUpdater: ParsableCommand {
+struct SpecRepoBuilder: ParsableCommand {
   @Option(help: "The root of the firebase-ios-sdk checked out git repo.")
-  var sdk_repo: String = FileManager().currentDirectoryPath
+  var sdkRepo: String = FileManager().currentDirectoryPath
+
   @Option(help: "A list of podspec sources in Podfiles.")
-  var pod_sources: [String] = _POD_SOURCES
+  var podSources: [String] = Constants.podSources
+
   @Option(help: "Podspecs that will not be pushed to repo.")
-  var exclude_pods: [String] = _EXCLUSIVE_PODS
+  var excludePods: [String] = Constants.exclusivePods
+
   @Option(help: "Github Account Name.")
-  var github_account: String = "FirebasePrivate"
+  var githubAccount: String = "FirebasePrivate"
+
   @Option(help: "Github Repo Name.")
-  var sdk_repo_name: String = "SpecsTesting"
+  var sdkRepoName: String = "SpecsTesting"
+
   @Option(help: "Local Podspec Repo Name.")
-  var local_spec_repo_name: String
+  var localSpecRepoName: String
+
   @Flag(help: "Raise error while circular dependency detected.")
-  var raise_circular_dep_error: Bool = false
-  func generateOrderOfInstallation(pods: [String], podSpecDict: SpecFiles,
+  var raiseCircularDepError: Bool = false
+
+  // This will track down dependencies of pods and keep the sequence of
+  // dependency installation in specFiles.depInstallOrder.
+  func generateOrderOfInstallation(pods: [String], specFiles: SpecFiles,
                                    parentDeps: inout Set<String>) {
-    if podSpecDict.isEmpty() {
+    // pods are dependencies will be tracked down. 
+    // specFiles includes required pods and their URLs. 
+    // parentDeps will record the path of tracking down dependencies to avoid
+    // duplications and circular dependencies.
+
+    // Stop tracking down when the parent pod does not have any required deps.
+    if pods.isEmpty{
       return
     }
 
     for pod in pods {
-      if !podSpecDict.contains(pod) {
-        continue
-      }
-      let deps = getTargetedDeps(of: pod, from: podSpecDict)
+      guard specFiles.contains(pod) else { continue }
+      let deps = getTargetedDeps(of: pod, from: specFiles)
+      // parentDeps will have all dependencies the current pod support. If the
+      // current pod were in the parent dependnecies, that means it was tracked
+      // before and it is circular dependency.
       if parentDeps.contains(pod) {
         print("Circular dependency is detected in \(pod) and \(parentDeps)")
-        if raise_circular_dep_error {
+        if raiseCircularDepError {
           Self
             .exit(withError: SpecRepoBuilderError
               .circularDependencies(pods: parentDeps))
         }
         continue
       }
+      // Record the pod as a parent and use depth-first-search to track down
+      // dependencies of this pod.
       parentDeps.insert(pod)
       generateOrderOfInstallation(
         pods: deps,
-        podSpecDict: podSpecDict,
+        specFiles: specFiles,
         parentDeps: &parentDeps
       )
+      // When pod does not have required dep or its required deps are recorded,
+      // the pod itself will be recorded into the depInstallOrder.
+      if !specFiles.depInstallOrder.contains(pod){
       print("\(pod) depends on \(deps).")
-      podSpecDict.depInstallOrder.append(pod)
+      specFiles.depInstallOrder.append(pod)
+      }
+      // When track back from a lower level, parentDep should track back by
+      // removing one pod.
       parentDeps.remove(pod)
-      podSpecDict.removeValue(forKey: pod)
     }
   }
 
-  func searchDeps(of pod: String, from podSpecFilesObj: SpecFiles) -> [String] {
+  // Scan a podspec file and find and return all dependencies in this podspec.
+  func searchDeps(ofPod podName: String, from podSpecFiles: SpecFiles) -> [String] {
     var deps: [String] = []
     var fileContents = ""
-    guard let podSpecURL = podSpecFilesObj.get(pod) else {
-      return deps
+    guard let podSpecURL = podSpecFiles[podName] else {
+      Self
+        .exit(withError: SpecRepoBuilderError
+          .podspecNotFound(podName, from: podSpecFiles.specSource))
     }
     do {
       fileContents = try String(contentsOfFile: podSpecURL.path, encoding: .utf8)
     } catch {
-      fatalError("Could not read \(pod) podspec from \(podSpecURL.path).")
+      fatalError("Could not read \(podName) podspec from \(podSpecURL.path).")
     }
-    for line in fileContents.components(separatedBy: .newlines) {
-      if line.contains(_DEPENDENCY_LABEL_IN_SPEC) {
-        if _SKIP_LINES_WITH_WORDS.contains(where: line.contains) {
-          continue
-        }
-        let newLine = line.trimmingCharacters(in: .whitespacesAndNewlines)
-        let tokens = newLine.components(separatedBy: _DEPENDENCY_LINE_SEPARATORS)
-        if let depPrefix = tokens.first {
-          if depPrefix.hasSuffix(_DEPENDENCY_LABEL_IN_SPEC) {
-            let podNameRaw = String(tokens[1]).replacingOccurrences(of: "'", with: "")
-            if podNameRaw != pod { deps.append(podNameRaw) }
-          }
+    // Get all the lines containing `dependency` but don't contain words we
+    // want to ignore.
+    let depLines: [String] = fileContents
+      .components(separatedBy: .newlines)
+      .filter { $0.contains("dependency") }
+      // Skip lines with words in Constants.skipLinesWithWords
+      .filter { !Constants.skipLinesWithWords.contains(where: $0.contains)
+      }
+    for line in depLines {
+      let newLine = line.trimmingCharacters(in: .whitespacesAndNewlines)
+      // This is to avoid pushing umbrellapods like Firebase/Core.
+      let tokens = newLine.components(separatedBy: Constants.dependencyLineSeparators)
+      if let depPrefix = tokens.first {
+        if depPrefix.hasSuffix(Constants.specDependencyLabel) {
+          // e.g. In Firebase.podspec, Firebase/Core will not be considered a
+          // dependency.
+          // "ss.dependency 'Firebase/Core'" will be splited in
+          // ["ss.dependency", "'Firebase", "Core'"]
+          let podNameRaw = String(tokens[1]).replacingOccurrences(of: "'", with: "")
+          // In the example above, deps here will not include Firebase since
+          // it is the same as the pod name.
+          if podNameRaw != podName { deps.append(podNameRaw) }
         }
       }
     }
     return deps
   }
 
+  // Filter and get a list of required dependencies found in the repo.
   func filterTargetDeps(_ deps: [String], with targets: SpecFiles) -> [String] {
     var targetedDeps: [String] = []
     for dep in deps {
-      if targets.contains(dep) {
+      // Only get unique and required dep in the output list.
+      if targets.contains(dep), !targetedDeps.contains(dep) {
         targetedDeps.append(dep)
       }
     }
     return targetedDeps
   }
 
-  func getTargetedDeps(of pod: String, from podSpecDict: SpecFiles) -> [String] {
-    let deps = searchDeps(of: pod, from: podSpecDict)
-    return filterTargetDeps(deps, with: podSpecDict)
+  func getTargetedDeps(of pod: String, from specFiles: SpecFiles) -> [String] {
+    let deps = searchDeps(ofPod: pod, from: specFiles)
+    return filterTargetDeps(deps, with: specFiles)
   }
 
-  func push_podspec(_ pod: String, from sdk_repo: String, sources: [String],
-                    flags: [String], shell_cmd: Shell = Shell.shared) -> Int32 {
-    let pod_path = sdk_repo + "/" + pod + ".podspec"
-    let sources_arg = sources.joined(separator: ",")
-    let flags_arg = flags.joined(separator: " ")
+  func pushPodspec(forPod pod: String, sdkRepo: String, sources: [String],
+                   flags: [String], shell: Shell = Shell.shared) -> Int32 {
+    let podPath = sdkRepo + "/" + pod + ".podspec"
+    let sourcesArg = sources.joined(separator: ",")
+    let flagsArg = flags.joined(separator: " ")
 
     let outcome =
-      shell_cmd
+      shell
         .run(
-          "pod repo push \(local_spec_repo_name) \(pod_path) --sources=\(sources_arg) \(flags_arg)"
+          "pod repo push \(localSpecRepoName) \(podPath) --sources=\(sourcesArg) \(flagsArg)"
         )
-    shell_cmd.run("pod repo update")
+    shell.run("pod repo update")
 
     return outcome
   }
 
-  func erase_remote_repo(repo_path: String, from github_account: String, _ sdk_repo_name: String,
-                         shell_cmd: Shell = Shell.shared) {
-    shell_cmd
+  // This will commit and push to erase the entire remote spec repo.
+  func eraseRemoteRepo(repoPath: String, from githubAccount: String, _ sdkRepoName: String,
+                       shell: Shell = Shell.shared) {
+    shell
       .run(
-        "git clone --quiet https://${BOT_TOKEN}@github.com/\(github_account)/\(sdk_repo_name).git"
+        "git clone --quiet https://${BOT_TOKEN}@github.com/\(githubAccount)/\(sdkRepoName).git"
       )
     let fileManager = FileManager.default
     do {
-      let dirs = try fileManager.contentsOfDirectory(atPath: "\(repo_path)/\(sdk_repo_name)")
+      let dirs = try fileManager.contentsOfDirectory(atPath: "\(repoPath)/\(sdkRepoName)")
       for dir in dirs {
-        if !_EXCLUSIVE_PODS.contains(dir), dir != ".git" {
-          shell_cmd.run("cd \(sdk_repo_name); git rm -r \(dir)")
+        if dir != ".git" {
+          shell.run("cd \(sdkRepoName); git rm -r \(dir)")
         }
       }
-      shell_cmd.run("cd \(sdk_repo_name); git commit -m 'Empty repo'; git push")
+      shell.run("cd \(sdkRepoName); git commit -m 'Empty repo'; git push")
     } catch {
-      print("Error while enumerating files \(repo_path): \(error.localizedDescription)")
+      print("Error while enumerating files \(repoPath): \(error.localizedDescription)")
     }
     do {
-      try fileManager.removeItem(at: URL(fileURLWithPath: "\(repo_path)/\(sdk_repo_name)"))
+      try fileManager.removeItem(at: URL(fileURLWithPath: "\(repoPath)/\(sdkRepoName)"))
     } catch {
-      print("Error occurred while removing \(repo_path)/\(sdk_repo_name): \(error)")
+      print("Error occurred while removing \(repoPath)/\(sdkRepoName): \(error)")
     }
   }
 
   mutating func run() throws {
     let fileManager = FileManager.default
-    let cur_dir = FileManager().currentDirectoryPath
+    let curDir = FileManager().currentDirectoryPath
     var podSpecFiles: [String: URL] = [:]
 
-    let documentsURL = URL(fileURLWithPath: sdk_repo)
+    let documentsURL = URL(fileURLWithPath: sdkRepo)
     do {
       let fileURLs = try fileManager.contentsOfDirectory(
         at: documentsURL,
@@ -233,7 +287,7 @@ struct FirebasePodUpdater: ParsableCommand {
       let podspecURLs = fileURLs.filter { $0.pathExtension == "podspec" }
       for podspecURL in podspecURLs {
         let podName = podspecURL.deletingPathExtension().lastPathComponent
-        if !_EXCLUSIVE_PODS.contains(podName) {
+        if !Constants.exclusivePods.contains(podName) {
           podSpecFiles[podName] = podspecURL
         }
       }
@@ -243,22 +297,24 @@ struct FirebasePodUpdater: ParsableCommand {
       )
     }
 
+    // This set is used to keep parent dependencies and help detect circular
+    // dependencies.
     var tmpSet: Set<String> = []
     print("Detect podspecs: \(podSpecFiles.keys)")
-    let specFile = SpecFiles(podSpecFiles)
+    let specFileDict = SpecFiles(podSpecFiles, from: sdkRepo)
     generateOrderOfInstallation(
       pods: Array(podSpecFiles.keys),
-      podSpecDict: specFile,
+      specFiles: specFileDict,
       parentDeps: &tmpSet
     )
-    print(specFile.depInstallOrder.joined(separator: "\n"))
+    print("Podspec push order:\n",specFileDict.depInstallOrder.joined(separator: "->\t"))
 
     do {
-      if fileManager.fileExists(atPath: "\(cur_dir)/\(sdk_repo_name)") {
-        print("remove \(sdk_repo_name) dir.")
-        try fileManager.removeItem(at: URL(fileURLWithPath: "\(cur_dir)/\(sdk_repo_name)"))
+      if fileManager.fileExists(atPath: "\(curDir)/\(sdkRepoName)") {
+        print("remove \(sdkRepoName) dir.")
+        try fileManager.removeItem(at: URL(fileURLWithPath: "\(curDir)/\(sdkRepoName)"))
       }
-      erase_remote_repo(repo_path: "\(cur_dir)", from: github_account, sdk_repo_name)
+      eraseRemoteRepo(repoPath: "\(curDir)", from: githubAccount, sdkRepoName)
 
     } catch {
       print("error occurred. \(error)")
@@ -266,26 +322,24 @@ struct FirebasePodUpdater: ParsableCommand {
 
     var exitCode: Int32 = 0
     var failedPods: [String] = []
-    for pod in specFile.depInstallOrder {
+    for pod in specFileDict.depInstallOrder {
       var podExitCode: Int32 = 0
       print("----------\(pod)-----------")
       switch pod {
       case "Firebase":
-        podExitCode = push_podspec(
-          pod,
-          from: sdk_repo,
-          sources: pod_sources,
-          flags: _FIREBASE_FLAGS
-        )
-      case "FirebaseFirestore":
-        podExitCode = push_podspec(
-          pod,
-          from: sdk_repo,
-          sources: pod_sources,
-          flags: _FIREBASEFIRESTORE_FLAGS
+        podExitCode = pushPodspec(
+          forPod: pod,
+          sdkRepo: sdkRepo,
+          sources: podSources,
+          flags: Constants.umbrellaPodFlags
         )
       default:
-        podExitCode = push_podspec(pod, from: sdk_repo, sources: pod_sources, flags: _FLAGS)
+        podExitCode = pushPodspec(
+          forPod: pod,
+          sdkRepo: sdkRepo,
+          sources: podSources,
+          flags: Constants.flags
+        )
       }
       if podExitCode != 0 {
         exitCode = 1
@@ -298,4 +352,4 @@ struct FirebasePodUpdater: ParsableCommand {
   }
 }
 
-FirebasePodUpdater.main()
+SpecRepoBuilder.main()
