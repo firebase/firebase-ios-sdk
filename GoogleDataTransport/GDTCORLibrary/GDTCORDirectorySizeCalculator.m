@@ -34,7 +34,7 @@
   return self;
 }
 
-- (GDTCORFileSizeBytes)directoryContentSize {
+- (GDTCORStorageSizeBytes)directoryContentSize {
   if (self.cachedSize == nil) {
     self.cachedSize = @([self calculateDirectoryContentSize]);
   }
@@ -42,7 +42,7 @@
   return self.cachedSize.unsignedLongLongValue;
 }
 
-- (void)fileWithSize:(GDTCORFileSizeBytes)fileSize wasAddedAtPath:(NSString *)path {
+- (void)fileWithSize:(GDTCORStorageSizeBytes)fileSize wasAddedAtPath:(NSString *)path {
   if (![path hasPrefix:self.directoryPath]) {
     // Ignore because the file is not inside the directory.
     return;
@@ -51,7 +51,7 @@
   self.cachedSize = @([self directoryContentSize] + fileSize);
 }
 
-- (void)fileWithSize:(GDTCORFileSizeBytes)fileSize wasRemovedAtPath:(NSString *)path {
+- (void)fileWithSize:(GDTCORStorageSizeBytes)fileSize wasRemovedAtPath:(NSString *)path {
   if (![path hasPrefix:self.directoryPath]) {
     // Ignore because the file is not inside the directory.
     return;
@@ -64,7 +64,7 @@
   self.cachedSize = nil;
 }
 
-- (GDTCORFileSizeBytes)calculateDirectoryContentSize {
+- (GDTCORStorageSizeBytes)calculateDirectoryContentSize {
   NSArray *prefetchedProperties = @[ NSURLIsRegularFileKey, NSURLFileSizeKey ];
   uint64_t totalBytes = 0;
   NSURL *directoryURL = [NSURL URLWithString:self.directoryPath];

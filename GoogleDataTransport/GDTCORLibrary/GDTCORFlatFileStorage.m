@@ -364,7 +364,7 @@ const uint64_t kGDTCORFlatFileStorageSizeLimit = 20 * 1000 * 1000;  // 20 MB.
   dispatch_async(_storageQueue, ^{
     NSError *error;
     NSString *dataPath = [[[self class] libraryDataStoragePath] stringByAppendingPathComponent:key];
-    GDTCORFileSizeBytes fileSize = [self fileSizeAtURL:[NSURL fileURLWithPath:dataPath]];
+    GDTCORStorageSizeBytes fileSize = [self fileSizeAtURL:[NSURL fileURLWithPath:dataPath]];
 
     if ([[NSFileManager defaultManager] fileExistsAtPath:dataPath]) {
       if ([[NSFileManager defaultManager] removeItemAtPath:dataPath error:&error]) {
@@ -578,7 +578,7 @@ const uint64_t kGDTCORFlatFileStorageSizeLimit = 20 * 1000 * 1000;  // 20 MB.
   [self.sizeCalculator resetCachedSize];
 }
 
-- (GDTCORFileSizeBytes)fileSizeAtURL:(NSURL *)fileURL {
+- (GDTCORStorageSizeBytes)fileSizeAtURL:(NSURL *)fileURL {
   NSNumber *fileSize;
   [fileURL getResourceValue:&fileSize forKey:NSURLFileSizeKey error:nil];
   return fileSize.unsignedLongLongValue;
