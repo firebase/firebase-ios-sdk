@@ -1,3 +1,7 @@
+# Unreleased
+- [fixed] Sporadic missing FirebaseApp symbol build issue introduced in Firebase 6.28.0. (#6341)
+
+
 # v6.10.1 -- M78
 - [added] Beta release of Swift Package Manager. Details
   [here](https://github.com/firebase/firebase-ios-sdk/blob/master/SwiftPackageManager.md). (#3136)
