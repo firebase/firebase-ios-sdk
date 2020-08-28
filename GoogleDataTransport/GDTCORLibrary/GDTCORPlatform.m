@@ -290,7 +290,7 @@ BOOL GDTCORWriteDataToFile(NSData *data, NSString *filePath, NSError **outError)
                               error:outError];
     if (result == NO || *outError) {
       GDTCORLogDebug(@"Attempt to create directory failed: path:%@ error:%@", filePath, *outError);
-      return nil;
+      return result;
     }
   }
 
