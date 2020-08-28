@@ -32,10 +32,14 @@
 #include "Firestore/core/src/util/log.h"
 #include "Firestore/core/src/util/statusor.h"
 #include "Firestore/core/src/util/string_format.h"
+#include "Firestore/core/src/util/warnings.h"
 #include "absl/memory/memory.h"
 #include "absl/strings/str_cat.h"
+
+SUPPRESS_DOCUMENTATION_WARNINGS_BEGIN()
 #include "grpcpp/create_channel.h"
 #include "grpcpp/grpcpp.h"
+SUPPRESS_END()
 
 namespace firebase {
 namespace firestore {
