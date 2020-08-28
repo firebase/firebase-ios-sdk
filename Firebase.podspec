@@ -66,7 +66,9 @@ Simplify your app development, grow your user base, and monetize more effectivel
 
   s.subspec 'AdMob' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.ios.dependency 'Google-Mobile-Ads-SDK', '~> 7.64'
+    # 7.64 bumps the minimum iOS version to 9.0, so don't update here until
+    # next major version.
+    ss.ios.dependency 'Google-Mobile-Ads-SDK', '~> 7.63'
   end
 
   s.subspec 'AppDistribution' do |ss|
