@@ -128,7 +128,7 @@
              }];
   }
 
-  [self waitForExpectations:@[ generatedEventsStoredExpectation ] timeout:0.2 * count];
+  [self waitForExpectations:@[ generatedEventsStoredExpectation ] timeout:0.5 * count];
 
   return generatedEvents;
 }
@@ -1177,6 +1177,7 @@
   XCTestExpectation *sizeExpectation1 = [self expectationWithDescription:@"sizeExpectation1"];
   [storage storageSizeWithCallback:^(uint64_t aStorageSize) {
     storageSize = aStorageSize;
+    XCTAssertGreaterThan(storageSize + storedEventSize, kGDTCORFlatFileStorageSizeLimit);
     [sizeExpectation1 fulfill];
   }];
   [self waitForExpectations:@[ sizeExpectation1 ] timeout:5];
