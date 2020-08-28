@@ -20,16 +20,39 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-/***/
+/** The class calculates and caches the specified directory content size and uses add/remove signals
+ * from client the client to keep the size up to date without accessing file system. */
 @interface GDTCORDirectorySizeCalculator : NSObject
 
+- (instancetype)init NS_UNAVAILABLE;
+
+/** Initializes the object with a directory path.
+ * @param path The directory path to track content size.
+ */
 - (instancetype)initWithDirectoryPath:(NSString *)path;
 
+/** Returns a cached or calculates (if there is no cached) directory content size.
+ * @return The directory content size in bytes calculated based on `NSURLFileSizeKey`.
+ */
 - (GDTCORStorageSizeBytes)directoryContentSize;
 
+/** The client must call this method or `resetCachedSize` method each time a file or directory is
+ * added to the tracked directory.
+ *  @param size The size of the added file.
+ *  @param path The path to the added file. If the path is outside the tracked directory then the
+ * method is no-op.
+ */
 - (void)fileWithSize:(GDTCORStorageSizeBytes)size wasAddedAtPath:(NSString *)path;
+
+/** The client must call this method or `resetCachedSize` method each time a file or directory is
+ * removed from the tracked directory.
+ *  @param size The size of the removed file.
+ *  @param path The path to the removed file. If the path is outside the tracked directory then the
+ * method is no-op.
+ */
 - (void)fileWithSize:(GDTCORStorageSizeBytes)size wasRemovedAtPath:(NSString *)path;
 
+/** Invalidates cached directory size. */
 - (void)resetCachedSize;
 
 @end
