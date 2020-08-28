@@ -34,7 +34,7 @@
   return self;
 }
 
-- (uint64_t)directoryContentSize {
+- (GDTCORFileSizeBytes)directoryContentSize {
   if (self.cachedSize == nil) {
     self.cachedSize = @([self calculateDirectoryContentSize]);
   }
@@ -64,7 +64,7 @@
   self.cachedSize = nil;
 }
 
-- (uint64_t)calculateDirectoryContentSize {
+- (GDTCORFileSizeBytes)calculateDirectoryContentSize {
   NSArray *prefetchedProperties = @[ NSURLIsRegularFileKey, NSURLFileSizeKey ];
   uint64_t totalBytes = 0;
   NSURL *directoryURL = [NSURL URLWithString:self.directoryPath];

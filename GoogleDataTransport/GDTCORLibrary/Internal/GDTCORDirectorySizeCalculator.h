@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-typedef uint64_t GDTCORFileSizeBytes;
+#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORStorageProtocol.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -24,10 +24,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithDirectoryPath:(NSString *)path;
 
-- (GDTCORFileSizeBytes)directoryContentSize;
+- (GDTCORStorageSizeBytes)directoryContentSize;
 
-- (void)fileWithSize:(GDTCORFileSizeBytes)size wasAddedAtPath:(NSString *)path;
-- (void)fileWithSize:(GDTCORFileSizeBytes)size wasRemovedAtPath:(NSString *)path;
+- (void)fileWithSize:(GDTCORStorageSizeBytes)size wasAddedAtPath:(NSString *)path;
+- (void)fileWithSize:(GDTCORStorageSizeBytes)size wasRemovedAtPath:(NSString *)path;
 
 - (void)resetCachedSize;
 

@@ -1168,7 +1168,6 @@
   // 1. Generate and store maximum allowed amount of events.
   [self generateEventsForTarget:kGDTCORTargetTest expiringIn:1000 count:eventCountLimit];
 
-  //  [self measureBlock:^{
   // 2. Check storage size.
   __block uint64_t storageSize = 0;
   XCTestExpectation *sizeExpectation1 = [self expectationWithDescription:@"sizeExpectation1"];
@@ -1200,7 +1199,6 @@
     [sizeExpectation2 fulfill];
   }];
   [self waitForExpectations:@[ sizeExpectation2 ] timeout:5];
-  //  }];
 }
 
 #pragma mark - Helpers
