@@ -1,5 +1,6 @@
 # Unreleased
 - [added] Added stackFrameWithAddress API for recording custom errors that are symbolicated on the backend (#5975).
+- [fixed] Fixed comment typos (#6363).
 
 # v4.5.0
 - [fixed] Fixed a compiler warning and removed unused networking code (#6210).
