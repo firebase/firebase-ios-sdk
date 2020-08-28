@@ -21,7 +21,7 @@ import PackageDescription
 let package = Package(
   name: "PodSpecBuilder",
   products: [
-    .executable(name: "SpecRepoBuilder", targets: ["SpecRepoBuilder"]),
+    .executable(name: "spec-repo-builder", targets: ["SpecRepoBuilder"]),
   ],
   dependencies: [
     .package(url: "https://github.com/apple/swift-argument-parser", .upToNextMinor(from: "0.3.0")),
