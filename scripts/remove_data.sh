@@ -15,5 +15,10 @@
 set -x
 
 SDK="$1"
+MODE=${2-}
+if [ "$MODE" == "release_testing"]; then
+  echo "Update podfiles release_testing."
+  sed -i "" "s/https:\/\/.*@github.com\/FirebasePrivate\/SpecsTesting.git/https:\/\/github.com\/FirebasePrivate\/SpecsTesting.git/g" quickstart-ios/"${SDK}"/Podfile quickstart-ios/"${SDK}"/Podfile.lock
+fi
 rm -f quickstart-ios/"${SDK}"/GoogleService-Info.plist
 rm -f quickstart-ios/TestUtils/FIREGSignInInfo.h
