@@ -1163,8 +1163,12 @@
 - (void)testStoreEvent_WhenSizeLimitReached_ThenNewEventIsSkipped {
   GDTCORFlatFileStorage *storage = [GDTCORFlatFileStorage sharedInstance];
 
-  uint64_t storedEventSize = 1052;
+  GDTCOREvent *generatedEvent = [GDTCOREventGenerator generateEventForTarget:kGDTCORTargetTest
+                                                                     qosTier:nil
+                                                                   mappingID:nil];
+  uint64_t storedEventSize = [self storageEventSize:generatedEvent];
   uint64_t eventCountLimit = kGDTCORFlatFileStorageSizeLimit / storedEventSize;
+
   // 1. Generate and store maximum allowed amount of events.
   [self generateEventsForTarget:kGDTCORTargetTest expiringIn:1000 count:eventCountLimit];
 
@@ -1280,15 +1284,19 @@
   return storageSize;
 }
 
-- (uint64_t)storageSizeOfEvents:(NSSet<GDTCOREvent *> *)events {
+- (GDTCORStorageSizeBytes)storageSizeOfEvents:(NSSet<GDTCOREvent *> *)events {
   uint64_t eventsSize = 0;
   for (GDTCOREvent *event in events) {
-    NSError *error;
-    NSData *serializedEventData = GDTCOREncodeArchive(event, nil, &error);
-    XCTAssertNil(error);
-    eventsSize += serializedEventData.length;
+    eventsSize += [self storageEventSize:event];
   }
   return eventsSize;
+}
+
+- (GDTCORStorageSizeBytes)storageEventSize:(GDTCOREvent *)event {
+  NSError *error;
+  NSData *serializedEventData = GDTCOREncodeArchive(event, nil, &error);
+  XCTAssertNil(error);
+  return serializedEventData.length;
 }
 
 @end
