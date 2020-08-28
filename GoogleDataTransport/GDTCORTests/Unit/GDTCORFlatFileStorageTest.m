@@ -122,8 +122,8 @@
     [generatedEvents addObject:event];
     [storage storeEvent:event
              onComplete:^(BOOL wasWritten, NSError *_Nullable error) {
-               //               XCTAssertTrue(wasWritten);
-               //               XCTAssertNil(error);
+               XCTAssertTrue(wasWritten);
+               XCTAssertNil(error);
                [generatedEventsStoredExpectation fulfill];
              }];
   }
@@ -1188,6 +1188,8 @@
            onComplete:^(BOOL wasWritten, NSError *_Nullable error) {
              XCTAssertFalse(wasWritten);
              XCTAssertNotNil(error);
+             XCTAssertEqualObjects(error.domain, GDTCORFlatFileStorageErrorDomain);
+             XCTAssertEqual(error.code, GDTCORFlatFileStorageErrorSizeLimitReached);
              [storeExpectation fulfill];
            }];
   [self waitForExpectations:@[ storeExpectation ] timeout:0.5];
