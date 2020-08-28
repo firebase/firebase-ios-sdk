@@ -1,3 +1,6 @@
+# v7.4.0
+- Limit disk space consumed by GoogleDataTransport to store events. (#6365)
+
 # v7.1.1
 - Use `NSTimeZone` instead of `CFTimeZone` to get time zone offset respecting daylight. (#6246)
 
