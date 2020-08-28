@@ -23,32 +23,6 @@ enum Architecture: String, CaseIterable {
     case device = "iphoneos"
     case simulator = "iphonesimulator"
     case catalyst = "macosx"
-
-    /// Extra C flags that should be included as part of the build process for each target platform.
-    func otherCFlags() -> [String] {
-      switch self {
-      case .device:
-        // For device, we want to enable bitcode.
-        return ["-fembed-bitcode"]
-      default:
-        // No extra arguments are required for simulator builds.
-        return []
-      }
-    }
-
-    /// Arguments that should be included as part of the build process for each target platform.
-    func extraArguments() -> [String] {
-      let base = ["-sdk", rawValue]
-      switch self {
-      case .catalyst:
-        return ["SKIP_INSTALL=NO",
-                "BUILD_LIBRARIES_FOR_DISTRIBUTION=YES",
-                "SUPPORTS_UIKITFORMAC=YES"]
-      case .simulator, .device:
-        // No extra arguments are required for simulator or device builds.
-        return base
-      }
-    }
   }
 
   case arm64
@@ -242,8 +216,7 @@ struct FrameworkBuilder {
     let platformFolder = isMacCatalyst ? "maccatalyst" : platform.rawValue
     let workspacePath = projectDir.appendingPathComponent("FrameworkMaker.xcworkspace").path
     let distributionFlag = carthageBuild ? "-DFIREBASE_BUILD_CARTHAGE" : "-DFIREBASE_BUILD_ZIP_FILE"
-    let platformSpecificFlags = platform.otherCFlags().joined(separator: " ")
-    let cFlags = "OTHER_CFLAGS=$(value) \(distributionFlag) \(platformSpecificFlags)"
+    let cFlags = "OTHER_CFLAGS=$(value) \(distributionFlag)"
     let cleanArch = isMacCatalyst ? Architecture.x86_64.rawValue : archs.map { $0.rawValue }
       .joined(separator: " ")
 
@@ -265,6 +238,10 @@ struct FrameworkBuilder {
                 "BUILD_DIR=\(buildDir.path)",
                 "-sdk", platform.rawValue,
                 cFlags]
+    // Add bitcode option for devices.
+    if platform.self == .device {
+      args.append("BITCODE_GENERATION_MODE=bitcode")
+    }
     // Code signing isn't needed for libraries. Disabling signing is required for
     // Catalyst libs with resources. See
     // https://github.com/CocoaPods/CocoaPods/issues/8891#issuecomment-573301570
