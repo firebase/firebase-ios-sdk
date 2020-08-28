@@ -127,13 +127,13 @@ struct SpecRepoBuilder: ParsableCommand {
   // dependency installation in specFiles.depInstallOrder.
   func generateOrderOfInstallation(pods: [String], specFiles: SpecFiles,
                                    parentDeps: inout Set<String>) {
-    // pods are dependencies will be tracked down. 
-    // specFiles includes required pods and their URLs. 
+    // pods are dependencies will be tracked down.
+    // specFiles includes required pods and their URLs.
     // parentDeps will record the path of tracking down dependencies to avoid
     // duplications and circular dependencies.
 
     // Stop tracking down when the parent pod does not have any required deps.
-    if pods.isEmpty{
+    if pods.isEmpty {
       return
     }
 
@@ -162,9 +162,9 @@ struct SpecRepoBuilder: ParsableCommand {
       )
       // When pod does not have required dep or its required deps are recorded,
       // the pod itself will be recorded into the depInstallOrder.
-      if !specFiles.depInstallOrder.contains(pod){
-      print("\(pod) depends on \(deps).")
-      specFiles.depInstallOrder.append(pod)
+      if !specFiles.depInstallOrder.contains(pod) {
+        print("\(pod) depends on \(deps).")
+        specFiles.depInstallOrder.append(pod)
       }
       // When track back from a lower level, parentDep should track back by
       // removing one pod.
@@ -307,7 +307,7 @@ struct SpecRepoBuilder: ParsableCommand {
       specFiles: specFileDict,
       parentDeps: &tmpSet
     )
-    print("Podspec push order:\n",specFileDict.depInstallOrder.joined(separator: "->\t"))
+    print("Podspec push order:\n", specFileDict.depInstallOrder.joined(separator: "->\t"))
 
     do {
       if fileManager.fileExists(atPath: "\(curDir)/\(sdkRepoName)") {
