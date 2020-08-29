@@ -24,15 +24,15 @@ jobs:
     - name: Get token
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
           bot-access.txt "$bot_token_secret"
-    - name: Update SpecStaging repo setup
+    - name: Update SpecsTesting repo setup
       run: scripts/release_testing_setup.sh
-    - name: Update SpecStaging repo
+    - name: Update SpecsTesting repo
       run: |
         botaccess=`cat bot-access.txt`
         cd scripts/create_spec_repo/
         swift build
         pod repo add --silent "${local_repo}" https://"$botaccess"@github.com/FirebasePrivate/SpecsTesting.git
-        BOT_TOKEN="${botaccess}"  .build/debug/SpecRepoBuilder --sdk_repo "${local_sdk_repo_dir}" --local_spec_repo_name "${local_repo}"
+        BOT_TOKEN="${botaccess}"  .build/debug/spec-repo-builder --sdk_repo "${local_sdk_repo_dir}" --local_spec_repo_name "${local_repo}"
     - name: Clean Artifacts
       if: ${{ always() }}
       run: |
