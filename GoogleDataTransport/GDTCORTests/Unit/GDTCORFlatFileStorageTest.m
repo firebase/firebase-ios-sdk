@@ -33,6 +33,8 @@
 #import "GoogleDataTransport/GDTCORTests/Common/Categories/GDTCORFlatFileStorage+Testing.h"
 #import "GoogleDataTransport/GDTCORTests/Common/Categories/GDTCORRegistrar+Testing.h"
 
+#import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORDirectorySizeCalculator.h"
+
 /** A category that adds finding a random element to NSSet. NSSet's -anyObject isn't random. */
 @interface NSSet (GDTCORRandomElement)
 
@@ -1169,6 +1171,8 @@
   uint64_t storedEventSize = [self storageEventSize:generatedEvent];
   uint64_t eventCountLimit = kGDTCORFlatFileStorageSizeLimit / storedEventSize;
 
+  NSLog(@"-- storedEventSize:%llu, eventCountLimit: %llu", storedEventSize, eventCountLimit);
+
   // 1. Generate and store maximum allowed amount of events.
   [self generateEventsForTarget:kGDTCORTargetTest expiringIn:1000 count:eventCountLimit];
 
@@ -1181,6 +1185,16 @@
     [sizeExpectation1 fulfill];
   }];
   [self waitForExpectations:@[ sizeExpectation1 ] timeout:5];
+
+  // Debug
+  [storage.sizeCalculator resetCachedSize];
+  XCTestExpectation *debugSizeExpectation = [self expectationWithDescription:@"debugSizeExpectation"];
+  [storage storageSizeWithCallback:^(uint64_t aStorageSize) {
+    storageSize = aStorageSize;
+    XCTAssertGreaterThan(storageSize + storedEventSize, kGDTCORFlatFileStorageSizeLimit);
+    [debugSizeExpectation fulfill];
+  }];
+  [self waitForExpectations:@[ debugSizeExpectation ] timeout:5];
 
   // 3. Try to add another event.
   GDTCOREvent *event = [GDTCOREventGenerator generateEventForTarget:kGDTCORTargetTest
