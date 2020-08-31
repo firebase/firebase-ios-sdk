@@ -50,7 +50,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, readonly) uint64_t timestamp;
 
 /** @property displayName
-    @brief The date and time that the signature was created.
+    @brief The display name of the local Game Center player.
  */
 @property(nonatomic, readonly) NSString *displayName;
 
@@ -60,6 +60,7 @@ NS_ASSUME_NONNULL_BEGIN
     @param signature The verification signature generated.
     @param salt A random string used to compute the hash and keep it randomized.
     @param timestamp The date and time that the signature was created.
+    @param displayName The display name of the Game Center player.
  */
 - (nullable instancetype)initWithPlayerID:(NSString *)playerID
                              publicKeyURL:(NSURL *)publicKeyURL
