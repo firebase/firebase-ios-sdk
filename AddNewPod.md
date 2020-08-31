@@ -41,6 +41,8 @@ non-Google open source project should be nested under a `third_party` directory.
 * `FirebaseFoo/Sources/Public` - Public Headers.
 * `FirebaseFoo/Sources/Private` - Private Headers (headers not part of public API, but available for
 explicit import by other Firebase pods)
+* `FirebaseFoo/Sources/Interop` - Headers to manage soft dependencies via 
+[Interop](Interop/FirebaseComponentSystem.md).
 * `FirebaseFoo/Tests/Unit` - Required (If the library only has unit tests, `Unit` can be omitted.)
 * `FirebaseFoo/Tests/Integration` - Encouraged
 * `FirebaseFoo/Tests/Sample` - Optional
