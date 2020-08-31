@@ -27,14 +27,6 @@ let package = Package(
   platforms: [.iOS(.v9), .macOS(.v10_11), .tvOS(.v10)],
   products: [
     .library(
-      name: "Firebase",
-      targets: ["Firebase"]
-    ),
-    .library(
-      name: "FirebaseCore",
-      targets: ["FirebaseCore"]
-    ),
-    .library(
       name: "FirebaseAnalytics",
       targets: ["FirebaseAnalyticsWrapper"]
     ),
@@ -142,6 +134,7 @@ let package = Package(
     .target(
       name: "FirebaseCore",
       dependencies: [
+        "Firebase",
         "FirebaseCoreDiagnostics",
         "GoogleUtilities_Environment",
         "GoogleUtilities_Logger",

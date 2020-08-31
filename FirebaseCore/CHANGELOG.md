@@ -1,3 +1,9 @@
+# Firebase 6.32.0
+- [changed] Swift Package Manager - It's no longer necessary to select the Firebase or
+  FirebaseCore products. Their build targets are implicitly selected when choosing any other
+  Firebase product. If migrating from 6.31-spm-beta, you may need to remove those targets from
+  the `Frameworks, Libraries, and Embedded Content` Build Setting on the General tab.
+
 # Firebase 6.31.1
 - [fixed] Sporadic missing FirebaseApp symbol build issue introduced in Firebase 6.28.0. (#6341)
 
