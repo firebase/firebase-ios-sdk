@@ -22,6 +22,7 @@
 @class RCNConfigDBManager;
 @class RCNConfigFetch;
 @protocol FIRAnalyticsInterop;
+@protocol FIRABTInterop;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -67,7 +68,8 @@ NS_ASSUME_NONNULL_BEGIN
                       namespace:(NSString *)FIRNamespace
                       DBManager:(RCNConfigDBManager *)DBManager
                   configContent:(RCNConfigContent *)configContent
-                      analytics:(nullable id<FIRAnalyticsInterop>)analytics;
+                      analytics:(nullable id<FIRAnalyticsInterop>)analytics
+                      abtesting:(nullable id<FIRABTInterop>)abtesting;
 
 @end
 

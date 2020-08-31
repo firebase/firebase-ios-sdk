@@ -20,6 +20,8 @@
 #import "FirebaseRemoteConfig/Sources/Private/FIRRemoteConfig_Private.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigContent.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigDBManager.h"
+
+#import "FirebaseABTesting/Sources/Interop/FIRABTInterop.h"
 #import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 
 #ifndef FIRRemoteConfig_VERSION
@@ -65,12 +67,14 @@ add -DFIRRemoteConfig_VERSION=... to the build invocation"
     FIRApp *app = self.app;
     id<FIRAnalyticsInterop> analytics =
         app.isDefaultApp ? FIR_COMPONENT(FIRAnalyticsInterop, app.container) : nil;
+    id<FIRABTInterop> abtesting = FIR_COMPONENT(FIRABTInterop, app.container);
     instance = [[FIRRemoteConfig alloc] initWithAppName:app.name
                                              FIROptions:app.options
                                               namespace:remoteConfigNamespace
                                               DBManager:[RCNConfigDBManager sharedInstance]
                                           configContent:[RCNConfigContent sharedInstance]
-                                              analytics:analytics];
+                                              analytics:analytics
+                                              abtesting:abtesting];
     self.instances[remoteConfigNamespace] = instance;
   }
 
@@ -102,10 +106,12 @@ add -DFIRRemoteConfig_VERSION=... to the build invocation"
 + (NSArray<FIRComponent *> *)componentsToRegister {
   FIRDependency *analyticsDep = [FIRDependency dependencyWithProtocol:@protocol(FIRAnalyticsInterop)
                                                            isRequired:NO];
+  FIRDependency *abtDep = [FIRDependency dependencyWithProtocol:@protocol(FIRABTInterop)
+                                                     isRequired:NO];
   FIRComponent *rcProvider = [FIRComponent
       componentWithProtocol:@protocol(FIRRemoteConfigProvider)
         instantiationTiming:FIRInstantiationTimingAlwaysEager
-               dependencies:@[ analyticsDep ]
+               dependencies:@[ analyticsDep, abtDep ]
               creationBlock:^id _Nullable(FIRComponentContainer *container, BOOL *isCacheable) {
                 // Cache the component so instances of Remote Config are cached.
                 *isCacheable = YES;

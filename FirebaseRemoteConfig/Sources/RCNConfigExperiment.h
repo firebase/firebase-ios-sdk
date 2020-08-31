@@ -16,7 +16,9 @@
 
 #import <Foundation/Foundation.h>
 
-@class FIRExperimentController;
+NS_ASSUME_NONNULL_BEGIN
+
+@protocol FIRABTInterop;
 @class RCNConfigDBManager;
 
 /// Handles experiment information update and persistence.
@@ -24,7 +26,7 @@
 
 /// Designated initializer;
 - (instancetype)initWithDBManager:(RCNConfigDBManager *)DBManager
-             experimentController:(FIRExperimentController *)controller NS_DESIGNATED_INITIALIZER;
+             experimentController:(id<FIRABTInterop>)connector NS_DESIGNATED_INITIALIZER;
 
 /// Use `initWithDBManager:` instead.
 - (instancetype)init NS_UNAVAILABLE;
@@ -34,4 +36,6 @@
 
 /// Update experiments to Firebase Analytics when activateFetched happens.
 - (void)updateExperiments;
+
+NS_ASSUME_NONNULL_END
 @end

@@ -1,3 +1,8 @@
+- Unreleased
+- [changed] Enabled Firebase ABTesting to be a soft dependency. To use enable ABTesting,
+  make sure to include `Firebase/ABTesting` in the Podfile. This will be required at the next
+  major release.
+
 # v4.9.0
 - [fixed] Fixed `FirebaseApp.delete()` related crash in `RC Config Fetch`. (#6123)
 

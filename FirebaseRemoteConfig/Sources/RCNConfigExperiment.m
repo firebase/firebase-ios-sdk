@@ -16,16 +16,14 @@
 
 #import "FirebaseRemoteConfig/Sources/RCNConfigExperiment.h"
 
-#import "FirebaseABTesting/Sources/Private/FirebaseABTestingInternal.h"
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigDBManager.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigDefines.h"
 
-static NSString *const kExperimentMetadataKeyLastStartTime = @"last_experiment_start_time";
+#import "FirebaseABTesting/Sources/Interop/FIRABTInterop.h"
 
+static NSString *const kExperimentMetadataKeyLastStartTime = @"last_experiment_start_time";
 static NSString *const kServiceOrigin = @"frc";
-static NSString *const kMethodNameLatestStartTime =
-    @"latestExperimentStartTimestampBetweenTimestamp:andPayloads:";
 
 @interface RCNConfigExperiment ()
 @property(nonatomic, strong)
@@ -33,14 +31,14 @@ static NSString *const kMethodNameLatestStartTime =
 @property(nonatomic, strong)
     NSMutableDictionary<NSString *, id> *experimentMetadata;  ///< Experiment metadata
 @property(nonatomic, strong) RCNConfigDBManager *DBManager;   ///< Database Manager.
-@property(nonatomic, strong) FIRExperimentController *experimentController;
+@property(nonatomic, strong) id<FIRABTInterop> experimentController;
 @property(nonatomic, strong) NSDateFormatter *experimentStartTimeDateFormatter;
 @end
 
 @implementation RCNConfigExperiment
 /// Designated initializer
 - (instancetype)initWithDBManager:(RCNConfigDBManager *)DBManager
-             experimentController:(FIRExperimentController *)controller {
+             experimentController:(id<FIRABTInterop>)connector {
   self = [super init];
   if (self) {
     _experimentPayloads = [[NSMutableArray alloc] init];
@@ -55,7 +53,7 @@ static NSString *const kMethodNameLatestStartTime =
     [_experimentStartTimeDateFormatter setTimeZone:[NSTimeZone timeZoneWithAbbreviation:@"UTC"]];
 
     _DBManager = DBManager;
-    _experimentController = controller;
+    _experimentController = connector;
     [self loadExperimentFromTable];
   }
   return self;
@@ -112,23 +110,15 @@ static NSString *const kMethodNameLatestStartTime =
 }
 
 - (void)updateExperiments {
-  FIRLifecycleEvents *lifecycleEvent = [[FIRLifecycleEvents alloc] init];
-
   // Get the last experiment start time prior to the latest payload.
   NSTimeInterval lastStartTime =
       [_experimentMetadata[kExperimentMetadataKeyLastStartTime] doubleValue];
 
   // Update the last experiment start time with the latest payload.
   [self updateExperimentStartTime];
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  [self.experimentController
-      updateExperimentsWithServiceOrigin:kServiceOrigin
-                                  events:lifecycleEvent
-                                  policy:ABTExperimentPayloadExperimentOverflowPolicyDiscardOldest
-                           lastStartTime:lastStartTime
-                                payloads:_experimentPayloads];
-#pragma clang diagnostic pop
+  [self.experimentController updateExperimentsWithServiceOrigin:kServiceOrigin
+                                                  lastStartTime:lastStartTime
+                                                       payloads:_experimentPayloads];
 }
 
 - (void)updateExperimentStartTime {

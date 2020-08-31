@@ -153,7 +153,8 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
                                                       namespace:currentNamespace
                                                       DBManager:_DBManager
                                                   configContent:configContent
-                                                      analytics:nil]);
+                                                      analytics:nil
+                                                      abtesting:nil]);
 
     _configInstances[i] = config;
     RCNConfigSettings *settings =

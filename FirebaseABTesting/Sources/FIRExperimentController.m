@@ -20,6 +20,7 @@
 #import "FirebaseABTesting/Sources/Public/FirebaseABTesting/FIRLifecycleEvents.h"
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
+#import "FirebaseABTesting/Sources/Interop/FIRABTInterop.h"
 #import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 
 #ifndef FIRABTesting_VERSION
@@ -120,13 +121,7 @@ NSArray *ABTExperimentsToClearFromPayloads(
   return experimentsToClear;
 }
 
-// ABT doesn't provide any functionality to other components,
-// so it provides a private, empty protocol that it conforms to and use it for registration.
-
-@protocol FIRABTInstanceProvider
-@end
-
-@interface FIRExperimentController () <FIRABTInstanceProvider, FIRLibrary>
+@interface FIRExperimentController () <FIRABTInterop, FIRLibrary>
 @property(nonatomic, readwrite, strong) id<FIRAnalyticsInterop> _Nullable analytics;
 @end
 
@@ -148,7 +143,7 @@ NSArray *ABTExperimentsToClearFromPayloads(
     id<FIRAnalyticsInterop> analytics = FIR_COMPONENT(FIRAnalyticsInterop, container);
     return [[FIRExperimentController alloc] initWithAnalytics:analytics];
   };
-  FIRComponent *abtProvider = [FIRComponent componentWithProtocol:@protocol(FIRABTInstanceProvider)
+  FIRComponent *abtProvider = [FIRComponent componentWithProtocol:@protocol(FIRABTInterop)
                                               instantiationTiming:FIRInstantiationTimingLazy
                                                      dependencies:@[ analyticsDep ]
                                                     creationBlock:creationBlock];
@@ -166,7 +161,7 @@ NSArray *ABTExperimentsToClearFromPayloads(
 
 + (FIRExperimentController *)sharedInstance {
   FIRApp *defaultApp = [FIRApp defaultApp];  // Missing configure will be logged here.
-  id<FIRABTInstanceProvider> instance = FIR_COMPONENT(FIRABTInstanceProvider, defaultApp.container);
+  id<FIRABTInterop> instance = FIR_COMPONENT(FIRABTInterop, defaultApp.container);
 
   // We know the instance coming from the container is a FIRExperimentController instance, cast it.
   return (FIRExperimentController *)instance;
@@ -189,6 +184,21 @@ NSArray *ABTExperimentsToClearFromPayloads(
                                                                   payloads:payloads
                                                          completionHandler:completionHandler];
   });
+}
+
+- (void)updateExperimentsWithServiceOrigin:(NSString *)origin
+                             lastStartTime:(NSTimeInterval)lastStartTime
+                                  payloads:(NSArray<NSData *> *)payloads {
+  FIRLifecycleEvents *lifecycleEvent = [[FIRLifecycleEvents alloc] init];
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+  [self updateExperimentsWithServiceOrigin:origin
+                                    events:lifecycleEvent
+                                    policy:ABTExperimentPayloadExperimentOverflowPolicyDiscardOldest
+                             lastStartTime:lastStartTime
+                                  payloads:payloads];
+#pragma clang diagnostic pop
 }
 
 - (void)updateExperimentsWithServiceOrigin:(NSString *)origin

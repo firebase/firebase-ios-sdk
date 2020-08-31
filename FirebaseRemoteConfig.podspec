@@ -30,7 +30,7 @@ app update.
   s.source_files = [
     base_dir + '**/*.[mh]',
     'Interop/Analytics/Public/*.h',
-    'FirebaseABTesting/Sources/Private/*.h',
+    'FirebaseABTesting/Sources/Interop/*.h',
     'FirebaseCore/Sources/Private/*.h',
     'FirebaseInstallations/Source/Library/Private/*.h',
     'GoogleUtilities/Environment/Private/*.h',
@@ -45,7 +45,7 @@ app update.
       'FIRRemoteConfig_VERSION=' + String(s.version),
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
   }
-  s.dependency 'FirebaseABTesting', '~> 4.2'
+#  s.dependency 'FirebaseABTesting', '~> 4.2'
   s.dependency 'FirebaseCore', '~> 6.10'
   s.dependency 'FirebaseInstallations', '~> 1.6'
   s.dependency 'GoogleUtilities/Environment', '~> 6.7'
@@ -76,6 +76,22 @@ app update.
     unit_tests.requires_app_host = true
     unit_tests.dependency 'OCMock'
     unit_tests.requires_arc = true
+  end
+
+  # Separate unit tests that require FirebaseABTesting.
+  s.test_spec 'abt' do |abt|
+    abt.source_files = [
+        'FirebaseRemoteConfig/Tests/Unit/RCNConfigExperimentTest.m',
+        'FirebaseRemoteConfig/Tests/Unit/RCNTestUtilities.[hm]',
+        'FirebaseABTesting/Sources/Private/*.h',
+    ]
+    abt.resources = [
+        'FirebaseRemoteConfig/Tests/Unit/TestABTPayload.txt',
+    ]
+    abt.requires_app_host = true
+    abt.dependency 'OCMock'
+    abt.dependency 'FirebaseABTesting', '~> 4.2'
+    abt.requires_arc = true
   end
 
   # Run Swift API tests on a real backend.

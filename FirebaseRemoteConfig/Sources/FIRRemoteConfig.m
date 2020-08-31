@@ -16,7 +16,6 @@
 
 #import "FirebaseRemoteConfig/Sources/Public/FirebaseRemoteConfig/FIRRemoteConfig.h"
 
-#import "FirebaseABTesting/Sources/Private/FirebaseABTestingInternal.h"
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "FirebaseRemoteConfig/Sources/FIRRemoteConfigComponent.h"
 #import "FirebaseRemoteConfig/Sources/Private/FIRRemoteConfig_Private.h"
@@ -28,6 +27,9 @@
 #import "FirebaseRemoteConfig/Sources/RCNConfigExperiment.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigValue_Internal.h"
 #import "FirebaseRemoteConfig/Sources/RCNDevice.h"
+
+#import "FirebaseABTesting/Sources/Interop/FIRABTInterop.h"
+#import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 
 /// Remote Config Error Domain.
 /// TODO: Rename according to obj-c style for constants.
@@ -144,7 +146,8 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
                       namespace:(NSString *)FIRNamespace
                       DBManager:(RCNConfigDBManager *)DBManager
                   configContent:(RCNConfigContent *)configContent
-                      analytics:(nullable id<FIRAnalyticsInterop>)analytics {
+                      analytics:(nullable id<FIRAnalyticsInterop>)analytics
+                      abtesting:(nullable id<FIRABTInterop>)abtesting {
   self = [super init];
   if (self) {
     _appName = appName;
@@ -159,9 +162,10 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
                                                    firebaseAppName:appName
                                                        googleAppID:options.googleAppID];
 
-    FIRExperimentController *experimentController = [FIRExperimentController sharedInstance];
-    _configExperiment = [[RCNConfigExperiment alloc] initWithDBManager:_DBManager
-                                                  experimentController:experimentController];
+    if (abtesting != nil) {
+      _configExperiment = [[RCNConfigExperiment alloc] initWithDBManager:_DBManager
+                                                    experimentController:abtesting];
+    }
     /// Serial queue for read and write lock.
     _queue = [FIRRemoteConfig sharedRemoteConfigSerialQueue];
 
