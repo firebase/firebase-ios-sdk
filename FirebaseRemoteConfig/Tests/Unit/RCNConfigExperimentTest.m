@@ -86,8 +86,9 @@
 
   FIRExperimentController *experimentController =
       [[FIRExperimentController alloc] initWithAnalytics:nil];
-  _configExperiment = [[RCNConfigExperiment alloc] initWithDBManager:_DBManagerMock
-                                                experimentController:experimentController];
+  _configExperiment =
+      [[RCNConfigExperiment alloc] initWithDBManager:_DBManagerMock
+                                experimentController:(id<FIRABTInterop>)experimentController];
 }
 
 - (void)tearDown {
