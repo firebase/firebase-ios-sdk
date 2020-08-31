@@ -33,12 +33,9 @@ extension DocumentSnapshot {
   ///     default decoder.
   public func data<T: Decodable>(as type: T.Type,
                                  decoder: Firestore.Decoder? = nil) throws -> T? {
-    var d = decoder
-    if d == nil {
-      d = Firestore.Decoder()
-    }
+    let d = decoder ?? Firestore.Decoder()
     if let data = data() {
-      return try d?.decode(T.self, from: data, in: reference)
+      return try d.decode(T.self, from: data, in: reference)
     }
     return nil
   }
@@ -57,12 +54,9 @@ extension DocumentSnapshot {
   public func data<T: Decodable>(as type: T.Type,
                                  with serverTimestampBehavior: ServerTimestampBehavior,
                                  decoder: Firestore.Decoder? = nil) throws -> T? {
-    var d = decoder
-    if d == nil {
-      d = Firestore.Decoder()
-    }
+    let d = decoder ?? Firestore.Decoder()
     if let data = data(with: serverTimestampBehavior) {
-      return try d?.decode(T.self, from: data, in: reference)
+      return try d.decode(T.self, from: data, in: reference)
     }
     return nil
   }
