@@ -25,6 +25,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/** The data type to represent storage size. */
 typedef uint64_t GDTCORStorageSizeBytes;
 
 typedef void (^GDTCORStorageBatchBlock)(NSNumber *_Nullable newBatchID,

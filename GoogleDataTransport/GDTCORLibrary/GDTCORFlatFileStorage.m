@@ -57,6 +57,7 @@ const uint64_t kGDTCORFlatFileStorageSizeLimit = 20 * 1000 * 1000;  // 20 MB.
 
 @interface GDTCORFlatFileStorage ()
 
+/** An instance of the size calculator to keep track of the disk space consumed by the storage. */
 @property(nonatomic, readonly) GDTCORDirectorySizeCalculator *sizeCalculator;
 
 @end
@@ -328,9 +329,7 @@ const uint64_t kGDTCORFlatFileStorageSizeLimit = 20 * 1000 * 1000;  // 20 MB.
           // Update storage size.
           [self.sizeCalculator fileWithSize:data.length wasRemovedAtPath:dataPath];
           [self.sizeCalculator fileWithSize:newValue.length wasAddedAtPath:dataPath];
-        }
-
-        if (newValueError) {
+        } else {
           GDTCORLogDebug(@"Error writing new value in libraryDataForKey: %@", newValueError);
         }
       }

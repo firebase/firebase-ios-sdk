@@ -280,7 +280,7 @@ id<NSSecureCoding> _Nullable GDTCORDecodeArchive(Class archiveClass,
   return unarchivedObject;
 }
 
-BOOL GDTCORWriteDataToFile(NSData *data, NSString *filePath, NSError **outError) {
+BOOL GDTCORWriteDataToFile(NSData *data, NSString *filePath, NSError *_Nullable *outError) {
   BOOL result = NO;
   if (filePath.length > 0) {
     result = [[NSFileManager defaultManager]

@@ -156,7 +156,14 @@ id<NSSecureCoding> _Nullable GDTCORDecodeArchive(Class archiveClass,
                                                  NSData *_Nullable archiveData,
                                                  NSError *_Nullable *error);
 
-BOOL GDTCORWriteDataToFile(NSData *data, NSString *filePath, NSError **outError);
+/** Writes the provided data to a file at the provided  path. Intermediate directories will be
+ * created as needed.
+ *  @param data The file content.
+ *  @param filePath The path to the file to write the provided data.
+ *  @param outError The error to populate if something goes wrong.
+ *  @return `YES` in the case of success, `NO` otherwise.
+ */
+BOOL GDTCORWriteDataToFile(NSData *data, NSString *filePath, NSError *_Nullable *outError);
 
 /** A typedef identify background identifiers. */
 typedef volatile NSUInteger GDTCORBackgroundIdentifier;

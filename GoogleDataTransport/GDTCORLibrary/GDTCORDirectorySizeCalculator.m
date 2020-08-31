@@ -18,9 +18,11 @@
 
 @interface GDTCORDirectorySizeCalculator ()
 
+/** The observed directory path. */
 @property(nonatomic, readonly) NSString *directoryPath;
 
-@property(nonatomic) NSNumber *cachedSize;
+/** The cached content size of the observed directory. */
+@property(nonatomic, nullable) NSNumber *cachedSizeBytes;
 
 @end
 
@@ -35,11 +37,11 @@
 }
 
 - (GDTCORStorageSizeBytes)directoryContentSize {
-  if (self.cachedSize == nil) {
-    self.cachedSize = @([self calculateDirectoryContentSize]);
+  if (self.cachedSizeBytes == nil) {
+    self.cachedSizeBytes = @([self calculateDirectoryContentSize]);
   }
 
-  return self.cachedSize.unsignedLongLongValue;
+  return self.cachedSizeBytes.unsignedLongLongValue;
 }
 
 - (void)fileWithSize:(GDTCORStorageSizeBytes)fileSize wasAddedAtPath:(NSString *)path {
@@ -48,7 +50,7 @@
     return;
   }
 
-  self.cachedSize = @([self directoryContentSize] + fileSize);
+  self.cachedSizeBytes = @([self directoryContentSize] + fileSize);
 }
 
 - (void)fileWithSize:(GDTCORStorageSizeBytes)fileSize wasRemovedAtPath:(NSString *)path {
@@ -57,11 +59,11 @@
     return;
   }
 
-  self.cachedSize = @([self directoryContentSize] - fileSize);
+  self.cachedSizeBytes = @([self directoryContentSize] - fileSize);
 }
 
 - (void)resetCachedSize {
-  self.cachedSize = nil;
+  self.cachedSizeBytes = nil;
 }
 
 - (GDTCORStorageSizeBytes)calculateDirectoryContentSize {

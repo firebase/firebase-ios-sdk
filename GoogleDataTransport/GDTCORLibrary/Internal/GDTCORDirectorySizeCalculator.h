@@ -21,7 +21,10 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /** The class calculates and caches the specified directory content size and uses add/remove signals
- * from client the client to keep the size up to date without accessing file system. */
+ *  from client the client to keep the size up to date without accessing file system.
+ *  This is an internal class designed to be used by `GDTCORFlatFileStorage`.
+ *  NOTE: The class is not thread-safe. The client must take care of synchronization.
+ */
 @interface GDTCORDirectorySizeCalculator : NSObject
 
 - (instancetype)init NS_UNAVAILABLE;
