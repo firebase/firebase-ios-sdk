@@ -35,7 +35,10 @@ jobs:
           FirebaseRemoteConfig/Tests/SwiftAPI/AccessToken.json
     - name: BuildAndUnitTest # can be replaced with pod lib lint with CocoaPods 1.10
       run: scripts/third_party/travis/retry.sh scripts/build.sh RemoteConfig ${{ matrix.target }} unit
+    - name: BuildAndUnitTest # can be replaced with pod lib lint with CocoaPods 1.10
+      run: scripts/third_party/travis/retry.sh scripts/build.sh RemoteConfig ${{ matrix.target }} abt
     - name: Fake Console API Tests
+      if: matrix.target == 'iOS'
       run: scripts/third_party/travis/retry.sh scripts/build.sh RemoteConfig iOS fakeconsole
     - name: IntegrationTest
       if: matrix.target == 'iOS'

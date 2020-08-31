@@ -427,6 +427,16 @@ case "$product-$platform-$method" in
       test
     ;;
 
+  RemoteConfig-*-abt)
+    pod_gen FirebaseRemoteConfig.podspec --platforms="${gen_platform}"
+    RunXcodebuild \
+      -workspace 'gen/FirebaseRemoteConfig/FirebaseRemoteConfig.xcworkspace' \
+      -scheme "FirebaseRemoteConfig-Unit-abt" \
+      "${xcb_flags[@]}" \
+      build \
+      test
+    ;;
+
   RemoteConfig-*-fakeconsole)
     pod_gen FirebaseRemoteConfig.podspec --platforms="${gen_platform}"
     RunXcodebuild \
