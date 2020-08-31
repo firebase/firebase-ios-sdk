@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'Firebase'
-  s.version          = '6.31.0'
+  s.version          = '6.31.1'
   s.summary          = 'Firebase'
 
   s.description      = <<-DESC
@@ -73,7 +73,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
 
   s.subspec 'AppDistribution' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.ios.dependency 'FirebaseAppDistribution', '~> 0.9.0'
+    ss.ios.dependency 'FirebaseAppDistribution', '~> 0.9.1'
     ss.ios.deployment_target = '9.0'
   end
 
