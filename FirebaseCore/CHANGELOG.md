@@ -1,8 +1,7 @@
-# Unreleased
+# Firebase 6.31.1
 - [fixed] Sporadic missing FirebaseApp symbol build issue introduced in Firebase 6.28.0. (#6341)
 
-
-# v6.10.1 -- M78
+# Firebase 6.31.0 FirebaseCore 6.10.1 -- M78
 - [added] Beta release of Swift Package Manager. Details
   [here](https://github.com/firebase/firebase-ios-sdk/blob/master/SwiftPackageManager.md). (#3136)
 - [changed] Firebase's dependencies on nanopb are updated from version 0.3.9.5 to
