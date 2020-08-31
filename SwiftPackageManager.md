@@ -36,8 +36,8 @@ distribution.
 
 <img src="docs/resources/SPMSelect.png">
 
-Choose the Firebase product and any additional products that you want installed
-in your app.
+Choose the Firebase products that you want installed in your app. (Note, before
+6.32-spm-beta, the Firebase product should also be selected.)
 
 <img src="docs/resources/SPMProducts.png">
 

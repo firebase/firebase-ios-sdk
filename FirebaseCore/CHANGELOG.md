@@ -1,3 +1,8 @@
+# Firebase 6.32.0
+- [changed] Swift Package Manager - It's no longer necessary to select the Firebase or
+  FirebaseCore products. Their build targets are implicitly selected when choosing any other
+  Firebase product.
+
 # Firebase 6.31.1
 - [fixed] Sporadic missing FirebaseApp symbol build issue introduced in Firebase 6.28.0. (#6341)
 
