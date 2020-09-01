@@ -365,22 +365,22 @@ NS_SWIFT_NAME(Messaging)
 @property(nonatomic, assign, getter=isAutoInitEnabled) BOOL autoInitEnabled;
 
 /**
- *  The FCM registration token is used to identify this device so that FCM can send notifications to it.
- *  It is associated with your APNS token when the APNS token is supplied, so that sending
- *  messages to the FCM token will be delivered over APNS.
+ * The FCM registration token is used to identify this device so that FCM can send notifications to
+ * it. It is associated with your APNS token when the APNS token is supplied, so that sending
+ * messages to the FCM token will be delivered over APNS.
  *
- *  The FCM registration token is sometimes refreshed automatically. In your FIRMessaging delegate, the
- *  delegate method `messaging:didReceiveRegistrationToken:` will be called once a token is
- *  available, or has been refreshed. Typically it should be called once per app start, but
- *  may be called more often, if token is invalidated or updated.
+ * The FCM registration token is sometimes refreshed automatically. In your FIRMessaging delegate,
+ * the delegate method `messaging:didReceiveRegistrationToken:` will be called once a token is
+ * available, or has been refreshed. Typically it should be called once per app start, but
+ * may be called more often, if token is invalidated or updated.
  *
- *  Once you have an FCM token, you should send it to your application server, so it can use
- *  the FCM token to send notifications to your device.
+ * Once you have an FCM token, you should send it to your application server, so it can use
+ * the FCM token to send notifications to your device.
  */
 @property(nonatomic, readonly, nullable) NSString *FCMToken NS_SWIFT_NAME(fcmToken);
 
 /**
- * Asynchronously getting the default FCM registration  token.
+ * Asynchronously getting the default FCM registration token.
  *
  * This creates a Firebase Installations ID, if one does not exist, and sends information
  * about the application and the device to the Firebase backend.
@@ -393,7 +393,7 @@ NS_SWIFT_NAME(Messaging)
     NS_SWIFT_NAME(token(completion:));
 
 /**
- * Asynchronously deleting the default FCM registration  token.
+ * Asynchronously deleting the default FCM registration token.
  *
  * This does not delete all tokens for non-default sender ID, See `FIRMessaging
  * deleteWithCompletion:` for deleting all of them. This does not delete the Firebase Installations
