@@ -22,6 +22,7 @@ NSString *const AppDistributionMessageCode = @"I-FAD000000";
 void FIRFADDebugLog(NSString *message, ...) {
   va_list args_ptr;
   va_start(args_ptr, message);
+  NSLogv(message, args_ptr);
   FIRLogBasic(FIRLoggerLevelDebug, kFIRLoggerAppDistribution, AppDistributionMessageCode, message,
               args_ptr);
   va_end(args_ptr);
