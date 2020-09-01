@@ -1165,39 +1165,31 @@
 - (void)testStoreEvent_WhenSizeLimitReached_ThenNewEventIsSkipped {
   GDTCORFlatFileStorage *storage = [GDTCORFlatFileStorage sharedInstance];
 
-  GDTCOREvent *generatedEvent = [GDTCOREventGenerator generateEventForTarget:kGDTCORTargetTest
-                                                                     qosTier:nil
-                                                                   mappingID:nil];
-  uint64_t storedEventSize = [self storageEventSize:generatedEvent];
-  uint64_t eventCountLimit = kGDTCORFlatFileStorageSizeLimit / storedEventSize;
-
-  NSLog(@"-- storedEventSize:%llu, eventCountLimit: %llu", storedEventSize, eventCountLimit);
+//  GDTCOREvent *generatedEvent = [GDTCOREventGenerator generateEventForTarget:kGDTCORTargetTest
+//                                                                     qosTier:nil
+//                                                                   mappingID:nil];
+//  uint64_t storedEventSize = [self storageEventSize:generatedEvent];
+//  uint64_t eventCountLimit = kGDTCORFlatFileStorageSizeLimit / storedEventSize;
+//
+//
+//
+//  NSLog(@"-- storedEventSize:%llu, eventCountLimit: %llu", storedEventSize, eventCountLimit);
 
   // 1. Generate and store maximum allowed amount of events.
-  __auto_type generatedEvents = [self generateEventsForTarget:kGDTCORTargetTest expiringIn:1000 count:eventCountLimit];
+  __auto_type generatedEvents = [self generateAndStoreEventsWithTotalSizeUpTo:kGDTCORFlatFileStorageSizeLimit];
 
-  XCTAssertGreaterThan([self storageSizeOfEvents:generatedEvents] + storedEventSize, kGDTCORFlatFileStorageSizeLimit);
-  XCTAssertEqual([self storageSizeOfEvents:generatedEvents] / generatedEvents.count, storedEventSize);
+  XCTAssertGreaterThan([self storageSizeOfEvents:generatedEvents] + [self storageEventSize: [generatedEvents anyObject]], kGDTCORFlatFileStorageSizeLimit);
+//  XCTAssertEqual([self storageSizeOfEvents:generatedEvents] / generatedEvents.count, storedEventSize);
 
   // 2. Check storage size.
   __block uint64_t storageSize = 0;
   XCTestExpectation *sizeExpectation1 = [self expectationWithDescription:@"sizeExpectation1"];
   [storage storageSizeWithCallback:^(uint64_t aStorageSize) {
     storageSize = aStorageSize;
-    XCTAssertGreaterThan(storageSize + storedEventSize, kGDTCORFlatFileStorageSizeLimit);
+    XCTAssertEqual(storageSize, [self storageSizeOfEvents:generatedEvents]);
     [sizeExpectation1 fulfill];
   }];
   [self waitForExpectations:@[ sizeExpectation1 ] timeout:5];
-
-  // Debug
-  [storage.sizeCalculator resetCachedSize];
-  XCTestExpectation *debugSizeExpectation = [self expectationWithDescription:@"debugSizeExpectation"];
-  [storage storageSizeWithCallback:^(uint64_t aStorageSize) {
-    storageSize = aStorageSize;
-    XCTAssertGreaterThan(storageSize + storedEventSize, kGDTCORFlatFileStorageSizeLimit);
-    [debugSizeExpectation fulfill];
-  }];
-  [self waitForExpectations:@[ debugSizeExpectation ] timeout:5];
 
   // 3. Try to add another event.
   GDTCOREvent *event = [GDTCOREventGenerator generateEventForTarget:kGDTCORTargetTest
@@ -1226,6 +1218,37 @@
 }
 
 #pragma mark - Helpers
+
+- (NSSet<GDTCOREvent *> *)generateAndStoreEventsWithTotalSizeUpTo:(GDTCORStorageSizeBytes)totalSize {
+  GDTCORTarget target = kGDTCORTargetTest;
+  GDTCORStorageSizeBytes eventsSize = 0;
+
+  NSMutableSet <GDTCOREvent *> *generatedEvents = [[NSMutableSet alloc] init];
+  GDTCOREvent *generatedEvent = [GDTCOREventGenerator generateEventForTarget:target
+    qosTier:nil
+  mappingID:nil];
+
+  do {
+    XCTestExpectation *eventStoredExpectation = [self expectationWithDescription:@"eventStored"];
+    [[GDTCORFlatFileStorage sharedInstance] storeEvent:generatedEvent onComplete:^(BOOL wasWritten, NSError * _Nullable error) {
+      XCTAssertTrue(wasWritten);
+      XCTAssertNil(error);
+      [eventStoredExpectation fulfill];
+    }];
+
+    [self waitForExpectations:@[ eventStoredExpectation ] timeout:1];
+
+    [generatedEvents addObject:generatedEvent];
+    eventsSize += [self storageEventSize:generatedEvent];
+
+    generatedEvent = [GDTCOREventGenerator generateEventForTarget:target
+      qosTier:nil
+    mappingID:nil];
+
+  } while (eventsSize + [self storageEventSize:generatedEvent] <= totalSize);
+
+  return generatedEvents;
+}
 
 /** Generates, stores and batches 100 events.
  *  @return A dictionary with the generated events by the batch ID.
