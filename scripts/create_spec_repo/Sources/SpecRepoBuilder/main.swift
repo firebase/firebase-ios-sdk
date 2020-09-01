@@ -89,12 +89,12 @@ struct Shell {
   }
 }
 
-// Error types that could occurred when this tool is running.
+// Error types
 enum SpecRepoBuilderError: Error {
-  // Error occurs when circular dependenies are detected and deps will be
+  // Error occurs when circular dependencies are detected and deps will be
   // displayed.
   case circularDependencies(pods: Set<String>)
-  // Error occurs when there exist a spec failed to push to a spec repo. All
+  // Error occurs when there exist specs that failed to push to a spec repo. All
   // specs failed to push should be displayed.
   case failedToPush(pods: [String])
   // Error occurs when a podspec is not found in the repo.
@@ -139,8 +139,8 @@ struct SpecRepoBuilder: ParsableCommand {
     for pod in pods {
       guard specFiles.contains(pod) else { continue }
       let deps = getTargetedDeps(of: pod, from: specFiles)
-      // parentDeps will have all dependencies the current pod support. If the
-      // current pod were in the parent dependnecies, that means it was tracked
+      // parentDeps will have all dependencies the current pod supports. If the
+      // current pod were in the parent dependencies, that means it was tracked
       // before and it is circular dependency.
       if parentDeps.contains(pod) {
         print("Circular dependency is detected in \(pod) and \(parentDeps)")
