@@ -112,12 +112,11 @@
   GDTCORFlatFileStorage *storage = [GDTCORFlatFileStorage sharedInstance];
   NSMutableSet<GDTCOREvent *> *generatedEvents = [[NSMutableSet alloc] init];
 
-//  XCTestExpectation *generatedEventsStoredExpectation =
-//      [self expectationWithDescription:@"generatedEventsStoredExpectation"];
-//  generatedEventsStoredExpectation.expectedFulfillmentCount = count;
+  XCTestExpectation *generatedEventsStoredExpectation =
+      [self expectationWithDescription:@"generatedEventsStoredExpectation"];
+  generatedEventsStoredExpectation.expectedFulfillmentCount = count;
 
   for (int i = 0; i < count; i++) {
-    XCTestExpectation *storeEventExpectation = [self expectationWithDescription:@"storeEventExpectation"];
     GDTCOREvent *event = [GDTCOREventGenerator generateEventForTarget:target
                                                               qosTier:nil
                                                             mappingID:nil];
@@ -127,13 +126,11 @@
              onComplete:^(BOOL wasWritten, NSError *_Nullable error) {
                XCTAssertTrue(wasWritten);
                XCTAssertNil(error);
-//               [generatedEventsStoredExpectation fulfill];
-      [storeEventExpectation fulfill];
+               [generatedEventsStoredExpectation fulfill];
              }];
-    [self waitForExpectations:@[ storeEventExpectation ] timeout:1];
   }
 
-//  [self waitForExpectations:@[ generatedEventsStoredExpectation ] timeout:1 * count];
+  [self waitForExpectations:@[ generatedEventsStoredExpectation ] timeout:1 * count];
 
   return generatedEvents;
 }
@@ -1177,7 +1174,10 @@
   NSLog(@"-- storedEventSize:%llu, eventCountLimit: %llu", storedEventSize, eventCountLimit);
 
   // 1. Generate and store maximum allowed amount of events.
-  [self generateEventsForTarget:kGDTCORTargetTest expiringIn:1000 count:eventCountLimit];
+  __auto_type generatedEvents = [self generateEventsForTarget:kGDTCORTargetTest expiringIn:1000 count:eventCountLimit];
+
+  XCTAssertGreaterThan([self storageSizeOfEvents:generatedEvents] + storedEventSize, kGDTCORFlatFileStorageSizeLimit);
+  XCTAssertEqual([self storageSizeOfEvents:generatedEvents] / generatedEvents.count, storedEventSize);
 
   // 2. Check storage size.
   __block uint64_t storageSize = 0;
