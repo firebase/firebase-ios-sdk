@@ -61,37 +61,71 @@ struct ContentView: View {
 
         // MARK: Action buttons
 
-        Button(action: getToken) {
-          HStack {
-            Image(systemName: "arrow.clockwise.circle.fill").font(.body)
-            Text("Get ID and Token")
-              .fontWeight(.semibold)
+        HStack {
+          Button(action: getIDAndToken) {
+            HStack {
+              Image(systemName: "arrow.clockwise.circle.fill").font(.body)
+              Text("IID.getID")
+                .fontWeight(.semibold)
+            }
+          }
+          Button(action: getToken) {
+            HStack {
+              Image(systemName: "arrow.clockwise.circle.fill").font(.body)
+              Text("IID.getToken")
+                .fontWeight(.semibold)
+            }
+          }
+          Button(action: getFCMToken) {
+            HStack {
+              Image(systemName: "arrow.clockwise.circle.fill").font(.body)
+              Text("FM.getToken")
+                .fontWeight(.semibold)
+            }
           }
         }
 
-        Button(action: deleteToken) {
-          HStack {
-            Image(systemName: "trash.fill").font(.body)
-            Text("Delete Token")
-              .fontWeight(.semibold)
+        HStack {
+          Button(action: deleteToken) {
+            HStack {
+              Image(systemName: "trash.fill").font(.body)
+              Text("IID.deleteToken")
+                .fontWeight(.semibold)
+            }
+          }
+          Button(action: deleteFCMToken) {
+            HStack {
+              Image(systemName: "trash.fill").font(.body)
+              Text("FM.deleteToken")
+                .fontWeight(.semibold)
+            }
           }
         }
 
-        Button(action: deleteID) {
-          HStack {
-            Image(systemName: "trash.fill").font(.body)
-            Text("Delete ID")
-              .fontWeight(.semibold)
+        HStack {
+          Button(action: deleteID) {
+            HStack {
+              Image(systemName: "trash.fill").font(.body)
+              Text("IID.deleteID")
+                .fontWeight(.semibold)
+            }
+          }
+          Button(action: deleteFCM) {
+            HStack {
+              Image(systemName: "trash.fill").font(.body)
+              Text("FM.delete")
+                .fontWeight(.semibold)
+            }
+          }
+          Button(action: deleteFID) {
+            HStack {
+              Image(systemName: "trash.fill").font(.body)
+              Text("FIS.delete")
+                .fontWeight(.semibold)
+            }
           }
         }
 
-        Button(action: deleteFID) {
-          HStack {
-            Image(systemName: "trash.fill").font(.body)
-            Text("Delete FID")
-              .fontWeight(.semibold)
-          }
-        }
         Text("\(log)")
           .lineLimit(10)
           .multilineTextAlignment(.leading)
@@ -99,7 +133,7 @@ struct ContentView: View {
     }
   }
 
-  func getToken() {
+  func getIDAndToken() {
     InstanceID.instanceID().instanceID { result, error in
       guard let result = result, error == nil else {
         self.log = "Failed getting iid and token: \(String(describing: error))"
@@ -107,7 +141,44 @@ struct ContentView: View {
       }
       self.identity.token = result.token
       self.identity.instanceID = result.instanceID
+      self.log = "Successfully got iid and token."
+    }
+  }
+
+  func getToken() {
+    guard let app = FirebaseApp.app() else {
+      return
+    }
+    let senderID = app.options.gcmSenderID
+    InstanceID.instanceID()
+      .token(withAuthorizedEntity: senderID, scope: "*", options: nil) { token, error in
+        guard let token = token, error == nil else {
+          self.log = "Failed getting token: \(String(describing: error))"
+          return
+        }
+        self.identity.token = token
+        self.log = "Successfully got token."
+      }
+  }
+
+  func getFCMToken() {
+    Messaging.messaging().token { token, error in
+      guard let token = token, error == nil else {
+        self.log = "Failed getting iid and token: \(String(describing: error))"
+        return
+      }
+      self.identity.token = token
       self.log = "Successfully got token."
+    }
+  }
+
+  func deleteFCMToken() {
+    Messaging.messaging().deleteToken { error in
+      if let error = error as NSError? {
+        self.log = "Failed deleting token: \(error)"
+        return
+      }
+      self.log = "Successfully deleted token."
     }
   }
 
@@ -116,13 +187,9 @@ struct ContentView: View {
       return
     }
     let senderID = app.options.gcmSenderID
-    Messaging.messaging().deleteFCMToken(forSenderID: senderID) { error in
-      if let error = error as NSError? {
-        self.log = "Failed deleting token: \(error)"
-        return
+    InstanceID.instanceID()
+      .deleteToken(withAuthorizedEntity: senderID, scope: "*") { error in
       }
-      self.log = "Successfully deleted token."
-    }
   }
 
   func deleteID() {
@@ -132,6 +199,15 @@ struct ContentView: View {
         return
       }
       self.log = "Successfully deleted ID."
+    }
+  }
+
+  func deleteFCM() {
+    Messaging.messaging().delete { error in
+      if let error = error as NSError? {
+        self.log = "Failed deleting Messaging: \(error)"
+        return
+      }
     }
   }
 

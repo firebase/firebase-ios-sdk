@@ -365,11 +365,11 @@ NS_SWIFT_NAME(Messaging)
 @property(nonatomic, assign, getter=isAutoInitEnabled) BOOL autoInitEnabled;
 
 /**
- *  The FCM token is used to identify this device so that FCM can send notifications to it.
+ *  The FCM registration token is used to identify this device so that FCM can send notifications to it.
  *  It is associated with your APNS token when the APNS token is supplied, so that sending
  *  messages to the FCM token will be delivered over APNS.
  *
- *  The FCM token is sometimes refreshed automatically. In your FIRMessaging delegate, the
+ *  The FCM registration token is sometimes refreshed automatically. In your FIRMessaging delegate, the
  *  delegate method `messaging:didReceiveRegistrationToken:` will be called once a token is
  *  available, or has been refreshed. Typically it should be called once per app start, but
  *  may be called more often, if token is invalidated or updated.
@@ -380,31 +380,31 @@ NS_SWIFT_NAME(Messaging)
 @property(nonatomic, readonly, nullable) NSString *FCMToken NS_SWIFT_NAME(fcmToken);
 
 /**
- *  Asynchronously getting the default token.
+ * Asynchronously getting the default FCM registration  token.
  *
- *  This creates a Firebase Installations ID, if one does not exist, and sends information
- *  about the application and the device to the Firebase backend.
+ * This creates a Firebase Installations ID, if one does not exist, and sends information
+ * about the application and the device to the Firebase backend.
  *
- *  @param completion The completion handler to handle the token request.
+ * @param completion The completion handler to handle the token request.
  */
 
 - (void)tokenWithCompletion:
-(void (^)(NSString *__nullable token, NSError *__nullable error))completion
-NS_SWIFT_NAME(token(completion:));
+    (void (^)(NSString *__nullable token, NSError *__nullable error))completion
+    NS_SWIFT_NAME(token(completion:));
 
 /**
- *  Asynchronously deleting the default token.
+ * Asynchronously deleting the default FCM registration  token.
  *
- *  This does not delete all tokens for non-default sender ID, See `FIRMessaging deleteWithCompletion:`
- *  for deleting all of them.
- *  This does not delete the Firebase Installations ID that may have been created when
- *  generating the token. See `FIRInstallations deleteWithCompletion:` for deleting that.
+ * This does not delete all tokens for non-default sender ID, See `FIRMessaging
+ * deleteWithCompletion:` for deleting all of them. This does not delete the Firebase Installations
+ * ID that may have been created when generating the token. See `FIRInstallations
+ * deleteWithCompletion:` for deleting that.
  *
- *  @param completion The completion handler to handle the token deletion.
+ * @param completion The completion handler to handle the token deletion.
  */
 
 - (void)deleteTokenWithCompletion:(void (^)(NSError *__nullable error))completion
-NS_SWIFT_NAME(deleteToken(completion:));
+    NS_SWIFT_NAME(deleteToken(completion:));
 
 /**
  *  Retrieves an FCM registration token for a particular Sender ID. This can be used to allow
@@ -538,8 +538,8 @@ NS_SWIFT_NAME(deleteToken(completion:));
 
 #pragma mark - GDPR
 /**
- * Deletes all the tokens and checkin data of the Firebase project  and related data on the server side.
- * A network connection is required for the method to succeed.
+ * Deletes all the tokens and checkin data of the Firebase project  and related data on the server
+ * side. A network connection is required for the method to succeed.
  *
  * This does not delete the Firebase Installations ID that may have been created when
  * generating the token. See `FIRInstallations deleteWithCompletion:` for deleting that.

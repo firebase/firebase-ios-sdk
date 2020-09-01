@@ -69,6 +69,13 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (BOOL)tryToLoadValidCheckinInfo;
 
+/**
+ *  Delete checkin info for the app.
+ *
+ *  @param handler The completion handler to invoke once the request has completed.
+ */
+- (void)deleteCheckinWithHandler:(void (^_Nonnull)(NSError *_Nullable error))handler;
+
 @end
 
 NS_ASSUME_NONNULL_END
