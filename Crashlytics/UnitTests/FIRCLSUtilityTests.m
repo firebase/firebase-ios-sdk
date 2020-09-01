@@ -78,7 +78,9 @@
 }
 
 - (void)testRedactUUIDWithExpectedPattern {
-  const char* readonly = "CoreSimulator 704.12.1 - Device: iPhone SE (2nd generation) (45D62CC2-CFB5-4E33-AB61-B0684627F1B6) - Runtime: iOS 13.4 (17E8260) - DeviceType: iPhone SE (2nd generation)";
+  const char* readonly = "CoreSimulator 704.12.1 - Device: iPhone SE (2nd generation) "
+                         "(45D62CC2-CFB5-4E33-AB61-B0684627F1B6) - Runtime: iOS 13.4 (17E8260) - "
+                         "DeviceType: iPhone SE (2nd generation)";
   size_t len = strlen(readonly);
   char message[len];
   strcpy(message, readonly);
@@ -86,13 +88,16 @@
   FIRCLSRedactUUID(message);
 
   NSString* actual = [NSString stringWithUTF8String:message];
-  NSString* expected = @"CoreSimulator 704.12.1 - Device: iPhone SE (2nd generation) (********-****-****-****-************) - Runtime: iOS 13.4 (17E8260) - DeviceType: iPhone SE (2nd generation)";
+  NSString* expected = @"CoreSimulator 704.12.1 - Device: iPhone SE (2nd generation) "
+                       @"(********-****-****-****-************) - Runtime: iOS 13.4 (17E8260) - "
+                       @"DeviceType: iPhone SE (2nd generation)";
 
   XCTAssertEqualObjects(actual, expected);
 }
 
 - (void)testRedactUUIDWithMalformedPattern {
-  const char* readonly = "CoreSimulator 704.12.1 - Device: iPhone SE (2nd generation) (45D62CC2-CFB5-4E33-AB61-B0684627F1B6";
+  const char* readonly = "CoreSimulator 704.12.1 - Device: iPhone SE (2nd generation) "
+                         "(45D62CC2-CFB5-4E33-AB61-B0684627F1B6";
   size_t len = strlen(readonly);
   char message[len];
   strcpy(message, readonly);
@@ -100,7 +105,8 @@
   FIRCLSRedactUUID(message);
 
   NSString* actual = [NSString stringWithUTF8String:message];
-  NSString* expected = @"CoreSimulator 704.12.1 - Device: iPhone SE (2nd generation) (45D62CC2-CFB5-4E33-AB61-B0684627F1B6";
+  NSString* expected = @"CoreSimulator 704.12.1 - Device: iPhone SE (2nd generation) "
+                       @"(45D62CC2-CFB5-4E33-AB61-B0684627F1B6";
 
   XCTAssertEqualObjects(actual, expected);
 }

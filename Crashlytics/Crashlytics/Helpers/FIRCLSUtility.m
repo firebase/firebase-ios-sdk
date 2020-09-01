@@ -177,8 +177,9 @@ void FIRCLSRedactUUID(char* value) {
     // and replace anything that is not a '-' with '*'
     if (closeParen - openParen == 37) {
       for (int i = 1; i < 37; ++i) {
-        if (*(openParen + i) != '-')
+        if (*(openParen + i) != '-') {
           *(openParen + i) = '*';
+        }
       }
       break;
     }
