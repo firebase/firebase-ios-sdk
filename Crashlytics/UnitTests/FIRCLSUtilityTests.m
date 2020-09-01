@@ -119,10 +119,8 @@
 
   FIRCLSRedactUUID(message);
 
-  char* redacted = "Fatal error: file /Users/test/src/foo/bar/ViewController.swift, line 25";
-
   NSString* actual = [NSString stringWithUTF8String:message];
-  NSString* expected = [NSString stringWithUTF8String:redacted];
+  NSString* expected = @"Fatal error: file /Users/test/src/foo/bar/ViewController.swift, line 25";
 
   XCTAssertEqualObjects(actual, expected);
 }
