@@ -87,54 +87,6 @@
   [super tearDown];
 }
 
-/** Generates and returns a set of events that are generated randomly and stored.
- *
- * @return A set of randomly generated and stored events.
- */
-- (NSSet<GDTCOREvent *> *)generateEventsForStorageTesting {
-  NSMutableSet<GDTCOREvent *> *generatedEvents = [[NSMutableSet alloc] init];
-  // Generate 100 test target events
-  [generatedEvents unionSet:[self generateEventsForTarget:kGDTCORTargetTest
-                                               expiringIn:1000
-                                                    count:100]];
-
-  // Generate 50 FLL target events.
-  [generatedEvents unionSet:[self generateEventsForTarget:kGDTCORTargetFLL
-                                               expiringIn:1000
-                                                    count:50]];
-
-  return generatedEvents;
-}
-
-- (NSSet<GDTCOREvent *> *)generateEventsForTarget:(GDTCORTarget)target
-                                       expiringIn:(NSTimeInterval)eventsExpireIn
-                                            count:(NSInteger)count {
-  GDTCORFlatFileStorage *storage = [GDTCORFlatFileStorage sharedInstance];
-  NSMutableSet<GDTCOREvent *> *generatedEvents = [[NSMutableSet alloc] init];
-
-  XCTestExpectation *generatedEventsStoredExpectation =
-      [self expectationWithDescription:@"generatedEventsStoredExpectation"];
-  generatedEventsStoredExpectation.expectedFulfillmentCount = count;
-
-  for (int i = 0; i < count; i++) {
-    GDTCOREvent *event = [GDTCOREventGenerator generateEventForTarget:target
-                                                              qosTier:nil
-                                                            mappingID:nil];
-    event.expirationDate = [NSDate dateWithTimeIntervalSinceNow:eventsExpireIn];
-    [generatedEvents addObject:event];
-    [storage storeEvent:event
-             onComplete:^(BOOL wasWritten, NSError *_Nullable error) {
-               XCTAssertTrue(wasWritten);
-               XCTAssertNil(error);
-               [generatedEventsStoredExpectation fulfill];
-             }];
-  }
-
-  [self waitForExpectations:@[ generatedEventsStoredExpectation ] timeout:1 * count];
-
-  return generatedEvents;
-}
-
 /** Tests the singleton pattern. */
 - (void)testInit {
   XCTAssertEqual([GDTCORFlatFileStorage sharedInstance], [GDTCORFlatFileStorage sharedInstance]);
@@ -1165,21 +1117,13 @@
 - (void)testStoreEvent_WhenSizeLimitReached_ThenNewEventIsSkipped {
   GDTCORFlatFileStorage *storage = [GDTCORFlatFileStorage sharedInstance];
 
-//  GDTCOREvent *generatedEvent = [GDTCOREventGenerator generateEventForTarget:kGDTCORTargetTest
-//                                                                     qosTier:nil
-//                                                                   mappingID:nil];
-//  uint64_t storedEventSize = [self storageEventSize:generatedEvent];
-//  uint64_t eventCountLimit = kGDTCORFlatFileStorageSizeLimit / storedEventSize;
-//
-//
-//
-//  NSLog(@"-- storedEventSize:%llu, eventCountLimit: %llu", storedEventSize, eventCountLimit);
-
   // 1. Generate and store maximum allowed amount of events.
-  __auto_type generatedEvents = [self generateAndStoreEventsWithTotalSizeUpTo:kGDTCORFlatFileStorageSizeLimit];
+  __auto_type generatedEvents =
+      [self generateAndStoreEventsWithTotalSizeUpTo:kGDTCORFlatFileStorageSizeLimit];
 
-  XCTAssertGreaterThan([self storageSizeOfEvents:generatedEvents] + [self storageEventSize: [generatedEvents anyObject]], kGDTCORFlatFileStorageSizeLimit);
-//  XCTAssertEqual([self storageSizeOfEvents:generatedEvents] / generatedEvents.count, storedEventSize);
+  XCTAssertGreaterThan([self storageSizeOfEvents:generatedEvents] +
+                           [self storageEventSize:[generatedEvents anyObject]],
+                       kGDTCORFlatFileStorageSizeLimit);
 
   // 2. Check storage size.
   __block uint64_t storageSize = 0;
@@ -1219,31 +1163,86 @@
 
 #pragma mark - Helpers
 
-- (NSSet<GDTCOREvent *> *)generateAndStoreEventsWithTotalSizeUpTo:(GDTCORStorageSizeBytes)totalSize {
+/** Generates and returns a set of events that are generated randomly and stored.
+ *
+ * @return A set of randomly generated and stored events.
+ */
+- (NSSet<GDTCOREvent *> *)generateEventsForStorageTesting {
+  NSMutableSet<GDTCOREvent *> *generatedEvents = [[NSMutableSet alloc] init];
+  // Generate 100 test target events
+  [generatedEvents unionSet:[self generateEventsForTarget:kGDTCORTargetTest
+                                               expiringIn:1000
+                                                    count:100]];
+
+  // Generate 50 FLL target events.
+  [generatedEvents unionSet:[self generateEventsForTarget:kGDTCORTargetFLL
+                                               expiringIn:1000
+                                                    count:50]];
+
+  return generatedEvents;
+}
+
+/** Generates and stores events with specified parameters.
+ *  @return Generated events.
+ */
+- (NSSet<GDTCOREvent *> *)generateEventsForTarget:(GDTCORTarget)target
+                                       expiringIn:(NSTimeInterval)eventsExpireIn
+                                            count:(NSInteger)count {
+  GDTCORFlatFileStorage *storage = [GDTCORFlatFileStorage sharedInstance];
+  NSMutableSet<GDTCOREvent *> *generatedEvents = [[NSMutableSet alloc] init];
+
+  XCTestExpectation *generatedEventsStoredExpectation =
+      [self expectationWithDescription:@"generatedEventsStoredExpectation"];
+  generatedEventsStoredExpectation.expectedFulfillmentCount = count;
+
+  for (int i = 0; i < count; i++) {
+    GDTCOREvent *event = [GDTCOREventGenerator generateEventForTarget:target
+                                                              qosTier:nil
+                                                            mappingID:nil];
+    event.expirationDate = [NSDate dateWithTimeIntervalSinceNow:eventsExpireIn];
+    [generatedEvents addObject:event];
+    [storage storeEvent:event
+             onComplete:^(BOOL wasWritten, NSError *_Nullable error) {
+               XCTAssertTrue(wasWritten);
+               XCTAssertNil(error);
+               [generatedEventsStoredExpectation fulfill];
+             }];
+  }
+
+  [self waitForExpectations:@[ generatedEventsStoredExpectation ] timeout:1 * count];
+
+  return generatedEvents;
+}
+
+/** Generates and stores events to fill up the storage up the the specified size.
+ *  @return Generated events.
+ */
+- (NSSet<GDTCOREvent *> *)generateAndStoreEventsWithTotalSizeUpTo:
+    (GDTCORStorageSizeBytes)totalSize {
   GDTCORTarget target = kGDTCORTargetTest;
   GDTCORStorageSizeBytes eventsSize = 0;
 
-  NSMutableSet <GDTCOREvent *> *generatedEvents = [[NSMutableSet alloc] init];
+  NSMutableSet<GDTCOREvent *> *generatedEvents = [[NSMutableSet alloc] init];
   GDTCOREvent *generatedEvent = [GDTCOREventGenerator generateEventForTarget:target
-    qosTier:nil
-  mappingID:nil];
+                                                                     qosTier:nil
+                                                                   mappingID:nil];
 
   do {
     XCTestExpectation *eventStoredExpectation = [self expectationWithDescription:@"eventStored"];
-    [[GDTCORFlatFileStorage sharedInstance] storeEvent:generatedEvent onComplete:^(BOOL wasWritten, NSError * _Nullable error) {
-      XCTAssertTrue(wasWritten);
-      XCTAssertNil(error);
-      [eventStoredExpectation fulfill];
-    }];
+    [[GDTCORFlatFileStorage sharedInstance]
+        storeEvent:generatedEvent
+        onComplete:^(BOOL wasWritten, NSError *_Nullable error) {
+          XCTAssertTrue(wasWritten);
+          XCTAssertNil(error);
+          [eventStoredExpectation fulfill];
+        }];
 
     [self waitForExpectations:@[ eventStoredExpectation ] timeout:1];
 
     [generatedEvents addObject:generatedEvent];
     eventsSize += [self storageEventSize:generatedEvent];
 
-    generatedEvent = [GDTCOREventGenerator generateEventForTarget:target
-      qosTier:nil
-    mappingID:nil];
+    generatedEvent = [GDTCOREventGenerator generateEventForTarget:target qosTier:nil mappingID:nil];
 
   } while (eventsSize + [self storageEventSize:generatedEvent] <= totalSize);
 
