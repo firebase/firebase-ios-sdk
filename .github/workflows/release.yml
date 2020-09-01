@@ -110,7 +110,7 @@ jobs:
           mkdir -p "${testing_repo_dir}"
           mv "${GITHUB_WORKSPACE}/${testing_repo}" "${testing_repo_dir}"
           botaccess=`cat bot-access.txt`
-          BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh config release_testing
+          BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh abtesting release_testing
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-abtesting.plist.gpg \
           quickstart-ios/abtesting/GoogleService-Info.plist "$plist_secret"
@@ -145,7 +145,7 @@ jobs:
           mkdir -p "${testing_repo_dir}"
           mv "${GITHUB_WORKSPACE}/${testing_repo}" "${testing_repo_dir}"
           botaccess=`cat bot-access.txt`
-          BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh auth release_testing
+          BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh Authentication release_testing
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-auth.plist.gpg \
           quickstart-ios/authentication/GoogleService-Info.plist "$plist_secret"
@@ -180,7 +180,7 @@ jobs:
           mkdir -p "${testing_repo_dir}"
           mv "${GITHUB_WORKSPACE}/${testing_repo}" "${testing_repo_dir}"
           botaccess=`cat bot-access.txt`
-          BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh crashlytics release_testing
+          BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh Crashlytics release_testing
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-crashlytics.plist.gpg \
           quickstart-ios/crashlytics/GoogleService-Info.plist "$plist_secret"
@@ -189,7 +189,7 @@ jobs:
           quickstart-ios/TestUtils/FIREGSignInInfo.h "$signin_secret"
     - name: Test objc quickstart
       run: |
-        mkdir quickstart-ios/crashlytics/Pods/FirebaseCrashlytics
+        mkdir -p quickstart-ios/crashlytics/Pods/FirebaseCrashlytics
         # Set the deployed pod location of run and upload-symbols with the development pod version.
         cp Crashlytics/run quickstart-ios/crashlytics/Pods/FirebaseCrashlytics/
         cp Crashlytics/upload-symbols quickstart-ios/crashlytics/Pods/FirebaseCrashlytics/
