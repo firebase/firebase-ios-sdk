@@ -382,8 +382,9 @@ NS_SWIFT_NAME(Messaging)
 /**
  * Asynchronously getting the default FCM registration token.
  *
- * This creates a Firebase Installations ID, if one does not exist, and sends information
- * about the application and the device to the Firebase backend.
+ * A network connection is required for the method to succeed and data is sent
+ * to the Firebase backend to validate the token. To stop this, see `FIRMessaging autoInitEnabled`,
+ * `FIRMessaging deleteWithCompletion:` and `FIRInstallations deleteWithcompletion:`.
  *
  * @param completion The completion handler to handle the token request.
  */
@@ -396,9 +397,8 @@ NS_SWIFT_NAME(Messaging)
  * Asynchronously deleting the default FCM registration token.
  *
  * This does not delete all tokens for non-default sender ID, See `FIRMessaging
- * deleteWithCompletion:` for deleting all of them. This does not delete the Firebase Installations
- * ID that may have been created when generating the token. See `FIRInstallations
- * deleteWithCompletion:` for deleting that.
+ * deleteWithCompletion:` for deleting all of them.
+ * To prevent token auto generation, see `FIRMessaging autoInitEnabled`.
  *
  * @param completion The completion handler to handle the token deletion.
  */
@@ -541,14 +541,14 @@ NS_SWIFT_NAME(Messaging)
  * Deletes all the tokens and checkin data of the Firebase project  and related data on the server
  * side. A network connection is required for the method to succeed.
  *
- * This does not delete the Firebase Installations ID that may have been created when
- * generating the token. See `FIRInstallations deleteWithCompletion:` for deleting that.
+ * This does not delete the Firebase Installations ID. See `FIRInstallations deleteWithCompletion:` for deleting that.
+ * To prevent token auto generation, see `FIRMessaging autoInitEnabled`.
  *
  * @param completion A completion handler which is invoked when the operation completes. `error ==
  * nil` indicates success.
  */
 - (void)deleteWithCompletion:(void (^)(NSError *__nullable error))completion
-    NS_SWIFT_NAME(delete(completion:));
+    NS_SWIFT_NAME(delete (completion:));
 
 @end
 
