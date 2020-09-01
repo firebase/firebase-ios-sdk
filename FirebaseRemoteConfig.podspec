@@ -45,7 +45,8 @@ app update.
       'FIRRemoteConfig_VERSION=' + String(s.version),
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
   }
-#  s.dependency 'FirebaseABTesting', '~> 4.2'
+  # TODO(7.0) The FirebaseABTesting dependency should be removed at next major version update.
+  s.dependency 'FirebaseABTesting', '~> 4.2'
   s.dependency 'FirebaseCore', '~> 6.10'
   s.dependency 'FirebaseInstallations', '~> 1.6'
   s.dependency 'GoogleUtilities/Environment', '~> 6.7'
