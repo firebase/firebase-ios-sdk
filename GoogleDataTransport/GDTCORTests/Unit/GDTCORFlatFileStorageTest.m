@@ -112,11 +112,12 @@
   GDTCORFlatFileStorage *storage = [GDTCORFlatFileStorage sharedInstance];
   NSMutableSet<GDTCOREvent *> *generatedEvents = [[NSMutableSet alloc] init];
 
-  XCTestExpectation *generatedEventsStoredExpectation =
-      [self expectationWithDescription:@"generatedEventsStoredExpectation"];
-  generatedEventsStoredExpectation.expectedFulfillmentCount = count;
+//  XCTestExpectation *generatedEventsStoredExpectation =
+//      [self expectationWithDescription:@"generatedEventsStoredExpectation"];
+//  generatedEventsStoredExpectation.expectedFulfillmentCount = count;
 
   for (int i = 0; i < count; i++) {
+    XCTestExpectation *storeEventExpectation = [self expectationWithDescription:@"storeEventExpectation"];
     GDTCOREvent *event = [GDTCOREventGenerator generateEventForTarget:target
                                                               qosTier:nil
                                                             mappingID:nil];
@@ -126,11 +127,13 @@
              onComplete:^(BOOL wasWritten, NSError *_Nullable error) {
                XCTAssertTrue(wasWritten);
                XCTAssertNil(error);
-               [generatedEventsStoredExpectation fulfill];
+//               [generatedEventsStoredExpectation fulfill];
+      [storeEventExpectation fulfill];
              }];
+    [self waitForExpectations:@[ storeEventExpectation ] timeout:1];
   }
 
-  [self waitForExpectations:@[ generatedEventsStoredExpectation ] timeout:1 * count];
+//  [self waitForExpectations:@[ generatedEventsStoredExpectation ] timeout:1 * count];
 
   return generatedEvents;
 }
