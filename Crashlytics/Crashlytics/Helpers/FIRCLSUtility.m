@@ -156,6 +156,37 @@ NSString* FIRCLSGenerateNormalizedUUID(void) {
   return FIRCLSNormalizeUUID(FIRCLSGenerateUUID());
 }
 
+// Redacts a UUID wrapped in parenthesis from a char* using strchr, which is async safe.
+// Ex.
+//   "foo (bar) (45D62CC2-CFB5-4E33-AB61-B0684627F1B6) baz"
+// becomes
+//   "foo (bar) (********-****-****-****-************) baz"
+void FIRCLSRedactUUID(char* value) {
+  if (value == NULL) {
+    return;
+  }
+  char* openParen = value;
+  // find the index of the first paren
+  while ((openParen = strchr(openParen, '(')) != NULL) {
+    // find index of the matching close paren
+    const char* closeParen = strchr(openParen, ')');
+    if (closeParen == NULL) {
+      break;
+    }
+    // if the distance between them is 37, traverse the characters
+    // and replace anything that is not a '-' with '*'
+    if (closeParen - openParen == 37) {
+      for (int i = 1; i < 37; ++i) {
+        if (*(openParen + i) != '-') {
+          *(openParen + i) = '*';
+        }
+      }
+      break;
+    }
+    openParen++;
+  }
+}
+
 NSString* FIRCLSNSDataToNSString(NSData* data) {
   NSString* string;
   char* buffer;
