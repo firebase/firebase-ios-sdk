@@ -18,10 +18,10 @@
 
 #import "FIRAuthInteropFake.h"
 #import "Functions/FirebaseFunctions/FIRFunctions+Internal.h"
-#import "SharedTestUtilities/FIRMessagingInteropFake.h"
 #import "Functions/FirebaseFunctions/Public/FirebaseFunctions/FIRError.h"
 #import "Functions/FirebaseFunctions/Public/FirebaseFunctions/FIRFunctions.h"
 #import "Functions/FirebaseFunctions/Public/FirebaseFunctions/FIRHTTPSCallable.h"
+#import "SharedTestUtilities/FIRMessagingInteropFake.h"
 
 // Project ID used by these tests.
 static NSString *const kDefaultProjectID = @"functions-integration-test";
@@ -55,7 +55,7 @@ static NSString *const kDefaultProjectID = @"functions-integration-test";
       initWithProjectID:_projectID
                  region:@"us-central1"
                    auth:[[FIRAuthInteropFake alloc] initWithToken:nil userID:nil error:nil]
-                messaging:_messagingFake];
+              messaging:_messagingFake];
   if (_useLocalhost) {
     [_functions useLocalhost];
   }
@@ -106,7 +106,7 @@ static NSString *const kDefaultProjectID = @"functions-integration-test";
       initWithProjectID:_projectID
                  region:@"us-central1"
                    auth:[[FIRAuthInteropFake alloc] initWithToken:@"token" userID:nil error:nil]
-                             messaging:_messagingFake];
+              messaging:_messagingFake];
   if (_useLocalhost) {
     [functions useLocalhost];
   }

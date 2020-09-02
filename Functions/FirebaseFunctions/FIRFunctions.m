@@ -16,8 +16,8 @@
 #import "Functions/FirebaseFunctions/FIRFunctions+Internal.h"
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
-#import "Interop/Auth/Public/FIRAuthInterop.h"
 #import "FirebaseMessaging/Sources/Interop/FIRMessagingInterop.h"
+#import "Interop/Auth/Public/FIRAuthInterop.h"
 
 #import "Functions/FirebaseFunctions/FIRHTTPSCallable+Internal.h"
 #import "Functions/FirebaseFunctions/FUNContext.h"
@@ -68,7 +68,8 @@ NSString *const kFUNDefaultRegion = @"us-central1";
 - (instancetype)initWithProjectID:(NSString *)projectID
                            region:(NSString *)region
                              auth:(nullable id<FIRAuthInterop>)auth
-                        messaging:(nullable id<FIRMessagingInterop>)messaging NS_DESIGNATED_INITIALIZER;
+                        messaging:(nullable id<FIRMessagingInterop>)messaging
+    NS_DESIGNATED_INITIALIZER;
 
 @end
 
