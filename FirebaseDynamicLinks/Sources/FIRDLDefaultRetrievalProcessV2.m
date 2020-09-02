@@ -46,7 +46,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FIRDLDefaultRetrievalProcessV2 {
   FIRDynamicLinkNetworking *_networkingService;
-  NSString *_clientID;
   NSString *_URLScheme;
   NSString *_APIKey;
   NSString *_FDLSDKVersion;
@@ -60,18 +59,15 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - Initialization
 
 - (instancetype)initWithNetworkingService:(FIRDynamicLinkNetworking *)networkingService
-                                 clientID:(NSString *)clientID
                                 URLScheme:(NSString *)URLScheme
                                    APIKey:(NSString *)APIKey
                             FDLSDKVersion:(NSString *)FDLSDKVersion
                                  delegate:(id<FIRDLRetrievalProcessDelegate>)delegate {
   NSParameterAssert(networkingService);
-  NSParameterAssert(clientID);
   NSParameterAssert(URLScheme);
   NSParameterAssert(APIKey);
   if (self = [super init]) {
     _networkingService = networkingService;
-    _clientID = [clientID copy];
     _URLScheme = [URLScheme copy];
     _APIKey = [APIKey copy];
     _FDLSDKVersion = [FDLSDKVersion copy];
