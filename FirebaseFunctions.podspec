@@ -27,6 +27,7 @@ Cloud Functions for Firebase.
     'Functions/FirebaseFunctions/**/*',
     'Interop/Auth/Public/*.h',
     'FirebaseCore/Sources/Private/*.h',
+    'FirebaseMessaging/Sources/Interop/FIRMessagingInterop.h',
   ]
   s.public_header_files = 'Functions/FirebaseFunctions/Public/FirebaseFunctions/*.h'
 

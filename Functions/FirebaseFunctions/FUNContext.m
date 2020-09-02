@@ -18,6 +18,7 @@
 #import "Interop/Auth/Public/FIRAuthInterop.h"
 
 #import "Functions/FirebaseFunctions/FUNInstanceIDProxy.h"
+#import "FirebaseMessaging/Sources/Interop/FIRMessagingInterop.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -44,24 +45,25 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FUNContextProvider () {
   id<FIRAuthInterop> _auth;
-  FUNInstanceIDProxy *_instanceIDProxy;
+  id<FIRMessagingInterop> _messaging;
 }
 @end
 
 @implementation FUNContextProvider
 
-- (instancetype)initWithAuth:(nullable id<FIRAuthInterop>)auth {
+- (instancetype)initWithAuth:(nullable id<FIRAuthInterop>)auth
+                   messaging:(nullable id<FIRMessagingInterop>)messaging {
   self = [super init];
   if (self) {
     _auth = auth;
-    _instanceIDProxy = [[FUNInstanceIDProxy alloc] init];
+    _messaging = messaging;
   }
   return self;
 }
 
 // This is broken out so it can be mocked for tests.
 - (NSString *)instanceIDToken {
-  return [_instanceIDProxy token];
+  return _messaging.FCMToken;
 }
 
 - (void)getContext:(void (^)(FUNContext *_Nullable context, NSError *_Nullable error))completion {

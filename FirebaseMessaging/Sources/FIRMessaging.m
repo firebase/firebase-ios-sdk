@@ -23,7 +23,7 @@
 #import <FirebaseMessaging/FIRMessaging.h>
 #import <FirebaseMessaging/FIRMessagingExtensionHelper.h>
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
-#import "FirebaseMessaging/Sources/Interop/FIRMessagingIterop.h"
+#import "FirebaseMessaging/Sources/Interop/FIRMessagingInterop.h"
 #import "GoogleUtilities/AppDelegateSwizzler/Private/GULAppDelegateSwizzler.h"
 #import "GoogleUtilities/Reachability/Private/GULReachabilityChecker.h"
 #import "GoogleUtilities/UserDefaults/Private/GULUserDefaults.h"
