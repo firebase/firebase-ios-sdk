@@ -42,7 +42,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-NSString *const kFUNInstanceIDTokenHeader = @"Firebase-Instance-ID-Token";
+NSString *const kFUNFCMTokenHeader = @"Firebase-Instance-ID-Token";
 NSString *const kFUNDefaultRegion = @"us-central1";
 
 /// Empty protocol to register Functions as a component with Core.
@@ -220,8 +220,8 @@ NSString *const kFUNDefaultRegion = @"us-central1";
     NSString *value = [NSString stringWithFormat:@"Bearer %@", context.authToken];
     [fetcher setRequestValue:value forHTTPHeaderField:@"Authorization"];
   }
-  if (context.instanceIDToken) {
-    [fetcher setRequestValue:context.instanceIDToken forHTTPHeaderField:kFUNInstanceIDTokenHeader];
+  if (context.FCMToken) {
+    [fetcher setRequestValue:context.FCMToken forHTTPHeaderField:kFUNFCMTokenHeader];
   }
 
   // Override normal security rules if this is a local test.

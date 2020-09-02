@@ -23,18 +23,18 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FUNContext ()
 
 - (instancetype)initWithAuthToken:(NSString *_Nullable)authToken
-                  instanceIDToken:(NSString *_Nullable)instanceIDToken NS_DESIGNATED_INITIALIZER;
+                  FCMToken:(NSString *_Nullable)FCMToken NS_DESIGNATED_INITIALIZER;
 
 @end
 
 @implementation FUNContext
 
 - (instancetype)initWithAuthToken:(NSString *_Nullable)authToken
-                  instanceIDToken:(NSString *_Nullable)instanceIDToken {
+                  FCMToken:(NSString *_Nullable)FCMToken {
   self = [super init];
   if (self) {
     _authToken = [authToken copy];
-    _instanceIDToken = [instanceIDToken copy];
+    _FCMToken = [FCMToken copy];
   }
   return self;
 }
@@ -60,17 +60,17 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 // This is broken out so it can be mocked for tests.
-- (NSString *)instanceIDToken {
+- (NSString *)FCMToken {
   return _messaging.FCMToken;
 }
 
 - (void)getContext:(void (^)(FUNContext *_Nullable context, NSError *_Nullable error))completion {
   // If auth isn't included, call the completion handler and return.
   if (_auth == nil) {
-    // With no auth, just populate instanceIDToken and call the completion handler.
-    NSString *instanceIDToken = [self instanceIDToken];
+    // With no auth, just populate FCMToken and call the completion handler.
+    NSString *FCMToken = [self FCMToken];
     FUNContext *context = [[FUNContext alloc] initWithAuthToken:nil
-                                                instanceIDToken:instanceIDToken];
+                                                FCMToken:FCMToken];
     completion(context, nil);
     return;
   }
@@ -84,10 +84,10 @@ NS_ASSUME_NONNULL_BEGIN
                      }
 
                      // Get the instance id token.
-                     NSString *_Nullable instanceIDToken = [self instanceIDToken];
+                     NSString *_Nullable FCMToken = [self FCMToken];
 
                      FUNContext *context = [[FUNContext alloc] initWithAuthToken:token
-                                                                 instanceIDToken:instanceIDToken];
+                                                                 FCMToken:FCMToken];
                      completion(context, nil);
                    }];
 }

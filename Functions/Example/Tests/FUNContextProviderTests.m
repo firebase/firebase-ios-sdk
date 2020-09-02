@@ -42,7 +42,7 @@
       [self expectationWithDescription:@"Context should have auth keys."];
   [provider getContext:^(FUNContext *_Nullable context, NSError *_Nullable error) {
     XCTAssert([context.authToken isEqualToString:@"token"]);
-    XCTAssert([context.instanceIDToken isEqualToString:self.messagingFake.FCMToken]);
+    XCTAssert([context.FCMToken isEqualToString:self.messagingFake.FCMToken]);
     XCTAssertNil(error);
     [expectation fulfill];
   }];
@@ -75,7 +75,7 @@
   [provider getContext:^(FUNContext *_Nullable context, NSError *_Nullable error) {
     XCTAssertNil(error);
     XCTAssertNil(context.authToken);
-    XCTAssertNil(context.instanceIDToken);
+    XCTAssertNil(context.FCMToken);
     [expectation fulfill];
   }];
 
