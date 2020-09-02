@@ -16,8 +16,6 @@
 #import "Functions/FirebaseFunctions/FUNContext.h"
 
 #import "Interop/Auth/Public/FIRAuthInterop.h"
-
-#import "Functions/FirebaseFunctions/FUNInstanceIDProxy.h"
 #import "FirebaseMessaging/Sources/Interop/FIRMessagingInterop.h"
 
 NS_ASSUME_NONNULL_BEGIN
