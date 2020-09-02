@@ -28,7 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FUNContext : NSObject
 - (id)init NS_UNAVAILABLE;
 @property(nonatomic, copy, nullable, readonly) NSString *authToken;
-@property(nonatomic, copy, nullable, readonly) NSString *instanceIDToken;
+@property(nonatomic, copy, nullable, readonly) NSString *FCMToken;
 @end
 
 /**
