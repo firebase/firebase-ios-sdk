@@ -122,9 +122,9 @@ static NSString *const kDefaultProjectID = @"functions-integration-test";
   [self waitForExpectations:@[ expectation ] timeout:10];
 }
 
-- (void)testInstanceID {
+- (void)testFCMToken {
   XCTestExpectation *expectation = [[XCTestExpectation alloc] init];
-  FIRHTTPSCallable *function = [_functions HTTPSCallableWithName:@"instanceIdTest"];
+  FIRHTTPSCallable *function = [_functions HTTPSCallableWithName:@"FCMTokenTest"];
   [function callWithObject:@{}
                 completion:^(FIRHTTPSCallableResult *_Nullable result, NSError *_Nullable error) {
                   XCTAssertNil(error);

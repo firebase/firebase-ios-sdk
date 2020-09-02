@@ -22,19 +22,4 @@
   return @"fakeFCMToken";
 }
 
-- (void)deleteFCMTokenForSenderID:(nonnull NSString *)senderID
-                       completion:(nonnull void (^)(NSError *_Nullable))completion {
-}
-
-- (void)deleteTokenWithCompletion:(nonnull void (^)(NSError *_Nullable))completion {
-}
-
-- (void)retrieveFCMTokenForSenderID:(nonnull NSString *)senderID
-                         completion:
-                             (nonnull void (^)(NSString *_Nullable, NSError *_Nullable))completion {
-}
-
-- (void)tokenWithCompletion:(nonnull void (^)(NSString *_Nullable, NSError *_Nullable))completion {
-}
-
 @end
