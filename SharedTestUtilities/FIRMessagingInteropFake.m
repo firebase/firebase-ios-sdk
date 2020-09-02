@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRMessagingInteropFake.h"
+#import "SharedTestUtilities/FIRMessagingInteropFake.h"
 
 @implementation FIRMessagingInteropFake
 
