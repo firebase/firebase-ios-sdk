@@ -429,7 +429,7 @@ NS_SWIFT_NAME(Messaging)
 /**
  * Invalidates an FCM token for a particular Sender ID. That Sender ID cannot no longer send
  * notifications to that FCM token. This does not delete the Firebase Installations ID that may have
- * been created when  generating the token. See `Installations.delete(completion:)`.
+ * been created when generating the token. See `Installations.delete(completion:)`.
  *
  * @param senderID The senderID for a particular Firebase project.
  * @param completion The completion handler to handle the token deletion.
