@@ -16,7 +16,9 @@
 #import <Foundation/Foundation.h>
 
 @class FIRApp;
+
 @protocol FIRAuthInterop;
+@protocol FIRMessagingInterop;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -36,7 +38,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (id)init NS_UNAVAILABLE;
 
-- (instancetype)initWithAuth:(nullable id<FIRAuthInterop>)auth NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithAuth:(nullable id<FIRAuthInterop>)auth
+                   messaging:(nullable id<FIRMessagingInterop>)messaging NS_DESIGNATED_INITIALIZER;
 
 - (void)getContext:(void (^)(FUNContext *_Nullable context, NSError *_Nullable error))completion;
 

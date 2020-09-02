@@ -17,6 +17,7 @@
 #import "Functions/FirebaseFunctions/Public/FirebaseFunctions/FIRFunctions.h"
 
 @protocol FIRAuthInterop;
+@protocol FIRMessagingInterop;
 @class FIRHTTPSCallableResult;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -52,10 +53,12 @@ NS_ASSUME_NONNULL_BEGIN
  * @param projectID The project ID for the Firebase project.
  * @param region The region for the http trigger, such as "us-central1".
  * @param auth The auth provider to use (optional).
+ * @param messaging The messaging interop to use (optional).
  */
 - (id)initWithProjectID:(NSString *)projectID
                  region:(NSString *)region
-                   auth:(nullable id<FIRAuthInterop>)auth;
+                   auth:(nullable id<FIRAuthInterop>)auth
+              messaging:(nullable id<FIRMessagingInterop>)messaging;
 
 @end
 
