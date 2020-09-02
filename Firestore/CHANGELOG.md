@@ -1,5 +1,8 @@
 # Unreleased
 
+# v1.17.1
+- [fixed] Fix gRPC documentation warning surfaced in Xcode (#6340).
+
 # v1.17.0
 - [changed] Internal improvements for future C++ and Unity support.
 
