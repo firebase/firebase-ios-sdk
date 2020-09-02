@@ -19,11 +19,7 @@
 #import "SharedTestUtilities/FIRMessagingInteropFake.h"
 
 @interface FUNContextProviderTests : XCTestCase
-
-@property(nonatomic) FUNContextProvider *provider;
-
 @property(nonatomic) FIRMessagingInteropFake *messagingFake;
-
 @end
 
 @implementation FUNContextProviderTests
