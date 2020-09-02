@@ -15,22 +15,22 @@
 
 #import "Functions/FirebaseFunctions/FUNContext.h"
 
-#import "Interop/Auth/Public/FIRAuthInterop.h"
 #import "FirebaseMessaging/Sources/Interop/FIRMessagingInterop.h"
+#import "Interop/Auth/Public/FIRAuthInterop.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FUNContext ()
 
 - (instancetype)initWithAuthToken:(NSString *_Nullable)authToken
-                  FCMToken:(NSString *_Nullable)FCMToken NS_DESIGNATED_INITIALIZER;
+                         FCMToken:(NSString *_Nullable)FCMToken NS_DESIGNATED_INITIALIZER;
 
 @end
 
 @implementation FUNContext
 
 - (instancetype)initWithAuthToken:(NSString *_Nullable)authToken
-                  FCMToken:(NSString *_Nullable)FCMToken {
+                         FCMToken:(NSString *_Nullable)FCMToken {
   self = [super init];
   if (self) {
     _authToken = [authToken copy];
@@ -69,8 +69,7 @@ NS_ASSUME_NONNULL_BEGIN
   if (_auth == nil) {
     // With no auth, just populate FCMToken and call the completion handler.
     NSString *FCMToken = [self FCMToken];
-    FUNContext *context = [[FUNContext alloc] initWithAuthToken:nil
-                                                FCMToken:FCMToken];
+    FUNContext *context = [[FUNContext alloc] initWithAuthToken:nil FCMToken:FCMToken];
     completion(context, nil);
     return;
   }
@@ -87,7 +86,7 @@ NS_ASSUME_NONNULL_BEGIN
                      NSString *_Nullable FCMToken = [self FCMToken];
 
                      FUNContext *context = [[FUNContext alloc] initWithAuthToken:token
-                                                                 FCMToken:FCMToken];
+                                                                        FCMToken:FCMToken];
                      completion(context, nil);
                    }];
 }

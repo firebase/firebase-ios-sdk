@@ -20,9 +20,9 @@
 
 @interface FUNContextProviderTests : XCTestCase
 
-@property (nonatomic) FUNContextProvider *provider;
+@property(nonatomic) FUNContextProvider *provider;
 
-@property (nonatomic) FIRMessagingInteropFake *messagingFake;
+@property(nonatomic) FIRMessagingInteropFake *messagingFake;
 
 @end
 
