@@ -35,7 +35,6 @@ FOUNDATION_EXPORT const char *const FIRCoreVersionString;
   NSString *version = [NSString stringWithUTF8String:(const char *const)STR(FIR_VERSION)];
   XCTAssertEqualObjects([NSString stringWithUTF8String:FIRVersionString], version);
   XCTAssertEqualObjects([NSString stringWithUTF8String:FIRCoreVersionString], version);
-  
 }
 
 @end
