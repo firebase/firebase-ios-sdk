@@ -255,17 +255,6 @@ static const NSInteger FIRErrorCodeDurableDeepLinkFailed = -119;
 
 - (BOOL)setUpWithLaunchOptions:(nullable NSDictionary *)launchOptions
                         apiKey:(NSString *)apiKey
-                      clientID:(NSString *)clientID
-                     urlScheme:(nullable NSString *)urlScheme
-                  userDefaults:(nullable NSUserDefaults *)userDefaults {
-  return [self setUpWithLaunchOptions:launchOptions
-                               apiKey:apiKey
-                            urlScheme:urlScheme
-                         userDefaults:userDefaults];
-}
-
-- (BOOL)setUpWithLaunchOptions:(nullable NSDictionary *)launchOptions
-                        apiKey:(NSString *)apiKey
                      urlScheme:(nullable NSString *)urlScheme
                   userDefaults:(nullable NSUserDefaults *)userDefaults {
   if (apiKey == nil) {
@@ -333,6 +322,17 @@ static const NSInteger FIRErrorCodeDurableDeepLinkFailed = -119;
 
 + (instancetype)sharedInstance {
   return [self dynamicLinks];
+}
+
+- (BOOL)setUpWithLaunchOptions:(nullable NSDictionary *)launchOptions
+                        apiKey:(NSString *)apiKey
+                      clientID:(NSString *)clientID
+                     urlScheme:(nullable NSString *)urlScheme
+                  userDefaults:(nullable NSUserDefaults *)userDefaults {
+  return [self setUpWithLaunchOptions:launchOptions
+                               apiKey:apiKey
+                            urlScheme:urlScheme
+                         userDefaults:userDefaults];
 }
 
 - (void)checkForPendingDeepLink {
