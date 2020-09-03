@@ -6,6 +6,7 @@ on:
     - 'Functions**'
     - '.github/workflows/functions.yml'
     - 'Interop/Auth/Public/*.h'
+    - 'FirebaseMessaging/Sources/Interop/*.h'
     - 'Gemfile'
   schedule:
     # Run every day at 11pm (PST) - cron uses UTC times

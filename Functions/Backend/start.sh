@@ -46,7 +46,7 @@ FUNCTIONS_BIN="./node_modules/.bin/functions"
 "${FUNCTIONS_BIN}" deploy dataTest --trigger-http
 "${FUNCTIONS_BIN}" deploy scalarTest --trigger-http
 "${FUNCTIONS_BIN}" deploy tokenTest --trigger-http
-"${FUNCTIONS_BIN}" deploy instanceIdTest --trigger-http
+"${FUNCTIONS_BIN}" deploy FCMTokenTest --trigger-http
 "${FUNCTIONS_BIN}" deploy nullTest --trigger-http
 "${FUNCTIONS_BIN}" deploy missingResultTest --trigger-http
 "${FUNCTIONS_BIN}" deploy unhandledErrorTest --trigger-http
