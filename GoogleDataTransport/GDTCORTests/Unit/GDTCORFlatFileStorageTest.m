@@ -33,7 +33,7 @@
 #import "GoogleDataTransport/GDTCORTests/Common/Categories/GDTCORFlatFileStorage+Testing.h"
 #import "GoogleDataTransport/GDTCORTests/Common/Categories/GDTCORRegistrar+Testing.h"
 
-#import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORDirectorySizeCalculator.h"
+#import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORDirectorySizeTracker.h"
 
 /** A category that adds finding a random element to NSSet. NSSet's -anyObject isn't random. */
 @interface NSSet (GDTCORRandomElement)

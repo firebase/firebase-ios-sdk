@@ -18,7 +18,7 @@
 
 #import "GoogleDataTransport/GDTCORLibrary/Private/GDTCORFlatFileStorage.h"
 
-@class GDTCORDirectorySizeCalculator;
+@class GDTCORDirectorySizeTracker;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -30,7 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)reset;
 
-@property(nonatomic, readonly) GDTCORDirectorySizeCalculator *sizeCalculator;
+@property(nonatomic, readonly) GDTCORDirectorySizeTracker *sizeTracker;
 
 @end
 

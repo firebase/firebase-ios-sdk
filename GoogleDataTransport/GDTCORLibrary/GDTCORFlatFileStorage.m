@@ -27,7 +27,7 @@
 #import "GoogleDataTransport/GDTCORLibrary/Private/GDTCORRegistrar_Private.h"
 #import "GoogleDataTransport/GDTCORLibrary/Private/GDTCORUploadCoordinator.h"
 
-#import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORDirectorySizeCalculator.h"
+#import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORDirectorySizeTracker.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -57,8 +57,8 @@ const uint64_t kGDTCORFlatFileStorageSizeLimit = 20 * 1000 * 1000;  // 20 MB.
 
 @interface GDTCORFlatFileStorage ()
 
-/** An instance of the size calculator to keep track of the disk space consumed by the storage. */
-@property(nonatomic, readonly) GDTCORDirectorySizeCalculator *sizeCalculator;
+/** An instance of the size tracker to keep track of the disk space consumed by the storage. */
+@property(nonatomic, readonly) GDTCORDirectorySizeTracker *sizeTracker;
 
 @end
 
@@ -96,8 +96,8 @@ const uint64_t kGDTCORFlatFileStorageSizeLimit = 20 * 1000 * 1000;  // 20 MB.
     _storageQueue =
         dispatch_queue_create("com.google.GDTCORFlatFileStorage", DISPATCH_QUEUE_SERIAL);
     _uploadCoordinator = [GDTCORUploadCoordinator sharedInstance];
-    _sizeCalculator =
-        [[GDTCORDirectorySizeCalculator alloc] initWithDirectoryPath:GDTCORRootDirectory().path];
+    _sizeTracker =
+        [[GDTCORDirectorySizeTracker alloc] initWithDirectoryPath:GDTCORRootDirectory().path];
   }
   return self;
 }
@@ -148,7 +148,7 @@ const uint64_t kGDTCORFlatFileStorageSizeLimit = 20 * 1000 * 1000;  // 20 MB.
     }
 
     // Check storage size limit before storing the event.
-    uint64_t resultingStorageSize = self.sizeCalculator.directoryContentSize + encodedEvent.length;
+    uint64_t resultingStorageSize = self.sizeTracker.directoryContentSize + encodedEvent.length;
     if (resultingStorageSize > kGDTCORFlatFileStorageSizeLimit) {
       NSError *error = [NSError
           errorWithDomain:GDTCORFlatFileStorageErrorDomain
@@ -175,8 +175,8 @@ const uint64_t kGDTCORFlatFileStorageSizeLimit = 20 * 1000 * 1000;  // 20 MB.
       completion(YES, nil);
     }
 
-    // Notify size calculator.
-    [self.sizeCalculator fileWithSize:encodedEvent.length wasAddedAtPath:filePath];
+    // Notify size tracker.
+    [self.sizeTracker fileWithSize:encodedEvent.length wasAddedAtPath:filePath];
 
     // Check the QoS, if it's high priority, notify the target that it has a high priority event.
     if (event.qosTier == GDTCOREventQoSFast) {
@@ -327,8 +327,8 @@ const uint64_t kGDTCORFlatFileStorageSizeLimit = 20 * 1000 * 1000;  // 20 MB.
         NSError *newValueError;
         if ([newValue writeToFile:dataPath options:NSDataWritingAtomic error:&newValueError]) {
           // Update storage size.
-          [self.sizeCalculator fileWithSize:data.length wasRemovedAtPath:dataPath];
-          [self.sizeCalculator fileWithSize:newValue.length wasAddedAtPath:dataPath];
+          [self.sizeTracker fileWithSize:data.length wasRemovedAtPath:dataPath];
+          [self.sizeTracker fileWithSize:newValue.length wasAddedAtPath:dataPath];
         } else {
           GDTCORLogDebug(@"Error writing new value in libraryDataForKey: %@", newValueError);
         }
@@ -350,7 +350,7 @@ const uint64_t kGDTCORFlatFileStorageSizeLimit = 20 * 1000 * 1000;  // 20 MB.
     NSError *error;
     NSString *dataPath = [[[self class] libraryDataStoragePath] stringByAppendingPathComponent:key];
     if ([data writeToFile:dataPath options:NSDataWritingAtomic error:&error]) {
-      [self.sizeCalculator fileWithSize:data.length wasAddedAtPath:dataPath];
+      [self.sizeTracker fileWithSize:data.length wasAddedAtPath:dataPath];
     }
     if (onComplete) {
       onComplete(error);
@@ -367,7 +367,7 @@ const uint64_t kGDTCORFlatFileStorageSizeLimit = 20 * 1000 * 1000;  // 20 MB.
 
     if ([[NSFileManager defaultManager] fileExistsAtPath:dataPath]) {
       if ([[NSFileManager defaultManager] removeItemAtPath:dataPath error:&error]) {
-        [self.sizeCalculator fileWithSize:fileSize wasRemovedAtPath:dataPath];
+        [self.sizeTracker fileWithSize:fileSize wasRemovedAtPath:dataPath];
       }
       if (onComplete) {
         onComplete(error);
@@ -440,7 +440,7 @@ const uint64_t kGDTCORFlatFileStorageSizeLimit = 20 * 1000 * 1000;  // 20 MB.
       }
     }
 
-    [self.sizeCalculator resetCachedSize];
+    [self.sizeTracker resetCachedSize];
   });
 }
 
@@ -450,7 +450,7 @@ const uint64_t kGDTCORFlatFileStorageSizeLimit = 20 * 1000 * 1000;  // 20 MB.
   }
 
   dispatch_async(_storageQueue, ^{
-    onComplete([self.sizeCalculator directoryContentSize]);
+    onComplete([self.sizeTracker directoryContentSize]);
   });
 }
 
@@ -574,7 +574,7 @@ const uint64_t kGDTCORFlatFileStorageSizeLimit = 20 * 1000 * 1000;  // 20 MB.
     }
   }
 
-  [self.sizeCalculator resetCachedSize];
+  [self.sizeTracker resetCachedSize];
 }
 
 - (GDTCORStorageSizeBytes)fileSizeAtURL:(NSURL *)fileURL {

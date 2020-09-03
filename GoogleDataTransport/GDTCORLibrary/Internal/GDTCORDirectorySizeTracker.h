@@ -25,7 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
  *  This is an internal class designed to be used by `GDTCORFlatFileStorage`.
  *  NOTE: The class is not thread-safe. The client must take care of synchronization.
  */
-@interface GDTCORDirectorySizeCalculator : NSObject
+@interface GDTCORDirectorySizeTracker : NSObject
 
 - (instancetype)init NS_UNAVAILABLE;
 

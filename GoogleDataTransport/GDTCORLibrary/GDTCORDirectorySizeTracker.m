@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORDirectorySizeCalculator.h"
+#import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORDirectorySizeTracker.h"
 
-@interface GDTCORDirectorySizeCalculator ()
+@interface GDTCORDirectorySizeTracker ()
 
 /** The observed directory path. */
 @property(nonatomic, readonly) NSString *directoryPath;
@@ -26,7 +26,7 @@
 
 @end
 
-@implementation GDTCORDirectorySizeCalculator
+@implementation GDTCORDirectorySizeTracker
 
 - (instancetype)initWithDirectoryPath:(NSString *)path {
   self = [super init];

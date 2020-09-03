@@ -16,19 +16,19 @@
 
 #import "GoogleDataTransport/GDTCORTests/Common/Categories/GDTCORFlatFileStorage+Testing.h"
 
-#import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORDirectorySizeCalculator.h"
+#import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORDirectorySizeTracker.h"
 
 @implementation GDTCORFlatFileStorage (Testing)
 
 // Defined privately.
-@dynamic sizeCalculator;
+@dynamic sizeTracker;
 
 - (void)reset {
   dispatch_sync(self.storageQueue, ^{
     [[NSFileManager defaultManager] removeItemAtPath:GDTCORRootDirectory().path error:nil];
   });
 
-  [[GDTCORFlatFileStorage sharedInstance].sizeCalculator resetCachedSize];
+  [[GDTCORFlatFileStorage sharedInstance].sizeTracker resetCachedSize];
 
   dispatch_semaphore_t sema = dispatch_semaphore_create(0);
   [[GDTCORFlatFileStorage sharedInstance] storageSizeWithCallback:^(uint64_t storageSize) {
