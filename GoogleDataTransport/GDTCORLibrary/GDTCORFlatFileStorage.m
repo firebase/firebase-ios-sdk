@@ -74,13 +74,6 @@ const uint64_t kGDTCORFlatFileStorageSizeLimit = 20 * 1000 * 1000;  // 20 MB.
   [[GDTCORRegistrar sharedInstance] registerStorage:[self sharedInstance] target:kGDTCORTargetFLL];
   [[GDTCORRegistrar sharedInstance] registerStorage:[self sharedInstance] target:kGDTCORTargetCSH];
   [[GDTCORRegistrar sharedInstance] registerStorage:[self sharedInstance] target:kGDTCORTargetINT];
-
-  // Sets a global translation mapping to decode GDTCORStoredEvent objects encoded as instances of
-  // GDTCOREvent instead. Then we do the same thing with GDTCORStorage. This must be done in load
-  // because there are no direct references to this class and the NSCoding methods won't be called
-  // unless the class name is mapped early.
-  [NSKeyedUnarchiver setClass:[GDTCOREvent class] forClassName:@"GDTCORStoredEvent"];
-  [NSKeyedUnarchiver setClass:[GDTCORFlatFileStorage class] forClassName:@"GDTCORStorage"];
 }
 
 + (instancetype)sharedInstance {
