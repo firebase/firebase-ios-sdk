@@ -22,6 +22,8 @@
 
 import PackageDescription
 
+let firebaseVersion = "6.32.0"
+
 let package = Package(
   name: "Firebase",
   platforms: [.iOS(.v9), .macOS(.v10_11), .tvOS(.v10)],
@@ -143,8 +145,8 @@ let package = Package(
       publicHeadersPath: "Public",
       cSettings: [
         .headerSearchPath("../.."),
-        .define("FIRCore_VERSION", to: "0.0.1"), // TODO: Fix version
-        .define("Firebase_VERSION", to: "0.0.1"), // TODO: Fix version
+        .define("FIRCore_VERSION", to: firebaseVersion),
+        .define("Firebase_VERSION", to: firebaseVersion),
         // TODO: - Add support for cflags cSetting so that we can set the -fno-autolink option
       ]
     ),
@@ -181,7 +183,7 @@ let package = Package(
       publicHeadersPath: "Public",
       cSettings: [
         .headerSearchPath("../../"),
-        .define("FIRABTesting_VERSION", to: "0.0.1"), // TODO: Fix version
+        .define("FIRABTesting_VERSION", to: firebaseVersion),
       ]
     ),
     .testTarget(
@@ -241,7 +243,7 @@ let package = Package(
       publicHeadersPath: "Public",
       cSettings: [
         .headerSearchPath("../../"),
-        .define("FIRAuth_VERSION", to: "0.0.1"), // TODO: Fix version
+        .define("FIRAuth_VERSION", to: firebaseVersion),
         .define("FIRAuth_MINOR_VERSION", to: "1.1"), // TODO: Fix version
       ]
     ),
@@ -286,7 +288,7 @@ let package = Package(
       publicHeadersPath: "Crashlytics/Public",
       cSettings: [
         .headerSearchPath(".."),
-        .define("DISPLAY_VERSION", to: "0.0.1"), // TODO: Fix version
+        .define("DISPLAY_VERSION", to: firebaseVersion),
         .define("CLS_SDK_NAME", to: "Crashlytics iOS SDK", .when(platforms: .some([.iOS]))),
         .define("CLS_SDK_NAME", to: "Crashlytics macOS SDK", .when(platforms: .some([.macOS]))),
         .define("CLS_SDK_NAME", to: "Crashlytics tvOS SDK", .when(platforms: .some([.tvOS]))),
@@ -311,7 +313,7 @@ let package = Package(
       publicHeadersPath: "Public",
       cSettings: [
         .headerSearchPath("../../"),
-        .define("FIRDatabase_VERSION", to: "0.0.1"), // TODO: Fix version
+        .define("FIRDatabase_VERSION", to: firebaseVersion),
       ]
     ),
     .testTarget(
@@ -336,7 +338,7 @@ let package = Package(
         .headerSearchPath("../../"),
         .define("FIRDynamicLinks3P", to: "1"),
         .define("GIN_SCION_LOGGING", to: "1"),
-        .define("FIRDynamicLinks_VERSION", to: "0.0.1"), // TODO: Fix version
+        .define("FIRDynamicLinks_VERSION", to: firebaseVersion),
       ]
     ),
 
@@ -395,7 +397,7 @@ let package = Package(
         .define("PB_FIELD_32BIT", to: "1"),
         .define("PB_NO_PACKED_STRUCTS", to: "1"),
         .define("PB_ENABLE_MALLOC", to: "1"),
-        .define("FIRFirestore_VERSION", to: "0.0.1"), // TODO: Fix version
+        .define("FIRFirestore_VERSION", to: firebaseVersion),
       ]
     ),
     .target(
@@ -434,7 +436,7 @@ let package = Package(
       publicHeadersPath: "Public",
       cSettings: [
         .headerSearchPath("../../"),
-        .define("FIRFunctions_VERSION", to: "0.0.1"), // TODO: Fix version
+        .define("FIRFunctions_VERSION", to: firebaseVersion),
       ]
     ),
 
@@ -456,7 +458,7 @@ let package = Package(
       publicHeadersPath: "Public",
       cSettings: [
         .headerSearchPath("../../"),
-        .define("FIRInAppMessaging_LIB_VERSION", to: "0.0.1"), // TODO: Fix version
+        .define("FIRInAppMessaging_LIB_VERSION", to: firebaseVersion),
         .define("PB_FIELD_32BIT", to: "1"),
         .define("PB_NO_PACKED_STRUCTS", to: "1"),
         .define("PB_ENABLE_MALLOC", to: "1"),
@@ -471,7 +473,7 @@ let package = Package(
     //   publicHeadersPath: "Public",
     //   cSettings: [
     //     .headerSearchPath("../../"),
-    //     .define("FIRInstanceID_LIB_VERSION", to: "0.0.1"), // TODO: Fix version
+    //     .define("FIRInstanceID_LIB_VERSION", to: firebaseVersion),
     //   ]
     // ),
     .target(
@@ -505,7 +507,7 @@ let package = Package(
       publicHeadersPath: "Public",
       cSettings: [
         .headerSearchPath("../../"),
-        .define("FIRRemoteConfig_VERSION", to: "0.0.1"), // TODO: Fix version
+        .define("FIRRemoteConfig_VERSION", to: firebaseVersion),
       ]
     ),
     .testTarget(
@@ -539,7 +541,7 @@ let package = Package(
       publicHeadersPath: "Public",
       cSettings: [
         .headerSearchPath("../../"),
-        .define("FIRStorage_VERSION", to: "0.0.1"), // TODO: Fix version
+        .define("FIRStorage_VERSION", to: firebaseVersion),
       ]
     ),
     .testTarget(
@@ -637,6 +639,16 @@ let package = Package(
         "FirebaseStorage",
       ],
       path: "SwiftPMTests/objc-import-test"
+    ),
+    .testTarget(
+      name: "version-test",
+      dependencies: [
+        "FirebaseCore",
+      ],
+      path: "SwiftPMTests/version-test",
+      cSettings: [
+        .define("FIR_VERSION", to: firebaseVersion),
+      ]
     ),
     .target(
       name: "GoogleUtilities_AppDelegateSwizzler",
@@ -748,7 +760,7 @@ let package = Package(
     //     "OCMock",
     //     "GoogleUtilities_AppDelegateSwizzler",
     //     "GoogleUtilities_Environment",
-    //     // "GoogleUtilities_ISASwizzler", // Build needs to disable ARC.
+    //     "GoogleUtilities_ISASwizzler", // Build needs to disable ARC.
     //     "GoogleUtilities_Logger",
     //     "GoogleUtilities_MethodSwizzler",
     //     "GoogleUtilities_Network",
