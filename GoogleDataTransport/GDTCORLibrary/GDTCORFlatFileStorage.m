@@ -64,6 +64,8 @@ const uint64_t kGDTCORFlatFileStorageSizeLimit = 20 * 1000 * 1000;  // 20 MB.
 
 @implementation GDTCORFlatFileStorage
 
+@synthesize sizeTracker = _sizeTracker;
+
 + (void)load {
 #if !NDEBUG
   [[GDTCORRegistrar sharedInstance] registerStorage:[self sharedInstance] target:kGDTCORTargetTest];
@@ -96,10 +98,16 @@ const uint64_t kGDTCORFlatFileStorageSizeLimit = 20 * 1000 * 1000;  // 20 MB.
     _storageQueue =
         dispatch_queue_create("com.google.GDTCORFlatFileStorage", DISPATCH_QUEUE_SERIAL);
     _uploadCoordinator = [GDTCORUploadCoordinator sharedInstance];
+  }
+  return self;
+}
+
+- (GDTCORDirectorySizeTracker *)sizeTracker {
+  if (_sizeTracker == nil) {
     _sizeTracker =
         [[GDTCORDirectorySizeTracker alloc] initWithDirectoryPath:GDTCORRootDirectory().path];
   }
-  return self;
+  return _sizeTracker;
 }
 
 #pragma mark - GDTCORStorageProtocol
