@@ -41,8 +41,7 @@ NS_ASSUME_NONNULL_BEGIN
                       clientID:(NSString *)clientID
                      urlScheme:(nullable NSString *)urlScheme
                   userDefaults:(nullable NSUserDefaults *)userDefaults
-    __attribute((
-        deprecated("Use setUpWithLaunchOptions::apiKey:urlScheme:userDefaults: instead.")));
+    DEPRECATED_MSG_ATTRIBUTE("Use setUpWithLaunchOptions::apiKey:urlScheme:userDefaults: instead.");
 
 /**
  * @method setUpWithLaunchOptions::apiKey:urlScheme:userDefaults:
