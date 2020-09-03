@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
     - 'FirebaseRemoteConfig**'
+    - 'FirebaseABTesting/Sources/Interop/**'
     - 'Interop/Analytics/Public/*.h'
     - '.github/workflows/remoteconfig.yml'
     - 'Gemfile'
