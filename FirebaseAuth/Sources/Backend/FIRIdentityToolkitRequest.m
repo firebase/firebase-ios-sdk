@@ -18,8 +18,6 @@
 
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuth.h"
 
-#import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
-
 NS_ASSUME_NONNULL_BEGIN
 
 static NSString *const kHttpsPrefix = @"https:";
@@ -89,7 +87,7 @@ static NSString *kIdentityPlatformStagingAPIHost =
   NSString *apiPrefix;
   NSString *apiHost;
 
-  NSString *emulatorURL = [FIRAuth auth].emulatorURL;
+  NSString *emulatorURL = _requestConfiguration.emulatorURL;
 
   if (_useIdentityPlatform) {
     apiURLFormat = kIdentityPlatformAPIURLFormat;
