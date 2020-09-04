@@ -1465,7 +1465,8 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 - (void)useEmulatorWithHost:(NSString *)host port:(NSInteger)port {
   NSAssert(host.length > 0, @"Cannot connect to nil or empty host");
   dispatch_sync(FIRAuthGlobalWorkQueue(), ^{
-    self->_requestConfiguration.emulatorURL = [NSString stringWithFormat:@"%@:%ld", host, port];
+    self->_requestConfiguration.emulatorURL =
+        [NSString stringWithFormat:@"%@:%ld", host, (long)port];
   });
 }
 
