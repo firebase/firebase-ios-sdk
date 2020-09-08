@@ -26,7 +26,9 @@ git tag -a "test" -m "release testing"
 # Update source and tag, e.g.  ":git => 'https://github.com/firebase/firebase-ios-sdk.git'" to
 # ":git => /tmp/test/firebase-ios-sdk"
 sed  -i "" "s/\s*:git.*/:git => '${local_sdk_repo_dir}',/; s/\s*:tag.*/:tag => 'test'/" *.podspec
+cat GoogleDataTransport.podspec
 cd "${GITHUB_WORKSPACE}/ZipBuilder"
 swift build
 # Update Pod versions.
 ./.build/debug/firebase-pod-updater --git-root "${local_sdk_repo_dir}" --releasing-pods "${GITHUB_WORKSPACE}/scripts/create_spec_repo/firebase_sdk.textproto"
+cat GoogleDataTransport.podspec
