@@ -162,8 +162,14 @@ struct ContentView: View {
       return
     }
     let senderID = app.options.gcmSenderID
+    var options: [String: Any] = [:]
+    if Messaging.messaging().apnsToken == nil {
+      log = "There's no APNS token available at the moment."
+      return
+    }
+    options = ["apns_token": Messaging.messaging().apnsToken as Any]
     InstanceID.instanceID()
-      .token(withAuthorizedEntity: senderID, scope: "*", options: nil) { token, error in
+      .token(withAuthorizedEntity: senderID, scope: "*", options: options) { token, error in
         guard let token = token, error == nil else {
           self.log = "Failed getting token: \(String(describing: error))"
           return
