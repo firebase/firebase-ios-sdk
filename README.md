@@ -39,7 +39,7 @@ monetize your app. More information about Firebase can be found at
 
 See the subsections below for details about the different installation methods.
 1. [Standard pod install](README.md#standard-pod-install)
-1. [Swift Package Manager (beta)](SwiftPackageManager.md)
+1. [Swift Package Manager (Beta)](SwiftPackageManager.md)
 1. [Installing from the GitHub repo](README.md#installing-from-github)
 1. [Experimental Carthage](README.md#carthage-ios-only)
 
@@ -48,9 +48,9 @@ See the subsections below for details about the different installation methods.
 Go to
 [https://firebase.google.com/docs/ios/setup](https://firebase.google.com/docs/ios/setup).
 
-### Swift Package Manager (beta)
+### Swift Package Manager (Beta)
 
-Instructions for the beta of [Swift Package Manager](https://swift.org/package-manager/)
+Instructions for the Beta of [Swift Package Manager](https://swift.org/package-manager/)
 support can be found at [SwiftPackageManager.md](SwiftPackageManager.md).
 
 ### Installing from GitHub
