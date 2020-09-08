@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google
+ * Copyright 2020 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,30 +14,29 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_CORE_KEY_FIELD_IN_FILTER_H_
-#define FIRESTORE_CORE_SRC_CORE_KEY_FIELD_IN_FILTER_H_
+#ifndef FIRESTORE_CORE_SRC_CORE_NOT_IN_FILTER_H_
+#define FIRESTORE_CORE_SRC_CORE_NOT_IN_FILTER_H_
 
-#include <Firestore/core/src/model/document.h>
-#include <Firestore/core/src/model/field_value.h>
 #include <string>
 
 #include "Firestore/core/src/core/field_filter.h"
 
 namespace firebase {
 namespace firestore {
+
+namespace model {
+class FieldPath;
+class FieldValue;
+}  // namespace model
+
 namespace core {
 
 /**
- * A Filter that matches on an array of key fields.
+ * A Filter that implements the not-in operator.
  */
-class KeyFieldInFilter : public FieldFilter {
+class NotInFilter : public FieldFilter {
  public:
-  KeyFieldInFilter(model::FieldPath field, model::FieldValue value);
-
-  static bool Contains(const model::FieldValue::Array& array_value,
-                       const model::Document& doc);
-
-  static void ValidateArrayValue(const model::FieldValue& value);
+  NotInFilter(model::FieldPath field, model::FieldValue value);
 
  private:
   class Rep;
@@ -47,4 +46,4 @@ class KeyFieldInFilter : public FieldFilter {
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_CORE_KEY_FIELD_IN_FILTER_H_
+#endif  // FIRESTORE_CORE_SRC_CORE_NOT_IN_FILTER_H_

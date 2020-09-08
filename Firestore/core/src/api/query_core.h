@@ -192,6 +192,22 @@ class Query {
       const model::FieldValue& field_value,
       const std::function<std::string()>& type_describer) const;
 
+  /**
+   * Given an operator, returns the set of operators that cannot be used with
+   * it.
+   *
+   * Operators in a query must adhere to the following set of rules:
+   * 1. Only one array operator is allowed.
+   * 2. Only one disjunctive operator is allowed.
+   * 3. NOT_EQUAL cannot be used with another NOT_EQUAL operator.
+   * 4. NOT_IN cannot be used with array, disjunctive, or NOT_EQUAL operators.
+   *
+   * Array operators: ARRAY_CONTAINS, ARRAY_CONTAINS_ANY
+   * Disjunctive operators: IN, ARRAY_CONTAINS_ANY, NOT_IN
+   */
+  std::vector<core::Filter::Operator> ConflictingOps(
+      core::Filter::Operator op) const;
+
   std::string Describe(core::Filter::Operator op) const;
 
   std::shared_ptr<Firestore> firestore_;

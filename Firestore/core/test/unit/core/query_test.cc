@@ -157,12 +157,23 @@ TEST(QueryTest, NullFilter) {
   auto doc3 = Doc("collection/2", 0, Map("sort", 3.1));
   auto doc4 = Doc("collection/4", 0, Map("sort", false));
   auto doc5 = Doc("collection/5", 0, Map("sort", "string"));
+  auto doc6 = Doc("collection/6", 0, Map("sort", NAN));
 
   EXPECT_THAT(query, Matches(doc1));
   EXPECT_THAT(query, Not(Matches(doc2)));
   EXPECT_THAT(query, Not(Matches(doc3)));
   EXPECT_THAT(query, Not(Matches(doc4)));
   EXPECT_THAT(query, Not(Matches(doc5)));
+  EXPECT_THAT(query, Not(Matches(doc6)));
+
+  query =
+      testutil::Query("collection").AddingFilter(Filter("sort", "!=", nullptr));
+  EXPECT_THAT(query, Not(Matches(doc1)));
+  EXPECT_THAT(query, Matches(doc2));
+  EXPECT_THAT(query, Matches(doc3));
+  EXPECT_THAT(query, Matches(doc4));
+  EXPECT_THAT(query, Matches(doc5));
+  EXPECT_THAT(query, Matches(doc6));
 }
 
 TEST(QueryTest, NanFilter) {
@@ -174,12 +185,22 @@ TEST(QueryTest, NanFilter) {
   auto doc3 = Doc("collection/3", 0, Map("sort", 3.1));
   auto doc4 = Doc("collection/4", 0, Map("sort", false));
   auto doc5 = Doc("collection/5", 0, Map("sort", "string"));
+  auto doc6 = Doc("collection/6", 0, Map("sort", nullptr));
 
   EXPECT_THAT(query, Matches(doc1));
   EXPECT_THAT(query, Not(Matches(doc2)));
   EXPECT_THAT(query, Not(Matches(doc3)));
   EXPECT_THAT(query, Not(Matches(doc4)));
   EXPECT_THAT(query, Not(Matches(doc5)));
+  EXPECT_THAT(query, Not(Matches(doc6)));
+
+  query = testutil::Query("collection").AddingFilter(Filter("sort", "!=", NAN));
+  EXPECT_THAT(query, Not(Matches(doc1)));
+  EXPECT_THAT(query, Matches(doc2));
+  EXPECT_THAT(query, Matches(doc3));
+  EXPECT_THAT(query, Matches(doc4));
+  EXPECT_THAT(query, Matches(doc5));
+  EXPECT_THAT(query, Matches(doc6));
 }
 
 TEST(QueryTest, ArrayContainsFilter) {
@@ -257,6 +278,57 @@ TEST(QueryTest, InFiltersWithObjectValues) {
   // Containing object.
   doc = Doc("collection/1", 0, Map("zip", Map("a", Array(42))));
   EXPECT_THAT(query, Matches(doc));
+}
+
+TEST(QueryTest, NotInFilters) {
+  auto query = testutil::Query("collection")
+                   .AddingFilter(Filter("zip", "not-in", Array(12345)));
+
+  // No match.
+  auto doc = Doc("collection/1", 0, Map("zip", 23456));
+  EXPECT_THAT(query, Matches(doc));
+
+  // Value matches in array.
+  doc = Doc("collection/1", 0, Map("zip", Array(12345)));
+  EXPECT_THAT(query, Matches(doc));
+
+  // Non-type match.
+  doc = Doc("collection/1", 0, Map("zip", "12345"));
+  EXPECT_THAT(query, Matches(doc));
+
+  // Nested match.
+  doc = Doc("collection/1", 0, Map("zip", Array("12345", Map("zip", 12345))));
+  EXPECT_THAT(query, Matches(doc));
+
+  // Null match.
+  doc = Doc("collection/1", 0, Map("zip", nullptr));
+  EXPECT_THAT(query, Matches(doc));
+
+  // NAN match.
+  doc = Doc("collection/1", 0, Map("zip", NAN));
+  EXPECT_THAT(query, Matches(doc));
+
+  // Direct match.
+  doc = Doc("collection/1", 0, Map("zip", 12345));
+  EXPECT_THAT(query, Not(Matches(doc)));
+
+  // Field not set.
+  doc = Doc("collection/1", 0, Map("chip", 23456));
+  EXPECT_THAT(query, Not(Matches(doc)));
+}
+
+TEST(QueryTest, NotInFiltersWithObjectValues) {
+  auto query =
+      testutil::Query("collection")
+          .AddingFilter(Filter("zip", "not-in", Array(Map("a", Array(42)))));
+
+  // Containing object in array.
+  auto doc = Doc("collection/1", 0, Map("zip", Array(Map("a", Array(42)))));
+  EXPECT_THAT(query, Matches(doc));
+
+  // Containing object.
+  doc = Doc("collection/1", 0, Map("zip", Map("a", Array(42))));
+  EXPECT_THAT(query, Not(Matches(doc)));
 }
 
 TEST(QueryTest, ArrayContainsAnyFilters) {
@@ -689,6 +761,16 @@ TEST(QueryTest, CanonicalIDs) {
   filters = filters.AddingFilter(Filter("int", "<", 42));
   EXPECT_THAT(filters,
               HasCanonicalId("coll|f:str==fooint<42|ob:intasc__name__asc"));
+
+  // != filter
+  filters = testutil::Query("coll").AddingFilter(Filter("str", "!=", "foo"));
+  EXPECT_THAT(filters, HasCanonicalId("coll|f:str!=foo|ob:strasc__name__asc"));
+
+  // not-in filter
+  filters = testutil::Query("coll").AddingFilter(
+      Filter("a", "not-in", Array(1, 2, 3)));
+  EXPECT_THAT(filters,
+              HasCanonicalId("coll|f:anot-in[1, 2, 3]|ob:__name__asc"));
 
   auto order_bys = testutil::Query("coll").AddingOrderBy(OrderBy("up", "asc"));
   EXPECT_THAT(order_bys, HasCanonicalId("coll|f:|ob:upasc__name__asc"));
