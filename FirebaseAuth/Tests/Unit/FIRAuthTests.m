@@ -2191,6 +2191,22 @@ static const NSTimeInterval kWaitInterval = .5;
   [self waitForTimeIntervel:kWaitInterval];  // make sure listener is no longer called
 }
 
+/** @fn testUseEmulator
+    @brief Tests the @c useEmulatorWithHost:port: method.
+ */
+- (void)testUseEmulator {
+  [[FIRAuth auth] useEmulatorWithHost:@"host" port:12345];
+
+  XCTAssertEqualObjects(@"host:12345", [FIRAuth auth].requestConfiguration.emulatorURL);
+}
+
+/** @fn testUseEmulatorNeverCalled
+    @brief Tests that the emulatorURL is nil if the @c useEmulatorWithHost:port: is not called.
+ */
+- (void)testUseEmulatorNeverCalled {
+  XCTAssertEqualObjects(nil, [FIRAuth auth].requestConfiguration.emulatorURL);
+}
+
 #pragma mark - Automatic Token Refresh Tests.
 
 /** @fn testAutomaticTokenRefresh
