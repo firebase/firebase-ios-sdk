@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,12 @@
  * limitations under the License.
  */
 
-// Note: This file is forked from FIRMessagingInstanceIDProxy.h
+#import "SharedTestUtilities/FIRMessagingInteropFake.h"
 
-#import <Foundation/Foundation.h>
+@implementation FIRMessagingInteropFake
 
-/**
- *  FirebaseFunctions cannot always depend on FIRInstanceID directly, due to how it is
- *  packaged. To make it easier to make calls to FIRInstanceID, this proxy class, will provide
- *  method names duplicated from FIRInstanceID, while using reflection-based called to proxy
- *  the requests.
- */
-@interface FUNInstanceIDProxy : NSObject
-- (nullable NSString *)token;
+- (NSString *)FCMToken {
+  return @"fakeFCMToken";
+}
+
 @end

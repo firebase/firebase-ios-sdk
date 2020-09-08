@@ -800,6 +800,12 @@ static void FIRCLSProcessRecordCrashInfo(FIRCLSFile *file) {
       continue;
     }
 
+    // The crash_info_t's message may contain the device's UDID, in this case,
+    // make sure that we do our best to redact that information before writing the
+    // rest of the message to disk. This also has the effect of not uploading that
+    // information in the subsequent crash report.
+    FIRCLSRedactUUID(string);
+
     FIRCLSFileWriteArrayEntryHexEncodedString(file, string);
   }
 }

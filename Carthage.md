@@ -37,6 +37,7 @@ FirebaseABTesting, FirebaseInAppMessaging, or FirebaseML,
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseABTestingBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseAdMobBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseAnalyticsBinary.json"
+binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseAppDistributionBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseAuthBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseCrashlyticsBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseDatabaseBinary.json"
