@@ -36,6 +36,7 @@ git grep "${options[@]}" \
      ':(exclude,glob)SwiftPMTests/**' \
      ':(exclude)Functions/FirebaseFunctions/FIRFunctions.m' \
      ':(exclude)GoogleDataTransport/GDTCORLibrary/Internal/GoogleDataTransportInternal.h' \
+     ':(exclude)GoogleDataTransport/GDTCORLibrary/GDTCORPlatform.m' \
      ':(exclude)GoogleUtilities/NSData+zlib/Private/GULNSDataInternal.h' \
      ':(exclude)GoogleUtilities/Logger/Private/GULLogger.h' \
      ':(exclude)HeadersImports.md' && exit_with_error
