@@ -41,19 +41,19 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** The client must call this method or `resetCachedSize` method each time a file or directory is
  * added to the tracked directory.
- *  @param size The size of the added file.
  *  @param path The path to the added file. If the path is outside the tracked directory then the
+ *  @param fileSize The size of the added file.
  * method is no-op.
  */
-- (void)fileWithSize:(GDTCORStorageSizeBytes)size wasAddedAtPath:(NSString *)path;
+- (void)fileWasAddedAtPath:(NSString *)path withSize:(GDTCORStorageSizeBytes)fileSize;
 
 /** The client must call this method or `resetCachedSize` method each time a file or directory is
  * removed from the tracked directory.
- *  @param size The size of the removed file.
  *  @param path The path to the removed file. If the path is outside the tracked directory then the
+ *  @param fileSize The size of the removed file.
  * method is no-op.
  */
-- (void)fileWithSize:(GDTCORStorageSizeBytes)size wasRemovedAtPath:(NSString *)path;
+- (void)fileWasRemovedAtPath:(NSString *)path withSize:(GDTCORStorageSizeBytes)fileSize;
 
 /** Invalidates cached directory size. */
 - (void)resetCachedSize;
