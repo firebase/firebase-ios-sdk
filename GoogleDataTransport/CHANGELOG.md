@@ -1,3 +1,6 @@
+# Unreleased
+- Fix Swift Package Manager linker failure for CoreTelephony. (#6408)
+
 # v7.1.1
 - Use `NSTimeZone` instead of `CFTimeZone` to get time zone offset respecting daylight. (#6246)
 
