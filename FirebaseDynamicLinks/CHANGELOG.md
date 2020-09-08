@@ -1,5 +1,5 @@
 # v4.3.1
-- [removed] Client id usage in api call and respective checks in the code.
+- [changed] Client id usage in api call and respective checks in the code.
 
 # v4.3.0
 - [changed] Functionally neutral public header refactor to enable Swift Package
