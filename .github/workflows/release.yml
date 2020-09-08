@@ -25,7 +25,7 @@ jobs:
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
           bot-access.txt "$bot_token_secret"
     - name: Update SpecsTesting repo setup
-      run: scripts/release_testing_setup.sh
+      run: sdk_repo_dir="\/tmp\/test\/firebase-ios-sdk" scripts/release_testing_setup.sh
     - name: Update SpecsTesting repo
       run: |
         botaccess=`cat bot-access.txt`
