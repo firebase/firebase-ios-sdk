@@ -18,6 +18,15 @@
 
 #import <sys/sysctl.h>
 
+#if TARGET_OS_IOS
+#if SWIFT_PACKAGE
+// The module import is necessary for https://github.com/firebase/firebase-ios-sdk/issues/6408
+@import CoreTelephony;
+#else
+#import <CoreTelephony/CTTelephonyNetworkInfo.h>
+#endif
+#endif
+
 #import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORAssert.h"
 #import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORConsoleLogger.h"
 #import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORReachability.h"

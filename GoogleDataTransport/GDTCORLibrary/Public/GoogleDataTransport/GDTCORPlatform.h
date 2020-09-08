@@ -28,10 +28,6 @@
 #import <WatchKit/WatchKit.h>
 #endif  // TARGET_OS_IOS || TARGET_OS_TV
 
-#if TARGET_OS_IOS
-#import <CoreTelephony/CTTelephonyNetworkInfo.h>
-#endif
-
 NS_ASSUME_NONNULL_BEGIN
 
 /** The GoogleDataTransport library version. */
