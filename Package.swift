@@ -623,7 +623,7 @@ let package = Package(
       ],
       linkerSettings: [
         .linkedFramework("SystemConfiguration"),
-        .linkedFramework("CoreTelephony", .when(platforms: .some([.macOS, .iOS])))
+        .linkedFramework("CoreTelephony", .when(platforms: .some([.macOS, .iOS]))),
       ]
     ),
     .testTarget(
