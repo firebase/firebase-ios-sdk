@@ -165,14 +165,10 @@ const uint64_t kGDTCORFlatFileStorageSizeLimit = 20 * 1000 * 1000;  // 20 MB.
     BOOL writeResult = GDTCORWriteDataToFile(encodedEvent, filePath, &error);
     if (writeResult == NO || error) {
       GDTCORLogDebug(@"Attempt to write archive failed: path:%@ error:%@", filePath, error);
-    } else {
-      GDTCORLogDebug(@"Writing archive succeeded: %@", filePath);
-    }
-
-    if (error) {
       completion(NO, error);
       return;
     } else {
+      GDTCORLogDebug(@"Writing archive succeeded: %@", filePath);
       completion(YES, nil);
     }
 
@@ -364,7 +360,8 @@ const uint64_t kGDTCORFlatFileStorageSizeLimit = 20 * 1000 * 1000;  // 20 MB.
   dispatch_async(_storageQueue, ^{
     NSError *error;
     NSString *dataPath = [[[self class] libraryDataStoragePath] stringByAppendingPathComponent:key];
-    GDTCORStorageSizeBytes fileSize = [self fileSizeAtURL:[NSURL fileURLWithPath:dataPath]];
+    GDTCORStorageSizeBytes fileSize =
+        [self.sizeTracker fileSizeAtURL:[NSURL fileURLWithPath:dataPath]];
 
     if ([[NSFileManager defaultManager] fileExistsAtPath:dataPath]) {
       if ([[NSFileManager defaultManager] removeItemAtPath:dataPath error:&error]) {
@@ -576,12 +573,6 @@ const uint64_t kGDTCORFlatFileStorageSizeLimit = 20 * 1000 * 1000;  // 20 MB.
   }
 
   [self.sizeTracker resetCachedSize];
-}
-
-- (GDTCORStorageSizeBytes)fileSizeAtURL:(NSURL *)fileURL {
-  NSNumber *fileSize;
-  [fileURL getResourceValue:&fileSize forKey:NSURLFileSizeKey error:nil];
-  return fileSize.unsignedLongLongValue;
 }
 
 #pragma mark - Private helper methods

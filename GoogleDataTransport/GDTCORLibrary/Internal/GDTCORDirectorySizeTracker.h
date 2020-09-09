@@ -58,6 +58,9 @@ NS_ASSUME_NONNULL_BEGIN
 /** Invalidates cached directory size. */
 - (void)resetCachedSize;
 
+/** Returns URL resource value for `NSURLFileSizeKey` key for the specified URL. */
+- (GDTCORStorageSizeBytes)fileSizeAtURL:(NSURL *)fileURL;
+
 @end
 
 NS_ASSUME_NONNULL_END

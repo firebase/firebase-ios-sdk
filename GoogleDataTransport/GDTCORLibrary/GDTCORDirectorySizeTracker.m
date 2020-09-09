@@ -83,13 +83,17 @@
     NSNumber *isRegularFile;
     [fileURL getResourceValue:&isRegularFile forKey:NSURLIsRegularFileKey error:nil];
     if (isRegularFile.boolValue) {
-      NSNumber *fileSize;
-      [fileURL getResourceValue:&fileSize forKey:NSURLFileSizeKey error:nil];
-      totalBytes += fileSize.unsignedLongLongValue;
+      totalBytes += [self fileSizeAtURL:fileURL];
     }
   }
 
   return totalBytes;
+}
+
+- (GDTCORStorageSizeBytes)fileSizeAtURL:(NSURL *)fileURL {
+  NSNumber *fileSize;
+  [fileURL getResourceValue:&fileSize forKey:NSURLFileSizeKey error:nil];
+  return fileSize.unsignedLongLongValue;
 }
 
 @end
