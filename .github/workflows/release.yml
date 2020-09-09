@@ -16,6 +16,7 @@ jobs:
     env:
       bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       local_repo: specstesting
+      nightly_version: "6.32.1"
       local_sdk_repo_dir: /tmp/test/firebase-ios-sdk
       podspec_repo_branch: master
     runs-on: macOS-latest
@@ -30,7 +31,7 @@ jobs:
     - name: Update SpecsTesting repo setup
       run: |
          ossbotaccess=`cat oss-bot-access.txt`
-         BOT_TOKEN="${ossbotaccess}" scripts/release_testing_setup.sh
+         BOT_TOKEN="${ossbotaccess}" tag_version="nightly-test-${nightly_version}" scripts/release_testing_setup.sh
     - name: Update SpecsTesting repo
       run: |
         botaccess=`cat bot-access.txt`
@@ -73,7 +74,6 @@ jobs:
     - name: Remove data before upload
       run: scripts/remove_data.sh config release_testing
     - uses: actions/upload-artifact@v2
-      if: ${{ failure() }}
       with:
         name: quickstart_artifacts_config
         path: quickstart-ios/
@@ -86,22 +86,14 @@ jobs:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      testing_repo_dir: "/tmp/test/"
-      testing_repo: "firebase-ios-sdk"
     runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v2
     - name: Get token
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
           bot-access.txt "$bot_token_secret"
-    - name: Get testing podspec repo
-      uses: actions/download-artifact@v1
-      with:
-        name: firebase-ios-sdk
     - name: Setup testing repo and quickstart
       run: |
-          mkdir -p "${testing_repo_dir}"
-          mv "${GITHUB_WORKSPACE}/${testing_repo}" "${testing_repo_dir}"
           botaccess=`cat bot-access.txt`
           BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh abtesting release_testing
     - name: Install Secret GoogleService-Info.plist
@@ -121,22 +113,14 @@ jobs:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      testing_repo_dir: "/tmp/test/"
-      testing_repo: "firebase-ios-sdk"
     runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v2
     - name: Get token
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
           bot-access.txt "$bot_token_secret"
-    - name: Get testing podspec repo
-      uses: actions/download-artifact@v1
-      with:
-        name: firebase-ios-sdk
     - name: Setup testing repo and quickstart
       run: |
-          mkdir -p "${testing_repo_dir}"
-          mv "${GITHUB_WORKSPACE}/${testing_repo}" "${testing_repo_dir}"
           botaccess=`cat bot-access.txt`
           BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh Authentication release_testing
     - name: Install Secret GoogleService-Info.plist
@@ -164,14 +148,8 @@ jobs:
     - name: Get token
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
           bot-access.txt "$bot_token_secret"
-    - name: Get testing podspec repo
-      uses: actions/download-artifact@v1
-      with:
-        name: firebase-ios-sdk
     - name: Setup testing repo and quickstart
       run: |
-          mkdir -p "${testing_repo_dir}"
-          mv "${GITHUB_WORKSPACE}/${testing_repo}" "${testing_repo_dir}"
           botaccess=`cat bot-access.txt`
           BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh Crashlytics release_testing
     - name: Install Secret GoogleService-Info.plist
@@ -206,14 +184,8 @@ jobs:
     - name: Get token
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
           bot-access.txt "$bot_token_secret"
-    - name: Get testing podspec repo
-      uses: actions/download-artifact@v1
-      with:
-        name: firebase-ios-sdk
     - name: Setup testing repo and quickstart
       run: |
-          mkdir -p "${testing_repo_dir}"
-          mv "${GITHUB_WORKSPACE}/${testing_repo}" "${testing_repo_dir}"
           botaccess=`cat bot-access.txt`
           BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh database release_testing
     - name: Install Secret GoogleService-Info.plist
@@ -243,14 +215,8 @@ jobs:
     - name: Get token
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
           bot-access.txt "$bot_token_secret"
-    - name: Get testing podspec repo
-      uses: actions/download-artifact@v1
-      with:
-        name: firebase-ios-sdk
     - name: Setup testing repo and quickstart
       run: |
-          mkdir -p "${testing_repo_dir}"
-          mv "${GITHUB_WORKSPACE}/${testing_repo}" "${testing_repo_dir}"
           botaccess=`cat bot-access.txt`
           BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh dynamiclinks release_testing
     - name: Install Secret GoogleService-Info.plist
@@ -286,14 +252,8 @@ jobs:
     - name: Get token
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
           bot-access.txt "$bot_token_secret"
-    - name: Get testing podspec repo
-      uses: actions/download-artifact@v1
-      with:
-        name: firebase-ios-sdk
     - name: Setup testing repo and quickstart
       run: |
-          mkdir -p "${testing_repo_dir}"
-          mv "${GITHUB_WORKSPACE}/${testing_repo}" "${testing_repo_dir}"
           botaccess=`cat bot-access.txt`
           BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh firestore release_testing
     - name: Install Secret GoogleService-Info.plist
@@ -322,14 +282,8 @@ jobs:
     - name: Get token
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
           bot-access.txt "$bot_token_secret"
-    - name: Get testing podspec repo
-      uses: actions/download-artifact@v1
-      with:
-        name: firebase-ios-sdk
     - name: Setup testing repo and quickstart
       run: |
-          mkdir -p "${testing_repo_dir}"
-          mv "${GITHUB_WORKSPACE}/${testing_repo}" "${testing_repo_dir}"
           botaccess=`cat bot-access.txt`
           BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh functions release_testing
     - name: install secret googleservice-info.plist
@@ -363,14 +317,8 @@ jobs:
     - name: Get token
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
           bot-access.txt "$bot_token_secret"
-    - name: Get testing podspec repo
-      uses: actions/download-artifact@v1
-      with:
-        name: firebase-ios-sdk
     - name: Setup testing repo and quickstart
       run: |
-          mkdir -p "${testing_repo_dir}"
-          mv "${GITHUB_WORKSPACE}/${testing_repo}" "${testing_repo_dir}"
           botaccess=`cat bot-access.txt`
           BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh inappmessaging release_testing
     - name: install secret googleservice-info.plist
@@ -402,14 +350,8 @@ jobs:
     - name: Get token
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
           bot-access.txt "$bot_token_secret"
-    - name: Get testing podspec repo
-      uses: actions/download-artifact@v1
-      with:
-        name: firebase-ios-sdk
     - name: Setup testing repo and quickstart
       run: |
-          mkdir -p "${testing_repo_dir}"
-          mv "${GITHUB_WORKSPACE}/${testing_repo}" "${testing_repo_dir}"
           botaccess=`cat bot-access.txt`
           BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh messaging release_testing
     - name: Install Secret GoogleService-Info.plist
@@ -441,14 +383,8 @@ jobs:
     - name: Get token
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
           bot-access.txt "$bot_token_secret"
-    - name: Get testing podspec repo
-      uses: actions/download-artifact@v1
-      with:
-        name: firebase-ios-sdk
     - name: Setup testing repo and quickstart
       run: |
-          mkdir -p "${testing_repo_dir}"
-          mv "${GITHUB_WORKSPACE}/${testing_repo}" "${testing_repo_dir}"
           botaccess=`cat bot-access.txt`
           BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh storage release_testing
     - name: Install Secret GoogleService-Info.plist
