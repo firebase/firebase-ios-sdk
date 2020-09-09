@@ -1,5 +1,6 @@
 # v4.3.1
 - [changed] Client id usage in api call and respective checks in the code.
+- [fixed] Fix attempts to connect to invalid ipv6 domain by updating ipv4 and ipv6 to use a single, valid endpoint (#5032)
 
 # v4.3.0
 - [changed] Functionally neutral public header refactor to enable Swift Package
@@ -9,7 +10,6 @@
 - [fixed]Check for Pending Dynamic link guard check logic
 
 # v4.2.0
-- [fixed] Fix attempts to connect to invalid ipv6 domain by updating ipv4 and ipv6 to use a single, valid endpoint (#5032)
 - [fixed] Fixed crashes that occur when a dynamic link is opened for the second time while an app is in the foreground (#5880)
 - [Added] Plist property `FirebaseDeepLinkPasteboardRetrievalEnabled` to enable/disable fetching dynamic links from Pasteboard.
 - [fixed] Reduce frequency of iOS14 pasteboard notifications by only reading from it when it contains URL(s). (#5905)
