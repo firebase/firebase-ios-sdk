@@ -7,7 +7,7 @@
 
 #import "FirebaseCore/Sources/FIRFirebaseUserAgent.h"
 
-#import "FirebaseCore/Sources/Private/FIRAppInternal.h"
+#import "GoogleUtilities/Environment/Private/GULAppEnvironmentUtil.h"
 
 #import <objc/runtime.h>
 
@@ -69,18 +69,25 @@ static NSString *const kApplePlatformComponentName = @"apple-platform";
 #pragma mark - Environment components
 
 + (NSDictionary<NSString *, NSString *> *)environmentComponents {
+  NSMutableDictionary<NSString *, NSString *> *components = [NSMutableDictionary dictionary];
+
   NSDictionary<NSString *, id> *info = [[NSBundle mainBundle] infoDictionary];
   NSString *xcodeVersion = info[@"DTXcodeBuild"];
   NSString *sdkVersion = info[@"DTSDKBuild"];
 
   NSString *swiftFlagValue = [self hasSwiftRuntime] ? @"true" : @"false";
+  NSString *isFromAppstoreFlagValue = [GULAppEnvironmentUtil isFromAppStore] ? @"true" : @"false";
 
-  return @{
-    @"xcode" : xcodeVersion,
-    @"apple-sdk" : sdkVersion,
-    @"swift" : swiftFlagValue,
-    @"apple-platform" : [self applePlatform]
-  };
+  components[@"apple-platform"] = [self applePlatform];
+  components[@"apple-sdk"] = sdkVersion;
+  components[@"appstore"] = isFromAppstoreFlagValue;
+  components[@"deploy"] = [self deploymentType];
+  components[@"device"] = [GULAppEnvironmentUtil deviceModel];
+  components[@"os-version"] = [GULAppEnvironmentUtil systemVersion];
+  components[@"swift"] = swiftFlagValue;
+  components[@"xcode"] = xcodeVersion;
+
+  return [components copy];
 }
 
 + (BOOL)hasSwiftRuntime {
@@ -115,6 +122,20 @@ static NSString *const kApplePlatformComponentName = @"apple-platform";
 #endif
 
   return applePlatform;
+}
+
++ (NSString *)deploymentType {
+  #if SWIFT_PACKAGE
+    NSString *deploymentType = @"swiftpm";
+  #elif FIREBASE_BUILD_CARTHAGE
+    NSString *deploymentType = @"carthage";
+  #elif FIREBASE_BUILD_ZIP_FILE
+    NSString *deploymentType = @"zip";
+  #else
+    NSString *deploymentType = @"cocoapods";
+  #endif
+
+  return deploymentType;
 }
 
 @end
