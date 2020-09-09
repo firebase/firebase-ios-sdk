@@ -888,6 +888,35 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 }
 
 - (void)testFirebaseUserAgent_DeploymentType {
+#if SWIFT_PACKAGE
+  NSString *deploymentType = @"swiftpm";
+#elif FIREBASE_BUILD_CARTHAGE
+  NSString *deploymentType = @"carthage";
+#elif FIREBASE_BUILD_ZIP_FILE
+  NSString *deploymentType = @"zip";
+#else
+  NSString *deploymentType = @"cocoapods";
+#endif
+
+  NSString *expectedComponent = [NSString stringWithFormat:@"deploy/%@", deploymentType];
+  XCTAssertTrue([[FIRApp firebaseUserAgent] containsString:expectedComponent]);
+}
+
+- (void)testFirebaseUserAgent_DeviceModel {
+  NSString *expectedComponent = [NSString stringWithFormat:@"device/%@", [FIRApp deviceModel]];
+  XCTAssertTrue([[FIRApp firebaseUserAgent] containsString:expectedComponent]);
+}
+
+- (void)testFirebaseUserAgent_OSVersion {
+  NSString *expectedComponent =
+      [NSString stringWithFormat:@"os-version/%@", [GULAppEnvironmentUtil systemVersion]];
+  XCTAssertTrue([[FIRApp firebaseUserAgent] containsString:expectedComponent]);
+}
+
+- (void)testFirebaseUserAgent_IsFromAppStore {
+  NSString *appStoreValue = [GULAppEnvironmentUtil isFromAppStore] ? @"true" : @"false";
+  NSString *expectedComponent = [NSString stringWithFormat:@"appstore/%@", appStoreValue];
+  XCTAssertTrue([[FIRApp firebaseUserAgent] containsString:expectedComponent]);
 }
 
 #pragma mark - Core Diagnostics
