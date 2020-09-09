@@ -19,7 +19,7 @@
 @class FIRMessagingRmqManager;
 
 /**
- *  Handle sync messages being received  via  APNS.
+ *  Handle sync messages being received via APNS.
  */
 @interface FIRMessagingSyncMessageManager : NSObject
 
