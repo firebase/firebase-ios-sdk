@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebaseStorage/Sources/Public/FIRStorageReference.h"
+#import "FirebaseStorage/Sources/Public/FirebaseStorage/FIRStorageReference.h"
 
 #import "FirebaseStorage/Sources/FIRStorageConstants_Private.h"
 #import "FirebaseStorage/Sources/FIRStorageDeleteTask.h"
@@ -29,7 +29,7 @@
 #import "FirebaseStorage/Sources/FIRStorageUploadTask_Private.h"
 #import "FirebaseStorage/Sources/FIRStorageUtils.h"
 #import "FirebaseStorage/Sources/FIRStorage_Private.h"
-#import "FirebaseStorage/Sources/Public/FIRStorageTaskSnapshot.h"
+#import "FirebaseStorage/Sources/Public/FirebaseStorage/FIRStorageTaskSnapshot.h"
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 

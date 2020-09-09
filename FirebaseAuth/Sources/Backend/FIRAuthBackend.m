@@ -23,7 +23,7 @@
 #import <GTMSessionFetcher/GTMSessionFetcherService.h>
 #endif
 
-#import "FirebaseAuth/Sources/Public/FirebaseAuth.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FirebaseAuth.h"
 
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
 #import "FirebaseAuth/Sources/AuthProvider/OAuth/FIROAuthCredential_Internal.h"
@@ -64,7 +64,7 @@
 #import "FirebaseAuth/Sources/Utilities/FIRAuthErrorUtils.h"
 
 #if TARGET_OS_IOS
-#import "FirebaseAuth/Sources/Public/FIRPhoneAuthProvider.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRPhoneAuthProvider.h"
 
 #import "FirebaseAuth/Sources/AuthProvider/Phone/FIRPhoneAuthCredential_Internal.h"
 #import "FirebaseAuth/Sources/MultiFactor/Phone/FIRPhoneMultiFactorInfo+Internal.h"
@@ -395,6 +395,17 @@ static NSString *const kMissingClientIdentifier = @"MISSING_CLIENT_IDENTIFIER";
         invalid.
  */
 static NSString *const kCaptchaCheckFailedErrorMessage = @"CAPTCHA_CHECK_FAILED";
+
+/** @var kTenantIDMismatch
+    @brief This is the error message the server will respond with if the tenant id mismatches.
+ */
+static NSString *const kTenantIDMismatch = @"TENANT_ID_MISMATCH";
+
+/** @var kUnsupportedTenantOperation
+    @brief This is the error message the server will respond with if the operation does not support
+   multi-tenant.
+ */
+static NSString *const kUnsupportedTenantOperation = @"UNSUPPORTED_TENANT_OPERATION";
 
 /** @var kMissingMFAPendingCredentialErrorMessage
  @brief This is the error message the server will respond with if the MFA pending credential is
@@ -1378,6 +1389,14 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
   if ([shortErrorMessage isEqualToString:kEmailChangeNeedsVerificationErrorMessage]) {
     return [FIRAuthErrorUtils errorWithCode:FIRAuthInternalErrorCodeEmailChangeNeedsVerification
                                     message:serverErrorMessage];
+  }
+
+  if ([shortErrorMessage isEqualToString:kTenantIDMismatch]) {
+    return [FIRAuthErrorUtils tenantIDMismatchError];
+  }
+
+  if ([shortErrorMessage isEqualToString:kUnsupportedTenantOperation]) {
+    return [FIRAuthErrorUtils unsupportedTenantOperationError];
   }
 
   // In this case we handle an error that might be specified in the underlying errors dictionary,

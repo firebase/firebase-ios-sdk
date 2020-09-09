@@ -52,10 +52,8 @@ Then do the following steps:
    `file Rome/*/* | grep universal | grep dynamic`
 1. Drag each dynamic framework to the "Embed Frameworks" section on the
    Xcode Build Target's "General" page.
-1. If you're using FirebaseML, FirebaseInAppMessaging, or FirebaseFirestore,
-   find
-   the resources to the project: `ls -ld Pods/*/Resources/*`. More details on
-   this below.
+1. If you're using FirebaseInAppMessaging, find the resources needed:
+   `ls -ld Pods/*/Resources/*`. More details on this below.
 1. Drag all of those resources into the Project Navigator, just
    like the frameworks, again making sure that the target you want to add these
    resources to has a checkmark next to it, and that you've selected "Copy items
@@ -81,13 +79,5 @@ Then do the following steps:
 - If you're including a Firebase component that has resources, copy its bundles
     into the Xcode project and make sure they're added to the
     `Copy Bundle Resources` Build Phase :
-    - For Firestore:
-        - ./Rome/GRPCClient.framework/gRPCCertificates.bundle
     - For InAppMessaging:
         - ./Rome/FirebaseInAppMessaging.framework/InAppMessagingDisplayResources.bundle
-    - For FirebaseMLVisionFaceModel:
-        - ./Pods/GoogleMobileVision/FaceDetector/Resources/GoogleMVFaceDetectorResources
-    - For FirebaseMLVisionTextModel:
-        - ./Pods/GoogleMobileVision/TextDetector/Resources/GoogleMVTextDetectorResources
-- For the FirebaseML resources, a bundle needs to be created. TBD better
-  instructions here.

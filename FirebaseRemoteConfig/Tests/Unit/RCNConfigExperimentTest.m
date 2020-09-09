@@ -14,21 +14,20 @@
  * limitations under the License.
  */
 
+#import <XCTest/XCTest.h>
+#import "OCMock.h"
+
 #import "FirebaseRemoteConfig/Sources/RCNConfigExperiment.h"
 
-#import <XCTest/XCTest.h>
-
-#import <FirebaseRemoteConfig/FIRRemoteConfig.h>
 #import "FirebaseRemoteConfig/Sources/Private/RCNConfigSettings.h"
+#import "FirebaseRemoteConfig/Sources/Public/FirebaseRemoteConfig/FIRRemoteConfig.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigDBManager.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigDefines.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigValue_Internal.h"
 #import "FirebaseRemoteConfig/Tests/Unit/RCNTestUtilities.h"
 
-#import <FirebaseABTesting/ExperimentPayload.pbobjc.h>
-#import <FirebaseABTesting/FIRExperimentController.h>
+#import "FirebaseABTesting/Sources/Private/FirebaseABTestingInternal.h"
 
-#import <OCMock/OCMock.h>
 #import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 
 // Surface the internal FIRExperimentController initializer.
@@ -220,16 +219,15 @@
           updateExperimentsWithServiceOrigin:[OCMArg any]
                                       events:[OCMArg any]
                                       policy:
-                                          ABTExperimentPayload_ExperimentOverflowPolicy_DiscardOldest  // NOLINT
+                                          ABTExperimentPayloadExperimentOverflowPolicyDiscardOldest  // NOLINT
                                lastStartTime:lastStartTime
                                     payloads:[OCMArg any]])
       .andDo(nil);
 #pragma clang diagnostic pop
 
-  ABTExperimentPayload *payload = [[ABTExperimentPayload alloc] init];
-  payload.experimentStartTimeMillis = 12345678000;
+  NSData *payloadData = [[self class] payloadDataFromTestFile];
 
-  experiment.experimentPayloads = [@[ payload.data ] mutableCopy];
+  experiment.experimentPayloads = [@[ payloadData ] mutableCopy];
 
   [experiment updateExperiments];
   XCTAssertEqualObjects(experiment.experimentMetadata[@"last_experiment_start_time"], @(12345678));
@@ -238,13 +236,7 @@
 #pragma mark Helpers.
 
 - (ABTExperimentPayload *)deserializeABTData:(NSData *)payload {
-  NSError *error;
-  ABTExperimentPayload *experimentPayload = [ABTExperimentPayload parseFromData:payload
-                                                                          error:&error];
-  if (error) {
-    return nil;
-  }
-  return experimentPayload;
+  return [ABTExperimentPayload parseFromData:payload];
 }
 
 - (int64_t)convertTimeToMillis:(NSString *)time {
@@ -258,4 +250,30 @@
   NSDate *experimentStartTime = [dateFormatter dateFromString:time];
   return [@([experimentStartTime timeIntervalSince1970] * 1000) longLongValue];
 }
+
++ (NSData *)payloadDataFromTestFile {
+#if SWIFT_PACKAGE
+  NSBundle *bundle = Firebase_RemoteConfigUnit_SWIFTPM_MODULE_BUNDLE();
+#else
+  NSBundle *bundle = [NSBundle bundleForClass:[self class]];
+#endif
+  NSString *testJsonDataFilePath = [bundle pathForResource:@"TestABTPayload" ofType:@"txt"];
+  NSError *readTextError = nil;
+  NSString *fileText = [[NSString alloc] initWithContentsOfFile:testJsonDataFilePath
+                                                       encoding:NSUTF8StringEncoding
+                                                          error:&readTextError];
+
+  NSData *fileData = [fileText dataUsingEncoding:kCFStringEncodingUTF8];
+
+  NSError *jsonDictionaryError = nil;
+  NSMutableDictionary *jsonDictionary =
+      [[NSJSONSerialization JSONObjectWithData:fileData
+                                       options:kNilOptions
+                                         error:&jsonDictionaryError] mutableCopy];
+  NSError *jsonDataError = nil;
+  return [NSJSONSerialization dataWithJSONObject:jsonDictionary
+                                         options:kNilOptions
+                                           error:&jsonDataError];
+}
+
 @end

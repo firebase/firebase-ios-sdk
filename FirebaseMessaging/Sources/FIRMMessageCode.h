@@ -47,7 +47,7 @@ typedef NS_ENUM(NSInteger, FIRMessagingMessageCode) {
   kFIRMessagingMessageCodeTokenDelegateMethodsNotImplemented = 2023,         // I-FCM002023
   kFIRMessagingMessageCodeTopicFormatIsDeprecated = 2024,
   kFIRMessagingMessageCodeDirectChannelConnectionFailed = 2025,
-  kFIRMessagingMessageCodeInvalidClient = 2026,
+  kFIRMessagingMessageCodeInvalidClient = 2026,  // no longer used
   // FIRMessagingClient.m
   kFIRMessagingMessageCodeClient000 = 4000,  // I-FCM004000
   kFIRMessagingMessageCodeClient001 = 4001,  // I-FCM004001

@@ -31,6 +31,7 @@
 #import "FirebaseInstallations/Source/Library/IIDMigration/FIRInstallationsIIDStore.h"
 #import "FirebaseInstallations/Source/Library/IIDMigration/FIRInstallationsIIDTokenStore.h"
 #import "FirebaseInstallations/Source/Library/InstallationsAPI/FIRInstallationsAPIService.h"
+#import "FirebaseInstallations/Source/Library/InstallationsIDController/FIRInstallationsBackoffController.h"
 #import "FirebaseInstallations/Source/Library/InstallationsIDController/FIRInstallationsSingleOperationPromiseCache.h"
 #import "FirebaseInstallations/Source/Library/InstallationsStore/FIRInstallationsStore.h"
 
@@ -55,6 +56,8 @@ static NSString *const kKeychainService = @"com.firebase.FIRInstallations.instal
 @property(nonatomic, readonly) FIRInstallationsIIDTokenStore *IIDTokenStore;
 
 @property(nonatomic, readonly) FIRInstallationsAPIService *APIService;
+
+@property(nonatomic, readonly) id<FIRInstallationsBackoffControllerProtocol> backoffController;
 
 @property(nonatomic, readonly) FIRInstallationsSingleOperationPromiseCache<FIRInstallationsItem *>
     *getInstallationPromiseCache;
@@ -88,12 +91,16 @@ static NSString *const kKeychainService = @"com.firebase.FIRInstallations.instal
   FIRInstallationsIIDTokenStore *IIDCheckingStore =
       [[FIRInstallationsIIDTokenStore alloc] initWithGCMSenderID:GCMSenderID];
 
+  FIRInstallationsBackoffController *backoffController =
+      [[FIRInstallationsBackoffController alloc] init];
+
   return [self initWithGoogleAppID:appID
                            appName:appName
                 installationsStore:installationsStore
                         APIService:apiService
                           IIDStore:IIDStore
-                     IIDTokenStore:IIDCheckingStore];
+                     IIDTokenStore:IIDCheckingStore
+                 backoffController:backoffController];
 }
 
 /// The initializer is supposed to be used by tests to inject `installationsStore`.
@@ -102,7 +109,9 @@ static NSString *const kKeychainService = @"com.firebase.FIRInstallations.instal
                  installationsStore:(FIRInstallationsStore *)installationsStore
                          APIService:(FIRInstallationsAPIService *)APIService
                            IIDStore:(FIRInstallationsIIDStore *)IIDStore
-                      IIDTokenStore:(FIRInstallationsIIDTokenStore *)IIDTokenStore {
+                      IIDTokenStore:(FIRInstallationsIIDTokenStore *)IIDTokenStore
+                  backoffController:
+                      (id<FIRInstallationsBackoffControllerProtocol>)backoffController {
   self = [super init];
   if (self) {
     _appID = appID;
@@ -111,6 +120,7 @@ static NSString *const kKeychainService = @"com.firebase.FIRInstallations.instal
     _APIService = APIService;
     _IIDStore = IIDStore;
     _IIDTokenStore = IIDTokenStore;
+    _backoffController = backoffController;
 
     __weak FIRInstallationsIDController *weakSelf = self;
 
@@ -253,8 +263,16 @@ static NSString *const kKeychainService = @"com.firebase.FIRInstallations.instal
       break;
   }
 
+  // Check for backoff.
+  if (![self.backoffController isNextRequestAllowed]) {
+    return [FIRInstallationsErrorUtil
+        rejectedPromiseWithError:[FIRInstallationsErrorUtil backoffIntervalWaitError]];
+  }
+
   return [self.APIService registerInstallation:installation]
       .catch(^(NSError *_Nonnull error) {
+        [self updateBackoffWithSuccess:NO APIError:error];
+
         if ([self doesRegistrationErrorRequireConfigChange:error]) {
           FIRLogError(kFIRLoggerInstallations,
                       kFIRInstallationsMessageCodeInvalidFirebaseConfiguration,
@@ -264,6 +282,7 @@ static NSString *const kKeychainService = @"com.firebase.FIRInstallations.instal
         }
       })
       .then(^id(FIRInstallationsItem *registeredInstallation) {
+        [self updateBackoffWithSuccess:YES APIError:nil];
         return [self saveInstallation:registeredInstallation];
       })
       .then(^FIRInstallationsItem *(FIRInstallationsItem *registeredInstallation) {
@@ -285,7 +304,6 @@ static NSString *const kKeychainService = @"com.firebase.FIRInstallations.instal
   switch (HTTPError.HTTPResponse.statusCode) {
     // These are the errors that require Firebase configuration change.
     case FIRInstallationsRegistrationHTTPCodeInvalidArgument:
-    case FIRInstallationsRegistrationHTTPCodeInvalidAPIKey:
     case FIRInstallationsRegistrationHTTPCodeAPIKeyToProjectIDMismatch:
     case FIRInstallationsRegistrationHTTPCodeProjectNotFound:
       return YES;
@@ -333,10 +351,21 @@ static NSString *const kKeychainService = @"com.firebase.FIRInstallations.instal
 
 - (FBLPromise<FIRInstallationsItem *> *)refreshAuthTokenForInstallation:
     (FIRInstallationsItem *)installation {
-  return [[self.APIService refreshAuthTokenForInstallation:installation]
+  // Check for backoff.
+  if (![self.backoffController isNextRequestAllowed]) {
+    return [FIRInstallationsErrorUtil
+        rejectedPromiseWithError:[FIRInstallationsErrorUtil backoffIntervalWaitError]];
+  }
+
+  return [[[self.APIService refreshAuthTokenForInstallation:installation]
       then:^id _Nullable(FIRInstallationsItem *_Nullable refreshedInstallation) {
+        [self updateBackoffWithSuccess:YES APIError:nil];
         return [self saveInstallation:refreshedInstallation];
-      }];
+      }] recover:^id _Nullable(NSError *_Nonnull error) {
+    // Pass the error to the backoff controller.
+    [self updateBackoffWithSuccess:NO APIError:error];
+    return error;
+  }];
 }
 
 - (id)regenerateFIDOnRefreshTokenErrorIfNeeded:(NSError *)error {
@@ -441,6 +470,33 @@ static NSString *const kKeychainService = @"com.firebase.FIRInstallations.instal
   return [self.authTokenForcingRefreshPromiseCache getExistingPendingPromise]
              ?: [self.authTokenPromiseCache getExistingPendingPromise]
                     ?: [self.getInstallationPromiseCache getExistingPendingPromise];
+}
+
+#pragma mark - Backoff
+
+- (void)updateBackoffWithSuccess:(BOOL)success APIError:(nullable NSError *)APIError {
+  if (success) {
+    [self.backoffController registerEvent:FIRInstallationsBackoffEventSuccess];
+  } else if ([APIError isKindOfClass:[FIRInstallationsHTTPError class]]) {
+    FIRInstallationsHTTPError *HTTPResponseError = (FIRInstallationsHTTPError *)APIError;
+    NSInteger statusCode = HTTPResponseError.HTTPResponse.statusCode;
+
+    if (statusCode == FIRInstallationsAuthTokenHTTPCodeInvalidAuthentication ||
+        statusCode == FIRInstallationsAuthTokenHTTPCodeFIDNotFound) {
+      // These errors are explicitly excluded because they are handled by FIS SDK itself so don't
+      // require backoff.
+    } else if (statusCode == 400 || statusCode == 403) {  // Explicitly unrecoverable errors.
+      [self.backoffController registerEvent:FIRInstallationsBackoffEventUnrecoverableFailure];
+    } else if (statusCode == 429 ||
+               (statusCode >= 500 && statusCode < 600)) {  // Explicitly recoverable errors.
+      [self.backoffController registerEvent:FIRInstallationsBackoffEventRecoverableFailure];
+    } else {  // Treat all unknown errors as recoverable.
+      [self.backoffController registerEvent:FIRInstallationsBackoffEventRecoverableFailure];
+    }
+  }
+
+  // If the error class is not `FIRInstallationsHTTPError` it indicates a connection error. Such
+  // errors should not change backoff interval.
 }
 
 #pragma mark - Notifications

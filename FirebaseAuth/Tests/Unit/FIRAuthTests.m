@@ -15,14 +15,15 @@
  */
 
 #import <Foundation/Foundation.h>
-#import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
-#import "FirebaseAuth/Sources/Public/FIRActionCodeSettings.h"
-#import "FirebaseAuth/Sources/Public/FIRAdditionalUserInfo.h"
-#import "FirebaseAuth/Sources/Public/FIREmailAuthProvider.h"
-#import "FirebaseAuth/Sources/Public/FIRFacebookAuthProvider.h"
-#import "FirebaseAuth/Sources/Public/FIRGoogleAuthProvider.h"
-#import "FirebaseAuth/Sources/Public/FIROAuthProvider.h"
+#import "OCMock.h"
+
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRActionCodeSettings.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAdditionalUserInfo.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIREmailAuthProvider.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRFacebookAuthProvider.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRGoogleAuthProvider.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIROAuthProvider.h"
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "GoogleUtilities/AppDelegateSwizzler/Private/GULAppDelegateSwizzler.h"
 #import "Interop/Auth/Public/FIRAuthInterop.h"
@@ -63,9 +64,9 @@
 #import "FirebaseAuth/Tests/Unit/OCMStubRecorder+FIRAuthUnitTests.h"
 
 #if TARGET_OS_IOS
-#import "FirebaseAuth/Sources/Public/FIRAuthUIDelegate.h"
-#import "FirebaseAuth/Sources/Public/FIRPhoneAuthCredential.h"
-#import "FirebaseAuth/Sources/Public/FIRPhoneAuthProvider.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthUIDelegate.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRPhoneAuthCredential.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRPhoneAuthProvider.h"
 
 #import "FirebaseAuth/Sources/SystemService/FIRAuthAPNSToken.h"
 #import "FirebaseAuth/Sources/SystemService/FIRAuthAPNSTokenManager.h"
@@ -1979,6 +1980,53 @@ static const NSTimeInterval kWaitInterval = .5;
                            XCTAssertEqual(error.code, FIRAuthErrorCodeNullUser);
                            [expectation fulfill];
                          }];
+  [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
+  OCMVerifyAll(_mockBackend);
+}
+
+/** @fn testUpdateCurrentUserFailureTenantIDMismatch
+ @brief Tests the flow of a failed @c updateCurrentUser:completion:
+ call with FIRAuthErrorCodeTenantIDMismatch.
+ */
+- (void)testUpdateCurrentUserFailureTenantIDMismatch {
+  // User without tenant id
+  [self waitForSignInWithAccessToken:kAccessToken APIKey:kAPIKey completion:nil];
+  FIRUser *user1 = [FIRAuth auth].currentUser;
+  [[FIRAuth auth] signOut:nil];
+
+  // User with tenant id "tenant-id"
+  [FIRAuth auth].tenantID = @"tenant-id-1";
+  NSString *kTestAccessToken2 = @"fakeAccessToken2";
+  [self waitForSignInWithAccessToken:kTestAccessToken2 APIKey:kAPIKey completion:nil];
+  FIRUser *user2 = [FIRAuth auth].currentUser;
+
+  [[FIRAuth auth] signOut:nil];
+  [FIRAuth auth].tenantID = @"tenant-id-2";
+  XCTestExpectation *expectation1 = [self expectationWithDescription:@"callback"];
+  [[FIRAuth auth] updateCurrentUser:user1
+                         completion:^(NSError *_Nullable error) {
+                           XCTAssertEqual(error.code, FIRAuthErrorCodeTenantIDMismatch);
+                           [expectation1 fulfill];
+                         }];
+
+  [[FIRAuth auth] signOut:nil];
+  [FIRAuth auth].tenantID = @"tenant-id-2";
+  XCTestExpectation *expectation2 = [self expectationWithDescription:@"callback"];
+  [[FIRAuth auth] updateCurrentUser:user2
+                         completion:^(NSError *_Nullable error) {
+                           XCTAssertEqual(error.code, FIRAuthErrorCodeTenantIDMismatch);
+                           [expectation2 fulfill];
+                         }];
+
+  [[FIRAuth auth] signOut:nil];
+  [FIRAuth auth].tenantID = nil;
+  XCTestExpectation *expectation3 = [self expectationWithDescription:@"callback"];
+  [[FIRAuth auth] updateCurrentUser:user2
+                         completion:^(NSError *_Nullable error) {
+                           XCTAssertEqual(error.code, FIRAuthErrorCodeTenantIDMismatch);
+                           [expectation3 fulfill];
+                         }];
+
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
   OCMVerifyAll(_mockBackend);
 }

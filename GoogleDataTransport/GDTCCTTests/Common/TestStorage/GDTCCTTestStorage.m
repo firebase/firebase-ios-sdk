@@ -16,7 +16,7 @@
 
 #import "GoogleDataTransport/GDTCCTTests/Common/TestStorage/GDTCCTTestStorage.h"
 
-#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCOREvent.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCOREvent.h"
 
 @implementation GDTCCTTestStorage {
   /** Store the events in memory. */
@@ -26,12 +26,17 @@
   NSMutableDictionary<NSNumber *, NSSet<GDTCOREvent *> *> *_batches;
 }
 
+- (instancetype)init {
+  self = [super init];
+  if (self) {
+    _storedEvents = [[NSMutableDictionary alloc] init];
+    _batches = [[NSMutableDictionary alloc] init];
+  }
+  return self;
+}
+
 - (void)storeEvent:(GDTCOREvent *)event
         onComplete:(void (^_Nullable)(BOOL wasWritten, NSError *_Nullable))completion {
-  static dispatch_once_t onceToken;
-  dispatch_once(&onceToken, ^{
-    self->_storedEvents = [[NSMutableDictionary alloc] init];
-  });
   _storedEvents[event.eventID] = event;
   if (completion) {
     completion(YES, nil);
@@ -44,28 +49,29 @@
 
 - (void)batchWithEventSelector:(nonnull GDTCORStorageEventSelector *)eventSelector
                batchExpiration:(nonnull NSDate *)expiration
-                    onComplete:
-                        (nonnull void (^)(NSNumber *_Nullable batchID,
-                                          NSSet<GDTCOREvent *> *_Nullable events))onComplete {
-  static NSInteger count = 0;
-  NSNumber *batchID = @(count);
-  count++;
-  static dispatch_once_t onceToken;
-  dispatch_once(&onceToken, ^{
-    self->_batches = [[NSMutableDictionary alloc] init];
-  });
-  NSSet<GDTCOREvent *> *batchEvents = [NSSet setWithArray:[_storedEvents allValues]];
-  _batches[batchID] = batchEvents;
-  [_storedEvents removeAllObjects];
-  if (onComplete) {
-    onComplete(batchID, batchEvents);
+                    onComplete:(nonnull GDTCORStorageBatchBlock)onComplete {
+  if (self.batchWithEventSelectorHandler) {
+    self.batchWithEventSelectorHandler(eventSelector, expiration, onComplete);
+  } else {
+    [self defaultBatchWithEventSelector:eventSelector
+                        batchExpiration:expiration
+                             onComplete:onComplete];
   }
 }
 
 - (void)removeBatchWithID:(nonnull NSNumber *)batchID
              deleteEvents:(BOOL)deleteEvents
                onComplete:(void (^_Nullable)(void))onComplete {
-  [_batches removeObjectForKey:batchID];
+  if (deleteEvents) {
+    [_batches removeObjectForKey:batchID];
+    [self.removeBatchAndDeleteEventsExpectation fulfill];
+  } else {
+    for (GDTCOREvent *batchedEvent in _batches[batchID]) {
+      _storedEvents[batchedEvent.eventID] = batchedEvent;
+    }
+    [self.removeBatchWithoutDeletingEventsExpectation fulfill];
+  }
+
   if (onComplete) {
     onComplete();
   }
@@ -95,7 +101,9 @@
 }
 
 - (void)hasEventsForTarget:(GDTCORTarget)target onComplete:(nonnull void (^)(BOOL))onComplete {
-  if (onComplete) {
+  if (self.hasEventsForTargetHandler) {
+    self.hasEventsForTargetHandler(target, onComplete);
+  } else if (onComplete) {
     onComplete(NO);
   }
 }
@@ -105,12 +113,32 @@
 
 - (void)batchIDsForTarget:(GDTCORTarget)target
                onComplete:(nonnull void (^)(NSSet<NSNumber *> *_Nullable))onComplete {
+  [self.batchIDsForTargetExpectation fulfill];
   if (onComplete) {
-    onComplete(nil);
+    onComplete([NSSet setWithArray:[self->_batches allKeys]]);
   }
 }
 
 - (void)checkForExpirations {
+}
+
+#pragma mark - Default Implementations
+
+- (void)defaultBatchWithEventSelector:(nonnull GDTCORStorageEventSelector *)eventSelector
+                      batchExpiration:(nonnull NSDate *)expiration
+                           onComplete:(nonnull GDTCORStorageBatchBlock)onComplete {
+  static NSInteger count = 0;
+  NSNumber *batchID = @(count);
+  count++;
+
+  NSSet<GDTCOREvent *> *batchEvents = [NSSet setWithArray:[_storedEvents allValues]];
+  _batches[batchID] = batchEvents;
+  [_storedEvents removeAllObjects];
+
+  [self.batchWithEventSelectorExpectation fulfill];
+  if (onComplete) {
+    onComplete(batchID, batchEvents);
+  }
 }
 
 @end

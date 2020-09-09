@@ -1,5 +1,23 @@
 # Unreleased
 
+# v1.17.1
+- [fixed] Fix gRPC documentation warning surfaced in Xcode (#6340).
+
+# v1.17.0
+- [changed] Internal improvements for future C++ and Unity support.
+
+# v1.16.4
+- [changed] Rearranged public headers for future Swift Package Manager support.
+  This should have no impact existing users of CocoaPods, Carthage, or zip file
+  distributions.
+
+# v1.16.3
+- [changed] Internal improvements for future C++ and Unity support.
+
+# v1.16.2
+- [fixed] Fixed a configuration issue where listeners were no longer being
+  called back on the main thread by default.
+
 # v1.16.1
 - [fixed] Removed a delay that may have prevented Firestore from immediately
   establishing a network connection if a connectivity change occurred while

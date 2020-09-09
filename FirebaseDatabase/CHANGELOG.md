@@ -1,3 +1,7 @@
+# Unreleased
+- [feature] The SDK can now infer a default database URL if none is provided in
+  the config.
+
 # v6.4.0
 - [changed] Functionally neutral source reorganization. (#5861)
 

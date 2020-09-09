@@ -16,7 +16,7 @@
 
 #import "GoogleDataTransport/GDTCCTTests/Unit/TestServer/GDTCCTTestServer.h"
 
-#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORAssert.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORAssert.h"
 
 #import <nanopb/pb_decode.h>
 #import <nanopb/pb_encode.h>
@@ -43,6 +43,7 @@
     [GCDWebServer setLogLevel:3];
     _server = [[GCDWebServer alloc] init];
     _registeredTestPaths = [[NSMutableDictionary alloc] init];
+    _responseNextRequestWaitTime = 42.42;
   }
   return self;
 }
@@ -81,7 +82,7 @@
  */
 - (NSData *)responseData {
   gdt_cct_LogResponse logResponse = gdt_cct_LogResponse_init_default;
-  logResponse.next_request_wait_millis = 42424;
+  logResponse.next_request_wait_millis = self.responseNextRequestWaitTime * 1000;
   logResponse.has_next_request_wait_millis = 1;
 
   pb_ostream_t sizestream = PB_OSTREAM_SIZING;
@@ -105,23 +106,36 @@
 #pragma mark - HTTP Path handling methods
 
 - (void)registerLogBatchPath {
-  id processBlock = ^GCDWebServerResponse *(__kindof GCDWebServerRequest *request) {
-    GCDWebServerDataResponse *response =
-        [[GCDWebServerDataResponse alloc] initWithData:[self responseData]
-                                           contentType:@"application/text"];
-    response.gzipContentEncodingEnabled = YES;
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1 * NSEC_PER_SEC),
-                   dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-                     if (self.responseCompletedBlock) {
-                       self.responseCompletedBlock(request, response);
-                     }
-                   });
-    return response;
-  };
+  __auto_type __weak weakSelf = self;
   [self.server addHandlerForMethod:@"POST"
                               path:@"/logBatch"
                       requestClass:[GCDWebServerRequest class]
-                      processBlock:processBlock];
+                 asyncProcessBlock:^(__kindof GCDWebServerRequest *_Nonnull request,
+                                     GCDWebServerCompletionBlock _Nonnull completionBlock) {
+                   if (!weakSelf) {
+                     return;
+                   }
+                   __auto_type self = weakSelf;
+
+                   GCDWebServerDataResponse *response =
+                       [[GCDWebServerDataResponse alloc] initWithData:[self responseData]
+                                                          contentType:@"application/text"];
+                   response.gzipContentEncodingEnabled = YES;
+
+                   GCDWebServerCompletionBlock completionWithHook =
+                       ^(GCDWebServerResponse *_Nullable response) {
+                         if (self.responseCompletedBlock) {
+                           self.responseCompletedBlock(request, response);
+                         }
+                         completionBlock(response);
+                       };
+
+                   if (self.requestHandler) {
+                     self.requestHandler(request, response, completionWithHook);
+                   } else {
+                     completionWithHook(response);
+                   }
+                 }];
 }
 
 - (void)registerRedirectPaths {

@@ -23,6 +23,7 @@
 #import <FirebaseMessaging/FIRMessaging.h>
 #import <FirebaseMessaging/FIRMessagingExtensionHelper.h>
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseMessaging/Sources/Interop/FIRMessagingInterop.h"
 #import "GoogleUtilities/AppDelegateSwizzler/Private/GULAppDelegateSwizzler.h"
 #import "GoogleUtilities/Reachability/Private/GULReachabilityChecker.h"
 #import "GoogleUtilities/UserDefaults/Private/GULUserDefaults.h"
@@ -161,21 +162,14 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 
 @end
 
-// Messaging doesn't provide any functionality to other components,
-// so it provides a private, empty protocol that it conforms to and use it for registration.
-
-@protocol FIRMessagingInstanceProvider
-@end
-
-@interface FIRMessaging () <FIRMessagingInstanceProvider, FIRLibrary>
+@interface FIRMessaging () <FIRMessagingInterop, FIRLibrary>
 @end
 
 @implementation FIRMessaging
 
 + (FIRMessaging *)messaging {
   FIRApp *defaultApp = [FIRApp defaultApp];  // Missing configure will be logged here.
-  id<FIRMessagingInstanceProvider> instance =
-      FIR_COMPONENT(FIRMessagingInstanceProvider, defaultApp.container);
+  id<FIRMessagingInterop> instance = FIR_COMPONENT(FIRMessagingInterop, defaultApp.container);
 
   // We know the instance coming from the container is a FIRMessaging instance, cast it and move on.
   return (FIRMessaging *)instance;
@@ -241,7 +235,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
     return messaging;
   };
   FIRComponent *messagingProvider =
-      [FIRComponent componentWithProtocol:@protocol(FIRMessagingInstanceProvider)
+      [FIRComponent componentWithProtocol:@protocol(FIRMessagingInterop)
                       instantiationTiming:FIRInstantiationTimingEagerInDefaultApp
                              dependencies:@[ analyticsDep ]
                             creationBlock:creationBlock];
@@ -269,6 +263,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 - (void)start {
   [self setupFileManagerSubDirectory];
   [self setupNotificationListeners];
+  [self setupTopics];
 
 #if !TARGET_OS_WATCH
   // Print the library version for logging.
@@ -288,7 +283,6 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   [self setupClient];
   [self setupSyncMessageManager];
   [self setupDataMessageManager];
-  [self setupTopics];
 
 #endif
 }
@@ -347,11 +341,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 }
 
 - (void)setupTopics {
-  if (!self.client) {
-    FIRMessagingLoggerWarn(kFIRMessagingMessageCodeInvalidClient,
-                           @"Invalid nil client before init pubsub.");
-  }
-  self.pubsub = [[FIRMessagingPubSub alloc] initWithClient:self.client];
+  self.pubsub = [[FIRMessagingPubSub alloc] init];
 }
 
 - (void)setupSyncMessageManager {

@@ -23,6 +23,10 @@ on:
     # Interop headers
     - 'Interop/Auth/Public/*.h'
 
+    # FirebaseCore header change
+    - 'FirebaseCore/Sources/Private'
+    - 'FirebaseCore/Sources/Public'
+
     # Podspec
     - 'FirebaseFirestore.podspec'
 
@@ -63,6 +67,10 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
+    - uses: actions/setup-python@v2
+      with:
+        python-version: 3.6
+
     - name: Setup check
       run:  scripts/setup_check.sh
 
@@ -79,6 +87,9 @@ jobs:
       matrix:
         os: [macos-latest, ubuntu-latest]
 
+    env:
+      MINT_PATH: ${{ github.workspace }}/mint
+
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v2
@@ -90,6 +101,13 @@ jobs:
         key: firestore-ccache-${{ runner.os }}-${{ github.sha }}
         restore-keys: |
           firestore-ccache-${{ runner.os }}-
+
+    - name: Cache Mint packages
+      uses: actions/cache@v1
+      with:
+        path: ${{ env.MINT_PATH }}
+        key: ${{ runner.os }}-mint-${{ hashFiles('**/Mintfile') }}
+        restore-keys: ${{ runner.os }}-mint-
 
     - name: Setup build
       run:  scripts/install_prereqs.sh Firestore ${{ runner.os }} cmake
@@ -167,6 +185,37 @@ jobs:
             --platforms=ios \
             --allow-warnings
 
+  spm:
+    # Don't run on private repo unless it is a PR.
+    if: github.repository != 'FirebasePrivate/firebase-ios-sdk' || github.event_name == 'pull_request'
+    runs-on: macOS-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Xcode 12
+      run: sudo xcode-select -s /Applications/Xcode_12_beta.app/Contents/Developer
+    - name: Initialize xcodebuild
+      run: xcodebuild -list
+    - name: iOS Unit Tests
+      run: scripts/third_party/travis/retry.sh xcodebuild -scheme FirebaseFirestore build -sdk
+           iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 11' | xcpretty
+
+  spm-cron:
+    # Don't run on private repo.
+    if: github.event_name == 'schedule' && github.repository != 'FirebasePrivate/firebase-ios-sdk'
+
+    runs-on: macOS-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Xcode 12
+      run: sudo xcode-select -s /Applications/Xcode_12_beta.app/Contents/Developer
+    - name: Initialize xcodebuild
+      run: xcodebuild -list
+    - name: macOS Unit Tests
+      run:  scripts/third_party/travis/retry.sh xcodebuild -scheme FirebaseFirestore build | xcpretty
+    - name: tvOS Unit Tests
+      run: scripts/third_party/travis/retry.sh xcodebuild -scheme FirebaseFirestore build -sdk
+           appletvsimulator -destination 'platform=tvOS Simulator,name=Apple TV' | xcpretty
+
   quickstart:
     # Don't run on private repo unless it is a PR.
     if: github.repository != 'FirebasePrivate/firebase-ios-sdk' || github.event_name == 'pull_request'
@@ -189,3 +238,18 @@ jobs:
     - name: Test swift quickstart
       run: ([ -z $plist_secret ] ||
             scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Firestore)
+
+  archive-cron:
+    # Don't run on private repo.
+    if: github.event_name == 'schedule' && github.repository != 'FirebasePrivate/firebase-ios-sdk'
+
+    runs-on: macOS-latest
+    strategy:
+      matrix:
+        target: [ios, tvos, macos]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Setup project and archive
+      run: scripts/test_archiving.sh FirebaseFirestore ${{ matrix.target }} ArchiveOutputs/${{ matrix.target }}.xcarchive

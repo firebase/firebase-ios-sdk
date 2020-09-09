@@ -1,3 +1,10 @@
+# 2020-08 -- v.4.6.2
+- [fixed] Fixed an issue that topic doesn't work in watchOS. (#6160)
+- [fixed] Improved Xcode completion of public API completion handlers in Swift. (#6278)
+
+# 2020-07 -- v4.6.1
+- [changed] Remove logic that is executed for iOS 7 and below. (#5835)
+
 # 2020-07 -- v4.6.0
 - [fixed] Fix documentation warning exposed by Xcode 12. (#5876)
 - [changed] Functionally neutral updated import references for dependencies. (#5824)

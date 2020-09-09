@@ -22,18 +22,14 @@
 #import <AppKit/AppKit.h>
 #endif  // TARGET_OS_IOS || TARGET_OS_TV
 
-#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORClock.h"
-#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORConsoleLogger.h"
-#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCOREvent.h"
-#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORPlatform.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORClock.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORConsoleLogger.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCOREvent.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORPlatform.h"
 
-#if SWIFT_PACKAGE
-#import "nanopb.h"
-#else
 #import <nanopb/pb.h>
 #import <nanopb/pb_decode.h>
 #import <nanopb/pb_encode.h>
-#endif
 
 #import "GoogleDataTransport/GDTCCTLibrary/Public/GDTCOREvent+GDTCCTSupport.h"
 
@@ -128,7 +124,7 @@ gdt_cct_LogRequest GDTCCTConstructLogRequest(int32_t logSource,
   GDTCORClock *currentTime = [GDTCORClock snapshot];
   logRequest.request_time_ms = currentTime.timeMillis;
   logRequest.has_request_time_ms = 1;
-  logRequest.request_uptime_ms = currentTime.uptime;
+  logRequest.request_uptime_ms = [currentTime uptimeMilliseconds];
   logRequest.has_request_uptime_ms = 1;
 
   return logRequest;
@@ -138,7 +134,7 @@ gdt_cct_LogEvent GDTCCTConstructLogEvent(GDTCOREvent *event) {
   gdt_cct_LogEvent logEvent = gdt_cct_LogEvent_init_default;
   logEvent.event_time_ms = event.clockSnapshot.timeMillis;
   logEvent.has_event_time_ms = 1;
-  logEvent.event_uptime_ms = event.clockSnapshot.uptime;
+  logEvent.event_uptime_ms = [event.clockSnapshot uptimeMilliseconds];
   logEvent.has_event_uptime_ms = 1;
   logEvent.timezone_offset_seconds = event.clockSnapshot.timezoneOffsetSeconds;
   logEvent.has_timezone_offset_seconds = 1;

@@ -158,15 +158,17 @@ enum StructuredQuery_FieldFilter_Operator : int {
   StructuredQuery_FieldFilter_Operator_GREATER_THAN = 3,
   StructuredQuery_FieldFilter_Operator_GREATER_THAN_OR_EQUAL = 4,
   StructuredQuery_FieldFilter_Operator_EQUAL = 5,
+  StructuredQuery_FieldFilter_Operator_NOT_EQUAL = 6,
   StructuredQuery_FieldFilter_Operator_ARRAY_CONTAINS = 7,
   StructuredQuery_FieldFilter_Operator_IN = 8,
   StructuredQuery_FieldFilter_Operator_ARRAY_CONTAINS_ANY = 9,
+  StructuredQuery_FieldFilter_Operator_NOT_IN = 10,
   StructuredQuery_FieldFilter_Operator_StructuredQuery_FieldFilter_Operator_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::min(),
   StructuredQuery_FieldFilter_Operator_StructuredQuery_FieldFilter_Operator_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::max()
 };
 bool StructuredQuery_FieldFilter_Operator_IsValid(int value);
 constexpr StructuredQuery_FieldFilter_Operator StructuredQuery_FieldFilter_Operator_Operator_MIN = StructuredQuery_FieldFilter_Operator_OPERATOR_UNSPECIFIED;
-constexpr StructuredQuery_FieldFilter_Operator StructuredQuery_FieldFilter_Operator_Operator_MAX = StructuredQuery_FieldFilter_Operator_ARRAY_CONTAINS_ANY;
+constexpr StructuredQuery_FieldFilter_Operator StructuredQuery_FieldFilter_Operator_Operator_MAX = StructuredQuery_FieldFilter_Operator_NOT_IN;
 constexpr int StructuredQuery_FieldFilter_Operator_Operator_ARRAYSIZE = StructuredQuery_FieldFilter_Operator_Operator_MAX + 1;
 
 const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* StructuredQuery_FieldFilter_Operator_descriptor();
@@ -187,12 +189,14 @@ enum StructuredQuery_UnaryFilter_Operator : int {
   StructuredQuery_UnaryFilter_Operator_OPERATOR_UNSPECIFIED = 0,
   StructuredQuery_UnaryFilter_Operator_IS_NAN = 2,
   StructuredQuery_UnaryFilter_Operator_IS_NULL = 3,
+  StructuredQuery_UnaryFilter_Operator_IS_NOT_NAN = 4,
+  StructuredQuery_UnaryFilter_Operator_IS_NOT_NULL = 5,
   StructuredQuery_UnaryFilter_Operator_StructuredQuery_UnaryFilter_Operator_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::min(),
   StructuredQuery_UnaryFilter_Operator_StructuredQuery_UnaryFilter_Operator_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::max()
 };
 bool StructuredQuery_UnaryFilter_Operator_IsValid(int value);
 constexpr StructuredQuery_UnaryFilter_Operator StructuredQuery_UnaryFilter_Operator_Operator_MIN = StructuredQuery_UnaryFilter_Operator_OPERATOR_UNSPECIFIED;
-constexpr StructuredQuery_UnaryFilter_Operator StructuredQuery_UnaryFilter_Operator_Operator_MAX = StructuredQuery_UnaryFilter_Operator_IS_NULL;
+constexpr StructuredQuery_UnaryFilter_Operator StructuredQuery_UnaryFilter_Operator_Operator_MAX = StructuredQuery_UnaryFilter_Operator_IS_NOT_NULL;
 constexpr int StructuredQuery_UnaryFilter_Operator_Operator_ARRAYSIZE = StructuredQuery_UnaryFilter_Operator_Operator_MAX + 1;
 
 const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* StructuredQuery_UnaryFilter_Operator_descriptor();
@@ -865,12 +869,16 @@ class StructuredQuery_FieldFilter :
     StructuredQuery_FieldFilter_Operator_GREATER_THAN_OR_EQUAL;
   static constexpr Operator EQUAL =
     StructuredQuery_FieldFilter_Operator_EQUAL;
+  static constexpr Operator NOT_EQUAL =
+    StructuredQuery_FieldFilter_Operator_NOT_EQUAL;
   static constexpr Operator ARRAY_CONTAINS =
     StructuredQuery_FieldFilter_Operator_ARRAY_CONTAINS;
   static constexpr Operator IN_ =
     StructuredQuery_FieldFilter_Operator_IN;
   static constexpr Operator ARRAY_CONTAINS_ANY =
     StructuredQuery_FieldFilter_Operator_ARRAY_CONTAINS_ANY;
+  static constexpr Operator NOT_IN =
+    StructuredQuery_FieldFilter_Operator_NOT_IN;
   static inline bool Operator_IsValid(int value) {
     return StructuredQuery_FieldFilter_Operator_IsValid(value);
   }
@@ -1070,6 +1078,10 @@ class StructuredQuery_UnaryFilter :
     StructuredQuery_UnaryFilter_Operator_IS_NAN;
   static constexpr Operator IS_NULL =
     StructuredQuery_UnaryFilter_Operator_IS_NULL;
+  static constexpr Operator IS_NOT_NAN =
+    StructuredQuery_UnaryFilter_Operator_IS_NOT_NAN;
+  static constexpr Operator IS_NOT_NULL =
+    StructuredQuery_UnaryFilter_Operator_IS_NOT_NULL;
   static inline bool Operator_IsValid(int value) {
     return StructuredQuery_UnaryFilter_Operator_IsValid(value);
   }

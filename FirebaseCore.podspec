@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseCore'
-  s.version          = '6.8.0'
+  s.version          = '6.10.2'
   s.summary          = 'Firebase Core'
 
   s.description      = <<-DESC
@@ -31,7 +31,10 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
     'GoogleUtilities/Logger/Private/*.h',
     'Interop/CoreDiagnostics/Public/*.h',
   ]
-  s.public_header_files = 'FirebaseCore/Sources/Public/*.h', 'FirebaseCore/Sources/Private/*.h'
+  s.public_header_files = [
+    'FirebaseCore/Sources/Public/FirebaseCore/*.h',
+    'FirebaseCore/Sources/Private/*.h',
+  ]
   s.private_header_files = 'FirebaseCore/Sources/Private/*.h'
 
   s.framework = 'Foundation'
@@ -40,12 +43,12 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
   s.tvos.framework = 'UIKit'
   s.dependency 'GoogleUtilities/Environment', '~> 6.7'
   s.dependency 'GoogleUtilities/Logger', '~> 6.7'
-  s.dependency 'FirebaseCoreDiagnostics', '~> 1.3'
+  s.dependency 'FirebaseCoreDiagnostics', '~> 1.6'
 
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'GCC_PREPROCESSOR_DEFINITIONS' =>
-      'FIRCore_VERSION=' + s.version.to_s + ' Firebase_VERSION=6.27.0',
+      'FIRCore_VERSION=' + s.version.to_s + ' Firebase_VERSION=6.32.0',
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"',
     'OTHER_CFLAGS' => '-fno-autolink'
   }
@@ -59,12 +62,12 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
 
   s.test_spec 'swift-unit' do |swift_unit_tests|
     swift_unit_tests.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
-    swift_unit_tests.source_files = 'FirebaseCore/Tests/Unit/Swift/**/*.swift',
-                                    'FirebaseCore/Tests/Unit/Swift/**/*.h',
-                                    'FirebaseCore/Tests/Unit/Swift/SwiftTestingUtilities/*'
+    swift_unit_tests.source_files = 'FirebaseCore/Tests/SwiftUnit/**/*.swift',
+                                    'FirebaseCore/Tests/SwiftUnit/**/*.h',
+                                    'FirebaseCore/Tests/SwiftUnit/SwiftTestingUtilities/*'
     swift_unit_tests.resources = 'FirebaseCore/Tests/Unit/Resources/GoogleService-Info.plist'
     swift_unit_tests.pod_target_xcconfig = {
-      'SWIFT_OBJC_BRIDGING_HEADER' => '$(PODS_TARGET_SRCROOT)/FirebaseCore/Tests/Unit/Swift/FirebaseCore-unit-Bridging-Header.h'
+      'SWIFT_OBJC_BRIDGING_HEADER' => '$(PODS_TARGET_SRCROOT)/FirebaseCore/Tests/SwiftUnit/FirebaseCore-unit-Bridging-Header.h'
     }
   end
 end

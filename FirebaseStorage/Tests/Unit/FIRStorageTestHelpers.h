@@ -15,15 +15,15 @@
  */
 
 #import <Foundation/Foundation.h>
-#import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
+#import "OCMock.h"
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
-#import "FirebaseStorage/Sources/Public/FIRStorageConstants.h"
-#import "FirebaseStorage/Sources/Public/FIRStorageMetadata.h"
-#import "FirebaseStorage/Sources/Public/FIRStorageReference.h"
-#import "FirebaseStorage/Sources/Public/FIRStorageTask.h"
+#import "FirebaseStorage/Sources/Public/FirebaseStorage/FIRStorageConstants.h"
+#import "FirebaseStorage/Sources/Public/FirebaseStorage/FIRStorageMetadata.h"
+#import "FirebaseStorage/Sources/Public/FirebaseStorage/FIRStorageReference.h"
+#import "FirebaseStorage/Sources/Public/FirebaseStorage/FIRStorageTask.h"
 
 #import "FirebaseStorage/Sources/FIRStorageConstants_Private.h"
 #import "FirebaseStorage/Sources/FIRStorageErrors.h"
@@ -32,7 +32,11 @@
 #import "FirebaseStorage/Sources/FIRStorageTokenAuthorizer.h"
 #import "FirebaseStorage/Sources/FIRStorageUtils.h"
 
+#if SWIFT_PACKAGE
+@import GTMSessionFetcherCore;
+#else
 #import <GTMSessionFetcher/GTMSessionFetcher.h>
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
 

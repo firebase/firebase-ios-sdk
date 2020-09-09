@@ -42,6 +42,7 @@
 #include "Firestore/core/src/core/transaction.h"
 #include "Firestore/core/src/model/database_id.h"
 #include "Firestore/core/src/util/async_queue.h"
+#include "Firestore/core/src/util/config.h"
 #include "Firestore/core/src/util/empty.h"
 #include "Firestore/core/src/util/error_apple.h"
 #include "Firestore/core/src/util/exception.h"
@@ -95,6 +96,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (void)initialize {
   if (self == [FIRFirestore class]) {
     SetThrowHandler(ObjcThrowHandler);
+    Firestore::SetClientLanguage("gl-objc/");
   }
 }
 

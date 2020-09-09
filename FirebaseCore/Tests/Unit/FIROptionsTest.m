@@ -43,6 +43,9 @@ extern NSString *const kFIRLibraryVersionID;
 }
 
 - (void)testInit {
+#if SWIFT_PACKAGE
+  [self mockFIROptions];
+#endif
   NSDictionary *optionsDictionary = [FIROptions defaultOptionsDictionary];
   FIROptions *options = [[FIROptions alloc] initInternalWithOptionsDictionary:optionsDictionary];
   [self assertOptionsMatchDefaults:options andProjectID:YES];
@@ -72,6 +75,9 @@ extern NSString *const kFIRLibraryVersionID;
 }
 
 - (void)testDefaultOptions {
+#if SWIFT_PACKAGE
+  [self mockFIROptions];
+#endif
   FIROptions *options = [FIROptions defaultOptions];
   [self assertOptionsMatchDefaults:options andProjectID:YES];
   XCTAssertNil(options.deepLinkURLScheme);
@@ -80,6 +86,10 @@ extern NSString *const kFIRLibraryVersionID;
   options.deepLinkURLScheme = kDeepLinkURLScheme;
   XCTAssertEqualObjects(options.deepLinkURLScheme, kDeepLinkURLScheme);
 }
+
+#ifndef SWIFT_PACKAGE
+// Another strategy is needed for these tests to pass with SWIFT_PACKAGE, since the mocking
+// prevents the file path traversals.
 
 - (void)testDefaultOptionsAreInitializedOnce {
   id mockBundleUtil = OCMClassMock([FIRBundleUtil class]);
@@ -113,22 +123,6 @@ extern NSString *const kFIRLibraryVersionID;
   OCMVerifyAll(mockBundleUtil);
 }
 
-- (void)testInitCustomizedOptions {
-  FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
-                                                    GCMSenderID:kGCMSenderID];
-  options.APIKey = kAPIKey;
-  options.bundleID = kBundleID;
-  options.clientID = kClientID;
-  options.databaseURL = kDatabaseURL;
-  options.deepLinkURLScheme = kDeepLinkURLScheme;
-  options.projectID = kProjectID;
-  options.storageBucket = kStorageBucket;
-  options.trackingID = kTrackingID;
-  [self assertOptionsMatchDefaults:options andProjectID:YES];
-  XCTAssertEqualObjects(options.deepLinkURLScheme, kDeepLinkURLScheme);
-  XCTAssertFalse(options.usingOptionsFromDefaultPlist);
-}
-
 - (void)testInitWithContentsOfFile {
   NSString *filePath = [self validGoogleServicesInfoPlistPath];
   FIROptions *options = [[FIROptions alloc] initWithContentsOfFile:filePath];
@@ -144,6 +138,23 @@ extern NSString *const kFIRLibraryVersionID;
 
   FIROptions *invalidOptions = [[FIROptions alloc] initWithContentsOfFile:@"invalid.plist"];
   XCTAssertNil(invalidOptions);
+}
+#endif
+
+- (void)testInitCustomizedOptions {
+  FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
+                                                    GCMSenderID:kGCMSenderID];
+  options.APIKey = kAPIKey;
+  options.bundleID = kBundleID;
+  options.clientID = kClientID;
+  options.databaseURL = kDatabaseURL;
+  options.deepLinkURLScheme = kDeepLinkURLScheme;
+  options.projectID = kProjectID;
+  options.storageBucket = kStorageBucket;
+  options.trackingID = kTrackingID;
+  [self assertOptionsMatchDefaults:options andProjectID:YES];
+  XCTAssertEqualObjects(options.deepLinkURLScheme, kDeepLinkURLScheme);
+  XCTAssertFalse(options.usingOptionsFromDefaultPlist);
 }
 
 - (void)assertOptionsMatchDefaults:(FIROptions *)options andProjectID:(BOOL)matchProjectID {
@@ -231,6 +242,9 @@ extern NSString *const kFIRLibraryVersionID;
 }
 
 - (void)testCopyWithZone {
+#if SWIFT_PACKAGE
+  [self mockFIROptions];
+#endif
   // default options
   FIROptions *options = [FIROptions defaultOptions];
   options.deepLinkURLScheme = kDeepLinkURLScheme;

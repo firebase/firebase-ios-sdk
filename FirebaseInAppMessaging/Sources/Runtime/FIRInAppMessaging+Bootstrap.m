@@ -14,17 +14,20 @@
  * limitations under the License.
  */
 
-#import "FIRInAppMessaging+Bootstrap.h"
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
+
+#import "FirebaseInAppMessaging/Sources/Private/Runtime/FIRInAppMessaging+Bootstrap.h"
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "GoogleUtilities/Environment/Private/GULAppEnvironmentUtil.h"
 #import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 
-#import "FIRCore+InAppMessaging.h"
-#import "FIRIAMClearcutUploader.h"
-#import "FIRIAMRuntimeManager.h"
-#import "FIRIAMSDKSettings.h"
-#import "NSString+FIRInterlaceStrings.h"
+#import "FirebaseInAppMessaging/Sources/FIRCore+InAppMessaging.h"
+#import "FirebaseInAppMessaging/Sources/Private/Analytics/FIRIAMClearcutUploader.h"
+#import "FirebaseInAppMessaging/Sources/Private/Runtime/FIRIAMRuntimeManager.h"
+#import "FirebaseInAppMessaging/Sources/Private/Runtime/FIRIAMSDKSettings.h"
+#import "FirebaseInAppMessaging/Sources/Private/Util/NSString+FIRInterlaceStrings.h"
 
 @implementation FIRInAppMessaging (Bootstrap)
 
@@ -132,3 +135,5 @@ static NSString *_fiamServerHostName = @"firebaseinappmessaging.googleapis.com";
 }
 
 @end
+
+#endif  // TARGET_OS_IOS

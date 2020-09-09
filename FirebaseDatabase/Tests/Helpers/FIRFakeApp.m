@@ -16,22 +16,24 @@
 
 #import "FirebaseDatabase/Tests/Helpers/FIRFakeApp.h"
 
-#import "Example/Shared/FIRAuthInteropFake.h"
-#import "Example/Shared/FIRComponentTestUtilities.h"
 #import "FirebaseDatabase/Sources/Api/FIRDatabaseComponent.h"
+#import "SharedTestUtilities/FIRAuthInteropFake.h"
+#import "SharedTestUtilities/FIRComponentTestUtilities.h"
 
 @interface FIRFakeOptions : NSObject
-@property(nonatomic, readonly, copy) NSString *databaseURL;
+@property(nonatomic, readonly, copy) NSString *_Nullable databaseURL;
+@property(nonatomic, readonly, copy) NSString *projectID;
 @property(nonatomic, readonly, copy) NSString *googleAppID;
-- (instancetype)initWithURL:(NSString *)url;
+- (instancetype)initWithURL:(NSString *_Nullable)url;
 @end
 
 @implementation FIRFakeOptions
-- (instancetype)initWithURL:(NSString *)url {
+- (instancetype)initWithURL:(NSString *_Nullable)url {
   self = [super init];
   if (self) {
     _databaseURL = url;
     _googleAppID = @"fake-app-id";
+    _projectID = @"fake-project-id";
   }
   return self;
 }
@@ -64,7 +66,7 @@
 
 @implementation FIRFakeApp
 
-- (instancetype)initWithName:(NSString *)name URL:(NSString *)url {
+- (instancetype)initWithName:(NSString *)name URL:(NSString *_Nullable)url {
   self = [super init];
   if (self) {
     _name = name;

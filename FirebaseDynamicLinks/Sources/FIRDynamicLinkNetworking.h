@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FirebaseDynamicLinks/Sources/Public/FIRDynamicLinksCommon.h"
+#import "FirebaseDynamicLinks/Sources/Public/FirebaseDynamicLinks/FIRDynamicLinksCommon.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -74,13 +74,11 @@ FOUNDATION_EXPORT NSString *const kApiaryRestBaseUrl;
 @interface FIRDynamicLinkNetworking : NSObject
 
 /**
- * @method initWithAPIKey:clientID:URLScheme:
- * @param clientID Client ID value.
+ * @method initWithAPIKey:URLScheme:
  * @param URLScheme Custom URL scheme of the app.
  * @param APIKey API Key value.
  */
 - (instancetype)initWithAPIKey:(NSString *)APIKey
-                      clientID:(NSString *)clientID
                      URLScheme:(NSString *)URLScheme NS_DESIGNATED_INITIALIZER;
 
 - (instancetype)init NS_UNAVAILABLE;

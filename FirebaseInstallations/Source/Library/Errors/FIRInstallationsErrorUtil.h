@@ -16,9 +16,10 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FirebaseInstallations/Source/Library/Public/FIRInstallationsErrors.h"
+#import "FirebaseInstallations/Source/Library/Public/FirebaseInstallations/FIRInstallationsErrors.h"
 
 @class FIRInstallationsHTTPError;
+@class FBLPromise<ResultType>;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -45,11 +46,15 @@ void FIRInstallationsItemSetErrorToPointer(NSError *error, NSError **pointer);
                                                    data:(nullable NSData *)data;
 + (BOOL)isAPIError:(NSError *)error withHTTPCode:(NSInteger)HTTPCode;
 
++ (NSError *)backoffIntervalWaitError;
+
 /**
  * Returns the passed error if it is already in the public domain or a new error with the passed
  * error at `NSUnderlyingErrorKey`.
  */
 + (NSError *)publicDomainErrorWithError:(NSError *)error;
+
++ (FBLPromise *)rejectedPromiseWithError:(NSError *)error;
 
 @end
 

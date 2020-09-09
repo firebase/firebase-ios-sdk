@@ -1,0 +1,5 @@
+{
+  "Firebase" : "6.28.1",
+  "FirebaseCore" : "6.9.1",
+  "FirebaseFirestore" : "1.16.2"
+}

@@ -13,7 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#import "FIRIAMRenderingEffectSetting.h"
+
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
+
+#import "FirebaseInAppMessaging/Sources/Private/Data/FIRIAMRenderingEffectSetting.h"
 
 @implementation FIRIAMRenderingEffectSetting
 
@@ -29,3 +33,5 @@
   return setting;
 }
 @end
+
+#endif  // TARGET_OS_IOS

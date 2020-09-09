@@ -17,8 +17,8 @@
 #ifndef FIRESTORE_CORE_SRC_CORE_EVENT_LISTENER_H_
 #define FIRESTORE_CORE_SRC_CORE_EVENT_LISTENER_H_
 
-#include <atomic>
 #include <memory>
+#include <mutex>  // NOLINT(build/c++11)
 #include <utility>
 
 #include "Firestore/core/src/util/executor.h"
@@ -63,9 +63,6 @@ class AsyncEventListener
   AsyncEventListener(const std::shared_ptr<util::Executor>& executor,
                      DelegateListener&& delegate)
       : executor_(executor), delegate_(std::move(delegate)) {
-    // std::atomic's constructor is not atomic, so assign after contruction
-    // (since assignment is atomic).
-    muted_ = false;
   }
 
   static std::shared_ptr<AsyncEventListener<T>> Create(
@@ -86,7 +83,19 @@ class AsyncEventListener
   void Mute();
 
  private:
-  std::atomic<bool> muted_;
+  // PORTING NOTE: Android uses a volatile here but that's not enough in C++.
+  //
+  // In C++, the user can call `ListenerRegistration::Remove` (which calls
+  // `Mute`) and then immediately delete the state backing the listener. Using
+  // a mutex here instead of an atomic ensures that `Mute` won't return until
+  // it's safe to delete the state backing a listener. In Java this is safe
+  // because the state backing the listener is garbage collected so it doesn't
+  // matter if the mute is concurrent with a callback.
+  //
+  // Use a recursive mutex instead of `std::mutex` to avoid deadlock in the case
+  // where a user calls `Remove` from within a callback on that listener.
+  std::recursive_mutex mutex_;
+  bool muted_ = false;
   std::shared_ptr<util::Executor> executor_;
   DelegateListener delegate_;
 };
@@ -119,6 +128,7 @@ std::shared_ptr<AsyncEventListener<T>> AsyncEventListener<T>::Create(
 
 template <typename T>
 void AsyncEventListener<T>::Mute() {
+  std::lock_guard<std::recursive_mutex> lock(mutex_);
   muted_ = true;
 }
 
@@ -131,6 +141,7 @@ void AsyncEventListener<T>::OnEvent(util::StatusOr<T> maybe_value) {
   std::shared_ptr<AsyncEventListener<T>> shared_this = this->shared_from_this();
 
   executor_->Execute([shared_this, maybe_value]() {
+    std::lock_guard<std::recursive_mutex> lock(shared_this->mutex_);
     if (!shared_this->muted_) {
       shared_this->delegate_->OnEvent(std::move(maybe_value));
     }

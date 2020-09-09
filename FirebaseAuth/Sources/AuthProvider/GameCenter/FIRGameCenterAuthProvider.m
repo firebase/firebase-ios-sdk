@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FirebaseAuth/Sources/Public/FIRGameCenterAuthProvider.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRGameCenterAuthProvider.h"
 #import <GameKit/GameKit.h>
 
 #import "FirebaseAuth/Sources/AuthProvider/GameCenter/FIRGameCenterAuthCredential.h"

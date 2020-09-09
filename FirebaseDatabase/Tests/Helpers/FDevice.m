@@ -17,7 +17,7 @@
 #import "FirebaseDatabase/Tests/Helpers/FDevice.h"
 #import <XCTest/XCTest.h>
 
-#import "FirebaseDatabase/Sources/Public/FIRDatabaseReference.h"
+#import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRDatabaseReference.h"
 
 #import "FirebaseDatabase/Sources/Api/Private/FIRDatabaseReference_Private.h"
 #import "FirebaseDatabase/Sources/Core/FRepoManager.h"

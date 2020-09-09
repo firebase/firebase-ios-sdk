@@ -15,8 +15,8 @@
  */
 
 #import "FirebaseDatabase/Sources/Core/View/FEvent.h"
-#import "FirebaseDatabase/Sources/Public/FIRDataSnapshot.h"
-#import "FirebaseDatabase/Sources/Public/FIRDatabaseReference.h"
+#import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRDataSnapshot.h"
+#import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRDatabaseReference.h"
 #import "FirebaseDatabase/Sources/Utilities/Tuples/FTupleUserCallback.h"
 #import <Foundation/Foundation.h>
 
