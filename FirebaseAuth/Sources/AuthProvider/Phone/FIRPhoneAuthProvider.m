@@ -93,11 +93,6 @@ static NSString *const kCustomUrlSchemePrefix = @"app-";
  */
 NSString *const kReCAPTCHAURLStringFormat = @"https://%@/__/auth/handler?";
 
-/** @var kHeadfulLiteEmulatorURLStringFormat
-    @brief The format of the URL used to open the emulated headful lite page during sign-in.
- */
-NSString *const kReCAPTCHAEmulatorURLStringFormat = @"http://%@/emulator/auth/handler?";
-
 extern NSString *const FIRPhoneMultiFactorID;
 
 @implementation FIRPhoneAuthProvider {
@@ -723,17 +718,10 @@ extern NSString *const FIRPhoneMultiFactorID;
                                                                                .requestConfiguration
                                                                                .languageCode]];
                                      }
-                                     NSString *URLString;
-                                     if (self->_auth.requestConfiguration.emulatorURL) {
-                                       URLString = [NSString
-                                           stringWithFormat:kReCAPTCHAEmulatorURLStringFormat,
-                                                            authDomain];
-                                     } else {
-                                       URLString = [NSString
-                                           stringWithFormat:kReCAPTCHAURLStringFormat, authDomain];
-                                     }
-                                     NSURLComponents *components =
-                                         [[NSURLComponents alloc] initWithString:URLString];
+                                     NSURLComponents *components = [[NSURLComponents alloc]
+                                         initWithString:
+                                             [NSString stringWithFormat:kReCAPTCHAURLStringFormat,
+                                                                        authDomain]];
                                      [components setQueryItems:queryItems];
                                      if (completion) {
                                        completion([components URL], nil);
