@@ -86,10 +86,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (void)fetchAuthDomainWithRequestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
                                      completion:(FIRFetchAuthDomainCallback)completion {
-  if (requestConfiguration.emulatorURL) {
+  if (requestConfiguration.emulatorHostAndPort) {
     // If we are using the auth emulator, we do not want to call the GetProjectConfig endpoint. The
     // widget is hosted on the emulator host and port, so we can return that directly.
-    completion(requestConfiguration.emulatorURL, nil);
+    completion(requestConfiguration.emulatorHostAndPort, nil);
     return;
   }
   FIRGetProjectConfigRequest *request =

@@ -969,9 +969,9 @@ static NSString *const kUnknownErrorString =
  */
 - (void)testGetCredentialWithUIDelegateUseEmulator {
   OCMStub([_mockOptions clientID]).andReturn(kFakeClientID);
-  NSString *emulatorURL =
+  NSString *emulatorHostAndPort =
       [NSString stringWithFormat:@"%@:%@", kFakeEmulatorHost, kFakeEmulatorPort];
-  OCMStub([_mockRequestConfiguration emulatorURL]).andReturn(emulatorURL);
+  OCMStub([_mockRequestConfiguration emulatorHostAndPort]).andReturn(emulatorHostAndPort);
   _provider = [FIROAuthProvider providerWithProviderID:kFakeProviderID auth:_mockAuth];
 
   id mockBundle = OCMClassMock([NSBundle class]);

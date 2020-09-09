@@ -28,10 +28,10 @@ static NSString *const kEndpoint = @"endpoint";
  */
 static NSString *const kAPIKey = @"APIKey";
 
-/** @var kEmulatorUrl
-    @brief A testing emulator URL.
+/** @var kEmulatorHostAndPort
+    @brief A testing emulator host and port.
  */
-static NSString *const kEmulatorURL = @"emulatorhost:12345";
+static NSString *const kEmulatorHostAndPort = @"emulatorhost:12345";
 
 /** @class FIRIdentityToolkitRequestTests
     @brief Tests for @c FIRIdentityToolkitRequest
@@ -122,13 +122,13 @@ static NSString *const kEmulatorURL = @"emulatorhost:12345";
 - (void)testInitWithEndpointUseEmulatorExpectedRequestURL {
   FIRAuthRequestConfiguration *requestConfiguration =
       [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kAPIKey];
-  requestConfiguration.emulatorURL = kEmulatorURL;
+  requestConfiguration.emulatorHostAndPort = kEmulatorHostAndPort;
   FIRIdentityToolkitRequest *request =
       [[FIRIdentityToolkitRequest alloc] initWithEndpoint:kEndpoint
                                      requestConfiguration:requestConfiguration];
   NSString *expectedURL = [NSString
       stringWithFormat:@"http://%@/www.googleapis.com/identitytoolkit/v3/relyingparty/%@?key=%@",
-                       kEmulatorURL, kEndpoint, kAPIKey];
+                       kEmulatorHostAndPort, kEndpoint, kAPIKey];
 
   XCTAssertEqualObjects(expectedURL, request.requestURL.absoluteString);
 }
@@ -140,7 +140,7 @@ static NSString *const kEmulatorURL = @"emulatorhost:12345";
 - (void)testInitWithEndpointUseIdentityPlatformUseEmulatorExpectedRequestURL {
   FIRAuthRequestConfiguration *requestConfiguration =
       [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kAPIKey];
-  requestConfiguration.emulatorURL = kEmulatorURL;
+  requestConfiguration.emulatorHostAndPort = kEmulatorHostAndPort;
   FIRIdentityToolkitRequest *request =
       [[FIRIdentityToolkitRequest alloc] initWithEndpoint:kEndpoint
                                      requestConfiguration:requestConfiguration
@@ -148,7 +148,7 @@ static NSString *const kEmulatorURL = @"emulatorhost:12345";
                                                useStaging:NO];
   NSString *expectedURL =
       [NSString stringWithFormat:@"http://%@/identitytoolkit.googleapis.com/v2/%@?key=%@",
-                                 kEmulatorURL, kEndpoint, kAPIKey];
+                                 kEmulatorHostAndPort, kEndpoint, kAPIKey];
 
   XCTAssertEqualObjects(expectedURL, request.requestURL.absoluteString);
 }

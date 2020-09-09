@@ -26,11 +26,11 @@ NS_ASSUME_NONNULL_BEGIN
  */
 static NSString *const kFIRSecureTokenServiceGetTokenURLFormat = @"https://%@/v1/token?key=%@";
 
-/** @var kFIREmulatorHostFormat
+/** @var kFIREmulatorURLFormat
     @brief The format of the emulated secure token service URLs. Requires string format substitution
    with the emulator host, the gAPIHost, and the client's API Key.
  */
-static NSString *const kFIREmulatorHostFormat = @"http://%@/%@/v1/token?key=%@";
+static NSString *const kFIREmulatorURLFormat = @"http://%@/%@/v1/token?key=%@";
 
 /** @var kFIRSecureTokenServiceGrantTypeRefreshToken
     @brief The string value of the @c FIRSecureTokenRequestGrantTypeRefreshToken request type.
@@ -131,9 +131,10 @@ static NSString *gAPIHost = @"securetoken.googleapis.com";
 - (NSURL *)requestURL {
   NSString *URLString;
 
-  NSString *emulatorURL = _requestConfiguration.emulatorURL;
-  if (emulatorURL) {
-    URLString = [NSString stringWithFormat:kFIREmulatorHostFormat, emulatorURL, gAPIHost, _APIKey];
+  NSString *emulatorHostAndPort = _requestConfiguration.emulatorHostAndPort;
+  if (emulatorHostAndPort) {
+    URLString =
+        [NSString stringWithFormat:kFIREmulatorURLFormat, emulatorHostAndPort, gAPIHost, _APIKey];
   } else {
     URLString =
         [NSString stringWithFormat:kFIRSecureTokenServiceGetTokenURLFormat, gAPIHost, _APIKey];

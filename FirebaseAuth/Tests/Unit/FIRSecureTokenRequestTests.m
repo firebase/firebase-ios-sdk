@@ -30,10 +30,10 @@ static NSString *const kAPIKey = @"APIKey";
  */
 static NSString *const kCode = @"code";
 
-/** @var kEmulatorUrl
-    @brief A testing emulator URL.
+/** @var kEmulatorHostAndPort
+    @brief A testing emulator host and port.
  */
-static NSString *const kEmulatorURL = @"emulatorhost:12345";
+static NSString *const kEmulatorHostAndPort = @"emulatorhost:12345";
 
 /** @class FIRSecureTokenRequestTests
     @brief Tests for @c FIRSecureTokenRequest
@@ -67,14 +67,14 @@ static NSString *const kEmulatorURL = @"emulatorhost:12345";
 - (void)testRequestURLUseEmulator {
   FIRAuthRequestConfiguration *requestConfiguration =
       [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kAPIKey];
-  requestConfiguration.emulatorURL = kEmulatorURL;
+  requestConfiguration.emulatorHostAndPort = kEmulatorHostAndPort;
   FIRSecureTokenRequest *request =
       [FIRSecureTokenRequest authCodeRequestWithCode:kCode
                                 requestConfiguration:requestConfiguration];
 
   NSString *expectedURL =
       [NSString stringWithFormat:@"http://%@/securetoken.googleapis.com/v1/token?key=%@",
-                                 kEmulatorURL, kAPIKey];
+                                 kEmulatorHostAndPort, kAPIKey];
 
   XCTAssertEqualObjects(expectedURL, request.requestURL.absoluteString);
 }

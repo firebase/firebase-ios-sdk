@@ -40,10 +40,10 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property(nonatomic, copy, nullable) NSString *additionalFrameworkMarker;
 
-/** @property emulatorURL
-    @brief If set, the local emulator URL to point to instead of the remote backend.
+/** @property emulatorHostAndPort
+    @brief If set, the local emulator host and port to point to instead of the remote backend.
  */
-@property(nonatomic, copy, nullable) NSString *emulatorURL;
+@property(nonatomic, copy, nullable) NSString *emulatorHostAndPort;
 
 - (instancetype)init NS_UNAVAILABLE;
 

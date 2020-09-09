@@ -2198,19 +2198,32 @@ static const NSTimeInterval kWaitInterval = .5;
 - (void)testUseEmulator {
   [[FIRAuth auth] useEmulatorWithHost:@"host" port:12345];
 
-  XCTAssertEqualObjects(@"host:12345", [FIRAuth auth].requestConfiguration.emulatorURL);
+  XCTAssertEqualObjects(@"host:12345", [FIRAuth auth].requestConfiguration.emulatorHostAndPort);
 #if TARGET_OS_IOS
   XCTAssertTrue([FIRAuth auth].settings.isAppVerificationDisabledForTesting);
 #endif
 }
 
 /** @fn testUseEmulatorNeverCalled
-    @brief Tests that the emulatorURL is nil if the @c useEmulatorWithHost:port: is not called.
+    @brief Tests that the emulatorHostAndPort stored in @c FIRAuthRequestConfiguration is nil if the
+   @c useEmulatorWithHost:port: is not called.
  */
 - (void)testUseEmulatorNeverCalled {
-  XCTAssertEqualObjects(nil, [FIRAuth auth].requestConfiguration.emulatorURL);
+  XCTAssertEqualObjects(nil, [FIRAuth auth].requestConfiguration.emulatorHostAndPort);
 #if TARGET_OS_IOS
   XCTAssertFalse([FIRAuth auth].settings.isAppVerificationDisabledForTesting);
+#endif
+}
+
+/** @fn testUseEmulatorIPv6Address
+    @brief Tests the @c useEmulatorWithHost:port: method with an IPv6 host address.
+ */
+- (void)testUseEmulatorIPv6Address {
+  [[FIRAuth auth] useEmulatorWithHost:@"::1" port:12345];
+
+  XCTAssertEqualObjects(@"[::1]:12345", [FIRAuth auth].requestConfiguration.emulatorHostAndPort);
+#if TARGET_OS_IOS
+  XCTAssertTrue([FIRAuth auth].settings.isAppVerificationDisabledForTesting);
 #endif
 }
 

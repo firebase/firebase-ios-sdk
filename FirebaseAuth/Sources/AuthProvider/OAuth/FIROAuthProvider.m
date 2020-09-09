@@ -329,7 +329,8 @@ static NSString *const kCustomUrlSchemePrefix = @"app-";
                                      NSString *argumentsString = [strongSelf
                                          httpArgumentsStringForArgsDictionary:urlArguments];
                                      NSString *URLString;
-                                     if (strongSelf->_auth.requestConfiguration.emulatorURL) {
+                                     if (strongSelf->_auth.requestConfiguration
+                                             .emulatorHostAndPort) {
                                        URLString = [NSString
                                            stringWithFormat:kHeadfulLiteEmulatorURLStringFormat,
                                                             authDomain, argumentsString];
