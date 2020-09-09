@@ -20,6 +20,7 @@
 
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRActionCodeSettings.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAdditionalUserInfo.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthSettings.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIREmailAuthProvider.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRFacebookAuthProvider.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRGoogleAuthProvider.h"
@@ -2198,6 +2199,7 @@ static const NSTimeInterval kWaitInterval = .5;
   [[FIRAuth auth] useEmulatorWithHost:@"host" port:12345];
 
   XCTAssertEqualObjects(@"host:12345", [FIRAuth auth].requestConfiguration.emulatorURL);
+  XCTAssertTrue([FIRAuth auth].settings.isAppVerificationDisabledForTesting);
 }
 
 /** @fn testUseEmulatorNeverCalled
@@ -2205,6 +2207,7 @@ static const NSTimeInterval kWaitInterval = .5;
  */
 - (void)testUseEmulatorNeverCalled {
   XCTAssertEqualObjects(nil, [FIRAuth auth].requestConfiguration.emulatorURL);
+  XCTAssertFalse([FIRAuth auth].settings.isAppVerificationDisabledForTesting);
 }
 
 #pragma mark - Automatic Token Refresh Tests.

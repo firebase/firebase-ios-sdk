@@ -1467,6 +1467,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   dispatch_sync(FIRAuthGlobalWorkQueue(), ^{
     self->_requestConfiguration.emulatorURL =
         [NSString stringWithFormat:@"%@:%ld", host, (long)port];
+    _settings.appVerificationDisabledForTesting = YES;
   });
 }
 

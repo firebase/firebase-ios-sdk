@@ -846,11 +846,6 @@ NS_SWIFT_NAME(Auth)
  */
 - (void)useAppLanguage;
 
-/** @fn useEmulatorWithHost:port
-    @brief Configures Firebase Auth to connect to an emulated host instead of the remote backend.
- */
-- (void)useEmulatorWithHost:(NSString *)host port:(NSInteger)port;
-
 #if TARGET_OS_IOS
 
 /** @fn canHandleURL:
