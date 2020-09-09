@@ -35,6 +35,8 @@ jobs:
     strategy:
       matrix:
         target: [tvOS, macOS, catalyst]
+        # Full set of Firebase-Package tests only run on iOS because of Analytics.
+        test: [objc-import-test, swift-test, version-test]
     steps:
     - uses: actions/checkout@v2
     - name: Xcode 12
@@ -42,4 +44,4 @@ jobs:
     - name: Initialize xcodebuild
       run: xcodebuild -list
     - name: Unit Tests
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh Firebase-Package ${{ matrix.target }} spm
+      run: scripts/third_party/travis/retry.sh ./scripts/build.sh ${{ matrix.test }} ${{ matrix.target }} spm

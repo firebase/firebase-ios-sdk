@@ -41,7 +41,7 @@ jobs:
     - name: Initialize xcodebuild
       run: xcodebuild -list
     - name: Unit Tests
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFunctions ${{ matrix.target }} spm
+      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFunctions ${{ matrix.target }} spmbuildonly
 
   quickstart:
     # Don't run on private repo unless it is a PR.
