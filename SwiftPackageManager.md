@@ -30,14 +30,13 @@ Select the Firebase GitHub repository - `https://github.com/firebase/firebase-io
 Select the beta branch.
 
 Note: Starting with the 6.31.0 release, the versions are specified
-in a format like 6.31-spm-beta. We won't support standard repository
+in a format like 6.32-spm-beta. We won't support standard repository
 versioning until later in the beta or with general availability of the SPM
 distribution.
 
 <img src="docs/resources/SPMSelect.png">
 
-Choose the Firebase products that you want installed in your app. (Note, before
-6.32-spm-beta, the Firebase product should also be selected.)
+Choose the Firebase products that you want installed in your app.
 
 <img src="docs/resources/SPMProducts.png">
 
