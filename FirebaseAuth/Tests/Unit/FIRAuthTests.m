@@ -2199,7 +2199,9 @@ static const NSTimeInterval kWaitInterval = .5;
   [[FIRAuth auth] useEmulatorWithHost:@"host" port:12345];
 
   XCTAssertEqualObjects(@"host:12345", [FIRAuth auth].requestConfiguration.emulatorURL);
+#if TARGET_OS_IOS
   XCTAssertTrue([FIRAuth auth].settings.isAppVerificationDisabledForTesting);
+#endif
 }
 
 /** @fn testUseEmulatorNeverCalled
@@ -2207,7 +2209,9 @@ static const NSTimeInterval kWaitInterval = .5;
  */
 - (void)testUseEmulatorNeverCalled {
   XCTAssertEqualObjects(nil, [FIRAuth auth].requestConfiguration.emulatorURL);
+#if TARGET_OS_IOS
   XCTAssertFalse([FIRAuth auth].settings.isAppVerificationDisabledForTesting);
+#endif
 }
 
 #pragma mark - Automatic Token Refresh Tests.
