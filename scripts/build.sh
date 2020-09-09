@@ -169,8 +169,8 @@ watchos_flags=(
   -destination 'platform=iOS Simulator,name=iPhone 11 Pro'
 )
 catalyst_flags=(
-  ARCHS=x86_64h VALID_ARCHS=x86_64h SUPPORTS_MACCATALYST=YES -sdk macosx
-  -destination platform="OS X" TARGETED_DEVICE_FAMILY=2
+  ARCHS=x86_64 VALID_ARCHS=x86_64 SUPPORTS_MACCATALYST=YES -sdk macosx
+  -destination platform="macOS,variant=Mac Catalyst" TARGETED_DEVICE_FAMILY=2
   CODE_SIGN_IDENTITY=- CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
 )
 
