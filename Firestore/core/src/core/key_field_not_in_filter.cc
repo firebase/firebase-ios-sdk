@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google
+ * Copyright 2019 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/core/key_field_in_filter.h"
 #include "Firestore/core/src/core/key_field_not_in_filter.h"
+#include "Firestore/core/src/core/key_field_in_filter.h"
 
 #include <memory>
 #include <utility>
@@ -25,40 +25,40 @@
 #include "absl/algorithm/container.h"
 
 namespace firebase {
-  namespace firestore {
-    namespace core {
+namespace firestore {
+namespace core {
 
-      using model::Document;
-      using model::DocumentKey;
-      using model::FieldPath;
-      using model::FieldValue;
+using model::Document;
+using model::DocumentKey;
+using model::FieldPath;
+using model::FieldValue;
 
-      using Operator = Filter::Operator;
+using Operator = Filter::Operator;
 
-      class KeyFieldNotInFilter::Rep : public FieldFilter::Rep {
-      public:
-        Rep(FieldPath field, FieldValue value)
-                : FieldFilter::Rep(std::move(field), Operator::NotIn, std::move(value)) {
-          KeyFieldInFilter::ValidateArrayValue(this->value());
-        }
+class KeyFieldNotInFilter::Rep : public FieldFilter::Rep {
+ public:
+  Rep(FieldPath field, FieldValue value)
+      : FieldFilter::Rep(std::move(field), Operator::NotIn, std::move(value)) {
+    KeyFieldInFilter::ValidateArrayValue(this->value());
+  }
 
-        Type type() const override {
-          return Type::kKeyFieldInFilter;
-        }
+  Type type() const override {
+    return Type::kKeyFieldInFilter;
+  }
 
-        bool Matches(const model::Document& doc) const override;
-      };
+  bool Matches(const model::Document& doc) const override;
+};
 
-      KeyFieldNotInFilter::KeyFieldNotInFilter(FieldPath field, FieldValue value)
-              : FieldFilter(
-              std::make_shared<const Rep>(std::move(field), std::move(value))) {
-      }
+KeyFieldNotInFilter::KeyFieldNotInFilter(FieldPath field, FieldValue value)
+    : FieldFilter(
+          std::make_shared<const Rep>(std::move(field), std::move(value))) {
+}
 
-      bool KeyFieldNotInFilter::Rep::Matches(const Document& doc) const {
-        const FieldValue::Array& array_value = value().array_value();
-        return !KeyFieldInFilter::Contains(array_value, doc);
-      }
+bool KeyFieldNotInFilter::Rep::Matches(const Document& doc) const {
+  const FieldValue::Array& array_value = value().array_value();
+  return !KeyFieldInFilter::Contains(array_value, doc);
+}
 
-    }  // namespace core
-  }  // namespace firestore
+}  // namespace core
+}  // namespace firestore
 }  // namespace firebase

@@ -1114,7 +1114,7 @@ google_firestore_v1_StructuredQuery_Filter Serializer::EncodeSingularFilter(
       auto op =
           filter.op() == Filter::Operator::Equal
               ? google_firestore_v1_StructuredQuery_UnaryFilter_Operator_IS_NAN
-              : google_firestore_v1_StructuredQuery_UnaryFilter_Operator_IS_NOT_NAN;
+              : google_firestore_v1_StructuredQuery_UnaryFilter_Operator_IS_NOT_NAN;  // NOLINT
       result.unary_filter.op = op;
       return result;
 
@@ -1122,7 +1122,7 @@ google_firestore_v1_StructuredQuery_Filter Serializer::EncodeSingularFilter(
       auto op =
           filter.op() == Filter::Operator::Equal
               ? google_firestore_v1_StructuredQuery_UnaryFilter_Operator_IS_NULL
-              : google_firestore_v1_StructuredQuery_UnaryFilter_Operator_IS_NOT_NULL;
+              : google_firestore_v1_StructuredQuery_UnaryFilter_Operator_IS_NOT_NULL;  // NOLINT
       result.unary_filter.op = op;
       return result;
     }

@@ -111,6 +111,7 @@ func makeQuery(collection collectionRef: CollectionReference) -> Query {
     .whereField(FieldPath(["tags"]), notIn: ["active", "squat"])
     .whereField(FieldPath.documentID(), isEqualTo: "fred")
     .whereField(FieldPath.documentID(), isNotEqualTo: "fred")
+    .whereField(FieldPath(["name"]), isEqualTo: "fred")
     .order(by: FieldPath(["age"]))
     .order(by: "name", descending: true)
     .limit(to: 10)

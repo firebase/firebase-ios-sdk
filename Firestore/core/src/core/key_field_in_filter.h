@@ -17,11 +17,11 @@
 #ifndef FIRESTORE_CORE_SRC_CORE_KEY_FIELD_IN_FILTER_H_
 #define FIRESTORE_CORE_SRC_CORE_KEY_FIELD_IN_FILTER_H_
 
-#include <Firestore/core/src/model/document.h>
-#include <Firestore/core/src/model/field_value.h>
 #include <string>
 
 #include "Firestore/core/src/core/field_filter.h"
+#include "Firestore/core/src/model/document.h"
+#include "Firestore/core/src/model/field_value.h"
 
 namespace firebase {
 namespace firestore {

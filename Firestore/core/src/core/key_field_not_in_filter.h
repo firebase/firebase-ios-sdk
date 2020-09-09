@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ namespace firestore {
 namespace core {
 
 /**
- * A Filter that matches on key fields not present within an array..
+ * A Filter that matches on key fields not present within an array.
  */
 class KeyFieldNotInFilter : public FieldFilter {
  public:
