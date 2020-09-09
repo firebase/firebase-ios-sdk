@@ -297,6 +297,7 @@ let package = Package(
         .define("PB_ENABLE_MALLOC", to: "1"),
       ]
     ),
+
     .target(
       name: "FirebaseDatabase",
       dependencies: [
@@ -398,6 +399,12 @@ let package = Package(
         .define("PB_NO_PACKED_STRUCTS", to: "1"),
         .define("PB_ENABLE_MALLOC", to: "1"),
         .define("FIRFirestore_VERSION", to: firebaseVersion),
+      ],
+      linkerSettings: [
+        .linkedFramework("SystemConfiguration"),
+        .linkedFramework("MobileCoreServices", .when(platforms: .some([.iOS]))),
+        .linkedFramework("UIKit", .when(platforms: .some([.iOS, .tvOS]))),
+        .linkedLibrary("c++"),
       ]
     ),
     .target(
