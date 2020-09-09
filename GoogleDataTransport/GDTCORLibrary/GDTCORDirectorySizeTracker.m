@@ -44,7 +44,7 @@
   return self.cachedSizeBytes.unsignedLongLongValue;
 }
 
-- (void)fileWithSize:(GDTCORStorageSizeBytes)fileSize wasAddedAtPath:(NSString *)path {
+- (void)fileWasAddedAtPath:(NSString *)path withSize:(GDTCORStorageSizeBytes)fileSize {
   if (![path hasPrefix:self.directoryPath]) {
     // Ignore because the file is not inside the directory.
     return;
@@ -53,7 +53,7 @@
   self.cachedSizeBytes = @([self directoryContentSize] + fileSize);
 }
 
-- (void)fileWithSize:(GDTCORStorageSizeBytes)fileSize wasRemovedAtPath:(NSString *)path {
+- (void)fileWasRemovedAtPath:(NSString *)path withSize:(GDTCORStorageSizeBytes)fileSize {
   if (![path hasPrefix:self.directoryPath]) {
     // Ignore because the file is not inside the directory.
     return;

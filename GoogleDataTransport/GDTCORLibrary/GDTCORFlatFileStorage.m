@@ -177,7 +177,7 @@ const uint64_t kGDTCORFlatFileStorageSizeLimit = 20 * 1000 * 1000;  // 20 MB.
     }
 
     // Notify size tracker.
-    [self.sizeTracker fileWithSize:encodedEvent.length wasAddedAtPath:filePath];
+    [self.sizeTracker fileWasAddedAtPath:filePath withSize:encodedEvent.length];
 
     // Check the QoS, if it's high priority, notify the target that it has a high priority event.
     if (event.qosTier == GDTCOREventQoSFast) {
@@ -328,8 +328,8 @@ const uint64_t kGDTCORFlatFileStorageSizeLimit = 20 * 1000 * 1000;  // 20 MB.
         NSError *newValueError;
         if ([newValue writeToFile:dataPath options:NSDataWritingAtomic error:&newValueError]) {
           // Update storage size.
-          [self.sizeTracker fileWithSize:data.length wasRemovedAtPath:dataPath];
-          [self.sizeTracker fileWithSize:newValue.length wasAddedAtPath:dataPath];
+          [self.sizeTracker fileWasRemovedAtPath:dataPath withSize:data.length];
+          [self.sizeTracker fileWasAddedAtPath:dataPath withSize:newValue.length];
         } else {
           GDTCORLogDebug(@"Error writing new value in libraryDataForKey: %@", newValueError);
         }
@@ -351,7 +351,7 @@ const uint64_t kGDTCORFlatFileStorageSizeLimit = 20 * 1000 * 1000;  // 20 MB.
     NSError *error;
     NSString *dataPath = [[[self class] libraryDataStoragePath] stringByAppendingPathComponent:key];
     if ([data writeToFile:dataPath options:NSDataWritingAtomic error:&error]) {
-      [self.sizeTracker fileWithSize:data.length wasAddedAtPath:dataPath];
+      [self.sizeTracker fileWasAddedAtPath:dataPath withSize:data.length];
     }
     if (onComplete) {
       onComplete(error);
@@ -368,7 +368,7 @@ const uint64_t kGDTCORFlatFileStorageSizeLimit = 20 * 1000 * 1000;  // 20 MB.
 
     if ([[NSFileManager defaultManager] fileExistsAtPath:dataPath]) {
       if ([[NSFileManager defaultManager] removeItemAtPath:dataPath error:&error]) {
-        [self.sizeTracker fileWithSize:fileSize wasRemovedAtPath:dataPath];
+        [self.sizeTracker fileWasRemovedAtPath:dataPath withSize:fileSize];
       }
       if (onComplete) {
         onComplete(error);
