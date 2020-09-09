@@ -41,5 +41,5 @@ jobs:
       run: sudo xcode-select -s /Applications/Xcode_12_beta.app/Contents/Developer
     - name: Initialize xcodebuild
       run: xcodebuild -list
-    - name: macOS Unit Test Build
+    - name: Unit Tests
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh Firebase-Package ${{ matrix.target }} spm
