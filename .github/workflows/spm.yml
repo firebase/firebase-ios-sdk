@@ -40,12 +40,16 @@ jobs:
     - name: Initialize xcodebuild
       run: xcodebuild -list
     - name: macOS Unit Test Build
-      run:  scripts/third_party/travis/retry.sh xcodebuild -scheme Firebase-Package build | xcpretty
-    - name: macOS Unit Test
-      run:  scripts/third_party/travis/retry.sh xcodebuild -scheme Firebase-Package test | xcpretty
+      run:  xcodebuild -scheme Firebase-Package build | xcpretty
+    # - name: macOS Unit Test
+    #   run:  scripts/third_party/travis/retry.sh xcodebuild -scheme Firebase-Package test | xcpretty
     - name: tvOS Unit Test Build
       run: scripts/third_party/travis/retry.sh xcodebuild -scheme Firebase-Package build -sdk
-           appletvsimulator -destination 'platform=tvOS Simulator,name=Apple TV' | xcpretty
-    - name: tvOS Unit Test Build
-      run: scripts/third_party/travis/retry.sh xcodebuild -scheme Firebase-Package test -sdk
-           appletvsimulator -destination 'platform=tvOS Simulator,name=Apple TV' | xcpretty
+           appletvsimulator -destination 'platform=tvOS Simulator,name=Apple TV'
+    # - name: tvOS Unit Test Build
+    #   run: scripts/third_party/travis/retry.sh xcodebuild -scheme Firebase-Package test -sdk
+    #        appletvsimulator -destination 'platform=tvOS Simulator,name=Apple TV' | xcpretty
+
+    - name: tvOS Unit Test Build 2
+      run: xcodebuild -scheme Firebase-Package build -sdk
+           appletvsimulator -destination 'platform=tvOS Simulator,name=Apple TV'
