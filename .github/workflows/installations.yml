@@ -59,7 +59,7 @@ jobs:
     runs-on: macOS-latest
     strategy:
       matrix:
-        target: [tvos, macos, catalyst]
+        target: [tvOS, macOS, catalyst]
     steps:
     - uses: actions/checkout@v2
     - name: Xcode 12

@@ -541,7 +541,6 @@ case "$product-$platform-$method" in
     RunXcodebuild \
       -scheme $product \
       "${xcb_flags[@]}" \
-      build \
       test
     ;;
 
