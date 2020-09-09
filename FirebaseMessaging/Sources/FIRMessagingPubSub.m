@@ -21,7 +21,6 @@
 #import "GoogleUtilities/Environment/Private/GULSecureCoding.h"
 #import "GoogleUtilities/UserDefaults/Private/GULUserDefaults.h"
 
-#import "FirebaseMessaging/Sources/FIRMessagingClient.h"
 #import "FirebaseMessaging/Sources/FIRMessagingDefines.h"
 #import "FirebaseMessaging/Sources/FIRMessagingLogger.h"
 #import "FirebaseMessaging/Sources/FIRMessagingPendingTopicsList.h"
