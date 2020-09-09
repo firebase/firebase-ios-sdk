@@ -903,7 +903,8 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 }
 
 - (void)testFirebaseUserAgent_DeviceModel {
-  NSString *expectedComponent = [NSString stringWithFormat:@"device/%@", [GULAppEnvironmentUtil deviceModel]];
+  NSString *expectedComponent =
+      [NSString stringWithFormat:@"device/%@", [GULAppEnvironmentUtil deviceModel]];
   XCTAssertTrue([[FIRApp firebaseUserAgent] containsString:expectedComponent]);
 }
 

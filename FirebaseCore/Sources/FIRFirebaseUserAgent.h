@@ -20,7 +20,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRFirebaseUserAgent : NSObject
 
-/** Returns the firebase user agent which consists of environment part and the components added via `setValue:forComponent` method. */
+/** Returns the firebase user agent which consists of environment part and the components added via
+ * `setValue:forComponent` method. */
 - (NSString *)firebaseUserAgent;
 
 /** Sets value associated with the specified component. */
