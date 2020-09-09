@@ -1468,7 +1468,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     self->_requestConfiguration.emulatorURL =
         [NSString stringWithFormat:@"%@:%ld", host, (long)port];
 #if TARGET_OS_IOS
-    _settings.appVerificationDisabledForTesting = YES;
+    self->_settings.appVerificationDisabledForTesting = YES;
 #endif
   });
 }
