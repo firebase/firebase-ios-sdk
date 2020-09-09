@@ -805,46 +805,47 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   XCTAssertFalse([FIRApp isDefaultAppConfigured]);
 }
 
-- (void)testInvalidLibraryName {
+- (void)testRegisterLibrary_InvalidLibraryName {
+  NSString *originalFirebaseUserAgent = [FIRApp firebaseUserAgent];
   [FIRApp registerLibrary:@"Oops>" withVersion:@"1.0.0"];
-  XCTAssertFalse([[FIRApp firebaseUserAgent] containsString:@"Oops"]);
+  XCTAssertTrue([[FIRApp firebaseUserAgent] isEqualToString:originalFirebaseUserAgent]);
 }
 
-- (void)testInvalidLibraryVersion {
+- (void)testRegisterLibrary_InvalidLibraryVersion {
   NSString *originalFirebaseUserAgent = [FIRApp firebaseUserAgent];
   [FIRApp registerLibrary:@"ValidName" withVersion:@"1.0.0+"];
   XCTAssertTrue([[FIRApp firebaseUserAgent] isEqualToString:originalFirebaseUserAgent]);
 }
 
-- (void)testSingleLibrary {
+- (void)testRegisterLibrary_SingleLibrary {
   [FIRApp registerLibrary:@"ValidName" withVersion:@"1.0.0"];
   XCTAssertTrue([[FIRApp firebaseUserAgent] containsString:@"ValidName/1.0.0"]);
 }
 
-- (void)testMultipleLibraries {
+- (void)testRegisterLibrary_MultipleLibraries {
   [FIRApp registerLibrary:@"ValidName" withVersion:@"1.0.0"];
   [FIRApp registerLibrary:@"ValidName2" withVersion:@"2.0.0"];
   XCTAssertTrue([[FIRApp firebaseUserAgent] containsString:@"ValidName/1.0.0 ValidName2/2.0.0"]);
 }
 
-- (void)testRegisteringConformingLibrary {
+- (void)testRegisterLibrary_RegisteringConformingLibrary {
   Class testClass = [FIRTestClass class];
   [FIRApp registerInternalLibrary:testClass withName:@"ValidName" withVersion:@"1.0.0"];
   XCTAssertTrue([[FIRApp firebaseUserAgent] containsString:@"ValidName/1.0.0"]);
 }
 
-- (void)testRegisteringNonConformingLibrary {
+- (void)testRegisterLibrary_RegisteringNonConformingLibrary {
   XCTAssertThrows([FIRApp registerInternalLibrary:[NSString class]
                                          withName:@"InvalidLibrary"
                                       withVersion:@"1.0.0"]);
   XCTAssertFalse([[FIRApp firebaseUserAgent] containsString:@"InvalidLibrary`/1.0.0"]);
 }
 
-- (void)testSwiftFlagWithNoSwift {
+- (void)testFirebaseUserAgent_SwiftFlagWithNoSwift {
   XCTAssertTrue([[FIRApp firebaseUserAgent] containsString:@"swift/false"]);
 }
 
-- (void)testApplePlatformFlag {
+- (void)testFirebaseUserAgent_ApplePlatformFlag {
   // When a Catalyst app is run on macOS then both `TARGET_OS_MACCATALYST` and `TARGET_OS_IOS` are
   // `true`.
 #if TARGET_OS_MACCATALYST
@@ -884,6 +885,9 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   XCTAssertTrue([[FIRApp firebaseUserAgent] containsString:@"apple-platform/watchos"]);
   XCTAssertFalse([[FIRApp firebaseUserAgent] containsString:@"apple-platform/maccatalyst"]);
 #endif  // TARGET_OS_WATCH
+}
+
+- (void)testFirebaseUserAgent_DeploymentType {
 }
 
 #pragma mark - Core Diagnostics
