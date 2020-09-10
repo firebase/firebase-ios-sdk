@@ -326,6 +326,12 @@ class FirebaseAppTests: XCTestCase {
     waitForExpectations(timeout: 1)
   }
 
+  // MARK: - Firebase User Agent
+
+  func testFirebaseUserAgent_SwiftRuntime() {
+    XCTAssertTrue(FirebaseApp.firebaseUserAgent().contains("swift/true"))
+  }
+
   // MARK: - Helpers
 
   private func expectAppConfigurationNotification(appName: String, isDefaultApp: Bool) {
