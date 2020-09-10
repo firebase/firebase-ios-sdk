@@ -24,8 +24,9 @@ NS_ASSUME_NONNULL_BEGIN
  * `setValue:forComponent` method. */
 - (NSString *)firebaseUserAgent;
 
-/** Sets value associated with the specified component. */
-- (void)setValue:(NSString *)value forComponent:(nullable NSString *)componentName;
+/** Sets value associated with the specified component. If value is `nil` then the component is
+ * removed. */
+- (void)setValue:(nullable NSString *)value forComponent:(NSString *)componentName;
 
 /** Resets manually added components. */
 - (void)reset;

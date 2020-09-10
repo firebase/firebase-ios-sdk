@@ -58,7 +58,7 @@ static NSString *const kApplePlatformComponentName = @"apple-platform";
   }
 }
 
-- (void)setValue:(NSString *)value forComponent:(NSString *)componentName {
+- (void)setValue:(nullable NSString *)value forComponent:(NSString *)componentName {
   @synchronized(self) {
     self.valuesByComponent[componentName] = value;
     // Reset cached user agent string.
