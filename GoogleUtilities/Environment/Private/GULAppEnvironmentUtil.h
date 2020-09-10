@@ -33,7 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (BOOL)isSimulator;
 
 /// The current device model. Returns an empty string if device model cannot be retrieved.
-+ (NSString *)deviceModel;
++ (nullable NSString *)deviceModel;
 
 /// The current operating system version. Returns an empty string if the system version cannot be
 /// retrieved.
