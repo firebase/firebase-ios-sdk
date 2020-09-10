@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseAuth'
-  s.version          = '6.7.1'
+  s.version          = '6.9.1'
   s.summary          = 'Apple platform client for Firebase Authentication'
 
   s.description      = <<-DESC
@@ -20,6 +20,7 @@ supports email and password accounts, as well as several 3rd party authenticatio
   s.ios.deployment_target = '8.0'
   s.osx.deployment_target = '10.11'
   s.tvos.deployment_target = '10.0'
+  s.watchos.deployment_target = '6.0'
 
   s.cocoapods_version = '>= 1.4.0'
   s.static_framework = true
@@ -54,6 +55,8 @@ supports email and password accounts, as well as several 3rd party authenticatio
   s.dependency 'GTMSessionFetcher/Core', '~> 1.1'
 
   s.test_spec 'unit' do |unit_tests|
+    # Unit tests can't run on watchOS.
+    unit_tests.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
     unit_tests.source_files = 'FirebaseAuth/Tests/Unit/*.[mh]'
     unit_tests.osx.exclude_files = [
       'FirebaseAuth/Tests/Unit/FIRAuthAPNSTokenManagerTests.m',

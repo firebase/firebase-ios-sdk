@@ -58,6 +58,11 @@ static NSString *const kContextKey = @"context";
  */
 static NSString *const kAppIDKey = @"appId";
 
+/** @var kTenantIDKey
+    @brief The key for the tenant id value in the request.
+ */
+static NSString *const kTenantIDKey = @"tenantId";
+
 @implementation FIRCreateAuthURIRequest
 
 - (nullable instancetype)initWithIdentifier:(NSString *)identifier
@@ -88,6 +93,9 @@ static NSString *const kAppIDKey = @"appId";
   }
   if (_appID) {
     postBody[kAppIDKey] = _appID;
+  }
+  if (self.tenantID) {
+    postBody[kTenantIDKey] = self.tenantID;
   }
   return [postBody copy];
 }

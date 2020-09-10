@@ -1,5 +1,11 @@
 # Unreleased
 
+# v1.17.1
+- [fixed] Fix gRPC documentation warning surfaced in Xcode (#6340).
+
+# v1.17.0
+- [changed] Internal improvements for future C++ and Unity support.
+
 # v1.16.4
 - [changed] Rearranged public headers for future Swift Package Manager support.
   This should have no impact existing users of CocoaPods, Carthage, or zip file

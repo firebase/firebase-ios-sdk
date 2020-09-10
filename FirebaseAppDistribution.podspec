@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseAppDistribution'
-  s.version          = '0.0.1'
+  s.version          = '0.9.2'
   s.summary          = 'App Distribution for Firebase iOS SDK.'
 
   s.description      = <<-DESC
@@ -32,11 +32,11 @@ iOS SDK for App Distribution for Firebase.
   ]
   s.public_header_files = base_dir + 'Public/*.h'
 
-  s.dependency 'FirebaseCore', '~> 6.9'
+  s.dependency 'FirebaseCore', '~> 6.10'
   s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 6.7'
   s.dependency 'GoogleUtilities/UserDefaults', '~> 6.7'
-  s.dependency 'FirebaseInstallations', '~> 1.5'
-  s.dependency 'GoogleDataTransport', '~> 7.0'
+  s.dependency 'FirebaseInstallations', '~> 1.6'
+  s.dependency 'GoogleDataTransport', '~> 7.2'
 
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',

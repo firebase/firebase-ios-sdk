@@ -16,6 +16,7 @@
 #import "Functions/FirebaseFunctions/FIRFunctions+Internal.h"
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseMessaging/Sources/Interop/FIRMessagingInterop.h"
 #import "Interop/Auth/Public/FIRAuthInterop.h"
 
 #import "Functions/FirebaseFunctions/FIRHTTPSCallable+Internal.h"
@@ -41,7 +42,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-NSString *const kFUNInstanceIDTokenHeader = @"Firebase-Instance-ID-Token";
+NSString *const kFUNFCMTokenHeader = @"Firebase-Instance-ID-Token";
 NSString *const kFUNDefaultRegion = @"us-central1";
 
 /// Empty protocol to register Functions as a component with Core.
@@ -66,7 +67,9 @@ NSString *const kFUNDefaultRegion = @"us-central1";
 // Re-declare this initializer here in order to attribute it as the designated initializer.
 - (instancetype)initWithProjectID:(NSString *)projectID
                            region:(NSString *)region
-                             auth:(nullable id<FIRAuthInterop>)auth NS_DESIGNATED_INITIALIZER;
+                             auth:(nullable id<FIRAuthInterop>)auth
+                        messaging:(nullable id<FIRMessagingInterop>)messaging
+    NS_DESIGNATED_INITIALIZER;
 
 @end
 
@@ -112,12 +115,14 @@ NSString *const kFUNDefaultRegion = @"us-central1";
 - (instancetype)initWithApp:(FIRApp *)app region:(NSString *)region {
   return [self initWithProjectID:app.options.projectID
                           region:region
-                            auth:FIR_COMPONENT(FIRAuthInterop, app.container)];
+                            auth:FIR_COMPONENT(FIRAuthInterop, app.container)
+                       messaging:FIR_COMPONENT(FIRMessagingInterop, app.container)];
 }
 
 - (instancetype)initWithProjectID:(NSString *)projectID
                            region:(NSString *)region
-                             auth:(nullable id<FIRAuthInterop>)auth {
+                             auth:(nullable id<FIRAuthInterop>)auth
+                        messaging:(nullable id<FIRMessagingInterop>)messaging {
   self = [super init];
   if (self) {
     if (!region) {
@@ -127,7 +132,7 @@ NSString *const kFUNDefaultRegion = @"us-central1";
     _projectID = [projectID copy];
     _region = [region copy];
     _serializer = [[FUNSerializer alloc] init];
-    _contextProvider = [[FUNContextProvider alloc] initWithAuth:auth];
+    _contextProvider = [[FUNContextProvider alloc] initWithAuth:auth messaging:messaging];
     _emulatorOrigin = nil;
   }
   return self;
@@ -216,8 +221,8 @@ NSString *const kFUNDefaultRegion = @"us-central1";
     NSString *value = [NSString stringWithFormat:@"Bearer %@", context.authToken];
     [fetcher setRequestValue:value forHTTPHeaderField:@"Authorization"];
   }
-  if (context.instanceIDToken) {
-    [fetcher setRequestValue:context.instanceIDToken forHTTPHeaderField:kFUNInstanceIDTokenHeader];
+  if (context.FCMToken) {
+    [fetcher setRequestValue:context.FCMToken forHTTPHeaderField:kFUNFCMTokenHeader];
   }
 
   // Override normal security rules if this is a local test.

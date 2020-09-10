@@ -111,6 +111,11 @@ NS_SWIFT_NAME(User)
  */
 @property(nonatomic, readonly, nonnull) FIRUserMetadata *metadata;
 
+/** @property tenantID
+    @brief The tenant ID of the current user. nil if none is available.
+ */
+@property(nonatomic, readonly, nullable) NSString *tenantID;
+
 #if TARGET_OS_IOS
 /** @property multiFactor
     @brief Multi factor object associated with the user.
@@ -154,7 +159,7 @@ NS_SWIFT_NAME(User)
     @remarks See `FIRAuthErrors` for a list of error codes that are common to all FIRUser methods.
  */
 - (void)updateEmail:(NSString *)email
-         completion:(nullable FIRUserProfileChangeCallback)completion
+         completion:(nullable void (^)(NSError *_Nullable error))completion
     NS_SWIFT_NAME(updateEmail(to:completion:));
 
 /** @fn updatePassword:completion:
@@ -179,7 +184,7 @@ NS_SWIFT_NAME(User)
     @remarks See `FIRAuthErrors` for a list of error codes that are common to all FIRUser methods.
  */
 - (void)updatePassword:(NSString *)password
-            completion:(nullable FIRUserProfileChangeCallback)completion
+            completion:(nullable void (^)(NSError *_Nullable error))completion
     NS_SWIFT_NAME(updatePassword(to:completion:));
 
 #if TARGET_OS_IOS
@@ -203,7 +208,7 @@ NS_SWIFT_NAME(User)
     @remarks See `FIRAuthErrors` for a list of error codes that are common to all FIRUser methods.
  */
 - (void)updatePhoneNumberCredential:(FIRPhoneAuthCredential *)phoneNumberCredential
-                         completion:(nullable FIRUserProfileChangeCallback)completion;
+                         completion:(nullable void (^)(NSError *_Nullable error))completion;
 #endif
 
 /** @fn profileChangeRequest
@@ -228,7 +233,7 @@ NS_SWIFT_NAME(User)
 
     @remarks See `FIRAuthErrors` for a list of error codes that are common to all API methods.
  */
-- (void)reloadWithCompletion:(nullable FIRUserProfileChangeCallback)completion;
+- (void)reloadWithCompletion:(nullable void (^)(NSError *_Nullable error))completion;
 
 /** @fn reauthenticateWithCredential:completion:
     @brief Renews the user's authentication tokens by validating a fresh set of credentials supplied
@@ -267,14 +272,17 @@ NS_SWIFT_NAME(User)
     @remarks See `FIRAuthErrors` for a list of error codes that are common to all API methods.
  */
 - (void)reauthenticateWithCredential:(FIRAuthCredential *)credential
-                          completion:(nullable FIRAuthDataResultCallback)completion;
+                          completion:(nullable void (^)(FIRAuthDataResult *_Nullable authResult,
+                                                        NSError *_Nullable error))completion;
 
 /** @fn reauthenticateAndRetrieveDataWithCredential:completion:
     @brief Please use linkWithCredential:completion: for Objective-C
         or link(withCredential:completion:) for Swift instead.
  */
 - (void)reauthenticateAndRetrieveDataWithCredential:(FIRAuthCredential *)credential
-                                         completion:(nullable FIRAuthDataResultCallback)completion
+                                         completion:(nullable void (^)(
+                                                        FIRAuthDataResult *_Nullable authResult,
+                                                        NSError *_Nullable error))completion
     DEPRECATED_MSG_ATTRIBUTE("Please use reauthenticateWithCredential:completion: for"
                              " Objective-C or reauthenticate(withCredential:completion:)"
                              " for Swift instead.");
@@ -289,13 +297,11 @@ NS_SWIFT_NAME(User)
     @param completion Optionally; a block which is invoked when the reauthenticate flow finishes, or
         is canceled. Invoked asynchronously on the main thread in the future.
  */
-// clang-format off
 - (void)reauthenticateWithProvider:(id<FIRFederatedAuthProvider>)provider
                         UIDelegate:(nullable id<FIRAuthUIDelegate>)UIDelegate
-                        completion:(nullable FIRAuthDataResultCallback)completion
-                        NS_SWIFT_NAME(reauthenticate(with:uiDelegate:completion:))
-                        API_AVAILABLE(ios(8.0));
-// clang-format on
+                        completion:(nullable void (^)(FIRAuthDataResult *_Nullable authResult,
+                                                      NSError *_Nullable error))completion
+    NS_SWIFT_NAME(reauthenticate(with:uiDelegate:completion:));
 
 /** @fn getIDTokenResultWithCompletion:
     @brief Retrieves the Firebase authentication token, possibly refreshing it if it has expired.
@@ -305,7 +311,8 @@ NS_SWIFT_NAME(User)
 
     @remarks See `FIRAuthErrors` for a list of error codes that are common to all API methods.
  */
-- (void)getIDTokenResultWithCompletion:(nullable FIRAuthTokenResultCallback)completion
+- (void)getIDTokenResultWithCompletion:(nullable void (^)(FIRAuthTokenResult *_Nullable tokenResult,
+                                                          NSError *_Nullable error))completion
     NS_SWIFT_NAME(getIDTokenResult(completion:));
 
 /** @fn getIDTokenResultForcingRefresh:completion:
@@ -322,7 +329,8 @@ NS_SWIFT_NAME(User)
     @remarks See `FIRAuthErrors` for a list of error codes that are common to all API methods.
  */
 - (void)getIDTokenResultForcingRefresh:(BOOL)forceRefresh
-                            completion:(nullable FIRAuthTokenResultCallback)completion
+                            completion:(nullable void (^)(FIRAuthTokenResult *_Nullable tokenResult,
+                                                          NSError *_Nullable error))completion
     NS_SWIFT_NAME(getIDTokenResult(forcingRefresh:completion:));
 
 /** @fn getIDTokenWithCompletion:
@@ -333,7 +341,8 @@ NS_SWIFT_NAME(User)
 
     @remarks See `FIRAuthErrors` for a list of error codes that are common to all API methods.
  */
-- (void)getIDTokenWithCompletion:(nullable FIRAuthTokenCallback)completion
+- (void)getIDTokenWithCompletion:
+    (nullable void (^)(NSString *_Nullable token, NSError *_Nullable error))completion
     NS_SWIFT_NAME(getIDToken(completion:));
 
 /** @fn getIDTokenForcingRefresh:completion:
@@ -350,14 +359,17 @@ NS_SWIFT_NAME(User)
     @remarks See `FIRAuthErrors` for a list of error codes that are common to all API methods.
  */
 - (void)getIDTokenForcingRefresh:(BOOL)forceRefresh
-                      completion:(nullable FIRAuthTokenCallback)completion;
+                      completion:(nullable void (^)(NSString *_Nullable token,
+                                                    NSError *_Nullable error))completion;
 
 /** @fn linkAndRetrieveDataWithCredential:completion:
     @brief Please use linkWithCredential:completion: for Objective-C
         or link(withCredential:completion:) for Swift instead.
  */
 - (void)linkAndRetrieveDataWithCredential:(FIRAuthCredential *)credential
-                               completion:(nullable FIRAuthDataResultCallback)completion
+                               completion:
+                                   (nullable void (^)(FIRAuthDataResult *_Nullable authResult,
+                                                      NSError *_Nullable error))completion
     DEPRECATED_MSG_ATTRIBUTE("Please use linkWithCredential:completion: for Objective-C "
                              "or link(withCredential:completion:) for Swift instead.");
 
@@ -385,7 +397,8 @@ NS_SWIFT_NAME(User)
     @remarks See `FIRAuthErrors` for a list of error codes that are common to all FIRUser methods.
  */
 - (void)linkWithCredential:(FIRAuthCredential *)credential
-                completion:(nullable FIRAuthDataResultCallback)completion;
+                completion:(nullable void (^)(FIRAuthDataResult *_Nullable authResult,
+                                              NSError *_Nullable error))completion;
 
 /** @fn linkWithProvider:UIDelegate:completion:
     @brief link the user with the provided auth provider instance.
@@ -397,13 +410,11 @@ NS_SWIFT_NAME(User)
     @param completion Optionally; a block which is invoked when the link flow finishes, or
         is canceled. Invoked asynchronously on the main thread in the future.
  */
-// clang-format off
 - (void)linkWithProvider:(id<FIRFederatedAuthProvider>)provider
               UIDelegate:(nullable id<FIRAuthUIDelegate>)UIDelegate
-              completion:(nullable FIRAuthDataResultCallback)completion
-              NS_SWIFT_NAME(link(with:uiDelegate:completion:))
-              API_AVAILABLE(ios(8.0));
-// clang-format on
+              completion:(nullable void (^)(FIRAuthDataResult *_Nullable authResult,
+                                            NSError *_Nullable error))completion
+    NS_SWIFT_NAME(link(with:uiDelegate:completion:));
 
 /** @fn unlinkFromProvider:completion:
     @brief Disassociates a user account from a third-party identity provider with this user.
@@ -424,7 +435,8 @@ NS_SWIFT_NAME(User)
     @remarks See `FIRAuthErrors` for a list of error codes that are common to all FIRUser methods.
  */
 - (void)unlinkFromProvider:(NSString *)provider
-                completion:(nullable FIRAuthResultCallback)completion;
+                completion:(nullable void (^)(FIRUser *_Nullable user,
+                                              NSError *_Nullable error))completion;
 
 /** @fn sendEmailVerificationWithCompletion:
     @brief Initiates email verification for the user.
@@ -444,7 +456,7 @@ NS_SWIFT_NAME(User)
 
     @remarks See `FIRAuthErrors` for a list of error codes that are common to all FIRUser methods.
  */
-- (void)sendEmailVerificationWithCompletion:(nullable FIRSendEmailVerificationCallback)completion;
+- (void)sendEmailVerificationWithCompletion:(nullable void (^)(NSError *_Nullable error))completion;
 
 /** @fn sendEmailVerificationWithActionCodeSettings:completion:
     @brief Initiates email verification for the user.
@@ -471,8 +483,8 @@ NS_SWIFT_NAME(User)
             continue URI is not valid.
  */
 - (void)sendEmailVerificationWithActionCodeSettings:(FIRActionCodeSettings *)actionCodeSettings
-                                         completion:
-                                             (nullable FIRSendEmailVerificationCallback)completion;
+                                         completion:(nullable void (^)(NSError *_Nullable error))
+                                                        completion;
 
 /** @fn deleteWithCompletion:
     @brief Deletes the user account (also signs out the user, if this was the current user).
@@ -490,7 +502,7 @@ NS_SWIFT_NAME(User)
     @remarks See `FIRAuthErrors` for a list of error codes that are common to all FIRUser methods.
 
  */
-- (void)deleteWithCompletion:(nullable FIRUserProfileChangeCallback)completion;
+- (void)deleteWithCompletion:(nullable void (^)(NSError *_Nullable error))completion;
 
 /** @fn sendEmailVerificationBeforeUpdatingEmail:completion:
     @brief Send an email to verify the ownership of the account then update to the new email.
@@ -499,7 +511,8 @@ NS_SWIFT_NAME(User)
         email is complete, or fails.
 */
 - (void)sendEmailVerificationBeforeUpdatingEmail:(nonnull NSString *)email
-                                      completion:(nullable FIRAuthVoidErrorCallback)completion;
+                                      completion:
+                                          (nullable void (^)(NSError *_Nullable error))completion;
 
 /** @fn sendEmailVerificationBeforeUpdatingEmail:completion:
     @brief Send an email to verify the ownership of the account then update to the new email.
@@ -511,7 +524,8 @@ NS_SWIFT_NAME(User)
 */
 - (void)sendEmailVerificationBeforeUpdatingEmail:(nonnull NSString *)email
                               actionCodeSettings:(nonnull FIRActionCodeSettings *)actionCodeSettings
-                                      completion:(nullable FIRAuthVoidErrorCallback)completion;
+                                      completion:
+                                          (nullable void (^)(NSError *_Nullable error))completion;
 
 @end
 
@@ -550,7 +564,7 @@ NS_SWIFT_NAME(UserProfileChangeRequest)
     @param completion Optionally; the block invoked when the user profile change has been applied.
         Invoked asynchronously on the main thread in the future.
  */
-- (void)commitChangesWithCompletion:(nullable FIRUserProfileChangeCallback)completion;
+- (void)commitChangesWithCompletion:(nullable void (^)(NSError *_Nullable error))completion;
 
 @end
 

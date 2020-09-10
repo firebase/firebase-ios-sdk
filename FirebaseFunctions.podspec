@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseFunctions'
-  s.version          = '2.7.0'
+  s.version          = '2.8.0'
   s.summary          = 'Cloud Functions for Firebase'
 
   s.description      = <<-DESC
@@ -27,6 +27,7 @@ Cloud Functions for Firebase.
     'Functions/FirebaseFunctions/**/*',
     'Interop/Auth/Public/*.h',
     'FirebaseCore/Sources/Private/*.h',
+    'FirebaseMessaging/Sources/Interop/FIRMessagingInterop.h',
   ]
   s.public_header_files = 'Functions/FirebaseFunctions/Public/FirebaseFunctions/*.h'
 
@@ -40,13 +41,18 @@ Cloud Functions for Firebase.
   }
 
   s.test_spec 'unit' do |unit_tests|
-    unit_tests.source_files = 'Functions/Example/Test*/*.[mh]', 'SharedTestUtilities/FIRAuthInteropFake*'
+    unit_tests.source_files = [
+      'Functions/Example/Test*/*.[mh]',
+      'SharedTestUtilities/FIRAuthInteropFake*',
+      'SharedTestUtilities/FIRMessagingInteropFake*',
+  ]
   end
 
   s.test_spec 'integration' do |int_tests|
     int_tests.source_files = 'Functions/Example/IntegrationTests/*.[mh]',
                              'Functions/Example/TestUtils/*.[mh]',
                              'SharedTestUtilities/FIRAuthInteropFake*',
+                             'SharedTestUtilities/FIRMessagingInteropFake*',
                              'Functions/Example/GoogleService-Info.plist'
   end
 end

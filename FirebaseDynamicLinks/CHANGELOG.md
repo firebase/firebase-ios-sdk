@@ -1,3 +1,10 @@
+# v4.3.1
+- [changed] Client id usage in api call and respective checks in the code.
+
+# v4.3.0
+- [changed] Functionally neutral public header refactor to enable Swift Package
+  Manager support.
+
 # v4.2.1
 - [fixed]Check for Pending Dynamic link guard check logic
 

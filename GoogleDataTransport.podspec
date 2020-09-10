@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'GoogleDataTransport'
-  s.version          = '7.2.0'
+  s.version          = '7.3.0'
   s.summary          = 'Google iOS SDK data transport.'
 
   s.description      = <<-DESC
@@ -35,7 +35,7 @@ Shared library for iOS SDK data transport needs.
 
   s.libraries = ['z']
 
-  s.dependency 'nanopb', '~> 1.30905.0'
+  s.dependency 'nanopb', '~> 1.30906.0'
 
   header_search_paths = {
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}/"'

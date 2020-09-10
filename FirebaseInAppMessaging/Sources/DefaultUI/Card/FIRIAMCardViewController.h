@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRIAMBaseRenderingViewController.h"
+#import "FirebaseInAppMessaging/Sources/DefaultUI/FIRIAMBaseRenderingViewController.h"
 
 @class FIRInAppMessagingCardDisplay;
 @protocol FIRInAppMessagingDisplayDelegate;

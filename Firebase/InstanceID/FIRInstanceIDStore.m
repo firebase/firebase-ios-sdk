@@ -202,6 +202,10 @@ static NSString *const kFIRInstanceIDLibraryVersion = @"GMSInstanceID-version";
   [self.tokenStore saveTokenInfo:tokenInfo handler:handler];
 }
 
+- (void)saveTokenInfoInCacheOnly:(FIRInstanceIDTokenInfo *)tokenInfo {
+  [self.tokenStore saveTokenInfoInCacheOnly:tokenInfo];
+}
+
 #pragma mark - Delete
 
 - (void)removeCachedTokenWithAuthorizedEntity:(NSString *)authorizedEntity scope:(NSString *)scope {

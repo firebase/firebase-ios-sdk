@@ -22,6 +22,7 @@ enum FirebasePods: String, CaseIterable {
   case abTesting = "FirebaseABTesting"
   case adMob = "Google-Mobile-Ads-SDK"
   case analytics = "FirebaseAnalytics"
+  case appdistribution = "FirebaseAppDistribution"
   case auth = "FirebaseAuth"
   case core = "FirebaseCore"
   case crashlytics = "FirebaseCrashlytics"
