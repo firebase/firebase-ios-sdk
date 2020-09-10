@@ -1,6 +1,7 @@
 # Firebase 6.33.0
 - [fixed] Swift Package Manager - Define system framework and system library dependencies. This
   resolves undefined symbol issues for system dependencies. (#6408, #6413)
+- [fixed] Enable Firebase pod support for Auth and Crashlytics watchOS platform.
 
 # Firebase 6.32.0
 - [changed] Swift Package Manager - It's no longer necessary to select the Firebase or
