@@ -80,11 +80,21 @@ Simplify your app development, grow your user base, and monetize more effectivel
   s.subspec 'Auth' do |ss|
     ss.dependency 'Firebase/CoreOnly'
     ss.dependency 'FirebaseAuth', '~> 6.9.1'
+    # Standard platforms PLUS watchOS.
+    ss.ios.deployment_target = '8.0'
+    ss.osx.deployment_target = '10.11'
+    ss.tvos.deployment_target = '10.0'
+    ss.watchos.deployment_target = '6.0'
   end
 
   s.subspec 'Crashlytics' do |ss|
     ss.dependency 'Firebase/CoreOnly'
     ss.dependency 'FirebaseCrashlytics', '~> 4.6.0'
+    # Standard platforms PLUS watchOS.
+    ss.ios.deployment_target = '8.0'
+    ss.osx.deployment_target = '10.11'
+    ss.tvos.deployment_target = '10.0'
+    ss.watchos.deployment_target = '6.0'
   end
 
   s.subspec 'Database' do |ss|
