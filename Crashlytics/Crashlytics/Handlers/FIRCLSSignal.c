@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#if CLS_SIGNAL_SUPPORTED
 #include "Crashlytics/Crashlytics/Handlers/FIRCLSSignal.h"
 #include "Crashlytics/Crashlytics/Components/FIRCLSGlobals.h"
 #include "Crashlytics/Crashlytics/Handlers/FIRCLSHandler.h"
@@ -316,3 +317,4 @@ static void FIRCLSSignalHandler(int signal, siginfo_t *info, void *uapVoid) {
   // restore errno
   errno = savedErrno;
 }
+#endif
