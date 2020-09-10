@@ -57,10 +57,9 @@ NS_SWIFT_NAME(ExperimentController)
                          completionHandler:
                              (nullable void (^)(NSError *_Nullable error))completionHandler;
 
-/// Updates the list of experiments. Experiments already
-/// existing in payloads are not affected, whose state and payload is preserved. This method
-/// compares whether the experiments have changed or not by their variant ID. This runs in a
-/// background queue..
+/// Updates the list of experiments. Experiments already existing in payloads are not affected,
+/// whose state and payload is preserved. This method compares whether the experiments have
+/// changed or not by their variant ID. This runs in a background queue.
 /// @param origin         The originating service affected by the experiment.
 /// @param events         A list of event names to be used for logging experiment lifecycle events,
 ///                       if they are not defined in the payload.

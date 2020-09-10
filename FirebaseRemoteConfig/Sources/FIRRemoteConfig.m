@@ -16,6 +16,9 @@
 
 #import "FirebaseRemoteConfig/Sources/Public/FirebaseRemoteConfig/FIRRemoteConfig.h"
 
+#import "FirebaseABTesting/Sources/Interop/FIRABTInterop.h"
+#import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
+
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "FirebaseRemoteConfig/Sources/FIRRemoteConfigComponent.h"
 #import "FirebaseRemoteConfig/Sources/Private/FIRRemoteConfig_Private.h"
@@ -27,9 +30,6 @@
 #import "FirebaseRemoteConfig/Sources/RCNConfigExperiment.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigValue_Internal.h"
 #import "FirebaseRemoteConfig/Sources/RCNDevice.h"
-
-#import "FirebaseABTesting/Sources/Interop/FIRABTInterop.h"
-#import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 
 /// Remote Config Error Domain.
 /// TODO: Rename according to obj-c style for constants.

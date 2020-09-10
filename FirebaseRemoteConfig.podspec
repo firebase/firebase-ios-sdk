@@ -90,7 +90,7 @@ app update.
     ]
     abt.requires_app_host = true
     abt.dependency 'OCMock'
-    abt.dependency 'FirebaseABTesting', '~> 4.2'
+    abt.dependency 'FirebaseABTesting', '~> 4.3'
     abt.requires_arc = true
   end
 

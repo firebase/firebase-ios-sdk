@@ -21,10 +21,9 @@ NS_ASSUME_NONNULL_BEGIN
 /// Connector for bridging communication between Firebase SDKs and FirebaseABTesting API.
 @protocol FIRABTInterop
 
-/// Updates the list of experiments. Experiments already
-/// existing in payloads are not affected, whose state and payload is preserved. This method
-/// compares whether the experiments have changed or not by their variant ID. This runs in a
-/// background queue..
+/// Updates the list of experiments. Experiments already existing in payloads are not affected,
+/// whose state and payload is preserved. This method compares whether the experiments have
+/// changed or not by their variant ID. This runs in a background queue.
 /// @param origin         The originating service affected by the experiment.
 /// @param lastStartTime  The last known experiment start timestamp for this affected service.
 ///                       (Timestamps are specified by the number of seconds from 00:00:00 UTC on 1
