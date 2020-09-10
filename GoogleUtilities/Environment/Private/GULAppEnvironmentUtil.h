@@ -44,4 +44,13 @@
 + (BOOL)isIOS7OrHigher DEPRECATED_MSG_ATTRIBUTE(
     "Always `YES` because only iOS 8 and higher supported. The method will be removed.");
 
+/// @return YES if Swift runtime detected in the app.
++ (BOOL)hasSwiftRuntime;
+
+/// @return An Apple platform. Possible values "ios", "tvos", "macos", "watchos", "maccatalyst".
++ (NSString *)applePlatform;
+
+/// @return The way the library was added to the app, e.g. "swiftpm", "cocoapods", etc.
++ (NSString *)deploymentType;
+
 @end
