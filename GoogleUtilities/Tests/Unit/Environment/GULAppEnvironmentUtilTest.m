@@ -64,15 +64,15 @@
 #endif
 
 - (void)testDeploymentType {
-  #if SWIFT_PACKAGE
-    NSString *deploymentType = @"swiftpm";
-  #elif FIREBASE_BUILD_CARTHAGE
-    NSString *deploymentType = @"carthage";
-  #elif FIREBASE_BUILD_ZIP_FILE
-    NSString *deploymentType = @"zip";
-  #else
-    NSString *deploymentType = @"cocoapods";
-  #endif
+#if SWIFT_PACKAGE
+  NSString *deploymentType = @"swiftpm";
+#elif FIREBASE_BUILD_CARTHAGE
+  NSString *deploymentType = @"carthage";
+#elif FIREBASE_BUILD_ZIP_FILE
+  NSString *deploymentType = @"zip";
+#else
+  NSString *deploymentType = @"cocoapods";
+#endif
 
   XCTAssertEqualObjects([GULAppEnvironmentUtil deploymentType], deploymentType);
 }

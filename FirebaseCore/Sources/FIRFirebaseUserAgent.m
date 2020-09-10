@@ -97,6 +97,4 @@ static NSString *const kApplePlatformComponentName = @"apple-platform";
   return [components copy];
 }
 
-
-
 @end
