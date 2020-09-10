@@ -21,10 +21,10 @@ tag_version="nightly-test-${nightly_test_version}"
 git config --global user.email "google-oss-bot@example.com"
 git config --global user.name "google-oss-bot"
 mkdir -p /tmp/test/firebase-ios-sdk
-git clone -b "${podspec_repo_branch}" https://"${BOT_TOKEN}"@github.com/firebase/firebase-ios-sdk.git "${local_sdk_repo_dir}"
+git clone -b -q "${podspec_repo_branch}" https://"${BOT_TOKEN}"@github.com/firebase/firebase-ios-sdk.git "${local_sdk_repo_dir}"
 cd  "${local_sdk_repo_dir}"
 git tag -f -a "${tag_version}" -m "release testing"
-git push origin ${tag_version}"
+git push origin "${tag_version}"
 # Update source and tag, e.g.  ":tag => 'CocoaPods-' + s.version.to_s" to
 # ":tag => test"
 sed  -i "" "s/\s*:tag.*/:tag => '${tag_version}'/" *.podspec
