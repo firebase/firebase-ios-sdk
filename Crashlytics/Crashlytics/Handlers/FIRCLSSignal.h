@@ -20,6 +20,7 @@
 #include <signal.h>
 #include <stdbool.h>
 
+#if CLS_SIGNAL_SUPPORTED
 #define FIRCLSSignalCount (7)
 
 // per man sigaltstack, MINSIGSTKSZ is the minimum *overhead* needed to support
@@ -49,3 +50,4 @@ bool FIRCLSSignalSafeInstallPreexistingHandlers(FIRCLSSignalReadContext* roConte
 void FIRCLSSignalNameLookup(int number, int code, const char** name, const char** codeName);
 
 void FIRCLSSignalEnumerateHandledSignals(void (^block)(int idx, int signal));
+#endif

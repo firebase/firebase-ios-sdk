@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if CLS_SIGNAL_SUPPORTED
 #include "Crashlytics/Crashlytics/Handlers/FIRCLSSignal.h"
 #include "Crashlytics/Crashlytics/Components/FIRCLSGlobals.h"
 #include "Crashlytics/Crashlytics/Handlers/FIRCLSHandler.h"
@@ -21,6 +20,7 @@
 #include <dlfcn.h>
 #include <stdlib.h>
 
+#if CLS_SIGNAL_SUPPORTED
 static const int FIRCLSFatalSignals[FIRCLSSignalCount] = {SIGABRT, SIGBUS, SIGFPE, SIGILL,
                                                           SIGSEGV, SIGSYS, SIGTRAP};
 
