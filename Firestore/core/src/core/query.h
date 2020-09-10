@@ -122,7 +122,7 @@ class Query {
    * and returns the first one that is, or null if none are.
    */
   absl::optional<Filter::Operator> FindOperator(
-      std::vector<Filter::Operator> ops) const;
+      const std::vector<Filter::Operator>& ops) const;
 
   /**
    * Returns the list of ordering constraints that were explicitly requested on

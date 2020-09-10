@@ -416,8 +416,7 @@ namespace testutil = firebase::firestore::testutil;
 }
 
 - (void)testNonEqualityQueriesOnNullOrNaNFail {
-  NSString *expected =
-      @"Invalid Query. Null supports only 'equalTo', 'notEqualTo', and 'notIn' comparisons.";
+  NSString *expected = @"Invalid Query. Null supports only 'equalTo' and 'notEqualTo' comparisons.";
   FSTAssertThrows([[self collectionRef] queryWhereField:@"a" isGreaterThan:nil], expected);
   FSTAssertThrows([[self collectionRef] queryWhereField:@"a" isGreaterThan:[NSNull null]],
                   expected);
@@ -425,7 +424,7 @@ namespace testutil = firebase::firestore::testutil;
   FSTAssertThrows([[self collectionRef] queryWhereField:@"a" arrayContains:[NSNull null]],
                   expected);
 
-  expected = @"Invalid Query. NaN supports only 'equalTo', 'notEqualTo', and 'notIn' comparisons.";
+  expected = @"Invalid Query. NaN supports only 'equalTo' and 'notEqualTo' comparisons.";
   FSTAssertThrows([[self collectionRef] queryWhereField:@"a" isGreaterThan:@(NAN)], expected);
   FSTAssertThrows([[self collectionRef] queryWhereField:@"a" arrayContains:@(NAN)], expected);
 }
@@ -595,7 +594,7 @@ namespace testutil = firebase::firestore::testutil;
   FIRQuery *base = [coll queryWhereField:@"x" isGreaterThanOrEqualTo:@32];
 
   FSTAssertThrows([base queryWhereField:@"y" isLessThan:@"cat"],
-                  @"Invalid Query. All where filters with an inequality (lessThan, "
+                  @"Invalid Query. All where filters with an inequality (notEqual, lessThan, "
                    "lessThanOrEqual, greaterThan, or greaterThanOrEqual) must be on the same "
                    "field. But you have inequality filters on 'x' and 'y'");
 
@@ -647,7 +646,7 @@ namespace testutil = firebase::firestore::testutil;
 
   FSTAssertThrows([[coll queryWhereField:@"x" isNotEqualTo:@1] queryWhereField:@"y"
                                                                   isNotEqualTo:@2],
-                  @"Invalid Query. All where filters with an inequality (lessThan, "
+                  @"Invalid Query. All where filters with an inequality (notEqual, lessThan, "
                    "lessThanOrEqual, greaterThan, or greaterThanOrEqual) must be on "
                    "the same field. But you have inequality filters on 'x' and 'y'");
 }

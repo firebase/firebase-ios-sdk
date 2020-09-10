@@ -336,6 +336,9 @@ NS_SWIFT_NAME(Query)
  * Creates and returns a new `FIRQuery` with the additional filter that documents must contain
  * the specified field and the value does not equal any of the values from the provided array.
  *
+ * Passing in a `null` value into the `values` array will result in no document matches. To query
+ * for documents where a field is not `null`, use a `notEqual` filter.
+ *
  * A query can have only one `notIn` filter, and it cannot be combined with an `arrayContains`,
  * `arrayContainsAny`, `in`, or `notEqual` filter.
  *
@@ -353,6 +356,9 @@ NS_SWIFT_NAME(Query)
  *
  * A query can have only one `notIn` filter, and it cannot be combined with an `arrayContains`,
  * `arrayContainsAny`, `in`, or `notEqual` filter.
+ *
+ * Passing in a `null` value into the `values` array will result in no document matches. To query
+ * for documents where a field is not `null`, use a `notEqual` filter.
  *
  * @param path The path of the field to search.
  * @param values The array that contains the values to match.

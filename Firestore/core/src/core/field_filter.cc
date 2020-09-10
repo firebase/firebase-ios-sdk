@@ -98,8 +98,8 @@ FieldFilter FieldFilter::Create(FieldPath path,
   } else if (value_rhs.type() == FieldValue::Type::Null) {
     if (op != Filter::Operator::Equal && op != Filter::Operator::NotEqual) {
       ThrowInvalidArgument(
-          "Invalid Query. Null supports only 'equalTo', 'notEqualTo', and "
-          "'notIn' comparisons.");
+          "Invalid Query. Null supports only 'equalTo' and 'notEqualTo' "
+          "comparisons.");
     }
     Rep filter(std::move(path), op, std::move(value_rhs));
     return FieldFilter(std::make_shared<const Rep>(std::move(filter)));
@@ -107,8 +107,8 @@ FieldFilter FieldFilter::Create(FieldPath path,
   } else if (value_rhs.is_nan()) {
     if (op != Filter::Operator::Equal && op != Filter::Operator::NotEqual) {
       ThrowInvalidArgument(
-          "Invalid Query. NaN supports only 'equalTo', 'notEqualTo', and "
-          "'notIn' comparisons.");
+          "Invalid Query. NaN supports only 'equalTo' and 'notEqualTo' "
+          "comparisons.");
     }
     Rep filter(std::move(path), op, std::move(value_rhs));
     return FieldFilter(std::make_shared<const Rep>(std::move(filter)));

@@ -21,7 +21,7 @@
 
 #include "Firestore/core/src/core/field_filter.h"
 #include "Firestore/core/src/model/document.h"
-#include "Firestore/core/src/model/field_value.h"
+#include "Firestore/core/src/model/model_fwd.h"
 
 namespace firebase {
 namespace firestore {
@@ -34,13 +34,15 @@ class KeyFieldInFilter : public FieldFilter {
  public:
   KeyFieldInFilter(model::FieldPath field, model::FieldValue value);
 
+ private:
+  class Rep;
+
   static bool Contains(const model::FieldValue::Array& array_value,
                        const model::Document& doc);
 
   static void ValidateArrayValue(const model::FieldValue& value);
 
- private:
-  class Rep;
+  friend class KeyFieldNotInFilter;
 };
 
 }  // namespace core

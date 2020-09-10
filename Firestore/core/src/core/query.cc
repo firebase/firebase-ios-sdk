@@ -77,7 +77,8 @@ const FieldPath* Query::InequalityFilterField() const {
   return nullptr;
 }
 
-absl::optional<Operator> Query::FindOperator(std::vector<Operator> ops) const {
+absl::optional<Operator> Query::FindOperator(
+    const std::vector<Operator>& ops) const {
   for (const auto& filter : filters_) {
     if (filter.IsAFieldFilter()) {
       FieldFilter relation_filter(filter);

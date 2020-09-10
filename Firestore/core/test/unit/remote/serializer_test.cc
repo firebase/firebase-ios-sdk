@@ -369,10 +369,10 @@ class SerializerTest : public ::testing::Test {
     create_time_proto->set_nanos(4321);
   }
 
-  void ExpectUnaryOperator(std::string opStr,
+  void ExpectUnaryOperator(std::string op_str,
                            const FieldValue& value,
                            v1::StructuredQuery::UnaryFilter::Operator op) {
-    core::Query q = Query("docs").AddingFilter(Filter("prop", opStr, value));
+    core::Query q = Query("docs").AddingFilter(Filter("prop", op_str, value));
     TargetData model = CreateTargetData(std::move(q));
 
     v1::Target proto;
@@ -385,7 +385,7 @@ class SerializerTest : public ::testing::Test {
         std::move(from);
 
     // Add extra ORDER_BY field for '!=' since it is an inequality.
-    if (opStr == "!=") {
+    if (op_str == "!=") {
       v1::StructuredQuery::Order order1;
       order1.mutable_field()->set_field_path("prop");
       order1.set_direction(v1::StructuredQuery::ASCENDING);
