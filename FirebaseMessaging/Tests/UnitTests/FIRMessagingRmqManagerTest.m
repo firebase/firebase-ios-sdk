@@ -26,8 +26,6 @@
 #import "FirebaseMessaging/Sources/FIRMessagingUtilities.h"
 
 static NSString *const kRmqDatabaseName = @"rmq-test-db";
-static NSString *const kRmqDataMessageCategory = @"com.google.gcm-rmq-test";
-static const NSTimeInterval kAsyncTestTimout = 0.5;
 
 @interface FIRMessagingRmqManager (ExposedForTest)
 
