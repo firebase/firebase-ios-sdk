@@ -91,6 +91,11 @@ NSString *const FIRAuthStateDidChangeInternalNotificationUIDKey =
     @"FIRAuthStateDidChangeInternalNotificationUIDKey";
 
 /**
+ * Error domain for exceptions and NSError construction.
+ */
+NSString *const kFirebaseCoreErrorDomain = @"com.firebase.core";
+
+/**
  * The URL to download plist files.
  */
 static NSString *const kPlistURL = @"https://console.firebase.google.com/";
@@ -480,12 +485,12 @@ static dispatch_once_t sFirebaseUserAgentOnceToken;
         @"Check formatting and location of GoogleService-Info.plist."
   };
   return [NSError errorWithDomain:kFirebaseCoreErrorDomain
-                             code:FIRErrorCodeInvalidPlistFile
+                             code:-100
                          userInfo:errorDict];
 }
 
 + (NSError *)errorForSubspecConfigurationFailureWithDomain:(NSString *)domain
-                                                 errorCode:(FIRErrorCode)code
+                                                 errorCode:(NSInteger)code
                                                    service:(NSString *)service
                                                     reason:(NSString *)reason {
   NSString *description =
@@ -503,7 +508,7 @@ static dispatch_once_t sFirebaseUserAgentOnceToken;
         @"customized options."
   };
   return [NSError errorWithDomain:kFirebaseCoreErrorDomain
-                             code:FIRErrorCodeInvalidAppID
+                             code:-101
                          userInfo:errorDict];
 }
 

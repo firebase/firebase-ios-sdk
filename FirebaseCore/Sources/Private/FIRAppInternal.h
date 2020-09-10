@@ -16,13 +16,6 @@
 
 #import <FirebaseCore/FIRApp.h>
 
-// The has_include is a workaround so the old IID needed for the FIS tests can find FIRErrors.h
-#if __has_include("FirebaseCore/Sources/Private/FIRErrors.h")
-#import "FirebaseCore/Sources/Private/FIRErrors.h"
-#else
-#import <FirebaseCore/FIRErrors.h>
-#endif
-
 @class FIRComponentContainer;
 @protocol FIRLibrary;
 
@@ -46,6 +39,7 @@ extern NSString *const kFIRAppDeleteNotification;
 extern NSString *const kFIRAppIsDefaultAppKey;
 extern NSString *const kFIRAppNameKey;
 extern NSString *const kFIRGoogleAppIDKey;
+extern NSString *const kFirebaseCoreErrorDomain;
 
 /**
  * The format string for the User Defaults key used for storing the data collection enabled flag.
@@ -110,7 +104,7 @@ extern NSString *const FIRAuthStateDidChangeInternalNotificationUIDKey;
  * FIRApp notification listener.
  */
 + (NSError *)errorForSubspecConfigurationFailureWithDomain:(NSString *)domain
-                                                 errorCode:(FIRErrorCode)code
+                                                 errorCode:(NSInteger)code
                                                    service:(NSString *)service
                                                     reason:(NSString *)reason;
 /**
