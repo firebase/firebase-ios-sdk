@@ -37,7 +37,9 @@ void FIRCLSSignalInitialize(FIRCLSSignalReadContext *roContext) {
 #if CLS_USE_SIGALTSTACK
   FIRCLSSignalInstallAltStack(roContext);
 #endif
+#if CLS_SIGNAL_SUPPORTED
   FIRCLSSignalInstallHandlers(roContext);
+#endif
 #if TARGET_IPHONE_SIMULATOR
   // prevent the OpenGL stack (by way of OpenGLES.framework/libLLVMContainer.dylib) from installing
   // signal handlers that do not chain back
