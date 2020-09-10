@@ -484,9 +484,7 @@ static dispatch_once_t sFirebaseUserAgentOnceToken;
     NSLocalizedRecoverySuggestionErrorKey :
         @"Check formatting and location of GoogleService-Info.plist."
   };
-  return [NSError errorWithDomain:kFirebaseCoreErrorDomain
-                             code:-100
-                         userInfo:errorDict];
+  return [NSError errorWithDomain:kFirebaseCoreErrorDomain code:-100 userInfo:errorDict];
 }
 
 + (NSError *)errorForSubspecConfigurationFailureWithDomain:(NSString *)domain
@@ -507,9 +505,7 @@ static dispatch_once_t sFirebaseUserAgentOnceToken;
         @"Check formatting and location of GoogleService-Info.plist or GoogleAppID set in the "
         @"customized options."
   };
-  return [NSError errorWithDomain:kFirebaseCoreErrorDomain
-                             code:-101
-                         userInfo:errorDict];
+  return [NSError errorWithDomain:kFirebaseCoreErrorDomain code:-101 userInfo:errorDict];
 }
 
 + (BOOL)isDefaultAppConfigured {
