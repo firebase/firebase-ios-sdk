@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#if CLS_SIGNAL_SUPPORTED
 #include "Crashlytics/Crashlytics/Handlers/FIRCLSSignal.h"
 #include "Crashlytics/Crashlytics/Components/FIRCLSGlobals.h"
 #include "Crashlytics/Crashlytics/Handlers/FIRCLSHandler.h"
@@ -37,9 +38,7 @@ void FIRCLSSignalInitialize(FIRCLSSignalReadContext *roContext) {
 #if CLS_USE_SIGALTSTACK
   FIRCLSSignalInstallAltStack(roContext);
 #endif
-#if CLS_SIGNAL_SUPPORTED
   FIRCLSSignalInstallHandlers(roContext);
-#endif
 #if TARGET_IPHONE_SIMULATOR
   // prevent the OpenGL stack (by way of OpenGLES.framework/libLLVMContainer.dylib) from installing
   // signal handlers that do not chain back
@@ -318,3 +317,4 @@ static void FIRCLSSignalHandler(int signal, siginfo_t *info, void *uapVoid) {
   // restore errno
   errno = savedErrno;
 }
+#endif
