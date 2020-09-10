@@ -1,5 +1,5 @@
-# Unreleased
-- [changed] Enabled Firebase ABTesting to be a soft dependency. To use enable ABTesting,
+# v4.10.0
+- [changed] Enable usage of Firebase ABTesting as a soft dependency. To use enable ABTesting,
   make sure to include `Firebase/ABTesting` in the Podfile. This will be required at the next
   major release.
 

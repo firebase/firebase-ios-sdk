@@ -1,3 +1,8 @@
+# v4.3.0
+- [changed] Enabled Firebase ABTesting to be a soft dependency. To use enable ABTesting,
+  make sure to include `Firebase/ABTesting` in the Podfile. This will be required at the next
+  major release.
+
 # v4.1.0
 - [changed] Functionally neutral source reorganization for preliminary Swift Package Manager support. (#6016)
 

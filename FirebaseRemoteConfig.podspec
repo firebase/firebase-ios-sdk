@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseRemoteConfig'
-  s.version          = '4.9.0'
+  s.version          = '4.10.0'
   s.summary          = 'Firebase Remote Config'
 
   s.description      = <<-DESC
@@ -46,7 +46,7 @@ app update.
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
   }
   # TODO(7.0) The FirebaseABTesting dependency should be removed at next major version update.
-  s.dependency 'FirebaseABTesting', '~> 4.2'
+  s.dependency 'FirebaseABTesting', '~> 4.3'
   s.dependency 'FirebaseCore', '~> 6.10'
   s.dependency 'FirebaseInstallations', '~> 1.6'
   s.dependency 'GoogleUtilities/Environment', '~> 6.7'
