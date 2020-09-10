@@ -202,9 +202,9 @@ let package = Package(
     .target(
       name: "FirebaseAnalyticsWrapper",
       dependencies: [
-        "FirebaseAnalytics",
-        "FIRAnalyticsConnector",
-        "GoogleAppMeasurement",
+        .target(name: "FirebaseAnalytics", condition: .when(platforms: .some([.iOS]))),
+        .target(name: "FIRAnalyticsConnector", condition: .when(platforms: .some([.iOS]))),
+        .target(name: "GoogleAppMeasurement", condition: .when(platforms: .some([.iOS]))),
         "FirebaseCore",
         "FirebaseInstallations",
         "GoogleUtilities_AppDelegateSwizzler",
