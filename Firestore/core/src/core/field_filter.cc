@@ -107,7 +107,7 @@ FieldFilter FieldFilter::Create(FieldPath path,
   } else if (value_rhs.is_nan()) {
     if (op != Filter::Operator::Equal && op != Filter::Operator::NotEqual) {
       ThrowInvalidArgument(
-          "Invalid Query. Null supports only 'equalTo', 'notEqualTo', and "
+          "Invalid Query. NaN supports only 'equalTo', 'notEqualTo', and "
           "'notIn' comparisons.");
     }
     Rep filter(std::move(path), op, std::move(value_rhs));

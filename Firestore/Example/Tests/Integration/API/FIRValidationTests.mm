@@ -416,19 +416,18 @@ namespace testutil = firebase::firestore::testutil;
 }
 
 - (void)testNonEqualityQueriesOnNullOrNaNFail {
-  FSTAssertThrows([[self collectionRef] queryWhereField:@"a" isGreaterThan:nil],
-                  @"Invalid Query. Null supports only equality comparisons.");
+  NSString *expected =
+      @"Invalid Query. Null supports only 'equalTo', 'notEqualTo', and 'notIn' comparisons.";
+  FSTAssertThrows([[self collectionRef] queryWhereField:@"a" isGreaterThan:nil], expected);
   FSTAssertThrows([[self collectionRef] queryWhereField:@"a" isGreaterThan:[NSNull null]],
-                  @"Invalid Query. Null supports only equality comparisons.");
-  FSTAssertThrows([[self collectionRef] queryWhereField:@"a" arrayContains:nil],
-                  @"Invalid Query. Null supports only equality comparisons.");
+                  expected);
+  FSTAssertThrows([[self collectionRef] queryWhereField:@"a" arrayContains:nil], expected);
   FSTAssertThrows([[self collectionRef] queryWhereField:@"a" arrayContains:[NSNull null]],
-                  @"Invalid Query. Null supports only equality comparisons.");
+                  expected);
 
-  FSTAssertThrows([[self collectionRef] queryWhereField:@"a" isGreaterThan:@(NAN)],
-                  @"Invalid Query. NaN supports only equality comparisons.");
-  FSTAssertThrows([[self collectionRef] queryWhereField:@"a" arrayContains:@(NAN)],
-                  @"Invalid Query. NaN supports only equality comparisons.");
+  expected = @"Invalid Query. NaN supports only 'equalTo', 'notEqualTo', and 'notIn' comparisons.";
+  FSTAssertThrows([[self collectionRef] queryWhereField:@"a" isGreaterThan:@(NAN)], expected);
+  FSTAssertThrows([[self collectionRef] queryWhereField:@"a" arrayContains:@(NAN)], expected);
 }
 
 - (void)testQueryCannotBeCreatedFromDocumentsMissingSortValues {
