@@ -16,6 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 @interface GULAppEnvironmentUtil : NSObject
 
 /// Indicates whether the app is from Apple Store or not. Returns NO if the app is on simulator,
@@ -54,3 +56,5 @@
 + (NSString *)deploymentType;
 
 @end
+
+NS_ASSUME_NONNULL_END
