@@ -140,7 +140,7 @@ jobs:
     - name: Test swift quickstart
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Authentication)
     - name: Remove data before upload
-      run: scripts/remove_data.sh auth release_testing
+      run: scripts/remove_data.sh authentication release_testing
     - uses: actions/upload-artifact@v2
       if: ${{ failure() }}
       with:
