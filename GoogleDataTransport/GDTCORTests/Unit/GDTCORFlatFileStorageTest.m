@@ -1126,14 +1126,8 @@
                        kGDTCORFlatFileStorageSizeLimit);
 
   // 2. Check storage size.
-  __block uint64_t storageSize = 0;
-  XCTestExpectation *sizeExpectation1 = [self expectationWithDescription:@"sizeExpectation1"];
-  [storage storageSizeWithCallback:^(uint64_t aStorageSize) {
-    storageSize = aStorageSize;
-    XCTAssertEqual(storageSize, [self storageSizeOfEvents:generatedEvents]);
-    [sizeExpectation1 fulfill];
-  }];
-  [self waitForExpectations:@[ sizeExpectation1 ] timeout:5];
+  uint64_t storageSize = [self storageSize];
+  XCTAssertEqual(storageSize, [self storageSizeOfEvents:generatedEvents]);
 
   // 3. Try to add another event.
   GDTCOREvent *event = [GDTCOREventGenerator generateEventForTarget:kGDTCORTargetTest
@@ -1141,24 +1135,55 @@
                                                           mappingID:nil];
   event.expirationDate = [NSDate dateWithTimeIntervalSinceNow:1000];
 
-  XCTestExpectation *storeExpectation = [self expectationWithDescription:@"storeExpectation"];
+  XCTestExpectation *storeExpectation1 = [self expectationWithDescription:@"storeExpectation1"];
   [storage storeEvent:event
            onComplete:^(BOOL wasWritten, NSError *_Nullable error) {
              XCTAssertFalse(wasWritten);
              XCTAssertNotNil(error);
              XCTAssertEqualObjects(error.domain, GDTCORFlatFileStorageErrorDomain);
              XCTAssertEqual(error.code, GDTCORFlatFileStorageErrorSizeLimitReached);
-             [storeExpectation fulfill];
+             [storeExpectation1 fulfill];
            }];
-  [self waitForExpectations:@[ storeExpectation ] timeout:5];
+  [self waitForExpectations:@[ storeExpectation1 ] timeout:5];
 
   // 4. Check the storage size didn't change.
-  XCTestExpectation *sizeExpectation2 = [self expectationWithDescription:@"sizeExpectation2"];
-  [storage storageSizeWithCallback:^(uint64_t aStorageSize) {
-    XCTAssertEqual(aStorageSize, storageSize);
-    [sizeExpectation2 fulfill];
-  }];
-  [self waitForExpectations:@[ sizeExpectation2 ] timeout:5];
+  XCTAssertEqual([self storageSize], storageSize);
+
+  // 5. Batch and remove events
+  XCTestExpectation *batchCreatedExpectation =
+      [self expectationWithDescription:@"batchCreatedExpectation"];
+  __block NSNumber *batchID;
+  [storage
+      batchWithEventSelector:[GDTCORStorageEventSelector eventSelectorForTarget:kGDTCORTargetTest]
+             batchExpiration:[NSDate dateWithTimeIntervalSinceNow:1000]
+                  onComplete:^(NSNumber *_Nullable newBatchID,
+                               NSSet<GDTCOREvent *> *_Nullable events) {
+                    batchID = newBatchID;
+                    XCTAssertGreaterThan(events.count, 0);
+                    [batchCreatedExpectation fulfill];
+                  }];
+  [self waitForExpectations:@[ batchCreatedExpectation ] timeout:generatedEvents.count * 0.1];
+
+  XCTestExpectation *removeBatchExpectation = [self expectationWithDescription:@"removeBatch"];
+  [storage removeBatchWithID:batchID
+                deleteEvents:YES
+                  onComplete:^{
+                    [removeBatchExpectation fulfill];
+                  }];
+  [self waitForExpectations:@[ removeBatchExpectation ] timeout:5];
+
+  // 6. Try to add another event.
+  XCTestExpectation *storeExpectation2 = [self expectationWithDescription:@"storeExpectation2"];
+  [storage storeEvent:event
+           onComplete:^(BOOL wasWritten, NSError *_Nullable error) {
+             XCTAssertTrue(wasWritten);
+             XCTAssertNil(error);
+             [storeExpectation2 fulfill];
+           }];
+  [self waitForExpectations:@[ storeExpectation2 ] timeout:5];
+
+  GDTCORStorageSizeBytes lastBatchIDSize = sizeof(int32_t);
+  XCTAssertEqual([self storageSize], [self storageEventSize:event] + lastBatchIDSize);
 }
 
 #pragma mark - Helpers
