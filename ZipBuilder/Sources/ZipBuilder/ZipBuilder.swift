@@ -664,14 +664,17 @@ struct ZipBuilder {
 
     // Create the temporary directory we'll be storing the build/assembled frameworks in, and remove
     // the Resources directory if it already exists.
-    let tempDir = fileManager.temporaryDirectory(withName: "all_frameworks")
+    let binaryZipDir = fileManager.temporaryDirectory(withName: "binary_zip")
+    let binaryCarthageDir = fileManager.temporaryDirectory(withName: "binary_carthage")
     do {
-      try fileManager.createDirectory(at: tempDir,
+      try fileManager.createDirectory(at: binaryZipDir,
+                                      withIntermediateDirectories: true,
+                                      attributes: nil)
+      try fileManager.createDirectory(at: binaryCarthageDir,
                                       withIntermediateDirectories: true,
                                       attributes: nil)
     } catch {
-      fatalError("Cannot create temporary directory to store frameworks from the " +
-        "full build: \(error)")
+      fatalError("Cannot create temporary directory to store binary frameworks: \(error)")
     }
 
     // Loop through each pod folder and check if the frameworks already exist, or they need to be
@@ -710,19 +713,25 @@ struct ZipBuilder {
         // Copy each of the frameworks to a known temporary directory and store the location.
         for framework in podInfo.binaryFrameworks {
           // Copy it to the temporary directory and save it to our list of frameworks.
-          let copiedLocation = tempDir.appendingPathComponent(framework.lastPathComponent)
+          let zipLocation = binaryZipDir.appendingPathComponent(framework.lastPathComponent)
+          let carthageLocation =
+            binaryCarthageDir.appendingPathComponent(framework.lastPathComponent)
 
           // Remove the framework if it exists since it could be out of date.
-          fileManager.removeIfExists(at: copiedLocation)
+          fileManager.removeIfExists(at: zipLocation)
+          fileManager.removeIfExists(at: carthageLocation)
           do {
-            try fileManager.copyItem(at: framework, to: copiedLocation)
+            try fileManager.copyItem(at: framework, to: zipLocation)
+            try fileManager.copyItem(at: framework, to: carthageLocation)
           } catch {
-            fatalError("Cannot copy framework at \(framework) to \(copiedLocation) while " +
+            fatalError("Cannot copy framework at \(framework) while " +
               "attempting to generate frameworks. \(error)")
           }
-          frameworks.append(copiedLocation)
-          // Same while both closed source and Carthage don't support xcframeworks.
-          carthageFrameworks.append(copiedLocation)
+          frameworks.append(zipLocation)
+
+          CarthageUtils.generatePlistContents(forName: framework.lastPathComponent.components(separatedBy: ".").first!,
+                                              to: carthageLocation)
+          carthageFrameworks.append(carthageLocation)
         }
       }
       toInstall[podName] = frameworks
