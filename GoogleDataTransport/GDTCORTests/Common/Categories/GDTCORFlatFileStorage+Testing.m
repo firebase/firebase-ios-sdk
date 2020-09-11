@@ -16,19 +16,23 @@
 
 #import "GoogleDataTransport/GDTCORTests/Common/Categories/GDTCORFlatFileStorage+Testing.h"
 
-#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORClock.h"
-#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCOREvent.h"
+#import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORDirectorySizeTracker.h"
 
 @implementation GDTCORFlatFileStorage (Testing)
+
+// Defined privately.
+@dynamic sizeTracker;
 
 - (void)reset {
   dispatch_sync(self.storageQueue, ^{
     [[NSFileManager defaultManager] removeItemAtPath:GDTCORRootDirectory().path error:nil];
   });
+
+  [[GDTCORFlatFileStorage sharedInstance].sizeTracker resetCachedSize];
+
   dispatch_semaphore_t sema = dispatch_semaphore_create(0);
   [[GDTCORFlatFileStorage sharedInstance] storageSizeWithCallback:^(uint64_t storageSize) {
-    // Commenting out since, this assertion doesn't seem related to this PR.
-    // NSAssert(storageSize == 0, @"Storage should contain nothing after a reset");
+    NSAssert(storageSize == 0, @"Storage should contain nothing after a reset");
     dispatch_semaphore_signal(sema);
   }];
   dispatch_semaphore_wait(sema, DISPATCH_TIME_FOREVER);

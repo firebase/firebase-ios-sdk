@@ -280,6 +280,32 @@ id<NSSecureCoding> _Nullable GDTCORDecodeArchive(Class archiveClass,
   return unarchivedObject;
 }
 
+BOOL GDTCORWriteDataToFile(NSData *data, NSString *filePath, NSError *_Nullable *outError) {
+  BOOL result = NO;
+  if (filePath.length > 0) {
+    result = [[NSFileManager defaultManager]
+              createDirectoryAtPath:[filePath stringByDeletingLastPathComponent]
+        withIntermediateDirectories:YES
+                         attributes:nil
+                              error:outError];
+    if (result == NO || *outError) {
+      GDTCORLogDebug(@"Attempt to create directory failed: path:%@ error:%@", filePath, *outError);
+      return result;
+    }
+  }
+
+  if (filePath.length > 0) {
+    result = [data writeToFile:filePath options:NSDataWritingAtomic error:outError];
+    if (result == NO || *outError) {
+      GDTCORLogDebug(@"Attempt to write archive failed: path:%@ error:%@", filePath, *outError);
+    } else {
+      GDTCORLogDebug(@"Writing archive succeeded: %@", filePath);
+    }
+  }
+
+  return result;
+}
+
 @interface GDTCORApplication ()
 /**
  Private flag to match the existing `readonly` public flag. This will be accurate for all platforms,
