@@ -37,8 +37,6 @@
 #include "absl/memory/memory.h"
 #include "absl/strings/str_cat.h"
 
-#include <iostream>
-
 SUPPRESS_DOCUMENTATION_WARNINGS_BEGIN()
 #include "grpcpp/create_channel.h"
 #include "grpcpp/grpcpp.h"
@@ -163,7 +161,6 @@ ClientLanguageToken& LanguageToken() {
 void AddCloudApiHeader(grpc::ClientContext& context) {
   auto api_tokens = StringFormat("%s fire/%s grpc/%s", LanguageToken().Get(),
                                  kFirestoreVersionString, grpc::Version());
-  std::cout << "OBC " << api_tokens << std::endl;
   context.AddMetadata(kXGoogAPIClientHeader, api_tokens);
 }
 
