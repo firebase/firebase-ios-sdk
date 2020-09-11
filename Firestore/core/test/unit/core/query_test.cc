@@ -770,7 +770,7 @@ TEST(QueryTest, CanonicalIDs) {
   filters = testutil::Query("coll").AddingFilter(
       Filter("a", "not-in", Array(1, 2, 3)));
   EXPECT_THAT(filters,
-              HasCanonicalId("coll|f:anot-in[1, 2, 3]|ob:__name__asc"));
+              HasCanonicalId("coll|f:anot-in[1, 2, 3]|ob:aasc__name__asc"));
 
   auto order_bys = testutil::Query("coll").AddingOrderBy(OrderBy("up", "asc"));
   EXPECT_THAT(order_bys, HasCanonicalId("coll|f:|ob:upasc__name__asc"));

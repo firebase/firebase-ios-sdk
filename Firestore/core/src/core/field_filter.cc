@@ -150,7 +150,7 @@ FieldFilter::Rep::Rep(FieldPath field, Operator op, FieldValue value_rhs)
 bool FieldFilter::Rep::IsInequality() const {
   return op_ == Operator::LessThan || op_ == Operator::LessThanOrEqual ||
          op_ == Operator::GreaterThan || op_ == Operator::GreaterThanOrEqual ||
-         op_ == Operator::NotEqual;
+         op_ == Operator::NotEqual || op_ == Operator::NotIn;
 }
 
 bool FieldFilter::Rep::Matches(const model::Document& doc) const {
