@@ -145,15 +145,6 @@ extern NSString *const FIRAuthStateDidChangeInternalNotificationUIDKey;
 + (NSString *)firebaseUserAgent;
 
 /**
- * Used by each SDK to send logs about SDK configuration status to Clearcut.
- *
- * @note This API is a no-op, please remove calls to it.
- */
-- (void)sendLogsWithServiceName:(NSString *)serviceName
-                        version:(NSString *)version
-                          error:(NSError *)error;
-
-/**
  * Can be used by the unit tests in eack SDK to reset FIRApp. This method is thread unsafe.
  */
 + (void)resetApps;
