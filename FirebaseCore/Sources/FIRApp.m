@@ -487,17 +487,6 @@ static dispatch_once_t sFirebaseUserAgentOnceToken;
   return [NSError errorWithDomain:kFirebaseCoreErrorDomain code:-100 userInfo:errorDict];
 }
 
-+ (NSError *)errorForSubspecConfigurationFailureWithDomain:(NSString *)domain
-                                                 errorCode:(NSInteger)code
-                                                   service:(NSString *)service
-                                                    reason:(NSString *)reason {
-  NSString *description =
-      [NSString stringWithFormat:@"Configuration failed for service %@.", service];
-  NSDictionary *errorDict =
-      @{NSLocalizedDescriptionKey : description, NSLocalizedFailureReasonErrorKey : reason};
-  return [NSError errorWithDomain:domain code:code userInfo:errorDict];
-}
-
 + (NSError *)errorForInvalidAppID {
   NSDictionary *errorDict = @{
     NSLocalizedDescriptionKey : @"Unable to validate Google App ID",

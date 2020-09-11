@@ -185,11 +185,10 @@ static const NSInteger FIRErrorCodeDurableDeepLinkFailed = -119;
                        urlScheme:urlScheme
                     userDefaults:nil];
   } else {
-    error =
-        [FIRApp errorForSubspecConfigurationFailureWithDomain:kFirebaseDurableDeepLinkErrorDomain
-                                                    errorCode:FIRErrorCodeDurableDeepLinkFailed
-                                                      service:@"DynamicLinks"
-                                                       reason:errorDescription];
+    error = [self errorForSubspecConfigurationFailureWithDomain:kFirebaseDurableDeepLinkErrorDomain
+                                                      errorCode:FIRErrorCodeDurableDeepLinkFailed
+                                                        service:@"DynamicLinks"
+                                                         reason:errorDescription];
   }
   if (error) {
     NSString *message = nil;
@@ -219,6 +218,17 @@ static const NSInteger FIRErrorCodeDurableDeepLinkFailed = -119;
     [NSException raise:kFirebaseDurableDeepLinkErrorDomain format:@"%@", message];
   }
   [self checkForCustomDomainEntriesInInfoPlist];
+}
+
+- (NSError *)errorForSubspecConfigurationFailureWithDomain:(NSString *)domain
+                                                 errorCode:(NSInteger)code
+                                                   service:(NSString *)service
+                                                    reason:(NSString *)reason {
+  NSString *description =
+      [NSString stringWithFormat:@"Configuration failed for service %@.", service];
+  NSDictionary *errorDict =
+      @{NSLocalizedDescriptionKey : description, NSLocalizedFailureReasonErrorKey : reason};
+  return [NSError errorWithDomain:domain code:code userInfo:errorDict];
 }
 
 - (instancetype)initWithAnalytics:(nullable id<FIRAnalyticsInterop>)analytics {

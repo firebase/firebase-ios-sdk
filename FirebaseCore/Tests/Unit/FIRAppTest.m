@@ -371,17 +371,6 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   XCTAssertNil(FIR_COMPONENT(FIRTestProtocolEagerCached, app.container));
 }
 
-- (void)testErrorForSubspecConfigurationFailure {
-  NSError *error = [FIRApp errorForSubspecConfigurationFailureWithDomain:kFirebaseCoreErrorDomain
-                                                               errorCode:-38
-                                                                 service:@"Auth"
-                                                                  reason:@"some reason"];
-  XCTAssertNotNil(error);
-  XCTAssert([error.domain isEqualToString:kFirebaseCoreErrorDomain]);
-  XCTAssert(error.code == -38);
-  XCTAssert([error.description containsString:@"Configuration failed for"]);
-}
-
 - (void)testOptionsLocking {
   FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
                                                     GCMSenderID:kGCMSenderID];

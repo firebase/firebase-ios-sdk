@@ -100,14 +100,6 @@ extern NSString *const FIRAuthStateDidChangeInternalNotificationUIDKey;
 @property(nonatomic) FIRComponentContainer *container;
 
 /**
- * Creates an error for failing to configure a subspec service. This method is called by each
- * FIRApp notification listener.
- */
-+ (NSError *)errorForSubspecConfigurationFailureWithDomain:(NSString *)domain
-                                                 errorCode:(NSInteger)code
-                                                   service:(NSString *)service
-                                                    reason:(NSString *)reason;
-/**
  * Checks if the default app is configured without trying to configure it.
  */
 + (BOOL)isDefaultAppConfigured;
