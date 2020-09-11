@@ -221,7 +221,7 @@ struct ContentView: View {
   }
 
   func deleteFCM() {
-    Messaging.messaging().delete { error in
+    Messaging.messaging().deleteData { error in
       if let error = error as NSError? {
         self.log = "Failed deleting Messaging: \(error)"
         return
