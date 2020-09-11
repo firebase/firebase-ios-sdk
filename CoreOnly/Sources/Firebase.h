@@ -91,48 +91,8 @@ Firebase Messaging works as intended."
     #import <FirebaseMLModelInterpreter/FirebaseMLModelInterpreter.h>
   #endif
 
-  #if __has_include(<FirebaseMLNLLanguageID/FirebaseMLNLLanguageID.h>)
-    #import <FirebaseMLNLLanguageID/FirebaseMLNLLanguageID.h>
-  #endif
-
-  #if __has_include(<FirebaseMLNLSmartReply/FirebaseMLNLSmartReply.h>)
-    #import <FirebaseMLNLSmartReply/FirebaseMLNLSmartReply.h>
-  #endif
-
-  #if __has_include(<FirebaseMLNLTranslate/FirebaseMLNLTranslate.h>)
-    #import <FirebaseMLNLTranslate/FirebaseMLNLTranslate.h>
-  #endif
-
-  #if __has_include(<FirebaseMLNaturalLanguage/FirebaseMLNaturalLanguage.h>)
-    #import <FirebaseMLNaturalLanguage/FirebaseMLNaturalLanguage.h>
-  #endif
-
   #if __has_include(<FirebaseMLVision/FirebaseMLVision.h>)
     #import <FirebaseMLVision/FirebaseMLVision.h>
-  #endif
-
-  #if __has_include(<FirebaseMLVisionAutoML/FirebaseMLVisionAutoML.h>)
-    #import <FirebaseMLVisionAutoML/FirebaseMLVisionAutoML.h>
-  #endif
-
-  #if __has_include(<FirebaseMLVisionBarcodeModel/FirebaseMLVisionBarcodeModel.h>)
-    #import <FirebaseMLVisionBarcodeModel/FirebaseMLVisionBarcodeModel.h>
-  #endif
-
-  #if __has_include(<FirebaseMLVisionFaceModel/FirebaseMLVisionFaceModel.h>)
-    #import <FirebaseMLVisionFaceModel/FirebaseMLVisionFaceModel.h>
-  #endif
-
-  #if __has_include(<FirebaseMLVisionLabelModel/FirebaseMLVisionLabelModel.h>)
-    #import <FirebaseMLVisionLabelModel/FirebaseMLVisionLabelModel.h>
-  #endif
-
-  #if __has_include(<FirebaseMLVisionObjectDetection/FirebaseMLVisionObjectDetection.h>)
-    #import <FirebaseMLVisionObjectDetection/FirebaseMLVisionObjectDetection.h>
-  #endif
-
-  #if __has_include(<FirebaseMLVisionTextModel/FirebaseMLVisionTextModel.h>)
-    #import <FirebaseMLVisionTextModel/FirebaseMLVisionTextModel.h>
   #endif
 
   #if __has_include(<FirebasePerformance/FirebasePerformance.h>)
