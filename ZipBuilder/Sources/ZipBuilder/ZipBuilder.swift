@@ -729,8 +729,10 @@ struct ZipBuilder {
           }
           frameworks.append(zipLocation)
 
-          CarthageUtils.generatePlistContents(forName: framework.lastPathComponent.components(separatedBy: ".").first!,
-                                              to: carthageLocation)
+          CarthageUtils.generatePlistContents(
+            forName: framework.lastPathComponent.components(separatedBy: ".").first!,
+            to: carthageLocation
+          )
           carthageFrameworks.append(carthageLocation)
         }
       }
