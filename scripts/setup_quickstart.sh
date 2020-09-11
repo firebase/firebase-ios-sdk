@@ -53,7 +53,11 @@ if check_secrets || [[ ${SAMPLE} == "installations" ]]; then
 
   bundle update --bundler
   bundle install
-  bundle exec pod install --silent
+  if [ ! -z "$RELEASE_TESTING" ]; then
+    bundle exec pod update --silent
+  else
+    bundle exec pod install
+  fi
 
   # Add GoogleService-Info.plist to Xcode project
   ruby ../scripts/info_script.rb "${SAMPLE}"

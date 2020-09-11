@@ -17,15 +17,17 @@ set -x
 if [ -f "${HOME}/.cocoapods/repos" ]; then
   find "${HOME}/.cocoapods/repos" -type d -maxdepth 1 -exec sh -c 'pod repo remove $(basename {})' \;
 fi
+tag_version="nightly-test-${nightly_test_version}"
 git config --global user.email "google-oss-bot@example.com"
 git config --global user.name "google-oss-bot"
 mkdir -p /tmp/test/firebase-ios-sdk
-git clone -b "${podspec_repo_branch}" https://github.com/firebase/firebase-ios-sdk.git "${local_sdk_repo_dir}"
+git clone -q -b "${podspec_repo_branch}" https://"${BOT_TOKEN}"@github.com/firebase/firebase-ios-sdk.git "${local_sdk_repo_dir}"
 cd  "${local_sdk_repo_dir}"
-git tag -a "test" -m "release testing"
-# Update source and tag, e.g.  ":git => 'https://github.com/firebase/firebase-ios-sdk.git'" to
-# ":git => /tmp/test/firebase-ios-sdk"
-sed  -i "" "s/\s*:git.*/:git => '${sdk_repo_dir}',/; s/\s*:tag.*/:tag => 'test'/" *.podspec
+git tag -f -a "${tag_version}" -m "release testing"
+git push origin "${tag_version}"
+# Update source and tag, e.g.  ":tag => 'CocoaPods-' + s.version.to_s" to
+# ":tag => test"
+sed  -i "" "s/\s*:tag.*/:tag => '${tag_version}'/" *.podspec
 cd "${GITHUB_WORKSPACE}/ZipBuilder"
 swift build
 # Update Pod versions.
