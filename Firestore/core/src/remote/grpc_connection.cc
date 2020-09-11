@@ -51,7 +51,7 @@ namespace remote {
 using auth::Token;
 using core::DatabaseInfo;
 using model::DatabaseId;
-using util::GetFullCompilerInfo();
+using util::GetFullCompilerInfo;
 using util::Filesystem;
 using util::Path;
 using util::Status;
