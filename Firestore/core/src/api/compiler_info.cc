@@ -18,12 +18,12 @@
 
 namespace firebase {
 namespace firestore {
-namespace util {
+namespace api {
 
 std::string GetFullCompilerInfo() {
-  return api::GetFullCompilerInfo();
+  return util::GetFullCompilerInfo();
 }
 
-}  // namespace util
+}  // namespace api
 }  // namespace firestore
 }  // namespace firebase
