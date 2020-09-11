@@ -24,6 +24,7 @@
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/include/firebase/firestore/firestore_version.h"
+#include "Firestore/core/src/util/compiler_info.h"
 #include "Firestore/core/src/auth/token.h"
 #include "Firestore/core/src/model/database_id.h"
 #include "Firestore/core/src/remote/grpc_root_certificate_finder.h"
@@ -35,6 +36,8 @@
 #include "Firestore/core/src/util/warnings.h"
 #include "absl/memory/memory.h"
 #include "absl/strings/str_cat.h"
+
+#include <iostream>
 
 SUPPRESS_DOCUMENTATION_WARNINGS_BEGIN()
 #include "grpcpp/create_channel.h"
@@ -48,6 +51,7 @@ namespace remote {
 using auth::Token;
 using core::DatabaseInfo;
 using model::DatabaseId;
+using util::GetFullCompilerInfo();
 using util::Filesystem;
 using util::Path;
 using util::Status;
@@ -129,24 +133,7 @@ HostConfigMap& Config() {
 }
 
 std::string GetCppLanguageToken() {
-  const char* cpp_version = [] {
-    switch (__cplusplus) {
-      case 199711L:
-        return "1998";
-      case 201103L:
-        return "2011";
-      case 201402L:
-        return "2014";
-      case 201703L:
-        return "2017";
-      case 202002L:
-        return "2020";
-      default:
-        return "";
-    }
-  }();
-
-  return StringFormat("gl-cpp/%s", cpp_version);
+  return StringFormat("gl-cpp/%s", GetFullCompilerInfo());
 }
 
 class ClientLanguageToken {
@@ -176,6 +163,7 @@ ClientLanguageToken& LanguageToken() {
 void AddCloudApiHeader(grpc::ClientContext& context) {
   auto api_tokens = StringFormat("%s fire/%s grpc/%s", LanguageToken().Get(),
                                  kFirestoreVersionString, grpc::Version());
+  std::cout << "OBC " << api_tokens << std::endl;
   context.AddMetadata(kXGoogAPIClientHeader, api_tokens);
 }
 
