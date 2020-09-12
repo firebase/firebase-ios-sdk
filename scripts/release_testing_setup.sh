@@ -28,7 +28,7 @@ cd  "${local_sdk_repo_dir}"
 set +e
 # If tag_version is new to the remote, remote cannot delete an unexisted tag, 
 # so error is allowed here.
-git push origin --delete "${tag_version}" 
+# git push origin --delete "${tag_version}" 
 set -e
 git tag -f -a "${tag_version}" -m "release testing"
 git push origin "${tag_version}"
