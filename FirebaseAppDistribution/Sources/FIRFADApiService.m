@@ -107,7 +107,7 @@ NSString *const kResponseReleasesKey = @"releases";
                 httpResponse);
 
   if ([self handleHttpResponseError:httpResponse error:error]) {
-    FIRFADErrorLog(@"App Tester API service error - %@: %@", [*error localizedDescription],
+    FIRFADErrorLog(@"App Tester API service error: %@. %@", [*error localizedDescription],
                    [self tryParseGoogleAPIErrorFromResponse:data]);
     return nil;
   }
@@ -164,12 +164,12 @@ NSString *const kResponseReleasesKey = @"releases";
 
 + (NSError *)createErrorFromStatusCode:(NSInteger)statusCode {
   if (statusCode == 401) {
-    return [self createErrorWithDescription:@"Tester not authenticated."
+    return [self createErrorWithDescription:@"Tester not authenticated"
                                        code:FIRFADApiErrorUnauthenticated];
   }
 
   if (statusCode == 403 || statusCode == 400) {
-    return [self createErrorWithDescription:@"Tester not authorized."
+    return [self createErrorWithDescription:@"Tester not authorized"
                                        code:FIRFADApiErrorUnauthorized];
   }
 
@@ -179,7 +179,7 @@ NSString *const kResponseReleasesKey = @"releases";
   }
 
   if (statusCode == 408 || statusCode == 504) {
-    return [self createErrorWithDescription:@"Request timeout." code:FIRFADApiErrorTimeout];
+    return [self createErrorWithDescription:@"Request timeout" code:FIRFADApiErrorTimeout];
   }
 
   FIRFADErrorLog(@"Encountered unmapped status code: %ld", (long)statusCode);
