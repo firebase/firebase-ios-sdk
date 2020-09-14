@@ -25,7 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
 /** The queue on which all work will occur. */
 @property(nonatomic) dispatch_queue_t eventWritingQueue;
 
-/** The application instance is used to begin/end background tasks.  */
+/** The application instance that is used to begin/end background tasks.  */
 @property(nonatomic, readonly) id<GDTCORApplicationProtocol> application;
 
 /** The internal initializer. Should be used in tests only to create an instance with a
