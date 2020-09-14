@@ -163,7 +163,7 @@
   XCTestExpectation *beginExpectation = [self expectationWithDescription:@"Background task begin"];
   XCTestExpectation *endExpectation = [self expectationWithDescription:@"Background task end"];
 
-  GDTCORBackgroundIdentifier taskID = rand();
+  GDTCORBackgroundIdentifier taskID = arc4random();
 
   __auto_type __weak weakSelf = self;
 
