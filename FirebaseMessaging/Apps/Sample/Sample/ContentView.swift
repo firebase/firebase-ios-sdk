@@ -226,6 +226,7 @@ struct ContentView: View {
         self.log = "Failed deleting Messaging: \(error)"
         return
       }
+      self.log = "Successfully deleted Messaging data."
     }
   }
 

@@ -544,7 +544,7 @@ NS_SWIFT_NAME(Messaging)
  * @param completion A completion handler which is invoked when the operation completes. `error ==
  * nil` indicates success.
  */
-- (void)deleteMessagingDataWithCompletion:(void (^)(NSError *__nullable error))completion;
+- (void)deleteDataWithCompletion:(void (^)(NSError *__nullable error))completion;
 
 @end
 

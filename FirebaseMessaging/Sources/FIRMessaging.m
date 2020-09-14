@@ -626,7 +626,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
                                            handler:completion];
 }
 
-- (void)deleteWithCompletion:(void (^)(NSError *_Nullable))completion {
+- (void)deleteDataWithCompletion:(void (^)(NSError *_Nullable))completion {
   FIRMessaging_WEAKIFY(self);
   [self.instanceID
       deleteTokenWithAuthorizedEntity:@"*"
