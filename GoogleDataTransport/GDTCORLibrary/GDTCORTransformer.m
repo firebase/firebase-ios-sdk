@@ -39,10 +39,15 @@
 }
 
 - (instancetype)init {
+  return [self initWithApplication:self.application];
+}
+
+- (instancetype)initWithApplication:(id<GDTCORApplicationProtocol>)application {
   self = [super init];
   if (self) {
     _eventWritingQueue =
         dispatch_queue_create("com.google.GDTCORTransformer", DISPATCH_QUEUE_SERIAL);
+    _application = application;
   }
   return self;
 }
@@ -58,12 +63,11 @@
   }
 
   __block GDTCORBackgroundIdentifier bgID = GDTCORBackgroundIdentifierInvalid;
-  bgID = [[GDTCORApplication sharedApplication]
-      beginBackgroundTaskWithName:@"GDTTransformer"
-                expirationHandler:^{
-                  [[GDTCORApplication sharedApplication] endBackgroundTask:bgID];
-                  bgID = GDTCORBackgroundIdentifierInvalid;
-                }];
+  bgID = [self.application beginBackgroundTaskWithName:@"GDTTransformer"
+                                     expirationHandler:^{
+                                       [self.application endBackgroundTask:bgID];
+                                       bgID = GDTCORBackgroundIdentifierInvalid;
+                                     }];
   dispatch_async(_eventWritingQueue, ^{
     GDTCOREvent *transformedEvent = event;
     for (id<GDTCOREventTransformer> transformer in transformers) {
@@ -88,7 +92,7 @@
     [storage storeEvent:transformedEvent onComplete:hadOriginalCompletion ? completion : nil];
 
     // The work is done, cancel the background task if it's valid.
-    [[GDTCORApplication sharedApplication] endBackgroundTask:bgID];
+    [self.application endBackgroundTask:bgID];
     bgID = GDTCORBackgroundIdentifierInvalid;
   });
 }
