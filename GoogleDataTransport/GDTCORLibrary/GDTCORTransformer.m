@@ -39,7 +39,7 @@
 }
 
 - (instancetype)init {
-  return [self initWithApplication:self.application];
+  return [self initWithApplication:[GDTCORApplication sharedApplication]];
 }
 
 - (instancetype)initWithApplication:(id<GDTCORApplicationProtocol>)application {
