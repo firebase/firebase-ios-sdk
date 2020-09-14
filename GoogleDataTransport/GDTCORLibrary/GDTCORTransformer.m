@@ -56,11 +56,6 @@
       withTransformers:(NSArray<id<GDTCOREventTransformer>> *)transformers
             onComplete:(void (^_Nullable)(BOOL wasWritten, NSError *_Nullable error))completion {
   GDTCORAssert(event, @"You can't write a nil event");
-  BOOL hadOriginalCompletion = completion != nil;
-  if (!completion) {
-    completion = ^(BOOL wasWritten, NSError *_Nullable error) {
-    };
-  }
 
   __block GDTCORBackgroundIdentifier bgID = GDTCORBackgroundIdentifierInvalid;
   bgID = [self.application beginBackgroundTaskWithName:@"GDTTransformer"
@@ -68,6 +63,17 @@
                                        [self.application endBackgroundTask:bgID];
                                        bgID = GDTCORBackgroundIdentifierInvalid;
                                      }];
+
+  __auto_type completionWrapper = ^(BOOL wasWritten, NSError *_Nullable error) {
+    if (completion) {
+      completion(wasWritten, error);
+    }
+
+    // The work is done, cancel the background task if it's valid.
+    [self.application endBackgroundTask:bgID];
+    bgID = GDTCORBackgroundIdentifierInvalid;
+  };
+
   dispatch_async(_eventWritingQueue, ^{
     GDTCOREvent *transformedEvent = event;
     for (id<GDTCOREventTransformer> transformer in transformers) {
@@ -75,13 +81,13 @@
         GDTCORLogDebug(@"Applying a transformer to event %@", event);
         transformedEvent = [transformer transform:transformedEvent];
         if (!transformedEvent) {
-          completion(NO, nil);
+          completionWrapper(NO, nil);
           return;
         }
       } else {
         GDTCORLogError(GDTCORMCETransformerDoesntImplementTransform,
                        @"Transformer doesn't implement transform: %@", transformer);
-        completion(NO, nil);
+        completionWrapper(NO, nil);
         return;
       }
     }
@@ -89,11 +95,7 @@
     id<GDTCORStorageProtocol> storage =
         [GDTCORRegistrar sharedInstance].targetToStorage[@(event.target)];
 
-    [storage storeEvent:transformedEvent onComplete:hadOriginalCompletion ? completion : nil];
-
-    // The work is done, cancel the background task if it's valid.
-    [self.application endBackgroundTask:bgID];
-    bgID = GDTCORBackgroundIdentifierInvalid;
+    [storage storeEvent:transformedEvent onComplete:completionWrapper];
   });
 }
 
