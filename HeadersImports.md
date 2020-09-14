@@ -11,7 +11,7 @@ In Swift Package Manager, it's a library target.
 ## Header File Types and Locations - For Header File Creators
 
 * *Public Headers* - Headers that define the library's API. They should be located in
-  `FirebaseFoo/Sources/FirebaseFoo/Public`. Any additions require a minor version update. Any
+  `FirebaseFoo/Sources/Public/FirebaseFoo`. Any additions require a minor version update. Any
   changes or deletions require a major version update.
 
 * *Public Umbrella Header* - A single header that includes the full library's public API located at
