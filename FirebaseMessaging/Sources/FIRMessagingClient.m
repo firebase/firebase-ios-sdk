@@ -20,14 +20,13 @@
 
 #import <FirebaseInstanceID/FIRInstanceID_Private.h>
 #import <FirebaseMessaging/FIRMessaging.h>
-#import <GoogleUtilities/GULReachabilityChecker.h>
+#import "GoogleUtilities/Reachability/Private/GULReachabilityChecker.h"
 
 #import "FirebaseMessaging/Sources/FIRMessagingConnection.h"
 #import "FirebaseMessaging/Sources/FIRMessagingConstants.h"
 #import "FirebaseMessaging/Sources/FIRMessagingDataMessageManager.h"
 #import "FirebaseMessaging/Sources/FIRMessagingDefines.h"
 #import "FirebaseMessaging/Sources/FIRMessagingLogger.h"
-#import "FirebaseMessaging/Sources/FIRMessagingPubSubRegistrar.h"
 #import "FirebaseMessaging/Sources/FIRMessagingRmqManager.h"
 #import "FirebaseMessaging/Sources/FIRMessagingTopicsCommon.h"
 #import "FirebaseMessaging/Sources/FIRMessagingUtilities.h"
@@ -79,7 +78,6 @@ static NSUInteger FIRMessagingServerPort() {
 
 @property(nonatomic, readwrite, weak) id<FIRMessagingClientDelegate> clientDelegate;
 @property(nonatomic, readwrite, strong) FIRMessagingConnection *connection;
-@property(nonatomic, readonly, strong) FIRMessagingPubSubRegistrar *registrar;
 @property(nonatomic, readwrite, strong) NSString *senderId;
 
 // FIRMessagingService owns these instances
@@ -120,7 +118,6 @@ static NSUInteger FIRMessagingServerPort() {
     _reachability = reachability;
     _clientDelegate = delegate;
     _rmq2Manager = rmq2Manager;
-    _registrar = [[FIRMessagingPubSubRegistrar alloc] init];
     _connectionTimeoutInterval = kConnectTimeoutInterval;
     // Listen for checkin fetch notifications, as connecting to MCS may have failed due to
     // missing checkin info (while it was being fetched).
@@ -144,64 +141,9 @@ static NSUInteger FIRMessagingServerPort() {
 
   [self.connection teardown];
 
-  // Stop all subscription requests
-  [self.registrar stopAllSubscriptionRequests];
-
   [NSObject cancelPreviousPerformRequestsWithTarget:self];
 
   [[NSNotificationCenter defaultCenter] removeObserver:self];
-}
-
-- (void)cancelAllRequests {
-  // Stop any checkin requests or any subscription requests
-  [self.registrar stopAllSubscriptionRequests];
-
-  // Stop any future connection requests to MCS
-  if (self.stayConnected && self.isConnected && !self.isConnectionActive) {
-    self.stayConnected = NO;
-    [NSObject cancelPreviousPerformRequestsWithTarget:self];
-  }
-}
-
-#pragma mark - FIRMessaging subscribe
-
-- (void)updateSubscriptionWithToken:(NSString *)token
-                              topic:(NSString *)topic
-                            options:(NSDictionary *)options
-                       shouldDelete:(BOOL)shouldDelete
-                            handler:(FIRMessagingTopicOperationCompletion)handler {
-  FIRMessagingTopicOperationCompletion completion = ^void(NSError *error) {
-    if (error) {
-      FIRMessagingLoggerError(kFIRMessagingMessageCodeClient001, @"Failed to subscribe to topic %@",
-                              error);
-    } else {
-      if (shouldDelete) {
-        FIRMessagingLoggerInfo(kFIRMessagingMessageCodeClient002,
-                               @"Successfully unsubscribed from topic %@", topic);
-      } else {
-        FIRMessagingLoggerInfo(kFIRMessagingMessageCodeClient003,
-                               @"Successfully subscribed to topic %@", topic);
-      }
-    }
-    if (handler) {
-      handler(error);
-    }
-  };
-
-  if ([[FIRInstanceID instanceID] tryToLoadValidCheckinInfo]) {
-    [self.registrar updateSubscriptionToTopic:topic
-                                    withToken:token
-                                      options:options
-                                 shouldDelete:shouldDelete
-                                      handler:completion];
-  } else {
-    NSString *failureReason = @"Device ID and checkin info is not found. Will not proceed with "
-                              @"subscription/unsubscription.";
-    FIRMessagingLoggerDebug(kFIRMessagingMessageCodeRegistrar000, @"%@", failureReason);
-    NSError *error = [NSError messagingErrorWithCode:kFIRMessagingErrorCodeMissingDeviceID
-                                       failureReason:failureReason];
-    handler(error);
-  }
 }
 
 #pragma mark - MCS Connection

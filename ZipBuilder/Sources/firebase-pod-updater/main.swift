@@ -49,7 +49,9 @@ struct FirebasePodUpdater: ParsableCommand {
 
     let newVersions = getExpectedVersions()
     updateFirebasePod(newVersions: newVersions)
-    print("Updating Firebase pod for version \(String(describing: newVersions["Firebase"]!))")
+    if let firebase_version = newVersions["Firebase"] {
+      print("Updating Firebase pod for version \(String(describing: firebase_version))")
+    }
 
     // Get the time since the tool start.
     let secondsSinceStart = -Int(buildStart.timeIntervalSinceNow)

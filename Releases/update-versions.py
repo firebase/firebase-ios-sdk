@@ -171,7 +171,7 @@ def GenerateTag(pod, version):
     Tag.
   """
   if pod == "Firebase":
-    return version
+    return 'CocoaPods-{}'.format(version)
   if pod.startswith("Firebase"):
     return '{}-{}'.format(pod[len('Firebase'):], version)
   if pod.startswith("Google"):

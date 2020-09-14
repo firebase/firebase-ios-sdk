@@ -23,17 +23,20 @@ NS_ASSUME_NONNULL_BEGIN
 NS_SWIFT_NAME(AppDistributionRelease)
 @interface FIRAppDistributionRelease : NSObject
 
-// The short bundle version of this build (example 1.0.0)
+/// The short bundle version of this build (example 1.0.0).
 @property(nonatomic, copy, readonly) NSString *displayVersion;
 
-// The build number of this build (example: 123)
+/// The build number of this build (example: 123).
 @property(nonatomic, copy, readonly) NSString *buildVersion;
 
-// The release notes for this build
+/// The release notes for this build.
 @property(nonatomic, copy, readonly) NSString *releaseNotes;
 
-// The URL for the build
+/// The URL for the build.
 @property(nonatomic, strong, readonly) NSURL *downloadURL;
+
+/// Whether the download URL for this release is expired.
+@property(nonatomic, readonly) BOOL isExpired;
 
 /** :nodoc: */
 - (instancetype)init NS_UNAVAILABLE;

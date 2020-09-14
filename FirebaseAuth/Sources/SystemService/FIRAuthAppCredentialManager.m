@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include <TargetConditionals.h>
+#import <TargetConditionals.h>
 #if !TARGET_OS_OSX
 
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
@@ -69,15 +69,20 @@ static const NSUInteger kMaximumNumberOfPendingReceipts = 32;
     NSError *error;
     NSData *encodedData = [_keychainServices dataForKey:kKeychainDataKey error:&error];
     if (!error && encodedData) {
+#if TARGET_OS_WATCH
+      NSKeyedUnarchiver *unarchiver = [[NSKeyedUnarchiver alloc] initForReadingFromData:encodedData
+                                                                                  error:&error];
+#else
 // iOS 12 deprecation
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
       NSKeyedUnarchiver *unarchiver =
           [[NSKeyedUnarchiver alloc] initForReadingWithData:encodedData];
 #pragma clang diagnostic pop
+#endif  // TARGET_OS_WATCH
       FIRAuthAppCredential *credential =
           [unarchiver decodeObjectOfClass:[FIRAuthAppCredential class] forKey:kFullCredentialKey];
-      if ([credential isKindOfClass:[FIRAuthAppCredential class]]) {
+      if ([credential isKindOfClass:[FIRAuthAppCredential class]] && !error) {
         _credential = credential;
       }
       NSSet<Class> *allowedClasses =

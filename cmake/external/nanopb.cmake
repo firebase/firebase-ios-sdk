@@ -19,14 +19,14 @@ if(TARGET nanopb)
   return()
 endif()
 
-set(version 0.3.9.5)
+set(version 0.3.9.6)
 
 ExternalProject_Add(
   nanopb
 
   DOWNLOAD_DIR ${FIREBASE_DOWNLOAD_DIR}
   URL https://github.com/nanopb/nanopb/archive/nanopb-${version}.tar.gz
-  URL_HASH SHA256=c14ac70128bd019c48d8b35d5a4923ea98aa769b930f6cf07ac2c223babdb5ca
+  URL_HASH SHA256=d7aa78e637ba2d5b6fbe831f4ee1ee9463f4e4e4d6052db7fdfcd1558ee78afc
 
   PREFIX ${PROJECT_BINARY_DIR}
 

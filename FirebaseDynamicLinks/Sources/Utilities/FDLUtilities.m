@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
+
 #import "FirebaseDynamicLinks/Sources/Utilities/FDLUtilities.h"
 
 #import <UIKit/UIDevice.h>
@@ -295,3 +298,5 @@ void FIRDLAddToAllowListForCustomDomainsArray(NSArray *_Nonnull customDomains) {
 }
 
 NS_ASSUME_NONNULL_END
+
+#endif  // TARGET_OS_IOS

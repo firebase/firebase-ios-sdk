@@ -12,10 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import <FirebaseStorage/FIRStorageMetadata.h>
 #import <XCTest/XCTest.h>
 
-#import <FirebaseStorage/FIRStorageMetadata.h>
+#import "FirebaseStorage/Sources/Public/FirebaseStorage/FIRStorageMetadata.h"
+
+#import "FirebaseStorage/Sources/Public/FirebaseStorage/FIRStorageMetadata.h"
+
 #import "FirebaseStorage/Sources/FIRStorageGetDownloadURLTask.h"
 #import "FirebaseStorage/Sources/FIRStorageGetDownloadURLTask_Private.h"
 #import "FirebaseStorage/Sources/FIRStorageMetadata_Private.h"

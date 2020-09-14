@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRCLSReport.h"
+#import "Crashlytics/Crashlytics/Models/FIRCLSReport.h"
 
 @class FIRCLSInternalReport;
 

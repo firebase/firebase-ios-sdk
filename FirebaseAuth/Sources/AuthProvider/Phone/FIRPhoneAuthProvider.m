@@ -14,16 +14,14 @@
  * limitations under the License.
  */
 
-#include <TargetConditionals.h>
+#import <TargetConditionals.h>
 #if TARGET_OS_IOS
 
-#import <FirebaseAuth/FIRAuthSettings.h>
-#import <FirebaseAuth/FIRMultiFactorResolver.h>
-#import <FirebaseAuth/FIRPhoneAuthProvider.h>
-#import <FirebaseAuth/FirebaseAuthVersion.h>
-#import <FirebaseCore/FIRApp.h>
-#import <FirebaseCore/FIRLogger.h>
-#import <FirebaseCore/FIROptions.h>
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthSettings.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRMultiFactorResolver.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRPhoneAuthProvider.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FirebaseAuthVersion.h"
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
@@ -85,6 +83,11 @@ typedef void (^FIRFetchAuthDomainCallback)(NSString *_Nullable authDomain,
  */
 static NSString *const kAuthTypeVerifyApp = @"verifyApp";
 
+/** @var kCustomUrlSchemePrefix
+    @brief The prefix to append to the Firebase app ID custom callback scheme..
+ */
+static NSString *const kCustomUrlSchemePrefix = @"app-";
+
 /** @var kReCAPTCHAURLStringFormat
     @brief The format of the URL used to open the reCAPTCHA page during app verification.
  */
@@ -113,8 +116,15 @@ extern NSString *const FIRPhoneMultiFactorID;
   self = [super init];
   if (self) {
     _auth = auth;
-    _callbackScheme = [[[_auth.app.options.clientID componentsSeparatedByString:@"."]
-                           reverseObjectEnumerator].allObjects componentsJoinedByString:@"."];
+    if (_auth.app.options.clientID) {
+      _callbackScheme = [[[_auth.app.options.clientID componentsSeparatedByString:@"."]
+                             reverseObjectEnumerator].allObjects componentsJoinedByString:@"."];
+    } else {
+      _callbackScheme = [kCustomUrlSchemePrefix
+          stringByAppendingString:[_auth.app.options.googleAppID
+                                      stringByReplacingOccurrencesOfString:@":"
+                                                                withString:@"-"]];
+    }
   }
   return self;
 }
@@ -677,6 +687,7 @@ extern NSString *const FIRPhoneMultiFactorID;
                                      }
                                      NSString *bundleID = [NSBundle mainBundle].bundleIdentifier;
                                      NSString *clientID = self->_auth.app.options.clientID;
+                                     NSString *appID = self->_auth.app.options.googleAppID;
                                      NSString *apiKey = self->_auth.requestConfiguration.APIKey;
                                      NSMutableArray<NSURLQueryItem *> *queryItems = [@[
                                        [NSURLQueryItem queryItemWithName:@"apiKey" value:apiKey],
@@ -684,13 +695,20 @@ extern NSString *const FIRPhoneMultiFactorID;
                                                                    value:kAuthTypeVerifyApp],
                                        [NSURLQueryItem queryItemWithName:@"ibi"
                                                                    value:bundleID ?: @""],
-                                       [NSURLQueryItem queryItemWithName:@"clientId"
-                                                                   value:clientID],
                                        [NSURLQueryItem
                                            queryItemWithName:@"v"
                                                        value:[FIRAuthBackend authUserAgent]],
                                        [NSURLQueryItem queryItemWithName:@"eventId" value:eventID]
                                      ] mutableCopy];
+                                     if (clientID) {
+                                       [queryItems
+                                           addObject:[NSURLQueryItem queryItemWithName:@"clientId"
+                                                                                 value:clientID]];
+                                     } else {
+                                       [queryItems
+                                           addObject:[NSURLQueryItem queryItemWithName:@"appId"
+                                                                                 value:appID]];
+                                     }
 
                                      if (self->_auth.requestConfiguration.languageCode) {
                                        [queryItems

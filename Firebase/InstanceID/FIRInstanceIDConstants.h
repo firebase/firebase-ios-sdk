@@ -30,7 +30,7 @@ FOUNDATION_EXPORT NSString *const kFIRInstanceID_CMD_RST;
 FOUNDATION_EXPORT NSString *const kFIRInstanceIDCheckinFetchedNotification;
 FOUNDATION_EXPORT NSString *const kFIRInstanceIDAPNSTokenNotification;
 FOUNDATION_EXPORT NSString *const kFIRInstanceIDDefaultGCMTokenFailNotification;
-
+FOUNDATION_EXPORT NSString *const kFIRInstanceIDMessagingUpdateTokenNotification;
 FOUNDATION_EXPORT NSString *const kFIRInstanceIDIdentityInvalidatedNotification;
 
 #pragma mark - Miscellaneous
@@ -56,6 +56,9 @@ FOUNDATION_EXPORT NSString *const kFIRInstanceIDTokenOptionsFirebaseAppIDKey;
 
 /// The key to enable auto-register by swizzling AppDelegate's methods.
 FOUNDATION_EXPORT NSString *const kFIRInstanceIDAppDelegateProxyEnabledInfoPlistKey;
+
+/// The key for InstallationID or InstanceID in token request.
+FOUNDATION_EXPORT NSString *const kFIRInstanceIDParamInstanceID;
 
 /// Error code for missing entitlements in Keychain. iOS Keychain error
 /// https://forums.developer.apple.com/thread/4743

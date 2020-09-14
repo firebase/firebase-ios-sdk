@@ -15,8 +15,8 @@
 #ifndef FIRAEvent_Internal_h
 #define FIRAEvent_Internal_h
 
-#import "FIRAEvent.h"
-#import "FIRAValue.h"
+#import "Crashlytics/Crashlytics/Helpers/FIRAEvent.h"
+#import "Crashlytics/Crashlytics/Helpers/FIRAValue.h"
 
 NSString* FIRCLSFIRAEventDictionaryToJSON(NSDictionary* eventAsDictionary);
 

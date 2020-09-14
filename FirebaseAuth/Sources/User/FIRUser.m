@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#import <FirebaseAuth/FIRAuth.h>
-#import <FirebaseAuth/FIREmailAuthProvider.h>
-#import <FirebaseAuth/FIRFederatedAuthProvider.h>
-#import <FirebaseCore/FIRLogger.h>
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuth.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIREmailAuthProvider.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRFederatedAuthProvider.h"
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 #import "FirebaseAuth/Sources/Auth/FIRAuthDataResult_Internal.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
@@ -60,7 +60,7 @@
 #import "FirebaseAuth/Sources/Utilities/FIRAuthWebUtils.h"
 
 #if TARGET_OS_IOS
-#import <FirebaseAuth/FIRPhoneAuthProvider.h>
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRPhoneAuthProvider.h"
 
 #import "FirebaseAuth/Sources/AuthProvider/Phone/FIRPhoneAuthCredential_Internal.h"
 #endif
@@ -128,6 +128,11 @@ static NSString *const kTokenServiceCodingKey = @"tokenService";
 static NSString *const kMetadataCodingKey = @"metadata";
 
 static NSString *const kMultiFactorCodingKey = @"multiFactor";
+
+/** @var kTenantIDKey
+    @brief The key used to encode the tenantID instance variable for NSSecureCoding.
+ */
+static NSString *const kTenantIDCodingKey = @"tenantID";
 
 /** @var kMissingUsersErrorMessage
     @brief The error message when there is no users array in the getAccountInfo response.
@@ -220,6 +225,11 @@ static void callInMainThreadWithAuthDataResultAndError(
  */
 @property(nonatomic, readwrite) BOOL anonymous;
 
+/** @property tenantID
+    @brief The tenant ID of the current user. nil if none is available.
+ */
+@property(nonatomic, readwrite, nullable) NSString *tenantID;
+
 @end
 
 @implementation FIRUser {
@@ -269,6 +279,7 @@ static void callInMainThreadWithAuthDataResultAndError(
                                                      refreshToken:refreshToken];
   FIRUser *user = [[self alloc] initWithTokenService:tokenService];
   user.auth = auth;
+  user.tenantID = auth.tenantID;
   user.requestConfiguration = auth.requestConfiguration;
   [user internalGetTokenWithCallback:^(NSString *_Nullable accessToken, NSError *_Nullable error) {
     if (error) {
@@ -324,13 +335,14 @@ static void callInMainThreadWithAuthDataResultAndError(
                                                  forKey:kPhoneNumberCodingKey];
   BOOL emailVerified = [aDecoder decodeBoolForKey:kEmailVerifiedCodingKey];
   NSSet *providerDataClasses =
-      [NSSet setWithArray:@ [[NSDictionary class], [NSString class], [FIRUserInfoImpl class]]];
+      [NSSet setWithArray:@[ [NSDictionary class], [NSString class], [FIRUserInfoImpl class] ]];
   NSDictionary<NSString *, FIRUserInfoImpl *> *providerData =
       [aDecoder decodeObjectOfClasses:providerDataClasses forKey:kProviderDataKey];
   FIRSecureTokenService *tokenService = [aDecoder decodeObjectOfClass:[FIRSecureTokenService class]
                                                                forKey:kTokenServiceCodingKey];
   FIRUserMetadata *metadata = [aDecoder decodeObjectOfClass:[FIRUserMetadata class]
                                                      forKey:kMetadataCodingKey];
+  NSString *tenantID = [aDecoder decodeObjectOfClass:[NSString class] forKey:kTenantIDCodingKey];
   NSString *APIKey = [aDecoder decodeObjectOfClass:[NSString class] forKey:kAPIKeyCodingKey];
 #if TARGET_OS_IOS
   FIRMultiFactor *multiFactor = [aDecoder decodeObjectOfClass:[FIRMultiFactor class]
@@ -354,6 +366,7 @@ static void callInMainThreadWithAuthDataResultAndError(
     _providerData = providerData;
     _phoneNumber = phoneNumber;
     _metadata = metadata ?: [[FIRUserMetadata alloc] initWithCreationDate:nil lastSignInDate:nil];
+    _tenantID = tenantID;
     _requestConfiguration = [[FIRAuthRequestConfiguration alloc] initWithAPIKey:APIKey];
 #if TARGET_OS_IOS
     _multiFactor = multiFactor ?: [[FIRMultiFactor alloc] init];
@@ -373,6 +386,7 @@ static void callInMainThreadWithAuthDataResultAndError(
   [aCoder encodeObject:_photoURL forKey:kPhotoURLCodingKey];
   [aCoder encodeObject:_displayName forKey:kDisplayNameCodingKey];
   [aCoder encodeObject:_metadata forKey:kMetadataCodingKey];
+  [aCoder encodeObject:_tenantID forKey:kTenantIDCodingKey];
   [aCoder encodeObject:_auth.requestConfiguration.APIKey forKey:kAPIKeyCodingKey];
   [aCoder encodeObject:_tokenService forKey:kTokenServiceCodingKey];
 #if TARGET_OS_IOS

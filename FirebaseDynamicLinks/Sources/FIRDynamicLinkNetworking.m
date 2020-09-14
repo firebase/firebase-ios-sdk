@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
+
 #import "FirebaseDynamicLinks/Sources/FIRDynamicLinkNetworking+Private.h"
 
 #import "FirebaseDynamicLinks/Sources/GINInvocation/GINArgument.h"
@@ -65,7 +68,9 @@ NSString *_Nullable FIRDynamicLinkAPIKeyParameter(NSString *apiKey) {
 }
 
 void FIRMakeHTTPRequest(NSURLRequest *request, FIRNetworkRequestCompletionHandler completion) {
-  NSURLSession *session = [NSURLSession sharedSession];
+  NSURLSessionConfiguration *sessionConfig =
+      [NSURLSessionConfiguration defaultSessionConfiguration];
+  NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConfig];
   NSURLSessionDataTask *dataTask =
       [session dataTaskWithRequest:request
                  completionHandler:^(NSData *_Nullable data, NSURLResponse *_Nullable response,
@@ -81,19 +86,14 @@ NSData *_Nullable FIRDataWithDictionary(NSDictionary *dictionary, NSError **_Nul
 
 @implementation FIRDynamicLinkNetworking {
   NSString *_APIKey;
-  NSString *_clientID;
   NSString *_URLScheme;
 }
 
-- (instancetype)initWithAPIKey:(NSString *)APIKey
-                      clientID:(NSString *)clientID
-                     URLScheme:(NSString *)URLScheme {
+- (instancetype)initWithAPIKey:(NSString *)APIKey URLScheme:(NSString *)URLScheme {
   NSParameterAssert(APIKey);
-  NSParameterAssert(clientID);
   NSParameterAssert(URLScheme);
   if (self = [super init]) {
     _APIKey = [APIKey copy];
-    _clientID = [clientID copy];
     _URLScheme = [URLScheme copy];
   }
   return self;
@@ -255,7 +255,6 @@ NSData *_Nullable FIRDataWithDictionary(NSDictionary *dictionary, NSError **_Nul
     @"invitationId" : @{@"id" : invitationID},
     @"containerClientId" : @{
       @"type" : @"IOS",
-      @"id" : _clientID,
     }
   };
 
@@ -364,3 +363,5 @@ NSData *_Nullable FIRDataWithDictionary(NSDictionary *dictionary, NSError **_Nul
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif  // TARGET_OS_IOS

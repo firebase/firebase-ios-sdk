@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
-#import <FirebaseCore/FIRLogger.h>
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
 
-#import "FIRCore+InAppMessaging.h"
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
-#import "FIRIAMDisplayCheckOnFetchDoneNotificationFlow.h"
-#import "FIRIAMDisplayExecutor.h"
+#import "FirebaseInAppMessaging/Sources/FIRCore+InAppMessaging.h"
+
+#import "FirebaseInAppMessaging/Sources/Flows/FIRIAMDisplayCheckOnFetchDoneNotificationFlow.h"
+#import "FirebaseInAppMessaging/Sources/Private/Flows/FIRIAMDisplayExecutor.h"
 
 extern NSString *const kFIRIAMFetchIsDoneNotification;
 
@@ -60,3 +63,5 @@ extern NSString *const kFIRIAMFetchIsDoneNotification;
   [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 @end
+
+#endif  // TARGET_OS_IOS

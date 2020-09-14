@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import <FirebaseAuth/FIRMultiFactorInfo.h>
 #import <Foundation/Foundation.h>
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRMultiFactorInfo.h"
 
 #import "FirebaseAuth/Sources/Utilities/FIRAuthInternalErrors.h"
 
@@ -579,6 +579,19 @@ NS_ASSUME_NONNULL_BEGIN
     @return The nullable NSError instance associated with the given error message, if one is found.
 */
 + (NSError *)missingOrInvalidNonceErrorWithMessage:(nullable NSString *)message;
+
+/** @fn tenantIDMismatchError
+    @brief Constructs an @c NSError with the @c FIRAuthErrorCodeTenantIDMismatch code.
+    @remarks This error is used when an attempt is made to update the current user with a
+        tenantId that differs from the current FirebaseAuth instance's tenantId.
+ */
++ (NSError *)tenantIDMismatchError;
+
+/** @fn unsupportedTenantOperationError
+    @brief Constructs an @c NSError with the @c FIRUnsupportedTenantOperation code.
+    @remarks This error indicates the operation is not supported in a multi-tenant context.
+ */
++ (NSError *)unsupportedTenantOperationError;
 
 @end
 

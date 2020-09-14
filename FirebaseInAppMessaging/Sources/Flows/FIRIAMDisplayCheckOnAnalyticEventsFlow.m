@@ -14,14 +14,17 @@
  * limitations under the License.
  */
 
-#import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
-#import <FirebaseAnalyticsInterop/FIRAnalyticsInteropListener.h>
-#import <FirebaseCore/FIRLogger.h>
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
 
-#import "FIRCore+InAppMessaging.h"
-#import "FIRIAMDisplayCheckOnAnalyticEventsFlow.h"
-#import "FIRIAMDisplayExecutor.h"
-#import "FIRInAppMessagingPrivate.h"
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
+#import "Interop/Analytics/Public/FIRAnalyticsInteropListener.h"
+
+#import "FirebaseInAppMessaging/Sources/FIRCore+InAppMessaging.h"
+#import "FirebaseInAppMessaging/Sources/FIRInAppMessagingPrivate.h"
+#import "FirebaseInAppMessaging/Sources/Private/Flows/FIRIAMDisplayCheckOnAnalyticEventsFlow.h"
+#import "FirebaseInAppMessaging/Sources/Private/Flows/FIRIAMDisplayExecutor.h"
 
 @interface FIRIAMDisplayCheckOnAnalyticEventsFlow () <FIRAnalyticsInteropListener>
 @end
@@ -64,3 +67,5 @@
 }
 
 @end
+
+#endif  // TARGET_OS_IOS

@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseCore/FIROptionsInternal.h>
 #import <FirebaseFirestore/FIRFirestore.h>
 
 #import <XCTest/XCTest.h>
+
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 #include "Firestore/core/test/unit/testutil/app_testing.h"
 

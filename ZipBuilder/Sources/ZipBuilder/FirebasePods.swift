@@ -22,6 +22,7 @@ enum FirebasePods: String, CaseIterable {
   case abTesting = "FirebaseABTesting"
   case adMob = "Google-Mobile-Ads-SDK"
   case analytics = "FirebaseAnalytics"
+  case appdistribution = "FirebaseAppDistribution"
   case auth = "FirebaseAuth"
   case core = "FirebaseCore"
   case crashlytics = "FirebaseCrashlytics"
@@ -34,30 +35,10 @@ enum FirebasePods: String, CaseIterable {
   case inAppMessaging = "FirebaseInAppMessaging"
   case messaging = "FirebaseMessaging"
   case mlModelInterpreter = "FirebaseMLModelInterpreter"
-  case mlNaturalLanguage = "FirebaseMLNaturalLanguage"
-  case mlNLLanguageID = "FirebaseMLNLLanguageID"
-  case mlNLSmartReply = "FirebaseMLNLSmartReply"
-  case mlNLTranslate = "FirebaseMLNLTranslate"
   case mlVision = "FirebaseMLVision"
-  case mlVisionAutoML = "FirebaseMLVisionAutoML"
-  case mlVisionObjectDetection = "FirebaseMLVisionObjectDetection"
-  case mlVisionBarcodeModel = "FirebaseMLVisionBarcodeModel"
-  case mlVisionFaceModel = "FirebaseMLVisionFaceModel"
-  case mlVisionLabelModel = "FirebaseMLVisionLabelModel"
-  case mlVisionTextModel = "FirebaseMLVisionTextModel"
   case performance = "FirebasePerformance"
   case remoteConfig = "FirebaseRemoteConfig"
   case storage = "FirebaseStorage"
-
-  /// Flag to explicitly exclude any Resources from being copied.
-  var excludeResources: Bool {
-    switch self {
-    case .mlVision, .mlVisionBarcodeModel, .mlVisionLabelModel:
-      return true
-    default:
-      return false
-    }
-  }
 
   /// Describes the dependency on other frameworks for the README file.
   static func readmeHeader(podName: String) -> String {
@@ -67,20 +48,5 @@ enum FirebasePods: String, CaseIterable {
     }
     header += "\n"
     return header
-  }
-
-  // TODO: Evaluate if there's a way to do this that doesn't require the hardcoded values to be
-  //   maintained. Likely looking at the `vendored_frameworks` from each Pod's Podspec.
-  /// Returns folders to remove from the Zip file from a specific pod for de-duplication. This
-  /// is necessary for the MLKit frameworks because of their unique structure, an unnecessary amount
-  /// of frameworks get pulled in.
-  static func duplicateFrameworksToRemove(pod: String) -> [String] {
-    switch pod {
-    case "FirebaseMLVisionBarcodeModel", "FirebaseMLVisionFaceModel", "FirebaseMLVisionLabelModel",
-         "FirebaseMLVisionTextModel":
-      return ["GTMSessionFetcher.framework", "Protobuf.framework"]
-    default:
-      return []
-    }
   }
 }

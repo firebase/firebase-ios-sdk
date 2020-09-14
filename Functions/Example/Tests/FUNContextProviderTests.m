@@ -15,23 +15,30 @@
 #import <XCTest/XCTest.h>
 
 #import "FIRAuthInteropFake.h"
-#import "FUNContext.h"
+#import "Functions/FirebaseFunctions/FUNContext.h"
+#import "SharedTestUtilities/FIRMessagingInteropFake.h"
 
 @interface FUNContextProviderTests : XCTestCase
+@property(nonatomic) FIRMessagingInteropFake *messagingFake;
 @end
 
 @implementation FUNContextProviderTests
+
+- (void)setUp {
+  self.messagingFake = [[FIRMessagingInteropFake alloc] init];
+}
 
 - (void)testContextWithAuth {
   FIRAuthInteropFake *auth = [[FIRAuthInteropFake alloc] initWithToken:@"token"
                                                                 userID:@"userID"
                                                                  error:nil];
-  FUNContextProvider *provider = [[FUNContextProvider alloc] initWithAuth:(id<FIRAuthInterop>)auth];
+  FUNContextProvider *provider = [[FUNContextProvider alloc] initWithAuth:(id<FIRAuthInterop>)auth
+                                                                messaging:self.messagingFake];
   XCTestExpectation *expectation =
       [self expectationWithDescription:@"Context should have auth keys."];
   [provider getContext:^(FUNContext *_Nullable context, NSError *_Nullable error) {
     XCTAssert([context.authToken isEqualToString:@"token"]);
-    XCTAssert([context.instanceIDToken isEqualToString:@"iid"]);
+    XCTAssert([context.FCMToken isEqualToString:self.messagingFake.FCMToken]);
     XCTAssertNil(error);
     [expectation fulfill];
   }];
@@ -44,7 +51,8 @@
   FIRAuthInteropFake *auth = [[FIRAuthInteropFake alloc] initWithToken:nil
                                                                 userID:nil
                                                                  error:authError];
-  FUNContextProvider *provider = [[FUNContextProvider alloc] initWithAuth:(id<FIRAuthInterop>)auth];
+  FUNContextProvider *provider = [[FUNContextProvider alloc] initWithAuth:(id<FIRAuthInterop>)auth
+                                                                messaging:self.messagingFake];
   XCTestExpectation *expectation =
       [self expectationWithDescription:@"Completion handler should fail with Auth error."];
   [provider getContext:^(FUNContext *_Nullable context, NSError *_Nullable error) {
@@ -57,13 +65,13 @@
 }
 
 - (void)testContextWithoutAuth {
-  FUNContextProvider *provider = [[FUNContextProvider alloc] initWithAuth:nil];
+  FUNContextProvider *provider = [[FUNContextProvider alloc] initWithAuth:nil messaging:nil];
   XCTestExpectation *expectation =
       [self expectationWithDescription:@"Completion handler should succeed without Auth."];
   [provider getContext:^(FUNContext *_Nullable context, NSError *_Nullable error) {
     XCTAssertNil(error);
     XCTAssertNil(context.authToken);
-    XCTAssert([context.instanceIDToken isEqualToString:@"iid"]);
+    XCTAssertNil(context.FCMToken);
     [expectation fulfill];
   }];
 

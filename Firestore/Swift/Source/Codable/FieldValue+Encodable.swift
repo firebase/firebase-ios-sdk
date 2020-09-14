@@ -22,6 +22,7 @@ extension FieldValue: Encodable {
   /// explicitly handles it, which is what Firestore.Encoder does.
   public func encode(to encoder: Encoder) throws {
     throw FirestoreEncodingError.encodingIsNotSupported(
-      "FieldValue values can only be encoded with Firestore.Encoder")
+      "FieldValue values can only be encoded with Firestore.Encoder"
+    )
   }
 }

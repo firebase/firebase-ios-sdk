@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-#import <FirebaseInstallations/FIRInstallations.h>
 #import <Foundation/Foundation.h>
+#import "FirebaseInstallations/Source/Library/Public/FirebaseInstallations/FIRInstallations.h"
 
 @class FIRInstallationsIDController;
+@class FIROptions;
 
 NS_ASSUME_NONNULL_BEGIN
 

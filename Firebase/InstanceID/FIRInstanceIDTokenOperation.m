@@ -16,17 +16,15 @@
 
 #import "FIRInstanceIDTokenOperation.h"
 
-#import <FirebaseInstallations/FirebaseInstallations.h>
+#import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
 
 #import "FIRInstanceIDCheckinPreferences.h"
 #import "FIRInstanceIDLogger.h"
-#import "FIRInstanceIDURLQueryItem.h"
 #import "FIRInstanceIDUtilities.h"
 #import "NSError+FIRInstanceID.h"
 
 static const NSInteger kFIRInstanceIDPlatformVersionIOS = 2;
 
-static NSString *const kFIRInstanceIDParamInstanceID = @"appid";
 // Scope parameter that defines the service using the token
 static NSString *const kFIRInstanceIDParamScope = @"X-scope";
 // Defines the SDK version
@@ -205,47 +203,40 @@ static NSString *const kFIRInstanceIDParamFCMLibVersion = @"X-cliv";
   return request;
 }
 
-+ (NSMutableArray<FIRInstanceIDURLQueryItem *> *)standardQueryItemsWithDeviceID:(NSString *)deviceID
-                                                                          scope:(NSString *)scope {
-  NSMutableArray<FIRInstanceIDURLQueryItem *> *queryItems = [NSMutableArray arrayWithCapacity:8];
++ (NSMutableArray<NSURLQueryItem *> *)standardQueryItemsWithDeviceID:(NSString *)deviceID
+                                                               scope:(NSString *)scope {
+  NSMutableArray<NSURLQueryItem *> *queryItems = [NSMutableArray arrayWithCapacity:8];
 
   // E.g. X-osv=10.2.1
   NSString *systemVersion = FIRInstanceIDOperatingSystemVersion();
-  [queryItems addObject:[FIRInstanceIDURLQueryItem queryItemWithName:@"X-osv" value:systemVersion]];
+  [queryItems addObject:[NSURLQueryItem queryItemWithName:@"X-osv" value:systemVersion]];
   // E.g. device=
   if (deviceID) {
-    [queryItems addObject:[FIRInstanceIDURLQueryItem queryItemWithName:@"device" value:deviceID]];
+    [queryItems addObject:[NSURLQueryItem queryItemWithName:@"device" value:deviceID]];
   }
   // E.g. X-scope=fcm
   if (scope) {
-    [queryItems addObject:[FIRInstanceIDURLQueryItem queryItemWithName:kFIRInstanceIDParamScope
-                                                                 value:scope]];
+    [queryItems addObject:[NSURLQueryItem queryItemWithName:kFIRInstanceIDParamScope value:scope]];
   }
   // E.g. plat=2
   NSString *platform = [NSString stringWithFormat:@"%ld", (long)kFIRInstanceIDPlatformVersionIOS];
-  [queryItems addObject:[FIRInstanceIDURLQueryItem queryItemWithName:@"plat" value:platform]];
+  [queryItems addObject:[NSURLQueryItem queryItemWithName:@"plat" value:platform]];
   // E.g. app=com.myapp.foo
   NSString *appIdentifier = FIRInstanceIDAppIdentifier();
-  [queryItems addObject:[FIRInstanceIDURLQueryItem queryItemWithName:@"app" value:appIdentifier]];
+  [queryItems addObject:[NSURLQueryItem queryItemWithName:@"app" value:appIdentifier]];
   // E.g. app_ver=1.5
   NSString *appVersion = FIRInstanceIDCurrentAppVersion();
-  [queryItems addObject:[FIRInstanceIDURLQueryItem queryItemWithName:@"app_ver" value:appVersion]];
+  [queryItems addObject:[NSURLQueryItem queryItemWithName:@"app_ver" value:appVersion]];
   // E.g. X-cliv=fiid-1.2.3
   NSString *fcmLibraryVersion =
       [NSString stringWithFormat:@"fiid-%@", FIRInstanceIDCurrentGCMVersion()];
   if (fcmLibraryVersion.length) {
-    FIRInstanceIDURLQueryItem *gcmLibVersion =
-        [FIRInstanceIDURLQueryItem queryItemWithName:kFIRInstanceIDParamFCMLibVersion
-                                               value:fcmLibraryVersion];
+    NSURLQueryItem *gcmLibVersion =
+        [NSURLQueryItem queryItemWithName:kFIRInstanceIDParamFCMLibVersion value:fcmLibraryVersion];
     [queryItems addObject:gcmLibVersion];
   }
 
   return queryItems;
-}
-
-- (NSArray<FIRInstanceIDURLQueryItem *> *)queryItemsWithInstanceID:(NSString *)instanceID {
-  return @[ [FIRInstanceIDURLQueryItem queryItemWithName:kFIRInstanceIDParamInstanceID
-                                                   value:instanceID] ];
 }
 
 #pragma mark - HTTP Header

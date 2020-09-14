@@ -65,7 +65,10 @@ in their modulemaps. If you have disabled the "Link Frameworks Automatically"
 option in your Xcode project/workspace, you will need to add the system
 frameworks and libraries listed in each Firebase framework's
 <Name>.framework/Modules/module.modulemap file to your target's or targets'
-"Link Binary With Libraries" build phase.
+"Link Binary With Libraries" build phase.  Specifically, you may see the error
+`ld: warning: Could not find or use auto-linked framework...` which is an
+indicator that not all system libraries are being brought into your build
+automatically.
 
 "(~> X)" below means that the SDK requires all of the frameworks from X. You
 should make sure to include all of the frameworks from X when including the SDK.

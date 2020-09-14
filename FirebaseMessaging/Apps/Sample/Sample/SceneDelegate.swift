@@ -38,8 +38,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, MessagingDelegate {
       window
         .rootViewController = UIHostingController(rootView: contentView
           .environmentObject(identity)
-          .environmentObject(settings)
-        )
+          .environmentObject(settings))
 
       self.window = window
       window.makeKeyAndVisible()
@@ -68,8 +67,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, MessagingDelegate {
             return
           }
           self.identity.instanceID = fid
-          })
         })
+      })
       .store(in: &cancellables)
   }
 

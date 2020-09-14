@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import <FirebaseAuth/FIRUser.h>
 #import <Foundation/Foundation.h>
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRUser.h"
 
 #import "FirebaseAuth/Sources/Storage/FIRAuthKeychainServices.h"
 #import "FirebaseAuth/Sources/Storage/FIRAuthUserDefaults.h"
@@ -49,7 +49,7 @@ NS_ASSUME_NONNULL_BEGIN
     @brief Get the user access group stored locally.
     @param outError Return value for any error which occurs.
  */
-- (NSString *_Nullable)getStoredUserAccessGroupWithError:(NSError *_Nullable *_Nullable)outError;
+- (nullable NSString *)getStoredUserAccessGroupWithError:(NSError *_Nullable *_Nullable)outError;
 
 /** @fn setStoredUserAccessGroup:error:
     @brief The setter of the user access group stored locally.
@@ -66,9 +66,9 @@ NS_ASSUME_NONNULL_BEGIN
         we use API KEY.
     @param outError Return value for any error which occurs.
  */
-- (FIRUser *)getStoredUserForAccessGroup:(NSString *)accessGroup
-                       projectIdentifier:(NSString *)projectIdentifier
-                                   error:(NSError *_Nullable *_Nullable)outError;
+- (nullable FIRUser *)getStoredUserForAccessGroup:(NSString *)accessGroup
+                                projectIdentifier:(NSString *)projectIdentifier
+                                            error:(NSError *_Nullable *_Nullable)outError;
 
 /** @fn setStoredUser:forAccessGroup:projectID:error:
     @brief The setter of the user stored locally.

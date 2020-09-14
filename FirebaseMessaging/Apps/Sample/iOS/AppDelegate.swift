@@ -34,7 +34,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   static var hasPresentedInvalidServiceInfoPlistAlert = false
 
   func application(_ application: UIApplication,
-                   didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?)
+                   didFinishLaunchingWithOptions launchOptions: [
+                     UIApplicationLaunchOptionsKey: Any
+                   ]?)
     -> Bool {
     guard !AppDelegate.isWithinUnitTest else {
       // During unit tests, we don't want to initialize Firebase, since by default we want to able
@@ -91,7 +93,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                    didReceiveRemoteNotification userInfo: [AnyHashable: Any],
                    fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult)
                      -> Void) {
-    print("application:didReceiveRemoteNotification:fetchCompletionHandler: called, with notification:")
+    print(
+      "application:didReceiveRemoteNotification:fetchCompletionHandler: called, with notification:"
+    )
     print("\(userInfo.jsonString ?? "{}")")
     completionHandler(.newData)
   }
@@ -127,7 +131,9 @@ extension AppDelegate: MessagingDelegate {
   func messaging(_ messaging: Messaging, didReceive remoteMessage: MessagingRemoteMessage) {
     // Convert to pretty-print JSON
     guard let prettyPrinted = remoteMessage.appData.jsonString else {
-      print("Received direct channel message, but could not parse as JSON: \(remoteMessage.appData)")
+      print(
+        "Received direct channel message, but could not parse as JSON: \(remoteMessage.appData)"
+      )
       return
     }
     print("Received direct channel message:\n\(prettyPrinted)")

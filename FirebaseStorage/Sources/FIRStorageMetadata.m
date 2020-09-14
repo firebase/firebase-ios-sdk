@@ -12,9 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import <FirebaseStorage/FIRStorageMetadata.h>
+#import "FirebaseStorage/Sources/Public/FirebaseStorage/FIRStorageMetadata.h"
 
-#import <FirebaseStorage/FIRStorageConstants.h>
+#import "FirebaseStorage/Sources/Public/FirebaseStorage/FIRStorageConstants.h"
+
 #import "FirebaseStorage/Sources/FIRStorageConstants_Private.h"
 #import "FirebaseStorage/Sources/FIRStorageMetadata_Private.h"
 #import "FirebaseStorage/Sources/FIRStorageUtils.h"

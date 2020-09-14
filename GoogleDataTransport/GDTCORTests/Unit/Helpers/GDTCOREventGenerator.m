@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-#import "GDTCORTests/Unit/Helpers/GDTCOREventGenerator.h"
+#import "GoogleDataTransport/GDTCORTests/Unit/Helpers/GDTCOREventGenerator.h"
 
-#import <GoogleDataTransport/GDTCORClock.h>
-#import <GoogleDataTransport/GDTCOREvent.h>
-#import <GoogleDataTransport/GDTCORTargets.h>
+#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORClock.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCOREvent.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORTargets.h"
 
-#import "GDTCORLibrary/Private/GDTCOREvent_Private.h"
-#import "GDTCORTests/Unit/Helpers/GDTCORDataObjectTesterClasses.h"
+#import "GoogleDataTransport/GDTCORLibrary/Private/GDTCOREvent_Private.h"
+#import "GoogleDataTransport/GDTCORTests/Unit/Helpers/GDTCORDataObjectTesterClasses.h"
 
 @implementation GDTCOREventGenerator
 
@@ -38,12 +38,24 @@
     [[NSFileManager defaultManager] createFileAtPath:filePath
                                             contents:[NSData data]
                                           attributes:nil];
-    NSError *error = nil;
-    [event writeToGDTPath:filePath error:&error];
     [set addObject:event];
     counter++;
   }
   return set;
+}
+
++ (GDTCOREvent *)generateEventForTarget:(GDTCORTarget)target
+                                qosTier:(nullable NSNumber *)qosTier
+                              mappingID:(nullable NSString *)mappingID {
+  GDTCOREventQoS determinedQosTier =
+      qosTier == nil ? arc4random_uniform(GDTCOREventQoSWifiOnly) : qosTier.intValue;
+  NSString *determinedMappingID = mappingID == nil ? [NSDate date].description : mappingID;
+
+  GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:determinedMappingID target:target];
+  event.clockSnapshot = [GDTCORClock snapshot];
+  event.qosTier = determinedQosTier;
+  event.dataObject = [[GDTCORDataObjectTesterSimple alloc] initWithString:@"testing!"];
+  return event;
 }
 
 @end

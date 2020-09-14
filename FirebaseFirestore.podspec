@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseFirestore'
-  s.version          = '1.13.0'
+  s.version          = '1.17.1'
   s.summary          = 'Google Cloud Firestore'
 
   s.description      = <<-DESC
@@ -25,12 +25,13 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
   s.prefix_header_file = false
 
   s.source_files = [
-    'Firestore/Source/Public/*.h',
+    'FirebaseCore/Sources/Private/*.h',
+    'Firestore/Source/Public/FirebaseFirestore/*.h',
     'Firestore/Source/**/*.{m,mm}',
     'Firestore/Protos/nanopb/**/*.cc',
-    'Firestore/Protos/objc/**/*.m',
     'Firestore/core/include/**/*.{cc,mm}',
     'Firestore/core/src/**/*.{cc,mm}',
+    'Interop/Auth/Public/*.h',
   ]
   s.preserve_paths = [
     'Firestore/Source/API/*.h',
@@ -39,7 +40,6 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
     'Firestore/Source/Remote/*.h',
     'Firestore/Source/Util/*.h',
     'Firestore/Protos/nanopb/**/*.h',
-    'Firestore/Protos/objc/**/*.h',
     'Firestore/core/include/**/*.h',
     'Firestore/core/src/**/*.h',
   ]
@@ -56,10 +56,9 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
     'Firestore/core/src/util/log_stdio.cc',
     'Firestore/core/src/util/secure_random_openssl.cc'
   ]
-  s.public_header_files = 'Firestore/Source/Public/*.h'
+  s.public_header_files = 'Firestore/Source/Public/FirebaseFirestore/*.h'
 
-  s.dependency 'FirebaseAuthInterop', '~> 1.0'
-  s.dependency 'FirebaseCore', '~> 6.2'
+  s.dependency 'FirebaseCore', '~> 6.10'
 
   abseil_version = '0.20200225.0'
   s.dependency 'abseil/algorithm', abseil_version
@@ -72,7 +71,7 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
 
   s.dependency 'gRPC-C++', '~> 1.28.0'
   s.dependency 'leveldb-library', '~> 1.22'
-  s.dependency 'nanopb', '~> 1.30905.0'
+  s.dependency 'nanopb', '~> 1.30906.0'
 
   s.ios.frameworks = 'MobileCoreServices', 'SystemConfiguration', 'UIKit'
   s.osx.frameworks = 'SystemConfiguration'
@@ -90,22 +89,10 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
       'PB_FIELD_32BIT=1 PB_NO_PACKED_STRUCTS=1 PB_ENABLE_MALLOC=1',
     'HEADER_SEARCH_PATHS' =>
       '"${PODS_TARGET_SRCROOT}" ' +
-      '"${PODS_TARGET_SRCROOT}/Firestore/Source/Public" ' +
+      '"${PODS_TARGET_SRCROOT}/Firestore/Source/Public/FirebaseFirestore" ' +
       '"${PODS_ROOT}/nanopb" ' +
-      '"${PODS_TARGET_SRCROOT}/Firestore/Protos/nanopb" ' +
-      '"${PODS_TARGET_SRCROOT}/Firestore/Protos/objc/google/api" ' +
-      '"${PODS_TARGET_SRCROOT}/Firestore/Protos/objc/google/firestore/v1" ' +
-      '"${PODS_TARGET_SRCROOT}/Firestore/Protos/objc/google/rpc" ' +
-      '"${PODS_TARGET_SRCROOT}/Firestore/Protos/objc/google/type"',
+      '"${PODS_TARGET_SRCROOT}/Firestore/Protos/nanopb"'
   }
-
-  # Generate a version of the config.h header suitable for building with
-  # CocoaPods.
-  s.prepare_command = <<-CMD
-    sed '/^#cmakedefine/ d' \
-        Firestore/core/src/util/config.h.in > \
-        Firestore/core/src/util/config.h
-  CMD
 
   s.compiler_flags = '$(inherited) -Wreorder -Werror=reorder -Wno-comma'
 end

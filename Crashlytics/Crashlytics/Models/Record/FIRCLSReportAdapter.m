@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-#import "FIRCLSReportAdapter.h"
-#import "FIRCLSReportAdapter_Private.h"
+#import "Crashlytics/Crashlytics/Models/Record/FIRCLSReportAdapter.h"
+#import "Crashlytics/Crashlytics/Models/Record/FIRCLSReportAdapter_Private.h"
 
-#import "FIRCLSInternalReport.h"
-#import "FIRCLSLogger.h"
+#import "Crashlytics/Crashlytics/Helpers/FIRCLSLogger.h"
+#import "Crashlytics/Crashlytics/Models/FIRCLSInternalReport.h"
 
-#import "FIRCLSUserLogging.h"
+#import "Crashlytics/Crashlytics/Components/FIRCLSUserLogging.h"
 
 #import <nanopb/pb.h>
 #import <nanopb/pb_decode.h>

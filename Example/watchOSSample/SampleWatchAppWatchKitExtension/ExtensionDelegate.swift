@@ -1,4 +1,4 @@
-// Copyright 2020 Google
+// Copyright 2020 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -34,11 +34,19 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate, MessagingDelegate {
   /// MessagingDelegate
   func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String) {
     print("token:\n" + fcmToken)
+    Messaging.messaging().subscribe(toTopic: "watch") { error in
+      if error != nil {
+        print("error:" + error.debugDescription)
+      } else {
+        print("Successfully subscribed to topic")
+      }
+    }
   }
 
   /// WKExtensionDelegate
   func didRegisterForRemoteNotifications(withDeviceToken deviceToken: Data) {
     /// Swizzling should be disabled in Messaging for watchOS, set APNS token manually.
+    print("Set APNS Token\n")
     Messaging.messaging().apnsToken = deviceToken
   }
 }

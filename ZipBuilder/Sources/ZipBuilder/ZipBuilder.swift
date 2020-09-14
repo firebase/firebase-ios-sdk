@@ -154,7 +154,9 @@ struct ZipBuilder {
     }
 
     let podsToBuild = LaunchArgs.shared.buildDependencies ? installedPods :
-      installedPods.filter { podsToInstall.map { $0.name }.contains($0.key) }
+      installedPods.filter {
+        podsToInstall.map { $0.name.components(separatedBy: "/").first }.contains($0.key)
+      }
 
     // Generate the frameworks. Each key is the pod name and the URLs are all frameworks to be
     // copied in each product's directory.
@@ -372,8 +374,7 @@ struct ZipBuilder {
   func copyFrameworks(fromPods installedPods: [String],
                       toDirectory dir: URL,
                       frameworkLocations: [String: [URL]],
-                      podsToIgnore: [String] = [],
-                      foldersToIgnore: [String] = []) throws -> [String] {
+                      podsToIgnore: [String] = []) throws -> [String] {
     let fileManager = FileManager.default
     if !fileManager.directoryExists(at: dir) {
       try fileManager.createDirectory(at: dir, withIntermediateDirectories: false, attributes: nil)
@@ -385,9 +386,8 @@ struct ZipBuilder {
     // Loop through each installedPod item and get the name so we can fetch the framework and copy
     // it to the destination directory.
     for podName in installedPods {
-      // Skip the Firebase pod, any Interop pods, and specifically ignored frameworks.
+      // Skip the Firebase pod and specifically ignored frameworks.
       guard podName != "Firebase",
-        !podName.contains("Interop"),
         !podsToIgnore.contains(podName) else {
         continue
       }
@@ -404,10 +404,6 @@ struct ZipBuilder {
       // Copy each of the frameworks over, unless it's explicitly ignored.
       for xcframework in xcframeworks {
         let xcframeworkName = xcframework.lastPathComponent
-        if foldersToIgnore.contains(xcframeworkName) {
-          continue
-        }
-
         let destination = dir.appendingPathComponent(xcframeworkName)
         try fileManager.copyItem(at: xcframework, to: destination)
         copiedFrameworkNames
@@ -552,14 +548,11 @@ struct ZipBuilder {
     let namedFrameworks = try copyFrameworks(fromPods: podsToCopy,
                                              toDirectory: productDir,
                                              frameworkLocations: builtFrameworks,
-                                             podsToIgnore: podsToIgnore,
-                                             foldersToIgnore: FirebasePods
-                                               .duplicateFrameworksToRemove(pod: podName))
+                                             podsToIgnore: podsToIgnore)
 
     let copiedFrameworks = namedFrameworks.filter {
-      // Only return the frameworks that aren't contained in the "podsToIgnore" array, aren't an
-      // interop framework (since they don't compile to frameworks), or the Firebase pod itself.
-      !(podsToIgnore.contains($0) || $0.hasSuffix("Interop") || $0 == "Firebase")
+      // Skip frameworks that aren't contained in the "podsToIgnore" array and the Firebase pod.
+      !(podsToIgnore.contains($0) || $0 == "Firebase")
     }
 
     return (productDir, copiedFrameworks)
@@ -671,14 +664,17 @@ struct ZipBuilder {
 
     // Create the temporary directory we'll be storing the build/assembled frameworks in, and remove
     // the Resources directory if it already exists.
-    let tempDir = fileManager.temporaryDirectory(withName: "all_frameworks")
+    let binaryZipDir = fileManager.temporaryDirectory(withName: "binary_zip")
+    let binaryCarthageDir = fileManager.temporaryDirectory(withName: "binary_carthage")
     do {
-      try fileManager.createDirectory(at: tempDir,
+      try fileManager.createDirectory(at: binaryZipDir,
+                                      withIntermediateDirectories: true,
+                                      attributes: nil)
+      try fileManager.createDirectory(at: binaryCarthageDir,
                                       withIntermediateDirectories: true,
                                       attributes: nil)
     } catch {
-      fatalError("Cannot create temporary directory to store frameworks from the " +
-        "full build: \(error)")
+      fatalError("Cannot create temporary directory to store binary frameworks: \(error)")
     }
 
     // Loop through each pod folder and check if the frameworks already exist, or they need to be
@@ -688,9 +684,8 @@ struct ZipBuilder {
     for (podName, podInfo) in pods {
       var frameworks: [URL] = []
       var carthageFrameworks: [URL] = []
-      // Ignore any Interop pods or the Firebase umbrella pod.
-      guard !podName.contains("Interop"),
-        podName != "Firebase" else {
+      // Ignore the Firebase umbrella pod.
+      guard podName != "Firebase" else {
         continue
       }
 
@@ -718,19 +713,27 @@ struct ZipBuilder {
         // Copy each of the frameworks to a known temporary directory and store the location.
         for framework in podInfo.binaryFrameworks {
           // Copy it to the temporary directory and save it to our list of frameworks.
-          let copiedLocation = tempDir.appendingPathComponent(framework.lastPathComponent)
+          let zipLocation = binaryZipDir.appendingPathComponent(framework.lastPathComponent)
+          let carthageLocation =
+            binaryCarthageDir.appendingPathComponent(framework.lastPathComponent)
 
           // Remove the framework if it exists since it could be out of date.
-          fileManager.removeIfExists(at: copiedLocation)
+          fileManager.removeIfExists(at: zipLocation)
+          fileManager.removeIfExists(at: carthageLocation)
           do {
-            try fileManager.copyItem(at: framework, to: copiedLocation)
+            try fileManager.copyItem(at: framework, to: zipLocation)
+            try fileManager.copyItem(at: framework, to: carthageLocation)
           } catch {
-            fatalError("Cannot copy framework at \(framework) to \(copiedLocation) while " +
+            fatalError("Cannot copy framework at \(framework) while " +
               "attempting to generate frameworks. \(error)")
           }
-          frameworks.append(copiedLocation)
-          // Same while both closed source and Carthage don't support xcframeworks.
-          carthageFrameworks.append(copiedLocation)
+          frameworks.append(zipLocation)
+
+          CarthageUtils.generatePlistContents(
+            forName: framework.lastPathComponent.components(separatedBy: ".").first!,
+            to: carthageLocation
+          )
+          carthageFrameworks.append(carthageLocation)
         }
       }
       toInstall[podName] = frameworks

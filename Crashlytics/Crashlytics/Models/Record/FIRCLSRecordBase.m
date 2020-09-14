@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRCLSRecordBase.h"
+#import "Crashlytics/Crashlytics/Models/Record/FIRCLSRecordBase.h"
 
 @implementation FIRCLSRecordBase
 

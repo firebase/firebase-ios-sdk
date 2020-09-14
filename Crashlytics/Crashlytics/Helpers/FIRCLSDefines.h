@@ -14,7 +14,7 @@
 
 #pragma once
 
-#include "TargetConditionals.h"
+#include <TargetConditionals.h>
 
 // macro trickiness
 #define STR_HELPER(x) #x

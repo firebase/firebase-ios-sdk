@@ -15,22 +15,20 @@
  */
 
 #import <XCTest/XCTest.h>
+#import "OCMock.h"
 
-#import <FirebaseRemoteConfig/FIRRemoteConfig.h>
 #import "FirebaseRemoteConfig/Sources/Private/FIRRemoteConfig_Private.h"
+#import "FirebaseRemoteConfig/Sources/Private/RCNConfigFetch.h"
+#import "FirebaseRemoteConfig/Sources/Public/FirebaseRemoteConfig/FIRRemoteConfig.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigDBManager.h"
-#import "FirebaseRemoteConfig/Sources/RCNConfigFetch.h"
 #import "FirebaseRemoteConfig/Sources/RCNUserDefaultsManager.h"
 
 #import "FirebaseRemoteConfig/Tests/Unit/RCNTestUtilities.h"
 
-#import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseCore/FIRLogger.h>
-#import <FirebaseCore/FIROptions.h>
-#import <FirebaseInstallations/FirebaseInstallations.h>
-#import <GoogleUtilities/GULNSData+zlib.h>
-#import <OCMock/OCMock.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
+#import "GoogleUtilities/NSData+zlib/Private/GULNSDataInternal.h"
 
 @interface RCNConfigFetch (ForTest)
 - (instancetype)initWithContent:(RCNConfigContent *)content

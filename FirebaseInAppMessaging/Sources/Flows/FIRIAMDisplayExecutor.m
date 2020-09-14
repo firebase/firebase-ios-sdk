@@ -14,19 +14,22 @@
  * limitations under the License.
  */
 
-#import <FirebaseCore/FIRLogger.h>
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
+
 #import <UIKit/UIKit.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
-#import "FIRCore+InAppMessaging.h"
-#import "FIRIAMActivityLogger.h"
-#import "FIRIAMDisplayExecutor.h"
-#import "FIRIAMMessageContentData.h"
-#import "FIRIAMMessageDefinition.h"
-#import "FIRIAMSDKRuntimeErrorCodes.h"
-#import "FIRInAppMessaging.h"
-#import "FIRInAppMessagingRenderingPrivate.h"
+#import "FirebaseInAppMessaging/Sources/FIRCore+InAppMessaging.h"
+#import "FirebaseInAppMessaging/Sources/Private/Data/FIRIAMMessageContentData.h"
+#import "FirebaseInAppMessaging/Sources/Private/Data/FIRIAMMessageDefinition.h"
+#import "FirebaseInAppMessaging/Sources/Private/Flows/FIRIAMActivityLogger.h"
+#import "FirebaseInAppMessaging/Sources/Private/Flows/FIRIAMDisplayExecutor.h"
+#import "FirebaseInAppMessaging/Sources/Public/FirebaseInAppMessaging/FIRInAppMessaging.h"
+#import "FirebaseInAppMessaging/Sources/RenderingObjects/FIRInAppMessagingRenderingPrivate.h"
+#import "FirebaseInAppMessaging/Sources/Runtime/FIRIAMSDKRuntimeErrorCodes.h"
 
-#import <FirebaseABTesting/FIRExperimentController.h>
+#import "FirebaseABTesting/Sources/Private/FirebaseABTestingInternal.h"
 
 @implementation FIRIAMDisplaySetting
 @end
@@ -567,6 +570,7 @@
     case FIRIAMRenderAsCardView:
       // Image data should never nil for a valid card message.
       if (imageData == nil) {
+        NSAssert(NO, @"Image data should never nil for a valid card message.");
         return nil;
       }
       return [self cardDisplayMessageWithMessageDefinition:definition
@@ -739,3 +743,5 @@
   }
 }
 @end
+
+#endif  // TARGET_OS_IOS

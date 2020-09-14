@@ -14,19 +14,17 @@
  * limitations under the License.
  */
 
-#import "FirebaseDynamicLinks/Sources/Public/FIRDynamicLinks.h"
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
+
+#import "FirebaseDynamicLinks/Sources/Public/FirebaseDynamicLinks/FIRDynamicLinks.h"
 
 #import <UIKit/UIKit.h>
 
 #ifdef FIRDynamicLinks3P
-#import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
-#import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseCore/FIRComponent.h>
-#import <FirebaseCore/FIRComponentContainer.h>
-#import <FirebaseCore/FIRDependency.h>
-#import <FirebaseCore/FIRLibrary.h>
-#import <FirebaseCore/FIROptionsInternal.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "FirebaseDynamicLinks/Sources/FIRDLScionLogging.h"
+#import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 #endif
 
 #ifdef FIRDynamicLinks3P
@@ -70,9 +68,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 // API Key for API access.
 @property(nonatomic, copy) NSString *APIKey;
-
-// Client ID for API access.
-@property(nonatomic, copy) NSString *clientID;
 
 // Custom URL scheme.
 @property(nonatomic, copy) NSString *URLScheme;
@@ -169,23 +164,10 @@ static const NSInteger FIRErrorCodeDurableDeepLinkFailed = -119;
     errorDescription = [@"API key must not be nil or empty." mutableCopy];
   }
 
-  if (options.clientID.length == 0) {
-    NSString *errorMsg = @"Client ID must not be nil or empty.";
-    if (errorDescription) {
-      [errorDescription appendFormat:@" %@", errorMsg];
-    } else {
-      errorDescription = [errorMsg mutableCopy];
-    }
-  }
-
   if (!errorDescription) {
     // setup FDL if no error detected
     urlScheme = options.deepLinkURLScheme ?: [NSBundle mainBundle].bundleIdentifier;
-    [self setUpWithLaunchOptions:nil
-                          apiKey:options.APIKey
-                        clientID:options.clientID
-                       urlScheme:urlScheme
-                    userDefaults:nil];
+    [self setUpWithLaunchOptions:nil apiKey:options.APIKey urlScheme:urlScheme userDefaults:nil];
   } else {
     error =
         [FIRApp errorForSubspecConfigurationFailureWithDomain:kFirebaseDurableDeepLinkErrorDomain
@@ -273,20 +255,14 @@ static const NSInteger FIRErrorCodeDurableDeepLinkFailed = -119;
 
 - (BOOL)setUpWithLaunchOptions:(nullable NSDictionary *)launchOptions
                         apiKey:(NSString *)apiKey
-                      clientID:(NSString *)clientID
                      urlScheme:(nullable NSString *)urlScheme
                   userDefaults:(nullable NSUserDefaults *)userDefaults {
   if (apiKey == nil) {
     FDLLog(FDLLogLevelError, FDLLogIdentifierSetupNilAPIKey, @"API Key must not be nil.");
     return NO;
   }
-  if (clientID == nil) {
-    FDLLog(FDLLogLevelError, FDLLogIdentifierSetupNilClientID, @"Client ID must not be nil.");
-    return NO;
-  }
 
   _APIKey = [apiKey copy];
-  _clientID = [clientID copy];
   _URLScheme = urlScheme.length ? [urlScheme copy] : [NSBundle mainBundle].bundleIdentifier;
 
   if (!userDefaults) {
@@ -312,7 +288,11 @@ static const NSInteger FIRErrorCodeDurableDeepLinkFailed = -119;
 
 - (void)checkForPendingDynamicLink {
   // Make sure this method is called only once after the application was installed.
-  BOOL appInviteDeepLinkRead = [_userDefaults boolForKey:kFIRDLReadDeepLinkAfterInstallKey];
+  // kFIRDLOpenURLKey marks checkForPendingDynamic link had been called already so no need to do it
+  // again. kFIRDLReadDeepLinkAfterInstallKey marks we have already read a deeplink after the
+  // install and so no need to do check for pending dynamic link.
+  BOOL appInviteDeepLinkRead = [_userDefaults boolForKey:kFIRDLOpenURLKey] ||
+                               [_userDefaults boolForKey:kFIRDLReadDeepLinkAfterInstallKey];
 
   if (appInviteDeepLinkRead || self.retrievingPendingDynamicLink) {
     NSString *errorDescription =
@@ -328,7 +308,6 @@ static const NSInteger FIRErrorCodeDurableDeepLinkFailed = -119;
 
   FIRDLRetrievalProcessFactory *factory =
       [[FIRDLRetrievalProcessFactory alloc] initWithNetworkingService:self.dynamicLinkNetworking
-                                                             clientID:_clientID
                                                             URLScheme:_URLScheme
                                                                APIKey:_APIKey
                                                         FDLSDKVersion:kFIRDLVersion
@@ -343,6 +322,17 @@ static const NSInteger FIRErrorCodeDurableDeepLinkFailed = -119;
 
 + (instancetype)sharedInstance {
   return [self dynamicLinks];
+}
+
+- (BOOL)setUpWithLaunchOptions:(nullable NSDictionary *)launchOptions
+                        apiKey:(NSString *)apiKey
+                      clientID:(NSString *)clientID
+                     urlScheme:(nullable NSString *)urlScheme
+                  userDefaults:(nullable NSUserDefaults *)userDefaults {
+  return [self setUpWithLaunchOptions:launchOptions
+                               apiKey:apiKey
+                            urlScheme:urlScheme
+                         userDefaults:userDefaults];
 }
 
 - (void)checkForPendingDeepLink {
@@ -499,7 +489,6 @@ static const NSInteger FIRErrorCodeDurableDeepLinkFailed = -119;
 - (FIRDynamicLinkNetworking *)dynamicLinkNetworking {
   if (!_dynamicLinkNetworking) {
     _dynamicLinkNetworking = [[FIRDynamicLinkNetworking alloc] initWithAPIKey:_APIKey
-                                                                     clientID:_clientID
                                                                     URLScheme:_URLScheme];
   }
   return _dynamicLinkNetworking;
@@ -554,9 +543,14 @@ static const NSInteger FIRErrorCodeDurableDeepLinkFailed = -119;
   self.retrievingPendingDynamicLink = NO;
   _retrievalProcess = nil;
 
-  if (!result.error && ![_userDefaults boolForKey:kFIRDLOpenURLKey]) {
+  if (![_userDefaults boolForKey:kFIRDLOpenURLKey]) {
+    // Once we complete the Pending dynamic link retrieval, regardless of whether the retrieval is
+    // success or failure, we don't want to do the retrieval again on next app start.
+    // If we try to redo the retrieval again because of some error, the user will experience
+    // unwanted deeplinking when they restart the app next time.
     [_userDefaults setBool:YES forKey:kFIRDLOpenURLKey];
   }
+
   NSURL *linkToPassToApp = [result URLWithCustomURLScheme:_URLScheme];
   [self passRetrievedDynamicLinkToApplication:linkToPassToApp];
 }
@@ -777,3 +771,5 @@ static NSString *kSelfDiagnoseOutputFooter =
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif  // TARGET_OS_IOS

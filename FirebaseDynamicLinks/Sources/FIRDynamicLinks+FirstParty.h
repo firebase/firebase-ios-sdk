@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FirebaseDynamicLinks/Sources/Public/FIRDynamicLinks.h"
+#import "FirebaseDynamicLinks/Sources/Public/FirebaseDynamicLinks/FIRDynamicLinks.h"
 
 #import "FirebaseDynamicLinks/Sources/FIRDynamicLink+Private.h"
 
@@ -39,6 +39,24 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)setUpWithLaunchOptions:(nullable NSDictionary *)launchOptions
                         apiKey:(NSString *)apiKey
                       clientID:(NSString *)clientID
+                     urlScheme:(nullable NSString *)urlScheme
+                  userDefaults:(nullable NSUserDefaults *)userDefaults
+    DEPRECATED_MSG_ATTRIBUTE(
+        "Use [FIRDynamicLinks setUpWithLaunchOptions::apiKey:urlScheme:userDefaults:] instead.");
+
+/**
+ * @method setUpWithLaunchOptions::apiKey:urlScheme:userDefaults:
+ * @abstract Set up Dynamic Links.
+ * @param launchOptions launchOptions from |application:didFinishLaunchingWithOptions:|. If nil, the
+ *     deep link may appear twice on iOS 9 if a user clicks on a link before opening the app.
+ * @param apiKey API key for API access.
+ * @param urlScheme A custom url scheme used by the application. If nil, bundle id will be used.
+ * @param userDefaults The defaults from a user’s defaults database. If nil, standard
+ *     NSUserDefaults will be used.
+ * @return whether the Dynamic Links was set up successfully.
+ */
+- (BOOL)setUpWithLaunchOptions:(nullable NSDictionary *)launchOptions
+                        apiKey:(NSString *)apiKey
                      urlScheme:(nullable NSString *)urlScheme
                   userDefaults:(nullable NSUserDefaults *)userDefaults;
 

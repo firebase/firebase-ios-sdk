@@ -15,11 +15,11 @@
  */
 
 #import <XCTest/XCTest.h>
+#import "OCMock.h"
 
-#import "sqlite3.h"
+#import <sqlite3.h>
 
-#import <FirebaseCore/FIRAppInternal.h>
-#import <OCMock/OCMock.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "FirebaseRemoteConfig/Sources/Private/RCNConfigSettings.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigContent.h"
