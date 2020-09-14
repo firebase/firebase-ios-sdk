@@ -75,23 +75,21 @@ NSString *const kFakeErrorDomain = @"test.failure.domain";
     ]
   };
 
-  _mockAPINotEnabledMessage = @"This is a long message about what's happening. This is a fake message from the Firebase App Testers API in project 123456789. This should be logged.";
+  _mockAPINotEnabledMessage =
+      @"This is a long message about what's happening. This is a fake message from the Firebase "
+      @"App Testers API in project 123456789. This should be logged.";
   _mockAPINotEnabledResponse = @{
     @"error" : @{
-        @"code": @403,
-        @"message": _mockAPINotEnabledMessage,
-        @"status": @"PERMISSION_DENIED",
-        @"details": @[
-            @{
-              @"type": @"type.fakeapis.com/appdistro.api.Help",
-              @"links": @[
-                  @{
-                    @"description": @"this is a short statement about enabling the api",
-                    @"url": @"this should be a link"
-                  }
-              ],
-            }
-        ],
+      @"code" : @403,
+      @"message" : _mockAPINotEnabledMessage,
+      @"status" : @"PERMISSION_DENIED",
+      @"details" : @[ @{
+        @"type" : @"type.fakeapis.com/appdistro.api.Help",
+        @"links" : @[ @{
+          @"description" : @"this is a short statement about enabling the api",
+          @"url" : @"this should be a link"
+        } ],
+      } ],
     }
   };
 }
@@ -170,7 +168,9 @@ NSString *const kFakeErrorDomain = @"test.failure.domain";
 }
 
 - (void)testTryParseGoogleAPIErrorFromResponseSuccess {
-  NSData *data = [NSJSONSerialization dataWithJSONObject:_mockAPINotEnabledResponse options:0 error:nil];
+  NSData *data = [NSJSONSerialization dataWithJSONObject:_mockAPINotEnabledResponse
+                                                 options:0
+                                                   error:nil];
   NSString *message = [FIRFADApiService tryParseGoogleAPIErrorFromResponse:data];
   XCTAssertTrue([message isEqualToString:_mockAPINotEnabledMessage]);
 }
@@ -178,21 +178,24 @@ NSString *const kFakeErrorDomain = @"test.failure.domain";
 - (void)testTryParseGoogleAPIErrorFromResponseParseFailure {
   NSData *data = [@"malformed{json[data" dataUsingEncoding:NSUTF8StringEncoding];
   NSString *message = [FIRFADApiService tryParseGoogleAPIErrorFromResponse:data];
-  XCTAssertTrue([message isEqualToString:@"Could not parse additional details about this API error."]);
+  XCTAssertTrue(
+      [message isEqualToString:@"Could not parse additional details about this API error."]);
 }
 
 - (void)testTryParseGoogleAPIErrorFromResponseNoErrorFailure {
-  NSDictionary *errorDictionary = @{ @"message": @"This has no subdict" };
+  NSDictionary *errorDictionary = @{@"message" : @"This has no subdict"};
   NSData *data = [NSJSONSerialization dataWithJSONObject:errorDictionary options:0 error:nil];
   NSString *message = [FIRFADApiService tryParseGoogleAPIErrorFromResponse:data];
-  XCTAssertTrue([message isEqualToString:@"Could not parse additional details about this API error."]);
+  XCTAssertTrue(
+      [message isEqualToString:@"Could not parse additional details about this API error."]);
 }
 
 - (void)testTryParseGoogleAPIErrorFromResponseNoMessageFailure {
-  NSDictionary *errorDictionary = @{ @"error": @{@"status": @"This has no message"} };
+  NSDictionary *errorDictionary = @{@"error" : @{@"status" : @"This has no message"}};
   NSData *data = [NSJSONSerialization dataWithJSONObject:errorDictionary options:0 error:nil];
   NSString *message = [FIRFADApiService tryParseGoogleAPIErrorFromResponse:data];
-  XCTAssertTrue([message isEqualToString:@"Could not parse additional details about this API error."]);
+  XCTAssertTrue(
+      [message isEqualToString:@"Could not parse additional details about this API error."]);
 }
 
 - (void)testGenerateAuthTokenWithCompletionSuccess {
@@ -209,7 +212,7 @@ NSString *const kFakeErrorDomain = @"test.failure.domain";
         XCTAssertNotNil(identifier);
         XCTAssertNil(error);
         XCTAssertTrue([identifier isEqualToString:self->_mockInstallationId]);
-        XCTAssertTrue([[authTokenResult authToken] isEqualToString:self -> _mockAuthToken]);
+        XCTAssertTrue([[authTokenResult authToken] isEqualToString:self->_mockAuthToken]);
         [expectation fulfill];
       }];
 

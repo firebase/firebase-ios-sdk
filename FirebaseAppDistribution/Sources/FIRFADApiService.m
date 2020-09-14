@@ -83,16 +83,16 @@ NSString *const kResponseReleasesKey = @"releases";
   NSDictionary *responseDict = [NSJSONSerialization JSONObjectWithData:data
                                                                options:0
                                                                  error:&parseError];
-  if(parseError){
+  if (parseError) {
     return @"Could not parse additional details about this API error.";
   } else {
     NSDictionary *errorDict = [responseDict objectForKey:@"error"];
-    if(!errorDict) {
+    if (!errorDict) {
       return @"Could not parse additional details about this API error.";
     }
-    
+
     NSString *message = [errorDict objectForKey:@"message"];
-    if(!message) {
+    if (!message) {
       return @"Could not parse additional details about this API error.";
     }
     return message;
@@ -107,7 +107,8 @@ NSString *const kResponseReleasesKey = @"releases";
                 httpResponse);
 
   if ([self handleHttpResponseError:httpResponse error:error]) {
-    FIRFADErrorLog(@"App Tester API service error - %@: %@", [*error localizedDescription], [self tryParseGoogleAPIErrorFromResponse:data]);
+    FIRFADErrorLog(@"App Tester API service error - %@: %@", [*error localizedDescription],
+                   [self tryParseGoogleAPIErrorFromResponse:data]);
     return nil;
   }
 
