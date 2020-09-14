@@ -88,12 +88,15 @@
 
 /** Tests the default initializer. */
 - (void)testInit {
-  XCTAssertNotNil([[GDTCORTransformer alloc] init]);
+  GDTCORTransformer *transformer = [[GDTCORTransformer alloc] init];
+  XCTAssertNotNil(transformer);
+  XCTAssertEqualObjects(transformer.application, [GDTCORApplication sharedApplication]);
 }
 
 /** Tests the pointer equality of result of the -sharedInstance method. */
 - (void)testSharedInstance {
   XCTAssertEqual([GDTCORTransformer sharedInstance], [GDTCORTransformer sharedInstance]);
+  XCTAssertEqualObjects([GDTCORTransformer sharedInstance].application, [GDTCORApplication sharedApplication]);
 }
 
 /** Tests writing a event without a transformer. */
