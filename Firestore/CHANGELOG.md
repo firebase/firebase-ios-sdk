@@ -1,4 +1,10 @@
 # Unreleased
+- [feature] Added `whereField(_:notIn:)` and `whereField(_:isNotEqualTo:)` query
+  operators. `whereField(_:notIn:)` finds documents where a specified field’s
+  value is not in a specified array. `whereField(_:isNotEqualTo:)` finds
+  documents where a specified field's value does not equal the specified value.
+  Neither query operator will match documents where the specified field is not
+  present.
 
 # v1.17.1
 - [fixed] Fix gRPC documentation warning surfaced in Xcode (#6340).

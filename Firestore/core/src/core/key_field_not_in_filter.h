@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,28 +14,31 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_CORE_OPERATOR_H_
-#define FIRESTORE_CORE_SRC_CORE_OPERATOR_H_
+#ifndef FIRESTORE_CORE_SRC_CORE_KEY_FIELD_NOT_IN_FILTER_H_
+#define FIRESTORE_CORE_SRC_CORE_KEY_FIELD_NOT_IN_FILTER_H_
 
-#include "Firestore/core/src/core/filter.h"
+#include <string>
+
+#include "Firestore/core/src/core/field_filter.h"
+#include "Firestore/core/src/model/model_fwd.h"
 
 namespace firebase {
 namespace firestore {
 namespace core {
 
-inline bool IsArrayOperator(Filter::Operator op) {
-  return op == Filter::Operator::ArrayContains ||
-         op == Filter::Operator::ArrayContainsAny;
-}
+/**
+ * A Filter that matches on key fields not present within an array.
+ */
+class KeyFieldNotInFilter : public FieldFilter {
+ public:
+  KeyFieldNotInFilter(model::FieldPath field, model::FieldValue value);
 
-inline bool IsDisjunctiveOperator(Filter::Operator op) {
-  return op == Filter::Operator::In ||
-         op == Filter::Operator::ArrayContainsAny ||
-         op == Filter::Operator::NotIn;
-}
+ private:
+  class Rep;
+};
 
 }  // namespace core
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_CORE_OPERATOR_H_
+#endif  // FIRESTORE_CORE_SRC_CORE_KEY_FIELD_NOT_IN_FILTER_H_

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "Firestore/core/src/core/key_field_not_in_filter.h"
 #include "Firestore/core/src/core/key_field_in_filter.h"
 
 #include <memory>
@@ -34,11 +35,11 @@ using model::FieldValue;
 
 using Operator = Filter::Operator;
 
-class KeyFieldInFilter::Rep : public FieldFilter::Rep {
+class KeyFieldNotInFilter::Rep : public FieldFilter::Rep {
  public:
   Rep(FieldPath field, FieldValue value)
-      : FieldFilter::Rep(std::move(field), Operator::In, std::move(value)) {
-    ValidateArrayValue(this->value());
+      : FieldFilter::Rep(std::move(field), Operator::NotIn, std::move(value)) {
+    KeyFieldInFilter::ValidateArrayValue(this->value());
   }
 
   Type type() const override {
@@ -48,35 +49,14 @@ class KeyFieldInFilter::Rep : public FieldFilter::Rep {
   bool Matches(const model::Document& doc) const override;
 };
 
-KeyFieldInFilter::KeyFieldInFilter(FieldPath field, FieldValue value)
+KeyFieldNotInFilter::KeyFieldNotInFilter(FieldPath field, FieldValue value)
     : FieldFilter(
           std::make_shared<const Rep>(std::move(field), std::move(value))) {
 }
 
-bool KeyFieldInFilter::Rep::Matches(const Document& doc) const {
+bool KeyFieldNotInFilter::Rep::Matches(const Document& doc) const {
   const FieldValue::Array& array_value = value().array_value();
-  return Contains(array_value, doc);
-}
-
-bool KeyFieldInFilter::Contains(const FieldValue::Array& array_value,
-                                const Document& doc) {
-  for (const auto& rhs : array_value) {
-    if (doc.key() == rhs.reference_value().key()) {
-      return true;
-    }
-  }
-  return false;
-}
-
-void KeyFieldInFilter::ValidateArrayValue(const FieldValue& value) {
-  HARD_ASSERT(value.type() == FieldValue::Type::Array,
-              "Comparing on key with In/NotIn, but the value was not an Array");
-  const FieldValue::Array& array_value = value.array_value();
-  for (const auto& ref_value : array_value) {
-    HARD_ASSERT(ref_value.type() == FieldValue::Type::Reference,
-                "Comparing on key with In/NotIn, but an array value was not"
-                " a Reference");
-  }
+  return !KeyFieldInFilter::Contains(array_value, doc);
 }
 
 }  // namespace core
