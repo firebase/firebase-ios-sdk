@@ -1,4 +1,6 @@
 # Unreleased
+
+# v1.18.0
 - [feature] Added `whereField(_:notIn:)` and `whereField(_:isNotEqualTo:)` query
   operators. `whereField(_:notIn:)` finds documents where a specified field’s
   value is not in a specified array. `whereField(_:isNotEqualTo:)` finds
