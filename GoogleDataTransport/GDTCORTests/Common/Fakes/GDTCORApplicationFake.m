@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,26 +14,19 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
+#import "GoogleDataTransport/GDTCORTests/Common/Fakes/GDTCORApplicationFake.h"
 
-NS_ASSUME_NONNULL_BEGIN
+@implementation GDTCORApplicationFake
 
-@protocol FIRDLRetrievalProcessProtocol;
-@class FIRDLRetrievalProcessResult;
+@synthesize isRunningInBackground;
 
-@protocol FIRDLRetrievalProcessDelegate <NSObject>
+- (GDTCORBackgroundIdentifier)beginBackgroundTaskWithName:(NSString *)name
+                                        expirationHandler:(void (^__nullable)(void))handler {
+  return self.beginTaskHandler(name, handler);
+}
 
-- (void)retrievalProcess:(id<FIRDLRetrievalProcessProtocol>)retrievalProcess
-     completedWithResult:(FIRDLRetrievalProcessResult *)result;
-
-@end
-
-@protocol FIRDLRetrievalProcessProtocol <NSObject>
-
-@property(weak, nonatomic, readonly) id<FIRDLRetrievalProcessDelegate> delegate;
-
-- (void)retrievePendingDynamicLink;
+- (void)endBackgroundTask:(GDTCORBackgroundIdentifier)bgID {
+  self.endTaskHandler(bgID);
+}
 
 @end
-
-NS_ASSUME_NONNULL_END

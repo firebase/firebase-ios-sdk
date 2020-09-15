@@ -561,6 +561,15 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   return token;
 }
 
+- (void)tokenWithCompletion:(FIRMessagingFCMTokenFetchCompletion)completion {
+  FIROptions *options = FIRApp.defaultApp.options;
+  [self retrieveFCMTokenForSenderID:options.GCMSenderID completion:completion];
+}
+- (void)deleteTokenWithCompletion:(FIRMessagingDeleteFCMTokenCompletion)completion {
+  FIROptions *options = FIRApp.defaultApp.options;
+  [self deleteFCMTokenForSenderID:options.GCMSenderID completion:completion];
+}
+
 - (void)retrieveFCMTokenForSenderID:(nonnull NSString *)senderID
                          completion:(nonnull FIRMessagingFCMTokenFetchCompletion)completion {
   if (!senderID.length) {
@@ -609,6 +618,38 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   [self.instanceID deleteTokenWithAuthorizedEntity:senderID
                                              scope:kFIRMessagingDefaultTokenScope
                                            handler:completion];
+}
+
+- (void)deleteDataWithCompletion:(void (^)(NSError *_Nullable))completion {
+  FIRMessaging_WEAKIFY(self);
+  [self.instanceID
+      deleteTokenWithAuthorizedEntity:@"*"
+                                scope:@"*"
+                              handler:^(NSError *_Nonnull error) {
+                                FIRMessaging_STRONGIFY(self);
+                                if (error) {
+                                  completion(error);
+                                  return;
+                                }
+                                [self.instanceID
+                                    deleteCheckinWithHandler:^(NSError *_Nullable error) {
+                                      if (error) {
+                                        completion(error);
+                                        return;
+                                      }
+                                      // Only request new token if FCM auto initialization is
+                                      // enabled.
+                                      if ([self isAutoInitEnabled]) {
+                                        // Deletion succeeds! Requesting new checkin, IID and token.
+                                        [self tokenWithCompletion:^(NSString *_Nullable token,
+                                                                    NSError *_Nullable error) {
+                                          completion(error);
+                                        }];
+                                        return;
+                                      }
+                                      completion(nil);
+                                    }];
+                              }];
 }
 
 #pragma mark - FIRMessagingDelegate helper methods
