@@ -361,10 +361,9 @@ void Query::ValidateOrderByField(const FieldPath& order_by_field,
     ThrowInvalidArgument(
         "Invalid query. You have a where filter with an inequality "
         "(notEqual, lessThan, lessThanOrEqual, greaterThan, or "
-        "greaterThanOrEqual) on "
-        "field '%s' and so you must also use '%s' as your first queryOrderedBy "
-        "field, but your first queryOrderedBy is currently on field '%s' "
-        "instead.",
+        "greaterThanOrEqual) on field '%s' and so you must also use '%s' as "
+        "your first queryOrderedBy field, but your first queryOrderedBy is "
+        "currently on field '%s' instead.",
         inequality_field.CanonicalString(), inequality_field.CanonicalString(),
         order_by_field.CanonicalString());
   }
