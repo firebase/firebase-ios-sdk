@@ -356,16 +356,11 @@
 #pragma mark - Storage interaction tests
 
 - (void)testStorageSelectorWhenConditionsHighPriority {
-#if __IPHONE_OS_VERSION_MAX_ALLOWED < 140000  // Before Xcode 12
-  __weak __auto_type weakSelf = self;
-#endif  // __IPHONE_OS_VERSION_MAX_ALLOWED < 140000
-
+  __weak id weakSelf = self;
   [self assertStorageSelectorWithCondition:GDTCORUploadConditionHighPriority
                            validationBlock:^(GDTCORStorageEventSelector *_Nullable eventSelector,
                                              NSDate *expiration) {
-#if __IPHONE_OS_VERSION_MAX_ALLOWED < 140000  // Before Xcode 12
-                             __auto_type self = weakSelf;
-#endif  // __IPHONE_OS_VERSION_MAX_ALLOWED < 140000
+                             __unused id self = weakSelf;
                              XCTAssertLessThan([expiration timeIntervalSinceNow], 600);
                              XCTAssertEqual(eventSelector.selectedTarget, kGDTCORTargetTest);
                              XCTAssertNil(eventSelector.selectedEventIDs);
@@ -375,17 +370,12 @@
 }
 
 - (void)testStorageSelectorWhenConditionsMobileData {
-#if __IPHONE_OS_VERSION_MAX_ALLOWED < 140000  // Before Xcode 12
-  __weak __auto_type weakSelf = self;
-#endif  // __IPHONE_OS_VERSION_MAX_ALLOWED < 140000
-
+  __weak id weakSelf = self;
   [self
       assertStorageSelectorWithCondition:GDTCORUploadConditionMobileData
                          validationBlock:^(GDTCORStorageEventSelector *_Nullable eventSelector,
                                            NSDate *expiration) {
-#if __IPHONE_OS_VERSION_MAX_ALLOWED < 140000  // Before Xcode 12
-                           __auto_type self = weakSelf;
-#endif  // __IPHONE_OS_VERSION_MAX_ALLOWED < 140000
+                           __unused id self = weakSelf;
                            XCTAssertLessThan([expiration timeIntervalSinceNow], 600);
                            XCTAssertEqual(eventSelector.selectedTarget, kGDTCORTargetTest);
                            XCTAssertNil(eventSelector.selectedEventIDs);
@@ -398,18 +388,12 @@
 }
 
 - (void)testStorageSelectorWhenConditionsWifiData {
-#if __IPHONE_OS_VERSION_MAX_ALLOWED < 140000  // Before Xcode 12
-  __weak __auto_type weakSelf = self;
-#endif  // __IPHONE_OS_VERSION_MAX_ALLOWED < 140000
-
+  __weak id weakSelf = self;
   [self
       assertStorageSelectorWithCondition:GDTCORUploadConditionWifiData
                          validationBlock:^(GDTCORStorageEventSelector *_Nullable eventSelector,
                                            NSDate *expiration) {
-#if __IPHONE_OS_VERSION_MAX_ALLOWED < 140000  // Before Xcode 12
-                           __auto_type self = weakSelf;
-#endif  // __IPHONE_OS_VERSION_MAX_ALLOWED < 140000
-
+                           __unused id self = weakSelf;
                            XCTAssertLessThan([expiration timeIntervalSinceNow], 600);
                            XCTAssertEqual(eventSelector.selectedTarget, kGDTCORTargetTest);
                            XCTAssertNil(eventSelector.selectedEventIDs);
@@ -595,15 +579,10 @@
                                                 result:(BOOL)hasEvents {
   XCTestExpectation *expectation = [self expectationWithDescription:NSStringFromSelector(_cmd)];
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED < 140000  // Before Xcode 12
   __weak __auto_type weakSelf = self;
-#endif  // __IPHONE_OS_VERSION_MAX_ALLOWED < 140000
-
   self.testStorage.hasEventsForTargetHandler =
       ^(GDTCORTarget target, GDTCCTTestStorageHasEventsCompletion _Nonnull completion) {
-#if __IPHONE_OS_VERSION_MAX_ALLOWED < 140000  // Before Xcode 12
-        __auto_type self = weakSelf;
-#endif  // __IPHONE_OS_VERSION_MAX_ALLOWED < 140000
+        __unused __auto_type self = weakSelf;
         [expectation fulfill];
         XCTAssertEqual(target, expectedTarget);
         completion(hasEvents);
