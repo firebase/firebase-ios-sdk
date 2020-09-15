@@ -186,17 +186,12 @@ FOUNDATION_EXPORT const GDTCORBackgroundIdentifier GDTCORBackgroundIdentifierInv
 
 @end
 
-/** A cross-platform application class. */
-@interface GDTCORApplication : NSObject <GDTCORApplicationDelegate>
+@protocol GDTCORApplicationProtocol <NSObject>
+
+@required
 
 /** Flag to determine if the application is running in the background. */
 @property(atomic, readonly) BOOL isRunningInBackground;
-
-/** Creates and/or returns the shared application instance.
- *
- * @return The shared application instance.
- */
-+ (nullable GDTCORApplication *)sharedApplication;
 
 /** Creates a background task with the returned identifier if on a suitable platform.
  *
@@ -213,6 +208,17 @@ FOUNDATION_EXPORT const GDTCORBackgroundIdentifier GDTCORBackgroundIdentifierInv
  * @param bgID The background task to end.
  */
 - (void)endBackgroundTask:(GDTCORBackgroundIdentifier)bgID;
+
+@end
+
+/** A cross-platform application class. */
+@interface GDTCORApplication : NSObject <GDTCORApplicationProtocol, GDTCORApplicationDelegate>
+
+/** Creates and/or returns the shared application instance.
+ *
+ * @return The shared application instance.
+ */
++ (nullable GDTCORApplication *)sharedApplication;
 
 @end
 
