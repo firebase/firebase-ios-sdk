@@ -58,9 +58,10 @@
   GDTCORAssert(event, @"You can't write a nil event");
 
   __block GDTCORBackgroundIdentifier bgID = GDTCORBackgroundIdentifierInvalid;
+  __auto_type __weak weakApplication = self.application;
   bgID = [self.application beginBackgroundTaskWithName:@"GDTTransformer"
                                      expirationHandler:^{
-                                       [self.application endBackgroundTask:bgID];
+                                       [weakApplication endBackgroundTask:bgID];
                                        bgID = GDTCORBackgroundIdentifierInvalid;
                                      }];
 
@@ -70,7 +71,7 @@
     }
 
     // The work is done, cancel the background task if it's valid.
-    [self.application endBackgroundTask:bgID];
+    [weakApplication endBackgroundTask:bgID];
     bgID = GDTCORBackgroundIdentifierInvalid;
   };
 
