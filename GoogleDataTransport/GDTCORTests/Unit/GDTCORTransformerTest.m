@@ -168,12 +168,16 @@
   XCTestExpectation *endExpectation = [self expectationWithDescription:@"Background task end"];
 
   GDTCORBackgroundIdentifier taskID = arc4random();
-
+#if __IPHONE_OS_VERSION_MAX_ALLOWED < 140000  // Before Xcode 12
   __auto_type __weak weakSelf = self;
+#endif  // __IPHONE_OS_VERSION_MAX_ALLOWED < 140000
 
   self.fakeApplication.beginTaskHandler =
       ^GDTCORBackgroundIdentifier(NSString *_Nonnull name, dispatch_block_t _Nonnull handler) {
+#if __IPHONE_OS_VERSION_MAX_ALLOWED < 140000  // Before Xcode 12
         __auto_type self = weakSelf;
+#endif  // __IPHONE_OS_VERSION_MAX_ALLOWED < 140000
+
         XCTAssertEqualObjects(expectedName, name);
 
         [beginExpectation fulfill];
@@ -181,7 +185,10 @@
       };
 
   self.fakeApplication.endTaskHandler = ^(GDTCORBackgroundIdentifier endTaskID) {
+#if __IPHONE_OS_VERSION_MAX_ALLOWED < 140000  // Before Xcode 12
     __auto_type self = weakSelf;
+#endif  // __IPHONE_OS_VERSION_MAX_ALLOWED < 140000
+
     XCTAssert(endTaskID == taskID);
     [endExpectation fulfill];
   };
