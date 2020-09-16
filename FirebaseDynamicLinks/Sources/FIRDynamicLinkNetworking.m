@@ -311,24 +311,24 @@ NSData *_Nullable FIRDataWithDictionary(NSDictionary *dictionary, NSError **_Nul
   NSString *requestURLString = [NSString
       stringWithFormat:@"%@/%@%@", baseURL, endpointPath, FIRDynamicLinkAPIKeyParameter(_APIKey)];
 
-  FIRNetworkRequestCompletionHandler completeInvitationByDeviceCallback = 
-    ^(NSData *data, NSError *error) {
-      if (error || !data) {
+  FIRNetworkRequestCompletionHandler completeInvitationByDeviceCallback =
+      ^(NSData *data, NSError *error) {
+        if (error || !data) {
+          dispatch_async(dispatch_get_main_queue(), ^{
+            handler(nil, nil, error);
+          });
+          return;
+        }
+
+        NSString *matchMessage = nil;
+        NSError *parsingError = nil;
+        NSDictionary *parsedDynamicLinkParameters =
+            parserBlock(requestURLString, data, &matchMessage, &parsingError);
+
         dispatch_async(dispatch_get_main_queue(), ^{
-          handler(nil, nil, error);
+          handler(parsedDynamicLinkParameters, matchMessage, parsingError);
         });
-        return;
-      }
-
-      NSString *matchMessage = nil;
-      NSError *parsingError = nil;
-      NSDictionary *parsedDynamicLinkParameters =
-          parserBlock(requestURLString, data, &matchMessage, &parsingError);
-
-      dispatch_async(dispatch_get_main_queue(), ^{
-        handler(parsedDynamicLinkParameters, matchMessage, parsingError);
-      });
-    };
+      };
 
   [self executeOnePlatformRequest:requestBody
                            forURL:requestURLString
