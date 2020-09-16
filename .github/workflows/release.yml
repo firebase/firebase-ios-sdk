@@ -62,7 +62,7 @@ jobs:
     - name: Setup testing repo and quickstart
       run: |
           botaccess=`cat bot-access.txt`
-          BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh config release_testing
+          BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh config nightly_release_testing
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-config.plist.gpg \
           quickstart-ios/config/GoogleService-Info.plist "$plist_secret"
@@ -96,7 +96,7 @@ jobs:
     - name: Setup testing repo and quickstart
       run: |
           botaccess=`cat bot-access.txt`
-          BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh abtesting release_testing
+          BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh abtesting nightly_release_testing
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-abtesting.plist.gpg \
           quickstart-ios/abtesting/GoogleService-Info.plist "$plist_secret"
@@ -130,7 +130,7 @@ jobs:
     - name: Setup testing repo and quickstart
       run: |
           botaccess=`cat bot-access.txt`
-          BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh Authentication release_testing
+          BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh Authentication nightly_release_testing
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-auth.plist.gpg \
           quickstart-ios/authentication/GoogleService-Info.plist "$plist_secret"
@@ -166,7 +166,7 @@ jobs:
     - name: Setup testing repo and quickstart
       run: |
           botaccess=`cat bot-access.txt`
-          BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh Crashlytics release_testing
+          BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh Crashlytics nightly_release_testing
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-crashlytics.plist.gpg \
           quickstart-ios/crashlytics/GoogleService-Info.plist "$plist_secret"
@@ -209,7 +209,7 @@ jobs:
     - name: Setup testing repo and quickstart
       run: |
           botaccess=`cat bot-access.txt`
-          BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh database release_testing
+          BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh database nightly_release_testing
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-database.plist.gpg \
           quickstart-ios/database/GoogleService-Info.plist "$plist_secret"
@@ -247,7 +247,7 @@ jobs:
     - name: Setup testing repo and quickstart
       run: |
           botaccess=`cat bot-access.txt`
-          BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh dynamiclinks release_testing
+          BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh dynamiclinks nightly_release_testing
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-dynamiclinks.plist.gpg \
           quickstart-ios/dynamiclinks/GoogleService-Info.plist "$plist_secret"
@@ -291,7 +291,7 @@ jobs:
     - name: Setup testing repo and quickstart
       run: |
           botaccess=`cat bot-access.txt`
-          BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh firestore release_testing
+          BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh firestore nightly_release_testing
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-firestore.plist.gpg \
           quickstart-ios/firestore/GoogleService-Info.plist "$plist_secret"
@@ -328,7 +328,7 @@ jobs:
     - name: Setup testing repo and quickstart
       run: |
           botaccess=`cat bot-access.txt`
-          BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh functions release_testing
+          BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh functions nightly_release_testing
     - name: install secret googleservice-info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-functions.plist.gpg \
           quickstart-ios/functions/GoogleService-Info.plist "$plist_secret"
@@ -370,7 +370,7 @@ jobs:
     - name: Setup testing repo and quickstart
       run: |
           botaccess=`cat bot-access.txt`
-          BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh inappmessaging release_testing
+          BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh inappmessaging nightly_release_testing
     - name: install secret googleservice-info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-inappmessaging.plist.gpg \
           quickstart-ios/inappmessaging/GoogleService-Info.plist "$plist_secret"
@@ -410,7 +410,7 @@ jobs:
     - name: Setup testing repo and quickstart
       run: |
           botaccess=`cat bot-access.txt`
-          BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh messaging release_testing
+          BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh messaging nightly_release_testing
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-messaging.plist.gpg \
           quickstart-ios/messaging/GoogleService-Info.plist "$plist_secret"
@@ -450,7 +450,7 @@ jobs:
     - name: Setup testing repo and quickstart
       run: |
           botaccess=`cat bot-access.txt`
-          BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh storage release_testing
+          BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh storage nightly_release_testing
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-storage.plist.gpg \
           quickstart-ios/storage/GoogleService-Info.plist "$plist_secret"
