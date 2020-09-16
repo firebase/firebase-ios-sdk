@@ -28,7 +28,7 @@ jobs:
         botaccess=`cat bot-access.txt`
         cd scripts/create_spec_repo/
         swift build
-        pod repo add --silent "${local_repo}" https://"$botaccess"@github.com:FirebasePrivate/SpecsReleasing.git
+        pod repo add --silent "${local_repo}" https://"$botaccess"@github.com/FirebasePrivate/SpecsReleasing.git
         BOT_TOKEN="${botaccess}"  .build/debug/spec-repo-builder --sdk-repo "${local_sdk_repo_dir}" --local-spec-repo-name "${local_repo}"
     - name: Clean Artifacts
       if: ${{ always() }}
