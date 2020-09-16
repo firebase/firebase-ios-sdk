@@ -22,9 +22,7 @@ jobs:
          scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
          bot-access.txt "$bot_token_secret"
     - name: Update SpecsReleasing repo setup
-      run: |
-         ossbotaccess=`cat oss-bot-access.txt`
-         scripts/release_testing_setup.sh --prerelease
+      run: scripts/release_testing_setup.sh --prerelease
     - name: Update SpecsReleasing repo
       run: |
         botaccess=`cat bot-access.txt`
