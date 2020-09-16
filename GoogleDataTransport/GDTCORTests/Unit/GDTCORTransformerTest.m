@@ -173,7 +173,7 @@
 
   self.fakeApplication.beginTaskHandler =
       ^GDTCORBackgroundIdentifier(NSString *_Nonnull name, dispatch_block_t _Nonnull handler) {
-        __auto_type self = weakSelf;
+        __unused __auto_type self = weakSelf;
         XCTAssertEqualObjects(expectedName, name);
 
         [beginExpectation fulfill];
@@ -181,7 +181,7 @@
       };
 
   self.fakeApplication.endTaskHandler = ^(GDTCORBackgroundIdentifier endTaskID) {
-    __auto_type self = weakSelf;
+    __unused __auto_type self = weakSelf;
     XCTAssert(endTaskID == taskID);
     [endExpectation fulfill];
   };
