@@ -35,7 +35,7 @@ if [ -z "$PRERELEASE" ]; then
   set -e
   git tag -f -a "${tag_version}" -m "release testing"
   git push origin "${tag_version}"
-  
+
   # Update source and tag, e.g.  ":tag => 'CocoaPods-' + s.version.to_s" to
   # ":tag => test"
   sed  -i "" "s/\s*:tag.*/:tag => '${tag_version}'/" *.podspec
