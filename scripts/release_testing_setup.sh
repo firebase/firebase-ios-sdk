@@ -14,16 +14,19 @@
 
 set -xe
 
+PRERELEASE=${1-}
+
 if [ -f "${HOME}/.cocoapods/repos" ]; then
   find "${HOME}/.cocoapods/repos" -type d -maxdepth 1 -exec sh -c 'pod repo remove $(basename {})' \;
 fi
-tag_version="nightly-test-${nightly_test_version}"
 git config --global user.email "google-oss-bot@example.com"
 git config --global user.name "google-oss-bot"
 mkdir -p /tmp/test/firebase-ios-sdk
 git clone -q -b "${podspec_repo_branch}" https://"${BOT_TOKEN}"@github.com/firebase/firebase-ios-sdk.git "${local_sdk_repo_dir}"
 cd  "${local_sdk_repo_dir}"
 
+if [ -z "$PRERELEASE" ]; then
+tag_version="nightly-test-${nightly_test_version}"
 # Update a tag.
 set +e
 # If tag_version is new to the remote, remote cannot delete an unexisted tag,
@@ -36,6 +39,7 @@ git push origin "${tag_version}"
 # Update source and tag, e.g.  ":tag => 'CocoaPods-' + s.version.to_s" to
 # ":tag => test"
 sed  -i "" "s/\s*:tag.*/:tag => '${tag_version}'/" *.podspec
+fi
 cd "${GITHUB_WORKSPACE}/ZipBuilder"
 swift build
 # Update Pod versions.
