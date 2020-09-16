@@ -311,48 +311,24 @@ NSData *_Nullable FIRDataWithDictionary(NSDictionary *dictionary, NSError **_Nul
   NSString *requestURLString = [NSString
       stringWithFormat:@"%@/%@%@", baseURL, endpointPath, FIRDynamicLinkAPIKeyParameter(_APIKey)];
 
-  FIRNetworkRequestCompletionHandler completeInvitationByDeviceCallback = ^(
-      NSData *data, NSURLResponse *response, NSError *error) {
-    if (error || !data) {
-      dispatch_async(dispatch_get_main_queue(), ^{
-        handler(nil, nil, error);
-      });
-      return;
-    }
-    NSString *matchMessage = nil;
-    NSError *parsingError = nil;
-    NSDictionary *parsedDynamicLinkParameters =
-        parserBlock(requestURLString, data, &matchMessage, &parsingError);
-
-    // If request was made with pasteboard contents, verify if we got a unique match. If we got
-    // a "none" match, we were unable to get a unique match or deduce using fingerprinting.
-    // In this case, resend requests to IPV4 and IPV6 endpoints for fingerprinting. b/79704203
-    if (requestBody[@"uniqueMatchLinkToCheck"] && parsedDynamicLinkParameters &&
-        (!parsedDynamicLinkParameters[kFIRDLParameterMatchType] ||
-         [parsedDynamicLinkParameters[kFIRDLParameterMatchType] isEqualToString:@"none"])) {
-      NSMutableDictionary *requestBodyMutable = [requestBody mutableCopy];
-      [requestBodyMutable removeObjectForKey:@"uniqueMatchLinkToCheck"];
-      NSMutableArray *baseURLs =
-          [@[ kIosPostInstallAttributionRestBaseUrlIPV4, kIosPostInstallAttributionRestBaseUrlIPV6 ]
-              mutableCopy];
-      if (parsedDynamicLinkParameters[kFIRDLParameterRequestIPVersion]) {
-        if ([parsedDynamicLinkParameters[kFIRDLParameterRequestIPVersion]
-                isEqualToString:@"IP_V4"]) {
-          [baseURLs removeObject:kIosPostInstallAttributionRestBaseUrlIPV4];
-        } else if ([parsedDynamicLinkParameters[kFIRDLParameterRequestIPVersion]
-                       isEqualToString:@"IP_V6"]) {
-          [baseURLs removeObject:kIosPostInstallAttributionRestBaseUrlIPV6];
-        }
-
-        NSString *matchMessage = nil;
-        NSError *parsingError = nil;
-        NSDictionary *parsedDynamicLinkParameters =
-            parserBlock(requestURLString, data, &matchMessage, &parsingError);
-
+  FIRNetworkRequestCompletionHandler completeInvitationByDeviceCallback = 
+    ^(NSData *data, NSError *error) {
+      if (error || !data) {
         dispatch_async(dispatch_get_main_queue(), ^{
-          handler(parsedDynamicLinkParameters, matchMessage, parsingError);
+          handler(nil, nil, error);
         });
-      };
+        return;
+      }
+
+      NSString *matchMessage = nil;
+      NSError *parsingError = nil;
+      NSDictionary *parsedDynamicLinkParameters =
+          parserBlock(requestURLString, data, &matchMessage, &parsingError);
+
+      dispatch_async(dispatch_get_main_queue(), ^{
+        handler(parsedDynamicLinkParameters, matchMessage, parsingError);
+      });
+    };
 
   [self executeOnePlatformRequest:requestBody
                            forURL:requestURLString
