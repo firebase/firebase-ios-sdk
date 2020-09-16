@@ -26,19 +26,19 @@ git clone -q -b "${podspec_repo_branch}" https://"${BOT_TOKEN}"@github.com/fireb
 cd  "${local_sdk_repo_dir}"
 
 if [ -z "$PRERELEASE" ]; then
-tag_version="nightly-test-${nightly_test_version}"
-# Update a tag.
-set +e
-# If tag_version is new to the remote, remote cannot delete an unexisted tag,
-# so error is allowed here.
-git push origin --delete "${tag_version}"
-set -e
-git tag -f -a "${tag_version}" -m "release testing"
-git push origin "${tag_version}"
-
-# Update source and tag, e.g.  ":tag => 'CocoaPods-' + s.version.to_s" to
-# ":tag => test"
-sed  -i "" "s/\s*:tag.*/:tag => '${tag_version}'/" *.podspec
+  tag_version="nightly-test-${nightly_test_version}"
+  # Update a tag.
+  set +e
+  # If tag_version is new to the remote, remote cannot delete an unexisted tag,
+  # so error is allowed here.
+  git push origin --delete "${tag_version}"
+  set -e
+  git tag -f -a "${tag_version}" -m "release testing"
+  git push origin "${tag_version}"
+  
+  # Update source and tag, e.g.  ":tag => 'CocoaPods-' + s.version.to_s" to
+  # ":tag => test"
+  sed  -i "" "s/\s*:tag.*/:tag => '${tag_version}'/" *.podspec
 fi
 cd "${GITHUB_WORKSPACE}/ZipBuilder"
 swift build
