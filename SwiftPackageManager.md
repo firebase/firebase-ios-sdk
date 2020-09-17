@@ -8,8 +8,7 @@ Package Manager](https://swift.org/package-manager/) in Beta status.
 
 ## Limitations
 
-- Requires at least Xcode 12 beta 4.
-- SwiftUI Previews require Xcode 12 beta 5.
+- Requires Xcode 12.
 - Analytics requires clients to add `-ObjC` linker option.
 - Analytics is only supported for iOS and cannot be used in apps that support other platforms.
 - Messaging, Performance, Firebase ML, and App Distribution are not initially available.
