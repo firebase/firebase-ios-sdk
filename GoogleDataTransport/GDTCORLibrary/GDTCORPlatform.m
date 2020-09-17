@@ -373,6 +373,7 @@ static NSMutableDictionary<NSNumber *, dispatch_semaphore_t> *gBackgroundIdentif
                                name:name
                              object:nil];
 
+#if defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
     if (@available(iOS 13, tvOS 13.0, *)) {
       [notificationCenter addObserver:self
                              selector:@selector(iOSApplicationWillEnterForeground:)
@@ -383,6 +384,7 @@ static NSMutableDictionary<NSNumber *, dispatch_semaphore_t> *gBackgroundIdentif
                                  name:UISceneWillDeactivateNotification
                                object:nil];
     }
+#endif  // defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
 
 #elif TARGET_OS_OSX
     NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
