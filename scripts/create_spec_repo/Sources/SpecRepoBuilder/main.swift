@@ -333,12 +333,7 @@ struct SpecRepoBuilder: ParsableCommand {
           flags: Constants.umbrellaPodFlags
         )
       default:
-        podExitCode = pushPodspec(
-          forPod: pod,
-          sdkRepo: sdkRepo,
-          sources: podSources,
-          flags: Constants.flags
-        )
+        continue
       }
       if podExitCode != 0 {
         exitCode = 1
