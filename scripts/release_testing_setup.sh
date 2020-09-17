@@ -22,7 +22,10 @@ fi
 git config --global user.email "google-oss-bot@example.com"
 git config --global user.name "google-oss-bot"
 mkdir -p /tmp/test/firebase-ios-sdk
+echo "git clone ${podspec_repo_branch} from github.com/firebase/firebase-ios-sdk.git to ${local_sdk_repo_dir}."
+set +x
 git clone -q -b "${podspec_repo_branch}" https://"${BOT_TOKEN}"@github.com/firebase/firebase-ios-sdk.git "${local_sdk_repo_dir}"
+set -x
 cd  "${local_sdk_repo_dir}"
 
 if [ "$TESTINGMODE" = "nightly_testing" ]; then
