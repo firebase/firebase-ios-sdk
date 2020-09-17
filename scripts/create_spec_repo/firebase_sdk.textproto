@@ -3,3 +3,9 @@
 # e.g.
 # Podspec versions will be the same as firebase-ios-sdk podspecs if they are not
 # specified in this file.
+[
+  {
+    "name": "FirebaseAnalytics",
+    "version" : "6.8.2"
+  }
+]
