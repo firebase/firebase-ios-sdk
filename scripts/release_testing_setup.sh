@@ -25,11 +25,13 @@ mkdir -p /tmp/test/firebase-ios-sdk
 git clone -q -b "${podspec_repo_branch}" https://"${BOT_TOKEN}"@github.com/firebase/firebase-ios-sdk.git "${local_sdk_repo_dir}"
 cd  "${local_sdk_repo_dir}"
 
-if [ "$TESTINGMODE"=="release_testing" ]; then
+if [ "$TESTINGMODE" = "nightly_testing" ]; then
   tag_version="nightly-test-${nightly_test_version}"
+  echo "A new tag, ${tag_version},for nightly release testing will be created."
 fi
-if [ "$TESTINGMODE"=="RC_testing" ]; then
+if [ "$TESTINGMODE" = "RC_testing" ]; then
   tag_version="CocoaPods-${nightly_test_version}.nightly"
+  echo "A new tag, ${tag_version},for prerelease testing will be created."
 fi
 if [ -n "$tag_version" ]; then
   # Update a tag.
@@ -40,7 +42,6 @@ if [ -n "$tag_version" ]; then
   set -e
   git tag -f -a "${tag_version}" -m "release testing"
   git push origin "${tag_version}"
-  
   # Update source and tag, e.g.  ":tag => 'CocoaPods-' + s.version.to_s" to
   # ":tag => test"
   sed  -i "" "s/\s*:tag.*/:tag => '${tag_version}'/" *.podspec

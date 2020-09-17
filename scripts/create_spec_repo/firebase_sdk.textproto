@@ -1,7 +1,6 @@
 # Config file to update versions of Pods which will be pushed to SpecsStaging
 # repo by add_podspec tool.
 # e.g.
-# 
 # sdk {
 #   sdk_name: "FirebaseAnalytics"
 #   sdk_version: "6.8.2"
