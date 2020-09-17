@@ -241,7 +241,7 @@ void XCTestMethod(XCTestCase* self, SEL _cmd) {
     // Xcode 11 and prior. recordFailureWithDescription:inFile:atLine:expected:
     // is deprecated in Xcode 12.
     [self recordFailureWithDescription:@(part.message())
-                                inFile:path
+                                inFile:@(path)
                                 atLine:line
                               expected:true];
 #endif
