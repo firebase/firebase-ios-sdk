@@ -26,21 +26,21 @@ echo "git clone ${podspec_repo_branch} from github.com/firebase/firebase-ios-sdk
 set +x
 git clone -q -b "${podspec_repo_branch}" https://"${BOT_TOKEN}"@github.com/firebase/firebase-ios-sdk.git "${local_sdk_repo_dir}"
 set -x
-cd  "${local_sdk_repo_dir}"
 
 if [ "$TESTINGMODE" = "nightly_testing" ]; then
-  tag_version="nightly-test-${nightly_test_version}"
+  tag_version="nightly-test-${test_version}"
   echo "A new tag, ${tag_version},for nightly release testing will be created."
 fi
 if [ "$TESTINGMODE" = "RC_testing" ]; then
-  tag_version="CocoaPods-${nightly_test_version}.nightly"
+  tag_version="CocoaPods-${test_version}.nightly"
   echo "A new tag, ${tag_version},for prerelease testing will be created."
 fi
+# Update a tag.
 if [ -n "$tag_version" ]; then
-  # Update a tag.
+  cd  "${local_sdk_repo_dir}"
   set +e
-  # If tag_version is new to the remote, remote cannot delete an unexisted tag,
-  # so error is allowed here.
+  # If tag_version is new to the remote, remote cannot delete a non-existent
+  # tag, so error is allowed here.
   git push origin --delete "${tag_version}"
   set -e
   git tag -f -a "${tag_version}" -m "release testing"
