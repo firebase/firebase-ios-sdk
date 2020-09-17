@@ -57,6 +57,7 @@ using firebase::firestore::remote::WatchStream;
 using firebase::firestore::remote::WatchTargetChange;
 using firebase::firestore::remote::WriteStream;
 using firebase::firestore::util::AsyncQueue;
+using firebase::firestore::util::FirebasePlatformLogging;
 using firebase::firestore::util::Status;
 
 namespace firebase {
@@ -243,8 +244,10 @@ class MockWriteStream : public WriteStream {
 MockDatastore::MockDatastore(const core::DatabaseInfo& database_info,
                              const std::shared_ptr<util::AsyncQueue>& worker_queue,
                              std::shared_ptr<auth::CredentialsProvider> credentials,
-                             ConnectivityMonitor* connectivity_monitor)
-    : Datastore{database_info, worker_queue, credentials, connectivity_monitor},
+                             ConnectivityMonitor* connectivity_monitor,
+                             FirebasePlatformLogging* firebase_platform_logging)
+    : Datastore{database_info, worker_queue, credentials, connectivity_monitor,
+                firebase_platform_logging},
       database_info_{&database_info},
       worker_queue_{worker_queue},
       credentials_{credentials} {

@@ -22,6 +22,7 @@
 #include <utility>
 #include <vector>
 
+#include "Firestore/core/src/util/firebase_platform_logging_noop.h"
 #include "Firestore/core/src/util/hard_assert.h"
 #include "Firestore/core/src/util/string_format.h"
 #include "Firestore/core/test/unit/testutil/async_testing.h"
@@ -36,6 +37,7 @@ using auth::User;
 using model::DatabaseId;
 using testutil::ExecutorForTesting;
 using util::AsyncQueue;
+using util::CreateNoOpFirebasePlatformLogging;
 using util::StringFormat;
 
 // Misc
@@ -206,8 +208,9 @@ GrpcStreamTester::GrpcStreamTester(
       database_info_{DatabaseId{"foo", "bar"}, "", "firestore.googleapis.com",
                      false},
       fake_grpc_queue_{&grpc_queue_},
+      firebase_platform_logging_{CreateNoOpFirebasePlatformLogging()},
       grpc_connection_{database_info_, worker_queue, fake_grpc_queue_.queue(),
-                       connectivity_monitor} {
+                       connectivity_monitor, firebase_platform_logging_.get()} {
 }
 
 GrpcStreamTester::~GrpcStreamTester() {

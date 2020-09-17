@@ -63,6 +63,7 @@ using firebase::firestore::core::EventListener;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::util::AsyncQueue;
 using firebase::firestore::util::Empty;
+using firebase::firestore::util::FirebasePlatformLogging;
 using firebase::firestore::util::MakeCallback;
 using firebase::firestore::util::MakeNSError;
 using firebase::firestore::util::MakeNSString;
@@ -134,11 +135,13 @@ NS_ASSUME_NONNULL_BEGIN
                     persistenceKey:(std::string)persistenceKey
                credentialsProvider:(std::shared_ptr<CredentialsProvider>)credentialsProvider
                        workerQueue:(std::shared_ptr<AsyncQueue>)workerQueue
+                       firebasePlatformLogging:(std::unique_ptr<FirebasePlatformLogging>)firebasePlatformLogging
                        firebaseApp:(FIRApp *)app
                   instanceRegistry:(nullable id<FSTFirestoreInstanceRegistry>)registry {
   if (self = [super init]) {
     _firestore = std::make_shared<Firestore>(std::move(databaseID), std::move(persistenceKey),
                                              std::move(credentialsProvider), std::move(workerQueue),
+                                             std::move(firebasePlatformLogging),
                                              (__bridge void *)self);
 
     _app = app;

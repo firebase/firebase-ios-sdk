@@ -46,6 +46,8 @@
 #include "Firestore/core/src/util/delayed_constructor.h"
 #include "Firestore/core/src/util/error_apple.h"
 #include "Firestore/core/src/util/executor.h"
+#include "Firestore/core/src/util/firebase_platform_logging.h"
+#include "Firestore/core/src/util/firebase_platform_logging_noop.h"
 #include "Firestore/core/src/util/hard_assert.h"
 #include "Firestore/core/src/util/log.h"
 #include "Firestore/core/src/util/status.h"
@@ -89,8 +91,10 @@ using firebase::firestore::remote::RemoteStore;
 using firebase::firestore::remote::WatchChange;
 using firebase::firestore::util::AsyncQueue;
 using firebase::firestore::util::DelayedConstructor;
+using firebase::firestore::util::CreateNoOpFirebasePlatformLogging;
 using firebase::firestore::util::Empty;
 using firebase::firestore::util::Executor;
+using firebase::firestore::util::FirebasePlatformLogging;
 using firebase::firestore::util::MakeNSError;
 using firebase::firestore::util::MakeNSString;
 using firebase::firestore::util::MakeString;
@@ -172,6 +176,8 @@ NS_ASSUME_NONNULL_BEGIN
 
   std::unique_ptr<ConnectivityMonitor> _connectivityMonitor;
 
+  std::unique_ptr<FirebasePlatformLogging> _firebasePlatformLogging;
+
   DelayedConstructor<EventManager> _eventManager;
 
   // Set of active targets, keyed by target Id, mapped to corresponding resume token,
@@ -218,10 +224,12 @@ NS_ASSUME_NONNULL_BEGIN
     _persistence = std::move(persistence);
     _localStore = absl::make_unique<LocalStore>(_persistence.get(), &_queryEngine, initialUser);
     _connectivityMonitor = CreateNoOpConnectivityMonitor();
+    _firebasePlatformLogging = CreateNoOpFirebasePlatformLogging();
 
     _datastore = std::make_shared<MockDatastore>(_databaseInfo, _workerQueue,
                                                  std::make_shared<EmptyCredentialsProvider>(),
-                                                 _connectivityMonitor.get());
+                                                 _connectivityMonitor.get(),
+                                                 _firebasePlatformLogging.get());
     _remoteStore = absl::make_unique<RemoteStore>(
         _localStore.get(), _datastore, _workerQueue, _connectivityMonitor.get(),
         [self](OnlineState onlineState) { _syncEngine->HandleOnlineStateChange(onlineState); });

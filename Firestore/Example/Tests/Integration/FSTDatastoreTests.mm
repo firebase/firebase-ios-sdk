@@ -44,6 +44,8 @@
 #include "Firestore/core/src/remote/remote_event.h"
 #include "Firestore/core/src/remote/remote_store.h"
 #include "Firestore/core/src/util/async_queue.h"
+#include "Firestore/core/src/util/firebase_platform_logging.h"
+#include "Firestore/core/src/util/firebase_platform_logging_noop.h"
 #include "Firestore/core/src/util/hard_assert.h"
 #include "Firestore/core/src/util/status.h"
 #include "Firestore/core/src/util/string_apple.h"
@@ -84,6 +86,8 @@ using firebase::firestore::remote::RemoteStoreCallback;
 using firebase::firestore::testutil::Map;
 using firebase::firestore::testutil::WrapObject;
 using firebase::firestore::util::AsyncQueue;
+using firebase::firestore::util::CreateNoOpFirebasePlatformLogging;
+using firebase::firestore::util::FirebasePlatformLogging;
 using firebase::firestore::util::Status;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -225,6 +229,7 @@ class RemoteStoreEventCapture : public RemoteStoreCallback {
   SimpleQueryEngine _queryEngine;
 
   std::unique_ptr<ConnectivityMonitor> _connectivityMonitor;
+  std::unique_ptr<FirebasePlatformLogging> _firebasePlatformLogging;
   std::shared_ptr<Datastore> _datastore;
   std::unique_ptr<RemoteStore> _remoteStore;
 }
@@ -245,9 +250,11 @@ class RemoteStoreEventCapture : public RemoteStoreCallback {
 
   _testWorkerQueue = testutil::AsyncQueueForTesting();
   _connectivityMonitor = CreateNoOpConnectivityMonitor();
+  _firebasePlatformLogging = CreateNoOpFirebasePlatformLogging();
   _datastore = std::make_shared<Datastore>(_databaseInfo, _testWorkerQueue,
                                            std::make_shared<EmptyCredentialsProvider>(),
-                                           _connectivityMonitor.get());
+                                           _connectivityMonitor.get(),
+                                           _firebasePlatformLogging.get());
 
   _persistence = MemoryPersistence::WithEagerGarbageCollector();
   _localStore =

@@ -32,6 +32,8 @@
 #include "Firestore/core/src/util/async_queue.h"
 #include "Firestore/core/src/util/exception.h"
 #include "Firestore/core/src/util/executor.h"
+#include "Firestore/core/src/util/firebase_platform_logging.h"
+#include "Firestore/core/src/util/firebase_platform_logging_apple.h"
 #include "Firestore/core/src/util/hard_assert.h"
 #include "absl/memory/memory.h"
 
@@ -41,6 +43,8 @@ using firebase::firestore::auth::CredentialsProvider;
 using firebase::firestore::auth::FirebaseCredentialsProvider;
 using firebase::firestore::util::AsyncQueue;
 using firebase::firestore::util::Executor;
+using firebase::firestore::util::FirebasePlatformLogging;
+using firebase::firestore::util::FirebasePlatformLoggingApple;
 using firebase::firestore::util::ThrowInvalidArgument;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -99,12 +103,15 @@ NS_ASSUME_NONNULL_BEGIN
       id<FIRAuthInterop> auth = FIR_COMPONENT(FIRAuthInterop, self.app.container);
       auto credentialsProvider = std::make_shared<FirebaseCredentialsProvider>(self.app, auth);
 
+      auto firebasePlatformLogging = absl::make_unique<FirebasePlatformLoggingApple>(self.app);
+
       model::DatabaseId databaseID{util::MakeString(projectID), util::MakeString(database)};
       std::string persistenceKey = util::MakeString(self.app.name);
       firestore = [[FIRFirestore alloc] initWithDatabaseID:std::move(databaseID)
                                             persistenceKey:std::move(persistenceKey)
                                        credentialsProvider:std::move(credentialsProvider)
                                                workerQueue:std::move(workerQueue)
+                                   firebasePlatformLogging:std::move(firebasePlatformLogging)
                                                firebaseApp:self.app
                                           instanceRegistry:self];
       _instances[key] = firestore;

@@ -55,6 +55,7 @@ using model::MaybeDocument;
 using model::Mutation;
 using util::AsyncQueue;
 using util::Executor;
+using util::FirebasePlatformLogging;
 using util::LogIsDebugEnabled;
 using util::Status;
 using util::StatusOr;
@@ -91,13 +92,14 @@ void LogGrpcCallFinished(absl::string_view rpc_name,
 Datastore::Datastore(const DatabaseInfo& database_info,
                      const std::shared_ptr<AsyncQueue>& worker_queue,
                      std::shared_ptr<CredentialsProvider> credentials,
-                     ConnectivityMonitor* connectivity_monitor)
+                     ConnectivityMonitor* connectivity_monitor,
+                     FirebasePlatformLogging* firebase_platform_logging)
     : worker_queue_{NOT_NULL(worker_queue)},
       credentials_{std::move(credentials)},
       rpc_executor_{CreateExecutor()},
       connectivity_monitor_{connectivity_monitor},
       grpc_connection_{database_info, worker_queue, &grpc_queue_,
-                       connectivity_monitor_},
+                       connectivity_monitor_, firebase_platform_logging},
       datastore_serializer_{database_info} {
   if (!database_info.ssl_enabled()) {
     GrpcConnection::UseInsecureChannel(database_info.host());

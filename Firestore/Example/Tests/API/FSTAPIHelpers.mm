@@ -69,6 +69,7 @@ FIRFirestore *FSTTestFirestore() {
                                                persistenceKey:"db123"
                                           credentialsProvider:nullptr
                                                   workerQueue:nullptr
+                                      firebasePlatformLogging:nullptr
                                                   firebaseApp:nil
                                              instanceRegistry:nil];
   });

@@ -30,6 +30,7 @@
 #include "Firestore/core/src/remote/grpc_stream_observer.h"
 #include "Firestore/core/src/remote/grpc_streaming_reader.h"
 #include "Firestore/core/src/remote/grpc_unary_call.h"
+#include "Firestore/core/src/util/firebase_platform_logging.h"
 #include "Firestore/core/src/util/path.h"
 #include "Firestore/core/src/util/warnings.h"
 #include "absl/strings/string_view.h"
@@ -55,10 +56,12 @@ namespace remote {
  */
 class GrpcConnection {
  public:
-  GrpcConnection(const core::DatabaseInfo& database_info,
-                 const std::shared_ptr<util::AsyncQueue>& worker_queue,
-                 grpc::CompletionQueue* grpc_queue,
-                 ConnectivityMonitor* connectivity_monitor);
+  GrpcConnection(
+      const core::DatabaseInfo& database_info,
+      const std::shared_ptr<util::AsyncQueue>& worker_queue,
+      grpc::CompletionQueue* grpc_queue,
+      ConnectivityMonitor* connectivity_monitor,
+      util::FirebasePlatformLogging* firebase_platform_logging);
 
   void Shutdown();
 
@@ -109,6 +112,8 @@ class GrpcConnection {
 
   void RegisterConnectivityMonitor();
 
+  void AddFirebasePlatformLoggingHeader(grpc::ClientContext& context) const;
+
   const core::DatabaseInfo* database_info_ = nullptr;
   std::shared_ptr<util::AsyncQueue> worker_queue_;
   grpc::CompletionQueue* grpc_queue_ = nullptr;
@@ -118,6 +123,8 @@ class GrpcConnection {
 
   ConnectivityMonitor* connectivity_monitor_ = nullptr;
   std::vector<GrpcCall*> active_calls_;
+
+  util::FirebasePlatformLogging* firebase_platform_logging_;
 };
 
 }  // namespace remote

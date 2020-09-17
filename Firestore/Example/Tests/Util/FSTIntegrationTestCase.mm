@@ -44,6 +44,7 @@
 #include "Firestore/core/src/util/async_queue.h"
 #include "Firestore/core/src/util/autoid.h"
 #include "Firestore/core/src/util/filesystem.h"
+#include "Firestore/core/src/util/firebase_platform_logging_apple.h"
 #include "Firestore/core/src/util/path.h"
 #include "Firestore/core/src/util/string_apple.h"
 #include "Firestore/core/test/unit/testutil/app_testing.h"
@@ -67,6 +68,7 @@ using firebase::firestore::remote::GrpcConnection;
 using firebase::firestore::util::AsyncQueue;
 using firebase::firestore::util::CreateAutoId;
 using firebase::firestore::util::Filesystem;
+using firebase::firestore::util::FirebasePlatformLoggingApple;
 using firebase::firestore::util::Path;
 using firebase::firestore::util::Status;
 using firebase::firestore::util::StatusOr;
@@ -275,6 +277,7 @@ class FakeCredentialsProvider : public EmptyCredentialsProvider {
                                 persistenceKey:util::MakeString(persistenceKey)
                            credentialsProvider:_fakeCredentialsProvider
                                    workerQueue:AsyncQueueForTesting()
+                                   firebasePlatformLogging:absl::make_unique<FirebasePlatformLoggingApple>(app)
                                    firebaseApp:app
                               instanceRegistry:nil];
 

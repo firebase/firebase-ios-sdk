@@ -29,6 +29,8 @@
 #include "Firestore/core/src/remote/serializer.h"
 #include "Firestore/core/src/util/async_queue.h"
 #include "Firestore/core/src/util/executor.h"
+#include "Firestore/core/src/util/firebase_platform_logging.h"
+#include "Firestore/core/src/util/firebase_platform_logging_noop.h"
 #include "Firestore/core/src/util/status.h"
 #include "Firestore/core/src/util/statusor.h"
 #include "Firestore/core/src/util/string_apple.h"
@@ -58,7 +60,9 @@ using nanopb::Message;
 using testing::Not;
 using testutil::Value;
 using util::AsyncQueue;
+using util::CreateNoOpFirebasePlatformLogging;
 using util::Executor;
+using util::FirebasePlatformLogging;
 using util::Status;
 using util::StatusOr;
 
@@ -104,9 +108,10 @@ std::shared_ptr<FakeDatastore> CreateDatastore(
     const DatabaseInfo& database_info,
     const std::shared_ptr<AsyncQueue>& worker_queue,
     std::shared_ptr<CredentialsProvider> credentials,
-    ConnectivityMonitor* connectivity_monitor) {
+    ConnectivityMonitor* connectivity_monitor,
+    FirebasePlatformLogging* firebase_platform_logging) {
   return std::make_shared<FakeDatastore>(database_info, worker_queue,
-                                         credentials, connectivity_monitor);
+                                         credentials, connectivity_monitor, firebase_platform_logging);
 }
 
 }  // namespace
@@ -117,10 +122,12 @@ class DatastoreTest : public testing::Test {
       : database_info{DatabaseId{"p", "d"}, "", "localhost", false},
         worker_queue{testutil::AsyncQueueForTesting()},
         connectivity_monitor{CreateNoOpConnectivityMonitor()},
+        firebase_platform_logging{CreateNoOpFirebasePlatformLogging()},
         datastore{CreateDatastore(database_info,
                                   worker_queue,
                                   credentials,
-                                  connectivity_monitor.get())},
+                                  connectivity_monitor.get(),
+                                  firebase_platform_logging.get())},
         fake_grpc_queue{datastore->queue()} {
     // Deliberately don't `Start` the `Datastore` to prevent normal gRPC
     // completion queue polling; the test is using `FakeGrpcQueue`.
@@ -160,6 +167,7 @@ class DatastoreTest : public testing::Test {
 
   std::shared_ptr<AsyncQueue> worker_queue;
   std::unique_ptr<ConnectivityMonitor> connectivity_monitor;
+  std::unique_ptr<FirebasePlatformLogging> firebase_platform_logging;
   std::shared_ptr<FakeDatastore> datastore;
 
   FakeGrpcQueue fake_grpc_queue;

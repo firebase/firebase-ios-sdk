@@ -28,6 +28,7 @@
 #include "Firestore/core/src/model/database_id.h"
 #include "Firestore/core/src/remote/grpc_root_certificate_finder.h"
 #include "Firestore/core/src/util/filesystem.h"
+#include "Firestore/core/src/util/firebase_platform_logging.h"
 #include "Firestore/core/src/util/hard_assert.h"
 #include "Firestore/core/src/util/log.h"
 #include "Firestore/core/src/util/statusor.h"
@@ -49,6 +50,7 @@ using auth::Token;
 using core::DatabaseInfo;
 using model::DatabaseId;
 using util::Filesystem;
+using util::FirebasePlatformLogging;
 using util::Path;
 using util::Status;
 using util::StatusOr;
@@ -57,7 +59,9 @@ using util::StringFormat;
 namespace {
 
 const char* const kAuthorizationHeader = "authorization";
-const char* const kXGoogAPIClientHeader = "x-goog-api-client";
+const char* const kXGoogApiClientHeader = "x-goog-api-client";
+const char* const kXFirebaseClientHeader = "x-firebase-client";
+const char* const kXFirebaseClientLogTypeHeader ="x-firebase-client-log-type";
 const char* const kGoogleCloudResourcePrefix = "google-cloud-resource-prefix";
 
 std::string MakeString(absl::string_view view) {
@@ -176,7 +180,7 @@ ClientLanguageToken& LanguageToken() {
 void AddCloudApiHeader(grpc::ClientContext& context) {
   auto api_tokens = StringFormat("%s fire/%s grpc/%s", LanguageToken().Get(),
                                  kFirestoreVersionString, grpc::Version());
-  context.AddMetadata(kXGoogAPIClientHeader, api_tokens);
+  context.AddMetadata(kXGoogApiClientHeader, api_tokens);
 }
 
 #if __APPLE__
@@ -201,11 +205,13 @@ GrpcConnection::GrpcConnection(
     const DatabaseInfo& database_info,
     const std::shared_ptr<util::AsyncQueue>& worker_queue,
     grpc::CompletionQueue* grpc_queue,
-    ConnectivityMonitor* connectivity_monitor)
+    ConnectivityMonitor* connectivity_monitor,
+    FirebasePlatformLogging* firebase_platform_logging)
     : database_info_{&database_info},
       worker_queue_{NOT_NULL(worker_queue)},
       grpc_queue_{NOT_NULL(grpc_queue)},
-      connectivity_monitor_{NOT_NULL(connectivity_monitor)} {
+      connectivity_monitor_{NOT_NULL(connectivity_monitor)},
+      firebase_platform_logging_{NOT_NULL(firebase_platform_logging)} {
   RegisterConnectivityMonitor();
 }
 
@@ -230,6 +236,7 @@ std::unique_ptr<grpc::ClientContext> GrpcConnection::CreateContext(
   }
 
   AddCloudApiHeader(*context);
+  AddFirebasePlatformLoggingHeader(*context);
 
   // This header is used to improve routing and project isolation by the
   // backend.
@@ -356,6 +363,22 @@ void GrpcConnection::Unregister(GrpcCall* call) {
 
 void GrpcConnection::SetClientLanguage(std::string language_token) {
   LanguageToken().Set(std::move(language_token));
+}
+
+void GrpcConnection::AddFirebasePlatformLoggingHeader(
+    grpc::ClientContext& context) const {
+  if (firebase_platform_logging_->IsAvailable()) {
+    context.AddMetadata(kXFirebaseClientHeader,
+                        firebase_platform_logging_->GetUserAgent());
+    std::cout << "OBC platform string: " << firebase_platform_logging_->GetUserAgent()
+              << std::endl;
+    context.AddMetadata(kXFirebaseClientLogTypeHeader,
+                        firebase_platform_logging_->GetHeartbeat());
+    std::cout << "OBC heartbeat: " << firebase_platform_logging_->GetHeartbeat()
+              << std::endl;
+  } else {
+    std::cout << "OBC not available" << std::endl;
+  }
 }
 
 void GrpcConnection::UseInsecureChannel(const std::string& host) {

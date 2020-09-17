@@ -22,6 +22,7 @@
 #include "Firestore/core/src/api/firestore.h"
 #include "Firestore/core/src/auth/credentials_provider.h"
 #include "Firestore/core/src/util/async_queue.h"
+#include "Firestore/core/src/util/firebase_platform_logging.h"
 
 @class FIRApp;
 @class FSTFirestoreClient;
@@ -52,6 +53,7 @@ NS_ASSUME_NONNULL_BEGIN
                     persistenceKey:(std::string)persistenceKey
                credentialsProvider:(std::shared_ptr<auth::CredentialsProvider>)credentialsProvider
                        workerQueue:(std::shared_ptr<util::AsyncQueue>)workerQueue
+           firebasePlatformLogging:(std::unique_ptr<util::FirebasePlatformLogging>)firebasePlatformLogging
                        firebaseApp:(FIRApp *)app
                   instanceRegistry:(nullable id<FSTFirestoreInstanceRegistry>)registry;
 @end
