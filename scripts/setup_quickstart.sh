@@ -40,11 +40,17 @@ if check_secrets || [[ ${SAMPLE} == "installations" ]]; then
 
   git clone https://github.com/firebase/quickstart-ios.git
   $scripts_dir/localize_podfile.swift quickstart-ios/"$SAMPLE"/Podfile "$RELEASE_TESTING"
-  if [ ! -z "$RELEASE_TESTING" ]; then
+  if [ "$RELEASE_TESTING" == "nightly_release_testing" ]; then
     set +x
     sed -i "" '1i\'$'\n'"source 'https://${BOT_TOKEN}@github.com/FirebasePrivate/SpecsTesting.git'"$'\n' quickstart-ios/"$SAMPLE"/Podfile
     set -x
-    echo "Podfile is updated."
+    echo "Podfile for nightly release testing is updated."
+  fi
+  if [ "$RELEASE_TESTING" == "prerelease_testing" ]; then
+    set +x
+    sed -i "" '1i\'$'\n'"source 'https://${BOT_TOKEN}@github.com/FirebasePrivate/SpecsReleasing.git'"$'\n' quickstart-ios/"$SAMPLE"/Podfile
+    set -x
+    echo "Podfile for prereleasing is updated."
   fi
   cd quickstart-ios/"$SAMPLE"
 

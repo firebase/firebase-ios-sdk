@@ -14,28 +14,41 @@
 
 set -xe
 
+TESTINGMODE=${1-}
+
 if [ -f "${HOME}/.cocoapods/repos" ]; then
   find "${HOME}/.cocoapods/repos" -type d -maxdepth 1 -exec sh -c 'pod repo remove $(basename {})' \;
 fi
-tag_version="nightly-test-${nightly_test_version}"
 git config --global user.email "google-oss-bot@example.com"
 git config --global user.name "google-oss-bot"
 mkdir -p /tmp/test/firebase-ios-sdk
+echo "git clone ${podspec_repo_branch} from github.com/firebase/firebase-ios-sdk.git to ${local_sdk_repo_dir}"
+set +x
 git clone -q -b "${podspec_repo_branch}" https://"${BOT_TOKEN}"@github.com/firebase/firebase-ios-sdk.git "${local_sdk_repo_dir}"
+set -x
 cd  "${local_sdk_repo_dir}"
 
-# Update a tag.
-set +e
-# If tag_version is new to the remote, remote cannot delete an unexisted tag,
-# so error is allowed here.
-git push origin --delete "${tag_version}"
-set -e
-git tag -f -a "${tag_version}" -m "release testing"
-git push origin "${tag_version}"
-
-# Update source and tag, e.g.  ":tag => 'CocoaPods-' + s.version.to_s" to
-# ":tag => test"
-sed  -i "" "s/\s*:tag.*/:tag => '${tag_version}'/" *.podspec
+if [ "$TESTINGMODE" = "nightly_testing" ]; then
+  tag_version="nightly-test-${nightly_test_version}"
+  echo "A new tag, ${tag_version},for nightly release testing will be created."
+fi
+if [ "$TESTINGMODE" = "RC_testing" ]; then
+  tag_version="CocoaPods-${nightly_test_version}.nightly"
+  echo "A new tag, ${tag_version},for prerelease testing will be created."
+fi
+if [ -n "$tag_version" ]; then
+  # Update a tag.
+  set +e
+  # If tag_version is new to the remote, remote cannot delete an unexisted tag,
+  # so error is allowed here.
+  git push origin --delete "${tag_version}"
+  set -e
+  git tag -f -a "${tag_version}" -m "release testing"
+  git push origin "${tag_version}"
+  # Update source and tag, e.g.  ":tag => 'CocoaPods-' + s.version.to_s" to
+  # ":tag => test"
+  sed  -i "" "s/\s*:tag.*/:tag => '${tag_version}'/" *.podspec
+fi
 cd "${GITHUB_WORKSPACE}/ZipBuilder"
 swift build
 # Update Pod versions.
