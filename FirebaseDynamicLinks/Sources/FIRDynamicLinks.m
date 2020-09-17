@@ -185,11 +185,15 @@ static const NSInteger FIRErrorCodeDurableDeepLinkFailed = -119;
                        urlScheme:urlScheme
                     userDefaults:nil];
   } else {
-    error =
-        [FIRApp errorForSubspecConfigurationFailureWithDomain:kFirebaseDurableDeepLinkErrorDomain
-                                                    errorCode:FIRErrorCodeDurableDeepLinkFailed
-                                                      service:@"DynamicLinks"
-                                                       reason:errorDescription];
+    NSString *description =
+        [NSString stringWithFormat:@"Configuration failed for service DynamicLinks."];
+    NSDictionary *errorDict = @{
+      NSLocalizedDescriptionKey : description,
+      NSLocalizedFailureReasonErrorKey : errorDescription
+    };
+    error = [NSError errorWithDomain:kFirebaseDurableDeepLinkErrorDomain
+                                code:FIRErrorCodeDurableDeepLinkFailed
+                            userInfo:errorDict];
   }
   if (error) {
     NSString *message = nil;

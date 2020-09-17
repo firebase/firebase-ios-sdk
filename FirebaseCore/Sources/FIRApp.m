@@ -91,6 +91,11 @@ NSString *const FIRAuthStateDidChangeInternalNotificationUIDKey =
     @"FIRAuthStateDidChangeInternalNotificationUIDKey";
 
 /**
+ * Error domain for exceptions and NSError construction.
+ */
+NSString *const kFirebaseCoreErrorDomain = @"com.firebase.core";
+
+/**
  * The URL to download plist files.
  */
 static NSString *const kPlistURL = @"https://console.firebase.google.com/";
@@ -479,20 +484,7 @@ static dispatch_once_t sFirebaseUserAgentOnceToken;
     NSLocalizedRecoverySuggestionErrorKey :
         @"Check formatting and location of GoogleService-Info.plist."
   };
-  return [NSError errorWithDomain:kFirebaseCoreErrorDomain
-                             code:FIRErrorCodeInvalidPlistFile
-                         userInfo:errorDict];
-}
-
-+ (NSError *)errorForSubspecConfigurationFailureWithDomain:(NSString *)domain
-                                                 errorCode:(FIRErrorCode)code
-                                                   service:(NSString *)service
-                                                    reason:(NSString *)reason {
-  NSString *description =
-      [NSString stringWithFormat:@"Configuration failed for service %@.", service];
-  NSDictionary *errorDict =
-      @{NSLocalizedDescriptionKey : description, NSLocalizedFailureReasonErrorKey : reason};
-  return [NSError errorWithDomain:domain code:code userInfo:errorDict];
+  return [NSError errorWithDomain:kFirebaseCoreErrorDomain code:-100 userInfo:errorDict];
 }
 
 + (NSError *)errorForInvalidAppID {
@@ -502,9 +494,7 @@ static dispatch_once_t sFirebaseUserAgentOnceToken;
         @"Check formatting and location of GoogleService-Info.plist or GoogleAppID set in the "
         @"customized options."
   };
-  return [NSError errorWithDomain:kFirebaseCoreErrorDomain
-                             code:FIRErrorCodeInvalidAppID
-                         userInfo:errorDict];
+  return [NSError errorWithDomain:kFirebaseCoreErrorDomain code:-101 userInfo:errorDict];
 }
 
 + (BOOL)isDefaultAppConfigured {

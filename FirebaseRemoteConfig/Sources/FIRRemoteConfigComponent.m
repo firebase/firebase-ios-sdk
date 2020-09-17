@@ -49,6 +49,7 @@ add -DFIRRemoteConfig_VERSION=... to the build invocation"
   }
 
   if (errorPropertyName) {
+    NSString *const kFirebaseConfigErrorDomain = @"com.firebase.config";
     [NSException
          raise:kFirebaseConfigErrorDomain
         format:@"%@",
