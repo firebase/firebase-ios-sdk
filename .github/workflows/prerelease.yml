@@ -13,16 +13,21 @@ jobs:
       bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       local_repo: specstesting
       local_sdk_repo_dir: /tmp/test/firebase-ios-sdk
+      nightly_version: 6.33.0
       podspec_repo_branch: release-6.33.0
     runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v2
     - name: Get token
       run: |
+         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/oss-bot-access.txt.gpg \
+         oss-bot-access.txt "$bot_token_secret"
          scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
          bot-access.txt "$bot_token_secret"
     - name: Update SpecsReleasing repo setup
-      run: scripts/release_testing_setup.sh --prerelease
+      run: |
+         ossbotaccess=`cat oss-bot-access.txt`
+         BOT_TOKEN="${ossbotaccess}" nightly_test_version="${nightly_version}" scripts/release_testing_setup.sh --prerelease
     - name: Update SpecsReleasing repo
       run: |
         botaccess=`cat bot-access.txt`
