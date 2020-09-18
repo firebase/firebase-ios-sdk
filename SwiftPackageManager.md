@@ -44,7 +44,7 @@ Choose the Firebase products that you want installed in your app.
 If you've installed FirebaseAnalytics, Add the `-ObjC` option to `Other Linker Flags`
 in the `Build Settings` tab.
 
-If you're using FirebaseAnalytics, the Xcode 12 GM, and have an issue with
+If you're using FirebaseAnalytics, Xcode 12.0, and have an issue with
 device installation or archive uploading, see the workaround at
 https://github.com/firebase/firebase-ios-sdk/issues/6472#issuecomment-694449182.
 
