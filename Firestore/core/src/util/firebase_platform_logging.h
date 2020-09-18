@@ -27,9 +27,12 @@ class FirebasePlatformLogging {
  public:
    virtual ~FirebasePlatformLogging() = default;
 
-   virtual bool IsAvailable() const = 0;
+   virtual bool IsLoggingAvailable() const = 0;
    virtual std::string GetUserAgent() const = 0;
    virtual std::string GetHeartbeat() const = 0;
+
+   virtual bool IsGmpAppIdAvailable() const = 0;
+   virtual std::string GetGmpAppId() const = 0;
 };
 
 }  // namespace util

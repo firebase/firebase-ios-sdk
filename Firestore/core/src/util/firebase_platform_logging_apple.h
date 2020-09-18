@@ -35,9 +35,12 @@ class FirebasePlatformLoggingApple : public FirebasePlatformLogging {
  public:
   explicit FirebasePlatformLoggingApple(FIRApp* app);
 
-   bool IsAvailable() const override;
+   bool IsLoggingAvailable() const override;
    std::string GetUserAgent() const override;
    std::string GetHeartbeat() const override;
+
+   bool IsGmpAppIdAvailable() const override;
+   std::string GetGmpAppId() const override;
 
  private:
    FIRApp* app_;

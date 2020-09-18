@@ -61,7 +61,8 @@ namespace {
 const char* const kAuthorizationHeader = "authorization";
 const char* const kXGoogApiClientHeader = "x-goog-api-client";
 const char* const kXFirebaseClientHeader = "x-firebase-client";
-const char* const kXFirebaseClientLogTypeHeader ="x-firebase-client-log-type";
+const char* const kXFirebaseClientLogTypeHeader = "x-firebase-client-log-type";
+const char* const kXFirebaseGmpIdHeader = "x-firebase-gmpid";
 const char* const kGoogleCloudResourcePrefix = "google-cloud-resource-prefix";
 
 std::string MakeString(absl::string_view view) {
@@ -367,17 +368,24 @@ void GrpcConnection::SetClientLanguage(std::string language_token) {
 
 void GrpcConnection::AddFirebasePlatformLoggingHeader(
     grpc::ClientContext& context) const {
-  if (firebase_platform_logging_->IsAvailable()) {
-    context.AddMetadata(kXFirebaseClientHeader,
-                        firebase_platform_logging_->GetUserAgent());
-    std::cout << "OBC platform string: " << firebase_platform_logging_->GetUserAgent()
-              << std::endl;
-    context.AddMetadata(kXFirebaseClientLogTypeHeader,
-                        firebase_platform_logging_->GetHeartbeat());
-    std::cout << "OBC heartbeat: " << firebase_platform_logging_->GetHeartbeat()
-              << std::endl;
-  } else {
+  if (!firebase_platform_logging_->IsLoggingAvailable()) {
     std::cout << "OBC not available" << std::endl;
+    return;
+  }
+
+  context.AddMetadata(kXFirebaseClientHeader,
+                      firebase_platform_logging_->GetUserAgent());
+  std::cout << "OBC platform string: "
+            << firebase_platform_logging_->GetUserAgent() << std::endl;
+  context.AddMetadata(kXFirebaseClientLogTypeHeader,
+                      firebase_platform_logging_->GetHeartbeat());
+  std::cout << "OBC heartbeat: " << firebase_platform_logging_->GetHeartbeat()
+            << std::endl;
+  if (firebase_platform_logging_->IsGmpAppIdAvailable()) {
+    context.AddMetadata(kXFirebaseGmpIdHeader,
+                        firebase_platform_logging_->GetGmpAppId());
+    std::cout << "OBC GMP app id: " << firebase_platform_logging_->GetGmpAppId()
+              << std::endl;
   }
 }
 

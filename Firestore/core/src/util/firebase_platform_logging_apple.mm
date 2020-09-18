@@ -18,6 +18,7 @@
 
 #import "FirebaseCore/Sources/Private/FIRAppInternal.h"
 #import "FirebaseCore/Sources/Private/FIRHeartbeatInfo.h"
+#import "FirebaseCore/Sources/Private/FIROptionsInternal.h"
 //#import "FirebaseCore/Sources/Public/FirebaseCore/FIRApp.h"
 
 #include "Firestore/core/src/util/string_apple.h"
@@ -30,7 +31,7 @@ FirebasePlatformLoggingApple::FirebasePlatformLoggingApple(FIRApp* app)
     : app_(app) {
 }
 
-bool FirebasePlatformLoggingApple::IsAvailable() const {
+bool FirebasePlatformLoggingApple::IsLoggingAvailable() const {
   return [app_ isDataCollectionDefaultEnabled];
 }
 
@@ -40,6 +41,14 @@ std::string FirebasePlatformLoggingApple::GetUserAgent() const {
 
 std::string FirebasePlatformLoggingApple::GetHeartbeat() const {
   return std::to_string([FIRHeartbeatInfo heartbeatCodeForTag:@"fire-fst"]);
+}
+
+bool FirebasePlatformLoggingApple::IsGmpAppIdAvailable() const {
+  return [app_.options.googleAppID length] != 0;
+}
+
+std::string FirebasePlatformLoggingApple::GetGmpAppId() const {
+  return MakeString(app_.options.googleAppID);
 }
 
 }  // namespace util

@@ -28,9 +28,12 @@ namespace util {
 
 class FirebasePlatformLoggingNoOp : public FirebasePlatformLogging {
  public:
-   bool IsAvailable() const override { return false; }
+   bool IsLoggingAvailable() const override { return false; }
    std::string GetUserAgent() const override { return ""; }
    std::string GetHeartbeat() const override { return ""; }
+
+   bool IsGmpAppIdAvailable() const override { return false; }
+   std::string GetGmpAppId() const override { return ""; }
 };
 
 std::unique_ptr<FirebasePlatformLoggingNoOp> CreateNoOpFirebasePlatformLogging();
