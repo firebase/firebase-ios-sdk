@@ -660,6 +660,14 @@ let package = Package(
       path: "SwiftPMTests/swift-test"
     ),
     .testTarget(
+      name: "analytics-import-test",
+      dependencies: [
+        "FirebaseAnalyticsWrapper",
+        "Firebase",
+      ],
+      path: "SwiftPMTests/analytics-import-test"
+    ),
+    .testTarget(
       name: "objc-import-test",
       dependencies: [
         "FirebaseAuth",
