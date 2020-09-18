@@ -47,6 +47,8 @@ typedef void (^TestAutomationCallback)(NSError *_Nullable error);
 
 @property(nonatomic) BOOL isNewUserToggleOn;
 
+@property(nonatomic) BOOL isEmulatorEnabled;
+
 @property(nonatomic) ActionCodeRequestType actionCodeRequestType;
 
 @property(nonatomic) NSURL *actionCodeContinueURL;

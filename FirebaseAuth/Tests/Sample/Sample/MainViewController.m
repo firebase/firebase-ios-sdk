@@ -45,6 +45,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 static NSString *const kSectionTitleSettings = @"Settings";
 
+static NSString *const kUseEmulatorTitle = @"Use emulator";
+
 static NSString *const kSectionTitleUserDetails = @"User Defaults";
 
 static NSString *const kSwitchToInMemoryUserTitle = @"Switch to in memory user";
@@ -218,6 +220,9 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
       [StaticContentTableViewSection sectionWithTitle:kSectionTitleSettings cells:@[
         [StaticContentTableViewCell cellWithTitle:kSectionTitleSettings
                                            action:^{ [weakSelf presentSettings]; }],
+        [StaticContentTableViewCell cellWithTitle:kUseEmulatorTitle
+                                            value:_isEmulatorEnabled ? @"Enabled" : @"Disabled"
+                                           action:^{[weakSelf useEmulator]; }],
         [StaticContentTableViewCell cellWithTitle:kNewOrExistingUserToggleTitle
                                             value:_isNewUserToggleOn ? @"Enabled" : @"Disabled"
                                            action:^{
@@ -594,6 +599,26 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
        @"received FIRAuthStateDidChange notification on user '%@'.",
        ((FIRAuth *)notification.object).currentUser.uid]];
   }
+}
+
+- (void)useEmulator {
+  [self showTextInputPromptWithMessage:@"Host:"
+                       completionBlock:^(BOOL userPressedOK, NSString *_Nullable host) {
+  if (!userPressedOK || !host.length) {
+    return;
+  }
+  [self showTextInputPromptWithMessage:@"Port:"
+                      completionBlock:^(BOOL userPressedOK, NSString *_Nullable port) {
+      if (!userPressedOK || !port.length) {
+        return;
+      }
+    [[FIRAuth auth] useEmulatorWithHost:host port:[port integerValue]];
+    if (!self->_isEmulatorEnabled) {
+      self->_isEmulatorEnabled = true;
+      [self updateTable];
+    }
+    }];
+  }];
 }
 
 - (void)log:(NSString *)string {
