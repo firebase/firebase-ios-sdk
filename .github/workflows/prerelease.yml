@@ -4,6 +4,9 @@ on:
   pull_request:
     paths:
     - '.github/workflows/prerelease.yml'
+  schedule:
+    # Run every day at 11pm (PST) - cron uses UTC times
+    - cron:  '0 7 * * *'
 
 jobs:
   buildup_SpecsReleasing_repo:
@@ -27,14 +30,14 @@ jobs:
     - name: Update SpecsReleasing repo setup
       run: |
          ossbotaccess=`cat oss-bot-access.txt`
-         BOT_TOKEN="${ossbotaccess}" test_version="${nightly_version}" scripts/release_testing_setup.sh RC_testing
+         BOT_TOKEN="${ossbotaccess}" test_version="${nightly_version}" sdk_version_config="${GITHUB_WORKSPACE}/scripts/create_spec_repo/RC_firebase_sdk.textproto" scripts/release_testing_setup.sh RC_testing
     - name: Update SpecsReleasing repo
       run: |
         botaccess=`cat bot-access.txt`
         cd scripts/create_spec_repo/
         swift build
         pod repo add --silent "${local_repo}" https://"$botaccess"@github.com/FirebasePrivate/SpecsReleasing.git
-        BOT_TOKEN="${botaccess}"  .build/debug/spec-repo-builder --sdk-repo "${local_sdk_repo_dir}" --local-spec-repo-name "${local_repo}" --sdk-repo-name SpecsReleasing --pod-sources "https://${botaccess}@github.com/FirebasePrivate/SpecsReleasing" --pod-sources "https://cdn.cocoapods.org/"
+        # BOT_TOKEN="${botaccess}"  .build/debug/spec-repo-builder --sdk-repo "${local_sdk_repo_dir}" --local-spec-repo-name "${local_repo}" --sdk-repo-name SpecsReleasing --pod-sources "https://${botaccess}@github.com/FirebasePrivate/SpecsReleasing" --pod-sources "https://cdn.cocoapods.org/"
     - name: Clean Artifacts
       if: ${{ always() }}
       run: |
