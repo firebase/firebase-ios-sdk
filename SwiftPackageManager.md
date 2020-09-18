@@ -52,12 +52,12 @@ In situations where you're adding Firebase to a project that uses the `Package.s
 manifest directly, you can add Firebase to your dependencies array of your package with:
 
 ```
-dependencies: [ 
+dependencies: [
   // Substitute X.Y with the version of Firebase you want.
-  .package(name: "Firebase", 
-           url: "https://github.com/firebase/firebase-ios-sdk.git", 
+  .package(name: "Firebase",
+           url: "https://github.com/firebase/firebase-ios-sdk.git",
            .branch("X.Y-spm-beta")),
-    
+
   // Any other dependencies you have...
 ],
 ```
