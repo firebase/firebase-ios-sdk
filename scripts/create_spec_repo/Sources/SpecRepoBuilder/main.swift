@@ -344,7 +344,6 @@ struct SpecRepoBuilder: ParsableCommand {
         exitCode = 1
         failedPods.append(pod)
       }
-      break
     }
     if exitCode != 0 {
       Self.exit(withError: SpecRepoBuilderError.failedToPush(pods: failedPods))
