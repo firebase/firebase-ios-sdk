@@ -18,7 +18,7 @@ Package Manager](https://swift.org/package-manager/) in Beta status.
 
 If you've previously used CocoaPods, remove them from the project with `pod deintegrate`.
 
-## In Xcode
+### In Xcode
 
 Install Firebase via Swift Package Manager:
 
@@ -46,10 +46,10 @@ in the `Build Settings` tab.
 
 <img src="docs/resources/SPMObjC.png">
 
-### Manually managing your `Package.swift` manifest
+### Alternatively, add Firebase to a `Package.swift` manifest
 
-In situations where you're adding Firebase to a project that uses the `Package.swift`
-manifest directly, you can add Firebase to your dependencies array of your package with:
+To integrate via a `Package.swift` manifest instead of Xcode, you can add
+Firebase to your dependencies array of your package with:
 
 ```
 dependencies: [
