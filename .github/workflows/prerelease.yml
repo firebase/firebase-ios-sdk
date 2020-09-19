@@ -68,8 +68,8 @@ jobs:
           IFS='_'
           #Read the split words into an array based on comma delimiter
           read -a strarr <<< "${{ matrix.pods }}"
-          matrix_pod=${strarr[2]}
-          matrix_quickstarttarget=$strarr[1]
+          matrix_pod=${strarr[1]}
+          matrix_quickstarttarget=${strarr[0]}
           echo "::set-env name=pod::$matrix_pod"
           echo "::set-env name=quickstarttarget::$matrix_quickstarttarget"
     - name: Setup testing repo and quickstart
