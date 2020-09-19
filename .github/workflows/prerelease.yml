@@ -50,7 +50,7 @@ jobs:
     needs: buildup_SpecsReleasing_repo
     strategy:
       matrix:
-        pods: [abtesting, authentication, crashlytics, database, dynamiclinks, firestore, functions, inappmessaging, messaging, remoteconfig, storage]
+        pods: [ABTesting_abtesting, authentication, crashlytics, database, dynamiclinks, firestore, functions, inappmessaging, messaging, remoteconfig, storage]
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -63,16 +63,22 @@ jobs:
           bot-access.txt "$bot_token_secret"
     - name: Setup testing repo and quickstart
       run: |
+          # Set comma as delimiter
+          IFS='_'
+          #Read the split words into an array based on comma delimiter
+          read -a strarr <<< "${{ matrix.pods }}"
+          echo '::set-env name=pod::$strarr[1]'
+          echo '::set-env name=quickstarttarget::$strarr[0]'
           botaccess=`cat bot-access.txt`
-          BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh ${{ matrix.pods }} prerelease_testing
+          BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh "${pod}" prerelease_testing
     - name: Install Secret GoogleService-Info.plist
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-${{ matrix.pods }}.plist.gpg \
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-"${pod}".plist.gpg \
           quickstart-ios/${{ matrix.pods }}/GoogleService-Info.plist "$plist_secret"
     - name: Install Secret FIREGSignInInfo.h
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/FIREGSignInInfo.h.gpg \
           quickstart-ios/TestUtils/FIREGSignInInfo.h "$signin_secret"
     - name: Test swift quickstart
-      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh ${{ matrix.pods }})
+      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh "${quickstarttarget}")
     - name: Remove data before upload
       run: scripts/remove_data.sh config release_testing
     - uses: actions/upload-artifact@v2
