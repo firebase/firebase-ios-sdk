@@ -61,14 +61,18 @@ jobs:
     - name: Get token
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
           bot-access.txt "$bot_token_secret"
-    - name: Setup testing repo and quickstart
+    - name: Setup variables
       run: |
           # Set comma as delimiter
           IFS='_'
           #Read the split words into an array based on comma delimiter
           read -a strarr <<< "${{ matrix.pods }}"
-          echo '::set-env name=pod::$strarr[1]'
-          echo '::set-env name=quickstarttarget::$strarr[0]'
+          echo "::set-env name=pod::$strarr[1]"
+          echo "::set-env name=quickstarttarget::$strarr[0]"
+          echo "${pod}"
+          echo "${quickstarttarget}"
+    - name: Setup testing repo and quickstart
+      run: |
           botaccess=`cat bot-access.txt`
           BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh "${pod}" prerelease_testing
     - name: Install Secret GoogleService-Info.plist
