@@ -7,7 +7,7 @@ telemetry from Google SDKs.
 
 ### Swift
 
-- Impoort `GoogleDataTransport` module: 
+- Import `GoogleDataTransport` module: 
     ```
     import GoogleDataTransport
     ```
