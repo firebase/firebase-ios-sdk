@@ -124,7 +124,7 @@ class GrpcConnection {
   ConnectivityMonitor* connectivity_monitor_ = nullptr;
   std::vector<GrpcCall*> active_calls_;
 
-  FirebasePlatformLogging* firebase_platform_logging_;
+  FirebasePlatformLogging* firebase_platform_logging_ = nullptr;
 };
 
 }  // namespace remote
