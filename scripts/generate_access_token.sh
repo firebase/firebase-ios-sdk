@@ -74,9 +74,11 @@ export GOOGLE_APPLICATION_CREDENTIALS="${HOME}/.credentials/${SERVICE_ACCOUNT_FI
 
 # Clone Google's Swift Auth Client Library and use it to generate a token.
 # The generated token is piped to the specified OUTPUT file.
-git clone https://github.com/googleapis/google-auth-library-swift.git
+
+# Use https://github.com/googleapis/google-auth-library-swift/pull/39 until it merges.
+git clone https://github.com/alexlaurinmath/google-auth-library-swift.git
 cd google-auth-library-swift
-git checkout --quiet 7b1c9cd4ffd8cb784bcd8b7fd599794b69a810cf # Working main branch as of 7/9/20.
+git checkout bump_OS_suported_versions
 make -f Makefile
 
 # Prepend OUTPUT path with ../ since we cd'd into `google-auth-library-swift`.
