@@ -80,7 +80,7 @@ jobs:
           botaccess=`cat bot-access.txt`
           BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh "${pod}" prerelease_testing
     - name: Install Secret GoogleService-Info.plist
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-abtesting.plist.gpg \
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-"${pod}".plist.gpg \
           quickstart-ios/"${pod}"/GoogleService-Info.plist "$plist_secret"
     - name: Install Secret FIREGSignInInfo.h
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/FIREGSignInInfo.h.gpg \
