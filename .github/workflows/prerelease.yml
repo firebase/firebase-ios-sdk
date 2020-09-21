@@ -50,7 +50,7 @@ jobs:
     needs: buildup_SpecsReleasing_repo
     strategy:
       matrix:
-        pods: [ABTesting_abtesting]
+        pods: [ABTesting_abtesting, Database_database]
         # , Database_database, authentication, crashlytics, dynamiclinks, firestore, functions, inappmessaging, messaging, remoteconfig, storage
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -88,11 +88,11 @@ jobs:
     - name: Test swift quickstart
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh "${quickstarttarget}")
     - name: Remove data before upload
-      run: scripts/remove_data.sh config release_testing
+      run: scripts/remove_data.sh "${pod}" release_testing
     - uses: actions/upload-artifact@v2
       if: ${{ failure() }}
       with:
-        name: quickstart_artifacts_abtesting
+        name: quickstart_artifacts
         path: quickstart-ios/
 
         #   crashlytics:
