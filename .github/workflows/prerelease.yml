@@ -80,18 +80,18 @@ jobs:
           BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh "${pod}" prerelease_testing
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-"${pod}".plist.gpg \
-          quickstart-ios/${quickstarttarget}/GoogleService-Info.plist "$plist_secret"
+          quickstart-ios/"${pod}"/GoogleService-Info.plist "$plist_secret"
     - name: Install Secret FIREGSignInInfo.h
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/FIREGSignInInfo.h.gpg \
           quickstart-ios/TestUtils/FIREGSignInInfo.h "$signin_secret"
     - name: Test swift quickstart
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh "${quickstarttarget}")
     - name: Remove data before upload
-      run: scripts/remove_data.sh config release_testing
+      run: scripts/remove_data.sh "${pod}" release_testing
     - uses: actions/upload-artifact@v2
       if: ${{ failure() }}
       with:
-        name: quickstart_artifacts_${pod}
+        name: quickstart_artifacts
         path: quickstart-ios/
 
         #   crashlytics:
