@@ -26,6 +26,7 @@
 #include "Firestore/core/src/auth/token.h"
 #include "Firestore/core/src/core/core_fwd.h"
 #include "Firestore/core/src/model/document_key.h"
+#include "Firestore/core/src/remote/firebase_platform_logging.h"
 #include "Firestore/core/src/remote/grpc_call.h"
 #include "Firestore/core/src/remote/grpc_connection.h"
 #include "Firestore/core/src/remote/remote_objc_bridge.h"
@@ -33,7 +34,6 @@
 #include "Firestore/core/src/remote/write_stream.h"
 #include "Firestore/core/src/util/async_queue.h"
 #include "Firestore/core/src/util/executor.h"
-#include "Firestore/core/src/util/firebase_platform_logging.h"
 #include "Firestore/core/src/util/status_fwd.h"
 #include "absl/strings/string_view.h"
 #include "grpcpp/completion_queue.h"
@@ -70,7 +70,7 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
             const std::shared_ptr<util::AsyncQueue>& worker_queue,
             std::shared_ptr<auth::CredentialsProvider> credentials,
             ConnectivityMonitor* connectivity_monitor,
-            util::FirebasePlatformLogging* firebase_platform_logging);
+            FirebasePlatformLogging* firebase_platform_logging);
 
   virtual ~Datastore() = default;
 

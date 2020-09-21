@@ -25,12 +25,12 @@
 #include "Firestore/core/src/auth/token.h"
 #include "Firestore/core/src/core/database_info.h"
 #include "Firestore/core/src/remote/connectivity_monitor.h"
+#include "Firestore/core/src/remote/firebase_platform_logging.h"
 #include "Firestore/core/src/remote/grpc_call.h"
 #include "Firestore/core/src/remote/grpc_stream.h"
 #include "Firestore/core/src/remote/grpc_stream_observer.h"
 #include "Firestore/core/src/remote/grpc_streaming_reader.h"
 #include "Firestore/core/src/remote/grpc_unary_call.h"
-#include "Firestore/core/src/util/firebase_platform_logging.h"
 #include "Firestore/core/src/util/path.h"
 #include "Firestore/core/src/util/warnings.h"
 #include "absl/strings/string_view.h"
@@ -61,7 +61,7 @@ class GrpcConnection {
       const std::shared_ptr<util::AsyncQueue>& worker_queue,
       grpc::CompletionQueue* grpc_queue,
       ConnectivityMonitor* connectivity_monitor,
-      util::FirebasePlatformLogging* firebase_platform_logging);
+      FirebasePlatformLogging* firebase_platform_logging);
 
   void Shutdown();
 
@@ -124,7 +124,7 @@ class GrpcConnection {
   ConnectivityMonitor* connectivity_monitor_ = nullptr;
   std::vector<GrpcCall*> active_calls_;
 
-  util::FirebasePlatformLogging* firebase_platform_logging_;
+  FirebasePlatformLogging* firebase_platform_logging_;
 };
 
 }  // namespace remote

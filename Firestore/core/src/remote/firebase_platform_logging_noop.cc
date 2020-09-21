@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/util/firebase_platform_logging_noop.h"
+#include "Firestore/core/src/remote/firebase_platform_logging_noop.h"
 
 #include "absl/memory/memory.h"
 
 namespace firebase {
 namespace firestore {
-namespace util {
+namespace remote {
 
 std::unique_ptr<FirebasePlatformLoggingNoOp>
 CreateNoOpFirebasePlatformLogging() {
   return absl::make_unique<FirebasePlatformLoggingNoOp>();
 }
 
-}  // namespace util
+}  // namespace remote
 }  // namespace firestore
 }  // namespace firebase

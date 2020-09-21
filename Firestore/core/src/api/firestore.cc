@@ -50,19 +50,20 @@ using core::Transaction;
 using local::LevelDbPersistence;
 using model::DocumentKey;
 using model::ResourcePath;
+using remote::FirebasePlatformLogging;
 using remote::GrpcConnection;
 using util::AsyncQueue;
 using util::Empty;
 using util::Executor;
-using util::FirebasePlatformLogging;
 using util::Status;
 
-Firestore::Firestore(model::DatabaseId database_id,
-                     std::string persistence_key,
-                     std::shared_ptr<CredentialsProvider> credentials_provider,
-                     std::shared_ptr<AsyncQueue> worker_queue,
-                     std::unique_ptr<FirebasePlatformLogging> firebase_platform_logging,
-                     void* extension)
+Firestore::Firestore(
+    model::DatabaseId database_id,
+    std::string persistence_key,
+    std::shared_ptr<CredentialsProvider> credentials_provider,
+    std::shared_ptr<AsyncQueue> worker_queue,
+    std::unique_ptr<FirebasePlatformLogging> firebase_platform_logging,
+    void* extension)
     : database_id_{std::move(database_id)},
       credentials_provider_{std::move(credentials_provider)},
       persistence_key_{std::move(persistence_key)},
@@ -215,10 +216,9 @@ void Firestore::EnsureClientConfigured() {
 
   if (!client_) {
     HARD_ASSERT(worker_queue_, "Expected non-null worker queue");
-    client_ = FirestoreClient::Create(MakeDatabaseInfo(), settings_,
-                                      std::move(credentials_provider_),
-                                      user_executor_, worker_queue_,
-                                      std::move(firebase_platform_logging_));
+    client_ = FirestoreClient::Create(
+        MakeDatabaseInfo(), settings_, std::move(credentials_provider_),
+        user_executor_, worker_queue_, std::move(firebase_platform_logging_));
   }
 }
 

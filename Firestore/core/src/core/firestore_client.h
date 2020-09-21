@@ -24,11 +24,11 @@
 #include "Firestore/core/src/core/core_fwd.h"
 #include "Firestore/core/src/core/database_info.h"
 #include "Firestore/core/src/model/database_id.h"
+#include "Firestore/core/src/remote/firebase_platform_logging.h"
 #include "Firestore/core/src/util/async_queue.h"
 #include "Firestore/core/src/util/delayed_constructor.h"
 #include "Firestore/core/src/util/empty.h"
 #include "Firestore/core/src/util/executor.h"
-#include "Firestore/core/src/util/firebase_platform_logging.h"
 #include "Firestore/core/src/util/nullability.h"
 #include "Firestore/core/src/util/status_fwd.h"
 
@@ -79,7 +79,7 @@ class FirestoreClient : public std::enable_shared_from_this<FirestoreClient> {
       std::shared_ptr<auth::CredentialsProvider> credentials_provider,
       std::shared_ptr<util::Executor> user_executor,
       std::shared_ptr<util::AsyncQueue> worker_queue,
-                                                 std::unique_ptr<util::FirebasePlatformLogging> firebase_platform_logging);
+      std::unique_ptr<remote::FirebasePlatformLogging> firebase_platform_logging);
 
   ~FirestoreClient();
 
@@ -183,7 +183,7 @@ class FirestoreClient : public std::enable_shared_from_this<FirestoreClient> {
       std::shared_ptr<auth::CredentialsProvider> credentials_provider,
       std::shared_ptr<util::Executor> user_executor,
       std::shared_ptr<util::AsyncQueue> worker_queue,
-      std::unique_ptr<util::FirebasePlatformLogging> firebase_platform_logging);
+      std::unique_ptr<remote::FirebasePlatformLogging> firebase_platform_logging);
 
   void Initialize(const auth::User& user, const api::Settings& settings);
 
@@ -205,7 +205,7 @@ class FirestoreClient : public std::enable_shared_from_this<FirestoreClient> {
   std::shared_ptr<util::AsyncQueue> worker_queue_;
   std::shared_ptr<util::Executor> user_executor_;
 
-  std::unique_ptr<util::FirebasePlatformLogging> firebase_platform_logging_;
+  std::unique_ptr<remote::FirebasePlatformLogging> firebase_platform_logging_;
 
   std::unique_ptr<local::Persistence> persistence_;
   std::unique_ptr<local::LocalStore> local_store_;

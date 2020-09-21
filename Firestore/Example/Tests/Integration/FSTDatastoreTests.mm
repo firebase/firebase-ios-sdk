@@ -41,11 +41,11 @@
 #include "Firestore/core/src/model/set_mutation.h"
 #include "Firestore/core/src/remote/connectivity_monitor.h"
 #include "Firestore/core/src/remote/datastore.h"
+#include "Firestore/core/src/remote/firebase_platform_logging.h"
+#include "Firestore/core/src/remote/firebase_platform_logging_noop.h"
 #include "Firestore/core/src/remote/remote_event.h"
 #include "Firestore/core/src/remote/remote_store.h"
 #include "Firestore/core/src/util/async_queue.h"
-#include "Firestore/core/src/util/firebase_platform_logging.h"
-#include "Firestore/core/src/util/firebase_platform_logging_noop.h"
 #include "Firestore/core/src/util/hard_assert.h"
 #include "Firestore/core/src/util/status.h"
 #include "Firestore/core/src/util/string_apple.h"
@@ -78,7 +78,9 @@ using firebase::firestore::model::OnlineState;
 using firebase::firestore::model::TargetId;
 using firebase::firestore::remote::ConnectivityMonitor;
 using firebase::firestore::remote::CreateNoOpConnectivityMonitor;
+using firebase::firestore::remote::CreateNoOpFirebasePlatformLogging;
 using firebase::firestore::remote::Datastore;
+using firebase::firestore::remote::FirebasePlatformLogging;
 using firebase::firestore::remote::GrpcConnection;
 using firebase::firestore::remote::RemoteEvent;
 using firebase::firestore::remote::RemoteStore;
@@ -86,8 +88,6 @@ using firebase::firestore::remote::RemoteStoreCallback;
 using firebase::firestore::testutil::Map;
 using firebase::firestore::testutil::WrapObject;
 using firebase::firestore::util::AsyncQueue;
-using firebase::firestore::util::CreateNoOpFirebasePlatformLogging;
-using firebase::firestore::util::FirebasePlatformLogging;
 using firebase::firestore::util::Status;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -251,10 +251,9 @@ class RemoteStoreEventCapture : public RemoteStoreCallback {
   _testWorkerQueue = testutil::AsyncQueueForTesting();
   _connectivityMonitor = CreateNoOpConnectivityMonitor();
   _firebasePlatformLogging = CreateNoOpFirebasePlatformLogging();
-  _datastore = std::make_shared<Datastore>(_databaseInfo, _testWorkerQueue,
-                                           std::make_shared<EmptyCredentialsProvider>(),
-                                           _connectivityMonitor.get(),
-                                           _firebasePlatformLogging.get());
+  _datastore = std::make_shared<Datastore>(
+      _databaseInfo, _testWorkerQueue, std::make_shared<EmptyCredentialsProvider>(),
+      _connectivityMonitor.get(), _firebasePlatformLogging.get());
 
   _persistence = MemoryPersistence::WithEagerGarbageCollector();
   _localStore =

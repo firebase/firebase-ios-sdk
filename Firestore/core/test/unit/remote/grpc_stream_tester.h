@@ -26,6 +26,7 @@
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/core/database_info.h"
 #include "Firestore/core/src/remote/connectivity_monitor.h"
+#include "Firestore/core/src/remote/firebase_platform_logging.h"
 #include "Firestore/core/src/remote/grpc_completion.h"
 #include "Firestore/core/src/remote/grpc_connection.h"
 #include "Firestore/core/src/remote/grpc_stream.h"
@@ -33,7 +34,6 @@
 #include "Firestore/core/src/remote/grpc_unary_call.h"
 #include "Firestore/core/src/util/async_queue.h"
 #include "Firestore/core/src/util/executor.h"
-#include "Firestore/core/src/util/firebase_platform_logging.h"
 #include "absl/types/optional.h"
 #include "grpcpp/client_context.h"
 #include "grpcpp/completion_queue.h"
@@ -249,7 +249,7 @@ class GrpcStreamTester {
 
   grpc::CompletionQueue grpc_queue_;
   FakeGrpcQueue fake_grpc_queue_;
-  std::unique_ptr<util::FirebasePlatformLogging> firebase_platform_logging_;
+  std::unique_ptr<FirebasePlatformLogging> firebase_platform_logging_;
   GrpcConnection grpc_connection_;
 };
 

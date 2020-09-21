@@ -26,9 +26,9 @@
 #include "Firestore/core/include/firebase/firestore/firestore_version.h"
 #include "Firestore/core/src/auth/token.h"
 #include "Firestore/core/src/model/database_id.h"
+#include "Firestore/core/src/remote/firebase_platform_logging.h"
 #include "Firestore/core/src/remote/grpc_root_certificate_finder.h"
 #include "Firestore/core/src/util/filesystem.h"
-#include "Firestore/core/src/util/firebase_platform_logging.h"
 #include "Firestore/core/src/util/hard_assert.h"
 #include "Firestore/core/src/util/log.h"
 #include "Firestore/core/src/util/statusor.h"
@@ -50,7 +50,6 @@ using auth::Token;
 using core::DatabaseInfo;
 using model::DatabaseId;
 using util::Filesystem;
-using util::FirebasePlatformLogging;
 using util::Path;
 using util::Status;
 using util::StatusOr;

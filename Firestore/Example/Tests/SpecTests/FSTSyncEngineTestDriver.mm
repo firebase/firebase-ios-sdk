@@ -41,13 +41,13 @@
 #include "Firestore/core/src/local/persistence.h"
 #include "Firestore/core/src/model/database_id.h"
 #include "Firestore/core/src/model/document_key.h"
+#include "Firestore/core/src/remote/firebase_platform_logging.h"
+#include "Firestore/core/src/remote/firebase_platform_logging_noop.h"
 #include "Firestore/core/src/remote/remote_store.h"
 #include "Firestore/core/src/util/async_queue.h"
 #include "Firestore/core/src/util/delayed_constructor.h"
 #include "Firestore/core/src/util/error_apple.h"
 #include "Firestore/core/src/util/executor.h"
-#include "Firestore/core/src/util/firebase_platform_logging.h"
-#include "Firestore/core/src/util/firebase_platform_logging_noop.h"
 #include "Firestore/core/src/util/hard_assert.h"
 #include "Firestore/core/src/util/log.h"
 #include "Firestore/core/src/util/status.h"
@@ -85,16 +85,16 @@ using firebase::firestore::model::OnlineState;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
 using firebase::firestore::remote::CreateNoOpConnectivityMonitor;
+using firebase::firestore::remote::CreateNoOpFirebasePlatformLogging;
 using firebase::firestore::remote::ConnectivityMonitor;
+using firebase::firestore::remote::FirebasePlatformLogging;
 using firebase::firestore::remote::MockDatastore;
 using firebase::firestore::remote::RemoteStore;
 using firebase::firestore::remote::WatchChange;
 using firebase::firestore::util::AsyncQueue;
 using firebase::firestore::util::DelayedConstructor;
-using firebase::firestore::util::CreateNoOpFirebasePlatformLogging;
 using firebase::firestore::util::Empty;
 using firebase::firestore::util::Executor;
-using firebase::firestore::util::FirebasePlatformLogging;
 using firebase::firestore::util::MakeNSError;
 using firebase::firestore::util::MakeNSString;
 using firebase::firestore::util::MakeString;
@@ -226,10 +226,9 @@ NS_ASSUME_NONNULL_BEGIN
     _connectivityMonitor = CreateNoOpConnectivityMonitor();
     _firebasePlatformLogging = CreateNoOpFirebasePlatformLogging();
 
-    _datastore = std::make_shared<MockDatastore>(_databaseInfo, _workerQueue,
-                                                 std::make_shared<EmptyCredentialsProvider>(),
-                                                 _connectivityMonitor.get(),
-                                                 _firebasePlatformLogging.get());
+    _datastore = std::make_shared<MockDatastore>(
+        _databaseInfo, _workerQueue, std::make_shared<EmptyCredentialsProvider>(),
+        _connectivityMonitor.get(), _firebasePlatformLogging.get());
     _remoteStore = absl::make_unique<RemoteStore>(
         _localStore.get(), _datastore, _workerQueue, _connectivityMonitor.get(),
         [self](OnlineState onlineState) { _syncEngine->HandleOnlineStateChange(onlineState); });

@@ -55,7 +55,6 @@ using model::MaybeDocument;
 using model::Mutation;
 using util::AsyncQueue;
 using util::Executor;
-using util::FirebasePlatformLogging;
 using util::LogIsDebugEnabled;
 using util::Status;
 using util::StatusOr;

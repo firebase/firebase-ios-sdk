@@ -22,7 +22,7 @@
 
 #include "Firestore/core/src/model/model_fwd.h"
 #include "Firestore/core/src/remote/datastore.h"
-#include "Firestore/core/src/util/firebase_platform_logging.h"
+#include "Firestore/core/src/remote/firebase_platform_logging.h"
 #include "Firestore/core/src/util/status_fwd.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -41,7 +41,7 @@ class MockDatastore : public Datastore {
                 const std::shared_ptr<util::AsyncQueue>& worker_queue,
                 std::shared_ptr<auth::CredentialsProvider> credentials,
                 ConnectivityMonitor* connectivity_monitor,
-                util::FirebasePlatformLogging* firebase_platform_logging);
+                FirebasePlatformLogging* firebase_platform_logging);
 
   std::shared_ptr<WatchStream> CreateWatchStream(WatchStreamCallback* callback) override;
   std::shared_ptr<WriteStream> CreateWriteStream(WriteStreamCallback* callback) override;

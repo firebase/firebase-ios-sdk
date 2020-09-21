@@ -25,7 +25,7 @@
 #include "Firestore/core/src/api/settings.h"
 #include "Firestore/core/src/core/core_fwd.h"
 #include "Firestore/core/src/model/database_id.h"
-#include "Firestore/core/src/util/firebase_platform_logging.h"
+#include "Firestore/core/src/remote/firebase_platform_logging.h"
 #include "Firestore/core/src/util/status_fwd.h"
 
 namespace firebase {
@@ -52,7 +52,7 @@ class Firestore : public std::enable_shared_from_this<Firestore> {
             std::string persistence_key,
             std::shared_ptr<auth::CredentialsProvider> credentials_provider,
             std::shared_ptr<util::AsyncQueue> worker_queue,
-            std::unique_ptr<util::FirebasePlatformLogging> firebase_platform_logging,
+            std::unique_ptr<remote::FirebasePlatformLogging> firebase_platform_logging,
             void* extension);
 
   ~Firestore();
@@ -115,7 +115,7 @@ class Firestore : public std::enable_shared_from_this<Firestore> {
   std::shared_ptr<util::Executor> user_executor_;
   std::shared_ptr<util::AsyncQueue> worker_queue_;
 
-  std::unique_ptr<util::FirebasePlatformLogging> firebase_platform_logging_;
+  std::unique_ptr<remote::FirebasePlatformLogging> firebase_platform_logging_;
 
   void* extension_ = nullptr;
 

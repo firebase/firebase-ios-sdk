@@ -29,11 +29,11 @@
 #include "Firestore/core/src/auth/credentials_provider.h"
 #include "Firestore/core/src/auth/firebase_credentials_provider_apple.h"
 #include "Firestore/core/src/model/maybe_document.h"
+#include "Firestore/core/src/remote/firebase_platform_logging.h"
+#include "Firestore/core/src/remote/firebase_platform_logging_apple.h"
 #include "Firestore/core/src/util/async_queue.h"
 #include "Firestore/core/src/util/exception.h"
 #include "Firestore/core/src/util/executor.h"
-#include "Firestore/core/src/util/firebase_platform_logging.h"
-#include "Firestore/core/src/util/firebase_platform_logging_apple.h"
 #include "Firestore/core/src/util/hard_assert.h"
 #include "absl/memory/memory.h"
 
@@ -41,10 +41,10 @@ namespace util = firebase::firestore::util;
 using firebase::firestore::api::Firestore;
 using firebase::firestore::auth::CredentialsProvider;
 using firebase::firestore::auth::FirebaseCredentialsProvider;
+using firebase::firestore::remote::FirebasePlatformLogging;
+using firebase::firestore::remote::FirebasePlatformLoggingApple;
 using firebase::firestore::util::AsyncQueue;
 using firebase::firestore::util::Executor;
-using firebase::firestore::util::FirebasePlatformLogging;
-using firebase::firestore::util::FirebasePlatformLoggingApple;
 using firebase::firestore::util::ThrowInvalidArgument;
 
 NS_ASSUME_NONNULL_BEGIN

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/util/firebase_platform_logging_apple.h"
+#include "Firestore/core/src/remote/firebase_platform_logging_apple.h"
 
 #import "FirebaseCore/Sources/Private/FIRAppInternal.h"
 #import "FirebaseCore/Sources/Private/FIRHeartbeatInfo.h"
@@ -25,7 +25,9 @@
 
 namespace firebase {
 namespace firestore {
-namespace util {
+namespace remote {
+
+using util::MakeString;
 
 FirebasePlatformLoggingApple::FirebasePlatformLoggingApple(FIRApp* app)
     : app_(app) {
@@ -51,6 +53,6 @@ std::string FirebasePlatformLoggingApple::GetGmpAppId() const {
   return MakeString(app_.options.googleAppID);
 }
 
-}  // namespace util
+}  // namespace remote
 }  // namespace firestore
 }  // namespace firebase

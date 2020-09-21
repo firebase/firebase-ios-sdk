@@ -14,32 +14,46 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_UTIL_FIREBASE_PLATFORM_LOGGING_NOOP_H_
-#define FIRESTORE_CORE_SRC_UTIL_FIREBASE_PLATFORM_LOGGING_NOOP_H_
+#ifndef FIRESTORE_CORE_SRC_REMOTE_FIREBASE_PLATFORM_LOGGING_NOOP_H_
+#define FIRESTORE_CORE_SRC_REMOTE_FIREBASE_PLATFORM_LOGGING_NOOP_H_
 
 #include <memory>
 #include <string>
 
-#include "Firestore/core/src/util/firebase_platform_logging.h"
+#include "Firestore/core/src/remote/firebase_platform_logging.h"
 
 namespace firebase {
 namespace firestore {
-namespace util {
+namespace remote {
 
 class FirebasePlatformLoggingNoOp : public FirebasePlatformLogging {
  public:
-   bool IsLoggingAvailable() const override { return false; }
-   std::string GetUserAgent() const override { return ""; }
-   std::string GetHeartbeat() const override { return ""; }
+  bool IsLoggingAvailable() const override {
+    return false;
+  }
 
-   bool IsGmpAppIdAvailable() const override { return false; }
-   std::string GetGmpAppId() const override { return ""; }
+  std::string GetUserAgent() const override {
+    return "";
+  }
+
+  std::string GetHeartbeat() const override {
+    return "";
+  }
+
+  bool IsGmpAppIdAvailable() const override {
+    return false;
+  }
+
+  std::string GetGmpAppId() const override {
+    return "";
+  }
 };
 
-std::unique_ptr<FirebasePlatformLoggingNoOp> CreateNoOpFirebasePlatformLogging();
+std::unique_ptr<FirebasePlatformLoggingNoOp>
+CreateNoOpFirebasePlatformLogging();
 
-}  // namespace util
+}  // namespace remote
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_UTIL_FIREBASE_PLATFORM_LOGGING_NOOP_H_
+#endif  // FIRESTORE_CORE_SRC_REMOTE_FIREBASE_PLATFORM_LOGGING_NOOP_H_

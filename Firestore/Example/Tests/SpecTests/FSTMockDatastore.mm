@@ -51,13 +51,13 @@ using firebase::firestore::model::MutationResult;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
 using firebase::firestore::remote::ConnectivityMonitor;
+using firebase::firestore::remote::FirebasePlatformLogging;
 using firebase::firestore::remote::GrpcConnection;
 using firebase::firestore::remote::WatchChange;
 using firebase::firestore::remote::WatchStream;
 using firebase::firestore::remote::WatchTargetChange;
 using firebase::firestore::remote::WriteStream;
 using firebase::firestore::util::AsyncQueue;
-using firebase::firestore::util::FirebasePlatformLogging;
 using firebase::firestore::util::Status;
 
 namespace firebase {

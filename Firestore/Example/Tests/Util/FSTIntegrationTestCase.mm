@@ -40,11 +40,11 @@
 #include "Firestore/core/src/auth/user.h"
 #include "Firestore/core/src/local/leveldb_opener.h"
 #include "Firestore/core/src/model/database_id.h"
+#include "Firestore/core/src/remote/firebase_platform_logging_apple.h"
 #include "Firestore/core/src/remote/grpc_connection.h"
 #include "Firestore/core/src/util/async_queue.h"
 #include "Firestore/core/src/util/autoid.h"
 #include "Firestore/core/src/util/filesystem.h"
-#include "Firestore/core/src/util/firebase_platform_logging_apple.h"
 #include "Firestore/core/src/util/path.h"
 #include "Firestore/core/src/util/string_apple.h"
 #include "Firestore/core/test/unit/testutil/app_testing.h"
@@ -62,13 +62,13 @@ using firebase::firestore::auth::User;
 using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::local::LevelDbOpener;
 using firebase::firestore::model::DatabaseId;
+using firebase::firestore::remote::GrpcConnection;
+using firebase::firestore::remote::FirebasePlatformLoggingApple;
 using firebase::firestore::testutil::AppForUnitTesting;
 using firebase::firestore::testutil::AsyncQueueForTesting;
-using firebase::firestore::remote::GrpcConnection;
 using firebase::firestore::util::AsyncQueue;
 using firebase::firestore::util::CreateAutoId;
 using firebase::firestore::util::Filesystem;
-using firebase::firestore::util::FirebasePlatformLoggingApple;
 using firebase::firestore::util::Path;
 using firebase::firestore::util::Status;
 using firebase::firestore::util::StatusOr;
@@ -277,7 +277,7 @@ class FakeCredentialsProvider : public EmptyCredentialsProvider {
                                 persistenceKey:util::MakeString(persistenceKey)
                            credentialsProvider:_fakeCredentialsProvider
                                    workerQueue:AsyncQueueForTesting()
-                                   firebasePlatformLogging:absl::make_unique<FirebasePlatformLoggingApple>(app)
+                       firebasePlatformLogging:absl::make_unique<FirebasePlatformLoggingApple>(app)
                                    firebaseApp:app
                               instanceRegistry:nil];
 

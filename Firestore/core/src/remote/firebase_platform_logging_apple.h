@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_UTIL_FIREBASE_PLATFORM_LOGGING_APPLE_H_
-#define FIRESTORE_CORE_SRC_UTIL_FIREBASE_PLATFORM_LOGGING_APPLE_H_
+#ifndef FIRESTORE_CORE_SRC_REMOTE_FIREBASE_PLATFORM_LOGGING_APPLE_H_
+#define FIRESTORE_CORE_SRC_REMOTE_FIREBASE_PLATFORM_LOGGING_APPLE_H_
 
 #if !defined(__OBJC__)
 #error "This header only supports Objective-C++."
@@ -23,13 +23,13 @@
 
 #include <string>
 
-#include "Firestore/core/src/util/firebase_platform_logging.h"
+#include "Firestore/core/src/remote/firebase_platform_logging.h"
 
 @class FIRApp;
 
 namespace firebase {
 namespace firestore {
-namespace util {
+namespace remote {
 
 class FirebasePlatformLoggingApple : public FirebasePlatformLogging {
  public:
@@ -46,8 +46,8 @@ class FirebasePlatformLoggingApple : public FirebasePlatformLogging {
    FIRApp* app_;
 };
 
-}  // namespace util
+}  // namespace remote
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_UTIL_FIREBASE_PLATFORM_LOGGING_APPLE_H_
+#endif  // FIRESTORE_CORE_SRC_REMOTE_FIREBASE_PLATFORM_LOGGING_APPLE_H_

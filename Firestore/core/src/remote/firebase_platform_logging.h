@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_UTIL_FIREBASE_PLATFORM_LOGGING_H_
-#define FIRESTORE_CORE_SRC_UTIL_FIREBASE_PLATFORM_LOGGING_H_
+#ifndef FIRESTORE_CORE_SRC_REMOTE_FIREBASE_PLATFORM_LOGGING_H_
+#define FIRESTORE_CORE_SRC_REMOTE_FIREBASE_PLATFORM_LOGGING_H_
 
 #include <string>
 
 namespace firebase {
 namespace firestore {
-namespace util {
+namespace remote {
 
 class FirebasePlatformLogging {
  public:
@@ -35,8 +35,8 @@ class FirebasePlatformLogging {
    virtual std::string GetGmpAppId() const = 0;
 };
 
-}  // namespace util
+}  // namespace remote
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_UTIL_FIREBASE_PLATFORM_LOGGING_H_
+#endif  // FIRESTORE_CORE_SRC_REMOTE_FIREBASE_PLATFORM_LOGGING_H_

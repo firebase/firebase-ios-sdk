@@ -22,7 +22,7 @@
 #include <utility>
 #include <vector>
 
-#include "Firestore/core/src/util/firebase_platform_logging_noop.h"
+#include "Firestore/core/src/remote/firebase_platform_logging_noop.h"
 #include "Firestore/core/src/util/hard_assert.h"
 #include "Firestore/core/src/util/string_format.h"
 #include "Firestore/core/test/unit/testutil/async_testing.h"
@@ -37,7 +37,6 @@ using auth::User;
 using model::DatabaseId;
 using testutil::ExecutorForTesting;
 using util::AsyncQueue;
-using util::CreateNoOpFirebasePlatformLogging;
 using util::StringFormat;
 
 // Misc

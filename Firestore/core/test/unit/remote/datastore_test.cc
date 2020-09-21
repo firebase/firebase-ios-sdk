@@ -25,12 +25,12 @@
 #include "Firestore/core/src/model/mutation.h"
 #include "Firestore/core/src/nanopb/message.h"
 #include "Firestore/core/src/nanopb/nanopb_util.h"
+#include "Firestore/core/src/remote/firebase_platform_logging.h"
+#include "Firestore/core/src/remote/firebase_platform_logging_noop.h"
 #include "Firestore/core/src/remote/grpc_nanopb.h"
 #include "Firestore/core/src/remote/serializer.h"
 #include "Firestore/core/src/util/async_queue.h"
 #include "Firestore/core/src/util/executor.h"
-#include "Firestore/core/src/util/firebase_platform_logging.h"
-#include "Firestore/core/src/util/firebase_platform_logging_noop.h"
 #include "Firestore/core/src/util/status.h"
 #include "Firestore/core/src/util/statusor.h"
 #include "Firestore/core/src/util/string_apple.h"
@@ -60,9 +60,7 @@ using nanopb::Message;
 using testing::Not;
 using testutil::Value;
 using util::AsyncQueue;
-using util::CreateNoOpFirebasePlatformLogging;
 using util::Executor;
-using util::FirebasePlatformLogging;
 using util::Status;
 using util::StatusOr;
 
@@ -111,7 +109,8 @@ std::shared_ptr<FakeDatastore> CreateDatastore(
     ConnectivityMonitor* connectivity_monitor,
     FirebasePlatformLogging* firebase_platform_logging) {
   return std::make_shared<FakeDatastore>(database_info, worker_queue,
-                                         credentials, connectivity_monitor, firebase_platform_logging);
+                                         credentials, connectivity_monitor,
+                                         firebase_platform_logging);
 }
 
 }  // namespace
