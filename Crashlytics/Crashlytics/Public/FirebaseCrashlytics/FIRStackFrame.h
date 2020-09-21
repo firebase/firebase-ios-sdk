@@ -40,7 +40,7 @@ NS_SWIFT_NAME(StackFrame)
  * Creates a symbolicated Stack Frame from an address. The address will be
  * symbolicated in the Crashlytics backend for the customer and reported in the
  * Crahslytics dashboard with the appropriate file name and line number. If an
- * invalid address is provided it will appear in the dashboard as <missing>.
+ * invalid address is provided it will appear in the dashboard as missing.
  *
  * @param address - the address where the exception occurred
  */
