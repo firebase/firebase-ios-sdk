@@ -50,7 +50,7 @@ jobs:
     needs: buildup_SpecsReleasing_repo
     strategy:
       matrix:
-        pods: [ABTesting_abtesting, authentication, crashlytics, database, dynamiclinks, firestore, functions, inappmessaging, messaging, remoteconfig, storage]
+        pods: [ABTesting_abtesting, Database_database, authentication, crashlytics, dynamiclinks, firestore, functions, inappmessaging, messaging, remoteconfig, storage]
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
