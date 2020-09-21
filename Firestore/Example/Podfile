@@ -88,7 +88,7 @@ end
 
 if is_platform(:ios)
   target 'Firestore_Example_iOS' do
-    platform :ios, '8.0'
+    platform :ios, '10.0'
 
     configure_local_pods()
 
@@ -130,7 +130,7 @@ end
 
 if is_platform(:osx)
   target 'Firestore_Example_macOS' do
-    platform :osx, '10.11'
+    platform :osx, '10.12'
 
     configure_local_pods()
 

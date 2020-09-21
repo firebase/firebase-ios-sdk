@@ -16,7 +16,7 @@ Firebase Dynamic Links are deep links that enhance user experience and increase 
     :tag => 'DynamicLinks-' + s.version.to_s
   }
   s.social_media_url = 'https://twitter.com/Firebase'
-  s.ios.deployment_target = '8.0'
+  s.ios.deployment_target = '10.0'
 
   s.cocoapods_version = '>= 1.4.0'
   s.static_framework = true

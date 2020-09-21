@@ -11,8 +11,8 @@ Pod::Spec.new do |s|
     :tag => 'Crashlytics-' + s.version.to_s
   }
 
-  s.ios.deployment_target = '8.0'
-  s.osx.deployment_target = '10.11'
+  s.ios.deployment_target = '10.0'
+  s.osx.deployment_target = '10.12'
   s.tvos.deployment_target = '10.0'
   s.watchos.deployment_target = '6.0'
 
