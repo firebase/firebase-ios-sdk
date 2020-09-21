@@ -23,15 +23,36 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
+/**
+ * Wraps the platform-dependent functionality associated with Firebase platform
+ * logging.
+ */
 class FirebasePlatformLogging {
  public:
    virtual ~FirebasePlatformLogging() = default;
 
+   /**
+    * Returns whether logging is avaliable for sending. If false, no information
+    * should be sent to the backend.
+    */
    virtual bool IsLoggingAvailable() const = 0;
+
+   /**
+    * Returns the user agent string that contains the platform info to send to
+    * the backend.
+    */
    virtual std::string GetUserAgent() const = 0;
+
+   /** Returns the heartbeat value to send along with the user agent string. */
    virtual std::string GetHeartbeat() const = 0;
 
+   /** Returns whether the GMP app ID can be sent to the backend. */
    virtual bool IsGmpAppIdAvailable() const = 0;
+
+   /**
+    * Returns the GMP app ID. Make sure to check whether it can be sent by
+    * calling `IsGmpAppIdAvailable` first.
+    */
    virtual std::string GetGmpAppId() const = 0;
 };
 
