@@ -24,7 +24,7 @@ extension Constants {
   static let dependencyLineSeparators = CharacterSet(charactersIn: " ,/")
   static let podSources = [
     "https://${BOT_TOKEN}@github.com/FirebasePrivate/SpecsTesting",
-    "https://cdn.cocoapods.org/",
+    "https://github.com/CocoaPods/Specs",
   ]
   static let exclusivePods: [String] = ["GoogleAppMeasurement", "FirebaseAnalytics"]
 }
@@ -81,7 +81,7 @@ struct Shell {
     task.waitUntilExit()
     let data = pipe.fileHandleForReading.readDataToEndOfFile()
     let log = String(data: data, encoding: .utf8)!
-    if displayFailureResult{
+    if displayFailureResult, task.terminationStatus != 0 {
       print("-----Exit code: \(task.terminationStatus)")
       print("-----Log:\n \(log)")
     }
@@ -235,10 +235,6 @@ struct SpecRepoBuilder: ParsableCommand {
     let podPath = sdkRepo + "/" + pod + ".podspec"
     let sourcesArg = sources.joined(separator: ",")
     let flagsArg = flags.joined(separator: " ")
-    shell.run("pod --version")
-    shell.run("sudo gem install cocoapods")
-    shell.run("pod --version")
-
 
     let outcome =
       shell
@@ -317,7 +313,7 @@ struct SpecRepoBuilder: ParsableCommand {
         print("remove \(sdkRepoName) dir.")
         try fileManager.removeItem(at: URL(fileURLWithPath: "\(curDir)/\(sdkRepoName)"))
       }
-      // eraseRemoteRepo(repoPath: "\(curDir)", from: githubAccount, sdkRepoName)
+      eraseRemoteRepo(repoPath: "\(curDir)", from: githubAccount, sdkRepoName)
 
     } catch {
       print("error occurred. \(error)")
@@ -325,18 +321,10 @@ struct SpecRepoBuilder: ParsableCommand {
 
     var exitCode: Int32 = 0
     var failedPods: [String] = []
-
     for pod in specFileDict.depInstallOrder {
       var podExitCode: Int32 = 0
       print("----------\(pod)-----------")
       switch pod {
-      case "FirebaseStorageSwift":
-        podExitCode = pushPodspec(
-          forPod: pod,
-          sdkRepo: sdkRepo,
-          sources: podSources,
-          flags: Constants.flags
-        )
       case "Firebase":
         podExitCode = pushPodspec(
           forPod: pod,
@@ -345,7 +333,12 @@ struct SpecRepoBuilder: ParsableCommand {
           flags: Constants.umbrellaPodFlags
         )
       default:
-        continue
+        podExitCode = pushPodspec(
+          forPod: pod,
+          sdkRepo: sdkRepo,
+          sources: podSources,
+          flags: Constants.flags
+        )
       }
       if podExitCode != 0 {
         exitCode = 1
