@@ -47,6 +47,11 @@ typedef void (^FIRHeadfulLiteURLCallBack)(NSURL *_Nullable headfulLiteURL,
  */
 NSString *const kHeadfulLiteURLStringFormat = @"https://%@/__/auth/handler?%@";
 
+/** @var kHeadfulLiteEmulatorURLStringFormat
+    @brief The format of the URL used to open the emulated headful lite page during sign-in.
+ */
+NSString *const kHeadfulLiteEmulatorURLStringFormat = @"http://%@/emulator/auth/handler?%@";
+
 /** @var kauthTypeSignInWithRedirect
     @brief The auth type to be specified in the sign-in request with redirect request and response.
  */
@@ -323,9 +328,17 @@ static NSString *const kCustomUrlSchemePrefix = @"app-";
                                      }
                                      NSString *argumentsString = [strongSelf
                                          httpArgumentsStringForArgsDictionary:urlArguments];
-                                     NSString *URLString =
-                                         [NSString stringWithFormat:kHeadfulLiteURLStringFormat,
-                                                                    authDomain, argumentsString];
+                                     NSString *URLString;
+                                     if (strongSelf->_auth.requestConfiguration
+                                             .emulatorHostAndPort) {
+                                       URLString = [NSString
+                                           stringWithFormat:kHeadfulLiteEmulatorURLStringFormat,
+                                                            authDomain, argumentsString];
+                                     } else {
+                                       URLString =
+                                           [NSString stringWithFormat:kHeadfulLiteURLStringFormat,
+                                                                      authDomain, argumentsString];
+                                     }
                                      if (completion) {
                                        NSCharacterSet *set =
                                            [NSCharacterSet URLFragmentAllowedCharacterSet];

@@ -20,6 +20,7 @@
 
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRActionCodeSettings.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAdditionalUserInfo.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthSettings.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIREmailAuthProvider.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRFacebookAuthProvider.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRGoogleAuthProvider.h"
@@ -2189,6 +2190,41 @@ static const NSTimeInterval kWaitInterval = .5;
   [[FIRAuth auth] removeIDTokenDidChangeListener:handle];
   [self waitForSignIn];
   [self waitForTimeIntervel:kWaitInterval];  // make sure listener is no longer called
+}
+
+/** @fn testUseEmulator
+    @brief Tests the @c useEmulatorWithHost:port: method.
+ */
+- (void)testUseEmulator {
+  [[FIRAuth auth] useEmulatorWithHost:@"host" port:12345];
+
+  XCTAssertEqualObjects(@"host:12345", [FIRAuth auth].requestConfiguration.emulatorHostAndPort);
+#if TARGET_OS_IOS
+  XCTAssertTrue([FIRAuth auth].settings.isAppVerificationDisabledForTesting);
+#endif
+}
+
+/** @fn testUseEmulatorNeverCalled
+    @brief Tests that the emulatorHostAndPort stored in @c FIRAuthRequestConfiguration is nil if the
+   @c useEmulatorWithHost:port: is not called.
+ */
+- (void)testUseEmulatorNeverCalled {
+  XCTAssertEqualObjects(nil, [FIRAuth auth].requestConfiguration.emulatorHostAndPort);
+#if TARGET_OS_IOS
+  XCTAssertFalse([FIRAuth auth].settings.isAppVerificationDisabledForTesting);
+#endif
+}
+
+/** @fn testUseEmulatorIPv6Address
+    @brief Tests the @c useEmulatorWithHost:port: method with an IPv6 host address.
+ */
+- (void)testUseEmulatorIPv6Address {
+  [[FIRAuth auth] useEmulatorWithHost:@"::1" port:12345];
+
+  XCTAssertEqualObjects(@"[::1]:12345", [FIRAuth auth].requestConfiguration.emulatorHostAndPort);
+#if TARGET_OS_IOS
+  XCTAssertTrue([FIRAuth auth].settings.isAppVerificationDisabledForTesting);
+#endif
 }
 
 #pragma mark - Automatic Token Refresh Tests.

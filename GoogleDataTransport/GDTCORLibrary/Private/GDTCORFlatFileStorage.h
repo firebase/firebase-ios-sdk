@@ -46,6 +46,15 @@ FOUNDATION_EXPORT NSString *const kGDTCORBatchComponentsBatchIDKey;
 /** The batch components expiration dictionary key. */
 FOUNDATION_EXPORT NSString *const kGDTCORBatchComponentsExpirationKey;
 
+/** The maximum allowed disk space taken by the stored data. */
+FOUNDATION_EXPORT const uint64_t kGDTCORFlatFileStorageSizeLimit;
+
+FOUNDATION_EXPORT NSString *const GDTCORFlatFileStorageErrorDomain;
+
+typedef NS_ENUM(NSInteger, GDTCORFlatFileStorageError) {
+  GDTCORFlatFileStorageErrorSizeLimitReached = 0
+};
+
 /** Manages the storage of events. This class is thread-safe.
  *
  * Event files will be stored as follows:

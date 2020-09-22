@@ -251,7 +251,7 @@ To install, add a subset of the following to the Podfile:
 ```
 pod 'Firebase/ABTesting'     # No watchOS support yet
 pod 'Firebase/Auth'          # Limited watchOS support
-pod 'Firebase/Crashlytics'   # No watchOS support yet
+pod 'Firebase/Crashlytics'
 pod 'Firebase/Database'      # No watchOS support yet
 pod 'Firebase/Firestore'     # No watchOS support yet
 pod 'Firebase/Functions'     # No watchOS support yet

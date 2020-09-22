@@ -1462,6 +1462,26 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   });
 }
 
+- (void)useEmulatorWithHost:(NSString *)host port:(NSInteger)port {
+  NSAssert(host.length > 0, @"Cannot connect to nil or empty host");
+
+  NSString *formattedHost;
+  if ([host containsString:@":"]) {
+    // Host is an IPv6 address and should be formatted with surrounding brackets.
+    formattedHost = [NSString stringWithFormat:@"[%@]", host];
+  } else {
+    formattedHost = host;
+  }
+
+  dispatch_sync(FIRAuthGlobalWorkQueue(), ^{
+    self->_requestConfiguration.emulatorHostAndPort =
+        [NSString stringWithFormat:@"%@:%ld", formattedHost, (long)port];
+#if TARGET_OS_IOS
+    self->_settings.appVerificationDisabledForTesting = YES;
+#endif
+  });
+}
+
 - (nullable NSString *)languageCode {
   return _requestConfiguration.languageCode;
 }
