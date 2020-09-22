@@ -81,7 +81,7 @@ struct Shell {
     task.waitUntilExit()
     let data = pipe.fileHandleForReading.readDataToEndOfFile()
     let log = String(data: data, encoding: .utf8)!
-    if displayFailureResult, task.terminationStatus != 0 {
+    if displayFailureResult{
       print("-----Exit code: \(task.terminationStatus)")
       print("-----Log:\n \(log)")
     }
