@@ -235,6 +235,10 @@ struct SpecRepoBuilder: ParsableCommand {
     let podPath = sdkRepo + "/" + pod + ".podspec"
     let sourcesArg = sources.joined(separator: ",")
     let flagsArg = flags.joined(separator: " ")
+    shell.run("pod --version")
+    shell.run("sudo gem install cocoapods")
+    Shell.run("pod --version")
+
 
     let outcome =
       shell
@@ -321,10 +325,6 @@ struct SpecRepoBuilder: ParsableCommand {
 
     var exitCode: Int32 = 0
     var failedPods: [String] = []
-    shell: Shell = Shell.shared
-    shell.run("pod --version")
-    shell.run("sudo gem install cocoapods")
-    shell.run("pod --version")
 
     for pod in specFileDict.depInstallOrder {
       var podExitCode: Int32 = 0
