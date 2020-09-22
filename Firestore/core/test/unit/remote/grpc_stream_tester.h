@@ -26,7 +26,6 @@
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/core/database_info.h"
 #include "Firestore/core/src/remote/connectivity_monitor.h"
-#include "Firestore/core/src/remote/firebase_platform_logging.h"
 #include "Firestore/core/src/remote/grpc_completion.h"
 #include "Firestore/core/src/remote/grpc_connection.h"
 #include "Firestore/core/src/remote/grpc_stream.h"
@@ -44,6 +43,8 @@
 namespace firebase {
 namespace firestore {
 namespace remote {
+
+class FirebasePlatformLogging;
 
 std::string GetGrpcErrorCodeName(grpc::StatusCode error);
 std::string GetFirestoreErrorName(Error error);

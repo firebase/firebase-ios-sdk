@@ -22,7 +22,6 @@
 
 #include "Firestore/core/src/model/model_fwd.h"
 #include "Firestore/core/src/remote/datastore.h"
-#include "Firestore/core/src/remote/firebase_platform_logging.h"
 #include "Firestore/core/src/util/status_fwd.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -32,6 +31,7 @@ namespace firestore {
 namespace remote {
 
 class ConnectivityMonitor;
+class FirebasePlatformLogging;
 class MockWatchStream;
 class MockWriteStream;
 

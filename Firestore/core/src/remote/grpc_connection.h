@@ -25,7 +25,6 @@
 #include "Firestore/core/src/auth/token.h"
 #include "Firestore/core/src/core/database_info.h"
 #include "Firestore/core/src/remote/connectivity_monitor.h"
-#include "Firestore/core/src/remote/firebase_platform_logging.h"
 #include "Firestore/core/src/remote/grpc_call.h"
 #include "Firestore/core/src/remote/grpc_stream.h"
 #include "Firestore/core/src/remote/grpc_stream_observer.h"
@@ -45,6 +44,8 @@ SUPPRESS_END()
 namespace firebase {
 namespace firestore {
 namespace remote {
+
+class FirebasePlatformLogging;
 
 // PORTING NOTE: this class has limited resemblance to `GrpcConnection` in Web
 // client. However, unlike Web client, it's not meant to hide different

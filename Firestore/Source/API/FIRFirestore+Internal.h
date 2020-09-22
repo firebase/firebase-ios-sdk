@@ -21,12 +21,19 @@
 
 #include "Firestore/core/src/api/firestore.h"
 #include "Firestore/core/src/auth/credentials_provider.h"
-#include "Firestore/core/src/remote/firebase_platform_logging.h"
 #include "Firestore/core/src/util/async_queue.h"
 
 @class FIRApp;
 @class FSTFirestoreClient;
 @class FSTUserDataConverter;
+
+namespace firebase {
+namespace firestore {
+namespace remote {
+class FirebasePlatformLogging;
+}  // namespace remote
+}  // namespace firestore
+}  // namespace firebase
 
 namespace api = firebase::firestore::api;
 namespace auth = firebase::firestore::auth;

@@ -26,7 +26,6 @@
 #include "Firestore/core/src/auth/token.h"
 #include "Firestore/core/src/core/core_fwd.h"
 #include "Firestore/core/src/model/document_key.h"
-#include "Firestore/core/src/remote/firebase_platform_logging.h"
 #include "Firestore/core/src/remote/grpc_call.h"
 #include "Firestore/core/src/remote/grpc_connection.h"
 #include "Firestore/core/src/remote/remote_objc_bridge.h"
@@ -44,6 +43,7 @@ namespace firestore {
 namespace remote {
 
 class ConnectivityMonitor;
+class FirebasePlatformLogging;
 
 /**
  * `Datastore` represents a proxy for the remote server, hiding details of the

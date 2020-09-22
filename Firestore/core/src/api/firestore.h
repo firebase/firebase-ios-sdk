@@ -25,7 +25,6 @@
 #include "Firestore/core/src/api/settings.h"
 #include "Firestore/core/src/core/core_fwd.h"
 #include "Firestore/core/src/model/database_id.h"
-#include "Firestore/core/src/remote/firebase_platform_logging.h"
 #include "Firestore/core/src/util/status_fwd.h"
 
 namespace firebase {
@@ -34,6 +33,10 @@ namespace firestore {
 namespace auth {
 class CredentialsProvider;
 }  // namespace auth
+
+namespace remote {
+class FirebasePlatformLogging;
+}  // namespace remote
 
 namespace util {
 class AsyncQueue;
@@ -52,7 +55,8 @@ class Firestore : public std::enable_shared_from_this<Firestore> {
             std::string persistence_key,
             std::shared_ptr<auth::CredentialsProvider> credentials_provider,
             std::shared_ptr<util::AsyncQueue> worker_queue,
-            std::unique_ptr<remote::FirebasePlatformLogging> firebase_platform_logging,
+            std::unique_ptr<remote::FirebasePlatformLogging>
+                firebase_platform_logging,
             void* extension);
 
   ~Firestore();
@@ -110,7 +114,6 @@ class Firestore : public std::enable_shared_from_this<Firestore> {
   model::DatabaseId database_id_;
   std::shared_ptr<auth::CredentialsProvider> credentials_provider_;
   std::string persistence_key_;
-  std::shared_ptr<core::FirestoreClient> client_;
 
   std::shared_ptr<util::Executor> user_executor_;
   std::shared_ptr<util::AsyncQueue> worker_queue_;
@@ -122,6 +125,8 @@ class Firestore : public std::enable_shared_from_this<Firestore> {
   Settings settings_;
 
   mutable std::mutex mutex_;
+
+  std::shared_ptr<core::FirestoreClient> client_;
 };
 
 }  // namespace api

@@ -24,7 +24,6 @@
 #include "Firestore/core/src/core/core_fwd.h"
 #include "Firestore/core/src/core/database_info.h"
 #include "Firestore/core/src/model/database_id.h"
-#include "Firestore/core/src/remote/firebase_platform_logging.h"
 #include "Firestore/core/src/util/async_queue.h"
 #include "Firestore/core/src/util/delayed_constructor.h"
 #include "Firestore/core/src/util/empty.h"
@@ -53,6 +52,7 @@ class Mutation;
 
 namespace remote {
 class ConnectivityMonitor;
+class FirebasePlatformLogging;
 class RemoteStore;
 }  // namespace remote
 

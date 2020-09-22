@@ -41,6 +41,7 @@
 #include "Firestore/core/src/core/event_listener.h"
 #include "Firestore/core/src/core/transaction.h"
 #include "Firestore/core/src/model/database_id.h"
+#include "Firestore/core/src/remote/firebase_platform_logging.h"
 #include "Firestore/core/src/util/async_queue.h"
 #include "Firestore/core/src/util/config.h"
 #include "Firestore/core/src/util/empty.h"
