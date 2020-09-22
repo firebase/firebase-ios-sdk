@@ -59,9 +59,6 @@ namespace {
 
 const char* const kAuthorizationHeader = "authorization";
 const char* const kXGoogApiClientHeader = "x-goog-api-client";
-const char* const kXFirebaseClientHeader = "x-firebase-client";
-const char* const kXFirebaseClientLogTypeHeader = "x-firebase-client-log-type";
-const char* const kXFirebaseGmpIdHeader = "x-firebase-gmpid";
 const char* const kGoogleCloudResourcePrefix = "google-cloud-resource-prefix";
 
 std::string MakeString(absl::string_view view) {
@@ -236,7 +233,7 @@ std::unique_ptr<grpc::ClientContext> GrpcConnection::CreateContext(
   }
 
   AddCloudApiHeader(*context);
-  AddFirebasePlatformLoggingHeader(*context);
+  firebase_platform_logging_->UpdateMetadata(*context);
 
   // This header is used to improve routing and project isolation by the
   // backend.
@@ -363,22 +360,6 @@ void GrpcConnection::Unregister(GrpcCall* call) {
 
 void GrpcConnection::SetClientLanguage(std::string language_token) {
   LanguageToken().Set(std::move(language_token));
-}
-
-void GrpcConnection::AddFirebasePlatformLoggingHeader(
-    grpc::ClientContext& context) const {
-  if (!firebase_platform_logging_->IsLoggingAvailable()) {
-    return;
-  }
-
-  context.AddMetadata(kXFirebaseClientHeader,
-                      firebase_platform_logging_->GetUserAgent());
-  context.AddMetadata(kXFirebaseClientLogTypeHeader,
-                      firebase_platform_logging_->GetHeartbeat());
-  if (firebase_platform_logging_->IsGmpAppIdAvailable()) {
-    context.AddMetadata(kXFirebaseGmpIdHeader,
-                        firebase_platform_logging_->GetGmpAppId());
-  }
 }
 
 void GrpcConnection::UseInsecureChannel(const std::string& host) {

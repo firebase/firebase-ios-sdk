@@ -19,9 +19,10 @@
 #import "FirebaseCore/Sources/Private/FIRAppInternal.h"
 #import "FirebaseCore/Sources/Private/FIRHeartbeatInfo.h"
 #import "FirebaseCore/Sources/Private/FIROptionsInternal.h"
-//#import "FirebaseCore/Sources/Public/FirebaseCore/FIRApp.h"
 
 #include "Firestore/core/src/util/string_apple.h"
+
+NS_ASSUME_NONNULL_BEGIN
 
 namespace firebase {
 namespace firestore {
@@ -33,8 +34,18 @@ FirebasePlatformLoggingApple::FirebasePlatformLoggingApple(FIRApp* app)
     : app_(app) {
 }
 
-bool FirebasePlatformLoggingApple::IsLoggingAvailable() const {
-  return [app_ isDataCollectionDefaultEnabled];
+void FirebasePlatformLoggingApple::UpdateMetadata(grpc::ClientContext& context) {
+  if (![app_ isDataCollectionDefaultEnabled]) {
+    return;
+  }
+
+  context.AddMetadata(kXFirebaseClientHeader, GetUserAgent());
+  context.AddMetadata(kXFirebaseClientLogTypeHeader, GetHeartbeat());
+
+  std::string gmp_app_id = GetGmpAppId();
+  if (!gmp_app_id.empty()) {
+    context.AddMetadata(kXFirebaseGmpIdHeader, gmp_app_id);
+  }
 }
 
 std::string FirebasePlatformLoggingApple::GetUserAgent() const {
@@ -45,13 +56,11 @@ std::string FirebasePlatformLoggingApple::GetHeartbeat() const {
   return std::to_string([FIRHeartbeatInfo heartbeatCodeForTag:@"fire-fst"]);
 }
 
-bool FirebasePlatformLoggingApple::IsGmpAppIdAvailable() const {
-  return [app_.options.googleAppID length] != 0;
-}
-
 std::string FirebasePlatformLoggingApple::GetGmpAppId() const {
   return MakeString(app_.options.googleAppID);
 }
+
+NS_ASSUME_NONNULL_END
 
 }  // namespace remote
 }  // namespace firestore

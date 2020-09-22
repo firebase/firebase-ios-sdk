@@ -19,6 +19,8 @@
 
 #include <string>
 
+#include "grpcpp/client_context.h"
+
 namespace firebase {
 namespace firestore {
 namespace remote {
@@ -29,31 +31,18 @@ namespace remote {
  */
 class FirebasePlatformLogging {
  public:
-   virtual ~FirebasePlatformLogging() = default;
+  static constexpr char kXFirebaseClientHeader[] = "x-firebase-client";
+  static constexpr char kXFirebaseClientLogTypeHeader[] =
+      "x-firebase-client-log-type";
+  static constexpr char kXFirebaseGmpIdHeader[] = "x-firebase-gmpid";
 
-   /**
-    * Returns whether logging is avaliable for sending. If false, no information
-    * should be sent to the backend.
-    */
-   virtual bool IsLoggingAvailable() const = 0;
+  virtual ~FirebasePlatformLogging() = default;
 
-   /**
-    * Returns the user agent string that contains the platform info to send to
-    * the backend.
-    */
-   virtual std::string GetUserAgent() const = 0;
-
-   /** Returns the heartbeat value to send along with the user agent string. */
-   virtual std::string GetHeartbeat() const = 0;
-
-   /** Returns whether the GMP app ID can be sent to the backend. */
-   virtual bool IsGmpAppIdAvailable() const = 0;
-
-   /**
-    * Returns the GMP app ID. Make sure to check whether it can be sent by
-    * calling `IsGmpAppIdAvailable` first.
-    */
-   virtual std::string GetGmpAppId() const = 0;
+  /**
+   * Updates the given `context` with Firebase platform logging headers which
+   * will be sent along with the default headers to the backend.
+   */
+  virtual void UpdateMetadata(grpc::ClientContext& context) = 0;
 };
 
 }  // namespace remote

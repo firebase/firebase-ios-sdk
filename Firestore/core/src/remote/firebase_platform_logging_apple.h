@@ -21,9 +21,13 @@
 #error "This header only supports Objective-C++."
 #endif  // !defined(__OBJC__)
 
+#import <Foundation/Foundation.h>
+
 #include <string>
 
 #include "Firestore/core/src/remote/firebase_platform_logging.h"
+
+NS_ASSUME_NONNULL_BEGIN
 
 @class FIRApp;
 
@@ -35,19 +39,20 @@ class FirebasePlatformLoggingApple : public FirebasePlatformLogging {
  public:
   explicit FirebasePlatformLoggingApple(FIRApp* app);
 
-   bool IsLoggingAvailable() const override;
-   std::string GetUserAgent() const override;
-   std::string GetHeartbeat() const override;
-
-   bool IsGmpAppIdAvailable() const override;
-   std::string GetGmpAppId() const override;
+  void UpdateMetadata(grpc::ClientContext& context) override;
 
  private:
-   FIRApp* app_;
+  std::string GetUserAgent() const;
+  std::string GetHeartbeat() const;
+  std::string GetGmpAppId() const;
+
+  FIRApp* app_;
 };
 
 }  // namespace remote
 }  // namespace firestore
 }  // namespace firebase
+
+NS_ASSUME_NONNULL_END
 
 #endif  // FIRESTORE_CORE_SRC_REMOTE_FIREBASE_PLATFORM_LOGGING_APPLE_H_

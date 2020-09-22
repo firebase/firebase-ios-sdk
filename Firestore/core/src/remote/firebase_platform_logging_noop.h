@@ -28,25 +28,7 @@ namespace remote {
 
 class FirebasePlatformLoggingNoOp : public FirebasePlatformLogging {
  public:
-  bool IsLoggingAvailable() const override {
-    return false;
-  }
-
-  std::string GetUserAgent() const override {
-    return "";
-  }
-
-  std::string GetHeartbeat() const override {
-    return "";
-  }
-
-  bool IsGmpAppIdAvailable() const override {
-    return false;
-  }
-
-  std::string GetGmpAppId() const override {
-    return "";
-  }
+  void UpdateMetadata(grpc::ClientContext& context) override {}
 };
 
 std::unique_ptr<FirebasePlatformLoggingNoOp>
