@@ -237,7 +237,7 @@ struct SpecRepoBuilder: ParsableCommand {
     let flagsArg = flags.joined(separator: " ")
     shell.run("pod --version")
     shell.run("sudo gem install cocoapods")
-    Shell.run("pod --version")
+    shell.run("pod --version")
 
 
     let outcome =
