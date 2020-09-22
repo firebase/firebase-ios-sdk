@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,12 @@
  * limitations under the License.
  */
 
-#import "Functions/Example/TestUtils/FUNFakeInstanceID.h"
+#import "SharedTestUtilities/FIRMessagingInteropFake.h"
 
-NS_ASSUME_NONNULL_BEGIN
+@implementation FIRMessagingInteropFake
 
-@implementation FIRInstanceID
-
-+ (instancetype)instanceID {
-  return [[FIRInstanceID alloc] init];
-}
-
-- (NSString *)token {
-  return @"iid";
+- (NSString *)FCMToken {
+  return @"fakeFCMToken";
 }
 
 @end
-
-NS_ASSUME_NONNULL_END

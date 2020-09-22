@@ -72,6 +72,16 @@ static NSString *const kFakeProviderID = @"fakeProviderID";
  */
 static NSString *const kFakeAPIKey = @"asdfghjkl";
 
+/** @var kFakeEmulatorHost
+    @brief A fake emulator host.
+ */
+static NSString *const kFakeEmulatorHost = @"emulatorhost";
+
+/** @var kFakeEmulatorPort
+    @brief A fake emulator port.
+ */
+static NSString *const kFakeEmulatorPort = @"12345";
+
 /** @var kFakeClientID
     @brief A fake client ID.
  */
@@ -186,6 +196,11 @@ static NSString *const kUnknownErrorString =
       @brief The mock @c FIROptions instance associated with @c _mockApp.
    */
   id _mockOptions;
+
+  /** @var _mockRequestConfiguration
+      @brief The mock @c FIRAuthRequestConfiguration instance associated with @c _mockAuth.
+   */
+  id _mockRequestConfiguration;
 }
 
 - (void)setUp {
@@ -200,9 +215,9 @@ static NSString *const kUnknownErrorString =
   OCMStub([_mockOptions googleAppID]).andReturn(kFakeFirebaseAppID);
   _mockURLPresenter = OCMClassMock([FIRAuthURLPresenter class]);
   OCMStub([_mockAuth authURLPresenter]).andReturn(_mockURLPresenter);
-  id mockRequestConfiguration = OCMClassMock([FIRAuthRequestConfiguration class]);
-  OCMStub([_mockAuth requestConfiguration]).andReturn(mockRequestConfiguration);
-  OCMStub([mockRequestConfiguration APIKey]).andReturn(kFakeAPIKey);
+  _mockRequestConfiguration = OCMClassMock([FIRAuthRequestConfiguration class]);
+  OCMStub([_mockAuth requestConfiguration]).andReturn(_mockRequestConfiguration);
+  OCMStub([_mockRequestConfiguration APIKey]).andReturn(kFakeAPIKey);
 }
 
 /** @fn testObtainingOAuthCredentialNoIDToken
@@ -900,6 +915,100 @@ static NSString *const kUnknownErrorString =
         FIRAuthURLCallbackMatcher callbackMatcher = unretainedArgument;
         NSMutableString *redirectURL = [NSMutableString
             stringWithString:[kFakeEncodedFirebaseAppID
+                                 stringByAppendingString:kFakeRedirectURLResponseURL]];
+        // Add fake OAuthResponse to callback.
+        [redirectURL appendString:kFakeOAuthResponseURL];
+        // Verify that the URL is rejected by the callback matcher without the event ID.
+        XCTAssertFalse(callbackMatcher([NSURL URLWithString:redirectURL]));
+        [redirectURL appendString:@"%26eventId%3D"];
+        [redirectURL appendString:params[@"eventId"]];
+        NSURLComponents *originalComponents = [[NSURLComponents alloc] initWithString:redirectURL];
+        // Verify that the URL is accepted by the callback matcher with the matching event ID.
+        XCTAssertTrue(callbackMatcher([originalComponents URL]));
+        NSURLComponents *components = [originalComponents copy];
+        components.query = @"https";
+        XCTAssertFalse(callbackMatcher([components URL]));
+        components = [originalComponents copy];
+        components.host = @"badhost";
+        XCTAssertFalse(callbackMatcher([components URL]));
+        components = [originalComponents copy];
+        components.path = @"badpath";
+        XCTAssertFalse(callbackMatcher([components URL]));
+        components = [originalComponents copy];
+        components.query = @"badquery";
+        XCTAssertFalse(callbackMatcher([components URL]));
+
+        // `completion` is at index 5
+        [invocation getArgument:&unretainedArgument atIndex:5];
+        FIRAuthURLPresentationCompletion completion = unretainedArgument;
+        dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
+          completion(originalComponents.URL, nil);
+        });
+      });
+
+  XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
+  [_provider
+      getCredentialWithUIDelegate:mockUIDelegate
+                       completion:^(FIRAuthCredential *_Nullable credential,
+                                    NSError *_Nullable error) {
+                         XCTAssertTrue([NSThread isMainThread]);
+                         XCTAssertNil(error);
+                         XCTAssertTrue([credential isKindOfClass:[FIROAuthCredential class]]);
+                         FIROAuthCredential *OAuthCredential = (FIROAuthCredential *)credential;
+                         XCTAssertEqualObjects(kFakeOAuthResponseURL,
+                                               OAuthCredential.OAuthResponseURLString);
+                         [expectation fulfill];
+                       }];
+  [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
+  OCMVerifyAll(_mockBackend);
+}
+
+/** @fn testGetCredentialWithUIDelegateUseEmulator
+    @brief Tests a successful invocation of @c getCredentialWithUIDelegte:completion: when using the
+   emulator.
+ */
+- (void)testGetCredentialWithUIDelegateUseEmulator {
+  OCMStub([_mockOptions clientID]).andReturn(kFakeClientID);
+  NSString *emulatorHostAndPort =
+      [NSString stringWithFormat:@"%@:%@", kFakeEmulatorHost, kFakeEmulatorPort];
+  OCMStub([_mockRequestConfiguration emulatorHostAndPort]).andReturn(emulatorHostAndPort);
+  _provider = [FIROAuthProvider providerWithProviderID:kFakeProviderID auth:_mockAuth];
+
+  id mockBundle = OCMClassMock([NSBundle class]);
+  OCMStub(ClassMethod([mockBundle mainBundle])).andReturn(mockBundle);
+  OCMStub([mockBundle objectForInfoDictionaryKey:@"CFBundleURLTypes"]).andReturn(@[
+    @{@"CFBundleURLSchemes" : @[ kFakeReverseClientID ]}
+  ]);
+  OCMStub([mockBundle bundleIdentifier]).andReturn(kFakeBundleID);
+
+  id mockUIDelegate = OCMProtocolMock(@protocol(FIRAuthUIDelegate));
+
+  // Expect view controller presentation by UIDelegate.
+  OCMExpect([_mockURLPresenter presentURL:OCMOCK_ANY
+                               UIDelegate:mockUIDelegate
+                          callbackMatcher:OCMOCK_ANY
+                               completion:OCMOCK_ANY])
+      .andDo(^(NSInvocation *invocation) {
+        __unsafe_unretained id unretainedArgument;
+        // Indices 0 and 1 indicate the hidden arguments self and _cmd.
+        // `presentURL` is at index 2.
+        [invocation getArgument:&unretainedArgument atIndex:2];
+        NSURL *presentURL = unretainedArgument;
+        XCTAssertEqualObjects(presentURL.scheme, @"http");
+        XCTAssertEqualObjects(presentURL.host, kFakeEmulatorHost);
+        XCTAssertEqualObjects([presentURL.port stringValue], kFakeEmulatorPort);
+        XCTAssertEqualObjects(presentURL.path, @"/emulator/auth/handler");
+        NSDictionary *params = [FIRAuthWebUtils dictionaryWithHttpArgumentsString:presentURL.query];
+        XCTAssertEqualObjects(params[@"ibi"], kFakeBundleID);
+        XCTAssertEqualObjects(params[@"clientId"], kFakeClientID);
+        XCTAssertEqualObjects(params[@"apiKey"], kFakeAPIKey);
+        XCTAssertEqualObjects(params[@"authType"], @"signInWithRedirect");
+        XCTAssertNotNil(params[@"v"]);
+        // `callbackMatcher` is at index 4
+        [invocation getArgument:&unretainedArgument atIndex:4];
+        FIRAuthURLCallbackMatcher callbackMatcher = unretainedArgument;
+        NSMutableString *redirectURL = [NSMutableString
+            stringWithString:[kFakeReverseClientID
                                  stringByAppendingString:kFakeRedirectURLResponseURL]];
         // Add fake OAuthResponse to callback.
         [redirectURL appendString:kFakeOAuthResponseURL];

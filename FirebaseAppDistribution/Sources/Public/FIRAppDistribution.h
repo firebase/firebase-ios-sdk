@@ -29,7 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
 NS_SWIFT_NAME(AppDistribution)
 @interface FIRAppDistribution : NSObject
 
-// Is true if the App Distribution tester is signed in
+/// Returns true if the App Distribution tester is signed in.
 @property(nonatomic, readonly) BOOL isTesterSignedIn;
 
 /** :nodoc: */
@@ -62,28 +62,29 @@ NS_SWIFT_NAME(AppDistribution)
 
 @end
 
-// The error domain for codes in the FIRAppDistributionError enum.
+/// The error domain for codes in the `FIRAppDistributionError` enum.
 FOUNDATION_EXPORT NSString *const FIRAppDistributionErrorDomain
     NS_SWIFT_NAME(AppDistributionErrorDomain);
 
-// The key for finding error details in the NSError userInfo.
+/// The key for finding error details in the `NSError`'s `userInfo`.
 FOUNDATION_EXPORT NSString *const FIRAppDistributionErrorDetailsKey
     NS_SWIFT_NAME(FunctionsErrorDetailsKey);
 
 /**
- *  @enum AppDistributionError
+ * Error codes representing sign in or version check failure reasons.
  */
 typedef NS_ENUM(NSUInteger, FIRAppDistributionError) {
-  /// Unknown error.
+  /// Returned when an unknown error occurred.
   FIRAppDistributionErrorUnknown = 0,
 
-  // Authentication failed
+  /// Returned when App Distribution failed to authenticate the user.
   FIRAppDistributionErrorAuthenticationFailure = 1,
 
-  // Authentication canceled
+  /// Returned when sign-in was cancelled.
   FIRAppDistributionErrorAuthenticationCancelled = 2,
 
-  // Network unavailable to make requests or the request timed out
+  /// Returned when the network was unavailable to make requests or
+  /// the request timed out.
   FIRAppDistributionErrorNetworkFailure = 3,
 
 } NS_SWIFT_NAME(AppDistributionError);

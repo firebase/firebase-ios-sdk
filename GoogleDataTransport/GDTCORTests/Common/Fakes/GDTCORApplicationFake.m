@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,19 @@
  * limitations under the License.
  */
 
-// Note: This file is forked from FIRMessagingInstanceIDProxy.h
+#import "GoogleDataTransport/GDTCORTests/Common/Fakes/GDTCORApplicationFake.h"
 
-#import <Foundation/Foundation.h>
+@implementation GDTCORApplicationFake
 
-/**
- *  FirebaseFunctions cannot always depend on FIRInstanceID directly, due to how it is
- *  packaged. To make it easier to make calls to FIRInstanceID, this proxy class, will provide
- *  method names duplicated from FIRInstanceID, while using reflection-based called to proxy
- *  the requests.
- */
-@interface FUNInstanceIDProxy : NSObject
-- (nullable NSString *)token;
+@synthesize isRunningInBackground;
+
+- (GDTCORBackgroundIdentifier)beginBackgroundTaskWithName:(NSString *)name
+                                        expirationHandler:(void (^__nullable)(void))handler {
+  return self.beginTaskHandler(name, handler);
+}
+
+- (void)endBackgroundTask:(GDTCORBackgroundIdentifier)bgID {
+  self.endTaskHandler(bgID);
+}
+
 @end

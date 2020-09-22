@@ -1,3 +1,7 @@
+# v4.3.1
+- [changed] Client id usage in api call and respective checks in the code.
+- [fixed] Fix attempts to connect to invalid ipv6 domain by updating ipv4 and ipv6 to use a single, valid endpoint (#5032)
+
 # v4.3.0
 - [changed] Functionally neutral public header refactor to enable Swift Package
   Manager support.

@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'Firebase'
-  s.version          = '6.30.0'
+  s.version          = '6.32.2'
   s.summary          = 'Firebase'
 
   s.description      = <<-DESC
@@ -31,12 +31,12 @@ Simplify your app development, grow your user base, and monetize more effectivel
   s.default_subspec = 'Core'
 
   s.subspec 'Core' do |ss|
-    ss.ios.dependency 'FirebaseAnalytics', '6.7.2'
+    ss.ios.dependency 'FirebaseAnalytics', '6.8.2'
     ss.dependency 'Firebase/CoreOnly'
   end
 
   s.subspec 'CoreOnly' do |ss|
-    ss.dependency 'FirebaseCore', '6.10.0'
+    ss.dependency 'FirebaseCore', '6.10.2'
     ss.source_files = 'CoreOnly/Sources/Firebase.h'
     ss.preserve_paths = 'CoreOnly/Sources/module.modulemap'
     if ENV['FIREBASE_POD_REPO_FOR_DEV_POD'] then
@@ -66,38 +66,50 @@ Simplify your app development, grow your user base, and monetize more effectivel
 
   s.subspec 'AdMob' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.ios.dependency 'Google-Mobile-Ads-SDK', '~> 7.50'
+    # 7.64 bumps the minimum iOS version to 9.0, so don't update here until
+    # next major version.
+    ss.ios.dependency 'Google-Mobile-Ads-SDK', '~> 7.63'
   end
 
   s.subspec 'AppDistribution' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.ios.dependency 'FirebaseAppDistribution', '~> 0.9.0'
+    ss.ios.dependency 'FirebaseAppDistribution', '~> 0.9.2'
     ss.ios.deployment_target = '9.0'
   end
 
   s.subspec 'Auth' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseAuth', '~> 6.8.0'
+    ss.dependency 'FirebaseAuth', '~> 6.9.1'
+    # Standard platforms PLUS watchOS.
+    ss.ios.deployment_target = '8.0'
+    ss.osx.deployment_target = '10.11'
+    ss.tvos.deployment_target = '10.0'
+    ss.watchos.deployment_target = '6.0'
   end
 
   s.subspec 'Crashlytics' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseCrashlytics', '~> 4.4.0'
+    ss.dependency 'FirebaseCrashlytics', '~> 4.6.0'
+    # Standard platforms PLUS watchOS.
+    ss.ios.deployment_target = '8.0'
+    ss.osx.deployment_target = '10.11'
+    ss.tvos.deployment_target = '10.0'
+    ss.watchos.deployment_target = '6.0'
   end
 
   s.subspec 'Database' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseDatabase', '~> 6.5.0'
+    ss.dependency 'FirebaseDatabase', '~> 6.6.0'
   end
 
   s.subspec 'DynamicLinks' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.ios.dependency 'FirebaseDynamicLinks', '~> 4.2.1'
+    ss.ios.dependency 'FirebaseDynamicLinks', '~> 4.3.0'
   end
 
   s.subspec 'Firestore' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseFirestore', '~> 1.16.4'
+    ss.dependency 'FirebaseFirestore', '~> 1.17.1'
   end
 
   s.subspec 'Functions' do |ss|
@@ -107,7 +119,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
 
   s.subspec 'InAppMessaging' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.ios.dependency 'FirebaseInAppMessaging', '~> 0.23.0'
+    ss.ios.dependency 'FirebaseInAppMessaging', '~> 0.24.0'
     ss.ios.deployment_target = '9.0'
   end
 
@@ -119,7 +131,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
 
   s.subspec 'Messaging' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseMessaging', '~> 4.6.1'
+    ss.dependency 'FirebaseMessaging', '~> 4.6.2'
     # Standard platforms PLUS watchOS.
     ss.ios.deployment_target = '8.0'
     ss.osx.deployment_target = '10.11'

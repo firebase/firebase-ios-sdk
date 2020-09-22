@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,21 +14,5 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
-
-NS_ASSUME_NONNULL_BEGIN
-
-/**
- * This FIRInstanceID is a mock instance ID provider to use for tests.
- * Since FirebaseFunctions loads FIRInstanceID as a weak dependency by reflection, we just have to
- * make a class with the same name.
- */
-@interface FIRInstanceID : NSObject
-
-+ (instancetype)instanceID;
-
-- (NSString *)token;
-
-@end
-
-NS_ASSUME_NONNULL_END
+// There are no actual public headers in the lib. This is a dummy public header to prevent Cocoapods
+// from adding all internal headers as public.

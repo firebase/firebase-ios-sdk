@@ -51,13 +51,6 @@ static BOOL kUsingZipFile = NO;
 #define kDeploymentType logs_proto_mobilesdk_ios_ICoreConfiguration_DeploymentType_COCOAPODS
 #endif
 
-static NSString *const kFIRServiceMLVisionOnDeviceAutoML = @"MLVisionOnDeviceAutoML";
-static NSString *const kFIRServiceMLVisionOnDeviceFace = @"MLVisionOnDeviceFace";
-static NSString *const kFIRServiceMLVisionOnDeviceBarcode = @"MLVisionOnDeviceBarcode";
-static NSString *const kFIRServiceMLVisionOnDeviceText = @"MLVisionOnDeviceText";
-static NSString *const kFIRServiceMLVisionOnDeviceLabel = @"MLVisionOnDeviceLabel";
-static NSString *const kFIRServiceMLVisionOnDeviceObjectDetection =
-    @"MLVisionOnDeviceObjectDetection";
 static NSString *const kFIRServiceMLModelInterpreter = @"MLModelInterpreter";
 
 static NSString *const kFIRServiceAdMob = @"AdMob";
@@ -269,18 +262,6 @@ logs_proto_mobilesdk_ios_ICoreConfiguration_ServiceType FIRMapFromServiceStringT
       kFIRServicePerformance :
           @(logs_proto_mobilesdk_ios_ICoreConfiguration_ServiceType_PERFORMANCE),
       kFIRServiceStorage : @(logs_proto_mobilesdk_ios_ICoreConfiguration_ServiceType_STORAGE),
-      kFIRServiceMLVisionOnDeviceAutoML :
-          @(logs_proto_mobilesdk_ios_ICoreConfiguration_ServiceType_ML_VISION_ON_DEVICE_AUTOML),
-      kFIRServiceMLVisionOnDeviceFace :
-          @(logs_proto_mobilesdk_ios_ICoreConfiguration_ServiceType_ML_VISION_ON_DEVICE_FACE),
-      kFIRServiceMLVisionOnDeviceBarcode :
-          @(logs_proto_mobilesdk_ios_ICoreConfiguration_ServiceType_ML_VISION_ON_DEVICE_BARCODE),
-      kFIRServiceMLVisionOnDeviceText :
-          @(logs_proto_mobilesdk_ios_ICoreConfiguration_ServiceType_ML_VISION_ON_DEVICE_TEXT),
-      kFIRServiceMLVisionOnDeviceLabel :
-          @(logs_proto_mobilesdk_ios_ICoreConfiguration_ServiceType_ML_VISION_ON_DEVICE_LABEL),
-      kFIRServiceMLVisionOnDeviceObjectDetection : @(
-          logs_proto_mobilesdk_ios_ICoreConfiguration_ServiceType_ML_VISION_ON_DEVICE_OBJECT_DETECTION),
       kFIRServiceMLModelInterpreter :
           @(logs_proto_mobilesdk_ios_ICoreConfiguration_ServiceType_ML_MODEL_INTERPRETER),
       kGGLServiceAnalytics : @(logs_proto_mobilesdk_ios_ICoreConfiguration_ServiceType_ANALYTICS),
@@ -420,40 +401,6 @@ void FIRPopulateProtoWithInstalledServices(logs_proto_mobilesdk_ios_ICoreConfigu
   if (NSClassFromString(@"FIRAnalytics") != nil) {
     [sdkServiceInstalledArray
         addObject:@(FIRMapFromServiceStringToTypeEnum(kFIRServiceMeasurement))];
-  }
-  // ML Vision On Device AutoML.
-  if (NSClassFromString(@"FIRVisionOnDeviceAutoMLImageLabelerOptions") != nil) {
-    [sdkServiceInstalledArray
-        addObject:@(FIRMapFromServiceStringToTypeEnum(kFIRServiceMLVisionOnDeviceAutoML))];
-  }
-  // ML Vision On Device Face.
-  if (NSClassFromString(@"FIRVisionFaceDetector") != nil &&
-      NSClassFromString(@"GMVFaceDetector") != nil) {
-    [sdkServiceInstalledArray
-        addObject:@(FIRMapFromServiceStringToTypeEnum(kFIRServiceMLVisionOnDeviceFace))];
-  }
-  // ML Vision On Device Barcode.
-  if (NSClassFromString(@"FIRVisionBarcodeDetector") != nil &&
-      NSClassFromString(@"GMVBarcodeDetector") != nil) {
-    [sdkServiceInstalledArray
-        addObject:@(FIRMapFromServiceStringToTypeEnum(kFIRServiceMLVisionOnDeviceBarcode))];
-  }
-  // ML Vision On Device Text.
-  if (NSClassFromString(@"FIRVisionTextDetector") != nil &&
-      NSClassFromString(@"GMVTextDetector") != nil) {
-    [sdkServiceInstalledArray
-        addObject:@(FIRMapFromServiceStringToTypeEnum(kFIRServiceMLVisionOnDeviceText))];
-  }
-  // ML Vision On Device Image Label.
-  if (NSClassFromString(@"FIRVisionLabelDetector") != nil &&
-      NSClassFromString(@"GMVLabelDetector") != nil) {
-    [sdkServiceInstalledArray
-        addObject:@(FIRMapFromServiceStringToTypeEnum(kFIRServiceMLVisionOnDeviceLabel))];
-  }
-  // ML Vision On Device Object.
-  if (NSClassFromString(@"FIRVisionObjectDetector") != nil) {
-    [sdkServiceInstalledArray
-        addObject:@(FIRMapFromServiceStringToTypeEnum(kFIRServiceMLVisionOnDeviceObjectDetection))];
   }
   // ML Model Interpreter
   if (NSClassFromString(@"FIRCustomModelInterpreter") != nil) {

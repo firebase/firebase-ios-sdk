@@ -1,7 +1,10 @@
+# v6.9.1
+- [fixed] Internal source documentation. (#6371)
+
 # v6.9.0
 - [added] Added support for multi-tenancy (#6142).
 - [added] Added basic watchOS support. (#4621)
-- [channged] Improved Xcode completion of public API completion handlers in Swift. (#6283)
+- [changed] Improved Xcode completion of public API completion handlers in Swift. (#6283)
 
 # v6.8.0
 - [fixed] Fix bug where multiple keychain entries would result in user persistence failure. (#5906)

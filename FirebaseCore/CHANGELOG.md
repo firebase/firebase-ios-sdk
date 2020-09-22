@@ -1,6 +1,22 @@
-# v6.10.1 -- M78
+# Firebase 6.33.0
+- [fixed] Swift Package Manager - Define system framework and system library dependencies. This
+  resolves undefined symbol issues for system dependencies. (#6408, #6413)
+- [fixed] Swift Package Manager - Fixed build warnings related to minimum iOS version. (#6449)
+- [fixed] Enable Firebase pod support for Auth and Crashlytics watchOS platform. (#4558)
+- [fixed] Carthage - Some frameworks were missing Info.plist files. (#5562)
+
+# Firebase 6.32.0
+- [changed] Swift Package Manager - It's no longer necessary to select the Firebase or
+  FirebaseCore products. Their build targets are implicitly selected when choosing any other
+  Firebase product. If migrating from 6.31-spm-beta, you may need to remove those targets from
+  the `Frameworks, Libraries, and Embedded Content` Build Setting on the General tab.
+
+# Firebase 6.31.1
+- [fixed] Sporadic missing FirebaseApp symbol build issue introduced in Firebase 6.28.0. (#6341)
+
+# Firebase 6.31.0 FirebaseCore 6.10.1 -- M78
 - [added] Beta release of Swift Package Manager. Details
-  [here]((https://github.com/firebase/firebase-ios-sdk/blob/master/SwiftPackageManager.md). (#3136)
+  [here](https://github.com/firebase/firebase-ios-sdk/blob/master/SwiftPackageManager.md). (#3136)
 - [changed] Firebase's dependencies on nanopb are updated from version 0.3.9.5 to
   version 0.3.9.6 (1.30906.0 in CocoaPods).
 
