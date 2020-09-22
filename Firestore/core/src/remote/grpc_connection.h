@@ -57,12 +57,11 @@ class FirebasePlatformLogging;
  */
 class GrpcConnection {
  public:
-  GrpcConnection(
-      const core::DatabaseInfo& database_info,
-      const std::shared_ptr<util::AsyncQueue>& worker_queue,
-      grpc::CompletionQueue* grpc_queue,
-      ConnectivityMonitor* connectivity_monitor,
-      FirebasePlatformLogging* firebase_platform_logging);
+  GrpcConnection(const core::DatabaseInfo& database_info,
+                 const std::shared_ptr<util::AsyncQueue>& worker_queue,
+                 grpc::CompletionQueue* grpc_queue,
+                 ConnectivityMonitor* connectivity_monitor,
+                 FirebasePlatformLogging* firebase_platform_logging);
 
   void Shutdown();
 

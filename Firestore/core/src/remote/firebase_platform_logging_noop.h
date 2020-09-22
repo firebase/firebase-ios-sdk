@@ -28,7 +28,8 @@ namespace remote {
 
 class FirebasePlatformLoggingNoOp : public FirebasePlatformLogging {
  public:
-  void UpdateMetadata(grpc::ClientContext& context) override {}
+  void UpdateMetadata(grpc::ClientContext& context) override {
+  }
 };
 
 std::unique_ptr<FirebasePlatformLoggingNoOp>

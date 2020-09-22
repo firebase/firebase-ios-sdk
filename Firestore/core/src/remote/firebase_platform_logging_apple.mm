@@ -34,7 +34,8 @@ FirebasePlatformLoggingApple::FirebasePlatformLoggingApple(FIRApp* app)
     : app_(app) {
 }
 
-void FirebasePlatformLoggingApple::UpdateMetadata(grpc::ClientContext& context) {
+void FirebasePlatformLoggingApple::UpdateMetadata(
+    grpc::ClientContext& context) {
   if (![app_ isDataCollectionDefaultEnabled]) {
     return;
   }
