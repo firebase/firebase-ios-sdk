@@ -531,7 +531,7 @@ static const NSInteger FIRErrorCodeDurableDeepLinkFailed = -119;
 }
 
 - (void)passRetrievedDynamicLinkToApplication:(NSURL *)url {
-  [[UIApplication sharedApplication] openURL:url];
+  [[UIApplication sharedApplication] openURL:url options:@{} completionHandler:nil];
 }
 
 - (void)handlePendingDynamicLinkRetrievalFailureWithErrorCode:(NSInteger)errorCode
