@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseFirestore'
-  s.version          = '1.17.1'
+  s.version          = '1.18.0'
   s.summary          = 'Google Cloud Firestore'
 
   s.description      = <<-DESC
