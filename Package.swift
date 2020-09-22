@@ -516,6 +516,23 @@ let package = Package(
         .linkedFramework("Security"),
       ]
     ),
+
+    .target(
+      name: "FirebaseMLModelDownloader",
+      dependencies: [
+        "FirebaseCore",
+      ],
+      path: "FirebaseMLModelDownloader/Sources",
+      cSettings: [
+        .define("FIRMLModelDownloader_VERSION", to: firebaseVersion),
+      ]
+    ),
+    .testTarget(
+      name: "FirebaseMLModelDownloaderUnit",
+      dependencies: ["FirebaseMLModelDownloader"],
+      path: "FirebaseMLModelDownloader/Tests/Unit"
+    ),
+
     .target(
       name: "SharedTestUtilities",
       dependencies: ["FirebaseCore"],
