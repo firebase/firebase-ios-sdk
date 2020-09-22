@@ -1,6 +1,6 @@
 # Firebase 7.0.0
 - [changed] Update minimum iOS version to iOS 10 except for Analytics which is now iOS 9. (#4847)
-- [changed] Update minimum OSX version to 10.12.
+- [changed] Update minimum macOS version to 10.12.
 
 # Firebase 6.32.0
 - [changed] Swift Package Manager - It's no longer necessary to select the Firebase or
