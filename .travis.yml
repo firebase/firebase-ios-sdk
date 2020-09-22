@@ -293,5 +293,4 @@ jobs:
 branches:
   only:
     - master
-    - pb-min10
     - firebase7-main
