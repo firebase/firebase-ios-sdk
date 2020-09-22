@@ -531,17 +531,7 @@ static const NSInteger FIRErrorCodeDurableDeepLinkFailed = -119;
 }
 
 - (void)passRetrievedDynamicLinkToApplication:(NSURL *)url {
-  id<UIApplicationDelegate> applicationDelegate = [UIApplication sharedApplication].delegate;
-  if (applicationDelegate &&
-      [applicationDelegate respondsToSelector:@selector(application:openURL:options:)]) {
-    // pass url directly to application delegate to avoid hop into
-    // iOS handling of the universal links
-    if (@available(iOS 9.0, *)) {
-      [applicationDelegate application:[UIApplication sharedApplication] openURL:url options:@{}];
-      return;
-    }
-  }
-  [[UIApplication sharedApplication] openURL:url];
+  [[UIApplication sharedApplication] openURL:url options:@{} completionHandler:nil];
 }
 
 - (void)handlePendingDynamicLinkRetrievalFailureWithErrorCode:(NSInteger)errorCode

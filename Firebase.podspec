@@ -22,8 +22,8 @@ Simplify your app development, grow your user base, and monetize more effectivel
     "CoreOnly/README.md"
   ]
   s.social_media_url = 'https://twitter.com/Firebase'
-  s.ios.deployment_target = '8.0'
-  s.osx.deployment_target = '10.11'
+  s.ios.deployment_target = '10.0'
+  s.osx.deployment_target = '10.12'
   s.tvos.deployment_target = '10.0'
 
   s.cocoapods_version = '>= 1.4.0'
@@ -49,13 +49,14 @@ Simplify your app development, grow your user base, and monetize more effectivel
       }
     end
     # Standard platforms PLUS watchOS.
-    ss.ios.deployment_target = '8.0'
-    ss.osx.deployment_target = '10.11'
+    ss.ios.deployment_target = '9.0'
+    ss.osx.deployment_target = '10.12'
     ss.tvos.deployment_target = '10.0'
     ss.watchos.deployment_target = '6.0'
   end
 
   s.subspec 'Analytics' do |ss|
+    ss.ios.deployment_target = '9.0'
     ss.dependency 'Firebase/Core'
   end
 
@@ -66,15 +67,13 @@ Simplify your app development, grow your user base, and monetize more effectivel
 
   s.subspec 'AdMob' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    # 7.64 bumps the minimum iOS version to 9.0, so don't update here until
-    # next major version.
+    ss.ios.deployment_target = '9.0'
     ss.ios.dependency 'Google-Mobile-Ads-SDK', '~> 7.63'
   end
 
   s.subspec 'AppDistribution' do |ss|
     ss.dependency 'Firebase/CoreOnly'
     ss.ios.dependency 'FirebaseAppDistribution', '~> 0.9.1'
-    ss.ios.deployment_target = '9.0'
   end
 
   s.subspec 'Auth' do |ss|
@@ -117,8 +116,8 @@ Simplify your app development, grow your user base, and monetize more effectivel
     ss.dependency 'Firebase/CoreOnly'
     ss.dependency 'FirebaseMessaging', '~> 4.6.2'
     # Standard platforms PLUS watchOS.
-    ss.ios.deployment_target = '8.0'
-    ss.osx.deployment_target = '10.11'
+    ss.ios.deployment_target = '10.0'
+    ss.osx.deployment_target = '10.12'
     ss.tvos.deployment_target = '10.0'
     ss.watchos.deployment_target = '6.0'
   end
@@ -137,8 +136,8 @@ Simplify your app development, grow your user base, and monetize more effectivel
     ss.dependency 'Firebase/CoreOnly'
     ss.dependency 'FirebaseStorage', '~> 3.9.0'
     # Standard platforms PLUS watchOS.
-    ss.ios.deployment_target = '8.0'
-    ss.osx.deployment_target = '10.11'
+    ss.ios.deployment_target = '10.0'
+    ss.osx.deployment_target = '10.12'
     ss.tvos.deployment_target = '10.0'
     ss.watchos.deployment_target = '6.0'
   end
