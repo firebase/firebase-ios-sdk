@@ -14,12 +14,9 @@ jobs:
 
     runs-on: macOS-latest
     strategy:
-        # All pods that work on
-        pod: [
-          "FirebaseAppDistribution",
-          "FirebaseDynamicLinks",
-          "FirebaseInAppMessaging",
-        ]
+      matrix:
+        # These need to be on a single line or else the formatting won't validate.
+        pod: ["FirebaseInAppDistribution", "FirebaseDynamicLinks", "FirebaseInAppMessaging"]
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
@@ -37,19 +34,8 @@ jobs:
     strategy:
       matrix:
         target: [ios, tvos, macos]
-        pod: [
-          "FirebaseABTesting",
-          "FirebaseAuth",
-          "FirebaseCore",
-          "FirebaseCrashlytics",
-          "FirebaseDatabase",
-          "FirebaseFirestore",
-          "FirebaseFunctions",
-          "FirebaseMessaging",
-          "FirebaseRemoteConfig",
-          "FirebaseStorage",
-          "GoogleDataTransport",
-        ]
+        # These need to be on a single line or else the formatting won't validate.
+        pod: ["FirebaseABTesting", "FirebaseAuth", "FirebaseCore", "FirebaseCrashlytics", "FirebaseDatabase", "FirebaseFirestore", "FirebaseFunctions", "FirebaseMessaging", "FirebaseRemoteConfig", "FirebaseStorage", "GoogleDataTransport"]
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
