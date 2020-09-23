@@ -245,10 +245,6 @@ NS_ASSUME_NONNULL_BEGIN
     _acknowledgedDocs = [NSMutableArray array];
 
     _rejectedDocs = [NSMutableArray array];
-
-    _waitForPendingWritesEvents = 0;
-
-    _snapshotsInSyncEvents = 0;
   }
   return self;
 }
