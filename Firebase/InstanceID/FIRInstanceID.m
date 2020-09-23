@@ -14,26 +14,26 @@
  * limitations under the License.
  */
 
-#import "FIRInstanceID.h"
+#import "Firebase/InstanceID/Public/FIRInstanceID.h"
 
 #import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
 
-#import "FIRInstanceID+Private.h"
-#import "FIRInstanceIDAuthService.h"
-#import "FIRInstanceIDCheckinPreferences.h"
-#import "FIRInstanceIDCombinedHandler.h"
-#import "FIRInstanceIDConstants.h"
-#import "FIRInstanceIDDefines.h"
-#import "FIRInstanceIDLogger.h"
-#import "FIRInstanceIDStore.h"
-#import "FIRInstanceIDTokenInfo.h"
-#import "FIRInstanceIDTokenManager.h"
-#import "FIRInstanceIDUtilities.h"
-#import "FIRInstanceIDVersionUtilities.h"
+#import "Firebase/InstanceID/FIRInstanceIDAuthService.h"
+#import "Firebase/InstanceID/FIRInstanceIDCombinedHandler.h"
+#import "Firebase/InstanceID/FIRInstanceIDConstants.h"
+#import "Firebase/InstanceID/FIRInstanceIDDefines.h"
+#import "Firebase/InstanceID/FIRInstanceIDLogger.h"
+#import "Firebase/InstanceID/FIRInstanceIDStore.h"
+#import "Firebase/InstanceID/FIRInstanceIDTokenInfo.h"
+#import "Firebase/InstanceID/FIRInstanceIDTokenManager.h"
+#import "Firebase/InstanceID/FIRInstanceIDUtilities.h"
+#import "Firebase/InstanceID/FIRInstanceIDVersionUtilities.h"
+#import "Firebase/InstanceID/NSError+FIRInstanceID.h"
+#import "Firebase/InstanceID/Private/FIRInstanceID+Private.h"
+#import "Firebase/InstanceID/Private/FIRInstanceIDCheckinPreferences.h"
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "GoogleUtilities/Environment/Private/GULAppEnvironmentUtil.h"
 #import "GoogleUtilities/UserDefaults/Private/GULUserDefaults.h"
-#import "NSError+FIRInstanceID.h"
 
 // Public constants
 NSString *const kFIRInstanceIDScopeFirebaseMessaging = @"fcm";

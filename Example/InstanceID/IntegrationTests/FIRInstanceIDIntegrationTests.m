@@ -22,7 +22,7 @@
 #import <XCTest/XCTest.h>
 
 #import <FirebaseCore/FirebaseCore.h>
-#import <FirebaseInstanceID/FirebaseInstanceID.h>
+#import "Firebase/InstanceID/Public/FirebaseInstanceID.h"
 
 static BOOL sFIRInstanceIDFirebaseDefaultAppConfigured = NO;
 

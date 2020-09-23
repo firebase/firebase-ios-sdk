@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-#import "FIRInstanceIDUtilities.h"
+#import "Firebase/InstanceID/FIRInstanceIDUtilities.h"
 
 #if TARGET_OS_IOS || TARGET_OS_TV
 #import <UIKit/UIKit.h>
 #endif
 #import <sys/utsname.h>
 
-#import "FIRInstanceID.h"
-#import "FIRInstanceIDConstants.h"
-#import "FIRInstanceIDLogger.h"
+#import "Firebase/InstanceID/FIRInstanceIDConstants.h"
+#import "Firebase/InstanceID/FIRInstanceIDLogger.h"
+#import "Firebase/InstanceID/Public/FIRInstanceID.h"
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "GoogleUtilities/UserDefaults/Private/GULUserDefaults.h"
 

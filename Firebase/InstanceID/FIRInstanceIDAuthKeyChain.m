@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "FIRInstanceIDAuthKeyChain.h"
-#import "FIRInstanceIDKeychain.h"
-#import "FIRInstanceIDLogger.h"
+#import "Firebase/InstanceID/FIRInstanceIDAuthKeyChain.h"
+#import "Firebase/InstanceID/FIRInstanceIDKeychain.h"
+#import "Firebase/InstanceID/FIRInstanceIDLogger.h"
 
 /**
  *  The error type representing why we couldn't read data from the keychain.

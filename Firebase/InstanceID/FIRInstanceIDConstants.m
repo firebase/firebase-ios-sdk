@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRInstanceIDConstants.h"
+#import "Firebase/InstanceID/FIRInstanceIDConstants.h"
 
 // Commands
 NSString *const kFIRInstanceID_CMD_RST = @"RST";
