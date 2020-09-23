@@ -7,3 +7,7 @@
 # }
 # Podspec versions will be the same as firebase-ios-sdk podspecs if they are not
 # specified in this file.
+sdk {
+  sdk_name: "FirebaseAnalytics"
+  sdk_version: "6.8.2"
+}
