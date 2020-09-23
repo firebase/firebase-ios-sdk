@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "GoogleDataTransport/GDTCCTLibrary/Private/GDTCCTUploader.h"
+#import "GoogleDataTransport/GDTCCTLibrary/Private/GDTCCTUploadOperation.h"
 
 #import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORConsoleLogger.h"
 #import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCOREvent.h"
@@ -66,7 +66,7 @@ typedef void (^GDTCCTUploaderURLTaskCompletion)(NSNumber *batchID,
 typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
                                               NSSet<GDTCOREvent *> *_Nullable events);
 
-@interface GDTCCTUploader () <NSURLSessionDelegate>
+@interface GDTCCTUploadOperation () <NSURLSessionDelegate>
 
 /// Redeclared as readwrite.
 @property(nullable, nonatomic, readwrite) NSURLSessionUploadTask *currentTask;
@@ -76,28 +76,16 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
 /// then no new uploads will be started.
 @property(atomic) BOOL isCurrentlyUploading;
 
+@property(nonatomic, readonly) GDTCORTarget target;
+@property(nonatomic, readonly) GDTCORUploadConditions conditions;
+
+@property(nonatomic, readwrite, getter=isExecuting) BOOL executing;
+@property(nonatomic, readwrite, getter=isFinished) BOOL finished;
 @end
 
-@implementation GDTCCTUploader
+@implementation GDTCCTUploadOperation
 
-+ (void)load {
-  GDTCCTUploader *uploader = [GDTCCTUploader sharedInstance];
-  [[GDTCORRegistrar sharedInstance] registerUploader:uploader target:kGDTCORTargetCCT];
-  [[GDTCORRegistrar sharedInstance] registerUploader:uploader target:kGDTCORTargetFLL];
-  [[GDTCORRegistrar sharedInstance] registerUploader:uploader target:kGDTCORTargetCSH];
-  [[GDTCORRegistrar sharedInstance] registerUploader:uploader target:kGDTCORTargetINT];
-}
-
-+ (instancetype)sharedInstance {
-  static GDTCCTUploader *sharedInstance;
-  static dispatch_once_t onceToken;
-  dispatch_once(&onceToken, ^{
-    sharedInstance = [[GDTCCTUploader alloc] init];
-  });
-  return sharedInstance;
-}
-
-- (instancetype)init {
+- (instancetype)initWithTarget:(GDTCORTarget)target conditions:(GDTCORUploadConditions)conditions {
   self = [super init];
   if (self) {
     _uploaderQueue = dispatch_queue_create("com.google.GDTCCTUploader", DISPATCH_QUEUE_SERIAL);
@@ -105,6 +93,8 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
     _uploaderSession = [NSURLSession sessionWithConfiguration:config
                                                      delegate:self
                                                 delegateQueue:nil];
+    _target = target;
+    _conditions = conditions;
   }
   return self;
 }
@@ -258,6 +248,7 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
                                          target:target
                                         storage:storage
                                      completion:^{
+                                       [self finishOperation];
                                        backgroundTaskCompletion();
                                      }];
                       }];
@@ -709,6 +700,39 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
   } else {
     completionHandler(request);
   }
+}
+
+#pragma mark - NSOperation methods
+
+@synthesize executing = _executing;
+@synthesize finished = _finished;
+
+- (BOOL)isAsynchronous {
+  return YES;
+}
+
+- (void)startOperation {
+  [self willChangeValueForKey:@"isExecuting"];
+  [self willChangeValueForKey:@"isFinished"];
+  _executing = YES;
+  _finished = NO;
+  [self didChangeValueForKey:@"isExecuting"];
+  [self didChangeValueForKey:@"isFinished"];
+}
+
+- (void)finishOperation {
+  [self willChangeValueForKey:@"isExecuting"];
+  [self willChangeValueForKey:@"isFinished"];
+  _executing = NO;
+  _finished = YES;
+  [self didChangeValueForKey:@"isExecuting"];
+  [self didChangeValueForKey:@"isFinished"];
+}
+
+- (void)main {
+  [self startOperation];
+
+  [self uploadTarget:self.target withConditions:self.conditions];
 }
 
 @end

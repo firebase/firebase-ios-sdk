@@ -25,8 +25,16 @@ NS_ASSUME_NONNULL_BEGIN
 extern NSNotificationName const GDTCCTUploadCompleteNotification;
 #endif  // #if !NDEBUG
 
+// TODO: Refine API and API docs
+
 /** Class capable of uploading events to the CCT backend. */
-@interface GDTCCTUploader : NSObject <GDTCORUploader>
+@interface GDTCCTUploadOperation : NSOperation
+
+- (instancetype)initWithTarget:(GDTCORTarget)target conditions:(GDTCORUploadConditions)conditions;
+
+/** YES if a batch upload attempt was performed. NO otherwise. If NO for the finished operation,
+ * then  there were no events suitable for upload. */
+@property(nonatomic, readonly) BOOL uploadAttempted;
 
 /** The queue on which all CCT uploading will occur. */
 @property(nonatomic, readonly) dispatch_queue_t uploaderQueue;
@@ -48,12 +56,6 @@ extern NSNotificationName const GDTCCTUploadCompleteNotification;
 @property(nullable, nonatomic) NSURL *testServerURL;
 
 #endif  // !NDEBUG
-
-/** Creates and/or returns the singleton instance of this class.
- *
- * @return The singleton instance of this class.
- */
-+ (instancetype)sharedInstance;
 
 @end
 
