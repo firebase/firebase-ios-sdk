@@ -27,6 +27,11 @@ jobs:
          bot-access.txt "$bot_token_secret"
     - name: Update SpecsReleasing repo setup
       run: |
+         git tag
+         pwd
+         ls
+         echo "find cocoapods versions."
+         git describe --tags --abbrev=0 --match CocoaPods-*[0-9] 
          ossbotaccess=`cat oss-bot-access.txt`
          BOT_TOKEN="${ossbotaccess}" test_version="${nightly_version}" sdk_version_config="${GITHUB_WORKSPACE}/scripts/create_spec_repo/RC_firebase_sdk.textproto" scripts/release_testing_setup.sh RC_testing
     - name: Update SpecsReleasing repo
