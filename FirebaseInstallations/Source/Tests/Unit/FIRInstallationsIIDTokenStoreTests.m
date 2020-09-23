@@ -19,11 +19,11 @@
 #import "FBLPromise+Testing.h"
 
 #import "FIRInstanceIDAuthKeychain.h"
-#import "FIRInstanceIDBackupExcludedPlist.h"
-#import "FIRInstanceIDCheckinPreferences+Internal.h"
-#import "FIRInstanceIDStore.h"
-#import "FIRInstanceIDTokenInfo.h"
-#import "FIRInstanceIDTokenStore.h"
+#import "Firebase/InstanceID/FIRInstanceIDBackupExcludedPlist.h"
+#import "Firebase/InstanceID/FIRInstanceIDCheckinPreferences+Internal.h"
+#import "Firebase/InstanceID/FIRInstanceIDStore.h"
+#import "Firebase/InstanceID/FIRInstanceIDTokenInfo.h"
+#import "Firebase/InstanceID/FIRInstanceIDTokenStore.h"
 
 #import "FirebaseInstallations/Source/Library/IIDMigration/FIRInstallationsIIDTokenStore.h"
 

@@ -16,7 +16,7 @@
 
 #import "FirebaseMessaging/Sources/FIRMessagingTopicOperation.h"
 
-#import <FirebaseInstanceID/FIRInstanceID_Private.h>
+#import "Firebase/InstanceID/Private/FIRInstanceID_Private.h"
 
 #import "FirebaseMessaging/Sources/FIRMessagingDefines.h"
 #import "FirebaseMessaging/Sources/FIRMessagingLogger.h"

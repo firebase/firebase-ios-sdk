@@ -20,7 +20,7 @@
 import Foundation
 
 // Update with directories in which to find headers.
-let findHeaders = ["FirebaseInAppMessaging"]
+let findHeaders = ["Firebase/InstanceID", "Example/InstanceID"]
 
 // Update with directories in which to change imports.
 let changeImports = ["GoogleUtilities", "FirebaseAuth", "FirebaseCore", "Firebase",
