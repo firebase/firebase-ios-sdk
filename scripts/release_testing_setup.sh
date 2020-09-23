@@ -49,7 +49,11 @@ if [ -n "$tag_version" ]; then
   # ":tag => test"
   sed  -i "" "s/\s*:tag.*/:tag => '${tag_version}'/" *.podspec
 fi
-cd "${GITHUB_WORKSPACE}/ZipBuilder"
-swift build
-# Update Pod versions.
-./.build/debug/firebase-pod-updater --git-root "${local_sdk_repo_dir}" --releasing-pods "${GITHUB_WORKSPACE}/scripts/create_spec_repo/firebase_sdk.textproto"
+
+if [ -n "$sdk_version_config" ]; then
+  cd "${GITHUB_WORKSPACE}/ZipBuilder"
+  swift build
+  # Update Pod versions.
+  ./.build/debug/firebase-pod-updater --git-root "${local_sdk_repo_dir}" --releasing-pods "${sdk_version_config}"
+  echo "sdk versions are updated based on ${sdk_version_config}."
+fi
