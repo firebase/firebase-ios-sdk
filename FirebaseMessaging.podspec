@@ -33,6 +33,8 @@ device, and it is completely free.
     base_dir + 'Sources/**/*.[mh]',
     'Interop/Analytics/Public/*.h',
     'FirebaseCore/Sources/Private/*.h',
+    'Firebase/InstanceID/Private/*.h',
+    'Firebase/InstanceID/Public/*.h',
     'FirebaseInstallations/Source/Library/Private/*.h',
     'GoogleUtilities/AppDelegateSwizzler/Private/*.h',
     'GoogleUtilities/Environment/Private/*.h',
@@ -40,12 +42,11 @@ device, and it is completely free.
     'GoogleUtilities/UserDefaults/Private/*.h',
   ]
   s.requires_arc = base_dir + 'Sources/*.m'
-  s.public_header_files = base_dir + 'Sources/Public/*.h'
+  s.public_header_files = base_dir + 'Sources/Public/FirebaseMessaging/*.h'
   s.library = 'sqlite3'
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'GCC_PREPROCESSOR_DEFINITIONS' =>
-      'GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS=1 ' +
       'FIRMessaging_LIB_VERSION=' + String(s.version),
     # Unit tests do library imports using repo-root relative paths.
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"',
@@ -63,7 +64,7 @@ device, and it is completely free.
 
   s.test_spec 'unit' do |unit_tests|
     unit_tests.platforms = {:ios => '10.0', :osx => '10.12', :tvos => '10.0'}
-    unit_tests.source_files = 'FirebaseMessaging/Tests/UnitTests/*.{m,h,swift}'
+    unit_tests.source_files = 'FirebaseMessaging/Tests/UnitTests*/*.{m,h,swift}'
     unit_tests.requires_app_host = true
     unit_tests.pod_target_xcconfig = {
      'CLANG_ENABLE_OBJC_WEAK' => 'YES'

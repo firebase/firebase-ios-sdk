@@ -16,7 +16,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "XCTestCase+FIRMessagingRmqManagerTests.h"
+#import "FirebaseMessaging/Tests/UnitTests/XCTestCase+FIRMessagingRmqManagerTests.h"
 
 #import "FirebaseMessaging/Sources/FIRMessagingConstants.h"
 #import "FirebaseMessaging/Sources/FIRMessagingPersistentSyncMessage.h"
@@ -72,6 +72,8 @@ static NSString *const kRmqSqliteFilename = @"rmq-sync-manager-test";
 
   XCTAssertFalse([self.syncMessageManager didReceiveAPNSSyncMessage:newMessage]);
 }
+
+#if !(SWIFT_PACKAGE && TARGET_OS_TV)  // Not enough space.
 /**
  *  Test receiving a duplicate message via APNS.
  */
@@ -182,5 +184,6 @@ static NSString *const kRmqSqliteFilename = @"rmq-sync-manager-test";
   XCTAssertNil([self.rmqManager querySyncMessageWithRmqID:expiredMessageID]);
   XCTAssertNotNil([self.rmqManager querySyncMessageWithRmqID:noTTLMessageID]);
 }
+#endif  // #if !(SWIFT_PACKAGE && TARGET_OS_TV)
 
 @end
