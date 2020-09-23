@@ -55,7 +55,7 @@
 #ifdef CRASHLYTICS_INTERNAL
   XCTAssertFalse([arbiter isCrashlyticsCollectionEnabled]);
 #else
-  // It should be YES by default in Cocoapods.
+  // It should be YES by default for 3P users.
   XCTAssertTrue([arbiter isCrashlyticsCollectionEnabled]);
 #endif
 }
