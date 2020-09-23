@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -75,6 +75,7 @@
   __weak __auto_type weakSelf = self;
   __weak GDTCCTUploadOperation *weakOperation = uploadOperation;
   uploadOperation.completionBlock = ^{
+    // TODO: Strongify references?
     if (weakOperation.uploadAttempted) {
       // Ignore all upload requests received when the upload was in progress.
       [weakSelf.uploadQueue cancelAllOperations];
