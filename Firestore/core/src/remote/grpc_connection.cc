@@ -26,7 +26,7 @@
 #include "Firestore/core/include/firebase/firestore/firestore_version.h"
 #include "Firestore/core/src/auth/token.h"
 #include "Firestore/core/src/model/database_id.h"
-#include "Firestore/core/src/remote/firebase_platform_logging.h"
+#include "Firestore/core/src/remote/firebase_metadata_provider.h"
 #include "Firestore/core/src/remote/grpc_root_certificate_finder.h"
 #include "Firestore/core/src/util/filesystem.h"
 #include "Firestore/core/src/util/hard_assert.h"
@@ -203,12 +203,12 @@ GrpcConnection::GrpcConnection(
     const std::shared_ptr<util::AsyncQueue>& worker_queue,
     grpc::CompletionQueue* grpc_queue,
     ConnectivityMonitor* connectivity_monitor,
-    FirebasePlatformLogging* firebase_platform_logging)
+    FirebaseMetadataProvider* firebase_metadata_provider)
     : database_info_{&database_info},
       worker_queue_{NOT_NULL(worker_queue)},
       grpc_queue_{NOT_NULL(grpc_queue)},
       connectivity_monitor_{NOT_NULL(connectivity_monitor)},
-      firebase_platform_logging_{NOT_NULL(firebase_platform_logging)} {
+      firebase_metadata_provider_{NOT_NULL(firebase_metadata_provider)} {
   RegisterConnectivityMonitor();
 }
 
@@ -233,7 +233,7 @@ std::unique_ptr<grpc::ClientContext> GrpcConnection::CreateContext(
   }
 
   AddCloudApiHeader(*context);
-  firebase_platform_logging_->UpdateMetadata(*context);
+  firebase_metadata_provider_->UpdateMetadata(*context);
 
   // This header is used to improve routing and project isolation by the
   // backend.

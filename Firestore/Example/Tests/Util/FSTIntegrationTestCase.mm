@@ -40,7 +40,7 @@
 #include "Firestore/core/src/auth/user.h"
 #include "Firestore/core/src/local/leveldb_opener.h"
 #include "Firestore/core/src/model/database_id.h"
-#include "Firestore/core/src/remote/firebase_platform_logging_apple.h"
+#include "Firestore/core/src/remote/firebase_metadata_provider_apple.h"
 #include "Firestore/core/src/remote/grpc_connection.h"
 #include "Firestore/core/src/util/async_queue.h"
 #include "Firestore/core/src/util/autoid.h"
@@ -63,7 +63,7 @@ using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::local::LevelDbOpener;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::remote::GrpcConnection;
-using firebase::firestore::remote::FirebasePlatformLoggingApple;
+using firebase::firestore::remote::FirebaseMetadataProviderApple;
 using firebase::firestore::testutil::AppForUnitTesting;
 using firebase::firestore::testutil::AsyncQueueForTesting;
 using firebase::firestore::util::AsyncQueue;
@@ -277,7 +277,7 @@ class FakeCredentialsProvider : public EmptyCredentialsProvider {
                                 persistenceKey:util::MakeString(persistenceKey)
                            credentialsProvider:_fakeCredentialsProvider
                                    workerQueue:AsyncQueueForTesting()
-                       firebasePlatformLogging:absl::make_unique<FirebasePlatformLoggingApple>(app)
+                      firebaseMetadataProvider:absl::make_unique<FirebaseMetadataProviderApple>(app)
                                    firebaseApp:app
                               instanceRegistry:nil];
 

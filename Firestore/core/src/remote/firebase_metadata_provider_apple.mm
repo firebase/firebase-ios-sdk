@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/remote/firebase_platform_logging_apple.h"
+#include "Firestore/core/src/remote/firebase_metadata_provider_apple.h"
 
 #import "FirebaseCore/Sources/Private/FIRAppInternal.h"
 #import "FirebaseCore/Sources/Private/FIRHeartbeatInfo.h"
@@ -28,13 +28,29 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
+namespace {
+
 using util::MakeString;
 
-FirebasePlatformLoggingApple::FirebasePlatformLoggingApple(FIRApp* app)
+std::string GetUserAgent() {
+  return MakeString([FIRApp firebaseUserAgent]);
+}
+
+std::string GetHeartbeat() {
+  return std::to_string([FIRHeartbeatInfo heartbeatCodeForTag:@"fire-fst"]);
+}
+
+std::string GetGmpAppId(FIRApp* app) {
+  return MakeString(app.options.googleAppID);
+}
+
+}  // namespace
+
+FirebaseMetadataProviderApple::FirebaseMetadataProviderApple(FIRApp* app)
     : app_(app) {
 }
 
-void FirebasePlatformLoggingApple::UpdateMetadata(
+void FirebaseMetadataProviderApple::UpdateMetadata(
     grpc::ClientContext& context) {
   if (![app_ isDataCollectionDefaultEnabled]) {
     return;
@@ -43,26 +59,14 @@ void FirebasePlatformLoggingApple::UpdateMetadata(
   context.AddMetadata(kXFirebaseClientHeader, GetUserAgent());
   context.AddMetadata(kXFirebaseClientLogTypeHeader, GetHeartbeat());
 
-  std::string gmp_app_id = GetGmpAppId();
+  std::string gmp_app_id = GetGmpAppId(app_);
   if (!gmp_app_id.empty()) {
     context.AddMetadata(kXFirebaseGmpIdHeader, gmp_app_id);
   }
 }
 
-std::string FirebasePlatformLoggingApple::GetUserAgent() const {
-  return MakeString([FIRApp firebaseUserAgent]);
-}
-
-std::string FirebasePlatformLoggingApple::GetHeartbeat() const {
-  return std::to_string([FIRHeartbeatInfo heartbeatCodeForTag:@"fire-fst"]);
-}
-
-std::string FirebasePlatformLoggingApple::GetGmpAppId() const {
-  return MakeString(app_.options.googleAppID);
-}
-
-NS_ASSUME_NONNULL_END
-
 }  // namespace remote
 }  // namespace firestore
 }  // namespace firebase
+
+NS_ASSUME_NONNULL_END

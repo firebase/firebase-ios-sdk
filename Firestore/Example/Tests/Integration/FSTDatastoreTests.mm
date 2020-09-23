@@ -41,8 +41,8 @@
 #include "Firestore/core/src/model/set_mutation.h"
 #include "Firestore/core/src/remote/connectivity_monitor.h"
 #include "Firestore/core/src/remote/datastore.h"
-#include "Firestore/core/src/remote/firebase_platform_logging.h"
-#include "Firestore/core/src/remote/firebase_platform_logging_noop.h"
+#include "Firestore/core/src/remote/firebase_metadata_provider.h"
+#include "Firestore/core/src/remote/firebase_metadata_provider_noop.h"
 #include "Firestore/core/src/remote/remote_event.h"
 #include "Firestore/core/src/remote/remote_store.h"
 #include "Firestore/core/src/util/async_queue.h"
@@ -77,10 +77,10 @@ using firebase::firestore::model::Precondition;
 using firebase::firestore::model::OnlineState;
 using firebase::firestore::model::TargetId;
 using firebase::firestore::remote::ConnectivityMonitor;
+using firebase::firestore::remote::CreateFirebaseMetadataProviderNoOp;
 using firebase::firestore::remote::CreateNoOpConnectivityMonitor;
-using firebase::firestore::remote::CreateNoOpFirebasePlatformLogging;
 using firebase::firestore::remote::Datastore;
-using firebase::firestore::remote::FirebasePlatformLogging;
+using firebase::firestore::remote::FirebaseMetadataProvider;
 using firebase::firestore::remote::GrpcConnection;
 using firebase::firestore::remote::RemoteEvent;
 using firebase::firestore::remote::RemoteStore;
@@ -229,7 +229,7 @@ class RemoteStoreEventCapture : public RemoteStoreCallback {
   SimpleQueryEngine _queryEngine;
 
   std::unique_ptr<ConnectivityMonitor> _connectivityMonitor;
-  std::unique_ptr<FirebasePlatformLogging> _firebasePlatformLogging;
+  std::unique_ptr<FirebaseMetadataProvider> _firebaseMetadataProvider;
   std::shared_ptr<Datastore> _datastore;
   std::unique_ptr<RemoteStore> _remoteStore;
 }
@@ -250,10 +250,10 @@ class RemoteStoreEventCapture : public RemoteStoreCallback {
 
   _testWorkerQueue = testutil::AsyncQueueForTesting();
   _connectivityMonitor = CreateNoOpConnectivityMonitor();
-  _firebasePlatformLogging = CreateNoOpFirebasePlatformLogging();
+  _firebaseMetadataProvider = CreateFirebaseMetadataProviderNoOp();
   _datastore = std::make_shared<Datastore>(
       _databaseInfo, _testWorkerQueue, std::make_shared<EmptyCredentialsProvider>(),
-      _connectivityMonitor.get(), _firebasePlatformLogging.get());
+      _connectivityMonitor.get(), _firebaseMetadataProvider.get());
 
   _persistence = MemoryPersistence::WithEagerGarbageCollector();
   _localStore =

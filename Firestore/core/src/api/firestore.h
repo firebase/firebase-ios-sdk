@@ -35,7 +35,7 @@ class CredentialsProvider;
 }  // namespace auth
 
 namespace remote {
-class FirebasePlatformLogging;
+class FirebaseMetadataProvider;
 }  // namespace remote
 
 namespace util {
@@ -55,8 +55,8 @@ class Firestore : public std::enable_shared_from_this<Firestore> {
             std::string persistence_key,
             std::shared_ptr<auth::CredentialsProvider> credentials_provider,
             std::shared_ptr<util::AsyncQueue> worker_queue,
-            std::unique_ptr<remote::FirebasePlatformLogging>
-                firebase_platform_logging,
+            std::unique_ptr<remote::FirebaseMetadataProvider>
+                firebase_metadata_provider,
             void* extension);
 
   ~Firestore();
@@ -118,7 +118,7 @@ class Firestore : public std::enable_shared_from_this<Firestore> {
   std::shared_ptr<util::Executor> user_executor_;
   std::shared_ptr<util::AsyncQueue> worker_queue_;
 
-  std::unique_ptr<remote::FirebasePlatformLogging> firebase_platform_logging_;
+  std::unique_ptr<remote::FirebaseMetadataProvider> firebase_metadata_provider_;
 
   void* extension_ = nullptr;
 

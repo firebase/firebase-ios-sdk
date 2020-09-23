@@ -30,7 +30,7 @@
 namespace firebase {
 namespace firestore {
 namespace remote {
-class FirebasePlatformLogging;
+class FirebaseMetadataProvider;
 }  // namespace remote
 }  // namespace firestore
 }  // namespace firebase
@@ -61,8 +61,8 @@ NS_ASSUME_NONNULL_BEGIN
                     persistenceKey:(std::string)persistenceKey
                credentialsProvider:(std::shared_ptr<auth::CredentialsProvider>)credentialsProvider
                        workerQueue:(std::shared_ptr<util::AsyncQueue>)workerQueue
-           firebasePlatformLogging:
-               (std::unique_ptr<remote::FirebasePlatformLogging>)firebasePlatformLogging
+          firebaseMetadataProvider:
+              (std::unique_ptr<remote::FirebaseMetadataProvider>)firebaseMetadataProvider
                        firebaseApp:(FIRApp *)app
                   instanceRegistry:(nullable id<FSTFirestoreInstanceRegistry>)registry;
 @end

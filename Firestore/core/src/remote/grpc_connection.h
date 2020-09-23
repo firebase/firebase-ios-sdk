@@ -45,7 +45,7 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
-class FirebasePlatformLogging;
+class FirebaseMetadataProvider;
 
 // PORTING NOTE: this class has limited resemblance to `GrpcConnection` in Web
 // client. However, unlike Web client, it's not meant to hide different
@@ -61,7 +61,7 @@ class GrpcConnection {
                  const std::shared_ptr<util::AsyncQueue>& worker_queue,
                  grpc::CompletionQueue* grpc_queue,
                  ConnectivityMonitor* connectivity_monitor,
-                 FirebasePlatformLogging* firebase_platform_logging);
+                 FirebaseMetadataProvider* firebase_metadata_provider);
 
   void Shutdown();
 
@@ -112,8 +112,6 @@ class GrpcConnection {
 
   void RegisterConnectivityMonitor();
 
-  void AddFirebasePlatformLoggingHeader(grpc::ClientContext& context) const;
-
   const core::DatabaseInfo* database_info_ = nullptr;
   std::shared_ptr<util::AsyncQueue> worker_queue_;
   grpc::CompletionQueue* grpc_queue_ = nullptr;
@@ -124,7 +122,7 @@ class GrpcConnection {
   ConnectivityMonitor* connectivity_monitor_ = nullptr;
   std::vector<GrpcCall*> active_calls_;
 
-  FirebasePlatformLogging* firebase_platform_logging_ = nullptr;
+  FirebaseMetadataProvider* firebase_metadata_provider_ = nullptr;
 };
 
 }  // namespace remote

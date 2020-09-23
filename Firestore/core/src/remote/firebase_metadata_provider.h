@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_REMOTE_FIREBASE_PLATFORM_LOGGING_H_
-#define FIRESTORE_CORE_SRC_REMOTE_FIREBASE_PLATFORM_LOGGING_H_
+#ifndef FIRESTORE_CORE_SRC_REMOTE_FIREBASE_METADATA_PROVIDER_H_
+#define FIRESTORE_CORE_SRC_REMOTE_FIREBASE_METADATA_PROVIDER_H_
 
 #include <string>
 
@@ -29,14 +29,14 @@ namespace remote {
  * Wraps the platform-dependent functionality associated with Firebase platform
  * logging.
  */
-class FirebasePlatformLogging {
+class FirebaseMetadataProvider {
  public:
   static constexpr char kXFirebaseClientHeader[] = "x-firebase-client";
   static constexpr char kXFirebaseClientLogTypeHeader[] =
       "x-firebase-client-log-type";
   static constexpr char kXFirebaseGmpIdHeader[] = "x-firebase-gmpid";
 
-  virtual ~FirebasePlatformLogging() = default;
+  virtual ~FirebaseMetadataProvider() = default;
 
   /**
    * Updates the given `context` with Firebase platform logging headers which
@@ -49,4 +49,4 @@ class FirebasePlatformLogging {
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_REMOTE_FIREBASE_PLATFORM_LOGGING_H_
+#endif  // FIRESTORE_CORE_SRC_REMOTE_FIREBASE_METADATA_PROVIDER_H_

@@ -14,16 +14,29 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/remote/firebase_platform_logging.h"
+#ifndef FIRESTORE_CORE_SRC_REMOTE_FIREBASE_METADATA_PROVIDER_NOOP_H_
+#define FIRESTORE_CORE_SRC_REMOTE_FIREBASE_METADATA_PROVIDER_NOOP_H_
+
+#include <memory>
+#include <string>
+
+#include "Firestore/core/src/remote/firebase_metadata_provider.h"
 
 namespace firebase {
 namespace firestore {
 namespace remote {
 
-constexpr char FirebasePlatformLogging::kXFirebaseClientHeader[];
-constexpr char FirebasePlatformLogging::kXFirebaseClientLogTypeHeader[];
-constexpr char FirebasePlatformLogging::kXFirebaseGmpIdHeader[];
+class FirebaseMetadataProviderNoOp : public FirebaseMetadataProvider {
+ public:
+  void UpdateMetadata(grpc::ClientContext& context) override {
+  }
+};
+
+std::unique_ptr<FirebaseMetadataProviderNoOp>
+CreateFirebaseMetadataProviderNoOp();
 
 }  // namespace remote
 }  // namespace firestore
 }  // namespace firebase
+
+#endif  // FIRESTORE_CORE_SRC_REMOTE_FIREBASE_METADATA_PROVIDER_NOOP_H_

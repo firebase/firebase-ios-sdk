@@ -36,7 +36,7 @@
 #include "Firestore/core/src/core/view_snapshot.h"
 #include "Firestore/core/src/model/document.h"
 #include "Firestore/core/src/model/document_set.h"
-#include "Firestore/core/src/remote/firebase_platform_logging.h"
+#include "Firestore/core/src/remote/firebase_metadata_provider.h"
 #include "Firestore/core/src/util/string_apple.h"
 #include "Firestore/core/test/unit/testutil/testutil.h"
 
@@ -70,7 +70,7 @@ FIRFirestore *FSTTestFirestore() {
                                                persistenceKey:"db123"
                                           credentialsProvider:nullptr
                                                   workerQueue:nullptr
-                                      firebasePlatformLogging:nullptr
+                                     firebaseMetadataProvider:nullptr
                                                   firebaseApp:nil
                                              instanceRegistry:nil];
   });

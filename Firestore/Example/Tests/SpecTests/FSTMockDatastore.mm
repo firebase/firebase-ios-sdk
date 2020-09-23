@@ -29,7 +29,7 @@
 #include "Firestore/core/src/model/mutation.h"
 #include "Firestore/core/src/remote/connectivity_monitor.h"
 #include "Firestore/core/src/remote/datastore.h"
-#include "Firestore/core/src/remote/firebase_platform_logging.h"
+#include "Firestore/core/src/remote/firebase_metadata_provider.h"
 #include "Firestore/core/src/remote/grpc_connection.h"
 #include "Firestore/core/src/remote/serializer.h"
 #include "Firestore/core/src/remote/stream.h"
@@ -52,7 +52,7 @@ using firebase::firestore::model::MutationResult;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
 using firebase::firestore::remote::ConnectivityMonitor;
-using firebase::firestore::remote::FirebasePlatformLogging;
+using firebase::firestore::remote::FirebaseMetadataProvider;
 using firebase::firestore::remote::GrpcConnection;
 using firebase::firestore::remote::WatchChange;
 using firebase::firestore::remote::WatchStream;
@@ -246,9 +246,9 @@ MockDatastore::MockDatastore(const core::DatabaseInfo& database_info,
                              const std::shared_ptr<util::AsyncQueue>& worker_queue,
                              std::shared_ptr<auth::CredentialsProvider> credentials,
                              ConnectivityMonitor* connectivity_monitor,
-                             FirebasePlatformLogging* firebase_platform_logging)
+                             FirebaseMetadataProvider* firebase_metadata_provider)
     : Datastore{database_info, worker_queue, credentials, connectivity_monitor,
-                firebase_platform_logging},
+                firebase_metadata_provider},
       database_info_{&database_info},
       worker_queue_{worker_queue},
       credentials_{credentials} {

@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_REMOTE_FIREBASE_PLATFORM_LOGGING_APPLE_H_
-#define FIRESTORE_CORE_SRC_REMOTE_FIREBASE_PLATFORM_LOGGING_APPLE_H_
+#ifndef FIRESTORE_CORE_SRC_REMOTE_FIREBASE_METADATA_PROVIDER_APPLE_H_
+#define FIRESTORE_CORE_SRC_REMOTE_FIREBASE_METADATA_PROVIDER_APPLE_H_
 
 #if !defined(__OBJC__)
 #error "This header only supports Objective-C++."
@@ -25,7 +25,7 @@
 
 #include <string>
 
-#include "Firestore/core/src/remote/firebase_platform_logging.h"
+#include "Firestore/core/src/remote/firebase_metadata_provider.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -35,17 +35,13 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
-class FirebasePlatformLoggingApple : public FirebasePlatformLogging {
+class FirebaseMetadataProviderApple : public FirebaseMetadataProvider {
  public:
-  explicit FirebasePlatformLoggingApple(FIRApp* app);
+  explicit FirebaseMetadataProviderApple(FIRApp* app);
 
   void UpdateMetadata(grpc::ClientContext& context) override;
 
  private:
-  std::string GetUserAgent() const;
-  std::string GetHeartbeat() const;
-  std::string GetGmpAppId() const;
-
   FIRApp* app_;
 };
 
@@ -55,4 +51,4 @@ class FirebasePlatformLoggingApple : public FirebasePlatformLogging {
 
 NS_ASSUME_NONNULL_END
 
-#endif  // FIRESTORE_CORE_SRC_REMOTE_FIREBASE_PLATFORM_LOGGING_APPLE_H_
+#endif  // FIRESTORE_CORE_SRC_REMOTE_FIREBASE_METADATA_PROVIDER_APPLE_H_

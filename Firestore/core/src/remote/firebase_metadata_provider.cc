@@ -14,18 +14,15 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/remote/firebase_platform_logging_noop.h"
-
-#include "absl/memory/memory.h"
+#include "Firestore/core/src/remote/firebase_metadata_provider.h"
 
 namespace firebase {
 namespace firestore {
 namespace remote {
 
-std::unique_ptr<FirebasePlatformLoggingNoOp>
-CreateNoOpFirebasePlatformLogging() {
-  return absl::make_unique<FirebasePlatformLoggingNoOp>();
-}
+constexpr char FirebaseMetadataProvider::kXFirebaseClientHeader[];
+constexpr char FirebaseMetadataProvider::kXFirebaseClientLogTypeHeader[];
+constexpr char FirebaseMetadataProvider::kXFirebaseGmpIdHeader[];
 
 }  // namespace remote
 }  // namespace firestore

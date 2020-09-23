@@ -44,7 +44,7 @@
 #include "Firestore/core/src/model/mutation.h"
 #include "Firestore/core/src/remote/connectivity_monitor.h"
 #include "Firestore/core/src/remote/datastore.h"
-#include "Firestore/core/src/remote/firebase_platform_logging.h"
+#include "Firestore/core/src/remote/firebase_metadata_provider.h"
 #include "Firestore/core/src/remote/remote_store.h"
 #include "Firestore/core/src/remote/serializer.h"
 #include "Firestore/core/src/util/async_queue.h"
@@ -88,7 +88,7 @@ using model::Mutation;
 using model::OnlineState;
 using remote::ConnectivityMonitor;
 using remote::Datastore;
-using remote::FirebasePlatformLogging;
+using remote::FirebaseMetadataProvider;
 using remote::RemoteStore;
 using remote::Serializer;
 using util::AsyncQueue;
@@ -112,11 +112,11 @@ std::shared_ptr<FirestoreClient> FirestoreClient::Create(
     std::shared_ptr<CredentialsProvider> credentials_provider,
     std::shared_ptr<Executor> user_executor,
     std::shared_ptr<AsyncQueue> worker_queue,
-    std::unique_ptr<FirebasePlatformLogging> firebase_platform_logging) {
+    std::unique_ptr<FirebaseMetadataProvider> firebase_metadata_provider) {
   // Have to use `new` because `make_shared` cannot access private constructor.
   std::shared_ptr<FirestoreClient> shared_client(new FirestoreClient(
       database_info, std::move(credentials_provider), std::move(user_executor),
-      std::move(worker_queue), std::move(firebase_platform_logging)));
+      std::move(worker_queue), std::move(firebase_metadata_provider)));
 
   std::weak_ptr<FirestoreClient> weak_client(shared_client);
   auto credential_change_listener = [weak_client, settings](User user) mutable {
@@ -158,12 +158,12 @@ FirestoreClient::FirestoreClient(
     std::shared_ptr<CredentialsProvider> credentials_provider,
     std::shared_ptr<Executor> user_executor,
     std::shared_ptr<AsyncQueue> worker_queue,
-    std::unique_ptr<FirebasePlatformLogging> firebase_platform_logging)
+    std::unique_ptr<FirebaseMetadataProvider> firebase_metadata_provider)
     : database_info_(database_info),
       credentials_provider_(std::move(credentials_provider)),
       worker_queue_(std::move(worker_queue)),
       user_executor_(std::move(user_executor)),
-      firebase_platform_logging_(std::move(firebase_platform_logging)) {
+      firebase_metadata_provider_(std::move(firebase_metadata_provider)) {
 }
 
 void FirestoreClient::Initialize(const User& user, const Settings& settings) {
@@ -203,7 +203,7 @@ void FirestoreClient::Initialize(const User& user, const Settings& settings) {
   connectivity_monitor_ = ConnectivityMonitor::Create(worker_queue_);
   auto datastore = std::make_shared<Datastore>(
       database_info_, worker_queue_, credentials_provider_,
-      connectivity_monitor_.get(), firebase_platform_logging_.get());
+      connectivity_monitor_.get(), firebase_metadata_provider_.get());
 
   remote_store_ = absl::make_unique<RemoteStore>(
       local_store_.get(), std::move(datastore), worker_queue_,

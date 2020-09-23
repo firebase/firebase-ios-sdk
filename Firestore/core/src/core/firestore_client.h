@@ -52,7 +52,7 @@ class Mutation;
 
 namespace remote {
 class ConnectivityMonitor;
-class FirebasePlatformLogging;
+class FirebaseMetadataProvider;
 class RemoteStore;
 }  // namespace remote
 
@@ -79,8 +79,8 @@ class FirestoreClient : public std::enable_shared_from_this<FirestoreClient> {
       std::shared_ptr<auth::CredentialsProvider> credentials_provider,
       std::shared_ptr<util::Executor> user_executor,
       std::shared_ptr<util::AsyncQueue> worker_queue,
-      std::unique_ptr<remote::FirebasePlatformLogging>
-          firebase_platform_logging);
+      std::unique_ptr<remote::FirebaseMetadataProvider>
+          firebase_metadata_provider);
 
   ~FirestoreClient();
 
@@ -184,8 +184,8 @@ class FirestoreClient : public std::enable_shared_from_this<FirestoreClient> {
       std::shared_ptr<auth::CredentialsProvider> credentials_provider,
       std::shared_ptr<util::Executor> user_executor,
       std::shared_ptr<util::AsyncQueue> worker_queue,
-      std::unique_ptr<remote::FirebasePlatformLogging>
-          firebase_platform_logging);
+      std::unique_ptr<remote::FirebaseMetadataProvider>
+          firebase_metadata_provider);
 
   void Initialize(const auth::User& user, const api::Settings& settings);
 
@@ -207,7 +207,7 @@ class FirestoreClient : public std::enable_shared_from_this<FirestoreClient> {
   std::shared_ptr<util::AsyncQueue> worker_queue_;
   std::shared_ptr<util::Executor> user_executor_;
 
-  std::unique_ptr<remote::FirebasePlatformLogging> firebase_platform_logging_;
+  std::unique_ptr<remote::FirebaseMetadataProvider> firebase_metadata_provider_;
 
   std::unique_ptr<local::Persistence> persistence_;
   std::unique_ptr<local::LocalStore> local_store_;

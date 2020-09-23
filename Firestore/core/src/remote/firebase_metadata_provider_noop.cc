@@ -14,29 +14,19 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_REMOTE_FIREBASE_PLATFORM_LOGGING_NOOP_H_
-#define FIRESTORE_CORE_SRC_REMOTE_FIREBASE_PLATFORM_LOGGING_NOOP_H_
+#include "Firestore/core/src/remote/firebase_metadata_provider_noop.h"
 
-#include <memory>
-#include <string>
-
-#include "Firestore/core/src/remote/firebase_platform_logging.h"
+#include "absl/memory/memory.h"
 
 namespace firebase {
 namespace firestore {
 namespace remote {
 
-class FirebasePlatformLoggingNoOp : public FirebasePlatformLogging {
- public:
-  void UpdateMetadata(grpc::ClientContext& context) override {
-  }
-};
-
-std::unique_ptr<FirebasePlatformLoggingNoOp>
-CreateNoOpFirebasePlatformLogging();
+std::unique_ptr<FirebaseMetadataProviderNoOp>
+CreateFirebaseMetadataProviderNoOp() {
+  return absl::make_unique<FirebaseMetadataProviderNoOp>();
+}
 
 }  // namespace remote
 }  // namespace firestore
 }  // namespace firebase
-
-#endif  // FIRESTORE_CORE_SRC_REMOTE_FIREBASE_PLATFORM_LOGGING_NOOP_H_
