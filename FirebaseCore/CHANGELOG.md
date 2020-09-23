@@ -1,6 +1,7 @@
 # Firebase 7.0.0
 - [changed] Update minimum iOS version to iOS 10 except for Analytics which is now iOS 9. (#4847)
 - [changed] Update minimum macOS version to 10.12.
+- [added] Swift Package Manager support for Firebase Messaging. (#5641)
 
 # Firebase 6.33.0
 - [fixed] Swift Package Manager - Define system framework and system library dependencies. This
