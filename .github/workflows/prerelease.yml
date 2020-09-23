@@ -16,8 +16,6 @@ jobs:
       bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       local_repo: specstesting
       local_sdk_repo_dir: /tmp/test/firebase-ios-sdk
-      nightly_version: 6.33.0
-      podspec_repo_branch: release-6.33.0
     runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v2
@@ -30,14 +28,14 @@ jobs:
     - name: Update SpecsReleasing repo setup
       run: |
          ossbotaccess=`cat oss-bot-access.txt`
-         BOT_TOKEN="${ossbotaccess}" test_version="${nightly_version}" sdk_version_config="${GITHUB_WORKSPACE}/scripts/create_spec_repo/RC_firebase_sdk.textproto" scripts/release_testing_setup.sh RC_testing
+         BOT_TOKEN="${ossbotaccess}" test_version="${nightly_version}" sdk_version_config="${GITHUB_WORKSPACE}/scripts/create_spec_repo/RC_firebase_sdk.textproto" scripts/release_testing_setup.sh
     - name: Update SpecsReleasing repo
       run: |
         botaccess=`cat bot-access.txt`
         cd scripts/create_spec_repo/
-        swift build
-        pod repo add --silent "${local_repo}" https://"$botaccess"@github.com/FirebasePrivate/SpecsReleasing.git
-        BOT_TOKEN="${botaccess}"  .build/debug/spec-repo-builder --sdk-repo "${local_sdk_repo_dir}" --local-spec-repo-name "${local_repo}" --sdk-repo-name SpecsReleasing --pod-sources 'https://${BOT_TOKEN}@github.com/FirebasePrivate/SpecsReleasing' --pod-sources "https://github.com/CocoaPods/Specs"
+        # swift build
+        # pod repo add --silent "${local_repo}" https://"$botaccess"@github.com/FirebasePrivate/SpecsReleasing.git
+        # BOT_TOKEN="${botaccess}"  .build/debug/spec-repo-builder --sdk-repo "${local_sdk_repo_dir}" --local-spec-repo-name "${local_repo}" --sdk-repo-name SpecsReleasing --pod-sources 'https://${BOT_TOKEN}@github.com/FirebasePrivate/SpecsReleasing' --pod-sources "https://github.com/CocoaPods/Specs"
     - name: Clean Artifacts
       if: ${{ always() }}
       run: |

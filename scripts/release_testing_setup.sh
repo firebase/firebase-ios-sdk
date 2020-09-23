@@ -19,6 +19,16 @@ TESTINGMODE=${1-}
 if [ -f "${HOME}/.cocoapods/repos" ]; then
   find "${HOME}/.cocoapods/repos" -type d -maxdepth 1 -exec sh -c 'pod repo remove $(basename {})' \;
 fi
+test_version=$(git describe --tags --abbrev=0 --match CocoaPods-*[0-9] | sed -n 's/CocoaPods-//p')
+release_branch=$(git branch -r -l "origin/release-${test_version}")
+if [ -z $release_branch ];then
+  echo "${test_version} does not exist in a release branch."
+  exit 1
+fi
+podspec_repo_branch=$(echo $release_branch | sed -n 's/\s*origin\///p')
+echo "versions are:"
+echo ${test_version}
+echo ${podspec_repo_branch}
 git config --global user.email "google-oss-bot@example.com"
 git config --global user.name "google-oss-bot"
 mkdir -p /tmp/test/firebase-ios-sdk
