@@ -18,10 +18,10 @@
     __TV_OS_VERSION_MAX_ALLOWED >= __TV_10_0 || __MAC_OS_X_VERSION_MAX_ALLOWED >= __MAC_10_14
 #import <UserNotifications/UserNotifications.h>
 #endif
-#import <OCMock/OCMock.h>
+#import "OCMock.h"
 #import <XCTest/XCTest.h>
 
-#import <FirebaseMessaging/FIRMessaging.h>
+#import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessaging.h"
 #import "GoogleUtilities/AppDelegateSwizzler/Private/GULAppDelegateSwizzler.h"
 
 #import "FirebaseMessaging/Sources/FIRMessagingRemoteNotificationsProxy.h"
@@ -195,6 +195,8 @@
       didReceiveRemoteNotification:@{}];
 }
 
+#if !SWIFT_PACKAGE
+// The next 3 tests depend on a sharedApplication which is not available in the Swift PM test env.
 - (void)testSwizzledIncompleteAppDelegateRemoteNotificationMethod {
   IncompleteAppDelegate *incompleteAppDelegate = [[IncompleteAppDelegate alloc] init];
   [[GULAppDelegateSwizzler sharedApplication] setDelegate:incompleteAppDelegate];
@@ -211,6 +213,7 @@
 
   [self.mockMessaging verify];
 }
+
 
 - (void)testIncompleteAppDelegateRemoteNotificationWithFetchHandlerMethod {
   IncompleteAppDelegate *incompleteAppDelegate = [[IncompleteAppDelegate alloc] init];
@@ -284,6 +287,7 @@
 
   XCTAssertEqual(appDelegate.registerForRemoteNotificationsError, error);
 }
+#endif
 
 - (void)testListeningForDelegateChangesOnInvalidUserNotificationCenter {
   if (@available(macOS 10.14, iOS 10.0, *)) {

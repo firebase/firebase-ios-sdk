@@ -18,8 +18,8 @@
 #error FIRMessagingLib should be compiled with ARC.
 #endif
 
-#import <FirebaseMessaging/FIRMessaging.h>
-#import <FirebaseMessaging/FIRMessagingExtensionHelper.h>
+#import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessaging.h"
+#import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessagingExtensionHelper.h"
 #import "Firebase/InstanceID/Private/FIRInstanceID_Private.h"
 #import "Firebase/InstanceID/Public/FirebaseInstanceID.h"
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"

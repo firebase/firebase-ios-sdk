@@ -188,7 +188,7 @@ static NSString *const kAnalyticsTrackConversions = @"google.c.a."
 
 + (void)logMessage:(NSDictionary *)notification
        toAnalytics:(id<FIRAnalyticsInterop> _Nullable)analytics {
-  // iOS onlly because Analytics doesn't support tvOS.
+  // iOS only because Analytics doesn't support other platforms.
 #if TARGET_OS_IOS
   if (![self canLogNotification:notification]) {
     return;

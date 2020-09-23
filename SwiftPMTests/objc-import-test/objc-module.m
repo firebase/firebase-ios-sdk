@@ -22,5 +22,6 @@
 @import FirebaseFirestore;
 @import FirebaseFunctions;
 @import FirebaseInstallations;
+@import FirebaseMessaging;
 @import FirebaseRemoteConfig;
 @import FirebaseStorage;

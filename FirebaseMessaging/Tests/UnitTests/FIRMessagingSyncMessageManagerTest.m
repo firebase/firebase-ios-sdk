@@ -16,7 +16,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "XCTestCase+FIRMessagingRmqManagerTests.h"
+#import "FirebaseMessaging/Tests/UnitTests/XCTestCase+FIRMessagingRmqManagerTests.h"
 
 #import "FirebaseMessaging/Sources/FIRMessagingConstants.h"
 #import "FirebaseMessaging/Sources/FIRMessagingPersistentSyncMessage.h"

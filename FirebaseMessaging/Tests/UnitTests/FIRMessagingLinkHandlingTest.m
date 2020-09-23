@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-#import <OCMock/OCMock.h>
+#import "OCMock.h"
 #import <XCTest/XCTest.h>
 
 #import "Firebase/InstanceID/Public/FIRInstanceID.h"
 #import "GoogleUtilities/UserDefaults/Private/GULUserDefaults.h"
 
-#import <FirebaseMessaging/FIRMessaging.h>
+#import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessaging.h"
 
 #import "FirebaseMessaging/Sources/FIRMessagingConstants.h"
 #import "FirebaseMessaging/Tests/UnitTests/FIRMessagingTestNotificationUtilities.h"

@@ -14,5 +14,5 @@
  * limitations under the License.
  */
 
-#import <FirebaseMessaging/FIRMessaging.h>
-#import <FirebaseMessaging/FIRMessagingExtensionHelper.h>
+#import "FIRMessaging.h"
+#import "FIRMessagingExtensionHelper.h"
