@@ -101,8 +101,11 @@ typedef NS_ENUM(NSInteger, FIRCLSDataCollectionSetting) {
       [firebaseCrashlyticsCollectionEnabled isKindOfClass:[NSNumber class]]) {
     return [firebaseCrashlyticsCollectionEnabled boolValue];
   }
-
+#ifdef CRASHLYTICS_INTERNAL
+  return NO;
+#else
   return [app isDataCollectionDefaultEnabled];
+#endif
 }
 
 - (BOOL)isCrashlyticsCollectionEnabled {
