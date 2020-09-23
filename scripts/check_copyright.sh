@@ -24,8 +24,7 @@ options=(
 list=$(git grep "${options[@]}" -- \
     '*.'{c,cc,cmake,h,js,m,mm,py,rb,sh,swift} \
     CMakeLists.txt '**/CMakeLists.txt' \
-    ':(exclude)**/third_party/**' \
-    ':(exclude)FirebaseAnalyticsWrapper/**')
+    ':(exclude)**/third_party/**')
 
 # Allow copyrights before 2020 without LLC.
 result=$(grep -L 'Copyright 20[0-1][0-9].*Google' $list)
