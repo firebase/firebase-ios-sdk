@@ -52,10 +52,6 @@ FirebaseMetadataProviderApple::FirebaseMetadataProviderApple(FIRApp* app)
 
 void FirebaseMetadataProviderApple::UpdateMetadata(
     grpc::ClientContext& context) {
-  if (![app_ isDataCollectionDefaultEnabled]) {
-    return;
-  }
-
   context.AddMetadata(kXFirebaseClientHeader, GetUserAgent());
   context.AddMetadata(kXFirebaseClientLogTypeHeader, GetHeartbeat());
 
