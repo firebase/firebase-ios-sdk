@@ -19,6 +19,15 @@ TESTINGMODE=${1-}
 if [ -f "${HOME}/.cocoapods/repos" ]; then
   find "${HOME}/.cocoapods/repos" -type d -maxdepth 1 -exec sh -c 'pod repo remove $(basename {})' \;
 fi
+git config --global user.email "google-oss-bot@example.com"
+git config --global user.name "google-oss-bot"
+mkdir -p /tmp/test/firebase-ios-sdk
+echo "git clone ${podspec_repo_branch} from github.com/firebase/firebase-ios-sdk.git to ${local_sdk_repo_dir}"
+set +x
+git clone -q -b "${podspec_repo_branch}" https://"${BOT_TOKEN}"@github.com/firebase/firebase-ios-sdk.git "${local_sdk_repo_dir}"
+set -x
+
+cd  "${local_sdk_repo_dir}"
 test_version=$(git describe --tags --abbrev=0 --match CocoaPods-*[0-9] | sed -n 's/CocoaPods-//p')
 release_branch=$(git branch -r -l "origin/release-${test_version}")
 if [ -z $release_branch ];then
@@ -29,13 +38,6 @@ podspec_repo_branch=$(echo $release_branch | sed -n 's/\s*origin\///p')
 echo "versions are:"
 echo ${test_version}
 echo ${podspec_repo_branch}
-git config --global user.email "google-oss-bot@example.com"
-git config --global user.name "google-oss-bot"
-mkdir -p /tmp/test/firebase-ios-sdk
-echo "git clone ${podspec_repo_branch} from github.com/firebase/firebase-ios-sdk.git to ${local_sdk_repo_dir}"
-set +x
-git clone -q -b "${podspec_repo_branch}" https://"${BOT_TOKEN}"@github.com/firebase/firebase-ios-sdk.git "${local_sdk_repo_dir}"
-set -x
 
 if [ "$TESTINGMODE" = "nightly_testing" ]; then
   tag_version="nightly-test-${test_version}"
@@ -47,7 +49,6 @@ if [ "$TESTINGMODE" = "RC_testing" ]; then
 fi
 # Update a tag.
 if [ -n "$tag_version" ]; then
-  cd  "${local_sdk_repo_dir}"
   set +e
   # If tag_version is new to the remote, remote cannot delete a non-existent
   # tag, so error is allowed here.
