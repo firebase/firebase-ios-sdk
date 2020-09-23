@@ -23,7 +23,6 @@
 #import "GoogleUtilities/SwizzlerTestHelpers/GULSwizzler+Unswizzle.h"
 
 static NSString *const kAPIKey = @"myfakeapikey";
-static NSString *const kClientID = @"myfakeclientid";
 const NSInteger kJSONParsingErrorCode = 3840;
 static NSString *const kURLScheme = @"gindeeplinkurl";
 static const NSTimeInterval kAsyncTestTimout = 0.5;
@@ -42,9 +41,7 @@ static const NSTimeInterval kAsyncTestTimout = 0.5;
 
 - (FIRDynamicLinkNetworking *)service {
   if (!_service) {
-    _service = [[FIRDynamicLinkNetworking alloc] initWithAPIKey:kAPIKey
-                                                       clientID:kClientID
-                                                      URLScheme:kURLScheme];
+    _service = [[FIRDynamicLinkNetworking alloc] initWithAPIKey:kAPIKey URLScheme:kURLScheme];
   }
   return _service;
 }

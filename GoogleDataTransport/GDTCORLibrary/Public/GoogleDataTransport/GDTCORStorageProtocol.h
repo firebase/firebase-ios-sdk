@@ -25,6 +25,9 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/** The data type to represent storage size. */
+typedef uint64_t GDTCORStorageSizeBytes;
+
 typedef void (^GDTCORStorageBatchBlock)(NSNumber *_Nullable newBatchID,
                                         NSSet<GDTCOREvent *> *_Nullable batchEvents);
 
@@ -113,7 +116,7 @@ typedef void (^GDTCORStorageBatchBlock)(NSNumber *_Nullable newBatchID,
  *
  * @param onComplete The callback that will be invoked once storage size calculation is complete.
  */
-- (void)storageSizeWithCallback:(void (^)(uint64_t storageSize))onComplete;
+- (void)storageSizeWithCallback:(void (^)(GDTCORStorageSizeBytes storageSize))onComplete;
 
 @end
 

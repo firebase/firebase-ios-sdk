@@ -1,3 +1,10 @@
+# Unreleased
+- Legacy pre Xcode 10 compatibility checks removed. (#6486)
+
+# v7.4.0
+- Limit disk space consumed by GoogleDataTransport to store events. (#6365)
+- Fix `GDTTransformer` background task handling.  (#6258)
+
 # v7.1.1
 - Use `NSTimeZone` instead of `CFTimeZone` to get time zone offset respecting daylight. (#6246)
 

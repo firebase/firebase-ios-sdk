@@ -102,17 +102,17 @@ let package = Package(
       name: "nanopb",
       url: "https://github.com/nanopb/nanopb.git",
       // This revision adds SPM enablement to the 0.3.9.6 release tag.
-      .revision("3cfa21200eea012d8765239ad4c50d8a36c283f1")
+      .revision("8119dfe5631f2616d11e50ead95448d12e816062")
     ),
     .package(
       name: "abseil",
       url: "https://github.com/firebase/abseil-cpp.git",
-      .revision("d30bd7751ce343a05fca6413de0dec062163e5e9")
+      .revision("8ddf129163673642a339d7980327bcb2c117a28e")
     ),
     .package(
       name: "gRPC",
       url: "https://github.com/firebase/grpc.git",
-      .revision("cae939a8823bbc39912aa2990cf95e29ace381b3")
+      .revision("b22bc5256665ff2f1763505631df0ee60378b083")
     ),
     .package(
       name: "OCMock",
@@ -122,7 +122,7 @@ let package = Package(
     .package(
       name: "leveldb",
       url: "https://github.com/firebase/leveldb.git",
-      .revision("3f046978ecffd57ea6eb9a0897cc8a3b45b44df8")
+      .revision("fa1f25f296a766e5a789c4dacd4798dea798b2c2")
     ),
     // Branches need a force update with a run with the revision set like below.
     //   .package(url: "https://github.com/paulb777/nanopb.git", .revision("564392bd87bd093c308a3aaed3997466efb95f74"))
@@ -148,6 +148,10 @@ let package = Package(
         .define("FIRCore_VERSION", to: firebaseVersion),
         .define("Firebase_VERSION", to: firebaseVersion),
         // TODO: - Add support for cflags cSetting so that we can set the -fno-autolink option
+      ],
+      linkerSettings: [
+        .linkedFramework("UIKit", .when(platforms: .some([.iOS, .tvOS]))),
+        .linkedFramework("AppKit", .when(platforms: .some([.macOS]))),
       ]
     ),
     .testTarget(
@@ -198,9 +202,9 @@ let package = Package(
     .target(
       name: "FirebaseAnalyticsWrapper",
       dependencies: [
-        "FirebaseAnalytics",
-        "FIRAnalyticsConnector",
-        "GoogleAppMeasurement",
+        .target(name: "FirebaseAnalytics", condition: .when(platforms: .some([.iOS]))),
+        .target(name: "FIRAnalyticsConnector", condition: .when(platforms: .some([.iOS]))),
+        .target(name: "GoogleAppMeasurement", condition: .when(platforms: .some([.iOS]))),
         "FirebaseCore",
         "FirebaseInstallations",
         "GoogleUtilities_AppDelegateSwizzler",
@@ -220,18 +224,18 @@ let package = Package(
     ),
     .binaryTarget(
       name: "FirebaseAnalytics",
-      url: "https://dl.google.com/firebase/ios/swiftpm/6.31.0/FirebaseAnalytics.zip",
-      checksum: "533fae2d17c7224bf6f43485bff74e44c5f2fcdf4b56992167a6c5dbc43e5fdb"
+      url: "https://dl.google.com/firebase/ios/swiftpm/6.33.0/FirebaseAnalytics.zip",
+      checksum: "d3f88b6144311d2c7c1e9663b8357511db12fed794d091ea751fdcabdffab21f"
     ),
     .binaryTarget(
       name: "FIRAnalyticsConnector",
-      url: "https://dl.google.com/firebase/ios/swiftpm/6.31.0/FIRAnalyticsConnector.zip",
-      checksum: "6b194824b7705ede04195364a2c0f2a70bdc6da274fb28ce7aa39853b3796e0d"
+      url: "https://dl.google.com/firebase/ios/swiftpm/6.33.0/FIRAnalyticsConnector.zip",
+      checksum: "56c9a3f43fe77bb8f523ac1ed0ead6068ed74e6f5545948f9c2924a0351cdf50"
     ),
     .binaryTarget(
       name: "GoogleAppMeasurement",
-      url: "https://dl.google.com/firebase/ios/swiftpm/6.31.0/GoogleAppMeasurement.zip",
-      checksum: "f71ab5ca97f8763c67ab052ee083f21a0464867369e2223c0973fce38b677075"
+      url: "https://dl.google.com/firebase/ios/swiftpm/6.33.0/GoogleAppMeasurement.zip",
+      checksum: "fc01f32a3bd2d624bd1532245f3661bc0cf2d577c300b52ef8ed981b5bde7478"
     ),
     .target(
       name: "FirebaseAuth",
@@ -245,6 +249,10 @@ let package = Package(
         .headerSearchPath("../../"),
         .define("FIRAuth_VERSION", to: firebaseVersion),
         .define("FIRAuth_MINOR_VERSION", to: "1.1"), // TODO: Fix version
+      ],
+      linkerSettings: [
+        .linkedFramework("Security"),
+        .linkedFramework("SafariServices", .when(platforms: .some([.iOS]))),
       ]
     ),
     .testTarget(
@@ -295,8 +303,13 @@ let package = Package(
         .define("PB_FIELD_32BIT", to: "1"),
         .define("PB_NO_PACKED_STRUCTS", to: "1"),
         .define("PB_ENABLE_MALLOC", to: "1"),
+      ],
+      linkerSettings: [
+        .linkedFramework("Security"),
+        .linkedFramework("SystemConfiguration"),
       ]
     ),
+
     .target(
       name: "FirebaseDatabase",
       dependencies: [
@@ -314,6 +327,11 @@ let package = Package(
       cSettings: [
         .headerSearchPath("../../"),
         .define("FIRDatabase_VERSION", to: firebaseVersion),
+      ],
+      linkerSettings: [
+        .linkedFramework("CFNetwork"),
+        .linkedFramework("Security"),
+        .linkedFramework("SystemConfiguration"),
       ]
     ),
     .testTarget(
@@ -339,6 +357,9 @@ let package = Package(
         .define("FIRDynamicLinks3P", to: "1"),
         .define("GIN_SCION_LOGGING", to: "1"),
         .define("FIRDynamicLinks_VERSION", to: firebaseVersion),
+      ],
+      linkerSettings: [
+        .linkedFramework("QuartzCore"),
       ]
     ),
 
@@ -398,6 +419,12 @@ let package = Package(
         .define("PB_NO_PACKED_STRUCTS", to: "1"),
         .define("PB_ENABLE_MALLOC", to: "1"),
         .define("FIRFirestore_VERSION", to: firebaseVersion),
+      ],
+      linkerSettings: [
+        .linkedFramework("SystemConfiguration"),
+        .linkedFramework("MobileCoreServices", .when(platforms: .some([.iOS]))),
+        .linkedFramework("UIKit", .when(platforms: .some([.iOS, .tvOS]))),
+        .linkedLibrary("c++"),
       ]
     ),
     .target(
@@ -484,6 +511,9 @@ let package = Package(
       publicHeadersPath: "Public",
       cSettings: [
         .headerSearchPath("../../../"),
+      ],
+      linkerSettings: [
+        .linkedFramework("Security"),
       ]
     ),
     .target(
@@ -542,6 +572,10 @@ let package = Package(
       cSettings: [
         .headerSearchPath("../../"),
         .define("FIRStorage_VERSION", to: firebaseVersion),
+      ],
+      linkerSettings: [
+        .linkedFramework("MobileCoreServices", .when(platforms: .some([.iOS]))),
+        .linkedFramework("CoreServices", .when(platforms: .some([.macOS]))),
       ]
     ),
     .testTarget(
@@ -586,6 +620,10 @@ let package = Package(
         .define("PB_FIELD_32BIT", to: "1"),
         .define("PB_NO_PACKED_STRUCTS", to: "1"),
         .define("PB_ENABLE_MALLOC", to: "1"),
+      ],
+      linkerSettings: [
+        .linkedFramework("SystemConfiguration"),
+        .linkedFramework("CoreTelephony", .when(platforms: .some([.macOS, .iOS]))),
       ]
     ),
     .testTarget(

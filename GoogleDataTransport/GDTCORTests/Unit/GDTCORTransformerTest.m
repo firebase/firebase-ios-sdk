@@ -29,10 +29,10 @@
 
 #import "GoogleDataTransport/GDTCORTests/Common/Categories/GDTCORRegistrar+Testing.h"
 
+#import "GoogleDataTransport/GDTCORTests/Common/Fakes/GDTCORApplicationFake.h"
 #import "GoogleDataTransport/GDTCORTests/Common/Fakes/GDTCORStorageFake.h"
 
 @interface GDTCORTransformerTestNilingTransformer : NSObject <GDTCOREventTransformer>
-
 @end
 
 @implementation GDTCORTransformerTestNilingTransformer
@@ -44,7 +44,6 @@
 @end
 
 @interface GDTCORTransformerTestNewEventTransformer : NSObject <GDTCOREventTransformer>
-
 @end
 
 @implementation GDTCORTransformerTestNewEventTransformer
@@ -57,13 +56,20 @@
 
 @interface GDTCORTransformerTest : GDTCORTestCase
 
+@property(nonatomic) GDTCORApplicationFake *fakeApplication;
+@property(nonatomic) GDTCORTransformer *transformer;
+
 @end
 
 @implementation GDTCORTransformerTest
 
 - (void)setUp {
   [super setUp];
-  dispatch_sync([GDTCORTransformer sharedInstance].eventWritingQueue, ^{
+
+  self.fakeApplication = [[GDTCORApplicationFake alloc] init];
+
+  self.transformer = [[GDTCORTransformer alloc] initWithApplication:self.fakeApplication];
+  dispatch_sync(self.transformer.eventWritingQueue, ^{
     [[GDTCORRegistrar sharedInstance] registerStorage:[[GDTCORStorageFake alloc] init]
                                                target:kGDTCORTargetTest];
   });
@@ -71,24 +77,35 @@
 
 - (void)tearDown {
   [super tearDown];
-  dispatch_sync([GDTCORTransformer sharedInstance].eventWritingQueue, ^{
+  dispatch_sync(self.transformer.eventWritingQueue, ^{
     [[GDTCORRegistrar sharedInstance] reset];
   });
+  self.transformer = nil;
+
+  self.fakeApplication.beginTaskHandler = nil;
+  self.fakeApplication = nil;
 }
 
 /** Tests the default initializer. */
 - (void)testInit {
-  XCTAssertNotNil([[GDTCORTransformer alloc] init]);
+  GDTCORTransformer *transformer = [[GDTCORTransformer alloc] init];
+  XCTAssertNotNil(transformer);
+  XCTAssertEqualObjects(transformer.application, [GDTCORApplication sharedApplication]);
 }
 
 /** Tests the pointer equality of result of the -sharedInstance method. */
 - (void)testSharedInstance {
   XCTAssertEqual([GDTCORTransformer sharedInstance], [GDTCORTransformer sharedInstance]);
+  XCTAssertEqualObjects([GDTCORTransformer sharedInstance].application,
+                        [GDTCORApplication sharedApplication]);
 }
 
 /** Tests writing a event without a transformer. */
 - (void)testWriteEventWithoutTransformers {
-  GDTCORTransformer *transformer = [GDTCORTransformer sharedInstance];
+  __auto_type bgTaskExpectations =
+      [self expectationsBackgroundTaskBeginAndEndWithName:@"GDTTransformer"];
+
+  GDTCORTransformer *transformer = self.transformer;
   GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"1" target:kGDTCORTargetTest];
   event.dataObject = [[GDTCORDataObjectTesterSimple alloc] init];
   XCTAssertNoThrow([transformer transformEvent:event
@@ -96,11 +113,16 @@
                                     onComplete:^(BOOL wasWritten, NSError *_Nullable error) {
                                       XCTAssertTrue(wasWritten);
                                     }]);
+
+  [self waitForExpectations:bgTaskExpectations timeout:0.5];
 }
 
 /** Tests writing a event with a transformer that nils out the event. */
 - (void)testWriteEventWithTransformersThatNilTheEvent {
-  GDTCORTransformer *transformer = [GDTCORTransformer sharedInstance];
+  __auto_type bgTaskExpectations =
+      [self expectationsBackgroundTaskBeginAndEndWithName:@"GDTTransformer"];
+
+  GDTCORTransformer *transformer = self.transformer;
   GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"2" target:kGDTCORTargetTest];
   event.dataObject = [[GDTCORDataObjectTesterSimple alloc] init];
   NSArray<id<GDTCOREventTransformer>> *transformers =
@@ -110,11 +132,16 @@
                                     onComplete:^(BOOL wasWritten, NSError *_Nullable error) {
                                       XCTAssertFalse(wasWritten);
                                     }]);
+
+  [self waitForExpectations:bgTaskExpectations timeout:0.5];
 }
 
 /** Tests writing a event with a transformer that creates a new event. */
 - (void)testWriteEventWithTransformersThatCreateANewEvent {
-  GDTCORTransformer *transformer = [GDTCORTransformer sharedInstance];
+  __auto_type bgTaskExpectations =
+      [self expectationsBackgroundTaskBeginAndEndWithName:@"GDTTransformer"];
+
+  GDTCORTransformer *transformer = self.transformer;
   GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"2" target:kGDTCORTargetTest];
   event.dataObject = [[GDTCORDataObjectTesterSimple alloc] init];
   NSArray<id<GDTCOREventTransformer>> *transformers =
@@ -125,6 +152,41 @@
                                       XCTAssertTrue(wasWritten);
                                       XCTAssertNil(error);
                                     }]);
+
+  [self waitForExpectations:bgTaskExpectations timeout:0.5];
+}
+
+#pragma mark - Helpers
+
+/** Sets  GDTCORApplicationFake handlers to expect the begin and the end of a background task with
+ * the specified name.
+ *  @return An array with the task begin and end XCTestExpectation.
+ */
+- (NSArray<XCTestExpectation *> *)expectationsBackgroundTaskBeginAndEndWithName:
+    (NSString *)expectedName {
+  XCTestExpectation *beginExpectation = [self expectationWithDescription:@"Background task begin"];
+  XCTestExpectation *endExpectation = [self expectationWithDescription:@"Background task end"];
+
+  GDTCORBackgroundIdentifier taskID = arc4random();
+
+  __auto_type __weak weakSelf = self;
+
+  self.fakeApplication.beginTaskHandler =
+      ^GDTCORBackgroundIdentifier(NSString *_Nonnull name, dispatch_block_t _Nonnull handler) {
+        __unused __auto_type self = weakSelf;
+        XCTAssertEqualObjects(expectedName, name);
+
+        [beginExpectation fulfill];
+        return taskID;
+      };
+
+  self.fakeApplication.endTaskHandler = ^(GDTCORBackgroundIdentifier endTaskID) {
+    __unused __auto_type self = weakSelf;
+    XCTAssert(endTaskID == taskID);
+    [endExpectation fulfill];
+  };
+
+  return @[ beginExpectation, endExpectation ];
 }
 
 @end

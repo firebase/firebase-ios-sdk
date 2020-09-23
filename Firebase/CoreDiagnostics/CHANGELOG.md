@@ -1,3 +1,6 @@
+# v1.7.0
+- Internal headers removed from public headers. (#6442)
+
 # v1.6.0
 - Add logging for Swift Package Manager.
 

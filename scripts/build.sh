@@ -47,12 +47,14 @@ platform can be one of:
   macOS
   tvOS
   watchOS
+  catalyst
 
 method can be one of:
   xcodebuild (default)
   cmake
   unit
   integration
+  spm
 
 Optionally, reads the environment variable SANITIZERS. If set, it is expected to
 be a string containing a space-separated list with some of the following
@@ -166,6 +168,11 @@ tvos_flags=(
 watchos_flags=(
   -destination 'platform=iOS Simulator,name=iPhone 11 Pro'
 )
+catalyst_flags=(
+  ARCHS=x86_64 VALID_ARCHS=x86_64 SUPPORTS_MACCATALYST=YES -sdk macosx
+  -destination platform="macOS,variant=Mac Catalyst" TARGETED_DEVICE_FAMILY=2
+  CODE_SIGN_IDENTITY=- CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
+)
 
 # Compute standard flags for all platforms
 case "$platform" in
@@ -190,6 +197,10 @@ case "$platform" in
 
   watchOS)
     xcb_flags=("${watchos_flags[@]}")
+    ;;
+
+  catalyst)
+    xcb_flags=("${catalyst_flags[@]}")
     ;;
 
   all)
@@ -525,6 +536,21 @@ case "$product-$platform-$method" in
       "${xcb_flags[@]}" \
       build
     ;;
+
+  *-*-spm)
+    RunXcodebuild \
+      -scheme $product \
+      "${xcb_flags[@]}" \
+      test
+    ;;
+
+  *-*-spmbuildonly)
+    RunXcodebuild \
+      -scheme $product \
+      "${xcb_flags[@]}" \
+      build
+    ;;
+
   *)
     echo "Don't know how to build this product-platform-method combination" 1>&2
     echo "  product=$product" 1>&2

@@ -35,8 +35,7 @@ jobs:
     - name: Initialize xcodebuild
       run: xcodebuild -list
     - name: iOS Unit Tests
-      run: scripts/third_party/travis/retry.sh xcodebuild -scheme FirebaseDynamicLinks build -sdk
-           iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 11' | xcpretty
+      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseDynamicLinks iOS spmbuildonly
 
   dynamiclinks-cron-only:
     # Don't run on private repo.
