@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import "OCMock.h"
 #import <XCTest/XCTest.h>
+#import "OCMock.h"
 
 #import "Firebase/InstanceID/Public/FIRInstanceID.h"
 #import "GoogleUtilities/UserDefaults/Private/GULUserDefaults.h"

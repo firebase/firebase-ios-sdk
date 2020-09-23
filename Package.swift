@@ -68,10 +68,10 @@ let package = Package(
       name: "FirebaseInstallations",
       targets: ["FirebaseInstallations"]
     ),
-     .library(
-       name: "FirebaseMessaging",
-       targets: ["FirebaseMessaging"]
-     ),
+    .library(
+      name: "FirebaseMessaging",
+      targets: ["FirebaseMessaging"]
+    ),
     .library(
       name: "FirebaseRemoteConfig",
       targets: ["FirebaseRemoteConfig"]
@@ -495,7 +495,7 @@ let package = Package(
     .target(
       name: "FirebaseInstanceID",
       dependencies: ["FirebaseCore", "FirebaseInstallations",
-                    "GoogleUtilities_Environment", "GoogleUtilities_UserDefaults"],
+                     "GoogleUtilities_Environment", "GoogleUtilities_UserDefaults"],
       path: "Firebase/InstanceID",
       exclude: [
         "CHANGELOG.md",
