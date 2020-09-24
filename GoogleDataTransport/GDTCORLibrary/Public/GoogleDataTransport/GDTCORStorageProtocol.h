@@ -22,6 +22,9 @@
 
 @class GDTCOREvent;
 @class GDTCORClock;
+@class GDTCORUploadBatch;
+
+@class FBLPromise<ValueType>;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -117,6 +120,29 @@ typedef void (^GDTCORStorageBatchBlock)(NSNumber *_Nullable newBatchID,
  * @param onComplete The callback that will be invoked once storage size calculation is complete.
  */
 - (void)storageSizeWithCallback:(void (^)(GDTCORStorageSizeBytes storageSize))onComplete;
+
+@end
+
+// TODO: Consider a different place for this interface.
+// TODO: Consider complete replacing block based API by promise API.
+// TODO: Add API docs.
+@protocol GDTCORStoragePromiseProtocol <GDTCORStorageProtocol>
+
+- (FBLPromise<NSSet<NSNumber *> *> *)batchIDsForTarget:(GDTCORTarget)target;
+
+- (FBLPromise<NSNull *> *)removeBatchWithID:(NSNumber *)batchID deleteEvents:(BOOL)deleteEvents;
+
+- (FBLPromise<NSNull *> *)removeBatchesWithIDs:(NSSet<NSNumber *> *)batchIDs
+                                  deleteEvents:(BOOL)deleteEvents;
+
+- (FBLPromise<NSNull *> *)removeAllBatchesForTarget:(GDTCORTarget)target
+                                       deleteEvents:(BOOL)deleteEvents;
+
+- (FBLPromise<NSNumber *> *)hasEventsForTarget:(GDTCORTarget)target;
+
+- (FBLPromise<GDTCORUploadBatch *> *)batchWithEventSelector:
+                                         (GDTCORStorageEventSelector *)eventSelector
+                                            batchExpiration:(NSDate *)expiration;
 
 @end
 

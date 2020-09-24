@@ -36,6 +36,7 @@ Shared library for iOS SDK data transport needs.
   s.libraries = ['z']
 
   s.dependency 'nanopb', '~> 1.30906.0'
+  s.dependency 'PromisesObjC', '~> 1.2'
 
   header_search_paths = {
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}/"'
