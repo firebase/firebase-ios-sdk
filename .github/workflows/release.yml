@@ -31,14 +31,14 @@ jobs:
     - name: Update SpecsTesting repo setup
       run: |
          ossbotaccess=`cat oss-bot-access.txt`
-         BOT_TOKEN="${ossbotaccess}" test_version="${nightly_version}" scripts/release_testing_setup.sh nightly_testing
+         # BOT_TOKEN="${ossbotaccess}" test_version="${nightly_version}" scripts/release_testing_setup.sh nightly_testing
     - name: Update SpecsTesting repo
       run: |
         botaccess=`cat bot-access.txt`
         cd scripts/create_spec_repo/
-        swift build
+        # swift build
         pod repo add --silent "${local_repo}" https://"$botaccess"@github.com/FirebasePrivate/SpecsTesting.git
-        BOT_TOKEN="${botaccess}"  .build/debug/spec-repo-builder --sdk-repo "${local_sdk_repo_dir}" --local-spec-repo-name "${local_repo}"
+        # BOT_TOKEN="${botaccess}"  .build/debug/spec-repo-builder --sdk-repo "${local_sdk_repo_dir}" --local-spec-repo-name "${local_repo}"
     - name: Clean Artifacts
       if: ${{ always() }}
       run: |
@@ -71,10 +71,7 @@ jobs:
           quickstart-ios/TestUtils/FIREGSignInInfo.h "$signin_secret"
     - name: Test swift quickstart
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh ABTesting)
-    - name: Remove data before upload
-      run: scripts/remove_data.sh config release_testing
     - uses: actions/upload-artifact@v2
-      if: ${{ failure() }}
       with:
         name: quickstart_artifacts_abtesting
         path: quickstart-ios/
@@ -105,10 +102,7 @@ jobs:
           quickstart-ios/TestUtils/FIREGSignInInfo.h "$signin_secret"
     - name: Test swift quickstart
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Authentication)
-    - name: Remove data before upload
-      run: scripts/remove_data.sh authentication release_testing
     - uses: actions/upload-artifact@v2
-      if: ${{ failure() }}
       with:
         name: quickstart_artifacts_auth
         path: quickstart-ios/
@@ -148,10 +142,7 @@ jobs:
         ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Crashlytics)
     - name: Test swift quickstart
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Crashlytics swift)
-    - name: Remove data before upload
-      run: scripts/remove_data.sh crashlytics release_testing
     - uses: actions/upload-artifact@v2
-      if: ${{ failure() }}
       with:
         name: quickstart_artifacts_crashlytics
         path: quickstart-ios/
@@ -186,10 +177,7 @@ jobs:
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Database)
     - name: Test swift quickstart
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Database swift)
-    - name: Remove data before upload
-      run: scripts/remove_data.sh database release_testing
     - uses: actions/upload-artifact@v2
-      if: ${{ failure() }}
       with:
         name: quickstart_artifacts_database
         path: quickstart-ios/
@@ -230,10 +218,7 @@ jobs:
     - name: Test swift quickstart
       if: ${{ always() }}
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh DynamicLinks swift)
-    - name: Remove data before upload
-      run: scripts/remove_data.sh dynamiclinks release_testing
     - uses: actions/upload-artifact@v2
-      if: ${{ failure() }}
       with:
         name: quickstart_artifacts_dynamiclinks
         path: quickstart-ios/
@@ -267,10 +252,7 @@ jobs:
     - name: Test swift quickstart
       run: ([ -z $plist_secret ] ||
             scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Firestore)
-    - name: Remove data before upload
-      run: scripts/remove_data.sh firestore release_testing
     - uses: actions/upload-artifact@v2
-      if: ${{ failure() }}
       with:
         name: quickstart_artifacts_firestore
         path: quickstart-ios/
@@ -309,10 +291,7 @@ jobs:
     - name: Test swift quickstart
       run: ([ -z $plist_secret ] ||
             scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Functions swift)
-    - name: Remove data before upload
-      run: scripts/remove_data.sh functions release_testing
     - uses: actions/upload-artifact@v2
-      if: ${{ failure() }}
       with:
         name: quickstart_artifacts_functions
         path: quickstart-ios/
@@ -349,10 +328,7 @@ jobs:
     - name: Test swift quickstart
       run: ([ -z $plist_secret ] ||
             scripts/third_party/travis/retry.sh scripts/test_quickstart.sh InAppMessaging swift)
-    - name: Remove data before upload
-      run: scripts/remove_data.sh inappmessaging release_testing
     - uses: actions/upload-artifact@v2
-      if: ${{ failure() }}
       with:
         name: quickstart_artifacts_inappmessaging
         path: quickstart-ios/
@@ -389,10 +365,7 @@ jobs:
     - name: Test swift quickstart
       run: ([ -z $plist_secret ] ||
             scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Messaging swift)
-    - name: Remove data before upload
-      run: scripts/remove_data.sh messaging release_testing
     - uses: actions/upload-artifact@v2
-      if: ${{ failure() }}
       with:
         name: quickstart_artifacts_messaging
         path: quickstart-ios/
@@ -423,10 +396,7 @@ jobs:
           quickstart-ios/TestUtils/FIREGSignInInfo.h "$signin_secret"
     - name: Test Swift Quickstart
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Config)
-    - name: Remove data before upload
-      run: scripts/remove_data.sh config release_testing
     - uses: actions/upload-artifact@v2
-      if: ${{ failure() }}
       with:
         name: quickstart_artifacts_config
         path: quickstart-ios/
@@ -461,10 +431,7 @@ jobs:
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Storage)
     - name: Test swift quickstart
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Storage swift)
-    - name: Remove data before upload
-      run: scripts/remove_data.sh storage release_testing
     - uses: actions/upload-artifact@v2
-      if: ${{ failure() }}
       with:
         name: quickstart_artifacts_storage
         path: quickstart-ios/
