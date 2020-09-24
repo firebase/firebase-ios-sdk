@@ -22,7 +22,7 @@ fi
 
 git clone -q https://@github.com/firebase/firebase-ios-sdk.git
 cd firebase-ios-sdk
-test_version=$(git describe --tags --abbrev=0 --match CocoaPods-*[0-9] | sed -n 's/CocoaPods-//p')
+test_version=$(git tag -l --sort=-version:refname CocoaPods-*[0-9] | head -n 1 | sed -n 's/CocoaPods-//p')
 release_branch=$(git branch -r -l "origin/release-${test_version}")
 if [ -z $release_branch ];then
   echo "${test_version} does not exist in a release branch."
