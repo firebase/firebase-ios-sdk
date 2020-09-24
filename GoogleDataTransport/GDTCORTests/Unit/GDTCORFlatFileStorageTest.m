@@ -1170,7 +1170,7 @@
                   onComplete:^{
                     [removeBatchExpectation fulfill];
                   }];
-  [self waitForExpectations:@[ removeBatchExpectation ] timeout:5];
+  [self waitForExpectations:@[ removeBatchExpectation ] timeout:generatedEvents.count * 0.1];
 
   // 6. Try to add another event.
   XCTestExpectation *storeExpectation2 = [self expectationWithDescription:@"storeExpectation2"];
