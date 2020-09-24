@@ -24,7 +24,6 @@ non-Cocoapod integration. This library also respects the Firebase global data co
   s.watchos.deployment_target = '6.0'
 
   s.cocoapods_version = '>= 1.4.0'
-  s.static_framework = true
   s.prefix_header_file = false
 
   header_search_paths = {
