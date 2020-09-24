@@ -16,8 +16,6 @@ jobs:
       bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       local_repo: specstesting
       local_sdk_repo_dir: /tmp/test/firebase-ios-sdk
-      nightly_version: 6.33.0
-      podspec_repo_branch: release-6.33.0
     runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v2
