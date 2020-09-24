@@ -56,8 +56,6 @@ typedef void (^FIRMessagingDeleteFCMTokenCompletion)(NSError *_Nullable error)
  */
 typedef void (^FIRMessagingTopicOperationCompletion)(NSError *_Nullable error);
 
-#if defined(__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
-
 /**
  *  Notification sent when the FCM registration token has been refreshed. Please use the
  *  FIRMessaging delegate method `messaging:didReceiveRegistrationToken:` to receive current and
@@ -65,16 +63,6 @@ typedef void (^FIRMessagingTopicOperationCompletion)(NSError *_Nullable error);
  */
 FOUNDATION_EXPORT const NSNotificationName FIRMessagingRegistrationTokenRefreshedNotification
     NS_SWIFT_NAME(MessagingRegistrationTokenRefreshed);
-#else
-
-/**
- *  Notification sent when the FCM registration token has been refreshed. Please use the
- *  FIRMessaging delegate method `messaging:didReceiveRegistrationToken:` to receive current and
- *  updated tokens.
- */
-FOUNDATION_EXPORT NSString *const FIRMessagingRegistrationTokenRefreshedNotification
-    NS_SWIFT_NAME(MessagingRegistrationTokenRefreshedNotification);
-#endif  // defined(__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
 
 /**
  *  @enum FIRMessagingError
