@@ -36,8 +36,8 @@ std::string GetUserAgent() {
   return MakeString([FIRApp firebaseUserAgent]);
 }
 
-std::string GetHeartbeat() {
-  return std::to_string([FIRHeartbeatInfo heartbeatCodeForTag:@"fire-fst"]);
+int GetHeartbeat() {
+  return [FIRHeartbeatInfo heartbeatCodeForTag:@"fire-fst"];
 }
 
 std::string GetGmpAppId(FIRApp* app) {
@@ -52,8 +52,13 @@ FirebaseMetadataProviderApple::FirebaseMetadataProviderApple(FIRApp* app)
 
 void FirebaseMetadataProviderApple::UpdateMetadata(
     grpc::ClientContext& context) {
+  int heartbeat = GetHeartbeat();
+  if (heartbeat == 0) {
+    return;
+  }
+
+  context.AddMetadata(kXFirebaseClientLogTypeHeader, std::to_string(heartbeat));
   context.AddMetadata(kXFirebaseClientHeader, GetUserAgent());
-  context.AddMetadata(kXFirebaseClientLogTypeHeader, GetHeartbeat());
 
   std::string gmp_app_id = GetGmpAppId(app_);
   if (!gmp_app_id.empty()) {
