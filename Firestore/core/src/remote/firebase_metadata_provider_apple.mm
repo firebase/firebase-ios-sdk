@@ -36,7 +36,7 @@ std::string GetUserAgent() {
   return MakeString([FIRApp firebaseUserAgent]);
 }
 
-int GetHeartbeat() {
+FIRHeartbeatInfoCode GetHeartbeat() {
   return [FIRHeartbeatInfo heartbeatCodeForTag:@"fire-fst"];
 }
 
@@ -52,8 +52,8 @@ FirebaseMetadataProviderApple::FirebaseMetadataProviderApple(FIRApp* app)
 
 void FirebaseMetadataProviderApple::UpdateMetadata(
     grpc::ClientContext& context) {
-  int heartbeat = GetHeartbeat();
-  if (heartbeat == 0) {
+  FIRHeartbeatInfoCode heartbeat = GetHeartbeat();
+  if (heartbeat == FIRHeartbeatInfoCodeNone) {
     return;
   }
 
