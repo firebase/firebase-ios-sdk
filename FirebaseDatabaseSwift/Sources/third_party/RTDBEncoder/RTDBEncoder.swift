@@ -1,3 +1,5 @@
+// This file is derived from swift/stdlib/public/Darwin/Foundation/JSONEncoder.swift
+
 //===----------------------------------------------------------------------===//
 //
 // This source file is part of the Swift.org open source project
@@ -9,6 +11,44 @@
 // See https://swift.org/CONTRIBUTORS.txt for the list of Swift project authors
 //
 //===----------------------------------------------------------------------===//
+
+import FirebaseDatabase
+import Foundation
+
+extension DecodingError {
+    /// Returns a `.typeMismatch` error describing the expected type.
+    ///
+    /// - parameter path: The path of `CodingKey`s taken to decode a value of this type.
+    /// - parameter expectation: The type expected to be encountered.
+    /// - parameter reality: The value that was encountered instead of the expected type.
+    /// - returns: A `DecodingError` with the appropriate path and debug description.
+    internal static func _typeMismatch(at path: [CodingKey], expectation: Any.Type, reality: Any) -> DecodingError {
+        let description = "Expected to decode \(expectation) but found \(_typeDescription(of: reality)) instead."
+        return .typeMismatch(expectation, Context(codingPath: path, debugDescription: description))
+    }
+
+    /// Returns a description of the type of `value` appropriate for an error message.
+    ///
+    /// - parameter value: The value whose type to describe.
+    /// - returns: A string describing `value`.
+    /// - precondition: `value` is one of the types below.
+    fileprivate static func _typeDescription(of value: Any) -> String {
+        if value is NSNull {
+            return "a null value"
+        } else if value is NSNumber /* FIXME: If swift-corelibs-foundation isn't updated to use NSNumber, this check will be necessary: || value is Int || value is Double */ {
+            return "a number"
+        } else if value is String {
+            return "a string/data"
+        } else if value is [Any] {
+            return "an array"
+        } else if value is [String : Any] {
+            return "a dictionary"
+        } else {
+            return "\(type(of: value))"
+        }
+    }
+}
+
 
 /// A marker protocol used to determine whether a value is a `String`-keyed `Dictionary`
 /// containing `Encodable` values (in which case it should be exempt from key conversion strategies).
@@ -55,8 +95,9 @@ extension Dictionary : _JSONStringDictionaryDecodableMarker where Key == String,
 // The two must coexist, so it was renamed. The old name must not be
 // used in the new runtime. _TtC10Foundation13__JSONEncoder is the
 // mangled name for Foundation.__JSONEncoder.
-@_objcRuntimeName(_TtC10Foundation13__JSONEncoder)
-open class JSONEncoder {
+
+extension Database {
+public class Encoder {
     // MARK: Options
 
     /// The formatting of the output JSON data.
@@ -105,7 +146,7 @@ open class JSONEncoder {
         /// Encode the `Date` as a custom value encoded by the given closure.
         ///
         /// If the closure fails to encode a value into the given encoder, the encoder will encode an empty automatic container in its place.
-        case custom((Date, Encoder) throws -> Void)
+        case custom((Date, Swift.Encoder) throws -> Void)
     }
 
     /// The strategy to use for encoding `Data` values.
@@ -119,7 +160,7 @@ open class JSONEncoder {
         /// Encode the `Data` as a custom value encoded by the given closure.
         ///
         /// If the closure fails to encode a value into the given encoder, the encoder will encode an empty automatic container in its place.
-        case custom((Data, Encoder) throws -> Void)
+        case custom((Data, Swift.Encoder) throws -> Void)
     }
 
     /// The strategy to use for non-JSON-conforming floating-point values (IEEE 754 infinity and NaN).
@@ -256,22 +297,16 @@ open class JSONEncoder {
     /// - returns: A new `Data` value containing the encoded JSON data.
     /// - throws: `EncodingError.invalidValue` if a non-conforming floating-point value is encountered during encoding, and the encoding strategy is `.throw`.
     /// - throws: An error if any value throws an error during encoding.
-    open func encode<T : Encodable>(_ value: T) throws -> Data {
+    open func encode<T : Encodable>(_ value: T) throws -> Any {
         let encoder = __JSONEncoder(options: self.options)
 
         guard let topLevel = try encoder.box_(value) else {
-            throw EncodingError.invalidValue(value,
-                                             EncodingError.Context(codingPath: [], debugDescription: "Top-level \(T.self) did not encode any values."))
+            throw Swift.EncodingError.invalidValue(value,
+                                                   Swift.EncodingError.Context(codingPath: [], debugDescription: "Top-level \(T.self) did not encode any values."))
         }
-
-        let writingOptions = JSONSerialization.WritingOptions(rawValue: self.outputFormatting.rawValue).union(.fragmentsAllowed)
-        do {
-           return try JSONSerialization.data(withJSONObject: topLevel, options: writingOptions)
-        } catch {
-            throw EncodingError.invalidValue(value,
-                                             EncodingError.Context(codingPath: [], debugDescription: "Unable to encode the given top-level value to JSON.", underlyingError: error))
-        }
+        return topLevel
     }
+}
 }
 
 // MARK: - __JSONEncoder
@@ -286,7 +321,7 @@ fileprivate class __JSONEncoder : Encoder {
     fileprivate var storage: _JSONEncodingStorage
 
     /// Options set on the top-level encoder.
-    fileprivate let options: JSONEncoder._Options
+    fileprivate let options: Database.Encoder._Options
 
     /// The path to the current point in encoding.
     public var codingPath: [CodingKey]
@@ -299,7 +334,7 @@ fileprivate class __JSONEncoder : Encoder {
     // MARK: - Initialization
 
     /// Initializes `self` with the given top-level encoder options.
-    fileprivate init(options: JSONEncoder._Options, codingPath: [CodingKey] = []) {
+    fileprivate init(options: Database.Encoder._Options, codingPath: [CodingKey] = []) {
         self.options = options
         self.storage = _JSONEncodingStorage()
         self.codingPath = codingPath
@@ -433,7 +468,7 @@ fileprivate struct _JSONKeyedEncodingContainer<K : CodingKey> : KeyedEncodingCon
         case .useDefaultKeys:
             return key
         case .convertToSnakeCase:
-            let newKeyString = JSONEncoder.KeyEncodingStrategy._convertToSnakeCase(key.stringValue)
+            let newKeyString = Database.Encoder.KeyEncodingStrategy._convertToSnakeCase(key.stringValue)
             return _JSONKey(stringValue: newKeyString, intValue: key.intValue)
         case .custom(let converter):
             return converter(codingPath + [key])
@@ -1035,8 +1070,8 @@ fileprivate class __JSONReferencingEncoder : __JSONEncoder {
 // The two must coexist, so it was renamed. The old name must not be
 // used in the new runtime. _TtC10Foundation13__JSONDecoder is the
 // mangled name for Foundation.__JSONDecoder.
-@_objcRuntimeName(_TtC10Foundation13__JSONDecoder)
-open class JSONDecoder {
+extension Database {
+public class Decoder {
     // MARK: Options
 
     /// The strategy to use for decoding `Date` values.
@@ -1058,7 +1093,7 @@ open class JSONDecoder {
         case formatted(DateFormatter)
 
         /// Decode the `Date` as a custom value decoded by the given closure.
-        case custom((_ decoder: Decoder) throws -> Date)
+        case custom((_ decoder: Swift.Decoder) throws -> Date)
     }
 
     /// The strategy to use for decoding `Data` values.
@@ -1070,7 +1105,7 @@ open class JSONDecoder {
         case base64
 
         /// Decode the `Data` as a custom value decoded by the given closure.
-        case custom((_ decoder: Decoder) throws -> Data)
+        case custom((_ decoder: Swift.Decoder) throws -> Data)
     }
 
     /// The strategy to use for non-JSON-conforming floating-point values (IEEE 754 infinity and NaN).
@@ -1198,21 +1233,15 @@ open class JSONDecoder {
     /// - returns: A value of the requested type.
     /// - throws: `DecodingError.dataCorrupted` if values requested from the payload are corrupted, or if the given data is not valid JSON.
     /// - throws: An error if any value throws an error during decoding.
-    open func decode<T : Decodable>(_ type: T.Type, from data: Data) throws -> T {
-        let topLevel: Any
-        do {
-           topLevel = try JSONSerialization.jsonObject(with: data, options: .fragmentsAllowed)
-        } catch {
-            throw DecodingError.dataCorrupted(DecodingError.Context(codingPath: [], debugDescription: "The given data was not valid JSON.", underlyingError: error))
-        }
-
-        let decoder = __JSONDecoder(referencing: topLevel, options: self.options)
-        guard let value = try decoder.unbox(topLevel, as: type) else {
-            throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: [], debugDescription: "The given data did not contain a top-level value."))
+    open func decode<T : Decodable>(_ type: T.Type, from structure: Any) throws -> T {
+        let decoder = __JSONDecoder(referencing: structure, options: self.options)
+        guard let value = try decoder.unbox(structure, as: type) else {
+            throw Swift.DecodingError.valueNotFound(type, Swift.DecodingError.Context(codingPath: [], debugDescription: "The given data did not contain a top-level value."))
         }
 
         return value
     }
+}
 }
 
 // MARK: - __JSONDecoder
@@ -1227,7 +1256,7 @@ fileprivate class __JSONDecoder : Decoder {
     fileprivate var storage: _JSONDecodingStorage
 
     /// Options set on the top-level decoder.
-    fileprivate let options: JSONDecoder._Options
+    fileprivate let options: Database.Decoder._Options
 
     /// The path to the current point in encoding.
     fileprivate(set) public var codingPath: [CodingKey]
@@ -1240,7 +1269,7 @@ fileprivate class __JSONDecoder : Decoder {
     // MARK: - Initialization
 
     /// Initializes `self` with the given top-level container and options.
-    fileprivate init(referencing container: Any, at codingPath: [CodingKey] = [], options: JSONDecoder._Options) {
+    fileprivate init(referencing container: Any, at codingPath: [CodingKey] = [], options: Database.Decoder._Options) {
         self.storage = _JSONDecodingStorage()
         self.storage.push(container: container)
         self.codingPath = codingPath
@@ -1346,7 +1375,7 @@ fileprivate struct _JSONKeyedDecodingContainer<K : CodingKey> : KeyedDecodingCon
             // Convert the snake case keys in the container to camel case.
             // If we hit a duplicate key after conversion, then we'll use the first one we saw. Effectively an undefined behavior with JSON dictionaries.
             self.container = Dictionary(container.map {
-                key, value in (JSONDecoder.KeyDecodingStrategy._convertFromSnakeCase(key), value)
+                key, value in (Database.Decoder.KeyDecodingStrategy._convertFromSnakeCase(key), value)
             }, uniquingKeysWith: { (first, _) in first })
         case .custom(let converter):
             self.container = Dictionary(container.map {
@@ -1371,8 +1400,8 @@ fileprivate struct _JSONKeyedDecodingContainer<K : CodingKey> : KeyedDecodingCon
         case .convertFromSnakeCase:
             // In this case we can attempt to recover the original value by reversing the transform
             let original = key.stringValue
-            let converted = JSONEncoder.KeyEncodingStrategy._convertToSnakeCase(original)
-            let roundtrip = JSONDecoder.KeyDecodingStrategy._convertFromSnakeCase(converted)
+            let converted = Database.Encoder.KeyEncodingStrategy._convertToSnakeCase(original)
+            let roundtrip = Database.Decoder.KeyDecodingStrategy._convertFromSnakeCase(converted)
             if converted == original {
                 return "\(key) (\"\(original)\")"
             } else if roundtrip == original {
