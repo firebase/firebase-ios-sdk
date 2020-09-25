@@ -1,3 +1,6 @@
+# v7.0.0
+- [changed] Updated `lastFetchTime` field to readonly. (#6567)
+
 # v4.9.0
 - [fixed] Fixed `FirebaseApp.delete()` related crash in `RC Config Fetch`. (#6123)
 
