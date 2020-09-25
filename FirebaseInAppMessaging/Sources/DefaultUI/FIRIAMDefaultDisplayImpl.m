@@ -59,7 +59,7 @@
     NSBundle *containingBundle;
     NSURL *bundleURL;
     // The containing bundle is different whether FIAM is statically or dynamically linked.
-    for (containingBundle in @[[NSBundle mainBundle], [NSBundle bundleForClass:myClass]]) {
+    for (containingBundle in @[ [NSBundle mainBundle], [NSBundle bundleForClass:myClass] ]) {
       bundleURL = [containingBundle URLForResource:@"InAppMessagingDisplayResources"
                                      withExtension:@"bundle"];
       if (bundleURL != nil) break;
