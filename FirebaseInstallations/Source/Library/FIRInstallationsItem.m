@@ -37,6 +37,7 @@
   clone.refreshToken = [self.refreshToken copy];
   clone.authToken = [self.authToken copy];
   clone.registrationStatus = self.registrationStatus;
+  clone.IIDDefaultToken = [self.IIDDefaultToken copy];
 
   return clone;
 }
