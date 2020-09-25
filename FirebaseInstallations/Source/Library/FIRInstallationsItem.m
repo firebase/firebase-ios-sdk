@@ -63,6 +63,46 @@
   return [[self class] identifierWithAppID:self.appID appName:self.firebaseAppName];
 }
 
+- (BOOL)isValid:(NSError * _Nullable *)outError {
+  NSMutableArray<NSString *> *validationIssues = [NSMutableArray array];
+
+  if (self.appID.length == 0) {
+    [validationIssues addObject:@"`appID` must not be empty"];
+  }
+
+  if (self.firebaseAppName.length == 0) {
+    [validationIssues addObject:@"`firebaseAppName` must not be empty"];
+  }
+
+  if (self.firebaseInstallationID.length == 0) {
+    [validationIssues addObject:@"`firebaseInstallationID` must not be empty"];
+  }
+
+  switch (self.registrationStatus) {
+    case FIRInstallationStatusUnknown:
+      [validationIssues addObject:@"invalid `registrationStatus`"];
+      break;
+
+    case FIRInstallationStatusRegistered:
+      if (self.refreshToken == 0) {
+        [validationIssues addObject:@"registered installation must have non-empty `refreshToken`"];
+      }
+
+      if (self.authToken.token == 0) {
+        [validationIssues addObject:@"registered installation must have non-empty `authToken.token`"];
+      }
+
+      if (self.authToken.expirationDate == nil) {
+        [validationIssues addObject:@"registered installation must have non-empty `authToken.expirationDate`"];
+      }
+
+    case FIRInstallationStatusUnregistered:
+      break;
+  }
+
+  return validationIssues.count == 0;
+}
+
 + (NSString *)identifierWithAppID:(NSString *)appID appName:(NSString *)appName {
   return [appID stringByAppendingString:appName];
 }
