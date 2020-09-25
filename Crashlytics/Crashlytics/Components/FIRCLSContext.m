@@ -196,12 +196,14 @@ bool FIRCLSContextInitialize(FIRCLSInternalReport* report,
   });
 
   if (!_firclsContext.readonly->debuggerAttached) {
+#if CLS_SIGNAL_SUPPORTED
     dispatch_group_async(group, queue, ^{
       _firclsContext.readonly->signal.path =
           FIRCLSContextAppendToRoot(rootPath, FIRCLSReportSignalFile);
 
       FIRCLSSignalInitialize(&_firclsContext.readonly->signal);
     });
+#endif
 
 #if CLS_MACH_EXCEPTION_SUPPORTED
     dispatch_group_async(group, queue, ^{
