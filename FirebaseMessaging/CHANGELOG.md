@@ -1,3 +1,6 @@
+# 2020-09 -- v.4.7.0
+- [added] Added new token APIs to get and delete the default FCM registration token asynchronously. Also added a new `Messaging.delete(completion:)` method that deletes all FCM registration tokens and checkin data. (#6313)
+
 # 2020-08 -- v.4.6.2
 - [fixed] Fixed an issue that topic doesn't work in watchOS. (#6160)
 - [fixed] Improved Xcode completion of public API completion handlers in Swift. (#6278)

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FirebaseDynamicLinks/Sources/Public/FirebaseDynamicLinks/FIRDynamicLinks.h"
+#import "FirebaseDynamicLinks/Sources/Public/FirebaseDynamicLinks/FIRDynamicLinks.h"  // IWYU pragma: export
 
 #import "FirebaseDynamicLinks/Sources/FIRDynamicLink+Private.h"
 

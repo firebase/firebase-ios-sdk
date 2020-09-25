@@ -50,7 +50,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(strong, nonatomic, nullable) NSError *error;
 
 /**
- * NSProgress object which tracks the progess of an observable task.
+ * NSProgress object which tracks the progress of an observable task.
  */
 @property(strong, nonatomic) NSProgress *progress;
 

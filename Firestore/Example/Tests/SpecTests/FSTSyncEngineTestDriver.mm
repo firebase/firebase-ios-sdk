@@ -195,6 +195,7 @@ NS_ASSUME_NONNULL_BEGIN
   IndexFreeQueryEngine _queryEngine;
 
   int _snapshotsInSyncEvents;
+  int _waitForPendingWritesEvents;
 }
 
 - (instancetype)initWithPersistence:(std::unique_ptr<Persistence>)persistence
@@ -284,6 +285,19 @@ NS_ASSUME_NONNULL_BEGIN
   _snapshotsInSyncEvents = 0;
 }
 
+- (void)incrementWaitForPendingWritesEvents {
+  _waitForPendingWritesEvents += 1;
+}
+
+- (void)resetWaitForPendingWritesEvents {
+  _waitForPendingWritesEvents = 0;
+}
+
+- (void)waitForPendingWrites {
+  _syncEngine->RegisterPendingWritesCallback(
+      [self](const Status &) { [self incrementWaitForPendingWritesEvents]; });
+}
+
 - (void)addSnapshotsInSyncListener {
   std::shared_ptr<EventListener<Empty>> eventListener = EventListener<Empty>::Create(
       [self](const StatusOr<Empty> &) { [self incrementSnapshotsInSyncEvents]; });
@@ -298,6 +312,10 @@ NS_ASSUME_NONNULL_BEGIN
     _eventManager->RemoveSnapshotsInSyncListener(_snapshotsInSyncListeners.back());
     _snapshotsInSyncListeners.pop_back();
   }
+}
+
+- (int)waitForPendingWritesEvents {
+  return _waitForPendingWritesEvents;
 }
 
 - (int)snapshotsInSyncEvents {

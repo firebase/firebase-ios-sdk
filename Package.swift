@@ -22,7 +22,7 @@
 
 import PackageDescription
 
-let firebaseVersion = "6.32.0"
+let firebaseVersion = "6.33.0"
 
 let package = Package(
   name: "Firebase",
@@ -106,17 +106,17 @@ let package = Package(
       name: "nanopb",
       url: "https://github.com/nanopb/nanopb.git",
       // This revision adds SPM enablement to the 0.3.9.6 release tag.
-      .revision("3cfa21200eea012d8765239ad4c50d8a36c283f1")
+      .revision("8119dfe5631f2616d11e50ead95448d12e816062")
     ),
     .package(
       name: "abseil",
       url: "https://github.com/firebase/abseil-cpp.git",
-      .revision("d30bd7751ce343a05fca6413de0dec062163e5e9")
+      .revision("8ddf129163673642a339d7980327bcb2c117a28e")
     ),
     .package(
       name: "gRPC",
       url: "https://github.com/firebase/grpc.git",
-      .revision("cae939a8823bbc39912aa2990cf95e29ace381b3")
+      .revision("b22bc5256665ff2f1763505631df0ee60378b083")
     ),
     .package(
       name: "OCMock",
@@ -126,7 +126,7 @@ let package = Package(
     .package(
       name: "leveldb",
       url: "https://github.com/firebase/leveldb.git",
-      .revision("3f046978ecffd57ea6eb9a0897cc8a3b45b44df8")
+      .revision("fa1f25f296a766e5a789c4dacd4798dea798b2c2")
     ),
     // Branches need a force update with a run with the revision set like below.
     //   .package(url: "https://github.com/paulb777/nanopb.git", .revision("564392bd87bd093c308a3aaed3997466efb95f74"))
@@ -218,7 +218,6 @@ let package = Package(
         .product(name: "nanopb", package: "nanopb"),
       ],
       path: "FirebaseAnalyticsWrapper",
-      publicHeadersPath: "Public",
       linkerSettings: [
         .linkedLibrary("sqlite3"),
         .linkedLibrary("c++"),
@@ -228,18 +227,18 @@ let package = Package(
     ),
     .binaryTarget(
       name: "FirebaseAnalytics",
-      url: "https://dl.google.com/firebase/ios/swiftpm/6.32.0/FirebaseAnalytics.zip",
-      checksum: "8d1a2fcb3a883f1d46d57aa13a6ddcee1bfeba86c33b7555db3ff0ce7125391a"
+      url: "https://dl.google.com/firebase/ios/swiftpm/6.33.0/FirebaseAnalytics.zip",
+      checksum: "d3f88b6144311d2c7c1e9663b8357511db12fed794d091ea751fdcabdffab21f"
     ),
     .binaryTarget(
       name: "FIRAnalyticsConnector",
-      url: "https://dl.google.com/firebase/ios/swiftpm/6.32.0/FIRAnalyticsConnector.zip",
-      checksum: "f29a02540a228ed5819a0a91229b63bc78bda6d2f6ca92c32ef9da6c8609eb03"
+      url: "https://dl.google.com/firebase/ios/swiftpm/6.33.0/FIRAnalyticsConnector.zip",
+      checksum: "56c9a3f43fe77bb8f523ac1ed0ead6068ed74e6f5545948f9c2924a0351cdf50"
     ),
     .binaryTarget(
       name: "GoogleAppMeasurement",
-      url: "https://dl.google.com/firebase/ios/swiftpm/6.32.0/GoogleAppMeasurement.zip",
-      checksum: "4c93aa13a64a19aa5113133a730364ecf4ff425140a146acb2e0cb127e6ec1db"
+      url: "https://dl.google.com/firebase/ios/swiftpm/6.33.0/GoogleAppMeasurement.zip",
+      checksum: "fc01f32a3bd2d624bd1532245f3661bc0cf2d577c300b52ef8ed981b5bde7478"
     ),
     .target(
       name: "FirebaseAuth",
@@ -675,6 +674,14 @@ let package = Package(
         .product(name: "nanopb", package: "nanopb"),
       ],
       path: "SwiftPMTests/swift-test"
+    ),
+    .testTarget(
+      name: "analytics-import-test",
+      dependencies: [
+        "FirebaseAnalyticsWrapper",
+        "Firebase",
+      ],
+      path: "SwiftPMTests/analytics-import-test"
     ),
     .testTarget(
       name: "objc-import-test",
