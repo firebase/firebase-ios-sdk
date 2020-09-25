@@ -235,7 +235,7 @@
   OCMVerifyAll(self.mockBackoffController);
 }
 
-- (void)testGetInstallationItem_WhenThereIsIIDAndNoFIDNotDefaultApp_ThenIIDIsUsedAsFID {
+- (void)testGetInstallationItem_WhenThereIsIIDAndNoFIDNotDefaultApp_ThenIIDIsNotUsedAsFID {
   // 0. Configure controller with not default app.
   NSString *appName = @"appName";
   [self setUpWithAppName:appName];
@@ -315,7 +315,7 @@
   OCMVerifyAll(self.mockBackoffController);
 }
 
-- (void)testGetInstallationItem_WhenThereIsIIDAndNoFID_ThenFIDIsCreatedAndRegistered {
+- (void)testGetInstallationItem_WhenThereIsIIDAndNoFID_ThenIIDIsRegisteredAsFID {
   // 1. Stub store get installation.
   [self expectInstallationsStoreGetInstallationNotFound];
 
