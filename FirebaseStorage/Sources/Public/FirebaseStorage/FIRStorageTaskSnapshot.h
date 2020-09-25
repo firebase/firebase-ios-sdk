@@ -48,7 +48,7 @@ NS_SWIFT_NAME(StorageTaskSnapshot)
 @property(readonly, copy, nonatomic) FIRStorageReference *reference;
 
 /**
- * NSProgress object which tracks the progess of an upload or download.
+ * NSProgress object which tracks the progress of an upload or download.
  */
 @property(readonly, strong, nonatomic, nullable) NSProgress *progress;
 
