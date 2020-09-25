@@ -180,9 +180,11 @@ static NSString *const kKeychainService = @"com.firebase.FIRInstallations.instal
 - (FBLPromise<FIRInstallationsItem *> *)getStoredInstallation {
   return [self.installationsStore installationForAppID:self.appID appName:self.appName].validate(
       ^BOOL(FIRInstallationsItem *installation) {
-    NSError *validationError;
+        NSError *validationError;
         BOOL isValid = [installation isValid:&validationError];
-    FIRLogWarning(kFIRLoggerInstallations, kFIRInstallationsMessageCodeCorruptedStoredInstallation, @"Stored installation validation error: %@", validationError.localizedDescription);
+        FIRLogWarning(
+            kFIRLoggerInstallations, kFIRInstallationsMessageCodeCorruptedStoredInstallation,
+            @"Stored installation validation error: %@", validationError.localizedDescription);
         return isValid;
       });
 }

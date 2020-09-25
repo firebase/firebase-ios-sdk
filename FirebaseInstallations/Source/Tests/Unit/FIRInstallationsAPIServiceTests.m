@@ -86,6 +86,19 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
                                              expectedFIDOverride:nil];
 }
 
+- (void)testRegisterInstallationSuccess_InvalidInstallation {
+  FIRInstallationsItem *installation = [FIRInstallationsItem createUnregisteredInstallationItem];
+  installation.firebaseInstallationID = nil;
+
+  __auto_type promise = [self.service registerInstallation:installation];
+
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
+
+  XCTAssertTrue(promise.isRejected);
+  XCTAssertNil(promise.value);
+  XCTAssertNotNil(promise.error);
+}
+
 - (void)testRefreshAuthTokenSuccess {
   FIRInstallationsItem *installation = [FIRInstallationsItem createRegisteredInstallationItem];
   installation.firebaseInstallationID = @"qwertyuiopasdfghjklzxcvbnm";
@@ -553,9 +566,7 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
 - (void)assertRegisterInstallationSuccessWithResponseFixtureName:(NSString *)fixtureName
                                                     responseCode:(NSInteger)responseCode
                                              expectedFIDOverride:(nullable NSString *)overrideFID {
-  FIRInstallationsItem *installation = [[FIRInstallationsItem alloc] initWithAppID:@"app-id"
-                                                                   firebaseAppName:@"name"];
-  installation.firebaseInstallationID = [FIRInstallationsItem generateFID];
+  FIRInstallationsItem *installation = [FIRInstallationsItem createUnregisteredInstallationItem];
   installation.IIDDefaultToken = @"iid-auth-token";
 
   NSString *expectedFID = overrideFID ?: installation.firebaseInstallationID;
