@@ -158,15 +158,13 @@
 }
 
 - (void)testGetInstallationItem_WhenNoFIDAndNoIID_ThenFIDIsCreatedAndRegistered {
-  // Stub store get installation.
-  [self expectInstallationsStoreGetInstallationCorruptedFID];
+  [self expectInstallationsStoreGetInstallationNotFound];
   [self expectStoredIIDNotFound];
 
   [self assertGetInstallation_NewFIDCreatedAndRegistered];
 }
 
 - (void)testGetInstallationItem_WhenFIDCorruptedAndNoIID_ThenFIDIsCreatedAndRegistered {
-  // Stub store get installation.
   [self expectInstallationsStoreGetInstallationCorruptedFID];
   [self expectStoredIIDNotFound];
 
