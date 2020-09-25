@@ -25,8 +25,8 @@ NSString *const kErrorDescription = @"ErrorDescription";
 
 @interface SEGContentManager () {
   NSMutableDictionary<NSString *, id> *_associationData;
-  NSString *_instanceIdentifier;
-  NSString *_instanceIdentifierToken;
+  NSString *_installationIdentifier;
+  NSString *_installationIdentifierToken;
   SEGDatabaseManager *_databaseManager;
   SEGNetworkManager *_networkManager;
 }
@@ -63,20 +63,19 @@ NSString *const kErrorDescription = @"ErrorDescription";
   return self;
 }
 
-// TODO(dmandar) IID only supports default instance. Modify for FIS.
-- (FIRInstallations *)installationsForApp:(NSString *)firebaseApp {
-  return [FIRInstallations installations];
+- (FIRInstallations *)installationForApp:(NSString *)firebaseApp {
+  return [FIRInstallations installationsWithApp:[FIRApp appNamed: firebaseApp]];
 }
 
 - (void)associateCustomInstallationIdentiferNamed:(NSString *)customInstallationID
                                       firebaseApp:(NSString *)firebaseApp
                                        completion:(SEGRequestCompletion)completionHandler {
-  // Get the latest instance identifier
-  if (![self installationsForApp:firebaseApp]) {
+  // Get the latest installation identifier
+  if (![self installationForApp:firebaseApp]) {
     completionHandler(NO, @{kErrorDescription : @"Firebase Installations SDK not available"});
   }
   __weak SEGContentManager *weakSelf = self;
-  [[FIRInstallations installations] installationIDWithCompletion:^(NSString *__nullable identifier,
+  [[self installationForApp:firebaseApp] installationIDWithCompletion:^(NSString *__nullable identifier,
                                                                    NSError *_Nullable error) {
     SEGContentManager *strongSelf = weakSelf;
     if (!strongSelf) {
@@ -94,9 +93,9 @@ NSString *const kErrorDescription = @"ErrorDescription";
       return;
     }
 
-    strongSelf->_instanceIdentifier = identifier;
+    strongSelf->_installationIdentifier = identifier;
 
-    [[FIRInstallations installations] authTokenWithCompletion:^(
+    [[self installationForApp:firebaseApp] authTokenWithCompletion:^(
                                           FIRInstallationsAuthTokenResult *__nullable tokenResult,
                                           NSError *_Nullable error) {
       if (!tokenResult || error) {
@@ -108,13 +107,13 @@ NSString *const kErrorDescription = @"ErrorDescription";
         completionHandler(NO, errorDictionary);
         return;
       }
-      strongSelf->_instanceIdentifierToken = tokenResult.authToken;
+      strongSelf->_installationIdentifierToken = tokenResult.authToken;
 
       NSMutableDictionary<NSString *, NSString *> *appAssociationData =
           [[NSMutableDictionary alloc] init];
       [appAssociationData setObject:customInstallationID
                              forKey:kSEGCustomInstallationIdentifierKey];
-      [appAssociationData setObject:self->_instanceIdentifier
+      [appAssociationData setObject:self->_installationIdentifier
                              forKey:kSEGFirebaseInstallationIdentifierKey];
       [appAssociationData setObject:kSEGAssociationStatusPending forKey:kSEGAssociationStatusKey];
       [strongSelf->_associationData setObject:appAssociationData forKey:firebaseApp];
@@ -124,14 +123,14 @@ NSString *const kErrorDescription = @"ErrorDescription";
       // once we support listening to FID changes.
       [strongSelf->_databaseManager insertMainTableApplicationNamed:firebaseApp
                                            customInstanceIdentifier:customInstallationID
-                                         firebaseInstanceIdentifier:strongSelf->_instanceIdentifier
+                                         firebaseInstanceIdentifier:strongSelf->_installationIdentifier
                                                   associationStatus:kSEGAssociationStatusPending
                                                   completionHandler:nil];
 
       // Send the change up to the backend. Also add the token.
       [strongSelf->_networkManager
           makeAssociationRequestToBackendWithData:appAssociationData
-                                            token:strongSelf->_instanceIdentifierToken
+                                            token:strongSelf->_installationIdentifierToken
                                        completion:^(BOOL status,
                                                     NSDictionary<NSString *, id> *result) {
                                          // TODO...log, update database.

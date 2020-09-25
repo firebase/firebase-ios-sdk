@@ -43,6 +43,10 @@
   // class.
 }
 
+-(void)testCustomizedFirebaseAppIsUsedSuccess{
+    
+}
+
 - (void)testExample {
   [_segmentation setCustomInstallationID:@"test-custom-id"
                               completion:^(NSError *error){
