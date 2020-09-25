@@ -74,12 +74,16 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
 
 - (void)testRegisterInstallationSuccess {
   NSString *fixtureName = @"APIRegisterInstallationResponseSuccess.json";
-  [self assertRegisterInstallationSuccessWithResponseFixtureName:fixtureName responseCode:201 expectedFIDOverride:@"aaaaaaaaaaaaaaaaaaaaaa"];
+  [self assertRegisterInstallationSuccessWithResponseFixtureName:fixtureName
+                                                    responseCode:201
+                                             expectedFIDOverride:@"aaaaaaaaaaaaaaaaaaaaaa"];
 }
 
 - (void)testRegisterInstallationSuccess_NoFIDInResponse {
   NSString *fixtureName = @"APIRegisterInstallationResponseSuccessNoFID.json";
-  [self assertRegisterInstallationSuccessWithResponseFixtureName:fixtureName responseCode:201 expectedFIDOverride:nil];
+  [self assertRegisterInstallationSuccessWithResponseFixtureName:fixtureName
+                                                    responseCode:201
+                                             expectedFIDOverride:nil];
 }
 
 - (void)testRefreshAuthTokenSuccess {

@@ -66,7 +66,7 @@
   return [[self class] identifierWithAppID:self.appID appName:self.firebaseAppName];
 }
 
-- (BOOL)isValid:(NSError * _Nullable *)outError {
+- (BOOL)isValid:(NSError *_Nullable *)outError {
   NSMutableArray<NSString *> *validationIssues = [NSMutableArray array];
 
   if (self.appID.length == 0) {
@@ -92,11 +92,13 @@
       }
 
       if (self.authToken.token == 0) {
-        [validationIssues addObject:@"registered installation must have non-empty `authToken.token`"];
+        [validationIssues
+            addObject:@"registered installation must have non-empty `authToken.token`"];
       }
 
       if (self.authToken.expirationDate == nil) {
-        [validationIssues addObject:@"registered installation must have non-empty `authToken.expirationDate`"];
+        [validationIssues
+            addObject:@"registered installation must have non-empty `authToken.expirationDate`"];
       }
 
     case FIRInstallationStatusUnregistered:
@@ -106,8 +108,13 @@
   BOOL isValid = validationIssues.count == 0;
 
   if (!isValid && outError) {
-    NSString *failureReason = [NSString stringWithFormat:@"FIRInstallationsItem validation errors: %@", [validationIssues componentsJoinedByString:@", "]];
-    *outError = [FIRInstallationsErrorUtil installationsErrorWithCode:FIRInstallationsErrorCodeUnknown failureReason:failureReason underlyingError:nil];
+    NSString *failureReason =
+        [NSString stringWithFormat:@"FIRInstallationsItem validation errors: %@",
+                                   [validationIssues componentsJoinedByString:@", "]];
+    *outError =
+        [FIRInstallationsErrorUtil installationsErrorWithCode:FIRInstallationsErrorCodeUnknown
+                                                failureReason:failureReason
+                                              underlyingError:nil];
   }
 
   return isValid;

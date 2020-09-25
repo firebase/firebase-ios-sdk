@@ -55,26 +55,36 @@
 
 - (void)testValidate_InvalidItem {
   FIRInstallationsItem *unregisteredItem = [[FIRInstallationsItem alloc] initWithAppID:@""
-                                                           firebaseAppName:@""];
+                                                                       firebaseAppName:@""];
 
   NSError *validationError;
   XCTAssertFalse([unregisteredItem isValid:&validationError]);
-  XCTAssertTrue([validationError.localizedFailureReason containsString:@"`appID` must not be empty"]);
-  XCTAssertTrue([validationError.localizedFailureReason containsString:@"`firebaseAppName` must not be empty"]);
-  XCTAssertTrue([validationError.localizedFailureReason containsString:@"`firebaseInstallationID` must not be empty"]);
-  XCTAssertTrue([validationError.localizedFailureReason containsString:@"invalid `registrationStatus`"]);
+  XCTAssertTrue(
+      [validationError.localizedFailureReason containsString:@"`appID` must not be empty"]);
+  XCTAssertTrue([validationError.localizedFailureReason
+      containsString:@"`firebaseAppName` must not be empty"]);
+  XCTAssertTrue([validationError.localizedFailureReason
+      containsString:@"`firebaseInstallationID` must not be empty"]);
+  XCTAssertTrue(
+      [validationError.localizedFailureReason containsString:@"invalid `registrationStatus`"]);
 
   FIRInstallationsItem *registerredItem = [[FIRInstallationsItem alloc] initWithAppID:@""
-                                                           firebaseAppName:@""];
+                                                                      firebaseAppName:@""];
   registerredItem.registrationStatus = FIRInstallationStatusRegistered;
 
   XCTAssertFalse([registerredItem isValid:&validationError]);
-  XCTAssertTrue([validationError.localizedFailureReason containsString:@"`appID` must not be empty"]);
-  XCTAssertTrue([validationError.localizedFailureReason containsString:@"`firebaseAppName` must not be empty"]);
-  XCTAssertTrue([validationError.localizedFailureReason containsString:@"`firebaseInstallationID` must not be empty"]);
-  XCTAssertTrue([validationError.localizedFailureReason containsString:@"registered installation must have non-empty `refreshToken`"]);
-  XCTAssertTrue([validationError.localizedFailureReason containsString:@"registered installation must have non-empty `authToken.token`"]);
-  XCTAssertTrue([validationError.localizedFailureReason containsString:@"registered installation must have non-empty `authToken.expirationDate`"]);
+  XCTAssertTrue(
+      [validationError.localizedFailureReason containsString:@"`appID` must not be empty"]);
+  XCTAssertTrue([validationError.localizedFailureReason
+      containsString:@"`firebaseAppName` must not be empty"]);
+  XCTAssertTrue([validationError.localizedFailureReason
+      containsString:@"`firebaseInstallationID` must not be empty"]);
+  XCTAssertTrue([validationError.localizedFailureReason
+      containsString:@"registered installation must have non-empty `refreshToken`"]);
+  XCTAssertTrue([validationError.localizedFailureReason
+      containsString:@"registered installation must have non-empty `authToken.token`"]);
+  XCTAssertTrue([validationError.localizedFailureReason
+      containsString:@"registered installation must have non-empty `authToken.expirationDate`"]);
 }
 
 - (void)testValidate_ValidItem {
