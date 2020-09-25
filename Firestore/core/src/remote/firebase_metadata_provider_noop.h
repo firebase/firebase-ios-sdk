@@ -28,7 +28,7 @@ namespace remote {
 
 class FirebaseMetadataProviderNoOp : public FirebaseMetadataProvider {
  public:
-  void UpdateMetadata(grpc::ClientContext& context) override {
+  void UpdateMetadata(grpc::ClientContext&) override {
   }
 };
 
