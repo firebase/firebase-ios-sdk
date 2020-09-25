@@ -17,10 +17,10 @@
 import FirebaseDatabase
 
 extension Database {
-    public enum DecodingError: Error {
-        case valueDoesNotExist(path: String, type: Any.Type)
-    }
+  public enum DecodingError: Error {
+    case valueDoesNotExist(path: String, type: Any.Type)
+  }
 
-    public enum EncodingError: Error {
-    }
+  public enum EncodingError: Error {
+  }
 }

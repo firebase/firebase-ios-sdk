@@ -18,10 +18,12 @@ import Foundation
 import FirebaseDatabase
 
 extension DataSnapshot {
-  /// Retrieves all fields in a document and converts them to an instance of
-  /// caller-specified type. Returns `nil` if the document does not exist.
+  /// Retrieves the value of a snapshot and converts it to an instance of
+  /// caller-specified type.
+  /// Throws `Database.DecodingError.valueDoesNotExist`
+  /// if the document does not exist.
   ///
-  /// See `Firestore.Decoder` for more details about the decoding process.
+  /// See `Database.Decoder` for more details about the decoding process.
   ///
   /// - Parameters
   ///   - type: The type to convert the document fields to.
@@ -30,7 +32,7 @@ extension DataSnapshot {
   public func data<T: Decodable>(as type: T.Type,
                                  decoder: Database.Decoder = Database.Decoder()) throws -> T {
     guard let value = value else {
-        throw Database.DecodingError.valueDoesNotExist(path: self.ref.url, type: T.self)
+      throw Database.DecodingError.valueDoesNotExist(path: self.ref.url, type: T.self)
     }
     return try decoder.decode(T.self, from: value)
   }

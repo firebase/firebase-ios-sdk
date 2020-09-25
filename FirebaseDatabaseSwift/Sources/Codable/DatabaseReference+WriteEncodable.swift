@@ -19,15 +19,15 @@ import FirebaseDatabase
 
 extension DatabaseReference {
   /// Encodes an instance of `Encodable` and overwrites the encoded data
-  /// to the document referred by this `DocumentReference`. If no document exists,
-  /// it is created. If a document already exists, it is overwritten.
+  /// to the path referred by this `DatabaseReference`. If no value exists,
+  /// it is created. If a value already exists, it is overwritten.
   ///
-  /// See `Firestore.Encoder` for more details about the encoding process.
+  /// See `Database.Encoder` for more details about the encoding process.
   ///
   /// - Parameters:
   ///   - value: An instance of `Encodable` to be encoded to a document.
   ///   - encoder: An encoder instance to use to run the encoding.
-  ///   - completion: A block to execute once the document has been successfully
+  ///   - completion: A block to execute once the value has been successfully
   ///                 written to the server. This block will not be called while
   ///                 the client is offline, though local changes will be visible
   ///                 immediately.
@@ -36,9 +36,9 @@ extension DatabaseReference {
                                     completion: ((Error?, DatabaseReference) -> Void)? = nil) throws {
     let encoded = try encoder.encode(value)
     if let completion = completion {
-        setValue(encoded, withCompletionBlock: completion)
+      setValue(encoded, withCompletionBlock: completion)
     } else {
-        setValue(encoded)
+      setValue(encoded)
     }
   }
 }
