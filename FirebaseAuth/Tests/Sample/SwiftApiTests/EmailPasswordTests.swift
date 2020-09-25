@@ -21,7 +21,7 @@ import XCTest
 class EmailPasswordTests: TestsBase {
 
   ///** The testing email address for testCreateAccountWithEmailAndPassword. */
-  let kNewEmailToCreateUser = "user+email_new_user@example.com"
+  let kNewEmailToCreateUser = "paulswift200925@example.com@example.com"
 
   ///** The testing email address for testSignInExistingUserWithEmailAndPassword. */
   let kExistingEmailToSignIn = "user+email_existing_user@example.com"
