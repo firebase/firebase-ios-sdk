@@ -10,12 +10,10 @@ target 'FirebasePodTest' do
 
   pod 'Firebase', :path => '../../../'
   pod 'FirebaseABTesting', :path => '../../../'
-  pod 'FirebaseAnalyticsInterop', :path => '../../../'
+  pod 'FirebaseAppDistribution', :path => '../../../'
   pod 'FirebaseAuth', :path => '../../../'
-  pod 'FirebaseAuthInterop', :path => '../../../'
   pod 'FirebaseCore', :path => '../../../'
   pod 'FirebaseCoreDiagnostics', :path => '../../../'
-  pod 'FirebaseCoreDiagnosticsInterop', :path => '../../../'
   pod 'FirebaseCrashlytics', :path => '../../../'
   pod 'FirebaseDatabase', :path => '../../../'
   pod 'FirebaseDynamicLinks', :path => '../../../'
@@ -30,9 +28,7 @@ target 'FirebasePodTest' do
 
   # Get dependent pods from the repo also
   pod 'FirebaseCoreDiagnostics', :path => '../../../'
-  pod 'FirebaseCoreDiagnosticsInterop', :path => '../../../'
   pod 'GoogleDataTransport', :path => '../../../'
-  pod 'GoogleDataTransportCCTSupport', :path => '../../../'
   pod 'GoogleUtilities', :path => '../../../'
 
   pod 'FirebaseAnalytics' # Analytics is not open source

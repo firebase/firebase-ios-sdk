@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
-#import <FirebaseCore/FIRLogger.h>
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
 
-#import "FIRCore+InAppMessaging.h"
-#import "FIRIAMFetchOnAppForegroundFlow.h"
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+
+#import "FirebaseInAppMessaging/Sources/FIRCore+InAppMessaging.h"
+#import "FirebaseInAppMessaging/Sources/Private/Flows/FIRIAMFetchOnAppForegroundFlow.h"
 @implementation FIRIAMFetchOnAppForegroundFlow
 - (void)start {
   FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM600002",
@@ -57,3 +60,5 @@
   [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 @end
+
+#endif  // TARGET_OS_IOS

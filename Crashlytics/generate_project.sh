@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright 2020 Google
+# Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,4 +19,4 @@ readonly DIR="$( git rev-parse --show-toplevel )"
 
 "$DIR/Crashlytics/ProtoSupport/generate_crashlytics_protos.sh" || echo "Something went wrong generating protos.";
 
-pod gen "${DIR}/FirebaseCrashlytics.podspec" --auto-open --gen-directory="${DIR}/gen" --local-sources="${DIR}" --platforms=ios,macos,tvos --clean
+pod gen "${DIR}/FirebaseCrashlytics.podspec" --auto-open --gen-directory="${DIR}/gen" --local-sources="${DIR}" --platforms=ios,macos,tvos,watchos --clean

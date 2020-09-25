@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-#import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseCore/FIRLogger.h>
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
 
-#import "FIRCore+InAppMessaging.h"
-#import "FIRIAMClearcutLogStorage.h"
-#import "FIRIAMClearcutLogger.h"
-#import "FIRIAMClearcutUploader.h"
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+
+#import "FirebaseInAppMessaging/Sources/Analytics/FIRIAMClearcutLogStorage.h"
+#import "FirebaseInAppMessaging/Sources/FIRCore+InAppMessaging.h"
+#import "FirebaseInAppMessaging/Sources/Private/Analytics/FIRIAMClearcutLogger.h"
+#import "FirebaseInAppMessaging/Sources/Private/Analytics/FIRIAMClearcutUploader.h"
 
 @interface FIRIAMClearcutLogger ()
 
@@ -211,3 +213,5 @@
   }
 }
 @end
+
+#endif  // TARGET_OS_IOS

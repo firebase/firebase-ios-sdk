@@ -18,13 +18,13 @@
 
 #import <OCMock/OCMock.h>
 
-#import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
-#import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseInstanceID/FirebaseInstanceID.h>
-#import <GoogleUtilities/GULUserDefaults.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "GoogleUtilities/UserDefaults/Private/GULUserDefaults.h"
+#import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 
-#import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
 #import <FirebaseMessaging/FIRMessaging.h>
+#import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 
 #import "FirebaseMessaging/Sources/FIRMessaging_Private.h"
 #import "FirebaseMessaging/Tests/UnitTests/FIRMessagingTestUtilities.h"
@@ -233,7 +233,7 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
       [self expectationWithDescription:@"Included APNS Token data in options dict."];
   // Inspect the 'options' dictionary to tell whether our expectation was fulfilled
   [[[self.mockInstanceID stub] andDo:^(NSInvocation *invocation) {
-    NSDictionary *options;
+    __unsafe_unretained NSDictionary *options;
     [invocation getArgument:&options atIndex:4];
     if (options[@"apns_token"] != nil) {
       [expectation fulfill];
@@ -252,7 +252,7 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
       [self expectationWithDescription:@"Included APNS Token data not included in options dict."];
   // Inspect the 'options' dictionary to tell whether our expectation was fulfilled
   [[[self.mockInstanceID stub] andDo:^(NSInvocation *invocation) {
-    NSDictionary *options;
+    __unsafe_unretained NSDictionary *options;
     [invocation getArgument:&options atIndex:4];
     if (options[@"apns_token"] == nil) {
       [expectation fulfill];

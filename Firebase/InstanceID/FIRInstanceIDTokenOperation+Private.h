@@ -18,8 +18,6 @@
 
 #import "FIRInstanceIDUtilities.h"
 
-@class FIRInstanceIDURLQueryItem;
-
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRInstanceIDTokenOperation (Private)
@@ -42,10 +40,9 @@ NS_ASSUME_NONNULL_BEGIN
                     instanceID:(NSString *)instanceID;
 
 #pragma mark - Request Construction
-+ (NSMutableArray<FIRInstanceIDURLQueryItem *> *)standardQueryItemsWithDeviceID:(NSString *)deviceID
-                                                                          scope:(NSString *)scope;
++ (NSMutableArray<NSURLQueryItem *> *)standardQueryItemsWithDeviceID:(NSString *)deviceID
+                                                               scope:(NSString *)scope;
 - (NSMutableURLRequest *)tokenRequest;
-- (NSArray<FIRInstanceIDURLQueryItem *> *)queryItemsWithInstanceID:(NSString *)instanceID;
 
 #pragma mark - HTTP Headers
 /**

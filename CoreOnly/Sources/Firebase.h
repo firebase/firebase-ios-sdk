@@ -22,6 +22,10 @@
     #import <FirebaseAnalytics/FirebaseAnalytics.h>
   #endif
 
+  #if __has_include(<FirebaseAppDistribution/FirebaseAppDistribution.h>)
+    #import <FirebaseAppDistribution/FirebaseAppDistribution.h>
+  #endif
+
   #if __has_include(<FirebaseAuth/FirebaseAuth.h>)
     #import <FirebaseAuth/FirebaseAuth.h>
   #endif
@@ -77,7 +81,7 @@ Firebase In App Messaging works as intended."
 Firebase Messaging works as intended."
       #endif // #ifndef FIREBASE_ANALYTICS_SUPPRESS_WARNING
     #endif
-#endif
+  #endif
 
   #if __has_include(<FirebaseMLCommon/FirebaseMLCommon.h>)
     #import <FirebaseMLCommon/FirebaseMLCommon.h>

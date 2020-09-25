@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseMessaging'
-  s.version          = '4.4.0'
+  s.version          = '4.7.0'
   s.summary          = 'Firebase Messaging'
 
   s.description      = <<-DESC
@@ -29,7 +29,16 @@ device, and it is completely free.
   s.prefix_header_file = false
 
   base_dir = "FirebaseMessaging/"
-  s.source_files = base_dir + 'Sources/**/*.[mh]'
+  s.source_files = [
+    base_dir + 'Sources/**/*.[mh]',
+    'Interop/Analytics/Public/*.h',
+    'FirebaseCore/Sources/Private/*.h',
+    'FirebaseInstallations/Source/Library/Private/*.h',
+    'GoogleUtilities/AppDelegateSwizzler/Private/*.h',
+    'GoogleUtilities/Environment/Private/*.h',
+    'GoogleUtilities/Reachability/Private/*.h',
+    'GoogleUtilities/UserDefaults/Private/*.h',
+  ]
   s.requires_arc = base_dir + 'Sources/*.m'
   s.public_header_files = base_dir + 'Sources/Public/*.h'
   s.library = 'sqlite3'
@@ -45,13 +54,12 @@ device, and it is completely free.
   s.tvos.framework = 'SystemConfiguration'
   s.osx.framework = 'SystemConfiguration'
   s.weak_framework = 'UserNotifications'
-  s.dependency 'FirebaseAnalyticsInterop', '~> 1.5'
-  s.dependency 'FirebaseCore', '~> 6.6'
-  s.dependency 'FirebaseInstanceID', '~> 4.3'
-  s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 6.5'
-  s.dependency 'GoogleUtilities/Reachability', '~> 6.5'
-  s.dependency 'GoogleUtilities/Environment', '~> 6.5'
-  s.dependency 'GoogleUtilities/UserDefaults', '~> 6.5'
+  s.dependency 'FirebaseCore', '~> 6.10'
+  s.dependency 'FirebaseInstanceID', '~> 4.7'
+  s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 6.7'
+  s.dependency 'GoogleUtilities/Reachability', '~> 6.7'
+  s.dependency 'GoogleUtilities/Environment', '~> 6.7'
+  s.dependency 'GoogleUtilities/UserDefaults', '~> 6.7'
   s.dependency 'Protobuf', '~> 3.9', '>= 3.9.2'
 
   s.test_spec 'unit' do |unit_tests|

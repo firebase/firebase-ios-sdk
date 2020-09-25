@@ -17,12 +17,14 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
-#import "FIRIAMActionURLFollower.h"
-#import "FIRIAMDisplayExecutor.h"
-#import "FIRIAMDisplayTriggerDefinition.h"
-#import "FIRIAMMessageContentData.h"
-#import "FIRInAppMessaging.h"
-#import "FIRInAppMessagingRenderingPrivate.h"
+#import "FirebaseInAppMessaging/Sources/Private/Data/FIRIAMMessageContentData.h"
+#import "FirebaseInAppMessaging/Sources/Private/DisplayTrigger/FIRIAMDisplayTriggerDefinition.h"
+#import "FirebaseInAppMessaging/Sources/Private/Flows/FIRIAMDisplayExecutor.h"
+#import "FirebaseInAppMessaging/Sources/Private/Runtime/FIRIAMActionURLFollower.h"
+#import "FirebaseInAppMessaging/Sources/Public/FirebaseInAppMessaging/FIRInAppMessaging.h"
+#import "FirebaseInAppMessaging/Sources/RenderingObjects/FIRInAppMessagingRenderingPrivate.h"
+
+#import "FirebaseABTesting/Sources/Private/ABTExperimentPayload.h"
 
 // A class implementing protocol FIRIAMMessageContentData to be used for unit testing
 @interface FIRIAMMessageContentDataForTesting : NSObject <FIRIAMMessageContentData>
@@ -323,13 +325,16 @@ typedef NS_ENUM(NSInteger, FIRInAppMessagingDelegateInteraction) {
                                              contentData:m4ContentData
                                          renderingEffect:renderSetting4];
 
-  ABTExperimentPayload *experimentPayload = [ABTExperimentPayload message];
-  experimentPayload.experimentId = @"_exp_1";
-  experimentPayload.experimentStartTimeMillis = 1582143484729;
-  experimentPayload.overflowPolicy = ABTExperimentPayload_ExperimentOverflowPolicy_DiscardOldest;
-  experimentPayload.timeToLiveMillis = 15552000000;
-  experimentPayload.triggerTimeoutMillis = 15552000000;
-  experimentPayload.variantId = @"1";
+  NSDictionary *experimentPayloadDictionary = @{
+    @"experimentId" : @"_exp_1",
+    @"experimentStartTimeMillis" : @1582143484729,
+    @"overflowPolicy" : @"DISCARD_OLDEST",
+    @"timeToLiveMillis" : @15552000000,
+    @"triggerTimeoutMillis" : @15552000000,
+    @"variantId" : @"1"
+  };
+  ABTExperimentPayload *experimentPayload =
+      [[ABTExperimentPayload alloc] initWithDictionary:experimentPayloadDictionary];
 
   self.m4 = [[FIRIAMMessageDefinition alloc] initWithRenderData:renderData4
                                                       startTime:activeStartTime

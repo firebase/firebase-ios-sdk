@@ -14,20 +14,23 @@
  * limitations under the License.
  */
 
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
+
 #import <Foundation/Foundation.h>
 
-#import <FirebaseCore/FIRAppInternal.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
-#import <FirebaseInAppMessaging/FIRInAppMessaging.h>
-#import <FirebaseInAppMessaging/FIRInAppMessagingRendering.h>
-#import "FIRCore+InAppMessagingDisplay.h"
-#import "FIRIAMBannerViewController.h"
-#import "FIRIAMCardViewController.h"
-#import "FIRIAMDefaultDisplayImpl.h"
-#import "FIRIAMImageOnlyViewController.h"
-#import "FIRIAMModalViewController.h"
-#import "FIRIAMRenderingWindowHelper.h"
-#import "FIRIAMTimeFetcher.h"
+#import "FirebaseInAppMessaging/Sources/DefaultUI/Banner/FIRIAMBannerViewController.h"
+#import "FirebaseInAppMessaging/Sources/DefaultUI/Card/FIRIAMCardViewController.h"
+#import "FirebaseInAppMessaging/Sources/DefaultUI/FIRCore+InAppMessagingDisplay.h"
+#import "FirebaseInAppMessaging/Sources/DefaultUI/FIRIAMDefaultDisplayImpl.h"
+#import "FirebaseInAppMessaging/Sources/DefaultUI/FIRIAMRenderingWindowHelper.h"
+#import "FirebaseInAppMessaging/Sources/DefaultUI/ImageOnly/FIRIAMImageOnlyViewController.h"
+#import "FirebaseInAppMessaging/Sources/DefaultUI/Modal/FIRIAMModalViewController.h"
+#import "FirebaseInAppMessaging/Sources/Private/Util/FIRIAMTimeFetcher.h"
+#import "FirebaseInAppMessaging/Sources/Public/FirebaseInAppMessaging/FIRInAppMessaging.h"
+#import "FirebaseInAppMessaging/Sources/Public/FirebaseInAppMessaging/FIRInAppMessagingRendering.h"
 
 @implementation FIRIAMDefaultDisplayImpl
 
@@ -265,3 +268,5 @@
   }
 }
 @end
+
+#endif  // TARGET_OS_IOS

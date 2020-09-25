@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#import "GDTCORLibrary/Public/GDTCORReachability.h"
-#import "GDTCORLibrary/Private/GDTCORReachability_Private.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORReachability.h"
+#import "GoogleDataTransport/GDTCORLibrary/Private/GDTCORReachability_Private.h"
 
-#import <GoogleDataTransport/GDTCORConsoleLogger.h>
+#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORConsoleLogger.h"
 
 #import <netinet/in.h>
 

@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRHTTPSCallable.h"
-#import "FIRHTTPSCallable+Internal.h"
+#import "Functions/FirebaseFunctions/Public/FirebaseFunctions/FIRHTTPSCallable.h"
+#import "Functions/FirebaseFunctions/FIRHTTPSCallable+Internal.h"
 
-#import "FIRFunctions+Internal.h"
-#import "FUNUsageValidation.h"
+#import "Functions/FirebaseFunctions/FIRFunctions+Internal.h"
+#import "Functions/FirebaseFunctions/FUNUsageValidation.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

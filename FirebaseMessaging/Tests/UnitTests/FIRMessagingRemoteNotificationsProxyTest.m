@@ -22,7 +22,7 @@
 #import <XCTest/XCTest.h>
 
 #import <FirebaseMessaging/FIRMessaging.h>
-#import <GoogleUtilities/GULAppDelegateSwizzler.h>
+#import "GoogleUtilities/AppDelegateSwizzler/Private/GULAppDelegateSwizzler.h"
 
 #import "FirebaseMessaging/Sources/FIRMessagingRemoteNotificationsProxy.h"
 
@@ -159,8 +159,9 @@
   // Update +sharedProxy to always return our test instance
   OCMStub([_mockProxyClass sharedProxy]).andReturn(self.proxy);
   if (@available(macOS 10.14, iOS 10.0, *)) {
-    _mockUserNotificationCenter =
-        OCMPartialMock([UNUserNotificationCenter currentNotificationCenter]);
+    _mockUserNotificationCenter = OCMClassMock([UNUserNotificationCenter class]);
+    OCMStub([_mockUserNotificationCenter currentNotificationCenter])
+        .andReturn(_mockUserNotificationCenter);
   }
 }
 
@@ -314,29 +315,6 @@
                       withCompletionHandler:^(UNNotificationPresentationOptions options){
                       }];
   }
-}
-
-- (void)testSwizzlingUserNotificationsCenterDelegate {
-#if TARGET_OS_IOS || TARGET_OS_OSX
-  if (@available(macOS 10.14, iOS 10.0, *)) {
-    FakeUserNotificationCenterDelegate *delegate =
-        [[FakeUserNotificationCenterDelegate alloc] init];
-    OCMStub([self.mockUserNotificationCenter delegate]).andReturn(delegate);
-    [self.proxy swizzleMethodsIfPossible];
-
-    NSDictionary *message = @{@"message" : @""};
-    id notification = [self userNotificationWithMessage:message];
-
-    OCMExpect([self.mockMessaging appDidReceiveMessage:message]);
-
-    [delegate userNotificationCenter:self.mockUserNotificationCenter
-             willPresentNotification:notification
-               withCompletionHandler:^(UNNotificationPresentationOptions options){
-               }];
-
-    [self.mockMessaging verify];
-  }
-#endif
 }
 
 // Use a fake delegate that doesn't actually implement the needed delegate method.

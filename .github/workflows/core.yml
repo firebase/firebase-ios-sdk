@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
     - 'FirebaseCore**'
+    - 'Interop/CoreDiagnostics/Public/*.h'
     - '.github/workflows/core.yml'
     - 'Gemfile'
   schedule:
@@ -12,6 +13,9 @@ on:
 
 jobs:
   pod-lib-lint:
+    # Don't run on private repo unless it is a PR.
+    if: github.repository != 'FirebasePrivate/firebase-ios-sdk' || github.event_name == 'pull_request'
+
     runs-on: macOS-latest
 
     strategy:
@@ -24,7 +28,39 @@ jobs:
     - name: Build and test
       run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseCore.podspec --platforms=${{ matrix.target }}
 
+  spm:
+    # Don't run on private repo unless it is a PR.
+    if: github.repository != 'FirebasePrivate/firebase-ios-sdk' || github.event_name == 'pull_request'
+    runs-on: macOS-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Xcode 12
+      run: sudo xcode-select -s /Applications/Xcode_12_beta.app/Contents/Developer
+    - name: Initialize xcodebuild
+      run: xcodebuild -list
+    - name: iOS Unit Tests
+      run: scripts/third_party/travis/retry.sh ./scripts/build.sh CoreUnit iOS spm
+
+  spm-cron:
+    # Don't run on private repo.
+    if: github.event_name == 'schedule' && github.repository != 'FirebasePrivate/firebase-ios-sdk'
+    runs-on: macOS-latest
+    strategy:
+      matrix:
+        target: [tvOS, macOS, catalyst]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Xcode 12
+      run: sudo xcode-select -s /Applications/Xcode_12_beta.app/Contents/Developer
+    - name: Initialize xcodebuild
+      run: xcodebuild -list
+    - name: Unit Tests
+      run: scripts/third_party/travis/retry.sh ./scripts/build.sh CoreUnit ${{ matrix.target }} spm
+
   catalyst:
+    # Don't run on private repo unless it is a PR.
+    if: github.repository != 'FirebasePrivate/firebase-ios-sdk' || github.event_name == 'pull_request'
+
     runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v2
@@ -33,9 +69,26 @@ jobs:
     - name: Setup project and Build Catalyst
       run: scripts/test_catalyst.sh FirebaseCore build
 
+  archive-cron:
+    # Don't run on private repo.
+    if: github.event_name == 'schedule' && github.repository != 'FirebasePrivate/firebase-ios-sdk'
+
+    runs-on: macOS-latest
+    strategy:
+      matrix:
+        target: [ios, tvos, macos]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Setup project and archive
+      run: scripts/test_archiving.sh FirebaseCore ${{ matrix.target }} ArchiveOutputs/${{ matrix.target }}.xcarchive
+
   core-cron-only:
+    # Don't run on private repo.
+    if: github.event_name == 'schedule' && github.repository != 'FirebasePrivate/firebase-ios-sdk'
+
     runs-on: macos-latest
-    if: github.event_name == 'schedule'
     strategy:
       matrix:
         target: [ios, tvos, macos]

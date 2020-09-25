@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
-#import <FirebaseCore/FIRLogger.h>
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
 
-#import "FIRCore+InAppMessaging.h"
-#import "FIRIAMSDKModeManager.h"
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+
+#import "FirebaseInAppMessaging/Sources/FIRCore+InAppMessaging.h"
+#import "FirebaseInAppMessaging/Sources/Private/Runtime/FIRIAMSDKModeManager.h"
 
 NSString *FIRIAMDescriptonStringForSDKMode(FIRIAMSDKMode mode) {
   switch (mode) {
@@ -111,3 +114,5 @@ NSInteger const kFIRIAMMaxFetchInNewlyInstalledMode = 5;
   return _sdkMode;
 }
 @end
+
+#endif  // TARGET_OS_IOS

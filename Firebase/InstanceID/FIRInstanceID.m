@@ -16,15 +16,8 @@
 
 #import "FIRInstanceID.h"
 
-#import <FirebaseInstallations/FIRInstallations.h>
+#import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
 
-#import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseCore/FIRComponent.h>
-#import <FirebaseCore/FIRComponentContainer.h>
-#import <FirebaseCore/FIRLibrary.h>
-#import <FirebaseCore/FIROptions.h>
-#import <GoogleUtilities/GULAppEnvironmentUtil.h>
-#import <GoogleUtilities/GULUserDefaults.h>
 #import "FIRInstanceID+Private.h"
 #import "FIRInstanceIDAuthService.h"
 #import "FIRInstanceIDCheckinPreferences.h"
@@ -37,6 +30,9 @@
 #import "FIRInstanceIDTokenManager.h"
 #import "FIRInstanceIDUtilities.h"
 #import "FIRInstanceIDVersionUtilities.h"
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "GoogleUtilities/Environment/Private/GULAppEnvironmentUtil.h"
+#import "GoogleUtilities/UserDefaults/Private/GULUserDefaults.h"
 #import "NSError+FIRInstanceID.h"
 
 // Public constants
@@ -306,6 +302,10 @@ static FIRInstanceID *gInstanceID;
   }
 
   FIRInstanceIDTokenHandler newHandler = ^(NSString *token, NSError *error) {
+    if (!error && [self isDefaultTokenWithAuthorizedEntity:authorizedEntity scope:scope]) {
+      // The local cache should be updated as it is critical for sending token updates.
+      self.defaultFCMToken = token;
+    }
     dispatch_async(dispatch_get_main_queue(), ^{
       handler(token, error);
     });
@@ -385,9 +385,11 @@ static FIRInstanceID *gInstanceID;
 
   FIRInstanceIDDeleteTokenHandler newHandler = ^(NSError *error) {
     // If a default token is deleted successfully, reset the defaultFCMToken too.
-    if (!error && [authorizedEntity isEqualToString:self.fcmSenderID] &&
-        [scope isEqualToString:kFIRInstanceIDDefaultTokenScope]) {
-      self.defaultFCMToken = nil;
+    if (!error) {
+      if ([self isDefaultTokenWithAuthorizedEntity:authorizedEntity scope:scope] ||
+          [authorizedEntity isEqualToString:@"*"]) {
+        self.defaultFCMToken = nil;
+      }
     }
     dispatch_async(dispatch_get_main_queue(), ^{
       handler(error);
@@ -524,7 +526,7 @@ static FIRInstanceID *gInstanceID;
         return;
       }
 
-      [self.tokenManager.authService resetCheckinWithHandler:^(NSError *error) {
+      [self deleteCheckinWithHandler:^(NSError *_Nullable error) {
         if (error) {
           if (handler) {
             handler(error);
@@ -550,6 +552,10 @@ static FIRInstanceID *gInstanceID;
 }
 
 #pragma mark - Checkin
+
+- (void)deleteCheckinWithHandler:(void (^)(NSError *error))handler {
+  [self.tokenManager.authService resetCheckinWithHandler:handler];
+}
 
 - (BOOL)tryToLoadValidCheckinInfo {
   FIRInstanceIDCheckinPreferences *checkinPreferences =
@@ -711,6 +717,7 @@ static FIRInstanceID *gInstanceID;
                  name:kFIRInstanceIDAPNSTokenNotification
                object:nil];
   [self observeFirebaseInstallationIDChanges];
+  [self observeFirebaseMessagingTokenChanges];
 }
 
 #pragma mark - Private Helpers
@@ -767,15 +774,8 @@ static FIRInstanceID *gInstanceID;
 
   NSDictionary *instanceIDOptions = @{};
   BOOL hasFirebaseMessaging = NSClassFromString(kFIRInstanceIDFCMSDKClassString) != nil;
-  if (hasFirebaseMessaging && self.apnsTokenData) {
-    BOOL isSandboxApp = (self.apnsTokenType == FIRInstanceIDAPNSTokenTypeSandbox);
-    if (self.apnsTokenType == FIRInstanceIDAPNSTokenTypeUnknown) {
-      isSandboxApp = [self isSandboxApp];
-    }
-    instanceIDOptions = @{
-      kFIRInstanceIDTokenOptionsAPNSKey : self.apnsTokenData,
-      kFIRInstanceIDTokenOptionsAPNSIsSandboxKey : @(isSandboxApp),
-    };
+  if (hasFirebaseMessaging) {
+    instanceIDOptions = [self defaultTokenOptions];
   }
 
   FIRInstanceID_WEAKIFY(self);
@@ -873,6 +873,11 @@ static FIRInstanceID *gInstanceID;
                    // will be called
                    [self defaultTokenWithRetry:YES handler:nil];
                  });
+}
+
+- (BOOL)isDefaultTokenWithAuthorizedEntity:(NSString *)authorizedEntity scope:(NSString *)scope {
+  return [authorizedEntity isEqualToString:self.fcmSenderID] &&
+         [scope isEqualToString:kFIRInstanceIDDefaultTokenScope];
 }
 
 #pragma mark - APNS Token
@@ -1119,6 +1124,42 @@ static FIRInstanceID *gInstanceID;
          selector:@selector(installationIDDidChangeNotificationReceived:)
              name:FIRInstallationIDDidChangeNotification
            object:nil];
+}
+
+- (void)observeFirebaseMessagingTokenChanges {
+  [[NSNotificationCenter defaultCenter]
+      removeObserver:self
+                name:kFIRInstanceIDMessagingUpdateTokenNotification
+              object:nil];
+  [[NSNotificationCenter defaultCenter]
+      addObserver:self
+         selector:@selector(messagingTokenDidChangeNotificationReceived:)
+             name:kFIRInstanceIDMessagingUpdateTokenNotification
+           object:nil];
+}
+
+- (void)messagingTokenDidChangeNotificationReceived:(NSNotification *)notification {
+  NSString *tokenUpdatedFromMessaging = notification.object;
+  if (!tokenUpdatedFromMessaging || [tokenUpdatedFromMessaging isKindOfClass:[NSString class]]) {
+    self.defaultFCMToken = tokenUpdatedFromMessaging;
+    [self.tokenManager saveDefaultToken:tokenUpdatedFromMessaging
+                            withOptions:[self defaultTokenOptions]];
+  }
+}
+
+- (NSDictionary *)defaultTokenOptions {
+  NSDictionary *tokenOptions = @{};
+  if (self.apnsTokenData) {
+    BOOL isSandboxApp = (self.apnsTokenType == FIRInstanceIDAPNSTokenTypeSandbox);
+    if (self.apnsTokenType == FIRInstanceIDAPNSTokenTypeUnknown) {
+      isSandboxApp = [self isSandboxApp];
+    }
+    tokenOptions = @{
+      kFIRInstanceIDTokenOptionsAPNSKey : self.apnsTokenData,
+      kFIRInstanceIDTokenOptionsAPNSIsSandboxKey : @(isSandboxApp),
+    };
+  }
+  return tokenOptions;
 }
 
 @end

@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
+
 #import "FirebaseDynamicLinks/Sources/FDLURLComponents/FIRDynamicLinkComponentsKeyProvider.h"
 
-#import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseCore/FIROptions.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 @implementation FIRDynamicLinkComponentsKeyProvider
 
@@ -33,3 +35,5 @@
 }
 
 @end
+
+#endif  // TARGET_OS_IOS

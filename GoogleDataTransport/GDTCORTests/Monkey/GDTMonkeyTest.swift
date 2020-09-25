@@ -16,13 +16,7 @@
 
 import XCTest
 
-#if os(iOS)
-  import GoogleDataTransport_iOS_TestApp
-#elseif os(macOS)
-  import GoogleDataTransport_macOS_TestApp
-#elseif os(tvOS)
-  import GoogleDataTransport_tvOS_TestApp
-#endif
+import GoogleDataTransport_TestApp
 
 class GDTMonkeyTest: XCTestCase {
   func testGDT() {

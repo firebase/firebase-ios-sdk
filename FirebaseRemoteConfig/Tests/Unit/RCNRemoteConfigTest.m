@@ -15,22 +15,20 @@
  */
 
 #import <XCTest/XCTest.h>
+#import "OCMStubRecorder.h"
+#import "OCMock.h"
 
-#import <FirebaseRemoteConfig/FIRRemoteConfig.h>
 #import "FirebaseRemoteConfig/Sources/Private/FIRRemoteConfig_Private.h"
+#import "FirebaseRemoteConfig/Sources/Private/RCNConfigFetch.h"
+#import "FirebaseRemoteConfig/Sources/Public/FirebaseRemoteConfig/FIRRemoteConfig.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigDBManager.h"
-#import "FirebaseRemoteConfig/Sources/RCNConfigFetch.h"
 #import "FirebaseRemoteConfig/Sources/RCNUserDefaultsManager.h"
 
 #import "FirebaseRemoteConfig/Tests/Unit/RCNTestUtilities.h"
 
-#import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseCore/FIRLogger.h>
-#import <FirebaseCore/FIROptions.h>
-#import <GoogleUtilities/GULNSData+zlib.h>
-#import <OCMock/OCMStubRecorder.h>
-#import <OCMock/OCMock.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "GoogleUtilities/NSData+zlib/Private/GULNSDataInternal.h"
 
 @interface RCNConfigFetch (ForTest)
 - (instancetype)initWithContent:(RCNConfigContent *)content
@@ -1145,10 +1143,22 @@ static NSString *UTCToLocal(NSString *utcTime) {
   return [dateFormatter stringFromDate:date];
 }
 
+#if SWIFT_PACKAGE
+- (NSDictionary *)getSPMDefaults {
+  NSBundle *bundle = Firebase_RemoteConfigUnit_SWIFTPM_MODULE_BUNDLE();
+  NSString *plistFile = [bundle pathForResource:@"Defaults-testInfo" ofType:@"plist"];
+  return [[NSDictionary alloc] initWithContentsOfFile:plistFile];
+}
+#endif
+
 - (void)testSetDefaultsFromPlist {
   for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
     FIRRemoteConfig *config = _configInstances[i];
+#if SWIFT_PACKAGE
+    [config setDefaults:[self getSPMDefaults]];
+#else
     [config setDefaultsFromPlistFileName:@"Defaults-testInfo"];
+#endif
     XCTAssertEqualObjects(_configInstances[i][@"lastCheckTime"].stringValue,
                           UTCToLocal(@"2016-02-28 18:33:31"));
     XCTAssertEqual(_configInstances[i][@"isPaidUser"].boolValue, YES);
@@ -1175,8 +1185,12 @@ static NSString *UTCToLocal(NSString *utcTime) {
 - (void)testSetDefaultsAndNamespaceFromPlist {
   for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
     if (i == RCNTestRCInstanceDefault) {
+#if SWIFT_PACKAGE
+      [_configInstances[i] setDefaults:[self getSPMDefaults] namespace:RCNTestsPerfNamespace];
+#else
       [_configInstances[i] setDefaultsFromPlistFileName:@"Defaults-testInfo"
                                               namespace:RCNTestsPerfNamespace];
+#endif
       XCTAssertEqualObjects([_configInstances[i] configValueForKey:@"lastCheckTime"
                                                          namespace:RCNTestsPerfNamespace]
                                 .stringValue,

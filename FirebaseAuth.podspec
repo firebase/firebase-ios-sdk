@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseAuth'
-  s.version          = '6.5.3'
+  s.version          = '6.9.1'
   s.summary          = 'Apple platform client for Firebase Authentication'
 
   s.description      = <<-DESC
@@ -20,14 +20,22 @@ supports email and password accounts, as well as several 3rd party authenticatio
   s.ios.deployment_target = '8.0'
   s.osx.deployment_target = '10.11'
   s.tvos.deployment_target = '10.0'
+  s.watchos.deployment_target = '6.0'
 
   s.cocoapods_version = '>= 1.4.0'
   s.static_framework = true
   s.prefix_header_file = false
 
   source = 'FirebaseAuth/Sources/'
-  s.source_files = source + '**/*.[mh]'
-  s.public_header_files = source + 'Public/*.h'
+  s.source_files = [
+    source + '**/*.[mh]',
+    'FirebaseCore/Sources/Private/*.h',
+    'GoogleUtilities/AppDelegateSwizzler/Private/*.h',
+    'GoogleUtilities/Environment/Private/*.h',
+    'GoogleUtilities/SceneDelegateSwizzler/Private/*.h',
+    'Interop/Auth/Public/*.h',
+  ]
+  s.public_header_files = source + 'Public/FirebaseAuth/*.h'
   s.preserve_paths = [
     'FirebaseAuth/README.md',
     'FirebaseAuth/CHANGELOG.md'
@@ -41,13 +49,14 @@ supports email and password accounts, as well as several 3rd party authenticatio
   }
   s.framework = 'Security'
   s.ios.framework = 'SafariServices'
-  s.dependency 'FirebaseAuthInterop', '~> 1.0'
-  s.dependency 'FirebaseCore', '~> 6.6'
-  s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 6.5'
-  s.dependency 'GoogleUtilities/Environment', '~> 6.5'
+  s.dependency 'FirebaseCore', '~> 6.10'
+  s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 6.7'
+  s.dependency 'GoogleUtilities/Environment', '~> 6.7'
   s.dependency 'GTMSessionFetcher/Core', '~> 1.1'
 
   s.test_spec 'unit' do |unit_tests|
+    # Unit tests can't run on watchOS.
+    unit_tests.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
     unit_tests.source_files = 'FirebaseAuth/Tests/Unit/*.[mh]'
     unit_tests.osx.exclude_files = [
       'FirebaseAuth/Tests/Unit/FIRAuthAPNSTokenManagerTests.m',

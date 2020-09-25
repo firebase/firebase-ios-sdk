@@ -10,7 +10,7 @@ Check out the [issue list](https://github.com/firebase/firebase-ios-sdk/issues)
 to see more detail about plans and desires.
 
 If you don't see the feature you're looking for, please add a
-[Feature Request](https://github.com/firebase/firebase-ios-sdk/issues/new).
+[Feature Request](https://github.com/firebase/firebase-ios-sdk/issues/new/choose).
 
 ## Contributing
 

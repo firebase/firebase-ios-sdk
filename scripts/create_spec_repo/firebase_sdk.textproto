@@ -1,0 +1,5 @@
+# Config file to update versions of Pods which will be pushed to SpecsStaging
+# repo by add_podspec tool.
+# e.g.
+# Podspec versions will be the same as firebase-ios-sdk podspecs if they are not
+# specified in this file.

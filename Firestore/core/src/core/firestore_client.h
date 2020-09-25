@@ -51,6 +51,7 @@ class Mutation;
 }  // namespace model
 
 namespace remote {
+class ConnectivityMonitor;
 class RemoteStore;
 }  // namespace remote
 
@@ -78,17 +79,19 @@ class FirestoreClient : public std::enable_shared_from_this<FirestoreClient> {
       std::shared_ptr<util::Executor> user_executor,
       std::shared_ptr<util::AsyncQueue> worker_queue);
 
+  ~FirestoreClient();
+
+  /**
+   * Synchronously destroys this client, cancels all writes / listeners, and
+   * releases all resources.
+   */
+  void Dispose();
+
   /**
    * Terminates this client, cancels all writes / listeners, and releases all
    * resources.
    */
   void TerminateAsync(util::StatusCallback callback);
-
-  /**
-   * Synchronously terminates this client, cancels all writes / listeners, and
-   * releases all resources.
-   */
-  void Terminate();
 
   /**
    * Passes a callback that is triggered when all the pending writes at the
@@ -202,6 +205,7 @@ class FirestoreClient : public std::enable_shared_from_this<FirestoreClient> {
   std::unique_ptr<local::Persistence> persistence_;
   std::unique_ptr<local::LocalStore> local_store_;
   std::unique_ptr<local::QueryEngine> query_engine_;
+  std::unique_ptr<remote::ConnectivityMonitor> connectivity_monitor_;
   std::unique_ptr<remote::RemoteStore> remote_store_;
   std::unique_ptr<SyncEngine> sync_engine_;
   std::unique_ptr<EventManager> event_manager_;

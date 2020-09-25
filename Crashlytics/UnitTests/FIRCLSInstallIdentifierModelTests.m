@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRCLSInstallIdentifierModel.h"
+#import "Crashlytics/Crashlytics/Models/FIRCLSInstallIdentifierModel.h"
 
 #import <XCTest/XCTest.h>
 
-#import "FIRCLSUserDefaults.h"
-#import "FIRMockInstallations.h"
+#import "Crashlytics/Crashlytics/FIRCLSUserDefaults/FIRCLSUserDefaults.h"
+#import "Crashlytics/UnitTests/Mocks/FIRMockInstallations.h"
 
 static NSString *const FABInstallationUUIDKey = @"com.crashlytics.iuuid";
 static NSString *const FABInstallationADIDKey = @"com.crashlytics.install.adid";

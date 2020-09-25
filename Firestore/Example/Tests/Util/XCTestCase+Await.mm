@@ -36,12 +36,20 @@ void LoadXCTestCaseAwait() {
                                }];
 }
 
+- (void)awaitExpectation:(XCTestExpectation *)expectation {
+  [self waitForExpectations:@[ expectation ] timeout:kExpectationWaitSeconds];
+}
+
 - (double)defaultExpectationWaitSeconds {
   return kExpectationWaitSeconds;
 }
 
 - (FSTVoidErrorBlock)completionForExpectationWithName:(NSString *)expectationName {
   XCTestExpectation *expectation = [self expectationWithDescription:expectationName];
+  return [self completionForExpectation:expectation];
+}
+
+- (FSTVoidErrorBlock)completionForExpectation:(XCTestExpectation *)expectation {
   return ^(NSError *error) {
     XCTAssertNil(error);
     [expectation fulfill];

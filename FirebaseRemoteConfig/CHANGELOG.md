@@ -1,14 +1,40 @@
+# v4.9.0
+- [fixed] Fixed `FirebaseApp.delete()` related crash in `RC Config Fetch`. (#6123)
+
+# v4.8.0
+- [changed] Functionally neutral source reorganization for preliminary Swift Package Manager support. (#6013)
+
+# v4.7.0
+- [changed] Functionally neutral updated import references for dependencies. (#5824)
+- [changed] Updated Remote Config to consume the Protobuf-less AB Testing SDK (#5890).
+
+# v4.6.0
+- [changed] Removed typedefs from public API method signatures to improve Swift API usage from Xcode. (#5748)
+
+# v4.5.0
+- [changed] Updated `fetchAndActivateWithCompletionHandler:` implementation to activate asynchronously. (#5617)
+- [fixed] Remove undefined class via removing unused proto generated source files. (#4334)
+- [added] Add an URLSession Partial Mock to enable testing without a backend. (#5633)
+- [added] Added activate API that returns a callback with an additional `bool` parameter indicating
+  if the config has changed or not. The new API does not error if the console is unchanged. The old
+  activate API with only an error parameter is deprecated and will be removed at the next major
+  release. (#3586)
+
 # v4.4.11
 - [fixed] Fixed a bug where settings updates weren't applied before fetches. (#4740)
 - [changed] Updated public API documentation for 4.4.10 change from FirebaseInstanceID to
   FirebaseInstallations. (#5561)
+
 # v4.4.10
 - [changed] Internal code changes - migrate to using the FIS SDK. (#5096)
 - [changed] Include both CFBundleString and CFBundleShortVersionString in the outgoing fetch requests.
+
 # v4.4.9
 - [changed] Internal code changes. (#4934)
+
 # v4.4.8
 - [fixed] Fixed a bug (#4677, #4734) where Remote Config does not work after a restore of a previous backup of the device. (#4896).
+
 # v4.4.7
 - [fixed] Fixed a crash that could occur when attempting a remote config fetch before a valid Instance ID was available. (#4622)
 - [fixed] Fixed an issue where config fetch would sometimes fail with a duplicate fetch error when no other fetches were in progress. (#3802)

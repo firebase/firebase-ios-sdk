@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,10 @@
   // UIWindowScene `scene`. If using a storyboard, the `window` property will automatically be
   // initialized and attached to the scene. This delegate does not imply the connecting scene or
   // session are new (see `application:configurationForConnectingSceneSession` instead).
+  if (connectionOptions.userActivities && connectionOptions.userActivities.count > 0) {
+    NSUserActivity *userActivity = connectionOptions.userActivities.allObjects.firstObject;
+    [self handleDynamicLinkFromActivity:userActivity];
+  }
 }
 
 - (void)sceneDidDisconnect:(UIScene *)scene {
@@ -64,6 +68,13 @@
 }
 
 - (void)scene:(UIScene *)scene continueUserActivity:(NSUserActivity *)userActivity {
+  [self handleDynamicLinkFromActivity:userActivity];
+}
+
+- (void)handleDynamicLinkFromActivity:(NSUserActivity *)userActivity {
+  if (!userActivity) {
+    return;
+  }
   BOOL handled = [[FIRDynamicLinks dynamicLinks]
       handleUniversalLink:userActivity.webpageURL
                completion:^(FIRDynamicLink *_Nullable dynamicLink, NSError *_Nullable error) {

@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
+
 #import "FirebaseDynamicLinks/Sources/Logging/FDLLogging.h"
 
 #ifdef GIN_SCION_LOGGING
-#import <FirebaseCore/FIRLogger.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 FIRLoggerService kFIRLoggerDynamicLinks = @"[Firebase/DynamicLinks]";
 #endif  // GIN_SCION_LOGGING
@@ -66,3 +69,5 @@ void FDLLog(FDLLogLevel logLevel, FDLLogIdentifier identifer, NSString *message,
 #endif  // GIN_SCION_LOGGING
   va_end(args_ptr);
 }
+
+#endif  // TARGET_OS_IOS

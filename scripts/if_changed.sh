@@ -46,7 +46,7 @@ elif [[ -z "$TRAVIS_COMMIT_RANGE" ]]; then
 else
   case "$PROJECT-$METHOD" in
     Firebase-pod-lib-lint) # Combines Firebase-* and InAppMessaging*
-      check_changes '^(FirebaseAuth|Firebase/Database|Firebase/DynamicLinks|'\
+      check_changes '^(FirebaseAuth|FirebaseDatabase|Firebase/DynamicLinks|'\
 'FirebaseMessaging|FirebaseStorage|GoogleUtilities|Interop|Example|'\
 'FirebaseAnalyticsInterop.podspec|FirebaseAuth.podspec|FirebaseAuthInterop.podspec|'\
 'FirebaseCoreDiagnostics.podspec|FirebaseCoreDiagnosticsInterop.podspec|'\
@@ -80,11 +80,12 @@ else
 
     Crashlytics-*)
       check_changes '^(FirebaseCore|GoogleUtilities|Crashlytics|FirebaseCrashlytics.podspec|Firebase/InstanceID|FirebaseInstanceID.podspec|'\
-'FirebaseInstallations|GoogleDataTransport|GoogleDataTransport.podspec|GoogleDataTransportCCTSupport|GoogleDataTransportCCTSupport.podspec)'
+'FirebaseInstallations|GoogleDataTransport|GoogleDataTransport.podspec)'
       ;;
 
     Database-*)
-      check_changes '^(FirebaseCore|Firebase/Database|Example/Database|GoogleUtilities|FirebaseDatabase.podspec)'
+      check_changes '^(FirebaseCore|FirebaseDatabase|GoogleUtilities|FirebaseDatabase.podspec|'\
+'scripts/run_database_emulator.sh)'
       ;;
 
     DynamicLinks-*)
@@ -100,7 +101,7 @@ else
       ;;
 
     GoogleUtilitiesComponents-*)
-      check_changes '^(GoogleUtilitiesComponents|GoogleUtilitiesComponents.podspec)'
+      check_changes '^(GoogleUtilities|GoogleUtilitiesComponents|GoogleUtilitiesComponents.podspec)'
       ;;
 
     InAppMessaging-*)
@@ -125,8 +126,7 @@ else
       ;;
 
     GoogleDataTransport-*)
-      check_changes '^(GoogleDataTransport|GoogleDataTransport.podspec|'\
-'GoogleDataTransportCCTSupport|GoogleDataTransportCCTSupport.podspec)'
+      check_changes '^(GoogleDataTransport|GoogleDataTransport.podspec)'
       ;;
 
     Messaging-*)

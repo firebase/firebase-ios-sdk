@@ -16,7 +16,7 @@
 
 #import "FirebaseCore/Tests/Unit/FIRTestCase.h"
 
-#import <FirebaseCore/FIRAnalyticsConfiguration.h>
+#import "FirebaseCore/Sources/FIRAnalyticsConfiguration.h"
 
 @interface FIRAnalyticsConfigurationTest : FIRTestCase
 /// An observer for NSNotificationCenter.

@@ -1,3 +1,21 @@
+# v6.9.1
+- [fixed] Internal source documentation. (#6371)
+
+# v6.9.0
+- [added] Added support for multi-tenancy (#6142).
+- [added] Added basic watchOS support. (#4621)
+- [changed] Improved Xcode completion of public API completion handlers in Swift. (#6283)
+
+# v6.8.0
+- [fixed] Fix bug where multiple keychain entries would result in user persistence failure. (#5906)
+- [changed] Added support for using GOOGLE_APP_ID in generic IDP and phone auth reCAPTCHA fallback flows. (#6121)
+
+# v6.7.1
+- [fixed] Fixed a multithreaded memory access issue on iOS. (#5979)
+
+# v6.7.0
+- [changed] Functionally neutral source reorganization for preliminary Swift Package Manager support. (#5856)
+
 # v6.5.3
 - [changed] Remove unused mfa request field "mfa_provider" (#5397)
 - [fixed] Suppress deprecation warnings when targeting iOS versions up to iOS 13. (#5437)

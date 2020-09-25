@@ -13,8 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#import <FirebaseAuth/FIRAuthErrors.h>
+
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
+
 #import <XCTest/XCTest.h>
+
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthErrors.h"
 
 #import "FirebaseAuth/Sources/Auth/FIRAuthOperationType.h"
 #import "FirebaseAuth/Sources/AuthProvider/Phone/FIRPhoneAuthCredential_Internal.h"
@@ -283,3 +288,5 @@ static const double kAllowedTimeDifference = 0.1;
 }
 
 @end
+
+#endif

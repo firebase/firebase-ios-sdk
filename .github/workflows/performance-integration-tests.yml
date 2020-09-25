@@ -1,0 +1,29 @@
+# Merge the yml file to master branch for the cron job schedule to be effective.
+# Reference: https://github.community/t/on-schedule-per-branch/17525
+name: performance-integration-tests
+
+on:
+  # See cron syntax references:
+  #   - https://docs.github.com/en/actions/reference/events-that-trigger-workflows#scheduled-events-schedule
+  #   - https://crontab.guru/
+  schedule:
+    # Runs every 4 hours.
+    # TODO: Validate when the timer starts after job is triggered.
+    - cron:  '0 */4 * * *'
+
+jobs:
+
+  # Build and run the Integration Tests for the Firebase performance E2E Test App.
+  performance-integration-tests:
+    # Firebase Performance lives in private repository only currently.
+    # Remove the check after Firebase Performance is open sourced.
+    if: github.repository == 'FirebasePrivate/firebase-ios-sdk'
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        ref: perf
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: BuildAndTest # can be replaced with pod lib lint with CocoaPods 1.10
+      run: scripts/third_party/travis/retry.sh scripts/build.sh Performance all integration

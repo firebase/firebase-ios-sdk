@@ -18,7 +18,7 @@
 #import <XCTest/XCTest.h>
 
 #import <FirebaseInstanceID/FIRInstanceID.h>
-#import <GoogleUtilities/GULUserDefaults.h>
+#import "GoogleUtilities/UserDefaults/Private/GULUserDefaults.h"
 
 #import <FirebaseMessaging/FIRMessaging.h>
 

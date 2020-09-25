@@ -17,7 +17,7 @@
 #import "ApplicationDelegate.h"
 
 #import <FirebaseCore/FIRApp.h>
-#import <FirebaseCore/FIRLogger.h>
+#import <FirebaseCore/FIRConfiguration.h>
 
 #import "AuthProviders.h"
 #import <FirebaseAuth/FirebaseAuth.h>
@@ -41,7 +41,7 @@ static __weak id<OpenURLDelegate> gOpenURLDelegate;
 - (BOOL)application:(UIApplication *)application
     didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
   [GTMSessionFetcher  setLoggingEnabled:YES];
-  FIRSetLoggerLevel(FIRLoggerLevelInfo);
+  [[FIRConfiguration sharedInstance] setLoggerLevel:FIRLoggerLevelInfo];
 
   // Configure the default Firebase application:
   [FIRApp configure];

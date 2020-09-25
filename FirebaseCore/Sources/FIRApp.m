@@ -22,20 +22,20 @@
 #import <AppKit/AppKit.h>
 #endif
 
-#import <FirebaseCore/FIRApp.h>
+#import "FirebaseCore/Sources/Public/FirebaseCore/FIRApp.h"
 
+#import "FirebaseCore/Sources/FIRAnalyticsConfiguration.h"
 #import "FirebaseCore/Sources/FIRBundleUtil.h"
+#import "FirebaseCore/Sources/FIRComponentContainerInternal.h"
+#import "FirebaseCore/Sources/FIRConfigurationInternal.h"
 #import "FirebaseCore/Sources/FIRVersion.h"
-#import "FirebaseCore/Sources/Private/FIRAnalyticsConfiguration.h"
 #import "FirebaseCore/Sources/Private/FIRAppInternal.h"
-#import "FirebaseCore/Sources/Private/FIRComponentContainerInternal.h"
-#import "FirebaseCore/Sources/Private/FIRConfigurationInternal.h"
 #import "FirebaseCore/Sources/Private/FIRCoreDiagnosticsConnector.h"
 #import "FirebaseCore/Sources/Private/FIRLibrary.h"
 #import "FirebaseCore/Sources/Private/FIRLogger.h"
 #import "FirebaseCore/Sources/Private/FIROptionsInternal.h"
 
-#import <GoogleUtilities/GULAppEnvironmentUtil.h>
+#import "GoogleUtilities/Environment/Private/GULAppEnvironmentUtil.h"
 
 #import <objc/runtime.h>
 
@@ -166,7 +166,7 @@ static dispatch_once_t sFirebaseUserAgentOnceToken;
 
   if ([name isEqualToString:kFIRDefaultAppName]) {
     if (sDefaultApp) {
-      // The default app already exixts. Handle duplicate `configure` calls and return.
+      // The default app already exists. Handle duplicate `configure` calls and return.
       [self appWasConfiguredTwice:sDefaultApp usingOptions:options];
       return;
     }

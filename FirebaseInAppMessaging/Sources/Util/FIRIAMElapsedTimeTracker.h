@@ -15,7 +15,7 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "FIRIAMTimeFetcher.h"
+#import "FirebaseInAppMessaging/Sources/Private/Util/FIRIAMTimeFetcher.h"
 
 NS_ASSUME_NONNULL_BEGIN
 // A class via which we can track elapsed time with the capability to pause and resume
