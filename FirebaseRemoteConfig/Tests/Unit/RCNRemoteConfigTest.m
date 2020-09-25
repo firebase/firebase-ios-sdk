@@ -1159,16 +1159,13 @@ static NSString *UTCToLocal(NSString *utcTime) {
     }
     return;
   }
-  // We've linked dynamically and the plist file is further down in the path.
-#if TARGET_OS_OSX
-  plistFile =
-      [bundle pathForResource:@"Contents/Resources/Defaults-testInfo"
-                       ofType:@"plist"];
-#else
-  plistFile =
-      [bundle pathForResource:@"PlugIns/FirebaseRemoteConfig-Unit-unit.xctest/Defaults-testInfo"
-                       ofType:@"plist"];
-#endif
+  // We've linked dynamically and the plist file is in the test's bundle.
+  for (bundle in [NSBundle allBundles]) {
+    plistFile = [bundle pathForResource:@"Defaults-testInfo" ofType:@"plist"];
+    if (plistFile != nil) {
+      break;
+    }
+  }
 #endif
   NSDictionary *defaults = [[NSDictionary alloc] initWithContentsOfFile:plistFile];
   if (namespace) {
