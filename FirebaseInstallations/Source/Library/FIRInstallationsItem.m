@@ -19,6 +19,8 @@
 #import "FirebaseInstallations/Source/Library/InstallationsStore/FIRInstallationsStoredAuthToken.h"
 #import "FirebaseInstallations/Source/Library/InstallationsStore/FIRInstallationsStoredItem.h"
 
+#import "FirebaseInstallations/Source/Library/Errors/FIRInstallationsErrorUtil.h"
+
 @implementation FIRInstallationsItem
 
 - (instancetype)initWithAppID:(NSString *)appID firebaseAppName:(NSString *)firebaseAppName {
@@ -101,7 +103,14 @@
       break;
   }
 
-  return validationIssues.count == 0;
+  BOOL isValid = validationIssues.count == 0;
+
+  if (!isValid && outError) {
+    NSString *failureReason = [NSString stringWithFormat:@"FIRInstallationsItem validation errors: %@", [validationIssues componentsJoinedByString:@", "]];
+    *outError = [FIRInstallationsErrorUtil installationsErrorWithCode:FIRInstallationsErrorCodeUnknown failureReason:failureReason underlyingError:nil];
+  }
+
+  return isValid;
 }
 
 + (NSString *)identifierWithAppID:(NSString *)appID appName:(NSString *)appName {
