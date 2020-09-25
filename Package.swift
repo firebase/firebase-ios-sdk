@@ -45,6 +45,10 @@ let package = Package(
       targets: ["FirebaseDatabase"]
     ),
     .library(
+      name: "FirebaseDatabaseSwift",
+      targets: ["FirebaseDatabaseSwift"]
+    ),
+    .library(
       name: "FirebaseDynamicLinks",
       targets: ["FirebaseDynamicLinks"]
     ),
@@ -346,7 +350,20 @@ let package = Package(
         .headerSearchPath("../.."),
       ]
     ),
-
+    .target(
+      name: "FirebaseDatabaseSwift",
+      dependencies: ["FirebaseDatabase"],
+      path: "FirebaseDatabaseSwift/Sources",
+      exclude: [
+        "third_party/RTDBEncoder/LICENSE",
+        "third_party/RTDBEncoder/METADATA",
+      ]
+    ),
+    .testTarget(
+      name: "FirebaseDatabaseSwiftTests",
+      dependencies: ["FirebaseDatabase", "FirebaseDatabaseSwift"],
+      path: "FirebaseDatabaseSwift/Tests/"
+    ),
     .target(
       name: "FirebaseDynamicLinks",
       dependencies: ["FirebaseCore"],
