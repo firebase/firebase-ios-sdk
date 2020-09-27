@@ -22,5 +22,6 @@ extension Database {
   }
 
   public enum EncodingError: Error {
+    case internalError
   }
 }
