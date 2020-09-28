@@ -7,7 +7,6 @@
 
 # v4.9.1
 - [fixed] Fix an `attempt to insert nil object` crash in `fetchWithExpirationDuration:`. (#6522)
->>>>>>> 364bd3973 (Add changelogs)
 
 # v4.9.0
 - [fixed] Fixed `FirebaseApp.delete()` related crash in `RC Config Fetch`. (#6123)

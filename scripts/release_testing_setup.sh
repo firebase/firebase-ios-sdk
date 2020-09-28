@@ -19,14 +19,28 @@ TESTINGMODE=${1-}
 if [ -f "${HOME}/.cocoapods/repos" ]; then
   find "${HOME}/.cocoapods/repos" -type d -maxdepth 1 -exec sh -c 'pod repo remove $(basename {})' \;
 fi
-git config --global user.email "google-oss-bot@example.com"
-git config --global user.name "google-oss-bot"
-mkdir -p /tmp/test/firebase-ios-sdk
+
+mkdir -p "${local_sdk_repo_dir}"
 echo "git clone ${podspec_repo_branch} from github.com/firebase/firebase-ios-sdk.git to ${local_sdk_repo_dir}"
 set +x
-git clone -q -b "${podspec_repo_branch}" https://"${BOT_TOKEN}"@github.com/firebase/firebase-ios-sdk.git "${local_sdk_repo_dir}"
+git clone -q https://"${BOT_TOKEN}"@github.com/firebase/firebase-ios-sdk.git "${local_sdk_repo_dir}"
 set -x
 
+cd  "${local_sdk_repo_dir}"
+# This is to search Cocoapods-X.Y.Z tags from all branches of the sdk repo and test_version is X.Y.Z
+test_version=$(git tag -l --sort=-version:refname CocoaPods-*[0-9] | head -n 1 | sed -n 's/CocoaPods-//p')
+# Check if release-X.Y.Z branch exists in the remote repo.
+release_branch=$(git branch -r -l "origin/release-${test_version}")
+if [ -z $release_branch ];then
+  echo "release-${test_version} branch does not exist in the sdk repo."
+  exit 1
+fi
+
+# Get release branch, release-X.Y.Z.
+podspec_repo_branch=$(echo $release_branch | sed -n 's/\s*origin\///p')
+
+git config --global user.email "google-oss-bot@example.com"
+git config --global user.name "google-oss-bot"
 if [ "$TESTINGMODE" = "nightly_testing" ]; then
   tag_version="nightly-test-${test_version}"
   echo "A new tag, ${tag_version},for nightly release testing will be created."
@@ -37,7 +51,7 @@ if [ "$TESTINGMODE" = "RC_testing" ]; then
 fi
 # Update a tag.
 if [ -n "$tag_version" ]; then
-  cd  "${local_sdk_repo_dir}"
+  git checkout "${podspec_repo_branch}"
   set +e
   # If tag_version is new to the remote, remote cannot delete a non-existent
   # tag, so error is allowed here.
@@ -49,7 +63,11 @@ if [ -n "$tag_version" ]; then
   # ":tag => test"
   sed  -i "" "s/\s*:tag.*/:tag => '${tag_version}'/" *.podspec
 fi
-cd "${GITHUB_WORKSPACE}/ZipBuilder"
-swift build
-# Update Pod versions.
-./.build/debug/firebase-pod-updater --git-root "${local_sdk_repo_dir}" --releasing-pods "${GITHUB_WORKSPACE}/scripts/create_spec_repo/firebase_sdk.textproto"
+
+if [ -n "$sdk_version_config" ]; then
+  cd "${GITHUB_WORKSPACE}/ZipBuilder"
+  swift build
+  # Update Pod versions.
+  ./.build/debug/firebase-pod-updater --git-root "${local_sdk_repo_dir}" --releasing-pods "${sdk_version_config}"
+  echo "sdk versions are updated based on ${sdk_version_config}."
+fi
