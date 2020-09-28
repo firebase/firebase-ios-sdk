@@ -2,6 +2,9 @@
 - [changed] Updated `lastFetchTime` field to readonly. (#6567)
 - [changed] Functionally neutral change to stop using a deprecated AB Testing SDK method. (#6581)
 
+# v4.9.2
+- [changed] Functionally neutral change to stop using a deprecated AB Testing SDK method. (#6581)
+
 # v4.9.1
 - [fixed] Fix an `attempt to insert nil object` crash in `fetchWithExpirationDuration:`. (#6522)
 
