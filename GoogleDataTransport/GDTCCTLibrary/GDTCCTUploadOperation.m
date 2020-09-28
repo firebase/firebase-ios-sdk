@@ -44,19 +44,6 @@ static NSString *const kGDTCCTSupportSDKVersion = @"UNKNOWN";
 /** */
 static NSInteger kWeekday;
 
-/** */
-static NSString *const kLibraryDataCCTNextUploadTimeKey = @"GDTCCTUploaderFLLNextUploadTimeKey";
-
-/** */
-static NSString *const kLibraryDataFLLNextUploadTimeKey = @"GDTCCTUploaderFLLNextUploadTimeKey";
-
-static NSString *const kINTServerURL =
-    @"https://dummyapiverylong-dummy.dummy.com/dummy/api/very/long";
-
-#if !NDEBUG
-NSNotificationName const GDTCCTUploadCompleteNotification = @"com.GDTCCTUploader.UploadComplete";
-#endif  // #if !NDEBUG
-
 typedef void (^GDTCCTUploaderURLTaskCompletion)(NSNumber *batchID,
                                                 NSSet<GDTCOREvent *> *_Nullable events,
                                                 NSData *_Nullable data,
@@ -80,6 +67,7 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
 @property(nonatomic, readonly) GDTCORUploadConditions conditions;
 @property(nonatomic, readonly) NSURL *uploadURL;
 @property(nonatomic, nullable, readonly) NSString *APIKey;
+@property(nonatomic, readonly) id<GDTCCTUploadMetadataProvider> metadataProvider;
 
 @property(nonatomic, readwrite, getter=isExecuting) BOOL executing;
 @property(nonatomic, readwrite, getter=isFinished) BOOL finished;
@@ -93,7 +81,8 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
 - (instancetype)initWithTarget:(GDTCORTarget)target
                     conditions:(GDTCORUploadConditions)conditions
                      uploadURL:(NSURL *)uploadURL
-                        APIKey:(nullable NSString *)APIKey {
+                        APIKey:(nullable NSString *)APIKey
+              metadataProvider:(id<GDTCCTUploadMetadataProvider>)metadataProvider{
   self = [super init];
   if (self) {
     _uploaderQueue = dispatch_queue_create("com.google.GDTCCTUploader", DISPATCH_QUEUE_SERIAL);
@@ -105,6 +94,7 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
     _conditions = conditions;
     _uploadURL = uploadURL;
     _APIKey = APIKey;
+    _metadataProvider = metadataProvider;
   }
   return self;
 }
@@ -264,21 +254,8 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
     // 15 minutes from now.
     futureUploadTime = [GDTCORClock clockSnapshotInTheFuture:15 * 60 * 1000];
   }
-  switch (target) {
-    case kGDTCORTargetCCT:
-      self->_CCTNextUploadTime = futureUploadTime;
-      break;
 
-    case kGDTCORTargetFLL:
-      // Falls through.
-    case kGDTCORTargetINT:
-      // Falls through.
-    case kGDTCORTargetCSH:
-      self->_FLLNextUploadTime = futureUploadTime;
-      break;
-    default:
-      break;
-  }
+  [self.metadataProvider setNextUploadTime:futureUploadTime forTarget:target];
 
   // Only retry if one of these codes is returned, or there was an error.
   if (error || ((NSHTTPURLResponse *)response).statusCode == 429 ||
@@ -429,22 +406,9 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
 
   // Check next upload time for the target.
   BOOL isAfterNextUploadTime = YES;
-  switch (target) {
-    case kGDTCORTargetCCT:
-      if (self->_CCTNextUploadTime) {
-        isAfterNextUploadTime = [[GDTCORClock snapshot] isAfter:self->_CCTNextUploadTime];
-      }
-      break;
-
-    case kGDTCORTargetFLL:
-      if (self->_FLLNextUploadTime) {
-        isAfterNextUploadTime = [[GDTCORClock snapshot] isAfter:self->_FLLNextUploadTime];
-      }
-      break;
-
-    default:
-      // The CSH backend should be handled above.
-      break;
+  GDTCORClock *nextUploadTime = [self.metadataProvider nextUploadTimeForTarget:target];
+  if (nextUploadTime) {
+    isAfterNextUploadTime = [[GDTCORClock snapshot] isAfter:nextUploadTime];
   }
 
   if (isAfterNextUploadTime) {

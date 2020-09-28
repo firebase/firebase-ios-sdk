@@ -28,7 +28,12 @@ NS_ASSUME_NONNULL_BEGIN
 static NSString *const kINTServerURL =
     @"https://dummyapiverylong-dummy.dummy.com/dummy/api/very/long";
 
-@interface GDTCCTUploader () <NSURLSessionDelegate>
+// TODO: Implement.
+#if !NDEBUG
+NSNotificationName const GDTCCTUploadCompleteNotification = @"com.GDTCCTUploader.UploadComplete";
+#endif  // #if !NDEBUG
+
+@interface GDTCCTUploader () <NSURLSessionDelegate, GDTCCTUploadMetadataProvider>
 
 @property(nonatomic, readonly) NSOperationQueue *uploadQueue;
 
@@ -75,7 +80,7 @@ static NSString *const kINTServerURL =
   // 2. Notify the client of upload stages
   // 3. Allow the client cancelling upload requests as needed.
 
-  GDTCCTUploadOperation *uploadOperation = [[GDTCCTUploadOperation alloc] initWithTarget:target conditions:conditions uploadURL:[self serverURLForTarget:target] APIKey:[self APIKeyForTarget:target]];
+  GDTCCTUploadOperation *uploadOperation = [[GDTCCTUploadOperation alloc] initWithTarget:target conditions:conditions uploadURL:[self serverURLForTarget:target] APIKey:[self APIKeyForTarget:target] metadataProvider:self];
 
   __weak __auto_type weakSelf = self;
   __weak GDTCCTUploadOperation *weakOperation = uploadOperation;
@@ -199,6 +204,17 @@ static NSString *const kINTServerURL =
   }
 
   return nil;
+}
+
+#pragma mark - GDTCCTUploadMetadataProvider
+
+// TODO: Implement
+- (nullable GDTCORClock *)nextUploadTimeForTarget:(GDTCORTarget)target {
+  return nil;
+}
+
+- (void)setNextUploadTime:(nullable GDTCORClock *)time forTarget:(GDTCORTarget)target {
+
 }
 
 @end
