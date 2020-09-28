@@ -108,7 +108,7 @@ other Google CocoaPods. They're not intended for direct public usage.
 
   s.subspec 'SwizzlerTestHelpers' do |sths|
     sths.source_files = 'GoogleUtilities/SwizzlerTestHelpers/**/*.[hm]'
-    sths.public_header_files = 'GoogleUtilities/SwizzlerTestHelpers/GoogleUtilities/Public/*.h'
+    sths.public_header_files = 'GoogleUtilities/SwizzlerTestHelpers/Public/GoogleUtilities/*.h'
     sths.dependency 'GoogleUtilities/MethodSwizzler'
   end
 
