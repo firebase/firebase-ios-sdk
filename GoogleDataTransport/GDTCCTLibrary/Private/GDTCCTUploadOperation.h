@@ -30,7 +30,12 @@ extern NSNotificationName const GDTCCTUploadCompleteNotification;
 /** Class capable of uploading events to the CCT backend. */
 @interface GDTCCTUploadOperation : NSOperation
 
-- (instancetype)initWithTarget:(GDTCORTarget)target conditions:(GDTCORUploadConditions)conditions;
+- (instancetype)init NS_UNAVAILABLE;
+
+- (instancetype)initWithTarget:(GDTCORTarget)target
+                    conditions:(GDTCORUploadConditions)conditions
+                     uploadURL:(NSURL *)uploadURL
+                        APIKey:(nullable NSString *)APIKey;
 
 /** YES if a batch upload attempt was performed. NO otherwise. If NO for the finished operation,
  * then  there were no events suitable for upload. */
@@ -51,11 +56,6 @@ extern NSNotificationName const GDTCCTUploadCompleteNotification;
 /** The next upload time for the FLL target. */
 @property(nullable, nonatomic) GDTCORClock *FLLNextUploadTime;
 
-#if !NDEBUG
-/** An upload URL used across all targets. For testing only. */
-@property(nullable, nonatomic) NSURL *testServerURL;
-
-#endif  // !NDEBUG
 
 @end
 
