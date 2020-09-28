@@ -1,4 +1,4 @@
-# v4.2.0
+# v7.0.0
 - [removed] Removed `FIRExperimentController.updateExperiments(serviceOrigin:events:policy:lastStartTime:payloads:)`, which was deprecated. (#6581)
 
 # v4.1.0
