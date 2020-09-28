@@ -80,7 +80,12 @@ NSNotificationName const GDTCCTUploadCompleteNotification = @"com.GDTCCTUploader
   // 2. Notify the client of upload stages
   // 3. Allow the client cancelling upload requests as needed.
 
-  GDTCCTUploadOperation *uploadOperation = [[GDTCCTUploadOperation alloc] initWithTarget:target conditions:conditions uploadURL:[self serverURLForTarget:target] APIKey:[self APIKeyForTarget:target] metadataProvider:self];
+  GDTCCTUploadOperation *uploadOperation =
+      [[GDTCCTUploadOperation alloc] initWithTarget:target
+                                         conditions:conditions
+                                          uploadURL:[self serverURLForTarget:target]
+                                             APIKey:[self APIKeyForTarget:target]
+                                   metadataProvider:self];
 
   __weak __auto_type weakSelf = self;
   __weak GDTCCTUploadOperation *weakOperation = uploadOperation;
@@ -214,7 +219,6 @@ NSNotificationName const GDTCCTUploadCompleteNotification = @"com.GDTCCTUploader
 }
 
 - (void)setNextUploadTime:(nullable GDTCORClock *)time forTarget:(GDTCORTarget)target {
-
 }
 
 @end

@@ -82,7 +82,7 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
                     conditions:(GDTCORUploadConditions)conditions
                      uploadURL:(NSURL *)uploadURL
                         APIKey:(nullable NSString *)APIKey
-              metadataProvider:(id<GDTCCTUploadMetadataProvider>)metadataProvider{
+              metadataProvider:(id<GDTCCTUploadMetadataProvider>)metadataProvider {
   self = [super init];
   if (self) {
     _uploaderQueue = dispatch_queue_create("com.google.GDTCCTUploader", DISPATCH_QUEUE_SERIAL);
@@ -565,11 +565,11 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
   }
   if (response.statusCode == 302 || response.statusCode == 301) {
     // TODO: Take a redirect URL from the response.
-//    if ([request.URL isEqual:[self serverURLForTarget:kGDTCORTargetFLL]]) {
-//      NSURLRequest *newRequest = [self constructRequestForTarget:kGDTCORTargetCCT
-//                                                            data:task.originalRequest.HTTPBody];
-//      completionHandler(newRequest);
-//    }
+    //    if ([request.URL isEqual:[self serverURLForTarget:kGDTCORTargetFLL]]) {
+    //      NSURLRequest *newRequest = [self constructRequestForTarget:kGDTCORTargetCCT
+    //                                                            data:task.originalRequest.HTTPBody];
+    //      completionHandler(newRequest);
+    //    }
   } else {
     completionHandler(request);
   }
