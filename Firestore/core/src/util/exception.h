@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google
+ * Copyright 2019 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,48 +38,9 @@
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/util/string_format.h"
 #include "absl/base/attributes.h"
-#include "absl/base/config.h"
 
 namespace firebase {
 namespace firestore {
-
-#if ABSL_HAVE_EXCEPTIONS
-
-/**
- * An exception thrown if Firestore encounters an unhandled error.
- */
-class FirestoreException : public std::exception {
- public:
-  FirestoreException(const std::string& message, Error code)
-      : message_(message), code_(code) {
-  }
-
-  const char* what() const noexcept override {
-    return message_.c_str();
-  }
-
-  Error code() const {
-    return code_;
-  }
-
- private:
-  std::string message_;
-  Error code_;
-};
-
-/**
- * An exception thrown if Firestore encounters an internal, unrecoverable error.
- */
-class FirestoreInternalError : public FirestoreException {
- public:
-  FirestoreInternalError(const std::string& message,
-                         Error code = Error::kErrorInternal)
-      : FirestoreException(message, code) {
-  }
-};
-
-#endif  // ABSL_HAVE_EXCEPTIONS
-
 namespace util {
 
 /**
