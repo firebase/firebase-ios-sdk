@@ -132,7 +132,10 @@ typedef NS_ENUM(NSInteger, FIRInstanceIDAPNSTokenType) {
 @interface FIRInstanceID () <FIRInstanceIDInstanceProvider, FIRLibrary>
 @end
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-implementations"
 @implementation FIRInstanceIDResult
+#pragma clang diagnostic pop
 - (id)copyWithZone:(NSZone *)zone {
   FIRInstanceIDResult *result = [[[self class] allocWithZone:zone] init];
   result.instanceID = self.instanceID;

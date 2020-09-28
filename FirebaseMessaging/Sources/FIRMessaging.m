@@ -142,8 +142,10 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 // FIRApp properties
 @property(nonatomic, readwrite, strong) NSData *apnsTokenData;
 @property(nonatomic, readwrite, strong) NSString *defaultFcmToken;
-
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-implementations"
 @property(nonatomic, readwrite, strong) FIRInstanceID *instanceID;
+#pragma clang diagnostic pop
 
 @property(nonatomic, readwrite, strong) FIRMessagingClient *client;
 @property(nonatomic, readwrite, strong) GULReachabilityChecker *reachability;
