@@ -13,8 +13,8 @@
 // limitations under the License.
 
 #import "FirebaseCore/Sources/Private/FIRHeartbeatInfo.h"
-#import "GoogleUtilities/Environment/Private/GULHeartbeatDateStorage.h"
-#import "GoogleUtilities/Logger/Private/GULLogger.h"
+#import <GoogleUtilities/GULHeartbeatDateStorage.h>
+#import <GoogleUtilities/GULLogger.h>
 
 const static long secondsInDay = 86400;
 @implementation FIRHeartbeatInfo : NSObject

@@ -22,8 +22,8 @@
 #import "FBLPromises.h"
 #endif
 
+#import <GoogleUtilities/GULKeychainStorage.h>
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
-#import "GoogleUtilities/Environment/Private/GULKeychainStorage.h"
 
 #import "FirebaseInstallations/Source/Library/Errors/FIRInstallationsErrorUtil.h"
 #import "FirebaseInstallations/Source/Library/FIRInstallationsItem.h"

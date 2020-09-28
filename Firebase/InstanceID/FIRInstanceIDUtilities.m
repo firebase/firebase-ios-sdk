@@ -21,11 +21,11 @@
 #endif
 #import <sys/utsname.h>
 
+#import <GoogleUtilities/GULUserDefaults.h>
 #import "Firebase/InstanceID/FIRInstanceIDConstants.h"
 #import "Firebase/InstanceID/FIRInstanceIDLogger.h"
 #import "Firebase/InstanceID/Public/FIRInstanceID.h"
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
-#import "GoogleUtilities/UserDefaults/Private/GULUserDefaults.h"
 
 // Convert the macro to a string
 #define STR_EXPAND(x) #x

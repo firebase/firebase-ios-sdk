@@ -29,9 +29,6 @@ supports email and password accounts, as well as several 3rd party authenticatio
   s.source_files = [
     source + '**/*.[mh]',
     'FirebaseCore/Sources/Private/*.h',
-    'GoogleUtilities/AppDelegateSwizzler/Private/*.h',
-    'GoogleUtilities/Environment/Private/*.h',
-    'GoogleUtilities/SceneDelegateSwizzler/Private/*.h',
     'Interop/Auth/Public/*.h',
   ]
   s.public_header_files = source + 'Public/FirebaseAuth/*.h'

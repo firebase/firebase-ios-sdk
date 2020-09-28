@@ -16,11 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#if SWIFT_PACKAGE
-@import GoogleUtilities_Logger;
-#else
-#import <GoogleUtilities/GULLoggerLevel.h>
-#endif
+#import "GULLoggerLevel.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

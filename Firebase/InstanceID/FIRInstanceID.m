@@ -18,6 +18,8 @@
 
 #import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
 
+#import <GoogleUtilities/GULAppEnvironmentUtil.h>
+#import <GoogleUtilities/GULUserDefaults.h>
 #import "Firebase/InstanceID/FIRInstanceIDAuthService.h"
 #import "Firebase/InstanceID/FIRInstanceIDCombinedHandler.h"
 #import "Firebase/InstanceID/FIRInstanceIDConstants.h"
@@ -32,8 +34,6 @@
 #import "Firebase/InstanceID/Private/FIRInstanceID+Private.h"
 #import "Firebase/InstanceID/Private/FIRInstanceIDCheckinPreferences.h"
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
-#import "GoogleUtilities/Environment/Private/GULAppEnvironmentUtil.h"
-#import "GoogleUtilities/UserDefaults/Private/GULUserDefaults.h"
 
 // Public constants
 NSString *const kFIRInstanceIDScopeFirebaseMessaging = @"fcm";
