@@ -1,5 +1,6 @@
 # Unreleased
 - Legacy pre Xcode 10 compatibility checks removed. (#6486)
+- `GDTCORDirectorySizeTracker` crash fixed. (#6540)
 
 # v7.4.0
 - Limit disk space consumed by GoogleDataTransport to store events. (#6365)
