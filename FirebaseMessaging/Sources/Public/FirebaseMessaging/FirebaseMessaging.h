@@ -14,11 +14,5 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
-
-#include "FIRErrorCode.h"
-
-extern NSString *const kFirebaseErrorDomain;
-extern NSString *const kFirebaseConfigErrorDomain;
-extern NSString *const kFirebaseCoreErrorDomain;
-extern NSString *const kFirebasePerfErrorDomain;
+#import "FIRMessaging.h"
+#import "FIRMessagingExtensionHelper.h"

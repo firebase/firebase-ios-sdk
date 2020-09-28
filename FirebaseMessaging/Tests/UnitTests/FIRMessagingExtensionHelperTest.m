@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
+#import "OCMock.h"
 
-#import <FirebaseMessaging/FIRMessaging.h>
-#import <FirebaseMessaging/FIRMessagingExtensionHelper.h>
+#import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessaging.h"
+#import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessagingExtensionHelper.h"
 
 API_AVAILABLE(macos(10.14), ios(10.0))
 typedef void (^FIRMessagingContentHandler)(UNNotificationContent *content);

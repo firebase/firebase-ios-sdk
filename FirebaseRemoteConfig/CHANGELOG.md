@@ -1,4 +1,5 @@
-# v4.9.2
+# v7.0.0
+- [changed] Updated `lastFetchTime` field to readonly. (#6567)
 - [changed] Functionally neutral change to stop using a deprecated AB Testing SDK method. (#6581)
 
 # v4.9.1

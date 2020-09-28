@@ -13,7 +13,6 @@
 // limitations under the License.
 
 #import "FirebaseCore/Tests/SwiftUnit/SwiftTestingUtilities/ExceptionCatcher.h"
-#import "FirebaseCore/Sources/Private/FIRErrorCode.h"
 
 @implementation ExceptionCatcher
 
@@ -30,6 +29,7 @@
     [info setValue:exception.userInfo forKey:@"ExceptionUserInfo"];
 
     // Just using error code `FIRErrorCodeConfigFailed` for now
+    NSInteger FIRErrorCodeConfigFailed = -114;
     *error = [[NSError alloc] initWithDomain:exception.name
                                         code:FIRErrorCodeConfigFailed
                                     userInfo:info];

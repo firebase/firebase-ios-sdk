@@ -1,3 +1,7 @@
+# unreleased -- v.7.0.0
+- [changed] Remove the deprecated FCM direct channel API and Upstream send API. (#6430)
+
+
 # 2020-09 -- v.4.7.0
 - [added] Added new token APIs to get and delete the default FCM registration token asynchronously. Also added a new `Messaging.delete(completion:)` method that deletes all FCM registration tokens and checkin data. (#6313)
 

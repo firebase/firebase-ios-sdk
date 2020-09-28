@@ -18,8 +18,8 @@
 
 #import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
 
-#import <FirebaseInstanceID/FIRInstanceID_Private.h>
 #import <OCMock/OCMock.h>
+#import "Firebase/InstanceID/Private/FIRInstanceID_Private.h"
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 #import "Firebase/InstanceID/FIRInstanceIDAuthService.h"

@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-#import <OCMock/OCMock.h>
+#import "OCMock.h"
 
-#import "XCTestCase+FIRMessagingRmqManagerTests.h"
+#import "FirebaseMessaging/Tests/UnitTests/XCTestCase+FIRMessagingRmqManagerTests.h"
 
 #import "FirebaseMessaging/Tests/UnitTests/FIRMessagingTestUtilities.h"
 
-#import <FirebaseInstanceID/FirebaseInstanceID.h>
+#import "Firebase/InstanceID/Public/FirebaseInstanceID.h"
 #import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
 #import "GoogleUtilities/UserDefaults/Private/GULUserDefaults.h"
 #import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
@@ -123,10 +123,6 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
   [_messaging.rmq2Manager removeDatabase];
   [testCase waitForDrainDatabaseQueueForRmqManager:_messaging.rmq2Manager];
   [_messaging.messagingUserDefaults removePersistentDomainForName:kFIRMessagingDefaultsTestDomain];
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  _messaging.shouldEstablishDirectChannel = NO;
-#pragma clang diagnostic pop
   [_mockPubsub stopMocking];
   [_mockMessaging stopMocking];
   [_mockInstanceID stopMocking];

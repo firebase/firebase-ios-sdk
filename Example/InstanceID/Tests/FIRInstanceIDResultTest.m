@@ -16,8 +16,8 @@
 
 #import <XCTest/XCTest.h>
 
-#import <FirebaseInstanceID/FIRInstanceID.h>
 #import <OCMock/OCMock.h>
+#import "Firebase/InstanceID/Public/FIRInstanceID.h"
 
 #import "Firebase/InstanceID/NSError+FIRInstanceID.h"
 

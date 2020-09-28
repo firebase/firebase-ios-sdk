@@ -18,8 +18,8 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
   }
 
   s.swift_version           = '5.0'
-  s.ios.deployment_target   = '8.0'
-  s.osx.deployment_target   = '10.11'
+  s.ios.deployment_target   = '10.0'
+  s.osx.deployment_target   = '10.12'
   s.tvos.deployment_target  = '10.0'
   s.watchos.deployment_target = '6.0'
 
@@ -34,7 +34,7 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
   s.dependency 'FirebaseStorage', '~> 3.6'
 
   s.test_spec 'integration' do |int_tests|
-    int_tests.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
+    int_tests.platforms = {:ios => '10.0', :osx => '10.12', :tvos => '10.0'}
     int_tests.source_files = 'FirebaseStorageSwift/Tests/Integration/*.swift'
     int_tests.requires_app_host = true
     # Resources are shared with FirebaseStorage's integration tests.
