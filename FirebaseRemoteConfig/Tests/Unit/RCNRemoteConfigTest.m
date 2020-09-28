@@ -1143,22 +1143,42 @@ static NSString *UTCToLocal(NSString *utcTime) {
   return [dateFormatter stringFromDate:date];
 }
 
+// Manage different bundle locations for Swift Package Manager, CocoaPods static, CocoaPods dynamic.
+- (void)setDefaultsFor:(FIRRemoteConfig *)config namespace:(NSString *)namespace {
 #if SWIFT_PACKAGE
-- (NSDictionary *)getSPMDefaults {
   NSBundle *bundle = Firebase_RemoteConfigUnit_SWIFTPM_MODULE_BUNDLE();
   NSString *plistFile = [bundle pathForResource:@"Defaults-testInfo" ofType:@"plist"];
-  return [[NSDictionary alloc] initWithContentsOfFile:plistFile];
-}
+#else
+  NSBundle *bundle = [NSBundle mainBundle];
+  NSString *plistFile = [bundle pathForResource:@"Defaults-testInfo" ofType:@"plist"];
+  if (plistFile != nil) {
+    if (namespace) {
+      [config setDefaultsFromPlistFileName:@"Defaults-testInfo" namespace:namespace];
+    } else {
+      [config setDefaultsFromPlistFileName:@"Defaults-testInfo"];
+    }
+    return;
+  }
+  // We've linked dynamically and the plist file is in the test's bundle.
+  for (bundle in [NSBundle allBundles]) {
+    plistFile = [bundle pathForResource:@"Defaults-testInfo" ofType:@"plist"];
+    if (plistFile != nil) {
+      break;
+    }
+  }
 #endif
+  NSDictionary *defaults = [[NSDictionary alloc] initWithContentsOfFile:plistFile];
+  if (namespace) {
+    [config setDefaults:defaults namespace:namespace];
+  } else {
+    [config setDefaults:defaults];
+  }
+}
 
 - (void)testSetDefaultsFromPlist {
   for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
     FIRRemoteConfig *config = _configInstances[i];
-#if SWIFT_PACKAGE
-    [config setDefaults:[self getSPMDefaults]];
-#else
-    [config setDefaultsFromPlistFileName:@"Defaults-testInfo"];
-#endif
+    [self setDefaultsFor:config namespace:nil];
     XCTAssertEqualObjects(_configInstances[i][@"lastCheckTime"].stringValue,
                           UTCToLocal(@"2016-02-28 18:33:31"));
     XCTAssertEqual(_configInstances[i][@"isPaidUser"].boolValue, YES);
@@ -1185,12 +1205,7 @@ static NSString *UTCToLocal(NSString *utcTime) {
 - (void)testSetDefaultsAndNamespaceFromPlist {
   for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
     if (i == RCNTestRCInstanceDefault) {
-#if SWIFT_PACKAGE
-      [_configInstances[i] setDefaults:[self getSPMDefaults] namespace:RCNTestsPerfNamespace];
-#else
-      [_configInstances[i] setDefaultsFromPlistFileName:@"Defaults-testInfo"
-                                              namespace:RCNTestsPerfNamespace];
-#endif
+      [self setDefaultsFor:_configInstances[i] namespace:RCNTestsPerfNamespace];
       XCTAssertEqualObjects([_configInstances[i] configValueForKey:@"lastCheckTime"
                                                          namespace:RCNTestsPerfNamespace]
                                 .stringValue,

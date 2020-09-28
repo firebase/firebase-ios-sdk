@@ -156,7 +156,7 @@ let package = Package(
     ),
     .testTarget(
       name: "CoreUnit",
-      dependencies: ["FirebaseCore", "OCMock"],
+      dependencies: ["FirebaseCore", "SharedTestUtilities", "OCMock"],
       path: "FirebaseCore/Tests/Unit",
       exclude: ["Resources/GoogleService-Info.plist"],
       cSettings: [
@@ -555,7 +555,7 @@ let package = Package(
 
     .target(
       name: "SharedTestUtilities",
-      dependencies: ["FirebaseCore"],
+      dependencies: ["FirebaseCore", "OCMock"],
       path: "SharedTestUtilities",
       publicHeadersPath: "./",
       cSettings: [

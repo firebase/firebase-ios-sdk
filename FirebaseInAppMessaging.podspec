@@ -20,7 +20,6 @@ See more product details at https://firebase.google.com/products/in-app-messagin
   s.ios.deployment_target = '10.0'
 
   s.cocoapods_version = '>= 1.4.0'
-  s.static_framework = true
   s.prefix_header_file = false
 
   base_dir = "FirebaseInAppMessaging/"

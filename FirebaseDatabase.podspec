@@ -21,7 +21,6 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.tvos.deployment_target = '10.0'
 
   s.cocoapods_version = '>= 1.4.0'
-  s.static_framework = true
   s.prefix_header_file = false
 
   base_dir = "FirebaseDatabase/Sources/"
@@ -44,19 +43,27 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   }
 
   s.test_spec 'unit' do |unit_tests|
-    unit_tests.source_files = 'FirebaseDatabase/Tests/Unit/*.[mh]',
-                              'FirebaseDatabase/Tests/Helpers/*.[mh]',
-                              'FirebaseDatabase/Tests/third_party/*.[mh]',
-                              'SharedTestUtilities/FIRAuthInteropFake.[mh]',
-                              'SharedTestUtilities/FIRComponentTestUtilities.h'
+    unit_tests.source_files = [
+      'FirebaseDatabase/Tests/Unit/*.[mh]',
+      'FirebaseDatabase/Tests/Helpers/*.[mh]',
+      'FirebaseDatabase/Tests/third_party/*.[mh]',
+      'SharedTestUtilities/FIRAuthInteropFake.[mh]',
+      'SharedTestUtilities/FIRComponentTestUtilities.h',
+      'SharedTestUtilities/FIROptionsMock.[mh]',
+    ]
+    unit_tests.dependency 'OCMock'
     unit_tests.resources = 'FirebaseDatabase/Tests/Resources/syncPointSpec.json',
                            'FirebaseDatabase/Tests/Resources/GoogleService-Info.plist'
   end
 
   s.test_spec 'integration' do |int_tests|
-    int_tests.source_files = 'FirebaseDatabase/Tests/Integration/*.[mh]',
-                             'FirebaseDatabase/Tests/Helpers/*.[mh]',
-                             'SharedTestUtilities/FIRAuthInteropFake.[mh]'
+    int_tests.source_files = [
+      'FirebaseDatabase/Tests/Integration/*.[mh]',
+      'FirebaseDatabase/Tests/Helpers/*.[mh]',
+      'SharedTestUtilities/FIRAuthInteropFake.[mh]',
+      'SharedTestUtilities/FIROptionsMock.[mh]',
+    ]
+    int_tests.dependency 'OCMock'
     int_tests.resources = 'FirebaseDatabase/Tests/Resources/GoogleService-Info.plist'
   end
 end

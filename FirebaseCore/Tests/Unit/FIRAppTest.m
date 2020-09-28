@@ -19,8 +19,8 @@
 #import "FirebaseCore/Sources/Private/FIRAppInternal.h"
 #import "FirebaseCore/Sources/Private/FIRCoreDiagnosticsConnector.h"
 #import "FirebaseCore/Sources/Private/FIROptionsInternal.h"
-
 #import "GoogleUtilities/Environment/Private/GULAppEnvironmentUtil.h"
+#import "SharedTestUtilities/FIROptionsMock.h"
 
 NSString *const kFIRTestAppName1 = @"test_app_name_1";
 NSString *const kFIRTestAppName2 = @"test-app-name-2";
@@ -68,9 +68,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   _observerMock = OCMObserverMock();
   _mockCoreDiagnosticsConnector = OCMClassMock([FIRCoreDiagnosticsConnector class]);
 
-#if SWIFT_PACKAGE
-  [self mockFIROptions];
-#endif
+  [FIROptionsMock mockFIROptions];
 
   OCMStub(ClassMethod([self.mockCoreDiagnosticsConnector logCoreTelemetryWithOptions:[OCMArg any]]))
       .andDo(^(NSInvocation *invocation){

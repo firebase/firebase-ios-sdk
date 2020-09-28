@@ -23,6 +23,7 @@ private extension Constants {
 class FirebaseAppTests: XCTestCase {
   override func setUp() {
     super.setUp()
+    FIROptionsMock.mockFIROptions()
   }
 
   override func tearDown() {

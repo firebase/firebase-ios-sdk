@@ -25,7 +25,6 @@ Firebase Cloud Messaging and Firebase Remote Config in your app.
   s.tvos.deployment_target = '10.0'
 
   s.cocoapods_version = '>= 1.4.0'
-  s.static_framework = true
   s.prefix_header_file = false
 
   base_dir = "FirebaseABTesting/Sources/"
