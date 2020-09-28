@@ -143,7 +143,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 @property(nonatomic, readwrite, strong) NSData *apnsTokenData;
 @property(nonatomic, readwrite, strong) NSString *defaultFcmToken;
 #pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-implementations"
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 @property(nonatomic, readwrite, strong) FIRInstanceID *instanceID;
 #pragma clang diagnostic pop
 
@@ -185,10 +185,12 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   });
   return extensionHelper;
 }
-
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 - (instancetype)initWithAnalytics:(nullable id<FIRAnalyticsInterop>)analytics
                    withInstanceID:(FIRInstanceID *)instanceID
                  withUserDefaults:(GULUserDefaults *)defaults {
+#pragma clang diagnostic pop
   self = [super init];
   if (self != nil) {
     _loggedMessageIDs = [NSMutableSet set];
@@ -600,10 +602,13 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
                            @"set.",
                            senderID);
   }
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   [self.instanceID tokenWithAuthorizedEntity:senderID
                                        scope:kFIRMessagingDefaultTokenScope
                                      options:options
                                      handler:completion];
+#pragma clang diagnostic pop
 }
 
 - (void)deleteFCMTokenForSenderID:(nonnull NSString *)senderID
@@ -620,12 +625,17 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
     }
     return;
   }
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   [self.instanceID deleteTokenWithAuthorizedEntity:senderID
                                              scope:kFIRMessagingDefaultTokenScope
                                            handler:completion];
+#pragma clang diagnostic pop
 }
 
 - (void)deleteDataWithCompletion:(void (^)(NSError *_Nullable))completion {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   FIRMessaging_WEAKIFY(self);
   [self.instanceID
       deleteTokenWithAuthorizedEntity:@"*"
@@ -655,6 +665,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
                                       completion(nil);
                                     }];
                               }];
+#pragma clang diagnostic pop
 }
 
 #pragma mark - FIRMessagingDelegate helper methods
@@ -800,6 +811,8 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
                            topic, [FIRMessagingPubSub removePrefixFromTopic:topic]);
   }
   __weak FIRMessaging *weakSelf = self;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   [self.instanceID instanceIDWithHandler:^(FIRInstanceIDResult *_Nullable result,
                                            NSError *_Nullable error) {
     if (error) {
@@ -825,6 +838,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
                                    failureReason:failureReason]);
     }
   }];
+#pragma clang diagnostic pop
 }
 
 - (void)unsubscribeFromTopic:(NSString *)topic {
@@ -840,6 +854,8 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
                            topic, [FIRMessagingPubSub removePrefixFromTopic:topic]);
   }
   __weak FIRMessaging *weakSelf = self;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   [self.instanceID instanceIDWithHandler:^(FIRInstanceIDResult *_Nullable result,
                                            NSError *_Nullable error) {
     if (error) {
@@ -865,6 +881,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
                                    failureReason:failureReason]);
     }
   }];
+#pragma clang diagnostic pop
 }
 
 #pragma mark - Send

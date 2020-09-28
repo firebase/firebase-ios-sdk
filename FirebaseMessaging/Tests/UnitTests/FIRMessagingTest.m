@@ -38,7 +38,10 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
 
 @property(nonatomic, readwrite, strong) NSString *defaultFcmToken;
 @property(nonatomic, readwrite, strong) NSData *apnsTokenData;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 @property(nonatomic, readwrite, strong) FIRInstanceID *instanceID;
+#pragma clang diagnostic pop
 
 // Expose autoInitEnabled static method for IID.
 + (BOOL)isAutoInitEnabledWithUserDefaults:(NSUserDefaults *)userDefaults;
@@ -63,8 +66,10 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
 
 - (void)setUp {
   [super setUp];
-
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   _mockInstanceID = OCMClassMock([FIRInstanceID class]);
+#pragma clang diagnostic pop
 
   // Create the messaging instance with all the necessary dependencies.
   NSUserDefaults *defaults =
@@ -225,7 +230,8 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
 #endif
 
 #pragma mark - FCM Token Fetching and Deleting
-
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 - (void)testAPNSTokenIncludedInOptionsIfAvailableDuringTokenFetch {
   self.messaging.apnsTokenData =
       [@"PRETENDING_TO_BE_A_DEVICE_TOKEN" dataUsingEncoding:NSUTF8StringEncoding];
@@ -264,7 +270,7 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
                        }];
   [self waitForExpectationsWithTimeout:0.1 handler:nil];
 }
-
+#pragma clang diagnostic pop
 - (void)testReturnsErrorWhenFetchingTokenWithoutSenderID {
   XCTestExpectation *expectation =
       [self expectationWithDescription:@"Returned an error fetching token without Sender ID"];
