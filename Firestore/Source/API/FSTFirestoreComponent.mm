@@ -29,6 +29,8 @@
 #include "Firestore/core/src/auth/credentials_provider.h"
 #include "Firestore/core/src/auth/firebase_credentials_provider_apple.h"
 #include "Firestore/core/src/model/maybe_document.h"
+#include "Firestore/core/src/remote/firebase_metadata_provider.h"
+#include "Firestore/core/src/remote/firebase_metadata_provider_apple.h"
 #include "Firestore/core/src/util/async_queue.h"
 #include "Firestore/core/src/util/exception.h"
 #include "Firestore/core/src/util/executor.h"
@@ -39,6 +41,8 @@ namespace util = firebase::firestore::util;
 using firebase::firestore::api::Firestore;
 using firebase::firestore::auth::CredentialsProvider;
 using firebase::firestore::auth::FirebaseCredentialsProvider;
+using firebase::firestore::remote::FirebaseMetadataProvider;
+using firebase::firestore::remote::FirebaseMetadataProviderApple;
 using firebase::firestore::util::AsyncQueue;
 using firebase::firestore::util::Executor;
 using firebase::firestore::util::ThrowInvalidArgument;
@@ -99,12 +103,15 @@ NS_ASSUME_NONNULL_BEGIN
       id<FIRAuthInterop> auth = FIR_COMPONENT(FIRAuthInterop, self.app.container);
       auto credentialsProvider = std::make_shared<FirebaseCredentialsProvider>(self.app, auth);
 
+      auto firebaseMetadataProvider = absl::make_unique<FirebaseMetadataProviderApple>(self.app);
+
       model::DatabaseId databaseID{util::MakeString(projectID), util::MakeString(database)};
       std::string persistenceKey = util::MakeString(self.app.name);
       firestore = [[FIRFirestore alloc] initWithDatabaseID:std::move(databaseID)
                                             persistenceKey:std::move(persistenceKey)
                                        credentialsProvider:std::move(credentialsProvider)
                                                workerQueue:std::move(workerQueue)
+                                  firebaseMetadataProvider:std::move(firebaseMetadataProvider)
                                                firebaseApp:self.app
                                           instanceRegistry:self];
       _instances[key] = firestore;

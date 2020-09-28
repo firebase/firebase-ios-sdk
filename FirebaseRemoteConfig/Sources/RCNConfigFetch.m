@@ -412,9 +412,9 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
         strongSelf->_settings.lastFetchError = FIRRemoteConfigErrorInternalError;
         NSDictionary<NSErrorUserInfoKey, id> *userInfo = @{
           NSLocalizedDescriptionKey :
-              (error ? [error localizedDescription]
-                     : [NSString
-                           stringWithFormat:@"Internal Error. Status code: %ld", (long)statusCode])
+              ([error localizedDescription]
+                   ?: [NSString
+                          stringWithFormat:@"Internal Error. Status code: %ld", (long)statusCode])
         };
         return [strongSelf
             reportCompletionOnHandler:completionHandler

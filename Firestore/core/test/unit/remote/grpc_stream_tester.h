@@ -44,6 +44,8 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
+class FirebaseMetadataProvider;
+
 std::string GetGrpcErrorCodeName(grpc::StatusCode error);
 std::string GetFirestoreErrorName(Error error);
 std::string ByteBufferToString(const grpc::ByteBuffer& buffer);
@@ -248,6 +250,7 @@ class GrpcStreamTester {
 
   grpc::CompletionQueue grpc_queue_;
   FakeGrpcQueue fake_grpc_queue_;
+  std::unique_ptr<FirebaseMetadataProvider> firebase_metadata_provider_;
   GrpcConnection grpc_connection_;
 };
 
