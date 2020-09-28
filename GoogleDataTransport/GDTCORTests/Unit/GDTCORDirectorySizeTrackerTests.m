@@ -26,7 +26,8 @@
 
 - (void)testDirectoryContentSizeDoesNotCrashWhenDirectoryPathContainsWhitespaces {
   NSString *pathWithSpaces = [NSTemporaryDirectory() stringByAppendingPathComponent:@"some dir"];
-  GDTCORDirectorySizeTracker *tracker = [[GDTCORDirectorySizeTracker alloc] initWithDirectoryPath:pathWithSpaces];
+  GDTCORDirectorySizeTracker *tracker =
+      [[GDTCORDirectorySizeTracker alloc] initWithDirectoryPath:pathWithSpaces];
 
   XCTAssertNoThrow([tracker directoryContentSize]);
 }
