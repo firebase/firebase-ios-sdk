@@ -105,7 +105,10 @@ static NSString *const kPendingSubscriptionsListKey =
                             options:(NSDictionary *)options
                        shouldDelete:(BOOL)shouldDelete
                             handler:(FIRMessagingTopicOperationCompletion)handler {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   if ([[FIRInstanceID instanceID] tryToLoadValidCheckinInfo]) {
+#pragma clang diagnostic pop
     FIRMessagingTopicAction action =
         shouldDelete ? FIRMessagingTopicActionUnsubscribe : FIRMessagingTopicActionSubscribe;
     FIRMessagingTopicOperation *operation = [[FIRMessagingTopicOperation alloc]

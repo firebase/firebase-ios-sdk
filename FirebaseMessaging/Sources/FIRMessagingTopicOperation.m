@@ -159,13 +159,15 @@ NSString *FIRMessagingSubscriptionsServer() {
   NSURL *url = [NSURL URLWithString:FIRMessagingSubscriptionsServer()];
   NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
   NSString *appIdentifier = FIRMessagingAppIdentifier();
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   NSString *deviceAuthID = [FIRInstanceID instanceID].deviceAuthID;
   NSString *secretToken = [FIRInstanceID instanceID].secretToken;
   NSString *authString = [NSString stringWithFormat:@"AidLogin %@:%@", deviceAuthID, secretToken];
   [request setValue:authString forHTTPHeaderField:@"Authorization"];
   [request setValue:appIdentifier forHTTPHeaderField:@"app"];
   [request setValue:[FIRInstanceID instanceID].versionInfo forHTTPHeaderField:@"info"];
-
+#pragma clang diagnostic pop
   // Topic can contain special characters (like `%`) so encode the value.
   NSCharacterSet *characterSet = [NSCharacterSet URLQueryAllowedCharacterSet];
   NSString *encodedTopic =

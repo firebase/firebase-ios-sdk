@@ -141,7 +141,10 @@ typedef NS_ENUM(NSInteger, FIRInstanceIDAPNSTokenType) {
 }
 @end
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-implementations"
 @implementation FIRInstanceID
+#pragma clang diagnostic pop
 
 // File static to support InstanceID tests that call [FIRInstanceID instanceID] after
 // [FIRInstanceID instanceIDForTests].
