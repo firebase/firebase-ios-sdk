@@ -32,6 +32,8 @@ extern NSNotificationName const GDTCCTUploadCompleteNotification;
 - (nullable GDTCORClock *)nextUploadTimeForTarget:(GDTCORTarget)target;
 - (void)setNextUploadTime:(nullable GDTCORClock *)time forTarget:(GDTCORTarget)target;
 
+- (nullable NSString *)APIKeyForTarget:(GDTCORTarget)target;
+
 @end
 
 /** Class capable of uploading events to the CCT backend. */
@@ -42,7 +44,6 @@ extern NSNotificationName const GDTCCTUploadCompleteNotification;
 - (instancetype)initWithTarget:(GDTCORTarget)target
                     conditions:(GDTCORUploadConditions)conditions
                      uploadURL:(NSURL *)uploadURL
-                        APIKey:(nullable NSString *)APIKey
               metadataProvider:(id<GDTCCTUploadMetadataProvider>)metadataProvider;
 
 /** YES if a batch upload attempt was performed. NO otherwise. If NO for the finished operation,

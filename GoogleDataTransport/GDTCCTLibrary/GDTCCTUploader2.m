@@ -84,7 +84,6 @@ NSNotificationName const GDTCCTUploadCompleteNotification = @"com.GDTCCTUploader
       [[GDTCCTUploadOperation alloc] initWithTarget:target
                                          conditions:conditions
                                           uploadURL:[self serverURLForTarget:target]
-                                             APIKey:[self APIKeyForTarget:target]
                                    metadataProvider:self];
 
   __weak __auto_type weakSelf = self;
@@ -199,6 +198,16 @@ NSNotificationName const GDTCCTUploadCompleteNotification = @"com.GDTCCTUploader
   return defaultServerKey;
 }
 
+#pragma mark - GDTCCTUploadMetadataProvider
+
+// TODO: Implement
+- (nullable GDTCORClock *)nextUploadTimeForTarget:(GDTCORTarget)target {
+  return nil;
+}
+
+- (void)setNextUploadTime:(nullable GDTCORClock *)time forTarget:(GDTCORTarget)target {
+}
+
 - (nullable NSString *)APIKeyForTarget:(GDTCORTarget)target {
   if (target == kGDTCORTargetFLL || target == kGDTCORTargetCSH) {
     return [self FLLAndCSHAndINTAPIKey];
@@ -209,16 +218,6 @@ NSNotificationName const GDTCCTUploadCompleteNotification = @"com.GDTCCTUploader
   }
 
   return nil;
-}
-
-#pragma mark - GDTCCTUploadMetadataProvider
-
-// TODO: Implement
-- (nullable GDTCORClock *)nextUploadTimeForTarget:(GDTCORTarget)target {
-  return nil;
-}
-
-- (void)setNextUploadTime:(nullable GDTCORClock *)time forTarget:(GDTCORTarget)target {
 }
 
 @end

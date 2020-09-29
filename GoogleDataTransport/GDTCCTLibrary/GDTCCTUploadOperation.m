@@ -66,7 +66,6 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
 @property(nonatomic, readonly) GDTCORTarget target;
 @property(nonatomic, readonly) GDTCORUploadConditions conditions;
 @property(nonatomic, readonly) NSURL *uploadURL;
-@property(nonatomic, nullable, readonly) NSString *APIKey;
 @property(nonatomic, readonly) id<GDTCCTUploadMetadataProvider> metadataProvider;
 
 @property(nonatomic, readwrite, getter=isExecuting) BOOL executing;
@@ -79,7 +78,6 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
 - (instancetype)initWithTarget:(GDTCORTarget)target
                     conditions:(GDTCORUploadConditions)conditions
                      uploadURL:(NSURL *)uploadURL
-                        APIKey:(nullable NSString *)APIKey
               metadataProvider:(id<GDTCCTUploadMetadataProvider>)metadataProvider {
   self = [super init];
   if (self) {
@@ -91,7 +89,6 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
     _target = target;
     _conditions = conditions;
     _uploadURL = uploadURL;
-    _APIKey = APIKey;
     _metadataProvider = metadataProvider;
   }
   return self;
@@ -482,7 +479,8 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
       [NSString stringWithFormat:@"datatransport/%@ %@support/%@ apple/", kGDTCORVersion,
                                  targetString, kGDTCCTSupportSDKVersion];
 
-  [request setValue:self.APIKey forHTTPHeaderField:@"X-Goog-Api-Key"];
+  [request setValue:[self.metadataProvider APIKeyForTarget:target]
+      forHTTPHeaderField:@"X-Goog-Api-Key"];
 
   if ([GDTCCTCompressionHelper isGzipped:data]) {
     [request setValue:@"gzip" forHTTPHeaderField:@"Content-Encoding"];
