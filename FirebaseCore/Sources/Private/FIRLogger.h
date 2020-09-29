@@ -25,15 +25,11 @@ NS_ASSUME_NONNULL_BEGIN
  */
 typedef NSString *const FIRLoggerService;
 
-extern FIRLoggerService kFIRLoggerABTesting;
-extern FIRLoggerService kFIRLoggerAdMob;
 extern FIRLoggerService kFIRLoggerAnalytics;
-extern FIRLoggerService kFIRLoggerAuth;
 extern FIRLoggerService kFIRLoggerCrash;
 extern FIRLoggerService kFIRLoggerCore;
 extern FIRLoggerService kFIRLoggerMLKit;
 extern FIRLoggerService kFIRLoggerPerf;
-extern FIRLoggerService kFIRLoggerRemoteConfig;
 
 /**
  * The key used to store the logger's error count.
