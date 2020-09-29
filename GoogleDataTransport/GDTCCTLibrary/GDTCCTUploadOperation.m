@@ -72,8 +72,6 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
 @property(nonatomic, readwrite, getter=isExecuting) BOOL executing;
 @property(nonatomic, readwrite, getter=isFinished) BOOL finished;
 
-@property(nonatomic, copy) dispatch_block_t block;
-
 @end
 
 @implementation GDTCCTUploadOperation
