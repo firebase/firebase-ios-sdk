@@ -8,6 +8,7 @@
 
     "content": "README.md",
 
+    // Other markdown pages that should be rendered nicely
     "pages" : [
         "ROADMAP.md",
         "Carthage.md",
@@ -15,9 +16,11 @@
         "CODE_OF_CONDUCT.md"
     ],
 
+    // Related projects on Github, in the format $owner/$repo[/$subproject]
+    // where subproject is optional.
     "related": [
       "firebase/quickstart-ios",
       "firebase/firebaseui-ios"
-    ]
+    ],
 
 }
