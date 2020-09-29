@@ -14,14 +14,14 @@
 
 import Foundation
 
-public enum CustomModelFormat {
+@objc(FIRCustomModelFormat) public enum CustomModelFormat : Int {
   case Unknown
   case TFLite
   case TorchScript
   case CoreML
 }
 
-public struct CustomModel {
+@objc(FIRCustomModel) public class CustomModel : NSObject {
 
   public let modelName: String
   public internal(set) var modelSize: Int?

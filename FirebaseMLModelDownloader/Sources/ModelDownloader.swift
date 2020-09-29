@@ -14,34 +14,34 @@
 
 import Foundation
 
-public class ModelDownloader {
+@objc(FIRModelDownloader) public class ModelDownloader : NSObject {
 
   public func downloadModel(name modelName: String, conditions modelConditions: ModelDownloadConditions, completion: @escaping (CustomModel, Error?) -> Void) {
     let customModel = CustomModel(withName: modelName)
     // TODO: Model download
-    completion(customModel, <#Error#>)
+    completion(customModel, NSError())
   }
 
   public func isModelDownloaded(name modelName: String, completion: @escaping (Bool, Error?) -> Void) {
     let modelStatus = Bool()
     // TODO: Model status check
-    completion(modelStatus, <#Error#>)
+    completion(modelStatus, NSError())
   }
 
   public func getDownloadedModel(name modelName: String, completion: @escaping (CustomModel, Error?) -> Void) {
     let customModel = CustomModel(withName: modelName)
     // TODO: Get previously downloaded model
-    completion(customModel, <#Error#>)
+    completion(customModel, NSError())
   }
 
   public func listDownloadedModels(completion: @escaping ([CustomModel], Error?) -> Void) {
     let customModels = [CustomModel]()
     // TODO: List downloaded models
-    completion(customModels, <#Error#>)
+    completion(customModels, NSError())
   }
 
   public func deleteDownloadedModel(name modelName: String, completion: @escaping (Error?) -> Void) {
     // TODO: Delete previously downloaded model
-    completion(<#Error#>)
+    completion(NSError())
   }
 }

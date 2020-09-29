@@ -16,9 +16,10 @@ public struct MLModelDownloader {
 
   public func codeSample() {
     let modelDownloader = ModelDownloader()
+    let conditions = ModelDownloadConditions()
 
     // Download model
-    modelDownloader.downloadModel(name: "your_model_name", conditions: <#T##modelConditions: ModelDownloadConditions##ModelDownloadConditions#>) { customModel, error in
+    modelDownloader.downloadModel(name: "your_model_name", conditions: conditions) { customModel, error in
       if error == nil {
         if let path = customModel.getLatestModel() {
           // Use model with your inference API
