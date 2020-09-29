@@ -25,10 +25,8 @@ file(
 )
 file(
   GLOB headers
-  Environment/Public/*.h
-  Environment/third_party/*.h
-  Logger/Private/*.h
-  Logger/Public/*.h
+  Environment/Public/GoogleUtilities/*.h
+  Logger/Public/GoogleUtilities/*.h
 )
 
 firebase_ios_add_framework(
