@@ -53,11 +53,11 @@ FirebaseMetadataProviderApple::FirebaseMetadataProviderApple(FIRApp* app)
 void FirebaseMetadataProviderApple::UpdateMetadata(
     grpc::ClientContext& context) {
   FIRHeartbeatInfoCode heartbeat = GetHeartbeat();
-  if (heartbeat == FIRHeartbeatInfoCodeNone) {
-    return;
+  if (heartbeat != FIRHeartbeatInfoCodeNone) {
+    context.AddMetadata(kXFirebaseClientLogTypeHeader,
+                        std::to_string(heartbeat));
   }
 
-  context.AddMetadata(kXFirebaseClientLogTypeHeader, std::to_string(heartbeat));
   context.AddMetadata(kXFirebaseClientHeader, GetUserAgent());
 
   std::string gmp_app_id = GetGmpAppId(app_);
