@@ -53,6 +53,9 @@ FirebaseMetadataProviderApple::FirebaseMetadataProviderApple(FIRApp* app)
 void FirebaseMetadataProviderApple::UpdateMetadata(
     grpc::ClientContext& context) {
   FIRHeartbeatInfoCode heartbeat = GetHeartbeat();
+  // TODO(varconst): don't send any headers if the heartbeat is "none". This
+  // should only be changed once it's possible to notify the heartbeat that the
+  // previous attempt to send it has failed.
   if (heartbeat != FIRHeartbeatInfoCodeNone) {
     context.AddMetadata(kXFirebaseClientLogTypeHeader,
                         std::to_string(heartbeat));
