@@ -48,6 +48,7 @@
 @property(nonatomic) FIRInstallations *installationsMock;
 @property(nonatomic) id mockIDController;
 @property(nonatomic) FIROptions *appOptions;
+@property(readonly) NSString *firebaseAppName;
 
 @end
 
@@ -55,7 +56,8 @@
 
 - (void)setUp {
   // Setup FIRApp.
-  XCTAssertNoThrow([FIRApp configureWithOptions:[self FIRAppOptions]]);
+self->_firebaseAppName = @"my-firebase-app-id";
+XCTAssertNoThrow([FIRApp configureWithName:self.firebaseAppName options:[self FIRAppOptions]]);
   // TODO (mandard): Investigate replacing the partial mock with a class mock.
   //  self.instanceIDMock = OCMPartialMock([FIRInstanceID instanceIDForTests]);
   //  FIRInstanceIDResult *result = [[FIRInstanceIDResult alloc] init];
@@ -68,7 +70,7 @@
   NSString *FID = @"fid-is-better-than-iid";
   FIRInstallationsAuthTokenResult *FISToken =
       [[FIRInstallationsAuthTokenResult alloc] initWithToken:@"fake-fis-token" expirationDate:nil];
-  self.installationsMock = OCMPartialMock([FIRInstallations installations]);
+  self.installationsMock = OCMPartialMock([FIRInstallations installationsWithApp:[FIRApp appNamed: self.firebaseAppName]]);
   OCMStub([self.installationsMock
       installationIDWithCompletion:([OCMArg invokeBlockWithArgs:FID, [NSNull null], nil])]);
   OCMStub([self.installationsMock
@@ -108,7 +110,7 @@
       [self expectationWithDescription:@"associateCustomInstallation for contentmanager"];
   [_contentManager
       associateCustomInstallationIdentiferNamed:@"my-custom-id"
-                                    firebaseApp:@"my-firebase-app-id"
+                                    firebaseApp:self.firebaseAppName
                                      completion:^(BOOL success, NSDictionary *result) {
                                        XCTAssertTrue(success,
                                                      @"Could not associate custom installation ID");

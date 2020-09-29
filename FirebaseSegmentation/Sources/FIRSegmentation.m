@@ -14,10 +14,10 @@
 
 #import "FirebaseSegmentation/Sources/Public/FIRSegmentation.h"
 
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import <FirebaseCore/FIRComponentContainer.h>
 #import <FirebaseCore/FIRLogger.h>
 #import <FirebaseCore/FIROptionsInternal.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "FirebaseSegmentation/Sources/Private/FIRSegmentationComponent.h"
 #import "FirebaseSegmentation/Sources/SEGContentManager.h"
 
