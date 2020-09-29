@@ -62,6 +62,21 @@ static NSString *const kPayloadOptionsImageURLName = @"image";
 }
 
 #if TARGET_OS_IOS || TARGET_OS_OSX || TARGET_OS_WATCH
+- (NSString *)fileExtensionForResponse:(NSURLResponse *)response {
+  NSString *const kDefaultExtension = @".tmp";
+  NSString *const kImagePathPrefix = @"image/";
+  NSString *suggestedPathExtension = [response.suggestedFilename pathExtension];
+  if (suggestedPathExtension != nil && suggestedPathExtension.length > 0) {
+    return [NSString stringWithFormat:@".%@", suggestedPathExtension];
+  }
+  if (response.MIMEType != nil && [response.MIMEType containsString:kImagePathPrefix]) {
+    NSString *mimeTypePathExtension =
+        [response.MIMEType stringByReplacingOccurrencesOfString:kImagePathPrefix withString:@""];
+    return [NSString stringWithFormat:@".%@", mimeTypePathExtension];
+  }
+  return kDefaultExtension;
+}
+
 - (void)loadAttachmentForURL:(NSURL *)attachmentURL
            completionHandler:(void (^)(UNNotificationAttachment *))completionHandler {
   __block UNNotificationAttachment *attachment = nil;
@@ -80,13 +95,7 @@ static NSString *const kPayloadOptionsImageURLName = @"image";
           }
 
           NSFileManager *fileManager = [NSFileManager defaultManager];
-          NSString *suggestedPathExtension = [response.suggestedFilename pathExtension];
-          NSString *mimeTypePathExtension =
-              [response.MIMEType stringByReplacingOccurrencesOfString:@"image/" withString:@""];
-          NSString *pathExtension = ((suggestedPathExtension.length > 0) ? suggestedPathExtension
-                                                                         : mimeTypePathExtension);
-
-          NSString *fileExtension = [NSString stringWithFormat:@".%@", pathExtension];
+          NSString *fileExtension = [self fileExtensionForResponse:response];
           NSURL *localURL = [NSURL
               fileURLWithPath:[temporaryFileLocation.path stringByAppendingString:fileExtension]];
           [fileManager moveItemAtURL:temporaryFileLocation toURL:localURL error:&error];
