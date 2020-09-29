@@ -22,7 +22,7 @@
 //
 // See exception.h for how to throw exceptions in a platform-agnostic way.
 
-#include <stdexcept>
+#include <exception>
 #include <string>
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
