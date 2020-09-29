@@ -14,7 +14,7 @@
 
 import Foundation
 
-enum CustomModelFormat {
+public enum CustomModelFormat {
   case Unknown
   case TFLite
   case TorchScript
@@ -22,21 +22,23 @@ enum CustomModelFormat {
 }
 
 public struct CustomModel {
-  let modelName: String
-  var modelSize: Int?
-  var modelPath: String?
-  var modelHash: String?
-  var modelFormat = CustomModelFormat.Unknown
+
+  public let modelName: String
+  public internal(set) var modelSize: Int?
+  public internal(set) var modelPath: String?
+  public internal(set) var modelHash: String?
+  public internal(set) var modelFormat: CustomModelFormat?
 
   init(withName name: String) {
     modelName = name
   }
 
-  func getLatestModel() -> FileHandle? {
+  public func getLatestModel() -> FileHandle? {
     if let filePath = modelPath, let modelFile = FileHandle(forReadingAtPath: filePath) {
       return modelFile
     } else {
       return nil
     }
   }
+
 }

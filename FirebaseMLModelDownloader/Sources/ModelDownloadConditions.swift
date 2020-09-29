@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public struct MLModelDownloader {
-  public var text = "Hello, World!"
+import Foundation
+
+public struct ModelDownloadConditions {
+
 }
