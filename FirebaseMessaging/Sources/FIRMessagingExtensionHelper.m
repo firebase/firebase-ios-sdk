@@ -80,8 +80,11 @@ static NSString *const kPayloadOptionsImageURLName = @"image";
           }
 
           NSFileManager *fileManager = [NSFileManager defaultManager];
-          NSString *fileExtension =
-              [NSString stringWithFormat:@".%@", [response.suggestedFilename pathExtension]];
+          NSString *suggestedPathExtension = [response.suggestedFilename pathExtension];
+          NSString *mimeTypePathExtension = [response.MIMEType stringByReplacingOccurrencesOfString:@"image/" withString:@""];
+          NSString *pathExtension = ((suggestedPathExtension.length > 0) ? suggestedPathExtension :    mimeTypePathExtension);
+
+          NSString *fileExtension = [NSString stringWithFormat:@".%@", pathExtension];
           NSURL *localURL = [NSURL
               fileURLWithPath:[temporaryFileLocation.path stringByAppendingString:fileExtension]];
           [fileManager moveItemAtURL:temporaryFileLocation toURL:localURL error:&error];
