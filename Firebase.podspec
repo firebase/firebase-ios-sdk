@@ -49,7 +49,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
       }
     end
     # Standard platforms PLUS watchOS.
-    ss.ios.deployment_target = '9.0'
+    ss.ios.deployment_target = '10.0'
     ss.osx.deployment_target = '10.12'
     ss.tvos.deployment_target = '10.0'
     ss.watchos.deployment_target = '6.0'
@@ -74,15 +74,14 @@ Simplify your app development, grow your user base, and monetize more effectivel
   s.subspec 'AppDistribution' do |ss|
     ss.dependency 'Firebase/CoreOnly'
     ss.ios.dependency 'FirebaseAppDistribution', '~> 0.9.3'
-    ss.ios.deployment_target = '9.0'
   end
 
   s.subspec 'Auth' do |ss|
     ss.dependency 'Firebase/CoreOnly'
     ss.dependency 'FirebaseAuth', '~> 6.9.2'
     # Standard platforms PLUS watchOS.
-    ss.ios.deployment_target = '8.0'
-    ss.osx.deployment_target = '10.11'
+    ss.ios.deployment_target = '10.0'
+    ss.osx.deployment_target = '10.12'
     ss.tvos.deployment_target = '10.0'
     ss.watchos.deployment_target = '6.0'
   end
@@ -91,8 +90,8 @@ Simplify your app development, grow your user base, and monetize more effectivel
     ss.dependency 'Firebase/CoreOnly'
     ss.dependency 'FirebaseCrashlytics', '~> 4.6.1'
     # Standard platforms PLUS watchOS.
-    ss.ios.deployment_target = '8.0'
-    ss.osx.deployment_target = '10.11'
+    ss.ios.deployment_target = '10.0'
+    ss.osx.deployment_target = '10.12'
     ss.tvos.deployment_target = '10.0'
     ss.watchos.deployment_target = '6.0'
   end
@@ -120,7 +119,6 @@ Simplify your app development, grow your user base, and monetize more effectivel
   s.subspec 'InAppMessaging' do |ss|
     ss.dependency 'Firebase/CoreOnly'
     ss.ios.dependency 'FirebaseInAppMessaging', '~> 0.24.0'
-    ss.ios.deployment_target = '9.0'
   end
 
   s.subspec 'Messaging' do |ss|
@@ -161,7 +159,6 @@ Simplify your app development, grow your user base, and monetize more effectivel
   s.subspec 'MLModelInterpreter' do |ss|
     ss.dependency 'Firebase/CoreOnly'
     ss.ios.dependency 'FirebaseMLModelInterpreter', '~> 0.22.0'
-    ss.ios.deployment_target = '9.0'
   end
 
   s.subspec 'MLVision' do |ss|
