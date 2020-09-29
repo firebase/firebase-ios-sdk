@@ -145,11 +145,10 @@ NSString *const kErrorDescription = @"ErrorDescription";
 
   NSMutableDictionary<NSString *, NSString *> *appAssociationData =
       [[NSMutableDictionary alloc] init];
-  [appAssociationData setObject:customInstallationID forKey:kSEGCustomInstallationIdentifierKey];
-  [appAssociationData setObject:_installationIdentifier
-                         forKey:kSEGFirebaseInstallationIdentifierKey];
-  [appAssociationData setObject:kSEGAssociationStatusPending forKey:kSEGAssociationStatusKey];
-  [_associationData setObject:appAssociationData forKey:firebaseApp];
+  appAssociationData[kSEGCustomInstallationIdentifierKey] = customInstallationID;
+  appAssociationData[kSEGFirebaseInstallationIdentifierKey] = _installationIdentifier;
+  appAssociationData[kSEGAssociationStatusKey] = kSEGAssociationStatusPending;
+  _associationData[firebaseApp] = appAssociationData;
 
   // Update the database async.
   // TODO(mandard) The database write and corresponding completion handler needs to be wired up
