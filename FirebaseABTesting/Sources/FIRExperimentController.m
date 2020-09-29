@@ -34,6 +34,9 @@ add -DFIRABTesting_VERSION=... to the build invocation"
 #define STR(x) STR_EXPAND(x)
 #define STR_EXPAND(x) #x
 
+/// Logger Service String.
+FIRLoggerService kFIRLoggerABTesting = @"[Firebase/ABTesting]";
+
 /// Default experiment overflow policy.
 const ABTExperimentPayloadExperimentOverflowPolicy FIRDefaultExperimentOverflowPolicy =
     ABTExperimentPayloadExperimentOverflowPolicyDiscardOldest;

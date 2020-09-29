@@ -73,12 +73,9 @@ static NSString *const kMessageCode = @"I-COR000001";
 // Test some stable variables to make sure they weren't accidently changed.
 - (void)testStableVariables {
   // Strings of type FIRLoggerServices.
-  XCTAssertEqualObjects(kFIRLoggerABTesting, @"[Firebase/ABTesting]");
-  XCTAssertEqualObjects(kFIRLoggerAdMob, @"[Firebase/AdMob]");
   XCTAssertEqualObjects(kFIRLoggerAnalytics, @"[Firebase/Analytics]");
   XCTAssertEqualObjects(kFIRLoggerCore, @"[Firebase/Core]");
   XCTAssertEqualObjects(kFIRLoggerMLKit, @"[Firebase/MLKit]");
-  XCTAssertEqualObjects(kFIRLoggerRemoteConfig, @"[Firebase/RemoteConfig]");
 }
 
 - (void)testInitializeASLForNonDebugMode {
