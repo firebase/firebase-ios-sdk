@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FirebaseInAppMessaging/Sources/Private/Data/FIRIAMMessageContentData.h"
+#import <FirebaseInAppMessaging/FIRIAMMessageContentData.h>
 
 NS_ASSUME_NONNULL_BEGIN
 /**

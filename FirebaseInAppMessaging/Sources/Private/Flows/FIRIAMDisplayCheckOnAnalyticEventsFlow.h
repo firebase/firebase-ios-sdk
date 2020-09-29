@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FirebaseInAppMessaging/Sources/Private/Flows/FIRIAMDisplayCheckTriggerFlow.h"
+#import <FirebaseInAppMessaging/FIRIAMDisplayCheckTriggerFlow.h>
 
 // An implementation of FIRIAMDisplayCheckTriggerFlow by triggering the display check when
 // a Firebase Analytics event is fired.

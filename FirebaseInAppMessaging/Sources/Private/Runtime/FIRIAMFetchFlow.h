@@ -16,12 +16,12 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FirebaseInAppMessaging/Sources/Private/Flows/FIRIAMActivityLogger.h"
-#import "FirebaseInAppMessaging/Sources/Private/Flows/FIRIAMBookKeeper.h"
-#import "FirebaseInAppMessaging/Sources/Private/Flows/FIRIAMDisplayExecutor.h"
-#import "FirebaseInAppMessaging/Sources/Private/Flows/FIRIAMMessageClientCache.h"
-#import "FirebaseInAppMessaging/Sources/Private/Runtime/FIRIAMSDKModeManager.h"
-#import "FirebaseInAppMessaging/Sources/Private/Util/FIRIAMTimeFetcher.h"
+#import <FirebaseInAppMessaging/FIRIAMActivityLogger.h>
+#import <FirebaseInAppMessaging/FIRIAMBookKeeper.h>
+#import <FirebaseInAppMessaging/FIRIAMDisplayExecutor.h>
+#import <FirebaseInAppMessaging/FIRIAMMessageClientCache.h>
+#import <FirebaseInAppMessaging/FIRIAMSDKModeManager.h>
+#import <FirebaseInAppMessaging/FIRIAMTimeFetcher.h>
 
 @protocol FIRIAMAnalyticsEventLogger;
 

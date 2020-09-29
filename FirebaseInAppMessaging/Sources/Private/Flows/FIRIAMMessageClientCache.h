@@ -15,9 +15,10 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "FirebaseInAppMessaging/Sources/Private/Data/FIRIAMFetchResponseParser.h"
-#import "FirebaseInAppMessaging/Sources/Private/Data/FIRIAMMessageDefinition.h"
-#import "FirebaseInAppMessaging/Sources/Private/Flows/FIRIAMBookKeeper.h"
+
+#import <FirebaseInAppMessaging/FIRIAMBookKeeper.h>
+#import <FirebaseInAppMessaging/FIRIAMFetchResponseParser.h>
+#import <FirebaseInAppMessaging/FIRIAMMessageDefinition.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -15,8 +15,9 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "FirebaseInAppMessaging/Sources/Private/Analytics/FIRIAMClientInfoFetcher.h"
-#import "FirebaseInAppMessaging/Sources/Private/Util/FIRIAMTimeFetcher.h"
+
+#import <FirebaseInAppMessaging/FIRIAMClientInfoFetcher.h>
+#import <FirebaseInAppMessaging/FIRIAMTimeFetcher.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
