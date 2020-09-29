@@ -43,12 +43,11 @@
 
 @interface SEGContentManagerTests : XCTestCase
 @property(nonatomic) SEGContentManager *contentManager;
-@property(nonatomic) id instanceIDMock;
 @property(nonatomic) id networkManagerMock;
-@property(nonatomic) FIRInstallations *installationsMock;
 @property(nonatomic) id mockIDController;
 @property(nonatomic) FIROptions *appOptions;
 @property(readonly) NSString *firebaseAppName;
+@property(strong, readonly, nonatomic) id mockInstallations;
 
 @end
 
@@ -56,25 +55,19 @@
 
 - (void)setUp {
   // Setup FIRApp.
-  self->_firebaseAppName = @"my-firebase-app-id";
+  _firebaseAppName = @"my-firebase-app-id";
   XCTAssertNoThrow([FIRApp configureWithName:self.firebaseAppName options:[self FIRAppOptions]]);
-  // TODO (mandard): Investigate replacing the partial mock with a class mock.
-  //  self.instanceIDMock = OCMPartialMock([FIRInstanceID instanceIDForTests]);
-  //  FIRInstanceIDResult *result = [[FIRInstanceIDResult alloc] init];
-  //  result.instanceID = @"test-instance-id";
-  //  result.token = @"test-instance-id-token";
-  //  OCMStub([self.instanceIDMock
-  //      instanceIDWithHandler:([OCMArg invokeBlockWithArgs:result, [NSNull null], nil])]);
 
   // Installations Mock
   NSString *FID = @"fid-is-better-than-iid";
+  _mockInstallations = OCMClassMock([FIRInstallations class]);
+  OCMStub([_mockInstallations installationsWithApp:[FIRApp appNamed:self.firebaseAppName]])
+      .andReturn(_mockInstallations);
   FIRInstallationsAuthTokenResult *FISToken =
       [[FIRInstallationsAuthTokenResult alloc] initWithToken:@"fake-fis-token" expirationDate:nil];
-  self.installationsMock = OCMPartialMock(
-      [FIRInstallations installationsWithApp:[FIRApp appNamed:self.firebaseAppName]]);
-  OCMStub([self.installationsMock
+  OCMStub([_mockInstallations
       installationIDWithCompletion:([OCMArg invokeBlockWithArgs:FID, [NSNull null], nil])]);
-  OCMStub([self.installationsMock
+  OCMStub([_mockInstallations
       authTokenWithCompletion:([OCMArg invokeBlockWithArgs:FISToken, [NSNull null], nil])]);
 
   // Mock the network manager.
@@ -97,10 +90,7 @@
 - (void)tearDown {
   [self.networkManagerMock stopMocking];
   self.networkManagerMock = nil;
-  [self.instanceIDMock stopMocking];
-  self.instanceIDMock = nil;
   self.contentManager = nil;
-  self.installationsMock = nil;
   self.mockIDController = nil;
 }
 
