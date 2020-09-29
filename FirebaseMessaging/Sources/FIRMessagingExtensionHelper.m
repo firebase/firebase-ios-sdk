@@ -63,7 +63,7 @@ static NSString *const kPayloadOptionsImageURLName = @"image";
 
 #if TARGET_OS_IOS || TARGET_OS_OSX || TARGET_OS_WATCH
 - (NSString *)fileExtensionForResponse:(NSURLResponse *)response {
-  NSString *const kDefaultExtension = @".tmp";
+  NSString *const kDefaultExtension = @".png";
   NSString *const kImagePathPrefix = @"image/";
   NSString *suggestedPathExtension = [response.suggestedFilename pathExtension];
   if (suggestedPathExtension != nil && suggestedPathExtension.length > 0) {
