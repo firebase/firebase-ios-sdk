@@ -21,8 +21,8 @@
 #import <XCTest/XCTest.h>
 #import "OCMock.h"
 
+#import <GoogleUtilities/GULAppDelegateSwizzler.h>
 #import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessaging.h"
-#import "GoogleUtilities/AppDelegateSwizzler/Private/GULAppDelegateSwizzler.h"
 
 #import "FirebaseMessaging/Sources/FIRMessagingRemoteNotificationsProxy.h"
 

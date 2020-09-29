@@ -25,8 +25,8 @@
  */
 #import <XCTest/XCTest.h>
 
-#import "GoogleUtilities/MethodSwizzler/Private/GULSwizzler.h"
-#import "GoogleUtilities/SwizzlerTestHelpers/GULSwizzler+Unswizzle.h"
+#import "GoogleUtilities/MethodSwizzler/Public/GoogleUtilities/GULSwizzler.h"
+#import "GoogleUtilities/SwizzlerTestHelpers/Public/GoogleUtilities/GULSwizzler+Unswizzle.h"
 
 /** This class hierarchy exists exclusively for tests that test swizzling and unswizzling methods
  *  declared in an inheritance chain 3 levels deep. After completion of the tests the runtime for

@@ -13,10 +13,10 @@
 // limitations under the License.
 #import <Foundation/Foundation.h>
 
+#import <GoogleUtilities/GULAppDelegateSwizzler.h>
+#import <GoogleUtilities/GULUserDefaults.h>
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
-#import "GoogleUtilities/AppDelegateSwizzler/Private/GULAppDelegateSwizzler.h"
-#import "GoogleUtilities/UserDefaults/Private/GULUserDefaults.h"
 
 #import "FirebaseAppDistribution/Sources/FIRAppDistributionMachO.h"
 #import "FirebaseAppDistribution/Sources/FIRAppDistributionUIService.h"

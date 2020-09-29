@@ -16,9 +16,9 @@
 
 #import <Foundation/Foundation.h>
 
-#import "GoogleUtilities/Network/Private/GULNetworkConstants.h"
-#import "GoogleUtilities/Network/Private/GULNetworkLoggerProtocol.h"
-#import "GoogleUtilities/Network/Private/GULNetworkURLSession.h"
+#import "GULNetworkConstants.h"
+#import "GULNetworkLoggerProtocol.h"
+#import "GULNetworkURLSession.h"
 
 /// Delegate protocol for GULNetwork events.
 @protocol GULNetworkReachabilityDelegate

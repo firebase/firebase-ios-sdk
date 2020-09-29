@@ -44,8 +44,6 @@ non-Cocoapod integration. This library also respects the Firebase global data co
   s.source_files = [
     'Firebase/CoreDiagnostics/FIRCDLibrary/**/*.[cmh]',
     'GoogleDataTransport/GDTCORLibrary/Internal/*.h',
-    'GoogleUtilities/Environment/Private/*.h',
-    'GoogleUtilities/Logger/Private/*.h',
     'Interop/CoreDiagnostics/Public/*.h',
   ]
   s.public_header_files = 'Firebase/CoreDiagnostics/FIRCDLibrary/Public/*.h'
@@ -64,7 +62,6 @@ non-Cocoapod integration. This library also respects the Firebase global data co
     unit_tests.dependency 'OCMock'
     unit_tests.source_files = [
       'Example/CoreDiagnostics/Tests/**/*.[mh]',
-      'GoogleUtilities/UserDefaults/Private/*.h',
     ]
     unit_tests.requires_app_host = false
   end

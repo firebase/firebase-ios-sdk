@@ -18,11 +18,11 @@
 
 #import <objc/runtime.h>
 
+#import <GoogleUtilities/GULAppDelegateSwizzler.h>
 #import "FirebaseMessaging/Sources/FIRMessagingConstants.h"
 #import "FirebaseMessaging/Sources/FIRMessagingLogger.h"
 #import "FirebaseMessaging/Sources/FIRMessagingUtilities.h"
 #import "FirebaseMessaging/Sources/FIRMessaging_Private.h"
-#import "GoogleUtilities/AppDelegateSwizzler/Private/GULAppDelegateSwizzler.h"
 
 static void *UserNotificationObserverContext = &UserNotificationObserverContext;
 

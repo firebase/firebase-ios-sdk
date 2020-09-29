@@ -1,3 +1,7 @@
+# 7.0.0
+- All APIs are now public. All CocoaPods private headers are transitioned to public. Note that
+- GoogleUtilities may have frequent breaking changes than Firebase. (#6588)
+
 # 6.7.1
 - Fix import regression when mixing 6.7.0 with earlier Firebase versions. (#6047)
 

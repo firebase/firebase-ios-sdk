@@ -29,7 +29,6 @@ See more product details at https://firebase.google.com/products/in-app-messagin
     'FirebaseABTesting/Sources/Private/*.h',
     'FirebaseCore/Sources/Private/*.h',
     'FirebaseInstallations/Source/Library/Private/*.h',
-    'GoogleUtilities/Environment/Private/*.h',
   ]
   s.public_header_files = base_dir + 'Sources/Public/FirebaseInAppMessaging/*.h'
   s.private_header_files = base_dir + 'Sources/Private/**/*.h'

@@ -16,8 +16,6 @@
 
 #import <Foundation/Foundation.h>
 
-#import "GoogleUtilities/MethodSwizzler/Private/GULSwizzler.h"
-
 NS_ASSUME_NONNULL_BEGIN
 
 /** This category adds methods for unswizzling that are only used for testing.

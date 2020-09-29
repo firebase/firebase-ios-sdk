@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "GoogleUtilities/Network/Private/GULNetworkLoggerProtocol.h"
+#import "GULNetworkLoggerProtocol.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

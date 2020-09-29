@@ -15,7 +15,6 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "GoogleUtilities/Logger/Private/GULLogger.h"
 
 /// Error codes in Firebase Network error domain.
 /// Note: these error codes should never change. It would make it harder to decode the errors if
@@ -70,10 +69,3 @@ extern const int kGULNetworkHTTPStatusCodeMovedTemporarily;
 extern const int kGULNetworkHTTPStatusCodeNotFound;
 extern const int kGULNetworkHTTPStatusCodeCannotAcceptTraffic;
 extern const int kGULNetworkHTTPStatusCodeUnavailable;
-
-#pragma mark - Error Domain
-
-extern NSString *const kGULNetworkErrorDomain;
-
-/// The logger service for GULNetwork.
-extern GULLoggerService kGULLoggerNetwork;
