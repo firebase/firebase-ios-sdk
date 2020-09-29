@@ -30,7 +30,7 @@ jobs:
          --platforms=${{ matrix.target }}
 
   appdistribution-cron-only:
-#    if: github.event_name == 'schedule' && github.repository != 'FirebasePrivate/firebase-ios-sdk'
+    if: github.event_name == 'schedule' && github.repository != 'FirebasePrivate/firebase-ios-sdk'
 
     runs-on: macos-latest
     strategy:
@@ -38,7 +38,6 @@ jobs:
         target: [ios]
         flags: [
           '--use-static-frameworks',
-          '--use-modular-headers',
           '--use-libraries'
         ]
     needs: pod-lib-lint

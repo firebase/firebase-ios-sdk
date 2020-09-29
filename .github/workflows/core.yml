@@ -86,7 +86,7 @@ jobs:
 
   core-cron-only:
     # Don't run on private repo.
-#    if: github.event_name == 'schedule' && github.repository != 'FirebasePrivate/firebase-ios-sdk'
+    if: github.event_name == 'schedule' && github.repository != 'FirebasePrivate/firebase-ios-sdk'
 
     runs-on: macos-latest
     strategy:
@@ -94,7 +94,6 @@ jobs:
         target: [ios, tvos, macos]
         flags: [
           '--use-static-frameworks',
-          '--use-modular-headers',
           # Tests are skipped since the Swift tests need modules.
           '--skip-tests --use-libraries'
         ]

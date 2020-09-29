@@ -128,7 +128,7 @@ jobs:
 
   auth-cron-only:
     # Don't run on private repo.
-#    if: github.event_name == 'schedule' && github.repository != 'FirebasePrivate/firebase-ios-sdk'
+    if: github.event_name == 'schedule' && github.repository != 'FirebasePrivate/firebase-ios-sdk'
 
     runs-on: macos-latest
     strategy:
@@ -137,7 +137,6 @@ jobs:
         target: [ios, tvos --skip-tests, macos --skip-tests, watchos --skip-tests]
         flags: [
           '--use-static-frameworks',
-          '--use-modular-headers',
           '--use-libraries'
         ]
     needs: pod-lib-lint

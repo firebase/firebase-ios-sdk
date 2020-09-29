@@ -100,7 +100,7 @@ jobs:
       run: scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Installations swift
 
   installations-cron-only:
-#    if: github.event_name == 'schedule' && github.repository != 'FirebasePrivate/firebase-ios-sdk'
+    if: github.event_name == 'schedule' && github.repository != 'FirebasePrivate/firebase-ios-sdk'
 
     runs-on: macos-latest
     env:
@@ -111,7 +111,6 @@ jobs:
         target: [ios, tvos, macos]
         flags: [
           '--use-static-frameworks',
-          '--use-modular-headers',
           '--use-libraries'
         ]
     needs: pod-lib-lint

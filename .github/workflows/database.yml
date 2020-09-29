@@ -126,8 +126,7 @@ jobs:
       matrix:
         target: [ios, tvos, macos]
         flags: [
-          '--use-static-frameworks',
-          '--skip-tests --use-modular-headers',
+          '--skip-tests --use-static-frameworks',
           '--skip-tests --use-libraries'
         ]
     needs: pod-lib-lint

@@ -39,14 +39,13 @@ jobs:
 
   dynamiclinks-cron-only:
     # Don't run on private repo.
-#    if: github.event_name == 'schedule' && github.repository != 'FirebasePrivate/firebase-ios-sdk'
+    if: github.event_name == 'schedule' && github.repository != 'FirebasePrivate/firebase-ios-sdk'
 
     runs-on: macos-latest
     strategy:
       matrix:
         flags: [
           '--use-static-frameworks',
-          '--use-modular-headers',
           '--use-libraries'
         ]
     needs: pod_lib_lint

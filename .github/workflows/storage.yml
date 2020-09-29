@@ -128,7 +128,7 @@ jobs:
        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseStorageSwift.podspec --skip-tests --platforms=${{ matrix.target }}
 
   storage-cron-only:
-#    # Don't run on private repo.
+    # Don't run on private repo.
     if: github.event_name == 'schedule' && github.repository != 'FirebasePrivate/firebase-ios-sdk'
     runs-on: macos-latest
     strategy:
@@ -136,7 +136,6 @@ jobs:
         target: [ios, tvos, macos]
         flags: [
           '--skip-tests --use-static-frameworks',
-          '--skip-tests --use-modular-headers',
           '--skip-tests --use-libraries'
         ]
     needs: pod-lib-lint
