@@ -34,6 +34,12 @@ extern NSNotificationName const GDTCCTUploadCompleteNotification;
  */
 + (instancetype)sharedInstance;
 
+#if !NDEBUG
+/** An upload URL used across all targets. For testing only. */
+@property(nullable, nonatomic) NSURL *testServerURL;
+
+#endif  // !NDEBUG
+
 @end
 
 NS_ASSUME_NONNULL_END

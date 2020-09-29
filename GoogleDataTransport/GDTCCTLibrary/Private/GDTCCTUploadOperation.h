@@ -27,10 +27,25 @@ extern NSNotificationName const GDTCCTUploadCompleteNotification;
 
 // TODO: Refine API and API docs
 
+@protocol GDTCCTUploadMetadataProvider <NSObject>
+
+- (nullable GDTCORClock *)nextUploadTimeForTarget:(GDTCORTarget)target;
+- (void)setNextUploadTime:(nullable GDTCORClock *)time forTarget:(GDTCORTarget)target;
+
+- (nullable NSString *)APIKeyForTarget:(GDTCORTarget)target;
+
+@end
+
 /** Class capable of uploading events to the CCT backend. */
 @interface GDTCCTUploadOperation : NSOperation
 
-- (instancetype)initWithTarget:(GDTCORTarget)target conditions:(GDTCORUploadConditions)conditions;
+- (instancetype)init NS_UNAVAILABLE;
+
+- (instancetype)initWithTarget:(GDTCORTarget)target
+                    conditions:(GDTCORUploadConditions)conditions
+                     uploadURL:(NSURL *)uploadURL
+                         queue:(dispatch_queue_t)queue
+              metadataProvider:(id<GDTCCTUploadMetadataProvider>)metadataProvider;
 
 /** YES if a batch upload attempt was performed. NO otherwise. If NO for the finished operation,
  * then  there were no events suitable for upload. */
@@ -44,18 +59,6 @@ extern NSNotificationName const GDTCCTUploadCompleteNotification;
 
 /** The current upload task. */
 @property(nullable, nonatomic, readonly) NSURLSessionUploadTask *currentTask;
-
-/** The next upload time for the CCT target. */
-@property(nullable, nonatomic) GDTCORClock *CCTNextUploadTime;
-
-/** The next upload time for the FLL target. */
-@property(nullable, nonatomic) GDTCORClock *FLLNextUploadTime;
-
-#if !NDEBUG
-/** An upload URL used across all targets. For testing only. */
-@property(nullable, nonatomic) NSURL *testServerURL;
-
-#endif  // !NDEBUG
 
 @end
 
