@@ -1,5 +1,6 @@
 # v7.0.0
 - [changed] Updated `lastFetchTime` field to readonly. (#6567)
+- [changed] Functionally neutral change to stop using a deprecated method in the AB Testing API. (#6543)
 
 # v4.9.0
 - [fixed] Fixed `FirebaseApp.delete()` related crash in `RC Config Fetch`. (#6123)
