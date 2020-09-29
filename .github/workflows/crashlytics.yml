@@ -103,13 +103,14 @@ jobs:
 
   crashlytics-cron-only:
     # Don't run on private repo.
-    if: github.event_name == 'schedule' && github.repository != 'FirebasePrivate/firebase-ios-sdk'
+#    if: github.event_name == 'schedule' && github.repository != 'FirebasePrivate/firebase-ios-sdk'
 
     runs-on: macos-latest
     strategy:
       matrix:
         target: [ios, tvos, macos, watchos --skip-tests] # The macos and tvos tests can hang
         flags: [
+          '--use-static-frameworks',
           '--use-modular-headers',
           '--use-libraries'
         ]

@@ -120,12 +120,13 @@ jobs:
 
   database-cron-only:
     # Don't run on private repo.
-    if: github.event_name == 'schedule' && github.repository != 'FirebasePrivate/firebase-ios-sdk'
+#    if: github.event_name == 'schedule' && github.repository != 'FirebasePrivate/firebase-ios-sdk'
     runs-on: macos-latest
     strategy:
       matrix:
         target: [ios, tvos, macos]
         flags: [
+          '--use-static-frameworks',
           '--skip-tests --use-modular-headers',
           '--skip-tests --use-libraries'
         ]
