@@ -182,7 +182,7 @@ NSNotificationName const GDTCCTUploadCompleteNotification = @"com.GDTCCTUploader
   }
 }
 
-- (NSString *)FLLAndCSHandINTAPIKey {
+- (NSString *)FLLAndCSHAndINTAPIKey {
   static NSString *defaultServerKey;
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
@@ -201,11 +201,11 @@ NSNotificationName const GDTCCTUploadCompleteNotification = @"com.GDTCCTUploader
 
 - (nullable NSString *)APIKeyForTarget:(GDTCORTarget)target {
   if (target == kGDTCORTargetFLL || target == kGDTCORTargetCSH) {
-    return [self FLLAndCSHandINTAPIKey];
+    return [self FLLAndCSHAndINTAPIKey];
   }
 
   if (target == kGDTCORTargetINT) {
-    return [self FLLAndCSHandINTAPIKey];
+    return [self FLLAndCSHAndINTAPIKey];
   }
 
   return nil;
