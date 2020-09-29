@@ -78,10 +78,11 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
 - (instancetype)initWithTarget:(GDTCORTarget)target
                     conditions:(GDTCORUploadConditions)conditions
                      uploadURL:(NSURL *)uploadURL
+                         queue:(dispatch_queue_t)queue
               metadataProvider:(id<GDTCCTUploadMetadataProvider>)metadataProvider {
   self = [super init];
   if (self) {
-    _uploaderQueue = dispatch_queue_create("com.google.GDTCCTUploader", DISPATCH_QUEUE_SERIAL);
+    _uploaderQueue = queue;
     NSURLSessionConfiguration *config = [NSURLSessionConfiguration defaultSessionConfiguration];
     _uploaderSession = [NSURLSession sessionWithConfiguration:config
                                                      delegate:self

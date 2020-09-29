@@ -44,6 +44,7 @@ extern NSNotificationName const GDTCCTUploadCompleteNotification;
 - (instancetype)initWithTarget:(GDTCORTarget)target
                     conditions:(GDTCORUploadConditions)conditions
                      uploadURL:(NSURL *)uploadURL
+                         queue:(dispatch_queue_t)queue
               metadataProvider:(id<GDTCCTUploadMetadataProvider>)metadataProvider;
 
 /** YES if a batch upload attempt was performed. NO otherwise. If NO for the finished operation,

@@ -35,7 +35,8 @@ NSNotificationName const GDTCCTUploadCompleteNotification = @"com.GDTCCTUploader
 
 @interface GDTCCTUploader () <NSURLSessionDelegate, GDTCCTUploadMetadataProvider>
 
-@property(nonatomic, readonly) NSOperationQueue *uploadQueue;
+@property(nonatomic, readonly) NSOperationQueue *uploadOperationQueue;
+@property(nonatomic, readonly) dispatch_queue_t uploadQueue;
 
 @end
 
@@ -61,8 +62,9 @@ NSNotificationName const GDTCCTUploadCompleteNotification = @"com.GDTCCTUploader
 - (instancetype)init {
   self = [super init];
   if (self) {
-    _uploadQueue = [[NSOperationQueue alloc] init];
-    _uploadQueue.maxConcurrentOperationCount = 1;
+    _uploadQueue = dispatch_queue_create("com.google.GDTCCTUploader", DISPATCH_QUEUE_SERIAL);
+    _uploadOperationQueue = [[NSOperationQueue alloc] init];
+    _uploadOperationQueue.maxConcurrentOperationCount = 1;
   }
   return self;
 }
@@ -84,6 +86,7 @@ NSNotificationName const GDTCCTUploadCompleteNotification = @"com.GDTCCTUploader
       [[GDTCCTUploadOperation alloc] initWithTarget:target
                                          conditions:conditions
                                           uploadURL:[self serverURLForTarget:target]
+                                              queue:self.uploadQueue
                                    metadataProvider:self];
 
   __weak __auto_type weakSelf = self;
@@ -92,11 +95,11 @@ NSNotificationName const GDTCCTUploadCompleteNotification = @"com.GDTCCTUploader
     // TODO: Strongify references?
     if (weakOperation.uploadAttempted) {
       // Ignore all upload requests received when the upload was in progress.
-      [weakSelf.uploadQueue cancelAllOperations];
+      [weakSelf.uploadOperationQueue cancelAllOperations];
     }
   };
 
-  [self.uploadQueue addOperation:uploadOperation];
+  [self.uploadOperationQueue addOperation:uploadOperation];
 }
 
 #pragma mark - URLs
