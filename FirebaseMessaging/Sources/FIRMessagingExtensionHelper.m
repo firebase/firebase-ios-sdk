@@ -82,7 +82,7 @@ static NSString *const kPayloadOptionsImageURLName = @"image";
           NSFileManager *fileManager = [NSFileManager defaultManager];
           NSString *suggestedPathExtension = [response.suggestedFilename pathExtension];
           NSString *mimeTypePathExtension = [response.MIMEType stringByReplacingOccurrencesOfString:@"image/" withString:@""];
-          NSString *pathExtension = ((suggestedPathExtension.length > 0) ? suggestedPathExtension :    mimeTypePathExtension);
+          NSString *pathExtension = ((suggestedPathExtension.length > 0) ? suggestedPathExtension : mimeTypePathExtension);
 
           NSString *fileExtension = [NSString stringWithFormat:@".%@", pathExtension];
           NSURL *localURL = [NSURL
