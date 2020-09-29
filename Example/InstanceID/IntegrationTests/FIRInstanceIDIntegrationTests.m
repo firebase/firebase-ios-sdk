@@ -26,6 +26,8 @@
 
 static BOOL sFIRInstanceIDFirebaseDefaultAppConfigured = NO;
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 @interface FIRInstanceIDIntegrationTests : XCTestCase
 @property(nonatomic, strong) FIRInstanceID *instanceID;
 @end
@@ -134,6 +136,7 @@ static BOOL sFIRInstanceIDFirebaseDefaultAppConfigured = NO;
 
   [self waitForExpectations:@[ expectation ] timeout:5];
 }
+#pragma clang diagnostic pop
 
 - (NSString *)tokenAuthorizedEntity {
   if (!sFIRInstanceIDFirebaseDefaultAppConfigured) {

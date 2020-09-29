@@ -231,7 +231,10 @@ static NSUInteger FIRMessagingServerPort() {
   }
 
   self.stayConnected = YES;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   if (![[FIRInstanceID instanceID] tryToLoadValidCheckinInfo]) {
+#pragma clang diagnostic pop
     // Checkin info is not available. This may be due to the checkin still being fetched.
     NSString *failureReason = @"Failed to connect to MCS. No deviceID and secret found.";
     if (self.connectHandler) {
@@ -319,9 +322,11 @@ static NSUInteger FIRMessagingServerPort() {
                                              object:nil];
   self.connectRetryCount = 0;
   self.lastConnectedTimestamp = FIRMessagingCurrentTimestampInMilliseconds();
-
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   [self.dataMessageManager setDeviceAuthID:[FIRInstanceID instanceID].deviceAuthID
                                secretToken:[FIRInstanceID instanceID].secretToken];
+#pragma clang diagnostic pop
   if (self.connectHandler) {
     self.connectHandler(nil);
     // notified the third party app with the registrationId.
@@ -371,6 +376,8 @@ static NSUInteger FIRMessagingServerPort() {
     [self.connection signOut];
     self.connection.delegate = nil;
   }
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   self.connection =
       [[FIRMessagingConnection alloc] initWithAuthID:[FIRInstanceID instanceID].deviceAuthID
                                                token:[FIRInstanceID instanceID].secretToken
@@ -379,6 +386,7 @@ static NSUInteger FIRMessagingServerPort() {
                                              runLoop:[NSRunLoop mainRunLoop]
                                          rmq2Manager:self.rmq2Manager
                                           fcmManager:self.dataMessageManager];
+#pragma clang diagnostic pop
   self.connection.delegate = self;
 }
 
@@ -391,8 +399,11 @@ static NSUInteger FIRMessagingServerPort() {
   [NSObject cancelPreviousPerformRequestsWithTarget:self
                                            selector:@selector(tryToConnect)
                                              object:nil];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   NSString *deviceAuthID = [FIRInstanceID instanceID].deviceAuthID;
   NSString *secretToken = [FIRInstanceID instanceID].secretToken;
+#pragma clang diagnostic pop
   if (deviceAuthID.length == 0 || secretToken.length == 0 || !self.connection) {
     FIRMessagingLoggerWarn(
         kFIRMessagingMessageCodeClientInvalidState,

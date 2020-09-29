@@ -41,6 +41,8 @@ static NSString *const kFIRMessagingTestsServiceSuiteName = @"com.messaging.test
 @property(nonatomic, readwrite, strong) FIRMessagingClient *client;
 @property(nonatomic, readwrite, strong) FIRMessagingPubSub *pubsub;
 @property(nonatomic, readwrite, strong) NSString *defaultFcmToken;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 @property(nonatomic, readwrite, strong) FIRInstanceID *instanceID;
 
 @end
@@ -349,4 +351,6 @@ static NSString *const kFIRMessagingTestsServiceSuiteName = @"com.messaging.test
                         }];
   [self waitForExpectationsWithTimeout:0.2 handler:nil];
 }
+#pragma clang diagnostic pop
+
 @end
