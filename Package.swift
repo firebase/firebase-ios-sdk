@@ -26,7 +26,7 @@ let firebaseVersion = "6.34.0"
 
 let package = Package(
   name: "Firebase",
-  platforms: [.iOS(.v9), .macOS(.v10_11), .tvOS(.v10)],
+  platforms: [.iOS(.v10), .macOS(.v10_12), .tvOS(.v10)],
   products: [
     .library(
       name: "FirebaseAnalytics",
@@ -68,10 +68,10 @@ let package = Package(
       name: "FirebaseInstallations",
       targets: ["FirebaseInstallations"]
     ),
-    // .library(
-    //   name: "FirebaseInstanceID",
-    //   targets: ["FirebaseInstanceID"]
-    // ),
+    .library(
+      name: "FirebaseMessaging",
+      targets: ["FirebaseMessaging"]
+    ),
     .library(
       name: "FirebaseRemoteConfig",
       targets: ["FirebaseRemoteConfig"]
@@ -156,7 +156,7 @@ let package = Package(
     ),
     .testTarget(
       name: "CoreUnit",
-      dependencies: ["FirebaseCore", "OCMock"],
+      dependencies: ["FirebaseCore", "SharedTestUtilities", "OCMock"],
       path: "FirebaseCore/Tests/Unit",
       exclude: ["Resources/GoogleService-Info.plist"],
       cSettings: [
@@ -491,17 +491,21 @@ let package = Package(
       ]
     ),
 
-    // .target(
-    //   name: "FirebaseInstanceID",
-    //   dependencies: ["FirebaseCore", "FirebaseInstallations",
-    //                  "GoogleUtilities_Environment", "GoogleUtilities_UserDefaults"],
-    //   path: "Firebase/InstanceID",
-    //   publicHeadersPath: "Public",
-    //   cSettings: [
-    //     .headerSearchPath("../../"),
-    //     .define("FIRInstanceID_LIB_VERSION", to: firebaseVersion),
-    //   ]
-    // ),
+    .target(
+      name: "FirebaseInstanceID",
+      dependencies: ["FirebaseCore", "FirebaseInstallations",
+                     "GoogleUtilities_Environment", "GoogleUtilities_UserDefaults"],
+      path: "Firebase/InstanceID",
+      exclude: [
+        "CHANGELOG.md",
+      ],
+      publicHeadersPath: "Public",
+      cSettings: [
+        .headerSearchPath("../../"),
+        .define("FIRInstanceID_LIB_VERSION", to: firebaseVersion),
+      ]
+    ),
+
     .target(
       name: "FirebaseInstallations",
       dependencies: ["FirebaseCore", .product(name: "FBLPromises", package: "Promises"),
@@ -515,9 +519,42 @@ let package = Package(
         .linkedFramework("Security"),
       ]
     ),
+
+    .target(
+      name: "FirebaseMessaging",
+      dependencies: [
+        "FirebaseCore",
+        "FirebaseInstanceID",
+        "GoogleUtilities_AppDelegateSwizzler",
+        "GoogleUtilities_Environment",
+        "GoogleUtilities_Reachability",
+        "GoogleUtilities_UserDefaults",
+      ],
+      path: "FirebaseMessaging/Sources",
+      publicHeadersPath: "Public",
+      cSettings: [
+        .headerSearchPath("../../"),
+        .define("FIRMessaging_LIB_VERSION", to: firebaseVersion),
+      ],
+      linkerSettings: [
+        .linkedFramework("SystemConfiguration"),
+      ]
+    ),
+    .testTarget(
+      name: "MessagingUnit",
+      dependencies: ["FirebaseMessaging", "OCMock"],
+      path: "FirebaseMessaging/Tests/UnitTests",
+      exclude: [
+        "FIRMessagingContextManagerServiceTest.m", // TODO: Adapt its NSBundle usage to SPM.
+      ],
+      cSettings: [
+        .headerSearchPath("../../.."),
+      ]
+    ),
+
     .target(
       name: "SharedTestUtilities",
-      dependencies: ["FirebaseCore"],
+      dependencies: ["FirebaseCore", "OCMock"],
       path: "SharedTestUtilities",
       publicHeadersPath: "./",
       cSettings: [
@@ -640,7 +677,7 @@ let package = Package(
         "FirebaseFunctions",
         "FirebaseInAppMessaging",
         "FirebaseInstallations",
-        // "FirebaseInstanceID",
+        "FirebaseMessaging",
         "FirebaseRemoteConfig",
         "FirebaseStorage",
         "FirebaseStorageSwift",
@@ -680,6 +717,7 @@ let package = Package(
         "FirebaseFunctions",
         "FirebaseInAppMessaging",
         "FirebaseInstallations",
+        "FirebaseMessaging",
         "FirebaseRemoteConfig",
         "FirebaseStorage",
       ],
@@ -732,7 +770,7 @@ let package = Package(
       dependencies: [.product(name: "FBLPromises", package: "Promises")],
       path: "GoogleUtilities/Environment",
       exclude: ["third_party/LICENSE"],
-      publicHeadersPath: "Private",
+      publicHeadersPath: "Public",
       cSettings: [
         .headerSearchPath("../../"),
       ]
@@ -754,7 +792,7 @@ let package = Package(
       name: "GoogleUtilities_MethodSwizzler",
       dependencies: ["GoogleUtilities_Logger"],
       path: "GoogleUtilities/MethodSwizzler",
-      publicHeadersPath: "Private",
+      publicHeadersPath: "Public",
       cSettings: [
         .headerSearchPath("../../"),
       ]
@@ -784,7 +822,7 @@ let package = Package(
       name: "GoogleUtilities_Reachability",
       dependencies: ["GoogleUtilities_Logger"],
       path: "GoogleUtilities/Reachability",
-      publicHeadersPath: "Private",
+      publicHeadersPath: "Public",
       cSettings: [
         .headerSearchPath("../../"),
       ]
@@ -793,7 +831,7 @@ let package = Package(
       name: "GoogleUtilities_UserDefaults",
       dependencies: ["GoogleUtilities_Logger"],
       path: "GoogleUtilities/UserDefaults",
-      publicHeadersPath: "Private",
+      publicHeadersPath: "Public",
       cSettings: [
         .headerSearchPath("../../"),
       ]

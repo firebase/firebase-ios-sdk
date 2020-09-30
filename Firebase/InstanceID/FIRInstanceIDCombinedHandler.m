@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRInstanceIDCombinedHandler.h"
+#import "Firebase/InstanceID/FIRInstanceIDCombinedHandler.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

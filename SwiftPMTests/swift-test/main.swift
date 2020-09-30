@@ -24,7 +24,7 @@ import FirebaseFirestoreSwift
 import FirebaseFunctions
 import FirebaseInAppMessaging
 import FirebaseInstallations
-// import FirebaseInstanceID
+import FirebaseMessaging
 import FirebaseRemoteConfig
 import FirebaseStorage
 import FirebaseStorageSwift

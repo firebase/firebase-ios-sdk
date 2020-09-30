@@ -18,9 +18,9 @@
 
 #import <sys/utsname.h>
 
+#import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import "FirebaseRemoteConfig/Sources/Private/RCNConfigSettings.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
-#import "GoogleUtilities/Environment/Private/GULAppEnvironmentUtil.h"
 
 #define STR(x) STR_EXPAND(x)
 #define STR_EXPAND(x) #x

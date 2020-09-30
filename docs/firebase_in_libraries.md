@@ -1,7 +1,18 @@
+# Introduction
+
+Before the 7.0 release, all source code and binary Firebase SDKs are compiled as static frameworks.
+With Firebase 7.0, CocoaPods developers can control whether Firebase is linked statically or
+dynamically from the `Podfile`. Use the Podfile option `use_frameworks! :linkage => :static` to get
+the Firebase 6.x linkage behavior.
+
+The zip and Carthage distributions continue to only be built for static linking.
+
+The Swift Package Manager distribution follows the Swift Package Manager defaults which is
+currently static linking.
+
 # Using Firebase from a framework or a library
 
-Currently all source code and binary Firebase SDKs are compiled as static frameworks. Most
-of the time you’ll link these frameworks directly to your app targets, but in some cases
+ Most of the time you’ll link Firebase frameworks directly to your app targets, but in some cases
 it makes sense to link Firebase frameworks to your app indirectly, from another library or
 another framework. This note talks about some of the pitfalls of this technique, almost
 always hard-to-debug undefined behaviors, that all come down to code duplication and how

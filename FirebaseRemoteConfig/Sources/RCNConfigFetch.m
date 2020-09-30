@@ -16,6 +16,7 @@
 
 #import "FirebaseRemoteConfig/Sources/Private/RCNConfigFetch.h"
 
+#import <GoogleUtilities/GULNSData+zlib.h>
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
 #import "FirebaseRemoteConfig/Sources/Private/RCNConfigSettings.h"
@@ -23,7 +24,6 @@
 #import "FirebaseRemoteConfig/Sources/RCNConfigContent.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigExperiment.h"
 #import "FirebaseRemoteConfig/Sources/RCNDevice.h"
-#import "GoogleUtilities/NSData+zlib/Private/GULNSDataInternal.h"
 
 #ifdef RCN_STAGING_SERVER
 static NSString *const kServerURLDomain =

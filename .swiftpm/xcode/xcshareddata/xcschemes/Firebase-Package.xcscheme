@@ -482,6 +482,34 @@
                ReferencedContainer = "container:">
             </BuildableReference>
          </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "FirebaseInstanceID"
+               BuildableName = "FirebaseInstanceID"
+               BlueprintName = "FirebaseInstanceID"
+               ReferencedContainer = "container:">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "FirebaseMessaging"
+               BuildableName = "FirebaseMessaging"
+               BlueprintName = "FirebaseMessaging"
+               ReferencedContainer = "container:">
+            </BuildableReference>
+         </BuildActionEntry>
       </BuildActionEntries>
    </BuildAction>
    <TestAction
@@ -637,6 +665,16 @@
                BlueprintIdentifier = "analytics-import-test"
                BuildableName = "analytics-import-test"
                BlueprintName = "analytics-import-test"
+               ReferencedContainer = "container:">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "MessagingUnit"
+               BuildableName = "MessagingUnit"
+               BlueprintName = "MessagingUnit"
                ReferencedContainer = "container:">
             </BuildableReference>
          </TestableReference>

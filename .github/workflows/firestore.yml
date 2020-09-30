@@ -172,6 +172,12 @@ jobs:
     if: github.repository != 'FirebasePrivate/firebase-ios-sdk' || github.event_name == 'pull_request'
     runs-on: macos-latest
     needs: check
+    strategy:
+      matrix:
+        flags: [
+          '--use-static-frameworks',
+          '',
+        ]
 
     steps:
     - uses: actions/checkout@v2
@@ -182,6 +188,7 @@ jobs:
     - name: Pod lib lint
       run: |
         scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseFirestore.podspec \
+            ${{ matrix.flags }} \
             --platforms=ios \
             --allow-warnings
 

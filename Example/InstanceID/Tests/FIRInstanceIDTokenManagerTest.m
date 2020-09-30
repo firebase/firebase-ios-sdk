@@ -20,8 +20,8 @@
 
 #import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
 
-#import "FIRInstanceIDFakeKeychain.h"
-#import "FIRInstanceIDTokenManager+Test.h"
+#import "Example/InstanceID/Tests/FIRInstanceIDFakeKeychain.h"
+#import "Example/InstanceID/Tests/FIRInstanceIDTokenManager+Test.h"
 #import "Firebase/InstanceID/FIRInstanceIDBackupExcludedPlist.h"
 #import "Firebase/InstanceID/FIRInstanceIDCheckinPreferences+Internal.h"
 #import "Firebase/InstanceID/FIRInstanceIDCheckinStore.h"

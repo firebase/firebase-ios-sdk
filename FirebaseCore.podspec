@@ -16,19 +16,16 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
     :tag => 'Core-' + s.version.to_s
   }
   s.social_media_url = 'https://twitter.com/Firebase'
-  s.ios.deployment_target = '8.0'
-  s.osx.deployment_target = '10.11'
+  s.ios.deployment_target = '9.0'
+  s.osx.deployment_target = '10.12'
   s.tvos.deployment_target = '10.0'
   s.watchos.deployment_target = '6.0'
 
   s.cocoapods_version = '>= 1.4.0'
-  s.static_framework = true
   s.prefix_header_file = false
 
   s.source_files = [
     'FirebaseCore/Sources/**/*.[mh]',
-    'GoogleUtilities/Environment/Private/*.h',
-    'GoogleUtilities/Logger/Private/*.h',
     'Interop/CoreDiagnostics/Public/*.h',
   ]
   s.public_header_files = [
@@ -54,7 +51,10 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
   }
   s.test_spec 'unit' do |unit_tests|
     unit_tests.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
-    unit_tests.source_files = 'FirebaseCore/Tests/Unit/**/*.[mh]'
+    unit_tests.source_files = [
+      'FirebaseCore/Tests/Unit/**/*.[mh]',
+      'SharedTestUtilities/FIROptionsMock.[mh]',
+    ]
     unit_tests.requires_app_host = true
     unit_tests.dependency 'OCMock'
     unit_tests.resources = 'FirebaseCore/Tests/Unit/Resources/GoogleService-Info.plist'
@@ -62,12 +62,16 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
 
   s.test_spec 'swift-unit' do |swift_unit_tests|
     swift_unit_tests.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
-    swift_unit_tests.source_files = 'FirebaseCore/Tests/SwiftUnit/**/*.swift',
-                                    'FirebaseCore/Tests/SwiftUnit/**/*.h',
-                                    'FirebaseCore/Tests/SwiftUnit/SwiftTestingUtilities/*'
-    swift_unit_tests.resources = 'FirebaseCore/Tests/Unit/Resources/GoogleService-Info.plist'
+    swift_unit_tests.source_files = [
+      'FirebaseCore/Tests/SwiftUnit/**/*.swift',
+      'FirebaseCore/Tests/SwiftUnit/**/*.h',
+      'FirebaseCore/Tests/SwiftUnit/SwiftTestingUtilities/*',
+      'SharedTestUtilities/FIROptionsMock.[mh]',
+    ]
     swift_unit_tests.pod_target_xcconfig = {
       'SWIFT_OBJC_BRIDGING_HEADER' => '$(PODS_TARGET_SRCROOT)/FirebaseCore/Tests/SwiftUnit/FirebaseCore-unit-Bridging-Header.h'
     }
+    swift_unit_tests.dependency 'OCMock'
+    swift_unit_tests.resources = 'FirebaseCore/Tests/Unit/Resources/GoogleService-Info.plist'
   end
 end

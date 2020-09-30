@@ -28,10 +28,8 @@ Pod::Spec.new do |s|
   s.license             = { :type => 'BSD-Like' }
   s.authors             = 'LLVM Team'
 
-  # LibFuzzer uses thread_local which does not appear to be supported before
-  # iOS 9.
-  s.ios.deployment_target = '9.0'
-  s.osx.deployment_target = '10.11'
+  s.ios.deployment_target = '10.0'
+  s.osx.deployment_target = '10.12'
   s.tvos.deployment_target = '10.0'
 
   # Check out only libFuzzer folder.

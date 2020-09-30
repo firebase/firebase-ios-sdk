@@ -14,12 +14,13 @@
 
 #import <Foundation/Foundation.h>
 
-#import "GoogleUtilities/Network/Private/GULNetworkURLSession.h"
+#import "GoogleUtilities/Network/Public/GoogleUtilities/GULNetworkURLSession.h"
 
-#import "GoogleUtilities/Logger/Private/GULLogger.h"
-#import "GoogleUtilities/Network/Private/GULMutableDictionary.h"
-#import "GoogleUtilities/Network/Private/GULNetworkConstants.h"
-#import "GoogleUtilities/Network/Private/GULNetworkMessageCode.h"
+#import "GoogleUtilities/Logger/Public/GoogleUtilities/GULLogger.h"
+#import "GoogleUtilities/Network/GULNetworkInternal.h"
+#import "GoogleUtilities/Network/Public/GoogleUtilities/GULMutableDictionary.h"
+#import "GoogleUtilities/Network/Public/GoogleUtilities/GULNetworkConstants.h"
+#import "GoogleUtilities/Network/Public/GoogleUtilities/GULNetworkMessageCode.h"
 
 @interface GULNetworkURLSession () <NSURLSessionDelegate,
                                     NSURLSessionDataDelegate,

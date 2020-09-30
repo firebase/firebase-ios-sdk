@@ -34,6 +34,9 @@ add -DFIRABTesting_VERSION=... to the build invocation"
 #define STR(x) STR_EXPAND(x)
 #define STR_EXPAND(x) #x
 
+/// Logger Service String.
+FIRLoggerService kFIRLoggerABTesting = @"[Firebase/ABTesting]";
+
 /// Default experiment overflow policy.
 const ABTExperimentPayloadExperimentOverflowPolicy FIRDefaultExperimentOverflowPolicy =
     ABTExperimentPayloadExperimentOverflowPolicyDiscardOldest;
@@ -189,19 +192,6 @@ NSArray *ABTExperimentsToClearFromPayloads(
                                                                   payloads:payloads
                                                          completionHandler:completionHandler];
   });
-}
-
-- (void)updateExperimentsWithServiceOrigin:(NSString *)origin
-                                    events:(FIRLifecycleEvents *)events
-                                    policy:(ABTExperimentPayloadExperimentOverflowPolicy)policy
-                             lastStartTime:(NSTimeInterval)lastStartTime
-                                  payloads:(NSArray<NSData *> *)payloads {
-  [self updateExperimentsWithServiceOrigin:origin
-                                    events:events
-                                    policy:policy
-                             lastStartTime:lastStartTime
-                                  payloads:payloads
-                         completionHandler:nil];
 }
 
 - (void)

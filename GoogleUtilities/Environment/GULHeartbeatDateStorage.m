@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import "GoogleUtilities/Environment/Private/GULHeartbeatDateStorage.h"
-#import "GoogleUtilities/Environment/Private/GULSecureCoding.h"
+#import "GoogleUtilities/Environment/Public/GoogleUtilities/GULHeartbeatDateStorage.h"
+#import "GoogleUtilities/Environment/Public/GoogleUtilities/GULSecureCoding.h"
 
 @interface GULHeartbeatDateStorage ()
 /** The storage to store the date of the last sent heartbeat. */

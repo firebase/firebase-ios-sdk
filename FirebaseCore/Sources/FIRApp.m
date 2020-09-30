@@ -35,7 +35,7 @@
 #import "FirebaseCore/Sources/Private/FIRLogger.h"
 #import "FirebaseCore/Sources/Private/FIROptionsInternal.h"
 
-#import "GoogleUtilities/Environment/Private/GULAppEnvironmentUtil.h"
+#import <GoogleUtilities/GULAppEnvironmentUtil.h>
 
 #import <objc/runtime.h>
 
@@ -89,6 +89,11 @@ NSString *const FIRAuthStateDidChangeInternalNotificationTokenKey =
     @"FIRAuthStateDidChangeInternalNotificationTokenKey";
 NSString *const FIRAuthStateDidChangeInternalNotificationUIDKey =
     @"FIRAuthStateDidChangeInternalNotificationUIDKey";
+
+/**
+ * Error domain for exceptions and NSError construction.
+ */
+NSString *const kFirebaseCoreErrorDomain = @"com.firebase.core";
 
 /**
  * The URL to download plist files.
@@ -479,20 +484,7 @@ static dispatch_once_t sFirebaseUserAgentOnceToken;
     NSLocalizedRecoverySuggestionErrorKey :
         @"Check formatting and location of GoogleService-Info.plist."
   };
-  return [NSError errorWithDomain:kFirebaseCoreErrorDomain
-                             code:FIRErrorCodeInvalidPlistFile
-                         userInfo:errorDict];
-}
-
-+ (NSError *)errorForSubspecConfigurationFailureWithDomain:(NSString *)domain
-                                                 errorCode:(FIRErrorCode)code
-                                                   service:(NSString *)service
-                                                    reason:(NSString *)reason {
-  NSString *description =
-      [NSString stringWithFormat:@"Configuration failed for service %@.", service];
-  NSDictionary *errorDict =
-      @{NSLocalizedDescriptionKey : description, NSLocalizedFailureReasonErrorKey : reason};
-  return [NSError errorWithDomain:domain code:code userInfo:errorDict];
+  return [NSError errorWithDomain:kFirebaseCoreErrorDomain code:-100 userInfo:errorDict];
 }
 
 + (NSError *)errorForInvalidAppID {
@@ -502,9 +494,7 @@ static dispatch_once_t sFirebaseUserAgentOnceToken;
         @"Check formatting and location of GoogleService-Info.plist or GoogleAppID set in the "
         @"customized options."
   };
-  return [NSError errorWithDomain:kFirebaseCoreErrorDomain
-                             code:FIRErrorCodeInvalidAppID
-                         userInfo:errorDict];
+  return [NSError errorWithDomain:kFirebaseCoreErrorDomain code:-101 userInfo:errorDict];
 }
 
 + (BOOL)isDefaultAppConfigured {
@@ -896,17 +886,6 @@ static dispatch_once_t sFirebaseUserAgentOnceToken;
 
   return collectionEnabledPlistObject;
 }
-
-#pragma mark - Sending Logs
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunused-parameter"
-- (void)sendLogsWithServiceName:(NSString *)serviceName
-                        version:(NSString *)version
-                          error:(NSError *)error {
-  // Do nothing. Please remove calls to this method.
-}
-#pragma clang diagnostic pop
 
 #pragma mark - App Life Cycle
 

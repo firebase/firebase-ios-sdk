@@ -18,9 +18,11 @@
 
 #import <OCMock/OCMock.h>
 
+// This needs to precede the GULSwizzler+Unswizzle.h import for the --use-libraries build.
+#import <GoogleUtilities/GULSwizzler.h>
+
+#import <GoogleUtilities/GULSwizzler+Unswizzle.h>
 #import "FirebaseDynamicLinks/Sources/FIRDynamicLinkNetworking+Private.h"
-#import "GoogleUtilities/MethodSwizzler/Private/GULSwizzler.h"
-#import "GoogleUtilities/SwizzlerTestHelpers/GULSwizzler+Unswizzle.h"
 
 static NSString *const kAPIKey = @"myfakeapikey";
 const NSInteger kJSONParsingErrorCode = 3840;
