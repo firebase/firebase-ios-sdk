@@ -1,3 +1,6 @@
+# v1.7.1 -- Unreleased
+- [changed] Additional `FIRInstallationsItem` validation to catch potential storage issues. (#6570)
+
 # v1.7.0 -- M78
 - [changed] Use ephemeral `NSURLSession` to prevent caching of request/response. (#6226)
 - [changed] Backoff added for some error to prevent unnecessary API requests. (#6232)
