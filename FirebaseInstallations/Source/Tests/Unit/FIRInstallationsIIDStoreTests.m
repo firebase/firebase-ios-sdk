@@ -16,8 +16,8 @@
 
 #import <XCTest/XCTest.h>
 
+#import <FirebaseInstanceID/FirebaseInstanceID.h>
 #import "FBLPromise+Testing.h"
-#import "Firebase/InstanceID/Public/FirebaseInstanceID.h"
 #import "FirebaseInstallations/Source/Tests/Utils/FIRTestKeychain.h"
 
 #import "FirebaseInstallations/Source/Library/IIDMigration/FIRInstallationsIIDStore.h"
