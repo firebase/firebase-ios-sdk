@@ -1,3 +1,7 @@
+# Firebase 6.34.0
+- [fixed] Removed warning related to missing Analytics framework for non-iOS builds since the
+  framework isn't available on those platforms. (#6500)
+
 # Firebase 6.33.0
 - [fixed] Swift Package Manager - Define system framework and system library dependencies. This
   resolves undefined symbol issues for system dependencies. (#6408, #6413)
