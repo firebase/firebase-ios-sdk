@@ -31,7 +31,7 @@ Select the Firebase GitHub repository - `https://github.com/firebase/firebase-io
 Select the beta branch.
 
 Note: Starting with the 6.31.0 release, the versions are specified
-in a format like 6.33-spm-beta. We won't support standard repository
+in a format like 6.34-spm-beta. We won't support standard repository
 versioning until later in the beta or with general availability of the SPM
 distribution.
 
