@@ -109,7 +109,7 @@ NS_SWIFT_NAME(RemoteConfigValue)
 /// Gets the value as a string.
 @property(nonatomic, readonly, nullable) NSString *stringValue;
 /// Gets the value as a number value.
-@property(nonatomic, readonly, nullable) NSNumber *numberValue;
+@property(nonatomic, readonly, nonnull) NSNumber *numberValue;
 /// Gets the value as a NSData object.
 @property(nonatomic, readonly, nonnull) NSData *dataValue;
 /// Gets the value as a boolean.
