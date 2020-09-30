@@ -1,4 +1,4 @@
-# v1.7.1 -- Unreleased
+# v1.7.1 -- M81
 - [changed] Additional `FIRInstallationsItem` validation to catch potential storage issues. (#6570)
 
 # v1.7.0 -- M78
