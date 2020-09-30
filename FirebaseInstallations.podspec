@@ -57,12 +57,16 @@ Pod::Spec.new do |s|
 
   s.test_spec 'unit' do |unit_tests|
     unit_tests.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
-    unit_tests.source_files = base_dir + 'Tests/Unit/**/*.[mh]',
-                              base_dir + 'Tests/Utils/**/*.[mh]'
+    unit_tests.source_files = base_dir + 'Tests/Unit/*.[mh]',
+                              base_dir + 'Tests/Utils/*.[mh]'
     unit_tests.resources = base_dir + 'Tests/Fixture/**/*'
     unit_tests.requires_app_host = true
     unit_tests.dependency 'OCMock'
-    unit_tests.dependency 'FirebaseInstanceID', '~> 4.2.0' # The version before FirebaseInstanceID updated to use FirebaseInstallations under the hood.
+
+    if ENV['FIS_IID_MIGRATION_TESTING'] && ENV['FIS_IID_MIGRATION_TESTING'] == '1' then
+      unit_tests.source_files += base_dir + 'Tests/Unit/IIDStoreTests/*.[mh]'
+      unit_tests.dependency 'FirebaseInstanceID', '~> 4.2.0' # The version before FirebaseInstanceID updated to use FirebaseInstallations under the hood.
+    end
 
   end
 
