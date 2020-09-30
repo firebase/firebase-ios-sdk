@@ -946,6 +946,10 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
       key5 : @(defaultValue5),
     }];
     [_configInstances[i] setDefaults:defaults];
+    if (i == RCNTestRCInstanceSecondNamespace) {
+      [defaults setObject:@"2860" forKey:@"experience"];
+      [_configInstances[i] setDefaults:defaults];
+    }
     // Remove objects right away to make sure dispatch_async gets the copy.
     [defaults removeAllObjects];
 
@@ -964,6 +968,12 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
         @"defaultConfig as string.");
 
     XCTAssertEqual(config[key5].boolValue, defaultValue5, @"Should support bool format");
+
+    if (i == RCNTestRCInstanceSecondNamespace) {
+      XCTAssertEqualObjects(
+          [_configInstances[i] configValueForKey:@"experience"].stringValue, @"2860",
+          @"Only default config has the key, must equal to default config value.");
+    }
 
     // Reset default sets
     [_configInstances[i] setDefaults:nil];
@@ -1167,18 +1177,41 @@ static NSString *UTCToLocal(NSString *utcTime) {
 
 - (void)testSetDefaultsAndNamespaceFromPlist {
   for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
-    [_configInstances[i] setDefaultsFromPlistFileName:@"Defaults-testInfo"];
-    XCTAssertEqualObjects([_configInstances[i] configValueForKey:@"lastCheckTime"].stringValue,
-                          UTCToLocal(@"2016-02-28 18:33:31"));
-    XCTAssertEqual([_configInstances[i] configValueForKey:@"isPaidUser"].boolValue, YES);
-    XCTAssertEqualObjects([_configInstances[i] configValueForKey:@"dataValue"].stringValue, @"2.4");
-    XCTAssertEqualObjects([_configInstances[i] configValueForKey:@"New item"].numberValue, @(2.4));
-    XCTAssertEqualObjects([_configInstances[i] configValueForKey:@"Languages"].stringValue,
-                          @"English");
-    XCTAssertEqualObjects([_configInstances[i] configValueForKey:@"FileInfo"].stringValue,
-                          @"To setup default config.");
-    XCTAssertEqualObjects([_configInstances[i] configValueForKey:@"format"].stringValue,
-                          @"key to value.");
+    if (i == RCNTestRCInstanceDefault) {
+#if SWIFT_PACKAGE
+      [_configInstances[i] setDefaults:[self getSPMDefaults] namespace:RCNTestsPerfNamespace];
+#else
+      [_configInstances[i] setDefaultsFromPlistFileName:@"Defaults-testInfo"];
+#endif
+      XCTAssertEqualObjects([_configInstances[i] configValueForKey:@"lastCheckTime"].stringValue,
+                            UTCToLocal(@"2016-02-28 18:33:31"));
+      XCTAssertEqual([_configInstances[i] configValueForKey:@"isPaidUser"].boolValue, YES);
+      XCTAssertEqualObjects([_configInstances[i] configValueForKey:@"dataValue"].stringValue,
+                            @"2.4");
+      XCTAssertEqualObjects([_configInstances[i] configValueForKey:@"New item"].numberValue,
+                            @(2.4));
+      XCTAssertEqualObjects([_configInstances[i] configValueForKey:@"Languages"].stringValue,
+                            @"English");
+      XCTAssertEqualObjects([_configInstances[i] configValueForKey:@"FileInfo"].stringValue,
+                            @"To setup default config.");
+      XCTAssertEqualObjects([_configInstances[i] configValueForKey:@"format"].stringValue,
+                            @"key to value.");
+    } else {
+      [_configInstances[i] setDefaultsFromPlistFileName:@"Defaults-testInfo"];
+      XCTAssertEqualObjects([_configInstances[i] configValueForKey:@"lastCheckTime"].stringValue,
+                            UTCToLocal(@"2016-02-28 18:33:31"));
+      XCTAssertEqual([_configInstances[i] configValueForKey:@"isPaidUser"].boolValue, YES);
+      XCTAssertEqualObjects([_configInstances[i] configValueForKey:@"dataValue"].stringValue,
+                            @"2.4");
+      XCTAssertEqualObjects([_configInstances[i] configValueForKey:@"New item"].numberValue,
+                            @(2.4));
+      XCTAssertEqualObjects([_configInstances[i] configValueForKey:@"Languages"].stringValue,
+                            @"English");
+      XCTAssertEqualObjects([_configInstances[i] configValueForKey:@"FileInfo"].stringValue,
+                            @"To setup default config.");
+      XCTAssertEqualObjects([_configInstances[i] configValueForKey:@"format"].stringValue,
+                            @"key to value.");
+    }
   }
 }
 
