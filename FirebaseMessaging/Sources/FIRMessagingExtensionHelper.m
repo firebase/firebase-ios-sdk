@@ -70,8 +70,8 @@ static NSString *const kImagePathPrefix = @"image/";
     return [NSString stringWithFormat:@".%@", suggestedPathExtension];
   }
   if ([response.MIMEType containsString:kImagePathPrefix]) {
-    return
-        [response.MIMEType stringByReplacingOccurrencesOfString:kImagePathPrefix withString:@"."];
+    return [response.MIMEType stringByReplacingOccurrencesOfString:kImagePathPrefix
+                                                        withString:@"."];
   }
   return kNoExtension;
 }
