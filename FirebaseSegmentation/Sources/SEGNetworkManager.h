@@ -14,9 +14,9 @@
 
 #import <Foundation/Foundation.h>
 
-#import <FirebaseCore/FIROptionsInternal.h>
+#import "FirebaseCore/Sources/Private/FIROptionsInternal.h"
 
-#import "SEGSegmentationConstants.h"
+#import "FirebaseSegmentation/Sources/SEGSegmentationConstants.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

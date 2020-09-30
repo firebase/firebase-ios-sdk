@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "SEGDatabaseManager.h"
+#import "FirebaseSegmentation/Sources/SEGDatabaseManager.h"
 
-#import <FirebaseCore/FIRLogger.h>
 #import <sqlite3.h>
+#import "FirebaseCore/Sources/Private/FIRLogger.h"
 
 /// SQLite file name.
 static NSString *const kDatabaseName = @"FirebaseSegmentation.sqlite3";

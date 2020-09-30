@@ -14,8 +14,8 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FIRApp.h"
-#import "FIROptions.h"
+#import "FirebaseCore/Sources/Public/FirebaseCore/FIRApp.h"
+#import "FirebaseCore/Sources/Public/FirebaseCore/FIROptions.h"
 #import "FirebaseSegmentation/Sources/Public/FIRSegmentation.h"
 
 @interface FIRSegmentation (ForTest)

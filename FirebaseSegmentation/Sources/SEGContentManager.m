@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "SEGContentManager.h"
+#import "FirebaseSegmentation/Sources/SEGContentManager.h"
 
-#import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseInstallations/FirebaseInstallations.h>
-#import "FIRSegmentation.h"
-#import "SEGDatabaseManager.h"
-#import "SEGNetworkManager.h"
-#import "SEGSegmentationConstants.h"
+#import "FirebaseCore/Sources/Private/FIRAppInternal.h"
+#import "FirebaseInstallations/Source/Library/Public/FirebaseInstallations/FirebaseInstallations.h"
+#import "FirebaseSegmentation/Sources/Public/FIRSegmentation.h"
+#import "FirebaseSegmentation/Sources/SEGDatabaseManager.h"
+#import "FirebaseSegmentation/Sources/SEGNetworkManager.h"
+#import "FirebaseSegmentation/Sources/SEGSegmentationConstants.h"
 
 NSString *const kErrorDescription = @"ErrorDescription";
 

@@ -14,7 +14,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "SEGDatabaseManager.h"
+#import "FirebaseSegmentation/Sources/SEGDatabaseManager.h"
 
 #import <OCMock/OCMock.h>
 

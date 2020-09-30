@@ -14,14 +14,14 @@
 
 #import <XCTest/XCTest.h>
 
-#import "SEGContentManager.h"
-#import "SEGDatabaseManager.h"
-#import "SEGNetworkManager.h"
+#import "FirebaseSegmentation/Sources/SEGContentManager.h"
+#import "FirebaseSegmentation/Sources/SEGDatabaseManager.h"
+#import "FirebaseSegmentation/Sources/SEGNetworkManager.h"
 
-#import <FirebaseCore/FirebaseCore.h>
-#import <FirebaseInstallations/FirebaseInstallations.h>
 #import <OCMock/OCMock.h>
-#import "FIRInstallationsIDController.h"
+#import "FirebaseCore/Sources/Public/FirebaseCore/FirebaseCore.h"
+#import "FirebaseInstallations/Source/Library/InstallationsIDController/FIRInstallationsIDController.h"
+#import "FirebaseInstallations/Source/Library/Public/FirebaseInstallations/FirebaseInstallations.h"
 
 @interface SEGContentManager (ForTest)
 - (instancetype)initWithDatabaseManager:databaseManager networkManager:networkManager;

@@ -14,9 +14,9 @@
 
 #import "FirebaseSegmentation/Sources/Public/FIRSegmentation.h"
 
-#import <FirebaseCore/FIRComponentContainer.h>
-#import <FirebaseCore/FIRLogger.h>
-#import <FirebaseCore/FIROptionsInternal.h>
+#import "FirebaseCore/Sources/Private/FIRComponentContainer.h"
+#import "FirebaseCore/Sources/Private/FIRLogger.h"
+#import "FirebaseCore/Sources/Private/FIROptionsInternal.h"
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "FirebaseSegmentation/Sources/Private/FIRSegmentationComponent.h"
 #import "FirebaseSegmentation/Sources/SEGContentManager.h"

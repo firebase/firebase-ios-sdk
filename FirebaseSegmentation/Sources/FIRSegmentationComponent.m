@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#import "FIRSegmentationComponent.h"
+#import "FirebaseSegmentation/Sources/Private/FIRSegmentationComponent.h"
 
-#import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseCore/FIRComponentContainer.h>
-#import <FirebaseCore/FIROptionsInternal.h>
+#import "FirebaseCore/Sources/Private/FIRAppInternal.h"
+#import "FirebaseCore/Sources/Private/FIRComponentContainer.h"
+#import "FirebaseCore/Sources/Private/FIROptionsInternal.h"
 #import "FirebaseSegmentation/Sources/Private/FIRSegmentationInternal.h"
 #import "FirebaseSegmentation/Sources/SEGSegmentationConstants.h"
 

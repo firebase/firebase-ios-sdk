@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "SEGNetworkManager.h"
+#import "FirebaseSegmentation/Sources/SEGNetworkManager.h"
 
-#import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseCore/FIRLogger.h>
-#import <FirebaseCore/FIROptionsInternal.h>
+#import "FirebaseCore/Sources/Private/FIRAppInternal.h"
+#import "FirebaseCore/Sources/Private/FIRLogger.h"
+#import "FirebaseCore/Sources/Private/FIROptionsInternal.h"
 
 // TODO(dmandar): define in build file.
 #define SEG_ALPHA_SERVER
