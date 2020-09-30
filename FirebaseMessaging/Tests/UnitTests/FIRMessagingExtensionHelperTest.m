@@ -58,6 +58,7 @@ static NSString *const kValidImageURL =
 
 - (void)tearDown {
   [_mockExtensionHelper stopMocking];
+  [_mockURLResponse stopMocking];
 }
 
 #ifdef COCOAPODS
