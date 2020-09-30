@@ -27,6 +27,7 @@ FIRLoggerService kFIRLoggerAnalytics = @"[Firebase/Analytics]";
 FIRLoggerService kFIRLoggerCrash = @"[Firebase/Crash]";
 FIRLoggerService kFIRLoggerMLKit = @"[Firebase/MLKit]";
 FIRLoggerService kFIRLoggerPerf = @"[Firebase/Performance]";
+FIRLoggerService kFIRLoggerRemoteConfig = @"[Firebase/RemoteConfig]";
 
 /// Arguments passed on launch.
 NSString *const kFIRDisableDebugModeApplicationArgument = @"-FIRDebugDisabled";

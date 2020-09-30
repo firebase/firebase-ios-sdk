@@ -17,8 +17,6 @@
 #import <sqlite3.h>
 
 #import "FirebaseRemoteConfig/Sources/RCNConfigDBManager.h"
-
-#import "FirebaseRemoteConfig/Sources/FIRRemoteConfigComponent.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigDefines.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigValue_Internal.h"
 

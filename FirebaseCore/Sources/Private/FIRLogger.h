@@ -30,6 +30,7 @@ extern FIRLoggerService kFIRLoggerCrash;
 extern FIRLoggerService kFIRLoggerCore;
 extern FIRLoggerService kFIRLoggerMLKit;
 extern FIRLoggerService kFIRLoggerPerf;
+extern FIRLoggerService kFIRLoggerRemoteConfig;
 
 /**
  * The key used to store the logger's error count.

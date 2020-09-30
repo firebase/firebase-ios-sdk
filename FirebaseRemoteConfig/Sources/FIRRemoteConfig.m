@@ -40,8 +40,6 @@ static NSString *const kRemoteConfigDeveloperKey = @"_rcn_developer";
 static NSString *const kRemoteConfigMinimumFetchIntervalKey = @"_rcn_minimum_fetch_interval";
 /// Timeout value for waiting on a fetch response.
 static NSString *const kRemoteConfigFetchTimeoutKey = @"_rcn_fetch_timeout";
-/// Logger Service String.
-FIRLoggerService kFIRLoggerRemoteConfig = @"[Firebase/RemoteConfig]";
 
 @interface FIRRemoteConfigSettings () {
   BOOL _developerModeEnabled;

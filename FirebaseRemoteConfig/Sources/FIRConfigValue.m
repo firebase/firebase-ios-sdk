@@ -17,7 +17,6 @@
 #import "FirebaseRemoteConfig/Sources/Public/FirebaseRemoteConfig/FIRRemoteConfig.h"
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
-#import "FirebaseRemoteConfig/Sources/FIRRemoteConfigComponent.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigValue_Internal.h"
 
 @implementation FIRRemoteConfigValue {
