@@ -21,6 +21,8 @@
 
 static NSString *const kPayloadOptionsName = @"fcm_options";
 static NSString *const kPayloadOptionsImageURLName = @"image";
+static NSString *const kNoExtension = @"";
+static NSString *const kImagePathPrefix = @"image/";
 
 @interface FIRMessagingExtensionHelper ()
 @property(nonatomic, strong) void (^contentHandler)(UNNotificationContent *contentToDeliver);
@@ -63,18 +65,15 @@ static NSString *const kPayloadOptionsImageURLName = @"image";
 
 #if TARGET_OS_IOS || TARGET_OS_OSX || TARGET_OS_WATCH
 - (NSString *)fileExtensionForResponse:(NSURLResponse *)response {
-  NSString *const kDefaultExtension = @".png";
-  NSString *const kImagePathPrefix = @"image/";
   NSString *suggestedPathExtension = [response.suggestedFilename pathExtension];
-  if (suggestedPathExtension != nil && suggestedPathExtension.length > 0) {
+  if (suggestedPathExtension.length > 0) {
     return [NSString stringWithFormat:@".%@", suggestedPathExtension];
   }
-  if (response.MIMEType != nil && [response.MIMEType containsString:kImagePathPrefix]) {
-    NSString *mimeTypePathExtension =
-        [response.MIMEType stringByReplacingOccurrencesOfString:kImagePathPrefix withString:@""];
-    return [NSString stringWithFormat:@".%@", mimeTypePathExtension];
+  if ([response.MIMEType containsString:kImagePathPrefix]) {
+    return
+        [response.MIMEType stringByReplacingOccurrencesOfString:kImagePathPrefix withString:@"."];
   }
-  return kDefaultExtension;
+  return kNoExtension;
 }
 
 - (void)loadAttachmentForURL:(NSURL *)attachmentURL

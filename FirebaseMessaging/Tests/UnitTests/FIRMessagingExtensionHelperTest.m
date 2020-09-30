@@ -128,7 +128,7 @@ static NSString *const kValidImageURL =
 - (void)testModifyNotificationWithInvalidPayloadDataInvalidMimeType {
   if (@available(macOS 10.14, iOS 10.0, *)) {
     NSString *const kInvalidTestURL = @"test";
-    NSString *const kInvalidTestExtension = @".png";
+    NSString *const kInvalidTestExtension = @"";
     OCMStub([_mockURLResponse suggestedFilename]).andReturn(kInvalidTestURL);
     OCMStub([_mockURLResponse MIMEType]).andReturn(nil);
     NSString *const extension = [_mockExtensionHelper fileExtensionForResponse:_mockURLResponse];
