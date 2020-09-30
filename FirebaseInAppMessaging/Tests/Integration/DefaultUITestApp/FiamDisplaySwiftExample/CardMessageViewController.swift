@@ -35,7 +35,7 @@ class CardMessageViewController: CommonMessageTestVC {
     override var campaignInfo: InAppMessagingCampaignInfo {
       return writableCampaignInfo
     }
-    
+
     override var title: String {
       return writableTitle
     }
@@ -75,11 +75,11 @@ class CardMessageViewController: CommonMessageTestVC {
     override var secondaryActionURL: URL? {
       return writableSecondaryActionURL
     }
-    
+
     override var type: FIRInAppMessagingDisplayMessageType {
       return writableMessageType
     }
-    
+
     override var triggerType: FIRInAppMessagingDisplayTriggerType {
       return writableTriggerType
     }
@@ -111,7 +111,7 @@ class CardMessageViewController: CommonMessageTestVC {
       writableTriggerType = FIRInAppMessagingDisplayTriggerType.onAnalyticsEvent
     }
   }
-  
+
   let displayImpl = InAppMessagingDefaultDisplayImpl()
 
   @IBOutlet var verifyLabel: UILabel!

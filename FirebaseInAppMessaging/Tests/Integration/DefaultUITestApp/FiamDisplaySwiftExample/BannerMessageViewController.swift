@@ -31,7 +31,7 @@ class BannerMessageViewController: CommonMessageTestVC {
     override var campaignInfo: InAppMessagingCampaignInfo {
       return writableCampaignInfo
     }
-    
+
     override var title: String {
       return writableTitle
     }
@@ -55,11 +55,11 @@ class BannerMessageViewController: CommonMessageTestVC {
     override var actionURL: URL? {
       return writableActionURL
     }
-    
+
     override var type: FIRInAppMessagingDisplayMessageType {
       return writableMessageType
     }
-    
+
     override var triggerType: FIRInAppMessagingDisplayTriggerType {
       return writableTriggerType
     }
@@ -83,7 +83,7 @@ class BannerMessageViewController: CommonMessageTestVC {
       writableTriggerType = FIRInAppMessagingDisplayTriggerType.onAnalyticsEvent
     }
   }
-  
+
   let displayImpl = InAppMessagingDefaultDisplayImpl()
 
   @IBOutlet var verifyLabel: UILabel!
@@ -193,7 +193,7 @@ class BannerMessageViewController: CommonMessageTestVC {
                                                 imageData: imageRawData!)
 
     let modalMessage = TestableBannerMessage(
-      titleText: longTitleText,                                       
+      titleText: longTitleText,
       bodyText: normalMessageBody,
       textColor: UIColor.black,
       backgroundColor: UIColor.blue,

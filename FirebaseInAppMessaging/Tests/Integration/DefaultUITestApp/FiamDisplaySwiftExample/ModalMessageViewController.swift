@@ -32,7 +32,7 @@ class ModalMessageViewController: CommonMessageTestVC {
     override var campaignInfo: InAppMessagingCampaignInfo {
       return writableCampaignInfo
     }
-    
+
     override var title: String {
       return writableTitle
     }
@@ -52,7 +52,7 @@ class ModalMessageViewController: CommonMessageTestVC {
     override var displayBackgroundColor: UIColor {
       return writableBackgroundColor
     }
-    
+
     override var actionButton: InAppMessagingActionButton? {
       return writableActionButton
     }
@@ -60,11 +60,11 @@ class ModalMessageViewController: CommonMessageTestVC {
     override var actionURL: URL? {
       return writableActionURL
     }
-    
+
     override var type: FIRInAppMessagingDisplayMessageType {
       return writableMessageType
     }
-    
+
     override var triggerType: FIRInAppMessagingDisplayTriggerType {
       return writableTriggerType
     }
@@ -90,7 +90,7 @@ class ModalMessageViewController: CommonMessageTestVC {
       writableTriggerType = FIRInAppMessagingDisplayTriggerType.onAnalyticsEvent
     }
   }
-  
+
   let displayImpl = InAppMessagingDefaultDisplayImpl()
 
   @IBOutlet var verifyLabel: UILabel!
@@ -285,7 +285,7 @@ class ModalMessageViewController: CommonMessageTestVC {
       textColor: UIColor.black,
       backgroundColor: UIColor.blue,
       imageData: fiamImageData,
-      actionButton: defaultActionButton,                     
+      actionButton: defaultActionButton,
       actionURL: URL(string: "http://firebase.com")
     )
 

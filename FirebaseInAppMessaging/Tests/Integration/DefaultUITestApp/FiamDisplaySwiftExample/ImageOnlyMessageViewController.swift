@@ -34,11 +34,11 @@ class ImageOnlyMessageViewController: CommonMessageTestVC {
     override var actionURL: URL? {
       return writableActionURL
     }
-    
+
     override var type: FIRInAppMessagingDisplayMessageType {
       return writableMessageType
     }
-    
+
     override var triggerType: FIRInAppMessagingDisplayTriggerType {
       return writableTriggerType
     }
@@ -54,7 +54,7 @@ class ImageOnlyMessageViewController: CommonMessageTestVC {
       writableTriggerType = FIRInAppMessagingDisplayTriggerType.onAnalyticsEvent
     }
   }
-  
+
   let displayImpl = InAppMessagingDefaultDisplayImpl()
 
   @IBOutlet var verifyLabel: UILabel!
