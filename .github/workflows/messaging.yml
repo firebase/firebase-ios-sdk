@@ -156,7 +156,7 @@ jobs:
     strategy:
       matrix:
         flags: [
-          '--skip-tests --use-modular-headers',
+          '--use-static-frameworks',
           '--skip-tests --use-libraries'
         ]
     needs: pod-lib-lint-watchos

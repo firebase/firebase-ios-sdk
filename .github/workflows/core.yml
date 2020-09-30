@@ -93,7 +93,7 @@ jobs:
       matrix:
         target: [ios, tvos, macos]
         flags: [
-          '--use-modular-headers',
+          '--use-static-frameworks',
           # Tests are skipped since the Swift tests need modules.
           '--skip-tests --use-libraries'
         ]
