@@ -787,16 +787,8 @@ static void callInMainThreadWithAuthDataResultAndError(
 
 #pragma mark -
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 - (void)reauthenticateWithCredential:(FIRAuthCredential *)credential
                           completion:(nullable FIRAuthDataResultCallback)completion {
-  [self reauthenticateAndRetrieveDataWithCredential:credential completion:completion];
-}
-#pragma clang diagnostic pop
-
-- (void)reauthenticateAndRetrieveDataWithCredential:(FIRAuthCredential *)credential
-                                         completion:(nullable FIRAuthDataResultCallback)completion {
   dispatch_async(FIRAuthGlobalWorkQueue(), ^{
     [self->_auth
         internalSignInAndRetrieveDataWithCredential:credential
@@ -1056,16 +1048,8 @@ static void callInMainThreadWithAuthDataResultAndError(
   });
 }
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 - (void)linkWithCredential:(FIRAuthCredential *)credential
                 completion:(nullable FIRAuthDataResultCallback)completion {
-  [self linkAndRetrieveDataWithCredential:credential completion:completion];
-}
-#pragma clang diagnostic pop
-
-- (void)linkAndRetrieveDataWithCredential:(FIRAuthCredential *)credential
-                               completion:(nullable FIRAuthDataResultCallback)completion {
   dispatch_async(FIRAuthGlobalWorkQueue(), ^{
     if (self->_providerData[credential.provider]) {
       callInMainThreadWithAuthDataResultAndError(completion, nil,
