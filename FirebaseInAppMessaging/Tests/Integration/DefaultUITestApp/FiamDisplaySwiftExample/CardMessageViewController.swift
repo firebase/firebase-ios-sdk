@@ -18,6 +18,7 @@ import UIKit
 
 class CardMessageViewController: CommonMessageTestVC {
   class TestableCardMessage: InAppMessagingCardDisplay {
+    var writableCampaignInfo: InAppMessagingCampaignInfo
     var writableTitle: String
     var writableBody: String?
     var writableTextColor: UIColor
@@ -28,7 +29,13 @@ class CardMessageViewController: CommonMessageTestVC {
     var writablePrimaryActionURL: URL
     var writableSecondaryActionButton: InAppMessagingActionButton?
     var writableSecondaryActionURL: URL?
+    var writableMessageType: FIRInAppMessagingDisplayMessageType
+    var writableTriggerType: FIRInAppMessagingDisplayTriggerType
 
+    override var campaignInfo: InAppMessagingCampaignInfo {
+      return writableCampaignInfo
+    }
+    
     override var title: String {
       return writableTitle
     }
@@ -68,6 +75,14 @@ class CardMessageViewController: CommonMessageTestVC {
     override var secondaryActionURL: URL? {
       return writableSecondaryActionURL
     }
+    
+    override var type: FIRInAppMessagingDisplayMessageType {
+      return writableMessageType
+    }
+    
+    override var triggerType: FIRInAppMessagingDisplayTriggerType {
+      return writableTriggerType
+    }
 
     init(titleText: String,
          body: String?,
@@ -89,14 +104,14 @@ class CardMessageViewController: CommonMessageTestVC {
       writablePrimaryActionURL = primaryActionURL
       writableSecondaryActionButton = secondaryActionButton
       writableSecondaryActionURL = secondaryActionURL
-      super.init(messageID: "testID",
-                 campaignName: "testCampaign",
-                 renderAsTestMessage: false,
-                 messageType: .card,
-                 triggerType: .onAnalyticsEvent)
+      writableCampaignInfo = TestableCampaignInfo(messageID: "testID",
+                                                  campaignName: "testCampaign",
+                                                  isTestMessage: false)
+      writableMessageType = FIRInAppMessagingDisplayMessageType.card
+      writableTriggerType = FIRInAppMessagingDisplayTriggerType.onAnalyticsEvent
     }
   }
-
+  
   let displayImpl = InAppMessagingDefaultDisplayImpl()
 
   @IBOutlet var verifyLabel: UILabel!

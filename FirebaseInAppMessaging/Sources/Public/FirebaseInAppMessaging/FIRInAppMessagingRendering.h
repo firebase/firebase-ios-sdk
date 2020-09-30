@@ -257,12 +257,12 @@ NS_SWIFT_NAME(InAppMessagingModalDisplay)
 /**
  * Gets the background color for a modal fiam message.
  */
-@property(nonatomic, copy, nonnull) UIColor *displayBackgroundColor;
+@property(nonatomic, copy, nonnull, readonly) UIColor *displayBackgroundColor;
 
 /**
  * Gets the color for text in modal fiam message. It would apply to both title and body text.
  */
-@property(nonatomic, copy, nonnull) UIColor *textColor;
+@property(nonatomic, copy, nonnull, readonly) UIColor *textColor;
 
 /// Unavailable.
 - (instancetype)init NS_UNAVAILABLE;
@@ -297,7 +297,7 @@ NS_SWIFT_NAME(InAppMessagingBannerDisplay)
 /**
  * Gets the color for text in banner fiam message. It would apply to both title and body text.
  */
-@property(nonatomic, copy, nonnull) UIColor *textColor;
+@property(nonatomic, copy, nonnull, readonly) UIColor *textColor;
 
 /**
  * Gets the action URL for a banner fiam message.
