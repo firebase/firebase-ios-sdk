@@ -1,6 +1,9 @@
 # unreleased
 - [fixed] Fixed the issue that failed to download image if no extension but MIME type is set. (#6590)
 
+# 2020-09 -- v.4.7.1
+- [added] InstanceID is deprecated, add macro to suppress deprecation warning. (#6585)
+
 # 2020-09 -- v.4.7.0
 - [added] Added new token APIs to get and delete the default FCM registration token asynchronously. Also added a new `Messaging.delete(completion:)` method that deletes all FCM registration tokens and checkin data. (#6313)
 

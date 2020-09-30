@@ -48,10 +48,12 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
 @property(nonatomic, readwrite, strong) FIRMessagingRmqManager *rmq2Manager;
 
 /// Surface internal initializer to avoid singleton usage during tests.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 - (instancetype)initWithAnalytics:(nullable id<FIRAnalyticsInterop>)analytics
                    withInstanceID:(FIRInstanceID *)instanceID
                  withUserDefaults:(GULUserDefaults *)defaults;
-
+#pragma clang diagnostic pop
 /// Kicks off required calls for some messaging tests.
 - (void)start;
 - (void)setupRmqManager;
@@ -97,8 +99,10 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
     // `FIRInstallations` default instance. Need to stub it before.
     _mockInstallations = OCMClassMock([FIRInstallations class]);
     OCMStub([self.mockInstallations installations]).andReturn(self.mockInstallations);
-
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     _instanceID = [[FIRInstanceID alloc] initPrivately];
+#pragma clang diagnostic pop
     [_instanceID start];
 
     // Create the messaging instance and call `start`.
