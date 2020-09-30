@@ -1175,46 +1175,6 @@ static NSString *UTCToLocal(NSString *utcTime) {
   }
 }
 
-- (void)testSetDefaultsAndNamespaceFromPlist {
-  for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
-    if (i == RCNTestRCInstanceDefault) {
-#if SWIFT_PACKAGE
-      [_configInstances[i] setDefaults:[self getSPMDefaults] namespace:RCNTestsPerfNamespace];
-#else
-      [_configInstances[i] setDefaultsFromPlistFileName:@"Defaults-testInfo"];
-#endif
-      XCTAssertEqualObjects([_configInstances[i] configValueForKey:@"lastCheckTime"].stringValue,
-                            UTCToLocal(@"2016-02-28 18:33:31"));
-      XCTAssertEqual([_configInstances[i] configValueForKey:@"isPaidUser"].boolValue, YES);
-      XCTAssertEqualObjects([_configInstances[i] configValueForKey:@"dataValue"].stringValue,
-                            @"2.4");
-      XCTAssertEqualObjects([_configInstances[i] configValueForKey:@"New item"].numberValue,
-                            @(2.4));
-      XCTAssertEqualObjects([_configInstances[i] configValueForKey:@"Languages"].stringValue,
-                            @"English");
-      XCTAssertEqualObjects([_configInstances[i] configValueForKey:@"FileInfo"].stringValue,
-                            @"To setup default config.");
-      XCTAssertEqualObjects([_configInstances[i] configValueForKey:@"format"].stringValue,
-                            @"key to value.");
-    } else {
-      [_configInstances[i] setDefaultsFromPlistFileName:@"Defaults-testInfo"];
-      XCTAssertEqualObjects([_configInstances[i] configValueForKey:@"lastCheckTime"].stringValue,
-                            UTCToLocal(@"2016-02-28 18:33:31"));
-      XCTAssertEqual([_configInstances[i] configValueForKey:@"isPaidUser"].boolValue, YES);
-      XCTAssertEqualObjects([_configInstances[i] configValueForKey:@"dataValue"].stringValue,
-                            @"2.4");
-      XCTAssertEqualObjects([_configInstances[i] configValueForKey:@"New item"].numberValue,
-                            @(2.4));
-      XCTAssertEqualObjects([_configInstances[i] configValueForKey:@"Languages"].stringValue,
-                            @"English");
-      XCTAssertEqualObjects([_configInstances[i] configValueForKey:@"FileInfo"].stringValue,
-                            @"To setup default config.");
-      XCTAssertEqualObjects([_configInstances[i] configValueForKey:@"format"].stringValue,
-                            @"key to value.");
-    }
-  }
-}
-
 - (void)testAllKeysFromSource {
   NSMutableArray<XCTestExpectation *> *fetchConfigsExpectation =
       [[NSMutableArray alloc] initWithCapacity:RCNTestRCNumTotalInstances];
