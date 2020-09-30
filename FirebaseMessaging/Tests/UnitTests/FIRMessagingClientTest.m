@@ -290,8 +290,10 @@ static NSString *const kSecretToken = @"56789";
   // `FIRInstallations` default instance. Need to stub it before.
   self.mockInstallations = OCMClassMock([FIRInstallations class]);
   OCMStub([self.mockInstallations installations]).andReturn(self.mockInstallations);
-
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   self.mockInstanceID = OCMPartialMock([FIRInstanceID instanceIDForTests]);
+#pragma clang diagnostic pup
   OCMStub([self.mockInstanceID tryToLoadValidCheckinInfo]).andReturn(YES);
   OCMStub([self.mockInstanceID deviceAuthID]).andReturn(kDeviceAuthId);
   OCMStub([self.mockInstanceID secretToken]).andReturn(kSecretToken);

@@ -144,8 +144,11 @@ BOOL FIRInstanceIDHasLocaleChanged() {
 #pragma mark - Helpers
 
 BOOL FIRInstanceIDIsValidGCMScope(NSString *scope) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   return [scope compare:kFIRInstanceIDScopeFirebaseMessaging
                 options:NSCaseInsensitiveSearch] == NSOrderedSame;
+#pragma clang diagnostic pop
 }
 
 NSString *FIRInstanceIDStringForAPNSDeviceToken(NSData *deviceToken) {

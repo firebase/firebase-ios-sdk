@@ -57,7 +57,10 @@ typedef void (^MockDelegateSubscriptionHandler)(NSString *topic,
 @property(nonatomic, strong) id mockMessaging;
 @property(nonatomic, strong) id mockInstallations;
 @property(nonatomic, readonly, strong) FIRMessaging *messaging;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 @property(nonatomic, readonly, strong) FIRInstanceID *instanceID;
+#pragma clang diagnostic pop
 
 - (instancetype)initWithUserDefaults:(NSUserDefaults *)userDefaults
                       withRMQManager:(BOOL)withRMQManager;

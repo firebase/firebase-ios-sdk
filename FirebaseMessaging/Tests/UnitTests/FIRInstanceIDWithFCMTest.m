@@ -32,8 +32,10 @@
 @end
 
 @interface FIRInstanceIDTest : XCTestCase
-
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 @property(nonatomic, readwrite, strong) FIRInstanceID *instanceID;
+#pragma clang diagnostic pop
 @property(nonatomic, readwrite, strong) id mockFirebaseApp;
 @property(nonatomic, readwrite, strong) FIRMessagingTestUtilities *testUtil;
 @property(nonatomic, strong) FIRMessaging *messaging;
