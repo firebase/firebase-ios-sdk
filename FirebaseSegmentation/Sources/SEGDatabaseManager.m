@@ -31,12 +31,12 @@ static NSString *const kMainTableColumnFirebaseInstallationIdentifier =
 static NSString *const kMainTableColumnAssociationStatus = @"association_status";
 
 // Exclude the database from iCloud backup.
-static BOOL SegmentationAddSkipBackupAttributeToItemAtPath(NSString *filePathString) {
+static BOOL SEGAddSkipBackupAttributeToItemAtPath(NSString *filePathString) {
   NSURL *URL = [NSURL fileURLWithPath:filePathString];
-  assert([[NSFileManager defaultManager] fileExistsAtPath:[URL path]]);
+    assert([[NSFileManager defaultManager] fileExistsAtPath:URL.path]);
 
   NSError *error = nil;
-  BOOL success = [URL setResourceValue:[NSNumber numberWithBool:YES]
+  BOOL success = [URL setResourceValue:@YES
                                 forKey:NSURLIsExcludedFromBackupKey
                                  error:&error];
   if (!success) {
@@ -46,7 +46,7 @@ static BOOL SegmentationAddSkipBackupAttributeToItemAtPath(NSString *filePathStr
   return success;
 }
 
-static BOOL SegmentationCreateFilePathIfNotExist(NSString *filePath) {
+static BOOL SEGCreateFilePathIfNotExist(NSString *filePath) {
   if (!filePath || !filePath.length) {
     // TODO(dmandar) log error.
     NSLog(@"Failed to create subdirectory for an empty file path.");
@@ -126,7 +126,7 @@ static BOOL SegmentationCreateFilePathIfNotExist(NSString *filePath) {
     NSLog(@"Loading segmentation database at path %@", dbPath);
     const char *databasePath = dbPath.UTF8String;
     // Create or open database path.
-    if (!SegmentationCreateFilePathIfNotExist(dbPath)) {
+    if (!SEGCreateFilePathIfNotExist(dbPath)) {
       completionHandler(NO, @{@"ErrorDescription" : @"Could not create database file at path"});
     }
     int flags = SQLITE_OPEN_CREATE | SQLITE_OPEN_READWRITE | SQLITE_OPEN_FILEPROTECTION_COMPLETE |
@@ -136,7 +136,7 @@ static BOOL SegmentationCreateFilePathIfNotExist(NSString *filePath) {
       if ([strongSelf createTableSchema]) {
         // DB file created or already exists.
         // Exclude the app data used from iCloud backup.
-        SegmentationAddSkipBackupAttributeToItemAtPath(dbPath);
+        SEGAddSkipBackupAttributeToItemAtPath(dbPath);
 
         // Read the database into memory.
         NSDictionary<NSString *, NSString *> *associations = [self loadMainTable];
@@ -147,7 +147,7 @@ static BOOL SegmentationCreateFilePathIfNotExist(NSString *filePath) {
         [strongSelf removeDatabase:dbPath];
         FIRLogError(kFIRLoggerSegmentation, @"I-SEG000010", @"Failed to create table.");
         // Create a new database if existing database file is corrupted.
-        if (!SegmentationCreateFilePathIfNotExist(dbPath)) {
+        if (!SEGCreateFilePathIfNotExist(dbPath)) {
           completionHandler(NO,
                             @{@"ErrorDescription" : @"Could not recreate database file at path"});
         }
@@ -159,7 +159,7 @@ static BOOL SegmentationCreateFilePathIfNotExist(NSString *filePath) {
             FIRLogError(kFIRLoggerSegmentation, @"I-SEG000010", @"Failed to create table.");
           } else {
             // Exclude the app data used from iCloud backup.
-            SegmentationAddSkipBackupAttributeToItemAtPath(dbPath);
+            SEGAddSkipBackupAttributeToItemAtPath(dbPath);
           }
         } else {
           [strongSelf logDatabaseError];

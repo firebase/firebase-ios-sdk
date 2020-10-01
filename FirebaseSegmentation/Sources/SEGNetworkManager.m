@@ -71,7 +71,7 @@ typedef void (^URLSessionCompletion)(NSData *data, NSURLResponse *response, NSEr
   NSURLSession *_URLSession;
 }
 
-- initWithFIROptions:(FIROptions *)options {
+- (instancetype)initWithOptions:(FIROptions *)options {
   self = [super init];
   if (self) {
     _firebaseAppOptions = options;
@@ -179,7 +179,7 @@ typedef void (^URLSessionCompletion)(NSData *data, NSURLResponse *response, NSEr
       [associationData objectForKey:kSEGFirebaseInstallationIdentifierKey];
   if (!firebaseInstallationIdentifier) {
     FIRLogError(kFIRLoggerSegmentation, @"I-SEG000071",
-                @"Missing firebase installation identifier");
+                @"Missing Firebase installation identifier");
     return nil;
   }
   serverURLStr = [serverURLStr stringByAppendingString:firebaseInstallationIdentifier];

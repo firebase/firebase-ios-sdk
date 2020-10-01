@@ -25,6 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
  * current app installation for segmentation purposes. If the custom installation identifier is
  * explicitely set to nil, any existing custom installation identifier data will be removed.
  */
+NS_SWIFT_NAME(Segmentation)
 @interface FIRSegmentation : NSObject
 
 /// Firebase Segmentation service fetch error.
@@ -38,7 +39,7 @@ typedef NS_ENUM(NSInteger, FIRSegmentationErrorCode) {
   FIRSegmentationErrorCodeConflict = 8003,
   /// Error indicating that a network error occurred during association.
   FIRSegmentationErrorCodeNetwork = 8004,
-};
+} NS_SWIFT_NAME(SegmentationErrorCode);
 
 /**
  * Singleton instance (scoped to the default FIRApp)

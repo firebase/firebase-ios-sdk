@@ -40,7 +40,7 @@ NSString *const kErrorDescription = @"ErrorDescription";
   dispatch_once(&onceToken, ^{
     sharedInstance = [[SEGContentManager alloc]
         initWithDatabaseManager:[SEGDatabaseManager sharedInstance]
-                 networkManager:[[SEGNetworkManager alloc] initWithFIROptions:options]];
+                 networkManager:[[SEGNetworkManager alloc] initWithOptions:options]];
   });
   return sharedInstance;
 }

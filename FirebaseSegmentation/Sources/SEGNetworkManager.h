@@ -22,7 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SEGNetworkManager : NSObject
 
-- (instancetype)initWithFIROptions:(FIROptions *)options;
+- (instancetype)initWithOptions:(FIROptions *)options;
 
 - (void)makeAssociationRequestToBackendWithData:
             (nonnull NSDictionary<NSString *, id> *)associationData
