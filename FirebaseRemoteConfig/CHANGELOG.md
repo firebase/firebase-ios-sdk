@@ -2,6 +2,7 @@
 - [changed] Updated `lastFetchTime` field to readonly. (#6567)
 - [changed] Functionally neutral change to stop using a deprecated method in the AB Testing API. (#6543)
 - [fixed] Updated `numberValue` to be nonnull to align with current behavior. (#6623)
+- [removed] Removed deprecated APIs `isDeveloperModeEnabled`, `initWithDeveloperModeEnabled:developerModeEnabled`, `activateWithCompletionHandler:completionHandler`, `activateFetched`, `configValueForKey:namespace`, `configValueForKey:namespace:source`, `allKeysFromSource:namespace`, `keysWithPrefix:namespace`, `setDefaults:namespace`, `setDefaultsFromPlistFileName:namespace`, `defaultValueForKey:namespace`. (#6637)
 
 # v4.9.1
 - [fixed] Fix an `attempt to insert nil object` crash in `fetchWithExpirationDuration:`. (#6522)
