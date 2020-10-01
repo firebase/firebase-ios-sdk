@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseInstanceID'
-  s.version          = '4.7.0'
+  s.version          = '4.8.0'
   s.summary          = 'Firebase InstanceID'
 
   s.description      = <<-DESC
@@ -18,13 +18,12 @@ services.
     :tag => 'InstanceID-' + s.version.to_s
   }
   s.social_media_url = 'https://twitter.com/Firebase'
-  s.ios.deployment_target = '8.0'
-  s.osx.deployment_target = '10.11'
+  s.ios.deployment_target = '10.0'
+  s.osx.deployment_target = '10.12'
   s.tvos.deployment_target = '10.0'
   s.watchos.deployment_target = '6.0'
 
   s.cocoapods_version = '>= 1.4.0'
-  s.static_framework = true
   s.prefix_header_file = false
 
   base_dir = "Firebase/InstanceID/"
@@ -32,8 +31,6 @@ services.
     base_dir + '**/*.[mh]',
     'FirebaseCore/Sources/Private/*.h',
     'FirebaseInstallations/Source/Library/Private/*.h',
-    'GoogleUtilities/Environment/Private/*.h',
-    'GoogleUtilities/UserDefaults/Private/*.h',
   ]
   s.requires_arc = base_dir + '*.m'
   s.public_header_files = base_dir + 'Public/*.h', base_dir + 'Private/*.h'
@@ -65,7 +62,7 @@ services.
   end
 
    s.test_spec 'integration' do |int_tests|
-    int_tests.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
+    int_tests.platforms = {:ios => '10.0', :osx => '10.12', :tvos => '10.0'}
     int_tests.source_files = 'Example/InstanceID/IntegrationTests/*.[mh]'
     int_tests.resources = 'Example/InstanceID/Resources/**/*'
     int_tests.requires_app_host = true

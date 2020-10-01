@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRInstanceIDVersionUtilities.h"
+#import "Firebase/InstanceID/FIRInstanceIDVersionUtilities.h"
 
 // Convert the macro to a string
 #define STR(x) STR_EXPAND(x)

@@ -69,7 +69,7 @@
 - (GDTCORStorageSizeBytes)calculateDirectoryContentSize {
   NSArray *prefetchedProperties = @[ NSURLIsRegularFileKey, NSURLFileSizeKey ];
   uint64_t totalBytes = 0;
-  NSURL *directoryURL = [NSURL URLWithString:self.directoryPath];
+  NSURL *directoryURL = [NSURL fileURLWithPath:self.directoryPath];
 
   NSDirectoryEnumerator *enumerator = [[NSFileManager defaultManager]
                  enumeratorAtURL:directoryURL

@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-#import "FIRInstanceID+Private.h"
+#import "Firebase/InstanceID/Private/FIRInstanceID+Private.h"
 
 #import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
 
-#import <FirebaseInstanceID/FIRInstanceID_Private.h>
-#import "FIRInstanceIDAuthService.h"
-#import "FIRInstanceIDDefines.h"
-#import "FIRInstanceIDTokenManager.h"
+#import "Firebase/InstanceID/FIRInstanceIDAuthService.h"
+#import "Firebase/InstanceID/FIRInstanceIDDefines.h"
+#import "Firebase/InstanceID/FIRInstanceIDTokenManager.h"
+#import "Firebase/InstanceID/Private/FIRInstanceID_Private.h"
 
 @class FIRInstallations;
 
@@ -31,7 +31,10 @@
 
 @end
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-implementations"
 @implementation FIRInstanceID (Private)
+#pragma clang diagnostic pop
 
 // This method just wraps our pre-configured auth service to make the request.
 // This method is only needed by first-party users, like Remote Config.

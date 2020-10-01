@@ -1,3 +1,17 @@
+# Firebase 7.0.0
+- [changed] Update minimum iOS version to iOS 10 except for Analytics which is now iOS 9. (#4847)
+- [changed] Update minimum macOS version to 10.12.
+- [added] Swift Package Manager support for Firebase Messaging. (#5641)
+- [changed] The pods developed in this repo are no longer hard coded to be built as static
+  frameworks. Instead, their linkage will be controlled by the Podfile. Use the Podfile
+  option `use_frameworks! :linkage => :static` to get the Firebase 6.x linkage behavior. (#2022)
+- [removed] Removed broken `FirebaseOptions()` initializer. Use `init(contentsOfFile:)` or
+  `init(googleAppID:gcmSenderID:)` instead. (#6633)
+
+# Firebase 6.34.0
+- [fixed] Removed warning related to missing Analytics framework for non-iOS builds since the
+  framework isn't available on those platforms. (#6500)
+
 # Firebase 6.33.0
 - [fixed] Swift Package Manager - Define system framework and system library dependencies. This
   resolves undefined symbol issues for system dependencies. (#6408, #6413)

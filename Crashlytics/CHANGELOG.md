@@ -1,4 +1,5 @@
 # Unreleased
+- [changed] Improved upload-symbols conversion speed. Customers with large dSYMs should see a significant improvement in the it takes to upload Crashlytics symbols.
 - [fixed] Fixed Apple Watch crash related to sigaction (#6434).
 
 # v4.6.0

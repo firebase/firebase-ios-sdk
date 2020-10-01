@@ -23,6 +23,7 @@
 #import "FirebaseFunctions/FirebaseFunctions.h"
 #import "FirebaseInAppMessaging/FirebaseInAppMessaging.h"
 #import "FirebaseInstallations/FirebaseInstallations.h"
+#import "FirebaseMessaging/FirebaseMessaging.h"
 #import "FirebaseRemoteConfig/FirebaseRemoteConfig.h"
 #import "FirebaseStorage/FirebaseStorage.h"
 
@@ -37,5 +38,6 @@
 #import <FirebaseFunctions/FirebaseFunctions.h>
 #import <FirebaseInAppMessaging/FirebaseInAppMessaging.h>
 #import <FirebaseInstallations/FirebaseInstallations.h>
+#import <FirebaseMessaging/FirebaseMessaging.h>
 #import <FirebaseRemoteConfig/FirebaseRemoteConfig.h>
 #import <FirebaseStorage/FirebaseStorage.h>

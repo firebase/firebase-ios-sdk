@@ -17,22 +17,18 @@ supports email and password accounts, as well as several 3rd party authenticatio
     :tag => 'Auth-' + s.version.to_s
   }
   s.social_media_url = 'https://twitter.com/Firebase'
-  s.ios.deployment_target = '8.0'
-  s.osx.deployment_target = '10.11'
+  s.ios.deployment_target = '10.0'
+  s.osx.deployment_target = '10.12'
   s.tvos.deployment_target = '10.0'
   s.watchos.deployment_target = '6.0'
 
   s.cocoapods_version = '>= 1.4.0'
-  s.static_framework = true
   s.prefix_header_file = false
 
   source = 'FirebaseAuth/Sources/'
   s.source_files = [
     source + '**/*.[mh]',
     'FirebaseCore/Sources/Private/*.h',
-    'GoogleUtilities/AppDelegateSwizzler/Private/*.h',
-    'GoogleUtilities/Environment/Private/*.h',
-    'GoogleUtilities/SceneDelegateSwizzler/Private/*.h',
     'Interop/Auth/Public/*.h',
   ]
   s.public_header_files = source + 'Public/FirebaseAuth/*.h'

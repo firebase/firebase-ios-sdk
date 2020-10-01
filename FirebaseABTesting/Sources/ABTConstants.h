@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#import "FirebaseCore/Sources/Private/FIRLogger.h"
+
 #define ABT_MSEC_PER_SEC 1000ull
 
 #pragma mark - Keys for experiment dictionaries.
@@ -41,3 +43,7 @@ static NSString *const kABTErrorDomain = @"com.google.abtesting";
 typedef NS_ENUM(NSUInteger, ABTInternalErrorCode) {
   kABTInternalErrorFailedToFetchConditionalUserProperties = 1
 };
+
+#pragma mark - Logger Service String
+
+extern FIRLoggerService kFIRLoggerABTesting;

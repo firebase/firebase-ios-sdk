@@ -169,11 +169,15 @@ static const NSInteger FIRErrorCodeDurableDeepLinkFailed = -119;
     urlScheme = options.deepLinkURLScheme ?: [NSBundle mainBundle].bundleIdentifier;
     [self setUpWithLaunchOptions:nil apiKey:options.APIKey urlScheme:urlScheme userDefaults:nil];
   } else {
-    error =
-        [FIRApp errorForSubspecConfigurationFailureWithDomain:kFirebaseDurableDeepLinkErrorDomain
-                                                    errorCode:FIRErrorCodeDurableDeepLinkFailed
-                                                      service:@"DynamicLinks"
-                                                       reason:errorDescription];
+    NSString *description =
+        [NSString stringWithFormat:@"Configuration failed for service DynamicLinks."];
+    NSDictionary *errorDict = @{
+      NSLocalizedDescriptionKey : description,
+      NSLocalizedFailureReasonErrorKey : errorDescription
+    };
+    error = [NSError errorWithDomain:kFirebaseDurableDeepLinkErrorDomain
+                                code:FIRErrorCodeDurableDeepLinkFailed
+                            userInfo:errorDict];
   }
   if (error) {
     NSString *message = nil;
@@ -514,17 +518,7 @@ static const NSInteger FIRErrorCodeDurableDeepLinkFailed = -119;
 }
 
 - (void)passRetrievedDynamicLinkToApplication:(NSURL *)url {
-  id<UIApplicationDelegate> applicationDelegate = [UIApplication sharedApplication].delegate;
-  if (applicationDelegate &&
-      [applicationDelegate respondsToSelector:@selector(application:openURL:options:)]) {
-    // pass url directly to application delegate to avoid hop into
-    // iOS handling of the universal links
-    if (@available(iOS 9.0, *)) {
-      [applicationDelegate application:[UIApplication sharedApplication] openURL:url options:@{}];
-      return;
-    }
-  }
-  [[UIApplication sharedApplication] openURL:url];
+  [[UIApplication sharedApplication] openURL:url options:@{} completionHandler:nil];
 }
 
 - (void)handlePendingDynamicLinkRetrievalFailureWithErrorCode:(NSInteger)errorCode

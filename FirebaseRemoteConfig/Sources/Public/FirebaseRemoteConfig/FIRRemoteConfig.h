@@ -109,7 +109,7 @@ NS_SWIFT_NAME(RemoteConfigValue)
 /// Gets the value as a string.
 @property(nonatomic, readonly, nullable) NSString *stringValue;
 /// Gets the value as a number value.
-@property(nonatomic, readonly, nullable) NSNumber *numberValue;
+@property(nonatomic, readonly, nonnull) NSNumber *numberValue;
 /// Gets the value as a NSData object.
 @property(nonatomic, readonly, nonnull) NSData *dataValue;
 /// Gets the value as a boolean.
@@ -155,7 +155,7 @@ NS_SWIFT_NAME(RemoteConfigSettings)
 NS_SWIFT_NAME(RemoteConfig)
 @interface FIRRemoteConfig : NSObject <NSFastEnumeration>
 /// Last successful fetch completion time.
-@property(nonatomic, readwrite, strong, nullable) NSDate *lastFetchTime;
+@property(nonatomic, readonly, strong, nullable) NSDate *lastFetchTime;
 /// Last fetch status. The status can be any enumerated value from FIRRemoteConfigFetchStatus.
 @property(nonatomic, readonly, assign) FIRRemoteConfigFetchStatus lastFetchStatus;
 /// Config settings are custom settings.

@@ -1,3 +1,6 @@
+# 2020-10 -- v7.0.0
+- [removed] Removed deprecated elements of in-app messaging API.
+
 # 2020-08 -- v0.24.0
 - [changed] Functionally neutral import and header refactor to enable Swift Package
   Manager support.

@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseRemoteConfig'
-  s.version          = '4.9.0'
+  s.version          = '4.9.1'
   s.summary          = 'Firebase Remote Config'
 
   s.description      = <<-DESC
@@ -18,12 +18,11 @@ app update.
     :tag => 'RemoteConfig-' + s.version.to_s
   }
   s.social_media_url = 'https://twitter.com/Firebase'
-  s.ios.deployment_target = '8.0'
-  s.osx.deployment_target = '10.11'
+  s.ios.deployment_target = '10.0'
+  s.osx.deployment_target = '10.12'
   s.tvos.deployment_target = '10.0'
 
   s.cocoapods_version = '>= 1.4.0'
-  s.static_framework = true
   s.prefix_header_file = false
 
   base_dir = "FirebaseRemoteConfig/Sources/"
@@ -33,8 +32,6 @@ app update.
     'FirebaseABTesting/Sources/Private/*.h',
     'FirebaseCore/Sources/Private/*.h',
     'FirebaseInstallations/Source/Library/Private/*.h',
-    'GoogleUtilities/Environment/Private/*.h',
-    'GoogleUtilities/NSData+zlib/Private/*.h',
   ]
   s.public_header_files = base_dir + 'Public/FirebaseRemoteConfig/*.h'
   s.private_header_files = base_dir + 'Private/*.h'
