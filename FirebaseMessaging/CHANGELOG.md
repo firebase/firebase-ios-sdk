@@ -1,5 +1,6 @@
 # unreleased -- v.7.0.0
 - [changed] Remove the deprecated FCM direct channel API and Upstream send API. (#6430)
+- [fixed] Fixed an issue that downloading an image failed when there's no extension in the file name but MIME type is set. (#6590)
 
 # 2020-09 -- v.4.7.1
 - [added] InstanceID is deprecated, add macro to suppress deprecation warning. (#6585)
