@@ -55,8 +55,8 @@ else
 'InAppMessaging|Firebase/InAppMessaging|'\
 'FirebaseInAppMessaging.podspec|'\
 'Firebase/InstanceID|FirebaseInstanceID.podspec|'\
-'FirebaseInstallations'\
-'FirebaseCrashlytics.podspec)'\
+'FirebaseInstallations|'\
+'FirebaseCrashlytics.podspec|'\
 'FirebaseSegmentation.podspec)'\
       ;;
 
