@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-#import "FIRInstanceIDTokenDeleteOperation.h"
+#import "Firebase/InstanceID/FIRInstanceIDTokenDeleteOperation.h"
 
-#import "FIRInstanceIDCheckinPreferences.h"
-#import "FIRInstanceIDConstants.h"
-#import "FIRInstanceIDDefines.h"
-#import "FIRInstanceIDLogger.h"
-#import "FIRInstanceIDTokenOperation+Private.h"
-#import "FIRInstanceIDUtilities.h"
-#import "NSError+FIRInstanceID.h"
+#import "Firebase/InstanceID/FIRInstanceIDConstants.h"
+#import "Firebase/InstanceID/FIRInstanceIDDefines.h"
+#import "Firebase/InstanceID/FIRInstanceIDLogger.h"
+#import "Firebase/InstanceID/FIRInstanceIDTokenOperation+Private.h"
+#import "Firebase/InstanceID/FIRInstanceIDUtilities.h"
+#import "Firebase/InstanceID/NSError+FIRInstanceID.h"
+#import "Firebase/InstanceID/Private/FIRInstanceIDCheckinPreferences.h"
 
 @implementation FIRInstanceIDTokenDeleteOperation
 

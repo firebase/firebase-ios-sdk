@@ -22,8 +22,8 @@
 #import "FBLPromises.h"
 #endif
 
+#import <GoogleUtilities/GULKeychainStorage.h>
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
-#import "GoogleUtilities/Environment/Private/GULKeychainStorage.h"
 
 #import "FirebaseInstallations/Source/Library/Errors/FIRInstallationsErrorUtil.h"
 #import "FirebaseInstallations/Source/Library/FIRInstallationsItem.h"
@@ -182,9 +182,13 @@ static NSString *const kKeychainService = @"com.firebase.FIRInstallations.instal
       ^BOOL(FIRInstallationsItem *installation) {
         NSError *validationError;
         BOOL isValid = [installation isValid:&validationError];
-        FIRLogWarning(
-            kFIRLoggerInstallations, kFIRInstallationsMessageCodeCorruptedStoredInstallation,
-            @"Stored installation validation error: %@", validationError.localizedDescription);
+
+        if (!isValid) {
+          FIRLogWarning(
+              kFIRLoggerInstallations, kFIRInstallationsMessageCodeCorruptedStoredInstallation,
+              @"Stored installation validation error: %@", validationError.localizedDescription);
+        }
+
         return isValid;
       });
 }

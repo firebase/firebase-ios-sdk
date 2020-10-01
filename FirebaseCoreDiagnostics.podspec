@@ -18,13 +18,12 @@ non-Cocoapod integration. This library also respects the Firebase global data co
     :tag => 'CoreDiagnostics-' + s.version.to_s
   }
   s.social_media_url = 'https://twitter.com/Firebase'
-  s.ios.deployment_target = '8.0'
-  s.osx.deployment_target = '10.11'
+  s.ios.deployment_target = '9.0'
+  s.osx.deployment_target = '10.12'
   s.tvos.deployment_target = '10.0'
   s.watchos.deployment_target = '6.0'
 
   s.cocoapods_version = '>= 1.4.0'
-  s.static_framework = true
   s.prefix_header_file = false
 
   header_search_paths = {
@@ -45,8 +44,6 @@ non-Cocoapod integration. This library also respects the Firebase global data co
   s.source_files = [
     'Firebase/CoreDiagnostics/FIRCDLibrary/**/*.[cmh]',
     'GoogleDataTransport/GDTCORLibrary/Internal/*.h',
-    'GoogleUtilities/Environment/Private/*.h',
-    'GoogleUtilities/Logger/Private/*.h',
     'Interop/CoreDiagnostics/Public/*.h',
   ]
   s.public_header_files = 'Firebase/CoreDiagnostics/FIRCDLibrary/Public/*.h'
@@ -65,7 +62,6 @@ non-Cocoapod integration. This library also respects the Firebase global data co
     unit_tests.dependency 'OCMock'
     unit_tests.source_files = [
       'Example/CoreDiagnostics/Tests/**/*.[mh]',
-      'GoogleUtilities/UserDefaults/Private/*.h',
     ]
     unit_tests.requires_app_host = false
   end

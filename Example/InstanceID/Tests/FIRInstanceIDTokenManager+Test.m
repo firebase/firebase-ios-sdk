@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRInstanceIDTokenManager+Test.h"
+#import "Example/InstanceID/Tests/FIRInstanceIDTokenManager+Test.h"
 
 #import "Firebase/InstanceID/FIRInstanceIDAuthService.h"
 #import "Firebase/InstanceID/FIRInstanceIDCheckinStore.h"

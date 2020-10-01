@@ -17,10 +17,9 @@ See more product details at https://firebase.google.com/products/in-app-messagin
     :tag => 'InAppMessaging-' + s.version.to_s
   }
   s.social_media_url = 'https://twitter.com/Firebase'
-  s.ios.deployment_target = '9.0'
+  s.ios.deployment_target = '10.0'
 
   s.cocoapods_version = '>= 1.4.0'
-  s.static_framework = true
   s.prefix_header_file = false
 
   base_dir = "FirebaseInAppMessaging/"
@@ -30,7 +29,6 @@ See more product details at https://firebase.google.com/products/in-app-messagin
     'FirebaseABTesting/Sources/Private/*.h',
     'FirebaseCore/Sources/Private/*.h',
     'FirebaseInstallations/Source/Library/Private/*.h',
-    'GoogleUtilities/Environment/Private/*.h',
   ]
   s.public_header_files = base_dir + 'Sources/Public/FirebaseInAppMessaging/*.h'
   s.private_header_files = base_dir + 'Sources/Private/**/*.h'

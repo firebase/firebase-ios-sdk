@@ -14,19 +14,16 @@
 
 #import "FirebaseCore/Sources/Private/FIRLogger.h"
 
+#import <GoogleUtilities/GULAppEnvironmentUtil.h>
+#import <GoogleUtilities/GULLogger.h>
 #import "FirebaseCore/Sources/Public/FirebaseCore/FIRLoggerLevel.h"
-#import "GoogleUtilities/Environment/Private/GULAppEnvironmentUtil.h"
-#import "GoogleUtilities/Logger/Private/GULLogger.h"
 
 #import "FirebaseCore/Sources/FIRVersion.h"
 
 FIRLoggerService kFIRLoggerCore = @"[Firebase/Core]";
 
 // All the FIRLoggerService definitions should be migrated to clients. Do not add new ones!
-FIRLoggerService kFIRLoggerABTesting = @"[Firebase/ABTesting]";
-FIRLoggerService kFIRLoggerAdMob = @"[Firebase/AdMob]";
 FIRLoggerService kFIRLoggerAnalytics = @"[Firebase/Analytics]";
-FIRLoggerService kFIRLoggerAuth = @"[Firebase/Auth]";
 FIRLoggerService kFIRLoggerCrash = @"[Firebase/Crash]";
 FIRLoggerService kFIRLoggerMLKit = @"[Firebase/MLKit]";
 FIRLoggerService kFIRLoggerPerf = @"[Firebase/Performance]";

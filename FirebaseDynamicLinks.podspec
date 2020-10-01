@@ -16,10 +16,9 @@ Firebase Dynamic Links are deep links that enhance user experience and increase 
     :tag => 'DynamicLinks-' + s.version.to_s
   }
   s.social_media_url = 'https://twitter.com/Firebase'
-  s.ios.deployment_target = '8.0'
+  s.ios.deployment_target = '10.0'
 
   s.cocoapods_version = '>= 1.4.0'
-  s.static_framework = true
   s.prefix_header_file = false
 
   s.source_files = [
@@ -42,8 +41,6 @@ Firebase Dynamic Links are deep links that enhance user experience and increase 
   s.test_spec 'unit' do |unit_tests|
     unit_tests.source_files = [
       'FirebaseDynamicLinks/Tests/Unit/*.[mh]',
-      'GoogleUtilities/SwizzlerTestHelpers/*.h',
-      'GoogleUtilities/MethodSwizzler/Private/*.h',
     ]
     unit_tests.requires_app_host = true
     unit_tests.resources = 'FirebaseDynamicLinks/Tests/Unit/GoogleService-Info.plist',

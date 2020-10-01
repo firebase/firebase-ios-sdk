@@ -18,6 +18,7 @@
 #import "FirebaseCore/Sources/FIRVersion.h"
 #import "FirebaseCore/Sources/Private/FIRAppInternal.h"
 #import "FirebaseCore/Sources/Private/FIROptionsInternal.h"
+#import "SharedTestUtilities/FIROptionsMock.h"
 
 extern NSString *const kFIRIsMeasurementEnabled;
 extern NSString *const kFIRIsAnalyticsCollectionEnabled;
@@ -43,9 +44,7 @@ extern NSString *const kFIRLibraryVersionID;
 }
 
 - (void)testInit {
-#if SWIFT_PACKAGE
-  [self mockFIROptions];
-#endif
+  [FIROptionsMock mockFIROptions];
   NSDictionary *optionsDictionary = [FIROptions defaultOptionsDictionary];
   FIROptions *options = [[FIROptions alloc] initInternalWithOptionsDictionary:optionsDictionary];
   [self assertOptionsMatchDefaults:options andProjectID:YES];
@@ -75,9 +74,7 @@ extern NSString *const kFIRLibraryVersionID;
 }
 
 - (void)testDefaultOptions {
-#if SWIFT_PACKAGE
-  [self mockFIROptions];
-#endif
+  [FIROptionsMock mockFIROptions];
   FIROptions *options = [FIROptions defaultOptions];
   [self assertOptionsMatchDefaults:options andProjectID:YES];
   XCTAssertNil(options.deepLinkURLScheme);
@@ -242,9 +239,7 @@ extern NSString *const kFIRLibraryVersionID;
 }
 
 - (void)testCopyWithZone {
-#if SWIFT_PACKAGE
-  [self mockFIROptions];
-#endif
+  [FIROptionsMock mockFIROptions];
   // default options
   FIROptions *options = [FIROptions defaultOptions];
   options.deepLinkURLScheme = kDeepLinkURLScheme;

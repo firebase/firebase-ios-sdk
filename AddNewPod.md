@@ -13,8 +13,6 @@ detailed instructions. Some Firebase specific guidance below:
 * `s.deployment_target` - Ideally should include ios, osx, and tvos. See
 [FirebaseCore.podspec](FirebaseCore.podspec) for the current Firebase minimum version settings.
 
-* `s.static_framework` - By default, Firebase pods should be static frameworks.
-
 * `s.dependency` - Dependencies on other Firebase pods and pods in this repo should specify a
 version and allow minor version updates - like `s.dependency 'FirebaseCore', '~> 6.6'`. When
 initially defined, choose the most recently released minor version of the dependency.

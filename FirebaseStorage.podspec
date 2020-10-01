@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseStorage'
-  s.version          = '3.9.0'
+  s.version          = '3.9.1'
   s.summary          = 'Firebase Storage'
 
   s.description      = <<-DESC
@@ -16,13 +16,12 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
     :tag => 'Storage-' + s.version.to_s
   }
   s.social_media_url = 'https://twitter.com/Firebase'
-  s.ios.deployment_target = '8.0'
-  s.osx.deployment_target = '10.11'
+  s.ios.deployment_target = '10.0'
+  s.osx.deployment_target = '10.12'
   s.tvos.deployment_target = '10.0'
   s.watchos.deployment_target = '6.0'
 
   s.cocoapods_version = '>= 1.4.0'
-  s.static_framework = true
   s.prefix_header_file = false
 
   s.source_files = [
@@ -45,7 +44,7 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
   }
 
   s.test_spec 'unit' do |unit_tests|
-    unit_tests.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
+    unit_tests.platforms = {:ios => '10.0', :osx => '10.12', :tvos => '10.0'}
     unit_tests.source_files = 'FirebaseStorage/Tests/Unit/*.[mh]',
                               'SharedTestUtilities/FIRComponentTestUtilities.*',
                               'SharedTestUtilities/FIRAuthInteropFake.*'
@@ -53,7 +52,7 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
   end
 
   s.test_spec 'integration' do |int_tests|
-    int_tests.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
+    int_tests.platforms = {:ios => '10.0', :osx => '10.12', :tvos => '10.0'}
     int_tests.source_files = 'FirebaseStorage/Tests/Integration/*.[mh]'
     int_tests.requires_app_host = true
     int_tests.resources = 'FirebaseStorage/Tests/Integration/Resources/1mb.dat',
@@ -62,7 +61,7 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
   end
 
   s.test_spec 'swift-integration' do |swift_int_tests|
-    swift_int_tests.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
+    swift_int_tests.platforms = {:ios => '10.0', :osx => '10.12', :tvos => '10.0'}
     swift_int_tests.source_files = 'FirebaseStorage/Tests/SwiftIntegration/*.swift'
     swift_int_tests.requires_app_host = true
     swift_int_tests.resources = 'FirebaseStorage/Tests/Integration/Resources/1mb.dat',
