@@ -347,12 +347,11 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
 
 - (FIRRemoteConfigValue *)configValueForKey:(NSString *)key {
   NSString *aNamespace = _FIRNamespace;
-  if (!key || aNamespace) {
+  if (!key || !aNamespace) {
     return [[FIRRemoteConfigValue alloc] initWithData:[NSData data]
                                                source:FIRRemoteConfigSourceStatic];
   }
   NSString *FQNamespace = [self fullyQualifiedNamespace:aNamespace];
-
   __block FIRRemoteConfigValue *value;
   dispatch_sync(_queue, ^{
     value = self->_configContent.activeConfig[FQNamespace][key];
