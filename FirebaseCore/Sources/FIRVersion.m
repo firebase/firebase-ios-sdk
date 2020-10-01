@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 
+#import "FirebaseCore/Sources/Private/FIRVersion.h"
+
 #ifndef Firebase_VERSION
 #error "Firebase_VERSION is not defined: add -DFirebase_VERSION=... to the build invocation"
-#endif
-
-#ifndef FIRCore_VERSION
-#error "FIRCore_VERSION is not defined: add -DFIRCore_VERSION=... to the build invocation"
 #endif
 
 // The following two macros supply the incantation so that the C
@@ -29,5 +27,16 @@
 #define STR(x) STR_EXPAND(x)
 #define STR_EXPAND(x) #x
 
-const char *const FIRVersionString = (const char *const)STR(Firebase_VERSION);
-const char *const FIRCoreVersionString = (const char *const)STR(FIRCore_VERSION);
+@implementation FIRVersion
+
++ (NSString *)version {
+  const char *const FIRVersionString = (const char *const)STR(Firebase_VERSION);
+  static NSString *v;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    v = [NSString stringWithUTF8String:FIRVersionString];
+  });
+  return v;
+}
+
+@end
