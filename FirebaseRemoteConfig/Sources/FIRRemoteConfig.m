@@ -47,26 +47,14 @@ static NSString *const kRemoteConfigFetchTimeoutKey = @"_rcn_fetch_timeout";
 @end
 
 @implementation FIRRemoteConfigSettings
-- (instancetype)initWithDeveloperModeEnabled:(BOOL)developerModeEnabled {
-  self = [self init];
-  if (self) {
-    _developerModeEnabled = developerModeEnabled;
-  }
-  return self;
-}
 
 - (instancetype)init {
   self = [super init];
   if (self) {
-    _developerModeEnabled = NO;
     _minimumFetchInterval = RCNDefaultMinimumFetchInterval;
     _fetchTimeout = RCNHTTPDefaultConnectionTimeout;
   }
   return self;
-}
-
-- (BOOL)isDeveloperModeEnabled {
-  return _developerModeEnabled;
 }
 
 @end
@@ -261,11 +249,6 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
 typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_Nullable error);
 
 - (void)activateWithCompletion:(FIRRemoteConfigActivateChangeCompletion)completion {
-  [self activateWithEitherHandler:completion deprecatedHandler:nil];
-}
-
-- (void)activateWithEitherHandler:(FIRRemoteConfigActivateChangeCompletion)completion
-                deprecatedHandler:(FIRRemoteConfigActivateCompletion)deprecatedHandler {
   __weak FIRRemoteConfig *weakSelf = self;
   void (^applyBlock)(void) = ^(void) {
     FIRRemoteConfig *strongSelf = weakSelf;
@@ -277,8 +260,6 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
           completion(NO, error);
         });
-      } else if (deprecatedHandler) {
-        deprecatedHandler(error);
       }
       FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000068", @"Internal error activating config.");
       return;
@@ -293,16 +274,6 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
           completion(NO, nil);
         });
-      } else if (deprecatedHandler) {
-        NSError *error = [NSError
-            errorWithDomain:FIRRemoteConfigErrorDomain
-                       code:FIRRemoteConfigErrorInternalError
-                   userInfo:@{
-                     @"ActivationFailureReason" : @"Most recently fetched config already activated"
-                   }];
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-          deprecatedHandler(error);
-        });
       }
       return;
     }
@@ -315,10 +286,6 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
     if (completion) {
       dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         completion(YES, nil);
-      });
-    } else if (deprecatedHandler) {
-      dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        deprecatedHandler(nil);
       });
     }
   };
