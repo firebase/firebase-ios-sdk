@@ -313,12 +313,11 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
 }
 
 - (FIRRemoteConfigValue *)configValueForKey:(NSString *)key {
-  NSString *aNamespace = _FIRNamespace;
-  if (!key || !aNamespace) {
+  if (!key) {
     return [[FIRRemoteConfigValue alloc] initWithData:[NSData data]
                                                source:FIRRemoteConfigSourceStatic];
   }
-  NSString *FQNamespace = [self fullyQualifiedNamespace:aNamespace];
+  NSString *FQNamespace = [self fullyQualifiedNamespace:_FIRNamespace];
   __block FIRRemoteConfigValue *value;
   dispatch_sync(_queue, ^{
     value = self->_configContent.activeConfig[FQNamespace][key];
@@ -342,12 +341,11 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
 }
 
 - (FIRRemoteConfigValue *)configValueForKey:(NSString *)key source:(FIRRemoteConfigSource)source {
-  NSString *aNamespace = _FIRNamespace;
-  if (!key || !aNamespace) {
+  if (!key) {
     return [[FIRRemoteConfigValue alloc] initWithData:[NSData data]
                                                source:FIRRemoteConfigSourceStatic];
   }
-  NSString *FQNamespace = [self fullyQualifiedNamespace:aNamespace];
+  NSString *FQNamespace = [self fullyQualifiedNamespace:_FIRNamespace];
 
   __block FIRRemoteConfigValue *value;
   dispatch_sync(_queue, ^{
@@ -397,13 +395,9 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
 }
 
 - (NSArray *)allKeysFromSource:(FIRRemoteConfigSource)source {
-  NSString *aNamespace = _FIRNamespace;
   __block NSArray *keys = [[NSArray alloc] init];
   dispatch_sync(_queue, ^{
-    if (!aNamespace) {
-      return;
-    }
-    NSString *FQNamespace = [self fullyQualifiedNamespace:aNamespace];
+    NSString *FQNamespace = [self fullyQualifiedNamespace:_FIRNamespace];
     switch (source) {
       case FIRRemoteConfigSourceDefault:
         if (self->_configContent.defaultConfig[FQNamespace]) {
@@ -423,14 +417,9 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
 }
 
 - (nonnull NSSet *)keysWithPrefix:(nullable NSString *)prefix {
-  NSString *aNamespace = _FIRNamespace;
   __block NSMutableSet *keys = [[NSMutableSet alloc] init];
-  __block NSString *namespaceToCheck = aNamespace;
   dispatch_sync(_queue, ^{
-    if (!namespaceToCheck.length) {
-      return;
-    }
-    NSString *FQNamespace = [self fullyQualifiedNamespace:namespaceToCheck];
+    NSString *FQNamespace = [self fullyQualifiedNamespace:_FIRNamespace];
     if (self->_configContent.activeConfig[FQNamespace]) {
       NSArray *allKeys = [self->_configContent.activeConfig[FQNamespace] allKeys];
       if (!prefix.length) {
@@ -450,12 +439,7 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
 #pragma mark - Defaults
 
 - (void)setDefaults:(NSDictionary<NSString *, NSObject *> *)defaultConfig {
-  NSString *aNamespace = _FIRNamespace;
-  if (!aNamespace) {
-    FIRLogWarning(kFIRLoggerRemoteConfig, @"I-RCN000036", @"The namespace cannot be empty or nil.");
-    return;
-  }
-  NSString *FQNamespace = [self fullyQualifiedNamespace:aNamespace];
+  NSString *FQNamespace = [self fullyQualifiedNamespace:_FIRNamespace];
   NSDictionary *defaultConfigCopy = [[NSDictionary alloc] init];
   if (defaultConfig) {
     defaultConfigCopy = [defaultConfig copy];
@@ -471,11 +455,7 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
 }
 
 - (FIRRemoteConfigValue *)defaultValueForKey:(NSString *)key {
-  NSString *aNamespace = _FIRNamespace;
-  if (!key || !aNamespace) {
-    return nil;
-  }
-  NSString *FQNamespace = [self fullyQualifiedNamespace:aNamespace];
+  NSString *FQNamespace = [self fullyQualifiedNamespace:_FIRNamespace];
   __block FIRRemoteConfigValue *value;
   dispatch_sync(_queue, ^{
     NSDictionary *defaultConfig = self->_configContent.defaultConfig;
@@ -492,11 +472,6 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
 }
 
 - (void)setDefaultsFromPlistFileName:(nullable NSString *)fileName {
-  NSString *namespace = _FIRNamespace;
-  if (!namespace || namespace.length == 0) {
-    FIRLogWarning(kFIRLoggerRemoteConfig, @"I-RCN000036", @"The namespace cannot be empty or nil.");
-    return;
-  }
   if (!fileName || fileName.length == 0) {
     FIRLogWarning(kFIRLoggerRemoteConfig, @"I-RCN000037",
                   @"The plist file '%@' could not be found by Remote Config.", fileName);
