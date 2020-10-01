@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "GDTCORPlatform.h"
+#import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORPlatform.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

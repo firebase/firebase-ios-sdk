@@ -16,3 +16,9 @@
 // headers. Any package manager complexity should be handled here.
 
 #import <GoogleDataTransport/GoogleDataTransport.h>
+
+//#import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORAssert.h"
+//#import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORLifecycle.h"
+//#import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORPlatform.h"
+//#import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORReachability.h"
+//#import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORDirectorySizeTracker.h"

@@ -17,7 +17,7 @@
 #import "GoogleDataTransport/GDTCORTests/Unit/GDTCORTestCase.h"
 
 #import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORClock.h"
-#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORPlatform.h"
+#import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORPlatform.h"
 
 @interface GDTCORClockTest : GDTCORTestCase
 
