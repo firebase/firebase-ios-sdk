@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "GDTCORConsoleLogger.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORConsoleLogger.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
