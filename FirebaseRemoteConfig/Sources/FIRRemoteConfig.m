@@ -397,7 +397,7 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
 - (NSArray *)allKeysFromSource:(FIRRemoteConfigSource)source {
   __block NSArray *keys = [[NSArray alloc] init];
   dispatch_sync(_queue, ^{
-    NSString *FQNamespace = [self fullyQualifiedNamespace:_FIRNamespace];
+    NSString *FQNamespace = [self fullyQualifiedNamespace:self->_FIRNamespace];
     switch (source) {
       case FIRRemoteConfigSourceDefault:
         if (self->_configContent.defaultConfig[FQNamespace]) {
@@ -419,7 +419,7 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
 - (nonnull NSSet *)keysWithPrefix:(nullable NSString *)prefix {
   __block NSMutableSet *keys = [[NSMutableSet alloc] init];
   dispatch_sync(_queue, ^{
-    NSString *FQNamespace = [self fullyQualifiedNamespace:_FIRNamespace];
+    NSString *FQNamespace = [self fullyQualifiedNamespace:self->_FIRNamespace];
     if (self->_configContent.activeConfig[FQNamespace]) {
       NSArray *allKeys = [self->_configContent.activeConfig[FQNamespace] allKeys];
       if (!prefix.length) {
