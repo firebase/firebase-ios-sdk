@@ -54,8 +54,8 @@ Pod::Spec.new do |s|
 
   s.test_spec 'unit' do |unit_tests|
     unit_tests.platforms = {:ios => '9.0', :osx => '10.12', :tvos => '10.0'}
-    unit_tests.source_files = base_dir + 'Tests/Unit/**/*.[mh]',
-                              base_dir + 'Tests/Utils/**/*.[mh]'
+    unit_tests.source_files = base_dir + 'Tests/Unit/*.[mh]',
+                              base_dir + 'Tests/Utils/*.[mh]'
     unit_tests.resources = base_dir + 'Tests/Fixture/**/*'
     unit_tests.requires_app_host = true
     unit_tests.dependency 'OCMock'
