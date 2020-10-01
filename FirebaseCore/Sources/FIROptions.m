@@ -160,7 +160,8 @@ static dispatch_once_t sDefaultOptionsDictionaryOnceToken;
 }
 
 - (id)copyWithZone:(NSZone *)zone {
-  FIROptions *newOptions = [(FIROptions *)[[self class] allocWithZone:zone] initInternalWithOptionsDictionary:self.optionsDictionary];
+  FIROptions *newOptions = [(FIROptions *)[[self class] allocWithZone:zone]
+      initInternalWithOptionsDictionary:self.optionsDictionary];
   if (newOptions) {
     newOptions.deepLinkURLScheme = self.deepLinkURLScheme;
     newOptions.appGroupID = self.appGroupID;
