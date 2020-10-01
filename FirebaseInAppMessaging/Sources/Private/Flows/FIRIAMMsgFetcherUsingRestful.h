@@ -15,12 +15,11 @@
  */
 
 #import <Foundation/Foundation.h>
-
-#import <FirebaseInAppMessaging/FIRIAMClientInfoFetcher.h>
-#import <FirebaseInAppMessaging/FIRIAMFetchFlow.h>
-#import <FirebaseInAppMessaging/FIRIAMFetchResponseParser.h>
-#import <FirebaseInAppMessaging/FIRIAMSDKSettings.h>
-#import <FirebaseInAppMessaging/FIRIAMServerMsgFetchStorage.h>
+#import "FirebaseInAppMessaging/Sources/Private/Analytics/FIRIAMClientInfoFetcher.h"
+#import "FirebaseInAppMessaging/Sources/Private/Data/FIRIAMFetchResponseParser.h"
+#import "FirebaseInAppMessaging/Sources/Private/Flows/FIRIAMServerMsgFetchStorage.h"
+#import "FirebaseInAppMessaging/Sources/Private/Runtime/FIRIAMFetchFlow.h"
+#import "FirebaseInAppMessaging/Sources/Private/Runtime/FIRIAMSDKSettings.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

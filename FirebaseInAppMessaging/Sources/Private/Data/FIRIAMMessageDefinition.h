@@ -15,8 +15,8 @@
  */
 #import <Foundation/Foundation.h>
 
-#import <FirebaseInAppMessaging/FIRIAMDisplayTriggerDefinition.h>
-#import <FirebaseInAppMessaging/FIRIAMMessageRenderData.h>
+#import "FirebaseInAppMessaging/Sources/Private/Data/FIRIAMMessageRenderData.h"
+#import "FirebaseInAppMessaging/Sources/Private/DisplayTrigger/FIRIAMDisplayTriggerDefinition.h"
 
 @class FIRIAMDisplayTriggerDefinition;
 
