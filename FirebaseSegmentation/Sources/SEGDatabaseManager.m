@@ -33,12 +33,10 @@ static NSString *const kMainTableColumnAssociationStatus = @"association_status"
 // Exclude the database from iCloud backup.
 static BOOL SEGAddSkipBackupAttributeToItemAtPath(NSString *filePathString) {
   NSURL *URL = [NSURL fileURLWithPath:filePathString];
-    assert([[NSFileManager defaultManager] fileExistsAtPath:URL.path]);
+  assert([[NSFileManager defaultManager] fileExistsAtPath:URL.path]);
 
   NSError *error = nil;
-  BOOL success = [URL setResourceValue:@YES
-                                forKey:NSURLIsExcludedFromBackupKey
-                                 error:&error];
+  BOOL success = [URL setResourceValue:@YES forKey:NSURLIsExcludedFromBackupKey error:&error];
   if (!success) {
     // TODO(dmandar): log error.
     NSLog(@"Error excluding %@ from backup %@.", [URL lastPathComponent], error);
