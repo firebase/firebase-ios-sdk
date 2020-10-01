@@ -106,7 +106,7 @@ NS_SWIFT_NAME(FirebaseOptions)
  * FIROptions *options = [[FIROptions alloc] initWithContentsOfFile:filePath];
  * Returns nil if the plist file does not exist or is invalid.
  */
-- (nullable instancetype)initWithContentsOfFile:(NSString *)plistPath;
+- (nullable instancetype)initWithContentsOfFile:(NSString *)plistPath NS_DESIGNATED_INITIALIZER;
 
 /**
  * Initializes a customized instance of FIROptions with required fields. Use the mutable properties
@@ -115,8 +115,11 @@ NS_SWIFT_NAME(FirebaseOptions)
 // clang-format off
 - (instancetype)initWithGoogleAppID:(NSString *)googleAppID
                         GCMSenderID:(NSString *)GCMSenderID
-    NS_SWIFT_NAME(init(googleAppID:gcmSenderID:));
+    NS_SWIFT_NAME(init(googleAppID:gcmSenderID:)) NS_DESIGNATED_INITIALIZER;
 // clang-format on
+
+/** Unavailable. Please use `init(contentsOfFile:)` or `init(googleAppID:gcmSenderID:)` instead. */
+- (instancetype)init NS_UNAVAILABLE;
 
 @end
 

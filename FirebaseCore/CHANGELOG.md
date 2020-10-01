@@ -5,6 +5,8 @@
 - [changed] The pods developed in this repo are no longer hard coded to be built as static
   frameworks. Instead, their linkage will be controlled by the Podfile. Use the Podfile
   option `use_frameworks! :linkage => :static` to get the Firebase 6.x linkage behavior. (#2022)
+- [removed] Removed broken `FirebaseOptions()` initializer. Use `init(contentsOfFile:)` or
+  `init(googleAppID:gcmSenderID:)` instead. (#6633)
 
 # Firebase 6.34.0
 - [fixed] Removed warning related to missing Analytics framework for non-iOS builds since the

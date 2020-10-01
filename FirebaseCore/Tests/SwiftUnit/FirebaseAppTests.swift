@@ -308,7 +308,9 @@ class FirebaseAppTests: XCTestCase {
   }
 
   func testFirebaseDataCollectionDefaultEnabled() throws {
-    let app = FirebaseApp(instanceWithName: "emptyApp", options: FirebaseOptions())
+    let app = FirebaseApp(instanceWithName: "emptyApp",
+                          options: FirebaseOptions(googleAppID: Constants.Options.googleAppID,
+                                                   gcmSenderID: Constants.Options.gcmSenderID))
 
     // defaults to true unless otherwise set to no in app's Info.plist
     XCTAssertTrue(app.isDataCollectionDefaultEnabled)
