@@ -27,10 +27,6 @@
 #import "Firebase/InstanceID/Public/FIRInstanceID.h"
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
-// Convert the macro to a string
-#define STR_EXPAND(x) #x
-#define STR(x) STR_EXPAND(x)
-
 static NSString *const kFIRInstanceIDAPNSSandboxPrefix = @"s_";
 static NSString *const kFIRInstanceIDAPNSProdPrefix = @"p_";
 

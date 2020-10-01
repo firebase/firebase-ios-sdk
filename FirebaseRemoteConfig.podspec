@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseRemoteConfig'
-  s.version          = '4.9.1'
+  s.version          = '7.0.0'
   s.summary          = 'Firebase Remote Config'
 
   s.description      = <<-DESC
@@ -37,16 +37,13 @@ app update.
   s.private_header_files = base_dir + 'Private/*.h'
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
-    'GCC_PREPROCESSOR_DEFINITIONS' =>
-      'GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS=1 ' +
-      'FIRRemoteConfig_VERSION=' + String(s.version),
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
   }
-  s.dependency 'FirebaseABTesting', '~> 4.2'
-  s.dependency 'FirebaseCore', '~> 6.10'
-  s.dependency 'FirebaseInstallations', '~> 1.6'
-  s.dependency 'GoogleUtilities/Environment', '~> 6.7'
-  s.dependency 'GoogleUtilities/NSData+zlib', '~> 6.7'
+  s.dependency 'FirebaseABTesting', '~> 7.0'
+  s.dependency 'FirebaseCore', '~> 7.0'
+  s.dependency 'FirebaseInstallations', '~> 7.0'
+  s.dependency 'GoogleUtilities/Environment', '~> 7.0'
+  s.dependency 'GoogleUtilities/NSData+zlib', '~> 7.0'
 
   s.test_spec 'unit' do |unit_tests|
     # TODO(dmandar) - Update or delete the commented files.

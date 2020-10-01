@@ -30,7 +30,7 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
     'FirebaseStorageSwift/Sources/*.swift',
   ]
 
-  s.dependency 'FirebaseStorage', '~> 3.6'
+  s.dependency 'FirebaseStorage', '~> 7.0'
 
   s.test_spec 'integration' do |int_tests|
     int_tests.platforms = {:ios => '10.0', :osx => '10.12', :tvos => '10.0'}

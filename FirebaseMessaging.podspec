@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseMessaging'
-  s.version          = '4.7.1'
+  s.version          = '7.0.0'
   s.summary          = 'Firebase Messaging'
 
   s.description      = <<-DESC
@@ -41,8 +41,6 @@ device, and it is completely free.
   s.library = 'sqlite3'
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
-    'GCC_PREPROCESSOR_DEFINITIONS' =>
-      'FIRMessaging_LIB_VERSION=' + String(s.version),
     # Unit tests do library imports using repo-root relative paths.
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"',
  }
@@ -50,12 +48,12 @@ device, and it is completely free.
   s.tvos.framework = 'SystemConfiguration'
   s.osx.framework = 'SystemConfiguration'
   s.weak_framework = 'UserNotifications'
-  s.dependency 'FirebaseCore', '~> 6.10'
-  s.dependency 'FirebaseInstanceID', '~> 4.7'
-  s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 6.7'
-  s.dependency 'GoogleUtilities/Reachability', '~> 6.7'
-  s.dependency 'GoogleUtilities/Environment', '~> 6.7'
-  s.dependency 'GoogleUtilities/UserDefaults', '~> 6.7'
+  s.dependency 'FirebaseCore', '~> 7.0'
+  s.dependency 'FirebaseInstanceID', '~> 7.0'
+  s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 7.0'
+  s.dependency 'GoogleUtilities/Reachability', '~> 7.0'
+  s.dependency 'GoogleUtilities/Environment', '~> 7.0'
+  s.dependency 'GoogleUtilities/UserDefaults', '~> 7.0'
 
   s.test_spec 'unit' do |unit_tests|
     unit_tests.platforms = {:ios => '10.0', :osx => '10.12', :tvos => '10.0'}

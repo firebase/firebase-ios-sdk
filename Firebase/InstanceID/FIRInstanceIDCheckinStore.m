@@ -23,7 +23,6 @@
 #import "Firebase/InstanceID/FIRInstanceIDCheckinService.h"
 #import "Firebase/InstanceID/FIRInstanceIDLogger.h"
 #import "Firebase/InstanceID/FIRInstanceIDUtilities.h"
-#import "Firebase/InstanceID/FIRInstanceIDVersionUtilities.h"
 #import "Firebase/InstanceID/NSError+FIRInstanceID.h"
 
 static NSString *const kFIRInstanceIDCheckinKeychainGeneric = @"com.google.iid";

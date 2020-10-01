@@ -30,13 +30,7 @@
 @implementation FIRVersion
 
 + (NSString *)version {
-  const char *const FIRVersionString = (const char *const)STR(Firebase_VERSION);
-  static NSString *v;
-  static dispatch_once_t onceToken;
-  dispatch_once(&onceToken, ^{
-    v = [NSString stringWithUTF8String:FIRVersionString];
-  });
-  return v;
+  return [NSString stringWithUTF8String:(const char *const)STR(Firebase_VERSION)];
 }
 
 @end

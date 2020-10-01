@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseFirestore'
-  s.version          = '1.19.0'
+  s.version          = '7.0.0'
   s.summary          = 'Google Cloud Firestore'
 
   s.description      = <<-DESC
@@ -57,7 +57,7 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
   ]
   s.public_header_files = 'Firestore/Source/Public/FirebaseFirestore/*.h'
 
-  s.dependency 'FirebaseCore', '~> 6.10'
+  s.dependency 'FirebaseCore', '~> 7.0'
 
   abseil_version = '0.20200225.0'
   s.dependency 'abseil/algorithm', abseil_version

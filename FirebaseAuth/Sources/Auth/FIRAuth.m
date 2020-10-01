@@ -423,9 +423,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 }
 
 + (void)load {
-  [FIRApp registerInternalLibrary:(Class<FIRLibrary>)self
-                         withName:@"fire-auth"
-                      withVersion:[NSString stringWithUTF8String:FirebaseAuthVersionStr]];
+  [FIRApp registerInternalLibrary:(Class<FIRLibrary>)self withName:@"fire-auth"];
 }
 
 + (void)initialize {
