@@ -40,11 +40,6 @@
 #import "FirebaseDynamicLinks/Sources/Logging/FDLLogging.h"
 #import "FirebaseDynamicLinks/Sources/Utilities/FDLUtilities.h"
 
-#ifndef FIRDynamicLinks_VERSION
-#error "FIRDynamicLinks_VERSION is not defined: add -DFIRDynamicLinks_VERSION=... to the build \
-invocation"
-#endif
-
 // We should only read the deeplink after install once. We use the following key to store the state
 // in the user defaults.
 NSString *const kFIRDLReadDeepLinkAfterInstallKey =

@@ -64,8 +64,7 @@ Pod::Spec.new do |s|
       unit_tests.source_files += base_dir + 'Tests/Unit/IIDStoreTests/*.[mh]'
       unit_tests.dependency 'FirebaseInstanceID', '~> 4.2.0' # The version before FirebaseInstanceID updated to use FirebaseInstallations under the hood.
     end
-
-  # end
+ end
 
   s.test_spec 'integration' do |int_tests|
     int_tests.platforms = {:ios => '9.0', :osx => '10.12', :tvos => '10.0'}

@@ -124,7 +124,7 @@ NSArray *ABTExperimentsToClearFromPayloads(
 @implementation FIRExperimentController
 
 + (void)load {
-  [FIRApp registerInternalLibrary:(Class<FIRLibrary>)self withName:@"fire-abt"]];
+  [FIRApp registerInternalLibrary:(Class<FIRLibrary>)self withName:@"fire-abt"];
 }
 
 + (nonnull NSArray<FIRComponent *> *)componentsToRegister {
