@@ -19,6 +19,7 @@
 #import <FirebaseCore/FirebaseCore.h>
 #import <FirebaseInstallations/FirebaseInstallations.h>
 #import <FirebaseRemoteConfig/FirebaseRemoteConfig.h>
+#import "../../../Sources/Private/FIRRemoteConfig_Private.h"
 #import "FRCLog.h"
 
 static NSString *const FIRPerfNamespace = @"fireperf";
@@ -410,11 +411,8 @@ static NSString *const FIRSecondFIRAppName = @"secondFIRApp";
                          FIRInstallationsAuthTokenResult *_Nullable tokenResult,
                          NSError *_Nullable error) {
         if (tokenResult.authToken) {
-          // There is no public API available to the sample to set the token. If it is needed a
-          // method should be added and exposed here via a test category like is done for
-          // remoteConfigWithFIRNamespace:
-          //          ((FIRRemoteConfig *)self.RCInstances[self.currentNamespace][self.FIRAppName])
-          //              .settings.configInstallationsToken = tokenResult.authToken;
+          ((FIRRemoteConfig *)self.RCInstances[self.currentNamespace][self.FIRAppName])
+              .settings.configInstallationsToken = tokenResult.authToken;
           [[FRCLog sharedInstance]
               logToConsole:[NSString
                                stringWithFormat:
