@@ -17,6 +17,80 @@
 import UIKit
 
 class ModalMessageViewController: CommonMessageTestVC {
+  class TestableModalMessage: InAppMessagingModalDisplay {
+    var writableCampaignInfo: InAppMessagingCampaignInfo
+    var writableTitle: String
+    var writableBody: String?
+    var writableTextColor: UIColor
+    var writableImageData: InAppMessagingImageData?
+    var writableBackgroundColor: UIColor
+    var writableActionButton: InAppMessagingActionButton?
+    var writableActionURL: URL?
+    var writableMessageType: FIRInAppMessagingDisplayMessageType
+    var writableTriggerType: FIRInAppMessagingDisplayTriggerType
+
+    override var campaignInfo: InAppMessagingCampaignInfo {
+      return writableCampaignInfo
+    }
+
+    override var title: String {
+      return writableTitle
+    }
+
+    override var bodyText: String? {
+      return writableBody
+    }
+
+    override var textColor: UIColor {
+      return writableTextColor
+    }
+
+    override var imageData: InAppMessagingImageData? {
+      return writableImageData
+    }
+
+    override var displayBackgroundColor: UIColor {
+      return writableBackgroundColor
+    }
+
+    override var actionButton: InAppMessagingActionButton? {
+      return writableActionButton
+    }
+
+    override var actionURL: URL? {
+      return writableActionURL
+    }
+
+    override var type: FIRInAppMessagingDisplayMessageType {
+      return writableMessageType
+    }
+
+    override var triggerType: FIRInAppMessagingDisplayTriggerType {
+      return writableTriggerType
+    }
+
+    init(titleText: String,
+         bodyText: String?,
+         textColor: UIColor,
+         backgroundColor: UIColor,
+         imageData: InAppMessagingImageData?,
+         actionButton: InAppMessagingActionButton?,
+         actionURL: URL?) {
+      writableTitle = titleText
+      writableBody = bodyText
+      writableTextColor = textColor
+      writableImageData = imageData
+      writableBackgroundColor = backgroundColor
+      writableActionButton = actionButton
+      writableActionURL = actionURL
+      writableCampaignInfo = TestableCampaignInfo(messageID: "testID",
+                                                  campaignName: "testCampaign",
+                                                  isTestMessage: false)
+      writableMessageType = FIRInAppMessagingDisplayMessageType.card
+      writableTriggerType = FIRInAppMessagingDisplayTriggerType.onAnalyticsEvent
+    }
+  }
+
   let displayImpl = InAppMessagingDefaultDisplayImpl()
 
   @IBOutlet var verifyLabel: UILabel!
@@ -39,34 +113,30 @@ class ModalMessageViewController: CommonMessageTestVC {
     let fiamImageData = InAppMessagingImageData(imageURL: "url not important",
                                                 imageData: imageRawData!)
 
-    let modalMessage = InAppMessagingModalDisplay(messageID: "messageId",
-                                                  campaignName: "testCampaign",
-                                                  renderAsTestMessage: false,
-                                                  triggerType: .onAnalyticsEvent,
-                                                  titleText: normalMessageTitle,
-                                                  bodyText: normalMessageBody,
-                                                  textColor: UIColor.black,
-                                                  backgroundColor: UIColor.blue,
-                                                  imageData: fiamImageData,
-                                                  actionButton: defaultActionButton,
-                                                  actionURL: URL(string: "http://firebase.com"))
+    let modalMessage = TestableModalMessage(
+      titleText: normalMessageTitle,
+      bodyText: normalMessageBody,
+      textColor: UIColor.black,
+      backgroundColor: UIColor.blue,
+      imageData: fiamImageData,
+      actionButton: defaultActionButton,
+      actionURL: URL(string: "http://firebase.com")
+    )
 
     displayImpl.displayMessage(modalMessage, displayDelegate: self)
   }
 
   @IBAction func showWithoutImage(_ sender: Any) {
     verifyLabel.text = "Verification Label"
-    let modalMessage = InAppMessagingModalDisplay(messageID: "messageId",
-                                                  campaignName: "testCampaign",
-                                                  renderAsTestMessage: false,
-                                                  triggerType: .onAnalyticsEvent,
-                                                  titleText: normalMessageTitle,
-                                                  bodyText: normalMessageBody,
-                                                  textColor: UIColor.black,
-                                                  backgroundColor: UIColor.blue,
-                                                  imageData: nil,
-                                                  actionButton: defaultActionButton,
-                                                  actionURL: URL(string: "http://firebase.com"))
+    let modalMessage = TestableModalMessage(
+      titleText: normalMessageTitle,
+      bodyText: normalMessageBody,
+      textColor: UIColor.black,
+      backgroundColor: UIColor.blue,
+      imageData: nil,
+      actionButton: defaultActionButton,
+      actionURL: URL(string: "http://firebase.com")
+    )
 
     displayImpl.displayMessage(modalMessage, displayDelegate: self)
   }
@@ -77,51 +147,45 @@ class ModalMessageViewController: CommonMessageTestVC {
     let fiamImageData = InAppMessagingImageData(imageURL: "url not important",
                                                 imageData: imageRawData!)
 
-    let modalMessage = InAppMessagingModalDisplay(messageID: "messageId",
-                                                  campaignName: "testCampaign",
-                                                  renderAsTestMessage: false,
-                                                  triggerType: .onAnalyticsEvent,
-                                                  titleText: normalMessageTitle,
-                                                  bodyText: normalMessageBody,
-                                                  textColor: UIColor.black,
-                                                  backgroundColor: UIColor.blue,
-                                                  imageData: fiamImageData,
-                                                  actionButton: nil,
-                                                  actionURL: nil)
+    let modalMessage = TestableModalMessage(
+      titleText: normalMessageTitle,
+      bodyText: normalMessageBody,
+      textColor: UIColor.black,
+      backgroundColor: UIColor.blue,
+      imageData: fiamImageData,
+      actionButton: nil,
+      actionURL: nil
+    )
 
     displayImpl.displayMessage(modalMessage, displayDelegate: self)
   }
 
   @IBAction func showWithoutImageAndButton(_ sender: Any) {
     verifyLabel.text = "Verification Label"
-    let modalMessage = InAppMessagingModalDisplay(messageID: "messageId",
-                                                  campaignName: "testCampaign",
-                                                  renderAsTestMessage: false,
-                                                  triggerType: .onAnalyticsEvent,
-                                                  titleText: normalMessageTitle,
-                                                  bodyText: normalMessageBody,
-                                                  textColor: UIColor.black,
-                                                  backgroundColor: UIColor.blue,
-                                                  imageData: nil,
-                                                  actionButton: nil,
-                                                  actionURL: nil)
+    let modalMessage = TestableModalMessage(
+      titleText: normalMessageTitle,
+      bodyText: normalMessageBody,
+      textColor: UIColor.black,
+      backgroundColor: UIColor.blue,
+      imageData: nil,
+      actionButton: nil,
+      actionURL: nil
+    )
 
     displayImpl.displayMessage(modalMessage, displayDelegate: self)
   }
 
   @IBAction func showWithLargeBody(_ sender: Any) {
     verifyLabel.text = "Verification Label"
-    let modalMessage = InAppMessagingModalDisplay(messageID: "messageId",
-                                                  campaignName: "testCampaign",
-                                                  renderAsTestMessage: false,
-                                                  triggerType: .onAnalyticsEvent,
-                                                  titleText: normalMessageTitle,
-                                                  bodyText: longBodyText,
-                                                  textColor: UIColor.black,
-                                                  backgroundColor: UIColor.blue,
-                                                  imageData: nil,
-                                                  actionButton: defaultActionButton,
-                                                  actionURL: URL(string: "http://firebase.com"))
+    let modalMessage = TestableModalMessage(
+      titleText: normalMessageTitle,
+      bodyText: longBodyText,
+      textColor: UIColor.black,
+      backgroundColor: UIColor.blue,
+      imageData: nil,
+      actionButton: defaultActionButton,
+      actionURL: URL(string: "http://firebase.com")
+    )
 
     displayImpl.displayMessage(modalMessage, displayDelegate: self)
   }
@@ -132,68 +196,60 @@ class ModalMessageViewController: CommonMessageTestVC {
     let fiamImageData = InAppMessagingImageData(imageURL: "url not important",
                                                 imageData: imageRawData!)
 
-    let modalMessage = InAppMessagingModalDisplay(messageID: "messageId",
-                                                  campaignName: "testCampaign",
-                                                  renderAsTestMessage: false,
-                                                  triggerType: .onAnalyticsEvent,
-                                                  titleText: longTitleText,
-                                                  bodyText: longBodyText,
-                                                  textColor: UIColor.black,
-                                                  backgroundColor: UIColor.blue,
-                                                  imageData: fiamImageData,
-                                                  actionButton: defaultActionButton,
-                                                  actionURL: URL(string: "http://firebase.com"))
+    let modalMessage = TestableModalMessage(
+      titleText: longTitleText,
+      bodyText: longBodyText,
+      textColor: UIColor.black,
+      backgroundColor: UIColor.blue,
+      imageData: fiamImageData,
+      actionButton: defaultActionButton,
+      actionURL: URL(string: "http://firebase.com")
+    )
 
     displayImpl.displayMessage(modalMessage, displayDelegate: self)
   }
 
   @IBAction func showWithLargeTitle(_ sender: Any) {
     verifyLabel.text = "Verification Label"
-    let modalMessage = InAppMessagingModalDisplay(messageID: "messageId",
-                                                  campaignName: "testCampaign",
-                                                  renderAsTestMessage: false,
-                                                  triggerType: .onAnalyticsEvent,
-                                                  titleText: longBodyText,
-                                                  bodyText: normalMessageBody,
-                                                  textColor: UIColor.black,
-                                                  backgroundColor: UIColor.blue,
-                                                  imageData: nil,
-                                                  actionButton: defaultActionButton,
-                                                  actionURL: URL(string: "http://firebase.com"))
+    let modalMessage = TestableModalMessage(
+      titleText: longBodyText,
+      bodyText: normalMessageBody,
+      textColor: UIColor.black,
+      backgroundColor: UIColor.blue,
+      imageData: nil,
+      actionButton: defaultActionButton,
+      actionURL: URL(string: "http://firebase.com")
+    )
 
     displayImpl.displayMessage(modalMessage, displayDelegate: self)
   }
 
   @IBAction func showWithLargeTitleAndBodyWithoutImage(_ sender: Any) {
     verifyLabel.text = "Verification Label"
-    let modalMessage = InAppMessagingModalDisplay(messageID: "messageId",
-                                                  campaignName: "testCampaign",
-                                                  renderAsTestMessage: false,
-                                                  triggerType: .onAnalyticsEvent,
-                                                  titleText: longTitleText,
-                                                  bodyText: longBodyText,
-                                                  textColor: UIColor.black,
-                                                  backgroundColor: UIColor.blue,
-                                                  imageData: nil,
-                                                  actionButton: defaultActionButton,
-                                                  actionURL: URL(string: "http://firebase.com"))
+    let modalMessage = TestableModalMessage(
+      titleText: longTitleText,
+      bodyText: longBodyText,
+      textColor: UIColor.black,
+      backgroundColor: UIColor.blue,
+      imageData: nil,
+      actionButton: defaultActionButton,
+      actionURL: URL(string: "http://firebase.com")
+    )
 
     displayImpl.displayMessage(modalMessage, displayDelegate: self)
   }
 
   @IBAction func showWithLargeTitleWithoutBodyWithoutImageWithoutButton(_ sender: Any) {
     verifyLabel.text = "Verification Label"
-    let modalMessage = InAppMessagingModalDisplay(messageID: "messageId",
-                                                  campaignName: "testCampaign",
-                                                  renderAsTestMessage: false,
-                                                  triggerType: .onAnalyticsEvent,
-                                                  titleText: longBodyText,
-                                                  bodyText: "",
-                                                  textColor: UIColor.black,
-                                                  backgroundColor: UIColor.blue,
-                                                  imageData: nil,
-                                                  actionButton: nil,
-                                                  actionURL: nil)
+    let modalMessage = TestableModalMessage(
+      titleText: longBodyText,
+      bodyText: "",
+      textColor: UIColor.black,
+      backgroundColor: UIColor.blue,
+      imageData: nil,
+      actionButton: nil,
+      actionURL: nil
+    )
 
     displayImpl.displayMessage(modalMessage, displayDelegate: self)
   }
@@ -204,17 +260,15 @@ class ModalMessageViewController: CommonMessageTestVC {
     let fiamImageData = InAppMessagingImageData(imageURL: "url not important",
                                                 imageData: imageRawData!)
 
-    let modalMessage = InAppMessagingModalDisplay(messageID: "messageId",
-                                                  campaignName: "testCampaign",
-                                                  renderAsTestMessage: false,
-                                                  triggerType: .onAnalyticsEvent,
-                                                  titleText: normalMessageTitle,
-                                                  bodyText: normalMessageBody,
-                                                  textColor: UIColor.black,
-                                                  backgroundColor: UIColor.blue,
-                                                  imageData: fiamImageData,
-                                                  actionButton: defaultActionButton,
-                                                  actionURL: URL(string: "http://firebase.com"))
+    let modalMessage = TestableModalMessage(
+      titleText: normalMessageTitle,
+      bodyText: normalMessageBody,
+      textColor: UIColor.black,
+      backgroundColor: UIColor.blue,
+      imageData: fiamImageData,
+      actionButton: defaultActionButton,
+      actionURL: URL(string: "http://firebase.com")
+    )
 
     displayImpl.displayMessage(modalMessage, displayDelegate: self)
   }
@@ -225,17 +279,15 @@ class ModalMessageViewController: CommonMessageTestVC {
     let fiamImageData = InAppMessagingImageData(imageURL: "url not important",
                                                 imageData: imageRawData!)
 
-    let modalMessage = InAppMessagingModalDisplay(messageID: "messageId",
-                                                  campaignName: "testCampaign",
-                                                  renderAsTestMessage: false,
-                                                  triggerType: .onAnalyticsEvent,
-                                                  titleText: normalMessageTitle,
-                                                  bodyText: normalMessageBody,
-                                                  textColor: UIColor.black,
-                                                  backgroundColor: UIColor.blue,
-                                                  imageData: fiamImageData,
-                                                  actionButton: defaultActionButton,
-                                                  actionURL: URL(string: "http://firebase.com"))
+    let modalMessage = TestableModalMessage(
+      titleText: normalMessageTitle,
+      bodyText: normalMessageBody,
+      textColor: UIColor.black,
+      backgroundColor: UIColor.blue,
+      imageData: fiamImageData,
+      actionButton: defaultActionButton,
+      actionURL: URL(string: "http://firebase.com")
+    )
 
     displayImpl.displayMessage(modalMessage, displayDelegate: self)
   }
