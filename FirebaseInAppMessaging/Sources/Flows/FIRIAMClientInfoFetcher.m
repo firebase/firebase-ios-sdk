@@ -129,7 +129,7 @@
 
 - (NSString *)getIAMSDKVersion {
   // FIRInAppMessaging_LIB_VERSION macro comes from pod definition
-  return [FIREVersion version];
+  return [FIRVersion version];
 }
 @end
 

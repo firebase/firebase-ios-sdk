@@ -73,7 +73,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
 
   s.subspec 'AppDistribution' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.ios.dependency 'FirebaseAppDistribution', '~> 0.9.3'
+    ss.ios.dependency 'FirebaseAppDistribution', '~> 7.0.0-beta'
   end
 
   s.subspec 'Auth' do |ss|
@@ -118,7 +118,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
 
   s.subspec 'InAppMessaging' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.ios.dependency 'FirebaseInAppMessaging', '~> 0.24.0'
+    ss.ios.dependency 'FirebaseInAppMessaging', '~> 7.0.0-beta'
   end
 
   s.subspec 'Messaging' do |ss|
@@ -153,17 +153,17 @@ Simplify your app development, grow your user base, and monetize more effectivel
 
   s.subspec 'MLCommon' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.ios.dependency 'FirebaseMLCommon', '~> 0.21.0'
+    ss.ios.dependency 'FirebaseMLCommon', '~> 7.0.0-beta'
   end
 
   s.subspec 'MLModelInterpreter' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.ios.dependency 'FirebaseMLModelInterpreter', '~> 0.22.0'
+    ss.ios.dependency 'FirebaseMLModelInterpreter', '~> 7.0.0-beta'
   end
 
   s.subspec 'MLVision' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.ios.dependency 'FirebaseMLVision', '~> 0.21.0'
+    ss.ios.dependency 'FirebaseMLVision', '~> 7.0.0-beta'
   end
 
 end
