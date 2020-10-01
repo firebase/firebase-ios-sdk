@@ -2,8 +2,6 @@
 #source 'sso://cpdc-internal/firebase'
 #source 'https://cdn.cocoapods.org/'
 
-source 'https://cdn.cocoapods.org/'
-
 target 'SegmentationSampleApp' do
   # Comment the next line if you don't want to use dynamic frameworks
   use_frameworks!

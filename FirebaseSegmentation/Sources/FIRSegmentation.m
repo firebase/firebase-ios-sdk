@@ -28,8 +28,9 @@
 
 + (nonnull FIRSegmentation *)segmentation {
   if (![FIRApp isDefaultAppConfigured]) {
-    FIRLogError(kFIRLoggerSegmentation, @"I-SEG000001",
-                @"FIRApp not configured. Please make sure you have called [FIRApp configure]");
+    [NSException
+         raise:kFirebaseSegmentationErrorDomain
+        format:@"FIRApp not configured. Please make sure you have called [FIRApp configure]"];
   }
 
   return [FIRSegmentation segmentationWithApp:[FIRApp defaultApp]];

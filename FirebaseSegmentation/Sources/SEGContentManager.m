@@ -164,8 +164,7 @@ NSString *const kErrorDescription = @"ErrorDescription";
       makeAssociationRequestToBackendWithData:appAssociationData
                                         token:_installationIdentifierToken
                                    completion:^(BOOL status, NSDictionary<NSString *, id> *result) {
-                                     // TODO...log, update database.
-
+                                     // TODO: log, update database.
                                      completionHandler(status, result);
                                    }];
 }

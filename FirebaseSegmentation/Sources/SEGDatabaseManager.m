@@ -174,13 +174,13 @@ static BOOL SegmentationCreateFilePathIfNotExist(NSString *filePath) {
 }
 
 - (void)removeDatabase:(NSString *)path completion:(SEGRequestCompletion)completionHandler {
-  __weak SEGDatabaseManager *weakSelf = self;
   dispatch_async(_databaseOperationQueue, ^{
-    SEGDatabaseManager *strongSelf = weakSelf;
+    SEGDatabaseManager *strongSelf = self;
     if (!strongSelf) {
       return;
     }
     [strongSelf removeDatabase:path];
+    completionHandler(YES, nil);
   });
 }
 

@@ -25,7 +25,6 @@ NS_ASSUME_NONNULL_BEGIN
  * current app installation for segmentation purposes. If the custom installation identifier is
  * explicitely set to nil, any existing custom installation identifier data will be removed.
  */
-NS_SWIFT_NAME(Segmentation)
 @interface FIRSegmentation : NSObject
 
 /// Firebase Segmentation service fetch error.
@@ -39,7 +38,7 @@ typedef NS_ENUM(NSInteger, FIRSegmentationErrorCode) {
   FIRSegmentationErrorCodeConflict = 8003,
   /// Error indicating that a network error occurred during association.
   FIRSegmentationErrorCodeNetwork = 8004,
-} NS_SWIFT_NAME(SegmentationErrorCode);
+};
 
 /**
  * Singleton instance (scoped to the default FIRApp)
@@ -50,16 +49,16 @@ typedef NS_ENUM(NSInteger, FIRSegmentationErrorCode) {
  *
  *  @return A shared instance of FIRSegmentation.
  */
-+ (nonnull FIRSegmentation *)segmentation NS_SWIFT_NAME(segmentation());
++ (instancetype)segmentation;
 
 /// Singleton instance (scoped to FIRApp)
 /// Returns the FIRSegmentation instance for your Firebase application. This singleton class
 /// instance lets you set your own custom identifier to be used for targeting purposes within
 /// Firebase.
-+ (nonnull FIRSegmentation *)segmentationWithApp:(nonnull FIRApp *)app
-    NS_SWIFT_NAME(segmentation(app:));
++ (instancetype)segmentationWithApp:(nonnull FIRApp *)app;
 
 /**
+ *  :nodoc:
  *  Unavailable. Use +segmentation instead.
  */
 - (instancetype)init __attribute__((unavailable("Use +segmentation instead.")));
