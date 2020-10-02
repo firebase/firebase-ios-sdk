@@ -14,6 +14,7 @@
 
 import Foundation
 
-@objc(FIRModelDownloadConditions) public class ModelDownloadConditions : NSObject {
+/// Model download conditions.
+public struct ModelDownloadConditions {
 
 }
