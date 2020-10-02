@@ -104,7 +104,7 @@ has_license_changes = didModify(["LICENSE"])
 @has_remoteconfig_changes = hasChangesIn("FirebaseRemoteConfig/")
 @has_remoteconfig_api_changes = hasChangesIn("FirebaseRemoteConfig/Sources/Public/")
 @has_segmentation_changes = hasChangesIn("FirebaseSegmentation/")
-@has_segmentation_api_changes = hasChangesIn("FirebaseSegmentation/Source/Public/
+@has_segmentation_api_changes = hasChangesIn("FirebaseSegmentation/Source/Public/")
 @has_storage_changes = hasChangesIn("FirebaseStorage/")
 @has_storage_api_changes = hasChangesIn("FirebaseStorage/Sources/Public/")
 
