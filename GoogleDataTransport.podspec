@@ -61,7 +61,7 @@ Shared library for iOS SDK data transport needs.
         'GoogleDataTransport/GDTTestApp/*.swift',
         'GoogleDataTransport/GDTCORLibrary/Internal/GDTCORRegistrar.h',
         'GoogleDataTransport/GDTCORLibrary/Internal/GDTCORUploader.h',
-        'GoogleDataTransport/GDTTestApp/Bridging-Header.h'
+        'GoogleDataTransport/GDTTestApp/Bridging-Header.h',
       ]
 
       app_spec.ios.resources = ['GoogleDataTransport/GDTTestApp/ios/*.storyboard']
