@@ -357,12 +357,13 @@
 
 - (void)testFetchNewLatestReleaseUnauthenticatedFailure {
   NSError *mockError =
-  [NSError errorWithDomain:kFIRFADApiErrorDomain
-                      code:FIRFADApiErrorUnauthenticated
-                  userInfo:@{NSLocalizedDescriptionKey : @"This is unfortunate."}];
+      [NSError errorWithDomain:kFIRFADApiErrorDomain
+                          code:FIRFADApiErrorUnauthenticated
+                      userInfo:@{NSLocalizedDescriptionKey : @"This is unfortunate."}];
   [self mockFetchReleasesCompletion:nil error:mockError];
   OCMStub([_mockMachO codeHash]).andReturn(@"this-is-old");
   [[GULUserDefaults standardUserDefaults] setBool:YES forKey:@"FIRFADSignInState"];
+  XCTAssertTrue([[self appDistribution] isTesterSignedIn]);
 
   XCTestExpectation *expectation = [self expectationWithDescription:@"Fetch latest release fails."];
 
