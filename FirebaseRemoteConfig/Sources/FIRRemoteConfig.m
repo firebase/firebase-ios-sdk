@@ -46,31 +46,15 @@ static NSString *const kRemoteConfigFetchTimeoutKey = @"_rcn_fetch_timeout";
 }
 @end
 
-// Implementations depend upon multiple deprecated APIs
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-
 @implementation FIRRemoteConfigSettings
-- (instancetype)initWithDeveloperModeEnabled:(BOOL)developerModeEnabled {
-  self = [self init];
-  if (self) {
-    _developerModeEnabled = developerModeEnabled;
-  }
-  return self;
-}
 
 - (instancetype)init {
   self = [super init];
   if (self) {
-    _developerModeEnabled = NO;
     _minimumFetchInterval = RCNDefaultMinimumFetchInterval;
     _fetchTimeout = RCNHTTPDefaultConnectionTimeout;
   }
   return self;
-}
-
-- (BOOL)isDeveloperModeEnabled {
-  return _developerModeEnabled;
 }
 
 @end
@@ -241,7 +225,7 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
         // Fetch completed. We are being called on the main queue.
         // If fetch is successful, try to activate the fetched config
         if (fetchStatus == FIRRemoteConfigFetchStatusSuccess && !fetchError) {
-          [strongSelf activateWithCompletionHandler:^(NSError *_Nullable activateError) {
+          [strongSelf activateWithCompletion:^(BOOL changed, NSError *_Nullable activateError) {
             if (completionHandler) {
               FIRRemoteConfigFetchAndActivateStatus status =
                   activateError ? FIRRemoteConfigFetchAndActivateStatusSuccessUsingPreFetchedData
@@ -262,31 +246,9 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
 
 #pragma mark - apply
 
-- (BOOL)activateFetched {
-  // TODO: We block on the async activate to complete. This method is deprecated and needs
-  // to be removed at the next possible breaking change.
-  __block dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
-  __block BOOL didActivate = NO;
-  [self activateWithCompletionHandler:^(NSError *_Nullable error) {
-    didActivate = error ? false : true;
-    dispatch_semaphore_signal(semaphore);
-  }];
-  dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
-  return didActivate;
-}
-
 typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_Nullable error);
 
 - (void)activateWithCompletion:(FIRRemoteConfigActivateChangeCompletion)completion {
-  [self activateWithEitherHandler:completion deprecatedHandler:nil];
-}
-
-- (void)activateWithCompletionHandler:(FIRRemoteConfigActivateCompletion)completionHandler {
-  [self activateWithEitherHandler:nil deprecatedHandler:completionHandler];
-}
-
-- (void)activateWithEitherHandler:(FIRRemoteConfigActivateChangeCompletion)completion
-                deprecatedHandler:(FIRRemoteConfigActivateCompletion)deprecatedHandler {
   __weak FIRRemoteConfig *weakSelf = self;
   void (^applyBlock)(void) = ^(void) {
     FIRRemoteConfig *strongSelf = weakSelf;
@@ -298,8 +260,6 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
           completion(NO, error);
         });
-      } else if (deprecatedHandler) {
-        deprecatedHandler(error);
       }
       FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000068", @"Internal error activating config.");
       return;
@@ -314,16 +274,6 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
           completion(NO, nil);
         });
-      } else if (deprecatedHandler) {
-        NSError *error = [NSError
-            errorWithDomain:FIRRemoteConfigErrorDomain
-                       code:FIRRemoteConfigErrorInternalError
-                   userInfo:@{
-                     @"ActivationFailureReason" : @"Most recently fetched config already activated"
-                   }];
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-          deprecatedHandler(error);
-        });
       }
       return;
     }
@@ -336,10 +286,6 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
     if (completion) {
       dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         completion(YES, nil);
-      });
-    } else if (deprecatedHandler) {
-      dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        deprecatedHandler(nil);
       });
     }
   };
@@ -367,16 +313,11 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
 }
 
 - (FIRRemoteConfigValue *)configValueForKey:(NSString *)key {
-  return [self configValueForKey:key namespace:_FIRNamespace];
-}
-
-- (FIRRemoteConfigValue *)configValueForKey:(NSString *)key namespace:(NSString *)aNamespace {
-  if (!key || !aNamespace) {
+  if (!key) {
     return [[FIRRemoteConfigValue alloc] initWithData:[NSData data]
                                                source:FIRRemoteConfigSourceStatic];
   }
-  NSString *FQNamespace = [self fullyQualifiedNamespace:aNamespace];
-
+  NSString *FQNamespace = [self fullyQualifiedNamespace:_FIRNamespace];
   __block FIRRemoteConfigValue *value;
   dispatch_sync(_queue, ^{
     value = self->_configContent.activeConfig[FQNamespace][key];
@@ -400,17 +341,11 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
 }
 
 - (FIRRemoteConfigValue *)configValueForKey:(NSString *)key source:(FIRRemoteConfigSource)source {
-  return [self configValueForKey:key namespace:_FIRNamespace source:source];
-}
-
-- (FIRRemoteConfigValue *)configValueForKey:(NSString *)key
-                                  namespace:(NSString *)aNamespace
-                                     source:(FIRRemoteConfigSource)source {
-  if (!key || !aNamespace) {
+  if (!key) {
     return [[FIRRemoteConfigValue alloc] initWithData:[NSData data]
                                                source:FIRRemoteConfigSourceStatic];
   }
-  NSString *FQNamespace = [self fullyQualifiedNamespace:aNamespace];
+  NSString *FQNamespace = [self fullyQualifiedNamespace:_FIRNamespace];
 
   __block FIRRemoteConfigValue *value;
   dispatch_sync(_queue, ^{
@@ -441,8 +376,6 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
 
 #pragma mark - Properties
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunused-property-ivar"
 /// Last fetch completion time.
 - (NSDate *)lastFetchTime {
   __block NSDate *fetchTime;
@@ -452,7 +385,6 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
   });
   return fetchTime;
 }
-#pragma clang diagnostic pop
 
 - (FIRRemoteConfigFetchStatus)lastFetchStatus {
   __block FIRRemoteConfigFetchStatus currentStatus;
@@ -463,16 +395,9 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
 }
 
 - (NSArray *)allKeysFromSource:(FIRRemoteConfigSource)source {
-  return [self allKeysFromSource:source namespace:_FIRNamespace];
-}
-
-- (NSArray *)allKeysFromSource:(FIRRemoteConfigSource)source namespace:(NSString *)aNamespace {
   __block NSArray *keys = [[NSArray alloc] init];
   dispatch_sync(_queue, ^{
-    if (!aNamespace) {
-      return;
-    }
-    NSString *FQNamespace = [self fullyQualifiedNamespace:aNamespace];
+    NSString *FQNamespace = [self fullyQualifiedNamespace:self->_FIRNamespace];
     switch (source) {
       case FIRRemoteConfigSourceDefault:
         if (self->_configContent.defaultConfig[FQNamespace]) {
@@ -492,18 +417,9 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
 }
 
 - (nonnull NSSet *)keysWithPrefix:(nullable NSString *)prefix {
-  return [self keysWithPrefix:prefix namespace:_FIRNamespace];
-}
-
-- (nonnull NSSet *)keysWithPrefix:(nullable NSString *)prefix
-                        namespace:(nullable NSString *)aNamespace {
   __block NSMutableSet *keys = [[NSMutableSet alloc] init];
-  __block NSString *namespaceToCheck = aNamespace;
   dispatch_sync(_queue, ^{
-    if (!namespaceToCheck.length) {
-      return;
-    }
-    NSString *FQNamespace = [self fullyQualifiedNamespace:namespaceToCheck];
+    NSString *FQNamespace = [self fullyQualifiedNamespace:self->_FIRNamespace];
     if (self->_configContent.activeConfig[FQNamespace]) {
       NSArray *allKeys = [self->_configContent.activeConfig[FQNamespace] allKeys];
       if (!prefix.length) {
@@ -522,17 +438,8 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
 
 #pragma mark - Defaults
 
-- (void)setDefaults:(NSDictionary<NSString *, NSObject *> *)defaults {
-  [self setDefaults:defaults namespace:_FIRNamespace];
-}
-
-- (void)setDefaults:(NSDictionary<NSString *, NSObject *> *)defaultConfig
-          namespace:(NSString *)aNamespace {
-  if (!aNamespace) {
-    FIRLogWarning(kFIRLoggerRemoteConfig, @"I-RCN000036", @"The namespace cannot be empty or nil.");
-    return;
-  }
-  NSString *FQNamespace = [self fullyQualifiedNamespace:aNamespace];
+- (void)setDefaults:(NSDictionary<NSString *, NSObject *> *)defaultConfig {
+  NSString *FQNamespace = [self fullyQualifiedNamespace:_FIRNamespace];
   NSDictionary *defaultConfigCopy = [[NSDictionary alloc] init];
   if (defaultConfig) {
     defaultConfigCopy = [defaultConfig copy];
@@ -548,14 +455,7 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
 }
 
 - (FIRRemoteConfigValue *)defaultValueForKey:(NSString *)key {
-  return [self defaultValueForKey:key namespace:_FIRNamespace];
-}
-
-- (FIRRemoteConfigValue *)defaultValueForKey:(NSString *)key namespace:(NSString *)aNamespace {
-  if (!key || !aNamespace) {
-    return nil;
-  }
-  NSString *FQNamespace = [self fullyQualifiedNamespace:aNamespace];
+  NSString *FQNamespace = [self fullyQualifiedNamespace:_FIRNamespace];
   __block FIRRemoteConfigValue *value;
   dispatch_sync(_queue, ^{
     NSDictionary *defaultConfig = self->_configContent.defaultConfig;
@@ -572,16 +472,6 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
 }
 
 - (void)setDefaultsFromPlistFileName:(nullable NSString *)fileName {
-  return [self setDefaultsFromPlistFileName:fileName namespace:_FIRNamespace];
-}
-
-- (void)setDefaultsFromPlistFileName:(nullable NSString *)fileName
-                           namespace:(nullable NSString *)namespace {
-  if (!namespace || namespace.length == 0) {
-    FIRLogWarning(kFIRLoggerRemoteConfig, @"I-RCN000036", @"The namespace cannot be empty or nil.");
-    return;
-  }
-  NSString *FQNamespace = [self fullyQualifiedNamespace:namespace];
   if (!fileName || fileName.length == 0) {
     FIRLogWarning(kFIRLoggerRemoteConfig, @"I-RCN000037",
                   @"The plist file '%@' could not be found by Remote Config.", fileName);
@@ -595,7 +485,7 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
     if (plistFile) {
       NSDictionary *defaultConfig = [[NSDictionary alloc] initWithContentsOfFile:plistFile];
       if (defaultConfig) {
-        [self setDefaults:defaultConfig namespace:FQNamespace];
+        [self setDefaults:defaultConfig];
       }
       return;
     }
@@ -607,20 +497,17 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
 #pragma mark - custom variables
 
 - (FIRRemoteConfigSettings *)configSettings {
-  __block BOOL developerModeEnabled = NO;
   __block NSTimeInterval minimumFetchInterval = RCNDefaultMinimumFetchInterval;
   __block NSTimeInterval fetchTimeout = RCNHTTPDefaultConnectionTimeout;
   dispatch_sync(_queue, ^{
-    developerModeEnabled = [self->_settings.customVariables[kRemoteConfigDeveloperKey] boolValue];
     minimumFetchInterval = self->_settings.minimumFetchInterval;
     fetchTimeout = self->_settings.fetchTimeout;
   });
   FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000066",
-              @"Successfully read configSettings. Developer Mode: %@, Minimum Fetch Interval:%f, "
+              @"Successfully read configSettings. Minimum Fetch Interval:%f, "
               @"Fetch timeout: %f",
-              developerModeEnabled ? @"true" : @"false", minimumFetchInterval, fetchTimeout);
-  FIRRemoteConfigSettings *settings =
-      [[FIRRemoteConfigSettings alloc] initWithDeveloperModeEnabled:developerModeEnabled];
+              minimumFetchInterval, fetchTimeout);
+  FIRRemoteConfigSettings *settings = [[FIRRemoteConfigSettings alloc] init];
   settings.minimumFetchInterval = minimumFetchInterval;
   settings.fetchTimeout = fetchTimeout;
   /// The NSURLSession needs to be recreated whenever the fetch timeout may be updated.
@@ -634,23 +521,16 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
       return;
     }
 
-    NSDictionary *settingsToSave = @{
-      kRemoteConfigDeveloperKey : @(configSettings.isDeveloperModeEnabled),
-    };
-    self->_settings.customVariables = settingsToSave;
     self->_settings.minimumFetchInterval = configSettings.minimumFetchInterval;
     self->_settings.fetchTimeout = configSettings.fetchTimeout;
     /// The NSURLSession needs to be recreated whenever the fetch timeout may be updated.
     [self->_configFetch recreateNetworkSession];
     FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000067",
-                @"Successfully set configSettings. Developer Mode: %@, Minimum Fetch Interval:%f, "
+                @"Successfully set configSettings. Minimum Fetch Interval:%f, "
                 @"Fetch timeout:%f",
-                configSettings.isDeveloperModeEnabled ? @"true" : @"false",
                 configSettings.minimumFetchInterval, configSettings.fetchTimeout);
   };
   dispatch_async(_queue, setConfigSettingsBlock);
 }
-
-#pragma clang diagnostic push  // "-Wdeprecated-declarations"
 
 @end

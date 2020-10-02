@@ -137,16 +137,6 @@ NS_SWIFT_NAME(RemoteConfigSettings)
 /// This value is set for outgoing requests as the timeoutIntervalForRequest as well as the
 /// timeoutIntervalForResource on the NSURLSession's configuration.
 @property(nonatomic, assign) NSTimeInterval fetchTimeout;
-/// Indicates whether Developer Mode is enabled.
-@property(nonatomic, readonly) BOOL isDeveloperModeEnabled DEPRECATED_MSG_ATTRIBUTE(
-    "This no longer needs to be set during development. Refer to documentation for additional "
-    "details.");
-/// Initializes FIRRemoteConfigSettings, which is used to set properties for custom settings. To
-/// make custom settings take effect, pass the FIRRemoteConfigSettings instance to the
-/// configSettings property of FIRRemoteConfig.
-- (nonnull FIRRemoteConfigSettings *)initWithDeveloperModeEnabled:(BOOL)developerModeEnabled
-    DEPRECATED_MSG_ATTRIBUTE("This no longer needs to be set during development. Refer to "
-                             "documentation for additional details.");
 @end
 
 #pragma mark - FIRRemoteConfig
@@ -241,19 +231,6 @@ NS_SWIFT_NAME(RemoteConfig)
 - (void)activateWithCompletion:(void (^_Nullable)(BOOL changed,
                                                   NSError *_Nullable error))completion;
 
-/// Applies Fetched Config data to the Active Config, causing updates to the behavior and appearance
-/// of the app to take effect (depending on how config data is used in the app).
-/// @param completionHandler Activate operation callback.
-- (void)activateWithCompletionHandler:(nullable FIRRemoteConfigActivateCompletion)completionHandler
-    DEPRECATED_MSG_ATTRIBUTE("Use -[FIRRemoteConfig activateWithCompletion:] instead.");
-
-/// This method is deprecated. Please use -[FIRRemoteConfig activateWithCompletionHandler:] instead.
-/// Applies Fetched Config data to the Active Config, causing updates to the behavior and appearance
-/// of the app to take effect (depending on how config data is used in the app).
-/// Returns true if there was a Fetched Config, and it was activated.
-/// Returns false if no Fetched Config was found, or the Fetched Config was already activated.
-- (BOOL)activateFetched DEPRECATED_MSG_ATTRIBUTE("Use -[FIRRemoteConfig activate] instead.");
-
 #pragma mark - Get Config
 /// Enables access to configuration values by using object subscripting syntax.
 /// <pre>
@@ -269,42 +246,17 @@ NS_SWIFT_NAME(RemoteConfig)
 /// @param key Config key.
 - (nonnull FIRRemoteConfigValue *)configValueForKey:(nullable NSString *)key;
 
-/// Gets the config value of a given namespace.
-/// @param key              Config key.
-/// @param aNamespace       Config results under a given namespace.
-- (nonnull FIRRemoteConfigValue *)configValueForKey:(nullable NSString *)key
-                                          namespace:(nullable NSString *)aNamespace
-    DEPRECATED_MSG_ATTRIBUTE("Use -[FIRRemoteConfig configValueForKey:] instead.");
-
 /// Gets the config value of a given namespace and a given source.
 /// @param key              Config key.
 /// @param source           Config value source.
 - (nonnull FIRRemoteConfigValue *)configValueForKey:(nullable NSString *)key
                                              source:(FIRRemoteConfigSource)source;
 
-/// Gets the config value of a given namespace and a given source.
-/// @param key              Config key.
-/// @param aNamespace       Config results under a given namespace.
-/// @param source           Config value source.
-- (nonnull FIRRemoteConfigValue *)configValueForKey:(nullable NSString *)key
-                                          namespace:(nullable NSString *)aNamespace
-                                             source:(FIRRemoteConfigSource)source
-    DEPRECATED_MSG_ATTRIBUTE("Use -[FIRRemoteConfig configValueForKey:source:] instead.");
-
 /// Gets all the parameter keys from a given source and a given namespace.
 ///
 /// @param source           The config data source.
 /// @return                 An array of keys under the given source and namespace.
 - (nonnull NSArray<NSString *> *)allKeysFromSource:(FIRRemoteConfigSource)source;
-
-/// Gets all the parameter keys from a given source and a given namespace.
-///
-/// @param source           The config data source.
-/// @param aNamespace       The config data namespace.
-/// @return                 An array of keys under the given source and namespace.
-- (nonnull NSArray<NSString *> *)allKeysFromSource:(FIRRemoteConfigSource)source
-                                         namespace:(nullable NSString *)aNamespace
-    DEPRECATED_MSG_ATTRIBUTE("Use -[FIRRemoteConfig allKeysFromSource:] instead.");
 
 /// Returns the set of parameter keys that start with the given prefix, from the default namespace
 ///                         in the active config.
@@ -314,30 +266,10 @@ NS_SWIFT_NAME(RemoteConfig)
 /// @return                 The set of parameter keys that start with the specified prefix.
 - (nonnull NSSet<NSString *> *)keysWithPrefix:(nullable NSString *)prefix;
 
-/// Returns the set of parameter keys that start with the given prefix, from the given namespace in
-///                         the active config.
-///
-/// @param prefix           The key prefix to look for. If prefix is nil or empty, returns all the
-///                         keys in the given namespace.
-/// @param aNamespace       The namespace in which to look up the keys. If the namespace is invalid,
-///                         returns an empty set.
-/// @return                 The set of parameter keys that start with the specified prefix.
-- (nonnull NSSet<NSString *> *)keysWithPrefix:(nullable NSString *)prefix
-                                    namespace:(nullable NSString *)aNamespace
-    DEPRECATED_MSG_ATTRIBUTE("Use -[FIRRemoteConfig keysWithPrefix:] instead.");
-
 #pragma mark - Defaults
 /// Sets config defaults for parameter keys and values in the default namespace config.
 /// @param defaults         A dictionary mapping a NSString * key to a NSObject * value.
 - (void)setDefaults:(nullable NSDictionary<NSString *, NSObject *> *)defaults;
-
-/// Sets config defaults for parameter keys and values in the default namespace config.
-///
-/// @param defaults         A dictionary mapping a NSString * key to a NSObject * value.
-/// @param aNamespace       Config under a given namespace.
-- (void)setDefaults:(nullable NSDictionary<NSString *, NSObject *> *)defaults
-          namespace:(nullable NSString *)aNamespace
-    DEPRECATED_MSG_ATTRIBUTE("Use -[FIRRemoteConfig setDefaults:] instead.");
 
 /// Sets default configs from plist for default namespace;
 /// @param fileName The plist file name, with no file name extension. For example, if the plist file
@@ -346,31 +278,11 @@ NS_SWIFT_NAME(RemoteConfig)
 - (void)setDefaultsFromPlistFileName:(nullable NSString *)fileName
     NS_SWIFT_NAME(setDefaults(fromPlist:));
 
-/// Sets default configs from plist for a given namespace;
-/// @param fileName The plist file name, with no file name extension. For example, if the plist file
-///                 is defaultSamples.plist, call:
-///                 [[FIRRemoteConfig remoteConfig] setDefaultsFromPlistFileName:@"defaultSamples"];
-/// @param aNamespace The namespace where the default config is set.
-- (void)setDefaultsFromPlistFileName:(nullable NSString *)fileName
-                           namespace:(nullable NSString *)aNamespace
-    NS_SWIFT_NAME(setDefaults(fromPlist:namespace:))
-        DEPRECATED_MSG_ATTRIBUTE("Use -[FIRRemoteConfig setDefaultsFromPlistFileName:] instead.");
-
 /// Returns the default value of a given key and a given namespace from the default config.
 ///
 /// @param key              The parameter key of default config.
 /// @return                 Returns the default value of the specified key and namespace. Returns
 ///                         nil if the key or namespace doesn't exist in the default config.
 - (nullable FIRRemoteConfigValue *)defaultValueForKey:(nullable NSString *)key;
-
-/// Returns the default value of a given key and a given namespace from the default config.
-///
-/// @param key              The parameter key of default config.
-/// @param aNamespace       The namespace of default config.
-/// @return                 Returns the default value of the specified key and namespace. Returns
-///                         nil if the key or namespace doesn't exist in the default config.
-- (nullable FIRRemoteConfigValue *)defaultValueForKey:(nullable NSString *)key
-                                            namespace:(nullable NSString *)aNamespace
-    DEPRECATED_MSG_ATTRIBUTE("Use -[FIRRemoteConfig defaultValueForKey:] instead.");
 
 @end

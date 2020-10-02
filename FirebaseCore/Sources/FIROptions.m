@@ -160,9 +160,9 @@ static dispatch_once_t sDefaultOptionsDictionaryOnceToken;
 }
 
 - (id)copyWithZone:(NSZone *)zone {
-  FIROptions *newOptions = [[[self class] allocWithZone:zone] init];
+  FIROptions *newOptions = [(FIROptions *)[[self class] allocWithZone:zone]
+      initInternalWithOptionsDictionary:self.optionsDictionary];
   if (newOptions) {
-    newOptions.optionsDictionary = self.optionsDictionary;
     newOptions.deepLinkURLScheme = self.deepLinkURLScheme;
     newOptions.appGroupID = self.appGroupID;
     newOptions.editingLocked = self.isEditingLocked;
@@ -172,6 +172,12 @@ static dispatch_once_t sDefaultOptionsDictionaryOnceToken;
 }
 
 #pragma mark - Public instance methods
+
+- (instancetype)init {
+  // Unavailable.
+  [self doesNotRecognizeSelector:_cmd];
+  return nil;
+}
 
 - (instancetype)initWithContentsOfFile:(NSString *)plistPath {
   self = [super init];
