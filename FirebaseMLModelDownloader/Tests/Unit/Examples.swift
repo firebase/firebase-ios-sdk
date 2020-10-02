@@ -12,6 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import XCTest
+@testable import FirebaseMLModelDownloader
+
 public struct MLModelDownloader {
 
   public func codeSample() {
@@ -21,7 +24,7 @@ public struct MLModelDownloader {
     // Download model
     modelDownloader.downloadModel(name: "your_model_name", conditions: conditions) { customModel, error in
       if error == nil {
-        if let path = customModel.getLatestModel() {
+        if let modelFile = customModel.getLatestModel() {
           // Use model with your inference API
         }
       }
@@ -30,7 +33,7 @@ public struct MLModelDownloader {
     // Get downloaded model
     modelDownloader.getDownloadedModel(name: "your_model_name") { customModel, error in
       if error == nil {
-        if let path = customModel.getLatestModel() {
+        if let modelFile = customModel.getLatestModel() {
           // Use model with your inference API
         }
       }

@@ -14,11 +14,17 @@
 
 import Foundation
 
-@objc(FIRModelDownloader) public class ModelDownloader : NSObject {
+/// Downloader to manage custom model downloads.
+public struct ModelDownloader {
 
   public func downloadModel(name modelName: String, conditions modelConditions: ModelDownloadConditions, completion: @escaping (CustomModel, Error?) -> Void) {
-    let customModel = CustomModel(withName: modelName)
     // TODO: Model download
+    let modelSize = Int()
+    let modelPath = String()
+    let modelHash = String()
+    let modelFormat = CustomModelFormat.unknown
+
+    let customModel = CustomModel(name: modelName, size: modelSize, path: modelPath, hash: modelHash, format: modelFormat)
     completion(customModel, NSError())
   }
 
@@ -29,8 +35,13 @@ import Foundation
   }
 
   public func getDownloadedModel(name modelName: String, completion: @escaping (CustomModel, Error?) -> Void) {
-    let customModel = CustomModel(withName: modelName)
     // TODO: Get previously downloaded model
+    let modelSize = Int()
+    let modelPath = String()
+    let modelHash = String()
+    let modelFormat = CustomModelFormat.unknown
+
+    let customModel = CustomModel(name: modelName, size: modelSize, path: modelPath, hash: modelHash, format: modelFormat)
     completion(customModel, NSError())
   }
 
