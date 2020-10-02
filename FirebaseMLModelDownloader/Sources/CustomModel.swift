@@ -14,27 +14,32 @@
 
 import Foundation
 
-@objc(FIRCustomModelFormat) public enum CustomModelFormat : Int {
-  case Unknown
-  case TFLite
-  case TorchScript
-  case CoreML
+/// An enum of supported model formats.
+public enum CustomModelFormat : Int {
+  case unknown
+  case tfLite
+  case coreML
 }
 
-@objc(FIRCustomModel) public class CustomModel : NSObject {
+/// A custom model that is stored remotely on the server and downloaded to the device.
+struct CustomModel {
+  struct Metadata {
+    public var modelSize: Int
+    var modelPath: String
+    public var modelHash: String
+    public var modelFormat: CustomModelFormat
+  }
 
   public let modelName: String
-  public internal(set) var modelSize: Int?
-  public internal(set) var modelPath: String?
-  public internal(set) var modelHash: String?
-  public internal(set) var modelFormat: CustomModelFormat?
+  public internal(set) var metadata: Metadata?
 
-  init(withName name: String) {
+
+  init(name: String) {
     modelName = name
   }
 
   public func getLatestModel() -> FileHandle? {
-    if let filePath = modelPath, let modelFile = FileHandle(forReadingAtPath: filePath) {
+    if let filePath = metadata?.modelPath, let modelFile = FileHandle(forReadingAtPath: filePath) {
       return modelFile
     } else {
       return nil
