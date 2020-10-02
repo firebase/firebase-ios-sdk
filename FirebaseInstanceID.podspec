@@ -33,8 +33,7 @@ services.
     'FirebaseInstallations/Source/Library/Private/*.h',
   ]
   s.requires_arc = base_dir + '*.m'
-  s.public_header_files = base_dir + 'Public/*.h', base_dir + 'Private/*.h'
-  s.private_header_files = base_dir + 'Private/*.h'
+  s.public_header_files = base_dir + 'Public/*.h'
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'GCC_PREPROCESSOR_DEFINITIONS' => 'FIRInstanceID_LIB_VERSION=' + String(s.version),

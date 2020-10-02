@@ -18,14 +18,18 @@
 #import <FirebaseCore/FIROptions.h>
 #import <FirebaseCore/FirebaseCore.h>
 #import <FirebaseInstallations/FirebaseInstallations.h>
-#import <FirebaseRemoteConfig/FIRRemoteConfig_Private.h>
 #import <FirebaseRemoteConfig/FirebaseRemoteConfig.h>
-#import <FirebaseRemoteConfig/RCNConfigSettings.h>
+#import "../../../Sources/Private/FIRRemoteConfig_Private.h"
 #import "FRCLog.h"
 
 static NSString *const FIRPerfNamespace = @"fireperf";
 static NSString *const FIRDefaultFIRAppName = @"__FIRAPP_DEFAULT";
 static NSString *const FIRSecondFIRAppName = @"secondFIRApp";
+
+@interface FIRRemoteConfig (Sample)
++ (FIRRemoteConfig *)remoteConfigWithFIRNamespace:(NSString *)remoteConfigNamespace
+                                              app:(FIRApp *)app;
+@end
 
 @interface ViewController ()
 @property(nonatomic, strong) IBOutlet UIButton *fetchButton;
