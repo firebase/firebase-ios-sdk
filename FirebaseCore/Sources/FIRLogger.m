@@ -18,7 +18,7 @@
 #import <GoogleUtilities/GULLogger.h>
 #import "FirebaseCore/Sources/Public/FirebaseCore/FIRLoggerLevel.h"
 
-#import "FirebaseCore/Sources/Private/FIRVersion.h"
+#import "FirebaseCore/Sources/Public/FirebaseCore/FIRVersion.h"
 
 FIRLoggerService kFIRLoggerCore = @"[Firebase/Core]";
 

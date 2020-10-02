@@ -42,7 +42,7 @@ import nanopb
 import XCTest
 
 class importTest: XCTestCase {
-  func testImports() {
+  func testImports() throws {
     XCTAssertFalse(GULAppEnvironmentUtil.isAppStoreReceiptSandbox())
     XCTAssertFalse(GULAppEnvironmentUtil.isFromAppStore())
     #if targetEnvironment(simulator)
@@ -53,6 +53,9 @@ class importTest: XCTestCase {
     XCTAssertFalse(GULAppEnvironmentUtil.isAppExtension())
     XCTAssertNil(FirebaseApp.app())
     XCTAssertEqual(GULAppEnvironmentUtil.deviceModel(), "x86_64")
+
+    let majorVersion = try XCTUnwrap(FirebaseVersion.version().first)
+    XCTAssert(majorVersion.isNumber)
 
     print("System version? Answer: \(GULAppEnvironmentUtil.systemVersion() ?? "NONE")")
   }

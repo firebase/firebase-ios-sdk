@@ -15,7 +15,7 @@
 #import <Foundation/Foundation.h>
 #import <XCTest/XCTest.h>
 
-#import "../../FirebaseCore/Sources/Private/FIRVersion.h"
+#import <FirebaseCore/FIRVersion.h>
 
 // The following two macros supply the incantation so that the C
 // preprocessor does not try to parse the version as a floating
