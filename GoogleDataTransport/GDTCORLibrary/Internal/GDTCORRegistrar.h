@@ -16,9 +16,9 @@
 
 #import <Foundation/Foundation.h>
 
-#import "GDTCORStorageProtocol.h"
-#import "GDTCORTargets.h"
-#import "GDTCORUploader.h"
+#import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORStorageProtocol.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORTargets.h"
+#import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORUploader.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
