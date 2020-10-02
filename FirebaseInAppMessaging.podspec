@@ -14,7 +14,7 @@ See more product details at https://firebase.google.com/products/in-app-messagin
 
   s.source           = {
     :git => 'https://github.com/firebase/firebase-ios-sdk.git',
-    :tag => 'InAppMessaging-' + s.version.to_s
+    :tag => 'CocoaPods-' + s.version.to_s.chomp("-beta")
   }
   s.social_media_url = 'https://twitter.com/Firebase'
   s.ios.deployment_target = '10.0'

@@ -8,7 +8,7 @@ Pod::Spec.new do |s|
   s.authors          = 'Google, Inc.'
   s.source           = {
     :git => 'https://github.com/firebase/firebase-ios-sdk.git',
-    :tag => 'Crashlytics-' + s.version.to_s
+    :tag => 'CocoaPods-' + s.version.to_s
   }
 
   s.ios.deployment_target = '10.0'

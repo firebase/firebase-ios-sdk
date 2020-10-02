@@ -13,8 +13,9 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
 
   s.source           = {
     :git => 'https://github.com/firebase/firebase-ios-sdk.git',
-    :tag => 'Core-' + s.version.to_s
+    :tag => 'CocoaPods-' + s.version.to_s
   }
+
   s.social_media_url = 'https://twitter.com/Firebase'
   s.ios.deployment_target = '9.0'
   s.osx.deployment_target = '10.12'

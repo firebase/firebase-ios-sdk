@@ -12,7 +12,7 @@ Cloud Functions for Firebase.
   s.authors          = 'Google, Inc.'
   s.source           = {
     :git => 'https://github.com/firebase/firebase-ios-sdk.git',
-    :tag => 'Functions-' + s.version.to_s
+    :tag => 'CocoaPods-' + s.version.to_s
   }
 
   s.ios.deployment_target = '10.0'

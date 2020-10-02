@@ -15,7 +15,7 @@ app update.
 
   s.source           = {
     :git => 'https://github.com/firebase/firebase-ios-sdk.git',
-    :tag => 'RemoteConfig-' + s.version.to_s
+    :tag => 'CocoaPods-' + s.version.to_s
   }
   s.social_media_url = 'https://twitter.com/Firebase'
   s.ios.deployment_target = '10.0'

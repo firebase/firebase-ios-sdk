@@ -13,7 +13,7 @@ Pod::Spec.new do |s|
 
   s.source           = {
     :git => 'https://github.com/firebase/firebase-ios-sdk.git',
-    :tag => 'Installations-' + s.version.to_s
+    :tag => 'CocoaPods-' + s.version.to_s
   }
   s.social_media_url = 'https://twitter.com/Firebase'
   s.ios.deployment_target = '9.0'
