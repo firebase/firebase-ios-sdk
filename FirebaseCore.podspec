@@ -30,7 +30,10 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
   ]
   s.public_header_files = [
     'FirebaseCore/Sources/Public/FirebaseCore/*.h',
+    'FirebaseCore/Sources/Private/*.h',
   ]
+  s.private_header_files = 'FirebaseCore/Sources/Private/*.h'
+
   s.framework = 'Foundation'
   s.ios.framework = 'UIKit'
   s.osx.framework = 'AppKit'
