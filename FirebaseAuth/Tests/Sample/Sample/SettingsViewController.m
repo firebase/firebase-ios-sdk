@@ -165,11 +165,6 @@ static NSString *truncatedString(NSString *string, NSUInteger length) {
 
   __weak typeof(self) weakSelf = self;
   _tableViewManager.contents = [StaticContentTableViewContent contentWithSections:@[
-    [StaticContentTableViewSection sectionWithTitle:@"Versions" cells:@[
-      [StaticContentTableViewCell cellWithTitle:@"FirebaseAuth"
-                                          value:versionString(
-          FirebaseAuthVersionStr, FirebaseAuthVersionNum)],
-    ]],
     [StaticContentTableViewSection sectionWithTitle:@"API Hosts" cells:@[
       [StaticContentTableViewCell cellWithTitle:@"Identity Toolkit"
                                           value:APIHost(kIdentityToolkitRequestClassName)

@@ -46,7 +46,7 @@ Firebase Dynamic Links are deep links that enhance user experience and increase 
                            # Supply plist for custom domain testing.
                            'FirebaseDynamicLinks/Tests/Unit/DL-Info.plist'
     unit_tests.dependency 'OCMock'
-    unit_tests.dependency 'GoogleUtilities/MethodSwizzler', '~> 6.7'
-    unit_tests.dependency 'GoogleUtilities/SwizzlerTestHelpers', '~> 6.7'
+    unit_tests.dependency 'GoogleUtilities/MethodSwizzler', '~> 7.0'
+    unit_tests.dependency 'GoogleUtilities/SwizzlerTestHelpers', '~> 7.0'
   end
 end
