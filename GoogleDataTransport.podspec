@@ -61,7 +61,7 @@ Shared library for iOS SDK data transport needs.
         'GoogleDataTransport/GDTTestApp/*.swift',
         'GoogleDataTransport/GDTCORLibrary/Internal/GDTCORRegistrar.h',
         'GoogleDataTransport/GDTCORLibrary/Internal/GDTCORUploader.h',
-        'GoogleDataTransport/GDTTestApp/GoogleDataTransport-TestApp-Bridging-Header.h'
+        'GoogleDataTransport/GDTTestApp/Bridging-Header.h'
       ]
 
       app_spec.ios.resources = ['GoogleDataTransport/GDTTestApp/ios/*.storyboard']
@@ -73,9 +73,9 @@ Shared library for iOS SDK data transport needs.
         'NSMainStoryboardFile' => 'Main'
       }
 
-      pod_target_xcconfig = {
-      'SWIFT_OBJC_BRIDGING_HEADER' => '$(PODS_TARGET_SRCROOT)/GoogleDataTransport/GDTTestApp/GoogleDataTransport-TestApp-Bridging-Header.h'
-    }
+      app_spec.pod_target_xcconfig = {
+        'SWIFT_OBJC_BRIDGING_HEADER' => '$(PODS_TARGET_SRCROOT)/GoogleDataTransport/GDTTestApp/Bridging-Header.h'
+      }
     end
   end
 
