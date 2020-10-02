@@ -355,6 +355,32 @@
   OCMReject([_mockMachO codeHash]);
 }
 
+- (void)testFetchNewLatestReleaseUnauthenticatedFailure {
+  NSError *mockError =
+  [NSError errorWithDomain:kFIRFADApiErrorDomain
+                      code:FIRFADApiErrorUnauthenticated
+                  userInfo:@{NSLocalizedDescriptionKey : @"This is unfortunate."}];
+  [self mockFetchReleasesCompletion:nil error:mockError];
+  OCMStub([_mockMachO codeHash]).andReturn(@"this-is-old");
+  [[GULUserDefaults standardUserDefaults] setBool:YES forKey:@"FIRFADSignInState"];
+
+  XCTestExpectation *expectation = [self expectationWithDescription:@"Fetch latest release fails."];
+
+  [[self appDistribution] fetchNewLatestRelease:^(FIRAppDistributionRelease *_Nullable release,
+                                                  NSError *_Nullable error) {
+    XCTAssertNil(release);
+    XCTAssertNotNil(error);
+    XCTAssertEqual([error code], FIRAppDistributionErrorAuthenticationFailure);
+    XCTAssertEqual([error domain], FIRAppDistributionErrorDomain);
+    XCTAssertFalse([[self appDistribution] isTesterSignedIn]);
+    [expectation fulfill];
+  }];
+
+  [self waitForExpectations:@[ expectation ] timeout:5.0];
+  [self verifyFetchReleasesCompletion];
+  OCMReject([_mockMachO codeHash]);
+}
+
 - (void)testCheckForUpdateWithCompletionTesterSignedIn {
   [self mockInstallationIdCompletion:_mockInstallationId error:nil];
   [self mockUIServiceRegistrationCompletion:nil];

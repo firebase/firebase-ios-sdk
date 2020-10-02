@@ -252,6 +252,11 @@ NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
   [FIRFADApiService
       fetchReleasesWithCompletion:^(NSArray *_Nullable releases, NSError *_Nullable error) {
         if (error) {
+          if ([error code] == FIRFADApiErrorUnauthenticated){
+            FIRFADErrorLog(@"Tester authentication failed when fetching releases. Tester will need to sign in again.");
+            [self signOutTester];
+          }
+
           dispatch_async(dispatch_get_main_queue(), ^{
             completion(nil, [self mapFetchReleasesError:error]);
           });
