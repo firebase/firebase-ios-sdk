@@ -29,11 +29,6 @@ class InterfaceController: WKInterfaceController {
     // Configure interface objects here.
   }
 
-  override func willActivate() {
-    GDTCORRegistrar.sharedInstance().register(TestUploader(), target: GDTCORTarget.test)
-    super.willActivate()
-  }
-
   override func didDeactivate() {
     // This method is called when watch view controller is no longer visible
     super.didDeactivate()
@@ -75,5 +70,12 @@ class InterfaceController: WKInterfaceController {
     event.dataObject = TestDataObject()
     event.qosTier = GDTCOREventQoS.qoSDaily
     transport.sendDataEvent(event)
+  }
+}
+
+class TestDataObject: NSObject, GDTCOREventDataObject {
+  func transportBytes() -> Data {
+    return "Normally, some SDK's data object would populate this. \(Date())"
+      .data(using: String.Encoding.utf8)!
   }
 }
