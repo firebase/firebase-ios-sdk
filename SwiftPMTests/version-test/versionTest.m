@@ -15,8 +15,7 @@
 #import <Foundation/Foundation.h>
 #import <XCTest/XCTest.h>
 
-// TODO(7.0): Move FIRVersion.h to a private header.
-FOUNDATION_EXPORT const char *const FIRVersionString;
+#import "../../FirebaseCore/Sources/Private/FIRVersion.h"
 
 // The following two macros supply the incantation so that the C
 // preprocessor does not try to parse the version as a floating
@@ -32,7 +31,7 @@ FOUNDATION_EXPORT const char *const FIRVersionString;
 
 - (void)testVersion {
   NSString *version = [NSString stringWithUTF8String:(const char *const)STR(FIR_VERSION)];
-  XCTAssertEqualObjects([NSString stringWithUTF8String:FIRVersionString], version);
+  XCTAssertEqualObjects([FIRVersion version], version);
 }
 
 @end
