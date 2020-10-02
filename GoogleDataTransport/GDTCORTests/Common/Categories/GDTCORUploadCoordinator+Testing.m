@@ -18,8 +18,8 @@
 
 #import <objc/runtime.h>
 
-#import "GoogleDataTransport/GDTCORLibrary/Private/GDTCORFlatFileStorage.h"
 #import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORRegistrar.h"
+#import "GoogleDataTransport/GDTCORLibrary/Private/GDTCORFlatFileStorage.h"
 
 @implementation GDTCORUploadCoordinator (Testing)
 
