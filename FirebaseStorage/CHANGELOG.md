@@ -1,3 +1,6 @@
+# 3.8.1
+- [fixed] Fixed typo in doc comments (#6485).
+
 # 3.8.0
 - [changed] Add error for attempt to upload directory (#5750)
 - [changed] Functionally neutral source reorganization. (#5851)
