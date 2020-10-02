@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseInstallations'
-  s.version          = '1.7.1'
+  s.version          = '7.0.0'
   s.summary          = 'Firebase Installations'
 
   s.description      = <<-DESC
@@ -13,7 +13,7 @@ Pod::Spec.new do |s|
 
   s.source           = {
     :git => 'https://github.com/firebase/firebase-ios-sdk.git',
-    :tag => 'Installations-' + s.version.to_s
+    :tag => 'CocoaPods-' + s.version.to_s
   }
   s.social_media_url = 'https://twitter.com/Firebase'
   s.ios.deployment_target = '9.0'
@@ -34,12 +34,12 @@ Pod::Spec.new do |s|
   ]
 
   s.framework = 'Security'
-  s.dependency 'FirebaseCore', '~> 6.10'
+  s.dependency 'FirebaseCore', '~> 7.0'
   s.dependency 'PromisesObjC', '~> 1.2'
-  s.dependency 'GoogleUtilities/Environment', '~> 6.7'
-  s.dependency 'GoogleUtilities/UserDefaults', '~> 6.7'
+  s.dependency 'GoogleUtilities/Environment', '~> 7.0'
+  s.dependency 'GoogleUtilities/UserDefaults', '~> 7.0'
 
-  preprocessor_definitions = 'FIRInstallations_LIB_VERSION=' + String(s.version)
+  preprocessor_definitions = ''
   if ENV['FIS_ALLOWS_INCOMPATIBLE_IID_VERSION'] && ENV['FIS_ALLOWS_INCOMPATIBLE_IID_VERSION'] == '1' then
     # Disable FirebaseInstanceID compatibility assert to test IID migration.
     preprocessor_definitions += ' FIR_INSTALLATIONS_ALLOWS_INCOMPATIBLE_IID_VERSION=1'
@@ -62,8 +62,7 @@ Pod::Spec.new do |s|
       unit_tests.source_files += base_dir + 'Tests/Unit/IIDStoreTests/*.[mh]'
       unit_tests.dependency 'FirebaseInstanceID', '~> 4.2.0' # The version before FirebaseInstanceID updated to use FirebaseInstallations under the hood.
     end
-
-  end
+ end
 
   s.test_spec 'integration' do |int_tests|
     int_tests.platforms = {:ios => '9.0', :osx => '10.12', :tvos => '10.0'}

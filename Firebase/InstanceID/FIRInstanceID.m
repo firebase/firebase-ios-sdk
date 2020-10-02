@@ -29,7 +29,6 @@
 #import "Firebase/InstanceID/FIRInstanceIDTokenInfo.h"
 #import "Firebase/InstanceID/FIRInstanceIDTokenManager.h"
 #import "Firebase/InstanceID/FIRInstanceIDUtilities.h"
-#import "Firebase/InstanceID/FIRInstanceIDVersionUtilities.h"
 #import "Firebase/InstanceID/NSError+FIRInstanceID.h"
 #import "Firebase/InstanceID/Private/FIRInstanceID+Private.h"
 #import "Firebase/InstanceID/Private/FIRInstanceIDCheckinPreferences.h"
@@ -584,9 +583,7 @@ static FIRInstanceID *gInstanceID;
 #pragma mark - Config
 
 + (void)load {
-  [FIRApp registerInternalLibrary:(Class<FIRLibrary>)self
-                         withName:@"fire-iid"
-                      withVersion:FIRInstanceIDCurrentLibraryVersion()];
+  [FIRApp registerInternalLibrary:(Class<FIRLibrary>)self withName:@"fire-iid"];
 }
 
 + (nonnull NSArray<FIRComponent *> *)componentsToRegister {

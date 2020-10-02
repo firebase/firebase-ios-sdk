@@ -20,10 +20,6 @@
 
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 
-// Convert the macro to a string
-#define STR_EXPAND(x) #x
-#define STR(x) STR_EXPAND(x)
-
 static const uint64_t kBytesToMegabytesDivisor = 1024 * 1024LL;
 
 #pragma mark - Time

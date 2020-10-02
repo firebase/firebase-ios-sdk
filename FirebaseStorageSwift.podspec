@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name                    = 'FirebaseStorageSwift'
-  s.version                 = '0.1.0'
+  s.version                 = '7.0.0-beta'
   s.summary                 = 'Swift Extensions for Google Cloud Storage'
 
   s.description      = <<-DESC
@@ -14,7 +14,7 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
 
   s.source                  = {
     :git => 'https://github.com/Firebase/firebase-ios-sdk.git',
-    :tag => 'StorageSwift-' + s.version.to_s
+    :tag => 'CocoaPods-' + s.version.to_s
   }
 
   s.swift_version           = '5.0'
@@ -30,7 +30,7 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
     'FirebaseStorageSwift/Sources/*.swift',
   ]
 
-  s.dependency 'FirebaseStorage', '~> 3.6'
+  s.dependency 'FirebaseStorage', '~> 7.0'
 
   s.test_spec 'integration' do |int_tests|
     int_tests.platforms = {:ios => '10.0', :osx => '10.12', :tvos => '10.0'}
@@ -40,6 +40,6 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
     int_tests.resources = 'FirebaseStorage/Tests/Integration/Resources/1mb.dat',
                           'FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist',
                           'FirebaseStorage/Tests/Integration/Resources/HomeImprovement.numbers'
-    int_tests.dependency 'FirebaseAuth', '~> 6.5'
+    int_tests.dependency 'FirebaseAuth', '~> 7.0'
   end
 end

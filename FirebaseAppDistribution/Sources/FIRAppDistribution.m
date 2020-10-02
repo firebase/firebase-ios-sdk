@@ -81,11 +81,7 @@ NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
 }
 
 + (void)load {
-  NSString *version =
-      [NSString stringWithUTF8String:(const char *const)STR_EXPAND(FIRAppDistribution_VERSION)];
-  [FIRApp registerInternalLibrary:(Class<FIRLibrary>)self
-                         withName:kAppDistroLibraryName
-                      withVersion:version];
+  [FIRApp registerInternalLibrary:(Class<FIRLibrary>)self withName:kAppDistroLibraryName];
 }
 
 + (NSArray<FIRComponent *> *)componentsToRegister {

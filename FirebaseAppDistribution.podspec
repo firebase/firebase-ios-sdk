@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseAppDistribution'
-  s.version          = '0.9.3'
+  s.version          = '7.0.0-beta'
   s.summary          = 'App Distribution for Firebase iOS SDK.'
 
   s.description      = <<-DESC
@@ -12,7 +12,7 @@ iOS SDK for App Distribution for Firebase.
   s.authors          = 'Google, Inc.'
   s.source           = {
     :git => 'https://github.com/firebase/firebase-ios-sdk.git',
-    :tag => 'AppDistribution-' + s.version.to_s
+    :tag => 'CocoaPods-' + s.version.to_s
   }
 
   s.ios.deployment_target = '10.0'
@@ -29,15 +29,14 @@ iOS SDK for App Distribution for Firebase.
   ]
   s.public_header_files = base_dir + 'Public/*.h'
 
-  s.dependency 'FirebaseCore', '~> 6.10'
-  s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 6.7'
-  s.dependency 'GoogleUtilities/UserDefaults', '~> 6.7'
-  s.dependency 'FirebaseInstallations', '~> 1.6'
-  s.dependency 'GoogleDataTransport', '~> 7.2'
+  s.dependency 'FirebaseCore', '~> 7.0'
+  s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 7.0'
+  s.dependency 'GoogleUtilities/UserDefaults', '~> 7.0'
+  s.dependency 'FirebaseInstallations', '~> 7.0'
+  s.dependency 'GoogleDataTransport', '~> 7.5'
 
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
-    'GCC_PREPROCESSOR_DEFINITIONS' => 'FIRAppDistribution_VERSION=' + s.version.to_s,
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
   }
 

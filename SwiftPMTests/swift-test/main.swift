@@ -55,9 +55,5 @@ class importTest: XCTestCase {
     XCTAssertEqual(GULAppEnvironmentUtil.deviceModel(), "x86_64")
 
     print("System version? Answer: \(GULAppEnvironmentUtil.systemVersion() ?? "NONE")")
-
-    print("Storage Version String? Answer: \(String(cString: StorageVersionString))")
-
-    // print("InstanceIDScopeFirebaseMessaging? Answer: \(InstanceIDScopeFirebaseMessaging)")
   }
 }

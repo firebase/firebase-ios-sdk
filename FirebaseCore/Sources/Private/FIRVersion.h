@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,10 +14,16 @@
  * limitations under the License.
  */
 
-#import "FirebaseInstallations/Source/Library/Public/FirebaseInstallations/FIRInstallationsVersion.h"
+#import <Foundation/Foundation.h>
 
-// Convert the macro to a string
-#define STR(x) STR_EXPAND(x)
-#define STR_EXPAND(x) #x
+/**
+ * This class provides internal access to the Firebase version for any Firebase pod.
+ */
+@interface FIRVersion : NSObject
 
-const char *const FIRInstallationsVersionStr = (const char *const)STR(FIRInstallations_LIB_VERSION);
+/**
+ * Returns the version string.
+ */
++ (NSString *)version;
+
+@end

@@ -29,6 +29,7 @@
 #import <FirebaseAuth/FirebaseAuth.h>
 #import "StaticContentTableViewManager.h"
 #import "UIViewController+Alerts.h"
+#import "../../../../FirebaseCore/Sources/Private/FIRVersion.h"
 
 /** @var kIdentityToolkitRequestClassName
     @brief The class name of Identity Toolkit requests.
@@ -80,15 +81,6 @@ static NSArray<FIROptions *> *gFirebaseAppOptions;
 - (NSString *)host;
 - (void)setHost:(NSString *)host;
 @end
-
-/** @fn versionString
-    @brief Constructs a version string to display.
-    @param string The version in string form.
-    @param number The version in number form.
- */
-static NSString *versionString(const char *string, const double number) {
-  return [NSString stringWithFormat:@"\"%s\" (%g)", string, number];
-}
 
 /** @fn requestHost
     @brief Retrieves the API host for the request class.
@@ -167,8 +159,7 @@ static NSString *truncatedString(NSString *string, NSUInteger length) {
   _tableViewManager.contents = [StaticContentTableViewContent contentWithSections:@[
     [StaticContentTableViewSection sectionWithTitle:@"Versions" cells:@[
       [StaticContentTableViewCell cellWithTitle:@"FirebaseAuth"
-                                          value:versionString(
-          FirebaseAuthVersionStr, FirebaseAuthVersionNum)],
+                                          value:[FIRVersion version]],
     ]],
     [StaticContentTableViewSection sectionWithTitle:@"API Hosts" cells:@[
       [StaticContentTableViewCell cellWithTitle:@"Identity Toolkit"

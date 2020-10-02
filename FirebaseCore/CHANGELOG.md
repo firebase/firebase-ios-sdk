@@ -9,6 +9,11 @@
   APIs. (#6572)
 - [removed] Removed broken `FirebaseOptions()` initializer. Use `init(contentsOfFile:)` or
   `init(googleAppID:gcmSenderID:)` instead. (#6633)
+- [changed] All Firebase pods now have the same version. (#6295)
+- [changed] In CocoaPods, Firebase betas are now indicated in the version tag. In SwiftPM, beta
+  is appended to the product name.
+- [changed] The version must now be specified for the two Swift-only Firebase CocoaPods in the
+  Podfile like `pod 'FirebaseFirestoreSwift', '~> 7.0-beta'`.
 
 # Firebase 6.34.0
 - [fixed] Removed warning related to missing Analytics framework for non-iOS builds since the
