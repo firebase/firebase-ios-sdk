@@ -51,14 +51,16 @@ import FirebaseDatabase
       if container.decodeNil() {
         value = nil
       } else {
-        value = try container.decode(Date.self)
+        let msecs = try container.decode(Int.self)
+        value = Date(timeIntervalSince1970: TimeInterval(msecs) / 1_000)
       }
     }
 
     public func encode(to encoder: Encoder) throws {
       var container = encoder.singleValueContainer()
       if let value = value {
-        try container.encode(value)
+        let interval = value.timeIntervalSince1970
+        try container.encode(Int(interval * 1_000))
       } else if let dictionary = ServerValue.timestamp() as? [String: String] {
         try container.encode(dictionary)
       } else {
