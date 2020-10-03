@@ -119,7 +119,8 @@ public enum Swift4ServerTimestamp: Codable, Equatable {
     if container.decodeNil() {
       self = .pending
     } else {
-      let value = try container.decode(Date.self)
+      let msecs = try container.decode(Int.self)
+      let value = Date(timeIntervalSince1970: TimeInterval(msecs) / 1_000)
       self = .resolved(value)
     }
   }
@@ -134,7 +135,8 @@ public enum Swift4ServerTimestamp: Codable, Equatable {
         throw Database.EncodingError.internalError
       }
     case let .resolved(value: value):
-      try container.encode(value)
+      let interval = value.timeIntervalSince1970
+      try container.encode(Int(interval * 1_000))
     }
   }
 }
