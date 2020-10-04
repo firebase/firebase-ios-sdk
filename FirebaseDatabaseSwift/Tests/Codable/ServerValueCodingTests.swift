@@ -74,6 +74,18 @@ private struct CurrencyAmount: Codable, Equatable, Hashable, AdditiveArithmetic 
   }
 }
 
+extension CurrencyAmount: ExpressibleByIntegerLiteral {
+  public init(integerLiteral value: Int) {
+    self.value = Decimal(value)
+  }
+}
+
+extension CurrencyAmount: ExpressibleByFloatLiteral {
+  public init(floatLiteral value: Double) {
+    self.value = Decimal(value)
+  }
+}
+
 class ServerIncrementTests: XCTestCase {
   func testIntRoundTrip() throws {
     struct Model: Codable, Equatable {
@@ -117,7 +129,7 @@ class ServerIncrementTests: XCTestCase {
     struct Model: Codable, Equatable {
       @ServerIncrement var currencyAmount: CurrencyAmount?
     }
-    let model = Model(currencyAmount: CurrencyAmount(value: 10))
+    let model = Model(currencyAmount: 10)
     let dict = ["currencyAmount": 10]
     assertThat(model).roundTrips(to: dict)
   }
@@ -127,7 +139,85 @@ class ServerIncrementTests: XCTestCase {
       @ServerIncrement var currencyAmount: CurrencyAmount?
     }
     var model = Model()
-    model.$currencyAmount.increment = CurrencyAmount(value: 9.99)
+    model.$currencyAmount.increment = 9.99
+    let dict = ["currencyAmount": [".sv": ["increment": 9.99]]]
+    assertThat(model).encodes(to: dict)
+  }
+}
+
+// Same tests as above, but using other API
+class ServerIncrementNoWrapTests: XCTestCase {
+  func testIntRoundTrip() throws {
+    struct Model: Codable, Equatable {
+      var intValue: ServerIncrement<Int>
+    }
+    let model = Model(intValue: 10)
+    let dict = ["intValue": 10]
+    assertThat(model).roundTrips(to: dict)
+  }
+
+  func testIntIncrementEncoding() throws {
+    struct Model: Codable, Equatable {
+      var intValue: ServerIncrement<Int>
+    }
+    let model = Model(intValue: .increment(5))
+    let dict = ["intValue": [".sv": ["increment": 5]]]
+    assertThat(model).encodes(to: dict)
+  }
+
+  func testDoubleRoundTrip() throws {
+    struct Model: Codable, Equatable {
+      var doubleValue: ServerIncrement<Double>
+    }
+    let model = Model(doubleValue: 123456789.123)
+    let dict = ["doubleValue": 123456789.123]
+    assertThat(model).roundTrips(to: dict)
+  }
+
+  func testDoubleIncrementEncoding() throws {
+    struct Model: Codable, Equatable {
+      var doubleValue: ServerIncrement<Double>
+    }
+    let model = Model(doubleValue: .increment(1.234))
+    let dict = ["doubleValue": [".sv": ["increment": 1.234]]]
+    assertThat(model).encodes(to: dict)
+  }
+
+  func testCustomValueRoundTrip() throws {
+    struct Model: Codable, Equatable {
+      var currencyAmount: ServerIncrement<CurrencyAmount>
+    }
+    let model = Model(currencyAmount: 10)
+    let dict = ["currencyAmount": 10]
+    assertThat(model).roundTrips(to: dict)
+  }
+
+  // Demonstration that this version of the API can also
+  // model actual optionality
+  func testCustomValueOptionalNilRoundTrip() throws {
+    struct Model: Codable, Equatable {
+      var currencyAmount: ServerIncrement<CurrencyAmount>?
+    }
+    let model = Model()
+    assertThat(model).roundTrips(to: [:])
+  }
+
+  // Demonstration that this version of the API can also
+  // model actual optionality
+  func testCustomValueOptionalValueRoundTrip() throws {
+    struct Model: Codable, Equatable {
+      var currencyAmount: ServerIncrement<CurrencyAmount>?
+    }
+    let model = Model(currencyAmount: 10)
+    let dict = ["currencyAmount": 10]
+    assertThat(model).roundTrips(to: dict)
+  }
+
+  func testCustomValueIncrementEncoding() throws {
+    struct Model: Codable, Equatable {
+      var currencyAmount: ServerIncrement<CurrencyAmount>
+    }
+    let model = Model(currencyAmount: .increment(9.99))
     let dict = ["currencyAmount": [".sv": ["increment": 9.99]]]
     assertThat(model).encodes(to: dict)
   }
