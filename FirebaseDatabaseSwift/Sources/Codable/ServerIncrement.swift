@@ -178,7 +178,7 @@ extension ServerIncrement: ExpressibleByIntegerLiteral where Value: ExpressibleB
 // MARK: ExpressibleByFloatLiteral
 extension ServerIncrement: ExpressibleByFloatLiteral where Value: ExpressibleByFloatLiteral {
   public typealias FloatLiteralType = Value.FloatLiteralType
-  
+
   public init(floatLiteral value: FloatLiteralType) {
     self = .value(Value(floatLiteral: value))
   }
