@@ -66,7 +66,7 @@ import FirebaseDatabase
 
 @propertyWrapper
 public enum ServerIncrement<Value>: Equatable, Hashable
-where Value: Numeric, Value: Codable, Value: Hashable {
+where Value: AdditiveArithmetic, Value: Codable, Value: Hashable {
 
   case value(Value)
   case increment(Value)
@@ -75,7 +75,7 @@ where Value: Numeric, Value: Codable, Value: Hashable {
     if let v = value {
       self = .value(v)
     } else {
-      self = .increment(0)
+      self = .increment(.zero)
     }
   }
 
@@ -102,7 +102,7 @@ where Value: Numeric, Value: Codable, Value: Hashable {
       if let v = newValue {
         self = .increment(v)
       } else {
-        self = .increment(0)
+        self = .increment(.zero)
       }
     }
   }
@@ -120,7 +120,7 @@ where Value: Numeric, Value: Codable, Value: Hashable {
       if let v = newValue {
         self = .value(v)
       } else {
-        self = .increment(0)
+        self = .increment(.zero)
       }
     }
   }
