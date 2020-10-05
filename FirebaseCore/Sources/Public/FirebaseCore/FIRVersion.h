@@ -29,6 +29,9 @@ NS_SWIFT_NAME(FirebaseVersion)
  */
 + (NSString *)version;
 
+/** Unavailable. Class method only */
+- (instancetype)init NS_UNAVAILABLE;
+
 @end
 
 NS_ASSUME_NONNULL_END

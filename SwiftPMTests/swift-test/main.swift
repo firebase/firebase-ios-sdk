@@ -54,8 +54,11 @@ class importTest: XCTestCase {
     XCTAssertNil(FirebaseApp.app())
     XCTAssertEqual(GULAppEnvironmentUtil.deviceModel(), "x86_64")
 
-    let majorVersion = try XCTUnwrap(FirebaseVersion.version().first)
-    XCTAssert(majorVersion.isNumber)
+    let versionParts = FirebaseVersion.version().split(separator: ".")
+    XCTAssert(versionParts.count == 3)
+    XCTAssertEqual(Int(versionParts[0]), 7)
+    XCTAssertNotNil(Int(versionParts[1]))
+    XCTAssertNotNil(Int(versionParts[2]))
 
     print("System version? Answer: \(GULAppEnvironmentUtil.systemVersion() ?? "NONE")")
   }
