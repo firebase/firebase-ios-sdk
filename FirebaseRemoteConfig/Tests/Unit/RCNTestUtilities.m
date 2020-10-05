@@ -47,7 +47,7 @@ static NSString *const RCNRemoteConfigStorageSubDirectory = @"Google/RemoteConfi
 #endif
   NSString *storageDirPath = dirPaths.firstObject;
   NSArray<NSString *> *components = @[
-    storageDirPath, RCNRemoteConfigApplicationSupportSubDirectory,
+    storageDirPath, RCNRemoteConfigStorageSubDirectory,
     [NSString stringWithFormat:@"test-%f.sqlite3", [[NSDate date] timeIntervalSince1970] * 1000]
   ];
   NSString *dbPath = [NSString pathWithComponents:components];
