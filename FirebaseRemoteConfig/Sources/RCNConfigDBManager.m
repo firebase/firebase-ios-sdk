@@ -53,8 +53,7 @@ static NSString *RemoteConfigPathForDatabase(void) {
       NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
 #endif
   NSString *storageDirPath = dirPaths.firstObject;
-  NSArray *components =
-      @[ storageDirPath, RCNRemoteConfigApplicationSupportSubDirectory, RCNDatabaseName ];
+  NSArray *components = @[ storageDirPath, RCNRemoteConfigStorageSubDirectory, RCNDatabaseName ];
   return [NSString pathWithComponents:components];
 }
 
