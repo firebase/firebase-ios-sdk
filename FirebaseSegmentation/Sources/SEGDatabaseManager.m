@@ -19,7 +19,7 @@
 
 /// SQLite file name.
 static NSString *const kDatabaseName = @"FirebaseSegmentation.sqlite3";
-/// The application support sub-directory that the Segmentation database resides in.
+/// The storage sub-directory that the Segmentation database resides in.
 static NSString *const kSegmentationStorageSubDirectory = @"Google/FirebaseSegmentation";
 /// Column names
 static NSString *const kMainTableName = @"main";

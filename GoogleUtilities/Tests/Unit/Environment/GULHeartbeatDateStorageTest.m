@@ -27,18 +27,18 @@ static NSString *const kTestFileName = @"GULStorageHeartbeatTest";
 
 - (void)setUp {
 #if TARGET_OS_TV
-  NSArray *documentsPath =
-      NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
+  NSArray *path = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
 #else
-  NSArray *documentsPath =
+  NSArray *path =
       NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
 #endif
-  XCTAssertNotNil(documentsPath);
-  NSURL *documentsURL = [NSURL fileURLWithPath:documentsPath];
+  NSString *rootPath = [path firstObject];
+  XCTAssertNotNil(rootPath);
+  NSURL *rootURL = [NSURL fileURLWithPath:rootPath];
 
   NSError *error;
-  if (![documentsURL checkResourceIsReachableAndReturnError:&error]) {
-    XCTAssert([[NSFileManager defaultManager] createDirectoryAtURL:documentsURL
+  if (![rootURL checkResourceIsReachableAndReturnError:&error]) {
+    XCTAssert([[NSFileManager defaultManager] createDirectoryAtURL:rootURL
                                        withIntermediateDirectories:YES
                                                         attributes:nil
                                                              error:&error],
@@ -75,13 +75,13 @@ static NSString *const kTestFileName = @"GULStorageHeartbeatTest";
 
 - (NSURL *)heartbeatFileURL {
 #if TARGET_OS_TV
-  NSArray *documentsPath =
-      NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
+  NSArray *path = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
 #else
-  NSArray *documentsPath =
+  NSArray *path =
       NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
 #endif
-  NSArray<NSString *> *components = @[ documentsPath, @"Google/FIRApp", kTestFileName ];
+  NSString *rootPath = [path firstObject];
+  NSArray<NSString *> *components = @[ rootPath, @"Google/FIRApp", kTestFileName ];
   NSString *fileString = [NSString pathWithComponents:components];
   NSURL *fileURL = [NSURL fileURLWithPath:fileString];
   return fileURL;
