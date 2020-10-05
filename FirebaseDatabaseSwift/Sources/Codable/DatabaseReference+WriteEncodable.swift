@@ -18,9 +18,9 @@ import Foundation
 import FirebaseDatabase
 
 extension Database.Encoder {
-    public static var defaultEncoder: () -> Database.Encoder = {
-        .init()
-    }
+  public static var defaultEncoder: () -> Database.Encoder = {
+    .init()
+  }
 }
 
 extension DatabaseReference {
@@ -39,7 +39,8 @@ extension DatabaseReference {
   ///                 immediately.
   public func setValue<T: Encodable>(from value: T,
                                      encoder: Database.Encoder = Database.Encoder.defaultEncoder(),
-                                    completion: ((Error?, DatabaseReference) -> Void)? = nil) throws {
+                                     completion: ((Error?, DatabaseReference) -> Void)? =
+                                       nil) throws {
     let encoded = try encoder.encode(value)
     if let completion = completion {
       setValue(encoded, withCompletionBlock: completion)

@@ -17,123 +17,123 @@
 import FirebaseDatabase
 
 #if compiler(>=5.1)
-/// A property wrapper that exposes a `Numeric` value that either represents an actual value
-/// or an increment as an `Optional`. In case the projected value is used to set an increment of `x`
-/// then the wrapped value is exposed as nil, but will be encoded as `ServerValue.increment(x)`
-/// In case the wrapper contains an actual value, then this will be exposed as the .some case
-/// of the wrapped optional
-///
-/// Example:
-/// ```
-/// struct CustomModel {
-///   @ServerIncrement var count: Int?
-/// }
-/// ```
-///
-/// Then writing:
-/// ```
-/// var model = CustomModel()
-/// model.$count.increment = 3
-/// ```
-/// will tell server to increment `count` by 3
-///
-///
-/// The enum can also be used directly instead of as a property wrapper:
-///
-/// Example:
-/// ```
-/// struct CustomModel {
-///   var count: ServerIncrement<Int>
-/// }
-/// ```
-///
-/// Then writing:
-/// ```
-/// var model = CustomModel(count: .increment(3))
-/// ```
-/// will tell server to increment `count` by 3
-///
-/// Writing:
-/// ```
-/// var model = CustomModel(count: .value(7))
-/// ```
-/// or using the ExpressibleByIntegerLiteral convenience:
-/// ```
-/// var model = CustomModel(count: 7)
-/// ```
-///
-/// will tell server to set `count` to 7.
+  /// A property wrapper that exposes a `Numeric` value that either represents an actual value
+  /// or an increment as an `Optional`. In case the projected value is used to set an increment of `x`
+  /// then the wrapped value is exposed as nil, but will be encoded as `ServerValue.increment(x)`
+  /// In case the wrapper contains an actual value, then this will be exposed as the .some case
+  /// of the wrapped optional
+  ///
+  /// Example:
+  /// ```
+  /// struct CustomModel {
+  ///   @ServerIncrement var count: Int?
+  /// }
+  /// ```
+  ///
+  /// Then writing:
+  /// ```
+  /// var model = CustomModel()
+  /// model.$count.increment = 3
+  /// ```
+  /// will tell server to increment `count` by 3
+  ///
+  ///
+  /// The enum can also be used directly instead of as a property wrapper:
+  ///
+  /// Example:
+  /// ```
+  /// struct CustomModel {
+  ///   var count: ServerIncrement<Int>
+  /// }
+  /// ```
+  ///
+  /// Then writing:
+  /// ```
+  /// var model = CustomModel(count: .increment(3))
+  /// ```
+  /// will tell server to increment `count` by 3
+  ///
+  /// Writing:
+  /// ```
+  /// var model = CustomModel(count: .value(7))
+  /// ```
+  /// or using the ExpressibleByIntegerLiteral convenience:
+  /// ```
+  /// var model = CustomModel(count: 7)
+  /// ```
+  ///
+  /// will tell server to set `count` to 7.
 
-@propertyWrapper
-public enum ServerIncrement<Value>: Equatable, Hashable
-where Value: AdditiveArithmetic, Value: Codable, Value: Hashable {
+  @propertyWrapper
+  public enum ServerIncrement<Value>: Equatable, Hashable
+    where Value: AdditiveArithmetic, Value: Codable, Value: Hashable {
+    case value(Value)
+    case increment(Value)
 
-  case value(Value)
-  case increment(Value)
-
-  public init(wrappedValue value: Value?) {
-    if let v = value {
-      self = .value(v)
-    } else {
-      self = .increment(.zero)
-    }
-  }
-
-  public var projectedValue: ServerIncrement<Value> {
-    get {
-      return self
-    }
-    mutating set {
-      self = newValue
-    }
-  }
-
-  public var increment: Value? {
-    get {
-      switch self {
-      case .increment(let v):
-        return v
-      case .value:
-        return nil
-      }
-    }
-
-    mutating set {
-      if let v = newValue {
-        self = .increment(v)
-      } else {
-        self = .increment(.zero)
-      }
-    }
-  }
-
-  public var wrappedValue: Value? {
-    get {
-      switch self {
-      case .value(let v):
-        return v
-      case .increment:
-        return nil
-      }
-    }
-    set {
-      if let v = newValue {
+    public init(wrappedValue value: Value?) {
+      if let v = value {
         self = .value(v)
       } else {
         self = .increment(.zero)
       }
     }
+
+    public var projectedValue: ServerIncrement<Value> {
+      get {
+        return self
+      }
+      mutating set {
+        self = newValue
+      }
+    }
+
+    public var increment: Value? {
+      get {
+        switch self {
+        case let .increment(v):
+          return v
+        case .value:
+          return nil
+        }
+      }
+
+      mutating set {
+        if let v = newValue {
+          self = .increment(v)
+        } else {
+          self = .increment(.zero)
+        }
+      }
+    }
+
+    public var wrappedValue: Value? {
+      get {
+        switch self {
+        case let .value(v):
+          return v
+        case .increment:
+          return nil
+        }
+      }
+      set {
+        if let v = newValue {
+          self = .value(v)
+        } else {
+          self = .increment(.zero)
+        }
+      }
+    }
   }
-}
 #else
-public enum ServerIncrement<Value>: Equatable, Hashable
-where Value: Numeric, Value: Codable, Value: Hashable {
-  case value(Value)
-  case increment(Value)
-}
+  public enum ServerIncrement<Value>: Equatable, Hashable
+    where Value: Numeric, Value: Codable, Value: Hashable {
+    case value(Value)
+    case increment(Value)
+  }
 #endif // compiler(>=5.1)
 
 // MARK: Codable
+
 extension ServerIncrement: Codable {
   public init(from decoder: Decoder) throws {
     let container = try decoder.singleValueContainer()
@@ -143,9 +143,9 @@ extension ServerIncrement: Codable {
   public func encode(to encoder: Encoder) throws {
     var container = encoder.singleValueContainer()
     switch self {
-    case .value(let v):
+    case let .value(v):
       try container.encode(v)
-    case .increment(let v):
+    case let .increment(v):
       // NOTE: I am not certain that it is acceptable to
       // encode this structure 'manually', but as we
       // do not have an NSNumber, but a Numeric, it
@@ -167,6 +167,7 @@ extension ServerIncrement: Codable {
 }
 
 // MARK: ExpressibleByIntegerLiteral
+
 extension ServerIncrement: ExpressibleByIntegerLiteral where Value: ExpressibleByIntegerLiteral {
   public typealias IntegerLiteralType = Value.IntegerLiteralType
 
@@ -176,6 +177,7 @@ extension ServerIncrement: ExpressibleByIntegerLiteral where Value: ExpressibleB
 }
 
 // MARK: ExpressibleByFloatLiteral
+
 extension ServerIncrement: ExpressibleByFloatLiteral where Value: ExpressibleByFloatLiteral {
   public typealias FloatLiteralType = Value.FloatLiteralType
 

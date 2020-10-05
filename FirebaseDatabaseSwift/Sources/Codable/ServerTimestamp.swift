@@ -52,7 +52,7 @@ import FirebaseDatabase
         value = nil
       } else {
         let msecs = try container.decode(Int.self)
-        value = Date(timeIntervalSince1970: TimeInterval(msecs) / 1_000)
+        value = Date(timeIntervalSince1970: TimeInterval(msecs) / 1000)
       }
     }
 
@@ -60,7 +60,7 @@ import FirebaseDatabase
       var container = encoder.singleValueContainer()
       if let value = value {
         let interval = value.timeIntervalSince1970
-        try container.encode(Int(interval * 1_000))
+        try container.encode(Int(interval * 1000))
       } else if let dictionary = ServerValue.timestamp() as? [String: String] {
         try container.encode(dictionary)
       } else {
@@ -120,7 +120,7 @@ public enum Swift4ServerTimestamp: Codable, Equatable {
       self = .pending
     } else {
       let msecs = try container.decode(Int.self)
-      let value = Date(timeIntervalSince1970: TimeInterval(msecs) / 1_000)
+      let value = Date(timeIntervalSince1970: TimeInterval(msecs) / 1000)
       self = .resolved(value)
     }
   }
@@ -136,7 +136,7 @@ public enum Swift4ServerTimestamp: Codable, Equatable {
       }
     case let .resolved(value: value):
       let interval = value.timeIntervalSince1970
-      try container.encode(Int(interval * 1_000))
+      try container.encode(Int(interval * 1000))
     }
   }
 }

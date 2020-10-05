@@ -494,7 +494,10 @@ class DictionarySubject {
   }
 
   func failsDecoding<X: Equatable & Codable>(to _: X.Type) -> Void {
-    XCTAssertThrowsError(try Database.Decoder.defaultDecoder().decode(X.self, from: subject), file: file,
-                         line: line)
+    XCTAssertThrowsError(
+      try Database.Decoder.defaultDecoder().decode(X.self, from: subject),
+      file: file,
+      line: line
+    )
   }
 }

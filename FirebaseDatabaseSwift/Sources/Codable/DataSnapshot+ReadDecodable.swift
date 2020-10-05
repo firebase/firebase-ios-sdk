@@ -18,9 +18,9 @@ import Foundation
 import FirebaseDatabase
 
 extension Database.Decoder {
-    public static var defaultDecoder: () -> Database.Decoder = {
-        .init()
-    }
+  public static var defaultDecoder: () -> Database.Decoder = {
+    .init()
+  }
 }
 
 extension DataSnapshot {
@@ -36,9 +36,10 @@ extension DataSnapshot {
   ///   - decoder: The decoder to use to convert the document. Defaults to use
   ///              default decoder.
   public func data<T: Decodable>(as type: T.Type,
-                                 decoder: Database.Decoder = Database.Decoder.defaultDecoder()) throws -> T {
+                                 decoder: Database.Decoder = Database.Decoder
+                                   .defaultDecoder()) throws -> T {
     guard let value = value else {
-      throw Database.DecodingError.valueDoesNotExist(path: self.ref.url, type: T.self)
+      throw Database.DecodingError.valueDoesNotExist(path: ref.url, type: T.self)
     }
     return try decoder.decode(T.self, from: value)
   }

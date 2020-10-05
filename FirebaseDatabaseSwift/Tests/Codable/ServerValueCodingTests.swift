@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google
+ * Copyright 2019 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,8 +24,8 @@ class ServerTimestampTests: XCTestCase {
     struct Model: Codable, Equatable {
       @ServerTimestamp var timestamp: Date?
     }
-    let model = Model(timestamp: Date(timeIntervalSince1970: 123456789.123))
-    let dict = ["timestamp": 123456789123]
+    let model = Model(timestamp: Date(timeIntervalSince1970: 123_456_789.123))
+    let dict = ["timestamp": 123_456_789_123]
     assertThat(model).roundTrips(to: dict)
   }
 
@@ -65,12 +65,14 @@ private struct CurrencyAmount: Codable, Equatable, Hashable, AdditiveArithmetic 
     var container = encoder.singleValueContainer()
     try container.encode(value)
   }
+
   init(value: Decimal) {
     self.value = value
   }
+
   init(from decoder: Decoder) throws {
     let container = try decoder.singleValueContainer()
-    self.value = try container.decode(Decimal.self)
+    value = try container.decode(Decimal.self)
   }
 }
 
@@ -110,8 +112,8 @@ class ServerIncrementTests: XCTestCase {
     struct Model: Codable, Equatable {
       @ServerIncrement var doubleValue: Double?
     }
-    let model = Model(doubleValue: 123456789.123)
-    let dict = ["doubleValue": 123456789.123]
+    let model = Model(doubleValue: 123_456_789.123)
+    let dict = ["doubleValue": 123_456_789.123]
     assertThat(model).roundTrips(to: dict)
   }
 
@@ -169,8 +171,8 @@ class ServerIncrementNoWrapTests: XCTestCase {
     struct Model: Codable, Equatable {
       var doubleValue: ServerIncrement<Double>
     }
-    let model = Model(doubleValue: 123456789.123)
-    let dict = ["doubleValue": 123456789.123]
+    let model = Model(doubleValue: 123_456_789.123)
+    let dict = ["doubleValue": 123_456_789.123]
     assertThat(model).roundTrips(to: dict)
   }
 
