@@ -53,8 +53,8 @@
   return _fileURL;
 }
 
-/** Returns the URL path of the Application Support folder.
- * @return the URL path of Application Support.
+/** Returns the URL path of the directory for heartbeat storage data.
+ * @return the URL path of the directory for heartbeat storage data.
  */
 + (NSURL *)directoryPathURL {
 #if TARGET_OS_TV
