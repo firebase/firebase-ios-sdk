@@ -1,3 +1,5 @@
+// This file is derived from swift/test/stdlib/TestJSONEncoder.swift
+
 // Copyright (c) 2014 - 2017 Apple Inc. and the Swift project authors
 // Licensed under Apache License v2.0 with Runtime Library Exception
 //
@@ -14,9 +16,8 @@ import Foundation
 // MARK: - Test Suite
 
 import XCTest
-class TestJSONEncoderSuper: XCTestCase {}
 
-class TestJSONEncoder: TestJSONEncoderSuper {
+class TestDatabaseEncoder: XCTestCase {
   // MARK: - Encoding Top-Level Empty Types
 
   func testEncodingTopLevelEmptyStruct() {
@@ -218,7 +219,7 @@ class TestJSONEncoder: TestJSONEncoderSuper {
         let encoder = Database.Encoder()
         payload = try encoder.encode(value)
       } catch {
-        XCTFail("Failed to encode \(T.self) to JSON: \(error)")
+        XCTFail("Failed to encode \(T.self): \(error)")
       }
 
       do {
@@ -253,7 +254,7 @@ class TestJSONEncoder: TestJSONEncoderSuper {
           "\(T.self) did not round-trip to an equal value. \((decoded as! Date).timeIntervalSinceReferenceDate) != \((value as! Date).timeIntervalSinceReferenceDate)"
         )
       } catch {
-        XCTFail("Failed to decode \(T.self) from JSON: \(error)")
+        XCTFail("Failed to decode \(T.self): \(error)")
       }
     }
 
@@ -667,7 +668,7 @@ class TestJSONEncoder: TestJSONEncoderSuper {
 
   func testEncodingKeyStrategyPath() {
     // Make sure a more complex path shows up the way we want
-    // Make sure the path reflects keys in the Swift, not the resulting ones in the JSON
+    // Make sure the path reflects keys in the Swift, not the resulting ones in the structure
     let expected = ["QQQouterValue": ["QQQnestedValue": ["QQQhelloWorld": "test"]]]
     let encoded =
       EncodeNestedNested(outerValue: EncodeNested(nestedValue: EncodeMe(keyName: "helloWorld")))
@@ -711,7 +712,7 @@ class TestJSONEncoder: TestJSONEncoderSuper {
       // Get the key that we expect to be passed in (camel case)
       let camelCaseKey = try c.decode(String.self, forKey: _TestKey(stringValue: "camelCaseKey")!)
 
-      // Use the camel case key to decode from the JSON. The decoder should convert it to snake case to find it.
+      // Use the camel case key to decode from the structure. The decoder should convert it to snake case to find it.
       found = try c.decode(Bool.self, forKey: _TestKey(stringValue: camelCaseKey)!)
     }
   }
@@ -754,7 +755,7 @@ class TestJSONEncoder: TestJSONEncoderSuper {
     ]
 
     for test in fromSnakeCaseTests {
-      // This JSON contains the camel case key that the test object should decode with, then it uses the snake case key (test.0) as the actual key for the boolean value.
+      // This structure contains the camel case key that the test object should decode with, then it uses the snake case key (test.0) as the actual key for the boolean value.
       let input = ["camelCaseKey": "\(test.1)", "\(test.0)": true] as [String: Any]
 
       let decoder = Database.Decoder()
@@ -926,7 +927,7 @@ class TestJSONEncoder: TestJSONEncoderSuper {
     decoder.keyDecodingStrategy = .custom(customKeyConversion)
 
     let decodingResult = try! decoder.decode(DecodeMe5.self, from: input)
-    // There will be only one result for oneTwo (the second one in the json)
+    // There will be only one result for oneTwo (the second one in the structure)
     XCTAssertEqual(1, decodingResult.numberOfKeys)
 
     // Encoding
@@ -965,7 +966,7 @@ class TestJSONEncoder: TestJSONEncoderSuper {
         string: "10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
       )
 
-    // Want to make sure we write out a JSON number, not the keyed encoding here.
+    // Want to make sure we write out a number, not the keyed encoding here.
     // 1e127 is too big to fit natively in a Double, too, so want to make sure it's encoded as a Decimal.
     let decimal = Decimal(sign: .plus, exponent: 127, significand: Decimal(1))
     _testRoundTrip(of: decimal, expected: expected)
@@ -1015,14 +1016,14 @@ class TestJSONEncoder: TestJSONEncoderSuper {
 
   func testDecodingConcreteTypeParameter() {
     let encoder = Database.Encoder()
-    guard let json = try? encoder.encode(Employee.testValue) else {
+    guard let value = try? encoder.encode(Employee.testValue) else {
       XCTFail("Unable to encode Employee.")
       return
     }
 
     let decoder = Database.Decoder()
-    guard let decoded = try? decoder.decode(Employee.self as Person.Type, from: json) else {
-      XCTFail("Failed to decode Employee as Person from JSON.")
+    guard let decoded = try? decoder.decode(Employee.self as Person.Type, from: value) else {
+      XCTFail("Failed to decode Employee as Person.")
       return
     }
 
