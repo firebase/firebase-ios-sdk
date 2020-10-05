@@ -20,6 +20,7 @@
 #import "FirebaseCore/Sources/Private/FIRAppInternal.h"
 #import "FirebaseCore/Sources/Private/FIRComponent.h"
 #import "FirebaseCore/Sources/Private/FIRComponentContainer.h"
+#import "FirebaseCore/Sources/Private/FIRComponentType.h"
 #import "FirebaseCore/Sources/Private/FIRDependency.h"
 #import "FirebaseCore/Sources/Private/FIRHeartbeatInfo.h"
 #import "FirebaseCore/Sources/Private/FIRLibrary.h"
