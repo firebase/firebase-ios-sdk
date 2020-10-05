@@ -26,8 +26,13 @@ static NSString *const kTestFileName = @"GULStorageHeartbeatTest";
 @implementation GULHeartbeatDateStorageTest
 
 - (void)setUp {
-  NSString *documentsPath = [NSSearchPathForDirectoriesInDomains(
-      NSApplicationSupportDirectory, NSUserDomainMask, YES) firstObject];
+#if TARGET_OS_TV
+  NSArray *documentsPath =
+      NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
+#else
+  NSArray *documentsPath =
+      NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
+#endif
   XCTAssertNotNil(documentsPath);
   NSURL *documentsURL = [NSURL fileURLWithPath:documentsPath];
 
@@ -69,8 +74,13 @@ static NSString *const kTestFileName = @"GULStorageHeartbeatTest";
 }
 
 - (NSURL *)heartbeatFileURL {
-  NSString *documentsPath = [NSSearchPathForDirectoriesInDomains(
-      NSApplicationSupportDirectory, NSUserDomainMask, YES) firstObject];
+#if TARGET_OS_TV
+  NSArray *documentsPath =
+      NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
+#else
+  NSArray *documentsPath =
+      NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
+#endif
   NSArray<NSString *> *components = @[ documentsPath, @"Google/FIRApp", kTestFileName ];
   NSString *fileString = [NSString pathWithComponents:components];
   NSURL *fileURL = [NSURL fileURLWithPath:fileString];

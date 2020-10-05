@@ -57,8 +57,13 @@
  * @return the URL path of Application Support.
  */
 + (NSURL *)directoryPathURL {
+#if TARGET_OS_TV
+  NSArray<NSString *> *paths =
+      NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
+#else
   NSArray<NSString *> *paths =
       NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
+#endif
   NSArray<NSString *> *components = @[ paths.lastObject, @"Google/FIRApp" ];
   NSString *directoryString = [NSString pathWithComponents:components];
   NSURL *directoryURL = [NSURL fileURLWithPath:directoryString];
