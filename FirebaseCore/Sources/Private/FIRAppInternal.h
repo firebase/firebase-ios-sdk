@@ -114,8 +114,18 @@ extern NSString *const FIRAuthStateDidChangeInternalNotificationUIDKey;
 + (void)registerLibrary:(nonnull NSString *)name withVersion:(nonnull NSString *)version;
 
 /**
+ * Registers a given internal library to be reported for analytics.
+ *
+ * @param library Optional parameter for component registration.
+ * @param name Name of the library.
+ */
++ (void)registerInternalLibrary:(nonnull Class<FIRLibrary>)library
+                       withName:(nonnull NSString *)name;
+
+/**
  * Registers a given internal library with the given version number to be reported for
- * analytics.
+ * analytics. This should only be used for non-Firebase libraries that have their own versioning
+ * scheme.
  *
  * @param library Optional parameter for component registration.
  * @param name Name of the library.

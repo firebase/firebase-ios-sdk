@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,5 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
-
-/**
-    Version number for FirebaseAuth.
- */
-extern const double FirebaseAuthVersionNum;
-
-/**
-    Version string for FirebaseAuth.
- */
-extern const char *const FirebaseAuthVersionStr;
+#import "FirebaseInAppMessaging/Sources/DefaultUI/FIRIAMDefaultDisplayImpl.h"
+#import "FirebaseInAppMessaging/Sources/RenderingObjects/FIRInAppMessagingRenderingPrivate.h"

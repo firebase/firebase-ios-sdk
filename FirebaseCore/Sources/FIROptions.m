@@ -13,10 +13,10 @@
 // limitations under the License.
 
 #import "FirebaseCore/Sources/FIRBundleUtil.h"
-#import "FirebaseCore/Sources/FIRVersion.h"
 #import "FirebaseCore/Sources/Private/FIRAppInternal.h"
 #import "FirebaseCore/Sources/Private/FIRLogger.h"
 #import "FirebaseCore/Sources/Private/FIROptionsInternal.h"
+#import "FirebaseCore/Sources/Public/FirebaseCore/FIRVersion.h"
 
 // Keys for the strings in the plist file.
 NSString *const kFIRAPIKey = @"API_KEY";
@@ -285,7 +285,7 @@ static dispatch_once_t sDefaultOptionsDictionaryOnceToken;
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
     // The unit tests are set up to catch anything that does not properly convert.
-    NSString *version = [NSString stringWithUTF8String:FIRCoreVersionString];
+    NSString *version = [FIRVersion version];
     NSArray *components = [version componentsSeparatedByString:@"."];
     NSString *major = [components objectAtIndex:0];
     NSString *minor = [NSString stringWithFormat:@"%02d", [[components objectAtIndex:1] intValue]];

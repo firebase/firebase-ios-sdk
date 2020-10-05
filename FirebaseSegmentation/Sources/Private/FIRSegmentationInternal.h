@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2019 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,17 @@
  * limitations under the License.
  */
 
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FirebaseAuthVersion.h"
+#import <Foundation/Foundation.h>
 
-// Convert the macro to a string
-#define STR(x) STR_EXPAND(x)
-#define STR_EXPAND(x) #x
+NS_ASSUME_NONNULL_BEGIN
 
-const double FirebaseAuthVersionNum = FIRAuth_MINOR_VERSION;
+@class FIRApp;
 
-const char *const FirebaseAuthVersionStr = (const char *const)STR(FIRAuth_VERSION);
+NS_SWIFT_NAME(Segmentation)
+@interface FIRSegmentation : NSObject
+
+/// Initialize a Segmentation instance with all the required parameters directly.
+- (instancetype)initWithAppName:(NSString *)appName FIROptions:(FIROptions *)options;
+@end
+
+NS_ASSUME_NONNULL_END

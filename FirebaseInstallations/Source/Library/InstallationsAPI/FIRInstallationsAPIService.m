@@ -16,8 +16,6 @@
 
 #import "FirebaseInstallations/Source/Library/InstallationsAPI/FIRInstallationsAPIService.h"
 
-#import "FirebaseInstallations/Source/Library/Public/FirebaseInstallations/FIRInstallationsVersion.h"
-
 #if __has_include(<FBLPromises/FBLPromises.h>)
 #import <FBLPromises/FBLPromises.h>
 #else
@@ -348,7 +346,7 @@ NS_ASSUME_NONNULL_END
 }
 
 - (NSString *)SDKVersion {
-  return [NSString stringWithFormat:@"i:%s", FIRInstallationsVersionStr];
+  return [NSString stringWithFormat:@"i:%@", [FIRVersion version]];
 }
 
 #pragma mark - Validation

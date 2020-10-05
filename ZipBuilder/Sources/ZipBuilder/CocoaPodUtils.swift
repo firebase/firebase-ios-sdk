@@ -89,7 +89,7 @@ enum CocoaPodUtils {
   static func cleanPodCache() {
     let result = Shell.executeCommandFromScript("pod cache clean --all", outputToConsole: false)
     switch result {
-    case let .error(code):
+    case let .error(code, _):
       fatalError("Could not clean the pod cache, the command exited with \(code). Try running the" +
         "command in Terminal to see what's wrong.")
     case .success:
@@ -413,15 +413,23 @@ enum CocoaPodUtils {
 
     // Loop through the subspecs passed in and use the actual Pod name.
     for pod in pods {
-      podfile += "  pod '\(pod.name)'"
       let podspec = String(pod.name.split(separator: "/")[0] + ".podspec")
       // Check if we want to use a local version of the podspec.
       if let localURL = LaunchArgs.shared.localPodspecPath,
         FileManager.default
         .fileExists(atPath: localURL.appendingPathComponent(podspec).path) {
-        podfile += ", :path => '\(localURL.path)'"
+        podfile += "  pod '\(pod.name)', :path => '\(localURL.path)'"
       } else if let podVersion = pod.version {
-        podfile += ", '\(podVersion)'"
+        podfile += "  pod '\(pod.name)', '\(podVersion)'"
+      } else if pod.name.starts(with: "Firebase"),
+        let localURL = LaunchArgs.shared.localPodspecPath,
+        FileManager.default
+        .fileExists(atPath: localURL.appendingPathComponent("Firebase.podspec").path) {
+        // Let Firebase.podspec force the right version for unspecified closed Firebase pods.
+        let podString = pod.name.replacingOccurrences(of: "Firebase", with: "")
+        podfile += "  pod 'Firebase/\(podString)', :path => '\(localURL.path)'"
+      } else {
+        podfile += "  pod '\(pod.name)'"
       }
       if pod.version != nil {
         // Don't add Google pods if versions were specified or we're doing a secondary install

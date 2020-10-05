@@ -39,7 +39,6 @@
 #import "FirebaseMessaging/Sources/FIRMessagingRmqManager.h"
 #import "FirebaseMessaging/Sources/FIRMessagingSyncMessageManager.h"
 #import "FirebaseMessaging/Sources/FIRMessagingUtilities.h"
-#import "FirebaseMessaging/Sources/FIRMessagingVersionUtilities.h"
 #import "FirebaseMessaging/Sources/FIRMessaging_Private.h"
 #import "FirebaseMessaging/Sources/NSError+FIRMessaging.h"
 
@@ -172,9 +171,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 #pragma mark - Config
 
 + (void)load {
-  [FIRApp registerInternalLibrary:(Class<FIRLibrary>)self
-                         withName:@"fire-fcm"
-                      withVersion:FIRMessagingCurrentLibraryVersion()];
+  [FIRApp registerInternalLibrary:(Class<FIRLibrary>)self withName:@"fire-fcm"];
 }
 
 + (nonnull NSArray<FIRComponent *> *)componentsToRegister {
@@ -236,7 +233,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 
 #if !TARGET_OS_WATCH
   // Print the library version for logging.
-  NSString *currentLibraryVersion = FIRMessagingCurrentLibraryVersion();
+  NSString *currentLibraryVersion = [FIRVersion version];
   FIRMessagingLoggerInfo(kFIRMessagingMessageCodeMessagingPrintLibraryVersion,
                          @"FIRMessaging library version %@", currentLibraryVersion);
 
@@ -734,7 +731,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 #pragma mark - IID dependencies
 
 + (NSString *)FIRMessagingSDKVersion {
-  return FIRMessagingCurrentLibraryVersion();
+  return [FIRVersion version];
 }
 
 + (NSString *)FIRMessagingSDKCurrentLocale {

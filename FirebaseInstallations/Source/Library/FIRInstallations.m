@@ -31,7 +31,6 @@
 #import "FirebaseInstallations/Source/Library/FIRInstallationsLogger.h"
 #import "FirebaseInstallations/Source/Library/InstallationsIDController/FIRInstallationsIDController.h"
 #import "FirebaseInstallations/Source/Library/InstallationsStore/FIRInstallationsStoredAuthToken.h"
-#import "FirebaseInstallations/Source/Library/Public/FirebaseInstallations/FIRInstallationsVersion.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -51,9 +50,7 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - Firebase component
 
 + (void)load {
-  [FIRApp registerInternalLibrary:(Class<FIRLibrary>)self
-                         withName:@"fire-install"
-                      withVersion:[NSString stringWithUTF8String:FIRInstallationsVersionStr]];
+  [FIRApp registerInternalLibrary:(Class<FIRLibrary>)self withName:@"fire-install"];
 }
 
 + (nonnull NSArray<FIRComponent *> *)componentsToRegister {

@@ -5,8 +5,17 @@
 - [changed] The pods developed in this repo are no longer hard coded to be built as static
   frameworks. Instead, their linkage will be controlled by the Podfile. Use the Podfile
   option `use_frameworks! :linkage => :static` to get the Firebase 6.x linkage behavior. (#2022)
+- [changed] Firebase no longer uses the CocoaPods `private_headers` feature to expose internal
+  APIs. (#6572)
 - [removed] Removed broken `FirebaseOptions()` initializer. Use `init(contentsOfFile:)` or
   `init(googleAppID:gcmSenderID:)` instead. (#6633)
+- [changed] All Firebase pods now have the same version. (#6295)
+- [changed] In CocoaPods, Firebase betas are now indicated in the version tag. In SwiftPM, beta
+  is appended to the product name.
+- [changed] The version must now be specified for the two Swift-only Firebase CocoaPods in the
+  Podfile like `pod 'FirebaseFirestoreSwift', '~> 7.0-beta'`.
+- [added] `FirebaseVersion.version()` or `[FIRVersion version]` API to access the Firebase
+  installation version.
 
 # Firebase 6.34.0
 - [fixed] Removed warning related to missing Analytics framework for non-iOS builds since the

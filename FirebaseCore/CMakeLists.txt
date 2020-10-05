@@ -30,7 +30,6 @@ firebase_ios_framework_public_headers(FirebaseCore ${headers})
 
 target_compile_definitions(
   FirebaseCore PRIVATE
-  FIRCore_VERSION=${version}
   Firebase_VERSION=${firebase_version}
 )
 
