@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORUploader.h"
+#import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORUploader.h"
 
 @class GDTCORUploadPackage;
 

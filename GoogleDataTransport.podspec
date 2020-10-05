@@ -57,7 +57,13 @@ Shared library for iOS SDK data transport needs.
   if ENV['GDT_DEV'] && ENV['GDT_DEV'] == '1' then
     s.app_spec 'TestApp' do |app_spec|
       app_spec.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
-      app_spec.source_files = 'GoogleDataTransport/GDTTestApp/*.swift'
+      app_spec.source_files = [
+        'GoogleDataTransport/GDTTestApp/*.swift',
+        'GoogleDataTransport/GDTCORLibrary/Internal/GDTCORRegistrar.h',
+        'GoogleDataTransport/GDTCORLibrary/Internal/GDTCORUploader.h',
+        'GoogleDataTransport/GDTTestApp/Bridging-Header.h',
+      ]
+
       app_spec.ios.resources = ['GoogleDataTransport/GDTTestApp/ios/*.storyboard']
       app_spec.macos.resources = ['GoogleDataTransport/GDTTestApp/macos/*.storyboard']
       app_spec.tvos.resources = ['GoogleDataTransport/GDTTestApp/tvos/*.storyboard']
@@ -65,6 +71,10 @@ Shared library for iOS SDK data transport needs.
         'UILaunchStoryboardName' => 'Main',
         'UIMainStoryboardFile' => 'Main',
         'NSMainStoryboardFile' => 'Main'
+      }
+
+      app_spec.pod_target_xcconfig = {
+        'SWIFT_OBJC_BRIDGING_HEADER' => '$(PODS_TARGET_SRCROOT)/GoogleDataTransport/GDTTestApp/Bridging-Header.h'
       }
     end
   end

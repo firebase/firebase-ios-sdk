@@ -14,17 +14,18 @@
  * limitations under the License.
  */
 
-#import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORReachability.h"
+#import <Foundation/Foundation.h>
 
-@interface GDTCORReachability ()
+#import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORPlatform.h"
 
-/** Allows manually setting the flags for testing purposes. */
-@property(nonatomic, readwrite) GDTCORNetworkReachabilityFlags flags;
+NS_ASSUME_NONNULL_BEGIN
 
-/** Creates/returns the singleton instance of this class.
- *
- * @return The singleton instance of this class.
- */
-+ (instancetype)sharedInstance;
+/** This class helps determine upload conditions by determining connectivity. */
+@interface GDTCORReachability : NSObject
+
+/** The current set flags indicating network conditions */
++ (GDTCORNetworkReachabilityFlags)currentFlags;
 
 @end
+
+NS_ASSUME_NONNULL_END
