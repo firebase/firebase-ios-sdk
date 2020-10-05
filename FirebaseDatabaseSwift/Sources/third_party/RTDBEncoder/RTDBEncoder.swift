@@ -100,31 +100,6 @@ extension Database {
   public class Encoder {
     // MARK: Options
 
-    /// The formatting of the output JSON data.
-    public struct OutputFormatting : OptionSet {
-      /// The format's default value.
-      public let rawValue: UInt
-
-      /// Creates an OutputFormatting value with the given raw value.
-      public init(rawValue: UInt) {
-        self.rawValue = rawValue
-      }
-
-      /// Produce human-readable JSON with indented output.
-      public static let prettyPrinted = OutputFormatting(rawValue: 1 << 0)
-
-      /// Produce JSON with dictionary keys sorted in lexicographic order.
-      @available(macOS 10.13, iOS 11.0, watchOS 4.0, tvOS 11.0, *)
-      public static let sortedKeys    = OutputFormatting(rawValue: 1 << 1)
-
-      /// By default slashes get escaped ("/" → "\/", "http://apple.com/" → "http:\/\/apple.com\/")
-      /// for security reasons, allowing outputted JSON to be safely embedded within HTML/XML.
-      /// In contexts where this escaping is unnecessary, the JSON is known to not be embedded,
-      /// or is intended only for display, this option avoids this escaping.
-      @available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
-      public static let withoutEscapingSlashes = OutputFormatting(rawValue: 1 << 3)
-    }
-
     /// The strategy to use for encoding `Date` values.
     public enum DateEncodingStrategy {
       /// Defer to `Date` for choosing an encoding. This is the default strategy.
@@ -247,9 +222,6 @@ extension Database {
         return result
       }
     }
-
-    /// The output format to produce. Defaults to `[]`.
-    open var outputFormatting: OutputFormatting = []
 
     /// The strategy to use in encoding dates. Defaults to `.deferredToDate`.
     open var dateEncodingStrategy: DateEncodingStrategy = .deferredToDate
