@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FirebaseCore/Sources/Private/FIRVersion.h"
+#import "FirebaseCore/Sources/Public/FirebaseCore/FIRVersion.h"
 
 #ifndef Firebase_VERSION
 #error "Firebase_VERSION is not defined: add -DFirebase_VERSION=... to the build invocation"

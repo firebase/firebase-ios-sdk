@@ -1,3 +1,7 @@
+# v7.0.0 -- M82
+- [changed] The global variable `FIRInstallationsVersionStr` is deleted.
+  `FirebaseVersion.version()` or `[FIRVersion version]` should be used instead.
+
 # v1.7.1 -- M81
 - [changed] Additional `FIRInstallationsItem` validation to catch potential storage issues. (#6570)
 
