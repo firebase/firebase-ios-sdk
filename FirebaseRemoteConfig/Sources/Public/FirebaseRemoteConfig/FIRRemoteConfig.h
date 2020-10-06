@@ -155,7 +155,7 @@ NS_SWIFT_NAME(RemoteConfig)
 /// object contains the complete set of Remote Config parameter values available to the app,
 /// including the Active Config and Default Config. This object also caches values fetched from the
 /// Remote Config Server until they are copied to the Active Config by calling
-/// `activateWithCompletion`. When you fetch values from the Remote Config Server using the default
+/// `activateWithCompletion:`. When you fetch values from the Remote Config Server using the default
 /// Firebase namespace service, you should use this class method to create a shared instance of the
 /// FIRRemoteConfig object to ensure that your app will function properly with the Remote Config
 /// Server and the Firebase service.
@@ -165,7 +165,7 @@ NS_SWIFT_NAME(RemoteConfig)
 /// analytics does not work for non-default app instances. This singleton object contains the
 /// complete set of Remote Config parameter values available to the app, including the Active Config
 /// and Default Config. This object also caches values fetched from the Remote Config Server until
-/// they are copied to the Active Config by calling `activateWithCompletion`. When you fetch values
+/// they are copied to the Active Config by calling `activateWithCompletion:`. When you fetch values
 /// from the Remote Config Server using the default Firebase namespace service, you should use this
 /// class method to create a shared instance of the FIRRemoteConfig object to ensure that your app
 /// will function properly with the Remote Config Server and the Firebase service.
@@ -180,7 +180,7 @@ NS_SWIFT_NAME(RemoteConfig)
 - (void)ensureInitializedWithCompletionHandler:
     (void (^_Nonnull)(NSError *_Nullable initializationError))completionHandler;
 #pragma mark - Fetch
-/// Fetches Remote Config data with a callback. Call `activateWithCompletion` to make fetched data
+/// Fetches Remote Config data with a callback. Call `activateWithCompletion:` to make fetched data
 /// available to your app.
 ///
 /// Note: This method uses a Firebase Installations token to identify the app instance, and once
@@ -194,7 +194,7 @@ NS_SWIFT_NAME(RemoteConfig)
                                                       NSError *_Nullable error))completionHandler;
 
 /// Fetches Remote Config data and sets a duration that specifies how long config data lasts.
-/// Call `activateWithCompletion` to make fetched data available to your app.
+/// Call `activateWithCompletion:` to make fetched data available to your app.
 ///
 /// Note: This method uses a Firebase Installations token to identify the app instance, and once
 /// it's called, it periodically sends data to the Firebase backend. (see
