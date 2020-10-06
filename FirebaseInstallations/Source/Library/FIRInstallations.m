@@ -148,7 +148,7 @@ static const NSUInteger kExpectedAPIKeyLength = 39;
 }
 
 + (void)validateAPIKey:(nullable NSString *)APIKey {
-  NSMutableArray<NSString *> *validationIssues = [NSMutableArray array];
+  NSMutableArray<NSString *> *validationIssues = [[NSMutableArray alloc] init];
 
   if (APIKey.length != kExpectedAPIKeyLength) {
     [validationIssues addObject:[NSString stringWithFormat:@"API Key length must be %lu characters", (unsigned long)kExpectedAPIKeyLength]];
