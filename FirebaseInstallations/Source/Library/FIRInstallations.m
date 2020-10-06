@@ -141,6 +141,38 @@ NS_ASSUME_NONNULL_BEGIN
             kFIRLoggerInstallations, kFIRInstallationsMessageCodeInvalidFirebaseAppOptions,
             [missingFields componentsJoinedByString:@", "]];
   }
+
+  [self validateAPIKey:appOptions.APIKey];
+}
+
++ (void)validateAPIKey:(nullable NSString *)APIKey {
+  NSMutableArray<NSString *> *validationIssues = [NSMutableArray array];
+
+  if (APIKey.length != 39) {
+    [validationIssues addObject:@"API Key length must be 39 characters"];
+  }
+
+  if (![[APIKey substringToIndex:1] isEqualToString:@"A"]) {
+    [validationIssues addObject:@"API Key must start from `A`"];
+  }
+
+  NSCharacterSet *characters = [NSCharacterSet characterSetWithCharactersInString:APIKey];
+  if (![[NSCharacterSet alphanumericCharacterSet] isSupersetOfSet:characters]) {
+    [validationIssues addObject:@"API Key must contain only alphanumeric characters"];
+  }
+
+  if (validationIssues.count > 0) {
+    [NSException
+         raise:kFirebaseInstallationsErrorDomain
+        format:
+            @"%@[%@] Could not configure Firebase Installations due to invalid FirebaseApp "
+            @"options. `FirebaseOptions.APIKey` doesn't match the expected format: %@. If you use "
+            @"GoogleServices-Info.plist please download the most recent version from the Firebase "
+            @"Console. If you configure Firebase in code, please make sure you specify all "
+            @"required parameters.",
+            kFIRLoggerInstallations, kFIRInstallationsMessageCodeInvalidFirebaseAppOptions,
+            [validationIssues componentsJoinedByString:@", "]];
+  }
 }
 
 #pragma mark - Public

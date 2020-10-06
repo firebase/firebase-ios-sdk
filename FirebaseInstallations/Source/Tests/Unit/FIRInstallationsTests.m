@@ -44,7 +44,7 @@
 
   self.appOptions = [[FIROptions alloc] initWithGoogleAppID:@"GoogleAppID"
                                                 GCMSenderID:@"GCMSenderID"];
-  self.appOptions.APIKey = @"APIKey";
+  self.appOptions.APIKey = @"APIKeyWithValidFormat1920404502934lksfj";
   self.appOptions.projectID = @"ProjectID";
 
   self.mockIDController = OCMClassMock([FIRInstallationsIDController class]);
@@ -276,6 +276,21 @@
 
 - (void)testInitWhenAppOptionsMissingThenThrows {
   XCTAssertThrows([self createInstallationsWithAppOptions:nil appName:@"missingOptions"]);
+}
+
+- (void)testInitWithAPIKeyIsNotMatchingExpectedFormat {
+  FIROptions *options = [self.appOptions copy];
+  options.APIKey = @"ATooShortKey00000000000000000000000000";
+  XCTAssertThrows([self createInstallationsWithAppOptions:options appName:@"shortAPIKey"]);
+
+  options.APIKey = @"ATooLongKey00000000000000000000000000000";
+  XCTAssertThrows([self createInstallationsWithAppOptions:options appName:@"longAPIKey"]);
+
+  options.APIKey = @"StartsNotFromA0000000000000000000000000";
+  XCTAssertThrows([self createInstallationsWithAppOptions:options appName:@"wrongFirstCharacter"]);
+
+  options.APIKey = @"A ContainsNotAlphaNumeric-+=00000000000";
+  XCTAssertThrows([self createInstallationsWithAppOptions:options appName:@"invalidCharacters"]);
 }
 
 #pragma mark - Helpers
