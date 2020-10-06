@@ -32,9 +32,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property(nonatomic, readonly, strong) FIRInstallations *installations;
 
-/// A cached value of FID. Should be used only for `-[FIRInstanceID appInstanceID:]`.
-@property(atomic, readonly, copy, nullable) NSString *firebaseInstallationsID;
-
 /**
  *  Private initializer.
  */

@@ -44,20 +44,4 @@ typedef void (^FIRInstanceIDDeviceCheckinCompletion)(
  */
 - (void)fetchCheckinInfoWithHandler:(nullable FIRInstanceIDDeviceCheckinCompletion)handler;
 
-/**
- *  Get the InstanceID for the app. If an ID was created before and cached
- *  successfully we will return that ID. If no cached ID exists we create
- *  a new ID, cache it and return that.
- *
- *  This is a blocking call and should not really be called on the main thread.
- *
- *  @param error The error object that represents the error while trying to
- *               retrieve the instance id.
- *
- *  @return The InstanceID for the app.
- */
-- (nullable NSString *)appInstanceID:(NSError *_Nullable *_Nullable)error
-    DEPRECATED_MSG_ATTRIBUTE("Please use getID(handler:) for Swift or "
-                             "getIDWithHandler: for Objective-C instead.");
-
 @end
