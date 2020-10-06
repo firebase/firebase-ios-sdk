@@ -26,7 +26,7 @@
 #import "FirebaseDynamicLinks/Sources/FIRDLScionLogging.h"
 #import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 #else
-#import <FirebaseCore/FIRVersion.h>
+#import "FirebaseCore/Sources/Public/FirebaseCore/FIRVersion.h"
 #endif
 
 #ifdef FIRDynamicLinks3P
