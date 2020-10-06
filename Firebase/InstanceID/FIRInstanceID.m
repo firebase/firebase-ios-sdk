@@ -827,21 +827,7 @@ static FIRInstanceID *gInstanceID;
       if (!APNSRemainedSameDuringFetch && hasFirebaseMessaging) {
         // APNs value did change mid-fetch, so the token should be re-fetched with the current APNs
         // value.
-        [self.installations installationIDWithCompletion:^(NSString *_Nullable identifier,
-                                                           NSError *_Nullable error) {
-          if (error) {
-            NSError *newError =
-                [NSError errorWithFIRInstanceIDErrorCode:kFIRInstanceIDErrorCodeInvalidKeyPair];
-            aHandler(nil, newError);
-          } else {
-            // The cached apns token has updated, recollect the default token options from cache.
-            [self.tokenManager fetchNewTokenWithAuthorizedEntity:self.fcmSenderID
-                                                           scope:kFIRInstanceIDDefaultTokenScope
-                                                      instanceID:identifier
-                                                         options:[self defaultTokenOptions]
-                                                         handler:nil];
-          }
-        }];
+        [self fetchNewToken];
         FIRInstanceIDLoggerDebug(kFIRInstanceIDMessageCodeRefetchingTokenForAPNS,
                                  @"Received APNS token while fetching default token. "
                                  @"Refetching default token. "
@@ -870,6 +856,23 @@ static FIRInstanceID *gInstanceID;
                             scope:kFIRInstanceIDDefaultTokenScope
                           options:instanceIDOptions
                           handler:newHandler];
+}
+
+- (void)fetchNewToken {
+  [self.installations
+      installationIDWithCompletion:^(NSString *_Nullable identifier, NSError *_Nullable error) {
+        if (error) {
+          FIRInstanceIDLoggerError(kFIRInstanceIDMessageCodeRefetchingTokenForAPNS,
+                                   kFIRInstanceIDInvalidNilHandlerError);
+        } else {
+          // The cached apns token has updated, recollect the default token options from cache.
+          [self.tokenManager fetchNewTokenWithAuthorizedEntity:self.fcmSenderID
+                                                         scope:kFIRInstanceIDDefaultTokenScope
+                                                    instanceID:identifier
+                                                       options:[self defaultTokenOptions]
+                                                       handler:nil];
+        }
+      }];
 }
 
 /**
