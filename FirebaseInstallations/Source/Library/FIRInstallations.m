@@ -155,7 +155,7 @@ static const NSUInteger kExpectedAPIKeyLength = 39;
   }
 
   if (![[APIKey substringToIndex:1] isEqualToString:@"A"]) {
-    [validationIssues addObject:@"API Key must start from `A`"];
+    [validationIssues addObject:@"API Key must start with `A`"];
   }
 
   NSCharacterSet *characters = [NSCharacterSet characterSetWithCharactersInString:APIKey];
