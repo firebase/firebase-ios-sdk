@@ -34,6 +34,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+static const NSUInteger kExpectedAPIKeyLength = 39;
+
 @protocol FIRInstallationsInstanceProvider <FIRLibrary>
 @end
 
@@ -148,8 +150,8 @@ NS_ASSUME_NONNULL_BEGIN
 + (void)validateAPIKey:(nullable NSString *)APIKey {
   NSMutableArray<NSString *> *validationIssues = [NSMutableArray array];
 
-  if (APIKey.length != 39) {
-    [validationIssues addObject:@"API Key length must be 39 characters"];
+  if (APIKey.length != kExpectedAPIKeyLength) {
+    [validationIssues addObject:[NSString stringWithFormat:@"API Key length must be %lu characters", (unsigned long)kExpectedAPIKeyLength]];
   }
 
   if (![[APIKey substringToIndex:1] isEqualToString:@"A"]) {
