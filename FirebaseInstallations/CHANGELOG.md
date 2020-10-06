@@ -1,6 +1,9 @@
 # v7.0.0 -- M82
 - [changed] The global variable `FIRInstallationsVersionStr` is deleted.
   `FirebaseVersion.version()` or `[FIRVersion version]` should be used instead.
+- [changed] Firebase Installation will throw an exception if `FIROptions.projectID`
+  is missing or `FIROptions.APIKey` has incorrect format to catch critical
+  configuration issues erlier. (#4692)
 
 # v1.7.1 -- M81
 - [changed] Additional `FIRInstallationsItem` validation to catch potential storage issues. (#6570)
