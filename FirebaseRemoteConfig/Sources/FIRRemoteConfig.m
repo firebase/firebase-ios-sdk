@@ -230,7 +230,9 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
               FIRRemoteConfigFetchAndActivateStatus status =
                   activateError ? FIRRemoteConfigFetchAndActivateStatusSuccessUsingPreFetchedData
                                 : FIRRemoteConfigFetchAndActivateStatusSuccessFetchedFromRemote;
-              completionHandler(status, nil);
+              dispatch_async(dispatch_get_main_queue(), ^{
+                completionHandler(status, nil);
+              });
             }
           }];
         } else if (completionHandler) {
@@ -238,7 +240,9 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
               fetchStatus == FIRRemoteConfigFetchStatusSuccess
                   ? FIRRemoteConfigFetchAndActivateStatusSuccessUsingPreFetchedData
                   : FIRRemoteConfigFetchAndActivateStatusError;
-          completionHandler(status, fetchError);
+          dispatch_async(dispatch_get_main_queue(), ^{
+            completionHandler(status, fetchError);
+          });
         }
       };
   [self fetchWithCompletionHandler:fetchCompletion];
