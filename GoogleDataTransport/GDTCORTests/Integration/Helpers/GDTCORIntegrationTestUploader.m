@@ -17,8 +17,8 @@
 #import "GoogleDataTransport/GDTCORTests/Integration/Helpers/GDTCORIntegrationTestUploader.h"
 
 #import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORAssert.h"
+#import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORRegistrar.h"
 #import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCOREvent.h"
-#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORRegistrar.h"
 
 #import "GoogleDataTransport/GDTCORTests/Integration/TestServer/GDTCORTestServer.h"
 

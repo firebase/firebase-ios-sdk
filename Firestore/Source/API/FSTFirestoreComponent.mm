@@ -143,10 +143,7 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - Object Lifecycle
 
 + (void)load {
-  [FIRApp registerInternalLibrary:(Class<FIRLibrary>)self
-                         withName:@"fire-fst"
-                      withVersion:[NSString stringWithUTF8String:firebase::firestore::
-                                                                     kFirestoreVersionString]];
+  [FIRApp registerInternalLibrary:(Class<FIRLibrary>)self withName:@"fire-fst"];
 }
 
 #pragma mark - Interoperability

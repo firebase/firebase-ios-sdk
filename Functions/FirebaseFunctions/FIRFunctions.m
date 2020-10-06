@@ -33,13 +33,6 @@
 #import <GTMSessionFetcher/GTMSessionFetcherService.h>
 #endif
 
-// The following two macros supply the incantation so that the C
-// preprocessor does not try to parse the version as a floating
-// point number. See
-// https://www.guyrutenberg.com/2008/12/20/expanding-macros-into-string-constants-in-c/
-#define STR(x) STR_EXPAND(x)
-#define STR_EXPAND(x) #x
-
 NS_ASSUME_NONNULL_BEGIN
 
 NSString *const kFUNFCMTokenHeader = @"Firebase-Instance-ID-Token";
@@ -76,8 +69,7 @@ NSString *const kFUNDefaultRegion = @"us-central1";
 @implementation FIRFunctions
 
 + (void)load {
-  NSString *version = [NSString stringWithUTF8String:(const char *const)STR(FIRFunctions_VERSION)];
-  [FIRApp registerInternalLibrary:(Class<FIRLibrary>)self withName:@"fire-fun" withVersion:version];
+  [FIRApp registerInternalLibrary:(Class<FIRLibrary>)self withName:@"fire-fun"];
 }
 
 + (NSArray<FIRComponent *> *)componentsToRegister {

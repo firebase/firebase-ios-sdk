@@ -16,9 +16,9 @@
 
 #import <Foundation/Foundation.h>
 
-#import "GDTCORClock.h"
-#import "GDTCORLifecycle.h"
-#import "GDTCORTargets.h"
+#import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORLifecycle.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORClock.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORTargets.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

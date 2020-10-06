@@ -18,6 +18,7 @@
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import "FirebaseCore/Sources/FIRAnalyticsConfiguration.h"
 #import "FirebaseCore/Sources/Private/FIRAppInternal.h"
+#import "FirebaseCore/Sources/Private/FIRComponentType.h"
 #import "FirebaseCore/Sources/Private/FIRCoreDiagnosticsConnector.h"
 #import "FirebaseCore/Sources/Private/FIROptionsInternal.h"
 #import "SharedTestUtilities/FIROptionsMock.h"

@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseInstanceID'
-  s.version          = '4.8.0'
+  s.version          = '7.0.0'
   s.summary          = 'Firebase InstanceID'
 
   s.description      = <<-DESC
@@ -15,7 +15,7 @@ services.
 
   s.source           = {
     :git => 'https://github.com/firebase/firebase-ios-sdk.git',
-    :tag => 'InstanceID-' + s.version.to_s
+    :tag => 'CocoaPods-' + s.version.to_s
   }
   s.social_media_url = 'https://twitter.com/Firebase'
   s.ios.deployment_target = '10.0'
@@ -36,14 +36,13 @@ services.
   s.public_header_files = base_dir + 'Public/*.h'
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
-    'GCC_PREPROCESSOR_DEFINITIONS' => 'FIRInstanceID_LIB_VERSION=' + String(s.version),
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
   }
   s.framework = 'Security'
-  s.dependency 'FirebaseCore', '~> 6.10'
-  s.dependency 'FirebaseInstallations', '~> 1.6'
-  s.dependency 'GoogleUtilities/UserDefaults', '~> 6.7'
-  s.dependency 'GoogleUtilities/Environment', '~> 6.7'
+  s.dependency 'FirebaseCore', '~> 7.0'
+  s.dependency 'FirebaseInstallations', '~> 7.0'
+  s.dependency 'GoogleUtilities/UserDefaults', '~> 7.0'
+  s.dependency 'GoogleUtilities/Environment', '~> 7.0'
 
   s.test_spec 'unit' do |unit_tests|
     unit_tests.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}

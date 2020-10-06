@@ -81,11 +81,7 @@ NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
 }
 
 + (void)load {
-  NSString *version =
-      [NSString stringWithUTF8String:(const char *const)STR_EXPAND(FIRAppDistribution_VERSION)];
-  [FIRApp registerInternalLibrary:(Class<FIRLibrary>)self
-                         withName:kAppDistroLibraryName
-                      withVersion:version];
+  [FIRApp registerInternalLibrary:(Class<FIRLibrary>)self withName:kAppDistroLibraryName];
 }
 
 + (NSArray<FIRComponent *> *)componentsToRegister {
@@ -252,6 +248,12 @@ NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
   [FIRFADApiService
       fetchReleasesWithCompletion:^(NSArray *_Nullable releases, NSError *_Nullable error) {
         if (error) {
+          if ([error code] == FIRFADApiErrorUnauthenticated) {
+            FIRFADErrorLog(@"Tester authentication failed when fetching releases. Tester will need "
+                           @"to sign in again.");
+            [self signOutTester];
+          }
+
           dispatch_async(dispatch_get_main_queue(), ^{
             completion(nil, [self mapFetchReleasesError:error]);
           });

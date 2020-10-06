@@ -28,12 +28,12 @@
 #import "FirebaseCore/Sources/FIRBundleUtil.h"
 #import "FirebaseCore/Sources/FIRComponentContainerInternal.h"
 #import "FirebaseCore/Sources/FIRConfigurationInternal.h"
-#import "FirebaseCore/Sources/FIRVersion.h"
 #import "FirebaseCore/Sources/Private/FIRAppInternal.h"
 #import "FirebaseCore/Sources/Private/FIRCoreDiagnosticsConnector.h"
 #import "FirebaseCore/Sources/Private/FIRLibrary.h"
 #import "FirebaseCore/Sources/Private/FIRLogger.h"
 #import "FirebaseCore/Sources/Private/FIROptionsInternal.h"
+#import "FirebaseCore/Sources/Public/FirebaseCore/FIRVersion.h"
 
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 
@@ -525,6 +525,11 @@ static dispatch_once_t sFirebaseUserAgentOnceToken;
 }
 
 + (void)registerInternalLibrary:(nonnull Class<FIRLibrary>)library
+                       withName:(nonnull NSString *)name {
+  [self registerInternalLibrary:library withName:name withVersion:[FIRVersion version]];
+}
+
++ (void)registerInternalLibrary:(nonnull Class<FIRLibrary>)library
                        withName:(nonnull NSString *)name
                     withVersion:(nonnull NSString *)version {
   // This is called at +load time, keep the work to a minimum.
@@ -554,9 +559,8 @@ static dispatch_once_t sFirebaseUserAgentOnceToken;
 + (NSString *)firebaseUserAgent {
   @synchronized(self) {
     dispatch_once(&sFirebaseUserAgentOnceToken, ^{
-      // Report FirebaseCore version for useragent string
-      [FIRApp registerLibrary:@"fire-ios"
-                  withVersion:[NSString stringWithUTF8String:FIRCoreVersionString]];
+      // Report Firebase version for useragent string
+      [FIRApp registerLibrary:@"fire-ios" withVersion:[FIRVersion version]];
 
       NSDictionary<NSString *, id> *info = [[NSBundle mainBundle] infoDictionary];
       NSString *xcodeVersion = info[@"DTXcodeBuild"];

@@ -18,7 +18,7 @@
 #import <GoogleUtilities/GULLogger.h>
 #import "FirebaseCore/Sources/Public/FirebaseCore/FIRLoggerLevel.h"
 
-#import "FirebaseCore/Sources/FIRVersion.h"
+#import "FirebaseCore/Sources/Public/FirebaseCore/FIRVersion.h"
 
 FIRLoggerService kFIRLoggerCore = @"[Firebase/Core]";
 
@@ -58,7 +58,7 @@ static NSRegularExpression *sMessageCodeRegex;
 void FIRLoggerInitializeASL() {
   dispatch_once(&sFIRLoggerOnceToken, ^{
     // Register Firebase Version with GULLogger.
-    GULLoggerRegisterVersion(FIRVersionString);
+    GULLoggerRegisterVersion([[FIRVersion version] UTF8String]);
 
     // Override the aslOptions to ASL_OPT_STDERR if the override argument is passed in.
     NSArray *arguments = [NSProcessInfo processInfo].arguments;

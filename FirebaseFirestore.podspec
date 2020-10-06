@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseFirestore'
-  s.version          = '1.19.0'
+  s.version          = '7.0.0'
   s.summary          = 'Google Cloud Firestore'
 
   s.description      = <<-DESC
@@ -13,7 +13,7 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
 
   s.source           = {
     :git => 'https://github.com/firebase/firebase-ios-sdk.git',
-    :tag => 'Firestore-' + s.version.to_s
+    :tag => 'CocoaPods-' + s.version.to_s
   }
 
   s.ios.deployment_target = '10.0'
@@ -57,7 +57,7 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
   ]
   s.public_header_files = 'Firestore/Source/Public/FirebaseFirestore/*.h'
 
-  s.dependency 'FirebaseCore', '~> 6.10'
+  s.dependency 'FirebaseCore', '~> 7.0'
 
   abseil_version = '0.20200225.0'
   s.dependency 'abseil/algorithm', abseil_version
@@ -70,7 +70,7 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
 
   s.dependency 'gRPC-C++', '~> 1.28.0'
   s.dependency 'leveldb-library', '~> 1.22'
-  s.dependency 'nanopb', '~> 1.30906.0'
+  s.dependency 'nanopb', '~> 2.30906.0'
 
   s.ios.frameworks = 'MobileCoreServices', 'SystemConfiguration', 'UIKit'
   s.osx.frameworks = 'SystemConfiguration'

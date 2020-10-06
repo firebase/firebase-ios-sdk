@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,10 +14,5 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
-
-/** The version of the Firebase SDK. */
-FOUNDATION_EXPORT const char *const FIRVersionString;
-
-/** The version of the FirebaseCore Component. */
-FOUNDATION_EXPORT const char *const FIRCoreVersionString;
+#import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORRegistrar.h"
+#import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORUploader.h"

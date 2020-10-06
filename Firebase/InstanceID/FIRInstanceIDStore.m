@@ -20,7 +20,6 @@
 #import "Firebase/InstanceID/FIRInstanceIDConstants.h"
 #import "Firebase/InstanceID/FIRInstanceIDLogger.h"
 #import "Firebase/InstanceID/FIRInstanceIDTokenStore.h"
-#import "Firebase/InstanceID/FIRInstanceIDVersionUtilities.h"
 #import "Firebase/InstanceID/Private/FIRInstanceIDCheckinPreferences.h"
 
 // NOTE: These values should be in sync with what InstanceID saves in as.
