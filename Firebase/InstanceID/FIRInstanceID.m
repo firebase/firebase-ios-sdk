@@ -834,16 +834,20 @@ static FIRInstanceID *gInstanceID;
                 [NSError errorWithFIRInstanceIDErrorCode:kFIRInstanceIDErrorCodeInvalidKeyPair];
             aHandler(nil, newError);
           } else {
+            // The cached apns token has updated, recollect the default token options from cache.
             [self.tokenManager fetchNewTokenWithAuthorizedEntity:self.fcmSenderID
                                                            scope:kFIRInstanceIDDefaultTokenScope
                                                       instanceID:identifier
-                                                         options:instanceIDOptions
+                                                         options:[self defaultTokenOptions]
                                                          handler:nil];
           }
         }];
         FIRInstanceIDLoggerDebug(kFIRInstanceIDMessageCodeRefetchingTokenForAPNS,
                                  @"Received APNS token while fetching default token. "
-                                 @"Refetching default token.");
+                                 @"Refetching default token. "
+                                 @"Updated cached APNS token: %@\n "
+                                 @"Stale request APNS token: %@",
+                                 self.APNSTupleString, APNSTupleStringInRequest);
         // Do not notify and handle completion handler since this is a retry.
         // Simply return.
         return;
