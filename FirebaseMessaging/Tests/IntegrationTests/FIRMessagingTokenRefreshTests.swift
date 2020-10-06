@@ -28,7 +28,7 @@
     var messaging = Messaging.messaging()
     var delegateIsCalled = false
 
-    func messaging(_: Messaging, didReceiveRegistrationToken _: String) {
+    func messaging(_: Messaging, didReceiveRegistrationToken _: String?) {
       delegateIsCalled = true
     }
   }

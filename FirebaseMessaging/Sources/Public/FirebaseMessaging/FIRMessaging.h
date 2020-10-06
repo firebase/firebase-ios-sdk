@@ -146,7 +146,7 @@ NS_SWIFT_NAME(MessagingDelegate)
 ///
 /// * Subscribing to any topics.
 - (void)messaging:(FIRMessaging *)messaging
-    didReceiveRegistrationToken:(NSString *)fcmToken
+    didReceiveRegistrationToken:(nullable NSString *)fcmToken
     NS_SWIFT_NAME(messaging(_:didReceiveRegistrationToken:));
 @end
 
