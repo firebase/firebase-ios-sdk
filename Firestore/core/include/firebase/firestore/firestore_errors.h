@@ -28,13 +28,15 @@ namespace firestore {
 enum Error {
   /** The operation completed successfully. */
   // Note: NSError objects will never have a code with this value.
-  Ok = 0,
+  kErrorOk = 0,
+
+  kErrorNone = 0,
 
   /** The operation was cancelled (typically by the caller). */
-  Cancelled = 1,
+  kErrorCancelled = 1,
 
   /** Unknown error or an error from a different error domain. */
-  Unknown = 2,
+  kErrorUnknown = 2,
 
   /**
    * Client specified an invalid argument. Note that this differs from
@@ -42,7 +44,7 @@ enum Error {
    * problematic regardless of the state of the system (e.g., an invalid field
    * name).
    */
-  InvalidArgument = 3,
+  kErrorInvalidArgument = 3,
 
   /**
    * Deadline expired before operation could complete. For operations that
@@ -51,59 +53,61 @@ enum Error {
    * from a server could have been delayed long enough for the deadline to
    * expire.
    */
-  DeadlineExceeded = 4,
+  kErrorDeadlineExceeded = 4,
 
   /** Some requested document was not found. */
-  NotFound = 5,
+  kErrorNotFound = 5,
 
   /** Some document that we attempted to create already exists. */
-  AlreadyExists = 6,
+  kErrorAlreadyExists = 6,
 
   /** The caller does not have permission to execute the specified operation. */
-  PermissionDenied = 7,
+  kErrorPermissionDenied = 7,
 
   /**
    * Some resource has been exhausted, perhaps a per-user quota, or perhaps the
    * entire file system is out of space.
    */
-  ResourceExhausted = 8,
+  kErrorResourceExhausted = 8,
 
   /**
    * Operation was rejected because the system is not in a state required for
    * the operation's execution.
    */
-  FailedPrecondition = 9,
+  kErrorFailedPrecondition = 9,
 
   /**
    * The operation was aborted, typically due to a concurrency issue like
    * transaction aborts, etc.
    */
-  Aborted = 10,
+  kErrorAborted = 10,
 
   /** Operation was attempted past the valid range. */
-  OutOfRange = 11,
+  kErrorOutOfRange = 11,
 
   /** Operation is not implemented or not supported/enabled. */
-  Unimplemented = 12,
+  kErrorUnimplemented = 12,
 
   /**
    * Internal errors. Means some invariants expected by underlying system has
    * been broken. If you see one of these errors, something is very broken.
    */
-  Internal = 13,
+  kErrorInternal = 13,
 
   /**
    * The service is currently unavailable. This is a most likely a transient
    * condition and may be corrected by retrying with a backoff.
    */
-  Unavailable = 14,
+  kErrorUnavailable = 14,
 
   /** Unrecoverable data loss or corruption. */
-  DataLoss = 15,
+  kErrorDataLoss = 15,
 
-  /** The request does not have valid authentication credentials for the
-     operation. */
-  Unauthenticated = 16
+  /**
+   * The request does not have valid authentication credentials for the
+   * operation.
+   */
+  kErrorUnauthenticated = 16
 };
 
 }  // namespace firestore

@@ -31,7 +31,8 @@ class StorageViewController: UIViewController {
     case failed(String)
 
     /// Equatable support for UIState.
-    static func == (lhs: StorageViewController.UIState, rhs: StorageViewController.UIState) -> Bool {
+    static func == (lhs: StorageViewController.UIState,
+                    rhs: StorageViewController.UIState) -> Bool {
       switch (lhs, rhs) {
       case (.cleared, .cleared): return true
       case (.downloading, .downloading): return true

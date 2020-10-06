@@ -14,13 +14,19 @@
  * limitations under the License.
  */
 
-#import <FirebaseCore/FIRLibrary.h>
-#import "FIRCore+InAppMessaging.h"
-#import "FIRInAppMessaging.h"
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseInAppMessaging/Sources/FIRCore+InAppMessaging.h"
+#import "FirebaseInAppMessaging/Sources/Public/FirebaseInAppMessaging/FIRInAppMessaging.h"
+
+@class FIRInstallations;
 
 @protocol FIRInAppMessagingInstanceProvider;
 @protocol FIRLibrary;
+@protocol FIRAnalyticsInterop;
 
+NS_ASSUME_NONNULL_BEGIN
 @interface FIRInAppMessaging () <FIRInAppMessagingInstanceProvider, FIRLibrary>
 @property(nonatomic, readwrite, strong) id<FIRAnalyticsInterop> _Nullable analytics;
+@property(nonatomic, readwrite, strong) FIRInstallations* _Nullable installations;
 @end
+NS_ASSUME_NONNULL_END

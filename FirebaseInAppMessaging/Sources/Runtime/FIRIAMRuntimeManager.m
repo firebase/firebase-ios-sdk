@@ -14,32 +14,32 @@
  * limitations under the License.
  */
 
-#import <FirebaseCore/FIRLogger.h>
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
 
-#import "FIRCore+InAppMessaging.h"
-#import "FIRIAMActivityLogger.h"
-#import "FIRIAMAnalyticsEventLoggerImpl.h"
-#import "FIRIAMBookKeeper.h"
-#import "FIRIAMClearcutHttpRequestSender.h"
-#import "FIRIAMClearcutLogStorage.h"
-#import "FIRIAMClearcutLogger.h"
-#import "FIRIAMClearcutUploader.h"
-#import "FIRIAMClientInfoFetcher.h"
-#import "FIRIAMDisplayCheckOnAnalyticEventsFlow.h"
-#import "FIRIAMDisplayCheckOnAppForegroundFlow.h"
-#import "FIRIAMDisplayCheckOnFetchDoneNotificationFlow.h"
-#import "FIRIAMDisplayExecutor.h"
-#import "FIRIAMFetchOnAppForegroundFlow.h"
-#import "FIRIAMFetchResponseParser.h"
-#import "FIRIAMMessageClientCache.h"
-#import "FIRIAMMsgFetcherUsingRestful.h"
-#import "FIRIAMRuntimeManager.h"
-#import "FIRIAMSDKModeManager.h"
-#import "FIRInAppMessaging.h"
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
-@interface FIRInAppMessaging ()
-@property(nonatomic, readwrite, strong) id<FIRAnalyticsInterop> _Nullable analytics;
-@end
+#import "FirebaseInAppMessaging/Sources/Analytics/FIRIAMAnalyticsEventLoggerImpl.h"
+#import "FirebaseInAppMessaging/Sources/Analytics/FIRIAMClearcutHttpRequestSender.h"
+#import "FirebaseInAppMessaging/Sources/Analytics/FIRIAMClearcutLogStorage.h"
+#import "FirebaseInAppMessaging/Sources/FIRCore+InAppMessaging.h"
+#import "FirebaseInAppMessaging/Sources/FIRInAppMessagingPrivate.h"
+#import "FirebaseInAppMessaging/Sources/Flows/FIRIAMDisplayCheckOnFetchDoneNotificationFlow.h"
+#import "FirebaseInAppMessaging/Sources/Private/Analytics/FIRIAMClearcutLogger.h"
+#import "FirebaseInAppMessaging/Sources/Private/Analytics/FIRIAMClearcutUploader.h"
+#import "FirebaseInAppMessaging/Sources/Private/Analytics/FIRIAMClientInfoFetcher.h"
+#import "FirebaseInAppMessaging/Sources/Private/Data/FIRIAMFetchResponseParser.h"
+#import "FirebaseInAppMessaging/Sources/Private/Flows/FIRIAMActivityLogger.h"
+#import "FirebaseInAppMessaging/Sources/Private/Flows/FIRIAMBookKeeper.h"
+#import "FirebaseInAppMessaging/Sources/Private/Flows/FIRIAMDisplayCheckOnAnalyticEventsFlow.h"
+#import "FirebaseInAppMessaging/Sources/Private/Flows/FIRIAMDisplayCheckOnAppForegroundFlow.h"
+#import "FirebaseInAppMessaging/Sources/Private/Flows/FIRIAMDisplayExecutor.h"
+#import "FirebaseInAppMessaging/Sources/Private/Flows/FIRIAMFetchOnAppForegroundFlow.h"
+#import "FirebaseInAppMessaging/Sources/Private/Flows/FIRIAMMessageClientCache.h"
+#import "FirebaseInAppMessaging/Sources/Private/Flows/FIRIAMMsgFetcherUsingRestful.h"
+#import "FirebaseInAppMessaging/Sources/Private/Runtime/FIRIAMRuntimeManager.h"
+#import "FirebaseInAppMessaging/Sources/Private/Runtime/FIRIAMSDKModeManager.h"
+#import "FirebaseInAppMessaging/Sources/Public/FirebaseInAppMessaging/FIRInAppMessaging.h"
 
 // A enum indicating 3 different possiblities of a setting about auto data collection.
 typedef NS_ENUM(NSInteger, FIRIAMAutoDataCollectionSetting) {
@@ -267,7 +267,9 @@ static NSString *const kFirebaseInAppMessagingAutoDataCollectionKey =
   self.messageCache = [[FIRIAMMessageClientCache alloc] initWithBookkeeper:self.bookKeeper
                                                        usingResponseParser:self.responseParser];
   self.fetchResultStorage = [[FIRIAMServerMsgFetchStorage alloc] init];
-  self.clientInfoFetcher = [[FIRIAMClientInfoFetcher alloc] init];
+
+  self.clientInfoFetcher = [[FIRIAMClientInfoFetcher alloc]
+      initWithFirebaseInstallations:[FIRInAppMessaging inAppMessaging].installations];
 
   self.restfulFetcher =
       [[FIRIAMMsgFetcherUsingRestful alloc] initWithHost:settings.apiServerHost
@@ -379,23 +381,29 @@ static NSString *const kFirebaseInAppMessagingAutoDataCollectionKey =
                                              @"Start SDK runtime components.");
 
                                  [self.clientInfoFetcher
-                                     fetchFirebaseIIDDataWithProjectNumber:
+                                     fetchFirebaseInstallationDataWithProjectNumber:
                                          self.currentSetting.firebaseProjectNumber
-                                                            withCompletion:^(
-                                                                NSString *_Nullable iid,
-                                                                NSString *_Nullable token,
-                                                                NSError *_Nullable error) {
-                                                              // Always dump the instance id into
-                                                              // log on startup to help developers
-                                                              // to find it for their app instance.
-                                                              FIRLogDebug(kFIRLoggerInAppMessaging,
-                                                                          @"I-IAM180017",
-                                                                          @"Starting "
-                                                                          @"InAppMessaging runtime "
-                                                                          @"with "
-                                                                           "Instance ID %@",
-                                                                          iid);
-                                                            }];
+                                                                     withCompletion:^(
+                                                                         NSString *_Nullable FID,
+                                                                         NSString
+                                                                             *_Nullable FISToken,
+                                                                         NSError *_Nullable error) {
+                                                                       // Always dump the
+                                                                       // installation ID into log
+                                                                       // on startup to help
+                                                                       // developers to find it for
+                                                                       // their app instance.
+                                                                       FIRLogDebug(
+                                                                           kFIRLoggerInAppMessaging,
+                                                                           @"I-IAM180017",
+                                                                           @"Starting "
+                                                                           @"InAppMessaging "
+                                                                           @"runtime "
+                                                                           @"with "
+                                                                            "Firebase Installation "
+                                                                            "ID %@",
+                                                                           FID);
+                                                                     }];
 
                                  [self.fetchOnAppForegroundFlow start];
                                  [self.displayOnFIRAnalyticEventsFlow start];
@@ -435,3 +443,5 @@ static NSString *const kFirebaseInAppMessagingAutoDataCollectionKey =
               (double)([timeFetcher currentTimestampInSeconds] - start), settings);
 }
 @end
+
+#endif  // TARGET_OS_IOS

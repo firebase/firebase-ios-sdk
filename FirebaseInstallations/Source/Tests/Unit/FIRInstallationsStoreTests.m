@@ -18,14 +18,15 @@
 
 #import <OCMock/OCMock.h>
 
+#import <GoogleUtilities/GULKeychainStorage.h>
 #import <GoogleUtilities/GULUserDefaults.h>
+
 #import "FBLPromise+Testing.h"
-#import "FIRInstallationsErrorUtil.h"
-#import "FIRInstallationsItem+Tests.h"
-#import "FIRInstallationsItem.h"
-#import "FIRInstallationsStore.h"
-#import "FIRInstallationsStoredItem.h"
-#import "FIRSecureStorage.h"
+#import "FirebaseInstallations/Source/Library/Errors/FIRInstallationsErrorUtil.h"
+#import "FirebaseInstallations/Source/Library/FIRInstallationsItem.h"
+#import "FirebaseInstallations/Source/Library/InstallationsStore/FIRInstallationsStore.h"
+#import "FirebaseInstallations/Source/Library/InstallationsStore/FIRInstallationsStoredItem.h"
+#import "FirebaseInstallations/Source/Tests/Utils/FIRInstallationsItem+Tests.h"
 
 @interface FIRInstallationsStoreTests : XCTestCase
 @property(nonatomic) NSString *accessGroup;
@@ -38,7 +39,7 @@
 
 - (void)setUp {
   self.accessGroup = @"accessGroup";
-  self.mockSecureStorage = OCMClassMock([FIRSecureStorage class]);
+  self.mockSecureStorage = OCMClassMock([GULKeychainStorage class]);
   self.store = [[FIRInstallationsStore alloc] initWithSecureStorage:self.mockSecureStorage
                                                         accessGroup:self.accessGroup];
 

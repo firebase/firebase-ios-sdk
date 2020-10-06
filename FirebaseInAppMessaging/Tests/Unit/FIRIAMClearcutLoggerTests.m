@@ -17,10 +17,10 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
-#import "FIRIAMClearcutHttpRequestSender.h"
-#import "FIRIAMClearcutLogStorage.h"
-#import "FIRIAMClearcutLogger.h"
-#import "FIRIAMClearcutUploader.h"
+#import "FirebaseInAppMessaging/Sources/Analytics/FIRIAMClearcutHttpRequestSender.h"
+#import "FirebaseInAppMessaging/Sources/Analytics/FIRIAMClearcutLogStorage.h"
+#import "FirebaseInAppMessaging/Sources/Private/Analytics/FIRIAMClearcutLogger.h"
+#import "FirebaseInAppMessaging/Sources/Private/Analytics/FIRIAMClearcutUploader.h"
 
 @interface FIRIAMClearcutLoggerTests : XCTestCase
 @property(nonatomic) FIRIAMClientInfoFetcher *mockClientInfoFetcher;
@@ -56,9 +56,10 @@ NSString *sdkVersion = @"SDK version";
   self.mockCtUploader = OCMClassMock(FIRIAMClearcutUploader.class);
 
   OCMStub([self.mockClientInfoFetcher
-      fetchFirebaseIIDDataWithProjectNumber:[OCMArg any]
-                             withCompletion:([OCMArg invokeBlockWithArgs:iid, @"token",
-                                                                         [NSNull null], nil])]);
+      fetchFirebaseInstallationDataWithProjectNumber:[OCMArg any]
+                                      withCompletion:([OCMArg invokeBlockWithArgs:iid, @"token",
+                                                                                  [NSNull null],
+                                                                                  nil])]);
 
   OCMStub([self.mockClientInfoFetcher getIAMSDKVersion]).andReturn(sdkVersion);
   OCMStub([self.mockClientInfoFetcher getOSVersion]).andReturn(osVersion);

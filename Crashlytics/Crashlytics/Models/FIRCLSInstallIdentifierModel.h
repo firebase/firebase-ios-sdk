@@ -14,7 +14,7 @@
 
 #import <Foundation/Foundation.h>
 
-@class FIRInstanceID;
+@class FIRInstallations;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -25,7 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)init NS_UNAVAILABLE;
 
-- (instancetype)initWithInstanceID:(FIRInstanceID *)instanceID NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithInstallations:(FIRInstallations *)instanceID NS_DESIGNATED_INITIALIZER;
 
 /**
  * Returns the backwards compatible Crashlytics Installation UUID

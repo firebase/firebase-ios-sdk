@@ -23,11 +23,13 @@
 #import "Firestore/Source/API/FIRQuery+Internal.h"
 #import "Firestore/Source/API/FSTUserDataConverter.h"
 
-#include "Firestore/core/src/firebase/firestore/api/collection_reference.h"
-#include "Firestore/core/src/firebase/firestore/model/resource_path.h"
-#include "Firestore/core/src/firebase/firestore/util/error_apple.h"
-#include "Firestore/core/src/firebase/firestore/util/exception.h"
-#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+#include "Firestore/core/src/api/collection_reference.h"
+#include "Firestore/core/src/api/document_reference.h"
+#include "Firestore/core/src/core/user_data.h"
+#include "Firestore/core/src/model/resource_path.h"
+#include "Firestore/core/src/util/error_apple.h"
+#include "Firestore/core/src/util/exception.h"
+#include "Firestore/core/src/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
 using firebase::firestore::api::CollectionReference;
@@ -51,7 +53,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 // Override the designated initializer from the super class.
-- (instancetype)initWithQuery:(api::Query &&)query {
+- (instancetype)initWithQuery:(__unused api::Query &&)query {
   HARD_FAIL("Use FIRCollectionReference initWithPath: initializer.");
 }
 

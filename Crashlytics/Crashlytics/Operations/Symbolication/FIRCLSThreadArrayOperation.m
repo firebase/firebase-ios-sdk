@@ -12,15 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRCLSThreadArrayOperation.h"
-
-#import "FIRCLSStackFrame.h"
+#import "Crashlytics/Crashlytics/Operations/Symbolication/FIRCLSThreadArrayOperation.h"
 
 @implementation FIRCLSThreadArrayOperation
 
-- (void)enumerateFramesWithBlock:(void (^)(FIRCLSStackFrame *frame))block {
+- (void)enumerateFramesWithBlock:(void (^)(FIRStackFrame *frame))block {
   for (NSArray *frameArray in self.threadArray) {
-    for (FIRCLSStackFrame *frame in frameArray) {
+    for (FIRStackFrame *frame in frameArray) {
       block(frame);
 
       if ([self isCancelled]) {

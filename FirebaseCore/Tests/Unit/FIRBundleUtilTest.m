@@ -16,6 +16,7 @@
 
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import "FirebaseCore/Sources/FIRBundleUtil.h"
+#import "SharedTestUtilities/FIROptionsMock.h"
 
 static NSString *const kResultPath = @"resultPath";
 static NSString *const kResourceName = @"resourceName";
@@ -90,6 +91,18 @@ static NSString *const kFileType = @"fileType";
   // Mock bundle should have what app extension has, the extension bundle ID.
   [OCMStub([self.mockBundle bundleIdentifier]) andReturn:@"com.google.test.someextension"];
   XCTAssertTrue([FIRBundleUtil hasBundleIdentifierPrefix:@"com.google.test"
+                                               inBundles:@[ self.mockBundle ]]);
+
+  [environmentUtilsMock stopMocking];
+}
+
+- (void)testBundleIdentifierExistsInBundlesForExtensions_exactMatch {
+  id environmentUtilsMock = [OCMockObject mockForClass:[GULAppEnvironmentUtil class]];
+  [[[environmentUtilsMock stub] andReturnValue:@(YES)] isAppExtension];
+
+  // Mock bundle should have what app extension has, the extension bundle ID.
+  [OCMStub([self.mockBundle bundleIdentifier]) andReturn:@"com.google.test.someextension"];
+  XCTAssertTrue([FIRBundleUtil hasBundleIdentifierPrefix:@"com.google.test.someextension"
                                                inBundles:@[ self.mockBundle ]]);
 
   [environmentUtilsMock stopMocking];

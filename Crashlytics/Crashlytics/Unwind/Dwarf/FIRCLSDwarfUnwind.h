@@ -14,12 +14,12 @@
 
 #pragma once
 
-#include "FIRCLSDwarfUnwindRegisters.h"
-#include "FIRCLSThreadState.h"
-
 #include <stdbool.h>
 #include <stdint.h>
 #include <sys/types.h>
+
+#include "Crashlytics/Crashlytics/Helpers/FIRCLSThreadState.h"
+#include "Crashlytics/Crashlytics/Unwind/Dwarf/FIRCLSDwarfUnwindRegisters.h"
 
 #if CLS_DWARF_UNWINDING_SUPPORTED
 

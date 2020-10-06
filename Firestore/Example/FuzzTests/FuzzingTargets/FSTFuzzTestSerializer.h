@@ -18,6 +18,7 @@
 #define FIRESTORE_EXAMPLE_FUZZTESTS_FUZZINGTARGETS_FSTFUZZTESTSERIALIZER_H_
 
 #import <Foundation/Foundation.h>
+
 #include <string>
 
 namespace firebase {

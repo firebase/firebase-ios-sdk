@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRInstanceIDConstants.h"
+#import "Firebase/InstanceID/FIRInstanceIDConstants.h"
 
 // Commands
 NSString *const kFIRInstanceID_CMD_RST = @"RST";
@@ -22,10 +22,10 @@ NSString *const kFIRInstanceID_CMD_RST = @"RST";
 // NOTIFICATIONS
 NSString *const kFIRInstanceIDCheckinFetchedNotification = @"com.google.gcm.notif-checkin-fetched";
 NSString *const kFIRInstanceIDAPNSTokenNotification = @"com.firebase.iid.notif.apns-token";
-NSString *const kFIRInstanceIDDefaultGCMTokenNotification = @"com.firebase.iid.notif.fcm-token";
 NSString *const kFIRInstanceIDDefaultGCMTokenFailNotification =
     @"com.firebase.iid.notif.fcm-token-fail";
-
+NSString *const kFIRInstanceIDMessagingUpdateTokenNotification =
+    @"com.firebase.messaging.notif.fcm-token-refreshed";
 NSString *const kFIRInstanceIDIdentityInvalidatedNotification = @"com.google.iid.identity-invalid";
 
 // Miscellaneous
@@ -37,6 +37,7 @@ NSString *const kFIRInstanceIDSubDirectoryName = @"Google/FirebaseInstanceID";
 NSString *const kFIRInstanceIDTokenOptionsAPNSKey = @"apns_token";
 NSString *const kFIRInstanceIDTokenOptionsAPNSIsSandboxKey = @"apns_sandbox";
 NSString *const kFIRInstanceIDTokenOptionsFirebaseAppIDKey = @"gmp_app_id";
+NSString *const kFIRInstanceIDParamInstanceID = @"appid";
 
 NSString *const kFIRInstanceIDAppDelegateProxyEnabledInfoPlistKey =
     @"FirebaseAppDelegateProxyEnabled";

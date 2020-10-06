@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRCLSSettings.h"
+#import "Crashlytics/Crashlytics/Models/FIRCLSSettings.h"
 
 #if __has_include(<FBLPromises/FBLPromises.h>)
 #import <FBLPromises/FBLPromises.h>
@@ -20,15 +20,16 @@
 #import "FBLPromises.h"
 #endif
 
-#import "FIRCLSApplicationIdentifierModel.h"
-#import "FIRCLSConstants.h"
-#import "FIRCLSFileManager.h"
-#import "FIRCLSLogger.h"
-#import "FIRCLSURLBuilder.h"
+#import "Crashlytics/Crashlytics/Helpers/FIRCLSLogger.h"
+#import "Crashlytics/Crashlytics/Models/FIRCLSFileManager.h"
+#import "Crashlytics/Crashlytics/Settings/Models/FIRCLSApplicationIdentifierModel.h"
+#import "Crashlytics/Shared/FIRCLSConstants.h"
+#import "Crashlytics/Shared/FIRCLSNetworking/FIRCLSURLBuilder.h"
 
 NSString *const CreatedAtKey = @"created_at";
 NSString *const GoogleAppIDKey = @"google_app_id";
 NSString *const BuildInstanceID = @"build_instance_id";
+NSString *const AppVersion = @"app_version";
 
 @interface FIRCLSSettings ()
 
@@ -65,7 +66,8 @@ NSString *const BuildInstanceID = @"build_instance_id";
                       currentTimestamp:(NSTimeInterval)currentTimestamp {
   NSString *settingsFilePath = self.fileManager.settingsFilePath;
 
-  NSData *data = [NSData dataWithContentsOfFile:settingsFilePath];
+  NSData *data = [self.fileManager dataWithContentsOfFile:settingsFilePath];
+
   if (!data) {
     FIRCLSDebugLog(@"[Crashlytics:Settings] No settings were cached");
 
@@ -120,6 +122,15 @@ NSString *const BuildInstanceID = @"build_instance_id";
       self.isCacheKeyExpired = YES;
     }
   }
+
+  NSString *cacheAppVersion = cacheKey[AppVersion];
+  if (![cacheAppVersion isEqualToString:self.appIDModel.synthesizedVersion]) {
+    FIRCLSDebugLog(@"[Crashlytics:Settings] Settings expired because app version changed");
+
+    @synchronized(self) {
+      self.isCacheKeyExpired = YES;
+    }
+  }
 }
 
 - (void)cacheSettingsWithGoogleAppID:(NSString *)googleAppID
@@ -129,6 +140,7 @@ NSString *const BuildInstanceID = @"build_instance_id";
     CreatedAtKey : createdAtTimestamp,
     GoogleAppIDKey : googleAppID,
     BuildInstanceID : self.appIDModel.buildInstanceID,
+    AppVersion : self.appIDModel.synthesizedVersion,
   };
 
   NSError *error = nil;
@@ -162,7 +174,8 @@ NSString *const BuildInstanceID = @"build_instance_id";
 #pragma mark - Convenience Methods
 
 - (NSDictionary *)loadCacheKey {
-  NSData *cacheKeyData = [NSData dataWithContentsOfFile:self.fileManager.settingsCacheKeyPath];
+  NSData *cacheKeyData =
+      [self.fileManager dataWithContentsOfFile:self.fileManager.settingsCacheKeyPath];
 
   if (!cacheKeyData) {
     return nil;
@@ -280,7 +293,7 @@ NSString *const BuildInstanceID = @"build_instance_id";
   return [self errorReportingEnabled];
 }
 
-- (BOOL)crashReportingEnabled {
+- (BOOL)collectReportsEnabled {
   NSNumber *value = [self featuresSettings][@"collect_reports"];
 
   if (value != nil) {
@@ -288,6 +301,25 @@ NSString *const BuildInstanceID = @"build_instance_id";
   }
 
   return YES;
+}
+
+- (BOOL)shouldUseNewReportEndpoint {
+#ifdef CRASHLYTICS_INTERNAL
+  return YES;
+#else
+  NSNumber *value = [self appSettings][@"report_upload_variant"];
+
+  // Default to use the new endpoint when settings were not successfully fetched
+  // or there's an unexpected issue
+  if (value == nil) {
+    return YES;
+  }
+
+  // 0 - Unknown
+  // 1 - Legacy
+  // 2 - New
+  return value.intValue == 2;
+#endif
 }
 
 #pragma mark - Optional Limit Overrides

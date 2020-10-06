@@ -24,12 +24,12 @@
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 #import "Firestore/Source/API/converters.h"
 
-#include "Firestore/core/src/firebase/firestore/model/database_id.h"
-#include "Firestore/core/src/firebase/firestore/model/field_value.h"
-#include "Firestore/core/src/firebase/firestore/model/transform_mutation.h"
-#include "Firestore/core/src/firebase/firestore/model/transform_operation.h"
-#include "Firestore/core/src/firebase/firestore/nanopb/nanopb_util.h"
-#include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
+#include "Firestore/core/src/model/database_id.h"
+#include "Firestore/core/src/model/field_value.h"
+#include "Firestore/core/src/model/transform_mutation.h"
+#include "Firestore/core/src/model/transform_operation.h"
+#include "Firestore/core/src/nanopb/nanopb_util.h"
+#include "Firestore/core/test/unit/testutil/testutil.h"
 
 namespace util = firebase::firestore::util;
 using firebase::firestore::api::MakeGeoPoint;

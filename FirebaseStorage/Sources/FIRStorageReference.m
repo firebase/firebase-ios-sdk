@@ -12,9 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import <FirebaseStorage/FIRStorageReference.h>
+#import "FirebaseStorage/Sources/Public/FirebaseStorage/FIRStorageReference.h"
 
-#import <FirebaseStorage/FIRStorageTaskSnapshot.h>
 #import "FirebaseStorage/Sources/FIRStorageConstants_Private.h"
 #import "FirebaseStorage/Sources/FIRStorageDeleteTask.h"
 #import "FirebaseStorage/Sources/FIRStorageDownloadTask_Private.h"
@@ -30,12 +29,16 @@
 #import "FirebaseStorage/Sources/FIRStorageUploadTask_Private.h"
 #import "FirebaseStorage/Sources/FIRStorageUtils.h"
 #import "FirebaseStorage/Sources/FIRStorage_Private.h"
+#import "FirebaseStorage/Sources/Public/FirebaseStorage/FIRStorageTaskSnapshot.h"
 
-#import <FirebaseCore/FIRApp.h>
-#import <FirebaseCore/FIROptions.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
+#if SWIFT_PACKAGE
+@import GTMSessionFetcherCore;
+#else
 #import <GTMSessionFetcher/GTMSessionFetcher.h>
 #import <GTMSessionFetcher/GTMSessionFetcherService.h>
+#endif
 
 @implementation FIRStorageReference
 
@@ -174,6 +177,7 @@
                                              metadata:metadata];
 
   if (completion) {
+    __block BOOL completed = NO;
     dispatch_queue_t callbackQueue = _storage.fetcherServiceForApp.callbackQueue;
     if (!callbackQueue) {
       callbackQueue = dispatch_get_main_queue();
@@ -182,13 +186,19 @@
     [task observeStatus:FIRStorageTaskStatusSuccess
                 handler:^(FIRStorageTaskSnapshot *_Nonnull snapshot) {
                   dispatch_async(callbackQueue, ^{
-                    completion(snapshot.metadata, nil);
+                    if (!completed) {
+                      completed = YES;
+                      completion(snapshot.metadata, nil);
+                    }
                   });
                 }];
     [task observeStatus:FIRStorageTaskStatusFailure
                 handler:^(FIRStorageTaskSnapshot *_Nonnull snapshot) {
                   dispatch_async(callbackQueue, ^{
-                    completion(nil, snapshot.error);
+                    if (!completed) {
+                      completed = YES;
+                      completion(nil, snapshot.error);
+                    }
                   });
                 }];
   }
@@ -222,6 +232,7 @@
                                              metadata:metadata];
 
   if (completion) {
+    __block BOOL completed = NO;
     dispatch_queue_t callbackQueue = _storage.fetcherServiceForApp.callbackQueue;
     if (!callbackQueue) {
       callbackQueue = dispatch_get_main_queue();
@@ -230,13 +241,19 @@
     [task observeStatus:FIRStorageTaskStatusSuccess
                 handler:^(FIRStorageTaskSnapshot *_Nonnull snapshot) {
                   dispatch_async(callbackQueue, ^{
-                    completion(snapshot.metadata, nil);
+                    if (!completed) {
+                      completed = YES;
+                      completion(snapshot.metadata, nil);
+                    }
                   });
                 }];
     [task observeStatus:FIRStorageTaskStatusFailure
                 handler:^(FIRStorageTaskSnapshot *_Nonnull snapshot) {
                   dispatch_async(callbackQueue, ^{
-                    completion(nil, snapshot.error);
+                    if (!completed) {
+                      completed = YES;
+                      completion(nil, snapshot.error);
+                    }
                   });
                 }];
   }
@@ -248,6 +265,7 @@
 
 - (FIRStorageDownloadTask *)dataWithMaxSize:(int64_t)size
                                  completion:(FIRStorageVoidDataError)completion {
+  __block BOOL completed = NO;
   FIRStorageDownloadTask *task =
       [[FIRStorageDownloadTask alloc] initWithReference:self
                                          fetcherService:_storage.fetcherServiceForApp
@@ -263,13 +281,20 @@
               handler:^(FIRStorageTaskSnapshot *_Nonnull snapshot) {
                 FIRStorageDownloadTask *task = snapshot.task;
                 dispatch_async(callbackQueue, ^{
-                  completion(task.downloadData, nil);
+                  if (!completed) {
+                    completed = YES;
+                    completion(task.downloadData, nil);
+                  }
                 });
               }];
+
   [task observeStatus:FIRStorageTaskStatusFailure
               handler:^(FIRStorageTaskSnapshot *_Nonnull snapshot) {
                 dispatch_async(callbackQueue, ^{
-                  completion(nil, snapshot.error);
+                  if (!completed) {
+                    completed = YES;
+                    completion(nil, snapshot.error);
+                  }
                 });
               }];
   [task
@@ -302,6 +327,7 @@
                                           dispatchQueue:_storage.dispatchQueue
                                                    file:fileURL];
   if (completion) {
+    __block BOOL completed = NO;
     dispatch_queue_t callbackQueue = _storage.fetcherServiceForApp.callbackQueue;
     if (!callbackQueue) {
       callbackQueue = dispatch_get_main_queue();
@@ -310,13 +336,19 @@
     [task observeStatus:FIRStorageTaskStatusSuccess
                 handler:^(FIRStorageTaskSnapshot *_Nonnull snapshot) {
                   dispatch_async(callbackQueue, ^{
-                    completion(fileURL, nil);
+                    if (!completed) {
+                      completed = YES;
+                      completion(fileURL, nil);
+                    }
                   });
                 }];
     [task observeStatus:FIRStorageTaskStatusFailure
                 handler:^(FIRStorageTaskSnapshot *_Nonnull snapshot) {
                   dispatch_async(callbackQueue, ^{
-                    completion(nil, snapshot.error);
+                    if (!completed) {
+                      completed = YES;
+                      completion(nil, snapshot.error);
+                    }
                   });
                 }];
   }

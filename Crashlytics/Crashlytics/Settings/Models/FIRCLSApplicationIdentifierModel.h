@@ -14,7 +14,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRCLSApplication.h"
+#import "Crashlytics/Crashlytics/Components/FIRCLSApplication.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -34,6 +34,13 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, readonly, nullable) NSString* platform;
 @property(nonatomic, readonly, nullable) NSString* buildVersion;
 @property(nonatomic, readonly, nullable) NSString* displayVersion;
+
+/**
+ * Returns the synthesized app version, similar to how the backend does it
+ * <displayVersion> (<buildVersion>)
+ */
+@property(nonatomic, readonly, nullable) NSString* synthesizedVersion;
+
 @property(nonatomic, readonly) FIRCLSApplicationInstallationSourceType installSource;
 
 /**

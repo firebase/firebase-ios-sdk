@@ -33,11 +33,12 @@
 #import "Firestore/Source/API/FIRSnapshotMetadata+Internal.h"
 #import "Firestore/Source/API/FSTUserDataConverter.h"
 
-#include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
-#include "Firestore/core/src/firebase/firestore/model/document.h"
-#include "Firestore/core/src/firebase/firestore/model/document_set.h"
-#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
-#include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
+#include "Firestore/core/src/core/view_snapshot.h"
+#include "Firestore/core/src/model/document.h"
+#include "Firestore/core/src/model/document_set.h"
+#include "Firestore/core/src/remote/firebase_metadata_provider.h"
+#include "Firestore/core/src/util/string_apple.h"
+#include "Firestore/core/test/unit/testutil/testutil.h"
 
 namespace testutil = firebase::firestore::testutil;
 namespace util = firebase::firestore::util;
@@ -69,6 +70,7 @@ FIRFirestore *FSTTestFirestore() {
                                                persistenceKey:"db123"
                                           credentialsProvider:nullptr
                                                   workerQueue:nullptr
+                                     firebaseMetadataProvider:nullptr
                                                   firebaseApp:nil
                                              instanceRegistry:nil];
   });

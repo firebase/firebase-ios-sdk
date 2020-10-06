@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "GoogleUtilities/Logger/Private/GULLogger.h"
+#import "GoogleUtilities/Logger/Public/GoogleUtilities/GULLogger.h"
 
 #include <asl.h>
 
-#import <GoogleUtilities/GULAppEnvironmentUtil.h>
-#import <GoogleUtilities/GULLoggerLevel.h>
+#import "GoogleUtilities/Environment/Public/GoogleUtilities/GULAppEnvironmentUtil.h"
+#import "GoogleUtilities/Logger/Public/GoogleUtilities/GULLoggerLevel.h"
 
 /// ASL client facility name used by GULLogger.
 const char *kGULLoggerASLClientFacilityName = "com.google.utilities.logger";
@@ -123,6 +123,7 @@ __attribute__((no_sanitize("thread"))) BOOL GULIsLoggableLevel(GULLoggerLevel lo
 #ifdef DEBUG
 void GULResetLogger() {
   sGULLoggerOnceToken = 0;
+  sGULLoggerDebugMode = NO;
 }
 
 aslclient getGULLoggerClient() {

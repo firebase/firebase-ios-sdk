@@ -1,6 +1,6 @@
-#!/bin/sh
+#!/bin/bash
 
-# Copyright 2020 Google
+# Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,4 +20,9 @@
 
 # Decrypt the file
 # --batch to prevent interactive command --yes to assume "yes" for questions
-gpg --quiet --batch --yes --decrypt --passphrase="$3" --output $2 $1
+
+file="$1"
+output="$2"
+passphrase="$3"
+[ -z "$passphrase" ] || \
+  gpg --quiet --batch --yes --decrypt --passphrase="$passphrase" --output $output "$file"

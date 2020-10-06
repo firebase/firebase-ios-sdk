@@ -14,7 +14,7 @@
 
 #import <Foundation/Foundation.h>
 
-#include "FIRCLSFeatures.h"
+#include "Crashlytics/Crashlytics/Helpers/FIRCLSFeatures.h"
 
 extern NSString *const FIRCLSReportBinaryImageFile;
 extern NSString *const FIRCLSReportExceptionFile;
@@ -26,6 +26,8 @@ extern NSString *const FIRCLSReportMachExceptionFile;
 #endif
 extern NSString *const FIRCLSReportErrorAFile;
 extern NSString *const FIRCLSReportErrorBFile;
+extern NSString *const FIRCLSReportLogAFile;
+extern NSString *const FIRCLSReportLogBFile;
 extern NSString *const FIRCLSReportMetadataFile;
 extern NSString *const FIRCLSReportInternalIncrementalKVFile;
 extern NSString *const FIRCLSReportInternalCompactedKVFile;
@@ -42,6 +44,8 @@ extern NSString *const FIRCLSReportUserCompactedKVFile;
 - (instancetype)initWithPath:(NSString *)path;
 - (instancetype)init NS_UNAVAILABLE;
 + (instancetype)new NS_UNAVAILABLE;
+
++ (NSArray *)crashFileNames;
 
 @property(nonatomic, copy, readonly) NSString *directoryName;
 @property(nonatomic, copy) NSString *path;

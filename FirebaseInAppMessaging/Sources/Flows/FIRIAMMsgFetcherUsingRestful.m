@@ -14,16 +14,18 @@
  * limitations under the License.
  */
 
-#import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseCore/FIRLogger.h>
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
 
-#import "FIRCore+InAppMessaging.h"
-#import "FIRIAMFetchFlow.h"
-#import "FIRIAMFetchResponseParser.h"
-#import "FIRIAMMessageContentDataWithImageURL.h"
-#import "FIRIAMMessageDefinition.h"
-#import "FIRIAMMsgFetcherUsingRestful.h"
-#import "FIRIAMSDKSettings.h"
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+
+#import "FirebaseInAppMessaging/Sources/FIRCore+InAppMessaging.h"
+#import "FirebaseInAppMessaging/Sources/Private/Data/FIRIAMFetchResponseParser.h"
+#import "FirebaseInAppMessaging/Sources/Private/Data/FIRIAMMessageContentDataWithImageURL.h"
+#import "FirebaseInAppMessaging/Sources/Private/Data/FIRIAMMessageDefinition.h"
+#import "FirebaseInAppMessaging/Sources/Private/Flows/FIRIAMMsgFetcherUsingRestful.h"
+#import "FirebaseInAppMessaging/Sources/Private/Runtime/FIRIAMFetchFlow.h"
+#import "FirebaseInAppMessaging/Sources/Private/Runtime/FIRIAMSDKSettings.h"
 
 static NSInteger const SuccessHTTPStatusCode = 200;
 
@@ -125,6 +127,7 @@ static NSInteger const SuccessHTTPStatusCode = 200;
 
   [request addValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
   [request addValue:@"application/json" forHTTPHeaderField:@"Accept"];
+  [request addValue:iidToken forHTTPHeaderField:@"x-goog-firebase-installations-auth"];
 
   NSMutableDictionary *postFetchDict = [[NSMutableDictionary alloc] init];
   [self updatePostFetchData:postFetchDict
@@ -184,6 +187,7 @@ static NSInteger const SuccessHTTPStatusCode = 200;
                     FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM130012",
                                 @"API request for fetching messages and parsing the response was "
                                  "successful.");
+
                     [self.fetchStorage
                         saveResponseDictionary:responseDict
                                 withCompletion:^(BOOL success) {
@@ -252,21 +256,25 @@ static NSInteger const SuccessHTTPStatusCode = 200;
   // since the fetch operation frequency is low enough that we are not concerned about its impact
   // on server load and this guarantees that we always have an up-to-date iid values and tokens.
   [self.clientInfoFetcher
-      fetchFirebaseIIDDataWithProjectNumber:self.fbProjectNumber
-                             withCompletion:^(NSString *_Nullable iid, NSString *_Nullable token,
-                                              NSError *_Nullable error) {
-                               if (error) {
-                                 FIRLogWarning(kFIRLoggerInAppMessaging, @"I-IAM130008",
-                                               @"Not able to get iid value and/or token for "
-                                               @"talking to server: %@",
-                                               error.localizedDescription);
-                                 completion(nil, nil, 0, error);
-                               } else {
-                                 [self fetchMessagesWithImpressionList:impressonList
-                                                          withIIDvalue:iid
-                                                              IIDToken:token
-                                                            completion:completion];
-                               }
-                             }];
+      fetchFirebaseInstallationDataWithProjectNumber:self.fbProjectNumber
+                                      withCompletion:^(NSString *_Nullable FID,
+                                                       NSString *_Nullable FISToken,
+                                                       NSError *_Nullable error) {
+                                        if (error) {
+                                          FIRLogWarning(
+                                              kFIRLoggerInAppMessaging, @"I-IAM130008",
+                                              @"Not able to get iid value and/or token for "
+                                              @"talking to server: %@",
+                                              error.localizedDescription);
+                                          completion(nil, nil, 0, error);
+                                        } else {
+                                          [self fetchMessagesWithImpressionList:impressonList
+                                                                   withIIDvalue:FID
+                                                                       IIDToken:FISToken
+                                                                     completion:completion];
+                                        }
+                                      }];
 }
 @end
+
+#endif  // TARGET_OS_IOS

@@ -1,20 +1,23 @@
 {
-  "Waits for watch to remove targets": {
+  "Cleans up watch state correctly": {
     "describeName": "Remote store:",
-    "itName": "Waits for watch to remove targets",
-    "tags": [],
+    "itName": "Cleans up watch state correctly",
+    "tags": [
+    ],
     "config": {
-      "useGarbageCollection": false,
-      "numClients": 1
+      "numClients": 1,
+      "useGarbageCollection": false
     },
     "steps": [
       {
         "userListen": [
           2,
           {
-            "path": "collection",
-            "filters": [],
-            "orderBys": []
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
           }
         ],
         "expectedState": {
@@ -22,9 +25,11 @@
             "2": {
               "queries": [
                 {
-                  "path": "collection",
-                  "filters": [],
-                  "orderBys": []
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection"
                 }
               ],
               "resumeToken": ""
@@ -33,87 +38,27 @@
         }
       },
       {
-        "watchAck": [
-          2
-        ]
-      },
-      {
-        "userUnlisten": [
-          2,
+        "watchStreamClose": {
+          "error": {
+            "code": 14,
+            "message": "Simulated Backend Error"
+          },
+          "runBackoffTimer": true
+        },
+        "expectedSnapshotEvents": [
           {
-            "path": "collection",
-            "filters": [],
-            "orderBys": []
-          }
-        ],
-        "expectedState": {
-          "activeTargets": {}
-        }
-      },
-      {
-        "userListen": [
-          2,
-          {
-            "path": "collection",
-            "filters": [],
-            "orderBys": []
-          }
-        ],
-        "expectedState": {
-          "activeTargets": {
-            "2": {
-              "queries": [
-                {
-                  "path": "collection",
-                  "filters": [],
-                  "orderBys": []
-                }
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
               ],
-              "resumeToken": ""
+              "orderBys": [
+              ],
+              "path": "collection"
             }
           }
-        }
-      },
-      {
-        "watchEntity": {
-          "docs": [
-            {
-              "key": "collection/a",
-              "version": 1000,
-              "value": {
-                "key": "a"
-              },
-              "options": {
-                "hasLocalMutations": false,
-                "hasCommittedMutations": false
-              }
-            }
-          ],
-          "targets": [
-            2
-          ]
-        }
-      },
-      {
-        "watchCurrent": [
-          [
-            2
-          ],
-          "resume-token"
         ]
-      },
-      {
-        "watchSnapshot": {
-          "version": 1000,
-          "targetIds": []
-        }
-      },
-      {
-        "watchRemove": {
-          "targetIds": [
-            2
-          ]
-        }
       },
       {
         "watchAck": [
@@ -125,14 +70,14 @@
           "docs": [
             {
               "key": "collection/a",
-              "version": 1000,
+              "options": {
+                "hasCommittedMutations": false,
+                "hasLocalMutations": false
+              },
               "value": {
                 "key": "a"
               },
-              "options": {
-                "hasLocalMutations": false,
-                "hasCommittedMutations": false
-              }
+              "version": 1000
             }
           ],
           "targets": [
@@ -150,53 +95,61 @@
       },
       {
         "watchSnapshot": {
-          "version": 1001,
-          "targetIds": []
+          "targetIds": [
+          ],
+          "version": 1001
         },
         "expectedSnapshotEvents": [
           {
-            "query": {
-              "path": "collection",
-              "filters": [],
-              "orderBys": []
-            },
             "added": [
               {
                 "key": "collection/a",
-                "version": 1000,
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
                 "value": {
                   "key": "a"
                 },
-                "options": {
-                  "hasLocalMutations": false,
-                  "hasCommittedMutations": false
-                }
+                "version": 1000
               }
             ],
             "errorCode": 0,
             "fromCache": false,
-            "hasPendingWrites": false
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
           }
         ]
       }
     ]
   },
-  "Waits for watch to ack last target add": {
+  "Handles user changes while offline (b/74749605).": {
     "describeName": "Remote store:",
-    "itName": "Waits for watch to ack last target add",
-    "tags": [],
+    "itName": "Handles user changes while offline (b/74749605).",
+    "tags": [
+      "no-android",
+      "no-ios"
+    ],
     "config": {
-      "useGarbageCollection": false,
-      "numClients": 1
+      "numClients": 1,
+      "useGarbageCollection": true
     },
     "steps": [
       {
         "userListen": [
           2,
           {
-            "path": "collection",
-            "filters": [],
-            "orderBys": []
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
           }
         ],
         "expectedState": {
@@ -204,9 +157,106 @@
             "2": {
               "queries": [
                 {
-                  "path": "collection",
-                  "filters": [],
-                  "orderBys": []
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection"
+                }
+              ],
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "watchStreamClose": {
+          "error": {
+            "code": 14,
+            "message": "Simulated Backend Error"
+          },
+          "runBackoffTimer": false
+        },
+        "expectedSnapshotEvents": [
+          {
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ],
+        "expectedState": {
+          "activeTargets": {
+          }
+        }
+      },
+      {
+        "changeUser": "abc",
+        "expectedState": {
+          "activeTargets": {
+            "2": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection"
+                }
+              ],
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "watchStreamClose": {
+          "error": {
+            "code": 14,
+            "message": "Simulated Backend Error"
+          },
+          "runBackoffTimer": true
+        }
+      }
+    ]
+  },
+  "Waits for watch to ack last target add": {
+    "describeName": "Remote store:",
+    "itName": "Waits for watch to ack last target add",
+    "tags": [
+    ],
+    "config": {
+      "numClients": 1,
+      "useGarbageCollection": false
+    },
+    "steps": [
+      {
+        "userListen": [
+          2,
+          {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          }
+        ],
+        "expectedState": {
+          "activeTargets": {
+            "2": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection"
                 }
               ],
               "resumeToken": ""
@@ -223,22 +273,27 @@
         "userUnlisten": [
           2,
           {
-            "path": "collection",
-            "filters": [],
-            "orderBys": []
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
           }
         ],
         "expectedState": {
-          "activeTargets": {}
+          "activeTargets": {
+          }
         }
       },
       {
         "userListen": [
           2,
           {
-            "path": "collection",
-            "filters": [],
-            "orderBys": []
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
           }
         ],
         "expectedState": {
@@ -246,9 +301,11 @@
             "2": {
               "queries": [
                 {
-                  "path": "collection",
-                  "filters": [],
-                  "orderBys": []
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection"
                 }
               ],
               "resumeToken": ""
@@ -260,22 +317,27 @@
         "userUnlisten": [
           2,
           {
-            "path": "collection",
-            "filters": [],
-            "orderBys": []
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
           }
         ],
         "expectedState": {
-          "activeTargets": {}
+          "activeTargets": {
+          }
         }
       },
       {
         "userListen": [
           2,
           {
-            "path": "collection",
-            "filters": [],
-            "orderBys": []
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
           }
         ],
         "expectedState": {
@@ -283,9 +345,11 @@
             "2": {
               "queries": [
                 {
-                  "path": "collection",
-                  "filters": [],
-                  "orderBys": []
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection"
                 }
               ],
               "resumeToken": ""
@@ -297,22 +361,27 @@
         "userUnlisten": [
           2,
           {
-            "path": "collection",
-            "filters": [],
-            "orderBys": []
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
           }
         ],
         "expectedState": {
-          "activeTargets": {}
+          "activeTargets": {
+          }
         }
       },
       {
         "userListen": [
           2,
           {
-            "path": "collection",
-            "filters": [],
-            "orderBys": []
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
           }
         ],
         "expectedState": {
@@ -320,9 +389,11 @@
             "2": {
               "queries": [
                 {
-                  "path": "collection",
-                  "filters": [],
-                  "orderBys": []
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection"
                 }
               ],
               "resumeToken": ""
@@ -335,14 +406,14 @@
           "docs": [
             {
               "key": "collection/a",
-              "version": 1000,
+              "options": {
+                "hasCommittedMutations": false,
+                "hasLocalMutations": false
+              },
               "value": {
                 "key": "a"
               },
-              "options": {
-                "hasLocalMutations": false,
-                "hasCommittedMutations": false
-              }
+              "version": 1000
             }
           ],
           "targets": [
@@ -360,8 +431,9 @@
       },
       {
         "watchSnapshot": {
-          "version": 1000,
-          "targetIds": []
+          "targetIds": [
+          ],
+          "version": 1000
         }
       },
       {
@@ -381,14 +453,14 @@
           "docs": [
             {
               "key": "collection/b",
-              "version": 1000,
+              "options": {
+                "hasCommittedMutations": false,
+                "hasLocalMutations": false
+              },
               "value": {
                 "key": "b"
               },
-              "options": {
-                "hasLocalMutations": false,
-                "hasCommittedMutations": false
-              }
+              "version": 1000
             }
           ],
           "targets": [
@@ -406,8 +478,9 @@
       },
       {
         "watchSnapshot": {
-          "version": 1001,
-          "targetIds": []
+          "targetIds": [
+          ],
+          "version": 1001
         }
       },
       {
@@ -427,14 +500,14 @@
           "docs": [
             {
               "key": "collection/c",
-              "version": 1000,
+              "options": {
+                "hasCommittedMutations": false,
+                "hasLocalMutations": false
+              },
               "value": {
                 "key": "c"
               },
-              "options": {
-                "hasLocalMutations": false,
-                "hasCommittedMutations": false
-              }
+              "version": 1000
             }
           ],
           "targets": [
@@ -452,8 +525,9 @@
       },
       {
         "watchSnapshot": {
-          "version": 1001,
-          "targetIds": []
+          "targetIds": [
+          ],
+          "version": 1001
         }
       },
       {
@@ -473,14 +547,14 @@
           "docs": [
             {
               "key": "collection/d",
-              "version": 1000,
+              "options": {
+                "hasCommittedMutations": false,
+                "hasLocalMutations": false
+              },
               "value": {
                 "key": "d"
               },
-              "options": {
-                "hasLocalMutations": false,
-                "hasCommittedMutations": false
-              }
+              "version": 1000
             }
           ],
           "targets": [
@@ -498,53 +572,59 @@
       },
       {
         "watchSnapshot": {
-          "version": 1001,
-          "targetIds": []
+          "targetIds": [
+          ],
+          "version": 1001
         },
         "expectedSnapshotEvents": [
           {
-            "query": {
-              "path": "collection",
-              "filters": [],
-              "orderBys": []
-            },
             "added": [
               {
                 "key": "collection/d",
-                "version": 1000,
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
                 "value": {
                   "key": "d"
                 },
-                "options": {
-                  "hasLocalMutations": false,
-                  "hasCommittedMutations": false
-                }
+                "version": 1000
               }
             ],
             "errorCode": 0,
             "fromCache": false,
-            "hasPendingWrites": false
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
           }
         ]
       }
     ]
   },
-  "Cleans up watch state correctly": {
+  "Waits for watch to remove targets": {
     "describeName": "Remote store:",
-    "itName": "Cleans up watch state correctly",
-    "tags": [],
+    "itName": "Waits for watch to remove targets",
+    "tags": [
+    ],
     "config": {
-      "useGarbageCollection": false,
-      "numClients": 1
+      "numClients": 1,
+      "useGarbageCollection": false
     },
     "steps": [
       {
         "userListen": [
           2,
           {
-            "path": "collection",
-            "filters": [],
-            "orderBys": []
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
           }
         ],
         "expectedState": {
@@ -552,9 +632,11 @@
             "2": {
               "queries": [
                 {
-                  "path": "collection",
-                  "filters": [],
-                  "orderBys": []
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection"
                 }
               ],
               "resumeToken": ""
@@ -563,25 +645,95 @@
         }
       },
       {
-        "watchStreamClose": {
-          "error": {
-            "code": 14,
-            "message": "Simulated Backend Error"
-          },
-          "runBackoffTimer": true
-        },
-        "expectedSnapshotEvents": [
-          {
-            "query": {
-              "path": "collection",
-              "filters": [],
-              "orderBys": []
-            },
-            "errorCode": 0,
-            "fromCache": true,
-            "hasPendingWrites": false
-          }
+        "watchAck": [
+          2
         ]
+      },
+      {
+        "userUnlisten": [
+          2,
+          {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          }
+        ],
+        "expectedState": {
+          "activeTargets": {
+          }
+        }
+      },
+      {
+        "userListen": [
+          2,
+          {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          }
+        ],
+        "expectedState": {
+          "activeTargets": {
+            "2": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection"
+                }
+              ],
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "watchEntity": {
+          "docs": [
+            {
+              "key": "collection/a",
+              "options": {
+                "hasCommittedMutations": false,
+                "hasLocalMutations": false
+              },
+              "value": {
+                "key": "a"
+              },
+              "version": 1000
+            }
+          ],
+          "targets": [
+            2
+          ]
+        }
+      },
+      {
+        "watchCurrent": [
+          [
+            2
+          ],
+          "resume-token"
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "targetIds": [
+          ],
+          "version": 1000
+        }
+      },
+      {
+        "watchRemove": {
+          "targetIds": [
+            2
+          ]
+        }
       },
       {
         "watchAck": [
@@ -593,14 +745,14 @@
           "docs": [
             {
               "key": "collection/a",
-              "version": 1000,
+              "options": {
+                "hasCommittedMutations": false,
+                "hasLocalMutations": false
+              },
               "value": {
                 "key": "a"
               },
-              "options": {
-                "hasLocalMutations": false,
-                "hasCommittedMutations": false
-              }
+              "version": 1000
             }
           ],
           "targets": [
@@ -618,122 +770,37 @@
       },
       {
         "watchSnapshot": {
-          "version": 1001,
-          "targetIds": []
+          "targetIds": [
+          ],
+          "version": 1001
         },
         "expectedSnapshotEvents": [
           {
-            "query": {
-              "path": "collection",
-              "filters": [],
-              "orderBys": []
-            },
             "added": [
               {
                 "key": "collection/a",
-                "version": 1000,
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
                 "value": {
                   "key": "a"
                 },
-                "options": {
-                  "hasLocalMutations": false,
-                  "hasCommittedMutations": false
-                }
+                "version": 1000
               }
             ],
             "errorCode": 0,
             "fromCache": false,
-            "hasPendingWrites": false
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
           }
         ]
-      }
-    ]
-  },
-  "Handles user changes while offline (b/74749605).": {
-    "describeName": "Remote store:",
-    "itName": "Handles user changes while offline (b/74749605).",
-    "tags": [
-      "no-android",
-      "no-ios"
-    ],
-    "config": {
-      "useGarbageCollection": true,
-      "numClients": 1
-    },
-    "steps": [
-      {
-        "userListen": [
-          2,
-          {
-            "path": "collection",
-            "filters": [],
-            "orderBys": []
-          }
-        ],
-        "expectedState": {
-          "activeTargets": {
-            "2": {
-              "queries": [
-                {
-                  "path": "collection",
-                  "filters": [],
-                  "orderBys": []
-                }
-              ],
-              "resumeToken": ""
-            }
-          }
-        }
-      },
-      {
-        "watchStreamClose": {
-          "error": {
-            "code": 14,
-            "message": "Simulated Backend Error"
-          },
-          "runBackoffTimer": false
-        },
-        "expectedSnapshotEvents": [
-          {
-            "query": {
-              "path": "collection",
-              "filters": [],
-              "orderBys": []
-            },
-            "errorCode": 0,
-            "fromCache": true,
-            "hasPendingWrites": false
-          }
-        ],
-        "expectedState": {
-          "activeTargets": {}
-        }
-      },
-      {
-        "changeUser": "abc",
-        "expectedState": {
-          "activeTargets": {
-            "2": {
-              "queries": [
-                {
-                  "path": "collection",
-                  "filters": [],
-                  "orderBys": []
-                }
-              ],
-              "resumeToken": ""
-            }
-          }
-        }
-      },
-      {
-        "watchStreamClose": {
-          "error": {
-            "code": 14,
-            "message": "Simulated Backend Error"
-          },
-          "runBackoffTimer": true
-        }
       }
     ]
   }

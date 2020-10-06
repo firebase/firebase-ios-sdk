@@ -20,10 +20,9 @@
 #include <unordered_map>
 #include <vector>
 
-#include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
-#include "Firestore/core/src/firebase/firestore/model/types.h"
-#include "Firestore/core/src/firebase/firestore/remote/datastore.h"
-#include "Firestore/core/src/firebase/firestore/util/status_fwd.h"
+#include "Firestore/core/src/model/model_fwd.h"
+#include "Firestore/core/src/remote/datastore.h"
+#include "Firestore/core/src/util/status_fwd.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -31,6 +30,8 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
+class ConnectivityMonitor;
+class FirebaseMetadataProvider;
 class MockWatchStream;
 class MockWriteStream;
 
@@ -38,7 +39,9 @@ class MockDatastore : public Datastore {
  public:
   MockDatastore(const core::DatabaseInfo& database_info,
                 const std::shared_ptr<util::AsyncQueue>& worker_queue,
-                std::shared_ptr<auth::CredentialsProvider> credentials);
+                std::shared_ptr<auth::CredentialsProvider> credentials,
+                ConnectivityMonitor* connectivity_monitor,
+                FirebaseMetadataProvider* firebase_metadata_provider);
 
   std::shared_ptr<WatchStream> CreateWatchStream(WatchStreamCallback* callback) override;
   std::shared_ptr<WriteStream> CreateWriteStream(WriteStreamCallback* callback) override;

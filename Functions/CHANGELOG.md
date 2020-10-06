@@ -1,4 +1,13 @@
-# Unreleased
+# v2.9.0
+- [changed] Weak dependency on Instance ID replaced by Firebase Messaging. (#6395)
+
+# v2.8.0
+- [changed] New public header structure. (#6193)
+
+# v2.7.0
+- [changed] Functionally neutral source reorganization. (#5858)
+
+# v2.6.0
 - [fixed] Fix internal analyzer issue with error assignment (#4164).
 
 # v2.4.0

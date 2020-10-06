@@ -14,21 +14,22 @@
  * limitations under the License.
  */
 
-#import "FIRInAppMessaging.h"
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
+
+#import "FirebaseInAppMessaging/Sources/Public/FirebaseInAppMessaging/FIRInAppMessaging.h"
 
 #import <Foundation/Foundation.h>
 
-#import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
-#import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseCore/FIRComponent.h>
-#import <FirebaseCore/FIRComponentContainer.h>
-#import <FirebaseCore/FIRDependency.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
+#import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 
-#import "FIRCore+InAppMessaging.h"
-#import "FIRIAMDisplayExecutor.h"
-#import "FIRIAMRuntimeManager.h"
-#import "FIRInAppMessaging+Bootstrap.h"
-#import "FIRInAppMessagingPrivate.h"
+#import "FirebaseInAppMessaging/Sources/FIRCore+InAppMessaging.h"
+#import "FirebaseInAppMessaging/Sources/FIRInAppMessagingPrivate.h"
+#import "FirebaseInAppMessaging/Sources/Private/Flows/FIRIAMDisplayExecutor.h"
+#import "FirebaseInAppMessaging/Sources/Private/Runtime/FIRIAMRuntimeManager.h"
+#import "FirebaseInAppMessaging/Sources/Private/Runtime/FIRInAppMessaging+Bootstrap.h"
 
 static BOOL _autoBootstrapOnFIRAppInit = YES;
 
@@ -43,15 +44,8 @@ static BOOL _autoBootstrapOnFIRAppInit = YES;
   _autoBootstrapOnFIRAppInit = NO;
 }
 
-// extract macro value into a C string
-#define STR_FROM_MACRO(x) #x
-#define STR(x) STR_FROM_MACRO(x)
-
 + (void)load {
-  [FIRApp
-      registerInternalLibrary:(Class<FIRLibrary>)self
-                     withName:@"fire-fiam"
-                  withVersion:[NSString stringWithUTF8String:STR(FIRInAppMessaging_LIB_VERSION)]];
+  [FIRApp registerInternalLibrary:(Class<FIRLibrary>)self withName:@"fire-fiam"];
 }
 
 + (nonnull NSArray<FIRComponent *> *)componentsToRegister {
@@ -62,7 +56,8 @@ static BOOL _autoBootstrapOnFIRAppInit = YES;
     // Ensure it's cached so it returns the same instance every time fiam is called.
     *isCacheable = YES;
     id<FIRAnalyticsInterop> analytics = FIR_COMPONENT(FIRAnalyticsInterop, container);
-    return [[FIRInAppMessaging alloc] initWithAnalytics:analytics];
+    FIRInstallations *installations = [FIRInstallations installationsWithApp:container.app];
+    return [[FIRInAppMessaging alloc] initWithAnalytics:analytics installations:installations];
   };
   FIRComponent *fiamProvider =
       [FIRComponent componentWithProtocol:@protocol(FIRInAppMessagingInstanceProvider)
@@ -93,10 +88,12 @@ static BOOL _autoBootstrapOnFIRAppInit = YES;
   }
 }
 
-- (instancetype)initWithAnalytics:(id<FIRAnalyticsInterop>)analytics {
+- (instancetype)initWithAnalytics:(id<FIRAnalyticsInterop>)analytics
+                    installations:(FIRInstallations *)installations {
   if (self = [super init]) {
     _messageDisplaySuppressed = NO;
     _analytics = analytics;
+    _installations = installations;
   }
   return self;
 }
@@ -147,3 +144,5 @@ static BOOL _autoBootstrapOnFIRAppInit = YES;
 }
 
 @end
+
+#endif  // TARGET_OS_IOS

@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRCLSSerializeSymbolicatedFramesOperation.h"
+#import "Crashlytics/Crashlytics/Operations/Symbolication/FIRCLSSerializeSymbolicatedFramesOperation.h"
 
-#import "FIRCLSFile.h"
-#import "FIRCLSLogger.h"
-#import "FIRCLSStackFrame.h"
+#import "Crashlytics/Crashlytics/Helpers/FIRCLSFile.h"
+#import "Crashlytics/Crashlytics/Helpers/FIRCLSLogger.h"
+#import "Crashlytics/Crashlytics/Private/FIRStackFrame_Private.h"
 
 @implementation FIRCLSSerializeSymbolicatedFramesOperation
 
@@ -37,7 +37,7 @@
   for (NSArray *frameArray in self.threadArray) {
     FIRCLSFileWriteArrayStart(&file);
 
-    for (FIRCLSStackFrame *frame in frameArray) {
+    for (FIRStackFrame *frame in frameArray) {
       FIRCLSFileWriteHashStart(&file);
       FIRCLSFileWriteHashEntryString(&file, "symbol", [[frame symbol] UTF8String]);
 

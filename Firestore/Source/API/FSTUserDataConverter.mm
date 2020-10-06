@@ -32,20 +32,20 @@
 #import "Firestore/Source/API/FIRGeoPoint+Internal.h"
 #import "Firestore/Source/API/converters.h"
 
-#include "Firestore/core/src/firebase/firestore/core/user_data.h"
-#include "Firestore/core/src/firebase/firestore/model/database_id.h"
-#include "Firestore/core/src/firebase/firestore/model/document_key.h"
-#include "Firestore/core/src/firebase/firestore/model/field_mask.h"
-#include "Firestore/core/src/firebase/firestore/model/field_path.h"
-#include "Firestore/core/src/firebase/firestore/model/field_transform.h"
-#include "Firestore/core/src/firebase/firestore/model/field_value.h"
-#include "Firestore/core/src/firebase/firestore/model/precondition.h"
-#include "Firestore/core/src/firebase/firestore/model/transform_operation.h"
-#include "Firestore/core/src/firebase/firestore/nanopb/nanopb_util.h"
-#include "Firestore/core/src/firebase/firestore/timestamp_internal.h"
-#include "Firestore/core/src/firebase/firestore/util/exception.h"
-#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
-#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+#include "Firestore/core/src/core/user_data.h"
+#include "Firestore/core/src/model/database_id.h"
+#include "Firestore/core/src/model/document_key.h"
+#include "Firestore/core/src/model/field_mask.h"
+#include "Firestore/core/src/model/field_path.h"
+#include "Firestore/core/src/model/field_transform.h"
+#include "Firestore/core/src/model/field_value.h"
+#include "Firestore/core/src/model/precondition.h"
+#include "Firestore/core/src/model/transform_operation.h"
+#include "Firestore/core/src/nanopb/nanopb_util.h"
+#include "Firestore/core/src/timestamp_internal.h"
+#include "Firestore/core/src/util/exception.h"
+#include "Firestore/core/src/util/hard_assert.h"
+#include "Firestore/core/src/util/string_apple.h"
 #include "absl/memory/memory.h"
 #include "absl/strings/match.h"
 #include "absl/types/optional.h"
@@ -196,7 +196,7 @@ NS_ASSUME_NONNULL_BEGIN
   __block ParseContext context = accumulator.RootContext();
   __block ObjectValue updateData = ObjectValue::Empty();
 
-  [dict enumerateKeysAndObjectsUsingBlock:^(id key, id value, BOOL *stop) {
+  [dict enumerateKeysAndObjectsUsingBlock:^(id key, id value, BOOL *) {
     FieldPath path;
 
     if ([key isKindOfClass:[NSString class]]) {
@@ -295,7 +295,7 @@ NS_ASSUME_NONNULL_BEGIN
   } else {
     __block ObjectValue result = ObjectValue::Empty();
 
-    [dict enumerateKeysAndObjectsUsingBlock:^(NSString *key, id value, BOOL *stop) {
+    [dict enumerateKeysAndObjectsUsingBlock:^(NSString *key, id value, BOOL *) {
       absl::optional<FieldValue> parsedValue =
           [self parseData:value context:context.ChildContext(util::MakeString(key))];
       if (parsedValue) {
@@ -312,7 +312,7 @@ NS_ASSUME_NONNULL_BEGIN
   __block FieldValue::Array result;
   result.reserve(array.count);
 
-  [array enumerateObjectsUsingBlock:^(id entry, NSUInteger idx, BOOL *stop) {
+  [array enumerateObjectsUsingBlock:^(id entry, NSUInteger idx, BOOL *) {
     absl::optional<FieldValue> parsedEntry = [self parseData:entry
                                                      context:context.ChildContext(idx)];
     if (!parsedEntry) {

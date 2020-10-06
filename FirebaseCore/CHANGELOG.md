@@ -1,4 +1,104 @@
-# Unreleased
+# Firebase 7.0.0
+- [changed] Update minimum iOS version to iOS 10 except for Analytics which is now iOS 9. (#4847)
+- [changed] Update minimum macOS version to 10.12.
+- [added] Swift Package Manager support for Firebase Messaging. (#5641)
+- [changed] The pods developed in this repo are no longer hard coded to be built as static
+  frameworks. Instead, their linkage will be controlled by the Podfile. Use the Podfile
+  option `use_frameworks! :linkage => :static` to get the Firebase 6.x linkage behavior. (#2022)
+- [changed] Firebase no longer uses the CocoaPods `private_headers` feature to expose internal
+  APIs. (#6572)
+- [removed] Removed broken `FirebaseOptions()` initializer. Use `init(contentsOfFile:)` or
+  `init(googleAppID:gcmSenderID:)` instead. (#6633)
+- [changed] All Firebase pods now have the same version. (#6295)
+- [changed] In CocoaPods, Firebase betas are now indicated in the version tag. In SwiftPM, beta
+  is appended to the product name.
+- [changed] The version must now be specified for the two Swift-only Firebase CocoaPods in the
+  Podfile like `pod 'FirebaseFirestoreSwift', '~> 7.0-beta'`.
+- [added] `FirebaseVersion.version()` or `[FIRVersion version]` API to access the Firebase
+  installation version.
+
+# Firebase 6.34.0
+- [fixed] Removed warning related to missing Analytics framework for non-iOS builds since the
+  framework isn't available on those platforms. (#6500)
+
+# Firebase 6.33.0
+- [fixed] Swift Package Manager - Define system framework and system library dependencies. This
+  resolves undefined symbol issues for system dependencies. (#6408, #6413)
+- [fixed] Swift Package Manager - Fixed build warnings related to minimum iOS version. (#6449)
+- [fixed] Enable Firebase pod support for Auth and Crashlytics watchOS platform. (#4558)
+- [fixed] Carthage - Some frameworks were missing Info.plist files. (#5562)
+
+# Firebase 6.32.0
+- [changed] Swift Package Manager - It's no longer necessary to select the Firebase or
+  FirebaseCore products. Their build targets are implicitly selected when choosing any other
+  Firebase product. If migrating from 6.31-spm-beta, you may need to remove those targets from
+  the `Frameworks, Libraries, and Embedded Content` Build Setting on the General tab.
+
+# Firebase 6.31.1
+- [fixed] Sporadic missing FirebaseApp symbol build issue introduced in Firebase 6.28.0. (#6341)
+
+# Firebase 6.31.0 FirebaseCore 6.10.1 -- M78
+- [added] Beta release of Swift Package Manager. Details
+  [here](https://github.com/firebase/firebase-ios-sdk/blob/master/SwiftPackageManager.md). (#3136)
+- [changed] Firebase's dependencies on nanopb are updated from version 0.3.9.5 to
+  version 0.3.9.6 (1.30906.0 in CocoaPods).
+
+# v6.10.0 -- M77
+- [changed] Functionally neutral public header refactor in preparation for Swift Package
+  Manager support. Applies to FirebaseCore, FirebaseABTesting, FirebaseAuth, FirebaseCrashlytics,
+  FirebaseDatabase, FirebaseFirestore, FirebaseFunctions, FirebaseInstallations,
+  FirebaseRemoteConfig, FirebaseStorage, and GoogleDataTransport.
+
+# v6.9.0 -- M75
+- [changed] Added thread safety to `[FIROptions defaultOptions]` method. (#5915)
+- [changed] Updated GoogleUtilities and GoogleDataTransport imports. The GoogleDataTransportCCTSupport
+  pod/framework should no longer be linked along with Firebase. (#5824)
+
+# v6.8.0 -- M73
+- [changed] Functionally neutral refactor to simplify FirebaseCore's header usage and replace
+  Interop pods with headers only. This change is the reason most of the Firebase pods have a minor
+  version update and why there may not be another specific release note.
+
+# v6.7.1 -- M71
+- [fixed] Fixed `FirebaseApp`s `bundleID` verification, allowing exact `bundleID` matches
+  for extensions. (#5126)
+
+# v6.7.0 -- M70
+- [fixed] Updated nanopb to 0.3.9.5 (across all Firebase pods). This includes a fix for
+  [CVE-2020-5235](https://github.com/nanopb/nanopb/security/advisories/GHSA-gcx3-7m76-287p).
+  Note that the versioning scheme for the nanopb CocoaPod has changed;
+  see https://github.com/google/nanopb-podspec for more details. (#5191)
+
+# v6.6.7 -- M69
+- [fixed] Fixed Carthage installation failures involving `Protobuf.framework`.
+  `Protobuf.framework` is now separately installable via adding
+  `FirebaseProtobufBinary.json` to the Cartfile. Full details in the [Carthage usage
+  instructions](https://github.com/firebase/firebase-ios-sdk/blob/master/Carthage.md#carthage-usage).
+  (#5276)
+
+# v6.6.6 -- M68
+- [fixed] Fixed unincluded umbrella header warnings in Carthage and zip distributions
+  introduced in Firebase 6.21.0. (#5209)
+
+# v6.6.5 -- M67
+- [changed] The zip distribution is now comprised of xcframeworks instead of
+  frameworks. This provides a binary distribution for the community supported
+  Firebase for Catalyst. See the zip's README for additional details.
+
+- [fixed] The FirebaseCoreDiagnostic.framework in the Carthage distribution
+  now includes an Info.plist. (#4917)
+
+- [changed] The arm64e slice is no longer included the zip
+  distribution's xcframeworks. The slice will be removed from the remaining
+  frameworks in a subsequent release. We will restore once arm64e is
+  officially supported by Apple.
+
+# v6.6.4 -- M66
+- [changed] Added an Apple platform flag (ios/macos/watchos/etc.) to `firebaseUserAgent`.
+  The information will be used to support product decisions related to Apple platforms,
+  e.g. prioritizing watchOS support, etc. (#4939)
+
+# v6.6.3 -- M65
 - [fixed] Fix Zip Builder module map generation that could cause linker missing
   symbol errors in the 6.14.0 through 6.16.0 binary release distributions. (#4819)
 

@@ -18,8 +18,8 @@
 #include <cstdint>
 #include <string>
 
-#include "Firestore/core/src/firebase/firestore/local/leveldb_key.h"
-#include "Firestore/core/src/firebase/firestore/local/leveldb_util.h"
+#include "Firestore/core/src/local/leveldb_key.h"
+#include "Firestore/core/src/local/leveldb_util.h"
 
 using firebase::firestore::local::LevelDbDocumentMutationKey;
 using firebase::firestore::local::LevelDbDocumentTargetKey;
@@ -35,7 +35,7 @@ using firebase::firestore::model::ResourcePath;
 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
   const char* str_ptr = reinterpret_cast<const char*>(data);
-  absl::string_view str{str_ptr, size};
+  std::string str{str_ptr, size};
   leveldb::Slice slice = firebase::firestore::local::MakeSlice(str);
 
   // Test DescribeKey(std::string) which calls MakeSlice(std::string).

@@ -19,9 +19,10 @@
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FSTUserDataConverter.h"
 
-#include "Firestore/core/src/firebase/firestore/api/write_batch.h"
-#include "Firestore/core/src/firebase/firestore/util/delayed_constructor.h"
-#include "Firestore/core/src/firebase/firestore/util/error_apple.h"
+#include "Firestore/core/src/api/write_batch.h"
+#include "Firestore/core/src/core/user_data.h"
+#include "Firestore/core/src/util/delayed_constructor.h"
+#include "Firestore/core/src/util/error_apple.h"
 
 namespace util = firebase::firestore::util;
 using firebase::firestore::core::ParsedSetData;

@@ -18,7 +18,7 @@
 
 #import "FIRListenerRegistration.h"
 
-#include "Firestore/core/src/firebase/firestore/api/listener_registration.h"
+#include "Firestore/core/src/api/listener_registration.h"
 
 namespace api = firebase::firestore::api;
 

@@ -18,7 +18,7 @@
 
 @class FBLPromise<ValueType>;
 @class FIRInstallationsItem;
-@class FIRSecureStorage;
+@class GULKeychainStorage;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -33,7 +33,7 @@ extern NSString *const kFIRInstallationsStoreUserDefaultsID;
  * @param storage The secure storage to save installations data.
  * @param accessGroup The Keychain Access Group to store and request the installations data.
  */
-- (instancetype)initWithSecureStorage:(FIRSecureStorage *)storage
+- (instancetype)initWithSecureStorage:(GULKeychainStorage *)storage
                           accessGroup:(nullable NSString *)accessGroup;
 
 /**

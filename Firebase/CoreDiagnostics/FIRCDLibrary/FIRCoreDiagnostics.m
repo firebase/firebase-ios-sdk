@@ -17,23 +17,20 @@
 #import <objc/runtime.h>
 #include <sys/utsname.h>
 
-#import <GoogleDataTransport/GDTCORConsoleLogger.h>
-#import <GoogleDataTransport/GDTCOREvent.h>
-#import <GoogleDataTransport/GDTCORTargets.h>
-#import <GoogleDataTransport/GDTCORTransport.h>
+#import "GoogleDataTransport/GDTCORLibrary/Internal/GoogleDataTransportInternal.h"
 
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import <GoogleUtilities/GULHeartbeatDateStorage.h>
 #import <GoogleUtilities/GULLogger.h>
 
-#import <FirebaseCoreDiagnosticsInterop/FIRCoreDiagnosticsData.h>
-#import <FirebaseCoreDiagnosticsInterop/FIRCoreDiagnosticsInterop.h>
+#import "Interop/CoreDiagnostics/Public/FIRCoreDiagnosticsData.h"
+#import "Interop/CoreDiagnostics/Public/FIRCoreDiagnosticsInterop.h"
 
 #import <nanopb/pb.h>
 #import <nanopb/pb_decode.h>
 #import <nanopb/pb_encode.h>
 
-#import "FIRCDLibrary/Protogen/nanopb/firebasecore.nanopb.h"
+#import "Firebase/CoreDiagnostics/FIRCDLibrary/Protogen/nanopb/firebasecore.nanopb.h"
 
 /** The logger service string to use when printing to the console. */
 static GULLoggerService kFIRCoreDiagnostics = @"[FirebaseCoreDiagnostics/FIRCoreDiagnostics]";
@@ -44,7 +41,9 @@ static BOOL kUsingZipFile = YES;
 static BOOL kUsingZipFile = NO;
 #endif  // FIREBASE_BUILD_ZIP_FILE
 
-#ifdef FIREBASE_BUILD_CARTHAGE
+#if SWIFT_PACKAGE
+#define kDeploymentType logs_proto_mobilesdk_ios_ICoreConfiguration_DeploymentType_SPM
+#elif FIREBASE_BUILD_CARTHAGE
 #define kDeploymentType logs_proto_mobilesdk_ios_ICoreConfiguration_DeploymentType_CARTHAGE
 #elif FIREBASE_BUILD_ZIP_FILE
 #define kDeploymentType logs_proto_mobilesdk_ios_ICoreConfiguration_DeploymentType_ZIP_FILE
@@ -52,13 +51,6 @@ static BOOL kUsingZipFile = NO;
 #define kDeploymentType logs_proto_mobilesdk_ios_ICoreConfiguration_DeploymentType_COCOAPODS
 #endif
 
-static NSString *const kFIRServiceMLVisionOnDeviceAutoML = @"MLVisionOnDeviceAutoML";
-static NSString *const kFIRServiceMLVisionOnDeviceFace = @"MLVisionOnDeviceFace";
-static NSString *const kFIRServiceMLVisionOnDeviceBarcode = @"MLVisionOnDeviceBarcode";
-static NSString *const kFIRServiceMLVisionOnDeviceText = @"MLVisionOnDeviceText";
-static NSString *const kFIRServiceMLVisionOnDeviceLabel = @"MLVisionOnDeviceLabel";
-static NSString *const kFIRServiceMLVisionOnDeviceObjectDetection =
-    @"MLVisionOnDeviceObjectDetection";
 static NSString *const kFIRServiceMLModelInterpreter = @"MLModelInterpreter";
 
 static NSString *const kFIRServiceAdMob = @"AdMob";
@@ -220,7 +212,7 @@ NS_ASSUME_NONNULL_END
 
 #pragma mark - nanopb helper functions
 
-/** Mallocs a pb_bytes_array and copies the given NSString's bytes into the bytes array.
+/** Callocs a pb_bytes_array and copies the given NSString's bytes into the bytes array.
  *
  * @note Memory needs to be free manually, through pb_free or pb_release.
  * @param string The string to encode as pb_bytes.
@@ -230,18 +222,18 @@ pb_bytes_array_t *FIREncodeString(NSString *string) {
   return FIREncodeData(stringBytes);
 }
 
-/** Mallocs a pb_bytes_array and copies the given NSData bytes into the bytes array.
+/** Callocs a pb_bytes_array and copies the given NSData bytes into the bytes array.
  *
  * @note Memory needs to be free manually, through pb_free or pb_release.
  * @param data The data to copy into the new bytes array.
  */
 pb_bytes_array_t *FIREncodeData(NSData *data) {
-  pb_bytes_array_t *pbBytes = malloc(PB_BYTES_ARRAY_T_ALLOCSIZE(data.length));
-  if (pbBytes != NULL) {
-    memcpy(pbBytes->bytes, [data bytes], data.length);
-    pbBytes->size = (pb_size_t)data.length;
+  pb_bytes_array_t *pbBytesArray = calloc(1, PB_BYTES_ARRAY_T_ALLOCSIZE(data.length));
+  if (pbBytesArray != NULL) {
+    [data getBytes:pbBytesArray->bytes length:data.length];
+    pbBytesArray->size = (pb_size_t)data.length;
   }
-  return pbBytes;
+  return pbBytesArray;
 }
 
 /** Maps a service string to the representative nanopb enum.
@@ -270,18 +262,6 @@ logs_proto_mobilesdk_ios_ICoreConfiguration_ServiceType FIRMapFromServiceStringT
       kFIRServicePerformance :
           @(logs_proto_mobilesdk_ios_ICoreConfiguration_ServiceType_PERFORMANCE),
       kFIRServiceStorage : @(logs_proto_mobilesdk_ios_ICoreConfiguration_ServiceType_STORAGE),
-      kFIRServiceMLVisionOnDeviceAutoML :
-          @(logs_proto_mobilesdk_ios_ICoreConfiguration_ServiceType_ML_VISION_ON_DEVICE_AUTOML),
-      kFIRServiceMLVisionOnDeviceFace :
-          @(logs_proto_mobilesdk_ios_ICoreConfiguration_ServiceType_ML_VISION_ON_DEVICE_FACE),
-      kFIRServiceMLVisionOnDeviceBarcode :
-          @(logs_proto_mobilesdk_ios_ICoreConfiguration_ServiceType_ML_VISION_ON_DEVICE_BARCODE),
-      kFIRServiceMLVisionOnDeviceText :
-          @(logs_proto_mobilesdk_ios_ICoreConfiguration_ServiceType_ML_VISION_ON_DEVICE_TEXT),
-      kFIRServiceMLVisionOnDeviceLabel :
-          @(logs_proto_mobilesdk_ios_ICoreConfiguration_ServiceType_ML_VISION_ON_DEVICE_LABEL),
-      kFIRServiceMLVisionOnDeviceObjectDetection : @(
-          logs_proto_mobilesdk_ios_ICoreConfiguration_ServiceType_ML_VISION_ON_DEVICE_OBJECT_DETECTION),
       kFIRServiceMLModelInterpreter :
           @(logs_proto_mobilesdk_ios_ICoreConfiguration_ServiceType_ML_MODEL_INTERPRETER),
       kGGLServiceAnalytics : @(logs_proto_mobilesdk_ios_ICoreConfiguration_ServiceType_ANALYTICS),
@@ -422,40 +402,6 @@ void FIRPopulateProtoWithInstalledServices(logs_proto_mobilesdk_ios_ICoreConfigu
     [sdkServiceInstalledArray
         addObject:@(FIRMapFromServiceStringToTypeEnum(kFIRServiceMeasurement))];
   }
-  // ML Vision On Device AutoML.
-  if (NSClassFromString(@"FIRVisionOnDeviceAutoMLImageLabelerOptions") != nil) {
-    [sdkServiceInstalledArray
-        addObject:@(FIRMapFromServiceStringToTypeEnum(kFIRServiceMLVisionOnDeviceAutoML))];
-  }
-  // ML Vision On Device Face.
-  if (NSClassFromString(@"FIRVisionFaceDetector") != nil &&
-      NSClassFromString(@"GMVFaceDetector") != nil) {
-    [sdkServiceInstalledArray
-        addObject:@(FIRMapFromServiceStringToTypeEnum(kFIRServiceMLVisionOnDeviceFace))];
-  }
-  // ML Vision On Device Barcode.
-  if (NSClassFromString(@"FIRVisionBarcodeDetector") != nil &&
-      NSClassFromString(@"GMVBarcodeDetector") != nil) {
-    [sdkServiceInstalledArray
-        addObject:@(FIRMapFromServiceStringToTypeEnum(kFIRServiceMLVisionOnDeviceBarcode))];
-  }
-  // ML Vision On Device Text.
-  if (NSClassFromString(@"FIRVisionTextDetector") != nil &&
-      NSClassFromString(@"GMVTextDetector") != nil) {
-    [sdkServiceInstalledArray
-        addObject:@(FIRMapFromServiceStringToTypeEnum(kFIRServiceMLVisionOnDeviceText))];
-  }
-  // ML Vision On Device Image Label.
-  if (NSClassFromString(@"FIRVisionLabelDetector") != nil &&
-      NSClassFromString(@"GMVLabelDetector") != nil) {
-    [sdkServiceInstalledArray
-        addObject:@(FIRMapFromServiceStringToTypeEnum(kFIRServiceMLVisionOnDeviceLabel))];
-  }
-  // ML Vision On Device Object.
-  if (NSClassFromString(@"FIRVisionObjectDetector") != nil) {
-    [sdkServiceInstalledArray
-        addObject:@(FIRMapFromServiceStringToTypeEnum(kFIRServiceMLVisionOnDeviceObjectDetection))];
-  }
   // ML Model Interpreter
   if (NSClassFromString(@"FIRCustomModelInterpreter") != nil) {
     [sdkServiceInstalledArray
@@ -510,8 +456,8 @@ void FIRPopulateProtoWithInstalledServices(logs_proto_mobilesdk_ios_ICoreConfigu
   }
 
   logs_proto_mobilesdk_ios_ICoreConfiguration_ServiceType *servicesInstalled =
-      malloc(sizeof(logs_proto_mobilesdk_ios_ICoreConfiguration_ServiceType) *
-             sdkServiceInstalledArray.count);
+      calloc(sdkServiceInstalledArray.count,
+             sizeof(logs_proto_mobilesdk_ios_ICoreConfiguration_ServiceType));
   if (servicesInstalled == NULL) {
     return;
   }

@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "FIRCLSDemangleOperation.h"
-#include "FIRCLSStackFrame.h"
+#include "Crashlytics/Crashlytics/Operations/Symbolication/FIRCLSDemangleOperation.h"
+#include "Crashlytics/Crashlytics/Private/FIRStackFrame_Private.h"
 
 #import <cxxabi.h>
 
@@ -84,7 +84,7 @@
 }
 
 - (void)main {
-  [self enumerateFramesWithBlock:^(FIRCLSStackFrame *frame) {
+  [self enumerateFramesWithBlock:^(FIRStackFrame *frame) {
     NSString *demangedSymbol = [self demangleSymbol:[[frame rawSymbol] UTF8String]];
 
     if (demangedSymbol) {

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRInstallationsIIDTokenStore.h"
+#import "FirebaseInstallations/Source/Library/IIDMigration/FIRInstallationsIIDTokenStore.h"
 
 #if __has_include(<FBLPromises/FBLPromises.h>)
 #import <FBLPromises/FBLPromises.h>
@@ -22,8 +22,9 @@
 #import "FBLPromises.h"
 #endif
 
-#import "FIRInstallationsErrorUtil.h"
-#import "FIRInstallationsKeychainUtils.h"
+#import <GoogleUtilities/GULKeychainUtils.h>
+
+#import "FirebaseInstallations/Source/Library/Errors/FIRInstallationsErrorUtil.h"
 
 static NSString *const kFIRInstallationsIIDTokenKeychainId = @"com.google.iid-tokens";
 
@@ -118,7 +119,7 @@ static NSString *const kFIRInstallationsIIDTokenKeychainId = @"com.google.iid-to
 
   NSMutableDictionary *keychainQuery = [self IIDDefaultTokenDataKeychainQuery];
   NSError *error;
-  NSData *data = [FIRInstallationsKeychainUtils getItemWithQuery:keychainQuery error:&error];
+  NSData *data = [GULKeychainUtils getItemWithQuery:keychainQuery error:&error];
 
   if (data) {
     [resultPromise fulfill:data];

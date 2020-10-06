@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRCLSDataCollectionArbiter.h"
+#import "Crashlytics/Crashlytics/DataCollection/FIRCLSDataCollectionArbiter.h"
 
 #if __has_include(<FBLPromises/FBLPromises.h>)
 #import <FBLPromises/FBLPromises.h>
@@ -20,9 +20,9 @@
 #import "FBLPromises.h"
 #endif
 
-#import <FirebaseCore/FIRApp.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
-#import "FIRCLSUserDefaults.h"
+#import "Crashlytics/Crashlytics/FIRCLSUserDefaults/FIRCLSUserDefaults.h"
 
 // The legacy data collection setting allows Fabric customers to turn off auto-
 // initialization, but can be overridden by calling [Fabric with:].
@@ -101,8 +101,11 @@ typedef NS_ENUM(NSInteger, FIRCLSDataCollectionSetting) {
       [firebaseCrashlyticsCollectionEnabled isKindOfClass:[NSNumber class]]) {
     return [firebaseCrashlyticsCollectionEnabled boolValue];
   }
-
+#ifdef CRASHLYTICS_INTERNAL
+  return NO;
+#else
   return [app isDataCollectionDefaultEnabled];
+#endif
 }
 
 - (BOOL)isCrashlyticsCollectionEnabled {

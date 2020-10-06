@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-#import <FirebaseCore/FIRApp.h>
 #import <FirebaseFirestore/FirebaseFirestore.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
-#include "Firestore/core/src/firebase/firestore/util/autoid.h"
-#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
-#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
-#include "Firestore/core/test/firebase/firestore/testutil/app_testing.h"
+#include "Firestore/core/src/util/autoid.h"
+#include "Firestore/core/src/util/hard_assert.h"
+#include "Firestore/core/src/util/string_apple.h"
+#include "Firestore/core/test/unit/testutil/app_testing.h"
 #include "benchmark/benchmark.h"
 
 namespace {
@@ -61,7 +61,7 @@ NSMutableDictionary<NSString*, id>* MakeDocumentData() {
   return doc;
 }
 
-FIRQuerySnapshot* GetDocuments(FIRQuery* query) {
+FIRQuerySnapshot* GetDocumentsFromCache(FIRQuery* query) {
   __block FIRQuerySnapshot* result;
   dispatch_semaphore_t done = dispatch_semaphore_create(0);
   [query getDocumentsWithSource:FIRFirestoreSourceCache
@@ -74,9 +74,22 @@ FIRQuerySnapshot* GetDocuments(FIRQuery* query) {
   return result;
 }
 
+FIRQuerySnapshot* GetDocumentsFromServer(FIRQuery* query) {
+  __block FIRQuerySnapshot* result;
+  dispatch_semaphore_t done = dispatch_semaphore_create(0);
+  [query getDocumentsWithSource:FIRFirestoreSourceServer
+                     completion:^(FIRQuerySnapshot* snap, NSError* error) {
+                       HARD_ASSERT(error == nil, "Failed: %s", MakeString([error description]));
+                       result = snap;
+                       dispatch_semaphore_signal(done);
+                     }];
+  dispatch_semaphore_wait(done, DISPATCH_TIME_FOREVER);
+  return result;
+}
+
 void WaitForPendingWrites(FIRFirestore* db) {
   dispatch_semaphore_t done = dispatch_semaphore_create(0);
-  [db waitForPendingWritesWithCompletion:^(NSError* error) {
+  [db waitForPendingWritesWithCompletion:^(NSError*) {
     dispatch_semaphore_signal(done);
   }];
   dispatch_semaphore_wait(done, DISPATCH_TIME_FOREVER);
@@ -94,11 +107,45 @@ void WriteDocs(FIRCollectionReference* collection, int64_t count, bool match) {
 
 void Shutdown(FIRFirestore* db) {
   dispatch_semaphore_t done = dispatch_semaphore_create(0);
-  [db terminateWithCompletion:^(NSError* error) {
+  [db terminateWithCompletion:^(NSError*) {
     dispatch_semaphore_signal(done);
   }];
   dispatch_semaphore_wait(done, DISPATCH_TIME_FOREVER);
 }
+
+void BM_QueryIndexFree(benchmark::State& state) {
+  int64_t matching_docs = state.range(0);
+  int64_t total_docs = state.range(1);
+
+  FIRFirestore* db = OpenFirestore();
+  auto collection = [db collectionWithPath:MakeNSString("docs-" + CreateAutoId())];
+  WriteDocs(collection, matching_docs, /*match=*/true);
+  WriteDocs(collection, total_docs - matching_docs, /*match=*/false);
+
+  FIRQuery* query = [collection queryWhereField:@"match" isEqualTo:@YES];
+
+  // Query the server to force the target tables to be updated.
+  GetDocumentsFromServer(query);
+
+  for (auto _ : state) {
+    auto docs = GetDocumentsFromCache(query);
+    (void)docs;
+  }
+
+  Shutdown(db);
+}
+BENCHMARK(BM_QueryIndexFree)
+    ->Unit(benchmark::kMicrosecond)
+    ->Args({0, 1})
+    ->Args({1, 1})
+    ->Args({1, 10})
+    ->Args({10, 10})
+    ->Args({1, 100})
+    ->Args({100, 100})
+    ->Args({1, 1000})
+    ->Args({10, 1000})
+    ->Args({100, 1000})
+    ->Args({1000, 1000});
 
 void BM_QueryMatching(benchmark::State& state) {
   int64_t matching_docs = state.range(0);
@@ -106,11 +153,11 @@ void BM_QueryMatching(benchmark::State& state) {
 
   FIRFirestore* db = OpenFirestore();
   auto collection = [db collectionWithPath:MakeNSString("docs-" + CreateAutoId())];
-  WriteDocs(collection, matching_docs, /* match= */ true);
-  WriteDocs(collection, total_docs - matching_docs, /* match= */ false);
+  WriteDocs(collection, matching_docs, /*match=*/true);
+  WriteDocs(collection, total_docs - matching_docs, /*match=*/false);
 
   for (auto _ : state) {
-    auto docs = GetDocuments([collection queryWhereField:@"match" isEqualTo:@YES]);
+    auto docs = GetDocumentsFromCache([collection queryWhereField:@"match" isEqualTo:@YES]);
     (void)docs;
   }
 
@@ -134,10 +181,10 @@ void BM_QueryAll(benchmark::State& state) {
 
   FIRFirestore* db = OpenFirestore();
   auto collection = [db collectionWithPath:MakeNSString("docs-" + CreateAutoId())];
-  WriteDocs(collection, total_docs, /* match= */ true);
+  WriteDocs(collection, total_docs, /*match=*/true);
 
   for (auto _ : state) {
-    auto docs = GetDocuments(collection);
+    auto docs = GetDocumentsFromCache(collection);
     (void)docs;
   }
 

@@ -16,27 +16,56 @@
 # Script to run in a CI `before_install` phase to setup the quickstart repo
 # so that it can be used for integration testing.
 
-if [[ "$TRAVIS_PULL_REQUEST" == "false" ||
-      "$TRAVIS_PULL_REQUEST_SLUG" == "$TRAVIS_REPO_SLUG" ]]; then
-  SAMPLE=$1
+set -xeuo pipefail
+
+scripts_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+root_dir="$(dirname "$scripts_dir")"
+
+$scripts_dir/setup_bundler.sh
+
+# Source function to check if CI secrets are available.
+source $scripts_dir/check_secrets.sh
+
+SAMPLE=$1
+
+RELEASE_TESTING=${2-}
+
+# Installations is the only quickstart that doesn't need a real
+# GoogleService-Info.plist for its tests.
+if check_secrets || [[ ${SAMPLE} == "installations" ]]; then
 
   # Specify repo so the Firebase module and header can be found in a
   # development pod install. This is needed for the `pod install` command.
   export FIREBASE_POD_REPO_FOR_DEV_POD=`pwd`
 
   git clone https://github.com/firebase/quickstart-ios.git
-  ./scripts/localize_podfile.swift quickstart-ios/"$SAMPLE"/Podfile
+  $scripts_dir/localize_podfile.swift quickstart-ios/"$SAMPLE"/Podfile "$RELEASE_TESTING"
+  if [ "$RELEASE_TESTING" == "nightly_release_testing" ]; then
+    set +x
+    sed -i "" '1i\'$'\n'"source 'https://${BOT_TOKEN}@github.com/FirebasePrivate/SpecsTesting.git'"$'\n' quickstart-ios/"$SAMPLE"/Podfile
+    set -x
+    echo "Source of Podfile for nightly release testing is updated."
+  fi
+  if [ "$RELEASE_TESTING" == "prerelease_testing" ]; then
+    set +x
+    sed -i "" '1i\'$'\n'"source 'https://${BOT_TOKEN}@github.com/FirebasePrivate/SpecsReleasing.git'"$'\n' quickstart-ios/"$SAMPLE"/Podfile
+    set -x
+    echo "Source of Podfile for prerelease testing is updated."
+  fi
   cd quickstart-ios/"$SAMPLE"
 
   # To test a branch, uncomment the following line
   # git checkout {BRANCH_NAME}
 
-  bundle exec pod install
-  TRAVIS_PULL_REQUEST="$TRAVIS_PULL_REQUEST" TRAVIS_PULL_REQUEST_SLUG=$"TRAVIS_PULL_REQUEST_SLUG" \
-    ../scripts/install_prereqs/"$SAMPLE".sh
-  # Secrets are repo specific, so we need to override with the firebase-ios-sdk
-  # version.
-  cp ../../Secrets/quickstart-ios/"$SAMPLE"/GoogleService-Info.plist ./
-  cp ../../Secrets/quickstart-ios/TestUtils/FIREGSignInInfo.h ../TestUtils/
+  bundle update --bundler
+  bundle install
+  if [ -n "$RELEASE_TESTING" ]; then
+    bundle exec pod update --silent
+  else
+    bundle exec pod install
+  fi
+
+  # Add GoogleService-Info.plist to Xcode project
+  ruby ../scripts/info_script.rb "${SAMPLE}"
   cd -
 fi

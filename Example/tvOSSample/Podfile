@@ -1,18 +1,15 @@
-# Uncomment the next line to define a global platform for your project
-# platform :ios, '9.0'
 
 target 'tvOSSample' do
+  platform :tvos, '11.0'
   # Comment the next line if you're not using Swift and don't want to use dynamic frameworks
   use_frameworks!
 
   # Pods for tvOSSample
   pod 'FirebaseCore', :path => '../../'
   pod 'FirebaseCoreDiagnostics', :path => '../../'
-  pod 'FirebaseCoreDiagnosticsInterop', :path => '../../'
   pod 'FirebaseAuth', :path => '../../'
   pod 'FirebaseDatabase', :path => '../../'
   pod 'FirebaseStorage', :path => '../../'
   pod 'GoogleDataTransport', :path => '../../'
-  pod 'GoogleDataTransportCCTSupport', :path => '../../'
 
 end

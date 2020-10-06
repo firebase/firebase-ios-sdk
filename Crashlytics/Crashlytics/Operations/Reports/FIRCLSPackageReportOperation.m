@@ -12,20 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRCLSPackageReportOperation.h"
+#import "Crashlytics/Crashlytics/Operations/Reports/FIRCLSPackageReportOperation.h"
 
 #include <errno.h>
 #include <zlib.h>
 
-#import "FIRCLSFileManager.h"
-#import "FIRCLSInternalReport.h"
+#import "Crashlytics/Crashlytics/Models/FIRCLSFileManager.h"
+#import "Crashlytics/Crashlytics/Models/FIRCLSInternalReport.h"
 
-#import "FIRCLSUtility.h"
+#import "Crashlytics/Crashlytics/Helpers/FIRCLSUtility.h"
 
-#import "FIRCLSByteUtility.h"
-#import "FIRCLSMultipartMimeStreamEncoder.h"
+#import "Crashlytics/Shared/FIRCLSByteUtility.h"
+#import "Crashlytics/Shared/FIRCLSNetworking/FIRCLSMultipartMimeStreamEncoder.h"
 
-#import "FIRCLSSettings.h"
+#import "Crashlytics/Crashlytics/Models/FIRCLSSettings.h"
 
 @interface FIRCLSPackageReportOperation ()
 
@@ -97,7 +97,7 @@
 }
 
 - (NSString *)destinationDirectory {
-  return [self.fileManager preparedPath];
+  return [self.fileManager legacyPreparedPath];
 }
 
 - (NSString *)packagedPathWithName:(NSString *)name {

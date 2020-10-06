@@ -19,11 +19,11 @@
 #import <XCTest/XCTest.h>
 
 #import "Firestore/Example/Tests/Util/XCTestCase+Await.h"
-#import "Firestore/Source/Public/FIRDocumentSnapshot.h"
-#import "Firestore/Source/Public/FIRQuerySnapshot.h"
-#import "Firestore/Source/Public/FIRSnapshotMetadata.h"
+#import "Firestore/Source/Public/FirebaseFirestore/FIRDocumentSnapshot.h"
+#import "Firestore/Source/Public/FirebaseFirestore/FIRQuerySnapshot.h"
+#import "Firestore/Source/Public/FirebaseFirestore/FIRSnapshotMetadata.h"
 
-#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "Firestore/core/src/util/hard_assert.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -97,7 +97,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void (^)(id _Nullable, NSError *_Nullable))valueEventHandler {
-  return ^void(id _Nullable value, NSError *_Nullable error) {
+  return ^void(id _Nullable value, NSError *) {
     // We can't store nil in the _events array, but these are still interesting to tests so store
     // NSNull instead.
     id event = value ? value : [NSNull null];

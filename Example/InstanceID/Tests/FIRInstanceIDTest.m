@@ -16,12 +16,11 @@
 
 #import <XCTest/XCTest.h>
 
-#import <FirebaseInstallations/FIRInstallations.h>
+#import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
 
-#import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseCore/FIROptionsInternal.h>
-#import <FirebaseInstanceID/FIRInstanceID_Private.h>
 #import <OCMock/OCMock.h>
+#import "Firebase/InstanceID/Private/FIRInstanceID_Private.h"
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 #import "Firebase/InstanceID/FIRInstanceIDAuthService.h"
 #import "Firebase/InstanceID/FIRInstanceIDCheckinPreferences+Internal.h"
@@ -76,7 +75,10 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
 @interface FIRInstanceIDTest : XCTestCase
 
 @property(nonatomic, readwrite, assign) BOOL hasCheckinInfo;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 @property(nonatomic, readwrite, strong) FIRInstanceID *instanceID;
+#pragma clang diagnostic pop
 @property(nonatomic, readwrite, strong) id mockInstanceID;
 @property(nonatomic, readwrite, strong) id mockTokenManager;
 @property(nonatomic, readwrite, strong) id mockInstallations;
@@ -90,6 +92,8 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
 
 @implementation FIRInstanceIDTest
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 - (void)setUp {
   [super setUp];
 
@@ -135,8 +139,11 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
   _instanceID.fcmSenderID = kAuthorizedEntity;
   self.mockInstanceID = OCMPartialMock(_instanceID);
   [self.mockInstanceID setTokenManager:self.mockTokenManager];
-
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   id instanceIDClassMock = OCMClassMock([FIRInstanceID class]);
+#pragma clang diagnostic pop
+
   OCMStub(ClassMethod([instanceIDClassMock minIntervalForDefaultTokenRetry])).andReturn(2);
   OCMStub(ClassMethod([instanceIDClassMock maxRetryIntervalForDefaultTokenInSeconds]))
       .andReturn(10);
@@ -147,6 +154,8 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
  *  FIRInstanceID with an associated FIRInstanceIDTokenManager.
  */
 - (void)testSharedInstance {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   // The shared instance should be `nil` before the app is configured.
   XCTAssertNil([FIRInstanceID instanceID]);
 
@@ -169,8 +178,7 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
 
   // Verify FirebaseInstallations requested for FID.
   OCMVerifyAll(self.mockInstallations);
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+
   XCTAssertEqualObjects([instanceID appInstanceID:NULL], @"fid");
 #pragma clang diagnostic pop
 
@@ -1471,5 +1479,6 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
     return YES;
   }];
 }
+#pragma clang diagnostic pop
 
 @end

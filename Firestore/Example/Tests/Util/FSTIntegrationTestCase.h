@@ -81,8 +81,7 @@ extern "C" {
 - (void)writeAllDocuments:(NSDictionary<NSString *, NSDictionary<NSString *, id> *> *)documents
              toCollection:(FIRCollectionReference *)collection;
 
-- (void)readerAndWriterOnDocumentRef:(void (^)(NSString *path,
-                                               FIRDocumentReference *readerRef,
+- (void)readerAndWriterOnDocumentRef:(void (^)(FIRDocumentReference *readerRef,
                                                FIRDocumentReference *writerRef))action;
 
 - (FIRDocumentSnapshot *)readDocumentForRef:(FIRDocumentReference *)ref;

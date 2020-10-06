@@ -17,12 +17,12 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
-#import "FIRIAMAnalyticsEventLoggerImpl.h"
-#import "FIRIAMClearcutLogger.h"
+#import "FirebaseInAppMessaging/Sources/Analytics/FIRIAMAnalyticsEventLoggerImpl.h"
+#import "FirebaseInAppMessaging/Sources/Private/Analytics/FIRIAMClearcutLogger.h"
 
-#import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
-#import <FirebaseAnalyticsInterop/FIRInteropEventNames.h>
-#import <FirebaseAnalyticsInterop/FIRInteropParameterNames.h>
+#import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
+#import "Interop/Analytics/Public/FIRInteropEventNames.h"
+#import "Interop/Analytics/Public/FIRInteropParameterNames.h"
 
 @interface FIRIAMAnalyticsEventLoggerImplTests : XCTestCase
 @property(nonatomic) FIRIAMClearcutLogger *mockClearcutLogger;

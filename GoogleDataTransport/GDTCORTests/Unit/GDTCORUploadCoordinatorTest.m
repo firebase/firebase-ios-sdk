@@ -14,27 +14,25 @@
  * limitations under the License.
  */
 
-#import "GDTCORTests/Unit/GDTCORTestCase.h"
+#import "GoogleDataTransport/GDTCORTests/Unit/GDTCORTestCase.h"
 
-#import "GDTCORLibrary/Private/GDTCORUploadCoordinator.h"
+#import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORPlatform.h"
 
-#import "GDTCORTests/Common/Categories/GDTCORRegistrar+Testing.h"
-#import "GDTCORTests/Common/Categories/GDTCORUploadCoordinator+Testing.h"
+#import "GoogleDataTransport/GDTCORLibrary/Private/GDTCORFlatFileStorage.h"
+#import "GoogleDataTransport/GDTCORLibrary/Private/GDTCORUploadCoordinator.h"
 
-#import "GDTCORTests/Common/Fakes/GDTCORStorageFake.h"
+#import "GoogleDataTransport/GDTCORTests/Common/Categories/GDTCORRegistrar+Testing.h"
+#import "GoogleDataTransport/GDTCORTests/Common/Categories/GDTCORUploadCoordinator+Testing.h"
 
-#import "GDTCORTests/Unit/Helpers/GDTCOREventGenerator.h"
-#import "GDTCORTests/Unit/Helpers/GDTCORTestPrioritizer.h"
-#import "GDTCORTests/Unit/Helpers/GDTCORTestUploadPackage.h"
-#import "GDTCORTests/Unit/Helpers/GDTCORTestUploader.h"
+#import "GoogleDataTransport/GDTCORTests/Common/Fakes/GDTCORStorageFake.h"
+
+#import "GoogleDataTransport/GDTCORTests/Unit/Helpers/GDTCOREventGenerator.h"
+#import "GoogleDataTransport/GDTCORTests/Unit/Helpers/GDTCORTestUploader.h"
 
 @interface GDTCORUploadCoordinatorTest : GDTCORTestCase
 
 /** A storage fake to inject into GDTCORUploadCoordinator. */
 @property(nonatomic) GDTCORStorageFake *storageFake;
-
-/** A test prioritizer. */
-@property(nonatomic) GDTCORTestPrioritizer *prioritizer;
 
 /** A test uploader. */
 @property(nonatomic) GDTCORTestUploader *uploader;
@@ -46,14 +44,12 @@
 - (void)setUp {
   [super setUp];
   self.storageFake = [[GDTCORStorageFake alloc] init];
-  self.prioritizer = [[GDTCORTestPrioritizer alloc] init];
   self.uploader = [[GDTCORTestUploader alloc] init];
 
-  [[GDTCORRegistrar sharedInstance] registerPrioritizer:_prioritizer target:kGDTCORTargetTest];
   [[GDTCORRegistrar sharedInstance] registerUploader:_uploader target:kGDTCORTargetTest];
 
   GDTCORUploadCoordinator *uploadCoordinator = [GDTCORUploadCoordinator sharedInstance];
-  uploadCoordinator.storage = self.storageFake;
+  [[GDTCORRegistrar sharedInstance] registerStorage:self.storageFake target:kGDTCORTargetTest];
   uploadCoordinator.timerInterval = NSEC_PER_SEC;
   uploadCoordinator.timerLeeway = 0;
 }
@@ -63,7 +59,6 @@
   [[GDTCORUploadCoordinator sharedInstance] reset];
   [[GDTCORRegistrar sharedInstance] reset];
   self.storageFake = nil;
-  self.prioritizer = nil;
   self.uploader = nil;
 }
 
@@ -75,11 +70,11 @@
 
 /** Tests that forcing a event upload works. */
 - (void)testForceUploadEvents {
-  self.prioritizer.events = [GDTCOREventGenerator generate3StoredEvents];
   XCTestExpectation *expectation = [self expectationWithDescription:@"uploader will upload"];
-  self.uploader.uploadPackageBlock = ^(GDTCORUploadPackage *_Nonnull package) {
-    [expectation fulfill];
-  };
+  self.uploader.uploadWithConditionsBlock =
+      ^(GDTCORTarget target, GDTCORUploadConditions conditions) {
+        [expectation fulfill];
+      };
   XCTAssertNoThrow(
       [[GDTCORUploadCoordinator sharedInstance] forceUploadForTarget:kGDTCORTargetTest]);
   [self waitForExpectations:@[ expectation ] timeout:1.0];
@@ -88,9 +83,10 @@
 /** Tests the timer is running at the desired frequency. */
 - (void)testTimerIsRunningAtDesiredFrequency {
   __block int numberOfTimesCalled = 0;
-  self.prioritizer.uploadPackageWithConditionsBlock = ^{
-    numberOfTimesCalled++;
-  };
+  self.uploader.uploadWithConditionsBlock =
+      ^(GDTCORTarget target, GDTCORUploadConditions conditions) {
+        numberOfTimesCalled++;
+      };
   dispatch_sync([GDTCORUploadCoordinator sharedInstance].coordinationQueue, ^{
     // Timer should fire 1 times a second.
     [GDTCORUploadCoordinator sharedInstance].timerInterval = NSEC_PER_SEC;
@@ -108,34 +104,27 @@
   });
 }
 
-/** Tests uploading events via the coordinator timer. */
-- (void)testUploadingEventsViaTimer {
-  __block int uploadAttempts = 0;
-  self.prioritizer.events = [GDTCOREventGenerator generate3StoredEvents];
-  self.uploader.uploadPackageBlock = ^(GDTCORUploadPackage *_Nonnull package) {
-    [package completeDelivery];
-    uploadAttempts++;
-  };
-  [GDTCORUploadCoordinator sharedInstance].timerInterval = NSEC_PER_SEC / 10;
-  [GDTCORUploadCoordinator sharedInstance].timerLeeway = 0;
-
-  [[GDTCORUploadCoordinator sharedInstance] startTimer];
-
-  [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
-  dispatch_sync([GDTCORUploadCoordinator sharedInstance].coordinationQueue, ^{
-    // More than two attempts should have been made.
-    XCTAssertGreaterThan(uploadAttempts, 2);
-  });
-}
-
 /** Tests the situation in which the uploader failed to upload the events for some reason. */
 - (void)testThatAFailedUploadResultsInAnEventualRetry {
+  id<GDTCORStorageProtocol> storage = self.storageFake;
   __block int uploadAttempts = 0;
-  self.prioritizer.events = [GDTCOREventGenerator generate3StoredEvents];
-  self.uploader.uploadPackageBlock = ^(GDTCORUploadPackage *_Nonnull package) {
-    [package retryDeliveryInTheFuture];
-    uploadAttempts++;
-  };
+  [[GDTCOREventGenerator generate3Events]
+      enumerateObjectsUsingBlock:^(GDTCOREvent *_Nonnull obj, BOOL *_Nonnull stop) {
+        [self.storageFake storeEvent:obj onComplete:nil];
+      }];
+  __block NSNumber *batchID;
+  [storage
+      batchWithEventSelector:[GDTCORStorageEventSelector eventSelectorForTarget:kGDTCORTargetTest]
+             batchExpiration:[NSDate dateWithTimeIntervalSinceNow:600.0]
+                  onComplete:^(NSNumber *_Nullable newBatchID,
+                               NSSet<GDTCOREvent *> *_Nullable events) {
+                    batchID = newBatchID;
+                  }];
+  self.uploader.uploadWithConditionsBlock =
+      ^(GDTCORTarget target, GDTCORUploadConditions conditions) {
+        [storage removeBatchWithID:batchID deleteEvents:NO onComplete:nil];
+        uploadAttempts++;
+      };
   [GDTCORUploadCoordinator sharedInstance].timerInterval = NSEC_PER_SEC / 10;
   [GDTCORUploadCoordinator sharedInstance].timerLeeway = 0;
 
@@ -146,18 +135,6 @@
     // More than two attempts should have been made.
     XCTAssertGreaterThan(uploadAttempts, 2);
   });
-}
-
-/** Tests that encoding and decoding works without crashing. */
-- (void)testNSSecureCoding {
-  GDTCORUploadPackage *package = [[GDTCORUploadPackage alloc] initWithTarget:kGDTCORTargetTest];
-  GDTCORUploadCoordinator *coordinator = [[GDTCORUploadCoordinator alloc] init];
-  coordinator.targetToInFlightPackages[@(kGDTCORTargetTest)] = package;
-  NSData *data = [NSKeyedArchiver archivedDataWithRootObject:coordinator];
-
-  // Unarchiving the coordinator always ends up altering the singleton instance.
-  GDTCORUploadCoordinator *unarchivedCoordinator = [NSKeyedUnarchiver unarchiveObjectWithData:data];
-  XCTAssertEqualObjects([GDTCORUploadCoordinator sharedInstance], unarchivedCoordinator);
 }
 
 @end

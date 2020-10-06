@@ -16,21 +16,17 @@
 
 #import <Foundation/Foundation.h>
 
-#import <GoogleDataTransport/GDTCORLifecycle.h>
-#import <GoogleDataTransport/GDTCORRegistrar.h>
-
-#import "GDTCORLibrary/Private/GDTCORUploadPackage_Private.h"
+#import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORLifecycle.h"
+#import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORRegistrar.h"
 
 @class GDTCORClock;
-@class GDTCORStorage;
 
 NS_ASSUME_NONNULL_BEGIN
 
 /** This class connects storage and uploader implementations, providing events to an uploader
  * and informing the storage what events were successfully uploaded or not.
  */
-@interface GDTCORUploadCoordinator
-    : NSObject <NSSecureCoding, GDTCORLifecycleProtocol, GDTCORUploadPackageProtocol>
+@interface GDTCORUploadCoordinator : NSObject <GDTCORLifecycleProtocol>
 
 /** The queue on which all upload coordination will occur. Also used by a dispatch timer. */
 /** Creates and/or returrns the singleton.
@@ -38,23 +34,18 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The singleton instance of this class.
  */
 + (instancetype)sharedInstance;
+
+/** The queue on which all upload coordination will occur. */
 @property(nonatomic, readonly) dispatch_queue_t coordinationQueue;
 
 /** A timer that will causes regular checks for events to upload. */
-@property(nonatomic, readonly) dispatch_source_t timer;
+@property(nonatomic, readonly, nullable) dispatch_source_t timer;
 
 /** The interval the timer will fire. */
 @property(nonatomic, readonly) uint64_t timerInterval;
 
 /** Some leeway given to libdispatch for the timer interval event. */
 @property(nonatomic, readonly) uint64_t timerLeeway;
-
-/** The map of targets to in-flight packages. */
-@property(nonatomic, readonly)
-    NSMutableDictionary<NSNumber *, GDTCORUploadPackage *> *targetToInFlightPackages;
-
-/** The storage object the coordinator will use. Generally used for testing. */
-@property(nonatomic) GDTCORStorage *storage;
 
 /** The registrar object the coordinator will use. Generally used for testing. */
 @property(nonatomic) GDTCORRegistrar *registrar;

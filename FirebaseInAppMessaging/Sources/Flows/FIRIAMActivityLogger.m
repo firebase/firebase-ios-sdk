@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
+
 #import <UIKit/UIKit.h>
 
-#import <FirebaseCore/FIRLogger.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
-#import "FIRCore+InAppMessaging.h"
-#import "FIRIAMActivityLogger.h"
+#import "FirebaseInAppMessaging/Sources/FIRCore+InAppMessaging.h"
+#import "FirebaseInAppMessaging/Sources/Private/Flows/FIRIAMActivityLogger.h"
 @implementation FIRIAMActivityRecord
 
 static NSString *const kActiveTypeArchiveKey = @"type";
@@ -220,3 +223,5 @@ static NSString *const kDetailArchiveKey = @"detail";
   return [self.activityRecords copy];
 }
 @end
+
+#endif  // TARGET_OS_IOS

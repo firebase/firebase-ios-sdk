@@ -21,10 +21,10 @@
 #import "Firestore/Example/FuzzTests/FuzzingTargets/FSTFuzzTestSerializer.h"
 
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
-#include "Firestore/core/src/firebase/firestore/model/database_id.h"
-#include "Firestore/core/src/firebase/firestore/nanopb/message.h"
-#include "Firestore/core/src/firebase/firestore/nanopb/reader.h"
-#include "Firestore/core/src/firebase/firestore/remote/serializer.h"
+#include "Firestore/core/src/model/database_id.h"
+#include "Firestore/core/src/nanopb/message.h"
+#include "Firestore/core/src/nanopb/reader.h"
+#include "Firestore/core/src/remote/serializer.h"
 
 namespace firebase {
 namespace firestore {

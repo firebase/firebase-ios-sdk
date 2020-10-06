@@ -1,5 +1,86 @@
 # Unreleased
 
+# v1.19.0
+- [changed] Internal improvements for future C++ and Unity support. Includes a
+  breaking change for the Firestore C++ Alpha SDK, but does not affect
+  Objective-C or Swift users.
+- [changed] Added new internal HTTP headers to the gRPC connection.
+
+# v1.18.0
+- [feature] Added `whereField(_:notIn:)` and `whereField(_:isNotEqualTo:)` query
+  operators. `whereField(_:notIn:)` finds documents where a specified field’s
+  value is not in a specified array. `whereField(_:isNotEqualTo:)` finds
+  documents where a specified field's value does not equal the specified value.
+  Neither query operator will match documents where the specified field is not
+  present.
+
+# v1.17.1
+- [fixed] Fix gRPC documentation warning surfaced in Xcode (#6340).
+
+# v1.17.0
+- [changed] Internal improvements for future C++ and Unity support.
+
+# v1.16.4
+- [changed] Rearranged public headers for future Swift Package Manager support.
+  This should have no impact existing users of CocoaPods, Carthage, or zip file
+  distributions.
+
+# v1.16.3
+- [changed] Internal improvements for future C++ and Unity support.
+
+# v1.16.2
+- [fixed] Fixed a configuration issue where listeners were no longer being
+  called back on the main thread by default.
+
+# v1.16.1
+- [fixed] Removed a delay that may have prevented Firestore from immediately
+  establishing a network connection if a connectivity change occurred while
+  the app was in the background (#5783).
+- [fixed] Fixed a rare crash that could happen if the garbage collection
+  process for old documents in the cache happened to run during a LevelDB
+  compaction (#5881).
+
+# v1.16.0
+- [fixed] Fixed an issue that may have prevented the client from connecting
+  to the backend immediately after a user signed in.
+
+# v1.15.0
+- [changed] Internal improvements for future C++ and Unity support. Includes a
+  breaking change for the Firestore C++ Alpha SDK, but does not affect
+  Objective-C or Swift users.
+
+# v1.14.0
+- [changed] Internal improvements for future C++ and Unity support. Includes a
+  breaking change for the Firestore C++ Alpha SDK, but does not affect
+  Objective-C or Swift users.
+
+# v1.13.0
+- [changed] Firestore now limits the number of concurrent document lookups it
+  will perform when resolving inconsistencies in the local cache
+  (https://github.com/firebase/firebase-js-sdk/issues/2683).
+- [changed] Upgraded gRPC-C++ to 1.28.0 (#4994).
+- [fixed] Firestore will now send Auth credentials to the Firestore Emulator
+  (#5072).
+
+# v1.12.1
+- [changed] Internal improvements for future C++ and Unity support.
+
+# v1.12.0
+- [changed] Internal improvements for future C++ and Unity support. Includes a
+  breaking change for the Firestore C++ Alpha SDK, but does not affect
+  Objective-C or Swift users.
+
+# v1.11.2
+- [fixed] Fixed the FirebaseFirestore podspec to properly declare its
+  dependency on the UIKit framework on iOS and tvOS.
+
+# v1.11.1
+- [fixed] Firestore should now recover its connection to the server more
+  quickly after returning from the background (#4905).
+
+# v1.11.0
+- [changed] Improved performance of queries with large result sets.
+
 # v1.10.2
 - [changed] Internal improvements.
 

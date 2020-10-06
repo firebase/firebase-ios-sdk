@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
+
 #import "FirebaseDynamicLinks/Sources/FIRDLDefaultRetrievalProcessV2.h"
 
 #import <UIKit/UIKit.h>
@@ -22,9 +25,6 @@
 #import "FirebaseDynamicLinks/Sources/FIRDynamicLink+Private.h"
 #import "FirebaseDynamicLinks/Sources/FIRDynamicLinkNetworking.h"
 #import "FirebaseDynamicLinks/Sources/Utilities/FDLUtilities.h"
-
-// The maximum number of successful fingerprint api calls.
-const static NSUInteger kMaximumNumberOfSuccessfulFingerprintAPICalls = 2;
 
 // Reason for this string to ensure that only FDL links, copied to clipboard by AppPreview Page
 // JavaScript code, are recognized and used in copy-unique-match process. If user copied FDL to
@@ -37,13 +37,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRDLDefaultRetrievalProcessV2 () <FIRDLJavaScriptExecutorDelegate>
 
-@property(atomic, strong) NSMutableArray *requestResults;
-
 @end
 
 @implementation FIRDLDefaultRetrievalProcessV2 {
   FIRDynamicLinkNetworking *_networkingService;
-  NSString *_clientID;
   NSString *_URLScheme;
   NSString *_APIKey;
   NSString *_FDLSDKVersion;
@@ -57,23 +54,18 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - Initialization
 
 - (instancetype)initWithNetworkingService:(FIRDynamicLinkNetworking *)networkingService
-                                 clientID:(NSString *)clientID
                                 URLScheme:(NSString *)URLScheme
                                    APIKey:(NSString *)APIKey
                             FDLSDKVersion:(NSString *)FDLSDKVersion
                                  delegate:(id<FIRDLRetrievalProcessDelegate>)delegate {
   NSParameterAssert(networkingService);
-  NSParameterAssert(clientID);
   NSParameterAssert(URLScheme);
   NSParameterAssert(APIKey);
   if (self = [super init]) {
     _networkingService = networkingService;
-    _clientID = [clientID copy];
     _URLScheme = [URLScheme copy];
     _APIKey = [APIKey copy];
     _FDLSDKVersion = [FDLSDKVersion copy];
-    self.requestResults =
-        [[NSMutableArray alloc] initWithCapacity:kMaximumNumberOfSuccessfulFingerprintAPICalls];
     _delegate = delegate;
   }
   return self;
@@ -87,10 +79,6 @@ NS_ASSUME_NONNULL_BEGIN
   } else {
     [self fetchLocaleFromWebView];
   }
-}
-
-- (BOOL)isCompleted {
-  return self.requestResults.count >= kMaximumNumberOfSuccessfulFingerprintAPICalls;
 }
 
 #pragma mark - FIRDLJavaScriptExecutorDelegate
@@ -131,11 +119,6 @@ NS_ASSUME_NONNULL_BEGIN
         if (!strongSelf) {
           return;
         }
-        if (strongSelf.completed) {
-          // we may abort process and return previously found dynamic link before all requests
-          // completed
-          return;
-        }
 
         FIRDynamicLink *dynamicLink;
         if (dynamicLinkParameters.count) {
@@ -147,8 +130,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                              message:matchMessage
                                                          matchSource:nil];
 
-        [strongSelf.requestResults addObject:result];
-        [strongSelf handleRequestResultsUpdated];
+        [strongSelf handleRetrievalProcessWithResult:result];
         if (!error) {
           [strongSelf clearUsedUniqueMatchLinkToCheckFromClipboard];
         }
@@ -157,8 +139,7 @@ NS_ASSUME_NONNULL_BEGIN
   // Disable deprecated warning for internal methods.
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  // If not unique match, we send request twice, since there are two server calls:
-  // one for IPv4, another for IPV6.
+  // If there is not a unique match, we will send an additional request for fingerprinting.
   [_networkingService
       retrievePendingDynamicLinkWithIOSVersion:[UIDevice currentDevice].systemVersion
                               resolutionHeight:resolutionHeight
@@ -178,99 +159,22 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma clang pop
 }
 
-- (NSArray<FIRDLRetrievalProcessResult *> *)foundResultsWithDynamicLinks {
-  NSPredicate *predicate =
-      [NSPredicate predicateWithBlock:^BOOL(id _Nullable evaluatedObject,
-                                            NSDictionary<NSString *, id> *_Nullable bindings) {
-        if ([evaluatedObject isKindOfClass:[FIRDLRetrievalProcessResult class]]) {
-          FIRDLRetrievalProcessResult *result = (FIRDLRetrievalProcessResult *)evaluatedObject;
-          return result.dynamicLink.url != nil;
-        }
-        return NO;
-      }];
-  return [self.requestResults filteredArrayUsingPredicate:predicate];
-}
-
-- (NSArray<FIRDLRetrievalProcessResult *> *)resultsWithErrors {
-  NSPredicate *predicate =
-      [NSPredicate predicateWithBlock:^BOOL(id _Nullable evaluatedObject,
-                                            NSDictionary<NSString *, id> *_Nullable bindings) {
-        if ([evaluatedObject isKindOfClass:[FIRDLRetrievalProcessResult class]]) {
-          FIRDLRetrievalProcessResult *result = (FIRDLRetrievalProcessResult *)evaluatedObject;
-          return result.error != nil;
-        }
-        return NO;
-      }];
-  return [self.requestResults filteredArrayUsingPredicate:predicate];
-}
-
-- (NSArray<FIRDLRetrievalProcessResult *> *)results {
-  NSPredicate *predicate =
-      [NSPredicate predicateWithBlock:^BOOL(id _Nullable evaluatedObject,
-                                            NSDictionary<NSString *, id> *_Nullable bindings) {
-        return [evaluatedObject isKindOfClass:[FIRDLRetrievalProcessResult class]];
-      }];
-  return [self.requestResults filteredArrayUsingPredicate:predicate];
-}
-
-- (nullable FIRDLRetrievalProcessResult *)resultWithUniqueMatchedDynamicLink {
-  // return result with unique-matched dynamic link if found
-  NSArray<FIRDLRetrievalProcessResult *> *foundResultsWithDynamicLinks =
-      [self foundResultsWithDynamicLinks];
-  for (FIRDLRetrievalProcessResult *result in foundResultsWithDynamicLinks) {
-    if (result.dynamicLink.matchType == FIRDLMatchTypeUnique) {
-      return result;
-    }
+- (void)handleRetrievalProcessWithResult:(FIRDLRetrievalProcessResult *)result {
+  if (!result) {
+    // if we did not get any results, construct one
+    NSString *message = NSLocalizedString(@"Pending dynamic link not found",
+                                          @"Message when dynamic link was not found");
+    result = [[FIRDLRetrievalProcessResult alloc] initWithDynamicLink:nil
+                                                                error:nil
+                                                              message:message
+                                                          matchSource:nil];
   }
-  return nil;
-}
-
-- (void)handleRequestResultsUpdated {
-  FIRDLRetrievalProcessResult *resultWithUniqueMatchedDynamicLink =
-      [self resultWithUniqueMatchedDynamicLink];
-  if (resultWithUniqueMatchedDynamicLink) {
-    [self markCompleted];
-    [self.delegate retrievalProcess:self completedWithResult:resultWithUniqueMatchedDynamicLink];
-  } else if (self.completed) {
-    NSArray<FIRDLRetrievalProcessResult *> *foundResultsWithDynamicLinks =
-        [self foundResultsWithDynamicLinks];
-    NSArray<FIRDLRetrievalProcessResult *> *resultsThatEncounteredErrors = [self resultsWithErrors];
-    if (foundResultsWithDynamicLinks.count) {
-      // return any result if no unique-matched URL is available
-      // TODO: Merge match message from all results
-      [self.delegate retrievalProcess:self
-                  completedWithResult:foundResultsWithDynamicLinks.firstObject];
-    } else if (resultsThatEncounteredErrors.count > 0) {
-      // TODO: Merge match message and errors from all results
-      [self.delegate retrievalProcess:self
-                  completedWithResult:resultsThatEncounteredErrors.firstObject];
-    } else {
-      // dynamic link not found
-      // TODO: Merge match message from all results
-      FIRDLRetrievalProcessResult *result = [[self results] firstObject];
-      if (!result) {
-        // if we did not get any results, construct one
-        NSString *message = NSLocalizedString(@"Pending dynamic link not found",
-                                              @"Message when dynamic link was not found");
-        result = [[FIRDLRetrievalProcessResult alloc] initWithDynamicLink:nil
-                                                                    error:nil
-                                                                  message:message
-                                                              matchSource:nil];
-      }
-      [self.delegate retrievalProcess:self completedWithResult:result];
-    }
-  }
-}
-
-- (void)markCompleted {
-  while (!self.completed) {
-    [self.requestResults addObject:[NSNull null]];
-  }
+  [self.delegate retrievalProcess:self completedWithResult:result];
 }
 
 - (nullable NSURL *)uniqueMatchLinkToCheck {
   _clipboardContentAtMatchProcessStart = nil;
-  NSString *pasteboardContents = [UIPasteboard generalPasteboard].string;
+  NSString *pasteboardContents = [self retrievePasteboardContents];
   NSInteger linkStringMinimumLength =
       expectedCopiedLinkStringSuffix.length + /* ? or & */ 1 + /* http:// */ 7;
   if ((pasteboardContents.length >= linkStringMinimumLength) &&
@@ -296,6 +200,38 @@ NS_ASSUME_NONNULL_BEGIN
   return nil;
 }
 
+- (NSString *)retrievePasteboardContents {
+  if (![self isPasteboardRetrievalEnabled]) {
+    // Pasteboard check for dynamic link is disabled by user.
+    return @"";
+  }
+
+  NSString *pasteboardContents = @"";
+  if (@available(iOS 10.0, *)) {
+    if ([[UIPasteboard generalPasteboard] hasURLs]) {
+      pasteboardContents = [UIPasteboard generalPasteboard].string;
+    }
+  } else {
+    pasteboardContents = [UIPasteboard generalPasteboard].string;
+  }
+  return pasteboardContents;
+}
+
+/**
+ Property to enable or disable dynamic link retrieval from Pasteboard.
+ This property is added because of iOS 14 feature where pop up is displayed while accessing
+ Pasteboard. So if developers don't want their users to see the Pasteboard popup, they can set
+ "FirebaseDeepLinkPasteboardRetrievalEnabled" to false in their plist.
+ */
+- (BOOL)isPasteboardRetrievalEnabled {
+  id retrievalEnabledValue =
+      [[NSBundle mainBundle] infoDictionary][@"FirebaseDeepLinkPasteboardRetrievalEnabled"];
+  if ([retrievalEnabledValue respondsToSelector:@selector(boolValue)]) {
+    return [retrievalEnabledValue boolValue];
+  }
+  return YES;
+}
+
 - (void)clearUsedUniqueMatchLinkToCheckFromClipboard {
   // See discussion in b/65304652
   // We will clear clipboard after we used the unique match link from the clipboard
@@ -319,3 +255,5 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif  // TARGET_OS_IOS

@@ -18,11 +18,11 @@
 
 #import <OCMock/OCMock.h>
 
-#import "FIRIAMAnalyticsEventLogger.h"
-#import "FIRIAMDisplayTriggerDefinition.h"
-#import "FIRIAMFetchFlow.h"
-#import "FIRIAMMessageContentDataWithImageURL.h"
-#import "FIRIAMSDKModeManager.h"
+#import "FirebaseInAppMessaging/Sources/Private/Data/FIRIAMMessageContentDataWithImageURL.h"
+#import "FirebaseInAppMessaging/Sources/Private/DisplayTrigger/FIRIAMDisplayTriggerDefinition.h"
+#import "FirebaseInAppMessaging/Sources/Private/Flows/FIRIAMAnalyticsEventLogger.h"
+#import "FirebaseInAppMessaging/Sources/Private/Runtime/FIRIAMFetchFlow.h"
+#import "FirebaseInAppMessaging/Sources/Private/Runtime/FIRIAMSDKModeManager.h"
 
 @interface FIRIAMFetchFlow (Testing)
 // Expose to verify that this gets called on initial app launch fetch.
@@ -313,7 +313,8 @@ CGFloat FETCH_MIN_INTERVALS = 1;
   OCMStub([self.mockSDKModeManager currentMode]).andReturn(FIRIAMSDKModeNewlyInstalled);
 
   FIRIAMMessageDefinition *testMessage =
-      [[FIRIAMMessageDefinition alloc] initTestMessageWithRenderData:self.m2.renderData];
+      [[FIRIAMMessageDefinition alloc] initTestMessageWithRenderData:self.m2.renderData
+                                                   experimentPayload:nil];
 
   OCMStub([self.mockMessageFetcher
       fetchMessagesWithImpressionList:[OCMArg any]
@@ -335,7 +336,8 @@ CGFloat FETCH_MIN_INTERVALS = 1;
   OCMStub([self.mockSDKModeManager currentMode]).andReturn(FIRIAMSDKModeTesting);
 
   FIRIAMMessageDefinition *testMessage =
-      [[FIRIAMMessageDefinition alloc] initTestMessageWithRenderData:self.m2.renderData];
+      [[FIRIAMMessageDefinition alloc] initTestMessageWithRenderData:self.m2.renderData
+                                                   experimentPayload:nil];
 
   OCMStub([self.mockMessageFetcher
       fetchMessagesWithImpressionList:[OCMArg any]

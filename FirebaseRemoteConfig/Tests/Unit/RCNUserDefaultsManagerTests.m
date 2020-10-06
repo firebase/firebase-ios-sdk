@@ -170,4 +170,14 @@ static NSTimeInterval RCNUserDefaultsSampleTimeStamp = 0;
                  RCNUserDefaultsSampleTimeStamp - 2.0);
 }
 
+- (void)testUserDefaultsReset {
+  RCNUserDefaultsManager* manager =
+      [[RCNUserDefaultsManager alloc] initWithAppName:@"TESTING"
+                                             bundleID:[NSBundle mainBundle].bundleIdentifier
+                                            namespace:@"testNamespace1"];
+  [manager setLastETag:@"testETag"];
+  [manager resetUserDefaults];
+  XCTAssertNil([manager lastETag]);
+}
+
 @end

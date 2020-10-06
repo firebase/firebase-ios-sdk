@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRCLSFileManager.h"
+#import "Crashlytics/Crashlytics/Models/FIRCLSFileManager.h"
 
-#import "FIRCLSApplication.h"
-#import "FIRCLSInternalReport.h"
-#import "FIRCLSLogger.h"
+#import "Crashlytics/Crashlytics/Components/FIRCLSApplication.h"
+#import "Crashlytics/Crashlytics/Helpers/FIRCLSLogger.h"
+#import "Crashlytics/Crashlytics/Models/FIRCLSInternalReport.h"
 
 NSString *const FIRCLSCacheDirectoryName = @"com.crashlytics.data";
-NSString *const FIRCLSCacheVersion = @"v4";
+NSString *const FIRCLSCacheVersion = @"v5";
 
 @interface FIRCLSFileManager () {
   NSString *_rootPath;
@@ -146,17 +146,6 @@ NSString *const FIRCLSCacheVersion = @"v4";
   }
 }
 
-- (BOOL)moveItemsFromDirectory:(NSString *)srcDir toDirectory:(NSString *)destDir {
-  __block BOOL success = YES;
-
-  [self enumerateFilesInDirectory:srcDir
-                       usingBlock:^(NSString *filePath, NSString *extension) {
-                         success = success && [self moveItemAtPath:filePath toDirectory:destDir];
-                       }];
-
-  return success;
-}
-
 - (NSNumber *)fileSizeAtPath:(NSString *)path {
   NSError *error = nil;
   NSDictionary *attrs = [[self underlyingFileManager] attributesOfItemAtPath:path error:&error];
@@ -223,12 +212,20 @@ NSString *const FIRCLSCacheVersion = @"v4";
   return [[self structurePath] stringByAppendingPathComponent:@"processing"];
 }
 
+- (NSString *)legacyPreparedPath {
+  return [[self structurePath] stringByAppendingPathComponent:@"prepared-legacy"];
+}
+
 - (NSString *)preparedPath {
   return [[self structurePath] stringByAppendingPathComponent:@"prepared"];
 }
 
 - (NSArray *)activePathContents {
   return [self contentsOfDirectory:[self activePath]];
+}
+
+- (NSArray *)legacyPreparedPathContents {
+  return [self contentsOfDirectory:[self legacyPreparedPath]];
 }
 
 - (NSArray *)preparedPathContents {
@@ -249,6 +246,10 @@ NSString *const FIRCLSCacheVersion = @"v4";
     return NO;
   }
 
+  if (![self createDirectoryAtPath:[self legacyPreparedPath]]) {
+    return NO;
+  }
+
   if (![self createDirectoryAtPath:[self preparedPath]]) {
     return NO;
   }
@@ -266,54 +267,13 @@ NSString *const FIRCLSCacheVersion = @"v4";
   return path;
 }
 
-- (void)enumerateReportsInProcessingDirectoryUsingBlock:(void (^)(FIRCLSInternalReport *report,
-                                                                  NSString *path))block {
-  [self enumerateFilesInDirectory:[self processingPath]
-                       usingBlock:^(NSString *filePath, NSString *extension) {
-                         FIRCLSInternalReport *report =
-                             [FIRCLSInternalReport reportWithPath:filePath];
-                         if (block) {
-                           block(report, filePath);
-                         }
-                       }];
+- (BOOL)moveItemAtPath:(NSString *)srcPath toPath:(NSString *)dstPath error:(NSError **)error {
+  return [self.underlyingFileManager moveItemAtPath:srcPath toPath:dstPath error:error];
 }
 
-- (void)enumerateFilesInActiveDirectoryUsingBlock:(void (^)(NSString *path,
-                                                            NSString *extension))block {
-  [self enumerateFilesInDirectory:[self activePath] usingBlock:block];
-}
-
-- (void)enumerateFilesInPreparedDirectoryUsingBlock:(void (^)(NSString *path,
-                                                              NSString *extension))block {
-  [self enumerateFilesInDirectory:[self preparedPath] usingBlock:block];
-}
-
-- (BOOL)moveProcessingContentsToPrepared {
-  return [self moveItemsFromDirectory:[self processingPath] toDirectory:[self preparedPath]];
-}
-
-- (BOOL)movePendingToProcessing {
-  return [self moveItemsFromDirectory:[self pendingPath] toDirectory:[self processingPath]];
-}
-
-- (BOOL)removeContentsOfProcessingPath {
-  return [self removeContentsOfDirectoryAtPath:[self processingPath]];
-}
-
-- (BOOL)removeContentsOfPendingPath {
-  return [self removeContentsOfDirectoryAtPath:[self pendingPath]];
-}
-
-- (BOOL)removeContentsOfAllPaths {
-  BOOL contentsOfProcessingPathRemoved = [self removeContentsOfProcessingPath];
-  BOOL contentsOfPendingPathRemoved = [self removeContentsOfPendingPath];
-  BOOL contentsOfDirectoryAtPreparedPathRemoved =
-      [self removeContentsOfDirectoryAtPath:self.preparedPath];
-  BOOL contentsOfDirectoryAtActivePathRemoved =
-      [self removeContentsOfDirectoryAtPath:self.activePath];
-  BOOL success = contentsOfProcessingPathRemoved && contentsOfPendingPathRemoved &&
-                 contentsOfDirectoryAtPreparedPathRemoved && contentsOfDirectoryAtActivePathRemoved;
-  return success;
+// Wrapper over NSData so the method can be mocked for unit tests
+- (NSData *)dataWithContentsOfFile:(NSString *)path {
+  return [NSData dataWithContentsOfFile:path];
 }
 
 @end

@@ -1,6 +1,6 @@
 ---
-name: Feature request
-about: Issue template for a feature request.
+name: ➕ Feature request
+about: If you have a feature request for the Firebase iOS SDK, file it here.
 labels: 'type: feature request'
 ---
 <!-- DO NOT DELETE

@@ -19,20 +19,17 @@
 #import <UIKit/UIKit.h>
 #endif  // TARGET_OS_IOS || TARGET_OS_TV
 
-#import <FirebaseCoreDiagnosticsInterop/FIRCoreDiagnosticsData.h>
-#import <FirebaseCoreDiagnosticsInterop/FIRCoreDiagnosticsInterop.h>
-#import <GoogleDataTransport/GDTCOREvent.h>
-#import <GoogleDataTransport/GDTCOREventDataObject.h>
-#import <GoogleDataTransport/GDTCORTransport.h>
-#import <GoogleDataTransportCCTSupport/GDTCCTPrioritizer.h>
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import <GoogleUtilities/GULHeartbeatDateStorage.h>
 #import <GoogleUtilities/GULUserDefaults.h>
 #import <OCMock/OCMock.h>
 #import <nanopb/pb_decode.h>
 #import <nanopb/pb_encode.h>
+#import "GoogleDataTransport/GDTCORLibrary/Internal/GoogleDataTransportInternal.h"
+#import "Interop/CoreDiagnostics/Public/FIRCoreDiagnosticsData.h"
+#import "Interop/CoreDiagnostics/Public/FIRCoreDiagnosticsInterop.h"
 
-#import "FIRCDLibrary/Protogen/nanopb/firebasecore.nanopb.h"
+#import "Firebase/CoreDiagnostics/FIRCDLibrary/Protogen/nanopb/firebasecore.nanopb.h"
 
 extern NSString *const kFIRAppDiagnosticsNotification;
 extern NSString *const kFIRLastCheckinDateKey;

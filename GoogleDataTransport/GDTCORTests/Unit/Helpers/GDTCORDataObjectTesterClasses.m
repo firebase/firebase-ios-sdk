@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "GDTCORTests/Unit/Helpers/GDTCORDataObjectTesterClasses.h"
+#import "GoogleDataTransport/GDTCORTests/Unit/Helpers/GDTCORDataObjectTesterClasses.h"
 
 @implementation GDTCORDataObjectTesterSimple
 
@@ -22,6 +22,14 @@
   self = [super init];
   if (self) {
     _aString = @"test";
+  }
+  return self;
+}
+
+- (instancetype)initWithString:(NSString *)aString {
+  self = [super init];
+  if (self) {
+    _aString = aString;
   }
   return self;
 }

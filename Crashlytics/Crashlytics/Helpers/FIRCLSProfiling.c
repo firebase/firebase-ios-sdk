@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "FIRCLSProfiling.h"
+#include "Crashlytics/Crashlytics/Helpers/FIRCLSProfiling.h"
 
 #include <mach/mach_time.h>
 #include <stdio.h>

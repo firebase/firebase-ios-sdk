@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRCLSSymbolResolver.h"
+#import "Crashlytics/Crashlytics/Models/FIRCLSSymbolResolver.h"
 
 #include <dlfcn.h>
 
-#include "FIRCLSBinaryImage.h"
-#include "FIRCLSFile.h"
-#import "FIRCLSLogger.h"
-#import "FIRCLSStackFrame.h"
+#include "Crashlytics/Crashlytics/Components/FIRCLSBinaryImage.h"
+#include "Crashlytics/Crashlytics/Helpers/FIRCLSFile.h"
+#import "Crashlytics/Crashlytics/Helpers/FIRCLSLogger.h"
+#import "Crashlytics/Crashlytics/Private/FIRStackFrame_Private.h"
 
 @interface FIRCLSSymbolResolver () {
   NSMutableArray* _binaryImages;
@@ -107,8 +107,8 @@
   return FIRCLSBinaryImageFindImageForUUID([uuid UTF8String], details);
 }
 
-- (FIRCLSStackFrame*)frameForAddress:(uint64_t)address {
-  FIRCLSStackFrame* frame = [FIRCLSStackFrame stackFrameWithAddress:(NSUInteger)address];
+- (FIRStackFrame*)frameForAddress:(uint64_t)address {
+  FIRStackFrame* frame = [FIRStackFrame stackFrameWithAddress:(NSUInteger)address];
 
   if (![self updateStackFrame:frame]) {
     return nil;
@@ -117,7 +117,7 @@
   return frame;
 }
 
-- (BOOL)updateStackFrame:(FIRCLSStackFrame*)frame {
+- (BOOL)updateStackFrame:(FIRStackFrame*)frame {
   uint64_t address = [frame address];
   if (address == 0) {
     return NO;

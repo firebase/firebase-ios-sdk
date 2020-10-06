@@ -16,8 +16,8 @@
 
 #import "Firestore/Source/API/FIRFirestoreSource+Internal.h"
 
-#include "Firestore/core/src/firebase/firestore/api/source.h"
-#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "Firestore/core/src/api/source.h"
+#include "Firestore/core/src/util/hard_assert.h"
 
 namespace firebase {
 namespace firestore {

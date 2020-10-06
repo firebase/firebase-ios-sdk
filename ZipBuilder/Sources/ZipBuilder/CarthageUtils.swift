@@ -22,27 +22,79 @@ import Foundation
 enum CarthageUtils {}
 
 extension CarthageUtils {
+  /// Package all required files for a Carthage release.
+  ///
+  /// - Parameters:
+  ///   - templateDir: The template project directory, contains the dummy Firebase library.
+  ///   - carthageJSONDir: Location of directory containing all JSON Carthage manifests.
+  ///   - artifacts: Release Artifacts from build.
+  ///   - rcNumber: The RC number.
+  /// - Returns: The path to the root of the Carthage installation.
+  static func packageCarthageRelease(templateDir: URL,
+                                     carthageJSONDir: URL,
+                                     artifacts: ZipBuilder.ReleaseArtifacts,
+                                     rcNumber: Int?) -> URL? {
+    guard let zipLocation = artifacts.carthageDir else { return nil }
+
+    do {
+      print("Creating Carthage release...")
+      let carthagePath =
+        zipLocation.deletingLastPathComponent().appendingPathComponent("carthage_build")
+      // Create a copy of the release directory since we'll be modifying it.
+      let fileManager = FileManager.default
+      fileManager.removeIfExists(at: carthagePath)
+      try fileManager.copyItem(at: zipLocation, to: carthagePath)
+
+      // Package the Carthage distribution with the current directory structure.
+      let carthageDir = zipLocation.deletingLastPathComponent().appendingPathComponent("carthage")
+      fileManager.removeIfExists(at: carthageDir)
+      var output = carthageDir.appendingPathComponent(artifacts.firebaseVersion)
+      if let rcNumber = args.rcNumber {
+        output.appendPathComponent("rc\(rcNumber)")
+      } else {
+        output.appendPathComponent("latest-non-rc")
+      }
+      try fileManager.createDirectory(at: output, withIntermediateDirectories: true)
+      generateCarthageRelease(fromPackagedDir: carthagePath,
+                              templateDir: templateDir,
+                              jsonDir: carthageJSONDir,
+                              artifacts: artifacts,
+                              outputDir: output)
+
+      // Remove the duplicated Carthage build directory.
+      fileManager.removeIfExists(at: carthagePath)
+      print("Done creating Carthage release! Files written to \(output)")
+
+      // Save the directory for later copying.
+      return carthageDir
+    } catch {
+      fatalError("Could not copy output directory for Carthage build: \(error)")
+    }
+  }
+
   /// Generates all required files for a Carthage release.
   ///
   /// - Parameters:
-  ///   - packagedDir: The packaged directory assembled for Carthage and Zip distribution.
+  ///   - packagedDir: The packaged directory assembled for the Carthage distribution.
   ///   - templateDir: The template project directory, contains the dummy Firebase library.
   ///   - jsonDir: Location of directory containing all JSON Carthage manifests.
   ///   - firebaseVersion: The version of the Firebase pod.
   ///   - coreDiagnosticsPath: The path to the Core Diagnostics framework built for Carthage.
   ///   - outputDir: The directory where all artifacts should be created.
-  static func generateCarthageRelease(fromPackagedDir packagedDir: URL,
-                                      templateDir: URL,
-                                      jsonDir: URL,
-                                      firebaseVersion: String,
-                                      coreDiagnosticsPath: URL,
-                                      outputDir: URL) {
+
+  private static func generateCarthageRelease(fromPackagedDir packagedDir: URL,
+                                              templateDir: URL,
+                                              jsonDir: URL,
+                                              artifacts: ZipBuilder.ReleaseArtifacts,
+                                              outputDir: URL) {
+    factorProtobuf(inPackagedDir: packagedDir)
     let directories: [String]
     do {
       directories = try FileManager.default.contentsOfDirectory(atPath: packagedDir.path)
     } catch {
       fatalError("Could not get contents of Firebase directory to package Carthage build. \(error)")
     }
+    let firebaseVersion = artifacts.firebaseVersion
 
     // Loop through each directory available and package it as a separate Zip file.
     for product in directories {
@@ -51,31 +103,10 @@ extension CarthageUtils {
 
       // Parse the JSON file, ensure that we're not trying to overwrite a release.
       var jsonManifest = parseJSONFile(fromDir: jsonDir, product: product)
-      guard jsonManifest[firebaseVersion] == nil else {
-        print("Carthage release for \(product) \(firebaseVersion) already exists - skipping.")
-        continue
-      }
-
-      // Find all the .frameworks in this directory.
-      let allContents: [String]
-      do {
-        allContents = try FileManager.default.contentsOfDirectory(atPath: fullPath.path)
-      } catch {
-        fatalError("Could not get contents of \(product) for Carthage build in order to add " +
-          "an Info.plist in each framework. \(error)")
-      }
-
-      // Carthage will fail to install a framework if it doesn't have an Info.plist, even though
-      // they're not used for static frameworks. Generate one and write it to each framework.
-      let frameworks = allContents.filter { $0.hasSuffix(".framework") }
-      for framework in frameworks {
-        let plistPath = fullPath.appendingPathComponents([framework, "Info.plist"])
-        // Drop the extension of the framework name.
-        let plist = generatePlistContents(forName: framework.components(separatedBy: ".").first!)
-        do {
-          try plist.write(to: plistPath)
-        } catch {
-          fatalError("Could not copy plist for \(framework) for Carthage release. \(error)")
+      if !args.carthageSkipVersionCheck {
+        guard jsonManifest[firebaseVersion] == nil else {
+          print("Carthage release for \(product) \(firebaseVersion) already exists - skipping.")
+          continue
         }
       }
 
@@ -92,17 +123,6 @@ extension CarthageUtils {
           try FileManager.default.copyItem(at: noticesPath, to: coreNotices)
         } catch {
           fatalError("Could not copy \(noticesName) to FirebaseCore for Carthage build. \(error)")
-        }
-
-        // Override the Core Diagnostics framework with one that includes the proper bit flipped.
-        let coreDiagnosticsFramework = Constants.coreDiagnosticsName + ".framework"
-        let destination = fullPath.appendingPathComponent(coreDiagnosticsFramework)
-        do {
-          // Remove the existing framework and replace it with the newly compiled one.
-          try FileManager.default.removeItem(at: destination)
-          try FileManager.default.copyItem(at: coreDiagnosticsPath, to: destination)
-        } catch {
-          fatalError("Could not replace \(coreDiagnosticsFramework) during Carthage build. \(error)")
         }
       }
 
@@ -171,6 +191,44 @@ extension CarthageUtils {
     }
   }
 
+  /// Factor Protobuf into a separate Carthage distribution to avoid Carthage install issues
+  /// trying to install the same framework from multiple bundles(#5276).
+  ///
+  /// - Parameters:
+  ///   - packagedDir: The packaged directory assembled for Carthage and Zip distribution.
+
+  private static func factorProtobuf(inPackagedDir packagedDir: URL) {
+    let directories: [String]
+    let protobufDir = packagedDir.appendingPathComponent("FirebaseProtobuf")
+    do {
+      directories = try FileManager.default.contentsOfDirectory(atPath: packagedDir.path)
+    } catch {
+      fatalError("Could not get contents of Firebase directory to package Carthage build. \(error)")
+    }
+    let fileManager = FileManager.default
+    var didMove = false
+    // Loop through each directory to see if it includes Protobuf.framework.
+    for package in directories {
+      let fullPath = packagedDir.appendingPathComponent(package)
+        .appendingPathComponent("Protobuf.framework")
+      if fileManager.fileExists(atPath: fullPath.path) {
+        if didMove == false {
+          didMove = true
+          do {
+            try fileManager.createDirectory(at: protobufDir, withIntermediateDirectories: true)
+            try fileManager
+              .moveItem(at: fullPath, to: protobufDir.appendingPathComponent("Protobuf.framework"))
+          } catch {
+            fatalError("Failed to create Carthage protobuf directory at \(protobufDir) \(error)")
+          }
+
+        } else {
+          fileManager.removeIfExists(at: fullPath)
+        }
+      }
+    }
+  }
+
   /// Creates a fake Firebase.framework to use the module for `import Firebase` compatibility.
   ///
   /// - Parameters:
@@ -222,15 +280,11 @@ extension CarthageUtils {
     }
 
     // Write the Info.plist.
-    let data = generatePlistContents(forName: "Firebase")
-    do { try data.write(to: frameworkDir.appendingPathComponent("Info.plist")) }
-    catch {
-      fatalError("Could not write the Info.plist for Firebase framework in Carthage. \(error)")
-    }
+    generatePlistContents(forName: "Firebase", to: frameworkDir)
   }
 
-  private static func generatePlistContents(forName name: String) -> Data {
-    let plist: [String: String] = ["CFBundleIdentifier": "com.firebase.Firebase",
+  static func generatePlistContents(forName name: String, to location: URL) {
+    let plist: [String: String] = ["CFBundleIdentifier": "com.firebase.Firebase-\(name)",
                                    "CFBundleInfoDictionaryVersion": "6.0",
                                    "CFBundlePackageType": "FMWK",
                                    "CFBundleVersion": "1",
@@ -242,7 +296,8 @@ extension CarthageUtils {
     let encoder = PropertyListEncoder()
     encoder.outputFormat = .xml
     do {
-      return try encoder.encode(plist)
+      let data = try encoder.encode(plist)
+      try data.write(to: location.appendingPathComponent("Info.plist"))
     } catch {
       fatalError("Failed to create Info.plist for \(name) during Carthage build: \(error)")
     }

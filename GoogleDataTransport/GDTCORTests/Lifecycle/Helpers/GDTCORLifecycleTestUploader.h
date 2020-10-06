@@ -16,9 +16,9 @@
 
 #import <Foundation/Foundation.h>
 
-#import <GoogleDataTransport/GDTCORUploader.h>
+#import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORUploader.h"
 
-#import "GDTCORTests/Lifecycle/Helpers/GDTCORLifecycleTestUploader.h"
+#import "GoogleDataTransport/GDTCORTests/Lifecycle/Helpers/GDTCORLifecycleTestUploader.h"
 
 /** An integration test uploader. */
 @interface GDTCORLifecycleTestUploader : NSObject <GDTCORUploader>

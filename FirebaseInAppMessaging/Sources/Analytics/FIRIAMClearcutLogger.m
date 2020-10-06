@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-#import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseCore/FIRLogger.h>
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
 
-#import "FIRCore+InAppMessaging.h"
-#import "FIRIAMClearcutLogStorage.h"
-#import "FIRIAMClearcutLogger.h"
-#import "FIRIAMClearcutUploader.h"
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+
+#import "FirebaseInAppMessaging/Sources/Analytics/FIRIAMClearcutLogStorage.h"
+#import "FirebaseInAppMessaging/Sources/FIRCore+InAppMessaging.h"
+#import "FirebaseInAppMessaging/Sources/Private/Analytics/FIRIAMClearcutLogger.h"
+#import "FirebaseInAppMessaging/Sources/Private/Analytics/FIRIAMClearcutUploader.h"
 
 @interface FIRIAMClearcutLogger ()
 
@@ -37,7 +39,8 @@
 @end
 
 @implementation FIRIAMClearcutLogger {
-  NSString *_iid;
+  // Firebase installations ID.
+  NSString *_FID;
 }
 - (instancetype)initWithFBProjectNumber:(NSString *)fbProjectNumber
                                 fbAppId:(NSString *)fbAppId
@@ -105,13 +108,13 @@
                   (FIRIAMAnalyticsLogEventType)eventType
                                                      forCampaignID:(NSString *)campaignID
                                                      eventTimeInMs:(NSNumber *)eventTimeInMs
-                                                        instanceID:(NSString *)instanceID {
+                                                    installationID:(NSString *)installationID {
   NSMutableDictionary *campaignAnalyticsDict = [[NSMutableDictionary alloc] init];
 
   campaignAnalyticsDict[@"project_number"] = self.fbProjectNumber;
   campaignAnalyticsDict[@"campaign_id"] = campaignID;
   campaignAnalyticsDict[@"client_app"] =
-      @{@"google_app_id" : self.fbAppId, @"firebase_instance_id" : instanceID};
+      @{@"google_app_id" : self.fbAppId, @"firebase_instance_id" : installationID};
   campaignAnalyticsDict[@"client_timestamp_millis"] = eventTimeInMs;
   [self.class updateSourceExtensionDictWithAnalyticsEventEnumType:eventType
                                                           forDict:campaignAnalyticsDict];
@@ -142,14 +145,14 @@
 - (void)logAnalyticsEventForType:(FIRIAMAnalyticsLogEventType)eventType
                    forCampaignID:(NSString *)campaignID
                withEventTimeInMs:(nullable NSNumber *)eventTimeInMs
-                             IID:(NSString *)iid
+                             FID:(NSString *)FID
                       completion:(void (^)(BOOL success))completion {
   NSTimeInterval nowInMs = [self.timeFetcher currentTimestampInSeconds] * 1000;
   if (eventTimeInMs == nil) {
     eventTimeInMs = @((long)nowInMs);
   }
 
-  if (!iid) {
+  if (!FID) {
     FIRLogWarning(kFIRLoggerInAppMessaging, @"I-IAM210009",
                   @"Instance ID is nil, event %ld for campaign ID %@ will not be sent",
                   (long)eventType, campaignID);
@@ -160,7 +163,7 @@
       [self constructSourceExtensionJsonForClearcutWithEventType:eventType
                                                    forCampaignID:campaignID
                                                    eventTimeInMs:eventTimeInMs
-                                                      instanceID:iid];
+                                                  installationID:FID];
 
   FIRIAMClearcutLogRecord *newRecord = [[FIRIAMClearcutLogRecord alloc]
       initWithExtensionJsonString:sourceExtensionJsonString
@@ -177,34 +180,38 @@
                 withCampaignName:(NSString *)campaignName
                    eventTimeInMs:(nullable NSNumber *)eventTimeInMs
                       completion:(void (^)(BOOL success))completion {
-  if (!_iid) {
+  if (!_FID) {
     [self.clientInfoFetcher
-        fetchFirebaseIIDDataWithProjectNumber:self.fbProjectNumber
-                               withCompletion:^(NSString *_Nullable iid, NSString *_Nullable token,
-                                                NSError *_Nullable error) {
-                                 if (error) {
-                                   FIRLogWarning(kFIRLoggerInAppMessaging, @"I-IAM210001",
-                                                 @"Failed to get iid value for clearcut logging %@",
-                                                 error);
-                                   completion(NO);
-                                 } else {
-                                   // persist iid through the whole life-cycle
-                                   self->_iid = iid;
-                                   [self logAnalyticsEventForType:eventType
-                                                    forCampaignID:campaignID
-                                                withEventTimeInMs:eventTimeInMs
-                                                              IID:iid
-                                                       completion:completion];
-                                 }
-                               }];
+        fetchFirebaseInstallationDataWithProjectNumber:self.fbProjectNumber
+                                        withCompletion:^(NSString *_Nullable FID,
+                                                         NSString *_Nullable FISToken,
+                                                         NSError *_Nullable error) {
+                                          if (error) {
+                                            FIRLogWarning(
+                                                kFIRLoggerInAppMessaging, @"I-IAM210001",
+                                                @"Failed to get iid value for clearcut logging %@",
+                                                error);
+                                            completion(NO);
+                                          } else {
+                                            // persist FID through the whole life-cycle
+                                            self->_FID = FID;
+                                            [self logAnalyticsEventForType:eventType
+                                                             forCampaignID:campaignID
+                                                         withEventTimeInMs:eventTimeInMs
+                                                                       FID:FID
+                                                                completion:completion];
+                                          }
+                                        }];
   } else {
     FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM210004",
                 @"Using remembered iid for event logging");
     [self logAnalyticsEventForType:eventType
                      forCampaignID:campaignID
                  withEventTimeInMs:eventTimeInMs
-                               IID:_iid
+                               FID:_FID
                         completion:completion];
   }
 }
 @end
+
+#endif  // TARGET_OS_IOS

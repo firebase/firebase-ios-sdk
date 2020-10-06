@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRCLSReportManager.h"
-#import "FIRCLSReportManager_Private.h"
+#import "Crashlytics/Crashlytics/Controllers/FIRCLSReportManager.h"
+#import "Crashlytics/Crashlytics/Controllers/FIRCLSReportManager_Private.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -23,15 +23,16 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FIRCLSMockReportManager : FIRCLSReportManager
 
 - (instancetype)initWithFileManager:(FIRCLSFileManager *)fileManager
-                         instanceID:(FIRInstanceID *)instanceID
+                      installations:(FIRInstallations *)installations
                           analytics:(nullable id<FIRAnalyticsInterop>)analytics
-                        googleAppID:(NSString *)googleAppID
+                        googleAppID:(nonnull NSString *)googleAppID
                         dataArbiter:(FIRCLSDataCollectionArbiter *)dataArbiter
+                    googleTransport:(GDTCORTransport *)googleTransport
                          appIDModel:(FIRCLSApplicationIdentifierModel *)appIDModel
-    NS_DESIGNATED_INITIALIZER;
+                           settings:(FIRCLSSettings *)settings NS_DESIGNATED_INITIALIZER;
 
 - (instancetype)initWithFileManager:(FIRCLSFileManager *)fileManager
-                         instanceID:(FIRInstanceID *)instanceID
+                      installations:(FIRInstallations *)instanceID
                           analytics:(nullable id<FIRAnalyticsInterop>)analytics
                         googleAppID:(NSString *)googleAppID
                         dataArbiter:(FIRCLSDataCollectionArbiter *)dataArbiter NS_UNAVAILABLE;

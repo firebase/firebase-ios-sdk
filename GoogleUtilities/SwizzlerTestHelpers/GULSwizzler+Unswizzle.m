@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import <GoogleUtilities/GULSwizzler.h>
+#import "GoogleUtilities/MethodSwizzler/Public/GoogleUtilities/GULSwizzler.h"
 
 #import <objc/runtime.h>
 
-#import "GULSwizzlingCache.h"
+#import "GoogleUtilities/SwizzlerTestHelpers/GULSwizzlingCache.h"
 
 extern dispatch_queue_t GetGULSwizzlingQueue(void);
 

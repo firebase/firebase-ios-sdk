@@ -18,8 +18,12 @@
 
 #import <FirebaseFirestore/FIRFirestoreErrors.h>
 
+#include <algorithm>
+#include <cstddef>
+#include <limits>
 #include <map>
 #include <memory>
+#include <set>
 #include <string>
 #include <unordered_map>
 #include <utility>
@@ -31,32 +35,36 @@
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
-#include "Firestore/core/src/firebase/firestore/auth/user.h"
-#include "Firestore/core/src/firebase/firestore/local/persistence.h"
-#include "Firestore/core/src/firebase/firestore/local/target_data.h"
-#include "Firestore/core/src/firebase/firestore/model/document.h"
-#include "Firestore/core/src/firebase/firestore/model/document_key.h"
-#include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
-#include "Firestore/core/src/firebase/firestore/model/field_value.h"
-#include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
-#include "Firestore/core/src/firebase/firestore/model/no_document.h"
-#include "Firestore/core/src/firebase/firestore/model/resource_path.h"
-#include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
-#include "Firestore/core/src/firebase/firestore/model/types.h"
-#include "Firestore/core/src/firebase/firestore/nanopb/nanopb_util.h"
-#include "Firestore/core/src/firebase/firestore/remote/existence_filter.h"
-#include "Firestore/core/src/firebase/firestore/remote/serializer.h"
-#include "Firestore/core/src/firebase/firestore/remote/watch_change.h"
-#include "Firestore/core/src/firebase/firestore/util/async_queue.h"
-#include "Firestore/core/src/firebase/firestore/util/comparison.h"
-#include "Firestore/core/src/firebase/firestore/util/filesystem.h"
-#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
-#include "Firestore/core/src/firebase/firestore/util/log.h"
-#include "Firestore/core/src/firebase/firestore/util/path.h"
-#include "Firestore/core/src/firebase/firestore/util/status.h"
-#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
-#include "Firestore/core/src/firebase/firestore/util/to_string.h"
-#include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
+#include "Firestore/core/src/auth/user.h"
+#include "Firestore/core/src/core/field_filter.h"
+#include "Firestore/core/src/local/persistence.h"
+#include "Firestore/core/src/local/target_data.h"
+#include "Firestore/core/src/model/delete_mutation.h"
+#include "Firestore/core/src/model/document.h"
+#include "Firestore/core/src/model/document_key.h"
+#include "Firestore/core/src/model/document_key_set.h"
+#include "Firestore/core/src/model/field_value.h"
+#include "Firestore/core/src/model/maybe_document.h"
+#include "Firestore/core/src/model/no_document.h"
+#include "Firestore/core/src/model/patch_mutation.h"
+#include "Firestore/core/src/model/resource_path.h"
+#include "Firestore/core/src/model/set_mutation.h"
+#include "Firestore/core/src/model/snapshot_version.h"
+#include "Firestore/core/src/model/types.h"
+#include "Firestore/core/src/nanopb/nanopb_util.h"
+#include "Firestore/core/src/remote/existence_filter.h"
+#include "Firestore/core/src/remote/serializer.h"
+#include "Firestore/core/src/remote/watch_change.h"
+#include "Firestore/core/src/util/async_queue.h"
+#include "Firestore/core/src/util/comparison.h"
+#include "Firestore/core/src/util/filesystem.h"
+#include "Firestore/core/src/util/hard_assert.h"
+#include "Firestore/core/src/util/log.h"
+#include "Firestore/core/src/util/path.h"
+#include "Firestore/core/src/util/status.h"
+#include "Firestore/core/src/util/string_apple.h"
+#include "Firestore/core/src/util/to_string.h"
+#include "Firestore/core/test/unit/testutil/testutil.h"
 #include "absl/types/optional.h"
 
 namespace objc = firebase::firestore::objc;
@@ -88,6 +96,7 @@ using firebase::firestore::remote::DocumentWatchChange;
 using firebase::firestore::remote::ExistenceFilterWatchChange;
 using firebase::firestore::remote::WatchTargetChange;
 using firebase::firestore::remote::WatchTargetChangeState;
+using firebase::firestore::util::MakeNSString;
 using firebase::firestore::util::MakeString;
 using firebase::firestore::util::Path;
 using firebase::firestore::util::Status;
@@ -102,6 +111,15 @@ NS_ASSUME_NONNULL_BEGIN
 // Whether to run the benchmark spec tests.
 // TODO(mrschmidt): Make this configurable via the tests schema.
 static BOOL kRunBenchmarkTests = NO;
+
+// The name of an environment variable whose value is a filter that specifies which tests to
+// execute. The value of this environment variable is a regular expression that is matched against
+// the name of each test. Using this environment variable is an alternative to setting the
+// kExclusiveTag tag, which requires modifying the JSON file. When this environment variable is set
+// to a non-empty value, a test will be executed if and only if its name matches this regular
+// expression. In this context, a test's "name" is the result of appending its "itName" to its
+// "describeName", separated by a space character.
+static NSString *const kTestFilterEnvKey = @"SPEC_TEST_FILTER";
 
 // Disables all other tests; useful for debugging. Multiple tests can have this tag and they'll all
 // be run (but all others won't).
@@ -137,6 +155,34 @@ ByteString MakeResumeToken(NSString *specString) {
   return MakeByteString([specString dataUsingEncoding:NSUTF8StringEncoding]);
 }
 
+NSString *ToDocumentListString(const std::set<DocumentKey> &keys) {
+  std::vector<std::string> strings;
+  strings.reserve(keys.size());
+  for (const auto &key : keys) {
+    strings.push_back(key.ToString());
+  }
+  std::sort(strings.begin(), strings.end());
+  return MakeNSString(absl::StrJoin(strings, ", "));
+}
+
+NSString *ToDocumentListString(const std::map<DocumentKey, TargetId> &map) {
+  std::set<DocumentKey> keys;
+  for (const auto &kv : map) {
+    keys.insert(kv.first);
+  }
+  return ToDocumentListString(keys);
+}
+
+NSString *ToTargetIdListString(const ActiveTargetMap &map) {
+  std::vector<model::TargetId> targetIds;
+  targetIds.reserve(map.size());
+  for (const auto &kv : map) {
+    targetIds.push_back(kv.first);
+  }
+  std::sort(targetIds.begin(), targetIds.end());
+  return MakeNSString(absl::StrJoin(targetIds, ", "));
+}
+
 }  // namespace
 
 @interface FSTSpecTests ()
@@ -146,6 +192,7 @@ ByteString MakeResumeToken(NSString *specString) {
 
 @implementation FSTSpecTests {
   BOOL _gcEnabled;
+  size_t _maxConcurrentLimboResolutions;
   BOOL _networkEnabled;
   FSTUserDataConverter *_converter;
 }
@@ -156,7 +203,7 @@ ByteString MakeResumeToken(NSString *specString) {
                                                             __func__]                              \
                         userInfo:nil];
 
-- (std::unique_ptr<Persistence>)persistenceWithGCEnabled:(BOOL)GCEnabled {
+- (std::unique_ptr<Persistence>)persistenceWithGCEnabled:(__unused BOOL)GCEnabled {
   @throw FSTAbstractMethodException();  // NOLINT
 }
 
@@ -177,12 +224,20 @@ ByteString MakeResumeToken(NSString *specString) {
   // Store GCEnabled so we can re-use it in doRestart.
   NSNumber *GCEnabled = config[@"useGarbageCollection"];
   _gcEnabled = [GCEnabled boolValue];
+  NSNumber *maxConcurrentLimboResolutions = config[@"maxConcurrentLimboResolutions"];
+  _maxConcurrentLimboResolutions = (maxConcurrentLimboResolutions == nil)
+                                       ? std::numeric_limits<size_t>::max()
+                                       : maxConcurrentLimboResolutions.unsignedIntValue;
   NSNumber *numClients = config[@"numClients"];
   if (numClients) {
     XCTAssertEqualObjects(numClients, @1, @"The iOS client does not support multi-client tests");
   }
   std::unique_ptr<Persistence> persistence = [self persistenceWithGCEnabled:_gcEnabled];
-  self.driver = [[FSTSyncEngineTestDriver alloc] initWithPersistence:std::move(persistence)];
+  self.driver =
+      [[FSTSyncEngineTestDriver alloc] initWithPersistence:std::move(persistence)
+                                               initialUser:User::Unauthenticated()
+                                         outstandingWrites:{}
+                             maxConcurrentLimboResolutions:_maxConcurrentLimboResolutions];
   [self.driver start];
 }
 
@@ -296,6 +351,10 @@ ByteString MakeResumeToken(NSString *specString) {
 
 - (void)doDelete:(NSString *)key {
   [self.driver writeUserMutation:FSTTestDeleteMutation(key)];
+}
+
+- (void)doWaitForPendingWrites {
+  [self.driver waitForPendingWrites];
 }
 
 - (void)doAddSnapshotsInSyncListener {
@@ -487,9 +546,11 @@ ByteString MakeResumeToken(NSString *specString) {
   [self.driver shutdown];
 
   std::unique_ptr<Persistence> persistence = [self persistenceWithGCEnabled:_gcEnabled];
-  self.driver = [[FSTSyncEngineTestDriver alloc] initWithPersistence:std::move(persistence)
-                                                         initialUser:currentUser
-                                                   outstandingWrites:outstandingWrites];
+  self.driver =
+      [[FSTSyncEngineTestDriver alloc] initWithPersistence:std::move(persistence)
+                                               initialUser:currentUser
+                                         outstandingWrites:outstandingWrites
+                             maxConcurrentLimboResolutions:_maxConcurrentLimboResolutions];
   [self.driver start];
 }
 
@@ -536,6 +597,8 @@ ByteString MakeResumeToken(NSString *specString) {
     [self doWriteAck:step[@"writeAck"]];
   } else if (step[@"failWrite"]) {
     [self doFailWrite:step[@"failWrite"]];
+  } else if (step[@"waitForPendingWrites"]) {
+    [self doWaitForPendingWrites];
   } else if (step[@"runTimer"]) {
     [self doRunTimer:step[@"runTimer"]];
   } else if (step[@"enableNetwork"]) {
@@ -648,20 +711,29 @@ ByteString MakeResumeToken(NSString *specString) {
       XCTAssertEqual([self.driver watchStreamRequestCount],
                      [expectedState[@"watchStreamRequestCount"] intValue]);
     }
-    if (expectedState[@"limboDocs"]) {
-      DocumentKeySet expectedLimboDocuments;
-      NSArray *docNames = expectedState[@"limboDocs"];
+    if (expectedState[@"activeLimboDocs"]) {
+      DocumentKeySet expectedActiveLimboDocuments;
+      NSArray *docNames = expectedState[@"activeLimboDocs"];
       for (NSString *name in docNames) {
-        expectedLimboDocuments = expectedLimboDocuments.insert(FSTTestDocKey(name));
+        expectedActiveLimboDocuments = expectedActiveLimboDocuments.insert(FSTTestDocKey(name));
       }
-      // Update the expected limbo documents
-      [self.driver setExpectedLimboDocuments:std::move(expectedLimboDocuments)];
+      // Update the expected active limbo documents
+      [self.driver setExpectedActiveLimboDocuments:std::move(expectedActiveLimboDocuments)];
+    }
+    if (expectedState[@"enqueuedLimboDocs"]) {
+      DocumentKeySet expectedEnqueuedLimboDocuments;
+      NSArray *docNames = expectedState[@"enqueuedLimboDocs"];
+      for (NSString *name in docNames) {
+        expectedEnqueuedLimboDocuments = expectedEnqueuedLimboDocuments.insert(FSTTestDocKey(name));
+      }
+      // Update the expected enqueued limbo documents
+      [self.driver setExpectedEnqueuedLimboDocuments:std::move(expectedEnqueuedLimboDocuments)];
     }
     if (expectedState[@"activeTargets"]) {
       __block ActiveTargetMap expectedActiveTargets;
       [expectedState[@"activeTargets"]
           enumerateKeysAndObjectsUsingBlock:^(NSString *targetIDString, NSDictionary *queryData,
-                                              BOOL *stop) {
+                                              BOOL *) {
             TargetId targetID = [targetIDString intValue];
             ByteString resumeToken = MakeResumeToken(queryData[@"resumeToken"]);
             NSArray *queriesJson = queryData[@"queries"];
@@ -684,9 +756,15 @@ ByteString MakeResumeToken(NSString *specString) {
   // Always validate the we received the expected number of callbacks.
   [self validateUserCallbacks:expectedState];
   // Always validate that the expected limbo docs match the actual limbo docs.
-  [self validateLimboDocuments];
+  [self validateActiveLimboDocuments];
+  [self validateEnqueuedLimboDocuments];
   // Always validate that the expected active targets match the actual active targets.
   [self validateActiveTargets];
+}
+
+- (void)validateWaitForPendingWritesEvents:(int)expectedWaitForPendingWritesEvents {
+  XCTAssertEqual(expectedWaitForPendingWritesEvents, [self.driver waitForPendingWritesEvents]);
+  [self.driver resetWaitForPendingWritesEvents];
 }
 
 - (void)validateSnapshotsInSyncEvents:(int)expectedSnapshotInSyncEvents {
@@ -709,25 +787,52 @@ ByteString MakeResumeToken(NSString *specString) {
   }
 }
 
-- (void)validateLimboDocuments {
+- (void)validateActiveLimboDocuments {
   // Make a copy so it can modified while checking against the expected limbo docs.
-  std::map<DocumentKey, TargetId> actualLimboDocs = self.driver.currentLimboDocuments;
+  std::map<DocumentKey, TargetId> actualLimboDocs = self.driver.activeLimboDocumentResolutions;
 
-  // Validate that each limbo doc has an expected active target
+  // Validate that each active limbo doc has an expected active target
   for (const auto &kv : actualLimboDocs) {
     const auto &expected = [self.driver expectedActiveTargets];
     XCTAssertTrue(expected.find(kv.second) != expected.end(),
-                  @"Found limbo doc without an expected active target");
+                  @"Found limbo doc %s, but its target ID %d was not in the "
+                  @"set of expected active target IDs %@",
+                  kv.first.ToString().c_str(), kv.second, ToTargetIdListString(expected));
   }
 
-  for (const DocumentKey &expectedLimboDoc : self.driver.expectedLimboDocuments) {
+  for (const DocumentKey &expectedLimboDoc : self.driver.expectedActiveLimboDocuments) {
     XCTAssert(actualLimboDocs.find(expectedLimboDoc) != actualLimboDocs.end(),
               @"Expected doc to be in limbo, but was not: %s", expectedLimboDoc.ToString().c_str());
     actualLimboDocs.erase(expectedLimboDoc);
   }
-  XCTAssertTrue(actualLimboDocs.empty(), "%lu Unexpected docs in limbo, the first one is <%s, %d>",
-                actualLimboDocs.size(), actualLimboDocs.begin()->first.ToString().c_str(),
-                actualLimboDocs.begin()->second);
+
+  XCTAssertTrue(actualLimboDocs.empty(), @"Unexpected active docs in limbo: %@",
+                ToDocumentListString(actualLimboDocs));
+}
+
+- (void)validateEnqueuedLimboDocuments {
+  std::set<DocumentKey> actualLimboDocs;
+  for (const auto &key : self.driver.enqueuedLimboDocumentResolutions) {
+    actualLimboDocs.insert(key);
+  }
+  std::set<DocumentKey> expectedLimboDocs;
+  for (const auto &key : self.driver.expectedEnqueuedLimboDocuments) {
+    expectedLimboDocs.insert(key);
+  }
+
+  for (const auto &key : actualLimboDocs) {
+    XCTAssertTrue(expectedLimboDocs.find(key) != expectedLimboDocs.end(),
+                  @"Found enqueued limbo doc %s, but it was not in the set of "
+                  @"expected enqueued limbo documents (%@)",
+                  key.ToString().c_str(), ToDocumentListString(expectedLimboDocs));
+  }
+
+  for (const auto &key : expectedLimboDocs) {
+    XCTAssertTrue(actualLimboDocs.find(key) != actualLimboDocs.end(),
+                  @"Expected doc %s to be enqueued for limbo resolution, "
+                  @"but it was not in the queue (%@)",
+                  key.ToString().c_str(), ToDocumentListString(actualLimboDocs));
+  }
 }
 
 - (void)validateActiveTargets {
@@ -775,6 +880,9 @@ ByteString MakeResumeToken(NSString *specString) {
         [self validateExpectedState:step[@"expectedState"]];
         int expectedSnapshotsInSyncEvents = [step[@"expectedSnapshotsInSyncEvents"] intValue];
         [self validateSnapshotsInSyncEvents:expectedSnapshotsInSyncEvents];
+        int expectedWaitForPendingWritesEvents =
+            [step[@"expectedWaitForPendingWritesEvents"] intValue];
+        [self validateWaitForPendingWritesEvents:expectedWaitForPendingWritesEvents];
       }
       [self.driver validateUsage];
     } @finally {
@@ -826,12 +934,29 @@ ByteString MakeResumeToken(NSString *specString) {
     [parsedSpecs addObject:testDict];
   }
 
+  NSString *testNameFilterFromEnv = NSProcessInfo.processInfo.environment[kTestFilterEnvKey];
+  NSRegularExpression *testNameFilter;
+  if (testNameFilterFromEnv.length == 0) {
+    testNameFilter = nil;
+  } else {
+    exclusiveMode = YES;
+    NSError *error;
+    testNameFilter =
+        [NSRegularExpression regularExpressionWithPattern:testNameFilterFromEnv
+                                                  options:NSRegularExpressionAnchorsMatchLines
+                                                    error:&error];
+    XCTAssertNotNil(testNameFilter, @"Invalid regular expression: %@ (%@)", testNameFilterFromEnv,
+                    error);
+  }
+
   // Now iterate over them and run them.
+  __block int testPassCount = 0;
+  __block int testSkipCount = 0;
   __block bool ranAtLeastOneTest = NO;
   for (NSUInteger i = 0; i < specFiles.count; i++) {
     NSLog(@"Spec test file: %@", specFiles[i]);
     // Iterate over the tests in the file and run them.
-    [parsedSpecs[i] enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
+    [parsedSpecs[i] enumerateKeysAndObjectsUsingBlock:^(id, id obj, BOOL *) {
       XCTAssertTrue([obj isKindOfClass:[NSDictionary class]]);
       NSDictionary *testDescription = (NSDictionary *)obj;
       NSString *describeName = testDescription[@"describeName"];
@@ -841,15 +966,30 @@ ByteString MakeResumeToken(NSString *specString) {
       NSArray *steps = testDescription[@"steps"];
       NSArray<NSString *> *tags = testDescription[@"tags"];
 
-      BOOL runTest = !exclusiveMode || [tags indexOfObject:kExclusiveTag] != NSNotFound;
-      if (runTest) {
-        runTest = [self shouldRunWithTags:tags];
+      BOOL runTest;
+      if (![self shouldRunWithTags:tags]) {
+        runTest = NO;
+      } else if (!exclusiveMode) {
+        runTest = YES;
+      } else if ([tags indexOfObject:kExclusiveTag] != NSNotFound) {
+        runTest = YES;
+      } else if (testNameFilter != nil) {
+        NSRange testNameFilterMatchRange =
+            [testNameFilter rangeOfFirstMatchInString:name
+                                              options:0
+                                                range:NSMakeRange(0, [name length])];
+        runTest = !NSEqualRanges(testNameFilterMatchRange, NSMakeRange(NSNotFound, 0));
+      } else {
+        runTest = NO;
       }
+
       if (runTest) {
         NSLog(@"  Spec test: %@", name);
         [self runSpecTestSteps:steps config:config];
         ranAtLeastOneTest = YES;
+        ++testPassCount;
       } else {
+        ++testSkipCount;
         NSLog(@"  [SKIPPED] Spec test: %@", name);
         NSString *comment = testDescription[@"comment"];
         if (comment) {
@@ -858,12 +998,14 @@ ByteString MakeResumeToken(NSString *specString) {
       }
     }];
   }
+  NSLog(@"%@ completed; pass=%d skip=%d", NSStringFromClass([self class]), testPassCount,
+        testSkipCount);
   XCTAssertTrue(ranAtLeastOneTest);
 }
 
 - (BOOL)anyTestsAreMarkedExclusive:(NSDictionary *)tests {
   __block BOOL found = NO;
-  [tests enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
+  [tests enumerateKeysAndObjectsUsingBlock:^(id, id obj, BOOL *stop) {
     XCTAssertTrue([obj isKindOfClass:[NSDictionary class]]);
     NSDictionary *testDescription = (NSDictionary *)obj;
     NSArray<NSString *> *tags = testDescription[@"tags"];

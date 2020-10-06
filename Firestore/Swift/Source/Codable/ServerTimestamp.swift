@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google
+ * Copyright 2019 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,8 @@ import FirebaseFirestore
   /// A type that can initialize itself from a Firestore Timestamp, which makes
   /// it suitable for use with the `@ServerTimestamp` property wrapper.
   ///
-  /// Firestore includes extensions that make `Timestamp`, `Date`, and `NSDate`
-  /// conform to `ServerTimestampWrappable`.
+  /// Firestore includes extensions that make `Timestamp` and `Date` conform to
+  /// `ServerTimestampWrappable`.
   public protocol ServerTimestampWrappable {
     /// Creates a new instance by converting from the given `Timestamp`.
     ///
@@ -41,17 +41,6 @@ import FirebaseFirestore
 
     public static func unwrap(_ value: Self) throws -> Timestamp {
       return Timestamp(date: value)
-    }
-  }
-
-  extension NSDate: ServerTimestampWrappable {
-    public static func wrap(_ timestamp: Timestamp) throws -> Self {
-      let interval = timestamp.dateValue().timeIntervalSince1970
-      return NSDate(timeIntervalSince1970: interval) as! Self
-    }
-
-    public static func unwrap(_ value: NSDate) throws -> Timestamp {
-      return Timestamp(date: value as Date)
     }
   }
 
@@ -80,8 +69,8 @@ import FirebaseFirestore
   /// Then writing `CustomModel(ts: nil)` will tell server to fill `ts` with
   /// current timestamp.
   @propertyWrapper
-  public struct ServerTimestamp<Value>: Codable, Equatable
-    where Value: ServerTimestampWrappable & Codable & Equatable {
+  public struct ServerTimestamp<Value>: Codable
+    where Value: ServerTimestampWrappable & Codable {
     var value: Value?
 
     public init(wrappedValue value: Value?) {
@@ -113,6 +102,10 @@ import FirebaseFirestore
       }
     }
   }
+
+  extension ServerTimestamp: Equatable where Value: Equatable {}
+
+  extension ServerTimestamp: Hashable where Value: Hashable {}
 #endif // compiler(>=5.1)
 
 /// A compatibility version of `ServerTimestamp` that does not use property

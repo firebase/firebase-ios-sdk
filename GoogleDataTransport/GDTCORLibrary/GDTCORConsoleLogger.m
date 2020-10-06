@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-#import "GDTCORLibrary/Public/GDTCORConsoleLogger.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORConsoleLogger.h"
+
+volatile NSInteger GDTCORConsoleLoggerLoggingLevel = GDTCORLoggingLevelErrors;
 
 /** The console logger prefix. */
 static NSString *kGDTCORConsoleLogger = @"[GoogleDataTransport]";
@@ -23,11 +25,28 @@ NSString *GDTCORMessageCodeEnumToString(GDTCORMessageCode code) {
   return [[NSString alloc] initWithFormat:@"I-GDTCOR%06ld", (long)code];
 }
 
-void GDTCORLog(GDTCORMessageCode code, NSString *format, ...) {
+void GDTCORLog(GDTCORMessageCode code, GDTCORLoggingLevel logLevel, NSString *format, ...) {
 // Don't log anything in not debug builds.
 #if !NDEBUG
-  NSString *logFormat = [NSString stringWithFormat:@"%@[%@] %@", kGDTCORConsoleLogger,
-                                                   GDTCORMessageCodeEnumToString(code), format];
+  if (logLevel >= GDTCORConsoleLoggerLoggingLevel) {
+    NSString *logFormat = [NSString stringWithFormat:@"%@[%@] %@", kGDTCORConsoleLogger,
+                                                     GDTCORMessageCodeEnumToString(code), format];
+    va_list args;
+    va_start(args, format);
+    NSLogv(logFormat, args);
+    va_end(args);
+  }
+#endif  // !NDEBUG
+}
+
+void GDTCORLogAssert(
+    BOOL wasFatal, NSString *_Nonnull file, NSInteger line, NSString *_Nullable format, ...) {
+// Don't log anything in not debug builds.
+#if !NDEBUG
+  GDTCORMessageCode code = wasFatal ? GDTCORMCEFatalAssertion : GDTCORMCEGeneralError;
+  NSString *logFormat =
+      [NSString stringWithFormat:@"%@[%@] (%@:%ld) : %@", kGDTCORConsoleLogger,
+                                 GDTCORMessageCodeEnumToString(code), file, (long)line, format];
   va_list args;
   va_start(args, format);
   NSLogv(logFormat, args);

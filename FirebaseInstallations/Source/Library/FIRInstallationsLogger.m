@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRInstallationsLogger.h"
+#import "FirebaseInstallations/Source/Library/FIRInstallationsLogger.h"
 
 FIRLoggerService kFIRLoggerInstallations = @"[Firebase/Installations]";
 
@@ -34,6 +34,7 @@ NSString *const kFIRInstallationsMessageCodeNewGetInstallationOperationCreated =
 NSString *const kFIRInstallationsMessageCodeNewGetAuthTokenOperationCreated = @"I-FIS002001";
 NSString *const kFIRInstallationsMessageCodeNewDeleteInstallationOperationCreated = @"I-FIS002002";
 NSString *const kFIRInstallationsMessageCodeInvalidFirebaseConfiguration = @"I-FIS002003";
+NSString *const kFIRInstallationsMessageCodeCorruptedStoredInstallation = @"I-FIS002004";
 
 // FIRInstallationsStoredItem.m
 NSString *const kFIRInstallationsMessageCodeInstallationCoderVersionMismatch = @"I-FIS003000";

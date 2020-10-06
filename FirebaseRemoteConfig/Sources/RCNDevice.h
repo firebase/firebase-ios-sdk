@@ -32,6 +32,9 @@ NSString *FIRRemoteConfigPodVersion(void);
 /// App version.
 NSString *FIRRemoteConfigAppVersion(void);
 
+/// App build version
+NSString *FIRRemoteConfigAppBuildVersion(void);
+
 /// Device country, in lowercase.
 NSString *FIRRemoteConfigDeviceCountry(void);
 
@@ -43,11 +46,6 @@ RCNDeviceModel FIRRemoteConfigDeviceSubtype(void);
 
 /// Device timezone.
 NSString *FIRRemoteConfigTimezone(void);
-
-/// SDK version. This is different than CocoaPods SDK version.
-/// It is used for config server to keep track iOS client version.
-/// major * 10000 + minor + 100 + patch.
-int FIRRemoteConfigSDKVersion(void);
 
 /// Update device context to the given dictionary.
 NSMutableDictionary *FIRRemoteConfigDeviceContextWithProjectIdentifier(

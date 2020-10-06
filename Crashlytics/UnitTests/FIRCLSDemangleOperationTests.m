@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRCLSDemangleOperation.h"
+#import "Crashlytics/Crashlytics/Operations/Symbolication/FIRCLSDemangleOperation.h"
 
 #import <Foundation/Foundation.h>
 #import <XCTest/XCTest.h>
 
-#import "FIRCLSStackFrame.h"
+#import "Crashlytics/Crashlytics/Private/FIRStackFrame_Private.h"
 
 @interface FIRCLSDemangleOperationTests : XCTestCase
 
@@ -57,9 +57,9 @@
 
 - (void)testOperation {
   NSMutableArray *frameArray = [[NSMutableArray alloc] init];
-  [frameArray addObject:[FIRCLSStackFrame stackFrameWithSymbol:@"_Z7monitorP8NSStringlS0_"]];
-  [frameArray addObject:[FIRCLSStackFrame stackFrameWithSymbol:@"_ZN9wikipedia7article6formatEv"]];
-  [frameArray addObject:[FIRCLSStackFrame stackFrameWithSymbol:@"unmangledSymbol"]];
+  [frameArray addObject:[FIRStackFrame stackFrameWithSymbol:@"_Z7monitorP8NSStringlS0_"]];
+  [frameArray addObject:[FIRStackFrame stackFrameWithSymbol:@"_ZN9wikipedia7article6formatEv"]];
+  [frameArray addObject:[FIRStackFrame stackFrameWithSymbol:@"unmangledSymbol"]];
 
   FIRCLSDemangleOperation *op = [[FIRCLSDemangleOperation alloc] init];
   [op setThreadArray:@[ frameArray ]];

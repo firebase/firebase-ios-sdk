@@ -16,11 +16,11 @@
 
 #import "FIRFirestoreSource.h"
 
-#include "Firestore/core/src/firebase/firestore/api/source.h"
-
 namespace firebase {
 namespace firestore {
 namespace api {
+
+enum class Source;
 
 Source MakeSource(FIRFirestoreSource source);
 

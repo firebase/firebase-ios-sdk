@@ -1,4 +1,4 @@
-# Copyright 2018 Google
+# Copyright 2018 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,26 +18,20 @@ if(TARGET boringssl)
   return()
 endif()
 
-# This ExternalProject unpacks itself inside the gRPC source tree. CMake clears
-# the SOURCE_DIR when unpacking so this must come after grpc despite the fact
-# that grpc logically depends upon this.
-
-# grpc v1.24.3 includes boringssl at b29b21a81b32ec273f118f589f46d56ad3332420
-# (2018-05-22). This is woefully out of date, so pin to a newer one.
-set(commit 9638f8fba961a593c064e3036bb580bdace29e8f)  # master@{2019-10-01}
+# Based on https://github.com/grpc/grpc/blob/v1.27.0/bazel/grpc_deps.bzl
+# master-with-bazel@{2019-10-18}
+set(commit 83da28a68f32023fd3b95a8ae94991a07b1f6c62)
 
 ExternalProject_Add(
   boringssl
-  DEPENDS
-    grpc-download
 
   DOWNLOAD_DIR ${FIREBASE_DOWNLOAD_DIR}
   DOWNLOAD_NAME boringssl-${commit}.tar.gz
   URL https://github.com/google/boringssl/archive/${commit}.tar.gz
-  URL_HASH SHA256=cfd843fda9fdf9ea92b1ae5f5d379ec7d7cb09d5c7d41197ee935a0e30aecb23
+  URL_HASH SHA256=781fa39693ec2984c71213cd633e9f6589eaaed75e3a9ac413237edec96fd3b9
 
   PREFIX ${PROJECT_BINARY_DIR}
-  SOURCE_DIR ${PROJECT_BINARY_DIR}/src/grpc/third_party/boringssl
+  SOURCE_DIR ${PROJECT_BINARY_DIR}/src/boringssl
 
   CONFIGURE_COMMAND ""
   BUILD_COMMAND     ""

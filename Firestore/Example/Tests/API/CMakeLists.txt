@@ -1,4 +1,4 @@
-# Copyright 2019 Google
+# Copyright 2019 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,27 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-if(APPLE)
-  objc_test(
-    firebase_firestore_objc_api_test
-    HOST firestore_example_app_macos
-    SOURCES
-      FIRCollectionReferenceTests.mm
-      FIRDocumentReferenceTests.mm
-      FIRDocumentSnapshotTests.mm
-      FIRFieldPathTests.mm
-      FIRFieldValueTests.mm
-      FIRFirestoreTests.mm
-      FIRGeoPointTests.mm
-      FIRQuerySnapshotTests.mm
-      FIRQueryUnitTests.mm
-      FIRSnapshotMetadataTests.mm
-      FIRTimestampTest.m
-      FSTAPIHelpers.h
-      FSTAPIHelpers.mm
-      FSTUserDataConverterTests.mm
-    DEPENDS
-      FirebaseFirestore
-      firebase_firestore_objc_test_util
-  )
-endif(APPLE)
+if(NOT FIREBASE_IOS_BUILD_TESTS OR NOT APPLE)
+  return()
+endif()
+
+file(GLOB sources *.h *.mm)
+firebase_ios_add_objc_test(
+  firestore_objc_api_test
+  firestore_objc_host_app
+  ${sources}
+)
+target_link_libraries(
+  firestore_objc_api_test PRIVATE
+  FirebaseFirestore
+  firestore_objc_testing
+)

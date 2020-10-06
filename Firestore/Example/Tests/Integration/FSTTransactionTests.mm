@@ -35,7 +35,7 @@ using firebase::firestore::util::TimerId;
 - (void)assertExistsWithSnapshot:(FIRDocumentSnapshot *)snapshot error:(NSError *)error;
 - (void)assertDoesNotExistWithSnapshot:(FIRDocumentSnapshot *)snapshot error:(NSError *)error;
 - (void)assertNilError:(NSError *)error message:(NSString *)message;
-- (void)assertError:(NSError *)error message:(NSString *)message;
+- (void)assertError:(NSError *)error message:(NSString *)message code:(NSInteger)code;
 - (void)assertSnapshot:(FIRDocumentSnapshot *)snapshot
           equalsObject:(NSObject *)expected
                  error:(NSError *)error;
@@ -56,8 +56,9 @@ using firebase::firestore::util::TimerId;
   XCTAssertNil(error, @"%@", message);
 }
 
-- (void)assertError:(NSError *)error message:(NSString *)message {
+- (void)assertError:(NSError *)error message:(NSString *)message code:(NSInteger)code {
   XCTAssertNotNil(error, @"%@", message);
+  XCTAssertEqual(error.code, code, @"%@", message);
 }
 
 - (void)assertSnapshot:(FIRDocumentSnapshot *)snapshot
@@ -118,13 +119,14 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
 - (void)expectDoc:(NSObject *)expected;
 - (void)expectNoDoc;
 - (void)expectError:(FIRFirestoreErrorCode)expected;
+
+@property(atomic, strong, readwrite) NSArray<TransactionStage> *stages;
+@property(atomic, strong, readwrite) FIRDocumentReference *docRef;
+@property(atomic, assign, readwrite) BOOL fromExistingDoc;
 @end
 
 @implementation FSTTransactionTester {
   FIRFirestore *_db;
-  FIRDocumentReference *_docRef;
-  BOOL _fromExistingDoc;
-  NSArray<TransactionStage> *_stages;
   FSTTransactionTests *_testCase;
   NSMutableArray<XCTestExpectation *> *_testExpectations;
 }
@@ -140,17 +142,17 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
 }
 
 - (FSTTransactionTester *)withExistingDoc {
-  _fromExistingDoc = YES;
+  self.fromExistingDoc = YES;
   return self;
 }
 
 - (FSTTransactionTester *)withNonexistentDoc {
-  _fromExistingDoc = NO;
+  self.fromExistingDoc = NO;
   return self;
 }
 
 - (FSTTransactionTester *)runWithStages:(NSArray<TransactionStage> *)stages {
-  _stages = stages;
+  self.stages = stages;
   return self;
 }
 
@@ -159,7 +161,7 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
   [self runSuccessfulTransaction];
 
   XCTestExpectation *expectation = [_testCase expectationWithDescription:@"expectDoc"];
-  [_docRef getDocumentWithCompletion:^(FIRDocumentSnapshot *snapshot, NSError *error) {
+  [self.docRef getDocumentWithCompletion:^(FIRDocumentSnapshot *snapshot, NSError *error) {
     [self->_testCase assertSnapshot:snapshot equalsObject:expected error:error];
     [expectation fulfill];
   }];
@@ -173,7 +175,7 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
   [self runSuccessfulTransaction];
 
   XCTestExpectation *expectation = [_testCase expectationWithDescription:@"expectNoDoc"];
-  [_docRef getDocumentWithCompletion:^(FIRDocumentSnapshot *snapshot, NSError *error) {
+  [self.docRef getDocumentWithCompletion:^(FIRDocumentSnapshot *snapshot, NSError *error) {
     [self->_testCase assertDoesNotExistWithSnapshot:snapshot error:error];
     [expectation fulfill];
   }];
@@ -190,20 +192,11 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
 }
 
 - (void)prepareDoc {
-  _docRef = [[_db collectionWithPath:@"nonexistent"] documentWithAutoID];
+  self.docRef = [[_db collectionWithPath:@"nonexistent"] documentWithAutoID];
   if (_fromExistingDoc) {
-    NSError *setError = [self writeDocumentRef:_docRef data:@{@"foo" : @"bar"}];
+    NSError *setError = [self writeDocumentRef:self.docRef data:@{@"foo" : @"bar"}];
     NSString *message = [NSString stringWithFormat:@"Failed set at %@", [self stageNames]];
     [_testCase assertNilError:setError message:message];
-
-    XCTestExpectation *expectation = [_testCase expectationWithDescription:@"prepareDoc:get"];
-
-    [_docRef getDocumentWithCompletion:^(FIRDocumentSnapshot *snapshot, NSError *error) {
-      [self->_testCase assertExistsWithSnapshot:snapshot error:error];
-      [expectation fulfill];
-    }];
-
-    [_testCase awaitExpectations];
   }
 }
 
@@ -211,11 +204,11 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
                          data:(NSDictionary<NSString *, id> *)data {
   __block NSError *errorResult;
   XCTestExpectation *expectation = [_testCase expectationWithDescription:@"prepareDoc:set"];
-  [_docRef setData:data
-        completion:^(NSError *error) {
-          errorResult = error;
-          [expectation fulfill];
-        }];
+  [ref setData:data
+      completion:^(NSError *error) {
+        errorResult = error;
+        [expectation fulfill];
+      }];
   [_testCase awaitExpectations];
   return errorResult;
 }
@@ -224,13 +217,13 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
   XCTestExpectation *expectation =
       [_testCase expectationWithDescription:@"runSuccessfulTransaction"];
   [_db
-      runTransactionWithBlock:^id _Nullable(FIRTransaction *transaction, NSError **error) {
-        for (TransactionStage stage in self->_stages) {
-          stage(transaction, self->_docRef);
+      runTransactionWithBlock:^id _Nullable(FIRTransaction *transaction, NSError **) {
+        for (TransactionStage stage in self.stages) {
+          stage(transaction, self.docRef);
         }
         return @YES;
       }
-      completion:^(id _Nullable result, NSError *_Nullable error) {
+      completion:^(id, NSError *error) {
         [expectation fulfill];
         NSString *message =
             [NSString stringWithFormat:@"Expected the sequence %@, to succeed, but got %d.",
@@ -242,35 +235,36 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
 }
 
 - (void)runFailingTransactionWithError:(FIRFirestoreErrorCode)expected {
+  (void)expected;
   XCTestExpectation *expectation =
       [_testCase expectationWithDescription:@"runFailingTransactionWithError"];
   [_db
-      runTransactionWithBlock:^id _Nullable(FIRTransaction *transaction, NSError **error) {
-        for (TransactionStage stage in self->_stages) {
-          stage(transaction, self->_docRef);
+      runTransactionWithBlock:^id _Nullable(FIRTransaction *transaction, NSError **) {
+        for (TransactionStage stage in self.stages) {
+          stage(transaction, self.docRef);
         }
         return @YES;
       }
-      completion:^(id _Nullable result, NSError *_Nullable error) {
+      completion:^(id, NSError *_Nullable error) {
         [expectation fulfill];
         NSString *message =
             [NSString stringWithFormat:@"Expected the sequence (%@), to fail, but it didn't.",
                                        [self stageNames]];
-        [self->_testCase assertError:error message:message];
+        [self->_testCase assertError:error message:message code:expected];
       }];
 
   [_testCase awaitExpectations];
 }
 
 - (void)cleanupTester {
-  _stages = [NSArray array];
+  self.stages = [NSArray array];
   // Set the docRef to something else to lose the original reference.
-  _docRef = [[self->_db collectionWithPath:@"reset"] documentWithAutoID];
+  self.docRef = [[self->_db collectionWithPath:@"reset"] documentWithAutoID];
 }
 
 - (NSString *)stageNames {
   NSMutableArray<NSString *> *seqList = [NSMutableArray array];
-  for (TransactionStage stage in _stages) {
+  for (TransactionStage stage in self.stages) {
     if (stage == delete1) {
       [seqList addObject:@"delete"];
     } else if (stage == update1 || stage == update2) {
@@ -371,7 +365,7 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
 
   XCTestExpectation *expectation = [self expectationWithDescription:@"transaction"];
   [firestore
-      runTransactionWithBlock:^id _Nullable(FIRTransaction *transaction, NSError **error) {
+      runTransactionWithBlock:^id _Nullable(FIRTransaction *transaction, NSError **) {
         [transaction setData:@{@"a" : @"b", @"nested" : @{@"a" : @"b"}} forDocument:doc];
         [transaction setData:@{@"c" : @"d", @"nested" : @{@"c" : @"d"}} forDocument:doc merge:YES];
         return @YES;
@@ -398,7 +392,7 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
   [self writeDocumentRef:doc data:@{@"count" : @(5.0)}];
 
   // Skip backoff delays.
-  [firestore workerQueue] -> SkipDelaysForTimerId(TimerId::RetryTransaction);
+  [firestore workerQueue]->SkipDelaysForTimerId(TimerId::RetryTransaction);
 
   // Make 3 transactions that will all increment.
   int total = 3;
@@ -422,7 +416,7 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
           [transaction setData:@{@"count" : @(newCount)} forDocument:doc];
           return @YES;
         }
-        completion:^(id _Nullable result, NSError *_Nullable error) {
+        completion:^(id, NSError *) {
           [expectation fulfill];
         }];
   }
@@ -443,7 +437,7 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
   [self writeDocumentRef:doc data:@{@"count" : @(5.0), @"other" : @"yes"}];
 
   // Skip backoff delays.
-  [firestore workerQueue] -> SkipDelaysForTimerId(TimerId::RetryTransaction);
+  [firestore workerQueue]->SkipDelaysForTimerId(TimerId::RetryTransaction);
 
   // Make 3 transactions that will all increment.
   int total = 3;
@@ -469,7 +463,7 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
           [transaction updateData:@{@"count" : @(newCount)} forDocument:doc];
           return @YES;
         }
-        completion:^(id _Nullable result, NSError *_Nullable error) {
+        completion:^(id, NSError *) {
           [expectation fulfill];
         }];
   }
@@ -492,7 +486,7 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
   [self writeDocumentRef:doc1 data:@{@"count" : @(15.0)}];
 
   // Skip backoff delays.
-  [firestore workerQueue] -> SkipDelaysForTimerId(TimerId::RetryTransaction);
+  [firestore workerQueue]->SkipDelaysForTimerId(TimerId::RetryTransaction);
 
   XCTestExpectation *expectation = [self expectationWithDescription:@"transaction"];
   [firestore
@@ -509,7 +503,7 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
         [doc1 setData:@{
           @"count" : @(1234)
         }
-            completion:^(NSError *_Nullable error) {
+            completion:^(NSError *) {
               dispatch_semaphore_signal(writeSemaphore);
             }];
         // We can block on it, because transactions run on a background queue.
@@ -519,7 +513,7 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
         [transaction setData:@{@"count" : @(16)} forDocument:doc2];
         return nil;
       }
-      completion:^(id _Nullable result, NSError *_Nullable error) {
+      completion:^(id, NSError *_Nullable error) {
         XCTAssertNil(error);
         XCTAssertEqual(counter->load(), 2);
         [expectation fulfill];
@@ -537,7 +531,7 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
   [self writeDocumentRef:doc data:@{@"count" : @(15.0)}];
 
   // Skip backoff delays.
-  [firestore workerQueue] -> SkipDelaysForTimerId(TimerId::RetryTransaction);
+  [firestore workerQueue]->SkipDelaysForTimerId(TimerId::RetryTransaction);
 
   XCTestExpectation *expectation = [self expectationWithDescription:@"transaction"];
   [firestore
@@ -552,7 +546,7 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
         [doc setData:@{
           @"count" : @(1234 + (int)(*counter))
         }
-            completion:^(NSError *_Nullable error) {
+            completion:^(NSError *) {
               dispatch_semaphore_signal(writeSemaphore);
             }];
         // We can block on it, because transactions run on a background queue.
@@ -566,7 +560,7 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
         XCTAssertNotNil(*error);
         return nil;
       }
-      completion:^(id _Nullable result, NSError *_Nullable error) {
+      completion:^(id, NSError *_Nullable error) {
         [expectation fulfill];
         XCTAssertNotNil(error);
         XCTAssertEqual(error.code, FIRFirestoreErrorCodeAborted);
@@ -589,7 +583,7 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
         [doc setData:@{
           @"count" : @(1234)
         }
-            completion:^(NSError *_Nullable error) {
+            completion:^(NSError *) {
               dispatch_semaphore_signal(writeSemaphore);
             }];
         // We can block on it, because transactions run on a background queue.
@@ -600,7 +594,7 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
         [transaction updateData:@{@"count" : @(16)} forDocument:doc];
         return nil;
       }
-      completion:^(id _Nullable result, NSError *_Nullable error) {
+      completion:^(id, NSError *_Nullable error) {
         [expectation fulfill];
         XCTAssertNotNil(error);
         XCTAssertEqual(error.code, FIRFirestoreErrorCodeInvalidArgument);
@@ -621,7 +615,7 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
         [transaction getDocument:doc error:error];
         return nil;
       }
-      completion:^(id _Nullable result, NSError *_Nullable error) {
+      completion:^(id, NSError *_Nullable error) {
         XCTAssertNil(error);
         [expectation fulfill];
       }];
@@ -646,7 +640,7 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
         [transaction updateData:@{@"count" : @(16)} forDocument:doc];
         return nil;
       }
-      completion:^(id _Nullable result, NSError *_Nullable error) {
+      completion:^(id, NSError *_Nullable error) {
         [expectation fulfill];
         XCTAssertNotNil(error);
         XCTAssertEqual(error.code, FIRFirestoreErrorCodeInvalidArgument);
@@ -659,7 +653,7 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
   FIRFirestore *firestore = [self firestore];
   XCTestExpectation *expectation = [self expectationWithDescription:@"transaction"];
   [firestore
-      runTransactionWithBlock:^id _Nullable(FIRTransaction *transaction, NSError **error) {
+      runTransactionWithBlock:^id _Nullable(FIRTransaction *, NSError **) {
         return @"yes";
       }
       completion:^(id _Nullable result, NSError *_Nullable error) {
@@ -712,7 +706,7 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
                     forDocument:doc];
         return nil;
       }
-      completion:^(id result, NSError *error) {
+      completion:^(id, NSError *error) {
         XCTAssertNil(error);
         [doc getDocumentWithCompletion:^(FIRDocumentSnapshot *snapshot, NSError *error) {
           XCTAssertNil(error);
@@ -745,7 +739,7 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
                     forDocument:doc];
         return nil;
       }
-      completion:^(id result, NSError *error) {
+      completion:^(id, NSError *error) {
         XCTAssertNil(error);
         [doc getDocumentWithCompletion:^(FIRDocumentSnapshot *snapshot, NSError *error) {
           XCTAssertNil(error);

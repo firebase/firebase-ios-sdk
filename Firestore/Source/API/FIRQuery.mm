@@ -34,24 +34,26 @@
 #import "Firestore/Source/API/FIRSnapshotMetadata+Internal.h"
 #import "Firestore/Source/API/FSTUserDataConverter.h"
 
-#include "Firestore/core/src/firebase/firestore/api/query_core.h"
-#include "Firestore/core/src/firebase/firestore/api/query_listener_registration.h"
-#include "Firestore/core/src/firebase/firestore/api/query_snapshot.h"
-#include "Firestore/core/src/firebase/firestore/core/bound.h"
-#include "Firestore/core/src/firebase/firestore/core/direction.h"
-#include "Firestore/core/src/firebase/firestore/core/filter.h"
-#include "Firestore/core/src/firebase/firestore/core/firestore_client.h"
-#include "Firestore/core/src/firebase/firestore/core/order_by.h"
-#include "Firestore/core/src/firebase/firestore/core/query.h"
-#include "Firestore/core/src/firebase/firestore/model/document_key.h"
-#include "Firestore/core/src/firebase/firestore/model/field_path.h"
-#include "Firestore/core/src/firebase/firestore/model/field_value.h"
-#include "Firestore/core/src/firebase/firestore/model/resource_path.h"
-#include "Firestore/core/src/firebase/firestore/util/error_apple.h"
-#include "Firestore/core/src/firebase/firestore/util/exception.h"
-#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
-#include "Firestore/core/src/firebase/firestore/util/statusor.h"
-#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+#include "Firestore/core/src/api/query_core.h"
+#include "Firestore/core/src/api/query_listener_registration.h"
+#include "Firestore/core/src/api/query_snapshot.h"
+#include "Firestore/core/src/api/source.h"
+#include "Firestore/core/src/core/bound.h"
+#include "Firestore/core/src/core/direction.h"
+#include "Firestore/core/src/core/filter.h"
+#include "Firestore/core/src/core/firestore_client.h"
+#include "Firestore/core/src/core/listen_options.h"
+#include "Firestore/core/src/core/order_by.h"
+#include "Firestore/core/src/core/query.h"
+#include "Firestore/core/src/model/document_key.h"
+#include "Firestore/core/src/model/field_path.h"
+#include "Firestore/core/src/model/field_value.h"
+#include "Firestore/core/src/model/resource_path.h"
+#include "Firestore/core/src/util/error_apple.h"
+#include "Firestore/core/src/util/exception.h"
+#include "Firestore/core/src/util/hard_assert.h"
+#include "Firestore/core/src/util/statusor.h"
+#include "Firestore/core/src/util/string_apple.h"
 #include "absl/memory/memory.h"
 
 namespace util = firebase::firestore::util;
@@ -213,6 +215,16 @@ int32_t SaturatedLimitValue(NSInteger limit) {
   return [self queryWithFilterOperator:Filter::Operator::Equal path:path.internalValue value:value];
 }
 
+- (FIRQuery *)queryWhereField:(NSString *)field isNotEqualTo:(id)value {
+  return [self queryWithFilterOperator:Filter::Operator::NotEqual field:field value:value];
+}
+
+- (FIRQuery *)queryWhereFieldPath:(FIRFieldPath *)path isNotEqualTo:(id)value {
+  return [self queryWithFilterOperator:Filter::Operator::NotEqual
+                                  path:path.internalValue
+                                 value:value];
+}
+
 - (FIRQuery *)queryWhereField:(NSString *)field isLessThan:(id)value {
   return [self queryWithFilterOperator:Filter::Operator::LessThan field:field value:value];
 }
@@ -283,6 +295,16 @@ int32_t SaturatedLimitValue(NSInteger limit) {
   return [self queryWithFilterOperator:Filter::Operator::In path:path.internalValue value:values];
 }
 
+- (FIRQuery *)queryWhereField:(NSString *)field notIn:(NSArray<id> *)values {
+  return [self queryWithFilterOperator:Filter::Operator::NotIn field:field value:values];
+}
+
+- (FIRQuery *)queryWhereFieldPath:(FIRFieldPath *)path notIn:(NSArray<id> *)values {
+  return [self queryWithFilterOperator:Filter::Operator::NotIn
+                                  path:path.internalValue
+                                 value:values];
+}
+
 - (FIRQuery *)queryFilteredUsingComparisonPredicate:(NSPredicate *)predicate {
   NSComparisonPredicate *comparison = (NSComparisonPredicate *)predicate;
   if (comparison.comparisonPredicateModifier != NSDirectPredicateModifier) {
@@ -305,6 +327,8 @@ int32_t SaturatedLimitValue(NSInteger limit) {
         return [self queryWhereField:path isGreaterThan:value];
       case NSGreaterThanOrEqualToPredicateOperatorType:
         return [self queryWhereField:path isGreaterThanOrEqualTo:value];
+      case NSNotEqualToPredicateOperatorType:
+        return [self queryWhereField:path isNotEqualTo:value];
       default:;  // Fallback below to throw assertion.
     }
   } else if ([comparison.leftExpression expressionType] == NSConstantValueExpressionType &&
@@ -322,6 +346,8 @@ int32_t SaturatedLimitValue(NSInteger limit) {
         return [self queryWhereField:path isLessThan:value];
       case NSGreaterThanOrEqualToPredicateOperatorType:
         return [self queryWhereField:path isLessThanOrEqualTo:value];
+      case NSNotEqualToPredicateOperatorType:
+        return [self queryWhereField:path isNotEqualTo:value];
       default:;  // Fallback below to throw assertion.
     }
   } else {
@@ -356,10 +382,9 @@ int32_t SaturatedLimitValue(NSInteger limit) {
     return [self queryFilteredUsingComparisonPredicate:predicate];
   } else if ([predicate isKindOfClass:[NSCompoundPredicate class]]) {
     return [self queryFilteredUsingCompoundPredicate:predicate];
-  } else if ([predicate isKindOfClass:[[NSPredicate
-                                          predicateWithBlock:^BOOL(id obj, NSDictionary *bindings) {
-                                            return true;
-                                          }] class]]) {
+  } else if ([predicate isKindOfClass:[[NSPredicate predicateWithBlock:^BOOL(id, NSDictionary *) {
+                          return true;
+                        }] class]]) {
     ThrowInvalidArgument("Invalid query. Block-based predicates are not supported. Please use "
                          "predicateWithFormat to create predicates instead.");
   } else {
@@ -482,7 +507,8 @@ int32_t SaturatedLimitValue(NSInteger limit) {
                                  path:(const FieldPath &)fieldPath
                                 value:(id)value {
   FieldValue fieldValue = [self parsedQueryValue:value
-                                     allowArrays:filterOperator == Filter::Operator::In];
+                                     allowArrays:filterOperator == Filter::Operator::In ||
+                                                 filterOperator == Filter::Operator::NotIn];
   auto describer = [value] { return MakeString(NSStringFromClass([value class])); };
   return Wrap(_query.Filter(fieldPath, filterOperator, std::move(fieldValue), describer));
 }

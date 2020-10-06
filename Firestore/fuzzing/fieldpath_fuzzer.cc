@@ -16,17 +16,18 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <string>
 
-#include "Firestore/core/src/firebase/firestore/model/field_path.h"
+#include "Firestore/core/src/model/field_path.h"
 
 using firebase::firestore::model::FieldPath;
 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
   const char* str_ptr = reinterpret_cast<const char*>(data);
-  absl::string_view str_view{str_ptr, size};
+  std::string str{str_ptr, size};
 
   try {
-    FieldPath fp = FieldPath::FromServerFormat(str_view);
+    FieldPath fp = FieldPath::FromServerFormat(str);
   } catch (...) {
     // Ignore caught exceptions.
   }

@@ -16,7 +16,7 @@
 
 #if TARGET_OS_IOS || TARGET_OS_TV
 #import <MobileCoreServices/MobileCoreServices.h>
-#elif TARGET_OS_OSX
+#elif TARGET_OS_OSX || TARGET_OS_WATCH
 #import <CoreServices/CoreServices.h>
 #endif
 
@@ -26,7 +26,11 @@
 #import "FirebaseStorage/Sources/FIRStorageErrors.h"
 #import "FirebaseStorage/Sources/FIRStoragePath.h"
 
+#if SWIFT_PACKAGE
+@import GTMSessionFetcherCore;
+#else
 #import <GTMSessionFetcher/GTMSessionFetcher.h>
+#endif
 
 // This is the list at https://cloud.google.com/storage/docs/json_api/ without &, ; and +.
 NSString *const kGCSObjectAllowedCharacterSet =

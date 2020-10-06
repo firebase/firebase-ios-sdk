@@ -14,39 +14,48 @@
  * limitations under the License.
  */
 
-#import "GDTCORTests/Unit/Helpers/GDTCOREventGenerator.h"
+#import "GoogleDataTransport/GDTCORTests/Unit/Helpers/GDTCOREventGenerator.h"
 
-#import <GoogleDataTransport/GDTCORClock.h>
-#import <GoogleDataTransport/GDTCOREvent.h>
-#import <GoogleDataTransport/GDTCORStoredEvent.h>
+#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORClock.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCOREvent.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORTargets.h"
 
-#import "GDTCORLibrary/Private/GDTCOREvent_Private.h"
+#import "GoogleDataTransport/GDTCORLibrary/Private/GDTCOREvent_Private.h"
+#import "GoogleDataTransport/GDTCORTests/Unit/Helpers/GDTCORDataObjectTesterClasses.h"
 
 @implementation GDTCOREventGenerator
 
-+ (NSMutableSet<GDTCORStoredEvent *> *)generate3StoredEvents {
++ (NSMutableSet<GDTCOREvent *> *)generate3Events {
   static NSUInteger counter = 0;
-  NSString *cachePath = NSTemporaryDirectory();
-  NSString *filePath =
-      [cachePath stringByAppendingPathComponent:[NSString stringWithFormat:@"test-%ld.txt",
-                                                                           (unsigned long)counter]];
   int howManyToGenerate = 3;
-  NSMutableSet<GDTCORStoredEvent *> *set =
-      [[NSMutableSet alloc] initWithCapacity:howManyToGenerate];
+  NSMutableSet<GDTCOREvent *> *set = [[NSMutableSet alloc] initWithCapacity:howManyToGenerate];
   for (int i = 0; i < howManyToGenerate; i++) {
-    GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"1337" target:50];
+    GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:@"1337" target:kGDTCORTargetTest];
     event.clockSnapshot = [GDTCORClock snapshot];
     event.qosTier = GDTCOREventQosDefault;
-    event.dataObjectTransportBytes = [@"testing!" dataUsingEncoding:NSUTF8StringEncoding];
+    event.dataObject = [[GDTCORDataObjectTesterSimple alloc] initWithString:@"testing!"];
+    NSString *filePath = [NSString stringWithFormat:@"test-%ld.txt", (unsigned long)counter];
     [[NSFileManager defaultManager] createFileAtPath:filePath
                                             contents:[NSData data]
                                           attributes:nil];
-    GDTCORDataFuture *dataFuture =
-        [[GDTCORDataFuture alloc] initWithFileURL:[NSURL fileURLWithPath:filePath]];
-    [set addObject:[event storedEventWithDataFuture:dataFuture]];
+    [set addObject:event];
     counter++;
   }
   return set;
+}
+
++ (GDTCOREvent *)generateEventForTarget:(GDTCORTarget)target
+                                qosTier:(nullable NSNumber *)qosTier
+                              mappingID:(nullable NSString *)mappingID {
+  GDTCOREventQoS determinedQosTier =
+      qosTier == nil ? arc4random_uniform(GDTCOREventQoSWifiOnly) : qosTier.intValue;
+  NSString *determinedMappingID = mappingID == nil ? [NSDate date].description : mappingID;
+
+  GDTCOREvent *event = [[GDTCOREvent alloc] initWithMappingID:determinedMappingID target:target];
+  event.clockSnapshot = [GDTCORClock snapshot];
+  event.qosTier = determinedQosTier;
+  event.dataObject = [[GDTCORDataObjectTesterSimple alloc] initWithString:@"testing!"];
+  return event;
 }
 
 @end

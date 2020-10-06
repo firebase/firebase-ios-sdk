@@ -15,11 +15,11 @@
  */
 
 #import <XCTest/XCTest.h>
+#import "OCMock.h"
 
-#import "sqlite3.h"
+#import <sqlite3.h>
 
-#import <FirebaseCore/FIRAppInternal.h>
-#import <OCMock/OCMock.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "FirebaseRemoteConfig/Sources/Private/RCNConfigSettings.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigContent.h"
@@ -76,8 +76,8 @@
       XCTAssertTrue(success);
       if (count == 100) {
         // Migrate to the new namespace.
-        [_DBManager createOrOpenDatabase];
-        [_DBManager
+        [self->_DBManager createOrOpenDatabase];
+        [self->_DBManager
             loadMainWithBundleIdentifier:bundleIdentifier
                        completionHandler:^(
                            BOOL loadSuccess,
@@ -125,18 +125,18 @@
       XCTAssertTrue(success);
       if (count == 100) {
         // check DB read correctly
-        [_DBManager loadMainWithBundleIdentifier:bundleIdentifier
-                               completionHandler:^(BOOL success, NSDictionary *fetchedConfig,
-                                                   NSDictionary *activeConfig,
-                                                   NSDictionary *defaultConfig) {
-                                 NSMutableDictionary *res = [fetchedConfig mutableCopy];
-                                 XCTAssertTrue(success);
-                                 FIRRemoteConfigValue *value = res[namespace_p][@"key100"];
-                                 XCTAssertEqualObjects(value.stringValue, @"value100");
-                                 if (success) {
-                                   [loadConfigContentExpectation fulfill];
-                                 }
-                               }];
+        [self->_DBManager loadMainWithBundleIdentifier:bundleIdentifier
+                                     completionHandler:^(BOOL success, NSDictionary *fetchedConfig,
+                                                         NSDictionary *activeConfig,
+                                                         NSDictionary *defaultConfig) {
+                                       NSMutableDictionary *res = [fetchedConfig mutableCopy];
+                                       XCTAssertTrue(success);
+                                       FIRRemoteConfigValue *value = res[namespace_p][@"key100"];
+                                       XCTAssertEqualObjects(value.stringValue, @"value100");
+                                       if (success) {
+                                         [loadConfigContentExpectation fulfill];
+                                       }
+                                     }];
       }
     };
     NSString *value = [NSString stringWithFormat:@"value%d", i];
@@ -165,7 +165,7 @@
       XCTAssertTrue(success);
       if (count == 100) {
         // check DB read correctly
-        NSDictionary *result = [_DBManager loadInternalMetadataTable];
+        NSDictionary *result = [self->_DBManager loadInternalMetadataTable];
         NSString *stringValue = [[NSString alloc] initWithData:result[@"key100"]
                                                       encoding:NSUTF8StringEncoding];
         XCTAssertEqualObjects(stringValue, @"value100");
@@ -193,7 +193,8 @@
   NSString *bundleIdentifier = [NSBundle mainBundle].bundleIdentifier;
   NSTimeInterval lastFetchTimestamp = [NSDate date].timeIntervalSince1970;
 
-  NSDictionary *deviceContext = @{@"app_version" : @"1.0.1", @"os_version" : @"iOS9.1"};
+  NSDictionary *deviceContext =
+      @{@"app_version" : @"1.0.1", @"app_build" : @"1.0.1.11", @"os_version" : @"iOS9.1"};
   NSDictionary *syncedDBCustomVariables = @{@"user_level" : @15, @"user_experiences" : @"2468"};
   NSArray *successFetchTimes = @[];
   NSTimeInterval now = [NSDate date].timeIntervalSince1970;
@@ -232,7 +233,7 @@
   };
 
   RCNDBCompletion completion = ^(BOOL success, NSDictionary *result1) {
-    NSDictionary *result = [_DBManager loadMetadataWithBundleIdentifier:bundleIdentifier];
+    NSDictionary *result = [self->_DBManager loadMetadataWithBundleIdentifier:bundleIdentifier];
     XCTAssertNotNil(result);
     XCTAssertEqualObjects(result[RCNKeyBundleIdentifier], bundleIdentifier);
     XCTAssertEqual([result[RCNKeyFetchTime] doubleValue], lastFetchTimestamp);
@@ -274,12 +275,12 @@
     XCTAssertTrue(success);
 
     // Delete the key for given namespace.
-    [_DBManager deleteRecordFromMainTableWithNamespace:namespaceToDelete
-                                      bundleIdentifier:bundleIdentifier
-                                            fromSource:RCNDBSourceActive];
+    [self->_DBManager deleteRecordFromMainTableWithNamespace:namespaceToDelete
+                                            bundleIdentifier:bundleIdentifier
+                                                  fromSource:RCNDBSourceActive];
 
     // Read from the database and verify expected values.
-    [_DBManager
+    [self->_DBManager
         loadMainWithBundleIdentifier:bundleIdentifier
                    completionHandler:^(BOOL success, NSDictionary *fetchedConfig,
                                        NSDictionary *activeConfig, NSDictionary *defaultConfig) {
@@ -300,7 +301,7 @@
     XCTAssertTrue(success);
 
     // Ensure DB read succeeds.
-    [_DBManager
+    [self->_DBManager
         loadMainWithBundleIdentifier:bundleIdentifier
                    completionHandler:^(BOOL success, NSDictionary *fetchedConfig,
                                        NSDictionary *activeConfig, NSDictionary *defaultConfig) {
@@ -378,7 +379,7 @@
             experimentResults[@RCNExperimentTableKeyMetadata][@"experiment_new_metadata"]);
         [updateAndLoadExperimentExpectation fulfill];
       };
-      [_DBManager loadExperimentWithCompletionHandler:readCompletion];
+      [self->_DBManager loadExperimentWithCompletionHandler:readCompletion];
     };
 
     NSError *error;
@@ -387,9 +388,9 @@
                                                                  options:NSJSONWritingPrettyPrinted
                                                                    error:&error];
 
-    [_DBManager insertExperimentTableWithKey:@RCNExperimentTableKeyMetadata
-                                       value:serializedMetadata
-                           completionHandler:writeMetadataCompletion];
+    [self->_DBManager insertExperimentTableWithKey:@RCNExperimentTableKeyMetadata
+                                             value:serializedMetadata
+                                 completionHandler:writeMetadataCompletion];
   };
   [_DBManager insertExperimentTableWithKey:@RCNExperimentTableKeyPayload
                                      value:[[NSData alloc] init]
@@ -455,7 +456,7 @@
 
   // Metadata row must exist before update
   RCNDBCompletion createMetadataCompletion = ^(BOOL success, NSDictionary *createResult) {
-    NSDictionary *result = [_DBManager loadMetadataWithBundleIdentifier:bundleIdentifier];
+    NSDictionary *result = [self->_DBManager loadMetadataWithBundleIdentifier:bundleIdentifier];
     XCTAssertTrue(success);
     XCTAssertNotNil(result);
     XCTAssertEqual([result[RCNKeyLastFetchStatus] intValue],
@@ -463,7 +464,7 @@
     XCTAssertEqual([result[RCNKeyLastFetchError] intValue], (int)FIRRemoteConfigErrorUnknown);
 
     RCNDBCompletion updateMetadataCompletion = ^(BOOL success, NSDictionary *updateResult) {
-      NSDictionary *result = [_DBManager loadMetadataWithBundleIdentifier:bundleIdentifier];
+      NSDictionary *result = [self->_DBManager loadMetadataWithBundleIdentifier:bundleIdentifier];
 
       XCTAssertTrue(success);
       XCTAssertNotNil(result);
@@ -473,7 +474,7 @@
       [updateAndLoadMetadataExpectation fulfill];
     };
     // Update with throttle status.
-    [_DBManager
+    [self->_DBManager
         updateMetadataWithOption:RCNUpdateOptionFetchStatus
                           values:@[
                             @(FIRRemoteConfigFetchStatusThrottled), @(FIRRemoteConfigErrorThrottled)
@@ -498,11 +499,11 @@
   RCNDBCompletion createMetadataCompletion = ^(BOOL success, NSDictionary *createResult) {
     XCTAssertTrue(success);
     // Read newly created metadata.
-    NSDictionary *result = [_DBManager loadMetadataWithBundleIdentifier:bundleIdentifier];
+    NSDictionary *result = [self->_DBManager loadMetadataWithBundleIdentifier:bundleIdentifier];
     XCTAssertNotNil(result);
     XCTAssertEqual([result[RCNKeyLastApplyTime] doubleValue], (double)100);
     RCNDBCompletion updateMetadataCompletion = ^(BOOL success, NSDictionary *updateResult) {
-      NSDictionary *result = [_DBManager loadMetadataWithBundleIdentifier:bundleIdentifier];
+      NSDictionary *result = [self->_DBManager loadMetadataWithBundleIdentifier:bundleIdentifier];
 
       XCTAssertTrue(success);
       XCTAssertNotNil(result);
@@ -510,9 +511,9 @@
       [updateAndLoadMetadataExpectation fulfill];
     };
     // Update apply config timestamp.
-    [_DBManager updateMetadataWithOption:RCNUpdateOptionApplyTime
-                                  values:@[ @(lastApplyTimestamp) ]
-                       completionHandler:updateMetadataCompletion];
+    [self->_DBManager updateMetadataWithOption:RCNUpdateOptionApplyTime
+                                        values:@[ @(lastApplyTimestamp) ]
+                             completionHandler:updateMetadataCompletion];
   };
 
   [_DBManager insertMetadataTableWithValues:[self createSampleMetadata]
@@ -528,12 +529,12 @@
 
   // Metadata row must exist before update
   RCNDBCompletion createMetadataCompletion = ^(BOOL success, NSDictionary *createResult) {
-    NSDictionary *result = [_DBManager loadMetadataWithBundleIdentifier:bundleIdentifier];
+    NSDictionary *result = [self->_DBManager loadMetadataWithBundleIdentifier:bundleIdentifier];
     XCTAssertTrue(success);
     XCTAssertNotNil(result);
     XCTAssertEqual([result[RCNKeyLastSetDefaultsTime] doubleValue], (double)200);
     RCNDBCompletion updateMetadataCompletion = ^(BOOL success, NSDictionary *updateResult) {
-      NSDictionary *result = [_DBManager loadMetadataWithBundleIdentifier:bundleIdentifier];
+      NSDictionary *result = [self->_DBManager loadMetadataWithBundleIdentifier:bundleIdentifier];
 
       XCTAssertTrue(success);
       XCTAssertNotNil(result);
@@ -541,9 +542,9 @@
       [updateAndLoadMetadataExpectation fulfill];
     };
     // Update setting default config timestamp.
-    [_DBManager updateMetadataWithOption:RCNUpdateOptionDefaultTime
-                                  values:@[ @(lastSetDefaultsTimestamp) ]
-                       completionHandler:updateMetadataCompletion];
+    [self->_DBManager updateMetadataWithOption:RCNUpdateOptionDefaultTime
+                                        values:@[ @(lastSetDefaultsTimestamp) ]
+                             completionHandler:updateMetadataCompletion];
   };
 
   [_DBManager insertMetadataTableWithValues:[self createSampleMetadata]

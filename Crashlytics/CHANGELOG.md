@@ -1,3 +1,56 @@
+# Unreleased
+- [changed] Improved upload-symbols conversion speed. Customers with large dSYMs should see a significant improvement in the it takes to upload Crashlytics symbols.
+- [fixed] Fixed Apple Watch crash related to sigaction (#6434).
+
+# v4.6.0
+- [added] Added stackFrameWithAddress API for recording custom errors that are symbolicated on the backend (#5975).
+- [fixed] Fixed comment typos (#6363).
+- [fixed] Remove device information from binary image data crash info entries (#6382).
+
+# v4.5.0
+- [fixed] Fixed a compiler warning and removed unused networking code (#6210).
+- [fixed] Fixed a crash that occurred rarely when trying to restart a URL session task without a valid request (#5984).
+- [added] Introduced watchOS support (#6262).
+
+# v4.3.1
+- [fixed] Fixed a segmentation fault that could occur when writing crash contexts to disk (#6048).
+
+# v4.3.0
+
+- [changed] Add dispatch_once for opening sdk log file. (#5904)
+- [changed] Functionally neutral updated import references for dependencies. (#5902)
+
+# v4.2.0
+
+- [changed] Removed an unnecessary linker rule for embedding the Info.plist. (#5804)
+
+# v4.1.1
+
+- [fixed] Fixed a crash that could occur if certain plist fields necessary to create Crashlytics records were missing at runtime. Also added some diagnostic logging to make the issue cause more explicit (#5565).
+
+# v4.1.0
+
+- [fixed] Fixed unchecked `malloc`s in Crashlytics (#5428).
+- [fixed] Fixed an instance of undefined behavior when loading files from disk (#5454).
+
+# v4.0.0
+
+ - [changed] The Firebase Crashlytics SDK is now generally available.
+
+# v4.0.0-beta.7
+
+ - [changed] Increased network timeout for symbol uploads to improve reliability on limited internet connections. (#5228)
+
+# v4.0.0-beta.6
+
+ - [added] Added a new API to record custom exception models and stacktraces to Crashlytics. This is a replacement for the `recordCustomException` API that existed in the Fabric Crashlytics SDK (#5055)
+ - [fixed] Fixed an issue with the `sendUnsentReports` API where reports wouldn't be uploaded until the method was called twice in specific instances (#5060)
+ - [changed] Changed Crashlytics to use GoogleDataTransport to upload crashes (#4989)
+ - [changed] Changed the origin that Crashlytics uses to register Crash events for Crash Free Users. Ensure you have installed Firebase Analytics version 6.3.1 or above (#5030)
+
+# v4.0.0-beta.5
+
+- [changed] Changed two endpoints in the Firebase Crashlytics SDK with no expected end-user impact (#4953, #4988).
 
 # v4.0.0-beta.4
 

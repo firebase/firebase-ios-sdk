@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRKeyedArchivingUtils.h"
+#import "FirebaseInstallations/Source/Tests/Utils/FIRKeyedArchivingUtils.h"
 
 @implementation FIRKeyedArchivingUtils
 

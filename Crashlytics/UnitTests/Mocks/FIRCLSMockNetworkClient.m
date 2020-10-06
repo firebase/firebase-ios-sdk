@@ -12,13 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRCLSMockNetworkClient.h"
+#import "Crashlytics/UnitTests/Mocks/FIRCLSMockNetworkClient.h"
 
 @implementation FIRCLSMockNetworkClient
 
 - (void)startUploadRequest:(NSURLRequest *)request
                   filePath:(NSString *)path
+       dataCollectionToken:(FIRCLSDataCollectionToken *)dataCollectionToken
                immediately:(BOOL)immediate {
+  self.startUploadRequest = request;
   NSLog(@"intercepted request");
 }
 

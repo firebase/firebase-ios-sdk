@@ -12,15 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRCLSSymbolicationOperation.h"
+#import "Crashlytics/Crashlytics/Operations/Symbolication/FIRCLSSymbolicationOperation.h"
 
-#import "FIRCLSStackFrame.h"
-#import "FIRCLSSymbolResolver.h"
+#import "Crashlytics/Crashlytics/Models/FIRCLSSymbolResolver.h"
 
 @implementation FIRCLSSymbolicationOperation
 
 - (void)main {
-  [self enumerateFramesWithBlock:^(FIRCLSStackFrame *frame) {
+  [self enumerateFramesWithBlock:^(FIRStackFrame *frame) {
     [self.symbolResolver updateStackFrame:frame];
   }];
 }

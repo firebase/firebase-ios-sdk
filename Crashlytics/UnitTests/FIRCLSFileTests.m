@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "FIRCLSFile.h"
+#include "Crashlytics/Crashlytics/Helpers/FIRCLSFile.h"
 
 #import <XCTest/XCTest.h>
 

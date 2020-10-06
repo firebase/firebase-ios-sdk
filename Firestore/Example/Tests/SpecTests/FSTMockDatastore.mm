@@ -21,21 +21,22 @@
 #include <queue>
 #include <utility>
 
-#include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
-#include "Firestore/core/src/firebase/firestore/auth/empty_credentials_provider.h"
-#include "Firestore/core/src/firebase/firestore/core/database_info.h"
-#include "Firestore/core/src/firebase/firestore/local/target_data.h"
-#include "Firestore/core/src/firebase/firestore/model/database_id.h"
-#include "Firestore/core/src/firebase/firestore/model/mutation.h"
-#include "Firestore/core/src/firebase/firestore/remote/connectivity_monitor.h"
-#include "Firestore/core/src/firebase/firestore/remote/datastore.h"
-#include "Firestore/core/src/firebase/firestore/remote/grpc_connection.h"
-#include "Firestore/core/src/firebase/firestore/remote/serializer.h"
-#include "Firestore/core/src/firebase/firestore/remote/stream.h"
-#include "Firestore/core/src/firebase/firestore/util/async_queue.h"
-#include "Firestore/core/src/firebase/firestore/util/log.h"
-#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
-#include "Firestore/core/test/firebase/firestore/util/create_noop_connectivity_monitor.h"
+#include "Firestore/core/src/auth/credentials_provider.h"
+#include "Firestore/core/src/auth/empty_credentials_provider.h"
+#include "Firestore/core/src/core/database_info.h"
+#include "Firestore/core/src/local/target_data.h"
+#include "Firestore/core/src/model/database_id.h"
+#include "Firestore/core/src/model/mutation.h"
+#include "Firestore/core/src/remote/connectivity_monitor.h"
+#include "Firestore/core/src/remote/datastore.h"
+#include "Firestore/core/src/remote/firebase_metadata_provider.h"
+#include "Firestore/core/src/remote/grpc_connection.h"
+#include "Firestore/core/src/remote/serializer.h"
+#include "Firestore/core/src/remote/stream.h"
+#include "Firestore/core/src/util/async_queue.h"
+#include "Firestore/core/src/util/log.h"
+#include "Firestore/core/src/util/string_apple.h"
+#include "Firestore/core/test/unit/remote/create_noop_connectivity_monitor.h"
 #include "absl/memory/memory.h"
 #include "grpcpp/completion_queue.h"
 
@@ -51,13 +52,13 @@ using firebase::firestore::model::MutationResult;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
 using firebase::firestore::remote::ConnectivityMonitor;
+using firebase::firestore::remote::FirebaseMetadataProvider;
 using firebase::firestore::remote::GrpcConnection;
 using firebase::firestore::remote::WatchChange;
 using firebase::firestore::remote::WatchStream;
 using firebase::firestore::remote::WatchTargetChange;
 using firebase::firestore::remote::WriteStream;
 using firebase::firestore::util::AsyncQueue;
-using firebase::firestore::util::CreateNoOpConnectivityMonitor;
 using firebase::firestore::util::Status;
 
 namespace firebase {
@@ -243,8 +244,11 @@ class MockWriteStream : public WriteStream {
 
 MockDatastore::MockDatastore(const core::DatabaseInfo& database_info,
                              const std::shared_ptr<util::AsyncQueue>& worker_queue,
-                             std::shared_ptr<auth::CredentialsProvider> credentials)
-    : Datastore{database_info, worker_queue, credentials, CreateNoOpConnectivityMonitor()},
+                             std::shared_ptr<auth::CredentialsProvider> credentials,
+                             ConnectivityMonitor* connectivity_monitor,
+                             FirebaseMetadataProvider* firebase_metadata_provider)
+    : Datastore{database_info, worker_queue, credentials, connectivity_monitor,
+                firebase_metadata_provider},
       database_info_{&database_info},
       worker_queue_{worker_queue},
       credentials_{credentials} {

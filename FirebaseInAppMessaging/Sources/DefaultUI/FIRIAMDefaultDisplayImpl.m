@@ -14,20 +14,23 @@
  * limitations under the License.
  */
 
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
+
 #import <Foundation/Foundation.h>
 
-#import <FirebaseCore/FIRAppInternal.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
-#import <FirebaseInAppMessaging/FIRInAppMessaging.h>
-#import <FirebaseInAppMessaging/FIRInAppMessagingRendering.h>
-#import "FIRCore+InAppMessagingDisplay.h"
-#import "FIRIAMBannerViewController.h"
-#import "FIRIAMCardViewController.h"
-#import "FIRIAMDefaultDisplayImpl.h"
-#import "FIRIAMImageOnlyViewController.h"
-#import "FIRIAMModalViewController.h"
-#import "FIRIAMRenderingWindowHelper.h"
-#import "FIRIAMTimeFetcher.h"
+#import "FirebaseInAppMessaging/Sources/DefaultUI/Banner/FIRIAMBannerViewController.h"
+#import "FirebaseInAppMessaging/Sources/DefaultUI/Card/FIRIAMCardViewController.h"
+#import "FirebaseInAppMessaging/Sources/DefaultUI/FIRCore+InAppMessagingDisplay.h"
+#import "FirebaseInAppMessaging/Sources/DefaultUI/FIRIAMDefaultDisplayImpl.h"
+#import "FirebaseInAppMessaging/Sources/DefaultUI/FIRIAMRenderingWindowHelper.h"
+#import "FirebaseInAppMessaging/Sources/DefaultUI/ImageOnly/FIRIAMImageOnlyViewController.h"
+#import "FirebaseInAppMessaging/Sources/DefaultUI/Modal/FIRIAMModalViewController.h"
+#import "FirebaseInAppMessaging/Sources/Private/Util/FIRIAMTimeFetcher.h"
+#import "FirebaseInAppMessaging/Sources/Public/FirebaseInAppMessaging/FIRInAppMessaging.h"
+#import "FirebaseInAppMessaging/Sources/Public/FirebaseInAppMessaging/FIRInAppMessagingRendering.h"
 
 @implementation FIRIAMDefaultDisplayImpl
 
@@ -50,14 +53,17 @@
 + (NSBundle *)getViewResourceBundle {
   static NSBundle *resourceBundle;
   static dispatch_once_t onceToken;
+  Class myClass = [self class];
 
   dispatch_once(&onceToken, ^{
-    // TODO. This logic of finding the resource bundle may need to change once it's open
-    // sourced
-    NSBundle *containingBundle = [NSBundle mainBundle];
-    // This is assuming the display resource bundle is contained in the main bundle
-    NSURL *bundleURL = [containingBundle URLForResource:@"InAppMessagingDisplayResources"
-                                          withExtension:@"bundle"];
+    NSBundle *containingBundle;
+    NSURL *bundleURL;
+    // The containing bundle is different whether FIAM is statically or dynamically linked.
+    for (containingBundle in @[ [NSBundle mainBundle], [NSBundle bundleForClass:myClass] ]) {
+      bundleURL = [containingBundle URLForResource:@"InAppMessagingDisplayResources"
+                                     withExtension:@"bundle"];
+      if (bundleURL != nil) break;
+    }
     if (bundleURL == nil) {
       FIRLogWarning(kFIRLoggerInAppMessagingDisplay, @"I-FID100007",
                     @"FIAM Display Resource bundle "
@@ -265,3 +271,5 @@
   }
 }
 @end
+
+#endif  // TARGET_OS_IOS

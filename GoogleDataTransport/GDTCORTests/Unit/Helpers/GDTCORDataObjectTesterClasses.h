@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import <GoogleDataTransport/GDTCOREventDataObject.h>
+#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCOREventDataObject.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -25,6 +25,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** A string that will be turned into bytes. */
 @property(nonatomic) NSString *aString;
+
+/** Initializes an instance using the given string.
+ *
+ * @param aString A string whose UTF8 encoded bytes will be used for -transportBytes.
+ * @return An instance of this class.
+ */
+- (instancetype)initWithString:(NSString *)aString;
 
 @end
 

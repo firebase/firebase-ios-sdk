@@ -1,3 +1,22 @@
+# 7.0.0
+- [changed] The global variable `FIRStorageVersionString` is deleted.
+  `FirebaseVersion.version()` or `[FIRVersion version]` should be used instead.
+
+# 3.8.0
+- [changed] Add error for attempt to upload directory (#5750)
+- [changed] Functionally neutral source reorganization. (#5851)
+
+# 3.7.0
+- [fixed] Fixed a crash when listAll() was called at the root location. (#5772)
+- [added] Added a check to FIRStorageUploadTask's `putFile:` to check if the passed in `fileURL` is a directory, and provides a clear error if it is. (#5750)
+
+# 3.6.1
+- [fixed] Fix a rare case where a StorageTask would call its completion callbacks more than
+  once. (#5245)
+
+# 3.6.0
+- [added] Added watchOS support for Firebase Storage. (#4955)
+
 # 3.5.0
 - [changed] Reorganized directory structure (#4573).
 

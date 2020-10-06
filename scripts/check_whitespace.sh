@@ -26,6 +26,8 @@ options=(
 )
 
 git grep "${options[@]}" -- \
+    ':(exclude)Crashlytics/ProtoSupport' \
+    ':(exclude)Crashlytics/UnitTests/Data' \
     ':(exclude)Firebase/CoreDiagnostics/FIRCDLibrary/Protogen/nanopb' \
     ':(exclude)Firebase/CoreDiagnostics/ProtoSupport' \
     ':(exclude)CoreOnly/NOTICES' \
@@ -36,8 +38,8 @@ git grep "${options[@]}" -- \
     ':(exclude)Firestore/Protos/cpp' \
     ':(exclude)Firestore/Protos/objc' \
     ':(exclude)Firestore/third_party/abseil-cpp' \
-    ':(exclude)GoogleDataTransportCCTSupport/GDTCCTLibrary/Protogen/nanopb' \
-    ':(exclude)GoogleDataTransportCCTSupport/ProtoSupport' \
+    ':(exclude)GoogleDataTransport/GDTCCTLibrary/Protogen/nanopb' \
+    ':(exclude)GoogleDataTransport/ProtoSupport' \
     ':(exclude)ZipBuilder/Template/NOTICES'
 
 if [[ $? == 0 ]]; then

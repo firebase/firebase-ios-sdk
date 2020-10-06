@@ -72,7 +72,7 @@
   FIRDocumentReference *doc = [self.db documentWithPath:@"foo/__invalid__"];
 
   XCTestExpectation *completed = [self expectationWithDescription:@"get completed"];
-  [doc getDocumentWithCompletion:^(FIRDocumentSnapshot *snapshot, NSError *error) {
+  [doc getDocumentWithCompletion:^(FIRDocumentSnapshot *, NSError *error) {
     XCTAssertNotNil(error);
     [completed fulfill];
   }];
@@ -84,7 +84,7 @@
   FIRCollectionReference *col = [self.db collectionWithPath:@"__invalid__"];
 
   XCTestExpectation *completed = [self expectationWithDescription:@"get completed"];
-  [col getDocumentsWithCompletion:^(FIRQuerySnapshot *snapshot, NSError *error) {
+  [col getDocumentsWithCompletion:^(FIRQuerySnapshot *, NSError *error) {
     XCTAssertNotNil(error);
     [completed fulfill];
   }];
@@ -107,7 +107,7 @@
   // server responses below.
   NSDictionary<NSString *, id> *newData = @{@"key2" : @"value2"};
   [doc setData:newData
-      completion:^(NSError *_Nullable error) {
+      completion:^(NSError *) {
         XCTAssertTrue(false, "Because we're offline, this should never occur.");
       }];
 
@@ -217,7 +217,7 @@
   // server responses below.
   NSDictionary<NSString *, id> *newData = @{@"key2" : @"value2"};
   [doc setData:newData
-      completion:^(NSError *_Nullable error) {
+      completion:^(NSError *) {
         XCTFail("Because we're offline, this should never occur.");
       }];
 
@@ -326,7 +326,7 @@
   // attempt to get doc and ensure it cannot be retreived
   XCTestExpectation *failedGetDocCompletion = [self expectationWithDescription:@"failedGetDoc"];
   [doc getDocumentWithSource:FIRFirestoreSourceServer
-                  completion:^(FIRDocumentSnapshot *snapshot, NSError *error) {
+                  completion:^(FIRDocumentSnapshot *, NSError *error) {
                     XCTAssertNotNil(error);
                     XCTAssertEqualObjects(error.domain, FIRFirestoreErrorDomain);
                     XCTAssertEqual(error.code, FIRFirestoreErrorCodeUnavailable);
@@ -352,7 +352,7 @@
   // attempt to get docs and ensure they cannot be retreived
   XCTestExpectation *failedGetDocsCompletion = [self expectationWithDescription:@"failedGetDocs"];
   [col getDocumentsWithSource:FIRFirestoreSourceServer
-                   completion:^(FIRQuerySnapshot *snapshot, NSError *error) {
+                   completion:^(FIRQuerySnapshot *, NSError *error) {
                      XCTAssertNotNil(error);
                      XCTAssertEqualObjects(error.domain, FIRFirestoreErrorDomain);
                      XCTAssertEqual(error.code, FIRFirestoreErrorCodeUnavailable);
@@ -376,14 +376,14 @@
   // server responses below.
   NSDictionary<NSString *, id> *newData = @{@"key2" : @"value2"};
   [doc setData:newData
-      completion:^(NSError *_Nullable error) {
+      completion:^(NSError *) {
         XCTAssertTrue(false, "Because we're offline, this should never occur.");
       }];
 
   // Create an initial listener for this query (to attempt to disrupt the gets below) and wait for
   // the listener to deliver its initial snapshot before continuing.
   XCTestExpectation *listenerReady = [self expectationWithDescription:@"listenerReady"];
-  [doc addSnapshotListener:^(FIRDocumentSnapshot *snapshot, NSError *error) {
+  [doc addSnapshotListener:^(FIRDocumentSnapshot *, NSError *) {
     [listenerReady fulfill];
   }];
   [self awaitExpectations];
@@ -406,7 +406,7 @@
   // attempt to get doc (from the server) and ensure it cannot be retreived
   XCTestExpectation *failedGetDocCompletion = [self expectationWithDescription:@"failedGetDoc"];
   [doc getDocumentWithSource:FIRFirestoreSourceServer
-                  completion:^(FIRDocumentSnapshot *snapshot, NSError *error) {
+                  completion:^(FIRDocumentSnapshot *, NSError *error) {
                     XCTAssertNotNil(error);
                     XCTAssertEqualObjects(error.domain, FIRFirestoreErrorDomain);
                     XCTAssertEqual(error.code, FIRFirestoreErrorCodeUnavailable);
@@ -440,7 +440,7 @@
   // below) and wait for the listener to deliver its initial snapshot before
   // continuing.
   XCTestExpectation *listenerReady = [self expectationWithDescription:@"listenerReady"];
-  [col addSnapshotListener:^(FIRQuerySnapshot *snapshot, NSError *error) {
+  [col addSnapshotListener:^(FIRQuerySnapshot *, NSError *) {
     [listenerReady fulfill];
   }];
   [self awaitExpectations];
@@ -480,7 +480,7 @@
   // attempt to get docs (from the server) and ensure they cannot be retreived
   XCTestExpectation *failedGetDocsCompletion = [self expectationWithDescription:@"failedGetDocs"];
   [col getDocumentsWithSource:FIRFirestoreSourceServer
-                   completion:^(FIRQuerySnapshot *snapshot, NSError *error) {
+                   completion:^(FIRQuerySnapshot *, NSError *error) {
                      XCTAssertNotNil(error);
                      XCTAssertEqualObjects(error.domain, FIRFirestoreErrorDomain);
                      XCTAssertEqual(error.code, FIRFirestoreErrorCodeUnavailable);
@@ -519,7 +519,7 @@
   // Attempt to get doc. This will fail since there's nothing in cache.
   XCTestExpectation *getNonExistingDocCompletion =
       [self expectationWithDescription:@"getNonExistingDoc"];
-  [doc getDocumentWithCompletion:^(FIRDocumentSnapshot *snapshot, NSError *error) {
+  [doc getDocumentWithCompletion:^(FIRDocumentSnapshot *, NSError *error) {
     XCTAssertNotNil(error);
     XCTAssertEqualObjects(error.domain, FIRFirestoreErrorDomain);
     XCTAssertEqual(error.code, FIRFirestoreErrorCodeUnavailable);
@@ -569,7 +569,7 @@
   XCTestExpectation *getNonExistingDocCompletion =
       [self expectationWithDescription:@"getNonExistingDoc"];
   [doc getDocumentWithSource:FIRFirestoreSourceCache
-                  completion:^(FIRDocumentSnapshot *snapshot, NSError *error) {
+                  completion:^(FIRDocumentSnapshot *, NSError *error) {
                     XCTAssertNotNil(error);
                     XCTAssertEqualObjects(error.domain, FIRFirestoreErrorDomain);
                     XCTAssertEqual(error.code, FIRFirestoreErrorCodeUnavailable);
@@ -599,7 +599,7 @@
   XCTestExpectation *getNonExistingDocCompletion =
       [self expectationWithDescription:@"getNonExistingDoc"];
   [doc getDocumentWithSource:FIRFirestoreSourceCache
-                  completion:^(FIRDocumentSnapshot *snapshot, NSError *error) {
+                  completion:^(FIRDocumentSnapshot *, NSError *error) {
                     XCTAssertNotNil(error);
                     XCTAssertEqualObjects(error.domain, FIRFirestoreErrorDomain);
                     XCTAssertEqual(error.code, FIRFirestoreErrorCodeUnavailable);
@@ -673,7 +673,7 @@
   XCTestExpectation *getNonExistingDocCompletion =
       [self expectationWithDescription:@"getNonExistingDoc"];
   [doc getDocumentWithSource:FIRFirestoreSourceServer
-                  completion:^(FIRDocumentSnapshot *snapshot, NSError *error) {
+                  completion:^(FIRDocumentSnapshot *, NSError *error) {
                     XCTAssertNotNil(error);
                     XCTAssertEqualObjects(error.domain, FIRFirestoreErrorDomain);
                     XCTAssertEqual(error.code, FIRFirestoreErrorCodeUnavailable);
@@ -691,7 +691,7 @@
   // attempt to get collection and ensure that it cannot be retreived
   XCTestExpectation *failedGetDocsCompletion = [self expectationWithDescription:@"failedGetDocs"];
   [col getDocumentsWithSource:FIRFirestoreSourceServer
-                   completion:^(FIRQuerySnapshot *snapshot, NSError *error) {
+                   completion:^(FIRQuerySnapshot *, NSError *error) {
                      XCTAssertNotNil(error);
                      XCTAssertEqualObjects(error.domain, FIRFirestoreErrorDomain);
                      XCTAssertEqual(error.code, FIRFirestoreErrorCodeUnavailable);

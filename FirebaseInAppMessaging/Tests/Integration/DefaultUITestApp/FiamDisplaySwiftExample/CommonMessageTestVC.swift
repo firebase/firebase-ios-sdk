@@ -17,6 +17,30 @@
 import Foundation
 
 class CommonMessageTestVC: UIViewController, InAppMessagingDisplayDelegate {
+  class TestableCampaignInfo: InAppMessagingCampaignInfo {
+    var writableMessageID: String
+    var writableCampaignName: String
+    var writableIsTestMessage: Bool
+
+    override var messageID: String {
+      return writableMessageID
+    }
+
+    override var campaignName: String {
+      return writableCampaignName
+    }
+
+    override var renderAsTestMessage: Bool {
+      return writableIsTestMessage
+    }
+
+    init(messageID: String, campaignName: String, isTestMessage: Bool) {
+      writableMessageID = messageID
+      writableCampaignName = campaignName
+      writableIsTestMessage = isTestMessage
+    }
+  }
+
   var messageClosedWithClick = false
 
   var messageClosedDismiss = false
@@ -46,8 +70,10 @@ class CommonMessageTestVC: UIViewController, InAppMessagingDisplayDelegate {
 
   let normalMessageTitle = "Firebase In-App Message title"
   let normalMessageBody = "Firebase In-App Message body"
-  let longBodyText = String(repeating: "This is long message body.", count: 40) + "End of body text."
-  let longTitleText = String(repeating: "This is long message title.", count: 10) + "End of title text."
+  let longBodyText = String(repeating: "This is long message body.", count: 40) +
+    "End of body text."
+  let longTitleText = String(repeating: "This is long message title.", count: 10) +
+    "End of title text."
 
   let startTime = Date().timeIntervalSince1970
   let endTime = Date().timeIntervalSince1970 + 1000
@@ -60,9 +86,10 @@ class CommonMessageTestVC: UIViewController, InAppMessagingDisplayDelegate {
                                                                 buttonTextColor: UIColor.black,
                                                                 backgroundColor: UIColor.yellow)
 
-  let longTextButton = InAppMessagingActionButton(buttonText: "Hakuna matata, it's a wonderful phrase",
-                                                  buttonTextColor: UIColor.black,
-                                                  backgroundColor: UIColor.white)
+  let longTextButton =
+    InAppMessagingActionButton(buttonText: "Hakuna matata, it's a wonderful phrase",
+                               buttonTextColor: UIColor.black,
+                               backgroundColor: UIColor.white)
 
   func produceImageOfSize(size: CGSize) -> Data? {
     let color = UIColor.cyan
@@ -82,7 +109,7 @@ class CommonMessageTestVC: UIViewController, InAppMessagingDisplayDelegate {
     UIGraphicsEndImageContext()
 
     if let image = imageFromGraphics {
-      return UIImagePNGRepresentation(image)
+      return image.pngData()
     } else {
       return nil
     }

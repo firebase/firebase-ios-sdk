@@ -16,9 +16,9 @@
 
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
-#import "FIRIAMFetchFlow.h"
-#import "FIRIAMMessageDefinition.h"
-#import "FIRIAMMsgFetcherUsingRestful.h"
+#import "FirebaseInAppMessaging/Sources/Private/Data/FIRIAMMessageDefinition.h"
+#import "FirebaseInAppMessaging/Sources/Private/Flows/FIRIAMMsgFetcherUsingRestful.h"
+#import "FirebaseInAppMessaging/Sources/Private/Runtime/FIRIAMFetchFlow.h"
 
 static NSString *serverHost = @"myhost";
 static NSString *projectNumber = @"My-project-number";
@@ -75,12 +75,13 @@ static NSString *apiKey = @"Api-key";
                                         // this unit testing
   ]);
 
-  NSString *iidValue = @"my iid";
-  NSString *iidToken = @"my iid token";
+  NSString *FIDValue = @"my FID";
+  NSString *FISToken = @"my FIS token";
   OCMStub([self.mockclientInfoFetcher
-      fetchFirebaseIIDDataWithProjectNumber:[OCMArg any]
-                             withCompletion:([OCMArg invokeBlockWithArgs:iidValue, iidToken,
-                                                                         [NSNull null], nil])]);
+      fetchFirebaseInstallationDataWithProjectNumber:[OCMArg any]
+                                      withCompletion:([OCMArg
+                                                         invokeBlockWithArgs:FIDValue, FISToken,
+                                                                             [NSNull null], nil])]);
 
   NSString *osVersion = @"OS Version";
   OCMStub([self.mockclientInfoFetcher getOSVersion]).andReturn(osVersion);
@@ -126,8 +127,8 @@ static NSString *apiKey = @"Api-key";
                                       options:kNilOptions
                                         error:&errorJson];
   XCTAssertEqualObjects(appId, requestBodyDict[@"requesting_client_app"][@"gmp_app_id"]);
-  XCTAssertEqualObjects(iidValue, requestBodyDict[@"requesting_client_app"][@"app_instance_id"]);
-  XCTAssertEqualObjects(iidToken,
+  XCTAssertEqualObjects(FIDValue, requestBodyDict[@"requesting_client_app"][@"app_instance_id"]);
+  XCTAssertEqualObjects(FISToken,
                         requestBodyDict[@"requesting_client_app"][@"app_instance_id_token"]);
 
   XCTAssertEqualObjects(osVersion, requestBodyDict[@"client_signals"][@"platform_version"]);
@@ -147,12 +148,13 @@ static NSString *apiKey = @"Api-key";
                                         // this unit testing
   ]);
 
-  NSString *iidValue = @"my iid";
-  NSString *iidToken = @"my iid token";
+  NSString *FIDValue = @"my FID";
+  NSString *FISToken = @"my FIS token";
   OCMStub([self.mockclientInfoFetcher
-      fetchFirebaseIIDDataWithProjectNumber:[OCMArg any]
-                             withCompletion:([OCMArg invokeBlockWithArgs:iidValue, iidToken,
-                                                                         [NSNull null], nil])]);
+      fetchFirebaseInstallationDataWithProjectNumber:[OCMArg any]
+                                      withCompletion:([OCMArg
+                                                         invokeBlockWithArgs:FIDValue, FISToken,
+                                                                             [NSNull null], nil])]);
 
   // this is to test the case that only partial client signal fields are available
   NSString *osVersion = @"OS Version";
@@ -205,15 +207,15 @@ static NSString *apiKey = @"Api-key";
   XCTAssertNil(requestBodyDict[@"client_signals"][@"language_code"]);
 }
 
-- (void)testBailoutOnIIDError {
+- (void)testBailoutOnFIDError {
   // in this test, the attempt to fetch iid data failed and as a result, we expect the whole
   // fetch operation attempt to fail with that error
-  NSError *iidError = [[NSError alloc] initWithDomain:@"Error Domain" code:100 userInfo:nil];
+  NSError *FIDError = [[NSError alloc] initWithDomain:@"Error Domain" code:100 userInfo:nil];
   OCMStub([self.mockclientInfoFetcher
-      fetchFirebaseIIDDataWithProjectNumber:[OCMArg any]
-                             withCompletion:([OCMArg invokeBlockWithArgs:[NSNull null],
-                                                                         [NSNull null], iidError,
-                                                                         nil])]);
+      fetchFirebaseInstallationDataWithProjectNumber:[OCMArg any]
+                                      withCompletion:([OCMArg invokeBlockWithArgs:[NSNull null],
+                                                                                  [NSNull null],
+                                                                                  FIDError, nil])]);
 
   XCTestExpectation *expectation =
       [self expectationWithDescription:@"fetch callback block triggered."];
@@ -224,7 +226,7 @@ static NSString *apiKey = @"Api-key";
                                         NSInteger discardCount, NSError *_Nullable error) {
                          // expecting triggering the completion callback with error
                          XCTAssertNil(messages);
-                         XCTAssertEqualObjects(iidError, error);
+                         XCTAssertEqualObjects(FIDError, error);
                          [expectation fulfill];
                        }];
 

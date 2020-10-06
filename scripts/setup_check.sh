@@ -21,10 +21,10 @@ set -euo pipefail
 export HOMEBREW_NO_ANALYTICS=1
 export HOMEBREW_NO_AUTO_UPDATE=1
 
-brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/e3496d9/Formula/clang-format.rb
-brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/7963c3d/Formula/swiftformat.rb
-
+echo "python --version: $(python --version)"
+pip install --upgrade pip
 pip install flake8
+pip install six
 
 # Using actions/checkout@v2 creates a shallow clone that's missing the master
 # branch. If it's not present, add it.
@@ -32,3 +32,10 @@ if ! git rev-parse origin/master >& /dev/null; then
   git remote set-branches --add origin master
   git fetch origin
 fi
+
+# mint installs tools from Mintfile on demand.
+brew install clang-format
+brew install mint
+
+# Explicitly mint bootstrap to show its version in the "Setup check" GHA phase
+mint bootstrap

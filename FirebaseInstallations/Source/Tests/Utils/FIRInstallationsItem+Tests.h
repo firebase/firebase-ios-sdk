@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRInstallationsItem.h"
+#import "FirebaseInstallations/Source/Library/FIRInstallationsItem.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -22,6 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (FIRInstallationsItem *)createUnregisteredInstallationItem;
 + (FIRInstallationsItem *)createRegisteredInstallationItem;
++ (FIRInstallationsItem *)createCorruptedItem;
 
 + (FIRInstallationsItem *)createRegisteredInstallationItemWithAppID:(NSString *)appID
                                                             appName:(NSString *)appName;

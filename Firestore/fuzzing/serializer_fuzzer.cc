@@ -18,10 +18,10 @@
 #include <cstdint>
 
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
-#include "Firestore/core/src/firebase/firestore/model/database_id.h"
-#include "Firestore/core/src/firebase/firestore/nanopb/message.h"
-#include "Firestore/core/src/firebase/firestore/nanopb/reader.h"
-#include "Firestore/core/src/firebase/firestore/remote/serializer.h"
+#include "Firestore/core/src/model/database_id.h"
+#include "Firestore/core/src/nanopb/message.h"
+#include "Firestore/core/src/nanopb/reader.h"
+#include "Firestore/core/src/remote/serializer.h"
 
 using firebase::firestore::google_firestore_v1_Value;
 using firebase::firestore::model::DatabaseId;

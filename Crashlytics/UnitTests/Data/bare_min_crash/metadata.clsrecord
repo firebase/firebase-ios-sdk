@@ -1,0 +1,4 @@
+{"identity":{"generator":"Crashlytics iOS SDK/firelog-v1","display_version":"firelog-v1","build_version":"firelog-v1","started_at":1582667152,"session_id":"c3ed531276094bcebf51a5ffd455044a","install_id":"B9D7D868-2EF0-47B8-A31E-EE4D8C57CD6E","beta_token":null,"absolute_log_timestamps":true}}
+{"host":{"model":"iPhone11,8","machine":"N841AP","os_build_version":"17D50","os_display_version":"13.3.1","platform":"ios","locale":"en_US"}}
+{"application":{"bundle_id":"com.google.crashlytics.app.ios-host","custom_bundle_id":null,"build_version":"1","display_version":"1.0","extension_id":null}}
+{"executable":{"architecture":"arm64","uuid":"afd4b090589533159fa2b371a2787a2b","base":4309893120,"size":1556480,"encrypted":false,"minimum_sdk_version":"9.0.0","built_sdk_version":"13.2.0"}}

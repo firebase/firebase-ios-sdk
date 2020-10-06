@@ -8,14 +8,14 @@ you can fix issues or dig in without having to dig too deep into the code.
 
 ## Zip Builder
 
-This is a small Swift Package Manager project that allows users to package an iOS Zip file of binary
+This is a Swift Package Manager project that allows users to package an iOS Zip file of binary
 packages.
 
 ### Requirements
 
 In order to build the Zip file, you will need:
 
-- Xcode 10.1
+- Xcode 11.0
 - CocoaPods
 - An internet connection to fetch CocoaPods
 
@@ -23,6 +23,10 @@ In order to build the Zip file, you will need:
 
 You can run the tool with `swift run ReleasePackager [ARGS]` or generate an Xcode project with
 `swift package generate-xcodeproj` and run within Xcode.
+
+Since Apple does not support linking libraries built by future Xcode versions, make sure to builid with the
+earliest Xcode needed by any of the library clients. The Xcode command line tools must also be configured
+for that version. Check with `xcodebuild -version`.
 
 ### Launch Arguments
 

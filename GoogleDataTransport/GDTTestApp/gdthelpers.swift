@@ -19,15 +19,8 @@ import GoogleDataTransport
 // For use by GDT.
 class TestDataObject: NSObject, GDTCOREventDataObject {
   func transportBytes() -> Data {
-    return "Normally, some SDK's data object would populate this. \(Date())".data(using: String.Encoding.utf8)!
-  }
-}
-
-class TestPrioritizer: NSObject, GDTCORPrioritizer {
-  func prioritizeEvent(_ event: GDTCORStoredEvent) {}
-
-  func uploadPackage(with target: GDTCORTarget, conditions: GDTCORUploadConditions) -> GDTCORUploadPackage {
-    return GDTCORUploadPackage(target: GDTCORTarget.test)
+    return "Normally, some SDK's data object would populate this. \(Date())"
+      .data(using: String.Encoding.utf8)!
   }
 }
 
@@ -36,5 +29,5 @@ class TestUploader: NSObject, GDTCORUploader {
     return false
   }
 
-  func uploadPackage(_ package: GDTCORUploadPackage) {}
+  func uploadTarget(_ target: GDTCORTarget, with conditions: GDTCORUploadConditions) {}
 }

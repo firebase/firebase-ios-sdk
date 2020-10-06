@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 
-#import "FIRIAMMessageDefinition.h"
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
+
+#import "FirebaseInAppMessaging/Sources/Private/Data/FIRIAMMessageDefinition.h"
 
 @implementation FIRIAMMessageRenderData
 
@@ -33,26 +36,48 @@
 @end
 
 @implementation FIRIAMMessageDefinition
+
 - (instancetype)initWithRenderData:(FIRIAMMessageRenderData *)renderData
                          startTime:(NSTimeInterval)startTime
                            endTime:(NSTimeInterval)endTime
-                 triggerDefinition:(NSArray<FIRIAMDisplayTriggerDefinition *> *)renderTriggers {
+                 triggerDefinition:(NSArray<FIRIAMDisplayTriggerDefinition *> *)renderTriggers
+                           appData:(nullable NSDictionary *)appData
+                 experimentPayload:(nullable ABTExperimentPayload *)experimentPayload
+                     isTestMessage:(BOOL)isTestMessage {
   if (self = [super init]) {
     _renderData = renderData;
     _renderTriggers = renderTriggers;
     _startTime = startTime;
     _endTime = endTime;
-    _isTestMessage = NO;
+    _isTestMessage = isTestMessage;
+    _appData = [appData copy];
+    _experimentPayload = experimentPayload;
   }
   return self;
 }
 
-- (instancetype)initTestMessageWithRenderData:(FIRIAMMessageRenderData *)renderData {
-  if (self = [super init]) {
-    _renderData = renderData;
-    _isTestMessage = YES;
-  }
-  return self;
+- (instancetype)initWithRenderData:(FIRIAMMessageRenderData *)renderData
+                         startTime:(NSTimeInterval)startTime
+                           endTime:(NSTimeInterval)endTime
+                 triggerDefinition:(NSArray<FIRIAMDisplayTriggerDefinition *> *)renderTriggers {
+  return [self initWithRenderData:renderData
+                        startTime:startTime
+                          endTime:endTime
+                triggerDefinition:renderTriggers
+                          appData:nil
+                experimentPayload:nil
+                    isTestMessage:NO];
+}
+
+- (instancetype)initTestMessageWithRenderData:(FIRIAMMessageRenderData *)renderData
+                            experimentPayload:(nullable ABTExperimentPayload *)experimentPayload {
+  return [self initWithRenderData:renderData
+                        startTime:0
+                          endTime:0
+                triggerDefinition:@[]
+                          appData:nil
+                experimentPayload:experimentPayload
+                    isTestMessage:YES];
 }
 
 - (BOOL)messageHasExpired {
@@ -82,3 +107,5 @@
   return self.startTime < [[NSDate date] timeIntervalSince1970];
 }
 @end
+
+#endif  // TARGET_OS_IOS

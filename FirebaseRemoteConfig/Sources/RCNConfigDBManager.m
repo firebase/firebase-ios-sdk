@@ -20,8 +20,7 @@
 #import "FirebaseRemoteConfig/Sources/RCNConfigDefines.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigValue_Internal.h"
 
-#import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseCore/FIRLogger.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 /// Using macro for securely preprocessing string concatenation in query before runtime.
 #define RCNTableNameMain "main"
@@ -31,6 +30,7 @@
 #define RCNTableNameInternalMetadata "internal_metadata"
 #define RCNTableNameExperiment "experiment"
 
+static BOOL gIsNewDatabase;
 /// SQLite file name in versions 0, 1 and 2.
 static NSString *const RCNDatabaseName = @"RemoteConfig.sqlite3";
 /// The application support sub-directory that the Remote Config database resides in.
@@ -77,6 +77,7 @@ static BOOL RemoteConfigCreateFilePathIfNotExist(NSString *filePath) {
   }
   NSFileManager *fileManager = [NSFileManager defaultManager];
   if (![fileManager fileExistsAtPath:filePath]) {
+    gIsNewDatabase = YES;
     NSError *error;
     [fileManager createDirectoryAtPath:[filePath stringByDeletingLastPathComponent]
            withIntermediateDirectories:YES
@@ -203,6 +204,7 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder() {
     NSString *dbPath = [RCNConfigDBManager remoteConfigPathForDatabase];
     FIRLogInfo(kFIRLoggerRemoteConfig, @"I-RCN000062", @"Loading database at path %@", dbPath);
     const char *databasePath = dbPath.UTF8String;
+
     // Create or open database path.
     if (!RemoteConfigCreateFilePathIfNotExist(dbPath)) {
       return;
@@ -1034,6 +1036,10 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder() {
   }
 
   return returnValue;
+}
+
+- (BOOL)isNewDatabase {
+  return gIsNewDatabase;
 }
 
 @end

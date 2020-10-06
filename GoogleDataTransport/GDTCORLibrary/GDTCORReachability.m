@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-#import "GDTCORLibrary/Private/GDTCORReachability.h"
-#import "GDTCORLibrary/Private/GDTCORReachability_Private.h"
-#if !TARGET_OS_WATCH
+#import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORReachability.h"
+#import "GoogleDataTransport/GDTCORLibrary/Private/GDTCORReachability_Private.h"
 
-#import <GoogleDataTransport/GDTCORConsoleLogger.h>
+#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORConsoleLogger.h"
 
 #import <netinet/in.h>
 
@@ -28,22 +27,22 @@
  * @param flags The new flag values.
  * @param info Any data that might be passed in by the callback.
  */
-static void GDTCORReachabilityCallback(SCNetworkReachabilityRef reachability,
-                                       SCNetworkReachabilityFlags flags,
+static void GDTCORReachabilityCallback(GDTCORNetworkReachabilityRef reachability,
+                                       GDTCORNetworkReachabilityFlags flags,
                                        void *info);
 
 @implementation GDTCORReachability {
   /** The reachability object. */
-  SCNetworkReachabilityRef _reachabilityRef;
+  GDTCORNetworkReachabilityRef _reachabilityRef;
 
   /** The queue on which callbacks and all work will occur. */
   dispatch_queue_t _reachabilityQueue;
 
   /** Flags specified by reachability callbacks. */
-  SCNetworkConnectionFlags _callbackFlags;
+  GDTCORNetworkReachabilityFlags _callbackFlags;
 }
 
-+ (void)load {
++ (void)initialize {
   [self sharedInstance];
 }
 
@@ -56,18 +55,24 @@ static void GDTCORReachabilityCallback(SCNetworkReachabilityRef reachability,
   return sharedInstance;
 }
 
-+ (SCNetworkReachabilityFlags)currentFlags {
-  __block SCNetworkReachabilityFlags currentFlags;
++ (GDTCORNetworkReachabilityFlags)currentFlags {
+  __block GDTCORNetworkReachabilityFlags currentFlags;
+#if !TARGET_OS_WATCH
   dispatch_sync([GDTCORReachability sharedInstance] -> _reachabilityQueue, ^{
     GDTCORReachability *reachability = [GDTCORReachability sharedInstance];
-    currentFlags = reachability->_flags ? reachability->_flags : reachability->_callbackFlags;
-    GDTCORLogDebug("Initial reachability flags determined: %d", currentFlags);
+    currentFlags =
+        reachability->_callbackFlags ? reachability->_callbackFlags : reachability->_flags;
+    GDTCORLogDebug(@"Initial reachability flags determined: %d", currentFlags);
   });
+#else
+  currentFlags = kGDTCORNetworkReachabilityFlagsReachable;
+#endif
   return currentFlags;
 }
 
 - (instancetype)init {
   self = [super init];
+#if !TARGET_OS_WATCH
   if (self) {
     struct sockaddr_in zeroAddress;
     bzero(&zeroAddress, sizeof(zeroAddress));
@@ -92,15 +97,16 @@ static void GDTCORReachabilityCallback(SCNetworkReachabilityRef reachability,
     dispatch_async(_reachabilityQueue, ^{
       Boolean valid = SCNetworkReachabilityGetFlags(self->_reachabilityRef, &self->_flags);
       if (!valid) {
-        GDTCORLogDebug("%@", @"Determining reachability failed.");
+        GDTCORLogDebug(@"%@", @"Determining reachability failed.");
         self->_flags = 0;
       }
     });
   }
+#endif
   return self;
 }
 
-- (void)setCallbackFlags:(SCNetworkReachabilityFlags)flags {
+- (void)setCallbackFlags:(GDTCORNetworkReachabilityFlags)flags {
   if (_callbackFlags != flags) {
     self->_callbackFlags = flags;
   }
@@ -108,11 +114,12 @@ static void GDTCORReachabilityCallback(SCNetworkReachabilityRef reachability,
 
 @end
 
-static void GDTCORReachabilityCallback(SCNetworkReachabilityRef reachability,
-                                       SCNetworkReachabilityFlags flags,
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-function"
+static void GDTCORReachabilityCallback(GDTCORNetworkReachabilityRef reachability,
+                                       GDTCORNetworkReachabilityFlags flags,
                                        void *info) {
-  GDTCORLogDebug("Reachability changed, new flags: %d", flags);
+#pragma clang diagnostic pop
+  GDTCORLogDebug(@"Reachability changed, new flags: %d", flags);
   [[GDTCORReachability sharedInstance] setCallbackFlags:flags];
 }
-
-#endif

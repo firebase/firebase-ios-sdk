@@ -15,17 +15,16 @@
  */
 
 #import <XCTest/XCTest.h>
+#import "OCMock.h"
 
+#import "FirebaseRemoteConfig/Sources/Private/RCNConfigFetch.h"
 #import "FirebaseRemoteConfig/Sources/Private/RCNConfigSettings.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigContent.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigDBManager.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigExperiment.h"
-#import "FirebaseRemoteConfig/Sources/RCNConfigFetch.h"
 #import "FirebaseRemoteConfig/Tests/Unit/RCNTestUtilities.h"
 
-#import <FirebaseCore/FIRApp.h>
-#import <FirebaseCore/FIRConfiguration.h>
-#import <OCMock/OCMock.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 @interface RCNThrottlingTests : XCTestCase {
   RCNConfigContent *_configContentMock;

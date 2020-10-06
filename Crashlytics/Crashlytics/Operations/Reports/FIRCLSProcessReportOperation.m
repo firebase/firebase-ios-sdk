@@ -12,15 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRCLSProcessReportOperation.h"
+#import "Crashlytics/Crashlytics/Operations/Reports/FIRCLSProcessReportOperation.h"
 
-#import "FIRCLSDemangleOperation.h"
-#import "FIRCLSFile.h"
-#import "FIRCLSInternalReport.h"
-#import "FIRCLSSerializeSymbolicatedFramesOperation.h"
-#import "FIRCLSStackFrame.h"
-#import "FIRCLSSymbolResolver.h"
-#import "FIRCLSSymbolicationOperation.h"
+#import "Crashlytics/Crashlytics/Helpers/FIRCLSFile.h"
+#import "Crashlytics/Crashlytics/Models/FIRCLSInternalReport.h"
+#import "Crashlytics/Crashlytics/Models/FIRCLSSymbolResolver.h"
+#import "Crashlytics/Crashlytics/Operations/Symbolication/FIRCLSDemangleOperation.h"
+#import "Crashlytics/Crashlytics/Operations/Symbolication/FIRCLSSerializeSymbolicatedFramesOperation.h"
+#import "Crashlytics/Crashlytics/Operations/Symbolication/FIRCLSSymbolicationOperation.h"
+#import "Crashlytics/Crashlytics/Private/FIRStackFrame_Private.h"
 
 @implementation FIRCLSProcessReportOperation
 
@@ -64,7 +64,7 @@
     NSMutableArray *frameArray = [NSMutableArray array];
 
     for (NSNumber *pc in [threadDetails objectForKey:@"stacktrace"]) {
-      FIRCLSStackFrame *frame = [FIRCLSStackFrame stackFrameWithAddress:[pc unsignedIntegerValue]];
+      FIRStackFrame *frame = [FIRStackFrame stackFrameWithAddress:[pc unsignedIntegerValue]];
 
       [frameArray addObject:frame];
     }

@@ -20,6 +20,7 @@
 @class FIRCLSFileManager;
 @class FIRCLSNetworkClient;
 @class FIRCLSReportUploader;
+@class GDTCORTransport;
 
 @protocol FIRCLSReportUploaderDelegate;
 @protocol FIRCLSReportUploaderDataSource;
@@ -73,5 +74,6 @@
 
 - (NSString *)googleAppID;
 - (FIRCLSSettings *)settings;
+- (GDTCORTransport *)googleTransport;
 
 @end

@@ -25,4 +25,7 @@ typedef NS_ENUM(NSInteger, FIRIAMSDKRuntimeError) {
 
   // The response when fetching the image is non-HTTP.
   FIRIAMSDKRuntimeErrorNonHTTPResponseForImage = 2,
+
+  // Failed to fetch Firebase Installations object.
+  FIRIAMSDKRuntimeErrorNoFirebaseInstallationsObject = 3,
 };

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "GoogleUtilities/Environment/third_party/GULAppEnvironmentUtil.h"
+#import "GoogleUtilities/Environment/Public/GoogleUtilities/GULAppEnvironmentUtil.h"
 
 #import <Foundation/Foundation.h>
 #import <dlfcn.h>
@@ -187,21 +187,18 @@ static BOOL HasEmbeddedMobileProvision() {
       ![enableSandboxCheck boolValue]) {
     return NO;
   }
-// The #else is for pre Xcode 9 where @available is not yet implemented.
-#if __has_builtin(__builtin_available)
-  if (@available(iOS 7.0, *)) {
-#else
-  if ([[UIDevice currentDevice].systemVersion integerValue] >= 7) {
-#endif
-    NSURL *appStoreReceiptURL = [NSBundle mainBundle].appStoreReceiptURL;
-    NSString *appStoreReceiptFileName = appStoreReceiptURL.lastPathComponent;
-    return [appStoreReceiptFileName isEqualToString:kFIRAIdentitySandboxReceiptFileName];
-  }
-  return NO;
+
+  NSURL *appStoreReceiptURL = [NSBundle mainBundle].appStoreReceiptURL;
+  NSString *appStoreReceiptFileName = appStoreReceiptURL.lastPathComponent;
+  return [appStoreReceiptFileName isEqualToString:kFIRAIdentitySandboxReceiptFileName];
 }
 
 + (BOOL)isSimulator {
-#if TARGET_OS_IOS || TARGET_OS_TV
+#if TARGET_OS_SIMULATOR
+  return YES;
+#elif TARGET_OS_MACCATALYST
+  return NO;
+#elif TARGET_OS_IOS || TARGET_OS_TV
   NSString *platform = [GULAppEnvironmentUtil deviceModel];
   return [platform isEqual:@"x86_64"] || [platform isEqual:@"i386"];
 #elif TARGET_OS_OSX
@@ -249,15 +246,7 @@ static BOOL HasEmbeddedMobileProvision() {
 }
 
 + (BOOL)isIOS7OrHigher {
-#if __has_builtin(__builtin_available)
-  if (@available(iOS 7.0, *)) {
-#else
-  if ([[UIDevice currentDevice].systemVersion integerValue] >= 7) {
-#endif
-      return YES;
-    }
-
-    return NO;
+  return YES;
 }
 
 @end

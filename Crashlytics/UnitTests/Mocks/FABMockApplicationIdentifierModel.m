@@ -12,13 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FABMockApplicationIdentifierModel.h"
+#import "Crashlytics/UnitTests/Mocks/FABMockApplicationIdentifierModel.h"
 
 @implementation FABMockApplicationIdentifierModel
 
 // Don't call the custom methods that compute this value, so we can
 // set it in FIRCLSSettingsTests
 @synthesize buildInstanceID;
+@synthesize displayVersion;
+@synthesize buildVersion;
 
 // Set in FIRCLSReportManagerTests
 @synthesize bundleID;

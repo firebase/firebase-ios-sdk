@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-#import "FIRInstanceIDStore.h"
+#import "Firebase/InstanceID/FIRInstanceIDStore.h"
 
-#import "FIRInstanceIDCheckinPreferences.h"
-#import "FIRInstanceIDCheckinStore.h"
-#import "FIRInstanceIDConstants.h"
-#import "FIRInstanceIDLogger.h"
-#import "FIRInstanceIDTokenStore.h"
-#import "FIRInstanceIDVersionUtilities.h"
+#import "Firebase/InstanceID/FIRInstanceIDCheckinStore.h"
+#import "Firebase/InstanceID/FIRInstanceIDConstants.h"
+#import "Firebase/InstanceID/FIRInstanceIDLogger.h"
+#import "Firebase/InstanceID/FIRInstanceIDTokenStore.h"
+#import "Firebase/InstanceID/Private/FIRInstanceIDCheckinPreferences.h"
 
 // NOTE: These values should be in sync with what InstanceID saves in as.
 static NSString *const kCheckinFileName = @"g-checkin";
@@ -140,13 +139,11 @@ static NSString *const kFIRInstanceIDLibraryVersion = @"GMSInstanceID-version";
   BOOL checkinPlistExists = [self.checkinStore hasCheckinPlist];
   // Checkin info existed in backup excluded plist. Should not be a fresh install.
   if (checkinPlistExists) {
-    // FCM user can still have the old version of checkin, migration should only happen once.
-    [self.checkinStore migrateCheckinItemIfNeeded];
     return;
   }
 
-  // reset checkin in keychain if a fresh install.
-  // set the old checkin preferences to unregister pre-registered tokens
+  // Resets checkin in keychain if a fresh install.
+  // Keychain can still exist even if app is uninstalled.
   FIRInstanceIDCheckinPreferences *oldCheckinPreferences =
       [self.checkinStore cachedCheckinPreferences];
 
@@ -202,6 +199,10 @@ static NSString *const kFIRInstanceIDLibraryVersion = @"GMSInstanceID-version";
 - (void)saveTokenInfo:(FIRInstanceIDTokenInfo *)tokenInfo
               handler:(void (^)(NSError *error))handler {
   [self.tokenStore saveTokenInfo:tokenInfo handler:handler];
+}
+
+- (void)saveTokenInfoInCacheOnly:(FIRInstanceIDTokenInfo *)tokenInfo {
+  [self.tokenStore saveTokenInfoInCacheOnly:tokenInfo];
 }
 
 #pragma mark - Delete

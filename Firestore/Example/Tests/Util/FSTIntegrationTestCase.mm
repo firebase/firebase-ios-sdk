@@ -16,9 +16,6 @@
 
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 
-#import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseCore/FIRLogger.h>
-#import <FirebaseCore/FIROptions.h>
 #import <FirebaseFirestore/FIRCollectionReference.h>
 #import <FirebaseFirestore/FIRDocumentChange.h>
 #import <FirebaseFirestore/FIRDocumentReference.h>
@@ -33,24 +30,26 @@
 #include <string>
 #include <utility>
 
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "Firestore/Example/Tests/Util/FIRFirestore+Testing.h"
 #import "Firestore/Example/Tests/Util/FSTEventAccumulator.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 
-#include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
-#include "Firestore/core/src/firebase/firestore/auth/empty_credentials_provider.h"
-#include "Firestore/core/src/firebase/firestore/auth/user.h"
-#include "Firestore/core/src/firebase/firestore/local/leveldb_opener.h"
-#include "Firestore/core/src/firebase/firestore/model/database_id.h"
-#include "Firestore/core/src/firebase/firestore/remote/grpc_connection.h"
-#include "Firestore/core/src/firebase/firestore/util/async_queue.h"
-#include "Firestore/core/src/firebase/firestore/util/autoid.h"
-#include "Firestore/core/src/firebase/firestore/util/filesystem.h"
-#include "Firestore/core/src/firebase/firestore/util/path.h"
-#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
-#include "Firestore/core/test/firebase/firestore/testutil/app_testing.h"
-#include "Firestore/core/test/firebase/firestore/testutil/async_testing.h"
-#include "Firestore/core/test/firebase/firestore/testutil/status_testing.h"
+#include "Firestore/core/src/auth/credentials_provider.h"
+#include "Firestore/core/src/auth/empty_credentials_provider.h"
+#include "Firestore/core/src/auth/user.h"
+#include "Firestore/core/src/local/leveldb_opener.h"
+#include "Firestore/core/src/model/database_id.h"
+#include "Firestore/core/src/remote/firebase_metadata_provider_apple.h"
+#include "Firestore/core/src/remote/grpc_connection.h"
+#include "Firestore/core/src/util/async_queue.h"
+#include "Firestore/core/src/util/autoid.h"
+#include "Firestore/core/src/util/filesystem.h"
+#include "Firestore/core/src/util/path.h"
+#include "Firestore/core/src/util/string_apple.h"
+#include "Firestore/core/test/unit/testutil/app_testing.h"
+#include "Firestore/core/test/unit/testutil/async_testing.h"
+#include "Firestore/core/test/unit/testutil/status_testing.h"
 #include "absl/memory/memory.h"
 
 namespace testutil = firebase::firestore::testutil;
@@ -63,9 +62,10 @@ using firebase::firestore::auth::User;
 using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::local::LevelDbOpener;
 using firebase::firestore::model::DatabaseId;
+using firebase::firestore::remote::GrpcConnection;
+using firebase::firestore::remote::FirebaseMetadataProviderApple;
 using firebase::firestore::testutil::AppForUnitTesting;
 using firebase::firestore::testutil::AsyncQueueForTesting;
-using firebase::firestore::remote::GrpcConnection;
 using firebase::firestore::util::AsyncQueue;
 using firebase::firestore::util::CreateAutoId;
 using firebase::firestore::util::Filesystem;
@@ -277,6 +277,7 @@ class FakeCredentialsProvider : public EmptyCredentialsProvider {
                                 persistenceKey:util::MakeString(persistenceKey)
                            credentialsProvider:_fakeCredentialsProvider
                                    workerQueue:AsyncQueueForTesting()
+                      firebaseMetadataProvider:absl::make_unique<FirebaseMetadataProviderApple>(app)
                                    firebaseApp:app
                               instanceRegistry:nil];
 
@@ -304,7 +305,7 @@ class FakeCredentialsProvider : public EmptyCredentialsProvider {
     __block XCTestExpectation *watchUpdateReceived;
     FIRDocumentReference *docRef = [db documentWithPath:[self documentPath]];
     id<FIRListenerRegistration> listenerRegistration =
-        [docRef addSnapshotListener:^(FIRDocumentSnapshot *snapshot, NSError *error) {
+        [docRef addSnapshotListener:^(FIRDocumentSnapshot *snapshot, NSError *) {
           if ([snapshot[@"value"] isEqual:@"done"]) {
             [watchUpdateReceived fulfill];
           } else {
@@ -313,17 +314,17 @@ class FakeCredentialsProvider : public EmptyCredentialsProvider {
         }];
 
     // Wait for watch to initialize and deliver first event.
-    [self awaitExpectations];
+    [self awaitExpectation:watchInitialized];
 
     watchUpdateReceived = [self expectationWithDescription:@"Prime backend: Watch update received"];
 
     // Use a transaction to perform a write without triggering any local events.
     [docRef.firestore
-        runTransactionWithBlock:^id(FIRTransaction *transaction, NSError **pError) {
+        runTransactionWithBlock:^id(FIRTransaction *transaction, NSError **) {
           [transaction setData:@{@"value" : @"done"} forDocument:docRef];
           return nil;
         }
-                     completion:^(id result, NSError *error){
+                     completion:^(id, NSError *){
                      }];
 
     // Wait to see the write on the watch stream.
@@ -342,17 +343,18 @@ class FakeCredentialsProvider : public EmptyCredentialsProvider {
 }
 
 - (void)terminateFirestore:(FIRFirestore *)firestore {
-  [firestore terminateWithCompletion:[self completionForExpectationWithName:@"shutdown"]];
-  [self awaitExpectations];
+  XCTestExpectation *expectation = [self expectationWithDescription:@"shutdown"];
+  [firestore terminateWithCompletion:[self completionForExpectation:expectation]];
+  [self awaitExpectation:expectation];
 }
 
 - (void)deleteApp:(FIRApp *)app {
-  XCTestExpectation *expectation = [self expectationWithDescription:@"Delete app"];
+  XCTestExpectation *expectation = [self expectationWithDescription:@"deleteApp"];
   [app deleteApp:^(BOOL completion) {
     XCTAssertTrue(completion);
     [expectation fulfill];
   }];
-  [self awaitExpectations];
+  [self awaitExpectation:expectation];
 }
 
 - (NSString *)documentPath {
@@ -382,14 +384,13 @@ class FakeCredentialsProvider : public EmptyCredentialsProvider {
 - (void)writeAllDocuments:(NSDictionary<NSString *, NSDictionary<NSString *, id> *> *)documents
              toCollection:(FIRCollectionReference *)collection {
   [documents enumerateKeysAndObjectsUsingBlock:^(NSString *key, NSDictionary<NSString *, id> *value,
-                                                 BOOL *stop) {
+                                                 BOOL *) {
     FIRDocumentReference *ref = [collection documentWithPath:key];
     [self writeDocumentRef:ref data:value];
   }];
 }
 
-- (void)readerAndWriterOnDocumentRef:(void (^)(NSString *path,
-                                               FIRDocumentReference *readerRef,
+- (void)readerAndWriterOnDocumentRef:(void (^)(FIRDocumentReference *readerRef,
                                                FIRDocumentReference *writerRef))action {
   FIRFirestore *reader = self.db;  // for clarity
   FIRFirestore *writer = [self firestore];
@@ -397,7 +398,7 @@ class FakeCredentialsProvider : public EmptyCredentialsProvider {
   NSString *path = [self documentPath];
   FIRDocumentReference *readerRef = [reader documentWithPath:path];
   FIRDocumentReference *writerRef = [writer documentWithPath:path];
-  action(path, readerRef, writerRef);
+  action(readerRef, writerRef);
 }
 
 - (FIRDocumentSnapshot *)readDocumentForRef:(FIRDocumentReference *)ref {
@@ -415,7 +416,7 @@ class FakeCredentialsProvider : public EmptyCredentialsProvider {
                     result = doc;
                     [expectation fulfill];
                   }];
-  [self awaitExpectations];
+  [self awaitExpectation:expectation];
 
   return result;
 }
@@ -434,7 +435,7 @@ class FakeCredentialsProvider : public EmptyCredentialsProvider {
                        result = documentSet;
                        [expectation fulfill];
                      }];
-  [self awaitExpectations];
+  [self awaitExpectation:expectation];
 
   return result;
 }
@@ -455,61 +456,63 @@ class FakeCredentialsProvider : public EmptyCredentialsProvider {
                                              }
                                            }];
 
-  [self awaitExpectations];
+  [self awaitExpectation:expectation];
   [listener remove];
 
   return result;
 }
 
 - (void)writeDocumentRef:(FIRDocumentReference *)ref data:(NSDictionary<NSString *, id> *)data {
-  [ref setData:data completion:[self completionForExpectationWithName:@"setData"]];
-  [self awaitExpectations];
+  XCTestExpectation *expectation = [self expectationWithDescription:@"setData"];
+  [ref setData:data completion:[self completionForExpectation:expectation]];
+  [self awaitExpectation:expectation];
 }
 
 - (void)updateDocumentRef:(FIRDocumentReference *)ref data:(NSDictionary<id, id> *)data {
-  [ref updateData:data completion:[self completionForExpectationWithName:@"updateData"]];
-  [self awaitExpectations];
+  XCTestExpectation *expectation = [self expectationWithDescription:@"updateData"];
+  [ref updateData:data completion:[self completionForExpectation:expectation]];
+  [self awaitExpectation:expectation];
 }
 
 - (void)deleteDocumentRef:(FIRDocumentReference *)ref {
-  [ref deleteDocumentWithCompletion:[self completionForExpectationWithName:@"deleteDocument"]];
-  [self awaitExpectations];
+  XCTestExpectation *expectation = [self expectationWithDescription:@"deleteDocument"];
+  [ref deleteDocumentWithCompletion:[self completionForExpectation:expectation]];
+  [self awaitExpectation:expectation];
 }
 
 - (FIRDocumentReference *)addDocumentRef:(FIRCollectionReference *)ref
                                     data:(NSDictionary<NSString *, id> *)data {
-  FIRDocumentReference *doc =
-      [ref addDocumentWithData:data
-                    completion:[self completionForExpectationWithName:@"addDocument"]];
-  [self awaitExpectations];
+  XCTestExpectation *expectation = [self expectationWithDescription:@"addDocument"];
+  FIRDocumentReference *doc = [ref addDocumentWithData:data
+                                            completion:[self completionForExpectation:expectation]];
+  [self awaitExpectation:expectation];
   return doc;
 }
 
 - (void)mergeDocumentRef:(FIRDocumentReference *)ref data:(NSDictionary<NSString *, id> *)data {
-  [ref setData:data
-           merge:YES
-      completion:[self completionForExpectationWithName:@"setDataWithMerge"]];
-  [self awaitExpectations];
+  XCTestExpectation *expectation = [self expectationWithDescription:@"setDataWithMerge"];
+  [ref setData:data merge:YES completion:[self completionForExpectation:expectation]];
+  [self awaitExpectation:expectation];
 }
 
 - (void)mergeDocumentRef:(FIRDocumentReference *)ref
                     data:(NSDictionary<NSString *, id> *)data
                   fields:(NSArray<id> *)fields {
-  [ref setData:data
-      mergeFields:fields
-       completion:[self completionForExpectationWithName:@"setDataWithMerge"]];
-  [self awaitExpectations];
+  XCTestExpectation *expectation = [self expectationWithDescription:@"setDataWithMerge"];
+  [ref setData:data mergeFields:fields completion:[self completionForExpectation:expectation]];
+  [self awaitExpectation:expectation];
 }
 
 - (void)disableNetwork {
-  [self.db
-      disableNetworkWithCompletion:[self completionForExpectationWithName:@"Disable Network."]];
-  [self awaitExpectations];
+  XCTestExpectation *expectation = [self expectationWithDescription:@"disableNetwork"];
+  [self.db disableNetworkWithCompletion:[self completionForExpectation:expectation]];
+  [self awaitExpectation:expectation];
 }
 
 - (void)enableNetwork {
-  [self.db enableNetworkWithCompletion:[self completionForExpectationWithName:@"Enable Network."]];
-  [self awaitExpectations];
+  XCTestExpectation *expectation = [self expectationWithDescription:@"enableNetwork"];
+  [self.db enableNetworkWithCompletion:[self completionForExpectation:expectation]];
+  [self awaitExpectation:expectation];
 }
 
 - (const std::shared_ptr<util::AsyncQueue> &)queueForFirestore:(FIRFirestore *)firestore {

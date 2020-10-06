@@ -18,6 +18,7 @@ import UIKit
 
 class CardMessageViewController: CommonMessageTestVC {
   class TestableCardMessage: InAppMessagingCardDisplay {
+    var writableCampaignInfo: InAppMessagingCampaignInfo
     var writableTitle: String
     var writableBody: String?
     var writableTextColor: UIColor
@@ -28,6 +29,12 @@ class CardMessageViewController: CommonMessageTestVC {
     var writablePrimaryActionURL: URL
     var writableSecondaryActionButton: InAppMessagingActionButton?
     var writableSecondaryActionURL: URL?
+    var writableMessageType: FIRInAppMessagingDisplayMessageType
+    var writableTriggerType: FIRInAppMessagingDisplayTriggerType
+
+    override var campaignInfo: InAppMessagingCampaignInfo {
+      return writableCampaignInfo
+    }
 
     override var title: String {
       return writableTitle
@@ -69,6 +76,14 @@ class CardMessageViewController: CommonMessageTestVC {
       return writableSecondaryActionURL
     }
 
+    override var type: FIRInAppMessagingDisplayMessageType {
+      return writableMessageType
+    }
+
+    override var triggerType: FIRInAppMessagingDisplayTriggerType {
+      return writableTriggerType
+    }
+
     init(titleText: String,
          body: String?,
          textColor: UIColor,
@@ -89,11 +104,11 @@ class CardMessageViewController: CommonMessageTestVC {
       writablePrimaryActionURL = primaryActionURL
       writableSecondaryActionButton = secondaryActionButton
       writableSecondaryActionURL = secondaryActionURL
-      super.init(messageID: "testID",
-                 campaignName: "testCampaign",
-                 renderAsTestMessage: false,
-                 messageType: .card,
-                 triggerType: .onAnalyticsEvent)
+      writableCampaignInfo = TestableCampaignInfo(messageID: "testID",
+                                                  campaignName: "testCampaign",
+                                                  isTestMessage: false)
+      writableMessageType = FIRInAppMessagingDisplayMessageType.card
+      writableTriggerType = FIRInAppMessagingDisplayTriggerType.onAnalyticsEvent
     }
   }
 
@@ -115,10 +130,12 @@ class CardMessageViewController: CommonMessageTestVC {
 
   @IBAction func showRegularOneButtonWithBothImages(_ sender: Any) {
     let portraitImageRawData = produceImageOfSize(size: CGSize(width: 300, height: 200))
-    let portraitImageData = InAppMessagingImageData(imageURL: "url not important", imageData: portraitImageRawData!)
+    let portraitImageData = InAppMessagingImageData(imageURL: "url not important",
+                                                    imageData: portraitImageRawData!)
 
     let landscapeImageRawData = produceImageOfSize(size: CGSize(width: 200, height: 200))
-    let landscapeImageData = InAppMessagingImageData(imageURL: "url not important", imageData: landscapeImageRawData!)
+    let landscapeImageData = InAppMessagingImageData(imageURL: "url not important",
+                                                     imageData: landscapeImageRawData!)
 
     let cardMessage = TestableCardMessage(
       titleText: normalMessageTitle,
@@ -138,7 +155,8 @@ class CardMessageViewController: CommonMessageTestVC {
 
   @IBAction func showRegularOneButtonWithOnlyPortrait(_ sender: Any) {
     let portraitImageRawData = produceImageOfSize(size: CGSize(width: 300, height: 200))
-    let portraitImageData = InAppMessagingImageData(imageURL: "url not important", imageData: portraitImageRawData!)
+    let portraitImageData = InAppMessagingImageData(imageURL: "url not important",
+                                                    imageData: portraitImageRawData!)
 
     let cardMessage = TestableCardMessage(
       titleText: normalMessageTitle,
@@ -158,10 +176,12 @@ class CardMessageViewController: CommonMessageTestVC {
 
   @IBAction func showRegularTwoButtonWithBothImages(_ sender: Any) {
     let portraitImageRawData = produceImageOfSize(size: CGSize(width: 300, height: 200))
-    let portraitImageData = InAppMessagingImageData(imageURL: "url not important", imageData: portraitImageRawData!)
+    let portraitImageData = InAppMessagingImageData(imageURL: "url not important",
+                                                    imageData: portraitImageRawData!)
 
     let landscapeImageRawData = produceImageOfSize(size: CGSize(width: 300, height: 300))
-    let landscapeImageData = InAppMessagingImageData(imageURL: "url not important", imageData: landscapeImageRawData!)
+    let landscapeImageData = InAppMessagingImageData(imageURL: "url not important",
+                                                     imageData: landscapeImageRawData!)
 
     let cardMessage = TestableCardMessage(
       titleText: normalMessageTitle,
@@ -181,7 +201,8 @@ class CardMessageViewController: CommonMessageTestVC {
 
   @IBAction func showLongTitleRegularBody(_ sender: Any) {
     let portraitImageRawData = produceImageOfSize(size: CGSize(width: 300, height: 200))
-    let portraitImageData = InAppMessagingImageData(imageURL: "url not important", imageData: portraitImageRawData!)
+    let portraitImageData = InAppMessagingImageData(imageURL: "url not important",
+                                                    imageData: portraitImageRawData!)
 
     let cardMessage = TestableCardMessage(
       titleText: longTitleText,
@@ -201,7 +222,8 @@ class CardMessageViewController: CommonMessageTestVC {
 
   @IBAction func showRegularTitleLongBody(_ sender: Any) {
     let portraitImageRawData = produceImageOfSize(size: CGSize(width: 300, height: 200))
-    let portraitImageData = InAppMessagingImageData(imageURL: "url not important", imageData: portraitImageRawData!)
+    let portraitImageData = InAppMessagingImageData(imageURL: "url not important",
+                                                    imageData: portraitImageRawData!)
 
     let cardMessage = TestableCardMessage(
       titleText: normalMessageTitle,
@@ -221,7 +243,8 @@ class CardMessageViewController: CommonMessageTestVC {
 
   @IBAction func showLongTitleNoBody(_ sender: Any) {
     let portraitImageRawData = produceImageOfSize(size: CGSize(width: 300, height: 200))
-    let portraitImageData = InAppMessagingImageData(imageURL: "url not important", imageData: portraitImageRawData!)
+    let portraitImageData = InAppMessagingImageData(imageURL: "url not important",
+                                                    imageData: portraitImageRawData!)
 
     let cardMessage = TestableCardMessage(
       titleText: longTitleText,
@@ -241,7 +264,8 @@ class CardMessageViewController: CommonMessageTestVC {
 
   @IBAction func showLongPrimaryButton(_ sender: Any) {
     let portraitImageRawData = produceImageOfSize(size: CGSize(width: 300, height: 200))
-    let portraitImageData = InAppMessagingImageData(imageURL: "url not important", imageData: portraitImageRawData!)
+    let portraitImageData = InAppMessagingImageData(imageURL: "url not important",
+                                                    imageData: portraitImageRawData!)
 
     let cardMessage = TestableCardMessage(
       titleText: longTitleText,
@@ -261,7 +285,8 @@ class CardMessageViewController: CommonMessageTestVC {
 
   @IBAction func showLongSecondaryButton(_ sender: Any) {
     let portraitImageRawData = produceImageOfSize(size: CGSize(width: 300, height: 200))
-    let portraitImageData = InAppMessagingImageData(imageURL: "url not important", imageData: portraitImageRawData!)
+    let portraitImageData = InAppMessagingImageData(imageURL: "url not important",
+                                                    imageData: portraitImageRawData!)
 
     let cardMessage = TestableCardMessage(
       titleText: longTitleText,
@@ -281,7 +306,8 @@ class CardMessageViewController: CommonMessageTestVC {
 
   @IBAction func showSmallImage(_ sender: Any) {
     let portraitImageRawData = produceImageOfSize(size: CGSize(width: 30, height: 20))
-    let portraitImageData = InAppMessagingImageData(imageURL: "url not important", imageData: portraitImageRawData!)
+    let portraitImageData = InAppMessagingImageData(imageURL: "url not important",
+                                                    imageData: portraitImageRawData!)
 
     let cardMessage = TestableCardMessage(
       titleText: normalMessageTitle,
@@ -301,7 +327,8 @@ class CardMessageViewController: CommonMessageTestVC {
 
   @IBAction func showHugeImage(_ sender: Any) {
     let portraitImageRawData = produceImageOfSize(size: CGSize(width: 3000, height: 2000))
-    let portraitImageData = InAppMessagingImageData(imageURL: "url not important", imageData: portraitImageRawData!)
+    let portraitImageData = InAppMessagingImageData(imageURL: "url not important",
+                                                    imageData: portraitImageRawData!)
 
     let cardMessage = TestableCardMessage(
       titleText: normalMessageTitle,

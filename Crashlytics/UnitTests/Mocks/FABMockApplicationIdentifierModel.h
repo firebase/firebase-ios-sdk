@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRCLSApplicationIdentifierModel.h"
+#import "Crashlytics/Crashlytics/Settings/Models/FIRCLSApplicationIdentifierModel.h"
 
 #import <XCTest/XCTest.h>
 
@@ -22,6 +22,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 // Allows us to set this value in FIRCLSSettingsTests
 @property(nonatomic, copy) NSString* buildInstanceID;
+
+// Allows us to set this value in FIRCLSSettingsTests
+@property(nonatomic, copy) NSString* displayVersion;
+
+// Allows us to set this value in FIRCLSSettingsTests
+@property(nonatomic, copy) NSString* buildVersion;
 
 // Allows us to set this value in FIRCLSReportManagerTests
 @property(nonatomic, copy) NSString* bundleID;

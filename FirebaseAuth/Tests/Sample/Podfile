@@ -1,0 +1,35 @@
+# Uncomment the next two lines for pre-release testing on internal repo
+#source 'sso://cpdc-internal/firebase'
+#source 'https://cdn.cocoapods.org/'
+
+source 'https://github.com/firebase/SpecsStaging.git'
+source 'https://cdn.cocoapods.org/'
+
+use_frameworks!
+
+target 'AuthSample' do
+  platform :ios, '10.0'
+  pod 'FirebaseCore', :path => '../../../'
+  pod 'FirebaseCoreDiagnostics', :path => '../../../'
+  pod 'GoogleDataTransport', :path => '../../../'
+  pod 'GoogleUtilities', :path => '../../../'
+  pod 'FirebaseAuth', :path => '../../../', :testspecs => ['unit']
+  pod 'FirebaseInstallations', :path => '../../..'
+  pod 'FirebaseInstanceID', :path => '../../..'
+  pod 'FBSDKLoginKit'
+  pod 'GoogleSignIn', '~> 5'
+  pod 'GTMSessionFetcher/Core'
+
+  target 'Auth_ApiTests' do
+    inherit! :search_paths
+  end
+
+  target 'SwiftApiTests' do
+    inherit! :search_paths
+  end
+
+  target 'Auth_E2eTests' do
+    inherit! :search_paths
+    pod 'EarlGrey'
+  end
+end

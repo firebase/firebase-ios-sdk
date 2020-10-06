@@ -16,10 +16,10 @@
 
 #import "FIRFirestoreSettings.h"
 
-#include "Firestore/core/src/firebase/firestore/api/settings.h"
-#include "Firestore/core/src/firebase/firestore/util/exception.h"
-#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
-#include "Firestore/core/src/firebase/firestore/util/warnings.h"
+#include "Firestore/core/src/api/settings.h"
+#include "Firestore/core/src/util/exception.h"
+#include "Firestore/core/src/util/string_apple.h"
+#include "Firestore/core/src/util/warnings.h"
 #include "absl/base/attributes.h"
 #include "absl/memory/memory.h"
 
@@ -78,7 +78,7 @@ ABSL_CONST_INIT extern "C" const int64_t kFIRFirestoreCacheSizeUnlimited =
   return result;
 }
 
-- (id)copyWithZone:(nullable NSZone *)zone {
+- (id)copyWithZone:(__unused NSZone *_Nullable)zone {
   FIRFirestoreSettings *copy = [[FIRFirestoreSettings alloc] init];
   copy.host = _host;
   copy.sslEnabled = _sslEnabled;

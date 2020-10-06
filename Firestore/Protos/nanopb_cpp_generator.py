@@ -387,7 +387,7 @@ def nanopb_augment_source(generated_source, file_pretty_printing):
     file_pretty_printing: `FilePrettyPrinting` for this source.
   """
   generated_source.insert('includes', textwrap.dedent('\
-    #include "Firestore/core/src/firebase/firestore/nanopb/pretty_printing.h"\n\n'))
+    #include "Firestore/core/src/nanopb/pretty_printing.h"\n\n'))
 
   open_namespace(generated_source)
   add_using_declarations(generated_source)

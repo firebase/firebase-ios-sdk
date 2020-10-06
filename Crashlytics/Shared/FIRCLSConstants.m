@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRCLSConstants.h"
+#import "Crashlytics/Shared/FIRCLSConstants.h"
 
 #define STR_HELPER(x) #x
 #define STR(x) STR_HELPER(x)
@@ -30,7 +30,7 @@ NSString* const FIRCLSException = @"FIRCLSException";
 
 // Endpoints
 NSString* const FIRCLSSettingsEndpoint = @"https://firebase-settings.crashlytics.com";
-NSString* const FIRCLSConfigureEndpoint = @"https://api.crashlytics.com";
+NSString* const FIRCLSConfigureEndpoint = @"https://update.crashlytics.com";
 NSString* const FIRCLSReportsEndpoint = @"https://reports.crashlytics.com";
 
 // Network requests

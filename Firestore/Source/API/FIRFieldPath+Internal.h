@@ -16,7 +16,7 @@
 
 #import "FIRFieldPath.h"
 
-#include "Firestore/core/src/firebase/firestore/model/field_path.h"
+#include "Firestore/core/src/model/model_fwd.h"
 
 namespace model = firebase::firestore::model;
 

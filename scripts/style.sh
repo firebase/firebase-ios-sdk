@@ -1,10 +1,13 @@
 #!/bin/bash
 
-# Copyright 2017 Google
+# Copyright 2017 Google LLC
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
+#
 #      http://www.apache.org/licenses/LICENSE-2.0
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -39,7 +42,7 @@ version="${version/ (*)/}"
 version="${version/.*/}"
 
 case "$version" in
-  8)
+  10)
     ;;
   google3-trunk)
     echo "Please use a publicly released clang-format; a recent LLVM release"
@@ -48,31 +51,19 @@ case "$version" in
     exit 1
     ;;
   *)
-    echo "Please upgrade to clang-format version 8."
+    echo "Please upgrade to clang-format version 10."
     echo "If it's installed via homebrew you can run:"
-    echo "brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/e3496d9/Formula/clang-format.rb"
+    echo "brew upgrade clang-format"
     exit 1
     ;;
 esac
 
+# Ensure that tools in `Mintfile` are installed locally to avoid permissions
+# problems that would otherwise arise from the default of installing in
+# /usr/local.
+export MINT_PATH=Mint
+
 system=$(uname -s)
-if [[ "$system" == "Darwin" ]]; then
-  version=$(swiftformat --version)
-  # Log the version in non-interactive use as it can be useful in travis logs.
-  if [[ ! -t 1 ]]; then
-    echo "Found: $version"
-  fi
-  version="${version/*version /}"
-  # Ensure the swiftformat version is at least 0.35.x since (as of 2019-02-01)
-  # travis runs 0.35.7. We may need to be more strict about version checks in
-  # the future if we run into different versions making incompatible format
-  # changes.
-  if [[ ! "$version" =~ ^0.3[5-9] && ! "$version" =~ ^0.[4-9] ]]; then
-    echo "Version $version installed. Please upgrade to at least swiftformat 0.35.0"
-    echo "If it's installed via homebrew you can run: brew upgrade swiftformat"
-    exit 1
-  fi
-fi
 
 # Joins the given arguments with the separator given as the first argument.
 function join() {
@@ -92,11 +83,16 @@ swift_disable=(
   # it's correct to remove the unused argument labels, it makes our examples
   # look wrong.
   unusedArguments
+
+  # We prefer trailing braces.
+  wrapMultilineStatementBraces
 )
 
 swift_options=(
   # Mimic Objective-C style.
   --indent 2
+  --maxwidth 100
+  --wrapparameters afterfirst
 
   --disable $(join , "${swift_disable[@]}")
 )
@@ -136,6 +132,9 @@ s%^./%%
 \%^build/% d
 \%^Debug/% d
 \%^Release/% d
+\%^cmake-build-debug/% d
+\%^.build/% d
+\%^.swiftpm/% d
 
 # pod gen output
 \%^gen/% d
@@ -147,14 +146,20 @@ s%^./%%
 # Sources controlled outside this tree
 \%/third_party/% d
 
+# Public headers for closed sourced FirebaseAnalytics
+\%^(FirebaseAnalyticsWrapper)/% d
+
 # Generated source
-\%/Firestore/core/src/firebase/firestore/util/config.h% d
+\%/Firestore/core/src/util/config.h% d
 
 # Sources pulled in by travis bundler, with and without a leading slash
 \%^/?vendor/bundle/% d
 
-# Sources within the tree that are not subject to formatting
-\%^(Example|Firebase)/(Auth|AuthSamples)/% d
+# Sources pulled in by the Mint package manager
+\%^Mint% d
+
+# Auth Sample is not subject to formatting
+\%^(FirebaseAuth/Tests/Sample)/% d
 
 # Keep Firebase.h indenting
 \%^CoreOnly/Sources/Firebase.h% d
@@ -176,7 +181,7 @@ for f in $files; do
       # Match output that says:
       # 1/1 files would have been formatted.  (with --dryrun)
       # 1/1 files formatted.                  (without --dryrun)
-      swiftformat "${swift_options[@]}" "$f" 2>&1 | grep '^1/1 files' > /dev/null
+      mint run swiftformat "${swift_options[@]}" "$f" 2>&1 | grep '^1/1 files' > /dev/null
     else
       false
     fi

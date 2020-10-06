@@ -17,12 +17,12 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
-#import "FIRIAMDisplayCheckOnAnalyticEventsFlow.h"
-#import "FIRIAMDisplayTriggerDefinition.h"
-#import "FIRIAMMessageClientCache.h"
-#import "FIRIAMMessageContentDataWithImageURL.h"
-#import "FIRIAMMessageDefinition.h"
-#import "FIRIAMTimeFetcher.h"
+#import "FirebaseInAppMessaging/Sources/Private/Data/FIRIAMMessageContentDataWithImageURL.h"
+#import "FirebaseInAppMessaging/Sources/Private/Data/FIRIAMMessageDefinition.h"
+#import "FirebaseInAppMessaging/Sources/Private/DisplayTrigger/FIRIAMDisplayTriggerDefinition.h"
+#import "FirebaseInAppMessaging/Sources/Private/Flows/FIRIAMDisplayCheckOnAnalyticEventsFlow.h"
+#import "FirebaseInAppMessaging/Sources/Private/Flows/FIRIAMMessageClientCache.h"
+#import "FirebaseInAppMessaging/Sources/Private/Util/FIRIAMTimeFetcher.h"
 
 @interface FIRIAMMessageClientCacheTests : XCTestCase
 @property id<FIRIAMBookKeeper> mockBookkeeper;
@@ -369,7 +369,8 @@
   OCMStub([self.mockBookkeeper getImpressions]).andReturn(@[]);
 
   FIRIAMMessageDefinition *testMessage =
-      [[FIRIAMMessageDefinition alloc] initTestMessageWithRenderData:m2.renderData];
+      [[FIRIAMMessageDefinition alloc] initTestMessageWithRenderData:m2.renderData
+                                                   experimentPayload:nil];
 
   // m1 and m3 are messages rendered on app open
   [self.clientCache setMessageData:@[ m1, m2, testMessage, m3, m4 ]];

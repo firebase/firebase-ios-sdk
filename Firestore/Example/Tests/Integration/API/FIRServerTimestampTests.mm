@@ -137,11 +137,11 @@
 - (void)runTransactionBlock:(void (^)(FIRTransaction *transaction))transactionBlock {
   XCTestExpectation *expectation = [self expectationWithDescription:@"transaction complete"];
   [_docRef.firestore
-      runTransactionWithBlock:^id(FIRTransaction *transaction, NSError **pError) {
+      runTransactionWithBlock:^id(FIRTransaction *transaction, NSError **) {
         transactionBlock(transaction);
         return nil;
       }
-      completion:^(id result, NSError *error) {
+      completion:^(id, NSError *error) {
         XCTAssertNil(error);
         [expectation fulfill];
       }];
@@ -298,11 +298,11 @@
 - (void)testServerTimestampsFailViaTransactionUpdateOnNonexistentDocument {
   XCTestExpectation *expectation = [self expectationWithDescription:@"transaction complete"];
   [_docRef.firestore
-      runTransactionWithBlock:^id(FIRTransaction *transaction, NSError **pError) {
+      runTransactionWithBlock:^id(FIRTransaction *transaction, NSError **) {
         [transaction updateData:self->_updateData forDocument:self->_docRef];
         return nil;
       }
-      completion:^(id result, NSError *error) {
+      completion:^(id, NSError *error) {
         XCTAssertNotNil(error);
         XCTAssertEqualObjects(error.domain, FIRFirestoreErrorDomain);
         XCTAssertEqual(error.code, FIRFirestoreErrorCodeNotFound);

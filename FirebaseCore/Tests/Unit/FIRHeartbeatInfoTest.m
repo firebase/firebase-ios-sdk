@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import <FirebaseCore/FIRHeartbeatInfo.h>
 #import <GoogleUtilities/GULHeartbeatDateStorage.h>
 #import <XCTest/XCTest.h>
+#import "FirebaseCore/Sources/Private/FIRHeartbeatInfo.h"
 
 @interface FIRHeartbeatInfoTest : XCTestCase
 

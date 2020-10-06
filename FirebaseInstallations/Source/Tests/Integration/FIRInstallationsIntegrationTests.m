@@ -20,19 +20,20 @@
 // macOS requests a user password when accessing the Keychain for the first time,
 // so the tests may fail. Disable integration tests on macOS so far.
 // TODO: Configure the tests to run on macOS without requesting the keychain password.
+
+#import <TargetConditionals.h>
 #if !TARGET_OS_OSX
 
 #import <XCTest/XCTest.h>
 
-#import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseCore/FIROptionsInternal.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 #import "FBLPromise+Testing.h"
-#import "FIRInstallations+Tests.h"
-#import "FIRInstallationsItem+Tests.h"
+#import "FirebaseInstallations/Source/Tests/Utils/FIRInstallations+Tests.h"
+#import "FirebaseInstallations/Source/Tests/Utils/FIRInstallationsItem+Tests.h"
 
-#import <FirebaseInstallations/FIRInstallations.h>
-#import <FirebaseInstallations/FIRInstallationsAuthTokenResult.h>
+#import "FirebaseInstallations/Source/Library/Public/FirebaseInstallations/FIRInstallations.h"
+#import "FirebaseInstallations/Source/Library/Public/FirebaseInstallations/FIRInstallationsAuthTokenResult.h"
 
 static BOOL sFIRInstallationsFirebaseDefaultAppConfigured = NO;
 
@@ -54,8 +55,7 @@ static BOOL sFIRInstallationsFirebaseDefaultAppConfigured = NO;
 
 - (void)tearDown {
   // Delete the installation.
-  [self.installations deleteWithCompletion:^(NSError *_Nullable error) {
-    XCTAssertNil(error);
+  [self.installations deleteWithCompletion:^(NSError *_Nullable error){
   }];
 
   // Wait for any pending background job to be completed.

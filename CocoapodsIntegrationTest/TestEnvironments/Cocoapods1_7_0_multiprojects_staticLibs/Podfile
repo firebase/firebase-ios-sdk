@@ -1,10 +1,11 @@
 # Uncomment the next line to define a global platform for your project
-platform :ios, '9.0'
+platform :ios, '10.0'
 
 target 'CocoapodsIntegrationTest' do
+  pod 'FirebaseABTesting', :path => '../'
+  pod 'FirebaseAppDistribution', :path => '../'
   pod 'FirebaseCore', :path => '../'
   pod 'FirebaseCoreDiagnostics', :path => '../'
-  pod 'FirebaseCoreDiagnosticsInterop', :path => '../'
   pod 'FirebaseCrashlytics', :path => '../'
   pod 'FirebaseAuth', :path => '../'
   pod 'FirebaseDatabase', :path => '../'
@@ -17,7 +18,6 @@ target 'CocoapodsIntegrationTest' do
   pod 'FirebaseMessaging', :path => '../'
   pod 'FirebaseStorage', :path => '../'
   pod 'GoogleDataTransport', :path => '../'
-  pod 'GoogleDataTransportCCTSupport', :path => '../'
   pod 'GoogleUtilities', :path => '../'
 end
 

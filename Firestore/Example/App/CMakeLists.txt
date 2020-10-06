@@ -1,4 +1,4 @@
-# Copyright 2019 Google
+# Copyright 2019 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,38 +12,41 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-if(APPLE)
-  set(
-    sources
-    macOS/main.m
-    macOS/AppDelegate.m
-    macOS/AppDelegate.h
-  )
+if(NOT APPLE)
+  return()
+endif()
 
-  set(
-    resources
-    GoogleService-Info.plist
-  )
-
-  add_executable(
-    firestore_example_app_macos MACOSX_BUNDLE
-    ${sources}
-  )
-
-  add_objc_flags(
-    firestore_example_app_macos
-    ${sources}
-  )
+if(IOS)
+  file(GLOB sources iOS/*.h iOS/*.m)
+  firebase_ios_add_executable(firestore_objc_host_app MACOSX_BUNDLE ${sources})
 
   target_link_libraries(
-    firestore_example_app_macos
-    PRIVATE "-framework AppKit"
+    firestore_objc_host_app PRIVATE
+    "-framework Foundation"
+    "-framework UIKit"
   )
 
   set_target_properties(
-    firestore_example_app_macos PROPERTIES
-    MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/macOS/Info.plist
-    RESOURCE "${resources}"
+    firestore_objc_host_app PROPERTIES
+    MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/iOS/Firestore-Info.plist
+    RESOURCE GoogleService-Info.plist
   )
 
-endif(APPLE)
+else()
+  # Assume macOS
+
+  file(GLOB sources macOS/*.h macOS/*.m)
+  firebase_ios_add_executable(firestore_objc_host_app MACOSX_BUNDLE ${sources})
+
+  target_link_libraries(
+    firestore_objc_host_app PRIVATE
+    "-framework AppKit"
+    "-framework Foundation"
+  )
+
+  set_target_properties(
+    firestore_objc_host_app PROPERTIES
+    MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/macOS/Info.plist
+    RESOURCE GoogleService-Info.plist
+  )
+endif()

@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 
-#import "FIRIAMBannerViewController.h"
-#import "FIRCore+InAppMessagingDisplay.h"
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
+
+#import "FirebaseInAppMessaging/Sources/DefaultUI/Banner/FIRIAMBannerViewController.h"
+#import "FirebaseInAppMessaging/Sources/DefaultUI/FIRCore+InAppMessagingDisplay.h"
 
 @interface FIRIAMBannerViewController ()
 
@@ -154,6 +157,25 @@ static const CGFloat kSwipeUpThreshold = -10.0f;
   self.view.layer.shadowOffset = CGSizeMake(2, 1);
   self.view.layer.shadowRadius = 2;
   self.view.layer.shadowOpacity = 0.4;
+
+  // Calculate status bar height.
+  CGFloat statusBarHeight = 0;
+#if defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+  if (@available(iOS 13.0, *)) {
+    UIStatusBarManager *manager =
+        [UIApplication sharedApplication].keyWindow.windowScene.statusBarManager;
+
+    statusBarHeight = manager.statusBarFrame.size.height;
+  } else {
+#endif
+    statusBarHeight = [[UIApplication sharedApplication] statusBarFrame].size.height;
+#if defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+  }
+#endif
+
+  // Pin title label below status bar with cushion.
+  [[self.titleLabel.topAnchor constraintEqualToAnchor:self.view.topAnchor
+                                             constant:statusBarHeight + 3] setActive:YES];
 
   // When created, we are hiding it for later animation
   self.hidingForAnimation = YES;
@@ -299,3 +321,5 @@ static const CGFloat kSwipeUpThreshold = -10.0f;
   [self.autoDismissTimer invalidate];
 }
 @end
+
+#endif  // TARGET_OS_IOS

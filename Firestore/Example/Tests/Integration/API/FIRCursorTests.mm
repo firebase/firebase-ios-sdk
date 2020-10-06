@@ -140,10 +140,10 @@
       readDocumentSetForRef:[[query queryStartingAfterValues:@[ [db documentWithPath:@"1/a"] ]]
                                 queryEndingAtValues:@[ [db documentWithPath:@"2/b"] ]]];
   NSMutableArray<NSString *> *actual = [NSMutableArray array];
-  [querySnapshot.documents enumerateObjectsUsingBlock:^(FIRDocumentSnapshot *_Nonnull doc,
-                                                        NSUInteger idx, BOOL *_Nonnull stop) {
-    [actual addObject:doc.data[@"k"]];
-  }];
+  [querySnapshot.documents
+      enumerateObjectsUsingBlock:^(FIRDocumentSnapshot *_Nonnull doc, NSUInteger, BOOL *) {
+        [actual addObject:doc.data[@"k"]];
+      }];
   XCTAssertEqualObjects(actual, (@[ @"1b", @"2a", @"2b" ]));
 }
 

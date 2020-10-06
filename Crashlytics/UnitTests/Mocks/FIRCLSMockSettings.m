@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRCLSMockSettings.h"
+#import "Crashlytics/UnitTests/Mocks/FIRCLSMockSettings.h"
 
 @implementation FIRCLSMockSettings
 
@@ -20,5 +20,6 @@
 // and bypass the normal functionality
 @synthesize orgID;
 @synthesize fetchedBundleID;
+@synthesize shouldUseNewReportEndpoint;
 
 @end

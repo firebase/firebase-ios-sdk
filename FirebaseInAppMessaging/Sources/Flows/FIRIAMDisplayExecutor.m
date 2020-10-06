@@ -14,17 +14,22 @@
  * limitations under the License.
  */
 
-#import <FirebaseCore/FIRLogger.h>
-#import <UIKit/UIKit.h>
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
 
-#import "FIRCore+InAppMessaging.h"
-#import "FIRIAMActivityLogger.h"
-#import "FIRIAMDisplayExecutor.h"
-#import "FIRIAMMessageContentData.h"
-#import "FIRIAMMessageDefinition.h"
-#import "FIRIAMSDKRuntimeErrorCodes.h"
-#import "FIRInAppMessaging.h"
-#import "FIRInAppMessagingRenderingPrivate.h"
+#import <UIKit/UIKit.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+
+#import "FirebaseInAppMessaging/Sources/FIRCore+InAppMessaging.h"
+#import "FirebaseInAppMessaging/Sources/Private/Data/FIRIAMMessageContentData.h"
+#import "FirebaseInAppMessaging/Sources/Private/Data/FIRIAMMessageDefinition.h"
+#import "FirebaseInAppMessaging/Sources/Private/Flows/FIRIAMActivityLogger.h"
+#import "FirebaseInAppMessaging/Sources/Private/Flows/FIRIAMDisplayExecutor.h"
+#import "FirebaseInAppMessaging/Sources/Public/FirebaseInAppMessaging/FIRInAppMessaging.h"
+#import "FirebaseInAppMessaging/Sources/RenderingObjects/FIRInAppMessagingRenderingPrivate.h"
+#import "FirebaseInAppMessaging/Sources/Runtime/FIRIAMSDKRuntimeErrorCodes.h"
+
+#import "FirebaseABTesting/Sources/Private/FirebaseABTestingInternal.h"
 
 @implementation FIRIAMDisplaySetting
 @end
@@ -57,12 +62,6 @@
   __weak id<FIRInAppMessagingDisplayDelegate> appSideDelegate = self.inAppMessaging.delegate;
   if ([appSideDelegate respondsToSelector:@selector(messageClicked:withAction:)]) {
     [appSideDelegate messageClicked:inAppMessage withAction:action];
-  } else if ([appSideDelegate respondsToSelector:@selector(messageClicked:)]) {
-    // Deprecated method is called only as a fall-back.
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    [appSideDelegate messageClicked:inAppMessage];
-#pragma clang diagnostic pop
   }
 
   self.isMsgBeingDisplayed = NO;
@@ -103,16 +102,18 @@
     [self recordValidImpression:_currentMsgBeingDisplayed.renderData.messageID
                 withMessageName:_currentMsgBeingDisplayed.renderData.name];
 
-    [self.analyticsEventLogger
-        logAnalyticsEventForType:FIRIAMAnalyticsEventActionURLFollow
-                   forCampaignID:_currentMsgBeingDisplayed.renderData.messageID
-                withCampaignName:_currentMsgBeingDisplayed.renderData.name
-                   eventTimeInMs:nil
-                      completion:^(BOOL success) {
-                        FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400032",
-                                    @"Logging analytics event for url following %@",
-                                    success ? @"succeeded" : @"failed");
-                      }];
+    if (action.actionURL) {
+      [self.analyticsEventLogger
+          logAnalyticsEventForType:FIRIAMAnalyticsEventActionURLFollow
+                     forCampaignID:_currentMsgBeingDisplayed.renderData.messageID
+                  withCampaignName:_currentMsgBeingDisplayed.renderData.name
+                     eventTimeInMs:nil
+                        completion:^(BOOL success) {
+                          FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400032",
+                                      @"Logging analytics event for url following %@",
+                                      success ? @"succeeded" : @"failed");
+                        }];
+    }
   }
 
   NSURL *actionURL = action.actionURL;
@@ -209,6 +210,13 @@
     return;
   }
 
+  // If this is an experimental FIAM, activate the experiment.
+  if (inAppMessage.campaignInfo.experimentPayload) {
+    [[FIRExperimentController sharedInstance]
+        activateExperiment:inAppMessage.campaignInfo.experimentPayload
+          forServiceOrigin:@"fiam"];
+  }
+
   if (!_currentMsgBeingDisplayed.isTestMessage) {
     // Displayed long enough to be a valid impression.
     [self recordValidImpression:_currentMsgBeingDisplayed.renderData.messageID
@@ -302,13 +310,13 @@
 - (void)displayMessageLoadError:(NSError *)error {
   NSString *errorMsg = error.userInfo[NSLocalizedDescriptionKey]
                            ? error.userInfo[NSLocalizedDescriptionKey]
-                           : @"Message loading failed";
+                           : NSLocalizedString(@"Message loading failed", nil);
   UIAlertController *alert = [UIAlertController
       alertControllerWithTitle:@"Firebase InAppMessaging fail to load a test message"
                        message:errorMsg
                 preferredStyle:UIAlertControllerStyleAlert];
 
-  UIAlertAction *defaultAction = [UIAlertAction actionWithTitle:@"OK"
+  UIAlertAction *defaultAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"OK", nil)
                                                           style:UIAlertActionStyleDefault
                                                         handler:^(UIAlertAction *action) {
                                                           self.alertWindow.hidden = NO;
@@ -438,6 +446,7 @@
   FIRInAppMessagingCardDisplay *cardMessage = [[FIRInAppMessagingCardDisplay alloc]
         initWithMessageID:renderData.messageID
              campaignName:renderData.name
+        experimentPayload:definition.experimentPayload
       renderAsTestMessage:definition.isTestMessage
               triggerType:triggerType
                 titleText:title
@@ -445,7 +454,8 @@
         portraitImageData:portraitImageData
           backgroundColor:renderData.renderingEffectSettings.displayBGColor
       primaryActionButton:primaryActionButton
-         primaryActionURL:definition.renderData.contentData.actionURL];
+         primaryActionURL:definition.renderData.contentData.actionURL
+                  appData:definition.appData];
 
   cardMessage.body = body;
   cardMessage.landscapeImageData = landscapeImageData;
@@ -467,6 +477,7 @@
   FIRInAppMessagingBannerDisplay *bannerMessage = [[FIRInAppMessagingBannerDisplay alloc]
         initWithMessageID:definition.renderData.messageID
              campaignName:definition.renderData.name
+        experimentPayload:definition.experimentPayload
       renderAsTestMessage:definition.isTestMessage
               triggerType:triggerType
                 titleText:title
@@ -474,7 +485,8 @@
                 textColor:definition.renderData.renderingEffectSettings.textColor
           backgroundColor:definition.renderData.renderingEffectSettings.displayBGColor
                 imageData:imageData
-                actionURL:definition.renderData.contentData.actionURL];
+                actionURL:definition.renderData.contentData.actionURL
+                  appData:definition.appData];
 #pragma clang diagnostic pop
 
   return bannerMessage;
@@ -489,10 +501,12 @@
   FIRInAppMessagingImageOnlyDisplay *imageOnlyMessage = [[FIRInAppMessagingImageOnlyDisplay alloc]
         initWithMessageID:definition.renderData.messageID
              campaignName:definition.renderData.name
+        experimentPayload:definition.experimentPayload
       renderAsTestMessage:definition.isTestMessage
               triggerType:triggerType
                 imageData:imageData
-                actionURL:definition.renderData.contentData.actionURL];
+                actionURL:definition.renderData.contentData.actionURL
+                  appData:definition.appData];
 #pragma clang diagnostic pop
 
   return imageOnlyMessage;
@@ -525,6 +539,7 @@
   FIRInAppMessagingModalDisplay *modalViewMessage = [[FIRInAppMessagingModalDisplay alloc]
         initWithMessageID:definition.renderData.messageID
              campaignName:definition.renderData.name
+        experimentPayload:definition.experimentPayload
       renderAsTestMessage:definition.isTestMessage
               triggerType:triggerType
                 titleText:title
@@ -533,7 +548,8 @@
           backgroundColor:renderData.renderingEffectSettings.displayBGColor
                 imageData:imageData
              actionButton:actionButton
-                actionURL:definition.renderData.contentData.actionURL];
+                actionURL:definition.renderData.contentData.actionURL
+                  appData:definition.appData];
 #pragma clang diagnostic pop
 
   return modalViewMessage;
@@ -548,6 +564,7 @@
     case FIRIAMRenderAsCardView:
       // Image data should never nil for a valid card message.
       if (imageData == nil) {
+        NSAssert(NO, @"Image data should never nil for a valid card message.");
         return nil;
       }
       return [self cardDisplayMessageWithMessageDefinition:definition
@@ -720,3 +737,5 @@
   }
 }
 @end
+
+#endif  // TARGET_OS_IOS

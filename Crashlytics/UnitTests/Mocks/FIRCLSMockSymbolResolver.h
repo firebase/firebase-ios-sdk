@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRCLSSymbolResolver.h"
+#import "Crashlytics/Crashlytics/Models/FIRCLSSymbolResolver.h"
 
 @interface FIRCLSMockSymbolResolver : FIRCLSSymbolResolver
 
-- (void)addMockFrame:(FIRCLSStackFrame *)frame atAddress:(uint64_t)address;
+- (void)addMockFrame:(FIRStackFrame *)frame atAddress:(uint64_t)address;
 
 @end

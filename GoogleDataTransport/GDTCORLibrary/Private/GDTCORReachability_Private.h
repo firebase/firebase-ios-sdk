@@ -14,14 +14,12 @@
  * limitations under the License.
  */
 
-#import "GDTCORLibrary/Private/GDTCORReachability.h"
+#import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORReachability.h"
 
 @interface GDTCORReachability ()
 
-#if !TARGET_OS_WATCH
 /** Allows manually setting the flags for testing purposes. */
-@property(nonatomic, readwrite) SCNetworkReachabilityFlags flags;
-#endif
+@property(nonatomic, readwrite) GDTCORNetworkReachabilityFlags flags;
 
 /** Creates/returns the singleton instance of this class.
  *

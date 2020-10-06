@@ -14,20 +14,22 @@
 
 #import <Foundation/Foundation.h>
 
-#include "FIRCLSException.h"
+#include "Crashlytics/Crashlytics/Handlers/FIRCLSException.h"
 
-#include "FIRCLSApplication.h"
-#include "FIRCLSFile.h"
-#include "FIRCLSGlobals.h"
-#include "FIRCLSHandler.h"
-#import "FIRCLSLogger.h"
-#include "FIRCLSProcess.h"
-#import "FIRCLSStackFrame.h"
-#import "FIRCLSUserLogging.h"
-#import "FIRCLSUtility.h"
+#import "Crashlytics/Crashlytics/Private/FIRExceptionModel_Private.h"
+#import "Crashlytics/Crashlytics/Private/FIRStackFrame_Private.h"
 
-#include "FIRCLSDemangleOperation.h"
-#import "FIRCLSReportManager_Private.h"
+#include "Crashlytics/Crashlytics/Components/FIRCLSApplication.h"
+#include "Crashlytics/Crashlytics/Components/FIRCLSGlobals.h"
+#include "Crashlytics/Crashlytics/Components/FIRCLSProcess.h"
+#import "Crashlytics/Crashlytics/Components/FIRCLSUserLogging.h"
+#include "Crashlytics/Crashlytics/Handlers/FIRCLSHandler.h"
+#include "Crashlytics/Crashlytics/Helpers/FIRCLSFile.h"
+#import "Crashlytics/Crashlytics/Helpers/FIRCLSLogger.h"
+#import "Crashlytics/Crashlytics/Helpers/FIRCLSUtility.h"
+
+#import "Crashlytics/Crashlytics/Controllers/FIRCLSReportManager_Private.h"
+#include "Crashlytics/Crashlytics/Operations/Symbolication/FIRCLSDemangleOperation.h"
 
 // C++/Objective-C exception handling
 #include <cxxabi.h>
@@ -76,6 +78,14 @@ void FIRCLSExceptionInitialize(FIRCLSExceptionReadOnlyContext *roContext,
   rwContext->customExceptionCount = 0;
 }
 
+void FIRCLSExceptionRecordModel(FIRExceptionModel *exceptionModel) {
+  const char *name = [[exceptionModel.name copy] UTF8String];
+  const char *reason = [[exceptionModel.reason copy] UTF8String];
+
+  FIRCLSExceptionRecord(FIRCLSExceptionTypeCustom, name, reason, [exceptionModel.stackTrace copy],
+                        NO);
+}
+
 void FIRCLSExceptionRecordNSException(NSException *exception) {
   FIRCLSSDKLog("Recording an NSException\n");
 
@@ -93,14 +103,14 @@ void FIRCLSExceptionRecordNSException(NSException *exception) {
   NSMutableArray *frames = [NSMutableArray new];
 
   for (NSNumber *address in returnAddresses) {
-    [frames addObject:[FIRCLSStackFrame stackFrameWithAddress:[address unsignedIntegerValue]]];
+    [frames addObject:[FIRStackFrame stackFrameWithAddress:[address unsignedIntegerValue]]];
   }
 
   FIRCLSExceptionRecord(FIRCLSExceptionTypeObjectiveC, [name UTF8String], [reason UTF8String],
                         frames, YES);
 }
 
-static void FIRCLSExceptionRecordFrame(FIRCLSFile *file, FIRCLSStackFrame *frame) {
+static void FIRCLSExceptionRecordFrame(FIRCLSFile *file, FIRStackFrame *frame) {
   FIRCLSFileWriteHashStart(file);
 
   FIRCLSFileWriteHashEntryUint64(file, "pc", [frame address]);
@@ -150,7 +160,7 @@ void FIRCLSExceptionWrite(FIRCLSFile *file,
                           FIRCLSExceptionType type,
                           const char *name,
                           const char *reason,
-                          NSArray<FIRCLSStackFrame *> *frames) {
+                          NSArray<FIRStackFrame *> *frames) {
   FIRCLSFileWriteSectionStart(file, "exception");
 
   FIRCLSFileWriteHashStart(file);
@@ -164,7 +174,7 @@ void FIRCLSExceptionWrite(FIRCLSFile *file,
     FIRCLSFileWriteHashKey(file, "frames");
     FIRCLSFileWriteArrayStart(file);
 
-    for (FIRCLSStackFrame *frame in frames) {
+    for (FIRStackFrame *frame in frames) {
       FIRCLSExceptionRecordFrame(file, frame);
     }
 
@@ -179,7 +189,7 @@ void FIRCLSExceptionWrite(FIRCLSFile *file,
 void FIRCLSExceptionRecord(FIRCLSExceptionType type,
                            const char *name,
                            const char *reason,
-                           NSArray<FIRCLSStackFrame *> *frames,
+                           NSArray<FIRStackFrame *> *frames,
                            BOOL attemptDelivery) {
   if (!FIRCLSContextIsInitialized()) {
     return;

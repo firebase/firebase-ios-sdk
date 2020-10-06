@@ -12,11 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRCLSSettings.h"
+#import "Crashlytics/Crashlytics/Models/FIRCLSSettings.h"
 
 @interface FIRCLSMockSettings : FIRCLSSettings
 
 @property(nonatomic, copy) NSString* orgID;
 @property(nonatomic, copy) NSString* fetchedBundleID;
+@property(nonatomic) BOOL shouldUseNewReportEndpoint;
 
 @end

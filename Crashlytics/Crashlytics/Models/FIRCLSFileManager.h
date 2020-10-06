@@ -43,7 +43,9 @@
 @property(nonatomic, readonly) NSString *processingPath;
 @property(nonatomic, readonly) NSString *pendingPath;
 @property(nonatomic, readonly) NSString *preparedPath;
+@property(nonatomic, readonly) NSString *legacyPreparedPath;
 @property(nonatomic, readonly) NSArray *activePathContents;
+@property(nonatomic, readonly) NSArray *legacyPreparedPathContents;
 @property(nonatomic, readonly) NSArray *preparedPathContents;
 @property(nonatomic, readonly) NSArray *processingPathContents;
 
@@ -57,7 +59,6 @@
 - (BOOL)moveItemAtPath:(NSString *)path toDirectory:(NSString *)destDir;
 - (void)enumerateFilesInDirectory:(NSString *)directory
                        usingBlock:(void (^)(NSString *filePath, NSString *extension))block;
-- (BOOL)moveItemsFromDirectory:(NSString *)srcDir toDirectory:(NSString *)destDir;
 - (NSNumber *)fileSizeAtPath:(NSString *)path;
 - (NSArray *)contentsOfDirectory:(NSString *)path;
 
@@ -65,18 +66,8 @@
 - (BOOL)createReportDirectories;
 - (NSString *)setupNewPathForExecutionIdentifier:(NSString *)identifier;
 
-- (void)enumerateFilesInActiveDirectoryUsingBlock:(void (^)(NSString *path,
-                                                            NSString *extension))block;
-- (void)enumerateReportsInProcessingDirectoryUsingBlock:(void (^)(FIRCLSInternalReport *report,
-                                                                  NSString *path))block;
-- (void)enumerateFilesInPreparedDirectoryUsingBlock:(void (^)(NSString *path,
-                                                              NSString *extension))block;
+- (BOOL)moveItemAtPath:(NSString *)srcPath toPath:(NSString *)dstPath error:(NSError **)error;
 
-- (BOOL)moveProcessingContentsToPrepared;
-- (BOOL)movePendingToProcessing;
-
-- (BOOL)removeContentsOfProcessingPath;
-- (BOOL)removeContentsOfPendingPath;
-- (BOOL)removeContentsOfAllPaths;
+- (NSData *)dataWithContentsOfFile:(NSString *)path;
 
 @end

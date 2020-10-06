@@ -115,4 +115,7 @@ typedef void (^RCNDBLoadCompletion)(BOOL success,
 /// Remove all the records from experiment table with given key.
 /// @param key  The key of experiment data belongs to, which are defined in RCNConfigDefines.h.
 - (void)deleteExperimentTableForKey:(NSString *)key;
+
+/// Returns true if this a new install of the Config database.
+- (BOOL)isNewDatabase;
 @end

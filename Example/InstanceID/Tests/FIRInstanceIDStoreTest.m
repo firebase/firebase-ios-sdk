@@ -16,9 +16,8 @@
 
 #import <XCTest/XCTest.h>
 
-#import <FirebaseInstanceID/FIRInstanceIDCheckinPreferences.h>
 #import <OCMock/OCMock.h>
-#import "FIRInstanceIDFakeKeychain.h"
+#import "Example/InstanceID/Tests/FIRInstanceIDFakeKeychain.h"
 #import "Firebase/InstanceID/FIRInstanceIDBackupExcludedPlist.h"
 #import "Firebase/InstanceID/FIRInstanceIDCheckinPreferences+Internal.h"
 #import "Firebase/InstanceID/FIRInstanceIDCheckinService.h"
@@ -27,6 +26,7 @@
 #import "Firebase/InstanceID/FIRInstanceIDTokenInfo.h"
 #import "Firebase/InstanceID/FIRInstanceIDTokenStore.h"
 #import "Firebase/InstanceID/FIRInstanceIDUtilities.h"
+#import "Firebase/InstanceID/Private/FIRInstanceIDCheckinPreferences.h"
 
 static NSString *const kSubDirectoryName = @"FirebaseInstanceIDStoreTest";
 
@@ -224,20 +224,6 @@ static NSString *const kSecret = @"test-secret";
   OCMStub([_mockCheckinStore cachedCheckinPreferences]).andReturn(checkinPreferences);
   // Plist file doesn't exist, meaning this is a fresh install.
   OCMStub([_mockCheckinStore hasCheckinPlist]).andReturn(NO);
-
-  [_mockInstanceIDStore resetCredentialsIfNeeded];
-  OCMVerifyAll(_mockCheckinStore);
-}
-
-- (void)testResetCredentialsWithoutFreshInstall {
-  FIRInstanceIDCheckinPreferences *checkinPreferences =
-      [[FIRInstanceIDCheckinPreferences alloc] initWithDeviceID:kAuthID secretToken:kSecret];
-  // Expect migration happens if it's not a fresh install.
-  [[_mockCheckinStore expect] migrateCheckinItemIfNeeded];
-  // Always setting up stub after expect.
-  OCMStub([_mockCheckinStore cachedCheckinPreferences]).andReturn(checkinPreferences);
-  // Mock plist exists, meaning this is not a fresh install.
-  OCMStub([_mockCheckinStore hasCheckinPlist]).andReturn(YES);
 
   [_mockInstanceIDStore resetCredentialsIfNeeded];
   OCMVerifyAll(_mockCheckinStore);

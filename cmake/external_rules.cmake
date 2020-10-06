@@ -1,4 +1,4 @@
-# Copyright 2018 Google
+# Copyright 2018 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,12 +14,18 @@
 
 function(download_external_sources)
   file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/external)
+
+  set(DOWNLOAD_BENCHMARK ${FIREBASE_IOS_BUILD_BENCHMARKS})
+  set(DOWNLOAD_GOOGLETEST ${FIREBASE_IOS_BUILD_TESTS})
+
   execute_process(
     COMMAND
       ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}"
       -DFIREBASE_DOWNLOAD_DIR=${FIREBASE_DOWNLOAD_DIR}
       -DCMAKE_INSTALL_PREFIX=${FIREBASE_INSTALL_DIR}
       -DFUZZING=${FUZZING}
+      -DDOWNLOAD_BENCHMARK=${DOWNLOAD_BENCHMARK}
+      -DDOWNLOAD_GOOGLETEST=${DOWNLOAD_GOOGLETEST}
       ${PROJECT_SOURCE_DIR}/cmake/external
     WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/external
   )
@@ -36,9 +42,22 @@ function(download_external_sources)
 endfunction()
 
 function(add_external_subdirectory NAME)
-  add_subdirectory(
-    ${FIREBASE_BINARY_DIR}/external/src/${NAME}
-    ${FIREBASE_BINARY_DIR}/external/src/${NAME}-build
-    EXCLUDE_FROM_ALL
-  )
+  string(TOUPPER ${NAME} UPPER_NAME)
+  if (NOT EXISTS ${${UPPER_NAME}_SOURCE_DIR})
+    set(${UPPER_NAME}_SOURCE_DIR "${FIREBASE_BINARY_DIR}/external/src/${NAME}")
+    set(${UPPER_NAME}_SOURCE_DIR "${${UPPER_NAME}_SOURCE_DIR}" PARENT_SCOPE)
+  endif()
+
+  if (NOT EXISTS ${${UPPER_NAME}_BINARY_DIR})
+    set(${UPPER_NAME}_BINARY_DIR "${${UPPER_NAME}_SOURCE_DIR}-build")
+    set(${UPPER_NAME}_BINARY_DIR "${${UPPER_NAME}_BINARY_DIR}" PARENT_SCOPE)
+  endif()
+
+  if (EXISTS "${${UPPER_NAME}_SOURCE_DIR}/CMakeLists.txt")
+    add_subdirectory(
+      ${${UPPER_NAME}_SOURCE_DIR}
+      ${${UPPER_NAME}_BINARY_DIR}
+      EXCLUDE_FROM_ALL
+    )
+  endif()
 endfunction()

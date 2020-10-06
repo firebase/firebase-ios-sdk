@@ -14,17 +14,21 @@
  * limitations under the License.
  */
 
-#import "GDTCORLibrary/Public/GDTCORRegistrar.h"
-#import "GDTCORLibrary/Private/GDTCORRegistrar_Private.h"
+#import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORRegistrar.h"
+#import "GoogleDataTransport/GDTCORLibrary/Private/GDTCORRegistrar_Private.h"
 
-#import <GoogleDataTransport/GDTCORConsoleLogger.h>
+#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORConsoleLogger.h"
+
+id<GDTCORStorageProtocol> _Nullable GDTCORStorageInstanceForTarget(GDTCORTarget target) {
+  return [GDTCORRegistrar sharedInstance].targetToStorage[@(target)];
+}
 
 @implementation GDTCORRegistrar {
   /** Backing ivar for targetToUploader property. */
   NSMutableDictionary<NSNumber *, id<GDTCORUploader>> *_targetToUploader;
 
-  /** Backing ivar for targetToPrioritizer property. */
-  NSMutableDictionary<NSNumber *, id<GDTCORPrioritizer>> *_targetToPrioritizer;
+  /** Backing ivar for targetToStorage property. */
+  NSMutableDictionary<NSNumber *, id<GDTCORStorageProtocol>> *_targetToStorage;
 }
 
 + (instancetype)sharedInstance {
@@ -40,8 +44,8 @@
   self = [super init];
   if (self) {
     _registrarQueue = dispatch_queue_create("com.google.GDTCORRegistrar", DISPATCH_QUEUE_SERIAL);
-    _targetToPrioritizer = [[NSMutableDictionary alloc] init];
     _targetToUploader = [[NSMutableDictionary alloc] init];
+    _targetToStorage = [[NSMutableDictionary alloc] init];
   }
   return self;
 }
@@ -51,19 +55,19 @@
   dispatch_async(_registrarQueue, ^{
     GDTCORRegistrar *strongSelf = weakSelf;
     if (strongSelf) {
-      GDTCORLogDebug("Registered an uploader: %@ for target:%ld", backend, (long)target);
+      GDTCORLogDebug(@"Registered an uploader: %@ for target:%ld", backend, (long)target);
       strongSelf->_targetToUploader[@(target)] = backend;
     }
   });
 }
 
-- (void)registerPrioritizer:(id<GDTCORPrioritizer>)prioritizer target:(GDTCORTarget)target {
+- (void)registerStorage:(id<GDTCORStorageProtocol>)storage target:(GDTCORTarget)target {
   __weak GDTCORRegistrar *weakSelf = self;
   dispatch_async(_registrarQueue, ^{
     GDTCORRegistrar *strongSelf = weakSelf;
     if (strongSelf) {
-      GDTCORLogDebug("Registered a prioritizer: %@ for target:%ld", prioritizer, (long)target);
-      strongSelf->_targetToPrioritizer[@(target)] = prioritizer;
+      GDTCORLogDebug(@"Registered storage: %@ for target:%ld", storage, (long)target);
+      strongSelf->_targetToStorage[@(target)] = storage;
     }
   });
 }
@@ -80,63 +84,63 @@
   return targetToUploader;
 }
 
-- (NSMutableDictionary<NSNumber *, id<GDTCORPrioritizer>> *)targetToPrioritizer {
-  __block NSMutableDictionary<NSNumber *, id<GDTCORPrioritizer>> *targetToPrioritizer;
+- (NSMutableDictionary<NSNumber *, id<GDTCORStorageProtocol>> *)targetToStorage {
+  __block NSMutableDictionary<NSNumber *, id<GDTCORStorageProtocol>> *targetToStorage;
   __weak GDTCORRegistrar *weakSelf = self;
   dispatch_sync(_registrarQueue, ^{
     GDTCORRegistrar *strongSelf = weakSelf;
     if (strongSelf) {
-      targetToPrioritizer = strongSelf->_targetToPrioritizer;
+      targetToStorage = strongSelf->_targetToStorage;
     }
   });
-  return targetToPrioritizer;
+  return targetToStorage;
 }
 
 #pragma mark - GDTCORLifecycleProtocol
 
 - (void)appWillBackground:(nonnull GDTCORApplication *)app {
-  dispatch_async(_registrarQueue, ^{
-    for (id<GDTCORUploader> uploader in [self->_targetToUploader allValues]) {
-      if ([uploader respondsToSelector:@selector(appWillBackground:)]) {
-        [uploader appWillBackground:app];
-      }
+  NSArray<id<GDTCORUploader>> *uploaders = [self.targetToUploader allValues];
+  for (id<GDTCORUploader> uploader in uploaders) {
+    if ([uploader respondsToSelector:@selector(appWillBackground:)]) {
+      [uploader appWillBackground:app];
     }
-    for (id<GDTCORPrioritizer> prioritizer in [self->_targetToPrioritizer allValues]) {
-      if ([prioritizer respondsToSelector:@selector(appWillBackground:)]) {
-        [prioritizer appWillBackground:app];
-      }
+  }
+  NSArray<id<GDTCORStorageProtocol>> *storages = [self.targetToStorage allValues];
+  for (id<GDTCORStorageProtocol> storage in storages) {
+    if ([storage respondsToSelector:@selector(appWillBackground:)]) {
+      [storage appWillBackground:app];
     }
-  });
+  }
 }
 
 - (void)appWillForeground:(nonnull GDTCORApplication *)app {
-  dispatch_async(_registrarQueue, ^{
-    for (id<GDTCORUploader> uploader in [self->_targetToUploader allValues]) {
-      if ([uploader respondsToSelector:@selector(appWillForeground:)]) {
-        [uploader appWillForeground:app];
-      }
+  NSArray<id<GDTCORUploader>> *uploaders = [self.targetToUploader allValues];
+  for (id<GDTCORUploader> uploader in uploaders) {
+    if ([uploader respondsToSelector:@selector(appWillForeground:)]) {
+      [uploader appWillForeground:app];
     }
-    for (id<GDTCORPrioritizer> prioritizer in [self->_targetToPrioritizer allValues]) {
-      if ([prioritizer respondsToSelector:@selector(appWillForeground:)]) {
-        [prioritizer appWillForeground:app];
-      }
+  }
+  NSArray<id<GDTCORStorageProtocol>> *storages = [self.targetToStorage allValues];
+  for (id<GDTCORStorageProtocol> storage in storages) {
+    if ([storage respondsToSelector:@selector(appWillForeground:)]) {
+      [storage appWillForeground:app];
     }
-  });
+  }
 }
 
 - (void)appWillTerminate:(nonnull GDTCORApplication *)app {
-  dispatch_sync(_registrarQueue, ^{
-    for (id<GDTCORUploader> uploader in [self->_targetToUploader allValues]) {
-      if ([uploader respondsToSelector:@selector(appWillTerminate:)]) {
-        [uploader appWillTerminate:app];
-      }
+  NSArray<id<GDTCORUploader>> *uploaders = [self.targetToUploader allValues];
+  for (id<GDTCORUploader> uploader in uploaders) {
+    if ([uploader respondsToSelector:@selector(appWillTerminate:)]) {
+      [uploader appWillTerminate:app];
     }
-    for (id<GDTCORPrioritizer> prioritizer in [self->_targetToPrioritizer allValues]) {
-      if ([prioritizer respondsToSelector:@selector(appWillTerminate:)]) {
-        [prioritizer appWillTerminate:app];
-      }
+  }
+  NSArray<id<GDTCORStorageProtocol>> *storages = [self.targetToStorage allValues];
+  for (id<GDTCORStorageProtocol> storage in storages) {
+    if ([storage respondsToSelector:@selector(appWillTerminate:)]) {
+      [storage appWillTerminate:app];
     }
-  });
+  }
 }
 
 @end

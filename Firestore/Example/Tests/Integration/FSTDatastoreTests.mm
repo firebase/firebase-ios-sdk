@@ -27,24 +27,31 @@
 
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 
-#include "Firestore/core/src/firebase/firestore/auth/empty_credentials_provider.h"
-#include "Firestore/core/src/firebase/firestore/core/database_info.h"
-#include "Firestore/core/src/firebase/firestore/local/local_store.h"
-#include "Firestore/core/src/firebase/firestore/local/memory_persistence.h"
-#include "Firestore/core/src/firebase/firestore/local/simple_query_engine.h"
-#include "Firestore/core/src/firebase/firestore/local/target_data.h"
-#include "Firestore/core/src/firebase/firestore/model/database_id.h"
-#include "Firestore/core/src/firebase/firestore/model/document_key.h"
-#include "Firestore/core/src/firebase/firestore/model/precondition.h"
-#include "Firestore/core/src/firebase/firestore/remote/datastore.h"
-#include "Firestore/core/src/firebase/firestore/remote/remote_event.h"
-#include "Firestore/core/src/firebase/firestore/remote/remote_store.h"
-#include "Firestore/core/src/firebase/firestore/util/async_queue.h"
-#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
-#include "Firestore/core/src/firebase/firestore/util/status.h"
-#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
-#include "Firestore/core/test/firebase/firestore/testutil/async_testing.h"
-#include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
+#include "Firestore/core/src/auth/empty_credentials_provider.h"
+#include "Firestore/core/src/core/database_info.h"
+#include "Firestore/core/src/local/local_documents_view.h"
+#include "Firestore/core/src/local/local_store.h"
+#include "Firestore/core/src/local/memory_persistence.h"
+#include "Firestore/core/src/local/simple_query_engine.h"
+#include "Firestore/core/src/local/target_data.h"
+#include "Firestore/core/src/model/database_id.h"
+#include "Firestore/core/src/model/document_key.h"
+#include "Firestore/core/src/model/mutation_batch_result.h"
+#include "Firestore/core/src/model/precondition.h"
+#include "Firestore/core/src/model/set_mutation.h"
+#include "Firestore/core/src/remote/connectivity_monitor.h"
+#include "Firestore/core/src/remote/datastore.h"
+#include "Firestore/core/src/remote/firebase_metadata_provider.h"
+#include "Firestore/core/src/remote/firebase_metadata_provider_noop.h"
+#include "Firestore/core/src/remote/remote_event.h"
+#include "Firestore/core/src/remote/remote_store.h"
+#include "Firestore/core/src/util/async_queue.h"
+#include "Firestore/core/src/util/hard_assert.h"
+#include "Firestore/core/src/util/status.h"
+#include "Firestore/core/src/util/string_apple.h"
+#include "Firestore/core/test/unit/remote/create_noop_connectivity_monitor.h"
+#include "Firestore/core/test/unit/testutil/async_testing.h"
+#include "Firestore/core/test/unit/testutil/testutil.h"
 #include "absl/memory/memory.h"
 
 namespace util = firebase::firestore::util;
@@ -69,7 +76,11 @@ using firebase::firestore::model::MutationBatchResult;
 using firebase::firestore::model::Precondition;
 using firebase::firestore::model::OnlineState;
 using firebase::firestore::model::TargetId;
+using firebase::firestore::remote::ConnectivityMonitor;
+using firebase::firestore::remote::CreateFirebaseMetadataProviderNoOp;
+using firebase::firestore::remote::CreateNoOpConnectivityMonitor;
 using firebase::firestore::remote::Datastore;
+using firebase::firestore::remote::FirebaseMetadataProvider;
 using firebase::firestore::remote::GrpcConnection;
 using firebase::firestore::remote::RemoteEvent;
 using firebase::firestore::remote::RemoteStore;
@@ -140,11 +151,11 @@ NS_ASSUME_NONNULL_BEGIN
   [expectation fulfill];
 }
 
-- (void)rejectFailedWriteWithBatchID:(BatchId)batchID error:(NSError *)error {
+- (void)rejectFailedWriteWithBatchID:(__unused BatchId)batchID error:(__unused NSError *)error {
   HARD_FAIL("Not implemented");
 }
 
-- (DocumentKeySet)remoteKeysForTarget:(TargetId)targetId {
+- (DocumentKeySet)remoteKeysForTarget:(__unused TargetId)targetId {
   return DocumentKeySet{};
 }
 
@@ -155,7 +166,7 @@ NS_ASSUME_NONNULL_BEGIN
   [expectation fulfill];
 }
 
-- (void)rejectListenWithTargetID:(const TargetId)targetID error:(NSError *)error {
+- (void)rejectListenWithTargetID:(__unused const TargetId)targetID error:(__unused NSError *)error {
   HARD_FAIL("Not implemented");
 }
 
@@ -191,7 +202,7 @@ class RemoteStoreEventCapture : public RemoteStoreCallback {
     [underlying_capture_ rejectFailedWriteWithBatchID:batch_id error:error.ToNSError()];
   }
 
-  void HandleOnlineStateChange(OnlineState online_state) override {
+  void HandleOnlineStateChange(OnlineState) override {
     HARD_FAIL("Not implemented");
   }
 
@@ -216,6 +227,9 @@ class RemoteStoreEventCapture : public RemoteStoreCallback {
 
   DatabaseInfo _databaseInfo;
   SimpleQueryEngine _queryEngine;
+
+  std::unique_ptr<ConnectivityMonitor> _connectivityMonitor;
+  std::unique_ptr<FirebaseMetadataProvider> _firebaseMetadataProvider;
   std::shared_ptr<Datastore> _datastore;
   std::unique_ptr<RemoteStore> _remoteStore;
 }
@@ -235,15 +249,18 @@ class RemoteStoreEventCapture : public RemoteStoreCallback {
       DatabaseInfo(database_id, "test-key", util::MakeString(settings.host), settings.sslEnabled);
 
   _testWorkerQueue = testutil::AsyncQueueForTesting();
-  _datastore = std::make_shared<Datastore>(_databaseInfo, _testWorkerQueue,
-                                           std::make_shared<EmptyCredentialsProvider>());
+  _connectivityMonitor = CreateNoOpConnectivityMonitor();
+  _firebaseMetadataProvider = CreateFirebaseMetadataProviderNoOp();
+  _datastore = std::make_shared<Datastore>(
+      _databaseInfo, _testWorkerQueue, std::make_shared<EmptyCredentialsProvider>(),
+      _connectivityMonitor.get(), _firebaseMetadataProvider.get());
 
   _persistence = MemoryPersistence::WithEagerGarbageCollector();
   _localStore =
       absl::make_unique<LocalStore>(_persistence.get(), &_queryEngine, User::Unauthenticated());
 
   _remoteStore = absl::make_unique<RemoteStore>(_localStore.get(), _datastore, _testWorkerQueue,
-                                                [](OnlineState) {});
+                                                _connectivityMonitor.get(), [](OnlineState) {});
 
   _testWorkerQueue->Enqueue([=] { _remoteStore->Start(); });
 }

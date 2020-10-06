@@ -14,15 +14,15 @@
 
 #pragma once
 
-#include "FIRCLSThreadState.h"
-#include "FIRCLSUtility.h"
+#include "Crashlytics/Crashlytics/Helpers/FIRCLSThreadState.h"
+#include "Crashlytics/Crashlytics/Helpers/FIRCLSUtility.h"
 #if CLS_COMPACT_UNWINDING_SUPPORTED
-#include "FIRCLSCompactUnwind.h"
+#include "Crashlytics/Crashlytics/Unwind/Compact/FIRCLSCompactUnwind.h"
 #endif
-#include "FIRCLSUnwind_arch.h"
-
 #include <mach/vm_types.h>
 #include <stdbool.h>
+
+#include "Crashlytics/Crashlytics/Unwind/FIRCLSUnwind_arch.h"
 
 extern const uint32_t FIRCLSUnwindMaxFrames;
 

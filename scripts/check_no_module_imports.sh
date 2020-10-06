@@ -28,12 +28,20 @@ function exit_with_error {
 }
 
 git grep "${options[@]}" \
-  -- ':(exclude,glob)**/Example/**' ':(exclude,glob)**/Sample/**' && exit_with_error
+  -- ':(exclude,glob)**/Example/**' ':(exclude,glob)**/Sample/**' \
+     ':(exclude)FirebaseAuth/Sources/Backend/FIRAuthBackend.m' \
+     ':(exclude)FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h' \
+     ':(exclude,glob)Crashlytics/**' \
+     ':(exclude,glob)FirebaseStorage/**' \
+     ':(exclude,glob)SwiftPMTests/**' \
+     ':(exclude)Functions/FirebaseFunctions/FIRFunctions.m' \
+     ':(exclude)GoogleDataTransport/GDTCORLibrary/Internal/GoogleDataTransportInternal.h' \
+     ':(exclude)HeadersImports.md' && exit_with_error
 
 # Tests are under the Example directory, so we have to separately grep them for
 # @import statements (otherwise they'd be excluded).
 git grep "${options[@]}" \
-  -- ':(glob)**/Tests/**' ':(glob)**/TestUtils/**' ':(glob)**/IntegrationTests/**' && \
+  -- ':(glob)**/TestUtils/**' ':(glob)**/IntegrationTests/**' && \
   exit_with_error
 
 # We need to explicitly exit 0, since we expect `git grep` to return an error

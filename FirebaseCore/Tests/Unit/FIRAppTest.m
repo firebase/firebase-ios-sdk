@@ -15,12 +15,13 @@
 #import "FirebaseCore/Tests/Unit/FIRTestCase.h"
 #import "FirebaseCore/Tests/Unit/FIRTestComponents.h"
 
-#import <FirebaseCore/FIRAnalyticsConfiguration.h>
-#import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseCore/FIRCoreDiagnosticsConnector.h>
-#import <FirebaseCore/FIROptionsInternal.h>
-
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
+#import "FirebaseCore/Sources/FIRAnalyticsConfiguration.h"
+#import "FirebaseCore/Sources/Private/FIRAppInternal.h"
+#import "FirebaseCore/Sources/Private/FIRComponentType.h"
+#import "FirebaseCore/Sources/Private/FIRCoreDiagnosticsConnector.h"
+#import "FirebaseCore/Sources/Private/FIROptionsInternal.h"
+#import "SharedTestUtilities/FIROptionsMock.h"
 
 NSString *const kFIRTestAppName1 = @"test_app_name_1";
 NSString *const kFIRTestAppName2 = @"test-app-name-2";
@@ -68,6 +69,8 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   _observerMock = OCMObserverMock();
   _mockCoreDiagnosticsConnector = OCMClassMock([FIRCoreDiagnosticsConnector class]);
 
+  [FIROptionsMock mockFIROptions];
+
   OCMStub(ClassMethod([self.mockCoreDiagnosticsConnector logCoreTelemetryWithOptions:[OCMArg any]]))
       .andDo(^(NSInvocation *invocation){
       });
@@ -88,6 +91,10 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 }
 
 - (void)testConfigure {
+  [self registerLibrariesWithClasses:@[
+    [FIRTestClassCached class], [FIRTestClassEagerCached class]
+  ]];
+
   NSDictionary *expectedUserInfo = [self expectedUserInfoWithAppName:kFIRDefaultAppName
                                                         isDefaultApp:YES];
   [self expectNotificationForObserver:self.observerMock
@@ -102,6 +109,11 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   XCTAssertEqualObjects(app.name, kFIRDefaultAppName);
   XCTAssertEqualObjects(app.options.clientID, kClientID);
   XCTAssertTrue([FIRApp allApps].count == 1);
+
+  // Check the registered libraries instances available.
+  XCTAssertNotNil(FIR_COMPONENT(FIRTestProtocolCached, app.container));
+  XCTAssertNotNil(FIR_COMPONENT(FIRTestProtocolEagerCached, app.container));
+  XCTAssertNil(FIR_COMPONENT(FIRTestProtocol, app.container));
 }
 
 - (void)testConfigureWithNoDefaultOptions {
@@ -321,6 +333,10 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 }
 
 - (void)testDeleteApp {
+  [self registerLibrariesWithClasses:@[
+    [FIRTestClassCached class], [FIRTestClassEagerCached class]
+  ]];
+
   NSString *name = NSStringFromSelector(_cmd);
   FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
                                                     GCMSenderID:kGCMSenderID];
@@ -328,6 +344,12 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   FIRApp *app = [FIRApp appNamed:name];
   XCTAssertNotNil(app);
   XCTAssertTrue([FIRApp allApps].count == 1);
+
+  // Check the registered libraries instances available.
+  XCTAssertNotNil(FIR_COMPONENT(FIRTestProtocolCached, app.container));
+  XCTAssertNotNil(FIR_COMPONENT(FIRTestProtocolEagerCached, app.container));
+  XCTAssertNil(FIR_COMPONENT(FIRTestProtocol, app.container));
+
   [self expectNotificationForObserver:self.observerMock
                      notificationName:kFIRAppDeleteNotification
                                object:[FIRApp class]
@@ -342,17 +364,10 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   [self waitForExpectations:@[ expectation ] timeout:1];
   OCMVerifyAll(self.observerMock);
   XCTAssertTrue([FIRApp allApps].count == 0);
-}
 
-- (void)testErrorForSubspecConfigurationFailure {
-  NSError *error = [FIRApp errorForSubspecConfigurationFailureWithDomain:kFirebaseCoreErrorDomain
-                                                               errorCode:-38
-                                                                 service:@"Auth"
-                                                                  reason:@"some reason"];
-  XCTAssertNotNil(error);
-  XCTAssert([error.domain isEqualToString:kFirebaseCoreErrorDomain]);
-  XCTAssert(error.code == -38);
-  XCTAssert([error.description containsString:@"Configuration failed for"]);
+  // Check no new library instances created after the app delete.
+  XCTAssertNil(FIR_COMPONENT(FIRTestProtocolCached, app.container));
+  XCTAssertNil(FIR_COMPONENT(FIRTestProtocolEagerCached, app.container));
 }
 
 - (void)testOptionsLocking {
@@ -817,6 +832,48 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   XCTAssertTrue([[FIRApp firebaseUserAgent] containsString:@"swift/false"]);
 }
 
+- (void)testApplePlatformFlag {
+  // When a Catalyst app is run on macOS then both `TARGET_OS_MACCATALYST` and `TARGET_OS_IOS` are
+  // `true`.
+#if TARGET_OS_MACCATALYST
+  XCTAssertFalse([[FIRApp firebaseUserAgent] containsString:@"apple-platform/ios"]);
+  XCTAssertFalse([[FIRApp firebaseUserAgent] containsString:@"apple-platform/tvos"]);
+  XCTAssertFalse([[FIRApp firebaseUserAgent] containsString:@"apple-platform/macos"]);
+  XCTAssertFalse([[FIRApp firebaseUserAgent] containsString:@"apple-platform/watchos"]);
+  XCTAssertTrue([[FIRApp firebaseUserAgent] containsString:@"apple-platform/maccatalyst"]);
+#elif TARGET_OS_IOS
+  XCTAssertTrue([[FIRApp firebaseUserAgent] containsString:@"apple-platform/ios"]);
+  XCTAssertFalse([[FIRApp firebaseUserAgent] containsString:@"apple-platform/tvos"]);
+  XCTAssertFalse([[FIRApp firebaseUserAgent] containsString:@"apple-platform/macos"]);
+  XCTAssertFalse([[FIRApp firebaseUserAgent] containsString:@"apple-platform/watchos"]);
+  XCTAssertFalse([[FIRApp firebaseUserAgent] containsString:@"apple-platform/maccatalyst"]);
+#endif  // TARGET_OS_MACCATALYST
+
+#if TARGET_OS_TV
+  XCTAssertFalse([[FIRApp firebaseUserAgent] containsString:@"apple-platform/ios"]);
+  XCTAssertTrue([[FIRApp firebaseUserAgent] containsString:@"apple-platform/tvos"]);
+  XCTAssertFalse([[FIRApp firebaseUserAgent] containsString:@"apple-platform/macos"]);
+  XCTAssertFalse([[FIRApp firebaseUserAgent] containsString:@"apple-platform/watchos"]);
+  XCTAssertFalse([[FIRApp firebaseUserAgent] containsString:@"apple-platform/maccatalyst"]);
+#endif  // TARGET_OS_TV
+
+#if TARGET_OS_OSX
+  XCTAssertFalse([[FIRApp firebaseUserAgent] containsString:@"apple-platform/ios"]);
+  XCTAssertFalse([[FIRApp firebaseUserAgent] containsString:@"apple-platform/tvos"]);
+  XCTAssertTrue([[FIRApp firebaseUserAgent] containsString:@"apple-platform/macos"]);
+  XCTAssertFalse([[FIRApp firebaseUserAgent] containsString:@"apple-platform/watchos"]);
+  XCTAssertFalse([[FIRApp firebaseUserAgent] containsString:@"apple-platform/maccatalyst"]);
+#endif  // TARGET_OS_OSX
+
+#if TARGET_OS_WATCH
+  XCTAssertFalse([[FIRApp firebaseUserAgent] containsString:@"apple-platform/ios"]);
+  XCTAssertFalse([[FIRApp firebaseUserAgent] containsString:@"apple-platform/tvos"]);
+  XCTAssertFalse([[FIRApp firebaseUserAgent] containsString:@"apple-platform/macos"]);
+  XCTAssertTrue([[FIRApp firebaseUserAgent] containsString:@"apple-platform/watchos"]);
+  XCTAssertFalse([[FIRApp firebaseUserAgent] containsString:@"apple-platform/maccatalyst"]);
+#endif  // TARGET_OS_WATCH
+}
+
 #pragma mark - Core Diagnostics
 
 - (void)testCoreDiagnosticsLoggedWhenFIRAppIsConfigured {
@@ -887,6 +944,12 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 
 - (FIROptions *)appOptions {
   return [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID GCMSenderID:kGCMSenderID];
+}
+
+- (void)registerLibrariesWithClasses:(NSArray<Class> *)classes {
+  for (Class klass in classes) {
+    [FIRApp registerInternalLibrary:klass withName:NSStringFromClass(klass) withVersion:@"1.0"];
+  }
 }
 
 @end
