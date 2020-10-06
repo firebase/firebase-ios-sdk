@@ -159,9 +159,6 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
   // The shared instance should be `nil` before the app is configured.
   XCTAssertNil([FIRInstanceID instanceID]);
 
-  // Expect FID to be requested at the start.
-  [self expectInstallationsInstallationIDWithFID:@"fid" error:nil];
-
   // The shared instance relies on the default app being configured. Configure it.
   FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
                                                     GCMSenderID:kGCMSenderID];
@@ -176,83 +173,8 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
   FIRInstanceID *secondInstanceID = [FIRInstanceID instanceID];
   XCTAssertEqualObjects(instanceID, secondInstanceID);
 
-  // Verify FirebaseInstallations requested for FID.
-  OCMVerifyAll(self.mockInstallations);
-
-  XCTAssertEqualObjects([instanceID appInstanceID:NULL], @"fid");
-#pragma clang diagnostic pop
-
   // Reset the default app for the next test.
   [FIRApp resetApps];
-}
-
-- (void)testSyncAppInstanceIDIsUpdatedOnFIDUpdateNotificationIfAppIDMatches {
-  NSString *firebaseAppID = @"firebaseAppID";
-  _instanceID.firebaseAppID = firebaseAppID;
-
-  [self expectInstallationsInstallationIDWithFID:@"fid-1" error:nil];
-  // Simulate FID update notification.
-  [[NSNotificationCenter defaultCenter]
-      postNotificationName:FIRInstallationIDDidChangeNotification
-                    object:nil
-                  userInfo:@{kFIRInstallationIDDidChangeNotificationAppNameKey : firebaseAppID}];
-
-  OCMVerifyAll(self.mockInstallations);
-  NSError *error = nil;
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  XCTAssertEqualObjects([self.instanceID appInstanceID:&error], @"fid-1");
-#pragma clang diagnostic pop
-  XCTAssertNil(error);
-
-  [self expectInstallationsInstallationIDWithFID:@"fid-2" error:nil];
-  // Simulate FID update notification.
-  [[NSNotificationCenter defaultCenter]
-      postNotificationName:FIRInstallationIDDidChangeNotification
-                    object:nil
-                  userInfo:@{kFIRInstallationIDDidChangeNotificationAppNameKey : firebaseAppID}];
-
-  OCMVerifyAll(self.mockInstallations);
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  XCTAssertEqualObjects([self.instanceID appInstanceID:&error], @"fid-2");
-#pragma clang diagnostic pop
-  XCTAssertNil(error);
-}
-
-- (void)testSyncAppInstanceIDIsNotUpdatedOnFIDUpdateNotificationIfAppIDMismatches {
-  NSString *firebaseAppID = @"firebaseAppID";
-  _instanceID.firebaseAppID = firebaseAppID;
-
-  [self expectInstallationsInstallationIDWithFID:@"fid-1" error:nil];
-  // Simulate FID update notification.
-  [[NSNotificationCenter defaultCenter]
-      postNotificationName:FIRInstallationIDDidChangeNotification
-                    object:nil
-                  userInfo:@{kFIRInstallationIDDidChangeNotificationAppNameKey : firebaseAppID}];
-
-  OCMVerifyAll(self.mockInstallations);
-  NSError *error = nil;
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  XCTAssertEqualObjects([self.instanceID appInstanceID:&error], @"fid-1");
-#pragma clang diagnostic pop
-  XCTAssertNil(error);
-
-  OCMReject([self.mockInstallations installationIDWithCompletion:[OCMArg any]]);
-  // Simulate FID update notification.
-  NSString *differentAppID = [firebaseAppID stringByAppendingString:@"different"];
-  [[NSNotificationCenter defaultCenter]
-      postNotificationName:FIRInstallationIDDidChangeNotification
-                    object:nil
-                  userInfo:@{kFIRInstallationIDDidChangeNotificationAppNameKey : differentAppID}];
-
-  OCMVerifyAll(self.mockInstallations);
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  XCTAssertEqualObjects([self.instanceID appInstanceID:&error], @"fid-1");
-#pragma clang diagnostic pop
-  XCTAssertNil(error);
 }
 
 - (void)testFCMAutoInitEnabled {

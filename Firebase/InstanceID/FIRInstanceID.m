@@ -117,9 +117,6 @@ typedef NS_ENUM(NSInteger, FIRInstanceIDAPNSTokenType) {
 @property(atomic, strong, nullable)
     FIRInstanceIDCombinedHandler<NSString *> *defaultTokenFetchHandler;
 
-/// A cached value of FID. Should be used only for `-[FIRInstanceID appInstanceID:]`.
-@property(atomic, copy, nullable) NSString *firebaseInstallationsID;
-
 @end
 
 // InstanceID doesn't provide any functionality to other components,
@@ -625,8 +622,6 @@ static FIRInstanceID *gInstanceID;
   self.fcmSenderID = GCMSenderID;
   self.firebaseAppID = options.googleAppID;
 
-  [self updateFirebaseInstallationID];
-
   // FCM generates a FCM token during app start for sending push notification to device.
   // This is not needed for app extension except for watch.
 #if TARGET_OS_WATCH
@@ -719,7 +714,6 @@ static FIRInstanceID *gInstanceID;
              selector:@selector(notifyAPNSTokenIsSet:)
                  name:kFIRInstanceIDAPNSTokenNotification
                object:nil];
-  [self observeFirebaseInstallationIDChanges];
   [self observeFirebaseMessagingTokenChanges];
 }
 
@@ -1096,37 +1090,6 @@ static FIRInstanceID *gInstanceID;
   } else {
     FIRInstanceIDLoggerDebug(kFIRInstanceIDMessageCodeInstanceID015, @"%@", errorString);
   }
-}
-
-#pragma mark - Sync InstanceID
-
-- (void)updateFirebaseInstallationID {
-  FIRInstanceID_WEAKIFY(self);
-  [self.installations
-      installationIDWithCompletion:^(NSString *_Nullable installationID, NSError *_Nullable error) {
-        FIRInstanceID_STRONGIFY(self);
-        self.firebaseInstallationsID = installationID;
-      }];
-}
-
-- (void)installationIDDidChangeNotificationReceived:(NSNotification *)notification {
-  NSString *installationAppID =
-      notification.userInfo[kFIRInstallationIDDidChangeNotificationAppNameKey];
-  if ([installationAppID isKindOfClass:[NSString class]] &&
-      [installationAppID isEqual:self.firebaseAppID]) {
-    [self updateFirebaseInstallationID];
-  }
-}
-
-- (void)observeFirebaseInstallationIDChanges {
-  [[NSNotificationCenter defaultCenter] removeObserver:self
-                                                  name:FIRInstallationIDDidChangeNotification
-                                                object:nil];
-  [[NSNotificationCenter defaultCenter]
-      addObserver:self
-         selector:@selector(installationIDDidChangeNotificationReceived:)
-             name:FIRInstallationIDDidChangeNotification
-           object:nil];
 }
 
 - (void)observeFirebaseMessagingTokenChanges {

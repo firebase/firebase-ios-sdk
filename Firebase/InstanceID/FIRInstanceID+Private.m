@@ -19,7 +19,6 @@
 #import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
 
 #import "Firebase/InstanceID/FIRInstanceIDAuthService.h"
-#import "Firebase/InstanceID/FIRInstanceIDDefines.h"
 #import "Firebase/InstanceID/FIRInstanceIDTokenManager.h"
 #import "Firebase/InstanceID/Private/FIRInstanceID_Private.h"
 
@@ -40,12 +39,6 @@
 // This method is only needed by first-party users, like Remote Config.
 - (void)fetchCheckinInfoWithHandler:(FIRInstanceIDDeviceCheckinCompletion)handler {
   [self.tokenManager.authService fetchCheckinInfoWithHandler:handler];
-}
-
-// TODO(#4486): Delete the method, `self.firebaseInstallationsID` and related
-// code for Firebase 7 release.
-- (NSString *)appInstanceID:(NSError **)outError {
-  return self.firebaseInstallationsID;
 }
 
 #pragma mark - Firebase Installations Compatibility
