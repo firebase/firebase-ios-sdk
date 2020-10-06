@@ -3,7 +3,7 @@
   `FirebaseVersion.version()` or `[FIRVersion version]` should be used instead.
 - [changed] Throw an exception if `FIROptions.projectID` is missing or
   `FIROptions.APIKey` has incorrect format to catch critical configuration
-  issues erlier. (#4692)
+  issues earlier. (#4692)
 
 # v1.7.1 -- M81
 - [changed] Additional `FIRInstallationsItem` validation to catch potential storage issues. (#6570)
