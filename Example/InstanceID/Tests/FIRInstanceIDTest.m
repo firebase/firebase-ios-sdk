@@ -165,7 +165,7 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
   // The shared instance relies on the default app being configured. Configure it.
   FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
                                                     GCMSenderID:kGCMSenderID];
-  options.APIKey = @"api-key";
+  options.APIKey = @"APIKeyWithValidFormat1920404502934lksfj";
   options.projectID = @"project-id";
   [FIRApp configureWithName:kFIRDefaultAppName options:options];
   FIRInstanceID *instanceID = [FIRInstanceID instanceID];

@@ -73,7 +73,7 @@
   // Mock the network manager.
   FIROptions *options = [[FIROptions alloc] init];
   options.projectID = @"test-project-id";
-  options.APIKey = @"test-api-key";
+  options.APIKey = @"APIKeyWithValidFormat1920404502934lksfj";
   self.networkManagerMock = OCMClassMock([SEGNetworkManager class]);
   OCMStub([self.networkManagerMock
       makeAssociationRequestToBackendWithData:[OCMArg any]

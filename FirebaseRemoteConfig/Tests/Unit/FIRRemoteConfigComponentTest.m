@@ -172,7 +172,7 @@
 - (FIROptions *)fakeOptions {
   FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:@"1:123:ios:123abc"
                                                     GCMSenderID:@"correct_gcm_sender_id"];
-  options.APIKey = @"api-key";
+  options.APIKey = @"APIKeyWithValidFormat1920404502934lksfj";
   options.projectID = @"project-id";
   return options;
 }
