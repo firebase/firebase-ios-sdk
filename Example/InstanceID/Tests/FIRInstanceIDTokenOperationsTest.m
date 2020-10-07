@@ -210,13 +210,14 @@ static NSString *kRegistrationToken = @"token-12345";
                                            checkinPreferences:checkinPreferences
                                                    instanceID:self.instanceID];
   operation.performWasCalled = NO;
+  __weak FIRInstanceIDTokenOperationFake *weakOperation = operation;
   [operation addCompletionHandler:^(FIRInstanceIDTokenOperationResult result,
                                     NSString *_Nullable token, NSError *_Nullable error) {
     if (result == FIRInstanceIDTokenOperationCancelled) {
       [cancelledExpectation fulfill];
     }
 
-    if (!operation.performWasCalled) {
+    if (!weakOperation.performWasCalled) {
       [didNotCallPerform fulfill];
     }
   }];
