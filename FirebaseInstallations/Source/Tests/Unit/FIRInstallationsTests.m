@@ -44,7 +44,7 @@
 
   self.appOptions = [[FIROptions alloc] initWithGoogleAppID:@"GoogleAppID"
                                                 GCMSenderID:@"GCMSenderID"];
-  self.appOptions.APIKey = @"APIKeyWithValidFormat_-20404502934lksfj";
+  self.appOptions.APIKey = @"AIzaSy-ApiKeyWithValidFormat_0123456789";
   self.appOptions.projectID = @"ProjectID";
 
   self.mockIDController = OCMClassMock([FIRInstallationsIDController class]);
@@ -280,16 +280,16 @@
 
 - (void)testInitWithAPIKeyIsNotMatchingExpectedFormat {
   FIROptions *options = [self.appOptions copy];
-  options.APIKey = @"ATooShortKey00000000000000000000000000";
+  options.APIKey = @"AIzaSy-ApiKeyTooShort_0123456789012345";
   XCTAssertThrows([self createInstallationsWithAppOptions:options appName:@"shortAPIKey"]);
 
-  options.APIKey = @"ATooLongKey00000000000000000000000000000";
+  options.APIKey = @"AIzaSy-ApiKeyWithLengthTooLong_0123456789";
   XCTAssertThrows([self createInstallationsWithAppOptions:options appName:@"longAPIKey"]);
 
-  options.APIKey = @"StartsNotFromA0000000000000000000000000";
+  options.APIKey = @"BBAIzaSy-ApiKeyInvalidFormat_0123456789";
   XCTAssertThrows([self createInstallationsWithAppOptions:options appName:@"wrongFirstCharacter"]);
 
-  options.APIKey = @"A ContainsNotAlphaNumeric-+=00000000000";
+  options.APIKey = @"AIzaSy-+-ApiKeyInvalidFormat_0123456789";
   XCTAssertThrows([self createInstallationsWithAppOptions:options appName:@"invalidCharacters"]);
 }
 

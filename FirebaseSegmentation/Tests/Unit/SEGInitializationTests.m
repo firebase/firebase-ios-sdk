@@ -32,7 +32,7 @@
 
 - (void)setUp {
   FIROptions *options = [[FIROptions alloc] init];
-  options.APIKey = @"APIKeyWithValidFormat1920404502934lksfj";
+  options.APIKey = @"AIzaSy-ApiKeyWithValidFormat_0123456789";
   options.projectID = @"test-firebase-project-id";
   _segmentation = [[FIRSegmentation alloc] initWithAppName:@"test-firebase-app-name"
                                                 FIROptions:options];

@@ -434,7 +434,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
   // TODO: Evaluate if we want to hardcode things here instead.
   FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:@"1:123:ios:123abc"
                                                     GCMSenderID:@"correct_gcm_sender_id"];
-  options.APIKey = @"APIKeyWithValidFormat1920404502934lksfj";
+  options.APIKey = @"AIzaSy-ApiKeyWithValidFormat_0123456789";
   options.projectID = @"abc-xyz-123";
   return options;
 }
