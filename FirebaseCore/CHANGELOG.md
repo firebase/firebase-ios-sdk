@@ -14,7 +14,7 @@
   is appended to the product name.
 - [changed] The version must now be specified for the two Swift-only Firebase CocoaPods in the
   Podfile like `pod 'FirebaseFirestoreSwift', '~> 7.0-beta'`.
-- [added] `FirebaseVersion.version()` or `[FIRVersion version]` API to access the Firebase
+- [added] `FirebaseVersion()` - Swift `FIRFirebaseVersion()` - ObjC API to access the Firebase
   installation version.
 
 # Firebase 6.34.0

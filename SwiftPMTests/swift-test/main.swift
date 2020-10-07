@@ -54,7 +54,7 @@ class importTest: XCTestCase {
     XCTAssertNil(FirebaseApp.app())
     XCTAssertEqual(GULAppEnvironmentUtil.deviceModel(), "x86_64")
 
-    let versionParts = FirebaseVersion.version().split(separator: ".")
+    let versionParts = FirebaseVersion().split(separator: ".")
     XCTAssert(versionParts.count == 3)
     XCTAssertEqual(Int(versionParts[0]), 7)
     XCTAssertNotNil(Int(versionParts[1]))

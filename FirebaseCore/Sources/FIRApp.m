@@ -526,7 +526,7 @@ static dispatch_once_t sFirebaseUserAgentOnceToken;
 
 + (void)registerInternalLibrary:(nonnull Class<FIRLibrary>)library
                        withName:(nonnull NSString *)name {
-  [self registerInternalLibrary:library withName:name withVersion:[FIRVersion version]];
+  [self registerInternalLibrary:library withName:name withVersion:FIRFirebaseVersion()];
 }
 
 + (void)registerInternalLibrary:(nonnull Class<FIRLibrary>)library
@@ -560,7 +560,7 @@ static dispatch_once_t sFirebaseUserAgentOnceToken;
   @synchronized(self) {
     dispatch_once(&sFirebaseUserAgentOnceToken, ^{
       // Report Firebase version for useragent string
-      [FIRApp registerLibrary:@"fire-ios" withVersion:[FIRVersion version]];
+      [FIRApp registerLibrary:@"fire-ios" withVersion:FIRFirebaseVersion()];
 
       NSDictionary<NSString *, id> *info = [[NSBundle mainBundle] infoDictionary];
       NSString *xcodeVersion = info[@"DTXcodeBuild"];

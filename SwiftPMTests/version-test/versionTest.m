@@ -31,7 +31,7 @@
 
 - (void)testVersion {
   NSString *version = [NSString stringWithUTF8String:(const char *const)STR(FIR_VERSION)];
-  XCTAssertEqualObjects([FIRVersion version], version);
+  XCTAssertEqualObjects(FIRFirebaseVersion(), version);
 }
 
 @end

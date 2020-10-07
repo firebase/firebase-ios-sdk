@@ -346,7 +346,7 @@ NS_ASSUME_NONNULL_END
 }
 
 - (NSString *)SDKVersion {
-  return [NSString stringWithFormat:@"i:%@", [FIRVersion version]];
+  return [NSString stringWithFormat:@"i:%@", FIRFirebaseVersion()];
 }
 
 #pragma mark - Validation
