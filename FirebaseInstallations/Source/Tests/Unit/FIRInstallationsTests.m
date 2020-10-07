@@ -44,7 +44,7 @@
 
   self.appOptions = [[FIROptions alloc] initWithGoogleAppID:@"GoogleAppID"
                                                 GCMSenderID:@"GCMSenderID"];
-  self.appOptions.APIKey = @"APIKeyWithValidFormat1920404502934lksfj";
+  self.appOptions.APIKey = @"APIKeyWithValidFormat_-20404502934lksfj";
   self.appOptions.projectID = @"ProjectID";
 
   self.mockIDController = OCMClassMock([FIRInstallationsIDController class]);

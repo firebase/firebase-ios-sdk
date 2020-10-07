@@ -159,13 +159,16 @@ static const NSUInteger kExpectedAPIKeyLength = 39;
     [validationIssues addObject:@"API Key must start with `A`"];
   }
 
+  NSMutableCharacterSet *allowedCharacters = [NSMutableCharacterSet alphanumericCharacterSet];
+  [allowedCharacters
+      formUnionWithCharacterSet:[NSCharacterSet characterSetWithCharactersInString:@"-_"]];
+
   NSCharacterSet *characters = [NSCharacterSet characterSetWithCharactersInString:APIKey];
-  if (![[NSCharacterSet alphanumericCharacterSet] isSupersetOfSet:characters]) {
+  if (![allowedCharacters isSupersetOfSet:characters]) {
     [validationIssues addObject:@"API Key must contain only alphanumeric characters"];
   }
 
   if (validationIssues.count > 0) {
-    NSLog(@"---%@---", APIKey);
     [NSException
          raise:kFirebaseInstallationsErrorDomain
         format:
