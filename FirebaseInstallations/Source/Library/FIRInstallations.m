@@ -165,6 +165,7 @@ static const NSUInteger kExpectedAPIKeyLength = 39;
   }
 
   if (validationIssues.count > 0) {
+    NSLog(@"---%@---", APIKey);
     [NSException
          raise:kFirebaseInstallationsErrorDomain
         format:
