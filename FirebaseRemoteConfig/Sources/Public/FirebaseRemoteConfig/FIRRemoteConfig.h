@@ -101,6 +101,10 @@ typedef void (^FIRRemoteConfigFetchAndActivateCompletion)(
     FIRRemoteConfigFetchAndActivateStatus status, NSError *_Nullable error)
     NS_SWIFT_NAME(RemoteConfigFetchAndActivateCompletion);
 
+/// Listener for the get methods.
+typedef void (^FIRRemoteConfigListener)(NSString *_Nonnull, NSDictionary *_Nonnull)
+    NS_SWIFT_NAME(FIRRemoteConfigListener);
+
 #pragma mark - FIRRemoteConfigValue
 /// This class provides a wrapper for Remote Config parameter values, with methods to get parameter
 /// values as different data types.
@@ -178,6 +182,11 @@ NS_SWIFT_NAME(RemoteConfig)
 /// @param completionHandler Initialization complete callback with error parameter.
 - (void)ensureInitializedWithCompletionHandler:
     (void (^_Nonnull)(NSError *_Nullable initializationError))completionHandler;
+
+/// Adds a listener that will be called whenever one of the get methods is called.
+/// @param listener Function that takes in the parameter key and the config.
+- (void)addListener:(void (^_Nonnull)(NSString *_Nonnull, NSDictionary *_Nonnull))listener;
+
 #pragma mark - Fetch
 /// Fetches Remote Config data with a callback. Call activateFetched to make fetched data available
 /// to your app.

@@ -37,6 +37,8 @@ typedef NS_ENUM(NSInteger, RCNDBSource) {
 @property(nonatomic, readonly, copy) NSDictionary *activeConfig;
 /// Local default config that is provided by external users;
 @property(nonatomic, readonly, copy) NSDictionary *defaultConfig;
+/// Active Personalization metadata.
+@property(nonatomic, readonly, copy) NSDictionary *activePersonalization;
 
 - (instancetype)init NS_UNAVAILABLE;
 
@@ -56,5 +58,8 @@ typedef NS_ENUM(NSInteger, RCNDBSource) {
 - (void)copyFromDictionary:(NSDictionary *)fromDictionary
                   toSource:(RCNDBSource)source
               forNamespace:(NSString *)FIRNamespace;
+
+/// Sets the fetched Personalization metadata to active.
+- (void)activatePersonalization;
 
 @end
