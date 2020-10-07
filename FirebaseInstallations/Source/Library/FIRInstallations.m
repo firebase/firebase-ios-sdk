@@ -165,7 +165,7 @@ static const NSUInteger kExpectedAPIKeyLength = 39;
 
   NSCharacterSet *characters = [NSCharacterSet characterSetWithCharactersInString:APIKey];
   if (![allowedCharacters isSupersetOfSet:characters]) {
-    [validationIssues addObject:@"API Key must contain only alphanumeric characters"];
+    [validationIssues addObject:@"API Key must contain only base64 url-safe characters characters"];
   }
 
   if (validationIssues.count > 0) {
