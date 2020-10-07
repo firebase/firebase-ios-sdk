@@ -75,6 +75,4 @@
   return self;
 }
 
-@synthesize instances;
-
 @end
