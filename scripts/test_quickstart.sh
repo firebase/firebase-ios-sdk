@@ -39,7 +39,7 @@ if check_secrets; then
       ONLY_ACTIVE_ARCH=YES \
       )
   else
-    have_secrets=true SAMPLE="$sample" #./scripts/test.sh
+    have_secrets=true SAMPLE="$sample" SWIFT_SUFFIX="" #./scripts/test.sh
 
     (xcodebuild \
       -workspace ${SAMPLE}/${SAMPLE}Example.xcworkspace \
