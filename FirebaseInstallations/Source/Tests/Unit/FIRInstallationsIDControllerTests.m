@@ -115,25 +115,6 @@
   OCMVerifyAll(self.mockAPIService);
 }
 
-- (void)testInitWhenProjectIDIsNilThenGCMSenderIDIsPassedToAPIServiceAsProjectID {
-  NSString *APIKey = @"api-key";
-  NSString *GCMSenderID = @"sender-id";
-  OCMExpect([self.mockAPIService alloc]).andReturn(self.mockAPIService);
-  OCMExpect([self.mockAPIService initWithAPIKey:APIKey projectID:GCMSenderID])
-      .andReturn(self.mockAPIService);
-
-  FIRInstallationsIDController *controller =
-      [[FIRInstallationsIDController alloc] initWithGoogleAppID:@"app-id"
-                                                        appName:@"app-name"
-                                                         APIKey:APIKey
-                                                      projectID:@""
-                                                    GCMSenderID:GCMSenderID
-                                                    accessGroup:nil];
-  XCTAssertNotNil(controller);
-
-  OCMVerifyAll(self.mockAPIService);
-}
-
 #pragma mark - Get Installation
 
 - (void)testGetInstallationItem_WhenFIDExists_ThenItIsReturned {
