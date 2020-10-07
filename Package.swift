@@ -106,13 +106,13 @@ let package = Package(
     ),
     .package(
       name: "abseil",
-      url: "https://github.com/firebase/abseil-cpp.git",
-      .revision("8ddf129163673642a339d7980327bcb2c117a28e")
+      url: "https://github.com/firebase/abseil-cpp-SwiftPM.git",
+      .revision("05d8107f2971a37e6c77245b7c4c6b0a7e97bc99")
     ),
     .package(
       name: "gRPC",
-      url: "https://github.com/firebase/grpc.git",
-      .revision("b22bc5256665ff2f1763505631df0ee60378b083")
+      url: "https://github.com/firebase/grpc-SwiftPM.git",
+      .revision("5bb2669317ae2183f4cb00c675423af1924f0b46")
     ),
     .package(
       name: "OCMock",
