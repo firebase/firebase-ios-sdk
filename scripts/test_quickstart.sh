@@ -22,14 +22,36 @@ sample="$1"
 platform="${2-}"
 
 # Source function to check if CI secrets are available.
-source scripts/check_secrets.sh
+source scripts/check_secrets.sh 
 
 if check_secrets; then
   cd quickstart-ios
   if [ "$platform" = "swift" ]; then
-    have_secrets=true SAMPLE="$sample" SWIFT_SUFFIX="Swift" ./scripts/test.sh
+    have_secrets=true SAMPLE="$sample" SWIFT_SUFFIX="Swift" #./scripts/test.sh
+
+    (xcodebuild \
+      -workspace ${SAMPLE}/${SAMPLE}Example.xcworkspace \
+      -scheme ${SAMPLE}Example${SWIFT_SUFFIX} \
+      -sdk iphonesimulator \
+      -destination 'platform=iOS Simulator,name=iPhone 11' \
+      build \
+      test \
+      ONLY_ACTIVE_ARCH=YES \
+      )
   else
-    have_secrets=true SAMPLE="$sample" ./scripts/test.sh
+    have_secrets=true SAMPLE="$sample" #./scripts/test.sh
+
+    (xcodebuild \
+      -workspace ${SAMPLE}/${SAMPLE}Example.xcworkspace \
+      -scheme ${SAMPLE}Example${SWIFT_SUFFIX} \
+      -sdk iphonesimulator \
+      -destination 'platform=iOS Simulator,name=iPhone 11' \
+      build \
+      test \
+      ONLY_ACTIVE_ARCH=YES \
+      )
   fi
 
 fi
+
+
