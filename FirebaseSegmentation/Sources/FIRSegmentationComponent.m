@@ -102,6 +102,4 @@ add -DFIRSegmentation_VERSION=... to the build invocation"
   return @[ segProvider ];
 }
 
-@synthesize instances;
-
 @end
