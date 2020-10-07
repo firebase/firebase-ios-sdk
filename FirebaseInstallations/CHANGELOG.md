@@ -1,6 +1,6 @@
 # v7.0.0 -- M82
 - [changed] The global variable `FIRInstallationsVersionStr` is deleted.
-  `FirebaseVersion.version()` or `[FIRVersion version]` should be used instead.
+  `FirebaseVersion()` or `FIRFirebaseVersion()` should be used instead.
 - [changed] Throw an exception if `FIROptions.projectID` is missing or
   `FIROptions.APIKey` has incorrect format to catch critical configuration
   issues earlier. (#4692)
