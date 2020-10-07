@@ -303,7 +303,7 @@ static const NSInteger FIRErrorCodeDurableDeepLinkFailed = -119;
       [[FIRDLRetrievalProcessFactory alloc] initWithNetworkingService:self.dynamicLinkNetworking
                                                             URLScheme:_URLScheme
                                                                APIKey:_APIKey
-                                                        FDLSDKVersion:[FIRVersion version]
+                                                        FDLSDKVersion:FIRFirebaseVersion()
                                                              delegate:self];
   _retrievalProcess = [factory automaticRetrievalProcess];
   [_retrievalProcess retrievePendingDynamicLink];
@@ -411,7 +411,7 @@ static const NSInteger FIRErrorCodeDurableDeepLinkFailed = -119;
           // TODO: Create dedicated logging function to prevent this.
           [self.dynamicLinkNetworking
               resolveShortLink:url
-                 FDLSDKVersion:[FIRVersion version]
+                 FDLSDKVersion:FIRFirebaseVersion()
                     completion:^(NSURL *_Nullable resolverURL, NSError *_Nullable resolverError){
                         // Nothing to do
                     }];
@@ -458,7 +458,7 @@ static const NSInteger FIRErrorCodeDurableDeepLinkFailed = -119;
 
 - (void)resolveShortLink:(NSURL *)url completion:(FIRDynamicLinkResolverHandler)completion {
   [self.dynamicLinkNetworking resolveShortLink:url
-                                 FDLSDKVersion:[FIRVersion version]
+                                 FDLSDKVersion:FIRFirebaseVersion()
                                     completion:completion];
 }
 
@@ -550,7 +550,7 @@ static NSString *kSelfDiagnoseOutputFooter =
   NSMutableString *genericDiagnosticInfo = [[NSMutableString alloc] init];
 
   [genericDiagnosticInfo
-      appendFormat:@"Firebase Dynamic Links framework version %@\n", [FIRVersion version]];
+      appendFormat:@"Firebase Dynamic Links framework version %@\n", FIRFirebaseVersion()];
   [genericDiagnosticInfo appendFormat:@"System information: OS %@, OS version %@, model %@\n",
                                       [UIDevice currentDevice].systemName,
                                       [UIDevice currentDevice].systemVersion,

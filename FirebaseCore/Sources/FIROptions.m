@@ -285,7 +285,7 @@ static dispatch_once_t sDefaultOptionsDictionaryOnceToken;
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
     // The unit tests are set up to catch anything that does not properly convert.
-    NSString *version = [FIRVersion version];
+    NSString *version = FIRFirebaseVersion();
     NSArray *components = [version componentsSeparatedByString:@"."];
     NSString *major = [components objectAtIndex:0];
     NSString *minor = [NSString stringWithFormat:@"%02d", [[components objectAtIndex:1] intValue]];

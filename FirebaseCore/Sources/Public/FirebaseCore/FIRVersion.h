@@ -18,20 +18,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-/**
- * This class provides internal access to the Firebase version for any Firebase pod.
- */
-NS_SWIFT_NAME(FirebaseVersion)
-@interface FIRVersion : NSObject
-
-/**
- * Returns the version string.
- */
-+ (NSString *)version;
-
-/** Unavailable. Class method only */
-- (instancetype)init NS_UNAVAILABLE;
-
-@end
+NS_SWIFT_NAME(FirebaseVersion())
+NSString* FIRFirebaseVersion(void);
 
 NS_ASSUME_NONNULL_END

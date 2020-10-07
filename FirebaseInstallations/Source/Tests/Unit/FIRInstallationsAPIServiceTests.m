@@ -654,7 +654,7 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
 }
 
 - (NSString *)SDKVersion {
-  return [NSString stringWithFormat:@"i:%@", [FIRVersion version]];
+  return [NSString stringWithFormat:@"i:%@", FIRFirebaseVersion()];
 }
 
 @end
