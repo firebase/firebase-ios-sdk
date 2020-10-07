@@ -38,14 +38,16 @@ static BOOL SEGAddSkipBackupAttributeToItemAtPath(NSString *filePathString) {
   NSError *error = nil;
   BOOL success = [URL setResourceValue:@YES forKey:NSURLIsExcludedFromBackupKey error:&error];
   if (!success) {
-    FIRLogError(kFIRLoggerSegmentation, @"I-SEG000001", @"Error excluding %@ from backup %@.", [URL lastPathComponent], error);
+    FIRLogError(kFIRLoggerSegmentation, @"I-SEG000001", @"Error excluding %@ from backup %@.",
+                [URL lastPathComponent], error);
   }
   return success;
 }
 
 static BOOL SEGCreateFilePathIfNotExist(NSString *filePath) {
   if (!filePath.length) {
-    FIRLogError(kFIRLoggerSegmentation, @"I-SEG000002", @"Failed to create subdirectory for an empty file path.");
+    FIRLogError(kFIRLoggerSegmentation, @"I-SEG000002",
+                @"Failed to create subdirectory for an empty file path.");
     return NO;
   }
   NSFileManager *fileManager = [NSFileManager defaultManager];
@@ -56,7 +58,8 @@ static BOOL SEGCreateFilePathIfNotExist(NSString *filePath) {
                             attributes:nil
                                  error:&error];
     if (error) {
-      FIRLogError(kFIRLoggerSegmentation, @"I-SEG000003", @"Failed to create subdirectory for database file: %@.", error);
+      FIRLogError(kFIRLoggerSegmentation, @"I-SEG000003",
+                  @"Failed to create subdirectory for database file: %@.", error);
       return NO;
     }
   }
@@ -108,7 +111,8 @@ static BOOL SEGCreateFilePathIfNotExist(NSString *filePath) {
 - (void)createOrOpenDatabaseWithCompletion:(SEGRequestCompletion)completionHandler {
   dispatch_async(_databaseOperationQueue, ^{
     NSString *dbPath = [SEGDatabaseManager pathForSegmentationDatabase];
-    FIRLogDebug(kFIRLoggerSegmentation, @"I-SEG000005", @"Loading segmentation database at path %@", dbPath);
+    FIRLogDebug(kFIRLoggerSegmentation, @"I-SEG000005", @"Loading segmentation database at path %@",
+                dbPath);
     const char *databasePath = dbPath.UTF8String;
     // Create or open database path.
     if (!SEGCreateFilePathIfNotExist(dbPath)) {
@@ -133,8 +137,9 @@ static BOOL SEGCreateFilePathIfNotExist(NSString *filePath) {
         FIRLogError(kFIRLoggerSegmentation, @"I-SEG00006", @"Failed to create table.");
         // Create a new database if existing database file is corrupted.
         if (!SEGCreateFilePathIfNotExist(dbPath)) {
-          completionHandler(NO,
-                            @{kSEGErrorDescription : @"Could not recreate database file at path: %@", dbpath});
+          completionHandler(
+              NO,
+              @{kSEGErrorDescription : @"Could not recreate database file at path: %@", dbpath});
           return;
         }
         // Try to open the database with the new file.
@@ -181,7 +186,8 @@ static BOOL SEGCreateFilePathIfNotExist(NSString *filePath) {
 
   sqlite3_stmt *statement = [self prepareSQL:[SQLQuery cStringUsingEncoding:NSUTF8StringEncoding]];
   if (!statement) {
-    FIRLogError(kFIRLoggerSegmentation, @"I-SEG00008", @"Failed to create sqlite statement with query: %@.", SQLQuery);
+    FIRLogError(kFIRLoggerSegmentation, @"I-SEG00008",
+                @"Failed to create sqlite statement with query: %@.", SQLQuery);
     return nil;
   }
 
@@ -266,10 +272,7 @@ static BOOL SEGCreateFilePathIfNotExist(NSString *filePath) {
   // TODO: delete the row first.
   dispatch_async(_databaseOperationQueue, ^{
     NSArray<NSString *> *values = @[
-      firebaseApplication, 
-      customInstanceIdentifier,
-      firebaseInstanceIdentifier, 
-      associationStatus
+      firebaseApplication, customInstanceIdentifier, firebaseInstanceIdentifier, associationStatus
     ];
     BOOL success = [self insertMainTableWithValues:values];
     if (handler) {
@@ -290,8 +293,7 @@ static BOOL SEGCreateFilePathIfNotExist(NSString *filePath) {
     return NO;
   }
   NSString *SQL = [NSString stringWithFormat:@"INSERT INTO %@ (%@, %@, %@, %@) values (?, ?, ?, ?)",
-                                             kMainTableName, 
-                                             kMainTableColumnApplicationIdentifier,
+                                             kMainTableName, kMainTableColumnApplicationIdentifier,
                                              kMainTableColumnCustomInstallationIdentifier,
                                              kMainTableColumnFirebaseInstallationIdentifier,
                                              kMainTableColumnAssociationStatus];

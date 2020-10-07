@@ -41,7 +41,7 @@ static NSString* const kSEGAssociationStatusAssociated = @"ASSOCIATED";
 /// Segmentation error domain when logging errors.
 static NSString* const kFirebaseSegmentationErrorDomain = @"com.firebase.segmentation";
 
-NSString *const kSEGErrorDescription = @"SEGErrorDescription";
+NSString* const kSEGErrorDescription = @"SEGErrorDescription";
 
 /// Segmentation Request Completion callback.
 /// @param success Decide whether the network operation succeeds.
