@@ -129,9 +129,5 @@ other Google CocoaPods. They're not intended for direct public usage.
     unit_tests_swift.source_files = 'GoogleUtilities/Tests/SwiftUnit/**/*.swift',
                                     'GoogleUtilities/Tests/SwiftUnit/**/*.h'
     unit_tests_swift.requires_app_host = true
-
-    unit_tests_swift.pod_target_xcconfig = {
-      'SWIFT_OBJC_BRIDGING_HEADER' => '$(PODS_TARGET_SRCROOT)/GoogleUtilities/Tests/SwiftUnit/GoogleUtilities-unit-Bridging-Header.h'
-    }
   end
 end

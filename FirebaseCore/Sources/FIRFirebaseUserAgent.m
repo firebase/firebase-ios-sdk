@@ -16,7 +16,7 @@
 
 #import "FirebaseCore/Sources/FIRFirebaseUserAgent.h"
 
-#import "GoogleUtilities/Environment/Public/GoogleUtilities/GULAppEnvironmentUtil.h"
+#import <GoogleUtilities/GULAppEnvironmentUtil.h>
 
 @interface FIRFirebaseUserAgent ()
 
