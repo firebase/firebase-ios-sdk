@@ -34,6 +34,10 @@
 }
 
 + (void)logArmActive:(NSString *)value metadata:(NSDictionary *)metadata {
+  if (metadata[kPersonalizationId] == nil) {
+    return;
+  }
+
   RCNPersonalization *personalization = [RCNPersonalization sharedInstance];
   [personalization->_analytics
       logEventWithOrigin:kAnalyticsOriginPersonalization
