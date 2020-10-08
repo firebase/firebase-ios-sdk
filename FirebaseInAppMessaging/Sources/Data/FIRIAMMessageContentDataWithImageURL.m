@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
+
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
-#import "FIRCore+InAppMessaging.h"
-#import "FIRIAMMessageContentData.h"
-#import "FIRIAMMessageContentDataWithImageURL.h"
-#import "FIRIAMSDKRuntimeErrorCodes.h"
+#import "FirebaseInAppMessaging/Sources/FIRCore+InAppMessaging.h"
+#import "FirebaseInAppMessaging/Sources/Private/Data/FIRIAMMessageContentData.h"
+#import "FirebaseInAppMessaging/Sources/Private/Data/FIRIAMMessageContentDataWithImageURL.h"
+#import "FirebaseInAppMessaging/Sources/Runtime/FIRIAMSDKRuntimeErrorCodes.h"
 
 static NSInteger const SuccessHTTPStatusCode = 200;
 
@@ -202,3 +205,5 @@ static NSInteger const SuccessHTTPStatusCode = 200;
 }
 
 @end
+
+#endif  // TARGET_OS_IOS

@@ -15,7 +15,7 @@
 #import <XCTest/XCTest.h>
 
 #import "Functions/FirebaseFunctions/FIRFunctions+Internal.h"
-#import "Functions/FirebaseFunctions/Public/FIRFunctions.h"
+#import "Functions/FirebaseFunctions/Public/FirebaseFunctions/FIRFunctions.h"
 
 @interface FIRFunctionsTests : XCTestCase
 @end
@@ -33,7 +33,8 @@
 - (void)testURLWithName {
   FIRFunctions *functions = [[FIRFunctions alloc] initWithProjectID:@"my-project"
                                                              region:@"my-region"
-                                                               auth:nil];
+                                                               auth:nil
+                                                          messaging:nil];
   NSString *url = [functions URLWithName:@"my-endpoint"];
   XCTAssertEqualObjects(@"https://my-region-my-project.cloudfunctions.net/my-endpoint", url);
 }

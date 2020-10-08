@@ -37,6 +37,16 @@ NS_SWIFT_NAME(StackFrame)
 - (instancetype)initWithSymbol:(NSString *)symbol file:(NSString *)file line:(NSInteger)line;
 
 /**
+ * Creates a symbolicated Stack Frame from an address. The address will be
+ * symbolicated in the Crashlytics backend for the customer and reported in the
+ * Crahslytics dashboard with the appropriate file name and line number. If an
+ * invalid address is provided it will appear in the dashboard as missing.
+ *
+ * @param address - the address where the exception occurred
+ */
++ (instancetype)stackFrameWithAddress:(NSUInteger)address;
+
+/**
  * Creates a symbolicated Stack Frame with the given required fields. Symbolicated
  * Stack Frames will appear in the Crashlytics dashboard as reported in these fields. *
  *

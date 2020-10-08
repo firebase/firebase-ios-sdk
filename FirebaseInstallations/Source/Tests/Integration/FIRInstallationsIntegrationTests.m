@@ -20,6 +20,8 @@
 // macOS requests a user password when accessing the Keychain for the first time,
 // so the tests may fail. Disable integration tests on macOS so far.
 // TODO: Configure the tests to run on macOS without requesting the keychain password.
+
+#import <TargetConditionals.h>
 #if !TARGET_OS_OSX
 
 #import <XCTest/XCTest.h>
@@ -203,7 +205,7 @@ static BOOL sFIRInstallationsFirebaseDefaultAppConfigured = NO;
   FIROptions *options =
       [[FIROptions alloc] initWithGoogleAppID:@"1:100000000000:ios:aaaaaaaaaaaaaaaaaaaaaaaa"
                                   GCMSenderID:@"valid_sender_id"];
-  options.APIKey = @"some_api_key";
+  options.APIKey = @"AIzaSy-ApiKeyWithValidFormat_0123456789";
   options.projectID = @"project_id";
   [FIRApp configureWithName:name options:options];
 

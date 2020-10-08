@@ -16,13 +16,6 @@
 
 #import <FirebaseCore/FIRApp.h>
 
-// The has_include is a workaround so the old IID needed for the FIS tests can find FIRErrors.h
-#if __has_include("FirebaseCore/Sources/Private/FIRErrors.h")
-#import "FirebaseCore/Sources/Private/FIRErrors.h"
-#else
-#import <FirebaseCore/FIRErrors.h>
-#endif
-
 @class FIRComponentContainer;
 @protocol FIRLibrary;
 
@@ -46,6 +39,7 @@ extern NSString *const kFIRAppDeleteNotification;
 extern NSString *const kFIRAppIsDefaultAppKey;
 extern NSString *const kFIRAppNameKey;
 extern NSString *const kFIRGoogleAppIDKey;
+extern NSString *const kFirebaseCoreErrorDomain;
 
 /**
  * The format string for the User Defaults key used for storing the data collection enabled flag.
@@ -106,14 +100,6 @@ extern NSString *const FIRAuthStateDidChangeInternalNotificationUIDKey;
 @property(nonatomic) FIRComponentContainer *container;
 
 /**
- * Creates an error for failing to configure a subspec service. This method is called by each
- * FIRApp notification listener.
- */
-+ (NSError *)errorForSubspecConfigurationFailureWithDomain:(NSString *)domain
-                                                 errorCode:(FIRErrorCode)code
-                                                   service:(NSString *)service
-                                                    reason:(NSString *)reason;
-/**
  * Checks if the default app is configured without trying to configure it.
  */
 + (BOOL)isDefaultAppConfigured;
@@ -128,8 +114,18 @@ extern NSString *const FIRAuthStateDidChangeInternalNotificationUIDKey;
 + (void)registerLibrary:(nonnull NSString *)name withVersion:(nonnull NSString *)version;
 
 /**
+ * Registers a given internal library to be reported for analytics.
+ *
+ * @param library Optional parameter for component registration.
+ * @param name Name of the library.
+ */
++ (void)registerInternalLibrary:(nonnull Class<FIRLibrary>)library
+                       withName:(nonnull NSString *)name;
+
+/**
  * Registers a given internal library with the given version number to be reported for
- * analytics.
+ * analytics. This should only be used for non-Firebase libraries that have their own versioning
+ * scheme.
  *
  * @param library Optional parameter for component registration.
  * @param name Name of the library.
@@ -143,15 +139,6 @@ extern NSString *const FIRAuthStateDidChangeInternalNotificationUIDKey;
  * A concatenated string representing all the third-party libraries and version numbers.
  */
 + (NSString *)firebaseUserAgent;
-
-/**
- * Used by each SDK to send logs about SDK configuration status to Clearcut.
- *
- * @note This API is a no-op, please remove calls to it.
- */
-- (void)sendLogsWithServiceName:(NSString *)serviceName
-                        version:(NSString *)version
-                          error:(NSError *)error;
 
 /**
  * Can be used by the unit tests in eack SDK to reset FIRApp. This method is thread unsafe.

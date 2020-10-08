@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-#import <FirebaseMessaging/FIRMessaging.h>
+#import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessaging.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class FIRMessagingClient;
 @class FIRMessagingPubSubCache;
 
 /**
@@ -39,14 +38,6 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FIRMessagingPubSub : NSObject
 
 @property(nonatomic, readonly, strong) FIRMessagingPubSubCache *cache;
-@property(nonatomic, readonly, strong) FIRMessagingClient *client;
-
-/**
- *  Initializes an instance of FIRMessagingPubSub.
- *
- *  @return An instance of FIRMessagingPubSub.
- */
-- (instancetype)initWithClient:(FIRMessagingClient *)client NS_DESIGNATED_INITIALIZER;
 
 /**
  *  Subscribes an app instance to a topic, enabling it to receive messages

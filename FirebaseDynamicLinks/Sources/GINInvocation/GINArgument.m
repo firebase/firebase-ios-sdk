@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "GINArgument.h"
+#import "FirebaseDynamicLinks/Sources/GINInvocation/GINArgument.h"
 
 // Currently only supporting arguments of types id and integer.
 // Will support more argument types when it is needed.

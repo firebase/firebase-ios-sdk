@@ -92,7 +92,10 @@
   [alertVC addAction:[UIAlertAction actionWithTitle:@"Dismiss"
                                               style:UIAlertActionStyleCancel
                                             handler:NULL]];
-  [self.window.rootViewController presentViewController:alertVC animated:YES completion:NULL];
+
+  [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:alertVC
+                                                                               animated:YES
+                                                                             completion:NULL];
 }
 
 @end

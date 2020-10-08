@@ -33,6 +33,11 @@ static NSString *const kTokenKey = @"token";
  */
 static NSString *const kReturnSecureTokenKey = @"returnSecureToken";
 
+/** @var kTenantIDKey
+    @brief The key for the tenant id value in the request.
+ */
+static NSString *const kTenantIDKey = @"tenantId";
+
 @implementation FIRVerifyCustomTokenRequest
 
 - (nullable instancetype)initWithToken:(NSString *)token
@@ -50,6 +55,9 @@ static NSString *const kReturnSecureTokenKey = @"returnSecureToken";
   NSMutableDictionary *body = [@{kTokenKey : _token} mutableCopy];
   if (_returnSecureToken) {
     body[kReturnSecureTokenKey] = @YES;
+  }
+  if (self.tenantID) {
+    body[kTenantIDKey] = self.tenantID;
   }
   return body;
 }

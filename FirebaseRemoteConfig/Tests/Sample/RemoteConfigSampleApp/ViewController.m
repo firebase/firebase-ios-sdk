@@ -18,14 +18,18 @@
 #import <FirebaseCore/FIROptions.h>
 #import <FirebaseCore/FirebaseCore.h>
 #import <FirebaseInstallations/FirebaseInstallations.h>
-#import <FirebaseRemoteConfig/FIRRemoteConfig_Private.h>
 #import <FirebaseRemoteConfig/FirebaseRemoteConfig.h>
-#import <FirebaseRemoteConfig/RCNConfigSettings.h>
+#import "../../../Sources/Private/FIRRemoteConfig_Private.h"
 #import "FRCLog.h"
 
 static NSString *const FIRPerfNamespace = @"fireperf";
 static NSString *const FIRDefaultFIRAppName = @"__FIRAPP_DEFAULT";
 static NSString *const FIRSecondFIRAppName = @"secondFIRApp";
+
+@interface FIRRemoteConfig (Sample)
++ (FIRRemoteConfig *)remoteConfigWithFIRNamespace:(NSString *)remoteConfigNamespace
+                                              app:(FIRApp *)app;
+@end
 
 @interface ViewController ()
 @property(nonatomic, strong) IBOutlet UIButton *fetchButton;
@@ -263,16 +267,9 @@ static NSString *const FIRSecondFIRAppName = @"secondFIRApp";
 }
 
 - (IBAction)developerModeSwitched:(id)sender {
-  FIRRemoteConfigSettings *configSettings =
-      [[FIRRemoteConfigSettings alloc] initWithDeveloperModeEnabled:self.developerModeEnabled.isOn];
+  FIRRemoteConfigSettings *configSettings = [[FIRRemoteConfigSettings alloc] init];
   ((FIRRemoteConfig *)(self.RCInstances[self.currentNamespace][self.FIRAppName])).configSettings =
       configSettings;
-  [[FRCLog sharedInstance]
-      logToConsole:[NSString
-                       stringWithFormat:@"Developer Mode Enabled: %d\n",
-                                        ((FIRRemoteConfig *)(self.RCInstances[self.currentNamespace]
-                                                                             [self.FIRAppName]))
-                                            .configSettings.isDeveloperModeEnabled]];
 }
 
 - (void)addNewEntryToVariables:(NSMutableDictionary *)variables isDefaults:(BOOL)isDefaults {
@@ -294,10 +291,10 @@ static NSString *const FIRSecondFIRAppName = @"secondFIRApp";
 
 - (void)apply {
   [self.RCInstances[self.currentNamespace][self.FIRAppName]
-      activateWithCompletionHandler:^(NSError *_Nullable error) {
+      activateWithCompletion:^(BOOL changed, NSError *_Nullable error) {
         NSMutableString *output = [[NSMutableString alloc] init];
         [output appendString:[NSString stringWithFormat:@"ActivateFetched = %@\n",
-                                                        error ? @"NO" : @"YES"]];
+                                                        changed ? @"YES" : @"NO"]];
         [[FRCLog sharedInstance] logToConsole:output];
         if (!error) {
           [self printResult:output];
@@ -338,11 +335,6 @@ static NSString *const FIRSecondFIRAppName = @"secondFIRApp";
   }
 
   [output appendString:@"\n--------Custom Variables--------\n"];
-
-  [output
-      appendString:[NSString
-                       stringWithFormat:@"Developer Mode Enabled: %d\n",
-                                        currentRCInstance.configSettings.isDeveloperModeEnabled]];
 
   [output appendString:@"\n----------Last fetch time----------------\n"];
   NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];

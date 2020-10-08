@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-#import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
+#import "OCMock.h"
 
-#import <FirebaseMessaging/FIRMessaging.h>
-#import <FirebaseMessaging/FIRMessagingExtensionHelper.h>
-#import "GoogleUtilities/Environment/Private/GULAppEnvironmentUtil.h"
 #import "FirebaseMessaging/Sources/FIRMessagingConstants.h"
+#import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessaging.h"
+#import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessagingExtensionHelper.h"
 
 API_AVAILABLE(macos(10.14), ios(10.0), watchos(3.0))
 typedef void (^FIRMessagingContentHandler)(UNNotificationContent *content);
@@ -37,11 +36,13 @@ static NSString *const kValidImageURL =
 - (void)loadAttachmentForURL:(NSURL *)attachmentURL
            completionHandler:(void (^)(UNNotificationAttachment *))completionHandler;
 + (NSString *)bundleIdentifierByRemovingLastPartFrom:(NSString *)bundleIdentifier;
+- (NSString *)fileExtensionForResponse:(NSURLResponse *)response;
 @end
 
 @interface FIRMessagingExtensionHelperTest : XCTestCase {
   id _mockExtensionHelper;
   id _mockUtilClass;
+  id _mockURLResponse;
 }
 @end
 
@@ -53,6 +54,7 @@ static NSString *const kValidImageURL =
     FIRMessagingExtensionHelper *extensionHelper = [FIRMessaging extensionHelper];
     _mockExtensionHelper = OCMPartialMock(extensionHelper);
     _mockUtilClass = OCMClassMock([GULAppEnvironmentUtil class]);
+    _mockURLResponse = OCMClassMock([NSURLResponse class]);
   } else {
     // Fallback on earlier versions
   }
@@ -61,6 +63,7 @@ static NSString *const kValidImageURL =
 - (void)tearDown {
   [_mockExtensionHelper stopMocking];
   [_mockUtilClass stopMocking];
+  [_mockURLResponse stopMocking];
 }
 
 #ifdef COCOAPODS
@@ -118,7 +121,6 @@ static NSString *const kValidImageURL =
   }
 }
 
-
 - (void)testDeliveryMetricsLogging {
   OCMStub([_mockUtilClass isAppExtension]).andReturn(YES);
   NSDictionary *fakeMessageInfo = @{
@@ -130,6 +132,38 @@ static NSString *const kValidImageURL =
   OCMVerify([_mockExtensionHelper bundleIdentifierByRemovingLastPartFrom:[OCMArg any]]);
 }
 
+- (void)testModifyNotificationWithValidPayloadDataNoMimeType {
+  if (@available(macOS 10.14, iOS 10.0, *)) {
+    NSString *const kValidTestURL = @"test.jpg";
+    NSString *const kValidTestExtension = @".jpg";
+    OCMStub([_mockURLResponse suggestedFilename]).andReturn(kValidTestURL);
+    NSString *const extension = [_mockExtensionHelper fileExtensionForResponse:_mockURLResponse];
+    XCTAssertTrue([extension isEqualToString:kValidTestExtension]);
+  }
+}
+
+- (void)testModifyNotificationWithInvalidPayloadDataInvalidMimeType {
+  if (@available(macOS 10.14, iOS 10.0, *)) {
+    NSString *const kInvalidTestURL = @"test";
+    NSString *const kInvalidTestExtension = @"";
+    OCMStub([_mockURLResponse suggestedFilename]).andReturn(kInvalidTestURL);
+    OCMStub([_mockURLResponse MIMEType]).andReturn(nil);
+    NSString *const extension = [_mockExtensionHelper fileExtensionForResponse:_mockURLResponse];
+    XCTAssertTrue([extension isEqualToString:kInvalidTestExtension]);
+  }
+}
+
+- (void)testModifyNotificationWithInvalidPayloadDataValidMimeType {
+  if (@available(macOS 10.14, iOS 10.0, *)) {
+    NSString *const kValidMIMETypeTestURL = @"test";
+    NSString *const kValidMIMETypeTestMIMEType = @"image/jpeg";
+    NSString *const kValidMIMETypeTestExtension = @".jpeg";
+    OCMStub([_mockURLResponse suggestedFilename]).andReturn(kValidMIMETypeTestURL);
+    OCMStub([_mockURLResponse MIMEType]).andReturn(kValidMIMETypeTestMIMEType);
+    NSString *const extension = [_mockExtensionHelper fileExtensionForResponse:_mockURLResponse];
+    XCTAssertTrue([extension isEqualToString:kValidMIMETypeTestExtension]);
+  }
+}
 @end
 
 #endif // TARGET_OS_IOS || TARGET_OS_OSX || TARGET_OS_WATCH

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "Functions/FirebaseFunctions/Public/FIRHTTPSCallable.h"
+#import "Functions/FirebaseFunctions/Public/FirebaseFunctions/FIRHTTPSCallable.h"
 #import "Functions/FirebaseFunctions/FIRHTTPSCallable+Internal.h"
 
 #import "Functions/FirebaseFunctions/FIRFunctions+Internal.h"

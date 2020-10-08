@@ -1,3 +1,6 @@
+source 'https://github.com/firebase/SpecsStaging.git'
+source 'https://cdn.cocoapods.org/'
+
 use_frameworks!
 
 target 'GDTWatchOSTestAppWatchKitApp' do

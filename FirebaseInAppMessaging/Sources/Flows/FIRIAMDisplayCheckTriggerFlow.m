@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 
-#import "FIRIAMDisplayCheckTriggerFlow.h"
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
+
+#import "FirebaseInAppMessaging/Sources/Private/Flows/FIRIAMDisplayCheckTriggerFlow.h"
 
 @implementation FIRIAMDisplayCheckTriggerFlow
 - (instancetype)initWithDisplayFlow:(FIRIAMDisplayExecutor *)displayExecutor {
@@ -30,3 +33,5 @@
 - (void)stop {
 }
 @end
+
+#endif  // TARGET_OS_IOS

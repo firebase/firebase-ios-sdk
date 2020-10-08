@@ -13,10 +13,10 @@
 // limitations under the License.
 #import <Foundation/Foundation.h>
 
+#import <GoogleUtilities/GULAppDelegateSwizzler.h>
+#import <GoogleUtilities/GULUserDefaults.h>
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
-#import "GoogleUtilities/AppDelegateSwizzler/Private/GULAppDelegateSwizzler.h"
-#import "GoogleUtilities/UserDefaults/Private/GULUserDefaults.h"
 
 #import "FirebaseAppDistribution/Sources/FIRAppDistributionMachO.h"
 #import "FirebaseAppDistribution/Sources/FIRAppDistributionUIService.h"
@@ -50,6 +50,8 @@ NSString *const kAppDistroLibraryName = @"fire-fad";
 NSString *const kReleasesKey = @"releases";
 NSString *const kLatestReleaseKey = @"latest";
 NSString *const kCodeHashKey = @"codeHash";
+NSString *const kBuildVersionKey = @"buildVersion";
+NSString *const kDisplayVersionKey = @"displayVersion";
 
 NSString *const kAuthErrorMessage = @"Unable to authenticate the tester";
 NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
@@ -79,11 +81,7 @@ NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
 }
 
 + (void)load {
-  NSString *version =
-      [NSString stringWithUTF8String:(const char *const)STR_EXPAND(FIRAppDistribution_VERSION)];
-  [FIRApp registerInternalLibrary:(Class<FIRLibrary>)self
-                         withName:kAppDistroLibraryName
-                      withVersion:version];
+  [FIRApp registerInternalLibrary:(Class<FIRLibrary>)self withName:kAppDistroLibraryName];
 }
 
 + (NSArray<FIRComponent *> *)componentsToRegister {
@@ -150,7 +148,7 @@ NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
     }
 
     NSString *requestURL = [NSString
-        stringWithFormat:@"https://partnerdash.google.com/apps/appdistribution/pub/apps/%@/"
+        stringWithFormat:@"https://appdistribution.firebase.dev/nba/pub/apps/%@/"
                          @"installations/%@/buildalerts?appName=%@",
                          [[FIRApp defaultApp] options].googleAppID, identifier, [self getAppName]];
 
@@ -200,6 +198,14 @@ NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
                                                                       URLHostAllowedCharacterSet]];
 }
 
+- (NSString *)getAppVersion {
+  return [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
+}
+
+- (NSString *)getAppBuild {
+  return [[NSBundle mainBundle] objectForInfoDictionaryKey:(NSString *)kCFBundleVersionKey];
+}
+
 - (void)signOutTester {
   FIRFADDebugLog(@"Tester is signed out.");
   [[GULUserDefaults standardUserDefaults] setBool:NO forKey:kFIRFADSignInStateKey];
@@ -237,10 +243,17 @@ NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
                                      message:@"Failed to fetch releases for unknown reason."];
 }
 
-- (void)fetchNewLatestRelease:(FIRAppDistributionUpdateCheckCompletion)completion {
+- (void)fetchNewLatestRelease:(void (^)(FIRAppDistributionRelease *_Nullable release,
+                                        NSError *_Nullable error))completion {
   [FIRFADApiService
       fetchReleasesWithCompletion:^(NSArray *_Nullable releases, NSError *_Nullable error) {
         if (error) {
+          if ([error code] == FIRFADApiErrorUnauthenticated) {
+            FIRFADErrorLog(@"Tester authentication failed when fetching releases. Tester will need "
+                           @"to sign in again.");
+            [self signOutTester];
+          }
+
           dispatch_async(dispatch_get_main_queue(), ^{
             completion(nil, [self mapFetchReleasesError:error]);
           });
@@ -249,31 +262,32 @@ NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
 
         for (NSDictionary *releaseDict in releases) {
           if ([[releaseDict objectForKey:kLatestReleaseKey] boolValue]) {
-            FIRFADInfoLog(
-                @"Tester API - found latest release in response. Checking if code hash match");
+            FIRFADInfoLog(@"Tester API - found latest release in response.");
+            NSString *displayVersion = [releaseDict objectForKey:kDisplayVersionKey];
+            NSString *buildVersion = [releaseDict objectForKey:kBuildVersionKey];
+
             NSString *codeHash = [releaseDict objectForKey:kCodeHashKey];
-            NSString *executablePath = [[NSBundle mainBundle] executablePath];
-            FIRAppDistributionMachO *machO =
-                [[FIRAppDistributionMachO alloc] initWithPath:executablePath];
-            FIRFADInfoLog(@"Code hash for the app on device - %@", machO.codeHash);
-            FIRFADInfoLog(@"Code hash for the release from the service response - %@", codeHash);
-            if (codeHash && ![codeHash isEqualToString:machO.codeHash]) {
+
+            if (![self isCurrentVersion:displayVersion buildVersion:buildVersion] ||
+                ![self isCodeHashIdentical:codeHash]) {
               FIRAppDistributionRelease *release =
                   [[FIRAppDistributionRelease alloc] initWithDictionary:releaseDict];
               dispatch_async(dispatch_get_main_queue(), ^{
-                FIRFADInfoLog(@"Found new release with version: %@", [release displayVersion]);
+                FIRFADInfoLog(@"Found new release with version: %@ (%@)", [release displayVersion],
+                              [release buildVersion]);
                 completion(release, nil);
               });
-
               return;
             }
           }
         }
+
         completion(nil, nil);
       }];
 }
 
-- (void)checkForUpdateWithCompletion:(FIRAppDistributionUpdateCheckCompletion)completion {
+- (void)checkForUpdateWithCompletion:(void (^)(FIRAppDistributionRelease *_Nullable release,
+                                               NSError *_Nullable error))completion {
   FIRFADInfoLog(@"CheckForUpdateWithCompletion");
   if ([self isTesterSignedIn]) {
     [self fetchNewLatestRelease:completion];
@@ -297,5 +311,25 @@ NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
 
     [[self uiService] showUIAlertWithCompletion:actionCompletion];
   }
+}
+
+- (BOOL)isCurrentVersion:(NSString *)displayVersion buildVersion:(NSString *)buildVersion {
+  FIRFADInfoLog(@"Checking if version matches");
+  FIRFADInfoLog(@"App version: %@ (%@) Latest release version: %@ (%@)", [self getAppVersion],
+                [self getAppBuild], displayVersion, buildVersion);
+
+  return [displayVersion isEqualToString:[self getAppVersion]] &&
+         [buildVersion isEqualToString:[self getAppBuild]];
+}
+
+- (BOOL)isCodeHashIdentical:(NSString *)codeHash {
+  FIRFADInfoLog(@"Checking if code hash matches");
+
+  NSString *executablePath = [[NSBundle mainBundle] executablePath];
+  FIRAppDistributionMachO *machO = [[FIRAppDistributionMachO alloc] initWithPath:executablePath];
+
+  FIRFADInfoLog(@"App code hash: %@ Latest release code hash: %@", [machO codeHash], codeHash);
+
+  return codeHash && [codeHash isEqualToString:[machO codeHash]];
 }
 @end

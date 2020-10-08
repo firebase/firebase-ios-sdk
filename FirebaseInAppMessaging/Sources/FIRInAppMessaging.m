@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 
-#import "FIRInAppMessaging.h"
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
+
+#import "FirebaseInAppMessaging/Sources/Public/FirebaseInAppMessaging/FIRInAppMessaging.h"
 
 #import <Foundation/Foundation.h>
 
@@ -22,11 +25,11 @@
 #import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
 #import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 
-#import "FIRCore+InAppMessaging.h"
-#import "FIRIAMDisplayExecutor.h"
-#import "FIRIAMRuntimeManager.h"
-#import "FIRInAppMessaging+Bootstrap.h"
-#import "FIRInAppMessagingPrivate.h"
+#import "FirebaseInAppMessaging/Sources/FIRCore+InAppMessaging.h"
+#import "FirebaseInAppMessaging/Sources/FIRInAppMessagingPrivate.h"
+#import "FirebaseInAppMessaging/Sources/Private/Flows/FIRIAMDisplayExecutor.h"
+#import "FirebaseInAppMessaging/Sources/Private/Runtime/FIRIAMRuntimeManager.h"
+#import "FirebaseInAppMessaging/Sources/Private/Runtime/FIRInAppMessaging+Bootstrap.h"
 
 static BOOL _autoBootstrapOnFIRAppInit = YES;
 
@@ -41,15 +44,8 @@ static BOOL _autoBootstrapOnFIRAppInit = YES;
   _autoBootstrapOnFIRAppInit = NO;
 }
 
-// extract macro value into a C string
-#define STR_FROM_MACRO(x) #x
-#define STR(x) STR_FROM_MACRO(x)
-
 + (void)load {
-  [FIRApp
-      registerInternalLibrary:(Class<FIRLibrary>)self
-                     withName:@"fire-fiam"
-                  withVersion:[NSString stringWithUTF8String:STR(FIRInAppMessaging_LIB_VERSION)]];
+  [FIRApp registerInternalLibrary:(Class<FIRLibrary>)self withName:@"fire-fiam"];
 }
 
 + (nonnull NSArray<FIRComponent *> *)componentsToRegister {
@@ -148,3 +144,5 @@ static BOOL _autoBootstrapOnFIRAppInit = YES;
 }
 
 @end
+
+#endif  // TARGET_OS_IOS
