@@ -59,6 +59,12 @@ class FirebaseDatabaseEncoderTests: XCTestCase {
     assertThat(model).roundTrips(to: dict)
   }
 
+  func testNullDecodesAsNil() throws {
+    let decoder = Database.Decoder()
+    let opt = try decoder.decode(Int?.self, from: NSNull())
+    XCTAssertNil(opt)
+  }
+
   func testEmpty() {
     struct Model: Codable, Equatable {}
     assertThat(Model()).roundTrips(to: [String: Any]())

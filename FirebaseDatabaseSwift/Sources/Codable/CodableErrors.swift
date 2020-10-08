@@ -17,10 +17,6 @@
 import FirebaseDatabase
 
 extension Database {
-  public enum DecodingError: Error {
-    case valueDoesNotExist(path: String, type: Any.Type)
-  }
-
   public enum EncodingError: Error {
     case internalError
   }

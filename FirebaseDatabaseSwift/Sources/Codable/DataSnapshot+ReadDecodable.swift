@@ -26,8 +26,8 @@ extension Database.Decoder {
 extension DataSnapshot {
   /// Retrieves the value of a snapshot and converts it to an instance of
   /// caller-specified type.
-  /// Throws `Database.DecodingError.valueDoesNotExist`
-  /// if the document does not exist.
+  /// Throws `DecodingError.valueNotFound`
+  /// if the document does not exist and `T` is not an `Optional`.
   ///
   /// See `Database.Decoder` for more details about the decoding process.
   ///
@@ -38,9 +38,6 @@ extension DataSnapshot {
   public func data<T: Decodable>(as type: T.Type,
                                  decoder: Database.Decoder = Database.Decoder
                                    .defaultDecoder()) throws -> T {
-    guard let value = value else {
-      throw Database.DecodingError.valueDoesNotExist(path: ref.url, type: T.self)
-    }
-    return try decoder.decode(T.self, from: value)
+    try decoder.decode(T.self, from: value ?? NSNull())
   }
 }
