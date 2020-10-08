@@ -233,7 +233,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 
 #if !TARGET_OS_WATCH
   // Print the library version for logging.
-  NSString *currentLibraryVersion = [FIRVersion version];
+  NSString *currentLibraryVersion = FIRFirebaseVersion();
   FIRMessagingLoggerInfo(kFIRMessagingMessageCodeMessagingPrintLibraryVersion,
                          @"FIRMessaging library version %@", currentLibraryVersion);
 
@@ -731,7 +731,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 #pragma mark - IID dependencies
 
 + (NSString *)FIRMessagingSDKVersion {
-  return [FIRVersion version];
+  return FIRFirebaseVersion();
 }
 
 + (NSString *)FIRMessagingSDKCurrentLocale {

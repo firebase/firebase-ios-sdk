@@ -4,6 +4,7 @@
 - [fixed] Updated `numberValue` to be nonnull to align with current behavior. (#6623)
 - [removed] Removed deprecated APIs `isDeveloperModeEnabled`, `initWithDeveloperModeEnabled:developerModeEnabled`, `activateWithCompletionHandler:completionHandler`, `activateFetched`, `configValueForKey:namespace`, `configValueForKey:namespace:source`, `allKeysFromSource:namespace`, `keysWithPrefix:namespace`, `setDefaults:namespace`, `setDefaultsFromPlistFileName:namespace`, `defaultValueForKey:namespace`. (#6637)
 - [fixed] Completion handler for `fetchAndActivateWithCompletionHandler` is now run on the main thread. (#5897)
+- [fixed] Fixed database creation on tvOS. (#6612)
 - [changed] Updated public API documentation to no longer reference removed APIs. (#6641)
 
 # v4.9.1

@@ -1,5 +1,8 @@
+# Unreleased -- 7.0.0
+- [changed] Deprecated private `-[FIRInstanceID appInstanceID:]` method was removed. (#4486)
+
 # 2020-09 -- 4.7.0
-- [changed] Added deprecation warning for InstanceID. InstanceID is deprecated. For app instance identity handling, use FirebaseInstallations. For FCM registration token handling, use FirebaseMessaging. (#6585)
+- [deprecated] Deprecated InstanceID. For app instance identity handling, use FirebaseInstallations. For FCM registration token handling, use FirebaseMessaging. (#6585)
 
 # 2020-08 -- 4.6.0
 - [added] Added a new notification listening token refresh from Messaging and update the token cache in InstanceID. (#6286)

@@ -19,8 +19,8 @@
 
 /// SQLite file name.
 static NSString *const kDatabaseName = @"FirebaseSegmentation.sqlite3";
-/// The application support sub-directory that the Segmentation database resides in.
-static NSString *const kApplicationSupportSubDirectory = @"Google/FirebaseSegmentation";
+/// The storage sub-directory that the Segmentation database resides in.
+static NSString *const kSegmentationStorageSubDirectory = @"Google/FirebaseSegmentation";
 /// Column names
 static NSString *const kMainTableName = @"main";
 static NSString *const kMainTableColumnApplicationIdentifier = @"firebase_app_identifier";
@@ -220,11 +220,15 @@ static BOOL SEGCreateFilePathIfNotExist(NSString *filePath) {
 
 /// Returns the current version of the Remote Config database.
 + (NSString *)pathForSegmentationDatabase {
-  NSArray<NSString *> *dirPaths =
+#if TARGET_OS_TV
+  NSArray *dirPaths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
+#else
+  NSArray *dirPaths =
       NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
-  NSString *appSupportPath = dirPaths.firstObject;
+#endif
+  NSString *storageDir = dirPaths.firstObject;
   NSArray<NSString *> *components =
-      @[ appSupportPath, kApplicationSupportSubDirectory, kDatabaseName ];
+      @[ storageDir, kSegmentationStorageSubDirectory, kDatabaseName ];
   return [NSString pathWithComponents:components];
 }
 

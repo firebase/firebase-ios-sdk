@@ -159,7 +159,7 @@ static NSString *truncatedString(NSString *string, NSUInteger length) {
   _tableViewManager.contents = [StaticContentTableViewContent contentWithSections:@[
     [StaticContentTableViewSection sectionWithTitle:@"Versions" cells:@[
       [StaticContentTableViewCell cellWithTitle:@"FirebaseAuth"
-                                          value:[FIRVersion version]],
+                                          value:FIRFirebaseVersion()],
     ]],
     [StaticContentTableViewSection sectionWithTitle:@"API Hosts" cells:@[
       [StaticContentTableViewCell cellWithTitle:@"Identity Toolkit"

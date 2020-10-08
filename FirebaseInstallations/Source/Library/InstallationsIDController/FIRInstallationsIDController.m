@@ -82,10 +82,8 @@ static NSString *const kKeychainService = @"com.firebase.FIRInstallations.instal
   FIRInstallationsStore *installationsStore =
       [[FIRInstallationsStore alloc] initWithSecureStorage:secureStorage accessGroup:accessGroup];
 
-  // Use `GCMSenderID` as project identifier when `projectID` is not available.
-  NSString *APIServiceProjectID = (projectID.length > 0) ? projectID : GCMSenderID;
   FIRInstallationsAPIService *apiService =
-      [[FIRInstallationsAPIService alloc] initWithAPIKey:APIKey projectID:APIServiceProjectID];
+      [[FIRInstallationsAPIService alloc] initWithAPIKey:APIKey projectID:projectID];
 
   FIRInstallationsIIDStore *IIDStore = [[FIRInstallationsIIDStore alloc] init];
   FIRInstallationsIIDTokenStore *IIDCheckingStore =

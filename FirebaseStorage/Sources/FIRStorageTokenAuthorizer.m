@@ -53,7 +53,7 @@
                 delegate:(id)delegate
        didFinishSelector:(SEL)sel {
   // Set version header on each request
-  NSString *versionString = [NSString stringWithFormat:@"ios/%@", [FIRVersion version]];
+  NSString *versionString = [NSString stringWithFormat:@"ios/%@", FIRFirebaseVersion()];
   [request setValue:versionString forHTTPHeaderField:@"x-firebase-storage-version"];
 
   // Set GMP ID on each request

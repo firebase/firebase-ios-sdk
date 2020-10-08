@@ -1,6 +1,9 @@
 # 7.0.0
 - [changed] The global variable `FIRStorageVersionString` is deleted.
-  `FirebaseVersion.version()` or `[FIRVersion version]` should be used instead.
+  `FirebaseVersion()` or `FIRFirebaseVersion()` should be used instead.
+
+# 3.8.1
+- [fixed] Fixed typo in doc comments (#6485).
 
 # 3.8.0
 - [changed] Add error for attempt to upload directory (#5750)

@@ -97,7 +97,7 @@ NSString *FIRCLSHostModelInfo(void) {
 #elif TARGET_OS_TV
   model = @"tvOS Simulator";
 #elif TARGET_OS_IPHONE
-  switch (UI_USER_INTERFACE_IDIOM()) {
+  switch ([[UIDevice currentDevice] userInterfaceIdiom]) {
     case UIUserInterfaceIdiomPhone:
       model = @"iOS Simulator (iPhone)";
       break;

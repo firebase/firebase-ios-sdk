@@ -121,6 +121,11 @@ Simplify your app development, grow your user base, and monetize more effectivel
     ss.ios.dependency 'FirebaseInAppMessaging', '~> 7.0.0-beta'
   end
 
+  s.subspec 'Installations' do |ss|
+    ss.dependency 'Firebase/CoreOnly'
+    ss.dependency 'FirebaseInstallations', '~> 7.0.0'
+  end
+
   s.subspec 'Messaging' do |ss|
     ss.dependency 'Firebase/CoreOnly'
     ss.dependency 'FirebaseMessaging', '~> 7.0.0'
