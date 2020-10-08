@@ -810,7 +810,8 @@ struct FrameworkBuilder {
     return xcframework
   }
 
-  /// Packages a Carthage framework. Carthage does not yet support xcframeworks, so we exclude the Catalyst slice.
+  /// Packages a Carthage framework. Carthage does not yet support xcframeworks, so we exclude the
+  /// Catalyst slice.
   /// - Parameter withName: The framework name.
   /// - Parameter fromFolder: The almost complete framework folder. Includes everything but the binary.
   /// - Parameter thinArchives: All the thin archives.
@@ -846,14 +847,7 @@ struct FrameworkBuilder {
                      moduleMapContents: moduleMapContents)
 
     // Add Info.plist frameworks to make Carthage happy.
-    let plistPath = frameworkDir.appendingPathComponents(["Info.plist"])
-    // Drop the extension of the framework name.
-    let plist = CarthageUtils.generatePlistContents(forName: framework)
-    do {
-      try plist.write(to: plistPath)
-    } catch {
-      fatalError("Could not copy plist for \(frameworkDir) for Carthage release. \(error)")
-    }
+    CarthageUtils.generatePlistContents(forName: framework, to: frameworkDir)
 
     // Carthage Resources are packaged in the framework.
     let resourceDir = frameworkDir.appendingPathComponent("Resources")

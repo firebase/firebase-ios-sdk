@@ -219,6 +219,8 @@ core::Filter::Operator OperatorFromString(absl::string_view s) {
     return core::Filter::Operator::LessThanOrEqual;
   } else if (s == "==") {
     return core::Filter::Operator::Equal;
+  } else if (s == "!=") {
+    return core::Filter::Operator::NotEqual;
   } else if (s == ">") {
     return core::Filter::Operator::GreaterThan;
   } else if (s == ">=") {
@@ -231,6 +233,8 @@ core::Filter::Operator OperatorFromString(absl::string_view s) {
     return core::Filter::Operator::In;
   } else if (s == "array-contains-any") {
     return core::Filter::Operator::ArrayContainsAny;
+  } else if (s == "not-in") {
+    return core::Filter::Operator::NotIn;
   } else {
     HARD_FAIL("Unknown operator: %s", s);
   }

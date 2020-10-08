@@ -16,7 +16,7 @@
 #import <XCTest/XCTest.h>
 #import "OCMock.h"
 
-#import "GoogleUtilities/Environment/Private/GULAppEnvironmentUtil.h"
+#import "GoogleUtilities/Environment/Public/GoogleUtilities/GULAppEnvironmentUtil.h"
 
 @interface GULAppEnvironmentUtilTest : XCTestCase
 

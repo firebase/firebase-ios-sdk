@@ -1,5 +1,19 @@
 # Unreleased
 
+# v1.19.0
+- [changed] Internal improvements for future C++ and Unity support. Includes a
+  breaking change for the Firestore C++ Alpha SDK, but does not affect
+  Objective-C or Swift users.
+- [changed] Added new internal HTTP headers to the gRPC connection.
+
+# v1.18.0
+- [feature] Added `whereField(_:notIn:)` and `whereField(_:isNotEqualTo:)` query
+  operators. `whereField(_:notIn:)` finds documents where a specified field’s
+  value is not in a specified array. `whereField(_:isNotEqualTo:)` finds
+  documents where a specified field's value does not equal the specified value.
+  Neither query operator will match documents where the specified field is not
+  present.
+
 # v1.17.1
 - [fixed] Fix gRPC documentation warning surfaced in Xcode (#6340).
 

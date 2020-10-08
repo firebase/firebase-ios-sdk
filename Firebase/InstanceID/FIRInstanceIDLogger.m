@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRInstanceIDLogger.h"
+#import "Firebase/InstanceID/FIRInstanceIDLogger.h"
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 

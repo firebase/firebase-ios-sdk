@@ -24,7 +24,6 @@
 #import "FirebaseInstallations/Source/Library/Errors/FIRInstallationsHTTPError.h"
 #import "FirebaseInstallations/Source/Library/InstallationsAPI/FIRInstallationsAPIService.h"
 #import "FirebaseInstallations/Source/Library/InstallationsStore/FIRInstallationsStoredAuthToken.h"
-#import "FirebaseInstallations/Source/Library/Public/FirebaseInstallations/FIRInstallationsVersion.h"
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
@@ -73,155 +72,30 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
 }
 
 - (void)testRegisterInstallationSuccess {
-  FIRInstallationsItem *installation = [[FIRInstallationsItem alloc] initWithAppID:@"app-id"
-                                                                   firebaseAppName:@"name"];
-  installation.firebaseInstallationID = [FIRInstallationsItem generateFID];
-  installation.IIDDefaultToken = @"iid-auth-token";
-
-  // 1. Stub URL session:
-
-  // 1.1. URL request validation.
-  id URLRequestValidation = [OCMArg checkWithBlock:^BOOL(NSURLRequest *request) {
-    XCTAssertEqualObjects(request.HTTPMethod, @"POST");
-    XCTAssertEqualObjects(
-        request.URL.absoluteString,
-        @"https://firebaseinstallations.googleapis.com/v1/projects/project-id/installations/");
-    XCTAssertEqualObjects([request valueForHTTPHeaderField:@"Content-Type"], @"application/json");
-    XCTAssertEqualObjects([request valueForHTTPHeaderField:@"X-Goog-Api-Key"], self.APIKey);
-    XCTAssertEqualObjects([request valueForHTTPHeaderField:@"X-Ios-Bundle-Identifier"],
-                          [[NSBundle mainBundle] bundleIdentifier]);
-    XCTAssertEqualObjects([request valueForHTTPHeaderField:kFIRInstallationsUserAgentKey],
-                          [FIRApp firebaseUserAgent]);
-    XCTAssertEqualObjects([request valueForHTTPHeaderField:kFIRInstallationsHeartbeatKey], @"3");
-
-    NSString *expectedIIDMigrationHeader = installation.IIDDefaultToken;
-    XCTAssertEqualObjects([request valueForHTTPHeaderField:@"x-goog-fis-ios-iid-migration-auth"],
-                          expectedIIDMigrationHeader);
-
-    NSError *error;
-    NSDictionary *body = [NSJSONSerialization JSONObjectWithData:request.HTTPBody
-                                                         options:0
-                                                           error:&error];
-    XCTAssertNotNil(body, @"Error: %@", error);
-
-    XCTAssertEqualObjects(body[@"fid"], installation.firebaseInstallationID);
-    XCTAssertEqualObjects(body[@"authVersion"], @"FIS_v2");
-    XCTAssertEqualObjects(body[@"appId"], installation.appID);
-
-    XCTAssertEqualObjects(body[@"sdkVersion"], [self SDKVersion]);
-
-    return YES;
-  }];
-
-  // 1.2. Capture completion to call it later.
-  __block void (^taskCompletion)(NSData *, NSURLResponse *, NSError *);
-  id completionArg = [OCMArg checkWithBlock:^BOOL(id obj) {
-    taskCompletion = obj;
-    return YES;
-  }];
-
-  // 1.3. Create a data task mock.
-  id mockDataTask = OCMClassMock([NSURLSessionDataTask class]);
-  OCMExpect([(NSURLSessionDataTask *)mockDataTask resume]);
-
-  // 1.4. Expect `dataTaskWithRequest` to be called.
-  OCMExpect([self.mockURLSession dataTaskWithRequest:URLRequestValidation
-                                   completionHandler:completionArg])
-      .andReturn(mockDataTask);
-
-  // 2. Call
-  FBLPromise<FIRInstallationsItem *> *promise = [self.service registerInstallation:installation];
-
-  // 3. Wait for `[NSURLSession dataTaskWithRequest...]` to be called
-  OCMVerifyAllWithDelay(self.mockURLSession, 0.5);
-
-  // 4. Wait for the data task `resume` to be called.
-  OCMVerifyAllWithDelay(mockDataTask, 0.5);
-
-  // 5. Call the data task completion.
-  NSData *successResponseData =
-      [self loadFixtureNamed:@"APIRegisterInstallationResponseSuccess.json"];
-  taskCompletion(successResponseData, [self responseWithStatusCode:201], nil);
-
-  // 6. Check result.
-  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
-
-  XCTAssertNil(promise.error);
-  XCTAssertNotNil(promise.value);
-
-  XCTAssertNotEqual(promise.value, installation);
-  XCTAssertEqualObjects(promise.value.appID, installation.appID);
-  XCTAssertEqualObjects(promise.value.firebaseAppName, installation.firebaseAppName);
-
-  // Server may respond with a different FID if the sent FID cannot be accepted.
-  XCTAssertEqualObjects(promise.value.firebaseInstallationID, @"aaaaaaaaaaaaaaaaaaaaaa");
-  XCTAssertEqualObjects(promise.value.refreshToken, @"aaaaaaabbbbbbbbcccccccccdddddddd00000000");
-  XCTAssertEqualObjects(promise.value.authToken.token,
-                        @"aaaaaaaaaaaaaa.bbbbbbbbbbbbbbbbb.cccccccccccccccccccccccc");
-  [self assertDate:promise.value.authToken.expirationDate
-      isApproximatelyEqualCurrentPlusTimeInterval:604800];
+  NSString *fixtureName = @"APIRegisterInstallationResponseSuccess.json";
+  [self assertRegisterInstallationSuccessWithResponseFixtureName:fixtureName
+                                                    responseCode:201
+                                             expectedFIDOverride:@"aaaaaaaaaaaaaaaaaaaaaa"];
 }
 
-- (void)testRegisterInstallation_WhenError500_ThenRetriesOnce {
-  FIRInstallationsItem *installation = [[FIRInstallationsItem alloc] initWithAppID:@"app-id"
-                                                                   firebaseAppName:@"name"];
-  installation.firebaseInstallationID = [FIRInstallationsItem generateFID];
+- (void)testRegisterInstallationSuccess_NoFIDInResponse {
+  NSString *fixtureName = @"APIRegisterInstallationResponseSuccessNoFID.json";
+  [self assertRegisterInstallationSuccessWithResponseFixtureName:fixtureName
+                                                    responseCode:201
+                                             expectedFIDOverride:nil];
+}
 
-  // 1. Stub URL session:
+- (void)testRegisterInstallationSuccess_InvalidInstallation {
+  FIRInstallationsItem *installation = [FIRInstallationsItem createUnregisteredInstallationItem];
+  installation.firebaseInstallationID = nil;
 
-  // 1.2. Capture completion to call it later.
-  __block void (^taskCompletion)(NSData *, NSURLResponse *, NSError *);
-  id completionArg = [OCMArg checkWithBlock:^BOOL(id obj) {
-    taskCompletion = obj;
-    return YES;
-  }];
+  __auto_type promise = [self.service registerInstallation:installation];
 
-  // 1.3. Create a data task mock.
-  id mockDataTask1 = OCMClassMock([NSURLSessionDataTask class]);
-  OCMExpect([(NSURLSessionDataTask *)mockDataTask1 resume]);
-
-  // 1.4. Expect `dataTaskWithRequest` to be called.
-  OCMExpect([self.mockURLSession dataTaskWithRequest:[OCMArg any] completionHandler:completionArg])
-      .andReturn(mockDataTask1);
-
-  // 2. Call
-  FBLPromise<FIRInstallationsItem *> *promise = [self.service registerInstallation:installation];
-
-  // 3. Wait for `[NSURLSession dataTaskWithRequest...]` to be called
-  OCMVerifyAllWithDelay(self.mockURLSession, 0.5);
-
-  // 4. Wait for the data task `resume` to be called.
-  OCMVerifyAllWithDelay(mockDataTask1, 0.5);
-
-  // 5. Call the data task completion.
-  NSData *successResponseData =
-      [self loadFixtureNamed:@"APIRegisterInstallationResponseSuccess.json"];
-  taskCompletion(successResponseData,
-                 [self responseWithStatusCode:FIRInstallationsHTTPCodesServerInternalError], nil);
-
-  // 6.1. Expect network request to send again.
-  id mockDataTask2 = OCMClassMock([NSURLSessionDataTask class]);
-  OCMExpect([(NSURLSessionDataTask *)mockDataTask2 resume]);
-  OCMExpect([self.mockURLSession dataTaskWithRequest:[OCMArg any] completionHandler:completionArg])
-      .andReturn(mockDataTask2);
-
-  // 6.2. Wait for the second network request to complete.
-  OCMVerifyAllWithDelay(self.mockURLSession, 1.5);
-  OCMVerifyAllWithDelay(mockDataTask2, 1.5);
-
-  // 6.3. Send network response again.
-  taskCompletion(successResponseData,
-                 [self responseWithStatusCode:FIRInstallationsHTTPCodesServerInternalError], nil);
-
-  // 7. Check result.
   XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
 
+  XCTAssertTrue(promise.isRejected);
   XCTAssertNil(promise.value);
   XCTAssertNotNil(promise.error);
-
-  XCTAssertTrue([promise.error isKindOfClass:[FIRInstallationsHTTPError class]]);
-  FIRInstallationsHTTPError *HTTPError = (FIRInstallationsHTTPError *)promise.error;
-  XCTAssertEqual(HTTPError.HTTPResponse.statusCode, FIRInstallationsHTTPCodesServerInternalError);
 }
 
 - (void)testRefreshAuthTokenSuccess {
@@ -688,8 +562,99 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
   }];
 }
 
+- (void)assertRegisterInstallationSuccessWithResponseFixtureName:(NSString *)fixtureName
+                                                    responseCode:(NSInteger)responseCode
+                                             expectedFIDOverride:(nullable NSString *)overrideFID {
+  FIRInstallationsItem *installation = [FIRInstallationsItem createUnregisteredInstallationItem];
+  installation.IIDDefaultToken = @"iid-auth-token";
+
+  NSString *expectedFID = overrideFID ?: installation.firebaseInstallationID;
+
+  // 1. Stub URL session:
+
+  // 1.1. URL request validation.
+  id URLRequestValidation = [OCMArg checkWithBlock:^BOOL(NSURLRequest *request) {
+    XCTAssertEqualObjects(request.HTTPMethod, @"POST");
+    XCTAssertEqualObjects(
+        request.URL.absoluteString,
+        @"https://firebaseinstallations.googleapis.com/v1/projects/project-id/installations/");
+    XCTAssertEqualObjects([request valueForHTTPHeaderField:@"Content-Type"], @"application/json");
+    XCTAssertEqualObjects([request valueForHTTPHeaderField:@"X-Goog-Api-Key"], self.APIKey);
+    XCTAssertEqualObjects([request valueForHTTPHeaderField:@"X-Ios-Bundle-Identifier"],
+                          [[NSBundle mainBundle] bundleIdentifier]);
+    XCTAssertEqualObjects([request valueForHTTPHeaderField:kFIRInstallationsUserAgentKey],
+                          [FIRApp firebaseUserAgent]);
+    XCTAssertEqualObjects([request valueForHTTPHeaderField:kFIRInstallationsHeartbeatKey], @"3");
+
+    NSString *expectedIIDMigrationHeader = installation.IIDDefaultToken;
+    XCTAssertEqualObjects([request valueForHTTPHeaderField:@"x-goog-fis-ios-iid-migration-auth"],
+                          expectedIIDMigrationHeader);
+
+    NSError *error;
+    NSDictionary *body = [NSJSONSerialization JSONObjectWithData:request.HTTPBody
+                                                         options:0
+                                                           error:&error];
+    XCTAssertNotNil(body, @"Error: %@", error);
+
+    XCTAssertEqualObjects(body[@"fid"], installation.firebaseInstallationID);
+    XCTAssertEqualObjects(body[@"authVersion"], @"FIS_v2");
+    XCTAssertEqualObjects(body[@"appId"], installation.appID);
+
+    XCTAssertEqualObjects(body[@"sdkVersion"], [self SDKVersion]);
+
+    return YES;
+  }];
+
+  // 1.2. Capture completion to call it later.
+  __block void (^taskCompletion)(NSData *, NSURLResponse *, NSError *);
+  id completionArg = [OCMArg checkWithBlock:^BOOL(id obj) {
+    taskCompletion = obj;
+    return YES;
+  }];
+
+  // 1.3. Create a data task mock.
+  id mockDataTask = OCMClassMock([NSURLSessionDataTask class]);
+  OCMExpect([(NSURLSessionDataTask *)mockDataTask resume]);
+
+  // 1.4. Expect `dataTaskWithRequest` to be called.
+  OCMExpect([self.mockURLSession dataTaskWithRequest:URLRequestValidation
+                                   completionHandler:completionArg])
+      .andReturn(mockDataTask);
+
+  // 2. Call
+  FBLPromise<FIRInstallationsItem *> *promise = [self.service registerInstallation:installation];
+
+  // 3. Wait for `[NSURLSession dataTaskWithRequest...]` to be called
+  OCMVerifyAllWithDelay(self.mockURLSession, 0.5);
+
+  // 4. Wait for the data task `resume` to be called.
+  OCMVerifyAllWithDelay(mockDataTask, 0.5);
+
+  // 5. Call the data task completion.
+  NSData *responseData = [self loadFixtureNamed:fixtureName];
+  taskCompletion(responseData, [self responseWithStatusCode:responseCode], nil);
+
+  // 6. Check result.
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
+
+  XCTAssertNil(promise.error);
+  XCTAssertNotNil(promise.value);
+
+  XCTAssertNotEqual(promise.value, installation);
+  XCTAssertEqualObjects(promise.value.appID, installation.appID);
+  XCTAssertEqualObjects(promise.value.firebaseAppName, installation.firebaseAppName);
+
+  // Server may respond with a different FID if the sent FID cannot be accepted.
+  XCTAssertEqualObjects(promise.value.firebaseInstallationID, expectedFID);
+  XCTAssertEqualObjects(promise.value.refreshToken, @"aaaaaaabbbbbbbbcccccccccdddddddd00000000");
+  XCTAssertEqualObjects(promise.value.authToken.token,
+                        @"aaaaaaaaaaaaaa.bbbbbbbbbbbbbbbbb.cccccccccccccccccccccccc");
+  [self assertDate:promise.value.authToken.expirationDate
+      isApproximatelyEqualCurrentPlusTimeInterval:604800];
+}
+
 - (NSString *)SDKVersion {
-  return [NSString stringWithFormat:@"i:%s", FIRInstallationsVersionStr];
+  return [NSString stringWithFormat:@"i:%@", FIRFirebaseVersion()];
 }
 
 @end

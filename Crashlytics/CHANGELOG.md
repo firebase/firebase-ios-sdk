@@ -1,14 +1,22 @@
-# Unreleased
+# v4.6.2
+
+- [changed] Improved upload-symbols conversion speed. Customers with large dSYMs should see a significant improvement in the time it takes to upload Crashlytics symbols.
+- [fixed] Fixed Apple Watch crash related to `sigaction` (#6434).
+
+# v4.6.0
+
 - [added] Added stackFrameWithAddress API for recording custom errors that are symbolicated on the backend (#5975).
 - [fixed] Fixed comment typos (#6363).
 - [fixed] Remove device information from binary image data crash info entries (#6382).
 
 # v4.5.0
+
 - [fixed] Fixed a compiler warning and removed unused networking code (#6210).
 - [fixed] Fixed a crash that occurred rarely when trying to restart a URL session task without a valid request (#5984).
 - [added] Introduced watchOS support (#6262).
 
 # v4.3.1
+
 - [fixed] Fixed a segmentation fault that could occur when writing crash contexts to disk (#6048).
 
 # v4.3.0

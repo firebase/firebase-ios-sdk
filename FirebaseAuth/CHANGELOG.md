@@ -1,3 +1,9 @@
+# 7.0.0
+- [removed] Remove deprecated APIs `dataForKey`,`fetchProvidersForEmail:completion`, `signInAndRetrieveDataWithCredential:completion`, `reauthenticateAndRetrieveDataWithCredential:completion`, `linkAndRetrieveDataWithCredential:completion`. (#6607)
+- [added] Add support for the auth emulator. (#6624)
+- [changed] The global variables `FirebaseAuthVersionNum` and `FirebaseAuthVersionStr` are deleted.
+  `FirebaseVersion()` or `FIRFirebaseVersion()` should be used instead.
+
 # v6.9.1
 - [fixed] Internal source documentation. (#6371)
 
