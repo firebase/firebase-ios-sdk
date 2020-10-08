@@ -554,6 +554,7 @@ static FIRApp *sDefaultApp;
   static FIRFirebaseUserAgent *_userAgent;
   dispatch_once(&onceToken, ^{
     _userAgent = [[FIRFirebaseUserAgent alloc] init];
+    [_userAgent setValue:FIRFirebaseVersion() forComponent:@"fire-ios"];
   });
   return _userAgent;
 }
