@@ -22,17 +22,8 @@
 
 #import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 
-#ifndef FIRABTesting_VERSION
-#error "FIRABTesting_VERSION is not defined: \
-add -DFIRABTesting_VERSION=... to the build invocation"
-#endif
-
-// The following two macros supply the incantation so that the C
-// preprocessor does not try to parse the version as a floating
-// point number. See
-// https://www.guyrutenberg.com/2008/12/20/expanding-macros-into-string-constants-in-c/
-#define STR(x) STR_EXPAND(x)
-#define STR_EXPAND(x) #x
+/// Logger Service String.
+FIRLoggerService kFIRLoggerABTesting = @"[Firebase/ABTesting]";
 
 /// Default experiment overflow policy.
 const ABTExperimentPayloadExperimentOverflowPolicy FIRDefaultExperimentOverflowPolicy =
@@ -133,9 +124,7 @@ NSArray *ABTExperimentsToClearFromPayloads(
 @implementation FIRExperimentController
 
 + (void)load {
-  [FIRApp registerInternalLibrary:(Class<FIRLibrary>)self
-                         withName:@"fire-abt"
-                      withVersion:[NSString stringWithUTF8String:STR(FIRABTesting_VERSION)]];
+  [FIRApp registerInternalLibrary:(Class<FIRLibrary>)self withName:@"fire-abt"];
 }
 
 + (nonnull NSArray<FIRComponent *> *)componentsToRegister {
@@ -189,19 +178,6 @@ NSArray *ABTExperimentsToClearFromPayloads(
                                                                   payloads:payloads
                                                          completionHandler:completionHandler];
   });
-}
-
-- (void)updateExperimentsWithServiceOrigin:(NSString *)origin
-                                    events:(FIRLifecycleEvents *)events
-                                    policy:(ABTExperimentPayloadExperimentOverflowPolicy)policy
-                             lastStartTime:(NSTimeInterval)lastStartTime
-                                  payloads:(NSArray<NSData *> *)payloads {
-  [self updateExperimentsWithServiceOrigin:origin
-                                    events:events
-                                    policy:policy
-                             lastStartTime:lastStartTime
-                                  payloads:payloads
-                         completionHandler:nil];
 }
 
 - (void)

@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
+#import "OCMock.h"
 
 #import "FirebaseMessaging/Tests/UnitTests/FIRMessagingTestUtilities.h"
 
@@ -113,11 +113,13 @@
   XCTestExpectation *batchSizeReductionExpectation =
       [self expectationWithDescription:@"Batch size was reduced after topic suscription"];
 
+  __weak id weakSelf = self;
   self.alwaysReadyDelegate.subscriptionHandler =
       ^(NSString *topic, FIRMessagingTopicAction action,
         FIRMessagingTopicOperationCompletion completion) {
         // Simulate that the handler is generally called asynchronously
         dispatch_async(dispatch_get_main_queue(), ^{
+          id self = weakSelf;
           if (action == FIRMessagingTopicActionUnsubscribe) {
             XCTAssertEqual(pendingTopics.numberOfBatches, 1);
             [batchSizeReductionExpectation fulfill];

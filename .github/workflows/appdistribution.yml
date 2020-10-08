@@ -37,7 +37,7 @@ jobs:
       matrix:
         target: [ios]
         flags: [
-          '--use-modular-headers',
+          '--use-static-frameworks',
           '--use-libraries'
         ]
     needs: pod-lib-lint

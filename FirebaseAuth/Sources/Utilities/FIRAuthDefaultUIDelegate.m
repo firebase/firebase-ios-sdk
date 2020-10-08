@@ -17,8 +17,8 @@
 #import <TargetConditionals.h>
 #if !TARGET_OS_OSX && !TARGET_OS_WATCH
 
+#import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import <UIKit/UIKit.h>
-#import "GoogleUtilities/Environment/Private/GULAppEnvironmentUtil.h"
 
 #import "FirebaseAuth/Sources/Utilities/FIRAuthDefaultUIDelegate.h"
 

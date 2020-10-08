@@ -16,7 +16,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import <FirebaseInstanceID/FIRInstanceID.h>
+#import "Firebase/InstanceID/Public/FIRInstanceID.h"
 
 #import <OCMock/OCMock.h>
 
@@ -32,9 +32,9 @@
 #import "Firebase/InstanceID/FIRInstanceIDTokenOperation.h"
 #import "Firebase/InstanceID/NSError+FIRInstanceID.h"
 
+#import <GoogleUtilities/GULHeartbeatDateStorage.h>
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
-#import "GoogleUtilities/Environment/Private/GULHeartbeatDateStorage.h"
 
 static NSString *kDeviceID = @"fakeDeviceID";
 static NSString *kSecretToken = @"fakeSecretToken";
@@ -210,13 +210,14 @@ static NSString *kRegistrationToken = @"token-12345";
                                            checkinPreferences:checkinPreferences
                                                    instanceID:self.instanceID];
   operation.performWasCalled = NO;
+  __weak FIRInstanceIDTokenOperationFake *weakOperation = operation;
   [operation addCompletionHandler:^(FIRInstanceIDTokenOperationResult result,
                                     NSString *_Nullable token, NSError *_Nullable error) {
     if (result == FIRInstanceIDTokenOperationCancelled) {
       [cancelledExpectation fulfill];
     }
 
-    if (!operation.performWasCalled) {
+    if (!weakOperation.performWasCalled) {
       [didNotCallPerform fulfill];
     }
   }];

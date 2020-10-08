@@ -45,7 +45,7 @@ jobs:
     strategy:
       matrix:
         flags: [
-          '--use-modular-headers',
+          '--use-static-frameworks',
           '--use-libraries'
         ]
     needs: pod_lib_lint

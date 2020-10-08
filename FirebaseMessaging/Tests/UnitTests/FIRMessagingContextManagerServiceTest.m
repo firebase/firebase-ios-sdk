@@ -18,8 +18,8 @@
     __WATCH_OS_VERSION_MAX_ALLOWED >= __WATCHOS_3_0 || TARGET_OS_MACCATALYST
 #import <UserNotifications/UserNotifications.h>
 #endif
-#import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
+#import "OCMock.h"
 
 #import "FirebaseMessaging/Sources/FIRMessagingContextManagerService.h"
 

@@ -341,7 +341,7 @@ struct LaunchArgs {
       minimumIOSVersion = minVersion
     } else {
       // No argument was passed in.
-      minimumIOSVersion = "9.0"
+      minimumIOSVersion = "10.0"
     }
 
     buildDependencies = defaults.bool(forKey: Key.buildDependencies.rawValue)

@@ -15,8 +15,8 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "GoogleUtilities/AppDelegateSwizzler/Private/GULAppDelegateSwizzler.h"
-#import "GoogleUtilities/Network/Private/GULMutableDictionary.h"
+#import "GoogleUtilities/AppDelegateSwizzler/Public/GoogleUtilities/GULAppDelegateSwizzler.h"
+#import "GoogleUtilities/Network/Public/GoogleUtilities/GULMutableDictionary.h"
 
 @class GULApplication;
 

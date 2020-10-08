@@ -14,17 +14,16 @@
  * limitations under the License.
  */
 
-#import "FIRInstanceIDCheckinStore.h"
+#import "Firebase/InstanceID/FIRInstanceIDCheckinStore.h"
 
-#import "FIRInstanceIDAuthKeyChain.h"
-#import "FIRInstanceIDBackupExcludedPlist.h"
-#import "FIRInstanceIDCheckinPreferences+Internal.h"
-#import "FIRInstanceIDCheckinPreferences_Private.h"
-#import "FIRInstanceIDCheckinService.h"
-#import "FIRInstanceIDLogger.h"
-#import "FIRInstanceIDUtilities.h"
-#import "FIRInstanceIDVersionUtilities.h"
-#import "NSError+FIRInstanceID.h"
+#import "Firebase/InstanceID/FIRInstanceIDAuthKeyChain.h"
+#import "Firebase/InstanceID/FIRInstanceIDBackupExcludedPlist.h"
+#import "Firebase/InstanceID/FIRInstanceIDCheckinPreferences+Internal.h"
+#import "Firebase/InstanceID/FIRInstanceIDCheckinPreferences_Private.h"
+#import "Firebase/InstanceID/FIRInstanceIDCheckinService.h"
+#import "Firebase/InstanceID/FIRInstanceIDLogger.h"
+#import "Firebase/InstanceID/FIRInstanceIDUtilities.h"
+#import "Firebase/InstanceID/NSError+FIRInstanceID.h"
 
 static NSString *const kFIRInstanceIDCheckinKeychainGeneric = @"com.google.iid";
 
