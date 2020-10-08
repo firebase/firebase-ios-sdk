@@ -76,8 +76,8 @@ import FirebaseFirestore
   /// NOTE: Trying to encode/decode this type using encoders/decoders other than
   /// Firestore.Encoder leads to an error.
   @propertyWrapper
-  public struct DocumentID<Value: DocumentIDWrappable & Codable & Equatable>:
-    DocumentIDProtocol, Codable, Equatable {
+  public struct DocumentID<Value: DocumentIDWrappable & Codable>:
+    DocumentIDProtocol, Codable {
     var value: Value?
 
     public init(wrappedValue value: Value?) {
@@ -112,9 +112,9 @@ import FirebaseFirestore
         "DocumentID values can only be encoded with Firestore.Encoder"
       )
     }
-
-    public static func == (lhs: DocumentID<Value>, rhs: DocumentID<Value>) -> Bool {
-      return lhs.value == rhs.value
-    }
   }
+
+  extension DocumentID: Equatable where Value: Equatable {}
+
+  extension DocumentID: Hashable where Value: Hashable {}
 #endif // compiler(>=5.1)

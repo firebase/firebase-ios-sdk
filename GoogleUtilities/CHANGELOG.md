@@ -1,6 +1,11 @@
-# 6.7.1 -- Unreleased
-- Fix import regression when mixing 6.7.0 with earlier Firebase versions. (#6047)
+# 7.0.0
+- All APIs are now public. All CocoaPods private headers are transitioned to public. Note that
+- GoogleUtilities may have frequent breaking changes than Firebase. (#6588)
+- Fixed writing heartbeat to disk on tvOS devices. (#6658)
 - Refactor `GULSwizzledObject` to ARC to unblock SwiftPM support. (#5862)
+
+# 6.7.1
+- Fix import regression when mixing 6.7.0 with earlier Firebase versions. (#6047)
 
 # 6.7.0 -- M75
 - Lazily access filesystem outside of `GULHeartbeatDateStorage` initializer. (#5969)

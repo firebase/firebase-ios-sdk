@@ -16,8 +16,6 @@
 
 #import "Crashlytics/Crashlytics/Components/FIRCLSApplication.h"
 #import "Crashlytics/Crashlytics/DataCollection/FIRCLSDataCollectionToken.h"
-#import "Crashlytics/Crashlytics/FIRCLSURLSession/FIRCLSURLSession.h"
-#import "Crashlytics/Crashlytics/FIRCLSURLSession/FIRCLSURLSessionConfiguration.h"
 #import "Crashlytics/Crashlytics/Helpers/FIRCLSDefines.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSFileManager.h"
 #import "Crashlytics/Shared/FIRCLSByteUtility.h"
@@ -74,22 +72,13 @@ NSString *const FIRCLSNetworkClientBackgroundIdentifierSuffix = @".crash.backgro
 
   NSURLSessionConfiguration *config = nil;
 
-  Class urlSessionClass;
-  Class urlSessionConfigurationClass;
-#if FIRCLSURLSESSION_REQUIRED
-  urlSessionClass = [FIRCLSURLSession class];
-  urlSessionConfigurationClass = [FIRCLSURLSessionConfiguration class];
-#else
-  urlSessionClass = [NSURLSession class];
-  urlSessionConfigurationClass = [NSURLSessionConfiguration class];
-#endif
-
   if (self.supportsBackgroundRequests) {
     NSString *sdkBundleID = FIRCLSApplicationGetSDKBundleID();
     NSString *backgroundConfigName =
         [sdkBundleID stringByAppendingString:FIRCLSNetworkClientBackgroundIdentifierSuffix];
 
-    config = [urlSessionConfigurationClass backgroundSessionConfiguration:backgroundConfigName];
+    config = [NSURLSessionConfiguration
+        backgroundSessionConfigurationWithIdentifier:backgroundConfigName];
 #if TARGET_OS_IPHONE
     [config setSessionSendsLaunchEvents:NO];
 #endif
@@ -98,12 +87,12 @@ NSString *const FIRCLSNetworkClientBackgroundIdentifierSuffix = @".crash.backgro
   if (!config) {
     // take this code path if we don't support background requests OR if we failed to create a
     // background configuration
-    config = [urlSessionConfigurationClass defaultSessionConfiguration];
+    config = [NSURLSessionConfiguration defaultSessionConfiguration];
   }
 
-  _session = [urlSessionClass sessionWithConfiguration:config
-                                              delegate:self
-                                         delegateQueue:self.operationQueue];
+  _session = [NSURLSession sessionWithConfiguration:config
+                                           delegate:self
+                                      delegateQueue:self.operationQueue];
 
   if (!_session || !config) {
     FIRCLSErrorLog(@"Failed to initialize");
@@ -112,22 +101,8 @@ NSString *const FIRCLSNetworkClientBackgroundIdentifierSuffix = @".crash.backgro
   return _session;
 }
 
-#if FIRCLSURLSESSION_REQUIRED
-- (BOOL)NSURLSessionAvailable {
-  if ([[FIRCLSURLSession class] respondsToSelector:@selector(NSURLSessionShouldBeUsed)]) {
-    return [FIRCLSURLSession NSURLSessionShouldBeUsed];
-  }
-
-  return NSClassFromString(@"NSURLSession") != nil;
-}
-#endif
-
 - (BOOL)supportsBackgroundRequests {
-  return !FIRCLSApplicationIsExtension()
-#if FIRCLSURLSESSION_REQUIRED
-         && [self NSURLSessionAvailable]
-#endif
-         && self.canUseBackgroundSession;
+  return !FIRCLSApplicationIsExtension() && self.canUseBackgroundSession;
 }
 
 - (void)attemptToReconnectBackgroundSessionWithCompletionBlock:(void (^)(void))completionBlock {
@@ -320,6 +295,12 @@ NSString *const FIRCLSNetworkClientBackgroundIdentifierSuffix = @".crash.backgro
 
 - (void)restartTask:(NSURLSessionTask *)task {
   NSURLRequest *request = [task originalRequest];
+
+  if (request == nil) {
+    FIRCLSWarningLog(@"Unable to restart task: Could not retrieve original request from task %@",
+                     task);
+    return;
+  }
 
   [self runAfterRetryValueFromResponse:[task response]
                                  block:^{

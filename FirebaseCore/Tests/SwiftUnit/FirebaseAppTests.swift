@@ -23,6 +23,7 @@ private extension Constants {
 class FirebaseAppTests: XCTestCase {
   override func setUp() {
     super.setUp()
+    FIROptionsMock.mockFIROptions()
   }
 
   override func tearDown() {
@@ -307,7 +308,9 @@ class FirebaseAppTests: XCTestCase {
   }
 
   func testFirebaseDataCollectionDefaultEnabled() throws {
-    let app = FirebaseApp(instanceWithName: "emptyApp", options: FirebaseOptions())
+    let app = FirebaseApp(instanceWithName: "emptyApp",
+                          options: FirebaseOptions(googleAppID: Constants.Options.googleAppID,
+                                                   gcmSenderID: Constants.Options.gcmSenderID))
 
     // defaults to true unless otherwise set to no in app's Info.plist
     XCTAssertTrue(app.isDataCollectionDefaultEnabled)
@@ -345,6 +348,6 @@ class FirebaseAppTests: XCTestCase {
                     XCTFail("Failed to unwrap notification user info")
                   }
                   return false
-    })
+                })
   }
 }

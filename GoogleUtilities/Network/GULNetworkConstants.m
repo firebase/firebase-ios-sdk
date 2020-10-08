@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "GoogleUtilities/Network/Private/GULNetworkConstants.h"
+#import "GoogleUtilities/Network/Public/GoogleUtilities/GULNetworkConstants.h"
+#import "GoogleUtilities/Logger/Public/GoogleUtilities/GULLogger.h"
 
 #import <Foundation/Foundation.h>
 

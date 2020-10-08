@@ -22,13 +22,9 @@
 
 #import "Crashlytics/Crashlytics/Components/FIRCLSUserLogging.h"
 
-#if SWIFT_PACKAGE
-@import nanopb;
-#else
 #import <nanopb/pb.h>
 #import <nanopb/pb_decode.h>
 #import <nanopb/pb_encode.h>
-#endif
 
 @implementation FIRCLSReportAdapter
 

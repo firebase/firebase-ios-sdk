@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FirebaseDynamicLinks/Sources/Public/FIRDynamicLinks.h"
+#import "FirebaseDynamicLinks/Sources/Public/FirebaseDynamicLinks/FIRDynamicLinks.h"
 
 @class UIViewController;
 
@@ -43,12 +43,6 @@ FOUNDATION_EXPORT NSString *const kFIRDLReadDeepLinkAfterInstallKey;
  * @abstract API Key for API access.
  */
 @property(nonatomic, copy, readonly) NSString *APIKey;
-
-/**
- * @property clientID
- * @abstract Client ID for API access.
- */
-@property(nonatomic, copy, readonly) NSString *clientID;
 
 /**
  * @property URLScheme

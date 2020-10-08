@@ -16,9 +16,7 @@
 
 #import "FirebaseRemoteConfig/Sources/RCNConfigExperiment.h"
 
-#import "FirebaseABTesting/Sources/Private/ABTExperimentPayload.h"
-#import "FirebaseABTesting/Sources/Public/FIRExperimentController.h"
-#import "FirebaseABTesting/Sources/Public/FIRLifecycleEvents.h"
+#import "FirebaseABTesting/Sources/Private/FirebaseABTestingInternal.h"
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigDBManager.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigDefines.h"
@@ -122,15 +120,13 @@ static NSString *const kMethodNameLatestStartTime =
 
   // Update the last experiment start time with the latest payload.
   [self updateExperimentStartTime];
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   [self.experimentController
       updateExperimentsWithServiceOrigin:kServiceOrigin
                                   events:lifecycleEvent
                                   policy:ABTExperimentPayloadExperimentOverflowPolicyDiscardOldest
                            lastStartTime:lastStartTime
-                                payloads:_experimentPayloads];
-#pragma clang diagnostic pop
+                                payloads:_experimentPayloads
+                       completionHandler:nil];
 }
 
 - (void)updateExperimentStartTime {

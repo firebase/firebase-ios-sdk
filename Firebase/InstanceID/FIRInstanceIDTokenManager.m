@@ -14,20 +14,21 @@
  * limitations under the License.
  */
 
-#import "FIRInstanceIDTokenManager.h"
+#import "Firebase/InstanceID/FIRInstanceIDTokenManager.h"
 
-#import "FIRInstanceIDAuthKeyChain.h"
-#import "FIRInstanceIDAuthService.h"
-#import "FIRInstanceIDCheckinPreferences.h"
-#import "FIRInstanceIDConstants.h"
-#import "FIRInstanceIDDefines.h"
-#import "FIRInstanceIDLogger.h"
-#import "FIRInstanceIDStore.h"
-#import "FIRInstanceIDTokenDeleteOperation.h"
-#import "FIRInstanceIDTokenFetchOperation.h"
-#import "FIRInstanceIDTokenInfo.h"
-#import "FIRInstanceIDTokenOperation.h"
-#import "NSError+FIRInstanceID.h"
+#import "Firebase/InstanceID/FIRInstanceIDAuthKeyChain.h"
+#import "Firebase/InstanceID/FIRInstanceIDAuthService.h"
+#import "Firebase/InstanceID/FIRInstanceIDConstants.h"
+#import "Firebase/InstanceID/FIRInstanceIDDefines.h"
+#import "Firebase/InstanceID/FIRInstanceIDLogger.h"
+#import "Firebase/InstanceID/FIRInstanceIDStore.h"
+#import "Firebase/InstanceID/FIRInstanceIDTokenDeleteOperation.h"
+#import "Firebase/InstanceID/FIRInstanceIDTokenFetchOperation.h"
+#import "Firebase/InstanceID/FIRInstanceIDTokenInfo.h"
+#import "Firebase/InstanceID/FIRInstanceIDTokenOperation.h"
+#import "Firebase/InstanceID/NSError+FIRInstanceID.h"
+#import "Firebase/InstanceID/Private/FIRInstanceIDCheckinPreferences.h"
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 @interface FIRInstanceIDTokenManager () <FIRInstanceIDStoreDelegate>
 
@@ -335,6 +336,19 @@
                                                           scope:tokenInfoToDelete.scope];
   }
   return tokenInfosToDelete;
+}
+
+- (void)saveDefaultToken:(NSString *)defaultToken withOptions:(NSDictionary *)tokenOptions {
+  FIROptions *options = FIRApp.defaultApp.options;
+  FIRInstanceIDTokenInfo *tokenInfo =
+      [[FIRInstanceIDTokenInfo alloc] initWithAuthorizedEntity:options.GCMSenderID
+                                                         scope:@"*"
+                                                         token:defaultToken
+                                                    appVersion:FIRInstanceIDCurrentAppVersion()
+                                                 firebaseAppID:options.googleAppID];
+  tokenInfo.APNSInfo = [[FIRInstanceIDAPNSInfo alloc] initWithTokenOptionsDictionary:tokenOptions];
+
+  [self.instanceIDStore saveTokenInfoInCacheOnly:tokenInfo];
 }
 
 @end

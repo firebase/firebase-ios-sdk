@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import "FirebaseStorage/Sources/Public/FIRStorageReference.h"
-#import "FirebaseStorage/Sources/Public/FIRStorageTaskSnapshot.h"
+#import "FirebaseStorage/Sources/Public/FirebaseStorage/FIRStorageReference.h"
+#import "FirebaseStorage/Sources/Public/FirebaseStorage/FIRStorageTaskSnapshot.h"
 
 #import "FirebaseStorage/Sources/FIRStorageConstants_Private.h"
 #import "FirebaseStorage/Sources/FIRStorageErrors.h"
@@ -50,7 +50,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(strong, nonatomic, nullable) NSError *error;
 
 /**
- * NSProgress object which tracks the progess of an observable task.
+ * NSProgress object which tracks the progress of an observable task.
  */
 @property(strong, nonatomic) NSProgress *progress;
 

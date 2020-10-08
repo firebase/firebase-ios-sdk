@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "FIRInstanceIDBackupExcludedPlist.h"
+#import "Firebase/InstanceID/FIRInstanceIDBackupExcludedPlist.h"
 
-#import "FIRInstanceIDLogger.h"
+#import "Firebase/InstanceID/FIRInstanceIDLogger.h"
 
 @interface FIRInstanceIDBackupExcludedPlist ()
 

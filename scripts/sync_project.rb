@@ -109,7 +109,7 @@ def sync_firestore(test_only)
       '"${PODS_ROOT}/../../.."',
 
       # Make public headers available as "FIRQuery.h"
-      '"${PODS_ROOT}/../../../Firestore/Source/Public"',
+      '"${PODS_ROOT}/../../../Firestore/Source/Public/FirebaseFirestore"',
 
       # Generated protobuf and nanopb output expects to search relative to the
       # output path.

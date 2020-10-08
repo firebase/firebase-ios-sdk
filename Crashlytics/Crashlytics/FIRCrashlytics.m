@@ -147,9 +147,7 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
 }
 
 + (void)load {
-  [FIRApp registerInternalLibrary:(Class<FIRLibrary>)self
-                         withName:@"firebase-crashlytics"
-                      withVersion:@CLS_SDK_DISPLAY_VERSION];
+  [FIRApp registerInternalLibrary:(Class<FIRLibrary>)self withName:@"firebase-crashlytics"];
 }
 
 + (NSArray<FIRComponent *> *)componentsToRegister {

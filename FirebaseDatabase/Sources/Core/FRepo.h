@@ -16,7 +16,7 @@
 
 #import "FirebaseDatabase/Sources/Core/FPersistentConnection.h"
 #import "FirebaseDatabase/Sources/Core/FRepoInfo.h"
-#import "FirebaseDatabase/Sources/Public/FIRDataEventType.h"
+#import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRDataEventType.h"
 #import "FirebaseDatabase/Sources/Utilities/Tuples/FTupleUserCallback.h"
 #import <Foundation/Foundation.h>
 

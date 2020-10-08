@@ -16,11 +16,11 @@
 
 #import "GoogleDataTransport/GDTCCTTests/Unit/Helpers/GDTCCTEventGenerator.h"
 
-#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORAssert.h"
-#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCOREventDataObject.h"
-#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORPlatform.h"
-#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORStorageProtocol.h"
-#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORTargets.h"
+#import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORAssert.h"
+#import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORPlatform.h"
+#import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORStorageProtocol.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCOREventDataObject.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORTargets.h"
 
 #import "GoogleDataTransport/GDTCCTLibrary/Public/GDTCOREvent+GDTCCTSupport.h"
 
@@ -117,8 +117,8 @@
     event.clockSnapshot = [GDTCORClock snapshot];
     [event.clockSnapshot setValue:@(1111111111111) forKeyPath:@"timeMillis"];
     [event.clockSnapshot setValue:@(-25200) forKeyPath:@"timezoneOffsetSeconds"];
-    [event.clockSnapshot setValue:@(1111111111111222) forKeyPath:@"kernelBootTime"];
-    [event.clockSnapshot setValue:@(1235567890) forKeyPath:@"uptime"];
+    [event.clockSnapshot setValue:@(1111111111111222) forKeyPath:@"kernelBootTimeNanoseconds"];
+    [event.clockSnapshot setValue:@(1235567890) forKeyPath:@"uptimeNanoseconds"];
     event.qosTier = GDTCOREventQosDefault;
     event.eventCode = @1986;
     NSError *error;
@@ -147,8 +147,8 @@
     event.clockSnapshot = [GDTCORClock snapshot];
     [event.clockSnapshot setValue:@(1111111111111) forKeyPath:@"timeMillis"];
     [event.clockSnapshot setValue:@(-25200) forKeyPath:@"timezoneOffsetSeconds"];
-    [event.clockSnapshot setValue:@(1111111111111333) forKeyPath:@"kernelBootTime"];
-    [event.clockSnapshot setValue:@(1236567890) forKeyPath:@"uptime"];
+    [event.clockSnapshot setValue:@(1111111111111333) forKeyPath:@"kernelBootTimeNanoseconds"];
+    [event.clockSnapshot setValue:@(1236567890) forKeyPath:@"uptimeNanoseconds"];
     event.qosTier = GDTCOREventQoSWifiOnly;
     NSURL *messageDataURL = [self writeConsistentMessageToDisk:@"message-35458880.dat"];
     GDTCCTEventGeneratorDataObject *dataObject = [[GDTCCTEventGeneratorDataObject alloc] init];
@@ -170,8 +170,8 @@
     event.clockSnapshot = [GDTCORClock snapshot];
     [event.clockSnapshot setValue:@(1111111111111) forKeyPath:@"timeMillis"];
     [event.clockSnapshot setValue:@(-25200) forKeyPath:@"timezoneOffsetSeconds"];
-    [event.clockSnapshot setValue:@(1111111111111444) forKeyPath:@"kernelBootTime"];
-    [event.clockSnapshot setValue:@(1237567890) forKeyPath:@"uptime"];
+    [event.clockSnapshot setValue:@(1111111111111444) forKeyPath:@"kernelBootTimeNanoseconds"];
+    [event.clockSnapshot setValue:@(1237567890) forKeyPath:@"uptimeNanoseconds"];
     event.qosTier = GDTCOREventQosDefault;
     NSURL *messageDataURL = [self writeConsistentMessageToDisk:@"message-39882816.dat"];
     GDTCCTEventGeneratorDataObject *dataObject = [[GDTCCTEventGeneratorDataObject alloc] init];
@@ -192,8 +192,8 @@
     event.clockSnapshot = [GDTCORClock snapshot];
     [event.clockSnapshot setValue:@(1111111111111) forKeyPath:@"timeMillis"];
     [event.clockSnapshot setValue:@(-25200) forKeyPath:@"timezoneOffsetSeconds"];
-    [event.clockSnapshot setValue:@(1111111111111555) forKeyPath:@"kernelBootTime"];
-    [event.clockSnapshot setValue:@(1238567890) forKeyPath:@"uptime"];
+    [event.clockSnapshot setValue:@(1111111111111555) forKeyPath:@"kernelBootTimeNanoseconds"];
+    [event.clockSnapshot setValue:@(1238567890) forKeyPath:@"uptimeNanoseconds"];
     event.qosTier = GDTCOREventQosDefault;
     NSError *error;
     event.customBytes = [NSJSONSerialization dataWithJSONObject:@{@"customParam1" : @"aValue1"}
@@ -219,8 +219,8 @@
     event.clockSnapshot = [GDTCORClock snapshot];
     [event.clockSnapshot setValue:@(1111111111111) forKeyPath:@"timeMillis"];
     [event.clockSnapshot setValue:@(-25200) forKeyPath:@"timezoneOffsetSeconds"];
-    [event.clockSnapshot setValue:@(1111111111111666) forKeyPath:@"kernelBootTime"];
-    [event.clockSnapshot setValue:@(1239567890) forKeyPath:@"uptime"];
+    [event.clockSnapshot setValue:@(1111111111111666) forKeyPath:@"kernelBootTimeNanoseconds"];
+    [event.clockSnapshot setValue:@(1239567890) forKeyPath:@"uptimeNanoseconds"];
     event.qosTier = GDTCOREventQoSTelemetry;
     NSError *error;
     event.customBytes = [NSJSONSerialization dataWithJSONObject:@{

@@ -36,6 +36,7 @@ end
 def labelsForModifiedFiles()
   labels = []
   labels.push("api: abtesting") if @has_abtesting_changes
+  labels.push("api: appdistribution") if @has_appdistribution_changes
   labels.push("api: auth") if @has_auth_changes
   labels.push("api: core") if @has_core_changes
   labels.push("api: crashlytics") if @has_crashlytics_changes
@@ -48,6 +49,7 @@ def labelsForModifiedFiles()
   labels.push("api: instanceid") if @has_instanceid_changes
   labels.push("api: messaging") if @has_messaging_changes
   labels.push("api: remoteconfig") if @has_remoteconfig_changes
+  labels.push("api: segmentation") if @has_segmentation_changes
   labels.push("api: storage") if @has_storage_changes
   labels.push("GoogleDataTransport") if @has_gdt_changes
   labels.push("GoogleUtilities") if @has_googleutilities_changes
@@ -72,6 +74,8 @@ has_license_changes = didModify(["LICENSE"])
 ## Product directories
 @has_abtesting_changes = hasChangesIn("FirebaseABTesting/")
 @has_abtesting_api_changes = hasChangesIn("FirebaseABTesting/Sources/Public/")
+@has_appdistribution_changes = hasChangesIn("FirebaseAppDistribution/")
+@has_appdistribution_api_changes = hasChangesIn("FirebaseAppDistribution/Sources/Public")
 @has_auth_changes = hasChangesIn("FirebaseAuth")
 @has_auth_api_changes = hasChangesIn("FirebaseAuth/Sources/Public/")
 @has_core_changes = hasChangesIn([
@@ -82,7 +86,7 @@ has_license_changes = didModify(["LICENSE"])
 @has_crashlytics_changes = hasChangesIn("Crashlytics/")
 @has_crashlytics_api_changes = hasChangesIn("Crashlytics/Crashlytics/Public/")
 @has_database_changes = hasChangesIn("FirebaseDatabase/")
-@has_database_api_changes = hasChangesIn("FirebaseDatabase/Public/")
+@has_database_api_changes = hasChangesIn("FirebaseDatabase/Sources/Public/")
 @has_dynamiclinks_changes = hasChangesIn("FirebaseDynamicLinks/")
 @has_dynamiclinks_api_changes = hasChangesIn("FirebaseDynamicLinks/Sources/Public/")
 @has_firestore_changes = hasChangesIn("Firestore/")
@@ -99,6 +103,8 @@ has_license_changes = didModify(["LICENSE"])
 @has_messaging_api_changes = hasChangesIn("FirebaseMessaging/Sources/Public/")
 @has_remoteconfig_changes = hasChangesIn("FirebaseRemoteConfig/")
 @has_remoteconfig_api_changes = hasChangesIn("FirebaseRemoteConfig/Sources/Public/")
+@has_segmentation_changes = hasChangesIn("FirebaseSegmentation/")
+@has_segmentation_api_changes = hasChangesIn("FirebaseSegmentation/Source/Public/")
 @has_storage_changes = hasChangesIn("FirebaseStorage/")
 @has_storage_api_changes = hasChangesIn("FirebaseStorage/Sources/Public/")
 
@@ -110,6 +116,7 @@ has_license_changes = didModify(["LICENSE"])
 # Convenient flag for all API changes.
 @has_api_changes = @has_abtesting_api_changes ||
                      @has_auth_api_changes ||
+                     @has_appdistribution_api_changes ||
                      @has_core_api_changes ||
                      @has_crashlytics_api_changes ||
                      @has_database_api_changes ||
@@ -121,6 +128,7 @@ has_license_changes = didModify(["LICENSE"])
                      @has_instanceid_api_changes ||
                      @has_messaging_api_changes ||
                      @has_remoteconfig_api_changes ||
+                     @has_segmentation_api_changes ||
                      @has_storage_api_changes ||
                      @has_gdt_api_changes
 

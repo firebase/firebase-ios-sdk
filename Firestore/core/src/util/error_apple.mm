@@ -21,7 +21,8 @@
 #include "Firestore/core/src/util/status.h"
 #include "Firestore/core/src/util/string_apple.h"
 
-// NB: This is also declared in Firestore/Source/Public/FIRFirestoreErrors.h
+// NB: This is also declared in
+// FirebaseFirestore/Firestore/Source/Public/FIRFirestoreErrors.h
 // NOLINTNEXTLINE: public constant
 FOUNDATION_EXPORT NSString* const FIRFirestoreErrorDomain =
     @"FIRFirestoreErrorDomain";

@@ -109,10 +109,34 @@
   pb_istream_t istream =
       pb_istream_from_buffer([encodedBatchLogRequest bytes], [encodedBatchLogRequest length]);
   XCTAssertTrue(pb_decode(&istream, gdt_cct_BatchedLogRequest_fields, &decodedBatch));
-  XCTAssert(decodedBatch.log_request_count == batch.log_request_count);
-  XCTAssert(decodedBatch.log_request[0].log_event_count == batch.log_request[0].log_event_count);
-  XCTAssert(decodedBatch.log_request[0].log_event[0].event_time_ms ==
-            batch.log_request[0].log_event[0].event_time_ms);
+  XCTAssertEqual(decodedBatch.log_request_count, batch.log_request_count);
+  XCTAssertEqual(decodedBatch.log_request[0].log_event_count, batch.log_request[0].log_event_count);
+  XCTAssertEqual(decodedBatch.log_request[0].log_event[0].event_time_ms,
+                 batch.log_request[0].log_event[0].event_time_ms);
+  XCTAssertEqual(decodedBatch.log_request[0].log_event[0].event_uptime_ms,
+                 batch.log_request[0].log_event[0].event_uptime_ms);
+  pb_release(gdt_cct_BatchedLogRequest_fields, &batch);
+  pb_release(gdt_cct_BatchedLogRequest_fields, &decodedBatch);
+}
+
+- (void)testDecodedEventTimestampMatchToBatchContent {
+  GDTCOREvent *storedEvent = [self.generator generateEvent:GDTCOREventQoSDaily];
+  NSSet<GDTCOREvent *> *storedEvents = [NSSet setWithObject:storedEvent];
+  gdt_cct_BatchedLogRequest batch = GDTCCTConstructBatchedLogRequest(@{@"1018" : storedEvents});
+  NSData *encodedBatchLogRequest = GDTCCTEncodeBatchedLogRequest(&batch);
+  gdt_cct_BatchedLogRequest decodedBatch = gdt_cct_BatchedLogRequest_init_default;
+  pb_istream_t istream =
+      pb_istream_from_buffer([encodedBatchLogRequest bytes], [encodedBatchLogRequest length]);
+  XCTAssertTrue(pb_decode(&istream, gdt_cct_BatchedLogRequest_fields, &decodedBatch));
+
+  gdt_cct_LogRequest decodedLogRequest = decodedBatch.log_request[0];
+  gdt_cct_LogEvent decodedLogEvent = decodedLogRequest.log_event[0];
+
+  XCTAssertEqual(decodedLogEvent.event_time_ms, storedEvent.clockSnapshot.timeMillis);
+  XCTAssertEqual(decodedLogEvent.event_uptime_ms, [storedEvent.clockSnapshot uptimeMilliseconds]);
+  XCTAssertEqual(decodedLogEvent.timezone_offset_seconds,
+                 storedEvent.clockSnapshot.timezoneOffsetSeconds);
+
   pb_release(gdt_cct_BatchedLogRequest_fields, &batch);
   pb_release(gdt_cct_BatchedLogRequest_fields, &decodedBatch);
 }

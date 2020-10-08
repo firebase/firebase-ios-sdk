@@ -34,7 +34,7 @@ This private key is needed to create an access token with the valid parameters
 that authorizes our requests to programmatically make changes to remote config on the Firebase console.
 
 The private key can be located on the Firebase console and navigate to your project's settings. To download,
-click on the **Service accounts** tab and and then generate the private key by clicking
+click on the **Service accounts** tab and then generate the private key by clicking
 the blue button that says "Generate new private key".
 
 ### Create the Access Token

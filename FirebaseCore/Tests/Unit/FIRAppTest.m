@@ -15,12 +15,13 @@
 #import "FirebaseCore/Tests/Unit/FIRTestCase.h"
 #import "FirebaseCore/Tests/Unit/FIRTestComponents.h"
 
+#import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import "FirebaseCore/Sources/FIRAnalyticsConfiguration.h"
 #import "FirebaseCore/Sources/Private/FIRAppInternal.h"
+#import "FirebaseCore/Sources/Private/FIRComponentType.h"
 #import "FirebaseCore/Sources/Private/FIRCoreDiagnosticsConnector.h"
 #import "FirebaseCore/Sources/Private/FIROptionsInternal.h"
-
-#import "GoogleUtilities/Environment/Private/GULAppEnvironmentUtil.h"
+#import "SharedTestUtilities/FIROptionsMock.h"
 
 NSString *const kFIRTestAppName1 = @"test_app_name_1";
 NSString *const kFIRTestAppName2 = @"test-app-name-2";
@@ -68,9 +69,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   _observerMock = OCMObserverMock();
   _mockCoreDiagnosticsConnector = OCMClassMock([FIRCoreDiagnosticsConnector class]);
 
-#if SWIFT_PACKAGE
-  [self mockFIROptions];
-#endif
+  [FIROptionsMock mockFIROptions];
 
   OCMStub(ClassMethod([self.mockCoreDiagnosticsConnector logCoreTelemetryWithOptions:[OCMArg any]]))
       .andDo(^(NSInvocation *invocation){
@@ -369,17 +368,6 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   // Check no new library instances created after the app delete.
   XCTAssertNil(FIR_COMPONENT(FIRTestProtocolCached, app.container));
   XCTAssertNil(FIR_COMPONENT(FIRTestProtocolEagerCached, app.container));
-}
-
-- (void)testErrorForSubspecConfigurationFailure {
-  NSError *error = [FIRApp errorForSubspecConfigurationFailureWithDomain:kFirebaseCoreErrorDomain
-                                                               errorCode:-38
-                                                                 service:@"Auth"
-                                                                  reason:@"some reason"];
-  XCTAssertNotNil(error);
-  XCTAssert([error.domain isEqualToString:kFirebaseCoreErrorDomain]);
-  XCTAssert(error.code == -38);
-  XCTAssert([error.description containsString:@"Configuration failed for"]);
 }
 
 - (void)testOptionsLocking {

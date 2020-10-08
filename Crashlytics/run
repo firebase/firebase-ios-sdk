@@ -65,7 +65,7 @@ if [[ $return_code != 0 ]]; then
   exit $return_code
 fi
 
-#  Verification passed, convert and upload cSYMs in the background to prevent
+#  Verification passed, convert and upload dSYMs in the background to prevent
 #  build delays
 #
 #  Note: Validation is performed again at this step before upload

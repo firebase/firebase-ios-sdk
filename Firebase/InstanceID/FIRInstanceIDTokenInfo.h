@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRInstanceIDAPNSInfo.h"
+#import "Firebase/InstanceID/FIRInstanceIDAPNSInfo.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

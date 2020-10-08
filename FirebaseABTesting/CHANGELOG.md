@@ -1,3 +1,9 @@
+# v7.0.0
+- [removed] Removed `FIRExperimentController.updateExperiments(serviceOrigin:events:policy:lastStartTime:payloads:)`, which was deprecated. (#6543)
+
+# v4.1.0
+- [changed] Functionally neutral source reorganization for preliminary Swift Package Manager support. (#6016)
+
 # v4.0.0
 - [changed] Removed Protobuf dependency (#5890).
 

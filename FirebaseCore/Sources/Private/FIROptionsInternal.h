@@ -14,12 +14,7 @@
  * limitations under the License.
  */
 
-#if SWIFT_PACKAGE
-// TODO(paulb777): Investigate if there's a common strategy for both Cocoapods and Swift PM.
-#import "FIROptions.h"
-#else
 #import <FirebaseCore/FIROptions.h>
-#endif
 
 /**
  * Keys for the strings in the plist file.
@@ -56,7 +51,8 @@ extern NSString *const kServiceInfoFileType;
  * Initializes the options with dictionary. The above strings are the keys of the dictionary.
  * This is the designated initializer.
  */
-- (instancetype)initInternalWithOptionsDictionary:(NSDictionary *)serviceInfoDictionary;
+- (instancetype)initInternalWithOptionsDictionary:(NSDictionary *)serviceInfoDictionary
+    NS_DESIGNATED_INITIALIZER;
 
 /**
  * defaultOptions and defaultOptionsDictionary are exposed in order to be used in FIRApp and

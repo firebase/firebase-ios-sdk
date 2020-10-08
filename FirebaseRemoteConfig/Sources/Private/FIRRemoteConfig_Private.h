@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-#import "FirebaseRemoteConfig/Sources/Public/FIRRemoteConfig.h"
-
-#import "FirebaseRemoteConfig/Sources/Private/RCNConfigFetch.h"
-#import "FirebaseRemoteConfig/Sources/Private/RCNConfigSettings.h"
-#import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
+#import <FirebaseRemoteConfig/FIRRemoteConfig.h>
+#import "RCNConfigSettings.h"  // This import is needed to expose settings for the Swift API tests.
 
 @class FIROptions;
 @class RCNConfigContent;
 @class RCNConfigDBManager;
+@class RCNConfigFetch;
+@protocol FIRAnalyticsInterop;
 
 NS_ASSUME_NONNULL_BEGIN
 

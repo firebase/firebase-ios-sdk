@@ -43,6 +43,7 @@ namespace firestore {
 namespace remote {
 
 class ConnectivityMonitor;
+class FirebaseMetadataProvider;
 
 /**
  * `Datastore` represents a proxy for the remote server, hiding details of the
@@ -68,7 +69,8 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
   Datastore(const core::DatabaseInfo& database_info,
             const std::shared_ptr<util::AsyncQueue>& worker_queue,
             std::shared_ptr<auth::CredentialsProvider> credentials,
-            ConnectivityMonitor* connectivity_monitor);
+            ConnectivityMonitor* connectivity_monitor,
+            FirebaseMetadataProvider* firebase_metadata_provider);
 
   virtual ~Datastore() = default;
 

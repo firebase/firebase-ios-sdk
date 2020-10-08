@@ -1,4 +1,14 @@
-# unreleased
+# Unreleased -- 7.0.0
+- [changed] Deprecated private `-[FIRInstanceID appInstanceID:]` method was removed. (#4486)
+
+# 2020-09 -- 4.7.0
+- [deprecated] Deprecated InstanceID. For app instance identity handling, use FirebaseInstallations. For FCM registration token handling, use FirebaseMessaging. (#6585)
+
+# 2020-08 -- 4.6.0
+- [added] Added a new notification listening token refresh from Messaging and update the token cache in InstanceID. (#6286)
+- [fixed] Fixed an issue that token refresh notification is not triggered when use `tokenWithAuthorizedEntity:scope:options:handler` to get token. (#6286)
+
+# 2020-07 -- 4.5.1
 - [changed] Remove FIRInstanceIDURLQueryItem in favor of NSURLQueryItem. (#5835)
 
 # 2020-07 -- 4.5.0

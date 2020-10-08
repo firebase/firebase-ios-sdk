@@ -67,12 +67,12 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, MessagingDelegate {
             return
           }
           self.identity.instanceID = fid
-          })
         })
+      })
       .store(in: &cancellables)
   }
 
-  func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String) {
+  func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
     identity.token = fcmToken
   }
 }

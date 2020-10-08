@@ -72,6 +72,7 @@ FIRCLSContextInitData FIRCLSContextBuildInitData(FIRCLSInternalReport* report,
   initData.maxErrorLogSize = [settings errorLogBufferSize];
   initData.maxLogSize = [settings logBufferSize];
   initData.maxKeyValues = [settings maxCustomKeys];
+  initData.betaToken = "";
 
   // If this is set, then we could attempt to do a synchronous submission for certain kinds of
   // events (exceptions). This is a very cool feature, but adds complexity to the backend. For now,
@@ -195,12 +196,14 @@ bool FIRCLSContextInitialize(FIRCLSInternalReport* report,
   });
 
   if (!_firclsContext.readonly->debuggerAttached) {
+#if CLS_SIGNAL_SUPPORTED
     dispatch_group_async(group, queue, ^{
       _firclsContext.readonly->signal.path =
           FIRCLSContextAppendToRoot(rootPath, FIRCLSReportSignalFile);
 
       FIRCLSSignalInitialize(&_firclsContext.readonly->signal);
     });
+#endif
 
 #if CLS_MACH_EXCEPTION_SUPPORTED
     dispatch_group_async(group, queue, ^{

@@ -20,14 +20,13 @@
 #import "FirebaseRemoteConfig/Sources/RCNConfigExperiment.h"
 
 #import "FirebaseRemoteConfig/Sources/Private/RCNConfigSettings.h"
-#import "FirebaseRemoteConfig/Sources/Public/FIRRemoteConfig.h"
+#import "FirebaseRemoteConfig/Sources/Public/FirebaseRemoteConfig/FIRRemoteConfig.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigDBManager.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigDefines.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigValue_Internal.h"
 #import "FirebaseRemoteConfig/Tests/Unit/RCNTestUtilities.h"
 
-#import "FirebaseABTesting/Sources/Private/ABTExperimentPayload.h"
-#import "FirebaseABTesting/Sources/Public/FIRExperimentController.h"
+#import "FirebaseABTesting/Sources/Private/FirebaseABTestingInternal.h"
 
 #import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 
@@ -213,8 +212,6 @@
 
   NSTimeInterval lastStartTime =
       [experiment.experimentMetadata[@"last_experiment_start_time"] doubleValue];
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   OCMStub(
       [mockExperimentController
           updateExperimentsWithServiceOrigin:[OCMArg any]
@@ -222,9 +219,9 @@
                                       policy:
                                           ABTExperimentPayloadExperimentOverflowPolicyDiscardOldest  // NOLINT
                                lastStartTime:lastStartTime
-                                    payloads:[OCMArg any]])
+                                    payloads:[OCMArg any]
+                           completionHandler:[OCMArg any]])
       .andDo(nil);
-#pragma clang diagnostic pop
 
   NSData *payloadData = [[self class] payloadDataFromTestFile];
 
