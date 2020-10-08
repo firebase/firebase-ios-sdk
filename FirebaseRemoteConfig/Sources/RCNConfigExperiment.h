@@ -32,6 +32,6 @@
 /// Update/Persist experiment information from config fetch response.
 - (void)updateExperimentsWithResponse:(NSArray<NSDictionary<NSString *, id> *> *)response;
 
-/// Update experiments to Firebase Analytics when activateFetched happens.
+/// Update experiments to Firebase Analytics when `activateWithCompletion:` happens.
 - (void)updateExperiments;
 @end
