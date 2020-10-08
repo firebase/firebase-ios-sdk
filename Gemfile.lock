@@ -1,7 +1,7 @@
 GIT
   remote: https://github.com/dnkoutso/CocoaPods.git
-  revision: 9c98d56cc72a2d4b7e69644f02acd235ba4cd847
-  branch: no_link_library_with_names
+  revision: 205b762d92ee0d11ee3c761f7e02b4f154611be1
+  ref: 205b762d92ee0d11ee3c761f7e02b4f154611be1
   specs:
     cocoapods (1.10.0.rc.1)
       addressable (~> 2.6)
