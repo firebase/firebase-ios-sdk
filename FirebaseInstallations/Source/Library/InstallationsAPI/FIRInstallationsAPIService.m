@@ -363,20 +363,6 @@ NS_ASSUME_NONNULL_END
   return result;
 }
 
-#pragma mark - Validation
-
-- (FBLPromise<FIRInstallationsItem *> *)validateInstallation:(FIRInstallationsItem *)installation {
-  FBLPromise<FIRInstallationsItem *> *result = [FBLPromise pendingPromise];
-
-  NSError *validationError;
-  if ([installation isValid:&validationError]) {
-    [result fulfill:installation];
-  } else {
-    [result reject:validationError];
-  }
-  return result;
-}
-
 #pragma mark - JSON
 
 - (void)setJSONHTTPBody:(NSDictionary<NSString *, id> *)body
