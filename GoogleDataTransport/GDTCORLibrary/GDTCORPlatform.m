@@ -137,7 +137,9 @@ GDTCORNetworkMobileSubtype GDTCORNetworkMobileSubTypeMessage() {
       networkCurrentRadioAccessTechnology = networkCurrentRadioAccessTechnologyDict.allValues[0];
     }
   } else {
+#if defined(__IPHONE_8_0) && __IPHONE_OS_VERSION_MIN_REQUIRED < 120000
     networkCurrentRadioAccessTechnology = networkInfo.currentRadioAccessTechnology;
+#endif // defined(__IPHONE_8_0) && __IPHONE_OS_VERSION_MIN_REQUIRED < 120000
   }
 #endif  // TARGET_OS_MACCATALYST
   if (networkCurrentRadioAccessTechnology) {
@@ -147,9 +149,9 @@ GDTCORNetworkMobileSubtype GDTCORNetworkMobileSubTypeMessage() {
   } else {
     return GDTCORNetworkMobileSubtypeUNKNOWN;
   }
-#else
+#else // TARGET_OS_IOS
   return GDTCORNetworkMobileSubtypeUNKNOWN;
-#endif
+#endif // TARGET_OS_IOS
 }
 
 NSString *_Nonnull GDTCORDeviceModel() {
