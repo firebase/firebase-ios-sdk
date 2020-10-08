@@ -127,7 +127,7 @@ GDTCORNetworkMobileSubtype GDTCORNetworkMobileSubTypeMessage() {
   if (networkCurrentRadioAccessTechnologyDict.count) {
     networkCurrentRadioAccessTechnology = networkCurrentRadioAccessTechnologyDict.allValues[0];
   }
-#else   // TARGET_OS_MACCATALYST
+#else  // TARGET_OS_MACCATALYST
   if (@available(iOS 12.0, *)) {
     NSDictionary<NSString *, NSString *> *networkCurrentRadioAccessTechnologyDict =
         networkInfo.serviceCurrentRadioAccessTechnology;
@@ -139,7 +139,7 @@ GDTCORNetworkMobileSubtype GDTCORNetworkMobileSubTypeMessage() {
   } else {
 #if TARGET_OS_IOS && __IPHONE_OS_VERSION_MIN_REQUIRED < 120000
     networkCurrentRadioAccessTechnology = networkInfo.currentRadioAccessTechnology;
-#endif // TARGET_OS_IOS && __IPHONE_OS_VERSION_MIN_REQUIRED < 120000
+#endif  // TARGET_OS_IOS && __IPHONE_OS_VERSION_MIN_REQUIRED < 120000
   }
 #endif  // TARGET_OS_MACCATALYST
   if (networkCurrentRadioAccessTechnology) {
@@ -149,9 +149,9 @@ GDTCORNetworkMobileSubtype GDTCORNetworkMobileSubTypeMessage() {
   } else {
     return GDTCORNetworkMobileSubtypeUNKNOWN;
   }
-#else // TARGET_OS_IOS
+#else   // TARGET_OS_IOS
   return GDTCORNetworkMobileSubtypeUNKNOWN;
-#endif // TARGET_OS_IOS
+#endif  // TARGET_OS_IOS
 }
 
 NSString *_Nonnull GDTCORDeviceModel() {
