@@ -39,8 +39,12 @@ static NSString* const kSEGAssociationStatusPending = @"PENDING";
 static NSString* const kSEGAssociationStatusAssociated = @"ASSOCIATED";
 
 /// Segmentation error domain when logging errors.
-static NSString* const kFirebaseSegmentationErrorDomain = @"com.firebase.segmentation";
+ kFirebaseSegmentationErrorDomain = @"com.firebase.segmentation";
 
+/// Segmentation FIRLogger domain.
+static NSString* const kFIRLoggerSegmentation = @"[Firebase/Segmentation]";
+
+/// Used for reporting generic internal Segmentation errors.
 NSString* const kSEGErrorDescription = @"SEGErrorDescription";
 
 /// Segmentation Request Completion callback.
