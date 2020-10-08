@@ -78,13 +78,13 @@
 
   NSDictionary<NSString *, id> *info = [[NSBundle mainBundle] infoDictionary];
   NSString *xcodeVersion = info[@"DTXcodeBuild"];
-  NSString *sdkVersion = info[@"DTSDKBuild"];
+  NSString *appleSdkVersion = info[@"DTSDKBuild"];
 
   NSString *swiftFlagValue = [GULAppEnvironmentUtil hasSwiftRuntime] ? @"true" : @"false";
   NSString *isFromAppstoreFlagValue = [GULAppEnvironmentUtil isFromAppStore] ? @"true" : @"false";
 
   components[@"apple-platform"] = [GULAppEnvironmentUtil applePlatform];
-  components[@"apple-sdk"] = sdkVersion;
+  components[@"apple-sdk"] = appleSdkVersion;
   components[@"appstore"] = isFromAppstoreFlagValue;
   components[@"deploy"] = [GULAppEnvironmentUtil deploymentType];
   components[@"device"] = [GULAppEnvironmentUtil deviceModel];
