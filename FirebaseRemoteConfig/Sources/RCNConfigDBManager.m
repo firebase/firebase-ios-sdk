@@ -881,7 +881,7 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder() {
 
     if (handler) {
       dispatch_async(dispatch_get_main_queue(), ^{
-        handler(YES, activePersonalization, fetchedPersonalization, nil);
+        handler(YES, fetchedPersonalization, activePersonalization, nil);
       });
     }
   });

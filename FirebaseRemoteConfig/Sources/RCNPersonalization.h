@@ -37,7 +37,7 @@ static NSString *const kPersonalizationId = @"personalizationId";
 
 /// Called when an arm is pulled from Remote Config. If the arm is personalized, log information to
 /// Google in another thread.
-+ (void)logArmActive:(NSString *)value metadata:(NSDictionary *)metadata;
++ (void)logArmActive:(NSString *)key config:(NSDictionary *)config;
 
 @end
 

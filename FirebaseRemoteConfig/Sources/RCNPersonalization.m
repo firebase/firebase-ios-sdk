@@ -15,7 +15,9 @@
  */
 
 #import "FirebaseRemoteConfig/Sources/RCNPersonalization.h"
+
 #import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
+#import "FirebaseRemoteConfig/Sources/RCNConfigValue_Internal.h"
 
 @implementation RCNPersonalization
 
@@ -33,16 +35,25 @@
   personalization->_analytics = analytics;
 }
 
-+ (void)logArmActive:(NSString *)value metadata:(NSDictionary *)metadata {
-  if (metadata[kPersonalizationId] == nil) {
++ (void)logArmActive:(NSString *)key config:(NSDictionary *)config {
+  NSDictionary *ids = config[RCNFetchResponseKeyPersonalizationMetadata];
+  NSDictionary<NSString *, FIRRemoteConfigValue *> *values = config[RCNFetchResponseKeyEntries];
+  if (ids.count < 1 || values.count < 1 || !values[key]) {
+    return;
+  }
+
+  NSDictionary *metadata = ids[key];
+  if (!metadata || metadata[kPersonalizationId] == nil) {
     return;
   }
 
   RCNPersonalization *personalization = [RCNPersonalization sharedInstance];
-  [personalization->_analytics
-      logEventWithOrigin:kAnalyticsOriginPersonalization
-                    name:kAnalyticsPullEvent
-              parameters:@{kArmKey : metadata[kPersonalizationId], kArmValue : value}];
+  [personalization->_analytics logEventWithOrigin:kAnalyticsOriginPersonalization
+                                             name:kAnalyticsPullEvent
+                                       parameters:@{
+                                         kArmKey : metadata[kPersonalizationId],
+                                         kArmValue : values[key].stringValue
+                                       }];
 }
 
 @end

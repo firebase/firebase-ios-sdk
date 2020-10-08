@@ -17,10 +17,13 @@
 #import <XCTest/XCTest.h>
 #import "OCMock.h"
 
+#import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
+#import "FirebaseRemoteConfig/Sources/RCNConfigValue_Internal.h"
 #import "FirebaseRemoteConfig/Sources/RCNPersonalization.h"
 #import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 
 @interface RCNPersonalizationTest : XCTestCase {
+  NSDictionary *_configContainer;
   NSMutableArray<NSDictionary *> *_fakeLogs;
   id _analyticsMock;
 }
@@ -29,6 +32,22 @@
 @implementation RCNPersonalizationTest
 - (void)setUp {
   [super setUp];
+
+  _configContainer = @{
+    RCNFetchResponseKeyEntries : @{
+      @"key1" : [[FIRRemoteConfigValue alloc]
+          initWithData:[@"value1" dataUsingEncoding:NSUTF8StringEncoding]
+                source:FIRRemoteConfigSourceRemote],
+      @"key2" : [[FIRRemoteConfigValue alloc]
+          initWithData:[@"value2" dataUsingEncoding:NSUTF8StringEncoding]
+                source:FIRRemoteConfigSourceRemote],
+      @"key3" : [[FIRRemoteConfigValue alloc]
+          initWithData:[@"value3" dataUsingEncoding:NSUTF8StringEncoding]
+                source:FIRRemoteConfigSourceRemote]
+    },
+    RCNFetchResponseKeyPersonalizationMetadata :
+        @{@"key1" : @{kPersonalizationId : @"id1"}, @"key2" : @{kPersonalizationId : @"id2"}}
+  };
 
   _fakeLogs = [[NSMutableArray alloc] init];
   _analyticsMock = OCMProtocolMock(@protocol(FIRAnalyticsInterop));
@@ -51,7 +70,7 @@
 - (void)testNonPersonalizationKey {
   [_fakeLogs removeAllObjects];
 
-  [RCNPersonalization logArmActive:@"value3" metadata:[[NSDictionary alloc] init]];
+  [RCNPersonalization logArmActive:@"key3" config:_configContainer];
 
   OCMVerify(never(),
             [_analyticsMock logEventWithOrigin:kAnalyticsOriginPersonalization
@@ -63,7 +82,7 @@
 - (void)testSinglePersonalizationKey {
   [_fakeLogs removeAllObjects];
 
-  [RCNPersonalization logArmActive:@"value1" metadata:@{kPersonalizationId : @"id1"}];
+  [RCNPersonalization logArmActive:@"key1" config:_configContainer];
 
   OCMVerify(times(1),
             [_analyticsMock logEventWithOrigin:kAnalyticsOriginPersonalization
@@ -78,8 +97,8 @@
 - (void)testMultiplePersonalizationKeys {
   [_fakeLogs removeAllObjects];
 
-  [RCNPersonalization logArmActive:@"value1" metadata:@{kPersonalizationId : @"id1"}];
-  [RCNPersonalization logArmActive:@"value2" metadata:@{kPersonalizationId : @"id2"}];
+  [RCNPersonalization logArmActive:@"key1" config:_configContainer];
+  [RCNPersonalization logArmActive:@"key2" config:_configContainer];
 
   OCMVerify(times(2),
             [_analyticsMock logEventWithOrigin:kAnalyticsOriginPersonalization

@@ -42,6 +42,10 @@ static NSString *const kRemoteConfigMinimumFetchIntervalKey = @"_rcn_minimum_fet
 /// Timeout value for waiting on a fetch response.
 static NSString *const kRemoteConfigFetchTimeoutKey = @"_rcn_fetch_timeout";
 
+/// Listener for the get methods.
+typedef void (^FIRRemoteConfigListener)(NSString *_Nonnull, NSDictionary *_Nonnull)
+    NS_SWIFT_NAME(FIRRemoteConfigListener);
+
 @interface FIRRemoteConfigSettings () {
   BOOL _developerModeEnabled;
 }
@@ -167,8 +171,8 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
     if (analytics) {
       _listeners = [[NSMutableArray alloc] init];
       [RCNPersonalization setAnalytics:analytics];
-      [self addListener:^(NSString *value, NSDictionary *metadata) {
-        [RCNPersonalization logArmActive:value metadata:metadata];
+      [self addListener:^(NSString *key, NSDictionary *config) {
+        [RCNPersonalization logArmActive:key config:config];
       }];
     }
   }
@@ -202,17 +206,19 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
   });
 }
 
+/// Adds a listener that will be called whenever one of the get methods is called.
+/// @param listener Function that takes in the parameter key and the config.
 - (void)addListener:(nonnull FIRRemoteConfigListener)listener {
   @synchronized(_listeners) {
     [_listeners addObject:listener];
   }
 }
 
-- (void)callListeners:(NSString *)value metadata:(NSDictionary *)metadata {
+- (void)callListeners:(NSString *)key config:(NSDictionary *)config {
   @synchronized(_listeners) {
     for (FIRRemoteConfigListener listener in _listeners) {
       dispatch_async(_queue, ^{
-        listener(value, metadata);
+        listener(key, config);
       });
     }
   }
@@ -358,10 +364,7 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
                     @"Key %@ should come from source:%zd instead coming from source: %zd.", key,
                     (long)FIRRemoteConfigSourceRemote, (long)value.source);
       }
-      if ([self->_configContent.activePersonalization count] > 0) {
-        [self callListeners:value.stringValue
-                   metadata:self->_configContent.activePersonalization[key]];
-      }
+      [self callListeners:key config:[self->_configContent getMetadataForNamespace:FQNamespace]];
       return;
     }
     value = self->_configContent.defaultConfig[FQNamespace][key];

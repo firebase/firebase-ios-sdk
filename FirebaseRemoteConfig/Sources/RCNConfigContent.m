@@ -307,11 +307,11 @@ static const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
                    dispatch_semaphore_signal(self->_configLoadFromDBSemaphore);
                  }];
 
-  [_DBManager loadPersonalizationWithCompletionHandler:^(BOOL success, NSDictionary *fetchedConfig,
-                                                         NSDictionary *activeConfig,
-                                                         NSDictionary *defaultConfig) {
-    self->_fetchedPersonalization = [fetchedConfig copy];
-    self->_activePersonalization = [activeConfig copy];
+  [_DBManager loadPersonalizationWithCompletionHandler:^(
+                  BOOL success, NSDictionary *fetchedPersonalization,
+                  NSDictionary *activePersonalization, NSDictionary *defaultConfig) {
+    self->_fetchedPersonalization = [fetchedPersonalization copy];
+    self->_activePersonalization = [activePersonalization copy];
     dispatch_semaphore_signal(self->_configLoadFromDBSemaphore);
   }];
 }
@@ -344,11 +344,14 @@ static const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
   return _defaultConfig;
 }
 
-- (NSDictionary *)activePersonalization {
-  /// If this is the first time reading the activePersonalization, we might still be reading it from
-  /// the database.
+- (NSDictionary *)getMetadataForNamespace:(NSString *)FIRNamespace {
+  /// If this is the first time reading the active metadata, we might still be reading it from the
+  /// database.
   [self checkAndWaitForInitialDatabaseLoad];
-  return _activePersonalization;
+  return @{
+    RCNFetchResponseKeyEntries : _activeConfig[FIRNamespace],
+    RCNFetchResponseKeyPersonalizationMetadata : _activePersonalization
+  };
 }
 
 /// We load the database async at init time. Block all further calls to active/fetched/default
