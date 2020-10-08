@@ -59,7 +59,7 @@ device, and it is completely free.
   s.dependency 'GoogleUtilities/Reachability', '~> 7.0'
   s.dependency 'GoogleUtilities/Environment', '~> 7.0'
   s.dependency 'GoogleUtilities/UserDefaults', '~> 7.0'
-  s.dependency 'nanopb', '~> 1.30905.0'
+  s.dependency 'nanopb', '~> 2.30906.0'
 
   s.test_spec 'unit' do |unit_tests|
     unit_tests.platforms = {:ios => '10.0', :osx => '10.12', :tvos => '10.0'}

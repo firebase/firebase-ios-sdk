@@ -84,7 +84,7 @@ static NSString *const kValidImageURL =
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
   }
 }
-#endif // COCOAPODS
+#endif  // COCOAPODS
 
 - (void)testModifyNotificationWithInvalidPayloadData {
   if (@available(macOS 10.14, iOS 10.0, watchos 3.0, *)) {
@@ -123,11 +123,8 @@ static NSString *const kValidImageURL =
 
 - (void)testDeliveryMetricsLogging {
   OCMStub([_mockUtilClass isAppExtension]).andReturn(YES);
-  NSDictionary *fakeMessageInfo = @{
-    @"aps" : @{
-    }
-  };
-  
+  NSDictionary *fakeMessageInfo = @{@"aps" : @{}};
+
   [_mockExtensionHelper exportDeliveryMetricsToBigQueryWithMessageInfo:fakeMessageInfo];
   OCMVerify([_mockExtensionHelper bundleIdentifierByRemovingLastPartFrom:[OCMArg any]]);
 }
@@ -166,4 +163,4 @@ static NSString *const kValidImageURL =
 }
 @end
 
-#endif // TARGET_OS_IOS || TARGET_OS_OSX || TARGET_OS_WATCH
+#endif  // TARGET_OS_IOS || TARGET_OS_OSX || TARGET_OS_WATCH
