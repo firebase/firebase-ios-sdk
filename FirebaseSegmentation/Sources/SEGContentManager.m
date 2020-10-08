@@ -19,20 +19,14 @@
 #import "FirebaseSegmentation/Sources/Public/FIRSegmentation.h"
 #import "FirebaseSegmentation/Sources/SEGDatabaseManager.h"
 #import "FirebaseSegmentation/Sources/SEGNetworkManager.h"
-#import "FirebaseSegmentation/Sources/SEGSegmentationConstants.h"
 
-NSString *const kErrorDescription = @"ErrorDescription";
-
-@interface SEGContentManager () {
+@implementation SEGContentManager {
   NSMutableDictionary<NSString *, id> *_associationData;
   NSString *_installationIdentifier;
   NSString *_installationIdentifierToken;
   SEGDatabaseManager *_databaseManager;
   SEGNetworkManager *_networkManager;
 }
-@end
-
-@implementation SEGContentManager
 
 + (instancetype)sharedInstanceWithOptions:(FIROptions *)options {
   static dispatch_once_t onceToken;
@@ -111,19 +105,13 @@ NSString *const kErrorDescription = @"ErrorDescription";
 
   _installationIdentifier = identifier;
 
-  __weak SEGContentManager *weakSelf = self;
   [installation authTokenWithCompletion:^(FIRInstallationsAuthTokenResult *_Nullable tokenResult,
                                           NSError *_Nullable error) {
-    SEGContentManager *strongSelf = weakSelf;
-    if (!strongSelf) {
-      completionHandler(NO, @{kErrorDescription : @"Internal Error getting installation token."});
-      return;
-    }
-    [strongSelf associateInstallationWithToken:tokenResult
-                          customizedIdentifier:customInstallationID
-                                   firebaseApp:firebaseApp
-                                         error:error
-                                    completion:completionHandler];
+    [self associateInstallationWithToken:tokenResult
+                    customizedIdentifier:customInstallationID
+                             firebaseApp:firebaseApp
+                                   error:error
+                              completion:completionHandler];
   }];
 }
 
