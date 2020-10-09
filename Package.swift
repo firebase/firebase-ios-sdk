@@ -26,11 +26,11 @@ let firebaseVersion = "7.0.0"
 
 let package = Package(
   name: "Firebase",
-  platforms: [.iOS(.v10), .macOS(.v10_12), .tvOS(.v10)],
+  platforms: [.iOS(.v10), .macOS(.v10_12), .tvOS(.v10), .watchOS(.v6)],
   products: [
     .library(
       name: "FirebaseAnalytics",
-      targets: ["FirebaseAnalyticsWrapper"]
+      targets: ["FirebaseAnalyticsTarget"]
     ),
     .library(
       name: "FirebaseAuth",
@@ -42,27 +42,27 @@ let package = Package(
     ),
     .library(
       name: "FirebaseDatabase",
-      targets: ["FirebaseDatabase"]
+      targets: ["FirebaseDatabaseTarget"]
     ),
     .library(
       name: "FirebaseDynamicLinks",
-      targets: ["FirebaseDynamicLinks"]
+      targets: ["FirebaseDynamicLinksTarget"]
     ),
     .library(
       name: "FirebaseFirestore",
-      targets: ["FirebaseFirestore"]
+      targets: ["FirebaseFirestoreTarget"]
     ),
     .library(
       name: "FirebaseFirestoreSwift",
-      targets: ["FirebaseFirestoreSwift"]
+      targets: ["FirebaseFirestoreSwiftTarget"]
     ),
     .library(
       name: "FirebaseFunctions",
-      targets: ["FirebaseFunctions"]
+      targets: ["FirebaseFunctionsTarget"]
     ),
     .library(
       name: "FirebaseInAppMessaging-Beta",
-      targets: ["FirebaseInAppMessaging"]
+      targets: ["FirebaseInAppMessagingTarget"]
     ),
     .library(
       name: "FirebaseInstallations",
@@ -74,7 +74,7 @@ let package = Package(
     ),
     .library(
       name: "FirebaseRemoteConfig",
-      targets: ["FirebaseRemoteConfig"]
+      targets: ["FirebaseRemoteConfigTarget"]
     ),
     .library(
       name: "FirebaseStorage",
@@ -197,6 +197,14 @@ let package = Package(
         .headerSearchPath("../../.."),
       ]
     ),
+
+    .target(
+      name: "FirebaseAnalyticsTarget",
+      dependencies: [.target(name: "FirebaseAnalyticsWrapper",
+                             condition: .when(platforms: [.iOS]))],
+      path: "SwiftPM-PlatformExclude/FirebaseAnalyticsWrap"
+    ),
+
     .target(
       name: "FirebaseAnalyticsWrapper",
       dependencies: [
@@ -234,6 +242,7 @@ let package = Package(
       url: "https://dl.google.com/firebase/ios/swiftpm/6.34.0/GoogleAppMeasurement.zip",
       checksum: "05f6d2da2aa072781826be135498c6e1730ed43519c2232e01c5f043f5fe7189"
     ),
+
     .target(
       name: "FirebaseAuth",
       dependencies: ["FirebaseCore",
@@ -295,14 +304,22 @@ let package = Package(
         .define("CLS_SDK_NAME", to: "Crashlytics iOS SDK", .when(platforms: .some([.iOS]))),
         .define("CLS_SDK_NAME", to: "Crashlytics macOS SDK", .when(platforms: .some([.macOS]))),
         .define("CLS_SDK_NAME", to: "Crashlytics tvOS SDK", .when(platforms: .some([.tvOS]))),
+        .define("CLS_SDK_NAME", to: "Crashlytics watchOS SDK", .when(platforms: .some([.watchOS]))),
         .define("PB_FIELD_32BIT", to: "1"),
         .define("PB_NO_PACKED_STRUCTS", to: "1"),
         .define("PB_ENABLE_MALLOC", to: "1"),
       ],
       linkerSettings: [
         .linkedFramework("Security"),
-        .linkedFramework("SystemConfiguration"),
+        .linkedFramework("SystemConfiguration", .when(platforms: .some([.iOS, .macOS, .tvOS]))),
       ]
+    ),
+
+    .target(
+      name: "FirebaseDatabaseTarget",
+      dependencies: [.target(name: "FirebaseDatabase",
+                             condition: .when(platforms: [.iOS, .tvOS, .macOS]))],
+      path: "SwiftPM-PlatformExclude/FirebaseDatabaseWrap"
     ),
 
     .target(
@@ -325,7 +342,7 @@ let package = Package(
       linkerSettings: [
         .linkedFramework("CFNetwork"),
         .linkedFramework("Security"),
-        .linkedFramework("SystemConfiguration"),
+        .linkedFramework("SystemConfiguration", .when(platforms: .some([.iOS, .macOS, .tvOS]))),
       ]
     ),
     .testTarget(
@@ -342,6 +359,13 @@ let package = Package(
     ),
 
     .target(
+      name: "FirebaseDynamicLinksTarget",
+      dependencies: [.target(name: "FirebaseDynamicLinks",
+                             condition: .when(platforms: [.iOS]))],
+      path: "SwiftPM-PlatformExclude/FirebaseDynamicLinksWrap"
+    ),
+
+    .target(
       name: "FirebaseDynamicLinks",
       dependencies: ["FirebaseCore"],
       path: "FirebaseDynamicLinks/Sources",
@@ -354,6 +378,13 @@ let package = Package(
       linkerSettings: [
         .linkedFramework("QuartzCore"),
       ]
+    ),
+
+    .target(
+      name: "FirebaseFirestoreTarget",
+      dependencies: [.target(name: "FirebaseFirestore",
+                             condition: .when(platforms: [.iOS, .tvOS, .macOS]))],
+      path: "SwiftPM-PlatformExclude/FirebaseFirestoreWrap"
     ),
 
     .target(
@@ -407,19 +438,26 @@ let package = Package(
         .headerSearchPath("../"),
         .headerSearchPath("Source/Public/FirebaseFirestore"),
         .headerSearchPath("Protos/nanopb"),
-
         .define("PB_FIELD_32BIT", to: "1"),
         .define("PB_NO_PACKED_STRUCTS", to: "1"),
         .define("PB_ENABLE_MALLOC", to: "1"),
         .define("FIRFirestore_VERSION", to: firebaseVersion),
       ],
       linkerSettings: [
-        .linkedFramework("SystemConfiguration"),
+        .linkedFramework("SystemConfiguration", .when(platforms: .some([.iOS, .macOS, .tvOS]))),
         .linkedFramework("MobileCoreServices", .when(platforms: .some([.iOS]))),
         .linkedFramework("UIKit", .when(platforms: .some([.iOS, .tvOS]))),
         .linkedLibrary("c++"),
       ]
     ),
+
+    .target(
+      name: "FirebaseFirestoreSwiftTarget",
+      dependencies: [.target(name: "FirebaseFirestoreSwift",
+                             condition: .when(platforms: [.iOS, .tvOS, .macOS]))],
+      path: "SwiftPM-PlatformExclude/FirebaseFirestoreSwiftWrap"
+    ),
+
     .target(
       name: "FirebaseFirestoreSwift",
       dependencies: ["FirebaseFirestore"],
@@ -447,6 +485,13 @@ let package = Package(
     ),
 
     .target(
+      name: "FirebaseFunctionsTarget",
+      dependencies: [.target(name: "FirebaseFunctions",
+                             condition: .when(platforms: [.iOS, .tvOS, .macOS]))],
+      path: "SwiftPM-PlatformExclude/FirebaseFunctionsWrap"
+    ),
+
+    .target(
       name: "FirebaseFunctions",
       dependencies: [
         "FirebaseCore",
@@ -457,6 +502,13 @@ let package = Package(
       cSettings: [
         .headerSearchPath("../../"),
       ]
+    ),
+
+    .target(
+      name: "FirebaseInAppMessagingTarget",
+      dependencies: [.target(name: "FirebaseInAppMessaging",
+                             condition: .when(platforms: [.iOS]))],
+      path: "SwiftPM-PlatformExclude/FirebaseInAppMessagingWrap"
     ),
 
     .target(
@@ -527,7 +579,7 @@ let package = Package(
         .headerSearchPath("../../"),
       ],
       linkerSettings: [
-        .linkedFramework("SystemConfiguration"),
+        .linkedFramework("SystemConfiguration", .when(platforms: .some([.iOS, .macOS, .tvOS]))),
       ]
     ),
     .testTarget(
@@ -551,6 +603,14 @@ let package = Package(
         .headerSearchPath("../"),
       ]
     ),
+
+    .target(
+      name: "FirebaseRemoteConfigTarget",
+      dependencies: [.target(name: "FirebaseRemoteConfig",
+                             condition: .when(platforms: [.iOS, .tvOS, .macOS]))],
+      path: "SwiftPM-PlatformExclude/FirebaseRemoteConfigWrap"
+    ),
+
     .target(
       name: "FirebaseRemoteConfig",
       dependencies: [
@@ -646,7 +706,7 @@ let package = Package(
         .define("PB_ENABLE_MALLOC", to: "1"),
       ],
       linkerSettings: [
-        .linkedFramework("SystemConfiguration"),
+        .linkedFramework("SystemConfiguration", .when(platforms: .some([.iOS, .macOS, .tvOS]))),
         .linkedFramework("CoreTelephony", .when(platforms: .some([.macOS, .iOS]))),
       ]
     ),

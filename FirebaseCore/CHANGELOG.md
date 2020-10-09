@@ -2,6 +2,8 @@
 - [changed] Update minimum iOS version to iOS 10 except for Analytics which is now iOS 9. (#4847)
 - [changed] Update minimum macOS version to 10.12.
 - [added] Swift Package Manager support for Firebase Messaging. (#5641)
+- [added] Swift Package Manager support for Auth, Crashlytics, Messaging, and Storage watchOS
+  targets. (#6584)
 - [changed] The pods developed in this repo are no longer hard coded to be built as static
   frameworks. Instead, their linkage will be controlled by the Podfile. Use the Podfile
   option `use_frameworks! :linkage => :static` to get the Firebase 6.x linkage behavior. (#2022)
