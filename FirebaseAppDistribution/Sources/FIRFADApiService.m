@@ -19,15 +19,18 @@
 
 NSString *const kFIRFADApiErrorDomain = @"com.firebase.appdistribution.api";
 NSString *const kFIRFADApiErrorDetailsKey = @"details";
-NSString *const kHTTPGet = @"GET";
+NSString *const kFIRFADHTTPGet = @"GET";
 // The App Distribution Tester API endpoint used to retrieve releases
-NSString *const kReleasesEndpointURLTemplate =
+NSString *const kFIRFADReleasesEndpointURLTemplate =
     @"https://firebaseapptesters.googleapis.com/v1alpha/devices/"
     @"-/testerApps/%@/installations/%@/releases";
-NSString *const kInstallationAuthHeader = @"X-Goog-Firebase-Installations-Auth";
-NSString *const kApiHeaderKey = @"X-Goog-Api-Key";
-NSString *const kApiBundleKey = @"X-Ios-Bundle-Identifier";
-NSString *const kResponseReleasesKey = @"releases";
+NSString *const kFIRFADInstallationAuthHeader = @"X-Goog-Firebase-Installations-Auth";
+NSString *const kFIRFADApiHeaderKey = @"X-Goog-Api-Key";
+NSString *const kFIRFADApiBundleKey = @"X-Ios-Bundle-Identifier";
+NSString *const kFIRFADFirebaseUserAgentKey = @"X-firebase-client";
+NSString *const kFIRFADFirebaseHeartbeatKey = @"X-firebase-client-log-type";
+NSString *const kFIRFADHeartbeatTag = @"fire-fad";
+NSString *const kFIRFADResponseReleasesKey = @"releases";
 
 @implementation FIRFADApiService
 
@@ -72,9 +75,15 @@ NSString *const kResponseReleasesKey = @"releases";
   FIRFADInfoLog(@"Requesting releases for app id - %@", [[FIRApp defaultApp] options].googleAppID);
   [request setURL:[NSURL URLWithString:urlString]];
   [request setHTTPMethod:method];
-  [request setValue:authTokenResult.authToken forHTTPHeaderField:kInstallationAuthHeader];
-  [request setValue:[[FIRApp defaultApp] options].APIKey forHTTPHeaderField:kApiHeaderKey];
-  [request setValue:[NSBundle mainBundle].bundleIdentifier forHTTPHeaderField:kApiBundleKey];
+  [request setValue:authTokenResult.authToken forHTTPHeaderField:kFIRFADInstallationAuthHeader];
+  [request setValue:[[FIRApp defaultApp] options].APIKey forHTTPHeaderField:kFIRFADApiHeaderKey];
+  [request setValue:[NSBundle mainBundle].bundleIdentifier forHTTPHeaderField:kFIRFADApiBundleKey];
+  [request setValue:[FIRApp firebaseUserAgent] forHTTPHeaderField:kFIRFADFirebaseUserAgentKey];
+  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
+    [request setValue:@([FIRHeartbeatInfo heartbeatCodeForTag:kFIRFADHeartbeatTag]).stringValue
+        forHTTPHeaderField:kFIRFADFirebaseHeartbeatKey];
+  });
+
   return request;
 }
 
@@ -120,7 +129,7 @@ NSString *const kResponseReleasesKey = @"releases";
       ^(NSString *_Nullable identifier, FIRInstallationsAuthTokenResult *authTokenResult,
         NSError *_Nullable error) {
         NSString *urlString =
-            [NSString stringWithFormat:kReleasesEndpointURLTemplate,
+            [NSString stringWithFormat:kFIRFADReleasesEndpointURLTemplate,
                                        [[FIRApp defaultApp] options].googleAppID, identifier];
         NSMutableURLRequest *request = [self createHTTPRequest:@"GET"
                                                        withUrl:urlString
@@ -217,7 +226,7 @@ NSString *const kResponseReleasesKey = @"releases";
     return nil;
   }
 
-  NSArray *releases = [serializedResponse objectForKey:kResponseReleasesKey];
+  NSArray *releases = [serializedResponse objectForKey:kFIRFADResponseReleasesKey];
 
   return releases;
 }
