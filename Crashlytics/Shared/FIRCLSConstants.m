@@ -13,13 +13,14 @@
 // limitations under the License.
 
 #import "Crashlytics/Shared/FIRCLSConstants.h"
+#import <FirebaseCore/FIRVersion.h>
 
 #define STR_HELPER(x) #x
 #define STR(x) STR_HELPER(x)
 
 NSString* const FIRCLSDeveloperToken = @"77f0789d8e230eccdb4b99b82dccd78d47f9b604";
 
-NSString* const FIRCLSVersion = @STR(DISPLAY_VERSION);
+NSString* const FIRCLSVersion = FIRFirebaseVersion();
 
 // User Messages
 NSString* const FIRCLSMissingConsumerKeyMsg = @"consumer key is nil or zero length";
