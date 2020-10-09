@@ -13,6 +13,6 @@
 // limitations under the License.
 
 #import <TargetConditionals.h>
-#if TARGET_OS_WATCH
+#if !TARGET_OS_IOS
 #warning "Firebase Analytics only supports the iOS platform"
 #endif
