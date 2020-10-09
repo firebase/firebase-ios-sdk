@@ -15,48 +15,44 @@
 import XCTest
 @testable import FirebaseMLModelDownloader
 
-public struct MLModelDownloader {
+public struct ModelDownloaderTests {
 
   public func codeSample() {
     let modelDownloader = ModelDownloader()
     let conditions = ModelDownloadConditions()
 
-    // Download model
-    modelDownloader.downloadModel(name: "your_model_name", conditions: conditions) { customModel, error in
-      if error == nil {
-        if let modelFile = customModel.getLatestModel() {
-          // Use model with your inference API
-        }
-      }
-    }
-
-    // Get downloaded model
-    modelDownloader.getDownloadedModel(name: "your_model_name") { customModel, error in
-      if error == nil {
-        if let modelFile = customModel.getLatestModel() {
-          // Use model with your inference API
-        }
-      }
-    }
-
-    // Check model download status
-    modelDownloader.isModelDownloaded(name: "your_model_name") { isDownloaded, error in
-      if isDownloaded {
-        // Get model using getDownloadedModel and use with your inference API
+    // Download model w/ progress handler
+    modelDownloader.getModel(name: "your_model_name", downloadType: .latestModel, conditions: conditions, progressHandler: { progress in
+      // Handle progress
+    }) { result in
+      switch (result) {
+      case .success(let customModel):
+        // Use model with your inference API
+        // let interpreter = Interpreter(modelPath: customModel.modelPath)
+      case .failure(let error):
+        // Handle download error
       }
     }
 
     // Access array of downloaded models
-    modelDownloader.listDownloadedModels() { customModels, error in
-      if error == nil {
+    modelDownloader.listDownloadedModels() { result in
+      switch (result) {
+      case .success(let customModels):
+        for model in customModels {
         // Pick model(s) for further use
+      }
+      case .failure(let error):
+        // Handle failure
       }
     }
 
     // Delete downloaded model
-    modelDownloader.deleteDownloadedModel(name: "your_model_name") { error in
-      if error == nil {
+    modelDownloader.deleteDownloadedModel(name: "your_model_name") { result in
+      switch (result) {
+      case .success():
         // Apply any other clean up
+      case .failure(let error):
+        // Handle failure
       }
     }
   }

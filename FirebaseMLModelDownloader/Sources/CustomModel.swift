@@ -14,36 +14,10 @@
 
 import Foundation
 
-/// An enum of supported model formats.
-public enum CustomModelFormat {
-  case unknown
-  case tfLite
-  case coreML
-}
-
 /// A custom model that is stored remotely on the server and downloaded to the device.
-public struct CustomModel {
-  public let modelName: String
-  public var modelSize: Int
-  var modelPath: String
-  public var modelHash: String
-  public var modelFormat: CustomModelFormat
-
-
-  init(name: String, size: Int, path: String, hash: String, format: CustomModelFormat) {
-    modelName = name
-    modelSize = size
-    modelPath = path
-    modelHash = hash
-    modelFormat = format
-  }
-
-  public func getLatestModel() -> FileHandle? {
-    if let modelFile = FileHandle(forReadingAtPath: modelPath) {
-      return modelFile
-    } else {
-      return nil
-    }
-  }
-
+public struct CustomModel : Hashable {
+  public let name: String
+  public var size: Int
+  public var path: String
+  public var hash: String
 }
