@@ -52,7 +52,7 @@ static const NSTimeInterval kBannerViewAnimationDuration = 0.3;  // in seconds
 
 // Banner view will auto dismiss after this amount of time of showing if user does not take
 // any other actions. It's in seconds.
-static const NSTimeInterval kBannerAutoDimissTime = 12;
+static const NSTimeInterval kBannerAutoDismissTime = 12;
 
 // If the window width is larger than this threshold, we cap banner view width
 // by it: showing a non full-width banner when it happens.
@@ -289,7 +289,7 @@ static const CGFloat kSwipeUpThreshold = -10.0f;
 }
 
 - (void)setupAutoDismissTimer {
-  NSTimeInterval remaining = kBannerAutoDimissTime - super.aggregateImpressionTimeInSeconds;
+  NSTimeInterval remaining = kBannerAutoDismissTime - super.aggregateImpressionTimeInSeconds;
 
   FIRLogDebug(kFIRLoggerInAppMessagingDisplay, @"I-FID300004",
               @"Remaining banner auto dismiss time is %lf", remaining);
