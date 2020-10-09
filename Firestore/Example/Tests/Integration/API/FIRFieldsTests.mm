@@ -233,7 +233,7 @@ NSDictionary<NSString *, id> *testDataWithTimestamps(FIRTimestamp *timestamp) {
   return [self readDocumentForRef:doc];
 }
 
-- (void)testTimestampsInSnapshots {
+- (void)testTimestampsAreTruncated {
   FIRTimestamp *originalTimestamp = [FIRTimestamp timestampWithSeconds:100 nanoseconds:123456789];
   FIRDocumentReference *doc = [self documentRef];
   [self writeDocumentRef:doc data:testDataWithTimestamps(originalTimestamp)];
