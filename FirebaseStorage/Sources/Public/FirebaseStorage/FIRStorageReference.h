@@ -277,7 +277,6 @@ NS_SWIFT_NAME(putData(_:metadata:));
                 completion:
                     (void (^)(FIRStorageListResult *result, NSError *_Nullable error))completion
     NS_SWIFT_NAME(list(maxResults:pageToken:completion:));
-;
 
 #pragma mark - Metadata Operations
 
