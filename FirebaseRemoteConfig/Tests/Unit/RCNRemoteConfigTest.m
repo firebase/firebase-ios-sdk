@@ -23,6 +23,7 @@
 #import "FirebaseRemoteConfig/Sources/Public/FirebaseRemoteConfig/FIRRemoteConfig.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigDBManager.h"
+#import "FirebaseRemoteConfig/Sources/RCNConfigExperiment.h"
 #import "FirebaseRemoteConfig/Sources/RCNUserDefaultsManager.h"
 
 #import "FirebaseRemoteConfig/Tests/Unit/RCNTestUtilities.h"
@@ -99,6 +100,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
   NSString *_userDefaultsSuiteName;
   NSString *_DBPath;
   id _DBManagerMock;
+  id _experimentMock;
   id _userDefaultsMock;
 }
 @end
@@ -122,6 +124,10 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
   _userDefaultsMock = OCMClassMock([RCNUserDefaultsManager class]);
   OCMStub([_userDefaultsMock sharedUserDefaultsForBundleIdentifier:[OCMArg any]])
       .andReturn(_userDefaults);
+
+  _experimentMock = OCMClassMock([RCNConfigExperiment class]);
+  OCMStub([_experimentMock
+      updateExperimentsWithHandler:([OCMArg invokeBlockWithArgs:[NSNull null], nil])]);
 
   RCNConfigContent *configContent = [[RCNConfigContent alloc] initWithDBManager:_DBManager];
   _configInstances = [[NSMutableArray alloc] initWithCapacity:3];
@@ -172,7 +178,6 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
                                                       DBManager:_DBManager
                                                   configContent:configContent
                                                       analytics:nil]);
-
     _configInstances[i] = config;
     RCNConfigSettings *settings =
         [[RCNConfigSettings alloc] initWithDatabaseManager:_DBManager
@@ -186,7 +191,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
                                                                    DBManager:_DBManager
                                                                     settings:settings
                                                                    analytics:nil
-                                                                  experiment:nil
+                                                                  experiment:_experimentMock
                                                                        queue:queue
                                                                    namespace:fullyQualifiedNamespace
                                                                      options:currentOptions]);
@@ -221,7 +226,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
     [_configInstances[i] updateWithNewInstancesForConfigFetch:_configFetch[i]
                                                 configContent:configContent
                                                configSettings:settings
-                                             configExperiment:nil];
+                                             configExperiment:_experimentMock];
   }
 }
 

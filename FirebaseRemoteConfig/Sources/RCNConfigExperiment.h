@@ -33,5 +33,5 @@
 - (void)updateExperimentsWithResponse:(NSArray<NSDictionary<NSString *, id> *> *)response;
 
 /// Update experiments to Firebase Analytics when `activateWithCompletion:` happens.
-- (void)updateExperiments;
+- (void)updateExperimentsWithHandler:(nullable void (^)(NSError *_Nullable error))handler;
 @end
