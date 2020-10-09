@@ -42,27 +42,27 @@ let package = Package(
     ),
     .library(
       name: "FirebaseDatabase",
-      targets: ["FirebaseDatabase"]
+      targets: ["FirebaseDatabaseTarget"]
     ),
     .library(
       name: "FirebaseDynamicLinks",
-      targets: ["FirebaseDynamicLinks"]
+      targets: ["FirebaseDynamicLinksTarget"]
     ),
     .library(
       name: "FirebaseFirestore",
-      targets: ["FirebaseFirestore"]
+      targets: ["FirebaseFirestoreTarget"]
     ),
     .library(
       name: "FirebaseFirestoreSwift",
-      targets: ["FirebaseFirestoreSwift"]
+      targets: ["FirebaseFirestoreSwiftTarget"]
     ),
     .library(
       name: "FirebaseFunctions",
-      targets: ["FirebaseFunctions"]
+      targets: ["FirebaseFunctionsTarget"]
     ),
     .library(
       name: "FirebaseInAppMessaging-Beta",
-      targets: ["FirebaseInAppMessaging"]
+      targets: ["FirebaseInAppMessagingTarget"]
     ),
     .library(
       name: "FirebaseInstallations",
@@ -74,7 +74,7 @@ let package = Package(
     ),
     .library(
       name: "FirebaseRemoteConfig",
-      targets: ["FirebaseRemoteConfig"]
+      targets: ["FirebaseRemoteConfigTarget"]
     ),
     .library(
       name: "FirebaseStorage",
@@ -242,6 +242,7 @@ let package = Package(
       url: "https://dl.google.com/firebase/ios/swiftpm/6.34.0/GoogleAppMeasurement.zip",
       checksum: "05f6d2da2aa072781826be135498c6e1730ed43519c2232e01c5f043f5fe7189"
     ),
+
     .target(
       name: "FirebaseAuth",
       dependencies: ["FirebaseCore",
@@ -314,14 +315,14 @@ let package = Package(
     ),
 
     .target(
-      name: "FirebaseDatabase",
-      dependencies: [.target(name: "FirebaseDatabaseImpl",
+      name: "FirebaseDatabaseTarget",
+      dependencies: [.target(name: "FirebaseDatabase",
                              condition: .when(platforms: [.iOS, .tvOS, .macOS]))],
       path: "SwiftPM-PlatformExclude/FirebaseDatabaseWrap"
     ),
 
     .target(
-      name: "FirebaseDatabaseImpl",
+      name: "FirebaseDatabase",
       dependencies: [
         "FirebaseCore",
         "leveldb",
@@ -357,14 +358,14 @@ let package = Package(
     ),
 
     .target(
-      name: "FirebaseDynamicLinks",
-      dependencies: [.target(name: "FirebaseDynamicLinksImpl",
+      name: "FirebaseDynamicLinksTarget",
+      dependencies: [.target(name: "FirebaseDynamicLinks",
                              condition: .when(platforms: [.iOS]))],
       path: "SwiftPM-PlatformExclude/FirebaseDynamicLinksWrap"
     ),
 
     .target(
-      name: "FirebaseDynamicLinksImpl",
+      name: "FirebaseDynamicLinks",
       dependencies: ["FirebaseCore"],
       path: "FirebaseDynamicLinks/Sources",
       publicHeadersPath: "Public",
@@ -379,14 +380,14 @@ let package = Package(
     ),
 
     .target(
-      name: "FirebaseFirestore",
-      dependencies: [.target(name: "FirebaseFirestoreImpl",
+      name: "FirebaseFirestoreTarget",
+      dependencies: [.target(name: "FirebaseFirestore",
                              condition: .when(platforms: [.iOS, .tvOS, .macOS]))],
       path: "SwiftPM-PlatformExclude/FirebaseFirestoreWrap"
     ),
 
     .target(
-      name: "FirebaseFirestoreImpl",
+      name: "FirebaseFirestore",
       dependencies: [
         "FirebaseCore",
         "leveldb",
@@ -450,14 +451,14 @@ let package = Package(
     ),
 
     .target(
-      name: "FirebaseFirestoreSwift",
-      dependencies: [.target(name: "FirebaseFirestoreSwiftImpl",
+      name: "FirebaseFirestoreSwiftTarget",
+      dependencies: [.target(name: "FirebaseFirestoreSwift",
                              condition: .when(platforms: [.iOS, .tvOS, .macOS]))],
       path: "SwiftPM-PlatformExclude/FirebaseFirestoreSwiftWrap"
     ),
 
     .target(
-      name: "FirebaseFirestoreSwiftImpl",
+      name: "FirebaseFirestoreSwift",
       dependencies: ["FirebaseFirestore"],
       path: "Firestore",
       exclude: [
@@ -483,14 +484,14 @@ let package = Package(
     ),
 
     .target(
-      name: "FirebaseFunctions",
-      dependencies: [.target(name: "FirebaseFunctionsImpl",
+      name: "FirebaseFunctionsTarget",
+      dependencies: [.target(name: "FirebaseFunctions",
                              condition: .when(platforms: [.iOS, .tvOS, .macOS]))],
       path: "SwiftPM-PlatformExclude/FirebaseFunctionsWrap"
     ),
 
     .target(
-      name: "FirebaseFunctionsImpl",
+      name: "FirebaseFunctions",
       dependencies: [
         "FirebaseCore",
         .product(name: "GTMSessionFetcherCore", package: "GTMSessionFetcher"),
@@ -503,14 +504,14 @@ let package = Package(
     ),
 
     .target(
-      name: "FirebaseInAppMessaging",
-      dependencies: [.target(name: "FirebaseInAppMessagingImpl",
+      name: "FirebaseInAppMessagingTarget",
+      dependencies: [.target(name: "FirebaseInAppMessaging",
                              condition: .when(platforms: [.iOS]))],
       path: "SwiftPM-PlatformExclude/FirebaseInAppMessagingWrap"
     ),
 
     .target(
-      name: "FirebaseInAppMessagingImpl",
+      name: "FirebaseInAppMessaging",
       dependencies: [
         "FirebaseCore",
         "FirebaseInstallations",
@@ -603,14 +604,14 @@ let package = Package(
     ),
 
     .target(
-      name: "FirebaseRemoteConfig",
-      dependencies: [.target(name: "FirebaseRemoteConfigImpl",
+      name: "FirebaseRemoteConfigTarget",
+      dependencies: [.target(name: "FirebaseRemoteConfig",
                              condition: .when(platforms: [.iOS, .tvOS, .macOS]))],
       path: "SwiftPM-PlatformExclude/FirebaseRemoteConfigWrap"
     ),
 
     .target(
-      name: "FirebaseRemoteConfigImpl",
+      name: "FirebaseRemoteConfig",
       dependencies: [
         "FirebaseCore",
         "FirebaseABTesting",
