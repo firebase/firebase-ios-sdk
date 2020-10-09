@@ -1,4 +1,4 @@
-# v6.6.1
+# v7.0.0
 - [fixed] Disabled a deprecation warning. (#6502)
 
 # v6.6.0
