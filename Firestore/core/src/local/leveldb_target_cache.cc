@@ -174,6 +174,7 @@ absl::optional<TargetData> LevelDbTargetCache::GetTarget(const Target& target) {
           "%s points to %s; seeking there found %s",
           DescribeKey(index_iterator), DescribeKey(target_key),
           DescribeKey(target_iterator));
+      continue;
     }
 
     // Finally after finding a potential match, check that the target is

@@ -115,6 +115,12 @@ TEST_P(TargetCacheTest, SetAndReadAQuery) {
   });
 }
 
+TEST_P(TargetCacheTest, SurviveMissingTarget) {
+  persistence_->Run("test_set_and_read_a_query", [&]() {
+
+  });
+}
+
 TEST_P(TargetCacheTest, CanonicalIDCollision) {
   persistence_->Run("test_canonical_id_collision", [&]() {
     // Type information is currently lost in our canonical_id implementations so
