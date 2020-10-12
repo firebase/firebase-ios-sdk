@@ -227,8 +227,11 @@
 
   experiment.experimentPayloads = [@[ payloadData ] mutableCopy];
 
-  [experiment updateExperiments];
-  XCTAssertEqualObjects(experiment.experimentMetadata[@"last_experiment_start_time"], @(12345678));
+  [experiment updateExperimentsWithHandler:^(NSError *_Nullable error) {
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(experiment.experimentMetadata[@"last_experiment_start_time"],
+                          @(12345678));
+  }];
 }
 
 #pragma mark Helpers.
