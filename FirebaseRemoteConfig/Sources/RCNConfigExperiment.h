@@ -23,12 +23,12 @@
 @interface RCNConfigExperiment : NSObject
 
 /// Designated initializer;
-- (nullable instancetype)initWithDBManager:(RCNConfigDBManager *_Nullable)DBManager
-                      experimentController:(FIRExperimentController *_Nullable)controller
+- (nonnull instancetype)initWithDBManager:(RCNConfigDBManager *_Nullable)DBManager
+                     experimentController:(FIRExperimentController *_Nullable)controller
     NS_DESIGNATED_INITIALIZER;
 
 /// Use `initWithDBManager:` instead.
-- (nullable instancetype)init NS_UNAVAILABLE;
+- (nonnull instancetype)init NS_UNAVAILABLE;
 
 /// Update/Persist experiment information from config fetch response.
 - (void)updateExperimentsWithResponse:(NSArray<NSDictionary<NSString *, id> *> *_Nullable)response;
