@@ -111,7 +111,7 @@ static NSString *const kMethodNameLatestStartTime =
   }
 }
 
-- (void)updateExperiments {
+- (void)updateExperimentsWithHandler:(void (^)(NSError *_Nullable))handler {
   FIRLifecycleEvents *lifecycleEvent = [[FIRLifecycleEvents alloc] init];
 
   // Get the last experiment start time prior to the latest payload.
@@ -126,7 +126,7 @@ static NSString *const kMethodNameLatestStartTime =
                                   policy:ABTExperimentPayloadExperimentOverflowPolicyDiscardOldest
                            lastStartTime:lastStartTime
                                 payloads:_experimentPayloads
-                       completionHandler:nil];
+                       completionHandler:handler];
 }
 
 - (void)updateExperimentStartTime {

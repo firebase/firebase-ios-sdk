@@ -897,8 +897,12 @@
 
   GULNetworkURLSession *session = [[GULNetworkURLSession alloc]
       initWithNetworkLoggerDelegate:(id<GULNetworkLoggerDelegate>)_network];
+#if TARGET_OS_TV
+  NSArray *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
+#else
   NSArray *paths =
       NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
+#endif
   NSString *applicationSupportDirectory = paths.firstObject;
   NSArray *tempPathComponents = @[
     applicationSupportDirectory, kGULNetworkApplicationSupportSubdirectory,

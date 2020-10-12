@@ -62,7 +62,7 @@ class CommonMessageTestVC: UIViewController, InAppMessagingDisplayDelegate {
 
   func messageDismissed(_ inAppMessage: InAppMessagingDisplayMessage,
                         dismissType: FIRInAppMessagingDismissType) {
-    print("message dimissed with type \(dismissType)")
+    print("message dismissed with type \(dismissType)")
     messageClosedDismiss = true
   }
 

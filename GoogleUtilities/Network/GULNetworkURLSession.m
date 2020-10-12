@@ -63,12 +63,15 @@
   self = [super init];
   if (self) {
     // Create URL to the directory where all temporary files to upload have to be stored.
+#if TARGET_OS_TV
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
+#else
     NSArray *paths =
         NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
-    NSString *applicationSupportDirectory = paths.firstObject;
+#endif
+    NSString *storageDirectory = paths.firstObject;
     NSArray *tempPathComponents = @[
-      applicationSupportDirectory, kGULNetworkApplicationSupportSubdirectory,
-      kGULNetworkTempDirectoryName
+      storageDirectory, kGULNetworkApplicationSupportSubdirectory, kGULNetworkTempDirectoryName
     ];
     _networkDirectoryURL = [NSURL fileURLWithPathComponents:tempPathComponents];
     _sessionID = [NSString stringWithFormat:@"%@-%@", kGULNetworkBackgroundSessionConfigIDPrefix,

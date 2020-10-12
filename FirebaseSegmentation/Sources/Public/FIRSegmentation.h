@@ -20,7 +20,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class FIRApp;
 /**
- * The Firebase Segmentation SDK is used to associate a custom, non-Firebase custom installation
+ * The Firebase Segmentation SDK is used to associate a custom, non-Firebase installation
  * identifier to Firebase. Once this custom installation identifier is set, developers can use the
  * current app installation for segmentation purposes. If the custom installation identifier is
  * explicitely set to nil, any existing custom installation identifier data will be removed.
@@ -56,7 +56,7 @@ typedef NS_ENUM(NSInteger, FIRSegmentationErrorCode) {
 /// Returns the FIRSegmentation instance for your Firebase application. This singleton class
 /// instance lets you set your own custom identifier to be used for targeting purposes within
 /// Firebase.
-+ (instancetype)segmentationWithApp:(nonnull FIRApp *)app;
++ (instancetype)segmentationWithApp:(FIRApp *)app;
 
 /**
  *  :nodoc:

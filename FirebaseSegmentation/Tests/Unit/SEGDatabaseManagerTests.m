@@ -105,12 +105,16 @@
 
 #pragma mark Helpers
 - (NSString *)pathForSegmentationTestDatabase {
+#if TARGET_OS_TV
+  NSArray *dirPaths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
+#else
   NSArray *dirPaths =
       NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
-  NSString *appSupportPath = dirPaths.firstObject;
+#endif
+  NSString *storageDir = dirPaths.firstObject;
   NSString *databaseName =
       [NSString stringWithFormat:@"FirebaseSegmentation-test-%d.sqlite3", (arc4random() % 100)];
-  NSArray *components = @[ appSupportPath, @"Google/FirebaseSegmentation", databaseName ];
+  NSArray *components = @[ storageDir, @"Google/FirebaseSegmentation", databaseName ];
   NSString *dbPath = [NSString pathWithComponents:components];
   NSLog(@"Created test database at: %@", dbPath);
   return dbPath;

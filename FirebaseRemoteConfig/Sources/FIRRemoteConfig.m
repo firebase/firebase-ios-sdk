@@ -316,21 +316,18 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
     [strongSelf->_configContent copyFromDictionary:self->_configContent.fetchedConfig
                                           toSource:RCNDBSourceActive
                                       forNamespace:self->_FIRNamespace];
-    [strongSelf->_configContent activatePersonalization];
-    [strongSelf updateExperiments];
     strongSelf->_settings.lastApplyTimeInterval = [[NSDate date] timeIntervalSince1970];
     FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000069", @"Config activated.");
-    if (completion) {
-      dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        completion(YES, nil);
-      });
-    }
+    [strongSelf->_configContent activatePersonalization];
+    [strongSelf->_configExperiment updateExperimentsWithHandler:^(NSError *_Nullable error) {
+      if (completion) {
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+          completion(YES, nil);
+        });
+      }
+    }];
   };
   dispatch_async(_queue, applyBlock);
-}
-
-- (void)updateExperiments {
-  [self->_configExperiment updateExperiments];
 }
 
 #pragma mark - helpers

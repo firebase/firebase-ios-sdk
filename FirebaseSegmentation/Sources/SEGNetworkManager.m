@@ -92,7 +92,7 @@ typedef void (^URLSessionCompletion)(NSData *data, NSURLResponse *response, NSEr
   NSString *URL = [self constructServerURLWithAssociationData:associationData];
   if (!URL) {
     FIRLogError(kFIRLoggerSegmentation, @"I-SEG000020", @"Could not construct backend URL.");
-    completionHandler(NO, @{@"errorDescription" : @"Could not construct backend URL"});
+    completionHandler(NO, @{kSEGErrorDescription : @"Could not construct backend URL"});
   }
 
   FIRLogDebug(kFIRLoggerSegmentation, @"I-SEG000019", @"%@",
@@ -112,7 +112,7 @@ typedef void (^URLSessionCompletion)(NSData *data, NSURLResponse *response, NSEr
     FIRLogError(kFIRLoggerSegmentation, @"I-SEG000021", @"Could not create request data. %@",
                 error.localizedDescription);
     completionHandler(NO,
-                      @{@"errorDescription" : @"Could not serialize JSON data for network call."});
+                      @{kSEGErrorDescription : @"Could not serialize JSON data for network call."});
   }
 
   // Handle NSURLSession completion.
@@ -126,7 +126,7 @@ typedef void (^URLSessionCompletion)(NSData *data, NSURLResponse *response, NSEr
                     FIRLogError(kFIRLoggerSegmentation, @"I-SEG000022",
                                 @"Internal error making network request.");
                     completionHandler(
-                        NO, @{@"errorDescription" : @"Internal error making network request."});
+                        NO, @{kSEGErrorDescription : @"Internal error making network request."});
                     return;
                   }
 
@@ -140,7 +140,7 @@ typedef void (^URLSessionCompletion)(NSData *data, NSURLResponse *response, NSEr
                                 @"SEGNetworkManager: Network request failed with status code:%lu",
                                 (long)statusCode);
                     completionHandler(NO, @{
-                      @"ErrorDescription" :
+                      kSEGErrorDescription :
                           [NSString stringWithFormat:@"Network Error: %lu", (long)statusCode]
                     });
                   };
