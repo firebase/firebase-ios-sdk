@@ -2,7 +2,7 @@
 # commit Gemfile and Gemfile.lock.
 source 'https://rubygems.org'
 
-gem 'cocoapods', git: "https://github.com/dnkoutso/CocoaPods.git", ref: "e44c6d45ba6e373026d060363294348c2257a2b2"
+gem 'cocoapods', git: "https://github.com/dnkoutso/CocoaPods.git", ref: "59e31a423a4ef1ce09fcda896a297ffc728b1743"
 
 # Use cocoapod-generate hash until 2.1.0 releases to fix a bug interacting with CocoaPods 1.10.
 gem 'cocoapods-generate', git: "https://github.com/square/cocoapods-generate.git", ref: "230b0b537b"
