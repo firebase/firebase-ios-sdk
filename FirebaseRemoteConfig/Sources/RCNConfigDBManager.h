@@ -104,7 +104,7 @@ typedef void (^RCNDBLoadCompletion)(BOOL success,
                           values:(NSArray *)values
                completionHandler:(RCNDBCompletion)handler;
 
-/// Insert or update the data in Personalizatoin config.
+/// Insert or update the data in Personalization config.
 - (BOOL)insertOrUpdatePersonalizationConfig:(NSDictionary *)metadata fromSource:(RCNDBSource)source;
 
 /// Clear the record of given namespace and package name

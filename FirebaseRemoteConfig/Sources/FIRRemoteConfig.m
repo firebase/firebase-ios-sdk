@@ -43,8 +43,7 @@ static NSString *const kRemoteConfigMinimumFetchIntervalKey = @"_rcn_minimum_fet
 static NSString *const kRemoteConfigFetchTimeoutKey = @"_rcn_fetch_timeout";
 
 /// Listener for the get methods.
-typedef void (^FIRRemoteConfigListener)(NSString *_Nonnull, NSDictionary *_Nonnull)
-    NS_SWIFT_NAME(FIRRemoteConfigListener);
+typedef void (^FIRRemoteConfigListener)(NSString *_Nonnull, NSDictionary *_Nonnull);
 
 @interface FIRRemoteConfigSettings () {
   BOOL _developerModeEnabled;
