@@ -7,7 +7,7 @@
 - [fixed] Fixed database creation on tvOS. (#6612)
 - [changed] Updated public API documentation to no longer reference removed APIs. (#6641)
 - [fixed] Updated `activateWithCompletion:` to use completion handler for experiment updates. (#3687)
-- [changed] Log metadata for Remote Config parameter get calls. (#6692)
+- [changed] Added preliminary infrastructure to support future features. (#6692)
 
 # v4.9.1
 - [fixed] Fix an `attempt to insert nil object` crash in `fetchWithExpirationDuration:`. (#6522)
