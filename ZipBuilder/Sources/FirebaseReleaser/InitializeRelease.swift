@@ -63,7 +63,7 @@ struct InitializeRelease {
     }
   }
 
-  private func updateFirebasePodspec(path: URL, manifest: FirebaseManifest.Manifest) {
+  private static func updateFirebasePodspec(path: URL, manifest: FirebaseManifest.Manifest) {
     let podspecFile = path.appendingPathComponent("Firebase.podspec")
     var contents = ""
     do {
