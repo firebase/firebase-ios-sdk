@@ -51,15 +51,15 @@ public struct Manifest {
   public let otherPods: [OtherPod]
 
   init() {
-    self.version = "7.0.0"
+    self.version = "6.99.9"
     self.otherPods = [
-      OtherPod("GoogleUtilities", "7.0.0", releasing: true),
-      OtherPod("GoogleDataTransport", "7.5.0", releasing: true)
+      OtherPod("GoogleUtilities", "6.99.9999", releasing: true),
+      OtherPod("GoogleDataTransport", "6.999.990", releasing: true)
     ]
     self.firebasePods = [
       FirebasePod("FirebaseCore"),
       FirebasePod("FirebaseInstallations"),
-      FirebasePod("FirebaseInstanceId"),
+      FirebasePod("FirebaseInstanceID"),
       FirebasePod("FirebaseAnalytics", isClosedSource: true),
     ]
   }

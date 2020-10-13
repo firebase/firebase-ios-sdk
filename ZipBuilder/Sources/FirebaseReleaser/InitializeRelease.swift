@@ -42,14 +42,14 @@ struct InitializeRelease {
   private static func updatePodspecs(path: URL, manifest: FirebaseManifest.Manifest) {
     let version = manifest.version
     // Update the Firebase_VERSION preprocessor string.
-    Shell.executeCommand("sed -i.bak -e \"s/\\(Firebase_VERSION=\\).*'/\\1\(version)'/\" " +
+    Shell.executeCommand("sed -i.bak -e \"s/\\(Firebase_VERSION=\\).*'/\\1\(version)'/\"" +
                          "FirebaseCore.podspec",
                          workingDir: path)
 
     // Update the versions in the non-Firebase pods.
     for pod in manifest.otherPods {
       if pod.releasing {
-        Shell.executeCommand("sed -i.bak -e \"s/\\(\\.version.*=[[:space:]]*'\\).*'/\\1 " +
+        Shell.executeCommand("sed -i.bak -e \"s/\\(\\.version.*=[[:space:]]*'\\).*'/\\1" +
                             "\(pod.version)'/\" \(pod.name).podspec",
                              workingDir: path)
       }
@@ -57,9 +57,11 @@ struct InitializeRelease {
 
     // Update the versions in the Firebase pods.
     for pod in manifest.firebasePods {
-      Shell.executeCommand("sed -i.bak -e \"s/\\(\\.version.*=[[:space:]]*'\\).*'/\\1 " +
-                          "\(version)'/\" \(pod.name).podspec",
-                           workingDir: path)
+      if !pod.isClosedSource {
+        Shell.executeCommand("sed -i.bak -e \"s/\\(\\.version.*=[[:space:]]*'\\).*'/\\1 " +
+                            "\(version)'/\" \(pod.name).podspec",
+                             workingDir: path)
+      }
     }
   }
 
