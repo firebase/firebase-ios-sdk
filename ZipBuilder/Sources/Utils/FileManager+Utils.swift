@@ -115,7 +115,7 @@ public extension FileManager {
   func temporaryDirectory(withName name: String) -> URL {
     // Get access to the temporary directory. This could be passed in via `LaunchArgs`, or use the
     // default temporary directory.
-      let tempDir: URL
+    let tempDir: URL
 //    if let root = LaunchArgs.shared.buildRoot {
 //      tempDir = root
 //    } else

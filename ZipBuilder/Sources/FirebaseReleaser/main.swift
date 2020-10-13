@@ -21,18 +21,18 @@ import Utils
 
 struct FirebaseReleaser: ParsableCommand {
   /// The root of the Firebase git repo.
-  /// TODO: Add a default that sets the current repo - ['git', 'rev-parse', '--show-toplevel']
+  // TODO: Add a default that sets the current repo - ['git', 'rev-parse', '--show-toplevel']
   @Option(help: "The root of the firebase-ios-sdk checked out git repo.",
           transform: URL.init(fileURLWithPath:))
   var gitRoot: URL
 
   @Option(default: false,
           help: "Log without executing the shell commands")
-          var logOnly:Bool
+  var logOnly: Bool
 
   @Option(default: false,
           help: "Initialize the release branch")
-          var initBranch: Bool
+  var initBranch: Bool
 
   mutating func validate() throws {
     guard FileManager.default.fileExists(atPath: gitRoot.path) else {
@@ -41,10 +41,10 @@ struct FirebaseReleaser: ParsableCommand {
   }
 
   func run() throws {
-    if self.logOnly {
+    if logOnly {
       Shell.setLogOnly()
     }
-    if self.initBranch {
+    if initBranch {
       InitializeRelease.setupRepo(gitRoot: gitRoot)
       Tags.create(gitRoot: gitRoot)
     }

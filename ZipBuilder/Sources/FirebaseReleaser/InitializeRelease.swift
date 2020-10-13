@@ -43,8 +43,8 @@ struct InitializeRelease {
     for pod in manifest.otherPods {
       if pod.releasing {
         Shell.executeCommand("sed -i.bak -e \"s/\\(\\.version.*=[[:space:]]*'\\).*'/\\1" +
-                            "\(pod.version)'/\" \(pod.name).podspec",
-                             workingDir: path)
+          "\(pod.version)'/\" \(pod.name).podspec",
+          workingDir: path)
       }
     }
 
@@ -55,8 +55,8 @@ struct InitializeRelease {
           updateFirebasePodspec(path: path, manifest: manifest)
         } else {
           Shell.executeCommand("sed -i.bak -e \"s/\\(\\.version.*=[[:space:]]*'\\).*'/\\1" +
-                                "\(manifest.version)'/\" \(pod.name).podspec",
-                               workingDir: path)
+            "\(manifest.version)'/\" \(pod.name).podspec",
+            workingDir: path)
         }
       }
     }
@@ -119,12 +119,11 @@ struct InitializeRelease {
       .appendingPathComponent("Example")
     let collisionPodfile = path.appendingPathComponent("SymbolCollisionTest")
     let sedCommand = "sed -i.bak -e \"s#\\(pod " +
-                     "'Firebase/CoreOnly',[[:space:]]*'\\).*'#\\1\(version)'#\" Podfile"
+      "'Firebase/CoreOnly',[[:space:]]*'\\).*'#\\1\(version)'#\" Podfile"
     Shell.executeCommand(sedCommand, workingDir: firestorePodfile)
 
     let sedCommand2 = "sed -i.bak -e \"s#\\(pod " +
-                      "'Firebase',[[:space:]]*'\\).*'#\\1\(version)'#\" Podfile"
+      "'Firebase',[[:space:]]*'\\).*'#\\1\(version)'#\" Podfile"
     Shell.executeCommand(sedCommand2, workingDir: collisionPodfile)
   }
 }
-

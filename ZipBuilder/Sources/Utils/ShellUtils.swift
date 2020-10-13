@@ -177,8 +177,8 @@ public extension Shell {
   ///   - workingDir: An optional working directory to run the shell command in.
   /// - Returns: A Result containing output information from the command.
   static func executeCommand(_ command: String,
-                                       outputToConsole: Bool = true,
-                                       workingDir: URL? = nil) {
+                             outputToConsole: Bool = true,
+                             workingDir: URL? = nil) {
     if logOnly {
       print(command)
       return

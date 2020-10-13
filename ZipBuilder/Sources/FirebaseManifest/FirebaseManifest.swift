@@ -16,7 +16,7 @@
 
 import Foundation
 
-public let shared = Manifest.init()
+public let shared = Manifest()
 
 /// Struct describing Firebase pods to release.
 public struct FirebasePod {
@@ -51,14 +51,14 @@ public struct Manifest {
   public let otherPods: [OtherPod]
 
   init() {
-    self.version = "6.99.9"
-    self.otherPods = [
+    version = "6.99.9"
+    otherPods = [
       OtherPod("GoogleUtilities", "6.99.9999", releasing: true),
-      OtherPod("GoogleDataTransport", "6.999.990", releasing: true)
+      OtherPod("GoogleDataTransport", "6.999.990", releasing: true),
     ]
     // List of Firebase pods. It should be ordered in a valid publishing order
     // with all dependencies earlier in the list.
-    self.firebasePods = [
+    firebasePods = [
       FirebasePod("FirebaseCoreDiagnostics"),
       FirebasePod("FirebaseCore"),
       FirebasePod("FirebaseInstallations"),
