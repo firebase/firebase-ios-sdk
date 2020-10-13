@@ -20,13 +20,14 @@
 import Foundation
 
 // Update with directories in which to find headers.
-let findHeaders = ["Crashlytics"]
+let findHeaders = ["FirebaseMessaging"]
 
 // Update with directories in which to change imports.
 let changeImports = ["GoogleUtilities", "FirebaseAuth", "FirebaseCore", "Firebase",
                      "FirebaseDatabase", "GoogleDataTransport",
                      "FirebaseDynamicLinks", "FirebaseInAppMessaging", "FirebaseMessaging",
                      "FirebaseRemoteConfig", "FirebaseInstallations", "Functions",
+                     "FirebaseABTesting",
                      "FirebaseAppDistribution", "Example", "Crashlytics", "FirebaseStorage"]
 
 // Skip these directories. Imports should only be repo-relative in libraries

@@ -47,6 +47,14 @@
   return self;
 }
 
++ (instancetype)stackFrameWithAddress:(NSUInteger)address {
+  FIRStackFrame *frame = [self stackFrame];
+
+  [frame setAddress:address];
+
+  return frame;
+}
+
 + (instancetype)stackFrameWithSymbol:(NSString *)symbol file:(NSString *)file line:(NSInteger)line {
   return [[FIRStackFrame alloc] initWithSymbol:symbol file:file line:line];
 }
@@ -55,14 +63,6 @@
 
 + (instancetype)stackFrame {
   return [[self alloc] init];
-}
-
-+ (instancetype)stackFrameWithAddress:(NSUInteger)address {
-  FIRStackFrame *frame = [self stackFrame];
-
-  [frame setAddress:address];
-
-  return frame;
 }
 
 + (instancetype)stackFrameWithSymbol:(NSString *)symbol {

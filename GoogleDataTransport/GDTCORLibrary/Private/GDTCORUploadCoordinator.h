@@ -16,8 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
-#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORLifecycle.h"
-#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORRegistrar.h"
+#import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORLifecycle.h"
+#import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORRegistrar.h"
 
 @class GDTCORClock;
 
@@ -39,7 +39,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, readonly) dispatch_queue_t coordinationQueue;
 
 /** A timer that will causes regular checks for events to upload. */
-@property(nonatomic, readonly) dispatch_source_t timer;
+@property(nonatomic, readonly, nullable) dispatch_source_t timer;
 
 /** The interval the timer will fire. */
 @property(nonatomic, readonly) uint64_t timerInterval;

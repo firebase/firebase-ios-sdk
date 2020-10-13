@@ -14,8 +14,8 @@
 
 #import <OCMock/OCMock.h>
 
-#import "FetchMocks.h"
 #import "FirebaseRemoteConfig/Sources/Private/RCNConfigFetch.h"
+#import "FirebaseRemoteConfig/Tests/FakeUtils/FetchMocks.h"
 
 @interface RCNConfigFetch (ExposedForTest)
 - (void)refreshInstallationsTokenWithCompletionHandler:

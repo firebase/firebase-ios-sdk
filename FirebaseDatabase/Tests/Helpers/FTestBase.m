@@ -20,12 +20,14 @@
 #import "FirebaseDatabase/Tests/Helpers/FIRTestAuthTokenProvider.h"
 #import "FirebaseDatabase/Tests/Helpers/FTestAuthTokenGenerator.h"
 #import "FirebaseDatabase/Tests/Helpers/FTestBase.h"
+#import "SharedTestUtilities/FIROptionsMock.h"
 
 @implementation FTestBase
 
 + (void)setUp {
   static dispatch_once_t once;
   dispatch_once(&once, ^{
+    [FIROptionsMock mockFIROptions];
     [FIRApp configure];
   });
 }

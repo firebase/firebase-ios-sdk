@@ -485,6 +485,11 @@ bool FIRCLSProcessRecordAllThreads(FIRCLSProcess *process, FIRCLSFile *file) {
 
     FIRCLSSDKLogInfo("recording thread %d data\n", i);
     if (!FIRCLSProcessRecordThread(process, thread, file)) {
+      FIRCLSSDKLogError("Failed to record thread state. Closing threads JSON to prevent malformed crash report.");
+
+      FIRCLSFileWriteArrayEnd(file);
+
+      FIRCLSFileWriteSectionEnd(file);
       return false;
     }
   }
@@ -794,6 +799,12 @@ static void FIRCLSProcessRecordCrashInfo(FIRCLSFile *file) {
       FIRCLSSDKLogError("Failed to copy crash info string\n");
       continue;
     }
+
+    // The crash_info_t's message may contain the device's UDID, in this case,
+    // make sure that we do our best to redact that information before writing the
+    // rest of the message to disk. This also has the effect of not uploading that
+    // information in the subsequent crash report.
+    FIRCLSRedactUUID(string);
 
     FIRCLSFileWriteArrayEntryHexEncodedString(file, string);
   }

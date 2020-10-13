@@ -32,7 +32,6 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FIRDLDefaultRetrievalProcessV2 : NSObject <FIRDLRetrievalProcessProtocol>
 
 - (instancetype)initWithNetworkingService:(FIRDynamicLinkNetworking *)networkingService
-                                 clientID:(NSString *)clientID
                                 URLScheme:(NSString *)URLScheme
                                    APIKey:(NSString *)APIKey
                             FDLSDKVersion:(NSString *)FDLSDKVersion

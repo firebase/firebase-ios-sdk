@@ -23,15 +23,16 @@
 @interface RCNConfigExperiment : NSObject
 
 /// Designated initializer;
-- (instancetype)initWithDBManager:(RCNConfigDBManager *)DBManager
-             experimentController:(FIRExperimentController *)controller NS_DESIGNATED_INITIALIZER;
+- (nonnull instancetype)initWithDBManager:(RCNConfigDBManager *_Nullable)DBManager
+                     experimentController:(FIRExperimentController *_Nullable)controller
+    NS_DESIGNATED_INITIALIZER;
 
 /// Use `initWithDBManager:` instead.
-- (instancetype)init NS_UNAVAILABLE;
+- (nonnull instancetype)init NS_UNAVAILABLE;
 
 /// Update/Persist experiment information from config fetch response.
-- (void)updateExperimentsWithResponse:(NSArray<NSDictionary<NSString *, id> *> *)response;
+- (void)updateExperimentsWithResponse:(NSArray<NSDictionary<NSString *, id> *> *_Nullable)response;
 
-/// Update experiments to Firebase Analytics when activateFetched happens.
-- (void)updateExperiments;
+/// Update experiments to Firebase Analytics when `activateWithCompletion:` happens.
+- (void)updateExperimentsWithHandler:(nullable void (^)(NSError *_Nullable error))handler;
 @end

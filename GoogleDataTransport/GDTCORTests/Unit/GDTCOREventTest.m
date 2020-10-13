@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCOREvent.h"
-#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORTargets.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCOREvent.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORTargets.h"
 
-#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORClock.h"
-#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORPlatform.h"
-#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORRegistrar.h"
-#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORStorageProtocol.h"
+#import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORPlatform.h"
+#import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORRegistrar.h"
+#import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORStorageProtocol.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORClock.h"
 
 #import "GoogleDataTransport/GDTCORTests/Unit/GDTCORTestCase.h"
 #import "GoogleDataTransport/GDTCORTests/Unit/Helpers/GDTCORDataObjectTesterClasses.h"
@@ -93,8 +93,8 @@
   event1.clockSnapshot = [GDTCORClock snapshot];
   [event1.clockSnapshot setValue:@(1553534573010) forKeyPath:@"timeMillis"];
   [event1.clockSnapshot setValue:@(-25200) forKeyPath:@"timezoneOffsetSeconds"];
-  [event1.clockSnapshot setValue:@(1552576634359451) forKeyPath:@"kernelBootTime"];
-  [event1.clockSnapshot setValue:@(961141365197) forKeyPath:@"uptime"];
+  [event1.clockSnapshot setValue:@(1552576634359451) forKeyPath:@"kernelBootTimeNanoseconds"];
+  [event1.clockSnapshot setValue:@(961141365197) forKeyPath:@"uptimeNanoseconds"];
   event1.qosTier = GDTCOREventQosDefault;
   event1.dataObject = [[GDTCORDataObjectTesterSimple alloc] initWithString:@"someData"];
   NSError *error1;
@@ -108,8 +108,8 @@
   event2.clockSnapshot = [GDTCORClock snapshot];
   [event2.clockSnapshot setValue:@(1553534573010) forKeyPath:@"timeMillis"];
   [event2.clockSnapshot setValue:@(-25200) forKeyPath:@"timezoneOffsetSeconds"];
-  [event2.clockSnapshot setValue:@(1552576634359451) forKeyPath:@"kernelBootTime"];
-  [event2.clockSnapshot setValue:@(961141365197) forKeyPath:@"uptime"];
+  [event2.clockSnapshot setValue:@(1552576634359451) forKeyPath:@"kernelBootTimeNanoseconds"];
+  [event2.clockSnapshot setValue:@(961141365197) forKeyPath:@"uptimeNanoseconds"];
   event2.qosTier = GDTCOREventQosDefault;
   event2.dataObject = [[GDTCORDataObjectTesterSimple alloc] initWithString:@"someData"];
   NSError *error2;

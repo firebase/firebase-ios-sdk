@@ -350,7 +350,7 @@ const char descriptor_table_protodef_google_2ffirestore_2fv1_2fquery_2eproto[] P
   "\n\037google/firestore/v1/query.proto\022\023googl"
   "e.firestore.v1\032\034google/api/annotations.p"
   "roto\032\"google/firestore/v1/document.proto"
-  "\032\036google/protobuf/wrappers.proto\"\372\016\n\017Str"
+  "\032\036google/protobuf/wrappers.proto\"\266\017\n\017Str"
   "ucturedQuery\022\?\n\006select\030\001 \001(\0132/.google.fi"
   "restore.v1.StructuredQuery.Projection\022E\n"
   "\004from\030\002 \003(\01327.google.firestore.v1.Struct"
@@ -374,38 +374,39 @@ const char descriptor_table_protodef_google_2ffirestore_2fv1_2fquery_2eproto[] P
   "v1.StructuredQuery.CompositeFilter.Opera"
   "tor\022<\n\007filters\030\002 \003(\0132+.google.firestore."
   "v1.StructuredQuery.Filter\"-\n\010Operator\022\030\n"
-  "\024OPERATOR_UNSPECIFIED\020\000\022\007\n\003AND\020\001\032\375\002\n\013Fie"
+  "\024OPERATOR_UNSPECIFIED\020\000\022\007\n\003AND\020\001\032\230\003\n\013Fie"
   "ldFilter\022B\n\005field\030\001 \001(\01323.google.firesto"
   "re.v1.StructuredQuery.FieldReference\022E\n\002"
   "op\030\002 \001(\01629.google.firestore.v1.Structure"
   "dQuery.FieldFilter.Operator\022)\n\005value\030\003 \001"
-  "(\0132\032.google.firestore.v1.Value\"\267\001\n\010Opera"
+  "(\0132\032.google.firestore.v1.Value\"\322\001\n\010Opera"
   "tor\022\030\n\024OPERATOR_UNSPECIFIED\020\000\022\r\n\tLESS_TH"
   "AN\020\001\022\026\n\022LESS_THAN_OR_EQUAL\020\002\022\020\n\014GREATER_"
   "THAN\020\003\022\031\n\025GREATER_THAN_OR_EQUAL\020\004\022\t\n\005EQU"
-  "AL\020\005\022\022\n\016ARRAY_CONTAINS\020\007\022\006\n\002IN\020\010\022\026\n\022ARRA"
-  "Y_CONTAINS_ANY\020\t\032\351\001\n\013UnaryFilter\022E\n\002op\030\001"
-  " \001(\01629.google.firestore.v1.StructuredQue"
-  "ry.UnaryFilter.Operator\022D\n\005field\030\002 \001(\01323"
-  ".google.firestore.v1.StructuredQuery.Fie"
-  "ldReferenceH\000\"=\n\010Operator\022\030\n\024OPERATOR_UN"
-  "SPECIFIED\020\000\022\n\n\006IS_NAN\020\002\022\013\n\007IS_NULL\020\003B\016\n\014"
-  "operand_type\032\216\001\n\005Order\022B\n\005field\030\001 \001(\01323."
-  "google.firestore.v1.StructuredQuery.Fiel"
-  "dReference\022A\n\tdirection\030\002 \001(\0162..google.f"
-  "irestore.v1.StructuredQuery.Direction\032$\n"
-  "\016FieldReference\022\022\n\nfield_path\030\002 \001(\t\032Q\n\nP"
-  "rojection\022C\n\006fields\030\002 \003(\01323.google.fires"
-  "tore.v1.StructuredQuery.FieldReference\"E"
-  "\n\tDirection\022\031\n\025DIRECTION_UNSPECIFIED\020\000\022\r"
-  "\n\tASCENDING\020\001\022\016\n\nDESCENDING\020\002\"D\n\006Cursor\022"
-  "*\n\006values\030\001 \003(\0132\032.google.firestore.v1.Va"
-  "lue\022\016\n\006before\030\002 \001(\010B\256\001\n\027com.google.fires"
-  "tore.v1B\nQueryProtoP\001Z<google.golang.org"
-  "/genproto/googleapis/firestore/v1;firest"
-  "ore\242\002\004GCFS\252\002\036Google.Cloud.Firestore.V1Be"
-  "ta1\312\002\036Google\\Cloud\\Firestore\\V1beta1b\006pr"
-  "oto3"
+  "AL\020\005\022\r\n\tNOT_EQUAL\020\006\022\022\n\016ARRAY_CONTAINS\020\007\022"
+  "\006\n\002IN\020\010\022\026\n\022ARRAY_CONTAINS_ANY\020\t\022\n\n\006NOT_I"
+  "N\020\n\032\212\002\n\013UnaryFilter\022E\n\002op\030\001 \001(\01629.google"
+  ".firestore.v1.StructuredQuery.UnaryFilte"
+  "r.Operator\022D\n\005field\030\002 \001(\01323.google.fires"
+  "tore.v1.StructuredQuery.FieldReferenceH\000"
+  "\"^\n\010Operator\022\030\n\024OPERATOR_UNSPECIFIED\020\000\022\n"
+  "\n\006IS_NAN\020\002\022\013\n\007IS_NULL\020\003\022\016\n\nIS_NOT_NAN\020\004\022"
+  "\017\n\013IS_NOT_NULL\020\005B\016\n\014operand_type\032\216\001\n\005Ord"
+  "er\022B\n\005field\030\001 \001(\01323.google.firestore.v1."
+  "StructuredQuery.FieldReference\022A\n\tdirect"
+  "ion\030\002 \001(\0162..google.firestore.v1.Structur"
+  "edQuery.Direction\032$\n\016FieldReference\022\022\n\nf"
+  "ield_path\030\002 \001(\t\032Q\n\nProjection\022C\n\006fields\030"
+  "\002 \003(\01323.google.firestore.v1.StructuredQu"
+  "ery.FieldReference\"E\n\tDirection\022\031\n\025DIREC"
+  "TION_UNSPECIFIED\020\000\022\r\n\tASCENDING\020\001\022\016\n\nDES"
+  "CENDING\020\002\"D\n\006Cursor\022*\n\006values\030\001 \003(\0132\032.go"
+  "ogle.firestore.v1.Value\022\016\n\006before\030\002 \001(\010B"
+  "\256\001\n\027com.google.firestore.v1B\nQueryProtoP"
+  "\001Z<google.golang.org/genproto/googleapis"
+  "/firestore/v1;firestore\242\002\004GCFS\252\002\036Google."
+  "Cloud.Firestore.V1Beta1\312\002\036Google\\Cloud\\F"
+  "irestore\\V1beta1b\006proto3"
   ;
 static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_google_2ffirestore_2fv1_2fquery_2eproto_deps[3] = {
   &::descriptor_table_google_2fapi_2fannotations_2eproto,
@@ -426,7 +427,7 @@ static ::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase*const descriptor_table_goo
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_google_2ffirestore_2fv1_2fquery_2eproto_once;
 static bool descriptor_table_google_2ffirestore_2fv1_2fquery_2eproto_initialized = false;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_google_2ffirestore_2fv1_2fquery_2eproto = {
-  &descriptor_table_google_2ffirestore_2fv1_2fquery_2eproto_initialized, descriptor_table_protodef_google_2ffirestore_2fv1_2fquery_2eproto, "google/firestore/v1/query.proto", 2324,
+  &descriptor_table_google_2ffirestore_2fv1_2fquery_2eproto_initialized, descriptor_table_protodef_google_2ffirestore_2fv1_2fquery_2eproto, "google/firestore/v1/query.proto", 2384,
   &descriptor_table_google_2ffirestore_2fv1_2fquery_2eproto_once, descriptor_table_google_2ffirestore_2fv1_2fquery_2eproto_sccs, descriptor_table_google_2ffirestore_2fv1_2fquery_2eproto_deps, 9, 3,
   schemas, file_default_instances, TableStruct_google_2ffirestore_2fv1_2fquery_2eproto::offsets,
   file_level_metadata_google_2ffirestore_2fv1_2fquery_2eproto, 10, file_level_enum_descriptors_google_2ffirestore_2fv1_2fquery_2eproto, file_level_service_descriptors_google_2ffirestore_2fv1_2fquery_2eproto,
@@ -470,9 +471,11 @@ bool StructuredQuery_FieldFilter_Operator_IsValid(int value) {
     case 3:
     case 4:
     case 5:
+    case 6:
     case 7:
     case 8:
     case 9:
+    case 10:
       return true;
     default:
       return false;
@@ -486,9 +489,11 @@ constexpr StructuredQuery_FieldFilter_Operator StructuredQuery_FieldFilter::LESS
 constexpr StructuredQuery_FieldFilter_Operator StructuredQuery_FieldFilter::GREATER_THAN;
 constexpr StructuredQuery_FieldFilter_Operator StructuredQuery_FieldFilter::GREATER_THAN_OR_EQUAL;
 constexpr StructuredQuery_FieldFilter_Operator StructuredQuery_FieldFilter::EQUAL;
+constexpr StructuredQuery_FieldFilter_Operator StructuredQuery_FieldFilter::NOT_EQUAL;
 constexpr StructuredQuery_FieldFilter_Operator StructuredQuery_FieldFilter::ARRAY_CONTAINS;
 constexpr StructuredQuery_FieldFilter_Operator StructuredQuery_FieldFilter::IN_;
 constexpr StructuredQuery_FieldFilter_Operator StructuredQuery_FieldFilter::ARRAY_CONTAINS_ANY;
+constexpr StructuredQuery_FieldFilter_Operator StructuredQuery_FieldFilter::NOT_IN;
 constexpr StructuredQuery_FieldFilter_Operator StructuredQuery_FieldFilter::Operator_MIN;
 constexpr StructuredQuery_FieldFilter_Operator StructuredQuery_FieldFilter::Operator_MAX;
 constexpr int StructuredQuery_FieldFilter::Operator_ARRAYSIZE;
@@ -502,6 +507,8 @@ bool StructuredQuery_UnaryFilter_Operator_IsValid(int value) {
     case 0:
     case 2:
     case 3:
+    case 4:
+    case 5:
       return true;
     default:
       return false;
@@ -512,6 +519,8 @@ bool StructuredQuery_UnaryFilter_Operator_IsValid(int value) {
 constexpr StructuredQuery_UnaryFilter_Operator StructuredQuery_UnaryFilter::OPERATOR_UNSPECIFIED;
 constexpr StructuredQuery_UnaryFilter_Operator StructuredQuery_UnaryFilter::IS_NAN;
 constexpr StructuredQuery_UnaryFilter_Operator StructuredQuery_UnaryFilter::IS_NULL;
+constexpr StructuredQuery_UnaryFilter_Operator StructuredQuery_UnaryFilter::IS_NOT_NAN;
+constexpr StructuredQuery_UnaryFilter_Operator StructuredQuery_UnaryFilter::IS_NOT_NULL;
 constexpr StructuredQuery_UnaryFilter_Operator StructuredQuery_UnaryFilter::Operator_MIN;
 constexpr StructuredQuery_UnaryFilter_Operator StructuredQuery_UnaryFilter::Operator_MAX;
 constexpr int StructuredQuery_UnaryFilter::Operator_ARRAYSIZE;

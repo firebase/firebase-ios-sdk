@@ -17,7 +17,7 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
-#import "FIRIAMActionURLFollower.h"
+#import "FirebaseInAppMessaging/Sources/Private/Runtime/FIRIAMActionURLFollower.h"
 
 // since OCMock does support mocking respondsToSelector on mock object, we have to define
 // different delegate classes with different coverages of certain delegate methods:
@@ -108,18 +108,12 @@
 
 - (void)setupOpenURLViaIOSForUIApplicationWithReturnValue:(BOOL)returnValue {
   // it would fallback to either openURL:options:completionHandler:
-  //   or openURL: on the UIApplication object to follow the url
-  if ([self.mockApplication respondsToSelector:@selector(openURL:options:completionHandler:)]) {
-    // id types is needed for calling invokeBlockWithArgs
-    id yesOrNo = returnValue ? @YES : @NO;
-    if (@available(iOS 10.0, *)) {
-      OCMStub([self.mockApplication openURL:[OCMArg any]
-                                    options:[OCMArg any]
-                          completionHandler:([OCMArg invokeBlockWithArgs:yesOrNo, nil])]);
-    }
-  } else {
-    OCMStub([self.mockApplication openURL:[OCMArg any]]).andReturn(returnValue);
-  }
+  //   on the UIApplication object to follow the url
+  // id types is needed for calling invokeBlockWithArgs
+  id yesOrNo = returnValue ? @YES : @NO;
+  OCMStub([self.mockApplication openURL:[OCMArg any]
+                                options:[OCMArg any]
+                      completionHandler:([OCMArg invokeBlockWithArgs:yesOrNo, nil])]);
 }
 
 - (void)testUniversalLinkHandlingReturnNo {

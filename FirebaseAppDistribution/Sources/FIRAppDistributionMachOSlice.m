@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
+#import "FirebaseAppDistribution/Sources/FIRAppDistributionMachOSlice.h"
 #import <mach-o/fat.h>
 #import <mach-o/loader.h>
-#import "FIRAppDistributionMachOSlice+Private.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

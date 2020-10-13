@@ -25,17 +25,10 @@
 #import "FirebaseDatabase/Sources/Api/Private/FIRDatabase_Private.h"
 #import "FirebaseDatabase/Sources/Core/FRepoInfo.h"
 #import "FirebaseDatabase/Sources/FIRDatabaseConfig_Private.h"
-#import "FirebaseDatabase/Sources/Public/FIRDatabase.h"
+#import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRDatabase.h"
 #import "FirebaseDatabase/Sources/Utilities/FValidation.h"
 
 @implementation FIRDatabase
-
-// The STR and STR_EXPAND macro allow a numeric version passed to he compiler
-// driver with a -D to be treated as a string instead of an invalid floating
-// point value.
-#define STR(x) STR_EXPAND(x)
-#define STR_EXPAND(x) #x
-static const char *FIREBASE_SEMVER = (const char *)STR(FIRDatabase_VERSION);
 
 + (FIRDatabase *)database {
     if (![FIRApp isDefaultAppConfigured]) {
@@ -67,7 +60,22 @@ static const char *FIREBASE_SEMVER = (const char *)STR(FIRDatabase_VERSION);
         [NSException raise:@"InvalidFIRApp"
                     format:@"nil FIRApp instance passed to databaseForApp."];
     }
-    return [FIRDatabase databaseForApp:app URL:app.options.databaseURL];
+    NSString *url = app.options.databaseURL;
+    if (!url) {
+        if (!app.options.projectID) {
+            [NSException
+                 raise:@"MissingProjectId"
+                format:@"Can't determine Firebase Database URL. Be sure to "
+                       @"include a Project ID when calling "
+                       @"`FirebaseApp.configure()`."];
+        }
+        FFLog(@"I-RDB024002", @"Using default host for project %@",
+              app.options.projectID);
+        url = [NSString
+            stringWithFormat:@"https://%@-default-rtdb.firebaseio.com",
+                             app.options.projectID];
+    }
+    return [FIRDatabase databaseForApp:app URL:url];
 }
 
 + (FIRDatabase *)databaseForApp:(FIRApp *)app URL:(NSString *)url {
@@ -88,7 +96,7 @@ static const char *FIREBASE_SEMVER = (const char *)STR(FIRDatabase_VERSION);
 
 + (NSString *)buildVersion {
     // TODO: Restore git hash when build moves back to git
-    return [NSString stringWithFormat:@"%s_%s", FIREBASE_SEMVER, __DATE__];
+    return [NSString stringWithFormat:@"%@_%s", FIRFirebaseVersion(), __DATE__];
 }
 
 + (FIRDatabase *)createDatabaseForTests:(FRepoInfo *)repoInfo
@@ -101,7 +109,7 @@ static const char *FIREBASE_SEMVER = (const char *)STR(FIRDatabase_VERSION);
 }
 
 + (NSString *)sdkVersion {
-    return [NSString stringWithUTF8String:FIREBASE_SEMVER];
+    return FIRFirebaseVersion();
 }
 
 + (void)setLoggingEnabled:(BOOL)enabled {

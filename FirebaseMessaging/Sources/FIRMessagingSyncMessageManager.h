@@ -19,7 +19,7 @@
 @class FIRMessagingRmqManager;
 
 /**
- *  Handle sync messages being received both via MCS and APNS.
+ *  Handle sync messages being received via APNS.
  */
 @interface FIRMessagingSyncMessageManager : NSObject
 
@@ -34,7 +34,7 @@
 
 /**
  *  Remove expired sync message from persistent store. Also removes messages that have
- *  been received both via APNS and MCS.
+ *  been received  via APNS.
  */
 - (void)removeExpiredSyncMessages;
 
@@ -46,14 +46,5 @@
  *  @return YES if the message is a duplicate of an already received sync message else NO.
  */
 - (BOOL)didReceiveAPNSSyncMessage:(NSDictionary *)message;
-
-/**
- *  App did receive a sync message via MCS.
- *
- *  @param message The sync message received.
- *
- *  @return YES if the message is a duplicate of an already received sync message else NO.
- */
-- (BOOL)didReceiveMCSSyncMessage:(NSDictionary *)message;
 
 @end

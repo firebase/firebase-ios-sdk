@@ -14,7 +14,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FirebaseStorage/Sources/Public/FirebaseStorage.h"
+#import "FirebaseStorage/Sources/Public/FirebaseStorage/FirebaseStorage.h"
 
 #import <FirebaseAuth/FirebaseAuth.h>
 

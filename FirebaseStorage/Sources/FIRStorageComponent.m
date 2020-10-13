@@ -14,7 +14,7 @@
 
 #import "FirebaseStorage/Sources/FIRStorageComponent.h"
 
-#import "FirebaseStorage/Sources/Public/FIRStorage.h"
+#import "FirebaseStorage/Sources/Public/FirebaseStorage/FIRStorage.h"
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "Interop/Auth/Public/FIRAuthInterop.h"
@@ -48,9 +48,7 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - Lifecycle
 
 + (void)load {
-  [FIRApp registerInternalLibrary:(Class<FIRLibrary>)self
-                         withName:@"fire-str"
-                      withVersion:[NSString stringWithUTF8String:FIRStorageVersionString]];
+  [FIRApp registerInternalLibrary:(Class<FIRLibrary>)self withName:@"fire-str"];
 }
 
 #pragma mark - FIRComponentRegistrant

@@ -59,12 +59,6 @@ relevant appLinks domain. Your appLinks domains are domains that your app will h
 links, in this particular case you can obtain this domain from the aforementioned Dynamic Links
 section of the Firebase Console.
 
-#### Getting your own Credential files
-
-Please follow the instructions in
-[Sample/AuthCredentialsTemplate.h](Sample/AuthCredentialsTemplate.h)
-to generate the AuthCredentials.h file.
-
 
 ### Running SwiftSample Application
 

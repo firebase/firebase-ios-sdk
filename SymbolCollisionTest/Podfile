@@ -1,6 +1,4 @@
-# Uncomment the next line to define a global platform for your project
-platform :ios, '9.0'
-
+platform :ios, '10.0'
 
 source 'https://github.com/firebase/SpecsStaging.git'
 source 'https://cdn.cocoapods.org/'
@@ -26,19 +24,15 @@ target 'SymbolCollisionTest' do
     pod 'FirebaseInstanceID', :path => '../'
     pod 'FirebaseInstallations', :path => '../'
     pod 'FirebaseMessaging', :path => '../'
-    # Restore ML pods when #5746 is fixed.
-    # pod 'FirebaseMLCommon'
-    # pod 'FirebaseMLModelInterpreter'
-    # pod 'FirebaseMLVision'
-    # pod 'FirebaseMLVisionBarcodeModel'
-    # pod 'FirebaseMLVisionFaceModel'
-    # pod 'FirebaseMLVisionLabelModel'
-    # pod 'FirebaseMLVisionTextModel'
+    pod 'Firebase/MLCommon', :path => '../'
+    pod 'Firebase/MLModelInterpreter', :path => '../'
+    pod 'Firebase/MLVision', :path => '../'
     pod 'FirebasePerformance'
     pod 'FirebaseRemoteConfig', :path => '../'
     pod 'FirebaseStorage', :path => '../'
     pod 'GoogleDataTransport', :path => '../'
     pod 'GoogleUtilities', :path => '../'
+    pod 'GoogleUtilitiesComponents', :path => '../'
 
 #    pod 'FirebaseUI'. - requires use_frameworks!
 
@@ -59,6 +53,9 @@ target 'SymbolCollisionTest' do
     pod 'GoogleIDFASupport'
     pod 'GoogleInterchangeUtilities'
     pod 'GoogleMaps'
+
+# https://github.com/firebase/firebase-ios-sdk/issues/6655
+#    pod 'GoogleMLKit'
 #    pod 'GoogleMobileVision' # After Firebase 6.8.0, conflicts with FirebaseML
     pod 'GoogleNetworkingUtilities'
     pod 'GoogleParsingUtilities'

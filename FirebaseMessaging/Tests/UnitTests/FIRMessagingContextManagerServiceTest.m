@@ -18,8 +18,8 @@
     __WATCH_OS_VERSION_MAX_ALLOWED >= __WATCHOS_3_0 || TARGET_OS_MACCATALYST
 #import <UserNotifications/UserNotifications.h>
 #endif
-#import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
+#import "OCMock.h"
 
 #import "FirebaseMessaging/Sources/FIRMessagingContextManagerService.h"
 
@@ -31,6 +31,7 @@ static NSString *const kUserInfoValue2 = @"Yes";
 static NSString *const kMessageIdentifierKey = @"gcm.message_id";
 static NSString *const kMessageIdentifierValue = @"1584748495200141";
 
+API_AVAILABLE(macos(10.14))
 @interface FIRMessagingContextManagerServiceTest : XCTestCase
 
 @property(nonatomic, readwrite, strong) NSDateFormatter *dateFormatter;

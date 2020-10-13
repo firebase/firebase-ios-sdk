@@ -768,6 +768,6 @@ class StorageIntegration: XCTestCase {
                           if let error = error {
                             print(error)
                           }
-    })
+                        })
   }
 }

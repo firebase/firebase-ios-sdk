@@ -12,8 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-set -x
+set -xe
 
 SDK="$1"
-rm -f quickstart-ios/"${SDK}"/GoogleSerivce-Info.plist
+MODE=${2-}
+if [ "$MODE" == "release_testing" ]; then
+  echo "Update podfiles release_testing."
+  sed -i "" "s/https:\/\/.*@github.com\/FirebasePrivate\/SpecsTesting.git/https:\/\/github.com\/FirebasePrivate\/SpecsTesting.git/g" quickstart-ios/"${SDK}"/Podfile quickstart-ios/"${SDK}"/Podfile.lock
+fi
+rm -f quickstart-ios/"${SDK}"/GoogleService-Info.plist
 rm -f quickstart-ios/TestUtils/FIREGSignInInfo.h

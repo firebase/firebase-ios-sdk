@@ -1,3 +1,14 @@
+# Unreleased
+- [fixed] Fixed an issue with the List API that prevented listing of locations
+  that contain the "+" sign.
+
+# 7.0.0
+- [changed] The global variable `FIRStorageVersionString` is deleted.
+  `FirebaseVersion()` or `FIRFirebaseVersion()` should be used instead.
+
+# 3.8.1
+- [fixed] Fixed typo in doc comments (#6485).
+
 # 3.8.0
 - [changed] Add error for attempt to upload directory (#5750)
 - [changed] Functionally neutral source reorganization. (#5851)

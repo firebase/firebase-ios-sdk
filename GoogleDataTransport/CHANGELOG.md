@@ -1,9 +1,27 @@
+# v7.5.1
+- Fix deprecation warning for iOS 12.0 and higher projects. (#6682)
+
+# v7.5.0
+- Legacy pre Xcode 10 compatibility checks removed. (#6486)
+- `GDTCORDirectorySizeTracker` crash fixed. (#6540)
+
+# v7.4.0
+- Limit disk space consumed by GoogleDataTransport to store events. (#6365)
+- Fix `GDTTransformer` background task handling.  (#6258)
+
+# v7.1.1
+- Use `NSTimeZone` instead of `CFTimeZone` to get time zone offset respecting daylight. (#6246)
+
+# v7.1.0
+- Device uptime calculation fixes. (#6102)
+
 # v7.0.0
 - Storage has been completely reimplemented to a flat-file system. It
 is not backwards compatible with previously saved events.
 - Prioritizers, data futures, and upload packages have been removed.
 - Consolidated GoogleDataTransportCCTSupport with GoogleDataTransport. Starting
 with this version, GoogleDataTransportCCTSupport should no longer be linked.
+- `GDTCORFlatFileStorage`: keep not expired events when expired batch removed. (#6010)
 
 # v6.2.1
 - Stopped GDTCORUploadCoordinator from blocking main thread. (#5707, #5708)

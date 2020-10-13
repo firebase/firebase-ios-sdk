@@ -13,13 +13,13 @@
 // limitations under the License.
 
 #import <XCTest/XCTest.h>
+#import "OCMock.h"
 
-#import <FirebaseABTesting/FIRExperimentController.h>
-#import <FirebaseABTesting/FIRLifecycleEvents.h>
-#import <OCMock/OCMock.h>
 #import "FirebaseABTesting/Sources/ABTConditionalUserPropertyController.h"
 #import "FirebaseABTesting/Sources/ABTConstants.h"
 #import "FirebaseABTesting/Sources/Private/ABTExperimentPayload.h"
+#import "FirebaseABTesting/Sources/Public/FirebaseABTesting/FIRExperimentController.h"
+#import "FirebaseABTesting/Sources/Public/FirebaseABTesting/FIRLifecycleEvents.h"
 #import "FirebaseABTesting/Tests/Unit/ABTFakeFIRAConditionalUserPropertyController.h"
 #import "FirebaseABTesting/Tests/Unit/ABTTestUniversalConstants.h"
 #import "FirebaseABTesting/Tests/Unit/Utilities/ABTTestUtilities.h"
@@ -329,38 +329,6 @@ extern NSArray *ABTExperimentsToClearFromPayloads(
 
   // Verify completion handler is still called.
   XCTAssertTrue(completionHandlerWithErrorCalled);
-}
-
-- (void)testUpdateExperimentsWithNoCompletion {
-  id experimentControllerMock = OCMPartialMock(_experimentController);
-
-  NSString *mockOrigin = @"mockOrigin";
-  FIRLifecycleEvents *mockLifecycleEvents = [[FIRLifecycleEvents alloc] init];
-  ABTExperimentPayloadExperimentOverflowPolicy mockOverflowPolicy =
-      ABTExperimentPayloadExperimentOverflowPolicyDiscardOldest;
-  NSTimeInterval mockLastStartTime = 100;
-  NSArray *mockPayloads = @[];
-
-  [[experimentControllerMock expect] updateExperimentsWithServiceOrigin:mockOrigin
-                                                                 events:mockLifecycleEvents
-                                                                 policy:mockOverflowPolicy
-                                                          lastStartTime:mockLastStartTime
-                                                               payloads:mockPayloads
-                                                      completionHandler:nil];
-
-  // Expect that updateExperimentsWithServiceOrigin:events:policy:lastStartTime:payloads: calls the
-  // full method with completion handler as nil.
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  [experimentControllerMock updateExperimentsWithServiceOrigin:mockOrigin
-                                                        events:mockLifecycleEvents
-                                                        policy:mockOverflowPolicy
-                                                 lastStartTime:mockLastStartTime
-                                                      payloads:mockPayloads];
-#pragma clang diagnostic pop
-
-  [experimentControllerMock verify];
 }
 
 - (void)testValidateRunningExperimentsWithEmptyArray {

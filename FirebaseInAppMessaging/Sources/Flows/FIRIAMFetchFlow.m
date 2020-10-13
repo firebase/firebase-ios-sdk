@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
+
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
-#import "FIRCore+InAppMessaging.h"
-#import "FIRIAMClearcutLogger.h"
-#import "FIRIAMFetchFlow.h"
-#import "FIRIAMRuntimeManager.h"
+#import "FirebaseInAppMessaging/Sources/FIRCore+InAppMessaging.h"
+#import "FirebaseInAppMessaging/Sources/Private/Analytics/FIRIAMClearcutLogger.h"
+#import "FirebaseInAppMessaging/Sources/Private/Runtime/FIRIAMFetchFlow.h"
+#import "FirebaseInAppMessaging/Sources/Private/Runtime/FIRIAMRuntimeManager.h"
 
 @implementation FIRIAMFetchSetting
 @end
@@ -263,3 +266,5 @@ NSString *const kFIRIAMFetchIsDoneNotification = @"FIRIAMFetchIsDoneNotification
   [self.displayExecutor checkAndDisplayNextAppLaunchMessage];
 }
 @end
+
+#endif  // TARGET_OS_IOS

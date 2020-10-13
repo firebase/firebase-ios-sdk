@@ -22,14 +22,6 @@
 #import "FirebaseRemoteConfig/Sources/RCNConfigDBManager.h"
 #import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 
-#ifndef FIRRemoteConfig_VERSION
-#error "FIRRemoteConfig_VERSION is not defined: \
-add -DFIRRemoteConfig_VERSION=... to the build invocation"
-#endif
-
-#define STR(x) STR_EXPAND(x)
-#define STR_EXPAND(x) #x
-
 @implementation FIRRemoteConfigComponent
 
 /// Default method for retrieving a Remote Config instance, or creating one if it doesn't exist.
@@ -49,6 +41,7 @@ add -DFIRRemoteConfig_VERSION=... to the build invocation"
   }
 
   if (errorPropertyName) {
+    NSString *const kFirebaseConfigErrorDomain = @"com.firebase.config";
     [NSException
          raise:kFirebaseConfigErrorDomain
         format:@"%@",
@@ -92,9 +85,7 @@ add -DFIRRemoteConfig_VERSION=... to the build invocation"
 + (void)load {
   // Register as an internal library to be part of the initialization process. The name comes from
   // go/firebase-sdk-platform-info.
-  [FIRApp registerInternalLibrary:self
-                         withName:@"fire-rc"
-                      withVersion:[NSString stringWithUTF8String:STR(FIRRemoteConfig_VERSION)]];
+  [FIRApp registerInternalLibrary:self withName:@"fire-rc"];
 }
 
 #pragma mark - Interoperability
