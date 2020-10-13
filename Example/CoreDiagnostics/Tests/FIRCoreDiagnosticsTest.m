@@ -193,7 +193,7 @@ extern void FIRPopulateProtoWithInfoPlistValues(
   config->has_pod_name = 1;
   config->app_id = FIREncodeString(kGoogleAppID);
   config->bundle_id = FIREncodeString(kBundleID);
-  config->device_model = FIREncodeString([FIRCoreDiagnostics deviceModel]);
+  config->device_model = FIREncodeString([GULAppEnvironmentUtil deviceModel]);
   config->os_version = FIREncodeString([GULAppEnvironmentUtil systemVersion]);
   config->app_count = 1;
   config->has_app_count = 1;

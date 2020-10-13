@@ -123,4 +123,11 @@ other Google CocoaPods. They're not intended for direct public usage.
     unit_tests.requires_app_host = true
     unit_tests.dependency 'OCMock'
   end
+
+  s.test_spec 'unit-swift' do |unit_tests_swift|
+    unit_tests_swift.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
+    unit_tests_swift.source_files = 'GoogleUtilities/Tests/SwiftUnit/**/*.swift',
+                                    'GoogleUtilities/Tests/SwiftUnit/**/*.h'
+    unit_tests_swift.requires_app_host = true
+  end
 end
