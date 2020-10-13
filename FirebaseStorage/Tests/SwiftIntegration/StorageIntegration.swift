@@ -738,7 +738,7 @@ class StorageIntegration: XCTestCase {
     let expectation = self.expectation(description: #function)
     let ref = storage.reference(withPath: "ios/public/list")
 
-    ref.listAll() { listResult, error in
+    ref.listAll { listResult, error in
       XCTAssertNotNil(listResult, "listResult should not be nil")
       XCTAssertNil(error, "Error should be nil")
       XCTAssertEqual(listResult.items, [ref.child("a"), ref.child("b")])
