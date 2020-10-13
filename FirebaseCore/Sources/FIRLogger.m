@@ -58,7 +58,7 @@ static NSRegularExpression *sMessageCodeRegex;
 void FIRLoggerInitializeASL() {
   dispatch_once(&sFIRLoggerOnceToken, ^{
     // Register Firebase Version with GULLogger.
-    GULLoggerRegisterVersion([FIRFirebaseVersion() UTF8String]);
+    GULLoggerRegisterVersion(FIRFirebaseVersion());
 
     // Override the aslOptions to ASL_OPT_STDERR if the override argument is passed in.
     NSArray *arguments = [NSProcessInfo processInfo].arguments;
