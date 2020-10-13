@@ -15,6 +15,7 @@
  */
 
 import Foundation
+import Utils
 
 /// Functions related to managing resources. Intentionally empty, this enum is used as a namespace.
 enum ResourcesManager {}

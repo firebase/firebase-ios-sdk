@@ -17,7 +17,7 @@
 import Foundation
 
 // Extensions to FileManager that make scripting easier or cleaner for error reporting.
-extension FileManager {
+public extension FileManager {
   // MARK: - Helper Enum Declarations
 
   /// Describes a type of file to be searched for.
@@ -115,10 +115,11 @@ extension FileManager {
   func temporaryDirectory(withName name: String) -> URL {
     // Get access to the temporary directory. This could be passed in via `LaunchArgs`, or use the
     // default temporary directory.
-    let tempDir: URL
-    if let root = LaunchArgs.shared.buildRoot {
-      tempDir = root
-    } else if #available(OSX 10.12, *) {
+      let tempDir: URL
+//    if let root = LaunchArgs.shared.buildRoot {
+//      tempDir = root
+//    } else
+    if #available(OSX 10.12, *) {
       tempDir = temporaryDirectory
     } else {
       tempDir = URL(fileURLWithPath: NSTemporaryDirectory())

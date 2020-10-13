@@ -22,7 +22,7 @@ import PackageDescription
 let package = Package(
   name: "ZipBuilder",
   products: [
-    .executable(name: "firebase-pod-updater", targets: ["firebase-pod-updater"]),
+    .executable(name: "FirebaseReleaser", targets: ["FirebaseReleaser"]),
     .executable(name: "ReleasePackager", targets: ["ZipBuilder"]),
   ],
   dependencies: [
@@ -33,16 +33,22 @@ let package = Package(
   ],
   targets: [
     .target(
-      name: "firebase-pod-updater",
-      dependencies: ["ArgumentParser", "ManifestReader"]
+      name: "ZipBuilder",
+      dependencies: ["ArgumentParser", "ManifestReader", "Utils"]
     ),
     .target(
-      name: "ZipBuilder",
-      dependencies: ["ArgumentParser", "ManifestReader"]
+      name: "FirebaseManifest"
+    ),
+    .target(
+      name: "FirebaseReleaser",
+      dependencies: ["ArgumentParser", "FirebaseManifest", "Utils"]
     ),
     .target(
       name: "ManifestReader",
       dependencies: ["SwiftProtobuf"]
+    ),
+    .target(
+      name: "Utils"
     ),
     .target(
       name: "oss-manifest-generator",

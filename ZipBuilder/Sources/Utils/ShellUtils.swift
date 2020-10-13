@@ -19,9 +19,9 @@ import Foundation
 /// Convenience function for calling functions in the Shell. This should be used sparingly and only
 /// when interacting with tools that can't be accessed directly in Swift (i.e. CocoaPods,
 /// xcodebuild, etc). Intentionally empty, this enum is used as a namespace.
-internal enum Shell {}
+public enum Shell {}
 
-extension Shell {
+public extension Shell {
   /// A type to represent the result of running a shell command.
   enum Result {
     /// The command was successfully run (based on the output code), with the output string as the
@@ -30,6 +30,12 @@ extension Shell {
 
     /// The command failed with a given exit code and output.
     case error(code: Int32, output: String)
+  }
+
+  /// Log without executing the shell commands.
+  static var logOnly = false
+  static func setLogOnly() {
+    logOnly = true
   }
 
   /// Execute a command in the user's shell. This creates a temporary shell script and runs the
@@ -45,6 +51,10 @@ extension Shell {
   static func executeCommandFromScript(_ command: String,
                                        outputToConsole: Bool = true,
                                        workingDir: URL? = nil) -> Result {
+    if logOnly {
+      print(command)
+      return Result.success(output: "Log only")
+    }
     let scriptPath: URL
     do {
       let tempScriptsDir = FileManager.default.temporaryDirectory(withName: "temp_scripts")
@@ -154,19 +164,37 @@ extension Shell {
     return Result.success(output: fullOutput)
   }
 
-  /// Calculates the MD5 for a given file or folder URL.
-  static func calculateMD5(for url: URL) -> String {
-    // TODO: Replace this with something more straightforward, and use CommonCrypto when we switch
-    // to Xcode 10.
-    let command = "find \(url.path) -type f -exec md5 '{}' + | sort -k 2 | md5"
-    let result = executeCommandFromScript(command, outputToConsole: false)
+  /// Execute a command in the user's shell. This creates a temporary shell script and runs the
+  /// command from there, instead of calling via `Process()` directly in order to include the
+  /// appropriate environment variables. This is mostly for CocoaPods commands, but doesn't hurt
+  /// other commands.
+  ///
+  /// This is a variation of `executeCommandFromScript` that also does error handling internally.
+  ///
+  /// - Parameters:
+  ///   - command: The command to run in the shell.
+  ///   - outputToConsole: A flag if the command output should be written to the console as well.
+  ///   - workingDir: An optional working directory to run the shell command in.
+  /// - Returns: A Result containing output information from the command.
+  static func executeCommand(_ command: String,
+                                       outputToConsole: Bool = true,
+                                       workingDir: URL? = nil) {
+    if logOnly {
+      print(command)
+      return
+    }
+    let result = Shell.executeCommandFromScript(command, workingDir: workingDir)
     switch result {
-    case let .error(_, output):
-      fatalError("Failed to compute an MD5 hash for \(url): \(output)")
+    case let .error(code, output):
+      fatalError("""
+      `\(command)` failed with exit code \(code) while trying to install pods:
+
+      Output from `\(command)`:
+      \(output)
+      """)
     case let .success(output):
-      // The output has newlines and a few spaces, only use alphanumerics.
-      let excludedChars = CharacterSet.alphanumerics.inverted
-      return output.trimmingCharacters(in: excludedChars)
+      // Print the output to the console and return the information for all installed pods.
+      print(output)
     }
   }
 }
