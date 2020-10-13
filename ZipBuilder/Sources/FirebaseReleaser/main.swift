@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import Utils
 
 struct FirebaseReleaser: ParsableCommand {
   /// The root of the Firebase git repo.
+  /// TODO: Add a default that sets the current repo - ['git', 'rev-parse', '--show-toplevel']
   @Option(help: "The root of the firebase-ios-sdk checked out git repo.",
           transform: URL.init(fileURLWithPath:))
   var gitRoot: URL
@@ -45,6 +46,7 @@ struct FirebaseReleaser: ParsableCommand {
     }
     if self.initBranch {
       InitializeRelease.setupRepo(gitRoot: gitRoot)
+      Tags.create(gitRoot: gitRoot)
     }
   }
 

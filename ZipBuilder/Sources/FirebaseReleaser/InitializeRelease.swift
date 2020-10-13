@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,6 @@ struct InitializeRelease {
     let manifest = FirebaseManifest.shared
     createReleaseBranch(path: gitRoot, version: manifest.version)
     updatePodspecs(path: gitRoot, manifest: manifest)
-    updateFirebasePodspec(path: gitRoot, manifest: manifest)
     updatePodfiles(path: gitRoot, version: manifest.version)
   }
 
@@ -40,12 +39,6 @@ struct InitializeRelease {
   }
 
   private static func updatePodspecs(path: URL, manifest: FirebaseManifest.Manifest) {
-    let version = manifest.version
-    // Update the Firebase_VERSION preprocessor string.
-    Shell.executeCommand("sed -i.bak -e \"s/\\(Firebase_VERSION=\\).*'/\\1\(version)'/\"" +
-                         "FirebaseCore.podspec",
-                         workingDir: path)
-
     // Update the versions in the non-Firebase pods.
     for pod in manifest.otherPods {
       if pod.releasing {
@@ -58,9 +51,13 @@ struct InitializeRelease {
     // Update the versions in the Firebase pods.
     for pod in manifest.firebasePods {
       if !pod.isClosedSource {
-        Shell.executeCommand("sed -i.bak -e \"s/\\(\\.version.*=[[:space:]]*'\\).*'/\\1 " +
-                            "\(version)'/\" \(pod.name).podspec",
-                             workingDir: path)
+        if pod.name == "Firebase" {
+          updateFirebasePodspec(path: path, manifest: manifest)
+        } else {
+          Shell.executeCommand("sed -i.bak -e \"s/\\(\\.version.*=[[:space:]]*'\\).*'/\\1" +
+                                "\(manifest.version)'/\" \(pod.name).podspec",
+                               workingDir: path)
+        }
       }
     }
   }
@@ -118,14 +115,11 @@ struct InitializeRelease {
 
   private static func updatePodfiles(path: URL, version: String) {
     // Update the Podfiles across the repo.
-    let firebasePodfile = path.appendingPathComponent("Example")
     let firestorePodfile = path.appendingPathComponent("Firestore")
       .appendingPathComponent("Example")
     let collisionPodfile = path.appendingPathComponent("SymbolCollisionTest")
     let sedCommand = "sed -i.bak -e \"s#\\(pod " +
                      "'Firebase/CoreOnly',[[:space:]]*'\\).*'#\\1\(version)'#\" Podfile"
-
-    Shell.executeCommand(sedCommand, workingDir: firebasePodfile)
     Shell.executeCommand(sedCommand, workingDir: firestorePodfile)
 
     let sedCommand2 = "sed -i.bak -e \"s#\\(pod " +
