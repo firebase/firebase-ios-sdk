@@ -85,8 +85,8 @@ NS_SWIFT_NAME(Installations)
 - (void)installationIDWithCompletion:(FIRInstallationsIDHandler)completion;
 
 /**
- * Retrieves (locally if it exists or from the server) a valid Installation Auth Token. An existing
- * token may be invalidated or expired, so it is recommended to fetch the Installation Auth Token
+ * Retrieves (locally if it exists or from the server) a valid installation auth token. An existing
+ * token may be invalidated or expired, so it is recommended to fetch the installation auth token
  * before each server request. The method does the same as `Installations.authTokenForcingRefresh(:,
  * completion:)` with forcing refresh `NO`.
  * @param completion A completion handler which is invoked when the operation completes. See
@@ -97,10 +97,10 @@ NS_SWIFT_NAME(Installations)
 /**
  * Retrieves (locally or from the server depending on `forceRefresh` value) a valid Installation
  * auth token. An existing token may be invalidated or expire, so it is recommended to fetch the
- * Installation Auth Token before each server request. This method should be used with `forceRefresh
- * == YES` when e.g. a request with the previously fetched Installation Auth Token failed with "Not
+ * installation auth token before each server request. This method should be used with `forceRefresh
+ * == YES` when e.g. a request with the previously fetched installation auth token failed with "Not
  * Authorized" error.
- * @param forceRefresh If `YES` then the locally cached Installation Auth Token will be ignored and
+ * @param forceRefresh If `YES` then the locally cached installation auth token will be ignored and
  * a new one will be requested from the server. If `NO`, then the locally cached Installation auth
  * token will be returned if exists and has not expired yet.
  * @param completion  A completion handler which is invoked when the operation completes. See
