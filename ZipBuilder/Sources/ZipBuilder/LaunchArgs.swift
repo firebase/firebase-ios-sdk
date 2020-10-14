@@ -15,6 +15,7 @@
  */
 
 import Foundation
+import Utils
 
 /// Describes an object that can check if a file eists in the filesystem. Used to allow for better
 /// testing with FileManager.
@@ -331,6 +332,7 @@ struct LaunchArgs {
       }
 
       self.buildRoot = url.standardizedFileURL
+      FileManager.registerBuildRoot(buildRoot: url.standardizedFileURL)
     } else {
       // No argument was passed in.
       buildRoot = nil

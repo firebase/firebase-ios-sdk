@@ -120,7 +120,7 @@ public extension Shell {
           print("Could not get data from pipe for command \(command): \(pipe.availableData)")
           return
         }
-        if (line != "") {
+        if line != "" {
           output.append(line)
         }
         print(line)

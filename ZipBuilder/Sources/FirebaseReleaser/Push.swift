@@ -31,8 +31,9 @@ struct Push {
       let warningsOK = pod.allowWarnings ? " --allow-warnings" : ""
 
       Shell.executeCommand("pod repo push --skip-tests --use-json \(warningsOK) \(cpdcLocation) " +
-                            pod.skipImportValidation() + " \(pod.podspecName()) " + "--sources=sso://cpdc-internal/firebase.git,https://cdn.cocoapods.org",
-                           workingDir: gitRoot)
+        pod.skipImportValidation() + " \(pod.podspecName()) " +
+        "--sources=sso://cpdc-internal/firebase.git,https://cdn.cocoapods.org",
+        workingDir: gitRoot)
     }
   }
 
