@@ -69,6 +69,7 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
 @property(nonatomic, readonly) GDTCORTarget target;
 @property(nonatomic, readonly) GDTCORUploadConditions conditions;
 @property(nonatomic, readonly) NSURL *uploadURL;
+@property(nonatomic, readonly) id<GDTCORStoragePromiseProtocol>
 @property(nonatomic, readonly) id<GDTCCTUploadMetadataProvider> metadataProvider;
 
 @property(nonatomic, readwrite, getter=isExecuting) BOOL executing;
@@ -126,10 +127,6 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
                 }];
 
   id<GDTCORStoragePromiseProtocol> storage = GDTCORStoragePromiseInstanceForTarget(target);
-
-  if (storage == nil) {
-    <#statements#>
-  }
 
   // 1. Check if the conditions for the target are suitable.
   [self isReadyToUploadTarget:target conditions:conditions]
@@ -467,7 +464,6 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
 /** */
 - (nullable GDTCORStorageEventSelector *)eventSelectorTarget:(GDTCORTarget)target
                                               withConditions:(GDTCORUploadConditions)conditions {
-  id<GDTCORStorageProtocol> storage = GDTCORStorageInstanceForTarget(target);
   if ((conditions & GDTCORUploadConditionHighPriority) == GDTCORUploadConditionHighPriority) {
     return [GDTCORStorageEventSelector eventSelectorForTarget:target];
   }
@@ -481,20 +477,6 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
   if (conditions & GDTCORUploadConditionMobileData) {
     [qosTiers addObjectsFromArray:@[ @(GDTCOREventQoSFast), @(GDTCOREventQosDefault) ]];
   }
-
-  __block NSInteger lastDayOfDailyUpload;
-  NSString *lastDailyUploadDataKey = [NSString
-      stringWithFormat:@"%@LastDailyUpload-%ld", NSStringFromClass([self class]), (long)target];
-  [storage libraryDataForKey:lastDailyUploadDataKey
-      onFetchComplete:^(NSData *_Nullable data, NSError *_Nullable error) {
-        [data getBytes:&lastDayOfDailyUpload length:sizeof(NSInteger)];
-      }
-      setNewValue:^NSData *_Nullable {
-        if (lastDayOfDailyUpload != kWeekday) {
-          return [NSData dataWithBytes:&lastDayOfDailyUpload length:sizeof(NSInteger)];
-        }
-        return nil;
-      }];
 
   return [[GDTCORStorageEventSelector alloc] initWithTarget:target
                                                    eventIDs:nil
