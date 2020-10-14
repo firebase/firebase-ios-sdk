@@ -77,6 +77,13 @@ NS_SWIFT_NAME(DynamicLink)
  */
 @property(nonatomic, copy, readonly, nullable) NSString *minimumAppVersion;
 
+/**
+* @property parametersDictionary
+* @abstract The parameters of the Dynamic Link.
+*/
+@property(nonatomic, copy, readonly) NSDictionary<NSString *, id> *parametersDictionary;
+
+
 @end
 
 NS_ASSUME_NONNULL_END
