@@ -95,9 +95,6 @@ other Google CocoaPods. They're not intended for direct public usage.
   s.subspec 'ISASwizzler' do |iss|
     iss.source_files = 'GoogleUtilities/ISASwizzler/**/*.[mh]', 'GoogleUtilities/Common/*.h'
     iss.public_header_files = 'GoogleUtilities/ISASwizzler/Public/GoogleUtilities/*.h'
-
-    # Disable ARC for GULSwizzledObject.
-    iss.requires_arc = ['GoogleUtilities/Common/*.h', 'GoogleUtilities/ISASwizzler/GULObjectSwizzler*.[mh]']
   end
 
   s.subspec 'MethodSwizzler' do |mss|
@@ -125,5 +122,12 @@ other Google CocoaPods. They're not intended for direct public usage.
     unit_tests.requires_arc = 'GoogleUtilities/Tests/Unit/*/*.[mh]'
     unit_tests.requires_app_host = true
     unit_tests.dependency 'OCMock'
+  end
+
+  s.test_spec 'unit-swift' do |unit_tests_swift|
+    unit_tests_swift.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
+    unit_tests_swift.source_files = 'GoogleUtilities/Tests/SwiftUnit/**/*.swift',
+                                    'GoogleUtilities/Tests/SwiftUnit/**/*.h'
+    unit_tests_swift.requires_app_host = true
   end
 end

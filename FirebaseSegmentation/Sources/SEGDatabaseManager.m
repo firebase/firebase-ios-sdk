@@ -38,16 +38,16 @@ static BOOL SEGAddSkipBackupAttributeToItemAtPath(NSString *filePathString) {
   NSError *error = nil;
   BOOL success = [URL setResourceValue:@YES forKey:NSURLIsExcludedFromBackupKey error:&error];
   if (!success) {
-    // TODO(dmandar): log error.
-    NSLog(@"Error excluding %@ from backup %@.", [URL lastPathComponent], error);
+    FIRLogError(kFIRLoggerSegmentation, @"I-SEG000001", @"Error excluding %@ from backup %@.",
+                [URL lastPathComponent], error);
   }
   return success;
 }
 
 static BOOL SEGCreateFilePathIfNotExist(NSString *filePath) {
-  if (!filePath || !filePath.length) {
-    // TODO(dmandar) log error.
-    NSLog(@"Failed to create subdirectory for an empty file path.");
+  if (!filePath.length) {
+    FIRLogError(kFIRLoggerSegmentation, @"I-SEG000002",
+                @"Failed to create subdirectory for an empty file path.");
     return NO;
   }
   NSFileManager *fileManager = [NSFileManager defaultManager];
@@ -58,23 +58,20 @@ static BOOL SEGCreateFilePathIfNotExist(NSString *filePath) {
                             attributes:nil
                                  error:&error];
     if (error) {
-      // TODO(dmandar) log error.
-      NSLog(@"Failed to create subdirectory for database file: %@.", error);
+      FIRLogError(kFIRLoggerSegmentation, @"I-SEG000003",
+                  @"Failed to create subdirectory for database file: %@.", error);
       return NO;
     }
   }
   return YES;
 }
 
-@interface SEGDatabaseManager () {
+@implementation SEGDatabaseManager {
   /// Database storing all the config information.
   sqlite3 *_database;
   /// Serial queue for database read/write operations.
   dispatch_queue_t _databaseOperationQueue;
 }
-@end
-
-@implementation SEGDatabaseManager
 
 + (instancetype)sharedInstance {
   static dispatch_once_t onceToken;
@@ -97,41 +94,35 @@ static BOOL SEGCreateFilePathIfNotExist(NSString *filePath) {
 #pragma mark - Public Methods
 
 - (void)loadMainTableWithCompletion:(SEGRequestCompletion)completionHandler {
-  __weak SEGDatabaseManager *weakSelf = self;
   dispatch_async(_databaseOperationQueue, ^{
-    SEGDatabaseManager *strongSelf = weakSelf;
-    if (!strongSelf) {
-      completionHandler(NO, @{@"Database Error" : @"Internal database error"});
-    }
-
     // Read the database into memory.
     NSDictionary<NSString *, NSDictionary<NSString *, NSString *> *> *associations =
         [self loadMainTable];
-    completionHandler(YES, associations);
+    if (associations != nil) {
+      completionHandler(YES, associations);
+    } else {
+      FIRLogError(kFIRLoggerSegmentation, @"I-SEG000004", @"Failed to load main table.");
+      completionHandler(NO, @{});
+    }
   });
   return;
 }
 
 - (void)createOrOpenDatabaseWithCompletion:(SEGRequestCompletion)completionHandler {
-  __weak SEGDatabaseManager *weakSelf = self;
   dispatch_async(_databaseOperationQueue, ^{
-    SEGDatabaseManager *strongSelf = weakSelf;
-    if (!strongSelf) {
-      completionHandler(NO, @{@"ErrorDescription" : @"Internal database error"});
-    }
     NSString *dbPath = [SEGDatabaseManager pathForSegmentationDatabase];
-    // TODO(dmandar) log.
-    NSLog(@"Loading segmentation database at path %@", dbPath);
+    FIRLogDebug(kFIRLoggerSegmentation, @"I-SEG000005", @"Loading segmentation database at path %@",
+                dbPath);
     const char *databasePath = dbPath.UTF8String;
     // Create or open database path.
     if (!SEGCreateFilePathIfNotExist(dbPath)) {
-      completionHandler(NO, @{@"ErrorDescription" : @"Could not create database file at path"});
+      completionHandler(NO, @{kSEGErrorDescription : @"Could not create database file at path"});
     }
     int flags = SQLITE_OPEN_CREATE | SQLITE_OPEN_READWRITE | SQLITE_OPEN_FILEPROTECTION_COMPLETE |
                 SQLITE_OPEN_FULLMUTEX;
-    if (sqlite3_open_v2(databasePath, &strongSelf->_database, flags, NULL) == SQLITE_OK) {
+    if (sqlite3_open_v2(databasePath, &self->_database, flags, NULL) == SQLITE_OK) {
       // Create table if does not exist already.
-      if ([strongSelf createTableSchema]) {
+      if ([self createTableSchema]) {
         // DB file created or already exists.
         // Exclude the app data used from iCloud backup.
         SEGAddSkipBackupAttributeToItemAtPath(dbPath);
@@ -142,42 +133,44 @@ static BOOL SEGCreateFilePathIfNotExist(NSString *filePath) {
 
       } else {
         // Remove database before fail.
-        [strongSelf removeDatabase:dbPath];
-        FIRLogError(kFIRLoggerSegmentation, @"I-SEG000010", @"Failed to create table.");
+        [self removeDatabase:dbPath];
+        FIRLogError(kFIRLoggerSegmentation, @"I-SEG00006", @"Failed to create table.");
         // Create a new database if existing database file is corrupted.
         if (!SEGCreateFilePathIfNotExist(dbPath)) {
-          completionHandler(NO,
-                            @{@"ErrorDescription" : @"Could not recreate database file at path"});
+          completionHandler(
+              NO,
+              @{kSEGErrorDescription : @"Could not recreate database file at path: %@", dbpath});
+          return;
         }
-        if (sqlite3_open_v2(databasePath, &strongSelf->_database, flags, NULL) == SQLITE_OK) {
-          if (![strongSelf createTableSchema]) {
+        // Try to open the database with the new file.
+        if (sqlite3_open_v2(databasePath, &self->_database, flags, NULL) == SQLITE_OK) {
+          if (![self createTableSchema]) {
             // Remove database before fail.
-            [strongSelf removeDatabase:dbPath];
+            [self removeDatabase:dbPath];
             // If it failed again, there's nothing we can do here.
-            FIRLogError(kFIRLoggerSegmentation, @"I-SEG000010", @"Failed to create table.");
+            FIRLogError(kFIRLoggerSegmentation, @"I-SEG00007", @"Failed to create table.");
+            completionHandler(NO, @{kSEGErrorDescription : @"Failed to re-open new database file"});
           } else {
             // Exclude the app data used from iCloud backup.
             SEGAddSkipBackupAttributeToItemAtPath(dbPath);
+            // Skip reading the db into memory, since it's empty.
+            completionHandler(YES, @{});
           }
         } else {
-          [strongSelf logDatabaseError];
-          completionHandler(NO, @{@"ErrorDescription" : @"Could not create database."});
+          [self logDatabaseError];
+          completionHandler(NO, @{kSEGErrorDescription : @"Could not create database."});
         }
       }
     } else {
-      [strongSelf logDatabaseError];
-      completionHandler(NO, @{@"ErrorDescription" : @"Error creating database."});
+      [self logDatabaseError];
+      completionHandler(NO, @{kSEGErrorDescription : @"Error creating database."});
     }
   });
 }
 
 - (void)removeDatabase:(NSString *)path completion:(SEGRequestCompletion)completionHandler {
   dispatch_async(_databaseOperationQueue, ^{
-    SEGDatabaseManager *strongSelf = self;
-    if (!strongSelf) {
-      return;
-    }
-    [strongSelf removeDatabase:path];
+    [self removeDatabase:path];
     completionHandler(YES, nil);
   });
 }
@@ -193,6 +186,8 @@ static BOOL SEGCreateFilePathIfNotExist(NSString *filePath) {
 
   sqlite3_stmt *statement = [self prepareSQL:[SQLQuery cStringUsingEncoding:NSUTF8StringEncoding]];
   if (!statement) {
+    FIRLogError(kFIRLoggerSegmentation, @"I-SEG00008",
+                @"Failed to create sqlite statement with query: %@.", SQLQuery);
     return nil;
   }
 
@@ -279,12 +274,11 @@ static BOOL SEGCreateFilePathIfNotExist(NSString *filePath) {
                       associationStatus:(NSString *)associationStatus
                       completionHandler:(SEGRequestCompletion)handler {
   // TODO: delete the row first.
-  __weak SEGDatabaseManager *weakSelf = self;
   dispatch_async(_databaseOperationQueue, ^{
-    NSArray<NSString *> *values =
-        [[NSArray alloc] initWithObjects:firebaseApplication, customInstanceIdentifier,
-                                         firebaseInstanceIdentifier, associationStatus, nil];
-    BOOL success = [weakSelf insertMainTableWithValues:values];
+    NSArray<NSString *> *values = @[
+      firebaseApplication, customInstanceIdentifier, firebaseInstanceIdentifier, associationStatus
+    ];
+    BOOL success = [self insertMainTableWithValues:values];
     if (handler) {
       dispatch_async(dispatch_get_main_queue(), ^{
         handler(success, nil);
@@ -367,7 +361,7 @@ static BOOL SEGCreateFilePathIfNotExist(NSString *filePath) {
   int index = 1;
   for (NSString *param in array) {
     if (![self bindStringToStatement:statement index:index string:param]) {
-      return [self logErrorWithSQL:nil finalizeStatement:statement returnValue:NO];
+      return [self logErrorWithSQL:sql finalizeStatement:statement returnValue:NO];
     }
     index++;
   }
@@ -408,6 +402,15 @@ static BOOL SEGCreateFilePathIfNotExist(NSString *filePath) {
             returnValue:(BOOL)returnValue {
   if (SQL) {
     FIRLogError(kFIRLoggerSegmentation, @"I-SEG000016", @"Failed with SQL: %s.", SQL);
+  } else {
+    const char *sqlString = sqlite3_sql(statement);
+    NSString *sql;
+    if (sqlString != NULL) {
+      sql = [NSString stringWithCString:sqlString encoding:NSUTF8StringEncoding];
+    }
+    if (sql) {
+      FIRLogError(kFIRLoggerSegmentation, @"I-SEG000016", @"Failed with SQL: %s.", SQL);
+    }
   }
   [self logDatabaseError];
 

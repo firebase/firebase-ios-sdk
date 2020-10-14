@@ -23,10 +23,10 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SEGContentManager : NSObject
 
 /// Shared Singleton Instance
-+ (instancetype)sharedInstanceWithOptions:(FIROptions*)options;
++ (instancetype)sharedInstanceWithOptions:(FIROptions *)options;
 
-- (void)associateCustomInstallationIdentiferNamed:(NSString*)customInstallationID
-                                      firebaseApp:(NSString*)appName
+- (void)associateCustomInstallationIdentiferNamed:(NSString *)customInstallationID
+                                      firebaseApp:(NSString *)appName
                                        completion:(SEGRequestCompletion)completionHandler;
 
 @end

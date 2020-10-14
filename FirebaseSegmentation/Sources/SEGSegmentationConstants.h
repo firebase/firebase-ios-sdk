@@ -16,9 +16,6 @@
 
 #import <Foundation/Foundation.h>
 
-#ifndef SEGSegmentationConstants_h
-#define SEGSegmentationConstants_h
-
 #if defined(DEBUG)
 #define SEG_MUST_NOT_BE_MAIN_THREAD()                                                 \
   do {                                                                                \
@@ -42,11 +39,15 @@ static NSString* const kSEGAssociationStatusPending = @"PENDING";
 static NSString* const kSEGAssociationStatusAssociated = @"ASSOCIATED";
 
 /// Segmentation error domain when logging errors.
-static NSString* const kFirebaseSegmentationErrorDomain = @"com.firebase.segmentation";
+kFirebaseSegmentationErrorDomain = @"com.firebase.segmentation";
+
+/// Segmentation FIRLogger domain.
+static NSString* const kFIRLoggerSegmentation = @"[Firebase/Segmentation]";
+
+/// Used for reporting generic internal Segmentation errors.
+NSString* const kSEGErrorDescription = @"SEGErrorDescription";
 
 /// Segmentation Request Completion callback.
 /// @param success Decide whether the network operation succeeds.
 /// @param result  Return operation result data.
 typedef void (^SEGRequestCompletion)(BOOL success, NSDictionary<NSString*, id>* result);
-
-#endif /* SEGSegmentationConstants_h */

@@ -28,6 +28,8 @@
 #import "FirebaseCore/Sources/FIRBundleUtil.h"
 #import "FirebaseCore/Sources/FIRComponentContainerInternal.h"
 #import "FirebaseCore/Sources/FIRConfigurationInternal.h"
+#import "FirebaseCore/Sources/FIRFirebaseUserAgent.h"
+
 #import "FirebaseCore/Sources/Private/FIRAppInternal.h"
 #import "FirebaseCore/Sources/Private/FIRCoreDiagnosticsConnector.h"
 #import "FirebaseCore/Sources/Private/FIRLibrary.h"
@@ -121,8 +123,6 @@ static NSMutableArray<Class<FIRLibrary>> *sRegisteredAsConfigurable;
 
 static NSMutableDictionary *sAllApps;
 static FIRApp *sDefaultApp;
-static NSMutableDictionary *sLibraryVersions;
-static dispatch_once_t sFirebaseUserAgentOnceToken;
 
 + (void)configure {
   FIROptions *options = [FIROptions defaultOptions];
@@ -282,9 +282,7 @@ static dispatch_once_t sFirebaseUserAgentOnceToken;
     sDefaultApp = nil;
     [sAllApps removeAllObjects];
     sAllApps = nil;
-    [sLibraryVersions removeAllObjects];
-    sLibraryVersions = nil;
-    sFirebaseUserAgentOnceToken = 0;
+    [[self userAgent] reset];
   }
 }
 
@@ -510,12 +508,7 @@ static dispatch_once_t sFirebaseUserAgentOnceToken;
   // add the name/version pair to the dictionary.
   if ([name rangeOfCharacterFromSet:disallowedSet].location == NSNotFound &&
       [version rangeOfCharacterFromSet:disallowedSet].location == NSNotFound) {
-    @synchronized(self) {
-      if (!sLibraryVersions) {
-        sLibraryVersions = [[NSMutableDictionary alloc] init];
-      }
-      sLibraryVersions[name] = version;
-    }
+    [[self userAgent] setValue:version forComponent:name];
   } else {
     FIRLogError(kFIRLoggerCore, @"I-COR000027",
                 @"The library name (%@) or version number (%@) contain invalid characters. "
@@ -556,72 +549,18 @@ static dispatch_once_t sFirebaseUserAgentOnceToken;
   [self registerLibrary:name withVersion:version];
 }
 
++ (FIRFirebaseUserAgent *)userAgent {
+  static dispatch_once_t onceToken;
+  static FIRFirebaseUserAgent *_userAgent;
+  dispatch_once(&onceToken, ^{
+    _userAgent = [[FIRFirebaseUserAgent alloc] init];
+    [_userAgent setValue:FIRFirebaseVersion() forComponent:@"fire-ios"];
+  });
+  return _userAgent;
+}
+
 + (NSString *)firebaseUserAgent {
-  @synchronized(self) {
-    dispatch_once(&sFirebaseUserAgentOnceToken, ^{
-      // Report Firebase version for useragent string
-      [FIRApp registerLibrary:@"fire-ios" withVersion:FIRFirebaseVersion()];
-
-      NSDictionary<NSString *, id> *info = [[NSBundle mainBundle] infoDictionary];
-      NSString *xcodeVersion = info[@"DTXcodeBuild"];
-      NSString *sdkVersion = info[@"DTSDKBuild"];
-      if (xcodeVersion) {
-        [FIRApp registerLibrary:@"xcode" withVersion:xcodeVersion];
-      }
-      if (sdkVersion) {
-        [FIRApp registerLibrary:@"apple-sdk" withVersion:sdkVersion];
-      }
-
-      NSString *swiftFlagValue = [self hasSwiftRuntime] ? @"true" : @"false";
-      [FIRApp registerLibrary:@"swift" withVersion:swiftFlagValue];
-
-      [FIRApp registerLibrary:kFIRAppDiagnosticsApplePlatformPrefix
-                  withVersion:[self applePlatform]];
-    });
-
-    NSMutableArray<NSString *> *libraries =
-        [[NSMutableArray<NSString *> alloc] initWithCapacity:sLibraryVersions.count];
-    for (NSString *libraryName in sLibraryVersions) {
-      [libraries addObject:[NSString stringWithFormat:@"%@/%@", libraryName,
-                                                      sLibraryVersions[libraryName]]];
-    }
-    [libraries sortUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
-    return [libraries componentsJoinedByString:@" "];
-  }
-}
-
-+ (BOOL)hasSwiftRuntime {
-  // The class
-  // [Swift._SwiftObject](https://github.com/apple/swift/blob/5eac3e2818eb340b11232aff83edfbd1c307fa03/stdlib/public/runtime/SwiftObject.h#L35)
-  // is a part of Swift runtime, so it should be present if Swift runtime is available.
-
-  BOOL hasSwiftRuntime =
-      objc_lookUpClass("Swift._SwiftObject") != nil ||
-      // Swift object class name before
-      // https://github.com/apple/swift/commit/9637b4a6e11ddca72f5f6dbe528efc7c92f14d01
-      objc_getClass("_TtCs12_SwiftObject") != nil;
-
-  return hasSwiftRuntime;
-}
-
-+ (NSString *)applePlatform {
-  NSString *applePlatform = @"unknown";
-
-  // When a Catalyst app is run on macOS then both `TARGET_OS_MACCATALYST` and `TARGET_OS_IOS` are
-  // `true`, which means the condition list is order-sensitive.
-#if TARGET_OS_MACCATALYST
-  applePlatform = @"maccatalyst";
-#elif TARGET_OS_IOS
-  applePlatform = @"ios";
-#elif TARGET_OS_TV
-  applePlatform = @"tvos";
-#elif TARGET_OS_OSX
-  applePlatform = @"macos";
-#elif TARGET_OS_WATCH
-  applePlatform = @"watchos";
-#endif
-
-  return applePlatform;
+  return [[self userAgent] firebaseUserAgent];
 }
 
 - (void)checkExpectedBundleID {

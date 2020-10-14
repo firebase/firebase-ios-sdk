@@ -28,7 +28,7 @@
   setting.displayBGColor = [UIColor whiteColor];
   setting.textColor = [UIColor blackColor];
   setting.btnTextColor = [UIColor whiteColor];
-  setting.autoDimissBannerAfterNSeconds = 12;
+  setting.autoDismissBannerAfterNSeconds = 12;
   setting.isTestMessage = NO;
   return setting;
 }

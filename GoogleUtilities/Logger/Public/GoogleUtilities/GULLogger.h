@@ -61,7 +61,7 @@ extern BOOL GULIsLoggableLevel(GULLoggerLevel loggerLevel);
  * Register version to include in logs.
  * (required) version
  */
-extern void GULLoggerRegisterVersion(const char *version);
+extern void GULLoggerRegisterVersion(NSString *version);
 
 /**
  * Logs a message to the Xcode console and the device log. If running from AppStore, will
