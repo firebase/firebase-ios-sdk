@@ -154,4 +154,10 @@ typedef void (^GDTCORStorageBatchBlock)(NSNumber *_Nullable newBatchID,
 FOUNDATION_EXPORT
 id<GDTCORStorageProtocol> _Nullable GDTCORStorageInstanceForTarget(GDTCORTarget target);
 
+// TODO: Ideally we should remove completion-based API and use promise-based one. Need to double
+// check if it's ok.
+FOUNDATION_EXPORT
+id<GDTCORStoragePromiseProtocol> _Nullable GDTCORStoragePromiseInstanceForTarget(
+    GDTCORTarget target);
+
 NS_ASSUME_NONNULL_END

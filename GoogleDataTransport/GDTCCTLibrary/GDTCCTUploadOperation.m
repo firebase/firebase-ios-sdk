@@ -16,9 +16,12 @@
 
 #import "GoogleDataTransport/GDTCCTLibrary/Private/GDTCCTUploadOperation.h"
 
+#import <FBLPromises/FBLPromises.h>
+
 #import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORPlatform.h"
 #import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORRegistrar.h"
 #import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORStorageProtocol.h"
+#import "GoogleDataTransport/GDTCORLibrary/Private/GDTCORUploadBatch.h"
 #import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORConsoleLogger.h"
 #import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCOREvent.h"
 
@@ -120,41 +123,62 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
                   }
                 }];
 
-  dispatch_async(_uploaderQueue, ^{
-    id<GDTCORStorageProtocol> storage = GDTCORStorageInstanceForTarget(target);
+  id<GDTCORStoragePromiseProtocol> storage = GDTCORStoragePromiseInstanceForTarget(target);
 
-    // 1. Fetch events to upload.
-    [self batchToUploadForTarget:target
-                         storage:storage
-                      conditions:conditions
-                      completion:^(NSNumber *_Nullable batchID,
-                                   NSSet<GDTCOREvent *> *_Nullable events) {
-                        // 2. Check if there are events to upload.
-                        if (!events || events.count == 0) {
-                          dispatch_async(self.uploaderQueue, ^{
-                            GDTCORLogDebug(@"Target %ld reported as ready for upload, but no "
-                                           @"events were selected",
-                                           (long)target);
-                            self.isCurrentlyUploading = NO;
-                            backgroundTaskCompletion();
-                          });
+  // 1. Check if the conditions for the target are suitable.
+  [self isReadyToUploadTarget:target conditions:conditions]
+      .thenOn(self.uploaderQueue,
+              ^id(id result) {
+                // 2. Remove previously attempted batches
+                return [storage removeAllBatchesForTarget:target deleteEvents:NO];
+              })
+      .thenOn(self.uploaderQueue,
+              ^FBLPromise<NSNumber *> *(id result) {
+                // There may be a big amount of events stored, so creating a batch may be an
+                // expensive operation.
 
-                          return;
-                        }
-                        // 3. Upload events.
-                        [self uploadBatchWithID:batchID
-                                         events:events
-                                         target:target
-                                        storage:storage
-                                     completion:^{
-                                       [self finishOperation];
-                                       backgroundTaskCompletion();
-                                     }];
-                      }];
-  });
+                // 3. Do a lightweight check if there are any events for the target first to
+                // finish early if there are no.
+                return [storage hasEventsForTarget:target];
+              })
+      .validateOn(self.uploaderQueue,
+                  ^BOOL(NSNumber *hasEvents) {
+                    // Stop operation if there are no events to upload.
+                    return hasEvents.boolValue;
+                  })
+      .thenOn(self.uploaderQueue,
+              ^FBLPromise<GDTCORUploadBatch *> *(id result) {
+                // 4. Fetch events to upload.
+                GDTCORStorageEventSelector *eventSelector = [self eventSelectorTarget:target
+                                                                       withConditions:conditions];
+                return [storage batchWithEventSelector:eventSelector
+                                       batchExpiration:[NSDate dateWithTimeIntervalSinceNow:600]];
+              })
+      .thenOn(self.uploaderQueue, ^FBLPromise *(GDTCORUploadBatch *batch) {
+        // 5. Perform upload URL request.
+        return [self sendURLRequestWithBatchID:batch.batchID
+                                        events:batch.events
+                                        target:target
+                                       storage:storage];
+      });
 }
 
 #pragma mark - Upload implementation details
+
+- (FBLPromise<NSNull *> *)sendURLRequestWithBatchID:(nullable NSNumber *)batchID
+                                             events:(nullable NSSet<GDTCOREvent *> *)events
+                                             target:(GDTCORTarget)target
+                                            storage:(id<GDTCORStorageProtocol>)storage {
+  // TODO: Break down upload operation on stages with promises.
+  return [FBLPromise onQueue:self.uploaderQueue
+              wrapCompletion:^(FBLPromiseCompletion _Nonnull handler) {
+                [self uploadBatchWithID:batchID
+                                 events:events
+                                 target:target
+                                storage:storage
+                             completion:handler];
+              }];
+}
 
 /** Performs URL request, handles the result and updates the uploader state. */
 - (void)uploadBatchWithID:(nullable NSNumber *)batchID
@@ -266,104 +290,27 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
   self.currentTask = nil;
 }
 
-#pragma mark - Stored events upload
-
-/** Fetches a batch of pending events for the specified target and conditions. Passes `nil` to
- * completion if there are no suitable events to upload. */
-- (void)batchToUploadForTarget:(GDTCORTarget)target
-                       storage:(id<GDTCORStorageProtocol>)storage
-                    conditions:(GDTCORUploadConditions)conditions
-                    completion:(GDTCCTUploaderEventBatchBlock)completion {
-  // 1. Check if the conditions for the target are suitable.
-  if (![self readyToUploadTarget:target conditions:conditions]) {
-    completion(nil, nil);
-    return;
-  }
-
-  // 2. Remove previously attempted batches
-  [self removeBatchesForTarget:target
-                       storage:storage
-                    onComplete:^{
-                      // There may be a big amount of events stored, so creating a batch may be an
-                      // expensive operation.
-
-                      // 3. Do a lightweight check if there are any events for the target first to
-                      // finish early if there are no.
-                      [storage hasEventsForTarget:target
-                                       onComplete:^(BOOL hasEvents) {
-                                         // 4. Proceed with fetching the events.
-                                         [self batchToUploadForTarget:target
-                                                              storage:storage
-                                                           conditions:conditions
-                                                            hasEvents:hasEvents
-                                                           completion:completion];
-                                       }];
-                    }];
-}
-
-/** Makes final checks before and makes */
-- (void)batchToUploadForTarget:(GDTCORTarget)target
-                       storage:(id<GDTCORStorageProtocol>)storage
-                    conditions:(GDTCORUploadConditions)conditions
-                     hasEvents:(BOOL)hasEvents
-                    completion:(GDTCCTUploaderEventBatchBlock)completion {
-  dispatch_async(self.uploaderQueue, ^{
-    if (!hasEvents) {
-      // No events to upload.
-      completion(nil, nil);
-      return;
-    }
-
-    // Check if the conditions are still met before starting upload.
-    if (![self readyToUploadTarget:target conditions:conditions]) {
-      completion(nil, nil);
-      return;
-    }
-
-    // All conditions have been checked and met. Lock uploader for this target to prevent other
-    // targets upload attempts.
-    self.isCurrentlyUploading = YES;
-
-    // Fetch a batch to upload and pass along.
-    GDTCORStorageEventSelector *eventSelector = [self eventSelectorTarget:target
-                                                           withConditions:conditions];
-    [storage batchWithEventSelector:eventSelector
-                    batchExpiration:[NSDate dateWithTimeIntervalSinceNow:600]
-                         onComplete:completion];
-  });
-}
-
-- (void)removeBatchesForTarget:(GDTCORTarget)target
-                       storage:(id<GDTCORStorageProtocol>)storage
-                    onComplete:(dispatch_block_t)onComplete {
-  [storage batchIDsForTarget:target
-                  onComplete:^(NSSet<NSNumber *> *_Nullable batchIDs) {
-                    // No stored batches, no need to remove anything.
-                    if (batchIDs.count < 1) {
-                      onComplete();
-                      return;
-                    }
-
-                    dispatch_group_t dispatchGroup = dispatch_group_create();
-                    for (NSNumber *batchID in batchIDs) {
-                      dispatch_group_enter(dispatchGroup);
-
-                      // Remove batches and moves events back to the storage.
-                      [storage removeBatchWithID:batchID
-                                    deleteEvents:NO
-                                      onComplete:^{
-                                        dispatch_group_leave(dispatchGroup);
-                                      }];
-                    }
-
-                    // Wait until all batches are removed and call completion handler.
-                    dispatch_group_notify(dispatchGroup, self.uploaderQueue, ^{
-                      onComplete();
-                    });
-                  }];
-}
-
 #pragma mark - Private helper methods
+
+/** @return A resolved promise if is ready and a rejected promise if not. */
+- (FBLPromise<NSNull *> *)isReadyToUploadTarget:(GDTCORTarget)target
+                                     conditions:(GDTCORUploadConditions)conditions {
+  FBLPromise<NSNull *> *promise = [FBLPromise pendingPromise];
+  if ([self readyToUploadTarget:target conditions:conditions]) {
+    [promise fulfill:[NSNull null]];
+  } else {
+    // TODO: Do we need a more comprehensive message here?
+    [promise reject:[self genericRejectedPromiseErrorWithReason:@"Is not ready."]];
+  }
+  return promise;
+}
+
+// TODO: Move to a separate class/extension/file.
+- (NSError *)genericRejectedPromiseErrorWithReason:(NSString *)reason {
+  return [NSError errorWithDomain:@"GDTCCTUploader"
+                             code:-1
+                         userInfo:@{NSLocalizedFailureReasonErrorKey : reason}];
+}
 
 /** */
 - (BOOL)readyToUploadTarget:(GDTCORTarget)target conditions:(GDTCORUploadConditions)conditions {
