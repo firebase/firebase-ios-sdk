@@ -74,6 +74,8 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
 @property(nonatomic, readwrite, getter=isExecuting) BOOL executing;
 @property(nonatomic, readwrite, getter=isFinished) BOOL finished;
 
+@property(nonatomic, readwrite) BOOL uploadAttempted;
+
 @end
 
 @implementation GDTCCTUploadOperation
@@ -125,6 +127,10 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
 
   id<GDTCORStoragePromiseProtocol> storage = GDTCORStoragePromiseInstanceForTarget(target);
 
+  if (storage == nil) {
+    <#statements#>
+  }
+
   // 1. Check if the conditions for the target are suitable.
   [self isReadyToUploadTarget:target conditions:conditions]
       .thenOn(self.uploaderQueue,
@@ -148,18 +154,35 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
                   })
       .thenOn(self.uploaderQueue,
               ^FBLPromise<GDTCORUploadBatch *> *(id result) {
+                if (self.isCancelled) {
+                  return nil;
+                }
+
+                self.uploadAttempted = YES;
+
                 // 4. Fetch events to upload.
                 GDTCORStorageEventSelector *eventSelector = [self eventSelectorTarget:target
                                                                        withConditions:conditions];
                 return [storage batchWithEventSelector:eventSelector
                                        batchExpiration:[NSDate dateWithTimeIntervalSinceNow:600]];
               })
-      .thenOn(self.uploaderQueue, ^FBLPromise *(GDTCORUploadBatch *batch) {
-        // 5. Perform upload URL request.
-        return [self sendURLRequestWithBatchID:batch.batchID
-                                        events:batch.events
-                                        target:target
-                                       storage:storage];
+      .thenOn(self.uploaderQueue,
+              ^FBLPromise *(GDTCORUploadBatch *batch) {
+                // 5. Perform upload URL request.
+                return [self sendURLRequestWithBatchID:batch.batchID
+                                                events:batch.events
+                                                target:target
+                                               storage:storage];
+              })
+      .thenOn(self.uploaderQueue,
+              ^id(id result) {
+                // 6. Finish operation.
+                [self finishOperation];
+                return nil;
+              })
+      .catchOn(self.uploaderQueue, ^(NSError *error) {
+        // TODO: Maybe report the error to the client.
+        [self finishOperation];
       });
 }
 

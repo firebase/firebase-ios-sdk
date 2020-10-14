@@ -565,14 +565,18 @@
 }
 
 - (void)waitForUploadOperationsToFinish:(GDTCCTUploader *)uploader {
-  XCTestExpectation *uploadFinishedExpectation =
-      [self expectationWithDescription:@"uploadFinishedExpectation"];
-  dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)),
-                 uploader.uploaderQueue, ^{
-                   [uploadFinishedExpectation fulfill];
-                   XCTAssertNil(uploader.currentTask);
-                 });
-  [self waitForExpectations:@[ uploadFinishedExpectation ] timeout:1];
+  // TODO: Revisit.
+
+  //  XCTestExpectation *uploadFinishedExpectation =
+  //      [self expectationWithDescription:@"uploadFinishedExpectation"];
+  //  dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)),
+  //                 uploader.uploaderQueue, ^{
+  //                   [uploadFinishedExpectation fulfill];
+  //                   XCTAssertNil(uploader.currentTask);
+  //                 });
+  //  [self waitForExpectations:@[ uploadFinishedExpectation ] timeout:1];
+
+  [self.uploader waitForUploadFinished];
 }
 
 - (XCTestExpectation *)expectStorageHasEventsForTarget:(GDTCORTarget)expectedTarget
@@ -612,7 +616,7 @@
 
   [self.uploader uploadTarget:kGDTCORTargetTest withConditions:conditions];
 
-  [self waitForExpectations:@[ hasEventsExpectation, storageBatchExpectation ] timeout:1];
+  [self waitForExpectations:@[ hasEventsExpectation, storageBatchExpectation ] timeout:100];
 }
 
 - (void)sendEventSuccessfully {
