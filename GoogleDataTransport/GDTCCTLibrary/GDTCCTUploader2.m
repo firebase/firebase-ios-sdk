@@ -239,8 +239,8 @@ NSNotificationName const GDTCCTUploadCompleteNotification = @"com.GDTCCTUploader
 
 #if !NDEBUG
 
-- (void)waitForUploadFinished {
-  [self.uploadOperationQueue waitUntilAllOperationsAreFinished];
+- (void)waitForUploadFinished:(dispatch_block_t)completion {
+  [self.uploadOperationQueue addOperationWithBlock:completion];
 }
 
 #endif  // !NDEBUG
