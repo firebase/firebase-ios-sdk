@@ -1,3 +1,6 @@
+# v8.0.0
+- Source restructuring to limit the public API surface.
+
 # v7.5.1
 - Fix deprecation warning for iOS 12.0 and higher projects. (#6682)
 
