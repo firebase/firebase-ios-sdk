@@ -34,17 +34,10 @@
 NSString *const FIRRemoteConfigErrorDomain = @"com.google.remoteconfig.ErrorDomain";
 /// Remote Config Error Info End Time Seconds;
 NSString *const FIRRemoteConfigThrottledEndTimeInSecondsKey = @"error_throttled_end_time_seconds";
-/// Remote Config Developer Mode Key
-static NSString *const kRemoteConfigDeveloperKey = @"_rcn_developer";
 /// Minimum required time interval between fetch requests made to the backend.
 static NSString *const kRemoteConfigMinimumFetchIntervalKey = @"_rcn_minimum_fetch_interval";
 /// Timeout value for waiting on a fetch response.
 static NSString *const kRemoteConfigFetchTimeoutKey = @"_rcn_fetch_timeout";
-
-@interface FIRRemoteConfigSettings () {
-  BOOL _developerModeEnabled;
-}
-@end
 
 @implementation FIRRemoteConfigSettings
 
@@ -284,20 +277,17 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
     [strongSelf->_configContent copyFromDictionary:self->_configContent.fetchedConfig
                                           toSource:RCNDBSourceActive
                                       forNamespace:self->_FIRNamespace];
-    [strongSelf updateExperiments];
     strongSelf->_settings.lastApplyTimeInterval = [[NSDate date] timeIntervalSince1970];
     FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000069", @"Config activated.");
-    if (completion) {
-      dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        completion(YES, nil);
-      });
-    }
+    [strongSelf->_configExperiment updateExperimentsWithHandler:^(NSError *_Nullable error) {
+      if (completion) {
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+          completion(YES, nil);
+        });
+      }
+    }];
   };
   dispatch_async(_queue, applyBlock);
-}
-
-- (void)updateExperiments {
-  [self->_configExperiment updateExperiments];
 }
 
 #pragma mark - helpers

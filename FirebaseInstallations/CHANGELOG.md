@@ -4,6 +4,10 @@
 - [changed] Throw an exception if `FIROptions.projectID` is missing or
   `FIROptions.APIKey` has incorrect format to catch critical configuration
   issues earlier. (#4692)
+- [changed] Removed the `FIR` prefix from `FIRInstallationIDDidChange` and renamed
+  `kFIRInstallationIDDidChangeNotificationAppNameKey` to `InstallationIDDidChangeAppNameKey`
+  in Swift.
+- [changed] API docs updated to use term "installation auth token" consistently. (#6014)
 
 # v1.7.1 -- M81
 - [changed] Additional `FIRInstallationsItem` validation to catch potential storage issues. (#6570)
