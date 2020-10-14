@@ -47,6 +47,7 @@ struct FirebaseReleaser: ParsableCommand {
     if initBranch {
       InitializeRelease.setupRepo(gitRoot: gitRoot)
       Tags.create(gitRoot: gitRoot)
+      Push.cpdc(gitRoot: gitRoot)
     }
   }
 

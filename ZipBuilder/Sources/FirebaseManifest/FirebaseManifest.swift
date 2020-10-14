@@ -30,21 +30,26 @@ public let shared = Manifest(
     Pod("FirebaseInstallations"),
     Pod("FirebaseInstanceID"),
     Pod("FirebaseAnalytics", isClosedSource: true),
+    Pod("GoogleAppMeasurement", isClosedSource: true),
     Pod("FirebaseABTesting"),
     Pod("FirebaseAppDistribution"),
     Pod("FirebaseAuth"),
     Pod("FirebaseCrashlytics"),
     Pod("FirebaseDatabase"),
     Pod("FirebaseDynamicLinks"),
-    Pod("FirebaseFirestore"),
+    Pod("FirebaseFirestore", allowWarnings: true),
     Pod("FirebaseFirestoreSwift"),
     Pod("FirebaseFunctions"),
     Pod("FirebaseInAppMessaging"),
     Pod("FirebaseMessaging"),
+    Pod("FirebasePerformance"),
     Pod("FirebaseRemoteConfig"),
     Pod("FirebaseStorage"),
     Pod("FirebaseStorageSwift"),
-    Pod("Firebase")
+    Pod("FirebaseMLCommon", isClosedSource: true),
+    Pod("FirebaseMLModelInterpreter", isClosedSource: true),
+    Pod("FirebaseMLVision", isClosedSource: true),
+    Pod("Firebase", allowWarnings: true),
   ]
 )
 
@@ -59,18 +64,25 @@ public struct Pod {
   public let name: String
   public let isClosedSource: Bool
   public let isFirebase: Bool
-  public let podVersion: String? // non-Firebase pods have their own version
-  public let releasing: Bool     // non-Firebase pods may not release
+  public let allowWarnings: Bool // Allow validation warnings. Ideally these should all be false
+  public let podVersion: String? // Non-Firebase pods have their own version
+  public let releasing: Bool // Non-Firebase pods may not release
 
   init(_ name: String,
        isClosedSource: Bool = false,
        isFirebase: Bool = true,
+       allowWarnings: Bool = false,
        podVersion: String? = nil,
        releasing: Bool = true) {
     self.name = name
     self.isClosedSource = isClosedSource
     self.isFirebase = isFirebase
+    self.allowWarnings = allowWarnings
     self.podVersion = podVersion
     self.releasing = releasing
+  }
+
+  public func podspecName() -> String {
+    return isClosedSource ? "\(name).podspec.json" : "\(name).podspec"
   }
 }

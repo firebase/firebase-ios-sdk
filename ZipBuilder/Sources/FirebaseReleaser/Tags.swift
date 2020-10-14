@@ -23,6 +23,7 @@ struct Tags {
   static func create(gitRoot: URL) {
     let manifest = FirebaseManifest.shared
     createTag(gitRoot: gitRoot, tag: "CocoaPods-\(manifest.version)")
+    createTag(gitRoot: gitRoot, tag: "CocoaPods-\(manifest.version)-beta")
 
     for pod in manifest.pods {
       if pod.isFirebase {
@@ -39,7 +40,7 @@ struct Tags {
     }
   }
 
-  static func createTag(gitRoot: URL, tag: String) {
+  private static func createTag(gitRoot: URL, tag: String) {
     Shell.executeCommand("git tag \(tag)", workingDir: gitRoot)
     Shell.executeCommand("git push origin \(tag)", workingDir: gitRoot)
   }

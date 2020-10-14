@@ -51,10 +51,6 @@ public extension Shell {
   static func executeCommandFromScript(_ command: String,
                                        outputToConsole: Bool = true,
                                        workingDir: URL? = nil) -> Result {
-    if logOnly {
-      print(command)
-      return Result.success(output: "Log only")
-    }
     let scriptPath: URL
     do {
       let tempScriptsDir = FileManager.default.temporaryDirectory(withName: "temp_scripts")
@@ -124,7 +120,9 @@ public extension Shell {
           print("Could not get data from pipe for command \(command): \(pipe.availableData)")
           return
         }
-        output.append(line)
+        if (line != "") {
+          output.append(line)
+        }
         print(line)
       }
       // Also set the termination handler on the task in order to stop the readabilityHandler from
