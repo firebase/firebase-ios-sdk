@@ -40,6 +40,7 @@ else
   if [ -z $release_branch ];then
     echo "release-${test_version} branch does not exist in the sdk repo."
     exit 1
+  fi
 fi
 
 # Get release branch, release-X.Y.Z.
