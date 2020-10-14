@@ -69,7 +69,6 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
 @property(nonatomic, readonly) GDTCORTarget target;
 @property(nonatomic, readonly) GDTCORUploadConditions conditions;
 @property(nonatomic, readonly) NSURL *uploadURL;
-@property(nonatomic, readonly) id<GDTCORStoragePromiseProtocol>
 @property(nonatomic, readonly) id<GDTCCTUploadMetadataProvider> metadataProvider;
 
 @property(nonatomic, readwrite, getter=isExecuting) BOOL executing;
@@ -104,6 +103,12 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
 #
 
 - (void)uploadTarget:(GDTCORTarget)target withConditions:(GDTCORUploadConditions)conditions {
+  // TODO: Should we inject storage in initializer?
+  id<GDTCORStoragePromiseProtocol> storage = GDTCORStoragePromiseInstanceForTarget(target);
+  if (storage == nil) {
+    [self finishOperation];
+  }
+
   __block GDTCORBackgroundIdentifier backgroundTaskID = GDTCORBackgroundIdentifierInvalid;
 
   dispatch_block_t backgroundTaskCompletion = ^{
@@ -125,8 +130,6 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
                     backgroundTaskCompletion();
                   }
                 }];
-
-  id<GDTCORStoragePromiseProtocol> storage = GDTCORStoragePromiseInstanceForTarget(target);
 
   // 1. Check if the conditions for the target are suitable.
   [self isReadyToUploadTarget:target conditions:conditions]
