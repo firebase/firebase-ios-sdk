@@ -613,7 +613,7 @@
 
   [self.uploader uploadTarget:kGDTCORTargetTest withConditions:conditions];
 
-  [self waitForExpectations:@[ hasEventsExpectation, storageBatchExpectation ] timeout:100];
+  [self waitForExpectations:@[ hasEventsExpectation, storageBatchExpectation ] timeout:1];
 }
 
 - (void)sendEventSuccessfully {
