@@ -34,8 +34,9 @@ release_branch=$(git branch -r -l "origin/release-${test_version}")
 if [ -z $release_branch ];then
   echo "release-${test_version} branch does not exist in the sdk repo."
 else
-  # Get substring before the last ".0", e.g. "release-7.0.0" -> "release-7.0"
-  test_version=${test_version%.0*}
+  # Get substring before the last ".", e.g. "release-7.0.0" -> "release-7.0"
+  test_version=${test_version%.*}
+  echo "search for release-${test_version} branch."
   release_branch=$(git branch -r -l "origin/release-${test_version}")
   if [ -z $release_branch ];then
     echo "release-${test_version} branch does not exist in the sdk repo."
