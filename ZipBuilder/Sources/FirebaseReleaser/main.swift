@@ -17,6 +17,7 @@
 import Foundation
 
 import ArgumentParser
+import FirebaseManifest
 import Utils
 
 struct FirebaseReleaser: ParsableCommand {
@@ -30,9 +31,15 @@ struct FirebaseReleaser: ParsableCommand {
           help: "Log without executing the shell commands")
   var logOnly: Bool
 
+  /// Set this option when starting a release.
   @Option(default: false,
           help: "Initialize the release branch")
   var initBranch: Bool
+
+  /// Set this option to update podspecs only.
+  @Option(default: false,
+          help: "Initialize the release branch")
+  var pushOnly: Bool
 
   mutating func validate() throws {
     guard FileManager.default.fileExists(atPath: gitRoot.path) else {
@@ -45,8 +52,16 @@ struct FirebaseReleaser: ParsableCommand {
       Shell.setLogOnly()
     }
     if initBranch {
-      InitializeRelease.setupRepo(gitRoot: gitRoot)
+      let branch = InitializeRelease.setupRepo(gitRoot: gitRoot)
+      let version = FirebaseManifest.shared.version
+      Shell.executeCommand("git commit -am \"Update versions for Release \(version)\"",
+                           workingDir: gitRoot)
+      Shell.executeCommand("git push origin \(branch)", workingDir: gitRoot)
+      Shell.executeCommand("git branch --set-upstream-to=origin/\(branch) \(branch)",
+                           workingDir: gitRoot)
       Tags.create(gitRoot: gitRoot)
+      Push.cpdc(gitRoot: gitRoot)
+    } else if pushOnly {
       Push.cpdc(gitRoot: gitRoot)
     }
   }

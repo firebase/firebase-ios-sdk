@@ -20,35 +20,35 @@ import Foundation
 /// Version should be updated every release.
 /// The version and releasing fields of the non-Firebase pods should be reviewed every release.
 public let shared = Manifest(
-  version: "6.99.0",
+  version: "7.0.0",
   pods: [
-    Pod("GoogleUtilities", isFirebase: false, podVersion: "6.99.9999", releasing: true),
-    Pod("GoogleDataTransport", isFirebase: false, podVersion: "6.999.990", releasing: true),
+    Pod("GoogleUtilities", isFirebase: false, podVersion: "7.0.0", releasing: false),
+    Pod("GoogleDataTransport", isFirebase: false, podVersion: "8.0.0", releasing: true),
 
     Pod("FirebaseCoreDiagnostics"),
     Pod("FirebaseCore"),
     Pod("FirebaseInstallations"),
     Pod("FirebaseInstanceID"),
-    Pod("FirebaseAnalytics", isClosedSource: true),
     Pod("GoogleAppMeasurement", isClosedSource: true),
+    Pod("FirebaseAnalytics", isClosedSource: true),
     Pod("FirebaseABTesting"),
-    Pod("FirebaseAppDistribution"),
+    Pod("FirebaseAppDistribution", isBeta: true),
     Pod("FirebaseAuth"),
     Pod("FirebaseCrashlytics"),
     Pod("FirebaseDatabase"),
     Pod("FirebaseDynamicLinks"),
     Pod("FirebaseFirestore", allowWarnings: true),
-    Pod("FirebaseFirestoreSwift"),
+    Pod("FirebaseFirestoreSwift", isBeta: true),
     Pod("FirebaseFunctions"),
-    Pod("FirebaseInAppMessaging"),
+    Pod("FirebaseInAppMessaging", isBeta: true),
     Pod("FirebaseMessaging"),
-    Pod("FirebasePerformance"),
+    Pod("FirebasePerformance", isClosedSource: true),
     Pod("FirebaseRemoteConfig"),
     Pod("FirebaseStorage"),
-    Pod("FirebaseStorageSwift"),
-    Pod("FirebaseMLCommon", isClosedSource: true),
-    Pod("FirebaseMLModelInterpreter", isClosedSource: true),
-    Pod("FirebaseMLVision", isClosedSource: true),
+    Pod("FirebaseStorageSwift", isBeta: true),
+    Pod("FirebaseMLCommon", isClosedSource: true, isBeta: true),
+    Pod("FirebaseMLModelInterpreter", isClosedSource: true, isBeta: true),
+    Pod("FirebaseMLVision", isClosedSource: true, isBeta: true),
     Pod("Firebase", allowWarnings: true),
   ]
 )
@@ -63,6 +63,7 @@ public struct Manifest {
 public struct Pod {
   public let name: String
   public let isClosedSource: Bool
+  public let isBeta: Bool
   public let isFirebase: Bool
   public let allowWarnings: Bool // Allow validation warnings. Ideally these should all be false
   public let podVersion: String? // Non-Firebase pods have their own version
@@ -70,12 +71,14 @@ public struct Pod {
 
   init(_ name: String,
        isClosedSource: Bool = false,
+       isBeta: Bool = false,
        isFirebase: Bool = true,
        allowWarnings: Bool = false,
        podVersion: String? = nil,
        releasing: Bool = true) {
     self.name = name
     self.isClosedSource = isClosedSource
+    self.isBeta = isBeta
     self.isFirebase = isFirebase
     self.allowWarnings = allowWarnings
     self.podVersion = podVersion
@@ -84,5 +87,14 @@ public struct Pod {
 
   public func podspecName() -> String {
     return isClosedSource ? "\(name).podspec.json" : "\(name).podspec"
+  }
+
+  /// Closed source pods do not validate on Xcode 12 until they support the ARM simulator slice.
+  public func skipImportValidation() -> String {
+    if isClosedSource || name == "Firebase" {
+      return "-skip-import-validation"
+    } else {
+      return ""
+    }
   }
 }

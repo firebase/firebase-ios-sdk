@@ -20,22 +20,24 @@ import FirebaseManifest
 import Utils
 
 struct InitializeRelease {
-  static func setupRepo(gitRoot: URL) {
+  static func setupRepo(gitRoot: URL) -> String {
     let manifest = FirebaseManifest.shared
-    createReleaseBranch(path: gitRoot, version: manifest.version)
+    let branch = createReleaseBranch(path: gitRoot, version: manifest.version)
     updatePodspecs(path: gitRoot, manifest: manifest)
     updatePodfiles(path: gitRoot, version: manifest.version)
+    return branch
   }
 
   /// The branch is based on the minor version to represent this is the branch for subsequent
   /// patches.
-  private static func createReleaseBranch(path: URL, version: String) {
+  private static func createReleaseBranch(path: URL, version: String) -> String {
     let versionParts = version.split(separator: ".")
     let minorVersion = "\(versionParts[0]).\(versionParts[1])"
     let branch = "release-\(minorVersion)"
     Shell.executeCommand("git checkout master", workingDir: path)
     Shell.executeCommand("git pull", workingDir: path)
     Shell.executeCommand("git checkout -b \(branch)", workingDir: path)
+    return branch
   }
 
   /// Update the podspec versions.
@@ -45,10 +47,10 @@ struct InitializeRelease {
         if pod.name == "Firebase" {
           updateFirebasePodspec(path: path, manifest: manifest)
         } else {
-          let version = pod.podVersion ?? manifest.version
+          let version = pod.podVersion ??
+            (pod.isBeta ? manifest.version + "-beta" : manifest.version)
           Shell.executeCommand("sed -i.bak -e \"s/\\(\\.version.*=[[:space:]]*'\\).*'/\\1" +
-            "\(version)'/\" \(pod.name).podspec",
-            workingDir: path)
+            "\(version)'/\" \(pod.name).podspec", workingDir: path)
         }
       }
     }
@@ -62,12 +64,13 @@ struct InitializeRelease {
     } catch {
       fatalError("Could not read Firebase podspec. \(error)")
     }
-    let version = manifest.version
+    let firebaseVersion = manifest.version
     for firebasePod in manifest.pods {
       if !firebasePod.isFirebase {
         continue
       }
       let pod = firebasePod.name
+      let version = firebasePod.isBeta ? firebaseVersion + "-beta" : firebaseVersion
       if pod == "Firebase" {
         // Replace version in string like s.version = '6.9.0'
         guard let range = contents.range(of: "s.version") else {

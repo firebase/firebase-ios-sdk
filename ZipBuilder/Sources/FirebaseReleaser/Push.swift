@@ -22,8 +22,6 @@ import Utils
 struct Push {
   static func cpdc(gitRoot: URL) {
     let cpdcLocation = findCpdc(gitRoot: gitRoot)
-    print (cpdcLocation)
-
     let manifest = FirebaseManifest.shared
 
     for pod in manifest.pods {
@@ -33,7 +31,8 @@ struct Push {
       let warningsOK = pod.allowWarnings ? " --allow-warnings" : ""
 
       Shell.executeCommand("pod repo push --skip-tests --use-json \(warningsOK) \(cpdcLocation) " +
-        "\(pod.podspecName()) --sources=sso://cpdc-internal/firebase.git,https://cdn.cocoapods.org")
+                            pod.skipImportValidation() + " \(pod.podspecName()) " + "--sources=sso://cpdc-internal/firebase.git,https://cdn.cocoapods.org",
+                           workingDir: gitRoot)
     }
   }
 
