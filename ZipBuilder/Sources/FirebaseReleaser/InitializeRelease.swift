@@ -27,9 +27,9 @@ struct InitializeRelease {
     updatePodfiles(path: gitRoot, version: manifest.version)
   }
 
+  /// The branch is based on the minor version to represent this is the branch for subsequent
+  /// patches.
   private static func createReleaseBranch(path: URL, version: String) {
-    // The branch is based on the minor version to represent this is the branch for subsequent
-    // patches.
     let versionParts = version.split(separator: ".")
     let minorVersion = "\(versionParts[0]).\(versionParts[1])"
     let branch = "release-\(minorVersion)"
@@ -38,24 +38,16 @@ struct InitializeRelease {
     Shell.executeCommand("git checkout -b \(branch)", workingDir: path)
   }
 
+  /// Update the podspec versions.
   private static func updatePodspecs(path: URL, manifest: FirebaseManifest.Manifest) {
-    // Update the versions in the non-Firebase pods.
-    for pod in manifest.otherPods {
-      if pod.releasing {
-        Shell.executeCommand("sed -i.bak -e \"s/\\(\\.version.*=[[:space:]]*'\\).*'/\\1" +
-          "\(pod.version)'/\" \(pod.name).podspec",
-          workingDir: path)
-      }
-    }
-
-    // Update the versions in the Firebase pods.
-    for pod in manifest.firebasePods {
+    for pod in manifest.pods {
       if !pod.isClosedSource {
         if pod.name == "Firebase" {
           updateFirebasePodspec(path: path, manifest: manifest)
         } else {
+          let version = pod.podVersion ?? manifest.version
           Shell.executeCommand("sed -i.bak -e \"s/\\(\\.version.*=[[:space:]]*'\\).*'/\\1" +
-            "\(manifest.version)'/\" \(pod.name).podspec",
+            "\(version)'/\" \(pod.name).podspec",
             workingDir: path)
         }
       }
@@ -71,7 +63,10 @@ struct InitializeRelease {
       fatalError("Could not read Firebase podspec. \(error)")
     }
     let version = manifest.version
-    for firebasePod in manifest.firebasePods {
+    for firebasePod in manifest.pods {
+      if !firebasePod.isFirebase {
+        continue
+      }
       let pod = firebasePod.name
       if pod == "Firebase" {
         // Replace version in string like s.version = '6.9.0'

@@ -22,7 +22,7 @@ import PackageDescription
 let package = Package(
   name: "ZipBuilder",
   products: [
-    .executable(name: "FirebaseReleaser", targets: ["FirebaseReleaser"]),
+    .executable(name: "firebase-releaser", targets: ["FirebaseReleaser"]),
     .executable(name: "ReleasePackager", targets: ["ZipBuilder"]),
   ],
   dependencies: [

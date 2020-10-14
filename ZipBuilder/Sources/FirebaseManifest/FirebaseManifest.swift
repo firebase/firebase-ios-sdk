@@ -16,69 +16,61 @@
 
 import Foundation
 
-public let shared = Manifest()
+/// The manifest contents for a release.
+/// Version should be updated every release.
+/// The version and releasing fields of the non-Firebase pods should be reviewed every release.
+public let shared = Manifest(
+  version: "6.99.0",
+  pods: [
+    Pod("GoogleUtilities", isFirebase: false, podVersion: "6.99.9999", releasing: true),
+    Pod("GoogleDataTransport", isFirebase: false, podVersion: "6.999.990", releasing: true),
 
-/// Struct describing Firebase pods to release.
-public struct FirebasePod {
-  public let name: String
-  public let isClosedSource: Bool
-
-  init(_ name: String, isClosedSource: Bool = false) {
-    self.name = name
-    self.isClosedSource = isClosedSource
-  }
-}
-
-/// Struct describing non-Firebase pods to release.
-public struct OtherPod {
-  public let name: String
-  public let version: String
-  public let releasing: Bool
-
-  init(_ name: String, _ version: String, releasing: Bool) {
-    self.name = name
-    self.version = version
-    self.releasing = releasing
-  }
-}
+    Pod("FirebaseCoreDiagnostics"),
+    Pod("FirebaseCore"),
+    Pod("FirebaseInstallations"),
+    Pod("FirebaseInstanceID"),
+    Pod("FirebaseAnalytics", isClosedSource: true),
+    Pod("FirebaseABTesting"),
+    Pod("FirebaseAppDistribution"),
+    Pod("FirebaseAuth"),
+    Pod("FirebaseCrashlytics"),
+    Pod("FirebaseDatabase"),
+    Pod("FirebaseDynamicLinks"),
+    Pod("FirebaseFirestore"),
+    Pod("FirebaseFirestoreSwift"),
+    Pod("FirebaseFunctions"),
+    Pod("FirebaseInAppMessaging"),
+    Pod("FirebaseMessaging"),
+    Pod("FirebaseRemoteConfig"),
+    Pod("FirebaseStorage"),
+    Pod("FirebaseStorageSwift"),
+    Pod("Firebase")
+  ]
+)
 
 /// Manifest describing the contents of a Firebase release.
-/// It should be reviewed and updated for every release and provides the data for release
-/// automation.
 public struct Manifest {
   public let version: String
-  public let firebasePods: [FirebasePod]
-  public let otherPods: [OtherPod]
+  public let pods: [Pod]
+}
 
-  init() {
-    version = "6.99.9"
-    otherPods = [
-      OtherPod("GoogleUtilities", "6.99.9999", releasing: true),
-      OtherPod("GoogleDataTransport", "6.999.990", releasing: true),
-    ]
-    // List of Firebase pods. It should be ordered in a valid publishing order
-    // with all dependencies earlier in the list.
-    firebasePods = [
-      FirebasePod("FirebaseCoreDiagnostics"),
-      FirebasePod("FirebaseCore"),
-      FirebasePod("FirebaseInstallations"),
-      FirebasePod("FirebaseInstanceID"),
-      FirebasePod("FirebaseAnalytics", isClosedSource: true),
-      FirebasePod("FirebaseABTesting"),
-      FirebasePod("FirebaseAppDistribution"),
-      FirebasePod("FirebaseAuth"),
-      FirebasePod("FirebaseCrashlytics"),
-      FirebasePod("FirebaseDatabase"),
-      FirebasePod("FirebaseDynamicLinks"),
-      FirebasePod("FirebaseFirestore"),
-      FirebasePod("FirebaseFirestoreSwift"),
-      FirebasePod("FirebaseFunctions"),
-      FirebasePod("FirebaseInAppMessaging"),
-      FirebasePod("FirebaseMessaging"),
-      FirebasePod("FirebaseRemoteConfig"),
-      FirebasePod("FirebaseStorage"),
-      FirebasePod("FirebaseStorageSwift"),
-      FirebasePod("Firebase"),
-    ]
+/// Struct describing Firebase pods to release.
+public struct Pod {
+  public let name: String
+  public let isClosedSource: Bool
+  public let isFirebase: Bool
+  public let podVersion: String? // non-Firebase pods have their own version
+  public let releasing: Bool     // non-Firebase pods may not release
+
+  init(_ name: String,
+       isClosedSource: Bool = false,
+       isFirebase: Bool = true,
+       podVersion: String? = nil,
+       releasing: Bool = true) {
+    self.name = name
+    self.isClosedSource = isClosedSource
+    self.isFirebase = isFirebase
+    self.podVersion = podVersion
+    self.releasing = releasing
   }
 }

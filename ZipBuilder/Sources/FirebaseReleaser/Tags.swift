@@ -24,11 +24,17 @@ struct Tags {
     let manifest = FirebaseManifest.shared
     createTag(gitRoot: gitRoot, tag: "CocoaPods-\(manifest.version)")
 
-    for pod in manifest.otherPods {
+    for pod in manifest.pods {
+      if pod.isFirebase {
+        continue
+      }
       if !pod.name.starts(with: "Google") {
         fatalError("Unrecognized Other Pod: \(pod.name). Only Google prefix is recognized")
       }
-      let tag = pod.name.replacingOccurrences(of: "Google", with: "") + "-" + pod.version
+      guard let version = pod.podVersion else {
+        fatalError("Non-Firebase pod \(pod.name) is missing a version")
+      }
+      let tag = pod.name.replacingOccurrences(of: "Google", with: "") + "-" + version
       createTag(gitRoot: gitRoot, tag: tag)
     }
   }
