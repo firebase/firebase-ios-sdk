@@ -27,7 +27,7 @@
   },
   "name": "FirebaseMLVision",
   "platforms": {
-    "ios": "8.0"
+    "ios": "10.0"
   },
   "preserve_paths": [
     "CHANGELOG.md",
