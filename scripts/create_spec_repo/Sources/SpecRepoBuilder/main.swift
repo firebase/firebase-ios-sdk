@@ -24,10 +24,10 @@ extension Constants {
   static let dependencyLineSeparators = CharacterSet(charactersIn: " ,/")
   static let podSources = [
     "https://${BOT_TOKEN}@github.com/FirebasePrivate/SpecsTesting",
+    "https://github.com/firebase/SpecsStaging.git",
     "https://github.com/CocoaPods/Specs",
   ]
-  static let exclusivePods: [String] = ["GoogleAppMeasurement", "FirebaseAnalytics",
-                                        "FirebaseSegmentation"]
+  static let exclusivePods: [String] = ["FirebaseSegmentation"]
 }
 
 // flags for 'pod push'
