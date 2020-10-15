@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,70 +17,53 @@
 import Foundation
 
 import ArgumentParser
-import ManifestReader
+import FirebaseManifest
+import Utils
 
-struct FirebasePodUpdater: ParsableCommand {
+struct FirebaseReleaser: ParsableCommand {
   /// The root of the Firebase git repo.
+  // TODO: Add a default that sets the current repo - ['git', 'rev-parse', '--show-toplevel']
   @Option(help: "The root of the firebase-ios-sdk checked out git repo.",
           transform: URL.init(fileURLWithPath:))
   var gitRoot: URL
 
-  /// A file URL to a textproto with the contents of a `FirebasePod_Release` object. Used to verify
-  /// expected version numbers.
-  @Option(name: .customLong("releasing-pods"),
-          help: "The file path to a textproto file containing all the releasing Pods, of type `FirebasePod_Release`.",
-          transform: URL.init(fileURLWithPath:))
-  var currentRelease: URL
+  @Option(default: false,
+          help: "Log without executing the shell commands")
+  var logOnly: Bool
+
+  /// Set this option when starting a release.
+  @Option(default: false,
+          help: "Initialize the release branch")
+  var initBranch: Bool
+
+  /// Set this option to update podspecs only.
+  @Option(default: false,
+          help: "Initialize the release branch")
+  var pushOnly: Bool
 
   mutating func validate() throws {
     guard FileManager.default.fileExists(atPath: gitRoot.path) else {
       throw ValidationError("git-root does not exist: \(gitRoot.path)")
     }
-
-    guard FileManager.default.fileExists(atPath: currentRelease.path) else {
-      throw ValidationError("current-release does not exist: \(currentRelease.path). Do you need " +
-        "to run `prodaccess`?")
-    }
   }
 
   func run() throws {
-    // Keep timing for how long it takes to change the Firebase pod versions.
-    let buildStart = Date()
-
-    let newVersions = getExpectedVersions()
-    updateFirebasePod(newVersions: newVersions)
-    if let firebase_version = newVersions["Firebase"] {
-      print("Updating Firebase pod for version \(String(describing: firebase_version))")
+    if logOnly {
+      Shell.setLogOnly()
     }
-
-    // Get the time since the tool start.
-    let secondsSinceStart = -Int(buildStart.timeIntervalSinceNow)
-    print("""
-    Time profile:
-      It took \(secondsSinceStart) seconds (~\(secondsSinceStart / 60)m) to update the Firebase pod.
-    """)
-  }
-
-  /// Assembles the expected versions based on the release manifest passed in.
-  /// Returns an array with the pod name as the key and version as the value,
-  private func getExpectedVersions() -> [String: String] {
-    // Merge the versions from the current release and the known public versions.
-    var releasingVersions: [String: String] = [:]
-
-    // Override any of the expected versions with the current release manifest, if it exists.
-    let loadedRelease = ManifestReader.loadCurrentRelease(fromTextproto: currentRelease)
-    print("Overriding the following Pod versions, taken from the current release manifest:")
-    for pod in loadedRelease.sdk {
-      releasingVersions[pod.sdkName] = pod.sdkVersion
-      print("\(pod.sdkName): \(pod.sdkVersion)")
+    if initBranch {
+      let branch = InitializeRelease.setupRepo(gitRoot: gitRoot)
+      let version = FirebaseManifest.shared.version
+      Shell.executeCommand("git commit -am \"Update versions for Release \(version)\"",
+                           workingDir: gitRoot)
+      Shell.executeCommand("git push origin \(branch)", workingDir: gitRoot)
+      Shell.executeCommand("git branch --set-upstream-to=origin/\(branch) \(branch)",
+                           workingDir: gitRoot)
+      Tags.create(gitRoot: gitRoot)
+      Push.pushPodsToCPDC(gitRoot: gitRoot)
+    } else if pushOnly {
+      Push.pushPodsToCPDC(gitRoot: gitRoot)
     }
-
-    if !releasingVersions.isEmpty {
-      print("Updating Firebase Pod in git installation at \(gitRoot.path)) " +
-        "with the following versions: \(releasingVersions)")
-    }
-
-    return releasingVersions
   }
 
   private func updateFirebasePod(newVersions: [String: String]) {
@@ -134,4 +117,4 @@ struct FirebasePodUpdater: ParsableCommand {
 }
 
 // Start the parsing and run the tool.
-FirebasePodUpdater.main()
+FirebaseReleaser.main()

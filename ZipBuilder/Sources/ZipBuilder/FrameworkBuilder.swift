@@ -15,6 +15,7 @@
  */
 
 import Foundation
+import Utils
 
 /// Different architectures to build frameworks for.
 enum Architecture: String, CaseIterable {
