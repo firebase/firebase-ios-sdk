@@ -35,6 +35,8 @@ device, and it is completely free.
     'Firebase/InstanceID/Private/*.h',
     'Firebase/InstanceID/Public/*.h',
     'FirebaseInstallations/Source/Library/Private/*.h',
+    'GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/*.h',
+    'GoogleDataTransport/GDTCCTLibrary/Private/*.h',
   ]
   s.requires_arc = base_dir + 'Sources/*.m'
   s.public_header_files = base_dir + 'Sources/Public/FirebaseMessaging/*.h'
@@ -59,6 +61,7 @@ device, and it is completely free.
   s.dependency 'GoogleUtilities/Reachability', '~> 7.0'
   s.dependency 'GoogleUtilities/Environment', '~> 7.0'
   s.dependency 'GoogleUtilities/UserDefaults', '~> 7.0'
+  s.dependency 'GoogleDataTransport', '~> 8.0'
   s.dependency 'nanopb', '~> 2.30906.0'
 
   s.test_spec 'unit' do |unit_tests|
