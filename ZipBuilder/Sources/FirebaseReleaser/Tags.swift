@@ -20,10 +20,12 @@ import FirebaseManifest
 import Utils
 
 enum Tags {
-  static func create(gitRoot: URL, afterDelete: Bool = false) {
+  static func createTags(gitRoot: URL, deleteExistingTags: Bool = false) {
     let manifest = FirebaseManifest.shared
-    createTag(gitRoot: gitRoot, tag: "CocoaPods-\(manifest.version)", afterDelete: afterDelete)
-    createTag(gitRoot: gitRoot, tag: "CocoaPods-\(manifest.version)-beta", afterDelete: afterDelete)
+    createTag(gitRoot: gitRoot, tag: "CocoaPods-\(manifest.version)",
+      deleteExistingTags: deleteExistingTags)
+    createTag(gitRoot: gitRoot, tag: "CocoaPods-\(manifest.version)-beta",
+      deleteExistingTags: deleteExistingTags)
 
     for pod in manifest.pods {
       if pod.isFirebase {
@@ -36,17 +38,17 @@ enum Tags {
         fatalError("Non-Firebase pod \(pod.name) is missing a version")
       }
       let tag = pod.name.replacingOccurrences(of: "Google", with: "") + "-" + version
-      createTag(gitRoot: gitRoot, tag: tag, afterDelete: afterDelete)
+      createTag(gitRoot: gitRoot, tag: tag, deleteExistingTags: deleteExistingTags)
     }
   }
 
   static func updateTags(gitRoot: URL) {
-    create(gitRoot: gitRoot, afterDelete: true)
+    createTags(gitRoot: gitRoot, deleteExistingTags: true)
   }
 
-  private static func createTag(gitRoot: URL, tag: String, afterDelete: Bool) {
-    if afterDelete {
-      verifyDeleteIsOK()
+  private static func createTag(gitRoot: URL, tag: String, deleteExistingTags: Bool) {
+    if deleteExistingTags {
+      verifyTagsAreSafeToDelete()
       Shell.executeCommand("git tag --delete \(tag)", workingDir: gitRoot)
       Shell.executeCommand("git push --delete origin \(tag)", workingDir: gitRoot)
     }
@@ -54,7 +56,7 @@ enum Tags {
     Shell.executeCommand("git push origin \(tag)", workingDir: gitRoot)
   }
 
-  private static func verifyDeleteIsOK() {
+  private static func verifyTagsAreSafeToDelete() {
     var homeDirURL: URL
     if #available(OSX 10.12, *) {
       homeDirURL = FileManager.default.homeDirectoryForCurrentUser

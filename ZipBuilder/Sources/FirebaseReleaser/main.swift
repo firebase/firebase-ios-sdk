@@ -38,13 +38,13 @@ struct FirebaseReleaser: ParsableCommand {
 
   /// Set this option to update podspecs only.
   @Option(default: false,
-          help: "Initialize the release branch")
+          help: "Update the podspecs only")
   var pushOnly: Bool
 
   /// Set this option to update tags only.
   @Option(default: false,
-          help: "Update the tags")
-  var updateTags: Bool
+          help: "Update the tags only")
+  var updateTagsOnly: Bool
 
   mutating func validate() throws {
     guard FileManager.default.fileExists(atPath: gitRoot.path) else {
@@ -64,11 +64,11 @@ struct FirebaseReleaser: ParsableCommand {
       Shell.executeCommand("git push origin \(branch)", workingDir: gitRoot)
       Shell.executeCommand("git branch --set-upstream-to=origin/\(branch) \(branch)",
                            workingDir: gitRoot)
-      Tags.create(gitRoot: gitRoot)
+      Tags.createTags(gitRoot: gitRoot)
       Push.pushPodsToCPDC(gitRoot: gitRoot)
     } else if pushOnly {
       Push.pushPodsToCPDC(gitRoot: gitRoot)
-    } else if updateTags {
+    } else if updateTagsOnly {
       Tags.updateTags(gitRoot: gitRoot)
     }
   }
