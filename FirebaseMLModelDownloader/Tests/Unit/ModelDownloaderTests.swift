@@ -15,8 +15,11 @@
 import XCTest
 @testable import FirebaseMLModelDownloader
 
-public struct ModelDownloaderTests {
-  public func codeSample() {
+final class ModelDownloaderTests: XCTestCase {
+  func testExample() {
+    // This is an example of a functional test case.
+    // Use XCTAssert and related functions to verify your tests produce the correct
+    // results.
     let modelDownloader = ModelDownloader()
     let conditions = ModelDownloadConditions()
 
@@ -31,8 +34,8 @@ public struct ModelDownloaderTests {
     ) { result in
       switch result {
       case let .success(customModel):
-      // Use model with your inference API
-      // let interpreter = Interpreter(modelPath: customModel.modelPath)
+        // Use model with your inference API
+        let interpreter = Interpreter(modelPath: customModel.modelPath)
       case let .failure(error):
         // Handle download error
       }
