@@ -49,7 +49,8 @@ enum Tags {
     }
     let manifest = FirebaseManifest.shared
     let firebasePublicURL = homeDirURL.appendingPathComponents(
-      [".cocoapods","repos","cocoapods","Specs","0","3","5","Firebase"])
+      [".cocoapods", "repos", "cocoapods", "Specs", "0", "3", "5", "Firebase"]
+    )
 
     guard FileManager.default.fileExists(atPath: firebasePublicURL.path) else {
       fatalError("You must have the CocoaPods Spec repo installed to retag versions.")
@@ -63,7 +64,7 @@ enum Tags {
   }
 
   private static func createTag(gitRoot: URL, tag: String, afterDelete: Bool) {
-    if (afterDelete) {
+    if afterDelete {
       Shell.executeCommand("git tag --delete \(tag)", workingDir: gitRoot)
       Shell.executeCommand("git push --delete origin \(tag)", workingDir: gitRoot)
     }
