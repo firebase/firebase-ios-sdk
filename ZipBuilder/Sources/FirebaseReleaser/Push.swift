@@ -19,8 +19,8 @@ import Foundation
 import FirebaseManifest
 import Utils
 
-struct Push {
-  static func cpdc(gitRoot: URL) {
+enum Push {
+  static func pushPodsToCPDC(gitRoot: URL) {
     let cpdcLocation = findCpdc(gitRoot: gitRoot)
     let manifest = FirebaseManifest.shared
 

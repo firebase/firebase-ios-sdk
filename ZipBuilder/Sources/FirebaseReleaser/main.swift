@@ -60,9 +60,9 @@ struct FirebaseReleaser: ParsableCommand {
       Shell.executeCommand("git branch --set-upstream-to=origin/\(branch) \(branch)",
                            workingDir: gitRoot)
       Tags.create(gitRoot: gitRoot)
-      Push.cpdc(gitRoot: gitRoot)
+      Push.pushPodsToCPDC(gitRoot: gitRoot)
     } else if pushOnly {
-      Push.cpdc(gitRoot: gitRoot)
+      Push.pushPodsToCPDC(gitRoot: gitRoot)
     }
   }
 

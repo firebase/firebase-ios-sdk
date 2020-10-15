@@ -49,6 +49,8 @@ struct InitializeRelease {
         } else {
           let version = pod.podVersion ??
             (pod.isBeta ? manifest.version + "-beta" : manifest.version)
+
+          // Patch the new version to the podspec's version attribute.
           Shell.executeCommand("sed -i.bak -e \"s/\\(\\.version.*=[[:space:]]*'\\).*'/\\1" +
             "\(version)'/\" \(pod.name).podspec", workingDir: path)
         }
@@ -56,6 +58,10 @@ struct InitializeRelease {
     }
   }
 
+  // This function patches the versions in the Firebase.podspec. It uses Swift instead of sed
+  // like the other version patching.
+  // TODO: Choose one or the other mechanism.
+  // TODO: If we keep Swift, consider using Scanner.
   private static func updateFirebasePodspec(path: URL, manifest: FirebaseManifest.Manifest) {
     let podspecFile = path.appendingPathComponent("Firebase.podspec")
     var contents = ""
@@ -72,6 +78,8 @@ struct InitializeRelease {
       let pod = firebasePod.name
       let version = firebasePod.isBeta ? firebaseVersion + "-beta" : firebaseVersion
       if pod == "Firebase" {
+        // TODO: This then block is redundant with the updatePodspecs function above and is left
+        // until we decide to go with Swift or sed.
         // Replace version in string like s.version = '6.9.0'
         guard let range = contents.range(of: "s.version") else {
           fatalError("Could not find version of Firebase pod in podspec at \(podspecFile)")

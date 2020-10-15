@@ -19,7 +19,7 @@ import Foundation
 import FirebaseManifest
 import Utils
 
-struct Tags {
+enum Tags {
   static func create(gitRoot: URL) {
     let manifest = FirebaseManifest.shared
     createTag(gitRoot: gitRoot, tag: "CocoaPods-\(manifest.version)")
