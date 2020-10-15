@@ -41,6 +41,11 @@ struct FirebaseReleaser: ParsableCommand {
           help: "Initialize the release branch")
   var pushOnly: Bool
 
+  /// Set this option to update tags only.
+  @Option(default: false,
+          help: "Update the tags")
+  var updateTags: Bool
+
   mutating func validate() throws {
     guard FileManager.default.fileExists(atPath: gitRoot.path) else {
       throw ValidationError("git-root does not exist: \(gitRoot.path)")
@@ -63,6 +68,8 @@ struct FirebaseReleaser: ParsableCommand {
       Push.pushPodsToCPDC(gitRoot: gitRoot)
     } else if pushOnly {
       Push.pushPodsToCPDC(gitRoot: gitRoot)
+    } else if updateTags {
+      Tags.updateTags(gitRoot: gitRoot)
     }
   }
 
