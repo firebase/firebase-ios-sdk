@@ -16,10 +16,10 @@
 
 #import "GoogleDataTransport/GDTCCTLibrary/Private/GDTCCTUploader.h"
 
+#import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORPlatform.h"
+#import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORRegistrar.h"
 #import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORConsoleLogger.h"
 #import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCOREvent.h"
-#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORPlatform.h"
-#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORRegistrar.h"
 
 #import "GoogleDataTransport/GDTCCTLibrary/Private/GDTCCTUploadOperation.h"
 
@@ -82,11 +82,20 @@ NSNotificationName const GDTCCTUploadCompleteNotification = @"com.GDTCCTUploader
   // 2. Notify the client of upload stages
   // 3. Allow the client cancelling upload requests as needed.
 
+  id<GDTCORStoragePromiseProtocol> storage = GDTCORStoragePromiseInstanceForTarget(target);
+  if (storage == nil) {
+    GDTCORLogError(GDTCORMCEGeneralError,
+                   @"Failed to upload target: %ld - could not find corresponding storage instance.",
+                   (long)target);
+    return;
+  }
+
   GDTCCTUploadOperation *uploadOperation =
       [[GDTCCTUploadOperation alloc] initWithTarget:target
                                          conditions:conditions
                                           uploadURL:[self serverURLForTarget:target]
                                               queue:self.uploadQueue
+                                            storage:storage
                                    metadataProvider:self];
 
   __weak __auto_type weakSelf = self;
@@ -96,7 +105,21 @@ NSNotificationName const GDTCCTUploadCompleteNotification = @"com.GDTCCTUploader
     if (weakOperation.uploadAttempted) {
       // Ignore all upload requests received when the upload was in progress.
       [weakSelf.uploadOperationQueue cancelAllOperations];
+
+      // TODO: Should we reconsider GDTCCTUploadCompleteNotification? Maybe a completion handler
+      // instead?
+#if !NDEBUG
+      [[NSNotificationCenter defaultCenter] postNotificationName:GDTCCTUploadCompleteNotification
+                                                          object:nil];
+#endif  // #if !NDEBUG
     }
+
+#if !NDEBUG
+    if (weakSelf.uploadOperationQueue.operationCount == 0) {
+      [[NSNotificationCenter defaultCenter] postNotificationName:GDTCCTUploadCompleteNotification
+                                                          object:nil];
+    }
+#endif  // #if !NDEBUG
   };
 
   [self.uploadOperationQueue addOperation:uploadOperation];
@@ -222,6 +245,14 @@ NSNotificationName const GDTCCTUploadCompleteNotification = @"com.GDTCCTUploader
 
   return nil;
 }
+
+#if !NDEBUG
+
+- (void)waitForUploadFinished:(dispatch_block_t)completion {
+  [self.uploadOperationQueue addOperationWithBlock:completion];
+}
+
+#endif  // !NDEBUG
 
 @end
 

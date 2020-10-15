@@ -565,13 +565,14 @@
 }
 
 - (void)waitForUploadOperationsToFinish:(GDTCCTUploader *)uploader {
+  // TODO: Revisit.
   XCTestExpectation *uploadFinishedExpectation =
       [self expectationWithDescription:@"uploadFinishedExpectation"];
-  dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)),
-                 uploader.uploaderQueue, ^{
-                   [uploadFinishedExpectation fulfill];
-                   XCTAssertNil(uploader.currentTask);
-                 });
+
+  [self.uploader waitForUploadFinished:^{
+    [uploadFinishedExpectation fulfill];
+  }];
+
   [self waitForExpectations:@[ uploadFinishedExpectation ] timeout:1];
 }
 

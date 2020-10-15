@@ -23,6 +23,17 @@ id<GDTCORStorageProtocol> _Nullable GDTCORStorageInstanceForTarget(GDTCORTarget 
   return [GDTCORRegistrar sharedInstance].targetToStorage[@(target)];
 }
 
+FOUNDATION_EXPORT
+id<GDTCORStoragePromiseProtocol> _Nullable GDTCORStoragePromiseInstanceForTarget(
+    GDTCORTarget target) {
+  id storage = [GDTCORRegistrar sharedInstance].targetToStorage[@(target)];
+  if ([storage conformsToProtocol:@protocol(GDTCORStoragePromiseProtocol)]) {
+    return storage;
+  } else {
+    return nil;
+  }
+}
+
 @implementation GDTCORRegistrar {
   /** Backing ivar for targetToUploader property. */
   NSMutableDictionary<NSNumber *, id<GDTCORUploader>> *_targetToUploader;
