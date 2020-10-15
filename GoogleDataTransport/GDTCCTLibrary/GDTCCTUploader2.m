@@ -84,7 +84,9 @@ NSNotificationName const GDTCCTUploadCompleteNotification = @"com.GDTCCTUploader
 
   id<GDTCORStoragePromiseProtocol> storage = GDTCORStoragePromiseInstanceForTarget(target);
   if (storage == nil) {
-    GDTCORLogError(GDTCORMCEGeneralError, @"Failed to upload target: %ld - could not find corresponding storage instance.", (long)target);
+    GDTCORLogError(GDTCORMCEGeneralError,
+                   @"Failed to upload target: %ld - could not find corresponding storage instance.",
+                   (long)target);
     return;
   }
 

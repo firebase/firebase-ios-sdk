@@ -16,8 +16,8 @@
 
 #import "GoogleDataTransport/GDTCCTTests/Common/TestStorage/GDTCCTTestStorage.h"
 
-#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCOREvent.h"
 #import "GoogleDataTransport/GDTCORLibrary/Private/GDTCORUploadBatch.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCOREvent.h"
 
 #import <FBLPromises/FBLPromises.h>
 
@@ -146,14 +146,14 @@
 
 - (FBLPromise<NSSet<NSNumber *> *> *)batchIDsForTarget:(GDTCORTarget)target {
   return [FBLPromise wrapObjectCompletion:^(FBLPromiseObjectCompletion _Nonnull handler) {
-          [self batchIDsForTarget:target onComplete:handler];
-        }];
+    [self batchIDsForTarget:target onComplete:handler];
+  }];
 }
 
 - (FBLPromise<NSNull *> *)removeBatchWithID:(NSNumber *)batchID deleteEvents:(BOOL)deleteEvents {
   return [FBLPromise wrapCompletion:^(FBLPromiseCompletion _Nonnull handler) {
-                [self removeBatchWithID:batchID deleteEvents:deleteEvents onComplete:handler];
-              }];
+    [self removeBatchWithID:batchID deleteEvents:deleteEvents onComplete:handler];
+  }];
 }
 
 - (FBLPromise<NSNull *> *)removeBatchesWithIDs:(NSSet<NSNumber *> *)batchIDs
@@ -164,44 +164,42 @@
     [removeBatchPromises addObject:[self removeBatchWithID:batchID deleteEvents:deleteEvents]];
   }
 
-  return [FBLPromise all:[removeBatchPromises copy]].then(
-      ^id(id result) {
-        return [FBLPromise resolvedWith:[NSNull null]];
-      });
+  return [FBLPromise all:[removeBatchPromises copy]].then(^id(id result) {
+    return [FBLPromise resolvedWith:[NSNull null]];
+  });
 }
 
 - (FBLPromise<NSNull *> *)removeAllBatchesForTarget:(GDTCORTarget)target
                                        deleteEvents:(BOOL)deleteEvents {
-  return
-      [self batchIDsForTarget:target].then(^id(NSSet<NSNumber *> *batchIDs) {
-        return [self removeBatchesWithIDs:batchIDs deleteEvents:NO];
-      });
+  return [self batchIDsForTarget:target].then(^id(NSSet<NSNumber *> *batchIDs) {
+    return [self removeBatchesWithIDs:batchIDs deleteEvents:NO];
+  });
 }
 
 - (FBLPromise<NSNumber *> *)hasEventsForTarget:(GDTCORTarget)target {
   return [FBLPromise wrapBoolCompletion:^(FBLPromiseBoolCompletion _Nonnull handler) {
-            [self hasEventsForTarget:target onComplete:handler];
-          }];
+    [self hasEventsForTarget:target onComplete:handler];
+  }];
 }
 
 - (FBLPromise<GDTCORUploadBatch *> *)batchWithEventSelector:
                                          (GDTCORStorageEventSelector *)eventSelector
                                             batchExpiration:(NSDate *)expiration {
   return [FBLPromise
-        async:^(FBLPromiseFulfillBlock _Nonnull fulfill, FBLPromiseRejectBlock _Nonnull reject) {
-          [self batchWithEventSelector:eventSelector
-                       batchExpiration:expiration
-                            onComplete:^(NSNumber *_Nullable newBatchID,
-                                         NSSet<GDTCOREvent *> *_Nullable batchEvents) {
-                              if (newBatchID == nil || batchEvents == nil) {
-                                reject([self genericRejectedPromiseErrorWithReason:
-                                                 @"There are no events for the selector."]);
-                              } else {
-                                fulfill([[GDTCORUploadBatch alloc] initWithBatchID:newBatchID
-                                                                            events:batchEvents]);
-                              }
-                            }];
-        }];
+      async:^(FBLPromiseFulfillBlock _Nonnull fulfill, FBLPromiseRejectBlock _Nonnull reject) {
+        [self batchWithEventSelector:eventSelector
+                     batchExpiration:expiration
+                          onComplete:^(NSNumber *_Nullable newBatchID,
+                                       NSSet<GDTCOREvent *> *_Nullable batchEvents) {
+                            if (newBatchID == nil || batchEvents == nil) {
+                              reject([self genericRejectedPromiseErrorWithReason:
+                                               @"There are no events for the selector."]);
+                            } else {
+                              fulfill([[GDTCORUploadBatch alloc] initWithBatchID:newBatchID
+                                                                          events:batchEvents]);
+                            }
+                          }];
+      }];
 }
 
 // TODO: More comprehensive error.

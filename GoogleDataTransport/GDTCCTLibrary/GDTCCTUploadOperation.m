@@ -85,7 +85,7 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
                     conditions:(GDTCORUploadConditions)conditions
                      uploadURL:(NSURL *)uploadURL
                          queue:(dispatch_queue_t)queue
-                       storage:(id<GDTCORStoragePromiseProtocol>) storage
+                       storage:(id<GDTCORStoragePromiseProtocol>)storage
               metadataProvider:(id<GDTCCTUploadMetadataProvider>)metadataProvider {
   self = [super init];
   if (self) {
