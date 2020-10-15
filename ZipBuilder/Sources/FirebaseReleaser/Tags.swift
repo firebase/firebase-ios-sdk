@@ -23,9 +23,9 @@ enum Tags {
   static func createTags(gitRoot: URL, deleteExistingTags: Bool = false) {
     let manifest = FirebaseManifest.shared
     createTag(gitRoot: gitRoot, tag: "CocoaPods-\(manifest.version)",
-      deleteExistingTags: deleteExistingTags)
+              deleteExistingTags: deleteExistingTags)
     createTag(gitRoot: gitRoot, tag: "CocoaPods-\(manifest.version)-beta",
-      deleteExistingTags: deleteExistingTags)
+              deleteExistingTags: deleteExistingTags)
 
     for pod in manifest.pods {
       if pod.isFirebase {
