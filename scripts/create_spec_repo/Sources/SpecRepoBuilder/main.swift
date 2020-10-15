@@ -26,7 +26,8 @@ extension Constants {
     "https://${BOT_TOKEN}@github.com/FirebasePrivate/SpecsTesting",
     "https://github.com/CocoaPods/Specs",
   ]
-  static let exclusivePods: [String] = ["GoogleAppMeasurement", "FirebaseAnalytics", "FirebaseSegmentation"]
+  static let exclusivePods: [String] = ["GoogleAppMeasurement", "FirebaseAnalytics",
+                                        "FirebaseSegmentation"]
 }
 
 // flags for 'pod push'
