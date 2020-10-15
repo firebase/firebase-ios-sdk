@@ -16,42 +16,46 @@ import XCTest
 @testable import FirebaseMLModelDownloader
 
 public struct ModelDownloaderTests {
-
   public func codeSample() {
     let modelDownloader = ModelDownloader()
     let conditions = ModelDownloadConditions()
 
     // Download model w/ progress handler
-    modelDownloader.getModel(name: "your_model_name", downloadType: .latestModel, conditions: conditions, progressHandler: { progress in
-      // Handle progress
-    }) { result in
-      switch (result) {
-      case .success(let customModel):
-        // Use model with your inference API
-        // let interpreter = Interpreter(modelPath: customModel.modelPath)
-      case .failure(let error):
+    modelDownloader.getModel(
+      name: "your_model_name",
+      downloadType: .latestModel,
+      conditions: conditions,
+      progressHandler: { progress in
+        // Handle progress
+      }
+    ) { result in
+      switch result {
+      case let .success(customModel):
+      // Use model with your inference API
+      // let interpreter = Interpreter(modelPath: customModel.modelPath)
+      case let .failure(error):
         // Handle download error
       }
     }
 
     // Access array of downloaded models
-    modelDownloader.listDownloadedModels() { result in
-      switch (result) {
-      case .success(let customModels):
+    modelDownloader.listDownloadedModels { result in
+      switch result {
+      case let .success(customModels):
         for model in customModels {
-        // Pick model(s) for further use
-      }
-      case .failure(let error):
+          // Pick model(s) for further use
+        }
+      case let .failure(error):
         // Handle failure
       }
     }
 
     // Delete downloaded model
     modelDownloader.deleteDownloadedModel(name: "your_model_name") { result in
-      switch (result) {
+      switch result {
       case .success():
-        // Apply any other clean up
-      case .failure(let error):
+      // Apply any other clean up
+      case let .failure(error):
         // Handle failure
       }
     }

@@ -16,9 +16,9 @@ import XCTest
 @testable import FirebaseMLModelDownloader
 
 final class MLModelDownloaderTests: XCTestCase {
-    func testExample() {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct
-        // results.
-    }
+  func testExample() {
+    // This is an example of a functional test case.
+    // Use XCTAssert and related functions to verify your tests produce the correct
+    // results.
+  }
 }

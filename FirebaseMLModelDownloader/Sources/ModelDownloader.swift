@@ -15,7 +15,7 @@
 import Foundation
 
 /// Possible errors with  model downloading.
-public enum DownloadError : Error {
+public enum DownloadError: Error {
   case deadlineExceeded // request time out
   case notFound // no model with this name found on server
   case permissionDenied // caller does not have permissions for this operation
@@ -31,11 +31,10 @@ public enum DownloadError : Error {
   case dataLoss // unrecoverable data loss or corruption
   case outOfRange // operation past valid input/output range
   case internalError // generic errors
-
 }
 
 /// Possible errors with locating model on device.
-public enum DownloadedModelError : Error {
+public enum DownloadedModelError: Error {
   case fileIOError // file system error
   case notFound // model not found on device
 }
@@ -49,7 +48,6 @@ public enum ModelDownloadType {
 
 /// Downloader to manage custom model downloads.
 public struct ModelDownloader {
-
   /// Downloads a custom model to device or gets a custom model already on device, w/ optional handler for progress.
   public func getModel(name modelName: String, downloadType: ModelDownloadType,
                        conditions: ModelDownloadConditions,
@@ -60,13 +58,19 @@ public struct ModelDownloader {
     let modelPath = String()
     let modelHash = String()
 
-    let customModel = CustomModel(name: modelName, size: modelSize, path: modelPath, hash: modelHash)
+    let customModel = CustomModel(
+      name: modelName,
+      size: modelSize,
+      path: modelPath,
+      hash: modelHash
+    )
     completion(.success(customModel))
     completion(.failure(.notFound))
   }
 
   /// Gets all downloaded models.
-  public func listDownloadedModels(completion: @escaping (Result<Set<CustomModel>, DownloadedModelError>) -> Void) {
+  public func listDownloadedModels(completion: @escaping (Result<Set<CustomModel>,
+    DownloadedModelError>) -> Void) {
     let customModels = Set<CustomModel>()
     // TODO: List downloaded models
     completion(.success(customModels))
@@ -75,7 +79,8 @@ public struct ModelDownloader {
 
   /// Deletes a custom model from device.
   public func deleteDownloadedModel(name modelName: String,
-                                    completion: @escaping (Result<Void, DownloadedModelError>) -> Void) {
+                                    completion: @escaping (Result<Void, DownloadedModelError>)
+                                      -> Void) {
     // TODO: Delete previously downloaded model
     completion(.success(()))
     completion(.failure(.notFound))
