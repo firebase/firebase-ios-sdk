@@ -181,8 +181,7 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleUtilities.podspec --use-static-frameworks  --platforms=macos
 
     - stage: test
-      # TODO: Uncommnet `if: type = cron`
-      # if: type = cron
+      if: type = cron
       env:
         - PROJECT=GoogleUtilitiesCron METHOD=pod-lib-lint
       script:
