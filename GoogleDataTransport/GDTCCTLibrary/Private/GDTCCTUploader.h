@@ -20,6 +20,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+// TODO: Try to avoid NDEBUG as it is not covered by tests on CI.
 #if !NDEBUG
 /** A notification fired when uploading is complete, detailing the number of events uploaded. */
 extern NSNotificationName const GDTCCTUploadCompleteNotification;
