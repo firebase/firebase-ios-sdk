@@ -41,6 +41,20 @@ enum Tags {
   }
 
   static func updateTags(gitRoot: URL) {
+    create(gitRoot: gitRoot, afterDelete: true)
+  }
+
+  private static func createTag(gitRoot: URL, tag: String, afterDelete: Bool) {
+    if afterDelete {
+      verifyDeleteIsOK()
+      Shell.executeCommand("git tag --delete \(tag)", workingDir: gitRoot)
+      Shell.executeCommand("git push --delete origin \(tag)", workingDir: gitRoot)
+    }
+    Shell.executeCommand("git tag \(tag)", workingDir: gitRoot)
+    Shell.executeCommand("git push origin \(tag)", workingDir: gitRoot)
+  }
+
+  private static func verifyDeleteIsOK() {
     var homeDirURL: URL
     if #available(OSX 10.12, *) {
       homeDirURL = FileManager.default.homeDirectoryForCurrentUser
@@ -60,15 +74,5 @@ enum Tags {
       firebasePublicURL.appendingPathComponent(manifest.version).path) else {
       fatalError("Do not remove tag of a published Firebase version.")
     }
-    create(gitRoot: gitRoot, afterDelete: true)
-  }
-
-  private static func createTag(gitRoot: URL, tag: String, afterDelete: Bool) {
-    if afterDelete {
-      Shell.executeCommand("git tag --delete \(tag)", workingDir: gitRoot)
-      Shell.executeCommand("git push --delete origin \(tag)", workingDir: gitRoot)
-    }
-    Shell.executeCommand("git tag \(tag)", workingDir: gitRoot)
-    Shell.executeCommand("git push origin \(tag)", workingDir: gitRoot)
   }
 }
