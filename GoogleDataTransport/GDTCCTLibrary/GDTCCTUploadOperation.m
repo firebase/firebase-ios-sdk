@@ -69,6 +69,7 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
 @property(nonatomic, readonly) GDTCORTarget target;
 @property(nonatomic, readonly) GDTCORUploadConditions conditions;
 @property(nonatomic, readonly) NSURL *uploadURL;
+@property(nonatomic, readonly) id<GDTCORStoragePromiseProtocol> storage;
 @property(nonatomic, readonly) id<GDTCCTUploadMetadataProvider> metadataProvider;
 
 @property(nonatomic, readwrite, getter=isExecuting) BOOL executing;
@@ -84,6 +85,7 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
                     conditions:(GDTCORUploadConditions)conditions
                      uploadURL:(NSURL *)uploadURL
                          queue:(dispatch_queue_t)queue
+                       storage:(id<GDTCORStoragePromiseProtocol>) storage
               metadataProvider:(id<GDTCCTUploadMetadataProvider>)metadataProvider {
   self = [super init];
   if (self) {
@@ -95,20 +97,13 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
     _target = target;
     _conditions = conditions;
     _uploadURL = uploadURL;
+    _storage = storage;
     _metadataProvider = metadataProvider;
   }
   return self;
 }
 
-#
-
 - (void)uploadTarget:(GDTCORTarget)target withConditions:(GDTCORUploadConditions)conditions {
-  // TODO: Should we inject storage in initializer?
-  id<GDTCORStoragePromiseProtocol> storage = GDTCORStoragePromiseInstanceForTarget(target);
-  if (storage == nil) {
-    [self finishOperation];
-  }
-
   __block GDTCORBackgroundIdentifier backgroundTaskID = GDTCORBackgroundIdentifierInvalid;
 
   dispatch_block_t backgroundTaskCompletion = ^{
@@ -130,6 +125,8 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
                     backgroundTaskCompletion();
                   }
                 }];
+
+  id<GDTCORStoragePromiseProtocol> storage = self.storage;
 
   // 1. Check if the conditions for the target are suitable.
   [self isReadyToUploadTarget:target conditions:conditions]

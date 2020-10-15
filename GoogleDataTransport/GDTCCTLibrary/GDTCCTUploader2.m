@@ -82,11 +82,18 @@ NSNotificationName const GDTCCTUploadCompleteNotification = @"com.GDTCCTUploader
   // 2. Notify the client of upload stages
   // 3. Allow the client cancelling upload requests as needed.
 
+  id<GDTCORStoragePromiseProtocol> storage = GDTCORStoragePromiseInstanceForTarget(target);
+  if (storage == nil) {
+    GDTCORLogError(GDTCORMCEGeneralError, @"Failed to upload target: %ld - could not find corresponding storage instance.", (long)target);
+    return;
+  }
+
   GDTCCTUploadOperation *uploadOperation =
       [[GDTCCTUploadOperation alloc] initWithTarget:target
                                          conditions:conditions
                                           uploadURL:[self serverURLForTarget:target]
                                               queue:self.uploadQueue
+                                            storage:storage
                                    metadataProvider:self];
 
   __weak __auto_type weakSelf = self;
