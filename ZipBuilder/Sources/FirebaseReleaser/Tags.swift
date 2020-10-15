@@ -20,10 +20,12 @@ import FirebaseManifest
 import Utils
 
 enum Tags {
-  static func create(gitRoot: URL) {
+  static func createTags(gitRoot: URL, deleteExistingTags: Bool = false) {
     let manifest = FirebaseManifest.shared
-    createTag(gitRoot: gitRoot, tag: "CocoaPods-\(manifest.version)")
-    createTag(gitRoot: gitRoot, tag: "CocoaPods-\(manifest.version)-beta")
+    createTag(gitRoot: gitRoot, tag: "CocoaPods-\(manifest.version)",
+              deleteExistingTags: deleteExistingTags)
+    createTag(gitRoot: gitRoot, tag: "CocoaPods-\(manifest.version)-beta",
+              deleteExistingTags: deleteExistingTags)
 
     for pod in manifest.pods {
       if pod.isFirebase {
@@ -36,12 +38,43 @@ enum Tags {
         fatalError("Non-Firebase pod \(pod.name) is missing a version")
       }
       let tag = pod.name.replacingOccurrences(of: "Google", with: "") + "-" + version
-      createTag(gitRoot: gitRoot, tag: tag)
+      createTag(gitRoot: gitRoot, tag: tag, deleteExistingTags: deleteExistingTags)
     }
   }
 
-  private static func createTag(gitRoot: URL, tag: String) {
+  static func updateTags(gitRoot: URL) {
+    createTags(gitRoot: gitRoot, deleteExistingTags: true)
+  }
+
+  private static func createTag(gitRoot: URL, tag: String, deleteExistingTags: Bool) {
+    if deleteExistingTags {
+      verifyTagsAreSafeToDelete()
+      Shell.executeCommand("git tag --delete \(tag)", workingDir: gitRoot)
+      Shell.executeCommand("git push --delete origin \(tag)", workingDir: gitRoot)
+    }
     Shell.executeCommand("git tag \(tag)", workingDir: gitRoot)
     Shell.executeCommand("git push origin \(tag)", workingDir: gitRoot)
+  }
+
+  private static func verifyTagsAreSafeToDelete() {
+    var homeDirURL: URL
+    if #available(OSX 10.12, *) {
+      homeDirURL = FileManager.default.homeDirectoryForCurrentUser
+    } else {
+      fatalError("Run on at least macOS 10.12")
+    }
+    let manifest = FirebaseManifest.shared
+    let firebasePublicURL = homeDirURL.appendingPathComponents(
+      [".cocoapods", "repos", "cocoapods", "Specs", "0", "3", "5", "Firebase"]
+    )
+
+    guard FileManager.default.fileExists(atPath: firebasePublicURL.path) else {
+      fatalError("You must have the CocoaPods Spec repo installed to retag versions.")
+    }
+
+    guard !FileManager.default.fileExists(atPath:
+      firebasePublicURL.appendingPathComponent(manifest.version).path) else {
+      fatalError("Do not remove tag of a published Firebase version.")
+    }
   }
 }
