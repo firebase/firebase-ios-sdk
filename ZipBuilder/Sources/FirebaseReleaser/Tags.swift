@@ -51,11 +51,17 @@ enum Tags {
       verifyTagsAreSafeToDelete()
       Shell.executeCommand("git tag --delete \(tag)", workingDir: gitRoot)
       Shell.executeCommand("git push --delete origin \(tag)", workingDir: gitRoot)
+    } else {
+      verifyTagIsSafeToAdd(tag, gitRoot: gitRoot)
     }
     Shell.executeCommand("git tag \(tag)", workingDir: gitRoot)
     Shell.executeCommand("git push origin \(tag)", workingDir: gitRoot)
   }
 
+  /// Check that the Firebase version has not already been published to CocoaPods, so that we don't
+  /// delete a tag that is being used in production.
+  /// It works by checking for the existence of the corresponding Firebase podspec in the
+  /// clone of https://github.com/CocoaPods/Specs
   private static func verifyTagsAreSafeToDelete() {
     var homeDirURL: URL
     if #available(OSX 10.12, *) {
@@ -75,6 +81,31 @@ enum Tags {
     guard !FileManager.default.fileExists(atPath:
       firebasePublicURL.appendingPathComponent(manifest.version).path) else {
       fatalError("Do not remove tag of a published Firebase version.")
+    }
+  }
+
+  /// Before trying to add a new tag, make sure that it doesn't already exist locally or in the
+  /// git origin. The git commands return an empty string if the tag doesn't exist.
+  private static func verifyTagIsSafeToAdd(_ tag: String, gitRoot: URL) {
+    if checkTagCommand("git tag -l \(tag)", gitRoot: gitRoot) != "" {
+      fatalError("Tag \(tag) already exists locally. Please delete and restart")
+    }
+    if checkTagCommand("git ls-remote origin refs/tags/\(tag)", gitRoot: gitRoot) != "" {
+      fatalError("Tag \(tag) already exists locally. Please delete and restart")
+    }
+  }
+
+  private static func checkTagCommand(_ command: String, gitRoot: URL) -> String {
+    let result = Shell.executeCommandFromScript(command, workingDir: gitRoot)
+    switch result {
+    case let .error(code, output):
+      fatalError("""
+      `\(command) failed with exit code \(code)
+      Output from `pod repo list`:
+      \(output)
+      """)
+    case let .success(output):
+      return output.trimmingCharacters(in: .whitespacesAndNewlines)
     }
   }
 }
