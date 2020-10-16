@@ -247,7 +247,7 @@ jobs:
         - travis_retry ./CocoapodsIntegrationTest/scripts/build_with_environment.sh --gemfile=./CocoapodsIntegrationTest/TestEnvironments/${POD_CONFIG_DIR}/Gemfile --podfile=./CocoapodsIntegrationTest/TestEnvironments/${POD_CONFIG_DIR}/Podfile
 
     - stage: test
-      if: type = cron
+#      if: type = cron
       env:
         - POD_CONFIG_DIR=Cocoapods_multiprojects_staticLibs
       script:
