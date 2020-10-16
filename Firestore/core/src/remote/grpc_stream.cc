@@ -143,6 +143,7 @@ void GrpcStream::Write(grpc::ByteBuffer&& message) {
 void GrpcStream::WriteLast(grpc::ByteBuffer&& message) {
   grpc::WriteOptions options;
   options.set_last_message();
+  options.set_write_through();
   MaybeWrite(buffered_writer_.EnqueueWrite(std::move(message), options));
 }
 
@@ -305,6 +306,7 @@ void GrpcStream::OnRead(const grpc::ByteBuffer& message) {
 
 void GrpcStream::OnWrite() {
   if (observer_) {
+    LOG_DEBUG("GrpcStream('%s'): Successfully send Write request.", this);
     MaybeWrite(buffered_writer_.DequeueNextWrite());
     // Observer is not interested in this event.
   }

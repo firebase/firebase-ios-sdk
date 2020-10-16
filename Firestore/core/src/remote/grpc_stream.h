@@ -80,7 +80,9 @@ class BufferedWriter {
                                              const grpc::WriteOptions& options);
 
   absl::optional<BufferedWrite> EnqueueWrite(grpc::ByteBuffer&& write) {
-    return EnqueueWrite(std::move(write), grpc::WriteOptions{});
+    grpc::WriteOptions options;
+    options.set_write_through();
+    return EnqueueWrite(std::move(write), options);
   }
 
   // Returns the newly-created write operation if there was a next write in the
