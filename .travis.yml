@@ -240,14 +240,14 @@ jobs:
     # Validate Cocoapods configurations
     # This may take long time, so we would like to run it only once all other tests pass
     - stage: test
-#      if: type = cron
+      if: type = cron
       env:
         - POD_CONFIG_DIR=Cocoapods_multiprojects_frameworks
       script:
         - travis_retry ./CocoapodsIntegrationTest/scripts/build_with_environment.sh --gemfile=./CocoapodsIntegrationTest/TestEnvironments/${POD_CONFIG_DIR}/Gemfile --podfile=./CocoapodsIntegrationTest/TestEnvironments/${POD_CONFIG_DIR}/Podfile
 
     - stage: test
-#      if: type = cron
+      if: type = cron
       env:
         - POD_CONFIG_DIR=Cocoapods_multiprojects_staticLibs
       script:
