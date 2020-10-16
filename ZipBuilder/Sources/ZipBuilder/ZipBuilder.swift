@@ -162,11 +162,9 @@ struct ZipBuilder {
   /// - Returns: Information related to the built artifacts.
   /// - Throws: One of many errors that could have happened during the build phase.
   func buildAndAssembleFirebaseRelease(inProjectDir projectDir: URL) throws -> ReleaseArtifacts {
-    var podsToInstall: [CocoaPodUtils.VersionedPod] = []
     let manifest = FirebaseManifest.shared
-    for pod in (manifest.pods.filter { $0.zip }) {
-      podsToInstall.append(CocoaPodUtils.VersionedPod(name: pod.name,
-                                                      version: manifest.versionString(pod)))
+    var podsToInstall = manifest.pods.filter { $0.zip }.map {
+      CocoaPodUtils.VersionedPod(name: $0.name, version: manifest.versionString($0))
     }
     guard !podsToInstall.isEmpty else {
       fatalError("Failed to find versions for Firebase release")

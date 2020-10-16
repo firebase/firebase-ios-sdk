@@ -169,17 +169,19 @@ struct LaunchArgs {
     defaults.register(defaults: [Key.buildDependencies.rawValue: true])
 
     // Get the project repo directory, and fail if it doesn't exist and we're building Firebase.
-    let repoPath = defaults.string(forKey: Key.repoDir.rawValue)
-    if defaults.string(forKey: Key.zipPods.rawValue) != nil {
+    if let repoPath = defaults.string(forKey: Key.repoDir.rawValue) {
+      repoDir = URL(fileURLWithPath: repoPath)
+    } else if defaults.string(forKey: Key.zipPods.rawValue) != nil {
       LaunchArgs.exitWithUsageAndLog("Missing required key: `\(Key.repoDir)` for the folder " +
         "containing the repository from which we're building the zip.")
+    } else {
+      repoDir = nil
     }
-    repoDir = repoPath != nil ? URL(fileURLWithPath: repoPath!) : nil
 
     // Get the project template directory, and fail if it doesn't exist.
     var templatePath = defaults.string(forKey: Key.templateDir.rawValue)
-    if templatePath == nil, repoPath != nil {
-      templatePath = repoPath! + "/ZipBuilder/Template"
+    if templatePath == nil, let repoDir = repoDir {
+      templatePath = repoDir.path + "/ZipBuilder/Template"
     } else {
       LaunchArgs.exitWithUsageAndLog("Missing required key: `\(Key.templateDir)` for the folder " +
         "containing all required files to build frameworks.")
