@@ -47,8 +47,7 @@ struct InitializeRelease {
         if pod.name == "Firebase" {
           updateFirebasePodspec(path: path, manifest: manifest)
         } else {
-          let version = pod.podVersion ??
-            (pod.isBeta ? manifest.version + "-beta" : manifest.version)
+          let version = manifest.versionString(pod)
 
           // Patch the new version to the podspec's version attribute.
           Shell.executeCommand("sed -i.bak -e \"s/\\(\\.version.*=[[:space:]]*'\\).*'/\\1" +

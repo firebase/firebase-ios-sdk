@@ -15,8 +15,7 @@
  */
 
 import Foundation
-
-import ManifestReader
+import FirebaseManifest
 
 /// Misc. constants used in the build tool.
 struct Constants {
@@ -81,14 +80,6 @@ struct ZipBuilder {
 
     // MARK: - Optional Paths
 
-    /// A file URL to a textproto with the contents of a `ZipBuilder_FirebaseSDKs` object. Used to
-    /// verify expected version numbers.
-    var allSDKsPath: URL?
-
-    /// A file URL to a textproto with the contents of a `ZipBuilder_Release` object. Used to verify
-    /// expected version numbers.
-    var currentReleasePath: URL?
-
     /// The path to a directory to move all build logs to. If nil, a temporary directory will be
     /// used.
     var logsOutputDir: URL?
@@ -124,10 +115,8 @@ struct ZipBuilder {
   func buildAndAssembleZip(podsToInstall: [CocoaPodUtils.VersionedPod]) ->
     ([String: CocoaPodUtils.PodInfo], [String: [URL]], [String: [URL]]?) {
     // Remove CocoaPods cache so the build gets updates after a version is rebuilt during the
-    // release process.
-    if LaunchArgs.shared.updatePodRepo {
-      CocoaPodUtils.cleanPodCache()
-    }
+    // release process. Always do this, since it can be the source of subtle failures on rebuilds.
+    CocoaPodUtils.cleanPodCache()
 
     // We need to install all the pods in order to get every single framework that we'll need
     // for the zip file. We can't install each one individually since some pods depend on different
@@ -141,11 +130,6 @@ struct ZipBuilder {
 
     // Find out what pods were installed with the above commands.
     let installedPods = CocoaPodUtils.installedPodsInfo(inProjectDir: projectDir)
-
-    // If any expected versions were passed in, we should verify that those were actually installed
-    // and get the list of actual versions we'll be using to build the Zip file. This method will
-    // throw a fatalError if any versions are mismatched.
-    validateExpectedVersions(installedPods: installedPods)
 
     // If module maps are needed for static frameworks, build them here to be available to copy
     // into the generated frameworks.
@@ -178,24 +162,22 @@ struct ZipBuilder {
   /// - Returns: Information related to the built artifacts.
   /// - Throws: One of many errors that could have happened during the build phase.
   func buildAndAssembleFirebaseRelease(inProjectDir projectDir: URL) throws -> ReleaseArtifacts {
-    // Break the `inputPods` into a variable since it's helpful when debugging builds to just
-    // install a subset of pods, like the following line:
-    // let inputPods: [String] = ["Firebase", "FirebaseCore", "FirebaseAnalytics", "FirebaseStorage"]
-    let inputPods = FirebasePods.allCases.map { $0.rawValue }
-
-    // Get the expected versions based on the release manifests, if there are any. If there are any
-    // versions with `alpha` or `beta` in it, we'll need to explicitly specify the version here so
-    // CocoaPods installs it properly.
-    let prereleases = expectedVersions().filter { _, version in
-      version.contains("alpha") || version.contains("beta") || version.contains("rc")
+    var podsToInstall: [CocoaPodUtils.VersionedPod] = []
+    let manifest = FirebaseManifest.shared
+    for pod in (manifest.pods.filter { $0.zip }) {
+      podsToInstall.append(CocoaPodUtils.VersionedPod(name: pod.name,
+                                                      version: manifest.versionString(pod)))
     }
-
-    let podsToInstall: [CocoaPodUtils.VersionedPod] = inputPods.map { name in
-      // If there's a pre-release version, include it here. Otherwise don't pass a version since we
-      // want the latest.
-      let version: String? = prereleases[name]
-      return CocoaPodUtils.VersionedPod(name: name, version: version)
+    guard !podsToInstall.isEmpty else {
+      fatalError("Failed to find versions for Firebase release")
     }
+    // We don't release Google-Mobile-Ads-SDK and GoogleSignIn, but we include their latest
+    // version for convenience in the Zip and Carthage builds.
+    podsToInstall.append(CocoaPodUtils.VersionedPod(name: "Google-Mobile-Ads-SDK", version: nil))
+    podsToInstall.append(CocoaPodUtils.VersionedPod(name: "GoogleSignIn", version: nil))
+
+
+    print("Final expected versions for the Zip file: \(podsToInstall)")
 
     let (installedPods, frameworks,
          carthageFrameworks) = buildAndAssembleZip(podsToInstall: podsToInstall)
@@ -314,7 +296,7 @@ struct ZipBuilder {
 
         // Special case for Crashlytics:
         // Copy additional tools to avoid users from downloading another artifact to upload symbols.
-        let crashlyticsPodName = FirebasePods.crashlytics.rawValue
+        let crashlyticsPodName = "FirebaseCrashlytics"
         if pod.key == crashlyticsPodName {
           for file in ["upload-symbols", "run"] {
             let source = pod.value.installedLocation.appendingPathComponent(file)
@@ -453,7 +435,7 @@ struct ZipBuilder {
   ///            integrate for the product to work. Formatted and ready for insertion into the
   ///            README.
   private func dependencyString(for podName: String, in dir: URL, frameworks: [String]) -> String {
-    var result = FirebasePods.readmeHeader(podName: podName)
+    var result = readmeHeader(podName: podName)
     for framework in frameworks.sorted() {
       // The .xcframework suffix has been stripped. The .framework suffix has not been.
       if framework.hasSuffix(".framework") {
@@ -485,38 +467,14 @@ struct ZipBuilder {
     return result
   }
 
-  /// Assembles the expected versions based on the release manifests passed in, if they were.
-  /// Returns an array with the SDK name as the key and version as the value,
-  private func expectedVersions() -> [String: String] {
-    // Merge the versions from the current release and the known public versions.
-    var releasingVersions: [String: String] = [:]
-
-    // Check the existing expected versions and build a dictionary out of the expected versions.
-    if let sdksPath = paths.allSDKsPath {
-      let allSDKs = ManifestReader.loadAllReleasedSDKs(fromTextproto: sdksPath)
-      print("Parsed the following SDKs from the public release manifest:")
-
-      for sdk in allSDKs.sdk {
-        releasingVersions[sdk.name] = sdk.publicVersion
-        print("\(sdk.name): \(sdk.publicVersion)")
-      }
+  /// Describes the dependency on other frameworks for the README file.
+  func readmeHeader(podName: String) -> String {
+    var header = "## \(podName)"
+    if !(podName == "FirebaseAnalytics" || podName == "GoogleSignIn") {
+      header += " (~> FirebaseAnalytics)"
     }
-
-    // Override any of the expected versions with the current release manifest, if it exists.
-    if let releasePath = paths.currentReleasePath {
-      let currentRelease = ManifestReader.loadCurrentRelease(fromTextproto: releasePath)
-      print("Overriding the following SDKs, taken from the current release manifest:")
-      for sdk in currentRelease.sdk {
-        releasingVersions[sdk.sdkName] = sdk.sdkVersion
-        print("\(sdk.sdkName): \(sdk.sdkVersion)")
-      }
-    }
-
-    if !releasingVersions.isEmpty {
-      print("Final expected versions for the Zip file: \(releasingVersions)")
-    }
-
-    return releasingVersions
+    header += "\n"
+    return header
   }
 
   /// Installs a subspec and attempts to copy all the frameworks required for it from
@@ -556,40 +514,6 @@ struct ZipBuilder {
     }
 
     return (productDir, copiedFrameworks)
-  }
-
-  /// Validates that the expected versions (based on the release manifest passed in, if there was
-  /// one) match the expected versions installed and listed in the Podfile.lock in a project
-  /// directory.
-  ///
-  /// - Parameter projectDir: The dictionary that summarizes the pod info parsed from the Podfile.lock.
-  private func validateExpectedVersions(installedPods: [String: CocoaPodUtils.PodInfo]) {
-    // Get the expected versions based on the release manifests, if there are any. We'll use this to
-    // validate the versions pulled from CocoaPods. Expected versions could be empty, in which case
-    // validation succeeds.
-    let expected = expectedVersions()
-    if !expected.isEmpty {
-      // Loop through the expected versions and verify the actual versions match.
-      for podName in expected.keys {
-        // If there are some expected versions,verify them.
-        guard let installedPod = installedPods[podName] else {
-          fatalError("Did not find expected pod \(podName) installed")
-        }
-        let actualVersion = installedPod.version
-        guard let expectedVersion = expected[podName],
-          installedPod.version == expectedVersion else {
-          fatalError("""
-          Version mismatch from expected versions and version installed in CocoaPods:
-          Pod Name: \(podName)
-          Expected Version: \(String(describing: expected[podName]))
-          Actual Version: \(actualVersion)
-          Please verify that the expected version is correct, and the Podspec dependencies are
-          appropriately versioned.
-          """)
-        }
-        print("Successfully verified version of \(podName) is \(expectedVersion)")
-      }
-    }
   }
 
   /// Creates the String that displays all the versions of each pod, in alphabetical order.
@@ -739,7 +663,7 @@ struct ZipBuilder {
       toInstall[podName] = frameworks
       carthageToInstall[podName] = carthageFrameworks
     }
-    if args.carthageDir == nil {
+    if args.carthageBuild == false {
       return (toInstall, nil)
     }
     return (toInstall, carthageToInstall)
