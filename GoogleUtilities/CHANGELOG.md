@@ -3,7 +3,7 @@
 
 # 7.0.0
 - All APIs are now public. All CocoaPods private headers are transitioned to public. Note that
-- GoogleUtilities may have frequent breaking changes than Firebase. (#6588)
+  GoogleUtilities may have frequent breaking changes than Firebase. (#6588)
 - Fixed writing heartbeat to disk on tvOS devices. (#6658)
 - Refactor `GULSwizzledObject` to ARC to unblock SwiftPM support. (#5862)
 
