@@ -1,16 +1,16 @@
 {
   "authors": "Google, Inc.",
   "dependencies": {
-    "FirebaseCore": "~> 6.9",
-    "FirebaseInstallations": "~> 1.5",
-    "FirebaseRemoteConfig": "~> 4.7",
+    "FirebaseCore": "~> 7.0",
+    "FirebaseInstallations": "~> 7.0",
+    "FirebaseRemoteConfig": "~> 7.0",
     "GTMSessionFetcher/Core": "~> 1.1",
-    "GoogleDataTransport": "~> 7.0",
+    "GoogleDataTransport": "~> 8.0",
     "GoogleToolboxForMac/Logger": "~> 2.1",
     "GoogleToolboxForMac/NSData+zlib": "~> 2.1",
-    "GoogleUtilities/Environment": "~> 6.2",
-    "GoogleUtilities/ISASwizzler": "~> 6.2",
-    "GoogleUtilities/MethodSwizzler": "~> 6.2",
+    "GoogleUtilities/Environment": "~> 7.0",
+    "GoogleUtilities/ISASwizzler": "~> 7.0",
+    "GoogleUtilities/MethodSwizzler": "~> 7.0",
     "Protobuf": "~> 3.12"
   },
   "description": "Firebase Performance provides insights into the performance characteristics of apps",
@@ -26,17 +26,17 @@
   },
   "name": "FirebasePerformance",
   "platforms": {
-    "ios": "8.0"
+    "ios": "10.0"
   },
   "preserve_paths": [
     "README.md"
   ],
   "source": {
-    "http": "https://dl.google.com/dl/cpdc/ec10178ac6b36ea6/FirebasePerformance-3.3.0.tar.gz"
+    "http": "https://dl.google.com/dl/cpdc/adf593100a9db03b/FirebasePerformance-7.0.0.tar.gz"
   },
   "summary": "Firebase Performance for iOS",
   "vendored_frameworks": [
     "Frameworks/FirebasePerformance.framework"
   ],
-  "version": "3.3.0"
+  "version": "7.0.0"
 }
