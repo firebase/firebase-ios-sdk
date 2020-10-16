@@ -75,6 +75,6 @@ if [ -n "$sdk_version_config" ]; then
   cd "${GITHUB_WORKSPACE}/ZipBuilder"
   swift build
   # Update Pod versions.
-  ./.build/debug/firebase-pod-updater --git-root "${local_sdk_repo_dir}" --releasing-pods "${sdk_version_config}"
+  ./.build/debug/firebase-releaser --git-root "${local_sdk_repo_dir}" --releasing-pods "${sdk_version_config}"
   echo "sdk versions are updated based on ${sdk_version_config}."
 fi
