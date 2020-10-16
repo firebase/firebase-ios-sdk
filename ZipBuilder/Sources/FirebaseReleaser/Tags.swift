@@ -85,7 +85,7 @@ enum Tags {
   }
 
   /// Before trying to add a new tag, make sure that it doesn't already exist locally or in the
-  /// git origin.
+  /// git origin. The git commands return an empty string if the tag doesn't exist.
   private static func verifyTagIsSafeToAdd(_ tag: String, gitRoot: URL) {
     if checkTagCommand("git tag -l \(tag)", gitRoot: gitRoot) != "" {
       fatalError("Tag \(tag) already exists locally. Please delete and restart")
