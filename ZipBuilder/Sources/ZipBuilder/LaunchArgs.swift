@@ -178,7 +178,7 @@ struct LaunchArgs {
 
     // Get the project template directory, and fail if it doesn't exist.
     var templatePath = defaults.string(forKey: Key.templateDir.rawValue)
-    if templatePath == nil && repoPath != nil {
+    if templatePath == nil, repoPath != nil {
       templatePath = repoPath! + "/ZipBuilder/Template"
     } else {
       LaunchArgs.exitWithUsageAndLog("Missing required key: `\(Key.templateDir)` for the folder " +

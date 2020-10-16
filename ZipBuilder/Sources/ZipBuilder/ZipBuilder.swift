@@ -176,7 +176,6 @@ struct ZipBuilder {
     podsToInstall.append(CocoaPodUtils.VersionedPod(name: "Google-Mobile-Ads-SDK", version: nil))
     podsToInstall.append(CocoaPodUtils.VersionedPod(name: "GoogleSignIn", version: nil))
 
-
     print("Final expected versions for the Zip file: \(podsToInstall)")
 
     let (installedPods, frameworks,
