@@ -465,10 +465,12 @@ static NSString *kFirebaseTestAltNamespace = @"https://foobar.firebaseio.com";
 }
 
 - (void)testSetEmulatorSettings {
-  id app = [[FIRFakeApp alloc] initWithName:@"testCallbackQueue" URL:self.databaseURL];
+  id app = [[FIRFakeApp alloc] initWithName:@"testSetEmulatorSettings" URL:self.databaseURL];
   FIRDatabase *database = [FIRDatabase databaseForApp:app];
 
-  [database reference];  // call ensureRepo
+  [database reference];  // initialize database repo
+
+  // Emulator can't be set after initialization of the database's repo.
   XCTAssertThrows([database useEmulatorWithHost:@"a" port:1]);
 }
 
