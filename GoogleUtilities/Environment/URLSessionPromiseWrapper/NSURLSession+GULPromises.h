@@ -21,8 +21,13 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/** Promise based API for `NSURLSession`. */
 @interface NSURLSession (GULPromises)
 
+/** Creates a promise wrapping `-[NSURLSession dataTaskWithRequest:completionHandler:]` method.
+ * @param URLRequest The request to create a data task with.
+ * @return A promise that is fulfilled when an HTTP response is received (with any response code), or is rejected with the error passed to the task completion.
+ */
 - (FBLPromise<GULURLSessionDataResponse *> *)gul_dataTaskPromiseWithRequest:
     (NSURLRequest *)URLRequest;
 

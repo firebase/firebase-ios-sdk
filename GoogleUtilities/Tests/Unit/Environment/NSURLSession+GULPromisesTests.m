@@ -68,7 +68,7 @@
   XCTAssertTrue(taskPromise.isFulfilled);
   XCTAssertNil(taskPromise.error);
   XCTAssertEqualObjects(taskPromise.value.HTTPResponse, expectedResponse);
-  XCTAssertEqualObjects(taskPromise.value.data, expectedBody);
+  XCTAssertEqualObjects(taskPromise.value.HTTPBody, expectedBody);
 }
 
 - (void)testDataTaskPromiseWithRequestError {

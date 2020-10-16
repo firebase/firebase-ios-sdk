@@ -18,11 +18,11 @@
 
 @implementation GULURLSessionDataResponse
 
-- (instancetype)initWithResponse:(NSHTTPURLResponse *)response data:(NSData *)data {
+- (instancetype)initWithResponse:(NSHTTPURLResponse *)response HTTPBody:(NSData *)body {
   self = [super init];
   if (self) {
     _HTTPResponse = response;
-    _data = data;
+    _HTTPBody = body;
   }
   return self;
 }

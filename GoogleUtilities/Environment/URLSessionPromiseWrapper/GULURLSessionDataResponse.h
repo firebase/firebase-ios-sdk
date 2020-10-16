@@ -18,12 +18,13 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/** The class represents HTTP response received from `NSURLSession`. */
 @interface GULURLSessionDataResponse : NSObject
 
 @property(nonatomic, readonly) NSHTTPURLResponse *HTTPResponse;
-@property(nonatomic, nullable, readonly) NSData *data;
+@property(nonatomic, nullable, readonly) NSData *HTTPBody;
 
-- (instancetype)initWithResponse:(NSHTTPURLResponse *)response data:(nullable NSData *)data;
+- (instancetype)initWithResponse:(NSHTTPURLResponse *)response HTTPBody:(nullable NSData *)body;
 
 @end
 

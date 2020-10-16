@@ -37,7 +37,7 @@
                } else {
                  fulfill([[GULURLSessionDataResponse alloc]
                      initWithResponse:(NSHTTPURLResponse *)response
-                                 data:data]);
+                          HTTPBody:data]);
                }
              }] resume];
   }];
