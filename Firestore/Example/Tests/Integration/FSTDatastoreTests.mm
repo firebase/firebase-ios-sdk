@@ -280,6 +280,7 @@ class RemoteStoreEventCapture : public RemoteStoreCallback {
   XCTestExpectation *expectation = [self expectationWithDescription:@"commitWithCompletion"];
 
   _datastore->CommitMutations({}, [self, expectation](const Status &status) {
+    (void)self;  // Avoid unused lambda capture error in Xcode 12.
     XCTAssertTrue(status.ok(), @"Failed to commit");
     [expectation fulfill];
   });
