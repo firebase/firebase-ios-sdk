@@ -71,7 +71,7 @@ if [ -n "$tag_version" ]; then
   sed  -i "" "s/\s*:tag.*/:tag => '${tag_version}'/" *.podspec
 fi
 
-if [ -n "$sdk_version_config" ]; then
+if false && [ -n "$sdk_version_config" ]; then
   cd "${GITHUB_WORKSPACE}/ZipBuilder"
   swift build
   # Update Pod versions.
