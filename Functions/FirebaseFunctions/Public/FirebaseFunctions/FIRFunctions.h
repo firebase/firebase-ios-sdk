@@ -79,7 +79,15 @@ NS_SWIFT_NAME(Functions)
  * See https://firebase.google.com/docs/functions/local-emulator
  * @param origin The origin of the local emulator, such as "http://localhost:5005".
  */
-- (void)useFunctionsEmulatorOrigin:(NSString *)origin NS_SWIFT_NAME(useFunctionsEmulator(origin:));
+- (void)useFunctionsEmulatorOrigin:(NSString *)origin NS_SWIFT_NAME(useFunctionsEmulator(origin:)) __attribute__((deprecated("Use setEmulator(host:port:) instead.")));
+
+/**
+ * Changes this instance to point to a Cloud Functions emulator running locally.
+ * See https://firebase.google.com/docs/functions/local-emulator
+ * @param host The host of the local emulator, such as "http://localhost".
+ * @param port The port of the local emulator, for example 5005.
+ */
+- (void)useEmulatorWithHost:(NSString *)host port:(NSInteger)port;
 
 @end
 
