@@ -17,17 +17,21 @@
 #import "Functions/FirebaseFunctions/FIRFunctions+Internal.h"
 #import "Functions/FirebaseFunctions/Public/FirebaseFunctions/FIRFunctions.h"
 
+@interface FIRFunctions (Test)
+
+@property(nonatomic, readonly) NSString *emulatorOrigin;
+
+@end
+
 @interface FIRFunctionsTests : XCTestCase {
   FIRFunctions *_functions;
   FIRFunctions *_functionsCustomDomain;
 }
-@end
 
 @implementation FIRFunctionsTests
 
 - (void)setUp {
   [super setUp];
-
   _functions = [[FIRFunctions alloc] initWithProjectID:@"my-project"
                                                 region:@"my-region"
                                           customDomain:nil
@@ -65,6 +69,11 @@
   [_functionsCustomDomain useFunctionsEmulatorOrigin:@"http://localhost:5005"];
   NSString *url = [_functionsCustomDomain URLWithName:@"my-endpoint"];
   XCTAssertEqualObjects(@"http://localhost:5005/my-project/my-region/my-endpoint", url);
+}
+
+- (void)testSetEmulatorSettings {
+  [_functions useEmulatorWithHost:@"localhost" port:1000];
+  XCTAssertEqualObjects(@"localhost:1000", functions.emulatorOrigin);
 }
 
 @end

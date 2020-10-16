@@ -37,10 +37,8 @@ static NSString *kFirebaseTestAltNamespace = @"https://foobar.firebaseio.com";
 @implementation FIRDatabaseTests
 
 - (void)testFIRDatabaseForNilApp {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnonnull"
-  XCTAssertThrowsSpecificNamed([FIRDatabase databaseForApp:nil], NSException, @"InvalidFIRApp");
-#pragma clang diagnostic pop
+  XCTAssertThrowsSpecificNamed([FIRDatabase databaseForApp:(FIRApp * _Nonnull) nil], NSException,
+                               @"InvalidFIRApp");
 }
 
 - (void)testDatabaseForApp {
@@ -94,10 +92,7 @@ static NSString *kFirebaseTestAltNamespace = @"https://foobar.firebaseio.com";
 - (void)testDatabaseForAppWithInvalidCustomURLs {
   id app = [[FIRFakeApp alloc] initWithName:@"testDatabaseForAppWithInvalidCustomURLs"
                                         URL:kFirebaseTestAltNamespace];
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnonnull"
-  XCTAssertThrows([FIRDatabase databaseForApp:app URL:nil]);
-#pragma clang diagnostic pop
+  XCTAssertThrows([FIRDatabase databaseForApp:app URL:(NSString * _Nonnull) nil]);
   XCTAssertThrows([FIRDatabase databaseForApp:app URL:@"not-a-url"]);
   XCTAssertThrows([FIRDatabase databaseForApp:app URL:@"http://x.fblocal.com:9000/paths/are/bad"]);
 }
@@ -467,6 +462,14 @@ static NSString *kFirebaseTestAltNamespace = @"https://foobar.firebaseio.com";
                                                    }];
   WAIT_FOR(done);
   [database goOffline];
+}
+
+- (void)testSetEmulatorSettings {
+  id app = [[FIRFakeApp alloc] initWithName:@"testCallbackQueue" URL:self.databaseURL];
+  FIRDatabase *database = [FIRDatabase databaseForApp:app];
+
+  [database reference];  // call ensureRepo
+  XCTAssertThrows([database useEmulatorWithHost:@"a" port:1]);
 }
 
 - (FIRDatabase *)defaultDatabase {

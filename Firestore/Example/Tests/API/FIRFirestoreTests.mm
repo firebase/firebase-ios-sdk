@@ -63,4 +63,17 @@ namespace testutil = firebase::firestore::testutil;
                                }];
 }
 
+- (void)testSetEmulatorSettingsSetsHost {
+  // Ensure the app is set appropriately.
+  FIRApp *app = testutil::AppForUnitTesting();
+  NSString *appName = app.name;
+  FIROptions *options = app.options;
+
+  FIRFirestore *firestore = [FIRFirestore firestoreForApp:app];
+
+  [firestore useEmulatorWithHost:@"localhost" port:1000];
+
+  XCTAssertEqualObjects(firestore.settings.host, @"localhost:1000");
+}
+
 @end

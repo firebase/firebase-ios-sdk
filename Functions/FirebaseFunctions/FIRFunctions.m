@@ -153,6 +153,7 @@ NSString *const kFUNDefaultRegion = @"us-central1";
 }
 
 - (void)useEmulatorWithHost:(NSString *)host port:(NSInteger)port {
+  NSAssert(host.length > 0, @"Cannot connect to nil or empty host");
   NSString *origin = [NSString stringWithFormat:@"%@:%li", host, port];
   _emulatorOrigin = origin;
 }
