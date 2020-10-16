@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "NSURLSession+GULPromises.h"
+#import "GoogleUtilities/Environment/URLSessionPromiseWrapper/NSURLSession+GULPromises.h"
 
 #if __has_include(<FBLPromises/FBLPromises.h>)
 #import <FBLPromises/FBLPromises.h>
