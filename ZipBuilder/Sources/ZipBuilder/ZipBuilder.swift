@@ -163,7 +163,7 @@ struct ZipBuilder {
   /// - Throws: One of many errors that could have happened during the build phase.
   func buildAndAssembleFirebaseRelease(inProjectDir projectDir: URL) throws -> ReleaseArtifacts {
     let manifest = FirebaseManifest.shared
-    var podsToInstall = (manifest.pods.filter { $0.zip }).map {
+    var podsToInstall = manifest.pods.filter { $0.zip }.map {
       CocoaPodUtils.VersionedPod(name: $0.name, version: manifest.versionString($0))
     }
     guard !podsToInstall.isEmpty else {
