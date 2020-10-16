@@ -31,6 +31,8 @@
 
 #import "GoogleDataTransport/GDTCCTLibrary/Private/GDTCCTCompressionHelper.h"
 #import "GoogleDataTransport/GDTCCTLibrary/Private/GDTCCTNanopbHelpers.h"
+#import "GoogleUtilities/Environment/URLSessionPromiseWrapper/GULURLSessionDataResponse.h"
+#import "GoogleUtilities/Environment/URLSessionPromiseWrapper/NSURLSession+GULPromises.h"
 
 #import "GoogleDataTransport/GDTCCTLibrary/Protogen/nanopb/cct.nanopb.h"
 
@@ -60,11 +62,6 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
 
 /// Redeclared as readwrite.
 @property(nullable, nonatomic, readwrite) NSURLSessionUploadTask *currentTask;
-
-/// A flag indicating if there is an ongoing upload. The current implementation supports only a
-/// single upload operation. If `uploadTarget` method is called when  `isCurrentlyUploading == YES`
-/// then no new uploads will be started.
-@property(atomic) BOOL isCurrentlyUploading;
 
 @property(nonatomic, readonly) GDTCORTarget target;
 @property(nonatomic, readonly) GDTCORUploadConditions conditions;
@@ -220,17 +217,30 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
                                       target:target
                                      storage:storage
                                      batchID:batchID];
-#if !NDEBUG
-                     // Post a notification when in DEBUG mode to state how many packages
-                     // were uploaded. Useful for validation during tests.
-                     [[NSNotificationCenter defaultCenter]
-                         postNotificationName:GDTCCTUploadCompleteNotification
-                                       object:@(events.count)];
-#endif  // #if !NDEBUG
-                     self.isCurrentlyUploading = NO;
                      completion();
                    });
                  }];
+}
+
+/** Composes and sends URL request. */
+- (FBLPromise<GULURLSessionDataResponse *> *)sendURLRequestForBatchWithID:(nullable NSNumber *)batchID
+                              events:(nullable NSSet<GDTCOREvent *> *)events
+                              target:(GDTCORTarget)target {
+  return [FBLPromise onQueue:self.uploaderQueue do:^NSURLRequest * {
+    // 1. Prepare URL request.
+    NSData *requestProtoData = [self constructRequestProtoWithEvents:events];
+    NSData *gzippedData = [GDTCCTCompressionHelper gzippedData:requestProtoData];
+    BOOL usingGzipData = gzippedData != nil && gzippedData.length < requestProtoData.length;
+    NSData *dataToSend = usingGzipData ? gzippedData : requestProtoData;
+    NSURLRequest *request = [self constructRequestForTarget:target data:dataToSend];
+    GDTCORLogDebug(@"CTT: request containing %lu events created: %@", (unsigned long)events.count,
+                   request);
+    return request;
+  }]
+  .thenOn(self.uploaderQueue, ^FBLPromise<GULURLSessionDataResponse *> *(NSURLRequest *request) {
+    // 2. Send URL request.
+    return [self.uploaderSession gul_dataTaskPromiseWithRequest:request];
+  });
 }
 
 /** Validates events and sends URL request and calls completion with the result. Modifies uploading
@@ -334,12 +344,6 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
 
 /** */
 - (BOOL)readyToUploadTarget:(GDTCORTarget)target conditions:(GDTCORUploadConditions)conditions {
-  if (self.isCurrentlyUploading) {
-    GDTCORLogDebug(@"%@", @"CCT: Wait until previous upload finishes. The current version supports "
-                          @"only a single batch uploading at the time.");
-    return NO;
-  }
-
   // Not ready to upload with no network connection.
   // TODO: Reconsider using reachability to prevent an upload attempt.
   // See https://developer.apple.com/videos/play/wwdc2019/712/ (49:40) for more details.
