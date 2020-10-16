@@ -58,6 +58,10 @@ enum Tags {
     Shell.executeCommand("git push origin \(tag)", workingDir: gitRoot)
   }
 
+  /// Check that the Firebase version has not already been published to CocoaPods, so that we don't
+  /// delete a tag that is being used in production.
+  /// It works by checking for the existence of the corresponding Firebase podspec in the
+  /// clone of https://github.com/CocoaPods/Specs
   private static func verifyTagsAreSafeToDelete() {
     var homeDirURL: URL
     if #available(OSX 10.12, *) {
@@ -80,6 +84,8 @@ enum Tags {
     }
   }
 
+  /// Before trying to add a new tag, make sure that it doesn't already exist locally or in the
+  /// git origin.
   private static func verifyTagIsSafeToAdd(_ tag: String, gitRoot: URL) {
     if checkTagCommand("git tag -l \(tag)", gitRoot: gitRoot) != "" {
       fatalError("Tag \(tag) already exists locally. Please delete and restart")
