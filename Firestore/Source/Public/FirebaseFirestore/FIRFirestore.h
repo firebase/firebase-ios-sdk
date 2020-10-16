@@ -165,7 +165,7 @@ NS_SWIFT_NAME(Firestore)
 
 /**
  * Configures Firestore to connect to an emulated host instead of the default remote backend. Once
- * this is set, it cannot be changed.
+ * Firestore is initialized, this value cannot be changed.
  */
 - (void)useEmulatorWithHost:(NSString *)host port:(NSInteger)port;
 
