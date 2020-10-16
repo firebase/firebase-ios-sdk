@@ -18,7 +18,7 @@
 
 @interface FRepoInfo : NSObject <NSCopying>
 
-@property(nonatomic, readonly, strong) NSString *host;
+@property(nonatomic, readwrite, strong) NSString *host;
 @property(nonatomic, readonly, strong) NSString *namespace;
 @property(nonatomic, strong) NSString *internalHost;
 @property(nonatomic, readonly) bool secure;

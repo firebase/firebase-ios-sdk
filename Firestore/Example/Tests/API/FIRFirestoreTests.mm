@@ -73,7 +73,8 @@ namespace testutil = firebase::firestore::testutil;
 
   [firestore useEmulatorWithHost:@"localhost" port:1000];
 
-  XCTAssertEqualObjects(firestore.settings.host, @"localhost:1000");
+  NSString *host = [firestore valueForKeyPath:@"settings.host"];
+  XCTAssertEqualObjects(host, @"localhost:1000");
 }
 
 @end
