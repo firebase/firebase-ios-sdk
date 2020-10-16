@@ -25,6 +25,7 @@ public struct Pod {
   public let allowWarnings: Bool // Allow validation warnings. Ideally these should all be false
   public let podVersion: String? // Non-Firebase pods have their own version
   public let releasing: Bool // Non-Firebase pods may not release
+  public let zip: Bool // Top level pod in Zip Distribution
 
   init(_ name: String,
        isClosedSource: Bool = false,
@@ -32,7 +33,8 @@ public struct Pod {
        isFirebase: Bool = true,
        allowWarnings: Bool = false,
        podVersion: String? = nil,
-       releasing: Bool = true) {
+       releasing: Bool = true,
+       zip: Bool = false) {
     self.name = name
     self.isClosedSource = isClosedSource
     self.isBeta = isBeta
@@ -40,6 +42,7 @@ public struct Pod {
     self.allowWarnings = allowWarnings
     self.podVersion = podVersion
     self.releasing = releasing
+    self.zip = zip
   }
 
   public func podspecName() -> String {

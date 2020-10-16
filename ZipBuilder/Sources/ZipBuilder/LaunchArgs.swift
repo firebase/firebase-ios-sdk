@@ -43,17 +43,16 @@ struct LaunchArgs {
     case archs
     case buildDependencies
     case buildRoot
-    case carthageDir
+    case carthageBuild
     case carthageSkipVersionCheck
     case customSpecRepos
     case dynamic
-    case existingVersions
     case keepBuildArtifacts
     case localPodspecPath
     case minimumIOSVersion
     case outputDir
-    case releasingSDKs
     case rc
+    case repoDir
     case templateDir
     case updatePodRepo
     case zipPods
@@ -69,31 +68,26 @@ struct LaunchArgs {
       case .buildRoot:
         return "The root directory for build artifacts. If `nil`, a temporary directory will be " +
           "used."
-      case .carthageDir:
-        return "The directory pointing to all Carthage JSON manifests. Passing this flag enables" +
-          "the Carthage build."
+      case .carthageBuild:
+        return "A flag specifying to build Carthage artifacts."
       case .carthageSkipVersionCheck:
         return "A flag to skip the Carthage version check for development iteration."
       case .customSpecRepos:
         return "A comma separated list of custom CocoaPod Spec repos."
       case .dynamic:
         return "A flag specifying to build dynamic library frameworks."
-      case .existingVersions:
-        return "The file path to a textproto file containing the existing released SDK versions, " +
-          "of type `ZipBuilder_FirebaseSDKs`."
       case .keepBuildArtifacts:
         return "A flag to indicate keeping (not deleting) the build artifacts."
       case .localPodspecPath:
         return "Path to override podspec search with local podspec."
       case .minimumIOSVersion:
-        return "The minimum supported iOS version. The default is 9.0."
+        return "The minimum supported iOS version. The default is 10.0."
       case .outputDir:
         return "The directory to copy the built Zip file to."
       case .rc:
         return "The release candidate number, zero indexed."
-      case .releasingSDKs:
-        return "The file path to a textproto file containing all the releasing SDKs, of type " +
-          "`ZipBuilder_Release`."
+      case .repoDir:
+        return "The path to the repo from which the Firebase distribution is being built."
       case .templateDir:
         return "The path to the directory containing the blank xcodeproj and Info.plist for " +
           "building source based frameworks"
@@ -109,26 +103,17 @@ struct LaunchArgs {
   /// The list of architectures to build for.
   let archs: [Architecture]
 
-  /// A file URL to a textproto with the contents of a `ZipBuilder_FirebaseSDKs` object. Used to
-  /// verify expected version numbers.
-  let allSDKsPath: URL?
-
   /// Build dependencies flag.
   let buildDependencies: Bool
 
   /// The root directory for build artifacts. If `nil`, a temporary directory will be used.
   let buildRoot: URL?
 
-  /// The directory pointing to all Carthage JSON manifests. Passing this flag enables the Carthage
-  /// build.
-  let carthageDir: URL?
+  /// A flag specifying to build Carthage artifacts.
+  let carthageBuild: Bool
 
   /// Skip the Carthage version check
   let carthageSkipVersionCheck: Bool
-
-  /// A file URL to a textproto with the contents of a `ZipBuilder_Release` object. Used to verify
-  /// expected version numbers.
-  let currentReleasePath: URL?
 
   /// Custom CocoaPods spec repos to be used. If not provided, the tool will only use the CocoaPods
   /// master repo.
@@ -149,6 +134,9 @@ struct LaunchArgs {
   /// The directory to copy the built Zip file to. If this is not set, the path to the Zip file will
   /// just be logged to the console.
   let outputDir: URL?
+
+  /// The path to the repo from which the Firebase distribution is being built.
+  let repoDir: URL?
 
   /// The path to the directory containing the blank xcodeproj and Info.plist for building source
   /// based frameworks.
@@ -180,13 +168,23 @@ struct LaunchArgs {
     //   - Always build dependencies unless explicitly set to false.
     defaults.register(defaults: [Key.buildDependencies.rawValue: true])
 
+    // Get the project repo directory, and fail if it doesn't exist and we're building Firebase.
+    let repoPath = defaults.string(forKey: Key.repoDir.rawValue)
+    if defaults.string(forKey: Key.zipPods.rawValue) != nil {
+      LaunchArgs.exitWithUsageAndLog("Missing required key: `\(Key.repoDir)` for the folder " +
+        "containing the repository from which we're building the zip.")
+    }
+    repoDir = repoPath != nil ? URL(fileURLWithPath: repoPath!) : nil
+
     // Get the project template directory, and fail if it doesn't exist.
-    guard let templatePath = defaults.string(forKey: Key.templateDir.rawValue) else {
+    var templatePath = defaults.string(forKey: Key.templateDir.rawValue)
+    if templatePath == nil, repoPath != nil {
+      templatePath = repoPath! + "/ZipBuilder/Template"
+    } else {
       LaunchArgs.exitWithUsageAndLog("Missing required key: `\(Key.templateDir)` for the folder " +
         "containing all required files to build frameworks.")
     }
-
-    templateDir = URL(fileURLWithPath: templatePath)
+    templateDir = URL(fileURLWithPath: templatePath!)
 
     // Parse the archs list.
     if let archs = defaults.string(forKey: Key.archs.rawValue) {
@@ -203,34 +201,6 @@ struct LaunchArgs {
     } else {
       // No argument was passed in.
       archs = Architecture.allCases
-    }
-
-    // Parse the existing versions key.
-    if let existingVersions = defaults.string(forKey: Key.existingVersions.rawValue) {
-      let url = URL(fileURLWithPath: existingVersions)
-      guard fileChecker.fileExists(atPath: url.path) else {
-        LaunchArgs.exitWithUsageAndLog("Could not parse \(Key.existingVersions) key: value " +
-          "passed in is not a file URL or the file does not exist. Value: \(existingVersions)")
-      }
-
-      allSDKsPath = url.standardizedFileURL
-    } else {
-      // No argument was passed in.
-      allSDKsPath = nil
-    }
-
-    // Parse the current releases key.
-    if let currentRelease = defaults.string(forKey: Key.releasingSDKs.rawValue) {
-      let url = URL(fileURLWithPath: currentRelease)
-      guard fileChecker.fileExists(atPath: url.path) else {
-        LaunchArgs.exitWithUsageAndLog("Could not parse \(Key.releasingSDKs) key: value passed " +
-          "in is not a file URL or the file does not exist. Value: \(currentRelease)")
-      }
-
-      currentReleasePath = url.standardizedFileURL
-    } else {
-      // No argument was passed in.
-      currentReleasePath = nil
     }
 
     // Parse the zipPods key.
@@ -309,20 +279,6 @@ struct LaunchArgs {
       customSpecRepos = nil
     }
 
-    // Parse the Carthage directory key.
-    if let carthagePath = defaults.string(forKey: Key.carthageDir.rawValue) {
-      let url = URL(fileURLWithPath: carthagePath)
-      guard fileChecker.directoryExists(at: url) else {
-        LaunchArgs.exitWithUsageAndLog("Could not parse \(Key.carthageDir) key: value " +
-          "passed in is not a file URL or the directory does not exist. Value: \(carthagePath)")
-      }
-
-      carthageDir = url.standardizedFileURL
-    } else {
-      // No argument was passed in.
-      carthageDir = nil
-    }
-
     // Parse the Build Root key.
     if let buildRoot = defaults.string(forKey: Key.buildRoot.rawValue) {
       let url = URL(fileURLWithPath: buildRoot)
@@ -347,6 +303,7 @@ struct LaunchArgs {
     }
 
     buildDependencies = defaults.bool(forKey: Key.buildDependencies.rawValue)
+    carthageBuild = defaults.bool(forKey: Key.carthageBuild.rawValue)
     carthageSkipVersionCheck = defaults.bool(forKey: Key.carthageSkipVersionCheck.rawValue)
     dynamic = defaults.bool(forKey: Key.dynamic.rawValue)
     updatePodRepo = defaults.bool(forKey: Key.updatePodRepo.rawValue)

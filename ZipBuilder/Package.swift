@@ -27,14 +27,11 @@ let package = Package(
   ],
   dependencies: [
     .package(url: "https://github.com/apple/swift-argument-parser", .exact("0.0.1")),
-    // Keep the generated protos in sync with the version below.
-    // See https://github.com/firebase/firebase-ios-sdk/tree/master/ZipBuilder#updating-protobuf-generated-swift-files.
-    .package(url: "https://github.com/apple/swift-protobuf.git", .exact("1.7.0")),
   ],
   targets: [
     .target(
       name: "ZipBuilder",
-      dependencies: ["ArgumentParser", "ManifestReader", "Utils"]
+      dependencies: ["ArgumentParser", "FirebaseManifest", "Utils"]
     ),
     .target(
       name: "FirebaseManifest"
@@ -44,15 +41,7 @@ let package = Package(
       dependencies: ["ArgumentParser", "FirebaseManifest", "Utils"]
     ),
     .target(
-      name: "ManifestReader",
-      dependencies: ["SwiftProtobuf"]
-    ),
-    .target(
       name: "Utils"
-    ),
-    .target(
-      name: "oss-manifest-generator",
-      dependencies: ["ArgumentParser", "ManifestReader"]
     ),
   ]
 )

@@ -30,26 +30,26 @@ public let shared = Manifest(
     Pod("FirebaseInstallations"),
     Pod("FirebaseInstanceID"),
     Pod("GoogleAppMeasurement", isClosedSource: true),
-    Pod("FirebaseAnalytics", isClosedSource: true),
-    Pod("FirebaseABTesting"),
-    Pod("FirebaseAppDistribution", isBeta: true),
-    Pod("FirebaseAuth"),
-    Pod("FirebaseCrashlytics"),
-    Pod("FirebaseDatabase"),
-    Pod("FirebaseDynamicLinks"),
-    Pod("FirebaseFirestore", allowWarnings: true),
+    Pod("FirebaseAnalytics", isClosedSource: true, zip: true),
+    Pod("FirebaseABTesting", zip: true),
+    Pod("FirebaseAppDistribution", isBeta: true, zip: true),
+    Pod("FirebaseAuth", zip: true),
+    Pod("FirebaseCrashlytics", zip: true),
+    Pod("FirebaseDatabase", zip: true),
+    Pod("FirebaseDynamicLinks", zip: true),
+    Pod("FirebaseFirestore", allowWarnings: true, zip: true),
     Pod("FirebaseFirestoreSwift", isBeta: true),
-    Pod("FirebaseFunctions"),
-    Pod("FirebaseInAppMessaging", isBeta: true),
-    Pod("FirebaseMessaging"),
-    Pod("FirebasePerformance", isClosedSource: true),
-    Pod("FirebaseRemoteConfig"),
-    Pod("FirebaseStorage"),
+    Pod("FirebaseFunctions", zip: true),
+    Pod("FirebaseInAppMessaging", isBeta: true, zip: true),
+    Pod("FirebaseMessaging", zip: true),
+    Pod("FirebasePerformance", isClosedSource: true, zip: true),
+    Pod("FirebaseRemoteConfig", zip: true),
+    Pod("FirebaseStorage", zip: true),
     Pod("FirebaseStorageSwift", isBeta: true),
     Pod("FirebaseMLCommon", isClosedSource: true, isBeta: true),
-    Pod("FirebaseMLModelInterpreter", isClosedSource: true, isBeta: true),
-    Pod("FirebaseMLVision", isClosedSource: true, isBeta: true),
-    Pod("Firebase", allowWarnings: true),
+    Pod("FirebaseMLModelInterpreter", isClosedSource: true, isBeta: true, zip: true),
+    Pod("FirebaseMLVision", isClosedSource: true, isBeta: true, zip: true),
+    Pod("Firebase", allowWarnings: true, zip: true),
   ]
 )
 
@@ -57,4 +57,8 @@ public let shared = Manifest(
 public struct Manifest {
   public let version: String
   public let pods: [Pod]
+
+  public func versionString(_ pod: Pod) -> String {
+    return pod.podVersion ?? (pod.isBeta ? version + "-beta" : version)
+  }
 }
