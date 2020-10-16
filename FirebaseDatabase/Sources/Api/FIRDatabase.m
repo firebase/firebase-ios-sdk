@@ -175,6 +175,10 @@
 
 - (void)useEmulatorWithHost:(NSString *)host port:(NSInteger)port {
     NSAssert(host.length > 0, @"Cannot connect to nil or empty host");
+    NSAssert(self.repo == nil,
+             @"Cannot connect to emulator after database initialization. Call "
+             @"useEmulator(host:port:) before creating a database reference or "
+             @"opening a database connection.");
     NSString *fullHost = [NSString stringWithFormat:@"%@:%li", host, port];
     self.repoInfo.host = fullHost;
 }
