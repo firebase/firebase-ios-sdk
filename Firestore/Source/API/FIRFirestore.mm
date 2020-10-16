@@ -343,7 +343,7 @@ NS_ASSUME_NONNULL_BEGIN
   }
   // Use a new settings so the new settings are automatically plumbed
   // to the underlying Firestore objects.
-  NSString *settingsHost = [NSString stringWithFormat:@"%@:%li", host, port];
+  NSString *settingsHost = [NSString stringWithFormat:@"%@:%li", host, (long)port];
   FIRFirestoreSettings *newSettings = [_settings copy];
   newSettings.host = settingsHost;
   self.settings = newSettings;

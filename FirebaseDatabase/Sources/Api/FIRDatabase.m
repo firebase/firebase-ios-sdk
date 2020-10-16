@@ -179,7 +179,7 @@
              @"Cannot connect to emulator after database initialization. Call "
              @"useEmulator(host:port:) before creating a database reference or "
              @"opening a database connection.");
-    NSString *fullHost = [NSString stringWithFormat:@"%@:%li", host, port];
+    NSString *fullHost = [NSString stringWithFormat:@"%@:%li", host, (long)port];
     self.repoInfo.host = fullHost;
 }
 
