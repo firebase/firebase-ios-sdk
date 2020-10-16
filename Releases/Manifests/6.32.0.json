@@ -1,9 +1,0 @@
-{
-  "Firebase" : "6.32.0",
-  "FirebaseAppDistribution" : "0.9.2",
-  "FirebaseAuth" : "6.9.1",
-  "FirebaseCore" : "6.10.2",
-  "FirebaseCrashlytics" : "4.6.0",
-  "FirebaseDatabase" : "6.6.0",
-  "FirebaseFirestore" : "1.17.1"
-}

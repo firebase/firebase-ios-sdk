@@ -51,6 +51,8 @@ enum Tags {
       verifyTagsAreSafeToDelete()
       Shell.executeCommand("git tag --delete \(tag)", workingDir: gitRoot)
       Shell.executeCommand("git push --delete origin \(tag)", workingDir: gitRoot)
+    } else {
+      verifyTagIsSafeToAdd(tag, gitRoot: gitRoot)
     }
     Shell.executeCommand("git tag \(tag)", workingDir: gitRoot)
     Shell.executeCommand("git push origin \(tag)", workingDir: gitRoot)
@@ -75,6 +77,29 @@ enum Tags {
     guard !FileManager.default.fileExists(atPath:
       firebasePublicURL.appendingPathComponent(manifest.version).path) else {
       fatalError("Do not remove tag of a published Firebase version.")
+    }
+  }
+
+  private static func verifyTagIsSafeToAdd(_ tag: String, gitRoot: URL) {
+    if checkTagCommand("git tag -l \(tag)", gitRoot: gitRoot) != "" {
+      fatalError("Tag \(tag) already exists locally. Please delete and restart")
+    }
+    if checkTagCommand("git ls-remote origin refs/tags/\(tag)", gitRoot: gitRoot) != "" {
+      fatalError("Tag \(tag) already exists locally. Please delete and restart")
+    }
+  }
+
+  private static func checkTagCommand(_ command: String, gitRoot: URL) -> String {
+    let result = Shell.executeCommandFromScript(command, workingDir: gitRoot)
+    switch result {
+    case let .error(code, output):
+      fatalError("""
+      `\(command) failed with exit code \(code)
+      Output from `pod repo list`:
+      \(output)
+      """)
+    case let .success(output):
+      return output.trimmingCharacters(in: .whitespacesAndNewlines)
     }
   }
 }
