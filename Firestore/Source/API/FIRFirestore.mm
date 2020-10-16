@@ -339,9 +339,7 @@ NS_ASSUME_NONNULL_BEGIN
     ThrowInvalidArgument("Host cannot be nil or empty.");
   }
   if (!_settings.isUsingDefaultHost) {
-    HARD_FAIL("A previously-set host value cannot be overriden by a
-       call to -[FIRFirestore useEmulatorWithHost:port:]. To use an emulator with Firestore,
-       remove the previous call to -[FIRFirestoreSettings setHost].");
+    LOG_WARN("Overriding previously-set host value: %@", _settings.host);
   }
   // Use a new settings so the new settings are automatically plumbed
   // to the underlying Firestore objects.
