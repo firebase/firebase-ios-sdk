@@ -25,7 +25,7 @@ extension Constants {
   static let podSources = [
     "https://${BOT_TOKEN}@github.com/FirebasePrivate/SpecsTesting",
     "https://github.com/firebase/SpecsStaging.git",
-    "https://github.com/CocoaPods/Specs",
+    "https://cdn.cocoapods.org/",
   ]
   static let exclusivePods: [String] = ["FirebaseSegmentation"]
 }
