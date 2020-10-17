@@ -182,7 +182,8 @@ struct LaunchArgs {
     var templatePath = defaults.string(forKey: Key.templateDir.rawValue)
     if templatePath == nil, let repoDir = repoDir {
       templatePath = repoDir.path + "/ZipBuilder/Template"
-    } else {
+    }
+    if templatePath == nil {
       LaunchArgs.exitWithUsageAndLog("Missing required key: `\(Key.templateDir)` for the folder " +
         "containing all required files to build frameworks.")
     }
