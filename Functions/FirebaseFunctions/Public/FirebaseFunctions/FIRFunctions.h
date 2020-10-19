@@ -26,8 +26,8 @@ NS_SWIFT_NAME(Functions)
 @interface FIRFunctions : NSObject
 
 /**
-* The current emulator origin, or nil if it is not set.
-*/
+ * The current emulator origin, or nil if it is not set.
+ */
 @property(nonatomic, readonly, nullable) NSString *emulatorOrigin;
 
 - (id)init NS_UNAVAILABLE;
