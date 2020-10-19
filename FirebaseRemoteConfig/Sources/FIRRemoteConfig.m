@@ -45,11 +45,6 @@ static NSString *const kRemoteConfigFetchTimeoutKey = @"_rcn_fetch_timeout";
 /// Listener for the get methods.
 typedef void (^FIRRemoteConfigListener)(NSString *_Nonnull, NSDictionary *_Nonnull);
 
-@interface FIRRemoteConfigSettings () {
-  BOOL _developerModeEnabled;
-}
-@end
-
 @implementation FIRRemoteConfigSettings
 
 - (instancetype)init {
@@ -169,9 +164,10 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
 
     if (analytics) {
       _listeners = [[NSMutableArray alloc] init];
-      [RCNPersonalization setAnalytics:analytics];
+      RCNPersonalization *personalization =
+          [[RCNPersonalization alloc] initWithAnalytics:analytics];
       [self addListener:^(NSString *key, NSDictionary *config) {
-        [RCNPersonalization logArmActive:key config:config];
+        [personalization logArmActive:key config:config];
       }];
     }
   }
@@ -360,7 +356,8 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
                     @"Key %@ should come from source:%zd instead coming from source: %zd.", key,
                     (long)FIRRemoteConfigSourceRemote, (long)value.source);
       }
-      [self callListeners:key config:[self->_configContent getMetadataForNamespace:FQNamespace]];
+      [self callListeners:key
+                   config:[self->_configContent getConfigAndMetadataForNamespace:FQNamespace]];
       return;
     }
     value = self->_configContent.defaultConfig[FQNamespace][key];

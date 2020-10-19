@@ -21,21 +21,15 @@
 
 @implementation RCNPersonalization
 
-+ (instancetype)sharedInstance {
-  static RCNPersonalization *sharedInstance;
-  static dispatch_once_t onceToken;
-  dispatch_once(&onceToken, ^{
-    sharedInstance = [[RCNPersonalization alloc] init];
-  });
-  return sharedInstance;
+- (instancetype)initWithAnalytics:(id<FIRAnalyticsInterop> _Nullable)analytics {
+  self = [super init];
+  if (self) {
+    self->_analytics = analytics;
+  }
+  return self;
 }
 
-+ (void)setAnalytics:(id<FIRAnalyticsInterop> _Nullable)analytics {
-  RCNPersonalization *personalization = [RCNPersonalization sharedInstance];
-  personalization->_analytics = analytics;
-}
-
-+ (void)logArmActive:(NSString *)key config:(NSDictionary *)config {
+- (void)logArmActive:(NSString *)key config:(NSDictionary *)config {
   NSDictionary *ids = config[RCNFetchResponseKeyPersonalizationMetadata];
   NSDictionary<NSString *, FIRRemoteConfigValue *> *values = config[RCNFetchResponseKeyEntries];
   if (ids.count < 1 || values.count < 1 || !values[key]) {
@@ -47,13 +41,12 @@
     return;
   }
 
-  RCNPersonalization *personalization = [RCNPersonalization sharedInstance];
-  [personalization->_analytics logEventWithOrigin:kAnalyticsOriginPersonalization
-                                             name:kAnalyticsPullEvent
-                                       parameters:@{
-                                         kArmKey : metadata[kPersonalizationId],
-                                         kArmValue : values[key].stringValue
-                                       }];
+  [self->_analytics logEventWithOrigin:kAnalyticsOriginPersonalization
+                                  name:kAnalyticsPullEvent
+                            parameters:@{
+                              kArmKey : metadata[kPersonalizationId],
+                              kArmValue : values[key].stringValue
+                            }];
 }
 
 @end

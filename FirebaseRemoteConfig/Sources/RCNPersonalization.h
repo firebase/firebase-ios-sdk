@@ -29,15 +29,15 @@ static NSString *const kPersonalizationId = @"personalizationId";
 /// Analytics connector
 @property(nonatomic, strong) id<FIRAnalyticsInterop> _Nullable analytics;
 
-/// Returns the RCNPersonalization singleton.
-+ (instancetype)sharedInstance;
+- (instancetype)init NS_UNAVAILABLE;
 
-/// Sets analytics for underlying implementation of RCNPersonalization, if defined.
-+ (void)setAnalytics:(id<FIRAnalyticsInterop> _Nullable)analytics;
+/// Designated initializer.
+- (instancetype)initWithAnalytics:(id<FIRAnalyticsInterop> _Nullable)analytics
+    NS_DESIGNATED_INITIALIZER;
 
 /// Called when an arm is pulled from Remote Config. If the arm is personalized, log information to
 /// Google in another thread.
-+ (void)logArmActive:(NSString *)key config:(NSDictionary *)config;
+- (void)logArmActive:(NSString *)key config:(NSDictionary *)config;
 
 @end
 

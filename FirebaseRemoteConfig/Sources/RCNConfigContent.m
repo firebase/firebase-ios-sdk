@@ -344,7 +344,7 @@ static const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
   return _defaultConfig;
 }
 
-- (NSDictionary *)getMetadataForNamespace:(NSString *)FIRNamespace {
+- (NSDictionary *)getConfigAndMetadataForNamespace:(NSString *)FIRNamespace {
   /// If this is the first time reading the active metadata, we might still be reading it from the
   /// database.
   [self checkAndWaitForInitialDatabaseLoad];
