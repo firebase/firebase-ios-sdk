@@ -27,6 +27,7 @@ target 'GDTCCTServiceExtension' do
   pod 'FirebaseInstanceID', :path => '../../'
   pod 'SwiftProtobuf', '~> 1.0'
   pod 'GoogleDataTransport', :path => '../../'
+  pod 'GoogleUtilities/Environment', :path => '../../'
 end
 
 target 'GDTCCTWatchOSCompanionTestAppExtension' do
@@ -35,5 +36,6 @@ target 'GDTCCTWatchOSCompanionTestAppExtension' do
   # Pods for GDTCCTWatchOSCompanionTestAppExtension
   pod 'SwiftProtobuf', '~> 1.0'
   pod 'GoogleDataTransport', :path => '../../'
+  pod 'GoogleUtilities/Environment', :path => '../../'
 
 end
