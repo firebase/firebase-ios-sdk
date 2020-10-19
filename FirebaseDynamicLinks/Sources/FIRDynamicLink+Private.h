@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FirebaseDynamicLinks/Sources/Public/FIRDynamicLink.h"
+#import "FirebaseDynamicLinks/Sources/Public/FirebaseDynamicLinks/FIRDynamicLink.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

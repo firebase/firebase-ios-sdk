@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORPlatform.h"
+#import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORPlatform.h"
 
 #import <sys/sysctl.h>
 
-#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORAssert.h"
-#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORConsoleLogger.h"
-#import "GoogleDataTransport/GDTCORLibrary/Public/GDTCORReachability.h"
+#import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORAssert.h"
+#import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORReachability.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORConsoleLogger.h"
 
 #import "GoogleDataTransport/GDTCORLibrary/Private/GDTCORRegistrar_Private.h"
 
@@ -128,7 +128,6 @@ GDTCORNetworkMobileSubtype GDTCORNetworkMobileSubTypeMessage() {
     networkCurrentRadioAccessTechnology = networkCurrentRadioAccessTechnologyDict.allValues[0];
   }
 #else  // TARGET_OS_MACCATALYST
-#if defined(__IPHONE_12_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 120000
   if (@available(iOS 12.0, *)) {
     NSDictionary<NSString *, NSString *> *networkCurrentRadioAccessTechnologyDict =
         networkInfo.serviceCurrentRadioAccessTechnology;
@@ -138,9 +137,9 @@ GDTCORNetworkMobileSubtype GDTCORNetworkMobileSubTypeMessage() {
       networkCurrentRadioAccessTechnology = networkCurrentRadioAccessTechnologyDict.allValues[0];
     }
   } else {
-#else   // defined(__IPHONE_12_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 120000
-  networkCurrentRadioAccessTechnology = networkInfo.currentRadioAccessTechnology;
-#endif  // // defined(__IPHONE_12_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 120000
+#if TARGET_OS_IOS && __IPHONE_OS_VERSION_MIN_REQUIRED < 120000
+    networkCurrentRadioAccessTechnology = networkInfo.currentRadioAccessTechnology;
+#endif  // TARGET_OS_IOS && __IPHONE_OS_VERSION_MIN_REQUIRED < 120000
   }
 #endif  // TARGET_OS_MACCATALYST
   if (networkCurrentRadioAccessTechnology) {
@@ -150,9 +149,9 @@ GDTCORNetworkMobileSubtype GDTCORNetworkMobileSubTypeMessage() {
   } else {
     return GDTCORNetworkMobileSubtypeUNKNOWN;
   }
-#else
+#else   // TARGET_OS_IOS
   return GDTCORNetworkMobileSubtypeUNKNOWN;
-#endif
+#endif  // TARGET_OS_IOS
 }
 
 NSString *_Nonnull GDTCORDeviceModel() {
@@ -179,26 +178,21 @@ NSString *_Nonnull GDTCORDeviceModel() {
 }
 
 NSData *_Nullable GDTCOREncodeArchive(id<NSSecureCoding> obj,
-                                      NSString *archivePath,
+                                      NSString *filePath,
                                       NSError *_Nullable *error) {
   BOOL result = NO;
-  if (archivePath.length > 0) {
+  if (filePath.length > 0) {
     result = [[NSFileManager defaultManager]
-              createDirectoryAtPath:[archivePath stringByDeletingLastPathComponent]
+              createDirectoryAtPath:[filePath stringByDeletingLastPathComponent]
         withIntermediateDirectories:YES
                          attributes:nil
                               error:error];
     if (result == NO || *error) {
-      GDTCORLogDebug(@"Attempt to create directory failed: path:%@ error:%@", archivePath, *error);
+      GDTCORLogDebug(@"Attempt to create directory failed: path:%@ error:%@", filePath, *error);
       return nil;
     }
   }
   NSData *resultData;
-#if (defined(__IPHONE_11_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 110000) || \
-    (defined(__MAC_10_13) && MAC_OS_X_VERSION_MAX_ALLOWED >= 101300) ||      \
-    (defined(__TVOS_11_0) && __TV_OS_VERSION_MAX_ALLOWED >= 110000) ||       \
-    (defined(__WATCHOS_4_0) && __WATCH_OS_VERSION_MAX_ALLOWED >= 040000) ||  \
-    (defined(TARGET_OS_MACCATALYST) && TARGET_OS_MACCATALYST)
   if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, watchOS 4, *)) {
     resultData = [NSKeyedArchiver archivedDataWithRootObject:obj
                                        requiringSecureCoding:YES
@@ -207,27 +201,26 @@ NSData *_Nullable GDTCOREncodeArchive(id<NSSecureCoding> obj,
       GDTCORLogDebug(@"Encoding an object failed: %@", *error);
       return nil;
     }
-    if (archivePath.length > 0) {
-      result = [resultData writeToFile:archivePath options:NSDataWritingAtomic error:error];
+    if (filePath.length > 0) {
+      result = [resultData writeToFile:filePath options:NSDataWritingAtomic error:error];
       if (result == NO || *error) {
-        GDTCORLogDebug(@"Attempt to write archive failed: path:%@ error:%@", archivePath, *error);
+        GDTCORLogDebug(@"Attempt to write archive failed: path:%@ error:%@", filePath, *error);
       } else {
-        GDTCORLogDebug(@"Writing archive succeeded: %@", archivePath);
+        GDTCORLogDebug(@"Writing archive succeeded: %@", filePath);
       }
     }
   } else {
-#endif
     @try {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
       resultData = [NSKeyedArchiver archivedDataWithRootObject:obj];
 #pragma clang diagnostic pop
-      if (archivePath.length > 0) {
-        result = [resultData writeToFile:archivePath options:NSDataWritingAtomic error:error];
+      if (filePath.length > 0) {
+        result = [resultData writeToFile:filePath options:NSDataWritingAtomic error:error];
         if (result == NO || *error) {
-          GDTCORLogDebug(@"Attempt to write archive failed: URL:%@ error:%@", archivePath, *error);
+          GDTCORLogDebug(@"Attempt to write archive failed: URL:%@ error:%@", filePath, *error);
         } else {
-          GDTCORLogDebug(@"Writing archive succeeded: %@", archivePath);
+          GDTCORLogDebug(@"Writing archive succeeded: %@", filePath);
         }
       }
     } @catch (NSException *exception) {
@@ -238,7 +231,7 @@ NSData *_Nullable GDTCOREncodeArchive(id<NSSecureCoding> obj,
                                userInfo:@{NSLocalizedFailureReasonErrorKey : errorString}];
     }
     GDTCORLogDebug(@"Attempt to write archive. successful:%@ URL:%@ error:%@",
-                   result ? @"YES" : @"NO", archivePath, *error);
+                   result ? @"YES" : @"NO", filePath, *error);
   }
   return resultData;
 }
@@ -248,11 +241,6 @@ id<NSSecureCoding> _Nullable GDTCORDecodeArchive(Class archiveClass,
                                                  NSData *_Nullable archiveData,
                                                  NSError *_Nullable *error) {
   id<NSSecureCoding> unarchivedObject = nil;
-#if (defined(__IPHONE_11_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 110000) || \
-    (defined(__MAC_10_13) && MAC_OS_X_VERSION_MAX_ALLOWED >= 101300) ||      \
-    (defined(__TVOS_11_0) && __TV_OS_VERSION_MAX_ALLOWED >= 110000) ||       \
-    (defined(__WATCHOS_4_0) && __WATCH_OS_VERSION_MAX_ALLOWED >= 040000) ||  \
-    (defined(TARGET_OS_MACCATALYST) && TARGET_OS_MACCATALYST)
   if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, watchOS 4, *)) {
     NSData *data = archiveData ? archiveData : [NSData dataWithContentsOfFile:archivePath];
     if (data) {
@@ -261,7 +249,6 @@ id<NSSecureCoding> _Nullable GDTCORDecodeArchive(Class archiveClass,
                                                               error:error];
     }
   } else {
-#endif
     @try {
       NSData *archivedData =
           archiveData ? archiveData : [NSData dataWithContentsOfFile:archivePath];
@@ -278,6 +265,32 @@ id<NSSecureCoding> _Nullable GDTCORDecodeArchive(Class archiveClass,
     }
   }
   return unarchivedObject;
+}
+
+BOOL GDTCORWriteDataToFile(NSData *data, NSString *filePath, NSError *_Nullable *outError) {
+  BOOL result = NO;
+  if (filePath.length > 0) {
+    result = [[NSFileManager defaultManager]
+              createDirectoryAtPath:[filePath stringByDeletingLastPathComponent]
+        withIntermediateDirectories:YES
+                         attributes:nil
+                              error:outError];
+    if (result == NO || *outError) {
+      GDTCORLogDebug(@"Attempt to create directory failed: path:%@ error:%@", filePath, *outError);
+      return result;
+    }
+  }
+
+  if (filePath.length > 0) {
+    result = [data writeToFile:filePath options:NSDataWritingAtomic error:outError];
+    if (result == NO || *outError) {
+      GDTCORLogDebug(@"Attempt to write archive failed: path:%@ error:%@", filePath, *outError);
+    } else {
+      GDTCORLogDebug(@"Writing archive succeeded: %@", filePath);
+    }
+  }
+
+  return result;
 }
 
 @interface GDTCORApplication ()

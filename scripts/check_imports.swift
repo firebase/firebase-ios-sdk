@@ -25,11 +25,13 @@ import Foundation
 // Skip these directories. Imports should only be repo-relative in libraries
 // and unit tests.
 let skipDirPatterns = ["/Sample/", "/Pods/", "FirebaseStorage/Tests/Integration",
+                       "FirebaseDynamicLinks/Tests/Integration",
                        "FirebaseInAppMessaging/Tests/Integration/",
                        "Example/InstanceID/App", "SymbolCollisionTest/", "/gen/",
                        "CocoapodsIntegrationTest/"] +
   [
-    "CoreOnly/Sources", // Skip Firebase.h
+    "CoreOnly/Sources", // Skip Firebase.h.
+    "SwiftPMTests", // The SwiftPM imports test module imports.
   ] +
 
   // The following are temporary skips pending working through a first pass of the repo:
@@ -37,14 +39,10 @@ let skipDirPatterns = ["/Sample/", "/Pods/", "FirebaseStorage/Tests/Integration"
     "FirebaseAppCheck",
     "FirebaseAppDistribution",
     "FirebaseCore/Sources/Private", // TODO: work through adding this back.
-    "FirebaseDynamicLinks",
     "Firebase/CoreDiagnostics",
     "FirebaseDatabase/Sources/third_party/Wrap-leveldb", // Pending SwiftPM for leveldb.
     "Example",
-    "FirebaseInAppMessaging",
     "FirebaseInstallations/Source/Tests/Unit/",
-    "Firebase/InstanceID",
-    "FirebaseMessaging",
     "Firestore",
     "GoogleUtilitiesComponents",
   ]
@@ -80,7 +78,10 @@ private func checkFile(_ file: String, logger: ErrorLogger, inRepo repoURL: URL)
   let isPublic = file.range(of: "/Public/") != nil &&
     // TODO: Skip legacy GDTCCTLibrary file that isn't Public and should be moved.
     file.range(of: "GDTCCTLibrary/Public/GDTCOREvent+GDTCCTSupport.h") == nil
-  let isPrivate = file.range(of: "/Sources/Private/") != nil
+  let isPrivate = file.range(of: "/Sources/Private/") != nil ||
+    // Delete when FirebaseInstallations fixes directory structure.
+    file.range(of: "Source/Library/Private/FirebaseInstallationsInternal.h") != nil ||
+    file.range(of: "GDTCORLibrary/Internal/GoogleDataTransportInternal.h") != nil
   var inSwiftPackage = false
   var inSwiftPackageElse = false
   let lines = fileContents.components(separatedBy: .newlines)
@@ -138,7 +139,6 @@ private func checkFile(_ file: String, logger: ErrorLogger, inRepo repoURL: URL)
       } else if importFile.first == "<", !isPrivate {
         // Verify that double quotes are always used for intra-module imports.
         if importFileRaw.starts(with: "Firebase") ||
-          importFileRaw.starts(with: "GoogleUtilities") ||
           importFileRaw.starts(with: "GoogleDataTransport") {
           logger
             .importLog("Imports internal to the repo should use double quotes not \"<\"", file,

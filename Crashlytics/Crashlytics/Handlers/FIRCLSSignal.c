@@ -20,6 +20,7 @@
 #include <dlfcn.h>
 #include <stdlib.h>
 
+#if CLS_SIGNAL_SUPPORTED
 static const int FIRCLSFatalSignals[FIRCLSSignalCount] = {SIGABRT, SIGBUS, SIGFPE, SIGILL,
                                                           SIGSEGV, SIGSYS, SIGTRAP};
 
@@ -316,3 +317,4 @@ static void FIRCLSSignalHandler(int signal, siginfo_t *info, void *uapVoid) {
   // restore errno
   errno = savedErrno;
 }
+#endif

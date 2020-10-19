@@ -16,8 +16,4 @@
 // Installations Public headers. Any package manager complexity should be
 // handled here.
 
-#if SWIFT_PACKAGE
-@import FirebaseInstallations;
-#else
 #import <FirebaseInstallations/FirebaseInstallations.h>
-#endif

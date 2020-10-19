@@ -507,7 +507,9 @@ static void (^reportSentCallback)(void);
   // check our handlers
   FIRCLSDispatchAfter(2.0, dispatch_get_main_queue(), ^{
     FIRCLSExceptionCheckHandlers((__bridge void *)(self));
+#if CLS_SIGNAL_SUPPORTED
     FIRCLSSignalCheckHandlers();
+#endif
 #if CLS_MACH_EXCEPTION_SUPPORTED
     FIRCLSMachExceptionCheckHandlers();
 #endif

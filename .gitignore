@@ -29,6 +29,9 @@ FirebaseStorage/Tests/Integration/Credentials.h
 FirebaseStorage/Tests/SwiftIntegration/Credentials.swift
 FirebaseStorageSwift/Tests/Integration/Credentials.swift
 
+# FirebaseSegmentation integration tests GoogleService-Info.plist
+FirebaseSegmentation/Tests/Sample/GoogleService-Info.plist
+
 Secrets.tar
 
 # OS X
@@ -58,6 +61,8 @@ ZipBuilder/Packages
 ZipBuilder/*.xcodeproj
 ZipBuilder/Package.resolved
 
+# Mint package manager
+Mint
 
 # IntelliJ
 .idea

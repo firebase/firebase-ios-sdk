@@ -16,6 +16,7 @@
 
 import CommonCrypto
 import Foundation
+import Utils
 
 /// Carthage related utility functions. The enum type is used as a namespace here instead of having
 /// root functions, and no cases should be added to it.
@@ -280,14 +281,10 @@ extension CarthageUtils {
     }
 
     // Write the Info.plist.
-    let data = generatePlistContents(forName: "Firebase")
-    do { try data.write(to: frameworkDir.appendingPathComponent("Info.plist")) }
-    catch {
-      fatalError("Could not write the Info.plist for Firebase framework in Carthage. \(error)")
-    }
+    generatePlistContents(forName: "Firebase", to: frameworkDir)
   }
 
-  static func generatePlistContents(forName name: String) -> Data {
+  static func generatePlistContents(forName name: String, to location: URL) {
     let plist: [String: String] = ["CFBundleIdentifier": "com.firebase.Firebase-\(name)",
                                    "CFBundleInfoDictionaryVersion": "6.0",
                                    "CFBundlePackageType": "FMWK",
@@ -300,7 +297,8 @@ extension CarthageUtils {
     let encoder = PropertyListEncoder()
     encoder.outputFormat = .xml
     do {
-      return try encoder.encode(plist)
+      let data = try encoder.encode(plist)
+      try data.write(to: location.appendingPathComponent("Info.plist"))
     } catch {
       fatalError("Failed to create Info.plist for \(name) during Carthage build: \(error)")
     }

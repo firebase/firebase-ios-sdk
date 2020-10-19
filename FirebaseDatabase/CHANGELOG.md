@@ -1,3 +1,10 @@
+# v7.0.0
+- [fixed] Disabled a deprecation warning. (#6502)
+
+# v6.6.0
+- [feature] The SDK can now infer a default database URL if none is provided in
+  the config.
+
 # v6.4.0
 - [changed] Functionally neutral source reorganization. (#5861)
 

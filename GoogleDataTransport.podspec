@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'GoogleDataTransport'
-  s.version          = '7.0.0'
+  s.version          = '8.0.0'
   s.summary          = 'Google iOS SDK data transport.'
 
   s.description      = <<-DESC
@@ -15,27 +15,26 @@ Shared library for iOS SDK data transport needs.
     :tag => 'DataTransport-' + s.version.to_s
   }
 
-  s.ios.deployment_target = '8.0'
-  s.osx.deployment_target = '10.11'
+  s.ios.deployment_target = '9.0'
+  s.osx.deployment_target = '10.12'
   s.tvos.deployment_target = '10.0'
   s.watchos.deployment_target = '6.0'
 
   # To develop or run the tests, >= 1.8.0 must be installed.
   s.cocoapods_version = '>= 1.4.0'
 
-  s.static_framework = true
   s.prefix_header_file = false
 
   s.source_files = ['GoogleDataTransport/GDTCORLibrary/**/*',
                     'GoogleDataTransport/GDTCCTLibrary/**/*']
-  s.public_header_files = 'GoogleDataTransport/GDTCORLibrary/Public/*.h'
+  s.public_header_files = 'GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/*.h'
   s.ios.frameworks = 'SystemConfiguration', 'CoreTelephony'
   s.osx.frameworks = 'SystemConfiguration', 'CoreTelephony'
   s.tvos.frameworks = 'SystemConfiguration'
 
   s.libraries = ['z']
 
-  s.dependency 'nanopb', '~> 1.30905.0'
+  s.dependency 'nanopb', '~> 2.30906.0'
 
   header_search_paths = {
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}/"'
@@ -58,7 +57,13 @@ Shared library for iOS SDK data transport needs.
   if ENV['GDT_DEV'] && ENV['GDT_DEV'] == '1' then
     s.app_spec 'TestApp' do |app_spec|
       app_spec.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
-      app_spec.source_files = 'GoogleDataTransport/GDTTestApp/*.swift'
+      app_spec.source_files = [
+        'GoogleDataTransport/GDTTestApp/*.swift',
+        'GoogleDataTransport/GDTCORLibrary/Internal/GDTCORRegistrar.h',
+        'GoogleDataTransport/GDTCORLibrary/Internal/GDTCORUploader.h',
+        'GoogleDataTransport/GDTTestApp/Bridging-Header.h',
+      ]
+
       app_spec.ios.resources = ['GoogleDataTransport/GDTTestApp/ios/*.storyboard']
       app_spec.macos.resources = ['GoogleDataTransport/GDTTestApp/macos/*.storyboard']
       app_spec.tvos.resources = ['GoogleDataTransport/GDTTestApp/tvos/*.storyboard']
@@ -66,6 +71,10 @@ Shared library for iOS SDK data transport needs.
         'UILaunchStoryboardName' => 'Main',
         'UIMainStoryboardFile' => 'Main',
         'NSMainStoryboardFile' => 'Main'
+      }
+
+      app_spec.pod_target_xcconfig = {
+        'SWIFT_OBJC_BRIDGING_HEADER' => '$(PODS_TARGET_SRCROOT)/GoogleDataTransport/GDTTestApp/Bridging-Header.h'
       }
     end
   end

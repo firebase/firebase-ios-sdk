@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #import "GoogleUtilities/AppDelegateSwizzler/Internal/GULAppDelegateSwizzler_Private.h"
-#import "GoogleUtilities/AppDelegateSwizzler/Private/GULAppDelegateSwizzler.h"
+#import "GoogleUtilities/AppDelegateSwizzler/Public/GoogleUtilities/GULAppDelegateSwizzler.h"
 
 #import <XCTest/XCTest.h>
 #import <objc/runtime.h>
@@ -288,7 +288,8 @@ static BOOL gRespondsToHandleBackgroundSession;
 
 - (void)setUp {
   [super setUp];
-  self.mockSharedApplication = OCMPartialMock([GULApplication sharedApplication]);
+  self.mockSharedApplication = OCMClassMock([GULApplication class]);
+  OCMStub([self.mockSharedApplication sharedApplication]).andReturn(self.mockSharedApplication);
 }
 
 - (void)tearDown {

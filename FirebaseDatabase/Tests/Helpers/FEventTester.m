@@ -16,7 +16,7 @@
 
 #import "FirebaseDatabase/Tests/Helpers/FEventTester.h"
 
-#import "FirebaseDatabase/Sources/Public/FIRDatabaseReference.h"
+#import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRDatabaseReference.h"
 
 #import "FirebaseDatabase/Sources/Utilities/Tuples/FTupleBoolBlock.h"
 #import "FirebaseDatabase/Tests/Helpers/FTestHelpers.h"

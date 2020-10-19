@@ -40,7 +40,11 @@ struct FirebaseBuilder {
 
       // Package carthage if it's enabled.
       var carthageRoot: URL?
-      if let carthageJSONDir = args.carthageDir {
+      if args.carthageBuild {
+        guard let repoDir = args.repoDir else {
+          fatalError("repoDir option must be specified when building Carthage")
+        }
+        let carthageJSONDir = repoDir.appendingPathComponents(["ZipBuilder", "CarthageJSON"])
         carthageRoot = CarthageUtils.packageCarthageRelease(templateDir: args.templateDir,
                                                             carthageJSONDir: carthageJSONDir,
                                                             artifacts: artifacts,

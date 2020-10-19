@@ -25,7 +25,7 @@
                                    error:(NSError *)error
                           URLSessionMock:(id)URLSessionMock
                   requestValidationBlock:(FIRRequestValidationBlock)requestValidationBlock {
-  __block id mockDataTask = OCMStrictClassMock([NSURLSessionDataTask class]);
+  id mockDataTask = OCMStrictClassMock([NSURLSessionDataTask class]);
 
   // Validate request content.
   FIRRequestValidationBlock nonOptionalRequestValidationBlock =

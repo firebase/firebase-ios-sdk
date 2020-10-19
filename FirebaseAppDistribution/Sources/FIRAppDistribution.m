@@ -11,16 +11,19 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#import <Foundation/Foundation.h>
 
-#import "FIRAppDistribution+Private.h"
-#import "FIRAppDistributionAuthPersistence+Private.h"
-#import "FIRAppDistributionMachO+Private.h"
-#import "FIRAppDistributionRelease+Private.h"
-
+#import <GoogleUtilities/GULAppDelegateSwizzler.h>
+#import <GoogleUtilities/GULUserDefaults.h>
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
 
-#import "FIRAppDistributionAppDelegateInterceptor.h"
-#import "GoogleUtilities/AppDelegateSwizzler/Private/GULAppDelegateSwizzler.h"
+#import "FirebaseAppDistribution/Sources/FIRAppDistributionMachO.h"
+#import "FirebaseAppDistribution/Sources/FIRAppDistributionUIService.h"
+#import "FirebaseAppDistribution/Sources/FIRFADApiService.h"
+#import "FirebaseAppDistribution/Sources/FIRFADLogger.h"
+#import "FirebaseAppDistribution/Sources/Private/FIRAppDistribution.h"
+#import "FirebaseAppDistribution/Sources/Private/FIRAppDistributionRelease.h"
 
 /// Empty protocol to register with FirebaseCore's component system.
 @protocol FIRAppDistributionInstanceProvider <NSObject>
@@ -28,64 +31,64 @@
 
 @interface FIRAppDistribution () <FIRLibrary, FIRAppDistributionInstanceProvider>
 @property(nonatomic) BOOL isTesterSignedIn;
+
+@property(nullable, nonatomic) FIRAppDistributionUIService *uiService;
+
 @end
+
+NSString *const FIRAppDistributionErrorDomain = @"com.firebase.appdistribution";
+NSString *const FIRAppDistributionErrorDetailsKey = @"details";
 
 @implementation FIRAppDistribution
 
-// The OAuth scope needed to authorize the App Distribution Tester API
-NSString *const kOIDScopeTesterAPI = @"https://www.googleapis.com/auth/cloud-platform";
-
 // The App Distribution Tester API endpoint used to retrieve releases
-NSString *const kReleasesEndpointURL =
-    @"https://firebaseapptesters.googleapis.com/v1alpha/devices/-/testerApps/%@/releases";
-NSString *const kTesterAPIClientID =
-    @"319754533822-osu3v3hcci24umq6diathdm0dipds1fb.apps.googleusercontent.com";
-NSString *const kIssuerURL = @"https://accounts.google.com";
+NSString *const kReleasesEndpointURL = @"https://firebaseapptesters.googleapis.com/v1alpha/devices/"
+                                       @"-/testerApps/%@/installations/%@/releases";
+
 NSString *const kAppDistroLibraryName = @"fire-fad";
+
+NSString *const kReleasesKey = @"releases";
+NSString *const kLatestReleaseKey = @"latest";
+NSString *const kCodeHashKey = @"codeHash";
+NSString *const kBuildVersionKey = @"buildVersion";
+NSString *const kDisplayVersionKey = @"displayVersion";
+
+NSString *const kAuthErrorMessage = @"Unable to authenticate the tester";
+NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
+NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
+
+@synthesize isTesterSignedIn = _isTesterSignedIn;
+
+- (BOOL)isTesterSignedIn {
+  BOOL signInState = [[GULUserDefaults standardUserDefaults] boolForKey:kFIRFADSignInStateKey];
+  FIRFADInfoLog(@"Tester is %@signed in.", signInState ? @"" : @"not ");
+  return signInState;
+}
 
 #pragma mark - Singleton Support
 
 - (instancetype)initWithApp:(FIRApp *)app appInfo:(NSDictionary *)appInfo {
+  // FIRFADInfoLog(@"Initializing Firebase App Distribution");
   self = [super init];
 
   if (self) {
-    self.safariHostingViewController = [[UIViewController alloc] init];
-
     [GULAppDelegateSwizzler proxyOriginalDelegate];
-
-    FIRAppDistributionAppDelegatorInterceptor *interceptor =
-        [FIRAppDistributionAppDelegatorInterceptor sharedInstance];
-    [GULAppDelegateSwizzler registerAppDelegateInterceptor:interceptor];
+    self.uiService = [FIRAppDistributionUIService sharedInstance];
+    [GULAppDelegateSwizzler registerAppDelegateInterceptor:[self uiService]];
   }
-
-  NSError *authRetrievalError;
-  self.authState = [FIRAppDistributionAuthPersistence retrieveAuthState:&authRetrievalError];
-  // TODO (schnecle): replace NSLog statement with FIRLogger log statement
-  if (authRetrievalError) {
-    NSLog(@"Error retrieving token from keychain: %@", [authRetrievalError localizedDescription]);
-  }
-
-  self.isTesterSignedIn = self.authState ? YES : NO;
 
   return self;
 }
 
 + (void)load {
-  NSString *version =
-      [NSString stringWithUTF8String:(const char *const)STR_EXPAND(FIRAppDistribution_VERSION)];
-  [FIRApp registerInternalLibrary:(Class<FIRLibrary>)self
-                         withName:kAppDistroLibraryName
-                      withVersion:version];
+  [FIRApp registerInternalLibrary:(Class<FIRLibrary>)self withName:kAppDistroLibraryName];
 }
 
 + (NSArray<FIRComponent *> *)componentsToRegister {
   FIRComponentCreationBlock creationBlock =
       ^id _Nullable(FIRComponentContainer *container, BOOL *isCacheable) {
     if (!container.app.isDefaultApp) {
-      // TODO: Implement error handling
-      @throw([NSException exceptionWithName:@"NotImplementedException"
-                                     reason:@"This code path is not implemented yet"
-                                   userInfo:nil]);
+      FIRFADErrorLog(@"Firebase App Distribution only works with the default app.");
       return nil;
     }
 
@@ -105,7 +108,6 @@ NSString *const kAppDistroLibraryName = @"fire-fad";
 
 + (instancetype)appDistribution {
   // The container will return the same instance since isCacheable is set
-
   FIRApp *defaultApp = [FIRApp defaultApp];  // Missing configure will be logged here.
 
   // Get the instance from the `FIRApp`'s container. This will create a new instance the
@@ -116,216 +118,218 @@ NSString *const kAppDistroLibraryName = @"fire-fad";
 
   // In the component creation block, we return an instance of `FIRAppDistribution`. Cast it and
   // return it.
+  FIRFADDebugLog(@"Instance returned: %@", instance);
   return (FIRAppDistribution *)instance;
 }
 
 - (void)signInTesterWithCompletion:(void (^)(NSError *_Nullable error))completion {
-  NSURL *issuer = [NSURL URLWithString:kIssuerURL];
+  FIRFADDebugLog(@"Prompting tester for sign in");
 
-  [OIDAuthorizationService
-      discoverServiceConfigurationForIssuer:issuer
-                                 completion:^(OIDServiceConfiguration *_Nullable configuration,
-                                              NSError *_Nullable error) {
-                                   [self handleOauthDiscoveryCompletion:configuration
-                                                                  error:error
-                                        appDistributionSignInCompletion:completion];
-                                 }];
-}
-
-- (void)signOutTester {
-  NSError *error;
-  BOOL didClearAuthState = [FIRAppDistributionAuthPersistence clearAuthState:&error];
-  // TODO (schnecle): Add in FIRLogger to report when we have failed to clear auth state
-  if (!didClearAuthState) {
-    NSLog(@"Error clearing token from keychain: %@", [error localizedDescription]);
+  if ([self isTesterSignedIn]) {
+    completion(nil);
+    return;
   }
 
-  self.authState = nil;
-  self.isTesterSignedIn = false;
-}
+  [[self uiService] initializeUIState];
+  FIRInstallations *installations = [FIRInstallations installations];
 
-- (void)fetchReleases:(FIRAppDistributionUpdateCheckCompletion)completion {
-  [self.authState performActionWithFreshTokens:^(NSString *_Nonnull accessToken,
-                                                 NSString *_Nonnull idToken,
-                                                 NSError *_Nullable error) {
+  // Get a Firebase Installation ID (FID).
+  [installations installationIDWithCompletion:^(NSString *__nullable identifier,
+                                                NSError *__nullable error) {
     if (error) {
-      // TODO (schnecle): Add in FIRLogger log statement
-      NSLog(@"Error fetching fresh tokens: %@", [error localizedDescription]);
-      [self signOutTester];
+      NSString *description = error.userInfo[NSLocalizedDescriptionKey]
+                                  ? error.userInfo[NSLocalizedDescriptionKey]
+                                  : @"Failed to retrieve Installation ID.";
+      completion([self NSErrorForErrorCodeAndMessage:FIRAppDistributionErrorUnknown
+                                             message:description]);
+
+      [[self uiService] resetUIState];
       return;
     }
 
-    // perform your API request using the tokens
-    NSURLSession *URLSession = [NSURLSession sharedSession];
-    NSMutableURLRequest *request = [[NSMutableURLRequest alloc] init];
-    NSString *URLString =
-        [NSString stringWithFormat:kReleasesEndpointURL, [[FIRApp defaultApp] options].googleAppID];
-    [request setURL:[NSURL URLWithString:URLString]];
-    [request setHTTPMethod:@"GET"];
-    [request setValue:[NSString stringWithFormat:@"Bearer %@", accessToken]
-        forHTTPHeaderField:@"Authorization"];
+    NSString *requestURL = [NSString
+        stringWithFormat:@"https://appdistribution.firebase.dev/nba/pub/apps/%@/"
+                         @"installations/%@/buildalerts?appName=%@",
+                         [[FIRApp defaultApp] options].googleAppID, identifier, [self getAppName]];
 
-    NSURLSessionDataTask *listReleasesDataTask = [URLSession
-        dataTaskWithRequest:request
-          completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
-            if (error) {
-              // TODO: Reformat error into error code
-              completion(nil, error);
-              return;
-            }
+    FIRFADDebugLog(@"Registration URL: %@", requestURL);
 
-            NSHTTPURLResponse *HTTPResponse = (NSHTTPURLResponse *)response;
-
-            if (HTTPResponse.statusCode == 200) {
-              [self handleReleasesAPIResponseWithData:data completion:completion];
-            } else {
-              // TODO: Handle non-200 http response
-              NSLog(@"ERROR - Non 200 service response - %@", HTTPResponse);
-              @throw([NSException exceptionWithName:@"NotImplementedException"
-                                             reason:@"This code path is not implemented yet"
-                                           userInfo:nil]);
-            }
-          }];
-
-    [listReleasesDataTask resume];
+    [[self uiService]
+        appDistributionRegistrationFlow:[[NSURL alloc] initWithString:requestURL]
+                         withCompletion:^(NSError *_Nullable error) {
+                           FIRFADInfoLog(@"Tester sign in complete.");
+                           if (error) {
+                             completion(error);
+                             return;
+                           }
+                           [self persistTesterSignInStateAndHandleCompletion:completion];
+                         }];
   }];
 }
 
-- (void)handleOauthDiscoveryCompletion:(OIDServiceConfiguration *_Nullable)configuration
-                                 error:(NSError *_Nullable)error
-       appDistributionSignInCompletion:(void (^)(NSError *_Nullable error))completion {
-  if (!configuration) {
-    // TODO: Handle when we cannot get configuration
-    NSLog(@"ERROR - Cannot discover oauth config");
-    @throw([NSException exceptionWithName:@"NotImplementedException"
-                                   reason:@"This code path is not implemented yet"
-                                 userInfo:nil]);
-    return;
-  }
+- (void)persistTesterSignInStateAndHandleCompletion:(void (^)(NSError *_Nullable error))completion {
+  [FIRFADApiService
+      fetchReleasesWithCompletion:^(NSArray *_Nullable releases, NSError *_Nullable error) {
+        if (error) {
+          FIRFADErrorLog(@"Tester Sign in persistence. Could not fetch releases with code %ld - %@",
+                         [error code], [error localizedDescription]);
+          completion([self mapFetchReleasesError:error]);
+          return;
+        }
 
-  NSString *redirectURL = [@"dev.firebase.appdistribution."
-      stringByAppendingString:[[[NSBundle mainBundle] bundleIdentifier]
-                                  stringByAppendingString:@":/launch"]];
-
-  OIDAuthorizationRequest *request = [[OIDAuthorizationRequest alloc]
-      initWithConfiguration:configuration
-                   clientId:kTesterAPIClientID
-                     scopes:@[ OIDScopeOpenID, OIDScopeProfile, kOIDScopeTesterAPI ]
-                redirectURL:[NSURL URLWithString:redirectURL]
-               responseType:OIDResponseTypeCode
-       additionalParameters:nil];
-
-  [self setupUIWindowForLogin];
-
-  void (^processAuthState)(OIDAuthState *_Nullable authState, NSError *_Nullable error) = ^void(
-      OIDAuthState *_Nullable authState, NSError *_Nullable error) {
-    self.authState = authState;
-
-    // Capture errors in persistence but do not bubble them
-    // up
-    NSError *authPersistenceError;
-    if (authState) {
-      [FIRAppDistributionAuthPersistence persistAuthState:authState error:&authPersistenceError];
-    }
-
-    // TODO (schnecle): Log errors in persistence using
-    // FIRLogger
-    if (authPersistenceError) {
-      NSLog(@"Error persisting token to keychain: %@", [error localizedDescription]);
-    }
-    self.isTesterSignedIn = self.authState ? YES : NO;
-    completion(error);
-  };
-
-  // performs authentication request
-  [FIRAppDistributionAppDelegatorInterceptor sharedInstance].currentAuthorizationFlow =
-      [OIDAuthState authStateByPresentingAuthorizationRequest:request
-                                     presentingViewController:self.safariHostingViewController
-                                                     callback:processAuthState];
+        [[GULUserDefaults standardUserDefaults] setBool:YES forKey:kFIRFADSignInStateKey];
+        completion(nil);
+      }];
 }
 
-- (void)setupUIWindowForLogin {
-  if (self.window) {
-    return;
-  }
-  // Create an empty window + viewController to host the Safari UI.
-  self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
-  self.window.rootViewController = self.safariHostingViewController;
+- (NSString *)getAppName {
+  NSBundle *mainBundle = [NSBundle mainBundle];
 
-  // Place it at the highest level within the stack.
-  self.window.windowLevel = +CGFLOAT_MAX;
+  NSString *name = [mainBundle objectForInfoDictionaryKey:@"CFBundleName"];
 
-  // Run it.
-  [self.window makeKeyAndVisible];
+  if (name)
+    return
+        [name stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet
+                                                                     URLHostAllowedCharacterSet]];
+
+  name = [mainBundle objectForInfoDictionaryKey:@"CFBundleDisplayName"];
+
+  return [name stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet
+                                                                      URLHostAllowedCharacterSet]];
 }
 
-- (void)cleanupUIWindow {
-  if (self.window) {
-    self.window.hidden = YES;
-    self.window = nil;
-  }
+- (NSString *)getAppVersion {
+  return [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
 }
 
-- (void)handleReleasesAPIResponseWithData:data
-                               completion:(FIRAppDistributionUpdateCheckCompletion)completion {
-  NSError *error = nil;
-  NSDictionary *object = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
+- (NSString *)getAppBuild {
+  return [[NSBundle mainBundle] objectForInfoDictionaryKey:(NSString *)kCFBundleVersionKey];
+}
 
-  NSArray *releaseList = [object objectForKey:@"releases"];
-  for (NSDictionary *releaseDict in releaseList) {
-    if (![[releaseDict objectForKey:@"latest"] boolValue]) continue;
+- (void)signOutTester {
+  FIRFADDebugLog(@"Tester is signed out.");
+  [[GULUserDefaults standardUserDefaults] setBool:NO forKey:kFIRFADSignInStateKey];
+}
 
-    NSString *codeHash = [releaseDict objectForKey:@"codeHash"];
-    FIRAppDistributionMachO *machO =
-        [[FIRAppDistributionMachO alloc] initWithPath:[[NSBundle mainBundle] executablePath]];
+- (NSError *)NSErrorForErrorCodeAndMessage:(FIRAppDistributionError)errorCode
+                                   message:(NSString *)message {
+  NSDictionary *userInfo = @{FIRAppDistributionErrorDetailsKey : message};
+  return [NSError errorWithDomain:FIRAppDistributionErrorDomain code:errorCode userInfo:userInfo];
+}
 
-    if (![codeHash isEqualToString:machO.codeHash]) {
-      FIRAppDistributionRelease *release =
-          [[FIRAppDistributionRelease alloc] initWithDictionary:releaseDict];
-      dispatch_async(dispatch_get_main_queue(), ^{
-        completion(release, nil);
-      });
+- (NSError *_Nullable)mapFetchReleasesError:(NSError *)error {
+  if ([error domain] == kFIRFADApiErrorDomain) {
+    FIRFADErrorLog(@"Failed to retrieve releases: %ld", (long)[error code]);
+    switch ([error code]) {
+      case FIRFADApiErrorTimeout:
+        return [self NSErrorForErrorCodeAndMessage:FIRAppDistributionErrorNetworkFailure
+                                           message:@"Failed to fetch releases due to timeout."];
+      case FIRFADApiErrorUnauthenticated:
+      case FIRFADApiErrorUnauthorized:
+      case FIRFADApiTokenGenerationFailure:
+      case FIRFADApiInstallationIdentifierError:
+      case FIRFADApiErrorNotFound:
+        return [self NSErrorForErrorCodeAndMessage:FIRAppDistributionErrorAuthenticationFailure
+                                           message:@"Could not authenticate tester"];
+      default:
+        return [self NSErrorForErrorCodeAndMessage:FIRAppDistributionErrorUnknown
+                                           message:@"Failed to fetch releases for unknown reason."];
     }
   }
+
+  FIRFADErrorLog(@"Failed to retrieve releases with unexpected domain %@: %ld", [error domain],
+                 (long)[error code]);
+  return [self NSErrorForErrorCodeAndMessage:FIRAppDistributionErrorUnknown
+                                     message:@"Failed to fetch releases for unknown reason."];
 }
-- (void)checkForUpdateWithCompletion:(FIRAppDistributionUpdateCheckCompletion)completion {
-  if (self.isTesterSignedIn) {
-    [self fetchReleases:completion];
+
+- (void)fetchNewLatestRelease:(void (^)(FIRAppDistributionRelease *_Nullable release,
+                                        NSError *_Nullable error))completion {
+  [FIRFADApiService
+      fetchReleasesWithCompletion:^(NSArray *_Nullable releases, NSError *_Nullable error) {
+        if (error) {
+          if ([error code] == FIRFADApiErrorUnauthenticated) {
+            FIRFADErrorLog(@"Tester authentication failed when fetching releases. Tester will need "
+                           @"to sign in again.");
+            [self signOutTester];
+          }
+
+          dispatch_async(dispatch_get_main_queue(), ^{
+            completion(nil, [self mapFetchReleasesError:error]);
+          });
+          return;
+        }
+
+        for (NSDictionary *releaseDict in releases) {
+          if ([[releaseDict objectForKey:kLatestReleaseKey] boolValue]) {
+            FIRFADInfoLog(@"Tester API - found latest release in response.");
+            NSString *displayVersion = [releaseDict objectForKey:kDisplayVersionKey];
+            NSString *buildVersion = [releaseDict objectForKey:kBuildVersionKey];
+
+            NSString *codeHash = [releaseDict objectForKey:kCodeHashKey];
+
+            if (![self isCurrentVersion:displayVersion buildVersion:buildVersion] ||
+                ![self isCodeHashIdentical:codeHash]) {
+              FIRAppDistributionRelease *release =
+                  [[FIRAppDistributionRelease alloc] initWithDictionary:releaseDict];
+              dispatch_async(dispatch_get_main_queue(), ^{
+                FIRFADInfoLog(@"Found new release with version: %@ (%@)", [release displayVersion],
+                              [release buildVersion]);
+                completion(release, nil);
+              });
+              return;
+            }
+          }
+        }
+
+        completion(nil, nil);
+      }];
+}
+
+- (void)checkForUpdateWithCompletion:(void (^)(FIRAppDistributionRelease *_Nullable release,
+                                               NSError *_Nullable error))completion {
+  FIRFADInfoLog(@"CheckForUpdateWithCompletion");
+  if ([self isTesterSignedIn]) {
+    [self fetchNewLatestRelease:completion];
   } else {
-    UIAlertController *alert = [UIAlertController
-        alertControllerWithTitle:@"Enable in-app alerts"
-                         message:@"Sign in with your Firebase App Distribution Google account to "
-                                 @"turn on in-app alerts for new test releases."
-                  preferredStyle:UIAlertControllerStyleAlert];
+    FIRFADUIActionCompletion actionCompletion = ^(BOOL continued) {
+      if (continued) {
+        [self signInTesterWithCompletion:^(NSError *_Nullable error) {
+          if (error) {
+            completion(nil, error);
+            return;
+          }
 
-    UIAlertAction *yesButton =
-        [UIAlertAction actionWithTitle:@"Turn on"
-                                 style:UIAlertActionStyleDefault
-                               handler:^(UIAlertAction *action) {
-                                 [self signInTesterWithCompletion:^(NSError *_Nullable error) {
-                                   if (error) {
-                                     completion(nil, error);
-                                     return;
-                                   }
+          [self fetchNewLatestRelease:completion];
+        }];
+      } else {
+        completion(
+            nil, [self NSErrorForErrorCodeAndMessage:FIRAppDistributionErrorAuthenticationCancelled
+                                             message:@"Tester cancelled authentication flow."]);
+      }
+    };
 
-                                   [self fetchReleases:completion];
-                                 }];
-                               }];
-
-    UIAlertAction *noButton = [UIAlertAction actionWithTitle:@"Not now"
-                                                       style:UIAlertActionStyleDefault
-                                                     handler:^(UIAlertAction *action) {
-                                                       // precaution to ensure window gets destroyed
-                                                       [self cleanupUIWindow];
-                                                       completion(nil, nil);
-                                                     }];
-
-    [alert addAction:noButton];
-    [alert addAction:yesButton];
-
-    // Create an empty window + viewController to host the Safari UI.
-    [self setupUIWindowForLogin];
-    [self.window.rootViewController presentViewController:alert animated:YES completion:nil];
+    [[self uiService] showUIAlertWithCompletion:actionCompletion];
   }
+}
+
+- (BOOL)isCurrentVersion:(NSString *)displayVersion buildVersion:(NSString *)buildVersion {
+  FIRFADInfoLog(@"Checking if version matches");
+  FIRFADInfoLog(@"App version: %@ (%@) Latest release version: %@ (%@)", [self getAppVersion],
+                [self getAppBuild], displayVersion, buildVersion);
+
+  return [displayVersion isEqualToString:[self getAppVersion]] &&
+         [buildVersion isEqualToString:[self getAppBuild]];
+}
+
+- (BOOL)isCodeHashIdentical:(NSString *)codeHash {
+  FIRFADInfoLog(@"Checking if code hash matches");
+
+  NSString *executablePath = [[NSBundle mainBundle] executablePath];
+  FIRAppDistributionMachO *machO = [[FIRAppDistributionMachO alloc] initWithPath:executablePath];
+
+  FIRFADInfoLog(@"App code hash: %@ Latest release code hash: %@", [machO codeHash], codeHash);
+
+  return codeHash && [codeHash isEqualToString:[machO codeHash]];
 }
 @end

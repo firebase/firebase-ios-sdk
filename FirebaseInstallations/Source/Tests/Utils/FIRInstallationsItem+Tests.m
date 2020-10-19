@@ -40,6 +40,14 @@
   return item;
 }
 
++ (FIRInstallationsItem *)createCorruptedItem {
+  FIRInstallationsItem *item = [self createRegisteredInstallationItemWithAppID:@"appID"
+                                                                       appName:kFIRDefaultAppName];
+  item.firebaseInstallationID = nil;
+
+  return item;
+}
+
 + (FIRInstallationsItem *)createRegisteredInstallationItemWithAppID:(NSString *)appID
                                                             appName:(NSString *)appName {
   FIRInstallationsItem *item = [[FIRInstallationsItem alloc] initWithAppID:appID
