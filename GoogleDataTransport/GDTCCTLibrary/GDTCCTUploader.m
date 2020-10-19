@@ -38,6 +38,9 @@ NSNotificationName const GDTCCTUploadCompleteNotification = @"com.GDTCCTUploader
 @property(nonatomic, readonly) NSOperationQueue *uploadOperationQueue;
 @property(nonatomic, readonly) dispatch_queue_t uploadQueue;
 
+@property(nonatomic, readonly)
+    NSMutableDictionary<NSNumber * /*GDTCORTarget*/, GDTCORClock *> *nextUploadTimeByTarget;
+
 @end
 
 @implementation GDTCCTUploader
@@ -65,6 +68,7 @@ NSNotificationName const GDTCCTUploadCompleteNotification = @"com.GDTCCTUploader
     _uploadQueue = dispatch_queue_create("com.google.GDTCCTUploader", DISPATCH_QUEUE_SERIAL);
     _uploadOperationQueue = [[NSOperationQueue alloc] init];
     _uploadOperationQueue.maxConcurrentOperationCount = 1;
+    _nextUploadTimeByTarget = [[NSMutableDictionary alloc] init];
   }
   return self;
 }
@@ -226,12 +230,16 @@ NSNotificationName const GDTCCTUploadCompleteNotification = @"com.GDTCCTUploader
 
 #pragma mark - GDTCCTUploadMetadataProvider
 
-// TODO: Implement
 - (nullable GDTCORClock *)nextUploadTimeForTarget:(GDTCORTarget)target {
-  return nil;
+  @synchronized(self.nextUploadTimeByTarget) {
+    return self.nextUploadTimeByTarget[@(target)];
+  }
 }
 
 - (void)setNextUploadTime:(nullable GDTCORClock *)time forTarget:(GDTCORTarget)target {
+  @synchronized(self.nextUploadTimeByTarget) {
+    self.nextUploadTimeByTarget[@(target)] = time;
+  }
 }
 
 - (nullable NSString *)APIKeyForTarget:(GDTCORTarget)target {
