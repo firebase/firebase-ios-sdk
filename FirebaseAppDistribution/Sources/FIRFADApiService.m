@@ -39,7 +39,7 @@ NSString *const kResponseReleasesKey = @"releases";
                      FIRInstallationsAuthTokenResult *_Nullable authTokenResult,
                      NSError *_Nullable error) {
     if ([self handleError:&error
-              description:@"Failed to generate Firebase Installation Auth Token."
+              description:@"Failed to generate Firebase installation auth token."
                      code:FIRFADApiTokenGenerationFailure]) {
       FIRFADErrorLog(@"Error getting fresh auth tokens. Error: %@", [error localizedDescription]);
 

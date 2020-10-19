@@ -1,7 +1,7 @@
 # Firebase Release Tools
 
-This project includes Firebase release tooling including a zip builder, a
-Firebase Pod release updater, and a manifest reader.
+This project includes Firebase release tooling including a zip builder and a
+Firebase release candidate creation tool.
 
 The tools are designed to fail fast with an explanation of what went wrong, so
 you can fix issues or dig in without having to dig too deep into the code.
@@ -71,57 +71,39 @@ Optional common arguments:
 For release engineers (Googlers packaging an upcoming Firebase release) these commands should also be used:
 -  `-customSpecRepos sso://cpdc-internal/firebase`
   - This pulls the latest podspecs from the CocoaPods staging area.
-- `-releasingSDKs <PATH_TO_current.textproto>` and
-- `-existingVersions <PATH_TO_all_firebase_ios_sdks.textproto>`
-  - Validates the version numbers fetched from CocoaPods staging against the expected released versions from these
-    textprotos.
-- `-carthageDir <PATH_TO_Firebase/CarthageScripts/json>` Turns on generation of Carthage zips and json file updates.
+- `-repoDir path` GitHub repo containing Template and Carthage json file inputs.
+- `-carthageBuild true` Turns on generation of Carthage zips and json file updates.
 - `-keepBuildArtifacts true` Useful for debugging and verifying the zip build contents.
 
 Putting them all together, here's a common command to build a releaseable Zip file:
 
 ```
-swift run ReleasePackager -templateDir $(pwd)/Template -updatePodRepo false \
--releasingSDKs <PATH_TO_current.textproto> \
--existingVersions <PATH_TO_all_firebase_ios_sdks.textproto> \
+swift run ReleasePackager -updatePodRepo true \
+-repoDir <PATH_TO_current.firebase_ios_sdk.repo> \
 -customSpecRepos sso://cpdc-internal/firebase
--carthageDir <PATH_TO_Firebase/CarthageScripts/json>
+-carthageBuild true
 -keepBuildArtifacts true
 ```
 
 ### Carthage
 
-Carthage binaries can also be built at the same time as the zip file by passing in `-carthageDir
-<path_to_json_files>` as a command line argument. This directory should contain JSON files describing versions
+Carthage binaries can also be built at the same time as the zip file by passing in `-carthageBuild
+true` as a command line argument. This directory should contain JSON files describing versions
 and download locations for each product. This will result in a folder called "carthage" at the root where the zip
 directory exists containing all the zip files and JSON files necessary for distribution.
 
-## Firebase Pod Updater
+## Firebase Releaser
 
-Updates the Firebase pod based on the release proto.
-
-Run with the following two required options like:
-
-- -releasingPods /path/to/M57.textproto
-- -gitRoot /path/to/firebase-ios-sdk
-
-### Running the Tool
-
-You can run the tool with `swift run UpdateFirebasePod [ARGS]` or generate an
-Xcode project with `swift package generate-xcodeproj` and run within Xcode.
+Provides several functions for staging a Firebase release candidate. See the internal go/firi link
+for the process documentation.
 
 ### Launch Arguments
 
 See `main.swift` and the `LaunchArgs` struct for information on specific launch arguments.
 
-You can pass in launch arguments with Xcode by clicking "UpdateFirebasePod"
+You can pass in launch arguments with Xcode by selecting the  "firebase-releaser" scheme
 beside the Run/Stop buttons, clicking "Edit
 Scheme" and adding them in the "Arguments Passed On Launch" section.
-
-## Development and Debugging
-
-You can generate an Xcode project for the tool by running `swift package generate-xcodeproj` in this directory.
-See the above instructions for adding Launch Arguments to the Xcode build.
 
 ## Development Philosophy
 
@@ -168,7 +150,3 @@ files and folders.
 ### Prefer File `URL`s over Strings
 Instead of relying on `String`s to represent file paths, use `URL`s as soon as possible to avoid any
 missed or double slashes along with other issues.
-
-## Updating protobuf generated Swift files
-- Install [Swift Protobuf](https://github.com/apple/swift-protobuf#building-and-installing-the-code-generator-plugin)
-- Run `protoc Sources/ManifestReader/*.proto  --swift_opt=Visibility=Public --swift_out=./`
