@@ -157,17 +157,19 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
                 return [storage batchWithEventSelector:eventSelector
                                        batchExpiration:[NSDate dateWithTimeIntervalSinceNow:600]];
               })
+      .validateOn(self.uploaderQueue,
+                  ^BOOL(GDTCORUploadBatch *batch) {
+                    // 5. Validate batch.
+                    return batch.batchID != nil && batch.events.count > 0;
+                  })
       .thenOn(self.uploaderQueue,
               ^FBLPromise *(GDTCORUploadBatch *batch) {
-                // 5. Perform upload URL request.
-                return [self sendURLRequestWithBatchID:batch.batchID
-                                                events:batch.events
-                                                target:target
-                                               storage:storage];
+                // 6. Perform upload URL request.
+                return [self sendURLRequestWithBatch:batch target:target storage:storage];
               })
       .thenOn(self.uploaderQueue,
               ^id(id result) {
-                // 6. Finish operation.
+                // 7. Finish operation.
                 [self finishOperation];
                 return nil;
               })
@@ -179,112 +181,81 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
 
 #pragma mark - Upload implementation details
 
-- (FBLPromise<NSNull *> *)sendURLRequestWithBatchID:(nullable NSNumber *)batchID
-                                             events:(nullable NSSet<GDTCOREvent *> *)events
-                                             target:(GDTCORTarget)target
-                                            storage:(id<GDTCORStorageProtocol>)storage {
-  // TODO: Break down upload operation on stages with promises.
-  return [FBLPromise onQueue:self.uploaderQueue
-              wrapCompletion:^(FBLPromiseCompletion _Nonnull handler) {
-                [self uploadBatchWithID:batchID
-                                 events:events
-                                 target:target
-                                storage:storage
-                             completion:handler];
-              }];
-}
+/** Sends URL request for to upload the provided batch and handles the response. */
+- (FBLPromise<NSNull *> *)sendURLRequestWithBatch:(GDTCORUploadBatch *)batch
+                                           target:(GDTCORTarget)target
+                                          storage:(id<GDTCORStoragePromiseProtocol>)storage {
+  NSNumber *batchID = batch.batchID;
 
-/** Performs URL request, handles the result and updates the uploader state. */
-- (void)uploadBatchWithID:(nullable NSNumber *)batchID
-                   events:(nullable NSSet<GDTCOREvent *> *)events
-                   target:(GDTCORTarget)target
-                  storage:(id<GDTCORStorageProtocol>)storage
-               completion:(dispatch_block_t)completion {
-  [self
-      sendURLRequestForBatchWithID:batchID
-                            events:events
-                            target:target
-                 completionHandler:^(NSNumber *_Nonnull batchID,
-                                     NSSet<GDTCOREvent *> *_Nullable events, NSData *_Nullable data,
-                                     NSURLResponse *_Nullable response, NSError *_Nullable error) {
-                   dispatch_async(self.uploaderQueue, ^{
-                     [self handleURLResponse:response
-                                        data:data
-                                       error:error
-                                      target:target
-                                     storage:storage
-                                     batchID:batchID];
-                     completion();
-                   });
-                 }];
+  // 1. Send URL request.
+  return [self sendURLRequestWithBatch:batch target:target]
+      .thenOn(
+          self.uploaderQueue,
+          ^FBLPromise<NSNull *> *(GULURLSessionDataResponse *response) {
+            // 2. Parse response and update the next upload time if can.
+            [self updateNextUploadTimeWithResponse:response forTarget:target];
+
+            // 3. Cleanup batch.
+
+            // Only retry if one of these codes is returned.
+            NSInteger statusCode = response.HTTPResponse.statusCode;
+            if (statusCode == 429 || statusCode == 503) {
+              // Move the events back to the main storage to be uploaded on the next attempt.
+              return [storage removeBatchWithID:batchID deleteEvents:NO];
+            } else {
+              if (statusCode >= 200 && statusCode <= 300) {
+                GDTCORLogDebug(@"CCT: batch %@ delivered", batchID);
+              } else {
+                GDTCORLogDebug(
+                    @"CCT: batch %@ was rejected by the server and will be deleted with all events",
+                    batchID);
+              }
+
+              // The events are either delivered or unrecoverable broken, so remove the batch with
+              // events.
+              return [storage removeBatchWithID:batch.batchID deleteEvents:YES];
+            }
+          })
+      .recoverOn(self.uploaderQueue, ^id(NSError *error) {
+        // In the case of a network error move the events back to the main storage to be uploaded on
+        // the next attempt.
+        return [storage removeBatchWithID:batchID deleteEvents:NO];
+      });
 }
 
 /** Composes and sends URL request. */
-- (FBLPromise<GULURLSessionDataResponse *> *)sendURLRequestForBatchWithID:(nullable NSNumber *)batchID
-                              events:(nullable NSSet<GDTCOREvent *> *)events
-                              target:(GDTCORTarget)target {
-  return [FBLPromise onQueue:self.uploaderQueue do:^NSURLRequest * {
-    // 1. Prepare URL request.
-    NSData *requestProtoData = [self constructRequestProtoWithEvents:events];
-    NSData *gzippedData = [GDTCCTCompressionHelper gzippedData:requestProtoData];
-    BOOL usingGzipData = gzippedData != nil && gzippedData.length < requestProtoData.length;
-    NSData *dataToSend = usingGzipData ? gzippedData : requestProtoData;
-    NSURLRequest *request = [self constructRequestForTarget:target data:dataToSend];
-    GDTCORLogDebug(@"CTT: request containing %lu events created: %@", (unsigned long)events.count,
-                   request);
-    return request;
-  }]
-  .thenOn(self.uploaderQueue, ^FBLPromise<GULURLSessionDataResponse *> *(NSURLRequest *request) {
-    // 2. Send URL request.
-    return [self.uploaderSession gul_dataTaskPromiseWithRequest:request];
-  });
+- (FBLPromise<GULURLSessionDataResponse *> *)sendURLRequestWithBatch:(GDTCORUploadBatch *)batch
+                                                              target:(GDTCORTarget)target {
+  return [FBLPromise
+             onQueue:self.uploaderQueue
+                  do:^NSURLRequest * {
+                    // 1. Prepare URL request.
+                    NSData *requestProtoData = [self constructRequestProtoWithEvents:batch.events];
+                    NSData *gzippedData = [GDTCCTCompressionHelper gzippedData:requestProtoData];
+                    BOOL usingGzipData =
+                        gzippedData != nil && gzippedData.length < requestProtoData.length;
+                    NSData *dataToSend = usingGzipData ? gzippedData : requestProtoData;
+                    NSURLRequest *request = [self constructRequestForTarget:target data:dataToSend];
+                    GDTCORLogDebug(@"CTT: request containing %lu events for batch: %@ for target: "
+                                   @"%ld created: %@",
+                                   (unsigned long)batch.events.count, batch.batchID, (long)target,
+                                   request);
+                    return request;
+                  }]
+      .thenOn(self.uploaderQueue,
+              ^FBLPromise<GULURLSessionDataResponse *> *(NSURLRequest *request) {
+                // 2. Send URL request.
+                return [self.uploaderSession gul_dataTaskPromiseWithRequest:request];
+              });
 }
 
-/** Validates events and sends URL request and calls completion with the result. Modifies uploading
- * state in the case of the failure.*/
-- (void)sendURLRequestForBatchWithID:(nullable NSNumber *)batchID
-                              events:(nullable NSSet<GDTCOREvent *> *)events
-                              target:(GDTCORTarget)target
-                   completionHandler:(GDTCCTUploaderURLTaskCompletion)completionHandler {
-  dispatch_async(self.uploaderQueue, ^{
-    NSData *requestProtoData = [self constructRequestProtoWithEvents:events];
-    NSData *gzippedData = [GDTCCTCompressionHelper gzippedData:requestProtoData];
-    BOOL usingGzipData = gzippedData != nil && gzippedData.length < requestProtoData.length;
-    NSData *dataToSend = usingGzipData ? gzippedData : requestProtoData;
-    NSURLRequest *request = [self constructRequestForTarget:target data:dataToSend];
-    GDTCORLogDebug(@"CTT: request containing %lu events created: %@", (unsigned long)events.count,
-                   request);
-    NSSet<GDTCOREvent *> *eventsForDebug;
-#if !NDEBUG
-    eventsForDebug = events;
-#endif
-    self.currentTask = [self.uploaderSession
-        uploadTaskWithRequest:request
-                     fromData:dataToSend
-            completionHandler:^(NSData *_Nullable data, NSURLResponse *_Nullable response,
-                                NSError *_Nullable error) {
-              completionHandler(batchID, eventsForDebug, data, response, error);
-            }];
-    GDTCORLogDebug(@"%@", @"CCT: The upload task is about to begin.");
-    [self.currentTask resume];
-  });
-}
-
-/** Handles URL request response. */
-- (void)handleURLResponse:(nullable NSURLResponse *)response
-                     data:(nullable NSData *)data
-                    error:(nullable NSError *)error
-                   target:(GDTCORTarget)target
-                  storage:(id<GDTCORStorageProtocol>)storage
-                  batchID:(NSNumber *)batchID {
-  GDTCORLogDebug(@"%@", @"CCT: request completed");
-  if (error) {
-    GDTCORLogWarning(GDTCORMCWUploadFailed, @"There was an error uploading events: %@", error);
-  }
-  NSError *decodingError;
+/** Parses server response and update next upload time for the specified target based on it. */
+- (void)updateNextUploadTimeWithResponse:(GULURLSessionDataResponse *)response
+                               forTarget:(GDTCORTarget)target {
   GDTCORClock *futureUploadTime;
-  if (data) {
-    gdt_cct_LogResponse logResponse = GDTCCTDecodeLogResponse(data, &decodingError);
+  if (response.HTTPBody) {
+    NSError *decodingError;
+    gdt_cct_LogResponse logResponse = GDTCCTDecodeLogResponse(response.HTTPBody, &decodingError);
     if (!decodingError && logResponse.has_next_request_wait_millis) {
       GDTCORLogDebug(@"CCT: The backend responded asking to not upload for %lld millis from now.",
                      logResponse.next_request_wait_millis);
@@ -295,6 +266,7 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
     }
     pb_release(gdt_cct_LogResponse_fields, &logResponse);
   }
+
   if (!futureUploadTime) {
     GDTCORLogDebug(@"%@", @"CCT: The backend response failed to parse, so the next request "
                           @"won't occur until 15 minutes from now");
@@ -303,18 +275,6 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
   }
 
   [self.metadataProvider setNextUploadTime:futureUploadTime forTarget:target];
-
-  // Only retry if one of these codes is returned, or there was an error.
-  if (error || ((NSHTTPURLResponse *)response).statusCode == 429 ||
-      ((NSHTTPURLResponse *)response).statusCode == 503) {
-    // Move the events back to the main storage to be uploaded on the next attempt.
-    [storage removeBatchWithID:batchID deleteEvents:NO onComplete:nil];
-  } else {
-    GDTCORLogDebug(@"%@", @"CCT: package delivered");
-    [storage removeBatchWithID:batchID deleteEvents:YES onComplete:nil];
-  }
-
-  self.currentTask = nil;
 }
 
 #pragma mark - Private helper methods
@@ -370,9 +330,14 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
 
   // Check next upload time for the target.
   BOOL isAfterNextUploadTime = YES;
-  GDTCORClock *nextUploadTime = [self.metadataProvider nextUploadTimeForTarget:target];
-  if (nextUploadTime) {
-    isAfterNextUploadTime = [[GDTCORClock snapshot] isAfter:nextUploadTime];
+
+  // TODO: Should other targets respect the next upload time as well?
+  // Only kGDTCORTargetCCT and kGDTCORTargetFLL respect next upload time now.
+  if (target == kGDTCORTargetCCT || target == kGDTCORTargetFLL) {
+    GDTCORClock *nextUploadTime = [self.metadataProvider nextUploadTimeForTarget:target];
+    if (nextUploadTime) {
+      isAfterNextUploadTime = [[GDTCORClock snapshot] isAfter:nextUploadTime];
+    }
   }
 
   if (isAfterNextUploadTime) {
