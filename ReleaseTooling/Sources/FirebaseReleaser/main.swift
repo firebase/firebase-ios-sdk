@@ -27,6 +27,8 @@ struct FirebaseReleaser: ParsableCommand {
           transform: URL.init(fileURLWithPath:))
   var gitRoot: URL
 
+  /// Log commands only and do not make any repository or source changes.
+  /// Useful for testing and for generating the list of push commands.
   @Option(default: false,
           help: "Log without executing the shell commands")
   var logOnly: Bool
