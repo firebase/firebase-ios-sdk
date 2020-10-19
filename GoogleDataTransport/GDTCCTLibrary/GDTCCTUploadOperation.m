@@ -61,9 +61,6 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
 
 @interface GDTCCTUploadOperation () <NSURLSessionDelegate>
 
-/// Redeclared as readwrite.
-@property(nullable, nonatomic, readwrite) NSURLSessionUploadTask *currentTask;
-
 @property(nonatomic, readonly) GDTCORTarget target;
 @property(nonatomic, readonly) GDTCORUploadConditions conditions;
 @property(nonatomic, readonly) NSURL *uploadURL;
