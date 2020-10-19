@@ -15,6 +15,7 @@
  */
 
 #import <FirebaseFirestore/FIRFirestore.h>
+#import <FirebaseFirestore/FIRFirestoreSettings.h>
 
 #import <XCTest/XCTest.h>
 
@@ -71,7 +72,7 @@ namespace testutil = firebase::firestore::testutil;
 
   [firestore useEmulatorWithHost:@"localhost" port:1000];
 
-  NSString *host = [firestore valueForKeyPath:@"settings.host"];
+  NSString *host = firestore.settings.host;
   XCTAssertEqualObjects(host, @"localhost:1000");
 }
 
