@@ -3,10 +3,10 @@ name: zip
 on:
   pull_request:
     paths:
-    - 'ZipBuilder/**'
+    - 'ReleaseTooling/**'
     - '.github/workflows/zip.yml'
     # Don't run based on any markdown only changes.
-    - '!ZipBuilder/*.md'
+    - '!ReleaseTooling/*.md'
   schedule:
     # Run every day at midnight(PST) - cron uses UTC times
     - cron:  '0 8 * * *'
@@ -20,7 +20,7 @@ jobs:
     - uses: actions/checkout@v2
     - name: Build
       run: |
-        cd ZipBuilder
+        cd ReleaseTooling
         swift build -v
 
   package:

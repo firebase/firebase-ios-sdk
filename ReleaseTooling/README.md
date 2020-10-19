@@ -21,7 +21,7 @@ In order to build the Zip file, you will need:
 
 ### Running the Tool
 
-You can run the tool with `swift run ReleasePackager [ARGS]` or generate an Xcode project with
+You can run the tool with `swift run zip-builder [ARGS]` or generate an Xcode project with
 `swift package generate-xcodeproj` and run within Xcode.
 
 Since Apple does not support linking libraries built by future Xcode versions, make sure to builid with the
@@ -32,12 +32,12 @@ for that version. Check with `xcodebuild -version`.
 
 See `main.swift` and the `LaunchArgs` struct for information on specific launch arguments.
 
-You can pass in launch arguments with Xcode by clicking "ZipBuilder" beside the Run/Stop buttons, clicking "Edit
+You can pass in launch arguments with Xcode by clicking "zip-builder" beside the Run/Stop buttons, clicking "Edit
 Scheme" and adding them in the "Arguments Passed On Launch" section.
 
 #### Common Arguments
 
-These arguments assume you're running the command from the `ZipBuilder` directory.
+These arguments assume you're running the command from the `ReleaseTooling` directory.
 
 **Required** arguments:
 - `-templateDir $(pwd)/Template`
@@ -78,7 +78,7 @@ For release engineers (Googlers packaging an upcoming Firebase release) these co
 Putting them all together, here's a common command to build a releaseable Zip file:
 
 ```
-swift run ReleasePackager -updatePodRepo true \
+swift run zip-builder -updatePodRepo true \
 -repoDir <PATH_TO_current.firebase_ios_sdk.repo> \
 -customSpecRepos sso://cpdc-internal/firebase
 -carthageBuild true
