@@ -39,10 +39,6 @@ Scheme" and adding them in the "Arguments Passed On Launch" section.
 
 These arguments assume you're running the command from the `ReleaseTooling` directory.
 
-**Required** arguments:
-- `-templateDir $(pwd)/Template`
-  - This should always be the same.
-
 Typical argument (all use cases except Firebase release build):
 - `-zipPods <PATH_TO.json>`
   - This is a JSON list of the pods to consolidate into a zip of binary frameworks. For example,
@@ -78,11 +74,11 @@ For release engineers (Googlers packaging an upcoming Firebase release) these co
 Putting them all together, here's a common command to build a releaseable Zip file:
 
 ```
-swift run zip-builder -updatePodRepo true \
--repoDir <PATH_TO_current.firebase_ios_sdk.repo> \
--customSpecRepos sso://cpdc-internal/firebase
--carthageBuild true
--keepBuildArtifacts true
+swift run zip-builder --update-pod-repo \
+--repo-dir <PATH_TO_current.firebase_ios_sdk.repo> \
+--custom-spec-repos sso://cpdc-internal/firebase \
+--enable-carthage-build \
+--keep-build-artifacts
 ```
 
 ### Carthage
