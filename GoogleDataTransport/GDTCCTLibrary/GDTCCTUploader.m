@@ -102,9 +102,14 @@ NSNotificationName const GDTCCTUploadCompleteNotification = @"com.GDTCCTUploader
                                             storage:storage
                                    metadataProvider:self];
 
+  GDTCORLogDebug(@"Upload operation created: %@, target: %@", uploadOperation, @(target));
+
   __weak __auto_type weakSelf = self;
   __weak GDTCCTUploadOperation *weakOperation = uploadOperation;
   uploadOperation.completionBlock = ^{
+    GDTCORLogDebug(@"Upload operation finished: %@, uploadAttempted: %@", weakOperation,
+                   @(weakOperation.uploadAttempted));
+
     // TODO: Strongify references?
     if (weakOperation.uploadAttempted) {
       // Ignore all upload requests received when the upload was in progress.
@@ -127,6 +132,8 @@ NSNotificationName const GDTCCTUploadCompleteNotification = @"com.GDTCCTUploader
   };
 
   [self.uploadOperationQueue addOperation:uploadOperation];
+  GDTCORLogDebug(@"Upload operation scheduled: %@, operation count: %@", uploadOperation,
+                 @(self.uploadOperationQueue.operationCount));
 }
 
 #pragma mark - URLs
@@ -257,7 +264,10 @@ NSNotificationName const GDTCCTUploadCompleteNotification = @"com.GDTCCTUploader
 #if !NDEBUG
 
 - (void)waitForUploadFinished:(dispatch_block_t)completion {
-  [self.uploadOperationQueue addOperationWithBlock:completion];
+  while (self.uploadOperationQueue.operationCount > 0) {
+    [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
+  }
+  completion();
 }
 
 #endif  // !NDEBUG
