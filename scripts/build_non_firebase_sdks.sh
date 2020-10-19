@@ -16,7 +16,7 @@
 
 set -ex
 
-cd "${REPO}"/ZipBuilder
+cd "${REPO}"/ReleaseTooling
 
 # This file will have non Firebase SDKs that will be built by ZipBuilder.
 ZIP_POD_JSON="non_firebase_sdk.json"
@@ -35,7 +35,7 @@ do
 done
 echo "]" >>  "${ZIP_POD_JSON}"
 mkdir -p "${REPO}"/sdk_zip
-swift run ReleasePackager -keepBuildArtifacts true -updatePodRepo true -templateDir "${REPO}"/ZipBuilder/Template -zipPods "${ZIP_POD_JSON}" -outputDir "${REPO}"/sdk_zip -buildDependencies false
+swift run zip-builder -keepBuildArtifacts true -updatePodRepo true -templateDir "${REPO}"/ReleaseTooling/Template -zipPods "${ZIP_POD_JSON}" -outputDir "${REPO}"/sdk_zip -buildDependencies false
 
 unzip -o "${REPO}"/sdk_zip/Frameworks.zip -d "${HOME}"/ios_frameworks/Firebase/
 
