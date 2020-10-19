@@ -46,9 +46,6 @@ static NSString *const kGDTCCTSupportSDKVersion = @STR(GDTCOR_VERSION);
 static NSString *const kGDTCCTSupportSDKVersion = @"UNKNOWN";
 #endif  // GDTCOR_VERSION
 
-/** */
-static NSInteger kWeekday;
-
 typedef void (^GDTCCTUploaderURLTaskCompletion)(NSNumber *batchID,
                                                 NSSet<GDTCOREvent *> *_Nullable events,
                                                 NSData *_Nullable data,
@@ -486,24 +483,6 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
                                                    eventIDs:nil
                                                  mappingIDs:nil
                                                    qosTiers:qosTiers];
-}
-
-#pragma mark - GDTCORLifecycleProtocol
-
-- (void)appWillForeground:(GDTCORApplication *)app {
-  dispatch_async(_uploaderQueue, ^{
-    NSDateComponents *dateComponents = [[NSDateComponents alloc] init];
-    NSCalendar *gregorianCalendar =
-        [[NSCalendar alloc] initWithCalendarIdentifier:NSCalendarIdentifierGregorian];
-    NSDate *date = [gregorianCalendar dateFromComponents:dateComponents];
-    kWeekday = [gregorianCalendar component:NSCalendarUnitWeekday fromDate:date];
-  });
-}
-
-- (void)appWillTerminate:(GDTCORApplication *)application {
-  dispatch_sync(_uploaderQueue, ^{
-    [self.currentTask cancel];
-  });
 }
 
 #pragma mark - NSURLSessionDelegate
