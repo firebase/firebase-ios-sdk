@@ -27,10 +27,7 @@ enum Tags {
     createTag(gitRoot: gitRoot, tag: "CocoaPods-\(manifest.version)-beta",
               deleteExistingTags: deleteExistingTags)
 
-    for pod in manifest.pods {
-      if pod.isFirebase {
-        continue
-      }
+    for pod in manifest.pods.filter({ !$0.isFirebase && $0.releasing }) {
       if !pod.name.starts(with: "Google") {
         fatalError("Unrecognized Other Pod: \(pod.name). Only Google prefix is recognized")
       }
