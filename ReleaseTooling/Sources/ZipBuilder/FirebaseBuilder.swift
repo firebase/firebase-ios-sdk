@@ -44,7 +44,7 @@ struct FirebaseBuilder {
         guard let repoDir = args.repoDir else {
           fatalError("repoDir option must be specified when building Carthage")
         }
-        let carthageJSONDir = repoDir.appendingPathComponents(["ZipBuilder", "CarthageJSON"])
+        let carthageJSONDir = repoDir.appendingPathComponents(["ReleaseTooling", "CarthageJSON"])
         carthageRoot = CarthageUtils.packageCarthageRelease(templateDir: args.templateDir,
                                                             carthageJSONDir: carthageJSONDir,
                                                             artifacts: artifacts,
