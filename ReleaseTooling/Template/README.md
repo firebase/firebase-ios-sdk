@@ -83,7 +83,7 @@ You can get samples for Firebase from https://github.com/firebase/quickstart-ios
 Note that several of the samples depend on SDKs that are not included with
 this archive; for example, FirebaseUI. For the samples that depend on SDKs not
 included in this archive, you'll need to use CocoaPods or use the
-[ZipBuilder](https://github.com/firebase/firebase-ios-sdk/tree/master/ZipBuilder)
+[ZipBuilder](https://github.com/firebase/firebase-ios-sdk/tree/master/ReleaseTooling)
 to create your own custom binary frameworks.
 
 # Versions
