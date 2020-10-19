@@ -53,7 +53,7 @@ let package = Package(
       targets: ["FirebaseFirestoreTarget"]
     ),
     .library(
-      name: "FirebaseFirestoreSwift",
+      name: "FirebaseFirestoreSwift-Beta",
       targets: ["FirebaseFirestoreSwiftTarget"]
     ),
     .library(
@@ -81,7 +81,7 @@ let package = Package(
       targets: ["FirebaseStorage"]
     ),
     .library(
-      name: "FirebaseStorageSwift",
+      name: "FirebaseStorageSwift-Beta",
       targets: ["FirebaseStorageSwift"]
     ),
 
