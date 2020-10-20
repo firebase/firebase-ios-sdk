@@ -49,6 +49,8 @@ NSString *const kFUNDefaultRegion = @"us-central1";
   NSString *_projectID;
   // The region to use for all function references.
   NSString *_region;
+  // The custom domain to use for all functions references (optional).
+  NSString *_region;
   // A serializer to encode/decode data and return values.
   FUNSerializer *_serializer;
   // A factory for getting the metadata to include with function calls.
@@ -96,33 +98,43 @@ NSString *const kFUNDefaultRegion = @"us-central1";
   return [[self alloc] initWithApp:app region:kFUNDefaultRegion];
 }
 
-+ (instancetype)functionsForRegion:(NSString *)region {
-  return [[self alloc] initWithApp:[FIRApp defaultApp] region:region];
++ (instancetype)functionsForRegionOrCustomDomain:(NSString *)regionOrCustomDomain {
+  return [[self alloc] initWithApp:[FIRApp defaultApp] regionOrCustomDomain:regionOrCustomDomain];
 }
 
-+ (instancetype)functionsForApp:(FIRApp *)app region:(NSString *)region {
-  return [[self alloc] initWithApp:app region:region];
++ (instancetype)functionsForApp:(FIRApp *)app regionOrCustomDomain:(NSString *)regionOrCustomDomain {
+  return [[self alloc] initWithApp:app regionOrCustomDomain:regionOrCustomDomain];
 }
 
-- (instancetype)initWithApp:(FIRApp *)app region:(NSString *)region {
+- (instancetype)initWithApp:(FIRApp *)app regionOrCustomDomain:(NSString *)regionOrCustomDomain {
   return [self initWithProjectID:app.options.projectID
-                          region:region
+            regionOrCustomDomain:regionOrCustomDomain
                             auth:FIR_COMPONENT(FIRAuthInterop, app.container)
                        messaging:FIR_COMPONENT(FIRMessagingInterop, app.container)];
 }
 
 - (instancetype)initWithProjectID:(NSString *)projectID
-                           region:(NSString *)region
+             regionOrCustomDomain:(NSString *)regionOrCustomDomain
                              auth:(nullable id<FIRAuthInterop>)auth
                         messaging:(nullable id<FIRMessagingInterop>)messaging {
   self = [super init];
   if (self) {
-    if (!region) {
-      FUNThrowInvalidArgument(@"FIRFunctions region cannot be nil.");
+    if (!regionOrCustomDomain) {
+      FUNThrowInvalidArgument(@"FIRFunctions regionOrCustomDomain cannot be nil.");
     }
     _fetcherService = [[GTMSessionFetcherService alloc] init];
     _projectID = [projectID copy];
-    _region = [region copy];
+
+    // Use NSURL to determine if it's a region or a custom domain
+    NSURL *url = [NSURL URLWithString:regionOrCustomDomain];
+    if (url) {
+      _customDomain = [regionOrCustomDomain copy];
+      _region = [kFUNDefaultRegion copy];
+    } else {
+      _customDomain = NULL
+      _region = [regionOrCustomDomain copy]
+    }
+
     _serializer = [[FUNSerializer alloc] init];
     _contextProvider = [[FUNContextProvider alloc] initWithAuth:auth messaging:messaging];
     _emulatorOrigin = nil;
@@ -147,6 +159,9 @@ NSString *const kFUNDefaultRegion = @"us-central1";
   }
   if (_emulatorOrigin) {
     return [NSString stringWithFormat:@"%@/%@/%@/%@", _emulatorOrigin, _projectID, _region, name];
+  }
+  if (_customDomain) {
+    return [NSString stringWithFormat:@"%@/%@/", _customDomain, name];
   }
   return
       [NSString stringWithFormat:@"https://%@-%@.cloudfunctions.net/%@", _region, _projectID, name];
