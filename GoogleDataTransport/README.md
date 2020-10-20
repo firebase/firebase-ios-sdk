@@ -45,3 +45,9 @@ telemetry from Google SDKs.
 ## When adding internal code that shouldn't be easily usable on github
 
 - Consider using go/copybara-library/scrubbing#cc_scrub
+
+## Data Collection
+
+GoogleDataTransport does not collect any data unless specified by the
+developer or another library. Other Google SDKs, including Firebase,
+may use GoogleDataTransport to transmit app-related data to Google.
