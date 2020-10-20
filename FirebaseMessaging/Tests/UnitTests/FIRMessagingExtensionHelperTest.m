@@ -155,7 +155,6 @@ static NSString *const kValidImageURL =
   }
 }
 
-
 - (void)testDeliveryMetricsLogging {
   OCMStub([_mockUtilClass isAppExtension]).andReturn(YES);
   NSDictionary *fakeMessageInfo = @{@"aps" : @{}};
