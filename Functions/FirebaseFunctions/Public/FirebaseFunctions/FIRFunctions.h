@@ -48,7 +48,8 @@ NS_SWIFT_NAME(Functions)
  * Creates a Cloud Functions client with the default app and given custom domain.
  * @param customDomain A custom domain for the http trigger, such as "https://mydomain.com"
  */
-+ (instancetype)functionsForCustomDomain:(NSString *)customDomain NS_SWIFT_NAME(functions(customDomain:));
++ (instancetype)functionsForCustomDomain:(NSString *)customDomain
+    NS_SWIFT_NAME(functions(customDomain:));
 
 /**
  * Creates a Cloud Functions client with the given app and region.

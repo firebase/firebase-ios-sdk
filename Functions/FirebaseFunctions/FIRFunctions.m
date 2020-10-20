@@ -103,7 +103,9 @@ NSString *const kFUNDefaultRegion = @"us-central1";
 }
 
 + (instancetype)functionsForCustomDomain:(NSString *)customDomain {
-  return [[self alloc] initWithApp:[FIRApp defaultApp] region:kFUNDefaultRegion customDomain:customDomain];
+  return [[self alloc] initWithApp:[FIRApp defaultApp]
+                            region:kFUNDefaultRegion
+                      customDomain:customDomain];
 }
 
 + (instancetype)functionsForApp:(FIRApp *)app region:(NSString *)region {
@@ -114,7 +116,9 @@ NSString *const kFUNDefaultRegion = @"us-central1";
   return [[self alloc] initWithApp:app region:kFUNDefaultRegion customDomain:customDomain];
 }
 
-- (instancetype)initWithApp:(FIRApp *)app region:(NSString *)region customDomain:(NSString *)customDomain {
+- (instancetype)initWithApp:(FIRApp *)app
+                     region:(NSString *)region
+               customDomain:(NSString *)customDomain {
   return [self initWithProjectID:app.options.projectID
                           region:region
                     customDomain:customDomain
@@ -134,9 +138,8 @@ NSString *const kFUNDefaultRegion = @"us-central1";
     }
     _fetcherService = [[GTMSessionFetcherService alloc] init];
     _projectID = [projectID copy];
-    _region = [region copy]
-    _customDomain = [customDomain copy]
-    _serializer = [[FUNSerializer alloc] init];
+    _region = [region copy] _customDomain = [customDomain copy] _serializer =
+        [[FUNSerializer alloc] init];
     _contextProvider = [[FUNContextProvider alloc] initWithAuth:auth messaging:messaging];
     _emulatorOrigin = nil;
   }
