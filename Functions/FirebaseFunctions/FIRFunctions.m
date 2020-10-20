@@ -50,7 +50,7 @@ NSString *const kFUNDefaultRegion = @"us-central1";
   // The region to use for all function references.
   NSString *_region;
   // The custom domain to use for all functions references (optional).
-  NSString *_region;
+  NSString *_customDomain;
   // A serializer to encode/decode data and return values.
   FUNSerializer *_serializer;
   // A factory for getting the metadata to include with function calls.
