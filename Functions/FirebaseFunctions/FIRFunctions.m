@@ -62,6 +62,7 @@ NSString *const kFUNDefaultRegion = @"us-central1";
 // Re-declare this initializer here in order to attribute it as the designated initializer.
 - (instancetype)initWithProjectID:(NSString *)projectID
                            region:(NSString *)region
+                     customDomain:(NSString *)customDomain
                              auth:(nullable id<FIRAuthInterop>)auth
                         messaging:(nullable id<FIRMessagingInterop>)messaging
     NS_DESIGNATED_INITIALIZER;
@@ -91,11 +92,11 @@ NSString *const kFUNDefaultRegion = @"us-central1";
 }
 
 + (instancetype)functions {
-  return [[self alloc] initWithApp:[FIRApp defaultApp] region:kFUNDefaultRegion];
+  return [[self alloc] initWithApp:[FIRApp defaultApp] region:kFUNDefaultRegion customDomain:nil];
 }
 
 + (instancetype)functionsForApp:(FIRApp *)app {
-  return [[self alloc] initWithApp:app region:kFUNDefaultRegion];
+  return [[self alloc] initWithApp:app region:kFUNDefaultRegion customDomain:nil];
 }
 
 + (instancetype)functionsForRegion:(NSString *)region {

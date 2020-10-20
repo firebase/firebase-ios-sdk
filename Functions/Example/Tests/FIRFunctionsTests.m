@@ -17,13 +17,28 @@
 #import "Functions/FirebaseFunctions/FIRFunctions+Internal.h"
 #import "Functions/FirebaseFunctions/Public/FirebaseFunctions/FIRFunctions.h"
 
-@interface FIRFunctionsTests : XCTestCase
+@interface FIRFunctionsTests : XCTestCase {
+  FIRFunctions *_functions;
+  FIRFunctions *_functionsCustomDomain;
+}
 @end
 
 @implementation FIRFunctionsTests
 
 - (void)setUp {
   [super setUp];
+
+  _functions = [[FIRFunctions alloc] initWithProjectID:@"my-project"
+                                                region:@"my-region"
+                                          customDomain:nil
+                                                  auth:nil
+                                             messaging:nil];
+
+  _functionsCustomDomain = [[FIRFunctions alloc] initWithProjectID:@"my-project"
+                                                            region:@"my-region"
+                                                      customDomain:@"https://mydomain.com"
+                                                              auth:nil
+                                                         messaging:nil];
 }
 
 - (void)tearDown {
@@ -31,44 +46,24 @@
 }
 
 - (void)testURLWithName {
-  FIRFunctions *functions = [[FIRFunctions alloc] initWithProjectID:@"my-project"
-                                                             region:@"my-region"
-                                                       customDomain:nil
-                                                               auth:nil
-                                                          messaging:nil];
-  NSString *url = [functions URLWithName:@"my-endpoint"];
+  NSString *url = [_functions URLWithName:@"my-endpoint"];
   XCTAssertEqualObjects(@"https://my-region-my-project.cloudfunctions.net/my-endpoint", url);
 }
 
 - (void)testRegionWithEmulator {
-  FIRFunctions *functions = [[FIRFunctions alloc] initWithProjectID:@"my-project"
-                                                             region:@"my-region"
-                                                       customDomain:nil
-                                                               auth:nil
-                                                          messaging:nil];
   [functions useFunctionsEmulatorOrigin:@"http://localhost:5005"];
-  NSString *url = [functions URLWithName:@"my-endpoint"];
+  NSString *url = [_functions URLWithName:@"my-endpoint"];
   XCTAssertEqualObjects(@"http://localhost:5005/my-project/my-region/my-endpoint", url);
 }
 
 - (void)testCustomDomain {
-  FIRFunctions *functions = [[FIRFunctions alloc] initWithProjectID:@"my-project"
-                                                             region:@"my-region"
-                                                       customDomain:@"https://mydomain.com"
-                                                               auth:nil
-                                                          messaging:nil];
-  NSString *url = [functions URLWithName:@"my-endpoint"];
+  NSString *url = [_functionsCustomDomain URLWithName:@"my-endpoint"];
   XCTAssertEqualObjects(@"https://mydomain.com/my-endpoint", url);
 }
 
 - (void)testCustomDomainWithEmulator {
-  FIRFunctions *functions = [[FIRFunctions alloc] initWithProjectID:@"my-project"
-                                                             region:@"my-region"
-                                                       customDomain:@"https://mydomain.com"
-                                                               auth:nil
-                                                          messaging:nil];
   [functions useFunctionsEmulatorOrigin:@"http://localhost:5005"];
-  NSString *url = [functions URLWithName:@"my-endpoint"];
+  NSString *url = [_functionsCustomDomain URLWithName:@"my-endpoint"];
   XCTAssertEqualObjects(@"http://localhost:5005/my-project/us-central1/my-endpoint", url);
 }
 
