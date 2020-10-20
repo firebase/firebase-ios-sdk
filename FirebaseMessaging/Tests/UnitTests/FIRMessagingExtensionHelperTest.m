@@ -17,10 +17,10 @@
 #import <XCTest/XCTest.h>
 #import "OCMock.h"
 
-#import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import "FirebaseMessaging/Sources/FIRMessagingConstants.h"
 #import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessaging.h"
 #import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessagingExtensionHelper.h"
+#import "GoogleUtilities/Environment/Public/GoogleUtilities/GULAppEnvironmentUtil.h"
 
 API_AVAILABLE(macos(10.14), ios(10.0), watchos(3.0))
 typedef void (^FIRMessagingContentHandler)(UNNotificationContent *content);
@@ -122,14 +122,6 @@ static NSString *const kValidImageURL =
   }
 }
 
-- (void)testDeliveryMetricsLogging {
-  OCMStub([_mockUtilClass isAppExtension]).andReturn(YES);
-  NSDictionary *fakeMessageInfo = @{@"aps" : @{}};
-
-  [_mockExtensionHelper exportDeliveryMetricsToBigQueryWithMessageInfo:fakeMessageInfo];
-  OCMVerify([_mockExtensionHelper bundleIdentifierByRemovingLastPartFrom:[OCMArg any]]);
-}
-
 - (void)testModifyNotificationWithValidPayloadDataNoMimeType {
   if (@available(macOS 10.14, iOS 10.0, *)) {
     NSString *const kValidTestURL = @"test.jpg";
@@ -161,6 +153,15 @@ static NSString *const kValidImageURL =
     NSString *const extension = [_mockExtensionHelper fileExtensionForResponse:_mockURLResponse];
     XCTAssertTrue([extension isEqualToString:kValidMIMETypeTestExtension]);
   }
+}
+
+
+- (void)testDeliveryMetricsLogging {
+  OCMStub([_mockUtilClass isAppExtension]).andReturn(YES);
+  NSDictionary *fakeMessageInfo = @{@"aps" : @{}};
+
+  [_mockExtensionHelper exportDeliveryMetricsToBigQueryWithMessageInfo:fakeMessageInfo];
+  OCMVerify([_mockExtensionHelper bundleIdentifierByRemovingLastPartFrom:[OCMArg any]]);
 }
 @end
 
