@@ -139,8 +139,8 @@ NSString *const kFUNDefaultRegion = @"us-central1";
     }
     _fetcherService = [[GTMSessionFetcherService alloc] init];
     _projectID = [projectID copy];
-    _region = [region copy; 
-    _customDomain = [customDomain copy]; 
+    _region = [region copy;
+    _customDomain = [customDomain copy];
     _serializer = [[FUNSerializer alloc] init];
     _contextProvider = [[FUNContextProvider alloc] initWithAuth:auth messaging:messaging];
     _emulatorOrigin = nil;
