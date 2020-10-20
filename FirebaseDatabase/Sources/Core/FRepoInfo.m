@@ -25,35 +25,31 @@
 
 @implementation FRepoInfo
 
-@synthesize namespace;
-@synthesize host;
-@synthesize internalHost;
-@synthesize secure;
-@synthesize domain;
-
 - (id)initWithHost:(NSString *)aHost
-          isSecure:(bool)isSecure
-     withNamespace:(NSString *)aNamespace {
+          isSecure:(BOOL)isSecure
+     withNamespace:(NSString *)aNamespace
+      emulatedHost:(NSString *)emulatedHost {
     self = [super init];
     if (self) {
-        host = aHost;
-        domain =
-            [host containsString:@"."]
-                ? [host
+        _host = [aHost copy];
+        _emulatedHost = [emulatedHost copy];
+        _domain =
+            [_host containsString:@"."]
+                ? [_host
                       substringFromIndex:[host rangeOfString:@"."].location + 1]
-                : host;
-        secure = isSecure;
-        namespace = aNamespace;
+                : _host;
+        _secure = isSecure;
+        _namespace = aNamespace;
 
         // Get cached internal host if it exists
         NSString *internalHostKey =
-            [NSString stringWithFormat:@"firebase:host:%@", self.host];
+            [NSString stringWithFormat:@"firebase:host:%@", _host];
         NSString *cachedInternalHost = [[NSUserDefaults standardUserDefaults]
             stringForKey:internalHostKey];
         if (cachedInternalHost != nil) {
-            internalHost = cachedInternalHost;
+            _internalHost = cachedInternalHost;
         } else {
-            internalHost = self.host;
+            _internalHost = self.host;
         }
     }
     return self;
@@ -66,8 +62,8 @@
 }
 
 - (void)setInternalHost:(NSString *)newHost {
-    if (![internalHost isEqualToString:newHost]) {
-        internalHost = newHost;
+    if (![self.internalHost isEqualToString:newHost]) {
+        self.internalHost = [newHost copy];
 
         // Cache the internal host so we don't need to redirect later on
         NSString *internalHostKey =
@@ -79,7 +75,7 @@
 }
 
 - (void)clearInternalHostCache {
-    internalHost = self.host;
+    self.internalHost = self.host;
 
     // Remove the cached entry
     NSString *internalHostKey =
@@ -87,6 +83,11 @@
     NSUserDefaults *cache = [NSUserDefaults standardUserDefaults];
     [cache removeObjectForKey:internalHostKey];
     [cache synchronize];
+}
+
+- (NSString *)activeHost {
+    NSString *host = self.emulatedHost ?: self.host
+    return [host copy];
 }
 
 - (BOOL)isDemoHost {
@@ -120,8 +121,7 @@
     return url;
 }
 
-- (id)copyWithZone:(NSZone *)zone;
-{
+- (id)copyWithZone:(NSZone *)zone {
     return self; // Immutable
 }
 
@@ -134,11 +134,12 @@
 }
 
 - (BOOL)isEqual:(id)anObject {
-    if (![anObject isKindOfClass:[FRepoInfo class]])
+    if (![anObject isKindOfClass:[FRepoInfo class]]) {
         return NO;
+    }
     FRepoInfo *other = (FRepoInfo *)anObject;
     return secure == other.secure && [host isEqualToString:other.host] &&
-           [namespace isEqualToString:other.namespace];
+        [namespace isEqualToString:other.namespace];
 }
 
 @end

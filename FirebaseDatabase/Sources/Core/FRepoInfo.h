@@ -16,18 +16,29 @@
 
 #import <Foundation/Foundation.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 @interface FRepoInfo : NSObject <NSCopying>
 
-@property(nonatomic, readwrite, strong) NSString *host;
-@property(nonatomic, readonly, strong) NSString *namespace;
-@property(nonatomic, strong) NSString *internalHost;
-@property(nonatomic, readonly) bool secure;
+@property(nonatomic, readwrite, copy) NSString *emulatedHost;
+@property(nonatomic, readonly, copy) NSString *host;
+@property(nonatomic, readonly, copy) NSString *namespace;
+@property(nonatomic, readonly, copy) NSString *internalHost;
+@property(nonatomic, readonly, assign) BOOL secure;
 
-- (id)initWithHost:(NSString *)host
-          isSecure:(bool)secure
-     withNamespace:(NSString *)namespace;
+/// Returns `host`, unless `emulatedHost` is set.
+@property(nonatomic, readonly, copy) NSString *activeHost;
 
-- (NSString *)connectionURLWithLastSessionID:(NSString *)lastSessionID;
+- (instancetype)initWithHost:(NSString *)host
+                    isSecure:(BOOL)secure
+               withNamespace:(NSString *)namespace;
+
+- (instancetype)initWithHost:(NSString *)host
+                    isSecure:(BOOL)secure
+               withNamespace:(NSString *)namespace
+                emulatedHost:(NSString *_Nullable)emulatedHost NS_DESIGNATED_INITIALIZER;
+
+- (NSString *)connectionURLWithLastSessionID:(NSString *_Nullable)lastSessionID;
 - (NSString *)connectionURL;
 - (void)clearInternalHostCache;
 - (BOOL)isDemoHost;
@@ -38,3 +49,5 @@
 - (BOOL)isEqual:(id)anObject;
 
 @end
+
+NS_ASSUME_NONNULL_END
