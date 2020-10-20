@@ -27,10 +27,7 @@ enum Tags {
     createTag(gitRoot: gitRoot, tag: "CocoaPods-\(manifest.version)-beta",
               deleteExistingTags: deleteExistingTags)
 
-    for pod in manifest.pods {
-      if pod.isFirebase {
-        continue
-      }
+    for pod in manifest.pods.filter({ !$0.isFirebase && $0.releasing }) {
       if !pod.name.starts(with: "Google") {
         fatalError("Unrecognized Other Pod: \(pod.name). Only Google prefix is recognized")
       }
@@ -48,7 +45,7 @@ enum Tags {
 
   private static func createTag(gitRoot: URL, tag: String, deleteExistingTags: Bool) {
     if deleteExistingTags {
-      verifyTagsAreSafeToDelete()
+      verifyTagsAreSafeToDelete(gitRoot: gitRoot)
       Shell.executeCommand("git tag --delete \(tag)", workingDir: gitRoot)
       Shell.executeCommand("git push --delete origin \(tag)", workingDir: gitRoot)
     } else {
@@ -62,13 +59,17 @@ enum Tags {
   /// delete a tag that is being used in production.
   /// It works by checking for the existence of the corresponding Firebase podspec in the
   /// clone of https://github.com/CocoaPods/Specs
-  private static func verifyTagsAreSafeToDelete() {
+  private static func verifyTagsAreSafeToDelete(gitRoot: URL) {
     var homeDirURL: URL
     if #available(OSX 10.12, *) {
       homeDirURL = FileManager.default.homeDirectoryForCurrentUser
     } else {
       fatalError("Run on at least macOS 10.12")
     }
+
+    // Make sure that local master spec repo is up to date.
+    Shell.executeCommand("pod repo update", workingDir: gitRoot)
+
     let manifest = FirebaseManifest.shared
     let firebasePublicURL = homeDirURL.appendingPathComponents(
       [".cocoapods", "repos", "cocoapods", "Specs", "0", "3", "5", "Firebase"]

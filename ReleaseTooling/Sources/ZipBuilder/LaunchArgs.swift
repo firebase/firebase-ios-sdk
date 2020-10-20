@@ -181,8 +181,9 @@ struct LaunchArgs {
     // Get the project template directory, and fail if it doesn't exist.
     var templatePath = defaults.string(forKey: Key.templateDir.rawValue)
     if templatePath == nil, let repoDir = repoDir {
-      templatePath = repoDir.path + "/ZipBuilder/Template"
-    } else {
+      templatePath = repoDir.path + "/ReleaseTooling/Template"
+    }
+    if templatePath == nil {
       LaunchArgs.exitWithUsageAndLog("Missing required key: `\(Key.templateDir)` for the folder " +
         "containing all required files to build frameworks.")
     }
@@ -331,7 +332,7 @@ struct LaunchArgs {
     print(errorText)
 
     // Loop over all the possible keys and print their description.
-    print("Usage: `swift run ZipBuilder [ARGS]` where args are:")
+    print("Usage: `swift run zip-builder [ARGS]` where args are:")
     for option in Key.allCases {
       print("""
       -\(option.rawValue) <VALUE>

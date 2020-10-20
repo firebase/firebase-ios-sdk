@@ -20,10 +20,10 @@
 import PackageDescription
 
 let package = Package(
-  name: "ZipBuilder",
+  name: "ReleaseTooling",
   products: [
     .executable(name: "firebase-releaser", targets: ["FirebaseReleaser"]),
-    .executable(name: "ReleasePackager", targets: ["ZipBuilder"]),
+    .executable(name: "zip-builder", targets: ["ZipBuilder"]),
   ],
   dependencies: [
     .package(url: "https://github.com/apple/swift-argument-parser", .exact("0.0.1")),

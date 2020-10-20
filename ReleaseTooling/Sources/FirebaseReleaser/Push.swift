@@ -24,10 +24,7 @@ enum Push {
     let cpdcLocation = findCpdc(gitRoot: gitRoot)
     let manifest = FirebaseManifest.shared
 
-    for pod in manifest.pods {
-      if !pod.releasing {
-        continue
-      }
+    for pod in manifest.pods.filter({ $0.releasing }) {
       let warningsOK = pod.allowWarnings ? " --allow-warnings" : ""
 
       Shell.executeCommand("pod repo push --skip-tests --use-json \(warningsOK) \(cpdcLocation) " +
