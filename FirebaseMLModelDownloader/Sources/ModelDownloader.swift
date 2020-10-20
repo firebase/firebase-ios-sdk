@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import Foundation
+import FirebaseCore
 
 /// Possible errors with model downloading.
 public enum DownloadError: Error {
@@ -52,6 +53,8 @@ public enum ModelDownloadType {
 public struct ModelDownloader {
 
   let downloadURL: String = ""
+
+  
 
   func getURLString(url: String) -> URL? {
     return URL(string: url)
