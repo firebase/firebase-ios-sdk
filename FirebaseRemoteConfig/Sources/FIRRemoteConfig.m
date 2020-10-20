@@ -35,8 +35,6 @@
 NSString *const FIRRemoteConfigErrorDomain = @"com.google.remoteconfig.ErrorDomain";
 /// Remote Config Error Info End Time Seconds;
 NSString *const FIRRemoteConfigThrottledEndTimeInSecondsKey = @"error_throttled_end_time_seconds";
-/// Remote Config Developer Mode Key
-static NSString *const kRemoteConfigDeveloperKey = @"_rcn_developer";
 /// Minimum required time interval between fetch requests made to the backend.
 static NSString *const kRemoteConfigMinimumFetchIntervalKey = @"_rcn_minimum_fetch_interval";
 /// Timeout value for waiting on a fetch response.

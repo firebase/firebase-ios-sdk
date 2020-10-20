@@ -2,7 +2,6 @@
 - [changed] Remove the deprecated FCM direct channel API and Upstream send API. (#6430)
 - [changed] The `messaging:didReceiveRegistrationToken:` should be able to return a null token. Update the API parameter fcmToken to be nullable. (#5339)
 - [fixed] Fixed an issue that downloading an image failed when there's no extension in the file name but MIME type is set. (#6590)
-- [fixed] Fixed an issue that APNS token is not sent in token request when there's a delay of getting the APNS token from Apple. (#6553)
 
 # 2020-09 -- v.4.7.1
 - [added] InstanceID is deprecated, add macro to suppress deprecation warning. (#6585)

@@ -50,7 +50,7 @@ Pod::Spec.new do |s|
   s.dependency 'FirebaseCore', '~> 7.0'
   s.dependency 'FirebaseInstallations', '~> 7.0'
   s.dependency 'PromisesObjC', '~> 1.2'
-  s.dependency 'GoogleDataTransport', '~> 7.5'
+  s.dependency 'GoogleDataTransport', '~> 8.0'
   s.dependency 'nanopb', '~> 2.30906.0'
 
   s.libraries = 'c++', 'z'

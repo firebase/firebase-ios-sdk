@@ -15,6 +15,7 @@
  */
 
 import Foundation
+import Utils
 
 /// Convenience
 struct Zip {

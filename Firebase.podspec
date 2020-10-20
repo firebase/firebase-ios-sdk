@@ -31,6 +31,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
   s.default_subspec = 'Core'
 
   s.subspec 'Core' do |ss|
+    ss.ios.deployment_target = '9.0'
     ss.ios.dependency 'FirebaseAnalytics', '7.0.0'
     ss.dependency 'Firebase/CoreOnly'
   end
@@ -48,8 +49,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
         'HEADER_SEARCH_PATHS' => "$(inherited) ${PODS_ROOT}/Firebase/CoreOnly/Sources"
       }
     end
-    # Standard platforms PLUS watchOS.
-    ss.ios.deployment_target = '10.0'
+    ss.ios.deployment_target = '9.0'
     ss.osx.deployment_target = '10.12'
     ss.tvos.deployment_target = '10.0'
     ss.watchos.deployment_target = '6.0'

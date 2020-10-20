@@ -15,6 +15,7 @@
  */
 
 import Foundation
+import Utils
 
 /// Different architectures to build frameworks for.
 enum Architecture: String, CaseIterable {
@@ -513,7 +514,7 @@ struct FrameworkBuilder {
                                          moduleMapContents: moduleMapContents)
 
     var carthageFramework: URL?
-    if args.carthageDir != nil {
+    if args.carthageBuild {
       var carthageThinArchives: [Architecture: URL]
       if framework == "FirebaseCoreDiagnostics" {
         // FirebaseCoreDiagnostics needs to be built with a different ifdef for the Carthage distro.

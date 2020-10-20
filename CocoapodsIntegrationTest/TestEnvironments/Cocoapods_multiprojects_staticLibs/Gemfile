@@ -1,0 +1,6 @@
+# frozen_string_literal: true
+
+source "https://rubygems.org"
+
+# Don't allow 1.7.0.rc.1 because of https://github.com/CocoaPods/CocoaPods/issues/8765
+gem 'cocoapods', '1.10.0.rc.1'

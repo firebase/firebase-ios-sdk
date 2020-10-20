@@ -22,31 +22,26 @@ import PackageDescription
 let package = Package(
   name: "ZipBuilder",
   products: [
-    .executable(name: "firebase-pod-updater", targets: ["firebase-pod-updater"]),
+    .executable(name: "firebase-releaser", targets: ["FirebaseReleaser"]),
     .executable(name: "ReleasePackager", targets: ["ZipBuilder"]),
   ],
   dependencies: [
     .package(url: "https://github.com/apple/swift-argument-parser", .exact("0.0.1")),
-    // Keep the generated protos in sync with the version below.
-    // See https://github.com/firebase/firebase-ios-sdk/tree/master/ZipBuilder#updating-protobuf-generated-swift-files.
-    .package(url: "https://github.com/apple/swift-protobuf.git", .exact("1.7.0")),
   ],
   targets: [
     .target(
-      name: "firebase-pod-updater",
-      dependencies: ["ArgumentParser", "ManifestReader"]
-    ),
-    .target(
       name: "ZipBuilder",
-      dependencies: ["ArgumentParser", "ManifestReader"]
+      dependencies: ["ArgumentParser", "FirebaseManifest", "Utils"]
     ),
     .target(
-      name: "ManifestReader",
-      dependencies: ["SwiftProtobuf"]
+      name: "FirebaseManifest"
     ),
     .target(
-      name: "oss-manifest-generator",
-      dependencies: ["ArgumentParser", "ManifestReader"]
+      name: "FirebaseReleaser",
+      dependencies: ["ArgumentParser", "FirebaseManifest", "Utils"]
+    ),
+    .target(
+      name: "Utils"
     ),
   ]
 )
