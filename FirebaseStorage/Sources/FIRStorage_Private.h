@@ -34,21 +34,21 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * This is used by GTMSessionFetcher and translated from the user provided `maxUploadRetryTime`.
  */
-@property NSTimeInterval maxUploadRetryInterval;
+@property(assign, nonatomic) NSTimeInterval maxUploadRetryInterval;
 
 /**
  * Maximum time between retry attempts for downloads.
  *
  * This is used by GTMSessionFetcher and translated from the user provided `maxDownloadRetryTime`.
  */
-@property NSTimeInterval maxDownloadRetryInterval;
+@property(assign, nonatomic) NSTimeInterval maxDownloadRetryInterval;
 
 /**
  * Maximum time between retry attempts for any operation that is not an upload or download.
  *
  * This is used by GTMSessionFetcher and translated from the user provided `maxOperationRetryTime`.
  */
-@property NSTimeInterval maxOperationRetryInterval;
+@property(assign, nonatomic) NSTimeInterval maxOperationRetryInterval;
 
 /**
  * Enables/disables GTMSessionFetcher HTTP logging
