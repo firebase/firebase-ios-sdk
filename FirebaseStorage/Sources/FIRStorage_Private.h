@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-#import "FIRStorage.h"
-
 @class FIRApp;
 @class GTMSessionFetcherService;
 
