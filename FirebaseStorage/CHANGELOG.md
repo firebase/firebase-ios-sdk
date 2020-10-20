@@ -5,6 +5,8 @@
   that contain the "+" sign.
 - [changed] Renamed `list(withMaxResults:)` to `list(maxResults:)` in the Swift
   API.
+- [fixed] Fixed an issue that caused longer than expected timeouts for users
+  that specified custom timeouts.
 
 # 3.8.1
 - [fixed] Fixed typo in doc comments (#6485).

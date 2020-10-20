@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#import "FIRStorage.h"
+
 @class FIRApp;
 @class GTMSessionFetcherService;
 
@@ -28,6 +30,27 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, readonly) dispatch_queue_t dispatchQueue;
 
 @property(strong, nonatomic) NSString *storageBucket;
+
+/**
+ * Maximum time between retry attempts for uploads.
+ *
+ * This is used by GTMSessionFetcher and translated from the user provided `maxUploadRetryTime`.
+ */
+@property NSTimeInterval maxUploadRetryInterval;
+
+/**
+ * Maximum time between retry attempts for downloads.
+ *
+ * This is used by GTMSessionFetcher and translated from the user provided `maxDownloadRetryTime`.
+ */
+@property NSTimeInterval maxDownloadRetryInterval;
+
+/**
+ * Maximum time between retry attempts for any operation that is not an upload or download.
+ *
+ * This is used by GTMSessionFetcher and translated from the user provided `maxOperationRetryTime`.
+ */
+@property NSTimeInterval maxOperationRetryInterval;
 
 /**
  * Enables/disables GTMSessionFetcher HTTP logging
