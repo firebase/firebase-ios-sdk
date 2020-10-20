@@ -1,3 +1,6 @@
+# Unreleased
+- [fixed] Fixed an issue where symbol uploads would fail with spaces in the path, particularly in Unity builds (#6789).
+
 # v4.6.2
 
 - [changed] Improved upload-symbols conversion speed. Customers with large dSYMs should see a significant improvement in the time it takes to upload Crashlytics symbols.
