@@ -64,7 +64,7 @@ NS_SWIFT_NAME(Functions)
 /**
  * Creates a Cloud Functions client with the given app and region.
  * @param app The app for the Firebase project.
- * @param customDomain A custom domain for the http trigger, such as "https://mydomain.com" 
+ * @param customDomain A custom domain for the http trigger, such as "https://mydomain.com".
  */
 // clang-format off
 // because it incorrectly breaks this NS_SWIFT_NAME.
