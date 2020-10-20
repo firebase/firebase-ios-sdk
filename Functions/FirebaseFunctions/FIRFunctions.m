@@ -99,7 +99,7 @@ NSString *const kFUNDefaultRegion = @"us-central1";
 }
 
 + (instancetype)functionsForRegion:(NSString *)region {
-  return [[self alloc] initWithApp:[FIRApp defaultApp] region:region customDomain:NULL];
+  return [[self alloc] initWithApp:[FIRApp defaultApp] region:region customDomain:nil];
 }
 
 + (instancetype)functionsForCustomDomain:(NSString *)customDomain {
@@ -107,7 +107,7 @@ NSString *const kFUNDefaultRegion = @"us-central1";
 }
 
 + (instancetype)functionsForApp:(FIRApp *)app region:(NSString *)region {
-  return [[self alloc] initWithApp:app region:region customDomain:NULL];
+  return [[self alloc] initWithApp:app region:region customDomain:nil];
 }
 
 + (instancetype)functionsForApp:(FIRApp *)app customDomain:(NSString *)customDomain {
