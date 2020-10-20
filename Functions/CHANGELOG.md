@@ -1,5 +1,5 @@
 # v2.10.0
-- [added] Add a contstructor to set a custom domain. (#6787)
+- [added] Added a constructor to set a custom domain. (#6787)
 
 # v2.9.0
 - [changed] Weak dependency on Instance ID replaced by Firebase Messaging. (#6395)
