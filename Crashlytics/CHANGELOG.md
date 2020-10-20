@@ -1,5 +1,5 @@
 # Unreleased
-- [fixed] Fixed an issue where symbol uploads would fail with spaces in the path, particularly in Unity builds (#6789).
+- [fixed] Fixed an issue where symbol uploads would fail when there are spaces in the project path, particularly in Unity builds (#6789).
 
 # v4.6.2
 
