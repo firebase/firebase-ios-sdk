@@ -99,30 +99,32 @@ NSString *const kFUNDefaultRegion = @"us-central1";
 }
 
 + (instancetype)functionsForRegion:(NSString *)region {
-  return [[self alloc] initWithApp:[FIRApp defaultApp] regionOrCustomDomain:regionOrCustomDomain];
+  return [[self alloc] initWithApp:[FIRApp defaultApp] region:region customDomain:NULL];
 }
 
-+ (instancetype)functionsForRegionOrCustomDomain:(NSString *)regionOrCustomDomain {
-  return [[self alloc] initWithApp:[FIRApp defaultApp] regionOrCustomDomain:regionOrCustomDomain];
++ (instancetype)functionsForCustomDomain:(NSString *)customDomain {
+  return [[self alloc] initWithApp:[FIRApp defaultApp] region:NULL customDomain:customDomain];
 }
 
 + (instancetype)functionsForApp:(FIRApp *)app region:(NSString *)region {
-  return [[self alloc] initWithApp:app regionOrCustomDomain:regionOrCustomDomain];
+  return [[self alloc] initWithApp:app region:region customDomain:NULL];
 }
 
-+ (instancetype)functionsForApp:(FIRApp *)app regionOrCustomDomain:(NSString *)regionOrCustomDomain {
-  return [[self alloc] initWithApp:app regionOrCustomDomain:regionOrCustomDomain];
++ (instancetype)functionsForApp:(FIRApp *)app customDomain:(NSString *)customDomain {
+  return [[self alloc] initWithApp:app customDomain:customDomain];
 }
 
-- (instancetype)initWithApp:(FIRApp *)app regionOrCustomDomain:(NSString *)regionOrCustomDomain {
+- (instancetype)initWithApp:(FIRApp *)app region:(NSString *)region customDomain:(NSString *)customDomain {
   return [self initWithProjectID:app.options.projectID
-            regionOrCustomDomain:regionOrCustomDomain
+                          region:region
+                    customDomain:customDomain
                             auth:FIR_COMPONENT(FIRAuthInterop, app.container)
                        messaging:FIR_COMPONENT(FIRMessagingInterop, app.container)];
 }
 
 - (instancetype)initWithProjectID:(NSString *)projectID
-             regionOrCustomDomain:(NSString *)regionOrCustomDomain
+                           region:(NSString *)region
+                     customDomain:(NSString *)customDomain
                              auth:(nullable id<FIRAuthInterop>)auth
                         messaging:(nullable id<FIRMessagingInterop>)messaging {
   self = [super init];
@@ -132,17 +134,12 @@ NSString *const kFUNDefaultRegion = @"us-central1";
     }
     _fetcherService = [[GTMSessionFetcherService alloc] init];
     _projectID = [projectID copy];
-
-    // Use NSURL to determine if it's a region or a custom domain
-    NSURL *url = [NSURL URLWithString:regionOrCustomDomain];
-    if (url) {
-      _customDomain = [regionOrCustomDomain copy];
-      _region = [kFUNDefaultRegion copy];
+    if (region) {
+      _region = [region copy]
     } else {
-      _customDomain = NULL
-      _region = [regionOrCustomDomain copy]
+      _region = [kFUNDefaultRegion copy]
     }
-
+    _customDomain = [customDomain copy]
     _serializer = [[FUNSerializer alloc] init];
     _contextProvider = [[FUNContextProvider alloc] initWithAuth:auth messaging:messaging];
     _emulatorOrigin = nil;

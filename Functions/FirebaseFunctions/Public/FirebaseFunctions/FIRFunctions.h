@@ -40,17 +40,15 @@ NS_SWIFT_NAME(Functions)
 
 /**
  * Creates a Cloud Functions client with the default app and given region.
- * @param region the region for the http trigger, such as "us-central1"
+ * @param region The region for the http trigger, such as "us-central1"
  */
-+ (instancetype)functionsForRegion:(NSString *)region;
++ (instancetype)functionsForRegion:(NSString *)region NS_SWIFT_NAME(functions(region:));
 
 /**
- * Creates a Cloud Functions client with the default app and given region.
- * @param regionOrCustomDomain One of
- *   a) The region for the http trigger, such as "us-central1"
- *   b) A custom domain for the http trigger, such as "https://mydomain.com"
+ * Creates a Cloud Functions client with the default app and given custom domain.
+ * @param customDomain A custom domain for the http trigger, such as "https://mydomain.com"
  */
-+ (instancetype)functionsForRegionOrCustomDomain:(NSString *)regionOrCustomDomain NS_SWIFT_NAME(functions(regionOrCustomDomain:));
++ (instancetype)functionsForCustomDomain:(NSString *)customDomain NS_SWIFT_NAME(functions(customDomain:));
 
 /**
  * Creates a Cloud Functions client with the given app and region.
@@ -65,14 +63,12 @@ NS_SWIFT_NAME(Functions)
 /**
  * Creates a Cloud Functions client with the given app and region.
  * @param app The app for the Firebase project.
- * @param regionOrCustomDomain One of
- *   a) The region for the http trigger, such as "us-central1"
- *   b) A custom domain for the http trigger, such as "https://mydomain.com" 
+ * @param customdomain A custom domain for the http trigger, such as "https://mydomain.com" 
  */
 // clang-format off
 // because it incorrectly breaks this NS_SWIFT_NAME.
 + (instancetype)functionsForApp:(FIRApp *)app
-                         regionOrCustomDomain:(NSString *)regionOrCustomDomain NS_SWIFT_NAME(functions(app:regionOrCustomDomain:));
+                   customDomain:(NSString *)customDomain NS_SWIFT_NAME(functions(app:customDomain:));
 // clang-format on
 
 /**
