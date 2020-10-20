@@ -22,11 +22,11 @@
 #import <UIKit/UIKit.h>
 #endif
 
+#import <GoogleUtilities/GULAppDelegateSwizzler.h>
+#import <GoogleUtilities/GULAppEnvironmentUtil.h>
+#import <GoogleUtilities/GULSceneDelegateSwizzler.h>
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FirebaseAuth.h"
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
-#import "GoogleUtilities/AppDelegateSwizzler/Private/GULAppDelegateSwizzler.h"
-#import "GoogleUtilities/Environment/Private/GULAppEnvironmentUtil.h"
-#import "GoogleUtilities/SceneDelegateSwizzler/Private/GULSceneDelegateSwizzler.h"
 
 #import "FirebaseAuth/Sources/Auth/FIRAuthDataResult_Internal.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuthDispatcher.h"
@@ -80,6 +80,9 @@
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
+
+#pragma mark-- Logger Service String.
+FIRLoggerService kFIRLoggerAuth = @"[Firebase/Auth]";
 
 #pragma mark - Constants
 
@@ -203,15 +206,6 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 @end
 
 @implementation FIRActionCodeInfo
-
-- (NSString *)dataForKey:(FIRActionDataKey)key {
-  switch (key) {
-    case FIRActionCodeEmailKey:
-      return self.email;
-    case FIRActionCodeFromEmailKey:
-      return self.previousEmail;
-  }
-}
 
 - (instancetype)initWithOperation:(FIRActionCodeOperation)operation
                             email:(NSString *)email
@@ -429,9 +423,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 }
 
 + (void)load {
-  [FIRApp registerInternalLibrary:(Class<FIRLibrary>)self
-                         withName:@"fire-auth"
-                      withVersion:[NSString stringWithUTF8String:FirebaseAuthVersionStr]];
+  [FIRApp registerInternalLibrary:(Class<FIRLibrary>)self withName:@"fire-auth"];
 }
 
 + (void)initialize {
@@ -587,25 +579,6 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     result = self->_currentUser;
   });
   return result;
-}
-
-- (void)fetchProvidersForEmail:(NSString *)email
-                    completion:(nullable FIRProviderQueryCallback)completion {
-  dispatch_async(FIRAuthGlobalWorkQueue(), ^{
-    FIRCreateAuthURIRequest *request =
-        [[FIRCreateAuthURIRequest alloc] initWithIdentifier:email
-                                                continueURI:@"http://www.google.com/"
-                                       requestConfiguration:self->_requestConfiguration];
-    [FIRAuthBackend
-        createAuthURI:request
-             callback:^(FIRCreateAuthURIResponse *_Nullable response, NSError *_Nullable error) {
-               if (completion) {
-                 dispatch_async(dispatch_get_main_queue(), ^{
-                   completion(response.allProviders, error);
-                 });
-               }
-             }];
-  });
 }
 
 - (void)signInWithProvider:(id<FIRFederatedAuthProvider>)provider
@@ -858,16 +831,8 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
              }];
 }
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 - (void)signInWithCredential:(FIRAuthCredential *)credential
                   completion:(nullable FIRAuthDataResultCallback)completion {
-  [self signInAndRetrieveDataWithCredential:credential completion:completion];
-}
-#pragma clang diagnostic pop
-
-- (void)signInAndRetrieveDataWithCredential:(FIRAuthCredential *)credential
-                                 completion:(nullable FIRAuthDataResultCallback)completion {
   dispatch_async(FIRAuthGlobalWorkQueue(), ^{
     FIRAuthDataResultCallback callback =
         [self signInFlowAuthDataResultCallbackByDecoratingCallback:completion];

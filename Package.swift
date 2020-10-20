@@ -22,15 +22,15 @@
 
 import PackageDescription
 
-let firebaseVersion = "6.32.0"
+let firebaseVersion = "7.0.0"
 
 let package = Package(
   name: "Firebase",
-  platforms: [.iOS(.v9), .macOS(.v10_11), .tvOS(.v10)],
+  platforms: [.iOS(.v10), .macOS(.v10_12), .tvOS(.v10), .watchOS(.v6)],
   products: [
     .library(
       name: "FirebaseAnalytics",
-      targets: ["FirebaseAnalyticsWrapper"]
+      targets: ["FirebaseAnalyticsTarget"]
     ),
     .library(
       name: "FirebaseAuth",
@@ -42,39 +42,39 @@ let package = Package(
     ),
     .library(
       name: "FirebaseDatabase",
-      targets: ["FirebaseDatabase"]
+      targets: ["FirebaseDatabaseTarget"]
     ),
     .library(
       name: "FirebaseDynamicLinks",
-      targets: ["FirebaseDynamicLinks"]
+      targets: ["FirebaseDynamicLinksTarget"]
     ),
     .library(
       name: "FirebaseFirestore",
-      targets: ["FirebaseFirestore"]
+      targets: ["FirebaseFirestoreTarget"]
     ),
     .library(
       name: "FirebaseFirestoreSwift",
-      targets: ["FirebaseFirestoreSwift"]
+      targets: ["FirebaseFirestoreSwiftTarget"]
     ),
     .library(
       name: "FirebaseFunctions",
-      targets: ["FirebaseFunctions"]
+      targets: ["FirebaseFunctionsTarget"]
     ),
     .library(
       name: "FirebaseInAppMessaging-Beta",
-      targets: ["FirebaseInAppMessaging"]
+      targets: ["FirebaseInAppMessagingTarget"]
     ),
     .library(
       name: "FirebaseInstallations",
       targets: ["FirebaseInstallations"]
     ),
-    // .library(
-    //   name: "FirebaseInstanceID",
-    //   targets: ["FirebaseInstanceID"]
-    // ),
+    .library(
+      name: "FirebaseMessaging",
+      targets: ["FirebaseMessaging"]
+    ),
     .library(
       name: "FirebaseRemoteConfig",
-      targets: ["FirebaseRemoteConfig"]
+      targets: ["FirebaseRemoteConfigTarget"]
     ),
     .library(
       name: "FirebaseStorage",
@@ -106,13 +106,13 @@ let package = Package(
     ),
     .package(
       name: "abseil",
-      url: "https://github.com/firebase/abseil-cpp.git",
-      .revision("8ddf129163673642a339d7980327bcb2c117a28e")
+      url: "https://github.com/firebase/abseil-cpp-SwiftPM.git",
+      .revision("05d8107f2971a37e6c77245b7c4c6b0a7e97bc99")
     ),
     .package(
       name: "gRPC",
-      url: "https://github.com/firebase/grpc.git",
-      .revision("b22bc5256665ff2f1763505631df0ee60378b083")
+      url: "https://github.com/firebase/grpc-SwiftPM.git",
+      .revision("5bb2669317ae2183f4cb00c675423af1924f0b46")
     ),
     .package(
       name: "OCMock",
@@ -145,7 +145,6 @@ let package = Package(
       publicHeadersPath: "Public",
       cSettings: [
         .headerSearchPath("../.."),
-        .define("FIRCore_VERSION", to: firebaseVersion),
         .define("Firebase_VERSION", to: firebaseVersion),
         // TODO: - Add support for cflags cSetting so that we can set the -fno-autolink option
       ],
@@ -156,7 +155,7 @@ let package = Package(
     ),
     .testTarget(
       name: "CoreUnit",
-      dependencies: ["FirebaseCore", "OCMock"],
+      dependencies: ["FirebaseCore", "SharedTestUtilities", "OCMock"],
       path: "FirebaseCore/Tests/Unit",
       exclude: ["Resources/GoogleService-Info.plist"],
       cSettings: [
@@ -187,7 +186,6 @@ let package = Package(
       publicHeadersPath: "Public",
       cSettings: [
         .headerSearchPath("../../"),
-        .define("FIRABTesting_VERSION", to: firebaseVersion),
       ]
     ),
     .testTarget(
@@ -199,6 +197,14 @@ let package = Package(
         .headerSearchPath("../../.."),
       ]
     ),
+
+    .target(
+      name: "FirebaseAnalyticsTarget",
+      dependencies: [.target(name: "FirebaseAnalyticsWrapper",
+                             condition: .when(platforms: [.iOS]))],
+      path: "SwiftPM-PlatformExclude/FirebaseAnalyticsWrap"
+    ),
+
     .target(
       name: "FirebaseAnalyticsWrapper",
       dependencies: [
@@ -214,7 +220,6 @@ let package = Package(
         .product(name: "nanopb", package: "nanopb"),
       ],
       path: "FirebaseAnalyticsWrapper",
-      publicHeadersPath: "Public",
       linkerSettings: [
         .linkedLibrary("sqlite3"),
         .linkedLibrary("c++"),
@@ -224,19 +229,20 @@ let package = Package(
     ),
     .binaryTarget(
       name: "FirebaseAnalytics",
-      url: "https://dl.google.com/firebase/ios/swiftpm/6.32.1/FirebaseAnalytics.zip",
-      checksum: "125c37be61cf83162de34bfc73e5526f995bf9d40e9dcac896f024c333aa9b93"
+      url: "https://dl.google.com/firebase/ios/swiftpm/6.34.0/FirebaseAnalytics.zip",
+      checksum: "48aee46798b06ab4dbe6241541ba21ebdfe449e343c34a07845a67b6b328c4e2"
     ),
     .binaryTarget(
       name: "FIRAnalyticsConnector",
-      url: "https://dl.google.com/firebase/ios/swiftpm/6.32.1/FIRAnalyticsConnector.zip",
-      checksum: "d09f1655c5e4a382176ee1a447c2fa016123e9d7b2427a3223c8cb62ce89bc7d"
+      url: "https://dl.google.com/firebase/ios/swiftpm/6.34.0/FIRAnalyticsConnector.zip",
+      checksum: "b3818c2cac2f2f780eacf33ace7bd1632b477060670a21ca3d1b423991c08ca1"
     ),
     .binaryTarget(
       name: "GoogleAppMeasurement",
-      url: "https://dl.google.com/firebase/ios/swiftpm/6.32.1/GoogleAppMeasurement.zip",
-      checksum: "0a20a3766109690c692f6488adb733d3f41901bf74f57fd2f63cb260a265a938"
+      url: "https://dl.google.com/firebase/ios/swiftpm/6.34.0/GoogleAppMeasurement.zip",
+      checksum: "05f6d2da2aa072781826be135498c6e1730ed43519c2232e01c5f043f5fe7189"
     ),
+
     .target(
       name: "FirebaseAuth",
       dependencies: ["FirebaseCore",
@@ -247,8 +253,6 @@ let package = Package(
       publicHeadersPath: "Public",
       cSettings: [
         .headerSearchPath("../../"),
-        .define("FIRAuth_VERSION", to: firebaseVersion),
-        .define("FIRAuth_MINOR_VERSION", to: "1.1"), // TODO: Fix version
       ],
       linkerSettings: [
         .linkedFramework("Security"),
@@ -300,14 +304,22 @@ let package = Package(
         .define("CLS_SDK_NAME", to: "Crashlytics iOS SDK", .when(platforms: .some([.iOS]))),
         .define("CLS_SDK_NAME", to: "Crashlytics macOS SDK", .when(platforms: .some([.macOS]))),
         .define("CLS_SDK_NAME", to: "Crashlytics tvOS SDK", .when(platforms: .some([.tvOS]))),
+        .define("CLS_SDK_NAME", to: "Crashlytics watchOS SDK", .when(platforms: .some([.watchOS]))),
         .define("PB_FIELD_32BIT", to: "1"),
         .define("PB_NO_PACKED_STRUCTS", to: "1"),
         .define("PB_ENABLE_MALLOC", to: "1"),
       ],
       linkerSettings: [
         .linkedFramework("Security"),
-        .linkedFramework("SystemConfiguration"),
+        .linkedFramework("SystemConfiguration", .when(platforms: .some([.iOS, .macOS, .tvOS]))),
       ]
+    ),
+
+    .target(
+      name: "FirebaseDatabaseTarget",
+      dependencies: [.target(name: "FirebaseDatabase",
+                             condition: .when(platforms: [.iOS, .tvOS, .macOS]))],
+      path: "SwiftPM-PlatformExclude/FirebaseDatabaseWrap"
     ),
 
     .target(
@@ -326,12 +338,11 @@ let package = Package(
       publicHeadersPath: "Public",
       cSettings: [
         .headerSearchPath("../../"),
-        .define("FIRDatabase_VERSION", to: firebaseVersion),
       ],
       linkerSettings: [
         .linkedFramework("CFNetwork"),
         .linkedFramework("Security"),
-        .linkedFramework("SystemConfiguration"),
+        .linkedFramework("SystemConfiguration", .when(platforms: .some([.iOS, .macOS, .tvOS]))),
       ]
     ),
     .testTarget(
@@ -348,6 +359,13 @@ let package = Package(
     ),
 
     .target(
+      name: "FirebaseDynamicLinksTarget",
+      dependencies: [.target(name: "FirebaseDynamicLinks",
+                             condition: .when(platforms: [.iOS]))],
+      path: "SwiftPM-PlatformExclude/FirebaseDynamicLinksWrap"
+    ),
+
+    .target(
       name: "FirebaseDynamicLinks",
       dependencies: ["FirebaseCore"],
       path: "FirebaseDynamicLinks/Sources",
@@ -356,11 +374,17 @@ let package = Package(
         .headerSearchPath("../../"),
         .define("FIRDynamicLinks3P", to: "1"),
         .define("GIN_SCION_LOGGING", to: "1"),
-        .define("FIRDynamicLinks_VERSION", to: firebaseVersion),
       ],
       linkerSettings: [
         .linkedFramework("QuartzCore"),
       ]
+    ),
+
+    .target(
+      name: "FirebaseFirestoreTarget",
+      dependencies: [.target(name: "FirebaseFirestore",
+                             condition: .when(platforms: [.iOS, .tvOS, .macOS]))],
+      path: "SwiftPM-PlatformExclude/FirebaseFirestoreWrap"
     ),
 
     .target(
@@ -414,19 +438,26 @@ let package = Package(
         .headerSearchPath("../"),
         .headerSearchPath("Source/Public/FirebaseFirestore"),
         .headerSearchPath("Protos/nanopb"),
-
         .define("PB_FIELD_32BIT", to: "1"),
         .define("PB_NO_PACKED_STRUCTS", to: "1"),
         .define("PB_ENABLE_MALLOC", to: "1"),
         .define("FIRFirestore_VERSION", to: firebaseVersion),
       ],
       linkerSettings: [
-        .linkedFramework("SystemConfiguration"),
+        .linkedFramework("SystemConfiguration", .when(platforms: .some([.iOS, .macOS, .tvOS]))),
         .linkedFramework("MobileCoreServices", .when(platforms: .some([.iOS]))),
         .linkedFramework("UIKit", .when(platforms: .some([.iOS, .tvOS]))),
         .linkedLibrary("c++"),
       ]
     ),
+
+    .target(
+      name: "FirebaseFirestoreSwiftTarget",
+      dependencies: [.target(name: "FirebaseFirestoreSwift",
+                             condition: .when(platforms: [.iOS, .tvOS, .macOS]))],
+      path: "SwiftPM-PlatformExclude/FirebaseFirestoreSwiftWrap"
+    ),
+
     .target(
       name: "FirebaseFirestoreSwift",
       dependencies: ["FirebaseFirestore"],
@@ -454,6 +485,13 @@ let package = Package(
     ),
 
     .target(
+      name: "FirebaseFunctionsTarget",
+      dependencies: [.target(name: "FirebaseFunctions",
+                             condition: .when(platforms: [.iOS, .tvOS, .macOS]))],
+      path: "SwiftPM-PlatformExclude/FirebaseFunctionsWrap"
+    ),
+
+    .target(
       name: "FirebaseFunctions",
       dependencies: [
         "FirebaseCore",
@@ -463,8 +501,14 @@ let package = Package(
       publicHeadersPath: "Public",
       cSettings: [
         .headerSearchPath("../../"),
-        .define("FIRFunctions_VERSION", to: firebaseVersion),
       ]
+    ),
+
+    .target(
+      name: "FirebaseInAppMessagingTarget",
+      dependencies: [.target(name: "FirebaseInAppMessaging",
+                             condition: .when(platforms: [.iOS]))],
+      path: "SwiftPM-PlatformExclude/FirebaseInAppMessagingWrap"
     ),
 
     .target(
@@ -485,24 +529,26 @@ let package = Package(
       publicHeadersPath: "Public",
       cSettings: [
         .headerSearchPath("../../"),
-        .define("FIRInAppMessaging_LIB_VERSION", to: firebaseVersion),
         .define("PB_FIELD_32BIT", to: "1"),
         .define("PB_NO_PACKED_STRUCTS", to: "1"),
         .define("PB_ENABLE_MALLOC", to: "1"),
       ]
     ),
 
-    // .target(
-    //   name: "FirebaseInstanceID",
-    //   dependencies: ["FirebaseCore", "FirebaseInstallations",
-    //                  "GoogleUtilities_Environment", "GoogleUtilities_UserDefaults"],
-    //   path: "Firebase/InstanceID",
-    //   publicHeadersPath: "Public",
-    //   cSettings: [
-    //     .headerSearchPath("../../"),
-    //     .define("FIRInstanceID_LIB_VERSION", to: firebaseVersion),
-    //   ]
-    // ),
+    .target(
+      name: "FirebaseInstanceID",
+      dependencies: ["FirebaseCore", "FirebaseInstallations",
+                     "GoogleUtilities_Environment", "GoogleUtilities_UserDefaults"],
+      path: "Firebase/InstanceID",
+      exclude: [
+        "CHANGELOG.md",
+      ],
+      publicHeadersPath: "Public",
+      cSettings: [
+        .headerSearchPath("../../"),
+      ]
+    ),
+
     .target(
       name: "FirebaseInstallations",
       dependencies: ["FirebaseCore", .product(name: "FBLPromises", package: "Promises"),
@@ -516,15 +562,55 @@ let package = Package(
         .linkedFramework("Security"),
       ]
     ),
+
+    .target(
+      name: "FirebaseMessaging",
+      dependencies: [
+        "FirebaseCore",
+        "FirebaseInstanceID",
+        "GoogleUtilities_AppDelegateSwizzler",
+        "GoogleUtilities_Environment",
+        "GoogleUtilities_Reachability",
+        "GoogleUtilities_UserDefaults",
+      ],
+      path: "FirebaseMessaging/Sources",
+      publicHeadersPath: "Public",
+      cSettings: [
+        .headerSearchPath("../../"),
+      ],
+      linkerSettings: [
+        .linkedFramework("SystemConfiguration", .when(platforms: .some([.iOS, .macOS, .tvOS]))),
+      ]
+    ),
+    .testTarget(
+      name: "MessagingUnit",
+      dependencies: ["FirebaseMessaging", "OCMock"],
+      path: "FirebaseMessaging/Tests/UnitTests",
+      exclude: [
+        "FIRMessagingContextManagerServiceTest.m", // TODO: Adapt its NSBundle usage to SPM.
+      ],
+      cSettings: [
+        .headerSearchPath("../../.."),
+      ]
+    ),
+
     .target(
       name: "SharedTestUtilities",
-      dependencies: ["FirebaseCore"],
+      dependencies: ["FirebaseCore", "OCMock"],
       path: "SharedTestUtilities",
       publicHeadersPath: "./",
       cSettings: [
         .headerSearchPath("../"),
       ]
     ),
+
+    .target(
+      name: "FirebaseRemoteConfigTarget",
+      dependencies: [.target(name: "FirebaseRemoteConfig",
+                             condition: .when(platforms: [.iOS, .tvOS, .macOS]))],
+      path: "SwiftPM-PlatformExclude/FirebaseRemoteConfigWrap"
+    ),
+
     .target(
       name: "FirebaseRemoteConfig",
       dependencies: [
@@ -537,7 +623,6 @@ let package = Package(
       publicHeadersPath: "Public",
       cSettings: [
         .headerSearchPath("../../"),
-        .define("FIRRemoteConfig_VERSION", to: firebaseVersion),
       ]
     ),
     .testTarget(
@@ -571,7 +656,6 @@ let package = Package(
       publicHeadersPath: "Public",
       cSettings: [
         .headerSearchPath("../../"),
-        .define("FIRStorage_VERSION", to: firebaseVersion),
       ],
       linkerSettings: [
         .linkedFramework("MobileCoreServices", .when(platforms: .some([.iOS]))),
@@ -622,7 +706,7 @@ let package = Package(
         .define("PB_ENABLE_MALLOC", to: "1"),
       ],
       linkerSettings: [
-        .linkedFramework("SystemConfiguration"),
+        .linkedFramework("SystemConfiguration", .when(platforms: .some([.iOS, .macOS, .tvOS]))),
         .linkedFramework("CoreTelephony", .when(platforms: .some([.macOS, .iOS]))),
       ]
     ),
@@ -641,7 +725,7 @@ let package = Package(
         "FirebaseFunctions",
         "FirebaseInAppMessaging",
         "FirebaseInstallations",
-        // "FirebaseInstanceID",
+        "FirebaseMessaging",
         "FirebaseRemoteConfig",
         "FirebaseStorage",
         "FirebaseStorageSwift",
@@ -660,6 +744,14 @@ let package = Package(
       path: "SwiftPMTests/swift-test"
     ),
     .testTarget(
+      name: "analytics-import-test",
+      dependencies: [
+        "FirebaseAnalyticsWrapper",
+        "Firebase",
+      ],
+      path: "SwiftPMTests/analytics-import-test"
+    ),
+    .testTarget(
       name: "objc-import-test",
       dependencies: [
         "FirebaseAuth",
@@ -673,6 +765,7 @@ let package = Package(
         "FirebaseFunctions",
         "FirebaseInAppMessaging",
         "FirebaseInstallations",
+        "FirebaseMessaging",
         "FirebaseRemoteConfig",
         "FirebaseStorage",
       ],
@@ -725,7 +818,7 @@ let package = Package(
       dependencies: [.product(name: "FBLPromises", package: "Promises")],
       path: "GoogleUtilities/Environment",
       exclude: ["third_party/LICENSE"],
-      publicHeadersPath: "Private",
+      publicHeadersPath: "Public",
       cSettings: [
         .headerSearchPath("../../"),
       ]
@@ -747,7 +840,7 @@ let package = Package(
       name: "GoogleUtilities_MethodSwizzler",
       dependencies: ["GoogleUtilities_Logger"],
       path: "GoogleUtilities/MethodSwizzler",
-      publicHeadersPath: "Private",
+      publicHeadersPath: "Public",
       cSettings: [
         .headerSearchPath("../../"),
       ]
@@ -777,7 +870,7 @@ let package = Package(
       name: "GoogleUtilities_Reachability",
       dependencies: ["GoogleUtilities_Logger"],
       path: "GoogleUtilities/Reachability",
-      publicHeadersPath: "Private",
+      publicHeadersPath: "Public",
       cSettings: [
         .headerSearchPath("../../"),
       ]
@@ -786,7 +879,7 @@ let package = Package(
       name: "GoogleUtilities_UserDefaults",
       dependencies: ["GoogleUtilities_Logger"],
       path: "GoogleUtilities/UserDefaults",
-      publicHeadersPath: "Private",
+      publicHeadersPath: "Public",
       cSettings: [
         .headerSearchPath("../../"),
       ]

@@ -12,7 +12,7 @@ Package Manager](https://swift.org/package-manager/) in Beta status.
 - Analytics requires clients to add `-ObjC` linker option.
 - Analytics is only supported for iOS and cannot be used in apps that support other platforms.
 - Messaging, Performance, Firebase ML, and App Distribution are not initially available.
-- watchOS support is not initially available.
+- watchOS support is introduced in 7.0.0 for Auth, Crashlytics, Messaging, and Storage.
 
 ## Installation
 
@@ -31,7 +31,7 @@ Select the Firebase GitHub repository - `https://github.com/firebase/firebase-io
 Select the beta branch.
 
 Note: Starting with the 6.31.0 release, the versions are specified
-in a format like 6.32-spm-beta. We won't support standard repository
+in a format like 6.34-spm-beta. We won't support standard repository
 versioning until later in the beta or with general availability of the SPM
 distribution.
 

@@ -25,7 +25,7 @@ fi
 # output directory.
 OUTPUT_DIR="$REPO/$1"
 
-cd ZipBuilder
-swift run ReleasePackager -keepBuildArtifacts true -updatePodRepo true \
-  -templateDir "${REPO}"/ZipBuilder/Template -localPodspecPath "${REPO}" \
+cd ReleaseTooling
+swift run zip-builder -keepBuildArtifacts true -updatePodRepo true \
+  -templateDir "${REPO}"/ReleaseTooling/Template -localPodspecPath "${REPO}" \
   -outputDir "${OUTPUT_DIR}" -customSpecRepos https://github.com/firebase/SpecsStaging.git

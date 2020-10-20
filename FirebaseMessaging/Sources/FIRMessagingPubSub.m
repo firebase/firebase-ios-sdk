@@ -16,12 +16,11 @@
 
 #import "FirebaseMessaging/Sources/FIRMessagingPubSub.h"
 
-#import <FirebaseInstanceID/FIRInstanceID_Private.h>
-#import <FirebaseMessaging/FIRMessaging.h>
-#import "GoogleUtilities/Environment/Private/GULSecureCoding.h"
-#import "GoogleUtilities/UserDefaults/Private/GULUserDefaults.h"
+#import <GoogleUtilities/GULSecureCoding.h>
+#import <GoogleUtilities/GULUserDefaults.h>
+#import "Firebase/InstanceID/Private/FIRInstanceID_Private.h"
+#import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessaging.h"
 
-#import "FirebaseMessaging/Sources/FIRMessagingClient.h"
 #import "FirebaseMessaging/Sources/FIRMessagingDefines.h"
 #import "FirebaseMessaging/Sources/FIRMessagingLogger.h"
 #import "FirebaseMessaging/Sources/FIRMessagingPendingTopicsList.h"
@@ -105,7 +104,10 @@ static NSString *const kPendingSubscriptionsListKey =
                             options:(NSDictionary *)options
                        shouldDelete:(BOOL)shouldDelete
                             handler:(FIRMessagingTopicOperationCompletion)handler {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   if ([[FIRInstanceID instanceID] tryToLoadValidCheckinInfo]) {
+#pragma clang diagnostic pop
     FIRMessagingTopicAction action =
         shouldDelete ? FIRMessagingTopicActionUnsubscribe : FIRMessagingTopicActionSubscribe;
     FIRMessagingTopicOperation *operation = [[FIRMessagingTopicOperation alloc]

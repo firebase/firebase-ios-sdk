@@ -44,15 +44,8 @@ static BOOL _autoBootstrapOnFIRAppInit = YES;
   _autoBootstrapOnFIRAppInit = NO;
 }
 
-// extract macro value into a C string
-#define STR_FROM_MACRO(x) #x
-#define STR(x) STR_FROM_MACRO(x)
-
 + (void)load {
-  [FIRApp
-      registerInternalLibrary:(Class<FIRLibrary>)self
-                     withName:@"fire-fiam"
-                  withVersion:[NSString stringWithUTF8String:STR(FIRInAppMessaging_LIB_VERSION)]];
+  [FIRApp registerInternalLibrary:(Class<FIRLibrary>)self withName:@"fire-fiam"];
 }
 
 + (nonnull NSArray<FIRComponent *> *)componentsToRegister {

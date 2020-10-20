@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseRemoteConfig'
-  s.version          = '4.9.0'
+  s.version          = '7.0.0'
   s.summary          = 'Firebase Remote Config'
 
   s.description      = <<-DESC
@@ -15,15 +15,14 @@ app update.
 
   s.source           = {
     :git => 'https://github.com/firebase/firebase-ios-sdk.git',
-    :tag => 'RemoteConfig-' + s.version.to_s
+    :tag => 'CocoaPods-' + s.version.to_s
   }
   s.social_media_url = 'https://twitter.com/Firebase'
-  s.ios.deployment_target = '8.0'
-  s.osx.deployment_target = '10.11'
+  s.ios.deployment_target = '10.0'
+  s.osx.deployment_target = '10.12'
   s.tvos.deployment_target = '10.0'
 
   s.cocoapods_version = '>= 1.4.0'
-  s.static_framework = true
   s.prefix_header_file = false
 
   base_dir = "FirebaseRemoteConfig/Sources/"
@@ -33,23 +32,17 @@ app update.
     'FirebaseABTesting/Sources/Private/*.h',
     'FirebaseCore/Sources/Private/*.h',
     'FirebaseInstallations/Source/Library/Private/*.h',
-    'GoogleUtilities/Environment/Private/*.h',
-    'GoogleUtilities/NSData+zlib/Private/*.h',
   ]
   s.public_header_files = base_dir + 'Public/FirebaseRemoteConfig/*.h'
-  s.private_header_files = base_dir + 'Private/*.h'
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
-    'GCC_PREPROCESSOR_DEFINITIONS' =>
-      'GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS=1 ' +
-      'FIRRemoteConfig_VERSION=' + String(s.version),
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
   }
-  s.dependency 'FirebaseABTesting', '~> 4.2'
-  s.dependency 'FirebaseCore', '~> 6.10'
-  s.dependency 'FirebaseInstallations', '~> 1.6'
-  s.dependency 'GoogleUtilities/Environment', '~> 6.7'
-  s.dependency 'GoogleUtilities/NSData+zlib', '~> 6.7'
+  s.dependency 'FirebaseABTesting', '~> 7.0'
+  s.dependency 'FirebaseCore', '~> 7.0'
+  s.dependency 'FirebaseInstallations', '~> 7.0'
+  s.dependency 'GoogleUtilities/Environment', '~> 7.0'
+  s.dependency 'GoogleUtilities/NSData+zlib', '~> 7.0'
 
   s.test_spec 'unit' do |unit_tests|
     # TODO(dmandar) - Update or delete the commented files.

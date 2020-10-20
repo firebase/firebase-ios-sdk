@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "NSError+FIRInstanceID.h"
+#import "Firebase/InstanceID/NSError+FIRInstanceID.h"
 
 NSString *const kFIRInstanceIDDomain = @"com.firebase.iid";
 

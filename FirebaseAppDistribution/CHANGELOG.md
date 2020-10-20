@@ -1,3 +1,6 @@
+# Unreleased
+- [changed] Sign out the Tester when the call to fetch releases fails with an unauthenticated error.
+
 # v0.9.3
 - [changed] Updated error log for non-200 API Service calls.
 

@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseCrashlytics'
-  s.version          = '4.6.0'
+  s.version          = '7.0.0'
   s.summary          = 'Best and lightest-weight crash reporting for mobile, desktop and tvOS.'
   s.description      = 'Firebase Crashlytics helps you track, prioritize, and fix stability issues that erode app quality.'
   s.homepage         = 'https://firebase.google.com/'
@@ -8,16 +8,15 @@ Pod::Spec.new do |s|
   s.authors          = 'Google, Inc.'
   s.source           = {
     :git => 'https://github.com/firebase/firebase-ios-sdk.git',
-    :tag => 'Crashlytics-' + s.version.to_s
+    :tag => 'CocoaPods-' + s.version.to_s
   }
 
-  s.ios.deployment_target = '8.0'
-  s.osx.deployment_target = '10.11'
+  s.ios.deployment_target = '10.0'
+  s.osx.deployment_target = '10.12'
   s.tvos.deployment_target = '10.0'
   s.watchos.deployment_target = '6.0'
 
   s.cocoapods_version = '>= 1.4.0'
-  s.static_framework = true
   s.prefix_header_file = false
 
   s.source_files = [
@@ -48,11 +47,11 @@ Pod::Spec.new do |s|
     cp -f ./Crashlytics/upload-symbols ./upload-symbols
   PREPARE_COMMAND_END
 
-  s.dependency 'FirebaseCore', '~> 6.10'
-  s.dependency 'FirebaseInstallations', '~> 1.6'
+  s.dependency 'FirebaseCore', '~> 7.0'
+  s.dependency 'FirebaseInstallations', '~> 7.0'
   s.dependency 'PromisesObjC', '~> 1.2'
-  s.dependency 'GoogleDataTransport', '~> 7.2'
-  s.dependency 'nanopb', '~> 1.30906.0'
+  s.dependency 'GoogleDataTransport', '~> 8.0'
+  s.dependency 'nanopb', '~> 2.30906.0'
 
   s.libraries = 'c++', 'z'
   s.ios.frameworks = 'Security', 'SystemConfiguration'

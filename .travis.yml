@@ -107,6 +107,7 @@ jobs:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh # Start integration test server
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseFunctions.podspec
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseFunctions.podspec --use-static-frameworks
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseFunctions.podspec --use-libraries
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseFunctions.podspec --use-modular-headers
 
@@ -175,6 +176,9 @@ jobs:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleUtilities.podspec --platforms=ios
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleUtilities.podspec --platforms=tvos
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleUtilities.podspec --platforms=macos
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleUtilities.podspec --use-static-frameworks --platforms=ios
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleUtilities.podspec --use-static-frameworks  --platforms=tvos
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleUtilities.podspec --use-static-frameworks  --platforms=macos
 
     - stage: test
       if: type = cron
@@ -182,9 +186,9 @@ jobs:
         - PROJECT=GoogleUtilitiesCron METHOD=pod-lib-lint
       script:
 
-        - travis_retry ./scripts/pod_lib_lint.rb GoogleUtilities.podspec --use-libraries --platforms=ios
-        - travis_retry ./scripts/pod_lib_lint.rb GoogleUtilities.podspec --use-libraries --platforms=tvos
-        - travis_retry ./scripts/pod_lib_lint.rb GoogleUtilities.podspec --use-libraries --platforms=macos
+        - travis_retry ./scripts/pod_lib_lint.rb GoogleUtilities.podspec --use-libraries --platforms=ios --skip-tests
+        - travis_retry ./scripts/pod_lib_lint.rb GoogleUtilities.podspec --use-libraries --platforms=tvos --skip-tests
+        - travis_retry ./scripts/pod_lib_lint.rb GoogleUtilities.podspec --use-libraries --platforms=macos --skip-tests
         - travis_retry ./scripts/pod_lib_lint.rb GoogleUtilities.podspec --use-modular-headers --platforms=ios
         - travis_retry ./scripts/pod_lib_lint.rb GoogleUtilities.podspec --use-modular-headers --platforms=tvos
         - travis_retry ./scripts/pod_lib_lint.rb GoogleUtilities.podspec --use-modular-headers --platforms=macos
@@ -215,6 +219,7 @@ jobs:
         - PROJECT=Firebase METHOD=pod-lib-lint
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInAppMessaging.podspec
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInAppMessaging.podspec --use-static-frameworks
 
     # pod lib lint to check build and warnings for static library build - only on cron jobs
     - stage: test
@@ -234,54 +239,24 @@ jobs:
 
     # Validate Cocoapods configurations
     # This may take long time, so we would like to run it only once all other tests pass
-    # Validate Cocoapods 1.7.0 compatibility
     - stage: test
       if: type = cron
       env:
-        - POD_CONFIG_DIR=Cocoapods1_7_0_multiprojects_frameworks
+        - POD_CONFIG_DIR=Cocoapods_multiprojects_frameworks
       script:
         - travis_retry ./CocoapodsIntegrationTest/scripts/build_with_environment.sh --gemfile=./CocoapodsIntegrationTest/TestEnvironments/${POD_CONFIG_DIR}/Gemfile --podfile=./CocoapodsIntegrationTest/TestEnvironments/${POD_CONFIG_DIR}/Podfile
 
     - stage: test
       if: type = cron
       env:
-        - POD_CONFIG_DIR=Cocoapods1_7_0_frameworks
-      script:
-        - travis_retry ./CocoapodsIntegrationTest/scripts/build_with_environment.sh --gemfile=./CocoapodsIntegrationTest/TestEnvironments/${POD_CONFIG_DIR}/Gemfile --podfile=./CocoapodsIntegrationTest/TestEnvironments/${POD_CONFIG_DIR}/Podfile
-
-    - stage: test
-      if: type = cron
-      env:
-        - POD_CONFIG_DIR=Cocoapods1_7_0_multiprojects_staticLibs
-      script:
-        - travis_retry ./CocoapodsIntegrationTest/scripts/build_with_environment.sh --gemfile=./CocoapodsIntegrationTest/TestEnvironments/${POD_CONFIG_DIR}/Gemfile --podfile=./CocoapodsIntegrationTest/TestEnvironments/${POD_CONFIG_DIR}/Podfile
-
-    - stage: test
-      if: type = cron
-      env:
-        - POD_CONFIG_DIR=Cocoapods1_7_0_staticLibs
-      script:
-        - travis_retry ./CocoapodsIntegrationTest/scripts/build_with_environment.sh --gemfile=./CocoapodsIntegrationTest/TestEnvironments/${POD_CONFIG_DIR}/Gemfile --podfile=./CocoapodsIntegrationTest/TestEnvironments/${POD_CONFIG_DIR}/Podfile
-
-    # Validate Cocoapods 1.6.1 compatibility
-    - stage: test
-      if: type = cron
-      env:
-        - POD_CONFIG_DIR=Cocoapods1_6_1_frameworks
-      script:
-        - travis_retry ./CocoapodsIntegrationTest/scripts/build_with_environment.sh --gemfile=./CocoapodsIntegrationTest/TestEnvironments/${POD_CONFIG_DIR}/Gemfile --podfile=./CocoapodsIntegrationTest/TestEnvironments/${POD_CONFIG_DIR}/Podfile
-
-    - stage: test
-      if: type = cron
-      env:
-        - POD_CONFIG_DIR=Cocoapods1_6_1_staticLibs
+        - POD_CONFIG_DIR=Cocoapods_multiprojects_staticLibs
       script:
         - travis_retry ./CocoapodsIntegrationTest/scripts/build_with_environment.sh --gemfile=./CocoapodsIntegrationTest/TestEnvironments/${POD_CONFIG_DIR}/Gemfile --podfile=./CocoapodsIntegrationTest/TestEnvironments/${POD_CONFIG_DIR}/Podfile
 
   allow_failures:
     # Run fuzz tests only on cron jobs.
     - stage: test
-      if: type = cron
+#      if: type = cron
       env:
         - PROJECT=Firestore PLATFORM=iOS METHOD=fuzz
       before_install:
@@ -293,3 +268,4 @@ jobs:
 branches:
   only:
     - master
+    - firebase7-main

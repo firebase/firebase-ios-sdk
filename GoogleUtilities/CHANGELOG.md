@@ -1,3 +1,12 @@
+# 7.1.0 -- Unreleased
+- Added `NSURLSession` promise extension. (#6753)
+
+# 7.0.0
+- All APIs are now public. All CocoaPods private headers are transitioned to public. Note that
+  GoogleUtilities may have more frequent breaking changes than Firebase. (#6588)
+- Fixed writing heartbeat to disk on tvOS devices. (#6658)
+- Refactor `GULSwizzledObject` to ARC to unblock SwiftPM support. (#5862)
+
 # 6.7.1
 - Fix import regression when mixing 6.7.0 with earlier Firebase versions. (#6047)
 

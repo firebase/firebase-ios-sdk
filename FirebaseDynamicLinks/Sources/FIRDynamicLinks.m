@@ -25,6 +25,8 @@
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "FirebaseDynamicLinks/Sources/FIRDLScionLogging.h"
 #import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
+#else
+#import "FirebaseCore/Sources/Public/FirebaseCore/FIRVersion.h"
 #endif
 
 #ifdef FIRDynamicLinks3P
@@ -39,17 +41,6 @@
 #import "FirebaseDynamicLinks/Sources/FIRDynamicLinks+Private.h"
 #import "FirebaseDynamicLinks/Sources/Logging/FDLLogging.h"
 #import "FirebaseDynamicLinks/Sources/Utilities/FDLUtilities.h"
-
-#ifndef FIRDynamicLinks_VERSION
-#error "FIRDynamicLinks_VERSION is not defined: add -DFIRDynamicLinks_VERSION=... to the build \
-invocation"
-#endif
-
-#define STR(x) STR_EXPAND(x)
-#define STR_EXPAND(x) #x
-
-// The version string of the SDK.
-NSString *const kFIRDLVersion = @STR(FIRDynamicLinks_VERSION);
 
 // We should only read the deeplink after install once. We use the following key to store the state
 // in the user defaults.
@@ -115,7 +106,7 @@ static const NSInteger FIRErrorCodeDurableDeepLinkFailed = -119;
 #ifdef FIRDynamicLinks3P
 
 + (void)load {
-  [FIRApp registerInternalLibrary:self withName:@"fire-dl" withVersion:kFIRDLVersion];
+  [FIRApp registerInternalLibrary:self withName:@"fire-dl"];
 }
 
 + (nonnull NSArray<FIRComponent *> *)componentsToRegister {
@@ -169,11 +160,15 @@ static const NSInteger FIRErrorCodeDurableDeepLinkFailed = -119;
     urlScheme = options.deepLinkURLScheme ?: [NSBundle mainBundle].bundleIdentifier;
     [self setUpWithLaunchOptions:nil apiKey:options.APIKey urlScheme:urlScheme userDefaults:nil];
   } else {
-    error =
-        [FIRApp errorForSubspecConfigurationFailureWithDomain:kFirebaseDurableDeepLinkErrorDomain
-                                                    errorCode:FIRErrorCodeDurableDeepLinkFailed
-                                                      service:@"DynamicLinks"
-                                                       reason:errorDescription];
+    NSString *description =
+        [NSString stringWithFormat:@"Configuration failed for service DynamicLinks."];
+    NSDictionary *errorDict = @{
+      NSLocalizedDescriptionKey : description,
+      NSLocalizedFailureReasonErrorKey : errorDescription
+    };
+    error = [NSError errorWithDomain:kFirebaseDurableDeepLinkErrorDomain
+                                code:FIRErrorCodeDurableDeepLinkFailed
+                            userInfo:errorDict];
   }
   if (error) {
     NSString *message = nil;
@@ -310,7 +305,7 @@ static const NSInteger FIRErrorCodeDurableDeepLinkFailed = -119;
       [[FIRDLRetrievalProcessFactory alloc] initWithNetworkingService:self.dynamicLinkNetworking
                                                             URLScheme:_URLScheme
                                                                APIKey:_APIKey
-                                                        FDLSDKVersion:kFIRDLVersion
+                                                        FDLSDKVersion:FIRFirebaseVersion()
                                                              delegate:self];
   _retrievalProcess = [factory automaticRetrievalProcess];
   [_retrievalProcess retrievePendingDynamicLink];
@@ -418,7 +413,7 @@ static const NSInteger FIRErrorCodeDurableDeepLinkFailed = -119;
           // TODO: Create dedicated logging function to prevent this.
           [self.dynamicLinkNetworking
               resolveShortLink:url
-                 FDLSDKVersion:kFIRDLVersion
+                 FDLSDKVersion:FIRFirebaseVersion()
                     completion:^(NSURL *_Nullable resolverURL, NSError *_Nullable resolverError){
                         // Nothing to do
                     }];
@@ -465,7 +460,7 @@ static const NSInteger FIRErrorCodeDurableDeepLinkFailed = -119;
 
 - (void)resolveShortLink:(NSURL *)url completion:(FIRDynamicLinkResolverHandler)completion {
   [self.dynamicLinkNetworking resolveShortLink:url
-                                 FDLSDKVersion:kFIRDLVersion
+                                 FDLSDKVersion:FIRFirebaseVersion()
                                     completion:completion];
 }
 
@@ -514,17 +509,7 @@ static const NSInteger FIRErrorCodeDurableDeepLinkFailed = -119;
 }
 
 - (void)passRetrievedDynamicLinkToApplication:(NSURL *)url {
-  id<UIApplicationDelegate> applicationDelegate = [UIApplication sharedApplication].delegate;
-  if (applicationDelegate &&
-      [applicationDelegate respondsToSelector:@selector(application:openURL:options:)]) {
-    // pass url directly to application delegate to avoid hop into
-    // iOS handling of the universal links
-    if (@available(iOS 9.0, *)) {
-      [applicationDelegate application:[UIApplication sharedApplication] openURL:url options:@{}];
-      return;
-    }
-  }
-  [[UIApplication sharedApplication] openURL:url];
+  [[UIApplication sharedApplication] openURL:url options:@{} completionHandler:nil];
 }
 
 - (void)handlePendingDynamicLinkRetrievalFailureWithErrorCode:(NSInteger)errorCode
@@ -567,7 +552,7 @@ static NSString *kSelfDiagnoseOutputFooter =
   NSMutableString *genericDiagnosticInfo = [[NSMutableString alloc] init];
 
   [genericDiagnosticInfo
-      appendFormat:@"Firebase Dynamic Links framework version %@\n", kFIRDLVersion];
+      appendFormat:@"Firebase Dynamic Links framework version %@\n", FIRFirebaseVersion()];
   [genericDiagnosticInfo appendFormat:@"System information: OS %@, OS version %@, model %@\n",
                                       [UIDevice currentDevice].systemName,
                                       [UIDevice currentDevice].systemVersion,

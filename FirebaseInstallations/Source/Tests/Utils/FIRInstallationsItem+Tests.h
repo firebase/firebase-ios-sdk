@@ -22,6 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (FIRInstallationsItem *)createUnregisteredInstallationItem;
 + (FIRInstallationsItem *)createRegisteredInstallationItem;
++ (FIRInstallationsItem *)createCorruptedItem;
 
 + (FIRInstallationsItem *)createRegisteredInstallationItemWithAppID:(NSString *)appID
                                                             appName:(NSString *)appName;

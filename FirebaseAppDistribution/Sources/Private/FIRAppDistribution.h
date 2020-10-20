@@ -15,9 +15,6 @@
 #import "FirebaseAppDistribution/Sources/FIRAppDistributionUIService.h"
 #import "FirebaseAppDistribution/Sources/Public/FIRAppDistribution.h"
 
-#define STR(x) STR_EXPAND(x)
-#define STR_EXPAND(x) #x
-
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRAppDistribution ()
