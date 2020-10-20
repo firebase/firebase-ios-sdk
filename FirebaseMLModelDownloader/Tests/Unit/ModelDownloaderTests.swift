@@ -33,11 +33,11 @@ final class ModelDownloaderTests: XCTestCase {
       }
     ) { result in
       switch result {
-      case let .success(customModel):
+      case .success(_):
         // Use model with your inference API
         // let interpreter = Interpreter(modelPath: customModel.modelPath)
         break
-      case let .failure(error):
+      case .failure(_):
         // Handle download error
         break
       }
@@ -46,11 +46,10 @@ final class ModelDownloaderTests: XCTestCase {
     // Access array of downloaded models
     modelDownloader.listDownloadedModels { result in
       switch result {
-      case let .success(customModels):
-        for model in customModels {
-          // Pick model(s) for further use
-        }
-      case let .failure(error):
+      case .success(_):
+        // Pick model(s) for further use
+        break
+      case .failure(_):
         // Handle failure
         break
       }
@@ -62,7 +61,7 @@ final class ModelDownloaderTests: XCTestCase {
       case .success():
         // Apply any other clean up
         break
-      case let .failure(error):
+      case .failure(_):
         // Handle failure
         break
       }
