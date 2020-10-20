@@ -26,8 +26,7 @@
 #import "SharedTestUtilities/Date/FIRDateTestUtils.h"
 #import "SharedTestUtilities/URLSession/FIRURLSessionOCMockStub.h"
 
-#import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseCore/FIRHeartbeatInfo.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 @interface FIRAppCheckAPIServiceTests : XCTestCase
 

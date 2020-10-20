@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRAppCheckStoredToken.h"
+#import "FirebaseAppCheck/Source/Library/Core/Storage/FIRAppCheckStoredToken.h"
 
 static NSString *const kTokenKey = @"token";
 static NSString *const kExpirationDateKey = @"expirationDate";

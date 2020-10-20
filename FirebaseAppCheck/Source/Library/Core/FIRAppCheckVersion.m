@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import <FirebaseAppCheck/FIRAppCheckVersion.h>
+#import "FirebaseAppCheck/Source/Library/Core/Public/FIRAppCheckVersion.h"
 
 // Convert the macro to a string
 #define STR(x) STR_EXPAND(x)

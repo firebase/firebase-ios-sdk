@@ -16,12 +16,12 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FIRAppCheckStorage.h"
+#import "FirebaseAppCheck/Source/Library/Core/Storage/FIRAppCheckStorage.h"
 
 #import <OCMock/OCMock.h>
 #import "FBLPromise+Testing.h"
 
-#import <FirebaseAppCheck/FIRAppCheckToken.h>
+#import "FirebaseAppCheck/Source/Library/Core/Public/FIRAppCheckToken.h"
 
 @interface FIRAppCheckStorageTests : XCTestCase
 @property(nonatomic) NSString *appName;

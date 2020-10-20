@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRAppCheckStoredToken.h"
+#import "FirebaseAppCheck/Source/Library/Core/Storage/FIRAppCheckStoredToken.h"
 
 @class FIRAppCheckToken;
 

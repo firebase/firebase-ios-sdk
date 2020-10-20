@@ -20,14 +20,12 @@
 // (see also go/srl-dev/why-fakes#no-ocmock)
 #import <OCMock/OCMock.h>
 
-#import <FirebaseAppCheck/FIRDeviceCheckProvider.h>
-#import <FirebaseAppCheck/FirebaseAppCheck.h>
 #import <FirebaseAppCheckInterop/FIRAppCheckInterop.h>
 #import <FirebaseAppCheckInterop/FIRAppCheckTokenInterop.h>
+#import "FirebaseAppCheck/Source/Library/Core/Private/FIRAppCheckInternal.h"
+#import "FirebaseAppCheck/Source/Library/DeviceCheckProvider/Private/FIRDeviceCheckProvider.h"
 
-#import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseCore/FIRComponentContainer.h>
-#import <FirebaseCore/FirebaseCore.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 @interface AppCheckProviderFactory : NSObject <FIRAppCheckProviderFactory>
 @end

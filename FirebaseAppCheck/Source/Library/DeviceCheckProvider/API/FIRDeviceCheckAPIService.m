@@ -14,17 +14,16 @@
  * limitations under the License.
  */
 
-#import "FIRDeviceCheckAPIService.h"
+#import "FirebaseAppCheck/Source/Library/DeviceCheckProvider/API/FIRDeviceCheckAPIService.h"
 
 #import <FBLPromises/FBLPromises.h>
 
-#import "FIRAppCheckToken+APIResponse.h"
+#import "FirebaseAppCheck/Source/Library/DeviceCheckProvider/API/FIRAppCheckToken+APIResponse.h"
 
-#import "FIRAppCheckErrorUtil.h"
-#import "FIRAppCheckLogger.h"
+#import "FirebaseAppCheck/Source/Library/Core/Errors/FIRAppCheckErrorUtil.h"
+#import "FirebaseAppCheck/Source/Library/Core/FIRAppCheckLogger.h"
 
-#import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseCore/FIRHeartbeatInfo.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

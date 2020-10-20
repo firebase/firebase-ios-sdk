@@ -19,13 +19,12 @@
 #import <OCMock/OCMock.h>
 #import "FBLPromise+Testing.h"
 
-#import <FirebaseAppCheck/FIRAppCheckToken.h>
-#import <FirebaseAppCheck/FIRDeviceCheckProvider.h>
-#import "FIRDeviceCheckAPIService.h"
-#import "FIRDeviceCheckTokenGenerator.h"
+#import "FirebaseAppCheck/Source/Library/Core/Private/FIRAppCheckInternal.h"
+#import "FirebaseAppCheck/Source/Library/DeviceCheckProvider/API/FIRDeviceCheckAPIService.h"
+#import "FirebaseAppCheck/Source/Library/DeviceCheckProvider/FIRDeviceCheckTokenGenerator.h"
+#import "FirebaseAppCheck/Source/Library/DeviceCheckProvider/Private/FIRDeviceCheckProvider.h"
 
-#import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseCore/FIROptions.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 @interface FIRDeviceCheckProviderTests : XCTestCase
 @property(nonatomic) FIRDeviceCheckProvider *provider;

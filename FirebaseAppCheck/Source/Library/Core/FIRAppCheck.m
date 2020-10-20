@@ -14,27 +14,24 @@
  * limitations under the License.
  */
 
-#import "FIRAppCheck.h"
+#import "FirebaseAppCheck/Source/Library/Core/Public/FIRAppCheck.h"
 
 #import <FBLPromises/FBLPromises.h>
 
-#import <FirebaseAppCheck/FIRAppCheckProvider.h>
-#import <FirebaseAppCheck/FIRAppCheckProviderFactory.h>
-#import <FirebaseAppCheck/FIRAppCheckToken.h>
-#import <FirebaseAppCheck/FIRAppCheckVersion.h>
+#import "FirebaseAppCheck/Source/Library/Core/Public/FIRAppCheckProvider.h"
+#import "FirebaseAppCheck/Source/Library/Core/Public/FIRAppCheckProviderFactory.h"
+#import "FirebaseAppCheck/Source/Library/Core/Public/FIRAppCheckToken.h"
+#import "FirebaseAppCheck/Source/Library/Core/Public/FIRAppCheckVersion.h"
 
-#import "FIRAppCheckErrorUtil.h"
-#import "FIRAppCheckLogger.h"
-#import "FIRAppCheckStorage.h"
-#import "FIRAppCheckToken+Interop.h"
+#import "FirebaseAppCheck/Source/Library/Core/Errors/FIRAppCheckErrorUtil.h"
+#import "FirebaseAppCheck/Source/Library/Core/FIRAppCheckLogger.h"
+#import "FirebaseAppCheck/Source/Library/Core/FIRAppCheckToken+Interop.h"
+#import "FirebaseAppCheck/Source/Library/Core/Storage/FIRAppCheckStorage.h"
 
 #import <FirebaseAppCheckInterop/FIRAppCheckInterop.h>
 #import <FirebaseAppCheckInterop/FIRAppCheckTokenInterop.h>
 
-#import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseCore/FIRComponentContainer.h>
-#import <FirebaseCore/FIRLibrary.h>
-#import <FirebaseCore/FIROptions.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

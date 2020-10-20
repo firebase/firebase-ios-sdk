@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "FIRAppCheckToken+APIResponse.h"
+#import "FirebaseAppCheck/Source/Library/DeviceCheckProvider/API/FIRAppCheckToken+APIResponse.h"
 
-#import "FIRAppCheckErrorUtil.h"
+#import "FirebaseAppCheck/Source/Library/Core/Errors/FIRAppCheckErrorUtil.h"
 
 @implementation FIRAppCheckToken (APIResponse)
 

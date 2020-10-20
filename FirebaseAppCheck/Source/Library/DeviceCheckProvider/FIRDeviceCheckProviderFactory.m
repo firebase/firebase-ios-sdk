@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#import "FIRDeviceCheckProviderFactory.h"
+#import "FirebaseAppCheck/Source/Library/DeviceCheckProvider/Private/FIRDeviceCheckProviderFactory.h"
 
-#import <FirebaseAppCheck/FIRAppCheck.h>
-#import "FIRDeviceCheckProvider.h"
+#import "FirebaseAppCheck/Source/Library/Core/Private/FIRAppCheckInternal.h"
+#import "FirebaseAppCheck/Source/Library/DeviceCheckProvider/Private/FIRDeviceCheckProvider.h"
 
 @implementation FIRDeviceCheckProviderFactory
 

@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-#import "FIRAppCheckStorage.h"
+#import "FirebaseAppCheck/Source/Library/Core/Storage/FIRAppCheckStorage.h"
 
 #import <FBLPromises/FBLPromises.h>
 #import <GoogleUtilities/GULKeychainStorage.h>
 
-#import "FIRAppCheckStoredToken+FIRAppCheckToken.h"
+#import "FirebaseAppCheck/Source/Library/Core/Storage/FIRAppCheckStoredToken+FIRAppCheckToken.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -57,8 +57,12 @@ static NSString *const kKeychainService = @"com.firebase.app_check.token_storage
   return [self.keychainStorage getObjectForKey:[self tokenKey]
                                    objectClass:[FIRAppCheckStoredToken class]
                                    accessGroup:self.accessGroup]
-      .then(^FIRAppCheckToken *(FIRAppCheckStoredToken *storedToken) {
-        return [storedToken appCheckToken];
+      .then(^FIRAppCheckToken *(id<NSSecureCoding> storedToken) {
+        if ([(NSObject *)storedToken isKindOfClass:[FIRAppCheckStoredToken class]]) {
+          return [(FIRAppCheckStoredToken *)storedToken appCheckToken];
+        } else {
+          return nil;
+        }
       });
 }
 

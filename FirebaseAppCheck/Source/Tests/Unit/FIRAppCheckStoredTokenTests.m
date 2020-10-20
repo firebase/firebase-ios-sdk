@@ -17,7 +17,7 @@
 #import <XCTest/XCTest.h>
 
 #import <FirebaseAppCheck/FIRAppCheckToken.h>
-#import "FIRAppCheckStoredToken+FIRAppCheckToken.h"
+#import "FirebaseAppCheck/Source/Library/Core/Storage/FIRAppCheckStoredToken+FIRAppCheckToken.h"
 
 #import <GoogleUtilities/GULSecureCoding.h>
 

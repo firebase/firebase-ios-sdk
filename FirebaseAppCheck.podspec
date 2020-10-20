@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseAppCheck'
-  s.version          = '0.1.0'
+  s.version          = '7.0.0-beta'
   s.summary          = 'Firebase App Check SDK.'
 
   s.description      = <<-DESC
@@ -27,8 +27,8 @@ Pod::Spec.new do |s|
 
   base_dir = "FirebaseAppCheck/Source/"
 
-  s.dependency 'FirebaseAppCheckInterop', '~> 0.1.0'
-  s.dependency 'FirebaseCore', '~> 6.6'
+  s.dependency 'FirebaseAppCheckInterop', '~> 7.0.0-beta'
+  s.dependency 'FirebaseCore', '~> 7.0'
   s.dependency 'PromisesObjC', '~> 1.2'
 
   preprocessor_definitions = 'FIRAppCheck_LIB_VERSION=' + String(s.version)

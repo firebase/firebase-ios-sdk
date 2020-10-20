@@ -20,18 +20,16 @@
 
 #import <FBLPromises/FBLPromises.h>
 
-#import <FirebaseAppCheck/FIRAppCheckVersion.h>
-#import <FirebaseAppCheck/FIRDeviceCheckProvider.h>
+#import "FirebaseAppCheck/Source/Library/Core/Public/FIRAppCheckVersion.h"
+#import "FirebaseAppCheck/Source/Library/DeviceCheckProvider/Private/FIRDeviceCheckProvider.h"
 
-#import "DCDevice+FIRDeviceCheckTokenGenerator.h"
-#import "FIRAppCheckLogger.h"
+#import <FirebaseAppCheck/FirebaseAppCheck.h>
 #import "FIRAppCheckToken.h"
-#import "FIRDeviceCheckAPIService.h"
+#import "FirebaseAppCheck/Source/Library/Core/FIRAppCheckLogger.h"
+#import "FirebaseAppCheck/Source/Library/DeviceCheckProvider/API/FIRDeviceCheckAPIService.h"
+#import "FirebaseAppCheck/Source/Library/DeviceCheckProvider/DCDevice+FIRDeviceCheckTokenGenerator.h"
 
-#import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseCore/FIRComponentContainer.h>
-#import <FirebaseCore/FIRLibrary.h>
-#import <FirebaseCore/FIROptions.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

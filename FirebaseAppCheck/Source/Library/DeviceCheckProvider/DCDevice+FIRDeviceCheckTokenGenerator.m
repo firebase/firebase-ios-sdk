@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "DCDevice+FIRDeviceCheckTokenGenerator.h"
+#import "FirebaseAppCheck/Source/Library/DeviceCheckProvider/DCDevice+FIRDeviceCheckTokenGenerator.h"
 
 @implementation DCDevice (FIRDeviceCheckTokenGenerator)
 

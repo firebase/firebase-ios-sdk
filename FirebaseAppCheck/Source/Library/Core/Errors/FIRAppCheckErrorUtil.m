@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRAppCheckErrorUtil.h"
+#import "FirebaseAppCheck/Source/Library/Core/Errors/FIRAppCheckErrorUtil.h"
 
 NSString *const kFIRAppCheckErrorDomain = @"com.firebase.appCheck";
 

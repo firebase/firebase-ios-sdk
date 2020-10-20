@@ -13,16 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#import "FIRAppCheckAPIService.h"
+#import "FirebaseAppCheck/Source/Library/Core/Private/FIRAppCheckAPIService.h"
 
 #import <FBLPromises/FBLPromises.h>
 
-#import "FIRAppCheckErrorUtil.h"
-#import "FIRAppCheckLogger.h"
+#import "FirebaseAppCheck/Source/Library/Core/Errors/FIRAppCheckErrorUtil.h"
+#import "FirebaseAppCheck/Source/Library/Core/FIRAppCheckLogger.h"
 
-// TODO: Update to repo relative imports
-#import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseCore/FIRHeartbeatInfo.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

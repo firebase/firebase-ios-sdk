@@ -16,7 +16,7 @@
 
 #import <DeviceCheck/DeviceCheck.h>
 
-#import "FIRDeviceCheckTokenGenerator.h"
+#import "FirebaseAppCheck/Source/Library/DeviceCheckProvider/FIRDeviceCheckTokenGenerator.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

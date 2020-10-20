@@ -22,12 +22,12 @@
 
 #import "FBLPromise+Testing.h"
 
-#import <FirebaseAppCheck/FirebaseAppCheck.h>
 #import <FirebaseAppCheckInterop/FIRAppCheckInterop.h>
 #import <FirebaseAppCheckInterop/FIRAppCheckTokenInterop.h>
+#import "FirebaseAppCheck/Source/Library/Core/Private/FIRAppCheckInternal.h"
 
-#import "FIRAppCheckStorage.h"
-#import "FIRAppCheckToken+Interop.h"
+#import "FirebaseAppCheck/Source/Library/Core/FIRAppCheckToken+Interop.h"
+#import "FirebaseAppCheck/Source/Library/Core/Storage/FIRAppCheckStorage.h"
 
 @interface FIRAppCheck (Tests) <FIRAppCheckInterop>
 - (instancetype)initWithAppName:(NSString *)appName

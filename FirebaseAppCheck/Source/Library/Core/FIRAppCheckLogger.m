@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRAppCheckLogger.h"
+#import "FirebaseAppCheck/Source/Library/Core/FIRAppCheckLogger.h"
 
 FIRLoggerService kFIRLoggerAppCheck = @"[Firebase/AppCheck]";
 
