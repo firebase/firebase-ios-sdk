@@ -39,8 +39,8 @@
 #  Figure out where we're being called from
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
-#  Build up the arguments list, passing through any flags added
-
+#  Build up the arguments list, passing through any flags added, and quoting
+#  every argument in case there are spaces in any of the the paths.
 ARGUMENTS=''
 for i in "$@"; do
   ARGUMENTS="$ARGUMENTS \"$i\""
