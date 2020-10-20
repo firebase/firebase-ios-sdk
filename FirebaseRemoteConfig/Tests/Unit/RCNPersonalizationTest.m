@@ -78,40 +78,14 @@
 
   _personalization = [[RCNPersonalization alloc] initWithAnalytics:_analyticsMock];
 
+  // Always remove the database at the start of testing.
   NSString *DBPath = [RCNTestUtilities remoteConfigPathForTestDatabase];
   id DBMock = OCMClassMock([RCNConfigDBManager class]);
   OCMStub([DBMock remoteConfigPathForDatabase]).andReturn(DBPath);
 
-  id configFetch = OCMClassMock([RCNConfigFetch class]);
-  OCMStub([configFetch fetchConfigWithExpirationDuration:0 completionHandler:OCMOCK_ANY])
-      .ignoringNonObjectArgs()
-      .andDo(^(NSInvocation *invocation) {
-        __unsafe_unretained void (^handler)(FIRRemoteConfigFetchStatus status,
-                                            NSError *_Nullable error) = nil;
-        [invocation getArgument:&handler atIndex:3];
-        [configFetch fetchWithUserProperties:[[NSDictionary alloc] init] completionHandler:handler];
-      });
-
-  NSDictionary *response = @{
-    RCNFetchResponseKeyState : RCNFetchResponseKeyStateUpdate,
-    RCNFetchResponseKeyEntries : @{@"key1" : @"value1", @"key2" : @"value2", @"key3" : @"value3"},
-    RCNFetchResponseKeyPersonalizationMetadata :
-        @{@"key1" : @{kPersonalizationId : @"id1"}, @"key2" : @{kPersonalizationId : @"id2"}}
-  };
-  id completionBlock = [OCMArg
-      invokeBlockWithArgs:[NSJSONSerialization dataWithJSONObject:response options:0 error:nil],
-                          [[NSHTTPURLResponse alloc]
-                               initWithURL:[NSURL URLWithString:@"https://firebase.com"]
-                                statusCode:200
-                               HTTPVersion:nil
-                              headerFields:@{@"etag" : @"etag1"}],
-                          [NSNull null], nil];
-
-  OCMExpect([configFetch URLSessionDataTaskWithContent:[OCMArg any]
-                                     completionHandler:completionBlock])
-      .andReturn(nil);
-
   RCNConfigContent *configContent = [[RCNConfigContent alloc] initWithDBManager:DBMock];
+
+  // Create a mock FIRRemoteConfig instance.
   _configInstance = OCMPartialMock([[FIRRemoteConfig alloc]
       initWithAppName:@"testApp"
            FIROptions:[[FIROptions alloc] initWithGoogleAppID:@"1:123:ios:test"
@@ -120,7 +94,7 @@
             DBManager:DBMock
         configContent:configContent
             analytics:_analyticsMock]);
-  [_configInstance setValue:configFetch forKey:@"_configFetch"];
+  [_configInstance setValue:[RCNPersonalizationTest mockFetchRequest] forKey:@"_configFetch"];
 }
 
 - (void)tearDown {
@@ -194,6 +168,41 @@
   [_configInstance fetchAndActivateWithCompletionHandler:fetchAndActivateCompletion];
   [_configInstance configValueForKey:@"key1"];
   [_configInstance configValueForKey:@"key2"];
+}
+
++ (id)mockFetchRequest {
+  id configFetch = OCMClassMock([RCNConfigFetch class]);
+  OCMStub([configFetch fetchConfigWithExpirationDuration:0 completionHandler:OCMOCK_ANY])
+      .ignoringNonObjectArgs()
+      .andDo(^(NSInvocation *invocation) {
+        __unsafe_unretained void (^handler)(FIRRemoteConfigFetchStatus status,
+                                            NSError *_Nullable error) = nil;
+        [invocation getArgument:&handler atIndex:3];
+        [configFetch fetchWithUserProperties:[[NSDictionary alloc] init] completionHandler:handler];
+      });
+  OCMExpect([configFetch
+                URLSessionDataTaskWithContent:[OCMArg any]
+                            completionHandler:[RCNPersonalizationTest mockResponseHandler]])
+      .andReturn(nil);
+  return configFetch;
+}
+
++ (id)mockResponseHandler {
+  NSDictionary *response = @{
+    RCNFetchResponseKeyState : RCNFetchResponseKeyStateUpdate,
+    RCNFetchResponseKeyEntries : @{@"key1" : @"value1", @"key2" : @"value2", @"key3" : @"value3"},
+    RCNFetchResponseKeyPersonalizationMetadata :
+        @{@"key1" : @{kPersonalizationId : @"id1"}, @"key2" : @{kPersonalizationId : @"id2"}}
+  };
+  return [OCMArg invokeBlockWithArgs:[NSJSONSerialization dataWithJSONObject:response
+                                                                     options:0
+                                                                       error:nil],
+                                     [[NSHTTPURLResponse alloc]
+                                          initWithURL:[NSURL URLWithString:@"https://firebase.com"]
+                                           statusCode:200
+                                          HTTPVersion:nil
+                                         headerFields:@{@"etag" : @"etag1"}],
+                                     [NSNull null], nil];
 }
 
 @end

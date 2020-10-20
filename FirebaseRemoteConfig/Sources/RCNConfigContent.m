@@ -86,6 +86,7 @@ static const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
       _bundleIdentifier = @"";
     }
     _DBManager = DBManager;
+    // Waits for both config and Personalization data to load.
     _configLoadFromDBSemaphore = dispatch_semaphore_create(1);
     [self loadConfigFromMainTable];
   }
@@ -98,6 +99,44 @@ static const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
   RCN_MUST_NOT_BE_MAIN_THREAD();
   BOOL isDatabaseLoadSuccessful = [self checkAndWaitForInitialDatabaseLoad];
   return isDatabaseLoadSuccessful;
+}
+
+#pragma mark - database
+
+/// This method is only meant to be called at init time. The underlying logic will need to be
+/// revaluated if the assumption changes at a later time.
+- (void)loadConfigFromMainTable {
+  if (!_DBManager) {
+    return;
+  }
+
+  NSAssert(!_isDatabaseLoadAlreadyInitiated, @"Database load has already been initiated");
+  _isDatabaseLoadAlreadyInitiated = true;
+
+  [_DBManager
+      loadMainWithBundleIdentifier:_bundleIdentifier
+                 completionHandler:^(BOOL success, NSDictionary *fetchedConfig,
+                                     NSDictionary *activeConfig, NSDictionary *defaultConfig) {
+                   self->_fetchedConfig = [fetchedConfig mutableCopy];
+                   self->_activeConfig = [activeConfig mutableCopy];
+                   self->_defaultConfig = [defaultConfig mutableCopy];
+                   dispatch_semaphore_signal(self->_configLoadFromDBSemaphore);
+                 }];
+
+  [_DBManager loadPersonalizationWithCompletionHandler:^(
+                  BOOL success, NSDictionary *fetchedPersonalization,
+                  NSDictionary *activePersonalization, NSDictionary *defaultConfig) {
+    self->_fetchedPersonalization = [fetchedPersonalization copy];
+    self->_activePersonalization = [activePersonalization copy];
+    dispatch_semaphore_signal(self->_configLoadFromDBSemaphore);
+  }];
+}
+
+/// Update the current config result to main table.
+/// @param values Values in a row to write to the table.
+/// @param source The source the config data is coming from. It determines which table to write to.
+- (void)updateMainTableWithValues:(NSArray *)values fromSource:(RCNDBSource)source {
+  [_DBManager insertMainTableWithValues:values fromSource:source completionHandler:nil];
 }
 
 #pragma mark - update
@@ -285,43 +324,6 @@ static const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
   [_DBManager insertOrUpdatePersonalizationConfig:metadata fromSource:RCNDBSourceFetched];
 }
 
-#pragma mark - database
-
-/// This method is only meant to be called at init time. The underlying logic will need to be
-/// revaluated if the assumption changes at a later time.
-- (void)loadConfigFromMainTable {
-  if (!_DBManager) {
-    return;
-  }
-
-  NSAssert(!_isDatabaseLoadAlreadyInitiated, @"Database load has already been initiated");
-  _isDatabaseLoadAlreadyInitiated = true;
-
-  [_DBManager
-      loadMainWithBundleIdentifier:_bundleIdentifier
-                 completionHandler:^(BOOL success, NSDictionary *fetchedConfig,
-                                     NSDictionary *activeConfig, NSDictionary *defaultConfig) {
-                   self->_fetchedConfig = [fetchedConfig mutableCopy];
-                   self->_activeConfig = [activeConfig mutableCopy];
-                   self->_defaultConfig = [defaultConfig mutableCopy];
-                   dispatch_semaphore_signal(self->_configLoadFromDBSemaphore);
-                 }];
-
-  [_DBManager loadPersonalizationWithCompletionHandler:^(
-                  BOOL success, NSDictionary *fetchedPersonalization,
-                  NSDictionary *activePersonalization, NSDictionary *defaultConfig) {
-    self->_fetchedPersonalization = [fetchedPersonalization copy];
-    self->_activePersonalization = [activePersonalization copy];
-    dispatch_semaphore_signal(self->_configLoadFromDBSemaphore);
-  }];
-}
-
-/// Update the current config result to main table.
-/// @param values Values in a row to write to the table.
-/// @param source The source the config data is coming from. It determines which table to write to.
-- (void)updateMainTableWithValues:(NSArray *)values fromSource:(RCNDBSource)source {
-  [_DBManager insertMainTableWithValues:values fromSource:source completionHandler:nil];
-}
 #pragma mark - getter/setter
 - (NSDictionary *)fetchedConfig {
   /// If this is the first time reading the fetchedConfig, we might still be reading it from the
