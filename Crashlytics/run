@@ -40,7 +40,12 @@
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 #  Build up the arguments list, passing through any flags added
-ARGUMENTS="$@"
+
+ARGUMENTS=''
+for i in "$@"; do
+  ARGUMENTS="$ARGUMENTS \"$i\""
+done
+
 VALIDATE_ARGUMENTS="$ARGUMENTS --build-phase --validate"
 UPLOAD_ARGUMENTS="$ARGUMENTS --build-phase"
 
