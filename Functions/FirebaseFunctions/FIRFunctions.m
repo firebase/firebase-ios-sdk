@@ -135,11 +135,11 @@ NSString *const kFUNDefaultRegion = @"us-central1";
   self = [super init];
   if (self) {
     if (!region) {
-      FUNThrowInvalidArgument(@"FIRFunctions region cannot nil.");
+      FUNThrowInvalidArgument(@"FIRFunctions region cannot be nil.");
     }
     _fetcherService = [[GTMSessionFetcherService alloc] init];
     _projectID = [projectID copy];
-    _region = [region copy;
+    _region = [region copy];
     _customDomain = [customDomain copy];
     _serializer = [[FUNSerializer alloc] init];
     _contextProvider = [[FUNContextProvider alloc] initWithAuth:auth messaging:messaging];
