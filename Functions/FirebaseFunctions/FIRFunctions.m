@@ -103,7 +103,7 @@ NSString *const kFUNDefaultRegion = @"us-central1";
 }
 
 + (instancetype)functionsForCustomDomain:(NSString *)customDomain {
-  return [[self alloc] initWithApp:[FIRApp defaultApp] region:NULL customDomain:customDomain];
+  return [[self alloc] initWithApp:[FIRApp defaultApp] region:kFUNDefaultRegion customDomain:customDomain];
 }
 
 + (instancetype)functionsForApp:(FIRApp *)app region:(NSString *)region {
@@ -111,7 +111,7 @@ NSString *const kFUNDefaultRegion = @"us-central1";
 }
 
 + (instancetype)functionsForApp:(FIRApp *)app customDomain:(NSString *)customDomain {
-  return [[self alloc] initWithApp:app customDomain:customDomain];
+  return [[self alloc] initWithApp:app region:kFUNDefaultRegion customDomain:customDomain];
 }
 
 - (instancetype)initWithApp:(FIRApp *)app region:(NSString *)region customDomain:(NSString *)customDomain {
@@ -129,16 +129,12 @@ NSString *const kFUNDefaultRegion = @"us-central1";
                         messaging:(nullable id<FIRMessagingInterop>)messaging {
   self = [super init];
   if (self) {
-    if (!regionOrCustomDomain) {
-      FUNThrowInvalidArgument(@"FIRFunctions regionOrCustomDomain cannot be nil.");
+    if (!region) {
+      FUNThrowInvalidArgument(@"FIRFunctions region cannot nil.");
     }
     _fetcherService = [[GTMSessionFetcherService alloc] init];
     _projectID = [projectID copy];
-    if (region) {
-      _region = [region copy]
-    } else {
-      _region = [kFUNDefaultRegion copy]
-    }
+    _region = [region copy]
     _customDomain = [customDomain copy]
     _serializer = [[FUNSerializer alloc] init];
     _contextProvider = [[FUNContextProvider alloc] initWithAuth:auth messaging:messaging];
