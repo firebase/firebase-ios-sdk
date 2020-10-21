@@ -56,7 +56,7 @@ NS_SWIFT_NAME(Functions)
 /**
  * Creates a Cloud Functions client with the given app and region.
  * @param app The app for the Firebase project.
- * @param region The region for the http trigger, such as "us-central1"
+ * @param region The region for the http trigger, such as "us-central1".
  */
 // clang-format off
 // because it incorrectly breaks this NS_SWIFT_NAME.
