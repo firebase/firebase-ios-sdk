@@ -1,4 +1,4 @@
-# v7.10.0
+# v7.1.0
 - [added] Added a constructor to set a custom domain. (#6787)
 
 # v2.9.0
