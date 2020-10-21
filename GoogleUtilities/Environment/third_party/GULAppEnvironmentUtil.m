@@ -272,7 +272,11 @@ static BOOL HasEmbeddedMobileProvision() {
 #if TARGET_OS_MACCATALYST
   applePlatform = @"maccatalyst";
 #elif TARGET_OS_IOS
-  applePlatform = @"ios";
+  if (@available(iOS 14.0, *)) {
+    applePlatform = [NSProcessInfo processInfo].isiOSAppOnMac ? @"ios_on_mac" : @"ios";
+  } else {
+    applePlatform = @"ios";
+  }
 #elif TARGET_OS_TV
   applePlatform = @"tvos";
 #elif TARGET_OS_OSX
