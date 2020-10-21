@@ -22,6 +22,7 @@
 #import "GoogleUtilities/Network/Public/GoogleUtilities/GULMutableDictionary.h"
 
 #import <objc/runtime.h>
+#import <dispatch/group.h>
 
 // Implementations need to be typed before calling the implementation directly to cast the
 // arguments and the return types correctly. Otherwise, it will crash the app.
@@ -881,18 +882,30 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
   GULRealDidReceiveRemoteNotificationWithCompletionIMP
       didReceiveRemoteNotificationWithCompletionIMP =
           [didReceiveRemoteNotificationWithCompletionIMPPointer pointerValue];
-
+  
+  dispatch_group_t __block callbackGroup = dispatch_group_create();
+  UIBackgroundFetchResult __block latestFetchResult = UIBackgroundFetchResultNoData;
+  dispatch_group_notify(callbackGroup, dispatch_get_main_queue(), ^() {
+    completionHandler(latestFetchResult);
+  });
   // Notify interceptors.
   [GULAppDelegateSwizzler
       notifyInterceptorsWithMethodSelector:methodSelector
                                   callback:^(id<GULApplicationDelegate> interceptor) {
+    
+                                    dispatch_group_enter(callbackGroup);
+                                    void (^localCompletionHandler)(UIBackgroundFetchResult) = ^void (UIBackgroundFetchResult fetchResult){
+                                      latestFetchResult = fetchResult;
+                                      dispatch_group_leave(callbackGroup);
+                                    };
+                                    
                                     NSInvocation *invocation = [GULAppDelegateSwizzler
                                         appDelegateInvocationForSelector:methodSelector];
                                     [invocation setTarget:interceptor];
                                     [invocation setSelector:methodSelector];
                                     [invocation setArgument:(void *)(&application) atIndex:2];
                                     [invocation setArgument:(void *)(&userInfo) atIndex:3];
-                                    [invocation setArgument:(void *)(&completionHandler) atIndex:4];
+                                    [invocation setArgument:(void *)(&localCompletionHandler) atIndex:4];
                                     [invocation invoke];
                                   }];
   // Call the real implementation if the real App Delegate has any.
