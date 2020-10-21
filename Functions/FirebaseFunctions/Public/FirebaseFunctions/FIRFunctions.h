@@ -51,14 +51,18 @@ NS_SWIFT_NAME(Functions)
 // clang-format off
 // because it incorrectly breaks this NS_SWIFT_NAME.
 + (instancetype)functionsForCustomDomain:(NSString *)customDomain NS_SWIFT_NAME(functions(customDomain:));
+// clang-format on
 
 /**
  * Creates a Cloud Functions client with the given app and region.
  * @param app The app for the Firebase project.
  * @param region The region for the http trigger, such as "us-central1"
  */
+// clang-format off
+// because it incorrectly breaks this NS_SWIFT_NAME.
 + (instancetype)functionsForApp:(FIRApp *)app
-                         region:(NSString *)region;
+                         region:(NSString *)region NS_SWIFT_NAME(functions(app:region:));
+// clang-format on
 
 /**
  * Creates a Cloud Functions client with the given app and region.
