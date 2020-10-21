@@ -62,7 +62,7 @@ NSString *const kFUNDefaultRegion = @"us-central1";
 // Re-declare this initializer here in order to attribute it as the designated initializer.
 - (instancetype)initWithProjectID:(NSString *)projectID
                            region:(NSString *)region
-                     customDomain:(NSString *)customDomain
+                     customDomain:(nullable NSString *)customDomain
                              auth:(nullable id<FIRAuthInterop>)auth
                         messaging:(nullable id<FIRMessagingInterop>)messaging
     NS_DESIGNATED_INITIALIZER;
