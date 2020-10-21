@@ -51,7 +51,7 @@
 }
 
 - (void)testRegionWithEmulator {
-  [functions useFunctionsEmulatorOrigin:@"http://localhost:5005"];
+  [_functions useFunctionsEmulatorOrigin:@"http://localhost:5005"];
   NSString *url = [_functions URLWithName:@"my-endpoint"];
   XCTAssertEqualObjects(@"http://localhost:5005/my-project/my-region/my-endpoint", url);
 }
@@ -62,7 +62,7 @@
 }
 
 - (void)testCustomDomainWithEmulator {
-  [functions useFunctionsEmulatorOrigin:@"http://localhost:5005"];
+  [_functionsCustomDomain useFunctionsEmulatorOrigin:@"http://localhost:5005"];
   NSString *url = [_functionsCustomDomain URLWithName:@"my-endpoint"];
   XCTAssertEqualObjects(@"http://localhost:5005/my-project/us-central1/my-endpoint", url);
 }
