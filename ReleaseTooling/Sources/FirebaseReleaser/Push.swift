@@ -19,18 +19,40 @@ import Foundation
 import FirebaseManifest
 import Utils
 
+private enum Destination {
+  case cpdc, trunk
+}
+
 enum Push {
   static func pushPodsToCPDC(gitRoot: URL) {
+    push(to: .cpdc, gitRoot: gitRoot)
+  }
+
+  static func publishPodsToTrunk(gitRoot: URL) {
+    push(to: .trunk, gitRoot: gitRoot)
+  }
+
+  private static func push(to destination: Destination, gitRoot: URL) {
     let cpdcLocation = findCpdc(gitRoot: gitRoot)
     let manifest = FirebaseManifest.shared
 
     for pod in manifest.pods.filter({ $0.releasing }) {
-      let warningsOK = pod.allowWarnings ? " --allow-warnings" : ""
+      let warningsOK = pod.allowWarnings ? "--allow-warnings" : ""
 
-      Shell.executeCommand("pod repo push --skip-tests --use-json \(warningsOK) \(cpdcLocation) " +
-        pod.skipImportValidation() + " \(pod.podspecName()) " +
-        "--sources=sso://cpdc-internal/firebase.git,https://cdn.cocoapods.org",
-        workingDir: gitRoot)
+      let command: String = {
+        switch destination {
+        case .cpdc:
+          return "pod repo push --skip-tests --use-json \(warningsOK) \(cpdcLocation) " +
+            pod.skipImportValidation() + " \(pod.podspecName()) " +
+            "--sources=sso://cpdc-internal/firebase.git,https://cdn.cocoapods.org"
+
+        case .trunk:
+          return "pod trunk push --skip-tests --synchronous \(warningsOK) " +
+            pod.skipImportValidation() + " ~/.cocoapods/repos/\(cpdcLocation)/Specs/\(pod.name)/" +
+            "\(manifest.versionString(pod))/\(pod.name).podspec.json"
+        }
+      }()
+      Shell.executeCommand(command, workingDir: gitRoot)
     }
   }
 
