@@ -1,3 +1,6 @@
+# v7.1.0
+- [changed] Add support for other Firebase products to integrate with Remote Config. (#6692)
+
 # v7.0.0
 - [changed] Updated `lastFetchTime` field to readonly. (#6567)
 - [changed] Functionally neutral change to stop using a deprecated method in the AB Testing API. (#6543)
@@ -7,7 +10,6 @@
 - [fixed] Fixed database creation on tvOS. (#6612)
 - [changed] Updated public API documentation to no longer reference removed APIs. (#6641)
 - [fixed] Updated `activateWithCompletion:` to use completion handler for experiment updates. (#3687)
-- [changed] Add support for other Firebase products to integrate with Remote Config. (#6692)
 
 # v4.9.1
 - [fixed] Fix an `attempt to insert nil object` crash in `fetchWithExpirationDuration:`. (#6522)

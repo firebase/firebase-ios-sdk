@@ -175,8 +175,7 @@
   OCMStub([configFetch fetchConfigWithExpirationDuration:0 completionHandler:OCMOCK_ANY])
       .ignoringNonObjectArgs()
       .andDo(^(NSInvocation *invocation) {
-        __unsafe_unretained void (^handler)(FIRRemoteConfigFetchStatus status,
-                                            NSError *_Nullable error) = nil;
+        __unsafe_unretained FIRRemoteConfigFetchCompletion handler;
         [invocation getArgument:&handler atIndex:3];
         [configFetch fetchWithUserProperties:[[NSDictionary alloc] init] completionHandler:handler];
       });
