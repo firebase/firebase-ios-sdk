@@ -27,24 +27,36 @@
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
+@interface DummyAppCheckProvider : NSObject <FIRAppCheckProvider>
+@end
+
+@implementation DummyAppCheckProvider
+
+- (void)getTokenWithCompletion:(FIRAppCheckTokenHandler)handler {
+  FIRAppCheckToken *token = [[FIRAppCheckToken alloc] initWithToken:@"Token"
+                                                     expirationDate:[NSDate distantFuture]];
+  handler(token, nil);
+}
+
+@end
+
 @interface AppCheckProviderFactory : NSObject <FIRAppCheckProviderFactory>
 @end
 
 @implementation AppCheckProviderFactory
 
 - (nullable id<FIRAppCheckProvider>)createProviderWithApp:(nonnull FIRApp *)app {
-  return [[FIRAppCheckDefaultCustomProvider alloc]
-      initWithCustomJWTRequestHandler:^(FIRAppCheckCustomJWTHandler _Nonnull JWTHandler) {
-        JWTHandler(@"MyJWTHandler", nil);
-      }];
+  return [[DummyAppCheckProvider alloc] init];
 }
 
 @end
 
 @interface FIRAppCheckIntegrationTests : XCTestCase
 
-@property(nonatomic) id mockProviderFactory;
-@property(nonatomic) id mockAppCheckProvider;
+@property(nonatomic, nullable) id mockProviderFactory;
+@property(nonatomic, nullable) id mockAppCheckProvider;
 
 @end
 
@@ -175,3 +187,5 @@
 }
 
 @end
+
+NS_ASSUME_NONNULL_END

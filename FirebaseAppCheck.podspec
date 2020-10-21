@@ -44,7 +44,7 @@ Pod::Spec.new do |s|
     cs.source_files = subspec_dir + '**/*.[mh]'
     cs.public_header_files = subspec_dir + 'Public/*.h'
 
-    cs.dependency 'GoogleUtilities/Environment'
+    cs.dependency 'GoogleUtilities/Environment', '~> 7.0'
   end
 
   s.subspec 'DeviceCheckProvider' do |ds|
@@ -54,6 +54,14 @@ Pod::Spec.new do |s|
     ds.private_header_files = subspec_dir + 'Private/*.h'
 
     ds.framework = 'DeviceCheck'
+    ds.dependency 'FirebaseAppCheck/Core'
+  end
+
+  s.subspec 'DebugProvider' do |ds|
+    subspec_dir = base_dir + 'Library/DebugProvider/'
+    ds.source_files = subspec_dir + '**/*.[mh]'
+    ds.public_header_files = subspec_dir + 'Public/*.h'
+
     ds.dependency 'FirebaseAppCheck/Core'
   end
 

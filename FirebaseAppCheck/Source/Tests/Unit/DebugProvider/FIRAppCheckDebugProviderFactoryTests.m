@@ -14,17 +14,22 @@
  * limitations under the License.
  */
 
-#import "FIRAppCheck.h"
-#import "FIRAppCheckProvider.h"
-#import "FIRAppCheckProviderFactory.h"
-#import "FIRAppCheckToken.h"
-#import "FIRAppCheckVersion.h"
+#import <XCTest/XCTest.h>
 
-// DebugProvider
-#if __has_include("FIRAppCheckDebugProvider.h")
-#import "FIRAppCheckDebugProvider.h"
-#endif  // __has_include("FIRAppCheckDebugProvider.h")
+#import <FirebaseAppCheck/FirebaseAppCheck.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
-#if __has_include("FIRAppCheckDebugProviderFactory.h")
-#import "FIRAppCheckDebugProviderFactory.h"
-#endif  // __has_include("FIRAppCheckDebugProviderFactory.h")
+@interface FIRAppCheckDebugProviderFactoryTests : XCTestCase
+@end
+
+@implementation FIRAppCheckDebugProviderFactoryTests
+
+- (void)testCreateProviderWithApp {
+  FIRAppCheckDebugProviderFactory *factory = [[FIRAppCheckDebugProviderFactory alloc] init];
+  FIRApp *dummyApp = (FIRApp *)[[NSObject alloc] init];
+
+  XCTAssert(
+      [[factory createProviderWithApp:dummyApp] isKindOfClass:[FIRAppCheckDebugProvider class]]);
+}
+
+@end

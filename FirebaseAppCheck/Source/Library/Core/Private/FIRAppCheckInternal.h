@@ -16,3 +16,5 @@
 // headers. Any package manager complexity should be handled here.
 
 #import <FirebaseAppCheck/FirebaseAppCheck.h>
+
+#import "FirebaseAppCheck/Source/Library/Core/FIRAppCheckLogger.h"

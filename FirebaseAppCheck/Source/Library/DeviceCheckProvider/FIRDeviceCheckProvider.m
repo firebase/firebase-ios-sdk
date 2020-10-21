@@ -101,7 +101,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - FIRAppCheckProvider
 
-- (void)getTokenWithCompletion:(nonnull FIRAppCheckTokenHandler)handler {
+- (void)getTokenWithCompletion:(FIRAppCheckTokenHandler)handler {
   [self deviceToken]
       .then(^FBLPromise<FIRAppCheckToken *> *(NSData *deviceToken) {
         return [self.APIService appCheckTokenWithDeviceToken:deviceToken];

@@ -29,10 +29,14 @@ class AppCheckTests: XCTestCase {
   }
 }
 
+class DummyAppCheckProvider: NSObject, AppCheckProvider {
+  func getToken(completion handler: @escaping AppCheckTokenHandler) {
+    handler(AppCheckToken(token: "token", expirationDate: .distantFuture), nil)
+  }
+}
+
 extension AppCheckTests: AppCheckProviderFactory {
   func createProvider(with app: FirebaseApp) -> AppCheckProvider? {
-    return AppCheckDefaultCustomProvider { handler in
-      handler("MyCustomJWT", nil)
-    }
+    return DummyAppCheckProvider()
   }
 }

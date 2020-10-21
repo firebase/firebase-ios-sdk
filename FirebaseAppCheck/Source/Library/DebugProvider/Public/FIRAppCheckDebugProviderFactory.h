@@ -14,8 +14,14 @@
  * limitations under the License.
  */
 
-#import "FIRAppCheckDefaultCustomProvider.h"
+#import <Foundation/Foundation.h>
 
-@implementation FIRAppCheckDefaultCustomProvider
+#import <FirebaseAppCheck/FIRAppCheckProviderFactory.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface FIRAppCheckDebugProviderFactory : NSObject <FIRAppCheckProviderFactory>
 
 @end
+
+NS_ASSUME_NONNULL_END
