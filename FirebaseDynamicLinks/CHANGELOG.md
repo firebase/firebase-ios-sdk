@@ -1,3 +1,6 @@
+# v4.3.2
+- [fixed] Fixed broken callback to AppDelegate after retrieveing a dynamic link during fresh app start.
+
 # v4.3.1
 - [changed] Client id usage in api call and respective checks in the code.
 - [fixed] Fix attempts to connect to invalid ipv6 domain by updating ipv4 and ipv6 to use a single, valid endpoint (#5032)
