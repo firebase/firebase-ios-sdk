@@ -171,7 +171,7 @@ struct LaunchArgs {
     // Get the project repo directory, and fail if it doesn't exist and we're building Firebase.
     if let repoPath = defaults.string(forKey: Key.repoDir.rawValue) {
       repoDir = URL(fileURLWithPath: repoPath)
-    } else if defaults.string(forKey: Key.zipPods.rawValue) != nil {
+    } else if defaults.string(forKey: Key.zipPods.rawValue) == nil {
       LaunchArgs.exitWithUsageAndLog("Missing required key: `\(Key.repoDir)` for the folder " +
         "containing the repository from which we're building the zip.")
     } else {
