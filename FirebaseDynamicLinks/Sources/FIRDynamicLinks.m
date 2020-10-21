@@ -514,15 +514,11 @@ static const NSInteger FIRErrorCodeDurableDeepLinkFailed = -119;
       [applicationDelegate respondsToSelector:@selector(application:openURL:options:)]) {
     // pass url directly to application delegate to avoid hop into
     // iOS handling of the universal links
-    if (@available(iOS 9.0, *)) {
-      [applicationDelegate application:[UIApplication sharedApplication] openURL:url options:@{}];
-      return;
-    }
+    [applicationDelegate application:[UIApplication sharedApplication] openURL:url options:@{}];
+    return;
   }
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  [[UIApplication sharedApplication] openURL:url];
-#pragma clang diagnostic pop
+
+  [[UIApplication sharedApplication] openURL:url options:@{} completionHandler:nil];
 }
 
 - (void)handlePendingDynamicLinkRetrievalFailureWithErrorCode:(NSInteger)errorCode
