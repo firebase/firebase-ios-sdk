@@ -25,11 +25,18 @@ Pod::Spec.new do |s|
   s.static_framework = true
   s.prefix_header_file = false
 
-  base_dir = "FirebaseAppCheck/Source/"
+  base_dir = "FirebaseAppCheck/"
 
-  s.dependency 'FirebaseAppCheckInterop', '~> 7.0.0-beta'
+  s.source_files = [
+    base_dir + 'Sources/**/*.[mh]',
+  ]
+  s.public_header_files = base_dir + 'Sources/Public/FirebaseAppCheck/*.h'
+
+  s.framework = 'DeviceCheck'
+
   s.dependency 'FirebaseCore', '~> 7.0'
   s.dependency 'PromisesObjC', '~> 1.2'
+  s.dependency 'GoogleUtilities/Environment', '~> 7.0'
 
   preprocessor_definitions = 'FIRAppCheck_LIB_VERSION=' + String(s.version)
   s.pod_target_xcconfig = {
@@ -37,33 +44,6 @@ Pod::Spec.new do |s|
     'GCC_PREPROCESSOR_DEFINITIONS' => preprocessor_definitions,
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
   }
-
-  # TODO: Consider less generic name instead of "Core"
-  s.subspec 'Core' do |cs|
-    subspec_dir = base_dir + 'Library/Core/'
-    cs.source_files = subspec_dir + '**/*.[mh]'
-    cs.public_header_files = subspec_dir + 'Public/*.h'
-
-    cs.dependency 'GoogleUtilities/Environment', '~> 7.0'
-  end
-
-  s.subspec 'DeviceCheckProvider' do |ds|
-    subspec_dir = base_dir + 'Library/DeviceCheckProvider/'
-    ds.source_files = subspec_dir + '**/*.[mh]'
-    ds.public_header_files = subspec_dir + 'Private/*.h'
-    ds.private_header_files = subspec_dir + 'Private/*.h'
-
-    ds.framework = 'DeviceCheck'
-    ds.dependency 'FirebaseAppCheck/Core'
-  end
-
-  s.subspec 'DebugProvider' do |ds|
-    subspec_dir = base_dir + 'Library/DebugProvider/'
-    ds.source_files = subspec_dir + '**/*.[mh]'
-    ds.public_header_files = subspec_dir + 'Public/*.h'
-
-    ds.dependency 'FirebaseAppCheck/Core'
-  end
 
   s.test_spec 'unit' do |unit_tests|
     unit_tests.platforms = {:ios => '11.0', :osx => '10.11', :tvos => '11.0'}
