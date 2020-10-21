@@ -229,18 +229,18 @@ let package = Package(
     ),
     .binaryTarget(
       name: "FirebaseAnalytics",
-      url: "https://dl.google.com/firebase/ios/swiftpm/6.34.0/FirebaseAnalytics.zip",
-      checksum: "48aee46798b06ab4dbe6241541ba21ebdfe449e343c34a07845a67b6b328c4e2"
+      url: "https://dl.google.com/firebase/ios/swiftpm/7.0.0/FirebaseAnalytics.zip",
+      checksum: "52fce991295d5de9fd5f4a821544d7489bc4fdaed7189f7aef24487305d7d527"
     ),
     .binaryTarget(
       name: "FIRAnalyticsConnector",
-      url: "https://dl.google.com/firebase/ios/swiftpm/6.34.0/FIRAnalyticsConnector.zip",
-      checksum: "b3818c2cac2f2f780eacf33ace7bd1632b477060670a21ca3d1b423991c08ca1"
+      url: "https://dl.google.com/firebase/ios/swiftpm/7.0.0/FIRAnalyticsConnector.zip",
+      checksum: "06833c004316891f188e5bdbdb48e4c3aa9dafa832cfe73af21b482941b67ec3"
     ),
     .binaryTarget(
       name: "GoogleAppMeasurement",
-      url: "https://dl.google.com/firebase/ios/swiftpm/6.34.0/GoogleAppMeasurement.zip",
-      checksum: "05f6d2da2aa072781826be135498c6e1730ed43519c2232e01c5f043f5fe7189"
+      url: "https://dl.google.com/firebase/ios/swiftpm/7.0.0/GoogleAppMeasurement.zip",
+      checksum: "8e7cccef0f97069c1e17c4a7b53580d32dc8da80053c158313e3f28991265163"
     ),
 
     .target(
