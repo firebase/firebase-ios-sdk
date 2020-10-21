@@ -119,7 +119,7 @@ NSString *const kFUNDefaultRegion = @"us-central1";
 
 - (instancetype)initWithApp:(FIRApp *)app
                      region:(NSString *)region
-               customDomain:(NSString *)customDomain {
+               customDomain:(nullable NSString *)customDomain {
   return [self initWithProjectID:app.options.projectID
                           region:region
                     customDomain:customDomain

@@ -58,7 +58,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (id)initWithProjectID:(NSString *)projectID
                  region:(NSString *)region
-           customDomain:(NSString *)customDomain
+           customDomain:(nullable NSString *)customDomain
                    auth:(nullable id<FIRAuthInterop>)auth
               messaging:(nullable id<FIRMessagingInterop>)messaging;
 
