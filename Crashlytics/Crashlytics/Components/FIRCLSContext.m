@@ -131,55 +131,56 @@ bool FIRCLSContextInitialize(FIRCLSInternalReport* report,
   _firclsContext.readonly->debuggerAttached = FIRCLSProcessDebuggerAttached();
   _firclsContext.readonly->delegate = initData->delegate;
 
-    FIRCLSHostInitialize(&_firclsContext.readonly->host);
+  FIRCLSHostInitialize(&_firclsContext.readonly->host);
 
-    _firclsContext.readonly->logging.errorStorage.maxSize = 0;
-    _firclsContext.readonly->logging.errorStorage.maxEntries =
-        initData->errorsEnabled ? initData->maxCustomExceptions : 0;
-    _firclsContext.readonly->logging.errorStorage.restrictBySize = false;
-    _firclsContext.readonly->logging.errorStorage.entryCount =
-        &_firclsContext.writable->logging.errorsCount;
-    _firclsContext.readonly->logging.errorStorage.aPath =
-        FIRCLSContextAppendToRoot(rootPath, FIRCLSReportErrorAFile);
-    _firclsContext.readonly->logging.errorStorage.bPath =
-        FIRCLSContextAppendToRoot(rootPath, FIRCLSReportErrorBFile);
+  _firclsContext.readonly->logging.errorStorage.maxSize = 0;
+  _firclsContext.readonly->logging.errorStorage.maxEntries =
+      initData->errorsEnabled ? initData->maxCustomExceptions : 0;
+  _firclsContext.readonly->logging.errorStorage.restrictBySize = false;
+  _firclsContext.readonly->logging.errorStorage.entryCount =
+      &_firclsContext.writable->logging.errorsCount;
+  _firclsContext.readonly->logging.errorStorage.aPath =
+      FIRCLSContextAppendToRoot(rootPath, FIRCLSReportErrorAFile);
+  _firclsContext.readonly->logging.errorStorage.bPath =
+      FIRCLSContextAppendToRoot(rootPath, FIRCLSReportErrorBFile);
 
-    _firclsContext.readonly->logging.logStorage.maxSize = initData->maxLogSize;
-    _firclsContext.readonly->logging.logStorage.maxEntries = 0;
-    _firclsContext.readonly->logging.logStorage.restrictBySize = true;
-    _firclsContext.readonly->logging.logStorage.entryCount = NULL;
-    _firclsContext.readonly->logging.logStorage.aPath =
-        FIRCLSContextAppendToRoot(rootPath, FIRCLSReportLogAFile);
-    _firclsContext.readonly->logging.logStorage.bPath =
-        FIRCLSContextAppendToRoot(rootPath, FIRCLSReportLogBFile);
-    _firclsContext.readonly->logging.customExceptionStorage.aPath =
-        FIRCLSContextAppendToRoot(rootPath, FIRCLSReportCustomExceptionAFile);
-    _firclsContext.readonly->logging.customExceptionStorage.bPath =
-        FIRCLSContextAppendToRoot(rootPath, FIRCLSReportCustomExceptionBFile);
-    _firclsContext.readonly->logging.customExceptionStorage.maxSize = 0;
-    _firclsContext.readonly->logging.customExceptionStorage.restrictBySize = false;
-    _firclsContext.readonly->logging.customExceptionStorage.maxEntries =
-        initData->maxCustomExceptions;
-    _firclsContext.readonly->logging.customExceptionStorage.entryCount =
-        &_firclsContext.writable->exception.customExceptionCount;
+  _firclsContext.readonly->logging.logStorage.maxSize = initData->maxLogSize;
+  _firclsContext.readonly->logging.logStorage.maxEntries = 0;
+  _firclsContext.readonly->logging.logStorage.restrictBySize = true;
+  _firclsContext.readonly->logging.logStorage.entryCount = NULL;
+  _firclsContext.readonly->logging.logStorage.aPath =
+      FIRCLSContextAppendToRoot(rootPath, FIRCLSReportLogAFile);
+  _firclsContext.readonly->logging.logStorage.bPath =
+      FIRCLSContextAppendToRoot(rootPath, FIRCLSReportLogBFile);
+  _firclsContext.readonly->logging.customExceptionStorage.aPath =
+      FIRCLSContextAppendToRoot(rootPath, FIRCLSReportCustomExceptionAFile);
+  _firclsContext.readonly->logging.customExceptionStorage.bPath =
+      FIRCLSContextAppendToRoot(rootPath, FIRCLSReportCustomExceptionBFile);
+  _firclsContext.readonly->logging.customExceptionStorage.maxSize = 0;
+  _firclsContext.readonly->logging.customExceptionStorage.restrictBySize = false;
+  _firclsContext.readonly->logging.customExceptionStorage.maxEntries =
+      initData->maxCustomExceptions;
+  _firclsContext.readonly->logging.customExceptionStorage.entryCount =
+      &_firclsContext.writable->exception.customExceptionCount;
 
-    _firclsContext.readonly->logging.userKVStorage.maxCount = initData->maxKeyValues;
-    _firclsContext.readonly->logging.userKVStorage.incrementalPath =
-        FIRCLSContextAppendToRoot(rootPath, FIRCLSReportUserIncrementalKVFile);
-    _firclsContext.readonly->logging.userKVStorage.compactedPath =
-        FIRCLSContextAppendToRoot(rootPath, FIRCLSReportUserCompactedKVFile);
+  _firclsContext.readonly->logging.userKVStorage.maxCount = initData->maxKeyValues;
+  _firclsContext.readonly->logging.userKVStorage.incrementalPath =
+      FIRCLSContextAppendToRoot(rootPath, FIRCLSReportUserIncrementalKVFile);
+  _firclsContext.readonly->logging.userKVStorage.compactedPath =
+      FIRCLSContextAppendToRoot(rootPath, FIRCLSReportUserCompactedKVFile);
 
-    _firclsContext.readonly->logging.internalKVStorage.maxCount = 32;  // Hardcode = bad
-    _firclsContext.readonly->logging.internalKVStorage.incrementalPath =
-        FIRCLSContextAppendToRoot(rootPath, FIRCLSReportInternalIncrementalKVFile);
-    _firclsContext.readonly->logging.internalKVStorage.compactedPath =
-        FIRCLSContextAppendToRoot(rootPath, FIRCLSReportInternalCompactedKVFile);
+  _firclsContext.readonly->logging.internalKVStorage.maxCount = 32;  // Hardcode = bad
+  _firclsContext.readonly->logging.internalKVStorage.incrementalPath =
+      FIRCLSContextAppendToRoot(rootPath, FIRCLSReportInternalIncrementalKVFile);
+  _firclsContext.readonly->logging.internalKVStorage.compactedPath =
+      FIRCLSContextAppendToRoot(rootPath, FIRCLSReportInternalCompactedKVFile);
 
-    FIRCLSUserLoggingInit(&_firclsContext.readonly->logging, &_firclsContext.writable->logging);
-    _firclsContext.readonly->binaryimage.path =
+  FIRCLSUserLoggingInit(&_firclsContext.readonly->logging, &_firclsContext.writable->logging);
+  _firclsContext.readonly->binaryimage.path =
       FIRCLSContextAppendToRoot(rootPath, FIRCLSReportBinaryImageFile);
 
-  NSString* priorCrashRootPath = [NSString stringWithUTF8String:initData->previouslyCrashedFileRootPath];
+  NSString* priorCrashRootPath =
+      [NSString stringWithUTF8String:initData->previouslyCrashedFileRootPath];
   NSString* fileName = [NSString stringWithUTF8String:FIRCLSCrashedMarkerFileName];
 
   _firclsContext.readonly->previouslyCrashedFileFullPath =
@@ -187,48 +188,48 @@ bool FIRCLSContextInitialize(FIRCLSInternalReport* report,
 
   if (!_firclsContext.readonly->debuggerAttached) {
 #if CLS_SIGNAL_SUPPORTED
-      _firclsContext.readonly->signal.path =
-          FIRCLSContextAppendToRoot(rootPath, FIRCLSReportSignalFile);
+    _firclsContext.readonly->signal.path =
+        FIRCLSContextAppendToRoot(rootPath, FIRCLSReportSignalFile);
 
-      FIRCLSSignalInitialize(&_firclsContext.readonly->signal);
+    FIRCLSSignalInitialize(&_firclsContext.readonly->signal);
 #endif
 
 #if CLS_MACH_EXCEPTION_SUPPORTED
-      _firclsContext.readonly->machException.path =
-          FIRCLSContextAppendToRoot(rootPath, FIRCLSReportMachExceptionFile);
+    _firclsContext.readonly->machException.path =
+        FIRCLSContextAppendToRoot(rootPath, FIRCLSReportMachExceptionFile);
 
-      FIRCLSMachExceptionInit(&_firclsContext.readonly->machException, initData->machExceptionMask);
+    FIRCLSMachExceptionInit(&_firclsContext.readonly->machException, initData->machExceptionMask);
 #endif
 
-      _firclsContext.readonly->exception.path =
-          FIRCLSContextAppendToRoot(rootPath, FIRCLSReportExceptionFile);
-      _firclsContext.readonly->exception.maxCustomExceptions =
-          initData->customExceptionsEnabled ? initData->maxCustomExceptions : 0;
+    _firclsContext.readonly->exception.path =
+        FIRCLSContextAppendToRoot(rootPath, FIRCLSReportExceptionFile);
+    _firclsContext.readonly->exception.maxCustomExceptions =
+        initData->customExceptionsEnabled ? initData->maxCustomExceptions : 0;
 
-      FIRCLSExceptionInitialize(&_firclsContext.readonly->exception,
-                                &_firclsContext.writable->exception, initData->delegate);
+    FIRCLSExceptionInitialize(&_firclsContext.readonly->exception,
+                              &_firclsContext.writable->exception, initData->delegate);
 
   } else {
     FIRCLSSDKLog("Debugger present - not installing handlers\n");
   }
 
-    const char* metaDataPath = [[rootPath stringByAppendingPathComponent:FIRCLSReportMetadataFile]
-        fileSystemRepresentation];
-    if (!FIRCLSContextRecordMetadata(metaDataPath, initData)) {
-      FIRCLSSDKLog("Unable to record context metadata\n");
-    }
+  const char* metaDataPath =
+      [[rootPath stringByAppendingPathComponent:FIRCLSReportMetadataFile] fileSystemRepresentation];
+  if (!FIRCLSContextRecordMetadata(metaDataPath, initData)) {
+    FIRCLSSDKLog("Unable to record context metadata\n");
+  }
 
   // At this point we need to do two things. First, we need to do our memory protection *only* after
   // all of these initialization steps are really done. But, we also want to wait as long as
   // possible for these to be complete. If we do not, there's a chance that we will not be able to
   // correctly report a crash shortly after start.
 
-    _firclsContext.readonly->initialized = true;
-    __sync_synchronize();
+  _firclsContext.readonly->initialized = true;
+  __sync_synchronize();
 
-    if (!FIRCLSAllocatorProtect(_firclsContext.allocator)) {
-      FIRCLSSDKLog("Error: Memory protection failed\n");
-    }
+  if (!FIRCLSAllocatorProtect(_firclsContext.allocator)) {
+    FIRCLSSDKLog("Error: Memory protection failed\n");
+  }
 
   dispatch_block_t binary_image_init_block = ^void() {
     FIRCLSBinaryImageInit(&_firclsContext.readonly->binaryimage,
@@ -243,7 +244,7 @@ bool FIRCLSContextInitialize(FIRCLSInternalReport* report,
   // If the app crashed before finishing FIRCLSBinaryImageInit in the last run, dispatch the
   // initialization on the main queue so that we block on the initialization. Otherwise, dispatch
   // to a background thread to speed up the start up time.
-  if(launchFailure) {
+  if (launchFailure) {
     binary_image_init_block();
     return true;
   } else {

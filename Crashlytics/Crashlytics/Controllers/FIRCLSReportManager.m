@@ -465,7 +465,8 @@ static void (^reportSentCallback)(void);
     return NO;
   }
 
-  if (!FIRCLSContextInitialize(report, self.settings, self.installIDModel, _fileManager, [self launchFailureMarkerPath], launchFailure)) {
+  if (!FIRCLSContextInitialize(report, self.settings, self.installIDModel, _fileManager,
+                               [self launchFailureMarkerPath], launchFailure)) {
     return NO;
   }
 
