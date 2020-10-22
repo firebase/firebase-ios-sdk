@@ -76,6 +76,8 @@
 
 static NSString *FIRCLSFirebaseAnalyticsEventLogFormat = @"$A$:%@";
 
+static BOOL crashAtLaunch = NO;
+
 @interface FIRCLSAnalyticsInteropListener : NSObject <FIRAnalyticsInteropListener> {
 }
 @end
@@ -126,6 +128,7 @@ typedef NSNumber FIRCLSWrappedBool;
   dispatch_queue_t _dispatchQueue;
   NSOperationQueue *_operationQueue;
   id<FIRAnalyticsInterop> _analytics;
+  BOOL launchFailure;
 
   // A promise that will be resolved when unsent reports are found on the device, and
   // processReports: can be called to decide how to deal with them.
@@ -313,7 +316,7 @@ static void (^reportSentCallback)(void);
   }
 
   // Grab existing reports
-  BOOL launchFailure = [self checkForAndCreateLaunchMarker];
+  [self checkForAndCreateLaunchMarker];
   NSArray *preexistingReportPaths = _fileManager.activePathContents;
 
   FIRCLSInternalReport *report = [self setupCurrentReport:executionIdentifier];
@@ -462,7 +465,7 @@ static void (^reportSentCallback)(void);
     return NO;
   }
 
-  if (!FIRCLSContextInitialize(report, self.settings, self.installIDModel, _fileManager)) {
+  if (!FIRCLSContextInitialize(report, self.settings, self.installIDModel, _fileManager, [self launchFailureMarkerPath], launchFailure)) {
     return NO;
   }
 
@@ -487,14 +490,14 @@ static void (^reportSentCallback)(void);
 #endif
   });
 
-  // remove the launch failure marker and record the startup time
+  // record the startup time
   dispatch_async(dispatch_get_main_queue(), ^{
-    [self removeLaunchFailureMarker];
     dispatch_async(FIRCLSGetLoggingQueue(), ^{
       FIRCLSUserLoggingWriteInternalKeyValue(FIRCLSFirstRunloopTurnTimeKey,
                                              [@(FIRCLSProfileEnd(mark)) description]);
     });
   });
+  NSLog(@"crash:: %f", FIRCLSProfileEnd(mark));
 }
 
 - (BOOL)validateAppIdentifiers {
@@ -533,7 +536,7 @@ static void (^reportSentCallback)(void);
 #pragma mark - Reporting Lifecycle
 
 - (FIRCLSInternalReport *)setupCurrentReport:(NSString *)executionIdentifier {
-  [self createLaunchFailureMarker];
+  [self createLaunchFailureMarker]; //why is there here when checkforandcreate is already run?
 
   NSString *reportPath = [_fileManager setupNewPathForExecutionIdentifier:executionIdentifier];
 
@@ -696,16 +699,14 @@ static void (^reportSentCallback)(void);
   return [_fileManager removeItemAtPath:[self launchFailureMarkerPath]];
 }
 
-- (BOOL)checkForAndCreateLaunchMarker {
-  BOOL launchFailure = [self launchFailureMarkerPresent];
+- (void)checkForAndCreateLaunchMarker {
+  launchFailure = [self launchFailureMarkerPresent];
   if (launchFailure) {
     FIRCLSDeveloperLog("Crashlytics:Crash",
                        @"Last launch failed: this may indicate a crash shortly after app launch.");
   } else {
     [self createLaunchFailureMarker];
   }
-
-  return launchFailure;
 }
 
 #pragma mark -

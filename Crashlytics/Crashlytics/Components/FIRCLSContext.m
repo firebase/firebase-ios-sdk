@@ -102,7 +102,9 @@ FIRCLSContextInitData FIRCLSContextBuildInitData(FIRCLSInternalReport* report,
 bool FIRCLSContextInitialize(FIRCLSInternalReport* report,
                              FIRCLSSettings* settings,
                              FIRCLSInstallIdentifierModel* installIDModel,
-                             FIRCLSFileManager* fileManager) {
+                             FIRCLSFileManager* fileManager,
+                             NSString* launchFailureMarkerPath,
+                             BOOL launchFailure) {
   FIRCLSContextInitData initDataObj =
       FIRCLSContextBuildInitData(report, settings, installIDModel, fileManager);
   FIRCLSContextInitData* initData = &initDataObj;
@@ -112,9 +114,6 @@ bool FIRCLSContextInitialize(FIRCLSInternalReport* report,
   }
 
   FIRCLSContextBaseInit();
-
-  dispatch_group_t group = dispatch_group_create();
-  dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
 
   if (!FIRCLSIsValidPointer(initData->rootPath)) {
     return false;
@@ -132,11 +131,8 @@ bool FIRCLSContextInitialize(FIRCLSInternalReport* report,
   _firclsContext.readonly->debuggerAttached = FIRCLSProcessDebuggerAttached();
   _firclsContext.readonly->delegate = initData->delegate;
 
-  dispatch_group_async(group, queue, ^{
     FIRCLSHostInitialize(&_firclsContext.readonly->host);
-  });
 
-  dispatch_group_async(group, queue, ^{
     _firclsContext.readonly->logging.errorStorage.maxSize = 0;
     _firclsContext.readonly->logging.errorStorage.maxEntries =
         initData->errorsEnabled ? initData->maxCustomExceptions : 0;
@@ -180,43 +176,30 @@ bool FIRCLSContextInitialize(FIRCLSInternalReport* report,
         FIRCLSContextAppendToRoot(rootPath, FIRCLSReportInternalCompactedKVFile);
 
     FIRCLSUserLoggingInit(&_firclsContext.readonly->logging, &_firclsContext.writable->logging);
-  });
-
-  dispatch_group_async(group, queue, ^{
     _firclsContext.readonly->binaryimage.path =
-        FIRCLSContextAppendToRoot(rootPath, FIRCLSReportBinaryImageFile);
+      FIRCLSContextAppendToRoot(rootPath, FIRCLSReportBinaryImageFile);
 
-    FIRCLSBinaryImageInit(&_firclsContext.readonly->binaryimage,
-                          &_firclsContext.writable->binaryImage);
-  });
+  NSString* priorCrashRootPath = [NSString stringWithUTF8String:initData->previouslyCrashedFileRootPath];
+  NSString* fileName = [NSString stringWithUTF8String:FIRCLSCrashedMarkerFileName];
 
-  dispatch_group_async(group, queue, ^{
-    NSString* rootPath = [NSString stringWithUTF8String:initData->previouslyCrashedFileRootPath];
-    NSString* fileName = [NSString stringWithUTF8String:FIRCLSCrashedMarkerFileName];
-    _firclsContext.readonly->previouslyCrashedFileFullPath =
-        FIRCLSContextAppendToRoot(rootPath, fileName);
-  });
+  _firclsContext.readonly->previouslyCrashedFileFullPath =
+      FIRCLSContextAppendToRoot(priorCrashRootPath, fileName);
 
   if (!_firclsContext.readonly->debuggerAttached) {
 #if CLS_SIGNAL_SUPPORTED
-    dispatch_group_async(group, queue, ^{
       _firclsContext.readonly->signal.path =
           FIRCLSContextAppendToRoot(rootPath, FIRCLSReportSignalFile);
 
       FIRCLSSignalInitialize(&_firclsContext.readonly->signal);
-    });
 #endif
 
 #if CLS_MACH_EXCEPTION_SUPPORTED
-    dispatch_group_async(group, queue, ^{
       _firclsContext.readonly->machException.path =
           FIRCLSContextAppendToRoot(rootPath, FIRCLSReportMachExceptionFile);
 
       FIRCLSMachExceptionInit(&_firclsContext.readonly->machException, initData->machExceptionMask);
-    });
 #endif
 
-    dispatch_group_async(group, queue, ^{
       _firclsContext.readonly->exception.path =
           FIRCLSContextAppendToRoot(rootPath, FIRCLSReportExceptionFile);
       _firclsContext.readonly->exception.maxCustomExceptions =
@@ -224,40 +207,50 @@ bool FIRCLSContextInitialize(FIRCLSInternalReport* report,
 
       FIRCLSExceptionInitialize(&_firclsContext.readonly->exception,
                                 &_firclsContext.writable->exception, initData->delegate);
-    });
+
   } else {
     FIRCLSSDKLog("Debugger present - not installing handlers\n");
   }
 
-  dispatch_group_async(group, queue, ^{
     const char* metaDataPath = [[rootPath stringByAppendingPathComponent:FIRCLSReportMetadataFile]
         fileSystemRepresentation];
     if (!FIRCLSContextRecordMetadata(metaDataPath, initData)) {
       FIRCLSSDKLog("Unable to record context metadata\n");
     }
-  });
 
   // At this point we need to do two things. First, we need to do our memory protection *only* after
   // all of these initialization steps are really done. But, we also want to wait as long as
   // possible for these to be complete. If we do not, there's a chance that we will not be able to
   // correctly report a crash shortly after start.
 
-  // Note at this will retain the group, so its totally fine to release the group here.
-  dispatch_group_notify(group, queue, ^{
     _firclsContext.readonly->initialized = true;
     __sync_synchronize();
 
     if (!FIRCLSAllocatorProtect(_firclsContext.allocator)) {
       FIRCLSSDKLog("Error: Memory protection failed\n");
     }
-  });
 
-  if (dispatch_group_wait(group, dispatch_time(DISPATCH_TIME_NOW, FIRCLSContextInitWaitTime)) !=
-      0) {
-    FIRCLSSDKLog("Error: Delayed initialization\n");
+  dispatch_block_t binary_image_init_block = ^void() {
+    FIRCLSBinaryImageInit(&_firclsContext.readonly->binaryimage,
+                          &_firclsContext.writable->binaryImage);
+    // delete startup marker here - this used to be done in FIRCLSReportManager once initialization
+    // was completed, but after moving the binary image initialization to a background thread
+    // we should only delete the marker once this initialization is complete so that if an app
+    // crashes before this has completed we can block on the initialization in the next run
+    [fileManager removeItemAtPath:launchFailureMarkerPath];
+  };
+
+  // If the app crashed before finishing FIRCLSBinaryImageInit in the last run, dispatch the
+  // initialization on the main queue so that we block on the initialization. Otherwise, dispatch
+  // to a background thread to speed up the start up time.
+  if(launchFailure) {
+    binary_image_init_block();
+    return true;
+  } else {
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0),
+                   binary_image_init_block);
+    return true;
   }
-
-  return true;
 }
 
 void FIRCLSContextUpdateMetadata(FIRCLSInternalReport* report,
