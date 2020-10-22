@@ -230,17 +230,17 @@ let package = Package(
     .binaryTarget(
       name: "FirebaseAnalytics",
       url: "https://dl.google.com/firebase/ios/swiftpm/7.0.0/FirebaseAnalytics.zip",
-      checksum: "52fce991295d5de9fd5f4a821544d7489bc4fdaed7189f7aef24487305d7d527"
+      checksum: "8d835a816ec3f279d76d0d164f0b6fc0827239e26ed59a1acd277ed40d26243f"
     ),
     .binaryTarget(
       name: "FIRAnalyticsConnector",
       url: "https://dl.google.com/firebase/ios/swiftpm/7.0.0/FIRAnalyticsConnector.zip",
-      checksum: "06833c004316891f188e5bdbdb48e4c3aa9dafa832cfe73af21b482941b67ec3"
+      checksum: "bdbf31a06ef741456bd386ad3f10529103953c330771d140e021e5a467d89395"
     ),
     .binaryTarget(
       name: "GoogleAppMeasurement",
       url: "https://dl.google.com/firebase/ios/swiftpm/7.0.0/GoogleAppMeasurement.zip",
-      checksum: "8e7cccef0f97069c1e17c4a7b53580d32dc8da80053c158313e3f28991265163"
+      checksum: "50fd6e762fc44f92a835bebf34ce8ecc9589ef34681be1cb41779bec9e44e652"
     ),
 
     .target(
