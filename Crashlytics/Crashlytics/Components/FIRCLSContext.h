@@ -103,7 +103,9 @@ typedef struct {
 bool FIRCLSContextInitialize(FIRCLSInternalReport* report,
                              FIRCLSSettings* settings,
                              FIRCLSInstallIdentifierModel* installIDModel,
-                             FIRCLSFileManager* fileManager);
+                             FIRCLSFileManager* fileManager,
+                             NSString* launchFailureMarkerPath,
+                             BOOL launchFailure);
 
 // Re-writes the metadata file on the current thread
 void FIRCLSContextUpdateMetadata(FIRCLSInternalReport* report,
