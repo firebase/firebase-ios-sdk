@@ -223,7 +223,7 @@ jobs:
     - name: Build Test
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestore ${{ matrix.target }} spmbuildonly
     - name: Swift Build
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestoreSwift ${{ matrix.target }} spmbuildonly
+      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestoreSwift-Beta ${{ matrix.target }} spmbuildonly
 
 # Restore when FirebaseUI works with Firebase 7 (#6646)
   quickstart:
