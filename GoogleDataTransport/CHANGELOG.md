@@ -1,3 +1,6 @@
+# Unreleased
+- Remove `GCC_TREAT_WARNINGS_AS_ERRORS` from the podspec.
+
 # v8.0.0
 - Source restructuring to limit the public API surface.
 
