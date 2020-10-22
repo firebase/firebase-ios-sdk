@@ -536,8 +536,6 @@ static void (^reportSentCallback)(void);
 #pragma mark - Reporting Lifecycle
 
 - (FIRCLSInternalReport *)setupCurrentReport:(NSString *)executionIdentifier {
-  [self createLaunchFailureMarker]; //why is there here when checkforandcreate is already run?
-
   NSString *reportPath = [_fileManager setupNewPathForExecutionIdentifier:executionIdentifier];
 
   return [[FIRCLSInternalReport alloc] initWithPath:reportPath
