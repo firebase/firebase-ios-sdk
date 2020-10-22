@@ -497,7 +497,6 @@ static void (^reportSentCallback)(void);
                                              [@(FIRCLSProfileEnd(mark)) description]);
     });
   });
-  NSLog(@"crash:: %f", FIRCLSProfileEnd(mark));
 }
 
 - (BOOL)validateAppIdentifiers {
