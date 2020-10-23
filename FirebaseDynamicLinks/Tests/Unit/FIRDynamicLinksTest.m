@@ -1145,13 +1145,13 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
   id applicationDelegate = OCMPartialMock([UIApplication sharedApplication].delegate);
   // Creating FIRDynamicLinks partial mock object.
   id firebaseDynamicLinks = OCMPartialMock(self.service);
-  // Stubing Application delegate to return YES when application:openURL:options method is called.
+  // Stubbing Application delegate to return YES when application:openURL:options method is called.
   // Not sure why this is required as we are not concerned about its return, but without this, the
   // test will throw NSInvalidArgumentException with message "unrecognized selector sent to
   // instance".
   OCMStub([applicationDelegate application:[OCMArg any] openURL:[OCMArg any] options:[OCMArg any]])
       .andReturn(YES);
-  // Stubing firebase dynamiclinks instance to return YES when isOpenUrlMethodPresentInAppDelegate
+  // Stubbing firebase dynamiclinks instance to return YES when isOpenUrlMethodPresentInAppDelegate
   // is called.
   OCMStub([firebaseDynamicLinks isOpenUrlMethodPresentInAppDelegate:[OCMArg any]]).andReturn(YES);
 
