@@ -273,15 +273,15 @@ static BOOL HasEmbeddedMobileProvision() {
   applePlatform = @"maccatalyst";
 #elif TARGET_OS_IOS
 
-#if defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+#if defined(__IPHONE_14_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 140000
   if (@available(iOS 14.0, *)) {
     applePlatform = [NSProcessInfo processInfo].isiOSAppOnMac ? @"ios_on_mac" : @"ios";
   } else {
     applePlatform = @"ios";
   }
-#else // defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+#else // defined(__IPHONE_14_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 140000
   applePlatform = @"ios";
-#endif // defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+#endif // defined(__IPHONE_14_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 140000
 
 #elif TARGET_OS_TV
   applePlatform = @"tvos";
