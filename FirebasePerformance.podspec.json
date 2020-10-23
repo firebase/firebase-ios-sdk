@@ -32,7 +32,7 @@
     "README.md"
   ],
   "source": {
-    "http": "https://dl.google.com/dl/cpdc/ec10178ac6b36ea6/FirebasePerformance-3.3.2.tar.gz"
+    "http": "https://dl.google.com/dl/cpdc/ec10178ac6b36ea6/FirebasePerformance-3.3.0.tar.gz"
   },
   "summary": "Firebase Performance for iOS",
   "vendored_frameworks": [
