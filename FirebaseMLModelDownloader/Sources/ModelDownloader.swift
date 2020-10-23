@@ -14,35 +14,37 @@
 
 import Foundation
 
-/// Possible errors with  model downloading.
+/// Possible errors with model downloading.
 public enum DownloadError: Error {
-  case deadlineExceeded // request time out
-  case notFound // no model with this name found on server
-  case permissionDenied // caller does not have permissions for this operation
-  case unavailable // service unavailable
-  case resourceExhausted // server limit reached
-  case failedPrecondition // conditions not met to perform download
-  case notEnoughSpace // not enough space on device
-  case unauthenticated // request does not have valid credentials
-  case unimplemented // unsupported operation
-  case invalidArgument // malformed model name or path
-  case canceled // operation was canceled
-  case aborted // operation was aborted, ex: connection dropped
-  case dataLoss // unrecoverable data loss or corruption
-  case outOfRange // operation past valid input/output range
-  case internalError // generic errors
+  /// No model with this name found on server.
+  case notFound
+  /// Caller does not have necessary permissions for this operation.
+  case permissionDenied
+  /// Conditions not met to perform download.
+  case failedPrecondition
+  /// Not enough space for model on device.
+  case notEnoughSpace
+  /// Malformed model name.
+  case invalidArgument
+  /// Other network errors with description.
+  case internalError(description: String)
 }
 
 /// Possible errors with locating model on device.
 public enum DownloadedModelError: Error {
-  case fileIOError // file system error
-  case notFound // model not found on device
+  /// File system error.
+  case fileIOError
+  /// Model not found on device.
+  case notFound
 }
 
 /// Possible ways to get a custom model.
 public enum ModelDownloadType {
+  /// Get local model stored on device.
   case localModel
+  /// Get local model on device and update to latest model from server in the background.
   case localModelUpdateInBackground
+  /// Get latest model from server.
   case latestModel
 }
 
