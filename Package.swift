@@ -53,7 +53,7 @@ let package = Package(
       targets: ["FirebaseFirestoreTarget"]
     ),
     .library(
-      name: "FirebaseFirestoreSwift",
+      name: "FirebaseFirestoreSwift-Beta",
       targets: ["FirebaseFirestoreSwiftTarget"]
     ),
     .library(
@@ -81,7 +81,7 @@ let package = Package(
       targets: ["FirebaseStorage"]
     ),
     .library(
-      name: "FirebaseStorageSwift",
+      name: "FirebaseStorageSwift-Beta",
       targets: ["FirebaseStorageSwift"]
     ),
 
@@ -229,18 +229,18 @@ let package = Package(
     ),
     .binaryTarget(
       name: "FirebaseAnalytics",
-      url: "https://dl.google.com/firebase/ios/swiftpm/6.34.0/FirebaseAnalytics.zip",
-      checksum: "48aee46798b06ab4dbe6241541ba21ebdfe449e343c34a07845a67b6b328c4e2"
+      url: "https://dl.google.com/firebase/ios/swiftpm/7.0.0/FirebaseAnalytics.zip",
+      checksum: "8d835a816ec3f279d76d0d164f0b6fc0827239e26ed59a1acd277ed40d26243f"
     ),
     .binaryTarget(
       name: "FIRAnalyticsConnector",
-      url: "https://dl.google.com/firebase/ios/swiftpm/6.34.0/FIRAnalyticsConnector.zip",
-      checksum: "b3818c2cac2f2f780eacf33ace7bd1632b477060670a21ca3d1b423991c08ca1"
+      url: "https://dl.google.com/firebase/ios/swiftpm/7.0.0/FIRAnalyticsConnector.zip",
+      checksum: "bdbf31a06ef741456bd386ad3f10529103953c330771d140e021e5a467d89395"
     ),
     .binaryTarget(
       name: "GoogleAppMeasurement",
-      url: "https://dl.google.com/firebase/ios/swiftpm/6.34.0/GoogleAppMeasurement.zip",
-      checksum: "05f6d2da2aa072781826be135498c6e1730ed43519c2232e01c5f043f5fe7189"
+      url: "https://dl.google.com/firebase/ios/swiftpm/7.0.0/GoogleAppMeasurement.zip",
+      checksum: "50fd6e762fc44f92a835bebf34ce8ecc9589ef34681be1cb41779bec9e44e652"
     ),
 
     .target(

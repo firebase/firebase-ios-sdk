@@ -156,6 +156,7 @@ public extension FileManager {
 
     // Recursively search using the enumerator, adding any matches to the array.
     var matches: [URL] = []
+    var foundXcframework = false // Ignore .frameworks after finding an xcframework.
     while let fileURL = dirEnumerator.nextObject() as? URL {
       switch type {
       case .allFiles:
@@ -193,13 +194,17 @@ public extension FileManager {
           matches.append(fileURL)
         }
       case .frameworks:
-        // We care if it's a directory and has a .framework extension.
-        if directoryExists(at: fileURL), fileURL.pathExtension == "framework" {
-          matches.append(fileURL)
+        // We care if it's a directory and has a .xcframework or .framework extension.
+        if directoryExists(at: fileURL) {
+          if fileURL.pathExtension == "xcframework" {
+            matches.append(fileURL)
+            foundXcframework = true
+          } else if !foundXcframework, fileURL.pathExtension == "framework" {
+            matches.append(fileURL)
+          }
         }
       }
     }
-
     return matches
   }
 }

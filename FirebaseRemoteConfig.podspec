@@ -54,6 +54,7 @@ app update.
 #        'FirebaseRemoteConfig/Tests/Unit/RCNConfigTest.m',
         'FirebaseRemoteConfig/Tests/Unit/RCNConfigExperimentTest.m',
         'FirebaseRemoteConfig/Tests/Unit/RCNConfigValueTest.m',
+        'FirebaseRemoteConfig/Tests/Unit/RCNPersonalizationTest.m',
 #        'FirebaseRemoteConfig/Tests/Unit/RCNRemoteConfig+FIRAppTest.m',
         'FirebaseRemoteConfig/Tests/Unit/RCNRemoteConfigTest.m',
 #        'FirebaseRemoteConfig/Tests/Unit/RCNThrottlingTests.m',
