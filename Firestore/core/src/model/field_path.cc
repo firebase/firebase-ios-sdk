@@ -21,6 +21,8 @@
 
 #include "Firestore/core/src/util/exception.h"
 #include "Firestore/core/src/util/hard_assert.h"
+#include "Firestore/core/src/util/status.h"
+#include "Firestore/core/src/util/statusor.h"
 #include "absl/strings/str_join.h"
 #include "absl/strings/str_replace.h"
 #include "absl/strings/str_split.h"
@@ -29,6 +31,9 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
+using util::Status;
+using util::StatusOr;
+using util::StringFormat;
 using util::ThrowInvalidArgument;
 
 namespace {
@@ -109,23 +114,30 @@ FieldPath FieldPath::FromDotSeparatedStringView(absl::string_view path) {
   return FieldPath(std::move(segments));
 }
 
-FieldPath FieldPath::FromServerFormat(const std::string& path) {
+StatusOr<FieldPath> FieldPath::FromServerFormat(const std::string& path) {
   return FromServerFormatView(path);
 }
 
-FieldPath FieldPath::FromServerFormatView(absl::string_view path) {
+StatusOr<FieldPath> FieldPath::FromServerFormatView(absl::string_view path) {
   SegmentsT segments;
   std::string segment;
   segment.reserve(path.size());
 
+  Status status;
+
   const auto finish_segment = [&segments, &segment, &path] {
-    HARD_ASSERT(!segment.empty(),
-                "Invalid field path (%s). Paths must not be empty, begin with "
-                "'.', end with '.', or contain '..'",
-                path);
+    if (segment.empty()) {
+      return Status{
+          Error::kErrorInvalidArgument,
+          StringFormat(
+              "Invalid field path (%s). Paths must not be empty, begin with "
+              "'.', end with '.', or contain '..'",
+              path)};
+    }
     // Move operation will clear segment, but capacity will remain the same
     // (not, strictly speaking, required by the standard, but true in practice).
     segments.push_back(std::move(segment));
+    return Status::OK();
   };
 
   // Inside backticks, dots are treated literally.
@@ -143,7 +155,7 @@ FieldPath FieldPath::FromServerFormatView(absl::string_view path) {
     switch (c) {
       case '.':
         if (!inside_backticks) {
-          finish_segment();
+          status = finish_segment();
         } else {
           segment += c;
         }
@@ -154,8 +166,12 @@ FieldPath FieldPath::FromServerFormatView(absl::string_view path) {
         break;
 
       case '\\':
-        HARD_ASSERT(i + 1 != path.size(),
-                    "Trailing escape characters not allowed in %s", path);
+        if (i + 1 == path.size()) {
+          status =
+              Status{Error::kErrorInvalidArgument,
+                     StringFormat(
+                         "Trailing escape characters not allowed in %s", path)};
+        }
         ++i;
         segment += path[i];
         break;
@@ -165,12 +181,21 @@ FieldPath FieldPath::FromServerFormatView(absl::string_view path) {
         break;
     }
     ++i;
+
+    if (!status.ok()) {
+      return status;
+    }
   }
-  finish_segment();
 
-  HARD_ASSERT(!inside_backticks, "Unterminated ` in path %s", path);
+  status = finish_segment();
 
-  return FieldPath{std::move(segments)};
+  if (inside_backticks) {
+    status = Status{Error::kErrorInvalidArgument,
+                    StringFormat("Unterminated ` in path %s", path)};
+  }
+
+  return status.ok() ? StatusOr<FieldPath>{FieldPath{std::move(segments)}}
+                     : StatusOr<FieldPath>{status};
 }
 
 const FieldPath& FieldPath::EmptyPath() {

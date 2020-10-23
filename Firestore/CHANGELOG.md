@@ -1,4 +1,6 @@
-# Unreleased
+# Unreleased (v7.0.1)
+- [changed] Added the original query data to error messages for Queries that
+  cannot be deserizialized.
 
 # v7.0.0
 - [changed] **Breaking change:** Removed the `areTimestampsInSnapshotsEnabled`
