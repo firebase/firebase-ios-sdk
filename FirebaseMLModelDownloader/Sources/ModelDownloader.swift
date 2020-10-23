@@ -26,7 +26,7 @@ public enum DownloadError: Error {
   case notEnoughSpace
   /// Malformed model name.
   case invalidArgument
-  /// Other network errors with description.
+  /// Other errors with description.
   case internalError(description: String)
 }
 
