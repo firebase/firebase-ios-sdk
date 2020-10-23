@@ -16,8 +16,12 @@ import Foundation
 
 /// A custom model that is stored remotely on the server and downloaded to the device.
 public struct CustomModel: Hashable {
+  /// Name of the model.
   public let name: String
-  public var size: Int
-  public var path: String
-  public var hash: String
+  /// Size of the custom model, provided by the server.
+  public let size: Int
+  /// Path where the model is stored on device.
+  public let path: String
+  /// Hash for the model, used for model verification.
+  public let hash: String
 }
