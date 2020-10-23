@@ -171,9 +171,10 @@ StatusOr<FieldPath> FieldPath::FromServerFormatView(absl::string_view path) {
               Status{Error::kErrorInvalidArgument,
                      StringFormat(
                          "Trailing escape characters not allowed in %s", path)};
+        } else {
+          ++i;
+          segment += path[i];
         }
-        ++i;
-        segment += path[i];
         break;
 
       default:

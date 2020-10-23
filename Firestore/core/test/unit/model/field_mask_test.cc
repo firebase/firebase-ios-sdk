@@ -26,13 +26,14 @@ namespace firestore {
 namespace model {
 
 TEST(FieldMask, ConstructorAndEqual) {
-  FieldMask mask_a{FieldPath::FromServerFormat("foo"),
-                   FieldPath::FromServerFormat("bar")};
-  std::set<FieldPath> field_path_set{FieldPath::FromServerFormat("foo"),
-                                     FieldPath::FromServerFormat("bar")};
+  FieldMask mask_a{FieldPath::FromDotSeparatedString("foo"),
+                   FieldPath::FromDotSeparatedString("bar")};
+  std::set<FieldPath> field_path_set{FieldPath::FromDotSeparatedString("foo"),
+                                     FieldPath::FromDotSeparatedString("bar")};
   FieldMask mask_b{field_path_set};
-  FieldMask mask_c{std::set<FieldPath>{FieldPath::FromServerFormat("foo"),
-                                       FieldPath::FromServerFormat("bar")}};
+  FieldMask mask_c{
+      std::set<FieldPath>{FieldPath::FromDotSeparatedString("foo"),
+                          FieldPath::FromDotSeparatedString("bar")}};
   FieldMask mask_d{field_path_set.begin(), field_path_set.end()};
 
   EXPECT_EQ(mask_a, mask_b);
@@ -41,16 +42,16 @@ TEST(FieldMask, ConstructorAndEqual) {
 }
 
 TEST(FieldMask, Getter) {
-  FieldMask mask{FieldPath::FromServerFormat("foo"),
-                 FieldPath::FromServerFormat("bar")};
-  EXPECT_EQ(std::set<FieldPath>({FieldPath::FromServerFormat("foo"),
-                                 FieldPath::FromServerFormat("bar")}),
+  FieldMask mask{FieldPath::FromDotSeparatedString("foo"),
+                 FieldPath::FromDotSeparatedString("bar")};
+  EXPECT_EQ(std::set<FieldPath>({FieldPath::FromDotSeparatedString("foo"),
+                                 FieldPath::FromDotSeparatedString("bar")}),
             std::set<FieldPath>(mask.begin(), mask.end()));
 }
 
 TEST(FieldMask, ToString) {
-  FieldMask mask{FieldPath::FromServerFormat("foo"),
-                 FieldPath::FromServerFormat("bar")};
+  FieldMask mask{FieldPath::FromDotSeparatedString("foo"),
+                 FieldPath::FromDotSeparatedString("bar")};
   EXPECT_EQ("{ bar foo }", mask.ToString());
 }
 
