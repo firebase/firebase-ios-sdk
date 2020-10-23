@@ -45,8 +45,6 @@
 // We need enough space here for the context, plus storage for strings.
 #define CLS_MINIMUM_READABLE_SIZE (sizeof(FIRCLSReadOnlyContext) + 4096 * 4)
 
-static const int64_t FIRCLSContextInitWaitTime = 5LL * NSEC_PER_SEC;
-
 static bool FIRCLSContextRecordMetadata(const char* path, const FIRCLSContextInitData* initData);
 static const char* FIRCLSContextAppendToRoot(NSString* root, NSString* component);
 static void FIRCLSContextAllocate(FIRCLSContext* context);
