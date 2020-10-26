@@ -57,7 +57,8 @@
       [[FIRCLSInternalReport alloc] initWithPath:self.reportPath
                              executionIdentifier:@"TEST_EXECUTION_IDENTIFIER"];
 
-  FIRCLSContextInitialize(report, self.mockSettings, installIDModel, self.fileManager);
+  NSString *launchFailureMarkerPath = [[self.fileManager structurePath] stringByAppendingPathComponent:@"launchmarker"];
+  FIRCLSContextInitialize(report, self.mockSettings, installIDModel, self.fileManager, launchFailureMarkerPath, TRUE);
 }
 
 - (void)tearDown {
