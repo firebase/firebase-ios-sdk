@@ -1168,7 +1168,7 @@ Filter Serializer::DecodeUnaryFilter(
               "Unexpected UnaryFilter.which_operand_type: %s",
               unary.which_operand_type);
 
-  auto field = DecodeFieldPath(reader, unary.field.field_path);
+  FieldPath field = DecodeFieldPath(reader, unary.field.field_path);
 
   switch (unary.op) {
     case google_firestore_v1_StructuredQuery_UnaryFilter_Operator_IS_NULL:
