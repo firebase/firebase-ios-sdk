@@ -26,6 +26,7 @@ NSString *const kReleasesEndpointURLTemplate =
     @"-/testerApps/%@/installations/%@/releases";
 NSString *const kInstallationAuthHeader = @"X-Goog-Firebase-Installations-Auth";
 NSString *const kApiHeaderKey = @"X-Goog-Api-Key";
+NSString *const kApiBundleKey = @"X-Ios-Bundle-Identifier";
 NSString *const kResponseReleasesKey = @"releases";
 
 @implementation FIRFADApiService
@@ -38,7 +39,7 @@ NSString *const kResponseReleasesKey = @"releases";
                      FIRInstallationsAuthTokenResult *_Nullable authTokenResult,
                      NSError *_Nullable error) {
     if ([self handleError:&error
-              description:@"Failed to generate Firebase Installation Auth Token."
+              description:@"Failed to generate Firebase installation auth token."
                      code:FIRFADApiTokenGenerationFailure]) {
       FIRFADErrorLog(@"Error getting fresh auth tokens. Error: %@", [error localizedDescription]);
 
@@ -73,7 +74,29 @@ NSString *const kResponseReleasesKey = @"releases";
   [request setHTTPMethod:method];
   [request setValue:authTokenResult.authToken forHTTPHeaderField:kInstallationAuthHeader];
   [request setValue:[[FIRApp defaultApp] options].APIKey forHTTPHeaderField:kApiHeaderKey];
+  [request setValue:[NSBundle mainBundle].bundleIdentifier forHTTPHeaderField:kApiBundleKey];
   return request;
+}
+
++ (NSString *)tryParseGoogleAPIErrorFromResponse:(NSData *)data {
+  NSError *parseError;
+  NSDictionary *responseDict = [NSJSONSerialization JSONObjectWithData:data
+                                                               options:0
+                                                                 error:&parseError];
+  if (parseError) {
+    return @"Could not parse additional details about this API error.";
+  } else {
+    NSDictionary *errorDict = [responseDict objectForKey:@"error"];
+    if (!errorDict) {
+      return @"Could not parse additional details about this API error.";
+    }
+
+    NSString *message = [errorDict objectForKey:@"message"];
+    if (!message) {
+      return @"Could not parse additional details about this API error.";
+    }
+    return message;
+  }
 }
 
 + (NSArray *)handleReleaseResponse:(NSData *)data
@@ -84,7 +107,8 @@ NSString *const kResponseReleasesKey = @"releases";
                 httpResponse);
 
   if ([self handleHttpResponseError:httpResponse error:error]) {
-    FIRFADErrorLog(@"App Tester API service error - %@", [*error localizedDescription]);
+    FIRFADErrorLog(@"App Tester API service error: %@. %@", [*error localizedDescription],
+                   [self tryParseGoogleAPIErrorFromResponse:data]);
     return nil;
   }
 
@@ -140,12 +164,12 @@ NSString *const kResponseReleasesKey = @"releases";
 
 + (NSError *)createErrorFromStatusCode:(NSInteger)statusCode {
   if (statusCode == 401) {
-    return [self createErrorWithDescription:@"Tester not authenticated."
+    return [self createErrorWithDescription:@"Tester not authenticated"
                                        code:FIRFADApiErrorUnauthenticated];
   }
 
   if (statusCode == 403 || statusCode == 400) {
-    return [self createErrorWithDescription:@"Tester not authorized."
+    return [self createErrorWithDescription:@"Tester not authorized"
                                        code:FIRFADApiErrorUnauthorized];
   }
 
@@ -155,7 +179,7 @@ NSString *const kResponseReleasesKey = @"releases";
   }
 
   if (statusCode == 408 || statusCode == 504) {
-    return [self createErrorWithDescription:@"Request timeout." code:FIRFADApiErrorTimeout];
+    return [self createErrorWithDescription:@"Request timeout" code:FIRFADApiErrorTimeout];
   }
 
   FIRFADErrorLog(@"Encountered unmapped status code: %ld", (long)statusCode);

@@ -16,11 +16,17 @@
 
 #import "FirebaseAuth/Sources/Backend/FIRIdentityToolkitRequest.h"
 
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuth.h"
+
 NS_ASSUME_NONNULL_BEGIN
 
+static NSString *const kHttpsProtocol = @"https:";
+static NSString *const kHttpProtocol = @"http:";
+
 static NSString *const kFirebaseAuthAPIURLFormat =
-    @"https://%@/identitytoolkit/v3/relyingparty/%@?key=%@";
-static NSString *const kIdentityPlatformAPIURLFormat = @"https://%@/v2/%@?key=%@";
+    @"%@//%@/identitytoolkit/v3/relyingparty/%@?key=%@";
+static NSString *const kIdentityPlatformAPIURLFormat = @"%@//%@/v2/%@?key=%@";
+static NSString *const kEmulatorHostAndPrefixFormat = @"%@/%@";
 
 static NSString *gAPIHost = @"www.googleapis.com";
 
@@ -48,6 +54,14 @@ static NSString *kIdentityPlatformStagingAPIHost =
     _requestConfiguration = requestConfiguration;
     _useIdentityPlatform = NO;
     _useStaging = NO;
+
+    // Automatically set the tenant ID. If the request is initialized before FIRAuth is configured,
+    // set tenant ID to nil.
+    @try {
+      _tenantID = [FIRAuth auth].tenantID;
+    } @catch (NSException *e) {
+      _tenantID = nil;
+    }
   }
   return self;
 }
@@ -70,23 +84,39 @@ static NSString *kIdentityPlatformStagingAPIHost =
 
 - (NSURL *)requestURL {
   NSString *apiURLFormat;
-  NSString *apiHost;
+  NSString *apiProtocol;
+  NSString *apiHostAndPathPrefix;
+
+  NSString *emulatorHostAndPort = _requestConfiguration.emulatorHostAndPort;
+
   if (_useIdentityPlatform) {
     apiURLFormat = kIdentityPlatformAPIURLFormat;
-    if (_useStaging) {
-      apiHost = kIdentityPlatformStagingAPIHost;
+    apiProtocol = kHttpsProtocol;
+    if (emulatorHostAndPort) {
+      apiProtocol = kHttpProtocol;
+      apiHostAndPathPrefix =
+          [NSString stringWithFormat:kEmulatorHostAndPrefixFormat, emulatorHostAndPort,
+                                     kIdentityPlatformAPIHost];
+    } else if (_useStaging) {
+      apiHostAndPathPrefix = kIdentityPlatformStagingAPIHost;
     } else {
-      apiHost = kIdentityPlatformAPIHost;
+      apiHostAndPathPrefix = kIdentityPlatformAPIHost;
     }
   } else {
     apiURLFormat = kFirebaseAuthAPIURLFormat;
-    if (_useStaging) {
-      apiHost = kFirebaseAuthStagingAPIHost;
+    apiProtocol = kHttpsProtocol;
+    if (emulatorHostAndPort) {
+      apiProtocol = kHttpProtocol;
+      apiHostAndPathPrefix = [NSString
+          stringWithFormat:kEmulatorHostAndPrefixFormat, emulatorHostAndPort, kFirebaseAuthAPIHost];
+    } else if (_useStaging) {
+      apiHostAndPathPrefix = kFirebaseAuthStagingAPIHost;
     } else {
-      apiHost = kFirebaseAuthAPIHost;
+      apiHostAndPathPrefix = kFirebaseAuthAPIHost;
     }
   }
-  NSString *URLString = [NSString stringWithFormat:apiURLFormat, apiHost, _endpoint, _APIKey];
+  NSString *URLString = [NSString
+      stringWithFormat:apiURLFormat, apiProtocol, apiHostAndPathPrefix, _endpoint, _APIKey];
   NSURL *URL = [NSURL URLWithString:URLString];
   return URL;
 }

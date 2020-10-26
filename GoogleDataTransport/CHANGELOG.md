@@ -1,3 +1,17 @@
+# v8.0.0
+- Source restructuring to limit the public API surface.
+
+# v7.5.1
+- Fix deprecation warning for iOS 12.0 and higher projects. (#6682)
+
+# v7.5.0
+- Legacy pre Xcode 10 compatibility checks removed. (#6486)
+- `GDTCORDirectorySizeTracker` crash fixed. (#6540)
+
+# v7.4.0
+- Limit disk space consumed by GoogleDataTransport to store events. (#6365)
+- Fix `GDTTransformer` background task handling.  (#6258)
+
 # v7.1.1
 - Use `NSTimeZone` instead of `CFTimeZone` to get time zone offset respecting daylight. (#6246)
 

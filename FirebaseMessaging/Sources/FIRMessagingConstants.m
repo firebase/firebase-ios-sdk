@@ -16,29 +16,11 @@
 
 #import "FirebaseMessaging/Sources/FIRMessagingConstants.h"
 
-NSString *const kFIRMessagingRawDataKey = @"rawData";
-NSString *const kFIRMessagingCollapseKey = @"collapse_key";
 NSString *const kFIRMessagingFromKey = @"from";
-
-NSString *const kFIRMessagingSendTo = @"google."
-                                      @"to";
-NSString *const kFIRMessagingSendTTL = @"google."
-                                       @"ttl";
-NSString *const kFIRMessagingSendDelay = @"google."
-                                         @"delay";
-NSString *const kFIRMessagingSendMessageID = @"google."
-                                             @"msg_id";
-NSString *const KFIRMessagingSendMessageAppData = @"google."
-                                                  @"data";
-
-NSString *const kFIRMessagingMessageInternalReservedKeyword = @"gcm.";
-NSString *const kFIRMessagingMessagePersistentIDKey = @"persistent_id";
 
 NSString *const kFIRMessagingMessageIDKey = @"gcm."
                                             @"message_id";
 NSString *const kFIRMessagingMessageAPNSContentAvailableKey = @"content-available";
-NSString *const kFIRMessagingMessageSyncViaMCSKey = @"gcm."
-                                                    @"duplex";
 NSString *const kFIRMessagingMessageSyncMessageTTLKey = @"gcm."
                                                         @"ttl";
 NSString *const kFIRMessagingMessageLinkKey = @"gcm."

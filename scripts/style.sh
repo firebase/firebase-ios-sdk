@@ -53,7 +53,7 @@ case "$version" in
   *)
     echo "Please upgrade to clang-format version 10."
     echo "If it's installed via homebrew you can run:"
-    echo "brew install clang-format"
+    echo "brew upgrade clang-format"
     exit 1
     ;;
 esac

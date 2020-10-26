@@ -16,12 +16,21 @@
 
 #import "GoogleDataTransport/GDTCORLibrary/Private/GDTCORTransformer.h"
 
+@protocol GDTCORApplicationProtocol;
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface GDTCORTransformer ()
 
 /** The queue on which all work will occur. */
 @property(nonatomic) dispatch_queue_t eventWritingQueue;
+
+/** The application instance that is used to begin/end background tasks.  */
+@property(nonatomic, readonly) id<GDTCORApplicationProtocol> application;
+
+/** The internal initializer. Should be used in tests only to create an instance with a
+ * particular(fake) application instance. */
+- (instancetype)initWithApplication:(id<GDTCORApplicationProtocol>)application;
 
 @end
 

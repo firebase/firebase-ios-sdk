@@ -1,8 +1,0 @@
-{
-  "FirebaseAuth":"5.4.2",
-  "FirebaseCore":"5.4.1",
-  "FirebaseDynamicLinks":"3.4.3",
-  "FirebaseFirestore":"1.2.0",
-  "FirebaseInstanceID":"3.8.1",
-  "FirebaseMessaging":"3.5.0"
-}

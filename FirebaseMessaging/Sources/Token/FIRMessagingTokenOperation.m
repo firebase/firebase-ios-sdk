@@ -17,12 +17,12 @@
 #import "FIRMessagingTokenOperation.h"
 
 #import <FirebaseInstallations/FirebaseInstallations.h>
-#import "GoogleUtilities/Environment/Private/GULAppEnvironmentUtil.h"
+#import "GoogleUtilities/Environment/Public/GoogleUtilities/GULAppEnvironmentUtil.h"
 
+#import "FirebaseMessaging/Sources/FIRMessaging_Private.h"
 #import "FIRMessagingCheckinPreferences.h"
 #import "FIRMessagingLogger.h"
 #import "FIRMessagingUtilities.h"
-#import "FIRMessagingVersionUtilities.h"
 #import "NSError+FIRMessaging.h"
 
 static const NSInteger kFIRMessagingPlatformVersionIOS = 2;
@@ -208,7 +208,7 @@ static NSString *const kFIRMessagingParamFCMLibVersion = @"X-cliv";
   [queryItems addObject:[NSURLQueryItem queryItemWithName:@"app_ver" value:appVersion]];
   // E.g. X-cliv=fiid-1.2.3
   NSString *fcmLibraryVersion =
-      [NSString stringWithFormat:@"fiid-%@", FIRMessagingCurrentLibraryVersion()];
+      [NSString stringWithFormat:@"fiid-%@", [FIRMessaging FIRMessagingSDKVersion]];
   if (fcmLibraryVersion.length) {
     NSURLQueryItem *gcmLibVersion =
         [NSURLQueryItem queryItemWithName:kFIRMessagingParamFCMLibVersion value:fcmLibraryVersion];

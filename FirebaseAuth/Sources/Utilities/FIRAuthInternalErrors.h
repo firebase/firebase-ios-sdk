@@ -456,6 +456,19 @@ typedef NS_ENUM(NSInteger, FIRAuthInternalErrorCode) {
   FIRAuthInternalErrorCodeInvalidProviderID = FIRAuthPublicErrorCodeFlag |
                                               FIRAuthErrorCodeInvalidProviderID,
 
+  /** @var FIRAuthInternalErrorCodeTenantIDMismatch
+      @brief Indicates an error occurred when an attempt is made to update the current user with a
+          tenantId that differs from the current FirebaseAuth instance's tenantId.
+   */
+  FIRAuthInternalErrorCodeTenantIDMismatch = FIRAuthPublicErrorCodeFlag |
+                                             FIRAuthErrorCodeTenantIDMismatch,
+
+  /** @var FIRAuthInternalErrorCodeUnsupportedTenantOperation
+      @brief Indicates an error occurred when operation is not supported in a multi-tenant context.
+   */
+  FIRAuthInternalErrorCodeUnsupportedTenantOperation = FIRAuthPublicErrorCodeFlag |
+                                                       FIRAuthErrorCodeUnsupportedTenantOperation,
+
   /** Indicates that the Firebase Dynamic Link domain used is either not configured or is
      unauthorized for the current project.
    */

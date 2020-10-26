@@ -33,6 +33,7 @@ struct ContentView: View {
             Text("InstanceID")
               .font(.subheadline)
               .fontWeight(.semibold)
+
             Text(identity.instanceID ?? "None").foregroundColor(.green)
           }
 
@@ -55,82 +56,89 @@ struct ContentView: View {
             Text("Topic")
               .fontWeight(.semibold)
           }
+
+          // MARK: Action buttons
+          VStack(alignment: .leading) {
+            Text("getToken")
+              .fontWeight(.semibold)
+            HStack {
+              Button(action: getIDAndToken) {
+                HStack {
+                  Image(systemName: "arrow.clockwise.circle.fill")
+                  Text("IID.ID")
+                    .fontWeight(.semibold)
+                }
+              }
+              Button(action: getToken) {
+                HStack {
+                  Image(systemName: "arrow.clockwise.circle.fill")
+                  Text("IID")
+                    .fontWeight(.semibold)
+                }
+              }
+              Button(action: getFCMToken) {
+                HStack {
+                  Image(systemName: "arrow.clockwise.circle.fill").font(.body)
+                  Text("FM")
+                    .fontWeight(.semibold)
+                }
+              }
+            }
+          }.font(.system(size: 14))
+
+          VStack(alignment: .leading) {
+            Text("deleteToken")
+              .fontWeight(.semibold)
+            HStack {
+              Button(action: deleteToken) {
+                HStack {
+                  Image(systemName: "trash.fill")
+                  Text("IID")
+                    .fontWeight(.semibold)
+                }
+              }
+              Button(action: deleteFCMToken) {
+                HStack {
+                  Image(systemName: "trash.fill")
+                  Text("FM")
+                    .fontWeight(.semibold)
+                }
+              }
+            }
+          }.font(.system(size: 14))
+
+          VStack(alignment: .leading) {
+            Text("delete")
+              .fontWeight(.semibold)
+            HStack {
+              Button(action: deleteID) {
+                HStack {
+                  Image(systemName: "trash.fill")
+                  Text("IID")
+                    .fontWeight(.bold)
+                }
+              }
+              Button(action: deleteFCM) {
+                HStack {
+                  Image(systemName: "trash.fill")
+                  Text("FM")
+                    .fontWeight(.semibold)
+                }
+              }
+              Button(action: deleteFID) {
+                HStack {
+                  Image(systemName: "trash.fill")
+                  Text("FIS")
+                    .fontWeight(.semibold)
+                }
+              }
+            }
+          }.font(.system(size: 14))
+          Text("\(log)")
+            .lineLimit(10)
+            .multilineTextAlignment(.leading)
         }
         .navigationBarTitle("Firebase Messaging")
-        .foregroundColor(.blue)
-
-        // MARK: Action buttons
-
-        HStack {
-          Button(action: getToken) {
-            HStack {
-              Image(systemName: "arrow.clockwise.circle.fill").font(.body)
-              Text("IID.getToken")
-                .fontWeight(.semibold)
-            }
-          }
-          Button(action: getFCMToken) {
-            HStack {
-              Image(systemName: "arrow.clockwise.circle.fill").font(.body)
-              Text("FM.getToken")
-                .fontWeight(.semibold)
-            }
-          }
-        }
-
-        HStack {
-          Button(action: deleteToken) {
-            HStack {
-              Image(systemName: "trash.fill").font(.body)
-              Text("IID.deleteToken")
-                .fontWeight(.semibold)
-            }
-          }
-          Button(action: deleteFCMToken) {
-            HStack {
-              Image(systemName: "trash.fill").font(.body)
-              Text("FM.deleteToken")
-                .fontWeight(.semibold)
-            }
-          }
-        }
-
-        HStack {
-          Button(action: deleteID) {
-            HStack {
-              Image(systemName: "trash.fill").font(.body)
-              Text("IID.deleteID")
-                .fontWeight(.semibold)
-            }
-          }
-          Button(action: deleteFCM) {
-            HStack {
-              Image(systemName: "trash.fill").font(.body)
-              Text("FM.deleteID")
-                .fontWeight(.semibold)
-            }
-          }
-        }
-
-        HStack {
-          Button(action: getIDAndToken) {
-            HStack {
-              Image(systemName: "arrow.clockwise.circle.fill").font(.body)
-              Text("iid.getID")
-                .fontWeight(.semibold)
-            }
-          }
-          Button(action: deleteFID) {
-            HStack {
-              Image(systemName: "trash.fill").font(.body)
-              Text("FIS.delete")
-                .fontWeight(.semibold)
-            }
-          }
-        }
-        Text("\(log)")
-          .lineLimit(10)
-          .multilineTextAlignment(.leading)
       }.buttonStyle(IdentityButtonStyle())
     }
   }
@@ -152,8 +160,14 @@ struct ContentView: View {
       return
     }
     let senderID = app.options.gcmSenderID
+    var options: [String: Any] = [:]
+    if Messaging.messaging().apnsToken == nil {
+      log = "There's no APNS token available at the moment."
+      return
+    }
+    options = ["apns_token": Messaging.messaging().apnsToken as Any]
     InstanceID.instanceID()
-      .token(withAuthorizedEntity: senderID, scope: "*", options: nil) { token, error in
+      .token(withAuthorizedEntity: senderID, scope: "*", options: options) { token, error in
         guard let token = token, error == nil else {
           self.log = "Failed getting token: \(String(describing: error))"
           return
@@ -164,11 +178,7 @@ struct ContentView: View {
   }
 
   func getFCMToken() {
-    guard let app = FirebaseApp.app() else {
-      return
-    }
-    let senderID = app.options.gcmSenderID
-    Messaging.messaging().retrieveFCMToken(forSenderID: senderID) { token, error in
+    Messaging.messaging().token { token, error in
       guard let token = token, error == nil else {
         self.log = "Failed getting iid and token: \(String(describing: error))"
         return
@@ -179,11 +189,7 @@ struct ContentView: View {
   }
 
   func deleteFCMToken() {
-    guard let app = FirebaseApp.app() else {
-      return
-    }
-    let senderID = app.options.gcmSenderID
-    Messaging.messaging().deleteFCMToken(forSenderID: senderID) { error in
+    Messaging.messaging().deleteToken { error in
       if let error = error as NSError? {
         self.log = "Failed deleting token: \(error)"
         return
@@ -197,8 +203,9 @@ struct ContentView: View {
       return
     }
     let senderID = app.options.gcmSenderID
-    InstanceID.instanceID().deleteToken(withAuthorizedEntity: senderID, scope: "*") { error in
-    }
+    InstanceID.instanceID()
+      .deleteToken(withAuthorizedEntity: senderID, scope: "*") { error in
+      }
   }
 
   func deleteID() {
@@ -212,22 +219,12 @@ struct ContentView: View {
   }
 
   func deleteFCM() {
-    guard let app = FirebaseApp.app() else {
-      return
-    }
-    let senderID = app.options.gcmSenderID
-    Messaging.messaging().deleteFCMToken(forSenderID: senderID) { error in
+    Messaging.messaging().deleteData { error in
       if let error = error as NSError? {
-        self.log = "Failed deleting ID: \(error)"
+        self.log = "Failed deleting Messaging: \(error)"
         return
       }
-      Installations.installations().delete { error in
-        if let error = error as NSError? {
-          self.log = "Failed deleting FID: \(error)"
-          return
-        }
-        self.log = "Successfully deleted ID."
-      }
+      self.log = "Successfully deleted Messaging data."
     }
   }
 
@@ -295,7 +292,7 @@ struct ContentView_Previews: PreviewProvider {
 struct IdentityButtonStyle: ButtonStyle {
   func makeBody(configuration: Self.Configuration) -> some View {
     configuration.label
-      .frame(minWidth: 0, maxWidth: 130)
+      .frame(minWidth: 0, maxWidth: 60)
       .padding()
       .foregroundColor(.white)
       .background(Color.yellow)

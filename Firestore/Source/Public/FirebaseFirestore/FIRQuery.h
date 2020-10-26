@@ -111,6 +111,30 @@ NS_SWIFT_NAME(Query)
 
 /**
  * Creates and returns a new `FIRQuery` with the additional filter that documents must
+ * contain the specified field and the value does not equal the specified value.
+ *
+ * @param path The path of the field to compare.
+ * @param value The value the field must be equal to.
+ *
+ * @return The created `FIRQuery`.
+ */
+- (FIRQuery *)queryWhereFieldPath:(FIRFieldPath *)path
+                     isNotEqualTo:(id)value NS_SWIFT_NAME(whereField(_:isNotEqualTo:));
+
+/**
+ * Creates and returns a new `FIRQuery` with the additional filter that documents must
+ * contain the specified field and the value does not equal the specified value.
+ *
+ * @param field The name of the field to compare.
+ * @param value The value the field must be equal to.
+ *
+ * @return The created `FIRQuery`.
+ */
+- (FIRQuery *)queryWhereField:(NSString *)field
+                 isNotEqualTo:(id)value NS_SWIFT_NAME(whereField(_:isNotEqualTo:));
+
+/**
+ * Creates and returns a new `FIRQuery` with the additional filter that documents must
  * contain the specified field and the value must be equal to the specified value.
  *
  * @param path The path of the field to compare.
@@ -307,6 +331,42 @@ NS_SWIFT_NAME(Query)
  */
 - (FIRQuery *)queryWhereFieldPath:(FIRFieldPath *)path
                                in:(NSArray<id> *)values NS_SWIFT_NAME(whereField(_:in:));
+
+/**
+ * Creates and returns a new `FIRQuery` with the additional filter that documents must contain
+ * the specified field and the value does not equal any of the values from the provided array.
+ *
+ * One special case is that `notIn` filters cannot match `nil` values. To query for documents
+ * where a field exists and is `nil`, use a `notEqual` filter, which can handle this special case.
+ *
+ * A query can have only one `notIn` filter, and it cannot be combined with an `arrayContains`,
+ * `arrayContainsAny`, `in`, or `notEqual` filter.
+ *
+ * @param field The name of the field to search.
+ * @param values The array that contains the values to match.
+ *
+ * @return The created `FIRQuery`.
+ */
+- (FIRQuery *)queryWhereField:(NSString *)field
+                        notIn:(NSArray<id> *)values NS_SWIFT_NAME(whereField(_:notIn:));
+
+/**
+ * Creates and returns a new `FIRQuery` with the additional filter that documents must contain
+ * the specified field and the value does not equal any of the values from the provided array.
+ *
+ * One special case is that `notIn` filters cannot match `nil` values. To query for documents
+ * where a field exists and is `nil`, use a `notEqual` filter, which can handle this special case.
+ *
+ * Passing in a `null` value into the `values` array results in no document matches. To query
+ * for documents where a field is not `null`, use a `notEqual` filter.
+ *
+ * @param path The path of the field to search.
+ * @param values The array that contains the values to match.
+ *
+ * @return The created `FIRQuery`.
+ */
+- (FIRQuery *)queryWhereFieldPath:(FIRFieldPath *)path
+                            notIn:(NSArray<id> *)values NS_SWIFT_NAME(whereField(_:notIn:));
 
 /**
  * Creates and returns a new `FIRQuery` with the additional filter that documents must

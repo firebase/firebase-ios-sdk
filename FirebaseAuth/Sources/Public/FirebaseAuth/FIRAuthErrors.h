@@ -337,6 +337,18 @@ typedef NS_ENUM(NSInteger, FIRAuthErrorCode) {
    */
   FIRAuthErrorCodeInvalidProviderID = 17071,
 
+  /**
+   * Represents the error code for when an attempt is made to update the current user with a
+   * tenantId that differs from the current FirebaseAuth instance's tenantId.
+   */
+  FIRAuthErrorCodeTenantIDMismatch = 17072,
+
+  /**
+   * Represents the error code for when a request is made to the backend with an associated tenant
+   * ID for an operation that does not support multi-tenancy.
+   */
+  FIRAuthErrorCodeUnsupportedTenantOperation = 17073,
+
   /** Indicates that the Firebase Dynamic Link domain used is either not configured or is
       unauthorized for the current project.
    */

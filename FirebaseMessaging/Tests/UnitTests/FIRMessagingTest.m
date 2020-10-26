@@ -16,13 +16,23 @@
 
 #import <XCTest/XCTest.h>
 
-#import <OCMock/OCMock.h>
+#import "OCMock.h"
 
+<<<<<<< HEAD
 #import <FirebaseMessaging/FIRMessaging.h>
+=======
+#import <GoogleUtilities/GULUserDefaults.h>
+#import "Firebase/InstanceID/Public/FirebaseInstanceID.h"
+>>>>>>> 88a3f2e667062c6ae86d3de7653ba1f1b083b9b1
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
-#import "GoogleUtilities/UserDefaults/Private/GULUserDefaults.h"
 #import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 
+<<<<<<< HEAD
+=======
+#import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessaging.h"
+#import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
+
+>>>>>>> 88a3f2e667062c6ae86d3de7653ba1f1b083b9b1
 #import "FirebaseMessaging/Sources/FIRMessaging_Private.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingTokenManager.h"
 #import "FirebaseMessaging/Tests/UnitTests/FIRMessagingTestUtilities.h"
@@ -36,7 +46,14 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
 
 @property(nonatomic, readwrite, strong) NSString *defaultFcmToken;
 @property(nonatomic, readwrite, strong) NSData *apnsTokenData;
+<<<<<<< HEAD
 @property(nonatomic, readwrite, strong) FIRMessagingTokenManager *tokenManager;
+=======
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+@property(nonatomic, readwrite, strong) FIRInstanceID *instanceID;
+#pragma clang diagnostic pop
+>>>>>>> 88a3f2e667062c6ae86d3de7653ba1f1b083b9b1
 
 // Expose autoInitEnabled static method for IID.
 + (BOOL)isAutoInitEnabledWithUserDefaults:(NSUserDefaults *)userDefaults;
@@ -62,6 +79,13 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
 
 - (void)setUp {
   [super setUp];
+<<<<<<< HEAD
+=======
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+  _mockInstanceID = OCMClassMock([FIRInstanceID class]);
+#pragma clang diagnostic pop
+>>>>>>> 88a3f2e667062c6ae86d3de7653ba1f1b083b9b1
 
   // Create the messaging instance with all the necessary dependencies.
   NSUserDefaults *defaults =
@@ -155,6 +179,7 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
                  [FIRMessaging isAutoInitEnabledWithUserDefaults:defaults]);
 }
 
+<<<<<<< HEAD
 #pragma mark - Direct Channel Establishment Testing
 
 #if TARGET_OS_IOS || TARGET_OS_TV
@@ -225,6 +250,12 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
 #pragma mark - FCM Token Fetching and Deleting
 // TODO(chliang) mock tokenManager
 - (void)x_testAPNSTokenIncludedInOptionsIfAvailableDuringTokenFetch {
+=======
+#pragma mark - FCM Token Fetching and Deleting
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+- (void)testAPNSTokenIncludedInOptionsIfAvailableDuringTokenFetch {
+>>>>>>> 88a3f2e667062c6ae86d3de7653ba1f1b083b9b1
   self.messaging.apnsTokenData =
       [@"PRETENDING_TO_BE_A_DEVICE_TOKEN" dataUsingEncoding:NSUTF8StringEncoding];
   XCTestExpectation *expectation =
@@ -261,7 +292,7 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
                        }];
   [self waitForExpectationsWithTimeout:0.1 handler:nil];
 }
-
+#pragma clang diagnostic pop
 - (void)testReturnsErrorWhenFetchingTokenWithoutSenderID {
   XCTestExpectation *expectation =
       [self expectationWithDescription:@"Returned an error fetching token without Sender ID"];

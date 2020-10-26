@@ -23,7 +23,6 @@
 #import "FIRMessagingCode.h"
 #import "FIRMessagingLogger.h"
 #import "FIRMessagingUtilities.h"
-#import "FIRMessagingVersionUtilities.h"
 #import "NSError+FIRMessaging.h"
 
 static NSString *const kFIRMessagingCheckinKeychainGeneric = @"com.google.iid";

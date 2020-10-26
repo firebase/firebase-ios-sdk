@@ -18,7 +18,7 @@
 
 #import "FIRMessagingCheckinService.h"
 #import "FIRMessagingUtilities.h"
-#import "GoogleUtilities/UserDefaults/Private/GULUserDefaults.h"
+#import "GoogleUtilities/UserDefaults/Public/GoogleUtilities/GULUserDefaults.h"
 
 const NSTimeInterval kFIRMessagingDefaultCheckinInterval = 7 * 24 * 60 * 60;  // 7 days.
 static NSString *const kCheckinKeychainContentSeparatorString = @"|";

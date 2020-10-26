@@ -57,7 +57,9 @@ typedef struct {
   FIRCLSBinaryImageReadOnlyContext binaryimage;
   FIRCLSExceptionReadOnlyContext exception;
   FIRCLSHostReadOnlyContext host;
+#if CLS_SIGNAL_SUPPORTED
   FIRCLSSignalReadContext signal;
+#endif
 #if CLS_MACH_EXCEPTION_SUPPORTED
   FIRCLSMachExceptionReadContext machException;
 #endif

@@ -16,7 +16,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORStorageProtocol.h"
+#import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORStorageProtocol.h"
 #import "GoogleDataTransport/GDTCORTests/Common/Categories/GDTCORRegistrar+Testing.h"
 
 #import "GoogleDataTransport/GDTCCTLibrary/Private/GDTCCTNanopbHelpers.h"
@@ -360,7 +360,7 @@
   [self assertStorageSelectorWithCondition:GDTCORUploadConditionHighPriority
                            validationBlock:^(GDTCORStorageEventSelector *_Nullable eventSelector,
                                              NSDate *expiration) {
-                             id self = weakSelf;
+                             __unused id self = weakSelf;
                              XCTAssertLessThan([expiration timeIntervalSinceNow], 600);
                              XCTAssertEqual(eventSelector.selectedTarget, kGDTCORTargetTest);
                              XCTAssertNil(eventSelector.selectedEventIDs);
@@ -375,7 +375,7 @@
       assertStorageSelectorWithCondition:GDTCORUploadConditionMobileData
                          validationBlock:^(GDTCORStorageEventSelector *_Nullable eventSelector,
                                            NSDate *expiration) {
-                           id self = weakSelf;
+                           __unused id self = weakSelf;
                            XCTAssertLessThan([expiration timeIntervalSinceNow], 600);
                            XCTAssertEqual(eventSelector.selectedTarget, kGDTCORTargetTest);
                            XCTAssertNil(eventSelector.selectedEventIDs);
@@ -393,7 +393,7 @@
       assertStorageSelectorWithCondition:GDTCORUploadConditionWifiData
                          validationBlock:^(GDTCORStorageEventSelector *_Nullable eventSelector,
                                            NSDate *expiration) {
-                           id self = weakSelf;
+                           __unused id self = weakSelf;
                            XCTAssertLessThan([expiration timeIntervalSinceNow], 600);
                            XCTAssertEqual(eventSelector.selectedTarget, kGDTCORTargetTest);
                            XCTAssertNil(eventSelector.selectedEventIDs);
@@ -582,7 +582,7 @@
   __weak __auto_type weakSelf = self;
   self.testStorage.hasEventsForTargetHandler =
       ^(GDTCORTarget target, GDTCCTTestStorageHasEventsCompletion _Nonnull completion) {
-        __auto_type self = weakSelf;
+        __unused __auto_type self = weakSelf;
         [expectation fulfill];
         XCTAssertEqual(target, expectedTarget);
         completion(hasEvents);

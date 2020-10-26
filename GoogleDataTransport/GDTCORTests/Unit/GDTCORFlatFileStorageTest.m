@@ -19,9 +19,9 @@
 #import "GoogleDataTransport/GDTCORLibrary/Private/GDTCORFlatFileStorage.h"
 #import "GoogleDataTransport/GDTCORLibrary/Private/GDTCORRegistrar_Private.h"
 
+#import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORPlatform.h"
+#import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORRegistrar.h"
 #import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCOREvent.h"
-#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORPlatform.h"
-#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORRegistrar.h"
 
 #import "GoogleDataTransport/GDTCORTests/Unit/Helpers/GDTCORAssertHelper.h"
 #import "GoogleDataTransport/GDTCORTests/Unit/Helpers/GDTCORDataObjectTesterClasses.h"
@@ -32,6 +32,8 @@
 
 #import "GoogleDataTransport/GDTCORTests/Common/Categories/GDTCORFlatFileStorage+Testing.h"
 #import "GoogleDataTransport/GDTCORTests/Common/Categories/GDTCORRegistrar+Testing.h"
+
+#import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORDirectorySizeTracker.h"
 
 /** A category that adds finding a random element to NSSet. NSSet's -anyObject isn't random. */
 @interface NSSet (GDTCORRandomElement)
@@ -83,54 +85,6 @@
       [GDTCORUploadCoordinator sharedInstance];
   self.uploaderFake = nil;
   [super tearDown];
-}
-
-/** Generates and returns a set of events that are generated randomly and stored.
- *
- * @return A set of randomly generated and stored events.
- */
-- (NSSet<GDTCOREvent *> *)generateEventsForStorageTesting {
-  NSMutableSet<GDTCOREvent *> *generatedEvents = [[NSMutableSet alloc] init];
-  // Generate 100 test target events
-  [generatedEvents unionSet:[self generateEventsForTarget:kGDTCORTargetTest
-                                               expiringIn:1000
-                                                    count:100]];
-
-  // Generate 50 FLL target events.
-  [generatedEvents unionSet:[self generateEventsForTarget:kGDTCORTargetFLL
-                                               expiringIn:1000
-                                                    count:50]];
-
-  return generatedEvents;
-}
-
-- (NSSet<GDTCOREvent *> *)generateEventsForTarget:(GDTCORTarget)target
-                                       expiringIn:(NSTimeInterval)eventsExpireIn
-                                            count:(NSInteger)count {
-  GDTCORFlatFileStorage *storage = [GDTCORFlatFileStorage sharedInstance];
-  NSMutableSet<GDTCOREvent *> *generatedEvents = [[NSMutableSet alloc] init];
-
-  XCTestExpectation *generatedEventsStoredExpectation =
-      [self expectationWithDescription:@"generatedEventsStoredExpectation"];
-  generatedEventsStoredExpectation.expectedFulfillmentCount = count;
-
-  for (int i = 0; i < count; i++) {
-    GDTCOREvent *event = [GDTCOREventGenerator generateEventForTarget:target
-                                                              qosTier:nil
-                                                            mappingID:nil];
-    event.expirationDate = [NSDate dateWithTimeIntervalSinceNow:eventsExpireIn];
-    [generatedEvents addObject:event];
-    [storage storeEvent:event
-             onComplete:^(BOOL wasWritten, NSError *_Nullable error) {
-               XCTAssertTrue(wasWritten);
-               XCTAssertNil(error);
-               [generatedEventsStoredExpectation fulfill];
-             }];
-  }
-
-  [self waitForExpectations:@[ generatedEventsStoredExpectation ] timeout:0.2 * count];
-
-  return generatedEvents;
 }
 
 /** Tests the singleton pattern. */
@@ -654,42 +608,6 @@
   [self waitForExpectations:@[ expectation ] timeout:10];
 }
 
-/** Tests that the size of the storage is returned accurately. */
-- (void)testStorageSizeWithCallback {
-  NSUInteger ongoingSize = 0;
-  XCTestExpectation *expectation = [self expectationWithDescription:@"storageSize complete"];
-  [[GDTCORFlatFileStorage sharedInstance] storageSizeWithCallback:^(uint64_t storageSize) {
-    XCTAssertEqual(storageSize, 0);
-    [expectation fulfill];
-  }];
-  [self waitForExpectations:@[ expectation ] timeout:10.0];
-
-  expectation = [self expectationWithDescription:@"storageSize complete"];
-  NSData *data = [@"this is a test" dataUsingEncoding:NSUTF8StringEncoding];
-  ongoingSize += data.length;
-  [[GDTCORFlatFileStorage sharedInstance] storeLibraryData:data forKey:@"testKey" onComplete:nil];
-  [[GDTCORFlatFileStorage sharedInstance] storageSizeWithCallback:^(uint64_t storageSize) {
-    XCTAssertEqual(storageSize, ongoingSize);
-    [expectation fulfill];
-  }];
-  [self waitForExpectations:@[ expectation ] timeout:10.0];
-
-  NSSet<GDTCOREvent *> *generatedEvents = [self generateEventsForStorageTesting];
-  for (GDTCOREvent *event in generatedEvents) {
-    NSError *error;
-    NSData *serializedEventData = GDTCOREncodeArchive(event, nil, &error);
-    XCTAssertNil(error);
-    ongoingSize += serializedEventData.length;
-  }
-  expectation = [self expectationWithDescription:@"storageSize complete"];
-  [[GDTCORFlatFileStorage sharedInstance] storageSizeWithCallback:^(uint64_t storageSize) {
-    // TODO(mikehaney24): Figure out why storageSize is ~2% higher than ongoingSize.
-    XCTAssertGreaterThanOrEqual(storageSize, ongoingSize);
-    [expectation fulfill];
-  }];
-  [self waitForExpectations:@[ expectation ] timeout:10.0];
-}
-
 /** Tests generating the next batchID. */
 - (void)testNextBatchID {
   BOOL originalContinueAfterFailure = self.continueAfterFailure;
@@ -1127,12 +1045,245 @@
   [self waitForExpectations:@[ expectation ] timeout:10];
 }
 
+#pragma mark - Storage Size Limit
+
+/** Tests that the size of the storage is returned accurately. */
+- (void)testStorageSizeWithCallback {
+  GDTCORFlatFileStorage *storage = [GDTCORFlatFileStorage sharedInstance];
+
+  NSUInteger ongoingSize = 0;
+  XCTAssertEqual([self storageSize], 0);
+
+  // 1. Check add library data.
+  NSData *libData = [@"this is a test" dataUsingEncoding:NSUTF8StringEncoding];
+  ongoingSize += libData.length;
+  [storage storeLibraryData:libData forKey:@"testKey" onComplete:nil];
+  XCTAssertEqual([self storageSize], ongoingSize);
+
+  // 2. Check update library data.
+  NSData *updatedLibData = [@"updated" dataUsingEncoding:NSUTF8StringEncoding];
+  ongoingSize -= libData.length;
+  ongoingSize += updatedLibData.length;
+  [storage libraryDataForKey:@"testKey"
+      onFetchComplete:^(NSData *_Nullable data, NSError *_Nullable error) {
+      }
+      setNewValue:^NSData *_Nullable {
+        return updatedLibData;
+      }];
+  XCTAssertEqual([self storageSize], ongoingSize);
+
+  // 3. Check store events.
+  NSSet<GDTCOREvent *> *generatedEvents = [self generateEventsForStorageTesting];
+  ongoingSize += [self storageSizeOfEvents:generatedEvents];
+  XCTAssertEqual([self storageSize], ongoingSize);
+
+  // 4. Check remove lib data.
+  ongoingSize -= updatedLibData.length;
+  [storage removeLibraryDataForKey:@"testKey"
+                        onComplete:^(NSError *_Nullable error){
+                        }];
+  XCTAssertEqual([self storageSize], ongoingSize);
+
+  // 5. Check batch.
+  XCTestExpectation *batchCreatedExpectation =
+      [self expectationWithDescription:@"batchCreatedExpectation"];
+  __block NSNumber *batchID;
+  __block uint64_t batchedEventSize = 0;
+  [storage
+      batchWithEventSelector:[GDTCORStorageEventSelector eventSelectorForTarget:kGDTCORTargetTest]
+             batchExpiration:[NSDate dateWithTimeIntervalSinceNow:1000]
+                  onComplete:^(NSNumber *_Nullable newBatchID,
+                               NSSet<GDTCOREvent *> *_Nullable events) {
+                    batchID = newBatchID;
+                    batchedEventSize = [self storageSizeOfEvents:events];
+                    // 100 - kGDTCORTargetTest generated events count.
+                    XCTAssertEqual(events.count, 100);
+                    [batchCreatedExpectation fulfill];
+                  }];
+  [self waitForExpectations:@[ batchCreatedExpectation ] timeout:5];
+  // Expect size increase due to the batch counter stored in lib data.
+  ongoingSize += sizeof(int32_t);
+  XCTAssertEqual([self storageSize], ongoingSize);
+
+  // 6. Batch remove.
+  [storage removeBatchWithID:batchID
+                deleteEvents:YES
+                  onComplete:^{
+                  }];
+  ongoingSize -= batchedEventSize;
+  XCTAssertEqual([self storageSize], ongoingSize);
+}
+
+- (void)testStoreEvent_WhenSizeLimitReached_ThenNewEventIsSkipped {
+  GDTCORFlatFileStorage *storage = [GDTCORFlatFileStorage sharedInstance];
+
+  // 1. Generate and store maximum allowed amount of events.
+  __auto_type generatedEvents =
+      [self generateAndStoreEventsWithTotalSizeUpTo:kGDTCORFlatFileStorageSizeLimit];
+
+  XCTAssertGreaterThan([self storageSizeOfEvents:generatedEvents] +
+                           [self storageEventSize:[generatedEvents anyObject]],
+                       kGDTCORFlatFileStorageSizeLimit);
+
+  // 2. Check storage size.
+  uint64_t storageSize = [self storageSize];
+  XCTAssertEqual(storageSize, [self storageSizeOfEvents:generatedEvents]);
+
+  // 3. Try to add another event.
+  GDTCOREvent *event = [GDTCOREventGenerator generateEventForTarget:kGDTCORTargetTest
+                                                            qosTier:nil
+                                                          mappingID:nil];
+  event.expirationDate = [NSDate dateWithTimeIntervalSinceNow:1000];
+
+  XCTestExpectation *storeExpectation1 = [self expectationWithDescription:@"storeExpectation1"];
+  [storage storeEvent:event
+           onComplete:^(BOOL wasWritten, NSError *_Nullable error) {
+             XCTAssertFalse(wasWritten);
+             XCTAssertNotNil(error);
+             XCTAssertEqualObjects(error.domain, GDTCORFlatFileStorageErrorDomain);
+             XCTAssertEqual(error.code, GDTCORFlatFileStorageErrorSizeLimitReached);
+             [storeExpectation1 fulfill];
+           }];
+  [self waitForExpectations:@[ storeExpectation1 ] timeout:5];
+
+  // 4. Check the storage size didn't change.
+  XCTAssertEqual([self storageSize], storageSize);
+
+  // 5. Batch and remove events
+  XCTestExpectation *batchCreatedExpectation =
+      [self expectationWithDescription:@"batchCreatedExpectation"];
+  __block NSNumber *batchID;
+  [storage
+      batchWithEventSelector:[GDTCORStorageEventSelector eventSelectorForTarget:kGDTCORTargetTest]
+             batchExpiration:[NSDate dateWithTimeIntervalSinceNow:1000]
+                  onComplete:^(NSNumber *_Nullable newBatchID,
+                               NSSet<GDTCOREvent *> *_Nullable events) {
+                    batchID = newBatchID;
+                    XCTAssertGreaterThan(events.count, 0);
+                    [batchCreatedExpectation fulfill];
+                  }];
+  [self waitForExpectations:@[ batchCreatedExpectation ] timeout:generatedEvents.count * 0.1];
+
+  XCTestExpectation *removeBatchExpectation = [self expectationWithDescription:@"removeBatch"];
+  [storage removeBatchWithID:batchID
+                deleteEvents:YES
+                  onComplete:^{
+                    [removeBatchExpectation fulfill];
+                  }];
+  [self waitForExpectations:@[ removeBatchExpectation ] timeout:generatedEvents.count * 0.1];
+
+  // 6. Try to add another event.
+  XCTestExpectation *storeExpectation2 = [self expectationWithDescription:@"storeExpectation2"];
+  [storage storeEvent:event
+           onComplete:^(BOOL wasWritten, NSError *_Nullable error) {
+             XCTAssertTrue(wasWritten);
+             XCTAssertNil(error);
+             [storeExpectation2 fulfill];
+           }];
+  [self waitForExpectations:@[ storeExpectation2 ] timeout:5];
+
+  GDTCORStorageSizeBytes lastBatchIDSize = sizeof(int32_t);
+  XCTAssertEqual([self storageSize], [self storageEventSize:event] + lastBatchIDSize);
+}
+
 #pragma mark - Helpers
 
+/** Generates and returns a set of events that are generated randomly and stored.
+ *
+ * @return A set of randomly generated and stored events.
+ */
+- (NSSet<GDTCOREvent *> *)generateEventsForStorageTesting {
+  NSMutableSet<GDTCOREvent *> *generatedEvents = [[NSMutableSet alloc] init];
+  // Generate 100 test target events
+  [generatedEvents unionSet:[self generateEventsForTarget:kGDTCORTargetTest
+                                               expiringIn:1000
+                                                    count:100]];
+
+  // Generate 50 FLL target events.
+  [generatedEvents unionSet:[self generateEventsForTarget:kGDTCORTargetFLL
+                                               expiringIn:1000
+                                                    count:50]];
+
+  return generatedEvents;
+}
+
+/** Generates and stores events with specified parameters.
+ *  @return Generated events.
+ */
+- (NSSet<GDTCOREvent *> *)generateEventsForTarget:(GDTCORTarget)target
+                                       expiringIn:(NSTimeInterval)eventsExpireIn
+                                            count:(NSInteger)count {
+  GDTCORFlatFileStorage *storage = [GDTCORFlatFileStorage sharedInstance];
+  NSMutableSet<GDTCOREvent *> *generatedEvents = [[NSMutableSet alloc] init];
+
+  XCTestExpectation *generatedEventsStoredExpectation =
+      [self expectationWithDescription:@"generatedEventsStoredExpectation"];
+  generatedEventsStoredExpectation.expectedFulfillmentCount = count;
+
+  for (int i = 0; i < count; i++) {
+    GDTCOREvent *event = [GDTCOREventGenerator generateEventForTarget:target
+                                                              qosTier:nil
+                                                            mappingID:nil];
+    event.expirationDate = [NSDate dateWithTimeIntervalSinceNow:eventsExpireIn];
+    [generatedEvents addObject:event];
+    [storage storeEvent:event
+             onComplete:^(BOOL wasWritten, NSError *_Nullable error) {
+               XCTAssertTrue(wasWritten);
+               XCTAssertNil(error);
+               [generatedEventsStoredExpectation fulfill];
+             }];
+  }
+
+  [self waitForExpectations:@[ generatedEventsStoredExpectation ] timeout:1 * count];
+
+  return generatedEvents;
+}
+
+/** Generates and stores events to fill up the storage up the the specified size.
+ *  @return Generated events.
+ */
+- (NSSet<GDTCOREvent *> *)generateAndStoreEventsWithTotalSizeUpTo:
+    (GDTCORStorageSizeBytes)totalSize {
+  GDTCORTarget target = kGDTCORTargetTest;
+  GDTCORStorageSizeBytes eventsSize = 0;
+
+  NSMutableSet<GDTCOREvent *> *generatedEvents = [[NSMutableSet alloc] init];
+  GDTCOREvent *generatedEvent = [GDTCOREventGenerator generateEventForTarget:target
+                                                                     qosTier:nil
+                                                                   mappingID:nil];
+
+  do {
+    XCTestExpectation *eventStoredExpectation = [self expectationWithDescription:@"eventStored"];
+    [[GDTCORFlatFileStorage sharedInstance]
+        storeEvent:generatedEvent
+        onComplete:^(BOOL wasWritten, NSError *_Nullable error) {
+          XCTAssertTrue(wasWritten);
+          XCTAssertNil(error);
+          [eventStoredExpectation fulfill];
+        }];
+
+    [self waitForExpectations:@[ eventStoredExpectation ] timeout:1];
+
+    [generatedEvents addObject:generatedEvent];
+    eventsSize += [self storageEventSize:generatedEvent];
+
+    generatedEvent = [GDTCOREventGenerator generateEventForTarget:target qosTier:nil mappingID:nil];
+
+  } while (eventsSize + [self storageEventSize:generatedEvent] <= totalSize);
+
+  return generatedEvents;
+}
+
+/** Generates, stores and batches 100 events.
+ *  @return A dictionary with the generated events by the batch ID.
+ */
 - (NSDictionary<NSNumber *, NSSet<GDTCOREvent *> *> *)generateAndBatchEvents {
   return [self generateAndBatchEventsExpiringIn:1000 batchExpiringIn:1000];
 }
 
+/** Generates, stores and batches 100 events with specified parameters.
+ *  @return A dictionary with the generated events by the batch ID.
+ */
 - (NSDictionary<NSNumber *, NSSet<GDTCOREvent *> *> *)
     generateAndBatchEventsExpiringIn:(NSTimeInterval)eventsExpireIn
                      batchExpiringIn:(NSTimeInterval)batchExpiresIn {
@@ -1167,6 +1318,8 @@
   return @{batchID : events};
 }
 
+/** Calls `[GDTCORFlatFileStorage batchIDsForTarget:onComplete:]`, waits for the completion and
+ * asserts the result. */
 - (void)assertBatchIDs:(NSSet<NSNumber *> *)expectedBatchIDs
              inStorage:(GDTCORFlatFileStorage *)storage {
   XCTestExpectation *batchIDsFetchedExpectation =
@@ -1181,6 +1334,7 @@
   [self waitForExpectations:@[ batchIDsFetchedExpectation ] timeout:0.5];
 }
 
+/** Calls `[GDTCORFlatFileStorage storeEvent:onComplete:]` and waits for the completion.  */
 - (void)storeEvent:(GDTCOREvent *)event inStorage:(GDTCORFlatFileStorage *)storage {
   XCTestExpectation *eventStoredExpectation =
       [self expectationWithDescription:@"eventStoredExpectation"];
@@ -1191,6 +1345,36 @@
              XCTAssertNil(error);
            }];
   [self waitForExpectations:@[ eventStoredExpectation ] timeout:0.5];
+}
+
+/** Calls  `[GDTCORFlatFileStorage storageSizeWithCallback]`, waits for completion and returns the
+ * result. */
+- (uint64_t)storageSize {
+  __block uint64_t storageSize = 0;
+  XCTestExpectation *expectation = [self expectationWithDescription:@"storageSize complete"];
+  [[GDTCORFlatFileStorage sharedInstance] storageSizeWithCallback:^(uint64_t aStorageSize) {
+    storageSize = aStorageSize;
+    [expectation fulfill];
+  }];
+  [self waitForExpectations:@[ expectation ] timeout:1.0];
+  return storageSize;
+}
+
+/** Returns an expected size taken by the events in the storage. */
+- (GDTCORStorageSizeBytes)storageSizeOfEvents:(NSSet<GDTCOREvent *> *)events {
+  uint64_t eventsSize = 0;
+  for (GDTCOREvent *event in events) {
+    eventsSize += [self storageEventSize:event];
+  }
+  return eventsSize;
+}
+
+/** Returns an expected size taken by the event in the storage. */
+- (GDTCORStorageSizeBytes)storageEventSize:(GDTCOREvent *)event {
+  NSError *error;
+  NSData *serializedEventData = GDTCOREncodeArchive(event, nil, &error);
+  XCTAssertNil(error);
+  return serializedEventData.length;
 }
 
 @end

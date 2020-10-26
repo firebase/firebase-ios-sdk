@@ -56,10 +56,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, MessagingDelegate {
 
     // Subscribe to fid changes
     NotificationCenter.default
-      .publisher(for: Notification.Name.FIRInstallationIDDidChange)
-      .map { _ in }
+      .publisher(for: Notification.Name.InstallationIDDidChange)
       .receive(on: RunLoop.main)
-      .sink(receiveValue: {
+      .sink(receiveValue: { _ in
         Installations.installations().installationID(completion: { fid, error in
           if let error = error as NSError? {
             print("Failed to get FID: ", error)
@@ -71,7 +70,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, MessagingDelegate {
       .store(in: &cancellables)
   }
 
-  func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String) {
+  func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
     identity.token = fcmToken
   }
 }

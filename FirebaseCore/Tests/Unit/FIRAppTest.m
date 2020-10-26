@@ -15,12 +15,13 @@
 #import "FirebaseCore/Tests/Unit/FIRTestCase.h"
 #import "FirebaseCore/Tests/Unit/FIRTestComponents.h"
 
+#import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import "FirebaseCore/Sources/FIRAnalyticsConfiguration.h"
 #import "FirebaseCore/Sources/Private/FIRAppInternal.h"
+#import "FirebaseCore/Sources/Private/FIRComponentType.h"
 #import "FirebaseCore/Sources/Private/FIRCoreDiagnosticsConnector.h"
 #import "FirebaseCore/Sources/Private/FIROptionsInternal.h"
-
-#import "GoogleUtilities/Environment/Private/GULAppEnvironmentUtil.h"
+#import "SharedTestUtilities/FIROptionsMock.h"
 
 NSString *const kFIRTestAppName1 = @"test_app_name_1";
 NSString *const kFIRTestAppName2 = @"test-app-name-2";
@@ -68,9 +69,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   _observerMock = OCMObserverMock();
   _mockCoreDiagnosticsConnector = OCMClassMock([FIRCoreDiagnosticsConnector class]);
 
-#if SWIFT_PACKAGE
-  [self mockFIROptions];
-#endif
+  [FIROptionsMock mockFIROptions];
 
   OCMStub(ClassMethod([self.mockCoreDiagnosticsConnector logCoreTelemetryWithOptions:[OCMArg any]]))
       .andDo(^(NSInvocation *invocation){
@@ -369,17 +368,6 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   // Check no new library instances created after the app delete.
   XCTAssertNil(FIR_COMPONENT(FIRTestProtocolCached, app.container));
   XCTAssertNil(FIR_COMPONENT(FIRTestProtocolEagerCached, app.container));
-}
-
-- (void)testErrorForSubspecConfigurationFailure {
-  NSError *error = [FIRApp errorForSubspecConfigurationFailureWithDomain:kFirebaseCoreErrorDomain
-                                                               errorCode:-38
-                                                                 service:@"Auth"
-                                                                  reason:@"some reason"];
-  XCTAssertNotNil(error);
-  XCTAssert([error.domain isEqualToString:kFirebaseCoreErrorDomain]);
-  XCTAssert(error.code == -38);
-  XCTAssert([error.description containsString:@"Configuration failed for"]);
 }
 
 - (void)testOptionsLocking {
@@ -805,46 +793,47 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   XCTAssertFalse([FIRApp isDefaultAppConfigured]);
 }
 
-- (void)testInvalidLibraryName {
+- (void)testRegisterLibrary_InvalidLibraryName {
+  NSString *originalFirebaseUserAgent = [FIRApp firebaseUserAgent];
   [FIRApp registerLibrary:@"Oops>" withVersion:@"1.0.0"];
-  XCTAssertFalse([[FIRApp firebaseUserAgent] containsString:@"Oops"]);
+  XCTAssertTrue([[FIRApp firebaseUserAgent] isEqualToString:originalFirebaseUserAgent]);
 }
 
-- (void)testInvalidLibraryVersion {
+- (void)testRegisterLibrary_InvalidLibraryVersion {
   NSString *originalFirebaseUserAgent = [FIRApp firebaseUserAgent];
   [FIRApp registerLibrary:@"ValidName" withVersion:@"1.0.0+"];
   XCTAssertTrue([[FIRApp firebaseUserAgent] isEqualToString:originalFirebaseUserAgent]);
 }
 
-- (void)testSingleLibrary {
+- (void)testRegisterLibrary_SingleLibrary {
   [FIRApp registerLibrary:@"ValidName" withVersion:@"1.0.0"];
   XCTAssertTrue([[FIRApp firebaseUserAgent] containsString:@"ValidName/1.0.0"]);
 }
 
-- (void)testMultipleLibraries {
+- (void)testRegisterLibrary_MultipleLibraries {
   [FIRApp registerLibrary:@"ValidName" withVersion:@"1.0.0"];
   [FIRApp registerLibrary:@"ValidName2" withVersion:@"2.0.0"];
   XCTAssertTrue([[FIRApp firebaseUserAgent] containsString:@"ValidName/1.0.0 ValidName2/2.0.0"]);
 }
 
-- (void)testRegisteringConformingLibrary {
+- (void)testRegisterLibrary_RegisteringConformingLibrary {
   Class testClass = [FIRTestClass class];
   [FIRApp registerInternalLibrary:testClass withName:@"ValidName" withVersion:@"1.0.0"];
   XCTAssertTrue([[FIRApp firebaseUserAgent] containsString:@"ValidName/1.0.0"]);
 }
 
-- (void)testRegisteringNonConformingLibrary {
+- (void)testRegisterLibrary_RegisteringNonConformingLibrary {
   XCTAssertThrows([FIRApp registerInternalLibrary:[NSString class]
                                          withName:@"InvalidLibrary"
                                       withVersion:@"1.0.0"]);
   XCTAssertFalse([[FIRApp firebaseUserAgent] containsString:@"InvalidLibrary`/1.0.0"]);
 }
 
-- (void)testSwiftFlagWithNoSwift {
+- (void)testFirebaseUserAgent_SwiftFlagWithNoSwift {
   XCTAssertTrue([[FIRApp firebaseUserAgent] containsString:@"swift/false"]);
 }
 
-- (void)testApplePlatformFlag {
+- (void)testFirebaseUserAgent_ApplePlatformFlag {
   // When a Catalyst app is run on macOS then both `TARGET_OS_MACCATALYST` and `TARGET_OS_IOS` are
   // `true`.
 #if TARGET_OS_MACCATALYST
@@ -884,6 +873,39 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   XCTAssertTrue([[FIRApp firebaseUserAgent] containsString:@"apple-platform/watchos"]);
   XCTAssertFalse([[FIRApp firebaseUserAgent] containsString:@"apple-platform/maccatalyst"]);
 #endif  // TARGET_OS_WATCH
+}
+
+- (void)testFirebaseUserAgent_DeploymentType {
+#if SWIFT_PACKAGE
+  NSString *deploymentType = @"swiftpm";
+#elif FIREBASE_BUILD_CARTHAGE
+  NSString *deploymentType = @"carthage";
+#elif FIREBASE_BUILD_ZIP_FILE
+  NSString *deploymentType = @"zip";
+#else
+  NSString *deploymentType = @"cocoapods";
+#endif
+
+  NSString *expectedComponent = [NSString stringWithFormat:@"deploy/%@", deploymentType];
+  XCTAssertTrue([[FIRApp firebaseUserAgent] containsString:expectedComponent]);
+}
+
+- (void)testFirebaseUserAgent_DeviceModel {
+  NSString *expectedComponent =
+      [NSString stringWithFormat:@"device/%@", [GULAppEnvironmentUtil deviceModel]];
+  XCTAssertTrue([[FIRApp firebaseUserAgent] containsString:expectedComponent]);
+}
+
+- (void)testFirebaseUserAgent_OSVersion {
+  NSString *expectedComponent =
+      [NSString stringWithFormat:@"os-version/%@", [GULAppEnvironmentUtil systemVersion]];
+  XCTAssertTrue([[FIRApp firebaseUserAgent] containsString:expectedComponent]);
+}
+
+- (void)testFirebaseUserAgent_IsFromAppStore {
+  NSString *appStoreValue = [GULAppEnvironmentUtil isFromAppStore] ? @"true" : @"false";
+  NSString *expectedComponent = [NSString stringWithFormat:@"appstore/%@", appStoreValue];
+  XCTAssertTrue([[FIRApp firebaseUserAgent] containsString:expectedComponent]);
 }
 
 #pragma mark - Core Diagnostics

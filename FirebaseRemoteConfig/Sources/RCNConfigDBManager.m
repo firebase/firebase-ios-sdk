@@ -33,8 +33,8 @@
 static BOOL gIsNewDatabase;
 /// SQLite file name in versions 0, 1 and 2.
 static NSString *const RCNDatabaseName = @"RemoteConfig.sqlite3";
-/// The application support sub-directory that the Remote Config database resides in.
-static NSString *const RCNRemoteConfigApplicationSupportSubDirectory = @"Google/RemoteConfig";
+/// The storage sub-directory that the Remote Config database resides in.
+static NSString *const RCNRemoteConfigStorageSubDirectory = @"Google/RemoteConfig";
 
 /// Remote Config database path for deprecated V0 version.
 static NSString *RemoteConfigPathForOldDatabaseV0() {
@@ -46,11 +46,14 @@ static NSString *RemoteConfigPathForOldDatabaseV0() {
 
 /// Remote Config database path for current database.
 static NSString *RemoteConfigPathForDatabase(void) {
+#if TARGET_OS_TV
+  NSArray *dirPaths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
+#else
   NSArray *dirPaths =
       NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
-  NSString *appSupportPath = dirPaths.firstObject;
-  NSArray *components =
-      @[ appSupportPath, RCNRemoteConfigApplicationSupportSubDirectory, RCNDatabaseName ];
+#endif
+  NSString *storageDirPath = dirPaths.firstObject;
+  NSArray *components = @[ storageDirPath, RCNRemoteConfigStorageSubDirectory, RCNDatabaseName ];
   return [NSString pathWithComponents:components];
 }
 

@@ -106,6 +106,11 @@ static NSString *const kVerifyEmailRequestTypeValue = @"VERIFY_EMAIL";
  */
 static NSString *const kVerifyBeforeUpdateEmailRequestTypeValue = @"VERIFY_AND_CHANGE_EMAIL";
 
+/** @var kTenantIDKey
+    @brief The key for the tenant id value in the request.
+ */
+static NSString *const kTenantIDKey = @"tenantId";
+
 @interface FIRGetOOBConfirmationCodeRequest ()
 
 /** @fn initWithRequestType:email:APIKey:
@@ -278,6 +283,9 @@ static NSString *const kVerifyBeforeUpdateEmailRequestTypeValue = @"VERIFY_AND_C
 
   if (_dynamicLinkDomain) {
     body[kDynamicLinkDomainKey] = _dynamicLinkDomain;
+  }
+  if (self.tenantID) {
+    body[kTenantIDKey] = self.tenantID;
   }
 
   return body;

@@ -210,6 +210,7 @@ if(APPLE)
     core_sources APPEND
     src/auth/firebase_credentials_provider_apple.*
     src/remote/connectivity_monitor_apple.mm
+    src/remote/firebase_metadata_provider_apple.mm
   )
 endif()
 

@@ -45,12 +45,6 @@ FOUNDATION_EXPORT NSString *const kFIRDLReadDeepLinkAfterInstallKey;
 @property(nonatomic, copy, readonly) NSString *APIKey;
 
 /**
- * @property clientID
- * @abstract Client ID for API access.
- */
-@property(nonatomic, copy, readonly) NSString *clientID;
-
-/**
  * @property URLScheme
  * @abstract Custom URL scheme.
  */

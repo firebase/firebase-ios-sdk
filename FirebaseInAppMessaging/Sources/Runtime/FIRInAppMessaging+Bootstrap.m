@@ -19,8 +19,8 @@
 
 #import "FirebaseInAppMessaging/Sources/Private/Runtime/FIRInAppMessaging+Bootstrap.h"
 
+#import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
-#import "GoogleUtilities/Environment/Private/GULAppEnvironmentUtil.h"
 #import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 
 #import "FirebaseInAppMessaging/Sources/FIRCore+InAppMessaging.h"

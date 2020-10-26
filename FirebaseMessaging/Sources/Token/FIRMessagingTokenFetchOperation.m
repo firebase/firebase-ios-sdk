@@ -16,6 +16,7 @@
 
 #import "FIRMessagingTokenFetchOperation.h"
 
+#import "FIRmessagingCode.h"
 #import "FIRMessagingCheckinPreferences.h"
 #import "FIRMessagingConstants.h"
 #import "FIRMessagingDefines.h"

@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseCoreDiagnostics'
-  s.version          = '1.5.0'
+  s.version          = '7.0.0'
   s.summary          = 'Firebase Core Diagnostics'
 
   s.description      = <<-DESC
@@ -15,16 +15,16 @@ non-Cocoapod integration. This library also respects the Firebase global data co
 
   s.source           = {
     :git => 'https://github.com/firebase/firebase-ios-sdk.git',
-    :tag => 'CoreDiagnostics-' + s.version.to_s
+    :tag => 'CocoaPods-' + s.version.to_s
   }
+
   s.social_media_url = 'https://twitter.com/Firebase'
-  s.ios.deployment_target = '8.0'
-  s.osx.deployment_target = '10.11'
+  s.ios.deployment_target = '9.0'
+  s.osx.deployment_target = '10.12'
   s.tvos.deployment_target = '10.0'
   s.watchos.deployment_target = '6.0'
 
   s.cocoapods_version = '>= 1.4.0'
-  s.static_framework = true
   s.prefix_header_file = false
 
   header_search_paths = {
@@ -45,26 +45,24 @@ non-Cocoapod integration. This library also respects the Firebase global data co
   s.source_files = [
     'Firebase/CoreDiagnostics/FIRCDLibrary/**/*.[cmh]',
     'GoogleDataTransport/GDTCORLibrary/Internal/*.h',
-    'GoogleUtilities/Environment/Private/*.h',
-    'GoogleUtilities/Logger/Private/*.h',
     'Interop/CoreDiagnostics/Public/*.h',
   ]
+  s.public_header_files = 'Firebase/CoreDiagnostics/FIRCDLibrary/Public/*.h'
 
   s.framework = 'Foundation'
 
-  s.dependency 'GoogleDataTransport', '~> 7.2'
-  s.dependency 'GoogleUtilities/Environment', '~> 6.7'
-  s.dependency 'GoogleUtilities/Logger', '~> 6.7'
-  s.dependency 'nanopb', '~> 1.30905.0'
+  s.dependency 'GoogleDataTransport', '~> 8.0'
+  s.dependency 'GoogleUtilities/Environment', '~> 7.0'
+  s.dependency 'GoogleUtilities/Logger', '~> 7.0'
+  s.dependency 'nanopb', '~> 2.30906.0'
 
   s.test_spec 'unit' do |unit_tests|
     unit_tests.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
     unit_tests.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
-    unit_tests.dependency 'GoogleUtilities/UserDefaults', '~> 6.7'
+    unit_tests.dependency 'GoogleUtilities/UserDefaults', '~> 7.0'
     unit_tests.dependency 'OCMock'
     unit_tests.source_files = [
       'Example/CoreDiagnostics/Tests/**/*.[mh]',
-      'GoogleUtilities/UserDefaults/Private/*.h',
     ]
     unit_tests.requires_app_host = false
   end

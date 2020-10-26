@@ -16,6 +16,10 @@
 
 #import <XCTest/XCTest.h>
 
+// This needs to precede the GULSwizzler+Unswizzle.h import for the --use-libraries build.
+#import <GoogleUtilities/GULSwizzler.h>
+
+#import <GoogleUtilities/GULSwizzler+Unswizzle.h>
 #import <OCMock/OCMock.h>
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "FirebaseDynamicLinks/Sources/FIRDLDefaultRetrievalProcessV2.h"
@@ -26,12 +30,9 @@
 #import "FirebaseDynamicLinks/Sources/FIRDynamicLinks+FirstParty.h"
 #import "FirebaseDynamicLinks/Sources/FIRDynamicLinks+Private.h"
 #import "FirebaseDynamicLinks/Sources/Utilities/FDLUtilities.h"
-#import "GoogleUtilities/MethodSwizzler/Private/GULSwizzler.h"
-#import "GoogleUtilities/SwizzlerTestHelpers/GULSwizzler+Unswizzle.h"
 #import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 
 static NSString *const kAPIKey = @"myAPIKey";
-static NSString *const kClientID = @"myClientID.apps.googleusercontent.com";
 static NSString *const kStructuredLinkFmtFreeform = @"%@://google/link/%@";
 static NSString *const kStructuredLinkFmtDeepLink = @"%@://google/link/?deep_link_id=%@";
 static NSString *const kStructuredLinkFmtInvitation = @"%@://google/link/?invitation_id=%@";
@@ -75,7 +76,6 @@ typedef NSURL * (^FakeShortLinkResolverHandler)(NSURL *shortLink);
 - (void)configureDynamicLinks:(FIRApp *)app;
 - (BOOL)setUpWithLaunchOptions:(nullable NSDictionary *)launchOptions
                         apiKey:(NSString *)apiKey
-                      clientID:(NSString *)clientID
                      urlScheme:(nullable NSString *)urlScheme
                   userDefaults:(nullable NSUserDefaults *)userDefaults;
 - (BOOL)canParseUniversalLinkURL:(nullable NSURL *)url;
@@ -91,7 +91,7 @@ typedef NSURL * (^FakeShortLinkResolverHandler)(NSURL *shortLink);
 
 + (instancetype)resolverWithBlock:(FakeShortLinkResolverHandler)resolverHandler {
   // The parameters don't matter since they aren't validated or used here.
-  FakeShortLinkResolver *resolver = [[self alloc] initWithAPIKey:@"" clientID:@"" URLScheme:@""];
+  FakeShortLinkResolver *resolver = [[self alloc] initWithAPIKey:@"" URLScheme:@""];
   resolver->_resolverHandler = [resolverHandler copy];
   return resolver;
 }
@@ -133,7 +133,6 @@ static void SwizzleDynamicLinkNetworking(id linkResolver) {
 
 static void SwizzleDynamicLinkNetworkingWithMock() {
   id linkResolver = OCMPartialMock([[FIRDynamicLinkNetworking alloc] initWithAPIKey:kAPIKey
-                                                                           clientID:kClientID
                                                                           URLScheme:kURLScheme]);
   [[linkResolver stub] resolveShortLink:OCMOCK_ANY FDLSDKVersion:@"1.0.0" completion:OCMOCK_ANY];
 
@@ -205,55 +204,28 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
                                                     GCMSenderID:@"correct_gcm_sender_id"];
   options.APIKey = @"correct_api_key";
   options.projectID = @"abc-xyz-123";
-  options.clientID = @"test-clientid";
   return options;
 }
 
 #pragma mark - Set Up.
-
-- (void)testURLScheme_AllNil {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnonnull"
-  BOOL setUpSucceed = [self.service setUpWithLaunchOptions:nil
-                                                    apiKey:nil
-                                                  clientID:nil
-                                                 urlScheme:nil
-                                              userDefaults:nil];
-#pragma clang diagnostic pop
-  XCTAssertFalse(setUpSucceed, @"Should fail when apiKey and clientID are both nil.");
-}
 
 - (void)testURLScheme_NoApiKey {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wnonnull"
   BOOL setUpSucceed = [self.service setUpWithLaunchOptions:nil
                                                     apiKey:nil
-                                                  clientID:kClientID
                                                  urlScheme:nil
                                               userDefaults:nil];
 #pragma clang diagnostic pop
   XCTAssertFalse(setUpSucceed, @"Should fail when apiKey is nil.");
 }
 
-- (void)testURLScheme_NoClientID {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnonnull"
-  BOOL setUpSucceed = [self.service setUpWithLaunchOptions:nil
-                                                    apiKey:kAPIKey
-                                                  clientID:nil
-                                                 urlScheme:nil
-                                              userDefaults:nil];
-#pragma clang diagnostic pop
-  XCTAssertFalse(setUpSucceed, @"Should fail when clientID is nil.");
-}
-
 - (void)testURLScheme_MinimumParameters {
   BOOL setUpSucceed = [self.service setUpWithLaunchOptions:nil
                                                     apiKey:kAPIKey
-                                                  clientID:kClientID
                                                  urlScheme:nil
                                               userDefaults:nil];
-  XCTAssertTrue(setUpSucceed, @"Should not fail when both apiKey and clientID are set.");
+  XCTAssertTrue(setUpSucceed, @"Should not fail when apiKey is set.");
 }
 
 - (void)testFactoryMethodReturnsProperClassObject {
@@ -274,7 +246,6 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
   [self.userDefaults setBool:NO forKey:kFIRDLReadDeepLinkAfterInstallKey];
   [self.service setUpWithLaunchOptions:launchOptions
                                 apiKey:kAPIKey
-                              clientID:kClientID
                              urlScheme:nil
                           userDefaults:self.userDefaults];
   XCTAssertTrue([self.userDefaults boolForKey:kFIRDLReadDeepLinkAfterInstallKey]);
@@ -289,7 +260,6 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
   [self.userDefaults setBool:NO forKey:kFIRDLReadDeepLinkAfterInstallKey];
   [self.service setUpWithLaunchOptions:launchOptions
                                 apiKey:kAPIKey
-                              clientID:kClientID
                              urlScheme:nil
                           userDefaults:self.userDefaults];
   XCTAssertTrue([self.userDefaults boolForKey:kFIRDLReadDeepLinkAfterInstallKey]);
@@ -302,7 +272,6 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
   [self.userDefaults setBool:YES forKey:kFIRDLReadDeepLinkAfterInstallKey];
   [self.service setUpWithLaunchOptions:launchOptions
                                 apiKey:kAPIKey
-                              clientID:kClientID
                              urlScheme:nil
                           userDefaults:self.userDefaults];
   XCTAssertTrue([self.userDefaults boolForKey:kFIRDLReadDeepLinkAfterInstallKey]);
@@ -311,7 +280,6 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
 - (void)testURLScheme_Nil {
   BOOL setUpSucceed = [self.service setUpWithLaunchOptions:nil
                                                     apiKey:kAPIKey
-                                                  clientID:kClientID
                                                  urlScheme:nil
                                               userDefaults:nil];
   XCTAssertTrue(setUpSucceed);
@@ -321,7 +289,6 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
 - (void)testURLScheme_EmptyString {
   BOOL setUpSucceed = [self.service setUpWithLaunchOptions:nil
                                                     apiKey:kAPIKey
-                                                  clientID:kClientID
                                                  urlScheme:@""
                                               userDefaults:nil];
   XCTAssertTrue(setUpSucceed);
@@ -331,7 +298,6 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
 - (void)testURLScheme_NonNil {
   [self.service setUpWithLaunchOptions:nil
                                 apiKey:kAPIKey
-                              clientID:kClientID
                              urlScheme:kURLScheme
                           userDefaults:self.userDefaults];
   XCTAssertEqualObjects(self.service.URLScheme, kURLScheme,
@@ -367,7 +333,6 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
 
   [self.service setUpWithLaunchOptions:nil
                                 apiKey:kAPIKey
-                              clientID:kClientID
                              urlScheme:kURLScheme
                           userDefaults:self.userDefaults];
   FIRDynamicLink *dynamicLink = [self.service dynamicLinkFromCustomSchemeURL:url];
@@ -382,7 +347,6 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
 
   [self.service setUpWithLaunchOptions:nil
                                 apiKey:kAPIKey
-                              clientID:kClientID
                              urlScheme:kURLScheme
                           userDefaults:self.userDefaults];
   FIRDynamicLink *dynamicLink = [self.service dynamicLinkFromCustomSchemeURL:url];
@@ -399,7 +363,6 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
 
   [self.service setUpWithLaunchOptions:nil
                                 apiKey:kAPIKey
-                              clientID:kClientID
                              urlScheme:kURLScheme
                           userDefaults:self.userDefaults];
   FIRDynamicLink *dynamicLink = [self.service dynamicLinkFromCustomSchemeURL:url];
@@ -418,7 +381,6 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
 
   [self.service setUpWithLaunchOptions:nil
                                 apiKey:kAPIKey
-                              clientID:kClientID
                              urlScheme:kURLScheme
                           userDefaults:self.userDefaults];
   FIRDynamicLink *dynamicLink = [self.service dynamicLinkFromCustomSchemeURL:url];
@@ -435,7 +397,6 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
 
   [self.service setUpWithLaunchOptions:nil
                                 apiKey:kAPIKey
-                              clientID:kClientID
                              urlScheme:kURLScheme
                           userDefaults:self.userDefaults];
   FIRDynamicLink *dynamicLink = [self.service dynamicLinkFromCustomSchemeURL:url];
@@ -454,7 +415,6 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
 
   [self.service setUpWithLaunchOptions:nil
                                 apiKey:kAPIKey
-                              clientID:kClientID
                              urlScheme:kURLScheme
                           userDefaults:self.userDefaults];
   FIRDynamicLink *dynamicLink = [self.service dynamicLinkFromCustomSchemeURL:url];
@@ -477,7 +437,6 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
 
   [self.service setUpWithLaunchOptions:nil
                                 apiKey:kAPIKey
-                              clientID:kClientID
                              urlScheme:kURLScheme
                           userDefaults:self.userDefaults];
   FIRDynamicLink *dynamicLink = [self.service dynamicLinkFromCustomSchemeURL:url];
@@ -490,7 +449,6 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
 - (void)testLinkParamWithPlus {
   [self.service setUpWithLaunchOptions:nil
                                 apiKey:kAPIKey
-                              clientID:kClientID
                              urlScheme:kURLScheme
                           userDefaults:self.userDefaults];
   NSString *durableDeepLinkString =
@@ -519,7 +477,6 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
 
   [self.service setUpWithLaunchOptions:nil
                                 apiKey:kAPIKey
-                              clientID:kClientID
                              urlScheme:kURLScheme
                           userDefaults:self.userDefaults];
   FIRDynamicLink *dynamicLink = [self.service dynamicLinkFromCustomSchemeURL:url];
@@ -587,7 +544,6 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
 
   [self.service setUpWithLaunchOptions:nil
                                 apiKey:kAPIKey
-                              clientID:kClientID
                              urlScheme:kURLScheme
                           userDefaults:self.userDefaults];
 
@@ -609,7 +565,6 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
 
   [self.service setUpWithLaunchOptions:nil
                                 apiKey:kAPIKey
-                              clientID:kClientID
                              urlScheme:kURLScheme
                           userDefaults:self.userDefaults];
 
@@ -624,7 +579,6 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
 - (void)testResolveLinkReturnsDLWithNilMinAppVersionWhenNotPresent {
   [self.service setUpWithLaunchOptions:nil
                                 apiKey:kAPIKey
-                              clientID:kClientID
                              urlScheme:kURLScheme
                           userDefaults:self.userDefaults];
 
@@ -664,7 +618,6 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
 
   [self.service setUpWithLaunchOptions:nil
                                 apiKey:kAPIKey
-                              clientID:kClientID
                              urlScheme:kURLScheme
                           userDefaults:self.userDefaults];
 
@@ -709,7 +662,6 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
 
   [self.service setUpWithLaunchOptions:nil
                                 apiKey:kAPIKey
-                              clientID:kClientID
                              urlScheme:kURLScheme
                           userDefaults:self.userDefaults];
   FIRDynamicLink *dynamicLink = [self.service dynamicLinkFromCustomSchemeURL:url];
@@ -719,7 +671,6 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
 - (void)testDynamicLinkFromCustomSchemeURLReturnsDLWithNilMinimumVersion {
   [self.service setUpWithLaunchOptions:nil
                                 apiKey:kAPIKey
-                              clientID:kClientID
                              urlScheme:kURLScheme
                           userDefaults:self.userDefaults];
   NSURL *url = FIRDLDeepLinkURLWithInviteID(nil, kEncodedComplicatedURLString, nil, nil, nil, NO,
@@ -734,7 +685,6 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
 
   [self.service setUpWithLaunchOptions:nil
                                 apiKey:kAPIKey
-                              clientID:kClientID
                              urlScheme:kURLScheme
                           userDefaults:self.userDefaults];
   NSURL *url = FIRDLDeepLinkURLWithInviteID(nil, kEncodedComplicatedURLString, nil, nil, nil, NO,
@@ -750,7 +700,6 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
 - (void)testDynamicLinkFromUniversalLinkURLReturnsDLWithNilMinimumVersion {
   [self.service setUpWithLaunchOptions:nil
                                 apiKey:kAPIKey
-                              clientID:kClientID
                              urlScheme:kURLScheme
                           userDefaults:self.userDefaults];
 
@@ -774,7 +723,6 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
 
   [self.service setUpWithLaunchOptions:nil
                                 apiKey:kAPIKey
-                              clientID:kClientID
                              urlScheme:kURLScheme
                           userDefaults:self.userDefaults];
 
@@ -793,7 +741,6 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
 
   [self.service setUpWithLaunchOptions:nil
                                 apiKey:kAPIKey
-                              clientID:kClientID
                              urlScheme:kURLScheme
                           userDefaults:self.userDefaults];
 
@@ -814,7 +761,6 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
 
   [self.service setUpWithLaunchOptions:nil
                                 apiKey:kAPIKey
-                              clientID:kClientID
                              urlScheme:kURLScheme
                           userDefaults:self.userDefaults];
 
@@ -1082,7 +1028,6 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
 
   [mockService setUpWithLaunchOptions:nil
                                apiKey:kAPIKey
-                             clientID:kClientID
                             urlScheme:nil
                          userDefaults:[NSUserDefaults standardUserDefaults]];
 
@@ -1155,7 +1100,6 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
 
   [mockService setUpWithLaunchOptions:nil
                                apiKey:kAPIKey
-                             clientID:kClientID
                             urlScheme:kURLScheme
                          userDefaults:self.userDefaults];
 
@@ -1173,7 +1117,6 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
 - (void)test_retrievePendingDeepLinkShouldSetkFIRDLOpenURLKeyRegardlessOfFailures {
   [self.service setUpWithLaunchOptions:nil
                                 apiKey:kAPIKey
-                              clientID:kClientID
                              urlScheme:nil
                           userDefaults:[NSUserDefaults standardUserDefaults]];
   FIRDynamicLinks<FIRDLRetrievalProcessDelegate> *deleagte =

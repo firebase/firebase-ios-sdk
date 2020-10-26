@@ -145,7 +145,7 @@ NS_SWIFT_NAME(Crashlytics)
  *
  * This method uses three ways to decide whether automatic data collection is enabled,
  * in order of priority:
- *  - If setCrashlyticsCollectionEnabled iscalled with a value, use it
+ *  - If setCrashlyticsCollectionEnabled is called with a value, use it
  *  - If the FirebaseCrashlyticsCollectionEnabled key is in your app's Info.plist, use it
  *  - Otherwise, use the default isDataCollectionDefaultEnabled in FIRApp
  */
@@ -171,7 +171,7 @@ NS_SWIFT_NAME(Crashlytics)
     NS_SWIFT_NAME(checkForUnsentReports(completion:));
 
 /**
- * Enqueues any unsent reports on the device to upload to  Crashlytics.
+ * Enqueues any unsent reports on the device to upload to Crashlytics.
  *
  * This method only applies if automatic data collection is disabled.
  *

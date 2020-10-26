@@ -1,3 +1,16 @@
+# v7.0.0
+- [changed] Updated `lastFetchTime` field to readonly. (#6567)
+- [changed] Functionally neutral change to stop using a deprecated method in the AB Testing API. (#6543)
+- [fixed] Updated `numberValue` to be nonnull to align with current behavior. (#6623)
+- [removed] Removed deprecated APIs `isDeveloperModeEnabled`, `initWithDeveloperModeEnabled:developerModeEnabled`, `activateWithCompletionHandler:completionHandler`, `activateFetched`, `configValueForKey:namespace`, `configValueForKey:namespace:source`, `allKeysFromSource:namespace`, `keysWithPrefix:namespace`, `setDefaults:namespace`, `setDefaultsFromPlistFileName:namespace`, `defaultValueForKey:namespace`. (#6637)
+- [fixed] Completion handler for `fetchAndActivateWithCompletionHandler` is now run on the main thread. (#5897)
+- [fixed] Fixed database creation on tvOS. (#6612)
+- [changed] Updated public API documentation to no longer reference removed APIs. (#6641)
+- [fixed] Updated `activateWithCompletion:` to use completion handler for experiment updates. (#3687)
+
+# v4.9.1
+- [fixed] Fix an `attempt to insert nil object` crash in `fetchWithExpirationDuration:`. (#6522)
+
 # v4.9.0
 - [fixed] Fixed `FirebaseApp.delete()` related crash in `RC Config Fetch`. (#6123)
 

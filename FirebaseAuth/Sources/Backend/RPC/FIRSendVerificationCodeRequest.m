@@ -45,6 +45,11 @@ static NSString *const kSecretKey = @"iosSecret";
  */
 static NSString *const kreCAPTCHATokenKey = @"recaptchaToken";
 
+/** @var kTenantIDKey
+    @brief The key for the tenant id value in the request.
+ */
+static NSString *const kTenantIDKey = @"tenantId";
+
 @implementation FIRSendVerificationCodeRequest {
 }
 
@@ -75,6 +80,9 @@ static NSString *const kreCAPTCHATokenKey = @"recaptchaToken";
   }
   if (_reCAPTCHAToken) {
     postBody[kreCAPTCHATokenKey] = _reCAPTCHAToken;
+  }
+  if (self.tenantID) {
+    postBody[kTenantIDKey] = self.tenantID;
   }
   return [postBody copy];
 }

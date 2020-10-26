@@ -16,9 +16,9 @@
 
 #import <Foundation/Foundation.h>
 
-#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORLifecycle.h"
-#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORStorageEventSelector.h"
-#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORStorageProtocol.h"
+#import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORLifecycle.h"
+#import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORStorageEventSelector.h"
+#import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORStorageProtocol.h"
 
 @class GDTCOREvent;
 @class GDTCORUploadCoordinator;
@@ -45,6 +45,15 @@ FOUNDATION_EXPORT NSString *const kGDTCORBatchComponentsBatchIDKey;
 
 /** The batch components expiration dictionary key. */
 FOUNDATION_EXPORT NSString *const kGDTCORBatchComponentsExpirationKey;
+
+/** The maximum allowed disk space taken by the stored data. */
+FOUNDATION_EXPORT const uint64_t kGDTCORFlatFileStorageSizeLimit;
+
+FOUNDATION_EXPORT NSString *const GDTCORFlatFileStorageErrorDomain;
+
+typedef NS_ENUM(NSInteger, GDTCORFlatFileStorageError) {
+  GDTCORFlatFileStorageErrorSizeLimitReached = 0
+};
 
 /** Manages the storage of events. This class is thread-safe.
  *

@@ -42,8 +42,6 @@ let skipDirPatterns = ["/Sample/", "/Pods/", "FirebaseStorage/Tests/Integration"
     "FirebaseDatabase/Sources/third_party/Wrap-leveldb", // Pending SwiftPM for leveldb.
     "Example",
     "FirebaseInstallations/Source/Tests/Unit/",
-    "Firebase/InstanceID",
-    "FirebaseMessaging",
     "Firestore",
     "GoogleUtilitiesComponents",
   ]
@@ -81,9 +79,8 @@ private func checkFile(_ file: String, logger: ErrorLogger, inRepo repoURL: URL)
     file.range(of: "GDTCCTLibrary/Public/GDTCOREvent+GDTCCTSupport.h") == nil
   let isPrivate = file.range(of: "/Sources/Private/") != nil ||
     // Delete when FirebaseInstallations fixes directory structure.
-    file.range(of: "Source/Library/Private/") != nil ||
-    // Delete when GDT fixes directory structure.
-    file.range(of: "GDTCORLibrary/Internal/") != nil
+    file.range(of: "Source/Library/Private/FirebaseInstallationsInternal.h") != nil ||
+    file.range(of: "GDTCORLibrary/Internal/GoogleDataTransportInternal.h") != nil
   var inSwiftPackage = false
   var inSwiftPackageElse = false
   let lines = fileContents.components(separatedBy: .newlines)
@@ -141,7 +138,6 @@ private func checkFile(_ file: String, logger: ErrorLogger, inRepo repoURL: URL)
       } else if importFile.first == "<", !isPrivate {
         // Verify that double quotes are always used for intra-module imports.
         if importFileRaw.starts(with: "Firebase") ||
-          importFileRaw.starts(with: "GoogleUtilities") ||
           importFileRaw.starts(with: "GoogleDataTransport") {
           logger
             .importLog("Imports internal to the repo should use double quotes not \"<\"", file,

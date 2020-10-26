@@ -16,7 +16,7 @@
 
 #import "FIRMessagingCheckinService.h"
 
-#import "GoogleUtilities/Environment/Private/GULAppEnvironmentUtil.h"
+#import "GoogleUtilities/Environment/Public/GoogleUtilities/GULAppEnvironmentUtil.h"
 
 #import "FIRMessagingAuthService.h"
 #import "FIRMessagingCheckinPreferences.h"

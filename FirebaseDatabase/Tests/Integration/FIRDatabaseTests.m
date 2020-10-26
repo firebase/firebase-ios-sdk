@@ -49,7 +49,6 @@ static NSString *kFirebaseTestAltNamespace = @"https://foobar.firebaseio.com";
 }
 
 - (void)testDatabaseForAppWithInvalidURLs {
-  XCTAssertThrows([self databaseForURL:nil]);
   XCTAssertThrows([self databaseForURL:@"not-a-url"]);
   XCTAssertThrows([self databaseForURL:@"http://x.example.com/paths/are/bad"]);
 }
@@ -73,6 +72,13 @@ static NSString *kFirebaseTestAltNamespace = @"https://foobar.firebaseio.com";
                                         URL:kFirebaseTestAltNamespace];
   FIRDatabase *database = [FIRDatabase databaseForApp:app URL:@"https://foo.bar.com"];
   XCTAssertEqualObjects(@"https://foo.bar.com", [database reference].URL);
+}
+
+- (void)testDatabaseForAppWithProjectId {
+  id app = [[FIRFakeApp alloc] initWithName:@"testDatabaseForAppWithURL" URL:nil];
+  FIRDatabase *database = [FIRDatabase databaseForApp:app];
+  XCTAssertEqualObjects(@"https://fake-project-id-default-rtdb.firebaseio.com",
+                        [database reference].URL);
 }
 
 - (void)testDifferentInstanceForAppWithURL {

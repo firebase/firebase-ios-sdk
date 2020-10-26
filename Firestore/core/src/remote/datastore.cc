@@ -27,6 +27,7 @@
 #include "Firestore/core/src/model/document_key.h"
 #include "Firestore/core/src/model/mutation.h"
 #include "Firestore/core/src/remote/connectivity_monitor.h"
+#include "Firestore/core/src/remote/firebase_metadata_provider.h"
 #include "Firestore/core/src/remote/grpc_completion.h"
 #include "Firestore/core/src/remote/grpc_connection.h"
 #include "Firestore/core/src/remote/grpc_nanopb.h"
@@ -91,13 +92,14 @@ void LogGrpcCallFinished(absl::string_view rpc_name,
 Datastore::Datastore(const DatabaseInfo& database_info,
                      const std::shared_ptr<AsyncQueue>& worker_queue,
                      std::shared_ptr<CredentialsProvider> credentials,
-                     ConnectivityMonitor* connectivity_monitor)
+                     ConnectivityMonitor* connectivity_monitor,
+                     FirebaseMetadataProvider* firebase_metadata_provider)
     : worker_queue_{NOT_NULL(worker_queue)},
       credentials_{std::move(credentials)},
       rpc_executor_{CreateExecutor()},
       connectivity_monitor_{connectivity_monitor},
       grpc_connection_{database_info, worker_queue, &grpc_queue_,
-                       connectivity_monitor_},
+                       connectivity_monitor_, firebase_metadata_provider},
       datastore_serializer_{database_info} {
   if (!database_info.ssl_enabled()) {
     GrpcConnection::UseInsecureChannel(database_info.host());
