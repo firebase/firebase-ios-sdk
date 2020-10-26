@@ -1,3 +1,5 @@
+# Unreleased
+- [changed] Improved SDK startup performance by moving binary image initialization to an asynchronous background thread.
 # v7.4.0
 - [changed] Removed obsolete crash reporting mechanism from the SDK (#7076).
 
