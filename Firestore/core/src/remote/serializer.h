@@ -171,8 +171,8 @@ class Serializer {
 
   static google_firestore_v1_DocumentMask EncodeFieldMask(
       const model::FieldMask& mask);
-  static util::StatusOr<model::FieldMask> DecodeFieldMask(
-      const google_firestore_v1_DocumentMask& mask);
+  static model::FieldMask DecodeFieldMask(
+      nanopb::Reader* reader, const google_firestore_v1_DocumentMask& mask);
 
   google_firestore_v1_DocumentTransform_FieldTransform EncodeFieldTransform(
       const model::FieldTransform& field_transform) const;
@@ -189,8 +189,8 @@ class Serializer {
   EncodeListenRequestLabels(const local::TargetData& target_data) const;
 
   static pb_bytes_array_t* EncodeFieldPath(const model::FieldPath& field_path);
-  static util::StatusOr<model::FieldPath> DecodeFieldPath(
-      const pb_bytes_array_t* field_path);
+  static model::FieldPath DecodeFieldPath(nanopb::Reader* reader,
+                                          const pb_bytes_array_t* field_path);
 
   static google_protobuf_Timestamp EncodeVersion(
       const model::SnapshotVersion& version);

@@ -29,10 +29,12 @@ namespace firestore {
 namespace model {
 
 namespace {
+
 FieldPath Parse(const std::string& path) {
   return FieldPath::FromServerFormat(path).ConsumeValueOrDie();
 }
-}  // anonymous namespace
+
+}  // namespace
 
 TEST(FieldPath, Constructors) {
   const FieldPath empty_path;

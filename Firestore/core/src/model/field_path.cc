@@ -183,20 +183,18 @@ StatusOr<FieldPath> FieldPath::FromServerFormatView(absl::string_view path) {
     }
     ++i;
 
-    if (!status.ok()) {
-      return status;
-    }
+    if (!status.ok()) return status;
   }
 
   status = finish_segment();
+  if (!status.ok()) return status;
 
   if (inside_backticks) {
-    status = Status{Error::kErrorInvalidArgument,
-                    StringFormat("Unterminated ` in path %s", path)};
+    return Status{Error::kErrorInvalidArgument,
+                  StringFormat("Unterminated ` in path %s", path)};
   }
 
-  return status.ok() ? StatusOr<FieldPath>{FieldPath{std::move(segments)}}
-                     : StatusOr<FieldPath>{status};
+  return FieldPath{std::move(segments)};
 }
 
 const FieldPath& FieldPath::EmptyPath() {
