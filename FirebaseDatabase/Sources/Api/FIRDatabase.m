@@ -153,13 +153,32 @@
     }
     FParsedUrl *parsedUrl = [FUtilities parseUrl:databaseUrl];
     [FValidation validateFrom:@"referenceFromURL:" validURL:parsedUrl];
-    if (![parsedUrl.repoInfo.host isEqualToString:_repoInfo.host]) {
-        [NSException
-             raise:@"InvalidDatabaseURL"
-            format:
-                @"Invalid URL (%@) passed to getReference(). URL was expected "
-                 "to match configured Database URL: %@",
-                databaseUrl, [self reference].URL];
+
+    // If in an emulated setting, only validate the host if the underlying
+    // URL isn't a custom host. This allows users to create references from
+    // production URLs in an emulated setting.
+    if (self.repoInfo.underlyingHost != nil) {
+        // Consider URLs for both the production host and the emulated host as
+        // valid.
+        BOOL isValidURL =
+            [parsedUrl.repoInfo.host
+                isEqualToString:_repoInfo.underlyingHost] ||
+            [parsedUrl.repoInfo.host isEqualToString:_repoInfo.host];
+        if (!self.repoInfo.isCustomHost && !isValidURL) {
+            [NSException raise:@"InvalidDatabaseURL"
+                        format:@"Invalid URL (%@) passed to getReference(). "
+                               @"URL was expected "
+                                "to match configured Database URL: %@",
+                               databaseUrl, _repoInfo.underlyingHost];
+        }
+    } else {
+        if (![parsedUrl.repoInfo.host isEqualToString:_repoInfo.host]) {
+            [NSException raise:@"InvalidDatabaseURL"
+                        format:@"Invalid URL (%@) passed to getReference(). "
+                               @"URL was expected "
+                                "to match configured Database URL: %@",
+                               databaseUrl, [self reference].URL];
+        }
     }
     return [[FIRDatabaseReference alloc] initWithRepo:self.repo
                                                  path:parsedUrl.path];
@@ -174,14 +193,23 @@
 }
 
 - (void)useEmulatorWithHost:(NSString *)host port:(NSInteger)port {
-    NSAssert(host.length > 0, @"Cannot connect to nil or empty host");
-    NSAssert(self.repo == nil,
-             @"Cannot connect to emulator after database initialization. Call "
-             @"useEmulator(host:port:) before creating a database reference or "
-             @"opening a database connection.");
+    if (host.length == 0) {
+        [NSException raise:NSInvalidArgumentException
+                    format:@"Cannot connect to nil or empty host."];
+    }
+    if (self.repo != nil) {
+        NSString *exceptionMessage =
+            @"Cannot connect to emulator after database initialization. Call "
+            @"useEmulator(host:port:) before creating a database reference or "
+            @"trying to load data.";
+        [NSException raise:NSInternalInconsistencyException
+                    format:exceptionMessage];
+    }
     NSString *fullHost =
         [NSString stringWithFormat:@"%@:%li", host, (long)port];
-    self.repoInfo.host = fullHost;
+    FRepoInfo *newInfo = [[FRepoInfo alloc] initWithInfo:self.repoInfo
+                                            emulatedHost:fullHost];
+    self->_repoInfo = newInfo;
 }
 
 - (void)goOnline {

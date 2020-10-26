@@ -25,14 +25,14 @@
 
 @implementation FRepoInfo
 
-- (id)initWithHost:(NSString *)aHost
-          isSecure:(BOOL)isSecure
-     withNamespace:(NSString *)aNamespace
-      emulatedHost:(NSString *)emulatedHost {
+- (instancetype)initWithHost:(NSString *)aHost
+                    isSecure:(BOOL)isSecure
+               withNamespace:(NSString *)aNamespace
+              underlyingHost:(NSString *)underlyingHost {
     self = [super init];
     if (self) {
+        _underlyingHost = [underlyingHost copy];
         _host = [aHost copy];
-        _emulatedHost = [emulatedHost copy];
         _domain =
             [_host containsString:@"."]
                 ? [_host
@@ -53,6 +53,22 @@
         }
     }
     return self;
+}
+
+- (instancetype)initWithHost:(NSString *)host
+                    isSecure:(BOOL)secure
+               withNamespace:(NSString *)namespace {
+    return [self initWithHost:host
+                     isSecure:secure
+                withNamespace:namespace
+               underlyingHost:nil];
+}
+
+- (instancetype)initWithInfo:(FRepoInfo *)info emulatedHost:(NSString *)host {
+    return [self initWithHost:host
+                     isSecure:info.secure
+                withNamespace:info.namespace
+               underlyingHost:info.host];
 }
 
 - (NSString *)description {
@@ -85,9 +101,13 @@
     [cache synchronize];
 }
 
-- (NSString *)activeHost {
-    NSString *host = self.emulatedHost ?: self.host
-    return [host copy];
+- (BOOL)isCustomHost {
+    NSString *host = self.underlyingHost ?: self.host;
+    NSRange resultRange = [host rangeOfString:@".firebaseio.com"];
+    if (resultRange.location == NSNotFound) {
+        return NO;
+    }
+    return !(resultRange.length + resultRange.location == host.length);
 }
 
 - (BOOL)isDemoHost {
@@ -138,8 +158,8 @@
         return NO;
     }
     FRepoInfo *other = (FRepoInfo *)anObject;
-    return secure == other.secure && [host isEqualToString:other.host] &&
-        [namespace isEqualToString:other.namespace];
+    return secure == other.secure && [self.host isEqualToString:other.host] &&
+           [namespace isEqualToString:other.namespace];
 }
 
 @end
