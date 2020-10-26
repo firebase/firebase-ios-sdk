@@ -15,13 +15,13 @@
  */
 
 #include "Firestore/core/src/model/field_path.h"
-#include "Firestore/core/src/util/statusor.h"
-#include "Firestore/core/test/unit/testutil/status_testing.h"
 
 #include <initializer_list>
 #include <string>
 #include <vector>
 
+#include "Firestore/core/src/util/statusor.h"
+#include "Firestore/core/test/unit/testutil/status_testing.h"
 #include "gtest/gtest.h"
 
 namespace firebase {
