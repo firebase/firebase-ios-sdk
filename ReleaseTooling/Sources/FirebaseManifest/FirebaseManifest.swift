@@ -19,6 +19,7 @@ import Foundation
 /// The manifest contents for a release.
 /// Version should be updated every release.
 /// The version and releasing fields of the non-Firebase pods should be reviewed every release.
+/// The array should be ordered so that any pod's dependencies precede it in the list.
 public let shared = Manifest(
   version: "7.0.0",
   pods: [
@@ -32,6 +33,7 @@ public let shared = Manifest(
     Pod("GoogleAppMeasurement", isClosedSource: true),
     Pod("FirebaseAnalytics", isClosedSource: true, zip: true),
     Pod("FirebaseABTesting", zip: true),
+    Pod("FirebaseRemoteConfig", zip: true),
     Pod("FirebaseAppDistribution", isBeta: true, zip: true),
     Pod("FirebaseAuth", zip: true),
     Pod("FirebaseCrashlytics", zip: true),
@@ -43,7 +45,6 @@ public let shared = Manifest(
     Pod("FirebaseInAppMessaging", isBeta: true, zip: true),
     Pod("FirebaseMessaging", zip: true),
     Pod("FirebasePerformance", isClosedSource: true, zip: true),
-    Pod("FirebaseRemoteConfig", zip: true),
     Pod("FirebaseStorage", zip: true),
     Pod("FirebaseStorageSwift", isBeta: true),
     Pod("FirebaseMLCommon", isClosedSource: true, isBeta: true),
