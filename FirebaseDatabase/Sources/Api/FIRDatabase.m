@@ -164,8 +164,6 @@
             [parsedUrl.repoInfo.host
                 isEqualToString:_repoInfo.underlyingHost] ||
             [parsedUrl.repoInfo.host isEqualToString:_repoInfo.host];
-        NSLog(@"isValidURL: %@", isValidURL ? @"YES" : @"NO");
-        NSLog(@"isCustomHost: %@", self.repoInfo.isCustomHost ? @"YES" : @"NO");
         if (!_repoInfo.isCustomHost && !isValidURL) {
             [NSException raise:@"InvalidDatabaseURL"
                         format:@"Invalid URL (%@) passed to getReference(). "
