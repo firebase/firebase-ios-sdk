@@ -1,4 +1,5 @@
 # Unreleased
+- [added] Made emulator connection API consistent between Auth, Database, Firestore, and Functions (#5916).
 
 # v7.0.0
 - [changed] **Breaking change:** Removed the `areTimestampsInSnapshotsEnabled`
