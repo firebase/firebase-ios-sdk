@@ -497,8 +497,8 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   [self deleteFCMTokenForSenderID:options.GCMSenderID completion:completion];
 }
 
-- (void)retrieveFCMTokenForSenderID:(nonnull NSString *)senderID
-                         completion:(nonnull FIRMessagingFCMTokenFetchCompletion)completion {
+- (void)retrieveFCMTokenForSenderID:(NSString *)senderID
+                         completion:(FIRMessagingFCMTokenFetchCompletion)completion {
   if (!senderID.length) {
     NSString *description = @"Couldn't fetch token because a Sender ID was not supplied. A valid "
                             @"Sender ID is required to fetch an FCM token";
@@ -531,8 +531,8 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 #pragma clang diagnostic pop
 }
 
-- (void)deleteFCMTokenForSenderID:(nonnull NSString *)senderID
-                       completion:(nonnull FIRMessagingDeleteFCMTokenCompletion)completion {
+- (void)deleteFCMTokenForSenderID:(NSString *)senderID
+                       completion:(FIRMessagingDeleteFCMTokenCompletion)completion {
   if (!senderID.length) {
     NSString *description = @"Couldn't delete token because a Sender ID was not supplied. A "
                             @"valid Sender ID is required to delete an FCM token";
@@ -563,13 +563,17 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
                               handler:^(NSError *_Nonnull error) {
                                 FIRMessaging_STRONGIFY(self);
                                 if (error) {
-                                  completion(error);
+                                  if (completion) {
+                                    completion(error);
+                                  }
                                   return;
                                 }
                                 [self.instanceID
                                     deleteCheckinWithHandler:^(NSError *_Nullable error) {
                                       if (error) {
-                                        completion(error);
+                                        if (completion) {
+                                          completion(error);
+                                        }
                                         return;
                                       }
                                       // Only request new token if FCM auto initialization is
@@ -578,12 +582,16 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
                                         // Deletion succeeds! Requesting new checkin, IID and token.
                                         [self tokenWithCompletion:^(NSString *_Nullable token,
                                                                     NSError *_Nullable error) {
-                                          completion(error);
+                                          if (completion) {
+                                            completion(error);
+                                          }
                                         }];
                                         return;
                                       }
-                                      completion(nil);
-                                    }];
+                                  if (completion) {
+                                    completion(nil);
+                                  }
+                                }];
                               }];
 #pragma clang diagnostic pop
 }
