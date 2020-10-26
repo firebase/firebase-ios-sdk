@@ -464,14 +464,63 @@ static NSString *kFirebaseTestAltNamespace = @"https://foobar.firebaseio.com";
   [database goOffline];
 }
 
-- (void)testSetEmulatorSettings {
-  id app = [[FIRFakeApp alloc] initWithName:@"testSetEmulatorSettings" URL:self.databaseURL];
+- (void)testSetEmulatorSettingsCreatesEmulatedReferences {
+  id app = [[FIRFakeApp alloc] initWithName:@"testSetEmulatorSettingsCreatesEmulatedReferences"
+                                        URL:self.databaseURL];
+  FIRDatabase *database = [FIRDatabase databaseForApp:app];
+
+  [database useEmulatorWithHost:@"localhost" port:1111];
+  NSString *concatenatedHost = @"localhost:1111";
+
+  FIRDatabaseReference *reference = [database reference];
+
+  NSString *referenceURLString = reference.URL;
+
+  XCTAssert([referenceURLString containsString:concatenatedHost]);
+}
+
+- (void)testSetEmulatorSettingsThrowsAfterRepoInit {
+  id app = [[FIRFakeApp alloc] initWithName:@"testSetEmulatorSettingsThrowsAfterRepoInit"
+                                        URL:self.databaseURL];
   FIRDatabase *database = [FIRDatabase databaseForApp:app];
 
   [database reference];  // initialize database repo
 
   // Emulator can't be set after initialization of the database's repo.
   XCTAssertThrows([database useEmulatorWithHost:@"a" port:1]);
+}
+
+- (void)testEmulatedDatabaseValidatesOnlyNonCustomURLs {
+  // Set a non-custom databaseURL
+  NSString *databaseURL = @"https://abc-xyz-123.firebaseio.com";
+  id app = [[FIRFakeApp alloc] initWithName:@"testEmulatedDatabaseValidatesNonCustomURLs0"
+                                        URL:databaseURL];
+  FIRDatabase *database = [FIRDatabase databaseForApp:app];
+
+  // Reference should be retrievable without an exception being raised
+  NSString *referenceURLString = [databaseURL stringByAppendingString:@"/path"];
+  FIRDatabaseReference *reference = [database referenceFromURL:referenceURLString];
+  XCTAssertNotNil(reference);
+
+  app = [[FIRFakeApp alloc] initWithName:@"testEmulatedDatabaseValidatesNonCustomURLs1"
+                                     URL:databaseURL];
+  database = [FIRDatabase databaseForApp:app];
+  [database useEmulatorWithHost:@"localhost" port:1111];
+
+  // Expect production url creates a valid (emulated) reference.
+  reference = [database referenceFromURL:referenceURLString];
+  XCTAssertNotNil(reference);
+  XCTAssert([reference.URL containsString:@"localhost:1111"]);
+
+  // Test emulated url
+  referenceURLString = @"http://localhost:1111/path";
+  reference = [database referenceFromURL:referenceURLString];
+  XCTAssertNotNil(reference);
+  XCTAssert([reference.URL containsString:@"localhost:1111"]);
+
+  // Test custom url throws exception
+  referenceURLString = @"https://test.example.com/path";
+  XCTAssertThrows([database referenceFromURL:referenceURLString]);
 }
 
 - (FIRDatabase *)defaultDatabase {

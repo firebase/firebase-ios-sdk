@@ -28,7 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, readonly, copy) NSString *host;
 
 @property(nonatomic, readonly, copy) NSString *namespace;
-@property(nonatomic, readonly, copy) NSString *internalHost;
+@property(nonatomic, readwrite, copy) NSString *internalHost;
 @property(nonatomic, readonly, assign) BOOL secure;
 
 /// Returns YES if the host is not a *.firebaseio.com host.
@@ -52,9 +52,11 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)isDemoHost;
 - (BOOL)isCustomHost;
 
-- (id)copyWithZone:(NSZone *)zone;
+- (id)copyWithZone:(NSZone *_Nullable)zone;
 - (NSUInteger)hash;
 - (BOOL)isEqual:(id)anObject;
+
+- (instancetype)init NS_UNAVAILABLE;
 
 @end
 

@@ -25,6 +25,13 @@
 
 @implementation FRepoInfo
 
+- (instancetype)init {
+    [NSException
+         raise:@"FIRDatabaseInvalidInitializer"
+        format:@"Invalid initializer invoked. This is probably a bug in RTDB."];
+    abort();
+}
+
 - (instancetype)initWithHost:(NSString *)aHost
                     isSecure:(BOOL)isSecure
                withNamespace:(NSString *)aNamespace
@@ -36,7 +43,8 @@
         _domain =
             [_host containsString:@"."]
                 ? [_host
-                      substringFromIndex:[host rangeOfString:@"."].location + 1]
+                      substringFromIndex:[_host rangeOfString:@"."].location +
+                                         1]
                 : _host;
         _secure = isSecure;
         _namespace = aNamespace;
@@ -49,7 +57,7 @@
         if (cachedInternalHost != nil) {
             _internalHost = cachedInternalHost;
         } else {
-            _internalHost = self.host;
+            _internalHost = [_host copy];
         }
     }
     return self;
@@ -65,16 +73,29 @@
 }
 
 - (instancetype)initWithInfo:(FRepoInfo *)info emulatedHost:(NSString *)host {
-    return [self initWithHost:host
+    self = [self initWithHost:host
                      isSecure:info.secure
                 withNamespace:info.namespace
                underlyingHost:info.host];
+
+    // Compute the domain based on the original host instead of the emulated
+    // host in an emulated setting.
+    if (self != nil) {
+        _domain =
+            [_underlyingHost containsString:@"."]
+                ? [_underlyingHost
+                      substringFromIndex:[_underlyingHost rangeOfString:@"."]
+                                             .location +
+                                         1]
+                : _underlyingHost;
+    }
+    return self;
 }
 
 - (NSString *)description {
     // The namespace is encoded in the hostname, so we can just return this.
     return [NSString
-        stringWithFormat:@"http%@://%@", (self.secure ? @"s" : @""), self.host];
+        stringWithFormat:@"http%@://%@", (_secure ? @"s" : @""), _host];
 }
 
 - (void)setInternalHost:(NSString *)newHost {
@@ -85,7 +106,7 @@
         NSString *internalHostKey =
             [NSString stringWithFormat:@"firebase:host:%@", self.host];
         NSUserDefaults *cache = [NSUserDefaults standardUserDefaults];
-        [cache setObject:internalHost forKey:internalHostKey];
+        [cache setObject:_internalHost forKey:internalHostKey];
         [cache synchronize];
     }
 }
@@ -99,15 +120,6 @@
     NSUserDefaults *cache = [NSUserDefaults standardUserDefaults];
     [cache removeObjectForKey:internalHostKey];
     [cache synchronize];
-}
-
-- (BOOL)isCustomHost {
-    NSString *host = self.underlyingHost ?: self.host;
-    NSRange resultRange = [host rangeOfString:@".firebaseio.com"];
-    if (resultRange.location == NSNotFound) {
-        return NO;
-    }
-    return !(resultRange.length + resultRange.location == host.length);
 }
 
 - (BOOL)isDemoHost {
@@ -146,10 +158,10 @@
 }
 
 - (NSUInteger)hash {
-    NSUInteger result = host.hash;
-    result = 31 * result + (secure ? 1 : 0);
-    result = 31 * result + namespace.hash;
-    result = 31 * result + host.hash;
+    NSUInteger result = _host.hash;
+    result = 31 * result + (_secure ? 1 : 0);
+    result = 31 * result + _namespace.hash;
+    result = 31 * result + _host.hash;
     return result;
 }
 
@@ -158,8 +170,8 @@
         return NO;
     }
     FRepoInfo *other = (FRepoInfo *)anObject;
-    return secure == other.secure && [self.host isEqualToString:other.host] &&
-           [namespace isEqualToString:other.namespace];
+    return _secure == other.secure && [_host isEqualToString:other.host] &&
+           [_namespace isEqualToString:other.namespace];
 }
 
 @end

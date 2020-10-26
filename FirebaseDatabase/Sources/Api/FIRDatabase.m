@@ -164,7 +164,9 @@
             [parsedUrl.repoInfo.host
                 isEqualToString:_repoInfo.underlyingHost] ||
             [parsedUrl.repoInfo.host isEqualToString:_repoInfo.host];
-        if (!self.repoInfo.isCustomHost && !isValidURL) {
+        NSLog(@"isValidURL: %@", isValidURL ? @"YES" : @"NO");
+        NSLog(@"isCustomHost: %@", self.repoInfo.isCustomHost ? @"YES" : @"NO");
+        if (!_repoInfo.isCustomHost && !isValidURL) {
             [NSException raise:@"InvalidDatabaseURL"
                         format:@"Invalid URL (%@) passed to getReference(). "
                                @"URL was expected "
@@ -198,12 +200,12 @@
                     format:@"Cannot connect to nil or empty host."];
     }
     if (self.repo != nil) {
-        NSString *exceptionMessage =
-            @"Cannot connect to emulator after database initialization. Call "
-            @"useEmulator(host:port:) before creating a database reference or "
-            @"trying to load data.";
         [NSException raise:NSInternalInconsistencyException
-                    format:exceptionMessage];
+                    format:@"Cannot connect to emulator after database "
+                           @"initialization. Call "
+                           @"useEmulator(host:port:) before creating a "
+                           @"database reference or "
+                           @"trying to load data."];
     }
     NSString *fullHost =
         [NSString stringWithFormat:@"%@:%li", host, (long)port];
