@@ -20,6 +20,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 FOUNDATION_EXTERN NSString *const kFIRAppCheckErrorDomain;
 
+void FIRAppCheckSetErrorToPointer(NSError *error, NSError **pointer);
+
 @interface FIRAppCheckErrorUtil : NSObject
 
 // Internal errors.
@@ -35,6 +37,8 @@ FOUNDATION_EXTERN NSString *const kFIRAppCheckErrorDomain;
 + (NSError *)appCheckTokenResponseErrorWithMissingField:(NSString *)fieldName;
 
 + (NSError *)JSONSerializationError:(NSError *)error;
+
++ (NSError *)errorWithFailureReason:(NSString *)failureReason;
 
 @end
 

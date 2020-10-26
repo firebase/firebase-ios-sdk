@@ -22,7 +22,6 @@ Pod::Spec.new do |s|
   s.tvos.deployment_target = '11.0'
 
   s.cocoapods_version = '>= 1.4.0'
-  s.static_framework = true
   s.prefix_header_file = false
 
   base_dir = "FirebaseAppCheck/"
@@ -51,8 +50,8 @@ Pod::Spec.new do |s|
                               base_dir + 'Tests/Utils/**/*.[mh]',
                               'SharedTestUtilities/**/*'
     unit_tests.resources = base_dir + 'Tests/Fixture/**/*'
-    unit_tests.requires_app_host = true
     unit_tests.dependency 'OCMock'
+    unit_tests.requires_app_host = true
   end
 
   s.test_spec 'integration' do |integration_tests|

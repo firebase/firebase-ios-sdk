@@ -23,26 +23,34 @@
 - (nullable instancetype)initWithDeviceCheckResponse:(NSData *)response
                                          requestDate:(NSDate *)requestDate
                                                error:(NSError **)outError {
+  if (response.length <= 0) {
+    FIRAppCheckSetErrorToPointer(
+        [FIRAppCheckErrorUtil errorWithFailureReason:@"Empty server response body."], outError);
+    return nil;
+  }
+
   NSError *JSONError;
   NSDictionary *responseDict = [NSJSONSerialization JSONObjectWithData:response
                                                                options:0
                                                                  error:&JSONError];
 
   if (![responseDict isKindOfClass:[NSDictionary class]]) {
-    *outError = [FIRAppCheckErrorUtil JSONSerializationError:JSONError];
+    FIRAppCheckSetErrorToPointer([FIRAppCheckErrorUtil JSONSerializationError:JSONError], outError);
     return nil;
   }
 
   NSString *token = responseDict[@"attestationToken"];
   if (![token isKindOfClass:[NSString class]]) {
-    *outError =
-        [FIRAppCheckErrorUtil appCheckTokenResponseErrorWithMissingField:@"attestationToken"];
+    FIRAppCheckSetErrorToPointer(
+        [FIRAppCheckErrorUtil appCheckTokenResponseErrorWithMissingField:@"attestationToken"],
+        outError);
     return nil;
   }
 
   NSString *timeToLiveString = responseDict[@"timeToLive"];
   if (![token isKindOfClass:[NSString class]] || token.length <= 0) {
-    *outError = [FIRAppCheckErrorUtil appCheckTokenResponseErrorWithMissingField:@"timeToLive"];
+    FIRAppCheckSetErrorToPointer(
+        [FIRAppCheckErrorUtil appCheckTokenResponseErrorWithMissingField:@"timeToLive"], outError);
     return nil;
   }
 
@@ -52,7 +60,8 @@
   NSTimeInterval secondsToLive = timeToLiveValueString.doubleValue;
 
   if (secondsToLive == 0) {
-    *outError = [FIRAppCheckErrorUtil appCheckTokenResponseErrorWithMissingField:@"timeToLive"];
+    FIRAppCheckSetErrorToPointer(
+        [FIRAppCheckErrorUtil appCheckTokenResponseErrorWithMissingField:@"timeToLive"], outError);
     return nil;
   }
 

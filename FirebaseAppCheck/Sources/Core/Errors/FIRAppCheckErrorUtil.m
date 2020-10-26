@@ -68,6 +68,12 @@ NSString *const kFIRAppCheckErrorDomain = @"com.firebase.appCheck";
                      underlyingError:error];
 }
 
++ (NSError *)errorWithFailureReason:(NSString *)failureReason {
+  return [self appCheckErrorWithCode:FIRAppCheckErrorCodeUnknown
+                       failureReason:failureReason
+                     underlyingError:nil];
+}
+
 + (NSError *)appCheckErrorWithCode:(FIRAppCheckErrorCode)code
                      failureReason:(nullable NSString *)failureReason
                    underlyingError:(nullable NSError *)underlyingError {
@@ -79,3 +85,9 @@ NSString *const kFIRAppCheckErrorDomain = @"com.firebase.appCheck";
 }
 
 @end
+
+void FIRAppCheckSetErrorToPointer(NSError *error, NSError **pointer) {
+  if (pointer != NULL) {
+    *pointer = error;
+  }
+}

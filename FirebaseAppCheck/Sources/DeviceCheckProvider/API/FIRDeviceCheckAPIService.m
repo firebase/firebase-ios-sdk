@@ -27,30 +27,9 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-static NSString *const kAPIKeyHeaderKey = @"X-Goog-Api-Key";
-static NSString *const kHeartbeatKey = @"X-firebase-client-log-type";
-static NSString *const kHeartbeatStorageTag = @"fire-app-check";
-static NSString *const kUserAgentKey = @"X-firebase-client";
-
-@interface FIRDeviceCheckURLSessionResponse : NSObject
-@property(nonatomic) NSHTTPURLResponse *HTTPResponse;
-@property(nonatomic) NSData *data;
-
-- (instancetype)initWithResponse:(NSHTTPURLResponse *)response data:(nullable NSData *)data;
-@end
-
-@implementation FIRDeviceCheckURLSessionResponse
-
-- (instancetype)initWithResponse:(NSHTTPURLResponse *)response data:(nullable NSData *)data {
-  self = [super init];
-  if (self) {
-    _HTTPResponse = response;
-    _data = data ?: [NSData data];
-  }
-  return self;
-}
-
-@end
+static NSString *const kContentTypeKey = @"Content-Type";
+static NSString *const kJSONContentType = @"application/json";
+static NSString *const kDeviceTokenField = @"device_token";
 
 @interface FIRDeviceCheckAPIService ()
 
@@ -83,10 +62,13 @@ static NSString *const kUserAgentKey = @"X-firebase-client";
                                  self.APIService.baseURL, self.projectID, self.appID];
   NSURL *URL = [NSURL URLWithString:URLString];
 
-  return [self.APIService sendRequestWithURL:URL
-                                  HTTPMethod:@"POST"
-                                        body:deviceToken
-                           additionalHeaders:nil]
+  return [self HTTPBodyWithDeviceToken:deviceToken]
+      .then(^FBLPromise<FIRAppCheckHTTPResponse *> *(NSData *HTTPBody) {
+        return [self.APIService sendRequestWithURL:URL
+                                        HTTPMethod:@"POST"
+                                              body:HTTPBody
+                                 additionalHeaders:@{kContentTypeKey : kJSONContentType}];
+      })
       .then(^id _Nullable(FIRAppCheckHTTPResponse *_Nullable response) {
         return [self appCheckTokenWithAPIResponse:response];
       });
@@ -94,14 +76,47 @@ static NSString *const kUserAgentKey = @"X-firebase-client";
 
 - (FBLPromise<FIRAppCheckToken *> *)appCheckTokenWithAPIResponse:
     (FIRAppCheckHTTPResponse *)response {
-  return [FBLPromise do:^id _Nullable {
-    NSError *error;
+  return [FBLPromise onQueue:[self backgroundQueue]
+                          do:^id _Nullable {
+                            NSError *error;
 
-    FIRAppCheckToken *token = [[FIRAppCheckToken alloc] initWithDeviceCheckResponse:response.data
-                                                                        requestDate:[NSDate date]
-                                                                              error:&error];
-    return token ?: error;
-  }];
+                            FIRAppCheckToken *token =
+                                [[FIRAppCheckToken alloc] initWithDeviceCheckResponse:response.data
+                                                                          requestDate:[NSDate date]
+                                                                                error:&error];
+                            return token ?: error;
+                          }];
+}
+
+- (FBLPromise<NSData *> *)HTTPBodyWithDeviceToken:(NSData *)deviceToken {
+  if (deviceToken.length <= 0) {
+    FBLPromise *rejectedPromise = [FBLPromise pendingPromise];
+    [rejectedPromise reject:[FIRAppCheckErrorUtil
+                                errorWithFailureReason:@"DeviceCheck token must not be empty."]];
+    return rejectedPromise;
+  }
+
+  return [FBLPromise onQueue:[self backgroundQueue]
+                          do:^id _Nullable {
+                            NSString *base64EncodedToken =
+                                [deviceToken base64EncodedStringWithOptions:0];
+
+                            NSError *encodingError;
+                            NSData *payloadJSON = [NSJSONSerialization
+                                dataWithJSONObject:@{kDeviceTokenField : base64EncodedToken}
+                                           options:0
+                                             error:&encodingError];
+
+                            if (payloadJSON != nil) {
+                              return payloadJSON;
+                            } else {
+                              return [FIRAppCheckErrorUtil JSONSerializationError:encodingError];
+                            }
+                          }];
+}
+
+- (dispatch_queue_t)backgroundQueue {
+  return dispatch_get_global_queue(QOS_CLASS_UTILITY, 0);
 }
 
 @end

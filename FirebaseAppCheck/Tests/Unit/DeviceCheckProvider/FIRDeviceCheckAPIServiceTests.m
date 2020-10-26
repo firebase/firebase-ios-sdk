@@ -78,6 +78,8 @@ typedef BOOL (^FIRRequestValidationBlock)(NSURLRequest *request);
     return YES;
   }];
 
+  id HTTPBodyValidationArg = [self HTTPBodyValidationArgWithDeviceToken:deviceTokenData];
+
   NSData *responseBody = [self loadFixtureNamed:@"DeviceCheckResponseSuccess.json"];
   NSHTTPURLResponse *HTTPResponse = [FIRURLSessionOCMockStub HTTPResponseWithCode:200];
   FIRAppCheckHTTPResponse *APIResponse =
@@ -85,8 +87,8 @@ typedef BOOL (^FIRRequestValidationBlock)(NSURLRequest *request);
 
   OCMExpect([self.mockAPIService sendRequestWithURL:URLValidationArg
                                          HTTPMethod:@"POST"
-                                               body:deviceTokenData
-                                  additionalHeaders:nil])
+                                               body:HTTPBodyValidationArg
+                                  additionalHeaders:@{@"Content-Type" : @"application/json"}])
       .andReturn([FBLPromise resolvedWith:APIResponse]);
 
   // 2. Send request.
@@ -117,10 +119,11 @@ typedef BOOL (^FIRRequestValidationBlock)(NSURLRequest *request);
   FBLPromise *rejectedPromise = [FBLPromise pendingPromise];
   [rejectedPromise reject:APIError];
 
+  id HTTPBodyValidationArg = [self HTTPBodyValidationArgWithDeviceToken:deviceTokenData];
   OCMExpect([self.mockAPIService sendRequestWithURL:[OCMArg any]
                                          HTTPMethod:@"POST"
-                                               body:deviceTokenData
-                                  additionalHeaders:nil])
+                                               body:HTTPBodyValidationArg
+                                  additionalHeaders:@{@"Content-Type" : @"application/json"}])
       .andReturn(rejectedPromise);
 
   // 2. Send request.
@@ -136,6 +139,35 @@ typedef BOOL (^FIRRequestValidationBlock)(NSURLRequest *request);
   OCMVerifyAll(self.mockAPIService);
 }
 
+- (void)testAppCheckTokenEmptyDeviceToken {
+  NSData *deviceTokenData = [NSData data];
+
+  // 1. Stub API service.
+  OCMReject([self.mockAPIService sendRequestWithURL:[OCMArg any]
+                                         HTTPMethod:[OCMArg any]
+                                               body:[OCMArg any]
+                                  additionalHeaders:[OCMArg any]]);
+
+  // 2. Send request.
+  __auto_type tokenPromise = [self.APIService appCheckTokenWithDeviceToken:deviceTokenData];
+
+  // 3. Verify.
+  XCTAssert(FBLWaitForPromisesWithTimeout(1));
+
+  XCTAssertTrue(tokenPromise.isRejected);
+  XCTAssertNil(tokenPromise.value);
+
+  XCTAssertNotNil(tokenPromise.error);
+  XCTAssertEqualObjects(tokenPromise.error.domain, kFIRAppCheckErrorDomain);
+  XCTAssertEqual(tokenPromise.error.code, FIRAppCheckErrorCodeUnknown);
+
+  // Expect response body and HTTP status code to be included in the error.
+  NSString *failureReason = tokenPromise.error.userInfo[NSLocalizedFailureReasonErrorKey];
+  XCTAssertEqualObjects(failureReason, @"DeviceCheck token must not be empty.");
+
+  OCMVerifyAll(self.mockAPIService);
+}
+
 - (void)testAppCheckTokenInvalidDeviceToken {
   NSData *deviceTokenData = [@"device_token" dataUsingEncoding:NSUTF8StringEncoding];
   NSString *responseBodyString = @"Token verification failed.";
@@ -146,10 +178,11 @@ typedef BOOL (^FIRRequestValidationBlock)(NSURLRequest *request);
   FIRAppCheckHTTPResponse *APIResponse =
       [[FIRAppCheckHTTPResponse alloc] initWithResponse:HTTPResponse data:responseBody];
 
+  id HTTPBodyValidationArg = [self HTTPBodyValidationArgWithDeviceToken:deviceTokenData];
   OCMExpect([self.mockAPIService sendRequestWithURL:[OCMArg any]
                                          HTTPMethod:@"POST"
-                                               body:deviceTokenData
-                                  additionalHeaders:nil])
+                                               body:HTTPBodyValidationArg
+                                  additionalHeaders:@{@"Content-Type" : @"application/json"}])
       .andReturn([FBLPromise resolvedWith:APIResponse]);
 
   // 2. Send request.
@@ -192,10 +225,11 @@ typedef BOOL (^FIRRequestValidationBlock)(NSURLRequest *request);
   FIRAppCheckHTTPResponse *APIResponse =
       [[FIRAppCheckHTTPResponse alloc] initWithResponse:HTTPResponse data:missingFiledBody];
 
+  id HTTPBodyValidationArg = [self HTTPBodyValidationArgWithDeviceToken:deviceTokenData];
   OCMExpect([self.mockAPIService sendRequestWithURL:[OCMArg any]
                                          HTTPMethod:@"POST"
-                                               body:deviceTokenData
-                                  additionalHeaders:nil])
+                                               body:HTTPBodyValidationArg
+                                  additionalHeaders:@{@"Content-Type" : @"application/json"}])
       .andReturn([FBLPromise resolvedWith:APIResponse]);
 
   // 2. Send request.
@@ -231,6 +265,23 @@ typedef BOOL (^FIRRequestValidationBlock)(NSURLRequest *request);
   XCTAssertNotNil(data, @"File name: %@ Error: %@", fileName, error);
 
   return data;
+}
+
+- (id)HTTPBodyValidationArgWithDeviceToken:(NSData *)deviceToken {
+  return [OCMArg checkWithBlock:^BOOL(NSData *body) {
+    NSDictionary<NSString *, id> *decodedData = [NSJSONSerialization JSONObjectWithData:body
+                                                                                options:0
+                                                                                  error:nil];
+    XCTAssert([decodedData isKindOfClass:[NSDictionary class]]);
+
+    NSString *base64EncodedDeviceToken = decodedData[@"device_token"];
+    XCTAssertNotNil(base64EncodedDeviceToken);
+
+    NSData *decodedToken = [[NSData alloc] initWithBase64EncodedString:base64EncodedDeviceToken
+                                                               options:0];
+    XCTAssertEqualObjects(decodedToken, deviceToken);
+    return YES;
+  }];
 }
 
 @end

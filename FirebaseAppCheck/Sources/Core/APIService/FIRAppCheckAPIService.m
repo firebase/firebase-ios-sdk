@@ -47,7 +47,7 @@ static NSString *const kUserAgentKey = @"X-firebase-client";
                             APIKey:(NSString *)APIKey
                          projectID:(NSString *)projectID
                              appID:(NSString *)appID {
-  NSString *defaultBaseURL = @"https://staging-firebaseappcheck-pa.sandbox.googleapis.com/v1alpha";
+  NSString *defaultBaseURL = @"https://staging-firebaseappcheck.sandbox.googleapis.com/v1alpha";
   return [self initWithURLSession:session
                            APIKey:APIKey
                         projectID:projectID
