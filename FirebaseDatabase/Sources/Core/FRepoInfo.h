@@ -20,10 +20,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FRepoInfo : NSObject <NSCopying>
 
-/// Stores the original host if the host has been set after initialization.
-/// Used to validate references.
-@property(nonatomic, readwrite, copy, nullable) NSString *underlyingHost;
-
 /// The host that the database should connect to.
 @property(nonatomic, readonly, copy) NSString *host;
 
@@ -36,13 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithHost:(NSString *)host
                     isSecure:(BOOL)secure
-               withNamespace:(NSString *)namespace
-              underlyingHost:(NSString *_Nullable)underlyingHost
-    NS_DESIGNATED_INITIALIZER;
-
-- (instancetype)initWithHost:(NSString *)host
-                    isSecure:(BOOL)secure
-               withNamespace:(NSString *)namespace;
+               withNamespace:(NSString *)namespace NS_DESIGNATED_INITIALIZER;
 
 - (instancetype)initWithInfo:(FRepoInfo *)info emulatedHost:(NSString *)host;
 

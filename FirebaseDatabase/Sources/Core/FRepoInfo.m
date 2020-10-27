@@ -34,11 +34,9 @@
 
 - (instancetype)initWithHost:(NSString *)aHost
                     isSecure:(BOOL)isSecure
-               withNamespace:(NSString *)aNamespace
-              underlyingHost:(NSString *)underlyingHost {
+               withNamespace:(NSString *)aNamespace {
     self = [super init];
     if (self) {
-        _underlyingHost = [underlyingHost copy];
         _host = [aHost copy];
         _domain =
             [_host containsString:@"."]
@@ -63,32 +61,8 @@
     return self;
 }
 
-- (instancetype)initWithHost:(NSString *)host
-                    isSecure:(BOOL)secure
-               withNamespace:(NSString *)namespace {
-    return [self initWithHost:host
-                     isSecure:secure
-                withNamespace:namespace
-               underlyingHost:nil];
-}
-
 - (instancetype)initWithInfo:(FRepoInfo *)info emulatedHost:(NSString *)host {
-    self = [self initWithHost:host
-                     isSecure:info.secure
-                withNamespace:info.namespace
-               underlyingHost:info.host];
-
-    // Compute the domain based on the original host instead of the emulated
-    // host in an emulated setting.
-    if (self != nil) {
-        _domain =
-            [_underlyingHost containsString:@"."]
-                ? [_underlyingHost
-                      substringFromIndex:[_underlyingHost rangeOfString:@"."]
-                                             .location +
-                                         1]
-                : _underlyingHost;
-    }
+    self = [self initWithHost:host isSecure:NO withNamespace:info.namespace];
     return self;
 }
 

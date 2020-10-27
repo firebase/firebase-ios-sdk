@@ -154,31 +154,14 @@
     FParsedUrl *parsedUrl = [FUtilities parseUrl:databaseUrl];
     [FValidation validateFrom:@"referenceFromURL:" validURL:parsedUrl];
 
-    // If in an emulated setting, only validate the host if the underlying
-    // URL isn't a custom host. This allows users to create references from
-    // production URLs in an emulated setting.
-    if (self.repoInfo.underlyingHost != nil) {
-        // Consider URLs for both the production host and the emulated host as
-        // valid.
-        BOOL isValidURL =
-            [parsedUrl.repoInfo.host
-                isEqualToString:_repoInfo.underlyingHost] ||
-            [parsedUrl.repoInfo.host isEqualToString:_repoInfo.host];
-        if (!_repoInfo.isCustomHost && !isValidURL) {
-            [NSException raise:@"InvalidDatabaseURL"
-                        format:@"Invalid URL (%@) passed to getReference(). "
-                               @"URL was expected "
-                                "to match configured Database URL: %@",
-                               databaseUrl, _repoInfo.underlyingHost];
-        }
-    } else {
-        if (![parsedUrl.repoInfo.host isEqualToString:_repoInfo.host]) {
-            [NSException raise:@"InvalidDatabaseURL"
-                        format:@"Invalid URL (%@) passed to getReference(). "
-                               @"URL was expected "
-                                "to match configured Database URL: %@",
-                               databaseUrl, [self reference].URL];
-        }
+    BOOL isInvalidHost =
+        !parsedUrl.repoInfo.isCustomHost &&
+        ![_repoInfo.host isEqualToString:parsedUrl.repoInfo.host];
+    if (isInvalidHost) {
+        [NSException raise:@"InvalidDatabaseURL"
+                    format:@"Invalid URL (%@) passed to getReference(). URL "
+                           @"was expected to match configured Database URL: %@",
+                           databaseUrl, _repoInfo.host];
     }
     return [[FIRDatabaseReference alloc] initWithRepo:self.repo
                                                  path:parsedUrl.path];

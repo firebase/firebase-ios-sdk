@@ -492,7 +492,7 @@ static NSString *kFirebaseTestAltNamespace = @"https://foobar.firebaseio.com";
 
 - (void)testEmulatedDatabaseValidatesOnlyNonCustomURLs {
   // Set a non-custom databaseURL
-  NSString *databaseURL = @"https://abc-xyz-123.firebaseio.com";
+  NSString *databaseURL = @"https://test.example.com";
   id app = [[FIRFakeApp alloc] initWithName:@"testEmulatedDatabaseValidatesNonCustomURLs0"
                                         URL:databaseURL];
   FIRDatabase *database = [FIRDatabase databaseForApp:app];
@@ -518,8 +518,8 @@ static NSString *kFirebaseTestAltNamespace = @"https://foobar.firebaseio.com";
   XCTAssertNotNil(reference);
   XCTAssert([reference.URL containsString:@"localhost:1111"]);
 
-  // Test custom url throws exception
-  referenceURLString = @"https://test.example.com/path";
+  // Test non-custom url with different host throws exception
+  referenceURLString = @"https://test.firebaseio.com/path";
   XCTAssertThrows([database referenceFromURL:referenceURLString]);
 }
 
