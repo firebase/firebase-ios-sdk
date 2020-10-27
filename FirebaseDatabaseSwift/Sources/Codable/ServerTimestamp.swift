@@ -61,10 +61,9 @@ import FirebaseDatabase
       if let value = value {
         let interval = value.timeIntervalSince1970
         try container.encode(Int(interval * 1000))
-      } else if let dictionary = ServerValue.timestamp() as? [String: String] {
-        try container.encode(dictionary)
       } else {
-        throw Database.EncodingError.internalError
+        let dictionary = ServerValue.timestamp() as! [String: String]
+        try container.encode(dictionary)
       }
     }
   }
@@ -129,11 +128,8 @@ public enum Swift4ServerTimestamp: Codable, Equatable {
     var container = encoder.singleValueContainer()
     switch self {
     case .pending:
-      if let dictionary = ServerValue.timestamp() as? [String: String] {
-        try container.encode(dictionary)
-      } else {
-        throw Database.EncodingError.internalError
-      }
+      let dictionary = ServerValue.timestamp() as! [String: String]
+      try container.encode(dictionary)
     case let .resolved(value: value):
       let interval = value.timeIntervalSince1970
       try container.encode(Int(interval * 1000))
