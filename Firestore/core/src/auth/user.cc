@@ -32,8 +32,8 @@ User::User(std::string uid) : uid_{std::move(uid)}, is_authenticated_{true} {
 }
 
 const User& User::Unauthenticated() {
-  static const User kUnauthenticated;
-  return kUnauthenticated;
+  static const User* kUnauthenticated = new User();
+  return *kUnauthenticated;
 }
 
 }  // namespace auth
