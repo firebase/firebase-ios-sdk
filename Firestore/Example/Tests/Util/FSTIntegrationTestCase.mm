@@ -215,7 +215,8 @@ class FakeCredentialsProvider : public EmptyCredentialsProvider {
   defaultSettings.sslEnabled = false;
   runningAgainstEmulator = true;
 
-  NSLog(@"Integration tests running against the emulator at %@/%@", defaultSettings.host, defaultProjectId);
+  NSLog(@"Integration tests running against the emulator at %@/%@", defaultSettings.host,
+        defaultProjectId);
 }
 
 + (NSString *)projectID {
