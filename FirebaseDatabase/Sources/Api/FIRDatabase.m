@@ -198,18 +198,17 @@
                     format:@"Cannot connect to nil or empty host."];
     }
     if (self.repo != nil) {
-        [NSException raise:NSInternalInconsistencyException
-                    format:@"Cannot connect to emulator after database "
-                           @"initialization. Call "
-                           @"useEmulator(host:port:) before creating a "
-                           @"database reference or "
-                           @"trying to load data."];
+        [NSException
+             raise:NSInternalInconsistencyException
+            format:@"Cannot connect to emulator after database initialization. "
+                   @"Call useEmulator(host:port:) before creating a database "
+                   @"reference or trying to load data."];
     }
     NSString *fullHost =
         [NSString stringWithFormat:@"%@:%li", host, (long)port];
-    FRepoInfo *newInfo = [[FRepoInfo alloc] initWithInfo:self.repoInfo
-                                            emulatedHost:fullHost];
-    self->_repoInfo = newInfo;
+    FRepoInfo *emulatorInfo = [[FRepoInfo alloc] initWithInfo:self.repoInfo
+                                                 emulatedHost:fullHost];
+    self->_repoInfo = emulatorInfo;
 }
 
 - (void)goOnline {
