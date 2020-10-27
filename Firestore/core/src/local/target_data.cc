@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2018 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@
 namespace firebase {
 namespace firestore {
 namespace local {
+namespace {
 
 using core::Target;
 using model::ListenSequenceNumber;
@@ -31,8 +32,6 @@ using model::TargetId;
 using nanopb::ByteString;
 
 // MARK: - QueryPurpose
-
-namespace {
 
 const char* ToString(QueryPurpose purpose) {
   switch (purpose) {
