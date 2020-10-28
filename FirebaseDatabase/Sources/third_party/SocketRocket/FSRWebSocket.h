@@ -14,6 +14,7 @@
 //   limitations under the License.
 //
 
+#if !TARGET_OS_WATCH
 #import <Foundation/Foundation.h>
 #import <Security/SecCertificate.h>
 
@@ -105,3 +106,5 @@ extern NSString *const FSRWebSocketErrorDomain;
 + (NSRunLoop *)FSR_networkRunLoop;
 
 @end
+
+#endif  // TARGET_OS_WATCH

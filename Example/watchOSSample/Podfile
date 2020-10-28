@@ -1,3 +1,5 @@
+source 'https://github.com/ryanwilson/SpecsStaging.git'
+source 'https://cdn.cocoapods.org'
 use_frameworks!
 
 target 'SampleWatchAppWatchKitExtension' do
@@ -6,6 +8,8 @@ target 'SampleWatchAppWatchKitExtension' do
   pod 'FirebaseCore', :path => '../../'
   pod 'GoogleUtilities', :path => '../../'
   pod 'FirebaseMessaging', :path => '../../'
+  pod 'FirebaseDatabase', :path => '../../'
+  pod 'leveldb-library'
   pod 'FirebaseInstanceID', :path => '../../'
   pod 'FirebaseCoreDiagnostics', :path => '../../'
   pod 'GoogleDataTransport', :path => '../../'

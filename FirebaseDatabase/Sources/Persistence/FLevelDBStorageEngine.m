@@ -267,7 +267,7 @@ static NSString *trackedQueryKeysKey(NSUInteger trackedQueryId, NSString *key) {
 }
 
 + (NSString *)firebaseDir {
-#if TARGET_OS_IOS || TARGET_OS_TV
+#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_WATCH
     NSArray *dirPaths = NSSearchPathForDirectoriesInDomains(
         NSDocumentDirectory, NSUserDomainMask, YES);
     NSString *documentsDir = [dirPaths objectAtIndex:0];

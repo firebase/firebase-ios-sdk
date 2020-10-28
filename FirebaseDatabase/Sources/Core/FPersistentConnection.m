@@ -34,7 +34,7 @@
 #import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
 #import "FirebaseDatabase/Sources/Utilities/Tuples/FTupleCallbackStatus.h"
 #import "FirebaseDatabase/Sources/Utilities/Tuples/FTupleOnDisconnect.h"
-#import <SystemConfiguration/SystemConfiguration.h>
+//#import <SystemConfiguration/SystemConfiguration.h>
 #import <dlfcn.h>
 #import <netinet/in.h>
 
@@ -78,7 +78,9 @@ typedef enum {
     NSTimeInterval reconnectDelay;
     NSTimeInterval lastConnectionAttemptTime;
     NSTimeInterval lastConnectionEstablishedTime;
+#if !TARGET_OS_WATCH
     SCNetworkReachabilityRef reachability;
+#endif  // !TARGET_OS_WATCH
 }
 
 - (int)getNextRequestNumber;
@@ -158,11 +160,13 @@ typedef enum {
 }
 
 - (void)dealloc {
+#if !TARGET_OS_WATCH
     if (reachability) {
         // Unschedule the notifications
         SCNetworkReachabilitySetDispatchQueue(reachability, NULL);
         CFRelease(reachability);
     }
+#endif  // !TARGET_OS_WATCH
 }
 
 #pragma mark -
@@ -517,6 +521,7 @@ typedef enum {
     [self.realtime open];
 }
 
+#if !TARGET_OS_WATCH
 static void reachabilityCallback(SCNetworkReachabilityRef ref,
                                  SCNetworkReachabilityFlags flags, void *info) {
     if (flags & kSCNetworkReachabilityFlagsReachable) {
@@ -532,6 +537,7 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref,
         FFLog(@"I-RDB034015", @"Network is not reachable");
     }
 }
+#endif  // !TARGET_OS_WATCH
 
 - (void)enteringForeground {
     dispatch_async(self.dispatchQueue, ^{
@@ -559,6 +565,7 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref,
     bzero(&zeroAddress, sizeof(zeroAddress));
     zeroAddress.sin_len = sizeof(zeroAddress);
     zeroAddress.sin_family = AF_INET;
+#if !TARGET_OS_WATCH
     reachability = SCNetworkReachabilityCreateWithAddress(
         kCFAllocatorDefault, (const struct sockaddr *)&zeroAddress);
     SCNetworkReachabilityContext ctx = {0, (__bridge void *)(self), NULL, NULL,
@@ -572,6 +579,7 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref,
         CFRelease(reachability);
         reachability = NULL;
     }
+#endif  // !TARGET_OS_WATCH
 }
 
 - (void)sendAuthAndRestoreStateAfterComplete:(BOOL)restoreStateAfterComplete {

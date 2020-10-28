@@ -19,6 +19,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.ios.deployment_target = '10.0'
   s.osx.deployment_target = '10.12'
   s.tvos.deployment_target = '10.0'
+  s.watchos.deployment_target = '6.0'
 
   s.cocoapods_version = '>= 1.4.0'
   s.prefix_header_file = false
@@ -33,7 +34,10 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   ]
   s.public_header_files = base_dir + 'Public/FirebaseDatabase/*.h'
   s.libraries = ['c++', 'icucore']
-  s.frameworks = 'CFNetwork', 'Security', 'SystemConfiguration'
+  s.ios.frameworks = 'CFNetwork', 'Security', 'SystemConfiguration'
+  s.tvos.frameworks = 'CFNetwork', 'Security', 'SystemConfiguration'
+  s.macos.frameworks = 'CFNetwork', 'Security', 'SystemConfiguration'
+  s.watchos.frameworks = 'CFNetwork', 'Security'
   s.dependency 'leveldb-library', '~> 1.22'
   s.dependency 'FirebaseCore', '~> 7.0'
   s.pod_target_xcconfig = {
@@ -42,6 +46,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   }
 
   s.test_spec 'unit' do |unit_tests|
+    unit_tests.platforms = {:ios => '10.0', :osx => '10.12', :tvos => '10.0'}
     unit_tests.source_files = [
       'FirebaseDatabase/Tests/Unit/*.[mh]',
       'FirebaseDatabase/Tests/Helpers/*.[mh]',
@@ -56,6 +61,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   end
 
   s.test_spec 'integration' do |int_tests|
+    int_tests.platforms = {:ios => '10.0', :osx => '10.12', :tvos => '10.0'}
     int_tests.source_files = [
       'FirebaseDatabase/Tests/Integration/*.[mh]',
       'FirebaseDatabase/Tests/Helpers/*.[mh]',

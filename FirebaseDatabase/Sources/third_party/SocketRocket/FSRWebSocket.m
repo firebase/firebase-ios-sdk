@@ -49,6 +49,7 @@
 #define maybe_bridge(x) (x)
 #endif
 
+#if !TARGET_OS_WATCH
 typedef enum  {
     SROpCodeTextFrame = 0x1,
     SROpCodeBinaryFrame = 0x2,
@@ -412,6 +413,8 @@ static __strong NSData *CRLFCRLF;
     }
 }
 
+//#endif  // !TARGET_OS_WATCH
+
 #ifndef NDEBUG
 
 - (void)setReadyState:(FSRReadyState)aReadyState;
@@ -424,6 +427,7 @@ static __strong NSData *CRLFCRLF;
 
 #endif
 
+//#if !TARGET_OS_WATCH
 - (void)open;
 {
     assert(_url);
@@ -1382,9 +1386,12 @@ static const size_t SRFrameHeaderOverhead = 32;
     frame_buffer[0] = SRFinMask | opcode;
 
     BOOL useMask = YES;
+
+#endif  // !TARGET_OS_WATCH
 #ifdef NOMASK
     useMask = NO;
 #endif
+#if !TARGET_OS_WATCH
 
     if (useMask) {
     // set the mask and header
@@ -1865,3 +1872,4 @@ static NSRunLoop *networkRunLoop = nil;
 }
 
 @end
+#endif  // TARGET_OS_WATCH
