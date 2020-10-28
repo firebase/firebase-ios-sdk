@@ -14,6 +14,8 @@
 
 #import <Foundation/Foundation.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 FOUNDATION_EXPORT NSString *const FIRCLSDeveloperToken;
 
 // User Messages
@@ -41,8 +43,6 @@ FOUNDATION_EXPORT NSString *const FIRCLSNetworkCrashlyticsGoogleAppId;
 FOUNDATION_EXPORT NSString *const FIRCLSNetworkCrashlyticsOrgId;
 FOUNDATION_EXPORT NSString *const FIRCLSNetworkUserAgent;
 FOUNDATION_EXPORT NSString *const FIRCLSNetworkUTF8;
-
-NS_ASSUME_NONNULL_BEGIN
 
 NSString *FIRCLSSDKGeneratorName(void);
 
