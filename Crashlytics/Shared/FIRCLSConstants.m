@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #import "Crashlytics/Shared/FIRCLSConstants.h"
-#import <FirebaseCore/FIRVersion.h>
+#import "FirebaseCore/FIRVersion.h"
 
 #define STR_HELPER(x) #x
 #define STR(x) STR_HELPER(x)
