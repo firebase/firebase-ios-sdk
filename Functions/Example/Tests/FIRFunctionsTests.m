@@ -23,12 +23,14 @@
 
 @end
 
-@interface FIRFunctionsTests : XCTestCase {
+@interface FIRFunctionsTests : XCTestCase
+
+@end
+
+@implementation FIRFunctionsTests {
   FIRFunctions *_functions;
   FIRFunctions *_functionsCustomDomain;
 }
-
-@implementation FIRFunctionsTests
 
 - (void)setUp {
   [super setUp];
