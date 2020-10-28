@@ -47,10 +47,6 @@
 #define CLS_TARGET_OS_OSX (TARGET_OS_MAC && !TARGET_OS_IPHONE)
 #define CLS_TARGET_OS_HAS_UIKIT (TARGET_OS_IOS || TARGET_OS_TV)
 
-#define CLS_SDK_DISPLAY_VERSION STR(DISPLAY_VERSION)
-
-#define CLS_SDK_GENERATOR_NAME (STR(CLS_SDK_NAME) "/" CLS_SDK_DISPLAY_VERSION)
-
 // arch definitions
 #if defined(__arm__) || defined(__arm64__) || defined(__arm64e__)
 #include <arm/arch.h>
