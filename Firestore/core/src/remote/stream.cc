@@ -202,8 +202,8 @@ void Stream::OnStreamRead(const grpc::ByteBuffer& message) {
   HARD_ASSERT(IsStarted(), "OnStreamRead called for a stopped stream.");
 
   if (LogIsDebugEnabled()) {
-    LOG_DEBUG("%s headers (whitelisted): %s", GetDebugDescription(),
-              Datastore::GetWhitelistedHeadersAsString(
+    LOG_DEBUG("%s headers (allowlisted): %s", GetDebugDescription(),
+              Datastore::GetAllowlistedHeadersAsString(
                   grpc_stream_->GetResponseHeaders()));
   }
 
