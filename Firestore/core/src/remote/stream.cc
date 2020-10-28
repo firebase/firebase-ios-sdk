@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2018 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@
 namespace firebase {
 namespace firestore {
 namespace remote {
+namespace {
 
 using auth::CredentialsProvider;
 using auth::Token;
@@ -39,8 +40,6 @@ using util::Status;
 using util::StatusOr;
 using util::StringFormat;
 using util::TimerId;
-
-namespace {
 
 /**
  * Initial backoff time after an error.
