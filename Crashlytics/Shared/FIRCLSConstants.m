@@ -55,7 +55,7 @@ NSString* const FIRCLSNetworkUTF8 = @"utf-8";
 
 @implementation FIRCLSConstants
 
-+ (void)initialize {
++ (void)load {
   FIRCLSVersion = FIRFirebaseVersion();
 #ifdef CRASHLYTICS_INTERNAL
   [FIRCLSVersion stringByAppendingString:@"_1P"];
