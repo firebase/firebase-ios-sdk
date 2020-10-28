@@ -44,7 +44,6 @@ FOUNDATION_EXPORT NSString *const FIRCLSNetworkUTF8;
 
 NS_ASSUME_NONNULL_BEGIN
 
-NSString* FIRCLSSDKGeneratorName(void);
+NSString *FIRCLSSDKGeneratorName(void);
 
 NS_ASSUME_NONNULL_END
-
