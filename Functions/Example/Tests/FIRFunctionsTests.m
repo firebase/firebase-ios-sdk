@@ -57,9 +57,9 @@
 }
 
 - (void)testRegionWithEmulator {
-  [_functions useFunctionsEmulatorOrigin:@"http://localhost:5005"];
+  [_functionsCustomDomain useEmulatorWithHost:@"localhost" port:5005];
   NSString *url = [_functions URLWithName:@"my-endpoint"];
-  XCTAssertEqualObjects(@"http://localhost:5005/my-project/my-region/my-endpoint", url);
+  XCTAssertEqualObjects(@"localhost:5005/my-project/my-region/my-endpoint", url);
 }
 
 - (void)testCustomDomain {
@@ -68,14 +68,14 @@
 }
 
 - (void)testCustomDomainWithEmulator {
-  [_functionsCustomDomain useFunctionsEmulatorOrigin:@"http://localhost:5005"];
+  [_functionsCustomDomain useEmulatorWithHost:@"localhost" port:5005];
   NSString *url = [_functionsCustomDomain URLWithName:@"my-endpoint"];
-  XCTAssertEqualObjects(@"http://localhost:5005/my-project/my-region/my-endpoint", url);
+  XCTAssertEqualObjects(@"localhost:5005/my-project/my-region/my-endpoint", url);
 }
 
 - (void)testSetEmulatorSettings {
   [_functions useEmulatorWithHost:@"localhost" port:1000];
-  XCTAssertEqualObjects(@"localhost:1000", functions.emulatorOrigin);
+  XCTAssertEqualObjects(@"localhost:1000", _functions.emulatorOrigin);
 }
 
 @end
