@@ -105,9 +105,8 @@ let package = Package(
       "2.30906.0" ..< "2.30907.0"
     ),
     .package(name: "abseil",
-      url: "https://github.com/firebase/abseil-cpp-SwiftPM.git",
-      from: "0.20200225.0"
-    ),
+             url: "https://github.com/firebase/abseil-cpp-SwiftPM.git",
+             from: "0.20200225.0"),
     .package(
       name: "gRPC",
       url: "https://github.com/firebase/grpc-SwiftPM.git",
