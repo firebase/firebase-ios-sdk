@@ -17,6 +17,8 @@
 #include <TargetConditionals.h>
 
 // macro trickiness
+#define STR_HELPER(x) #x
+#define STR(x) STR_HELPER(x)
 #define CONCAT_EXPANDED(a, b) a##b
 #define CONCAT(a, b) CONCAT_EXPANDED(a, b)
 
