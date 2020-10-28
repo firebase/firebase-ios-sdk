@@ -27,7 +27,6 @@ NS_ASSUME_NONNULL_BEGIN
 namespace firebase {
 namespace firestore {
 namespace remote {
-
 namespace {
 
 using util::MakeString;
