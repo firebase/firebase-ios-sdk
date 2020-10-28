@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2018 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,6 +45,7 @@ SUPPRESS_END()
 namespace firebase {
 namespace firestore {
 namespace remote {
+namespace {
 
 using auth::Token;
 using core::DatabaseInfo;
@@ -54,8 +55,6 @@ using util::Path;
 using util::Status;
 using util::StatusOr;
 using util::StringFormat;
-
-namespace {
 
 const char* const kAuthorizationHeader = "authorization";
 const char* const kXGoogApiClientHeader = "x-goog-api-client";
