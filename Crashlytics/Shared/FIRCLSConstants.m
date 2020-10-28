@@ -20,7 +20,7 @@
 
 NSString* const FIRCLSDeveloperToken = @"77f0789d8e230eccdb4b99b82dccd78d47f9b604";
 
-NSString *FIRCLSVersion = @""; // Will be populated when initialized.
+NSString *FIRCLSVersion = nil; // Will be populated when initialized.
 
 // User Messages
 NSString* const FIRCLSMissingConsumerKeyMsg = @"consumer key is nil or zero length";
@@ -57,6 +57,9 @@ NSString* const FIRCLSNetworkUTF8 = @"utf-8";
 
 + (void)initialize {
   FIRCLSVersion = FIRFirebaseVersion();
+#ifdef CRASHLYTICS_INTERNAL
+  [FIRCLSVersion stringByAppendingString:@"_1P"];
+#endif
 }
 
 @end
