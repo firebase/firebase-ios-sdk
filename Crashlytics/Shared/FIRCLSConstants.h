@@ -16,8 +16,6 @@
 
 FOUNDATION_EXPORT NSString *const FIRCLSDeveloperToken;
 
-FOUNDATION_EXPORT NSString *FIRCLSVersion;
-
 // User Messages
 FOUNDATION_EXPORT NSString *const FIRCLSMissingConsumerKeyMsg;
 FOUNDATION_EXPORT NSString *const FIRCLSMissingConsumerSecretMsg;

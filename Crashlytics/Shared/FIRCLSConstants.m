@@ -20,8 +20,6 @@
 
 NSString* const FIRCLSDeveloperToken = @"77f0789d8e230eccdb4b99b82dccd78d47f9b604";
 
-NSString* FIRCLSVersion = nil;  // Will be populated when initialized.
-
 // User Messages
 NSString* const FIRCLSMissingConsumerKeyMsg = @"consumer key is nil or zero length";
 NSString* const FIRCLSMissingConsumerSecretMsg = @"consumer secret is nil or zero length";
@@ -48,18 +46,3 @@ NSString* const FIRCLSNetworkCrashlyticsGoogleAppId = @"X-Crashlytics-Google-App
 NSString* const FIRCLSNetworkCrashlyticsOrgId = @"X-Crashlytics-Org-Id";
 NSString* const FIRCLSNetworkUserAgent = @"User-Agent";
 NSString* const FIRCLSNetworkUTF8 = @"utf-8";
-
-@interface FIRCLSConstants : NSObject
-
-@end
-
-@implementation FIRCLSConstants
-
-+ (void)load {
-  FIRCLSVersion = FIRFirebaseVersion();
-#ifdef CRASHLYTICS_INTERNAL
-  [FIRCLSVersion stringByAppendingString:@"_1P"];
-#endif
-}
-
-@end
