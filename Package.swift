@@ -115,7 +115,7 @@ let package = Package(
     .package(
       name: "OCMock",
       url: "https://github.com/firebase/ocmock.git",
-      "3.7.1" ..< "3.8.0"
+      .revision("7291762d3551c5c7e31c49cce40a0e391a52e889")
     ),
     .package(
       name: "leveldb",
