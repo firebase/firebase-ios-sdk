@@ -55,5 +55,6 @@
   "6.7.0": "https://dl.google.com/dl/firebase/ios/carthage/6.7.0/RemoteConfig-a37fdaf25529239e.zip",
   "6.8.0": "https://dl.google.com/dl/firebase/ios/carthage/6.8.0/RemoteConfig-7f64cf6c4177f00d.zip",
   "6.8.1": "https://dl.google.com/dl/firebase/ios/carthage/6.8.1/RemoteConfig-5d7322c348eb8cec.zip",
-  "6.9.0": "https://dl.google.com/dl/firebase/ios/carthage/6.9.0/RemoteConfig-0ab657a96db38f5c.zip"
+  "6.9.0": "https://dl.google.com/dl/firebase/ios/carthage/6.9.0/RemoteConfig-0ab657a96db38f5c.zip",
+  "7.0.0": "https://dl.google.com/dl/firebase/ios/carthage/7.0.0/FirebaseRemoteConfig-fd73c2fe09019b6e.zip"
 }

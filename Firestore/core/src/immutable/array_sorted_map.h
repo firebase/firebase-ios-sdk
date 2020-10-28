@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2018 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -326,9 +326,11 @@ class ArraySortedMap : public SortedMapBase {
 
  private:
   static array_pointer EmptyArray() {
-    static const array_pointer kEmptyArray =
-        std::make_shared<const array_type>();
-    return kEmptyArray;
+    static const array_pointer* kEmptyArray = [] {
+      auto array = new array_type();
+      return new std::shared_ptr<const array_type>(array);
+    }();
+    return *kEmptyArray;
   }
 
   static array_pointer SortedArray(std::initializer_list<value_type> entries,

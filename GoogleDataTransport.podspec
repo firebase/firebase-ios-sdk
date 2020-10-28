@@ -42,7 +42,6 @@ Shared library for iOS SDK data transport needs.
 
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
-    'GCC_TREAT_WARNINGS_AS_ERRORS' => 'YES',
     'CLANG_UNDEFINED_BEHAVIOR_SANITIZER_NULLABILITY' => 'YES',
     'GCC_PREPROCESSOR_DEFINITIONS' =>
       # The nanopb pod sets these defs, so we must too. (We *do* require 16bit

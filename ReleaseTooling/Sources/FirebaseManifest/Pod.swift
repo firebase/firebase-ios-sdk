@@ -52,7 +52,7 @@ public struct Pod {
   /// Closed source pods do not validate on Xcode 12 until they support the ARM simulator slice.
   public func skipImportValidation() -> String {
     if isClosedSource || name == "Firebase" {
-      return "-skip-import-validation"
+      return "--skip-import-validation"
     } else {
       return ""
     }

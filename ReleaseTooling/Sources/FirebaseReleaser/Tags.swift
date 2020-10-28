@@ -21,6 +21,9 @@ import Utils
 
 enum Tags {
   static func createTags(gitRoot: URL, deleteExistingTags: Bool = false) {
+    if deleteExistingTags {
+      verifyTagsAreSafeToDelete(gitRoot: gitRoot)
+    }
     let manifest = FirebaseManifest.shared
     createTag(gitRoot: gitRoot, tag: "CocoaPods-\(manifest.version)",
               deleteExistingTags: deleteExistingTags)
@@ -45,7 +48,6 @@ enum Tags {
 
   private static func createTag(gitRoot: URL, tag: String, deleteExistingTags: Bool) {
     if deleteExistingTags {
-      verifyTagsAreSafeToDelete(gitRoot: gitRoot)
       Shell.executeCommand("git tag --delete \(tag)", workingDir: gitRoot)
       Shell.executeCommand("git push --delete origin \(tag)", workingDir: gitRoot)
     } else {

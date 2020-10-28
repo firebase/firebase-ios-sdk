@@ -35,6 +35,8 @@ static const char *RCNRemoteConfigQueueLabel = "com.google.GoogleConfigService.F
 static NSString *const RCNFetchResponseKeyEntries = @"entries";
 /// Key that includes data for experiment descriptions in ABT.
 static NSString *const RCNFetchResponseKeyExperimentDescriptions = @"experimentDescriptions";
+/// Key that includes data for Personalization metadata.
+static NSString *const RCNFetchResponseKeyPersonalizationMetadata = @"personalizationMetadata";
 /// Error key.
 static NSString *const RCNFetchResponseKeyError = @"error";
 /// Error code.

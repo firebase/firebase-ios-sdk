@@ -196,6 +196,7 @@ jobs:
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
     runs-on: macOS-latest
+    needs: check
     steps:
     - uses: actions/checkout@v2
     - name: Xcode 12
@@ -205,7 +206,7 @@ jobs:
     - name: iOS Build Test
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestore iOS spmbuildonly
     - name: Swift Build
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestoreSwift iOS spmbuildonly
+      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestoreSwift-Beta iOS spmbuildonly
 
   spm-cron:
     # Don't run on private repo.
@@ -223,7 +224,7 @@ jobs:
     - name: Build Test
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestore ${{ matrix.target }} spmbuildonly
     - name: Swift Build
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestoreSwift ${{ matrix.target }} spmbuildonly
+      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestoreSwift-Beta ${{ matrix.target }} spmbuildonly
 
 # Restore when FirebaseUI works with Firebase 7 (#6646)
   quickstart:
