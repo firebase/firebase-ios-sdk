@@ -125,8 +125,8 @@ class HostConfigMap {
 };
 
 HostConfigMap& Config() {
-  static HostConfigMap config_by_host;
-  return config_by_host;
+  static auto* config_by_host = new HostConfigMap();
+  return *config_by_host;
 }
 
 std::string GetCppLanguageToken() {
@@ -170,8 +170,8 @@ class ClientLanguageToken {
 };
 
 ClientLanguageToken& LanguageToken() {
-  static ClientLanguageToken token;
-  return token;
+  static auto* token = new ClientLanguageToken();
+  return *token;
 }
 
 void AddCloudApiHeader(grpc::ClientContext& context) {

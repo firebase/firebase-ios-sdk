@@ -59,8 +59,8 @@ DocumentKey DocumentKey::FromSegments(std::initializer_list<std::string> list) {
 }
 
 const DocumentKey& DocumentKey::Empty() {
-  static const DocumentKey empty;
-  return empty;
+  static const DocumentKey* empty = new DocumentKey();
+  return *empty;
 }
 
 bool DocumentKey::IsDocumentKey(const ResourcePath& path) {
