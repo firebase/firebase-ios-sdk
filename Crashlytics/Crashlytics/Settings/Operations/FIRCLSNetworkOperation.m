@@ -83,7 +83,8 @@
 }
 
 - (NSString *)userAgentString {
-  return [NSString stringWithFormat:@"%@/%@", FIRCLSApplicationGetSDKBundleID(), FIRFirebaseVersion()];
+  return
+      [NSString stringWithFormat:@"%@/%@", FIRCLSApplicationGetSDKBundleID(), FIRFirebaseVersion()];
 }
 
 - (NSString *)localeIdentifier {

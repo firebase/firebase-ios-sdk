@@ -28,5 +28,10 @@
 #define STR_EXPAND(x) #x
 
 NSString* FIRFirebaseVersion(void) {
+#ifdef FIREBASE_INTERNAL
+  return [[NSString stringWithUTF8String:(const char* const)STR(Firebase_VERSION)]
+      stringByAppendingString:@"_1P"];
+#else
   return [NSString stringWithUTF8String:(const char* const)STR(Firebase_VERSION)];
+#endif
 }

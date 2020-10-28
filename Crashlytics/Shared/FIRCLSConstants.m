@@ -46,3 +46,7 @@ NSString* const FIRCLSNetworkCrashlyticsGoogleAppId = @"X-Crashlytics-Google-App
 NSString* const FIRCLSNetworkCrashlyticsOrgId = @"X-Crashlytics-Org-Id";
 NSString* const FIRCLSNetworkUserAgent = @"User-Agent";
 NSString* const FIRCLSNetworkUTF8 = @"utf-8";
+
+NSString* FIRCLSSDKGeneratorName(void) {
+  return [NSString stringWithFormat:@"%s / %s", STR(CLS_SDK_NAME), FIRFirebaseVersion().UTF8String];
+}

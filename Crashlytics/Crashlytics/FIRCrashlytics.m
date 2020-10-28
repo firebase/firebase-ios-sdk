@@ -46,6 +46,7 @@
 #import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 
 #import "GoogleDataTransport/GDTCORLibrary/Internal/GoogleDataTransportInternal.h"
+#import "FirebaseCore/Sources/Public/FirebaseCore/FIRVersion.h"
 
 #if TARGET_OS_IPHONE
 #import <UIKit/UIKit.h>
@@ -94,7 +95,7 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
 
     FIRCLSProfileMark mark = FIRCLSProfilingStart();
 
-    NSLog(@"[Firebase/Crashlytics] Version %@", @CLS_SDK_DISPLAY_VERSION);
+    NSLog(@"[Firebase/Crashlytics] Version %@", FIRFirebaseVersion());
 
     FIRCLSDeveloperLog("Crashlytics", @"Running on %@, %@ (%@)", FIRCLSHostModelInfo(),
                        FIRCLSHostOSDisplayVersion(), FIRCLSHostOSBuildVersion());
