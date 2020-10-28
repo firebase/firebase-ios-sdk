@@ -30,8 +30,8 @@ Select the Firebase GitHub repository - `https://github.com/firebase/firebase-io
 
 Select the version.
 
-Note: Prior to the 7.0.0 release, the versions are specified
-in a format like 6.34-spm-beta.
+Note: Prior to the 7.0.0 release, version selection is not available. Instead, the releases
+are available in branches with names like 6.34-spm-beta.
 
 Note: The Swift Package Manager distribution continues to be in beta even though it now
 supports standard Swift Package Manager versioning.
