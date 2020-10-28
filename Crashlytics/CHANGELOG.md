@@ -1,5 +1,6 @@
 # Unreleased
 - [fixed] Fixed an issue where symbol uploads would fail when there are spaces in the project path, particularly in Unity builds (#6789).
+- [changed] Added additional logging when settings requests fail with a 404 status to help customers debug onboarding issues (#6847).
 
 # v4.6.2
 
