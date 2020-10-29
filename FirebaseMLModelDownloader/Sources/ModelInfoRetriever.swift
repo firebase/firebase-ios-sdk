@@ -14,6 +14,5 @@
 
 import Foundation
 
-/// Model download conditions.
-public struct ModelDownloadConditions {
+class ModelInfoRetriever : NSObject {
 }

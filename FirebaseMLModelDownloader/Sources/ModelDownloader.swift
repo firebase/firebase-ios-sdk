@@ -51,32 +51,21 @@ public enum ModelDownloadType {
 
 /// Downloader to manage custom model downloads.
 public struct ModelDownloader {
-
-  let downloadURL: String = ""
-
   
-
-  func getURLString(url: String) -> URL? {
-    return URL(string: url)
-  }
   /// Downloads a custom model to device or gets a custom model already on device, w/ optional handler for progress.
   public func getModel(name modelName: String, downloadType: ModelDownloadType,
                        conditions: ModelDownloadConditions,
                        progressHandler: ((Float) -> Void)? = nil,
                        completion: @escaping (Result<CustomModel, DownloadError>) -> Void) {
     // TODO: Model download
+    
+    switch (downloadType) {
+    case .localModel : break
 
-    guard let url = getURLString(url: downloadURL) else {
-      completion(.failure(.internalError)) // url parse error
-      return
-    }
+    case .localModelUpdateInBackground: break
 
-    let downloader = Downloader()
-    downloader.startDownload(with: url)
+    case .latestModel: break
 
-    if let progressBlock = progressHandler {
-      let progress = downloader.progress
-      progressBlock(progress)
     }
 
     let modelSize = Int()

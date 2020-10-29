@@ -14,6 +14,29 @@
 
 import Foundation
 
-/// Model download conditions.
-public struct ModelDownloadConditions {
+class ModelFileManager : NSObject {
+
+  static var modelsDirectory : URL {
+    get {
+      return FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
+    }
+  }
+
+  static func isFileReachableAtURL(fileURL : URL) -> Bool {
+    do {
+      let isReachable = try fileURL.checkResourceIsReachable()
+      return isReachable
+    } catch {
+      /// File unreachable.
+      return false
+    }
+  }
+
+  static func removeFileIfExistsAtURL(sourceURL : URL) {
+
+  }
+
+  static func moveFile(fromURL sourceURL: URL, toURL destinationURL: URL) {
+
+  }
 }
