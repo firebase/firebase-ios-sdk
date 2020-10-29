@@ -26,7 +26,6 @@
 #import "Crashlytics/Shared/FIRCLSConstants.h"
 #import "Crashlytics/Shared/FIRCLSNetworking/FIRCLSFABNetworkClient.h"
 #import "Crashlytics/Shared/FIRCLSNetworking/FIRCLSURLBuilder.h"
-#import "FirebaseCore/Sources/Public/FirebaseCore/FIRVersion.h"
 
 @interface FIRCLSSettingsOnboardingManager () <FIRCLSDownloadAndSaveSettingsOperationDelegate,
                                                FIRCLSOnboardingOperationDelegate>
@@ -85,7 +84,7 @@
   // backwards compatibility
   // TODO(b/141747635)
   self.kitVersionsByKitBundleIdentifier = @{
-    FIRCLSApplicationGetSDKBundleID() : FIRFirebaseVersion(),
+    FIRCLSApplicationGetSDKBundleID() : FIRCLSSDKVersion(),
   };
 
   [self beginSettingsDownload:token waitForCompletion:waitForCompletion];

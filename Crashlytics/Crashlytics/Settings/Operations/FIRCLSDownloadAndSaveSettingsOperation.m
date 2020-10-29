@@ -19,7 +19,6 @@
 #import "Crashlytics/Shared/FIRCLSConstants.h"
 #import "Crashlytics/Shared/FIRCLSFABHost.h"
 #import "Crashlytics/Shared/FIRCLSNetworking/FIRCLSFABNetworkClient.h"
-#import "FirebaseCore/Sources/Public/FirebaseCore/FIRVersion.h"
 
 @interface FIRCLSDownloadAndSaveSettingsOperation ()
 
@@ -89,7 +88,7 @@
       forHTTPHeaderField:@"X-Crashlytics-OS-Build-Version"];
   [request setValue:FIRCLSHostOSDisplayVersion()
       forHTTPHeaderField:@"X-Crashlytics-OS-Display-Version"];
-  [request setValue:FIRFirebaseVersion() forHTTPHeaderField:@"X-Crashlytics-API-Client-Version"];
+  [request setValue:FIRCLSSDKVersion() forHTTPHeaderField:@"X-Crashlytics-API-Client-Version"];
 
   return request;
 }

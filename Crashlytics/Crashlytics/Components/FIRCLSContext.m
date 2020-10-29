@@ -404,8 +404,8 @@ static bool FIRCLSContextRecordIdentity(FIRCLSFile* file, const FIRCLSContextIni
   FIRCLSFileWriteHashStart(file);
 
   FIRCLSFileWriteHashEntryString(file, "generator", FIRCLSSDKGeneratorName().UTF8String);
-  FIRCLSFileWriteHashEntryString(file, "display_version", FIRFirebaseVersion().UTF8String);
-  FIRCLSFileWriteHashEntryString(file, "build_version", FIRFirebaseVersion().UTF8String);
+  FIRCLSFileWriteHashEntryString(file, "display_version", FIRCLSSDKVersion().UTF8String);
+  FIRCLSFileWriteHashEntryString(file, "build_version", FIRCLSSDKVersion().UTF8String);
   FIRCLSFileWriteHashEntryUint64(file, "started_at", time(NULL));
 
   FIRCLSFileWriteHashEntryString(file, "session_id", initData->sessionId);
