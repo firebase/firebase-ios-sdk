@@ -74,7 +74,7 @@
   [request setValue:FIRCLSDeveloperToken forHTTPHeaderField:FIRCLSNetworkCrashlyticsDeveloperToken];
   [request setValue:FIRCLSApplicationGetSDKBundleID()
       forHTTPHeaderField:FIRCLSNetworkCrashlyticsAPIClientId];
-  [request setValue:FIRCLSVersion
+  [request setValue:FIRCLSSDKVersion()
       forHTTPHeaderField:FIRCLSNetworkCrashlyticsAPIClientDisplayVersion];
   [request setValue:self.googleAppID forHTTPHeaderField:FIRCLSNetworkCrashlyticsGoogleAppId];
 
@@ -82,7 +82,8 @@
 }
 
 - (NSString *)userAgentString {
-  return [NSString stringWithFormat:@"%@/%@", FIRCLSApplicationGetSDKBundleID(), FIRCLSVersion];
+  return
+      [NSString stringWithFormat:@"%@/%@", FIRCLSApplicationGetSDKBundleID(), FIRCLSSDKVersion()];
 }
 
 - (NSString *)localeIdentifier {

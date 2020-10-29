@@ -1,3 +1,6 @@
+# 7.1.0
+- [Fixed] Remove explicit MobileCoreServices library linkage from podspec. (#6850)
+
 # 7.0.0
 - [changed] The global variable `FIRStorageVersionString` is deleted.
   `FirebaseVersion()` or `FIRFirebaseVersion()` should be used instead.
