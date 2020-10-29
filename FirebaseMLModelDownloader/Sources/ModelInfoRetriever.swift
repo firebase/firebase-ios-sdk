@@ -13,6 +13,40 @@
 // limitations under the License.
 
 import Foundation
+import FirebaseCore
+import FirebaseInstallations
 
 class ModelInfoRetriever : NSObject {
+  var app : FirebaseApp
+  var model : CustomModel
+
+  init(app : FirebaseApp, model : CustomModel) {
+    self.app = app
+    self.model = model
+  }
+
+  var modelInfoFetchBaseURL : URL? {
+    get {
+      var components = URLComponents()
+      components.scheme = "https"
+      components.host = "firebaseml.googleapis.com"
+      components.path = "/Model"
+      return components.url
+    }
+  }
+
+  var modelInfoFetchURLRequest : URLRequest {
+    var request = URLRequest(url: modelInfoFetchBaseURL!)
+    request.setValue(model.hash, forHTTPHeaderField: "If-None-Match")
+    let fisToken : String = getTokenForApp(app: self.app)
+    request.setValue(fisToken, forHTTPHeaderField: "FIS-Auth-Token")
+    return request
+  }
+
+  func getTokenForApp(app : FirebaseApp) -> String {
+    // get FIS token for Firebase App
+    let installations = FirebaseCore.installations(app)
+    let fisToken : String = installations.authToken(completion: nil)
+    return fisToken
+  }
 }
