@@ -36,7 +36,6 @@
 #import "Crashlytics/Shared/FIRCLSNetworking/FIRCLSMultipartMimeStreamEncoder.h"
 #import "Crashlytics/Shared/FIRCLSNetworking/FIRCLSURLBuilder.h"
 
-#import "FirebaseCore/Sources/Public/FirebaseCore/FIRVersion.h"
 #import "GoogleDataTransport/GDTCORLibrary/Internal/GoogleDataTransportInternal.h"
 
 @interface FIRCLSReportUploader () {
@@ -327,7 +326,7 @@
   [request setValue:FIRCLSDeveloperToken forHTTPHeaderField:FIRCLSNetworkCrashlyticsDeveloperToken];
   [request setValue:FIRCLSApplicationGetSDKBundleID()
       forHTTPHeaderField:FIRCLSNetworkCrashlyticsAPIClientId];
-  [request setValue:FIRFirebaseVersion()
+  [request setValue:FIRCLSSDKVersion()
       forHTTPHeaderField:FIRCLSNetworkCrashlyticsAPIClientDisplayVersion];
   [request setValue:[[self dataSource] googleAppID]
       forHTTPHeaderField:FIRCLSNetworkCrashlyticsGoogleAppId];

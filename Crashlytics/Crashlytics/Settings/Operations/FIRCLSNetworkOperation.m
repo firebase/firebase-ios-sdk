@@ -19,7 +19,6 @@
 #import "Crashlytics/Crashlytics/Helpers/FIRCLSDefines.h"
 #import "Crashlytics/Crashlytics/Helpers/FIRCLSLogger.h"
 #import "Crashlytics/Shared/FIRCLSConstants.h"
-#import "FirebaseCore/Sources/Public/FirebaseCore/FIRVersion.h"
 
 @interface FIRCLSNetworkOperation ()
 
@@ -75,7 +74,7 @@
   [request setValue:FIRCLSDeveloperToken forHTTPHeaderField:FIRCLSNetworkCrashlyticsDeveloperToken];
   [request setValue:FIRCLSApplicationGetSDKBundleID()
       forHTTPHeaderField:FIRCLSNetworkCrashlyticsAPIClientId];
-  [request setValue:FIRFirebaseVersion()
+  [request setValue:FIRCLSSDKVersion()
       forHTTPHeaderField:FIRCLSNetworkCrashlyticsAPIClientDisplayVersion];
   [request setValue:self.googleAppID forHTTPHeaderField:FIRCLSNetworkCrashlyticsGoogleAppId];
 
@@ -84,7 +83,7 @@
 
 - (NSString *)userAgentString {
   return
-      [NSString stringWithFormat:@"%@/%@", FIRCLSApplicationGetSDKBundleID(), FIRFirebaseVersion()];
+      [NSString stringWithFormat:@"%@/%@", FIRCLSApplicationGetSDKBundleID(), FIRCLSSDKVersion()];
 }
 
 - (NSString *)localeIdentifier {
