@@ -43,8 +43,8 @@ class ModelInfoRetriever : NSObject {
     return request
   }
 
+  /// Get FIS token for Firebase App
   func getTokenForApp(app : FirebaseApp) -> String {
-    // get FIS token for Firebase App
     let installations = FirebaseCore.installations(app)
     let fisToken : String = installations.authToken(completion: nil)
     return fisToken
