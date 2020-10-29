@@ -1,8 +1,0 @@
-{
-  "FirebaseCore":"5.0.5",
-  "FirebaseAuth":"5.0.2",
-  "FirebaseDatabase":"5.0.2",
-  "FirebaseMessaging":"3.0.3",
-  "FirebaseFirestore":"0.12.5",
-  "FirebaseFunctions":"2.1.0"
-}

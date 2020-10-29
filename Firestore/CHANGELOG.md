@@ -1,10 +1,13 @@
 # Unreleased
+- [Fixed] Remove explicit MobileCoreServices library linkage from podspec. (#6850)
 
 # v7.0.0
 - [changed] **Breaking change:** Removed the `areTimestampsInSnapshotsEnabled`
   setting. Timestamp fields that read from a `FIRDocumentSnapshot` now always
   return `FIRTimestamp` objects. Use `FIRTimestamp.dateValue` to convert to
   `NSDate` if required.
+- [fixed] Fixed a memory leak introduced in 1.18.0 that may manifest when
+  serializing queries containing equality or non-equality comparisons.
 
 # v1.19.0
 - [changed] Internal improvements for future C++ and Unity support. Includes a

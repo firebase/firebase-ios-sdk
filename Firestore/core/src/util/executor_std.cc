@@ -29,7 +29,6 @@
 namespace firebase {
 namespace firestore {
 namespace util {
-
 namespace {
 
 // As a convention, assign the epoch time to all operations scheduled for

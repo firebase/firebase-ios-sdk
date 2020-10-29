@@ -31,7 +31,6 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
   ]
   s.public_header_files = 'FirebaseStorage/Sources/Public/FirebaseStorage/*.h'
 
-  s.ios.framework = 'MobileCoreServices'
   s.osx.framework = 'CoreServices'
 
   s.dependency 'FirebaseCore', '~> 7.0'
