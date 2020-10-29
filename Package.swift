@@ -53,7 +53,7 @@ let package = Package(
       targets: ["FirebaseFirestoreTarget"]
     ),
     .library(
-      name: "FirebaseFirestoreSwift",
+      name: "FirebaseFirestoreSwift-Beta",
       targets: ["FirebaseFirestoreSwiftTarget"]
     ),
     .library(
@@ -81,7 +81,7 @@ let package = Package(
       targets: ["FirebaseStorage"]
     ),
     .library(
-      name: "FirebaseStorageSwift",
+      name: "FirebaseStorageSwift-Beta",
       targets: ["FirebaseStorageSwift"]
     ),
 
@@ -100,19 +100,17 @@ let package = Package(
     ),
     .package(
       name: "nanopb",
-      url: "https://github.com/nanopb/nanopb.git",
+      url: "https://github.com/firebase/nanopb.git",
       // This revision adds SPM enablement to the 0.3.9.6 release tag.
-      .revision("8119dfe5631f2616d11e50ead95448d12e816062")
+      "2.30906.0" ..< "2.30907.0"
     ),
-    .package(
-      name: "abseil",
-      url: "https://github.com/firebase/abseil-cpp-SwiftPM.git",
-      .revision("05d8107f2971a37e6c77245b7c4c6b0a7e97bc99")
-    ),
+    .package(name: "abseil",
+             url: "https://github.com/firebase/abseil-cpp-SwiftPM.git",
+             from: "0.20200225.0"),
     .package(
       name: "gRPC",
       url: "https://github.com/firebase/grpc-SwiftPM.git",
-      .revision("5bb2669317ae2183f4cb00c675423af1924f0b46")
+      "1.28.2" ..< "1.29.0"
     ),
     .package(
       name: "OCMock",
@@ -122,7 +120,7 @@ let package = Package(
     .package(
       name: "leveldb",
       url: "https://github.com/firebase/leveldb.git",
-      .revision("fa1f25f296a766e5a789c4dacd4798dea798b2c2")
+      "1.22.1" ..< "1.23.0"
     ),
     // Branches need a force update with a run with the revision set like below.
     //   .package(url: "https://github.com/paulb777/nanopb.git", .revision("564392bd87bd093c308a3aaed3997466efb95f74"))
@@ -229,18 +227,18 @@ let package = Package(
     ),
     .binaryTarget(
       name: "FirebaseAnalytics",
-      url: "https://dl.google.com/firebase/ios/swiftpm/6.34.0/FirebaseAnalytics.zip",
-      checksum: "48aee46798b06ab4dbe6241541ba21ebdfe449e343c34a07845a67b6b328c4e2"
+      url: "https://dl.google.com/firebase/ios/swiftpm/7.0.0/FirebaseAnalytics.zip",
+      checksum: "8d835a816ec3f279d76d0d164f0b6fc0827239e26ed59a1acd277ed40d26243f"
     ),
     .binaryTarget(
       name: "FIRAnalyticsConnector",
-      url: "https://dl.google.com/firebase/ios/swiftpm/6.34.0/FIRAnalyticsConnector.zip",
-      checksum: "b3818c2cac2f2f780eacf33ace7bd1632b477060670a21ca3d1b423991c08ca1"
+      url: "https://dl.google.com/firebase/ios/swiftpm/7.0.0/FIRAnalyticsConnector.zip",
+      checksum: "bdbf31a06ef741456bd386ad3f10529103953c330771d140e021e5a467d89395"
     ),
     .binaryTarget(
       name: "GoogleAppMeasurement",
-      url: "https://dl.google.com/firebase/ios/swiftpm/6.34.0/GoogleAppMeasurement.zip",
-      checksum: "05f6d2da2aa072781826be135498c6e1730ed43519c2232e01c5f043f5fe7189"
+      url: "https://dl.google.com/firebase/ios/swiftpm/7.0.0/GoogleAppMeasurement.zip",
+      checksum: "50fd6e762fc44f92a835bebf34ce8ecc9589ef34681be1cb41779bec9e44e652"
     ),
 
     .target(
@@ -445,7 +443,6 @@ let package = Package(
       ],
       linkerSettings: [
         .linkedFramework("SystemConfiguration", .when(platforms: .some([.iOS, .macOS, .tvOS]))),
-        .linkedFramework("MobileCoreServices", .when(platforms: .some([.iOS]))),
         .linkedFramework("UIKit", .when(platforms: .some([.iOS, .tvOS]))),
         .linkedLibrary("c++"),
       ]

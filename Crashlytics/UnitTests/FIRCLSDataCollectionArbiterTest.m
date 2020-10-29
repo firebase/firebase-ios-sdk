@@ -52,7 +52,7 @@
 - (void)testNothingSet {
   self.fakeApp.isDefaultCollectionEnabled = YES;
   FIRCLSDataCollectionArbiter *arbiter = [self arbiterWithDictionary:@{}];
-#ifdef CRASHLYTICS_INTERNAL
+#ifdef CRASHLYTICS_1P
   XCTAssertFalse([arbiter isCrashlyticsCollectionEnabled]);
 #else
   // It should be YES by default for 3P users.
