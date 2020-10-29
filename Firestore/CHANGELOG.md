@@ -1,4 +1,5 @@
 # Unreleased
+- [Fixed] Remove explicit MobileCoreServices library linkage from podspec. (#6850)
 
 # v7.0.0
 - [changed] **Breaking change:** Removed the `areTimestampsInSnapshotsEnabled`
