@@ -1,6 +1,7 @@
 # Unreleased (v7.0.1)
 - [changed] Added the original query data to error messages for Queries that
   cannot be deserizialized.
+- [Fixed] Remove explicit MobileCoreServices library linkage from podspec. (#6850)
 
 # v7.0.0
 - [changed] **Breaking change:** Removed the `areTimestampsInSnapshotsEnabled`
