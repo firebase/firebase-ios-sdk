@@ -1,5 +1,6 @@
 # Unreleased
 - [added] Made emulator connection API consistent between Auth, Database, Firestore, and Functions (#5916).
+- [fixed] Remove explicit MobileCoreServices library linkage from podspec. (#6850)
 
 # v7.0.0
 - [changed] **Breaking change:** Removed the `areTimestampsInSnapshotsEnabled`
