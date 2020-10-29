@@ -58,7 +58,8 @@
 
 - (void)testRegionWithEmulator {
   [_functionsCustomDomain useEmulatorWithHost:@"localhost" port:5005];
-  NSString *url = [_functions URLWithName:@"my-endpoint"];
+  NSLog(@"%@", _functionsCustomDomain.emulatorOrigin);
+  NSString *url = [_functionsCustomDomain URLWithName:@"my-endpoint"];
   XCTAssertEqualObjects(@"localhost:5005/my-project/my-region/my-endpoint", url);
 }
 

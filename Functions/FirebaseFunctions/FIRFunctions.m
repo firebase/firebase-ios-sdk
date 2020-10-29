@@ -325,6 +325,10 @@ NSString *const kFUNDefaultRegion = @"us-central1";
   return [[FIRHTTPSCallable alloc] initWithFunctions:self name:name];
 }
 
+- (nullable NSString *)emulatorOrigin {
+  return _emulatorOrigin;
+}
+
 @end
 
 NS_ASSUME_NONNULL_END
