@@ -633,22 +633,22 @@
                         ]));
 
   // With null.
-  snapshot = [self readDocumentSetForRef:[collection queryWhereField:@"zip"
+  snapshot = [self readDocumentSetForRef:[collection queryWhereField:@"array"
                                                     arrayContainsAny:@[ [NSNull null] ]]];
   XCTAssertTrue(snapshot.isEmpty);
 
   // With null and a value.
-  snapshot = [self readDocumentSetForRef:[collection queryWhereField:@"zip"
+  snapshot = [self readDocumentSetForRef:[collection queryWhereField:@"array"
                                                     arrayContainsAny:@[ [NSNull null], @43 ]]];
   XCTAssertEqualObjects(FIRQuerySnapshotGetData(snapshot), (@[ testDocs[@"e"] ]));
 
   // With NAN.
-  snapshot = [self readDocumentSetForRef:[collection queryWhereField:@"zip"
+  snapshot = [self readDocumentSetForRef:[collection queryWhereField:@"array"
                                                     arrayContainsAny:@[ @(NAN) ]]];
   XCTAssertTrue(snapshot.isEmpty);
 
   // With NAN and a value.
-  snapshot = [self readDocumentSetForRef:[collection queryWhereField:@"zip"
+  snapshot = [self readDocumentSetForRef:[collection queryWhereField:@"array"
                                                     arrayContainsAny:@[ @(NAN), @43 ]]];
   XCTAssertEqualObjects(FIRQuerySnapshotGetData(snapshot), (@[ testDocs[@"e"] ]));
 }
