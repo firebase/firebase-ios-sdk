@@ -446,7 +446,7 @@ static const NSInteger FIRErrorCodeDurableDeepLinkFailed = -119;
           [self.dynamicLinkNetworking
               resolveShortLink:url
                  FDLSDKVersion:FIRFirebaseVersion()
-                    completion:^(NSURL *_Nullable resolverURL, NSError *_Nullable resolverError){
+                    completion:^(NSURL *_Nullable resolverURL, NSError *_Nullable resolverError) {
                       completion(dynamicLink, resolverError);
                     }];
 #ifdef GIN_SCION_LOGGING
