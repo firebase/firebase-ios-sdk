@@ -413,7 +413,7 @@ static const NSInteger FIRErrorCodeDurableDeepLinkFailed = -119;
           // TODO: Create dedicated logging function to prevent this.
           [self.dynamicLinkNetworking
               resolveShortLink:url
-                 FDLSDKVersion:kFIRDLVersion
+                 FDLSDKVersion:FIRFirebaseVersion()
                     completion:^(NSURL *_Nullable resolverURL, NSError *_Nullable resolverError){
                         // Nothing to do
                     }];
