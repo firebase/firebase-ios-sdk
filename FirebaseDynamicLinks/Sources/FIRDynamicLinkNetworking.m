@@ -312,7 +312,7 @@ NSData *_Nullable FIRDataWithDictionary(NSDictionary *dictionary, NSError **_Nul
       stringWithFormat:@"%@/%@%@", baseURL, endpointPath, FIRDynamicLinkAPIKeyParameter(_APIKey)];
 
   FIRNetworkRequestCompletionHandler completeInvitationByDeviceCallback =
-      ^(NSData *data, NSError *error) {
+      ^(NSData *data, NSURLResponse *response, NSError *error) {
         if (error || !data) {
           dispatch_async(dispatch_get_main_queue(), ^{
             handler(nil, nil, error);
