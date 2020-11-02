@@ -15,5 +15,4 @@
 import Foundation
 
 /// Model download conditions.
-public struct ModelDownloadConditions {
-}
+public struct ModelDownloadConditions {}
