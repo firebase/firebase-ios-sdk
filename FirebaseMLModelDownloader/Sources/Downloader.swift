@@ -98,15 +98,12 @@ class Downloader : NSObject {
 }
 
 extension Downloader {
-  static let userDefaultsDownloadedHashName : String = "downloaded_hash"
-  static let userDefaultsPendingHashName : String = "pending_hash"
-
   func savePendingModelInfo(model : CustomModel) {
-    userDefaults.set(model.hash, forKey:(Downloader.modelDownloadingKeyPrefix + Downloader.userDefaultsPendingHashName))
+    userDefaults.set(model.hash, forKey:(Downloader.modelDownloadingKeyPrefix + ModelInfoRetriever.userDefaultsPendingHashName))
   }
 
   func saveDownloadedModelInfo(model : CustomModel) {
-    userDefaults.set(model.hash, forKey:(Downloader.modelDownloadingKeyPrefix + Downloader.userDefaultsDownloadedHashName))
+    userDefaults.set(model.hash, forKey:(Downloader.modelDownloadingKeyPrefix + ModelInfoRetriever.userDefaultsDownloadedHashName))
   }
 }
 
