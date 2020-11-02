@@ -51,16 +51,24 @@ public enum ModelDownloadType {
 
 /// Downloader to manage custom model downloads.
 public struct ModelDownloader {
-  
+
+  let app : FirebaseApp = FirebaseApp.app()!
+
   /// Downloads a custom model to device or gets a custom model already on device, w/ optional handler for progress.
   public func getModel(name modelName: String, downloadType: ModelDownloadType,
                        conditions: ModelDownloadConditions,
                        progressHandler: ((Float) -> Void)? = nil,
                        completion: @escaping (Result<CustomModel, DownloadError>) -> Void) {
-    // TODO: Model download
-    
+
+    /// TODO: Complete model download
     switch (downloadType) {
-    case .localModel : break
+    case .localModel :
+      let modelInfoRetriever = ModelInfoRetriever(app: app, modelName: modelName)
+      if let model = modelInfoRetriever.buildModel() {
+        completion(.success(model))
+      } else {
+        /// TODO: handle the case of no local model
+      }
 
     case .localModelUpdateInBackground: break
 
@@ -68,19 +76,6 @@ public struct ModelDownloader {
 
     }
 
-    let modelSize = Int()
-    let modelPath = String()
-    let modelHash = String()
-
-    let customModel = CustomModel(
-      name: modelName,
-      size: modelSize,
-      path: modelPath,
-      hash: modelHash
-    )
-
-    
-    completion(.success(customModel))
     completion(.failure(.notFound))
   }
 
@@ -88,7 +83,7 @@ public struct ModelDownloader {
   public func listDownloadedModels(completion: @escaping (Result<Set<CustomModel>,
                                                                  DownloadedModelError>) -> Void) {
     let customModels = Set<CustomModel>()
-    // TODO: List downloaded models
+    /// TODO: List downloaded models
     completion(.success(customModels))
     completion(.failure(.notFound))
   }
@@ -97,7 +92,7 @@ public struct ModelDownloader {
   public func deleteDownloadedModel(name modelName: String,
                                     completion: @escaping (Result<Void, DownloadedModelError>)
                                       -> Void) {
-    // TODO: Delete previously downloaded model
+    /// TODO: Delete previously downloaded model
     completion(.success(()))
     completion(.failure(.notFound))
   }

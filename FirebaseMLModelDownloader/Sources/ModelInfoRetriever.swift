@@ -18,24 +18,33 @@ import FirebaseInstallations
 
 /// Status of model download to device.
 enum ModelDownloadStatus {
+  /// Model is currently being downloaded.
   case pending
+  /// Model has already been downloaded to device.
   case downloaded
+  /// Model download status is unknown.
   case unknown
 }
 
 /// Model info object with details about pending or downloaded model.
 struct ModelInfo {
+  /// Model name.
   var name : String
+  /// Download URL for the model file, as returned by server.
   var downloadURL : URL?
+  /// Hash of the model, as returned by server.
   var hash : String?
+  /// Size of the model, as returned by server.
   var size : Int?
+  /// Local path of the model after it has been downloaded to device.
   var path : String?
+  /// Download status of the model.
   var status : ModelDownloadStatus
 }
 
 /// Model info retriever for a model from local user defaults or server.
 class ModelInfoRetriever : NSObject {
-  /// Current Firebase app
+  /// Current Firebase app.
   var app : FirebaseApp
   /// Model info associated with model.
   var modelInfo : ModelInfo
@@ -65,11 +74,13 @@ class ModelInfoRetriever : NSObject {
 
   /// Construct model fetch URL request.
   var modelInfoFetchURLRequest : URLRequest {
+    /// TODO: complete fetch URL
     var request = URLRequest(url: modelInfoFetchBaseURL!)
     if modelInfo.status == .downloaded {
       request.setValue(modelInfo.hash, forHTTPHeaderField: "If-None-Match")
     }
 
+    /// TODO: reconsider force-unwrapping.
     let fisToken : String =  authTokenForApp(app: self.app)!
     request.setValue(fisToken, forHTTPHeaderField: "FIS-Auth-Token")
     return request
@@ -86,8 +97,17 @@ class ModelInfoRetriever : NSObject {
     return token
   }
 
+  /// Build custom model object from model info.
+  func buildModel() -> CustomModel? {
+    if modelInfo.path != nil {
+      let model = CustomModel(name: modelInfo.name, size: modelInfo.size!, path: modelInfo.path!, hash: modelInfo.hash!)
+      return model
+    }
+    return nil
+  }
 }
 
+/// Extension to handle reading and writing model info to user defaults.
 extension ModelInfoRetriever {
 
   var userDefaultsKeyPrefix : String {
@@ -122,20 +142,5 @@ extension ModelInfoRetriever {
     defaults.setValue(modelInfo.size, forKey: userDefaultsKeyPrefix + ModelInfoRetriever.userDefaultsModelSizeName)
     defaults.setValue(modelInfo.status, forKey: userDefaultsKeyPrefix + ModelInfoRetriever.userDefaultsModelDownloadStatusName)
     defaults.setValue(modelInfo.path, forKey: userDefaultsKeyPrefix + ModelInfoRetriever.userDefaultsModelPathName)
-  }
-
-  /// Build custom model object from model info.
-  func buildModel() -> CustomModel? {
-    if modelInfo.status == .downloaded {
-      retrieveModelInfo()
-    } else {
-      retrieveModelInfo(request: modelInfoFetchURLRequest)
-    }
-
-    if modelInfo.status == .downloaded {
-      let model = CustomModel(name: modelInfo.name, size: modelInfo.size!, path: modelInfo.path!, hash: modelInfo.hash!)
-      return model
-    }
-    return nil
   }
 }
