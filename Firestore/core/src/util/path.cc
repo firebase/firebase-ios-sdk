@@ -26,9 +26,6 @@
 namespace firebase {
 namespace firestore {
 namespace util {
-
-constexpr size_t Path::npos;
-
 namespace {
 
 #if defined(_WIN32)
@@ -141,6 +138,8 @@ absl::string_view CanonicalPath(const Path::string_type& path) {
 #endif  // defined(_WIN32)
 
 }  // namespace
+
+constexpr size_t Path::npos;
 
 Path Path::FromUtf8(absl::string_view utf8_pathname) {
 #if defined(_WIN32)

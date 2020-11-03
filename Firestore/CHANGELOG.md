@@ -1,4 +1,10 @@
 # Unreleased
+- [fixed] Remove explicit MobileCoreServices library linkage from podspec
+  (#6850).
+- [fixed] Removed excess validation of null and NaN values in query filters.
+  This more closely aligns the SDK with the Firestore backend, which has always
+  accepted null and NaN for all operators, even though this isn't necessarily
+  useful.
 
 # v7.0.0
 - [changed] **Breaking change:** Removed the `areTimestampsInSnapshotsEnabled`

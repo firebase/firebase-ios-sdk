@@ -100,19 +100,17 @@ let package = Package(
     ),
     .package(
       name: "nanopb",
-      url: "https://github.com/nanopb/nanopb.git",
+      url: "https://github.com/firebase/nanopb.git",
       // This revision adds SPM enablement to the 0.3.9.6 release tag.
-      .revision("8119dfe5631f2616d11e50ead95448d12e816062")
+      "2.30906.0" ..< "2.30907.0"
     ),
-    .package(
-      name: "abseil",
-      url: "https://github.com/firebase/abseil-cpp-SwiftPM.git",
-      .revision("05d8107f2971a37e6c77245b7c4c6b0a7e97bc99")
-    ),
+    .package(name: "abseil",
+             url: "https://github.com/firebase/abseil-cpp-SwiftPM.git",
+             from: "0.20200225.0"),
     .package(
       name: "gRPC",
       url: "https://github.com/firebase/grpc-SwiftPM.git",
-      .revision("5bb2669317ae2183f4cb00c675423af1924f0b46")
+      "1.28.2" ..< "1.29.0"
     ),
     .package(
       name: "OCMock",
@@ -122,7 +120,7 @@ let package = Package(
     .package(
       name: "leveldb",
       url: "https://github.com/firebase/leveldb.git",
-      .revision("fa1f25f296a766e5a789c4dacd4798dea798b2c2")
+      "1.22.1" ..< "1.23.0"
     ),
     // Branches need a force update with a run with the revision set like below.
     //   .package(url: "https://github.com/paulb777/nanopb.git", .revision("564392bd87bd093c308a3aaed3997466efb95f74"))
@@ -445,7 +443,6 @@ let package = Package(
       ],
       linkerSettings: [
         .linkedFramework("SystemConfiguration", .when(platforms: .some([.iOS, .macOS, .tvOS]))),
-        .linkedFramework("MobileCoreServices", .when(platforms: .some([.iOS]))),
         .linkedFramework("UIKit", .when(platforms: .some([.iOS, .tvOS]))),
         .linkedLibrary("c++"),
       ]
