@@ -179,8 +179,7 @@ absl::optional<TargetData> LevelDbTargetCache::GetTarget(const Target& target) {
 
     // Finally after finding a potential match, check that the target is
     // actually equal to the requested target.
-    TargetData target_data =
-        DecodeTarget(row_key.canonical_id(), target_iterator->value());
+    TargetData target_data = DecodeTarget(target_iterator->value());
     if (target_data.target() == target) {
       return target_data;
     }
@@ -194,11 +193,9 @@ void LevelDbTargetCache::EnumerateTargets(const TargetCallback& callback) {
   std::string target_prefix = LevelDbTargetKey::KeyPrefix();
   auto it = db_->current_transaction()->NewIterator();
   it->Seek(target_prefix);
-  LevelDbQueryTargetKey target_key;
-  for (; it->Valid() && absl::StartsWith(it->key(), target_prefix) &&
-         target_key.Decode(it->key());
+  for (; it->Valid() && absl::StartsWith(it->key(), target_prefix);
        it->Next()) {
-    TargetData target = DecodeTarget(target_key.canonical_id(), it->value());
+    TargetData target = DecodeTarget(it->value());
     callback(target);
   }
 }
@@ -210,13 +207,9 @@ int LevelDbTargetCache::RemoveTargets(
   std::string target_prefix = LevelDbTargetKey::KeyPrefix();
   auto it = db_->current_transaction()->NewIterator();
   it->Seek(target_prefix);
-
-  LevelDbQueryTargetKey target_key;
-  for (; it->Valid() && absl::StartsWith(it->key(), target_prefix) &&
-         target_key.Decode(it->key());
+  for (; it->Valid() && absl::StartsWith(it->key(), target_prefix);
        it->Next()) {
-    TargetData target_data =
-        DecodeTarget(target_key.canonical_id(), it->value());
+    TargetData target_data = DecodeTarget(it->value());
     if (target_data.sequence_number() <= upper_bound &&
         live_targets.find(target_data.target_id()) == live_targets.end()) {
       RemoveTarget(target_data);
@@ -393,14 +386,13 @@ void LevelDbTargetCache::SaveMetadata() {
   db_->current_transaction()->Put(LevelDbTargetGlobalKey::Key(), metadata_);
 }
 
-TargetData LevelDbTargetCache::DecodeTarget(absl::string_view canonical_id,
-                                            absl::string_view encoded) {
+TargetData LevelDbTargetCache::DecodeTarget(absl::string_view encoded) {
   StringReader reader{encoded};
   auto message = Message<firestore_client_Target>::TryParse(&reader);
   auto result = serializer_->DecodeTargetData(&reader, *message);
   if (!reader.ok()) {
-    HARD_FAIL("Target proto failed to parse: %s, query: %s, message: %s",
-              reader.status().ToString(), canonical_id, message.ToString());
+    HARD_FAIL("Target proto failed to parse: %s, message: %s",
+              reader.status().ToString(), message.ToString());
   }
 
   return result;

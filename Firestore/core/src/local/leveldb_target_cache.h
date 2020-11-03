@@ -132,8 +132,7 @@ class LevelDbTargetCache : public TargetCache {
    * Parses the given bytes as a `firestore_client_Target` protocol buffer and
    * then converts to the equivalent target data.
    */
-  TargetData DecodeTarget(absl::string_view canonical_id,
-                          absl::string_view encoded);
+  TargetData DecodeTarget(absl::string_view encoded);
 
   // The LevelDbTargetCache is owned by LevelDbPersistence.
   LevelDbPersistence* db_;
