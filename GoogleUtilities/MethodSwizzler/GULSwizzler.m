@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "GoogleUtilities/MethodSwizzler/Private/GULSwizzler.h"
+#import "GoogleUtilities/MethodSwizzler/Public/GoogleUtilities/GULSwizzler.h"
 
 #import <objc/runtime.h>
 
 #ifdef DEBUG
 #import "GoogleUtilities/Common/GULLoggerCodes.h"
-#import "GoogleUtilities/Logger/Private/GULLogger.h"
+#import "GoogleUtilities/Logger/Public/GoogleUtilities/GULLogger.h"
 
 static GULLoggerService kGULLoggerSwizzler = @"[GoogleUtilities/MethodSwizzler]";
 #endif

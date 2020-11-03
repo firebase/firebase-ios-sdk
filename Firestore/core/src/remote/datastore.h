@@ -43,6 +43,7 @@ namespace firestore {
 namespace remote {
 
 class ConnectivityMonitor;
+class FirebaseMetadataProvider;
 
 /**
  * `Datastore` represents a proxy for the remote server, hiding details of the
@@ -68,7 +69,8 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
   Datastore(const core::DatabaseInfo& database_info,
             const std::shared_ptr<util::AsyncQueue>& worker_queue,
             std::shared_ptr<auth::CredentialsProvider> credentials,
-            ConnectivityMonitor* connectivity_monitor);
+            ConnectivityMonitor* connectivity_monitor,
+            FirebaseMetadataProvider* firebase_metadata_provider);
 
   virtual ~Datastore() = default;
 
@@ -121,7 +123,7 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
    */
   static bool IsPermanentWriteError(const util::Status& status);
 
-  static std::string GetWhitelistedHeadersAsString(
+  static std::string GetAllowlistedHeadersAsString(
       const GrpcCall::Metadata& headers);
 
   Datastore(const Datastore& other) = delete;
@@ -167,7 +169,7 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
 
   void RemoveGrpcCall(GrpcCall* to_remove);
 
-  static GrpcCall::Metadata ExtractWhitelistedHeaders(
+  static GrpcCall::Metadata ExtractAllowlistedHeaders(
       const GrpcCall::Metadata& headers);
 
   // In case Auth tries to invoke a callback after `Datastore` has been shut

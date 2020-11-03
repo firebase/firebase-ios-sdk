@@ -62,12 +62,6 @@
   __weak id<FIRInAppMessagingDisplayDelegate> appSideDelegate = self.inAppMessaging.delegate;
   if ([appSideDelegate respondsToSelector:@selector(messageClicked:withAction:)]) {
     [appSideDelegate messageClicked:inAppMessage withAction:action];
-  } else if ([appSideDelegate respondsToSelector:@selector(messageClicked:)]) {
-    // Deprecated method is called only as a fall-back.
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    [appSideDelegate messageClicked:inAppMessage];
-#pragma clang diagnostic pop
   }
 
   self.isMsgBeingDisplayed = NO;

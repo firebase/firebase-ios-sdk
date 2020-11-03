@@ -29,6 +29,7 @@
 #include "Firestore/core/src/model/document_key_set.h"
 #include "Firestore/core/src/nanopb/byte_string.h"
 #include "Firestore/core/src/nanopb/reader.h"
+#include "Firestore/core/src/util/log.h"
 #include "Firestore/core/src/util/string_apple.h"
 #include "absl/strings/match.h"
 
@@ -168,11 +169,12 @@ absl::optional<TargetData> LevelDbTargetCache::GetTarget(const Target& target) {
     std::string target_key = LevelDbTargetKey::Key(row_key.target_id());
     target_iterator->Seek(target_key);
     if (!target_iterator->Valid() || target_iterator->key() != target_key) {
-      HARD_FAIL(
+      LOG_WARN(
           "Dangling query-target reference found: "
           "%s points to %s; seeking there found %s",
           DescribeKey(index_iterator), DescribeKey(target_key),
           DescribeKey(target_iterator));
+      continue;
     }
 
     // Finally after finding a potential match, check that the target is

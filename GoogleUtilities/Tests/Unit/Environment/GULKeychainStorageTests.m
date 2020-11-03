@@ -20,7 +20,7 @@
 #import "GoogleUtilities/Tests/Unit/Utils/GULTestKeychain.h"
 #import "OCMock.h"
 
-#import "GoogleUtilities/Environment/Private/GULKeychainStorage.h"
+#import "GoogleUtilities/Environment/Public/GoogleUtilities/GULKeychainStorage.h"
 
 @interface GULKeychainStorage (Tests)
 - (instancetype)initWithService:(NSString *)service cache:(NSCache *)cache;

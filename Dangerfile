@@ -49,10 +49,11 @@ def labelsForModifiedFiles()
   labels.push("api: instanceid") if @has_instanceid_changes
   labels.push("api: messaging") if @has_messaging_changes
   labels.push("api: remoteconfig") if @has_remoteconfig_changes
+  labels.push("api: segmentation") if @has_segmentation_changes
   labels.push("api: storage") if @has_storage_changes
   labels.push("GoogleDataTransport") if @has_gdt_changes
   labels.push("GoogleUtilities") if @has_googleutilities_changes
-  labels.push("zip-builder") if @has_zipbuilder_changes
+  labels.push("release-tooling") if @has_releasetooling_changes
   labels.push("public-api-change") if @has_api_changes
   return labels
 end
@@ -102,13 +103,15 @@ has_license_changes = didModify(["LICENSE"])
 @has_messaging_api_changes = hasChangesIn("FirebaseMessaging/Sources/Public/")
 @has_remoteconfig_changes = hasChangesIn("FirebaseRemoteConfig/")
 @has_remoteconfig_api_changes = hasChangesIn("FirebaseRemoteConfig/Sources/Public/")
+@has_segmentation_changes = hasChangesIn("FirebaseSegmentation/")
+@has_segmentation_api_changes = hasChangesIn("FirebaseSegmentation/Source/Public/")
 @has_storage_changes = hasChangesIn("FirebaseStorage/")
 @has_storage_api_changes = hasChangesIn("FirebaseStorage/Sources/Public/")
 
 @has_gdt_changes = hasChangesIn(["GoogleDataTransport/"])
 @has_gdt_api_changes = hasChangesIn("GoogleDataTransport/GDTCORLibrary/Public")
 @has_googleutilities_changes = hasChangesIn("GoogleUtilities/")
-@has_zipbuilder_changes = hasChangesIn("ZipBuilder/")
+@has_releasetooling_changes = hasChangesIn("ReleaseTooling/")
 
 # Convenient flag for all API changes.
 @has_api_changes = @has_abtesting_api_changes ||
@@ -125,6 +128,7 @@ has_license_changes = didModify(["LICENSE"])
                      @has_instanceid_api_changes ||
                      @has_messaging_api_changes ||
                      @has_remoteconfig_api_changes ||
+                     @has_segmentation_api_changes ||
                      @has_storage_api_changes ||
                      @has_gdt_api_changes
 

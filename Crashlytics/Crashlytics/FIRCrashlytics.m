@@ -37,6 +37,7 @@
 
 #import "Crashlytics/Crashlytics/Helpers/FIRCLSLogger.h"
 #import "Crashlytics/Shared/FIRCLSByteUtility.h"
+#import "Crashlytics/Shared/FIRCLSConstants.h"
 #import "Crashlytics/Shared/FIRCLSFABHost.h"
 
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSReportManager.h"
@@ -94,7 +95,7 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
 
     FIRCLSProfileMark mark = FIRCLSProfilingStart();
 
-    NSLog(@"[Firebase/Crashlytics] Version %@", @CLS_SDK_DISPLAY_VERSION);
+    NSLog(@"[Firebase/Crashlytics] Version %@", FIRCLSSDKVersion());
 
     FIRCLSDeveloperLog("Crashlytics", @"Running on %@, %@ (%@)", FIRCLSHostModelInfo(),
                        FIRCLSHostOSDisplayVersion(), FIRCLSHostOSBuildVersion());
@@ -147,9 +148,7 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
 }
 
 + (void)load {
-  [FIRApp registerInternalLibrary:(Class<FIRLibrary>)self
-                         withName:@"firebase-crashlytics"
-                      withVersion:@CLS_SDK_DISPLAY_VERSION];
+  [FIRApp registerInternalLibrary:(Class<FIRLibrary>)self withName:@"firebase-crashlytics"];
 }
 
 + (NSArray<FIRComponent *> *)componentsToRegister {

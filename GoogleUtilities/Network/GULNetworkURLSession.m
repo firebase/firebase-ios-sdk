@@ -14,12 +14,13 @@
 
 #import <Foundation/Foundation.h>
 
-#import "GoogleUtilities/Network/Private/GULNetworkURLSession.h"
+#import "GoogleUtilities/Network/Public/GoogleUtilities/GULNetworkURLSession.h"
 
-#import "GoogleUtilities/Logger/Private/GULLogger.h"
-#import "GoogleUtilities/Network/Private/GULMutableDictionary.h"
-#import "GoogleUtilities/Network/Private/GULNetworkConstants.h"
-#import "GoogleUtilities/Network/Private/GULNetworkMessageCode.h"
+#import "GoogleUtilities/Logger/Public/GoogleUtilities/GULLogger.h"
+#import "GoogleUtilities/Network/GULNetworkInternal.h"
+#import "GoogleUtilities/Network/Public/GoogleUtilities/GULMutableDictionary.h"
+#import "GoogleUtilities/Network/Public/GoogleUtilities/GULNetworkConstants.h"
+#import "GoogleUtilities/Network/Public/GoogleUtilities/GULNetworkMessageCode.h"
 
 @interface GULNetworkURLSession () <NSURLSessionDelegate,
                                     NSURLSessionDataDelegate,
@@ -62,12 +63,15 @@
   self = [super init];
   if (self) {
     // Create URL to the directory where all temporary files to upload have to be stored.
+#if TARGET_OS_TV
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
+#else
     NSArray *paths =
         NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
-    NSString *applicationSupportDirectory = paths.firstObject;
+#endif
+    NSString *storageDirectory = paths.firstObject;
     NSArray *tempPathComponents = @[
-      applicationSupportDirectory, kGULNetworkApplicationSupportSubdirectory,
-      kGULNetworkTempDirectoryName
+      storageDirectory, kGULNetworkApplicationSupportSubdirectory, kGULNetworkTempDirectoryName
     ];
     _networkDirectoryURL = [NSURL fileURLWithPathComponents:tempPathComponents];
     _sessionID = [NSString stringWithFormat:@"%@-%@", kGULNetworkBackgroundSessionConfigIDPrefix,

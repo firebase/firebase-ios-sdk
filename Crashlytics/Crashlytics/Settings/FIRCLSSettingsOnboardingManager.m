@@ -84,7 +84,7 @@
   // backwards compatibility
   // TODO(b/141747635)
   self.kitVersionsByKitBundleIdentifier = @{
-    FIRCLSApplicationGetSDKBundleID() : @CLS_SDK_DISPLAY_VERSION,
+    FIRCLSApplicationGetSDKBundleID() : FIRCLSSDKVersion(),
   };
 
   [self beginSettingsDownload:token waitForCompletion:waitForCompletion];
@@ -181,7 +181,15 @@
 - (void)operation:(FIRCLSDownloadAndSaveSettingsOperation *)operation
     didDownloadAndSaveSettingsWithError:(nullable NSError *)error {
   if (error) {
-    FIRCLSErrorLog(@"Failed to download settings %@", error);
+    NSString *message = @"Failed to download settings.";
+    if (error.userInfo && [error.userInfo objectForKey:@"status_code"] &&
+        [[error.userInfo objectForKey:@"status_code"]
+            isEqualToNumber:[NSNumber numberWithInt:404]]) {
+      NSString *debugHint = @"If this is your first time launching the app, make sure you have "
+                            @"enabled Crashlytics in the Firebase Console.";
+      message = [NSString stringWithFormat:@"%@ %@", message, debugHint];
+    }
+    FIRCLSErrorLog(@"%@ %@", message, error);
     [self finishNetworkingSession];
     return;
   }

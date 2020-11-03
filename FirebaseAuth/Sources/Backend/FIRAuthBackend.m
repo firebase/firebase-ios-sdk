@@ -62,6 +62,7 @@
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPhoneNumberRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPhoneNumberResponse.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthErrorUtils.h"
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 #if TARGET_OS_IOS
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRPhoneAuthProvider.h"
@@ -595,7 +596,7 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
 }
 
 + (NSString *)authUserAgent {
-  return [NSString stringWithFormat:@"FirebaseAuth.iOS/%s %@", FirebaseAuthVersionStr,
+  return [NSString stringWithFormat:@"FirebaseAuth.iOS/%@ %@", FIRFirebaseVersion(),
                                     GTMFetcherStandardUserAgentString(nil)];
 }
 
@@ -635,7 +636,7 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
   NSString *additionalFrameworkMarker =
       requestConfiguration.additionalFrameworkMarker ?: kFirebaseAuthCoreFrameworkMarker;
   NSString *clientVersion = [NSString
-      stringWithFormat:@"iOS/FirebaseSDK/%s/%@", FirebaseAuthVersionStr, additionalFrameworkMarker];
+      stringWithFormat:@"iOS/FirebaseSDK/%@/%@", FIRFirebaseVersion(), additionalFrameworkMarker];
   [request setValue:clientVersion forHTTPHeaderField:kClientVersionHeader];
   NSString *bundleID = [[NSBundle mainBundle] bundleIdentifier];
   [request setValue:bundleID forHTTPHeaderField:kIosBundleIdentifierHeader];

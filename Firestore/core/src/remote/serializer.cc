@@ -1102,30 +1102,34 @@ google_firestore_v1_StructuredQuery_Filter Serializer::EncodeSingularFilter(
     const FieldFilter& filter) const {
   google_firestore_v1_StructuredQuery_Filter result{};
 
-  if (filter.op() == Filter::Operator::Equal ||
-      filter.op() == Filter::Operator::NotEqual) {
+  bool is_unary = (filter.op() == Filter::Operator::Equal ||
+                   filter.op() == Filter::Operator::NotEqual) &&
+                  (filter.value().is_nan() || filter.value().is_null());
+  if (is_unary) {
     result.which_filter_type =
         google_firestore_v1_StructuredQuery_Filter_unary_filter_tag;
     result.unary_filter.which_operand_type =
         google_firestore_v1_StructuredQuery_UnaryFilter_field_tag;
     result.unary_filter.field.field_path = EncodeFieldPath(filter.field());
 
+    bool is_equality = filter.op() == Filter::Operator::Equal;
     if (filter.value().is_nan()) {
-      auto op =
-          filter.op() == Filter::Operator::Equal
+      result.unary_filter.op =
+          is_equality
               ? google_firestore_v1_StructuredQuery_UnaryFilter_Operator_IS_NAN
               : google_firestore_v1_StructuredQuery_UnaryFilter_Operator_IS_NOT_NAN;  // NOLINT
-      result.unary_filter.op = op;
-      return result;
 
     } else if (filter.value().is_null()) {
-      auto op =
-          filter.op() == Filter::Operator::Equal
+      result.unary_filter.op =
+          is_equality
               ? google_firestore_v1_StructuredQuery_UnaryFilter_Operator_IS_NULL
               : google_firestore_v1_StructuredQuery_UnaryFilter_Operator_IS_NOT_NULL;  // NOLINT
-      result.unary_filter.op = op;
-      return result;
+
+    } else {
+      HARD_FAIL("Expected a unary filter");
     }
+
+    return result;
   }
 
   result.which_filter_type =
