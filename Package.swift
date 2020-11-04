@@ -147,8 +147,8 @@ let package = Package(
         // TODO: - Add support for cflags cSetting so that we can set the -fno-autolink option
       ],
       linkerSettings: [
-        .linkedFramework("UIKit", .when(platforms: .some([.iOS, .tvOS]))),
-        .linkedFramework("AppKit", .when(platforms: .some([.macOS]))),
+        .linkedFramework("UIKit", .when(platforms: [.iOS, .tvOS])),
+        .linkedFramework("AppKit", .when(platforms: [.macOS])),
       ]
     ),
     .testTarget(
@@ -206,9 +206,9 @@ let package = Package(
     .target(
       name: "FirebaseAnalyticsWrapper",
       dependencies: [
-        .target(name: "FirebaseAnalytics", condition: .when(platforms: .some([.iOS]))),
-        .target(name: "FIRAnalyticsConnector", condition: .when(platforms: .some([.iOS]))),
-        .target(name: "GoogleAppMeasurement", condition: .when(platforms: .some([.iOS]))),
+        .target(name: "FirebaseAnalytics", condition: .when(platforms: [.iOS])),
+        .target(name: "FIRAnalyticsConnector", condition: .when(platforms: [.iOS])),
+        .target(name: "GoogleAppMeasurement", condition: .when(platforms: [.iOS])),
         "FirebaseCore",
         "FirebaseInstallations",
         "GoogleUtilities_AppDelegateSwizzler",
@@ -254,7 +254,7 @@ let package = Package(
       ],
       linkerSettings: [
         .linkedFramework("Security"),
-        .linkedFramework("SafariServices", .when(platforms: .some([.iOS]))),
+        .linkedFramework("SafariServices", .when(platforms: [.iOS])),
       ]
     ),
     .testTarget(
@@ -299,17 +299,17 @@ let package = Package(
       cSettings: [
         .headerSearchPath(".."),
         .define("DISPLAY_VERSION", to: firebaseVersion),
-        .define("CLS_SDK_NAME", to: "Crashlytics iOS SDK", .when(platforms: .some([.iOS]))),
-        .define("CLS_SDK_NAME", to: "Crashlytics macOS SDK", .when(platforms: .some([.macOS]))),
-        .define("CLS_SDK_NAME", to: "Crashlytics tvOS SDK", .when(platforms: .some([.tvOS]))),
-        .define("CLS_SDK_NAME", to: "Crashlytics watchOS SDK", .when(platforms: .some([.watchOS]))),
+        .define("CLS_SDK_NAME", to: "Crashlytics iOS SDK", .when(platforms: [.iOS])),
+        .define("CLS_SDK_NAME", to: "Crashlytics macOS SDK", .when(platforms: [.macOS])),
+        .define("CLS_SDK_NAME", to: "Crashlytics tvOS SDK", .when(platforms: [.tvOS])),
+        .define("CLS_SDK_NAME", to: "Crashlytics watchOS SDK", .when(platforms: [.watchOS])),
         .define("PB_FIELD_32BIT", to: "1"),
         .define("PB_NO_PACKED_STRUCTS", to: "1"),
         .define("PB_ENABLE_MALLOC", to: "1"),
       ],
       linkerSettings: [
         .linkedFramework("Security"),
-        .linkedFramework("SystemConfiguration", .when(platforms: .some([.iOS, .macOS, .tvOS]))),
+        .linkedFramework("SystemConfiguration", .when(platforms: [.iOS, .macOS, .tvOS])),
       ]
     ),
 
@@ -340,7 +340,7 @@ let package = Package(
       linkerSettings: [
         .linkedFramework("CFNetwork"),
         .linkedFramework("Security"),
-        .linkedFramework("SystemConfiguration", .when(platforms: .some([.iOS, .macOS, .tvOS]))),
+        .linkedFramework("SystemConfiguration", .when(platforms: [.iOS, .macOS, .tvOS])),
       ]
     ),
     .testTarget(
@@ -442,8 +442,8 @@ let package = Package(
         .define("FIRFirestore_VERSION", to: firebaseVersion),
       ],
       linkerSettings: [
-        .linkedFramework("SystemConfiguration", .when(platforms: .some([.iOS, .macOS, .tvOS]))),
-        .linkedFramework("UIKit", .when(platforms: .some([.iOS, .tvOS]))),
+        .linkedFramework("SystemConfiguration", .when(platforms: [.iOS, .macOS, .tvOS])),
+        .linkedFramework("UIKit", .when(platforms: [.iOS, .tvOS])),
         .linkedLibrary("c++"),
       ]
     ),
@@ -576,7 +576,7 @@ let package = Package(
         .headerSearchPath("../../"),
       ],
       linkerSettings: [
-        .linkedFramework("SystemConfiguration", .when(platforms: .some([.iOS, .macOS, .tvOS]))),
+        .linkedFramework("SystemConfiguration", .when(platforms: [.iOS, .macOS, .tvOS])),
       ]
     ),
     .testTarget(
@@ -655,8 +655,8 @@ let package = Package(
         .headerSearchPath("../../"),
       ],
       linkerSettings: [
-        .linkedFramework("MobileCoreServices", .when(platforms: .some([.iOS]))),
-        .linkedFramework("CoreServices", .when(platforms: .some([.macOS]))),
+        .linkedFramework("MobileCoreServices", .when(platforms: [.iOS])),
+        .linkedFramework("CoreServices", .when(platforms: [.macOS])),
       ]
     ),
     .testTarget(
@@ -703,8 +703,8 @@ let package = Package(
         .define("PB_ENABLE_MALLOC", to: "1"),
       ],
       linkerSettings: [
-        .linkedFramework("SystemConfiguration", .when(platforms: .some([.iOS, .macOS, .tvOS]))),
-        .linkedFramework("CoreTelephony", .when(platforms: .some([.macOS, .iOS]))),
+        .linkedFramework("SystemConfiguration", .when(platforms: [.iOS, .macOS, .tvOS])),
+        .linkedFramework("CoreTelephony", .when(platforms: [.macOS, .iOS])),
       ]
     ),
     .testTarget(
