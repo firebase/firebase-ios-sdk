@@ -45,15 +45,28 @@ NS_SWIFT_NAME(Functions)
 + (instancetype)functionsForRegion:(NSString *)region NS_SWIFT_NAME(functions(region:));
 
 /**
+ * Creates a Cloud Functions client with the default app and given custom domain.
+ * @param customDomain A custom domain for the http trigger, such as "https://mydomain.com".
+ */
++ (instancetype)functionsForCustomDomain:(NSString *)customDomain
+    NS_SWIFT_NAME(functions(customDomain:));
+
+/**
  * Creates a Cloud Functions client with the given app and region.
  * @param app The app for the Firebase project.
  * @param region The region for the http trigger, such as "us-central1".
  */
-// clang-format off
-// because it incorrectly breaks this NS_SWIFT_NAME.
 + (instancetype)functionsForApp:(FIRApp *)app
                          region:(NSString *)region NS_SWIFT_NAME(functions(app:region:));
-// clang-format on
+
+/**
+ * Creates a Cloud Functions client with the given app and region.
+ * @param app The app for the Firebase project.
+ * @param customDomain A custom domain for the http trigger, such as "https://mydomain.com".
+ */
++ (instancetype)functionsForApp:(FIRApp *)app
+                   customDomain:(NSString *)customDomain
+    NS_SWIFT_NAME(functions(app:customDomain:));
 
 /**
  * Creates a reference to the Callable HTTPS trigger with the given name.

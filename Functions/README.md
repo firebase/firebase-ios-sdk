@@ -12,7 +12,7 @@ integration test FirebaseFunctions:
 
 ### To Develop
 
-- Run `pod gen FirebaseFunctions.podspec`
+- Run `pod gen FirebaseFunctions.podspec --local-sources=./`
 - `open gen/FirebaseFunctions/FirebaseFunctions.xcworkspace`
 
 OR these two commands can be combined with

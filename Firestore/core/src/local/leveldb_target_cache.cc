@@ -391,7 +391,8 @@ TargetData LevelDbTargetCache::DecodeTarget(absl::string_view encoded) {
   auto message = Message<firestore_client_Target>::TryParse(&reader);
   auto result = serializer_->DecodeTargetData(&reader, *message);
   if (!reader.ok()) {
-    HARD_FAIL("Target proto failed to parse: %s", reader.status().ToString());
+    HARD_FAIL("Target proto failed to parse: %s, message: %s",
+              reader.status().ToString(), message.ToString());
   }
 
   return result;

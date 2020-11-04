@@ -43,6 +43,7 @@
 #include "Firestore/core/src/model/verify_mutation.h"
 #include "Firestore/core/src/nanopb/byte_string.h"
 #include "Firestore/core/src/util/hard_assert.h"
+#include "Firestore/core/src/util/statusor.h"
 #include "absl/memory/memory.h"
 
 namespace firebase {
@@ -126,7 +127,8 @@ model::DocumentKey Key(absl::string_view path) {
 }
 
 model::FieldPath Field(absl::string_view field) {
-  return model::FieldPath::FromServerFormat(std::string(field));
+  auto path = model::FieldPath::FromServerFormat(std::string(field));
+  return path.ConsumeValueOrDie();
 }
 
 model::DatabaseId DbId(std::string project) {

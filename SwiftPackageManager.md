@@ -28,12 +28,13 @@ Select the Firebase GitHub repository - `https://github.com/firebase/firebase-io
 
 <img src="docs/resources/SPMChoose.png">
 
-Select the beta branch.
+Select the version.
 
-Note: Starting with the 6.31.0 release, the versions are specified
-in a format like 6.34-spm-beta. We won't support standard repository
-versioning until later in the beta or with general availability of the SPM
-distribution.
+Note: Prior to the 7.0.0 release, version selection is not available. Instead, the releases
+are available in branches with names like 6.34-spm-beta.
+
+Note: The Swift Package Manager distribution continues to be in beta even though it now
+supports standard Swift Package Manager versioning.
 
 <img src="docs/resources/SPMSelect.png">
 
