@@ -576,7 +576,7 @@ let package = Package(
       path: "FirebaseMLModelDownloader/Tests/Unit"
     ),
 
-  .target(
+    .target(
       name: "FirebaseMessaging",
       dependencies: [
         "FirebaseCore",
