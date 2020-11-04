@@ -711,7 +711,7 @@ class StorageIntegration: XCTestCase {
     let expectation = self.expectation(description: #function)
     let ref = storage.reference(withPath: "ios/public/list")
 
-    ref.list(withMaxResults: 2, completion: { listResult, error in
+    ref.list(maxResults: 2) { listResult, error in
       XCTAssertNotNil(listResult, "listResult should not be nil")
       XCTAssertNil(error, "Error should be nil")
 
@@ -721,7 +721,7 @@ class StorageIntegration: XCTestCase {
         XCTFail("pageToken should not be nil")
         return
       }
-      ref.list(withMaxResults: 2, pageToken: pageToken, completion: { listResult, error in
+      ref.list(maxResults: 2, pageToken: pageToken) { listResult, error in
         XCTAssertNotNil(listResult, "listResult should not be nil")
         XCTAssertNil(error, "Error should be nil")
 
@@ -729,8 +729,8 @@ class StorageIntegration: XCTestCase {
         XCTAssertEqual(listResult.prefixes, [ref.child("prefix")])
         XCTAssertNil(listResult.pageToken, "pageToken should be nil")
         expectation.fulfill()
-      })
-    })
+      }
+    }
     waitForExpectations()
   }
 
@@ -738,14 +738,14 @@ class StorageIntegration: XCTestCase {
     let expectation = self.expectation(description: #function)
     let ref = storage.reference(withPath: "ios/public/list")
 
-    ref.listAll(completion: { listResult, error in
+    ref.listAll { listResult, error in
       XCTAssertNotNil(listResult, "listResult should not be nil")
       XCTAssertNil(error, "Error should be nil")
       XCTAssertEqual(listResult.items, [ref.child("a"), ref.child("b")])
       XCTAssertEqual(listResult.prefixes, [ref.child("prefix")])
       XCTAssertNil(listResult.pageToken, "pageToken should be nil")
       expectation.fulfill()
-    })
+    }
     waitForExpectations()
   }
 

@@ -22,9 +22,11 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /** A notification with this name is sent each time an installation is created or deleted. */
-FOUNDATION_EXPORT const NSNotificationName FIRInstallationIDDidChangeNotification;
+FOUNDATION_EXPORT const NSNotificationName FIRInstallationIDDidChangeNotification
+    NS_SWIFT_NAME(InstallationIDDidChange);
 /** `userInfo` key for the `FirebaseApp.name` in `FIRInstallationIDDidChangeNotification`. */
-FOUNDATION_EXPORT NSString *const kFIRInstallationIDDidChangeNotificationAppNameKey;
+FOUNDATION_EXPORT NSString *const kFIRInstallationIDDidChangeNotificationAppNameKey
+    NS_SWIFT_NAME(InstallationIDDidChangeAppNameKey);
 
 /**
  * An installation ID handler block.
@@ -83,9 +85,9 @@ NS_SWIFT_NAME(Installations)
 - (void)installationIDWithCompletion:(FIRInstallationsIDHandler)completion;
 
 /**
- * Retrieves (locally if it exists or from the server) a valid authorization token. An existing
- * token may be invalidated or expired, so it is recommended to fetch the auth token before each
- * server request. The method does the same as `Installations.authTokenForcingRefresh(:,
+ * Retrieves (locally if it exists or from the server) a valid installation auth token. An existing
+ * token may be invalidated or expired, so it is recommended to fetch the installation auth token
+ * before each server request. The method does the same as `Installations.authTokenForcingRefresh(:,
  * completion:)` with forcing refresh `NO`.
  * @param completion A completion handler which is invoked when the operation completes. See
  * `InstallationsTokenHandler` for additional details.
@@ -93,13 +95,14 @@ NS_SWIFT_NAME(Installations)
 - (void)authTokenWithCompletion:(FIRInstallationsTokenHandler)completion;
 
 /**
- * Retrieves (locally or from the server depending on `forceRefresh` value) a valid authorization
- * token. An existing token may be invalidated or expire, so it is recommended to fetch the auth
- * token before each server request. This method should be used with `forceRefresh == YES` when e.g.
- * a request with the previously fetched auth token failed with "Not Authorized" error.
- * @param forceRefresh If `YES` then the locally cached auth token will be ignored and a new one
- * will be requested from the server. If `NO`, then the locally cached auth token will be returned
- * if exists and has not expired yet.
+ * Retrieves (locally or from the server depending on `forceRefresh` value) a valid installation
+ * auth token. An existing token may be invalidated or expire, so it is recommended to fetch the
+ * installation auth token before each server request. This method should be used with `forceRefresh
+ * == YES` when e.g. a request with the previously fetched installation auth token failed with "Not
+ * Authorized" error.
+ * @param forceRefresh If `YES` then the locally cached installation auth token will be ignored and
+ * a new one will be requested from the server. If `NO`, then the locally cached installation auth
+ * token will be returned if exists and has not expired yet.
  * @param completion  A completion handler which is invoked when the operation completes. See
  * `InstallationsTokenHandler` for additional details.
  */

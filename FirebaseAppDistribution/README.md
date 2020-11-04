@@ -1,5 +1,12 @@
 # Firebase App Distribution SDK
 
+The Firebase App Distribution SDK lets you display in-app alerts to your testers when new builds are
+available to install.
+
+Please visit [our developer site](https://firebase.google.com/docs/app-distribution/set-up-alerts) for
+integration instructions, documentation, support information, and terms of
+service.
+
 ## Development
 
 ### Prereqs

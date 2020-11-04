@@ -22,8 +22,8 @@
 #import "FBLPromises.h"
 #endif
 
+#import <GoogleUtilities/GULKeychainStorage.h>
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
-#import "GoogleUtilities/Environment/Private/GULKeychainStorage.h"
 
 #import "FirebaseInstallations/Source/Library/Errors/FIRInstallationsErrorUtil.h"
 #import "FirebaseInstallations/Source/Library/FIRInstallationsItem.h"
@@ -82,10 +82,8 @@ static NSString *const kKeychainService = @"com.firebase.FIRInstallations.instal
   FIRInstallationsStore *installationsStore =
       [[FIRInstallationsStore alloc] initWithSecureStorage:secureStorage accessGroup:accessGroup];
 
-  // Use `GCMSenderID` as project identifier when `projectID` is not available.
-  NSString *APIServiceProjectID = (projectID.length > 0) ? projectID : GCMSenderID;
   FIRInstallationsAPIService *apiService =
-      [[FIRInstallationsAPIService alloc] initWithAPIKey:APIKey projectID:APIServiceProjectID];
+      [[FIRInstallationsAPIService alloc] initWithAPIKey:APIKey projectID:projectID];
 
   FIRInstallationsIIDStore *IIDStore = [[FIRInstallationsIIDStore alloc] init];
   FIRInstallationsIIDTokenStore *IIDCheckingStore =
@@ -180,16 +178,13 @@ static NSString *const kKeychainService = @"com.firebase.FIRInstallations.instal
 - (FBLPromise<FIRInstallationsItem *> *)getStoredInstallation {
   return [self.installationsStore installationForAppID:self.appID appName:self.appName].validate(
       ^BOOL(FIRInstallationsItem *installation) {
-        BOOL isValid = NO;
-        switch (installation.registrationStatus) {
-          case FIRInstallationStatusUnregistered:
-          case FIRInstallationStatusRegistered:
-            isValid = YES;
-            break;
+        NSError *validationError;
+        BOOL isValid = [installation isValid:&validationError];
 
-          case FIRInstallationStatusUnknown:
-            isValid = NO;
-            break;
+        if (!isValid) {
+          FIRLogWarning(
+              kFIRLoggerInstallations, kFIRInstallationsMessageCodeCorruptedStoredInstallation,
+              @"Stored installation validation error: %@", validationError.localizedDescription);
         }
 
         return isValid;

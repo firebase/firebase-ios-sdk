@@ -127,13 +127,9 @@
   return [NSTimeZone localTimeZone].name;
 }
 
-// extract macro value into a C string
-#define STR_FROM_MACRO(x) #x
-#define STR(x) STR_FROM_MACRO(x)
-
 - (NSString *)getIAMSDKVersion {
   // FIRInAppMessaging_LIB_VERSION macro comes from pod definition
-  return [NSString stringWithUTF8String:STR(FIRInAppMessaging_LIB_VERSION)];
+  return FIRFirebaseVersion();
 }
 @end
 

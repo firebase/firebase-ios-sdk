@@ -94,6 +94,74 @@
       }
     ]
   },
+  "Client stays offline during credential change": {
+    "describeName": "Offline:",
+    "itName": "Client stays offline during credential change",
+    "tags": [
+    ],
+    "config": {
+      "numClients": 1,
+      "useGarbageCollection": true
+    },
+    "steps": [
+      {
+        "enableNetwork": false,
+        "expectedState": {
+          "activeLimboDocs": [
+          ],
+          "activeTargets": {
+          },
+          "enqueuedLimboDocs": [
+          ]
+        }
+      },
+      {
+        "changeUser": "user1"
+      },
+      {
+        "userListen": [
+          2,
+          {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          }
+        ],
+        "expectedSnapshotEvents": [
+          {
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ],
+        "expectedState": {
+          "activeTargets": {
+            "2": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection"
+                }
+              ],
+              "resumeToken": ""
+            }
+          }
+        }
+      }
+    ]
+  },
   "Empty queries are resolved if client goes offline": {
     "describeName": "Offline:",
     "itName": "Empty queries are resolved if client goes offline",

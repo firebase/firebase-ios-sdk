@@ -15,7 +15,7 @@
  */
 
 #import <XCTest/XCTest.h>
-#import "GoogleUtilities/Environment/Private/GULHeartbeatDateStorage.h"
+#import "GoogleUtilities/Environment/Public/GoogleUtilities/GULHeartbeatDateStorage.h"
 
 @interface GULHeartbeatDateStorageTest : XCTestCase
 @property(nonatomic) GULHeartbeatDateStorage *storage;
@@ -26,14 +26,19 @@ static NSString *const kTestFileName = @"GULStorageHeartbeatTest";
 @implementation GULHeartbeatDateStorageTest
 
 - (void)setUp {
-  NSString *documentsPath = [NSSearchPathForDirectoriesInDomains(
-      NSApplicationSupportDirectory, NSUserDomainMask, YES) firstObject];
-  XCTAssertNotNil(documentsPath);
-  NSURL *documentsURL = [NSURL fileURLWithPath:documentsPath];
+#if TARGET_OS_TV
+  NSArray *path = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
+#else
+  NSArray *path =
+      NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
+#endif
+  NSString *rootPath = [path firstObject];
+  XCTAssertNotNil(rootPath);
+  NSURL *rootURL = [NSURL fileURLWithPath:rootPath];
 
   NSError *error;
-  if (![documentsURL checkResourceIsReachableAndReturnError:&error]) {
-    XCTAssert([[NSFileManager defaultManager] createDirectoryAtURL:documentsURL
+  if (![rootURL checkResourceIsReachableAndReturnError:&error]) {
+    XCTAssert([[NSFileManager defaultManager] createDirectoryAtURL:rootURL
                                        withIntermediateDirectories:YES
                                                         attributes:nil
                                                              error:&error],
@@ -69,9 +74,14 @@ static NSString *const kTestFileName = @"GULStorageHeartbeatTest";
 }
 
 - (NSURL *)heartbeatFileURL {
-  NSString *documentsPath = [NSSearchPathForDirectoriesInDomains(
-      NSApplicationSupportDirectory, NSUserDomainMask, YES) firstObject];
-  NSArray<NSString *> *components = @[ documentsPath, @"Google/FIRApp", kTestFileName ];
+#if TARGET_OS_TV
+  NSArray *path = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
+#else
+  NSArray *path =
+      NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
+#endif
+  NSString *rootPath = [path firstObject];
+  NSArray<NSString *> *components = @[ rootPath, @"Google/FIRApp", kTestFileName ];
   NSString *fileString = [NSString pathWithComponents:components];
   NSURL *fileURL = [NSURL fileURLWithPath:fileString];
   return fileURL;

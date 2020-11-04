@@ -19,9 +19,9 @@
 #import "GoogleDataTransport/GDTCORLibrary/Private/GDTCORFlatFileStorage.h"
 #import "GoogleDataTransport/GDTCORLibrary/Private/GDTCORRegistrar_Private.h"
 
+#import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORPlatform.h"
+#import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORRegistrar.h"
 #import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCOREvent.h"
-#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORPlatform.h"
-#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORRegistrar.h"
 
 #import "GoogleDataTransport/GDTCORTests/Unit/Helpers/GDTCORAssertHelper.h"
 #import "GoogleDataTransport/GDTCORTests/Unit/Helpers/GDTCORDataObjectTesterClasses.h"
@@ -1170,7 +1170,7 @@
                   onComplete:^{
                     [removeBatchExpectation fulfill];
                   }];
-  [self waitForExpectations:@[ removeBatchExpectation ] timeout:5];
+  [self waitForExpectations:@[ removeBatchExpectation ] timeout:generatedEvents.count * 0.1];
 
   // 6. Try to add another event.
   XCTestExpectation *storeExpectation2 = [self expectationWithDescription:@"storeExpectation2"];

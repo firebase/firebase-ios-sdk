@@ -49,12 +49,15 @@
   [super tearDown];
 }
 
-// If you do nothing, it should be YES. We should not be turning Fabric
-// customers off by default
 - (void)testNothingSet {
   self.fakeApp.isDefaultCollectionEnabled = YES;
   FIRCLSDataCollectionArbiter *arbiter = [self arbiterWithDictionary:@{}];
+#ifdef CRASHLYTICS_1P
+  XCTAssertFalse([arbiter isCrashlyticsCollectionEnabled]);
+#else
+  // It should be YES by default for 3P users.
   XCTAssertTrue([arbiter isCrashlyticsCollectionEnabled]);
+#endif
 }
 
 - (void)testOnlyStickyOff {

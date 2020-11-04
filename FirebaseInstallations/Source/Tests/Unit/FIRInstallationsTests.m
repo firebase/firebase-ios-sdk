@@ -44,7 +44,7 @@
 
   self.appOptions = [[FIROptions alloc] initWithGoogleAppID:@"GoogleAppID"
                                                 GCMSenderID:@"GCMSenderID"];
-  self.appOptions.APIKey = @"APIKey";
+  self.appOptions.APIKey = @"AIzaSy-ApiKeyWithValidFormat_0123456789";
   self.appOptions.projectID = @"ProjectID";
 
   self.mockIDController = OCMClassMock([FIRInstallationsIDController class]);
@@ -238,13 +238,13 @@
 
 #pragma mark - Invalid Firebase configuration
 
-- (void)testInitWhenProjectIDMissingThenNoThrow {
+- (void)testInitWhenProjectIDMissingThenThrow {
   FIROptions *options = [self.appOptions copy];
   options.projectID = nil;
-  XCTAssertNoThrow([self createInstallationsWithAppOptions:options appName:@"missingProjectID"]);
+  XCTAssertThrows([self createInstallationsWithAppOptions:options appName:@"missingProjectID"]);
 
   options.projectID = @"";
-  XCTAssertNoThrow([self createInstallationsWithAppOptions:options appName:@"emptyProjectID"]);
+  XCTAssertThrows([self createInstallationsWithAppOptions:options appName:@"emptyProjectID"]);
 }
 
 - (void)testInitWhenAPIKeyMissingThenThrows {
@@ -268,17 +268,6 @@
   XCTAssertNoThrow([self createInstallationsWithAppOptions:options appName:@"emptyGCMSenderID"]);
 }
 
-- (void)testInitWhenProjectIDAndGCMSenderIDMissingThenNoThrow {
-  FIROptions *options = [self.appOptions copy];
-  options.GCMSenderID = @"";
-
-  options.projectID = nil;
-  XCTAssertThrows([self createInstallationsWithAppOptions:options appName:@"missingProjectID"]);
-
-  options.projectID = @"";
-  XCTAssertThrows([self createInstallationsWithAppOptions:options appName:@"emptyProjectID"]);
-}
-
 - (void)testInitWhenAppNameMissingThenThrows {
   FIROptions *options = [self.appOptions copy];
   XCTAssertThrows([self createInstallationsWithAppOptions:options appName:@""]);
@@ -287,6 +276,21 @@
 
 - (void)testInitWhenAppOptionsMissingThenThrows {
   XCTAssertThrows([self createInstallationsWithAppOptions:nil appName:@"missingOptions"]);
+}
+
+- (void)testInitWithAPIKeyIsNotMatchingExpectedFormat {
+  FIROptions *options = [self.appOptions copy];
+  options.APIKey = @"AIzaSy-ApiKeyTooShort_0123456789012345";
+  XCTAssertThrows([self createInstallationsWithAppOptions:options appName:@"shortAPIKey"]);
+
+  options.APIKey = @"AIzaSy-ApiKeyWithLengthTooLong_0123456789";
+  XCTAssertThrows([self createInstallationsWithAppOptions:options appName:@"longAPIKey"]);
+
+  options.APIKey = @"BBAIzaSy-ApiKeyInvalidFormat_0123456789";
+  XCTAssertThrows([self createInstallationsWithAppOptions:options appName:@"wrongFirstCharacter"]);
+
+  options.APIKey = @"AIzaSy-+-ApiKeyInvalidFormat_0123456789";
+  XCTAssertThrows([self createInstallationsWithAppOptions:options appName:@"invalidCharacters"]);
 }
 
 #pragma mark - Helpers

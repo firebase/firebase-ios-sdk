@@ -16,11 +16,11 @@
 
 #import "GoogleDataTransport/GDTCCTLibrary/Private/GDTCCTUploader.h"
 
+#import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORPlatform.h"
+#import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORRegistrar.h"
+#import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORStorageProtocol.h"
 #import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORConsoleLogger.h"
 #import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCOREvent.h"
-#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORPlatform.h"
-#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORRegistrar.h"
-#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORStorageProtocol.h"
 
 #import <nanopb/pb.h>
 #import <nanopb/pb_decode.h>
@@ -80,6 +80,8 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
 
 @implementation GDTCCTUploader
 
+@synthesize uploaderSession = _uploaderSession;
+
 + (void)load {
   GDTCCTUploader *uploader = [GDTCCTUploader sharedInstance];
   [[GDTCORRegistrar sharedInstance] registerUploader:uploader target:kGDTCORTargetCCT];
@@ -101,12 +103,18 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
   self = [super init];
   if (self) {
     _uploaderQueue = dispatch_queue_create("com.google.GDTCCTUploader", DISPATCH_QUEUE_SERIAL);
-    NSURLSessionConfiguration *config = [NSURLSessionConfiguration defaultSessionConfiguration];
+  }
+  return self;
+}
+
+- (NSURLSession *)uploaderSession {
+  if (_uploaderSession == nil) {
+    NSURLSessionConfiguration *config = [NSURLSessionConfiguration ephemeralSessionConfiguration];
     _uploaderSession = [NSURLSession sessionWithConfiguration:config
                                                      delegate:self
                                                 delegateQueue:nil];
   }
-  return self;
+  return _uploaderSession;
 }
 
 /**

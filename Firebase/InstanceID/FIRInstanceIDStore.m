@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-#import "FIRInstanceIDStore.h"
+#import "Firebase/InstanceID/FIRInstanceIDStore.h"
 
-#import "FIRInstanceIDCheckinPreferences.h"
-#import "FIRInstanceIDCheckinStore.h"
-#import "FIRInstanceIDConstants.h"
-#import "FIRInstanceIDLogger.h"
-#import "FIRInstanceIDTokenStore.h"
-#import "FIRInstanceIDVersionUtilities.h"
+#import "Firebase/InstanceID/FIRInstanceIDCheckinStore.h"
+#import "Firebase/InstanceID/FIRInstanceIDConstants.h"
+#import "Firebase/InstanceID/FIRInstanceIDLogger.h"
+#import "Firebase/InstanceID/FIRInstanceIDTokenStore.h"
+#import "Firebase/InstanceID/Private/FIRInstanceIDCheckinPreferences.h"
 
 // NOTE: These values should be in sync with what InstanceID saves in as.
 static NSString *const kCheckinFileName = @"g-checkin";

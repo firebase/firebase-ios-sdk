@@ -17,6 +17,30 @@
 import Foundation
 
 class CommonMessageTestVC: UIViewController, InAppMessagingDisplayDelegate {
+  class TestableCampaignInfo: InAppMessagingCampaignInfo {
+    var writableMessageID: String
+    var writableCampaignName: String
+    var writableIsTestMessage: Bool
+
+    override var messageID: String {
+      return writableMessageID
+    }
+
+    override var campaignName: String {
+      return writableCampaignName
+    }
+
+    override var renderAsTestMessage: Bool {
+      return writableIsTestMessage
+    }
+
+    init(messageID: String, campaignName: String, isTestMessage: Bool) {
+      writableMessageID = messageID
+      writableCampaignName = campaignName
+      writableIsTestMessage = isTestMessage
+    }
+  }
+
   var messageClosedWithClick = false
 
   var messageClosedDismiss = false
@@ -38,7 +62,7 @@ class CommonMessageTestVC: UIViewController, InAppMessagingDisplayDelegate {
 
   func messageDismissed(_ inAppMessage: InAppMessagingDisplayMessage,
                         dismissType: FIRInAppMessagingDismissType) {
-    print("message dimissed with type \(dismissType)")
+    print("message dismissed with type \(dismissType)")
     messageClosedDismiss = true
   }
 
