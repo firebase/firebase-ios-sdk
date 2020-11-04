@@ -1,4 +1,6 @@
-# Unreleased
+# Unreleased (v7.0.1)
+- [changed] Added the original query data to error messages for Queries that
+  cannot be deserizialized.
 - [fixed] Remove explicit MobileCoreServices library linkage from podspec
   (#6850).
 - [fixed] Removed excess validation of null and NaN values in query filters.
