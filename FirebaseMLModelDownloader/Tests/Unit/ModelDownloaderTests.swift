@@ -13,9 +13,29 @@
 // limitations under the License.
 
 import XCTest
+@testable import FirebaseCore
 @testable import FirebaseMLModelDownloader
 
 final class ModelDownloaderTests: XCTestCase {
+  /// Unit test for reading and writing to user defaults.
+  func testUserDefaults() {
+    FirebaseApp.configure()
+    let testApp = FirebaseApp.app()!
+    let testModelName = "user-defaults-test-model"
+    let modelInfoRetriever = ModelInfoRetriever(
+      app: testApp,
+      modelName: testModelName,
+      defaults: .getTestInstance()
+    )
+    modelInfoRetriever.modelInfo = ModelInfo(app: testApp, name: testModelName)
+    // XCTAssertEqual(modelInfoRetriever.modelInfo?.downloadURL, "")
+    modelInfoRetriever.modelInfo?.downloadURL = "testurl.com"
+    XCTAssertEqual(modelInfoRetriever.modelInfo?.downloadURL, "testurl.com")
+    XCTAssertEqual(modelInfoRetriever.modelInfo?.hash, "")
+    XCTAssertEqual(modelInfoRetriever.modelInfo?.size, 0)
+    XCTAssertEqual(modelInfoRetriever.modelInfo?.path, nil)
+  }
+
   func testExample() {
     // This is an example of a functional test case.
     // Use XCTAssert and related functions to verify your tests produce the correct
