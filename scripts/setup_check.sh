@@ -33,8 +33,11 @@ if ! git rev-parse origin/master >& /dev/null; then
   git fetch origin
 fi
 
-# mint installs tools from Mintfile on demand.
+# install clang-format
 brew install clang-format
+brew outdated clang-format || brew upgrade clang-format
+
+# mint installs tools from Mintfile on demand.
 brew install mint
 
 # Explicitly mint bootstrap to show its version in the "Setup check" GHA phase
