@@ -1089,15 +1089,6 @@ static BOOL gRespondsToHandleBackgroundSession;
   XCTAssertEqual(testAppDelegate.remoteNotification, notification);
 }
 
-- (void)extracted:(UIApplication *)application
-         completion:(void (^)(UIBackgroundFetchResult))completion
-       notification:(NSDictionary *)notification
-    testAppDelegate:(GULTestAppDelegate *)testAppDelegate {
-  [testAppDelegate application:application
-      didReceiveRemoteNotification:notification
-            fetchCompletionHandler:completion];
-}
-
 - (void)testApplicationDidReceiveRemoteNotificationWithCompletionCompletionIsCalledOnce {
   NSDictionary *notification = @{};
   GULApplication *application = [GULApplication sharedApplication];
@@ -1136,10 +1127,9 @@ static BOOL gRespondsToHandleBackgroundSession;
   [GULAppDelegateSwizzler registerAppDelegateInterceptor:interceptor];
   [GULAppDelegateSwizzler registerAppDelegateInterceptor:interceptor2];
 
-  [self extracted:application
-           completion:completion
-         notification:notification
-      testAppDelegate:testAppDelegate];
+  [testAppDelegate application:application
+      didReceiveRemoteNotification:notification
+            fetchCompletionHandler:completion];
   testAppDelegate.remoteNotificationCompletionHandler(UIBackgroundFetchResultNoData);
   OCMVerifyAll(interceptor);
   OCMVerifyAll(interceptor2);
@@ -1179,10 +1169,9 @@ static BOOL gRespondsToHandleBackgroundSession;
 
   [GULAppDelegateSwizzler registerAppDelegateInterceptor:interceptor];
 
-  [self extracted:application
-           completion:completion
-         notification:notification
-      testAppDelegate:testAppDelegate];
+  [testAppDelegate application:application
+      didReceiveRemoteNotification:notification
+            fetchCompletionHandler:completion];
   testAppDelegate.remoteNotificationCompletionHandler(UIBackgroundFetchResultFailed);
   OCMVerifyAll(interceptor);
   [self waitForExpectations:@[ completionExpectation ] timeout:0.1];
@@ -1221,10 +1210,9 @@ static BOOL gRespondsToHandleBackgroundSession;
 
   [GULAppDelegateSwizzler registerAppDelegateInterceptor:interceptor];
 
-  [self extracted:application
-           completion:completion
-         notification:notification
-      testAppDelegate:testAppDelegate];
+  [testAppDelegate application:application
+      didReceiveRemoteNotification:notification
+            fetchCompletionHandler:completion];
   testAppDelegate.remoteNotificationCompletionHandler(UIBackgroundFetchResultNewData);
   OCMVerifyAll(interceptor);
   [self waitForExpectations:@[ completionExpectation ] timeout:0.1];
