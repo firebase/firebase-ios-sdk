@@ -1,0 +1,34 @@
+/*
+ * Copyright 2020 Google
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+ 
+ extension Firestore {
+    
+  func runTransaction<T>(_ updateBlock: (Transaction) -> Result<T, Error>, completion: (Result<T, Error>) -> Void) {
+    runTransaction { transaction, _ in updateBlock(transaction) } completion: { value, error in
+      if let result = value as? Result<T, Error> {
+        completion(result)
+      } else if let error = error {
+        completion(.failure(error))
+      } else {
+        completion(.failure(NSError(domain: "FirebaseFirestoreSwift",
+                                    code: -1,
+                                    userInfo: [NSLocalizedDescriptionKey:
+                                                "InternalError - Return type and Error code both nil in or updateBlock return type doesn't match completion argument type"
+                                    ])))
+      }
+    }
+  }
+}
