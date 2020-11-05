@@ -49,7 +49,7 @@
    * @param completion The block to call with the result or error of the transaction. This
    *     block will run even if the client is offline, unless the process is killed.
    */
-  func runTransaction<T>(_ updateBlock: (Transaction) -> Result<T, Error>, completion: (Result<T, Error>) -> Void) {
+  func runTransaction<T>(_ updateBlock: @escaping (Transaction) -> Result<T, Error>, completion: @escaping (Result<T, Error>) -> Void) {
     runTransaction { transaction, _ in updateBlock(transaction) } completion: { value, error in
       if let result = value as? Result<T, Error> {
         completion(result)
