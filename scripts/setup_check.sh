@@ -34,8 +34,7 @@ if ! git rev-parse origin/master >& /dev/null; then
 fi
 
 # install clang-format
-brew install clang-format
-brew outdated clang-format || brew upgrade clang-format
+brew install clang-format@11
 
 # mint installs tools from Mintfile on demand.
 brew install mint
