@@ -25,6 +25,8 @@
 
 @implementation FRepoInfo
 
+@synthesize internalHost;
+
 - (instancetype)init {
     [NSException
          raise:@"FIRDatabaseInvalidInitializer"
@@ -53,9 +55,9 @@
         NSString *cachedInternalHost = [[NSUserDefaults standardUserDefaults]
             stringForKey:internalHostKey];
         if (cachedInternalHost != nil) {
-            _internalHost = cachedInternalHost;
+            internalHost = cachedInternalHost;
         } else {
-            _internalHost = [_host copy];
+            internalHost = [_host copy];
         }
     }
     return self;
@@ -73,14 +75,14 @@
 }
 
 - (void)setInternalHost:(NSString *)newHost {
-    if (![self.internalHost isEqualToString:newHost]) {
-        self.internalHost = [newHost copy];
+    if (![internalHost isEqualToString:newHost]) {
+        internalHost = newHost;
 
         // Cache the internal host so we don't need to redirect later on
         NSString *internalHostKey =
             [NSString stringWithFormat:@"firebase:host:%@", self.host];
         NSUserDefaults *cache = [NSUserDefaults standardUserDefaults];
-        [cache setObject:_internalHost forKey:internalHostKey];
+        [cache setObject:internalHost forKey:internalHostKey];
         [cache synchronize];
     }
 }
