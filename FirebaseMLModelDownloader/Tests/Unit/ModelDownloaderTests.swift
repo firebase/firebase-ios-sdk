@@ -36,6 +36,18 @@ final class ModelDownloaderTests: XCTestCase {
     XCTAssertEqual(modelInfoRetriever.modelInfo?.path, nil)
   }
 
+  func testAuthToken() {
+    FirebaseApp.configure()
+    let testApp = FirebaseApp.app()!
+    let testModelName = "user-defaults-test-model"
+    let modelInfoRetriever = ModelInfoRetriever(
+      app: testApp,
+      modelName: testModelName,
+      defaults: .getTestInstance()
+    )
+    // TODO: test auth token
+  }
+
   func testExample() {
     // This is an example of a functional test case.
     // Use XCTAssert and related functions to verify your tests produce the correct

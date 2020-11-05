@@ -101,8 +101,16 @@ extension ModelInfoRetriever {
   }
 
   /// FIS token for Firebase app.
-  func authTokenForApp(app: FirebaseApp) {
-    // TODO: Get FIS auth token
+  func getAuthTokenForApp(app: FirebaseApp) -> String? {
+    var token: String?
+    installations.authToken { tokenResult, error in
+      guard let result = tokenResult else {
+        token = nil
+        return
+      }
+      token = result.authToken
+    }
+    return token
   }
 }
 
