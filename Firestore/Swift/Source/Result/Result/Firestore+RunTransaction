@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
- import FirebaseFirestore
- 
- extension Firestore {
+
+#if swift(>=5.0)
+
+extension Firestore {
   /**
    * Executes the given updateBlock and then attempts to commit the changes applied within an atomic
    * transaction.
@@ -49,19 +49,36 @@
    * @param completion The block to call with the result or error of the transaction. This
    *     block will run even if the client is offline, unless the process is killed.
    */
-  func runTransaction<T>(_ updateBlock: @escaping (Transaction) -> Result<T, Error>, completion: @escaping (Result<T, Error>) -> Void) {
-    runTransaction { transaction, _ in updateBlock(transaction) } completion: { value, error in
-      if let result = value as? Result<T, Error> {
-        completion(result)
+  func runTransaction<T>(_ updateBlock: @escaping (Transaction) throws -> T, completion: @escaping (Result<T, Error>) -> Void) {
+    runTransaction { transaction, errorPointer in
+      do {
+        return try updateBlock(transaction)
+      } catch {
+        errorPointer?.pointee = error as NSError
+        return nil
+      }
+    } completion: { value, error in
+      if let value = value {
+        if let value = value as? T {
+          completion(.success(value))
+        } else {
+          completion(.failure(NSError(domain: "FirebaseFirestoreSwift",
+                                      code: -1,
+                                      userInfo: [NSLocalizedDescriptionKey:
+                                                    "InternalError - UpdateBlock return type doesn't match completion argument type"
+                                      ])))
+        }
       } else if let error = error {
         completion(.failure(error))
       } else {
         completion(.failure(NSError(domain: "FirebaseFirestoreSwift",
                                     code: -1,
                                     userInfo: [NSLocalizedDescriptionKey:
-                                                "InternalError - Return type and Error code both nil in or updateBlock return type doesn't match completion argument type"
+                                                "InternalError - Return type and Error code are both nil"
                                     ])))
       }
     }
   }
 }
+
+#endif
