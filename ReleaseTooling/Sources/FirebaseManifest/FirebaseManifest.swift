@@ -24,7 +24,7 @@ public let shared = Manifest(
   version: "7.1.0",
   pods: [
     Pod("GoogleUtilities", isFirebase: false, podVersion: "7.1.0", releasing: true),
-    Pod("GoogleDataTransport", isFirebase: false, podVersion: "8.0.0", releasing: false),
+    Pod("GoogleDataTransport", isFirebase: false, podVersion: "8.0.1", releasing: true),
 
     Pod("FirebaseCoreDiagnostics"),
     Pod("FirebaseCore"),
