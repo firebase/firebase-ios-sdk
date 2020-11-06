@@ -1,4 +1,4 @@
-# Firebase 7.1.0
+# Firebase 7.2.0
 - [fixed] Reduced `FirebaseApp.configure()` and `+[FIRApp registerInternalLibrary:withName:]` impact on app launch time. (#6902)
 
 # Firebase 7.0.0
