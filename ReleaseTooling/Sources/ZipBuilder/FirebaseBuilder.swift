@@ -29,11 +29,10 @@ struct FirebaseBuilder {
   }
 
   /// Wrapper around a generic zip builder that adds in Firebase specific steps including a
-  /// multi-level zip file, a README, and optionally Carhthage artifacts.
+  /// multi-level zip file, a README, and optionally Carthage artifacts.
   func build(in projectDir: URL,
              minimumIOSVersion: String,
-             carthageBuildOptions: CarthageBuildOptions?,
-             rcNumber: Int?) {
+             carthageBuildOptions: CarthageBuildOptions?) {
     // Build the zip file and get the path.
     do {
       let artifacts = try zipBuilder.buildAndAssembleFirebaseRelease(inProjectDir: projectDir,
@@ -73,13 +72,7 @@ struct FirebaseBuilder {
       }
 
       print("Attempting to Zip the directory...")
-      var candidateName = "Firebase-\(firebaseVersion)"
-      if let rcNumber = rcNumber {
-        candidateName += "-rc\(rcNumber)"
-      } else {
-        candidateName += "-latest-manual"
-      }
-      candidateName += ".zip"
+      let candidateName = "Firebase-\(firebaseVersion)-latest.zip"
       let zipped = Zip.zipContents(ofDir: location, name: candidateName)
 
       // If an output directory was specified, copy the Zip file to that directory. Otherwise just print

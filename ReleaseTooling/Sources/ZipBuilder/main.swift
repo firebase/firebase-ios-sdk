@@ -148,13 +148,6 @@ struct ZipBuilderTool: ParsableCommand {
   transform: URL.init(fileURLWithPath:))
   var outputDir: URL?
 
-  // MARK: - Other Arguments
-
-  /// The release candidate number, zero indexed.
-  @Option(name: .customLong("rc"),
-          help: ArgumentHelp("The release candidate number, zero indexed."))
-  var rcNumber: Int?
-
   // MARK: - Validation
 
   mutating func validate() throws {
@@ -162,7 +155,7 @@ struct ZipBuilderTool: ParsableCommand {
     if let repoDir = repoDir {
       // Validate the file exists, as well as the templateDir.
       guard FileManager.default.directoryExists(at: repoDir) else {
-        throw ValidationError("Included a repoDir that doesn't exist.")
+        throw ValidationError("Included a repo-dir that doesn't exist.")
       }
 
       // Validate the templateDir exists.
@@ -170,31 +163,35 @@ struct ZipBuilderTool: ParsableCommand {
       guard FileManager.default.directoryExists(at: templateDir) else {
         throw ValidationError("Missing template inside of the repo. \(templateDir) does not exist.")
       }
-    } else {
-      // No repoDir provided, check if it's a zip build.
-      throw ValidationError("IMPLEMENT ME - check for zipPods")
+    } else if zipPods?.isEmpty ?? true { // Resolve to `true` if `zipPods` is `nil`.
+      // No repoDir provided, and no zip pods provided.
+      throw ValidationError("No `repo-dir` (for Firebase build) or `zip-pods` passed in.")
     }
 
     // Validate the output directory if provided.
     if let outputDir = outputDir, !FileManager.default.directoryExists(at: outputDir) {
-      throw ValidationError("outputDir passed in does not exist. Value: \(outputDir)")
+      throw ValidationError("`output-dir` passed in does not exist. Value: \(outputDir)")
     }
 
     // Validate the buildRoot directory if provided.
     if let buildRoot = buildRoot, !FileManager.default.directoryExists(at: buildRoot) {
-      throw ValidationError("buildRoot passed in does not exist. Value: \(buildRoot)")
+      throw ValidationError("`build-root` passed in does not exist. Value: \(buildRoot)")
     }
 
     if let localPodspecPath = localPodspecPath,
       !FileManager.default.directoryExists(at: localPodspecPath) {
-      throw ValidationError("localPodspecPath pass in does not exist. Value: \(localPodspecPath)")
+      throw ValidationError("""
+        `local-podspec-path` pass in does not exist. Value: \(localPodspecPath)
+        """)
     }
 
-    // TODO(args): Validate that buildDependencies & zipPods like the previous logic:
-//    if !buildDependencies && zipPods == nil {
-//      LaunchArgs.exitWithUsageAndLog("The -buildDependencies option cannot be false unless a " +
-//        "list of pods is specified with the -zipPods option.")
-//    }
+    // Validate that Firebase builds are including dependencies.
+    if !buildDependences && zipPods == nil {
+      throw ValidationError("""
+        The `enable-build-dependencies` option cannot be false unless a list of pods is \
+        specified with the `zip-pods` option.
+        """)
+    }
   }
 
   // MARK: - Running the tool
@@ -281,14 +278,12 @@ struct ZipBuilderTool: ParsableCommand {
       if carthageBuild {
         let jsonDir = paths.repoDir.appendingPathComponents(["ZipBuilder", "CarthageJSON"])
         carthageOptions = CarthageBuildOptions(jsonDir: jsonDir,
-                                               isVersionCheckEnabled: carthageVersionCheck,
-                                               rcNumber: rcNumber)
+                                               isVersionCheckEnabled: carthageVersionCheck)
       }
 
       FirebaseBuilder(zipBuilder: builder).build(in: projectDir,
                                                  minimumIOSVersion: minimumIOSVersion,
-                                                 carthageBuildOptions: carthageOptions,
-                                                 rcNumber: rcNumber)
+                                                 carthageBuildOptions: carthageOptions)
     }
 
     if !keepBuildArtifacts {

@@ -24,9 +24,6 @@ struct CarthageBuildOptions {
 
   /// Version checking flag.
   let isVersionCheckEnabled: Bool
-
-  /// An RC number, if it exists.
-  let rcNumber: Int?
 }
 
 /// Carthage related utility functions. The enum type is used as a namespace here instead of having
@@ -59,12 +56,7 @@ extension CarthageUtils {
       // Package the Carthage distribution with the current directory structure.
       let carthageDir = zipLocation.deletingLastPathComponent().appendingPathComponent("carthage")
       fileManager.removeIfExists(at: carthageDir)
-      var output = carthageDir.appendingPathComponent(artifacts.firebaseVersion)
-      if let rcNumber = options.rcNumber {
-        output.appendPathComponent("rc\(rcNumber)")
-      } else {
-        output.appendPathComponent("latest-non-rc")
-      }
+      let output = carthageDir.appendingPathComponents([artifacts.firebaseVersion, "latest"])
       try fileManager.createDirectory(at: output, withIntermediateDirectories: true)
       generateCarthageRelease(fromPackagedDir: carthagePath,
                               templateDir: templateDir,

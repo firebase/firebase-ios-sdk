@@ -196,7 +196,6 @@ enum CocoaPodUtils {
     case let .success(output):
       // Print the output to the console and return the information for all installed pods.
       print(output)
-      // FIXME: Broken
       return installedPodsInfo(inProjectDir: directory, localPodspecPath: localPodspecPath)
     }
   }
