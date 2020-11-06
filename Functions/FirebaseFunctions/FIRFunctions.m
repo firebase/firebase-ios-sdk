@@ -149,7 +149,13 @@ NSString *const kFUNDefaultRegion = @"us-central1";
 }
 
 - (void)useLocalhost {
-  [self useFunctionsEmulatorOrigin:@"http://localhost:5005"];
+  [self useEmulatorWithHost:@"http://localhost" port:5005];
+}
+
+- (void)useEmulatorWithHost:(NSString *)host port:(NSInteger)port {
+  NSAssert(host.length > 0, @"Cannot connect to nil or empty host");
+  NSString *origin = [NSString stringWithFormat:@"%@:%li", host, (long)port];
+  _emulatorOrigin = origin;
 }
 
 - (void)useFunctionsEmulatorOrigin:(NSString *)origin {
@@ -317,6 +323,10 @@ NSString *const kFUNDefaultRegion = @"us-central1";
 
 - (FIRHTTPSCallable *)HTTPSCallableWithName:(NSString *)name {
   return [[FIRHTTPSCallable alloc] initWithFunctions:self name:name];
+}
+
+- (nullable NSString *)emulatorOrigin {
+  return _emulatorOrigin;
 }
 
 @end

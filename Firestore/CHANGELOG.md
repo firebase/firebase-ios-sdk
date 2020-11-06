@@ -1,3 +1,6 @@
+# Unreleased
+- [added] Made emulator connection API consistent between Auth, Database, Firestore, and Functions (#5916).
+
 # v7.1.0
 - [changed] Added the original query data to error messages for Queries that
   cannot be deserizialized.
