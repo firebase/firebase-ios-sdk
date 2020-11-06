@@ -25,7 +25,8 @@ jobs:
 
   package:
     # Don't run on private repo.
-    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
+    if: true # DO NOT SUBMIT: Run for PR purposes
+#    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
     needs: build
     runs-on: macOS-latest
     steps:
