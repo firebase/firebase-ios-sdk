@@ -1,4 +1,4 @@
-# Unreleased
+# v8.0.1
 - Remove `GCC_TREAT_WARNINGS_AS_ERRORS` from the podspec.
 - Reduce pre-main startup time footprint. (#6855)
 

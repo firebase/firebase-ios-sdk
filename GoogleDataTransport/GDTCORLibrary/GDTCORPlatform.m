@@ -149,7 +149,7 @@ GDTCORNetworkMobileSubtype GDTCORNetworkMobileSubTypeMessage() {
   } else {
     return GDTCORNetworkMobileSubtypeUNKNOWN;
   }
-#else   // TARGET_OS_IOS
+#else  // TARGET_OS_IOS
   return GDTCORNetworkMobileSubtypeUNKNOWN;
 #endif  // TARGET_OS_IOS
 }

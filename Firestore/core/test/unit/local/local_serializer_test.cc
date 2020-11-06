@@ -352,6 +352,34 @@ TEST_F(LocalSerializerTest, EncodesTargetData) {
   ExpectRoundTrip(target_data, expected);
 }
 
+TEST_F(LocalSerializerTest, HandlesInvalidTargetData) {
+  TargetId target_id = 42;
+  std::string invalid_field_path = "`";
+
+  ::firestore::client::Target invalid_target;
+  invalid_target.set_target_id(target_id);
+  v1::Target::QueryTarget* query_proto = invalid_target.mutable_query();
+
+  // Add expected collection.
+  query_proto->set_parent("projects/p/databases/d/documents");
+  v1::StructuredQuery::CollectionSelector from;
+  from.set_collection_id("room");
+  *query_proto->mutable_structured_query()->add_from() = std::move(from);
+
+  // Add invalid order_by.
+  v1::StructuredQuery::Order order;
+  order.mutable_field()->set_field_path(invalid_field_path);
+  order.set_direction(v1::StructuredQuery::ASCENDING);
+  *query_proto->mutable_structured_query()->add_order_by() = std::move(order);
+
+  ByteString bytes = ProtobufSerialize(invalid_target);
+  StringReader reader(bytes);
+
+  auto message = Message<firestore_client_Target>::TryParse(&reader);
+  serializer.DecodeTargetData(&reader, *message);
+  EXPECT_NOT_OK(reader.status());
+}
+
 TEST_F(LocalSerializerTest, EncodesTargetDataWithDocumentQuery) {
   core::Query query = Query("room/1");
   TargetId target_id = 42;
