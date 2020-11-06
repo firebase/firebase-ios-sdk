@@ -1,4 +1,4 @@
-# Unreleased (v7.0.1)
+# v7.1.0
 - [changed] Added the original query data to error messages for Queries that
   cannot be deserizialized.
 - [fixed] Remove explicit MobileCoreServices library linkage from podspec

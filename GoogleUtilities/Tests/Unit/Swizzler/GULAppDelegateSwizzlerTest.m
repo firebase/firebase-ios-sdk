@@ -1065,12 +1065,12 @@ static BOOL gRespondsToHandleBackgroundSession;
   id interceptor = OCMProtocolMock(@protocol(GULApplicationDelegate));
   OCMExpect([interceptor application:application
         didReceiveRemoteNotification:notification
-              fetchCompletionHandler:completion]);
+              fetchCompletionHandler:[OCMArg isNotNil]]);
 
   id interceptor2 = OCMProtocolMock(@protocol(GULApplicationDelegate));
   OCMExpect([interceptor2 application:application
          didReceiveRemoteNotification:notification
-               fetchCompletionHandler:completion]);
+               fetchCompletionHandler:[OCMArg isNotNil]]);
 
   GULTestAppDelegate *testAppDelegate = [[GULTestAppDelegate alloc] init];
   OCMStub([self.mockSharedApplication delegate]).andReturn(testAppDelegate);
@@ -1087,7 +1087,108 @@ static BOOL gRespondsToHandleBackgroundSession;
 
   XCTAssertEqual(testAppDelegate.application, application);
   XCTAssertEqual(testAppDelegate.remoteNotification, notification);
-  XCTAssertEqual(testAppDelegate.remoteNotificationCompletionHandler, completion);
+}
+
+- (void)verifyCompletionCalledForObserverResult:(UIBackgroundFetchResult)observerResult1
+                          anotherObserverResult:(UIBackgroundFetchResult)observerResult2
+                                 swizzledResult:(UIBackgroundFetchResult)swizzledResult
+                                 expecredResult:(UIBackgroundFetchResult)expectedResult {
+  NSDictionary *notification = @{};
+  GULApplication *application = [GULApplication sharedApplication];
+
+  XCTestExpectation *completionExpectation =
+      [[XCTestExpectation alloc] initWithDescription:@"Completion called once"];
+
+  void (^completion)(UIBackgroundFetchResult) = ^(UIBackgroundFetchResult result) {
+    XCTAssertEqual(result, expectedResult);
+    [completionExpectation fulfill];
+  };
+
+  void (^onDidReceiveRemoteNotification1)(NSInvocation *invocation) = ^(NSInvocation *invocation) {
+    void __unsafe_unretained (^localCompletionHandler)(UIBackgroundFetchResult) = nil;
+    [invocation getArgument:(void *)(&localCompletionHandler) atIndex:4];
+    XCTAssertNotNil(localCompletionHandler);
+    localCompletionHandler(observerResult1);
+  };
+
+  id interceptor = OCMProtocolMock(@protocol(GULApplicationDelegate));
+  OCMExpect([interceptor application:application
+                didReceiveRemoteNotification:notification
+                      fetchCompletionHandler:[OCMArg isNotNil]])
+      .andDo(onDidReceiveRemoteNotification1);
+
+  void (^onDidReceiveRemoteNotification2)(NSInvocation *invocation) = ^(NSInvocation *invocation) {
+    void __unsafe_unretained (^localCompletionHandler)(UIBackgroundFetchResult) = nil;
+    [invocation getArgument:(void *)(&localCompletionHandler) atIndex:4];
+    XCTAssertNotNil(localCompletionHandler);
+    localCompletionHandler(observerResult2);
+  };
+
+  id interceptor2 = OCMProtocolMock(@protocol(GULApplicationDelegate));
+  OCMExpect([interceptor2 application:application
+                didReceiveRemoteNotification:notification
+                      fetchCompletionHandler:[OCMArg isNotNil]])
+      .andDo(onDidReceiveRemoteNotification2);
+
+  GULTestAppDelegate *testAppDelegate = [[GULTestAppDelegate alloc] init];
+  OCMStub([self.mockSharedApplication delegate]).andReturn(testAppDelegate);
+  [GULAppDelegateSwizzler proxyOriginalDelegateIncludingAPNSMethods];
+
+  [GULAppDelegateSwizzler registerAppDelegateInterceptor:interceptor];
+  [GULAppDelegateSwizzler registerAppDelegateInterceptor:interceptor2];
+
+  [testAppDelegate application:application
+      didReceiveRemoteNotification:notification
+            fetchCompletionHandler:completion];
+  testAppDelegate.remoteNotificationCompletionHandler(swizzledResult);
+  OCMVerifyAll(interceptor);
+  OCMVerifyAll(interceptor2);
+  [self waitForExpectations:@[ completionExpectation ] timeout:0.1];
+}
+
+- (void)testApplicationDidReceiveRemoteNotificationWithCompletionCompletionIsCalledOnce {
+  [self verifyCompletionCalledForObserverResult:UIBackgroundFetchResultNoData
+                          anotherObserverResult:UIBackgroundFetchResultNoData
+                                 swizzledResult:UIBackgroundFetchResultNoData
+                                 expecredResult:UIBackgroundFetchResultNoData];
+}
+
+- (void)
+    testApplicationDidReceiveRemoteNotificationWithCompletionCompletionIsCalledOnce_HandleFailedState {
+  [self verifyCompletionCalledForObserverResult:UIBackgroundFetchResultFailed
+                          anotherObserverResult:UIBackgroundFetchResultFailed
+                                 swizzledResult:UIBackgroundFetchResultFailed
+                                 expecredResult:UIBackgroundFetchResultFailed];
+}
+
+- (void)testApplicationDidReceiveRemoteNotificationWithCompletionCompletionIsCalledOnce_NoData {
+  [self verifyCompletionCalledForObserverResult:UIBackgroundFetchResultNoData
+                          anotherObserverResult:UIBackgroundFetchResultFailed
+                                 swizzledResult:UIBackgroundFetchResultFailed
+                                 expecredResult:UIBackgroundFetchResultNoData];
+}
+- (void)
+    testApplicationDidReceiveRemoteNotificationWithCompletionCompletionIsCalledOnce_HandleNewDataState_OthersFailed {
+  [self verifyCompletionCalledForObserverResult:UIBackgroundFetchResultNewData
+                          anotherObserverResult:UIBackgroundFetchResultFailed
+                                 swizzledResult:UIBackgroundFetchResultFailed
+                                 expecredResult:UIBackgroundFetchResultNewData];
+}
+
+- (void)
+    testApplicationDidReceiveRemoteNotificationWithCompletionCompletionIsCalledOnce_HandleNewDataState_OthersNoData {
+  [self verifyCompletionCalledForObserverResult:UIBackgroundFetchResultNewData
+                          anotherObserverResult:UIBackgroundFetchResultNoData
+                                 swizzledResult:UIBackgroundFetchResultNoData
+                                 expecredResult:UIBackgroundFetchResultNewData];
+}
+
+- (void)
+    testApplicationDidReceiveRemoteNotificationWithCompletionCompletionIsCalledOnce_HandleNewDataState_OthersNoDataFailed {
+  [self verifyCompletionCalledForObserverResult:UIBackgroundFetchResultNewData
+                          anotherObserverResult:UIBackgroundFetchResultNoData
+                                 swizzledResult:UIBackgroundFetchResultFailed
+                                 expecredResult:UIBackgroundFetchResultNewData];
 }
 
 - (void)testApplicationDidReceiveRemoteNotificationWithCompletionImplementationIsNotAdded {

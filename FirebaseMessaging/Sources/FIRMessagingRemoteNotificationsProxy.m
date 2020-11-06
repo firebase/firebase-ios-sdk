@@ -397,6 +397,7 @@ id FIRMessagingPropertyNameFromObject(id object, NSString *propertyName, Class k
     didReceiveRemoteNotification:(NSDictionary *)userInfo
           fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
   [[FIRMessaging messaging] appDidReceiveMessage:userInfo];
+  completionHandler(UIBackgroundFetchResultNoData);
 }
 
 - (void)application:(UIApplication *)application
