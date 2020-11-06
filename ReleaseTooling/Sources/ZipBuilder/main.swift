@@ -181,16 +181,16 @@ struct ZipBuilderTool: ParsableCommand {
     if let localPodspecPath = localPodspecPath,
       !FileManager.default.directoryExists(at: localPodspecPath) {
       throw ValidationError("""
-        `local-podspec-path` pass in does not exist. Value: \(localPodspecPath)
-        """)
+      `local-podspec-path` pass in does not exist. Value: \(localPodspecPath)
+      """)
     }
 
     // Validate that Firebase builds are including dependencies.
-    if !buildDependences && zipPods == nil {
+    if !buildDependences, zipPods == nil {
       throw ValidationError("""
-        The `enable-build-dependencies` option cannot be false unless a list of pods is \
-        specified with the `zip-pods` option.
-        """)
+      The `enable-build-dependencies` option cannot be false unless a list of pods is \
+      specified with the `zip-pods` option.
+      """)
     }
   }
 
