@@ -1,3 +1,6 @@
+# Firebase 7.1.0
+- [fixed] `+[FIRApp registerInternalLibrary:withName:]` takes too much time. (#6902)
+
 # Firebase 7.0.0
 - [changed] Update minimum iOS version to iOS 10 except for Analytics which is now iOS 9. (#4847)
 - [changed] Update minimum macOS version to 10.12.
