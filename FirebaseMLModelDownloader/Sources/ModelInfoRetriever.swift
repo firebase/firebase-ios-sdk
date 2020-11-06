@@ -22,20 +22,16 @@ struct ModelInfo {
   var name: String
 
   /// Download URL for the model file, as returned by server.
-  @UserDefaultsBacked
-  var downloadURL: String
+  @UserDefaultsBacked var downloadURL: String
 
   /// Hash of the model, as returned by server.
-  @UserDefaultsBacked
-  var hash: String
+  @UserDefaultsBacked var hash: String
 
   /// Size of the model, as returned by server.
-  @UserDefaultsBacked
-  var size: Int
+  @UserDefaultsBacked var size: Int
 
   /// Local path of the model.
-  @UserDefaultsBacked
-  var path: String?
+  @UserDefaultsBacked var path: String?
 
   /// Initialize model info and create user default keys.
   init(app: FirebaseApp, name: String) {
@@ -55,6 +51,8 @@ class ModelInfoRetriever: NSObject {
   var app: FirebaseApp
   /// Model info associated with model.
   var modelInfo: ModelInfo?
+  /// Project id.
+  var projectID : String
   /// Model name.
   var modelName: String
   /// Firebase installations.
@@ -62,21 +60,13 @@ class ModelInfoRetriever: NSObject {
   /// User defaults associated with model.
   var defaults: UserDefaults
 
-  /// Associate model info retriever with current Firebase app and model name.
-  init(app: FirebaseApp, modelName: String, defaults: UserDefaults = .firebaseMLDefaults) {
+  /// Associate model info retriever with current Firebase app, project ID, and model name.
+  init(app: FirebaseApp, projectID: String, modelName: String, defaults: UserDefaults = .firebaseMLDefaults) {
     self.app = app
+    self.projectID = projectID
     self.modelName = modelName
     self.defaults = defaults
     installations = Installations.installations(app: app)
-  }
-
-  /// Construct model fetch base URL.
-  var modelInfoFetchBaseURL: URL {
-    var components = URLComponents()
-    components.scheme = "https"
-    components.host = "firebaseml.googleapis.com"
-    components.path = "/Model"
-    return components.url!
   }
 
   /// Build custom model object from model info.
@@ -93,11 +83,36 @@ class ModelInfoRetriever: NSObject {
   }
 }
 
-/// Extension to handle reading and writing model info to user defaults.
+/// Extension to handle fetching model info from server.
 extension ModelInfoRetriever {
-  /// Model info from server.
-  func retrieveModelInfo(request: URLRequest) {
-    // TODO: Get model info from server and save to user defaults
+
+  /// HTTP request headers.
+  static let fisTokenHTTPHeader : String = "X-Goog-Firebase-Installations-Auth"
+  static let hashMatchHTTPHeader : String = "If-None-Match"
+
+  /// HTTP response headers.
+  static let etagHTTPHeader : String = "ETag"
+
+  /// Construct model fetch base URL.
+  var modelInfoFetchURL : URL {
+    var components = URLComponents()
+    components.scheme = "https"
+    components.host = "firebaseml.googleapis.com"
+    components.path = "/Model/v1beta2/projects/\(projectID)/models/\(modelName)"
+    return components.url!
+  }
+
+  /// Construct model fetch URL request.
+  var modelInfoFetchURLRequest: URLRequest {
+    var request = URLRequest(url: modelInfoFetchURL)
+    if let info = modelInfo, info.hash.count > 0 {
+      request.setValue(info.hash, forHTTPHeaderField: ModelInfoRetriever.hashMatchHTTPHeader)
+    }
+
+    if let fisToken = getAuthTokenForApp(app: app) {
+      request.setValue(fisToken, forHTTPHeaderField: ModelInfoRetriever.fisTokenHTTPHeader)
+    }
+    return request
   }
 
   /// FIS token for Firebase app.
@@ -112,6 +127,28 @@ extension ModelInfoRetriever {
     }
     return token
   }
+
+  /// Get model info from server.
+  func downloadModelInfo(request: URLRequest) {
+    // TODO: Get model info from server
+    let downloadTask = URLSession.shared.downloadTask(with: request) {
+        data, response, error in
+        // check for and handle errors:
+        // * errorOrNil should be nil
+        // * responseOrNil should be an HTTPURLResponse with statusCode in 200..<299
+
+      guard let response.statusCode in 200..<299 else { return }
+
+    }
+    downloadTask.resume()
+  }
+
+  /// Save model info to user defaults.
+  func saveModelInfo(response : URLResponse) {
+    // TODO: Save model info to user defaults
+  }
+
+
 }
 
 /// Named user defaults for FirebaseML.
