@@ -108,11 +108,11 @@ static NSString *kStoredUserCoderKey = @"firebase_auth_stored_user_coder_key";
   return user;
 }
 
-- (BOOL)  setStoredUser:(FIRUser *)user
-         forAccessGroup:(NSString *)accessGroup
-shareLoginAcrossDevices:(BOOL)shareLoginAcrossDevices
-      projectIdentifier:(NSString *)projectIdentifier
-                  error:(NSError *_Nullable *_Nullable)outError {
+- (BOOL)setStoredUser:(FIRUser *)user
+             forAccessGroup:(NSString *)accessGroup
+    shareLoginAcrossDevices:(BOOL)shareLoginAcrossDevices
+          projectIdentifier:(NSString *)projectIdentifier
+                      error:(NSError *_Nullable *_Nullable)outError {
   NSMutableDictionary *query = [[NSMutableDictionary alloc] init];
   query[(__bridge id)kSecClass] = (__bridge id)kSecClassGenericPassword;
   if (!shareLoginAcrossDevices) {
