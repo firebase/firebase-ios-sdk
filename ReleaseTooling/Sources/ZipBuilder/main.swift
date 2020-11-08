@@ -276,7 +276,7 @@ struct ZipBuilderTool: ParsableCommand {
       // Do a Firebase Zip Release package build.
       var carthageOptions: CarthageBuildOptions?
       if carthageBuild {
-        let jsonDir = paths.repoDir.appendingPathComponents(["ZipBuilder", "CarthageJSON"])
+        let jsonDir = paths.repoDir.appendingPathComponents(["ReleaseTooling", "CarthageJSON"])
         carthageOptions = CarthageBuildOptions(jsonDir: jsonDir,
                                                isVersionCheckEnabled: carthageVersionCheck)
       }
