@@ -2021,11 +2021,13 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   } else {
     if (!user) {
       success = [self.storedUserManager removeStoredUserForAccessGroup:self.userAccessGroup
+                                               shareLoginAcrossDevices:self.shareLoginAcrossDevices
                                                      projectIdentifier:self.app.options.APIKey
                                                                  error:outError];
     } else {
       success = [self.storedUserManager setStoredUser:user
                                        forAccessGroup:self.userAccessGroup
+                              shareLoginAcrossDevices:self.shareLoginAcrossDevices
                                     projectIdentifier:self.app.options.APIKey
                                                 error:outError];
     }
@@ -2078,6 +2080,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     return YES;
   } else {
     FIRUser *user = [self.storedUserManager getStoredUserForAccessGroup:self.userAccessGroup
+                                                shareLoginAcrossDevices:self.shareLoginAcrossDevices
                                                       projectIdentifier:self.app.options.APIKey
                                                                   error:error];
     user.auth = self;
@@ -2254,6 +2257,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     user = [unarchiver decodeObjectOfClass:[FIRUser class] forKey:userKey];
   } else {
     user = [self.storedUserManager getStoredUserForAccessGroup:self.userAccessGroup
+                                       shareLoginAcrossDevices:self.shareLoginAcrossDevices
                                              projectIdentifier:self.app.options.APIKey
                                                          error:outError];
   }
