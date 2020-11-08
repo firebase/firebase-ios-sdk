@@ -340,6 +340,11 @@ NS_SWIFT_NAME(Auth)
  */
 @property(readonly, nonatomic, copy, nullable) NSString *userAccessGroup;
 
+/** @property shareLoginAcrossDevices
+    @brief Contains shareLoginAcrossDevices setting related to the auth object.
+ */
+@property(nonatomic) BOOL shareLoginAcrossDevices;
+
 /** @property tenantID
     @brief The tenant ID of the auth instance. nil if none is available.
  */
