@@ -50,7 +50,7 @@ struct FrameworkBuilder {
   /// The directory containing the Xcode project and Pods folder.
   private let projectDir: URL
 
-  /// Flag for building dynamic frameworks instead of statis frameworks.
+  /// Flag for building dynamic frameworks instead of static frameworks.
   private let dynamicFrameworks: Bool
 
   /// Flag for whether or not Carthage artifacts should be built as well.

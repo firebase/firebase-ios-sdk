@@ -22,7 +22,8 @@ import Utils
 enum CocoaPodUtils {
   /// The linkage type to specify for CocoaPods installation.
   enum LinkageType {
-    /// Forced static libraries. Uses `use_modular_headers!` in the Podfile.
+    /// Forced static libraries. Uses `use_modular_headers!` in the Podfile. Required for module map
+    /// generation
     case forcedStatic
 
     /// Dynamic frameworks. Uses `use_frameworks!` in the Podfile.
