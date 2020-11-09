@@ -32,7 +32,7 @@ for that version. Check with `xcodebuild -version`.
 
 See `main.swift`  for information on specific launch arguments,  or use  `swift run zip-builder --help`.
 
-You can pass in launch arguments with Xcode by clicking "zip-builder" beside the Run/Stop buttons, clicking 
+You can pass in launch arguments with Xcode by clicking "zip-builder" beside the Run/Stop buttons, clicking
 "Edit Scheme" and adding them in the "Arguments Passed On Launch" section.
 
 #### Common Arguments
@@ -103,8 +103,8 @@ for the process documentation.
 See `main.swift`  for information on specific launch arguments.
 
 You can pass in launch arguments with Xcode by selecting the  "firebase-releaser" scheme
-beside the Run/Stop buttons, clicking "Edit
-Scheme" and adding them in the "Arguments Passed On Launch" section.
+beside the Run/Stop buttons, clicking "Edit Scheme" and adding them in the "Arguments Passed On Launch"
+section.
 
 ## Development Philosophy
 
