@@ -30,14 +30,19 @@ for that version. Check with `xcodebuild -version`.
 
 ### Launch Arguments
 
-See `main.swift` and the `LaunchArgs` struct for information on specific launch arguments.
+See `main.swift`  for information on specific launch arguments,  or use  `swift run zip-builder --help`.
 
-You can pass in launch arguments with Xcode by clicking "zip-builder" beside the Run/Stop buttons, clicking "Edit
-Scheme" and adding them in the "Arguments Passed On Launch" section.
+You can pass in launch arguments with Xcode by clicking "zip-builder" beside the Run/Stop buttons, clicking 
+"Edit Scheme" and adding them in the "Arguments Passed On Launch" section.
 
 #### Common Arguments
 
 These arguments assume you're running the command from the `ReleaseTooling` directory.
+
+**Required** arguments:
+
+- `--repo-dir <PATH_TO_firebase_ios_sdk_REPO>`
+  - The root of the `firebase-ios-sdk` repo.
 
 Typical argument (all use cases except Firebase release build):
 - `--zip-pods <PATH_TO.json>`
@@ -95,7 +100,7 @@ for the process documentation.
 
 ### Launch Arguments
 
-See `main.swift` and the `LaunchArgs` struct for information on specific launch arguments.
+See `main.swift`  for information on specific launch arguments.
 
 You can pass in launch arguments with Xcode by selecting the  "firebase-releaser" scheme
 beside the Run/Stop buttons, clicking "Edit
