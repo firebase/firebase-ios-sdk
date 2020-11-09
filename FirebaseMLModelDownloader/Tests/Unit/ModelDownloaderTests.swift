@@ -44,6 +44,7 @@ extension UserDefaults {
   /// For testing: returns a new cleared instance of user defaults.
   static func getTestInstance() -> UserDefaults {
     let suiteName = "com.google.firebase.ml.test"
+    // TODO: reconsider force unwrapping
     let defaults = UserDefaults(suiteName: suiteName)!
     defaults.removePersistentDomain(forName: suiteName)
     return defaults

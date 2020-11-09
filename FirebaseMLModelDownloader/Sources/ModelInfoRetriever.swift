@@ -200,6 +200,7 @@ extension ModelInfoRetriever {
 extension UserDefaults {
   static var firebaseMLDefaults: UserDefaults {
     let suiteName = "com.google.firebase.ml"
+    // TODO: reconsider force unwrapping
     let defaults = UserDefaults(suiteName: suiteName)!
     return defaults
   }
