@@ -21,6 +21,9 @@ struct ModelInfo {
   /// Model name.
   var name: String
 
+  /// User defaults associated with model.
+  var defaults: UserDefaults
+
   /// Download URL for the model file, as returned by server.
   @UserDefaultsBacked var downloadURL: String
 
@@ -34,15 +37,20 @@ struct ModelInfo {
   @UserDefaultsBacked var path: String?
 
   /// Initialize model info and create user default keys.
-  init(app: FirebaseApp, name: String) {
+  init(app: FirebaseApp, name: String, defaults: UserDefaults = .firebaseMLDefaults) {
     self.name = name
+    self.defaults = defaults
     let bundleID = Bundle.main.bundleIdentifier!
     let defaultsPrefix = "\(bundleID).\(app.name).\(name)"
-    _downloadURL = UserDefaultsBacked(key: "\(defaultsPrefix).model-download-url")
-    _hash = UserDefaultsBacked(key: "\(defaultsPrefix).model-hash")
-    _size = UserDefaultsBacked(key: "\(defaultsPrefix).model-size")
-    _path = UserDefaultsBacked(key: "\(defaultsPrefix).model-path")
+    _downloadURL = UserDefaultsBacked(key: "\(defaultsPrefix).model-download-url", storage: defaults)
+    _hash = UserDefaultsBacked(key: "\(defaultsPrefix).model-hash", storage: defaults)
+    _size = UserDefaultsBacked(key: "\(defaultsPrefix).model-size", storage: defaults)
+    _path = UserDefaultsBacked(key: "\(defaultsPrefix).model-path", storage: defaults)
   }
+}
+
+struct ModelResponse : Codable {
+  
 }
 
 /// Model info retriever for a model from local user defaults or server.
@@ -57,15 +65,12 @@ class ModelInfoRetriever: NSObject {
   var modelName: String
   /// Firebase installations.
   var installations: Installations
-  /// User defaults associated with model.
-  var defaults: UserDefaults
 
   /// Associate model info retriever with current Firebase app, project ID, and model name.
-  init(app: FirebaseApp, projectID: String, modelName: String, defaults: UserDefaults = .firebaseMLDefaults) {
+  init(app: FirebaseApp, projectID: String, modelName: String) {
     self.app = app
     self.projectID = projectID
     self.modelName = modelName
-    self.defaults = defaults
     installations = Installations.installations(app: app)
   }
 
@@ -89,9 +94,16 @@ extension ModelInfoRetriever {
   /// HTTP request headers.
   static let fisTokenHTTPHeader : String = "X-Goog-Firebase-Installations-Auth"
   static let hashMatchHTTPHeader : String = "If-None-Match"
+  static let bundleIDHTTPHeader : String = "X-Ios-Bundle-Identifier"
 
   /// HTTP response headers.
   static let etagHTTPHeader : String = "ETag"
+
+  /// Error descriptions.
+  static let tokenErrorDescription : String = "Error retrieving FIS token."
+  static let modelFetchURLErrorDescription : String = "Error retrieving model fetch URL."
+  static let missingModelHashErrorDescription : String = "Model hash missing in server response."
+  static let invalidHTTPResponseErrorDescription : String = "Could not get a valid HTTP response from server."
 
   /// Construct model fetch base URL.
   var modelInfoFetchURL : URL {
@@ -103,59 +115,94 @@ extension ModelInfoRetriever {
   }
 
   /// Construct model fetch URL request.
-  var modelInfoFetchURLRequest: URLRequest {
+  func getModelInfoFetchURLRequest(token: String) -> URLRequest {
     var request = URLRequest(url: modelInfoFetchURL)
+    request.httpMethod = "GET"
+    // TODO: Check if bundle ID needs to be part of the request header.
+    let bundleID = Bundle.main.bundleIdentifier!
+    request.setValue(bundleID, forHTTPHeaderField: ModelInfoRetriever.bundleIDHTTPHeader)
+    request.setValue(token, forHTTPHeaderField: ModelInfoRetriever.fisTokenHTTPHeader)
     if let info = modelInfo, info.hash.count > 0 {
       request.setValue(info.hash, forHTTPHeaderField: ModelInfoRetriever.hashMatchHTTPHeader)
-    }
-
-    if let fisToken = getAuthTokenForApp(app: app) {
-      request.setValue(fisToken, forHTTPHeaderField: ModelInfoRetriever.fisTokenHTTPHeader)
     }
     return request
   }
 
-  /// FIS token for Firebase app.
-  func getAuthTokenForApp(app: FirebaseApp) -> String? {
-    var token: String?
-    installations.authToken { tokenResult, error in
-      guard let result = tokenResult else {
-        token = nil
+  /// Get model info from server.
+  func downloadModelInfo(completion: @escaping (DownloadError?) -> Void) {
+    /// Get FIS token.
+    installations.authToken { [weak self] tokenResult, error in
+      guard let result = tokenResult else { completion(.internalError(description: ModelInfoRetriever.tokenErrorDescription))
         return
       }
-      token = result.authToken
-    }
-    return token
-  }
-
-  /// Get model info from server.
-  func downloadModelInfo(request: URLRequest) {
-    // TODO: Get model info from server
-    let downloadTask = URLSession.shared.downloadTask(with: request) {
+      /// Get model info fetch URL with appropriate HTTP headers.
+      guard let request = self?.getModelInfoFetchURLRequest(token: result.authToken) else { completion(.internalError(description: ModelInfoRetriever.modelFetchURLErrorDescription))
+        return
+      }
+      /// Download model info.
+      let dataTask = URLSession.shared.dataTask(with: request) { [weak self]
         data, response, error in
-        // check for and handle errors:
-        // * errorOrNil should be nil
-        // * responseOrNil should be an HTTPURLResponse with statusCode in 200..<299
+        if let downloadError = error {
+          completion(.internalError(description: downloadError.localizedDescription))
+        } else {
 
-      guard let response.statusCode in 200..<299 else { return }
+          guard let httpResponse = response as? HTTPURLResponse else {
+            completion(.internalError(description: ModelInfoRetriever.invalidHTTPResponseErrorDescription))
+            return
+          }
 
+          guard let mime = httpResponse.mimeType, mime == "application/json" else {
+            completion(.internalError(description: ModelInfoRetriever.invalidHTTPResponseErrorDescription))
+            return
+          }
+
+          guard httpResponse.statusCode == 200 || httpResponse.statusCode == 304 else {
+            // TODO: Improve http status code error handling
+            completion(.notFound)
+              return
+          }
+
+          /// Local model not modified.
+          if httpResponse.statusCode == 304 {
+            return
+          }
+
+          guard let modelHash = httpResponse.allHeaderFields[ModelInfoRetriever.etagHTTPHeader] as? String else {
+            completion(.internalError(description: ModelInfoRetriever.missingModelHashErrorDescription))
+            return
+          }
+
+          do {
+            guard let modelJSON = try JSONSerialization.jsonObject(with: data!) as? Dictionary else {
+
+            }
+            self?.saveModelInfo(json: modelJSON, modelHash: modelHash)
+          } catch {
+            completion(.internalError(description: ModelInfoRetriever.invalidHTTPResponseErrorDescription))
+            return
+          }
+
+
+        }
+      }
+      dataTask.resume()
     }
-    downloadTask.resume()
   }
 
   /// Save model info to user defaults.
-  func saveModelInfo(response : URLResponse) {
+  func saveModelInfo(modelJSON : Dictionary, modelHash : String) {
     // TODO: Save model info to user defaults
+    modelInfo?.hash = modelHash
+
   }
-
-
 }
 
 /// Named user defaults for FirebaseML.
 extension UserDefaults {
   static var firebaseMLDefaults: UserDefaults {
     let suiteName = "com.google.firebase.ml"
-    return UserDefaults(suiteName: suiteName)!
+    let defaults = UserDefaults(suiteName: suiteName)!
+    return defaults
   }
 
   /// For testing: returns a new cleared instance of user defaults.
@@ -171,7 +218,7 @@ extension UserDefaults {
 @propertyWrapper struct UserDefaultsBacked<Value> {
   let key: String
   let defaultValue: Value
-  let storage: UserDefaults = .firebaseMLDefaults
+  let storage: UserDefaults
 
   var wrappedValue: Value {
     get {
@@ -190,21 +237,21 @@ extension UserDefaults {
 
 /// Initialize and set default value for user default backed properties that can be optional (model path).
 extension UserDefaultsBacked where Value: ExpressibleByNilLiteral {
-  init(key: String) {
-    self.init(key: key, defaultValue: nil)
+  init(key: String, storage: UserDefaults) {
+    self.init(key: key, defaultValue: nil, storage: storage)
   }
 }
 
 /// Initialize and set default value for user default backed properties that are strings (model download url, model hash).
 extension UserDefaultsBacked where Value: ExpressibleByStringLiteral {
-  init(key: String) {
-    self.init(key: key, defaultValue: "")
+  init(key: String, storage: UserDefaults) {
+    self.init(key: key, defaultValue: "", storage: storage)
   }
 }
 
 /// Initialize and set default value for user default backed properties that are int (model size).
 extension UserDefaultsBacked where Value: ExpressibleByIntegerLiteral {
-  init(key: String) {
-    self.init(key: key, defaultValue: 0)
+  init(key: String, storage: UserDefaults) {
+    self.init(key: key, defaultValue: 0, storage: storage)
   }
 }

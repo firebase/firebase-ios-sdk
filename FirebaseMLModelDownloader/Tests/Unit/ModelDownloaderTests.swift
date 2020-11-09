@@ -16,19 +16,55 @@ import XCTest
 @testable import FirebaseCore
 @testable import FirebaseMLModelDownloader
 
+enum Constants {
+  enum App {
+    static let defaultName = "__FIRAPP_DEFAULT"
+    static let googleAppIDKey = "FIRGoogleAppIDKey"
+    static let nameKey = "FIRAppNameKey"
+    static let isDefaultAppKey = "FIRAppIsDefaultAppKey"
+  }
+
+  enum Options {
+    static let apiKey = "correct_api_key"
+    static let bundleID = "com.google.FirebaseSDKTests"
+    static let clientID = "correct_client_id"
+    static let trackingID = "correct_tracking_id"
+    static let gcmSenderID = "correct_gcm_sender_id"
+    static let projectID = "correct_project_id"
+    static let androidClientID = "correct_android_client_id"
+    static let googleAppID = "correct_app_id"
+    static let databaseURL = "https://abc-xyz-123.firebaseio.com"
+    static let deepLinkURLScheme = "comgoogledeeplinkurl"
+    static let storageBucket = "project-id-123.storage.firebase.com"
+    static let appGroupID: String? = nil
+  }
+}
+
 final class ModelDownloaderTests: XCTestCase {
+  override class func setUp() {
+    super.setUp()
+    let options = FirebaseOptions(googleAppID: Constants.Options.googleAppID,
+                                  gcmSenderID: Constants.Options.gcmSenderID)
+    options.apiKey = Constants.Options.apiKey
+    options.projectID = Constants.Options.projectID
+    options.clientID = Constants.Options.clientID
+    // TODO: Replace with custom options
+    FirebaseApp.configure()
+  }
+
   /// Unit test for reading and writing to user defaults.
   func testUserDefaults() {
-    FirebaseApp.configure()
     let testApp = FirebaseApp.app()!
-    let testModelName = "user-defaults-test-model"
+    let functionName = #function
+    let testModelName = "\(functionName)-test-model"
     let modelInfoRetriever = ModelInfoRetriever(
       app: testApp,
-      modelName: testModelName,
-      defaults: .getTestInstance()
+      projectID: Constants.Options.projectID,
+      modelName: testModelName
     )
-    modelInfoRetriever.modelInfo = ModelInfo(app: testApp, name: testModelName)
-    // XCTAssertEqual(modelInfoRetriever.modelInfo?.downloadURL, "")
+
+    modelInfoRetriever.modelInfo = ModelInfo(app: testApp, name: testModelName, defaults: .getTestInstance())
+    XCTAssertEqual(modelInfoRetriever.modelInfo?.downloadURL, "")
     modelInfoRetriever.modelInfo?.downloadURL = "testurl.com"
     XCTAssertEqual(modelInfoRetriever.modelInfo?.downloadURL, "testurl.com")
     XCTAssertEqual(modelInfoRetriever.modelInfo?.hash, "")
@@ -36,16 +72,23 @@ final class ModelDownloaderTests: XCTestCase {
     XCTAssertEqual(modelInfoRetriever.modelInfo?.path, nil)
   }
 
-  func testAuthToken() {
-    FirebaseApp.configure()
+  func testDownloadModelInfo() {
     let testApp = FirebaseApp.app()!
-    let testModelName = "user-defaults-test-model"
+    let functionName = #function
+    let testModelName = "\(functionName)-test-model"
     let modelInfoRetriever = ModelInfoRetriever(
       app: testApp,
-      modelName: testModelName,
-      defaults: .getTestInstance()
+      projectID: Constants.Options.projectID,
+      modelName: testModelName
     )
-    // TODO: test auth token
+    let expectation = self.expectation(description: "Wait for model info to download.")
+    modelInfoRetriever.downloadModelInfo(completion : { error in
+      guard let downloadError = error else { return }
+      XCTAssertEqual(downloadError, .notFound)
+      print("ERROR: Model not found on server.")
+      expectation.fulfill()
+    })
+    waitForExpectations(timeout: 10, handler: nil)
   }
 
   func testExample() {
