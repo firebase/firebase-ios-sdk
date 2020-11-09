@@ -37,9 +37,7 @@ struct ZipBuilderTool: ParsableCommand {
   /// Enables or disables building dependencies of pods.
   @Flag(default: true,
         inversion: .prefixedEnableDisable,
-        help: ArgumentHelp(
-          "Whether or not to build dependencies of requested pods. Defaults to true"
-        ))
+        help: ArgumentHelp("Whether or not to build dependencies of requested pods."))
   var buildDependences
 
   /// Flag to also build Carthage artifacts.
@@ -65,9 +63,7 @@ struct ZipBuilderTool: ParsableCommand {
 
   @Flag(default: false,
         inversion: .prefixedNo,
-        help: ArgumentHelp(
-          "A flag to indicate keeping (not deleting) the build artifacts. Defaults to false"
-        ))
+        help: ArgumentHelp("A flag to indicate keeping (not deleting) the build artifacts."))
   var keepBuildArtifacts: Bool
 
   /// Flag to run `pod repo update` and `pod cache clean --all`.
@@ -118,13 +114,12 @@ struct ZipBuilderTool: ParsableCommand {
 
   // MARK: - Filesystem Paths
 
-  /// The path to the directory containing the blank xcodeproj and Info.plist for building source
-  /// based frameworks.
+  /// The path to the root of the firebase-ios-sdk repo.
   @Option(help: ArgumentHelp("""
   The path to the repo from which the Firebase distribution is being built.
   """),
   transform: URL.init(fileURLWithPath:))
-  var repoDir: URL?
+  var repoDir: URL
 
   /// Path to override podspec search with local podspec.
   @Option(help: ArgumentHelp("Path to override podspec search with local podspec."),
@@ -151,21 +146,15 @@ struct ZipBuilderTool: ParsableCommand {
   // MARK: - Validation
 
   mutating func validate() throws {
-    // Check if the repoDir exists.
-    if let repoDir = repoDir {
-      // Validate the file exists, as well as the templateDir.
-      guard FileManager.default.directoryExists(at: repoDir) else {
-        throw ValidationError("Included a repo-dir that doesn't exist.")
-      }
+    // Validate the repoDir exists, as well as the templateDir.
+    guard FileManager.default.directoryExists(at: repoDir) else {
+      throw ValidationError("Included a repo-dir that doesn't exist.")
+    }
 
-      // Validate the templateDir exists.
-      let templateDir = ZipBuilder.FilesystemPaths.templateDir(fromRepoDir: repoDir)
-      guard FileManager.default.directoryExists(at: templateDir) else {
-        throw ValidationError("Missing template inside of the repo. \(templateDir) does not exist.")
-      }
-    } else if zipPods?.isEmpty ?? true { // Resolve to `true` if `zipPods` is `nil`.
-      // No repoDir provided, and no zip pods provided.
-      throw ValidationError("No `repo-dir` (for Firebase build) or `zip-pods` passed in.")
+    // Validate the templateDir exists.
+    let templateDir = ZipBuilder.FilesystemPaths.templateDir(fromRepoDir: repoDir)
+    guard FileManager.default.directoryExists(at: templateDir) else {
+      throw ValidationError("Missing template inside of the repo. \(templateDir) does not exist.")
     }
 
     // Validate the output directory if provided.
@@ -213,8 +202,7 @@ struct ZipBuilderTool: ParsableCommand {
       FileManager.registerBuildRoot(buildRoot: buildRoot.standardizedFileURL)
     }
 
-    // TODO: Check if we're using the repo dir or raw zip build. Force wrap for now.
-    let paths = ZipBuilder.FilesystemPaths(repoDir: repoDir!,
+    let paths = ZipBuilder.FilesystemPaths(repoDir: repoDir,
                                            buildRoot: buildRoot,
                                            outputDir: outputDir,
                                            logsOutputDir: outputDir?
