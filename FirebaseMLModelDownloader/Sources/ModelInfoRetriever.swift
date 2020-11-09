@@ -49,10 +49,6 @@ struct ModelInfo {
   }
 }
 
-struct ModelResponse : Codable {
-  
-}
-
 /// Model info retriever for a model from local user defaults or server.
 class ModelInfoRetriever: NSObject {
   /// Current Firebase app.
@@ -151,11 +147,6 @@ extension ModelInfoRetriever {
             return
           }
 
-          guard let mime = httpResponse.mimeType, mime == "application/json" else {
-            completion(.internalError(description: ModelInfoRetriever.invalidHTTPResponseErrorDescription))
-            return
-          }
-
           guard httpResponse.statusCode == 200 || httpResponse.statusCode == 304 else {
             // TODO: Improve http status code error handling
             completion(.notFound)
@@ -172,17 +163,12 @@ extension ModelInfoRetriever {
             return
           }
 
-          do {
-            guard let modelJSON = try JSONSerialization.jsonObject(with: data!) as? Dictionary else {
-
-            }
-            self?.saveModelInfo(json: modelJSON, modelHash: modelHash)
-          } catch {
+          guard let data = data else {
             completion(.internalError(description: ModelInfoRetriever.invalidHTTPResponseErrorDescription))
             return
           }
-
-
+          
+          self?.saveModelInfo(data : data, modelHash: modelHash)
         }
       }
       dataTask.resume()
@@ -190,10 +176,9 @@ extension ModelInfoRetriever {
   }
 
   /// Save model info to user defaults.
-  func saveModelInfo(modelJSON : Dictionary, modelHash : String) {
+  func saveModelInfo(data : Data, modelHash : String) {
     // TODO: Save model info to user defaults
     modelInfo?.hash = modelHash
-
   }
 }
 
