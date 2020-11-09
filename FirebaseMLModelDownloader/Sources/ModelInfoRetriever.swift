@@ -42,7 +42,10 @@ struct ModelInfo {
     self.defaults = defaults
     let bundleID = Bundle.main.bundleIdentifier!
     let defaultsPrefix = "\(bundleID).\(app.name).\(name)"
-    _downloadURL = UserDefaultsBacked(key: "\(defaultsPrefix).model-download-url", storage: defaults)
+    _downloadURL = UserDefaultsBacked(
+      key: "\(defaultsPrefix).model-download-url",
+      storage: defaults
+    )
     _hash = UserDefaultsBacked(key: "\(defaultsPrefix).model-hash", storage: defaults)
     _size = UserDefaultsBacked(key: "\(defaultsPrefix).model-size", storage: defaults)
     _path = UserDefaultsBacked(key: "\(defaultsPrefix).model-path", storage: defaults)
@@ -56,7 +59,7 @@ class ModelInfoRetriever: NSObject {
   /// Model info associated with model.
   var modelInfo: ModelInfo?
   /// Project id.
-  var projectID : String
+  var projectID: String
   /// Model name.
   var modelName: String
   /// Firebase installations.
@@ -86,23 +89,23 @@ class ModelInfoRetriever: NSObject {
 
 /// Extension to handle fetching model info from server.
 extension ModelInfoRetriever {
-
   /// HTTP request headers.
-  static let fisTokenHTTPHeader : String = "X-Goog-Firebase-Installations-Auth"
-  static let hashMatchHTTPHeader : String = "If-None-Match"
-  static let bundleIDHTTPHeader : String = "X-Ios-Bundle-Identifier"
+  static let fisTokenHTTPHeader: String = "X-Goog-Firebase-Installations-Auth"
+  static let hashMatchHTTPHeader: String = "If-None-Match"
+  static let bundleIDHTTPHeader: String = "X-Ios-Bundle-Identifier"
 
   /// HTTP response headers.
-  static let etagHTTPHeader : String = "ETag"
+  static let etagHTTPHeader: String = "ETag"
 
   /// Error descriptions.
-  static let tokenErrorDescription : String = "Error retrieving FIS token."
-  static let modelFetchURLErrorDescription : String = "Error retrieving model fetch URL."
-  static let missingModelHashErrorDescription : String = "Model hash missing in server response."
-  static let invalidHTTPResponseErrorDescription : String = "Could not get a valid HTTP response from server."
+  static let tokenErrorDescription: String = "Error retrieving FIS token."
+  static let modelFetchURLErrorDescription: String = "Error retrieving model fetch URL."
+  static let missingModelHashErrorDescription: String = "Model hash missing in server response."
+  static let invalidHTTPResponseErrorDescription: String =
+    "Could not get a valid HTTP response from server."
 
   /// Construct model fetch base URL.
-  var modelInfoFetchURL : URL {
+  var modelInfoFetchURL: URL {
     var components = URLComponents()
     components.scheme = "https"
     components.host = "firebaseml.googleapis.com"
@@ -128,11 +131,14 @@ extension ModelInfoRetriever {
   func downloadModelInfo(completion: @escaping (DownloadError?) -> Void) {
     /// Get FIS token.
     installations.authToken { [weak self] tokenResult, error in
-      guard let result = tokenResult else { completion(.internalError(description: ModelInfoRetriever.tokenErrorDescription))
+      guard let result = tokenResult
+      else { completion(.internalError(description: ModelInfoRetriever.tokenErrorDescription))
         return
       }
       /// Get model info fetch URL with appropriate HTTP headers.
-      guard let request = self?.getModelInfoFetchURLRequest(token: result.authToken) else { completion(.internalError(description: ModelInfoRetriever.modelFetchURLErrorDescription))
+      guard let request = self?.getModelInfoFetchURLRequest(token: result.authToken)
+      else {
+        completion(.internalError(description: ModelInfoRetriever.modelFetchURLErrorDescription))
         return
       }
       /// Download model info.
@@ -141,16 +147,16 @@ extension ModelInfoRetriever {
         if let downloadError = error {
           completion(.internalError(description: downloadError.localizedDescription))
         } else {
-
           guard let httpResponse = response as? HTTPURLResponse else {
-            completion(.internalError(description: ModelInfoRetriever.invalidHTTPResponseErrorDescription))
+            completion(.internalError(description: ModelInfoRetriever
+                .invalidHTTPResponseErrorDescription))
             return
           }
 
           guard httpResponse.statusCode == 200 || httpResponse.statusCode == 304 else {
             // TODO: Improve http status code error handling
             completion(.notFound)
-              return
+            return
           }
 
           /// Local model not modified.
@@ -158,17 +164,20 @@ extension ModelInfoRetriever {
             return
           }
 
-          guard let modelHash = httpResponse.allHeaderFields[ModelInfoRetriever.etagHTTPHeader] as? String else {
-            completion(.internalError(description: ModelInfoRetriever.missingModelHashErrorDescription))
+          guard let modelHash = httpResponse
+            .allHeaderFields[ModelInfoRetriever.etagHTTPHeader] as? String else {
+            completion(.internalError(description: ModelInfoRetriever
+                .missingModelHashErrorDescription))
             return
           }
 
           guard let data = data else {
-            completion(.internalError(description: ModelInfoRetriever.invalidHTTPResponseErrorDescription))
+            completion(.internalError(description: ModelInfoRetriever
+                .invalidHTTPResponseErrorDescription))
             return
           }
-          
-          self?.saveModelInfo(data : data, modelHash: modelHash)
+
+          self?.saveModelInfo(data: data, modelHash: modelHash)
         }
       }
       dataTask.resume()
@@ -176,7 +185,7 @@ extension ModelInfoRetriever {
   }
 
   /// Save model info to user defaults.
-  func saveModelInfo(data : Data, modelHash : String) {
+  func saveModelInfo(data: Data, modelHash: String) {
     // TODO: Save model info to user defaults
     modelInfo?.hash = modelHash
   }

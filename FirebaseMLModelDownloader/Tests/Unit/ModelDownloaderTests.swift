@@ -63,7 +63,11 @@ final class ModelDownloaderTests: XCTestCase {
       modelName: testModelName
     )
 
-    modelInfoRetriever.modelInfo = ModelInfo(app: testApp, name: testModelName, defaults: .getTestInstance())
+    modelInfoRetriever.modelInfo = ModelInfo(
+      app: testApp,
+      name: testModelName,
+      defaults: .getTestInstance()
+    )
     XCTAssertEqual(modelInfoRetriever.modelInfo?.downloadURL, "")
     modelInfoRetriever.modelInfo?.downloadURL = "testurl.com"
     XCTAssertEqual(modelInfoRetriever.modelInfo?.downloadURL, "testurl.com")
@@ -82,7 +86,7 @@ final class ModelDownloaderTests: XCTestCase {
       modelName: testModelName
     )
     let expectation = self.expectation(description: "Wait for model info to download.")
-    modelInfoRetriever.downloadModelInfo(completion : { error in
+    modelInfoRetriever.downloadModelInfo(completion: { error in
       guard let downloadError = error else { return }
       XCTAssertEqual(downloadError, .notFound)
       print("ERROR: Model not found on server.")

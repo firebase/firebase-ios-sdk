@@ -72,7 +72,7 @@ public struct ModelDownloader {
 
   /// Gets all downloaded models.
   public func listDownloadedModels(completion: @escaping (Result<Set<CustomModel>,
-                                                                 DownloadedModelError>) -> Void) {
+    DownloadedModelError>) -> Void) {
     let customModels = Set<CustomModel>()
     // TODO: List downloaded models
     completion(.success(customModels))
