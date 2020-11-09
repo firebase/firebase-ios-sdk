@@ -40,6 +40,16 @@ enum Constants {
   }
 }
 
+extension UserDefaults {
+  /// For testing: returns a new cleared instance of user defaults.
+  static func getTestInstance() -> UserDefaults {
+    let suiteName = "com.google.firebase.ml.test"
+    let defaults = UserDefaults(suiteName: suiteName)!
+    defaults.removePersistentDomain(forName: suiteName)
+    return defaults
+  }
+}
+
 final class ModelDownloaderTests: XCTestCase {
   override class func setUp() {
     super.setUp()

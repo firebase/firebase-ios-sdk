@@ -40,7 +40,7 @@ struct ModelInfo {
   init(app: FirebaseApp, name: String, defaults: UserDefaults = .firebaseMLDefaults) {
     self.name = name
     self.defaults = defaults
-    let bundleID = Bundle.main.bundleIdentifier!
+    let bundleID = Bundle.main.bundleIdentifier ?? ""
     let defaultsPrefix = "\(bundleID).\(app.name).\(name)"
     _downloadURL = UserDefaultsBacked(
       key: "\(defaultsPrefix).model-download-url",
@@ -90,16 +90,16 @@ class ModelInfoRetriever: NSObject {
 /// Extension to handle fetching model info from server.
 extension ModelInfoRetriever {
   /// HTTP request headers.
-  static let fisTokenHTTPHeader: String = "X-Goog-Firebase-Installations-Auth"
-  static let hashMatchHTTPHeader: String = "If-None-Match"
-  static let bundleIDHTTPHeader: String = "X-Ios-Bundle-Identifier"
+  static let fisTokenHTTPHeader: String = "x-goog-firebase-installations-auth"
+  static let hashMatchHTTPHeader: String = "if-none-match"
+  static let bundleIDHTTPHeader: String = "x-ios-bundle-identifier"
 
   /// HTTP response headers.
   static let etagHTTPHeader: String = "ETag"
 
   /// Error descriptions.
   static let tokenErrorDescription: String = "Error retrieving FIS token."
-  static let modelFetchURLErrorDescription: String = "Error retrieving model fetch URL."
+  static let selfDeallocatedErrorDescription: String = "Self deallocated."
   static let missingModelHashErrorDescription: String = "Model hash missing in server response."
   static let invalidHTTPResponseErrorDescription: String =
     "Could not get a valid HTTP response from server."
@@ -109,7 +109,7 @@ extension ModelInfoRetriever {
     var components = URLComponents()
     components.scheme = "https"
     components.host = "firebaseml.googleapis.com"
-    components.path = "/Model/v1beta2/projects/\(projectID)/models/\(modelName)"
+    components.path = "/v1beta2/projects/\(projectID)/models/\(modelName):download"
     return components.url!
   }
 
@@ -118,7 +118,7 @@ extension ModelInfoRetriever {
     var request = URLRequest(url: modelInfoFetchURL)
     request.httpMethod = "GET"
     // TODO: Check if bundle ID needs to be part of the request header.
-    let bundleID = Bundle.main.bundleIdentifier!
+    let bundleID = Bundle.main.bundleIdentifier ?? ""
     request.setValue(bundleID, forHTTPHeaderField: ModelInfoRetriever.bundleIDHTTPHeader)
     request.setValue(token, forHTTPHeaderField: ModelInfoRetriever.fisTokenHTTPHeader)
     if let info = modelInfo, info.hash.count > 0 {
@@ -131,19 +131,27 @@ extension ModelInfoRetriever {
   func downloadModelInfo(completion: @escaping (DownloadError?) -> Void) {
     /// Get FIS token.
     installations.authToken { [weak self] tokenResult, error in
+      guard let self = self else {
+        completion(.internalError(description: ModelInfoRetriever.selfDeallocatedErrorDescription))
+        return
+      }
       guard let result = tokenResult
-      else { completion(.internalError(description: ModelInfoRetriever.tokenErrorDescription))
+      else {
+        completion(.internalError(description: ModelInfoRetriever.tokenErrorDescription))
         return
       }
       /// Get model info fetch URL with appropriate HTTP headers.
-      guard let request = self?.getModelInfoFetchURLRequest(token: result.authToken)
-      else {
-        completion(.internalError(description: ModelInfoRetriever.modelFetchURLErrorDescription))
-        return
-      }
+      let request = self.getModelInfoFetchURLRequest(token: result.authToken)
+
       /// Download model info.
+      // TODO: Consider moving request to a separate method
       let dataTask = URLSession.shared.dataTask(with: request) { [weak self]
         data, response, error in
+        guard let self = self else {
+          completion(.internalError(description: ModelInfoRetriever
+              .selfDeallocatedErrorDescription))
+          return
+        }
         if let downloadError = error {
           completion(.internalError(description: downloadError.localizedDescription))
         } else {
@@ -153,31 +161,28 @@ extension ModelInfoRetriever {
             return
           }
 
-          guard httpResponse.statusCode == 200 || httpResponse.statusCode == 304 else {
-            // TODO: Improve http status code error handling
+          // TODO: Handle more http status codes
+          switch httpResponse.statusCode {
+          case 200:
+            guard let modelHash = httpResponse
+              .allHeaderFields[ModelInfoRetriever.etagHTTPHeader] as? String else {
+              completion(.internalError(description: ModelInfoRetriever
+                  .missingModelHashErrorDescription))
+              return
+            }
+
+            guard let data = data else {
+              completion(.internalError(description: ModelInfoRetriever
+                  .invalidHTTPResponseErrorDescription))
+              return
+            }
+            self.saveModelInfo(data: data, modelHash: modelHash)
+            completion(nil)
+          case 304:
+            completion(nil)
+          default:
             completion(.notFound)
-            return
           }
-
-          /// Local model not modified.
-          if httpResponse.statusCode == 304 {
-            return
-          }
-
-          guard let modelHash = httpResponse
-            .allHeaderFields[ModelInfoRetriever.etagHTTPHeader] as? String else {
-            completion(.internalError(description: ModelInfoRetriever
-                .missingModelHashErrorDescription))
-            return
-          }
-
-          guard let data = data else {
-            completion(.internalError(description: ModelInfoRetriever
-                .invalidHTTPResponseErrorDescription))
-            return
-          }
-
-          self?.saveModelInfo(data: data, modelHash: modelHash)
         }
       }
       dataTask.resume()
@@ -197,55 +202,5 @@ extension UserDefaults {
     let suiteName = "com.google.firebase.ml"
     let defaults = UserDefaults(suiteName: suiteName)!
     return defaults
-  }
-
-  /// For testing: returns a new cleared instance of user defaults.
-  static func getTestInstance() -> UserDefaults {
-    let suiteName = "com.google.firebase.ml.test"
-    let defaults = UserDefaults(suiteName: suiteName)!
-    defaults.removePersistentDomain(forName: suiteName)
-    return defaults
-  }
-}
-
-/// Property initializer for user defaults. Value is always read from or written to a named user defaults store.
-@propertyWrapper struct UserDefaultsBacked<Value> {
-  let key: String
-  let defaultValue: Value
-  let storage: UserDefaults
-
-  var wrappedValue: Value {
-    get {
-      let value = storage.value(forKey: key) as? Value
-      return value ?? defaultValue
-    }
-    set {
-      guard let optional = newValue as Optional?, optional != nil else {
-        storage.removeObject(forKey: key)
-        return
-      }
-      storage.setValue(newValue, forKey: key)
-    }
-  }
-}
-
-/// Initialize and set default value for user default backed properties that can be optional (model path).
-extension UserDefaultsBacked where Value: ExpressibleByNilLiteral {
-  init(key: String, storage: UserDefaults) {
-    self.init(key: key, defaultValue: nil, storage: storage)
-  }
-}
-
-/// Initialize and set default value for user default backed properties that are strings (model download url, model hash).
-extension UserDefaultsBacked where Value: ExpressibleByStringLiteral {
-  init(key: String, storage: UserDefaults) {
-    self.init(key: key, defaultValue: "", storage: storage)
-  }
-}
-
-/// Initialize and set default value for user default backed properties that are int (model size).
-extension UserDefaultsBacked where Value: ExpressibleByIntegerLiteral {
-  init(key: String, storage: UserDefaults) {
-    self.init(key: key, defaultValue: 0, storage: storage)
   }
 }
