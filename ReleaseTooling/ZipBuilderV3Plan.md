@@ -27,7 +27,7 @@ A more flexible Zip Builder would enable the following scenarios:
   * Build only the subspecs needed for use case (for CocoaPods)
   * Use Swift Package Manager instead of CocoaPods if desired
   * Developers or other library authors  could use the tool to generate binaries without
-    having to interact with Firebase specific tools 
+    having to interact with Firebase specific tools
 
 ## Plan
 
