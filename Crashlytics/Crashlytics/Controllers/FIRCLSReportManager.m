@@ -226,12 +226,11 @@ static void (^reportSentCallback)(void);
   _settings = settings;
   _appIDModel = appIDModel;
 
-  _settingsManager =
-      [[FIRCLSSettingsManager alloc] initWithAppIDModel:appIDModel
-                                                   installIDModel:self.installIDModel
-                                                         settings:self.settings
-                                                      fileManager:self.fileManager
-                                                      googleAppID:self.googleAppID];
+  _settingsManager = [[FIRCLSSettingsManager alloc] initWithAppIDModel:appIDModel
+                                                        installIDModel:self.installIDModel
+                                                              settings:self.settings
+                                                           fileManager:self.fileManager
+                                                           googleAppID:self.googleAppID];
 
   return self;
 }
@@ -399,7 +398,7 @@ static void (^reportSentCallback)(void);
                      !self.settings.shouldUseNewReportEndpoint && !self.settings.orgID;
 
                  [self beginSettingsWithToken:dataCollectionToken
-                                    waitForSettingsRequest:waitForSetting];
+                       waitForSettingsRequest:waitForSetting];
 
                  [self beginReportUploadsWithToken:dataCollectionToken
                             preexistingReportPaths:preexistingReportPaths
@@ -455,15 +454,15 @@ static void (^reportSentCallback)(void);
 }
 
 - (void)beginSettingsWithToken:(FIRCLSDataCollectionToken *)token
-                     waitForSettingsRequest:(BOOL)waitForSettings {
+        waitForSettingsRequest:(BOOL)waitForSettings {
   if (self.settings.isCacheExpired) {
     // This method can be called more than once if the user calls
     // SendUnsentReports again, so don't repeat the settings fetch
     static dispatch_once_t settingsFetchOnceToken;
     dispatch_once(&settingsFetchOnceToken, ^{
       [self.settingsManager beginSettingsWithGoogleAppId:self.googleAppID
-                                                                             token:token
-                                                                 waitForCompletion:waitForSettings];
+                                                   token:token
+                                       waitForCompletion:waitForSettings];
     });
   }
 }
