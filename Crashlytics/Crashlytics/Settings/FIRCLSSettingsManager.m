@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "Crashlytics/Crashlytics/Settings/FIRCLSSettingsOnboardingManager.h"
+#import "Crashlytics/Crashlytics/Settings/FIRCLSSettingsManager.h"
 
 #import "Crashlytics/Crashlytics/DataCollection/FIRCLSDataCollectionToken.h"
 #import "Crashlytics/Crashlytics/Helpers/FIRCLSDefines.h"
@@ -26,7 +26,7 @@
 #import "Crashlytics/Shared/FIRCLSNetworking/FIRCLSFABNetworkClient.h"
 #import "Crashlytics/Shared/FIRCLSNetworking/FIRCLSURLBuilder.h"
 
-@interface FIRCLSSettingsOnboardingManager () <FIRCLSDownloadAndSaveSettingsOperationDelegate>
+@interface FIRCLSSettingsManager () <FIRCLSDownloadAndSaveSettingsOperationDelegate>
 
 @property(nonatomic, strong) FIRCLSApplicationIdentifierModel *appIDModel;
 @property(nonatomic, strong) FIRCLSInstallIdentifierModel *installIDModel;
@@ -34,9 +34,6 @@
 @property(nonatomic, strong) FIRCLSSettings *settings;
 
 @property(nonatomic, strong) FIRCLSFileManager *fileManager;
-
-// set to YES once onboarding call has been made.
-@property(nonatomic) BOOL hasAttemptedAppConfigure;
 
 @property(nonatomic) NSDictionary *configuration;
 @property(nonatomic) NSDictionary *defaultConfiguration;
@@ -46,7 +43,7 @@
 
 @end
 
-@implementation FIRCLSSettingsOnboardingManager
+@implementation FIRCLSSettingsManager
 
 - (instancetype)initWithAppIDModel:(FIRCLSApplicationIdentifierModel *)appIDModel
                     installIDModel:(FIRCLSInstallIdentifierModel *)installIDModel
@@ -69,7 +66,7 @@
   return self;
 }
 
-- (void)beginSettingsAndOnboardingWithGoogleAppId:(NSString *)googleAppID
+- (void)beginSettingsWithGoogleAppId:(NSString *)googleAppID
                                             token:(FIRCLSDataCollectionToken *)token
                                 waitForCompletion:(BOOL)waitForCompletion {
   NSParameterAssert(googleAppID);
