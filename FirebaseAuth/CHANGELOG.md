@@ -1,5 +1,5 @@
 # 7.1.0
-- [fixed] Fixed a crash on iOS 14 when multiple app delegate completion methods were called (#6863).
+- [fixed] Fixed completion handler issue in `application(_:didReceiveRemoteNotification:fetchCompletionHandler:)` method. (#6863)
 
 # 7.0.0
 - [removed] Remove deprecated APIs `dataForKey`,`fetchProvidersForEmail:completion`, `signInAndRetrieveDataWithCredential:completion`, `reauthenticateAndRetrieveDataWithCredential:completion`, `linkAndRetrieveDataWithCredential:completion`. (#6607)
