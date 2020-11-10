@@ -70,7 +70,6 @@ final class ModelDownloaderTests: XCTestCase {
     let testModelName = "\(functionName)-test-model"
     let modelInfoRetriever = ModelInfoRetriever(
       app: testApp,
-      projectID: Constants.Options.projectID,
       modelName: testModelName
     )
 
@@ -89,21 +88,44 @@ final class ModelDownloaderTests: XCTestCase {
 
   func testDownloadModelInfo() {
     let testApp = FirebaseApp.app()!
-    let functionName = #function
-    let testModelName = "\(functionName)-test-model"
+    let testModelName = "test1234"
     let modelInfoRetriever = ModelInfoRetriever(
       app: testApp,
-      projectID: Constants.Options.projectID,
       modelName: testModelName
     )
     let expectation = self.expectation(description: "Wait for model info to download.")
     modelInfoRetriever.downloadModelInfo(completion: { error in
-      guard let downloadError = error else { return }
-      XCTAssertEqual(downloadError, .notFound)
-      print("ERROR: Model not found on server.")
+      XCTAssertNil(error)
+      XCTAssertEqual(modelInfoRetriever.modelInfo?.size, 562_336)
       expectation.fulfill()
     })
-    waitForExpectations(timeout: 10, handler: nil)
+    waitForExpectations(timeout: 5, handler: nil)
+  }
+
+  func testSaveModelInfo() {
+    let testApp = FirebaseApp.app()!
+    let functionName = #function
+    let testModelName = "\(functionName)-test-model"
+    let modelInfoRetriever = ModelInfoRetriever(
+      app: testApp,
+      modelName: testModelName
+    )
+    modelInfoRetriever.modelInfo = ModelInfo(
+      app: testApp,
+      name: testModelName,
+      defaults: .getTestInstance()
+    )
+    let sampleResponse: String = """
+    {
+    "downloadUri": "https://storage.googleapis.com",
+    "expireTime": "2020-11-10T04:58:49.643Z",
+    "sizeBytes": "562336"
+    }
+    """
+    let data: Data = sampleResponse.data(using: .utf8)!
+    modelInfoRetriever.saveModelInfo(data: data, modelHash: "test-model-hash")
+    XCTAssertEqual(modelInfoRetriever.modelInfo?.downloadURL, "https://storage.googleapis.com")
+    XCTAssertEqual(modelInfoRetriever.modelInfo?.size, 562_336)
   }
 
   func testExample() {
