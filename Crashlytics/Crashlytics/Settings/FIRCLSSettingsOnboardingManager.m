@@ -91,9 +91,7 @@
 
 /**
  * Makes a settings download request. If the request fails, the error is handled silently(with a log
- * statement). If the server response indicates onboarding is needed, an onboarding request is sent
- * to the server. If the onboarding request fails, the error is handled silently(with a log
- * statement).
+ * statement). 
  */
 - (void)beginSettingsDownload:(FIRCLSDataCollectionToken *)token
             waitForCompletion:(BOOL)waitForCompletion {
