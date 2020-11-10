@@ -22,20 +22,17 @@
 #import "Crashlytics/Crashlytics/Models/FIRCLSSettings.h"
 #import "Crashlytics/Crashlytics/Settings/Models/FIRCLSApplicationIdentifierModel.h"
 #import "Crashlytics/Crashlytics/Settings/Operations/FIRCLSDownloadAndSaveSettingsOperation.h"
-#import "Crashlytics/Crashlytics/Settings/Operations/FIRCLSOnboardingOperation.h"
 #import "Crashlytics/Shared/FIRCLSConstants.h"
 #import "Crashlytics/Shared/FIRCLSNetworking/FIRCLSFABNetworkClient.h"
 #import "Crashlytics/Shared/FIRCLSNetworking/FIRCLSURLBuilder.h"
 
-@interface FIRCLSSettingsOnboardingManager () <FIRCLSDownloadAndSaveSettingsOperationDelegate,
-                                               FIRCLSOnboardingOperationDelegate>
+@interface FIRCLSSettingsOnboardingManager () <FIRCLSDownloadAndSaveSettingsOperationDelegate>
 
 @property(nonatomic, strong) FIRCLSApplicationIdentifierModel *appIDModel;
 @property(nonatomic, strong) FIRCLSInstallIdentifierModel *installIDModel;
 
 @property(nonatomic, strong) FIRCLSSettings *settings;
 
-@property(nonatomic, nullable, strong) FIRCLSOnboardingOperation *onboardingOperation;
 @property(nonatomic, strong) FIRCLSFileManager *fileManager;
 
 // set to YES once onboarding call has been made.
@@ -126,54 +123,8 @@
   }
 }
 
-- (void)beginOnboarding:(BOOL)appCreate
-         endpointString:(NSString *)endpoint
-                  token:(FIRCLSDataCollectionToken *)token {
-  [self.onboardingOperation cancel];
-
-  self.onboardingOperation =
-      [[FIRCLSOnboardingOperation alloc] initWithDelegate:self
-                                             shouldCreate:appCreate
-                                              googleAppID:self.googleAppID
-                         kitVersionsByKitBundleIdentifier:self.kitVersionsByKitBundleIdentifier
-                                       appIdentifierModel:self.appIDModel
-                                           endpointString:endpoint
-                                            networkClient:self.networkClient
-                                                    token:token
-                                                 settings:self.settings];
-
-  [self.onboardingOperation startWithToken:token];
-}
-
 - (void)finishNetworkingSession {
   [self.networkClient invalidateAndCancel];
-}
-
-#pragma mark FIRCLSOnboardingOperationDelegate methods
-
-- (void)onboardingOperation:(FIRCLSOnboardingOperation *)operation
-    didCompleteAppCreationWithError:(nullable NSError *)error {
-  if (error) {
-    FIRCLSErrorLog(@"Unable to complete application configure: %@", error);
-    [self finishNetworkingSession];
-    return;
-  }
-  self.onboardingOperation = nil;
-  FIRCLSDebugLog(@"Completed configure");
-
-  // now, go get settings, as they can change (and it completes the onboarding process)
-  [self beginSettingsDownload:operation.token waitForCompletion:NO];
-}
-
-- (void)onboardingOperation:(FIRCLSOnboardingOperation *)operation
-    didCompleteAppUpdateWithError:(nullable NSError *)error {
-  [self finishNetworkingSession];
-  if (error) {
-    FIRCLSErrorLog(@"Unable to complete application update: %@", error);
-    return;
-  }
-  self.onboardingOperation = nil;
-  FIRCLSDebugLog(@"Completed application update");
 }
 
 #pragma mark FIRCLSDownloadAndSaveSettingsOperationDelegate methods
@@ -198,32 +149,6 @@
 
   NSTimeInterval currentTimestamp = [NSDate timeIntervalSinceReferenceDate];
   [self.settings cacheSettingsWithGoogleAppID:self.googleAppID currentTimestamp:currentTimestamp];
-
-  // only try this once
-  if (self.hasAttemptedAppConfigure) {
-    FIRCLSDebugLog(@"App already onboarded in this run of the app");
-    [self finishNetworkingSession];
-    return;
-  }
-
-  // Onboarding is still needed in Firebase, here are the backend app states -
-  // 1. When the app is created in the Firebase console, app state: built (client settings call
-  // returns app status: new)
-  // 2. After onboarding call is made, app state: build_configured
-  // 3. Another settings call is triggered after onboarding, app state: activated
-  if ([self.settings appNeedsOnboarding]) {
-    FIRCLSDebugLog(@"Starting onboarding with app create");
-    self.hasAttemptedAppConfigure = YES;
-    [self beginOnboarding:YES endpointString:FIRCLSConfigureEndpoint token:operation.token];
-    return;
-  }
-
-  if ([self.settings appUpdateRequired]) {
-    FIRCLSDebugLog(@"Starting onboarding with app update");
-    self.hasAttemptedAppConfigure = YES;
-    [self beginOnboarding:NO endpointString:FIRCLSConfigureEndpoint token:operation.token];
-    return;
-  }
 
   // we're all set!
   [self finishNetworkingSession];
