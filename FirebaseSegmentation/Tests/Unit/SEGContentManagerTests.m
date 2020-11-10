@@ -71,9 +71,6 @@
       authTokenWithCompletion:([OCMArg invokeBlockWithArgs:FISToken, [NSNull null], nil])]);
 
   // Mock the network manager.
-  FIROptions *options = [[FIROptions alloc] init];
-  options.projectID = @"test-project-id";
-  options.APIKey = @"AIzaSy-ApiKeyWithValidFormat_0123456789";
   self.networkManagerMock = OCMClassMock([SEGNetworkManager class]);
   OCMStub([self.networkManagerMock
       makeAssociationRequestToBackendWithData:[OCMArg any]

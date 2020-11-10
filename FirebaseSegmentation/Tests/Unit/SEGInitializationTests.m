@@ -14,8 +14,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FirebaseCore/Sources/Public/FirebaseCore/FIRApp.h"
-#import "FirebaseCore/Sources/Public/FirebaseCore/FIROptions.h"
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "FirebaseSegmentation/Sources/Public/FIRSegmentation.h"
 
 @interface FIRSegmentation (ForTest)
@@ -31,7 +30,10 @@
 @implementation SEGInitializationTests
 
 - (void)setUp {
-  FIROptions *options = [[FIROptions alloc] init];
+  FIROptions *options = [[FIROptions alloc] initInternalWithOptionsDictionary:@{
+    @"API_KEY" : @"AIzaSy-ApiKeyWithValidFormat_0123456789",
+    @"PROJECT_ID" : @"test-firebase-project-id",
+  }];
   options.APIKey = @"AIzaSy-ApiKeyWithValidFormat_0123456789";
   options.projectID = @"test-firebase-project-id";
   _segmentation = [[FIRSegmentation alloc] initWithAppName:@"test-firebase-app-name"
