@@ -51,8 +51,8 @@ NS_ASSUME_NONNULL_BEGIN
  * @param token (required) Data collection token signifying we can make network calls
  */
 - (void)beginSettingsWithGoogleAppId:(NSString *)googleAppID
-                                            token:(FIRCLSDataCollectionToken *)token
-                                waitForCompletion:(BOOL)waitForCompletion;
+                               token:(FIRCLSDataCollectionToken *)token
+                   waitForCompletion:(BOOL)waitForCompletion;
 
 @end
 
