@@ -70,21 +70,21 @@
     completionHandler(NO, @{kSEGErrorDescription : @"Firebase Installations SDK not available"});
   }
   __weak SEGContentManager *weakSelf = self;
-  [installation
-      installationIDWithCompletion:^(NSString *_Nullable identifier, NSError *_Nullable error) {
-        SEGContentManager *strongSelf = weakSelf;
-        if (!strongSelf) {
-          completionHandler(NO, @{kSEGErrorDescription : @"Internal Error getting installation ID."});
-          return;
-        }
+  [installation installationIDWithCompletion:^(NSString *_Nullable identifier,
+                                               NSError *_Nullable error) {
+    SEGContentManager *strongSelf = weakSelf;
+    if (!strongSelf) {
+      completionHandler(NO, @{kSEGErrorDescription : @"Internal Error getting installation ID."});
+      return;
+    }
 
-        [strongSelf associateInstallationWithLatestIdentifier:identifier
-                                                 installation:installation
-                                         customizedIdentifier:customInstallationID
-                                                  firebaseApp:firebaseApp
-                                                        error:error
-                                                   completion:completionHandler];
-      }];
+    [strongSelf associateInstallationWithLatestIdentifier:identifier
+                                             installation:installation
+                                     customizedIdentifier:customInstallationID
+                                              firebaseApp:firebaseApp
+                                                    error:error
+                                               completion:completionHandler];
+  }];
 }
 
 - (void)associateInstallationWithLatestIdentifier:(NSString *_Nullable)identifier

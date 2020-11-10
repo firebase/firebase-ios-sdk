@@ -137,8 +137,8 @@ static BOOL SEGCreateFilePathIfNotExist(NSString *filePath) {
         FIRLogError(kFIRLoggerSegmentation, @"I-SEG00006", @"Failed to create table.");
         // Create a new database if existing database file is corrupted.
         if (!SEGCreateFilePathIfNotExist(dbPath)) {
-          NSString *description = [NSString stringWithFormat:
-                                   @"Could not recreate database file at path: %@", dbPath];
+          NSString *description =
+              [NSString stringWithFormat:@"Could not recreate database file at path: %@", dbPath];
           completionHandler(NO, @{kSEGErrorDescription : description});
           return;
         }
