@@ -67,14 +67,14 @@
   // Get the latest installation identifier
   FIRInstallations *installation = [self installationForApp:firebaseApp];
   if (installation == nil) {
-    completionHandler(NO, @{kErrorDescription : @"Firebase Installations SDK not available"});
+    completionHandler(NO, @{kSEGErrorDescription : @"Firebase Installations SDK not available"});
   }
   __weak SEGContentManager *weakSelf = self;
   [installation
       installationIDWithCompletion:^(NSString *_Nullable identifier, NSError *_Nullable error) {
         SEGContentManager *strongSelf = weakSelf;
         if (!strongSelf) {
-          completionHandler(NO, @{kErrorDescription : @"Internal Error getting installation ID."});
+          completionHandler(NO, @{kSEGErrorDescription : @"Internal Error getting installation ID."});
           return;
         }
 
@@ -98,7 +98,7 @@
     if (error) {
       errorMessage = [errorMessage stringByAppendingString:error.description];
     }
-    NSDictionary *errorDictionary = @{kErrorDescription : errorMessage};
+    NSDictionary *errorDictionary = @{kSEGErrorDescription : errorMessage};
     completionHandler(NO, errorDictionary);
     return;
   }
@@ -125,7 +125,7 @@
     if (error) {
       errorMessage = [errorMessage stringByAppendingString:error.description];
     }
-    NSDictionary *errorDictionary = @{kErrorDescription : errorMessage};
+    NSDictionary *errorDictionary = @{kSEGErrorDescription : errorMessage};
     completionHandler(NO, errorDictionary);
     return;
   }
