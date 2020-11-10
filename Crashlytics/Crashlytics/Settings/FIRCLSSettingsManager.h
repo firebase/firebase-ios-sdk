@@ -32,7 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Use this class to retrieve remote settings for the application from crashlytics backend, and
  * onboard the application on the server.
  */
-@interface FIRCLSSettingsOnboardingManager : NSObject
+@interface FIRCLSSettingsManager : NSObject
 
 /**
  * Designated Initializer.
@@ -46,11 +46,11 @@ NS_ASSUME_NONNULL_BEGIN
 + (instancetype)new NS_UNAVAILABLE;
 
 /**
- * This method kicks off downloading settings and onboarding for the app.
+ * This method kicks off downloading settings for the app.
  * @param googleAppID (required) GMP id for the app.
  * @param token (required) Data collection token signifying we can make network calls
  */
-- (void)beginSettingsAndOnboardingWithGoogleAppId:(NSString *)googleAppID
+- (void)beginSettingsWithGoogleAppId:(NSString *)googleAppID
                                             token:(FIRCLSDataCollectionToken *)token
                                 waitForCompletion:(BOOL)waitForCompletion;
 
