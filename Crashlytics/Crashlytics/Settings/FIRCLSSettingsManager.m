@@ -67,8 +67,8 @@
 }
 
 - (void)beginSettingsWithGoogleAppId:(NSString *)googleAppID
-                                            token:(FIRCLSDataCollectionToken *)token
-                                waitForCompletion:(BOOL)waitForCompletion {
+                               token:(FIRCLSDataCollectionToken *)token
+                   waitForCompletion:(BOOL)waitForCompletion {
   NSParameterAssert(googleAppID);
 
   self.googleAppID = googleAppID;
@@ -87,7 +87,8 @@
 #pragma mark Helper methods
 
 /**
- * Makes a settings download request. If the request fails, the error is handled silently (with a log statement).
+ * Makes a settings download request. If the request fails, the error is handled silently (with a
+ * log statement).
  */
 - (void)beginSettingsDownload:(FIRCLSDataCollectionToken *)token
             waitForCompletion:(BOOL)waitForCompletion {
