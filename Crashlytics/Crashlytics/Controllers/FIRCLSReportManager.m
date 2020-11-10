@@ -379,7 +379,6 @@ static void (^reportSentCallback)(void);
                  FIRCLSDebugLog(@"Sending unsent reports.");
                  FIRCLSDataCollectionToken *dataCollectionToken =
                      [FIRCLSDataCollectionToken validToken];
-                 helllo
 
                  [self beginReportUploadsWithToken:dataCollectionToken
                             preexistingReportPaths:preexistingReportPaths
