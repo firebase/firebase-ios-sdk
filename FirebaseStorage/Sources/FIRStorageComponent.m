@@ -16,6 +16,7 @@
 
 #import "FirebaseStorage/Sources/Public/FirebaseStorage/FIRStorage.h"
 
+#import "FirebaseAppCheck/Sources/Interop/FIRAppCheckInterop.h"
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "Interop/Auth/Public/FIRAuthInterop.h"
 
@@ -25,7 +26,8 @@ NS_ASSUME_NONNULL_BEGIN
 // Surface the internal initializer to create instances of FIRStorage.
 - (instancetype)initWithApp:(FIRApp *)app
                      bucket:(NSString *)bucket
-                       auth:(nullable id<FIRAuthInterop>)auth;
+                       auth:(nullable id<FIRAuthInterop>)auth
+                   appCheck:(nullable id<FIRAppCheckInterop>)appCheck;
 @end
 
 @interface FIRStorageComponent () <FIRLibrary>
@@ -74,7 +76,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (FIRStorage *)storageForBucket:(NSString *)bucket {
   // Create an instance of FIRStorage and return it.
   id<FIRAuthInterop> auth = FIR_COMPONENT(FIRAuthInterop, self.app.container);
-  return [[FIRStorage alloc] initWithApp:self.app bucket:bucket auth:auth];
+  id<FIRAppCheckInterop> appCheck = FIR_COMPONENT(FIRAppCheckInterop, self.app.container);
+  return [[FIRStorage alloc] initWithApp:self.app bucket:bucket auth:auth appCheck:appCheck];
 }
 
 @end
