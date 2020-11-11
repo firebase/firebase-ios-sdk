@@ -396,7 +396,7 @@ case "$product-$platform-$method" in
 
   SegmentationSample-*-*)
     RunXcodebuild \
-      -workspace 'FirebaseSegmementation/Tests/Sample/SegmentationSampleApp.xcworkspace' \
+      -workspace 'FirebaseSegmentation/Tests/Sample/SegmentationSampleApp.xcworkspace' \
       -scheme "SegmentationSampleApp" \
       "${xcb_flags[@]}" \
       build
