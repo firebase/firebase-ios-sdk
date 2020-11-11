@@ -290,7 +290,7 @@ NSString *const AppVersion = @"app_version";
 }
 
 - (BOOL)shouldUseNewReportEndpoint {
-#ifdef CRASHLYTICS_1P
+#ifdef CRASHLYTICS_INTERNAL
   return YES;
 #else
   NSNumber *value = [self appSettings][@"report_upload_variant"];
