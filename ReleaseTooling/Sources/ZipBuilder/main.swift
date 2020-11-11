@@ -42,11 +42,17 @@ extension TargetPlatform: ExpressibleByArgument {
 struct ZipBuilderTool: ParsableCommand {
   // MARK: - Boolean Flags
 
+  /// Enables or disables building arm64 slices for Apple silicon (simulator, etc).
+  @Flag(default: true,
+        inversion: .prefixedEnableDisable,
+        help: ArgumentHelp("Enables or disables building arm64 slices for Apple silicon Macs."))
+  var appleSiliconSupport: Bool
+
   /// Enables or disables building dependencies of pods.
   @Flag(default: true,
         inversion: .prefixedEnableDisable,
         help: ArgumentHelp("Whether or not to build dependencies of requested pods."))
-  var buildDependences
+  var buildDependences: Bool
 
   /// Flag to also build Carthage artifacts.
   @Flag(default: false,

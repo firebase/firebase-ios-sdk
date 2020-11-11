@@ -455,17 +455,6 @@ struct FrameworkBuilder {
     // Build every architecture and save the locations in an array to be assembled.
     let slicedFrameworks = buildFrameworksForAllPlatforms(withName: framework, logsDir: logsDir)
 
-    // For static frameworks, we'll re-assemble the framework manually. This should probably be
-    // reconsidered but let's stick with what works for now. Instead of pointing at the .framework,
-    // we'll point at the binary inside of it.
-    let binaries = slicedFrameworks.mapValues { frameworkURL -> URL in
-      // Go from `Something/Foo.framework` to `Something/Foo.framework/Foo`.
-      let filename = frameworkURL.lastPathComponent
-      let actualName = filename.replacingOccurrences(of: ".framework", with: "")
-      let alias = frameworkURL.appendingPathComponent(actualName)
-      return alias.resolvingSymlinksInPath()
-    }
-
     // Create the framework directory in the filesystem for the thin archives to go.
     let fileManager = FileManager.default
     let frameworkDir = outputDir.appendingPathComponent("\(framework).framework")
@@ -552,7 +541,7 @@ struct FrameworkBuilder {
     let moduleMapContents = moduleMapContentsTemplate.get(umbrellaHeader: umbrellaHeader)
     let xcframework = packageXCFramework(withName: framework,
                                          fromFolder: frameworkDir,
-                                         frameworkBinaries: binaries,
+                                         slicedFrameworks: slicedFrameworks,
                                          resourceContents: resourceContents,
                                          moduleMapContents: moduleMapContents)
 
@@ -590,42 +579,11 @@ struct FrameworkBuilder {
     return (xcframework, carthageFramework)
   }
 
-  /// Assembles a `.framework` file from a fat archive and other necessary information.
-  private func packageFramework(withName framework: String,
-                                fromFolder: URL,
-                                platform: TargetPlatform,
-                                fatArchive: URL,
-                                destination: URL,
-                                moduleMapContents: String) {
-    // Store all fat archives in a temporary directory that includes all architectures included as
-    // the parent folder.
-    let fatArchivesDir: URL = {
-      let allArchivesDir = FileManager.default.temporaryDirectory(withName: "fat_archives")
-      let architectures = platform.archs.map { $0.rawValue }.sorted()
-      return allArchivesDir.appendingPathComponent(architectures.joined(separator: "_"))
-    }()
-
-    do {
-      let fileManager = FileManager.default
-      try fileManager.createDirectory(at: fatArchivesDir, withIntermediateDirectories: true)
-      // Remove any previously built fat archives.
-      if fileManager.fileExists(atPath: destination.path) {
-        try fileManager.removeItem(at: destination)
-      }
-
-      try FileManager.default.copyItem(at: fromFolder, to: destination)
-    } catch {
-      fatalError("Could not create directories needed to build \(framework): \(error)")
-    }
-
-    // Copy the built binary to the destination.
-    let archiveDestination = destination.appendingPathComponent(framework)
-    do {
-      try FileManager.default.copyItem(at: fatArchive, to: archiveDestination)
-    } catch {
-      fatalError("Could not copy \(framework) to destination: \(error)")
-    }
-
+  /// Parses CocoaPods config files or uses the passed in `moduleMapContents` to write the
+  /// appropriate `moduleMap` to the `destination`.
+  private func packageModuleMaps(inFrameworks frameworks: [URL],
+                                 moduleMapContents: String,
+                                 destination: URL) {
     // CocoaPods does not put dependent frameworks and libraries into the module maps it generates.
     // Instead it use build options to specify them. For the zip build, we need the module maps to
     // include the dependent frameworks and libraries. Therefore we reconstruct them by parsing
@@ -636,101 +594,102 @@ struct FrameworkBuilder {
     // This is sufficient for the testing done so far, but more testing is required to determine
     // if dependent libraries and frameworks also may need to be added to the Swift module maps in
     // some cases.
-    let builtSwiftModules = makeSwiftModuleMap(slicedFramework: fatArchive,
-                                               destination: destination)
+    let builtSwiftModules = makeSwiftModuleMap(thinFrameworks: frameworks, destination: destination)
     if !builtSwiftModules {
       // Copy the module map to the destination.
       let moduleDir = destination.appendingPathComponent("Modules")
       do {
         try FileManager.default.createDirectory(at: moduleDir, withIntermediateDirectories: true)
       } catch {
-        fatalError("Could not create Modules directory for framework: \(framework). \(error)")
+        let frameworkName: String = frameworks.first?.lastPathComponent ?? "<UNKNOWN"
+        fatalError("Could not create Modules directory for framework: \(frameworkName). \(error)")
       }
       let modulemap = moduleDir.appendingPathComponent("module.modulemap")
       do {
         try moduleMapContents.write(to: modulemap, atomically: true, encoding: .utf8)
       } catch {
-        fatalError("Could not write modulemap to disk for \(framework): \(error)")
+        let frameworkName: String = frameworks.first?.lastPathComponent ?? "<UNKNOWN"
+        fatalError("Could not write modulemap to disk for \(frameworkName): \(error)")
       }
     }
   }
 
-  // TODO: Verify if the array is needed, or we can pass in an individual framework for searching.
-  // Why do we need to parse each one? The argument passed in previously was previously the thin
-  // binary slices, not a single URL.
-  private func makeSwiftModuleMap(slicedFramework: URL, destination: URL) -> Bool {
+  /// URLs pointing to the frameworks containing architecture specific code.
+  private func makeSwiftModuleMap(thinFrameworks: [URL], destination: URL) -> Bool {
     let fileManager = FileManager.default
 
-    // Get the Modules directory. The Catalyst one is a symbolic link.
-    let frameworkDir = slicedFramework.deletingLastPathComponent()
-    let moduleDir = frameworkDir.appendingPathComponent("Modules").resolvingSymlinksInPath()
-    do {
-      let files = try fileManager.contentsOfDirectory(at: moduleDir,
-                                                      includingPropertiesForKeys: nil)
-        .compactMap { $0.path }
-      let swiftModules = files.filter { $0.hasSuffix(".swiftmodule") }
-      if swiftModules.isEmpty {
-        return false
-      }
-      guard let first = swiftModules.first,
-        let swiftModule = URL(string: first) else {
-        fatalError("Failed to get swiftmodule in \(moduleDir).")
-      }
-      let destModuleDir = destination.appendingPathComponent("Modules")
-      if !fileManager.directoryExists(at: destModuleDir) {
-        do {
-          try fileManager.copyItem(at: moduleDir, to: destModuleDir)
-        } catch {
-          fatalError("Could not copy Modules from \(moduleDir) to " +
-            "\(destModuleDir): \(error)")
+    for thinFramework in thinFrameworks {
+      // Get the Modules directory. The Catalyst one is a symbolic link.
+      let moduleDir = thinFramework.appendingPathComponent("Modules").resolvingSymlinksInPath()
+      do {
+        let files = try fileManager.contentsOfDirectory(at: moduleDir,
+                                                        includingPropertiesForKeys: nil)
+          .compactMap { $0.path }
+        let swiftModules = files.filter { $0.hasSuffix(".swiftmodule") }
+        if swiftModules.isEmpty {
+          return false
         }
-      } else {
-        // If the Modules directory is already there, only copy in the architecture specific files
-        // from the *.swiftmodule subdirectory.
-        do {
-          let files = try fileManager.contentsOfDirectory(at: swiftModule,
-                                                          includingPropertiesForKeys: nil)
-            .compactMap { $0.path }
-          let destSwiftModuleDir = destModuleDir
-            .appendingPathComponent(swiftModule.lastPathComponent)
-          for file in files {
-            let fileURL = URL(fileURLWithPath: file)
-            let projectDir = swiftModule.appendingPathComponent("Project")
-            if fileURL.lastPathComponent == "Project",
-              fileManager.directoryExists(at: projectDir) {
-              // The Project directory (introduced with Xcode 11.4) already exist, only copy in
-              // new contents.
-              let projectFiles = try fileManager.contentsOfDirectory(at: projectDir,
-                                                                     includingPropertiesForKeys: nil)
-                .compactMap { $0.path }
-              let destProjectDir = destSwiftModuleDir.appendingPathComponent("Project")
-              for projectFile in projectFiles {
-                let projectFileURL = URL(fileURLWithPath: projectFile)
+        guard let first = swiftModules.first,
+          let swiftModule = URL(string: first) else {
+          fatalError("Failed to get swiftmodule in \(moduleDir).")
+        }
+        let destModuleDir = destination.appendingPathComponent("Modules")
+        if !fileManager.directoryExists(at: destModuleDir) {
+          do {
+            try fileManager.copyItem(at: moduleDir, to: destModuleDir)
+          } catch {
+            fatalError("Could not copy Modules from \(moduleDir) to " +
+              "\(destModuleDir): \(error)")
+          }
+        } else {
+          // If the Modules directory is already there, only copy in the architecture specific files
+          // from the *.swiftmodule subdirectory.
+          do {
+            let files = try fileManager.contentsOfDirectory(at: swiftModule,
+                                                            includingPropertiesForKeys: nil)
+              .compactMap { $0.path }
+            let destSwiftModuleDir = destModuleDir
+              .appendingPathComponent(swiftModule.lastPathComponent)
+            for file in files {
+              let fileURL = URL(fileURLWithPath: file)
+              let projectDir = swiftModule.appendingPathComponent("Project")
+              if fileURL.lastPathComponent == "Project",
+                fileManager.directoryExists(at: projectDir) {
+                // The Project directory (introduced with Xcode 11.4) already exists, only copy in
+                // new contents.
+                let projectFiles = try fileManager.contentsOfDirectory(at: projectDir,
+                                                                       includingPropertiesForKeys: nil)
+                  .compactMap { $0.path }
+                let destProjectDir = destSwiftModuleDir.appendingPathComponent("Project")
+                for projectFile in projectFiles {
+                  let projectFileURL = URL(fileURLWithPath: projectFile)
+                  do {
+                    try fileManager.copyItem(at: projectFileURL, to:
+                      destProjectDir.appendingPathComponent(projectFileURL.lastPathComponent))
+                  } catch {
+                    fatalError("Could not copy Project file from \(projectFileURL) to " +
+                      "\(destProjectDir): \(error)")
+                  }
+                }
+              } else {
                 do {
-                  try fileManager.copyItem(at: projectFileURL, to:
-                    destProjectDir.appendingPathComponent(projectFileURL.lastPathComponent))
+                  try fileManager.copyItem(at: fileURL, to:
+                    destSwiftModuleDir
+                      .appendingPathComponent(fileURL.lastPathComponent))
                 } catch {
-                  fatalError("Could not copy Project file from \(projectFileURL) to " +
-                    "\(destProjectDir): \(error)")
+                  fatalError("Could not copy Swift module file from \(fileURL) to " +
+                    "\(destSwiftModuleDir): \(error)")
                 }
               }
-            } else {
-              do {
-                try fileManager.copyItem(at: fileURL, to:
-                  destSwiftModuleDir.appendingPathComponent(fileURL.lastPathComponent))
-              } catch {
-                fatalError("Could not copy Swift module file from \(fileURL) to " +
-                  "\(destSwiftModuleDir): \(error)")
-              }
             }
+          } catch {
+            fatalError("Failed to get Modules directory contents - \(moduleDir):" +
+              "\(error.localizedDescription)")
           }
-        } catch {
-          fatalError("Failed to get Modules directory contents - \(moduleDir):" +
-            "\(error.localizedDescription)")
         }
+      } catch {
+        fatalError("Error while enumerating files \(moduleDir): \(error.localizedDescription)")
       }
-    } catch {
-      fatalError("Error while enumerating files \(moduleDir): \(error.localizedDescription)")
     }
     return true
   }
@@ -739,12 +698,12 @@ struct FrameworkBuilder {
   /// includes everything else needed) and thin archives for each architecture slice.
   /// - Parameter withName: The framework name.
   /// - Parameter fromFolder: The almost complete framework folder. Includes everything but the binary.
-  /// - Parameter frameworkBinaries: All the framework binaries sliced by platform.
+  /// - Parameter slicedFrameworks: All the frameworks sliced by platform.
   /// - Parameter resourceContents: Location of the resources for this xcframework.
   /// - Parameter moduleMapContents: Module map contents for all frameworks in this pod.
   private func packageXCFramework(withName framework: String,
                                   fromFolder: URL,
-                                  frameworkBinaries: [TargetPlatform: URL],
+                                  slicedFrameworks: [TargetPlatform: URL],
                                   resourceContents: URL,
                                   moduleMapContents: String) -> URL {
     let fileManager = FileManager.default
@@ -767,7 +726,7 @@ struct FrameworkBuilder {
     // `-create-xcframework` will return an error and fail:
     // `Both ios-arm64 and ios-armv7 represent two equivalent library definitions`
     var frameworksBuilt: [URL] = []
-    for (platform, binary) in frameworkBinaries {
+    for (platform, frameworkPath) in slicedFrameworks {
       let platformDir = platformFrameworksDir.appendingPathComponent(platform.sdkName)
       do {
         try fileManager.createDirectory(at: platformDir, withIntermediateDirectories: true)
@@ -776,14 +735,29 @@ struct FrameworkBuilder {
           "\(framework): \(error)")
       }
 
-      // Package a normal .framework with the given slices.
+      // Package a normal .framework given the `fromFolder` and the binary from `slicedFrameworks`.
       let destination = platformDir.appendingPathComponent(fromFolder.lastPathComponent)
-      packageFramework(withName: framework,
-                       fromFolder: fromFolder,
-                       platform: platform,
-                       fatArchive: binary,
-                       destination: destination,
-                       moduleMapContents: moduleMapContents)
+      do {
+        try fileManager.copyItem(at: fromFolder, to: destination)
+      } catch {
+        fatalError("Could not create framework directory needed to build \(framework): \(error)")
+      }
+
+      // Copy the binary to the right location.
+      let binaryName = frameworkPath.lastPathComponent.replacingOccurrences(of: ".framework",
+                                                                            with: "")
+      let fatBinary = frameworkPath.appendingPathComponent(binaryName).resolvingSymlinksInPath()
+      let fatBinaryDestination = destination.appendingPathComponent(framework)
+      do {
+        try fileManager.copyItem(at: fatBinary, to: fatBinaryDestination)
+      } catch {
+        fatalError("Could not copy fat binary to framework directory for \(framework): \(error)")
+      }
+
+      // Use the appropriate moduleMaps
+      packageModuleMaps(inFrameworks: [frameworkPath],
+                        moduleMapContents: moduleMapContents,
+                        destination: destination)
 
       frameworksBuilt.append(destination)
     }
@@ -865,17 +839,41 @@ struct FrameworkBuilder {
       }
     }
 
-    // Exclude Catalyst.
-    let slices = slicedFrameworks.filter { $0.key != TargetPlatform.catalyst }
+    // The frameworks include the arm64 simulator slice which will conflict with the arm64 device
+    // slice. Until Carthage can use XCFrameworks natively, extract the supported thin slices.
+    let thinSlices: [Architecture: URL] =
+      slicedBinariesForCarthage(fromFrameworks: slicedFrameworks,
+                                workingDir: platformFrameworksDir)
 
-    // Package a normal .framework with the given slices.
+    // Build the fat archive using the `lipo` command to make one fat binary that Carthage can use
+    // in the framework. We need the full archive path.
+    let fatArchive = platformFrameworksDir.appendingPathComponent(framework)
+    let result = syncExec(command: "/usr/bin/lipo", args: ["-create", "-output", fatArchive.path] +
+      thinSlices.map { $0.value.path })
+    switch result {
+    case let .error(code, output):
+      fatalError("""
+      lipo command exited with \(code) when trying to build \(framework). Output:
+      \(output)
+      """)
+    case .success:
+      print("lipo command for \(framework) succeeded.")
+    }
+
+    // Copy the framework and the fat binary artifact into the appropriate directory structure.
     let frameworkDir = platformFrameworksDir.appendingPathComponent(fromFolder.lastPathComponent)
-    fatalError("TODO: Fix this. Likely take in an XCFramework and unwrap it to be a framework")
-//    packageFramework(withName: framework,
-//                     fromFolder: fromFolder,
-//                     slicedFrameworks: slices,
-//                     destination: frameworkDir,
-//                     moduleMapContents: moduleMapContents)
+    let archiveDestination = frameworkDir.appendingPathComponent(framework)
+    do {
+      try fileManager.copyItem(at: fromFolder, to: frameworkDir)
+      try fileManager.copyItem(at: fatArchive, to: archiveDestination)
+    } catch {
+      fatalError("Could not create .framework needed to build \(framework) for Carthage: \(error)")
+    }
+
+    // Package the modulemaps. Special consideration is needed for Swift modules.
+    packageModuleMaps(inFrameworks: slicedFrameworks.map { $0.value },
+                      moduleMapContents: moduleMapContents,
+                      destination: frameworkDir)
 
     // Add Info.plist frameworks to make Carthage happy.
     CarthageUtils.generatePlistContents(forName: framework, to: frameworkDir)
@@ -888,6 +886,81 @@ struct FrameworkBuilder {
       fatalError("Could not move bundles into Resources directory while building \(framework): " +
         "\(error)")
     }
+
+    // Clean up the fat archive we built.
+    do {
+      try fileManager.removeItem(at: fatArchive)
+    } catch {
+      print("""
+      Tried to remove fat binary for \(framework) at \(fatArchive.path) but couldn't. This is \
+      not a failure, but you may want to remove the file afterwards to save disk space.
+      """)
+    }
+
     return frameworkDir
+  }
+
+  /// Takes existing fat frameworks (sliced per platform) and returns thin slices, excluding arm64
+  /// simulator slices since Carthage can only create a regular framework.
+  private func slicedBinariesForCarthage(fromFrameworks frameworks: [TargetPlatform: URL],
+                                         workingDir: URL) -> [Architecture: URL] {
+    // Exclude Catalyst.
+    let platformsToInclude: [TargetPlatform] = frameworks.keys.filter { $0 != .catalyst }
+    let builtSlices: [TargetPlatform: URL] = frameworks
+      .filter { platformsToInclude.contains($0.key) }
+      .mapValues { frameworkURL in
+        // Get the path to the sliced binary instead of the framework.
+        let frameworkName = frameworkURL.lastPathComponent
+        let binaryName = frameworkName.replacingOccurrences(of: ".framework", with: "")
+        return frameworkURL.appendingPathComponent(binaryName)
+      }
+
+    let fileManager = FileManager.default
+    let individualSlices = workingDir.appendingPathComponent("slices")
+    if !fileManager.directoryExists(at: individualSlices) {
+      do {
+        try fileManager.createDirectory(at: individualSlices,
+                                        withIntermediateDirectories: true)
+      } catch {
+        fatalError("Could not create a temp directory to store sliced binaries: \(error)")
+      }
+    }
+
+    // Loop through and extract the necessary architectures.
+    var slices: [Architecture: URL] = [:]
+    for (platform, binary) in builtSlices {
+      var archs = platform.archs
+      if platform == .iOSSimulator {
+        // Exclude the arm64 slice for simulator since Carthage can't package as an XCFramework.
+        archs.removeAll(where: { $0 == .arm64 })
+      }
+
+      // Loop through the architectures and strip out each by using `lipo`.
+      for arch in archs {
+        // Create the path where the thin slice will reside, ensure it's non-existent.
+        let destination = individualSlices.appendingPathComponent("\(arch.rawValue).a")
+        fileManager.removeIfExists(at: destination)
+
+        // Use lipo to extract the architecture we're looking for.
+        let result = syncExec(command: "/usr/bin/lipo",
+                              args: [binary.path,
+                                     "-thin",
+                                     arch.rawValue, "-output", destination.path])
+        switch result {
+        case let .error(code, output):
+          fatalError("""
+          lipo command exited with \(code) when trying to extract the \(arch.rawValue) slice \
+          from \(binary.path). Output:
+          \(output)
+          """)
+        case .success:
+          print("lipo successfully extracted the \(arch.rawValue) slice from \(binary.path)")
+        }
+
+        slices[arch] = destination
+      }
+    }
+
+    return slices
   }
 }
