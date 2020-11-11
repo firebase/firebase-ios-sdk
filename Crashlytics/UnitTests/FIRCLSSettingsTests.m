@@ -29,13 +29,13 @@
 
 const NSString *FIRCLSTestSettingsActivated =
     @"{\"settings_version\":3,\"cache_duration\":60,\"features\":{\"collect_logged_exceptions\":"
-    @"true,\"collect_reports\":true},
+    @"true,\"collect_reports\":true},"
     @"\"fabric\":{\"org_id\":\"010101000000111111111111\",\"bundle_id\":\"com.lets.test."
     @"crashlytics\"}}";
 
 const NSString *FIRCLSTestSettingsInverse =
     @"{\"settings_version\":3,\"cache_duration\":12345,\"features\":{\"collect_logged_exceptions\":"
-    @"false,\"collect_reports\":false},
+    @"false,\"collect_reports\":false},"
     @"\"fabric\":{\"org_id\":\"01e101a0000011b113115111\",\"bundle_id\":\"im.from.the.server\"},"
     @"\"session\":{\"log_buffer_size\":128000,\"max_chained_exception_depth\":32,\"max_complete_"
     @"sessions_count\":4,\"max_custom_exception_events\":1000,\"max_custom_key_value_pairs\":2000,"
