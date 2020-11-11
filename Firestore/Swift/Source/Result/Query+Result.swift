@@ -61,11 +61,11 @@ import FirebaseFirestore
   /// - Returns: A closure mapped from the given closure.
   private func mapResultClosure<T>(_ completion: @escaping (_ result: Result<T, Error>) -> Void)
     -> ((T?, Error?) -> Void) {
-    {
-      if let t = $0 {
-        completion(.success(t))
-      } else if let e = $1 {
-        completion(.failure(e))
+    { value, error in
+      if let value = value {
+        completion(.success(value))
+      } else if let error = error {
+        completion(.failure(error))
       } else {
         // preconditionFailure("Internal return value and error must not both be nil")
         completion(.failure(NSError(domain: "FirebaseFirestoreSwift",

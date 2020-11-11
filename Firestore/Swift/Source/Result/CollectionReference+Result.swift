@@ -62,9 +62,9 @@ import FirebaseFirestore
   /// - Returns: A closure mapped from the given closure.
   private func mapResultClosure<E>(_ completion: @escaping (_ result: Result<Void, E>) -> Void)
     -> ((E?) -> Void) {
-    {
-      if let e = $0 {
-        completion(.failure(e))
+    { error in
+      if let error = error {
+        completion(.failure(error))
       } else {
         completion(.success(()))
       }
