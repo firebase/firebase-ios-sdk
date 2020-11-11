@@ -24,10 +24,18 @@ extension URL: ExpressibleByArgument {
   }
 }
 
-// Enables parsing of Architectures as a command line argument.
-extension Architecture: ExpressibleByArgument {
+// Enables parsing of platforms as a command line argument.
+extension TargetPlatform: ExpressibleByArgument {
   public init?(argument: String) {
-    self.init(rawValue: argument)
+    // Look for a match in SDK name.
+    for platform in TargetPlatform.allCases {
+      if argument == platform.sdkName {
+        self = platform
+        return
+      }
+    }
+
+    return nil
   }
 }
 
@@ -94,10 +102,10 @@ struct ZipBuilderTool: ParsableCommand {
   /// The list of architectures to build for.
   @Option(parsing: .upToNextOption,
           help: ArgumentHelp("""
-          The list of architectures to build for. The default list is \
-          \(Architecture.allCases.map { $0.rawValue }).
+          The list of platforms to build for. The default list is \
+          \(TargetPlatform.allCases.map { $0.sdkName }).
           """))
-  var archs: [Architecture]
+  var platforms: [TargetPlatform]
 
   // MARK: - Zip Pods
 
@@ -208,11 +216,11 @@ struct ZipBuilderTool: ParsableCommand {
                                            logsOutputDir: outputDir?
                                              .appendingPathComponent("build_logs"))
 
-    // Populate the architectures list if it's empty. This isn't a great spot, but the argument
-    // parser can't specify a default for arrays.
-    let archsToBuild: [Architecture] = !archs.isEmpty ? archs : Architecture.allCases
+    // Populate the platforms list if it's empty. This isn't a great spot, but the argument parser
+    // can't specify a default for arrays.
+    let platformsToBuild = !platforms.isEmpty ? platforms : TargetPlatform.allCases
     let builder = ZipBuilder(paths: paths,
-                             archs: archsToBuild,
+                             platforms: platformsToBuild,
                              dynamicFrameworks: dynamic,
                              customSpecRepos: customSpecRepos)
     let projectDir = FileManager.default.temporaryDirectory(withName: "project")

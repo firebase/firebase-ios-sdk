@@ -129,8 +129,8 @@ struct ZipBuilder {
   /// Paths needed throughout the process of packaging the Zip file.
   public let paths: FilesystemPaths
 
-  /// The architectures to build.
-  public let archs: [Architecture]
+  /// The platforms to target for the builds.
+  public let platforms: [TargetPlatform]
 
   /// Specifies if the builder is building dynamic frameworks instead of static frameworks.
   private let dynamicFrameworks: Bool
@@ -143,16 +143,16 @@ struct ZipBuilder {
   ///
   /// - Parameters:
   ///   - paths: Paths that are needed throughout the process of packaging the Zip file.
-  ///   - archs: The architectures to build.
+  ///   - platforms: The platforms to target for the builds.
   ///   - dynamicFrameworks: Specifies if dynamic frameworks should be built, otherwise static
   ///         frameworks are built.
   ///   - customSpecRepo: A custom spec repo to be used for fetching CocoaPods from.
   init(paths: FilesystemPaths,
-       archs: [Architecture],
+       platforms: [TargetPlatform],
        dynamicFrameworks: Bool,
        customSpecRepos: [URL]? = nil) {
     self.paths = paths
-    self.archs = archs
+    self.platforms = platforms
     self.customSpecRepos = customSpecRepos
     self.dynamicFrameworks = dynamicFrameworks
   }
@@ -206,7 +206,6 @@ struct ZipBuilder {
     // copied in each product's directory.
     let (frameworks, carthageFrameworks) = generateFrameworks(fromPods: podsToBuild,
                                                               inProjectDir: projectDir,
-                                                              archs: archs,
                                                               includeCarthage: includeCarthage)
 
     for (framework, paths) in frameworks {
@@ -648,7 +647,6 @@ struct ZipBuilder {
   /// .framework file already).
   private func generateFrameworks(fromPods pods: [String: CocoaPodUtils.PodInfo],
                                   inProjectDir projectDir: URL,
-                                  archs: [Architecture],
                                   includeCarthage: Bool) -> ([String: [URL]],
                                                              [String: [URL]]?) {
     // Verify the Pods folder exists and we can get the contents of it.
@@ -684,7 +682,7 @@ struct ZipBuilder {
       // If it's an open source pod and we need to compile the source to get a framework.
       if podInfo.isSourcePod {
         let builder = FrameworkBuilder(projectDir: projectDir,
-                                       archs: archs,
+                                       platforms: platforms,
                                        includeCarthage: includeCarthage,
                                        dynamicFrameworks: dynamicFrameworks)
         let (framework, carthageFramework) = builder.buildFramework(withName: podName,
