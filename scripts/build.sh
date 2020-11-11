@@ -394,6 +394,14 @@ case "$product-$platform-$method" in
     fi
     ;;
 
+  SegmentationSample-*-*)
+    RunXcodebuild \
+      -workspace 'FirebaseSegmementation/Tests/Sample/SegmentationSampleApp.xcworkspace' \
+      -scheme "SegmentationSampleApp" \
+      "${xcb_flags[@]}" \
+      build
+    ;;
+
   Database-*-unit)
     pod_gen FirebaseDatabase.podspec --platforms="${gen_platform}"
     RunXcodebuild \
