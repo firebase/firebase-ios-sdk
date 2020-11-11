@@ -44,8 +44,17 @@ enum Architecture: String, CaseIterable {
 
 /// A structure to build a .framework in a given project directory.
 struct FrameworkBuilder {
+  /// Architectures to be included in the built frameworks.
+  private let archs: [Architecture]
+
   /// The directory containing the Xcode project and Pods folder.
   private let projectDir: URL
+
+  /// Flag for building dynamic frameworks instead of static frameworks.
+  private let dynamicFrameworks: Bool
+
+  /// Flag for whether or not Carthage artifacts should be built as well.
+  private let includeCarthage: Bool
 
   /// The Pods directory for building the framework.
   private var podsDir: URL {
@@ -53,8 +62,11 @@ struct FrameworkBuilder {
   }
 
   /// Default initializer.
-  init(projectDir: URL) {
+  init(projectDir: URL, archs: [Architecture], includeCarthage: Bool, dynamicFrameworks: Bool) {
     self.projectDir = projectDir
+    self.archs = archs
+    self.includeCarthage = includeCarthage
+    self.dynamicFrameworks = dynamicFrameworks
   }
 
   // MARK: - Public Functions
@@ -185,7 +197,7 @@ struct FrameworkBuilder {
                             carthageBuild: Bool = false) -> [Architecture: URL] {
     // Build every architecture and save the locations in an array to be assembled.
     var thinArchives = [Architecture: URL]()
-    for arch in LaunchArgs.shared.archs {
+    for arch in archs {
       let buildDir = projectDir.appendingPathComponent(arch.rawValue)
       let thinArchive = buildThin(framework: framework,
                                   archs: [arch],
@@ -292,7 +304,7 @@ struct FrameworkBuilder {
         fatalError("Error while enumerating files \(frameworkPath): \(error.localizedDescription)")
       }
       var libPath = frameworkPath.appendingPathComponent(actualFramework)
-      if !LaunchArgs.shared.dynamic {
+      if !dynamicFrameworks {
         libPath = libPath
           .appendingPathComponent(actualFramework.replacingOccurrences(of: ".framework", with: ""))
       }
@@ -308,7 +320,7 @@ struct FrameworkBuilder {
   /// - Parameter framework: The name of the framework to be built.
   /// - Returns: The corresponding dynamic framework name.
   private func frameworkBuildName(_ framework: String) -> String {
-    if !LaunchArgs.shared.dynamic {
+    if !dynamicFrameworks {
       return framework
     }
     switch framework {
@@ -350,7 +362,7 @@ struct FrameworkBuilder {
       fatalError("Failure creating temporary directory while building \(framework): \(error)")
     }
 
-    if LaunchArgs.shared.dynamic {
+    if dynamicFrameworks {
       return (buildDynamicXCFramework(withName: framework, logsDir: logsDir, outputDir: outputDir),
               nil)
     } else {
@@ -370,7 +382,6 @@ struct FrameworkBuilder {
                                        outputDir: URL) -> URL {
     // xcframework doesn't lipo things together but accepts fat frameworks for one target.
     // We group architectures here to deal with this fact.
-    let archs = LaunchArgs.shared.archs
     var groupedArchs: [[Architecture]] = []
 
     for platform in Architecture.TargetPlatform.allCases {
@@ -434,8 +445,7 @@ struct FrameworkBuilder {
     }
 
     // Find the location of the public headers.
-    let anyArch = LaunchArgs.shared
-      .archs[0] // any arch is ok, but need to make sure we're building it
+    let anyArch = archs[0] // any arch is ok, but need to make sure we're building it
     let archivePath = thinArchives[anyArch]!
     let headersDir = archivePath.deletingLastPathComponent().appendingPathComponent("Headers")
 
@@ -514,7 +524,7 @@ struct FrameworkBuilder {
                                          moduleMapContents: moduleMapContents)
 
     var carthageFramework: URL?
-    if args.carthageBuild {
+    if includeCarthage {
       var carthageThinArchives: [Architecture: URL]
       if framework == "FirebaseCoreDiagnostics" {
         // FirebaseCoreDiagnostics needs to be built with a different ifdef for the Carthage distro.

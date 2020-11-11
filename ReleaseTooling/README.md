@@ -30,21 +30,22 @@ for that version. Check with `xcodebuild -version`.
 
 ### Launch Arguments
 
-See `main.swift` and the `LaunchArgs` struct for information on specific launch arguments.
+See `main.swift`  for information on specific launch arguments,  or use  `swift run zip-builder --help`.
 
-You can pass in launch arguments with Xcode by clicking "zip-builder" beside the Run/Stop buttons, clicking "Edit
-Scheme" and adding them in the "Arguments Passed On Launch" section.
+You can pass in launch arguments with Xcode by clicking "zip-builder" beside the Run/Stop buttons, clicking
+"Edit Scheme" and adding them in the "Arguments Passed On Launch" section.
 
 #### Common Arguments
 
 These arguments assume you're running the command from the `ReleaseTooling` directory.
 
 **Required** arguments:
-- `-templateDir $(pwd)/Template`
-  - This should always be the same.
+
+- `--repo-dir <PATH_TO_firebase_ios_sdk_REPO>`
+  - The root of the `firebase-ios-sdk` repo.
 
 Typical argument (all use cases except Firebase release build):
-- `-zipPods <PATH_TO.json>`
+- `--zip-pods <PATH_TO.json>`
   - This is a JSON list of the pods to consolidate into a zip of binary frameworks. For example,
 
 ```
@@ -65,32 +66,32 @@ valid [CocoaPods Podfile version specifier](https://guides.cocoapods.org/syntax/
 
 
 Optional common arguments:
-- `-updatePodRepo false`
+- `--no-update-pod-repo`
   - This is for speedups when `pod repo update` has already been run recently.
 
 For release engineers (Googlers packaging an upcoming Firebase release) these commands should also be used:
--  `-customSpecRepos sso://cpdc-internal/firebase`
+-  `--custom-spec-repos sso://cpdc-internal/firebase`
   - This pulls the latest podspecs from the CocoaPods staging area.
-- `-repoDir path` GitHub repo containing Template and Carthage json file inputs.
-- `-carthageBuild true` Turns on generation of Carthage zips and json file updates.
-- `-keepBuildArtifacts true` Useful for debugging and verifying the zip build contents.
+- `--repo-dir path` GitHub repo containing Template and Carthage json file inputs.
+- `--enable-carthage-build` Turns on generation of Carthage zips and json file updates.
+- `--keep-build-artifacts` Useful for debugging and verifying the zip build contents.
 
 Putting them all together, here's a common command to build a releaseable Zip file:
 
 ```
-swift run zip-builder -updatePodRepo true \
--repoDir <PATH_TO_current.firebase_ios_sdk.repo> \
--customSpecRepos sso://cpdc-internal/firebase
--carthageBuild true
--keepBuildArtifacts true
+swift run zip-builder --update-pod-repo \
+--repo-dir <PATH_TO_current.firebase_ios_sdk.repo> \
+--custom-spec-repos sso://cpdc-internal/firebase \
+--enable-carthage-build \
+--keep-build-artifacts
 ```
 
 ### Carthage
 
-Carthage binaries can also be built at the same time as the zip file by passing in `-carthageBuild
-true` as a command line argument. This directory should contain JSON files describing versions
-and download locations for each product. This will result in a folder called "carthage" at the root where the zip
-directory exists containing all the zip files and JSON files necessary for distribution.
+Carthage binaries can also be built at the same time as the zip file by passing in `--enable-carthage-build`
+as a command line argument. This directory should contain JSON files describing versions and download
+locations for each product. This will result in a folder called "carthage" at the root where the zip directory exists
+containing all the zip files and JSON files necessary for distribution.
 
 ## Firebase Releaser
 
@@ -99,11 +100,11 @@ for the process documentation.
 
 ### Launch Arguments
 
-See `main.swift` and the `LaunchArgs` struct for information on specific launch arguments.
+See `main.swift`  for information on specific launch arguments.
 
 You can pass in launch arguments with Xcode by selecting the  "firebase-releaser" scheme
-beside the Run/Stop buttons, clicking "Edit
-Scheme" and adding them in the "Arguments Passed On Launch" section.
+beside the Run/Stop buttons, clicking "Edit Scheme" and adding them in the "Arguments Passed On Launch"
+section.
 
 ## Development Philosophy
 

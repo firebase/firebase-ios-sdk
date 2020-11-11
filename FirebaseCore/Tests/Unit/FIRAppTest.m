@@ -910,12 +910,6 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 
 #pragma mark - Core Diagnostics
 
-- (void)testCoreDiagnosticsLoggedWhenFIRAppIsConfigured {
-  [self expectCoreDiagnosticsDataLogWithOptions:[self appOptions]];
-  [self createConfiguredAppWithName:NSStringFromSelector(_cmd)];
-  OCMVerifyAll(self.mockCoreDiagnosticsConnector);
-}
-
 - (void)testCoreDiagnosticsLoggedWhenAppDidBecomeActive {
   FIRApp *app = [self createConfiguredAppWithName:NSStringFromSelector(_cmd)];
   [self expectCoreDiagnosticsDataLogWithOptions:app.options];
@@ -923,7 +917,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   [self.notificationCenter postNotificationName:[self appDidBecomeActiveNotificationName]
                                          object:nil];
 
-  OCMVerifyAll(self.mockCoreDiagnosticsConnector);
+  OCMVerifyAllWithDelay(self.mockCoreDiagnosticsConnector, 0.5);
 }
 
 #pragma mark - private
