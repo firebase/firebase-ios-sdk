@@ -31,6 +31,7 @@
 #include "Crashlytics/Crashlytics/Helpers/FIRCLSDefines.h"
 #include "Crashlytics/Crashlytics/Helpers/FIRCLSFeatures.h"
 #include "Crashlytics/Crashlytics/Helpers/FIRCLSUtility.h"
+#include "FirebaseCore/Sources/Public/FirebaseCore/FIRVersion.h"
 
 // The writable size is our handler stack plus whatever scratch we need.  We have to use this space
 // extremely carefully, however, because thread stacks always needs to be page-aligned.  Only the
