@@ -14,9 +14,9 @@
 
 #import <Foundation/Foundation.h>
 
-NS_ASSUME_NONNULL_BEGIN
-
 FOUNDATION_EXPORT NSString *const FIRCLSDeveloperToken;
+
+FOUNDATION_EXPORT NSString *const FIRCLSVersion;
 
 // User Messages
 FOUNDATION_EXPORT NSString *const FIRCLSMissingConsumerKeyMsg;
@@ -43,9 +43,3 @@ FOUNDATION_EXPORT NSString *const FIRCLSNetworkCrashlyticsGoogleAppId;
 FOUNDATION_EXPORT NSString *const FIRCLSNetworkCrashlyticsOrgId;
 FOUNDATION_EXPORT NSString *const FIRCLSNetworkUserAgent;
 FOUNDATION_EXPORT NSString *const FIRCLSNetworkUTF8;
-
-NSString *FIRCLSSDKGeneratorName(void);
-
-NSString *FIRCLSSDKVersion(void);
-
-NS_ASSUME_NONNULL_END

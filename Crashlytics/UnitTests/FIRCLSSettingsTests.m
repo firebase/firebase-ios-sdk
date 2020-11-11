@@ -489,7 +489,7 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   [self.settings cacheSettingsWithGoogleAppID:TestGoogleAppID currentTimestamp:currentTimestamp];
 
   XCTAssertNil(error, "%@", error);
-#ifdef CRASHLYTICS_1P
+#ifdef CRASHLYTICS_INTERNAL
   XCTAssertTrue(self.settings.shouldUseNewReportEndpoint);
 #else
   XCTAssertFalse(self.settings.shouldUseNewReportEndpoint);

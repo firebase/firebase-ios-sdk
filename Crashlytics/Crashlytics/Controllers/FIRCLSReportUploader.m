@@ -318,7 +318,7 @@
 
   NSString *localeId = [self localeIdentifier];
 
-  [request setValue:FIRCLSSDKGeneratorName() forHTTPHeaderField:FIRCLSNetworkUserAgent];
+  [request setValue:@CLS_SDK_GENERATOR_NAME forHTTPHeaderField:FIRCLSNetworkUserAgent];
   [request setValue:FIRCLSNetworkApplicationJson forHTTPHeaderField:FIRCLSNetworkAccept];
   [request setValue:FIRCLSNetworkUTF8 forHTTPHeaderField:FIRCLSNetworkAcceptCharset];
   [request setValue:localeId forHTTPHeaderField:FIRCLSNetworkAcceptLanguage];
@@ -326,7 +326,7 @@
   [request setValue:FIRCLSDeveloperToken forHTTPHeaderField:FIRCLSNetworkCrashlyticsDeveloperToken];
   [request setValue:FIRCLSApplicationGetSDKBundleID()
       forHTTPHeaderField:FIRCLSNetworkCrashlyticsAPIClientId];
-  [request setValue:FIRCLSSDKVersion()
+  [request setValue:@CLS_SDK_DISPLAY_VERSION
       forHTTPHeaderField:FIRCLSNetworkCrashlyticsAPIClientDisplayVersion];
   [request setValue:[[self dataSource] googleAppID]
       forHTTPHeaderField:FIRCLSNetworkCrashlyticsGoogleAppId];
