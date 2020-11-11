@@ -74,6 +74,6 @@ jobs:
       # Just copy a dummy plist for a build-only test
       run: cp FirebaseCore/Tests/Unit/Resources/GoogleService-Info.plist FirebaseSegmentation/Tests/Sample/
     - name: Prereqs
-      run: scripts/install_prereqs.sh MessagingSample iOS
+      run: scripts/install_prereqs.sh SegmentationSample iOS
     - name: Build
-      run: scripts/build.sh MessagingSample iOS
+      run: scripts/build.sh SegmentationSample iOS
