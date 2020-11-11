@@ -19,6 +19,8 @@
   import Combine
   import FirebaseFirestore
 
+  @available(swift 5.0)
+  @available(macOS 10.15, iOS 13, watchOS 6, tvOS 13, *)
   extension Firestore {
     func runTransactionPublisher<T>(_ updateBlock: @escaping (Transaction) throws -> T)
       -> Future<T, Error> {

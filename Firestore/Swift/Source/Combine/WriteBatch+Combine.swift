@@ -19,6 +19,8 @@
   import Combine
   import FirebaseFirestore
 
+  @available(swift 5.0)
+  @available(macOS 10.15, iOS 13, watchOS 6, tvOS 13, *)
   extension WriteBatch {
     /// Commits all of the writes in this write batch as a single atomic unit.
     ///

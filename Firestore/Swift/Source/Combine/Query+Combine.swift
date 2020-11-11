@@ -19,6 +19,8 @@
   import Combine
   import FirebaseFirestore
 
+  @available(swift 5.0)
+  @available(macOS 10.15, iOS 13, watchOS 6, tvOS 13, *)
   extension Query {
     func getDocumentsPublisher(source: FirestoreSource = .default) -> Future<QuerySnapshot, Error> {
       Future { self.getDocuments(source: source, completion: $0) }

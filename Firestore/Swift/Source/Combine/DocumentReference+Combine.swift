@@ -19,6 +19,8 @@
   import Combine
   import FirebaseFirestore
 
+  @available(swift 5.0)
+  @available(macOS 10.15, iOS 13, watchOS 6, tvOS 13, *)
   extension DocumentReference {
     func setDataPublisher(_ documentData: [String: Any]) -> Future<Void, Error> {
       Future { self.setData(documentData, completion: $0) }

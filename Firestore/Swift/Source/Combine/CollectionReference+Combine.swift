@@ -19,6 +19,8 @@
   import Combine
   import FirebaseFirestore
 
+  @available(swift 5.0)
+  @available(macOS 10.15, iOS 13, watchOS 6, tvOS 13, *)
   extension CollectionReference {
     public func addDocumentPublisher(data: [String: Any])
       -> AnyPublisher<DocumentReference, Error> {
