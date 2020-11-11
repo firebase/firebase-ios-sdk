@@ -62,6 +62,7 @@ Pod::Spec.new do |s|
   s.ios.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'GCC_PREPROCESSOR_DEFINITIONS' =>
+      'DISPLAY_VERSION=' + s.version.to_s + ' ' +
       'CLS_SDK_NAME="Crashlytics iOS SDK" ' +
       # For nanopb:
       'PB_FIELD_32BIT=1 PB_NO_PACKED_STRUCTS=1 PB_ENABLE_MALLOC=1',
@@ -71,6 +72,7 @@ Pod::Spec.new do |s|
   s.osx.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'GCC_PREPROCESSOR_DEFINITIONS' =>
+      'DISPLAY_VERSION=' + s.version.to_s + ' ' +
       'CLS_SDK_NAME="Crashlytics Mac SDK" ' +
       # For nanopb:
       'PB_FIELD_32BIT=1 PB_NO_PACKED_STRUCTS=1 PB_ENABLE_MALLOC=1',
@@ -80,6 +82,7 @@ Pod::Spec.new do |s|
   s.tvos.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'GCC_PREPROCESSOR_DEFINITIONS' =>
+      'DISPLAY_VERSION=' + s.version.to_s + ' ' +
       'CLS_SDK_NAME="Crashlytics tvOS SDK" ' +
       # For nanopb:
       'PB_FIELD_32BIT=1 PB_NO_PACKED_STRUCTS=1 PB_ENABLE_MALLOC=1',
@@ -89,6 +92,7 @@ Pod::Spec.new do |s|
   s.watchos.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'GCC_PREPROCESSOR_DEFINITIONS' =>
+      'DISPLAY_VERSION=' + s.version.to_s + ' ' +
       'CLS_SDK_NAME="Crashlytics watchOS SDK" ' +
       # For nanopb:
       'PB_FIELD_32BIT=1 PB_NO_PACKED_STRUCTS=1 PB_ENABLE_MALLOC=1',

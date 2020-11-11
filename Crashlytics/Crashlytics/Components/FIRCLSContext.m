@@ -17,8 +17,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#import "Crashlytics/Shared/FIRCLSConstants.h"
-
 #import "Crashlytics/Crashlytics/Models/FIRCLSFileManager.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSInstallIdentifierModel.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSInternalReport.h"
@@ -31,7 +29,6 @@
 #include "Crashlytics/Crashlytics/Helpers/FIRCLSDefines.h"
 #include "Crashlytics/Crashlytics/Helpers/FIRCLSFeatures.h"
 #include "Crashlytics/Crashlytics/Helpers/FIRCLSUtility.h"
-#include "FirebaseCore/Sources/Public/FirebaseCore/FIRVersion.h"
 
 // The writable size is our handler stack plus whatever scratch we need.  We have to use this space
 // extremely carefully, however, because thread stacks always needs to be page-aligned.  Only the
@@ -403,9 +400,9 @@ static bool FIRCLSContextRecordIdentity(FIRCLSFile* file, const FIRCLSContextIni
 
   FIRCLSFileWriteHashStart(file);
 
-  FIRCLSFileWriteHashEntryString(file, "generator", FIRCLSSDKGeneratorName().UTF8String);
-  FIRCLSFileWriteHashEntryString(file, "display_version", FIRCLSSDKVersion().UTF8String);
-  FIRCLSFileWriteHashEntryString(file, "build_version", FIRCLSSDKVersion().UTF8String);
+  FIRCLSFileWriteHashEntryString(file, "generator", CLS_SDK_GENERATOR_NAME);
+  FIRCLSFileWriteHashEntryString(file, "display_version", CLS_SDK_DISPLAY_VERSION);
+  FIRCLSFileWriteHashEntryString(file, "build_version", CLS_SDK_DISPLAY_VERSION);
   FIRCLSFileWriteHashEntryUint64(file, "started_at", time(NULL));
 
   FIRCLSFileWriteHashEntryString(file, "session_id", initData->sessionId);
