@@ -85,20 +85,12 @@ private func mapResultCompletion<T>(_ completion: @escaping (_ result: Result<T,
       if let value = value as? T {
         completion(.success(value))
       } else {
-        // preconditionFailure("UpdateBlock return type must match completion argument type")
-        completion(.failure(NSError(domain: "FirebaseFirestoreSwift",
-                                    code: -1,
-                                    userInfo: [NSLocalizedDescriptionKey:
-                                      "InternalError - UpdateBlock return type doesn't match completion argument type"])))
+        fatalError("UpdateBlock return type must match completion argument type")
       }
     } else if let error = error {
       completion(.failure(error))
     } else {
-      // preconditionFailure("Internal return value and error must not both be nil")
-      completion(.failure(NSError(domain: "FirebaseFirestoreSwift",
-                                  code: -1,
-                                  userInfo: [NSLocalizedDescriptionKey:
-                                    "InternalError - Return type and Error code are both nil"])))
+      fatalError("Internal return value and error must not both be nil")
     }
   }
 }

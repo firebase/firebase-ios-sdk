@@ -68,11 +68,7 @@ private func mapResultCompletion<T>(_ completion: @escaping (_ result: Result<T,
     } else if let error = error {
       completion(.failure(error))
     } else {
-      // preconditionFailure("Internal return value and error must not both be nil")
-      completion(.failure(NSError(domain: "FirebaseFirestoreSwift",
-                                  code: -1,
-                                  userInfo: [NSLocalizedDescriptionKey:
-                                    "InternalError - Return value and error are both nil"])))
+      fatalError("Internal return value and error must not both be nil")
     }
   }
 }
