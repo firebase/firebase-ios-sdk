@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,33 +16,32 @@
 
 import FirebaseFirestore
 
-#if swift(>=5.0)
-
-  extension WriteBatch {
-    /// Commits all of the writes in this write batch as a single atomic unit.
-    ///
-    /// - Parameter completion: A block to be called once all of the writes in the batch
-    ///   have been successfully written to the backend as an atomic unit. This block will only
-    ///   execute when the client is online and the commit has completed against the server.
-    ///   The changes will be visible immediately.
-    func commit(completion: @escaping (Result<Void, Error>) -> Void) {
-      commit(completion: mapResultCallback(completion))
-    }
-  }
-
-  /// Returns a closure mapped from the a given closure with a `Result` argument.
+@available(swift 5.0)
+extension WriteBatch {
+  /// Commits all of the writes in this write batch as a single atomic unit.
   ///
-  /// - Parameter completion: A closure to be mapped.
-  /// - Returns: A closure mapped from the given closure
-  private func mapResultCallback<E>(_ completion: @escaping (Result<Void, E>) -> Void)
-    -> ((E?) -> Void) {
-    { error in
-      if let error = error {
-        completion(.failure(error))
-      } else {
-        completion(.success(()))
-      }
+  /// - Parameter completion: A block to be called once all of the writes in the batch have been
+  ///  successfully written to the backend as an atomic unit. This block will only execute when the
+  ///  client is online and the commit has completed against the server.
+  ///   The changes will be visible immediately.
+  func commit(completion: @escaping (Result<Void, Error>) -> Void) {
+    commit(completion: mapResultClosure(completion))
+  }
+}
+
+/// Returns a closure mapped from the a given closure with a `Result` parameter.
+///
+/// - Parameters:
+///   - completion: The closure to map.
+///   - result: The parameter of the closure to map.
+/// - Returns: A closure mapped from the given closure.
+private func mapResultClosure(_ completion: @escaping (_ result: Result<Void, Error>) -> Void)
+  -> ((Error?) -> Void) {
+  return { error in
+    if let error = error {
+      completion(.failure(error))
+    } else {
+      completion(.success(()))
     }
   }
-
-#endif
+}
