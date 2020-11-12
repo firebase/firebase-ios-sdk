@@ -135,7 +135,7 @@ extension DocumentReference {
   /// existing document.
   ///
   /// It is an error to include a field in `mergeFields` that does not have a corresponding value in
-  ///  the `data` dictionary.
+  /// the `data` dictionary.
   ///
   /// See Firestore.Encoder for more details about the encoding process.
   ///
@@ -169,9 +169,9 @@ extension DocumentReference {
   ///
   /// - Parameters:
   ///   - fields: The `Dictionary` containing the fields (expressed as `String` or `FieldPath`) and
-  ///    values with which to update the document.
+  ///   values with which to update the document.
   ///   - completion: The closure to execute on successfully updating to the server or on receipt of
-  ///    an error.
+  ///   an error.
   ///   It will not be called while the client is offline, though local changes will be visible
   ///   immediately.
   ///   - result: The result of request. On success it is empty, otherwise it contains an `Error`.
