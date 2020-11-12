@@ -96,6 +96,7 @@ final class ModelDownloaderTests: XCTestCase {
     let expectation = self.expectation(description: "Wait for model info to download.")
     modelInfoRetriever.downloadModelInfo(completion: { error in
       XCTAssertNil(error)
+      XCTAssertNotNil(modelInfoRetriever.modelInfo?.downloadURL)
       XCTAssertEqual(modelInfoRetriever.modelInfo?.size, 562_336)
       expectation.fulfill()
     })
