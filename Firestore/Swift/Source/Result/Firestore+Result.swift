@@ -19,7 +19,7 @@ import FirebaseFirestore
 @available(swift 5.0)
 extension Firestore {
   /// Executes the given updateBlock and then attempts to commit the changes applied within an
-  ///  atomic transaction.
+  /// atomic transaction.
   ///
   /// The maximum number of writes allowed in a single transaction is 500, but note that each usage
   /// of `FieldValue.serverTimestamp()`, `FieldValue.arrayUnion()`, `FieldValue.arrayRemove()`, or
