@@ -53,7 +53,7 @@ extension Firestore {
   ///   - completion: The block to call with the result or error of the transaction. This block will
   ///    run even if the client is offline, unless the process is killed.
   ///   - result: The result of the transaction. On success it contains the value passed in the
-  ///    updateBlock, otherwise an `Error`.
+  ///   updateBlock, otherwise an `Error`.
   func runTransaction<T>(_ updateBlock: @escaping (_ transaction: Transaction) throws -> T,
                          completion: @escaping (Result<T, Error>) -> Void) {
     runTransaction({ transaction, errorPointer in
