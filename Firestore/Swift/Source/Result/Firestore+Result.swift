@@ -63,7 +63,7 @@ extension Firestore {
         errorPointer?.pointee = error as NSError
         return nil
       }
-    }, completion: mapResultClosure(completion))
+    }, completion: mapResultCompletion(completion))
   }
 }
 
@@ -78,7 +78,7 @@ extension Firestore {
 ///   - completion: The closure to map.
 ///   - result: The parameter of the closure to map.
 /// - Returns: A closure mapped from the given closure.
-private func mapResultClosure<T>(_ completion: @escaping (_ result: Result<T, Error>) -> Void)
+private func mapResultCompletion<T>(_ completion: @escaping (_ result: Result<T, Error>) -> Void)
   -> ((Any?, Error?) -> Void) {
   return { value, error in
     if let value = value {

@@ -31,7 +31,7 @@ extension DocumentReference {
   ///   - result: The result of request. On success it is empty, otherwise it contains an `Error`.
   func setData(_ documentData: [String: Any],
                completion: @escaping (_ result: Result<Void, Error>) -> Void) {
-    setData(documentData, completion: mapResultClosure(completion))
+    setData(documentData, completion: mapResultCompletion(completion))
   }
 
   /// Writes the document referred to by this `DocumentReference` with the specified data.
@@ -50,7 +50,7 @@ extension DocumentReference {
   ///   - result: The result of request. On success it is empty, otherwise it contains an `Error`.
   func setData(_ documentData: [String: Any], merge: Bool,
                completion: @escaping (_ result: Result<Void, Error>) -> Void) {
-    setData(documentData, merge: merge, completion: mapResultClosure(completion))
+    setData(documentData, merge: merge, completion: mapResultCompletion(completion))
   }
 
   /// Writes the document referred to by this `DocumentReference` with the specified data.
@@ -73,7 +73,7 @@ extension DocumentReference {
   ///   - result: The result of request. On success it is empty, otherwise it contains an `Error`.
   func setData(_ documentData: [String: Any], mergeFields: [Any],
                completion: @escaping (_ result: Result<Void, Error>) -> Void) {
-    setData(documentData, mergeFields: mergeFields, completion: mapResultClosure(completion))
+    setData(documentData, mergeFields: mergeFields, completion: mapResultCompletion(completion))
   }
 
   /// Writes the document referred to by this `DocumentReference` encoding an instance of
@@ -96,7 +96,7 @@ extension DocumentReference {
   func setData<T: Encodable>(from value: T, encoder: Firestore.Encoder = Firestore.Encoder(),
                              completion: @escaping (_ result: Result<Void, Error>)
                                -> Void) throws {
-    try setData(from: value, encoder: encoder, completion: mapResultClosure(completion))
+    try setData(from: value, encoder: encoder, completion: mapResultCompletion(completion))
   }
 
   /// Writes the document referred to by this `DocumentReference` with the specified data.
@@ -125,7 +125,7 @@ extension DocumentReference {
       from: value,
       merge: merge,
       encoder: encoder,
-      completion: mapResultClosure(completion)
+      completion: mapResultCompletion(completion)
     )
   }
 
@@ -159,7 +159,7 @@ extension DocumentReference {
       from: value,
       mergeFields: mergeFields,
       encoder: encoder,
-      completion: mapResultClosure(completion)
+      completion: mapResultCompletion(completion)
     )
   }
 
@@ -177,7 +177,7 @@ extension DocumentReference {
   ///   - result: The result of request. On success it is empty, otherwise it contains an `Error`.
   func updateData(_ fields: [AnyHashable: Any],
                   completion: @escaping (_ result: Result<Void, Error>) -> Void) {
-    updateData(fields, completion: mapResultClosure(completion))
+    updateData(fields, completion: mapResultCompletion(completion))
   }
 
   /// Delete the document referred to by this `DocumentReference` with the specified data.
@@ -189,7 +189,7 @@ extension DocumentReference {
   ///   immediately.
   ///   - result: The result of request. On success it is empty, otherwise it contains an `Error`.
   func delete(completion: @escaping (_ result: Result<Void, Error>) -> Void) {
-    delete(completion: mapResultClosure(completion))
+    delete(completion: mapResultCompletion(completion))
   }
 
   /// Reads the documents matching this query.
@@ -204,7 +204,7 @@ extension DocumentReference {
   ///   `Error`.
   func getDocument(source: FirestoreSource = .default,
                    completion: @escaping (_ result: Result<DocumentSnapshot, Error>) -> Void) {
-    getDocument(source: source, completion: mapResultClosure(completion))
+    getDocument(source: source, completion: mapResultCompletion(completion))
   }
 
   /// Attaches a listener for this `DocumentReference` events.
@@ -221,7 +221,7 @@ extension DocumentReference {
     -> ListenerRegistration {
     addSnapshotListener(
       includeMetadataChanges: includeMetadataChanges,
-      listener: mapResultClosure(listener)
+      listener: mapResultCompletion(listener)
     )
   }
 }
@@ -235,7 +235,7 @@ extension DocumentReference {
 ///   - completion: The closure to map.
 ///   - result: The parameter of the closure to map.
 /// - Returns: A closure mapped from the given closure.
-private func mapResultClosure<T>(_ completion: @escaping (_ result: Result<T, Error>) -> Void)
+private func mapResultCompletion<T>(_ completion: @escaping (_ result: Result<T, Error>) -> Void)
   -> ((T?, Error?) -> Void) {
   return { value, error in
     if let value = value {
@@ -258,7 +258,7 @@ private func mapResultClosure<T>(_ completion: @escaping (_ result: Result<T, Er
 ///   - completion: The closure to map.
 ///   - result: The parameter of the closure to map.
 /// - Returns: A closure mapped from the given closure.
-private func mapResultClosure(_ completion: @escaping (_ result: Result<Void, Error>) -> Void)
+private func mapResultCompletion(_ completion: @escaping (_ result: Result<Void, Error>) -> Void)
   -> ((Error?) -> Void) {
   return { error in
     if let error = error {

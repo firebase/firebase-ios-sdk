@@ -25,7 +25,7 @@ extension WriteBatch {
   ///  client is online and the commit has completed against the server.
   ///   The changes will be visible immediately.
   func commit(completion: @escaping (Result<Void, Error>) -> Void) {
-    commit(completion: mapResultClosure(completion))
+    commit(completion: mapResultCompletion(completion))
   }
 }
 
@@ -35,7 +35,7 @@ extension WriteBatch {
 ///   - completion: The closure to map.
 ///   - result: The parameter of the closure to map.
 /// - Returns: A closure mapped from the given closure.
-private func mapResultClosure(_ completion: @escaping (_ result: Result<Void, Error>) -> Void)
+private func mapResultCompletion(_ completion: @escaping (_ result: Result<Void, Error>) -> Void)
   -> ((Error?) -> Void) {
   return { error in
     if let error = error {

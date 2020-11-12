@@ -33,7 +33,7 @@ extension CollectionReference {
   func addDocument(data: [String: Any],
                    completion: @escaping (_ result: Result<Void, Error>) -> Void)
     -> DocumentReference {
-    addDocument(data: data, completion: mapResultClosure(completion))
+    addDocument(data: data, completion: mapResultCompletion(completion))
   }
 
   /// Adds a new document to this collection encoding an instance of `Encodable`,  assigning it a
@@ -56,7 +56,7 @@ extension CollectionReference {
                                  encoder: Firestore.Encoder = Firestore.Encoder(),
                                  completion: @escaping (_ result: Result<Void, Error>)
                                    -> Void) throws -> DocumentReference {
-    try addDocument(from: value, encoder: encoder, completion: mapResultClosure(completion))
+    try addDocument(from: value, encoder: encoder, completion: mapResultCompletion(completion))
   }
 }
 
@@ -66,7 +66,7 @@ extension CollectionReference {
 ///   - completion: The closure to map.
 ///   - result: The parameter of the closure to map.
 /// - Returns: A closure mapped from the given closure.
-private func mapResultClosure(_ completion: @escaping (_ result: Result<Void, Error>) -> Void)
+private func mapResultCompletion(_ completion: @escaping (_ result: Result<Void, Error>) -> Void)
   -> ((Error?) -> Void) {
   return {
     if let e = $0 {

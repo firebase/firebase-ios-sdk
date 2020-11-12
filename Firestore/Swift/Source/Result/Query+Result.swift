@@ -30,7 +30,7 @@ extension Query {
   ///   `Error`.
   func getDocuments(source: FirestoreSource = .default,
                     completion: @escaping (_ result: Result<QuerySnapshot, Error>) -> Void) {
-    getDocuments(source: source, completion: mapResultClosure(completion))
+    getDocuments(source: source, completion: mapResultCompletion(completion))
   }
 
   /// Attaches a listener for this `Query` events.
@@ -46,7 +46,7 @@ extension Query {
                              -> Void) -> ListenerRegistration {
     addSnapshotListener(
       includeMetadataChanges: includeMetadataChanges,
-      listener: mapResultClosure(listenerHandler)
+      listener: mapResultCompletion(listenerHandler)
     )
   }
 }
@@ -60,7 +60,7 @@ extension Query {
 ///   - completion: The closure to map.
 ///   - result: The parameter of the closure to map.
 /// - Returns: A closure mapped from the given closure.
-private func mapResultClosure<T>(_ completion: @escaping (_ result: Result<T, Error>) -> Void)
+private func mapResultCompletion<T>(_ completion: @escaping (_ result: Result<T, Error>) -> Void)
   -> ((T?, Error?) -> Void) {
   return { value, error in
     if let value = value {
