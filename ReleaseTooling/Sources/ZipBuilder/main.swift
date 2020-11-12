@@ -38,7 +38,7 @@ struct ZipBuilderTool: ParsableCommand {
   @Flag(default: true,
         inversion: .prefixedEnableDisable,
         help: ArgumentHelp("Whether or not to build dependencies of requested pods."))
-  var buildDependences
+  var buildDependencies
 
   /// Flag to also build Carthage artifacts.
   @Flag(default: false,
@@ -175,7 +175,7 @@ struct ZipBuilderTool: ParsableCommand {
     }
 
     // Validate that Firebase builds are including dependencies.
-    if !buildDependences, zipPods == nil {
+    if !buildDependencies, zipPods == nil {
       throw ValidationError("""
       The `enable-build-dependencies` option cannot be false unless a list of pods is \
       specified with the `zip-pods` option.
@@ -236,7 +236,7 @@ struct ZipBuilderTool: ParsableCommand {
       let (installedPods, frameworks, _) = builder.buildAndAssembleZip(podsToInstall: zipPods,
                                                                        inProjectDir: projectDir,
                                                                        minimumIOSVersion: minimumIOSVersion,
-                                                                       includeDependences: buildDependences)
+                                                                       includeDependencies: buildDependencies)
       let staging = FileManager.default.temporaryDirectory(withName: "staging")
       try builder.copyFrameworks(fromPods: Array(installedPods.keys), toDirectory: staging,
                                  frameworkLocations: frameworks)
