@@ -23,7 +23,7 @@ extension WriteBatch {
   /// - Parameter completion: A block to be called once all of the writes in the batch have been
   ///  successfully written to the backend as an atomic unit. This block will only execute when the
   ///  client is online and the commit has completed against the server.
-  ///   The changes will be visible immediately.
+  ///  The changes will be visible immediately.
   func commit(completion: @escaping (Result<Void, Error>) -> Void) {
     commit(completion: mapResultCompletion(completion))
   }
