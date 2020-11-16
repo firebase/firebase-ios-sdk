@@ -39,7 +39,7 @@ let package = Package(
     .library(
       name: "FirebaseCombineSwift-Beta",
       targets: ["FirebaseCombineSwift"]
-    ),    
+    ),
     .library(
       name: "FirebaseCrashlytics",
       targets: ["FirebaseCrashlytics"]
@@ -722,7 +722,7 @@ let package = Package(
         "FirebaseAuth",
         "FirebaseABTesting",
         "Firebase",
-        "FirebaseCombineSwift",        
+        "FirebaseCombineSwift",
         "FirebaseCrashlytics",
         "FirebaseCore",
         "FirebaseDatabase",
