@@ -16,6 +16,7 @@ import Foundation
 import FirebaseCore
 import FirebaseInstallations
 
+
 struct ModelInfoResponse: Codable {
   var downloadURL: String
   var expireTime: String
@@ -56,7 +57,7 @@ class ModelInfoRetriever: NSObject {
       name: info.name,
       size: info.size,
       path: path,
-      hash: info.hash
+      hash: info.modelHash
     )
     return model
   }
@@ -65,18 +66,18 @@ class ModelInfoRetriever: NSObject {
 /// Extension to handle fetching model info from server.
 extension ModelInfoRetriever {
   /// HTTP request headers.
-  static let fisTokenHTTPHeader: String = "x-goog-firebase-installations-auth"
-  static let hashMatchHTTPHeader: String = "if-none-match"
-  static let bundleIDHTTPHeader: String = "x-ios-bundle-identifier"
+  static let fisTokenHTTPHeader = "x-goog-firebase-installations-auth"
+  static let hashMatchHTTPHeader = "if-none-match"
+  static let bundleIDHTTPHeader = "x-ios-bundle-identifier"
 
   /// HTTP response headers.
-  static let etagHTTPHeader: String = "Etag"
+  static let etagHTTPHeader = "Etag"
 
   /// Error descriptions.
-  static let tokenErrorDescription: String = "Error retrieving FIS token."
-  static let selfDeallocatedErrorDescription: String = "Self deallocated."
-  static let missingModelHashErrorDescription: String = "Model hash missing in server response."
-  static let invalidHTTPResponseErrorDescription: String =
+  static let tokenErrorDescription = "Error retrieving FIS token."
+  static let selfDeallocatedErrorDescription = "Self deallocated."
+  static let missingModelHashErrorDescription = "Model hash missing in server response."
+  static let invalidHTTPResponseErrorDescription =
     "Could not get a valid HTTP response from server."
 
   /// Construct model fetch base URL.
@@ -88,6 +89,7 @@ extension ModelInfoRetriever {
     components.host = "firebaseml.googleapis.com"
     components.path = "/v1beta2/projects/\(projectID)/models/\(modelName):download"
     components.queryItems = [URLQueryItem(name: "key", value: apiKey)]
+    // TODO: handle nil
     return components.url!
   }
 
@@ -99,8 +101,8 @@ extension ModelInfoRetriever {
     let bundleID = Bundle.main.bundleIdentifier ?? ""
     request.setValue(bundleID, forHTTPHeaderField: ModelInfoRetriever.bundleIDHTTPHeader)
     request.setValue(token, forHTTPHeaderField: ModelInfoRetriever.fisTokenHTTPHeader)
-    if let info = modelInfo, info.hash.count > 0 {
-      request.setValue(info.hash, forHTTPHeaderField: ModelInfoRetriever.hashMatchHTTPHeader)
+    if let info = modelInfo, info.modelHash.count > 0 {
+      request.setValue(info.modelHash, forHTTPHeaderField: ModelInfoRetriever.hashMatchHTTPHeader)
     }
     return request
   }
@@ -123,7 +125,8 @@ extension ModelInfoRetriever {
 
       /// Download model info.
       // TODO: Consider moving request to a separate method
-      let dataTask = URLSession.shared.dataTask(with: request) { [weak self]
+      let session = URLSession(configuration: .ephemeral)
+      let dataTask = session.dataTask(with: request) { [weak self]
         data, response, error in
         guard let self = self else {
           completion(.internalError(description: ModelInfoRetriever
@@ -182,6 +185,6 @@ extension ModelInfoRetriever {
     modelInfo = ModelInfo(app: app, name: modelName)
     modelInfo?.downloadURL = modelInfoJSON.downloadURL
     modelInfo?.size = Int(modelInfoJSON.size)!
-    modelInfo?.hash = modelHash
+    modelInfo?.modelHash = modelHash
   }
 }

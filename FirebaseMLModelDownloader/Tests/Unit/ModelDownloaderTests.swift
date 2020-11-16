@@ -51,7 +51,7 @@ final class ModelDownloaderTests: XCTestCase {
     XCTAssertEqual(modelInfoRetriever.modelInfo?.downloadURL, "")
     modelInfoRetriever.modelInfo?.downloadURL = "testurl.com"
     XCTAssertEqual(modelInfoRetriever.modelInfo?.downloadURL, "testurl.com")
-    XCTAssertEqual(modelInfoRetriever.modelInfo?.hash, "")
+    XCTAssertEqual(modelInfoRetriever.modelInfo?.modelHash, "")
     XCTAssertEqual(modelInfoRetriever.modelInfo?.size, 0)
     XCTAssertEqual(modelInfoRetriever.modelInfo?.path, nil)
   }
@@ -68,7 +68,7 @@ final class ModelDownloaderTests: XCTestCase {
       XCTAssertNil(error)
       XCTAssertNotNil(modelInfoRetriever.modelInfo)
       XCTAssertNotEqual(modelInfoRetriever.modelInfo!.downloadURL, "")
-      XCTAssertNotEqual(modelInfoRetriever.modelInfo!.hash, "")
+      XCTAssertNotEqual(modelInfoRetriever.modelInfo!.modelHash, "")
       XCTAssertGreaterThan(modelInfoRetriever.modelInfo!.size, 0)
       expectation.fulfill()
     })

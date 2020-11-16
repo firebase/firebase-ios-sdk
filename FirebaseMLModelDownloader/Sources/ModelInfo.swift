@@ -16,18 +16,19 @@ import Foundation
 import FirebaseCore
 
 /// Model info object with details about pending or downloaded model.
-struct ModelInfo {
+class ModelInfo: NSObject {
   /// Model name.
   var name: String
 
   /// User defaults associated with model.
   var defaults: UserDefaults
 
+  // TODO: revisit UserDefaultsBacked
   /// Download URL for the model file, as returned by server.
   @UserDefaultsBacked var downloadURL: String
 
   /// Hash of the model, as returned by server.
-  @UserDefaultsBacked var hash: String
+  @UserDefaultsBacked var modelHash: String
 
   /// Size of the model, as returned by server.
   @UserDefaultsBacked var size: Int
@@ -45,7 +46,7 @@ struct ModelInfo {
       key: "\(defaultsPrefix).model-download-url",
       storage: defaults
     )
-    _hash = UserDefaultsBacked(key: "\(defaultsPrefix).model-hash", storage: defaults)
+    _modelHash = UserDefaultsBacked(key: "\(defaultsPrefix).model-hash", storage: defaults)
     _size = UserDefaultsBacked(key: "\(defaultsPrefix).model-size", storage: defaults)
     _path = UserDefaultsBacked(key: "\(defaultsPrefix).model-path", storage: defaults)
   }
