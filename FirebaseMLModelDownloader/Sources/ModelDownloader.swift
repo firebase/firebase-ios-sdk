@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import Foundation
+import FirebaseCore
 
 /// Possible errors with model downloading.
 public enum DownloadError: Error, Equatable {
@@ -55,6 +56,7 @@ public struct ModelDownloader {
                        conditions: ModelDownloadConditions,
                        progressHandler: ((Float) -> Void)? = nil,
                        completion: @escaping (Result<CustomModel, DownloadError>) -> Void) {
+    
     // TODO: Model download
     let modelSize = Int()
     let modelPath = String()
