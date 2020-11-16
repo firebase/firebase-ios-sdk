@@ -82,7 +82,7 @@ final class ModelDownloaderTests: XCTestCase {
     XCTAssertEqual(modelInfoRetriever.modelInfo?.downloadURL, "")
     modelInfoRetriever.modelInfo?.downloadURL = "testurl.com"
     XCTAssertEqual(modelInfoRetriever.modelInfo?.downloadURL, "testurl.com")
-    XCTAssertEqual(modelInfoRetriever.modelInfo?.hash, "")
+    XCTAssertEqual(modelInfoRetriever.modelInfo?.modelHash, "")
     XCTAssertEqual(modelInfoRetriever.modelInfo?.size, 0)
     XCTAssertEqual(modelInfoRetriever.modelInfo?.path, nil)
   }

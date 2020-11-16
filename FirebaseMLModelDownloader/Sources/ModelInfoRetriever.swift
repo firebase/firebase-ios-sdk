@@ -17,18 +17,19 @@ import FirebaseCore
 import FirebaseInstallations
 
 /// Model info object with details about pending or downloaded model.
-struct ModelInfo {
+class ModelInfo: NSObject {
   /// Model name.
   var name: String
 
   /// User defaults associated with model.
   var defaults: UserDefaults
 
+  // TODO: revisit UserDefaultsBacked
   /// Download URL for the model file, as returned by server.
   @UserDefaultsBacked var downloadURL: String
 
   /// Hash of the model, as returned by server.
-  @UserDefaultsBacked var hash: String
+  @UserDefaultsBacked var modelHash: String
 
   /// Size of the model, as returned by server.
   @UserDefaultsBacked var size: Int
@@ -46,7 +47,7 @@ struct ModelInfo {
       key: "\(defaultsPrefix).model-download-url",
       storage: defaults
     )
-    _hash = UserDefaultsBacked(key: "\(defaultsPrefix).model-hash", storage: defaults)
+    _modelHash = UserDefaultsBacked(key: "\(defaultsPrefix).model-hash", storage: defaults)
     _size = UserDefaultsBacked(key: "\(defaultsPrefix).model-size", storage: defaults)
     _path = UserDefaultsBacked(key: "\(defaultsPrefix).model-path", storage: defaults)
   }
@@ -81,7 +82,7 @@ class ModelInfoRetriever: NSObject {
       name: info.name,
       size: info.size,
       path: path,
-      hash: info.hash
+      hash: info.modelHash
     )
     return model
   }
@@ -90,18 +91,18 @@ class ModelInfoRetriever: NSObject {
 /// Extension to handle fetching model info from server.
 extension ModelInfoRetriever {
   /// HTTP request headers.
-  static let fisTokenHTTPHeader: String = "x-goog-firebase-installations-auth"
-  static let hashMatchHTTPHeader: String = "if-none-match"
-  static let bundleIDHTTPHeader: String = "x-ios-bundle-identifier"
+  static let fisTokenHTTPHeader = "x-goog-firebase-installations-auth"
+  static let hashMatchHTTPHeader = "if-none-match"
+  static let bundleIDHTTPHeader = "x-ios-bundle-identifier"
 
   /// HTTP response headers.
-  static let etagHTTPHeader: String = "ETag"
+  static let etagHTTPHeader = "ETag"
 
   /// Error descriptions.
-  static let tokenErrorDescription: String = "Error retrieving FIS token."
-  static let selfDeallocatedErrorDescription: String = "Self deallocated."
-  static let missingModelHashErrorDescription: String = "Model hash missing in server response."
-  static let invalidHTTPResponseErrorDescription: String =
+  static let tokenErrorDescription = "Error retrieving FIS token."
+  static let selfDeallocatedErrorDescription = "Self deallocated."
+  static let missingModelHashErrorDescription = "Model hash missing in server response."
+  static let invalidHTTPResponseErrorDescription =
     "Could not get a valid HTTP response from server."
 
   /// Construct model fetch base URL.
@@ -110,6 +111,7 @@ extension ModelInfoRetriever {
     components.scheme = "https"
     components.host = "firebaseml.googleapis.com"
     components.path = "/v1beta2/projects/\(projectID)/models/\(modelName):download"
+    // TODO: handle nil
     return components.url!
   }
 
@@ -121,8 +123,8 @@ extension ModelInfoRetriever {
     let bundleID = Bundle.main.bundleIdentifier ?? ""
     request.setValue(bundleID, forHTTPHeaderField: ModelInfoRetriever.bundleIDHTTPHeader)
     request.setValue(token, forHTTPHeaderField: ModelInfoRetriever.fisTokenHTTPHeader)
-    if let info = modelInfo, info.hash.count > 0 {
-      request.setValue(info.hash, forHTTPHeaderField: ModelInfoRetriever.hashMatchHTTPHeader)
+    if let info = modelInfo, info.modelHash.count > 0 {
+      request.setValue(info.modelHash, forHTTPHeaderField: ModelInfoRetriever.hashMatchHTTPHeader)
     }
     return request
   }
@@ -145,7 +147,8 @@ extension ModelInfoRetriever {
 
       /// Download model info.
       // TODO: Consider moving request to a separate method
-      let dataTask = URLSession.shared.dataTask(with: request) { [weak self]
+      let session = URLSession(configuration: .ephemeral)
+      let dataTask = session.dataTask(with: request) { [weak self]
         data, response, error in
         guard let self = self else {
           completion(.internalError(description: ModelInfoRetriever
@@ -192,7 +195,7 @@ extension ModelInfoRetriever {
   /// Save model info to user defaults.
   func saveModelInfo(data: Data, modelHash: String) {
     // TODO: Save model info to user defaults
-    modelInfo?.hash = modelHash
+    modelInfo?.modelHash = modelHash
   }
 }
 
@@ -200,7 +203,7 @@ extension ModelInfoRetriever {
 extension UserDefaults {
   static var firebaseMLDefaults: UserDefaults {
     let suiteName = "com.google.firebase.ml"
-    // TODO: reconsider force unwrapping
+    // TODO: handle nil gracefully
     let defaults = UserDefaults(suiteName: suiteName)!
     return defaults
   }
