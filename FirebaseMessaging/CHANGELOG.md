@@ -1,4 +1,7 @@
-# unreleased -- v.7.0.0
+# 2020-11 -- v7.1.0
+- [fixed] Fixed completion handler issue in `application(_:didReceiveRemoteNotification:fetchCompletionHandler:)` method. (#6863)
+
+# 2020-10 -- v7.0.0
 - [changed] Remove the deprecated FCM direct channel API and Upstream send API. (#6430)
 - [changed] The `messaging:didReceiveRegistrationToken:` should be able to return a null token. Update the API parameter fcmToken to be nullable. (#5339)
 - [fixed] Fixed an issue that downloading an image failed when there's no extension in the file name but MIME type is set. (#6590)

@@ -18,6 +18,14 @@ import CommonCrypto
 import Foundation
 import Utils
 
+struct CarthageBuildOptions {
+  /// Location of directory containing all JSON Carthage manifests.
+  let jsonDir: URL
+
+  /// Version checking flag.
+  let isVersionCheckEnabled: Bool
+}
+
 /// Carthage related utility functions. The enum type is used as a namespace here instead of having
 /// root functions, and no cases should be added to it.
 enum CarthageUtils {}
@@ -29,12 +37,11 @@ extension CarthageUtils {
   ///   - templateDir: The template project directory, contains the dummy Firebase library.
   ///   - carthageJSONDir: Location of directory containing all JSON Carthage manifests.
   ///   - artifacts: Release Artifacts from build.
-  ///   - rcNumber: The RC number.
+  ///   - options: Carthage specific options for the build.
   /// - Returns: The path to the root of the Carthage installation.
   static func packageCarthageRelease(templateDir: URL,
-                                     carthageJSONDir: URL,
                                      artifacts: ZipBuilder.ReleaseArtifacts,
-                                     rcNumber: Int?) -> URL? {
+                                     options: CarthageBuildOptions) -> URL? {
     guard let zipLocation = artifacts.carthageDir else { return nil }
 
     do {
@@ -49,18 +56,14 @@ extension CarthageUtils {
       // Package the Carthage distribution with the current directory structure.
       let carthageDir = zipLocation.deletingLastPathComponent().appendingPathComponent("carthage")
       fileManager.removeIfExists(at: carthageDir)
-      var output = carthageDir.appendingPathComponent(artifacts.firebaseVersion)
-      if let rcNumber = args.rcNumber {
-        output.appendPathComponent("rc\(rcNumber)")
-      } else {
-        output.appendPathComponent("latest-non-rc")
-      }
+      let output = carthageDir.appendingPathComponents([artifacts.firebaseVersion, "latest"])
       try fileManager.createDirectory(at: output, withIntermediateDirectories: true)
       generateCarthageRelease(fromPackagedDir: carthagePath,
                               templateDir: templateDir,
-                              jsonDir: carthageJSONDir,
+                              jsonDir: options.jsonDir,
                               artifacts: artifacts,
-                              outputDir: output)
+                              outputDir: output,
+                              versionCheckEnabled: options.isVersionCheckEnabled)
 
       // Remove the duplicated Carthage build directory.
       fileManager.removeIfExists(at: carthagePath)
@@ -87,7 +90,8 @@ extension CarthageUtils {
                                               templateDir: URL,
                                               jsonDir: URL,
                                               artifacts: ZipBuilder.ReleaseArtifacts,
-                                              outputDir: URL) {
+                                              outputDir: URL,
+                                              versionCheckEnabled: Bool) {
     factorProtobuf(inPackagedDir: packagedDir)
     let directories: [String]
     do {
@@ -104,7 +108,8 @@ extension CarthageUtils {
 
       // Parse the JSON file, ensure that we're not trying to overwrite a release.
       var jsonManifest = parseJSONFile(fromDir: jsonDir, product: product)
-      if !args.carthageSkipVersionCheck {
+
+      if versionCheckEnabled {
         guard jsonManifest[firebaseVersion] == nil else {
           print("Carthage release for \(product) \(firebaseVersion) already exists - skipping.")
           continue

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,35 +14,24 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
+#import "FirebaseSegmentation/Sources/SEGSegmentationConstants.h"
 
-#if defined(DEBUG)
-#define SEG_MUST_NOT_BE_MAIN_THREAD()                                                 \
-  do {                                                                                \
-    NSAssert(![NSThread isMainThread], @"Must not be executing on the main thread."); \
-  } while (0);
-#else
-#define SEG_MUST_NOT_BE_MAIN_THREAD() \
-  do {                                \
-  } while (0);
-#endif
-
-extern NSString* const kFIRLoggerSegmentation;
+NSString* const kFIRLoggerSegmentation = @"[Firebase/Segmentation]";
 
 /// Keys for values stored in the Segmentation SDK.
-extern NSString* const kSEGFirebaseApplicationIdentifierKey;
-extern NSString* const kSEGCustomInstallationIdentifierKey;
-extern NSString* const kSEGFirebaseInstallationIdentifierKey;
-extern NSString* const kSEGAssociationStatusKey;
+NSString* const kSEGFirebaseApplicationIdentifierKey = @"firebase_app_identifier";
+NSString* const kSEGCustomInstallationIdentifierKey = @"custom_installation_identifier";
+NSString* const kSEGFirebaseInstallationIdentifierKey = @"firebase_installation_identifier";
+NSString* const kSEGAssociationStatusKey = @"association_status";
 /// Association Status
-extern NSString* const kSEGAssociationStatusPending;
-extern NSString* const kSEGAssociationStatusAssociated;
+NSString* const kSEGAssociationStatusPending = @"PENDING";
+NSString* const kSEGAssociationStatusAssociated = @"ASSOCIATED";
 
 /// Segmentation error domain when logging errors.
-extern NSString* const kFirebaseSegmentationErrorDomain;
+NSString* const kFirebaseSegmentationErrorDomain = @"com.firebase.segmentation";
 
 /// Used for reporting generic internal Segmentation errors.
-extern NSString* const kSEGErrorDescription;
+NSString* const kSEGErrorDescription = @"SEGErrorDescription";
 
 /// Segmentation Request Completion callback.
 /// @param success Decide whether the network operation succeeds.

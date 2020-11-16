@@ -69,7 +69,7 @@ else
     scripts/decrypt_GHA_SECRET.sh $SERVICE_ACCOUNT ~/.credentials/$SERVICE_ACCOUNT_FILE "$plist_secret"
 fi
 
-echo "::set-env name=GOOGLE_APPLICATION_CREDENTIALS::${HOME}/.credentials/${SERVICE_ACCOUNT_FILE}"
+echo "GOOGLE_APPLICATION_CREDENTIALS=${HOME}/.credentials/${SERVICE_ACCOUNT_FILE}" >> $GITHUB_ENV
 export GOOGLE_APPLICATION_CREDENTIALS="${HOME}/.credentials/${SERVICE_ACCOUNT_FILE}"
 
 # Clone Google's Swift Auth Client Library and use it to generate a token.
