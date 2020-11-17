@@ -15,10 +15,20 @@
  */
 
 import Foundation
-import XCTest
+import FirebaseCore
 
-class AuthCombineTests: XCTestCase {
-  func testDummy() {
-    XCTAssertEqual("hello", "hello")
+extension FirebaseApp {
+  static func appOptions() -> FirebaseOptions {
+    let options = FirebaseOptions(googleAppID: Credentials.googleAppID, gcmSenderID: Credentials.gcmSenderID)
+    options.apiKey = Credentials.apiKey
+    options.clientID = Credentials.clientID
+    options.bundleID = Credentials.bundleID
+    options.projectID = Credentials.projectID
+    return options
+  }
+  
+  static func configureForTests() {
+    self.configure(options: appOptions())
   }
 }
+

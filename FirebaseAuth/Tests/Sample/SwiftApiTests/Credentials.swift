@@ -51,10 +51,10 @@ import Foundation
  */
 
 class Credentials {
-  static let kGoogleClientID = KGOOGLE_CLIENT_ID
-  static let kGoogleTestAccountRefreshToken = KGOOGLE_TEST_ACCOUNT_REFRESH_TOKEN
-  static let kGoogleUserName = KGOOGLE_USER_NAME
-  static let kFacebookAppID = KFACEBOOK_APP_ID
-  static let kFacebookAppAccessToken = KFACEBOOK_APP_ACCESS_TOKEN
-  static let kFacebookUserName = KFACEBOOK_USER_NAME
+  static let kGoogleClientID = ""
+  static let kGoogleTestAccountRefreshToken = ""
+  static let kGoogleUserName = ""
+  static let kFacebookAppID = ""
+  static let kFacebookAppAccessToken = ""
+  static let kFacebookUserName = ""
 }

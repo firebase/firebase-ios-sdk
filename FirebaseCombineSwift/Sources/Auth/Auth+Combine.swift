@@ -19,18 +19,30 @@
 
   @available(swift 5.0)
   @available(macOS 10.15, iOS 13, watchOS 6, tvOS 13, *)
+  public typealias AuthStateDidChangePublisher = AnyPublisher<(Auth, User?), Never>
+
+  @available(swift 5.0)
+  @available(macOS 10.15, iOS 13, watchOS 6, tvOS 13, *)
   extension Auth {
-    /// Registers an authentication state listener and publishes any
-    /// updates to subscribers.
+    
+    /// Registers a publisher that publishes authentication state changes.
     ///
-    /// - Returns: A publisher emitting `User` instances
-    public func authStateDidChangePublisher() -> AnyPublisher<User?, Never> {
-      let subject = PassthroughSubject<User?, Never>()
+    /// The publisher emits values when:
+    ///
+    /// - It is registered,
+    /// - A user with a different UID from the current user has signed in, or
+    /// - The current user has signed out.
+    ///
+    /// - Returns: A publisher emitting (`Auth`, User`) tuples.
+    public func authStateDidChangePublisher() -> AuthStateDidChangePublisher {
+      let subject = PassthroughSubject<(Auth, User?), Never>()
       let handle = addStateDidChangeListener { auth, user in
-        subject.send(user)
+        subject.send((auth, user))
       }
       return subject
-        .handleEvents(receiveCancel: { self.removeStateDidChangeListener(handle) })
+        .handleEvents(receiveCancel:{
+          self.removeStateDidChangeListener(handle)
+        })
         .eraseToAnyPublisher()
     }
   }

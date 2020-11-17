@@ -131,3 +131,4 @@ CocoaPodsIntegrationTest/Podfile
 # In-app messaging integration tests
 FirebaseInAppMessaging/Tests/Integration/FunctionalTestApp/GoogleService-Info.plist
 FirebaseInAppMessaging/Tests/Integration/FunctionalTestApp/App/InAppMessaging-Example-iOS/AppDelegate.m
+/FirebaseCombineSwift/Tests/Unit/Credentials.swift
