@@ -23,11 +23,26 @@ enum DownloadStatus {
   case unknown
 }
 
+class Downloader : NSObject {
+  let downloadTask : URLSessionDownloadTask
+  var progressHandler : ModelDownloadManager.progressHandler?
+  var completion : ModelDownloadManager.completion
+
+  init(downloadTask : URLSessionDownloadTask, progressHandler : ModelDownloadManager.progressHandler?, completion : @escaping ModelDownloadManager.completion) {
+    self.downloadTask = downloadTask
+    self.progressHandler = progressHandler
+    self.completion = completion
+  }
+}
+
 class ModelDownloadManager : NSObject {
 
   var app : FirebaseApp
   var modelInfo : ModelInfo
   var downloadTask : URLSessionDownloadTask?
+
+  typealias progressHandler = (Float) -> Void
+  typealias completion = (Result<CustomModel, DownloadError>) -> Void
 
   var downloadedModelFileName : String {
     get {
@@ -49,15 +64,14 @@ class ModelDownloadManager : NSObject {
     }
   }
 
-  func startModelDownload(completion: @escaping (DownloadError?) -> Void) {
-    let urlSession = URLSession(configuration: .default,
-                                delegate: self,
-                                delegateQueue: nil)
-    let url = URL(string: modelInfo.downloadURL)!
-    let downloadTask = urlSession.downloadTask(with: url)
+  private lazy var downloadSession = URLSession(configuration: .ephemeral,
+                                                delegate: self,
+                                                delegateQueue: nil)
+
+  func startModelDownload(url: URL) {
+    let downloadTask = self.downloadSession.downloadTask(with: url)
     downloadTask.resume()
     self.downloadTask = downloadTask
-    completion(nil)
   }
 
 }
@@ -68,7 +82,7 @@ extension ModelDownloadManager : URLSessionDownloadDelegate {
                   didFinishDownloadingTo location: URL) {
 
     guard let response = downloadTask.response as? HTTPURLResponse else { return }
-    print(response)
+    print("Downloaded \(response) to \(location).")
 
     do {
       let documentsURL = try FileManager.default.url(for: .documentDirectory,
