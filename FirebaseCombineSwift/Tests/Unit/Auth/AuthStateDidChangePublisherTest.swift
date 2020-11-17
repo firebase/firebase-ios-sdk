@@ -67,9 +67,8 @@ class AuthStateDidChangePublisherTest: XCTestCase {
   }
 
   // Listener should not fire for signing in again.
-  func testPublisherShouldNotEmitForSigningInAgain() {
-    let expect = expectation(description: "Publisher should not emit for signing in again")
-    var signInCount = 0
+  func testPublisherDoesNotEmitWhenUserSignsInAgain() {
+    var expect = expectation(description: "Publisher emits value when user is signed in")
 
     let cancellable = Auth.auth().authStateDidChangePublisher()
       .sink { auth, user in
@@ -77,22 +76,95 @@ class AuthStateDidChangePublisherTest: XCTestCase {
         XCTAssertEqual(user, Auth.auth().currentUser)
 
         if let user = user, user.isAnonymous {
-          if signInCount == 2 {
+          expect.fulfill()
+        }
+      }
+
+    // Sign in, expect the publisher to emit
+    Auth.auth().signInAnonymously()
+    waitForExpectations(timeout: expectationTimeout, handler: nil)
+
+    // Sign in again, expect the publisher NOT to emit
+    expect = expectation(description: "Publisher does not emit when user sign in again")
+    expect.isInverted = true
+
+    Auth.auth().signInAnonymously()
+    waitForExpectations(timeout: expectationTimeout, handler: nil)
+
+    cancellable.cancel()
+  }
+
+  // Listener should fire for signing out.
+  func testPublisherEmitsWhenUserSignsOut() {
+    var expect = expectation(description: "Publisher emits value when user is signed in")
+    var shouldUserBeNil = false
+
+    let cancellable = Auth.auth().authStateDidChangePublisher()
+      .sink { auth, user in
+        XCTAssertEqual(auth, Auth.auth())
+        XCTAssertEqual(user, Auth.auth().currentUser)
+
+        if shouldUserBeNil {
+          if user == nil {
+            expect.fulfill()
+          }
+        } else {
+          if let user = user, user.isAnonymous {
             expect.fulfill()
           }
         }
       }
 
-    signInCount += 1
+    // sign in first
     Auth.auth().signInAnonymously()
+    waitForExpectations(timeout: expectationTimeout, handler: nil)
 
-    signInCount += 1
-    Auth.auth().signInAnonymously()
+    // now sign out
+    expect = expectation(description: "Publisher emits value when user signs out")
+    shouldUserBeNil = true
+    do {
+      try Auth.auth().signOut()
+    } catch {}
 
     waitForExpectations(timeout: expectationTimeout, handler: nil)
     cancellable.cancel()
   }
 
-  // Listener should fire for signing out.
   // Listener should no longer fire once detached.
+  func testPublisherNoLongerEmitsWhenDetached() {
+    var expect = expectation(description: "Publisher emits value when user is signed in")
+    var shouldUserBeNil = false
+
+    let cancellable = Auth.auth().authStateDidChangePublisher()
+      .sink { auth, user in
+        XCTAssertEqual(auth, Auth.auth())
+        XCTAssertEqual(user, Auth.auth().currentUser)
+
+        if shouldUserBeNil {
+          if user == nil {
+            expect.fulfill()
+          }
+        } else {
+          if let user = user, user.isAnonymous {
+            expect.fulfill()
+          }
+        }
+      }
+
+    // sign in first
+    Auth.auth().signInAnonymously()
+    waitForExpectations(timeout: expectationTimeout, handler: nil)
+
+    // detach the publisher
+    expect = expectation(description: "Publisher no longer emits once detached")
+    expect.isInverted = true
+    cancellable.cancel()
+
+    shouldUserBeNil = true
+    do {
+      try Auth.auth().signOut()
+    } catch {}
+
+    waitForExpectations(timeout: expectationTimeout, handler: nil)
+  }
 }
