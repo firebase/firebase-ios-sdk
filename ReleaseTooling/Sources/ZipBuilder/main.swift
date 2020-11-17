@@ -52,7 +52,7 @@ struct ZipBuilderTool: ParsableCommand {
   @Flag(default: true,
         inversion: .prefixedEnableDisable,
         help: ArgumentHelp("Whether or not to build dependencies of requested pods."))
-  var buildDependences: Bool
+  var buildDependencies: Bool
 
   /// Flag to also build Carthage artifacts.
   @Flag(default: false,
