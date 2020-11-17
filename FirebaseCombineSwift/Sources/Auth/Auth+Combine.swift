@@ -24,7 +24,6 @@
   @available(swift 5.0)
   @available(macOS 10.15, iOS 13, watchOS 6, tvOS 13, *)
   extension Auth {
-    
     /// Registers a publisher that publishes authentication state changes.
     ///
     /// The publisher emits values when:
@@ -40,7 +39,7 @@
         subject.send((auth, user))
       }
       return subject
-        .handleEvents(receiveCancel:{
+        .handleEvents(receiveCancel: {
           self.removeStateDidChangeListener(handle)
         })
         .eraseToAnyPublisher()

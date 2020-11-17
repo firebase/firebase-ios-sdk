@@ -27,7 +27,7 @@ Pod::Spec.new do |s|
   s.prefix_header_file = false
 
   s.requires_arc            = true
-  source = 'FirebaseCombineSwift/Sources/'  
+  source = 'FirebaseCombineSwift/Sources/'
   s.source_files = [
     source + '**/*.swift',
   ]
