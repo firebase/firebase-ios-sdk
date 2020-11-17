@@ -164,7 +164,7 @@ struct ZipBuilder {
   func buildAndAssembleZip(podsToInstall: [CocoaPodUtils.VersionedPod],
                            inProjectDir projectDir: URL,
                            minimumIOSVersion: String,
-                           includeDependences: Bool,
+                           includeDependencies: Bool,
                            includeCarthage: Bool = false) ->
     ([String: CocoaPodUtils.PodInfo], [String: [URL]], [String: [URL]]?) {
     // Remove CocoaPods cache so the build gets updates after a version is rebuilt during the
@@ -198,7 +198,7 @@ struct ZipBuilder {
                        paths: paths).build()
     }
 
-    let podsToBuild = includeDependences ? installedPods : installedPods.filter {
+    let podsToBuild = includeDependencies ? installedPods : installedPods.filter {
       podsToInstall.map { $0.name.components(separatedBy: "/").first }.contains($0.key)
     }
 
@@ -244,7 +244,7 @@ struct ZipBuilder {
                                                    inProjectDir: projectDir,
                                                    minimumIOSVersion: minimumIOSVersion,
                                                    // Always include dependencies for Firebase zips.
-                                                   includeDependences: true,
+                                                   includeDependencies: true,
                                                    includeCarthage: includeCarthage)
 
     // We need the Firebase pod to get the version for Carthage and to copy the `Firebase.h` and
