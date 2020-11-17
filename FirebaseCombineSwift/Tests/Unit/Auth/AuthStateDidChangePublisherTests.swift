@@ -19,7 +19,7 @@ import FirebaseCombineSwift
 import Combine
 import XCTest
 
-class AuthStateDidChangePublisherTest: XCTestCase {
+class AuthStateDidChangePublisherTests: XCTestCase {
   let expectationTimeout: Double = 2
 
   override class func setUp() {
