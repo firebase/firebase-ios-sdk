@@ -109,10 +109,10 @@ struct ZipBuilder {
     /// - Parameter logsOutputDir: The output directory for any logs. If `nil`, a temporary
     ///      directory will be used.
     init(repoDir: URL,
-         buildRoot: URL? = nil,
-         outputDir: URL? = nil,
-         localPodspecPath: URL? = nil,
-         logsOutputDir: URL? = nil) {
+         buildRoot: URL?,
+         outputDir: URL?,
+         localPodspecPath: URL?,
+         logsOutputDir: URL?) {
       self.repoDir = repoDir
       self.buildRoot = buildRoot
       self.outputDir = outputDir
