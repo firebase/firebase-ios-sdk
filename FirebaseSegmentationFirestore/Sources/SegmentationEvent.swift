@@ -24,7 +24,7 @@ public struct SegmentationEvent {
     if fis != nil {
       fatalError("register can only be called once.")
     }
-    Installations.installations().installationID { (fis, error) in
+    Installations.installations().installationID { fis, error in
       if let error = error {
         fatalError("FIS failed \(error)")
       }

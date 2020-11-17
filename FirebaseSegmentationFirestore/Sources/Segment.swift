@@ -15,7 +15,7 @@
 import Foundation
 import FirebaseFirestore
 
-struct Segment : Codable {
+struct Segment: Codable {
   let iid: String
   let labels: [String]
   let date: Timestamp
