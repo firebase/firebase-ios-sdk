@@ -20,11 +20,21 @@
 #include <string>
 #include <vector>
 
+#include "Firestore/core/src/util/statusor.h"
+#include "Firestore/core/test/unit/testutil/status_testing.h"
 #include "gtest/gtest.h"
 
 namespace firebase {
 namespace firestore {
 namespace model {
+
+namespace {
+
+FieldPath Parse(const std::string& path) {
+  return FieldPath::FromServerFormat(path).ConsumeValueOrDie();
+}
+
+}  // namespace
 
 TEST(FieldPath, Constructors) {
   const FieldPath empty_path;
@@ -181,7 +191,7 @@ TEST(FieldPath, AccessFailures) {
 
 TEST(FieldPath, Parsing) {
   const auto parse = [](const std::pair<std::string, size_t> expected) {
-    const auto path = FieldPath::FromServerFormat(expected.first);
+    const auto path = Parse(expected.first);
     return std::make_pair(path.CanonicalString(), path.size());
   };
   const auto make_expected = [](const std::string& str, const size_t size) {
@@ -201,7 +211,7 @@ TEST(FieldPath, Parsing) {
   expected = make_expected(R"(foo.`\``.bar)", 3);
   EXPECT_EQ(expected, parse(expected));
 
-  const auto path_with_dot = FieldPath::FromServerFormat(R"(foo\.bar)");
+  const auto path_with_dot = Parse(R"(foo\.bar)");
   EXPECT_EQ(path_with_dot.CanonicalString(), "`foo.bar`");
   EXPECT_EQ(path_with_dot.size(), 1u);
 }
@@ -214,27 +224,27 @@ TEST(FieldPath, ParseEmbeddedNull) {
   str += '\0';
   str += ".bar";
 
-  const auto path = FieldPath::FromServerFormat(str);
+  const auto path = Parse(str);
   EXPECT_EQ(path.size(), 1u);
   EXPECT_EQ(path.CanonicalString(), "foo");
 }
 
 TEST(FieldPath, ParseFailures) {
-  ASSERT_ANY_THROW(FieldPath::FromServerFormat(""));
-  ASSERT_ANY_THROW(FieldPath::FromServerFormat("."));
-  ASSERT_ANY_THROW(FieldPath::FromServerFormat(".."));
-  ASSERT_ANY_THROW(FieldPath::FromServerFormat("foo."));
-  ASSERT_ANY_THROW(FieldPath::FromServerFormat(".bar"));
-  ASSERT_ANY_THROW(FieldPath::FromServerFormat("foo..bar"));
-  ASSERT_ANY_THROW(FieldPath::FromServerFormat(R"(foo\)"));
-  ASSERT_ANY_THROW(FieldPath::FromServerFormat(R"(foo.\)"));
-  ASSERT_ANY_THROW(FieldPath::FromServerFormat("foo`"));
-  ASSERT_ANY_THROW(FieldPath::FromServerFormat("foo```"));
-  ASSERT_ANY_THROW(FieldPath::FromServerFormat("`foo"));
+  ASSERT_NOT_OK(FieldPath::FromServerFormat(""));
+  ASSERT_NOT_OK(FieldPath::FromServerFormat("."));
+  ASSERT_NOT_OK(FieldPath::FromServerFormat(".."));
+  ASSERT_NOT_OK(FieldPath::FromServerFormat("foo."));
+  ASSERT_NOT_OK(FieldPath::FromServerFormat(".bar"));
+  ASSERT_NOT_OK(FieldPath::FromServerFormat("foo..bar"));
+  ASSERT_NOT_OK(FieldPath::FromServerFormat(R"(foo\)"));
+  ASSERT_NOT_OK(FieldPath::FromServerFormat(R"(foo.\)"));
+  ASSERT_NOT_OK(FieldPath::FromServerFormat("foo`"));
+  ASSERT_NOT_OK(FieldPath::FromServerFormat("foo```"));
+  ASSERT_NOT_OK(FieldPath::FromServerFormat("`foo"));
 }
 
 TEST(FieldPath, CanonicalStringOfSubstring) {
-  const auto path = FieldPath::FromServerFormat("foo.bar.baz");
+  const auto path = Parse("foo.bar.baz");
   EXPECT_EQ(path.CanonicalString(), "foo.bar.baz");
   EXPECT_EQ(path.PopFirst().CanonicalString(), "bar.baz");
   EXPECT_EQ(path.PopLast().CanonicalString(), "foo.bar");
@@ -245,16 +255,16 @@ TEST(FieldPath, CanonicalStringOfSubstring) {
 
 TEST(FieldPath, CanonicalStringEscaping) {
   // Should be escaped
-  EXPECT_EQ(FieldPath::FromServerFormat("1").CanonicalString(), "`1`");
-  EXPECT_EQ(FieldPath::FromServerFormat("1ab").CanonicalString(), "`1ab`");
-  EXPECT_EQ(FieldPath::FromServerFormat("ab!").CanonicalString(), "`ab!`");
-  EXPECT_EQ(FieldPath::FromServerFormat("/ab").CanonicalString(), "`/ab`");
-  EXPECT_EQ(FieldPath::FromServerFormat("a#b").CanonicalString(), "`a#b`");
+  EXPECT_EQ(Parse("1").CanonicalString(), "`1`");
+  EXPECT_EQ(Parse("1ab").CanonicalString(), "`1ab`");
+  EXPECT_EQ(Parse("ab!").CanonicalString(), "`ab!`");
+  EXPECT_EQ(Parse("/ab").CanonicalString(), "`/ab`");
+  EXPECT_EQ(Parse("a#b").CanonicalString(), "`a#b`");
 
   // Should not be escaped
-  EXPECT_EQ(FieldPath::FromServerFormat("_ab").CanonicalString(), "_ab");
-  EXPECT_EQ(FieldPath::FromServerFormat("a1").CanonicalString(), "a1");
-  EXPECT_EQ(FieldPath::FromServerFormat("a_").CanonicalString(), "a_");
+  EXPECT_EQ(Parse("_ab").CanonicalString(), "_ab");
+  EXPECT_EQ(Parse("a1").CanonicalString(), "a1");
+  EXPECT_EQ(Parse("a_").CanonicalString(), "a_");
 }
 
 TEST(FieldPath, EmptyPath) {
@@ -267,11 +277,9 @@ TEST(FieldPath, EmptyPath) {
 TEST(FieldPath, KeyFieldPath) {
   const auto& key_field_path = FieldPath::KeyFieldPath();
   EXPECT_EQ(key_field_path, FieldPath{key_field_path});
-  EXPECT_EQ(key_field_path,
-            FieldPath::FromServerFormat(key_field_path.CanonicalString()));
+  EXPECT_EQ(key_field_path, Parse(key_field_path.CanonicalString()));
   EXPECT_EQ(&key_field_path, &FieldPath::KeyFieldPath());
-  EXPECT_NE(key_field_path, FieldPath::FromServerFormat(
-                                key_field_path.CanonicalString().substr(1)));
+  EXPECT_NE(key_field_path, Parse(key_field_path.CanonicalString().substr(1)));
 }
 
 }  // namespace model

@@ -1,5 +1,15 @@
 # Unreleased
-- [Fixed] Remove explicit MobileCoreServices library linkage from podspec. (#6850)
+- [added] Made emulator connection API consistent between Auth, Database, Firestore, and Functions (#5916).
+
+# v7.1.0
+- [changed] Added the original query data to error messages for Queries that
+  cannot be deserizialized.
+- [fixed] Remove explicit MobileCoreServices library linkage from podspec
+  (#6850).
+- [fixed] Removed excess validation of null and NaN values in query filters.
+  This more closely aligns the SDK with the Firestore backend, which has always
+  accepted null and NaN for all operators, even though this isn't necessarily
+  useful.
 
 # v7.0.0
 - [changed] **Breaking change:** Removed the `areTimestampsInSnapshotsEnabled`

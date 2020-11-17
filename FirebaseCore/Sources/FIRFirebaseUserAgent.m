@@ -21,6 +21,7 @@
 @interface FIRFirebaseUserAgent ()
 
 @property(nonatomic, readonly) NSMutableDictionary<NSString *, NSString *> *valuesByComponent;
+@property(nonatomic, readonly) NSDictionary<NSString *, NSString *> *environmentComponents;
 @property(nonatomic, readonly) NSString *firebaseUserAgent;
 
 @end
@@ -28,11 +29,12 @@
 @implementation FIRFirebaseUserAgent
 
 @synthesize firebaseUserAgent = _firebaseUserAgent;
+@synthesize environmentComponents = _environmentComponents;
 
 - (instancetype)init {
   self = [super init];
   if (self) {
-    _valuesByComponent = [[[self class] environmentComponents] mutableCopy];
+    _valuesByComponent = [[NSMutableDictionary alloc] init];
   }
   return self;
 }
@@ -40,13 +42,16 @@
 - (NSString *)firebaseUserAgent {
   @synchronized(self) {
     if (_firebaseUserAgent == nil) {
+      NSMutableDictionary<NSString *, NSString *> *allComponents =
+          [self.valuesByComponent mutableCopy];
+      [allComponents setValuesForKeysWithDictionary:self.environmentComponents];
+
       __block NSMutableArray<NSString *> *components =
           [[NSMutableArray<NSString *> alloc] initWithCapacity:self.valuesByComponent.count];
-      [self.valuesByComponent
-          enumerateKeysAndObjectsUsingBlock:^(NSString *_Nonnull name, NSString *_Nonnull value,
-                                              BOOL *_Nonnull stop) {
-            [components addObject:[NSString stringWithFormat:@"%@/%@", name, value]];
-          }];
+      [allComponents enumerateKeysAndObjectsUsingBlock:^(
+                         NSString *_Nonnull name, NSString *_Nonnull value, BOOL *_Nonnull stop) {
+        [components addObject:[NSString stringWithFormat:@"%@/%@", name, value]];
+      }];
       [components sortUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
       _firebaseUserAgent = [components componentsJoinedByString:@" "];
     }
@@ -72,6 +77,13 @@
 }
 
 #pragma mark - Environment components
+
+- (NSDictionary<NSString *, NSString *> *)environmentComponents {
+  if (_environmentComponents == nil) {
+    _environmentComponents = [[self class] environmentComponents];
+  }
+  return _environmentComponents;
+}
 
 + (NSDictionary<NSString *, NSString *> *)environmentComponents {
   NSMutableDictionary<NSString *, NSString *> *components = [NSMutableDictionary dictionary];

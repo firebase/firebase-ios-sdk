@@ -22,7 +22,7 @@
 
 import PackageDescription
 
-let firebaseVersion = "7.0.0"
+let firebaseVersion = "7.1.0"
 
 let package = Package(
   name: "Firebase",
@@ -147,8 +147,8 @@ let package = Package(
         // TODO: - Add support for cflags cSetting so that we can set the -fno-autolink option
       ],
       linkerSettings: [
-        .linkedFramework("UIKit", .when(platforms: .some([.iOS, .tvOS]))),
-        .linkedFramework("AppKit", .when(platforms: .some([.macOS]))),
+        .linkedFramework("UIKit", .when(platforms: [.iOS, .tvOS])),
+        .linkedFramework("AppKit", .when(platforms: [.macOS])),
       ]
     ),
     .testTarget(
@@ -206,9 +206,9 @@ let package = Package(
     .target(
       name: "FirebaseAnalyticsWrapper",
       dependencies: [
-        .target(name: "FirebaseAnalytics", condition: .when(platforms: .some([.iOS]))),
-        .target(name: "FIRAnalyticsConnector", condition: .when(platforms: .some([.iOS]))),
-        .target(name: "GoogleAppMeasurement", condition: .when(platforms: .some([.iOS]))),
+        .target(name: "FirebaseAnalytics", condition: .when(platforms: [.iOS])),
+        .target(name: "FIRAnalyticsConnector", condition: .when(platforms: [.iOS])),
+        .target(name: "GoogleAppMeasurement", condition: .when(platforms: [.iOS])),
         "FirebaseCore",
         "FirebaseInstallations",
         "GoogleUtilities_AppDelegateSwizzler",
@@ -227,18 +227,18 @@ let package = Package(
     ),
     .binaryTarget(
       name: "FirebaseAnalytics",
-      url: "https://dl.google.com/firebase/ios/swiftpm/7.0.0/FirebaseAnalytics.zip",
-      checksum: "8d835a816ec3f279d76d0d164f0b6fc0827239e26ed59a1acd277ed40d26243f"
+      url: "https://dl.google.com/firebase/ios/swiftpm/7.1.0/FirebaseAnalytics.zip",
+      checksum: "a374cbaecd629d14d6b365b0cc2c28744170ba9372d337c7b99df2c6e16e9044"
     ),
     .binaryTarget(
       name: "FIRAnalyticsConnector",
-      url: "https://dl.google.com/firebase/ios/swiftpm/7.0.0/FIRAnalyticsConnector.zip",
-      checksum: "bdbf31a06ef741456bd386ad3f10529103953c330771d140e021e5a467d89395"
+      url: "https://dl.google.com/firebase/ios/swiftpm/7.1.0/FIRAnalyticsConnector.zip",
+      checksum: "4510ff862833307f76f1392e43d82639966e052bdb58ee6b10005839298c0197"
     ),
     .binaryTarget(
       name: "GoogleAppMeasurement",
-      url: "https://dl.google.com/firebase/ios/swiftpm/7.0.0/GoogleAppMeasurement.zip",
-      checksum: "50fd6e762fc44f92a835bebf34ce8ecc9589ef34681be1cb41779bec9e44e652"
+      url: "https://dl.google.com/firebase/ios/swiftpm/7.1.0/GoogleAppMeasurement.zip",
+      checksum: "b0062d581e1bde54a1f6935bde1a49c6718a2a471825e02ab364e2dd8aef69c2"
     ),
 
     .target(
@@ -254,7 +254,7 @@ let package = Package(
       ],
       linkerSettings: [
         .linkedFramework("Security"),
-        .linkedFramework("SafariServices", .when(platforms: .some([.iOS]))),
+        .linkedFramework("SafariServices", .when(platforms: [.iOS])),
       ]
     ),
     .testTarget(
@@ -299,17 +299,17 @@ let package = Package(
       cSettings: [
         .headerSearchPath(".."),
         .define("DISPLAY_VERSION", to: firebaseVersion),
-        .define("CLS_SDK_NAME", to: "Crashlytics iOS SDK", .when(platforms: .some([.iOS]))),
-        .define("CLS_SDK_NAME", to: "Crashlytics macOS SDK", .when(platforms: .some([.macOS]))),
-        .define("CLS_SDK_NAME", to: "Crashlytics tvOS SDK", .when(platforms: .some([.tvOS]))),
-        .define("CLS_SDK_NAME", to: "Crashlytics watchOS SDK", .when(platforms: .some([.watchOS]))),
+        .define("CLS_SDK_NAME", to: "Crashlytics iOS SDK", .when(platforms: [.iOS])),
+        .define("CLS_SDK_NAME", to: "Crashlytics macOS SDK", .when(platforms: [.macOS])),
+        .define("CLS_SDK_NAME", to: "Crashlytics tvOS SDK", .when(platforms: [.tvOS])),
+        .define("CLS_SDK_NAME", to: "Crashlytics watchOS SDK", .when(platforms: [.watchOS])),
         .define("PB_FIELD_32BIT", to: "1"),
         .define("PB_NO_PACKED_STRUCTS", to: "1"),
         .define("PB_ENABLE_MALLOC", to: "1"),
       ],
       linkerSettings: [
         .linkedFramework("Security"),
-        .linkedFramework("SystemConfiguration", .when(platforms: .some([.iOS, .macOS, .tvOS]))),
+        .linkedFramework("SystemConfiguration", .when(platforms: [.iOS, .macOS, .tvOS])),
       ]
     ),
 
@@ -340,7 +340,7 @@ let package = Package(
       linkerSettings: [
         .linkedFramework("CFNetwork"),
         .linkedFramework("Security"),
-        .linkedFramework("SystemConfiguration", .when(platforms: .some([.iOS, .macOS, .tvOS]))),
+        .linkedFramework("SystemConfiguration", .when(platforms: [.iOS, .macOS, .tvOS])),
       ]
     ),
     .testTarget(
@@ -442,8 +442,8 @@ let package = Package(
         .define("FIRFirestore_VERSION", to: firebaseVersion),
       ],
       linkerSettings: [
-        .linkedFramework("SystemConfiguration", .when(platforms: .some([.iOS, .macOS, .tvOS]))),
-        .linkedFramework("UIKit", .when(platforms: .some([.iOS, .tvOS]))),
+        .linkedFramework("SystemConfiguration", .when(platforms: [.iOS, .macOS, .tvOS])),
+        .linkedFramework("UIKit", .when(platforms: [.iOS, .tvOS])),
         .linkedLibrary("c++"),
       ]
     ),
@@ -561,6 +561,22 @@ let package = Package(
     ),
 
     .target(
+      name: "FirebaseMLModelDownloader",
+      dependencies: [
+        "FirebaseCore",
+      ],
+      path: "FirebaseMLModelDownloader/Sources",
+      cSettings: [
+        .define("FIRMLModelDownloader_VERSION", to: firebaseVersion),
+      ]
+    ),
+    .testTarget(
+      name: "FirebaseMLModelDownloaderUnit",
+      dependencies: ["FirebaseMLModelDownloader"],
+      path: "FirebaseMLModelDownloader/Tests/Unit"
+    ),
+
+    .target(
       name: "FirebaseMessaging",
       dependencies: [
         "FirebaseCore",
@@ -577,6 +593,37 @@ let package = Package(
       ],
       linkerSettings: [
         .linkedFramework("SystemConfiguration", .when(platforms: .some([.iOS, .macOS, .tvOS]))),
+      ]
+    ),
+    .testTarget(
+      name: "MessagingUnit",
+      dependencies: ["FirebaseMessaging", "OCMock"],
+      path: "FirebaseMessaging/Tests/UnitTests",
+      exclude: [
+        "FIRMessagingContextManagerServiceTest.m", // TODO: Adapt its NSBundle usage to SPM.
+      ],
+      cSettings: [
+        .headerSearchPath("../../.."),
+      ]
+    ),
+
+    .target(
+      name: "FirebaseMessaging",
+      dependencies: [
+        "FirebaseCore",
+        "FirebaseInstanceID",
+        "GoogleUtilities_AppDelegateSwizzler",
+        "GoogleUtilities_Environment",
+        "GoogleUtilities_Reachability",
+        "GoogleUtilities_UserDefaults",
+      ],
+      path: "FirebaseMessaging/Sources",
+      publicHeadersPath: "Public",
+      cSettings: [
+        .headerSearchPath("../../"),
+      ],
+      linkerSettings: [
+        .linkedFramework("SystemConfiguration", .when(platforms: [.iOS, .macOS, .tvOS])),
       ]
     ),
     .testTarget(
@@ -655,8 +702,8 @@ let package = Package(
         .headerSearchPath("../../"),
       ],
       linkerSettings: [
-        .linkedFramework("MobileCoreServices", .when(platforms: .some([.iOS]))),
-        .linkedFramework("CoreServices", .when(platforms: .some([.macOS]))),
+        .linkedFramework("MobileCoreServices", .when(platforms: [.iOS])),
+        .linkedFramework("CoreServices", .when(platforms: [.macOS])),
       ]
     ),
     .testTarget(
@@ -703,8 +750,8 @@ let package = Package(
         .define("PB_ENABLE_MALLOC", to: "1"),
       ],
       linkerSettings: [
-        .linkedFramework("SystemConfiguration", .when(platforms: .some([.iOS, .macOS, .tvOS]))),
-        .linkedFramework("CoreTelephony", .when(platforms: .some([.macOS, .iOS]))),
+        .linkedFramework("SystemConfiguration", .when(platforms: [.iOS, .macOS, .tvOS])),
+        .linkedFramework("CoreTelephony", .when(platforms: [.macOS, .iOS])),
       ]
     ),
     .testTarget(

@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #import "Crashlytics/Shared/FIRCLSConstants.h"
-#import "FirebaseCore/Sources/Public/FirebaseCore/FIRVersion.h"
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 #define STR_HELPER(x) #x
 #define STR(x) STR_HELPER(x)
@@ -48,7 +48,7 @@ NSString* const FIRCLSNetworkUserAgent = @"User-Agent";
 NSString* const FIRCLSNetworkUTF8 = @"utf-8";
 
 NSString* FIRCLSSDKGeneratorName(void) {
-  return [NSString stringWithFormat:@"%s / %s", STR(CLS_SDK_NAME), FIRFirebaseVersion().UTF8String];
+  return [NSString stringWithFormat:@"%s/%s", STR(CLS_SDK_NAME), FIRCLSSDKVersion().UTF8String];
 }
 
 NSString* FIRCLSSDKVersion(void) {
