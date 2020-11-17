@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 51;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -17,7 +17,6 @@
 		C170B8B82563290E009A6F7E /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C170B8B62563290E009A6F7E /* LaunchScreen.storyboard */; };
 		C170B8C32563290F009A6F7E /* RemoteConfigSwiftSampleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C170B8C22563290F009A6F7E /* RemoteConfigSwiftSampleTests.swift */; };
 		C170B8CE2563290F009A6F7E /* RemoteConfigSwiftSampleUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C170B8CD2563290F009A6F7E /* RemoteConfigSwiftSampleUITests.swift */; };
-		C170B8DC25632F4D009A6F7E /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = C170B8DB25632F4D009A6F7E /* GoogleService-Info.plist */; };
 		CCE1FD5171B008BF28F2E870 /* Pods_RemoteConfigSwiftSample.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A9C472EA7D919C3086FEAD83 /* Pods_RemoteConfigSwiftSample.framework */; };
 /* End PBXBuildFile section */
 
@@ -60,7 +59,6 @@
 		C170B8C92563290F009A6F7E /* RemoteConfigSwiftSampleUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RemoteConfigSwiftSampleUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		C170B8CD2563290F009A6F7E /* RemoteConfigSwiftSampleUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteConfigSwiftSampleUITests.swift; sourceTree = "<group>"; };
 		C170B8CF2563290F009A6F7E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		C170B8DB25632F4D009A6F7E /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		D8B1A46FE8ADCED1DE8C2FEE /* Pods-RemoteConfigSwiftSampleTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RemoteConfigSwiftSampleTests.debug.xcconfig"; path = "Target Support Files/Pods-RemoteConfigSwiftSampleTests/Pods-RemoteConfigSwiftSampleTests.debug.xcconfig"; sourceTree = "<group>"; };
 		E7D375F42ED547756648CC25 /* Pods-RemoteConfigSwiftSample-RemoteConfigSwiftSampleUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RemoteConfigSwiftSample-RemoteConfigSwiftSampleUITests.release.xcconfig"; path = "Target Support Files/Pods-RemoteConfigSwiftSample-RemoteConfigSwiftSampleUITests/Pods-RemoteConfigSwiftSample-RemoteConfigSwiftSampleUITests.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -113,7 +111,6 @@
 				D8B1A46FE8ADCED1DE8C2FEE /* Pods-RemoteConfigSwiftSampleTests.debug.xcconfig */,
 				4914B62D076C54DD33E4C3A6 /* Pods-RemoteConfigSwiftSampleTests.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
@@ -142,7 +139,6 @@
 		C170B8AA2563290D009A6F7E /* RemoteConfigSwiftSample */ = {
 			isa = PBXGroup;
 			children = (
-				C170B8DB25632F4D009A6F7E /* GoogleService-Info.plist */,
 				C170B8AB2563290D009A6F7E /* AppDelegate.swift */,
 				C170B8AD2563290D009A6F7E /* SceneDelegate.swift */,
 				C170B8AF2563290D009A6F7E /* ContentView.swift */,
@@ -291,7 +287,6 @@
 			files = (
 				C170B8B82563290E009A6F7E /* LaunchScreen.storyboard in Resources */,
 				C170B8B52563290E009A6F7E /* Preview Assets.xcassets in Resources */,
-				C170B8DC25632F4D009A6F7E /* GoogleService-Info.plist in Resources */,
 				C170B8B22563290E009A6F7E /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
