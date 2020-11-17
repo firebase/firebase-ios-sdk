@@ -564,6 +564,7 @@ let package = Package(
       name: "FirebaseMLModelDownloader",
       dependencies: [
         "FirebaseCore",
+        "FirebaseInstallations",
       ],
       path: "FirebaseMLModelDownloader/Sources",
       cSettings: [
