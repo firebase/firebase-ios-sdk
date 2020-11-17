@@ -18,45 +18,40 @@ import FirebaseFirestore
 
 @available(swift 5.0)
 extension DocumentReference {
-  /// Writes the document referred to by this `DocumentReference` with the specified data.
-  /// If no document exists, it is created.
-  /// If a document already exists, it is overwritten.
+  /// Writes the document referred to by this `DocumentReference` with the specified data. If no
+  /// document exists, it is created. If a document already exists, it is overwritten.
   ///
   /// - Parameters:
   ///   - documentData: The `Dictionary` containing the data for the new document.
   ///   - completion: The closure to execute on successfully writing to the server or on receipt of
-  ///   an error.
-  ///   It will not be called while the client is offline, though local changes will be visible
-  ///   immediately.
+  ///   an error. It will not be called while the client is offline, though local changes will be
+  ///   visible immediately.
   ///   - result: The result of request. On success it is empty, otherwise it contains an `Error`.
   func setData(_ documentData: [String: Any],
                completion: @escaping (_ result: Result<Void, Error>) -> Void) {
     setData(documentData, completion: mapResultCompletion(completion))
   }
 
-  /// Writes the document referred to by this `DocumentReference` with the specified data.
-  /// If no document exists, it is created.
-  /// If a document already exists and `merge` is `false`,  it is overwritten.
-  /// If a document already exists and `merge` is `true`, the provided data will be merged into any
-  /// existing document.
+  /// Writes the document referred to by this `DocumentReference` with the specified data. If no
+  /// document exists, it is created. If a document already exists and `merge` is `false`,  it is
+  /// overwritten. If a document already exists and `merge` is `true`, the provided data will be
+  /// merged into any existing document.
   ///
   /// - Parameters:
   ///   - documentData: The `Dictionary` containing the data for the new document.
   ///   - merge: Whether to merge the provided data into any existing document.
   ///   - completion: The closure to execute on successfully writing to the server or on receipt of
-  ///   an error.
-  ///   It will not be called while the client is offline, though local changes will be visible
-  ///   immediately.
+  ///   an error. It will not be called while the client is offline, though local changes will be
+  ///   visible immediately.
   ///   - result: The result of request. On success it is empty, otherwise it contains an `Error`.
   func setData(_ documentData: [String: Any], merge: Bool,
                completion: @escaping (_ result: Result<Void, Error>) -> Void) {
     setData(documentData, merge: merge, completion: mapResultCompletion(completion))
   }
 
-  /// Writes the document referred to by this `DocumentReference` with the specified data.
-  /// If no document exists, it is created.
-  /// If a document already exists fields specified in `mergeFields` will be merged into any
-  /// existing document.
+  /// Writes the document referred to by this `DocumentReference` with the specified data. If no
+  /// document exists, it is created. If a document already exists fields specified in `mergeFields`
+  /// will be merged into any existing document.
   ///
   /// It is an error to include a field in `mergeFields` that does not have a corresponding value
   /// in the `data` dictionary.
@@ -64,12 +59,11 @@ extension DocumentReference {
   /// - Parameters:
   ///   - documentData: The `Dictionary` containing the data for the new document.
   ///   - mergeFields: The `Array` that contains a list of `String` or `FieldPath` elements
-  ///   specifying which fields to merge.
-  ///   Fields can contain dots to reference nested fields within the document.
+  ///   specifying which fields to merge. Fields can contain dots to reference nested fields within
+  ///   the document.
   ///   - completion: The closure to execute on successfully writing to the server or on receipt of
-  ///    an error.
-  ///   It will not be called while the client is offline, though local changes will be visible
-  ///   immediately.
+  ///   an error. It will not be called while the client is offline, though local changes will be
+  ///   visible immediately.
   ///   - result: The result of request. On success it is empty, otherwise it contains an `Error`.
   func setData(_ documentData: [String: Any], mergeFields: [Any],
                completion: @escaping (_ result: Result<Void, Error>) -> Void) {
@@ -77,9 +71,8 @@ extension DocumentReference {
   }
 
   /// Writes the document referred to by this `DocumentReference` encoding an instance of
-  /// `Encodable`.
-  /// If no document exists, it is created.
-  /// If a document already exists, it is overwritten.
+  /// `Encodable`. If no document exists, it is created. If a document already exists, it is
+  /// overwritten.
   ///
   /// See Firestore.Encoder for more details about the encoding process.
   ///
@@ -87,23 +80,20 @@ extension DocumentReference {
   ///   - value: The instance of Encodable to be encoded to a document.
   ///   - encoder: The encoder instance to use to run the encoding.
   ///   - completion: The closure to execute on successfully writing to the server or on receipt
-  ///    of an error.
-  ///   It will not be called while the client is offline, though local changes will be visible
-  ///   immediately.
+  ///   of an error. It will not be called while the client is offline, though local changes will be
+  ///   visible immediately.
   ///   - result: The result of request. On success it is empty, otherwise it contains an `Error`.
-  /// - Throws: `Firestore.Encoder` encoding errors:
-  ///   - *put list of possible errors*
+  /// - Throws: `Firestore.Encoder` encoding errors.
   func setData<T: Encodable>(from value: T, encoder: Firestore.Encoder = Firestore.Encoder(),
                              completion: @escaping (_ result: Result<Void, Error>)
                                -> Void) throws {
     try setData(from: value, encoder: encoder, completion: mapResultCompletion(completion))
   }
 
-  /// Writes the document referred to by this `DocumentReference` with the specified data.
-  /// If no document exists, it is created.
-  /// If a document already exists and `merge` is `false`,  it is overwritten.
-  /// If a document already exists and `merge` is `true`, the provided data will be merged into any
-  /// existing document.
+  /// Writes the document referred to by this `DocumentReference` with the specified data. If no
+  /// document exists, it is created. If a document already exists and `merge` is `false`,  it is
+  /// overwritten. If a document already exists and `merge` is `true`, the provided data will be
+  /// merged into any existing document.
   ///
   /// See Firestore.Encoder for more details about the encoding process.
   ///
@@ -112,9 +102,8 @@ extension DocumentReference {
   ///   - encoder: The encoder instance to use to run the encoding.
   ///   - merge: Whether to merge the provided data into any existing document.
   ///   - completion: The closure to execute on successfully writing to the server or on receipt of
-  ///   an error.
-  ///   It will not be called while the client is offline, though local changes will be visible
-  ///   immediately.
+  ///   an error. It will not be called while the client is offline, though local changes will be
+  ///   visible immediately.
   ///   - result: The result of request. On success it is empty, otherwise it contains an `Error`.
   /// - Throws: `Firestore.Encoder` encoding errors.
   func setData<T: Encodable>(from value: T, merge: Bool,
@@ -129,10 +118,9 @@ extension DocumentReference {
     )
   }
 
-  /// Writes the document referred to by this `DocumentReference` with the specified data.
-  /// If no document exists, it is created.
-  /// If a document already exists fields specified in `mergeFields` will be merged into any
-  /// existing document.
+  /// Writes the document referred to by this `DocumentReference` with the specified data. If no
+  /// document exists, it is created. If a document already exists fields specified in `mergeFields`
+  /// will be merged into any existing document.
   ///
   /// It is an error to include a field in `mergeFields` that does not have a corresponding value in
   /// the `data` dictionary.
@@ -143,12 +131,11 @@ extension DocumentReference {
   ///   - value: The instance of Encodable to be encoded to a document.
   ///   - encoder: The encoder instance to use to run the encoding.
   ///   - mergeFields: The `Array` that contains a list of `String` or `FieldPath` elements
-  ///   specifying which fields to merge.
-  ///   Fields can contain dots to reference nested fields within the document.
+  ///   specifying which fields to merge. Fields can contain dots to reference nested fields within
+  ///   the document.
   ///   - completion: The closure to execute on successfully writing to the server or on receipt
-  ///   of an error.
-  ///   It will not be called while the client is offline, though local changes will be visible
-  ///   immediately.
+  ///   of an error. It will not be called while the client is offline, though local changes will be
+  ///   visible immediately.
   ///   - result: The result of request. On success it is empty, otherwise it contains an `Error`.
   /// - Throws: `Firestore.Encoder` encoding errors.
   func setData<T: Encodable>(from value: T, mergeFields: [Any],
@@ -163,17 +150,16 @@ extension DocumentReference {
     )
   }
 
-  /// Updates the document referred to by this `DocumentReference` with the specified data.
-  /// If no document exists, the update fails with an error.
-  /// If a document already exists, it is overwritten.
+  /// Updates the document referred to by this `DocumentReference` with the specified data. If no
+  /// document exists, the update fails with an error. If a document already exists, it is
+  /// overwritten.
   ///
   /// - Parameters:
   ///   - fields: The `Dictionary` containing the fields (expressed as `String` or `FieldPath`) and
   ///   values with which to update the document.
   ///   - completion: The closure to execute on successfully updating to the server or on receipt of
-  ///   an error.
-  ///   It will not be called while the client is offline, though local changes will be visible
-  ///   immediately.
+  ///   an error. It will not be called while the client is offline, though local changes will be
+  ///   visible immediately.
   ///   - result: The result of request. On success it is empty, otherwise it contains an `Error`.
   func updateData(_ fields: [AnyHashable: Any],
                   completion: @escaping (_ result: Result<Void, Error>) -> Void) {
@@ -184,15 +170,14 @@ extension DocumentReference {
   ///
   /// - Parameters:
   ///   - completion: The closure to execute on successfully deleting to the server or on receipt of
-  ///   an error.
-  ///   It will not be called while the client is offline, though local changes will be visible
-  ///   immediately.
+  ///   an error. It will not be called while the client is offline, though local changes will be
+  ///   visible immediately.
   ///   - result: The result of request. On success it is empty, otherwise it contains an `Error`.
   func delete(completion: @escaping (_ result: Result<Void, Error>) -> Void) {
     delete(completion: mapResultCompletion(completion))
   }
 
-  /// Reads the documents matching this query.
+  /// Reads the documents referenced by this `DocumentReference`.
   ///
   /// - Parameters:
   ///   - source: The `FirestoreSource` where the results should be fetched:
@@ -210,9 +195,10 @@ extension DocumentReference {
   /// Attaches a listener for this `DocumentReference` events.
   ///
   /// - Parameters:
-  ///   - includeMetadataChanges: Indicates if metadata changes  should trigger snapshot events.
-  ///   - listenerHandler: The closure to execute on receipt of a result.
-  ///   - result: The result of request. On success it contains the `QuerySnapshot`, otherwise an
+  ///   - includeMetadataChanges: Whether metadata-only changes (i.e. only
+  ///   `DocumentSnapshot.metadata` changed) should trigger snapshot events.
+  ///   - listener: The closure to execute on receipt of a result.
+  ///   - result: The result of request. On success it contains the `DocumentSnapshot`, otherwise an
   ///   `Error`.
   /// - Returns: The `ListenerRegistration` that can be used to remove this listener.
   func addSnapshotListener(includeMetadataChanges: Bool = false,

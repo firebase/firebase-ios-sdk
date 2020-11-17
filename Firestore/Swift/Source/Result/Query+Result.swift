@@ -36,7 +36,8 @@ extension Query {
   /// Attaches a listener for this `Query` events.
   ///
   /// - Parameters:
-  ///   - includeMetadataChanges: Indicates if metadata changes  should trigger snapshot events.
+  ///   - includeMetadataChanges: Whether metadata-only changes (i.e. only
+  ///   `DocumentSnapshot.metadata` changed) should trigger snapshot events.
   ///   - listenerHandler: The closure to execute on receipt of a result.
   ///   - result: The result of request. On success it contains the `QuerySnapshot`, otherwise an
   ///   `Error`.

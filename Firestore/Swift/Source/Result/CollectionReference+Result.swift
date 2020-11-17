@@ -24,8 +24,7 @@ extension CollectionReference {
   /// - Parameters:
   ///   - data: The `Dictionary` containing the data for the new document.
   ///   - completion: The closure to execute on successfully writing to the server or on receipt of
-  ///   an error.
-  ///   It will not be called while the client is offline, though local changes will be visible
+  ///   an error. It will not be called while the client is offline, though local changes will be visible
   ///   immediately.
   ///   - result: The result of request. On success it is empty, otherwise it contains an `Error`.
   /// - Returns: A `DocumentReference` pointing to the newly created document.
@@ -45,8 +44,7 @@ extension CollectionReference {
   ///   - value: The instance of `Encodable` to be encoded to a document.
   ///   - encoder: The encoder instance to use to run the encoding.
   ///   - completion: The closure to execute on successfully writing to the server or on receipt of
-  ///   an error.
-  ///   It will not be called while the client is offline, though local changes will be visible
+  ///   an error. It will not be called while the client is offline, though local changes will be visible
   ///   immediately.
   ///   - result: The result of request. On success it is empty, otherwise it contains an `Error`.
   /// - Throws: `Firestore.Encoder` encoding errors.
