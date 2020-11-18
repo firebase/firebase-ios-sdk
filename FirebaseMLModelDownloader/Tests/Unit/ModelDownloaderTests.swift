@@ -126,10 +126,10 @@ final class ModelDownloaderTests: XCTestCase {
     let expectation = self.expectation(description: "Wait for model to download.")
     modelDownloadManager.startModelDownload(url: url, progressHandler: nil) { result in
       switch result {
-      case .success(let model):
+      case let .success(model):
         XCTAssertEqual(modelDownloadManager.didFinishDownloading, true)
         print(model)
-      case .failure(let error):
+      case let .failure(error):
         XCTAssertNotNil(error)
       }
       expectation.fulfill()

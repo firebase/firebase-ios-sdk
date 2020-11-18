@@ -37,7 +37,7 @@ class DownloadHandlers: NSObject {
 class ModelDownloadManager: NSObject {
   let app: FirebaseApp
   var modelInfo: ModelInfo
-  var taskHandlers : [URLSessionDownloadTask : DownloadHandlers] = [:]
+  var taskHandlers: [URLSessionDownloadTask: DownloadHandlers] = [:]
 
   private(set) var didFinishDownloading = false
 
@@ -63,11 +63,11 @@ class ModelDownloadManager: NSObject {
     }
   }
 
-  private func setHandlers(for downloadTask : URLSessionDownloadTask, handlers : DownloadHandlers) {
+  private func setHandlers(for downloadTask: URLSessionDownloadTask, handlers: DownloadHandlers) {
     taskHandlers[downloadTask] = handlers
   }
 
-  private func getHandlers(for downloadTask : URLSessionDownloadTask) -> DownloadHandlers? {
+  private func getHandlers(for downloadTask: URLSessionDownloadTask) -> DownloadHandlers? {
     return taskHandlers[downloadTask]
   }
 
@@ -78,20 +78,27 @@ class ModelDownloadManager: NSObject {
   func startModelDownload(url: URL, progressHandler: ((Float) -> Void)? = nil,
                           completion: @escaping (Result<CustomModel, DownloadError>) -> Void) {
     let downloadTask = downloadSession.downloadTask(with: url)
-    let downloadHandlers = DownloadHandlers(progressHandler: progressHandler, completion: completion)
+    let downloadHandlers = DownloadHandlers(
+      progressHandler: progressHandler,
+      completion: completion
+    )
     setHandlers(for: downloadTask, handlers: downloadHandlers)
     downloadTask.resume()
   }
 }
 
 extension ModelDownloadManager: URLSessionDownloadDelegate {
-
   func urlSession(_ session: URLSession,
                   downloadTask: URLSessionDownloadTask,
                   didFinishDownloadingTo location: URL) {
     guard let handlers = getHandlers(for: downloadTask) else { return }
     didFinishDownloading = true
-    let model = CustomModel(name: modelInfo.name, size: modelInfo.size, path: location.absoluteString, hash: modelInfo.modelHash)
+    let model = CustomModel(
+      name: modelInfo.name,
+      size: modelInfo.size,
+      path: location.absoluteString,
+      hash: modelInfo.modelHash
+    )
     DispatchQueue.main.async {
       handlers.completion(.success(model))
     }
