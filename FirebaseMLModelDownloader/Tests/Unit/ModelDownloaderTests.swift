@@ -16,30 +16,6 @@ import XCTest
 @testable import FirebaseCore
 @testable import FirebaseMLModelDownloader
 
-enum Constants {
-  enum App {
-    static let defaultName = "__FIRAPP_DEFAULT"
-    static let googleAppIDKey = "FIRGoogleAppIDKey"
-    static let nameKey = "FIRAppNameKey"
-    static let isDefaultAppKey = "FIRAppIsDefaultAppKey"
-  }
-
-  enum Options {
-    static let apiKey = "correct_api_key"
-    static let bundleID = "com.google.FirebaseSDKTests"
-    static let clientID = "correct_client_id"
-    static let trackingID = "correct_tracking_id"
-    static let gcmSenderID = "correct_gcm_sender_id"
-    static let projectID = "correct_project_id"
-    static let androidClientID = "correct_android_client_id"
-    static let googleAppID = "correct_app_id"
-    static let databaseURL = "https://abc-xyz-123.firebaseio.com"
-    static let deepLinkURLScheme = "comgoogledeeplinkurl"
-    static let storageBucket = "project-id-123.storage.firebase.com"
-    static let appGroupID: String? = nil
-  }
-}
-
 extension UserDefaults {
   /// For testing: returns a new cleared instance of user defaults.
   static func getTestInstance() -> UserDefaults {
@@ -54,12 +30,6 @@ extension UserDefaults {
 final class ModelDownloaderTests: XCTestCase {
   override class func setUp() {
     super.setUp()
-    let options = FirebaseOptions(googleAppID: Constants.Options.googleAppID,
-                                  gcmSenderID: Constants.Options.gcmSenderID)
-    options.apiKey = Constants.Options.apiKey
-    options.projectID = Constants.Options.projectID
-    options.clientID = Constants.Options.clientID
-    // TODO: Replace with custom options
     FirebaseApp.configure()
   }
 
@@ -70,7 +40,6 @@ final class ModelDownloaderTests: XCTestCase {
     let testModelName = "\(functionName)-test-model"
     let modelInfoRetriever = ModelInfoRetriever(
       app: testApp,
-      projectID: Constants.Options.projectID,
       modelName: testModelName
     )
 
@@ -89,21 +58,47 @@ final class ModelDownloaderTests: XCTestCase {
 
   func testDownloadModelInfo() {
     let testApp = FirebaseApp.app()!
-    let functionName = #function
-    let testModelName = "\(functionName)-test-model"
+    let testModelName = "image-classification"
     let modelInfoRetriever = ModelInfoRetriever(
       app: testApp,
-      projectID: Constants.Options.projectID,
       modelName: testModelName
     )
     let expectation = self.expectation(description: "Wait for model info to download.")
     modelInfoRetriever.downloadModelInfo(completion: { error in
-      guard let downloadError = error else { return }
-      XCTAssertEqual(downloadError, .notFound)
-      print("ERROR: Model not found on server.")
+      XCTAssertNil(error)
+      XCTAssertNotNil(modelInfoRetriever.modelInfo)
+      XCTAssertNotEqual(modelInfoRetriever.modelInfo!.downloadURL, "")
+      XCTAssertNotEqual(modelInfoRetriever.modelInfo!.modelHash, "")
+      XCTAssertGreaterThan(modelInfoRetriever.modelInfo!.size, 0)
       expectation.fulfill()
     })
-    waitForExpectations(timeout: 10, handler: nil)
+    waitForExpectations(timeout: 5, handler: nil)
+  }
+
+  func testSaveModelInfo() {
+    let testApp = FirebaseApp.app()!
+    let functionName = #function
+    let testModelName = "\(functionName)-test-model"
+    let modelInfoRetriever = ModelInfoRetriever(
+      app: testApp,
+      modelName: testModelName
+    )
+    modelInfoRetriever.modelInfo = ModelInfo(
+      app: testApp,
+      name: testModelName,
+      defaults: .getTestInstance()
+    )
+    let sampleResponse: String = """
+    {
+    "downloadUri": "https://storage.googleapis.com",
+    "expireTime": "2020-11-10T04:58:49.643Z",
+    "sizeBytes": "562336"
+    }
+    """
+    let data: Data = sampleResponse.data(using: .utf8)!
+    modelInfoRetriever.saveModelInfo(data: data, modelHash: "test-model-hash")
+    XCTAssertEqual(modelInfoRetriever.modelInfo?.downloadURL, "https://storage.googleapis.com")
+    XCTAssertEqual(modelInfoRetriever.modelInfo?.size, 562_336)
   }
 
   func testExample() {
