@@ -205,6 +205,7 @@ struct ZipBuilderTool: ParsableCommand {
     let paths = ZipBuilder.FilesystemPaths(repoDir: repoDir,
                                            buildRoot: buildRoot,
                                            outputDir: outputDir,
+                                           localPodspecPath: localPodspecPath,
                                            logsOutputDir: outputDir?
                                              .appendingPathComponent("build_logs"))
 
