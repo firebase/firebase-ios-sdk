@@ -56,6 +56,7 @@ final class ModelDownloaderTests: XCTestCase {
     XCTAssertEqual(modelInfoRetriever.modelInfo?.path, nil)
   }
 
+  /// Unit test to download model info - makes an actual network call.
   func testDownloadModelInfo() {
     let testApp = FirebaseApp.app()!
     let testModelName = "image-classification"
@@ -75,6 +76,7 @@ final class ModelDownloaderTests: XCTestCase {
     waitForExpectations(timeout: 5, handler: nil)
   }
 
+  /// Unit test to save model info to user defaults.
   func testSaveModelInfo() {
     let testApp = FirebaseApp.app()!
     let functionName = #function

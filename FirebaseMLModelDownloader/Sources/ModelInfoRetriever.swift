@@ -16,12 +16,14 @@ import Foundation
 import FirebaseCore
 import FirebaseInstallations
 
+/// Model info response object.
 struct ModelInfoResponse: Codable {
   var downloadURL: String
   var expireTime: String
   var size: String
 }
 
+/// Properties for server response keys.
 extension ModelInfoResponse {
   enum CodingKeys: String, CodingKey {
     case downloadURL = "downloadUri"
@@ -177,13 +179,12 @@ extension ModelInfoRetriever {
 
   /// Save model info to user defaults.
   func saveModelInfo(data: Data, modelHash: String) {
-    // TODO: Save model info to user defaults
     let decoder = JSONDecoder()
     guard let modelInfoJSON = try? decoder.decode(ModelInfoResponse.self, from: data)
     else { return }
     modelInfo = ModelInfo(app: app, name: modelName)
     modelInfo?.downloadURL = modelInfoJSON.downloadURL
-    modelInfo?.size = Int(modelInfoJSON.size)!
+    modelInfo?.size = Int(modelInfoJSON.size) ?? 0
     modelInfo?.modelHash = modelHash
   }
 }
