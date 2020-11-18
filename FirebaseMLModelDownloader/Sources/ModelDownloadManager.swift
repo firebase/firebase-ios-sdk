@@ -37,7 +37,7 @@ class Downloader : NSObject {
 
 class ModelDownloadManager : NSObject {
 
-  var app : FirebaseApp
+  let app : FirebaseApp
   var modelInfo : ModelInfo
   var downloadTask : URLSessionDownloadTask?
 
