@@ -543,10 +543,15 @@ enum CocoaPodUtils {
       """)
     case let .success(output):
       let version = output.components(separatedBy: ".")
+      guard version.count >= 2 else {
+        fatalError("Failed to parse CocoaPods version: \(version)")
+      }
+
       let major = Int(version[0])
       guard let minor = Int(version[1]) else {
         fatalError("Failed to parse minor version from \(version)")
       }
+
       if major == 1, minor < 9 {
         fatalError("CocoaPods version must be at least 1.9.0. Using \(output)")
       }
