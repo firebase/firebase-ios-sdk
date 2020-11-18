@@ -359,8 +359,6 @@
     [self onClosed];
 }
 #else
-// TODO(watch): Put watch delegates here.
-#endif  // !TARGET_OS_WATCH
 
 - (void)URLSession:(NSURLSession *)session webSocketTask:(NSURLSessionWebSocketTask *)webSocketTask didOpenWithProtocol:(NSString *)protocol {
   FFLog(@"I-RDB083008", @"(wsc:%@) webSocketDidOpen", self.connectionId);
@@ -396,6 +394,8 @@
     [self receiveWebSocketData];
   }];
 }
+
+#endif  // !TARGET_OS_WATCH
 
 #pragma mark -
 #pragma mark Private methods
