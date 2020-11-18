@@ -17,7 +17,7 @@ import FirebaseFirestore
 import FirebaseFirestoreSwift
 import FirebaseInstallations
 
-public struct SegmentationEvent {
+@objc public struct SegmentationEvent: NSObject {
   static var fis: String?
 
   public static func register(with events: [String]) {
@@ -31,18 +31,19 @@ public struct SegmentationEvent {
       guard let iid = fis else {
         fatalError("Null FIS")
       }
-      publishRecord(iid, events)
+      publishRecord(iid, true, events)
     }
   }
 
+  // TODO - add a background thread to synchronize this with register
   public static func log(events: [String]) {
     guard let fis = fis else {
       fatalError("register must be called before log.")
     }
-    publishRecord(fis, events)
+    publishRecord(fis, false, events)
   }
 
-  private static func publishRecord(_ fis: String, _ events: [String]) {
+  private static func publishRecord(_ fis: String, _fisKey: Bool, _ events: [String]) {
     // TODO: What should the name of the collection be?
     let segmentRef = Firestore.firestore().collection("paultest").document(fis)
     let segment = Segment(iid: fis, labels: events, date: Timestamp())
