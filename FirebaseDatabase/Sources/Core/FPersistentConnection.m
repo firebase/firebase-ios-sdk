@@ -34,7 +34,9 @@
 #import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
 #import "FirebaseDatabase/Sources/Utilities/Tuples/FTupleCallbackStatus.h"
 #import "FirebaseDatabase/Sources/Utilities/Tuples/FTupleOnDisconnect.h"
-//#import <SystemConfiguration/SystemConfiguration.h>
+#if !TARGET_OS_WATCH
+#import <SystemConfiguration/SystemConfiguration.h>
+#endif  // !TARGET_OS_WATCH
 #import <dlfcn.h>
 #import <netinet/in.h>
 
