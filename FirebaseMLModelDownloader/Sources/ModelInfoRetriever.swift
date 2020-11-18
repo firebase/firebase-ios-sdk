@@ -16,40 +16,18 @@ import Foundation
 import FirebaseCore
 import FirebaseInstallations
 
-/// Model info object with details about pending or downloaded model.
-class ModelInfo: NSObject {
-  /// Model name.
-  var name: String
 
-  /// User defaults associated with model.
-  var defaults: UserDefaults
+struct ModelInfoResponse: Codable {
+  var downloadURL: String
+  var expireTime: String
+  var size: String
+}
 
-  // TODO: revisit UserDefaultsBacked
-  /// Download URL for the model file, as returned by server.
-  @UserDefaultsBacked var downloadURL: String
-
-  /// Hash of the model, as returned by server.
-  @UserDefaultsBacked var modelHash: String
-
-  /// Size of the model, as returned by server.
-  @UserDefaultsBacked var size: Int
-
-  /// Local path of the model.
-  @UserDefaultsBacked var path: String?
-
-  /// Initialize model info and create user default keys.
-  init(app: FirebaseApp, name: String, defaults: UserDefaults = .firebaseMLDefaults) {
-    self.name = name
-    self.defaults = defaults
-    let bundleID = Bundle.main.bundleIdentifier ?? ""
-    let defaultsPrefix = "\(bundleID).\(app.name).\(name)"
-    _downloadURL = UserDefaultsBacked(
-      key: "\(defaultsPrefix).model-download-url",
-      storage: defaults
-    )
-    _modelHash = UserDefaultsBacked(key: "\(defaultsPrefix).model-hash", storage: defaults)
-    _size = UserDefaultsBacked(key: "\(defaultsPrefix).model-size", storage: defaults)
-    _path = UserDefaultsBacked(key: "\(defaultsPrefix).model-path", storage: defaults)
+extension ModelInfoResponse {
+  enum CodingKeys: String, CodingKey {
+    case downloadURL = "downloadUri"
+    case expireTime
+    case size = "sizeBytes"
   }
 }
 
@@ -59,17 +37,14 @@ class ModelInfoRetriever: NSObject {
   var app: FirebaseApp
   /// Model info associated with model.
   var modelInfo: ModelInfo?
-  /// Project id.
-  var projectID: String
   /// Model name.
   var modelName: String
   /// Firebase installations.
   var installations: Installations
 
-  /// Associate model info retriever with current Firebase app, project ID, and model name.
-  init(app: FirebaseApp, projectID: String, modelName: String) {
+  /// Associate model info retriever with current Firebase app, and model name.
+  init(app: FirebaseApp, modelName: String) {
     self.app = app
-    self.projectID = projectID
     self.modelName = modelName
     installations = Installations.installations(app: app)
   }
@@ -96,7 +71,7 @@ extension ModelInfoRetriever {
   static let bundleIDHTTPHeader = "x-ios-bundle-identifier"
 
   /// HTTP response headers.
-  static let etagHTTPHeader = "ETag"
+  static let etagHTTPHeader = "Etag"
 
   /// Error descriptions.
   static let tokenErrorDescription = "Error retrieving FIS token."
@@ -107,10 +82,13 @@ extension ModelInfoRetriever {
 
   /// Construct model fetch base URL.
   var modelInfoFetchURL: URL {
+    let projectID = app.options.projectID ?? ""
+    let apiKey = app.options.apiKey
     var components = URLComponents()
     components.scheme = "https"
     components.host = "firebaseml.googleapis.com"
     components.path = "/v1beta2/projects/\(projectID)/models/\(modelName):download"
+    components.queryItems = [URLQueryItem(name: "key", value: apiKey)]
     // TODO: handle nil
     return components.url!
   }
@@ -164,7 +142,6 @@ extension ModelInfoRetriever {
             return
           }
 
-          // TODO: Handle more http status codes
           switch httpResponse.statusCode {
           case 200:
             guard let modelHash = httpResponse
@@ -183,8 +160,15 @@ extension ModelInfoRetriever {
             completion(nil)
           case 304:
             completion(nil)
-          default:
+          case 404:
             completion(.notFound)
+          // TODO: Handle more http status codes
+          default:
+            completion(
+              .internalError(
+                description: "Server returned with error - \(httpResponse.statusCode)."
+              )
+            )
           }
         }
       }
@@ -195,16 +179,12 @@ extension ModelInfoRetriever {
   /// Save model info to user defaults.
   func saveModelInfo(data: Data, modelHash: String) {
     // TODO: Save model info to user defaults
+    let decoder = JSONDecoder()
+    guard let modelInfoJSON = try? decoder.decode(ModelInfoResponse.self, from: data)
+    else { return }
+    modelInfo = ModelInfo(app: app, name: modelName)
+    modelInfo?.downloadURL = modelInfoJSON.downloadURL
+    modelInfo?.size = Int(modelInfoJSON.size)!
     modelInfo?.modelHash = modelHash
-  }
-}
-
-/// Named user defaults for FirebaseML.
-extension UserDefaults {
-  static var firebaseMLDefaults: UserDefaults {
-    let suiteName = "com.google.firebase.ml"
-    // TODO: handle nil gracefully
-    let defaults = UserDefaults(suiteName: suiteName)!
-    return defaults
   }
 }
