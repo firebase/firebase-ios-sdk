@@ -124,9 +124,17 @@ final class ModelDownloaderTests: XCTestCase {
       modelInfo: modelInfoRetriever.modelInfo!
     )
     let expectation = self.expectation(description: "Wait for model to download.")
-    modelDownloadManager.startModelDownload(url: url)
-    expectation.fulfill()
-    waitForExpectations(timeout: 500, handler: nil)
+    modelDownloadManager.startModelDownload(url: url, progressHandler: nil) { result in
+      switch result {
+      case .success(let model):
+        XCTAssertEqual(modelDownloadManager.didFinishDownloading, true)
+        print(model)
+      case .failure(let error):
+        XCTAssertNotNil(error)
+      }
+      expectation.fulfill()
+    }
+    waitForExpectations(timeout: 10, handler: nil)
   }
 
   func testExample() {

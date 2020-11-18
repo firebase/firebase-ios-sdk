@@ -23,14 +23,12 @@ enum DownloadStatus {
   case unknown
 }
 
-class Downloader: NSObject {
-  let downloadTask: URLSessionDownloadTask
-  var progressHandler: ModelDownloadManager.progressHandler?
-  var completion: ModelDownloadManager.completion
+class DownloadHandlers: NSObject {
+  var progressHandler: ModelDownloadManager.ProgressHandler?
+  var completion: ModelDownloadManager.Completion
 
-  init(downloadTask: URLSessionDownloadTask, progressHandler: ModelDownloadManager.progressHandler?,
-       completion: @escaping ModelDownloadManager.completion) {
-    self.downloadTask = downloadTask
+  init(progressHandler: ModelDownloadManager.ProgressHandler?,
+       completion: @escaping ModelDownloadManager.Completion) {
     self.progressHandler = progressHandler
     self.completion = completion
   }
@@ -39,10 +37,12 @@ class Downloader: NSObject {
 class ModelDownloadManager: NSObject {
   let app: FirebaseApp
   var modelInfo: ModelInfo
-  var downloadTask: URLSessionDownloadTask?
+  var taskHandlers : [URLSessionDownloadTask : DownloadHandlers] = [:]
 
-  typealias progressHandler = (Float) -> Void
-  typealias completion = (Result<CustomModel, DownloadError>) -> Void
+  private(set) var didFinishDownloading = false
+
+  typealias ProgressHandler = (Float) -> Void
+  typealias Completion = (Result<CustomModel, DownloadError>) -> Void
 
   var downloadedModelFileName: String {
     return "fbml_model__\(app.name)__\(modelInfo.name)"
@@ -63,37 +63,55 @@ class ModelDownloadManager: NSObject {
     }
   }
 
+  private func setHandlers(for downloadTask : URLSessionDownloadTask, handlers : DownloadHandlers) {
+    taskHandlers[downloadTask] = handlers
+  }
+
+  private func getHandlers(for downloadTask : URLSessionDownloadTask) -> DownloadHandlers? {
+    return taskHandlers[downloadTask]
+  }
+
   private lazy var downloadSession = URLSession(configuration: .ephemeral,
                                                 delegate: self,
                                                 delegateQueue: nil)
 
-  func startModelDownload(url: URL) {
+  func startModelDownload(url: URL, progressHandler: ((Float) -> Void)? = nil,
+                          completion: @escaping (Result<CustomModel, DownloadError>) -> Void) {
     let downloadTask = downloadSession.downloadTask(with: url)
+    let downloadHandlers = DownloadHandlers(progressHandler: progressHandler, completion: completion)
+    setHandlers(for: downloadTask, handlers: downloadHandlers)
     downloadTask.resume()
-    self.downloadTask = downloadTask
   }
 }
 
 extension ModelDownloadManager: URLSessionDownloadDelegate {
+
   func urlSession(_ session: URLSession,
                   downloadTask: URLSessionDownloadTask,
                   didFinishDownloadingTo location: URL) {
-    guard let response = downloadTask.response as? HTTPURLResponse else { return }
-    print("Downloaded \(response) to \(location).")
-
-    do {
-      let documentsURL = try FileManager.default.url(for: .documentDirectory,
-                                                     in: .userDomainMask,
-                                                     appropriateFor: nil,
-                                                     create: false)
-      let savedURL = documentsURL.appendingPathComponent(
-        location.lastPathComponent
-      )
-      print(savedURL)
-      try FileManager.default.moveItem(at: location, to: savedURL)
-    } catch {
-      // handle filesystem error
+    guard let handlers = getHandlers(for: downloadTask) else { return }
+    didFinishDownloading = true
+    let model = CustomModel(name: modelInfo.name, size: modelInfo.size, path: location.absoluteString, hash: modelInfo.modelHash)
+    DispatchQueue.main.async {
+      handlers.completion(.success(model))
     }
+
+//    guard let response = downloadTask.response as? HTTPURLResponse else { return }
+//    print("Downloaded \(response) to \(location).")
+//
+//    do {
+//      let documentsURL = try FileManager.default.url(for: .documentDirectory,
+//                                                     in: .userDomainMask,
+//                                                     appropriateFor: nil,
+//                                                     create: false)
+//      let savedURL = documentsURL.appendingPathComponent(
+//        location.lastPathComponent
+//      )
+//      print(savedURL)
+//      try FileManager.default.moveItem(at: location, to: savedURL)
+//    } catch {
+//      // handle filesystem error
+//    }
   }
 
   func urlSession(_ session: URLSession,
@@ -101,11 +119,10 @@ extension ModelDownloadManager: URLSessionDownloadDelegate {
                   didWriteData bytesWritten: Int64,
                   totalBytesWritten: Int64,
                   totalBytesExpectedToWrite: Int64) {
-    if downloadTask == self.downloadTask {
-      let calculatedProgress = Float(totalBytesWritten) / Float(totalBytesExpectedToWrite)
-      DispatchQueue.main.async {
-        print(calculatedProgress)
-      }
+    guard let handlers = getHandlers(for: downloadTask) else { return }
+    let calculatedProgress = Float(totalBytesWritten) / Float(totalBytesExpectedToWrite)
+    DispatchQueue.main.async {
+      handlers.progressHandler?(calculatedProgress)
     }
   }
 }
