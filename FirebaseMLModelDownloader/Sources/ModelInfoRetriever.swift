@@ -16,7 +16,6 @@ import Foundation
 import FirebaseCore
 import FirebaseInstallations
 
-
 struct ModelInfoResponse: Codable {
   var downloadURL: String
   var expireTime: String

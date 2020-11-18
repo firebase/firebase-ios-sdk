@@ -14,15 +14,12 @@
 
 import Foundation
 
-class ModelFileManager : NSObject {
-
-  static var modelsDirectory : URL {
-    get {
-      return FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-    }
+class ModelFileManager: NSObject {
+  static var modelsDirectory: URL {
+    return FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
   }
 
-  static func isFileReachable(at fileURL : URL) -> Bool {
+  static func isFileReachable(at fileURL: URL) -> Bool {
     do {
       let isReachable = try fileURL.checkResourceIsReachable()
       return isReachable
@@ -32,12 +29,7 @@ class ModelFileManager : NSObject {
     }
   }
 
-  static func removeFileIfExists(at sourceURL : URL) {
+  static func removeFileIfExists(at sourceURL: URL) {}
 
-  }
-
-  static func moveFile(from sourceURL: URL, to destinationURL: URL) {
-
-  }
+  static func moveFile(from sourceURL: URL, to destinationURL: URL) {}
 }
-

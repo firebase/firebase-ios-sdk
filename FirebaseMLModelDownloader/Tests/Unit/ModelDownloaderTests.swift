@@ -115,8 +115,14 @@ final class ModelDownloaderTests: XCTestCase {
       defaults: .getTestInstance()
     )
 
-    let url = URL(string: "https://tfhub.dev/tensorflow/lite-model/ssd_mobilenet_v1/1/metadata/1?lite-format=tflite")!
-    let modelDownloadManager = ModelDownloadManager(app: testApp, modelInfo: modelInfoRetriever.modelInfo!)
+    let url =
+      URL(
+        string: "https://tfhub.dev/tensorflow/lite-model/ssd_mobilenet_v1/1/metadata/1?lite-format=tflite"
+      )!
+    let modelDownloadManager = ModelDownloadManager(
+      app: testApp,
+      modelInfo: modelInfoRetriever.modelInfo!
+    )
     let expectation = self.expectation(description: "Wait for model to download.")
     modelDownloadManager.startModelDownload(url: url)
     expectation.fulfill()

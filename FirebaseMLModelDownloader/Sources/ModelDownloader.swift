@@ -56,7 +56,6 @@ public struct ModelDownloader {
                        conditions: ModelDownloadConditions,
                        progressHandler: ((Float) -> Void)? = nil,
                        completion: @escaping (Result<CustomModel, DownloadError>) -> Void) {
-    
     // TODO: Model download
     let modelSize = Int()
     let modelPath = String()
