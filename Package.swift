@@ -42,7 +42,7 @@ let package = Package(
     ),
     .library(
       name: "FirebaseDatabase",
-      targets: ["FirebaseDatabaseTarget"]
+      targets: ["FirebaseDatabase"]
     ),
     .library(
       name: "FirebaseDynamicLinks",
@@ -311,13 +311,6 @@ let package = Package(
         .linkedFramework("Security"),
         .linkedFramework("SystemConfiguration", .when(platforms: [.iOS, .macOS, .tvOS])),
       ]
-    ),
-
-    .target(
-      name: "FirebaseDatabaseTarget",
-      dependencies: [.target(name: "FirebaseDatabase",
-                             condition: .when(platforms: [.iOS, .tvOS, .macOS]))],
-      path: "SwiftPM-PlatformExclude/FirebaseDatabaseWrap"
     ),
 
     .target(
