@@ -564,6 +564,7 @@ let package = Package(
       name: "FirebaseMLModelDownloader",
       dependencies: [
         "FirebaseCore",
+        "FirebaseInstallations",
       ],
       path: "FirebaseMLModelDownloader/Sources",
       cSettings: [
@@ -574,37 +575,6 @@ let package = Package(
       name: "FirebaseMLModelDownloaderUnit",
       dependencies: ["FirebaseMLModelDownloader"],
       path: "FirebaseMLModelDownloader/Tests/Unit"
-    ),
-
-    .target(
-      name: "FirebaseMessaging",
-      dependencies: [
-        "FirebaseCore",
-        "FirebaseInstanceID",
-        "GoogleUtilities_AppDelegateSwizzler",
-        "GoogleUtilities_Environment",
-        "GoogleUtilities_Reachability",
-        "GoogleUtilities_UserDefaults",
-      ],
-      path: "FirebaseMessaging/Sources",
-      publicHeadersPath: "Public",
-      cSettings: [
-        .headerSearchPath("../../"),
-      ],
-      linkerSettings: [
-        .linkedFramework("SystemConfiguration", .when(platforms: .some([.iOS, .macOS, .tvOS]))),
-      ]
-    ),
-    .testTarget(
-      name: "MessagingUnit",
-      dependencies: ["FirebaseMessaging", "OCMock"],
-      path: "FirebaseMessaging/Tests/UnitTests",
-      exclude: [
-        "FIRMessagingContextManagerServiceTest.m", // TODO: Adapt its NSBundle usage to SPM.
-      ],
-      cSettings: [
-        .headerSearchPath("../../.."),
-      ]
     ),
 
     .target(
