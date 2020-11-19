@@ -228,6 +228,10 @@ void XCTestMethod(XCTestCase* self, SEL _cmd) {
     XCTAssertTrue(true);
     return;
   }
+  else if (result->Skipped()) {
+    // Let XCode know that the test was skipped.
+    XCTSkip();
+  }
 
   // Test failed :-(. Record the failure such that XCode will navigate directly
   // to the file:line.
