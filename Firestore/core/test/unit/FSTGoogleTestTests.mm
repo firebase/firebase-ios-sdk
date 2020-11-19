@@ -82,10 +82,23 @@ NSSet<NSString*>* _Nullable LoadXCTestConfigurationTestsToRun() {
     return nil;
   }
 
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 110000 || \
+    __MAC_OS_X_VERSION_MAX_ALLOWED >= 101300
+  NSError *error;
+  NSData *data = [NSData dataWithContentsOfFile:filePath options:kNilOptions error:&error];
+  if (!data) {
+      NSLog(@"Failed to fill data with contents of file. %@", error);
+      return nil;
+  }
+
+  id config = [NSKeyedUnarchiver unarchivedObjectOfClass:NSObject.class fromData:data error:&error];
+#else
   id config = [NSKeyedUnarchiver unarchiveObjectWithFile:filePath];
+#endif
+
   if (!config) {
-    NSLog(@"Failed to load any configuaration from %@=%@", configEnvVar,
-          filePath);
+    NSLog(@"Failed to load any configuaration from %@=%@. %@", configEnvVar,
+          filePath, error);
     return nil;
   }
 
