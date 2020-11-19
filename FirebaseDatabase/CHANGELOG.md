@@ -1,4 +1,4 @@
-# Unreleased
+# v7.2.0
 - [added] Made emulator connection API consistent between Auth, Database, Firestore, and Functions (#5916).
 
 # v7.0.0
