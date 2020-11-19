@@ -26,6 +26,16 @@ class AuthStateDidChangePublisherTests: XCTestCase {
     FirebaseApp.configureForTests()
   }
 
+  override class func tearDown() {
+    FirebaseApp.app()?.delete { success in
+      if success {
+        print("Shut down app successfully.")
+      } else {
+        print("💥 There was a problem when shutting down the app..")
+      }
+    }
+  }
+
   override func setUp() {
     do {
       try Auth.auth().signOut()

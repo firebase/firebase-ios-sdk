@@ -45,10 +45,52 @@
         .eraseToAnyPublisher()
     }
 
+    /// Creates and, on success, signs in a user with the given email address and password.
+    /// - Parameters:
+    ///   - email: The user's email address.
+    ///   - password: The user's desired password.
+    /// - Returns: A publisher that emits the result of the sign in flow.
+    /// - Remark: Possible error codes:
+    /// - `AuthErrorCodeInvalidEmail` - Indicates the email address is malformed.
+    /// - `AuthErrorCodeEmailAlreadyInUse` - Indicates the email used to attempt sign up
+    ///   already exists. Call fetchProvidersForEmail to check which sign-in mechanisms the user
+    ///   used, and prompt the user to sign in with one of those.
+    /// - `AuthErrorCodeOperationNotAllowed` - Indicates that email and password accounts
+    ///   are not enabled. Enable them in the Auth section of the Firebase console.
+    /// - `AuthErrorCodeWeakPassword` - Indicates an attempt to set a password that is
+    ///   considered too weak. The NSLocalizedFailureReasonErrorKey field in the NSError.userInfo
+    ///   dictionary object will contain more detailed explanation that can be shown to the user.
+    /// - Remark: See `AuthErrors` for a list of error codes that are common to all API methods
     public func createUser(withEmail email: String,
                            password: String) -> Future<AuthDataResult, Error> {
       Future<AuthDataResult, Error> { [weak self] promise in
         self?.createUser(withEmail: email, password: password) { authDataResult, error in
+          if let error = error {
+            promise(.failure(error))
+          } else if let authDataResult = authDataResult {
+            promise(.success(authDataResult))
+          }
+        }
+      }
+    }
+
+    /// Creates and, on success, signs in a user with the given email address and password.
+    /// - Parameters:
+    ///   - email: The user's email address.
+    ///   - password: The user's desired password.
+    /// - Returns: A publisher that emits the result of the sign in flow.
+    /// - Remark: Possible error codes:
+    /// - `AuthErrorCodeOperationNotAllowed` - Indicates that email and password
+    ///   accounts are not enabled. Enable them in the Auth section of the
+    ///   Firebase console.
+    /// - `AuthErrorCodeUserDisabled` - Indicates the user's account is disabled.
+    /// - `AuthErrorCodeWrongPassword` - Indicates the user attempted
+    ///   sign in with an incorrect password.
+    /// - `AuthErrorCodeInvalidEmail` - Indicates the email address is malformed.
+    /// - Remark: See `AuthErrors` for a list of error codes that are common to all API methods
+    public func signIn(withEmail email: String, password: String) -> Future<AuthDataResult, Error> {
+      Future<AuthDataResult, Error> { [weak self] promise in
+        self?.signIn(withEmail: email, password: password) { authDataResult, error in
           if let error = error {
             promise(.failure(error))
           } else if let authDataResult = authDataResult {

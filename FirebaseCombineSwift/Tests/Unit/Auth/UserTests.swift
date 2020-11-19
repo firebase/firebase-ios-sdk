@@ -26,13 +26,23 @@ class UserTests: XCTestCase {
     FirebaseApp.configureForTests()
   }
 
+  override class func tearDown() {
+    FirebaseApp.app()?.delete { success in
+      if success {
+        print("Shut down app successfully.")
+      } else {
+        print("💥 There was a problem when shutting down the app..")
+      }
+    }
+  }
+
   override func setUp() {
     do {
       try Auth.auth().signOut()
     } catch {}
   }
 
-  func testCreateUser() {
+  func testCreateUserWithEmailAndPassword() {
     let expect = expectation(description: "User created")
 
     let cancellable = Auth.auth()
@@ -55,5 +65,56 @@ class UserTests: XCTestCase {
 
     waitForExpectations(timeout: expectationTimeout, handler: nil)
     cancellable.cancel()
+  }
+
+  let testUserEmail = "johnnyappleseed@apple.com"
+  let testUserPassword = "secret"
+
+  func testSignInUserWithEmailAndPassword() {
+    var expect = expectation(description: "User created")
+
+    var cancellables = Set<AnyCancellable>()
+
+    Auth.auth()
+      .createUser(withEmail: testUserEmail, password: testUserPassword)
+      .sink { completion in
+        switch completion {
+        case .finished:
+          print("Finished")
+        case let .failure(error):
+          print("💥 Something went wrong: \(error)")
+        }
+      } receiveValue: { authDataResult in
+        XCTAssertNotNil(authDataResult.user)
+        XCTAssertEqual(authDataResult.user.email, self.testUserEmail)
+
+        expect.fulfill()
+      }
+      .store(in: &cancellables)
+
+    waitForExpectations(timeout: expectationTimeout, handler: nil)
+
+    expect = expectation(description: "User signed in")
+
+    Auth.auth()
+      .signIn(withEmail: testUserEmail, password: testUserPassword)
+      .sink { completion in
+        switch completion {
+        case .finished:
+          print("Finished")
+        case let .failure(error):
+          print("💥 Something went wrong: \(error)")
+        }
+      } receiveValue: { authDataResult in
+        XCTAssertNotNil(authDataResult.user)
+        XCTAssertEqual(authDataResult.user.email, self.testUserEmail)
+
+        authDataResult.user.delete { error in
+          expect.fulfill()
+        }
+      }
+      .store(in: &cancellables)
+
+    waitForExpectations(timeout: expectationTimeout, handler: nil)
   }
 }
