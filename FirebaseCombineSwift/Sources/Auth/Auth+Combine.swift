@@ -44,20 +44,19 @@
         })
         .eraseToAnyPublisher()
     }
-    
-    public func createUser(withEmail email: String, password: String) -> Future<AuthDataResult, Error> {
+
+    public func createUser(withEmail email: String,
+                           password: String) -> Future<AuthDataResult, Error> {
       Future<AuthDataResult, Error> { [weak self] promise in
         self?.createUser(withEmail: email, password: password) { authDataResult, error in
           if let error = error {
             promise(.failure(error))
-          }
-          else if let authDataResult = authDataResult {
+          } else if let authDataResult = authDataResult {
             promise(.success(authDataResult))
           }
         }
       }
     }
-    
   }
 
 #endif

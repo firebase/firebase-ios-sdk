@@ -34,27 +34,26 @@ class UserTests: XCTestCase {
 
   func testCreateUser() {
     let expect = expectation(description: "User created")
-    
+
     let cancellable = Auth.auth()
       .createUser(withEmail: "johnnyappleseed@apple.com", password: "secret")
       .sink { completion in
         switch completion {
         case .finished:
           print("Finished")
-        case .failure(let error):
+        case let .failure(error):
           print("💥 Something went wrong: \(error)")
         }
       } receiveValue: { authDataResult in
         XCTAssertNotNil(authDataResult.user)
         XCTAssertEqual(authDataResult.user.email, "johnnyappleseed@apple.com")
-        
+
         authDataResult.user.delete { error in
           expect.fulfill()
         }
       }
-    
+
     waitForExpectations(timeout: expectationTimeout, handler: nil)
     cancellable.cancel()
   }
-  
 }
