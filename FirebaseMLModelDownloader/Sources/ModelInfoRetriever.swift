@@ -108,72 +108,79 @@ extension ModelInfoRetriever {
     return request
   }
 
-  /// Get model info from server.
-  func downloadModelInfo(completion: @escaping (DownloadError?) -> Void) {
+  /// Get installations auth token.
+  func getAuthToken(completion: @escaping (Result<String, DownloadError>) -> Void) {
     /// Get FIS token.
-    installations.authToken { [weak self] tokenResult, error in
-      guard let self = self else {
-        completion(.internalError(description: ModelInfoRetriever.selfDeallocatedErrorDescription))
-        return
-      }
+    installations.authToken { tokenResult, error in
       guard let result = tokenResult
       else {
-        completion(.internalError(description: ModelInfoRetriever.tokenErrorDescription))
+        completion(.failure(.internalError(description: ModelInfoRetriever.tokenErrorDescription)))
         return
       }
-      /// Get model info fetch URL with appropriate HTTP headers.
-      let request = self.getModelInfoFetchURLRequest(token: result.authToken)
+      completion(.success(result.authToken))
+    }
+  }
 
-      /// Download model info.
-      // TODO: Consider moving request to a separate method
-      let session = URLSession(configuration: .ephemeral)
-      let dataTask = session.dataTask(with: request) { [weak self]
-        data, response, error in
-        guard let self = self else {
-          completion(.internalError(description: ModelInfoRetriever
-              .selfDeallocatedErrorDescription))
-          return
-        }
-        if let downloadError = error {
-          completion(.internalError(description: downloadError.localizedDescription))
-        } else {
-          guard let httpResponse = response as? HTTPURLResponse else {
+  /// Get model info from server.
+  func downloadModelInfo(completion: @escaping (DownloadError?) -> Void) {
+    getAuthToken { result in
+      switch result {
+      case let .success(authToken):
+        /// Get model info fetch URL with appropriate HTTP headers.
+        let request = self.getModelInfoFetchURLRequest(token: authToken)
+        let session = URLSession(configuration: .ephemeral)
+        /// Download model info.
+        let dataTask = session.dataTask(with: request) { [weak self]
+          data, response, error in
+          guard let self = self else {
             completion(.internalError(description: ModelInfoRetriever
-                .invalidHTTPResponseErrorDescription))
+                .selfDeallocatedErrorDescription))
             return
           }
-
-          switch httpResponse.statusCode {
-          case 200:
-            guard let modelHash = httpResponse
-              .allHeaderFields[ModelInfoRetriever.etagHTTPHeader] as? String else {
-              completion(.internalError(description: ModelInfoRetriever
-                  .missingModelHashErrorDescription))
-              return
-            }
-
-            guard let data = data else {
+          if let downloadError = error {
+            completion(.internalError(description: downloadError.localizedDescription))
+          } else {
+            guard let httpResponse = response as? HTTPURLResponse else {
               completion(.internalError(description: ModelInfoRetriever
                   .invalidHTTPResponseErrorDescription))
               return
             }
-            self.saveModelInfo(data: data, modelHash: modelHash)
-            completion(nil)
-          case 304:
-            completion(nil)
-          case 404:
-            completion(.notFound)
-          // TODO: Handle more http status codes
-          default:
-            completion(
-              .internalError(
-                description: "Server returned with error - \(httpResponse.statusCode)."
+
+            switch httpResponse.statusCode {
+            case 200:
+              guard let modelHash = httpResponse
+                .allHeaderFields[ModelInfoRetriever.etagHTTPHeader] as? String else {
+                completion(.internalError(description: ModelInfoRetriever
+                    .missingModelHashErrorDescription))
+                return
+              }
+
+              guard let data = data else {
+                completion(.internalError(description: ModelInfoRetriever
+                    .invalidHTTPResponseErrorDescription))
+                return
+              }
+              self.saveModelInfo(data: data, modelHash: modelHash)
+              completion(nil)
+            case 304:
+              completion(nil)
+            case 404:
+              completion(.notFound)
+            // TODO: Handle more http status codes
+            default:
+              completion(
+                .internalError(
+                  description: "Server returned with error - \(httpResponse.statusCode)."
+                )
               )
-            )
+            }
           }
         }
+        dataTask.resume()
+      case .failure:
+        completion(.internalError(description: ModelInfoRetriever.tokenErrorDescription))
+        return
       }
-      dataTask.resume()
     }
   }
 
@@ -182,9 +189,11 @@ extension ModelInfoRetriever {
     let decoder = JSONDecoder()
     guard let modelInfoJSON = try? decoder.decode(ModelInfoResponse.self, from: data)
     else { return }
-    modelInfo = ModelInfo(app: app, name: modelName)
-    modelInfo?.downloadURL = modelInfoJSON.downloadURL
-    modelInfo?.size = Int(modelInfoJSON.size) ?? 0
-    modelInfo?.modelHash = modelHash
+    let modelInfo = ModelInfo(app: app, name: modelName)
+    modelInfo.downloadURL = modelInfoJSON.downloadURL
+    // TODO: Possibly improve handling invalid server responses.
+    modelInfo.size = Int(modelInfoJSON.size) ?? 0
+    modelInfo.modelHash = modelHash
+    self.modelInfo = modelInfo
   }
 }

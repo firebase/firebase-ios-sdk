@@ -27,6 +27,7 @@ extension UserDefaults {
   }
 }
 
+// TODO: break this up into separate unit and integration tests
 final class ModelDownloaderTests: XCTestCase {
   override class func setUp() {
     super.setUp()
@@ -56,10 +57,34 @@ final class ModelDownloaderTests: XCTestCase {
     XCTAssertEqual(modelInfoRetriever.modelInfo?.path, nil)
   }
 
-  /// Unit test to download model info - makes an actual network call.
-  func testDownloadModelInfo() {
+  /// Test to retrieve FIS token - makes an actual network call.
+  // TODO: Move this into a separate integration test and add unit test with mocks.
+  func testGetAuthToken() {
     let testApp = FirebaseApp.app()!
     let testModelName = "image-classification"
+    let modelInfoRetriever = ModelInfoRetriever(
+      app: testApp,
+      modelName: testModelName
+    )
+    let expectation = self.expectation(description: "Wait for FIS auth token.")
+    modelInfoRetriever.getAuthToken(completion: { result in
+      switch result {
+      case let .success(token):
+        XCTAssertNotNil(token)
+      case let .failure(error):
+        XCTFail(error.localizedDescription)
+      }
+      expectation.fulfill()
+
+    })
+    waitForExpectations(timeout: 5, handler: nil)
+  }
+
+  /// Test to download model info - makes an actual network call.
+  // TODO: Move this into a separate integration test and add unit test with mocks.
+  func testDownloadModelInfo() {
+    let testApp = FirebaseApp.app()!
+    let testModelName = "pose-detection"
     let modelInfoRetriever = ModelInfoRetriever(
       app: testApp,
       modelName: testModelName
@@ -67,10 +92,13 @@ final class ModelDownloaderTests: XCTestCase {
     let expectation = self.expectation(description: "Wait for model info to download.")
     modelInfoRetriever.downloadModelInfo(completion: { error in
       XCTAssertNil(error)
-      XCTAssertNotNil(modelInfoRetriever.modelInfo)
-      XCTAssertNotEqual(modelInfoRetriever.modelInfo!.downloadURL, "")
-      XCTAssertNotEqual(modelInfoRetriever.modelInfo!.modelHash, "")
-      XCTAssertGreaterThan(modelInfoRetriever.modelInfo!.size, 0)
+      guard let modelInfo = modelInfoRetriever.modelInfo else {
+        XCTFail("Empty model info.")
+        return
+      }
+      XCTAssertNotEqual(modelInfo.downloadURL, "")
+      XCTAssertNotEqual(modelInfo.modelHash, "")
+      XCTAssertGreaterThan(modelInfo.size, 0)
       expectation.fulfill()
     })
     waitForExpectations(timeout: 5, handler: nil)
