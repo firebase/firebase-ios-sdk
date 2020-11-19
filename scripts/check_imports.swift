@@ -44,6 +44,8 @@ let skipDirPatterns = ["/Sample/", "/Pods/", "FirebaseStorage/Tests/Integration"
     "FirebaseInstallations/Source/Tests/Unit/",
     "Firestore",
     "GoogleUtilitiesComponents",
+
+    "Crashlytics/Crashlytics/FIRCrashlytics.m",
   ]
 
 // Skip existence test for patterns that start with the following:
