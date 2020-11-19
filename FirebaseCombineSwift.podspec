@@ -4,7 +4,7 @@ Pod::Spec.new do |s|
   s.summary          = 'Swift extensions with Combine support for Firebase'
 
   s.description      = <<-DESC
-  Combine Puboishers for Firebase.
+  Combine Publishers for Firebase.
                        DESC
 
   s.homepage         = 'https://firebase.google.com'
@@ -40,6 +40,7 @@ Pod::Spec.new do |s|
     # Unit tests can't run on watchOS.
     unit_tests.platforms = {:ios => '13.0', :osx => '10.11', :tvos => '10.0'}
     unit_tests.source_files = 'FirebaseCombineSwift/Tests/Unit/**/*.swift'
+    unit_tests.exclude_files = 'FirebaseCombineSwift/Tests/Unit/**/*Template.swift'
     # app_host is needed for tests with keychain
     unit_tests.requires_app_host = true
     unit_tests.dependency 'OCMock'
