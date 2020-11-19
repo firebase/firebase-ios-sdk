@@ -32,11 +32,11 @@
     "README.md"
   ],
   "source": {
-    "http": "https://dl.google.com/dl/cpdc/eebe76f81303b402/FirebasePerformance-7.0.1.tar.gz"
+    "http": "https://dl.google.com/dl/cpdc/31f7874c4d767ff7/FirebasePerformance-7.2.0.tar.gz"
   },
   "summary": "Firebase Performance for iOS",
   "vendored_frameworks": [
     "Frameworks/FirebasePerformance.framework"
   ],
-  "version": "7.1.0"
+  "version": "7.2.0"
 }
