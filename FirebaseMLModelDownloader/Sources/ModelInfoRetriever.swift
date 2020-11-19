@@ -47,7 +47,6 @@ class ModelInfoRetriever: NSObject {
   init(app: FirebaseApp, modelName: String) {
     self.app = app
     self.modelName = modelName
-    modelInfo = ModelInfo(app: app, name: modelName)
     installations = Installations.installations(app: app)
   }
 
@@ -98,7 +97,6 @@ extension ModelInfoRetriever {
   /// Construct model fetch URL request.
   func getModelInfoFetchURLRequest(token: String) -> URLRequest {
     var request = URLRequest(url: modelInfoFetchURL)
-    request.cachePolicy = .reloadIgnoringLocalCacheData
     request.httpMethod = "GET"
     // TODO: Check if bundle ID needs to be part of the request header.
     let bundleID = Bundle.main.bundleIdentifier ?? ""
