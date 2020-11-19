@@ -17,35 +17,70 @@ import FirebaseFirestore
 import FirebaseFirestoreSwift
 import FirebaseInstallations
 
-@objc public struct SegmentationEvent: NSObject {
+@objc public class SegmentationEvent: NSObject {
   static var fis: String?
+  static var version = Bundle.main.infoDictionary?["CFBundleShortVersionString"]
 
-  public static func register(with events: [String]) {
+  static var operationQueue: OperationQueue = {
+    let operation = OperationQueue()
+    operation.qualityOfService = .userInitiated
+    operation.maxConcurrentOperationCount = 1
+
+    return operation
+  }()
+
+  private static func register(with events: [String], targeting: Bool) {
     if fis != nil {
       fatalError("register can only be called once.")
     }
-    Installations.installations().installationID { fis, error in
-      if let error = error {
-        fatalError("FIS failed \(error)")
+    operationQueue.addOperation {
+      Installations.installations().installationID { fis, error in
+        if let error = error {
+          fatalError("FIS failed \(error)")
+        }
+        guard let iid = fis else {
+          fatalError("Null FIS")
+        }
+        self.fis = iid
+        if let version = self.version {
+          log(events: ["SessionStart:\(version)"])
+        }
+        log(events: events, targeting: targeting)
       }
-      guard let iid = fis else {
-        fatalError("Null FIS")
-      }
-      publishRecord(iid, true, events)
     }
   }
 
-  // TODO - add a background thread to synchronize this with register
-  public static func log(events: [String]) {
-    guard let fis = fis else {
-      fatalError("register must be called before log.")
-    }
-    publishRecord(fis, false, events)
+  // There is only one record in the database per instance for targeting and it is keyed by the fis.
+  @objc public static func logForTargeting(events: [String]) {
+    log(events: events, targeting: true)
   }
 
-  private static func publishRecord(_ fis: String, _fisKey: Bool, _ events: [String]) {
+  public static func log(events: [String], targeting: Bool = false) {
+    if fis == nil {
+      register(with: events, targeting: targeting)
+    } else {
+      let fis = self.fis!
+      operationQueue.addOperation {
+        publishRecord(fis, targeting, events)
+      }
+    }
+  }
+
+  @objc public static func log(events: [String]) {
+    log(events: events, targeting: false)
+  }
+
+  private static func publishRecord(_ fis: String, _ fisKey: Bool, _ events: [String]) {
     // TODO: What should the name of the collection be?
-    let segmentRef = Firestore.firestore().collection("paultest").document(fis)
+
+    var segmentRef: DocumentReference
+    Firestore.firestore().clearPersistence()
+    if fisKey {
+      segmentRef = Firestore.firestore().collection("paultest").document(fis)
+    } else {
+      // auto-generate the document ref.
+      segmentRef = Firestore.firestore().collection("paultest").document()
+    }
     let segment = Segment(iid: fis, labels: events, date: Timestamp())
     do {
       try segmentRef.setData(from: segment)

@@ -48,6 +48,8 @@
 
 #import "GoogleDataTransport/GDTCORLibrary/Internal/GoogleDataTransportInternal.h"
 
+@import FirebaseSegmentationFirestore;
+
 #if TARGET_OS_IPHONE
 #import <UIKit/UIKit.h>
 #endif
@@ -128,6 +130,11 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
     _didPreviouslyCrash = [_fileManager fileExistsAtPath:crashedMarkerFileFullPath];
 
     if (_didPreviouslyCrash) {
+      NSString *event =
+          [NSString localizedStringWithFormat:@"AppException:%@",
+                                              [[NSBundle mainBundle]
+                                                  infoDictionary][@"CFBundleShortVersionString"]];
+      [SegmentationEvent logWithEvents:@[ event ]];
       // Delete the crash file marker in the background ensure start up is as fast as possible
       dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
         [self.fileManager removeItemAtPath:crashedMarkerFileFullPath];

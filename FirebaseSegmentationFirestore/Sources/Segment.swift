@@ -23,6 +23,6 @@ struct Segment: Codable {
   enum CodingKeys: String, CodingKey {
     case iid = "instance_id"
     case labels = "segment_labels"
-    case date = "update_time"
+    case date = "last_updated_time"
   }
 }
