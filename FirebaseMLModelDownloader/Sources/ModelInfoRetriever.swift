@@ -47,6 +47,7 @@ class ModelInfoRetriever: NSObject {
   init(app: FirebaseApp, modelName: String) {
     self.app = app
     self.modelName = modelName
+    modelInfo = ModelInfo(app: app, name: modelName)
     installations = Installations.installations(app: app)
   }
 
