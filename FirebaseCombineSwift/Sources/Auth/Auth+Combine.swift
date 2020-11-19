@@ -24,6 +24,8 @@
   @available(swift 5.0)
   @available(macOS 10.15, iOS 13, watchOS 6, tvOS 13, *)
   extension Auth {
+    // MARK: - Authentication State Management
+
     /// Registers a publisher that publishes authentication state changes.
     ///
     /// The publisher emits values when:
@@ -44,6 +46,8 @@
         })
         .eraseToAnyPublisher()
     }
+
+    // MARK: - Email/Password Authentication
 
     /// Creates and, on success, signs in a user with the given email address and password.
     /// - Parameters:
@@ -88,7 +92,8 @@
     ///   sign in with an incorrect password.
     /// - `AuthErrorCodeInvalidEmail` - Indicates the email address is malformed.
     /// - Remark: See `AuthErrors` for a list of error codes that are common to all API methods
-    public func signIn(withEmail email: String, password: String) -> Future<AuthDataResult, Error> {
+    public func signIn(withEmail email: String,
+                       password: String) -> Future<AuthDataResult, Error> {
       Future<AuthDataResult, Error> { [weak self] promise in
         self?.signIn(withEmail: email, password: password) { authDataResult, error in
           if let error = error {
