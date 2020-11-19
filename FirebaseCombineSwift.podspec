@@ -4,7 +4,7 @@ Pod::Spec.new do |s|
   s.summary          = 'Swift extensions with Combine support for Firebase'
 
   s.description      = <<-DESC
-  Combine Publishers for Firebase.
+Combine Publishers for Firebase.
                        DESC
 
   s.homepage         = 'https://firebase.google.com'
@@ -26,22 +26,40 @@ Pod::Spec.new do |s|
   s.cocoapods_version = '>= 1.4.0'
   s.prefix_header_file = false
 
-  s.requires_arc            = true
   source = 'FirebaseCombineSwift/Sources/'
   s.source_files = [
     source + '**/*.swift',
+    source + '**/*.m',
+  ]
+  s.public_header_files = [
+    source + '**/*.h',
   ]
 
+  s.framework = 'Foundation'
+  s.ios.framework = 'UIKit'
+  s.osx.framework = 'AppKit'
+  s.tvos.framework = 'UIKit'
   s.dependency 'FirebaseCore', '~> 7.0'
   s.dependency 'FirebaseAuth', '~> 7.0'
-  s.dependency 'FirebaseFirestore', '~> 7.0'
+
+  s.pod_target_xcconfig = {
+    'GCC_C_LANGUAGE_STANDARD' => 'c99',
+    'GCC_PREPROCESSOR_DEFINITIONS' => 'Firebase_VERSION=' + s.version.to_s,
+    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"',
+    'OTHER_CFLAGS' => '-fno-autolink'
+  }
 
   s.test_spec 'unit' do |unit_tests|
-    # Unit tests can't run on watchOS.
     unit_tests.platforms = {:ios => '13.0', :osx => '10.11', :tvos => '10.0'}
-    unit_tests.source_files = 'FirebaseCombineSwift/Tests/Unit/**/*.swift'
+    unit_tests.source_files = [
+      'FirebaseCombineSwift/Tests/Unit/**/*.swift',
+      'FirebaseCombineSwift/Tests/Unit/**/*.h',
+      'SharedTestUtilities/FIROptionsMock.[mh]',
+    ]
     unit_tests.exclude_files = 'FirebaseCombineSwift/Tests/Unit/**/*Template.swift'
-    # app_host is needed for tests with keychain
+    unit_tests.pod_target_xcconfig = {
+      'SWIFT_OBJC_BRIDGING_HEADER' => '$(PODS_TARGET_SRCROOT)/FirebaseCombineSwift/Tests/Unit/FirebaseCombineSwift-unit-Bridging-Header.h'
+    }
     unit_tests.requires_app_host = true
     unit_tests.dependency 'OCMock'
   end
