@@ -19,41 +19,75 @@ import FirebaseCombineSwift
 import Combine
 import XCTest
 
-private class MockAuthBackend: AuthBackendImplementationMock {
-  var localId: String
-  var displayName: String
-  var email: String
-  var passwordHash: String
-
-  init(withLocalId localId: String, displayName: String, email: String, passwordHash: String) {
-    self.localId = localId
-    self.displayName = displayName
-    self.email = email
-    self.passwordHash = passwordHash
-  }
-
-  override func getAccountInfo(_ request: FIRGetAccountInfoRequest,
-                               callback: @escaping FIRGetAccountInfoResponseCallback) {
-    print(#function)
-    let response = MockGetAccountInfoResponse(
-      withLocalId: localId,
-      displayName: displayName,
-      email: email,
-      passwordHash: passwordHash
-    )
-    callback(response, nil)
-  }
-
-  override func signUpNewUser(_ request: FIRSignUpNewUserRequest,
-                              callback: @escaping FIRSignupNewUserCallback) {
-    print(#function)
-    let response = MockSignUpNewUserResponse()
-    callback(response, nil)
-  }
-}
-
 class AuthStateDidChangePublisherTests: XCTestCase {
-  let expectationTimeout: Double = 2
+  static let apiKey = Credentials.apiKey
+  static let accessTokenTimeToLive: TimeInterval = 60 * 60
+  static let refreshToken = "REFRESH_TOKEN"
+  static let accessToken = "ACCESS_TOKEN"
+
+  static let email = "johnnyappleseed@apple.com"
+  static let password = "secret"
+  static let localId = "LOCAL_ID"
+  static let displayName = "Johnny Appleseed"
+  static let passwordHash = "UkVEQUNURUQ="
+
+  class MockSignUpNewUserResponse: FIRSignUpNewUserResponse {
+    override var idToken: String { return EmailPasswordAuthTests.accessToken }
+    override var refreshToken: String { return EmailPasswordAuthTests.refreshToken }
+    override var approximateExpirationDate: Date {
+      Date(timeIntervalSinceNow: EmailPasswordAuthTests.accessTokenTimeToLive)
+    }
+  }
+
+  class MockGetAccountInfoResponseUser: FIRGetAccountInfoResponseUser {
+    override var localID: String { return EmailPasswordAuthTests.localId }
+    override var email: String { return EmailPasswordAuthTests.email }
+    override var displayName: String { return EmailPasswordAuthTests.displayName }
+  }
+
+  class MockGetAccountInfoResponse: FIRGetAccountInfoResponse {
+    override var users: [FIRGetAccountInfoResponseUser] {
+      return [MockGetAccountInfoResponseUser(dictionary: [:])]
+    }
+  }
+
+  class MockVerifyPasswordResponse: FIRVerifyPasswordResponse {
+    override var localID: String { return EmailPasswordAuthTests.localId }
+    override var email: String { return EmailPasswordAuthTests.email }
+    override var displayName: String { return EmailPasswordAuthTests.displayName }
+    override var idToken: String { return EmailPasswordAuthTests.accessToken }
+    override var approximateExpirationDate: Date {
+      Date(timeIntervalSinceNow: EmailPasswordAuthTests.accessTokenTimeToLive)
+    }
+
+    override var refreshToken: String { return EmailPasswordAuthTests.refreshToken }
+  }
+
+  class MockAuthBackend: AuthBackendImplementationMock {
+    override func signUpNewUser(_ request: FIRSignUpNewUserRequest,
+                                callback: @escaping FIRSignupNewUserCallback) {
+      XCTAssertEqual(request.apiKey, AnonymousAuthTests.apiKey)
+      XCTAssertNil(request.email)
+      XCTAssertNil(request.password)
+      XCTAssertTrue(request.returnSecureToken)
+      let response = MockSignUpNewUserResponse()
+      callback(response, nil)
+    }
+
+    override func getAccountInfo(_ request: FIRGetAccountInfoRequest,
+                                 callback: @escaping FIRGetAccountInfoResponseCallback) {
+      XCTAssertEqual(request.apiKey, AnonymousAuthTests.apiKey)
+      XCTAssertEqual(request.accessToken, AnonymousAuthTests.accessToken)
+      let response = MockGetAccountInfoResponse()
+      callback(response, nil)
+    }
+
+    override func verifyPassword(_ request: FIRVerifyPasswordRequest,
+                                 callback: @escaping FIRVerifyPasswordResponseCallback) {
+      let response = MockVerifyPasswordResponse()
+      callback(response, nil)
+    }
+  }
 
   override class func setUp() {
     FirebaseApp.configureForTests()
@@ -75,70 +109,51 @@ class AuthStateDidChangePublisherTests: XCTestCase {
     } catch {}
   }
 
-  func configureMockBackend(withLocalId localId: String, displayName: String, email: String,
-                            passwordHash: String) {
-    let mockBackend = MockAuthBackend(
-      withLocalId: localId,
-      displayName: displayName,
-      email: email,
-      passwordHash: passwordHash
-    )
-    FIRAuthBackend.setBackendImplementation(mockBackend)
-  }
-
   func testPublisherEmitsWhenAttached() {
-    let expect = expectation(description: "Publisher emits value as soon as it is subscribed")
-    configureMockBackend(
-      withLocalId: kLocalId,
-      displayName: kDisplayName,
-      email: kEmail,
-      passwordHash: kPasswordHash
-    )
+    // given
+    FIRAuthBackend.setBackendImplementation(MockAuthBackend())
+
+    let subscriptionActivatedExpectation =
+      expectation(description: "Publisher emits value as soon as it is subscribed")
 
     let cancellable = Auth.auth().authStateDidChangePublisher()
       .sink { auth, user in
         XCTAssertEqual(auth, Auth.auth())
         XCTAssertNil(user)
-        expect.fulfill()
+        subscriptionActivatedExpectation.fulfill()
       }
 
-    waitForExpectations(timeout: expectationTimeout, handler: nil)
+    wait(for: [subscriptionActivatedExpectation], timeout: expectationTimeout)
     cancellable.cancel()
   }
 
   func testPublisherEmitsWhenUserIsSignedIn() {
-    let expect = expectation(description: "Publisher emits value when user is signed in")
-    configureMockBackend(
-      withLocalId: kLocalId,
-      displayName: kDisplayName,
-      email: kEmail,
-      passwordHash: kPasswordHash
-    )
+    // given
+    FIRAuthBackend.setBackendImplementation(MockAuthBackend())
 
+    let signedInExpectation =
+      expectation(description: "Publisher emits value when user is signed in")
     let cancellable = Auth.auth().authStateDidChangePublisher()
       .sink { auth, user in
         XCTAssertEqual(auth, Auth.auth())
 
         if let user = user, user.isAnonymous {
-          expect.fulfill()
+          signedInExpectation.fulfill()
         }
       }
 
     Auth.auth().signInAnonymously()
 
-    waitForExpectations(timeout: expectationTimeout, handler: nil)
+    wait(for: [signedInExpectation], timeout: expectationTimeout)
     cancellable.cancel()
   }
 
   // Listener should not fire for signing in again.
   func testPublisherDoesNotEmitWhenUserSignsInAgain() {
+    // given
+    FIRAuthBackend.setBackendImplementation(MockAuthBackend())
+
     var expect = expectation(description: "Publisher emits value when user is signed in")
-    configureMockBackend(
-      withLocalId: kLocalId,
-      displayName: kDisplayName,
-      email: kEmail,
-      passwordHash: kPasswordHash
-    )
 
     let cancellable = Auth.auth().authStateDidChangePublisher()
       .sink { auth, user in
@@ -151,28 +166,25 @@ class AuthStateDidChangePublisherTests: XCTestCase {
 
     // Sign in, expect the publisher to emit
     Auth.auth().signInAnonymously()
-    waitForExpectations(timeout: expectationTimeout, handler: nil)
+    wait(for: [expect], timeout: expectationTimeout)
 
     // Sign in again, expect the publisher NOT to emit
     expect = expectation(description: "Publisher does not emit when user sign in again")
     expect.isInverted = true
 
     Auth.auth().signInAnonymously()
-    waitForExpectations(timeout: expectationTimeout, handler: nil)
+    wait(for: [expect], timeout: expectationTimeout)
 
     cancellable.cancel()
   }
 
   // Listener should fire for signing out.
   func testPublisherEmitsWhenUserSignsOut() {
+    // given
+    FIRAuthBackend.setBackendImplementation(MockAuthBackend())
+
     var expect = expectation(description: "Publisher emits value when user is signed in")
     var shouldUserBeNil = false
-    configureMockBackend(
-      withLocalId: kLocalId,
-      displayName: kDisplayName,
-      email: kEmail,
-      passwordHash: kPasswordHash
-    )
 
     let cancellable = Auth.auth().authStateDidChangePublisher()
       .sink { auth, user in
@@ -191,7 +203,7 @@ class AuthStateDidChangePublisherTests: XCTestCase {
 
     // sign in first
     Auth.auth().signInAnonymously()
-    waitForExpectations(timeout: expectationTimeout, handler: nil)
+    wait(for: [expect], timeout: expectationTimeout)
 
     // now sign out
     expect = expectation(description: "Publisher emits value when user signs out")
@@ -200,20 +212,17 @@ class AuthStateDidChangePublisherTests: XCTestCase {
       try Auth.auth().signOut()
     } catch {}
 
-    waitForExpectations(timeout: expectationTimeout, handler: nil)
+    wait(for: [expect], timeout: expectationTimeout)
     cancellable.cancel()
   }
 
   // Listener should no longer fire once detached.
   func testPublisherNoLongerEmitsWhenDetached() {
+    // given
+    FIRAuthBackend.setBackendImplementation(MockAuthBackend())
+
     var expect = expectation(description: "Publisher emits value when user is signed in")
     var shouldUserBeNil = false
-    configureMockBackend(
-      withLocalId: kLocalId,
-      displayName: kDisplayName,
-      email: kEmail,
-      passwordHash: kPasswordHash
-    )
 
     let cancellable = Auth.auth().authStateDidChangePublisher()
       .sink { auth, user in
@@ -232,7 +241,7 @@ class AuthStateDidChangePublisherTests: XCTestCase {
 
     // sign in first
     Auth.auth().signInAnonymously()
-    waitForExpectations(timeout: expectationTimeout, handler: nil)
+    wait(for: [expect], timeout: expectationTimeout)
 
     // detach the publisher
     expect = expectation(description: "Publisher no longer emits once detached")
@@ -244,6 +253,6 @@ class AuthStateDidChangePublisherTests: XCTestCase {
       try Auth.auth().signOut()
     } catch {}
 
-    waitForExpectations(timeout: expectationTimeout, handler: nil)
+    wait(for: [expect], timeout: expectationTimeout)
   }
 }

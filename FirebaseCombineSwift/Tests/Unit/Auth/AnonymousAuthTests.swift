@@ -44,45 +44,46 @@ class AnonymousAuthTests: XCTestCase {
   static let accessToken = "ACCESS_TOKEN"
   static let localId = "LOCAL_ID"
 
+  class MockSignUpNewUserResponse: FIRSignUpNewUserResponse {
+    override var idToken: String { return AnonymousAuthTests.accessToken }
+    override var refreshToken: String { return AnonymousAuthTests.refreshToken }
+    override var approximateExpirationDate: Date {
+      Date(timeIntervalSinceNow: AnonymousAuthTests.accessTokenTimeToLive)
+    }
+  }
+
+  class MockGetAccountInfoResponseUser: FIRGetAccountInfoResponseUser {
+    override var localID: String { return AnonymousAuthTests.localId }
+  }
+
+  class MockGetAccountInfoResponse: FIRGetAccountInfoResponse {
+    override var users: [FIRGetAccountInfoResponseUser] {
+      return [MockGetAccountInfoResponseUser(dictionary: [:])]
+    }
+  }
+
+  class MockAuthBackend: AuthBackendImplementationMock {
+    override func signUpNewUser(_ request: FIRSignUpNewUserRequest,
+                                callback: @escaping FIRSignupNewUserCallback) {
+      XCTAssertEqual(request.apiKey, AnonymousAuthTests.apiKey)
+      XCTAssertNil(request.email)
+      XCTAssertNil(request.password)
+      XCTAssertTrue(request.returnSecureToken)
+      let response = MockSignUpNewUserResponse()
+      callback(response, nil)
+    }
+
+    override func getAccountInfo(_ request: FIRGetAccountInfoRequest,
+                                 callback: @escaping FIRGetAccountInfoResponseCallback) {
+      XCTAssertEqual(request.apiKey, AnonymousAuthTests.apiKey)
+      XCTAssertEqual(request.accessToken, AnonymousAuthTests.accessToken)
+      let response = MockGetAccountInfoResponse()
+      callback(response, nil)
+    }
+  }
+
   func testSignInAnonymouslySuccessfully() {
     // given
-    class MockSignUpNewUserResponse: FIRSignUpNewUserResponse {
-      override var idToken: String { return AnonymousAuthTests.accessToken }
-      override var refreshToken: String { return AnonymousAuthTests.refreshToken }
-      override var approximateExpirationDate: Date {
-        Date(timeIntervalSinceNow: AnonymousAuthTests.accessTokenTimeToLive)
-      }
-    }
-
-    class MockGetAccountInfoResponseUser: FIRGetAccountInfoResponseUser {
-      override var localID: String { return AnonymousAuthTests.localId }
-    }
-
-    class MockGetAccountInfoResponse: FIRGetAccountInfoResponse {
-      override var users: [FIRGetAccountInfoResponseUser] {
-        return [MockGetAccountInfoResponseUser(dictionary: [:])]
-      }
-    }
-
-    class MockAuthBackend: AuthBackendImplementationMock {
-      override func signUpNewUser(_ request: FIRSignUpNewUserRequest,
-                                  callback: @escaping FIRSignupNewUserCallback) {
-        XCTAssertEqual(request.apiKey, AnonymousAuthTests.apiKey)
-        XCTAssertNil(request.email)
-        XCTAssertNil(request.password)
-        XCTAssertTrue(request.returnSecureToken)
-        let response = MockSignUpNewUserResponse()
-        callback(response, nil)
-      }
-
-      override func getAccountInfo(_ request: FIRGetAccountInfoRequest,
-                                   callback: @escaping FIRGetAccountInfoResponseCallback) {
-        XCTAssertEqual(request.apiKey, AnonymousAuthTests.apiKey)
-        XCTAssertEqual(request.accessToken, AnonymousAuthTests.accessToken)
-        let response = MockGetAccountInfoResponse()
-        callback(response, nil)
-      }
-    }
     FIRAuthBackend.setBackendImplementation(MockAuthBackend())
 
     var cancellables = Set<AnyCancellable>()
