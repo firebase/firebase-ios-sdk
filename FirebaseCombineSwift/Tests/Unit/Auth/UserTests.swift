@@ -19,7 +19,7 @@ import FirebaseCombineSwift
 import Combine
 import XCTest
 
-class MockAuthBackend: AuthBackendImplementationMock {
+private class MockAuthBackend: AuthBackendImplementationMock {
   var localId: String
   var displayName: String
   var email: String

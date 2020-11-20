@@ -36,8 +36,9 @@ class MockVerifyPasswordResponse: FIRVerifyPasswordResponse {
 }
 
 class MockSecureTokenResponse: FIRSecureTokenResponse {
-  override var accessToken: String { return "" }
-  override var approximateExpirationDate: Date { return Date() }
+  override var accessToken: String { return kAccessToken }
+  override var approximateExpirationDate: Date { Date(timeIntervalSinceNow: kAccessTokenTimeToLive)
+  }
 }
 
 class MockGetAccountInfoResponse: FIRGetAccountInfoResponse {

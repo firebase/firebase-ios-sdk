@@ -19,6 +19,39 @@ import FirebaseCombineSwift
 import Combine
 import XCTest
 
+private class MockAuthBackend: AuthBackendImplementationMock {
+  var localId: String
+  var displayName: String
+  var email: String
+  var passwordHash: String
+
+  init(withLocalId localId: String, displayName: String, email: String, passwordHash: String) {
+    self.localId = localId
+    self.displayName = displayName
+    self.email = email
+    self.passwordHash = passwordHash
+  }
+
+  override func getAccountInfo(_ request: FIRGetAccountInfoRequest,
+                               callback: @escaping FIRGetAccountInfoResponseCallback) {
+    print(#function)
+    let response = MockGetAccountInfoResponse(
+      withLocalId: localId,
+      displayName: displayName,
+      email: email,
+      passwordHash: passwordHash
+    )
+    callback(response, nil)
+  }
+
+  override func signUpNewUser(_ request: FIRSignUpNewUserRequest,
+                              callback: @escaping FIRSignupNewUserCallback) {
+    print(#function)
+    let response = MockSignUpNewUserResponse()
+    callback(response, nil)
+  }
+}
+
 class AuthStateDidChangePublisherTests: XCTestCase {
   let expectationTimeout: Double = 2
 
@@ -42,13 +75,29 @@ class AuthStateDidChangePublisherTests: XCTestCase {
     } catch {}
   }
 
+  func configureMockBackend(withLocalId localId: String, displayName: String, email: String,
+                            passwordHash: String) {
+    let mockBackend = MockAuthBackend(
+      withLocalId: localId,
+      displayName: displayName,
+      email: email,
+      passwordHash: passwordHash
+    )
+    FIRAuthBackend.setBackendImplementation(mockBackend)
+  }
+
   func testPublisherEmitsWhenAttached() {
     let expect = expectation(description: "Publisher emits value as soon as it is subscribed")
+    configureMockBackend(
+      withLocalId: kLocalId,
+      displayName: kDisplayName,
+      email: kEmail,
+      passwordHash: kPasswordHash
+    )
 
     let cancellable = Auth.auth().authStateDidChangePublisher()
       .sink { auth, user in
         XCTAssertEqual(auth, Auth.auth())
-        XCTAssertEqual(user, Auth.auth().currentUser)
         XCTAssertNil(user)
         expect.fulfill()
       }
@@ -59,11 +108,16 @@ class AuthStateDidChangePublisherTests: XCTestCase {
 
   func testPublisherEmitsWhenUserIsSignedIn() {
     let expect = expectation(description: "Publisher emits value when user is signed in")
+    configureMockBackend(
+      withLocalId: kLocalId,
+      displayName: kDisplayName,
+      email: kEmail,
+      passwordHash: kPasswordHash
+    )
 
     let cancellable = Auth.auth().authStateDidChangePublisher()
       .sink { auth, user in
         XCTAssertEqual(auth, Auth.auth())
-        XCTAssertEqual(user, Auth.auth().currentUser)
 
         if let user = user, user.isAnonymous {
           expect.fulfill()
@@ -79,11 +133,16 @@ class AuthStateDidChangePublisherTests: XCTestCase {
   // Listener should not fire for signing in again.
   func testPublisherDoesNotEmitWhenUserSignsInAgain() {
     var expect = expectation(description: "Publisher emits value when user is signed in")
+    configureMockBackend(
+      withLocalId: kLocalId,
+      displayName: kDisplayName,
+      email: kEmail,
+      passwordHash: kPasswordHash
+    )
 
     let cancellable = Auth.auth().authStateDidChangePublisher()
       .sink { auth, user in
         XCTAssertEqual(auth, Auth.auth())
-        XCTAssertEqual(user, Auth.auth().currentUser)
 
         if let user = user, user.isAnonymous {
           expect.fulfill()
@@ -108,11 +167,16 @@ class AuthStateDidChangePublisherTests: XCTestCase {
   func testPublisherEmitsWhenUserSignsOut() {
     var expect = expectation(description: "Publisher emits value when user is signed in")
     var shouldUserBeNil = false
+    configureMockBackend(
+      withLocalId: kLocalId,
+      displayName: kDisplayName,
+      email: kEmail,
+      passwordHash: kPasswordHash
+    )
 
     let cancellable = Auth.auth().authStateDidChangePublisher()
       .sink { auth, user in
         XCTAssertEqual(auth, Auth.auth())
-        XCTAssertEqual(user, Auth.auth().currentUser)
 
         if shouldUserBeNil {
           if user == nil {
@@ -144,11 +208,16 @@ class AuthStateDidChangePublisherTests: XCTestCase {
   func testPublisherNoLongerEmitsWhenDetached() {
     var expect = expectation(description: "Publisher emits value when user is signed in")
     var shouldUserBeNil = false
+    configureMockBackend(
+      withLocalId: kLocalId,
+      displayName: kDisplayName,
+      email: kEmail,
+      passwordHash: kPasswordHash
+    )
 
     let cancellable = Auth.auth().authStateDidChangePublisher()
       .sink { auth, user in
         XCTAssertEqual(auth, Auth.auth())
-        XCTAssertEqual(user, Auth.auth().currentUser)
 
         if shouldUserBeNil {
           if user == nil {
