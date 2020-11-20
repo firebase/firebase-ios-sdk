@@ -14,22 +14,18 @@
  * limitations under the License.
  */
 
-#import "FIRInstanceIDUtilities.h"
+#import "Firebase/InstanceID/FIRInstanceIDUtilities.h"
 
 #if TARGET_OS_IOS || TARGET_OS_TV
 #import <UIKit/UIKit.h>
 #endif
 #import <sys/utsname.h>
 
-#import "FIRInstanceID.h"
-#import "FIRInstanceIDConstants.h"
-#import "FIRInstanceIDLogger.h"
+#import <GoogleUtilities/GULUserDefaults.h>
+#import "Firebase/InstanceID/FIRInstanceIDConstants.h"
+#import "Firebase/InstanceID/FIRInstanceIDLogger.h"
+#import "Firebase/InstanceID/Public/FIRInstanceID.h"
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
-#import "GoogleUtilities/UserDefaults/Private/GULUserDefaults.h"
-
-// Convert the macro to a string
-#define STR_EXPAND(x) #x
-#define STR(x) STR_EXPAND(x)
 
 static NSString *const kFIRInstanceIDAPNSSandboxPrefix = @"s_";
 static NSString *const kFIRInstanceIDAPNSProdPrefix = @"p_";
@@ -144,8 +140,11 @@ BOOL FIRInstanceIDHasLocaleChanged() {
 #pragma mark - Helpers
 
 BOOL FIRInstanceIDIsValidGCMScope(NSString *scope) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   return [scope compare:kFIRInstanceIDScopeFirebaseMessaging
                 options:NSCaseInsensitiveSearch] == NSOrderedSame;
+#pragma clang diagnostic pop
 }
 
 NSString *FIRInstanceIDStringForAPNSDeviceToken(NSData *deviceToken) {

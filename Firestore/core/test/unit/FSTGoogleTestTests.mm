@@ -224,7 +224,8 @@ void XCTestMethod(XCTestCase* self, SEL _cmd) {
     const char* path = part.file_name() ? part.file_name() : "";
     int line = part.line_number() > 0 ? part.line_number() : 0;
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 140000
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 140000 || \
+    __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500
     // Xcode 12
     auto* location = [[XCTSourceCodeLocation alloc] initWithFilePath:@(path)
                                                           lineNumber:line];

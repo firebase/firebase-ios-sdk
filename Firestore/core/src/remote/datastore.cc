@@ -27,6 +27,7 @@
 #include "Firestore/core/src/model/document_key.h"
 #include "Firestore/core/src/model/mutation.h"
 #include "Firestore/core/src/remote/connectivity_monitor.h"
+#include "Firestore/core/src/remote/firebase_metadata_provider.h"
 #include "Firestore/core/src/remote/grpc_completion.h"
 #include "Firestore/core/src/remote/grpc_connection.h"
 #include "Firestore/core/src/remote/grpc_nanopb.h"
@@ -81,8 +82,8 @@ void LogGrpcCallFinished(absl::string_view rpc_name,
             status.error_message());
   if (LogIsDebugEnabled()) {
     auto headers =
-        Datastore::GetWhitelistedHeadersAsString(call->GetResponseHeaders());
-    LOG_DEBUG("RPC %s returned headers (whitelisted): %s", rpc_name, headers);
+        Datastore::GetAllowlistedHeadersAsString(call->GetResponseHeaders());
+    LOG_DEBUG("RPC %s returned headers (allowlisted): %s", rpc_name, headers);
   }
 }
 
@@ -91,13 +92,14 @@ void LogGrpcCallFinished(absl::string_view rpc_name,
 Datastore::Datastore(const DatabaseInfo& database_info,
                      const std::shared_ptr<AsyncQueue>& worker_queue,
                      std::shared_ptr<CredentialsProvider> credentials,
-                     ConnectivityMonitor* connectivity_monitor)
+                     ConnectivityMonitor* connectivity_monitor,
+                     FirebaseMetadataProvider* firebase_metadata_provider)
     : worker_queue_{NOT_NULL(worker_queue)},
       credentials_{std::move(credentials)},
       rpc_executor_{CreateExecutor()},
       connectivity_monitor_{connectivity_monitor},
       grpc_connection_{database_info, worker_queue, &grpc_queue_,
-                       connectivity_monitor_},
+                       connectivity_monitor_, firebase_metadata_provider},
       datastore_serializer_{database_info} {
   if (!database_info.ssl_enabled()) {
     GrpcConnection::UseInsecureChannel(database_info.host());
@@ -330,15 +332,16 @@ bool Datastore::IsPermanentWriteError(const Status& error) {
   return IsPermanentError(error) && !IsAbortedError(error);
 }
 
-std::string Datastore::GetWhitelistedHeadersAsString(
+std::string Datastore::GetAllowlistedHeadersAsString(
     const GrpcCall::Metadata& headers) {
-  static std::unordered_set<std::string> whitelist = {
+  static auto* allowlist = new std::unordered_set<std::string>{
       "date", "x-google-backends", "x-google-netmon-label", "x-google-service",
       "x-google-gfe-request-trace"};
 
   std::string result;
+  auto end = allowlist->end();
   for (const auto& kv : headers) {
-    if (whitelist.find(MakeString(kv.first)) != whitelist.end()) {
+    if (allowlist->find(MakeString(kv.first)) != end) {
       absl::StrAppend(&result, MakeStringView(kv.first), ": ",
                       MakeStringView(kv.second), "\n");
     }

@@ -31,9 +31,7 @@ NS_SWIFT_NAME(Database)
 
 /**
  * The NSObject initializer that has been marked as unavailable. Use the
- * `database` method instead
- *
- * @return An instancetype instance
+ * `database` class method instead.
  */
 - (instancetype)init
     __attribute__((unavailable("use the database method instead")));
@@ -93,7 +91,7 @@ NS_SWIFT_NAME(Database)
 /**
  * Gets a FIRDatabaseReference for the provided URL.  The URL must be a URL to a
  * path within this Firebase Database.  To create a FIRDatabaseReference to a
- * different database, create a FIRApp} with a FIROptions object configured with
+ * different database, create a FIRApp with a FIROptions object configured with
  * the appropriate database URL.
  *
  * @param databaseUrl A URL to a path within your database.
@@ -176,6 +174,12 @@ NS_SWIFT_NAME(Database)
 
 /** Retrieve the Firebase Database SDK version. */
 + (NSString *)sdkVersion;
+
+/**
+ * Configures the database to use an emulated backend instead of the default
+ * remote backend.
+ */
+- (void)useEmulatorWithHost:(NSString *)host port:(NSInteger)port;
 
 @end
 

@@ -128,7 +128,10 @@ void FIRInstallationsItemSetErrorToPointer(NSError *error, NSError **pointer) {
                         underlyingError:(nullable NSError *)underlyingError {
   NSMutableDictionary *userInfo = [NSMutableDictionary dictionary];
   userInfo[NSUnderlyingErrorKey] = underlyingError;
-  userInfo[NSLocalizedFailureReasonErrorKey] = failureReason;
+  userInfo[NSLocalizedFailureReasonErrorKey] =
+      failureReason
+          ?: [NSString
+                 stringWithFormat:@"Underlying error: %@", underlyingError.localizedDescription];
 
   return [NSError errorWithDomain:kFirebaseInstallationsErrorDomain code:code userInfo:userInfo];
 }

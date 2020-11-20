@@ -30,13 +30,6 @@
 
 @implementation FIRDatabase
 
-// The STR and STR_EXPAND macro allow a numeric version passed to he compiler
-// driver with a -D to be treated as a string instead of an invalid floating
-// point value.
-#define STR(x) STR_EXPAND(x)
-#define STR_EXPAND(x) #x
-static const char *FIREBASE_SEMVER = (const char *)STR(FIRDatabase_VERSION);
-
 + (FIRDatabase *)database {
     if (![FIRApp isDefaultAppConfigured]) {
         [NSException raise:@"FIRAppNotConfigured"
@@ -103,7 +96,7 @@ static const char *FIREBASE_SEMVER = (const char *)STR(FIRDatabase_VERSION);
 
 + (NSString *)buildVersion {
     // TODO: Restore git hash when build moves back to git
-    return [NSString stringWithFormat:@"%s_%s", FIREBASE_SEMVER, __DATE__];
+    return [NSString stringWithFormat:@"%@_%s", FIRFirebaseVersion(), __DATE__];
 }
 
 + (FIRDatabase *)createDatabaseForTests:(FRepoInfo *)repoInfo
@@ -116,7 +109,7 @@ static const char *FIREBASE_SEMVER = (const char *)STR(FIRDatabase_VERSION);
 }
 
 + (NSString *)sdkVersion {
-    return [NSString stringWithUTF8String:FIREBASE_SEMVER];
+    return FIRFirebaseVersion();
 }
 
 + (void)setLoggingEnabled:(BOOL)enabled {
@@ -160,13 +153,15 @@ static const char *FIREBASE_SEMVER = (const char *)STR(FIRDatabase_VERSION);
     }
     FParsedUrl *parsedUrl = [FUtilities parseUrl:databaseUrl];
     [FValidation validateFrom:@"referenceFromURL:" validURL:parsedUrl];
-    if (![parsedUrl.repoInfo.host isEqualToString:_repoInfo.host]) {
-        [NSException
-             raise:@"InvalidDatabaseURL"
-            format:
-                @"Invalid URL (%@) passed to getReference(). URL was expected "
-                 "to match configured Database URL: %@",
-                databaseUrl, [self reference].URL];
+
+    BOOL isInvalidHost =
+        !parsedUrl.repoInfo.isCustomHost &&
+        ![_repoInfo.host isEqualToString:parsedUrl.repoInfo.host];
+    if (isInvalidHost) {
+        [NSException raise:@"InvalidDatabaseURL"
+                    format:@"Invalid URL (%@) passed to getReference(). URL "
+                           @"was expected to match configured Database URL: %@",
+                           databaseUrl, _repoInfo.host];
     }
     return [[FIRDatabaseReference alloc] initWithRepo:self.repo
                                                  path:parsedUrl.path];
@@ -178,6 +173,25 @@ static const char *FIREBASE_SEMVER = (const char *)STR(FIRDatabase_VERSION);
     dispatch_async([FIRDatabaseQuery sharedQueue], ^{
       [self.repo purgeOutstandingWrites];
     });
+}
+
+- (void)useEmulatorWithHost:(NSString *)host port:(NSInteger)port {
+    if (host.length == 0) {
+        [NSException raise:NSInvalidArgumentException
+                    format:@"Cannot connect to nil or empty host."];
+    }
+    if (self.repo != nil) {
+        [NSException
+             raise:NSInternalInconsistencyException
+            format:@"Cannot connect to emulator after database initialization. "
+                   @"Call useEmulator(host:port:) before creating a database "
+                   @"reference or trying to load data."];
+    }
+    NSString *fullHost =
+        [NSString stringWithFormat:@"%@:%li", host, (long)port];
+    FRepoInfo *emulatorInfo = [[FRepoInfo alloc] initWithInfo:self.repoInfo
+                                                 emulatedHost:fullHost];
+    self->_repoInfo = emulatorInfo;
 }
 
 - (void)goOnline {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2018 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,13 +25,6 @@
 namespace firebase {
 namespace firestore {
 namespace nanopb {
-
-void Writer::Write(const pb_field_t fields[], const void* src_struct) {
-  if (!pb_encode(&stream_, fields, src_struct)) {
-    HARD_FAIL(PB_GET_ERROR(&stream_));
-  }
-}
-
 namespace {
 
 constexpr size_t kMinBufferSize = 4;
@@ -45,6 +38,12 @@ bool AppendToBytesArray(pb_ostream_t* stream,
 }
 
 }  // namespace
+
+void Writer::Write(const pb_field_t fields[], const void* src_struct) {
+  if (!pb_encode(&stream_, fields, src_struct)) {
+    HARD_FAIL(PB_GET_ERROR(&stream_));
+  }
+}
 
 ByteStringWriter::ByteStringWriter() {
   stream_.callback = AppendToBytesArray;

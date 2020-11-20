@@ -19,9 +19,9 @@
 
 #import "GoogleDataTransport/GDTCORLibrary/Internal/GoogleDataTransportInternal.h"
 
-#import "GoogleUtilities/Environment/Private/GULAppEnvironmentUtil.h"
-#import "GoogleUtilities/Environment/Private/GULHeartbeatDateStorage.h"
-#import "GoogleUtilities/Logger/Private/GULLogger.h"
+#import <GoogleUtilities/GULAppEnvironmentUtil.h>
+#import <GoogleUtilities/GULHeartbeatDateStorage.h>
+#import <GoogleUtilities/GULLogger.h>
 
 #import "Interop/CoreDiagnostics/Public/FIRCoreDiagnosticsData.h"
 #import "Interop/CoreDiagnostics/Public/FIRCoreDiagnosticsInterop.h"
@@ -37,7 +37,7 @@ static GULLoggerService kFIRCoreDiagnostics = @"[FirebaseCoreDiagnostics/FIRCore
 
 #ifdef FIREBASE_BUILD_ZIP_FILE
 static BOOL kUsingZipFile = YES;
-#else   // FIREBASE_BUILD_ZIP_FILE
+#else  // FIREBASE_BUILD_ZIP_FILE
 static BOOL kUsingZipFile = NO;
 #endif  // FIREBASE_BUILD_ZIP_FILE
 
@@ -192,24 +192,6 @@ NS_ASSUME_NONNULL_END
   return self;
 }
 
-#pragma mark - Metadata helpers
-
-/** Returns the model of iOS device. Sample platform strings are @"iPhone7,1" for iPhone 6 Plus,
- * @"iPhone7,2" for iPhone 6, etc. Refer to the Hardware strings at
- * https://en.wikipedia.org/wiki/List_of_iOS_devices
- *
- * @return The device model as an NSString.
- */
-+ (NSString *)deviceModel {
-  static NSString *deviceModel = nil;
-  if (deviceModel == nil) {
-    struct utsname systemInfo;
-    uname(&systemInfo);
-    deviceModel = [NSString stringWithCString:systemInfo.machine encoding:NSUTF8StringEncoding];
-  }
-  return deviceModel;
-}
-
 #pragma mark - nanopb helper functions
 
 /** Callocs a pb_bytes_array and copies the given NSString's bytes into the bytes array.
@@ -359,7 +341,7 @@ void FIRPopulateProtoWithCommonInfoFromApp(logs_proto_mobilesdk_ios_ICoreConfigu
     config->icore_version = FIREncodeString(libraryVersionID);
   }
 
-  NSString *deviceModel = [FIRCoreDiagnostics deviceModel];
+  NSString *deviceModel = [GULAppEnvironmentUtil deviceModel];
   if (deviceModel.length) {
     config->device_model = FIREncodeString(deviceModel);
   }

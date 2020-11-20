@@ -16,14 +16,14 @@
 
 #import <XCTest/XCTest.h>
 
-#import <OCMock/OCMock.h>
+#import "OCMock.h"
 
-#import <FirebaseInstanceID/FirebaseInstanceID.h>
+#import <GoogleUtilities/GULUserDefaults.h>
+#import "Firebase/InstanceID/Public/FirebaseInstanceID.h"
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
-#import "GoogleUtilities/UserDefaults/Private/GULUserDefaults.h"
 #import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 
-#import <FirebaseMessaging/FIRMessaging.h>
+#import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessaging.h"
 #import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 
 #import "FirebaseMessaging/Sources/FIRMessaging_Private.h"
@@ -38,7 +38,10 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
 
 @property(nonatomic, readwrite, strong) NSString *defaultFcmToken;
 @property(nonatomic, readwrite, strong) NSData *apnsTokenData;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 @property(nonatomic, readwrite, strong) FIRInstanceID *instanceID;
+#pragma clang diagnostic pop
 
 // Expose autoInitEnabled static method for IID.
 + (BOOL)isAutoInitEnabledWithUserDefaults:(NSUserDefaults *)userDefaults;
@@ -63,8 +66,10 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
 
 - (void)setUp {
   [super setUp];
-
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   _mockInstanceID = OCMClassMock([FIRInstanceID class]);
+#pragma clang diagnostic pop
 
   // Create the messaging instance with all the necessary dependencies.
   NSUserDefaults *defaults =
@@ -158,74 +163,9 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
                  [FIRMessaging isAutoInitEnabledWithUserDefaults:defaults]);
 }
 
-#pragma mark - Direct Channel Establishment Testing
-
-#if TARGET_OS_IOS || TARGET_OS_TV
-// Should connect with valid token and application in foreground
-- (void)testDoesAutomaticallyConnectIfTokenAvailableAndForegrounded {
-  // Disable actually attempting a connection
-  [[[_mockMessaging stub] andDo:^(NSInvocation *invocation){
-      // Doing nothing on purpose, when -updateAutomaticClientConnection is called
-  }] updateAutomaticClientConnection];
-  // Set direct channel to be established after disabling connection attempt
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  self.messaging.shouldEstablishDirectChannel = YES;
-#pragma clang diagnostic pop
-  // Set a "valid" token (i.e. not nil or empty)
-  self.messaging.defaultFcmToken = @"1234567";
-  // Swizzle application state to return UIApplicationStateActive
-  UIApplication *app = [UIApplication sharedApplication];
-  id mockApp = OCMPartialMock(app);
-  [[[mockApp stub] andReturnValue:@(UIApplicationStateActive)] applicationState];
-  BOOL shouldBeConnected = [_messaging shouldBeConnectedAutomatically];
-  XCTAssertTrue(shouldBeConnected);
-}
-
-// Should not connect if application is active, but token is empty
-- (void)testDoesNotAutomaticallyConnectIfTokenIsEmpty {
-  // Disable actually attempting a connection
-  [[[_mockMessaging stub] andDo:^(NSInvocation *invocation){
-      // Doing nothing on purpose, when -updateAutomaticClientConnection is called
-  }] updateAutomaticClientConnection];
-  // Set direct channel to be established after disabling connection attempt
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  self.messaging.shouldEstablishDirectChannel = YES;
-#pragma clang diagnostic pop
-  // By default, there should be no fcmToken
-  // Swizzle application state to return UIApplicationStateActive
-  UIApplication *app = [UIApplication sharedApplication];
-  id mockApp = OCMPartialMock(app);
-  [[[mockApp stub] andReturnValue:@(UIApplicationStateActive)] applicationState];
-  BOOL shouldBeConnected = [_messaging shouldBeConnectedAutomatically];
-  XCTAssertFalse(shouldBeConnected);
-}
-
-// Should not connect if token valid but application isn't active
-- (void)testDoesNotAutomaticallyConnectIfApplicationNotActive {
-  // Disable actually attempting a connection
-  [[[_mockMessaging stub] andDo:^(NSInvocation *invocation){
-      // Doing nothing on purpose, when -updateAutomaticClientConnection is called
-  }] updateAutomaticClientConnection];
-  // Set direct channel to be established after disabling connection attempt
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  self.messaging.shouldEstablishDirectChannel = YES;
-#pragma clang diagnostic pop
-  // Set a "valid" token (i.e. not nil or empty)
-  self.messaging.defaultFcmToken = @"abcd1234";
-  // Swizzle application state to return UIApplicationStateActive
-  UIApplication *app = [UIApplication sharedApplication];
-  id mockApp = OCMPartialMock(app);
-  [[[mockApp stub] andReturnValue:@(UIApplicationStateBackground)] applicationState];
-  BOOL shouldBeConnected = [_mockMessaging shouldBeConnectedAutomatically];
-  XCTAssertFalse(shouldBeConnected);
-}
-#endif
-
 #pragma mark - FCM Token Fetching and Deleting
-
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 - (void)testAPNSTokenIncludedInOptionsIfAvailableDuringTokenFetch {
   self.messaging.apnsTokenData =
       [@"PRETENDING_TO_BE_A_DEVICE_TOKEN" dataUsingEncoding:NSUTF8StringEncoding];
@@ -264,7 +204,7 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
                        }];
   [self waitForExpectationsWithTimeout:0.1 handler:nil];
 }
-
+#pragma clang diagnostic pop
 - (void)testReturnsErrorWhenFetchingTokenWithoutSenderID {
   XCTestExpectation *expectation =
       [self expectationWithDescription:@"Returned an error fetching token without Sender ID"];

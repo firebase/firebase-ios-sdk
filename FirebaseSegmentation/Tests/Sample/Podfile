@@ -1,0 +1,18 @@
+# Uncomment the next two lines for pre-release testing on internal repo
+#source 'sso://cpdc-internal/firebase'
+#source 'https://cdn.cocoapods.org/'
+
+target 'SegmentationSampleApp' do
+  # Comment the next line if you don't want to use dynamic frameworks
+  use_frameworks!
+  inherit! :search_paths
+  platform :ios, '10.0'
+
+  # Pods for SegmentationSampleApp
+  pod 'FirebaseCore', :path => '../../../'
+  pod 'FirebaseInstallations', :path => '../../../'
+  pod 'FirebaseSegmentation', :path => '../../../'
+  pod 'GoogleDataTransport', :path => '../../../'
+  pod 'GoogleUtilities', :path => '../../../'
+
+end

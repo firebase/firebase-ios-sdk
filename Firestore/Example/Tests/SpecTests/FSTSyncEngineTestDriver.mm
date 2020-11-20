@@ -41,6 +41,8 @@
 #include "Firestore/core/src/local/persistence.h"
 #include "Firestore/core/src/model/database_id.h"
 #include "Firestore/core/src/model/document_key.h"
+#include "Firestore/core/src/remote/firebase_metadata_provider.h"
+#include "Firestore/core/src/remote/firebase_metadata_provider_noop.h"
 #include "Firestore/core/src/remote/remote_store.h"
 #include "Firestore/core/src/util/async_queue.h"
 #include "Firestore/core/src/util/delayed_constructor.h"
@@ -82,8 +84,10 @@ using firebase::firestore::model::MutationResult;
 using firebase::firestore::model::OnlineState;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
+using firebase::firestore::remote::CreateFirebaseMetadataProviderNoOp;
 using firebase::firestore::remote::CreateNoOpConnectivityMonitor;
 using firebase::firestore::remote::ConnectivityMonitor;
+using firebase::firestore::remote::FirebaseMetadataProvider;
 using firebase::firestore::remote::MockDatastore;
 using firebase::firestore::remote::RemoteStore;
 using firebase::firestore::remote::WatchChange;
@@ -172,6 +176,8 @@ NS_ASSUME_NONNULL_BEGIN
 
   std::unique_ptr<ConnectivityMonitor> _connectivityMonitor;
 
+  std::unique_ptr<FirebaseMetadataProvider> _firebaseMetadataProvider;
+
   DelayedConstructor<EventManager> _eventManager;
 
   // Set of active targets, keyed by target Id, mapped to corresponding resume token,
@@ -219,10 +225,11 @@ NS_ASSUME_NONNULL_BEGIN
     _persistence = std::move(persistence);
     _localStore = absl::make_unique<LocalStore>(_persistence.get(), &_queryEngine, initialUser);
     _connectivityMonitor = CreateNoOpConnectivityMonitor();
+    _firebaseMetadataProvider = CreateFirebaseMetadataProviderNoOp();
 
-    _datastore = std::make_shared<MockDatastore>(_databaseInfo, _workerQueue,
-                                                 std::make_shared<EmptyCredentialsProvider>(),
-                                                 _connectivityMonitor.get());
+    _datastore = std::make_shared<MockDatastore>(
+        _databaseInfo, _workerQueue, std::make_shared<EmptyCredentialsProvider>(),
+        _connectivityMonitor.get(), _firebaseMetadataProvider.get());
     _remoteStore = absl::make_unique<RemoteStore>(
         _localStore.get(), _datastore, _workerQueue, _connectivityMonitor.get(),
         [self](OnlineState onlineState) { _syncEngine->HandleOnlineStateChange(onlineState); });

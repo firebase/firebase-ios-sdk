@@ -53,14 +53,17 @@
 + (NSBundle *)getViewResourceBundle {
   static NSBundle *resourceBundle;
   static dispatch_once_t onceToken;
+  Class myClass = [self class];
 
   dispatch_once(&onceToken, ^{
-    // TODO. This logic of finding the resource bundle may need to change once it's open
-    // sourced
-    NSBundle *containingBundle = [NSBundle mainBundle];
-    // This is assuming the display resource bundle is contained in the main bundle
-    NSURL *bundleURL = [containingBundle URLForResource:@"InAppMessagingDisplayResources"
-                                          withExtension:@"bundle"];
+    NSBundle *containingBundle;
+    NSURL *bundleURL;
+    // The containing bundle is different whether FIAM is statically or dynamically linked.
+    for (containingBundle in @[ [NSBundle mainBundle], [NSBundle bundleForClass:myClass] ]) {
+      bundleURL = [containingBundle URLForResource:@"InAppMessagingDisplayResources"
+                                     withExtension:@"bundle"];
+      if (bundleURL != nil) break;
+    }
     if (bundleURL == nil) {
       FIRLogWarning(kFIRLoggerInAppMessagingDisplay, @"I-FID100007",
                     @"FIAM Display Resource bundle "

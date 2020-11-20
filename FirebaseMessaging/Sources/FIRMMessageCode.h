@@ -48,47 +48,13 @@ typedef NS_ENUM(NSInteger, FIRMessagingMessageCode) {
   kFIRMessagingMessageCodeTopicFormatIsDeprecated = 2024,
   kFIRMessagingMessageCodeDirectChannelConnectionFailed = 2025,
   kFIRMessagingMessageCodeInvalidClient = 2026,  // no longer used
-  // FIRMessagingClient.m
-  kFIRMessagingMessageCodeClient000 = 4000,  // I-FCM004000
-  kFIRMessagingMessageCodeClient001 = 4001,  // I-FCM004001
-  kFIRMessagingMessageCodeClient002 = 4002,  // I-FCM004002
-  kFIRMessagingMessageCodeClient003 = 4003,  // I-FCM004003
-  kFIRMessagingMessageCodeClient004 = 4004,  // I-FCM004004
-  kFIRMessagingMessageCodeClient005 = 4005,  // I-FCM004005
-  kFIRMessagingMessageCodeClient006 = 4006,  // I-FCM004006
-  kFIRMessagingMessageCodeClient007 = 4007,  // I-FCM004007
-  kFIRMessagingMessageCodeClient008 = 4008,  // I-FCM004008
-  kFIRMessagingMessageCodeClient009 = 4009,  // I-FCM004009
-  kFIRMessagingMessageCodeClient010 = 4010,  // I-FCM004010
-  kFIRMessagingMessageCodeClient011 = 4011,  // I-FCM004011
-  kFIRMessagingMessageCodeClientInvalidState = 4012,
-  kFIRMessagingMessageCodeClientInvalidStateTimeout = 4013,
 
-  // FIRMessagingConnection.m
-  kFIRMessagingMessageCodeConnection000 = 5000,  // I-FCM005000
-  kFIRMessagingMessageCodeConnection001 = 5001,  // I-FCM005001
-  kFIRMessagingMessageCodeConnection002 = 5002,  // I-FCM005002
-  kFIRMessagingMessageCodeConnection003 = 5003,  // I-FCM005003
-  kFIRMessagingMessageCodeConnection004 = 5004,  // I-FCM005004
-  kFIRMessagingMessageCodeConnection005 = 5005,  // I-FCM005005
-  kFIRMessagingMessageCodeConnection006 = 5006,  // I-FCM005006
-  kFIRMessagingMessageCodeConnection007 = 5007,  // I-FCM005007
-  kFIRMessagingMessageCodeConnection008 = 5008,  // I-FCM005008
-  kFIRMessagingMessageCodeConnection009 = 5009,  // I-FCM005009
-  kFIRMessagingMessageCodeConnection010 = 5010,  // I-FCM005010
-  kFIRMessagingMessageCodeConnection011 = 5011,  // I-FCM005011
-  kFIRMessagingMessageCodeConnection012 = 5012,  // I-FCM005012
-  kFIRMessagingMessageCodeConnection013 = 5013,  // I-FCM005013
-  kFIRMessagingMessageCodeConnection014 = 5014,  // I-FCM005014
-  kFIRMessagingMessageCodeConnection015 = 5015,  // I-FCM005015
-  kFIRMessagingMessageCodeConnection016 = 5016,  // I-FCM005016
-  kFIRMessagingMessageCodeConnection017 = 5017,  // I-FCM005017
-  kFIRMessagingMessageCodeConnection018 = 5018,  // I-FCM005018
-  kFIRMessagingMessageCodeConnection019 = 5019,  // I-FCM005019
-  kFIRMessagingMessageCodeConnection020 = 5020,  // I-FCM005020
-  kFIRMessagingMessageCodeConnection021 = 5021,  // I-FCM005021
-  kFIRMessagingMessageCodeConnection022 = 5022,  // I-FCM005022
-  kFIRMessagingMessageCodeConnection023 = 5023,  // I-FCM005023
+  // DO NOT USE 4000, 4004 - 4013
+  kFIRMessagingMessageCodeClient001 = 4001,  // I-FCM004000
+  kFIRMessagingMessageCodeClient002 = 4002,  // I-FCM004001
+  kFIRMessagingMessageCodeClient003 = 4003,  // I-FCM004002
+
+  // DO NOT USE 5000 - 5023
   // FIRMessagingContextManagerService.m
   kFIRMessagingMessageCodeContextManagerService000 = 6000,                  // I-FCM006000
   kFIRMessagingMessageCodeContextManagerService001 = 6001,                  // I-FCM006001
@@ -97,21 +63,7 @@ typedef NS_ENUM(NSInteger, FIRMessagingMessageCode) {
   kFIRMessagingMessageCodeContextManagerService004 = 6004,                  // I-FCM006004
   kFIRMessagingMessageCodeContextManagerService005 = 6005,                  // I-FCM006005
   kFIRMessagingMessageCodeContextManagerServiceFailedLocalSchedule = 6006,  // I-FCM006006
-  // FIRMessagingDataMessageManager.m
-  // DO NOT USE 7005
-  kFIRMessagingMessageCodeDataMessageManager000 = 7000,  // I-FCM007000
-  kFIRMessagingMessageCodeDataMessageManager001 = 7001,  // I-FCM007001
-  kFIRMessagingMessageCodeDataMessageManager002 = 7002,  // I-FCM007002
-  kFIRMessagingMessageCodeDataMessageManager003 = 7003,  // I-FCM007003
-  kFIRMessagingMessageCodeDataMessageManager004 = 7004,  // I-FCM007004
-  kFIRMessagingMessageCodeDataMessageManager006 = 7006,  // I-FCM007006
-  kFIRMessagingMessageCodeDataMessageManager007 = 7007,  // I-FCM007007
-  kFIRMessagingMessageCodeDataMessageManager008 = 7008,  // I-FCM007008
-  kFIRMessagingMessageCodeDataMessageManager009 = 7009,  // I-FCM007009
-  kFIRMessagingMessageCodeDataMessageManager010 = 7010,  // I-FCM007010
-  kFIRMessagingMessageCodeDataMessageManager011 = 7011,  // I-FCM007011
-  kFIRMessagingMessageCodeDataMessageManager012 = 7012,  // I-FCM007012
-  kFIRMessagingMessageCodeDataMessageManager013 = 7013,
+  // DO NOT USE 7000 - 7013
 
   // FIRMessagingPendingTopicsList.m
   kFIRMessagingMessageCodePendingTopicsList000 = 8000,  // I-FCM008000
@@ -149,24 +101,6 @@ typedef NS_ENUM(NSInteger, FIRMessagingMessageCode) {
   kFIRMessagingMessageCodeRmq2PersistentStoreErrorCreatingTable = 13010,     // I-FCM013010
   // FIRMessagingRmqManager.m
   kFIRMessagingMessageCodeRmqManager000 = 14000,  // I-FCM014000
-  // FIRMessagingSecureSocket.m
-  kFIRMessagingMessageCodeSecureSocket000 = 15000,  // I-FCM015000
-  kFIRMessagingMessageCodeSecureSocket001 = 15001,  // I-FCM015001
-  kFIRMessagingMessageCodeSecureSocket002 = 15002,  // I-FCM015002
-  kFIRMessagingMessageCodeSecureSocket003 = 15003,  // I-FCM015003
-  kFIRMessagingMessageCodeSecureSocket004 = 15004,  // I-FCM015004
-  kFIRMessagingMessageCodeSecureSocket005 = 15005,  // I-FCM015005
-  kFIRMessagingMessageCodeSecureSocket006 = 15006,  // I-FCM015006
-  kFIRMessagingMessageCodeSecureSocket007 = 15007,  // I-FCM015007
-  kFIRMessagingMessageCodeSecureSocket008 = 15008,  // I-FCM015008
-  kFIRMessagingMessageCodeSecureSocket009 = 15009,  // I-FCM015009
-  kFIRMessagingMessageCodeSecureSocket010 = 15010,  // I-FCM015010
-  kFIRMessagingMessageCodeSecureSocket011 = 15011,  // I-FCM015011
-  kFIRMessagingMessageCodeSecureSocket012 = 15012,  // I-FCM015012
-  kFIRMessagingMessageCodeSecureSocket013 = 15013,  // I-FCM015013
-  kFIRMessagingMessageCodeSecureSocket014 = 15014,  // I-FCM015014
-  kFIRMessagingMessageCodeSecureSocket015 = 15015,  // I-FCM015015
-  kFIRMessagingMessageCodeSecureSocket016 = 15016,  // I-FCM015016
   // FIRMessagingSyncMessageManager.m
   // DO NOT USE 16000, 16003
   kFIRMessagingMessageCodeSyncMessageManager001 = 16001,  // I-FCM016001
@@ -202,8 +136,5 @@ typedef NS_ENUM(NSInteger, FIRMessagingMessageCode) {
   kFIRMessagingServiceExtensionImageNotDownloaded = 20001,
   kFIRMessagingServiceExtensionLocalFileNotCreated = 20002,
   kFIRMessagingServiceExtensionImageNotAttached = 20003,
-
-  // FIRMessagingCodedInputStream.m
-  kFIRMessagingCodeInputStreamInvalidParameters = 21000,
 
 };

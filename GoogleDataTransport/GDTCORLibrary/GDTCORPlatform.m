@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORPlatform.h"
+#import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORPlatform.h"
 
 #import <sys/sysctl.h>
 
-#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORAssert.h"
+#import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORAssert.h"
+#import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORReachability.h"
 #import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORConsoleLogger.h"
-#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORReachability.h"
 
 #import "GoogleDataTransport/GDTCORLibrary/Private/GDTCORRegistrar_Private.h"
 
@@ -127,7 +127,7 @@ GDTCORNetworkMobileSubtype GDTCORNetworkMobileSubTypeMessage() {
   if (networkCurrentRadioAccessTechnologyDict.count) {
     networkCurrentRadioAccessTechnology = networkCurrentRadioAccessTechnologyDict.allValues[0];
   }
-#else   // TARGET_OS_MACCATALYST
+#else  // TARGET_OS_MACCATALYST
   if (@available(iOS 12.0, *)) {
     NSDictionary<NSString *, NSString *> *networkCurrentRadioAccessTechnologyDict =
         networkInfo.serviceCurrentRadioAccessTechnology;
@@ -137,7 +137,9 @@ GDTCORNetworkMobileSubtype GDTCORNetworkMobileSubTypeMessage() {
       networkCurrentRadioAccessTechnology = networkCurrentRadioAccessTechnologyDict.allValues[0];
     }
   } else {
+#if TARGET_OS_IOS && __IPHONE_OS_VERSION_MIN_REQUIRED < 120000
     networkCurrentRadioAccessTechnology = networkInfo.currentRadioAccessTechnology;
+#endif  // TARGET_OS_IOS && __IPHONE_OS_VERSION_MIN_REQUIRED < 120000
   }
 #endif  // TARGET_OS_MACCATALYST
   if (networkCurrentRadioAccessTechnology) {
@@ -147,9 +149,9 @@ GDTCORNetworkMobileSubtype GDTCORNetworkMobileSubTypeMessage() {
   } else {
     return GDTCORNetworkMobileSubtypeUNKNOWN;
   }
-#else
+#else  // TARGET_OS_IOS
   return GDTCORNetworkMobileSubtypeUNKNOWN;
-#endif
+#endif  // TARGET_OS_IOS
 }
 
 NSString *_Nonnull GDTCORDeviceModel() {

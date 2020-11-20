@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-#import "FIRInstanceIDAuthService.h"
+#import "Firebase/InstanceID/FIRInstanceIDAuthService.h"
 
-#import "FIRInstanceIDCheckinPreferences+Internal.h"
-#import "FIRInstanceIDCheckinPreferences.h"
-#import "FIRInstanceIDCheckinPreferences_Private.h"
-#import "FIRInstanceIDConstants.h"
-#import "FIRInstanceIDDefines.h"
-#import "FIRInstanceIDLogger.h"
-#import "FIRInstanceIDStore.h"
-#import "NSError+FIRInstanceID.h"
+#import "Firebase/InstanceID/FIRInstanceIDCheckinPreferences+Internal.h"
+#import "Firebase/InstanceID/FIRInstanceIDCheckinPreferences_Private.h"
+#import "Firebase/InstanceID/FIRInstanceIDConstants.h"
+#import "Firebase/InstanceID/FIRInstanceIDDefines.h"
+#import "Firebase/InstanceID/FIRInstanceIDLogger.h"
+#import "Firebase/InstanceID/FIRInstanceIDStore.h"
+#import "Firebase/InstanceID/NSError+FIRInstanceID.h"
+#import "Firebase/InstanceID/Private/FIRInstanceIDCheckinPreferences.h"
 
 // Max time interval between checkin retry in seconds.
 static const int64_t kMaxCheckinRetryIntervalInSeconds = 1 << 5;

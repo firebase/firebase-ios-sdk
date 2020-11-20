@@ -16,6 +16,10 @@
 
 #import <XCTest/XCTest.h>
 
+// This needs to precede the GULSwizzler+Unswizzle.h import for the --use-libraries build.
+#import <GoogleUtilities/GULSwizzler.h>
+
+#import <GoogleUtilities/GULSwizzler+Unswizzle.h>
 #import <OCMock/OCMock.h>
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "FirebaseDynamicLinks/Sources/FIRDLDefaultRetrievalProcessV2.h"
@@ -26,8 +30,6 @@
 #import "FirebaseDynamicLinks/Sources/FIRDynamicLinks+FirstParty.h"
 #import "FirebaseDynamicLinks/Sources/FIRDynamicLinks+Private.h"
 #import "FirebaseDynamicLinks/Sources/Utilities/FDLUtilities.h"
-#import "GoogleUtilities/MethodSwizzler/Private/GULSwizzler.h"
-#import "GoogleUtilities/SwizzlerTestHelpers/GULSwizzler+Unswizzle.h"
 #import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 
 static NSString *const kAPIKey = @"myAPIKey";
@@ -77,6 +79,8 @@ typedef NSURL * (^FakeShortLinkResolverHandler)(NSURL *shortLink);
                      urlScheme:(nullable NSString *)urlScheme
                   userDefaults:(nullable NSUserDefaults *)userDefaults;
 - (BOOL)canParseUniversalLinkURL:(nullable NSURL *)url;
+- (void)passRetrievedDynamicLinkToApplication:(NSURL *)url;
+- (BOOL)isOpenUrlMethodPresentInAppDelegate:(id<UIApplicationDelegate>)applicationDelegate;
 @end
 
 @interface FakeShortLinkResolver : FIRDynamicLinkNetworking
@@ -1117,7 +1121,7 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
                                 apiKey:kAPIKey
                              urlScheme:nil
                           userDefaults:[NSUserDefaults standardUserDefaults]];
-  FIRDynamicLinks<FIRDLRetrievalProcessDelegate> *deleagte =
+  FIRDynamicLinks<FIRDLRetrievalProcessDelegate> *delegate =
       (FIRDynamicLinks<FIRDLRetrievalProcessDelegate> *)self.service;
 
   // Error Result to pass
@@ -1129,11 +1133,34 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
 
   FIRDLDefaultRetrievalProcessV2 *defaultRetrievalProcess = [FIRDLDefaultRetrievalProcessV2 alloc];
 
-  [deleagte retrievalProcess:defaultRetrievalProcess completedWithResult:result];
+  [delegate retrievalProcess:defaultRetrievalProcess completedWithResult:result];
 
   NSString *kFIRDLOpenURLKey = @"com.google.appinvite.openURL";
   XCTAssertEqual([[NSUserDefaults standardUserDefaults] boolForKey:kFIRDLOpenURLKey], YES,
                  @"kFIRDLOpenURL key should be set regardless of failures");
+}
+
+- (void)test_passRetrievedDynamicLinkToApplicationDelegatesProperly {
+  // Creating ApplicationDelegate partial mock object.
+  id applicationDelegate = OCMPartialMock([UIApplication sharedApplication].delegate);
+  // Creating FIRDynamicLinks partial mock object.
+  id firebaseDynamicLinks = OCMPartialMock(self.service);
+  // Stubbing Application delegate to return YES when application:openURL:options method is called.
+  // Not sure why this is required as we are not concerned about its return, but without this, the
+  // test will throw NSInvalidArgumentException with message "unrecognized selector sent to
+  // instance".
+  OCMStub([applicationDelegate application:[OCMArg any] openURL:[OCMArg any] options:[OCMArg any]])
+      .andReturn(YES);
+  // Stubbing firebase dynamiclinks instance to return YES when isOpenUrlMethodPresentInAppDelegate
+  // is called.
+  OCMStub([firebaseDynamicLinks isOpenUrlMethodPresentInAppDelegate:[OCMArg any]]).andReturn(YES);
+
+  // Executing the function with a URL.
+  NSURL *url = [NSURL URLWithString:@"http://www.google.com"];
+  [firebaseDynamicLinks passRetrievedDynamicLinkToApplication:url];
+
+  // Verifying the application:openURL:options method is called in AppDelegate.
+  OCMVerify([applicationDelegate application:[OCMArg any] openURL:url options:[OCMArg any]]);
 }
 
 #pragma mark - Self-diagnose tests

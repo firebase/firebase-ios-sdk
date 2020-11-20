@@ -1,4 +1,10 @@
-# Unreleased
+# v7.2.0
+- [added] Made emulator connection API consistent between Auth, Database, Firestore, and Functions (#5916).
+
+# v7.0.0
+- [fixed] Disabled a deprecation warning. (#6502)
+
+# v6.6.0
 - [feature] The SDK can now infer a default database URL if none is provided in
   the config.
 
