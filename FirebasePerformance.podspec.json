@@ -36,7 +36,7 @@
   },
   "summary": "Firebase Performance for iOS",
   "vendored_frameworks": [
-    "Frameworks/FirebasePerformance.framework"
+    "Frameworks/FirebasePerformance.xcframework"
   ],
   "version": "7.2.0"
 }
