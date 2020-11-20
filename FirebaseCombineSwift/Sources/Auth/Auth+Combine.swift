@@ -47,6 +47,28 @@
         .eraseToAnyPublisher()
     }
 
+    // MARK: - Anonymous Authentication
+
+    /// Asynchronously creates and becomes an anonymous user.
+    /// - Returns: A publisher that emits the result of the sign in flow.
+    /// - Remark: If there is already an anonymous user signed in, that user will be returned instead.
+    ///   If there is any other existing user signed in, that user will be signed out.
+    /// - Remark: Possible error codes:
+    /// - `AuthErrorCodeOperationNotAllowed` - Indicates that anonymous accounts are
+    ///   not enabled. Enable them in the Auth section of the Firebase console.
+    /// - Remark: See `AuthErrors` for a list of error codes that are common to all API methods
+    public func signInAnonymously() -> Future<AuthDataResult, Error> {
+      Future<AuthDataResult, Error> { promise in
+        self.signInAnonymously { authDataResult, error in
+          if let error = error {
+            promise(.failure(error))
+          } else if let authDataResult = authDataResult {
+            promise(.success(authDataResult))
+          }
+        }
+      }
+    }
+
     // MARK: - Email/Password Authentication
 
     /// Creates and, on success, signs in a user with the given email address and password.
@@ -78,7 +100,7 @@
       }
     }
 
-    /// Creates and, on success, signs in a user with the given email address and password.
+    /// Signs in using an email address and password.
     /// - Parameters:
     ///   - email: The user's email address.
     ///   - password: The user's desired password.
