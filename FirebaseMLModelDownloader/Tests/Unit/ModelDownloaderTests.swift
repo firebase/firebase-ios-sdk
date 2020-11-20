@@ -39,22 +39,17 @@ final class ModelDownloaderTests: XCTestCase {
     let testApp = FirebaseApp.app()!
     let functionName = #function
     let testModelName = "\(functionName)-test-model"
-    let modelInfoRetriever = ModelInfoRetriever(
-      app: testApp,
-      modelName: testModelName
-    )
-
-    modelInfoRetriever.modelInfo = ModelInfo(
+    let modelInfo = ModelInfo(
       app: testApp,
       name: testModelName,
       defaults: .getTestInstance()
     )
-    XCTAssertEqual(modelInfoRetriever.modelInfo?.downloadURL, "")
-    modelInfoRetriever.modelInfo?.downloadURL = "testurl.com"
-    XCTAssertEqual(modelInfoRetriever.modelInfo?.downloadURL, "testurl.com")
-    XCTAssertEqual(modelInfoRetriever.modelInfo?.modelHash, "")
-    XCTAssertEqual(modelInfoRetriever.modelInfo?.size, 0)
-    XCTAssertEqual(modelInfoRetriever.modelInfo?.path, nil)
+    XCTAssertEqual(modelInfo.downloadURL, "")
+    modelInfo.downloadURL = "testurl.com"
+    XCTAssertEqual(modelInfo.downloadURL, "testurl.com")
+    XCTAssertEqual(modelInfo.modelHash, "")
+    XCTAssertEqual(modelInfo.size, 0)
+    XCTAssertEqual(modelInfo.path, nil)
   }
 
   /// Test to retrieve FIS token - makes an actual network call.
@@ -64,7 +59,8 @@ final class ModelDownloaderTests: XCTestCase {
     let testModelName = "image-classification"
     let modelInfoRetriever = ModelInfoRetriever(
       app: testApp,
-      modelName: testModelName
+      modelName: testModelName,
+      defaults: .getTestInstance()
     )
     let expectation = self.expectation(description: "Wait for FIS auth token.")
     modelInfoRetriever.getAuthToken(completion: { result in
@@ -87,9 +83,10 @@ final class ModelDownloaderTests: XCTestCase {
     let testModelName = "pose-detection"
     let modelInfoRetriever = ModelInfoRetriever(
       app: testApp,
-      modelName: testModelName
+      modelName: testModelName,
+      defaults: .getTestInstance()
     )
-    let expectation = self.expectation(description: "Wait for model info to download.")
+    let downloadExpectation = expectation(description: "Wait for model info to download.")
     modelInfoRetriever.downloadModelInfo(completion: { error in
       XCTAssertNil(error)
       guard let modelInfo = modelInfoRetriever.modelInfo else {
@@ -99,9 +96,25 @@ final class ModelDownloaderTests: XCTestCase {
       XCTAssertNotEqual(modelInfo.downloadURL, "")
       XCTAssertNotEqual(modelInfo.modelHash, "")
       XCTAssertGreaterThan(modelInfo.size, 0)
-      expectation.fulfill()
+      downloadExpectation.fulfill()
     })
+
     waitForExpectations(timeout: 5, handler: nil)
+
+    let retrieveExpectation = expectation(description: "Wait for model info to be retrieved.")
+    modelInfoRetriever.downloadModelInfo(completion: { error in
+      XCTAssertNil(error)
+      guard let modelInfo = modelInfoRetriever.modelInfo else {
+        XCTFail("Empty model info.")
+        return
+      }
+      XCTAssertNotEqual(modelInfo.downloadURL, "")
+      XCTAssertNotEqual(modelInfo.modelHash, "")
+      XCTAssertGreaterThan(modelInfo.size, 0)
+      retrieveExpectation.fulfill()
+    })
+
+    waitForExpectations(timeout: 500, handler: nil)
   }
 
   /// Unit test to save model info to user defaults.
@@ -112,11 +125,6 @@ final class ModelDownloaderTests: XCTestCase {
     let modelInfoRetriever = ModelInfoRetriever(
       app: testApp,
       modelName: testModelName
-    )
-    modelInfoRetriever.modelInfo = ModelInfo(
-      app: testApp,
-      name: testModelName,
-      defaults: .getTestInstance()
     )
     let sampleResponse: String = """
     {

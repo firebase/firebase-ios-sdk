@@ -20,9 +20,6 @@ class ModelInfo: NSObject {
   /// Model name.
   var name: String
 
-  /// User defaults associated with model.
-  var defaults: UserDefaults
-
   // TODO: revisit UserDefaultsBacked
   /// Download URL for the model file, as returned by server.
   @UserDefaultsBacked var downloadURL: String
@@ -37,9 +34,8 @@ class ModelInfo: NSObject {
   @UserDefaultsBacked var path: String?
 
   /// Initialize model info and create user default keys.
-  init(app: FirebaseApp, name: String, defaults: UserDefaults = .firebaseMLDefaults) {
+  init(app: FirebaseApp, name: String, defaults: UserDefaults) {
     self.name = name
-    self.defaults = defaults
     let bundleID = Bundle.main.bundleIdentifier ?? ""
     let defaultsPrefix = "\(bundleID).\(app.name).\(name)"
     _downloadURL = UserDefaultsBacked(
