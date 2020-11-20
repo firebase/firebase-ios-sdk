@@ -23,7 +23,7 @@ extension Database.Encoder {
   }
 }
 
-private func mapCompletion(_ completion: ((Result<Void, Error>) -> Void)) -> ((Error?, DatabaseReference) -> Void) {
+private func mapCompletion(_ completion: (@escaping (Result<Void, Error>) -> Void)) -> ((Error?, DatabaseReference) -> Void) {
   return { (error, _) in
     if let error = error {
       completion(.failure(error))
