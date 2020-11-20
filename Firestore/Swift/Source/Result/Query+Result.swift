@@ -38,16 +38,16 @@ extension Query {
   /// - Parameters:
   ///   - includeMetadataChanges: Whether metadata-only changes (i.e. only
   ///   `DocumentSnapshot.metadata` changed) should trigger snapshot events.
-  ///   - listenerHandler: The closure to execute on receipt of a result.
+  ///   - listener: The closure to execute on receipt of a result.
   ///   - result: The result of request. On success it contains the `QuerySnapshot`, otherwise an
   ///   `Error`.
   /// - Returns: The `ListenerRegistration` that can be used to remove this listener.
   func addSnapshotListener(includeMetadataChanges: Bool = false,
-                           listenerHandler: @escaping (_ result: Result<QuerySnapshot, Error>)
+                           listener: @escaping (_ result: Result<QuerySnapshot, Error>)
                              -> Void) -> ListenerRegistration {
     addSnapshotListener(
       includeMetadataChanges: includeMetadataChanges,
-      listener: mapResultCompletion(listenerHandler)
+      listener: mapResultCompletion(listener)
     )
   }
 }
