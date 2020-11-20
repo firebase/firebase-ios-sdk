@@ -37,6 +37,10 @@ let package = Package(
       targets: ["FirebaseAuth"]
     ),
     .library(
+      name: "FirebaseCombineSwift-Beta",
+      targets: ["FirebaseCombineSwift"]
+    ),
+    .library(
       name: "FirebaseCrashlytics",
       targets: ["FirebaseCrashlytics"]
     ),
@@ -273,6 +277,11 @@ let package = Package(
       cSettings: [
         .headerSearchPath("../../.."),
       ]
+    ),
+    .target(
+      name: "FirebaseCombineSwift",
+      dependencies: ["FirebaseAuth", "FirebaseFirestore", "FirebaseFirestoreSwift"],
+      path: "FirebaseCombineSwift/Sources"
     ),
     .target(
       name: "FirebaseCrashlytics",
@@ -747,6 +756,7 @@ let package = Package(
         "FirebaseAuth",
         "FirebaseABTesting",
         "Firebase",
+        "FirebaseCombineSwift",
         "FirebaseCrashlytics",
         "FirebaseCore",
         "FirebaseDatabase",
