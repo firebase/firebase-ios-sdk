@@ -84,14 +84,18 @@ NSSet<NSString*>* _Nullable LoadXCTestConfigurationTestsToRun() {
 
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 110000 || \
     __MAC_OS_X_VERSION_MAX_ALLOWED >= 101300
-  NSError *error;
-  NSData *data = [NSData dataWithContentsOfFile:filePath options:kNilOptions error:&error];
+  NSError* error;
+  NSData* data = [NSData dataWithContentsOfFile:filePath
+                                        options:kNilOptions
+                                          error:&error];
   if (!data) {
-      NSLog(@"Failed to fill data with contents of file. %@", error);
-      return nil;
+    NSLog(@"Failed to fill data with contents of file. %@", error);
+    return nil;
   }
 
-  id config = [NSKeyedUnarchiver unarchivedObjectOfClass:NSObject.class fromData:data error:&error];
+  id config = [NSKeyedUnarchiver unarchivedObjectOfClass:NSObject.class
+                                                fromData:data
+                                                   error:&error];
 #else
   id config = [NSKeyedUnarchiver unarchiveObjectWithFile:filePath];
 #endif
@@ -227,8 +231,7 @@ void XCTestMethod(XCTestCase* self, SEL _cmd) {
     // Let XCode know that the test ran and succeeded.
     XCTAssertTrue(true);
     return;
-  }
-  else if (result->Skipped()) {
+  } else if (result->Skipped()) {
     // Let XCode know that the test was skipped.
     XCTSkip();
   }
