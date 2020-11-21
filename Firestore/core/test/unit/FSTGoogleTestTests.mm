@@ -82,23 +82,23 @@ NSSet<NSString*>* _Nullable LoadXCTestConfigurationTestsToRun() {
     return nil;
   }
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 110000 || \
-    __MAC_OS_X_VERSION_MAX_ALLOWED >= 101300
+  id config;
   NSError* error;
-  NSData* data = [NSData dataWithContentsOfFile:filePath
-                                        options:kNilOptions
-                                          error:&error];
-  if (!data) {
-    NSLog(@"Failed to fill data with contents of file. %@", error);
-    return nil;
-  }
+  if (@available(macOS 10.13, iOS 11, tvOS 11, *)) {
+    NSData* data = [NSData dataWithContentsOfFile:filePath
+                                          options:kNilOptions
+                                            error:&error];
+    if (!data) {
+      NSLog(@"Failed to fill data with contents of file. %@", error);
+      return nil;
+    }
 
-  id config = [NSKeyedUnarchiver unarchivedObjectOfClass:NSObject.class
-                                                fromData:data
-                                                   error:&error];
-#else
-  id config = [NSKeyedUnarchiver unarchiveObjectWithFile:filePath];
-#endif
+    config = [NSKeyedUnarchiver unarchivedObjectOfClass:NSObject.class
+                                               fromData:data
+                                                  error:&error];
+  } else {
+    config = [NSKeyedUnarchiver unarchiveObjectWithFile:filePath];
+  }
 
   if (!config) {
     NSLog(@"Failed to load any configuaration from %@=%@. %@", configEnvVar,
@@ -232,8 +232,12 @@ void XCTestMethod(XCTestCase* self, SEL _cmd) {
     XCTAssertTrue(true);
     return;
   } else if (result->Skipped()) {
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130400 || \
+    __TV_OS_VERSION_MAX_ALLOWED >= 130400 ||     \
+    __MAC_OS_X_VERSION_MAX_ALLOWED >= 101504
     // Let XCode know that the test was skipped.
     XCTSkip();
+#endif
   }
 
   // Test failed :-(. Record the failure such that XCode will navigate directly
