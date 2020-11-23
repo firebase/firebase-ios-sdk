@@ -177,5 +177,126 @@
         }
       }
     }
+
+    // MARK: - Password Reset
+
+    /// Resets the password given a code sent to the user outside of the app and a new password for the user.
+    /// - Parameters:
+    ///   - code: Out-of-band code given to the user outside of the app.
+    ///   - newPassword: The new password.
+    /// - Returns: A publisher that emits whether the call was successful or not.
+    /// - Remark: Possible error codes:
+    /// - `AuthErrorCodeWeakPassword` - Indicates an attempt to set a password that is considered too weak.
+    /// - `AuthErrorCodeOperationNotAllowed` - Indicates the administrator disabled sign in with the specified identity provider.
+    /// - `AuthErrorCodeExpiredActionCode` - Indicates the OOB code is expired.
+    /// - `AuthErrorCodeInvalidActionCode` - Indicates the OOB code is invalid.
+    /// - Remark: See `AuthErrors` for a list of error codes that are common to all API methods
+    public func confirmPasswordReset(withCode code: String,
+                                     newPassword: String) -> Future<Void, Error> {
+      Future<Void, Error> { [weak self] promise in
+        self?.confirmPasswordReset(withCode: code, newPassword: newPassword) { error in
+          if let error = error {
+            promise(.failure(error))
+          } else {
+            promise(.success(()))
+          }
+        }
+      }
+    }
+
+    /// Checks the validity of a verify password reset code.
+    /// - Parameter code: The password reset code to be verified.
+    /// - Returns: A publisher that emits an error if the code could not be verified. If the code could be
+    ///   verified, the publisher will emit the email address of the account the code was issued for.
+    public func verifyPasswordResetCode(_ code: String) -> Future<String, Error> {
+      Future<String, Error> { [weak self] promise in
+        self?.verifyPasswordResetCode(code) { email, error in
+          if let error = error {
+            promise(.failure(error))
+          } else if let email = email {
+            promise(.success(email))
+          }
+        }
+      }
+    }
+
+    /// Checks the validity of an out of band code.
+    /// - Parameter code: The out of band code to check validity.
+    /// - Returns: A publisher that emits an error if the code could not be verified. If the code could be
+    ///   verified, the publisher will emit the email address of the account the code was issued for.
+    public func checkActionCode(code: String) -> Future<ActionCodeInfo, Error> {
+      Future<ActionCodeInfo, Error> { [weak self] promise in
+        self?.checkActionCode(code) { actionCodeInfo, error in
+          if let error = error {
+            promise(.failure(error))
+          } else if let actionCodeInfo = actionCodeInfo {
+            promise(.success(actionCodeInfo))
+          }
+        }
+      }
+    }
+
+    /// Applies out of band code.
+    /// - Parameter code: The out of band code to be applied.
+    /// - Returns: A publisher that emits an error if the code could not be applied.
+    /// - Remark: This method will not work for out of band codes which require an additional parameter,
+    ///   such as password reset code.
+    public func applyActionCode(code: String) -> Future<Void, Error> {
+      Future<Void, Error> { [weak self] promise in
+        self?.applyActionCode(code) { error in
+          if let error = error {
+            promise(.failure(error))
+          } else {
+            promise(.success(()))
+          }
+        }
+      }
+    }
+
+    /// Initiates a password reset for the given email address.
+    /// - Parameter email: The email address of the user.
+    /// - Returns: A publisher that emits whether the call was successful or not.
+    /// - Remark: Possible error codes:
+    /// - `AuthErrorCodeInvalidRecipientEmail` - Indicates an invalid recipient email was sent in the request.
+    /// - `AuthErrorCodeInvalidSender` - Indicates an invalid sender email is set in the console for this action.
+    /// - `AuthErrorCodeInvalidMessagePayload` - Indicates an invalid email template for sending update email.
+    /// - Remark: See `AuthErrors` for a list of error codes that are common to all API methods
+    public func sendPasswordReset(withEmail email: String) -> Future<Void, Error> {
+      Future<Void, Error> { [weak self] promise in
+        self?.sendPasswordReset(withEmail: email) { error in
+          if let error = error {
+            promise(.failure(error))
+          } else {
+            promise(.success(()))
+          }
+        }
+      }
+    }
+
+    /// Initiates a password reset for the given email address and `ActionCodeSettings`.
+    /// - Parameter email: The email address of the user.
+    /// - Parameter actionCodeSettings: An `ActionCodeSettings` object containing settings related t handling action codes.
+    /// - Returns: A publisher that emits whether the call was successful or not.
+    /// - Remark: Possible error codes:
+    /// - `AuthErrorCodeInvalidRecipientEmail` - Indicates an invalid recipient email was sent in the request.
+    /// - `FIRAuthErrorCodeInvalidSender` - Indicates an invalid sender email is set in the console for this action.
+    /// - `AuthErrorCodeInvalidMessagePayload` - Indicates an invalid email template for sending update email.
+    /// - `AuthErrorCodeMissingIosBundleID` - Indicates that the iOS bundle ID is missing when `handleCodeInApp` is set to YES.
+    /// - `AuthErrorCodeMissingAndroidPackageName` - Indicates that the android package name is missing when the `androidInstallApp` flag is set to true.
+    /// - `AuthErrorCodeUnauthorizedDomain` - Indicates that the domain specified in the continue URL is not whitelisted in the Firebase console.
+    /// - `AuthErrorCodeInvalidContinueURI` - Indicates that the domain specified in the continue URI is not valid.
+    /// - Remark: See `AuthErrors` for a list of error codes that are common to all API methods
+    public func sendPasswordReset(withEmail email: String,
+                                  actionCodeSettings: ActionCodeSettings) -> Future<Void, Error> {
+      Future<Void, Error> { [weak self] promise in
+        self?.sendPasswordReset(withEmail: email, actionCodeSettings: actionCodeSettings) { error in
+          if let error = error {
+            promise(.failure(error))
+          } else {
+            promise(.success(()))
+          }
+        }
+      }
+    }
   }
 #endif
