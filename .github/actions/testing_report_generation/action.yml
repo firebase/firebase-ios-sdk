@@ -1,0 +1,21 @@
+name: 'Testing Report'
+description: 'Generate a testing report'
+inputs:
+  access-token:
+    description: 'access token'
+    required: true
+  issue-labels:
+    description: 'Testing labels(delimited by comma or space)'
+    required: true
+    default: 'nightly-testing'
+  assignee:
+    description: 'Assignee of this issue'
+    required: false
+    default: ''
+  exclude-workflow-files:
+    description: 'Excluded yml files(delimited by comma or space)'
+    required: false
+    default: ''
+runs:
+  using: 'docker'
+  image: 'Dockerfile'

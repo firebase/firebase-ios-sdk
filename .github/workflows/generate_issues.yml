@@ -1,0 +1,18 @@
+on:
+  pull_request:
+    branches:
+      - add_issue_generation
+  schedule:
+    # Run every day at 4am (PST) - cron uses UTC times
+    - cron:  '0 12 * * *'
+jobs:
+  hello_world_job:
+    runs-on: ubuntu-latest
+    name: Generate a nightly testing report issue
+    steps:
+    - uses: actions/checkout@v2
+    - name: Create a nightly report
+      uses: ./.github/actions/testing_report_generation/
+      with:
+        access-token: '${{ secrets.ISSUE_TEST_TOKEN }}'
+        exclude-workflow-files: 'performance.yml performance-integration-tests.yml'
