@@ -1,7 +1,7 @@
 on:
   pull_request:
-    branches:
-      - add_issue_generation
+    paths:
+    - '.github/workflows/generate_issues.yml'
   schedule:
     # Run every day at 4am (PST) - cron uses UTC times
     - cron:  '0 12 * * *'
