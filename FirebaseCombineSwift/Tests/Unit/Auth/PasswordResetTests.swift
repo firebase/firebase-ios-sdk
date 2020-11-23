@@ -37,7 +37,7 @@ class PasswordResetTests: XCTestCase {
       try Auth.auth().signOut()
     } catch {}
   }
-  
+
   static let apiKey = Credentials.apiKey
   static let fakeEmail = "fakeEmail"
   static let fakeNewEmail = "fakeNewEmail"
@@ -45,7 +45,7 @@ class PasswordResetTests: XCTestCase {
   static let fakeNewPassword = "fakeNewPassword"
   static let passwordResetRequestType = "PASSWORD_RESET"
   static let verifyEmailRequestType = "VERIFY_EMAIL"
-  
+
   func testResetPassword() {
     // given
     class MockResetPasswordResponse: FIRResetPasswordResponse {
@@ -55,13 +55,12 @@ class PasswordResetTests: XCTestCase {
     class MockAuthBackend: AuthBackendImplementationMock {
       override func resetPassword(_ request: FIRResetPasswordRequest,
                                   callback: @escaping FIRResetPasswordCallback) {
-        XCTAssertEqual(request.apiKey, PasswordResetTests.apiKey);
-        XCTAssertEqual(request.oobCode, PasswordResetTests.fakeCode);
-        XCTAssertEqual(request.updatedPassword, PasswordResetTests.fakeNewPassword);
+        XCTAssertEqual(request.apiKey, PasswordResetTests.apiKey)
+        XCTAssertEqual(request.oobCode, PasswordResetTests.fakeCode)
+        XCTAssertEqual(request.updatedPassword, PasswordResetTests.fakeNewPassword)
 
         callback(MockResetPasswordResponse(), nil)
       }
-
     }
 
     FIRAuthBackend.setBackendImplementation(MockAuthBackend())
@@ -72,7 +71,10 @@ class PasswordResetTests: XCTestCase {
 
     // when
     Auth.auth()
-      .confirmPasswordReset(withCode: PasswordResetTests.fakeCode, newPassword: PasswordResetTests.fakeNewPassword)
+      .confirmPasswordReset(
+        withCode: PasswordResetTests.fakeCode,
+        newPassword: PasswordResetTests.fakeNewPassword
+      )
       .sink(receiveCompletion: { completion in
         switch completion {
         case .finished:
@@ -88,7 +90,7 @@ class PasswordResetTests: XCTestCase {
     // then
     wait(for: [confirmPasswordResetExpectation], timeout: expectationTimeout)
   }
-  
+
   func testVerifyPasswordResetCode() {
     // given
     class MockResetPasswordResponse: FIRResetPasswordResponse {
@@ -99,8 +101,8 @@ class PasswordResetTests: XCTestCase {
     class MockAuthBackend: AuthBackendImplementationMock {
       override func resetPassword(_ request: FIRResetPasswordRequest,
                                   callback: @escaping FIRResetPasswordCallback) {
-        XCTAssertEqual(request.apiKey, PasswordResetTests.apiKey);
-        XCTAssertEqual(request.oobCode, PasswordResetTests.fakeCode);
+        XCTAssertEqual(request.apiKey, PasswordResetTests.apiKey)
+        XCTAssertEqual(request.oobCode, PasswordResetTests.fakeCode)
 
         callback(MockResetPasswordResponse(), nil)
       }
@@ -110,7 +112,8 @@ class PasswordResetTests: XCTestCase {
 
     var cancellables = Set<AnyCancellable>()
 
-    let verifyPasswordResetCodeExpectation = expectation(description: "Password reset code verified")
+    let verifyPasswordResetCodeExpectation =
+      expectation(description: "Password reset code verified")
 
     // when
     Auth.auth()
@@ -127,24 +130,23 @@ class PasswordResetTests: XCTestCase {
       }
       .store(in: &cancellables)
 
-
     // then
     wait(for: [verifyPasswordResetCodeExpectation], timeout: expectationTimeout)
   }
-  
+
   func testCheckActionCode() {
     // given
     class MockResetPasswordResponse: FIRResetPasswordResponse {
       override var email: String { return PasswordResetTests.fakeEmail }
-      override var verifiedEmail: String { return PasswordResetTests.fakeNewEmail}
-      override var requestType: String { return PasswordResetTests.verifyEmailRequestType}
+      override var verifiedEmail: String { return PasswordResetTests.fakeNewEmail }
+      override var requestType: String { return PasswordResetTests.verifyEmailRequestType }
     }
 
     class MockAuthBackend: AuthBackendImplementationMock {
       override func resetPassword(_ request: FIRResetPasswordRequest,
                                   callback: @escaping FIRResetPasswordCallback) {
-        XCTAssertEqual(request.apiKey, PasswordResetTests.apiKey);
-        XCTAssertEqual(request.oobCode, PasswordResetTests.fakeCode);
+        XCTAssertEqual(request.apiKey, PasswordResetTests.apiKey)
+        XCTAssertEqual(request.oobCode, PasswordResetTests.fakeCode)
 
         callback(MockResetPasswordResponse(), nil)
       }
@@ -173,22 +175,19 @@ class PasswordResetTests: XCTestCase {
       }
       .store(in: &cancellables)
 
-
     // then
     wait(for: [checkActionCodeExpectation], timeout: expectationTimeout)
   }
-  
+
   public func testApplyActionCode() {
     // given
-    class MockSetAccountInfoResponse: FIRSetAccountInfoResponse {
-    }
+    class MockSetAccountInfoResponse: FIRSetAccountInfoResponse {}
 
     class MockAuthBackend: AuthBackendImplementationMock {
       override func setAccountInfo(_ request: FIRSetAccountInfoRequest,
                                    callback: @escaping FIRSetAccountInfoResponseCallback) {
         callback(MockSetAccountInfoResponse(), nil)
       }
-
     }
 
     FIRAuthBackend.setBackendImplementation(MockAuthBackend())
@@ -212,19 +211,18 @@ class PasswordResetTests: XCTestCase {
       }
       .store(in: &cancellables)
 
-
     // then
     wait(for: [applyActionCodeExpectation], timeout: expectationTimeout)
   }
-  
+
   func testSendPasswordResetEmail() {
     // given
 
     class MockAuthBackend: AuthBackendImplementationMock {
       override func getOOBConfirmationCode(_ request: FIRGetOOBConfirmationCodeRequest,
                                            callback: @escaping FIRGetOOBConfirmationCodeResponseCallback) {
-        XCTAssertEqual(request.apiKey, PasswordResetTests.apiKey);
-        XCTAssertEqual(request.email, PasswordResetTests.fakeEmail);
+        XCTAssertEqual(request.apiKey, PasswordResetTests.apiKey)
+        XCTAssertEqual(request.email, PasswordResetTests.fakeEmail)
         callback(FIRGetOOBConfirmationCodeResponse(), nil)
       }
     }
@@ -250,9 +248,7 @@ class PasswordResetTests: XCTestCase {
       }
       .store(in: &cancellables)
 
-
     // then
     wait(for: [sendPasswordResetExpectation], timeout: expectationTimeout)
   }
-
 }
