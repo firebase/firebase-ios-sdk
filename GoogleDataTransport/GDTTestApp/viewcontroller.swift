@@ -63,12 +63,25 @@ public extension ViewController {
     transport.sendDataEvent(event)
   }
 
+  @IBAction func generateTestEvents(button: UIButton) {
+    if #available(iOS 12.0, *) {
+      let numberOfEvents = 10000
+      set(status: "Generating \(numberOfEvents) events")
+
+      EventCleanupPerfTest.generateTestEvents(count: numberOfEvents) {
+        self.set(status: "Generated \(numberOfEvents) events")
+      }
+    } else {
+      print("Performance testing set up for iOS 12.0 and later")
+    }
+  }
+
   @IBAction func runEventCleanupPerformanceTest(button: UIButton) {
     if #available(iOS 12.0, *) {
-      self.statusLabel.text = "Event Cleanup Performance Test started"
+      set(status: "Event Cleanup Performance Test started")
       EventCleanupPerfTest.run {
         DispatchQueue.main.async {
-          self.statusLabel.text = "Event Cleanup Performance Test finished"
+          self.set(status: "Event Cleanup Performance Test finished")
         }
       }
     } else {
@@ -113,5 +126,10 @@ public extension ViewController {
     generateEvent()
     sema.wait()
     completion()
+  }
+
+  func set(status: String) {
+    print("Status: \(status)")
+    self.statusLabel.text = status
   }
 }

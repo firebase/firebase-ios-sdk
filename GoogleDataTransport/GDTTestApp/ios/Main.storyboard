@@ -20,7 +20,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="11" translatesAutoresizingMaskIntoConstraints="NO" id="4bQ-s8-gBo">
-                                <rect key="frame" x="20" y="52" width="374" height="427.5"/>
+                                <rect key="frame" x="20" y="52" width="374" height="522.5"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="GoogleDataTransport Test App" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="L83-mC-jNW">
                                         <rect key="frame" x="0.0" y="0.0" width="374" height="20.5"/>
@@ -93,8 +93,28 @@
                                             <action selector="generateDailyEventWithSender:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Rfm-OO-P8A"/>
                                         </connections>
                                     </button>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Cleanup Performance Testing" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="McF-LY-6pN">
+                                        <rect key="frame" x="0.0" y="361.5" width="374" height="18"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                                        <nil key="textColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="iqf-0o-lCf">
+                                        <rect key="frame" x="0.0" y="390.5" width="374" height="55"/>
+                                        <color key="backgroundColor" white="0.66666666669999997" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="55" id="0LI-im-a1Z"/>
+                                            <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="55" id="iZX-wK-eUm"/>
+                                        </constraints>
+                                        <state key="normal" title="Generate events">
+                                            <color key="titleShadowColor" systemColor="darkTextColor"/>
+                                        </state>
+                                        <connections>
+                                            <action selector="generateTestEventsWithButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="aL4-k2-rG1"/>
+                                        </connections>
+                                    </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="k3W-pe-Kkc">
-                                        <rect key="frame" x="0.0" y="361.5" width="374" height="55"/>
+                                        <rect key="frame" x="0.0" y="456.5" width="374" height="55"/>
                                         <color key="backgroundColor" white="0.66666666669999997" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="55" id="Uad-9A-UNO"/>
@@ -108,7 +128,7 @@
                                         </connections>
                                     </button>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="m3L-OI-ccA" userLabel="Status label">
-                                        <rect key="frame" x="0.0" y="427.5" width="374" height="0.0"/>
+                                        <rect key="frame" x="0.0" y="522.5" width="374" height="0.0"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="12"/>
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
@@ -134,6 +154,9 @@
         </scene>
     </scenes>
     <resources>
+        <systemColor name="darkTextColor">
+            <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
         <systemColor name="darkTextColor">
             <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>

@@ -28,7 +28,6 @@ class EventCleanupPerfTest {
   static func run(completion: @escaping () -> Void) {
     let signpostID = OSSignpostID(log: log)
 
-    generateTestEvents {
       os_signpost(.begin, log: log, name: "checkForExpirations", signpostID: signpostID)
       GDTCORFlatFileStorage.sharedInstance().checkForExpirations()
 
@@ -36,17 +35,16 @@ class EventCleanupPerfTest {
         os_signpost(.end, log: log, name: "checkForExpirations", signpostID: signpostID)
         completion()
       }
-    }
   }
 
-  static func generateTestEvents(_ completion: @escaping () -> Void) {
+  static func generateTestEvents(count: Int, _ completion: @escaping () -> Void) {
     let signpostID = OSSignpostID(log: log)
 
     let group = DispatchGroup()
 
     os_signpost(.begin, log: log, name: "generateTestEvents", signpostID: signpostID)
 
-    _ = (0 ..< 1000).compactMap { (_) -> GDTCOREvent? in
+    _ = (0 ..< count).compactMap { (_) -> GDTCOREvent? in
       group.enter()
       let event = GDTCOREventGenerator.generateEvent(for: .test, qosTier: nil, mappingID: nil)
       GDTCORFlatFileStorage.sharedInstance().store(event) { _, _ in
