@@ -130,6 +130,6 @@ public extension ViewController {
 
   func set(status: String) {
     print("Status: \(status)")
-    self.statusLabel.text = status
+    statusLabel.text = status
   }
 }

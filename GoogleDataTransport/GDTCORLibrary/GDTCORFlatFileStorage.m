@@ -427,8 +427,9 @@ const uint64_t kGDTCORFlatFileStorageSizeLimit = 20 * 1000 * 1000;  // 20 MB.
 
     while (YES) {
       @autoreleasepool {
-
-        // Call `[enumerator nextObject]` under autorelease pool to make sure all autoreleased objects created under the hood are released on each iteration end to avoid unnecessary memory growth.
+        // Call `[enumerator nextObject]` under autorelease pool to make sure all autoreleased
+        // objects created under the hood are released on each iteration end to avoid unnecessary
+        // memory growth.
         path = [enumerator nextObject];
         if (path == nil) {
           break;

@@ -28,13 +28,13 @@ class EventCleanupPerfTest {
   static func run(completion: @escaping () -> Void) {
     let signpostID = OSSignpostID(log: log)
 
-      os_signpost(.begin, log: log, name: "checkForExpirations", signpostID: signpostID)
-      GDTCORFlatFileStorage.sharedInstance().checkForExpirations()
+    os_signpost(.begin, log: log, name: "checkForExpirations", signpostID: signpostID)
+    GDTCORFlatFileStorage.sharedInstance().checkForExpirations()
 
-      GDTCORFlatFileStorage.sharedInstance().storageQueue.async {
-        os_signpost(.end, log: log, name: "checkForExpirations", signpostID: signpostID)
-        completion()
-      }
+    GDTCORFlatFileStorage.sharedInstance().storageQueue.async {
+      os_signpost(.end, log: log, name: "checkForExpirations", signpostID: signpostID)
+      completion()
+    }
   }
 
   static func generateTestEvents(count: Int, _ completion: @escaping () -> Void) {
