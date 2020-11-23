@@ -57,6 +57,7 @@
     /// - `AuthErrorCodeOperationNotAllowed` - Indicates that anonymous accounts are
     ///   not enabled. Enable them in the Auth section of the Firebase console.
     /// - Remark: See `AuthErrors` for a list of error codes that are common to all API methods
+    @discardableResult
     public func signInAnonymously() -> Future<AuthDataResult, Error> {
       Future<AuthDataResult, Error> { promise in
         self.signInAnonymously { authDataResult, error in
@@ -87,6 +88,7 @@
     ///   considered too weak. The NSLocalizedFailureReasonErrorKey field in the NSError.userInfo
     ///   dictionary object will contain more detailed explanation that can be shown to the user.
     /// - Remark: See `AuthErrors` for a list of error codes that are common to all API methods
+    @discardableResult
     public func createUser(withEmail email: String,
                            password: String) -> Future<AuthDataResult, Error> {
       Future<AuthDataResult, Error> { [weak self] promise in
@@ -114,6 +116,7 @@
     ///   sign in with an incorrect password.
     /// - `AuthErrorCodeInvalidEmail` - Indicates the email address is malformed.
     /// - Remark: See `AuthErrors` for a list of error codes that are common to all API methods
+    @discardableResult
     public func signIn(withEmail email: String,
                        password: String) -> Future<AuthDataResult, Error> {
       Future<AuthDataResult, Error> { [weak self] promise in
