@@ -78,7 +78,7 @@
   // backwards compatibility
   // TODO(b/141747635)
   self.kitVersionsByKitBundleIdentifier = @{
-      FIRCLSApplicationGetSDKBundleID() : FIRCLSSDKVersion(),
+    FIRCLSApplicationGetSDKBundleID() : FIRCLSSDKVersion(),
   };
 
   [self beginSettingsDownload:token waitForCompletion:waitForCompletion];
