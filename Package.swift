@@ -226,12 +226,12 @@ let package = Package(
     ),
     .binaryTarget(
       name: "FirebaseAnalytics",
-      url: "https://dl.google.com/firebase/ios/swiftpm/7.1.0/FirebaseAnalytics.zip",
+      url: "https://dl.google.com/firebase/ios/swiftpm/7.2.0/FirebaseAnalytics.zip",
       checksum: "ba2f809b39c2f5aebd94bbcc8c2cc421d05a909b0b756c6c117c8e93d15fa2be"
     ),
     .binaryTarget(
       name: "GoogleAppMeasurement",
-      url: "https://dl.google.com/firebase/ios/swiftpm/7.1.0/GoogleAppMeasurement.zip",
+      url: "https://dl.google.com/firebase/ios/swiftpm/7.2.0/GoogleAppMeasurement.zip",
       checksum: "96fb574c7f155421549ca09962045aa90a36d7a26fd917ebdb9cf0ca2c9012ec"
     ),
 
