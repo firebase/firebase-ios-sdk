@@ -34,6 +34,7 @@ import GoogleDataTransport
   public class ViewController: UIViewController {
     let transport: GDTCORTransport = GDTCORTransport(mappingID: "1234", transformers: nil,
                                                      target: GDTCORTarget.test)!
+    @IBOutlet var statusLabel: UILabel!
   }
 
 // macOS specifics.

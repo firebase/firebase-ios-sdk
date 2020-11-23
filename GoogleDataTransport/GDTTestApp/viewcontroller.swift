@@ -63,6 +63,19 @@ public extension ViewController {
     transport.sendDataEvent(event)
   }
 
+  @IBAction func runEventCleanupPerformanceTest(button: UIButton) {
+    if #available(iOS 12.0, *) {
+      self.statusLabel.text = "Event Cleanup Performance Test started"
+      EventCleanupPerfTest.run {
+        DispatchQueue.main.async {
+          self.statusLabel.text = "Event Cleanup Performance Test finished"
+        }
+      }
+    } else {
+      print("Performance testing set up for iOS 12.0 and later")
+    }
+  }
+
   func beginMonkeyTest(completion: () -> Void) {
     print("Beginning monkey test")
 
