@@ -129,6 +129,53 @@
         }
       }
     }
-  }
 
+    // MARK: - Email/Link Authentication
+
+    /// Signs in using an email address and email sign-in link.
+    /// - Parameters:
+    ///   - email: The user's email address.
+    ///   - link: The email sign-in link.
+    /// - Returns: A publisher that emits the result of the sign in flow.
+    /// - Remark: Possible error codes:
+    /// - `AuthErrorCodeOperationNotAllowed` - Indicates that email and password
+    ///   accounts are not enabled. Enable them in the Auth section of the
+    ///   Firebase console.
+    /// - `AuthErrorCodeUserDisabled` - Indicates the user's account is disabled.
+    /// - `AuthErrorCodeInvalidEmail` - Indicates the email address is malformed.
+    /// - Remark: See `AuthErrors` for a list of error codes that are common to all API methods
+    @discardableResult
+    public func signIn(withEmail email: String,
+                       link: String) -> Future<AuthDataResult, Error> {
+      Future<AuthDataResult, Error> { [weak self] promise in
+        self?.signIn(withEmail: email, link: link) { authDataResult, error in
+          if let error = error {
+            promise(.failure(error))
+          } else if let authDataResult = authDataResult {
+            promise(.success(authDataResult))
+          }
+        }
+      }
+    }
+
+    /// Sends a sign in with email link to provided email address.
+    /// - Parameters:
+    ///   - email: The email address of the user.
+    ///   - actionCodeSettings: An `ActionCodeSettings` object containing settings related to
+    ///     handling action codes.
+    /// - Returns: A publisher that emits whether the call was successful or not.
+    @discardableResult
+    public func sendSignInLink(toEmail email: String,
+                               actionCodeSettings: ActionCodeSettings) -> Future<Void, Error> {
+      Future<Void, Error> { [weak self] promise in
+        self?.sendSignInLink(toEmail: email, actionCodeSettings: actionCodeSettings) { error in
+          if let error = error {
+            promise(.failure(error))
+          } else {
+            promise(.success(()))
+          }
+        }
+      }
+    }
+  }
 #endif
