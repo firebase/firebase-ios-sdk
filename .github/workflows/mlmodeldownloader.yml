@@ -81,7 +81,7 @@ jobs:
         flags: [
           '--use-modular-headers',
           # Tests are skipped since the Swift tests need modules.
-          '--skip-tests --use-libraries'
+          '--skip-tests'
         ]
     needs: pod-lib-lint
     steps:
