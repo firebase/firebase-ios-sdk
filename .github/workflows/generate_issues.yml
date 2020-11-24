@@ -1,11 +1,8 @@
 name: generate_issues
 on:
-  pull_request:
-    paths:
-    - '.github/workflows/generate_issues.yml'
   schedule:
-    # Run every day at 4am (PST) - cron uses UTC times
-    - cron:  '0 12 * * *'
+    # Run every day at 5am (PST) - cron uses UTC times
+    - cron:  '0 13 * * *'
 jobs:
   generate_an_issue:
     runs-on: ubuntu-latest
@@ -16,4 +13,5 @@ jobs:
       uses: ./.github/actions/testing_report_generation/
       with:
         access-token: '${{ secrets.GITHUB_TOKEN }}'
-        exclude-workflow-files: 'performance.yml performance-integration-tests.yml'
+        # This is to exclude workflows that will be searched in the nightly report.
+        exclude-workflow-files: 'performance.yml performance-integration-tests.yml,mlmodeldownloader.yml'
