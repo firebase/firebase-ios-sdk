@@ -72,21 +72,16 @@ jobs:
 
   mlmodeldownloader-cron-only:
     # Don't run on private repo.
-#    if: github.event_name == 'schedule' && github.repository != 'FirebasePrivate/firebase-ios-sdk'
+    if: github.event_name == 'schedule' && github.repository != 'FirebasePrivate/firebase-ios-sdk'
 
     runs-on: macos-latest
     strategy:
       matrix:
         target: [ios, tvos, macos]
-        flags: [
-          '--use-modular-headers',
-          # Tests are skipped since the Swift tests need modules.
-          '--skip-tests'
-        ]
     needs: pod-lib-lint
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: PodLibLint MLModelDownloader Cron
-      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseMLModelDownloader.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}
+      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseMLModelDownloader.podspec --platforms=${{ matrix.target }} --use-modular-headers
