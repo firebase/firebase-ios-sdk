@@ -19,48 +19,37 @@ enum DownloadStatus {
   case notStarted
   case inProgress
   case completed
-  case failed
-  case unknown
 }
 
+/// Progress and completion handlers for a model download.
 class DownloadHandlers: NSObject {
-  var progressHandler: ModelDownloadManager.ProgressHandler?
-  var completion: ModelDownloadManager.Completion
+  typealias ProgressHandler = (Float) -> Void
+  typealias Completion = (Result<CustomModel, DownloadError>) -> Void
 
-  init(progressHandler: ModelDownloadManager.ProgressHandler?,
-       completion: @escaping ModelDownloadManager.Completion) {
+  var progressHandler: ProgressHandler?
+  var completion: Completion
+
+  init(progressHandler: ProgressHandler?, completion: @escaping Completion) {
     self.progressHandler = progressHandler
     self.completion = completion
   }
 }
 
+/// Manager for model downloads.
 class ModelDownloadManager: NSObject {
   let app: FirebaseApp
   var modelInfo: ModelInfo
   var taskHandlers: [URLSessionDownloadTask: DownloadHandlers] = [:]
 
-  private(set) var didFinishDownloading = false
+  private(set) var downloadStatus: DownloadStatus = .notStarted
 
-  typealias ProgressHandler = (Float) -> Void
-  typealias Completion = (Result<CustomModel, DownloadError>) -> Void
-
-  var downloadedModelFileName: String {
-    return "fbml_model__\(app.name)__\(modelInfo.name)"
-  }
+  private lazy var downloadSession = URLSession(configuration: .ephemeral,
+                                                delegate: self,
+                                                delegateQueue: nil)
 
   init(app: FirebaseApp, modelInfo: ModelInfo) {
     self.app = app
     self.modelInfo = modelInfo
-  }
-
-  func getLocalModelPath(model: CustomModel) -> URL? {
-    let fileURL: URL = ModelFileManager.modelsDirectory
-      .appendingPathComponent(downloadedModelFileName)
-    if ModelFileManager.isFileReachable(at: fileURL) {
-      return fileURL
-    } else {
-      return nil
-    }
   }
 
   private func setHandlers(for downloadTask: URLSessionDownloadTask, handlers: DownloadHandlers) {
@@ -71,10 +60,6 @@ class ModelDownloadManager: NSObject {
     return taskHandlers[downloadTask]
   }
 
-  private lazy var downloadSession = URLSession(configuration: .ephemeral,
-                                                delegate: self,
-                                                delegateQueue: nil)
-
   func startModelDownload(url: URL, progressHandler: ((Float) -> Void)? = nil,
                           completion: @escaping (Result<CustomModel, DownloadError>) -> Void) {
     let downloadTask = downloadSession.downloadTask(with: url)
@@ -84,6 +69,7 @@ class ModelDownloadManager: NSObject {
     )
     setHandlers(for: downloadTask, handlers: downloadHandlers)
     downloadTask.resume()
+    downloadStatus = .inProgress
   }
 }
 
@@ -92,33 +78,16 @@ extension ModelDownloadManager: URLSessionDownloadDelegate {
                   downloadTask: URLSessionDownloadTask,
                   didFinishDownloadingTo location: URL) {
     guard let handlers = getHandlers(for: downloadTask) else { return }
-    didFinishDownloading = true
-    let model = CustomModel(
-      name: modelInfo.name,
-      size: modelInfo.size,
-      path: location.absoluteString,
-      hash: modelInfo.modelHash
-    )
-    DispatchQueue.main.async {
-      handlers.completion(.success(model))
+    let savedURL = ModelFileManager.modelsDirectory
+      .appendingPathComponent(downloadedModelFileName)
+    ModelFileManager.moveFile(at: location, to: savedURL)
+    downloadStatus = .completed
+    modelInfo.path = savedURL.absoluteString
+    guard let model = buildModel() else {
+      handlers.completion(.failure(.internalError(description: "Incomplete model info.")))
+      return
     }
-
-//    guard let response = downloadTask.response as? HTTPURLResponse else { return }
-//    print("Downloaded \(response) to \(location).")
-//
-//    do {
-//      let documentsURL = try FileManager.default.url(for: .documentDirectory,
-//                                                     in: .userDomainMask,
-//                                                     appropriateFor: nil,
-//                                                     create: false)
-//      let savedURL = documentsURL.appendingPathComponent(
-//        location.lastPathComponent
-//      )
-//      print(savedURL)
-//      try FileManager.default.moveItem(at: location, to: savedURL)
-//    } catch {
-//      // handle filesystem error
-//    }
+    handlers.completion(.success(model))
   }
 
   func urlSession(_ session: URLSession,
@@ -128,8 +97,36 @@ extension ModelDownloadManager: URLSessionDownloadDelegate {
                   totalBytesExpectedToWrite: Int64) {
     guard let handlers = getHandlers(for: downloadTask) else { return }
     let calculatedProgress = Float(totalBytesWritten) / Float(totalBytesExpectedToWrite)
-    DispatchQueue.main.async {
-      handlers.progressHandler?(calculatedProgress)
+    handlers.progressHandler?(calculatedProgress)
+  }
+}
+
+extension ModelDownloadManager {
+  var downloadedModelFileName: String {
+    return "fbml_model__\(app.name)__\(modelInfo.name)"
+  }
+
+  /// Build custom model object from model info.
+  func buildModel() -> CustomModel? {
+    /// Build custom model only if the model file is already on device.
+    guard let path = modelInfo.path else { return nil }
+    let model = CustomModel(
+      name: modelInfo.name,
+      size: modelInfo.size,
+      path: path,
+      hash: modelInfo.modelHash
+    )
+    return model
+  }
+
+  /// Get the local path to model on device.
+  func getLocalModelPath(model: CustomModel) -> URL? {
+    let fileURL: URL = ModelFileManager.modelsDirectory
+      .appendingPathComponent(downloadedModelFileName)
+    if ModelFileManager.isFileReachable(at: fileURL) {
+      return fileURL
+    } else {
+      return nil
     }
   }
 }

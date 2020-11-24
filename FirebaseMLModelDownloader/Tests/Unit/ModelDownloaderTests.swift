@@ -139,6 +139,8 @@ final class ModelDownloaderTests: XCTestCase {
     XCTAssertEqual(modelInfoRetriever.modelInfo?.size, 562_336)
   }
 
+  /// Test to download model file - makes an actual network call.
+  // TODO: Move this into a separate integration test and add unit test with mocks.
   func testStartModelDownload() {
     let testApp = FirebaseApp.app()!
     let functionName = #function
@@ -162,17 +164,19 @@ final class ModelDownloaderTests: XCTestCase {
       modelInfo: modelInfoRetriever.modelInfo!
     )
     let expectation = self.expectation(description: "Wait for model to download.")
-    modelDownloadManager.startModelDownload(url: url, progressHandler: nil) { result in
+    modelDownloadManager.startModelDownload(url: url, progressHandler: { progress in
+      XCTAssertNotNil(progress)
+    }) { result in
       switch result {
       case let .success(model):
-        XCTAssertEqual(modelDownloadManager.didFinishDownloading, true)
+        XCTAssertEqual(modelDownloadManager.downloadStatus, .completed)
         print(model)
       case let .failure(error):
         XCTAssertNotNil(error)
       }
       expectation.fulfill()
     }
-    waitForExpectations(timeout: 10, handler: nil)
+    waitForExpectations(timeout: 5, handler: nil)
   }
 
   func testExample() {

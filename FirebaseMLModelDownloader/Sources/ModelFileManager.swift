@@ -31,5 +31,5 @@ class ModelFileManager: NSObject {
 
   static func removeFileIfExists(at sourceURL: URL) {}
 
-  static func moveFile(from sourceURL: URL, to destinationURL: URL) {}
+  static func moveFile(at sourceURL: URL, to destinationURL: URL) {}
 }

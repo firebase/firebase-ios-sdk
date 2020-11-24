@@ -52,19 +52,6 @@ class ModelInfoRetriever: NSObject {
     self.defaults = defaults
     installations = Installations.installations(app: app)
   }
-
-  /// Build custom model object from model info.
-  func buildModel() -> CustomModel? {
-    /// Build custom model only if model info is filled out, and model file is already on device.
-    guard let info = modelInfo, let path = info.path else { return nil }
-    let model = CustomModel(
-      name: info.name,
-      size: info.size,
-      path: path,
-      hash: info.modelHash
-    )
-    return model
-  }
 }
 
 /// Extension to handle fetching model info from server.
@@ -194,8 +181,8 @@ extension ModelInfoRetriever {
     guard let modelInfoJSON = try? decoder.decode(ModelInfoResponse.self, from: data)
     else { return }
     let modelInfo = ModelInfo(app: app, name: modelName, defaults: defaults)
-    modelInfo.downloadURL = modelInfoJSON.downloadURL
     // TODO: Possibly improve handling invalid server responses.
+    modelInfo.downloadURL = modelInfoJSON.downloadURL
     modelInfo.size = Int(modelInfoJSON.size) ?? 0
     modelInfo.modelHash = modelHash
     self.modelInfo = modelInfo
