@@ -16,6 +16,7 @@ import Foundation
 
 class ModelFileManager: NSObject {
   static var modelsDirectory: URL {
+    // TODO: Reconsider force unwrapping.
     return FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
   }
 
@@ -24,6 +25,7 @@ class ModelFileManager: NSObject {
       let isReachable = try fileURL.checkResourceIsReachable()
       return isReachable
     } catch {
+      print(error.localizedDescription)
       /// File unreachable.
       return false
     }
@@ -31,5 +33,11 @@ class ModelFileManager: NSObject {
 
   static func removeFileIfExists(at sourceURL: URL) {}
 
-  static func moveFile(at sourceURL: URL, to destinationURL: URL) {}
+  static func moveFile(at sourceURL: URL, to destinationURL: URL) throws {
+    do {
+      try FileManager.default.moveItem(at: sourceURL, to: destinationURL)
+    } catch {
+      throw DownloadedModelError.fileIOError(description: "Unable to save model file.")
+    }
+  }
 }

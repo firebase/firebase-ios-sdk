@@ -60,8 +60,8 @@ class ModelDownloadManager: NSObject {
     return taskHandlers[downloadTask]
   }
 
-  func startModelDownload(url: URL, progressHandler: ((Float) -> Void)? = nil,
-                          completion: @escaping (Result<CustomModel, DownloadError>) -> Void) {
+  func startModelDownload(url: URL, progressHandler: DownloadHandlers.ProgressHandler? = nil,
+                          completion: @escaping DownloadHandlers.Completion) {
     let downloadTask = downloadSession.downloadTask(with: url)
     let downloadHandlers = DownloadHandlers(
       progressHandler: progressHandler,
@@ -78,10 +78,17 @@ extension ModelDownloadManager: URLSessionDownloadDelegate {
                   downloadTask: URLSessionDownloadTask,
                   didFinishDownloadingTo location: URL) {
     guard let handlers = getHandlers(for: downloadTask) else { return }
+    downloadStatus = .completed
     let savedURL = ModelFileManager.modelsDirectory
       .appendingPathComponent(downloadedModelFileName)
-    ModelFileManager.moveFile(at: location, to: savedURL)
-    downloadStatus = .completed
+    do {
+      try ModelFileManager.moveFile(at: location, to: savedURL)
+    } catch {
+      let errorDescription = error.localizedDescription
+      handlers.completion(.failure(.internalError(description: errorDescription)))
+      return
+    }
+
     modelInfo.path = savedURL.absoluteString
     guard let model = buildModel() else {
       handlers.completion(.failure(.internalError(description: "Incomplete model info.")))

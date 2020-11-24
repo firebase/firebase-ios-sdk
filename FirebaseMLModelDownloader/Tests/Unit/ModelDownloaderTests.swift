@@ -170,7 +170,11 @@ final class ModelDownloaderTests: XCTestCase {
       switch result {
       case let .success(model):
         XCTAssertEqual(modelDownloadManager.downloadStatus, .completed)
-        print(model)
+        guard let modelPath = URL(string: model.path) else {
+          XCTFail("Invalid or empty model path.")
+          return
+        }
+        XCTAssertTrue(ModelFileManager.isFileReachable(at: modelPath))
       case let .failure(error):
         XCTAssertNotNil(error)
       }
