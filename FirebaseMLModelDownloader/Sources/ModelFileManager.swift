@@ -14,12 +14,15 @@
 
 import Foundation
 
-class ModelFileManager: NSObject {
+/// Manager for common file operations.
+class ModelFileManager {
+  /// Root directory of model file storage on device.
   static var modelsDirectory: URL {
     // TODO: Reconsider force unwrapping.
     return FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
   }
 
+  /// Check if file is available at URL.
   static func isFileReachable(at fileURL: URL) -> Bool {
     do {
       let isReachable = try fileURL.checkResourceIsReachable()
@@ -31,8 +34,7 @@ class ModelFileManager: NSObject {
     }
   }
 
-  static func removeFileIfExists(at sourceURL: URL) {}
-
+  /// Move file at a location to another location.
   static func moveFile(at sourceURL: URL, to destinationURL: URL) throws {
     do {
       try FileManager.default.moveItem(at: sourceURL, to: destinationURL)

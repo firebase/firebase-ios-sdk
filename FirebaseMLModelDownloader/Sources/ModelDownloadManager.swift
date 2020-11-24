@@ -22,7 +22,7 @@ enum DownloadStatus {
 }
 
 /// Progress and completion handlers for a model download.
-class DownloadHandlers: NSObject {
+class DownloadHandlers {
   typealias ProgressHandler = (Float) -> Void
   typealias Completion = (Result<CustomModel, DownloadError>) -> Void
 

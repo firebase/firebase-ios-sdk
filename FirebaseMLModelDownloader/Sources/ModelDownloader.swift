@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import Foundation
-import FirebaseCore
 
 /// Possible errors with model downloading.
 public enum DownloadError: Error, Equatable {
