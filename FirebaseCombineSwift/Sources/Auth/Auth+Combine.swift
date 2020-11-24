@@ -47,6 +47,28 @@
         .eraseToAnyPublisher()
     }
 
+    /// Registers a publisher that publishes ID token state changes.
+    ///
+    /// The publisher emits values when:
+    ///
+    /// - It is registered,
+    /// - A user with a different UID from the current user has signed in,
+    /// - The ID token of the current user has been refreshed, or
+    /// - The current user has signed out.
+    ///
+    /// - Returns: A publisher emitting (`Auth`, User`) tuples.
+    public func idTokenDidChangePublisher() -> AnyPublisher<(Auth, User?), Never> {
+      let subject = PassthroughSubject<(Auth, User?), Never>()
+      let handle = addIDTokenDidChangeListener { auth, user in
+        subject.send((auth, user))
+      }
+      return subject
+        .handleEvents(receiveCancel: {
+          self.removeIDTokenDidChangeListener(handle)
+        })
+        .eraseToAnyPublisher()
+    }
+
     // MARK: - Anonymous Authentication
 
     /// Asynchronously creates and becomes an anonymous user.
