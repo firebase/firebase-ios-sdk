@@ -1,5 +1,10 @@
+# Unreleased
+- [fixed] Instead of crashing the client, the SDK will now ignore Queries it
+  cannot deserialize from LevelDB (#6721).
+
 # v7.2.0
-- [added] Made emulator connection API consistent between Auth, Database, Firestore, and Functions (#5916).
+- [added] Made emulator connection API consistent between Auth, Database,
+  Firestore, and Functions (#5916).
 
 # v7.1.0
 - [changed] Added the original query data to error messages for Queries that

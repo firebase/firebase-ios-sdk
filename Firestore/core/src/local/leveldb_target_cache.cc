@@ -195,7 +195,21 @@ void LevelDbTargetCache::EnumerateTargets(const TargetCallback& callback) {
   it->Seek(target_prefix);
   for (; it->Valid() && absl::StartsWith(it->key(), target_prefix);
        it->Next()) {
-    TargetData target = DecodeTarget(it->value());
+    StringReader reader{it->value()};
+    auto message = Message<firestore_client_Target>::TryParse(&reader);
+    auto target = serializer_->DecodeTargetData(&reader, *message);
+
+    if (!reader.ok()) {
+      // In https://github.com/firebase/firebase-ios-sdk/issues/6721, a customer
+      // reports that their client crashes with an invalid Target proto. Instead
+      // of crashing the client, we skip the target during LRU GC.
+      // TODO: Evaluate whether it makes sense to proceed if we can determine
+      // the target ID and its sequence number.
+      LOG_ERROR("Skipped invalid target during enumeration: %s, message: %s",
+                reader.status().ToString(), message.ToString());
+      continue;
+    }
+
     callback(target);
   }
 }
