@@ -55,17 +55,17 @@ class EmailLinkAuthTests: XCTestCase {
   static let continueURL = "continueURL"
 
   class MockEmailLinkSignInResponse: FIREmailLinkSignInResponse {
-    override var idToken: String { return EmailPasswordAuthTests.accessToken }
-    override var refreshToken: String { return EmailPasswordAuthTests.refreshToken }
+    override var idToken: String { return EmailLinkAuthTests.accessToken }
+    override var refreshToken: String { return EmailLinkAuthTests.refreshToken }
     override var approximateExpirationDate: Date {
-      Date(timeIntervalSinceNow: EmailPasswordAuthTests.accessTokenTimeToLive)
+      Date(timeIntervalSinceNow: EmailLinkAuthTests.accessTokenTimeToLive)
     }
   }
 
   class MockGetAccountInfoResponseUser: FIRGetAccountInfoResponseUser {
-    override var localID: String { return EmailPasswordAuthTests.localId }
-    override var email: String { return EmailPasswordAuthTests.email }
-    override var displayName: String { return EmailPasswordAuthTests.displayName }
+    override var localID: String { return EmailLinkAuthTests.localId }
+    override var email: String { return EmailLinkAuthTests.email }
+    override var displayName: String { return EmailLinkAuthTests.displayName }
   }
 
   class MockGetAccountInfoResponse: FIRGetAccountInfoResponse {
@@ -81,15 +81,15 @@ class EmailLinkAuthTests: XCTestCase {
   class MockAuthBackend: AuthBackendImplementationMock {
     override func getAccountInfo(_ request: FIRGetAccountInfoRequest,
                                  callback: @escaping FIRGetAccountInfoResponseCallback) {
-      XCTAssertEqual(request.apiKey, EmailPasswordAuthTests.apiKey)
-      XCTAssertEqual(request.accessToken, EmailPasswordAuthTests.accessToken)
+      XCTAssertEqual(request.apiKey, EmailLinkAuthTests.apiKey)
+      XCTAssertEqual(request.accessToken, EmailLinkAuthTests.accessToken)
       let response = MockGetAccountInfoResponse()
       callback(response, nil)
     }
 
     override func emailLinkSignin(_ request: FIREmailLinkSignInRequest,
                                   callback: @escaping FIREmailLinkSigninResponseCallback) {
-      XCTAssertEqual(request.apiKey, EmailPasswordAuthTests.apiKey)
+      XCTAssertEqual(request.apiKey, EmailLinkAuthTests.apiKey)
       XCTAssertEqual(request.email, EmailLinkAuthTests.email)
       XCTAssertEqual(request.oobCode, EmailLinkAuthTests.fakeOOBCode)
       callback(MockEmailLinkSignInResponse(), nil)
@@ -97,7 +97,7 @@ class EmailLinkAuthTests: XCTestCase {
 
     override func getOOBConfirmationCode(_ request: FIRGetOOBConfirmationCodeRequest,
                                          callback: @escaping FIRGetOOBConfirmationCodeResponseCallback) {
-      XCTAssertEqual(request.apiKey, EmailPasswordAuthTests.apiKey)
+      XCTAssertEqual(request.apiKey, EmailLinkAuthTests.apiKey)
       XCTAssertEqual(request.email, EmailLinkAuthTests.email)
       XCTAssertEqual(request.continueURL, EmailLinkAuthTests.continueURL)
       XCTAssertTrue(request.handleCodeInApp)
@@ -125,7 +125,7 @@ class EmailLinkAuthTests: XCTestCase {
         XCTAssertNotNil(authDataResult.user)
         XCTAssertEqual(authDataResult.user.refreshToken, EmailLinkAuthTests.refreshToken)
         XCTAssertFalse(authDataResult.user.isAnonymous)
-        XCTAssertEqual(authDataResult.user.email, EmailPasswordAuthTests.email)
+        XCTAssertEqual(authDataResult.user.email, EmailLinkAuthTests.email)
 
         userSignInExpectation.fulfill()
       }

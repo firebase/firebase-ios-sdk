@@ -32,17 +32,17 @@ class AuthStateDidChangePublisherTests: XCTestCase {
   static let passwordHash = "UkVEQUNURUQ="
 
   class MockSignUpNewUserResponse: FIRSignUpNewUserResponse {
-    override var idToken: String { return EmailPasswordAuthTests.accessToken }
-    override var refreshToken: String { return EmailPasswordAuthTests.refreshToken }
+    override var idToken: String { return AuthStateDidChangePublisherTests.accessToken }
+    override var refreshToken: String { return AuthStateDidChangePublisherTests.refreshToken }
     override var approximateExpirationDate: Date {
-      Date(timeIntervalSinceNow: EmailPasswordAuthTests.accessTokenTimeToLive)
+      Date(timeIntervalSinceNow: AuthStateDidChangePublisherTests.accessTokenTimeToLive)
     }
   }
 
   class MockGetAccountInfoResponseUser: FIRGetAccountInfoResponseUser {
-    override var localID: String { return EmailPasswordAuthTests.localId }
-    override var email: String { return EmailPasswordAuthTests.email }
-    override var displayName: String { return EmailPasswordAuthTests.displayName }
+    override var localID: String { return AuthStateDidChangePublisherTests.localId }
+    override var email: String { return AuthStateDidChangePublisherTests.email }
+    override var displayName: String { return AuthStateDidChangePublisherTests.displayName }
   }
 
   class MockGetAccountInfoResponse: FIRGetAccountInfoResponse {
@@ -52,21 +52,21 @@ class AuthStateDidChangePublisherTests: XCTestCase {
   }
 
   class MockVerifyPasswordResponse: FIRVerifyPasswordResponse {
-    override var localID: String { return EmailPasswordAuthTests.localId }
-    override var email: String { return EmailPasswordAuthTests.email }
-    override var displayName: String { return EmailPasswordAuthTests.displayName }
-    override var idToken: String { return EmailPasswordAuthTests.accessToken }
+    override var localID: String { return AuthStateDidChangePublisherTests.localId }
+    override var email: String { return AuthStateDidChangePublisherTests.email }
+    override var displayName: String { return AuthStateDidChangePublisherTests.displayName }
+    override var idToken: String { return AuthStateDidChangePublisherTests.accessToken }
     override var approximateExpirationDate: Date {
-      Date(timeIntervalSinceNow: EmailPasswordAuthTests.accessTokenTimeToLive)
+      Date(timeIntervalSinceNow: AuthStateDidChangePublisherTests.accessTokenTimeToLive)
     }
 
-    override var refreshToken: String { return EmailPasswordAuthTests.refreshToken }
+    override var refreshToken: String { return AuthStateDidChangePublisherTests.refreshToken }
   }
 
   class MockAuthBackend: AuthBackendImplementationMock {
     override func signUpNewUser(_ request: FIRSignUpNewUserRequest,
                                 callback: @escaping FIRSignupNewUserCallback) {
-      XCTAssertEqual(request.apiKey, AnonymousAuthTests.apiKey)
+      XCTAssertEqual(request.apiKey, AuthStateDidChangePublisherTests.apiKey)
       XCTAssertNil(request.email)
       XCTAssertNil(request.password)
       XCTAssertTrue(request.returnSecureToken)
@@ -76,8 +76,8 @@ class AuthStateDidChangePublisherTests: XCTestCase {
 
     override func getAccountInfo(_ request: FIRGetAccountInfoRequest,
                                  callback: @escaping FIRGetAccountInfoResponseCallback) {
-      XCTAssertEqual(request.apiKey, AnonymousAuthTests.apiKey)
-      XCTAssertEqual(request.accessToken, AnonymousAuthTests.accessToken)
+      XCTAssertEqual(request.apiKey, AuthStateDidChangePublisherTests.apiKey)
+      XCTAssertEqual(request.accessToken, AuthStateDidChangePublisherTests.accessToken)
       let response = MockGetAccountInfoResponse()
       callback(response, nil)
     }
