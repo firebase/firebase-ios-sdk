@@ -33,21 +33,21 @@ class Table
     @text << "\n| -------- |"
     @text << " -------- |"
     @text << "\n"
-  end 
+  end
 
   def add_workflow_run_and_result(workflow, result)
     @is_empty_table = false
     record = "| %s | %s |\n" % [workflow, result]
     @text << record
-  end 
+  end
 
   def get_report()
     if @is_empty_table
       return nil
     end
     return @text
-  end 
-end 
+  end
+end
 
 failure_report = Table.new(ISSUE_TITLE)
 success_report = Table.new(ISSUE_TITLE)
@@ -64,7 +64,7 @@ for wf in workflows.workflows do
   workflow_file = File.basename(wf.path)
   puts workflow_file
   workflow_text = "[%s](%s)" % [wf.name, wf.html_url]
-  runs = client.workflow_runs(REPO_NAME_WITH_OWNER, File.basename(wf.path), :event => "schedule").workflow_runs 
+  runs = client.workflow_runs(REPO_NAME_WITH_OWNER, File.basename(wf.path), :event => "schedule").workflow_runs
   runs = runs.sort_by { |run| -run.created_at.to_i }
   latest_run = runs[0]
   if latest_run.nil?
