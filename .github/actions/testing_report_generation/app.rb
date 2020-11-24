@@ -98,18 +98,18 @@ end
 # Check if there exists any cron jobs.
 if failure_report.get_report.nil? && success_report.get_report.nil?
   if last_issue.state == "open"
-    # client.add_comment(REPO_NAME_WITH_OWNER, last_issue.number, NO_WORKFLOW_RUNNING_INFO)
+    client.add_comment(REPO_NAME_WITH_OWNER, last_issue.number, NO_WORKFLOW_RUNNING_INFO)
   else
     client.create_issue(REPO_NAME_WITH_OWNER, ISSUE_TITLE, NO_WORKFLOW_RUNNING_INFO, labels: ISSUE_LABELS, assignee: ASSIGNEE)
   end
 # Close an issue if all workflows succeed.
 elsif failure_report.get_report.nil? and last_issue.state == "open"
-  # client.add_comment(REPO_NAME_WITH_OWNER, last_issue.number, success_report.get_report)
+  client.add_comment(REPO_NAME_WITH_OWNER, last_issue.number, success_report.get_report)
   client.close_issue(REPO_NAME_WITH_OWNER, last_issue.number)
 # If the last issue is open, then failed report will be commented to the issue.
 elsif !last_issue.nil? and last_issue.state == "open"
-  # client.add_comment(REPO_NAME_WITH_OWNER, last_issue.number,failure_report.get_report)
+  client.add_comment(REPO_NAME_WITH_OWNER, last_issue.number,failure_report.get_report)
 # Creat an new issue otherwise.
 else
-  # client.create_issue(REPO_NAME_WITH_OWNER, ISSUE_TITLE, failure_report.get_report, labels: ISSUE_LABELS, assignee: ASSIGNEE)
+  client.create_issue(REPO_NAME_WITH_OWNER, ISSUE_TITLE, failure_report.get_report, labels: ISSUE_LABELS, assignee: ASSIGNEE)
 end
