@@ -19,10 +19,6 @@
 
   @available(swift 5.0)
   @available(macOS 10.15, iOS 13, watchOS 6, tvOS 13, *)
-  public typealias AuthStateDidChangePublisher = AnyPublisher<(Auth, User?), Never>
-
-  @available(swift 5.0)
-  @available(macOS 10.15, iOS 13, watchOS 6, tvOS 13, *)
   extension Auth {
     // MARK: - Authentication State Management
 
@@ -35,7 +31,7 @@
     /// - The current user has signed out.
     ///
     /// - Returns: A publisher emitting (`Auth`, User`) tuples.
-    public func authStateDidChangePublisher() -> AuthStateDidChangePublisher {
+    public func authStateDidChangePublisher() -> AnyPublisher<(Auth, User?), Never> {
       let subject = PassthroughSubject<(Auth, User?), Never>()
       let handle = addStateDidChangeListener { auth, user in
         subject.send((auth, user))
