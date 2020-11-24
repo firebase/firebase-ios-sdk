@@ -52,14 +52,17 @@ class ModelDownloadManager: NSObject {
     self.modelInfo = modelInfo
   }
 
+  /// Associate progress and completion handlers with download task.
   private func setHandlers(for downloadTask: URLSessionDownloadTask, handlers: DownloadHandlers) {
     taskHandlers[downloadTask] = handlers
   }
 
+  /// Get download handlers for the given download task.
   private func getHandlers(for downloadTask: URLSessionDownloadTask) -> DownloadHandlers? {
     return taskHandlers[downloadTask]
   }
 
+  /// Asynchronously download model file to device.
   func startModelDownload(url: URL, progressHandler: DownloadHandlers.ProgressHandler? = nil,
                           completion: @escaping DownloadHandlers.Completion) {
     let downloadTask = downloadSession.downloadTask(with: url)
@@ -73,6 +76,7 @@ class ModelDownloadManager: NSObject {
   }
 }
 
+/// Extension to handle delegate methods.
 extension ModelDownloadManager: URLSessionDownloadDelegate {
   func urlSession(_ session: URLSession,
                   downloadTask: URLSessionDownloadTask,
@@ -84,8 +88,7 @@ extension ModelDownloadManager: URLSessionDownloadDelegate {
     do {
       try ModelFileManager.moveFile(at: location, to: savedURL)
     } catch {
-      let errorDescription = error.localizedDescription
-      handlers.completion(.failure(.internalError(description: errorDescription)))
+      handlers.completion(.failure(.internalError(description: error.localizedDescription)))
       return
     }
 
@@ -108,6 +111,7 @@ extension ModelDownloadManager: URLSessionDownloadDelegate {
   }
 }
 
+/// Extension to handle post-download operations.
 extension ModelDownloadManager {
   var downloadedModelFileName: String {
     return "fbml_model__\(app.name)__\(modelInfo.name)"
