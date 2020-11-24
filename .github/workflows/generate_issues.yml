@@ -1,3 +1,4 @@
+name: generate_issues
 on:
   pull_request:
     paths:
