@@ -42,6 +42,7 @@ class Table
     @text = String.new ""
     @text << "# %s\n" % [title]
     @text << "This issue is generated at %s\n" % [cur_time.strftime('%m/%d/%Y %H:%M %p %:z') ]
+    # get a table with two columns, workflow and the date of yesterday.
     @text << "| Workflow |"
     @text << (cur_time - 86400).strftime('%m/%d') + "|"
     @text << "\n| -------- |"
@@ -50,7 +51,7 @@ class Table
   end
 
   def add_workflow_run_and_result(workflow, result)
-    @is_empty_table = false
+    @is_empty_table = false if @is_empty_table
     record = "| %s | %s |\n" % [workflow, result]
     @text << record
   end
@@ -76,7 +77,8 @@ for wf in workflows.workflows do
     next
   end
   workflow_file = File.basename(wf.path)
-  puts workflow_file
+  puts "------------"
+  puts "workflow_file: %s" % [workflow_file]
   workflow_text = "[%s](%s)" % [wf.name, wf.html_url]
   runs = client.workflow_runs(REPO_NAME_WITH_OWNER, File.basename(wf.path), :event => "schedule").workflow_runs
   runs = runs.sort_by { |run| -run.created_at.to_i }
@@ -85,7 +87,10 @@ for wf in workflows.workflows do
     puts "no schedule runs found."
   elsif EXCLUDED_WORKFLOWS.include?(workflow_file)
     puts workflow_file + " is excluded in the report."
+  # Involved workflow runs triggerred within one day.
   elsif Time.now.utc - latest_run.created_at < 86400
+    puts "created_at: %s" % [latest_run.created_at]
+    puts "conclusion: %s" % [latest_run.conclusion]
     result_text = "[%s](%s)" % [latest_run.conclusion.nil? ? "in_process" : latest_run.conclusion, latest_run.html_url]
     if latest_run.conclusion == "success"
       success_report.add_workflow_run_and_result(workflow_text, result_text)
