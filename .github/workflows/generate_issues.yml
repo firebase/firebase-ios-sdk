@@ -14,5 +14,5 @@ jobs:
     - name: Create a nightly report
       uses: ./.github/actions/testing_report_generation/
       with:
-        access-token: '${{ secrets.ISSUE_TEST_TOKEN }}'
+        access-token: '${{ secrets.GITHUB_TOKEN }}'
         exclude-workflow-files: 'performance.yml performance-integration-tests.yml'
