@@ -13,6 +13,35 @@ on:
 
 jobs:
 
+  pod_lib_lint:
+    # Don't run on private repo unless it is a PR.
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+
+    runs-on: macOS-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: FirebaseInAppMessaging
+      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseInAppMessaging.podspec
+
+  tests:
+    # Don't run on private repo unless it is a PR.
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+
+    runs-on: macOS-latest
+    strategy:
+      matrix:
+        platform: [iOS, iPad]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Prereqs
+      run:  scripts/install_prereqs.sh InAppMessaging ${{ matrix.platform }} xcodebuild
+    - name: Build and test
+      run:  scripts/third_party/travis/retry.sh scripts/build.sh InAppMessaging ${{ matrix.platform }} xcodebuild
+
   spm:
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
@@ -25,6 +54,25 @@ jobs:
       run: xcodebuild -list
     - name: iOS Unit Tests
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseInAppMessaging-Beta iOS spmbuildonly
+
+  fiam-cron-only:
+    # Don't run on private repo.
+    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
+
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        flags: [
+          '--use-static-frameworks',
+          '--use-libraries'
+        ]
+    needs: pod_lib_lint
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: PodLibLint InAppMessaging Cron
+      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseInAppMessaging.podspec --platforms=ios ${{ matrix.flags }}
 
   quickstart:
     # Don't run on private repo unless it is a PR.
