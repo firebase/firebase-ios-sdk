@@ -30,7 +30,9 @@
     /// - A user with a different UID from the current user has signed in, or
     /// - The current user has signed out.
     ///
-    /// - Returns: A publisher emitting (`Auth`, User`) tuples.
+    /// The publisher will emit events on the **main** thread.
+    ///
+    /// - Returns: A publisher emitting (`Auth`, `User`) tuples.
     public func authStateDidChangePublisher() -> AnyPublisher<(Auth, User?), Never> {
       let subject = PassthroughSubject<(Auth, User?), Never>()
       let handle = addStateDidChangeListener { auth, user in
@@ -52,6 +54,8 @@
     /// - The ID token of the current user has been refreshed, or
     /// - The current user has signed out.
     ///
+    /// The publisher will emit events on the **main** thread.
+    ///
     /// - Returns: A publisher emitting (`Auth`, User`) tuples.
     public func idTokenDidChangePublisher() -> AnyPublisher<(Auth, User?), Never> {
       let subject = PassthroughSubject<(Auth, User?), Never>()
@@ -68,13 +72,19 @@
     // MARK: - Anonymous Authentication
 
     /// Asynchronously creates and becomes an anonymous user.
+    ///
+    /// If there is already an anonymous user signed in, that user will be returned instead.
+    /// If there is any other existing user signed in, that user will be signed out.
+    ///
+    /// The publisher will emit events on the **main** thread.
+    ///
     /// - Returns: A publisher that emits the result of the sign in flow.
-    /// - Remark: If there is already an anonymous user signed in, that user will be returned instead.
-    ///   If there is any other existing user signed in, that user will be signed out.
-    /// - Remark: Possible error codes:
-    /// - `AuthErrorCodeOperationNotAllowed` - Indicates that anonymous accounts are
-    ///   not enabled. Enable them in the Auth section of the Firebase console.
-    /// - Remark: See `AuthErrors` for a list of error codes that are common to all API methods
+    /// - Remark:
+    ///   Possible error codes:
+    ///   - `AuthErrorCodeOperationNotAllowed` - Indicates that anonymous accounts are
+    ///     not enabled. Enable them in the Auth section of the Firebase console.
+    ///
+    ///   See `AuthErrors` for a list of error codes that are common to all API methods
     @discardableResult
     public func signInAnonymously() -> Future<AuthDataResult, Error> {
       Future<AuthDataResult, Error> { promise in
@@ -91,21 +101,26 @@
     // MARK: - Email/Password Authentication
 
     /// Creates and, on success, signs in a user with the given email address and password.
+    ///
+    /// The publisher will emit events on the **main** thread.
+    ///
     /// - Parameters:
     ///   - email: The user's email address.
     ///   - password: The user's desired password.
     /// - Returns: A publisher that emits the result of the sign in flow.
-    /// - Remark: Possible error codes:
-    /// - `AuthErrorCodeInvalidEmail` - Indicates the email address is malformed.
-    /// - `AuthErrorCodeEmailAlreadyInUse` - Indicates the email used to attempt sign up
-    ///   already exists. Call fetchProvidersForEmail to check which sign-in mechanisms the user
-    ///   used, and prompt the user to sign in with one of those.
-    /// - `AuthErrorCodeOperationNotAllowed` - Indicates that email and password accounts
-    ///   are not enabled. Enable them in the Auth section of the Firebase console.
-    /// - `AuthErrorCodeWeakPassword` - Indicates an attempt to set a password that is
-    ///   considered too weak. The NSLocalizedFailureReasonErrorKey field in the NSError.userInfo
-    ///   dictionary object will contain more detailed explanation that can be shown to the user.
-    /// - Remark: See `AuthErrors` for a list of error codes that are common to all API methods
+    /// - Remark:
+    ///   Possible error codes:
+    ///   - `AuthErrorCodeInvalidEmail` - Indicates the email address is malformed.
+    ///   - `AuthErrorCodeEmailAlreadyInUse` - Indicates the email used to attempt sign up
+    ///     already exists. Call fetchProvidersForEmail to check which sign-in mechanisms the user
+    ///     used, and prompt the user to sign in with one of those.
+    ///   - `AuthErrorCodeOperationNotAllowed` - Indicates that email and password accounts
+    ///     are not enabled. Enable them in the Auth section of the Firebase console.
+    ///   - `AuthErrorCodeWeakPassword` - Indicates an attempt to set a password that is
+    ///     considered too weak. The NSLocalizedFailureReasonErrorKey field in the NSError.userInfo
+    ///     dictionary object will contain more detailed explanation that can be shown to the user.
+    ///
+    ///   See `AuthErrors` for a list of error codes that are common to all API methods
     @discardableResult
     public func createUser(withEmail email: String,
                            password: String) -> Future<AuthDataResult, Error> {
@@ -121,19 +136,24 @@
     }
 
     /// Signs in using an email address and password.
+    ///
+    /// The publisher will emit events on the **main** thread.
+    ///
     /// - Parameters:
     ///   - email: The user's email address.
     ///   - password: The user's desired password.
     /// - Returns: A publisher that emits the result of the sign in flow.
-    /// - Remark: Possible error codes:
-    /// - `AuthErrorCodeOperationNotAllowed` - Indicates that email and password
-    ///   accounts are not enabled. Enable them in the Auth section of the
-    ///   Firebase console.
-    /// - `AuthErrorCodeUserDisabled` - Indicates the user's account is disabled.
-    /// - `AuthErrorCodeWrongPassword` - Indicates the user attempted
-    ///   sign in with an incorrect password.
-    /// - `AuthErrorCodeInvalidEmail` - Indicates the email address is malformed.
-    /// - Remark: See `AuthErrors` for a list of error codes that are common to all API methods
+    /// - Remark:
+    ///   Possible error codes:
+    ///   - `AuthErrorCodeOperationNotAllowed` - Indicates that email and password
+    ///     accounts are not enabled. Enable them in the Auth section of the
+    ///     Firebase console.
+    ///   - `AuthErrorCodeUserDisabled` - Indicates the user's account is disabled.
+    ///   - `AuthErrorCodeWrongPassword` - Indicates the user attempted
+    ///     sign in with an incorrect password.
+    ///   - `AuthErrorCodeInvalidEmail` - Indicates the email address is malformed.
+    ///
+    ///   See `AuthErrors` for a list of error codes that are common to all API methods
     @discardableResult
     public func signIn(withEmail email: String,
                        password: String) -> Future<AuthDataResult, Error> {
@@ -151,17 +171,22 @@
     // MARK: - Email/Link Authentication
 
     /// Signs in using an email address and email sign-in link.
+    ///
+    /// The publisher will emit events on the **main** thread.
+    ///
     /// - Parameters:
     ///   - email: The user's email address.
     ///   - link: The email sign-in link.
     /// - Returns: A publisher that emits the result of the sign in flow.
-    /// - Remark: Possible error codes:
-    /// - `AuthErrorCodeOperationNotAllowed` - Indicates that email and password
-    ///   accounts are not enabled. Enable them in the Auth section of the
-    ///   Firebase console.
-    /// - `AuthErrorCodeUserDisabled` - Indicates the user's account is disabled.
-    /// - `AuthErrorCodeInvalidEmail` - Indicates the email address is malformed.
-    /// - Remark: See `AuthErrors` for a list of error codes that are common to all API methods
+    /// - Remark:
+    ///   Possible error codes:
+    ///   - `AuthErrorCodeOperationNotAllowed` - Indicates that email and password
+    ///     accounts are not enabled. Enable them in the Auth section of the
+    ///     Firebase console.
+    ///   - `AuthErrorCodeUserDisabled` - Indicates the user's account is disabled.
+    ///   - `AuthErrorCodeInvalidEmail` - Indicates the email address is malformed.
+    ///
+    ///   See `AuthErrors` for a list of error codes that are common to all API methods
     @discardableResult
     public func signIn(withEmail email: String,
                        link: String) -> Future<AuthDataResult, Error> {
@@ -177,6 +202,9 @@
     }
 
     /// Sends a sign in with email link to provided email address.
+    ///
+    /// The publisher will emit events on the **main** thread.
+    ///
     /// - Parameters:
     ///   - email: The email address of the user.
     ///   - actionCodeSettings: An `ActionCodeSettings` object containing settings related to
@@ -199,12 +227,16 @@
     //  MARK: - Email-based Authentication Helpers
 
     /// Fetches the list of all sign-in methods previously used for the provided email address.
+    ///
+    /// The publisher will emit events on the **main** thread.
+    ///
     /// - Parameter email: The email address for which to obtain a list of sign-in methods.
     /// - Returns: A publisher that emits a list of sign-in methods for the specified email
     ///   address, or an error if one occurred.
     /// - Remark: Possible error codes:
-    /// - `AuthErrorCodeInvalidEmail` - Indicates the email address is malformed.
-    /// - Remark: See `AuthErrors` for a list of error codes that are common to all API methods
+    ///   - `AuthErrorCodeInvalidEmail` - Indicates the email address is malformed.
+    ///
+    ///   See `AuthErrors` for a list of error codes that are common to all API methods
     public func fetchSignInMethods(forEmail email: String) -> Future<[String], Error> {
       Future<[String], Error> { [weak self] promise in
         self?.fetchSignInMethods(forEmail: email) { signInMethods, error in
@@ -220,16 +252,20 @@
     // MARK: - Password Reset
 
     /// Resets the password given a code sent to the user outside of the app and a new password for the user.
+    ///
+    /// The publisher will emit events on the **main** thread.
+    ///
     /// - Parameters:
     ///   - code: Out-of-band code given to the user outside of the app.
     ///   - newPassword: The new password.
     /// - Returns: A publisher that emits whether the call was successful or not.
     /// - Remark: Possible error codes:
-    /// - `AuthErrorCodeWeakPassword` - Indicates an attempt to set a password that is considered too weak.
-    /// - `AuthErrorCodeOperationNotAllowed` - Indicates the administrator disabled sign in with the specified identity provider.
-    /// - `AuthErrorCodeExpiredActionCode` - Indicates the OOB code is expired.
-    /// - `AuthErrorCodeInvalidActionCode` - Indicates the OOB code is invalid.
-    /// - Remark: See `AuthErrors` for a list of error codes that are common to all API methods
+    ///   - `AuthErrorCodeWeakPassword` - Indicates an attempt to set a password that is considered too weak.
+    ///   - `AuthErrorCodeOperationNotAllowed` - Indicates the administrator disabled sign in with the specified identity provider.
+    ///   - `AuthErrorCodeExpiredActionCode` - Indicates the OOB code is expired.
+    ///   - `AuthErrorCodeInvalidActionCode` - Indicates the OOB code is invalid.
+    ///
+    ///   See `AuthErrors` for a list of error codes that are common to all API methods
     public func confirmPasswordReset(withCode code: String,
                                      newPassword: String) -> Future<Void, Error> {
       Future<Void, Error> { [weak self] promise in
@@ -244,6 +280,9 @@
     }
 
     /// Checks the validity of a verify password reset code.
+    ///
+    /// The publisher will emit events on the **main** thread.
+    ///
     /// - Parameter code: The password reset code to be verified.
     /// - Returns: A publisher that emits an error if the code could not be verified. If the code could be
     ///   verified, the publisher will emit the email address of the account the code was issued for.
@@ -260,6 +299,9 @@
     }
 
     /// Checks the validity of an out of band code.
+    ///
+    /// The publisher will emit events on the **main** thread.
+    ///
     /// - Parameter code: The out of band code to check validity.
     /// - Returns: A publisher that emits an error if the code could not be verified. If the code could be
     ///   verified, the publisher will emit the email address of the account the code was issued for.
@@ -276,6 +318,9 @@
     }
 
     /// Applies out of band code.
+    ///
+    /// The publisher will emit events on the **main** thread.
+    ///
     /// - Parameter code: The out of band code to be applied.
     /// - Returns: A publisher that emits an error if the code could not be applied.
     /// - Remark: This method will not work for out of band codes which require an additional parameter,
@@ -293,13 +338,17 @@
     }
 
     /// Initiates a password reset for the given email address.
+    ///
+    /// The publisher will emit events on the **main** thread.
+    ///
     /// - Parameter email: The email address of the user.
     /// - Returns: A publisher that emits whether the call was successful or not.
     /// - Remark: Possible error codes:
-    /// - `AuthErrorCodeInvalidRecipientEmail` - Indicates an invalid recipient email was sent in the request.
-    /// - `AuthErrorCodeInvalidSender` - Indicates an invalid sender email is set in the console for this action.
-    /// - `AuthErrorCodeInvalidMessagePayload` - Indicates an invalid email template for sending update email.
-    /// - Remark: See `AuthErrors` for a list of error codes that are common to all API methods
+    ///   - `AuthErrorCodeInvalidRecipientEmail` - Indicates an invalid recipient email was sent in the request.
+    ///   - `AuthErrorCodeInvalidSender` - Indicates an invalid sender email is set in the console for this action.
+    ///   - `AuthErrorCodeInvalidMessagePayload` - Indicates an invalid email template for sending update email.
+    ///
+    ///   See `AuthErrors` for a list of error codes that are common to all API methods
     public func sendPasswordReset(withEmail email: String) -> Future<Void, Error> {
       Future<Void, Error> { [weak self] promise in
         self?.sendPasswordReset(withEmail: email) { error in
@@ -313,18 +362,22 @@
     }
 
     /// Initiates a password reset for the given email address and `ActionCodeSettings`.
+    ///
+    /// The publisher will emit events on the **main** thread.
+    ///
     /// - Parameter email: The email address of the user.
     /// - Parameter actionCodeSettings: An `ActionCodeSettings` object containing settings related t handling action codes.
     /// - Returns: A publisher that emits whether the call was successful or not.
     /// - Remark: Possible error codes:
-    /// - `AuthErrorCodeInvalidRecipientEmail` - Indicates an invalid recipient email was sent in the request.
-    /// - `FIRAuthErrorCodeInvalidSender` - Indicates an invalid sender email is set in the console for this action.
-    /// - `AuthErrorCodeInvalidMessagePayload` - Indicates an invalid email template for sending update email.
-    /// - `AuthErrorCodeMissingIosBundleID` - Indicates that the iOS bundle ID is missing when `handleCodeInApp` is set to YES.
-    /// - `AuthErrorCodeMissingAndroidPackageName` - Indicates that the android package name is missing when the `androidInstallApp` flag is set to true.
-    /// - `AuthErrorCodeUnauthorizedDomain` - Indicates that the domain specified in the continue URL is not whitelisted in the Firebase console.
-    /// - `AuthErrorCodeInvalidContinueURI` - Indicates that the domain specified in the continue URI is not valid.
-    /// - Remark: See `AuthErrors` for a list of error codes that are common to all API methods
+    ///   - `AuthErrorCodeInvalidRecipientEmail` - Indicates an invalid recipient email was sent in the request.
+    ///   - `FIRAuthErrorCodeInvalidSender` - Indicates an invalid sender email is set in the console for this action.
+    ///   - `AuthErrorCodeInvalidMessagePayload` - Indicates an invalid email template for sending update email.
+    ///   - `AuthErrorCodeMissingIosBundleID` - Indicates that the iOS bundle ID is missing when `handleCodeInApp` is set to YES.
+    ///   - `AuthErrorCodeMissingAndroidPackageName` - Indicates that the android package name is missing when the `androidInstallApp` flag is set to true.
+    ///   - `AuthErrorCodeUnauthorizedDomain` - Indicates that the domain specified in the continue URL is not whitelisted in the Firebase console.
+    ///   - `AuthErrorCodeInvalidContinueURI` - Indicates that the domain specified in the continue URI is not valid.
+    ///
+    ///   See `AuthErrors` for a list of error codes that are common to all API methods
     public func sendPasswordReset(withEmail email: String,
                                   actionCodeSettings: ActionCodeSettings) -> Future<Void, Error> {
       Future<Void, Error> { [weak self] promise in
