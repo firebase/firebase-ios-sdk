@@ -109,6 +109,41 @@ class AuthStateDidChangePublisherTests: XCTestCase {
     } catch {}
   }
 
+  func testPublisherEmitsOnMainThread() {
+    // given
+    FIRAuthBackend.setBackendImplementation(MockAuthBackend())
+
+    let expect = expectation(description: "Publisher emits on main thread")
+    let cancellable = Auth.auth().authStateDidChangePublisher()
+      .sink { auth, user in
+        XCTAssertTrue(Thread.isMainThread)
+        expect.fulfill()
+      }
+
+    Auth.auth().signInAnonymously()
+
+    wait(for: [expect], timeout: expectationTimeout)
+    cancellable.cancel()
+  }
+
+  func testSubscribersCanReceiveOnNonMainThread() {
+    // given
+    FIRAuthBackend.setBackendImplementation(MockAuthBackend())
+
+    let expect = expectation(description: "Subscribers can receive events on non-main threads")
+    let cancellable = Auth.auth().authStateDidChangePublisher()
+      .receive(on: DispatchQueue.global())
+      .sink { auth, user in
+        XCTAssertFalse(Thread.isMainThread)
+        expect.fulfill()
+      }
+
+    Auth.auth().signInAnonymously()
+
+    wait(for: [expect], timeout: expectationTimeout)
+    cancellable.cancel()
+  }
+
   func testPublisherEmitsWhenAttached() {
     // given
     FIRAuthBackend.setBackendImplementation(MockAuthBackend())
@@ -135,6 +170,7 @@ class AuthStateDidChangePublisherTests: XCTestCase {
       expectation(description: "Publisher emits value when user is signed in")
     let cancellable = Auth.auth().authStateDidChangePublisher()
       .sink { auth, user in
+        print("Running on the main thread? \(Thread.isMainThread)")
         XCTAssertEqual(auth, Auth.auth())
 
         if let user = user, user.isAnonymous {
