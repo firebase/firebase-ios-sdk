@@ -13,6 +13,7 @@
 [![Actions Status][gh-firebasepod-badge]][gh-actions]
 [![Actions Status][gh-firestore-badge]][gh-actions]
 [![Actions Status][gh-functions-badge]][gh-actions]
+[![Actions Status][gh-google-utilities-badge]][gh-actions]
 [![Actions Status][gh-inappmessaging-badge]][gh-actions]
 [![Actions Status][gh-interop-badge]][gh-actions]
 [![Actions Status][gh-messaging-badge]][gh-actions]
@@ -291,6 +292,7 @@ Your use of Firebase is governed by the
 [gh-firebasepod-badge]: https://github.com/firebase/firebase-ios-sdk/workflows/firebasepod/badge.svg
 [gh-firestore-badge]: https://github.com/firebase/firebase-ios-sdk/workflows/firestore/badge.svg
 [gh-functions-badge]: https://github.com/firebase/firebase-ios-sdk/workflows/functions/badge.svg
+[gh-google-utilities-badge]: https://github.com/firebase/firebase-ios-sdk/workflows/google-utilities/badge.svg
 [gh-inappmessaging-badge]: https://github.com/firebase/firebase-ios-sdk/workflows/inappmessaging/badge.svg
 [gh-interop-badge]: https://github.com/firebase/firebase-ios-sdk/workflows/interop/badge.svg
 [gh-messaging-badge]: https://github.com/firebase/firebase-ios-sdk/workflows/messaging/badge.svg
