@@ -22,6 +22,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Build and test
-      run: scripts/third_party/travis/retry.sh ./CocoapodsIntegrationTest/scripts/build_with_environment.sh \
+      run: |
+        scripts/third_party/travis/retry.sh ./CocoapodsIntegrationTest/scripts/build_with_environment.sh \
           --gemfile=./CocoapodsIntegrationTest/TestEnvironments/${{ matrix.config }}/Gemfile \
           --podfile=./CocoapodsIntegrationTest/TestEnvironments/${{ matrix.config }}/Podfile
