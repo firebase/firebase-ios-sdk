@@ -3,6 +3,7 @@ GEM
   specs:
     addressable (2.7.0)
       public_suffix (>= 2.0.2, < 5.0)
+    concurrent-ruby (1.1.7)
     faraday (1.1.0)
       multipart-post (>= 1.2, < 3)
       ruby2_keywords
@@ -15,12 +16,15 @@ GEM
     sawyer (0.8.2)
       addressable (>= 2.3.5)
       faraday (> 0.8, < 2.0)
+    tzinfo (2.0.3)
+      concurrent-ruby (~> 1.0)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
   octokit (~> 4.19)
+  tzinfo (~> 2.0)
 
 BUNDLED WITH
    2.1.4

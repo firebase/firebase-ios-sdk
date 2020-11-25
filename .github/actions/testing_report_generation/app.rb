@@ -16,7 +16,8 @@
 
 require 'octokit'
 require 'optparse'
-require "json"
+require 'json'
+require 'tzinfo'
 
 REPO_NAME_WITH_OWNER = ENV['GITHUB_REPOSITORY']
 NO_WORKFLOW_RUNNING_INFO = 'All nightly cron job were not run. Please make sure there at least exists one cron job running.'.freeze
@@ -34,14 +35,19 @@ if not ENV['INPUT_ISSUE-TITLE'].nil?
   ISSUE_TITLE = ENV['INPUT_ISSUE-TITLE']
 end
 ASSIGNEE = ENV['INPUT_ASSIGNEES']
+TIMEZONE = 'US/Pacific'
 
 class Table
   def initialize(title)
-    cur_time = Time.now.utc.localtime("-08:00")
+    # tz is to help adjust daylight saving time and regular time.
+    tz = TZInfo::Timezone.get(TIMEZONE)
+    # tz.to_local(Time.new(2018, 3, 11, 2, 30, 0, "-08:00")) will return
+    # 2018-03-11 03:30:00 -0700
+    cur_time = tz.to_local(Time.now.utc.localtime("-08:00"))
     @is_empty_table = true
     @text = String.new ""
     @text << "# %s\n" % [title]
-    @text << "This issue is generated at %s\n" % [cur_time.strftime('%m/%d/%Y %H:%M %p %:z') ]
+    @text << "This issue is generated at %s\n" % [cur_time.strftime('%m/%d/%Y %H:%M %p') ]
     # get a table with two columns, workflow and the date of yesterday.
     @text << "| Workflow |"
     @text << (cur_time - 86400).strftime('%m/%d') + "|"
@@ -87,7 +93,7 @@ for wf in workflows.workflows do
     puts "no schedule runs found."
   elsif EXCLUDED_WORKFLOWS.include?(workflow_file)
     puts workflow_file + " is excluded in the report."
-  # Involved workflow runs triggerred within one day.
+  # Involved workflow runs triggered within one day.
   elsif Time.now.utc - latest_run.created_at < 86400
     puts "created_at: %s" % [latest_run.created_at]
     puts "conclusion: %s" % [latest_run.conclusion]
