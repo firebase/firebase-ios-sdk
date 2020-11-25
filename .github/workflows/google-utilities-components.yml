@@ -25,7 +25,7 @@ jobs:
       run: scripts/setup_bundler.sh
     - name: Build and test
       run: |
-        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb GoogleUtilitiesComponnts.podspec \
+        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb GoogleUtilitiesComponents.podspec \
           --platforms=${{ matrix.target }}
 
   catalyst:
