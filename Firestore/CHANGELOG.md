@@ -1,5 +1,11 @@
+# Unreleased
+- [fixed] The SDK no longer fully deserializes queries during garbage,
+  collection, which reduces SDK crashes when it encounters invalid data
+  (#6721).
+
 # v7.2.0
-- [added] Made emulator connection API consistent between Auth, Database, Firestore, and Functions (#5916).
+- [added] Made emulator connection API consistent between Auth, Database,
+  Firestore, and Functions (#5916).
 
 # v7.1.0
 - [changed] Added the original query data to error messages for Queries that
