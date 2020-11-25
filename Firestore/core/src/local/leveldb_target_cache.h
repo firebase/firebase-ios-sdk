@@ -75,7 +75,7 @@ class LevelDbTargetCache : public TargetCache {
   void EnumerateSequenceNumbers(
       const SequenceNumberCallback& callback) override;
 
-  unsigned long RemoveTargets(
+  uint64_t RemoveTargets(
       model::ListenSequenceNumber upper_bound,
       const std::unordered_map<model::TargetId, TargetData>& live_targets)
       override;

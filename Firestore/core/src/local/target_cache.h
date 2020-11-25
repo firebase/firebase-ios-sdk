@@ -102,7 +102,7 @@ class TargetCache {
    * @param live_targets Targets to ignore.
    * @return The number of targets removed.
    */
-  virtual unsigned long RemoveTargets(
+  virtual uint64_t RemoveTargets(
       model::ListenSequenceNumber upper_bound,
       const std::unordered_map<model::TargetId, TargetData>& live_targets) = 0;
 

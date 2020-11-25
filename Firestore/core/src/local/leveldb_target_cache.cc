@@ -203,7 +203,7 @@ void LevelDbTargetCache::EnumerateSequenceNumbers(
   }
 }
 
-unsigned long LevelDbTargetCache::RemoveTargets(
+uint64_t LevelDbTargetCache::RemoveTargets(
     ListenSequenceNumber upper_bound,
     const std::unordered_map<model::TargetId, TargetData>& live_targets) {
   std::string target_prefix = LevelDbTargetKey::KeyPrefix();
@@ -212,6 +212,10 @@ unsigned long LevelDbTargetCache::RemoveTargets(
 
   std::unordered_set<model::TargetId> removed_targets;
 
+  // In https://github.com/firebase/firebase-ios-sdk/issues/6721, a customer
+  // reports that their client crashes when deserializing an invalid Target
+  // during an LRU run. Instead of deserializing the value into a full Target
+  // model, we only convert it into the underlying Protobuf message.
   for (; it->Valid() && absl::StartsWith(it->key(), target_prefix);
        it->Next()) {
     StringReader reader{it->value()};

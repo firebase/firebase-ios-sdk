@@ -75,7 +75,7 @@ void MemoryTargetCache::EnumerateSequenceNumbers(
   }
 }
 
-unsigned long MemoryTargetCache::RemoveTargets(
+uint64_t MemoryTargetCache::RemoveTargets(
     model::ListenSequenceNumber upper_bound,
     const std::unordered_map<TargetId, TargetData>& live_targets) {
   std::vector<const Target*> to_remove;
@@ -94,7 +94,7 @@ unsigned long MemoryTargetCache::RemoveTargets(
   for (const Target* element : to_remove) {
     targets_.erase(*element);
   }
-  return static_cast<int>(to_remove.size());
+  return to_remove.size();
 }
 
 void MemoryTargetCache::AddMatchingKeys(const DocumentKeySet& keys,
