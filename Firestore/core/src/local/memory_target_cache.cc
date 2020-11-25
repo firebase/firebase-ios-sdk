@@ -68,13 +68,14 @@ absl::optional<TargetData> MemoryTargetCache::GetTarget(const Target& target) {
   return iter == targets_.end() ? absl::optional<TargetData>{} : iter->second;
 }
 
-void MemoryTargetCache::EnumerateTargets(const TargetCallback& callback) {
+void MemoryTargetCache::EnumerateSequenceNumbers(
+    const SequenceNumberCallback& callback) {
   for (const auto& kv : targets_) {
-    callback(kv.second);
+    callback(kv.second.sequence_number());
   }
 }
 
-int MemoryTargetCache::RemoveTargets(
+unsigned long MemoryTargetCache::RemoveTargets(
     model::ListenSequenceNumber upper_bound,
     const std::unordered_map<TargetId, TargetData>& live_targets) {
   std::vector<const Target*> to_remove;

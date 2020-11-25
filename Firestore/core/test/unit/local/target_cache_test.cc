@@ -166,8 +166,30 @@ TEST_P(TargetCacheTest, SetQueryToNewValue) {
   });
 }
 
-TEST_P(TargetCacheTest, RemoveQuery) {
-  persistence_->Run("test_remove_query", [&]() {
+TEST_P(TargetCacheTest, EnumerateSequenceNumbers) {
+  std::unordered_set<ListenSequenceNumber> sequence_numbers;
+  persistence_->Run("test_enumerate_sequence_numbers", [&]() {
+    for (int i = 0; i < 10; i++) {
+      TargetData target_data =
+          MakeTargetData(testutil::Query(std::to_string(i)));
+      cache_->AddTarget(target_data);
+      sequence_numbers.insert(target_data.sequence_number());
+    }
+
+    int resultCount = 0;
+    cache_->EnumerateSequenceNumbers([&](ListenSequenceNumber sequence_number) {
+      std::cout << sequence_number;
+      ASSERT_TRUE(sequence_numbers.find(sequence_number) !=
+                  sequence_numbers.end());
+      ++resultCount;
+    });
+
+    ASSERT_EQ(resultCount, 10);
+  });
+}
+
+TEST_P(TargetCacheTest, RemoveTarget) {
+  persistence_->Run("test_remove_target", [&]() {
     TargetData target_data1 = MakeTargetData(query_rooms_);
     cache_->AddTarget(target_data1);
 
@@ -178,8 +200,8 @@ TEST_P(TargetCacheTest, RemoveQuery) {
   });
 }
 
-TEST_P(TargetCacheTest, RemoveNonExistentQuery) {
-  persistence_->Run("test_remove_non_existent_query", [&]() {
+TEST_P(TargetCacheTest, RemoveNonExistentTarget) {
+  persistence_->Run("test_remove_non_existent_target", [&]() {
     TargetData target_data = MakeTargetData(query_rooms_);
 
     // no-op, but make sure it doesn't throw.
@@ -187,8 +209,8 @@ TEST_P(TargetCacheTest, RemoveNonExistentQuery) {
   });
 }
 
-TEST_P(TargetCacheTest, RemoveQueryRemovesMatchingKeysToo) {
-  persistence_->Run("test_remove_query_removes_matching_keys_too", [&]() {
+TEST_P(TargetCacheTest, RemoveTargetRemovesMatchingKeysToo) {
+  persistence_->Run("test_remove_target_removes_matching_keys_too", [&]() {
     TargetData rooms = MakeTargetData(query_rooms_);
     cache_->AddTarget(rooms);
 
@@ -201,6 +223,43 @@ TEST_P(TargetCacheTest, RemoveQueryRemovesMatchingKeysToo) {
     ASSERT_TRUE(cache_->Contains(key2));
 
     cache_->RemoveTarget(rooms);
+    ASSERT_FALSE(cache_->Contains(key1));
+    ASSERT_FALSE(cache_->Contains(key2));
+  });
+}
+
+TEST_P(TargetCacheTest, RemoveTargets) {
+  persistence_->Run("test_remove_targets", [&]() {
+    TargetData target_data1 = MakeTargetData(testutil::Query("a"));
+    cache_->AddTarget(target_data1);
+    TargetData target_data2 = MakeTargetData(testutil::Query("b"));
+    cache_->AddTarget(target_data2);
+
+    std::unordered_map<model::TargetId, TargetData> live_targets;
+    cache_->RemoveTargets(target_data2.sequence_number(), live_targets);
+
+    auto result = cache_->GetTarget(target_data1.target());
+    ASSERT_EQ(result, absl::nullopt);
+    result = cache_->GetTarget(target_data2.target());
+    ASSERT_EQ(result, absl::nullopt);
+  });
+}
+
+TEST_P(TargetCacheTest, RemoveTargetsRemovesMatchingKeysToo) {
+  persistence_->Run("test_remove_targets_removes_matching_keys_too", [&]() {
+    TargetData rooms = MakeTargetData(query_rooms_);
+    cache_->AddTarget(rooms);
+
+    DocumentKey key1 = Key("rooms/foo");
+    DocumentKey key2 = Key("rooms/bar");
+    AddMatchingKey(key1, rooms.target_id());
+    AddMatchingKey(key2, rooms.target_id());
+
+    ASSERT_TRUE(cache_->Contains(key1));
+    ASSERT_TRUE(cache_->Contains(key2));
+
+    std::unordered_map<model::TargetId, TargetData> live_targets;
+    cache_->RemoveTargets(rooms.sequence_number(), live_targets);
     ASSERT_FALSE(cache_->Contains(key1));
     ASSERT_FALSE(cache_->Contains(key2));
   });
