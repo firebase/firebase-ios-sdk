@@ -6,6 +6,7 @@
 [![Actions Status][gh-appdistribution-badge]][gh-actions]
 [![Actions Status][gh-auth-badge]][gh-actions]
 [![Actions Status][gh-core-badge]][gh-actions]
+[![Actions Status][gh-core-diagnostics-badge]][gh-actions]
 [![Actions Status][gh-crashlytics-badge]][gh-actions]
 [![Actions Status][gh-database-badge]][gh-actions]
 [![Actions Status][gh-datatransport-badge]][gh-actions]
@@ -286,6 +287,7 @@ Your use of Firebase is governed by the
 [gh-appdistribution-badge]: https://github.com/firebase/firebase-ios-sdk/workflows/appdistribution/badge.svg
 [gh-auth-badge]: https://github.com/firebase/firebase-ios-sdk/workflows/auth/badge.svg
 [gh-core-badge]: https://github.com/firebase/firebase-ios-sdk/workflows/core/badge.svg
+[gh-core-diagnostics-badge]: https://github.com/firebase/firebase-ios-sdk/workflows/core-diagnostics/badge.svg
 [gh-crashlytics-badge]: https://github.com/firebase/firebase-ios-sdk/workflows/crashlytics/badge.svg
 [gh-database-badge]: https://github.com/firebase/firebase-ios-sdk/workflows/database/badge.svg
 [gh-datatransport-badge]: https://github.com/firebase/firebase-ios-sdk/workflows/datatransport/badge.svg
