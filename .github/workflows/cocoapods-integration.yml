@@ -22,7 +22,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Get realpath
-      run: brew install realpath
+      run: brew install coreutils
     - name: Build and test
       run: |
         scripts/third_party/travis/retry.sh ./CocoapodsIntegrationTest/scripts/build_with_environment.sh \
