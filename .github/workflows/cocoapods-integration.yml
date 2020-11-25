@@ -21,6 +21,8 @@ jobs:
         config: [Cocoapods_multiprojects_frameworks, Cocoapods_multiprojects_staticLibs]
     steps:
     - uses: actions/checkout@v2
+    - name: Get realpath
+      run: brew install realpath
     - name: Build and test
       run: |
         scripts/third_party/travis/retry.sh ./CocoapodsIntegrationTest/scripts/build_with_environment.sh \
