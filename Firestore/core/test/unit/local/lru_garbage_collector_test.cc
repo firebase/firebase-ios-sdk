@@ -376,16 +376,16 @@ TEST_P(LruGarbageCollectorTest, RemoveQueriesUpThroughSequenceNumber) {
   int removed = RemoveTargets(20 + initial_sequence_number_, live_queries);
   ASSERT_EQ(10, removed);
 
+  int detectedRemoval = 0;
+
   // Make sure we removed the next 10 even targets.
   persistence_->Run("verify remaining targets", [&] {
-    int detectedRemoval = 0;
-
     for (const auto& target : targets) {
       auto entry = target_cache_->GetTarget(target.target());
 
       if (live_queries.find(target.target_id()) != live_queries.end()) {
         ASSERT_TRUE(entry.has_value());
-      };
+      }
 
       if (!entry.has_value()) {
         ++detectedRemoval;
@@ -393,6 +393,8 @@ TEST_P(LruGarbageCollectorTest, RemoveQueriesUpThroughSequenceNumber) {
       }
     }
   });
+
+  ASSERT_EQ(10, detectedRemoval);
 }
 
 TEST_P(LruGarbageCollectorTest, RemoveOrphanedDocuments) {
