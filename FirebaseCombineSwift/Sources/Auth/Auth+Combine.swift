@@ -69,6 +69,25 @@
         .eraseToAnyPublisher()
     }
 
+    /// Sets the currentUser on the calling Auth instance to the provided user object.
+    ///
+    /// The publisher will emit events on the **main** thread.
+    ///
+    /// - Parameter user: The user object to be set as the current user of the calling Auth instance.
+    /// - Returns: A publisher that emits as soon as the user of the calling Auth instance has been
+    ///   updated or an error was encountered. The publisher will emit on the *main* thread.
+    public func updateCurrentUser(_ user: User) -> Future<Void, Error> {
+      Future<Void, Error> { promise in
+        self.updateCurrentUser(user) { error in
+          if let error = error {
+            promise(.failure(error))
+          } else {
+            promise(.success(()))
+          }
+        }
+      }
+    }
+
     // MARK: - Anonymous Authentication
 
     /// Asynchronously creates and becomes an anonymous user.
