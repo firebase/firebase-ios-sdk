@@ -143,8 +143,8 @@
     @discardableResult
     public func createUser(withEmail email: String,
                            password: String) -> Future<AuthDataResult, Error> {
-      Future<AuthDataResult, Error> { [weak self] promise in
-        self?.createUser(withEmail: email, password: password) { authDataResult, error in
+      Future<AuthDataResult, Error> { promise in
+        self.createUser(withEmail: email, password: password) { authDataResult, error in
           if let error = error {
             promise(.failure(error))
           } else if let authDataResult = authDataResult {
@@ -176,8 +176,8 @@
     @discardableResult
     public func signIn(withEmail email: String,
                        password: String) -> Future<AuthDataResult, Error> {
-      Future<AuthDataResult, Error> { [weak self] promise in
-        self?.signIn(withEmail: email, password: password) { authDataResult, error in
+      Future<AuthDataResult, Error> { promise in
+        self.signIn(withEmail: email, password: password) { authDataResult, error in
           if let error = error {
             promise(.failure(error))
           } else if let authDataResult = authDataResult {
@@ -209,8 +209,8 @@
     @discardableResult
     public func signIn(withEmail email: String,
                        link: String) -> Future<AuthDataResult, Error> {
-      Future<AuthDataResult, Error> { [weak self] promise in
-        self?.signIn(withEmail: email, link: link) { authDataResult, error in
+      Future<AuthDataResult, Error> { promise in
+        self.signIn(withEmail: email, link: link) { authDataResult, error in
           if let error = error {
             promise(.failure(error))
           } else if let authDataResult = authDataResult {
@@ -232,8 +232,8 @@
     @discardableResult
     public func sendSignInLink(toEmail email: String,
                                actionCodeSettings: ActionCodeSettings) -> Future<Void, Error> {
-      Future<Void, Error> { [weak self] promise in
-        self?.sendSignInLink(toEmail: email, actionCodeSettings: actionCodeSettings) { error in
+      Future<Void, Error> { promise in
+        self.sendSignInLink(toEmail: email, actionCodeSettings: actionCodeSettings) { error in
           if let error = error {
             promise(.failure(error))
           } else {
@@ -257,8 +257,8 @@
     ///
     ///   See `AuthErrors` for a list of error codes that are common to all API methods
     public func fetchSignInMethods(forEmail email: String) -> Future<[String], Error> {
-      Future<[String], Error> { [weak self] promise in
-        self?.fetchSignInMethods(forEmail: email) { signInMethods, error in
+      Future<[String], Error> { promise in
+        self.fetchSignInMethods(forEmail: email) { signInMethods, error in
           if let error = error {
             promise(.failure(error))
           } else if let signInMethods = signInMethods {
@@ -287,8 +287,8 @@
     ///   See `AuthErrors` for a list of error codes that are common to all API methods
     public func confirmPasswordReset(withCode code: String,
                                      newPassword: String) -> Future<Void, Error> {
-      Future<Void, Error> { [weak self] promise in
-        self?.confirmPasswordReset(withCode: code, newPassword: newPassword) { error in
+      Future<Void, Error> { promise in
+        self.confirmPasswordReset(withCode: code, newPassword: newPassword) { error in
           if let error = error {
             promise(.failure(error))
           } else {
@@ -306,8 +306,8 @@
     /// - Returns: A publisher that emits an error if the code could not be verified. If the code could be
     ///   verified, the publisher will emit the email address of the account the code was issued for.
     public func verifyPasswordResetCode(_ code: String) -> Future<String, Error> {
-      Future<String, Error> { [weak self] promise in
-        self?.verifyPasswordResetCode(code) { email, error in
+      Future<String, Error> { promise in
+        self.verifyPasswordResetCode(code) { email, error in
           if let error = error {
             promise(.failure(error))
           } else if let email = email {
@@ -325,8 +325,8 @@
     /// - Returns: A publisher that emits an error if the code could not be verified. If the code could be
     ///   verified, the publisher will emit the email address of the account the code was issued for.
     public func checkActionCode(code: String) -> Future<ActionCodeInfo, Error> {
-      Future<ActionCodeInfo, Error> { [weak self] promise in
-        self?.checkActionCode(code) { actionCodeInfo, error in
+      Future<ActionCodeInfo, Error> { promise in
+        self.checkActionCode(code) { actionCodeInfo, error in
           if let error = error {
             promise(.failure(error))
           } else if let actionCodeInfo = actionCodeInfo {
@@ -345,8 +345,8 @@
     /// - Remark: This method will not work for out of band codes which require an additional parameter,
     ///   such as password reset code.
     public func applyActionCode(code: String) -> Future<Void, Error> {
-      Future<Void, Error> { [weak self] promise in
-        self?.applyActionCode(code) { error in
+      Future<Void, Error> { promise in
+        self.applyActionCode(code) { error in
           if let error = error {
             promise(.failure(error))
           } else {
@@ -369,8 +369,8 @@
     ///
     ///   See `AuthErrors` for a list of error codes that are common to all API methods
     public func sendPasswordReset(withEmail email: String) -> Future<Void, Error> {
-      Future<Void, Error> { [weak self] promise in
-        self?.sendPasswordReset(withEmail: email) { error in
+      Future<Void, Error> { promise in
+        self.sendPasswordReset(withEmail: email) { error in
           if let error = error {
             promise(.failure(error))
           } else {
@@ -399,8 +399,8 @@
     ///   See `AuthErrors` for a list of error codes that are common to all API methods
     public func sendPasswordReset(withEmail email: String,
                                   actionCodeSettings: ActionCodeSettings) -> Future<Void, Error> {
-      Future<Void, Error> { [weak self] promise in
-        self?.sendPasswordReset(withEmail: email, actionCodeSettings: actionCodeSettings) { error in
+      Future<Void, Error> { promise in
+        self.sendPasswordReset(withEmail: email, actionCodeSettings: actionCodeSettings) { error in
           if let error = error {
             promise(.failure(error))
           } else {
@@ -445,8 +445,8 @@
     ///   See `AuthErrors` for a list of error codes that are common to all API methods
     public func signIn(with provider: FederatedAuthProvider,
                        uiDelegate: AuthUIDelegate?) -> Future<AuthDataResult, Error> {
-      Future<AuthDataResult, Error> { [weak self] promise in
-        self?.signIn(with: provider, uiDelegate: uiDelegate) { authDataResult, error in
+      Future<AuthDataResult, Error> { promise in
+        self.signIn(with: provider, uiDelegate: uiDelegate) { authDataResult, error in
           if let error = error {
             promise(.failure(error))
           } else if let authDataResult = authDataResult {
