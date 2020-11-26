@@ -31,7 +31,8 @@ extension UserDefaults {
 final class ModelDownloaderTests: XCTestCase {
   override class func setUp() {
     super.setUp()
-    guard let plistPath = Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist"), let options = FirebaseOptions(contentsOfFile: plistPath) else {
+    guard let plistPath = Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist"),
+      let options = FirebaseOptions(contentsOfFile: plistPath) else {
       XCTFail("GoogleService-Info.plist not found.")
       return
     }
