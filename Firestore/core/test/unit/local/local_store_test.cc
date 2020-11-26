@@ -210,7 +210,6 @@ LocalViewChanges TestViewChanges(TargetId target_id,
 LocalStoreTest::LocalStoreTest()
     : test_helper_(GetParam()()),
       persistence_(test_helper_->MakePersistence()),
-      query_engine_(test_helper_->query_engine()),
       local_store_(
           persistence_.get(), &query_engine_, User::Unauthenticated()) {
   local_store_.Start();
@@ -1151,7 +1150,6 @@ TEST_P(
 
 TEST_P(LocalStoreTest, UsesTargetMappingToExecuteQueries) {
   if (IsGcEager()) return;
-  if (QueryEngineType() != QueryEngine::Type::IndexFree) return;
 
   // This test verifies that once a target mapping has been written, only
   // documents that match the query are read from the RemoteDocumentCache.
