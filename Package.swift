@@ -37,7 +37,7 @@ let package = Package(
       targets: ["FirebaseAuth"]
     ),
     .library(
-      name: "FirebaseAppDistribution",
+      name: "FirebaseAppDistribution-Beta",
       targets: ["FirebaseAppDistributionTarget"]
     ),
     .library(
