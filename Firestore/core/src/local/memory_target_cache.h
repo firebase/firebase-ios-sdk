@@ -52,9 +52,9 @@ class MemoryTargetCache : public TargetCache {
   void EnumerateSequenceNumbers(
       const SequenceNumberCallback& callback) override;
 
-  uint64_t RemoveTargets(model::ListenSequenceNumber upper_bound,
-                         const std::unordered_map<model::TargetId, TargetData>&
-                             live_targets) override;
+  size_t RemoveTargets(model::ListenSequenceNumber upper_bound,
+                       const std::unordered_map<model::TargetId, TargetData>&
+                           live_targets) override;
 
   // Key-related methods
   void AddMatchingKeys(const model::DocumentKeySet& keys,

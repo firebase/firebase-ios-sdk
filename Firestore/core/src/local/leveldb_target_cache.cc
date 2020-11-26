@@ -203,14 +203,14 @@ void LevelDbTargetCache::EnumerateSequenceNumbers(
   }
 }
 
-uint64_t LevelDbTargetCache::RemoveTargets(
+size_t LevelDbTargetCache::RemoveTargets(
     ListenSequenceNumber upper_bound,
     const std::unordered_map<model::TargetId, TargetData>& live_targets) {
   std::string target_prefix = LevelDbTargetKey::KeyPrefix();
   auto it = db_->current_transaction()->NewIterator();
   it->Seek(target_prefix);
 
-  std::unordered_set<model::TargetId> removed_targets;
+  std::unordered_set<TargetId> removed_targets;
 
   // In https://github.com/firebase/firebase-ios-sdk/issues/6721, a customer
   // reports that their client crashes when deserializing an invalid Target
@@ -224,15 +224,16 @@ uint64_t LevelDbTargetCache::RemoveTargets(
         live_targets.find(target_proto->target_id) == live_targets.end()) {
       TargetId target_id = target_proto->target_id;
 
+      // Remove the DocumentKey to TargetId mapping
       RemoveAllDocumentKeysForTarget(target_id);
-
-      std::string key = LevelDbTargetKey::Key(target_id);
-      db_->current_transaction()->Delete(key);
+      // Remove the TargetId to Target mapping
+      db_->current_transaction()->Delete(it->key());
 
       removed_targets.insert(target_id);
     }
   }
 
+  // Remove the CanonicalId to TargetId mapping
   RemoveQueryTargetKeyForTargets(removed_targets);
 
   metadata_->target_count -= removed_targets.size();
@@ -292,7 +293,7 @@ void LevelDbTargetCache::RemoveAllDocumentKeysForTarget(TargetId target_id) {
 }
 
 void LevelDbTargetCache::RemoveQueryTargetKeyForTargets(
-    std::unordered_set<TargetId> target_ids) {
+    const std::unordered_set<TargetId>& target_ids) {
   std::string index_prefix = LevelDbQueryTargetKey::KeyPrefix();
   auto index_iterator = db_->current_transaction()->NewIterator();
   index_iterator->Seek(index_prefix);

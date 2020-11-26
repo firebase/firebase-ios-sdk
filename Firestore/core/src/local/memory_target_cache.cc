@@ -75,7 +75,7 @@ void MemoryTargetCache::EnumerateSequenceNumbers(
   }
 }
 
-uint64_t MemoryTargetCache::RemoveTargets(
+size_t MemoryTargetCache::RemoveTargets(
     model::ListenSequenceNumber upper_bound,
     const std::unordered_map<TargetId, TargetData>& live_targets) {
   std::vector<const Target*> to_remove;

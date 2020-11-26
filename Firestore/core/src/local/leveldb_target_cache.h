@@ -75,9 +75,9 @@ class LevelDbTargetCache : public TargetCache {
   void EnumerateSequenceNumbers(
       const SequenceNumberCallback& callback) override;
 
-  uint64_t RemoveTargets(model::ListenSequenceNumber upper_bound,
-                         const std::unordered_map<model::TargetId, TargetData>&
-                             live_targets) override;
+  size_t RemoveTargets(model::ListenSequenceNumber upper_bound,
+                       const std::unordered_map<model::TargetId, TargetData>&
+                           live_targets) override;
 
   // Key-related methods
 
@@ -140,9 +140,9 @@ class LevelDbTargetCache : public TargetCache {
    */
   TargetData DecodeTarget(absl::string_view encoded);
 
-  /** Removes the given targets from the query to target mapping */
+  /** Removes the given targets from the query to target mapping. */
   void RemoveQueryTargetKeyForTargets(
-      std::unordered_set<model::TargetId> target_id);
+      const std::unordered_set<model::TargetId>& target_id);
 
   // The LevelDbTargetCache is owned by LevelDbPersistence.
   LevelDbPersistence* db_;

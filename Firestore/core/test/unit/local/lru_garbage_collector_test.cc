@@ -376,7 +376,7 @@ TEST_P(LruGarbageCollectorTest, RemoveQueriesUpThroughSequenceNumber) {
   int removed = RemoveTargets(20 + initial_sequence_number_, live_queries);
   ASSERT_EQ(10, removed);
 
-  int detectedRemoval = 0;
+  int detected_removal = 0;
 
   // Make sure we removed the next 10 even targets.
   persistence_->Run("verify remaining targets", [&] {
@@ -388,13 +388,13 @@ TEST_P(LruGarbageCollectorTest, RemoveQueriesUpThroughSequenceNumber) {
       }
 
       if (!entry.has_value()) {
-        ++detectedRemoval;
-        ASSERT_TRUE(detectedRemoval <= removed);
+        ++detected_removal;
+        ASSERT_TRUE(detected_removal <= removed);
       }
     }
   });
 
-  ASSERT_EQ(10, detectedRemoval);
+  ASSERT_EQ(detected_removal, 10);
 }
 
 TEST_P(LruGarbageCollectorTest, RemoveOrphanedDocuments) {
