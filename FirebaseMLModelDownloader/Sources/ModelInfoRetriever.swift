@@ -16,40 +16,19 @@ import Foundation
 import FirebaseCore
 import FirebaseInstallations
 
-/// Model info object with details about pending or downloaded model.
-class ModelInfo: NSObject {
-  /// Model name.
-  var name: String
+/// Model info response object.
+struct ModelInfoResponse: Codable {
+  var downloadURL: String
+  var expireTime: String
+  var size: String
+}
 
-  /// User defaults associated with model.
-  var defaults: UserDefaults
-
-  // TODO: revisit UserDefaultsBacked
-  /// Download URL for the model file, as returned by server.
-  @UserDefaultsBacked var downloadURL: String
-
-  /// Hash of the model, as returned by server.
-  @UserDefaultsBacked var modelHash: String
-
-  /// Size of the model, as returned by server.
-  @UserDefaultsBacked var size: Int
-
-  /// Local path of the model.
-  @UserDefaultsBacked var path: String?
-
-  /// Initialize model info and create user default keys.
-  init(app: FirebaseApp, name: String, defaults: UserDefaults = .firebaseMLDefaults) {
-    self.name = name
-    self.defaults = defaults
-    let bundleID = Bundle.main.bundleIdentifier ?? ""
-    let defaultsPrefix = "\(bundleID).\(app.name).\(name)"
-    _downloadURL = UserDefaultsBacked(
-      key: "\(defaultsPrefix).model-download-url",
-      storage: defaults
-    )
-    _modelHash = UserDefaultsBacked(key: "\(defaultsPrefix).model-hash", storage: defaults)
-    _size = UserDefaultsBacked(key: "\(defaultsPrefix).model-size", storage: defaults)
-    _path = UserDefaultsBacked(key: "\(defaultsPrefix).model-path", storage: defaults)
+/// Properties for server response keys.
+extension ModelInfoResponse {
+  enum CodingKeys: String, CodingKey {
+    case downloadURL = "downloadUri"
+    case expireTime
+    case size = "sizeBytes"
   }
 }
 
@@ -59,18 +38,18 @@ class ModelInfoRetriever: NSObject {
   var app: FirebaseApp
   /// Model info associated with model.
   var modelInfo: ModelInfo?
-  /// Project id.
-  var projectID: String
   /// Model name.
   var modelName: String
   /// Firebase installations.
   var installations: Installations
+  /// User defaults associated with model.
+  var defaults: UserDefaults
 
-  /// Associate model info retriever with current Firebase app, project ID, and model name.
-  init(app: FirebaseApp, projectID: String, modelName: String) {
+  /// Associate model info retriever with current Firebase app, and model name.
+  init(app: FirebaseApp, modelName: String, defaults: UserDefaults = .firebaseMLDefaults) {
     self.app = app
-    self.projectID = projectID
     self.modelName = modelName
+    self.defaults = defaults
     installations = Installations.installations(app: app)
   }
 
@@ -96,7 +75,7 @@ extension ModelInfoRetriever {
   static let bundleIDHTTPHeader = "x-ios-bundle-identifier"
 
   /// HTTP response headers.
-  static let etagHTTPHeader = "ETag"
+  static let etagHTTPHeader = "Etag"
 
   /// Error descriptions.
   static let tokenErrorDescription = "Error retrieving FIS token."
@@ -107,10 +86,13 @@ extension ModelInfoRetriever {
 
   /// Construct model fetch base URL.
   var modelInfoFetchURL: URL {
+    let projectID = app.options.projectID ?? ""
+    let apiKey = app.options.apiKey
     var components = URLComponents()
     components.scheme = "https"
     components.host = "firebaseml.googleapis.com"
     components.path = "/v1beta2/projects/\(projectID)/models/\(modelName):download"
+    components.queryItems = [URLQueryItem(name: "key", value: apiKey)]
     // TODO: handle nil
     return components.url!
   }
@@ -129,82 +111,93 @@ extension ModelInfoRetriever {
     return request
   }
 
-  /// Get model info from server.
-  func downloadModelInfo(completion: @escaping (DownloadError?) -> Void) {
+  /// Get installations auth token.
+  func getAuthToken(completion: @escaping (Result<String, DownloadError>) -> Void) {
     /// Get FIS token.
-    installations.authToken { [weak self] tokenResult, error in
-      guard let self = self else {
-        completion(.internalError(description: ModelInfoRetriever.selfDeallocatedErrorDescription))
-        return
-      }
+    installations.authToken { tokenResult, error in
       guard let result = tokenResult
       else {
-        completion(.internalError(description: ModelInfoRetriever.tokenErrorDescription))
+        completion(.failure(.internalError(description: ModelInfoRetriever.tokenErrorDescription)))
         return
       }
-      /// Get model info fetch URL with appropriate HTTP headers.
-      let request = self.getModelInfoFetchURLRequest(token: result.authToken)
+      completion(.success(result.authToken))
+    }
+  }
 
-      /// Download model info.
-      // TODO: Consider moving request to a separate method
-      let session = URLSession(configuration: .ephemeral)
-      let dataTask = session.dataTask(with: request) { [weak self]
-        data, response, error in
-        guard let self = self else {
-          completion(.internalError(description: ModelInfoRetriever
-              .selfDeallocatedErrorDescription))
-          return
-        }
-        if let downloadError = error {
-          completion(.internalError(description: downloadError.localizedDescription))
-        } else {
-          guard let httpResponse = response as? HTTPURLResponse else {
+  /// Get model info from server.
+  func downloadModelInfo(completion: @escaping (DownloadError?) -> Void) {
+    getAuthToken { result in
+      switch result {
+      case let .success(authToken):
+        /// Get model info fetch URL with appropriate HTTP headers.
+        let request = self.getModelInfoFetchURLRequest(token: authToken)
+        // TODO: revisit using ephemeral session with Etag
+        let session = URLSession(configuration: .ephemeral)
+        /// Download model info.
+        let dataTask = session.dataTask(with: request) { [weak self]
+          data, response, error in
+          guard let self = self else {
             completion(.internalError(description: ModelInfoRetriever
-                .invalidHTTPResponseErrorDescription))
+                .selfDeallocatedErrorDescription))
             return
           }
-
-          // TODO: Handle more http status codes
-          switch httpResponse.statusCode {
-          case 200:
-            guard let modelHash = httpResponse
-              .allHeaderFields[ModelInfoRetriever.etagHTTPHeader] as? String else {
-              completion(.internalError(description: ModelInfoRetriever
-                  .missingModelHashErrorDescription))
-              return
-            }
-
-            guard let data = data else {
+          if let downloadError = error {
+            completion(.internalError(description: downloadError.localizedDescription))
+          } else {
+            guard let httpResponse = response as? HTTPURLResponse else {
               completion(.internalError(description: ModelInfoRetriever
                   .invalidHTTPResponseErrorDescription))
               return
             }
-            self.saveModelInfo(data: data, modelHash: modelHash)
-            completion(nil)
-          case 304:
-            completion(nil)
-          default:
-            completion(.notFound)
+
+            switch httpResponse.statusCode {
+            case 200:
+              guard let modelHash = httpResponse
+                .allHeaderFields[ModelInfoRetriever.etagHTTPHeader] as? String else {
+                completion(.internalError(description: ModelInfoRetriever
+                    .missingModelHashErrorDescription))
+                return
+              }
+
+              guard let data = data else {
+                completion(.internalError(description: ModelInfoRetriever
+                    .invalidHTTPResponseErrorDescription))
+                return
+              }
+              self.saveModelInfo(data: data, modelHash: modelHash)
+              completion(nil)
+            case 304:
+              completion(nil)
+            case 404:
+              completion(.notFound)
+            // TODO: Handle more http status codes
+            default:
+              completion(
+                .internalError(
+                  description: "Server returned with error - \(httpResponse.statusCode)."
+                )
+              )
+            }
           }
         }
+        dataTask.resume()
+      case .failure:
+        completion(.internalError(description: ModelInfoRetriever.tokenErrorDescription))
+        return
       }
-      dataTask.resume()
     }
   }
 
   /// Save model info to user defaults.
   func saveModelInfo(data: Data, modelHash: String) {
-    // TODO: Save model info to user defaults
-    modelInfo?.modelHash = modelHash
-  }
-}
-
-/// Named user defaults for FirebaseML.
-extension UserDefaults {
-  static var firebaseMLDefaults: UserDefaults {
-    let suiteName = "com.google.firebase.ml"
-    // TODO: handle nil gracefully
-    let defaults = UserDefaults(suiteName: suiteName)!
-    return defaults
+    let decoder = JSONDecoder()
+    guard let modelInfoJSON = try? decoder.decode(ModelInfoResponse.self, from: data)
+    else { return }
+    let modelInfo = ModelInfo(app: app, name: modelName, defaults: defaults)
+    modelInfo.downloadURL = modelInfoJSON.downloadURL
+    // TODO: Possibly improve handling invalid server responses.
+    modelInfo.size = Int(modelInfoJSON.size) ?? 0
+    modelInfo.modelHash = modelHash
+    self.modelInfo = modelInfo
   }
 }
