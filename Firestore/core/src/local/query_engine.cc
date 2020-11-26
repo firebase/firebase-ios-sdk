@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/local/index_free_query_engine.h"
+#include "Firestore/core/src/local/query_engine.h"
 
 #include <utility>
 
@@ -42,15 +42,15 @@ using model::MaybeDocument;
 using model::MaybeDocumentMap;
 using model::SnapshotVersion;
 
-DocumentMap IndexFreeQueryEngine::GetDocumentsMatchingQuery(
+DocumentMap QueryEngine::GetDocumentsMatchingQuery(
     const Query& query,
     const SnapshotVersion& last_limbo_free_snapshot_version,
     const DocumentKeySet& remote_keys) {
   HARD_ASSERT(local_documents_view_, "SetLocalDocumentsView() not called");
 
-  // Queries that match all documents don't benefit from using IndexFreeQueries.
-  // It is more efficient to scan all documents in a collection, rather than to
-  // perform individual lookups.
+  // Queries that match all documents don't benefit from using key-based
+  // lookups. It is more efficient to scan all documents in a collection, rather
+  // than to perform individual lookups.
   if (query.MatchesAllDocuments()) {
     return ExecuteFullCollectionScan(query);
   }
@@ -89,8 +89,8 @@ DocumentMap IndexFreeQueryEngine::GetDocumentsMatchingQuery(
   return updated_results;
 }
 
-DocumentSet IndexFreeQueryEngine::ApplyQuery(
-    const Query& query, const MaybeDocumentMap& documents) const {
+DocumentSet QueryEngine::ApplyQuery(const Query& query,
+                                    const MaybeDocumentMap& documents) const {
   // Sort the documents and re-apply the query filter since previously matching
   // documents do not necessarily still match the query.
   DocumentSet query_results(query.Comparator());
@@ -107,7 +107,7 @@ DocumentSet IndexFreeQueryEngine::ApplyQuery(
   return query_results;
 }
 
-bool IndexFreeQueryEngine::NeedsRefill(
+bool QueryEngine::NeedsRefill(
     LimitType limit_type,
     const DocumentSet& sorted_previous_results,
     const DocumentKeySet& remote_keys,
@@ -138,8 +138,7 @@ bool IndexFreeQueryEngine::NeedsRefill(
          document_at_limit_edge->version() > limbo_free_snapshot_version;
 }
 
-DocumentMap IndexFreeQueryEngine::ExecuteFullCollectionScan(
-    const Query& query) {
+DocumentMap QueryEngine::ExecuteFullCollectionScan(const Query& query) {
   LOG_DEBUG("Using full collection scan to execute query: %s",
             query.ToString());
   return local_documents_view_->GetDocumentsMatchingQuery(
