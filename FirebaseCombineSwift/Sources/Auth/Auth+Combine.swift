@@ -436,5 +436,31 @@
         }
       }
     }
+
+    /// Asynchronously signs in to Firebase with the given Auth token.
+    ///
+    /// The publisher will emit events on the **main** thread.
+    ///
+    /// - Parameter token: A self-signed custom auth token.
+    /// - Returns: A publisher that emits an `AuthDataResult` when the sign-in flow completed
+    ///   successfully, or an error otherwise. The publisher will emit on the *main* thread.
+    /// - Remark: Possible error codes:
+    ///   - AuthErrorCodeInvalidCustomToken` - Indicates a validation error with the custom token.
+    ///   - `AuthErrorCodeUserDisabled` - Indicates the user's account is disabled.
+    ///   - `AuthErrorCodeCustomTokenMismatch` - Indicates the service account and the API key
+    ///     belong to different projects.
+    ///
+    ///   See `AuthErrors` for a list of error codes that are common to all API methods
+    public func signIn(withCustomToken token: String) -> Future<AuthDataResult, Error> {
+      Future<AuthDataResult, Error> { promise in
+        self.signIn(withCustomToken: token) { authDataResult, error in
+          if let error = error {
+            promise(.failure(error))
+          } else if let authDataResult = authDataResult {
+            promise(.success(authDataResult))
+          }
+        }
+      }
+    }
   }
 #endif
