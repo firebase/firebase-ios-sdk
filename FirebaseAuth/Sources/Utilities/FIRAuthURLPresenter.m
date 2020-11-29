@@ -91,7 +91,7 @@ NS_ASSUME_NONNULL_BEGIN
   _completion = [completion copy];
   dispatch_async(dispatch_get_main_queue(), ^() {
     self->_UIDelegate = UIDelegate ?: [FIRAuthDefaultUIDelegate defaultUIDelegate];
-    if ([SFSafariViewController class]) {
+    if ([SFSafariViewController class], !TARGET_OS_MACCATALYST) {
       self->_safariViewController = [[SFSafariViewController alloc] initWithURL:URL];
       self->_safariViewController.delegate = self;
       [self->_UIDelegate presentViewController:self->_safariViewController
