@@ -96,7 +96,7 @@ NS_ASSUME_NONNULL_BEGIN
       UINavigationController *navController =
           [[UINavigationController alloc] initWithRootViewController:self->_webViewController];
       [self->_UIDelegate presentViewController:navController animated:YES completion:nil];
-#elif
+#else
     if ([SFSafariViewController class]) {
       self->_safariViewController = [[SFSafariViewController alloc] initWithURL:URL];
       self->_safariViewController.delegate = self;
