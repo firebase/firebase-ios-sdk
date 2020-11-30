@@ -17,6 +17,7 @@
 #include "Firestore/core/src/local/leveldb_target_cache.h"
 
 #include <string>
+#include <unordered_set>
 #include <utility>
 
 #include "Firestore/core/src/local/leveldb_key.h"
@@ -124,7 +125,7 @@ void LevelDbTargetCache::UpdateTarget(const TargetData& target_data) {
 void LevelDbTargetCache::RemoveTarget(const TargetData& target_data) {
   TargetId target_id = target_data.target_id();
 
-  RemoveAllKeysForTarget(target_id);
+  RemoveAllDocumentKeysForTarget(target_id);
 
   std::string key = LevelDbTargetKey::Key(target_id);
   db_->current_transaction()->Delete(key);
@@ -188,35 +189,57 @@ absl::optional<TargetData> LevelDbTargetCache::GetTarget(const Target& target) {
   return absl::nullopt;
 }
 
-void LevelDbTargetCache::EnumerateTargets(const TargetCallback& callback) {
+void LevelDbTargetCache::EnumerateSequenceNumbers(
+    const SequenceNumberCallback& callback) {
   // Enumerate all targets, give their sequence numbers.
   std::string target_prefix = LevelDbTargetKey::KeyPrefix();
   auto it = db_->current_transaction()->NewIterator();
   it->Seek(target_prefix);
   for (; it->Valid() && absl::StartsWith(it->key(), target_prefix);
        it->Next()) {
-    TargetData target = DecodeTarget(it->value());
-    callback(target);
+    StringReader reader{it->value()};
+    auto target_proto = DecodeTargetProto(&reader);
+    callback(target_proto->last_listen_sequence_number);
   }
 }
 
-int LevelDbTargetCache::RemoveTargets(
+size_t LevelDbTargetCache::RemoveTargets(
     ListenSequenceNumber upper_bound,
     const std::unordered_map<model::TargetId, TargetData>& live_targets) {
-  int count = 0;
   std::string target_prefix = LevelDbTargetKey::KeyPrefix();
   auto it = db_->current_transaction()->NewIterator();
   it->Seek(target_prefix);
+
+  std::unordered_set<TargetId> removed_targets;
+
+  // In https://github.com/firebase/firebase-ios-sdk/issues/6721, a customer
+  // reports that their client crashes when deserializing an invalid Target
+  // during an LRU run. Instead of deserializing the value into a full Target
+  // model, we only convert it into the underlying Protobuf message.
   for (; it->Valid() && absl::StartsWith(it->key(), target_prefix);
        it->Next()) {
-    TargetData target_data = DecodeTarget(it->value());
-    if (target_data.sequence_number() <= upper_bound &&
-        live_targets.find(target_data.target_id()) == live_targets.end()) {
-      RemoveTarget(target_data);
-      count++;
+    StringReader reader{it->value()};
+    auto target_proto = DecodeTargetProto(&reader);
+    if (target_proto->last_listen_sequence_number <= upper_bound &&
+        live_targets.find(target_proto->target_id) == live_targets.end()) {
+      TargetId target_id = target_proto->target_id;
+
+      // Remove the DocumentKey to TargetId mapping
+      RemoveAllDocumentKeysForTarget(target_id);
+      // Remove the TargetId to Target mapping
+      db_->current_transaction()->Delete(it->key());
+
+      removed_targets.insert(target_id);
     }
   }
-  return count;
+
+  // Remove the CanonicalId to TargetId mapping
+  RemoveQueryTargetKeyForTargets(removed_targets);
+
+  metadata_->target_count -= removed_targets.size();
+  SaveMetadata();
+
+  return removed_targets.size();
 }
 
 void LevelDbTargetCache::AddMatchingKeys(const DocumentKeySet& keys,
@@ -247,7 +270,7 @@ void LevelDbTargetCache::RemoveMatchingKeys(const DocumentKeySet& keys,
   }
 }
 
-void LevelDbTargetCache::RemoveAllKeysForTarget(TargetId target_id) {
+void LevelDbTargetCache::RemoveAllDocumentKeysForTarget(TargetId target_id) {
   std::string index_prefix = LevelDbTargetDocumentKey::KeyPrefix(target_id);
   auto index_iterator = db_->current_transaction()->NewIterator();
   index_iterator->Seek(index_prefix);
@@ -266,6 +289,24 @@ void LevelDbTargetCache::RemoveAllKeysForTarget(TargetId target_id) {
     db_->current_transaction()->Delete(index_key);
     db_->current_transaction()->Delete(
         LevelDbDocumentTargetKey::Key(document_key, target_id));
+  }
+}
+
+void LevelDbTargetCache::RemoveQueryTargetKeyForTargets(
+    const std::unordered_set<TargetId>& target_ids) {
+  std::string index_prefix = LevelDbQueryTargetKey::KeyPrefix();
+  auto index_iterator = db_->current_transaction()->NewIterator();
+  index_iterator->Seek(index_prefix);
+
+  LevelDbQueryTargetKey row_key;
+  for (; index_iterator->Valid(); index_iterator->Next()) {
+    if (!row_key.Decode(index_iterator->key())) {
+      break;
+    }
+
+    if (target_ids.find(row_key.target_id()) != target_ids.end()) {
+      db_->current_transaction()->Delete(index_iterator->key());
+    }
   }
 }
 
@@ -386,12 +427,21 @@ void LevelDbTargetCache::SaveMetadata() {
   db_->current_transaction()->Put(LevelDbTargetGlobalKey::Key(), metadata_);
 }
 
+nanopb::Message<firestore_client_Target> LevelDbTargetCache::DecodeTargetProto(
+    nanopb::Reader* reader) {
+  auto message = Message<firestore_client_Target>::TryParse(reader);
+  if (!reader->ok()) {
+    HARD_FAIL("Target proto failed to parse: %s", reader->status().ToString());
+  }
+  return message;
+}
+
 TargetData LevelDbTargetCache::DecodeTarget(absl::string_view encoded) {
   StringReader reader{encoded};
-  auto message = Message<firestore_client_Target>::TryParse(&reader);
+  auto message = DecodeTargetProto(&reader);
   auto result = serializer_->DecodeTargetData(&reader, *message);
   if (!reader.ok()) {
-    HARD_FAIL("Target proto failed to parse: %s, message: %s",
+    HARD_FAIL("Target failed to parse: %s, message: %s",
               reader.status().ToString(), message.ToString());
   }
 
