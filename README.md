@@ -45,7 +45,8 @@ See the subsections below for details about the different installation methods.
 ### Standard pod install
 
 Go to
-[https://firebase.google.com/docs/ios/setup](https://firebase.google.com/docs/ios/setup).
+[https://firebase.google.com/docs/ios/setup](https://firebase.google.com/docs/ios/setup). If you
+have a new Mac with an Apple silicon chip, please see [these instructions](AppleSilicon.md).
 
 ### Swift Package Manager (Beta)
 
@@ -88,7 +89,8 @@ pod 'FirebaseMessaging', :path => '/path/to/firebase-ios-sdk'
 ### Carthage (iOS only)
 
 Instructions for the experimental Carthage distribution are at
-[Carthage](Carthage.md).
+[Carthage](Carthage.md). If you have a new Mac with an Apple silicon chip, please see
+[these instructions](AppleSilicon.md).
 
 ### Using Firebase from a Framework or a library
 
