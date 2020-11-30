@@ -1,6 +1,6 @@
 # Unreleased
 - [changed] Removed obsolete API calls from upload-symbols
-- [changed] Removed unneccessary onboarding calls from the SDK.
+- [changed] Removed obsolete onboarding calls from the SDK.
 
 # v7.1.0
 - [fixed] Fixed an issue where symbol uploads would fail when there are spaces in the project path, particularly in Unity builds (#6789).
