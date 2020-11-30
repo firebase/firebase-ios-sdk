@@ -88,7 +88,7 @@
 
     [fetcher beginFetchWithCompletionHandler:^(NSData *data, NSError *error) {
       FIRStorageGetMetadataTask *strongSelf = weakSelf;
-      if (strongSelf && strongSelf.fetcherCompletion != nil) {
+      if (strongSelf.fetcherCompletion) {
         strongSelf.fetcherCompletion(data, error);
       }
     }];

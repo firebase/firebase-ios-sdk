@@ -116,7 +116,7 @@
     };
     [fetcher beginFetchWithCompletionHandler:^(NSData *data, NSError *error) {
       FIRStorageGetDownloadURLTask *strongSelf = weakSelf;
-      if (strongSelf && strongSelf.fetcherCompletion != nil) {
+      if (strongSelf.fetcherCompletion) {
         strongSelf.fetcherCompletion(data, error);
       }
     }];

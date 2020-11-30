@@ -73,7 +73,7 @@
 
     [fetcher beginFetchWithCompletionHandler:^(NSData *_Nullable data, NSError *_Nullable error) {
       FIRStorageDeleteTask *strongSelf = weakSelf;
-      if (strongSelf && strongSelf.fetcherCompletion != nil) {
+      if (strongSelf.fetcherCompletion) {
         strongSelf.fetcherCompletion(data, error);
       }
     }];

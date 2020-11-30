@@ -138,7 +138,7 @@
     strongSelf.state = FIRStorageTaskStateRunning;
     [strongSelf.fetcher beginFetchWithCompletionHandler:^(NSData *data, NSError *error) {
       FIRStorageDownloadTask *strongSelf = weakSelf;
-      if (strongSelf && strongSelf.fetcherCompletion != nil) {
+      if (strongSelf.fetcherCompletion) {
         strongSelf.fetcherCompletion(data, error);
       }
     }];

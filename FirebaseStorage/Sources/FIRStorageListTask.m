@@ -117,7 +117,7 @@
 
     [fetcher beginFetchWithCompletionHandler:^(NSData *data, NSError *error) {
       FIRStorageListTask *strongSelf = weakSelf;
-      if (strongSelf && strongSelf.fetcherCompletion != nil) {
+      if (strongSelf.fetcherCompletion) {
         strongSelf.fetcherCompletion(data, error);
       }
     }];
