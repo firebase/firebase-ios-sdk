@@ -70,7 +70,7 @@ vm_size_t FIRCLSHostGetPageSize(void) {
   // that sysctlbyname does. This API is nicer, but that's important to keep in mind.
 
   int maxNativePageSize = CLS_MAX_NATIVE_PAGE_SIZE;
-  
+
   // On Apple Silicon, we need to use the arm64 page size
   // even if we're in x86 land.
   if (FIRCLSHostIsRosettaTranslated()) {
@@ -78,7 +78,7 @@ vm_size_t FIRCLSHostGetPageSize(void) {
 
     maxNativePageSize = CLS_MAX_ARM64_NATIVE_PAGE_SIZE;
   }
-  
+
   pageSize = 0;
   size = sizeof(pageSize);
   if (sysctlbyname("hw.pagesize", &pageSize, &size, NULL, 0) != 0) {
@@ -107,18 +107,24 @@ vm_size_t FIRCLSHostGetPageSize(void) {
 // This comes from the Apple documentation here:
 // https://developer.apple.com/documentation/apple_silicon/about_the_rosetta_translation_environment
 bool FIRCLSHostIsRosettaTranslated() {
-   int ret = 0;
-   size_t size = sizeof(ret);
-   if (sysctlbyname("sysctl.proc_translated", &ret, &size, NULL, 0) == -1) {
-     // If we get an error, or 0, we're going to treat this as x86_64 macOS native
-     if (errno == ENOENT) {
-       return false;
-     }
-     // This is the error case
-     FIRCLSSDKLog("sysctlbyname failed while trying to get sysctl.proc_translated for Rosetta 2 translation\n");
-     return false;
-   }
-   return ret == 1;
+#if TARGET_OS_MAC
+  int result = 0;
+  size_t size = sizeof(result);
+  if (sysctlbyname("sysctl.proc_translated", &result, &size, NULL, 0) == -1) {
+    // If we get an error, or 0, we're going to treat this as x86_64 macOS native
+    if (errno == ENOENT) {
+      return false;
+    }
+    // This is the error case
+    FIRCLSSDKLog("sysctlbyname failed while trying to get sysctl.proc_translated for Rosetta 2 "
+                 "translation\n");
+    return false;
+  }
+  return result == 1;
+
+#else
+  return false;
+#endif
 }
 
 static void FIRCLSHostWriteSysctlEntry(
