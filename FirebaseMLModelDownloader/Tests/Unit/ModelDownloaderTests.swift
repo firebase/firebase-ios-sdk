@@ -31,12 +31,12 @@ extension UserDefaults {
 final class ModelDownloaderTests: XCTestCase {
   override class func setUp() {
     super.setUp()
-    guard let plistPath = Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist"),
-      let options = FirebaseOptions(contentsOfFile: plistPath) else {
-      XCTFail("GoogleService-Info.plist not found.")
-      return
+    if let plistPath = Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist"),
+       let options = FirebaseOptions(contentsOfFile: plistPath) {
+      FirebaseApp.configure(options: options)
+    } else {
+      FirebaseApp.configure()
     }
-    FirebaseApp.configure(options: options)
   }
 
   /// Unit test for reading and writing to user defaults.
