@@ -29,8 +29,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * Use this class to retrieve remote settings for the application from crashlytics backend, and
- * onboard the application on the server.
+ * Use this class to retrieve remote settings for the application from crashlytics backend.
  */
 @interface FIRCLSSettingsManager : NSObject
 
