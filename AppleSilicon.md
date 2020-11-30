@@ -29,8 +29,9 @@ pod 'Firebase/Analytics, '~> 7.2-M1'
 pod 'Firebase/Analytics, '~> 7-M1'
 ```
 
-The CocoaPods issue has been fixed in CocoaPods/CocoaPods#10234 but has not been included in a
-CocoaPods release yet.
+The CocoaPods issue has been fixed in
+[CocoaPods/CocoaPods#10234](https://github.com/CocoaPods/CocoaPods/pull/10234) but has not been
+included in a CocoaPods release yet.
 
 ### Performance
 
@@ -45,5 +46,6 @@ FirebaseML does not yet work with the simulator on Apple silicon Macs.
 
 XCFrameworks are required to include the arm64 slice for iOS devices and the macOS simulator for
 Macs running on Apple silicon. Unfortunately, Carthage does not support XCFrameworks yet which
-prevents us from being able to include support. See Carthage/Carthage#2799 for progress.
+prevents us from being able to include support. See
+[Carthage/Carthage#2799](https://github.com/Carthage/Carthage/issues/2799) for progress.
 
