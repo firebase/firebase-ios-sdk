@@ -96,8 +96,9 @@
     fetcher.comment = @"UpdateMetadataTask";
 
     [fetcher beginFetchWithCompletionHandler:^(NSData *data, NSError *error) {
-      if (weakSelf.fetcherCompletion != nil) {
-        weakSelf.fetcherCompletion(data, error);
+      FIRStorageUpdateMetadataTask *strongSelf = weakSelf;
+      if (strongSelf && strongSelf.fetcherCompletion != nil) {
+        strongSelf.fetcherCompletion(data, error);
       }
     }];
   }];

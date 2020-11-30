@@ -116,8 +116,9 @@
     };
 
     [fetcher beginFetchWithCompletionHandler:^(NSData *data, NSError *error) {
-      if (weakSelf.fetcherCompletion != nil) {
-        weakSelf.fetcherCompletion(data, error);
+      FIRStorageListTask *strongSelf = weakSelf;
+      if (strongSelf && strongSelf.fetcherCompletion != nil) {
+        strongSelf.fetcherCompletion(data, error);
       }
     }];
   }];

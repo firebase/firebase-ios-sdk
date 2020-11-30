@@ -178,8 +178,9 @@
 
     [strongSelf->_uploadFetcher
         beginFetchWithCompletionHandler:^(NSData *_Nullable data, NSError *_Nullable error) {
-          if (weakSelf.fetcherCompletion != nil) {
-            weakSelf.fetcherCompletion(data, error);
+          FIRStorageUploadTask *strongSelf = weakSelf;
+          if (strongSelf && strongSelf.fetcherCompletion != nil) {
+            strongSelf.fetcherCompletion(data, error);
           }
         }];
   }];
