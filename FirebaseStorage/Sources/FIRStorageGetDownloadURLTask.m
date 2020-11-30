@@ -88,8 +88,6 @@
     strongSelf->_fetcher = fetcher;
     fetcher.comment = @"GetDownloadURLTask";
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Warc-retain-cycles"
     strongSelf->_fetcherCompletion = ^(NSData *data, NSError *error) {
       NSURL *downloadURL;
       if (error) {
@@ -116,9 +114,10 @@
 
       self->_fetcherCompletion = nil;
     };
-#pragma clang diagnostic pop
     [fetcher beginFetchWithCompletionHandler:^(NSData *data, NSError *error) {
-      weakSelf.fetcherCompletion(data, error);
+      if (weakSelf.fetcherCompletion != nil) {
+        weakSelf.fetcherCompletion(data, error);
+      }
     }];
   }];
 };
