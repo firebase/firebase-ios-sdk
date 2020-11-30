@@ -1,7 +1,6 @@
 # Unreleased
-- [fixed] The SDK no longer fully deserializes queries during garbage,
-  collection, which reduces SDK crashes when it encounters invalid data
-  (#6721).
+- [fixed] Fixed a crash that could happen when the SDK encountered invalid
+  data during garbage collection (#6721).
 
 # v7.2.0
 - [added] Made emulator connection API consistent between Auth, Database,
