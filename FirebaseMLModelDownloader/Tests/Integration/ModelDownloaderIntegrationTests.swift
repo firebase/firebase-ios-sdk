@@ -33,48 +33,67 @@ final class ModelDownloaderTests: XCTestCase {
     FirebaseApp.configure()
   }
 
-  /// Unit test for reading and writing to user defaults.
-  func testUserDefaults() {
+  /// Test to retrieve FIS token - makes an actual network call.
+  func testGetAuthToken() {
     let testApp = FirebaseApp.app()!
-    let functionName = #function
-    let testModelName = "\(functionName)-test-model"
-    let modelInfo = ModelInfo(
-      app: testApp,
-      name: testModelName,
-      defaults: .getTestInstance()
-    )
-    XCTAssertEqual(modelInfo.downloadURL, "")
-    modelInfo.downloadURL = "testurl.com"
-    XCTAssertEqual(modelInfo.downloadURL, "testurl.com")
-    XCTAssertEqual(modelInfo.modelHash, "")
-    XCTAssertEqual(modelInfo.size, 0)
-    XCTAssertEqual(modelInfo.path, nil)
-  }
-
-  /// Test to download model info.
-  // TODO: Add unit test with mocks.
-  func testDownloadModelInfo() {}
-
-  /// Unit test to save model info to user defaults.
-  func testSaveModelInfo() {
-    let testApp = FirebaseApp.app()!
-    let functionName = #function
-    let testModelName = "\(functionName)-test-model"
+    let testModelName = "image-classification"
     let modelInfoRetriever = ModelInfoRetriever(
       app: testApp,
-      modelName: testModelName
+      modelName: testModelName,
+      defaults: .getTestInstance()
     )
-    let sampleResponse: String = """
-    {
-    "downloadUri": "https://storage.googleapis.com",
-    "expireTime": "2020-11-10T04:58:49.643Z",
-    "sizeBytes": "562336"
-    }
-    """
-    let data: Data = sampleResponse.data(using: .utf8)!
-    modelInfoRetriever.saveModelInfo(data: data, modelHash: "test-model-hash")
-    XCTAssertEqual(modelInfoRetriever.modelInfo?.downloadURL, "https://storage.googleapis.com")
-    XCTAssertEqual(modelInfoRetriever.modelInfo?.size, 562_336)
+    let expectation = self.expectation(description: "Wait for FIS auth token.")
+    modelInfoRetriever.getAuthToken(completion: { result in
+      switch result {
+      case let .success(token):
+        XCTAssertNotNil(token)
+      case let .failure(error):
+        XCTFail(error.localizedDescription)
+      }
+      expectation.fulfill()
+
+    })
+    waitForExpectations(timeout: 5, handler: nil)
+  }
+
+  /// Test to download model info - makes an actual network call.
+  func testDownloadModelInfo() {
+    let testApp = FirebaseApp.app()!
+    let testModelName = "pose-detection"
+    let modelInfoRetriever = ModelInfoRetriever(
+      app: testApp,
+      modelName: testModelName,
+      defaults: .getTestInstance()
+    )
+    let downloadExpectation = expectation(description: "Wait for model info to download.")
+    modelInfoRetriever.downloadModelInfo(completion: { error in
+      XCTAssertNil(error)
+      guard let modelInfo = modelInfoRetriever.modelInfo else {
+        XCTFail("Empty model info.")
+        return
+      }
+      XCTAssertNotEqual(modelInfo.downloadURL, "")
+      XCTAssertNotEqual(modelInfo.modelHash, "")
+      XCTAssertGreaterThan(modelInfo.size, 0)
+      downloadExpectation.fulfill()
+    })
+
+    waitForExpectations(timeout: 5, handler: nil)
+
+    let retrieveExpectation = expectation(description: "Wait for model info to be retrieved.")
+    modelInfoRetriever.downloadModelInfo(completion: { error in
+      XCTAssertNil(error)
+      guard let modelInfo = modelInfoRetriever.modelInfo else {
+        XCTFail("Empty model info.")
+        return
+      }
+      XCTAssertNotEqual(modelInfo.downloadURL, "")
+      XCTAssertNotEqual(modelInfo.modelHash, "")
+      XCTAssertGreaterThan(modelInfo.size, 0)
+      retrieveExpectation.fulfill()
+    })
+
+    waitForExpectations(timeout: 500, handler: nil)
   }
 
   func testExample() {
