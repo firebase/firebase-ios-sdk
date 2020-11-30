@@ -32,7 +32,7 @@ final class ModelDownloaderTests: XCTestCase {
   override class func setUp() {
     super.setUp()
     if let plistPath = Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist"),
-       let options = FirebaseOptions(contentsOfFile: plistPath) {
+      let options = FirebaseOptions(contentsOfFile: plistPath) {
       FirebaseApp.configure(options: options)
     } else {
       FirebaseApp.configure()
