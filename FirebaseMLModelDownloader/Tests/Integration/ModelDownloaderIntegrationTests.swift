@@ -27,15 +27,24 @@ extension UserDefaults {
   }
 }
 
-final class ModelDownloaderTests: XCTestCase {
+final class ModelDownloaderIntegrationTests: XCTestCase {
   override class func setUp() {
     super.setUp()
-    FirebaseApp.configure()
+    let bundle = Bundle(for: self)
+    if let plistPath = bundle.path(forResource: "GoogleService-Info", ofType: "plist"),
+      let options = FirebaseOptions(contentsOfFile: plistPath) {
+      FirebaseApp.configure(options: options)
+    } else {
+      XCTFail("Could not locate GoogleService-Info.plist.")
+    }
   }
 
   /// Test to retrieve FIS token - makes an actual network call.
   func testGetAuthToken() {
-    let testApp = FirebaseApp.app()!
+    guard let testApp = FirebaseApp.app() else {
+      XCTFail("Default app was not configured.")
+      return
+    }
     let testModelName = "image-classification"
     let modelInfoRetriever = ModelInfoRetriever(
       app: testApp,
@@ -58,7 +67,10 @@ final class ModelDownloaderTests: XCTestCase {
 
   /// Test to download model info - makes an actual network call.
   func testDownloadModelInfo() {
-    let testApp = FirebaseApp.app()!
+    guard let testApp = FirebaseApp.app() else {
+      XCTFail("Default app was not configured.")
+      return
+    }
     let testModelName = "pose-detection"
     let modelInfoRetriever = ModelInfoRetriever(
       app: testApp,
@@ -94,57 +106,5 @@ final class ModelDownloaderTests: XCTestCase {
     })
 
     waitForExpectations(timeout: 500, handler: nil)
-  }
-
-  func testExample() {
-    // This is an example of a functional test case.
-    // Use XCTAssert and related functions to verify your tests produce the correct
-    // results.
-    let modelDownloader = ModelDownloader()
-    let conditions = ModelDownloadConditions()
-
-    // Download model w/ progress handler
-    modelDownloader.getModel(
-      name: "your_model_name",
-      downloadType: .latestModel,
-      conditions: conditions,
-      progressHandler: { progress in
-        // Handle progress
-      }
-    ) { result in
-      switch result {
-      case .success:
-        // Use model with your inference API
-        // let interpreter = Interpreter(modelPath: customModel.modelPath)
-        break
-      case .failure:
-        // Handle download error
-        break
-      }
-    }
-
-    // Access array of downloaded models
-    modelDownloader.listDownloadedModels { result in
-      switch result {
-      case .success:
-        // Pick model(s) for further use
-        break
-      case .failure:
-        // Handle failure
-        break
-      }
-    }
-
-    // Delete downloaded model
-    modelDownloader.deleteDownloadedModel(name: "your_model_name") { result in
-      switch result {
-      case .success():
-        // Apply any other clean up
-        break
-      case .failure:
-        // Handle failure
-        break
-      }
-    }
   }
 }
