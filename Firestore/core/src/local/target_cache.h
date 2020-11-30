@@ -37,7 +37,7 @@ class TargetData;
 using OrphanedDocumentCallback =
     std::function<void(const model::DocumentKey&, model::ListenSequenceNumber)>;
 
-using TargetCallback = std::function<void(const TargetData&)>;
+using SequenceNumberCallback = std::function<void(model::ListenSequenceNumber)>;
 
 /**
  * Represents cached targets received from the remote backend. This contains
@@ -74,8 +74,10 @@ class TargetCache {
    */
   virtual void UpdateTarget(const TargetData& target_data) = 0;
 
-  /** Removes the cached entry for the given target data. The entry must already
-   * exist in the cache. */
+  /**
+   * Removes the cached entry for the given target data. The entry must already
+   * exist in the cache.
+   */
   virtual void RemoveTarget(const TargetData& target_data) = 0;
 
   /**
@@ -87,9 +89,20 @@ class TargetCache {
    */
   virtual absl::optional<TargetData> GetTarget(const core::Target& target) = 0;
 
-  virtual void EnumerateTargets(const TargetCallback& callback) = 0;
+  /** Enumerates all sequence numbers in the TargetCache. */
+  virtual void EnumerateSequenceNumbers(
+      const SequenceNumberCallback& callback) = 0;
 
-  virtual int RemoveTargets(
+  /**
+   * Removes all target by sequence number up to (and including) the given
+   * sequence number. Targets in `live_targets` are ignored.
+   *
+   * @param upper_bound The upper bound for last target's sequence number
+   *     (inclusive).
+   * @param live_targets Targets to ignore.
+   * @return The number of targets removed.
+   */
+  virtual size_t RemoveTargets(
       model::ListenSequenceNumber upper_bound,
       const std::unordered_map<model::TargetId, TargetData>& live_targets) = 0;
 
