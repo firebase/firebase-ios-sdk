@@ -1,5 +1,6 @@
 # Unreleased
 - [changed] Removed obsolete API calls from upload-symbols
+- [changed] Removed obsolete onboarding calls from the SDK.
 - [changed] Decreased Crashlytics CocoaPods minimum deployment target from iOS 10 to iOS 9
 
 # v7.1.0
