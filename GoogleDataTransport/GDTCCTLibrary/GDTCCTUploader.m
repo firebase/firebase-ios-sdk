@@ -109,15 +109,6 @@ static NSURL *_testServerURL = nil;
 }
 
 + (NSDictionary<NSNumber *, NSURL *> *)uploadURLs {
-  return @{
-    @(kGDTCORTargetCCT) : [self serverURLForTarget:kGDTCORTargetCCT],
-    @(kGDTCORTargetFLL) : [self serverURLForTarget:kGDTCORTargetFLL],
-    @(kGDTCORTargetCSH) : [self serverURLForTarget:kGDTCORTargetCSH],
-    @(kGDTCORTargetINT) : [self serverURLForTarget:kGDTCORTargetINT]
-  };
-}
-
-+ (nullable NSURL *)serverURLForTarget:(GDTCORTarget)target {
   // These strings should be interleaved to construct the real URL. This is just to (hopefully)
   // fool github URL scanning bots.
   static NSURL *CCTServerURL;
@@ -168,30 +159,23 @@ static NSURL *_testServerURL = nil;
     CSHServerURL = [NSURL URLWithString:[NSString stringWithUTF8String:URL]];
   });
 
+  return @{
+    @(kGDTCORTargetCCT) : CCTServerURL,
+    @(kGDTCORTargetFLL) : FLLServerURL,
+    @(kGDTCORTargetCSH) : CSHServerURL,
+    @(kGDTCORTargetINT) : [NSURL URLWithString:kINTServerURL]
+  };
+}
+
++ (nullable NSURL *)serverURLForTarget:(GDTCORTarget)target {
+  
 #if !NDEBUG
   if (_testServerURL) {
     return _testServerURL;
   }
 #endif  // !NDEBUG
 
-  switch (target) {
-    case kGDTCORTargetCCT:
-      return CCTServerURL;
-
-    case kGDTCORTargetFLL:
-      return FLLServerURL;
-
-    case kGDTCORTargetCSH:
-      return CSHServerURL;
-
-    case kGDTCORTargetINT:
-      return [NSURL URLWithString:kINTServerURL];
-
-    default:
-      GDTCORLogDebug(@"GDTCCTUploader doesn't support target %ld", (long)target);
-      return nil;
-      break;
-  }
+  return [self uploadURLs][@(target)];
 }
 
 - (instancetype)init {
