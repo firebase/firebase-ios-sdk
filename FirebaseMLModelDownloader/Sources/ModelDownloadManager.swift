@@ -92,9 +92,18 @@ extension ModelDownloadManager: URLSessionDownloadDelegate {
       return
     }
 
+    /// Set path to local model.
     modelInfo.path = savedURL.absoluteString
+    /// Write model to user defaults.
+    modelInfo.writeToDefaults(app: app, defaults: .firebaseMLDefaults)
+    /// Build model from model info.
     guard let model = buildModel() else {
-      handlers.completion(.failure(.internalError(description: "Incomplete model info.")))
+      handlers
+        .completion(
+          .failure(
+            .internalError(description: "Could not create model due to incomplete model info.")
+          )
+        )
       return
     }
     handlers.completion(.success(model))
@@ -139,5 +148,15 @@ extension ModelDownloadManager {
     } else {
       return nil
     }
+  }
+}
+
+/// Named user defaults for FirebaseML.
+extension UserDefaults {
+  static var firebaseMLDefaults: UserDefaults {
+    let suiteName = "com.google.firebase.ml"
+    // TODO: reconsider force unwrapping
+    let defaults = UserDefaults(suiteName: suiteName)!
+    return defaults
   }
 }

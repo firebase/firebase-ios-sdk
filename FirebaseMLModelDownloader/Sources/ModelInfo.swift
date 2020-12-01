@@ -16,7 +16,7 @@ import Foundation
 import FirebaseCore
 
 /// Model info object with details about pending or downloaded model.
-class ModelInfo: NSObject {
+struct ModelInfo {
   /// Model name.
   let name: String
 
