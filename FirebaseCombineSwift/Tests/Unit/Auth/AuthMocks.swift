@@ -15,53 +15,14 @@
 import Foundation
 @testable import FirebaseAuth
 
+let expectationTimeout: TimeInterval = 2
 let kAccessTokenTimeToLive: TimeInterval = 60 * 60
 let kRefreshToken = "REFRESH_TOKEN"
 let kAccessToken = "ACCESS_TOKEN"
 
-class MockSignUpNewUserResponse: FIRSignUpNewUserResponse {
-  override var idToken: String { return kAccessToken }
-  override var refreshToken: String { return kRefreshToken }
-  override var approximateExpirationDate: Date { Date(timeIntervalSinceNow: kAccessTokenTimeToLive)
-  }
-}
-
-class MockVerifyPasswordResponse: FIRVerifyPasswordResponse {
-  override var localID: String { return "" }
-  override var email: String { return "" }
-  override var displayName: String { return "" }
-  override var idToken: String { return "" }
-  override var approximateExpirationDate: Date { return Date() }
-  override var refreshToken: String { return "" }
-}
-
-class MockSecureTokenResponse: FIRSecureTokenResponse {
-  override var accessToken: String { return "" }
-  override var approximateExpirationDate: Date { return Date() }
-}
-
-class MockGetAccountInfoResponse: FIRGetAccountInfoResponse {
-  var user: FIRGetAccountInfoResponseUser
-
-  init(withLocalId localId: String, displayName: String, email: String, passwordHash: String) {
-    user = FIRGetAccountInfoResponseUser(
-      dictionary: [
-        "localId": localId,
-        "displayName": displayName,
-        "email": email,
-        "passwordHash": passwordHash,
-      ]
-    )
-  }
-
-  override var users: [FIRGetAccountInfoResponseUser] {
-    return [user]
-  }
-}
-
 class AuthBackendImplementationMock: NSObject, FIRAuthBackendImplementation {}
 
-extension AuthBackendImplementationMock /*: AuthBackendMockForUserTests */ {
+extension AuthBackendImplementationMock {
   func createAuthURI(_ request: FIRCreateAuthURIRequest,
                      callback: @escaping FIRCreateAuthURIResponseCallback) {
     fatalError("You need to implement \(#function) in your mock.")
