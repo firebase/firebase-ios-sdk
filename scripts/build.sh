@@ -287,14 +287,16 @@ case "$product-$platform-$method" in
         -scheme "Auth_ApiTests" \
         "${xcb_flags[@]}" \
         build \
-        test
+        test \
+        -enableCodeCoverage "YES"
 
       RunXcodebuild \
         -workspace 'FirebaseAuth/Tests/Sample/AuthSample.xcworkspace' \
         -scheme "SwiftApiTests" \
         "${xcb_flags[@]}" \
         build \
-        test
+        test \
+        -enableCodeCoverage "YES"
     fi
     ;;
 
@@ -304,7 +306,8 @@ case "$product-$platform-$method" in
         -scheme 'FiamDisplaySwiftExample' \
         "${xcb_flags[@]}" \
         build \
-        test
+        test \
+        -enableCodeCoverage "YES"
     ;;
 
   Firestore-*-xcodebuild)
@@ -316,7 +319,8 @@ case "$product-$platform-$method" in
         -scheme "Firestore_IntegrationTests_$platform" \
         "${xcb_flags[@]}" \
         build \
-        test
+        test \
+        -enableCodeCoverage "YES"
     ;;
 
   Firestore-macOS-cmake | Firestore-Linux-cmake)
@@ -352,7 +356,8 @@ case "$product-$platform-$method" in
       "${ios_flags[@]}" \
       "${xcb_flags[@]}" \
       build \
-      test
+      test \
+      -enableCodeCoverage "YES"
 
     if check_secrets; then
       # Integration tests are only run on iOS to minimize flake failures.
@@ -362,7 +367,8 @@ case "$product-$platform-$method" in
         "${ios_flags[@]}" \
         "${xcb_flags[@]}" \
         build \
-        test
+        test \
+        -enableCodeCoverage "YES"
     fi
 
     pod_gen FirebaseMessaging.podspec --platforms=macos --clean
@@ -372,7 +378,8 @@ case "$product-$platform-$method" in
       "${macos_flags[@]}" \
       "${xcb_flags[@]}" \
       build \
-      test
+      test \
+      -enableCodeCoverage "YES"
 
     pod_gen FirebaseMessaging.podspec --platforms=tvos --clean
     RunXcodebuild \
@@ -381,7 +388,8 @@ case "$product-$platform-$method" in
       "${tvos_flags[@]}" \
       "${xcb_flags[@]}" \
       build \
-      test
+      test \
+      -enableCodeCoverage "YES"
     ;;
 
   MessagingSample-*-*)
@@ -409,7 +417,8 @@ case "$product-$platform-$method" in
       -scheme "FirebaseDatabase-Unit-unit" \
       "${xcb_flags[@]}" \
       build \
-      test
+      test \
+      -enableCodeCoverage "YES"
     ;;
 
   Database-*-integration)
@@ -422,7 +431,8 @@ case "$product-$platform-$method" in
       -scheme "FirebaseDatabase-Unit-integration" \
       "${xcb_flags[@]}" \
       build \
-      test
+      test \
+      -enableCodeCoverage "YES"
     ;;
 
   RemoteConfig-*-unit)
@@ -432,7 +442,8 @@ case "$product-$platform-$method" in
       -scheme "FirebaseRemoteConfig-Unit-unit" \
       "${xcb_flags[@]}" \
       build \
-      test
+      test \
+      -enableCodeCoverage "YES"
     ;;
 
   RemoteConfig-*-fakeconsole)
@@ -442,7 +453,8 @@ case "$product-$platform-$method" in
       -scheme "FirebaseRemoteConfig-Unit-fake-console-tests" \
       "${xcb_flags[@]}" \
       build \
-      test
+      test \
+      -enableCodeCoverage "YES"
     ;;
 
   RemoteConfig-*-integration)
@@ -452,7 +464,8 @@ case "$product-$platform-$method" in
       -scheme "FirebaseRemoteConfig-Unit-swift-api-tests" \
       "${xcb_flags[@]}" \
       build \
-      test
+      test \
+      -enableCodeCoverage "YES"
     ;;
 
   RemoteConfigSample-*-*)
@@ -471,7 +484,8 @@ case "$product-$platform-$method" in
       "${ios_flags[@]}" \
       "${xcb_flags[@]}" \
       build \
-      test
+      test \
+      -enableCodeCoverage "YES"
 
     if check_secrets; then
       # Integration tests are only run on iOS to minimize flake failures.
@@ -481,7 +495,8 @@ case "$product-$platform-$method" in
         "${ios_flags[@]}" \
         "${xcb_flags[@]}" \
         build \
-        test
+        test \
+        -enableCodeCoverage "YES"
 
       RunXcodebuild \
         -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
@@ -489,7 +504,8 @@ case "$product-$platform-$method" in
         "${ios_flags[@]}" \
         "${xcb_flags[@]}" \
         build \
-        test
+        test \
+        -enableCodeCoverage "YES"
       fi
 
     pod_gen FirebaseStorage.podspec --platforms=macos --clean
@@ -499,7 +515,8 @@ case "$product-$platform-$method" in
       "${macos_flags[@]}" \
       "${xcb_flags[@]}" \
       build \
-      test
+      test \
+      -enableCodeCoverage "YES"
 
     pod_gen FirebaseStorage.podspec --platforms=tvos --clean
     RunXcodebuild \
@@ -508,7 +525,8 @@ case "$product-$platform-$method" in
       "${tvos_flags[@]}" \
       "${xcb_flags[@]}" \
       build \
-      test
+      test \
+      -enableCodeCoverage "YES"
     ;;
 
   StorageSwift-*-xcodebuild)
@@ -521,7 +539,8 @@ case "$product-$platform-$method" in
         "${ios_flags[@]}" \
         "${xcb_flags[@]}" \
         build \
-        test
+        test \
+        -enableCodeCoverage "YES"
       fi
     ;;
 
@@ -549,7 +568,8 @@ case "$product-$platform-$method" in
     RunXcodebuild \
       -scheme $product \
       "${xcb_flags[@]}" \
-      test
+      test \
+      -enableCodeCoverage "YES"
     ;;
 
   *-*-spmbuildonly)
