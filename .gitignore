@@ -32,6 +32,9 @@ FirebaseStorageSwift/Tests/Integration/Credentials.swift
 # FirebaseSegmentation integration tests GoogleService-Info.plist
 FirebaseSegmentation/Tests/Sample/GoogleService-Info.plist
 
+# FirebaseMLModelDownloader integration tests GoogleService-Info.plist
+FirebaseMLModelDownloader/Tests/Integration/Resources/GoogleService-Info.plist
+
 Secrets.tar
 
 # OS X
