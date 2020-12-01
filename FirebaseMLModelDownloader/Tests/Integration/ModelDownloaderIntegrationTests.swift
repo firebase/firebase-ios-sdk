@@ -27,35 +27,24 @@ extension UserDefaults {
   }
 }
 
-// TODO: break this up into separate unit and integration tests
-final class ModelDownloaderTests: XCTestCase {
+final class ModelDownloaderIntegrationTests: XCTestCase {
   override class func setUp() {
     super.setUp()
-    FirebaseApp.configure()
-  }
-
-  /// Unit test for reading and writing to user defaults.
-  func testUserDefaults() {
-    let testApp = FirebaseApp.app()!
-    let functionName = #function
-    let testModelName = "\(functionName)-test-model"
-    let modelInfo = ModelInfo(
-      app: testApp,
-      name: testModelName,
-      defaults: .getTestInstance()
-    )
-    XCTAssertEqual(modelInfo.downloadURL, "")
-    modelInfo.downloadURL = "testurl.com"
-    XCTAssertEqual(modelInfo.downloadURL, "testurl.com")
-    XCTAssertEqual(modelInfo.modelHash, "")
-    XCTAssertEqual(modelInfo.size, 0)
-    XCTAssertEqual(modelInfo.path, nil)
+    let bundle = Bundle(for: self)
+    if let plistPath = bundle.path(forResource: "GoogleService-Info", ofType: "plist"),
+      let options = FirebaseOptions(contentsOfFile: plistPath) {
+      FirebaseApp.configure(options: options)
+    } else {
+      XCTFail("Could not locate GoogleService-Info.plist.")
+    }
   }
 
   /// Test to retrieve FIS token - makes an actual network call.
-  // TODO: Move this into a separate integration test and add unit test with mocks.
   func testGetAuthToken() {
-    let testApp = FirebaseApp.app()!
+    guard let testApp = FirebaseApp.app() else {
+      XCTFail("Default app was not configured.")
+      return
+    }
     let testModelName = "image-classification"
     let modelInfoRetriever = ModelInfoRetriever(
       app: testApp,
@@ -77,9 +66,11 @@ final class ModelDownloaderTests: XCTestCase {
   }
 
   /// Test to download model info - makes an actual network call.
-  // TODO: Move this into a separate integration test and add unit test with mocks.
   func testDownloadModelInfo() {
-    let testApp = FirebaseApp.app()!
+    guard let testApp = FirebaseApp.app() else {
+      XCTFail("Default app was not configured.")
+      return
+    }
     let testModelName = "pose-detection"
     let modelInfoRetriever = ModelInfoRetriever(
       app: testApp,
@@ -115,79 +106,5 @@ final class ModelDownloaderTests: XCTestCase {
     })
 
     waitForExpectations(timeout: 500, handler: nil)
-  }
-
-  /// Unit test to save model info to user defaults.
-  func testSaveModelInfo() {
-    let testApp = FirebaseApp.app()!
-    let functionName = #function
-    let testModelName = "\(functionName)-test-model"
-    let modelInfoRetriever = ModelInfoRetriever(
-      app: testApp,
-      modelName: testModelName
-    )
-    let sampleResponse: String = """
-    {
-    "downloadUri": "https://storage.googleapis.com",
-    "expireTime": "2020-11-10T04:58:49.643Z",
-    "sizeBytes": "562336"
-    }
-    """
-    let data: Data = sampleResponse.data(using: .utf8)!
-    modelInfoRetriever.saveModelInfo(data: data, modelHash: "test-model-hash")
-    XCTAssertEqual(modelInfoRetriever.modelInfo?.downloadURL, "https://storage.googleapis.com")
-    XCTAssertEqual(modelInfoRetriever.modelInfo?.size, 562_336)
-  }
-
-  func testExample() {
-    // This is an example of a functional test case.
-    // Use XCTAssert and related functions to verify your tests produce the correct
-    // results.
-    let modelDownloader = ModelDownloader()
-    let conditions = ModelDownloadConditions()
-
-    // Download model w/ progress handler
-    modelDownloader.getModel(
-      name: "your_model_name",
-      downloadType: .latestModel,
-      conditions: conditions,
-      progressHandler: { progress in
-        // Handle progress
-      }
-    ) { result in
-      switch result {
-      case .success:
-        // Use model with your inference API
-        // let interpreter = Interpreter(modelPath: customModel.modelPath)
-        break
-      case .failure:
-        // Handle download error
-        break
-      }
-    }
-
-    // Access array of downloaded models
-    modelDownloader.listDownloadedModels { result in
-      switch result {
-      case .success:
-        // Pick model(s) for further use
-        break
-      case .failure:
-        // Handle failure
-        break
-      }
-    }
-
-    // Delete downloaded model
-    modelDownloader.deleteDownloadedModel(name: "your_model_name") { result in
-      switch result {
-      case .success():
-        // Apply any other clean up
-        break
-      case .failure:
-        // Handle failure
-        break
-      }
-    }
   }
 }

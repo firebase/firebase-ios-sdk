@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/local/index_free_query_engine.h"
+#include "Firestore/core/src/local/query_engine.h"
 
 #include <functional>
 #include <memory>
@@ -42,7 +42,6 @@ namespace {
 using auth::User;
 using core::View;
 using core::ViewDocumentChanges;
-using local::IndexFreeQueryEngine;
 using local::LocalDocumentsView;
 using local::MemoryIndexManager;
 using local::Persistence;
@@ -100,26 +99,26 @@ class TestLocalDocumentsView : public LocalDocumentsView {
   DocumentMap GetDocumentsMatchingQuery(
       const core::Query& query,
       const SnapshotVersion& since_read_time) override {
-    bool is_index_free = since_read_time != SnapshotVersion::None();
+    bool full_collection_scan = since_read_time == SnapshotVersion::None();
 
-    EXPECT_TRUE(expect_index_free_execution.has_value());
-    EXPECT_EQ(expect_index_free_execution.value(), is_index_free);
+    EXPECT_TRUE(expect_full_collection_scan_.has_value());
+    EXPECT_EQ(expect_full_collection_scan_.value(), full_collection_scan);
 
     return LocalDocumentsView::GetDocumentsMatchingQuery(query,
                                                          since_read_time);
   }
 
-  void ExpectIndexFreeExecution(bool index_free) {
-    expect_index_free_execution = index_free;
+  void ExpectFullCollectionScan(bool full_collection_scan) {
+    expect_full_collection_scan_ = full_collection_scan;
   }
 
  private:
-  absl::optional<bool> expect_index_free_execution;
+  absl::optional<bool> expect_full_collection_scan_;
 };
 
-class IndexFreeQueryEngineTest : public ::testing::Test {
+class QueryEngineTest : public ::testing::Test {
  public:
-  IndexFreeQueryEngineTest()
+  QueryEngineTest()
       : persistence_(MemoryPersistence::WithEagerGarbageCollector()),
         remote_document_cache_(persistence_->remote_document_cache()),
         target_cache_(persistence_->target_cache()),
@@ -151,14 +150,15 @@ class IndexFreeQueryEngineTest : public ::testing::Test {
     });
   }
 
-  DocumentSet ExpectIndexFreeQuery(const std::function<DocumentSet(void)>& f) {
-    local_documents_view_.ExpectIndexFreeExecution(true);
+  DocumentSet ExpectOptimizedCollectionScan(
+      const std::function<DocumentSet(void)>& f) {
+    local_documents_view_.ExpectFullCollectionScan(false);
     return f();
   }
 
-  DocumentSet ExpectFullCollectionQuery(
+  DocumentSet ExpectFullCollectionScan(
       const std::function<DocumentSet(void)>& f) {
-    local_documents_view_.ExpectIndexFreeExecution(false);
+    local_documents_view_.ExpectFullCollectionScan(true);
     return f();
   }
 
@@ -179,22 +179,22 @@ class IndexFreeQueryEngineTest : public ::testing::Test {
   RemoteDocumentCache* remote_document_cache_ = nullptr;
   TargetCache* target_cache_ = nullptr;
   std::unique_ptr<MemoryIndexManager> index_manager_;
-  IndexFreeQueryEngine query_engine_;
+  QueryEngine query_engine_;
   TestLocalDocumentsView local_documents_view_;
 };
 
-TEST_F(IndexFreeQueryEngineTest, UsesTargetMappingForInitialView) {
+TEST_F(QueryEngineTest, UsesTargetMappingForInitialView) {
   core::Query query = Query("coll").AddingFilter(Filter("matches", "==", true));
 
   AddDocuments({kMatchingDocA, kMatchingDocB});
   PersistQueryMapping({kMatchingDocA.key(), kMatchingDocB.key()});
 
-  DocumentSet docs = ExpectIndexFreeQuery(
+  DocumentSet docs = ExpectOptimizedCollectionScan(
       [&] { return RunQuery(query, kLastLimboFreeSnapshot); });
   EXPECT_EQ(docs, DocSet(query.Comparator(), {kMatchingDocA, kMatchingDocB}));
 }
 
-TEST_F(IndexFreeQueryEngineTest, FiltersNonMatchingInitialResults) {
+TEST_F(QueryEngineTest, FiltersNonMatchingInitialResults) {
   core::Query query = Query("coll").AddingFilter(Filter("matches", "==", true));
 
   AddDocuments({kMatchingDocA, kMatchingDocB});
@@ -203,48 +203,47 @@ TEST_F(IndexFreeQueryEngineTest, FiltersNonMatchingInitialResults) {
   // Add a mutated document that is not yet part of query's set of remote keys.
   AddDocuments({kPendingNonMatchingDocA});
 
-  DocumentSet docs = ExpectIndexFreeQuery(
+  DocumentSet docs = ExpectOptimizedCollectionScan(
       [&] { return RunQuery(query, kLastLimboFreeSnapshot); });
   EXPECT_EQ(docs, DocSet(query.Comparator(), {kMatchingDocB}));
 }
 
-TEST_F(IndexFreeQueryEngineTest, IncludesChangesSinceInitialResults) {
+TEST_F(QueryEngineTest, IncludesChangesSinceInitialResults) {
   core::Query query = Query("coll").AddingFilter(Filter("matches", "==", true));
 
   AddDocuments({kMatchingDocA, kMatchingDocB});
   PersistQueryMapping({kMatchingDocA.key(), kMatchingDocB.key()});
 
-  DocumentSet docs = ExpectIndexFreeQuery(
+  DocumentSet docs = ExpectOptimizedCollectionScan(
       [&] { return RunQuery(query, kLastLimboFreeSnapshot); });
   EXPECT_EQ(docs, DocSet(query.Comparator(), {kMatchingDocA, kMatchingDocB}));
 
   AddDocuments({kUpdatedMatchingDocB});
 
-  docs = ExpectIndexFreeQuery(
+  docs = ExpectOptimizedCollectionScan(
       [&] { return RunQuery(query, kLastLimboFreeSnapshot); });
   EXPECT_EQ(docs,
             DocSet(query.Comparator(), {kMatchingDocA, kUpdatedMatchingDocB}));
 }
 
-TEST_F(IndexFreeQueryEngineTest,
+TEST_F(QueryEngineTest,
        DoesNotUseInitialResultsWithoutLimboFreeSnapshotVersion) {
   core::Query query = Query("coll").AddingFilter(Filter("matches", "==", true));
 
-  DocumentSet docs = ExpectFullCollectionQuery(
+  DocumentSet docs = ExpectFullCollectionScan(
       [&] { return RunQuery(query, kMissingLastLimboFreeSnapshot); });
   EXPECT_EQ(docs, DocSet(query.Comparator(), {}));
 }
 
-TEST_F(IndexFreeQueryEngineTest,
-       DoesNotUseInitialResultsForUnfilteredCollectionQuery) {
+TEST_F(QueryEngineTest, DoesNotUseInitialResultsForUnfilteredCollectionQuery) {
   core::Query query = Query("coll");
 
-  DocumentSet docs = ExpectFullCollectionQuery(
+  DocumentSet docs = ExpectFullCollectionScan(
       [&] { return RunQuery(query, kLastLimboFreeSnapshot); });
   EXPECT_EQ(docs, DocSet(query.Comparator(), {}));
 }
 
-TEST_F(IndexFreeQueryEngineTest,
+TEST_F(QueryEngineTest,
        DoesNotUseInitialResultsForLimitQueryWithDocumentRemoval) {
   core::Query query = Query("coll")
                           .AddingFilter(Filter("matches", "==", true))
@@ -258,12 +257,12 @@ TEST_F(IndexFreeQueryEngineTest,
 
   AddDocuments({kMatchingDocB});
 
-  DocumentSet docs = ExpectFullCollectionQuery(
+  DocumentSet docs = ExpectFullCollectionScan(
       [&] { return RunQuery(query, kLastLimboFreeSnapshot); });
   EXPECT_EQ(docs, DocSet(query.Comparator(), {kMatchingDocB}));
 }
 
-TEST_F(IndexFreeQueryEngineTest,
+TEST_F(QueryEngineTest,
        DoesNotUseInitialResultsForLimitToLastWithDocumentRemoval) {
   core::Query query = Query("coll")
                           .AddingFilter(Filter("matches", "==", true))
@@ -278,12 +277,12 @@ TEST_F(IndexFreeQueryEngineTest,
 
   AddDocuments({kMatchingDocB});
 
-  DocumentSet docs = ExpectFullCollectionQuery(
+  DocumentSet docs = ExpectFullCollectionScan(
       [&] { return RunQuery(query, kLastLimboFreeSnapshot); });
   EXPECT_EQ(docs, DocSet(query.Comparator(), {kMatchingDocB}));
 }
 
-TEST_F(IndexFreeQueryEngineTest,
+TEST_F(QueryEngineTest,
        DoesNotUseInitialResultsForLimitQueryWhenLastDocumentHasPendingWrite) {
   core::Query query = Query("coll")
                           .AddingFilter(Filter("matches", "==", true))
@@ -297,12 +296,12 @@ TEST_F(IndexFreeQueryEngineTest,
 
   AddDocuments({kMatchingDocB});
 
-  DocumentSet docs = ExpectFullCollectionQuery(
+  DocumentSet docs = ExpectFullCollectionScan(
       [&] { return RunQuery(query, kLastLimboFreeSnapshot); });
   EXPECT_EQ(docs, DocSet(query.Comparator(), {kMatchingDocB}));
 }
 
-TEST_F(IndexFreeQueryEngineTest,
+TEST_F(QueryEngineTest,
        DoesNotUseInitialResultsForLimitToLastWhenLastDocumentHasPendingWrite) {
   core::Query query = Query("coll")
                           .AddingFilter(Filter("matches", "==", true))
@@ -316,12 +315,12 @@ TEST_F(IndexFreeQueryEngineTest,
 
   AddDocuments({kMatchingDocB});
 
-  DocumentSet docs = ExpectFullCollectionQuery(
+  DocumentSet docs = ExpectFullCollectionScan(
       [&] { return RunQuery(query, kLastLimboFreeSnapshot); });
   EXPECT_EQ(docs, DocSet(query.Comparator(), {kMatchingDocB}));
 }
 
-TEST_F(IndexFreeQueryEngineTest,
+TEST_F(QueryEngineTest,
        DoesNotUseInitialResultsForLimitQueryWhenLastDocumentUpdatedOutOfBand) {
   core::Query query = Query("coll")
                           .AddingFilter(Filter("matches", "==", true))
@@ -336,12 +335,12 @@ TEST_F(IndexFreeQueryEngineTest,
 
   AddDocuments({kMatchingDocB});
 
-  DocumentSet docs = ExpectFullCollectionQuery(
+  DocumentSet docs = ExpectFullCollectionScan(
       [&] { return RunQuery(query, kLastLimboFreeSnapshot); });
   EXPECT_EQ(docs, DocSet(query.Comparator(), {kMatchingDocB}));
 }
 
-TEST_F(IndexFreeQueryEngineTest,
+TEST_F(QueryEngineTest,
        DoesNotUseInitialResultsForLimitToLastWhenLastDocumentUpdatedOutOfBand) {
   core::Query query = Query("coll")
                           .AddingFilter(Filter("matches", "==", true))
@@ -356,12 +355,12 @@ TEST_F(IndexFreeQueryEngineTest,
 
   AddDocuments({kMatchingDocB});
 
-  DocumentSet docs = ExpectFullCollectionQuery(
+  DocumentSet docs = ExpectFullCollectionScan(
       [&] { return RunQuery(query, kLastLimboFreeSnapshot); });
   EXPECT_EQ(docs, DocSet(query.Comparator(), {kMatchingDocB}));
 }
 
-TEST_F(IndexFreeQueryEngineTest,
+TEST_F(QueryEngineTest,
        LimitQueriesUseInitialResultsIfLastDocumentInLimitIsUnchanged) {
   core::Query query =
       Query("coll").AddingOrderBy(OrderBy("order")).WithLimitToFirst(2);
@@ -377,7 +376,7 @@ TEST_F(IndexFreeQueryEngineTest,
   // Since the last document in the limit didn't change (and hence we know that
   // all documents written prior to query execution still sort after "coll/b"),
   // we should use an Index-Free query.
-  DocumentSet docs = ExpectIndexFreeQuery(
+  DocumentSet docs = ExpectOptimizedCollectionScan(
       [&] { return RunQuery(query, kLastLimboFreeSnapshot); });
   EXPECT_EQ(docs,
             DocSet(query.Comparator(), {Doc("coll/a", 1, Map("order", 2),
