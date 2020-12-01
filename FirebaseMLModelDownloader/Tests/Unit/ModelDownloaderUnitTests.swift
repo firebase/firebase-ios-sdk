@@ -46,27 +46,6 @@ final class ModelDownloaderUnitTests: XCTestCase {
     FirebaseApp.configure(options: options)
   }
 
-  /// Unit test for reading and writing to user defaults.
-  func testUserDefaults() {
-    guard let testApp = FirebaseApp.app() else {
-      XCTFail("Default app was not configured.")
-      return
-    }
-    let functionName = #function
-    let testModelName = "\(functionName)-test-model"
-    let modelInfo = ModelInfo(
-      app: testApp,
-      name: testModelName,
-      defaults: .getTestInstance()
-    )
-    XCTAssertEqual(modelInfo.downloadURL, "")
-    modelInfo.downloadURL = "testurl.com"
-    XCTAssertEqual(modelInfo.downloadURL, "testurl.com")
-    XCTAssertEqual(modelInfo.modelHash, "")
-    XCTAssertEqual(modelInfo.size, 0)
-    XCTAssertEqual(modelInfo.path, nil)
-  }
-
   /// Test to download model info.
   // TODO: Add unit test with mocks.
   func testDownloadModelInfo() {}
@@ -95,6 +74,10 @@ final class ModelDownloaderUnitTests: XCTestCase {
     XCTAssertEqual(modelInfoRetriever.modelInfo?.downloadURL, "https://storage.googleapis.com")
     XCTAssertEqual(modelInfoRetriever.modelInfo?.size, 562_336)
   }
+
+  /// Test to download model file.
+  // TODO: Add unit test with mocks.
+  func testStartModelDownload() {}
 
   func testExample() {
     // This is an example of a functional test case.
