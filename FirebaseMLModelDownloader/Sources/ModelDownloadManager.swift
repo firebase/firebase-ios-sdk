@@ -60,7 +60,7 @@ class ModelDownloadManager: NSObject {
   }
 
   /// Asynchronously download model file to device.
-  func startModelDownload(url: URL) {
+  func resumeModelDownload(url: URL) {
     let downloadTask = downloadSession.downloadTask(with: url)
 
     downloadTask.resume()

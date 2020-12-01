@@ -106,7 +106,7 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
   }
 
   /// Test to download model file - makes an actual network call.
-  func testStartModelDownload() {
+  func testResumeModelDownload() {
     let testApp = FirebaseApp.app()!
     let functionName = #function.dropLast(2)
     let testModelName = "\(functionName)-test-model"
