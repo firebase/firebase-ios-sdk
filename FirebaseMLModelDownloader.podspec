@@ -49,7 +49,7 @@ Pod::Spec.new do |s|
   s.test_spec 'integration' do |int_tests|
     int_tests.platforms = {:ios => '10.0', :osx => '10.12', :tvos => '10.0'}
     int_tests.source_files = 'FirebaseMLModelDownloader/Tests/Integration/**/*.swift'
-    int_tests.resources = 'FirebaseMLModelDownloader/Tests/Resources/GoogleService-Info.plist'
+    int_tests.resources = 'FirebaseMLModelDownloader/Tests/Integration/Resources/GoogleService-Info.plist'
     int_tests.requires_app_host = true
   end
 end
