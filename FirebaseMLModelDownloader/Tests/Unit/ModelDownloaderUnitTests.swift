@@ -16,6 +16,14 @@ import XCTest
 @testable import FirebaseCore
 @testable import FirebaseMLModelDownloader
 
+/// Mock options to configure default Firebase app.
+private enum MockOptions {
+  static let appID = "1:123:ios:123abc"
+  static let gcmSenderID = "mock-sender-id"
+  static let projectID = "mock-project-id"
+  static let apiKey = "ABcdEf-APIKeyWithValidFormat_0123456789"
+}
+
 extension UserDefaults {
   /// For testing: returns a new cleared instance of user defaults.
   static func getTestInstance() -> UserDefaults {
@@ -27,16 +35,23 @@ extension UserDefaults {
   }
 }
 
-// TODO: break this up into separate unit and integration tests
-final class ModelDownloaderTests: XCTestCase {
+final class ModelDownloaderUnitTests: XCTestCase {
   override class func setUp() {
-    super.setUp()
-    FirebaseApp.configure()
+    let options = FirebaseOptions(
+      googleAppID: MockOptions.appID,
+      gcmSenderID: MockOptions.gcmSenderID
+    )
+    options.apiKey = MockOptions.apiKey
+    options.projectID = MockOptions.projectID
+    FirebaseApp.configure(options: options)
   }
 
   /// Unit test for reading and writing to user defaults.
   func testUserDefaults() {
-    let testApp = FirebaseApp.app()!
+    guard let testApp = FirebaseApp.app() else {
+      XCTFail("Default app was not configured.")
+      return
+    }
     let functionName = #function
     let testModelName = "\(functionName)-test-model"
     let modelInfo = ModelInfo(
@@ -52,74 +67,16 @@ final class ModelDownloaderTests: XCTestCase {
     XCTAssertEqual(modelInfo.path, nil)
   }
 
-  /// Test to retrieve FIS token - makes an actual network call.
-  // TODO: Move this into a separate integration test and add unit test with mocks.
-  func testGetAuthToken() {
-    let testApp = FirebaseApp.app()!
-    let testModelName = "image-classification"
-    let modelInfoRetriever = ModelInfoRetriever(
-      app: testApp,
-      modelName: testModelName,
-      defaults: .getTestInstance()
-    )
-    let expectation = self.expectation(description: "Wait for FIS auth token.")
-    modelInfoRetriever.getAuthToken(completion: { result in
-      switch result {
-      case let .success(token):
-        XCTAssertNotNil(token)
-      case let .failure(error):
-        XCTFail(error.localizedDescription)
-      }
-      expectation.fulfill()
-
-    })
-    waitForExpectations(timeout: 5, handler: nil)
-  }
-
-  /// Test to download model info - makes an actual network call.
-  // TODO: Move this into a separate integration test and add unit test with mocks.
-  func testDownloadModelInfo() {
-    let testApp = FirebaseApp.app()!
-    let testModelName = "pose-detection"
-    let modelInfoRetriever = ModelInfoRetriever(
-      app: testApp,
-      modelName: testModelName,
-      defaults: .getTestInstance()
-    )
-    let downloadExpectation = expectation(description: "Wait for model info to download.")
-    modelInfoRetriever.downloadModelInfo(completion: { error in
-      XCTAssertNil(error)
-      guard let modelInfo = modelInfoRetriever.modelInfo else {
-        XCTFail("Empty model info.")
-        return
-      }
-      XCTAssertNotEqual(modelInfo.downloadURL, "")
-      XCTAssertNotEqual(modelInfo.modelHash, "")
-      XCTAssertGreaterThan(modelInfo.size, 0)
-      downloadExpectation.fulfill()
-    })
-
-    waitForExpectations(timeout: 5, handler: nil)
-
-    let retrieveExpectation = expectation(description: "Wait for model info to be retrieved.")
-    modelInfoRetriever.downloadModelInfo(completion: { error in
-      XCTAssertNil(error)
-      guard let modelInfo = modelInfoRetriever.modelInfo else {
-        XCTFail("Empty model info.")
-        return
-      }
-      XCTAssertNotEqual(modelInfo.downloadURL, "")
-      XCTAssertNotEqual(modelInfo.modelHash, "")
-      XCTAssertGreaterThan(modelInfo.size, 0)
-      retrieveExpectation.fulfill()
-    })
-
-    waitForExpectations(timeout: 500, handler: nil)
-  }
+  /// Test to download model info.
+  // TODO: Add unit test with mocks.
+  func testDownloadModelInfo() {}
 
   /// Unit test to save model info to user defaults.
   func testSaveModelInfo() {
-    let testApp = FirebaseApp.app()!
+    guard let testApp = FirebaseApp.app() else {
+      XCTFail("Default app was not configured.")
+      return
+    }
     let functionName = #function
     let testModelName = "\(functionName)-test-model"
     let modelInfoRetriever = ModelInfoRetriever(

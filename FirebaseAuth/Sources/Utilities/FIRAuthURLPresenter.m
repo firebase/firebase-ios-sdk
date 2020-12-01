@@ -91,6 +91,12 @@ NS_ASSUME_NONNULL_BEGIN
   _completion = [completion copy];
   dispatch_async(dispatch_get_main_queue(), ^() {
     self->_UIDelegate = UIDelegate ?: [FIRAuthDefaultUIDelegate defaultUIDelegate];
+#if TARGET_OS_MACCATALYST
+    self->_webViewController = [[FIRAuthWebViewController alloc] initWithURL:URL delegate:self];
+    UINavigationController *navController =
+        [[UINavigationController alloc] initWithRootViewController:self->_webViewController];
+    [self->_UIDelegate presentViewController:navController animated:YES completion:nil];
+#else
     if ([SFSafariViewController class]) {
       self->_safariViewController = [[SFSafariViewController alloc] initWithURL:URL];
       self->_safariViewController.delegate = self;
@@ -104,6 +110,7 @@ NS_ASSUME_NONNULL_BEGIN
           [[UINavigationController alloc] initWithRootViewController:self->_webViewController];
       [self->_UIDelegate presentViewController:navController animated:YES completion:nil];
     }
+#endif
   });
 }
 

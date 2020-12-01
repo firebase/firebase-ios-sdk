@@ -1,3 +1,8 @@
+# Unreleased
+- [changed] Removed obsolete API calls from upload-symbols
+- [changed] Removed obsolete onboarding calls from the SDK.
+- [changed] Decreased Crashlytics CocoaPods minimum deployment target from iOS 10 to iOS 9
+
 # v7.1.0
 - [fixed] Fixed an issue where symbol uploads would fail when there are spaces in the project path, particularly in Unity builds (#6789).
 - [changed] Added additional logging when settings requests fail with a 404 status to help customers debug onboarding issues (#6847).

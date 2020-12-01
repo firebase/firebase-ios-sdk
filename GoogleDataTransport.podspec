@@ -65,6 +65,8 @@ Shared library for iOS SDK data transport needs.
         'GoogleDataTransport/GDTTestApp/*.swift',
         'GoogleDataTransport/GDTCORLibrary/Internal/GDTCORRegistrar.h',
         'GoogleDataTransport/GDTCORLibrary/Internal/GDTCORUploader.h',
+        'GoogleDataTransport/GDTCORTests/Common/Categories/GDTCORFlatFileStorage+Testing.h',
+        'GoogleDataTransport/GDTCORTests/Unit/Helpers/*.[hm]',
         'GoogleDataTransport/GDTTestApp/Bridging-Header.h',
       ]
 

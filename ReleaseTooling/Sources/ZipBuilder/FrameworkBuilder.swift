@@ -32,9 +32,8 @@ enum TargetPlatform: CaseIterable {
     case .iOSDevice: return [.armv7, .arm64]
     // Include arm64 slices in the simulator for Apple silicon Macs.
     case .iOSSimulator: return [.i386, .x86_64, .arm64]
-    // TODO: Evaluate arm64 slice for Catalyst Apple silicon Macs, and x86_64h. Previous builds were
-    // limited to x86_64.
-    case .catalyst: return [.x86_64]
+    // TODO: Evaluate x86_64h slice. Previous builds were limited to x86_64.
+    case .catalyst: return [.x86_64, .arm64]
     }
   }
 

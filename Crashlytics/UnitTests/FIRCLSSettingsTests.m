@@ -29,13 +29,13 @@
 
 const NSString *FIRCLSTestSettingsActivated =
     @"{\"settings_version\":3,\"cache_duration\":60,\"features\":{\"collect_logged_exceptions\":"
-    @"true,\"collect_reports\":true},\"app\":{\"status\":\"activated\",\"update_required\":false},"
+    @"true,\"collect_reports\":true},"
     @"\"fabric\":{\"org_id\":\"010101000000111111111111\",\"bundle_id\":\"com.lets.test."
     @"crashlytics\"}}";
 
 const NSString *FIRCLSTestSettingsInverse =
     @"{\"settings_version\":3,\"cache_duration\":12345,\"features\":{\"collect_logged_exceptions\":"
-    @"false,\"collect_reports\":false},\"app\":{\"status\":\"new\",\"update_required\":true},"
+    @"false,\"collect_reports\":false},"
     @"\"fabric\":{\"org_id\":\"01e101a0000011b113115111\",\"bundle_id\":\"im.from.the.server\"},"
     @"\"session\":{\"log_buffer_size\":128000,\"max_chained_exception_depth\":32,\"max_complete_"
     @"sessions_count\":4,\"max_custom_exception_events\":1000,\"max_custom_key_value_pairs\":2000,"
@@ -93,9 +93,6 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
 
   XCTAssertEqualObjects(self.settings.orgID, nil);
   XCTAssertEqualObjects(self.settings.fetchedBundleID, nil);
-
-  XCTAssertFalse(self.settings.appNeedsOnboarding);
-  XCTAssertFalse(self.settings.appUpdateRequired);
 
   XCTAssertTrue(self.settings.collectReportsEnabled);
   XCTAssertTrue(self.settings.errorReportingEnabled);
@@ -167,9 +164,6 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   XCTAssertEqualObjects(self.settings.orgID, @"010101000000111111111111");
   XCTAssertEqualObjects(self.settings.fetchedBundleID, @"com.lets.test.crashlytics");
 
-  XCTAssertFalse(self.settings.appNeedsOnboarding);
-  XCTAssertFalse(self.settings.appUpdateRequired);
-
   XCTAssertTrue(self.settings.collectReportsEnabled);
   XCTAssertTrue(self.settings.errorReportingEnabled);
   XCTAssertTrue(self.settings.customExceptionsEnabled);
@@ -193,9 +187,6 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
 
   XCTAssertEqualObjects(self.settings.orgID, @"01e101a0000011b113115111");
   XCTAssertEqualObjects(self.settings.fetchedBundleID, @"im.from.the.server");
-
-  XCTAssertTrue(self.settings.appNeedsOnboarding);
-  XCTAssertTrue(self.settings.appUpdateRequired);
 
   XCTAssertFalse(self.settings.collectReportsEnabled);
   XCTAssertFalse(self.settings.errorReportingEnabled);
@@ -376,9 +367,6 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   XCTAssertEqualObjects(self.settings.orgID, nil);
   XCTAssertEqualObjects(self.settings.fetchedBundleID, nil);
 
-  XCTAssertFalse(self.settings.appNeedsOnboarding);
-  XCTAssertFalse(self.settings.appUpdateRequired);
-
   XCTAssertTrue(self.settings.collectReportsEnabled);
   XCTAssertTrue(self.settings.errorReportingEnabled);
   XCTAssertTrue(self.settings.customExceptionsEnabled);
@@ -405,7 +393,6 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   XCTAssertEqual(self.settings.cacheDurationSeconds, 12345);
   XCTAssertEqualObjects(self.settings.orgID, @"01e101a0000011b113115111");
   XCTAssertEqualObjects(self.settings.fetchedBundleID, @"im.from.the.server");
-  XCTAssertTrue(self.settings.appNeedsOnboarding);
   XCTAssertEqual(self.settings.errorLogBufferSize, 128000);
 
   // Then write a corrupted one and cache + reload it
@@ -422,7 +409,6 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   XCTAssertEqual(self.settings.cacheDurationSeconds, 3600);
   XCTAssertEqualObjects(self.settings.orgID, nil);
   XCTAssertEqualObjects(self.settings.fetchedBundleID, nil);
-  XCTAssertFalse(self.settings.appNeedsOnboarding);
   XCTAssertEqual(self.settings.errorLogBufferSize, 64 * 1000);
   XCTAssertTrue(self.settings.shouldUseNewReportEndpoint);
 }
@@ -441,7 +427,6 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   XCTAssertEqual(self.settings.cacheDurationSeconds, 12345);
   XCTAssertEqualObjects(self.settings.orgID, @"01e101a0000011b113115111");
   XCTAssertEqualObjects(self.settings.fetchedBundleID, @"im.from.the.server");
-  XCTAssertTrue(self.settings.appNeedsOnboarding);
   XCTAssertEqual(self.settings.errorLogBufferSize, 128000);
 
   // Then pretend we wrote a corrupted cache key and just reload it
@@ -458,14 +443,12 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   XCTAssertEqual(self.settings.cacheDurationSeconds, 3600);
   XCTAssertEqualObjects(self.settings.orgID, nil);
   XCTAssertEqualObjects(self.settings.fetchedBundleID, nil);
-  XCTAssertFalse(self.settings.appNeedsOnboarding);
   XCTAssertEqual(self.settings.errorLogBufferSize, 64 * 1000);
 }
 
 - (void)testNewReportEndpointSettings {
   NSString *settingsJSON =
-      @"{\"settings_version\":3,\"cache_duration\":60,\"app\":{\"status\":\"activated\",\"update_"
-      @"required\":false,\"report_upload_variant\":2}}";
+      @"{\"settings_version\":3,\"cache_duration\":60,\"app\":{\"report_upload_variant\":2}}";
 
   NSError *error = nil;
   [self writeSettings:settingsJSON error:&error];
@@ -480,8 +463,7 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
 
 - (void)testLegacyReportEndpointSettings {
   NSString *settingsJSON =
-      @"{\"settings_version\":3,\"cache_duration\":60,\"app\":{\"status\":\"activated\",\"update_"
-      @"required\":false,\"report_upload_variant\":1}}";
+      @"{\"settings_version\":3,\"cache_duration\":60,\"app\":{\"report_upload_variant\":1}}";
 
   NSError *error = nil;
   [self writeSettings:settingsJSON error:&error];
@@ -497,8 +479,7 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
 }
 
 - (void)testLegacyReportEndpointSettingsWithNonExistentKey {
-  NSString *settingsJSON = @"{\"settings_version\":3,\"cache_duration\":60,\"app\":{\"status\":"
-                           @"\"activated\",\"update_required\":false}}";
+  NSString *settingsJSON = @"{\"settings_version\":3,\"cache_duration\":60}";
 
   NSError *error = nil;
   [self writeSettings:settingsJSON error:&error];
@@ -511,8 +492,7 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
 
 - (void)testLegacyReportEndpointSettingsWithUnknownValue {
   NSString *newEndpointJSON =
-      @"{\"settings_version\":3,\"cache_duration\":60,\"app\":{\"status\":\"activated\",\"update_"
-      @"required\":false,\"report_upload_variant\":xyz}}";
+      @"{\"settings_version\":3,\"cache_duration\":60,\"app\":{\"report_upload_variant\":xyz}}";
 
   NSError *error = nil;
   [self writeSettings:newEndpointJSON error:&error];

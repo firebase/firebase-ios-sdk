@@ -5,7 +5,9 @@
 [![Actions Status][gh-abtesting-badge]][gh-actions]
 [![Actions Status][gh-appdistribution-badge]][gh-actions]
 [![Actions Status][gh-auth-badge]][gh-actions]
+[![Actions Status][gh-cocoapods-integration-badge]][gh-actions]
 [![Actions Status][gh-core-badge]][gh-actions]
+[![Actions Status][gh-core-diagnostics-badge]][gh-actions]
 [![Actions Status][gh-crashlytics-badge]][gh-actions]
 [![Actions Status][gh-database-badge]][gh-actions]
 [![Actions Status][gh-datatransport-badge]][gh-actions]
@@ -13,6 +15,8 @@
 [![Actions Status][gh-firebasepod-badge]][gh-actions]
 [![Actions Status][gh-firestore-badge]][gh-actions]
 [![Actions Status][gh-functions-badge]][gh-actions]
+[![Actions Status][gh-google-utilities-badge]][gh-actions]
+[![Actions Status][gh-google-utilities-components-badge]][gh-actions]
 [![Actions Status][gh-inappmessaging-badge]][gh-actions]
 [![Actions Status][gh-interop-badge]][gh-actions]
 [![Actions Status][gh-messaging-badge]][gh-actions]
@@ -283,7 +287,9 @@ Your use of Firebase is governed by the
 [gh-abtesting-badge]: https://github.com/firebase/firebase-ios-sdk/workflows/abtesting/badge.svg
 [gh-appdistribution-badge]: https://github.com/firebase/firebase-ios-sdk/workflows/appdistribution/badge.svg
 [gh-auth-badge]: https://github.com/firebase/firebase-ios-sdk/workflows/auth/badge.svg
+[gh-cocoapods-integration-badge]: https://github.com/firebase/firebase-ios-sdk/workflows/cocoapods-integration/badge.svg
 [gh-core-badge]: https://github.com/firebase/firebase-ios-sdk/workflows/core/badge.svg
+[gh-core-diagnostics-badge]: https://github.com/firebase/firebase-ios-sdk/workflows/core-diagnostics/badge.svg
 [gh-crashlytics-badge]: https://github.com/firebase/firebase-ios-sdk/workflows/crashlytics/badge.svg
 [gh-database-badge]: https://github.com/firebase/firebase-ios-sdk/workflows/database/badge.svg
 [gh-datatransport-badge]: https://github.com/firebase/firebase-ios-sdk/workflows/datatransport/badge.svg
@@ -291,6 +297,8 @@ Your use of Firebase is governed by the
 [gh-firebasepod-badge]: https://github.com/firebase/firebase-ios-sdk/workflows/firebasepod/badge.svg
 [gh-firestore-badge]: https://github.com/firebase/firebase-ios-sdk/workflows/firestore/badge.svg
 [gh-functions-badge]: https://github.com/firebase/firebase-ios-sdk/workflows/functions/badge.svg
+[gh-google-utilities-badge]: https://github.com/firebase/firebase-ios-sdk/workflows/google-utilities/badge.svg
+[gh-google-utilities-components-badge]: https://github.com/firebase/firebase-ios-sdk/workflows/google-utilities-components/badge.svg
 [gh-inappmessaging-badge]: https://github.com/firebase/firebase-ios-sdk/workflows/inappmessaging/badge.svg
 [gh-interop-badge]: https://github.com/firebase/firebase-ios-sdk/workflows/interop/badge.svg
 [gh-messaging-badge]: https://github.com/firebase/firebase-ios-sdk/workflows/messaging/badge.svg

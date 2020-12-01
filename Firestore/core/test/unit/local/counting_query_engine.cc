@@ -32,10 +32,7 @@ using model::SnapshotVersion;
 
 // MARK: - CountingQueryEngine
 
-CountingQueryEngine::CountingQueryEngine(QueryEngine* query_engine)
-    : query_engine_(query_engine) {
-}
-
+CountingQueryEngine::CountingQueryEngine() = default;
 CountingQueryEngine::~CountingQueryEngine() = default;
 
 void CountingQueryEngine::SetLocalDocumentsView(
@@ -47,15 +44,7 @@ void CountingQueryEngine::SetLocalDocumentsView(
   local_documents_ = absl::make_unique<LocalDocumentsView>(
       remote_documents_.get(), mutation_queue_.get(),
       local_documents->index_manager());
-  query_engine_->SetLocalDocumentsView(local_documents_.get());
-}
-
-model::DocumentMap CountingQueryEngine::GetDocumentsMatchingQuery(
-    const Query& query,
-    const SnapshotVersion& last_limbo_free_snapshot_version,
-    const DocumentKeySet& remote_keys) {
-  return query_engine_->GetDocumentsMatchingQuery(
-      query, last_limbo_free_snapshot_version, remote_keys);
+  QueryEngine::SetLocalDocumentsView(local_documents_.get());
 }
 
 void CountingQueryEngine::ResetCounts() {
