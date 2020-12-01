@@ -49,19 +49,6 @@ class ModelInfoRetriever: NSObject {
     self.modelName = modelName
     installations = Installations.installations(app: app)
   }
-
-  /// Build custom model object from model info.
-  func buildModel() -> CustomModel? {
-    /// Build custom model only if model info is filled out, and model file is already on device.
-    guard let info = modelInfo, let path = info.path else { return nil }
-    let model = CustomModel(
-      name: info.name,
-      size: info.size,
-      path: path,
-      hash: info.modelHash
-    )
-    return model
-  }
 }
 
 /// Extension to handle fetching model info from server.

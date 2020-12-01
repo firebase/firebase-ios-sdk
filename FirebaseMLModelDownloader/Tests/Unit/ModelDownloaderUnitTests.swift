@@ -75,6 +75,10 @@ final class ModelDownloaderUnitTests: XCTestCase {
     XCTAssertEqual(modelInfoRetriever.modelInfo?.size, 562_336)
   }
 
+  /// Test to download model file.
+  // TODO: Add unit test with mocks.
+  func testStartModelDownload() {}
+
   func testExample() {
     // This is an example of a functional test case.
     // Use XCTAssert and related functions to verify your tests produce the correct
