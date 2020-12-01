@@ -158,13 +158,17 @@ static NSURL *_testServerURL = nil;
                           p2[31], p1[32], p2[32], p1[33], p2[33], p1[34], p2[34], p1[35], '\0'};
     CSHServerURL = [NSURL URLWithString:[NSString stringWithUTF8String:URL]];
   });
-
-  return @{
-    @(kGDTCORTargetCCT) : CCTServerURL,
-    @(kGDTCORTargetFLL) : FLLServerURL,
-    @(kGDTCORTargetCSH) : CSHServerURL,
-    @(kGDTCORTargetINT) : [NSURL URLWithString:kINTServerURL]
-  };
+  static NSDictionary<NSNumber *, NSURL *> *uploadURLs;
+  static dispatch_once_t URLonceToken;
+  dispatch_once(&URLonceToken, ^{
+    uploadURLs = @{
+      @(kGDTCORTargetCCT) : CCTServerURL,
+      @(kGDTCORTargetFLL) : FLLServerURL,
+      @(kGDTCORTargetCSH) : CSHServerURL,
+      @(kGDTCORTargetINT) : [NSURL URLWithString:kINTServerURL]
+    };
+  });
+  return uploadURLs;
 }
 
 + (nullable NSURL *)serverURLForTarget:(GDTCORTarget)target {
