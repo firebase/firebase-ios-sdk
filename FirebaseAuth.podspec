@@ -50,7 +50,7 @@ supports email and password accounts, as well as several 3rd party authenticatio
 
   s.test_spec 'unit' do |unit_tests|
     # Unit tests can't run on watchOS.
-    unit_tests.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
+    unit_tests.platforms = {:ios => '10.0', :osx => '10.12', :tvos => '10.0'}
     unit_tests.source_files = 'FirebaseAuth/Tests/Unit/*.[mh]'
     unit_tests.osx.exclude_files = [
       'FirebaseAuth/Tests/Unit/FIRAuthAPNSTokenManagerTests.m',
