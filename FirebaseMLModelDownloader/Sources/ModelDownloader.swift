@@ -31,9 +31,9 @@ public enum DownloadError: Error, Equatable {
 }
 
 /// Possible errors with locating model on device.
-public enum DownloadedModelError: Error {
+public enum DownloadedModelError: Error, Equatable {
   /// File system error.
-  case fileIOError
+  case fileIOError(description: String)
   /// Model not found on device.
   case notFound
 }
