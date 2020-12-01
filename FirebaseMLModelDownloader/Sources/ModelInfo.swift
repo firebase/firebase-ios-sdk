@@ -18,42 +18,35 @@ import FirebaseCore
 /// Model info object with details about pending or downloaded model.
 class ModelInfo: NSObject {
   /// Model name.
-  var name: String
+  let name: String
 
   // TODO: revisit UserDefaultsBacked
   /// Download URL for the model file, as returned by server.
-  @UserDefaultsBacked var downloadURL: String
+  let downloadURL: String
 
   /// Hash of the model, as returned by server.
-  @UserDefaultsBacked var modelHash: String
+  let modelHash: String
 
   /// Size of the model, as returned by server.
-  @UserDefaultsBacked var size: Int
+  let size: Int
 
   /// Local path of the model.
-  @UserDefaultsBacked var path: String?
+  var path: String?
 
   /// Initialize model info and create user default keys.
-  init(app: FirebaseApp, name: String, defaults: UserDefaults) {
+  init(name: String, downloadURL: String, modelHash: String, size: Int) {
     self.name = name
+    self.downloadURL = downloadURL
+    self.modelHash = modelHash
+    self.size = size
+  }
+
+  func writeToDefaults(app: FirebaseApp, defaults: UserDefaults) {
     let bundleID = Bundle.main.bundleIdentifier ?? ""
     let defaultsPrefix = "\(bundleID).\(app.name).\(name)"
-    _downloadURL = UserDefaultsBacked(
-      key: "\(defaultsPrefix).model-download-url",
-      storage: defaults
-    )
-    _modelHash = UserDefaultsBacked(key: "\(defaultsPrefix).model-hash", storage: defaults)
-    _size = UserDefaultsBacked(key: "\(defaultsPrefix).model-size", storage: defaults)
-    _path = UserDefaultsBacked(key: "\(defaultsPrefix).model-path", storage: defaults)
-  }
-}
-
-/// Named user defaults for FirebaseML.
-extension UserDefaults {
-  static var firebaseMLDefaults: UserDefaults {
-    let suiteName = "com.google.firebase.ml"
-    // TODO: reconsider force unwrapping
-    let defaults = UserDefaults(suiteName: suiteName)!
-    return defaults
+    defaults.setValue(downloadURL, forKey: "\(defaultsPrefix).model-download-url")
+    defaults.setValue(modelHash, forKey: "\(defaultsPrefix).model-hash")
+    defaults.setValue(size, forKey: "\(defaultsPrefix).model-size")
+    defaults.setValue(path, forKey: "\(defaultsPrefix).model-path")
   }
 }

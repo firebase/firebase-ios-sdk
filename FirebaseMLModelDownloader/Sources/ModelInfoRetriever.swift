@@ -42,14 +42,11 @@ class ModelInfoRetriever: NSObject {
   var modelName: String
   /// Firebase installations.
   var installations: Installations
-  /// User defaults associated with model.
-  var defaults: UserDefaults
 
   /// Associate model info retriever with current Firebase app, and model name.
-  init(app: FirebaseApp, modelName: String, defaults: UserDefaults = .firebaseMLDefaults) {
+  init(app: FirebaseApp, modelName: String) {
     self.app = app
     self.modelName = modelName
-    self.defaults = defaults
     installations = Installations.installations(app: app)
   }
 
@@ -193,11 +190,15 @@ extension ModelInfoRetriever {
     let decoder = JSONDecoder()
     guard let modelInfoJSON = try? decoder.decode(ModelInfoResponse.self, from: data)
     else { return }
-    let modelInfo = ModelInfo(app: app, name: modelName, defaults: defaults)
-    modelInfo.downloadURL = modelInfoJSON.downloadURL
     // TODO: Possibly improve handling invalid server responses.
-    modelInfo.size = Int(modelInfoJSON.size) ?? 0
-    modelInfo.modelHash = modelHash
-    self.modelInfo = modelInfo
+    let downloadURL = modelInfoJSON.downloadURL
+    let modelHash = modelHash
+    let size = Int(modelInfoJSON.size) ?? 0
+    modelInfo = ModelInfo(
+      name: modelName,
+      downloadURL: downloadURL,
+      modelHash: modelHash,
+      size: size
+    )
   }
 }
