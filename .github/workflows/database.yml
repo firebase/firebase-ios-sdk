@@ -28,7 +28,9 @@ jobs:
     - name: BuildAndTest # can be replaced with pod lib lint with CocoaPods 1.10
       run: scripts/third_party/travis/retry.sh scripts/build.sh Database ${{ matrix.target }} unit
     - name: PrintOutCoverate
-      run: slather coverage -s --scheme FirebaseDatabase-Unit-unit --verbose --workspace ./gen/FirebaseDatabase/FirebaseDatabase.xcworkspace ./gen/FirebaseDatabase/Pods/Pods.xcodeproj
+      run: |
+              gem install slather
+              slather coverage -s --scheme FirebaseDatabase-Unit-unit --verbose --workspace ./gen/FirebaseDatabase/FirebaseDatabase.xcworkspace ./gen/FirebaseDatabase/Pods/Pods.xcodeproj
 
   integration:
     # Don't run on private repo unless it is a PR.
@@ -42,7 +44,9 @@ jobs:
       # Only iOS to mitigate flakes.
       run: scripts/third_party/travis/retry.sh scripts/build.sh Database iOS integration
     - name: PrintOutCoverate
-      run: slather coverage -s --scheme "FirebaseDatabase-Unit-integration" --verbose --workspace ./gen/FirebaseDatabase/FirebaseDatabase.xcworkspace ./gen/FirebaseDatabase/Pods/Pods.xcodeproj
+      run: |
+              gem install slather
+              slather coverage -s --scheme "FirebaseDatabase-Unit-integration" --verbose --workspace ./gen/FirebaseDatabase/FirebaseDatabase.xcworkspace ./gen/FirebaseDatabase/Pods/Pods.xcodeproj
 
   spm:
     # Don't run on private repo unless it is a PR.
