@@ -159,8 +159,8 @@ static NSURL *_testServerURL = nil;
     CSHServerURL = [NSURL URLWithString:[NSString stringWithUTF8String:URL]];
   });
   static NSDictionary<NSNumber *, NSURL *> *uploadURLs;
-  static dispatch_once_t URLonceToken;
-  dispatch_once(&URLonceToken, ^{
+  static dispatch_once_t URLOnceToken;
+  dispatch_once(&URLOnceToken, ^{
     uploadURLs = @{
       @(kGDTCORTargetCCT) : CCTServerURL,
       @(kGDTCORTargetFLL) : FLLServerURL,
