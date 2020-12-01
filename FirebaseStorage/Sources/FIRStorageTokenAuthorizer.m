@@ -24,7 +24,7 @@
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 #import "FirebaseAppCheck/Sources/Interop/FIRAppCheckInterop.h"
-#import "FirebaseAppCheck/Sources/Interop/FIRAppCheckTokenInterop.h"
+#import "FirebaseAppCheck/Sources/Interop/FIRAppCheckTokenResultInterop.h"
 #import "Interop/Auth/Public/FIRAuthInterop.h"
 
 static NSString *const kAppCheckTokenHeader = @"X-Firebase-AppCheck";
@@ -114,21 +114,19 @@ static NSString *const kAuthHeader = @"Authorization";
     if (_appCheck) {
       dispatch_group_enter(fetchTokenGroup);
 
-      [_appCheck getTokenWithCompletion:^(id<FIRAppCheckTokenInterop> _Nullable token,
-                                          NSError *_Nullable error) {
-        if (token.token) {
-          [request setValue:token.token forHTTPHeaderField:kAppCheckTokenHeader];
-        } else {
-          // TODO: update after AppCheck API changes.
+      [_appCheck getTokenForcingRefresh:NO
+                             completion:^(id<FIRAppCheckTokenResultInterop> tokenResult) {
+                               [request setValue:tokenResult.token
+                                   forHTTPHeaderField:kAppCheckTokenHeader];
 
-          // Never fail on AppCheck error on client. It is up to server to enforce AppCheck
-          // validation.
-          FIRLogDebug(kFIRLoggerStorage, kFIRStorageMessageCodeAppCheckError,
-                      @"Failed to fetch AppCheck token. Error: %@", error);
-        }
+                               if (tokenResult.error) {
+                                 FIRLogDebug(kFIRLoggerStorage, kFIRStorageMessageCodeAppCheckError,
+                                             @"Failed to fetch AppCheck token. Error: %@",
+                                             tokenResult.error);
+                               }
 
-        dispatch_group_leave(fetchTokenGroup);
-      }];
+                               dispatch_group_leave(fetchTokenGroup);
+                             }];
     }
 
     dispatch_group_notify(fetchTokenGroup, callbackQueue, ^{

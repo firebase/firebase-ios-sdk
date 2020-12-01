@@ -17,7 +17,7 @@
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 #import "SharedTestUtilities/AppCheckFake/FIRAppCheckFake.h"
-#import "SharedTestUtilities/AppCheckFake/FIRAppCheckTokenFake.h"
+#import "SharedTestUtilities/AppCheckFake/FIRAppCheckTokenResultFake.h"
 #import "SharedTestUtilities/FIRAuthInteropFake.h"
 
 @interface FIRStorageTokenAuthorizerTests : XCTestCase
@@ -26,7 +26,8 @@
 @property(strong, nonatomic) GTMSessionFetcherService *fetcherService;
 @property(strong, nonatomic) FIRAuthInteropFake *auth;
 @property(strong, nonatomic) FIRAppCheckFake *appCheck;
-@property(strong, nonatomic) FIRAppCheckTokenFake *appCheckToken;
+@property(strong, nonatomic) FIRAppCheckTokenResultFake *appCheckTokenSuccess;
+@property(strong, nonatomic) FIRAppCheckTokenResultFake *appCheckTokenError;
 
 @end
 
@@ -35,8 +36,10 @@
 - (void)setUp {
   [super setUp];
 
-  self.appCheckToken = [[FIRAppCheckTokenFake alloc] initWithToken:@"token"
-                                                    expirationDate:[NSDate distantFuture]];
+  self.appCheckTokenSuccess = [[FIRAppCheckTokenResultFake alloc] initWithToken:@"token" error:nil];
+  self.appCheckTokenError = [[FIRAppCheckTokenResultFake alloc]
+      initWithToken:@"dummy token"
+              error:[NSError errorWithDomain:@"testAppCheckError" code:-1 userInfo:nil]];
 
   NSURLRequest *fetchRequest = [NSURLRequest requestWithURL:[FIRStorageTestHelpers objectURL]];
   self.fetcher = [GTMSessionFetcher fetcherWithRequest:fetchRequest];
@@ -58,7 +61,7 @@
   self.fetcherService = nil;
   self.auth = nil;
   self.appCheck = nil;
-  self.appCheckToken = nil;
+  self.appCheckTokenSuccess = nil;
   [super tearDown];
 }
 
@@ -144,7 +147,7 @@
 }
 
 - (void)testSuccessfulAppCheckNoAuth {
-  self.appCheck.token = self.appCheckToken;
+  self.appCheck.tokenResult = self.appCheckTokenSuccess;
   self.fetcher.authorizer =
       [[FIRStorageTokenAuthorizer alloc] initWithGoogleAppID:@"dummyAppID"
                                               fetcherService:self.fetcherService
@@ -162,7 +165,7 @@
   [self.fetcher
       beginFetchWithCompletionHandler:^(NSData *_Nullable data, NSError *_Nullable error) {
         NSDictionary<NSString *, NSString *> *headers = self.fetcher.request.allHTTPHeaderFields;
-        XCTAssertEqualObjects(headers[@"X-Firebase-AppCheck"], self.appCheckToken.token);
+        XCTAssertEqualObjects(headers[@"X-Firebase-AppCheck"], self.appCheckTokenSuccess.token);
         [expectation fulfill];
       }];
 
@@ -170,7 +173,7 @@
 }
 
 - (void)testSuccessfulAppCheckAndAuth {
-  self.appCheck.token = self.appCheckToken;
+  self.appCheck.tokenResult = self.appCheckTokenSuccess;
 
   [self setFetcherTestBlockWithStatusCode:200
                           validationBlock:^(GTMSessionFetcher *fetcher) {
@@ -183,7 +186,7 @@
       beginFetchWithCompletionHandler:^(NSData *_Nullable data, NSError *_Nullable error) {
         NSDictionary<NSString *, NSString *> *headers = self.fetcher.request.allHTTPHeaderFields;
         XCTAssertEqualObjects(headers[@"Authorization"], [self validAuthToken]);
-        XCTAssertEqualObjects(headers[@"X-Firebase-AppCheck"], self.appCheckToken.token);
+        XCTAssertEqualObjects(headers[@"X-Firebase-AppCheck"], self.appCheckTokenSuccess.token);
         [expectation fulfill];
       }];
 
@@ -191,7 +194,7 @@
 }
 
 - (void)testAppCheckError {
-  self.appCheck.error = [NSError errorWithDomain:@"testAppCheckError" code:-1 userInfo:nil];
+  self.appCheck.tokenResult = self.appCheckTokenError;
 
   [self setFetcherTestBlockWithStatusCode:200
                           validationBlock:^(GTMSessionFetcher *fetcher) {
@@ -204,7 +207,7 @@
       beginFetchWithCompletionHandler:^(NSData *_Nullable data, NSError *_Nullable error) {
         NSDictionary<NSString *, NSString *> *headers = self.fetcher.request.allHTTPHeaderFields;
         XCTAssertEqualObjects(headers[@"Authorization"], [self validAuthToken]);
-        XCTAssertNil(headers[@"X-Firebase-AppCheck"]);
+        XCTAssertEqualObjects(headers[@"X-Firebase-AppCheck"], self.appCheckTokenError.token);
         [expectation fulfill];
       }];
 

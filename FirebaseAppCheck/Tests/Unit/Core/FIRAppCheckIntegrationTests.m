@@ -25,7 +25,7 @@
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckToken.h"
 
 #import "FirebaseAppCheck/Sources/Interop/FIRAppCheckInterop.h"
-#import "FirebaseAppCheck/Sources/Interop/FIRAppCheckTokenInterop.h"
+#import "FirebaseAppCheck/Sources/Interop/FIRAppCheckTokenResultInterop.h"
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRDeviceCheckProvider.h"
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
@@ -142,13 +142,12 @@ NS_ASSUME_NONNULL_BEGIN
   XCTestExpectation *completionExpectation =
       [self expectationWithDescription:@"completionExpectation"];
   [appCheck getTokenForcingRefresh:YES
-                        completion:^(id<FIRAppCheckTokenInterop> _Nullable token,
-                                     NSError *_Nullable error) {
+                        completion:^(id<FIRAppCheckTokenResultInterop> tokenResult) {
                           [completionExpectation fulfill];
-                          XCTAssertNil(error);
-                          XCTAssertNotNil(token);
-                          XCTAssertEqualObjects(token.token, fakeToken.token);
-                          XCTAssertEqualObjects(token.expirationDate, fakeToken.expirationDate);
+                          XCTAssertNil(tokenResult.error);
+                          XCTAssertNotNil(tokenResult);
+                          XCTAssertEqualObjects(tokenResult.token, fakeToken.token);
+                          XCTAssertNil(tokenResult.error);
                         }];
   [self waitForExpectations:@[ completionExpectation ] timeout:0.5];
 
@@ -168,7 +167,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 // TODO: Remove usage example once API review approval obtained.
 - (void)usageExample {
-  // Set a custom app chack provider factory for the default FIRApp.
+  // Set a custom app check provider factory for the default FIRApp.
   [FIRAppCheck setAppCheckProviderFactory:[[AppCheckProviderFactory alloc] init]];
   [FIRApp configure];
 
@@ -179,14 +178,13 @@ NS_ASSUME_NONNULL_BEGIN
 
   id<FIRAppCheckInterop> defaultAppCheck = FIR_COMPONENT(FIRAppCheckInterop, defaultApp.container);
 
-  [defaultAppCheck getTokenWithCompletion:^(id<FIRAppCheckTokenInterop> _Nullable token,
-                                            NSError *_Nullable error) {
-    if (token) {
-      NSLog(@"Token: %@", token.token);
-    } else {
-      NSLog(@"Error: %@", error);
-    }
-  }];
+  [defaultAppCheck getTokenForcingRefresh:NO
+                               completion:^(id<FIRAppCheckTokenResultInterop> tokenResult) {
+                                 NSLog(@"Token: %@", tokenResult.token);
+                                 if (tokenResult.error) {
+                                   NSLog(@"Error: %@", tokenResult.error);
+                                 }
+                               }];
 }
 
 @end

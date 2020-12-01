@@ -22,13 +22,15 @@
 
 #import "FBLPromise+Testing.h"
 
+#import <FirebaseAppCheck/FirebaseAppCheck.h>
+
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheck.h"
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckProvider.h"
 
 #import "FirebaseAppCheck/Sources/Interop/FIRAppCheckInterop.h"
-#import "FirebaseAppCheck/Sources/Interop/FIRAppCheckTokenInterop.h"
+#import "FirebaseAppCheck/Sources/Interop/FIRAppCheckTokenResultInterop.h"
 
-#import "FirebaseAppCheck/Sources/Core/FIRAppCheckToken+Interop.h"
+#import "FirebaseAppCheck/Sources/Core/FIRAppCheckTokenResult.h"
 #import "FirebaseAppCheck/Sources/Core/Storage/FIRAppCheckStorage.h"
 
 @interface FIRAppCheck (Tests) <FIRAppCheckInterop>
@@ -85,15 +87,14 @@
 
   // 4. Request token.
   XCTestExpectation *getTokenExpectation = [self expectationWithDescription:@"getToken"];
-  [self.appCheck getTokenWithCompletion:^(id<FIRAppCheckTokenInterop> _Nullable token,
-                                          NSError *_Nullable error) {
-    [getTokenExpectation fulfill];
+  [self.appCheck getTokenForcingRefresh:NO
+                             completion:^(id<FIRAppCheckTokenResultInterop> tokenResult) {
+                               [getTokenExpectation fulfill];
 
-    XCTAssertNil(error);
-    XCTAssertNotNil(token);
-    XCTAssertEqualObjects(token.token, tokenToReturn.token);
-    XCTAssertEqualObjects(token.expirationDate, tokenToReturn.expirationDate);
-  }];
+                               XCTAssertNotNil(tokenResult);
+                               XCTAssertEqualObjects(tokenResult.token, tokenToReturn.token);
+                               XCTAssertNil(tokenResult.error);
+                             }];
 
   // 5. Wait for expectations and validate mocks.
   [self waitForExpectations:@[ getTokenExpectation ] timeout:0.5];
@@ -113,15 +114,13 @@
 
   // 3. Request token.
   XCTestExpectation *getTokenExpectation = [self expectationWithDescription:@"getToken"];
-  [self.appCheck getTokenWithCompletion:^(id<FIRAppCheckTokenInterop> _Nullable token,
-                                          NSError *_Nullable error) {
-    [getTokenExpectation fulfill];
-
-    XCTAssertNil(error);
-    XCTAssertNotNil(token);
-    XCTAssertEqualObjects(token.token, cachedToken.token);
-    XCTAssertEqualObjects(token.expirationDate, cachedToken.expirationDate);
-  }];
+  [self.appCheck getTokenForcingRefresh:NO
+                             completion:^(id<FIRAppCheckTokenResultInterop> tokenResult) {
+                               [getTokenExpectation fulfill];
+                               XCTAssertNotNil(tokenResult);
+                               XCTAssertEqualObjects(tokenResult.token, cachedToken.token);
+                               XCTAssertNil(tokenResult.error);
+                             }];
 
   // 4. Wait for expectations and validate mocks.
   [self waitForExpectations:@[ getTokenExpectation ] timeout:0.5];
@@ -148,15 +147,13 @@
 
   // 4. Request token.
   XCTestExpectation *getTokenExpectation = [self expectationWithDescription:@"getToken"];
-  [self.appCheck getTokenWithCompletion:^(id<FIRAppCheckTokenInterop> _Nullable token,
-                                          NSError *_Nullable error) {
-    [getTokenExpectation fulfill];
-
-    XCTAssertNil(error);
-    XCTAssertNotNil(token);
-    XCTAssertEqualObjects(token.token, tokenToReturn.token);
-    XCTAssertEqualObjects(token.expirationDate, tokenToReturn.expirationDate);
-  }];
+  [self.appCheck getTokenForcingRefresh:NO
+                             completion:^(id<FIRAppCheckTokenResultInterop> tokenResult) {
+                               [getTokenExpectation fulfill];
+                               XCTAssertNotNil(tokenResult);
+                               XCTAssertEqualObjects(tokenResult.token, tokenToReturn.token);
+                               XCTAssertNil(tokenResult.error);
+                             }];
 
   // 5. Wait for expectations and validate mocks.
   [self waitForExpectations:@[ getTokenExpectation ] timeout:0.5];
@@ -178,15 +175,17 @@
 
   // 4. Request token.
   XCTestExpectation *getTokenExpectation = [self expectationWithDescription:@"getToken"];
-  [self.appCheck getTokenWithCompletion:^(id<FIRAppCheckTokenInterop> _Nullable token,
-                                          NSError *_Nullable error) {
-    [getTokenExpectation fulfill];
+  [self.appCheck getTokenForcingRefresh:NO
+                             completion:^(id<FIRAppCheckTokenResultInterop> result) {
+                               [getTokenExpectation fulfill];
 
-    XCTAssertNil(token);
+                               XCTAssertNotNil(result);
+                               XCTAssertEqualObjects(result.token, @"0000");
 
-    // TODO: Expect a public domain error to be returned - not the internal one.
-    XCTAssertEqualObjects(error, providerError);
-  }];
+                               // TODO: Expect a public domain error to be returned - not the
+                               // internal one.
+                               XCTAssertEqualObjects(result.error, providerError);
+                             }];
 
   // 5. Wait for expectations and validate mocks.
   [self waitForExpectations:@[ getTokenExpectation ] timeout:0.5];

@@ -22,11 +22,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRAppCheckFake : NSObject <FIRAppCheckInterop>
 
-/** The token to be passed to `-[getTokenWithCompletion:]` completion handler. */
-@property(nonatomic, nonnull) id<FIRAppCheckTokenInterop> token;
-
-/** The error to be passed to `-[getTokenWithCompletion:]` completion handler. */
-@property(nonatomic, nonnull) NSError *error;
+/** The tokenResult to be passed to `-[getTokenWithCompletion:]` completion handler. */
+@property(nonatomic, nonnull) id<FIRAppCheckTokenResultInterop> tokenResult;
 
 @end
 

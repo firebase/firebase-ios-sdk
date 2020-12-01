@@ -25,17 +25,19 @@
 
 #import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckErrorUtil.h"
 #import "FirebaseAppCheck/Sources/Core/FIRAppCheckLogger.h"
-#import "FirebaseAppCheck/Sources/Core/FIRAppCheckToken+Interop.h"
+#import "FirebaseAppCheck/Sources/Core/FIRAppCheckTokenResult.h"
 #import "FirebaseAppCheck/Sources/Core/Storage/FIRAppCheckStorage.h"
 
 #import "FirebaseAppCheck/Sources/Interop/FIRAppCheckInterop.h"
-#import "FirebaseAppCheck/Sources/Interop/FIRAppCheckTokenInterop.h"
+#import "FirebaseAppCheck/Sources/Interop/FIRAppCheckTokenResultInterop.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 static id<FIRAppCheckProviderFactory> _providerFactory;
 
 static const NSTimeInterval kTokenExpirationThreshold = 60 * 60;  // 1 hour.
+
+static NSString *const kDummyFACTokenValue = @"0000";
 
 @interface FIRAppCheck () <FIRLibrary, FIRAppCheckInterop>
 @property(class, nullable) id<FIRAppCheckProviderFactory> providerFactory;
@@ -141,16 +143,16 @@ static const NSTimeInterval kTokenExpirationThreshold = 60 * 60;  // 1 hour.
         return [self refreshToken];
       })
       .then(^id _Nullable(FIRAppCheckToken *token) {
-        handler(token, nil);
-        return token;
+        FIRAppCheckTokenResult *result = [[FIRAppCheckTokenResult alloc] initWithToken:token.token
+                                                                                 error:nil];
+        handler(result);
+        return result;
       })
       .catch(^(NSError *_Nonnull error) {
-        handler(nil, error);
+        FIRAppCheckTokenResult *result =
+            [[FIRAppCheckTokenResult alloc] initWithToken:kDummyFACTokenValue error:error];
+        handler(result);
       });
-}
-
-- (void)getTokenWithCompletion:(FIRAppCheckTokenHandlerInterop)handler {
-  [self getTokenForcingRefresh:NO completion:handler];
 }
 
 #pragma mark - FAA token cache

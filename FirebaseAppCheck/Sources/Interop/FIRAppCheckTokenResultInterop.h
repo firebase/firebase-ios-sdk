@@ -16,13 +16,16 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FirebaseAppCheck/Sources/Interop/FIRAppCheckTokenInterop.h"
-
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRAppCheckTokenFake : NSObject <FIRAppCheckTokenInterop>
+@protocol FIRAppCheckTokenResultInterop <NSObject>
 
-- (instancetype)initWithToken:(NSString *)token expirationDate:(NSDate *)expirationDate;
+/// App Check token in the case of success or a dummy token in the case of a failure.
+/// In general, the value of the token should always be set to the request header.
+@property(nonatomic, readonly) NSString *token;
+
+/// A token fetch error in the case of a failure or `nil` in the case of success.
+@property(nonatomic, readonly, nullable) NSError *error;
 
 @end
 

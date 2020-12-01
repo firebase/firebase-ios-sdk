@@ -14,20 +14,16 @@
  * limitations under the License.
  */
 
-#import "SharedTestUtilities/AppCheckFake/FIRAppCheckTokenFake.h"
+#import <Foundation/Foundation.h>
 
-@implementation FIRAppCheckTokenFake
+#import "FirebaseAppCheck/Sources/Interop/FIRAppCheckTokenResultInterop.h"
 
-@synthesize token = _token;
-@synthesize expirationDate = _expirationDate;
+NS_ASSUME_NONNULL_BEGIN
 
-- (instancetype)initWithToken:(NSString *)token expirationDate:(NSDate *)expirationDate {
-  self = [super init];
-  if (self) {
-    _token = token;
-    _expirationDate = expirationDate;
-  }
-  return self;
-}
+@interface FIRAppCheckTokenResultFake : NSObject <FIRAppCheckTokenResultInterop>
+
+- (instancetype)initWithToken:(NSString *)token error:(nullable NSError *)error;
 
 @end
+
+NS_ASSUME_NONNULL_END

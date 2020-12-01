@@ -14,18 +14,23 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
+#import "SharedTestUtilities/AppCheckFake/FIRAppCheckTokenResultFake.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-// TODO: Consider a different name (`FIRAppCheckToken`, `FIRAppCheckTokenProtocol`,
-// etc.)
-@protocol FIRAppCheckTokenInterop <NSObject>
+@implementation FIRAppCheckTokenResultFake
 
-/// FAA token.
-@property(nonatomic, readonly) NSString *token;
-/// FAA token expiration date in the device local time.
-@property(nonatomic, readonly) NSDate *expirationDate;
+@synthesize token = _token;
+@synthesize error = _error;
+
+- (instancetype)initWithToken:(NSString *)token error:(nullable NSError *)error {
+  self = [super init];
+  if (self) {
+    _token = token;
+    _error = error;
+  }
+  return self;
+}
 
 @end
 

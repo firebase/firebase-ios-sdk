@@ -14,13 +14,24 @@
  * limitations under the License.
  */
 
-#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckToken.h"
-
-#import "FirebaseAppCheck/Sources/Interop/FIRAppCheckTokenInterop.h"
+#import "FirebaseAppCheck/Sources/Core/FIRAppCheckTokenResult.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRAppCheckToken (Interop) <FIRAppCheckTokenInterop>
+@implementation FIRAppCheckTokenResult
+
+@synthesize token = _token;
+@synthesize error = _error;
+
+- (instancetype)initWithToken:(NSString *)token error:(nullable NSError *)error {
+  self = [super init];
+  if (self) {
+    _token = token;
+    _error = error;
+  }
+  return self;
+}
+
 @end
 
 NS_ASSUME_NONNULL_END

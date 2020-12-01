@@ -21,13 +21,7 @@
 - (void)getTokenForcingRefresh:(BOOL)forcingRefresh
                     completion:(nonnull FIRAppCheckTokenHandlerInterop)handler {
   dispatch_async(dispatch_get_main_queue(), ^{
-    handler(self.token, self.error);
-  });
-}
-
-- (void)getTokenWithCompletion:(nonnull FIRAppCheckTokenHandlerInterop)handler {
-  dispatch_async(dispatch_get_main_queue(), ^{
-    handler(self.token, self.error);
+    handler(self.tokenResult);
   });
 }
 

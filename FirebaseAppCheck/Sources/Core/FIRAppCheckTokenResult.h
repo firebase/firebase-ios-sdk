@@ -16,20 +16,13 @@
 
 #import <Foundation/Foundation.h>
 
-@protocol FIRAppCheckTokenResultInterop;
+#import "FirebaseAppCheck/Sources/Interop/FIRAppCheckTokenResultInterop.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-NS_SWIFT_NAME(AppCheckTokenHandlerInterop)
-typedef void (^FIRAppCheckTokenHandlerInterop)(id<FIRAppCheckTokenResultInterop> tokenResult);
+@interface FIRAppCheckTokenResult : NSObject <FIRAppCheckTokenResultInterop>
 
-@protocol FIRAppCheckInterop <NSObject>
-
-/// Retrieve a cached or generate a new FAA Token. If forcingRefresh == YES always generates a new
-/// token and updates the cache.
-- (void)getTokenForcingRefresh:(BOOL)forcingRefresh
-                    completion:(FIRAppCheckTokenHandlerInterop)handler
-    NS_SWIFT_NAME(getToken(forcingRefresh:completion:));
+- (instancetype)initWithToken:(NSString *)token error:(nullable NSError *)error;
 
 @end
 

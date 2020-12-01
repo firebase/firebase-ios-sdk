@@ -19,4 +19,4 @@
 FIRLoggerService kFIRLoggerStorage = @"[Firebase/Storage]";
 
 // FIRStorageTokenAuthorizer.m
-NSString *const kFIRStorageMessageCodeAppCheckError = @"I-ST000001";
+NSString *const kFIRStorageMessageCodeAppCheckError = @"I-STR000001";
