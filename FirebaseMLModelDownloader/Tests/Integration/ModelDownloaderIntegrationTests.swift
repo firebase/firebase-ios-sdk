@@ -139,6 +139,7 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
           XCTFail("Invalid or empty model path.")
           return
         }
+        print(modelPath)
         XCTAssertTrue(ModelFileManager.isFileReachable(at: modelPath))
       case let .failure(error):
         XCTFail(error.localizedDescription)
@@ -146,7 +147,7 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
       expectation.fulfill()
     }
 
-    modelDownloadManager.startModelDownload(url: url)
+    modelDownloadManager.resumeModelDownload(url: url)
     waitForExpectations(timeout: 5, handler: nil)
     XCTAssertEqual(modelDownloadManager.downloadStatus, .completed)
   }
