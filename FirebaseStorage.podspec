@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseStorage'
-  s.version          = '7.0.0'
+  s.version          = '7.1.0'
   s.summary          = 'Firebase Storage'
 
   s.description      = <<-DESC
@@ -31,7 +31,6 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
   ]
   s.public_header_files = 'FirebaseStorage/Sources/Public/FirebaseStorage/*.h'
 
-  s.ios.framework = 'MobileCoreServices'
   s.osx.framework = 'CoreServices'
 
   s.dependency 'FirebaseCore', '~> 7.0'

@@ -24,7 +24,6 @@ build time speed up.
 A more flexible Zip Builder would enable the following scenarios:
 
   * Creating a zip distribution from an arbitrary set of pods
-  * Support different building different sets of platform slices
   * Support building with different Xcode versions
   * Build only the subspecs needed for use case
   * [Existing solutions](https://github.com/firebase/firebase-ios-sdk/issues/4284#issuecomment-552677044)

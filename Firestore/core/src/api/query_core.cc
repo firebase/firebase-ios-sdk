@@ -394,24 +394,6 @@ void Query::ValidateDisjunctiveFilterElements(
         " elements in the value array.",
         Describe(op));
   }
-
-  std::vector<FieldValue> array = field_value.array_value();
-  for (const auto& val : array) {
-    if (op == Operator::In || op == Operator::ArrayContainsAny) {
-      if (val.is_null()) {
-        ThrowInvalidArgument(
-            "Invalid Query. '%s' filters cannot contain 'null' in"
-            " the value array.",
-            Describe(op));
-      }
-      if (val.is_nan()) {
-        ThrowInvalidArgument(
-            "Invalid Query. '%s' filters cannot contain 'NaN' in"
-            " the value array.",
-            Describe(op));
-      }
-    }
-  }
 }
 
 FieldValue Query::ParseExpectedReferenceValue(

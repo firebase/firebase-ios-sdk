@@ -113,19 +113,11 @@
   XCTestExpectation *batchSizeReductionExpectation =
       [self expectationWithDescription:@"Batch size was reduced after topic suscription"];
 
-<<<<<<< HEAD
-=======
-  __weak id weakSelf = self;
->>>>>>> 88a3f2e667062c6ae86d3de7653ba1f1b083b9b1
   self.alwaysReadyDelegate.subscriptionHandler =
       ^(NSString *topic, FIRMessagingTopicAction action,
         FIRMessagingTopicOperationCompletion completion) {
         // Simulate that the handler is generally called asynchronously
         dispatch_async(dispatch_get_main_queue(), ^{
-<<<<<<< HEAD
-=======
-          id self = weakSelf;
->>>>>>> 88a3f2e667062c6ae86d3de7653ba1f1b083b9b1
           if (action == FIRMessagingTopicActionUnsubscribe) {
             XCTAssertEqual(pendingTopics.numberOfBatches, 1);
             [batchSizeReductionExpectation fulfill];

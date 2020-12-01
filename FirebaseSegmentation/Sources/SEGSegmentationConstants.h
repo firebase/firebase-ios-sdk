@@ -27,25 +27,22 @@
   } while (0);
 #endif
 
-static NSString* const kFIRLoggerSegmentation = @"[Firebase/Segmentation]";
+extern NSString* const kFIRLoggerSegmentation;
 
 /// Keys for values stored in the Segmentation SDK.
-static NSString* const kSEGFirebaseApplicationIdentifierKey = @"firebase_app_identifier";
-static NSString* const kSEGCustomInstallationIdentifierKey = @"custom_installation_identifier";
-static NSString* const kSEGFirebaseInstallationIdentifierKey = @"firebase_installation_identifier";
-static NSString* const kSEGAssociationStatusKey = @"association_status";
+extern NSString* const kSEGFirebaseApplicationIdentifierKey;
+extern NSString* const kSEGCustomInstallationIdentifierKey;
+extern NSString* const kSEGFirebaseInstallationIdentifierKey;
+extern NSString* const kSEGAssociationStatusKey;
 /// Association Status
-static NSString* const kSEGAssociationStatusPending = @"PENDING";
-static NSString* const kSEGAssociationStatusAssociated = @"ASSOCIATED";
+extern NSString* const kSEGAssociationStatusPending;
+extern NSString* const kSEGAssociationStatusAssociated;
 
 /// Segmentation error domain when logging errors.
-kFirebaseSegmentationErrorDomain = @"com.firebase.segmentation";
-
-/// Segmentation FIRLogger domain.
-static NSString* const kFIRLoggerSegmentation = @"[Firebase/Segmentation]";
+extern NSString* const kFirebaseSegmentationErrorDomain;
 
 /// Used for reporting generic internal Segmentation errors.
-NSString* const kSEGErrorDescription = @"SEGErrorDescription";
+extern NSString* const kSEGErrorDescription;
 
 /// Segmentation Request Completion callback.
 /// @param success Decide whether the network operation succeeds.

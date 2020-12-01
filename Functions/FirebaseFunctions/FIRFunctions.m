@@ -49,6 +49,8 @@ NSString *const kFUNDefaultRegion = @"us-central1";
   NSString *_projectID;
   // The region to use for all function references.
   NSString *_region;
+  // The custom domain to use for all functions references (optional).
+  NSString *_customDomain;
   // A serializer to encode/decode data and return values.
   FUNSerializer *_serializer;
   // A factory for getting the metadata to include with function calls.
@@ -60,6 +62,7 @@ NSString *const kFUNDefaultRegion = @"us-central1";
 // Re-declare this initializer here in order to attribute it as the designated initializer.
 - (instancetype)initWithProjectID:(NSString *)projectID
                            region:(NSString *)region
+                     customDomain:(nullable NSString *)customDomain
                              auth:(nullable id<FIRAuthInterop>)auth
                         messaging:(nullable id<FIRMessagingInterop>)messaging
     NS_DESIGNATED_INITIALIZER;
@@ -89,30 +92,44 @@ NSString *const kFUNDefaultRegion = @"us-central1";
 }
 
 + (instancetype)functions {
-  return [[self alloc] initWithApp:[FIRApp defaultApp] region:kFUNDefaultRegion];
+  return [[self alloc] initWithApp:[FIRApp defaultApp] region:kFUNDefaultRegion customDomain:nil];
 }
 
 + (instancetype)functionsForApp:(FIRApp *)app {
-  return [[self alloc] initWithApp:app region:kFUNDefaultRegion];
+  return [[self alloc] initWithApp:app region:kFUNDefaultRegion customDomain:nil];
 }
 
 + (instancetype)functionsForRegion:(NSString *)region {
-  return [[self alloc] initWithApp:[FIRApp defaultApp] region:region];
+  return [[self alloc] initWithApp:[FIRApp defaultApp] region:region customDomain:nil];
+}
+
++ (instancetype)functionsForCustomDomain:(NSString *)customDomain {
+  return [[self alloc] initWithApp:[FIRApp defaultApp]
+                            region:kFUNDefaultRegion
+                      customDomain:customDomain];
 }
 
 + (instancetype)functionsForApp:(FIRApp *)app region:(NSString *)region {
-  return [[self alloc] initWithApp:app region:region];
+  return [[self alloc] initWithApp:app region:region customDomain:nil];
 }
 
-- (instancetype)initWithApp:(FIRApp *)app region:(NSString *)region {
++ (instancetype)functionsForApp:(FIRApp *)app customDomain:(NSString *)customDomain {
+  return [[self alloc] initWithApp:app region:kFUNDefaultRegion customDomain:customDomain];
+}
+
+- (instancetype)initWithApp:(FIRApp *)app
+                     region:(NSString *)region
+               customDomain:(nullable NSString *)customDomain {
   return [self initWithProjectID:app.options.projectID
                           region:region
+                    customDomain:customDomain
                             auth:FIR_COMPONENT(FIRAuthInterop, app.container)
                        messaging:FIR_COMPONENT(FIRMessagingInterop, app.container)];
 }
 
 - (instancetype)initWithProjectID:(NSString *)projectID
                            region:(NSString *)region
+                     customDomain:(nullable NSString *)customDomain
                              auth:(nullable id<FIRAuthInterop>)auth
                         messaging:(nullable id<FIRMessagingInterop>)messaging {
   self = [super init];
@@ -123,6 +140,7 @@ NSString *const kFUNDefaultRegion = @"us-central1";
     _fetcherService = [[GTMSessionFetcherService alloc] init];
     _projectID = [projectID copy];
     _region = [region copy];
+    _customDomain = [customDomain copy];
     _serializer = [[FUNSerializer alloc] init];
     _contextProvider = [[FUNContextProvider alloc] initWithAuth:auth messaging:messaging];
     _emulatorOrigin = nil;
@@ -131,7 +149,13 @@ NSString *const kFUNDefaultRegion = @"us-central1";
 }
 
 - (void)useLocalhost {
-  [self useFunctionsEmulatorOrigin:@"http://localhost:5005"];
+  [self useEmulatorWithHost:@"http://localhost" port:5005];
+}
+
+- (void)useEmulatorWithHost:(NSString *)host port:(NSInteger)port {
+  NSAssert(host.length > 0, @"Cannot connect to nil or empty host");
+  NSString *origin = [NSString stringWithFormat:@"%@:%li", host, (long)port];
+  _emulatorOrigin = origin;
 }
 
 - (void)useFunctionsEmulatorOrigin:(NSString *)origin {
@@ -147,6 +171,9 @@ NSString *const kFUNDefaultRegion = @"us-central1";
   }
   if (_emulatorOrigin) {
     return [NSString stringWithFormat:@"%@/%@/%@/%@", _emulatorOrigin, _projectID, _region, name];
+  }
+  if (_customDomain) {
+    return [NSString stringWithFormat:@"%@/%@", _customDomain, name];
   }
   return
       [NSString stringWithFormat:@"https://%@-%@.cloudfunctions.net/%@", _region, _projectID, name];
@@ -296,6 +323,10 @@ NSString *const kFUNDefaultRegion = @"us-central1";
 
 - (FIRHTTPSCallable *)HTTPSCallableWithName:(NSString *)name {
   return [[FIRHTTPSCallable alloc] initWithFunctions:self name:name];
+}
+
+- (nullable NSString *)emulatorOrigin {
+  return _emulatorOrigin;
 }
 
 @end

@@ -5,7 +5,9 @@
 [![Actions Status][gh-abtesting-badge]][gh-actions]
 [![Actions Status][gh-appdistribution-badge]][gh-actions]
 [![Actions Status][gh-auth-badge]][gh-actions]
+[![Actions Status][gh-cocoapods-integration-badge]][gh-actions]
 [![Actions Status][gh-core-badge]][gh-actions]
+[![Actions Status][gh-core-diagnostics-badge]][gh-actions]
 [![Actions Status][gh-crashlytics-badge]][gh-actions]
 [![Actions Status][gh-database-badge]][gh-actions]
 [![Actions Status][gh-datatransport-badge]][gh-actions]
@@ -13,6 +15,8 @@
 [![Actions Status][gh-firebasepod-badge]][gh-actions]
 [![Actions Status][gh-firestore-badge]][gh-actions]
 [![Actions Status][gh-functions-badge]][gh-actions]
+[![Actions Status][gh-google-utilities-badge]][gh-actions]
+[![Actions Status][gh-google-utilities-components-badge]][gh-actions]
 [![Actions Status][gh-inappmessaging-badge]][gh-actions]
 [![Actions Status][gh-interop-badge]][gh-actions]
 [![Actions Status][gh-messaging-badge]][gh-actions]
@@ -27,13 +31,12 @@
 This repository contains all Apple platform Firebase SDK source except FirebaseAnalytics,
 FirebasePerformance, and FirebaseML.
 
-The repository also includes GoogleUtilities source. The
-[GoogleUtilities](GoogleUtilities/README.md) pod is
-a set of utilities used by Firebase and other Google products.
-
 Firebase is an app development platform with tools to help you build, grow and
 monetize your app. More information about Firebase can be found at
 [https://firebase.google.com](https://firebase.google.com).
+
+The repository also includes GoogleUtilities and GoogleDataTransport source
+which are utilities used by Firebase and other Google products.
 
 ## Installation
 
@@ -91,11 +94,6 @@ pod 'FirebaseMessaging', :path => '/path/to/firebase-ios-sdk'
 Instructions for the experimental Carthage distribution are at
 [Carthage](Carthage.md).
 
-### Rome
-
-Instructions for installing binary frameworks via
-[Rome](https://github.com/CocoaPods/Rome) are at [Rome](Rome.md).
-
 ### Using Firebase from a Framework or a library
 
 [Using Firebase from a Framework or a library](docs/firebase_in_libraries.md)
@@ -105,8 +103,8 @@ Instructions for installing binary frameworks via
 To develop Firebase software in this repository, ensure that you have at least
 the following software:
 
-  * Xcode 10.3 (or later)
-  * CocoaPods 1.7.2 (or later)
+  * Xcode 11.0 (or later)
+  * CocoaPods 1.9.0 (or later)
   * [CocoaPods generate](https://github.com/square/cocoapods-generate)
 
 For the pod that you want to develop:
@@ -150,7 +148,7 @@ GitHub Actions will verify that any code changes are done in a style compliant
 way. Install `clang-format` and `mint`:
 
 ```
-brew install clang-format
+brew install clang-format@11
 brew install mint
 ```
 
@@ -167,8 +165,8 @@ After running the `AllUnitTests_iOS` scheme in Xcode, execute
 at Example/ in the terminal. This will aggregate the coverage, and you can run `open xcov_output/index.html` to see the results.
 
 ### Running Sample Apps
-In order to run the sample apps and integration tests, you'll need valid
-`GoogleService-Info.plist` files for those samples. The Firebase Xcode project contains dummy plist
+In order to run the sample apps and integration tests, you'll need a valid
+`GoogleService-Info.plist` file. The Firebase Xcode project contains dummy plist
 files without real values, but can be replaced with real plist files. To get your own
 `GoogleService-Info.plist` files:
 
@@ -289,7 +287,9 @@ Your use of Firebase is governed by the
 [gh-abtesting-badge]: https://github.com/firebase/firebase-ios-sdk/workflows/abtesting/badge.svg
 [gh-appdistribution-badge]: https://github.com/firebase/firebase-ios-sdk/workflows/appdistribution/badge.svg
 [gh-auth-badge]: https://github.com/firebase/firebase-ios-sdk/workflows/auth/badge.svg
+[gh-cocoapods-integration-badge]: https://github.com/firebase/firebase-ios-sdk/workflows/cocoapods-integration/badge.svg
 [gh-core-badge]: https://github.com/firebase/firebase-ios-sdk/workflows/core/badge.svg
+[gh-core-diagnostics-badge]: https://github.com/firebase/firebase-ios-sdk/workflows/core-diagnostics/badge.svg
 [gh-crashlytics-badge]: https://github.com/firebase/firebase-ios-sdk/workflows/crashlytics/badge.svg
 [gh-database-badge]: https://github.com/firebase/firebase-ios-sdk/workflows/database/badge.svg
 [gh-datatransport-badge]: https://github.com/firebase/firebase-ios-sdk/workflows/datatransport/badge.svg
@@ -297,6 +297,8 @@ Your use of Firebase is governed by the
 [gh-firebasepod-badge]: https://github.com/firebase/firebase-ios-sdk/workflows/firebasepod/badge.svg
 [gh-firestore-badge]: https://github.com/firebase/firebase-ios-sdk/workflows/firestore/badge.svg
 [gh-functions-badge]: https://github.com/firebase/firebase-ios-sdk/workflows/functions/badge.svg
+[gh-google-utilities-badge]: https://github.com/firebase/firebase-ios-sdk/workflows/google-utilities/badge.svg
+[gh-google-utilities-components-badge]: https://github.com/firebase/firebase-ios-sdk/workflows/google-utilities-components/badge.svg
 [gh-inappmessaging-badge]: https://github.com/firebase/firebase-ios-sdk/workflows/inappmessaging/badge.svg
 [gh-interop-badge]: https://github.com/firebase/firebase-ios-sdk/workflows/interop/badge.svg
 [gh-messaging-badge]: https://github.com/firebase/firebase-ios-sdk/workflows/messaging/badge.svg

@@ -350,7 +350,7 @@ TEST(OrderedCodeInvalidEncodingsTest, NonCanonical) {
 
 #if defined(NDEBUG)
     EXPECT_ANY_THROW(TestRead<uint64_t>(INCREASING, non_minimal));
-#else   // defined(NDEBUG)
+#else  // defined(NDEBUG)
     absl::string_view s(non_minimal);
     EXPECT_ANY_THROW(OrderedCode::ReadNumIncreasing(&s, NULL));
 #endif  // defined(NDEBUG)
@@ -372,7 +372,7 @@ TEST(OrderedCodeInvalidEncodingsTest, NonCanonical) {
 
 #if defined(NDEBUG)
     EXPECT_ANY_THROW(TestRead<int64_t>(INCREASING, non_minimal));
-#else   // defined(NDEBUG)
+#else  // defined(NDEBUG)
     absl::string_view s(non_minimal);
     EXPECT_ANY_THROW(OrderedCode::ReadSignedNumIncreasing(&s, NULL));
     s = non_minimal;

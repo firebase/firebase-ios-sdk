@@ -35,7 +35,8 @@ do
 done
 echo "]" >>  "${ZIP_POD_JSON}"
 mkdir -p "${REPO}"/sdk_zip
-swift run zip-builder -keepBuildArtifacts true -updatePodRepo true -templateDir "${REPO}"/ReleaseTooling/Template -zipPods "${ZIP_POD_JSON}" -outputDir "${REPO}"/sdk_zip -buildDependencies false
+swift run zip-builder --keep-build-artifacts --update-pod-repo --repo-dir "${REPO}" \
+    --zip-pods "${ZIP_POD_JSON}" --output-dir "${REPO}"/sdk_zip --disable-build-dependencies
 
 unzip -o "${REPO}"/sdk_zip/Frameworks.zip -d "${HOME}"/ios_frameworks/Firebase/
 

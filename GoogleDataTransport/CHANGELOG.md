@@ -1,3 +1,10 @@
+# v8.0.2
+- Fix out-of-memory crash for a big amount of pending events. (#6995)
+
+# v8.0.1
+- Remove `GCC_TREAT_WARNINGS_AS_ERRORS` from the podspec.
+- Reduce pre-main startup time footprint. (#6855)
+
 # v8.0.0
 - Source restructuring to limit the public API surface.
 

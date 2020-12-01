@@ -54,6 +54,7 @@ static NSString *const kDefaultProjectID = @"functions-integration-test";
   _functions = [[FIRFunctions alloc]
       initWithProjectID:_projectID
                  region:@"us-central1"
+           customDomain:nil
                    auth:[[FIRAuthInteropFake alloc] initWithToken:nil userID:nil error:nil]
               messaging:_messagingFake];
   if (_useLocalhost) {
@@ -105,6 +106,7 @@ static NSString *const kDefaultProjectID = @"functions-integration-test";
   FIRFunctions *functions = [[FIRFunctions alloc]
       initWithProjectID:_projectID
                  region:@"us-central1"
+           customDomain:nil
                    auth:[[FIRAuthInteropFake alloc] initWithToken:@"token" userID:nil error:nil]
               messaging:_messagingFake];
   if (_useLocalhost) {
