@@ -126,7 +126,7 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
       size: 10
     )
     let expectation = self.expectation(description: "Wait for model to download.")
-    let modelDownloadManager = ModelDownloadManager(
+    let modelDownloadManager = ModelDownloadTask(
       app: testApp,
       modelInfo: modelInfoRetriever.modelInfo!,
       progressHandler: { progress in
@@ -139,7 +139,6 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
           XCTFail("Invalid or empty model path.")
           return
         }
-        print(modelPath)
         XCTAssertTrue(ModelFileManager.isFileReachable(at: modelPath))
       case let .failure(error):
         XCTFail(error.localizedDescription)

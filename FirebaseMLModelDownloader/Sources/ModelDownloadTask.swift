@@ -36,7 +36,7 @@ class DownloadHandlers {
 }
 
 /// Manager for model downloads.
-class ModelDownloadManager: NSObject {
+class ModelDownloadTask: NSObject {
   let app: FirebaseApp
   var modelInfo: ModelInfo
   var downloadTask: URLSessionDownloadTask?
@@ -70,7 +70,7 @@ class ModelDownloadManager: NSObject {
 }
 
 /// Extension to handle delegate methods.
-extension ModelDownloadManager: URLSessionDownloadDelegate {
+extension ModelDownloadTask: URLSessionDownloadDelegate {
   func urlSession(_ session: URLSession,
                   downloadTask: URLSessionDownloadTask,
                   didFinishDownloadingTo location: URL) {
@@ -89,7 +89,12 @@ extension ModelDownloadManager: URLSessionDownloadDelegate {
       /// Set path to local model.
       modelInfo.path = savedURL.absoluteString
       /// Write model to user defaults.
-      modelInfo.writeToDefaults(app: app, defaults: .firebaseMLDefaults)
+      do {
+        try modelInfo.writeToDefaults(app: app, defaults: .firebaseMLDefaults)
+      } catch {
+        downloadHandlers
+          .completion(.failure(.internalError(description: error.localizedDescription)))
+      }
       /// Build model from model info.
       guard let model = buildModel() else {
         downloadHandlers
@@ -117,7 +122,7 @@ extension ModelDownloadManager: URLSessionDownloadDelegate {
 }
 
 /// Extension to handle post-download operations.
-extension ModelDownloadManager {
+extension ModelDownloadTask {
   var downloadedModelFileName: String {
     return "fbml_model__\(app.name)__\(modelInfo.name)"
   }

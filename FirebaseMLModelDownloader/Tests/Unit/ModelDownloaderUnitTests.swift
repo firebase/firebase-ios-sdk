@@ -26,11 +26,13 @@ private enum MockOptions {
 
 extension UserDefaults {
   /// For testing: returns a new cleared instance of user defaults.
-  static func getTestInstance() -> UserDefaults {
+  static func getTestInstance(cleared: Bool = true) -> UserDefaults {
     let suiteName = "com.google.firebase.ml.test"
     // TODO: reconsider force unwrapping
     let defaults = UserDefaults(suiteName: suiteName)!
-    defaults.removePersistentDomain(forName: suiteName)
+    if cleared {
+      defaults.removePersistentDomain(forName: suiteName)
+    }
     return defaults
   }
 }
@@ -50,7 +52,52 @@ final class ModelDownloaderUnitTests: XCTestCase {
   // TODO: Add unit test with mocks.
   func testDownloadModelInfo() {}
 
-  /// Unit test to save model info to user defaults.
+  /// Test to read/write model info to user defaults.
+  func testReadWriteToDefaults() {
+    guard let testApp = FirebaseApp.app() else {
+      XCTFail("Default app was not configured.")
+      return
+    }
+    let functionName = #function
+    let testModelName = "\(functionName)-test-model"
+    let testDownloadURL = "https://storage.googleapis.com"
+    let testModelHash = "mock-valid-hash"
+    let testModelSize = 10
+    let testModelPath = "valid-local-path"
+
+    var modelInfo = ModelInfo(
+      name: testModelName,
+      downloadURL: testDownloadURL,
+      modelHash: testModelHash,
+      size: testModelSize
+    )
+    // This fails because there is no model path.
+    do {
+      try modelInfo.writeToDefaults(app: testApp, defaults: .getTestInstance())
+    } catch {
+      XCTAssertNotNil(error)
+    }
+    modelInfo.path = testModelPath
+    // This shouldn't fail because model info object is now complete.
+    do {
+      try modelInfo.writeToDefaults(app: testApp, defaults: .getTestInstance())
+    } catch {
+      XCTFail(error.localizedDescription)
+    }
+    guard let savedModelInfo = ModelInfo(
+      name: testModelName,
+      app: testApp,
+      defaults: .getTestInstance(cleared: false)
+    ) else {
+      XCTFail("Model info not saved to user defaults.")
+      return
+    }
+    XCTAssertEqual(savedModelInfo.downloadURL, testDownloadURL)
+    XCTAssertEqual(savedModelInfo.modelHash, testModelHash)
+    XCTAssertEqual(savedModelInfo.size, testModelSize)
+  }
+
+  /// Unit test to save model info.
   func testSaveModelInfo() {
     guard let testApp = FirebaseApp.app() else {
       XCTFail("Default app was not configured.")

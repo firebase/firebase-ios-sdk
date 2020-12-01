@@ -41,12 +41,33 @@ struct ModelInfo {
     self.size = size
   }
 
-  func writeToDefaults(app: FirebaseApp, defaults: UserDefaults) {
+  init?(name: String, app: FirebaseApp, defaults: UserDefaults) {
+    let bundleID = Bundle.main.bundleIdentifier ?? ""
+    let defaultsPrefix = "\(bundleID).\(app.name).\(name)"
+    guard let downloadURL = defaults
+      .value(forKey: "\(defaultsPrefix).model-download-url") as? String,
+      let modelHash = defaults.value(forKey: "\(defaultsPrefix).model-hash") as? String,
+      let size = defaults.value(forKey: "\(defaultsPrefix).model-size") as? Int,
+      let path = defaults.value(forKey: "\(defaultsPrefix).model-path") as? String else {
+      return nil
+    }
+    self.name = name
+    self.downloadURL = downloadURL
+    self.modelHash = modelHash
+    self.size = size
+    self.path = path
+  }
+
+  func writeToDefaults(app: FirebaseApp, defaults: UserDefaults) throws {
+    guard let modelPath = path else {
+      throw DownloadedModelError
+        .fileIOError(description: "Could not save model info to user defaults.")
+    }
     let bundleID = Bundle.main.bundleIdentifier ?? ""
     let defaultsPrefix = "\(bundleID).\(app.name).\(name)"
     defaults.setValue(downloadURL, forKey: "\(defaultsPrefix).model-download-url")
     defaults.setValue(modelHash, forKey: "\(defaultsPrefix).model-hash")
     defaults.setValue(size, forKey: "\(defaultsPrefix).model-size")
-    defaults.setValue(path, forKey: "\(defaultsPrefix).model-path")
+    defaults.setValue(modelPath, forKey: "\(defaultsPrefix).model-path")
   }
 }
