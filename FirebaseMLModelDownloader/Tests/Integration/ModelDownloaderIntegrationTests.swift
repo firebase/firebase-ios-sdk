@@ -48,8 +48,7 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
     let testModelName = "image-classification"
     let modelInfoRetriever = ModelInfoRetriever(
       app: testApp,
-      modelName: testModelName,
-      defaults: .getTestInstance()
+      modelName: testModelName
     )
     let expectation = self.expectation(description: "Wait for FIS auth token.")
     modelInfoRetriever.getAuthToken(completion: { result in
@@ -74,8 +73,7 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
     let testModelName = "pose-detection"
     let modelInfoRetriever = ModelInfoRetriever(
       app: testApp,
-      modelName: testModelName,
-      defaults: .getTestInstance()
+      modelName: testModelName
     )
     let downloadExpectation = expectation(description: "Wait for model info to download.")
     modelInfoRetriever.downloadModelInfo(completion: { error in
@@ -84,8 +82,7 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
         XCTFail("Empty model info.")
         return
       }
-      XCTAssertNotEqual(modelInfo.downloadURL, "")
-      XCTAssertNotEqual(modelInfo.modelHash, "")
+      XCTAssertNotNil(modelInfo.modelHash)
       XCTAssertGreaterThan(modelInfo.size, 0)
       downloadExpectation.fulfill()
     })
@@ -117,16 +114,17 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
       app: testApp,
       modelName: testModelName
     )
-    modelInfoRetriever.modelInfo = ModelInfo(
-      app: testApp,
-      name: testModelName,
-      defaults: .getTestInstance()
-    )
 
-    let url =
-      URL(
-        string: "https://tfhub.dev/tensorflow/lite-model/ssd_mobilenet_v1/1/metadata/1?lite-format=tflite"
-      )!
+    let urlString =
+      "https://tfhub.dev/tensorflow/lite-model/ssd_mobilenet_v1/1/metadata/1?lite-format=tflite"
+    let url = URL(string: urlString)!
+
+    modelInfoRetriever.modelInfo = ModelInfo(
+      name: testModelName,
+      downloadURL: urlString,
+      modelHash: "mock-valid-hash",
+      size: 1000
+    )
     let modelDownloadManager = ModelDownloadManager(
       app: testApp,
       modelInfo: modelInfoRetriever.modelInfo!
