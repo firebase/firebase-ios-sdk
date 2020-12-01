@@ -16,7 +16,8 @@ jobs:
     if: github.repository != 'FirebasePrivate/firebase-ios-sdk' || github.event_name == 'pull_request'
 
     runs-on: macOS-latest
-
+    env:
+      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
     strategy:
       matrix:
         target: [ios, tvos, macos]
@@ -24,6 +25,11 @@ jobs:
     - uses: actions/checkout@v2
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
+    - name: Install GoogleService-Info.plist
+      run: |
+        mkdir FirebaseMLModelDownloader/Tests/Integration/Resources
+        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/MLModelDownloader/GoogleService-Info.plist.gpg \
+          FirebaseMLModelDownloader/Tests/Integration/Resources/GoogleService-Info.plist "$plist_secret"
     - name: Build and test
       run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseMLModelDownloader.podspec --platforms=${{ matrix.target }}
 
