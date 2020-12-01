@@ -168,7 +168,6 @@ static NSURL *_testServerURL = nil;
 }
 
 + (nullable NSURL *)serverURLForTarget:(GDTCORTarget)target {
-  
 #if !NDEBUG
   if (_testServerURL) {
     return _testServerURL;
