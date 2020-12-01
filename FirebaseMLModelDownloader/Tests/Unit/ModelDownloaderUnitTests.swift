@@ -96,48 +96,9 @@ final class ModelDownloaderUnitTests: XCTestCase {
     XCTAssertEqual(modelInfoRetriever.modelInfo?.size, 562_336)
   }
 
-  /// Test to download model file - makes an actual network call.
-  // TODO: Move this into a separate integration test and add unit test with mocks.
+  /// Test to download model file.
+  // TODO: Add unit test with mocks.
   func testStartModelDownload() {
-    let testApp = FirebaseApp.app()!
-    let functionName = #function
-    let testModelName = "\(functionName)-test-model"
-    let modelInfoRetriever = ModelInfoRetriever(
-      app: testApp,
-      modelName: testModelName
-    )
-    modelInfoRetriever.modelInfo = ModelInfo(
-      app: testApp,
-      name: testModelName,
-      defaults: .getTestInstance()
-    )
-
-    let url =
-      URL(
-        string: "https://tfhub.dev/tensorflow/lite-model/ssd_mobilenet_v1/1/metadata/1?lite-format=tflite"
-      )!
-    let modelDownloadManager = ModelDownloadManager(
-      app: testApp,
-      modelInfo: modelInfoRetriever.modelInfo!
-    )
-    let expectation = self.expectation(description: "Wait for model to download.")
-    modelDownloadManager.startModelDownload(url: url, progressHandler: { progress in
-      XCTAssertNotNil(progress)
-    }) { result in
-      switch result {
-      case let .success(model):
-        XCTAssertEqual(modelDownloadManager.downloadStatus, .completed)
-        guard let modelPath = URL(string: model.path) else {
-          XCTFail("Invalid or empty model path.")
-          return
-        }
-        XCTAssertTrue(ModelFileManager.isFileReachable(at: modelPath))
-      case let .failure(error):
-        XCTAssertNotNil(error)
-      }
-      expectation.fulfill()
-    }
-    waitForExpectations(timeout: 5, handler: nil)
   }
 
   func testExample() {
