@@ -35,8 +35,8 @@ pod 'Firebase/Analytics, '7.2.0-M1'
 
 Remember: now you need to manually add `-ObjC` to avoid a runtime crash. This CocoaPods issue has
 been fixed in
-[CocoaPods/CocoaPods#10234](https://github.com/CocoaPods/CocoaPods/pull/10234) but has not been
-included in a CocoaPods release yet.
+[CocoaPods/CocoaPods#10234](https://github.com/CocoaPods/CocoaPods/pull/10234) and is merged for
+the upcoming CocoaPods 1.10.1 patch release.
 
 ### Performance
 
