@@ -53,7 +53,8 @@ FOUNDATION_STATIC_INLINE NSNumber *timeIntervalInMillis(NSTimeInterval timeInter
                   toAnalytics:(id<FIRAnalyticsInterop>)analytics {
   if (analytics == nil) {
     FIRCLSDeveloperLog(@"Crashlytics:Crash:Reports:Event",
-                       "Firebase Analytics SDK not detected so crash-free statistics and breadcrumbs will not be reported");
+                       "Firebase Analytics SDK not detected so crash-free statistics and "
+                       "breadcrumbs will not be reported");
     return;
   }
 
