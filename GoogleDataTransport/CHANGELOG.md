@@ -1,7 +1,5 @@
 # Unreleased (v8.1.0)
 - Expose upload URLs which FirebasePerformance will depend upon.
-
-# v8.0.2
 - Fix out-of-memory crash for a big amount of pending events. (#6995)
 
 # v8.0.1
