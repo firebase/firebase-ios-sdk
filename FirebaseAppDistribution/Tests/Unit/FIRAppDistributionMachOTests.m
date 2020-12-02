@@ -30,8 +30,9 @@
   // nested bundle. In Swift we could have used `Bundle.module` to access it, but that isn't
   // surfaced in ObjC.
 #if SWIFT_PACKAGE
-  NSString *nestedBundlePath = [bundle pathForResource:@"Firebase_AppDistributionUnit"
-                                                ofType:@"bundle"];;
+  NSString* nestedBundlePath = [bundle pathForResource:@"Firebase_AppDistributionUnit"
+                                                ofType:@"bundle"];
+  ;
   bundle = [NSBundle bundleWithPath:nestedBundlePath];
 #endif  // SWIFT_PACKAGE
 
