@@ -59,7 +59,7 @@ extension DocumentReference {
                                     completion: ((Error?) -> Void)? = nil) throws {
     setData(try encoder.encode(value), merge: merge, completion: completion)
   }
-
+  
   /// Encodes an instance of `Encodable` and writes the encoded data to the document referred
   /// by this `DocumentReference` by only replacing the fields specified under `mergeFields`.
   /// Any field that is not specified in mergeFields is ignored and remains untouched. If the
@@ -84,6 +84,40 @@ extension DocumentReference {
                                     mergeFields: [Any],
                                     encoder: Firestore.Encoder = Firestore.Encoder(),
                                     completion: ((Error?) -> Void)? = nil) throws {
+    setData(try encoder.encode(value), mergeFields: mergeFields, completion: completion)
+  }
+  
+  /// Encodes an instance of `Encodable` and writes the encoded data to the document referred
+  /// by this `DocumentReference` by only replacing the fields specified under `mergeFields`.
+  /// Any field that is not specified in fields is ignored and remains untouched. If the
+  /// document doesn’t yet exist, the update fails and the specified completion block receives an error.
+  ///
+  /// It is an error to include a field in `mergeFields` that does not have a corresponding
+  /// field in the `Encodable`.
+  ///
+  /// See `Firestore.Encoder` for more details about the encoding process.
+  ///
+  /// - Parameters:
+  ///   - value: An instance of `Encodable` to be encoded to a document.
+  ///   - fields: Array of `String` or `FieldPath` elements specifying which fields to
+  ///                  merge. Fields can contain dots to reference nested fields within the
+  ///                  document.
+  ///   - encoder: An encoder instance to use to run the encoding.
+  ///   - completion: A block to execute once the document has been successfully
+  ///                 written to the server. This block will not be called while
+  ///                 the client is offline, though local changes will be visible
+  ///                 immediately.
+  
+  public func update<T: Encodable>(from value: T,
+                                   on fields: [String],
+                                  encoder: Firestore.Encoder = Firestore.Encoder(),
+                                  completion: ((Error?) -> Void)? = nil) throws {
+    var encoded = try encoder.encode(value)
+    var filtered = [String:Any]()
+    for field in fields {
+      var fullNameArr = field.components(separatedBy:" ")
+    }
+    var filtered = encoded.filter { fields.contains($0.key) }
     setData(try encoder.encode(value), mergeFields: mergeFields, completion: completion)
   }
 }
