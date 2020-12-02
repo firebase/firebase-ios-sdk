@@ -28,6 +28,10 @@ extern NSNotificationName const GDTCCTUploadCompleteNotification;
 /** Class capable of uploading events to the CCT backend. */
 @interface GDTCCTUploader : NSObject <GDTCORUploader>
 
+/** Returns the server URL for target.*/
+// TODO: create a separate public header (e.g. GDTCCTUploadURL.h) to make it a public API.
++ (NSDictionary<NSNumber *, NSURL *> *)uploadURLs;
+
 /** The queue on which all CCT uploading will occur. */
 @property(nonatomic, readonly) dispatch_queue_t uploaderQueue;
 
@@ -45,7 +49,7 @@ extern NSNotificationName const GDTCCTUploadCompleteNotification;
 
 #if !NDEBUG
 /** An upload URL used across all targets. For testing only. */
-@property(nullable, nonatomic) NSURL *testServerURL;
+@property(class, nullable, nonatomic) NSURL *testServerURL;
 
 #endif  // !NDEBUG
 
