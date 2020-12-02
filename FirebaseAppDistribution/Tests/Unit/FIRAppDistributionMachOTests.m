@@ -32,7 +32,6 @@
 #if SWIFT_PACKAGE
   NSString* nestedBundlePath = [bundle pathForResource:@"Firebase_AppDistributionUnit"
                                                 ofType:@"bundle"];
-  ;
   bundle = [NSBundle bundleWithPath:nestedBundlePath];
 #endif  // SWIFT_PACKAGE
 
