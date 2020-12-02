@@ -30,7 +30,11 @@
 #if defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
     if (@available(iOS 13.0, *)) {
       UIWindowScene *foregroundedScene = [[self class] foregroundedScene];
-      UIWindowForModal = [[UIWindow alloc] initWithWindowScene:foregroundedScene];
+      if (foregroundedScene.delegate) {
+        UIWindowForModal = [[UIWindow alloc] initWithWindowScene:foregroundedScene];
+      } else {
+        UIWindowForModal = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+      }
     } else {
 #endif  // defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
       UIWindowForModal = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
@@ -50,7 +54,11 @@
 #if defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
     if (@available(iOS 13.0, *)) {
       UIWindowScene *foregroundedScene = [[self class] foregroundedScene];
-      UIWindowForBanner = [[FIRIAMBannerViewUIWindow alloc] initWithWindowScene:foregroundedScene];
+      if (foregroundedScene.delegate) {
+        UIWindowForBanner = [[UIWindow alloc] initWithWindowScene:foregroundedScene];
+      } else {
+        UIWindowForBanner = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+      }
     } else {
 #endif  // defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
       UIWindowForBanner =
@@ -72,7 +80,11 @@
 #if defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
     if (@available(iOS 13.0, *)) {
       UIWindowScene *foregroundedScene = [[self class] foregroundedScene];
-      UIWindowForImageOnly = [[UIWindow alloc] initWithWindowScene:foregroundedScene];
+      if (foregroundedScene.delegate) {
+        UIWindowForImageOnly = [[UIWindow alloc] initWithWindowScene:foregroundedScene];
+      } else {
+        UIWindowForImageOnly = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+      }
     } else {
 #endif  // defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
       UIWindowForImageOnly = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
