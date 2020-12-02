@@ -1,3 +1,6 @@
+# 7.3.0
+- [fixed] Catalyst browser issue with `verifyPhoneNumber` API. (#7049)
+
 # 7.1.0
 - [fixed] Fixed completion handler issue in `application(_:didReceiveRemoteNotification:fetchCompletionHandler:)` method. (#6863)
 
