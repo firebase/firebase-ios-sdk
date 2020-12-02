@@ -43,7 +43,8 @@ FOUNDATION_STATIC_INLINE NSNumber *timeIntervalInMillis(NSTimeInterval timeInter
     return;
   }
 
-  FIRCLSDeveloperLog(@"Crashlytics:Crash:Reports:Event", "Sending app_exception event to Firebase Analytics for Crash Free Users");
+  FIRCLSDeveloperLog(@"Crashlytics:Crash:Reports:Event",
+                     "Sending app_exception event to Firebase Analytics for Crash Free Users");
   NSDictionary *params = [self buildLogParamsFromCrash:crashTimeStamp];
   [analytics logEventWithOrigin:kFIREventOriginCrash name:kFIREventAppException parameters:params];
 }
@@ -51,6 +52,8 @@ FOUNDATION_STATIC_INLINE NSNumber *timeIntervalInMillis(NSTimeInterval timeInter
 + (void)registerEventListener:(id<FIRAnalyticsInteropListener>)eventListener
                   toAnalytics:(id<FIRAnalyticsInterop>)analytics {
   if (analytics == nil) {
+    FIRCLSDeveloperLog(@"Crashlytics:Crash:Reports:Event",
+                       "Firebase Analytics SDK not detected so Crash Free Users and breadcrumbs will not be reported");
     return;
   }
 
