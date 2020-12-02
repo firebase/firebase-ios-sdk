@@ -178,7 +178,8 @@ static NSURL *_testServerURL = nil;
   }
 #endif  // !NDEBUG
 
-  return [self uploadURLs][@(target)];
+  NSDictionary<NSNumber *, NSURL *> *uploadURLs = [self uploadURLs];
+  return uploadURLs[@(target)];
 }
 
 - (instancetype)init {
