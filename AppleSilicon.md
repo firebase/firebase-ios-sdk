@@ -11,7 +11,7 @@ and are listed below with the current status.
 ### Analytics + GoogleAppMeasurement
 
 As of Firebase 7.2.0, FirebaseAnalytics and GoogleAppMeasurement provide a separate distribution of
-an XCFramework in order to work around an issue with CocoaPods and static XCFrameworks. 
+an XCFramework in order to work around an issue with CocoaPods and static XCFrameworks.
 
 **IMPORTANT**: After adding the CocoaPod, you must manually add `-ObjC` to your `Other Linker Flags`
 in order to avoid a runtime crash.
