@@ -12,17 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-@import FirebaseAuth;
-@import FirebaseABTesting;
-@import FirebaseAppDistribution;
-@import Firebase;
-@import FirebaseCrashlytics;
-@import FirebaseCore;
-@import FirebaseDatabase;
-@import FirebaseDynamicLinks;
-@import FirebaseFirestore;
-@import FirebaseFunctions;
-@import FirebaseInstallations;
-@import FirebaseMessaging;
-@import FirebaseRemoteConfig;
-@import FirebaseStorage;
+#import <TargetConditionals.h>
+#if !TARGET_OS_IOS
+#warning "Firebase App Distribution only supports the iOS platform"
+#endif

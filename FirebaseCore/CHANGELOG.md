@@ -1,3 +1,6 @@
+# Firebase 7.3.0
+- [added] Added FirebaseAppDistribution-Beta product to Swift Package Manager. (#7045)
+
 # Firebase 7.2.0
 - [fixed] Reduced `FirebaseApp.configure()` and `+[FIRApp registerInternalLibrary:withName:]` impact on app launch time. (#6902)
 - [added] Added arm64 simulator support to support new Apple silicon based Macs.

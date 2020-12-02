@@ -37,6 +37,10 @@ let package = Package(
       targets: ["FirebaseAuth"]
     ),
     .library(
+      name: "FirebaseAppDistribution-Beta",
+      targets: ["FirebaseAppDistributionTarget"]
+    ),
+    .library(
       name: "FirebaseCrashlytics",
       targets: ["FirebaseCrashlytics"]
     ),
@@ -239,6 +243,35 @@ let package = Package(
       name: "GoogleAppMeasurement",
       url: "https://dl.google.com/firebase/ios/swiftpm/7.1.0/GoogleAppMeasurement.zip",
       checksum: "b0062d581e1bde54a1f6935bde1a49c6718a2a471825e02ab364e2dd8aef69c2"
+    ),
+
+    .target(
+      name: "FirebaseAppDistributionTarget",
+      dependencies: [.target(name: "FirebaseAppDistribution",
+                             condition: .when(platforms: [.iOS]))],
+      path: "SwiftPM-PlatformExclude/FirebaseAppDistributionWrap"
+    ),
+    .target(
+      name: "FirebaseAppDistribution",
+      dependencies: ["FirebaseCore",
+                     "FirebaseInstallations",
+                     "GoogleDataTransport",
+                     "GoogleUtilities_AppDelegateSwizzler",
+                     "GoogleUtilities_UserDefaults"],
+      path: "FirebaseAppDistribution/Sources",
+      publicHeadersPath: "Public",
+      cSettings: [
+        .headerSearchPath("../../"),
+      ]
+    ),
+    .testTarget(
+      name: "AppDistributionUnit",
+      dependencies: ["FirebaseAppDistribution", "OCMock"],
+      path: "FirebaseAppDistribution/Tests/Unit",
+      resources: [.process("Resources")],
+      cSettings: [
+        .headerSearchPath("../../.."),
+      ]
     ),
 
     .target(
@@ -729,6 +762,7 @@ let package = Package(
       dependencies: [
         "FirebaseAuth",
         "FirebaseABTesting",
+        "FirebaseAppDistribution",
         "Firebase",
         "FirebaseCrashlytics",
         "FirebaseCore",
@@ -770,6 +804,7 @@ let package = Package(
       dependencies: [
         "FirebaseAuth",
         "FirebaseABTesting",
+        "FirebaseAppDistribution",
         "Firebase",
         "FirebaseCrashlytics",
         "FirebaseCore",
