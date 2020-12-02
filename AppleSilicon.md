@@ -11,8 +11,12 @@ and are listed below with the current status.
 ### Analytics + GoogleAppMeasurement
 
 As of Firebase 7.2.0, FirebaseAnalytics and GoogleAppMeasurement provide a separate distribution of
-an XCFramework in order to work around an issue with CocoaPods and static XCFrameworks. This is a
-temporary workaround while Analytics is affected by the CocoaPods bug.
+an XCFramework in order to work around an issue with CocoaPods and static XCFrameworks. 
+
+**IMPORTANT**: After adding the CocoaPod, you must manually add `-ObjC` to your `Other Linker Flags`
+in order to avoid a runtime crash.
+
+This is a temporary workaround while Analytics is affected by the CocoaPods bug.
 
 When specifying which version of Firebase you'd like in your Podfile, append `-M1` to the version.
 See the following examples:
@@ -29,7 +33,8 @@ pod 'Firebase/Analytics, '~> 7.2.0-M1'
 pod 'Firebase/Analytics, '7.2.0-M1'
 ```
 
-The CocoaPods issue has been fixed in
+Remember: now you need to manually add `-ObjC` to avoid a runtime crash. This CocoaPods issue has
+been fixed in
 [CocoaPods/CocoaPods#10234](https://github.com/CocoaPods/CocoaPods/pull/10234) but has not been
 included in a CocoaPods release yet.
 
