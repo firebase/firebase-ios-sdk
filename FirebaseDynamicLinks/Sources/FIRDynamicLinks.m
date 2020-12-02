@@ -397,7 +397,10 @@ static const NSInteger FIRErrorCodeDurableDeepLinkFailed = -119;
   return nil;
 }
 
-- (nullable FIRDynamicLink *)dynamicLinkFromUniversalLinkURL:(NSURL *)url {
+- (nullable FIRDynamicLink *)
+    dynamicLinkInternalFromUniversalLinkURL:(NSURL *)url
+                                 completion:
+                                     (nullable FIRDynamicLinkUniversalLinkHandler)completion {
   if ([self canParseUniversalLinkURL:url]) {
     if (url.query.length > 0) {
       NSDictionary *parameters = FIRDLDictionaryFromQuery(url.query);
@@ -414,8 +417,10 @@ static const NSInteger FIRErrorCodeDurableDeepLinkFailed = -119;
           [self.dynamicLinkNetworking
               resolveShortLink:url
                  FDLSDKVersion:FIRFirebaseVersion()
-                    completion:^(NSURL *_Nullable resolverURL, NSError *_Nullable resolverError){
-                        // Nothing to do
+                    completion:^(NSURL *_Nullable resolverURL, NSError *_Nullable resolverError) {
+                      if (completion) {
+                        completion(dynamicLink, resolverError);
+                      }
                     }];
 #ifdef GIN_SCION_LOGGING
           FIRDLLogEventToScion(FIRDLLogEventAppOpen, parameters[kFIRDLParameterSource],
@@ -427,39 +432,19 @@ static const NSInteger FIRErrorCodeDurableDeepLinkFailed = -119;
       }
     }
   }
+  if (completion) {
+    completion(nil, nil);
+  }
   return nil;
+}
+
+- (nullable FIRDynamicLink *)dynamicLinkFromUniversalLinkURL:(NSURL *)url {
+  return [self dynamicLinkInternalFromUniversalLinkURL:url completion:nil];
 }
 
 - (void)dynamicLinkFromUniversalLinkURL:(NSURL *)url
                              completion:(FIRDynamicLinkUniversalLinkHandler)completion {
-  if ([self canParseUniversalLinkURL:url]) {
-    if (url.query.length > 0) {
-      NSDictionary *parameters = FIRDLDictionaryFromQuery(url.query);
-      if (parameters[kFIRDLParameterLink]) {
-        FIRDynamicLink *dynamicLink = [[FIRDynamicLink alloc] init];
-        NSString *urlString = parameters[kFIRDLParameterLink];
-        NSURL *deepLinkURL = [NSURL URLWithString:urlString];
-        if (deepLinkURL) {
-          dynamicLink.url = deepLinkURL;
-          dynamicLink.matchType = FIRDLMatchTypeUnique;
-          dynamicLink.minimumAppVersion = parameters[kFIRDLParameterMinimumAppVersion];
-          [self.dynamicLinkNetworking
-              resolveShortLink:url
-                 FDLSDKVersion:FIRFirebaseVersion()
-                    completion:^(NSURL *_Nullable resolverURL, NSError *_Nullable resolverError) {
-                      completion(dynamicLink, resolverError);
-                    }];
-#ifdef GIN_SCION_LOGGING
-          FIRDLLogEventToScion(FIRDLLogEventAppOpen, parameters[kFIRDLParameterSource],
-                               parameters[kFIRDLParameterMedium],
-                               parameters[kFIRDLParameterCampaign], _analytics);
-#endif
-        }
-      }
-    }
-  } else {
-    completion(nil, nil);
-  }
+  [self dynamicLinkInternalFromUniversalLinkURL:url completion:completion];
 }
 
 - (BOOL)handleUniversalLink:(NSURL *)universalLinkURL
