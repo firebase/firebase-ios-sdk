@@ -93,11 +93,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, readonly) BOOL customExceptionsEnabled;
 
 /**
- * Determine if the SDK should use the new endpoint for uploading reports
- */
-@property(nonatomic, readonly) BOOL shouldUseNewReportEndpoint;
-
-/**
  * Returns the maximum number of custom exception events that will be
  * recorded in a session.
  */

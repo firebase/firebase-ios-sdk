@@ -289,25 +289,6 @@ NSString *const AppVersion = @"app_version";
   return YES;
 }
 
-- (BOOL)shouldUseNewReportEndpoint {
-#ifdef CRASHLYTICS_1P
-  return YES;
-#else
-  NSNumber *value = [self appSettings][@"report_upload_variant"];
-
-  // Default to use the new endpoint when settings were not successfully fetched
-  // or there's an unexpected issue
-  if (value == nil) {
-    return YES;
-  }
-
-  // 0 - Unknown
-  // 1 - Legacy
-  // 2 - New
-  return value.intValue == 2;
-#endif
-}
-
 #pragma mark - Optional Limit Overrides
 
 - (uint32_t)errorLogBufferSize {

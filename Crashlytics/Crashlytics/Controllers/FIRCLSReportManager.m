@@ -359,7 +359,7 @@ static void (^reportSentCallback)(void);
     FIRCLSDebugLog(@"Unsent reports will be uploaded at startup");
     FIRCLSDataCollectionToken *dataCollectionToken = [FIRCLSDataCollectionToken validToken];
 
-    [self beginSettingsWithToken:dataCollectionToken waitForSettingsRequest:NO];
+    [self beginSettingsWithToken:dataCollectionToken];
 
     [self beginReportUploadsWithToken:dataCollectionToken
                preexistingReportPaths:preexistingReportPaths
@@ -392,13 +392,7 @@ static void (^reportSentCallback)(void);
                  FIRCLSDataCollectionToken *dataCollectionToken =
                      [FIRCLSDataCollectionToken validToken];
 
-                 // For the new report endpoint, the orgID is not needed.
-                 // For the legacy report endpoint, wait on settings if orgID is not available.
-                 BOOL waitForSetting =
-                     !self.settings.shouldUseNewReportEndpoint && !self.settings.orgID;
-
-                 [self beginSettingsWithToken:dataCollectionToken
-                       waitForSettingsRequest:waitForSetting];
+                 [self beginSettingsWithToken:dataCollectionToken];
 
                  [self beginReportUploadsWithToken:dataCollectionToken
                             preexistingReportPaths:preexistingReportPaths
@@ -453,16 +447,14 @@ static void (^reportSentCallback)(void);
   }];
 }
 
-- (void)beginSettingsWithToken:(FIRCLSDataCollectionToken *)token
-        waitForSettingsRequest:(BOOL)waitForSettings {
+- (void)beginSettingsWithToken:(FIRCLSDataCollectionToken *)token {
   if (self.settings.isCacheExpired) {
     // This method can be called more than once if the user calls
     // SendUnsentReports again, so don't repeat the settings fetch
     static dispatch_once_t settingsFetchOnceToken;
     dispatch_once(&settingsFetchOnceToken, ^{
       [self.settingsManager beginSettingsWithGoogleAppId:self.googleAppID
-                                                   token:token
-                                       waitForCompletion:waitForSettings];
+                                                   token:token];
     });
   }
 }
@@ -637,13 +629,8 @@ static void (^reportSentCallback)(void);
 // being false
 - (void)deleteUnsentReportsWithPreexisting:(NSArray *)preexistingReportPaths {
   [self removeExistingReportPaths:preexistingReportPaths];
-
   [self removeExistingReportPaths:self.fileManager.processingPathContents];
-  if (self.settings.shouldUseNewReportEndpoint) {
-    [self removeExistingReportPaths:self.fileManager.preparedPathContents];
-  } else {
-    [self removeExistingReportPaths:self.fileManager.legacyPreparedPathContents];
-  }
+  [self removeExistingReportPaths:self.fileManager.preparedPathContents];
 }
 
 - (void)removeExistingReportPaths:(NSArray *)reportPaths {
@@ -675,15 +662,14 @@ static void (^reportSentCallback)(void);
 }
 
 - (void)handleExistingFilesInPreparedWithToken:(FIRCLSDataCollectionToken *)token {
-  NSArray *preparedPaths = self.settings.shouldUseNewReportEndpoint
-                               ? _fileManager.preparedPathContents
-                               : _fileManager.legacyPreparedPathContents;
+  NSArray *preparedPaths = self.fileManager.preparedPathContents;
 
   // Give our network client a chance to reconnect here, if needed. This attempts to avoid
   // trying to re-submit a prepared file that is already in flight.
   [self.networkClient attemptToReconnectBackgroundSessionWithCompletionBlock:^{
     [self.operationQueue addOperationWithBlock:^{
-      [self uploadPreexistingFiles:preparedPaths withToken:token];
+      [self uploadPreexistingFiles:preparedPaths
+                         withToken:token];
     }];
   }];
 }
