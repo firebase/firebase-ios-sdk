@@ -251,7 +251,6 @@ let package = Package(
                              condition: .when(platforms: [.iOS]))],
       path: "SwiftPM-PlatformExclude/FirebaseAppDistributionWrap"
     ),
-
     .target(
       name: "FirebaseAppDistribution",
       dependencies: ["FirebaseCore",
@@ -263,6 +262,15 @@ let package = Package(
       publicHeadersPath: "Public",
       cSettings: [
         .headerSearchPath("../../"),
+      ]
+    ),
+    .testTarget(
+      name: "AppDistributionUnit",
+      dependencies: ["FirebaseAppDistribution", "OCMock"],
+      path: "FirebaseAppDistribution/Tests/Unit",
+      resources: [.process("Resources")],
+      cSettings: [
+        .headerSearchPath("../../.."),
       ]
     ),
 
