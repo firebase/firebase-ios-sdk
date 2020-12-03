@@ -30,7 +30,9 @@ jobs:
       run: Functions/Backend/start.sh synchronous
     - name: Build and test
       run: |
-        rm -r /Users/runner/Library/Developer/Xcode/DerivedData/*
+        if ( ! -d "/Users/runner/Library/Developer/Xcode/DerivedData" ) then
+          rm -r /Users/runner/Library/Developer/Xcode/DerivedData/*
+        endif
         scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseFunctions.podspec --platforms=${{ matrix.target }} --verbose --test-specs=unit
         find /Users/runner/Library/Developer/Xcode/DerivedData -regex ".*/.*\.xcresult" -exec xcrun xccov view --report {} \;
 
