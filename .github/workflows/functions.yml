@@ -33,7 +33,7 @@ jobs:
         if [ -d "/Users/runner/Library/Developer/Xcode/DerivedData" ]; then
         rm -r /Users/runner/Library/Developer/Xcode/DerivedData/*
         fi
-        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseFunctions.podspec --platforms=${{ matrix.target }} --verbose --test-specs=unit
+        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseFunctions.podspec --platforms=${{ matrix.target }} --test-specs=unit
         find /Users/runner/Library/Developer/Xcode/DerivedData -regex ".*/.*\.xcresult" -exec xcrun xccov view --report {} \;
 
   spm:
