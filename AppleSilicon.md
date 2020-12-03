@@ -22,15 +22,13 @@ When specifying which version of Firebase you'd like in your Podfile, append `-M
 See the following examples:
 
 ```
-# Explicitly require the special `M1` tagged Firebase version, locked to the major version.
-pod 'Firebase/Analytics', '~> 7.2-M1'
+# Explicitly require the special `M1` tagged Firebase version, locked to the exact version. Note
+# that due to the version scheme, you're required to update this manually for each release otherwise
+# you will revert to the official release (ex. `7.2.0` instead of `7.2.0-M1`).
+pod 'Firebase/Analytics', '7.2-M1'
 
 # Do the same for any other Firebase pod used.
-pod 'Firebase/Database', '~> 7.2-M1'
-
-# You can also lock on the minor or patch versions like so:
-pod 'Firebase/Analytics, '~> 7.2.0-M1'
-pod 'Firebase/Analytics, '7.2.0-M1'
+pod 'Firebase/Database', '7.2-M1'
 ```
 
 Remember: now you need to manually add `-ObjC` to avoid a runtime crash. This CocoaPods issue has
