@@ -1,4 +1,4 @@
-# 2020-10 -- v7.3.0
+# 2020-12 -- v7.3.0
 - [fixed] Fixed default display bug in apps that don't use `UISceneDelegate` (#6803).
 
 # 2020-10 -- v7.0.0
