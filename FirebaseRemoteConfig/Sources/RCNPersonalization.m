@@ -25,6 +25,7 @@
   self = [super init];
   if (self) {
     self->_analytics = analytics;
+    self->_armsCache = [[NSMutableDictionary alloc] init];
   }
   return self;
 }
@@ -37,16 +38,31 @@
   }
 
   NSDictionary *metadata = ids[key];
-  if (!metadata || metadata[kPersonalizationId] == nil) {
+  NSString *personalizationId = metadata[kPersonalizationId];
+  if (!metadata || personalizationId == nil) {
     return;
   }
+
+  // This gets dispatched to a serial queue, so this is OK. But even if not, it'll just possibly log
+  // more.
+  if (self->_armsCache[key] == personalizationId) {
+    return;
+  }
+  self->_armsCache[key] = personalizationId;
 
   [self->_analytics logEventWithOrigin:kAnalyticsOriginPersonalization
                                   name:kAnalyticsPullEvent
                             parameters:@{
-                              kArmKey : metadata[kPersonalizationId],
-                              kArmValue : values[key].stringValue
+                              kArmKey : key,
+                              kArmValue : values[key].stringValue,
+                              kPersonalizationIdKey : personalizationId,
+                              kArmIndexKey : metadata[kArmIndex],
+                              kGroup : metadata[kGroup]
                             }];
+
+  [self->_analytics logEventWithOrigin:kAnalyticsOriginPersonalization
+                                  name:kAnalyticsPullEventInternal
+                            parameters:@{kChoiceIdKey : metadata[kChoiceId]}];
 }
 
 @end

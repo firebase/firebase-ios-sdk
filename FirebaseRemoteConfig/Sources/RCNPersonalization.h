@@ -19,15 +19,26 @@
 NS_ASSUME_NONNULL_BEGIN
 
 static NSString *const kAnalyticsOriginPersonalization = @"fp";
-static NSString *const kAnalyticsPullEvent = @"_fpc";
-static NSString *const kArmKey = @"_fpid";
-static NSString *const kArmValue = @"_fpct";
+
+static NSString *const kAnalyticsPullEvent = @"personalization_choice";
+static NSString *const kArmKey = @"arm_key";
+static NSString *const kArmValue = @"arm_value";
 static NSString *const kPersonalizationId = @"personalizationId";
+static NSString *const kPersonalizationIdKey = @"personalization_id";
+static NSString *const kArmIndex = @"armIndex";
+static NSString *const kArmIndexKey = @"arm_index";
+static NSString *const kGroup = @"group";
+
+static NSString *const kAnalyticsPullEventInternal = @"_fpc";
+static NSString *const kChoiceId = @"choiceId";
+static NSString *const kChoiceIdKey = @"_fpid";
 
 @interface RCNPersonalization : NSObject
 
 /// Analytics connector
 @property(nonatomic, strong) id<FIRAnalyticsInterop> _Nullable analytics;
+
+@property(atomic, strong) NSMutableDictionary *armsCache;
 
 - (instancetype)init NS_UNAVAILABLE;
 
