@@ -117,7 +117,7 @@ int MemoryLruReferenceDelegate::RemoveTargets(
     model::ListenSequenceNumber sequence_number,
     const LiveQueryMap& live_queries) {
   return (int)persistence_->target_cache()->RemoveTargets(sequence_number,
-                                                     live_queries);
+                                                          live_queries);
 }
 
 int MemoryLruReferenceDelegate::RemoveOrphanedDocuments(
