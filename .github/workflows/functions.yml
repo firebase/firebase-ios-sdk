@@ -30,8 +30,9 @@ jobs:
       run: Functions/Backend/start.sh synchronous
     - name: Build and test
       run: |
+        rm -r /Users/runner/Library/Developer/Xcode/DerivedData/*
         scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseFunctions.podspec --platforms=${{ matrix.target }} --verbose --test-specs=unit
-        find /Users/runner/Library/Developer/Xcode/DerivedData -regex ".*/.*\.xcresult"
+        find /Users/runner/Library/Developer/Xcode/DerivedData -regex ".*/.*\.xcresult" -exec xcrun xccov view --report {} \;
 
   spm:
     # Don't run on private repo unless it is a PR.
