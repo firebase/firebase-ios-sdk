@@ -12,9 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import <TargetConditionals.h>
-#if TARGET_OS_IOS
-
 #import "FirebaseAppDistribution/Sources/FIRAppDistributionUIService.h"
 #import "FirebaseAppDistribution/Sources/FIRFADLogger.h"
 #import "FirebaseAppDistribution/Sources/Public/FirebaseAppDistribution/FIRAppDistribution.h"
@@ -267,5 +264,3 @@ SFAuthenticationSession *_safariAuthenticationVC;
 }
 
 @end
-
-#endif

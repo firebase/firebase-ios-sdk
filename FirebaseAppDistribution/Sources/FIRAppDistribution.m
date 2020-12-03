@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 #import <Foundation/Foundation.h>
-#import <TargetConditionals.h>
-#if TARGET_OS_IOS
 
 #import <GoogleUtilities/GULAppDelegateSwizzler.h>
 #import <GoogleUtilities/GULUserDefaults.h>
@@ -335,5 +333,3 @@ NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
   return codeHash && [codeHash isEqualToString:[machO codeHash]];
 }
 @end
-
-#endif
