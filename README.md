@@ -105,8 +105,8 @@ Instructions for the experimental Carthage distribution are at
 To develop Firebase software in this repository, ensure that you have at least
 the following software:
 
-  * Xcode 11.0 (or later)
-  * CocoaPods 1.9.0 (or later)
+  * Xcode 12.0 (or later)
+  * CocoaPods 1.10.0 (or later)
   * [CocoaPods generate](https://github.com/square/cocoapods-generate)
 
 For the pod that you want to develop:
