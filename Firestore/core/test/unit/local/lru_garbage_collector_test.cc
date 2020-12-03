@@ -359,9 +359,12 @@ TEST_P(LruGarbageCollectorTest, SequenceNumbersWithMutationsInQueries) {
 
 TEST_P(LruGarbageCollectorTest, RemoveQueriesUpThroughSequenceNumber) {
   NewTestResources();
+  std::vector<TargetData> targets;
   std::unordered_map<TargetId, TargetData> live_queries;
   for (int i = 0; i < 100; i++) {
     TargetData target_data = AddNextQuery();
+    targets.emplace_back(target_data);
+
     // Mark odd queries as live so we can test filtering out live queries.
     if (target_data.target_id() % 2 == 1) {
       live_queries[target_data.target_id()] = target_data;
@@ -373,13 +376,25 @@ TEST_P(LruGarbageCollectorTest, RemoveQueriesUpThroughSequenceNumber) {
   int removed = RemoveTargets(20 + initial_sequence_number_, live_queries);
   ASSERT_EQ(10, removed);
 
-  // Make sure we removed the even targets with target_id <= 20.
-  persistence_->Run("verify remaining targets are > 20 or odd", [&] {
-    target_cache_->EnumerateTargets([&](const TargetData& target_data) {
-      ASSERT_TRUE(target_data.target_id() > 20 ||
-                  target_data.target_id() % 2 == 1);
-    });
+  int detected_removal = 0;
+
+  // Make sure we removed the next 10 even targets.
+  persistence_->Run("verify remaining targets", [&] {
+    for (const auto& target : targets) {
+      auto entry = target_cache_->GetTarget(target.target());
+
+      if (live_queries.find(target.target_id()) != live_queries.end()) {
+        ASSERT_TRUE(entry.has_value());
+      }
+
+      if (!entry.has_value()) {
+        ++detected_removal;
+        ASSERT_TRUE(detected_removal <= removed);
+      }
+    }
   });
+
+  ASSERT_EQ(detected_removal, 10);
 }
 
 TEST_P(LruGarbageCollectorTest, RemoveOrphanedDocuments) {

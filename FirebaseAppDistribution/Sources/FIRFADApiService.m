@@ -79,6 +79,10 @@ NSString *const kResponseReleasesKey = @"releases";
 }
 
 + (NSString *)tryParseGoogleAPIErrorFromResponse:(NSData *)data {
+  if (!data) {
+    return @"No data in response.";
+  }
+
   NSError *parseError;
   NSDictionary *responseDict = [NSJSONSerialization JSONObjectWithData:data
                                                                options:0
@@ -151,7 +155,6 @@ NSString *const kResponseReleasesKey = @"releases";
     return [self handleError:error
                  description:@"Unknown http error occurred"
                         code:FIRApiErrorUnknownFailure];
-    ;
   }
 
   if ([httpResponse statusCode] != 200) {

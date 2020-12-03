@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'GoogleDataTransport'
-  s.version          = '8.0.1'
+  s.version          = '8.1.0'
   s.summary          = 'Google iOS SDK data transport.'
 
   s.description      = <<-DESC
@@ -65,6 +65,8 @@ Shared library for iOS SDK data transport needs.
         'GoogleDataTransport/GDTTestApp/*.swift',
         'GoogleDataTransport/GDTCORLibrary/Internal/GDTCORRegistrar.h',
         'GoogleDataTransport/GDTCORLibrary/Internal/GDTCORUploader.h',
+        'GoogleDataTransport/GDTCORTests/Common/Categories/GDTCORFlatFileStorage+Testing.h',
+        'GoogleDataTransport/GDTCORTests/Unit/Helpers/*.[hm]',
         'GoogleDataTransport/GDTTestApp/Bridging-Header.h',
       ]
 

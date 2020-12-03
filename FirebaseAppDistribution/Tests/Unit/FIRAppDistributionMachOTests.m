@@ -25,6 +25,16 @@
 
 - (NSString*)resourcePath:(NSString*)path {
   NSBundle* bundle = [NSBundle bundleForClass:[self class]];
+
+  // Swift Package Manager uses a different bundle structure for resources, so explicitly get the
+  // nested bundle. In Swift we could have used `Bundle.module` to access it, but that isn't
+  // surfaced in ObjC.
+#if SWIFT_PACKAGE
+  NSString* nestedBundlePath = [bundle pathForResource:@"Firebase_AppDistributionUnit"
+                                                ofType:@"bundle"];
+  bundle = [NSBundle bundleWithPath:nestedBundlePath];
+#endif  // SWIFT_PACKAGE
+
   NSString* resourcePath = [bundle resourcePath];
 
   return [resourcePath stringByAppendingPathComponent:path];

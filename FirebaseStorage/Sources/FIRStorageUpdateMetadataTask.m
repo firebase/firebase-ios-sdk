@@ -71,8 +71,6 @@
     GTMSessionFetcher *fetcher = [strongSelf.fetcherService fetcherWithRequest:request];
     strongSelf->_fetcher = fetcher;
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Warc-retain-cycles"
     strongSelf->_fetcherCompletion = ^(NSData *data, NSError *error) {
       FIRStorageMetadata *metadata;
       if (error) {
@@ -94,12 +92,14 @@
       }
       self->_fetcherCompletion = nil;
     };
-#pragma clang diagnostic pop
 
     fetcher.comment = @"UpdateMetadataTask";
 
     [fetcher beginFetchWithCompletionHandler:^(NSData *data, NSError *error) {
-      weakSelf.fetcherCompletion(data, error);
+      FIRStorageUpdateMetadataTask *strongSelf = weakSelf;
+      if (strongSelf.fetcherCompletion) {
+        strongSelf.fetcherCompletion(data, error);
+      }
     }];
   }];
 }
