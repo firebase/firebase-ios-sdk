@@ -147,7 +147,7 @@ int LevelDbLruReferenceDelegate::RemoveOrphanedDocuments(
 
 int LevelDbLruReferenceDelegate::RemoveTargets(
     ListenSequenceNumber sequence_number, const LiveQueryMap& live_queries) {
-  return db_->target_cache()->RemoveTargets(sequence_number, live_queries);
+  return (int)db_->target_cache()->RemoveTargets(sequence_number, live_queries);
 }
 
 bool LevelDbLruReferenceDelegate::IsPinned(const DocumentKey& key) {
