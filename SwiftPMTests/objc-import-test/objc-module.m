@@ -14,7 +14,10 @@
 
 @import FirebaseAuth;
 @import FirebaseABTesting;
+#if TARGET_OS_IOS
+@import FirebaseAnalytics;
 @import FirebaseAppDistribution;
+#endif
 @import Firebase;
 @import FirebaseCrashlytics;
 @import FirebaseCore;
