@@ -59,10 +59,6 @@ support can be found at [SwiftPackageManager.md](SwiftPackageManager.md).
 
 ### Installing from GitHub
 
-For releases starting with 5.0.0, the source for each release is also deployed
-to CocoaPods master and available via standard
-[CocoaPods Podfile syntax](https://guides.cocoapods.org/syntax/podfile.html#pod).
-
 These instructions can be used to access the Firebase repo at other branches,
 tags, or commits.
 
@@ -158,14 +154,6 @@ brew install mint
 
 Select a scheme and press Command-u to build a component and run its unit tests.
 
-#### Viewing Code Coverage (Deprecated)
-
-First, make sure that [xcov](https://github.com/nakiostudio/xcov) is installed with `gem install xcov`.
-
-After running the `AllUnitTests_iOS` scheme in Xcode, execute
-`xcov --workspace Firebase.xcworkspace --scheme AllUnitTests_iOS --output_directory xcov_output`
-at Example/ in the terminal. This will aggregate the coverage, and you can run `open xcov_output/index.html` to see the results.
-
 ### Running Sample Apps
 In order to run the sample apps and integration tests, you'll need a valid
 `GoogleService-Info.plist` file. The Firebase Xcode project contains dummy plist
@@ -213,7 +201,8 @@ In order to actually test receiving push notifications, you will need to:
 1. Change the bundle identifier of the sample app to something you own in your Apple Developer
 account, and enable that App ID for push notifications.
 2. You'll also need to
-[upload your APNs Provider Authentication Key or certificate to the Firebase Console](https://firebase.google.com/docs/cloud-messaging/ios/certs)
+[upload your APNs Provider Authentication Key or certificate to the
+Firebase Console](https://firebase.google.com/docs/cloud-messaging/ios/certs)
 at **Project Settings > Cloud Messaging > [Your Firebase App]**.
 3. Ensure your iOS device is added to your Apple Developer portal as a test device.
 
@@ -230,20 +219,22 @@ very grateful!  We'd like to empower as many developers as we can to be able to 
 participate in the Firebase community.
 
 ### tvOS, macOS, watchOS and Catalyst
-Thanks to contributions from the community, many of Firebase SDKs now compile, run unit tests, and work on
-tvOS, macOS, watchOS and Catalyst.
+Thanks to contributions from the community, many of Firebase SDKs now compile, run unit tests, and
+work on tvOS, macOS, watchOS and Catalyst.
 
-For tvOS, checkout the [Sample](Example/tvOSSample).
-For watchOS, currently only Messaging, Storage and Crashlytics (and their dependencies) have limited support. Checkout the
-[Independent Watch App Sample](Example/watchOSSample).
+For tvOS, see the [Sample](Example/tvOSSample).
+For watchOS, currently only Messaging, Storage and Crashlytics (and their dependencies) have limited
+support. See the [Independent Watch App Sample](Example/watchOSSample).
 
-Keep in mind that macOS, tvOS, watchOS and Catalyst are not officially supported by Firebase, and this
-repository is actively developed primarily for iOS. While we can catch basic unit test issues with
-Travis, there may be some changes where the SDK no longer works as expected on macOS, tvOS or watchOS. If you
-encounter this, please [file an issue](https://github.com/firebase/firebase-ios-sdk/issues).
+Keep in mind that macOS, tvOS, watchOS and Catalyst are not officially supported by Firebase, and
+this repository is actively developed primarily for iOS. While we can catch basic unit test issues
+with GitHub Actions, there may be some changes where the SDK no longer works as expected on macOS,
+tvOS or watchOS. If you encounter this, please
+[file an issue](https://github.com/firebase/firebase-ios-sdk/issues).
 
-During app setup in the console, you may get to a step that mentions something like "Checking if the app
-has communicated with our servers". This relies on Analytics and will not work on macOS/tvOS/watchOS/Catalyst.
+During app setup in the console, you may get to a step that mentions something like "Checking if the
+app has communicated with our servers". This relies on Analytics and will not work on
+macOS/tvOS/watchOS/Catalyst.
 **It's safe to ignore the message and continue**, the rest of the SDKs will work as expected.
 
 To install, add a subset of the following to the Podfile:
@@ -268,7 +259,8 @@ to Build Settings.
 [gRPC Resource target](https://github.com/firebase/firebase-ios-sdk/issues/3500#issuecomment-518741681).
 
 #### Additional Crashlytics Notes
-* watchOS has limited support. Due to watchOS restrictions, mach exceptions and signal crashes are not recorded. (Crashes in SwiftUI are generated as mach exceptions, so will not be recorded)
+* watchOS has limited support. Due to watchOS restrictions, mach exceptions and signal crashes are
+not recorded. (Crashes in SwiftUI are generated as mach exceptions, so will not be recorded)
 
 ## Roadmap
 
