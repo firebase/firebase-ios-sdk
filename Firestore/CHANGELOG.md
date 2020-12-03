@@ -1,7 +1,6 @@
 # Unreleased
 - [fixed] Fixed a crash that could happen when the SDK encountered invalid
   data during garbage collection (#6721).
-- [fixed] Integer precision loss warnings on some platforms.
 
 # v7.2.0
 - [added] Made emulator connection API consistent between Auth, Database,
