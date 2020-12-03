@@ -234,7 +234,7 @@ Thanks to contributions from the community, many of Firebase SDKs now compile, r
 tvOS, macOS, watchOS and Catalyst.
 
 For tvOS, checkout the [Sample](Example/tvOSSample).
-For watchOS, currently only Messaging and Storage (and their dependencies) have limited support. Checkout the
+For watchOS, currently only Messaging, Storage and Crashlytics (and their dependencies) have limited support. Checkout the
 [Independent Watch App Sample](Example/watchOSSample).
 
 Keep in mind that macOS, tvOS, watchOS and Catalyst are not officially supported by Firebase, and this
@@ -266,6 +266,9 @@ pod 'Firebase/Storage'
 to Build Settings.
 * FirebaseFirestore requires signing the
 [gRPC Resource target](https://github.com/firebase/firebase-ios-sdk/issues/3500#issuecomment-518741681).
+
+#### Additional Crashlytics Notes
+* watchOS has limited support. Due to watchOS restrictions, mach exceptions and signal crashes are not recorded. (Crashes in SwiftUI are generated as mach exceptions, so will not be recorded)
 
 ## Roadmap
 
