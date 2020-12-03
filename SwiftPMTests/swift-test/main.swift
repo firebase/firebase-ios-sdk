@@ -18,8 +18,8 @@ import FirebaseCore
 import FirebaseAuth
 import FirebaseABTesting
 #if os(iOS)
-import FirebaseAnalytics
-import FirebaseAppDistribution
+  import FirebaseAnalytics
+  import FirebaseAppDistribution
 #endif
 import FirebaseCrashlytics
 import FirebaseDynamicLinks
