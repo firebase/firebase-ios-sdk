@@ -12,17 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import <TargetConditionals.h>
-#if TARGET_OS_IOS
-
 #import <AuthenticationServices/AuthenticationServices.h>
 #import <Foundation/Foundation.h>
 #import <SafariServices/SafariServices.h>
 #import <UIKit/UIKit.h>
 
 #import "FirebaseAppDistribution/Sources/Private/FIRAppDistribution.h"
-
-@protocol SFSafariViewControllerDelegate;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -65,5 +60,3 @@ typedef void (^AppDistributionRegistrationFlowCompletion)(NSError *_Nullable err
 @end
 
 NS_ASSUME_NONNULL_END
-
-#endif
