@@ -40,5 +40,5 @@
   "vendored_frameworks": [
     "Frameworks/FirebaseMLCommon.framework"
   ],
-  "version": "7.1.0-beta"
+  "version": "7.3.0-beta"
 }

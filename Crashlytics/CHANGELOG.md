@@ -1,4 +1,4 @@
-# Unreleased
+# v7.3.0
 - [added] Added Crashlytics support for x86 apps running on Apple Silicon via Rosetta 2
 - [changed] Decreased Crashlytics CocoaPods minimum deployment target from iOS 10 to iOS 9
 - [changed] Removed obsolete API calls from upload-symbols
