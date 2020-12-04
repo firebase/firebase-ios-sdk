@@ -148,7 +148,7 @@ if [[ "$xcode_major" -lt 11 ]]; then
 else
   ios_flags=(
     -sdk 'iphonesimulator'
-    -destination 'platform=iOS Simulator,name=iPhone 11'
+    -destination 'platform=iOS Simulator,name=iPhone 12'
   )
 fi
 
@@ -166,7 +166,7 @@ tvos_flags=(
   -destination 'platform=tvOS Simulator,name=Apple TV'
 )
 watchos_flags=(
-  -destination 'platform=iOS Simulator,name=iPhone 11 Pro'
+  -destination 'platform=iOS Simulator,name=iPhone 12 Pro'
 )
 catalyst_flags=(
   ARCHS=x86_64 VALID_ARCHS=x86_64 SUPPORTS_MACCATALYST=YES -sdk macosx
