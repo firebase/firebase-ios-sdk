@@ -29,7 +29,6 @@ jobs:
         run: |
           echo "=============== list changed files ==============="
           git diff --name-only HEAD^ HEAD
-          
           echo "========== check paths of changed files =========="
           git diff --name-only HEAD^ HEAD > files.txt
           while IFS= read -r file

@@ -23,7 +23,7 @@ jobs:
         run: |
           echo "=============== list changed files ==============="
           echo  ${GITHUB_PULL_REQUEST_BASE_SHA}
-          git diff --name-only ${GITHUB_PULL_REQUEST_BASE_SHA} HEAD
+          git diff --name-only HEAD^ HEAD
           echo "========== check paths of changed files =========="
           git diff --name-only ${GITHUB_BASE_REF} HEAD > files.txt
           while IFS= read -r file
