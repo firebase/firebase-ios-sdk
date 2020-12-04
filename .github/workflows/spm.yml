@@ -20,8 +20,6 @@ jobs:
     runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v2
-    - name: Xcode 12
-      run: sudo xcode-select -s /Applications/Xcode_12.app/Contents/Developer
     - name: Initialize xcodebuild
       run: xcodebuild -list
     - name: iOS Unit Tests
@@ -39,8 +37,6 @@ jobs:
         test: [objc-import-test, swift-test, version-test]
     steps:
     - uses: actions/checkout@v2
-    - name: Xcode 12
-      run: sudo xcode-select -s /Applications/Xcode_12.app/Contents/Developer
     - name: Initialize xcodebuild
       run: xcodebuild -list
     - name: Unit Tests
