@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import Foundation
+import FirebaseCore
 
 /// Possible errors with model downloading.
 public enum DownloadError: Error, Equatable {
@@ -49,7 +50,28 @@ public enum ModelDownloadType {
 }
 
 /// Downloader to manage custom model downloads.
-public struct ModelDownloader {
+public class ModelDownloader {
+  /// FirebaseApp associated with this instance of ModelDownloader.
+  private let app: FirebaseApp
+
+  private init(app: FirebaseApp) {
+    self.app = app
+  }
+
+  /// Model downloader with default app.
+  static func modelDownloader() throws -> ModelDownloader {
+    guard let defaultApp = FirebaseApp.app() else {
+      // TODO: Replace with more appropriate error.
+      throw DownloadError.internalError(description: "Default Firebase app not configured.")
+    }
+    return modelDownloader(app: defaultApp)
+  }
+
+  /// Model Downloader with custom app.
+  static func modelDownloader(app: FirebaseApp) -> ModelDownloader {
+    return ModelDownloader(app: app)
+  }
+
   /// Downloads a custom model to device or gets a custom model already on device, w/ optional handler for progress.
   public func getModel(name modelName: String, downloadType: ModelDownloadType,
                        conditions: ModelDownloadConditions,
