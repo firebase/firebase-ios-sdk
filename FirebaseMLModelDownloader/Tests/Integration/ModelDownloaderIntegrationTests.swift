@@ -96,7 +96,7 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
         XCTFail("Empty model info.")
         return
       }
-      XCTAssertNotEqual(modelInfo.downloadURL, "")
+      XCTAssertNotNil(modelInfo.downloadURL)
       XCTAssertNotEqual(modelInfo.modelHash, "")
       XCTAssertGreaterThan(modelInfo.size, 0)
       retrieveExpectation.fulfill()
@@ -121,7 +121,7 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
 
     modelInfoRetriever.modelInfo = ModelInfo(
       name: testModelName,
-      downloadURL: urlString,
+      downloadURL: url,
       modelHash: "mock-valid-hash",
       size: 10
     )
@@ -146,7 +146,7 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
       expectation.fulfill()
     }
 
-    modelDownloadManager.resumeModelDownload(url: url)
+    modelDownloadManager.resumeModelDownload()
     waitForExpectations(timeout: 5, handler: nil)
     XCTAssertEqual(modelDownloadManager.downloadStatus, .completed)
   }

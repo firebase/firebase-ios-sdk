@@ -148,8 +148,12 @@ extension ModelInfoRetriever {
                     .invalidHTTPResponseErrorDescription))
                 return
               }
-              self.saveModelInfo(data: data, modelHash: modelHash)
-              completion(nil)
+              do {
+                try self.saveModelInfo(data: data, modelHash: modelHash)
+                completion(nil)
+              } catch {
+                completion(.internalError(description: error.localizedDescription))
+              }
             case 304:
               completion(nil)
             case 404:
@@ -173,12 +177,16 @@ extension ModelInfoRetriever {
   }
 
   /// Save model info to user defaults.
-  func saveModelInfo(data: Data, modelHash: String) {
+  func saveModelInfo(data: Data, modelHash: String) throws {
     let decoder = JSONDecoder()
-    guard let modelInfoJSON = try? decoder.decode(ModelInfoResponse.self, from: data)
-    else { return }
+    guard let modelInfoJSON = try? decoder.decode(ModelInfoResponse.self, from: data) else {
+      throw DownloadError
+        .internalError(description: "Failed to decode model info response from server.")
+    }
     // TODO: Possibly improve handling invalid server responses.
-    let downloadURL = modelInfoJSON.downloadURL
+    guard let downloadURL = URL(string: modelInfoJSON.downloadURL) else {
+      throw DownloadError.internalError(description: "Invalid model download URL.")
+    }
     let modelHash = modelHash
     let size = Int(modelInfoJSON.size) ?? 0
     modelInfo = ModelInfo(
