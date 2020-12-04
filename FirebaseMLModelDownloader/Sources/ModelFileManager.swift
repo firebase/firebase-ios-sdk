@@ -19,7 +19,11 @@ enum ModelFileManager {
   /// Root directory of model file storage on device.
   static var modelsDirectory: URL {
     // TODO: Reconsider force unwrapping.
-    return FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
+    #if os(tvOS)
+      return FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first!
+    #else
+      return FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
+    #endif
   }
 
   /// Check if file is available at URL.
