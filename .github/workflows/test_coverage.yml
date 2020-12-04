@@ -1,0 +1,46 @@
+name: test_coverage
+
+on: [pull_request]
+          #run specific jobs when specific files are updated.
+          #https://github.community/t/how-to-execute-jobs-if-folder-updated-recursive/117344/5
+
+jobs:
+  pod-lib-lint-database:
+    # Don't run on private repo unless it is a PR.
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+    runs-on: macOS-latest
+
+    strategy:
+      matrix:
+        target: [ios, tvos, macos]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Build and test
+      run: |
+        if [ -d "/Users/runner/Library/Developer/Xcode/DerivedData" ]; then
+        rm -r /Users/runner/Library/Developer/Xcode/DerivedData/*
+        fi
+        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseDatabase.podspec --platforms=${{ matrix.target }} --test-specs=unit
+        find /Users/runner/Library/Developer/Xcode/DerivedData -regex ".*/.*\.xcresult" -exec xcrun xccov view --report {} \;
+
+  pod-lib-lint-function:
+    # Don't run on private repo unless it is a PR.
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+    runs-on: macOS-latest
+
+    strategy:
+      matrix:
+        target: [ios, tvos, macos]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Build and test
+      run: |
+        if [ -d "/Users/runner/Library/Developer/Xcode/DerivedData" ]; then
+        rm -r /Users/runner/Library/Developer/Xcode/DerivedData/*
+        fi
+        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseFunction.podspec --platforms=${{ matrix.target }} --test-specs=unit
+        find /Users/runner/Library/Developer/Xcode/DerivedData -regex ".*/.*\.xcresult" -exec xcrun xccov view --report {} \;
