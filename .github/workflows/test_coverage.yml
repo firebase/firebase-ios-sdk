@@ -16,7 +16,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
         with:
-          fetch-depth: 0
+          fetch-depth: 2
 
       - name: check files
         id: check_files
@@ -25,7 +25,7 @@ jobs:
           echo  ${GITHUB_PULL_REQUEST_BASE_SHA}
           git diff --name-only HEAD^ HEAD
           echo "========== check paths of changed files =========="
-          git diff --name-only ${GITHUB_BASE_REF} HEAD > files.txt
+          git diff --name-only HEAD^ HEAD > files.txt
           while IFS= read -r file
           do
             echo $file
