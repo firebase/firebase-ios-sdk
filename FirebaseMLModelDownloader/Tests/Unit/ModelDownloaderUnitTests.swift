@@ -60,7 +60,7 @@ final class ModelDownloaderUnitTests: XCTestCase {
     }
     let functionName = #function
     let testModelName = "\(functionName)-test-model"
-    let testDownloadURL = "https://storage.googleapis.com"
+    let testDownloadURL = URL(string: "https://storage.googleapis.com")!
     let testModelHash = "mock-valid-hash"
     let testModelSize = 10
     let testModelPath = "valid-local-path"
@@ -85,9 +85,9 @@ final class ModelDownloaderUnitTests: XCTestCase {
       XCTFail(error.localizedDescription)
     }
     guard let savedModelInfo = ModelInfo(
+      fromDefaults: .getTestInstance(cleared: false),
       name: testModelName,
-      app: testApp,
-      defaults: .getTestInstance(cleared: false)
+      app: testApp
     ) else {
       XCTFail("Model info not saved to user defaults.")
       return
@@ -117,8 +117,15 @@ final class ModelDownloaderUnitTests: XCTestCase {
     }
     """
     let data: Data = sampleResponse.data(using: .utf8)!
-    modelInfoRetriever.saveModelInfo(data: data, modelHash: "test-model-hash")
-    XCTAssertEqual(modelInfoRetriever.modelInfo?.downloadURL, "https://storage.googleapis.com")
+    do {
+      try modelInfoRetriever.saveModelInfo(data: data, modelHash: "test-model-hash")
+    } catch {
+      XCTFail(error.localizedDescription)
+    }
+    XCTAssertEqual(
+      modelInfoRetriever.modelInfo?.downloadURL.absoluteString,
+      "https://storage.googleapis.com"
+    )
     XCTAssertEqual(modelInfoRetriever.modelInfo?.size, 562_336)
   }
 

@@ -35,12 +35,12 @@ class DownloadHandlers {
   }
 }
 
-/// Manager for model downloads.
+/// Manager to handle model downloading device and storing downloaded model info to persistent storage.
 class ModelDownloadTask: NSObject {
   let app: FirebaseApp
   var modelInfo: ModelInfo
-  var downloadTask: URLSessionDownloadTask?
-  var downloadHandlers: DownloadHandlers
+  private var downloadTask: URLSessionDownloadTask?
+  private let downloadHandlers: DownloadHandlers
 
   private(set) var downloadStatus: DownloadStatus = .notStarted
 
@@ -60,9 +60,9 @@ class ModelDownloadTask: NSObject {
   }
 
   /// Asynchronously download model file to device.
-  func resumeModelDownload(url: URL) {
-    let downloadTask = downloadSession.downloadTask(with: url)
-
+  func resumeModelDownload() {
+    guard downloadStatus == .notStarted else { return }
+    let downloadTask = downloadSession.downloadTask(with: modelInfo.downloadURL)
     downloadTask.resume()
     downloadStatus = .inProgress
     self.downloadTask = downloadTask
@@ -74,39 +74,38 @@ extension ModelDownloadTask: URLSessionDownloadDelegate {
   func urlSession(_ session: URLSession,
                   downloadTask: URLSessionDownloadTask,
                   didFinishDownloadingTo location: URL) {
-    if downloadTask == self.downloadTask {
-      downloadStatus = .completed
-      let savedURL = ModelFileManager.modelsDirectory
-        .appendingPathComponent(downloadedModelFileName)
-      do {
-        try ModelFileManager.moveFile(at: location, to: savedURL)
-      } catch {
-        downloadHandlers
-          .completion(.failure(.internalError(description: error.localizedDescription)))
-        return
-      }
-
-      /// Set path to local model.
-      modelInfo.path = savedURL.absoluteString
-      /// Write model to user defaults.
-      do {
-        try modelInfo.writeToDefaults(app: app, defaults: .firebaseMLDefaults)
-      } catch {
-        downloadHandlers
-          .completion(.failure(.internalError(description: error.localizedDescription)))
-      }
-      /// Build model from model info.
-      guard let model = buildModel() else {
-        downloadHandlers
-          .completion(
-            .failure(
-              .internalError(description: "Could not create model due to incomplete model info.")
-            )
-          )
-        return
-      }
-      downloadHandlers.completion(.success(model))
+    assert(downloadTask == self.downloadTask)
+    downloadStatus = .completed
+    let savedURL = ModelFileManager.modelsDirectory
+      .appendingPathComponent(downloadedModelFileName)
+    do {
+      try ModelFileManager.moveFile(at: location, to: savedURL)
+    } catch {
+      downloadHandlers
+        .completion(.failure(.internalError(description: error.localizedDescription)))
+      return
     }
+
+    /// Set path to local model.
+    modelInfo.path = savedURL.absoluteString
+    /// Write model to user defaults.
+    do {
+      try modelInfo.writeToDefaults(app: app, defaults: .firebaseMLDefaults)
+    } catch {
+      downloadHandlers
+        .completion(.failure(.internalError(description: error.localizedDescription)))
+    }
+    /// Build model from model info.
+    guard let model = buildModel() else {
+      downloadHandlers
+        .completion(
+          .failure(
+            .internalError(description: "Could not create model due to incomplete model info.")
+          )
+        )
+      return
+    }
+    downloadHandlers.completion(.success(model))
   }
 
   func urlSession(_ session: URLSession,
@@ -114,10 +113,10 @@ extension ModelDownloadTask: URLSessionDownloadDelegate {
                   didWriteData bytesWritten: Int64,
                   totalBytesWritten: Int64,
                   totalBytesExpectedToWrite: Int64) {
-    if downloadTask == self.downloadTask {
-      let calculatedProgress = Float(totalBytesWritten) / Float(totalBytesExpectedToWrite)
-      downloadHandlers.progressHandler?(calculatedProgress)
-    }
+    assert(downloadTask == self.downloadTask)
+    guard let progressHandler = downloadHandlers.progressHandler else { return }
+    let calculatedProgress = Float(totalBytesWritten) / Float(totalBytesExpectedToWrite)
+    progressHandler(calculatedProgress)
   }
 }
 
@@ -128,6 +127,7 @@ extension ModelDownloadTask {
   }
 
   /// Build custom model object from model info.
+  // TODO: Consider moving this to CustomModel as a convenience init
   func buildModel() -> CustomModel? {
     /// Build custom model only if the model file is already on device.
     guard let path = modelInfo.path else { return nil }

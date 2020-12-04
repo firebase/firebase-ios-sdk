@@ -22,7 +22,7 @@ struct ModelInfo {
 
   // TODO: revisit UserDefaultsBacked
   /// Download URL for the model file, as returned by server.
-  let downloadURL: String
+  let downloadURL: URL
 
   /// Hash of the model, as returned by server.
   let modelHash: String
@@ -34,25 +34,26 @@ struct ModelInfo {
   var path: String?
 
   /// Initialize model info and create user default keys.
-  init(name: String, downloadURL: String, modelHash: String, size: Int) {
+  init(name: String, downloadURL: URL, modelHash: String, size: Int) {
     self.name = name
     self.downloadURL = downloadURL
     self.modelHash = modelHash
     self.size = size
   }
 
-  init?(name: String, app: FirebaseApp, defaults: UserDefaults) {
+  init?(fromDefaults defaults: UserDefaults, name: String, app: FirebaseApp) {
     let bundleID = Bundle.main.bundleIdentifier ?? ""
     let defaultsPrefix = "\(bundleID).\(app.name).\(name)"
     guard let downloadURL = defaults
       .value(forKey: "\(defaultsPrefix).model-download-url") as? String,
+      let url = URL(string: downloadURL),
       let modelHash = defaults.value(forKey: "\(defaultsPrefix).model-hash") as? String,
       let size = defaults.value(forKey: "\(defaultsPrefix).model-size") as? Int,
       let path = defaults.value(forKey: "\(defaultsPrefix).model-path") as? String else {
       return nil
     }
     self.name = name
-    self.downloadURL = downloadURL
+    self.downloadURL = url
     self.modelHash = modelHash
     self.size = size
     self.path = path
@@ -65,7 +66,7 @@ struct ModelInfo {
     }
     let bundleID = Bundle.main.bundleIdentifier ?? ""
     let defaultsPrefix = "\(bundleID).\(app.name).\(name)"
-    defaults.setValue(downloadURL, forKey: "\(defaultsPrefix).model-download-url")
+    defaults.setValue(downloadURL.absoluteString, forKey: "\(defaultsPrefix).model-download-url")
     defaults.setValue(modelHash, forKey: "\(defaultsPrefix).model-hash")
     defaults.setValue(size, forKey: "\(defaultsPrefix).model-size")
     defaults.setValue(modelPath, forKey: "\(defaultsPrefix).model-path")
