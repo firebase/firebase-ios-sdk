@@ -14,8 +14,7 @@
 
 @import FirebaseAuth;
 @import FirebaseABTesting;
-#if TARGET_OS_IOS
-@import FirebaseAnalytics;
+#if TARGET_OS_IOS && !TARGET_OS_MACCATALYST
 @import FirebaseAppDistribution;
 #endif
 @import Firebase;

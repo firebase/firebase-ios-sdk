@@ -801,8 +801,6 @@ let package = Package(
       dependencies: [
         "FirebaseAuth",
         "FirebaseABTesting",
-        .target(name: "FirebaseAnalytics",
-                condition: .when(platforms: [.iOS])),
         .target(name: "FirebaseAppDistribution",
                 condition: .when(platforms: [.iOS])),
         "Firebase",
