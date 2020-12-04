@@ -1,4 +1,4 @@
-# Unreleased
+# v7.3.0-beta
 - [changed] Sign out the Tester when the call to fetch releases fails with an unauthenticated error.
 - [fixed] Crash caused by trying to parse response as JSON when response is nil (#6996).
 
