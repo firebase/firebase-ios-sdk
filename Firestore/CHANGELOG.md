@@ -1,4 +1,4 @@
-# Unreleased
+# v7.3.0
 - [fixed] Fixed a crash that could happen when the SDK encountered invalid
   data during garbage collection (#6721).
 
