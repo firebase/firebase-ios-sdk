@@ -3,6 +3,8 @@ name: test_coverage
 on: [pull_request]
           #run specific jobs when specific files are updated.
           #https://github.community/t/how-to-execute-jobs-if-folder-updated-recursive/117344/5
+env:
+  GITHUB_PULL_REQUEST_BASE_SHA: ${{github.context.pull_request.base.sha}}
 
 jobs:
   check:
@@ -20,8 +22,8 @@ jobs:
         id: check_files
         run: |
           echo "=============== list changed files ==============="
-          echo ${{github.context.pull_request.base.sha}}
-          git diff --name-only ${{github.context.pull_request.base.sha}} HEAD
+          echo  ${GITHUB_PULL_REQUEST_BASE_SHA}
+          git diff --name-only ${GITHUB_PULL_REQUEST_BASE_SHA} HEAD
           echo "========== check paths of changed files =========="
           git diff --name-only ${GITHUB_BASE_REF} HEAD > files.txt
           while IFS= read -r file
