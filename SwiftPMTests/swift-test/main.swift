@@ -17,8 +17,7 @@ import Firebase
 import FirebaseCore
 import FirebaseAuth
 import FirebaseABTesting
-#if os(iOS)
-  import FirebaseAnalytics
+#if os(iOS) && !targetEnvironment(macCatalyst)
   import FirebaseAppDistribution
 #endif
 import FirebaseCrashlytics
