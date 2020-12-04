@@ -13,7 +13,36 @@ on:
     - cron:  '0 7 * * *'
 
 jobs:
+  check:
+    name: Check changed files
+    outputs:
+      run_job: ${{ steps.check_files.outputs.run_job }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
 
+      - name: check files
+        id: check_files
+        run: |
+          echo "=============== list changed files ==============="
+          git diff --name-only HEAD^ HEAD
+          
+          echo "========== check paths of changed files =========="
+          git diff --name-only HEAD^ HEAD > files.txt
+          while IFS= read -r file
+          do
+            echo $file
+            if [[ $file != "subdir/env1/"* ]]; then
+              echo "This file is not under the directory 'subdir/env1'."
+              echo "::set-output name=run_job::false"
+              break
+            else
+              echo "::set-output name=run_job::true"
+            fi
+          done < files.txt
   pod-lib-lint:
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
