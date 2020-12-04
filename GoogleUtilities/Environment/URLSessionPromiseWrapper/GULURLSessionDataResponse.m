@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "GoogleUtilities/Environment/URLSessionPromiseWrapper/GULURLSessionDataResponse.h"
+#import "GoogleUtilities/Environment/Public/GoogleUtilities/GULURLSessionDataResponse.h"
 
 @implementation GULURLSessionDataResponse
 

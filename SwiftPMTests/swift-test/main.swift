@@ -17,6 +17,9 @@ import Firebase
 import FirebaseCore
 import FirebaseAuth
 import FirebaseABTesting
+#if os(iOS) && !targetEnvironment(macCatalyst)
+  import FirebaseAppDistribution
+#endif
 import FirebaseCrashlytics
 import FirebaseDynamicLinks
 import FirebaseFirestore
@@ -60,6 +63,6 @@ class importTest: XCTestCase {
     XCTAssertNotNil(Int(versionParts[1]))
     XCTAssertNotNil(Int(versionParts[2]))
 
-    print("System version? Answer: \(GULAppEnvironmentUtil.systemVersion() ?? "NONE")")
+    print("System version? Answer: \(GULAppEnvironmentUtil.systemVersion())")
   }
 }

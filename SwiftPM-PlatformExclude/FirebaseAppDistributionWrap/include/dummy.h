@@ -12,19 +12,4 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-@import FirebaseAuth;
-@import FirebaseABTesting;
-#if TARGET_OS_IOS && !TARGET_OS_MACCATALYST
-@import FirebaseAppDistribution;
-#endif
-@import Firebase;
-@import FirebaseCrashlytics;
-@import FirebaseCore;
-@import FirebaseDatabase;
-@import FirebaseDynamicLinks;
-@import FirebaseFirestore;
-@import FirebaseFunctions;
-@import FirebaseInstallations;
-@import FirebaseMessaging;
-@import FirebaseRemoteConfig;
-@import FirebaseStorage;
+// Prevent a missing umbrella header warning.
