@@ -29,8 +29,8 @@ jobs:
           while IFS= read -r file
           do
             echo $file
-            if [[ $file != "subdir/env1/"* ]]; then
-              echo "This file is not under the directory 'subdir/env1'."
+            if [[ $file != ".github/workflows/"* ]]; then
+              echo "This file is not under the directory '.github/workflows/'."
               echo "::set-output name=run_job::false"
               break
             else
