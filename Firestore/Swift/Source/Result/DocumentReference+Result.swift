@@ -177,7 +177,7 @@ extension DocumentReference {
     delete(completion: mapResultCompletion(completion))
   }
 
-  /// Reads the documents referenced by this `DocumentReference`.
+  /// Reads the document referenced by this `DocumentReference`.
   ///
   /// - Parameters:
   ///   - source: The `FirestoreSource` where the results should be fetched:
