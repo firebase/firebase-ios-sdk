@@ -32,7 +32,7 @@ extension CollectionReference {
   func addDocument(data: [String: Any],
                    completion: @escaping (_ result: Result<Void, Error>) -> Void)
     -> DocumentReference {
-    addDocument(data: data, completion: mapResultCompletion(completion))
+    return addDocument(data: data, completion: mapResultCompletion(completion))
   }
 
   /// Adds a new document to this collection encoding an instance of `Encodable`,  assigning it a

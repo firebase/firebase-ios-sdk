@@ -205,7 +205,7 @@ extension DocumentReference {
                            listener: @escaping (_ result: Result<DocumentSnapshot, Error>)
                              -> Void)
     -> ListenerRegistration {
-    addSnapshotListener(
+    return addSnapshotListener(
       includeMetadataChanges: includeMetadataChanges,
       listener: mapResultCompletion(listener)
     )

@@ -45,7 +45,7 @@ extension Query {
   func addSnapshotListener(includeMetadataChanges: Bool = false,
                            listener: @escaping (_ result: Result<QuerySnapshot, Error>)
                              -> Void) -> ListenerRegistration {
-    addSnapshotListener(
+    return addSnapshotListener(
       includeMetadataChanges: includeMetadataChanges,
       listener: mapResultCompletion(listener)
     )
