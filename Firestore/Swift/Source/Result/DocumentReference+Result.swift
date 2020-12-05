@@ -192,7 +192,7 @@ extension DocumentReference {
     getDocument(source: source, completion: mapResultCompletion(completion))
   }
 
-  /// Attaches a listener for this `DocumentReference` events.
+  /// Attaches a listener for this `DocumentSnapshot` events.
   ///
   /// - Parameters:
   ///   - includeMetadataChanges: Whether metadata-only changes (i.e. only
