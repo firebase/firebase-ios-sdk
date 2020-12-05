@@ -64,6 +64,18 @@
 
 @end
 
+@interface FOutstandingGet : NSObject
+
+@property(nonatomic, strong) NSDictionary *request;
+@property(nonatomic, copy) fbt_void_nsstring_nsstring_nsstring onCompleteBlock;
+@property(nonatomic) BOOL sent;
+
+@end
+
+@implementation FOutstandingGet
+
+@end
+
 typedef enum {
     ConnectionStateDisconnected,
     ConnectionStateGettingToken,
@@ -92,9 +104,11 @@ typedef enum {
 @property(nonatomic, strong) FConnection *realtime;
 @property(nonatomic, strong) NSMutableDictionary *listens;
 @property(nonatomic, strong) NSMutableDictionary *outstandingPuts;
+@property(nonatomic, strong) NSMutableDictionary *outstandingGets;
 @property(nonatomic, strong) NSMutableArray *onDisconnectQueue;
 @property(nonatomic, strong) FRepoInfo *repoInfo;
 @property(nonatomic, strong) FAtomicNumber *putCounter;
+@property(nonatomic, strong) FAtomicNumber *getCounter;
 @property(nonatomic, strong) FAtomicNumber *requestNumber;
 @property(nonatomic, strong) NSMutableDictionary *requestCBHash;
 @property(nonatomic, strong) FIRDatabaseConfig *config;
@@ -309,6 +323,9 @@ typedef enum {
     return self->connectionState == ConnectionStateConnected;
 }
 
+- (BOOL)canSendReads {
+    return self->connectionState == ConnectionStateConnected;
+}
 #pragma mark -
 #pragma mark FConnection delegate methods
 
@@ -707,6 +724,37 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref,
             }];
 }
 
+- (void)sendGet:(NSNumber *)index {
+    FOutstandingGet *get = self.outstandingGets[index];
+    if ([get sent]) {
+        return;
+    }
+    get.sent = YES;
+    [self sendAction:kFWPRequestActionGet
+                body:get.request
+           sensitive:NO
+            callback:^(NSDictionary *data) {
+              FOutstandingGet *currentGet = self.outstandingGets[index];
+              if (currentGet == get) {
+                  [self.outstandingGets removeObjectForKey:index];
+                  NSString *status =
+                      [data objectForKey:kFWPResponseForActionStatus];
+                  NSString *resultData =
+                      [data objectForKey:kFWPResponseForActionData];
+                  if (status == kFWPResponseForActionStatusOk) {
+                      get.onCompleteBlock(status, resultData, nil);
+                      return;
+                  }
+                  get.onCompleteBlock(status, nil, resultData);
+              } else {
+                  FFLog(@"I-RDB034045",
+                        @"Ignoring on complete for get %@ because it was "
+                        @"already removed",
+                        index);
+              }
+            }];
+}
+
 - (void)sendUnlisten:(FPath *)path
          queryParams:(FQueryParams *)queryParams
                tagId:(NSNumber *)tagId {
@@ -755,6 +803,45 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref,
         FFLog(@"I-RDB034025",
               @"Wasn't connected or writes paused, so added to outstanding "
               @"puts only. Path: %@",
+              pathString);
+    }
+}
+
+- (void)get:(NSString *)pathString
+      withParams:(NSDictionary *)queryWireProtocolParams
+    withCallback:(fbt_void_nsstring_nsstring_nsstring)onComplete {
+    NSMutableDictionary *request = [NSMutableDictionary
+        dictionaryWithObjectsAndKeys:pathString, kFWPRequestPath,
+                                     queryWireProtocolParams,
+                                     kFWPRequestQueries, nil];
+    FOutstandingGet *get = [[FOutstandingGet alloc] init];
+    get.request = request;
+    get.onCompleteBlock = onComplete;
+    get.sent = NO;
+
+    NSNumber *index = [self.getCounter getAndIncrement];
+    self.outstandingGets[index] = get;
+
+    if (![self canSendReads]) {
+        dispatch_after(
+            dispatch_time(DISPATCH_TIME_NOW, kPersistentConnGetConnectTimeout),
+            self.dispatchQueue, ^{
+              if (![get sent]) {
+                  return;
+              }
+              [self.outstandingGets removeObjectForKey:index];
+              get.onCompleteBlock(@"failed", nil, kPersistentConnOffline);
+            });
+        return;
+    }
+
+    if ([self canSendReads]) {
+        FFLog(@"I-RDB034024", @"Was connected, and added as index: %@", index);
+        [self sendGet:index];
+    } else {
+        FFLog(@"I-RDB034025",
+              @"Wasn't connected or writes paused, so added to outstanding "
+              @"gets only. Path: %@",
               pathString);
     }
 }

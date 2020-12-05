@@ -70,6 +70,7 @@ NSString *const kFWPAsyncServerControlMessageReset = @"r";
 
 NSString *const kFWPRequestActionPut = @"p";
 NSString *const kFWPRequestActionMerge = @"m";
+NSString *const kFWPRequestActionGet = @"g";
 NSString *const kFWPRequestActionListen =
     @"l"; // {"t": "d", "d": {"r": 1, "a": "l", "b": { "p": "/" } } }
 NSString *const kFWPRequestActionUnlisten = @"u";
@@ -99,9 +100,11 @@ NSString *const kFWPRequestStatus = @"s";
 NSString *const kWireProtocolVersionParam = @"v";
 NSString *const kWebsocketProtocolVersion = @"5";
 NSString *const kWebsocketServerKillPacket = @"kill";
+NSString *const kPersistentConnOffline = @"Client is offline.";
 const int kWebsocketMaxFrameSize = 16384;
 NSUInteger const kWebsocketKeepaliveInterval = 45;
 NSUInteger const kWebsocketConnectTimeout = 30;
+UInt64 const kPersistentConnGetConnectTimeout = 3 * NSEC_PER_SEC;
 
 float const kPersistentConnReconnectMinDelay = 1.0;
 float const kPersistentConnReconnectMaxDelay = 30.0;

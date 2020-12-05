@@ -45,6 +45,11 @@
     withCallback:(fbt_void_nserror_ref)callback;
 - (void)purgeOutstandingWrites;
 
+- (void)getValue:(FQuerySpec *)query
+    withCompletionBlock:
+        (void (^_Nonnull)(NSError *__nullable error,
+                          FIRDataSnapshot *__nullable snapshot))block;
+
 - (void)addEventRegistration:(id<FEventRegistration>)eventRegistration
                     forQuery:(FQuerySpec *)query;
 - (void)removeEventRegistration:(id<FEventRegistration>)eventRegistration

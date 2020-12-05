@@ -75,6 +75,7 @@ FOUNDATION_EXPORT NSString *const kFWPAsyncServerControlMessageReset;
 
 FOUNDATION_EXPORT NSString *const kFWPRequestActionPut;
 FOUNDATION_EXPORT NSString *const kFWPRequestActionMerge;
+FOUNDATION_EXPORT NSString *const kFWPRequestActionGet;
 FOUNDATION_EXPORT NSString *const kFWPRequestActionTaggedListen;
 FOUNDATION_EXPORT NSString *const kFWPRequestActionTaggedUnlisten;
 FOUNDATION_EXPORT NSString
@@ -105,9 +106,11 @@ FOUNDATION_EXPORT NSString *const kFWPRequestStatus;
 FOUNDATION_EXPORT NSString *const kWireProtocolVersionParam;
 FOUNDATION_EXPORT NSString *const kWebsocketProtocolVersion;
 FOUNDATION_EXPORT NSString *const kWebsocketServerKillPacket;
+FOUNDATION_EXPORT NSString *const kPersistentConnOffline;
 FOUNDATION_EXPORT const int kWebsocketMaxFrameSize;
 FOUNDATION_EXPORT NSUInteger const kWebsocketKeepaliveInterval;
 FOUNDATION_EXPORT NSUInteger const kWebsocketConnectTimeout;
+FOUNDATION_EXPORT UInt64 const kPersistentConnGetConnectTimeout;
 
 FOUNDATION_EXPORT float const kPersistentConnReconnectMinDelay;
 FOUNDATION_EXPORT float const kPersistentConnReconnectMaxDelay;

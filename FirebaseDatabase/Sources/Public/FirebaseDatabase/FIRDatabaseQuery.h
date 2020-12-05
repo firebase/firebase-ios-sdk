@@ -131,6 +131,10 @@ NS_SWIFT_NAME(DatabaseQuery)
                       withCancelBlock:
                           (nullable void (^)(NSError *error))cancelBlock;
 
+- (void)getDataWithCompletionBlock:
+    (void (^_Nonnull)(NSError *__nullable error,
+                      FIRDataSnapshot *snapshot))block;
+
 /**
  * This is equivalent to observeEventType:withBlock:, except the block is
  * immediately canceled after the initial data is returned.
