@@ -6,7 +6,6 @@ FUNCTIONS_PATHS=("Functions.*" \
   ".github/workflows/functions\\.yml" \
   "Interop/Auth/Public/\.\*.h" \
   "FirebaseMessaging/Sources/Interop/\.\*.h")
-TEST= "ASDF"
 echo "::set-output name=database_run_job::false"
 echo "::set-output name=functions_run_job::false"
 echo "=============== list changed files ==============="
@@ -20,7 +19,9 @@ do
   do
     if [[ "${file}" =~ $path ]]; then
       echo "This file is updated under the path, ${path}"
-      echo "::set-output name=database_run_job::true" >> run_sdk_jobs.txt
+      #echo "::set-output name=database_run_job::true" >> run_sdk_jobs.txt
+      echo "database" >> run_sdk_jobs.txt
+      cat run_sdk_jobs.txt
       break
     fi
   done
