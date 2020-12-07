@@ -564,6 +564,7 @@
                         indexedNode:[FIndexedNode
                                         indexedNodeWithNode:node
                                                       index:querySpec.index]]);
+              [self.persistenceManager setQueryInactive:querySpec];
           }
         }];
 }
