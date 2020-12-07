@@ -1,3 +1,5 @@
+set -ex
+
 DATABASE_PATHS=("FirebaseDatabase.*" \
   ".github/workflows/database\\.yml" \
   "Example/Database/" \
