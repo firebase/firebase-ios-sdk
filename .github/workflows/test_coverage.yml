@@ -21,10 +21,13 @@ jobs:
         id: check_files
         run: |
           ./test.sh
+          echo "=============== Updated jobs to be triggered ================="
+          cat ./run_sdk_jobs.txt
+          echo "=============== Update variables ================="
           while IFS= read -r run_sdk
           do
             echo $run_sdk
-          done < run_sdk_jobs.txt
+          done < ./run_sdk_jobs.txt
 
   pod-lib-lint-database:
     # Don't run on private repo unless it is a PR.
