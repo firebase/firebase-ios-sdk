@@ -756,7 +756,8 @@ let package = Package(
       dependencies: [
         "FirebaseAuth",
         "FirebaseABTesting",
-        "FirebaseAppDistribution",
+        .target(name: "FirebaseAppDistribution",
+                condition: .when(platforms: [.iOS])),
         "Firebase",
         "FirebaseCrashlytics",
         "FirebaseCore",
@@ -798,7 +799,8 @@ let package = Package(
       dependencies: [
         "FirebaseAuth",
         "FirebaseABTesting",
-        "FirebaseAppDistribution",
+        .target(name: "FirebaseAppDistribution",
+                condition: .when(platforms: [.iOS])),
         "Firebase",
         "FirebaseCrashlytics",
         "FirebaseCore",

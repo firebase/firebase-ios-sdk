@@ -26,11 +26,13 @@ private enum MockOptions {
 
 extension UserDefaults {
   /// For testing: returns a new cleared instance of user defaults.
-  static func getTestInstance() -> UserDefaults {
+  static func getTestInstance(cleared: Bool = true) -> UserDefaults {
     let suiteName = "com.google.firebase.ml.test"
     // TODO: reconsider force unwrapping
     let defaults = UserDefaults(suiteName: suiteName)!
-    defaults.removePersistentDomain(forName: suiteName)
+    if cleared {
+      defaults.removePersistentDomain(forName: suiteName)
+    }
     return defaults
   }
 }
@@ -46,32 +48,56 @@ final class ModelDownloaderUnitTests: XCTestCase {
     FirebaseApp.configure(options: options)
   }
 
-  /// Unit test for reading and writing to user defaults.
-  func testUserDefaults() {
+  /// Test to download model info.
+  // TODO: Add unit test with mocks.
+  func testDownloadModelInfo() {}
+
+  /// Test to read/write model info to user defaults.
+  func testReadWriteToDefaults() {
     guard let testApp = FirebaseApp.app() else {
       XCTFail("Default app was not configured.")
       return
     }
     let functionName = #function
     let testModelName = "\(functionName)-test-model"
-    let modelInfo = ModelInfo(
-      app: testApp,
+    let testDownloadURL = URL(string: "https://storage.googleapis.com")!
+    let testModelHash = "mock-valid-hash"
+    let testModelSize = 10
+    let testModelPath = "valid-local-path"
+
+    var modelInfo = ModelInfo(
       name: testModelName,
-      defaults: .getTestInstance()
+      downloadURL: testDownloadURL,
+      modelHash: testModelHash,
+      size: testModelSize
     )
-    XCTAssertEqual(modelInfo.downloadURL, "")
-    modelInfo.downloadURL = "testurl.com"
-    XCTAssertEqual(modelInfo.downloadURL, "testurl.com")
-    XCTAssertEqual(modelInfo.modelHash, "")
-    XCTAssertEqual(modelInfo.size, 0)
-    XCTAssertEqual(modelInfo.path, nil)
+    // This fails because there is no model path.
+    do {
+      try modelInfo.writeToDefaults(app: testApp, defaults: .getTestInstance())
+    } catch {
+      XCTAssertNotNil(error)
+    }
+    modelInfo.path = testModelPath
+    // This shouldn't fail because model info object is now complete.
+    do {
+      try modelInfo.writeToDefaults(app: testApp, defaults: .getTestInstance())
+    } catch {
+      XCTFail(error.localizedDescription)
+    }
+    guard let savedModelInfo = ModelInfo(
+      fromDefaults: .getTestInstance(cleared: false),
+      name: testModelName,
+      app: testApp
+    ) else {
+      XCTFail("Model info not saved to user defaults.")
+      return
+    }
+    XCTAssertEqual(savedModelInfo.downloadURL, testDownloadURL)
+    XCTAssertEqual(savedModelInfo.modelHash, testModelHash)
+    XCTAssertEqual(savedModelInfo.size, testModelSize)
   }
 
-  /// Test to download model info.
-  // TODO: Add unit test with mocks.
-  func testDownloadModelInfo() {}
-
-  /// Unit test to save model info to user defaults.
+  /// Unit test to save model info.
   func testSaveModelInfo() {
     guard let testApp = FirebaseApp.app() else {
       XCTFail("Default app was not configured.")
@@ -91,10 +117,21 @@ final class ModelDownloaderUnitTests: XCTestCase {
     }
     """
     let data: Data = sampleResponse.data(using: .utf8)!
-    modelInfoRetriever.saveModelInfo(data: data, modelHash: "test-model-hash")
-    XCTAssertEqual(modelInfoRetriever.modelInfo?.downloadURL, "https://storage.googleapis.com")
+    do {
+      try modelInfoRetriever.saveModelInfo(data: data, modelHash: "test-model-hash")
+    } catch {
+      XCTFail(error.localizedDescription)
+    }
+    XCTAssertEqual(
+      modelInfoRetriever.modelInfo?.downloadURL.absoluteString,
+      "https://storage.googleapis.com"
+    )
     XCTAssertEqual(modelInfoRetriever.modelInfo?.size, 562_336)
   }
+
+  /// Test to download model file.
+  // TODO: Add unit test with mocks.
+  func testStartModelDownload() {}
 
   func testExample() {
     // This is an example of a functional test case.
