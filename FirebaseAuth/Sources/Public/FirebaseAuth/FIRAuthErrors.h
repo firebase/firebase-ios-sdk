@@ -212,7 +212,7 @@ typedef NS_ENUM(NSInteger, FIRAuthErrorCode) {
    */
   FIRAuthErrorCodeMissingAndroidPackageName = 17037,
 
-  /** Indicates that the domain specified in the continue URL is not whitelisted in the Firebase
+  /** Indicates that the domain specified in the continue URL is not allowlisted in the Firebase
       console.
    */
   FIRAuthErrorCodeUnauthorizedDomain = 17038,
