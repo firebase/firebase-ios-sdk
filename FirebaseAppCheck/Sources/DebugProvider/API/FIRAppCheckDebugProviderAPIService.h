@@ -16,14 +16,24 @@
 
 #import <Foundation/Foundation.h>
 
+@class FBLPromise<Result>;
+@class FIRAppCheckToken;
+@protocol FIRAppCheckAPIServiceProtocol;
+
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRAppCheckHTTPResponse : NSObject
+@protocol FIRAppCheckDebugProviderAPIServiceProtocol <NSObject>
 
-@property(nonatomic) NSHTTPURLResponse *HTTPResponse;
-@property(nonatomic) NSData *data;
+- (FBLPromise<FIRAppCheckToken *> *)appCheckTokenWithDebugToken:(NSString *)debugToken;
 
-- (instancetype)initWithResponse:(NSHTTPURLResponse *)response data:(nullable NSData *)data;
+@end
+
+@interface FIRAppCheckDebugProviderAPIService
+    : NSObject <FIRAppCheckDebugProviderAPIServiceProtocol>
+
+- (instancetype)initWithAPIService:(id<FIRAppCheckAPIServiceProtocol>)APIService
+                         projectID:(NSString *)projectID
+                             appID:(NSString *)appID;
 
 @end
 

@@ -16,13 +16,16 @@
 
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckToken.h"
 
+@class FBLPromise<Result>;
+@class GULURLSessionDataResponse;
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRAppCheckToken (APIResponse)
 
-- (nullable instancetype)initWithDeviceCheckResponse:(NSData *)response
-                                         requestDate:(NSDate *)requestDate
-                                               error:(NSError **)outError;
+- (nullable instancetype)initWithTokenExchangeResponse:(NSData *)response
+                                           requestDate:(NSDate *)requestDate
+                                                 error:(NSError **)outError;
 
 @end
 

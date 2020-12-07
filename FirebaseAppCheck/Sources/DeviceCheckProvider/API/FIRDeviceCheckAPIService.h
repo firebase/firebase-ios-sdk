@@ -16,10 +16,9 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FirebaseAppCheck/Sources/Core/APIService/FIRAppCheckAPIService.h"
-
 @class FBLPromise<Result>;
 @class FIRAppCheckToken;
+@protocol FIRAppCheckAPIServiceProtocol;
 
 NS_ASSUME_NONNULL_BEGIN
 

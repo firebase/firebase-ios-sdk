@@ -14,15 +14,19 @@
  * limitations under the License.
  */
 
-#import "FirebaseAppCheck/Sources/DeviceCheckProvider/API/FIRAppCheckToken+APIResponse.h"
+#import "FirebaseAppCheck/Sources/Core/APIService/FIRAppCheckToken+APIResponse.h"
+
+#import <FBLPromises/FBLPromises.h>
 
 #import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckErrorUtil.h"
 
+#import <GoogleUtilities/GULURLSessionDataResponse.h>
+
 @implementation FIRAppCheckToken (APIResponse)
 
-- (nullable instancetype)initWithDeviceCheckResponse:(NSData *)response
-                                         requestDate:(NSDate *)requestDate
-                                               error:(NSError **)outError {
+- (nullable instancetype)initWithTokenExchangeResponse:(NSData *)response
+                                           requestDate:(NSDate *)requestDate
+                                                 error:(NSError **)outError {
   if (response.length <= 0) {
     FIRAppCheckSetErrorToPointer(
         [FIRAppCheckErrorUtil errorWithFailureReason:@"Empty server response body."], outError);

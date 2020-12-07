@@ -16,9 +16,9 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FirebaseAppCheck/Sources/Core/APIService/FIRAppCheckHTTPResponse.h"
-
 @class FBLPromise<Result>;
+@class GULURLSessionDataResponse;
+@class FIRAppCheckToken;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -26,11 +26,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property(nonatomic, readonly) NSString *baseURL;
 
-- (FBLPromise<FIRAppCheckHTTPResponse *> *)
+- (FBLPromise<GULURLSessionDataResponse *> *)
     sendRequestWithURL:(NSURL *)requestURL
             HTTPMethod:(NSString *)HTTPMethod
                   body:(NSData *)body
      additionalHeaders:(nullable NSDictionary<NSString *, NSString *> *)additionalHeaders;
+
+- (FBLPromise<FIRAppCheckToken *> *)appCheckTokenWithAPIResponse:
+    (GULURLSessionDataResponse *)response;
 
 @end
 

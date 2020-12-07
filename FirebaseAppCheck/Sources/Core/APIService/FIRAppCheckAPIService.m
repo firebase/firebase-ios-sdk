@@ -17,10 +17,14 @@
 
 #import <FBLPromises/FBLPromises.h>
 
+#import "FirebaseAppCheck/Sources/Core/APIService/FIRAppCheckToken+APIResponse.h"
 #import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckErrorUtil.h"
 #import "FirebaseAppCheck/Sources/Core/FIRAppCheckLogger.h"
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+
+#import <GoogleUtilities/GULURLSessionDataResponse.h>
+#import <GoogleUtilities/NSURLSession+GULPromises.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -71,7 +75,7 @@ static NSString *const kUserAgentKey = @"X-firebase-client";
   return self;
 }
 
-- (FBLPromise<FIRAppCheckHTTPResponse *> *)
+- (FBLPromise<GULURLSessionDataResponse *> *)
     sendRequestWithURL:(NSURL *)requestURL
             HTTPMethod:(NSString *)HTTPMethod
                   body:(NSData *)body
@@ -83,7 +87,7 @@ static NSString *const kUserAgentKey = @"X-firebase-client";
       .then(^id _Nullable(NSURLRequest *_Nullable request) {
         return [self sendURLRequest:request];
       })
-      .then(^id _Nullable(FIRAppCheckHTTPResponse *_Nullable response) {
+      .then(^id _Nullable(GULURLSessionDataResponse *_Nullable response) {
         return [self validateHTTPResponseStatusCode:response];
       });
 }
@@ -118,44 +122,44 @@ static NSString *const kUserAgentKey = @"X-firebase-client";
            }];
 }
 
-- (FBLPromise<FIRAppCheckHTTPResponse *> *)sendURLRequest:(NSURLRequest *)request {
-  return [FBLPromise async:^(FBLPromiseFulfillBlock fulfill, FBLPromiseRejectBlock reject) {
-           NSURLSessionDataTask *dataTask = [self.URLSession
-               dataTaskWithRequest:request
-                 completionHandler:^(NSData *_Nullable data, NSURLResponse *_Nullable response,
-                                     NSError *_Nullable error) {
-                   if (error) {
-                     reject(error);
-                   } else {
-                     fulfill([[FIRAppCheckHTTPResponse alloc]
-                         initWithResponse:(NSHTTPURLResponse *)response
-                                     data:data]);
-                   }
-                 }];
-           [dataTask resume];
-         }]
+- (FBLPromise<GULURLSessionDataResponse *> *)sendURLRequest:(NSURLRequest *)request {
+  return [self.URLSession gul_dataTaskPromiseWithRequest:request]
       .recover(^id(NSError *networkError) {
         // Wrap raw network error into App Check domain error.
         return [FIRAppCheckErrorUtil APIErrorWithNetworkError:networkError];
       })
-      .then(^id _Nullable(FIRAppCheckHTTPResponse *response) {
+      .then(^id _Nullable(GULURLSessionDataResponse *response) {
         return [self validateHTTPResponseStatusCode:response];
       });
 }
 
-- (FBLPromise<FIRAppCheckHTTPResponse *> *)validateHTTPResponseStatusCode:
-    (FIRAppCheckHTTPResponse *)response {
+- (FBLPromise<GULURLSessionDataResponse *> *)validateHTTPResponseStatusCode:
+    (GULURLSessionDataResponse *)response {
   NSInteger statusCode = response.HTTPResponse.statusCode;
   return [FBLPromise do:^id _Nullable {
     if (statusCode < 200 || statusCode >= 300) {
       FIRLogDebug(kFIRLoggerAppCheck, kFIRLoggerAppCheckMessageCodeUnknown,
                   @"Unexpected API response: %@, body: %@.", response.HTTPResponse,
-                  [[NSString alloc] initWithData:response.data encoding:NSUTF8StringEncoding]);
+                  [[NSString alloc] initWithData:response.HTTPBody encoding:NSUTF8StringEncoding]);
       return [FIRAppCheckErrorUtil APIErrorWithHTTPResponse:response.HTTPResponse
-                                                       data:response.data];
+                                                       data:response.HTTPBody];
     }
     return response;
   }];
+}
+
+- (FBLPromise<FIRAppCheckToken *> *)appCheckTokenWithAPIResponse:
+    (GULURLSessionDataResponse *)response {
+  return [FBLPromise onQueue:dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0)
+                          do:^id _Nullable {
+                            NSError *error;
+
+                            FIRAppCheckToken *token = [[FIRAppCheckToken alloc]
+                                initWithTokenExchangeResponse:response.HTTPBody
+                                                  requestDate:[NSDate date]
+                                                        error:&error];
+                            return token ?: error;
+                          }];
 }
 
 @end

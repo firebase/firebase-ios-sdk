@@ -23,6 +23,7 @@
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckVersion.h"
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRDeviceCheckProvider.h"
 
+#import "FirebaseAppCheck/Sources/Core/APIService/FIRAppCheckAPIService.h"
 #import "FirebaseAppCheck/Sources/Core/FIRAppCheckLogger.h"
 #import "FirebaseAppCheck/Sources/DeviceCheckProvider/API/FIRDeviceCheckAPIService.h"
 #import "FirebaseAppCheck/Sources/DeviceCheckProvider/DCDevice+FIRDeviceCheckTokenGenerator.h"

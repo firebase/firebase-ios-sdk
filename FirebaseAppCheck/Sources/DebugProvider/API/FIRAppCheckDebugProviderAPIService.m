@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FirebaseAppCheck/Sources/DeviceCheckProvider/API/FIRDeviceCheckAPIService.h"
+#import "FirebaseAppCheck/Sources/DebugProvider/API/FIRAppCheckDebugProviderAPIService.h"
 
 #import <FBLPromises/FBLPromises.h>
 
@@ -33,9 +33,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 static NSString *const kContentTypeKey = @"Content-Type";
 static NSString *const kJSONContentType = @"application/json";
-static NSString *const kDeviceTokenField = @"device_token";
+static NSString *const kDebugTokenField = @"debug_token";
 
-@interface FIRDeviceCheckAPIService ()
+@interface FIRAppCheckDebugProviderAPIService ()
 
 @property(nonatomic, readonly) id<FIRAppCheckAPIServiceProtocol> APIService;
 
@@ -44,7 +44,7 @@ static NSString *const kDeviceTokenField = @"device_token";
 
 @end
 
-@implementation FIRDeviceCheckAPIService
+@implementation FIRAppCheckDebugProviderAPIService
 
 - (instancetype)initWithAPIService:(id<FIRAppCheckAPIServiceProtocol>)APIService
                          projectID:(NSString *)projectID
@@ -60,13 +60,13 @@ static NSString *const kDeviceTokenField = @"device_token";
 
 #pragma mark - Public API
 
-- (FBLPromise<FIRAppCheckToken *> *)appCheckTokenWithDeviceToken:(NSData *)deviceToken {
+- (FBLPromise<FIRAppCheckToken *> *)appCheckTokenWithDebugToken:(NSString *)debugToken {
   NSString *URLString =
-      [NSString stringWithFormat:@"%@/projects/%@/apps/%@:exchangeDeviceCheckToken",
+      [NSString stringWithFormat:@"%@/projects/%@/apps/%@:exchangeDebugToken",
                                  self.APIService.baseURL, self.projectID, self.appID];
   NSURL *URL = [NSURL URLWithString:URLString];
 
-  return [self HTTPBodyWithDeviceToken:deviceToken]
+  return [self HTTPBodyWithDebugToken:debugToken]
       .then(^FBLPromise<GULURLSessionDataResponse *> *(NSData *HTTPBody) {
         return [self.APIService sendRequestWithURL:URL
                                         HTTPMethod:@"POST"
@@ -78,22 +78,21 @@ static NSString *const kDeviceTokenField = @"device_token";
       });
 }
 
-- (FBLPromise<NSData *> *)HTTPBodyWithDeviceToken:(NSData *)deviceToken {
-  if (deviceToken.length <= 0) {
+#pragma mark -
+
+- (FBLPromise<NSData *> *)HTTPBodyWithDebugToken:(NSString *)debugToken {
+  if (debugToken.length <= 0) {
     FBLPromise *rejectedPromise = [FBLPromise pendingPromise];
-    [rejectedPromise reject:[FIRAppCheckErrorUtil
-                                errorWithFailureReason:@"DeviceCheck token must not be empty."]];
+    [rejectedPromise
+        reject:[FIRAppCheckErrorUtil errorWithFailureReason:@"Debug token must not be empty."]];
     return rejectedPromise;
   }
 
   return [FBLPromise onQueue:[self backgroundQueue]
                           do:^id _Nullable {
-                            NSString *base64EncodedToken =
-                                [deviceToken base64EncodedStringWithOptions:0];
-
                             NSError *encodingError;
                             NSData *payloadJSON = [NSJSONSerialization
-                                dataWithJSONObject:@{kDeviceTokenField : base64EncodedToken}
+                                dataWithJSONObject:@{kDebugTokenField : debugToken}
                                            options:0
                                              error:&encodingError];
 
