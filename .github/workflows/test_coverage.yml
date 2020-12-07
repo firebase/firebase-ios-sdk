@@ -50,7 +50,12 @@ jobs:
         rm -r /Users/runner/Library/Developer/Xcode/DerivedData/*
         fi
         scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseDatabase.podspec --platforms=${{ matrix.target }} --test-specs=unit
-        find /Users/runner/Library/Developer/Xcode/DerivedData -regex ".*/.*\.xcresult" -exec xcrun xccov view --report {} \;
+        find /Users/runner/Library/Developer/Xcode/DerivedData -regex ".*/.*\.xcresult" -exec echo "xcresult_bundle_path="{} >> $GITHUB_ENV\;
+     
+    - uses: actions/upload-artifact@v2
+      with:
+        name: my-artifact
+        path: $xcresult_bundle_path
 
   pod-lib-lint-function:
     # Don't run on private repo unless it is a PR.
@@ -72,3 +77,13 @@ jobs:
         fi
         scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseFunctions.podspec --platforms=${{ matrix.target }} --test-specs=unit
         find /Users/runner/Library/Developer/Xcode/DerivedData -regex ".*/.*\.xcresult" -exec xcrun xccov view --report {} \;
+
+  create_report:
+    needs: [pod-lib-lint-function, pod-lib-lint-database]
+    if: always()
+    runs-on: macOS-latest
+    steps:
+      - uses: actions/download-artifact@v2
+        with:
+          name: my-artifact
+          path: ./
