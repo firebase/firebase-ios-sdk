@@ -41,6 +41,7 @@ static NSString *const kFDLAnalyticsDataSourceKey = @"utmSource";
 static NSString *const kFDLAnalyticsDataMediumKey = @"utmMedium";
 static NSString *const kFDLAnalyticsDataCampaignKey = @"utmCampaign";
 static NSString *const kHeaderIosBundleIdentifier = @"X-Ios-Bundle-Identifier";
+static NSString *const kGenericErrorDomain = @"com.firebase.dynamicLinks";
 
 typedef NSDictionary *_Nullable (^FIRDLNetworkingParserBlock)(
     NSString *requestURLString,
@@ -67,7 +68,7 @@ void FIRMakeHTTPRequest(NSURLRequest *request, FIRNetworkRequestCompletionHandle
       [session dataTaskWithRequest:request
                  completionHandler:^(NSData *_Nullable data, NSURLResponse *_Nullable response,
                                      NSError *_Nullable error) {
-                   completion(data, error);
+                   completion(data, response, error);
                  }];
   [dataTask resume];
 }
@@ -91,6 +92,41 @@ NSData *_Nullable FIRDataWithDictionary(NSDictionary *dictionary, NSError **_Nul
   return self;
 }
 
++ (nullable NSError *)extractErrorForShortLink:(NSURL *)url
+                                          data:(NSData *)data
+                                      response:(NSURLResponse *)response
+                                         error:(nullable NSError *)error {
+  if (error) {
+    return error;
+  }
+
+  NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
+  NSError *customError = nil;
+
+  if (![response isKindOfClass:[NSHTTPURLResponse class]]) {
+    customError =
+        [NSError errorWithDomain:kGenericErrorDomain
+                            code:0
+                        userInfo:@{@"message" : @"Response should be of type NSHTTPURLResponse."}];
+  } else if ((statusCode < 200 || statusCode >= 300) && data) {
+    NSDictionary *result = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+    if ([result isKindOfClass:[NSDictionary class]] && [result objectForKey:@"error"]) {
+      id err = [result objectForKey:@"error"];
+      customError = [NSError errorWithDomain:kGenericErrorDomain code:statusCode userInfo:err];
+    } else {
+      customError = [NSError
+          errorWithDomain:kGenericErrorDomain
+                     code:0
+                 userInfo:@{
+                   @"message" :
+                       [NSString stringWithFormat:@"Failed to resolve link: %@", url.absoluteString]
+                 }];
+    }
+  }
+
+  return customError;
+}
+
 #pragma mark - Public interface
 
 - (void)resolveShortLink:(NSURL *)url
@@ -108,34 +144,39 @@ NSData *_Nullable FIRDataWithDictionary(NSDictionary *dictionary, NSError **_Nul
     @"sdk_version" : FDLSDKVersion
   };
 
-  FIRNetworkRequestCompletionHandler resolveLinkCallback = ^(NSData *data, NSError *error) {
-    NSURL *resolvedURL;
+  FIRNetworkRequestCompletionHandler resolveLinkCallback =
+      ^(NSData *data, NSURLResponse *response, NSError *error) {
+        NSURL *resolvedURL = nil;
+        NSError *extractedError = [FIRDynamicLinkNetworking extractErrorForShortLink:url
+                                                                                data:data
+                                                                            response:response
+                                                                               error:error];
 
-    if (!error && data) {
-      NSDictionary *result = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
-      if ([result isKindOfClass:[NSDictionary class]]) {
-        id invitationIDObject = [result objectForKey:@"invitationId"];
+        if (!extractedError && data) {
+          NSDictionary *result = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+          if ([result isKindOfClass:[NSDictionary class]]) {
+            id invitationIDObject = [result objectForKey:@"invitationId"];
 
-        NSString *invitationIDString;
-        if ([invitationIDObject isKindOfClass:[NSDictionary class]]) {
-          NSDictionary *invitationIDDictionary = invitationIDObject;
-          invitationIDString = invitationIDDictionary[@"id"];
-        } else if ([invitationIDObject isKindOfClass:[NSString class]]) {
-          invitationIDString = invitationIDObject;
+            NSString *invitationIDString;
+            if ([invitationIDObject isKindOfClass:[NSDictionary class]]) {
+              NSDictionary *invitationIDDictionary = invitationIDObject;
+              invitationIDString = invitationIDDictionary[@"id"];
+            } else if ([invitationIDObject isKindOfClass:[NSString class]]) {
+              invitationIDString = invitationIDObject;
+            }
+
+            NSString *deepLinkString = result[kFDLResolvedLinkDeepLinkURLKey];
+            NSString *minAppVersion = result[kFDLResolvedLinkMinAppVersionKey];
+            NSString *utmSource = result[kFDLAnalyticsDataSourceKey];
+            NSString *utmMedium = result[kFDLAnalyticsDataMediumKey];
+            NSString *utmCampaign = result[kFDLAnalyticsDataCampaignKey];
+            resolvedURL = FIRDLDeepLinkURLWithInviteID(invitationIDString, deepLinkString,
+                                                       utmSource, utmMedium, utmCampaign, NO, nil,
+                                                       minAppVersion, self->_URLScheme, nil);
+          }
         }
-
-        NSString *deepLinkString = result[kFDLResolvedLinkDeepLinkURLKey];
-        NSString *minAppVersion = result[kFDLResolvedLinkMinAppVersionKey];
-        NSString *utmSource = result[kFDLAnalyticsDataSourceKey];
-        NSString *utmMedium = result[kFDLAnalyticsDataMediumKey];
-        NSString *utmCampaign = result[kFDLAnalyticsDataCampaignKey];
-        resolvedURL = FIRDLDeepLinkURLWithInviteID(invitationIDString, deepLinkString, utmSource,
-                                                   utmMedium, utmCampaign, NO, nil, minAppVersion,
-                                                   self->_URLScheme, nil);
-      }
-    }
-    handler(resolvedURL, error);
-  };
+        handler(resolvedURL, extractedError);
+      };
 
   NSString *requestURLString =
       [NSString stringWithFormat:@"%@/reopenAttribution%@", kiOSReopenRestBaseUrl,
@@ -242,13 +283,14 @@ NSData *_Nullable FIRDataWithDictionary(NSDictionary *dictionary, NSError **_Nul
     }
   };
 
-  FIRNetworkRequestCompletionHandler convertInvitationCallback = ^(NSData *data, NSError *error) {
-    if (handler) {
-      dispatch_async(dispatch_get_main_queue(), ^{
-        handler(error);
-      });
-    }
-  };
+  FIRNetworkRequestCompletionHandler convertInvitationCallback =
+      ^(NSData *data, NSURLResponse *response, NSError *error) {
+        if (handler) {
+          dispatch_async(dispatch_get_main_queue(), ^{
+            handler(error);
+          });
+        }
+      };
 
   NSString *requestURL = [NSString stringWithFormat:@"%@/convertInvitation%@", kApiaryRestBaseUrl,
                                                     FIRDynamicLinkAPIKeyParameter(_APIKey)];
@@ -270,7 +312,7 @@ NSData *_Nullable FIRDataWithDictionary(NSDictionary *dictionary, NSError **_Nul
       stringWithFormat:@"%@/%@%@", baseURL, endpointPath, FIRDynamicLinkAPIKeyParameter(_APIKey)];
 
   FIRNetworkRequestCompletionHandler completeInvitationByDeviceCallback =
-      ^(NSData *data, NSError *error) {
+      ^(NSData *data, NSURLResponse *response, NSError *error) {
         if (error || !data) {
           dispatch_async(dispatch_get_main_queue(), ^{
             handler(nil, nil, error);
