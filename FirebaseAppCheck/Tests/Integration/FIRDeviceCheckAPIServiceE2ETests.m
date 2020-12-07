@@ -18,11 +18,11 @@
 
 #import "FBLPromise+Testing.h"
 
+#import <FirebaseCore/FirebaseCore.h>
+
 #import "FirebaseAppCheck/Sources/Core/APIService/FIRAppCheckAPIService.h"
 #import "FirebaseAppCheck/Sources/DeviceCheckProvider/API/FIRDeviceCheckAPIService.h"
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckToken.h"
-
-#import "FirebaseCore/Sources/Public/FirebaseCore/FIROptions.h"
 
 @interface FIRDeviceCheckAPIServiceE2ETests : XCTestCase
 @property(nonatomic) FIRDeviceCheckAPIService *deviceCheckAPIService;
