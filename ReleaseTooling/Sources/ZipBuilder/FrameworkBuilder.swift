@@ -224,9 +224,11 @@ struct FrameworkBuilder {
   /// Build all thin slices for an open source pod.
   /// - Parameter framework: The name of the framework to be built.
   /// - Parameter logsDir: The path to the directory to place build logs.
+  /// - Parameter setCarthage: Set Carthage flag in CoreDiagnostics for metrics.
   /// - Returns: A dictionary of URLs to the built thin libraries keyed by platform.
   private func buildFrameworksForAllPlatforms(withName framework: String,
-                                              logsDir: URL) -> [TargetPlatform: URL] {
+                                              logsDir: URL,
+                                              setCarthage: Bool = false) -> [TargetPlatform: URL] {
     // Build every architecture and save the locations in an array to be assembled.
     var slicedFrameworks = [TargetPlatform: URL]()
     for platform in platforms {
@@ -234,7 +236,8 @@ struct FrameworkBuilder {
       let sliced = buildSlicedFramework(withName: framework,
                                         platform: platform,
                                         buildDir: buildDir,
-                                        logRoot: logsDir)
+                                        logRoot: logsDir,
+                                        setCarthage: setCarthage)
       slicedFrameworks[platform] = sliced
     }
     return slicedFrameworks
@@ -247,15 +250,17 @@ struct FrameworkBuilder {
   ///   - platform: The platform to target for the build.
   ///   - buildDir: Location where the project should be built.
   ///   - logRoot: Root directory where all logs should be written.
+  ///   - setCarthage: Set Carthage flag in CoreDiagnostics for metrics.
   /// - Returns: A URL to the framework that was built.
   private func buildSlicedFramework(withName framework: String,
                                     platform: TargetPlatform,
                                     buildDir: URL,
-                                    logRoot: URL) -> URL {
+                                    logRoot: URL,
+                                    setCarthage: Bool = false) -> URL {
     let isMacCatalyst = platform == .catalyst
     let isMacCatalystString = isMacCatalyst ? "YES" : "NO"
     let workspacePath = projectDir.appendingPathComponent("FrameworkMaker.xcworkspace").path
-    let distributionFlag = includeCarthage ? "-DFIREBASE_BUILD_CARTHAGE" :
+    let distributionFlag = setCarthage ? "-DFIREBASE_BUILD_CARTHAGE" :
       "-DFIREBASE_BUILD_ZIP_FILE"
     let cFlags = "OTHER_CFLAGS=$(value) \(distributionFlag)"
     let archs = platform.archs.map { $0.rawValue }.joined(separator: " ")
@@ -550,7 +555,8 @@ struct FrameworkBuilder {
       if framework == "FirebaseCoreDiagnostics" {
         // FirebaseCoreDiagnostics needs to be built with a different ifdef for the Carthage distro.
         carthageThinArchives = buildFrameworksForAllPlatforms(withName: framework,
-                                                              logsDir: logsDir)
+                                                              logsDir: logsDir,
+                                                              setCarthage: true)
       } else {
         carthageThinArchives = slicedFrameworks
       }

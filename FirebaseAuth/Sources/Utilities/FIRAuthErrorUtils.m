@@ -286,7 +286,7 @@ static NSString *const kFIRAuthErrorMessageMissingAndroidPackageName =
  */
 static NSString *const kFIRAuthErrorMessageUnauthorizedDomain =
     @"The domain of the continue URL "
-     "is not whitelisted. Please whitelist the domain in the Firebase console.";
+     "is not allowlisted. Please allowlist the domain in the Firebase console.";
 
 /** @var kFIRAuthErrorMessageInvalidContinueURI
     @brief Message for @c FIRAuthErrorCodeInvalidContinueURI error code.
