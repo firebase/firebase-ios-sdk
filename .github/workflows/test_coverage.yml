@@ -50,7 +50,7 @@ jobs:
         rm -r /Users/runner/Library/Developer/Xcode/DerivedData/*
         fi
         scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseDatabase.podspec --platforms=${{ matrix.target }} --test-specs=unit
-        find /Users/runner/Library/Developer/Xcode/DerivedData -regex ".*/.*\.xcresult" -exec echo "xcresult_bundle_path="{} >> $GITHUB_ENV\;
+        find /Users/runner/Library/Developer/Xcode/DerivedData -regex ".*/.*\.xcresult" -exec echo "xcresult_bundle_path="{} >> $GITHUB_ENV \;
      
     - uses: actions/upload-artifact@v2
       with:
