@@ -29,6 +29,7 @@ jobs:
             echo "${run_sdk}"
             echo "::set-output name=${run_sdk}_run_job::true"
           done < ./run_sdk_jobs.txt
+          echo "::set-output name=database_run_job::true"
 
   pod-lib-lint-database:
     # Don't run on private repo unless it is a PR.
