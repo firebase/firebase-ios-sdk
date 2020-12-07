@@ -24,7 +24,7 @@ jobs:
           database_files=( "FirebaseDatabase" \
                                              ".github/workflows/.*" \
                                              #"Example/Database/" \
-"Interop/Auth/Public/.*\.h")
+"Interop/Auth/Public/.*\\.h")
           echo "=============== list changed files ==============="
           cat < <(git diff --name-only HEAD^ HEAD)
           echo "========== check paths of changed files ========== ${database_files[@]}"
