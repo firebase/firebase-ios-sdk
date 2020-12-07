@@ -19,7 +19,13 @@ jobs:
           fetch-depth: 2
       - name: check files
         id: check_files
-        run: ./test.sh
+        run: |
+          ./test.sh
+          while IFS= read -r run_sdk
+          do
+            echo $run_sdk
+          done < run_sdk_jobs.txt
+
   pod-lib-lint-database:
     # Don't run on private repo unless it is a PR.
     needs: check
@@ -43,7 +49,7 @@ jobs:
 
   pod-lib-lint-function:
     # Don't run on private repo unless it is a PR.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+    if: github.repository == 'Firebase/firebase-ios-sdk' && needs.check.outputs.functions_run_job == 'true'
     runs-on: macOS-latest
 
     strategy:
