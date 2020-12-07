@@ -1,7 +1,7 @@
     database_files=( "FirebaseDatabase" \
-                                             ".github/workflows" \
+                                             ".github/workflows/.*" \
                                              #"Example/Database/" \
-"Interop/Auth/Public/.*\.h")
+"Interop/Auth/Public/\.\*.h")
           echo "=============== list changed files ==============="
           cat < <(git diff --name-only HEAD^ HEAD)
           echo "========== check paths of changed files ========== ${database_files[@]}"
@@ -12,7 +12,8 @@
             echo $file
             for path in "${database_files[@]}"
             do
-              if [[ "${file}" =~ "$path"* ]]; then 
+              echo "$path"
+              if [[ "${file}" =~ $path ]]; then 
                 echo "This file is  under the directory "
                 echo "::set-output name=database_run_job::true"
                 break 
