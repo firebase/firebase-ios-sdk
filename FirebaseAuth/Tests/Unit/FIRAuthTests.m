@@ -2349,20 +2349,6 @@ static const NSTimeInterval kWaitInterval = .5;
   [self.mockTokenManager verify];
 }
 
-- (void)testAppDidReceiveRemoteNotification_NotificationManagerHandleCanNotification {
-  NSDictionary *notification = @{@"test" : @""};
-
-  OCMExpect([self.mockNotificationManager canHandleNotification:notification]);
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  [self.fakeApplicationDelegate application:[GULAppDelegateSwizzler sharedApplication]
-               didReceiveRemoteNotification:notification];
-#pragma clang diagnostic pop
-
-  [self.mockNotificationManager verify];
-}
-
 - (void)testAppDidReceiveRemoteNotificationWithCompletion_NotificationManagerHandleCanNotification {
   NSDictionary *notification = @{@"test" : @""};
 
@@ -2377,33 +2363,14 @@ static const NSTimeInterval kWaitInterval = .5;
 }
 
 - (void)testAppOpenURL_AuthPresenterCanHandleURL {
-  if (@available(iOS 9.0, *)) {
-    // 'application:openURL:options:' is only available on iOS 9.0 or newer.
-    NSURL *url = [NSURL URLWithString:@"https://localhost"];
-
-    [OCMExpect([self.mockAuthURLPresenter canHandleURL:url]) andReturnValue:@(YES)];
-
-    XCTAssertTrue([self.fakeApplicationDelegate
-        application:[GULAppDelegateSwizzler sharedApplication]
-            openURL:url
-            options:@{}]);
-
-    [self.mockAuthURLPresenter verify];
-  }
-}
-
-- (void)testAppOpenURLWithSourceApplication_AuthPresenterCanHandleURL {
+  // 'application:openURL:options:' is only available on iOS 9.0 or newer.
   NSURL *url = [NSURL URLWithString:@"https://localhost"];
 
   [OCMExpect([self.mockAuthURLPresenter canHandleURL:url]) andReturnValue:@(YES)];
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   XCTAssertTrue([self.fakeApplicationDelegate application:[GULAppDelegateSwizzler sharedApplication]
                                                   openURL:url
-                                        sourceApplication:@""
-                                               annotation:[[NSObject alloc] init]]);
-#pragma clang diagnostic pop
+                                                  options:@{}]);
 
   [self.mockAuthURLPresenter verify];
 }

@@ -1502,31 +1502,11 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   completionHandler(UIBackgroundFetchResultNoData);
 }
 
-// iOS 10 deprecation
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-implementations"
-- (void)application:(UIApplication *)application
-    didReceiveRemoteNotification:(NSDictionary *)userInfo {
-  [self canHandleNotification:userInfo];
-}
-#pragma clang diagnostic pop
-
 - (BOOL)application:(UIApplication *)app
             openURL:(NSURL *)url
             options:(NSDictionary<UIApplicationOpenURLOptionsKey, id> *)options {
   return [self canHandleURL:url];
 }
-
-// iOS 10 deprecation
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-implementations"
-- (BOOL)application:(UIApplication *)application
-              openURL:(NSURL *)url
-    sourceApplication:(nullable NSString *)sourceApplication
-           annotation:(id)annotation {
-  return [self canHandleURL:url];
-}
-#pragma clang diagnostic pop
 
 - (void)setAPNSToken:(NSData *)token type:(FIRAuthAPNSTokenType)type {
   dispatch_sync(FIRAuthGlobalWorkQueue(), ^{
