@@ -20,15 +20,15 @@ jobs:
       - name: check files
         id: check_files
         run: |
-          ./test.sh
-          echo "=============== Updated jobs to be triggered ================="
-          cat ./run_sdk_jobs.txt
-          echo "=============== Update variables ================="
-          while IFS= read -r run_sdk
-          do
-            echo "${run_sdk}"
-            echo "::set-output name=${run_sdk}_run_job::true"
-          done < ./run_sdk_jobs.txt
+          # ./test.sh
+          # echo "=============== Updated jobs to be triggered ================="
+          # cat ./run_sdk_jobs.txt
+          # echo "=============== Update variables ================="
+          # while IFS= read -r run_sdk
+          # do
+          #   echo "${run_sdk}"
+          #   echo "::set-output name=${run_sdk}_run_job::true"
+          # done < ./run_sdk_jobs.txt
           echo "::set-output name=database_run_job::true"
 
   pod-lib-lint-database:
