@@ -37,7 +37,7 @@ class DownloadHandlers {
 
 /// Manager to handle model downloading device and storing downloaded model info to persistent storage.
 class ModelDownloadTask: NSObject {
-  let app: FirebaseApp
+  private let app: FirebaseApp
   private(set) var modelInfo: ModelInfo
   private var downloadTask: URLSessionDownloadTask?
   private let downloadHandlers: DownloadHandlers

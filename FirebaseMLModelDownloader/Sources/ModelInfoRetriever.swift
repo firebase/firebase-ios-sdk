@@ -35,7 +35,7 @@ extension ModelInfoResponse {
 /// Model info retriever for a model from local user defaults or server.
 class ModelInfoRetriever: NSObject {
   /// Current Firebase app.
-  var app: FirebaseApp
+  private var app: FirebaseApp
   /// Model info associated with model.
   var modelInfo: ModelInfo?
   /// Model name.

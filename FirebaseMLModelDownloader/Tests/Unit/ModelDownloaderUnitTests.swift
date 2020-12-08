@@ -137,7 +137,18 @@ final class ModelDownloaderUnitTests: XCTestCase {
     // This is an example of a functional test case.
     // Use XCTAssert and related functions to verify your tests produce the correct
     // results.
-    let modelDownloader = ModelDownloader()
+    guard let testApp = FirebaseApp.app() else {
+      XCTFail("Default app was not configured.")
+      return
+    }
+
+    guard let modelDownloader = try? ModelDownloader.modelDownloader() else {
+      XCTFail("Default app is not configured.")
+      return
+    }
+
+    let modelDownloaderWithApp = ModelDownloader.modelDownloader(app: testApp)
+
     let conditions = ModelDownloadConditions()
 
     // Download model w/ progress handler
@@ -161,7 +172,7 @@ final class ModelDownloaderUnitTests: XCTestCase {
     }
 
     // Access array of downloaded models
-    modelDownloader.listDownloadedModels { result in
+    modelDownloaderWithApp.listDownloadedModels { result in
       switch result {
       case .success:
         // Pick model(s) for further use
