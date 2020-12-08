@@ -119,7 +119,10 @@ extension CarthageUtils {
       // Analytics includes all the Core frameworks and Firebase module, do extra work to package
       // it.
       if product == "FirebaseAnalytics" {
-        createFirebaseFramework(inDir: fullPath, rootDir: packagedDir, templateDir: templateDir)
+        createFirebaseFramework(version: firebaseVersion,
+                                inDir: fullPath,
+                                rootDir: packagedDir,
+                                templateDir: templateDir)
 
         // Copy the NOTICES file from FirebaseCore.
         let noticesName = "NOTICES"
@@ -238,10 +241,12 @@ extension CarthageUtils {
   /// Creates a fake Firebase.framework to use the module for `import Firebase` compatibility.
   ///
   /// - Parameters:
+  ///   - version: Firebase version.
   ///   - destination: The destination directory for the Firebase framework.
   ///   - rootDir: The root directory that contains other required files (like the Firebase header).
   ///   - templateDir: The template directory containing the dummy Firebase library.
-  private static func createFirebaseFramework(inDir destination: URL,
+  private static func createFirebaseFramework(version: String,
+                                              inDir destination: URL,
                                               rootDir: URL,
                                               templateDir: URL) {
     // Local FileManager for better readability.
@@ -286,12 +291,14 @@ extension CarthageUtils {
     }
 
     // Write the Info.plist.
-    generatePlistContents(forName: "Firebase", to: frameworkDir)
+    generatePlistContents(forName: "Firebase", withVersion: version, to: frameworkDir)
   }
 
-  static func generatePlistContents(forName name: String, to location: URL) {
+  static func generatePlistContents(forName name: String,
+                                    withVersion version: String,
+                                    to location: URL) {
     let plist: [String: String] = ["CFBundleIdentifier": "com.firebase.Firebase-\(name)",
-                                   "CFBundleInfoDictionaryVersion": "6.0",
+                                   "CFBundleInfoDictionaryVersion": version,
                                    "CFBundlePackageType": "FMWK",
                                    "CFBundleVersion": "1",
                                    "DTSDKName": "iphonesimulator11.2",
