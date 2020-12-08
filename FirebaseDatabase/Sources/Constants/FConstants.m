@@ -29,6 +29,7 @@ NSString *const kFWPRequestAction = @"a";
 NSString *const kFWPResponseForRNData = @"b";
 NSString *const kFWPResponseForActionStatus = @"s";
 NSString *const kFWPResponseForActionStatusOk = @"ok";
+NSString *const kFWPResponseForActionStatusFailed = @"failed";
 NSString *const kFWPResponseForActionStatusDataStale = @"datastale";
 NSString *const kFWPResponseForActionData = @"d";
 NSString *const kFWPResponseDataWarnings = @"w";
@@ -140,7 +141,6 @@ NSString *const kFInterruptReasonRepoInterrupt = @"repo_interrupt";
 NSString *const kPayloadPriority = @".priority";
 NSString *const kPayloadValue = @".value";
 NSString *const kPayloadMetadataPrefix = @".";
-NSString *const kPayloadNull = @"<null>";
 
 #pragma mark -
 #pragma mark ServerValue constants

@@ -32,6 +32,7 @@ FOUNDATION_EXPORT NSString *const kFWPRequestAction;
 FOUNDATION_EXPORT NSString *const kFWPResponseForRNData;
 FOUNDATION_EXPORT NSString *const kFWPResponseForActionStatus;
 FOUNDATION_EXPORT NSString *const kFWPResponseForActionStatusOk;
+FOUNDATION_EXPORT NSString *const kFWPResponseForActionStatusFailed;
 FOUNDATION_EXPORT NSString *const kFWPResponseForActionStatusDataStale;
 FOUNDATION_EXPORT NSString *const kFWPResponseForActionData;
 FOUNDATION_EXPORT NSString *const kFWPResponseDataWarnings;
@@ -148,7 +149,6 @@ FOUNDATION_EXPORT NSString *const kFInterruptReasonAuthExpired;
 FOUNDATION_EXPORT NSString *const kPayloadPriority;
 FOUNDATION_EXPORT NSString *const kPayloadValue;
 FOUNDATION_EXPORT NSString *const kPayloadMetadataPrefix;
-FOUNDATION_EXPORT NSString *const kPayloadNull;
 
 #pragma mark -
 #pragma mark ServerValue constants
