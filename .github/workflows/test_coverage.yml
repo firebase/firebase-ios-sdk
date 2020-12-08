@@ -3,8 +3,6 @@ name: test_coverage
 on: [pull_request]
           #run specific jobs when specific files are updated.
           #https://github.community/t/how-to-execute-jobs-if-folder-updated-recursive/117344/5
-env:
-  GITHUB_PULL_REQUEST_BASE_SHA: ${{github.context.pull_request.base.sha}}
 
 jobs:
   check:
@@ -87,6 +85,6 @@ jobs:
     steps:
       - uses: actions/download-artifact@v2
         with:
-          path: ./test/
+          path: /Users/runner/test
       - name: display results
-        run: find ./test/ -regex ".*/.*\.xcresult" -exec xcrun xccov view {} \;
+        run: find /Users/runner/test/ -print -regex ".*/.*\.xcresult" -exec xcrun xccov view {} \;
