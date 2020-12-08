@@ -17,6 +17,7 @@
 #import "FirebaseDatabase/Sources/Core/FPersistentConnection.h"
 #import "FirebaseDatabase/Sources/Core/FRepoInfo.h"
 #import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRDataEventType.h"
+#import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRDatabaseQuery.h"
 #import "FirebaseDatabase/Sources/Utilities/Tuples/FTupleUserCallback.h"
 #import <Foundation/Foundation.h>
 
@@ -45,7 +46,7 @@
     withCallback:(fbt_void_nserror_ref)callback;
 - (void)purgeOutstandingWrites;
 
-- (void)getValue:(FQuerySpec *)query
+- (void)getValue:(FIRDatabaseQuery *)query
     withCompletionBlock:
         (void (^_Nonnull)(NSError *__nullable error,
                           FIRDataSnapshot *__nullable snapshot))block;

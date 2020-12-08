@@ -140,6 +140,7 @@ NSString *const kFInterruptReasonRepoInterrupt = @"repo_interrupt";
 NSString *const kPayloadPriority = @".priority";
 NSString *const kPayloadValue = @".value";
 NSString *const kPayloadMetadataPrefix = @".";
+NSString *const kPayloadNull = @"<null>";
 
 #pragma mark -
 #pragma mark ServerValue constants

@@ -522,19 +522,20 @@
     [self.connection
                  get:[query.path toString]
           withParams:querySpec.params.wireProtocolParams
-        withCallback:^(NSString *status, NSString *data,
-                       NSString *errorReason) {
+        withCallback:^(NSString *status, id data, NSString *errorReason) {
+          id<FNode> node;
           if (![status isEqualToString:kFWPResponseForActionStatusOk]) {
               FFLog(@"I-RDB038024",
                     @"getValue for query %@ falling back to cache",
                     [querySpec.path toString]);
-              id<FNode> cached = [self.serverSyncTree
+              node = [self.serverSyncTree
                   calcCompleteEventCacheAtPath:querySpec.path
                                excludeWriteIds:@[]];
-              if ([cached isEmpty]) {
+              if ([node isEmpty]) {
                   FFWarn(@"I-RDB038025", @"getValue for query at %@ failed: %@",
                          [querySpec.path toString], status);
                   NSDictionary *errorDict = @{
+                      NSLocalizedFailureReasonErrorKey : errorReason,
                       NSLocalizedDescriptionKey : [NSString
                           stringWithFormat:
                               @"Unable to get latest value for query %@, "
@@ -548,24 +549,18 @@
                   return;
               }
           } else {
-              id<FNode> node = [FSnapshotUtilities
-                  nodeFrom:[NSJSONSerialization
-                               JSONObjectWithData:
-                                   [data dataUsingEncoding:NSUTF8StringEncoding]
-                                          options:kNilOptions
-                                            error:nil]];
-              [self.eventRaiser
-                  raiseEvents:[self.serverSyncTree
-                                  applyServerOverwriteAtPath:[query path]
-                                                     newData:node]];
-              block(nil,
-                    [[FIRDataSnapshot alloc]
-                        initWithRef:query.ref
-                        indexedNode:[FIndexedNode
-                                        indexedNodeWithNode:node
-                                                      index:querySpec.index]]);
-              [self.persistenceManager setQueryInactive:querySpec];
+              node = [FSnapshotUtilities nodeFrom:data];
           }
+          [self.eventRaiser
+              raiseEvents:[self.serverSyncTree
+                              applyServerOverwriteAtPath:[query path]
+                                                 newData:node]];
+          block(nil, [[FIRDataSnapshot alloc]
+                         initWithRef:query.ref
+                         indexedNode:[FIndexedNode
+                                         indexedNodeWithNode:node
+                                                       index:querySpec.index]]);
+          [self.persistenceManager setQueryInactive:querySpec];
         }];
 }
 

@@ -583,7 +583,9 @@
 
 - (void)getDataWithCompletionBlock:(void (^)(NSError *__nullable error,
                                              FIRDataSnapshot *snapshot))block {
-    [self.repo getValue:self withCompletionBlock:block];
+    dispatch_async([FIRDatabaseQuery sharedQueue], ^{
+      [self.repo getValue:self withCompletionBlock:block];
+    });
 }
 
 - (void)observeSingleEventOfType:(FIRDataEventType)eventType

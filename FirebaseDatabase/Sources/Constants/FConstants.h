@@ -148,6 +148,7 @@ FOUNDATION_EXPORT NSString *const kFInterruptReasonAuthExpired;
 FOUNDATION_EXPORT NSString *const kPayloadPriority;
 FOUNDATION_EXPORT NSString *const kPayloadValue;
 FOUNDATION_EXPORT NSString *const kPayloadMetadataPrefix;
+FOUNDATION_EXPORT NSString *const kPayloadNull;
 
 #pragma mark -
 #pragma mark ServerValue constants
