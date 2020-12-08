@@ -297,10 +297,11 @@ extension CarthageUtils {
   static func generatePlistContents(forName name: String,
                                     withVersion version: String,
                                     to location: URL) {
+    let ver = version.components(separatedBy: "-")[0] // remove any version suffix.
     let plist: [String: String] = ["CFBundleIdentifier": "com.firebase.Firebase-\(name)",
-                                   "CFBundleInfoDictionaryVersion": version,
+                                   "CFBundleInfoDictionaryVersion": "6.0",
                                    "CFBundlePackageType": "FMWK",
-                                   "CFBundleVersion": "1",
+                                   "CFBundleVersion": ver,
                                    "DTSDKName": "iphonesimulator11.2",
                                    "CFBundleExecutable": name,
                                    "CFBundleName": name]
