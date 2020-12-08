@@ -53,7 +53,7 @@ jobs:
         rm -r /Users/runner/Library/Developer/Xcode/DerivedData/*
         fi
         scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseDatabase.podspec --platforms=${{ matrix.target }} --test-specs=unit
-        find /Users/runner/Library/Developer/Xcode/DerivedData -regex ".*/.*\.xcresult" -exec mv -t "/Users/runner/${SDK}-${{ matrix.target }}.xcresult" {} \;
+        find /Users/runner/Library/Developer/Xcode/DerivedData -regex ".*/.*\.xcresult" -exec mv -f {} "/Users/runner/${SDK}-${{ matrix.target }}.xcresult" \;
     - uses: actions/upload-artifact@v2
       with:
         name: my-artifact
