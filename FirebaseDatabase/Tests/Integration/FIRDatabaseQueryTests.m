@@ -3150,22 +3150,27 @@
   WAIT_FOR(done);
 }
 
-static NSString* kFirebaseDatabaseEmulatorUrlFmt = @"http://localhost:9000?ns=%@";
+- (FIRDatabase*)databaseForURL:(NSString*)url name:(NSString*)name {
+  NSString* defaultDatabaseURL = [NSString stringWithFormat:@"url:%@", self.databaseURL];
+  if ([url isEqualToString:self.databaseURL] && [name isEqualToString:defaultDatabaseURL]) {
+    // Use the default app for the default URL to avoid getting out of sync with FRepoManager
+    // when calling ensureRepo during tests that don't create their own FIRFakeApp.
+    return [FTestHelpers defaultDatabase];
+  } else {
+    id app = [[FIRFakeApp alloc] initWithName:name URL:url];
+    return [FIRDatabase databaseForApp:app];
+  }
+}
 
 - (void)testGetRetrievesLatestValueEvenIfCached {
-  NSString* url =
-      [NSString stringWithFormat:kFirebaseDatabaseEmulatorUrlFmt, [[NSUUID UUID] UUIDString]];
+  FIRDatabase* db = [self databaseForURL:self.databaseURL name:[[NSUUID UUID] UUIDString]];
+  FIRDatabase* db2 = [self databaseForURL:self.databaseURL name:[[NSUUID UUID] UUIDString]];
+  XCTAssertNotEqual(db, db2);
 
-  id writerApp = [[FIRFakeApp alloc] initWithName:@"writer" URL:url];
-  id readerApp = [[FIRFakeApp alloc] initWithName:@"reader" URL:url];
-
-  FIRDatabase* db = [FIRDatabase databaseForApp:readerApp];
   FIRDatabaseReference* readRef = [db reference];
-
-  FIRDatabase* db2 = [FIRDatabase databaseForApp:writerApp];
   FIRDatabaseReference* writeRef = [db2 reference];
 
-  XCTAssertNotEqual(db, db2);
+  XCTAssertNotEqual(readRef, writeRef);
 
   __block BOOL done = NO;
 
@@ -3204,28 +3209,26 @@ static NSString* kFirebaseDatabaseEmulatorUrlFmt = @"http://localhost:9000?ns=%@
 }
 
 - (void)testGetUpdatesPersistenceCacheWhenEnabled {
-  NSString* url =
-      [NSString stringWithFormat:kFirebaseDatabaseEmulatorUrlFmt, [[NSUUID UUID] UUIDString]];
-  id writerApp = [[FIRFakeApp alloc] initWithName:@"writer" URL:url];
-  id readerApp = [[FIRFakeApp alloc] initWithName:@"reader" URL:url];
-  FIRDatabase* writer = [FIRDatabase databaseForApp:writerApp];
-  FIRDatabase* reader = [FIRDatabase databaseForApp:readerApp];
-  [reader setPersistenceEnabled:true];
+  FIRDatabase* db = [self databaseForURL:self.databaseURL name:[[NSUUID UUID] UUIDString]];
+  FIRDatabase* db2 = [self databaseForURL:self.databaseURL name:[[NSUUID UUID] UUIDString]];
+
+  [db2 setPersistenceEnabled:true];
+
+  FIRDatabaseReference* writeRef = [db reference];
+  FIRDatabaseReference* readRef = [db2 reference];
 
   __block BOOL done = NO;
 
-  [writer.reference setValue:@42
-         withCompletionBlock:^(NSError* error, FIRDatabaseReference* ref) {
-           XCTAssertNil(error);
-           done = YES;
-         }];
+  [writeRef setValue:@42
+      withCompletionBlock:^(NSError* error, FIRDatabaseReference* ref) {
+        XCTAssertNil(error);
+        done = YES;
+      }];
 
   WAIT_FOR(done);
   done = NO;
 
-  FIRDatabaseReference* ref = reader.reference;
-
-  [ref getDataWithCompletionBlock:^(NSError* err, FIRDataSnapshot* snapshot) {
+  [readRef getDataWithCompletionBlock:^(NSError* err, FIRDataSnapshot* snapshot) {
     XCTAssertNil(err);
     XCTAssertEqualObjects(snapshot.value, @42);
     done = YES;
@@ -3234,13 +3237,13 @@ static NSString* kFirebaseDatabaseEmulatorUrlFmt = @"http://localhost:9000?ns=%@
   WAIT_FOR(done);
   done = NO;
 
-  [reader goOffline];
+  [db2 goOffline];
 
-  [ref observeEventType:FIRDataEventTypeValue
-              withBlock:^(FIRDataSnapshot* snapshot) {
-                XCTAssertEqualObjects(snapshot.value, @42);
-                done = YES;
-              }];
+  [readRef observeEventType:FIRDataEventTypeValue
+                  withBlock:^(FIRDataSnapshot* snapshot) {
+                    XCTAssertEqualObjects(snapshot.value, @42);
+                    done = YES;
+                  }];
 
   WAIT_FOR(done);
 }

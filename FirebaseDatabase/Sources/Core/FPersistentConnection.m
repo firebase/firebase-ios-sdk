@@ -836,7 +836,8 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref,
               }
               get.sent = YES;
               [self.outstandingGets removeObjectForKey:index];
-              get.onCompleteBlock(kFWPResponseForActionStatusFailed, nil, kPersistentConnOffline);
+              get.onCompleteBlock(kFWPResponseForActionStatusFailed, nil,
+                                  kPersistentConnOffline);
             });
         return;
     }
