@@ -106,6 +106,19 @@ extension CarthageUtils {
       let fullPath = packagedDir.appendingPathComponent(product)
       guard FileManager.default.isDirectory(at: fullPath) else { continue }
 
+      // Abort Carthage generation if there are any xcframeworks.
+      do {
+        let files = try FileManager.default.contentsOfDirectory(at: fullPath,
+                                                                includingPropertiesForKeys: nil)
+        let xcfFiles = files.filter { $0.pathExtension == "xcframework" }
+        if xcfFiles.count > 0 {
+          print("Skipping Carthage generation for \(product) since it includes xcframeworks.")
+          continue
+        }
+      } catch {
+        fatalError("Failed to get contents of \(fullPath).")
+      }
+
       // Parse the JSON file, ensure that we're not trying to overwrite a release.
       var jsonManifest = parseJSONFile(fromDir: jsonDir, product: product)
 
