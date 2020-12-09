@@ -19,12 +19,19 @@
 #import "FIRAppCheckProvider.h"
 
 @class FIRApp;
+@protocol FIRAppCheckDebugProviderAPIServiceProtocol;
 
 NS_ASSUME_NONNULL_BEGIN
 
 // TODO: Add more detailed documentation on how to use the debug provider.
 
 @interface FIRAppCheckDebugProvider : NSObject <FIRAppCheckProvider>
+
+- (instancetype)init NS_UNAVAILABLE;
+
+- (nullable instancetype)initWithApp:(FIRApp *)app;
+
+- (instancetype)initWithAPIService:(id<FIRAppCheckDebugProviderAPIServiceProtocol>)APIService;
 
 /** Return the locally generated token. */
 - (NSString *)localDebugToken;

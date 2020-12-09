@@ -25,6 +25,7 @@
 
 #import "FirebaseAppCheck/Sources/Core/APIService/FIRAppCheckAPIService.h"
 #import "FirebaseAppCheck/Sources/Core/FIRAppCheckLogger.h"
+#import "FirebaseAppCheck/Sources/Core/FIRAppCheckValidator.h"
 #import "FirebaseAppCheck/Sources/DeviceCheckProvider/API/FIRDeviceCheckAPIService.h"
 #import "FirebaseAppCheck/Sources/DeviceCheckProvider/DCDevice+FIRDeviceCheckTokenGenerator.h"
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckToken.h"
@@ -55,7 +56,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (nullable instancetype)initWithApp:(FIRApp *)app {
-  NSArray<NSString *> *missingOptionsFields = [[self class] missingFieldsInOptions:app.options];
+  NSArray<NSString *> *missingOptionsFields =
+      [FIRAppCheckValidator tokenExchangeMissingFieldsInOptions:app.options];
   if (missingOptionsFields.count > 0) {
     FIRLogError(kFIRLoggerAppCheck, kFIRLoggerAppCheckMessageCodeUnknown,
                 @"Cannot instantiate `FIRDeviceCheckProvider` for app: %@. The following "
@@ -65,7 +67,7 @@ NS_ASSUME_NONNULL_BEGIN
   }
 
   NSURLSession *URLSession = [NSURLSession
-      sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]];
+      sessionWithConfiguration:[NSURLSessionConfiguration ephemeralSessionConfiguration]];
 
   FIRAppCheckAPIService *APIService =
       [[FIRAppCheckAPIService alloc] initWithURLSession:URLSession
@@ -79,24 +81,6 @@ NS_ASSUME_NONNULL_BEGIN
                                                      appID:app.options.googleAppID];
 
   return [self initWithAPIService:deviceCheckAPIService];
-}
-
-+ (NSArray<NSString *> *)missingFieldsInOptions:(FIROptions *)options {
-  NSMutableArray<NSString *> *missingFields = [NSMutableArray array];
-
-  if (options.APIKey.length < 1) {
-    [missingFields addObject:@"APIKey"];
-  }
-
-  if (options.projectID.length < 1) {
-    [missingFields addObject:@"projectID"];
-  }
-
-  if (options.googleAppID.length < 1) {
-    [missingFields addObject:@"googleAppID"];
-  }
-
-  return [missingFields copy];
 }
 
 #pragma mark - FIRAppCheckProvider

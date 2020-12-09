@@ -27,11 +27,17 @@
 @implementation FIRAppCheckDebugProviderFactoryTests
 
 - (void)testCreateProviderWithApp {
-  FIRAppCheckDebugProviderFactory *factory = [[FIRAppCheckDebugProviderFactory alloc] init];
-  FIRApp *dummyApp = (FIRApp *)[[NSObject alloc] init];
+  FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:@"app_id" GCMSenderID:@"sender_id"];
+  options.APIKey = @"api_key";
+  options.projectID = @"project_id";
+  FIRApp *app = [[FIRApp alloc] initInstanceWithName:@"testInitWithValidApp" options:options];
 
-  XCTAssert(
-      [[factory createProviderWithApp:dummyApp] isKindOfClass:[FIRAppCheckDebugProvider class]]);
+  FIRAppCheckDebugProviderFactory *factory = [[FIRAppCheckDebugProviderFactory alloc] init];
+
+  FIRAppCheckDebugProvider *createdProvider = [factory createProviderWithApp:app];
+
+  XCTAssert([createdProvider isKindOfClass:[FIRAppCheckDebugProvider class]]);
+  XCTAssertNotNil([createdProvider currentDebugToken]);
 }
 
 @end

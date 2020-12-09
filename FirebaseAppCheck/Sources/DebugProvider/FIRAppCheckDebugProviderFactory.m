@@ -24,7 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FIRAppCheckDebugProviderFactory
 
 - (nullable id<FIRAppCheckProvider>)createProviderWithApp:(FIRApp *)app {
-  FIRAppCheckDebugProvider *provider = [[FIRAppCheckDebugProvider alloc] init];
+  FIRAppCheckDebugProvider *provider = [[FIRAppCheckDebugProvider alloc] initWithApp:app];
 
   // Print only locally generated token to avoid a valid token leak on CI.
   FIRLogWarning(kFIRLoggerAppCheck, kFIRLoggerAppCheckMessageCodeUnknown,

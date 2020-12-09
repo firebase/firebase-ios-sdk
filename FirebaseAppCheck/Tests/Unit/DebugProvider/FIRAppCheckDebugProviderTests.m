@@ -15,10 +15,15 @@
  */
 
 #import <XCTest/XCTest.h>
+
+#import "FBLPromise+Testing.h"
 #import "OCMock.h"
 
+#import "FirebaseAppCheck/Sources/DebugProvider/API/FIRAppCheckDebugProviderAPIService.h"
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckDebugProvider.h"
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckToken.h"
+
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 static NSString *const kDebugTokenEnvKey = @"FIRAAppCheckDebugToken";
 static NSString *const kDebugTokenUserDefaultsKey = @"FIRAAppCheckDebugToken";
@@ -27,6 +32,7 @@ static NSString *const kDebugTokenUserDefaultsKey = @"FIRAAppCheckDebugToken";
 
 @property(nonatomic) FIRAppCheckDebugProvider *provider;
 @property(nonatomic) id processInfoMock;
+@property(nonatomic) id fakeAPIService;
 
 @end
 
@@ -36,9 +42,10 @@ typedef void (^FIRAppCheckTokenValidationBlock)(FIRAppCheckToken *_Nullable toke
 @implementation FIRAppCheckDebugProviderTests
 
 - (void)setUp {
-  self.provider = [[FIRAppCheckDebugProvider alloc] init];
-
   self.processInfoMock = OCMPartialMock([NSProcessInfo processInfo]);
+
+  self.fakeAPIService = OCMProtocolMock(@protocol(FIRAppCheckDebugProviderAPIServiceProtocol));
+  self.provider = [[FIRAppCheckDebugProvider alloc] initWithAPIService:self.fakeAPIService];
 }
 
 - (void)tearDown {
@@ -48,45 +55,107 @@ typedef void (^FIRAppCheckTokenValidationBlock)(FIRAppCheckToken *_Nullable toke
   [[NSUserDefaults standardUserDefaults] removeObjectForKey:kDebugTokenUserDefaultsKey];
 }
 
-- (void)testGetTokenWhenEnvironmentVariableSetAndTokenStored {
+#pragma mark - Initialization
+
+- (void)testInitWithValidApp {
+  FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:@"app_id" GCMSenderID:@"sender_id"];
+  options.APIKey = @"api_key";
+  options.projectID = @"project_id";
+  FIRApp *app = [[FIRApp alloc] initInstanceWithName:@"testInitWithValidApp" options:options];
+
+  XCTAssertNotNil([[FIRAppCheckDebugProvider alloc] initWithApp:app]);
+}
+
+- (void)testInitWithIncompleteApp {
+  FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:@"app_id" GCMSenderID:@"sender_id"];
+
+  options.projectID = @"project_id";
+  FIRApp *missingAPIKeyApp = [[FIRApp alloc] initInstanceWithName:@"testInitWithValidApp"
+                                                          options:options];
+  XCTAssertNil([[FIRAppCheckDebugProvider alloc] initWithApp:missingAPIKeyApp]);
+
+  options.projectID = nil;
+  options.APIKey = @"api_key";
+  FIRApp *missingProjectIDApp = [[FIRApp alloc] initInstanceWithName:@"testInitWithValidApp"
+                                                             options:options];
+  XCTAssertNil([[FIRAppCheckDebugProvider alloc] initWithApp:missingProjectIDApp]);
+}
+
+#pragma mark - Debug token generating/storing
+
+- (void)testCurrentTokenWhenEnvironmentVariableSetAndTokenStored {
   [[NSUserDefaults standardUserDefaults] setObject:@"stored token"
                                             forKey:kDebugTokenUserDefaultsKey];
   NSString *envToken = @"env token";
   OCMStub([self.processInfoMock processInfo]).andReturn(self.processInfoMock);
   OCMExpect([self.processInfoMock environment]).andReturn(@{kDebugTokenEnvKey : envToken});
 
-  [self validateGetToken:^void(FIRAppCheckToken *_Nullable token, NSError *_Nullable error) {
-    XCTAssertNil(error);
-    XCTAssertEqualObjects(token.token, envToken);
-  }];
+  XCTAssertEqualObjects([self.provider currentDebugToken], envToken);
 }
 
-- (void)testGetTokenWhenNoEnvironmentVariableAndTokenStored {
+- (void)testCurrentTokenWhenNoEnvironmentVariableAndTokenStored {
   NSString *storedToken = @"stored token";
   [[NSUserDefaults standardUserDefaults] setObject:storedToken forKey:kDebugTokenUserDefaultsKey];
 
   XCTAssertNil(NSProcessInfo.processInfo.environment[kDebugTokenEnvKey]);
 
-  [self validateGetToken:^void(FIRAppCheckToken *_Nullable token, NSError *_Nullable error) {
-    XCTAssertNil(error);
-    XCTAssertEqualObjects(token.token, storedToken);
-  }];
+  XCTAssertEqualObjects([self.provider currentDebugToken], storedToken);
 }
 
-- (void)testGetTokenWhenNoEnvironmentVariableAndNoTokenStored {
+- (void)testCurrentTokenWhenNoEnvironmentVariableAndNoTokenStored {
   XCTAssertNil(NSProcessInfo.processInfo.environment[kDebugTokenEnvKey]);
   XCTAssertNil([[NSUserDefaults standardUserDefaults] stringForKey:kDebugTokenUserDefaultsKey]);
 
-  __block NSString *generatedToken;
-  [self validateGetToken:^void(FIRAppCheckToken *_Nullable token, NSError *_Nullable error) {
-    XCTAssertNil(error);
-    XCTAssertNotNil(token.token);
-    generatedToken = token.token;
-  }];
+  NSString *generatedToken = [self.provider currentDebugToken];
+  XCTAssertNotNil(generatedToken);
 
+  // Check if the generated token is stored to the user defaults.
   XCTAssertEqualObjects(
       [[NSUserDefaults standardUserDefaults] stringForKey:kDebugTokenUserDefaultsKey],
       generatedToken);
+
+  // Check if the same token is used once generated.
+  XCTAssertEqualObjects([self.provider currentDebugToken], generatedToken);
+}
+
+#pragma mark - Debug token to FAC token exchange
+
+- (void)testGetTokenSuccess {
+  // 1. Stub API service.
+  NSString *expectedDebugToken = [self.provider currentDebugToken];
+  FIRAppCheckToken *validToken = [[FIRAppCheckToken alloc] initWithToken:@"valid_token"
+                                                          expirationDate:[NSDate date]];
+  OCMExpect([self.fakeAPIService appCheckTokenWithDebugToken:expectedDebugToken])
+      .andReturn([FBLPromise resolvedWith:validToken]);
+
+  // 2. Validate get token.
+  [self validateGetToken:^(FIRAppCheckToken *_Nullable token, NSError *_Nullable error) {
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(token.token, validToken.token);
+    XCTAssertEqualObjects(token.expirationDate, validToken.expirationDate);
+  }];
+
+  // 3. Verify fakes.
+  OCMVerifyAll(self.fakeAPIService);
+}
+
+- (void)testGetTokenAPIError {
+  // 1. Stub API service.
+  NSString *expectedDebugToken = [self.provider currentDebugToken];
+  NSError *APIError = [NSError errorWithDomain:@"testGetTokenAPIError" code:-1 userInfo:nil];
+  FBLPromise *rejectedPromise = [FBLPromise pendingPromise];
+  [rejectedPromise reject:APIError];
+  OCMExpect([self.fakeAPIService appCheckTokenWithDebugToken:expectedDebugToken])
+      .andReturn(rejectedPromise);
+
+  // 2. Validate get token.
+  [self validateGetToken:^(FIRAppCheckToken *_Nullable token, NSError *_Nullable error) {
+    XCTAssertEqualObjects(error, APIError);
+    XCTAssertNil(token);
+  }];
+
+  // 3. Verify fakes.
+  OCMVerifyAll(self.fakeAPIService);
 }
 
 #pragma mark - Helpers
