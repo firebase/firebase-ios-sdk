@@ -40,15 +40,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       }
     })
 
-    FIRAppCheckDebugProvider().getToken(completion: { token, error in
-      if let token = token {
-        print("Debug token: \(token.token), expiration date: \(token.expirationDate)")
-      }
+    if let debugProvider = FIRAppCheckDebugProvider(app: firebaseApp) {
+      print("Debug token: \(debugProvider.currentDebugToken())")
 
-      if let error = error {
-        print("Debug error: \(error)")
-      }
-    })
+      debugProvider.getToken(completion: { token, error in
+        if let token = token {
+          print("Debug FAC token: \(token.token), expiration date: \(token.expirationDate)")
+        }
+
+        if let error = error {
+          print("Debug error: \(error)")
+        }
+      })
+    }
 
     return true
   }
