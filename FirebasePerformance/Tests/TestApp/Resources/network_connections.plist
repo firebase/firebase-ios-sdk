@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>PerfURLConnectionWithDelegateClassInit</key>
+	<string>https://blog.mozilla.org/security/files/2015/05/HTTPS-FAQ.pdf</string>
+	<key>PerfURLConnectionWithDelegate</key>
+	<string>https://blog.mozilla.org/security/files/2015/05/HTTPS-FAQ.pdf</string>
+	<key>PerfURLConnectionWithDelegateStartImmediately</key>
+	<string>https://blog.mozilla.org/security/files/2015/05/HTTPS-FAQ.pdf</string>
+	<key>PerfURLConnectionAsyncRequest</key>
+	<string>https://blog.mozilla.org/security/files/2015/05/HTTPS-FAQ.pdf</string>
+	<key>PerfURLSessionDownloadTaskWithDelegate</key>
+	<string>https://blog.mozilla.org/security/files/2015/05/HTTPS-FAQ.pdf</string>
+	<key>PerfURLSessionDataTaskWithDelegate</key>
+	<string>https://blog.mozilla.org/security/files/2015/05/HTTPS-FAQ.pdf</string>
+	<key>PerfURLSessionDownloadTask</key>
+	<string>https://blog.mozilla.org/security/files/2015/05/HTTPS-FAQ.pdf</string>
+	<key>PerfURLSessionDataTask</key>
+	<string>https://blog.mozilla.org/security/files/2015/05/HTTPS-FAQ.pdf</string>
+</dict>
+</plist>

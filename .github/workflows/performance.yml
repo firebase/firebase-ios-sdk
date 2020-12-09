@@ -28,8 +28,6 @@ jobs:
     runs-on: macos-latest
     steps:
     - uses: actions/checkout@v2
-      with:
-        ref: perf
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: BuildAndTest # can be replaced with pod lib lint with CocoaPods 1.10
@@ -47,8 +45,6 @@ jobs:
         target: [ios]
     steps:
     - uses: actions/checkout@v2
-      with:
-        ref: perf
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Build
