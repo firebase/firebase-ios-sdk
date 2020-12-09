@@ -27,7 +27,7 @@ class AuthStateDidChangePublisherTests: XCTestCase {
 
   static let email = "johnnyappleseed@apple.com"
   static let password = "secret"
-  static let localId = "LOCAL_ID"
+  static let localID = "LOCAL_ID"
   static let displayName = "Johnny Appleseed"
   static let passwordHash = "UkVEQUNURUQ="
 
@@ -40,7 +40,7 @@ class AuthStateDidChangePublisherTests: XCTestCase {
   }
 
   class MockGetAccountInfoResponseUser: FIRGetAccountInfoResponseUser {
-    override var localID: String { return AuthStateDidChangePublisherTests.localId }
+    override var localID: String { return AuthStateDidChangePublisherTests.localID }
     override var email: String { return AuthStateDidChangePublisherTests.email }
     override var displayName: String { return AuthStateDidChangePublisherTests.displayName }
   }
@@ -52,7 +52,7 @@ class AuthStateDidChangePublisherTests: XCTestCase {
   }
 
   class MockVerifyPasswordResponse: FIRVerifyPasswordResponse {
-    override var localID: String { return AuthStateDidChangePublisherTests.localId }
+    override var localID: String { return AuthStateDidChangePublisherTests.localID }
     override var email: String { return AuthStateDidChangePublisherTests.email }
     override var displayName: String { return AuthStateDidChangePublisherTests.displayName }
     override var idToken: String { return AuthStateDidChangePublisherTests.accessToken }

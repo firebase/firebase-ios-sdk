@@ -45,7 +45,7 @@ class SignInWithCustomTokenTests: XCTestCase {
 
   static let email = "johnnyappleseed@apple.com"
   static let password = "secret"
-  static let localId = "LOCAL_ID"
+  static let localID = "LOCAL_ID"
   static let displayName = "Johnny Appleseed"
   static let passwordHash = "UkVEQUNURUQ="
 
@@ -66,7 +66,7 @@ class SignInWithCustomTokenTests: XCTestCase {
   }
 
   class MockGetAccountInfoResponseUser: FIRGetAccountInfoResponseUser {
-    override var localID: String? { return SignInWithCustomTokenTests.localId }
+    override var localID: String? { return SignInWithCustomTokenTests.localID }
     override var displayName: String { return SignInWithCustomTokenTests.displayName }
     override var email: String? { return SignInWithCustomTokenTests.email }
     override var passwordHash: String? { return SignInWithCustomTokenTests.passwordHash }
@@ -117,7 +117,7 @@ class SignInWithCustomTokenTests: XCTestCase {
       } receiveValue: { authDataResult in
         let user = authDataResult.user
         XCTAssertNotNil(user)
-        XCTAssertEqual(user.uid, SignInWithCustomTokenTests.localId)
+        XCTAssertEqual(user.uid, SignInWithCustomTokenTests.localID)
         XCTAssertEqual(user.displayName, SignInWithCustomTokenTests.displayName)
         XCTAssertEqual(user.email, SignInWithCustomTokenTests.email)
         XCTAssertFalse(user.isAnonymous)

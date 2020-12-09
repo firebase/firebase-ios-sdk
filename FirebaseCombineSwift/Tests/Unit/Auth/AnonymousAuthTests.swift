@@ -42,7 +42,7 @@ class AnonymousAuthTests: XCTestCase {
   static let accessTokenTimeToLive: TimeInterval = 60 * 60
   static let refreshToken = "REFRESH_TOKEN"
   static let accessToken = "ACCESS_TOKEN"
-  static let localId = "LOCAL_ID"
+  static let localID = "LOCAL_ID"
 
   class MockSignUpNewUserResponse: FIRSignUpNewUserResponse {
     override var idToken: String { return AnonymousAuthTests.accessToken }
@@ -53,7 +53,7 @@ class AnonymousAuthTests: XCTestCase {
   }
 
   class MockGetAccountInfoResponseUser: FIRGetAccountInfoResponseUser {
-    override var localID: String { return AnonymousAuthTests.localId }
+    override var localID: String { return AnonymousAuthTests.localID }
   }
 
   class MockGetAccountInfoResponse: FIRGetAccountInfoResponse {
@@ -101,7 +101,7 @@ class AnonymousAuthTests: XCTestCase {
         }
       } receiveValue: { authDataResult in
         XCTAssertNotNil(authDataResult.user)
-        XCTAssertEqual(authDataResult.user.uid, AnonymousAuthTests.localId)
+        XCTAssertEqual(authDataResult.user.uid, AnonymousAuthTests.localID)
         XCTAssertNil(authDataResult.user.displayName)
         XCTAssertTrue(authDataResult.user.isAnonymous)
         XCTAssertEqual(authDataResult.user.providerData.count, 0)

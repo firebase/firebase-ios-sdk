@@ -45,7 +45,7 @@ class EmailLinkAuthTests: XCTestCase {
 
   static let email = "johnnyappleseed@apple.com"
   static let password = "secret"
-  static let localId = "LOCAL_ID"
+  static let localID = "LOCAL_ID"
   static let displayName = "Johnny Appleseed"
   static let passwordHash = "UkVEQUNURUQ="
 
@@ -63,7 +63,7 @@ class EmailLinkAuthTests: XCTestCase {
   }
 
   class MockGetAccountInfoResponseUser: FIRGetAccountInfoResponseUser {
-    override var localID: String { return EmailLinkAuthTests.localId }
+    override var localID: String { return EmailLinkAuthTests.localID }
     override var email: String { return EmailLinkAuthTests.email }
     override var displayName: String { return EmailLinkAuthTests.displayName }
   }

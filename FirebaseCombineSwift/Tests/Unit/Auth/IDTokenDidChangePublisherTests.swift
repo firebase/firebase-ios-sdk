@@ -27,11 +27,11 @@ class IDTokenDidChangePublisherTests: XCTestCase {
 
   static let email = "johnnyappleseed@apple.com"
   static let password = "secret"
-  static let localId = "LOCAL_ID"
+  static let localID = "LOCAL_ID"
   static let displayName = "Johnny Appleseed"
 
   class MockGetAccountInfoResponseUser: FIRGetAccountInfoResponseUser {
-    override var localID: String { return IDTokenDidChangePublisherTests.localId }
+    override var localID: String { return IDTokenDidChangePublisherTests.localID }
     override var email: String { return IDTokenDidChangePublisherTests.email }
     override var displayName: String { return IDTokenDidChangePublisherTests.displayName }
   }

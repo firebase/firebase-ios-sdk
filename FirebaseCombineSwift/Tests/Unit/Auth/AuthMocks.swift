@@ -16,9 +16,6 @@ import Foundation
 @testable import FirebaseAuth
 
 let expectationTimeout: TimeInterval = 2
-let kAccessTokenTimeToLive: TimeInterval = 60 * 60
-let kRefreshToken = "REFRESH_TOKEN"
-let kAccessToken = "ACCESS_TOKEN"
 
 class AuthBackendImplementationMock: NSObject, FIRAuthBackendImplementation {}
 

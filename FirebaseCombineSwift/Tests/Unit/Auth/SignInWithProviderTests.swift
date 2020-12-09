@@ -45,7 +45,7 @@ class SignInWithProviderTests: XCTestCase {
 
   static let email = "johnnyappleseed@apple.com"
   static let password = "secret"
-  static let localId = "LOCAL_ID"
+  static let localID = "LOCAL_ID"
   static let displayName = "Johnny Appleseed"
   static let passwordHash = "UkVEQUNURUQ="
 
@@ -74,7 +74,7 @@ class SignInWithProviderTests: XCTestCase {
   class MockVerifyAssertionResponse: FIRVerifyAssertionResponse {
     override var federatedID: String? { return SignInWithProviderTests.googleID }
     override var providerID: String? { return GoogleAuthProviderID }
-    override var localID: String? { return SignInWithProviderTests.localId }
+    override var localID: String? { return SignInWithProviderTests.localID }
     override var displayName: String? { return SignInWithProviderTests.displayName }
 
     override var idToken: String { return EmailPasswordAuthTests.accessToken }
@@ -92,7 +92,7 @@ class SignInWithProviderTests: XCTestCase {
   }
 
   class MockGetAccountInfoResponseUser: FIRGetAccountInfoResponseUser {
-    override var localID: String? { return SignInWithProviderTests.localId }
+    override var localID: String? { return SignInWithProviderTests.localID }
     override var displayName: String { return SignInWithProviderTests.displayName }
     override var providerUserInfo: [FIRGetAccountInfoResponseProviderUserInfo]? {
       return [MockGetAccountInfoResponseProviderUserInfo(dictionary: [:])]
@@ -147,7 +147,7 @@ class SignInWithProviderTests: XCTestCase {
       } receiveValue: { authDataResult in
         let user = authDataResult.user
         XCTAssertNotNil(user)
-        XCTAssertEqual(user.uid, SignInWithProviderTests.localId)
+        XCTAssertEqual(user.uid, SignInWithProviderTests.localID)
         XCTAssertEqual(user.displayName, SignInWithProviderTests.displayName)
         XCTAssertEqual(user.providerData.count, 1)
         let userInfo = user.providerData[0]

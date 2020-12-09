@@ -76,6 +76,7 @@
     /// - Parameter user: The user object to be set as the current user of the calling Auth instance.
     /// - Returns: A publisher that emits as soon as the user of the calling Auth instance has been
     ///   updated or an error was encountered. The publisher will emit on the *main* thread.
+    @discardableResult
     public func updateCurrentUser(_ user: User) -> Future<Void, Error> {
       Future<Void, Error> { promise in
         self.updateCurrentUser(user) { error in
@@ -285,6 +286,7 @@
     ///   - `AuthErrorCodeInvalidActionCode` - Indicates the OOB code is invalid.
     ///
     ///   See `AuthErrors` for a list of error codes that are common to all API methods
+    @discardableResult
     public func confirmPasswordReset(withCode code: String,
                                      newPassword: String) -> Future<Void, Error> {
       Future<Void, Error> { promise in
@@ -305,6 +307,7 @@
     /// - Parameter code: The password reset code to be verified.
     /// - Returns: A publisher that emits an error if the code could not be verified. If the code could be
     ///   verified, the publisher will emit the email address of the account the code was issued for.
+    @discardableResult
     public func verifyPasswordResetCode(_ code: String) -> Future<String, Error> {
       Future<String, Error> { promise in
         self.verifyPasswordResetCode(code) { email, error in
@@ -324,6 +327,7 @@
     /// - Parameter code: The out of band code to check validity.
     /// - Returns: A publisher that emits an error if the code could not be verified. If the code could be
     ///   verified, the publisher will emit the email address of the account the code was issued for.
+    @discardableResult
     public func checkActionCode(code: String) -> Future<ActionCodeInfo, Error> {
       Future<ActionCodeInfo, Error> { promise in
         self.checkActionCode(code) { actionCodeInfo, error in
@@ -344,6 +348,7 @@
     /// - Returns: A publisher that emits an error if the code could not be applied.
     /// - Remark: This method will not work for out of band codes which require an additional parameter,
     ///   such as password reset code.
+    @discardableResult
     public func applyActionCode(code: String) -> Future<Void, Error> {
       Future<Void, Error> { promise in
         self.applyActionCode(code) { error in
@@ -368,6 +373,7 @@
     ///   - `AuthErrorCodeInvalidMessagePayload` - Indicates an invalid email template for sending update email.
     ///
     ///   See `AuthErrors` for a list of error codes that are common to all API methods
+    @discardableResult
     public func sendPasswordReset(withEmail email: String) -> Future<Void, Error> {
       Future<Void, Error> { promise in
         self.sendPasswordReset(withEmail: email) { error in
@@ -397,6 +403,7 @@
     ///   - `AuthErrorCodeInvalidContinueURI` - Indicates that the domain specified in the continue URI is not valid.
     ///
     ///   See `AuthErrors` for a list of error codes that are common to all API methods
+    @discardableResult
     public func sendPasswordReset(withEmail email: String,
                                   actionCodeSettings: ActionCodeSettings) -> Future<Void, Error> {
       Future<Void, Error> { promise in
@@ -443,6 +450,7 @@
     ///     the "One account per email address" setting is enabled in the Firebase console, under Auth settings.
     ///
     ///   See `AuthErrors` for a list of error codes that are common to all API methods
+    @discardableResult
     public func signIn(with provider: FederatedAuthProvider,
                        uiDelegate: AuthUIDelegate?) -> Future<AuthDataResult, Error> {
       Future<AuthDataResult, Error> { promise in
@@ -470,6 +478,7 @@
     ///     belong to different projects.
     ///
     ///   See `AuthErrors` for a list of error codes that are common to all API methods
+    @discardableResult
     public func signIn(withCustomToken token: String) -> Future<AuthDataResult, Error> {
       Future<AuthDataResult, Error> { promise in
         self.signIn(withCustomToken: token) { authDataResult, error in

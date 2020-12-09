@@ -45,7 +45,7 @@ class EmailPasswordAuthTests: XCTestCase {
 
   static let email = "johnnyappleseed@apple.com"
   static let password = "secret"
-  static let localId = "LOCAL_ID"
+  static let localID = "LOCAL_ID"
   static let displayName = "Johnny Appleseed"
   static let passwordHash = "UkVEQUNURUQ="
 
@@ -58,7 +58,7 @@ class EmailPasswordAuthTests: XCTestCase {
   }
 
   class MockGetAccountInfoResponseUser: FIRGetAccountInfoResponseUser {
-    override var localID: String { return EmailPasswordAuthTests.localId }
+    override var localID: String { return EmailPasswordAuthTests.localID }
     override var email: String { return EmailPasswordAuthTests.email }
     override var displayName: String { return EmailPasswordAuthTests.displayName }
   }
@@ -70,7 +70,7 @@ class EmailPasswordAuthTests: XCTestCase {
   }
 
   class MockVerifyPasswordResponse: FIRVerifyPasswordResponse {
-    override var localID: String { return EmailPasswordAuthTests.localId }
+    override var localID: String { return EmailPasswordAuthTests.localID }
     override var email: String { return EmailPasswordAuthTests.email }
     override var displayName: String { return EmailPasswordAuthTests.displayName }
     override var idToken: String { return EmailPasswordAuthTests.accessToken }
@@ -131,7 +131,7 @@ class EmailPasswordAuthTests: XCTestCase {
       } receiveValue: { authDataResult in
         let user = authDataResult.user
         XCTAssertNotNil(user)
-        XCTAssertEqual(user.uid, EmailPasswordAuthTests.localId)
+        XCTAssertEqual(user.uid, EmailPasswordAuthTests.localID)
         XCTAssertEqual(user.displayName, EmailPasswordAuthTests.displayName)
         XCTAssertEqual(user.email, EmailPasswordAuthTests.email)
         XCTAssertFalse(user.isAnonymous)
