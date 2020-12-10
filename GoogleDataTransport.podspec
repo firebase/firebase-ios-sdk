@@ -157,9 +157,13 @@ Shared library for iOS SDK data transport needs.
   s.test_spec 'CCT-Tests-Integration' do |test_spec|
     test_spec.platforms = {:ios => ios_deployment_target, :osx => osx_deployment_target, :tvos => tvos_deployment_target}
     test_spec.requires_app_host = false
-    test_spec.source_files = ['GoogleDataTransport/GDTCCTTests/Integration/**/*.{h,m}'] + common_cct_test_sources
+    test_spec.source_files = [
+      'GoogleDataTransport/GDTCCTTests/Integration/**/*.{h,m}',
+      'GoogleDataTransport/GDTCCTTests/Unit/TestServer/GDTCCTTestServer.{h,m}'
+      ] + common_cct_test_sources
     test_spec.resources = ['GoogleDataTransport/GDTCCTTests/Data/**/*']
     test_spec.pod_target_xcconfig = header_search_paths
+    test_spec.dependency 'GCDWebServer'
   end
 
   # Monkey test specs, only enabled for development.

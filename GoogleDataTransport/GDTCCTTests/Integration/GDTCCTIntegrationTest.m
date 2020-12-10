@@ -23,11 +23,9 @@
 #import <SystemConfiguration/SCNetworkReachability.h>
 
 #import "GoogleDataTransport/GDTCCTLibrary/Private/GDTCCTUploader.h"
-
-typedef void (^GDTCCTIntegrationTestBlock)(NSURLSessionUploadTask *_Nullable);
+#import "GoogleDataTransport/GDTCCTTests/Unit/TestServer/GDTCCTTestServer.h"
 
 @interface GDTCCTTestDataObject : NSObject <GDTCOREventDataObject>
-
 @end
 
 @implementation GDTCCTTestDataObject
@@ -62,6 +60,9 @@ typedef void (^GDTCCTIntegrationTestBlock)(NSURLSessionUploadTask *_Nullable);
 /** The local notification listener, to be removed after each test. */
 @property(nonatomic, strong) id<NSObject> uploadObserver;
 
+/** The local HTTP server to use for testing. */
+@property(nonatomic) GDTCCTTestServer *testServer;
+
 @end
 
 @implementation GDTCCTIntegrationTest
@@ -70,24 +71,32 @@ typedef void (^GDTCCTIntegrationTestBlock)(NSURLSessionUploadTask *_Nullable);
   // Don't recursively generate events by default.
   self.generateEvents = NO;
   self.totalEventsGenerated = 0;
-  dispatch_semaphore_t sema = dispatch_semaphore_create(0);
-  NSURLSession *session = [NSURLSession sharedSession];
-  NSURLSessionDataTask *task =
-      [session dataTaskWithURL:[NSURL URLWithString:@"https://google.com"]
-             completionHandler:^(NSData *_Nullable data, NSURLResponse *_Nullable response,
-                                 NSError *_Nullable error) {
-               if (error) {
-                 self.okToRunTest = NO;
-               } else {
-                 self.okToRunTest = YES;
-               }
-               self.transport = [[GDTCORTransport alloc] initWithMappingID:@"1018"
-                                                              transformers:nil
-                                                                    target:kGDTCORTargetCSH];
-               dispatch_semaphore_signal(sema);
-             }];
-  [task resume];
-  dispatch_semaphore_wait(sema, dispatch_time(DISPATCH_TIME_NOW, 10.0 * NSEC_PER_SEC));
+//  dispatch_semaphore_t sema = dispatch_semaphore_create(0);
+//  NSURLSession *session = [NSURLSession sharedSession];
+//  NSURLSessionDataTask *task =
+//      [session dataTaskWithURL:[NSURL URLWithString:@"https://google.com"]
+//             completionHandler:^(NSData *_Nullable data, NSURLResponse *_Nullable response,
+//                                 NSError *_Nullable error) {
+//               if (error) {
+//                 self.okToRunTest = NO;
+//               } else {
+//                 self.okToRunTest = YES;
+//               }
+//               self.transport = [[GDTCORTransport alloc] initWithMappingID:@"1018"
+//                                                              transformers:nil
+//                                                                    target:kGDTCORTargetCSH];
+//               dispatch_semaphore_signal(sema);
+//             }];
+//  [task resume];
+//  dispatch_semaphore_wait(sema, dispatch_time(DISPATCH_TIME_NOW, 10.0 * NSEC_PER_SEC));
+
+  self.testServer = [[GDTCCTTestServer alloc] init];
+  [self.testServer registerLogBatchPath];
+  [self.testServer start];
+  XCTAssertTrue(self.testServer.isRunning);
+
+  GDTCCTUploader.testServerURL =
+      [self.testServer.serverURL URLByAppendingPathComponent:@"logBatch"];
 }
 
 - (void)tearDown {
@@ -151,10 +160,10 @@ typedef void (^GDTCCTIntegrationTestBlock)(NSURLSessionUploadTask *_Nullable);
     }
   }
 
-  XCTestExpectation *eventsUploaded =
-      [self expectationWithDescription:@"Events were successfully uploaded to CCT."];
-  [eventsUploaded setAssertForOverFulfill:NO];
-  self.uploadObserver = [self uploadNotificationObserverWithExpectation:eventsUploaded];
+  XCTestExpectation *eventsUploaded = [self expectationForEventsToUpload];
+//      [self expectationWithDescription:@"Events were successfully uploaded to CCT."];
+//  [eventsUploaded setAssertForOverFulfill:NO];
+//  self.uploadObserver = [self uploadNotificationObserverWithExpectation:eventsUploaded];
 
   // Send a high priority event to flush events.
   [self generateEventWithQoSTier:GDTCOREventQoSFast];
@@ -172,11 +181,11 @@ typedef void (^GDTCCTIntegrationTestBlock)(NSURLSessionUploadTask *_Nullable);
   NSInteger secondsToRun = 65;
   self.generateEvents = YES;
 
-  XCTestExpectation *eventsUploaded =
-      [self expectationWithDescription:@"Events were successfully uploaded to CCT."];
-  [eventsUploaded setAssertForOverFulfill:NO];
+  XCTestExpectation *eventsUploaded = [self expectationForEventsToUpload];
+//      [self expectationWithDescription:@"Events were successfully uploaded to CCT."];
+//  [eventsUploaded setAssertForOverFulfill:NO];
 
-  self.uploadObserver = [self uploadNotificationObserverWithExpectation:eventsUploaded];
+//  self.uploadObserver = [self uploadNotificationObserverWithExpectation:eventsUploaded];
 
   [self recursivelyGenerateEvent];
 
@@ -190,6 +199,22 @@ typedef void (^GDTCCTIntegrationTestBlock)(NSURLSessionUploadTask *_Nullable);
                    [self waitForExpectations:@[ eventsUploaded ] timeout:60.0];
                  });
   [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:secondsToRun + 5]];
+}
+
+- (XCTestExpectation *)expectationForEventsToUpload {
+  __weak __auto_type weakSelf = self;
+  XCTestExpectation *responseSentExpectation = [self expectationWithDescription:@"response sent"];
+
+  self.testServer.responseCompletedBlock =
+      ^(GCDWebServerRequest *_Nonnull request, GCDWebServerResponse *_Nonnull response) {
+        // Redefining the self var addresses strong self capturing in the XCTAssert macros.
+        __auto_type self = weakSelf;
+        XCTAssertNotNil(self);
+        [responseSentExpectation fulfill];
+        XCTAssertEqual(response.statusCode, 200);
+        XCTAssertTrue(response.hasBody);
+      };
+  return responseSentExpectation;
 }
 
 /** Registers a notification observer for when an upload occurs and returns the observer. */
