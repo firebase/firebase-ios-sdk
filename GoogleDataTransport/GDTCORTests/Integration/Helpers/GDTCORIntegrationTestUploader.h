@@ -30,4 +30,9 @@
  */
 - (instancetype)initWithServer:(GDTCORTestServer *)serverURL;
 
+/** Spins runloop until upload finishes or timeout.
+ *  @return YES if upload finishes, NO in the case of timeout.
+ */
+- (BOOL)waitForUploadFinishedWithTimeout:(NSTimeInterval)timeout;
+
 @end
