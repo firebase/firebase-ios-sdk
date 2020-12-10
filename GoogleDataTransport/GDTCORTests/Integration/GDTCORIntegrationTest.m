@@ -169,7 +169,7 @@
   [[NSRunLoop currentRunLoop]
       runUntilDate:[NSDate dateWithTimeIntervalSinceNow:lengthOfTestToRunInSeconds + 5]];
 
-  XCTAssert([self.uploader waitForUploadFinishedWithTimeout:5]);
+  XCTAssert([self.uploader waitForUploadFinishedWithTimeout:lengthOfTestToRunInSeconds]);
   [testServer stop];
 }
 

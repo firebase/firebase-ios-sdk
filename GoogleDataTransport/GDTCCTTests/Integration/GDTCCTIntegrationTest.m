@@ -165,7 +165,6 @@
                    [self generateEventWithQoSTier:GDTCOREventQoSFast];
                    [self waitForExpectations:@[ eventsUploaded ] timeout:5];
                  });
-  // Wait for
   [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:secondsToRun + 5]];
 }
 

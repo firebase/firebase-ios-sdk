@@ -84,10 +84,6 @@
                                                 NSError *_Nullable error) {
                               NSLog(@"Batch upload complete.");
                               // Remove from the prioritizer if there were no errors.
-                              //                              GDTCORFatalAssert(
-                              //                                  !error, @"There should be no
-                              //                                  errors uploading events: %@",
-                              //                                  error);
                               if (error) {
                                 [storage removeBatchWithID:batchID deleteEvents:NO onComplete:nil];
                               } else {
