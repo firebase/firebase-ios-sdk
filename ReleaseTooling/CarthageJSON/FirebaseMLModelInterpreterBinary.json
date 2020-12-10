@@ -53,5 +53,7 @@
   "6.8.0": "https://dl.google.com/dl/firebase/ios/carthage/6.8.0/MLModelInterpreter-3c40949dd85ce1a9.zip",
   "6.8.1": "https://dl.google.com/dl/firebase/ios/carthage/6.8.1/MLModelInterpreter-93ffa89a01ba2ce0.zip",
   "6.9.0": "https://dl.google.com/dl/firebase/ios/carthage/6.9.0/MLModelInterpreter-74a3b3f21341aaf8.zip",
-  "7.0.0": "https://dl.google.com/dl/firebase/ios/carthage/7.0.0/FirebaseMLModelInterpreter-598dbe7131ecbbfa.zip"
+  "7.0.0": "https://dl.google.com/dl/firebase/ios/carthage/7.0.0/FirebaseMLModelInterpreter-598dbe7131ecbbfa.zip",
+  "7.1.0": "https://dl.google.com/dl/firebase/ios/carthage/7.1.0/FirebaseMLModelInterpreter-6f03c38aa3de3041.zip",
+  "7.3.0": "https://dl.google.com/dl/firebase/ios/carthage/7.3.0/FirebaseMLModelInterpreter-e0956e3c725e5911.zip"
 }

@@ -31,11 +31,8 @@
 		5B4DE0B022F8D7B300B55A7B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		5B4DE0B222F8D7B300B55A7B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		5B4DE0B322F8D7B300B55A7B /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		5B4DE0BA22F8DA1200B55A7B /* SecondApp-GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "SecondApp-GoogleService-Info.plist"; sourceTree = "<group>"; };
 		5B4DE0BB22F8DA1300B55A7B /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		5B4DE0BF22F8E07200B55A7B /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../../../../../../configdaily googservice/GoogleService-Info.plist"; sourceTree = "<group>"; };
-		5B4DE0C222F8E09900B55A7B /* SecondApp-GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "SecondApp-GoogleService-Info.plist"; sourceTree = "<group>"; };
-		5B4DE0C322F8E09900B55A7B /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -72,9 +69,6 @@
 			isa = PBXGroup;
 			children = (
 				5B4DE0BB22F8DA1300B55A7B /* GoogleService-Info.plist */,
-				5B4DE0C322F8E09900B55A7B /* GoogleService-Info.plist */,
-				5B4DE0BA22F8DA1200B55A7B /* SecondApp-GoogleService-Info.plist */,
-				5B4DE0C222F8E09900B55A7B /* SecondApp-GoogleService-Info.plist */,
 				5B4DE0A322F8D7B100B55A7B /* SegmentationSampleApp */,
 				5B4DE0A222F8D7B100B55A7B /* Products */,
 				1DAAA9CDE17A7AD3D4D58BFA /* Pods */,
@@ -373,7 +367,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.google.firebase.config.testapp.dev;
+				PRODUCT_BUNDLE_IDENTIFIER = com.google.firebase.paul.hackweek.nov2020;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "Firebase Remote Config TestApp Dev";
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -392,7 +386,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.google.firebase.config.testapp.dev;
+				PRODUCT_BUNDLE_IDENTIFIER = com.google.firebase.paul.hackweek.nov2020;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "Firebase Remote Config TestApp Dev";
 				TARGETED_DEVICE_FAMILY = "1,2";

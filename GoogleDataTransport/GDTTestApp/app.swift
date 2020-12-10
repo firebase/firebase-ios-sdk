@@ -27,6 +27,7 @@ import GoogleDataTransport
     func application(_ application: UIApplication,
                      didFinishLaunchingWithOptions launchOptions: [UIApplication
                        .LaunchOptionsKey: Any]?) -> Bool {
+      GDTCORConsoleLoggerLoggingLevel = GDTCORLoggingLevel.debug.rawValue
       return true
     }
   }
@@ -34,6 +35,7 @@ import GoogleDataTransport
   public class ViewController: UIViewController {
     let transport: GDTCORTransport = GDTCORTransport(mappingID: "1234", transformers: nil,
                                                      target: GDTCORTarget.test)!
+    @IBOutlet var statusLabel: UILabel!
   }
 
 // macOS specifics.

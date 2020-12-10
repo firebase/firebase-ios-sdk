@@ -16,25 +16,38 @@
 
 #import <Foundation/Foundation.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 @interface FRepoInfo : NSObject <NSCopying>
 
-@property(nonatomic, readonly, strong) NSString *host;
-@property(nonatomic, readonly, strong) NSString *namespace;
-@property(nonatomic, strong) NSString *internalHost;
-@property(nonatomic, readonly) bool secure;
+/// The host that the database should connect to.
+@property(nonatomic, readonly, copy) NSString *host;
 
-- (id)initWithHost:(NSString *)host
-          isSecure:(bool)secure
-     withNamespace:(NSString *)namespace;
+@property(nonatomic, readonly, copy) NSString *namespace;
+@property(nonatomic, readwrite, copy) NSString *internalHost;
+@property(nonatomic, readonly, assign) BOOL secure;
 
-- (NSString *)connectionURLWithLastSessionID:(NSString *)lastSessionID;
+/// Returns YES if the host is not a *.firebaseio.com host.
+@property(nonatomic, readonly) BOOL isCustomHost;
+
+- (instancetype)initWithHost:(NSString *)host
+                    isSecure:(BOOL)secure
+               withNamespace:(NSString *)namespace NS_DESIGNATED_INITIALIZER;
+
+- (instancetype)initWithInfo:(FRepoInfo *)info emulatedHost:(NSString *)host;
+
+- (NSString *)connectionURLWithLastSessionID:(NSString *_Nullable)lastSessionID;
 - (NSString *)connectionURL;
 - (void)clearInternalHostCache;
 - (BOOL)isDemoHost;
 - (BOOL)isCustomHost;
 
-- (id)copyWithZone:(NSZone *)zone;
+- (id)copyWithZone:(NSZone *_Nullable)zone;
 - (NSUInteger)hash;
 - (BOOL)isEqual:(id)anObject;
 
+- (instancetype)init NS_UNAVAILABLE;
+
 @end
+
+NS_ASSUME_NONNULL_END

@@ -1,3 +1,6 @@
+# v7.2.0
+- [added] Made emulator connection API consistent between Auth, Database, Firestore, and Functions (#5916).
+
 # v7.1.0
 - [added] Added a constructor to set a custom domain. (#6787)
 

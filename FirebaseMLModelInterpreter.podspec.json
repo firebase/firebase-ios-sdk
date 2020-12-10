@@ -34,5 +34,5 @@
   "vendored_frameworks": [
     "Frameworks/FirebaseMLModelInterpreter.framework"
   ],
-  "version": "7.0.0-beta"
+  "version": "7.3.0-beta"
 }

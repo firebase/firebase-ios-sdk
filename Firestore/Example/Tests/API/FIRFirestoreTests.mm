@@ -15,6 +15,7 @@
  */
 
 #import <FirebaseFirestore/FIRFirestore.h>
+#import <FirebaseFirestore/FIRFirestoreSettings.h>
 
 #import <XCTest/XCTest.h>
 
@@ -61,6 +62,18 @@ namespace testutil = firebase::firestore::testutil;
                                handler:^(NSError *_Nullable error) {
                                  XCTAssertNil(error);
                                }];
+}
+
+- (void)testSetEmulatorSettingsSetsHost {
+  // Ensure the app is set appropriately.
+  FIRApp *app = testutil::AppForUnitTesting();
+
+  FIRFirestore *firestore = [FIRFirestore firestoreForApp:app];
+
+  [firestore useEmulatorWithHost:@"localhost" port:1000];
+
+  NSString *host = firestore.settings.host;
+  XCTAssertEqualObjects(host, @"localhost:1000");
 }
 
 @end

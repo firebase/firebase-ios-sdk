@@ -56,5 +56,7 @@
   "6.8.0": "https://dl.google.com/dl/firebase/ios/carthage/6.8.0/ABTesting-0cfcdbeb0f1f23e5.zip",
   "6.8.1": "https://dl.google.com/dl/firebase/ios/carthage/6.8.1/ABTesting-55feba1b99b3ebf4.zip",
   "6.9.0": "https://dl.google.com/dl/firebase/ios/carthage/6.9.0/ABTesting-a17b271bd2822405.zip",
-  "7.0.0": "https://dl.google.com/dl/firebase/ios/carthage/7.0.0/FirebaseABTesting-4520f0f18180693c.zip"
+  "7.0.0": "https://dl.google.com/dl/firebase/ios/carthage/7.0.0/FirebaseABTesting-4520f0f18180693c.zip",
+  "7.1.0": "https://dl.google.com/dl/firebase/ios/carthage/7.1.0/FirebaseABTesting-39bed14d3a4a43e7.zip",
+  "7.3.0": "https://dl.google.com/dl/firebase/ios/carthage/7.3.0/FirebaseABTesting-425abea6eeaa340c.zip"
 }

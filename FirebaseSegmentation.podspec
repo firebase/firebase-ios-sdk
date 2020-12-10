@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseSegmentation'
-  s.version          = '0.1.0'
+  s.version          = '7.1.0-beta'
   s.summary          = 'Firebase Segmentation SDK'
   s.description      = <<-DESC
 Firebase Segmentation enables you to associate your custom application instance ID with Firebase for user segmentation.
@@ -14,7 +14,10 @@ Firebase Segmentation enables you to associate your custom application instance 
     :tag => 'Segmentation-' + s.version.to_s
   }
 
-  s.ios.deployment_target = '8.0'
+  s.ios.deployment_target = '10.0'
+  s.osx.deployment_target = '10.12'
+  s.tvos.deployment_target = '10.0'
+
   s.cocoapods_version = '>= 1.4.0'
   s.static_framework = true
   s.prefix_header_file = false
@@ -25,16 +28,15 @@ Firebase Segmentation enables you to associate your custom application instance 
   ]
   s.public_header_files = 'FirebaseSegmentation/Sources/Public/*.h'
 
-  s.dependency 'FirebaseCore', '~> 6.7'
-  s.dependency 'FirebaseInstallations', '~> 1.7'
+  s.dependency 'FirebaseCore', '~> 7.0'
+  s.dependency 'FirebaseInstallations', '~> 7.0'
 
    header_search_paths = {
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
   }
 
   s.pod_target_xcconfig = {
-    'GCC_C_LANGUAGE_STANDARD' => 'c99',
-    'GCC_PREPROCESSOR_DEFINITIONS' => 'FIRSegmentation_VERSION=' + s.version.to_s
+    'GCC_C_LANGUAGE_STANDARD' => 'c99'
   }.merge(header_search_paths)
 
   s.test_spec 'unit' do |unit_tests|

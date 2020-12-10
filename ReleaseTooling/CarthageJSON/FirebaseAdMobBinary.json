@@ -56,5 +56,6 @@
   "6.8.0": "https://dl.google.com/dl/firebase/ios/carthage/6.8.0/AdMob-f24caa8b0c950885.zip",
   "6.8.1": "https://dl.google.com/dl/firebase/ios/carthage/6.8.1/AdMob-d76755368433e50e.zip",
   "6.9.0": "https://dl.google.com/dl/firebase/ios/carthage/6.9.0/AdMob-50597c9e7223ee44.zip",
-  "7.0.0": "https://dl.google.com/dl/firebase/ios/carthage/7.0.0/Google-Mobile-Ads-SDK-57acca92672ef61b.zip"
+  "7.0.0": "https://dl.google.com/dl/firebase/ios/carthage/7.0.0/Google-Mobile-Ads-SDK-57acca92672ef61b.zip",
+  "7.1.0": "https://dl.google.com/dl/firebase/ios/carthage/7.1.0/Google-Mobile-Ads-SDK-5c6542b7b9174033.zip"
 }

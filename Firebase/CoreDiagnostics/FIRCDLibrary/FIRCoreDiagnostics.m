@@ -37,7 +37,7 @@ static GULLoggerService kFIRCoreDiagnostics = @"[FirebaseCoreDiagnostics/FIRCore
 
 #ifdef FIREBASE_BUILD_ZIP_FILE
 static BOOL kUsingZipFile = YES;
-#else   // FIREBASE_BUILD_ZIP_FILE
+#else  // FIREBASE_BUILD_ZIP_FILE
 static BOOL kUsingZipFile = NO;
 #endif  // FIREBASE_BUILD_ZIP_FILE
 

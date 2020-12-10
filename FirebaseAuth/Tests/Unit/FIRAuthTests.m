@@ -259,13 +259,6 @@ static const NSTimeInterval kWaitInterval = .5;
   return NO;
 }
 
-- (BOOL)application:(UIApplication *)application
-              openURL:(NSURL *)url
-    sourceApplication:(nullable NSString *)sourceApplication
-           annotation:(id)annotation {
-  return NO;
-}
-
 @end
 
 #endif  // TARGET_OS_IOS

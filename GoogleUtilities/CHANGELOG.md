@@ -1,6 +1,14 @@
-# 7.1.0 -- Unreleased
+# 7.2.0
+- `NSURLSession` promise extension public API. (#7097)
+
+# 7.1.1
+- Fix `unrecognized selector` for isiOSAppOnMac on early iOS 14 betas. (#6969)
+
+# 7.1.0
 - Added `NSURLSession` promise extension. (#6753)
 - `ios_on_mac` option added to `GULAppEnvironmentUtil.applePlatform()`. (#6799)
+- Fixed completion handler issue in `GULAppDelegateSwizzler` for
+  `application(_:didReceiveRemoteNotification:fetchCompletionHandler:)` method.  (#6863)
 
 # 7.0.0
 - All APIs are now public. All CocoaPods private headers are transitioned to public. Note that

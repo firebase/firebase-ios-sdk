@@ -78,7 +78,7 @@ void LevelDbLruReferenceDelegate::RemoveMutationReference(
 void LevelDbLruReferenceDelegate::RemoveTarget(const TargetData& target_data) {
   TargetData updated =
       target_data.WithSequenceNumber(current_sequence_number());
-  db_->target_cache()->UpdateTarget(std::move(updated));
+  db_->target_cache()->UpdateTarget(updated);
 }
 
 void LevelDbLruReferenceDelegate::UpdateLimboDocument(const DocumentKey& key) {
@@ -119,9 +119,9 @@ size_t LevelDbLruReferenceDelegate::GetSequenceNumberCount() {
   return total_count;
 }
 
-void LevelDbLruReferenceDelegate::EnumerateTargets(
-    const TargetCallback& callback) {
-  db_->target_cache()->EnumerateTargets(callback);
+void LevelDbLruReferenceDelegate::EnumerateTargetSequenceNumbers(
+    const SequenceNumberCallback& callback) {
+  db_->target_cache()->EnumerateSequenceNumbers(callback);
 }
 
 void LevelDbLruReferenceDelegate::EnumerateOrphanedDocuments(
@@ -147,7 +147,8 @@ int LevelDbLruReferenceDelegate::RemoveOrphanedDocuments(
 
 int LevelDbLruReferenceDelegate::RemoveTargets(
     ListenSequenceNumber sequence_number, const LiveQueryMap& live_queries) {
-  return db_->target_cache()->RemoveTargets(sequence_number, live_queries);
+  return static_cast<int>(
+      db_->target_cache()->RemoveTargets(sequence_number, live_queries));
 }
 
 bool LevelDbLruReferenceDelegate::IsPinned(const DocumentKey& key) {

@@ -455,7 +455,7 @@ NS_SWIFT_NAME(User)
         + `FIRAuthErrorCodeMissingAndroidPackageName` - Indicates that the android package name
             is missing when the `androidInstallApp` flag is set to true.
         + `FIRAuthErrorCodeUnauthorizedDomain` - Indicates that the domain specified in the
-            continue URL is not whitelisted in the Firebase console.
+            continue URL is not allowlisted in the Firebase console.
         + `FIRAuthErrorCodeInvalidContinueURI` - Indicates that the domain specified in the
             continue URI is not valid.
  */
