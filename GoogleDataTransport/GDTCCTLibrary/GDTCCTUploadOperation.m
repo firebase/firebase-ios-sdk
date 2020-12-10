@@ -150,8 +150,6 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
                   return nil;
                 }
 
-                self.uploadAttempted = YES;
-
                 // 4. Fetch events to upload.
                 GDTCORStorageEventSelector *eventSelector = [self eventSelectorTarget:target
                                                                        withConditions:conditions];
@@ -165,6 +163,9 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
                   })
       .thenOn(self.uploaderQueue,
               ^FBLPromise *(GDTCORUploadBatch *batch) {
+                // A non-empty batch has been created, consider it as an upload attempt.
+                self.uploadAttempted = YES;
+
                 // 6. Perform upload URL request.
                 return [self sendURLRequestWithBatch:batch target:target storage:storage];
               })
