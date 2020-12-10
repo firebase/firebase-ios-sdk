@@ -69,20 +69,21 @@ final class ModelDownloaderUnitTests: XCTestCase {
       name: testModelName,
       downloadURL: testDownloadURL,
       modelHash: testModelHash,
-      size: testModelSize
+      size: testModelSize,
+      app: testApp
     )
     // This fails because there is no model path.
     do {
-      try modelInfo.writeToDefaults(app: testApp, defaults: .getTestInstance())
+      try modelInfo.save(toDefaults: .getTestInstance())
     } catch {
       XCTAssertNotNil(error)
     }
-    modelInfo.path = testModelPath
+    modelInfo.update(modelPath: testModelPath)
     // This shouldn't fail because model info object is now complete.
     do {
-      try modelInfo.writeToDefaults(app: testApp, defaults: .getTestInstance())
+      try modelInfo.save(toDefaults: .getTestInstance())
     } catch {
-      XCTFail(error.localizedDescription)
+      XCTFail("Error: \(error)")
     }
     guard let savedModelInfo = ModelInfo(
       fromDefaults: .getTestInstance(cleared: false),
@@ -95,38 +96,6 @@ final class ModelDownloaderUnitTests: XCTestCase {
     XCTAssertEqual(savedModelInfo.downloadURL, testDownloadURL)
     XCTAssertEqual(savedModelInfo.modelHash, testModelHash)
     XCTAssertEqual(savedModelInfo.size, testModelSize)
-  }
-
-  /// Unit test to save model info.
-  func testSaveModelInfo() {
-    guard let testApp = FirebaseApp.app() else {
-      XCTFail("Default app was not configured.")
-      return
-    }
-    let functionName = #function
-    let testModelName = "\(functionName)-test-model"
-    let modelInfoRetriever = ModelInfoRetriever(
-      app: testApp,
-      modelName: testModelName
-    )
-    let sampleResponse: String = """
-    {
-    "downloadUri": "https://storage.googleapis.com",
-    "expireTime": "2020-11-10T04:58:49.643Z",
-    "sizeBytes": "562336"
-    }
-    """
-    let data: Data = sampleResponse.data(using: .utf8)!
-    do {
-      try modelInfoRetriever.saveModelInfo(data: data, modelHash: "test-model-hash")
-    } catch {
-      XCTFail(error.localizedDescription)
-    }
-    XCTAssertEqual(
-      modelInfoRetriever.modelInfo?.downloadURL.absoluteString,
-      "https://storage.googleapis.com"
-    )
-    XCTAssertEqual(modelInfoRetriever.modelInfo?.size, 562_336)
   }
 
   /// Test to download model file.

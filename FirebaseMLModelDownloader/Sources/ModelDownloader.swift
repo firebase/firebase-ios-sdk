@@ -78,6 +78,17 @@ public class ModelDownloader {
                        progressHandler: ((Float) -> Void)? = nil,
                        completion: @escaping (Result<CustomModel, DownloadError>) -> Void) {
     // TODO: Model download
+    switch downloadType {
+    case .localModel:
+      guard let modelInfo = ModelInfo(fromDefaults: .firebaseMLDefaults, name: modelName, app: app),
+        let model = CustomModel(modelInfo: modelInfo) else { break }
+      completion(.success(model))
+
+    case .localModelUpdateInBackground: break
+
+    case .latestModel: break
+    }
+
     let modelSize = Int()
     let modelPath = String()
     let modelHash = String()

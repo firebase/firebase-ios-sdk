@@ -25,3 +25,14 @@ public struct CustomModel: Hashable {
   /// Hash for the model, used for model verification.
   public let hash: String
 }
+
+extension CustomModel {
+  /// Failable init to build custom model object from model info.
+  init?(modelInfo: ModelInfo) {
+    guard let filePath = modelInfo.path else { return nil }
+    name = modelInfo.name
+    size = modelInfo.size
+    path = filePath
+    hash = modelInfo.modelHash
+  }
+}
