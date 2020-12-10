@@ -16,14 +16,12 @@ import Foundation
 
 #if canImport(Combine) && swift(>=5.0)
 
-#if canImport(FirebaseAuth)
-#warning("This is experimental - use at your own risk.")
-@_exported import FirebaseAuthCombineSwift
-#endif
+  #if canImport(FirebaseAuth)
+    #warning("This is experimental - use at your own risk.")
+    @_exported import FirebaseAuthCombineSwift
+  #endif
 
 #endif
 
 // This is here to appease the compiler
-internal struct _Dummy {
-  
-}
+internal struct _Dummy {}
