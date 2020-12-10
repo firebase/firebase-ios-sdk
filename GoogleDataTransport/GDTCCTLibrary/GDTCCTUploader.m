@@ -129,10 +129,6 @@ static NSURL *_testServerURL = nil;
 
 #pragma mark - URLs
 
-/**
- *
- */
-- (nullable NSURL *)serverURLForTarget:(GDTCORTarget)target {
 + (void)setTestServerURL:(NSURL *_Nullable)serverURL {
   _testServerURL = serverURL;
 }
@@ -213,24 +209,6 @@ static NSURL *_testServerURL = nil;
 
   NSDictionary<NSNumber *, NSURL *> *uploadURLs = [self uploadURLs];
   return uploadURLs[@(target)];
-}
-
-- (instancetype)init {
-  self = [super init];
-  if (self) {
-    _uploaderQueue = dispatch_queue_create("com.google.GDTCCTUploader", DISPATCH_QUEUE_SERIAL);
-  }
-  return self;
-}
-
-- (NSURLSession *)uploaderSession {
-  if (_uploaderSession == nil) {
-    NSURLSessionConfiguration *config = [NSURLSessionConfiguration ephemeralSessionConfiguration];
-    _uploaderSession = [NSURLSession sessionWithConfiguration:config
-                                                     delegate:self
-                                                delegateQueue:nil];
-  }
-  return _uploaderSession;
 }
 
 - (NSString *)FLLAndCSHAndINTAPIKey {
