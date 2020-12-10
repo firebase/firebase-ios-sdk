@@ -21,10 +21,9 @@ on:
 jobs:
 
   # Build and run the unit tests for Firebase performance SDK.
+  # Don't run on private repo unless it is a PR.
+  if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
   performance:
-    # Firebase Performance lives in private repository only currently.
-    # Remove the check after Firebase Performance is open sourced.
-    if: github.repository == 'FirebasePrivate/firebase-ios-sdk'
     runs-on: macos-latest
     steps:
     - uses: actions/checkout@v2
@@ -34,10 +33,9 @@ jobs:
       run: scripts/third_party/travis/retry.sh scripts/build.sh Performance all xcodebuild
 
   # Podspec lint check for Firebase Performance
+  # Don't run on private repo unless it is a PR.
+  if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
   pod-lib-lint:
-    # Firebase Performance lives in private repository only currently.
-    # Remove the check after Firebase Performance is open sourced.
-    if: github.repository == 'FirebasePrivate/firebase-ios-sdk'
     runs-on: macOS-latest
 
     strategy:
