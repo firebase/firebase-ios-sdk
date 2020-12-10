@@ -44,10 +44,6 @@
 @end
 
 @interface GDTCCTIntegrationTest : XCTestCase
-
-/** If YES, the network conditions were good enough to allow running integration tests. */
-@property(nonatomic) BOOL okToRunTest;
-
 /** If YES, allow the recursive generating of events. */
 @property(nonatomic) BOOL generateEvents;
 
@@ -71,32 +67,19 @@
   // Don't recursively generate events by default.
   self.generateEvents = NO;
   self.totalEventsGenerated = 0;
-//  dispatch_semaphore_t sema = dispatch_semaphore_create(0);
-//  NSURLSession *session = [NSURLSession sharedSession];
-//  NSURLSessionDataTask *task =
-//      [session dataTaskWithURL:[NSURL URLWithString:@"https://google.com"]
-//             completionHandler:^(NSData *_Nullable data, NSURLResponse *_Nullable response,
-//                                 NSError *_Nullable error) {
-//               if (error) {
-//                 self.okToRunTest = NO;
-//               } else {
-//                 self.okToRunTest = YES;
-//               }
-//               self.transport = [[GDTCORTransport alloc] initWithMappingID:@"1018"
-//                                                              transformers:nil
-//                                                                    target:kGDTCORTargetCSH];
-//               dispatch_semaphore_signal(sema);
-//             }];
-//  [task resume];
-//  dispatch_semaphore_wait(sema, dispatch_time(DISPATCH_TIME_NOW, 10.0 * NSEC_PER_SEC));
 
   self.testServer = [[GDTCCTTestServer alloc] init];
+  self.testServer.responseNextRequestWaitTime = 0;
   [self.testServer registerLogBatchPath];
   [self.testServer start];
   XCTAssertTrue(self.testServer.isRunning);
 
   GDTCCTUploader.testServerURL =
       [self.testServer.serverURL URLByAppendingPathComponent:@"logBatch"];
+
+  self.transport = [[GDTCORTransport alloc] initWithMappingID:@"1018"
+                                                 transformers:nil
+                                                       target:kGDTCORTargetCSH];
 }
 
 - (void)tearDown {
@@ -136,11 +119,6 @@
 
 /** Tests sending data to CCT with a high priority event if network conditions are good. */
 - (void)testSendingDataToCCT {
-  if (!self.okToRunTest) {
-    NSLog(@"Skipping the integration test, as the network conditions weren't good enough.");
-    return;
-  }
-
   // Send a number of events across multiple queues in order to ensure the threading is working as
   // expected.
   dispatch_queue_t queue1 = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
@@ -161,9 +139,6 @@
   }
 
   XCTestExpectation *eventsUploaded = [self expectationForEventsToUpload];
-//      [self expectationWithDescription:@"Events were successfully uploaded to CCT."];
-//  [eventsUploaded setAssertForOverFulfill:NO];
-//  self.uploadObserver = [self uploadNotificationObserverWithExpectation:eventsUploaded];
 
   // Send a high priority event to flush events.
   [self generateEventWithQoSTier:GDTCOREventQoSFast];
@@ -173,19 +148,12 @@
 }
 
 - (void)testRunsWithoutCrashing {
-  if (!self.okToRunTest) {
-    NSLog(@"Skipping the integration test, as the network conditions weren't good enough.");
-    return;
-  }
   // Just run for a minute whilst generating events.
   NSInteger secondsToRun = 65;
   self.generateEvents = YES;
 
   XCTestExpectation *eventsUploaded = [self expectationForEventsToUpload];
-//      [self expectationWithDescription:@"Events were successfully uploaded to CCT."];
-//  [eventsUploaded setAssertForOverFulfill:NO];
-
-//  self.uploadObserver = [self uploadNotificationObserverWithExpectation:eventsUploaded];
+  [eventsUploaded setAssertForOverFulfill:NO];
 
   [self recursivelyGenerateEvent];
 
@@ -195,48 +163,29 @@
 
                    // Send a high priority event to flush other events.
                    [self generateEventWithQoSTier:GDTCOREventQoSFast];
-
-                   [self waitForExpectations:@[ eventsUploaded ] timeout:60.0];
+                   [self waitForExpectations:@[ eventsUploaded ] timeout:5];
                  });
+  // Wait for
   [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:secondsToRun + 5]];
 }
 
 - (XCTestExpectation *)expectationForEventsToUpload {
-  __weak __auto_type weakSelf = self;
   XCTestExpectation *responseSentExpectation = [self expectationWithDescription:@"response sent"];
 
-  self.testServer.responseCompletedBlock =
-      ^(GCDWebServerRequest *_Nonnull request, GCDWebServerResponse *_Nonnull response) {
-        // Redefining the self var addresses strong self capturing in the XCTAssert macros.
-        __auto_type self = weakSelf;
-        XCTAssertNotNil(self);
-        [responseSentExpectation fulfill];
-        XCTAssertEqual(response.statusCode, 200);
-        XCTAssertTrue(response.hasBody);
-      };
-  return responseSentExpectation;
-}
+  self.testServer.requestHandler =
+      ^(GCDWebServerRequest *_Nonnull request, GCDWebServerResponse *_Nullable suggestedResponse,
+        GCDWebServerCompletionBlock _Nonnull completionBlock) {
+        // TODO: Validate content of the requests in details.
 
-/** Registers a notification observer for when an upload occurs and returns the observer. */
-- (id<NSObject>)uploadNotificationObserverWithExpectation:(XCTestExpectation *)expectation {
-  return [[NSNotificationCenter defaultCenter]
-      addObserverForName:GDTCCTUploadCompleteNotification
-                  object:nil
-                   queue:nil
-              usingBlock:^(NSNotification *_Nonnull note) {
-                NSNumber *eventsUploadedNumber = note.object;
-                if (![eventsUploadedNumber isKindOfClass:[NSNumber class]]) {
-                  XCTFail(@"Expected notification object of events uploaded, "
-                          @"instead got a %@.",
-                          [eventsUploadedNumber class]);
-                }
-                // We don't necessarily need *all* uploads to have happened, just some (due to
-                // timing). As long as there are some events uploaded, call it a success.
-                NSInteger eventsUploaded = eventsUploadedNumber.integerValue;
-                if (eventsUploaded > 0 && eventsUploaded <= self.totalEventsGenerated) {
-                  [expectation fulfill];
-                }
-              }];
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.3 * NSEC_PER_SEC)),
+                       dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0), ^{
+                         completionBlock(suggestedResponse);
+                       });
+
+        [responseSentExpectation fulfill];
+      };
+
+  return responseSentExpectation;
 }
 
 @end
