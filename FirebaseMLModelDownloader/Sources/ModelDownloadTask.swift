@@ -97,7 +97,7 @@ extension ModelDownloadTask: URLSessionDownloadDelegate {
       downloadHandlers.completion(.failure(.internalError(description: error.localizedDescription)))
     }
     /// Build model from model info.
-    guard let model = CustomModel(modelInfo: modelInfo) else {
+    guard let path = modelInfo.path else {
       downloadHandlers
         .completion(
           .failure(
@@ -106,6 +106,12 @@ extension ModelDownloadTask: URLSessionDownloadDelegate {
         )
       return
     }
+    let model = CustomModel(
+      name: modelInfo.name,
+      size: modelInfo.size,
+      path: path,
+      hash: modelInfo.modelHash
+    )
     downloadHandlers.completion(.success(model))
   }
 
