@@ -37,7 +37,10 @@ NS_ASSUME_NONNULL_BEGIN
 /** An upload URL used across all targets. For testing only. */
 @property(class, nullable, nonatomic) NSURL *testServerURL;
 
-- (void)waitForUploadFinished:(dispatch_block_t)completion;
+/** Spins runloop until upload finishes or timeout.
+ *  @return YES if upload finishes, NO in the case of timeout.
+ */
+- (BOOL)waitForUploadFinishedWithTimeout:(NSTimeInterval)timeout;
 
 #endif  // !NDEBUG
 
