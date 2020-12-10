@@ -48,6 +48,7 @@ def labelsForModifiedFiles()
   labels.push("api: installations") if @has_installations_changes
   labels.push("api: instanceid") if @has_instanceid_changes
   labels.push("api: messaging") if @has_messaging_changes
+  labels.push("api: performance") if @has_performance_changes
   labels.push("api: remoteconfig") if @has_remoteconfig_changes
   labels.push("api: segmentation") if @has_segmentation_changes
   labels.push("api: storage") if @has_storage_changes
@@ -101,6 +102,8 @@ has_license_changes = didModify(["LICENSE"])
 @has_instanceid_api_changes = hasChangesIn("Firebase/InstanceID/Public/")
 @has_messaging_changes = hasChangesIn("FirebaseMessaging/")
 @has_messaging_api_changes = hasChangesIn("FirebaseMessaging/Sources/Public/")
+@has_performance_changes = hasChangesIn("FirebasePerformance/")
+@has_performance_changes = hasChangesIn("FirebasePerformance/Sources/Public/")
 @has_remoteconfig_changes = hasChangesIn("FirebaseRemoteConfig/")
 @has_remoteconfig_api_changes = hasChangesIn("FirebaseRemoteConfig/Sources/Public/")
 @has_segmentation_changes = hasChangesIn("FirebaseSegmentation/")
@@ -127,6 +130,7 @@ has_license_changes = didModify(["LICENSE"])
                      @has_installations_api_changes ||
                      @has_instanceid_api_changes ||
                      @has_messaging_api_changes ||
+                     @has_performance_api_changes ||
                      @has_remoteconfig_api_changes ||
                      @has_segmentation_api_changes ||
                      @has_storage_api_changes ||
