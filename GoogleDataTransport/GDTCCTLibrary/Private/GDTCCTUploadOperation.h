@@ -22,11 +22,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-#if !NDEBUG
-/** A notification fired when uploading is complete, detailing the number of events uploaded. */
-extern NSNotificationName const GDTCCTUploadCompleteNotification;
-#endif  // #if !NDEBUG
-
 // TODO: Refine API and API docs
 
 @protocol GDTCCTUploadMetadataProvider <NSObject>

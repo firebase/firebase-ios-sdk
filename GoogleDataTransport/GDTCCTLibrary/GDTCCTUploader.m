@@ -28,11 +28,6 @@ NS_ASSUME_NONNULL_BEGIN
 static NSString *const kINTServerURL =
     @"https://dummyapiverylong-dummy.dummy.com/dummy/api/very/long";
 
-// TODO: Implement.
-#if !NDEBUG
-NSNotificationName const GDTCCTUploadCompleteNotification = @"com.GDTCCTUploader.UploadComplete";
-#endif  // #if !NDEBUG
-
 @interface GDTCCTUploader () <NSURLSessionDelegate, GDTCCTUploadMetadataProvider>
 
 @property(nonatomic, readonly) NSOperationQueue *uploadOperationQueue;
@@ -116,21 +111,7 @@ static NSURL *_testServerURL = nil;
     if (weakOperation.uploadAttempted) {
       // Ignore all upload requests received when the upload was in progress.
       [weakSelf.uploadOperationQueue cancelAllOperations];
-
-      // TODO: Should we reconsider GDTCCTUploadCompleteNotification? Maybe a completion handler
-      // instead?
-#if !NDEBUG
-      [[NSNotificationCenter defaultCenter] postNotificationName:GDTCCTUploadCompleteNotification
-                                                          object:nil];
-#endif  // #if !NDEBUG
     }
-
-#if !NDEBUG
-    if (weakSelf.uploadOperationQueue.operationCount == 0) {
-      [[NSNotificationCenter defaultCenter] postNotificationName:GDTCCTUploadCompleteNotification
-                                                          object:nil];
-    }
-#endif  // #if !NDEBUG
   };
 
   [self.uploadOperationQueue addOperation:uploadOperation];
