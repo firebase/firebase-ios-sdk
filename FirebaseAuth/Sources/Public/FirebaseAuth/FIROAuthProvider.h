@@ -66,7 +66,7 @@ NS_SWIFT_NAME(OAuthProvider)
 
     @param providerID The provider ID associated with the Auth credential being created.
     @param IDToken The IDToken associated with the Auth credential being created.
-    @param accessToken The accessstoken associated with the Auth credential be created, if
+    @param accessToken The access token associated with the Auth credential be created, if
         available.
     @return A FIRAuthCredential for the specified provider ID, ID token and access token.
  */
@@ -79,7 +79,7 @@ NS_SWIFT_NAME(OAuthProvider)
       an ID token.
 
     @param providerID The provider ID associated with the Auth credential being created.
-    @param accessToken The accessstoken associated with the Auth credential be created
+    @param accessToken The access token associated with the Auth credential be created
     @return A FIRAuthCredential.
  */
 + (FIROAuthCredential *)credentialWithProviderID:(NSString *)providerID
@@ -92,7 +92,7 @@ NS_SWIFT_NAME(OAuthProvider)
     @param providerID The provider ID associated with the Auth credential being created.
     @param IDToken The IDToken associated with the Auth credential being created.
     @param rawNonce The raw nonce associated with the Auth credential being created.
-    @param accessToken The accessstoken associated with the Auth credential be created, if
+    @param accessToken The access token associated with the Auth credential be created, if
         available.
     @return A FIRAuthCredential for the specified provider ID, ID token and access token.
  */

@@ -17,17 +17,23 @@
 #import "Functions/FirebaseFunctions/FIRFunctions+Internal.h"
 #import "Functions/FirebaseFunctions/Public/FirebaseFunctions/FIRFunctions.h"
 
-@interface FIRFunctionsTests : XCTestCase {
+@interface FIRFunctions (Test)
+
+@property(nonatomic, readonly) NSString *emulatorOrigin;
+
+@end
+
+@interface FIRFunctionsTests : XCTestCase
+
+@end
+
+@implementation FIRFunctionsTests {
   FIRFunctions *_functions;
   FIRFunctions *_functionsCustomDomain;
 }
-@end
-
-@implementation FIRFunctionsTests
 
 - (void)setUp {
   [super setUp];
-
   _functions = [[FIRFunctions alloc] initWithProjectID:@"my-project"
                                                 region:@"my-region"
                                           customDomain:nil
@@ -51,9 +57,10 @@
 }
 
 - (void)testRegionWithEmulator {
-  [_functions useFunctionsEmulatorOrigin:@"http://localhost:5005"];
-  NSString *url = [_functions URLWithName:@"my-endpoint"];
-  XCTAssertEqualObjects(@"http://localhost:5005/my-project/my-region/my-endpoint", url);
+  [_functionsCustomDomain useEmulatorWithHost:@"localhost" port:5005];
+  NSLog(@"%@", _functionsCustomDomain.emulatorOrigin);
+  NSString *url = [_functionsCustomDomain URLWithName:@"my-endpoint"];
+  XCTAssertEqualObjects(@"localhost:5005/my-project/my-region/my-endpoint", url);
 }
 
 - (void)testCustomDomain {
@@ -62,9 +69,14 @@
 }
 
 - (void)testCustomDomainWithEmulator {
-  [_functionsCustomDomain useFunctionsEmulatorOrigin:@"http://localhost:5005"];
+  [_functionsCustomDomain useEmulatorWithHost:@"localhost" port:5005];
   NSString *url = [_functionsCustomDomain URLWithName:@"my-endpoint"];
-  XCTAssertEqualObjects(@"http://localhost:5005/my-project/my-region/my-endpoint", url);
+  XCTAssertEqualObjects(@"localhost:5005/my-project/my-region/my-endpoint", url);
+}
+
+- (void)testSetEmulatorSettings {
+  [_functions useEmulatorWithHost:@"localhost" port:1000];
+  XCTAssertEqualObjects(@"localhost:1000", _functions.emulatorOrigin);
 }
 
 @end

@@ -1,4 +1,8 @@
-# Unreleased
+# v8.1.0
+- Expose upload URLs which FirebasePerformance will depend upon.
+- Fix out-of-memory crash for a big amount of pending events. (#6995)
+
+# v8.0.1
 - Remove `GCC_TREAT_WARNINGS_AS_ERRORS` from the podspec.
 - Reduce pre-main startup time footprint. (#6855)
 

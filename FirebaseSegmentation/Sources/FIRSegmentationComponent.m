@@ -16,19 +16,9 @@
 
 #import "FirebaseSegmentation/Sources/Private/FIRSegmentationComponent.h"
 
-#import "FirebaseCore/Sources/Private/FIRAppInternal.h"
-#import "FirebaseCore/Sources/Private/FIRComponentContainer.h"
-#import "FirebaseCore/Sources/Private/FIROptionsInternal.h"
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "FirebaseSegmentation/Sources/Private/FIRSegmentationInternal.h"
 #import "FirebaseSegmentation/Sources/SEGSegmentationConstants.h"
-
-#ifndef FIRSegmentation_VERSION
-#error "FIRSegmentation_VERSION is not defined: \
-add -DFIRSegmentation_VERSION=... to the build invocation"
-#endif
-
-#define STR(x) STR_EXPAND(x)
-#define STR_EXPAND(x) #x
 
 @implementation FIRSegmentationComponent
 
@@ -82,9 +72,7 @@ add -DFIRSegmentation_VERSION=... to the build invocation"
 + (void)load {
   // Register as an internal library to be part of the initialization process. The name comes from
   // go/firebase-sdk-platform-info.
-  [FIRApp registerInternalLibrary:self
-                         withName:@"fire-seg"
-                      withVersion:[NSString stringWithUTF8String:STR(FIRSegmentation_VERSION)]];
+  [FIRApp registerInternalLibrary:self withName:@"fire-seg"];
 }
 
 #pragma mark - Interoperability

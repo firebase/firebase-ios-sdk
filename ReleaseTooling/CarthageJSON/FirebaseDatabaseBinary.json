@@ -56,5 +56,7 @@
   "6.8.0": "https://dl.google.com/dl/firebase/ios/carthage/6.8.0/Database-578737ff28d79cb7.zip",
   "6.8.1": "https://dl.google.com/dl/firebase/ios/carthage/6.8.1/Database-48ed9283a94725c9.zip",
   "6.9.0": "https://dl.google.com/dl/firebase/ios/carthage/6.9.0/Database-098e1475a25935e8.zip",
-  "7.0.0": "https://dl.google.com/dl/firebase/ios/carthage/7.0.0/FirebaseDatabase-df92bfa52230a48f.zip"
+  "7.0.0": "https://dl.google.com/dl/firebase/ios/carthage/7.0.0/FirebaseDatabase-df92bfa52230a48f.zip",
+  "7.1.0": "https://dl.google.com/dl/firebase/ios/carthage/7.1.0/FirebaseDatabase-ac4b61e7b20af7e9.zip",
+  "7.3.0": "https://dl.google.com/dl/firebase/ios/carthage/7.3.0/FirebaseDatabase-a20126ceec8f373f.zip"
 }

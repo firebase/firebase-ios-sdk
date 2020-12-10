@@ -1,0 +1,30 @@
+name: cocoapods-integration
+
+on:
+  pull_request:
+    paths:
+    - 'CocoapodsIntegrationTest/**'
+    - '.github/workflows/cocoapods-integration.yml'
+    - 'Gemfile'
+  schedule:
+    # Run every day at 11pm (PST) - cron uses UTC times
+    - cron:  '0 7 * * *'
+
+jobs:
+  tests:
+    # Don't run on private repo unless it is a PR.
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+
+    runs-on: macOS-latest
+    strategy:
+      matrix:
+        config: [Cocoapods_multiprojects_frameworks, Cocoapods_multiprojects_staticLibs]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Get realpath
+      run: brew install coreutils
+    - name: Build and test
+      run: |
+        scripts/third_party/travis/retry.sh ./CocoapodsIntegrationTest/scripts/build_with_environment.sh \
+          --gemfile=./CocoapodsIntegrationTest/TestEnvironments/${{ matrix.config }}/Gemfile \
+          --podfile=./CocoapodsIntegrationTest/TestEnvironments/${{ matrix.config }}/Podfile

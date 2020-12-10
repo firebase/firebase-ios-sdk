@@ -74,45 +74,98 @@ struct ZipBuilder {
   struct FilesystemPaths {
     // MARK: - Required Paths
 
+    /// The root of the `firebase-ios-sdk` git repo.
+    let repoDir: URL
+
     /// The path to the directory containing the blank xcodeproj and Info.plist for building source
-    /// based frameworks.
-    var templateDir: URL
+    /// based frameworks. Generated based on the `repoDir`.
+    var templateDir: URL {
+      return type(of: self).templateDir(fromRepoDir: repoDir)
+    }
 
     // MARK: - Optional Paths
 
-    /// The path to a directory to move all build logs to. If nil, a temporary directory will be
+    /// The root directory for build artifacts. If `nil`, a temporary directory will be used.
+    let buildRoot: URL?
+
+    /// The output directory for any artifacts generated during the build. If `nil`, a temporary
+    /// directory will be used.
+    let outputDir: URL?
+
+    /// The path to where local podspecs are stored.
+    let localPodspecPath: URL?
+
+    /// The path to a directory to move all build logs to. If `nil`, a temporary directory will be
     /// used.
     var logsOutputDir: URL?
 
-    /// Default initializer with all required paths.
-    init(templateDir: URL) {
-      self.templateDir = templateDir
+    /// Creates the struct containing all properties needed for a build.
+    /// - Parameter repoDir: The root of the `firebase-ios-sdk` git repo.
+    /// - Parameter buildRoot: The root directory for build artifacts. If `nil`, a temporary
+    ///      directory will be used.
+    /// - Parameter outputDir: The output directory for any artifacts generated. If `nil`, a
+    ///      temporary directory will be used.
+    /// - Parameter localPodspecPath: A path to where local podspecs are stored.
+    /// - Parameter logsOutputDir: The output directory for any logs. If `nil`, a temporary
+    ///      directory will be used.
+    init(repoDir: URL,
+         buildRoot: URL?,
+         outputDir: URL?,
+         localPodspecPath: URL?,
+         logsOutputDir: URL?) {
+      self.repoDir = repoDir
+      self.buildRoot = buildRoot
+      self.outputDir = outputDir
+      self.localPodspecPath = localPodspecPath
+      self.logsOutputDir = logsOutputDir
+    }
+
+    /// Returns the expected template directory given the repo directory provided.
+    static func templateDir(fromRepoDir repoDir: URL) -> URL {
+      return repoDir.appendingPathComponents(["ReleaseTooling", "Template"])
     }
   }
+
+  /// Paths needed throughout the process of packaging the Zip file.
+  public let paths: FilesystemPaths
+
+  /// The platforms to target for the builds.
+  public let platforms: [TargetPlatform]
+
+  /// Specifies if the builder is building dynamic frameworks instead of static frameworks.
+  private let dynamicFrameworks: Bool
 
   /// Custom CocoaPods spec repos to be used. If not provided, the tool will only use the CocoaPods
   /// master repo.
   private let customSpecRepos: [URL]?
 
-  /// Paths needed throughout the process of packaging the Zip file.
-  private let paths: FilesystemPaths
-
-  /// Default initializer. If allSDKsPath and currentReleasePath are provided, it will also verify
-  /// that the
+  /// Creates a ZipBuilder struct to build and assemble zip files and Carthage builds.
   ///
   /// - Parameters:
   ///   - paths: Paths that are needed throughout the process of packaging the Zip file.
+  ///   - platforms: The platforms to target for the builds.
+  ///   - dynamicFrameworks: Specifies if dynamic frameworks should be built, otherwise static
+  ///         frameworks are built.
   ///   - customSpecRepo: A custom spec repo to be used for fetching CocoaPods from.
-  init(paths: FilesystemPaths, customSpecRepos: [URL]? = nil) {
+  init(paths: FilesystemPaths,
+       platforms: [TargetPlatform],
+       dynamicFrameworks: Bool,
+       customSpecRepos: [URL]? = nil) {
     self.paths = paths
+    self.platforms = platforms
     self.customSpecRepos = customSpecRepos
+    self.dynamicFrameworks = dynamicFrameworks
   }
 
   /// Builds and assembles the contents for the zip build.
   ///
   /// - Parameter podsToInstall: All pods to install.
   /// - Returns: Arrays of pod install info and the frameworks installed.
-  func buildAndAssembleZip(podsToInstall: [CocoaPodUtils.VersionedPod]) ->
+  func buildAndAssembleZip(podsToInstall: [CocoaPodUtils.VersionedPod],
+                           inProjectDir projectDir: URL,
+                           minimumIOSVersion: String,
+                           includeDependencies: Bool,
+                           includeCarthage: Bool = false) ->
     ([String: CocoaPodUtils.PodInfo], [String: [URL]], [String: [URL]]?) {
     // Remove CocoaPods cache so the build gets updates after a version is rebuilt during the
     // release process. Always do this, since it can be the source of subtle failures on rebuilds.
@@ -124,28 +177,36 @@ struct ZipBuilder {
     // wouldn't be included so we need to install all of the subspecs to catch the superset of all
     // required frameworks, then use that as the source of frameworks to pull from when including
     // the folders in each product directory.
+    let linkage: CocoaPodUtils.LinkageType = dynamicFrameworks ? .dynamic : .standardStatic
     CocoaPodUtils.installPods(podsToInstall,
                               inDir: projectDir,
-                              customSpecRepos: customSpecRepos)
+                              minimumIOSVersion: minimumIOSVersion,
+                              customSpecRepos: customSpecRepos,
+                              localPodspecPath: paths.localPodspecPath,
+                              linkage: linkage)
 
     // Find out what pods were installed with the above commands.
-    let installedPods = CocoaPodUtils.installedPodsInfo(inProjectDir: projectDir)
+    let installedPods = CocoaPodUtils.installedPodsInfo(inProjectDir: projectDir,
+                                                        localPodspecPath: paths.localPodspecPath)
 
     // If module maps are needed for static frameworks, build them here to be available to copy
     // into the generated frameworks.
-    if !LaunchArgs.shared.dynamic {
-      ModuleMapBuilder(customSpecRepos: customSpecRepos, selectedPods: installedPods).build()
+    if !dynamicFrameworks {
+      ModuleMapBuilder(customSpecRepos: customSpecRepos,
+                       selectedPods: installedPods,
+                       minimumIOSVersion: minimumIOSVersion,
+                       paths: paths).build()
     }
 
-    let podsToBuild = LaunchArgs.shared.buildDependencies ? installedPods :
-      installedPods.filter {
-        podsToInstall.map { $0.name.components(separatedBy: "/").first }.contains($0.key)
-      }
+    let podsToBuild = includeDependencies ? installedPods : installedPods.filter {
+      podsToInstall.map { $0.name.components(separatedBy: "/").first }.contains($0.key)
+    }
 
     // Generate the frameworks. Each key is the pod name and the URLs are all frameworks to be
     // copied in each product's directory.
     let (frameworks, carthageFrameworks) = generateFrameworks(fromPods: podsToBuild,
-                                                              inProjectDir: projectDir)
+                                                              inProjectDir: projectDir,
+                                                              includeCarthage: includeCarthage)
 
     for (framework, paths) in frameworks {
       print("Frameworks for pod: \(framework) were compiled at \(paths)")
@@ -161,7 +222,9 @@ struct ZipBuilder {
   ///
   /// - Returns: Information related to the built artifacts.
   /// - Throws: One of many errors that could have happened during the build phase.
-  func buildAndAssembleFirebaseRelease(inProjectDir projectDir: URL) throws -> ReleaseArtifacts {
+  func buildAndAssembleFirebaseRelease(inProjectDir projectDir: URL,
+                                       minimumIOSVersion: String,
+                                       includeCarthage: Bool) throws -> ReleaseArtifacts {
     let manifest = FirebaseManifest.shared
     var podsToInstall = manifest.pods.filter { $0.zip }.map {
       CocoaPodUtils.VersionedPod(name: $0.name, version: manifest.versionString($0))
@@ -177,7 +240,12 @@ struct ZipBuilder {
     print("Final expected versions for the Zip file: \(podsToInstall)")
 
     let (installedPods, frameworks,
-         carthageFrameworks) = buildAndAssembleZip(podsToInstall: podsToInstall)
+         carthageFrameworks) = buildAndAssembleZip(podsToInstall: podsToInstall,
+                                                   inProjectDir: projectDir,
+                                                   minimumIOSVersion: minimumIOSVersion,
+                                                   // Always include dependencies for Firebase zips.
+                                                   includeDependencies: true,
+                                                   includeCarthage: includeCarthage)
 
     // We need the Firebase pod to get the version for Carthage and to copy the `Firebase.h` and
     // `module.modulemap` file from it.
@@ -578,8 +646,9 @@ struct ZipBuilder {
   /// frameworks to install EXCLUDING resources, as they are handled later (if not included in the
   /// .framework file already).
   private func generateFrameworks(fromPods pods: [String: CocoaPodUtils.PodInfo],
-                                  inProjectDir projectDir: URL) -> ([String: [URL]],
-                                                                    [String: [URL]]?) {
+                                  inProjectDir projectDir: URL,
+                                  includeCarthage: Bool) -> ([String: [URL]],
+                                                             [String: [URL]]?) {
     // Verify the Pods folder exists and we can get the contents of it.
     let fileManager = FileManager.default
 
@@ -612,7 +681,10 @@ struct ZipBuilder {
 
       // If it's an open source pod and we need to compile the source to get a framework.
       if podInfo.isSourcePod {
-        let builder = FrameworkBuilder(projectDir: projectDir)
+        let builder = FrameworkBuilder(projectDir: projectDir,
+                                       platforms: platforms,
+                                       includeCarthage: includeCarthage,
+                                       dynamicFrameworks: dynamicFrameworks)
         let (framework, carthageFramework) = builder.buildFramework(withName: podName,
                                                                     podInfo: podInfo,
                                                                     logsOutputDir: paths
@@ -652,6 +724,7 @@ struct ZipBuilder {
 
           CarthageUtils.generatePlistContents(
             forName: framework.lastPathComponent.components(separatedBy: ".").first!,
+            withVersion: podInfo.version,
             to: carthageLocation
           )
           carthageFrameworks.append(carthageLocation)
@@ -660,9 +733,11 @@ struct ZipBuilder {
       toInstall[podName] = frameworks
       carthageToInstall[podName] = carthageFrameworks
     }
-    if args.carthageBuild == false {
+
+    if includeCarthage {
+      return (toInstall, carthageToInstall)
+    } else {
       return (toInstall, nil)
     }
-    return (toInstall, carthageToInstall)
   }
 }

@@ -77,16 +77,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, nullable, readonly) NSString *fetchedBundleID;
 
 /**
- * Indicates whether the app needs onboarding
- */
-@property(nonatomic, readonly) BOOL appNeedsOnboarding;
-
-/**
- * Indicates whether the app needs an update
- */
-@property(nonatomic, readonly) BOOL appUpdateRequired;
-
-/**
  * When this is false, Crashlytics will not start up
  */
 @property(nonatomic, readonly) BOOL collectReportsEnabled;

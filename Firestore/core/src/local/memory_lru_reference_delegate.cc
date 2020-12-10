@@ -86,9 +86,9 @@ void MemoryLruReferenceDelegate::OnTransactionCommitted() {
   current_sequence_number_ = kListenSequenceNumberInvalid;
 }
 
-void MemoryLruReferenceDelegate::EnumerateTargets(
-    const TargetCallback& callback) {
-  return persistence_->target_cache()->EnumerateTargets(callback);
+void MemoryLruReferenceDelegate::EnumerateTargetSequenceNumbers(
+    const SequenceNumberCallback& callback) {
+  return persistence_->target_cache()->EnumerateSequenceNumbers(callback);
 }
 
 void MemoryLruReferenceDelegate::EnumerateOrphanedDocuments(
@@ -116,8 +116,8 @@ size_t MemoryLruReferenceDelegate::GetSequenceNumberCount() {
 int MemoryLruReferenceDelegate::RemoveTargets(
     model::ListenSequenceNumber sequence_number,
     const LiveQueryMap& live_queries) {
-  return persistence_->target_cache()->RemoveTargets(sequence_number,
-                                                     live_queries);
+  return static_cast<int>(persistence_->target_cache()->RemoveTargets(
+      sequence_number, live_queries));
 }
 
 int MemoryLruReferenceDelegate::RemoveOrphanedDocuments(

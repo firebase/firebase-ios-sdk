@@ -76,10 +76,19 @@ struct ModuleMapBuilder {
   /// Dictionary of installed pods required for this module.
   private var installedPods: [String: FrameworkInfo]
 
+  /// The minimum iOS version targeted for this framework. Ex. "10.0".
+  private let minimumIOSVersion: String
+
+  /// The path containing local podspec URLs, if specified.
+  private let localPodspecPath: URL?
+
   /// Default initializer.
-  init(customSpecRepos: [URL]?, selectedPods: [String: CocoaPodUtils.PodInfo]) {
+  init(customSpecRepos: [URL]?,
+       selectedPods: [String: CocoaPodUtils.PodInfo],
+       minimumIOSVersion: String,
+       paths: ZipBuilder.FilesystemPaths) {
     projectDir = FileManager.default.temporaryDirectory(withName: "module")
-    CocoaPodUtils.podInstallPrepare(inProjectDir: projectDir)
+    CocoaPodUtils.podInstallPrepare(inProjectDir: projectDir, paths: paths)
 
     self.customSpecRepos = customSpecRepos
     allPods = selectedPods
@@ -92,6 +101,9 @@ struct ModuleMapBuilder {
                                              subspecs: pod.value.subspecs)
     }
     self.installedPods = installedPods
+
+    self.minimumIOSVersion = minimumIOSVersion
+    localPodspecPath = paths.localPodspecPath
   }
 
   // MARK: - Public Functions
@@ -117,8 +129,10 @@ struct ModuleMapBuilder {
     let deps = CocoaPodUtils.transitiveVersionedPodDependencies(for: podName, in: allPods)
     _ = CocoaPodUtils.installPods(allSubspecList(framework: framework) + deps,
                                   inDir: projectDir,
+                                  minimumIOSVersion: minimumIOSVersion,
                                   customSpecRepos: customSpecRepos,
-                                  forceStaticLibs: true)
+                                  localPodspecPath: localPodspecPath,
+                                  linkage: .forcedStatic)
     let xcconfigFile = projectDir.appendingPathComponents(["Pods", "Target Support Files",
                                                            "Pods-FrameworkMaker",
                                                            "Pods-FrameworkMaker.release.xcconfig"])

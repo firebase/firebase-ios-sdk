@@ -45,6 +45,8 @@ NSNotificationName const GDTCCTUploadCompleteNotification = @"com.GDTCCTUploader
 
 @implementation GDTCCTUploader
 
+static NSURL *_testServerURL = nil;
+
 + (void)load {
   GDTCCTUploader *uploader = [GDTCCTUploader sharedInstance];
   [[GDTCORRegistrar sharedInstance] registerUploader:uploader target:kGDTCORTargetCCT];
@@ -97,7 +99,7 @@ NSNotificationName const GDTCCTUploadCompleteNotification = @"com.GDTCCTUploader
   GDTCCTUploadOperation *uploadOperation =
       [[GDTCCTUploadOperation alloc] initWithTarget:target
                                          conditions:conditions
-                                          uploadURL:[self serverURLForTarget:target]
+                                          uploadURL:[[self class] serverURLForTarget:target]
                                               queue:self.uploadQueue
                                             storage:storage
                                    metadataProvider:self];
@@ -138,10 +140,15 @@ NSNotificationName const GDTCCTUploadCompleteNotification = @"com.GDTCCTUploader
 
 #pragma mark - URLs
 
-/**
- *
- */
-- (nullable NSURL *)serverURLForTarget:(GDTCORTarget)target {
++ (void)setTestServerURL:(NSURL *_Nullable)serverURL {
+  _testServerURL = serverURL;
+}
+
++ (NSURL *_Nullable)testServerURL {
+  return _testServerURL;
+}
+
++ (NSDictionary<NSNumber *, NSURL *> *)uploadURLs {
   // These strings should be interleaved to construct the real URL. This is just to (hopefully)
   // fool github URL scanning bots.
   static NSURL *CCTServerURL;
@@ -191,31 +198,28 @@ NSNotificationName const GDTCCTUploadCompleteNotification = @"com.GDTCCTUploader
                           p2[31], p1[32], p2[32], p1[33], p2[33], p1[34], p2[34], p1[35], '\0'};
     CSHServerURL = [NSURL URLWithString:[NSString stringWithUTF8String:URL]];
   });
+  static NSDictionary<NSNumber *, NSURL *> *uploadURLs;
+  static dispatch_once_t URLOnceToken;
+  dispatch_once(&URLOnceToken, ^{
+    uploadURLs = @{
+      @(kGDTCORTargetCCT) : CCTServerURL,
+      @(kGDTCORTargetFLL) : FLLServerURL,
+      @(kGDTCORTargetCSH) : CSHServerURL,
+      @(kGDTCORTargetINT) : [NSURL URLWithString:kINTServerURL]
+    };
+  });
+  return uploadURLs;
+}
 
++ (nullable NSURL *)serverURLForTarget:(GDTCORTarget)target {
 #if !NDEBUG
   if (_testServerURL) {
     return _testServerURL;
   }
 #endif  // !NDEBUG
 
-  switch (target) {
-    case kGDTCORTargetCCT:
-      return CCTServerURL;
-
-    case kGDTCORTargetFLL:
-      return FLLServerURL;
-
-    case kGDTCORTargetCSH:
-      return CSHServerURL;
-
-    case kGDTCORTargetINT:
-      return [NSURL URLWithString:kINTServerURL];
-
-    default:
-      GDTCORLogDebug(@"GDTCCTUploader doesn't support target %ld", (long)target);
-      return nil;
-      break;
-  }
+  NSDictionary<NSNumber *, NSURL *> *uploadURLs = [self uploadURLs];
+  return uploadURLs[@(target)];
 }
 
 - (NSString *)FLLAndCSHAndINTAPIKey {

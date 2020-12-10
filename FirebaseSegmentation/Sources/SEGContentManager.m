@@ -67,24 +67,24 @@
   // Get the latest installation identifier
   FIRInstallations *installation = [self installationForApp:firebaseApp];
   if (installation == nil) {
-    completionHandler(NO, @{kErrorDescription : @"Firebase Installations SDK not available"});
+    completionHandler(NO, @{kSEGErrorDescription : @"Firebase Installations SDK not available"});
   }
   __weak SEGContentManager *weakSelf = self;
-  [installation
-      installationIDWithCompletion:^(NSString *_Nullable identifier, NSError *_Nullable error) {
-        SEGContentManager *strongSelf = weakSelf;
-        if (!strongSelf) {
-          completionHandler(NO, @{kErrorDescription : @"Internal Error getting installation ID."});
-          return;
-        }
+  [installation installationIDWithCompletion:^(NSString *_Nullable identifier,
+                                               NSError *_Nullable error) {
+    SEGContentManager *strongSelf = weakSelf;
+    if (!strongSelf) {
+      completionHandler(NO, @{kSEGErrorDescription : @"Internal Error getting installation ID."});
+      return;
+    }
 
-        [strongSelf associateInstallationWithLatestIdentifier:identifier
-                                                 installation:installation
-                                         customizedIdentifier:customInstallationID
-                                                  firebaseApp:firebaseApp
-                                                        error:error
-                                                   completion:completionHandler];
-      }];
+    [strongSelf associateInstallationWithLatestIdentifier:identifier
+                                             installation:installation
+                                     customizedIdentifier:customInstallationID
+                                              firebaseApp:firebaseApp
+                                                    error:error
+                                               completion:completionHandler];
+  }];
 }
 
 - (void)associateInstallationWithLatestIdentifier:(NSString *_Nullable)identifier
@@ -98,7 +98,7 @@
     if (error) {
       errorMessage = [errorMessage stringByAppendingString:error.description];
     }
-    NSDictionary *errorDictionary = @{kErrorDescription : errorMessage};
+    NSDictionary *errorDictionary = @{kSEGErrorDescription : errorMessage};
     completionHandler(NO, errorDictionary);
     return;
   }
@@ -125,7 +125,7 @@
     if (error) {
       errorMessage = [errorMessage stringByAppendingString:error.description];
     }
-    NSDictionary *errorDictionary = @{kErrorDescription : errorMessage};
+    NSDictionary *errorDictionary = @{kSEGErrorDescription : errorMessage};
     completionHandler(NO, errorDictionary);
     return;
   }

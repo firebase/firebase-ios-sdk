@@ -5,7 +5,7 @@
     "FirebaseInstallations": "~> 7.0",
     "FirebaseRemoteConfig": "~> 7.0",
     "GTMSessionFetcher/Core": "~> 1.1",
-    "GoogleDataTransport": "~> 8.0",
+    "GoogleDataTransport": "~> 8.1",
     "GoogleToolboxForMac/Logger": "~> 2.1",
     "GoogleToolboxForMac/NSData+zlib": "~> 2.1",
     "GoogleUtilities/Environment": "~> 7.0",
@@ -32,11 +32,11 @@
     "README.md"
   ],
   "source": {
-    "http": "https://dl.google.com/dl/cpdc/adf593100a9db03b/FirebasePerformance-7.0.0.tar.gz"
+    "http": "https://dl.google.com/dl/cpdc/2c853ed5998621b9/FirebasePerformance-7.3.0.tar.gz"
   },
   "summary": "Firebase Performance for iOS",
   "vendored_frameworks": [
-    "Frameworks/FirebasePerformance.framework"
+    "Frameworks/FirebasePerformance.xcframework"
   ],
-  "version": "7.0.0"
+  "version": "7.3.0"
 }
