@@ -31,14 +31,14 @@ jobs:
   # Archive tests for pods that support iOS, tvOS, and macOS.
   pods-ios-tvos-macos-cron:
     # Don't run on private repo.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule')
+#    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule')
 
     runs-on: macOS-latest
     strategy:
       matrix:
         target: [ios, tvos, macos]
         # These need to be on a single line or else the formatting won't validate.
-        pod: ["FirebaseABTesting", "FirebaseAuth", "FirebaseCore", "FirebaseCrashlytics", "FirebaseDatabase", "FirebaseFirestore", "FirebaseFunctions", "FirebaseMessaging", "FirebaseRemoteConfig", "FirebaseStorage", "GoogleDataTransport"]
+        pod: ["FirebaseABTesting", "FirebaseAppDistribution", FirebaseAuth", "FirebaseCore", "FirebaseCrashlytics", "FirebaseDatabase", "FirebaseFirestore", "FirebaseFunctions", "FirebaseMessaging", "FirebasePerformance", "FirebaseRemoteConfig", "FirebaseStorage", "GoogleDataTransport"]
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
