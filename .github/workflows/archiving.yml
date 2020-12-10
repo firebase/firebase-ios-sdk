@@ -13,7 +13,7 @@ jobs:
   # Archive tests for pods that support iOS only.
   pods-ios-only-cron:
     # Don't run on private repo.
-#    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule')
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule')
 
     runs-on: macOS-latest
     strategy:
