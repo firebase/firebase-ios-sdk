@@ -1,3 +1,7 @@
+# Version 7.4.0
+* FirebasePerformance is now open source.
+* Remove a dependency causing symbol collisions with GoogleTagManager. (#6597)
+
 # Version 7.3.0
 * Add blocklist for GoogleDataTransport upload URLs.
 * Update the event transport mechanism to open sourced GoogleDataTransport.

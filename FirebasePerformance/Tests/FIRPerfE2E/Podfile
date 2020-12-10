@@ -21,7 +21,6 @@ target 'FIRPerfE2EAutopush' do
   # Other dependencies
   pod 'Protobuf'
   pod 'GoogleToolboxForMac/Logger'
-  pod 'GoogleToolboxForMac/NSData+zlib'
 
   target 'FIRPerfE2EAutopushUITests' do
   end
@@ -47,7 +46,6 @@ target 'FIRPerfE2EProd' do
   # Other dependencies
   pod 'Protobuf'
   pod 'GoogleToolboxForMac/Logger'
-  pod 'GoogleToolboxForMac/NSData+zlib'
 
   target 'FIRPerfE2EProdUITests' do
   end
