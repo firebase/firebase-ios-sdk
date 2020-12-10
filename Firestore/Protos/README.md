@@ -14,10 +14,6 @@ cmake ..
 make -j generate_protos
 ```
 
-### Workarounds
-  * May need to move and restore /usr/local/Cellar/python@2 before and after
-  running `make -j generate_protos`
-
 Verify diffs, make sure tests still pass, and create a PR.
 
 ### Updating to a new nanopb version:
