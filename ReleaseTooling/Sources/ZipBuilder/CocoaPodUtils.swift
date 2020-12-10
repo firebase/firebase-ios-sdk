@@ -485,6 +485,9 @@ enum CocoaPodUtils {
         if podspec == "FirebaseInstanceID.podspec" ||
           podspec == "FirebaseInstallations.podspec" ||
           podspec == "FirebaseCoreDiagnostics.podspec" ||
+          podspec == "FirebaseCore.podspec" ||
+          podspec == "FirebaseRemoteConfig.podspec" ||
+          podspec == "FirebaseABTesting.podspec" ||
           podspec == "GoogleUtilities.podspec" ||
           podspec == "GoogleDataTransport.podspec" {
           let podName = podspec.replacingOccurrences(of: ".podspec", with: "")
