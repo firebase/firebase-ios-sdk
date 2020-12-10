@@ -36,8 +36,8 @@ jobs:
   pod-lib-lint:
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+
     runs-on: macOS-latest
-    
     strategy:
       matrix:
         target: [ios]
