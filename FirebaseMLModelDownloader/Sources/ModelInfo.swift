@@ -65,7 +65,7 @@ struct ModelInfo {
     self.path = path
   }
 
-  func save(toDefaults defaults: UserDefaults, appName: String) throws {
+  func writeToDefaults(_ defaults: UserDefaults, appName: String) throws {
     guard let modelPath = path else {
       throw DownloadedModelError
         .fileIOError(description: "Could not save model info to user defaults.")

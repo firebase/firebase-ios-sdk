@@ -90,7 +90,7 @@ extension ModelDownloadTask: URLSessionDownloadDelegate {
     modelInfo.path = savedURL.absoluteString
     /// Write model to user defaults.
     do {
-      try modelInfo.save(toDefaults: .firebaseMLDefaults, appName: appName)
+      try modelInfo.writeToDefaults(.firebaseMLDefaults, appName: appName)
     } catch {
       downloadHandlers
         .completion(.failure(.internalError(description: error.localizedDescription)))

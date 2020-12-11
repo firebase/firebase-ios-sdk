@@ -74,14 +74,14 @@ final class ModelDownloaderUnitTests: XCTestCase {
     )
     // This fails because there is no model path.
     do {
-      try modelInfo.save(toDefaults: .getTestInstance(), appName: testApp.name)
+      try modelInfo.writeToDefaults(.getTestInstance(), appName: testApp.name)
     } catch {
       XCTAssertNotNil(error)
     }
     modelInfo.path = testModelPath
     // This shouldn't fail because model info object is now complete.
     do {
-      try modelInfo.save(toDefaults: .getTestInstance(), appName: testApp.name)
+      try modelInfo.writeToDefaults(.getTestInstance(), appName: testApp.name)
     } catch {
       XCTFail(error.localizedDescription)
     }
@@ -147,6 +147,9 @@ final class ModelDownloaderUnitTests: XCTestCase {
     let modelDownloader = ModelDownloader.modelDownloader()
 
     let modelDownloaderWithApp = ModelDownloader.modelDownloader(app: testApp)
+
+    /// These should point to the same instance.
+    XCTAssert(modelDownloader === modelDownloaderWithApp)
 
     let conditions = ModelDownloadConditions()
 
