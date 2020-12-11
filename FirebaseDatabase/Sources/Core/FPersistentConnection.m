@@ -328,6 +328,7 @@ typedef enum {
 - (BOOL)canSendReads {
     return self->connectionState == ConnectionStateConnected;
 }
+
 #pragma mark -
 #pragma mark FConnection delegate methods
 
@@ -730,7 +731,8 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref,
     NSAssert([self canSendReads],
              @"sendGet called when not able to send reads");
     FOutstandingGet *get = self.outstandingGets[index];
-    assert(get != nil);
+    NSAssert(get != nil, @"sendGet found no outstanding get at index %@",
+             index);
     if ([get sent]) {
         return;
     }
@@ -827,26 +829,27 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref,
     self.outstandingGets[index] = get;
 
     if (![self connected]) {
-        dispatch_after(
-            dispatch_time(DISPATCH_TIME_NOW, kPersistentConnGetConnectTimeout),
-            self.dispatchQueue, ^{
-              FOutstandingGet *get = self.outstandingGets[index];
-              if ([get sent]) {
-                  return;
-              }
-              get.sent = YES;
-              [self.outstandingGets removeObjectForKey:index];
-              get.onCompleteBlock(kFWPResponseForActionStatusFailed, nil,
-                                  kPersistentConnOffline);
-            });
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW,
+                                     kPersistentConnectionGetConnectTimeout),
+                       self.dispatchQueue, ^{
+                         FOutstandingGet *get = self.outstandingGets[index];
+                         if ([get sent]) {
+                             return;
+                         }
+                         FFLog(@"I-RDB034045",
+                               @"get %@ timed out waiting for a connection",
+                               index);
+                         get.sent = YES;
+                         [self.outstandingGets removeObjectForKey:index];
+                         get.onCompleteBlock(kFWPResponseForActionStatusFailed,
+                                             nil, kPersistentConnectionOffline);
+                       });
         return;
     }
 
     if ([self canSendReads]) {
         FFLog(@"I-RDB034024", @"Was connected, and added as index: %@", index);
         [self sendGet:index];
-    } else {
-        FFLog(@"I-RDB034025", @"Was connected, and added as index: %@", index);
     }
 }
 
@@ -1089,12 +1092,13 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref,
       [self sendListen:outstandingListen];
     }];
 
-    NSArray *keys = [[self.outstandingPuts allKeys]
+    NSArray *putKeys = [[self.outstandingPuts allKeys]
         sortedArrayUsingSelector:@selector(compare:)];
-    for (int i = 0; i < [keys count]; i++) {
-        if ([self.outstandingPuts objectForKey:[keys objectAtIndex:i]] != nil) {
+    for (int i = 0; i < [putKeys count]; i++) {
+        if ([self.outstandingPuts objectForKey:[putKeys objectAtIndex:i]] !=
+            nil) {
             FFLog(@"I-RDB034037", @"Restoring put: %d", i);
-            [self sendPut:[keys objectAtIndex:i]];
+            [self sendPut:[putKeys objectAtIndex:i]];
         } else {
             FFLog(@"I-RDB034038", @"Restoring put: skipped nil: %d", i);
         }
@@ -1103,9 +1107,10 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref,
     NSArray *getKeys = [[self.outstandingGets allKeys]
         sortedArrayUsingSelector:@selector(compare:)];
     for (int i = 0; i < [getKeys count]; i++) {
-        if ([self.outstandingGets objectForKey:[keys objectAtIndex:i]] != nil) {
+        if ([self.outstandingGets objectForKey:[getKeys objectAtIndex:i]] !=
+            nil) {
             FFLog(@"I-RDB034037", @"Restoring get: %d", i);
-            [self sendGet:[keys objectAtIndex:i]];
+            [self sendGet:[getKeys objectAtIndex:i]];
         } else {
             FFLog(@"I-RDB034038", @"Restoring get: skipped nil: %d", i);
         }

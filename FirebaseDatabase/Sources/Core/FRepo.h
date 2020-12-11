@@ -46,7 +46,7 @@
     withCallback:(fbt_void_nserror_ref)callback;
 - (void)purgeOutstandingWrites;
 
-- (void)getValue:(FIRDatabaseQuery *)query
+- (void)getData:(FIRDatabaseQuery *)query
     withCompletionBlock:
         (void (^_Nonnull)(NSError *__nullable error,
                           FIRDataSnapshot *__nullable snapshot))block;

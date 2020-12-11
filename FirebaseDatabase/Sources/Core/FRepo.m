@@ -513,7 +513,7 @@
     [self.connection purgeOutstandingWrites];
 }
 
-- (void)getValue:(FIRDatabaseQuery *)query
+- (void)getData:(FIRDatabaseQuery *)query
     withCompletionBlock:
         (void (^_Nonnull)(NSError *__nullable error,
                           FIRDataSnapshot *__nullable snapshot))block {
