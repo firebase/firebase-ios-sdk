@@ -15,7 +15,6 @@
 #import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 
 #import "Crashlytics/Crashlytics/Components/FIRCLSApplication.h"
-#import "Crashlytics/Crashlytics/Controllers/FIRCLSNetworkClient.h"
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSReportUploader_Private.h"
 #import "Crashlytics/Crashlytics/DataCollection/FIRCLSDataCollectionArbiter.h"
 #import "Crashlytics/Crashlytics/DataCollection/FIRCLSDataCollectionToken.h"
@@ -27,7 +26,6 @@
 #import "Crashlytics/Crashlytics/Models/FIRCLSSettings.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSSymbolResolver.h"
 #import "Crashlytics/Crashlytics/Models/Record/FIRCLSReportAdapter.h"
-#import "Crashlytics/Crashlytics/Operations/Reports/FIRCLSPackageReportOperation.h"
 #import "Crashlytics/Crashlytics/Operations/Reports/FIRCLSProcessReportOperation.h"
 
 #include "Crashlytics/Crashlytics/Helpers/FIRCLSUtility.h"
@@ -46,9 +44,7 @@
 @implementation FIRCLSReportUploader
 
 - (instancetype)initWithQueue:(NSOperationQueue *)queue
-                     delegate:(id<FIRCLSReportUploaderDelegate>)delegate
                    dataSource:(id<FIRCLSReportUploaderDataSource>)dataSource
-                       client:(FIRCLSNetworkClient *)client
                   fileManager:(FIRCLSFileManager *)fileManager
                     analytics:(id<FIRAnalyticsInterop>)analytics {
   self = [super init];
@@ -57,9 +53,7 @@
   }
 
   _operationQueue = queue;
-  _delegate = delegate;
   _dataSource = dataSource;
-  _networkClient = client;
   _fileManager = fileManager;
   _analytics = analytics;
 
@@ -67,19 +61,28 @@
 }
 
 #pragma mark - Packaging and Submission
-- (BOOL)prepareAndSubmitReport:(FIRCLSInternalReport *)report
+
+/*
+ * For a crash report, this is the inital code path for uploading. A report
+ * will not repeat this code path after it's happened because this code path
+ * will move the report from the "active" folder into "processing" and then
+ * "prepared". Once in prepared, the report can be re-uploaded any number of times
+ * with uploadPackagedReportAtPath in the case of an upload failure.
+ */
+- (void)prepareAndSubmitReport:(FIRCLSInternalReport *)report
            dataCollectionToken:(FIRCLSDataCollectionToken *)dataCollectionToken
                       asUrgent:(BOOL)urgent
                 withProcessing:(BOOL)shouldProcess {
-  __block BOOL success = NO;
-
   if (![dataCollectionToken isValid]) {
     FIRCLSErrorLog(@"Data collection disabled and report will not be submitted");
-    return NO;
+    return;
   }
 
+  // This activity is still relevant using GoogleDataTransport because the on-device
+  // symbolication operation may be computationally intensive.
   FIRCLSApplicationActivity(
       FIRCLSApplicationActivityDefault, @"Crashlytics Crash Report Processing", ^{
+        // Run on-device symbolication before packaging if we should process
         if (shouldProcess) {
           if (![self.fileManager moveItemAtPath:report.path
                                     toDirectory:self.fileManager.processingPath]) {
@@ -99,50 +102,62 @@
           [processOperation start];
         }
 
-        NSString *packagedPath;
-
         // With the new report endpoint, the report is deleted once it is written to GDT
         // Check if the report has a crash file before the report is moved or deleted
         BOOL isCrash = report.isCrash;
 
-        // For the new endpoint, just move the .clsrecords from "processing" -> "prepared"
+        // For the new endpoint, just move the .clsrecords from "processing" -> "prepared".
+        // In the old endpoint this was for packaging the report as a multipartmime file,
+        // so this can probably be removed for GoogleDataTransport.
         if (![self.fileManager moveItemAtPath:report.path
                                   toDirectory:self.fileManager.preparedPath]) {
           FIRCLSErrorLog(@"Unable to move report to prepared");
           return;
         }
 
-        packagedPath = [self.fileManager.preparedPath
+        NSString *packagedPath = [self.fileManager.preparedPath
             stringByAppendingPathComponent:report.path.lastPathComponent];
 
+        FIRCLSInfoLog(@"[Firebase/Crashlytics] Packaged report with id '%@' for submission",
+                      report.identifier);
 
-        NSLog(@"[Firebase/Crashlytics] Packaged report with id '%@' for submission",
-              report.identifier);
+        [self uploadPackagedReportAtPath:packagedPath
+                     dataCollectionToken:dataCollectionToken
+                                asUrgent:urgent];
 
-        success = [self uploadPackagedReportAtPath:packagedPath
-                               dataCollectionToken:dataCollectionToken
-                                          asUrgent:urgent];
-
-        // If the upload was successful and the report contained a crash forward it to Google
-        // Analytics.
-        if (success && isCrash) {
+        // We don't check for success here for 2 reasons:
+        //   1) If we can't upload a crash for whatever reason, but we can upload analytics
+        //      it's better for the customer to get accurate Crash Free Users.
+        //   2) In the past we did try to check for success, but it was a useless check because
+        //      sendDataEvent is async (unless we're sending urgently).
+        if (isCrash) {
           [FIRCLSFCRAnalytics logCrashWithTimeStamp:report.crashedOnDate.timeIntervalSince1970
                                         toAnalytics:self->_analytics];
         }
       });
 
-  return success;
+  return;
 }
 
-- (BOOL)uploadPackagedReportAtPath:(NSString *)path
+/*
+ * This code path can be repeated any number of times for a prepared crash report if
+ * the report is failing to upload.
+ *
+ * Therefore, side effects (like logging to Analytics) should not go in this method or
+ * else they will re-trigger when failures happen.
+ *
+ * When a crash report fails to upload, it will stay in the "prepared" folder. Upon next
+ * run of the app, the ReportManager will attempt to re-upload prepared reports using this
+ * method.
+ */
+- (void)uploadPackagedReportAtPath:(NSString *)path
                dataCollectionToken:(FIRCLSDataCollectionToken *)dataCollectionToken
                           asUrgent:(BOOL)urgent {
-  FIRCLSDeveloperLog("Crashlytics:Crash:Reports", @"Submitting report%@",
-                     urgent ? @" as urgent" : @"");
+  FIRCLSDebugLog(@"Submitting report %@", urgent ? @"urgently" : @"async");
 
   if (![dataCollectionToken isValid]) {
     FIRCLSErrorLog(@"A report upload was requested with an invalid data collection token.");
-    return NO;
+    return;
   }
 
   FIRCLSReportAdapter *adapter =
@@ -154,28 +169,22 @@
 
   dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
 
-  __block BOOL success = YES;
-
   [self.dataSource.googleTransport
       sendDataEvent:event
          onComplete:^(BOOL wasWritten, NSError *error) {
            if (!wasWritten) {
-             FIRCLSDeveloperLog("Crashlytics:Crash:Reports",
-                                @"Failed to send crash report due to gdt write failure.");
-             success = NO;
+             FIRCLSErrorLog(
+                 @"Failed to send crash report due to failure writing GoogleDataTransport event");
              return;
            }
 
            if (error) {
-             FIRCLSDeveloperLog("Crashlytics:Crash:Reports",
-                                @"Failed to send crash report due to gdt error: %@",
-                                error.localizedDescription);
-             success = NO;
+             FIRCLSErrorLog(@"Failed to send crash report due to GoogleDataTransport error: %@",
+                            error.localizedDescription);
              return;
            }
 
-           FIRCLSDeveloperLog("Crashlytics:Crash:Reports",
-                              @"Completed report submission with id: %@", path.lastPathComponent);
+           FIRCLSInfoLog(@"Completed report submission with id: %@", path.lastPathComponent);
 
            if (urgent) {
              dispatch_semaphore_signal(semaphore);
@@ -187,9 +196,6 @@
   if (urgent) {
     dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
   }
-
-  return success;
-
 }
 
 - (BOOL)cleanUpSubmittedReportAtPath:(NSString *)path {
@@ -199,20 +205,6 @@
   }
 
   return YES;
-}
-
-- (void)reportUploadAtPath:(NSString *)path
-       dataCollectionToken:(FIRCLSDataCollectionToken *)dataCollectionToken
-        completedWithError:(NSError *)error {
-  FIRCLSDeveloperLog("Crashlytics:Crash:Reports", @"completed submission of %@", path);
-
-  if (!error) {
-    [self cleanUpSubmittedReportAtPath:path];
-  }
-
-  [[self delegate] didCompletePackageSubmission:path
-                            dataCollectionToken:dataCollectionToken
-                                          error:error];
 }
 
 @end

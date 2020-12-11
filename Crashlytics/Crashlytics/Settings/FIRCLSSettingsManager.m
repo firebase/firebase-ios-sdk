@@ -90,7 +90,6 @@
  * log statement).
  */
 - (void)beginSettingsDownload:(FIRCLSDataCollectionToken *)token {
-
   FIRCLSDownloadAndSaveSettingsOperation *operation = nil;
   operation = [[FIRCLSDownloadAndSaveSettingsOperation alloc]
         initWithGoogleAppID:self.googleAppID

@@ -91,9 +91,6 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   // Default to an hour
   XCTAssertEqual(self.settings.cacheDurationSeconds, 60 * 60);
 
-  XCTAssertEqualObjects(self.settings.orgID, nil);
-  XCTAssertEqualObjects(self.settings.fetchedBundleID, nil);
-
   XCTAssertTrue(self.settings.collectReportsEnabled);
   XCTAssertTrue(self.settings.errorReportingEnabled);
   XCTAssertTrue(self.settings.customExceptionsEnabled);
@@ -102,8 +99,6 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   XCTAssertEqual(self.settings.logBufferSize, 64 * 1000);
   XCTAssertEqual(self.settings.maxCustomExceptions, 8);
   XCTAssertEqual(self.settings.maxCustomKeys, 64);
-
-  XCTAssertTrue(self.settings.shouldUseNewReportEndpoint);
 }
 
 - (BOOL)writeSettings:(const NSString *)settings error:(NSError **)error {
@@ -161,9 +156,6 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   XCTAssertEqual(self.settings.isCacheExpired, NO);
   XCTAssertEqual(self.settings.cacheDurationSeconds, 60);
 
-  XCTAssertEqualObjects(self.settings.orgID, @"010101000000111111111111");
-  XCTAssertEqualObjects(self.settings.fetchedBundleID, @"com.lets.test.crashlytics");
-
   XCTAssertTrue(self.settings.collectReportsEnabled);
   XCTAssertTrue(self.settings.errorReportingEnabled);
   XCTAssertTrue(self.settings.customExceptionsEnabled);
@@ -184,9 +176,6 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
 
   XCTAssertEqual(self.settings.isCacheExpired, NO);
   XCTAssertEqual(self.settings.cacheDurationSeconds, 12345);
-
-  XCTAssertEqualObjects(self.settings.orgID, @"01e101a0000011b113115111");
-  XCTAssertEqualObjects(self.settings.fetchedBundleID, @"im.from.the.server");
 
   XCTAssertFalse(self.settings.collectReportsEnabled);
   XCTAssertFalse(self.settings.errorReportingEnabled);
@@ -217,8 +206,6 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   XCTAssertEqual(self.settings.isCacheExpired, YES);
 
   // Since the TTL just expired, do not clear settings
-  XCTAssertEqualObjects(self.settings.orgID, @"010101000000111111111111");
-  XCTAssertEqualObjects(self.settings.fetchedBundleID, @"com.lets.test.crashlytics");
   XCTAssertEqual(self.settings.errorLogBufferSize, 64 * 1000);
 
   // Pretend we fetched settings again, but they had different values
@@ -230,8 +217,6 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
 
   // We should have the updated values that were fetched, and should not be expired
   XCTAssertEqual(self.settings.isCacheExpired, NO);
-  XCTAssertEqualObjects(self.settings.orgID, @"01e101a0000011b113115111");
-  XCTAssertEqualObjects(self.settings.fetchedBundleID, @"im.from.the.server");
   XCTAssertEqual(self.settings.errorLogBufferSize, 128000);
 }
 
@@ -255,8 +240,6 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   XCTAssertEqual(self.settings.isCacheExpired, YES);
 
   // Since the TTL just expired, do not clear settings
-  XCTAssertEqualObjects(self.settings.orgID, @"010101000000111111111111");
-  XCTAssertEqualObjects(self.settings.fetchedBundleID, @"com.lets.test.crashlytics");
   XCTAssertEqual(self.settings.errorLogBufferSize, 64 * 1000);
 
   // Pretend we fetched settings again, but they had different values
@@ -268,8 +251,6 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
 
   // We should have the updated values that were fetched, and should not be expired
   XCTAssertEqual(self.settings.isCacheExpired, NO);
-  XCTAssertEqualObjects(self.settings.orgID, @"01e101a0000011b113115111");
-  XCTAssertEqualObjects(self.settings.fetchedBundleID, @"im.from.the.server");
   XCTAssertEqual(self.settings.errorLogBufferSize, 128000);
 }
 
@@ -294,8 +275,6 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   XCTAssertEqual(self.settings.isCacheExpired, YES);
 
   // Since the TTL just expired, do not clear settings
-  XCTAssertEqualObjects(self.settings.orgID, @"010101000000111111111111");
-  XCTAssertEqualObjects(self.settings.fetchedBundleID, @"com.lets.test.crashlytics");
   XCTAssertEqual(self.settings.errorLogBufferSize, 64 * 1000);
 
   // Pretend we fetched settings again, but they had different values
@@ -307,8 +286,6 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
 
   // We should have the updated values that were fetched, and should not be expired
   XCTAssertEqual(self.settings.isCacheExpired, NO);
-  XCTAssertEqualObjects(self.settings.orgID, @"01e101a0000011b113115111");
-  XCTAssertEqualObjects(self.settings.fetchedBundleID, @"im.from.the.server");
   XCTAssertEqual(self.settings.errorLogBufferSize, 128000);
 }
 
@@ -328,8 +305,6 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   XCTAssertEqual(self.settings.isCacheExpired, YES);
 
   // Clear the settings because they were for a different Google App ID
-  XCTAssertEqualObjects(self.settings.orgID, nil);
-  XCTAssertEqualObjects(self.settings.fetchedBundleID, nil);
 
   // Pretend we fetched settings again, but they had different values
   [self writeSettings:FIRCLSTestSettingsActivated error:&error];
@@ -341,8 +316,6 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
 
   // Should have new values and not expired
   XCTAssertEqual(self.settings.isCacheExpired, NO);
-  XCTAssertEqualObjects(self.settings.orgID, @"010101000000111111111111");
-  XCTAssertEqualObjects(self.settings.fetchedBundleID, @"com.lets.test.crashlytics");
   XCTAssertEqual(self.settings.errorLogBufferSize, 64 * 1000);
 }
 
@@ -363,9 +336,6 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
 
   XCTAssertEqual(self.settings.isCacheExpired, YES);
   XCTAssertEqual(self.settings.cacheDurationSeconds, 3600);
-
-  XCTAssertEqualObjects(self.settings.orgID, nil);
-  XCTAssertEqualObjects(self.settings.fetchedBundleID, nil);
 
   XCTAssertTrue(self.settings.collectReportsEnabled);
   XCTAssertTrue(self.settings.errorReportingEnabled);
@@ -391,8 +361,6 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   // Should have "Inverse" values
   XCTAssertEqual(self.settings.isCacheExpired, NO);
   XCTAssertEqual(self.settings.cacheDurationSeconds, 12345);
-  XCTAssertEqualObjects(self.settings.orgID, @"01e101a0000011b113115111");
-  XCTAssertEqualObjects(self.settings.fetchedBundleID, @"im.from.the.server");
   XCTAssertEqual(self.settings.errorLogBufferSize, 128000);
 
   // Then write a corrupted one and cache + reload it
@@ -407,10 +375,7 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   // Should have default values because we deleted the cache and settingsDictionary
   XCTAssertEqual(self.settings.isCacheExpired, YES);
   XCTAssertEqual(self.settings.cacheDurationSeconds, 3600);
-  XCTAssertEqualObjects(self.settings.orgID, nil);
-  XCTAssertEqualObjects(self.settings.fetchedBundleID, nil);
   XCTAssertEqual(self.settings.errorLogBufferSize, 64 * 1000);
-  XCTAssertTrue(self.settings.shouldUseNewReportEndpoint);
 }
 
 - (void)testCorruptCacheKey {
@@ -425,8 +390,6 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   // Should have "Inverse" values
   XCTAssertEqual(self.settings.isCacheExpired, NO);
   XCTAssertEqual(self.settings.cacheDurationSeconds, 12345);
-  XCTAssertEqualObjects(self.settings.orgID, @"01e101a0000011b113115111");
-  XCTAssertEqualObjects(self.settings.fetchedBundleID, @"im.from.the.server");
   XCTAssertEqual(self.settings.errorLogBufferSize, 128000);
 
   // Then pretend we wrote a corrupted cache key and just reload it
@@ -441,8 +404,6 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   // Should have default values because we deleted the cache and settingsDictionary
   XCTAssertEqual(self.settings.isCacheExpired, YES);
   XCTAssertEqual(self.settings.cacheDurationSeconds, 3600);
-  XCTAssertEqualObjects(self.settings.orgID, nil);
-  XCTAssertEqualObjects(self.settings.fetchedBundleID, nil);
   XCTAssertEqual(self.settings.errorLogBufferSize, 64 * 1000);
 }
 
@@ -458,7 +419,6 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
 
   XCTAssertNotNil(self.settings.settingsDictionary);
   NSLog(@"[Debug Log] %@", self.settings.settingsDictionary);
-  XCTAssertTrue(self.settings.shouldUseNewReportEndpoint);
 }
 
 - (void)testLegacyReportEndpointSettings {
@@ -471,11 +431,6 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   [self.settings cacheSettingsWithGoogleAppID:TestGoogleAppID currentTimestamp:currentTimestamp];
 
   XCTAssertNil(error, "%@", error);
-#ifdef CRASHLYTICS_1P
-  XCTAssertTrue(self.settings.shouldUseNewReportEndpoint);
-#else
-  XCTAssertFalse(self.settings.shouldUseNewReportEndpoint);
-#endif
 }
 
 - (void)testLegacyReportEndpointSettingsWithNonExistentKey {
@@ -487,7 +442,6 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   [self.settings cacheSettingsWithGoogleAppID:TestGoogleAppID currentTimestamp:currentTimestamp];
 
   XCTAssertNil(error, "%@", error);
-  XCTAssertTrue(self.settings.shouldUseNewReportEndpoint);
 }
 
 - (void)testLegacyReportEndpointSettingsWithUnknownValue {
@@ -500,15 +454,6 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   [self.settings cacheSettingsWithGoogleAppID:TestGoogleAppID currentTimestamp:currentTimestamp];
 
   XCTAssertNil(error, "%@", error);
-  XCTAssertTrue(self.settings.shouldUseNewReportEndpoint);
-}
-
-- (void)testShouldUseNewReportEndpointWithEmptyDictionary {
-  NSError *error = nil;
-  [self writeSettings:nil error:&error];
-  XCTAssertNil(error, "%@", error);
-  XCTAssertNotNil(self.settings);
-  XCTAssertTrue(self.settings.shouldUseNewReportEndpoint);
 }
 
 @end

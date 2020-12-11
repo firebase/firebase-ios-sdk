@@ -251,16 +251,6 @@ NSString *const AppVersion = @"app_version";
   return 60 * 60;
 }
 
-#pragma mark - Identifiers
-
-- (nullable NSString *)orgID {
-  return self.fabricSettings[@"org_id"];
-}
-
-- (nullable NSString *)fetchedBundleID {
-  return self.fabricSettings[@"bundle_id"];
-}
-
 #pragma mark - On / Off Switches
 
 - (BOOL)errorReportingEnabled {
