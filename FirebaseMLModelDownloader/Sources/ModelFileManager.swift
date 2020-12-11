@@ -44,14 +44,14 @@ enum ModelFileManager {
       do {
         try FileManager.default.removeItem(at: destinationURL)
       } catch {
-        throw DownloadedModelError
-          .fileIOError(description: "Could not replace existing model file.")
+        throw DownloadError
+          .internalError(description: "Could not replace existing model file.")
       }
     }
     do {
       try FileManager.default.moveItem(at: sourceURL, to: destinationURL)
     } catch {
-      throw DownloadedModelError.fileIOError(description: "Unable to save model file.")
+      throw DownloadError.internalError(description: "Unable to save model file.")
     }
   }
 }

@@ -37,7 +37,7 @@ class DownloadHandlers {
 
 /// Manager to handle model downloading device and storing downloaded model info to persistent storage.
 class ModelDownloadTask: NSObject {
-  private let app: FirebaseApp
+  private let appName: String
   private(set) var modelInfo: ModelInfo
   private var downloadTask: URLSessionDownloadTask?
   private let downloadHandlers: DownloadHandlers
@@ -48,11 +48,11 @@ class ModelDownloadTask: NSObject {
                                                 delegate: self,
                                                 delegateQueue: nil)
 
-  init(app: FirebaseApp, modelInfo: ModelInfo,
+  init(modelInfo: ModelInfo, appName: String,
        progressHandler: DownloadHandlers.ProgressHandler? = nil,
        completion: @escaping DownloadHandlers.Completion) {
-    self.app = app
     self.modelInfo = modelInfo
+    self.appName = appName
     downloadHandlers = DownloadHandlers(
       progressHandler: progressHandler,
       completion: completion
@@ -80,17 +80,19 @@ extension ModelDownloadTask: URLSessionDownloadDelegate {
       .appendingPathComponent(downloadedModelFileName)
     do {
       try ModelFileManager.moveFile(at: location, to: savedURL)
+    } catch let error as DownloadError {
+      downloadHandlers
+        .completion(.failure(error))
     } catch {
       downloadHandlers
         .completion(.failure(.internalError(description: error.localizedDescription)))
-      return
     }
 
     /// Set path to local model.
     modelInfo.update(modelPath: savedURL.absoluteString)
     /// Write model to user defaults.
     do {
-      try modelInfo.save(toDefaults: .firebaseMLDefaults)
+      try modelInfo.save(toDefaults: .firebaseMLDefaults, appName: appName)
     } catch let downloadError as DownloadError {
       downloadHandlers.completion(.failure(downloadError))
     } catch {
@@ -130,7 +132,7 @@ extension ModelDownloadTask: URLSessionDownloadDelegate {
 /// Extension to handle post-download operations.
 extension ModelDownloadTask {
   var downloadedModelFileName: String {
-    return "fbml_model__\(app.name)__\(modelInfo.name)"
+    return "fbml_model__\(appName)__\(modelInfo.name)"
   }
 
   /// Get the local path to model on device.

@@ -34,20 +34,23 @@ private extension ModelInfoResponse {
 
 /// Model info retriever for a model from local user defaults or server.
 class ModelInfoRetriever: NSObject {
-  /// Current Firebase app.
-  private var app: FirebaseApp
+  /// Current Firebase app options.
+  private var options: FirebaseOptions
   /// Model name.
   private var modelName: String
   /// Firebase installations.
   private var installations: Installations
   /// Model info associated with model.
   private(set) var modelInfo: ModelInfo?
+  /// Current Firebase app name.
+  private let appName: String
 
   /// Associate model info retriever with current Firebase app, and model name.
-  init(app: FirebaseApp, modelName: String) {
-    self.app = app
+  init(modelName: String, options: FirebaseOptions, installations: Installations, appName: String) {
     self.modelName = modelName
-    installations = Installations.installations(app: app)
+    self.options = options
+    self.installations = installations
+    self.appName = appName
   }
 }
 
@@ -69,9 +72,9 @@ extension ModelInfoRetriever {
     "Could not get a valid HTTP response from server."
 
   /// Construct model fetch base URL.
-  private var modelInfoFetchURL: URL {
-    let projectID = app.options.projectID ?? ""
-    let apiKey = app.options.apiKey
+  var modelInfoFetchURL: URL {
+    let projectID = options.projectID ?? ""
+    let apiKey = options.apiKey
     var components = URLComponents()
     components.scheme = "https"
     components.host = "firebaseml.googleapis.com"
@@ -193,14 +196,14 @@ extension ModelInfoRetriever {
       name: modelName,
       downloadURL: downloadURL,
       modelHash: modelHash,
-      size: size,
-      app: app
+      size: size
     )
   }
 
   /// Set model info from previously saved info in user defaults.
   func setModelInfo(fromDefaults defaults: UserDefaults) throws {
-    guard let modelInfo = ModelInfo(fromDefaults: defaults, name: modelName, app: app) else {
+    guard let modelInfo = ModelInfo(fromDefaults: defaults, name: modelName, appName: appName)
+    else {
       throw DownloadError
         .internalError(description: "No model info saved to user defaults for model: \(modelName).")
     }

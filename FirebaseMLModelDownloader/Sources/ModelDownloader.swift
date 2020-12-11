@@ -51,39 +51,69 @@ public enum ModelDownloadType {
 
 /// Downloader to manage custom model downloads.
 public class ModelDownloader {
-  /// FirebaseApp associated with this instance of ModelDownloader.
-  private let app: FirebaseApp
+  /// Name of the app associated with this instance of ModelDownloader.
+  private let appName: String
 
+  /// Shared dictionary mapping app name to a specific instance of model downloader.
+  // TODO: Switch to using Firebase components.
+  private static var modelDownloaderDictionary: [String: ModelDownloader] = [:]
+
+  /// Private init for downloader.
   private init(app: FirebaseApp) {
-    self.app = app
+    appName = app.name
+    NotificationCenter.default.addObserver(
+      self,
+      selector: #selector(deleteModelDownloader),
+      name: Notification.Name("FIRAppDeleteNotification"),
+      object: nil
+    )
+  }
+
+  /// Handles app deletion notification.
+  @objc private func deleteModelDownloader(notification: Notification) {
+    if let userInfo = notification.userInfo,
+      let appName = userInfo["FIRAppNameKey"] as? String {
+      ModelDownloader.modelDownloaderDictionary.removeValue(forKey: appName)
+      // TODO: Clean up user defaults
+      // TODO: Clean up local instances of app
+    }
   }
 
   /// Model downloader with default app.
-  static func modelDownloader() throws -> ModelDownloader {
+  public static func modelDownloader() -> ModelDownloader {
     guard let defaultApp = FirebaseApp.app() else {
-      // TODO: Replace with more appropriate error.
-      throw DownloadError.internalError(description: "Default Firebase app not configured.")
+      fatalError("Default Firebase app not configured.")
     }
     return modelDownloader(app: defaultApp)
   }
 
   /// Model Downloader with custom app.
-  static func modelDownloader(app: FirebaseApp) -> ModelDownloader {
-    return ModelDownloader(app: app)
+  public static func modelDownloader(app: FirebaseApp) -> ModelDownloader {
+    if let downloader = modelDownloaderDictionary[app.name] {
+      return downloader
+    } else {
+      let downloader = ModelDownloader(app: app)
+      modelDownloaderDictionary[app.name] = downloader
+      return downloader
+    }
   }
 
   /// Get model saved on device, if available.
-  private func getLocalModel(modelName: String, app: FirebaseApp,
+  private func getLocalModel(modelName: String,
                              progressHandler: ((Float) -> Void)? = nil,
                              completion: @escaping (Result<CustomModel, DownloadError>) -> Void) {
-    guard let modelInfo = ModelInfo(fromDefaults: .firebaseMLDefaults, name: modelName, app: app),
+    guard let modelInfo = ModelInfo(
+      fromDefaults: .firebaseMLDefaults,
+      name: modelName,
+      appName: appName
+    ),
       let path = modelInfo.path else {
-      getRemoteModel(
-        modelName: modelName,
-        app: app,
-        progressHandler: progressHandler,
-        completion: completion
-      )
+//      getRemoteModel(
+//        modelName: modelName,
+//        app: app,
+//        progressHandler: progressHandler,
+//        completion: completion
+//      )
       return
     }
     let model = CustomModel(
@@ -96,38 +126,38 @@ public class ModelDownloader {
   }
 
   /// Download and get model from server.
-  private func getRemoteModel(modelName: String, app: FirebaseApp,
-                              progressHandler: ((Float) -> Void)? = nil,
-                              completion: @escaping (Result<CustomModel, DownloadError>) -> Void) {
-    let modelInfoRetriever = ModelInfoRetriever(app: app, modelName: modelName)
-    modelInfoRetriever.downloadModelInfo { error in
-      if let downloadError = error {
-        completion(.failure(downloadError))
-      } else {
-        guard let modelInfo = modelInfoRetriever.modelInfo else {
-          completion(.failure(.internalError(description: "Error downloading model info.")))
-          return
-        }
-        guard let path = modelInfo.path else {
-          let downloadTask = ModelDownloadTask(
-            app: app,
-            modelInfo: modelInfo,
-            progressHandler: progressHandler,
-            completion: completion
-          )
-          downloadTask.resumeModelDownload()
-          return
-        }
-        let model = CustomModel(
-          name: modelInfo.name,
-          size: modelInfo.size,
-          path: path,
-          hash: modelInfo.modelHash
-        )
-        completion(.success(model))
-      }
-    }
-  }
+//  private func getRemoteModel(modelName: String, app: FirebaseApp,
+//                              progressHandler: ((Float) -> Void)? = nil,
+//                              completion: @escaping (Result<CustomModel, DownloadError>) -> Void) {
+//    let modelInfoRetriever = ModelInfoRetriever(modelName: modelName, options: options, installations: Installations, appName: appName)
+//    modelInfoRetriever.downloadModelInfo { error in
+//      if let downloadError = error {
+//        completion(.failure(downloadError))
+//      } else {
+//        guard let modelInfo = modelInfoRetriever.modelInfo else {
+//          completion(.failure(.internalError(description: "Error downloading model info.")))
+//          return
+//        }
+//        guard let path = modelInfo.path else {
+//          let downloadTask = ModelDownloadTask(
+//            app: app,
+//            modelInfo: modelInfo,
+//            progressHandler: progressHandler,
+//            completion: completion
+//          )
+//          downloadTask.resumeModelDownload()
+//          return
+//        }
+//        let model = CustomModel(
+//          name: modelInfo.name,
+//          size: modelInfo.size,
+//          path: path,
+//          hash: modelInfo.modelHash
+//        )
+//        completion(.success(model))
+//      }
+//    }
+//  }
 
   /// Downloads a custom model to device or gets a custom model already on device, w/ optional handler for progress.
   public func getModel(name modelName: String, downloadType: ModelDownloadType,
@@ -138,19 +168,19 @@ public class ModelDownloader {
     switch downloadType {
     case .localModel: getLocalModel(
       modelName: modelName,
-      app: app,
       progressHandler: progressHandler,
       completion: completion
     )
 
     case .localModelUpdateInBackground: break
 
-    case .latestModel: getRemoteModel(
-      modelName: modelName,
-      app: app,
-      progressHandler: progressHandler,
-      completion: completion
-    )
+    case .latestModel: break
+//      getRemoteModel(
+//      modelName: modelName,
+//      app: app,
+//      progressHandler: progressHandler,
+//      completion: completion
+//    )
     }
 
     let modelSize = Int()

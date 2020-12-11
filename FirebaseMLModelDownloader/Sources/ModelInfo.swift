@@ -20,9 +20,6 @@ struct ModelInfo {
   /// Model name.
   let name: String
 
-  /// App name.
-  let appName: String
-
   /// Download URL for the model file, as returned by server.
   let downloadURL: URL
 
@@ -35,17 +32,12 @@ struct ModelInfo {
   /// Local path of the model.
   private(set) var path: String?
 
-  /// User defaults key prefix.
-  private(set) var defaultsPrefix: String
-
   /// Initialize model info and create user default keys.
-  init(name: String, downloadURL: URL, modelHash: String, size: Int, app: FirebaseApp) {
+  init(name: String, downloadURL: URL, modelHash: String, size: Int) {
     self.name = name
-    appName = app.name
     self.downloadURL = downloadURL
     self.modelHash = modelHash
     self.size = size
-    defaultsPrefix = ModelInfo.setDefaultsPrefix(appName: app.name, modelName: name)
   }
 
   mutating func update(modelPath path: String) {
@@ -54,14 +46,15 @@ struct ModelInfo {
 }
 
 extension ModelInfo {
-  static func setDefaultsPrefix(appName: String, modelName: String) -> String {
+  /// Get user defaults key prefix.
+  private static func getUserDefaultsKeyPrefix(appName: String, modelName: String) -> String {
     let bundleID = Bundle.main.bundleIdentifier ?? ""
     return "\(bundleID).\(appName).\(modelName)"
   }
 
-  init?(fromDefaults defaults: UserDefaults, name: String, app: FirebaseApp) {
-    // TODO: Refactor defaults prefix as a computed property
-    defaultsPrefix = ModelInfo.setDefaultsPrefix(appName: app.name, modelName: name)
+  // TODO: Move reading and writing to user defaults to a new file.
+  init?(fromDefaults defaults: UserDefaults, name: String, appName: String) {
+    let defaultsPrefix = ModelInfo.getUserDefaultsKeyPrefix(appName: appName, modelName: name)
     guard let downloadURL = defaults
       .value(forKey: "\(defaultsPrefix).model-download-url") as? String,
       let url = URL(string: downloadURL),
@@ -70,21 +63,23 @@ extension ModelInfo {
       let path = defaults.value(forKey: "\(defaultsPrefix).model-path") as? String else {
       return nil
     }
+
     self.name = name
-    appName = app.name
     self.downloadURL = url
     self.modelHash = modelHash
     self.size = size
     self.path = path
   }
 
-  func save(toDefaults defaults: UserDefaults) throws {
+  func save(toDefaults defaults: UserDefaults, appName: String) throws {
     guard let modelPath = path else {
       throw DownloadError
         .internalError(
           description: "Could not save model info to user defaults due to missing model path."
         )
     }
+
+    let defaultsPrefix = ModelInfo.getUserDefaultsKeyPrefix(appName: appName, modelName: name)
     defaults.setValue(downloadURL.absoluteString, forKey: "\(defaultsPrefix).model-download-url")
     defaults.setValue(modelHash, forKey: "\(defaultsPrefix).model-hash")
     defaults.setValue(size, forKey: "\(defaultsPrefix).model-size")

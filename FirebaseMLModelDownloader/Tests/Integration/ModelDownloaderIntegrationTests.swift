@@ -14,6 +14,7 @@
 
 import XCTest
 @testable import FirebaseCore
+@testable import FirebaseInstallations
 @testable import FirebaseMLModelDownloader
 
 extension UserDefaults {
@@ -49,8 +50,10 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
     }
     let testModelName = "pose-detection"
     let modelInfoRetriever = ModelInfoRetriever(
-      app: testApp,
-      modelName: testModelName
+      modelName: testModelName,
+      options: testApp.options,
+      installations: Installations.installations(app: testApp),
+      appName: testApp.name
     )
     let downloadExpectation = expectation(description: "Wait for model info to download.")
     modelInfoRetriever.downloadModelInfo(completion: { error in
@@ -96,14 +99,13 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
       name: testModelName,
       downloadURL: url,
       modelHash: "mock-valid-hash",
-      size: 10,
-      app: testApp
+      size: 10
     )
 
     let expectation = self.expectation(description: "Wait for model to download.")
     let modelDownloadManager = ModelDownloadTask(
-      app: testApp,
       modelInfo: modelInfo,
+      appName: testApp.name,
       progressHandler: { progress in
         XCTAssertNotNil(progress)
       }
