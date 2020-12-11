@@ -175,17 +175,18 @@
 
   // 4. Request token.
   XCTestExpectation *getTokenExpectation = [self expectationWithDescription:@"getToken"];
-  [self.appCheck getTokenForcingRefresh:NO
-                             completion:^(id<FIRAppCheckTokenResultInterop> result) {
-                               [getTokenExpectation fulfill];
+  [self.appCheck
+      getTokenForcingRefresh:NO
+                  completion:^(id<FIRAppCheckTokenResultInterop> result) {
+                    [getTokenExpectation fulfill];
 
-                               XCTAssertNotNil(result);
-                               XCTAssertEqualObjects(result.token, @"0000");
+                    XCTAssertNotNil(result);
+                    XCTAssertEqualObjects(result.token, @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==");
 
-                               // TODO: Expect a public domain error to be returned - not the
-                               // internal one.
-                               XCTAssertEqualObjects(result.error, providerError);
-                             }];
+                    // TODO: Expect a public domain error to be returned - not the
+                    // internal one.
+                    XCTAssertEqualObjects(result.error, providerError);
+                  }];
 
   // 5. Wait for expectations and validate mocks.
   [self waitForExpectations:@[ getTokenExpectation ] timeout:0.5];

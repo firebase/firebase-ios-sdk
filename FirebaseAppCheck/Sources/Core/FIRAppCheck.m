@@ -37,7 +37,7 @@ static id<FIRAppCheckProviderFactory> _providerFactory;
 
 static const NSTimeInterval kTokenExpirationThreshold = 60 * 60;  // 1 hour.
 
-static NSString *const kDummyFACTokenValue = @"0000";
+static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
 
 @interface FIRAppCheck () <FIRLibrary, FIRAppCheckInterop>
 @property(class, nullable) id<FIRAppCheckProviderFactory> providerFactory;

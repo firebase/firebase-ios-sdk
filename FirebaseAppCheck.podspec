@@ -36,7 +36,7 @@ Pod::Spec.new do |s|
 
   s.dependency 'FirebaseCore', '~> 7.0'
   s.dependency 'PromisesObjC', '~> 1.2'
-  s.dependency 'GoogleUtilities/Environment', '~> 7.0'
+  s.dependency 'GoogleUtilities/Environment', '~> 7.2'
 
   preprocessor_definitions = 'FIRAppCheck_LIB_VERSION=' + String(s.version)
   s.pod_target_xcconfig = {
