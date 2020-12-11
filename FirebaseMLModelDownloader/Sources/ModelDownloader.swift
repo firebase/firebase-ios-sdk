@@ -52,24 +52,50 @@ public enum ModelDownloadType {
 /// Downloader to manage custom model downloads.
 public class ModelDownloader {
   /// FirebaseApp associated with this instance of ModelDownloader.
-  private let app: FirebaseApp
+  private let options: FirebaseOptions
 
+  /// Shared dictionary mapping app name to a specific instance of model downloader.
+  // TODO: Switch to using Firebase components.
+  private static var modelDownloaderDictionary: [String: ModelDownloader] = [:]
+
+  /// Private init for downloader.
   private init(app: FirebaseApp) {
-    self.app = app
+    options = app.options
+    NotificationCenter.default.addObserver(
+      self,
+      selector: #selector(deleteModelDownloader),
+      name: Notification.Name("FIRAppDeleteNotification"),
+      object: nil
+    )
+  }
+
+  /// Handles app deletion notification.
+  @objc private func deleteModelDownloader(notification: Notification) {
+    if let userInfo = notification.userInfo,
+      let appName = userInfo["FIRAppNameKey"] as? String {
+      ModelDownloader.modelDownloaderDictionary.removeValue(forKey: appName)
+      // TODO: Clean up user defaults
+      // TODO: Clean up local instances of app
+    }
   }
 
   /// Model downloader with default app.
-  static func modelDownloader() throws -> ModelDownloader {
+  public static func modelDownloader() -> ModelDownloader {
     guard let defaultApp = FirebaseApp.app() else {
-      // TODO: Replace with more appropriate error.
-      throw DownloadError.internalError(description: "Default Firebase app not configured.")
+      fatalError("Default Firebase app not configured.")
     }
     return modelDownloader(app: defaultApp)
   }
 
   /// Model Downloader with custom app.
-  static func modelDownloader(app: FirebaseApp) -> ModelDownloader {
-    return ModelDownloader(app: app)
+  public static func modelDownloader(app: FirebaseApp) -> ModelDownloader {
+    if let downloader = modelDownloaderDictionary[app.name] {
+      return downloader
+    } else {
+      let downloader = ModelDownloader(app: app)
+      modelDownloaderDictionary[app.name] = downloader
+      return downloader
+    }
   }
 
   /// Downloads a custom model to device or gets a custom model already on device, w/ optional handler for progress.

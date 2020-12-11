@@ -14,6 +14,7 @@
 
 import XCTest
 @testable import FirebaseCore
+@testable import FirebaseInstallations
 @testable import FirebaseMLModelDownloader
 
 /// Mock options to configure default Firebase app.
@@ -73,21 +74,21 @@ final class ModelDownloaderUnitTests: XCTestCase {
     )
     // This fails because there is no model path.
     do {
-      try modelInfo.writeToDefaults(app: testApp, defaults: .getTestInstance())
+      try modelInfo.save(toDefaults: .getTestInstance(), appName: testApp.name)
     } catch {
       XCTAssertNotNil(error)
     }
     modelInfo.path = testModelPath
     // This shouldn't fail because model info object is now complete.
     do {
-      try modelInfo.writeToDefaults(app: testApp, defaults: .getTestInstance())
+      try modelInfo.save(toDefaults: .getTestInstance(), appName: testApp.name)
     } catch {
       XCTFail(error.localizedDescription)
     }
     guard let savedModelInfo = ModelInfo(
       fromDefaults: .getTestInstance(cleared: false),
-      name: testModelName,
-      app: testApp
+      modelName: testModelName,
+      appName: testApp.name
     ) else {
       XCTFail("Model info not saved to user defaults.")
       return
@@ -106,8 +107,9 @@ final class ModelDownloaderUnitTests: XCTestCase {
     let functionName = #function
     let testModelName = "\(functionName)-test-model"
     let modelInfoRetriever = ModelInfoRetriever(
-      app: testApp,
-      modelName: testModelName
+      modelName: testModelName,
+      options: testApp.options,
+      installations: Installations.installations(app: testApp)
     )
     let sampleResponse: String = """
     {
@@ -142,10 +144,7 @@ final class ModelDownloaderUnitTests: XCTestCase {
       return
     }
 
-    guard let modelDownloader = try? ModelDownloader.modelDownloader() else {
-      XCTFail("Default app is not configured.")
-      return
-    }
+    let modelDownloader = ModelDownloader.modelDownloader()
 
     let modelDownloaderWithApp = ModelDownloader.modelDownloader(app: testApp)
 

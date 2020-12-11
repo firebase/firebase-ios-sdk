@@ -14,6 +14,7 @@
 
 import XCTest
 @testable import FirebaseCore
+@testable import FirebaseInstallations
 @testable import FirebaseMLModelDownloader
 
 extension UserDefaults {
@@ -47,8 +48,9 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
     }
     let testModelName = "image-classification"
     let modelInfoRetriever = ModelInfoRetriever(
-      app: testApp,
-      modelName: testModelName
+      modelName: testModelName,
+      options: testApp.options,
+      installations: Installations.installations(app: testApp)
     )
     let expectation = self.expectation(description: "Wait for FIS auth token.")
     modelInfoRetriever.getAuthToken(completion: { result in
@@ -72,8 +74,9 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
     }
     let testModelName = "pose-detection"
     let modelInfoRetriever = ModelInfoRetriever(
-      app: testApp,
-      modelName: testModelName
+      modelName: testModelName,
+      options: testApp.options,
+      installations: Installations.installations(app: testApp)
     )
     let downloadExpectation = expectation(description: "Wait for model info to download.")
     modelInfoRetriever.downloadModelInfo(completion: { error in
@@ -111,10 +114,10 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
     let functionName = #function.dropLast(2)
     let testModelName = "\(functionName)-test-model"
     let modelInfoRetriever = ModelInfoRetriever(
-      app: testApp,
-      modelName: testModelName
+      modelName: testModelName,
+      options: testApp.options,
+      installations: Installations.installations(app: testApp)
     )
-
     let urlString =
       "https://tfhub.dev/tensorflow/lite-model/ssd_mobilenet_v1/1/metadata/1?lite-format=tflite"
     let url = URL(string: urlString)!
@@ -127,8 +130,7 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
     )
     let expectation = self.expectation(description: "Wait for model to download.")
     let modelDownloadManager = ModelDownloadTask(
-      app: testApp,
-      modelInfo: modelInfoRetriever.modelInfo!,
+      modelInfo: modelInfoRetriever.modelInfo!, appName: testApp.name,
       progressHandler: { progress in
         XCTAssertNotNil(progress)
       }
