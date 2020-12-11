@@ -51,8 +51,8 @@ public enum ModelDownloadType {
 
 /// Downloader to manage custom model downloads.
 public class ModelDownloader {
-  /// FirebaseApp associated with this instance of ModelDownloader.
-  private let options: FirebaseOptions
+  /// Name of the app associated with this instance of ModelDownloader.
+  private let appName: String
 
   /// Shared dictionary mapping app name to a specific instance of model downloader.
   // TODO: Switch to using Firebase components.
@@ -60,7 +60,7 @@ public class ModelDownloader {
 
   /// Private init for downloader.
   private init(app: FirebaseApp) {
-    options = app.options
+    appName = app.name
     NotificationCenter.default.addObserver(
       self,
       selector: #selector(deleteModelDownloader),
