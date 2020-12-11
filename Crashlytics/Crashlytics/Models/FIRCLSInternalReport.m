@@ -183,11 +183,6 @@ NSString *const FIRCLSReportUserCompactedKVFile = @"user_compacted_kv.clsrecord"
   return _metadataSections;
 }
 
-- (NSString *)orgID {
-  return
-      [[[self.metadataSections objectAtIndex:0] objectForKey:@"identity"] objectForKey:@"org_id"];
-}
-
 - (NSDictionary *)customKeys {
   return nil;
 }
