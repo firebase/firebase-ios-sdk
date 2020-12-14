@@ -180,7 +180,7 @@ struct FrameworkBuilder {
     // If we want to output to the console, create a readabilityHandler and save each line along the
     // way. Otherwise, we can just read the pipe at the end. By disabling outputToConsole, some
     // commands (such as any xcodebuild) can run much, much faster.
-    var output: [String] = []
+    var output = ""
     if captureOutput {
       let pipe = Pipe()
       task.standardOutput = pipe
@@ -193,7 +193,9 @@ struct FrameworkBuilder {
           print("Could not get data from pipe for command \(command): \(pipe.availableData)")
           return
         }
-        output.append(line)
+        if !line.isEmpty {
+          output += line
+        }
       }
       // Also set the termination handler on the task in order to stop the readabilityHandler from
       // parsing any more data from the task.
@@ -204,21 +206,19 @@ struct FrameworkBuilder {
       }
     } else {
       // No capturing output, just mark it as complete.
-      output = ["The task completed"]
+      output = "The task completed"
     }
 
     task.launch()
     task.waitUntilExit()
 
-    let fullOutput = output.joined(separator: "\n")
-
     // Normally we'd use a pipe to retrieve the output, but for whatever reason it slows things down
     // tremendously for xcodebuild.
     guard task.terminationStatus == 0 else {
-      return .error(code: task.terminationStatus, output: fullOutput)
+      return .error(code: task.terminationStatus, output: output)
     }
 
-    return .success(output: fullOutput)
+    return .success(output: output)
   }
 
   /// Build all thin slices for an open source pod.
@@ -326,7 +326,6 @@ struct FrameworkBuilder {
       // podspec - like Release-iphonesimulator/BoringSSL-GRPC/openssl_grpc.framework.
       print("buildDir: \(buildDir)")
       let frameworkPath = buildDir.appendingPathComponents([platform.buildDirName, framework])
-      print("buildDir: \(buildDir)")
       var actualFramework: String
       do {
         let files = try FileManager.default.contentsOfDirectory(at: frameworkPath,
@@ -527,6 +526,10 @@ struct FrameworkBuilder {
       fatalError("Could not copy headers from \(headersDir) to Headers directory in " +
         "\(headersDestination): \(error)")
     }
+    // Add an Info.plist. Required by Carthage and SPM binary xcframeworks.
+    CarthageUtils.generatePlistContents(forName: framework,
+                                        withVersion: podInfo.version,
+                                        to: frameworkDir)
 
     // TODO: copy PrivateHeaders directory as well if it exists. SDWebImage is an example pod.
 
@@ -702,7 +705,8 @@ struct FrameworkBuilder {
   /// Packages an XCFramework based on an almost complete framework folder (missing the binary but
   /// includes everything else needed) and thin archives for each architecture slice.
   /// - Parameter withName: The framework name.
-  /// - Parameter fromFolder: The almost complete framework folder. Includes everything but the binary.
+  /// - Parameter fromFolder: The almost complete framework folder. Includes Headers, Info.plist,
+  /// and Resources.
   /// - Parameter slicedFrameworks: All the frameworks sliced by platform.
   /// - Parameter resourceContents: Location of the resources for this xcframework.
   /// - Parameter moduleMapContents: Module map contents for all frameworks in this pod.
@@ -822,7 +826,8 @@ struct FrameworkBuilder {
   /// Packages a Carthage framework. Carthage does not yet support xcframeworks, so we exclude the
   /// Catalyst slice.
   /// - Parameter withName: The framework name.
-  /// - Parameter fromFolder: The almost complete framework folder. Includes everything but the binary.
+  /// - Parameter fromFolder: The almost complete framework folder. Includes Headers, Info.plist,
+  /// and Resources.
   /// - Parameter slicedFrameworks: All the frameworks sliced by platform.
   /// - Parameter resourceContents: Location of the resources for this Carthage framework.
   /// - Parameter moduleMapContents: Module map contents for all frameworks in this pod.
@@ -879,9 +884,6 @@ struct FrameworkBuilder {
     packageModuleMaps(inFrameworks: slicedFrameworks.map { $0.value },
                       moduleMapContents: moduleMapContents,
                       destination: frameworkDir)
-
-    // Add Info.plist frameworks to make Carthage happy.
-    CarthageUtils.generatePlistContents(forName: framework, to: frameworkDir)
 
     // Carthage Resources are packaged in the framework.
     let resourceDir = frameworkDir.appendingPathComponent("Resources")

@@ -65,6 +65,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   [super setUp];
   [FIROptions resetDefaultOptions];
   [FIRApp resetApps];
+  // TODO: Don't mock the class we are testing.
   _appClassMock = OCMClassMock([FIRApp class]);
   _observerMock = OCMObserverMock();
   _mockCoreDiagnosticsConnector = OCMClassMock([FIRCoreDiagnosticsConnector class]);
@@ -81,7 +82,14 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 }
 
 - (void)tearDown {
+  // Wait for background operations to complete.
+  NSDate *waitUntilDate = [NSDate dateWithTimeIntervalSinceNow:0.5];
+  while ([[NSDate date] compare:waitUntilDate] == NSOrderedAscending) {
+    [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
+  }
+
   [_appClassMock stopMocking];
+  _appClassMock = nil;
   [_notificationCenter removeObserver:_observerMock];
   _observerMock = nil;
   _notificationCenter = nil;

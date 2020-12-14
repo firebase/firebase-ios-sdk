@@ -1,3 +1,6 @@
+# Firebase 7.4.0
+- [changed] Patch update to nanopb 0.3.9.7 that fixes a memory leak and other issues. (#7090)
+
 # Firebase 7.3.0
 - [added] Added FirebaseAppDistribution-Beta product to Swift Package Manager. (#7045)
 

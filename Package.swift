@@ -22,7 +22,7 @@
 
 import PackageDescription
 
-let firebaseVersion = "7.2.0"
+let firebaseVersion = "7.3.0"
 
 let package = Package(
   name: "Firebase",
@@ -106,7 +106,7 @@ let package = Package(
       name: "nanopb",
       url: "https://github.com/firebase/nanopb.git",
       // This revision adds SPM enablement to the 0.3.9.6 release tag.
-      "2.30906.0" ..< "2.30907.0"
+      "2.30907.0" ..< "2.30908.0"
     ),
     .package(name: "abseil",
              url: "https://github.com/firebase/abseil-cpp-SwiftPM.git",
@@ -230,13 +230,13 @@ let package = Package(
     ),
     .binaryTarget(
       name: "FirebaseAnalytics",
-      url: "https://dl.google.com/firebase/ios/swiftpm/7.2.0/FirebaseAnalytics.zip",
-      checksum: "7212f8ba790a9fbcc4f3e28b9057a07c49ddc9cbd544ce39d855c9ca6581230f"
+      url: "https://dl.google.com/firebase/ios/swiftpm/7.3.0/FirebaseAnalytics.zip",
+      checksum: "c1d7a3750c451eb35bb1b43973607ac228d46192d1a7129c6accafa79419e8dd"
     ),
     .binaryTarget(
       name: "GoogleAppMeasurement",
-      url: "https://dl.google.com/firebase/ios/swiftpm/7.2.0/GoogleAppMeasurement.zip",
-      checksum: "c36f43609b6fa5ba8014a20cd3fce9ff456f302e7d9cd07b4f479978a19a9e2e"
+      url: "https://dl.google.com/firebase/ios/swiftpm/7.3.0/GoogleAppMeasurement.zip",
+      checksum: "d1543ebb82ffbefd978737a8ec6c970730b0bd03b541f009c6fb2e6794d94d41"
     ),
 
     .target(

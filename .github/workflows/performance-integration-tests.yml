@@ -13,16 +13,29 @@ on:
 
 jobs:
 
-  # Build and run the Integration Tests for the Firebase performance E2E Test App.
+  # Private repository: Build and run the Integration Tests for the Firebase performance E2E Test App.
+  # TODO: Remove this job config after completely migrated to public repository.
   performance-integration-tests:
     # Firebase Performance lives in private repository only currently.
-    # Remove the check after Firebase Performance is open sourced.
+    # Remove the job configuration after Firebase Performance is open sourced.
     if: github.repository == 'FirebasePrivate/firebase-ios-sdk'
     runs-on: macos-latest
     steps:
     - uses: actions/checkout@v2
       with:
         ref: perf
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: BuildAndTest # can be replaced with pod lib lint with CocoaPods 1.10
+      run: scripts/third_party/travis/retry.sh scripts/build.sh Performance all integration
+
+  # Public repository: Build and run the Integration Tests for the Firebase performance E2E Test App.
+  # TODO: Remove this job config after completely migrated to public repository.
+  performance-integration-tests-public:
+    if: github.repository == 'Firebase/firebase-ios-sdk'
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v2
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: BuildAndTest # can be replaced with pod lib lint with CocoaPods 1.10

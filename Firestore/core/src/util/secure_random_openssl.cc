@@ -20,6 +20,8 @@
 
 #if HAVE_OPENSSL_RAND_H
 
+#include <cstdlib>
+
 #include "openssl/err.h"
 #include "openssl/rand.h"
 
