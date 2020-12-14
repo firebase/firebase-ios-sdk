@@ -47,7 +47,7 @@ jobs:
       run: scripts/setup_bundler.sh
     - name: Build
       run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebasePerformance.podspec --skip-tests --platforms=${{ matrix.target }}
-      
+
   quickstart:
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
@@ -70,7 +70,7 @@ jobs:
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Performance)
     - name: Test objc quickstart
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Performance)
-  
+
   catalyst:
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
