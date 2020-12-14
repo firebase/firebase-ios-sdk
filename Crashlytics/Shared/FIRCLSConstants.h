@@ -40,6 +40,7 @@ FOUNDATION_EXPORT NSString *const FIRCLSNetworkCrashlyticsAPIClientDisplayVersio
 FOUNDATION_EXPORT NSString *const FIRCLSNetworkCrashlyticsAPIClientId;
 FOUNDATION_EXPORT NSString *const FIRCLSNetworkCrashlyticsDeveloperToken;
 FOUNDATION_EXPORT NSString *const FIRCLSNetworkCrashlyticsGoogleAppId;
+FOUNDATION_EXPORT NSString *const FIRCLSNetworkCrashlyticsOrgId;
 FOUNDATION_EXPORT NSString *const FIRCLSNetworkUserAgent;
 FOUNDATION_EXPORT NSString *const FIRCLSNetworkUTF8;
 

@@ -62,6 +62,11 @@ extern NSString *const FIRCLSReportUserCompactedKVFile;
 // Metadata Helpers
 
 /**
+ * Returns the org id for the report.
+ **/
+@property(nonatomic, copy, readonly) NSString *orgID;
+
+/**
  * Returns the Install UUID for the report.
  **/
 @property(nonatomic, copy, readonly) NSString *installID;
