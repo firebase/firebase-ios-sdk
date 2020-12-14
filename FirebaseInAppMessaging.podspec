@@ -18,23 +18,59 @@ See more product details at https://firebase.google.com/products/in-app-messagin
   }
   s.social_media_url = 'https://twitter.com/Firebase'
   s.ios.deployment_target = '10.0'
+  s.tvos.deployment_target = '14.0'
 
   s.cocoapods_version = '>= 1.4.0'
   s.prefix_header_file = false
 
   base_dir = "FirebaseInAppMessaging/"
-  s.source_files = [
-    base_dir + "Sources/**/*.[cmh]",
+  s.ios.source_files = [
+    base_dir + "Sources/*.[cmh]",
+	base_dir + "Sources/Analytics/**/*.[cmh]",
+	base_dir + "Sources/Data/**/*.[cmh]",
+	base_dir + "Sources/DefaultUI/**/*.[cmh]",
+	base_dir + "Sources/DisplayTrigger/**/*.[cmh]",
+	base_dir + "Sources/Flows/**/*.[cmh]",
+	base_dir + "Sources/Private/**/*.[cmh]",
+	base_dir + "Sources/Public/**/*.[cmh]",
+	base_dir + "Sources/RenderingObjects/**/*.[cmh]",
+	base_dir + "Sources/Runtime/**/*.[cmh]",
+	base_dir + "Sources/Util/**/*.[cmh]",
     'Interop/Analytics/Public/*.h',
     'FirebaseABTesting/Sources/Private/*.h',
     'FirebaseCore/Sources/Private/*.h',
     'FirebaseInstallations/Source/Library/Private/*.h',
   ]
+  
+  s.tvos.source_files = [
+    base_dir + "Sources/*.[cmh]",
+	base_dir + "Sources/Analytics/**/*.[cmh]",
+	base_dir + "Sources/Data/**/*.[cmh]",
+	base_dir + "Sources/DisplayTrigger/**/*.[cmh]",
+	base_dir + "Sources/Flows/**/*.[cmh]",
+	base_dir + "Sources/Private/**/*.[cmh]",
+	base_dir + "Sources/Public/**/*.[cmh]",
+	base_dir + "Sources/RenderingObjects/**/*.[cmh]",
+	base_dir + "Sources/Runtime/**/*.[cmh]",
+	base_dir + "Sources/Util/**/*.[cmh]",
+    'Interop/Analytics/Public/*.h',
+    'FirebaseABTesting/Sources/Private/*.h',
+    'FirebaseCore/Sources/Private/*.h',
+    'FirebaseInstallations/Source/Library/Private/*.h',
+  ]
+  
   s.public_header_files = base_dir + 'Sources/Public/FirebaseInAppMessaging/*.h'
 
-  s.resource_bundles = {
+  s.ios.resource_bundles = {
     'InAppMessagingDisplayResources' => [
-       base_dir + 'Resources/*.storyboard',
+       base_dir + 'Resources/FIRInAppMessageDisplayStoryboard.storyboard',
+       base_dir + 'Resources/*.png'
+     ]
+  }
+  
+  s.tvos.resource_bundles = {
+    'InAppMessagingDisplayResources' => [
+       base_dir + 'Resources/FIRInAppMessageDisplayStoryboardTV.storyboard',
        base_dir + 'Resources/*.png'
      ]
   }
@@ -58,5 +94,5 @@ See more product details at https://firebase.google.com/products/in-app-messagin
       unit_tests.requires_app_host = true
       unit_tests.dependency 'OCMock'
    end
-
 end
+                           
