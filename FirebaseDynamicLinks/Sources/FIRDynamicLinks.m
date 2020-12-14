@@ -401,6 +401,16 @@ static const NSInteger FIRErrorCodeDurableDeepLinkFailed = -119;
     dynamicLinkInternalFromUniversalLinkURL:(NSURL *)url
                                  completion:
                                      (nullable FIRDynamicLinkUniversalLinkHandler)completion {
+  // Make sure the completion is always called on the main queue.
+  FIRDynamicLinkUniversalLinkHandler mainQueueCompletion =
+      ^(FIRDynamicLink *_Nullable dynamicLink, NSError *_Nullable error) {
+        if (completion) {
+          dispatch_async(dispatch_get_main_queue(), ^{
+            completion(dynamicLink, error);
+          });
+        }
+      };
+
   if ([self canParseUniversalLinkURL:url]) {
     if (url.query.length > 0) {
       NSDictionary *parameters = FIRDLDictionaryFromQuery(url.query);
@@ -418,11 +428,7 @@ static const NSInteger FIRErrorCodeDurableDeepLinkFailed = -119;
               resolveShortLink:url
                  FDLSDKVersion:FIRFirebaseVersion()
                     completion:^(NSURL *_Nullable resolverURL, NSError *_Nullable resolverError) {
-                      if (completion) {
-                        dispatch_async(dispatch_get_main_queue(), ^{
-                          completion(dynamicLink, resolverError);
-                        });
-                      }
+                      mainQueueCompletion(dynamicLink, resolverError);
                     }];
 #ifdef GIN_SCION_LOGGING
           FIRDLLogEventToScion(FIRDLLogEventAppOpen, parameters[kFIRDLParameterSource],
@@ -434,9 +440,7 @@ static const NSInteger FIRErrorCodeDurableDeepLinkFailed = -119;
       }
     }
   }
-  if (completion) {
-    completion(nil, nil);
-  }
+  mainQueueCompletion(nil, nil);
   return nil;
 }
 
