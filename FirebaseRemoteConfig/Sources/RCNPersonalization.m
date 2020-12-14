@@ -38,13 +38,17 @@
   }
 
   NSDictionary *metadata = ids[key];
-  NSString *personalizationId = metadata[kPersonalizationId];
-  if (!metadata || personalizationId == nil) {
+  if (!metadata) {
     return;
   }
 
-  // This gets dispatched to a serial queue, so this is OK. But even if not, it'll just possibly log
-  // more.
+  NSString *personalizationId = metadata[kPersonalizationId];
+  if (personalizationId == nil) {
+    return;
+  }
+
+  // This gets dispatched to a serial queue, so this is OK. But even if not, it'll just possibly
+  // log more.
   if (self->_armsCache[key] == personalizationId) {
     return;
   }
