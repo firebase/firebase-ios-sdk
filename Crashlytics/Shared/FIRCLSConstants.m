@@ -43,6 +43,7 @@ NSString* const FIRCLSNetworkCrashlyticsAPIClientDisplayVersion =
 NSString* const FIRCLSNetworkCrashlyticsAPIClientId = @"X-Crashlytics-API-Client-Id";
 NSString* const FIRCLSNetworkCrashlyticsDeveloperToken = @"X-Crashlytics-Developer-Token";
 NSString* const FIRCLSNetworkCrashlyticsGoogleAppId = @"X-Crashlytics-Google-App-Id";
+NSString* const FIRCLSNetworkCrashlyticsOrgId = @"X-Crashlytics-Org-Id";
 NSString* const FIRCLSNetworkUserAgent = @"User-Agent";
 NSString* const FIRCLSNetworkUTF8 = @"utf-8";
 
