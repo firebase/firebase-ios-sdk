@@ -85,8 +85,8 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   // Wait for background operations to complete.
   NSDate *waitUntilDate = [NSDate dateWithTimeIntervalSinceNow:0.5];
   while ([[NSDate date] compare:waitUntilDate] == NSOrderedAscending) {
-      [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
-    }
+    [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
+  }
 
   [_appClassMock stopMocking];
   _appClassMock = nil;
