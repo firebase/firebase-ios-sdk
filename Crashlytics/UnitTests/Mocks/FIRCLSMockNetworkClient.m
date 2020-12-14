@@ -12,14 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "Crashlytics/UnitTests/Mocks/FIRCLSMockSettings.h"
+#import "Crashlytics/UnitTests/Mocks/FIRCLSMockNetworkClient.h"
 
-@implementation FIRCLSMockSettings
+@implementation FIRCLSMockNetworkClient
 
-// Synthesizing so we can override these values with setters and getters
-// and bypass the normal functionality
-@synthesize orgID;
-@synthesize fetchedBundleID;
-@synthesize shouldUseNewReportEndpoint;
+- (void)startUploadRequest:(NSURLRequest *)request
+                  filePath:(NSString *)path
+       dataCollectionToken:(FIRCLSDataCollectionToken *)dataCollectionToken
+               immediately:(BOOL)immediate {
+  self.startUploadRequest = request;
+  NSLog(@"intercepted request");
+}
+
+- (void)attemptToReconnectBackgroundSessionWithCompletionBlock:(void (^)(void))completionBlock {
+  // all this synchronously for easier testing
+  completionBlock();
+}
 
 @end

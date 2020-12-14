@@ -17,9 +17,10 @@
 
 @class FIRCLSInstallIdentifierModel;
 
-@interface FIRCLSReportManager () <FIRCLSReportUploaderDataSource>
+@interface FIRCLSReportManager () <FIRCLSReportUploaderDelegate, FIRCLSReportUploaderDataSource>
 
 @property(nonatomic, strong) NSOperationQueue *operationQueue;
+@property(nonatomic, strong) FIRCLSNetworkClient *networkClient;
 @property(nonatomic, readonly) FIRCLSReportUploader *uploader;
 @property(nonatomic, strong) FIRCLSFileManager *fileManager;
 

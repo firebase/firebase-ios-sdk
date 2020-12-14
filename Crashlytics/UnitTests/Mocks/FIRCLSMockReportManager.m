@@ -15,6 +15,7 @@
 #import "Crashlytics/UnitTests/Mocks/FIRCLSMockReportManager.h"
 
 #import "Crashlytics/Crashlytics/Components/FIRCLSContext.h"
+#import "Crashlytics/UnitTests/Mocks/FIRCLSMockNetworkClient.h"
 #import "Crashlytics/UnitTests/Mocks/FIRCLSMockReportUploader.h"
 
 #import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
@@ -51,11 +52,19 @@
   }
 
   _uploader = [[FIRCLSMockReportUploader alloc] initWithQueue:self.operationQueue
+                                                     delegate:self
                                                    dataSource:self
+                                                       client:self.networkClient
                                                   fileManager:fileManager
                                                     analytics:analytics];
 
   return self;
+}
+
+- (FIRCLSNetworkClient *)clientWithOperationQueue:(NSOperationQueue *)queue {
+  return [[FIRCLSMockNetworkClient alloc] initWithQueue:queue
+                                            fileManager:self.fileManager
+                                               delegate:(id<FIRCLSNetworkClientDelegate>)self];
 }
 
 - (FIRCLSReportUploader *)uploader {

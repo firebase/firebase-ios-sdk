@@ -118,8 +118,9 @@
 }
 
 - (NSArray *)contentsOfPreparedPath {
-  return [[NSFileManager defaultManager] contentsOfDirectoryAtPath:self.fileManager.preparedPath
-                                                             error:nil];
+  return
+      [[NSFileManager defaultManager] contentsOfDirectoryAtPath:self.fileManager.legacyPreparedPath
+                                                          error:nil];
 }
 
 - (NSArray *)contentsOfProcessingPath {
@@ -490,8 +491,8 @@
 
 - (void)testFilesLeftInPrepared {
   // Drop a phony multipart-mime file in here, with non-zero contents.
-  XCTAssert([_fileManager createDirectoryAtPath:_fileManager.preparedPath]);
-  NSString *path = [_fileManager.preparedPath stringByAppendingPathComponent:@"phony-report"];
+  XCTAssert([_fileManager createDirectoryAtPath:_fileManager.legacyPreparedPath]);
+  NSString *path = [_fileManager.legacyPreparedPath stringByAppendingPathComponent:@"phony-report"];
   path = [path stringByAppendingPathExtension:@".multipart-mime"];
 
   XCTAssertTrue([[_fileManager underlyingFileManager]
@@ -511,8 +512,8 @@
 
 - (void)testFilesLeftInPreparedWithDataCollectionDisabled {
   // drop a phony multipart-mime file in here, with non-zero contents
-  XCTAssert([_fileManager createDirectoryAtPath:_fileManager.preparedPath]);
-  NSString *path = [_fileManager.preparedPath stringByAppendingPathComponent:@"phony-report"];
+  XCTAssert([_fileManager createDirectoryAtPath:_fileManager.legacyPreparedPath]);
+  NSString *path = [_fileManager.legacyPreparedPath stringByAppendingPathComponent:@"phony-report"];
   path = [path stringByAppendingPathExtension:@".multipart-mime"];
 
   XCTAssertTrue([[_fileManager underlyingFileManager]
@@ -539,8 +540,8 @@
 
 - (void)testSuccessfulSubmission {
   // drop a phony multipart-mime file in here, with non-zero contents
-  XCTAssert([_fileManager createDirectoryAtPath:_fileManager.preparedPath]);
-  NSString *path = [_fileManager.preparedPath stringByAppendingPathComponent:@"phony-report"];
+  XCTAssert([_fileManager createDirectoryAtPath:_fileManager.legacyPreparedPath]);
+  NSString *path = [_fileManager.legacyPreparedPath stringByAppendingPathComponent:@"phony-report"];
   path = [path stringByAppendingPathExtension:@".multipart-mime"];
 
   XCTAssertTrue([[_fileManager underlyingFileManager]
@@ -557,10 +558,18 @@
   XCTAssertEqual([self.uploadReportArray count], 1);
   XCTAssertEqualObjects(self.uploadReportArray[0][@"path"], path);
 
+  // fake out the delegate callbacks
+  [self.reportManager.operationQueue addOperationWithBlock:^{
+    [self.reportManager didCompletePackageSubmission:path dataCollectionToken:nil error:nil];
+  }];
+
+  [self.reportManager.operationQueue addOperationWithBlock:^{
+    [self.reportManager didCompleteAllSubmissions];
+  }];
+
   [self.reportManager.operationQueue waitUntilAllOperationsAreFinished];
 
   // not 100% sure what to verify here
-  // lol
 }
 
 - (void)testLogInvalidJSONAnalyticsEvents {

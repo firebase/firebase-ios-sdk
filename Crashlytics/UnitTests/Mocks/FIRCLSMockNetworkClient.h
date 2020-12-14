@@ -12,14 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "Crashlytics/UnitTests/Mocks/FIRCLSMockSettings.h"
+#import "Crashlytics/Crashlytics/Controllers/FIRCLSNetworkClient.h"
 
-@implementation FIRCLSMockSettings
+@interface FIRCLSMockNetworkClient : FIRCLSNetworkClient
 
-// Synthesizing so we can override these values with setters and getters
-// and bypass the normal functionality
-@synthesize orgID;
-@synthesize fetchedBundleID;
-@synthesize shouldUseNewReportEndpoint;
+@property(nonatomic, strong) NSURLRequest *startUploadRequest;
 
 @end
