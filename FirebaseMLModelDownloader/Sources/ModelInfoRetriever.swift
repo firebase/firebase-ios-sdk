@@ -17,14 +17,14 @@ import FirebaseCore
 import FirebaseInstallations
 
 /// Model info response object.
-struct ModelInfoResponse: Codable {
+private struct ModelInfoResponse: Codable {
   var downloadURL: String
   var expireTime: String
   var size: String
 }
 
 /// Properties for server response keys.
-extension ModelInfoResponse {
+private extension ModelInfoResponse {
   enum CodingKeys: String, CodingKey {
     case downloadURL = "downloadUri"
     case expireTime
@@ -34,38 +34,41 @@ extension ModelInfoResponse {
 
 /// Model info retriever for a model from local user defaults or server.
 class ModelInfoRetriever: NSObject {
-  /// Current Firebase app options
+  /// Current Firebase app options.
   private var options: FirebaseOptions
-  /// Model info associated with model.
-  var modelInfo: ModelInfo?
   /// Model name.
-  var modelName: String
+  private var modelName: String
   /// Firebase installations.
-  var installations: Installations
+  private var installations: Installations
+  /// Model info associated with model.
+  private(set) var modelInfo: ModelInfo?
+  /// Current Firebase app name.
+  private let appName: String
 
   /// Associate model info retriever with current Firebase app, and model name.
-  init(modelName: String, options: FirebaseOptions, installations: Installations) {
+  init(modelName: String, options: FirebaseOptions, installations: Installations, appName: String) {
     self.modelName = modelName
     self.options = options
     self.installations = installations
+    self.appName = appName
   }
 }
 
 /// Extension to handle fetching model info from server.
 extension ModelInfoRetriever {
   /// HTTP request headers.
-  static let fisTokenHTTPHeader = "x-goog-firebase-installations-auth"
-  static let hashMatchHTTPHeader = "if-none-match"
-  static let bundleIDHTTPHeader = "x-ios-bundle-identifier"
+  private static let fisTokenHTTPHeader = "x-goog-firebase-installations-auth"
+  private static let hashMatchHTTPHeader = "if-none-match"
+  private static let bundleIDHTTPHeader = "x-ios-bundle-identifier"
 
   /// HTTP response headers.
-  static let etagHTTPHeader = "Etag"
+  private static let etagHTTPHeader = "Etag"
 
   /// Error descriptions.
-  static let tokenErrorDescription = "Error retrieving FIS token."
-  static let selfDeallocatedErrorDescription = "Self deallocated."
-  static let missingModelHashErrorDescription = "Model hash missing in server response."
-  static let invalidHTTPResponseErrorDescription =
+  private static let tokenErrorDescription = "Error retrieving FIS token."
+  private static let selfDeallocatedErrorDescription = "Self deallocated."
+  private static let missingModelHashErrorDescription = "Model hash missing in server response."
+  private static let invalidHTTPResponseErrorDescription =
     "Could not get a valid HTTP response from server."
 
   /// Construct model fetch base URL.
@@ -82,7 +85,7 @@ extension ModelInfoRetriever {
   }
 
   /// Construct model fetch URL request.
-  func getModelInfoFetchURLRequest(token: String) -> URLRequest {
+  private func getModelInfoFetchURLRequest(token: String) -> URLRequest {
     var request = URLRequest(url: modelInfoFetchURL)
     request.httpMethod = "GET"
     // TODO: Check if bundle ID needs to be part of the request header.
@@ -96,7 +99,7 @@ extension ModelInfoRetriever {
   }
 
   /// Get installations auth token.
-  func getAuthToken(completion: @escaping (Result<String, DownloadError>) -> Void) {
+  private func getAuthToken(completion: @escaping (Result<String, DownloadError>) -> Void) {
     /// Get FIS token.
     installations.authToken { tokenResult, error in
       guard let result = tokenResult
@@ -149,10 +152,10 @@ extension ModelInfoRetriever {
                 return
               }
               do {
-                try self.saveModelInfo(data: data, modelHash: modelHash)
+                try self.setModelInfo(data: data, modelHash: modelHash)
                 completion(nil)
               } catch {
-                completion(.internalError(description: error.localizedDescription))
+                completion(.internalError(description: "Failed to retrieve model info: \(error)"))
               }
             case 304:
               completion(nil)
@@ -176,16 +179,16 @@ extension ModelInfoRetriever {
     }
   }
 
-  /// Save model info to user defaults.
-  func saveModelInfo(data: Data, modelHash: String) throws {
+  /// Set model info from server response.
+  private func setModelInfo(data: Data, modelHash: String) throws {
     let decoder = JSONDecoder()
     guard let modelInfoJSON = try? decoder.decode(ModelInfoResponse.self, from: data) else {
       throw DownloadError
-        .internalError(description: "Failed to decode model info response from server.")
+        .internalError(description: "Unable to decode model info response from server.")
     }
     // TODO: Possibly improve handling invalid server responses.
     guard let downloadURL = URL(string: modelInfoJSON.downloadURL) else {
-      throw DownloadError.internalError(description: "Invalid model download URL.")
+      throw DownloadError.internalError(description: "Invalid model download URL from server.")
     }
     let modelHash = modelHash
     let size = Int(modelInfoJSON.size) ?? 0
@@ -195,5 +198,15 @@ extension ModelInfoRetriever {
       modelHash: modelHash,
       size: size
     )
+  }
+
+  /// Set model info from previously saved info in user defaults.
+  func setModelInfo(fromDefaults defaults: UserDefaults) throws {
+    guard let modelInfo = ModelInfo(fromDefaults: defaults, name: modelName, appName: appName)
+    else {
+      throw DownloadError
+        .internalError(description: "No model info saved to user defaults for model: \(modelName).")
+    }
+    self.modelInfo = modelInfo
   }
 }

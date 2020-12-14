@@ -80,23 +80,26 @@ extension ModelDownloadTask: URLSessionDownloadDelegate {
       .appendingPathComponent(downloadedModelFileName)
     do {
       try ModelFileManager.moveFile(at: location, to: savedURL)
+    } catch let error as DownloadError {
+      downloadHandlers
+        .completion(.failure(error))
     } catch {
       downloadHandlers
         .completion(.failure(.internalError(description: error.localizedDescription)))
-      return
     }
 
     /// Set path to local model.
-    modelInfo.path = savedURL.absoluteString
+    modelInfo.update(modelPath: savedURL.absoluteString)
     /// Write model to user defaults.
     do {
       try modelInfo.writeToDefaults(.firebaseMLDefaults, appName: appName)
+    } catch let downloadError as DownloadError {
+      downloadHandlers.completion(.failure(downloadError))
     } catch {
-      downloadHandlers
-        .completion(.failure(.internalError(description: error.localizedDescription)))
+      downloadHandlers.completion(.failure(.internalError(description: error.localizedDescription)))
     }
     /// Build model from model info.
-    guard let model = buildModel() else {
+    guard let path = modelInfo.path else {
       downloadHandlers
         .completion(
           .failure(
@@ -105,6 +108,12 @@ extension ModelDownloadTask: URLSessionDownloadDelegate {
         )
       return
     }
+    let model = CustomModel(
+      name: modelInfo.name,
+      size: modelInfo.size,
+      path: path,
+      hash: modelInfo.modelHash
+    )
     downloadHandlers.completion(.success(model))
   }
 
@@ -126,22 +135,8 @@ extension ModelDownloadTask {
     return "fbml_model__\(appName)__\(modelInfo.name)"
   }
 
-  /// Build custom model object from model info.
-  // TODO: Consider moving this to CustomModel as a convenience init
-  func buildModel() -> CustomModel? {
-    /// Build custom model only if the model file is already on device.
-    guard let path = modelInfo.path else { return nil }
-    let model = CustomModel(
-      name: modelInfo.name,
-      size: modelInfo.size,
-      path: path,
-      hash: modelInfo.modelHash
-    )
-    return model
-  }
-
   /// Get the local path to model on device.
-  func getLocalModelPath(model: CustomModel) -> URL? {
+  func getLocalModelPath() -> URL? {
     let fileURL: URL = ModelFileManager.modelsDirectory
       .appendingPathComponent(downloadedModelFileName)
     if ModelFileManager.isFileReachable(at: fileURL) {
@@ -149,15 +144,5 @@ extension ModelDownloadTask {
     } else {
       return nil
     }
-  }
-}
-
-/// Named user defaults for FirebaseML.
-extension UserDefaults {
-  static var firebaseMLDefaults: UserDefaults {
-    let suiteName = "com.google.firebase.ml"
-    // TODO: reconsider force unwrapping
-    let defaults = UserDefaults(suiteName: suiteName)!
-    return defaults
   }
 }
