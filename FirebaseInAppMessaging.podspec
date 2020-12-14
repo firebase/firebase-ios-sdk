@@ -41,7 +41,7 @@ See more product details at https://firebase.google.com/products/in-app-messagin
     'FirebaseCore/Sources/Private/*.h',
     'FirebaseInstallations/Source/Library/Private/*.h',
   ]
-  
+
   s.tvos.source_files = [
     base_dir + "Sources/*.[cmh]",
 	base_dir + "Sources/Analytics/**/*.[cmh]",
@@ -58,7 +58,7 @@ See more product details at https://firebase.google.com/products/in-app-messagin
     'FirebaseCore/Sources/Private/*.h',
     'FirebaseInstallations/Source/Library/Private/*.h',
   ]
-  
+
   s.public_header_files = base_dir + 'Sources/Public/FirebaseInAppMessaging/*.h'
 
   s.ios.resource_bundles = {
@@ -67,7 +67,7 @@ See more product details at https://firebase.google.com/products/in-app-messagin
        base_dir + 'Resources/*.png'
      ]
   }
-  
+
   s.tvos.resource_bundles = {
     'InAppMessagingDisplayResources' => [
        base_dir + 'Resources/FIRInAppMessageDisplayStoryboardTV.storyboard',
@@ -95,4 +95,4 @@ See more product details at https://firebase.google.com/products/in-app-messagin
       unit_tests.dependency 'OCMock'
    end
 end
-                           
+                        
