@@ -16,7 +16,7 @@
 
 #import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCOREndpoints.h"
 
-@interface GDTCOREndpoints()
+@interface GDTCOREndpoints ()
 
 /** Returns the list of all the upload URLs used by the transport library.
  *
