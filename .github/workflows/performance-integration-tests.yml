@@ -3,11 +3,6 @@
 name: performance-integration-tests
 
 on:
-  # TODO: Remove pull_request because this workflow should only be scheduled.
-  pull_request:
-    paths:
-    # YML configuration file
-    - '.github/workflows/performance-integration-tests.yml'
   # See cron syntax references:
   #   - https://docs.github.com/en/actions/reference/events-that-trigger-workflows#scheduled-events-schedule
   #   - https://crontab.guru/
@@ -36,9 +31,8 @@ jobs:
 
   # Public repository: Build and run the Integration Tests for the Firebase performance E2E Test App.
   # TODO: Remove this job config after completely migrated to public repository.
-  # TODO: Remove check on pull request.
   performance-integration-tests-public:
-    if: github.repository == 'Firebase/firebase-ios-sdk ' || github.event_name == 'pull_request'
+    if: github.repository == 'Firebase/firebase-ios-sdk'
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
     runs-on: macos-latest
