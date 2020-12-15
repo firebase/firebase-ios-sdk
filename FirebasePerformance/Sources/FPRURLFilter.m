@@ -17,7 +17,7 @@
 
 #import "FirebasePerformance/Sources/FPRConsoleLogger.h"
 
-#import "GoogleDataTransport/GDTCCTLibrary/Private/GDTCCTUploader.h"
+#import "GoogleDataTransport/GDTCORLibrary/Internal/GoogleDataTransportInternal.h"
 
 /** The expected key of the domain allowlist array. */
 static NSString *const kFPRAllowlistDomainsKey = @"FPRWhitelistedDomains";
@@ -44,9 +44,9 @@ NSSet<NSString *> *GetSystemDenyListURLStrings() {
   static NSSet *denylist = nil;
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
-    NSDictionary<NSNumber *, NSURL *> *URLs = [GDTCCTUploader uploadURLs];
     denylist = [[NSSet alloc] initWithArray:@[
-      URLs[@(kGDTCORTargetCCT)].absoluteString, URLs[@(kGDTCORTargetFLL)].absoluteString
+      [[GDTCOREndpoints uploadURLForTarget:kGDTCORTargetCCT] absoluteString],
+      [[GDTCOREndpoints uploadURLForTarget:kGDTCORTargetFLL] absoluteString]
     ]];
   });
   return denylist;

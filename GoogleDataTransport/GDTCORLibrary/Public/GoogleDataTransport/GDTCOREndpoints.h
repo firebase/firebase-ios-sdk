@@ -14,11 +14,23 @@
  * limitations under the License.
  */
 
-#import "GDTCORClock.h"
-#import "GDTCORConsoleLogger.h"
-#import "GDTCOREndpoints.h"
-#import "GDTCOREvent.h"
-#import "GDTCOREventDataObject.h"
-#import "GDTCOREventTransformer.h"
+#import <Foundation/Foundation.h>
 #import "GDTCORTargets.h"
-#import "GDTCORTransport.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+/* Class that manages the endpoints used by Google data transport library. */
+@interface GDTCOREndpoints : NSObject
+
+- (instancetype)init NS_UNAVAILABLE;
+
+/** Returns the upload URL for a target specified. If the target is not available, returns nil.
+ *
+ *  @param target GoogleDataTransport target for which the upload URL is being looked up for.
+ *  @return URL that will be used for uploading the events for the provided target.
+ */
++ (nullable NSURL *)uploadURLForTarget:(GDTCORTarget)target;
+
+@end
+
+NS_ASSUME_NONNULL_END
