@@ -38,7 +38,8 @@ class DownloadHandlers {
 /// Manager to handle model downloading device and storing downloaded model info to persistent storage.
 class ModelDownloadTask: NSObject {
   private let appName: String
-  private(set) var modelInfo: ModelInfo
+  private(set) var remoteModelInfo: RemoteModelInfo
+  private let defaults: UserDefaults
   private var downloadTask: URLSessionDownloadTask?
   private let downloadHandlers: DownloadHandlers
 
@@ -48,11 +49,12 @@ class ModelDownloadTask: NSObject {
                                                 delegate: self,
                                                 delegateQueue: nil)
 
-  init(modelInfo: ModelInfo, appName: String,
+  init(remoteModelInfo: RemoteModelInfo, appName: String, defaults: UserDefaults,
        progressHandler: DownloadHandlers.ProgressHandler? = nil,
        completion: @escaping DownloadHandlers.Completion) {
-    self.modelInfo = modelInfo
+    self.remoteModelInfo = remoteModelInfo
     self.appName = appName
+    self.defaults = defaults
     downloadHandlers = DownloadHandlers(
       progressHandler: progressHandler,
       completion: completion
@@ -62,7 +64,7 @@ class ModelDownloadTask: NSObject {
   /// Asynchronously download model file to device.
   func resumeModelDownload() {
     guard downloadStatus == .notStarted else { return }
-    let downloadTask = downloadSession.downloadTask(with: modelInfo.downloadURL)
+    let downloadTask = downloadSession.downloadTask(with: remoteModelInfo.downloadURL)
     downloadTask.resume()
     downloadStatus = .inProgress
     self.downloadTask = downloadTask
@@ -88,32 +90,12 @@ extension ModelDownloadTask: URLSessionDownloadDelegate {
         .completion(.failure(.internalError(description: error.localizedDescription)))
     }
 
-    /// Set path to local model.
-    modelInfo.update(modelPath: savedURL.absoluteString)
+    /// Generate local model info.
+    let localModelInfo = LocalModelInfo(from: remoteModelInfo, path: savedURL.absoluteString)
     /// Write model to user defaults.
-    do {
-      try modelInfo.writeToDefaults(.firebaseMLDefaults, appName: appName)
-    } catch let downloadError as DownloadError {
-      downloadHandlers.completion(.failure(downloadError))
-    } catch {
-      downloadHandlers.completion(.failure(.internalError(description: error.localizedDescription)))
-    }
+    localModelInfo.writeToDefaults(defaults, appName: appName)
     /// Build model from model info.
-    guard let path = modelInfo.path else {
-      downloadHandlers
-        .completion(
-          .failure(
-            .internalError(description: "Could not create model due to incomplete model info.")
-          )
-        )
-      return
-    }
-    let model = CustomModel(
-      name: modelInfo.name,
-      size: modelInfo.size,
-      path: path,
-      hash: modelInfo.modelHash
-    )
+    let model = CustomModel(localModelInfo: localModelInfo)
     downloadHandlers.completion(.success(model))
   }
 
@@ -132,7 +114,7 @@ extension ModelDownloadTask: URLSessionDownloadDelegate {
 /// Extension to handle post-download operations.
 extension ModelDownloadTask {
   var downloadedModelFileName: String {
-    return "fbml_model__\(appName)__\(modelInfo.name)"
+    return "fbml_model__\(appName)__\(remoteModelInfo.name)"
   }
 
   /// Get the local path to model on device.

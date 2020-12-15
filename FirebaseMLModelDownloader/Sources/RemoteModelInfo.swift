@@ -13,22 +13,27 @@
 // limitations under the License.
 
 import Foundation
+import FirebaseCore
 
-/// A custom model that is stored remotely on the server and downloaded to the device.
-public struct CustomModel: Hashable {
-  /// Name of the model.
-  public let name: String
-  /// Size of the custom model, provided by the server.
-  public let size: Int
-  /// Path where the model is stored on device.
-  public let path: String
-  /// Hash for the model, used for model verification.
-  public let hash: String
+/// Model info object with details about pending or downloaded model.
+struct RemoteModelInfo {
+  /// Model name.
+  let name: String
 
-  init(localModelInfo: LocalModelInfo) {
-    name = localModelInfo.name
-    size = localModelInfo.size
-    path = localModelInfo.path
-    hash = localModelInfo.modelHash
+  /// Download URL for the model file, as returned by server.
+  let downloadURL: URL
+
+  /// Hash of the model, as returned by server.
+  let modelHash: String
+
+  /// Size of the model, as returned by server.
+  let size: Int
+
+  /// Initialize model info and create user default keys.
+  init(name: String, downloadURL: URL, modelHash: String, size: Int) {
+    self.name = name
+    self.downloadURL = downloadURL
+    self.modelHash = modelHash
+    self.size = size
   }
 }

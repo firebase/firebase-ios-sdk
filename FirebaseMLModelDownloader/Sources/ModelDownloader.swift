@@ -14,6 +14,7 @@
 
 import Foundation
 import FirebaseCore
+import FirebaseInstallations
 
 /// Possible errors with model downloading.
 public enum DownloadError: Error, Equatable {
@@ -53,6 +54,12 @@ public enum ModelDownloadType {
 public class ModelDownloader {
   /// Name of the app associated with this instance of ModelDownloader.
   private let appName: String
+  /// Current Firebase app options.
+  private let options: FirebaseOptions
+  /// Installations instance for current Firebase app.
+  private let installations: Installations
+  /// User defaults for model info.
+  private let userDefaults: UserDefaults
 
   /// Shared dictionary mapping app name to a specific instance of model downloader.
   // TODO: Switch to using Firebase components.
@@ -61,6 +68,10 @@ public class ModelDownloader {
   /// Private init for downloader.
   private init(app: FirebaseApp) {
     appName = app.name
+    options = app.options
+    installations = Installations.installations(app: app)
+    userDefaults = .firebaseMLDefaults
+
     NotificationCenter.default.addObserver(
       self,
       selector: #selector(deleteModelDownloader),
@@ -98,67 +109,6 @@ public class ModelDownloader {
     }
   }
 
-  /// Get model saved on device, if available.
-  private func getLocalModel(modelName: String,
-                             progressHandler: ((Float) -> Void)? = nil,
-                             completion: @escaping (Result<CustomModel, DownloadError>) -> Void) {
-    guard let modelInfo = ModelInfo(
-      fromDefaults: .firebaseMLDefaults,
-      name: modelName,
-      appName: appName
-    ),
-      let path = modelInfo.path else {
-//      getRemoteModel(
-//        modelName: modelName,
-//        app: app,
-//        progressHandler: progressHandler,
-//        completion: completion
-//      )
-      return
-    }
-    let model = CustomModel(
-      name: modelInfo.name,
-      size: modelInfo.size,
-      path: path,
-      hash: modelInfo.modelHash
-    )
-    completion(.success(model))
-  }
-
-  /// Download and get model from server.
-//  private func getRemoteModel(modelName: String, app: FirebaseApp,
-//                              progressHandler: ((Float) -> Void)? = nil,
-//                              completion: @escaping (Result<CustomModel, DownloadError>) -> Void) {
-//    let modelInfoRetriever = ModelInfoRetriever(modelName: modelName, options: options, installations: Installations, appName: appName)
-//    modelInfoRetriever.downloadModelInfo { error in
-//      if let downloadError = error {
-//        completion(.failure(downloadError))
-//      } else {
-//        guard let modelInfo = modelInfoRetriever.modelInfo else {
-//          completion(.failure(.internalError(description: "Error downloading model info.")))
-//          return
-//        }
-//        guard let path = modelInfo.path else {
-//          let downloadTask = ModelDownloadTask(
-//            app: app,
-//            modelInfo: modelInfo,
-//            progressHandler: progressHandler,
-//            completion: completion
-//          )
-//          downloadTask.resumeModelDownload()
-//          return
-//        }
-//        let model = CustomModel(
-//          name: modelInfo.name,
-//          size: modelInfo.size,
-//          path: path,
-//          hash: modelInfo.modelHash
-//        )
-//        completion(.success(model))
-//      }
-//    }
-//  }
-
   /// Downloads a custom model to device or gets a custom model already on device, w/ optional handler for progress.
   public func getModel(name modelName: String, downloadType: ModelDownloadType,
                        conditions: ModelDownloadConditions,
@@ -166,35 +116,25 @@ public class ModelDownloader {
                        completion: @escaping (Result<CustomModel, DownloadError>) -> Void) {
     // TODO: Model download
     switch downloadType {
-    case .localModel: getLocalModel(
-      modelName: modelName,
-      progressHandler: progressHandler,
-      completion: completion
-    )
-
+    case .localModel:
+      if let localModel = getLocalModel(modelName: modelName) {
+        completion(.success(localModel))
+      } else {
+        getRemoteModel(
+          modelName: modelName,
+          progressHandler: progressHandler,
+          completion: completion
+        )
+      }
     case .localModelUpdateInBackground: break
 
-    case .latestModel: break
-//      getRemoteModel(
-//      modelName: modelName,
-//      app: app,
-//      progressHandler: progressHandler,
-//      completion: completion
-//    )
+    case .latestModel:
+      getRemoteModel(
+        modelName: modelName,
+        progressHandler: progressHandler,
+        completion: completion
+      )
     }
-
-    let modelSize = Int()
-    let modelPath = String()
-    let modelHash = String()
-
-    let customModel = CustomModel(
-      name: modelName,
-      size: modelSize,
-      path: modelPath,
-      hash: modelHash
-    )
-    completion(.success(customModel))
-    completion(.failure(.notFound))
   }
 
   /// Gets all downloaded models.
@@ -213,5 +153,65 @@ public class ModelDownloader {
     // TODO: Delete previously downloaded model
     completion(.success(()))
     completion(.failure(.notFound))
+  }
+}
+
+extension ModelDownloader {
+  private func getLocalModelInfo(modelName: String) -> LocalModelInfo? {
+    return LocalModelInfo(
+      fromDefaults: userDefaults,
+      name: modelName,
+      appName: appName
+    )
+  }
+
+  /// Get model saved on device if available. Otherwise, default to fetching model from server.
+  private func getLocalModel(modelName: String) -> CustomModel? {
+    guard let localModelInfo = getLocalModelInfo(modelName: modelName) else { return nil }
+    let model = CustomModel(localModelInfo: localModelInfo)
+    return model
+  }
+
+  /// Download and get model from server.
+  private func getRemoteModel(modelName: String,
+                              progressHandler: ((Float) -> Void)? = nil,
+                              completion: @escaping (Result<CustomModel, DownloadError>) -> Void) {
+    let modelInfoRetriever = ModelInfoRetriever(
+      modelName: modelName,
+      options: options,
+      installations: installations,
+      appName: appName,
+      defaults: userDefaults
+    )
+
+    modelInfoRetriever.downloadModelInfo { result in
+      switch result {
+      case let .success(remoteModelInfo):
+        /// New model info was downloaded from server.
+        if let remoteModelInfo = remoteModelInfo {
+          let downloadTask = ModelDownloadTask(
+            remoteModelInfo: remoteModelInfo,
+            appName: self.appName,
+            defaults: self.userDefaults,
+            progressHandler: progressHandler,
+            completion: completion
+          )
+          downloadTask.resumeModelDownload()
+        } else {
+          guard let localModel = self.getLocalModel(modelName: modelName) else {
+            /// This can only happen if local model info was suddenly wiped out in the middle of model freshness check.
+            completion(
+              .failure(
+                .internalError(description: "Model unavailable due to deleted local model info.")
+              )
+            )
+            return
+          }
+          completion(.success(localModel))
+        }
+      case let .failure(downloadError):
+        completion(.failure(downloadError))
+      }
+    }
   }
 }

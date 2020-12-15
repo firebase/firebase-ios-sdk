@@ -40,17 +40,22 @@ class ModelInfoRetriever: NSObject {
   private var modelName: String
   /// Firebase installations.
   private var installations: Installations
-  /// Model info associated with model.
-  private(set) var modelInfo: ModelInfo?
   /// Current Firebase app name.
   private let appName: String
+  /// User defaults for local model info.
+  private let defaults: UserDefaults
+  /// Local model info to validate model freshness.
+  private var localModelInfo: LocalModelInfo?
 
   /// Associate model info retriever with current Firebase app, and model name.
-  init(modelName: String, options: FirebaseOptions, installations: Installations, appName: String) {
+  init(modelName: String, options: FirebaseOptions, installations: Installations, appName: String,
+       defaults: UserDefaults) {
     self.modelName = modelName
     self.options = options
     self.installations = installations
     self.appName = appName
+    self.defaults = defaults
+    localModelInfo = LocalModelInfo(fromDefaults: defaults, name: modelName, appName: appName)
   }
 }
 
@@ -92,8 +97,12 @@ extension ModelInfoRetriever {
     let bundleID = Bundle.main.bundleIdentifier ?? ""
     request.setValue(bundleID, forHTTPHeaderField: ModelInfoRetriever.bundleIDHTTPHeader)
     request.setValue(token, forHTTPHeaderField: ModelInfoRetriever.fisTokenHTTPHeader)
-    if let info = modelInfo, info.modelHash.count > 0 {
-      request.setValue(info.modelHash, forHTTPHeaderField: ModelInfoRetriever.hashMatchHTTPHeader)
+    /// Get model hash if already stored on device.
+    if let localModelInfo = self.localModelInfo {
+      request.setValue(
+        localModelInfo.modelHash,
+        forHTTPHeaderField: ModelInfoRetriever.hashMatchHTTPHeader
+      )
     }
     return request
   }
@@ -112,7 +121,7 @@ extension ModelInfoRetriever {
   }
 
   /// Get model info from server.
-  func downloadModelInfo(completion: @escaping (DownloadError?) -> Void) {
+  func downloadModelInfo(completion: @escaping (Result<RemoteModelInfo?, DownloadError>) -> Void) {
     getAuthToken { result in
       switch result {
       case let .success(authToken):
@@ -124,16 +133,16 @@ extension ModelInfoRetriever {
         let dataTask = session.dataTask(with: request) { [weak self]
           data, response, error in
           guard let self = self else {
-            completion(.internalError(description: ModelInfoRetriever
-                .selfDeallocatedErrorDescription))
+            completion(.failure(.internalError(description: ModelInfoRetriever
+                .selfDeallocatedErrorDescription)))
             return
           }
           if let downloadError = error {
-            completion(.internalError(description: downloadError.localizedDescription))
+            completion(.failure(.internalError(description: downloadError.localizedDescription)))
           } else {
             guard let httpResponse = response as? HTTPURLResponse else {
-              completion(.internalError(description: ModelInfoRetriever
-                  .invalidHTTPResponseErrorDescription))
+              completion(.failure(.internalError(description: ModelInfoRetriever
+                  .invalidHTTPResponseErrorDescription)))
               return
             }
 
@@ -141,46 +150,55 @@ extension ModelInfoRetriever {
             case 200:
               guard let modelHash = httpResponse
                 .allHeaderFields[ModelInfoRetriever.etagHTTPHeader] as? String else {
-                completion(.internalError(description: ModelInfoRetriever
-                    .missingModelHashErrorDescription))
+                completion(.failure(.internalError(description: ModelInfoRetriever
+                    .missingModelHashErrorDescription)))
                 return
               }
 
               guard let data = data else {
-                completion(.internalError(description: ModelInfoRetriever
-                    .invalidHTTPResponseErrorDescription))
+                completion(.failure(.internalError(description: ModelInfoRetriever
+                    .invalidHTTPResponseErrorDescription)))
                 return
               }
               do {
-                try self.setModelInfo(data: data, modelHash: modelHash)
-                completion(nil)
+                let modelInfo = try self.getRemoteModelInfoFromResponse(data, modelHash: modelHash)
+                completion(.success(modelInfo))
               } catch {
-                completion(.internalError(description: "Failed to retrieve model info: \(error)"))
+                completion(
+                  .failure(.internalError(description: "Failed to retrieve model info: \(error)"))
+                )
               }
             case 304:
-              completion(nil)
+              guard self.localModelInfo != nil else {
+                completion(
+                  .failure(.internalError(description: "Model info was deleted unexpectedly."))
+                )
+                return
+              }
+              completion(.success(nil))
             case 404:
-              completion(.notFound)
+              completion(.failure(.notFound))
             // TODO: Handle more http status codes
             default:
-              completion(
+              completion(.failure(
                 .internalError(
                   description: "Server returned with error - \(httpResponse.statusCode)."
                 )
-              )
+              ))
             }
           }
         }
         dataTask.resume()
       case .failure:
-        completion(.internalError(description: ModelInfoRetriever.tokenErrorDescription))
+        completion(.failure(.internalError(description: ModelInfoRetriever.tokenErrorDescription)))
         return
       }
     }
   }
 
   /// Set model info from server response.
-  private func setModelInfo(data: Data, modelHash: String) throws {
+  private func getRemoteModelInfoFromResponse(_ data: Data,
+                                              modelHash: String) throws -> RemoteModelInfo {
     let decoder = JSONDecoder()
     guard let modelInfoJSON = try? decoder.decode(ModelInfoResponse.self, from: data) else {
       throw DownloadError
@@ -192,21 +210,11 @@ extension ModelInfoRetriever {
     }
     let modelHash = modelHash
     let size = Int(modelInfoJSON.size) ?? 0
-    modelInfo = ModelInfo(
+    return RemoteModelInfo(
       name: modelName,
       downloadURL: downloadURL,
       modelHash: modelHash,
       size: size
     )
-  }
-
-  /// Set model info from previously saved info in user defaults.
-  func setModelInfo(fromDefaults defaults: UserDefaults) throws {
-    guard let modelInfo = ModelInfo(fromDefaults: defaults, name: modelName, appName: appName)
-    else {
-      throw DownloadError
-        .internalError(description: "No model info saved to user defaults for model: \(modelName).")
-    }
-    self.modelInfo = modelInfo
   }
 }
