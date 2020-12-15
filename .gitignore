@@ -22,7 +22,8 @@ Example/InstanceID/Resources/GoogleService-Info.plist
 # FirebaseMessaging integration tests GoogleService-Info.plist
 FirebaseMessaging/Tests/IntegrationTests/Resources/GoogleService-Info.plist
 # FirebaseMessaging test app GoogleService-Info.plist
-FirebaseMessaging/Apps/Sample/Sample/GoogleService-Info.plist
+FirebaseMessaging/Apps/Shared/GoogleService-Info.plist
+
 
 # Credentials for Firebase Storage Integration Tests
 FirebaseStorage/Tests/Integration/Credentials.h
