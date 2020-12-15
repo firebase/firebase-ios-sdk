@@ -31,12 +31,21 @@ jobs:
 
   # Public repository: Build and run the Integration Tests for the Firebase performance E2E Test App.
   # TODO: Remove this job config after completely migrated to public repository.
+  # TODO: Remove check on pull request.
   performance-integration-tests-public:
-    if: github.repository == 'Firebase/firebase-ios-sdk'
+    if: github.repository == 'Firebase/firebase-ios-sdk ' || github.event_name == 'pull_request'
+    env:
+      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
     runs-on: macos-latest
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
+    - name: Install Secret GoogleService-Info.plist
+      run: |
+        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/Performance/GoogleService-Info_e2e_autopush.plist.gpg \
+            FirebasePerformance/Tests/FIRPerfE2E/FIRPerfE2EAutopush/GoogleService-Info.plist "$plist_secret"
+        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/Performance/GoogleService-Info_e2e_prod.plist.gpg \
+            FirebasePerformance/Tests/FIRPerfE2E/FIRPerfE2EProd/GoogleService-Info.plist "$plist_secret"
     - name: BuildAndTest # can be replaced with pod lib lint with CocoaPods 1.10
       run: scripts/third_party/travis/retry.sh scripts/build.sh Performance all integration
