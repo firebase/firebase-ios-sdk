@@ -1,3 +1,7 @@
+# Unreleased
+* Open sourced Firebase Performance.
+* Add community supported tvOS.
+
 # Version 7.3.0
 * Add blocklist for GoogleDataTransport upload URLs.
 * Update the event transport mechanism to open sourced GoogleDataTransport.

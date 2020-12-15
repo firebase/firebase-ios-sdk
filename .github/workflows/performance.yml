@@ -25,12 +25,16 @@ jobs:
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
     runs-on: macos-latest
+    strategy:
+      matrix:
+        target: [ios, tvos]
+        test: [unit, proddev]
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: BuildAndTest # can be replaced with pod lib lint with CocoaPods 1.10
-      run: scripts/third_party/travis/retry.sh scripts/build.sh Performance all xcodebuild
+      run: scripts/third_party/travis/retry.sh scripts/build.sh Performance ${{ matrix.target }} ${{ matrix.test }}
 
   # Podspec lint check for Firebase Performance
   pod-lib-lint:
@@ -40,7 +44,7 @@ jobs:
     runs-on: macOS-latest
     strategy:
       matrix:
-        target: [ios]
+        target: [ios, tvos]
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler

@@ -546,11 +546,11 @@ case "$product-$platform-$method" in
       build
     ;;
 
-  Performance-*-xcodebuild)
+  Performance-*-unit)
     # Run unit tests on prod environment with unswizzle capabilities.
     export FPR_UNSWIZZLE_AVAILABLE="1"
     export FPR_AUTOPUSH_ENV="0"
-    pod_gen FirebasePerformance.podspec --platforms=ios --clean
+    pod_gen FirebasePerformance.podspec --platforms="${gen_platform}" --clean
     RunXcodebuild \
       -workspace 'gen/FirebasePerformance/FirebasePerformance.xcworkspace' \
       -scheme "FirebasePerformance-Unit-unit" \
@@ -558,11 +558,13 @@ case "$product-$platform-$method" in
       "${xcb_flags[@]}" \
       build \
       test
+    ;;
 
+  Performance-*-proddev)
     # Build the prod dev test app.
     export FPR_UNSWIZZLE_AVAILABLE="0"
     export FPR_AUTOPUSH_ENV="0"
-    pod_gen FirebasePerformance.podspec --platforms=ios --clean
+    pod_gen FirebasePerformance.podspec --platforms="${gen_platform}" --clean
     RunXcodebuild \
       -workspace 'gen/FirebasePerformance/FirebasePerformance.xcworkspace' \
       -scheme "FirebasePerformance-TestApp" \
@@ -574,7 +576,7 @@ case "$product-$platform-$method" in
   Performance-*-integration)
     # Generate the workspace for the SDK to generate Protobuf files.
     export FPR_UNSWIZZLE_AVAILABLE="0"
-    pod_gen FirebasePerformance.podspec --platforms=ios --clean
+    pod_gen FirebasePerformance.podspec --platforms="${gen_platform}" --clean
 
     # Perform "pod install" to install the relevant dependencies
     cd FirebasePerformance/Tests/FIRPerfE2E; pod install; cd -

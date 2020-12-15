@@ -14,8 +14,10 @@
 
 #import "FirebasePerformance/Sources/FPRProtoUtils.h"
 
+#if __has_include("CoreTelephony/CTTelephonyNetworkInfo.h")
 #import <CoreTelephony/CTCarrier.h>
 #import <CoreTelephony/CTTelephonyNetworkInfo.h>
+#endif
 #import <SystemConfiguration/SystemConfiguration.h>
 
 #import "FirebasePerformance/Sources/Common/FPRConstants.h"
@@ -34,7 +36,9 @@ static GPBStringInt64Dictionary *FPRGetProtoCounterForDictionary(
     NSDictionary<NSString *, NSNumber *> *dictionary);
 static FPRMSGNetworkRequestMetric_HttpMethod FPRHTTPMethodForString(NSString *methodString);
 static FPRMSGNetworkConnectionInfo_NetworkType FPRNetworkConnectionInfoNetworkType(void);
+#if __has_include("CoreTelephony/CTTelephonyNetworkInfo.h")
 static FPRMSGNetworkConnectionInfo_MobileSubtype FPRCellularNetworkType(void);
+#endif
 NSArray<FPRSessionDetails *> *FPRMakeFirstSessionVerbose(NSArray<FPRSessionDetails *> *sessions);
 
 #pragma mark - Public methods
@@ -50,27 +54,29 @@ FPRMSGPerfMetric *FPRGetPerfMetricMessage(NSString *appID) {
 FPRMSGApplicationInfo *FPRGetApplicationInfoMessage() {
   FPRMSGApplicationInfo *appInfoMessage = [FPRMSGApplicationInfo message];
   FPRMSGIosApplicationInfo *iosAppInfo = [FPRMSGIosApplicationInfo message];
-  CTTelephonyNetworkInfo *networkInfo = FPRNetworkInfo();
-  CTCarrier *provider = networkInfo.subscriberCellularProvider;
   NSBundle *mainBundle = [NSBundle mainBundle];
   iosAppInfo.bundleShortVersion = [mainBundle infoDictionary][@"CFBundleShortVersionString"];
   iosAppInfo.sdkVersion = [NSString stringWithUTF8String:kFPRSDKVersion];
+  iosAppInfo.networkConnectionInfo.networkType = FPRNetworkConnectionInfoNetworkType();
+#if __has_include("CoreTelephony/CTTelephonyNetworkInfo.h")
+  CTTelephonyNetworkInfo *networkInfo = FPRNetworkInfo();
+  CTCarrier *provider = networkInfo.subscriberCellularProvider;
   NSString *mccMnc = FPRValidatedMccMnc(provider.mobileCountryCode, provider.mobileNetworkCode);
   if (mccMnc) {
     iosAppInfo.mccMnc = mccMnc;
   }
-
-  iosAppInfo.networkConnectionInfo.networkType = FPRNetworkConnectionInfoNetworkType();
   if (iosAppInfo.networkConnectionInfo.networkType ==
       FPRMSGNetworkConnectionInfo_NetworkType_Mobile) {
     iosAppInfo.networkConnectionInfo.mobileSubtype = FPRCellularNetworkType();
   }
+#endif
   appInfoMessage.iosAppInfo = iosAppInfo;
 
   appInfoMessage.customAttributes = [[FIRPerformance sharedInstance].attributes mutableCopy];
 
   return appInfoMessage;
 }
+
 
 FPRMSGTraceMetric *FPRGetTraceMetric(FIRTrace *trace) {
   if (trace == nil) {
@@ -251,6 +257,7 @@ FPRMSGApplicationProcessState FPRApplicationProcessState(FPRTraceState state) {
   return processState;
 }
 
+#if __has_include("CoreTelephony/CTTelephonyNetworkInfo.h")
 CTTelephonyNetworkInfo *FPRNetworkInfo() {
   static CTTelephonyNetworkInfo *networkInfo;
   static dispatch_once_t onceToken;
@@ -259,6 +266,7 @@ CTTelephonyNetworkInfo *FPRNetworkInfo() {
   });
   return networkInfo;
 }
+#endif
 
 #pragma mark - Proto creation utilities
 
@@ -333,6 +341,7 @@ static FPRMSGNetworkConnectionInfo_NetworkType FPRNetworkConnectionInfoNetworkTy
   return networkType;
 }
 
+#if __has_include("CoreTelephony/CTTelephonyNetworkInfo.h")
 /** Get the current cellular network connection type in NetworkConnectionInfo_MobileSubtype format.
  *  @return Current cellular network connection type.
  */
@@ -359,6 +368,7 @@ static FPRMSGNetworkConnectionInfo_MobileSubtype FPRCellularNetworkType() {
   NSNumber *cellularNetworkType = cellularNetworkToMobileSubtype[networkString];
   return cellularNetworkType.intValue;
 }
+#endif
 
 /** Reorders the list of sessions to make sure the first session is verbose if at least one session
  *  in the list is verbose.
