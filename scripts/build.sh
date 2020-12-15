@@ -554,7 +554,6 @@ case "$product-$platform-$method" in
     RunXcodebuild \
       -workspace 'gen/FirebasePerformance/FirebasePerformance.xcworkspace' \
       -scheme "FirebasePerformance-Unit-unit" \
-      "${ios_flags[@]}" \
       "${xcb_flags[@]}" \
       build \
       test
@@ -568,7 +567,6 @@ case "$product-$platform-$method" in
     RunXcodebuild \
       -workspace 'gen/FirebasePerformance/FirebasePerformance.xcworkspace' \
       -scheme "FirebasePerformance-TestApp" \
-      "${ios_flags[@]}" \
       "${xcb_flags[@]}" \
       build
     ;;
@@ -576,7 +574,7 @@ case "$product-$platform-$method" in
   Performance-*-integration)
     # Generate the workspace for the SDK to generate Protobuf files.
     export FPR_UNSWIZZLE_AVAILABLE="0"
-    pod_gen FirebasePerformance.podspec --platforms="${gen_platform}" --clean
+    pod_gen FirebasePerformance.podspec --platforms=ios --clean
 
     # Perform "pod install" to install the relevant dependencies
     cd FirebasePerformance/Tests/FIRPerfE2E; pod install; cd -
