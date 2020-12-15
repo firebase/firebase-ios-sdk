@@ -28,8 +28,8 @@
 
 # Firebase Apple Open Source Development
 
-This repository contains all Apple platform Firebase SDK source except FirebaseAnalytics,
-FirebasePerformance, and FirebaseML.
+This repository contains all Apple platform Firebase SDK source except FirebaseAnalytics
+and FirebaseML.
 
 Firebase is an app development platform with tools to help you build, grow and
 monetize your app. More information about Firebase can be found at
