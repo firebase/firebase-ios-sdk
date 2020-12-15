@@ -19,7 +19,7 @@
 
 #import "FirebasePerformance/Tests/Unit/Fakes/NSBundleFake.h"
 
-#import "GoogleDataTransport/GDTCCTLibrary/Private/GDTCCTUploader.h"
+#import "GoogleDataTransport/GDTCORLibrary/Internal/GoogleDataTransportInternal.h"
 
 @interface FPRURLFilterTest : XCTestCase
 
@@ -39,16 +39,14 @@
 
 /** Tests that the Clearcut upload URL is denied. */
 - (void)testFllClearcutURLDenied {
-  NSDictionary<NSNumber *, NSURL *> *uploadURLs = [GDTCCTUploader uploadURLs];
   XCTAssertFalse([[FPRURLFilter sharedInstance]
-      shouldInstrumentURL:uploadURLs[@(kGDTCORTargetCCT)].absoluteString]);
+      shouldInstrumentURL:[GDTCOREndpoints uploadURLForTarget:kGDTCORTargetCCT].absoluteString]);
 }
 
 /** Tests that the FLL upload URL is denied. */
 - (void)testFllServiceURLDenied {
-  NSDictionary<NSNumber *, NSURL *> *uploadURLs = [GDTCCTUploader uploadURLs];
   XCTAssertFalse([[FPRURLFilter sharedInstance]
-      shouldInstrumentURL:uploadURLs[@(kGDTCORTargetFLL)].absoluteString]);
+      shouldInstrumentURL:[GDTCOREndpoints uploadURLForTarget:kGDTCORTargetFLL].absoluteString]);
 }
 
 /** Tests shouldInstrument when the plist file is not being used. */

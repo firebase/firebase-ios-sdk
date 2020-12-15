@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,14 @@
  * limitations under the License.
  */
 
-#import "GDTCORClock.h"
-#import "GDTCORConsoleLogger.h"
-#import "GDTCOREndpoints.h"
-#import "GDTCOREvent.h"
-#import "GDTCOREventDataObject.h"
-#import "GDTCOREventTransformer.h"
-#import "GDTCORTargets.h"
-#import "GDTCORTransport.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCOREndpoints.h"
+
+@interface GDTCOREndpoints ()
+
+/** Returns the list of all the upload URLs used by the transport library.
+ *
+ *  @return Map of the transport target and the URL used for uploading the events for that target.
+ */
++ (NSDictionary<NSNumber *, NSURL *> *)uploadURLs;
+
+@end
