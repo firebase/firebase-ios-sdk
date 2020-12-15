@@ -27,7 +27,7 @@ jobs:
     runs-on: macos-latest
     strategy:
       matrix:
-        target: [ios, tvos]
+        target: [iOS, tvOS]
         test: [unit, proddev]
     steps:
     - uses: actions/checkout@v2

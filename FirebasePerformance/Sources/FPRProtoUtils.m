@@ -77,7 +77,6 @@ FPRMSGApplicationInfo *FPRGetApplicationInfoMessage() {
   return appInfoMessage;
 }
 
-
 FPRMSGTraceMetric *FPRGetTraceMetric(FIRTrace *trace) {
   if (trace == nil) {
     return nil;

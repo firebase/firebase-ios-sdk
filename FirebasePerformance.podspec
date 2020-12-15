@@ -17,7 +17,7 @@ Firebase Performance library to measure performance of Mobile and Web Apps.
   }
   s.social_media_url = 'https://twitter.com/Firebase'
 
-  ios_deployment_target = '9.0'
+  ios_deployment_target = '10.0'
   tvos_deployment_target = '10.0'
 
   s.ios.deployment_target = ios_deployment_target
