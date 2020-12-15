@@ -1,3 +1,6 @@
+# Unreleased
+- [fixed] New callback added in 7.3.0 should be on the main thread. (#7159)
+
 # v7.3.0
 - [added] Manually created dynamic links should be subject to allowed/blocked check (#5853)
 
