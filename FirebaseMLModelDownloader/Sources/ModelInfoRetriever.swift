@@ -42,20 +42,17 @@ class ModelInfoRetriever: NSObject {
   private var installations: Installations
   /// Current Firebase app name.
   private let appName: String
-  /// User defaults for local model info.
-  private let defaults: UserDefaults
   /// Local model info to validate model freshness.
   private var localModelInfo: LocalModelInfo?
 
   /// Associate model info retriever with current Firebase app, and model name.
   init(modelName: String, options: FirebaseOptions, installations: Installations, appName: String,
-       defaults: UserDefaults) {
+       localModelInfo: LocalModelInfo? = nil) {
     self.modelName = modelName
     self.options = options
     self.installations = installations
     self.appName = appName
-    self.defaults = defaults
-    localModelInfo = LocalModelInfo(fromDefaults: defaults, name: modelName, appName: appName)
+    self.localModelInfo = localModelInfo
   }
 }
 
@@ -97,10 +94,10 @@ extension ModelInfoRetriever {
     let bundleID = Bundle.main.bundleIdentifier ?? ""
     request.setValue(bundleID, forHTTPHeaderField: ModelInfoRetriever.bundleIDHTTPHeader)
     request.setValue(token, forHTTPHeaderField: ModelInfoRetriever.fisTokenHTTPHeader)
-    /// Get model hash if already stored on device.
-    if let localModelInfo = self.localModelInfo {
+    /// Get model hash if local model info is available on device.
+    if let modelInfo = localModelInfo {
       request.setValue(
-        localModelInfo.modelHash,
+        modelInfo.modelHash,
         forHTTPHeaderField: ModelInfoRetriever.hashMatchHTTPHeader
       )
     }
@@ -124,6 +121,7 @@ extension ModelInfoRetriever {
   func downloadModelInfo(completion: @escaping (Result<RemoteModelInfo?, DownloadError>) -> Void) {
     getAuthToken { result in
       switch result {
+      /// Successfully received FIS token.
       case let .success(authToken):
         /// Get model info fetch URL with appropriate HTTP headers.
         let request = self.getModelInfoFetchURLRequest(token: authToken)
@@ -169,6 +167,8 @@ extension ModelInfoRetriever {
                 )
               }
             case 304:
+              /// For this case to occur, local model info has to already be available on device.
+              // TODO: Is this needed? Currently handles the case if model info disappears between request and response
               guard self.localModelInfo != nil else {
                 completion(
                   .failure(.internalError(description: "Model info was deleted unexpectedly."))
@@ -189,6 +189,7 @@ extension ModelInfoRetriever {
           }
         }
         dataTask.resume()
+      /// FIS token error.
       case .failure:
         completion(.failure(.internalError(description: ModelInfoRetriever.tokenErrorDescription)))
         return
@@ -196,7 +197,7 @@ extension ModelInfoRetriever {
     }
   }
 
-  /// Set model info from server response.
+  /// Return model info created from server response.
   private func getRemoteModelInfoFromResponse(_ data: Data,
                                               modelHash: String) throws -> RemoteModelInfo {
     let decoder = JSONDecoder()

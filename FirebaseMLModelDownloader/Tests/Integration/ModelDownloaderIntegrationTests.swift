@@ -19,7 +19,7 @@ import XCTest
 
 extension UserDefaults {
   /// For testing: returns a new cleared instance of user defaults.
-  static func getTestInstance(cleared: Bool = true) -> UserDefaults {
+  @discardableResult static func getTestInstance(cleared: Bool = true) -> UserDefaults {
     let suiteName = "com.google.firebase.ml.test"
     // TODO: reconsider force unwrapping
     let defaults = UserDefaults(suiteName: suiteName)!
@@ -49,24 +49,26 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
       return
     }
     let testModelName = "pose-detection"
+
     let modelInfoRetriever = ModelInfoRetriever(
       modelName: testModelName,
       options: testApp.options,
       installations: Installations.installations(app: testApp),
-      appName: testApp.name,
-      defaults: .getTestInstance(cleared: false)
+      appName: testApp.name
     )
 
     let downloadExpectation = expectation(description: "Wait for model info to download.")
     modelInfoRetriever.downloadModelInfo(completion: { result in
       switch result {
       case let .success(remoteModelInfo):
-        if let remoteModelInfo = remoteModelInfo {
-          XCTAssertGreaterThan(remoteModelInfo.downloadURL.absoluteString.count, 0)
-          XCTAssertGreaterThan(remoteModelInfo.modelHash.count, 0)
-          XCTAssertGreaterThan(remoteModelInfo.size, 0)
-          let localModelInfo = LocalModelInfo(from: remoteModelInfo, path: "mock-valid-path")
-          localModelInfo.writeToDefaults(.getTestInstance(cleared: false), appName: testApp.name)
+        if let modelInfo = remoteModelInfo {
+          XCTAssertGreaterThan(modelInfo.downloadURL.absoluteString.count, 0)
+          XCTAssertGreaterThan(modelInfo.modelHash.count, 0)
+          XCTAssertGreaterThan(modelInfo.size, 0)
+          let localModelInfo = LocalModelInfo(from: modelInfo, path: "mock-valid-path")
+          localModelInfo.writeToDefaults(.getTestInstance(), appName: testApp.name)
+        } else {
+          XCTFail("Failed to retrieve model info.")
         }
       case let .failure(error):
         XCTAssertNotNil(error)
@@ -77,19 +79,39 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
 
     waitForExpectations(timeout: 5, handler: nil)
 
-    XCTAssertNotNil(LocalModelInfo(
+    if let localInfo = LocalModelInfo(
       fromDefaults: .getTestInstance(cleared: false),
       name: testModelName,
       appName: testApp.name
-    ))
+    ) {
+      XCTAssertNotNil(localInfo)
+      testRetrieveModelInfo(localInfo: localInfo)
+    } else {
+      XCTFail("Could not save model info locally.")
+    }
+  }
 
+  func testRetrieveModelInfo(localInfo: LocalModelInfo) {
+    guard let testApp = FirebaseApp.app() else {
+      XCTFail("Default app was not configured.")
+      return
+    }
+    let testModelName = "pose-detection"
+
+    let modelInfoRetriever = ModelInfoRetriever(
+      modelName: testModelName,
+      options: testApp.options,
+      installations: Installations.installations(app: testApp),
+      appName: testApp.name,
+      localModelInfo: localInfo
+    )
+    // TODO: This check seems to be flaky.
     let retrieveExpectation = expectation(description: "Wait for model info to be retrieved.")
     modelInfoRetriever.downloadModelInfo(completion: { result in
       switch result {
       case let .success(remoteModelInfo):
-        if let _ = remoteModelInfo {
+        if remoteModelInfo != nil {
           XCTFail("Local model info is already the latest and should not be set again.")
-          return
         }
       case let .failure(error):
         XCTAssertNotNil(error)

@@ -15,7 +15,7 @@
 import Foundation
 import FirebaseCore
 
-/// Model info object with details about pending or downloaded model.
+/// Model info object with details about downloaded and locally available model.
 // TODO: Can this be backed by user defaults property wrappers?
 class LocalModelInfo {
   /// Model name.
@@ -33,6 +33,13 @@ class LocalModelInfo {
   /// Local path of the model.
   let path: String
 
+  /// Get user defaults key prefix.
+  private static func getUserDefaultsKeyPrefix(appName: String, modelName: String) -> String {
+    let bundleID = Bundle.main.bundleIdentifier ?? ""
+    return "\(bundleID).\(appName).\(modelName)"
+  }
+
+  /// Convenience init to create local model info from remotely downloaded model info and a local model path.
   init(from remoteModelInfo: RemoteModelInfo, path: String) {
     name = remoteModelInfo.name
     downloadURL = remoteModelInfo.downloadURL
@@ -41,12 +48,7 @@ class LocalModelInfo {
     self.path = path
   }
 
-  /// Get user defaults key prefix.
-  private static func getUserDefaultsKeyPrefix(appName: String, modelName: String) -> String {
-    let bundleID = Bundle.main.bundleIdentifier ?? ""
-    return "\(bundleID).\(appName).\(modelName)"
-  }
-
+  /// Convenience init to create local model info from stored info in user defaults.
   init?(fromDefaults defaults: UserDefaults, name: String, appName: String) {
     let defaultsPrefix = LocalModelInfo.getUserDefaultsKeyPrefix(appName: appName, modelName: name)
     guard let downloadURL = defaults
@@ -65,6 +67,7 @@ class LocalModelInfo {
     self.path = path
   }
 
+  /// Write local model info to user defaults.
   func writeToDefaults(_ defaults: UserDefaults, appName: String) {
     let defaultsPrefix = LocalModelInfo.getUserDefaultsKeyPrefix(appName: appName, modelName: name)
     defaults.setValue(downloadURL.absoluteString, forKey: "\(defaultsPrefix).model-download-url")

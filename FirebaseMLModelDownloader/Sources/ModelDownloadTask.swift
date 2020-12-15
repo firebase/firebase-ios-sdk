@@ -15,6 +15,7 @@
 import Foundation
 import FirebaseCore
 
+/// Possible states of model downloading.
 enum DownloadStatus {
   case notStarted
   case inProgress
@@ -37,14 +38,19 @@ class DownloadHandlers {
 
 /// Manager to handle model downloading device and storing downloaded model info to persistent storage.
 class ModelDownloadTask: NSObject {
+  /// Name of the app associated with this instance of ModelDownloadTask.
   private let appName: String
+  /// Model info downloaded from server.
   private(set) var remoteModelInfo: RemoteModelInfo
+  /// User defaults to which local model info should ultimately be written.
   private let defaults: UserDefaults
+  /// Task to handle model file download.
   private var downloadTask: URLSessionDownloadTask?
+  /// Progress and completion handlers associated with this model download task.
   private let downloadHandlers: DownloadHandlers
-
+  /// Keeps track of download associated with this model download task.
   private(set) var downloadStatus: DownloadStatus = .notStarted
-
+  /// URLSession to handle model downloads.
   private lazy var downloadSession = URLSession(configuration: .ephemeral,
                                                 delegate: self,
                                                 delegateQueue: nil)
@@ -73,6 +79,11 @@ class ModelDownloadTask: NSObject {
 
 /// Extension to handle delegate methods.
 extension ModelDownloadTask: URLSessionDownloadDelegate {
+  /// Name for model file stored on device.
+  var downloadedModelFileName: String {
+    return "fbml_model__\(appName)__\(remoteModelInfo.name)"
+  }
+
   func urlSession(_ session: URLSession,
                   downloadTask: URLSessionDownloadTask,
                   didFinishDownloadingTo location: URL) {
@@ -105,26 +116,9 @@ extension ModelDownloadTask: URLSessionDownloadDelegate {
                   totalBytesWritten: Int64,
                   totalBytesExpectedToWrite: Int64) {
     assert(downloadTask == self.downloadTask)
+    /// Check if progress handler is unspecified.
     guard let progressHandler = downloadHandlers.progressHandler else { return }
     let calculatedProgress = Float(totalBytesWritten) / Float(totalBytesExpectedToWrite)
     progressHandler(calculatedProgress)
-  }
-}
-
-/// Extension to handle post-download operations.
-extension ModelDownloadTask {
-  var downloadedModelFileName: String {
-    return "fbml_model__\(appName)__\(remoteModelInfo.name)"
-  }
-
-  /// Get the local path to model on device.
-  func getLocalModelPath() -> URL? {
-    let fileURL: URL = ModelFileManager.modelsDirectory
-      .appendingPathComponent(downloadedModelFileName)
-    if ModelFileManager.isFileReachable(at: fileURL) {
-      return fileURL
-    } else {
-      return nil
-    }
   }
 }

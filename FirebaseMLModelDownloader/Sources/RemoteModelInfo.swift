@@ -15,7 +15,7 @@
 import Foundation
 import FirebaseCore
 
-/// Model info object with details about pending or downloaded model.
+/// Model info object with details about not-yet downloaded model.
 struct RemoteModelInfo {
   /// Model name.
   let name: String
@@ -29,7 +29,6 @@ struct RemoteModelInfo {
   /// Size of the model, as returned by server.
   let size: Int
 
-  /// Initialize model info and create user default keys.
   init(name: String, downloadURL: URL, modelHash: String, size: Int) {
     self.name = name
     self.downloadURL = downloadURL
