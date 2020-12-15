@@ -94,4 +94,4 @@ See more product details at https://firebase.google.com/products/in-app-messagin
       unit_tests.requires_app_host = true
       unit_tests.dependency 'OCMock'
    end
-end                        
+end
