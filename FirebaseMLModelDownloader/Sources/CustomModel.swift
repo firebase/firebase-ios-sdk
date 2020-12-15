@@ -25,13 +25,6 @@ public struct CustomModel: Hashable {
   /// Hash for the model, used for model verification.
   public let hash: String
 
-  init(name: String, size: Int, path: String, hash: String) {
-    self.name = name
-    self.size = size
-    self.path = path
-    self.hash = hash
-  }
-
   /// Convenience init to create model from local model info.
   init(localModelInfo: LocalModelInfo) {
     name = localModelInfo.name
