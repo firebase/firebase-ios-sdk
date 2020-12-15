@@ -550,7 +550,7 @@ case "$product-$platform-$method" in
     # Run unit tests on prod environment with unswizzle capabilities.
     export FPR_UNSWIZZLE_AVAILABLE="1"
     export FPR_AUTOPUSH_ENV="0"
-    pod_gen FirebasePerformance.podspec --platforms="${gen_platform}" --clean
+    pod_gen FirebasePerformance.podspec --platforms="${gen_platform}"
     RunXcodebuild \
       -workspace 'gen/FirebasePerformance/FirebasePerformance.xcworkspace' \
       -scheme "FirebasePerformance-Unit-unit" \
@@ -563,7 +563,7 @@ case "$product-$platform-$method" in
     # Build the prod dev test app.
     export FPR_UNSWIZZLE_AVAILABLE="0"
     export FPR_AUTOPUSH_ENV="0"
-    pod_gen FirebasePerformance.podspec --platforms="${gen_platform}" --clean
+    pod_gen FirebasePerformance.podspec --platforms="${gen_platform}"
     RunXcodebuild \
       -workspace 'gen/FirebasePerformance/FirebasePerformance.xcworkspace' \
       -scheme "FirebasePerformance-TestApp" \
