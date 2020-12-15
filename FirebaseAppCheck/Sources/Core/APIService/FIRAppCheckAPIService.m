@@ -33,6 +33,8 @@ static NSString *const kHeartbeatKey = @"X-firebase-client-log-type";
 static NSString *const kHeartbeatStorageTag = @"fire-app-check";
 static NSString *const kUserAgentKey = @"X-firebase-client";
 
+static NSString *const kDefaultBaseURL = @"https://firebaseappcheck.googleapis.com/v1alpha";
+
 @interface FIRAppCheckAPIService ()
 
 @property(nonatomic, readonly) NSURLSession *URLSession;
@@ -51,12 +53,11 @@ static NSString *const kUserAgentKey = @"X-firebase-client";
                             APIKey:(NSString *)APIKey
                          projectID:(NSString *)projectID
                              appID:(NSString *)appID {
-  NSString *defaultBaseURL = @"https://staging-firebaseappcheck.sandbox.googleapis.com/v1alpha";
   return [self initWithURLSession:session
                            APIKey:APIKey
                         projectID:projectID
                             appID:appID
-                          baseURL:defaultBaseURL];
+                          baseURL:kDefaultBaseURL];
 }
 
 - (instancetype)initWithURLSession:(NSURLSession *)session

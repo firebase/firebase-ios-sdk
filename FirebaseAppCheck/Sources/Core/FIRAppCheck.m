@@ -35,7 +35,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 static id<FIRAppCheckProviderFactory> _providerFactory;
 
-static const NSTimeInterval kTokenExpirationThreshold = 60 * 60;  // 1 hour.
+static const NSTimeInterval kTokenExpirationThreshold = 5 * 60;  // 5 min.
 
 static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
 
