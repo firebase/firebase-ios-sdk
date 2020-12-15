@@ -518,6 +518,7 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
       dynamicLinkFromUniversalLinkURL:durabledeepLinkURL
                            completion:^(FIRDynamicLink *_Nullable dynamicLink,
                                         NSError *_Nullable error) {
+                             XCTAssertTrue([NSThread isMainThread]);
                              XCTAssertNotNil(dynamicLink);
                              NSString *deepLinkURLString = dynamicLink.url.absoluteString;
 
@@ -559,6 +560,7 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
       dynamicLinkFromUniversalLinkURL:durabledeepLinkURL
                            completion:^(FIRDynamicLink *_Nullable dynamicLink,
                                         NSError *_Nullable error) {
+                             XCTAssertTrue([NSThread isMainThread]);
                              NSString *deepLinkURLString = dynamicLink.url.absoluteString;
 
                              XCTAssertEqualObjects(
@@ -599,6 +601,7 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
       dynamicLinkFromUniversalLinkURL:durabledeepLinkURL
                            completion:^(FIRDynamicLink *_Nullable dynamicLink,
                                         NSError *_Nullable error) {
+                             XCTAssertTrue([NSThread isMainThread]);
                              NSString *deepLinkURLString = dynamicLink.url.absoluteString;
 
                              XCTAssertEqualObjects(
@@ -649,6 +652,7 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
       dynamicLinkFromUniversalLinkURL:url
                            completion:^(FIRDynamicLink *_Nullable dynamicLink,
                                         NSError *_Nullable error) {
+                             XCTAssertTrue([NSThread isMainThread]);
                              XCTAssertEqual(dynamicLink.matchConfidence,
                                             FIRDynamicLinkMatchConfidenceStrong);
                              XCTAssertEqualObjects(dynamicLink.url.absoluteString, deepLinkString);
@@ -697,6 +701,7 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
   [self.service dynamicLinkFromUniversalLinkURL:url
                                      completion:^(FIRDynamicLink *_Nullable dynamicLink,
                                                   NSError *_Nullable error) {
+                                       XCTAssertTrue([NSThread isMainThread]);
                                        XCTAssertEqual(dynamicLink.matchConfidence,
                                                       FIRDynamicLinkMatchConfidenceStrong);
                                        XCTAssertEqualObjects(dynamicLink.url.absoluteString,
@@ -861,6 +866,7 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
       dynamicLinkFromUniversalLinkURL:url
                            completion:^(FIRDynamicLink *_Nullable dynamicLink,
                                         NSError *_Nullable error) {
+                             XCTAssertTrue([NSThread isMainThread]);
                              NSString *minVersion = dynamicLink.minimumAppVersion;
 
                              XCTAssertNil(minVersion, @"Min app version was not nil when not set.");
@@ -907,6 +913,7 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
       dynamicLinkFromUniversalLinkURL:url
                            completion:^(FIRDynamicLink *_Nullable dynamicLink,
                                         NSError *_Nullable error) {
+                             XCTAssertTrue([NSThread isMainThread]);
                              NSString *minVersion = dynamicLink.minimumAppVersion;
 
                              XCTAssertEqualObjects(expectedMinVersion, minVersion,
@@ -953,6 +960,7 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
       dynamicLinkFromUniversalLinkURL:url
                            completion:^(FIRDynamicLink *_Nullable dynamicLink,
                                         NSError *_Nullable error) {
+                             XCTAssertTrue([NSThread isMainThread]);
                              XCTAssertEqual(dynamicLink.matchConfidence,
                                             FIRDynamicLinkMatchConfidenceStrong);
                              XCTAssertEqualObjects(dynamicLink.url.absoluteString, deepLinkString);
@@ -996,6 +1004,7 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
   [self.service dynamicLinkFromUniversalLinkURL:url
                                      completion:^(FIRDynamicLink *_Nullable dynamicLink,
                                                   NSError *_Nullable error) {
+                                       XCTAssertTrue([NSThread isMainThread]);
                                        XCTAssertEqual(dynamicLink.matchConfidence,
                                                       FIRDynamicLinkMatchConfidenceStrong);
                                        XCTAssertEqualObjects(dynamicLink.url.absoluteString,
