@@ -3074,8 +3074,8 @@
 }
 
 - (void)testOfflineQueryGet {
-  FIRDatabase* db = [FTestHelpers defaultDatabase];
-  FIRDatabaseReference* ref = [db reference];
+  FIRDatabaseReference* ref = [FTestHelpers getRandomNode];
+  FIRDatabase* db = [ref database];
 
   __block BOOL done = NO;
 
@@ -3091,8 +3091,7 @@
 }
 
 - (void)testGetQueryBasic {
-  FIRDatabase* db = [FTestHelpers defaultDatabase];
-  FIRDatabaseReference* ref = [db reference];
+  FIRDatabaseReference* ref = [FTestHelpers getRandomNode];
 
   __block BOOL done = NO;
 
@@ -3114,8 +3113,8 @@
 }
 
 - (void)testQueryGetCached {
-  FIRDatabase* db = [FTestHelpers defaultDatabase];
-  FIRDatabaseReference* ref = [db reference];
+  FIRDatabaseReference* ref = [FTestHelpers getRandomNode];
+  FIRDatabase* db = [ref database];
 
   __block BOOL done = NO;
 

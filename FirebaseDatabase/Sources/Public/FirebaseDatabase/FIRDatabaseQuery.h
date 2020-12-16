@@ -133,7 +133,8 @@ NS_SWIFT_NAME(DatabaseQuery)
 
 - (void)getDataWithCompletionBlock:
     (void (^_Nonnull)(NSError *__nullable error,
-                      FIRDataSnapshot *snapshot))block;
+                      FIRDataSnapshot *snapshot))block
+    NS_SWIFT_NAME(getData(completion:));
 
 /**
  * This is equivalent to observeEventType:withBlock:, except the block is
