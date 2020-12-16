@@ -180,7 +180,7 @@ jobs:
     - name: Install Secret GoogleService-Info.plist
       run: |
         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/messaging-sample-plist.gpg \
-          FirebaseMessaging/Apps/Sample/Sample/GoogleService-Info.plist "$plist_secret"
+          FirebaseMessaging/Apps/Shared/GoogleService-Info.plist "$plist_secret"
     - name: Prereqs
       run: scripts/install_prereqs.sh MessagingSample iOS
     - name: Build
