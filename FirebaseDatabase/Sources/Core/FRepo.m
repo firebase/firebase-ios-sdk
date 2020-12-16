@@ -550,9 +550,7 @@
                    return;
                }
            } else {
-               NSLog(@"Creating node from data = %d", data == nil);
                node = [FSnapshotUtilities nodeFrom:data];
-               NSLog(@"node = %@, %d", node, [node isEmpty]);
            }
            [self.eventRaiser
                raiseEvents:[self.serverSyncTree
