@@ -128,13 +128,8 @@ extension ModelInfoRetriever {
         // TODO: revisit using ephemeral session with Etag
         let session = URLSession(configuration: .ephemeral)
         /// Download model info.
-        let dataTask = session.dataTask(with: request) { [weak self]
+        let dataTask = session.dataTask(with: request) {
           data, response, error in
-          guard let self = self else {
-            completion(.failure(.internalError(description: ModelInfoRetriever
-                .selfDeallocatedErrorDescription)))
-            return
-          }
           if let downloadError = error {
             completion(.failure(.internalError(description: downloadError.localizedDescription)))
           } else {
