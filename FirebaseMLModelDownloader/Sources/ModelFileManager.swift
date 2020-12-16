@@ -16,13 +16,15 @@ import Foundation
 
 /// Manager for common file operations.
 enum ModelFileManager {
+  static let fileManager = FileManager.default
+
   /// Root directory of model file storage on device.
   static var modelsDirectory: URL {
     // TODO: Reconsider force unwrapping.
     #if os(tvOS)
-      return FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first!
+      return fileManager.urls(for: .cachesDirectory, in: .userDomainMask).first!
     #else
-      return FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
+      return fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
     #endif
   }
 
@@ -42,7 +44,7 @@ enum ModelFileManager {
   static func moveFile(at sourceURL: URL, to destinationURL: URL) throws {
     if isFileReachable(at: destinationURL) {
       do {
-        try FileManager.default.removeItem(at: destinationURL)
+        try fileManager.removeItem(at: destinationURL)
       } catch {
         throw DownloadError
           .internalError(description: "Could not replace existing model file.")
@@ -52,6 +54,15 @@ enum ModelFileManager {
       try FileManager.default.moveItem(at: sourceURL, to: destinationURL)
     } catch {
       throw DownloadError.internalError(description: "Unable to save model file.")
+    }
+  }
+
+  /// Remove model file at a specific location.
+  static func removeFile(at url: URL) throws {
+    do {
+      try fileManager.removeItem(at: url)
+    } catch {
+      throw DownloadError.internalError(description: "Could not delete old model file.")
     }
   }
 }
