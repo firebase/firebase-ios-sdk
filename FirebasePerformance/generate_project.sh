@@ -19,8 +19,6 @@
 
 # USAGE: generate_project.sh
 
-set -x
-
 helpFunction()
 {
   echo ""
