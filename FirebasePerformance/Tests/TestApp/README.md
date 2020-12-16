@@ -3,9 +3,13 @@
 ## Setup
 
 Download the `GoogleService-Info.plist` file from [Firebase Console](https://console.firebase.google.com/)
-(for whatever Firebase project you have or want to integrate the `dev-app`). For Autopush environment, store the
+(for whatever Firebase project you have or want to integrate the `dev-app`). 
+
+For Prod environment, store the `GoogleService-Info.plist` under [Plists/Prod/FIRPerfTestApp/](./Plists/Prod/FIRPerfTestApp/). This should be sufficient for most scenarios. 
+
+For Autopush environment, store the
 `GoogleService-Info.plist` under [Plists/Autopush/FIRPerfTestAppAutopush/](./Plists/Autopush/FIRPerfTestAppAutopush/).
-For Prod environment, project, store the `GoogleService-Info.plist` under [Plists/Prod/FIRPerfTestApp/](./Plists/Prod/FIRPerfTestApp/).
+
 
 ## Build
 
