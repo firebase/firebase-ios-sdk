@@ -128,6 +128,12 @@ Firestore has a self contained Xcode project. See
 * Select the Unit-unit scheme
 * Run it to build and test
 
+Alternatively disable signing in each target:
+* Go to Build Settings tab
+* Click `+`
+* Select `Add User-Defined Setting`
+* Add `CODE_SIGNING_REQUIRED` setting with a value of `NO`
+
 ### Adding a New Firebase Pod
 
 See [AddNewPod.md](AddNewPod.md).
