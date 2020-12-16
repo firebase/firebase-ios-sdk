@@ -34,7 +34,6 @@ enum ModelFileManager {
       let isReachable = try fileURL.checkResourceIsReachable()
       return isReachable
     } catch {
-      print(error.localizedDescription)
       /// File unreachable.
       return false
     }
