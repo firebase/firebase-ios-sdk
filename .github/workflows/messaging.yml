@@ -91,7 +91,7 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Setup project and Build Catalyst
-      run: scripts/test_catalyst.sh FirebaseMessaging build
+      run: scripts/test_catalyst.sh FirebaseMessaging test FirebaseMessaging-Unit-unit
 
   quickstart:
     # Don't run on private repo unless it is a PR.
