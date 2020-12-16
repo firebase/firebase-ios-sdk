@@ -2,13 +2,10 @@
 
 ## Setup
 
-Download the `GoogleService-Info.plist` file from [Firebase Console](https://console.firebase.google.com/)
-(for whatever Firebase project you have or want to integrate the `dev-app`).
+For Prod environment, create a [Firebase project]((https://console.firebase.google.com/)) with bundle ID `com.google.FIRPerfTestApp`. Download and store the `GoogleService-Info.plist` under [Plists/Prod/FIRPerfTestApp/](./Plists/Prod/FIRPerfTestApp/). This should be sufficient for most scenarios.
 
-For Prod environment, store the `GoogleService-Info.plist` under [Plists/Prod/FIRPerfTestApp/](./Plists/Prod/FIRPerfTestApp/). This should be sufficient for most scenarios.
-
-For Autopush environment, store the
-`GoogleService-Info.plist` under [Plists/Autopush/FIRPerfTestAppAutopush/](./Plists/Autopush/FIRPerfTestAppAutopush/).
+For Autopush environment, create a [Firebase project]((https://console.firebase.google.com/)) with bundle ID `com.google.FIRPerfTestAppAutopush`. Download and store the
+`GoogleService-Info.plist` under [Plists/Autopush/FIRPerfTestAppAutopush/](./Plists/Autopush/FIRPerfTestAppAutopush/). The events generated for the Autopush environment will not be available on the console outside of Google as these are processed on our staging servers.
 
 
 ## Build

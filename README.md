@@ -189,8 +189,8 @@ To run against a production instance, provide a valid GoogleServices-Info.plist 
 [public](https://firebase.google.com/docs/database/security/quickstart) while your tests are
 running.
 
-### Firebase Performance
-If you're doing specific Firebase Performance development, see
+### Firebase Performance Monitoring
+If you're doing specific Firebase Performance Monitoring development, see
 [the Performance README](FirebasePerformance/README.md) for instructions about building the SDK
 and [the Performance TestApp README](FirebasePerformance/Tests/TestApp/README.md) for instructions about
 integrating Performance with the dev test App.
