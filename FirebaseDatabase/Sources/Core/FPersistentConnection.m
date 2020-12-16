@@ -747,6 +747,9 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref,
                   NSString *status =
                       [data objectForKey:kFWPResponseForActionStatus];
                   id resultData = [data objectForKey:kFWPResponseForActionData];
+                  if (resultData == (id)[NSNull null]) {
+                      resultData = nil;
+                  }
                   if ([status isEqualToString:kFWPResponseForActionStatusOk]) {
                       get.onCompleteBlock(status, resultData, nil);
                       return;
@@ -813,9 +816,9 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref,
     }
 }
 
-- (void)get:(NSString *)pathString
-      withParams:(NSDictionary *)queryWireProtocolParams
-    withCallback:(fbt_void_nsstring_id_nsstring)onComplete {
+- (void)getDataAtPath:(NSString *)pathString
+           withParams:(NSDictionary *)queryWireProtocolParams
+         withCallback:(fbt_void_nsstring_id_nsstring)onComplete {
     NSMutableDictionary *request = [NSMutableDictionary
         dictionaryWithObjectsAndKeys:pathString, kFWPRequestPath,
                                      queryWireProtocolParams,

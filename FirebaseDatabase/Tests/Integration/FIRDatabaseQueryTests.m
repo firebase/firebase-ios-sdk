@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
+#import "FirebaseDatabase/Tests/Integration/FIRDatabaseQueryTests.h"
 #import "FirebaseCore/Sources/Public/FirebaseCore/FIROptions.h"
 #import "FirebaseDatabase/Sources/Api/Private/FIRDatabaseQuery_Private.h"
 #import "FirebaseDatabase/Sources/Constants/FConstants.h"
 #import "FirebaseDatabase/Sources/Core/FQuerySpec.h"
 #import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
-#import "FirebaseDatabase/Tests/Integration/FIRDatabaseQueryTests.h"
 #import "FirebaseDatabase/Tests/Helpers/FIRFakeApp.h"
 #import "FirebaseDatabase/Tests/Helpers/FTestExpectations.h"
 
@@ -3066,7 +3066,7 @@
   __block BOOL done = NO;
 
   [ref getDataWithCompletionBlock:^(NSError* err, FIRDataSnapshot* snapshot) {
-    XCTAssertNil(snapshot.value);
+    XCTAssert([snapshot.value isEqual:[NSNull null]]);
     done = YES;
   }];
 
