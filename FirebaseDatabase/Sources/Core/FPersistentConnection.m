@@ -851,7 +851,7 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref,
     }
 
     if ([self canSendReads]) {
-        FFLog(@"I-RDB034024", @"Was connected, and added as index: %@", index);
+        FFLog(@"I-RDB034024", @"Sending get: %@", index);
         [self sendGet:index];
     }
 }
