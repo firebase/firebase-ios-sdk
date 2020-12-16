@@ -55,6 +55,8 @@ args=(
   "-sdk" "macosx" "-destination platform=\"OS X\"" "TARGETED_DEVICE_FAMILY=2"
   # Disable signing.
   "CODE_SIGN_IDENTITY=-" "CODE_SIGNING_REQUIRED=NO" "CODE_SIGNING_ALLOWED=NO"
+  # GHA is still running 10.15.
+  "MACOSX_DEPLOYMENT_TARGET=10.15"
 )
 
 xcodebuild -version
