@@ -50,7 +50,7 @@ args=(
   # Specify the app if all test should run. Otherwise, specify the test scheme.
   "-scheme" "$scheme"
   # Specify Catalyst.
-  "ARCHS=x86_64h" "VALID_ARCHS=x86_64h" "SUPPORTS_MACCATALYST=YES"
+  "ARCHS=x86_64" "VALID_ARCHS=x86_64" "SUPPORTS_MACCATALYST=YES"
   # Run on macOS.
   "-sdk" "macosx" "-destination platform=\"OS X\"" "TARGETED_DEVICE_FAMILY=2"
   # Disable signing.
