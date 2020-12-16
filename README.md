@@ -191,8 +191,9 @@ running.
 
 ### Firebase Performance
 If you're doing specific Firebase Performance development, see
-[the Performance TestApp README](FirebasePerformance/Tests/TestApp/README.md) for instructions about
-integrating Performance with dev test App with .
+[the Performance README](FirebasePerformance/README.md) for instructions about building the SDK 
+and [the Performance TestApp README](FirebasePerformance/Tests/TestApp/README.md) for instructions about
+integrating Performance with the dev test App.
 
 ### Firebase Storage
 
