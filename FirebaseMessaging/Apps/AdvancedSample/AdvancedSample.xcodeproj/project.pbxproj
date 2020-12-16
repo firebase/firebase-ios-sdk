@@ -21,6 +21,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		519448DE2589900400297021 /* AdvancedSample.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = AdvancedSample.entitlements; sourceTree = "<group>"; };
 		51A1F39825883DCE0025932B /* AdvancedSample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AdvancedSample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		51A1F3A125883DCF0025932B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		51A1F3A425883DCF0025932B /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
@@ -67,6 +68,7 @@
 		51A1F39A25883DCE0025932B /* AdvancedSample */ = {
 			isa = PBXGroup;
 			children = (
+				519448DE2589900400297021 /* AdvancedSample.entitlements */,
 				51C24C642589606B00236F25 /* logo.png */,
 				51C24C602589603800236F25 /* LaunchScreen.storyboard */,
 				51A1F3CD25883FAD0025932B /* GoogleService-Info.plist */,
@@ -314,17 +316,20 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_ENTITLEMENTS = AdvancedSample/AdvancedSample.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_ASSET_PATHS = "\"AdvancedSample/Preview Content\"";
-				DEVELOPMENT_TEAM = 88834532KK;
+				DEVELOPMENT_TEAM = EQHXZ8M8AV;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = AdvancedSample/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.google.firebase.extensions.dev.AdvancedSample;
+				PRODUCT_BUNDLE_IDENTIFIER = com.google.firebase.extensions.dev;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "Firebase iOS App Extensions Dev";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -335,17 +340,20 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_ENTITLEMENTS = AdvancedSample/AdvancedSample.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_ASSET_PATHS = "\"AdvancedSample/Preview Content\"";
-				DEVELOPMENT_TEAM = 88834532KK;
+				DEVELOPMENT_TEAM = EQHXZ8M8AV;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = AdvancedSample/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.google.firebase.extensions.dev.AdvancedSample;
+				PRODUCT_BUNDLE_IDENTIFIER = com.google.firebase.extensions.dev;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "Firebase iOS App Extensions Dev";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
