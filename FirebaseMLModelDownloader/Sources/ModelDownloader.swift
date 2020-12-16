@@ -157,22 +157,29 @@ public class ModelDownloader {
 }
 
 extension ModelDownloader {
+  /// Return local model info only if the model info is available and the corresponding model file is already on device.
   private func getLocalModelInfo(modelName: String) -> LocalModelInfo? {
-    return LocalModelInfo(
+    guard let localModelInfo = LocalModelInfo(
       fromDefaults: userDefaults,
       name: modelName,
       appName: appName
-    )
+    ),
+      let localPath = URL(string: localModelInfo.path),
+      ModelFileManager.isFileReachable(at: localPath) else {
+      // TODO: Delete local model info in user defaults
+      return nil
+    }
+    return localModelInfo
   }
 
-  /// Get model saved on device if available. Otherwise, default to fetching model from server.
+  /// Get model saved on device if available.
   private func getLocalModel(modelName: String) -> CustomModel? {
     guard let localModelInfo = getLocalModelInfo(modelName: modelName) else { return nil }
     let model = CustomModel(localModelInfo: localModelInfo)
     return model
   }
 
-  /// Download and get model from server.
+  /// Download and get model from server, unless the latest model is already available on device.
   private func getRemoteModel(modelName: String,
                               progressHandler: ((Float) -> Void)? = nil,
                               completion: @escaping (Result<CustomModel, DownloadError>) -> Void) {
@@ -200,7 +207,7 @@ extension ModelDownloader {
           downloadTask.resumeModelDownload()
         } else {
           guard let localModel = self.getLocalModel(modelName: modelName) else {
-            /// This can only happen if local model info was suddenly wiped out in the middle of model freshness check.
+            /// This can only happen if local model info was suddenly wiped out in the middle of model info request and server response.
             completion(
               .failure(
                 .internalError(description: "Model unavailable due to deleted local model info.")

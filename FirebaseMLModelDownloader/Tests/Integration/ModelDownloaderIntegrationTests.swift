@@ -78,49 +78,6 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
     })
 
     waitForExpectations(timeout: 5, handler: nil)
-
-    if let localInfo = LocalModelInfo(
-      fromDefaults: .getTestInstance(cleared: false),
-      name: testModelName,
-      appName: testApp.name
-    ) {
-      XCTAssertNotNil(localInfo)
-      testRetrieveModelInfo(localInfo: localInfo)
-    } else {
-      XCTFail("Could not save model info locally.")
-    }
-  }
-
-  func testRetrieveModelInfo(localInfo: LocalModelInfo) {
-    guard let testApp = FirebaseApp.app() else {
-      XCTFail("Default app was not configured.")
-      return
-    }
-    let testModelName = "pose-detection"
-
-    let modelInfoRetriever = ModelInfoRetriever(
-      modelName: testModelName,
-      options: testApp.options,
-      installations: Installations.installations(app: testApp),
-      appName: testApp.name,
-      localModelInfo: localInfo
-    )
-    // TODO: This check seems to be flaky.
-    let retrieveExpectation = expectation(description: "Wait for model info to be retrieved.")
-    modelInfoRetriever.downloadModelInfo(completion: { result in
-      switch result {
-      case let .success(remoteModelInfo):
-        if remoteModelInfo != nil {
-          XCTFail("Local model info is already the latest and should not be set again.")
-        }
-      case let .failure(error):
-        XCTAssertNotNil(error)
-        XCTFail("Failed to retrieve model info - \(error)")
-      }
-      retrieveExpectation.fulfill()
-    })
-
-    waitForExpectations(timeout: 5, handler: nil)
   }
 
   /// Test to download model file - makes an actual network call.
