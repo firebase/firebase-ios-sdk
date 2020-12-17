@@ -120,7 +120,7 @@ elsif failure_report.get_report.nil? and last_issue.state == "open"
 # If the last issue is open, then failed report will be commented to the issue.
 elsif !last_issue.nil? and last_issue.state == "open"
   client.add_comment(REPO_NAME_WITH_OWNER, last_issue.number,failure_report.get_report)
-# Creat an new issue otherwise.
+# Create a new issue if there exists failed workflows.
 else
-  client.create_issue(REPO_NAME_WITH_OWNER, ISSUE_TITLE, failure_report.get_report, labels: ISSUE_LABELS, assignee: ASSIGNEE)
+  client.create_issue(REPO_NAME_WITH_OWNER, ISSUE_TITLE, failure_report.get_report, labels: ISSUE_LABELS, assignee: ASSIGNEE) unless !failure_report.get_report.nil?
 end
