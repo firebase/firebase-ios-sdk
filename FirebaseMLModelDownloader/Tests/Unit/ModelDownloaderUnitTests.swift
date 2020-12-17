@@ -14,6 +14,7 @@
 
 import XCTest
 @testable import FirebaseCore
+@testable import FirebaseInstallations
 @testable import FirebaseMLModelDownloader
 
 /// Mock options to configure default Firebase app.
@@ -73,21 +74,21 @@ final class ModelDownloaderUnitTests: XCTestCase {
     )
     // This fails because there is no model path.
     do {
-      try modelInfo.writeToDefaults(app: testApp, defaults: .getTestInstance())
+      try modelInfo.writeToDefaults(.getTestInstance(), appName: testApp.name)
     } catch {
       XCTAssertNotNil(error)
     }
     modelInfo.path = testModelPath
     // This shouldn't fail because model info object is now complete.
     do {
-      try modelInfo.writeToDefaults(app: testApp, defaults: .getTestInstance())
+      try modelInfo.writeToDefaults(.getTestInstance(), appName: testApp.name)
     } catch {
       XCTFail(error.localizedDescription)
     }
     guard let savedModelInfo = ModelInfo(
       fromDefaults: .getTestInstance(cleared: false),
-      name: testModelName,
-      app: testApp
+      modelName: testModelName,
+      appName: testApp.name
     ) else {
       XCTFail("Model info not saved to user defaults.")
       return
@@ -106,8 +107,9 @@ final class ModelDownloaderUnitTests: XCTestCase {
     let functionName = #function
     let testModelName = "\(functionName)-test-model"
     let modelInfoRetriever = ModelInfoRetriever(
-      app: testApp,
-      modelName: testModelName
+      modelName: testModelName,
+      options: testApp.options,
+      installations: Installations.installations(app: testApp)
     )
     let sampleResponse: String = """
     {
@@ -137,7 +139,18 @@ final class ModelDownloaderUnitTests: XCTestCase {
     // This is an example of a functional test case.
     // Use XCTAssert and related functions to verify your tests produce the correct
     // results.
-    let modelDownloader = ModelDownloader()
+    guard let testApp = FirebaseApp.app() else {
+      XCTFail("Default app was not configured.")
+      return
+    }
+
+    let modelDownloader = ModelDownloader.modelDownloader()
+
+    let modelDownloaderWithApp = ModelDownloader.modelDownloader(app: testApp)
+
+    /// These should point to the same instance.
+    XCTAssert(modelDownloader === modelDownloaderWithApp)
+
     let conditions = ModelDownloadConditions()
 
     // Download model w/ progress handler
@@ -161,7 +174,7 @@ final class ModelDownloaderUnitTests: XCTestCase {
     }
 
     // Access array of downloaded models
-    modelDownloader.listDownloadedModels { result in
+    modelDownloaderWithApp.listDownloadedModels { result in
       switch result {
       case .success:
         // Pick model(s) for further use

@@ -37,7 +37,7 @@ class DownloadHandlers {
 
 /// Manager to handle model downloading device and storing downloaded model info to persistent storage.
 class ModelDownloadTask: NSObject {
-  let app: FirebaseApp
+  private let appName: String
   private(set) var modelInfo: ModelInfo
   private var downloadTask: URLSessionDownloadTask?
   private let downloadHandlers: DownloadHandlers
@@ -48,11 +48,11 @@ class ModelDownloadTask: NSObject {
                                                 delegate: self,
                                                 delegateQueue: nil)
 
-  init(app: FirebaseApp, modelInfo: ModelInfo,
+  init(modelInfo: ModelInfo, appName: String,
        progressHandler: DownloadHandlers.ProgressHandler? = nil,
        completion: @escaping DownloadHandlers.Completion) {
-    self.app = app
     self.modelInfo = modelInfo
+    self.appName = appName
     downloadHandlers = DownloadHandlers(
       progressHandler: progressHandler,
       completion: completion
@@ -90,7 +90,7 @@ extension ModelDownloadTask: URLSessionDownloadDelegate {
     modelInfo.path = savedURL.absoluteString
     /// Write model to user defaults.
     do {
-      try modelInfo.writeToDefaults(app: app, defaults: .firebaseMLDefaults)
+      try modelInfo.writeToDefaults(.firebaseMLDefaults, appName: appName)
     } catch {
       downloadHandlers
         .completion(.failure(.internalError(description: error.localizedDescription)))
@@ -123,7 +123,7 @@ extension ModelDownloadTask: URLSessionDownloadDelegate {
 /// Extension to handle post-download operations.
 extension ModelDownloadTask {
   var downloadedModelFileName: String {
-    return "fbml_model__\(app.name)__\(modelInfo.name)"
+    return "fbml_model__\(appName)__\(modelInfo.name)"
   }
 
   /// Build custom model object from model info.

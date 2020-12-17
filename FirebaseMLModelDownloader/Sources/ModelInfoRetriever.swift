@@ -34,8 +34,8 @@ extension ModelInfoResponse {
 
 /// Model info retriever for a model from local user defaults or server.
 class ModelInfoRetriever: NSObject {
-  /// Current Firebase app.
-  var app: FirebaseApp
+  /// Current Firebase app options
+  private var options: FirebaseOptions
   /// Model info associated with model.
   var modelInfo: ModelInfo?
   /// Model name.
@@ -44,10 +44,10 @@ class ModelInfoRetriever: NSObject {
   var installations: Installations
 
   /// Associate model info retriever with current Firebase app, and model name.
-  init(app: FirebaseApp, modelName: String) {
-    self.app = app
+  init(modelName: String, options: FirebaseOptions, installations: Installations) {
     self.modelName = modelName
-    installations = Installations.installations(app: app)
+    self.options = options
+    self.installations = installations
   }
 }
 
@@ -70,8 +70,8 @@ extension ModelInfoRetriever {
 
   /// Construct model fetch base URL.
   var modelInfoFetchURL: URL {
-    let projectID = app.options.projectID ?? ""
-    let apiKey = app.options.apiKey
+    let projectID = options.projectID ?? ""
+    let apiKey = options.apiKey
     var components = URLComponents()
     components.scheme = "https"
     components.host = "firebaseml.googleapis.com"
