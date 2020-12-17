@@ -52,8 +52,7 @@ jobs:
     runs-on: macOS-latest
     strategy:
       matrix:
-        # TODO: manjanac@ Add catalyst back here.
-        target: [tvOS, macOS]
+        target: [tvOS, macOS, catalyst]
     steps:
     - uses: actions/checkout@v2
     - name: Xcode 12
@@ -65,9 +64,7 @@ jobs:
 
   catalyst:
     # Don't run on private repo unless it is a PR.
-    # TODO: manjanac@ Uncomment line below to re-enable catalyst.
-    # if: github.repository != 'FirebasePrivate/firebase-ios-sdk' || github.event_name == 'pull_request'
-    if: false
+    if: github.repository != 'FirebasePrivate/firebase-ios-sdk' || github.event_name == 'pull_request'
     runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v2
