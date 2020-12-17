@@ -210,11 +210,6 @@
           FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM240006", @"openURL result is %d", success);
           completion(success);
         }];
-  } else {
-    // fallback to the older version of openURL
-    BOOL success = [self.mainApplication openURL:url];
-    FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM240007", @"openURL result is %d", success);
-    completion(success);
   }
 }
 
@@ -230,4 +225,4 @@
 }
 @end
 
-#endif  // TARGET_OS_IOS
+#endif  // TARGET_OS_IOS || TARGET_OS_TV

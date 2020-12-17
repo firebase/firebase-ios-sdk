@@ -23,4 +23,4 @@
 NSString *const kFirebaseInAppMessagingErrorDomain = @"com.firebase.inappmessaging";
 FIRLoggerService kFIRLoggerInAppMessaging = @"[Firebase/InAppMessaging]";
 
-#endif  // TARGET_OS_IOS
+#endif  // TARGET_OS_IOS || TARGET_OS_TV
