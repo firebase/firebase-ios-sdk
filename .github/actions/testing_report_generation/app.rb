@@ -70,14 +70,27 @@ class Table
   end
 end
 
+def get_workflows(client, repo_name)
+  workflow_page = 0
+  workflows = []
+  loop do 
+    workflow_page += 1
+    cur_page_workflows = client.workflows(repo_name, :page => workflow_page).workflows
+    if cur_page_workflows.length == 0
+      break
+    end
+    workflows.push(*cur_page_workflows)
+  end
+  return workflows
+end
+
 failure_report = Table.new(ISSUE_TITLE)
 success_report = Table.new(ISSUE_TITLE)
 client = Octokit::Client.new(access_token: ENV["INPUT_ACCESS-TOKEN"])
 last_issue = client.list_issues(REPO_NAME_WITH_OWNER, :labels => ISSUE_LABELS, :state => "all")[0]
-workflows = client.workflows(REPO_NAME_WITH_OWNER)
 
 puts "Excluded workflow files: " + EXCLUDED_WORKFLOWS.join(",")
-for wf in workflows.workflows do
+for wf in get_workflows(client, REPO_NAME_WITH_OWNER) do
   # skip if it is the issue generation workflow.
   if wf.name == ENV["GITHUB_WORKFLOW"]
     next
