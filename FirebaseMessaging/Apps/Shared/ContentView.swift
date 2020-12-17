@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import UIKit
 import Combine
 import SwiftUI
 import FirebaseCore
@@ -187,6 +188,7 @@ struct ContentView: View {
       }
       self.identity.token = token
       self.log = "Successfully got token."
+      print("Token: ", self.identity.token ?? "")
     }
   }
 
@@ -241,9 +243,24 @@ struct ContentView: View {
   }
 }
 
+struct ActivityViewController: UIViewControllerRepresentable {
+
+    var activityItems: [Any]
+    var applicationActivities: [UIActivity]? = nil
+
+    func makeUIViewController(context: UIViewControllerRepresentableContext<ActivityViewController>) -> UIActivityViewController {
+        let controller = UIActivityViewController(activityItems: activityItems, applicationActivities: applicationActivities)
+        return controller
+    }
+
+    func updateUIViewController(_ uiViewController: UIActivityViewController, context: UIViewControllerRepresentableContext<ActivityViewController>) {}
+
+}
+
 struct SettingsView: View {
   @EnvironmentObject var settings: UserSettings
   @State var shouldUseDelegate = true
+  @State private var isSharePresented: Bool = false
 
   var body: some View {
     VStack {
@@ -256,10 +273,26 @@ struct SettingsView: View {
           Text("shouldUseDelegate")
             .fontWeight(.semibold)
         }
+        Button(action: shareToken) {
+          HStack {
+            Image(systemName: "square.and.arrow.up").font(.body)
+            Text("Share Token")
+              .fontWeight(.semibold)
+          }
+        }
+        .sheet(isPresented: $isSharePresented, onDismiss: {
+          print("Dismiss")
+        }, content: {
+          let items = [Messaging.messaging().fcmToken]
+          ActivityViewController(activityItems: items as [Any])
+        })
       }
       .font(.subheadline)
       .foregroundColor(.blue)
     }
+  }
+  func shareToken() {
+    self.isSharePresented = true
   }
 }
 

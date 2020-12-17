@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 51;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -29,10 +29,8 @@
 		51944969258AF2D000297021 /* ComplicationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51944968258AF2D000297021 /* ComplicationController.swift */; };
 		5194496B258AF2D000297021 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5194496A258AF2D000297021 /* Assets.xcassets */; };
 		5194496E258AF2D000297021 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5194496D258AF2D000297021 /* Preview Assets.xcassets */; };
-		51944988258AF30D00297021 /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51944987258AF30D00297021 /* ShareViewController.swift */; };
-		5194498B258AF30D00297021 /* MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 51944989258AF30D00297021 /* MainInterface.storyboard */; };
-		5194498F258AF30D00297021 /* ShareExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 51944985258AF30D00297021 /* ShareExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		51A1F3A225883DCF0025932B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 51A1F3A125883DCF0025932B /* Assets.xcassets */; };
+		51944B28258B091A00297021 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 51944B27258B091A00297021 /* GoogleService-Info.plist */; };
+		51944B9D258B136000297021 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 51944B9C258B136000297021 /* Assets.xcassets */; };
 		51A1F3A525883DCF0025932B /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 51A1F3A425883DCF0025932B /* Preview Assets.xcassets */; };
 		51A1F3B125883E370025932B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51A1F3B025883E370025932B /* AppDelegate.swift */; };
 		51A1F3B525883E630025932B /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51A1F3B425883E630025932B /* SceneDelegate.swift */; };
@@ -74,13 +72,6 @@
 			remoteGlobalIDString = 5194495C258AF2D000297021;
 			remoteInfo = "SampleWatch WatchKit Extension";
 		};
-		5194498D258AF30D00297021 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 51A1F39025883DCE0025932B /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 51944984258AF30D00297021;
-			remoteInfo = ShareExtension;
-		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -90,7 +81,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				5194498F258AF30D00297021 /* ShareExtension.appex in Embed App Extensions */,
 				519448F8258AEF6F00297021 /* NotificationServiceExtension.appex in Embed App Extensions */,
 			);
 			name = "Embed App Extensions";
@@ -155,13 +145,10 @@
 		5194496A258AF2D000297021 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		5194496D258AF2D000297021 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		5194496F258AF2D000297021 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		51944985258AF30D00297021 /* ShareExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ShareExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
-		51944987258AF30D00297021 /* ShareViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareViewController.swift; sourceTree = "<group>"; };
-		5194498A258AF30D00297021 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/MainInterface.storyboard; sourceTree = "<group>"; };
-		5194498C258AF30D00297021 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		51944A86258B012A00297021 /* SampleWatchWatchKitExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SampleWatchWatchKitExtension.entitlements; sourceTree = "<group>"; };
+		51944B27258B091A00297021 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		51944B9C258B136000297021 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = ../../Shared/Assets.xcassets; sourceTree = "<group>"; };
 		51A1F39825883DCE0025932B /* AdvancedSample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AdvancedSample.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		51A1F3A125883DCF0025932B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		51A1F3A425883DCF0025932B /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		51A1F3A925883DCF0025932B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		51A1F3B025883E370025932B /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = ../../Shared/AppDelegate.swift; sourceTree = "<group>"; };
@@ -191,13 +178,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		5194495A258AF2D000297021 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		51944982258AF30D00297021 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -240,6 +220,7 @@
 		51944906258AF0B100297021 /* AppClips */ = {
 			isa = PBXGroup;
 			children = (
+				51944B27258B091A00297021 /* GoogleService-Info.plist */,
 				5194490D258AF0B200297021 /* Assets.xcassets */,
 				51944912258AF0B200297021 /* LaunchScreen.storyboard */,
 				51944915258AF0B200297021 /* Info.plist */,
@@ -290,16 +271,6 @@
 			path = "Preview Content";
 			sourceTree = "<group>";
 		};
-		51944986258AF30D00297021 /* ShareExtension */ = {
-			isa = PBXGroup;
-			children = (
-				51944987258AF30D00297021 /* ShareViewController.swift */,
-				51944989258AF30D00297021 /* MainInterface.storyboard */,
-				5194498C258AF30D00297021 /* Info.plist */,
-			);
-			path = ShareExtension;
-			sourceTree = "<group>";
-		};
 		51A1F38F25883DCE0025932B = {
 			isa = PBXGroup;
 			children = (
@@ -308,7 +279,6 @@
 				51944906258AF0B100297021 /* AppClips */,
 				51944952258AF2CF00297021 /* SampleWatchWatchKitApp */,
 				51944961258AF2D000297021 /* SampleWatchWatchKitExtension */,
-				51944986258AF30D00297021 /* ShareExtension */,
 				51A1F39925883DCE0025932B /* Products */,
 				864AA12EFC2050F8D9683C4F /* Pods */,
 			);
@@ -323,7 +293,6 @@
 				5194494B258AF2CF00297021 /* SampleWatch.app */,
 				5194494E258AF2CF00297021 /* SampleWatchWatchKitApp.app */,
 				5194495D258AF2D000297021 /* SampleWatchWatchKitExtension.appex */,
-				51944985258AF30D00297021 /* ShareExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -341,8 +310,8 @@
 				51A1F3B725883E810025932B /* ContentView.swift */,
 				51A1F3B025883E370025932B /* AppDelegate.swift */,
 				51A1F3B425883E630025932B /* SceneDelegate.swift */,
-				51A1F3A125883DCF0025932B /* Assets.xcassets */,
 				51A1F3A925883DCF0025932B /* Info.plist */,
+				51944B9C258B136000297021 /* Assets.xcassets */,
 				51A1F3A325883DCF0025932B /* Preview Content */,
 			);
 			path = AdvancedSample;
@@ -453,23 +422,6 @@
 			productReference = 5194495D258AF2D000297021 /* SampleWatchWatchKitExtension.appex */;
 			productType = "com.apple.product-type.watchkit2-extension";
 		};
-		51944984258AF30D00297021 /* ShareExtension */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 51944990258AF30D00297021 /* Build configuration list for PBXNativeTarget "ShareExtension" */;
-			buildPhases = (
-				51944981258AF30D00297021 /* Sources */,
-				51944982258AF30D00297021 /* Frameworks */,
-				51944983258AF30D00297021 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = ShareExtension;
-			productName = ShareExtension;
-			productReference = 51944985258AF30D00297021 /* ShareExtension.appex */;
-			productType = "com.apple.product-type.app-extension";
-		};
 		51A1F39725883DCE0025932B /* AdvancedSample */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 51A1F3AC25883DCF0025932B /* Build configuration list for PBXNativeTarget "AdvancedSample" */;
@@ -485,7 +437,6 @@
 			dependencies = (
 				519448F7258AEF6F00297021 /* PBXTargetDependency */,
 				51944918258AF0B200297021 /* PBXTargetDependency */,
-				5194498E258AF30D00297021 /* PBXTargetDependency */,
 			);
 			name = AdvancedSample;
 			productName = AdvancedSample;
@@ -516,9 +467,6 @@
 					5194495C258AF2D000297021 = {
 						CreatedOnToolsVersion = 12.3;
 					};
-					51944984258AF30D00297021 = {
-						CreatedOnToolsVersion = 12.3;
-					};
 					51A1F39725883DCE0025932B = {
 						CreatedOnToolsVersion = 12.2;
 					};
@@ -543,7 +491,6 @@
 				5194494A258AF2CF00297021 /* SampleWatch */,
 				5194494D258AF2CF00297021 /* SampleWatchWatchKitApp */,
 				5194495C258AF2D000297021 /* SampleWatchWatchKitExtension */,
-				51944984258AF30D00297021 /* ShareExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -561,6 +508,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				51944914258AF0B200297021 /* LaunchScreen.storyboard in Resources */,
+				51944B28258B091A00297021 /* GoogleService-Info.plist in Resources */,
 				51944911258AF0B200297021 /* Preview Assets.xcassets in Resources */,
 				5194490E258AF0B200297021 /* Assets.xcassets in Resources */,
 			);
@@ -591,14 +539,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		51944983258AF30D00297021 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				5194498B258AF30D00297021 /* MainInterface.storyboard in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		51A1F39625883DCE0025932B /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -607,7 +547,7 @@
 				51C24C652589606B00236F25 /* logo.png in Resources */,
 				51C24C622589603800236F25 /* LaunchScreen.storyboard in Resources */,
 				51A1F3A525883DCF0025932B /* Preview Assets.xcassets in Resources */,
-				51A1F3A225883DCF0025932B /* Assets.xcassets in Resources */,
+				51944B9D258B136000297021 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -643,14 +583,6 @@
 				51944969258AF2D000297021 /* ComplicationController.swift in Sources */,
 				51944963258AF2D000297021 /* HostingController.swift in Sources */,
 				51944967258AF2D000297021 /* ExtensionDelegate.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		51944981258AF30D00297021 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				51944988258AF30D00297021 /* ShareViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -690,11 +622,6 @@
 			target = 5194495C258AF2D000297021 /* SampleWatchWatchKitExtension */;
 			targetProxy = 5194495F258AF2D000297021 /* PBXContainerItemProxy */;
 		};
-		5194498E258AF30D00297021 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 51944984258AF30D00297021 /* ShareExtension */;
-			targetProxy = 5194498D258AF30D00297021 /* PBXContainerItemProxy */;
-		};
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
@@ -714,14 +641,6 @@
 			name = Interface.storyboard;
 			sourceTree = "<group>";
 		};
-		51944989258AF30D00297021 /* MainInterface.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				5194498A258AF30D00297021 /* Base */,
-			);
-			name = MainInterface.storyboard;
-			sourceTree = "<group>";
-		};
 		51C24C602589603800236F25 /* LaunchScreen.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
@@ -736,9 +655,9 @@
 		519448FA258AEF6F00297021 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = EQHXZ8M8AV;
 				INFOPLIST_FILE = NotificationServiceExtension/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.3;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -748,7 +667,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.google.firebase.extensions.dev.NotificationServiceExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "";
+				PROVISIONING_PROFILE_SPECIFIER = "Firebase iOS App Extensions Notification Service Extension Dev";
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -758,9 +677,9 @@
 		519448FB258AEF6F00297021 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = EQHXZ8M8AV;
 				INFOPLIST_FILE = NotificationServiceExtension/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.3;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -770,7 +689,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.google.firebase.extensions.dev.NotificationServiceExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "";
+				PROVISIONING_PROFILE_SPECIFIER = "Firebase iOS App Extensions Notification Service Extension Dev";
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -783,10 +702,10 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = AppClips/AppClips.entitlements;
-				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_ASSET_PATHS = "\"AppClips/Preview Content\"";
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = EQHXZ8M8AV;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = AppClips/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.3;
@@ -796,7 +715,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.google.firebase.extensions.dev.clip;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "";
+				PROVISIONING_PROFILE_SPECIFIER = "Firebase iOS App Extensions Clip Dev";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -808,10 +727,10 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = AppClips/AppClips.entitlements;
-				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_ASSET_PATHS = "\"AppClips/Preview Content\"";
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = EQHXZ8M8AV;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = AppClips/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.3;
@@ -821,7 +740,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.google.firebase.extensions.dev.clip;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "";
+				PROVISIONING_PROFILE_SPECIFIER = "Firebase iOS App Extensions Clip Dev";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -830,14 +749,14 @@
 		51944970258AF2D000297021 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = EQHXZ8M8AV;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.google.firebase.extensions.dev;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "";
+				PROVISIONING_PROFILE_SPECIFIER = "Firebase iOS App Extensions Dev";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
@@ -845,14 +764,14 @@
 		51944971258AF2D000297021 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = EQHXZ8M8AV;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.google.firebase.extensions.dev;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "";
+				PROVISIONING_PROFILE_SPECIFIER = "Firebase iOS App Extensions Dev";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
@@ -863,14 +782,14 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = EQHXZ8M8AV;
 				IBSC_MODULE = SampleWatchWatchKitExtension;
 				INFOPLIST_FILE = SampleWatchWatchKitApp/Info.plist;
 				PRODUCT_BUNDLE_IDENTIFIER = com.google.firebase.extensions.dev.WatchKitApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "";
+				PROVISIONING_PROFILE_SPECIFIER = "Firebase iOS App Extensions WatchKit App Dev";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
@@ -885,14 +804,14 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = EQHXZ8M8AV;
 				IBSC_MODULE = SampleWatchWatchKitExtension;
 				INFOPLIST_FILE = SampleWatchWatchKitApp/Info.plist;
 				PRODUCT_BUNDLE_IDENTIFIER = com.google.firebase.extensions.dev.WatchKitApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "";
+				PROVISIONING_PROFILE_SPECIFIER = "Firebase iOS App Extensions WatchKit App Dev";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
@@ -906,10 +825,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_COMPLICATION_NAME = Complication;
 				CODE_SIGN_ENTITLEMENTS = SampleWatchWatchKitExtension/SampleWatchWatchKitExtension.entitlements;
-				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_ASSET_PATHS = "\"SampleWatchWatchKitExtension/Preview Content\"";
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = EQHXZ8M8AV;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = SampleWatchWatchKitExtension/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -919,7 +838,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.google.firebase.extensions.dev.WatchKitApp.WatchKitExtension;
 				PRODUCT_NAME = "${TARGET_NAME}";
-				PROVISIONING_PROFILE_SPECIFIER = "";
+				PROVISIONING_PROFILE_SPECIFIER = "Firebase iOS App Extensions WatchKit Extension Dev";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
@@ -933,10 +852,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_COMPLICATION_NAME = Complication;
 				CODE_SIGN_ENTITLEMENTS = SampleWatchWatchKitExtension/SampleWatchWatchKitExtension.entitlements;
-				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_ASSET_PATHS = "\"SampleWatchWatchKitExtension/Preview Content\"";
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = EQHXZ8M8AV;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = SampleWatchWatchKitExtension/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -946,56 +865,12 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.google.firebase.extensions.dev.WatchKitApp.WatchKitExtension;
 				PRODUCT_NAME = "${TARGET_NAME}";
-				PROVISIONING_PROFILE_SPECIFIER = "";
+				PROVISIONING_PROFILE_SPECIFIER = "Firebase iOS App Extensions WatchKit Extension Dev";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
 				WATCHOS_DEPLOYMENT_TARGET = 7.2;
-			};
-			name = Release;
-		};
-		51944991258AF30D00297021 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Manual;
-				DEVELOPMENT_TEAM = "";
-				INFOPLIST_FILE = ShareExtension/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.3;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.google.firebase.extensions.dev.ShareExtension;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "";
-				SKIP_INSTALL = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Debug;
-		};
-		51944992258AF30D00297021 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Manual;
-				DEVELOPMENT_TEAM = "";
-				INFOPLIST_FILE = ShareExtension/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.3;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.google.firebase.extensions.dev.ShareExtension;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "";
-				SKIP_INSTALL = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};
@@ -1122,10 +997,10 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = AdvancedSample/AdvancedSample.entitlements;
-				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_ASSET_PATHS = "\"AdvancedSample/Preview Content\"";
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = EQHXZ8M8AV;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = AdvancedSample/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1134,7 +1009,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.google.firebase.extensions.dev;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "";
+				PROVISIONING_PROFILE_SPECIFIER = "Firebase iOS App Extensions Dev";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -1147,10 +1022,10 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = AdvancedSample/AdvancedSample.entitlements;
-				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_ASSET_PATHS = "\"AdvancedSample/Preview Content\"";
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = EQHXZ8M8AV;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = AdvancedSample/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1159,7 +1034,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.google.firebase.extensions.dev;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "";
+				PROVISIONING_PROFILE_SPECIFIER = "Firebase iOS App Extensions Dev";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -1209,15 +1084,6 @@
 			buildConfigurations = (
 				51944970258AF2D000297021 /* Debug */,
 				51944971258AF2D000297021 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		51944990258AF30D00297021 /* Build configuration list for PBXNativeTarget "ShareExtension" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				51944991258AF30D00297021 /* Debug */,
-				51944992258AF30D00297021 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

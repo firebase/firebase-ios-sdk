@@ -24,11 +24,7 @@ target 'NotificationServiceExtension' do
 end
 
 target 'AppClips' do
-  platform :ios, '13.0'
-  shared_pods
-end
-
-target 'ShareExtension' do
+  use_frameworks! :linkage => :static
   platform :ios, '13.0'
   shared_pods
 end
