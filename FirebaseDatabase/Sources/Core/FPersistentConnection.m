@@ -34,9 +34,9 @@
 #import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
 #import "FirebaseDatabase/Sources/Utilities/Tuples/FTupleCallbackStatus.h"
 #import "FirebaseDatabase/Sources/Utilities/Tuples/FTupleOnDisconnect.h"
-#if !TARGET_OS_WATCH
+#if !TARGET_OS_WATCH && 0
 #import <SystemConfiguration/SystemConfiguration.h>
-#endif  // !TARGET_OS_WATCH
+#endif  // !TARGET_OS_WATCH && 0
 #import <dlfcn.h>
 #import <netinet/in.h>
 
@@ -80,9 +80,9 @@ typedef enum {
     NSTimeInterval reconnectDelay;
     NSTimeInterval lastConnectionAttemptTime;
     NSTimeInterval lastConnectionEstablishedTime;
-#if !TARGET_OS_WATCH
+#if !TARGET_OS_WATCH && 0
     SCNetworkReachabilityRef reachability;
-#endif  // !TARGET_OS_WATCH
+#endif  // !TARGET_OS_WATCH && 0
 }
 
 - (int)getNextRequestNumber;
@@ -162,13 +162,13 @@ typedef enum {
 }
 
 - (void)dealloc {
-#if !TARGET_OS_WATCH
+#if !TARGET_OS_WATCH && 0
     if (reachability) {
         // Unschedule the notifications
         SCNetworkReachabilitySetDispatchQueue(reachability, NULL);
         CFRelease(reachability);
     }
-#endif  // !TARGET_OS_WATCH
+#endif  // !TARGET_OS_WATCH && 0
 }
 
 #pragma mark -
@@ -523,7 +523,7 @@ typedef enum {
     [self.realtime open];
 }
 
-#if !TARGET_OS_WATCH
+#if !TARGET_OS_WATCH && 0
 static void reachabilityCallback(SCNetworkReachabilityRef ref,
                                  SCNetworkReachabilityFlags flags, void *info) {
     if (flags & kSCNetworkReachabilityFlagsReachable) {
@@ -539,7 +539,7 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref,
         FFLog(@"I-RDB034015", @"Network is not reachable");
     }
 }
-#endif  // !TARGET_OS_WATCH
+#endif  // !TARGET_OS_WATCH && 0
 
 - (void)enteringForeground {
     dispatch_async(self.dispatchQueue, ^{
@@ -552,7 +552,7 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref,
 }
 
 - (void)setupNotifications {
-
+#if !TARGET_OS_WATCH && 0
     NSString *const *foregroundConstant = (NSString *const *)dlsym(
         RTLD_DEFAULT, "UIApplicationWillEnterForegroundNotification");
     if (foregroundConstant) {
@@ -567,7 +567,6 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref,
     bzero(&zeroAddress, sizeof(zeroAddress));
     zeroAddress.sin_len = sizeof(zeroAddress);
     zeroAddress.sin_family = AF_INET;
-#if !TARGET_OS_WATCH
     reachability = SCNetworkReachabilityCreateWithAddress(
         kCFAllocatorDefault, (const struct sockaddr *)&zeroAddress);
     SCNetworkReachabilityContext ctx = {0, (__bridge void *)(self), NULL, NULL,
@@ -581,7 +580,7 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref,
         CFRelease(reachability);
         reachability = NULL;
     }
-#endif  // !TARGET_OS_WATCH
+#endif  // !TARGET_OS_WATCH && 0
 }
 
 - (void)sendAuthAndRestoreStateAfterComplete:(BOOL)restoreStateAfterComplete {
@@ -1133,6 +1132,10 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref,
 #elif TARGET_OS_OSX
     if (self.config.persistenceEnabled) {
         stats[@"persistence.osx.enabled"] = @1;
+    }
+#elif TARGET_OS_WATCH || 1
+    if (self.config.persistenceEnabled) {
+        stats[@"persistence.watchos.enabled"] = @1;
     }
 #endif
     NSString *sdkVersion =

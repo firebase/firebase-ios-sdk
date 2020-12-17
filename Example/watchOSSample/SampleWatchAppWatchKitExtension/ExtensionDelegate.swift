@@ -29,6 +29,7 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate, MessagingDelegate {
       }
     }
     Messaging.messaging().delegate = self
+
   }
 
   /// MessagingDelegate

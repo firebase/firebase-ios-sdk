@@ -329,6 +329,8 @@ let package = Package(
       publicHeadersPath: "Public",
       cSettings: [
         .headerSearchPath("../../"),
+        .define("SR_ENABLE_LOG"),
+        .define("SR_ENABLE_LOG", to: "1")
       ],
       linkerSettings: [
         .linkedFramework("CFNetwork"),
