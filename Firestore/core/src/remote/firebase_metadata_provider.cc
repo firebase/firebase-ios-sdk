@@ -20,12 +20,12 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
-const char FirebaseMetadataProvider::kXFirebaseClientHeader[]
-    = "x-firebase-client";
-const char FirebaseMetadataProvider::kXFirebaseClientLogTypeHeader[]
-    = "x-firebase-client-log-type";
-const char FirebaseMetadataProvider::kXFirebaseGmpIdHeader[]
-    = "x-firebase-gmpid";
+const char FirebaseMetadataProvider::kXFirebaseClientHeader[] =
+    "x-firebase-client";
+const char FirebaseMetadataProvider::kXFirebaseClientLogTypeHeader[] =
+    "x-firebase-client-log-type";
+const char FirebaseMetadataProvider::kXFirebaseGmpIdHeader[] =
+    "x-firebase-gmpid";
 
 }  // namespace remote
 }  // namespace firestore
