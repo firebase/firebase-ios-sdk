@@ -413,4 +413,4 @@ static NSString *const kBundleID2 = @"com.google.abtesting.dev";
 }
 @end
 
-#endif // TARGET_OS_MACCATALYST
+#endif  // TARGET_OS_MACCATALYST

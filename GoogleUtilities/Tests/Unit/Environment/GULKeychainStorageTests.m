@@ -204,4 +204,4 @@
 
 @end
 
-#endif // MAC_CATALYST
+#endif  // TARGET_OS_MACCATALYST

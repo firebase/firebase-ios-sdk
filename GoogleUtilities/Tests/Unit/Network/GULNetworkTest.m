@@ -1012,4 +1012,4 @@
 
 @end
 
-#endif // CATALYST
+#endif  // TARGET_OS_MACCATALYST
