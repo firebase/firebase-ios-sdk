@@ -73,7 +73,7 @@ end
 def get_workflows(client, repo_name)
   workflow_page = 0
   workflows = []
-  loop do 
+  loop do
     workflow_page += 1
     cur_page_workflows = client.workflows(repo_name, :page => workflow_page).workflows
     if cur_page_workflows.length == 0
