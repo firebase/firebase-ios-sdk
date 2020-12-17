@@ -17,6 +17,9 @@
 #import <XCTest/XCTest.h>
 #import "OCMock.h"
 
+#if !TARGET_OS_MACCATALYST
+// These tests are flaky on Catalyst. One of the tests typically fails.
+
 #import "GoogleUtilities/NSData+zlib/Public/GoogleUtilities/GULNSData+zlib.h"
 #import "GoogleUtilities/Network/Public/GoogleUtilities/GULNetwork.h"
 #import "GoogleUtilities/Reachability/Public/GoogleUtilities/GULReachabilityChecker.h"
@@ -221,9 +224,6 @@
                                }];
 }
 
-#if !TARGET_OS_MACCATALYST
-// Test fails on Catalyst when run with other tests, but passes individually.
-
 - (void)testEmptyPayloadNSURLSession_POST_foreground {
   XCTestExpectation *expectation = [self expectationWithDescription:@"Expect block is called"];
   NSData *uncompressedData = [[NSData alloc] init];
@@ -250,7 +250,6 @@
                                  }
                                }];
 }
-#endif
 
 - (void)testNilQueueNSURLSession_POST_foreground {
   XCTestExpectation *expectation = [self expectationWithDescription:@"Expect block is called"];
@@ -416,9 +415,6 @@
                                }];
 }
 
-#if !TARGET_OS_MACCATALYST
-// Test fails on Catalyst when run with other tests, but passes individually.
-
 - (void)testEmptyPayloadNSURLSession_POST_background {
   XCTestExpectation *expectation = [self expectationWithDescription:@"Expect block is called"];
   NSData *uncompressedData = [[NSData alloc] init];
@@ -445,7 +441,6 @@
                                  }
                                }];
 }
-#endif
 
 - (void)testNilQueueNSURLSession_POST_background {
   XCTestExpectation *expectation = [self expectationWithDescription:@"Expect block is called"];
@@ -1016,3 +1011,5 @@
 }
 
 @end
+
+#endif // CATALYST
