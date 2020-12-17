@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 51;
+	objectVersion = 50;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -31,6 +31,7 @@
 		5194496E258AF2D000297021 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5194496D258AF2D000297021 /* Preview Assets.xcassets */; };
 		51944B28258B091A00297021 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 51944B27258B091A00297021 /* GoogleService-Info.plist */; };
 		51944B9D258B136000297021 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 51944B9C258B136000297021 /* Assets.xcassets */; };
+		51944BE1258BE42F00297021 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 51944BE0258BE42F00297021 /* GoogleService-Info.plist */; };
 		51A1F3A525883DCF0025932B /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 51A1F3A425883DCF0025932B /* Preview Assets.xcassets */; };
 		51A1F3B125883E370025932B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51A1F3B025883E370025932B /* AppDelegate.swift */; };
 		51A1F3B525883E630025932B /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51A1F3B425883E630025932B /* SceneDelegate.swift */; };
@@ -148,6 +149,7 @@
 		51944A86258B012A00297021 /* SampleWatchWatchKitExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SampleWatchWatchKitExtension.entitlements; sourceTree = "<group>"; };
 		51944B27258B091A00297021 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		51944B9C258B136000297021 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = ../../Shared/Assets.xcassets; sourceTree = "<group>"; };
+		51944BE0258BE42F00297021 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		51A1F39825883DCE0025932B /* AdvancedSample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AdvancedSample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		51A1F3A425883DCF0025932B /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		51A1F3A925883DCF0025932B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -251,6 +253,7 @@
 		51944961258AF2D000297021 /* SampleWatchWatchKitExtension */ = {
 			isa = PBXGroup;
 			children = (
+				51944BE0258BE42F00297021 /* GoogleService-Info.plist */,
 				51944A86258B012A00297021 /* SampleWatchWatchKitExtension.entitlements */,
 				51944962258AF2D000297021 /* HostingController.swift */,
 				51944964258AF2D000297021 /* ContentView.swift */,
@@ -536,6 +539,7 @@
 			files = (
 				5194496E258AF2D000297021 /* Preview Assets.xcassets in Resources */,
 				5194496B258AF2D000297021 /* Assets.xcassets in Resources */,
+				51944BE1258BE42F00297021 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

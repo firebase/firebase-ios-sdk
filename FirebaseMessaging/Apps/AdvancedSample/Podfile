@@ -1,4 +1,4 @@
-use_frameworks!
+use_frameworks! :linkage => :static
 
 source 'https://github.com/firebase/SpecsStaging.git'
 source 'https://cdn.cocoapods.org/'
@@ -24,7 +24,6 @@ target 'NotificationServiceExtension' do
 end
 
 target 'AppClips' do
-  use_frameworks! :linkage => :static
   platform :ios, '13.0'
   shared_pods
 end
