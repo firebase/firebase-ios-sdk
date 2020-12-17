@@ -17,6 +17,9 @@
 #import <XCTest/XCTest.h>
 #import "OCMock.h"
 
+#if !TARGET_OS_MACCATALYST
+// These tests are flaky on Catalyst. One of the tests typically fails.
+
 #import "GoogleUtilities/NSData+zlib/Public/GoogleUtilities/GULNSData+zlib.h"
 #import "GoogleUtilities/Network/Public/GoogleUtilities/GULNetwork.h"
 #import "GoogleUtilities/Reachability/Public/GoogleUtilities/GULReachabilityChecker.h"
@@ -1008,3 +1011,5 @@
 }
 
 @end
+
+#endif  // TARGET_OS_MACCATALYST

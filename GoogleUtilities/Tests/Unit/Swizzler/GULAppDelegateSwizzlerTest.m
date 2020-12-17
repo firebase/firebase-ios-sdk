@@ -1055,7 +1055,7 @@ static BOOL gRespondsToHandleBackgroundSession;
 }
 #pragma clang diagnostic pop
 
-#if TARGET_OS_IOS || TARGET_OS_TV
+#if (TARGET_OS_IOS || TARGET_OS_TV) && !TARGET_OS_MACCATALYST
 - (void)testApplicationDidReceiveRemoteNotificationWithCompletionIsInvokedOnInterceptors {
   NSDictionary *notification = @{};
   GULApplication *application = [GULApplication sharedApplication];
@@ -1092,7 +1092,7 @@ static BOOL gRespondsToHandleBackgroundSession;
 - (void)verifyCompletionCalledForObserverResult:(UIBackgroundFetchResult)observerResult1
                           anotherObserverResult:(UIBackgroundFetchResult)observerResult2
                                  swizzledResult:(UIBackgroundFetchResult)swizzledResult
-                                 expecredResult:(UIBackgroundFetchResult)expectedResult {
+                                 expectedResult:(UIBackgroundFetchResult)expectedResult {
   NSDictionary *notification = @{};
   GULApplication *application = [GULApplication sharedApplication];
 
@@ -1150,7 +1150,7 @@ static BOOL gRespondsToHandleBackgroundSession;
   [self verifyCompletionCalledForObserverResult:UIBackgroundFetchResultNoData
                           anotherObserverResult:UIBackgroundFetchResultNoData
                                  swizzledResult:UIBackgroundFetchResultNoData
-                                 expecredResult:UIBackgroundFetchResultNoData];
+                                 expectedResult:UIBackgroundFetchResultNoData];
 }
 
 - (void)
@@ -1158,21 +1158,21 @@ static BOOL gRespondsToHandleBackgroundSession;
   [self verifyCompletionCalledForObserverResult:UIBackgroundFetchResultFailed
                           anotherObserverResult:UIBackgroundFetchResultFailed
                                  swizzledResult:UIBackgroundFetchResultFailed
-                                 expecredResult:UIBackgroundFetchResultFailed];
+                                 expectedResult:UIBackgroundFetchResultFailed];
 }
 
 - (void)testApplicationDidReceiveRemoteNotificationWithCompletionCompletionIsCalledOnce_NoData {
   [self verifyCompletionCalledForObserverResult:UIBackgroundFetchResultNoData
                           anotherObserverResult:UIBackgroundFetchResultFailed
                                  swizzledResult:UIBackgroundFetchResultFailed
-                                 expecredResult:UIBackgroundFetchResultNoData];
+                                 expectedResult:UIBackgroundFetchResultNoData];
 }
 - (void)
     testApplicationDidReceiveRemoteNotificationWithCompletionCompletionIsCalledOnce_HandleNewDataState_OthersFailed {
   [self verifyCompletionCalledForObserverResult:UIBackgroundFetchResultNewData
                           anotherObserverResult:UIBackgroundFetchResultFailed
                                  swizzledResult:UIBackgroundFetchResultFailed
-                                 expecredResult:UIBackgroundFetchResultNewData];
+                                 expectedResult:UIBackgroundFetchResultNewData];
 }
 
 - (void)
@@ -1180,7 +1180,7 @@ static BOOL gRespondsToHandleBackgroundSession;
   [self verifyCompletionCalledForObserverResult:UIBackgroundFetchResultNewData
                           anotherObserverResult:UIBackgroundFetchResultNoData
                                  swizzledResult:UIBackgroundFetchResultNoData
-                                 expecredResult:UIBackgroundFetchResultNewData];
+                                 expectedResult:UIBackgroundFetchResultNewData];
 }
 
 - (void)
@@ -1188,7 +1188,7 @@ static BOOL gRespondsToHandleBackgroundSession;
   [self verifyCompletionCalledForObserverResult:UIBackgroundFetchResultNewData
                           anotherObserverResult:UIBackgroundFetchResultNoData
                                  swizzledResult:UIBackgroundFetchResultFailed
-                                 expecredResult:UIBackgroundFetchResultNewData];
+                                 expectedResult:UIBackgroundFetchResultNewData];
 }
 
 - (void)testApplicationDidReceiveRemoteNotificationWithCompletionImplementationIsNotAdded {
