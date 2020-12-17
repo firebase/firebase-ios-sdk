@@ -614,6 +614,10 @@ static const NSTimeInterval kGULTestCaseTimeoutInterval = 10;
   [self removePreferenceFileWithSuiteName:suiteName];
 }
 
+
+#if !TARGET_OS_MACCATALYST
+// Disable Catalyst flakes.
+
 - (void)testBothUserDefaultsThreadSafeAddingObjects {
   NSString *suiteName = @"test_adding_both_user_defaults_threadsafe";
   int itemCount = 100;
@@ -652,9 +656,6 @@ static const NSTimeInterval kGULTestCaseTimeoutInterval = 10;
   }
   [self removePreferenceFileWithSuiteName:suiteName];
 }
-
-#if !TARGET_OS_MACCATALYST
-// Disable Catalyst flake.
 
 - (void)testBothUserDefaultsRemovingSomeObjects {
   NSString *suiteName = @"test_remove_some_objs_both_user_defaults";
