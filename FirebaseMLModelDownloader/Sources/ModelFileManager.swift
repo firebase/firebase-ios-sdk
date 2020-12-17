@@ -46,13 +46,16 @@ enum ModelFileManager {
         try fileManager.removeItem(at: destinationURL)
       } catch {
         throw DownloadError
-          .internalError(description: "Could not replace existing model file.")
+          .internalError(
+            description: "Could not replace existing model file - \(error.localizedDescription)"
+          )
       }
     }
     do {
       try FileManager.default.moveItem(at: sourceURL, to: destinationURL)
     } catch {
-      throw DownloadError.internalError(description: "Unable to save model file.")
+      throw DownloadError
+        .internalError(description: "Unable to save model file - \(error.localizedDescription)")
     }
   }
 
@@ -61,7 +64,10 @@ enum ModelFileManager {
     do {
       try fileManager.removeItem(at: url)
     } catch {
-      throw DownloadError.internalError(description: "Could not delete old model file.")
+      throw DownloadError
+        .internalError(
+          description: "Could not delete old model file - \(error.localizedDescription)"
+        )
     }
   }
 }

@@ -38,6 +38,8 @@ public enum DownloadedModelError: Error, Equatable {
   case fileIOError(description: String)
   /// Model not found on device.
   case notFound
+  /// Other errors with description.
+  case internalError(description: String)
 }
 
 /// Possible ways to get a custom model.
@@ -151,8 +153,20 @@ public class ModelDownloader {
                                     completion: @escaping (Result<Void, DownloadedModelError>)
                                       -> Void) {
     // TODO: Delete previously downloaded model
-    completion(.success(()))
-    completion(.failure(.notFound))
+    guard let localModelInfo = getLocalModelInfo(modelName: modelName),
+      let localPath = URL(string: localModelInfo.path)
+    else {
+      completion(.failure(.notFound))
+      return
+    }
+    do {
+      try ModelFileManager.removeFile(at: localPath)
+      completion(.success(()))
+    } catch let error as DownloadedModelError {
+      completion(.failure(error))
+    } catch {
+      completion(.failure(.internalError(description: error.localizedDescription)))
+    }
   }
 }
 
