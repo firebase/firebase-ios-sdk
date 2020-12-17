@@ -599,16 +599,6 @@ case "$product-$platform-$method" in
       test
     ;;
 
-  Performance-*-release)
-    # Generate the workspace for the SDK to generate Protobuf files.
-    export FPR_UNSWIZZLE_AVAILABLE="0"
-    pod_gen FirebasePerformance.podspec --platforms=ios --clean
-
-    version=$(sed -n 's/"version":[ ]* "\(.*\)".*$/\1/p' FirebasePerformance.podspec.json);
-    cd FirebasePerformance/Distribute
-    sh build_zip.sh --version $version
-    ;;
-
   *-*-spm)
     RunXcodebuild \
       -scheme $product \
