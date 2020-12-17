@@ -3126,10 +3126,7 @@
                 }
               }];
 
-  [ref setValue:@42
-      withCompletionBlock:^(NSError* error, FIRDatabaseReference* ref) {
-        XCTAssertNil(error);
-      }];
+  [self waitForCompletionOf:ref setValue:@42];
 
   WAIT_FOR(done);
   done = NO;
@@ -3160,10 +3157,13 @@
 - (void)testGetRetrievesLatestValueEvenIfCached {
   FIRDatabase* db = [self databaseForURL:self.databaseURL name:[[NSUUID UUID] UUIDString]];
   FIRDatabase* db2 = [self databaseForURL:self.databaseURL name:[[NSUUID UUID] UUIDString]];
+
   XCTAssertNotEqual(db, db2);
 
-  FIRDatabaseReference* readRef = [db reference];
-  FIRDatabaseReference* writeRef = [db2 reference];
+  NSString* uuidPath = [[NSUUID UUID] UUIDString];
+
+  FIRDatabaseReference* readRef = [db referenceWithPath:uuidPath];
+  FIRDatabaseReference* writeRef = [db2 referenceWithPath:uuidPath];
 
   XCTAssertNotEqual(readRef, writeRef);
 
@@ -3177,10 +3177,7 @@
                     }
                   }];
 
-  [writeRef setValue:@42
-      withCompletionBlock:^(NSError* error, FIRDatabaseReference* ref) {
-        XCTAssertNil(error);
-      }];
+  [self waitForCompletionOf:writeRef setValue:@42];
 
   WAIT_FOR(done);
   done = NO;
@@ -3209,8 +3206,10 @@
 
   [db2 setPersistenceEnabled:true];
 
-  FIRDatabaseReference* writeRef = [db reference];
-  FIRDatabaseReference* readRef = [db2 reference];
+  NSString* uuidPath = [[NSUUID UUID] UUIDString];
+
+  FIRDatabaseReference* writeRef = [db referenceWithPath:uuidPath];
+  FIRDatabaseReference* readRef = [db2 referenceWithPath:uuidPath];
 
   __block BOOL done = NO;
 
