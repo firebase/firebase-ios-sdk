@@ -15,7 +15,7 @@
  */
 
 #import <TargetConditionals.h>
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS || TARGET_OS_TV
 
 #import "FirebaseInAppMessaging/Sources/Private/Runtime/FIRInAppMessaging+Bootstrap.h"
 
@@ -136,4 +136,4 @@ static NSString *_fiamServerHostName = @"firebaseinappmessaging.googleapis.com";
 
 @end
 
-#endif  // TARGET_OS_IOS
+#endif  // TARGET_OS_IOS || TARGET_OS_TV
