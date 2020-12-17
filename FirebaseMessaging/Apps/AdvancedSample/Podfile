@@ -3,9 +3,7 @@ use_frameworks!
 source 'https://github.com/firebase/SpecsStaging.git'
 source 'https://cdn.cocoapods.org/'
 
-target 'AdvancedSample' do
-  platform :ios, '13.0'
-
+def shared_pods
   pod 'FirebaseCore', :path => '../../../'
   pod 'GoogleUtilities', :path => '../../../'
   pod 'FirebaseMessaging', :path => '../../../'
@@ -13,5 +11,31 @@ target 'AdvancedSample' do
   pod 'FirebaseCoreDiagnostics', :path => '../../../'
   pod 'GoogleDataTransport', :path => '../../../'
   pod 'FirebaseInstallations', :path => '../../../'
-
 end
+
+target 'AdvancedSample' do
+  platform :ios, '13.0'
+  shared_pods
+end
+
+target 'NotificationServiceExtension' do
+  platform :ios, '13.0'
+  shared_pods
+end
+
+target 'AppClips' do
+  platform :ios, '13.0'
+  shared_pods
+end
+
+target 'ShareExtension' do
+  platform :ios, '13.0'
+  shared_pods
+end
+
+target 'SampleWatchWatchKitExtension' do
+  platform :watchos, '6.0'
+  shared_pods
+end
+
+
