@@ -55,6 +55,17 @@
   FIRIAMMessageDefinition *_currentMsgBeingDisplayed;
 }
 
++ (NSString *)logStringForNilMessageDisplayComponent {
+#if TARGET_OS_IOS
+  return @"Message display component is not present yet. No display should happen.";
+#else  // TARGET_OS_TV
+  return @"There is no default UI for tvOS. You must implement a messageDisplayComponent and set "
+         @"it on the InAppMessaging singleton. See "
+         @"https://firebase.google.com/docs/in-app-messaging/"
+         @"customize-messages#create_your_own_message_display_library.";
+#endif
+}
+
 #pragma mark - FIRInAppMessagingDisplayDelegate methods
 - (void)messageClicked:(FIRInAppMessagingDisplayMessage *)inAppMessage
             withAction:(FIRInAppMessagingAction *)action {
@@ -386,8 +397,8 @@
     }
 
     if (!self.messageDisplayComponent) {
-      FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400026",
-                  @"Message display component is not present yet. No display should happen.");
+      FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400026", @"%@",
+                  [[self class] logStringForNilMessageDisplayComponent]);
       return;
     }
 
@@ -655,8 +666,8 @@
   // threads.
   @synchronized(self) {
     if (!self.messageDisplayComponent) {
-      FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400028",
-                  @"Message display component is not present yet. No display should happen.");
+      FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400028", @"%@",
+                  [[self class] logStringForNilMessageDisplayComponent]);
       return;
     }
 
@@ -699,8 +710,8 @@
   // triggered message concurrently
   @synchronized(self) {
     if (!self.messageDisplayComponent) {
-      FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400027",
-                  @"Message display component is not present yet. No display should happen.");
+      FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400027", @"%@",
+                  [[self class] logStringForNilMessageDisplayComponent]);
       return;
     }
 
