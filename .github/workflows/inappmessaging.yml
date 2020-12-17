@@ -32,7 +32,7 @@ jobs:
     runs-on: macOS-latest
     strategy:
       matrix:
-        platform: [iOS, iPad, tvOS]
+        platform: [iOS, iPad]
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
