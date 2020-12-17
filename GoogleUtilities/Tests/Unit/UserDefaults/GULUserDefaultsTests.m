@@ -614,7 +614,6 @@ static const NSTimeInterval kGULTestCaseTimeoutInterval = 10;
   [self removePreferenceFileWithSuiteName:suiteName];
 }
 
-
 #if !TARGET_OS_MACCATALYST
 // Disable Catalyst flakes.
 
