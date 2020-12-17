@@ -48,7 +48,7 @@ jobs:
 
   spm-cron:
     # Don't run on private repo.
-    if: github.event_name == 'schedule' && github.repository != 'FirebasePrivate/firebase-ios-sdk'
+    # if: github.event_name == 'schedule' && github.repository != 'FirebasePrivate/firebase-ios-sdk'
     runs-on: macOS-latest
     strategy:
       matrix:
@@ -71,7 +71,7 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Setup project and Build Catalyst
-      run: scripts/test_catalyst.sh FirebaseMLModelDownloader build
+      run: scripts/test_catalyst.sh FirebaseMLModelDownloader test
 
   mlmodeldownloader-cron-only:
     # Don't run on private repo.
