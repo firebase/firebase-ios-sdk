@@ -493,6 +493,9 @@ static const NSTimeInterval kGULTestCaseTimeoutInterval = 10;
   [self removePreferenceFileWithSuiteName:suiteName];
 }
 
+#if !TARGET_OS_MACCATALYST
+// Disable Catalyst flakes.
+
 #pragma mark - Thread-safety test
 
 - (void)testNewUserDefaultsThreadSafeAddingObjects {
@@ -613,9 +616,6 @@ static const NSTimeInterval kGULTestCaseTimeoutInterval = 10;
   }
   [self removePreferenceFileWithSuiteName:suiteName];
 }
-
-#if !TARGET_OS_MACCATALYST
-// Disable Catalyst flakes.
 
 - (void)testBothUserDefaultsThreadSafeAddingObjects {
   NSString *suiteName = @"test_adding_both_user_defaults_threadsafe";
