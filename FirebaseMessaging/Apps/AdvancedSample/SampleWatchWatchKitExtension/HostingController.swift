@@ -12,13 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 import WatchKit
 import Foundation
 import SwiftUI
 
 class HostingController: WKHostingController<ContentView> {
-    override var body: ContentView {
-        return ContentView()
-    }
+  override var body: ContentView {
+    return ContentView()
+  }
 }

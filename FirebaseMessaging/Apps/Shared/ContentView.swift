@@ -244,17 +244,22 @@ struct ContentView: View {
 }
 
 struct ActivityViewController: UIViewControllerRepresentable {
+  var activityItems: [Any]
+  var applicationActivities: [UIActivity]? = nil
 
-    var activityItems: [Any]
-    var applicationActivities: [UIActivity]? = nil
+  func makeUIViewController(context: UIViewControllerRepresentableContext<ActivityViewController>)
+    -> UIActivityViewController {
+    let controller = UIActivityViewController(
+      activityItems: activityItems,
+      applicationActivities: applicationActivities
+    )
+    return controller
+  }
 
-    func makeUIViewController(context: UIViewControllerRepresentableContext<ActivityViewController>) -> UIActivityViewController {
-        let controller = UIActivityViewController(activityItems: activityItems, applicationActivities: applicationActivities)
-        return controller
-    }
-
-    func updateUIViewController(_ uiViewController: UIActivityViewController, context: UIViewControllerRepresentableContext<ActivityViewController>) {}
-
+  func updateUIViewController(_ uiViewController: UIActivityViewController,
+                              context: UIViewControllerRepresentableContext<
+                                ActivityViewController
+                              >) {}
 }
 
 struct SettingsView: View {
@@ -291,8 +296,9 @@ struct SettingsView: View {
       .foregroundColor(.blue)
     }
   }
+
   func shareToken() {
-    self.isSharePresented = true
+    isSharePresented = true
   }
 }
 

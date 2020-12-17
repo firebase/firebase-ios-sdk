@@ -12,14 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 import WatchKit
 
 import FirebaseCore
 import FirebaseMessaging
 
 class ExtensionDelegate: NSObject, WKExtensionDelegate, MessagingDelegate {
-
   func applicationDidFinishLaunching() {
     FirebaseApp.configure()
     let center = UNUserNotificationCenter.current()
