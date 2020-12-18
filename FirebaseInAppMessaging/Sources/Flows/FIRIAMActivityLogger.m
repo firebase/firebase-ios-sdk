@@ -15,7 +15,7 @@
  */
 
 #import <TargetConditionals.h>
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS || TARGET_OS_TV
 
 #import <UIKit/UIKit.h>
 
@@ -150,9 +150,10 @@ static NSString *const kDetailArchiveKey = @"detail";
 
 - (void)loadFromCachePath:(NSString *)cacheFilePath {
   NSString *filePath = cacheFilePath == nil ? [self.class determineCacheFilePath] : cacheFilePath;
-
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   id fetchedActivityRecords = [NSKeyedUnarchiver unarchiveObjectWithFile:filePath];
-
+#pragma clang diagnostic pop
   if (fetchedActivityRecords) {
     @synchronized(self) {
       self.activityRecords = (NSMutableArray<FIRIAMActivityRecord *> *)fetchedActivityRecords;
@@ -164,7 +165,10 @@ static NSString *const kDetailArchiveKey = @"detail";
 - (BOOL)saveIntoCacheWithPath:(NSString *)cacheFilePath {
   NSString *filePath = cacheFilePath == nil ? [self.class determineCacheFilePath] : cacheFilePath;
   @synchronized(self) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     BOOL result = [NSKeyedArchiver archiveRootObject:self.activityRecords toFile:filePath];
+#pragma clang diagnostic pop
     if (result) {
       self.isDirty = NO;
     }
@@ -224,4 +228,4 @@ static NSString *const kDetailArchiveKey = @"detail";
 }
 @end
 
-#endif  // TARGET_OS_IOS
+#endif  // TARGET_OS_IOS || TARGET_OS_TV
