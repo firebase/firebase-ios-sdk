@@ -19,6 +19,10 @@ jobs:
       - name: check files
         id: check_files
         run: |
+          echo "common commit hash with master branch"
+          git merge-base master test_measure_coverage
+          echo "git log"
+          git log
           ./test.sh
           echo "=============== Updated jobs to be triggered ================="
           cat ./run_sdk_jobs.txt
