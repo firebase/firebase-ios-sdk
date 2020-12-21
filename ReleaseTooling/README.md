@@ -21,10 +21,10 @@ In order to build the Zip file, you will need:
 
 ### Running the Tool
 
-You can run the tool with `swift run zip-builder [ARGS]` or generate an Xcode project with
-`swift package generate-xcodeproj` and run within Xcode.
+You can run the tool with `swift run zip-builder [ARGS]` or `open Package.swift` to debug or run
+within Xcode.
 
-Since Apple does not support linking libraries built by future Xcode versions, make sure to builid with the
+Since Apple does not support linking libraries built by future Xcode versions, make sure to build with the
 earliest Xcode needed by any of the library clients. The Xcode command line tools must also be configured
 for that version. Check with `xcodebuild -version`.
 
@@ -69,7 +69,12 @@ Optional common arguments:
 - `--no-update-pod-repo`
   - This is for speedups when `pod repo update` has already been run recently.
 
-For release engineers (Googlers packaging an upcoming Firebase release) these commands should also be used:
+### Firebase Release zip building
+
+If the `--zip-pods` option is not specified, the tool will build a Firebase zip distribution.
+
+For release engineers (Googlers packaging an upcoming Firebase release) these commands should also
+be used:
 -  `--custom-spec-repos sso://cpdc-internal/firebase`
   - This pulls the latest podspecs from the CocoaPods staging area.
 - `--repo-dir path` GitHub repo containing Template and Carthage json file inputs.
@@ -86,7 +91,7 @@ swift run zip-builder --update-pod-repo \
 --keep-build-artifacts
 ```
 
-### Carthage
+#### Carthage
 
 Carthage binaries can also be built at the same time as the zip file by passing in `--enable-carthage-build`
 as a command line argument. This directory should contain JSON files describing versions and download
