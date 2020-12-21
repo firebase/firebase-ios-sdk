@@ -114,7 +114,11 @@ struct ZipBuilderTool: ParsableCommand {
           """))
   var platforms: [TargetPlatform]
 
-  // MARK: - Zip Pods
+  // MARK: - Specify Pods
+
+  @Option(parsing: .upToNextOption,
+          help: ArgumentHelp("List of pods to build."))
+  var pods: [String]
 
   @Option(help: ArgumentHelp("""
   The path to a JSON file of the pods (with optional version) to package into a zip.
@@ -246,11 +250,20 @@ struct ZipBuilderTool: ParsableCommand {
       }
     }
 
-    if let zipPods = zipPods {
-      let (installedPods, frameworks, _) = builder.buildAndAssembleZip(podsToInstall: zipPods,
-                                                                       inProjectDir: projectDir,
-                                                                       minimumIOSVersion: minimumIOSVersion,
-                                                                       includeDependencies: buildDependencies)
+    var podsToBuild = zipPods
+    if pods.count > 0 {
+      guard podsToBuild == nil else {
+        fatalError("Only one of `--zipPods` or `--pods` can be specified.")
+      }
+      podsToBuild = pods.map { CocoaPodUtils.VersionedPod(name: $0, version: nil) }
+    }
+
+    if let podsToBuild = podsToBuild {
+      let (installedPods, frameworks, _) =
+        builder.buildAndAssembleZip(podsToInstall: podsToBuild,
+                                    inProjectDir: projectDir,
+                                    minimumIOSVersion: minimumIOSVersion,
+                                    includeDependencies: buildDependencies)
       let staging = FileManager.default.temporaryDirectory(withName: "staging")
       try builder.copyFrameworks(fromPods: Array(installedPods.keys), toDirectory: staging,
                                  frameworkLocations: frameworks)
