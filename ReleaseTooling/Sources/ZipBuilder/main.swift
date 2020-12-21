@@ -128,13 +128,6 @@ struct ZipBuilderTool: ParsableCommand {
 
   // MARK: - Filesystem Paths
 
-  /// The path to the root of the firebase-ios-sdk repo.
-  @Option(help: ArgumentHelp("""
-  The path to the repo from which the Firebase distribution is being built.
-  """),
-  transform: URL.init(fileURLWithPath:))
-  var repoDir: URL
-
   /// Path to override podspec search with local podspec.
   @Option(help: ArgumentHelp("Path to override podspec search with local podspec."),
           transform: URL.init(fileURLWithPath:))
@@ -160,17 +153,6 @@ struct ZipBuilderTool: ParsableCommand {
   // MARK: - Validation
 
   mutating func validate() throws {
-    // Validate the repoDir exists, as well as the templateDir.
-    guard FileManager.default.directoryExists(at: repoDir) else {
-      throw ValidationError("Included a repo-dir that doesn't exist.")
-    }
-
-    // Validate the templateDir exists.
-    let templateDir = ZipBuilder.FilesystemPaths.templateDir(fromRepoDir: repoDir)
-    guard FileManager.default.directoryExists(at: templateDir) else {
-      throw ValidationError("Missing template inside of the repo. \(templateDir) does not exist.")
-    }
-
     // Validate the output directory if provided.
     if let outputDir = outputDir, !FileManager.default.directoryExists(at: outputDir) {
       throw ValidationError("`output-dir` passed in does not exist. Value: \(outputDir)")
@@ -214,6 +196,22 @@ struct ZipBuilderTool: ParsableCommand {
     // Register the build root if it was passed in.
     if let buildRoot = buildRoot {
       FileManager.registerBuildRoot(buildRoot: buildRoot.standardizedFileURL)
+    }
+
+    // Get the repoDir by deleting four path components from this file to the repo root.
+    let repoDir = URL(fileURLWithPath: #file)
+      .deletingLastPathComponent().deletingLastPathComponent()
+      .deletingLastPathComponent().deletingLastPathComponent()
+
+    // Validate the repoDir exists, as well as the templateDir.
+    guard FileManager.default.directoryExists(at: repoDir) else {
+      fatalError("Failed to find the repo root at \(repoDir).")
+    }
+
+    // Validate the templateDir exists.
+    let templateDir = ZipBuilder.FilesystemPaths.templateDir(fromRepoDir: repoDir)
+    guard FileManager.default.directoryExists(at: templateDir) else {
+      fatalError("Missing template inside of the repo. \(templateDir) does not exist.")
     }
 
     let paths = ZipBuilder.FilesystemPaths(repoDir: repoDir,

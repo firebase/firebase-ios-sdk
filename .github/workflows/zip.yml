@@ -25,7 +25,8 @@ jobs:
 
   package:
     # Don't run on private repo.
-    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
+    # TODO: Recomment before master merge
+#    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
     needs: build
     runs-on: macOS-latest
     steps:
