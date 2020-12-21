@@ -39,11 +39,6 @@ You can pass in launch arguments with Xcode by clicking "zip-builder" beside the
 
 These arguments assume you're running the command from the `ReleaseTooling` directory.
 
-**Required** arguments:
-
-- `--repo-dir <PATH_TO_firebase_ios_sdk_REPO>`
-  - The root of the `firebase-ios-sdk` repo.
-
 Typical argument (all use cases except Firebase release build):
 - `--zip-pods <PATH_TO.json>`
   - This is a JSON list of the pods to consolidate into a zip of binary frameworks. For example,
@@ -77,7 +72,6 @@ For release engineers (Googlers packaging an upcoming Firebase release) these co
 be used:
 -  `--custom-spec-repos sso://cpdc-internal/firebase`
   - This pulls the latest podspecs from the CocoaPods staging area.
-- `--repo-dir path` GitHub repo containing Template and Carthage json file inputs.
 - `--enable-carthage-build` Turns on generation of Carthage zips and json file updates.
 - `--keep-build-artifacts` Useful for debugging and verifying the zip build contents.
 
@@ -85,7 +79,6 @@ Putting them all together, here's a common command to build a releaseable Zip fi
 
 ```
 swift run zip-builder --update-pod-repo \
---repo-dir <PATH_TO_current.firebase_ios_sdk.repo> \
 --custom-spec-repos sso://cpdc-internal/firebase \
 --enable-carthage-build \
 --keep-build-artifacts
