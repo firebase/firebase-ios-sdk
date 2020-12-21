@@ -93,7 +93,7 @@ struct ZipBuilderTool: ParsableCommand {
   /// Custom CocoaPods spec repos to be used.
   @Option(parsing: .upToNextOption,
           help: ArgumentHelp("""
-          A list of custom CocoaPod Spec repos.  If not provided, the tool will only use the \
+          A list of private CocoaPod Spec repos. If not provided, the tool will only use the \
           CocoaPods master repo.
           """))
   var customSpecRepos: [URL]
@@ -102,14 +102,15 @@ struct ZipBuilderTool: ParsableCommand {
 
   /// The minimum iOS Version to build for.
   @Option(default: "10.0",
-          help: ArgumentHelp("The minimum supported iOS version. The default is 10.0."))
+          help: ArgumentHelp("The minimum supported iOS version."))
   var minimumIOSVersion: String
 
   /// The list of architectures to build for.
   @Option(parsing: .upToNextOption,
           help: ArgumentHelp("""
-          The list of platforms to build for. The default list is \
-          \(TargetPlatform.allCases.map { $0.sdkName }).
+          The list of target platforms to build for. The default list is \
+          \(TargetPlatform.allCases.map { $0.sdkName }). Note that `macosx` is currently Catalyst \
+          only.
           """))
   var platforms: [TargetPlatform]
 
