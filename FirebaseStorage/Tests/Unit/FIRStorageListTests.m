@@ -79,6 +79,29 @@
   [FIRStorageTestHelpers waitForExpectation:self];
 }
 
+- (void)testValidatesListAllCallback {
+  XCTestExpectation *expectation =
+      [self expectationWithDescription:@"testValidatesListAllCallback"];
+  expectation.expectedFulfillmentCount = 1;
+
+  FIRStoragePath *path = [FIRStorageTestHelpers objectPath];
+  FIRStorageReference *ref = [[FIRStorageReference alloc] initWithStorage:self.storage path:path];
+
+  FIRStorageVoidListError errorBlock = ^(FIRStorageListResult *result, NSError *error) {
+    XCTAssertNil(result);
+    XCTAssertNotNil(error);
+
+    XCTAssertEqualObjects(error.domain, @"FIRStorageErrorDomain");
+    XCTAssertEqual(error.code, FIRStorageErrorCodeUnknown);
+
+    [expectation fulfill];
+  };
+
+  [ref listAllWithCompletion:errorBlock];
+
+  [FIRStorageTestHelpers waitForExpectation:self];
+}
+
 - (void)testDefaultList {
   XCTestExpectation *expectation = [self expectationWithDescription:@"testDefaultList"];
   NSURL *expectedURL = [NSURL
