@@ -38,9 +38,12 @@ You can pass in launch arguments with Xcode by clicking "zip-builder" beside the
 
 #### Common Arguments
 
-These arguments assume you're running the command from the `ReleaseTooling` directory.
+Use `pods <pods>` to specify the CocoaPods to build.
 
-Typical argument (all use cases except Firebase release build):
+The `pods` option will choose whatever pods get installed from an unversioned CocoaPods install,
+typically the latest versions.
+
+To explicitly specify the CocoaPods versions, use a JSON specification :
 - `--zip-pods <PATH_TO.json>`
   - This is a JSON list of the pods to consolidate into a zip of binary frameworks. For example,
 
@@ -60,11 +63,11 @@ Indicates to install the version 3.2.0 of "GoogleDataTransport" and the latest
 version of "FirebaseMessaging". The version string is optional and can be any
 valid [CocoaPods Podfile version specifier](https://guides.cocoapods.org/syntax/podfile.html#pod).
 
-Optional common arguments:
+Other optional arguments:
 - `--no-update-pod-repo`
   - This is for speedups when `pod repo update` has already been run recently.
 - `--minimum-ios-version <minimum-ios-version>`
   - Change the minimimum iOS version from the default of 10.
 - `--output-dir <output-dir>`
-  - The directory to copy the built Zip file to. If this is not set, the path to the Zip file will
+  - The directory to copy the built Zip file. If this is not set, the path to the Zip file will
   be logged to the console.
