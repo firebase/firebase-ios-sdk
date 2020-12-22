@@ -268,15 +268,15 @@ static NSString *const kUnknownErrorString =
     @brief Tests a successful invocation of @c getCredentialWithUIDelegte:completion:
  */
 - (void)testGetCredentialWithUIDelegateWithClientID {
-  OCMStub([_mockOptions clientID]).andReturn(kFakeClientID);
-  _provider = [FIROAuthProvider providerWithProviderID:kFakeProviderID auth:_mockAuth];
-
   id mockBundle = OCMClassMock([NSBundle class]);
   OCMStub(ClassMethod([mockBundle mainBundle])).andReturn(mockBundle);
   OCMStub([mockBundle objectForInfoDictionaryKey:@"CFBundleURLTypes"]).andReturn(@[
     @{@"CFBundleURLSchemes" : @[ kFakeReverseClientID ]}
   ]);
   OCMStub([mockBundle bundleIdentifier]).andReturn(kFakeBundleID);
+
+  OCMStub([_mockOptions clientID]).andReturn(kFakeClientID);
+  _provider = [FIROAuthProvider providerWithProviderID:kFakeProviderID auth:_mockAuth];
 
   OCMExpect([_mockBackend getProjectConfig:[OCMArg any] callback:[OCMArg any]])
       .andCallBlock2(
@@ -371,15 +371,15 @@ static NSString *const kUnknownErrorString =
         cancelation.
  */
 - (void)testGetCredentialWithUIDelegateUserCancellationWithClientID {
-  OCMStub([_mockOptions clientID]).andReturn(kFakeClientID);
-  _provider = [FIROAuthProvider providerWithProviderID:kFakeProviderID auth:_mockAuth];
-
   id mockBundle = OCMClassMock([NSBundle class]);
   OCMStub(ClassMethod([mockBundle mainBundle])).andReturn(mockBundle);
   OCMStub([mockBundle objectForInfoDictionaryKey:@"CFBundleURLTypes"]).andReturn(@[
     @{@"CFBundleURLSchemes" : @[ kFakeReverseClientID ]}
   ]);
   OCMStub([mockBundle bundleIdentifier]).andReturn(kFakeBundleID);
+
+  OCMStub([_mockOptions clientID]).andReturn(kFakeClientID);
+  _provider = [FIROAuthProvider providerWithProviderID:kFakeProviderID auth:_mockAuth];
 
   OCMExpect([_mockBackend getProjectConfig:[OCMArg any] callback:[OCMArg any]])
       .andCallBlock2(
@@ -471,15 +471,15 @@ static NSString *const kUnknownErrorString =
         failed network request within the web context.
  */
 - (void)testGetCredentialWithUIDelegateNetworkRequestFailedWithClientID {
-  OCMStub([_mockOptions clientID]).andReturn(kFakeClientID);
-  _provider = [FIROAuthProvider providerWithProviderID:kFakeProviderID auth:_mockAuth];
-
   id mockBundle = OCMClassMock([NSBundle class]);
   OCMStub(ClassMethod([mockBundle mainBundle])).andReturn(mockBundle);
   OCMStub([mockBundle objectForInfoDictionaryKey:@"CFBundleURLTypes"]).andReturn(@[
     @{@"CFBundleURLSchemes" : @[ kFakeReverseClientID ]}
   ]);
   OCMStub([mockBundle bundleIdentifier]).andReturn(kFakeBundleID);
+
+  OCMStub([_mockOptions clientID]).andReturn(kFakeClientID);
+  _provider = [FIROAuthProvider providerWithProviderID:kFakeProviderID auth:_mockAuth];
 
   OCMExpect([_mockBackend getProjectConfig:[OCMArg any] callback:[OCMArg any]])
       .andCallBlock2(
@@ -569,15 +569,15 @@ static NSString *const kUnknownErrorString =
         internal error within the web context.
  */
 - (void)testGetCredentialWithUIDelegateInternalErrorWithClientID {
-  OCMStub([_mockOptions clientID]).andReturn(kFakeClientID);
-  _provider = [FIROAuthProvider providerWithProviderID:kFakeProviderID auth:_mockAuth];
-
   id mockBundle = OCMClassMock([NSBundle class]);
   OCMStub(ClassMethod([mockBundle mainBundle])).andReturn(mockBundle);
   OCMStub([mockBundle objectForInfoDictionaryKey:@"CFBundleURLTypes"]).andReturn(@[
     @{@"CFBundleURLSchemes" : @[ kFakeReverseClientID ]}
   ]);
   OCMStub([mockBundle bundleIdentifier]).andReturn(kFakeBundleID);
+
+  OCMStub([_mockOptions clientID]).andReturn(kFakeClientID);
+  _provider = [FIROAuthProvider providerWithProviderID:kFakeProviderID auth:_mockAuth];
 
   OCMExpect([_mockBackend getProjectConfig:[OCMArg any] callback:[OCMArg any]])
       .andCallBlock2(
@@ -668,15 +668,15 @@ static NSString *const kUnknownErrorString =
         use of an invalid client ID.
  */
 - (void)testGetCredentialWithUIDelegateInvalidClientID {
-  OCMStub([_mockOptions clientID]).andReturn(kFakeClientID);
-  _provider = [FIROAuthProvider providerWithProviderID:kFakeProviderID auth:_mockAuth];
-
   id mockBundle = OCMClassMock([NSBundle class]);
   OCMStub(ClassMethod([mockBundle mainBundle])).andReturn(mockBundle);
   OCMStub([mockBundle objectForInfoDictionaryKey:@"CFBundleURLTypes"]).andReturn(@[
     @{@"CFBundleURLSchemes" : @[ kFakeReverseClientID ]}
   ]);
   OCMStub([mockBundle bundleIdentifier]).andReturn(kFakeBundleID);
+
+  OCMStub([_mockOptions clientID]).andReturn(kFakeClientID);
+  _provider = [FIROAuthProvider providerWithProviderID:kFakeProviderID auth:_mockAuth];
 
   OCMExpect([_mockBackend getProjectConfig:[OCMArg any] callback:[OCMArg any]])
       .andCallBlock2(
@@ -767,15 +767,15 @@ static NSString *const kUnknownErrorString =
         unknown error.
  */
 - (void)testGetCredentialWithUIDelegateUnknownErrorWithClientID {
-  OCMStub([_mockOptions clientID]).andReturn(kFakeClientID);
-  _provider = [FIROAuthProvider providerWithProviderID:kFakeProviderID auth:_mockAuth];
-
   id mockBundle = OCMClassMock([NSBundle class]);
   OCMStub(ClassMethod([mockBundle mainBundle])).andReturn(mockBundle);
   OCMStub([mockBundle objectForInfoDictionaryKey:@"CFBundleURLTypes"]).andReturn(@[
     @{@"CFBundleURLSchemes" : @[ kFakeReverseClientID ]}
   ]);
   OCMStub([mockBundle bundleIdentifier]).andReturn(kFakeBundleID);
+
+  OCMStub([_mockOptions clientID]).andReturn(kFakeClientID);
+  _provider = [FIROAuthProvider providerWithProviderID:kFakeProviderID auth:_mockAuth];
 
   OCMExpect([_mockBackend getProjectConfig:[OCMArg any] callback:[OCMArg any]])
       .andCallBlock2(
@@ -866,14 +866,14 @@ static NSString *const kUnknownErrorString =
     @brief Tests a successful invocation of @c getCredentialWithUIDelegte:completion:
  */
 - (void)testGetCredentialWithUIDelegateWithFirebaseAppID {
-  _provider = [FIROAuthProvider providerWithProviderID:kFakeProviderID auth:_mockAuth];
-
   id mockBundle = OCMClassMock([NSBundle class]);
   OCMStub(ClassMethod([mockBundle mainBundle])).andReturn(mockBundle);
   OCMStub([mockBundle objectForInfoDictionaryKey:@"CFBundleURLTypes"]).andReturn(@[
     @{@"CFBundleURLSchemes" : @[ kFakeEncodedFirebaseAppID ]}
   ]);
   OCMStub([mockBundle bundleIdentifier]).andReturn(kFakeBundleID);
+
+  _provider = [FIROAuthProvider providerWithProviderID:kFakeProviderID auth:_mockAuth];
 
   OCMExpect([_mockBackend getProjectConfig:[OCMArg any] callback:[OCMArg any]])
       .andCallBlock2(
@@ -968,18 +968,18 @@ static NSString *const kUnknownErrorString =
    emulator.
  */
 - (void)testGetCredentialWithUIDelegateUseEmulator {
-  OCMStub([_mockOptions clientID]).andReturn(kFakeClientID);
-  NSString *emulatorHostAndPort =
-      [NSString stringWithFormat:@"%@:%@", kFakeEmulatorHost, kFakeEmulatorPort];
-  OCMStub([_mockRequestConfiguration emulatorHostAndPort]).andReturn(emulatorHostAndPort);
-  _provider = [FIROAuthProvider providerWithProviderID:kFakeProviderID auth:_mockAuth];
-
   id mockBundle = OCMClassMock([NSBundle class]);
   OCMStub(ClassMethod([mockBundle mainBundle])).andReturn(mockBundle);
   OCMStub([mockBundle objectForInfoDictionaryKey:@"CFBundleURLTypes"]).andReturn(@[
     @{@"CFBundleURLSchemes" : @[ kFakeReverseClientID ]}
   ]);
   OCMStub([mockBundle bundleIdentifier]).andReturn(kFakeBundleID);
+
+  OCMStub([_mockOptions clientID]).andReturn(kFakeClientID);
+  NSString *emulatorHostAndPort =
+      [NSString stringWithFormat:@"%@:%@", kFakeEmulatorHost, kFakeEmulatorPort];
+  OCMStub([_mockRequestConfiguration emulatorHostAndPort]).andReturn(emulatorHostAndPort);
+  _provider = [FIROAuthProvider providerWithProviderID:kFakeProviderID auth:_mockAuth];
 
   id mockUIDelegate = OCMProtocolMock(@protocol(FIRAuthUIDelegate));
 
