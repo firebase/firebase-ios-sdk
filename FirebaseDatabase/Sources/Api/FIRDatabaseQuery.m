@@ -203,14 +203,7 @@
     if (childKey == nil) {
         childKey = [FUtilities maxName];
     } else {
-        NSInteger keyAsInt;
-        if ([FUtilities tryParseStringToInt:childKey asInt:&keyAsInt]) {
-            childKey = [FUtilities
-                ieee754StringForNumber:[NSNumber
-                                           numberWithInteger:(keyAsInt + 1)]];
-        } else {
-            childKey = [FNextPushId nextAfter:childKey];
-        }
+        childKey = [FNextPushId nextAfter:childKey];
     }
     return [self queryStartingAtInternal:startAfterValue
                                 childKey:childKey

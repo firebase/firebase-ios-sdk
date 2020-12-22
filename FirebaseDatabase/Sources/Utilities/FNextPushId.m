@@ -60,27 +60,30 @@ static NSString *const PUSH_CHARS =
 }
 
 + (NSString *)nextAfter:(NSString *_Nonnull)key {
-    NSMutableString *next = [[NSMutableString alloc] init];
-    [next appendString:[key substringToIndex:8]];
-
-    int nextRandomSuffix[12];
-
-    int i;
-    for (i = 19; i >= 8 && [key characterAtIndex:i] == 63; i--) {
-        nextRandomSuffix[i] = 0;
+    NSInteger keyAsInt;
+    if ([FUtilities tryParseStringToInt:key asInt:&keyAsInt]) {
+        return [FUtilities
+            ieee754StringForNumber:[NSNumber
+                                       numberWithInteger:(keyAsInt + 1)]];
     }
-
-    nextRandomSuffix[i]++;
-
-    for (; i >= 8; i--) {
-        nextRandomSuffix[i] = [key characterAtIndex:i];
+    NSString *charFormat = @"%C";
+    NSMutableString *next = [NSMutableString stringWithCapacity:[key length]];
+    unsigned long i;
+    for (i = [key length] - 1;
+        i >= 0 && [key characterAtIndex:i] == [PUSH_CHARS characterAtIndex: [PUSH_CHARS length] - 1];
+        i--) {
+        [next replaceCharactersInRange:NSMakeRange(i, 1) withString:[NSString stringWithFormat:charFormat, [PUSH_CHARS characterAtIndex:i]]];
     }
-
-    for (int i = 0; i < 12; i++) {
-        [next appendFormat:@"%C",
-                           [PUSH_CHARS characterAtIndex:nextRandomSuffix[i]]];
+    if (i == -1) {
+        [next appendFormat:charFormat, [PUSH_CHARS characterAtIndex:0]];
+    } else {
+        NSString * source = [NSString stringWithFormat:charFormat, [key characterAtIndex:i]];
+        NSString * sourcePlusOne = [NSString stringWithFormat:charFormat, [PUSH_CHARS characterAtIndex: [PUSH_CHARS rangeOfString:source].location + 1]];
+        [next replaceCharactersInRange:NSMakeRange(i, 1) withString:sourcePlusOne];
     }
-
+    while (--i >= 0) {
+        [next replaceCharactersInRange:NSMakeRange(i, 1) withString:[NSString stringWithFormat:charFormat, [key characterAtIndex:i]]];
+    }
     return next;
 }
 
