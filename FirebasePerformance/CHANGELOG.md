@@ -5,10 +5,6 @@
 * Add blocklist for GoogleDataTransport upload URLs.
 * Update the event transport mechanism to open sourced GoogleDataTransport.
 
-# Version 7.3.0
-* Add blocklist for GoogleDataTransport upload URLs.
-* Update the event transport mechanism to open sourced GoogleDataTransport.
-
 # Version 7.2.0
 * Add Xcode simulator support for new Apple silicon based Macs.
 
