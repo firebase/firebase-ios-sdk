@@ -25,19 +25,6 @@ private enum MockOptions {
   static let apiKey = "ABcdEf-APIKeyWithValidFormat_0123456789"
 }
 
-extension UserDefaults {
-  /// For testing: returns a new cleared instance of user defaults.
-  static func getTestInstance(cleared: Bool = true) -> UserDefaults {
-    let suiteName = "com.google.firebase.ml.test"
-    // TODO: reconsider force unwrapping
-    let defaults = UserDefaults(suiteName: suiteName)!
-    if cleared {
-      defaults.removePersistentDomain(forName: suiteName)
-    }
-    return defaults
-  }
-}
-
 final class ModelDownloaderUnitTests: XCTestCase {
   override class func setUp() {
     let options = FirebaseOptions(

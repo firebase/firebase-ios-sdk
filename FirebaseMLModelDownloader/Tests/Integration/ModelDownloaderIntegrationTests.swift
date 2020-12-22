@@ -18,15 +18,20 @@ import XCTest
 @testable import FirebaseMLModelDownloader
 
 extension UserDefaults {
-  /// For testing: returns a new cleared instance of user defaults.
-  @discardableResult static func getTestInstance(cleared: Bool = true) -> UserDefaults {
-    let suiteName = "com.google.firebase.ml.test"
+  /// Returns a new cleared instance of user defaults.
+  static func createTestInstance(testName: String) -> UserDefaults {
+    let suiteName = "com.google.firebase.ml.test.\(testName)"
     // TODO: reconsider force unwrapping
     let defaults = UserDefaults(suiteName: suiteName)!
-    if cleared {
-      defaults.removePersistentDomain(forName: suiteName)
-    }
+    defaults.removePersistentDomain(forName: suiteName)
     return defaults
+  }
+
+  /// Returns the existing user defaults instance.
+  static func getTestInstance(testName: String) -> UserDefaults {
+    let suiteName = "com.google.firebase.ml.test.\(testName)"
+    // TODO: reconsider force unwrapping
+    return UserDefaults(suiteName: suiteName)!
   }
 }
 
@@ -66,7 +71,10 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
           XCTAssertGreaterThan(modelInfo.modelHash.count, 0)
           XCTAssertGreaterThan(modelInfo.size, 0)
           let localModelInfo = LocalModelInfo(from: modelInfo, path: "mock-valid-path")
-          localModelInfo.writeToDefaults(.getTestInstance(), appName: testApp.name)
+          localModelInfo.writeToDefaults(
+            .createTestInstance(testName: #function),
+            appName: testApp.name
+          )
         } else {
           XCTFail("Failed to retrieve model info.")
         }
@@ -80,7 +88,7 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
     waitForExpectations(timeout: 5, handler: nil)
 
     if let localInfo = LocalModelInfo(
-      fromDefaults: .getTestInstance(cleared: false),
+      fromDefaults: .getTestInstance(testName: #function),
       name: testModelName,
       appName: testApp.name
     ) {
@@ -143,7 +151,7 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
     let modelDownloadManager = ModelDownloadTask(
       remoteModelInfo: remoteModelInfo,
       appName: testApp.name,
-      defaults: .getTestInstance(),
+      defaults: .createTestInstance(testName: #function),
       progressHandler: { progress in
         XCTAssertNotNil(progress)
       }
