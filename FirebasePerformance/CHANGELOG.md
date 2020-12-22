@@ -1,4 +1,3 @@
-
 # Unreleased
 * Deprecate Clearcut event transport mechanism.
 
