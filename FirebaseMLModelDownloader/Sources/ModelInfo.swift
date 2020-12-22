@@ -16,44 +16,64 @@ import Foundation
 import FirebaseCore
 
 /// Model info object with details about pending or downloaded model.
-class ModelInfo: NSObject {
+struct ModelInfo {
   /// Model name.
-  var name: String
+  let name: String
 
   // TODO: revisit UserDefaultsBacked
   /// Download URL for the model file, as returned by server.
-  @UserDefaultsBacked var downloadURL: String
+  let downloadURL: URL
 
   /// Hash of the model, as returned by server.
-  @UserDefaultsBacked var modelHash: String
+  let modelHash: String
 
   /// Size of the model, as returned by server.
-  @UserDefaultsBacked var size: Int
+  let size: Int
 
   /// Local path of the model.
-  @UserDefaultsBacked var path: String?
+  var path: String?
 
   /// Initialize model info and create user default keys.
-  init(app: FirebaseApp, name: String, defaults: UserDefaults) {
+  init(name: String, downloadURL: URL, modelHash: String, size: Int) {
     self.name = name
-    let bundleID = Bundle.main.bundleIdentifier ?? ""
-    let defaultsPrefix = "\(bundleID).\(app.name).\(name)"
-    _downloadURL = UserDefaultsBacked(
-      key: "\(defaultsPrefix).model-download-url",
-      storage: defaults
-    )
-    _modelHash = UserDefaultsBacked(key: "\(defaultsPrefix).model-hash", storage: defaults)
-    _size = UserDefaultsBacked(key: "\(defaultsPrefix).model-size", storage: defaults)
-    _path = UserDefaultsBacked(key: "\(defaultsPrefix).model-path", storage: defaults)
+    self.downloadURL = downloadURL
+    self.modelHash = modelHash
+    self.size = size
   }
-}
 
-/// Named user defaults for FirebaseML.
-extension UserDefaults {
-  static var firebaseMLDefaults: UserDefaults {
-    let suiteName = "com.google.firebase.ml"
-    // TODO: reconsider force unwrapping
-    let defaults = UserDefaults(suiteName: suiteName)!
-    return defaults
+  /// Get user defaults key prefix.
+  private static func getUserDefaultsKeyPrefix(appName: String, modelName: String) -> String {
+    let bundleID = Bundle.main.bundleIdentifier ?? ""
+    return "\(bundleID).\(appName).\(modelName)"
+  }
+
+  // TODO: Move reading and writing to user defaults to a new file.
+  init?(fromDefaults defaults: UserDefaults, modelName: String, appName: String) {
+    let defaultsPrefix = ModelInfo.getUserDefaultsKeyPrefix(appName: appName, modelName: modelName)
+    guard let downloadURL = defaults
+      .value(forKey: "\(defaultsPrefix).model-download-url") as? String,
+      let url = URL(string: downloadURL),
+      let modelHash = defaults.value(forKey: "\(defaultsPrefix).model-hash") as? String,
+      let size = defaults.value(forKey: "\(defaultsPrefix).model-size") as? Int,
+      let path = defaults.value(forKey: "\(defaultsPrefix).model-path") as? String else {
+      return nil
+    }
+    name = modelName
+    self.downloadURL = url
+    self.modelHash = modelHash
+    self.size = size
+    self.path = path
+  }
+
+  func writeToDefaults(_ defaults: UserDefaults, appName: String) throws {
+    guard let modelPath = path else {
+      throw DownloadedModelError
+        .fileIOError(description: "Could not save model info to user defaults.")
+    }
+    let defaultsPrefix = ModelInfo.getUserDefaultsKeyPrefix(appName: appName, modelName: name)
+    defaults.setValue(downloadURL.absoluteString, forKey: "\(defaultsPrefix).model-download-url")
+    defaults.setValue(modelHash, forKey: "\(defaultsPrefix).model-hash")
+    defaults.setValue(size, forKey: "\(defaultsPrefix).model-size")
+    defaults.setValue(modelPath, forKey: "\(defaultsPrefix).model-path")
   }
 }

@@ -16,10 +16,4 @@
 
 @implementation FIRCLSMockSettings
 
-// Synthesizing so we can override these values with setters and getters
-// and bypass the normal functionality
-@synthesize orgID;
-@synthesize fetchedBundleID;
-@synthesize shouldUseNewReportEndpoint;
-
 @end

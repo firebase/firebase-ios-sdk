@@ -29,8 +29,7 @@
   dispatch_once(&onceToken, ^{
 #if defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
     if (@available(iOS 13.0, *)) {
-      UIWindowScene *foregroundedScene = [[self class] foregroundedScene];
-      UIWindowForModal = [[UIWindow alloc] initWithWindowScene:foregroundedScene];
+      UIWindowForModal = [[self class] iOS13PlusWindow];
     } else {
 #endif  // defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
       UIWindowForModal = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
@@ -49,8 +48,7 @@
   dispatch_once(&onceToken, ^{
 #if defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
     if (@available(iOS 13.0, *)) {
-      UIWindowScene *foregroundedScene = [[self class] foregroundedScene];
-      UIWindowForBanner = [[FIRIAMBannerViewUIWindow alloc] initWithWindowScene:foregroundedScene];
+      UIWindowForBanner = [[self class] iOS13PlusBannerWindow];
     } else {
 #endif  // defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
       UIWindowForBanner =
@@ -71,8 +69,7 @@
   dispatch_once(&onceToken, ^{
 #if defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
     if (@available(iOS 13.0, *)) {
-      UIWindowScene *foregroundedScene = [[self class] foregroundedScene];
-      UIWindowForImageOnly = [[UIWindow alloc] initWithWindowScene:foregroundedScene];
+      UIWindowForImageOnly = [[self class] iOS13PlusWindow];
     } else {
 #endif  // defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
       UIWindowForImageOnly = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
@@ -94,6 +91,25 @@
   }
   return nil;
 }
+
++ (UIWindow *)iOS13PlusWindow API_AVAILABLE(ios(13.0)) {
+  UIWindowScene *foregroundedScene = [[self class] foregroundedScene];
+  if (foregroundedScene.delegate) {
+    return [[UIWindow alloc] initWithWindowScene:foregroundedScene];
+  } else {
+    return [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+  }
+}
+
++ (FIRIAMBannerViewUIWindow *)iOS13PlusBannerWindow API_AVAILABLE(ios(13.0)) {
+  UIWindowScene *foregroundedScene = [[self class] foregroundedScene];
+  if (foregroundedScene.delegate) {
+    return [[FIRIAMBannerViewUIWindow alloc] initWithWindowScene:foregroundedScene];
+  } else {
+    return [[FIRIAMBannerViewUIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+  }
+}
+
 #endif
 @end
 

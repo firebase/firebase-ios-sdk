@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import Foundation
+import FirebaseCore
 
 /// Possible errors with model downloading.
 public enum DownloadError: Error, Equatable {
@@ -31,9 +32,9 @@ public enum DownloadError: Error, Equatable {
 }
 
 /// Possible errors with locating model on device.
-public enum DownloadedModelError: Error {
+public enum DownloadedModelError: Error, Equatable {
   /// File system error.
-  case fileIOError
+  case fileIOError(description: String)
   /// Model not found on device.
   case notFound
 }
@@ -49,7 +50,54 @@ public enum ModelDownloadType {
 }
 
 /// Downloader to manage custom model downloads.
-public struct ModelDownloader {
+public class ModelDownloader {
+  /// Name of the app associated with this instance of ModelDownloader.
+  private let appName: String
+
+  /// Shared dictionary mapping app name to a specific instance of model downloader.
+  // TODO: Switch to using Firebase components.
+  private static var modelDownloaderDictionary: [String: ModelDownloader] = [:]
+
+  /// Private init for downloader.
+  private init(app: FirebaseApp) {
+    appName = app.name
+    NotificationCenter.default.addObserver(
+      self,
+      selector: #selector(deleteModelDownloader),
+      name: Notification.Name("FIRAppDeleteNotification"),
+      object: nil
+    )
+  }
+
+  /// Handles app deletion notification.
+  @objc private func deleteModelDownloader(notification: Notification) {
+    if let userInfo = notification.userInfo,
+      let appName = userInfo["FIRAppNameKey"] as? String {
+      ModelDownloader.modelDownloaderDictionary.removeValue(forKey: appName)
+      // TODO: Clean up user defaults
+      // TODO: Clean up local instances of app
+    }
+  }
+
+  /// Model downloader with default app.
+  public static func modelDownloader() -> ModelDownloader {
+    guard let defaultApp = FirebaseApp.app() else {
+      fatalError("Default Firebase app not configured.")
+    }
+    return modelDownloader(app: defaultApp)
+  }
+
+  /// Model Downloader with custom app.
+  public static func modelDownloader(app: FirebaseApp) -> ModelDownloader {
+    if let downloader = modelDownloaderDictionary[app.name] {
+      return downloader
+    } else {
+      let downloader = ModelDownloader(app: app)
+      modelDownloaderDictionary[app.name] = downloader
+      return downloader
+    }
+  }
+
   /// Downloads a custom model to device or gets a custom model already on device, w/ optional handler for progress.
   public func getModel(name modelName: String, downloadType: ModelDownloadType,
                        conditions: ModelDownloadConditions,

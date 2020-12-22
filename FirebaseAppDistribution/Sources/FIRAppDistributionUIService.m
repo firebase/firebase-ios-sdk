@@ -14,7 +14,7 @@
 
 #import "FirebaseAppDistribution/Sources/FIRAppDistributionUIService.h"
 #import "FirebaseAppDistribution/Sources/FIRFADLogger.h"
-#import "FirebaseAppDistribution/Sources/Public/FIRAppDistribution.h"
+#import "FirebaseAppDistribution/Sources/Public/FirebaseAppDistribution/FIRAppDistribution.h"
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 #import <AuthenticationServices/AuthenticationServices.h>

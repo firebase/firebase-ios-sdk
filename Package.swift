@@ -22,7 +22,7 @@
 
 import PackageDescription
 
-let firebaseVersion = "7.1.0"
+let firebaseVersion = "7.3.1"
 
 let package = Package(
   name: "Firebase",
@@ -35,6 +35,10 @@ let package = Package(
     .library(
       name: "FirebaseAuth",
       targets: ["FirebaseAuth"]
+    ),
+    .library(
+      name: "FirebaseAppDistribution-Beta",
+      targets: ["FirebaseAppDistributionTarget"]
     ),
     .library(
       name: "FirebaseCrashlytics",
@@ -102,7 +106,7 @@ let package = Package(
       name: "nanopb",
       url: "https://github.com/firebase/nanopb.git",
       // This revision adds SPM enablement to the 0.3.9.6 release tag.
-      "2.30906.0" ..< "2.30907.0"
+      "2.30907.0" ..< "2.30908.0"
     ),
     .package(name: "abseil",
              url: "https://github.com/firebase/abseil-cpp-SwiftPM.git",
@@ -207,7 +211,6 @@ let package = Package(
       name: "FirebaseAnalyticsWrapper",
       dependencies: [
         .target(name: "FirebaseAnalytics", condition: .when(platforms: [.iOS])),
-        .target(name: "FIRAnalyticsConnector", condition: .when(platforms: [.iOS])),
         .target(name: "GoogleAppMeasurement", condition: .when(platforms: [.iOS])),
         "FirebaseCore",
         "FirebaseInstallations",
@@ -227,18 +230,42 @@ let package = Package(
     ),
     .binaryTarget(
       name: "FirebaseAnalytics",
-      url: "https://dl.google.com/firebase/ios/swiftpm/7.1.0/FirebaseAnalytics.zip",
-      checksum: "a374cbaecd629d14d6b365b0cc2c28744170ba9372d337c7b99df2c6e16e9044"
-    ),
-    .binaryTarget(
-      name: "FIRAnalyticsConnector",
-      url: "https://dl.google.com/firebase/ios/swiftpm/7.1.0/FIRAnalyticsConnector.zip",
-      checksum: "4510ff862833307f76f1392e43d82639966e052bdb58ee6b10005839298c0197"
+      url: "https://dl.google.com/firebase/ios/swiftpm/7.3.0/FirebaseAnalytics.zip",
+      checksum: "c1d7a3750c451eb35bb1b43973607ac228d46192d1a7129c6accafa79419e8dd"
     ),
     .binaryTarget(
       name: "GoogleAppMeasurement",
-      url: "https://dl.google.com/firebase/ios/swiftpm/7.1.0/GoogleAppMeasurement.zip",
-      checksum: "b0062d581e1bde54a1f6935bde1a49c6718a2a471825e02ab364e2dd8aef69c2"
+      url: "https://dl.google.com/firebase/ios/swiftpm/7.3.0/GoogleAppMeasurement.zip",
+      checksum: "d1543ebb82ffbefd978737a8ec6c970730b0bd03b541f009c6fb2e6794d94d41"
+    ),
+
+    .target(
+      name: "FirebaseAppDistributionTarget",
+      dependencies: [.target(name: "FirebaseAppDistribution",
+                             condition: .when(platforms: [.iOS]))],
+      path: "SwiftPM-PlatformExclude/FirebaseAppDistributionWrap"
+    ),
+    .target(
+      name: "FirebaseAppDistribution",
+      dependencies: ["FirebaseCore",
+                     "FirebaseInstallations",
+                     "GoogleDataTransport",
+                     "GoogleUtilities_AppDelegateSwizzler",
+                     "GoogleUtilities_UserDefaults"],
+      path: "FirebaseAppDistribution/Sources",
+      publicHeadersPath: "Public",
+      cSettings: [
+        .headerSearchPath("../../"),
+      ]
+    ),
+    .testTarget(
+      name: "AppDistributionUnit",
+      dependencies: ["FirebaseAppDistribution", "OCMock"],
+      path: "FirebaseAppDistribution/Tests/Unit",
+      resources: [.process("Resources")],
+      cSettings: [
+        .headerSearchPath("../../.."),
+      ]
     ),
 
     .target(
@@ -729,6 +756,8 @@ let package = Package(
       dependencies: [
         "FirebaseAuth",
         "FirebaseABTesting",
+        .target(name: "FirebaseAppDistribution",
+                condition: .when(platforms: [.iOS])),
         "Firebase",
         "FirebaseCrashlytics",
         "FirebaseCore",
@@ -770,6 +799,8 @@ let package = Package(
       dependencies: [
         "FirebaseAuth",
         "FirebaseABTesting",
+        .target(name: "FirebaseAppDistribution",
+                condition: .when(platforms: [.iOS])),
         "Firebase",
         "FirebaseCrashlytics",
         "FirebaseCore",

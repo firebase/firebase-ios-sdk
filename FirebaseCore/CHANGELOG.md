@@ -1,3 +1,9 @@
+# Firebase 7.4.0
+- [changed] Patch update to nanopb 0.3.9.7 that fixes a memory leak and other issues. (#7090)
+
+# Firebase 7.3.0
+- [added] Added FirebaseAppDistribution-Beta product to Swift Package Manager. (#7045)
+
 # Firebase 7.2.0
 - [fixed] Reduced `FirebaseApp.configure()` and `+[FIRApp registerInternalLibrary:withName:]` impact on app launch time. (#6902)
 - [added] Added arm64 simulator support to support new Apple silicon based Macs.

@@ -25,7 +25,11 @@ options=(
   ' $'
 )
 
+# TODO(https://github.com/nanopb/nanopb/pull/622) remove Protogen exceptions
+# likely in a nanopb release after 0.3.9.7.
+
 git grep "${options[@]}" -- \
+    ':(exclude)Crashlytics/Protogen/nanopb' \
     ':(exclude)Crashlytics/ProtoSupport' \
     ':(exclude)Crashlytics/UnitTests/Data' \
     ':(exclude)Firebase/CoreDiagnostics/FIRCDLibrary/Protogen/nanopb' \

@@ -34,36 +34,20 @@ extension ModelInfoResponse {
 
 /// Model info retriever for a model from local user defaults or server.
 class ModelInfoRetriever: NSObject {
-  /// Current Firebase app.
-  var app: FirebaseApp
+  /// Current Firebase app options
+  private var options: FirebaseOptions
   /// Model info associated with model.
   var modelInfo: ModelInfo?
   /// Model name.
   var modelName: String
   /// Firebase installations.
   var installations: Installations
-  /// User defaults associated with model.
-  var defaults: UserDefaults
 
   /// Associate model info retriever with current Firebase app, and model name.
-  init(app: FirebaseApp, modelName: String, defaults: UserDefaults = .firebaseMLDefaults) {
-    self.app = app
+  init(modelName: String, options: FirebaseOptions, installations: Installations) {
     self.modelName = modelName
-    self.defaults = defaults
-    installations = Installations.installations(app: app)
-  }
-
-  /// Build custom model object from model info.
-  func buildModel() -> CustomModel? {
-    /// Build custom model only if model info is filled out, and model file is already on device.
-    guard let info = modelInfo, let path = info.path else { return nil }
-    let model = CustomModel(
-      name: info.name,
-      size: info.size,
-      path: path,
-      hash: info.modelHash
-    )
-    return model
+    self.options = options
+    self.installations = installations
   }
 }
 
@@ -86,8 +70,8 @@ extension ModelInfoRetriever {
 
   /// Construct model fetch base URL.
   var modelInfoFetchURL: URL {
-    let projectID = app.options.projectID ?? ""
-    let apiKey = app.options.apiKey
+    let projectID = options.projectID ?? ""
+    let apiKey = options.apiKey
     var components = URLComponents()
     components.scheme = "https"
     components.host = "firebaseml.googleapis.com"
@@ -164,8 +148,12 @@ extension ModelInfoRetriever {
                     .invalidHTTPResponseErrorDescription))
                 return
               }
-              self.saveModelInfo(data: data, modelHash: modelHash)
-              completion(nil)
+              do {
+                try self.saveModelInfo(data: data, modelHash: modelHash)
+                completion(nil)
+              } catch {
+                completion(.internalError(description: error.localizedDescription))
+              }
             case 304:
               completion(nil)
             case 404:
@@ -189,15 +177,23 @@ extension ModelInfoRetriever {
   }
 
   /// Save model info to user defaults.
-  func saveModelInfo(data: Data, modelHash: String) {
+  func saveModelInfo(data: Data, modelHash: String) throws {
     let decoder = JSONDecoder()
-    guard let modelInfoJSON = try? decoder.decode(ModelInfoResponse.self, from: data)
-    else { return }
-    let modelInfo = ModelInfo(app: app, name: modelName, defaults: defaults)
-    modelInfo.downloadURL = modelInfoJSON.downloadURL
+    guard let modelInfoJSON = try? decoder.decode(ModelInfoResponse.self, from: data) else {
+      throw DownloadError
+        .internalError(description: "Failed to decode model info response from server.")
+    }
     // TODO: Possibly improve handling invalid server responses.
-    modelInfo.size = Int(modelInfoJSON.size) ?? 0
-    modelInfo.modelHash = modelHash
-    self.modelInfo = modelInfo
+    guard let downloadURL = URL(string: modelInfoJSON.downloadURL) else {
+      throw DownloadError.internalError(description: "Invalid model download URL.")
+    }
+    let modelHash = modelHash
+    let size = Int(modelInfoJSON.size) ?? 0
+    modelInfo = ModelInfo(
+      name: modelName,
+      downloadURL: downloadURL,
+      modelHash: modelHash,
+      size: size
+    )
   }
 }

@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name                    = 'FirebaseStorageSwift'
-  s.version                 = '7.1.0-beta'
+  s.version                 = '7.3.0-beta'
   s.summary                 = 'Swift Extensions for Google Cloud Storage'
 
   s.description      = <<-DESC

@@ -14,6 +14,7 @@
 
 import XCTest
 @testable import FirebaseCore
+@testable import FirebaseInstallations
 @testable import FirebaseMLModelDownloader
 
 extension UserDefaults {
@@ -47,9 +48,9 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
     }
     let testModelName = "image-classification"
     let modelInfoRetriever = ModelInfoRetriever(
-      app: testApp,
       modelName: testModelName,
-      defaults: .getTestInstance()
+      options: testApp.options,
+      installations: Installations.installations(app: testApp)
     )
     let expectation = self.expectation(description: "Wait for FIS auth token.")
     modelInfoRetriever.getAuthToken(completion: { result in
@@ -73,9 +74,9 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
     }
     let testModelName = "pose-detection"
     let modelInfoRetriever = ModelInfoRetriever(
-      app: testApp,
       modelName: testModelName,
-      defaults: .getTestInstance()
+      options: testApp.options,
+      installations: Installations.installations(app: testApp)
     )
     let downloadExpectation = expectation(description: "Wait for model info to download.")
     modelInfoRetriever.downloadModelInfo(completion: { error in
@@ -84,8 +85,7 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
         XCTFail("Empty model info.")
         return
       }
-      XCTAssertNotEqual(modelInfo.downloadURL, "")
-      XCTAssertNotEqual(modelInfo.modelHash, "")
+      XCTAssertNotNil(modelInfo.modelHash)
       XCTAssertGreaterThan(modelInfo.size, 0)
       downloadExpectation.fulfill()
     })
@@ -99,12 +99,57 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
         XCTFail("Empty model info.")
         return
       }
-      XCTAssertNotEqual(modelInfo.downloadURL, "")
+      XCTAssertNotNil(modelInfo.downloadURL)
       XCTAssertNotEqual(modelInfo.modelHash, "")
       XCTAssertGreaterThan(modelInfo.size, 0)
       retrieveExpectation.fulfill()
     })
 
     waitForExpectations(timeout: 500, handler: nil)
+  }
+
+  /// Test to download model file - makes an actual network call.
+  func testResumeModelDownload() {
+    let testApp = FirebaseApp.app()!
+    let functionName = #function.dropLast(2)
+    let testModelName = "\(functionName)-test-model"
+    let modelInfoRetriever = ModelInfoRetriever(
+      modelName: testModelName,
+      options: testApp.options,
+      installations: Installations.installations(app: testApp)
+    )
+    let urlString =
+      "https://tfhub.dev/tensorflow/lite-model/ssd_mobilenet_v1/1/metadata/1?lite-format=tflite"
+    let url = URL(string: urlString)!
+
+    modelInfoRetriever.modelInfo = ModelInfo(
+      name: testModelName,
+      downloadURL: url,
+      modelHash: "mock-valid-hash",
+      size: 10
+    )
+    let expectation = self.expectation(description: "Wait for model to download.")
+    let modelDownloadManager = ModelDownloadTask(
+      modelInfo: modelInfoRetriever.modelInfo!, appName: testApp.name,
+      progressHandler: { progress in
+        XCTAssertNotNil(progress)
+      }
+    ) { result in
+      switch result {
+      case let .success(model):
+        guard let modelPath = URL(string: model.path) else {
+          XCTFail("Invalid or empty model path.")
+          return
+        }
+        XCTAssertTrue(ModelFileManager.isFileReachable(at: modelPath))
+      case let .failure(error):
+        XCTFail(error.localizedDescription)
+      }
+      expectation.fulfill()
+    }
+
+    modelDownloadManager.resumeModelDownload()
+    waitForExpectations(timeout: 5, handler: nil)
+    XCTAssertEqual(modelDownloadManager.downloadStatus, .completed)
   }
 }
