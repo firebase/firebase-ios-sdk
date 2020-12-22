@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebasePerformance/Sources/Loggers/FPRGDTCCLogger.h"
-#import "FirebasePerformance/Sources/Loggers/FPRGDTCCLogger_Private.h"
+#import "FirebasePerformance/Sources/Loggers/FPRGDTLogger.h"
+#import "FirebasePerformance/Sources/Loggers/FPRGDTLogger_Private.h"
 
 #import "FirebasePerformance/Sources/Configurations/FPRConfigurations.h"
 
@@ -25,20 +25,16 @@
 
 #import "FirebasePerformance/ProtoSupport/PerfMetric.pbobjc.h"
 
-@implementation FPRGDTCCLogger
+@implementation FPRGDTLogger
 
 - (instancetype)initWithLogSource:(NSInteger)logSource {
   if (self = [super init]) {
     _logSource = logSource;
 
-    _queue = dispatch_queue_create("com.google.FPRGDTCCLogger", DISPATCH_QUEUE_SERIAL);
+    _queue = dispatch_queue_create("com.google.FPRGDTLogger", DISPATCH_QUEUE_SERIAL);
     _configurations = [FPRConfigurations sharedInstance];
     FPRGDTLogSampler *logSampler = [[FPRGDTLogSampler alloc] init];
     FPRGDTRateLimiter *rateLimiter = [[FPRGDTRateLimiter alloc] init];
-
-    _gdtcctTransport = [[GDTCORTransport alloc] initWithMappingID:@(logSource).stringValue
-                                                     transformers:@[ logSampler, rateLimiter ]
-                                                           target:kGDTCORTargetCCT];
 
     _gdtfllTransport = [[GDTCORTransport alloc] initWithMappingID:@(logSource).stringValue
                                                      transformers:@[ logSampler, rateLimiter ]
@@ -59,10 +55,7 @@
 }
 
 - (void)logEvent:(FPRMSGPerfMetric *)event {
-  GDTCORTransport *eventTransporter = self.gdtcctTransport;
-  if ([self shouldSendEventToFll:event]) {
-    eventTransporter = self.gdtfllTransport;
-  }
+  GDTCORTransport *eventTransporter = self.gdtfllTransport;
 
   dispatch_async(self.queue, ^{
     GDTCOREvent *gdtEvent = [eventTransporter eventForTransport];
@@ -74,18 +67,6 @@
     gdtEvent.dataObject = [FPRGDTEvent gdtEventForPerfMetric:event];
     [eventTransporter sendDataEvent:gdtEvent];
   });
-}
-
-- (BOOL)shouldSendEventToFll:(FPRMSGPerfMetric *)event {
-  return ([self.configurations fllTransportPercentage] >= [self instanceSeedForEvent:event]);
-}
-
-- (float)instanceSeedForEvent:(FPRMSGPerfMetric *)event {
-  if (_instanceSeed == -1.0) {
-    // Seed is a float value with range [1 - 100].
-    _instanceSeed = (float)([event.applicationInfo.appInstanceId hash] % 100 + 1);
-  }
-  return _instanceSeed;
 }
 
 @end

@@ -1,3 +1,10 @@
+# Version 7.3.1(Unreleased)
+* Deprecate Clearcut event transport mechanism.
+
+# Version 7.3.0
+* Add blocklist for GoogleDataTransport upload URLs.
+* Update the event transport mechanism to open sourced GoogleDataTransport.
+
 # Version 7.3.0
 * Add blocklist for GoogleDataTransport upload URLs.
 * Update the event transport mechanism to open sourced GoogleDataTransport.

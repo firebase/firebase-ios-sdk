@@ -15,7 +15,7 @@
 #import "FirebasePerformance/ProtoSupport/PerfMetric.pbobjc.h"
 #import "FirebasePerformance/Sources/FPRClient.h"
 
-@class FPRGDTCCLogger;
+@class FPRGDTLogger;
 @class FPRConfigurations;
 @class FIRInstallations;
 
@@ -28,7 +28,7 @@
 @property(nonatomic, getter=isConfigured, readwrite) BOOL configured;
 
 /** GDT Logger to transmit Fireperf events to Google Data Transport. */
-@property(nonatomic) FPRGDTCCLogger *gdtLogger;
+@property(nonatomic) FPRGDTLogger *gdtLogger;
 
 /** The queue group all FPRClient work will run on. Used for testing only. */
 @property(nonatomic, readonly) dispatch_group_t eventsQueueGroup;
@@ -45,17 +45,17 @@
 /**
  * Determines the log directory path in the caches directory.
  *
- * @return The directory in which Clearcut logs are stored.
+ * @return The directory in which Fll logs are stored.
  */
 + (NSString *)logDirectoryPath;
 
 /**
- * Cleans up the log directory path in the cache directory created for Clearcut logs storage.
+ * Cleans up the log directory path in the cache directory created for Fll logs storage.
  *
  * @remark This method (cleanup logic) should stay for a while until all of our apps have migrated
  * to a version which includes this logic.
  */
-+ (void)cleanupClearcutCacheDirectory;
++ (void)cleanupFllCacheDirectory;
 
 /** Performs post processing and logs a FPRMSGPerfMetric object to Google Data Transport.
  *  @param event Reference to a FPRMSGPerfMetric proto object.

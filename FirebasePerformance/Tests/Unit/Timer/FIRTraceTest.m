@@ -162,7 +162,7 @@
   XCTAssertEqual(trace.stages.count, 2);
 }
 
-/** Validates that stopping a stage does not trigger an event being sent to Clearcut. */
+/** Validates that stopping a stage does not trigger an event being sent to Fll */
 - (void)testStageStopDoesNotTriggerEventSend {
   FIRTrace *trace = [[FIRTrace alloc] initWithName:@"Random"];
   id mock = [OCMockObject partialMockForObject:[FPRClient sharedInstance]];
@@ -174,7 +174,7 @@
   [trace stop];
 }
 
-/** Validates that stopping a trace does trigger an event being sent to Clearcut. */
+/** Validates that stopping a trace does trigger an event being sent to Fll. */
 - (void)testTraceStopDoesTriggerEventSend {
   FIRTrace *trace = [[FIRTrace alloc] initWithName:@"Random"];
   id mock = [OCMockObject partialMockForObject:[FPRClient sharedInstance]];

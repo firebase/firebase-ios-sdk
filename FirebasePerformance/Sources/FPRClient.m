@@ -26,7 +26,7 @@
 #import "FirebasePerformance/Sources/FPRConsoleLogger.h"
 #import "FirebasePerformance/Sources/FPRProtoUtils.h"
 #import "FirebasePerformance/Sources/Instrumentation/FPRInstrumentation.h"
-#import "FirebasePerformance/Sources/Loggers/FPRGDTCCLogger.h"
+#import "FirebasePerformance/Sources/Loggers/FPRGDTLogger.h"
 #import "FirebasePerformance/Sources/Timer/FIRTrace+Internal.h"
 #import "FirebasePerformance/Sources/Timer/FIRTrace+Private.h"
 
@@ -121,7 +121,7 @@
 
   dispatch_group_async(self.eventsQueueGroup, self.eventsQueue, ^{
     // Create the Logger for the Perf SDK events to be sent to Google Data Transport.
-    self.gdtLogger = [[FPRGDTCCLogger alloc] initWithLogSource:logSource];
+    self.gdtLogger = [[FPRGDTLogger alloc] initWithLogSource:logSource];
 
     // Create telephony network information object ahead of time to avoid runtime delays.
     FPRNetworkInfo();
@@ -129,7 +129,7 @@
     // Update the configuration flags.
     [self.configuration update];
 
-    [FPRClient cleanupClearcutCacheDirectory];
+    [FPRClient cleanupFllCacheDirectory];
   });
 
   // Set up instrumentation.
@@ -252,9 +252,9 @@
       }];
 }
 
-#pragma mark - Clearcut log directory removal methods
+#pragma mark - FLL log directory removal methods
 
-+ (void)cleanupClearcutCacheDirectory {
++ (void)cleanupFllCacheDirectory {
   NSString *logDirectoryPath = [FPRClient logDirectoryPath];
 
   if (logDirectoryPath != nil) {

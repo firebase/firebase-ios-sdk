@@ -17,8 +17,8 @@
 #import "FirebasePerformance/Sources/Configurations/FPRConfigurations+Private.h"
 #import "FirebasePerformance/Sources/FPRClient+Private.h"
 #import "FirebasePerformance/Sources/FPRClient.h"
-#import "FirebasePerformance/Sources/Loggers/FPRGDTCCLogger.h"
-#import "FirebasePerformance/Sources/Loggers/FPRGDTCCLogger_Private.h"
+#import "FirebasePerformance/Sources/Loggers/FPRGDTLogger.h"
+#import "FirebasePerformance/Sources/Loggers/FPRGDTLogger_Private.h"
 
 #import "FirebasePerformance/Tests/Unit/Configurations/FPRFakeRemoteConfig.h"
 #import "FirebasePerformance/Tests/Unit/FPRTestCase.h"
@@ -59,10 +59,10 @@
   self.client.configuration = self.configurations;
 
   // Arrange gdtLogger object for event dispatch.
-  self.client.gdtLogger = [[FPRGDTCCLogger alloc] initWithLogSource:1];
+  self.client.gdtLogger = [[FPRGDTLogger alloc] initWithLogSource:1];
   GDTCORTransportFake *fakeGdtTransport =
-      [[GDTCORTransportFake alloc] initWithMappingID:@"1" transformers:nil target:kGDTCORTargetCCT];
-  self.client.gdtLogger.gdtcctTransport = fakeGdtTransport;
+      [[GDTCORTransportFake alloc] initWithMappingID:@"1" transformers:nil target:kGDTCORTargetFLL];
+  self.client.gdtLogger.gdtfllTransport = fakeGdtTransport;
 }
 
 /** Validates if the gdtTransport logger has received trace perfMetric. */
@@ -79,7 +79,7 @@
   // Validate the event is received by gdtTransport logger.
   dispatch_sync(self.client.gdtLogger.queue, ^{
     GDTCORTransportFake *fakeGdtTransport =
-        (GDTCORTransportFake *)self.client.gdtLogger.gdtcctTransport;
+        (GDTCORTransportFake *)self.client.gdtLogger.gdtfllTransport;
     XCTAssertEqual(fakeGdtTransport.logEvents.count, 1);
     GDTCOREvent *event = fakeGdtTransport.logEvents.firstObject;
     XCTAssertEqualObjects([event.dataObject transportBytes], perfMetric.data);
@@ -100,7 +100,7 @@
   // Validate the event is received by gdtTransport logger.
   dispatch_sync(self.client.gdtLogger.queue, ^{
     GDTCORTransportFake *fakeGdtTransport =
-        (GDTCORTransportFake *)self.client.gdtLogger.gdtcctTransport;
+        (GDTCORTransportFake *)self.client.gdtLogger.gdtfllTransport;
     XCTAssertEqual(fakeGdtTransport.logEvents.count, 1);
     GDTCOREvent *event = fakeGdtTransport.logEvents.firstObject;
     XCTAssertEqualObjects([event.dataObject transportBytes], perfMetric.data);
@@ -121,7 +121,7 @@
   // Validate the event is received by gdtTransport logger.
   dispatch_sync(self.client.gdtLogger.queue, ^{
     GDTCORTransportFake *fakeGdtTransport =
-        (GDTCORTransportFake *)self.client.gdtLogger.gdtcctTransport;
+        (GDTCORTransportFake *)self.client.gdtLogger.gdtfllTransport;
     XCTAssertEqual(fakeGdtTransport.logEvents.count, 1);
     GDTCOREvent *event = fakeGdtTransport.logEvents.firstObject;
     XCTAssertEqualObjects([event.dataObject transportBytes], perfMetric.data);
@@ -143,7 +143,7 @@
   // Validate the event is not received by gdtTransport logger.
   dispatch_sync(self.client.gdtLogger.queue, ^{
     GDTCORTransportFake *fakeGdtTransport =
-        (GDTCORTransportFake *)self.client.gdtLogger.gdtcctTransport;
+        (GDTCORTransportFake *)self.client.gdtLogger.gdtfllTransport;
     XCTAssertEqual(fakeGdtTransport.logEvents.count, 0);
   });
 }
@@ -164,7 +164,7 @@
   // Validate the event is not received by gdtTransport logger.
   dispatch_sync(self.client.gdtLogger.queue, ^{
     GDTCORTransportFake *fakeGdtTransport =
-        (GDTCORTransportFake *)self.client.gdtLogger.gdtcctTransport;
+        (GDTCORTransportFake *)self.client.gdtLogger.gdtfllTransport;
     XCTAssertEqual(fakeGdtTransport.logEvents.count, 0);
   });
 
@@ -178,13 +178,13 @@
   // Validate the event is received by gdtTransport logger.
   dispatch_sync(self.client.gdtLogger.queue, ^{
     GDTCORTransportFake *fakeGdtTransport =
-        (GDTCORTransportFake *)self.client.gdtLogger.gdtcctTransport;
+        (GDTCORTransportFake *)self.client.gdtLogger.gdtfllTransport;
     XCTAssertEqual(fakeGdtTransport.logEvents.count, 1);
   });
 }
 
-/** Validates that the Clearcut log directory removal method is called. */
-- (void)testClearcutLogDirectoryCleanupInitiates {
+/** Validates that the Fll log directory removal method is called. */
+- (void)testFllLogDirectoryCleanupInitiates {
   id clientMock = OCMClassMock(self.client.class);
   [self.client startWithConfiguration:[[FPRConfiguration alloc] initWithAppID:@"RandomAppId"
                                                                        APIKey:nil
@@ -194,14 +194,14 @@
   // Wait for async job to initiate cleanup logic.
   dispatch_group_wait(self.client.eventsQueueGroup, DISPATCH_TIME_FOREVER);
 
-  OCMVerify([clientMock cleanupClearcutCacheDirectory]);
+  OCMVerify([clientMock cleanupFllCacheDirectory]);
 }
 
 /**
- * Validates that the log directory path in the cache directory created for Clearcut logs storage
+ * Validates that the log directory path in the cache directory created for Fll logs storage
  * gets removed (if exist).
  */
-- (void)testValidateClearcutLogDirectoryCleanupIfExists {
+- (void)testValidateFllLogDirectoryCleanupIfExists {
   // Create the log directory and make sure it exists.
   NSString *logDirectoryPath = [FPRClient logDirectoryPath];
   [[NSFileManager defaultManager] createDirectoryAtPath:logDirectoryPath
@@ -212,22 +212,22 @@
   BOOL logDirectoryExists = [[NSFileManager defaultManager] fileExistsAtPath:logDirectoryPath];
   XCTAssertTrue(logDirectoryExists);
 
-  [FPRClient cleanupClearcutCacheDirectory];
+  [FPRClient cleanupFllCacheDirectory];
 
   logDirectoryExists = [[NSFileManager defaultManager] fileExistsAtPath:logDirectoryPath];
   XCTAssertFalse(logDirectoryExists);
 }
 
 /**
- * Validates that the Clearcut log directory path removal logic doesn't explode if directory doesn't
+ * Validates that the Fll log directory path removal logic doesn't explode if directory doesn't
  * exist.
  */
-- (void)testValidateClearcutLogDirectoryCleanupIfNotExists {
+- (void)testValidateFllLogDirectoryCleanupIfNotExists {
   NSString *logDirectoryPath = [FPRClient logDirectoryPath];
   BOOL logDirectoryExists = [[NSFileManager defaultManager] fileExistsAtPath:logDirectoryPath];
 
   XCTAssertFalse(logDirectoryExists);
-  XCTAssertNoThrow([FPRClient cleanupClearcutCacheDirectory]);
+  XCTAssertNoThrow([FPRClient cleanupFllCacheDirectory]);
 }
 
 @end

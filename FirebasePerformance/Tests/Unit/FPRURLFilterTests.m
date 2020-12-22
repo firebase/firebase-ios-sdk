@@ -31,12 +31,6 @@
   [FPRURLFilter sharedInstance].disablePlist = YES;
 }
 
-/** Tests that the Clearcut upload URL is allowed. */
-- (void)testClearcutURLAllowed {
-  XCTAssertTrue(
-      [[FPRURLFilter sharedInstance] shouldInstrumentURL:@"https://play.googleapis.com/log"]);
-}
-
 /** Tests that the Clearcut upload URL is denied. */
 - (void)testFllClearcutURLDenied {
   XCTAssertFalse([[FPRURLFilter sharedInstance]

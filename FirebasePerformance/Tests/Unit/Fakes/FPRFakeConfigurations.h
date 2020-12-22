@@ -176,11 +176,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)setMemorySamplingFrequencyInBackgroundInMS:(uint32_t)frequency;
 
-#pragma mark - FLL related configurations.
-
-/** A fake representing a float value for transport percentage for FLL. Range [0-100]. */
-@property(nonatomic) float fllTransportPercentageValue;
-
 @end
 
 NS_ASSUME_NONNULL_END
