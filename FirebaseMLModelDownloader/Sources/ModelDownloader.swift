@@ -118,7 +118,9 @@ public class ModelDownloader {
     switch downloadType {
     case .localModel:
       if let localModel = getLocalModel(modelName: modelName) {
-        completion(.success(localModel))
+        DispatchQueue.main.async {
+          completion(.success(localModel))
+        }
       } else {
         getRemoteModel(
           modelName: modelName,
@@ -208,17 +210,24 @@ extension ModelDownloader {
         } else {
           guard let localModel = self.getLocalModel(modelName: modelName) else {
             /// This can only happen if local model info was suddenly wiped out in the middle of model info request and server response.
-            completion(
-              .failure(
-                .internalError(description: "Model unavailable due to deleted local model info.")
+            DispatchQueue.main.async {
+              completion(
+                .failure(
+                  .internalError(description: "Model unavailable due to deleted local model info.")
+                )
               )
-            )
+            }
             return
           }
-          completion(.success(localModel))
+
+          DispatchQueue.main.async {
+            completion(.success(localModel))
+          }
         }
       case let .failure(downloadError):
-        completion(.failure(downloadError))
+        DispatchQueue.main.async {
+          completion(.failure(downloadError))
+        }
       }
     }
   }

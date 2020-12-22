@@ -94,11 +94,15 @@ extension ModelDownloadTask: URLSessionDownloadDelegate {
     do {
       try ModelFileManager.moveFile(at: location, to: savedURL)
     } catch let error as DownloadError {
-      downloadHandlers
-        .completion(.failure(error))
+      DispatchQueue.main.async {
+        self.downloadHandlers
+          .completion(.failure(error))
+      }
     } catch {
-      downloadHandlers
-        .completion(.failure(.internalError(description: error.localizedDescription)))
+      DispatchQueue.main.async {
+        self.downloadHandlers
+          .completion(.failure(.internalError(description: error.localizedDescription)))
+      }
     }
 
     /// Generate local model info.
@@ -107,7 +111,9 @@ extension ModelDownloadTask: URLSessionDownloadDelegate {
     localModelInfo.writeToDefaults(defaults, appName: appName)
     /// Build model from model info.
     let model = CustomModel(localModelInfo: localModelInfo)
-    downloadHandlers.completion(.success(model))
+    DispatchQueue.main.async {
+      self.downloadHandlers.completion(.success(model))
+    }
   }
 
   func urlSession(_ session: URLSession,
@@ -119,6 +125,8 @@ extension ModelDownloadTask: URLSessionDownloadDelegate {
     /// Check if progress handler is unspecified.
     guard let progressHandler = downloadHandlers.progressHandler else { return }
     let calculatedProgress = Float(totalBytesWritten) / Float(totalBytesExpectedToWrite)
-    progressHandler(calculatedProgress)
+    DispatchQueue.main.async {
+      progressHandler(calculatedProgress)
+    }
   }
 }
