@@ -3169,15 +3169,15 @@
 
   __block BOOL done = NO;
 
+  [self waitForCompletionOf:writeRef setValue:@42];
+
   [readRef observeEventType:FIRDataEventTypeValue
                   withBlock:^(FIRDataSnapshot* snapshot) {
-                    id value = [snapshot value];
+                    NSNumber* value = [snapshot value];
                     if (value != nil && [value isEqualToNumber:@42]) {
                       done = YES;
                     }
                   }];
-
-  [self waitForCompletionOf:writeRef setValue:@42];
 
   WAIT_FOR(done);
   done = NO;
