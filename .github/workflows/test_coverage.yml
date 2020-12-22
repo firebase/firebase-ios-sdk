@@ -15,10 +15,21 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
         with:
-          fetch-depth: 0
+          fetch-depth: 2
+      - name: Test cache
+        id: get-test-file
+        uses: actions/cache@v2
+        with:
+          path: ~/tmp_coverage
+          key: ios-coverage-test
+      - name: Test
+        if: steps.get-test-file.outputs.cache-hit != 'true'
+        run: |
+          git log >> ~/tmp_coverage/log.txt
       - name: check files
         id: check_files
         run: |
+          cat ~/tmp_coverage/log.txt
           echo "git log"
           git log
           ./test.sh
