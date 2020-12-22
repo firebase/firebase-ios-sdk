@@ -28,6 +28,7 @@
 #import "FirebaseDatabase/Sources/FValueIndex.h"
 #import "FirebaseDatabase/Sources/Snapshot/FLeafNode.h"
 #import "FirebaseDatabase/Sources/Snapshot/FSnapshotUtilities.h"
+#import "FirebaseDatabase/Sources/Utilities/FNextPushId.h"
 #import "FirebaseDatabase/Sources/Utilities/FValidation.h"
 
 @implementation FIRDatabaseQuery
@@ -186,6 +187,34 @@
     return [self queryStartingAtInternal:startValue
                                 childKey:childKey
                                     from:@"queryStartingAtValue:childKey:"
+                          priorityMethod:NO];
+}
+
+- (FIRDatabaseQuery *)queryStartingAfterValue:(id)startAfterValue
+                                     childKey:(NSString *)childKey {
+    if ([self.queryParams.index isEqual:[FKeyIndex keyIndex]]) {
+        @throw [[NSException alloc]
+            initWithName:INVALID_QUERY_PARAM_ERROR
+                  reason:@"You must use queryStartingAtValue: instead of "
+                         @"queryStartingAtValue:childKey: when using "
+                         @"queryOrderedByKey:"
+                userInfo:nil];
+    }
+    if (childKey == nil) {
+        childKey = [FUtilities maxName];
+    } else {
+        NSInteger keyAsInt;
+        if ([FUtilities tryParseStringToInt:childKey asInt:&keyAsInt]) {
+            childKey = [FUtilities
+                ieee754StringForNumber:[NSNumber
+                                           numberWithInteger:(keyAsInt + 1)]];
+        } else {
+            childKey = [FNextPushId nextAfter:childKey];
+        }
+    }
+    return [self queryStartingAtInternal:startAfterValue
+                                childKey:childKey
+                                    from:@"queryStartingAfterValue:childKey:"
                           priorityMethod:NO];
 }
 

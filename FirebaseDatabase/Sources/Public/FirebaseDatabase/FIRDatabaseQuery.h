@@ -323,6 +323,23 @@ NS_SWIFT_NAME(DatabaseQuery)
                                   childKey:(nullable NSString *)childKey;
 
 /**
+ * queryStartingAfterValue:childKey: is used to generate a reference to a
+ * limited view of the data at this location. The FIRDatabaseQuery instance
+ * returned by queryStartingAfterValue:childKey will respond to events at nodes
+ * with a value greater than startAfterValue, or equal to startAfterValue and
+ * with a key greater than childKey. This is most useful when implementing
+ * pagination in a case where multiple nodes can match the startAfterValue.
+ *
+ * @param startAfterValue The lower bound, inclusive, for the value of data
+ * visible to the returned FIRDatabaseQuery
+ * @param childKey The lower bound, inclusive, for the key of nodes with value
+ * equal to startAfterValue
+ * @return A FIRDatabaseQuery instance, limited to data with value greater than
+ * or equal to startAfterValue
+ */
+-(FIRDatabaseQuery *)queryStartingAfterValue
+    : (nullable id)startAfterValue childKey : (nullable NSString *)childKey;
+/**
  * queryEndingAtValue: is used to generate a reference to a limited view of the
  * data at this location. The FIRDatabaseQuery instance returned by
  * queryEndingAtValue: will respond to events at nodes with a value less than or

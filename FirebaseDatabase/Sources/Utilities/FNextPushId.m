@@ -59,4 +59,29 @@ static NSString *const PUSH_CHARS =
     return [NSString stringWithString:id];
 }
 
++ (NSString *)nextAfter:(NSString *_Nonnull)key {
+    NSMutableString *next = [[NSMutableString alloc] init];
+    [next appendString:[key substringToIndex:8]];
+
+    int nextRandomSuffix[12];
+
+    int i;
+    for (i = 19; i >= 8 && [key characterAtIndex:i] == 63; i--) {
+        nextRandomSuffix[i] = 0;
+    }
+
+    nextRandomSuffix[i]++;
+
+    for (; i >= 8; i--) {
+        nextRandomSuffix[i] = [key characterAtIndex:i];
+    }
+
+    for (int i = 0; i < 12; i++) {
+        [next appendFormat:@"%C",
+                           [PUSH_CHARS characterAtIndex:nextRandomSuffix[i]]];
+    }
+
+    return next;
+}
+
 @end

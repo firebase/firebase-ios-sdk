@@ -28,6 +28,7 @@
 + (NSError *)errorForStatus:(NSString *)status andReason:(NSString *)reason;
 + (NSNumber *)intForString:(NSString *)string;
 + (NSString *)ieee754StringForNumber:(NSNumber *)val;
++ (BOOL)tryParseStringToInt:(NSString *)string asInt:(NSInteger *)integer;
 + (void)setLoggingEnabled:(BOOL)enabled;
 + (BOOL)getLoggingEnabled;
 

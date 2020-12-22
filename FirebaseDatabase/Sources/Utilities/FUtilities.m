@@ -319,6 +319,10 @@ void firebaseJobsTroll(void) {
     return str;
 }
 
++ (BOOL)tryParseStringToInt:(NSString *)string asInt:(NSInteger *)integer {
+    return tryParseStringToInt(string, integer);
+}
+
 static inline BOOL tryParseStringToInt(__unsafe_unretained NSString *str,
                                        NSInteger *integer) {
     // First do some cheap checks (NOTE: The below checks are significantly
