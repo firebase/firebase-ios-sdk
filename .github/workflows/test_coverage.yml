@@ -25,6 +25,7 @@ jobs:
       - name: Test
         if: steps.get-test-file.outputs.cache-hit != 'true'
         run: |
+          mkdir ~/tmp_coverage
           git log >> ~/tmp_coverage/log.txt
       - name: check files
         id: check_files
