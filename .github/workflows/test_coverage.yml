@@ -21,12 +21,13 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ~/tmp_coverage
-          key: ios-coverage-test
+          key: ios-coverage-test-${{github.event.number}}
       - name: Test
         if: steps.get-test-file.outputs.cache-hit != 'true'
         run: |
           mkdir ~/tmp_coverage
           git log >> ~/tmp_coverage/log.txt
+          echo ${{github.event.number}} >> ~/tmp_coverage/log.txt
       - name: check files
         id: check_files
         run: |
