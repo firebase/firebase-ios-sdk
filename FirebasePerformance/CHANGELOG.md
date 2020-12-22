@@ -1,4 +1,5 @@
-# Version 7.4.0(Unreleased)
+
+# Unreleased
 * Deprecate Clearcut event transport mechanism.
 
 # Version 7.3.0
