@@ -963,6 +963,110 @@ static NSString *const kUnknownErrorString =
   OCMVerifyAll(_mockBackend);
 }
 
+/** @fn testGetCredentialWithUIDelegateWithFirebaseAppIDWhileClientIdPresent
+    @brief Tests a successful invocation of @c getCredentialWithUIDelegte:completion: when the
+   client ID is present in the plist file, but the encoded app ID is the registered custom URL
+   scheme.
+ */
+- (void)testGetCredentialWithUIDelegateWithFirebaseAppIDWhileClientIdPresent {
+  id mockBundle = OCMClassMock([NSBundle class]);
+  OCMStub(ClassMethod([mockBundle mainBundle])).andReturn(mockBundle);
+  OCMStub([mockBundle objectForInfoDictionaryKey:@"CFBundleURLTypes"]).andReturn(@[
+    @{@"CFBundleURLSchemes" : @[ kFakeEncodedFirebaseAppID ]}
+  ]);
+  OCMStub([mockBundle bundleIdentifier]).andReturn(kFakeBundleID);
+
+  OCMStub([_mockOptions clientID]).andReturn(kFakeClientID);
+  _provider = [FIROAuthProvider providerWithProviderID:kFakeProviderID auth:_mockAuth];
+
+  OCMExpect([_mockBackend getProjectConfig:[OCMArg any] callback:[OCMArg any]])
+      .andCallBlock2(
+          ^(FIRGetProjectConfigRequest *request, FIRGetProjectConfigResponseCallback callback) {
+            XCTAssertNotNil(request);
+            dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
+              id mockGetProjectConfigResponse = OCMClassMock([FIRGetProjectConfigResponse class]);
+              OCMStub([mockGetProjectConfigResponse authorizedDomains]).andReturn(@[
+                kFakeAuthorizedDomain
+              ]);
+              callback(mockGetProjectConfigResponse, nil);
+            });
+          });
+
+  id mockUIDelegate = OCMProtocolMock(@protocol(FIRAuthUIDelegate));
+
+  // Expect view controller presentation by UIDelegate.
+  OCMExpect([_mockURLPresenter presentURL:OCMOCK_ANY
+                               UIDelegate:mockUIDelegate
+                          callbackMatcher:OCMOCK_ANY
+                               completion:OCMOCK_ANY])
+      .andDo(^(NSInvocation *invocation) {
+        __unsafe_unretained id unretainedArgument;
+        // Indices 0 and 1 indicate the hidden arguments self and _cmd.
+        // `presentURL` is at index 2.
+        [invocation getArgument:&unretainedArgument atIndex:2];
+        NSURL *presentURL = unretainedArgument;
+        XCTAssertEqualObjects(presentURL.scheme, @"https");
+        XCTAssertEqualObjects(presentURL.host, kFakeAuthorizedDomain);
+        XCTAssertEqualObjects(presentURL.path, @"/__/auth/handler");
+        NSDictionary *params = [FIRAuthWebUtils dictionaryWithHttpArgumentsString:presentURL.query];
+        XCTAssertEqualObjects(params[@"ibi"], kFakeBundleID);
+        XCTAssertEqualObjects(params[@"appId"], kFakeFirebaseAppID);
+        XCTAssertEqualObjects(params[@"apiKey"], kFakeAPIKey);
+        XCTAssertEqualObjects(params[@"authType"], @"signInWithRedirect");
+        XCTAssertNotNil(params[@"v"]);
+        // `callbackMatcher` is at index 4
+        [invocation getArgument:&unretainedArgument atIndex:4];
+        FIRAuthURLCallbackMatcher callbackMatcher = unretainedArgument;
+        NSMutableString *redirectURL = [NSMutableString
+            stringWithString:[kFakeEncodedFirebaseAppID
+                                 stringByAppendingString:kFakeRedirectURLResponseURL]];
+        // Add fake OAuthResponse to callback.
+        [redirectURL appendString:kFakeOAuthResponseURL];
+        // Verify that the URL is rejected by the callback matcher without the event ID.
+        XCTAssertFalse(callbackMatcher([NSURL URLWithString:redirectURL]));
+        [redirectURL appendString:@"%26eventId%3D"];
+        [redirectURL appendString:params[@"eventId"]];
+        NSURLComponents *originalComponents = [[NSURLComponents alloc] initWithString:redirectURL];
+        // Verify that the URL is accepted by the callback matcher with the matching event ID.
+        XCTAssertTrue(callbackMatcher([originalComponents URL]));
+        NSURLComponents *components = [originalComponents copy];
+        components.query = @"https";
+        XCTAssertFalse(callbackMatcher([components URL]));
+        components = [originalComponents copy];
+        components.host = @"badhost";
+        XCTAssertFalse(callbackMatcher([components URL]));
+        components = [originalComponents copy];
+        components.path = @"badpath";
+        XCTAssertFalse(callbackMatcher([components URL]));
+        components = [originalComponents copy];
+        components.query = @"badquery";
+        XCTAssertFalse(callbackMatcher([components URL]));
+
+        // `completion` is at index 5
+        [invocation getArgument:&unretainedArgument atIndex:5];
+        FIRAuthURLPresentationCompletion completion = unretainedArgument;
+        dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
+          completion(originalComponents.URL, nil);
+        });
+      });
+
+  XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
+  [_provider
+      getCredentialWithUIDelegate:mockUIDelegate
+                       completion:^(FIRAuthCredential *_Nullable credential,
+                                    NSError *_Nullable error) {
+                         XCTAssertTrue([NSThread isMainThread]);
+                         XCTAssertNil(error);
+                         XCTAssertTrue([credential isKindOfClass:[FIROAuthCredential class]]);
+                         FIROAuthCredential *OAuthCredential = (FIROAuthCredential *)credential;
+                         XCTAssertEqualObjects(kFakeOAuthResponseURL,
+                                               OAuthCredential.OAuthResponseURLString);
+                         [expectation fulfill];
+                       }];
+  [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
+  OCMVerifyAll(_mockBackend);
+}
+
 /** @fn testGetCredentialWithUIDelegateUseEmulator
     @brief Tests a successful invocation of @c getCredentialWithUIDelegte:completion: when using the
    emulator.
