@@ -71,3 +71,5 @@ Other optional arguments:
 - `--output-dir <output-dir>`
   - The directory to copy the built Zip file. If this is not set, the path to the Zip file will
   be logged to the console.
+- `--keep-build-artifacts`
+  - Keep the build artifacts.

@@ -150,7 +150,7 @@ enum CocoaPodUtils {
   @discardableResult
   static func installPods(_ pods: [VersionedPod],
                           inDir directory: URL,
-                          minimumIOSVersion: String,
+                          platform: Platform,
                           customSpecRepos: [URL]?,
                           localPodspecPath: URL?,
                           linkage: LinkageType) -> [String: PodInfo] {
@@ -171,7 +171,7 @@ enum CocoaPodUtils {
       try writePodfile(for: pods,
                        toDirectory: directory,
                        customSpecRepos: customSpecRepos,
-                       minimumIOSVersion: minimumIOSVersion,
+                       platform: platform,
                        localPodspecPath: localPodspecPath,
                        linkage: linkage)
     } catch let FileManager.FileError.directoryNotFound(path) {
@@ -300,7 +300,7 @@ enum CocoaPodUtils {
     }
   }
 
-  static func podInstallPrepare(inProjectDir projectDir: URL, paths: ZipBuilder.FilesystemPaths) {
+  static func podInstallPrepare(inProjectDir projectDir: URL, templateDir: URL) {
     do {
       // Create the directory and all intermediate directories.
       try FileManager.default.createDirectory(at: projectDir, withIntermediateDirectories: true)
@@ -310,7 +310,7 @@ enum CocoaPodUtils {
     }
     // Copy the Xcode project needed in order to be able to install Pods there.
     let templateFiles = Constants.ProjectPath.requiredFilesForBuilding.map {
-      paths.templateDir.appendingPathComponent($0)
+      templateDir.appendingPathComponent($0)
     }
     for file in templateFiles {
       // Each file should be copied to the temporary project directory with the same name.
@@ -414,7 +414,7 @@ enum CocoaPodUtils {
   /// is not empty.
   private static func generatePodfile(for pods: [VersionedPod],
                                       customSpecsRepos: [URL]?,
-                                      minimumIOSVersion: String,
+                                      platform: Platform,
                                       localPodspecPath: URL?,
                                       linkage: LinkageType) -> String {
     // Start assembling the Podfile.
@@ -440,9 +440,9 @@ enum CocoaPodUtils {
       podfile += "  use_frameworks! :linkage => :static\n"
     }
 
-    // Include the minimum iOS version.
+    // Include the platform and its minimum version.
     podfile += """
-    platform :ios, '\(minimumIOSVersion)'
+    platform :\(platform.name), '\(platform.minimumVersion)'
     target 'FrameworkMaker' do\n
     """
 
@@ -504,7 +504,7 @@ enum CocoaPodUtils {
   private static func writePodfile(for pods: [VersionedPod],
                                    toDirectory directory: URL,
                                    customSpecRepos: [URL]?,
-                                   minimumIOSVersion: String,
+                                   platform: Platform,
                                    localPodspecPath: URL?,
                                    linkage: LinkageType) throws {
     guard FileManager.default.directoryExists(at: directory) else {
@@ -516,7 +516,7 @@ enum CocoaPodUtils {
     let path = directory.appendingPathComponent("Podfile")
     let podfile = generatePodfile(for: pods,
                                   customSpecsRepos: customSpecRepos,
-                                  minimumIOSVersion: minimumIOSVersion,
+                                  platform: platform,
                                   localPodspecPath: localPodspecPath,
                                   linkage: linkage)
     do {
