@@ -129,7 +129,7 @@
     // Update the configuration flags.
     [self.configuration update];
 
-    [FPRClient cleanupFllCacheDirectory];
+    [FPRClient cleanupClearcutCacheDirectory];
   });
 
   // Set up instrumentation.
@@ -252,9 +252,9 @@
       }];
 }
 
-#pragma mark - FLL log directory removal methods
+#pragma mark - Clearcut log directory removal methods
 
-+ (void)cleanupFllCacheDirectory {
++ (void)cleanupClearcutCacheDirectory {
   NSString *logDirectoryPath = [FPRClient logDirectoryPath];
 
   if (logDirectoryPath != nil) {

@@ -45,17 +45,17 @@
 /**
  * Determines the log directory path in the caches directory.
  *
- * @return The directory in which Fll logs are stored.
+ * @return The directory in which Clearcut logs are stored.
  */
 + (NSString *)logDirectoryPath;
 
 /**
- * Cleans up the log directory path in the cache directory created for Fll logs storage.
+ * Cleans up the log directory path in the cache directory created for Clearcut logs storage.
  *
  * @remark This method (cleanup logic) should stay for a while until all of our apps have migrated
  * to a version which includes this logic.
  */
-+ (void)cleanupFllCacheDirectory;
++ (void)cleanupClearcutCacheDirectory;
 
 /** Performs post processing and logs a FPRMSGPerfMetric object to Google Data Transport.
  *  @param event Reference to a FPRMSGPerfMetric proto object.

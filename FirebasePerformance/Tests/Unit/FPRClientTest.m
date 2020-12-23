@@ -183,8 +183,8 @@
   });
 }
 
-/** Validates that the Fll log directory removal method is called. */
-- (void)testFllLogDirectoryCleanupInitiates {
+/** Validates that the Clearcut log directory removal method is called. */
+- (void)testClearcutLogDirectoryCleanupInitiates {
   id clientMock = OCMClassMock(self.client.class);
   [self.client startWithConfiguration:[[FPRConfiguration alloc] initWithAppID:@"RandomAppId"
                                                                        APIKey:nil
@@ -194,14 +194,14 @@
   // Wait for async job to initiate cleanup logic.
   dispatch_group_wait(self.client.eventsQueueGroup, DISPATCH_TIME_FOREVER);
 
-  OCMVerify([clientMock cleanupFllCacheDirectory]);
+  OCMVerify([clientMock cleanupClearcutCacheDirectory]);
 }
 
 /**
- * Validates that the log directory path in the cache directory created for Fll logs storage
+ * Validates that the log directory path in the cache directory created for Clearcut logs storage
  * gets removed (if exist).
  */
-- (void)testValidateFllLogDirectoryCleanupIfExists {
+- (void)testValidateClearcutLogDirectoryCleanupIfExists {
   // Create the log directory and make sure it exists.
   NSString *logDirectoryPath = [FPRClient logDirectoryPath];
   [[NSFileManager defaultManager] createDirectoryAtPath:logDirectoryPath
@@ -212,22 +212,22 @@
   BOOL logDirectoryExists = [[NSFileManager defaultManager] fileExistsAtPath:logDirectoryPath];
   XCTAssertTrue(logDirectoryExists);
 
-  [FPRClient cleanupFllCacheDirectory];
+  [FPRClient cleanupClearcutCacheDirectory];
 
   logDirectoryExists = [[NSFileManager defaultManager] fileExistsAtPath:logDirectoryPath];
   XCTAssertFalse(logDirectoryExists);
 }
 
 /**
- * Validates that the Fll log directory path removal logic doesn't explode if directory doesn't
+ * Validates that the Clearcut log directory path removal logic doesn't explode if directory doesn't
  * exist.
  */
-- (void)testValidateFllLogDirectoryCleanupIfNotExists {
+- (void)testValidateClearcutLogDirectoryCleanupIfNotExists {
   NSString *logDirectoryPath = [FPRClient logDirectoryPath];
   BOOL logDirectoryExists = [[NSFileManager defaultManager] fileExistsAtPath:logDirectoryPath];
 
   XCTAssertFalse(logDirectoryExists);
-  XCTAssertNoThrow([FPRClient cleanupFllCacheDirectory]);
+  XCTAssertNoThrow([FPRClient cleanupClearcutCacheDirectory]);
 }
 
 @end
