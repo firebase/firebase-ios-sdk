@@ -17,17 +17,6 @@
 import Foundation
 import Utils
 
-class PlatformMinimum {
-  static fileprivate var minimumIOSVersion = ""
-  static fileprivate var minimumMACOSVersion = ""
-  static fileprivate var minimumTVOSVersion = ""
-  static func initialize(ios: String, macos: String, tvos: String) {
-    minimumIOSVersion = ios
-    minimumMACOSVersion = macos
-    minimumTVOSVersion = tvos
-  }
-}
-
 // The supported platforms.
 enum Platform: CaseIterable {
   case iOS
@@ -57,6 +46,17 @@ enum Platform: CaseIterable {
     case .macOS: return PlatformMinimum.minimumMACOSVersion
     case .tvOS: return PlatformMinimum.minimumTVOSVersion
     }
+  }
+}
+
+class PlatformMinimum {
+  static fileprivate var minimumIOSVersion = ""
+  static fileprivate var minimumMACOSVersion = ""
+  static fileprivate var minimumTVOSVersion = ""
+  static func initialize(ios: String, macos: String, tvos: String) {
+    minimumIOSVersion = ios
+    minimumMACOSVersion = macos
+    minimumTVOSVersion = tvos
   }
 }
 
@@ -154,7 +154,7 @@ struct FrameworkBuilder {
   private let dynamicFrameworks: Bool
 
   /// Flag for whether or not Carthage artifacts should be built as well.
-  private let includeCarthage: Bool
+  private let buildCarthage: Bool
 
   /// The Pods directory for building the framework.
   private var podsDir: URL {
@@ -166,74 +166,13 @@ struct FrameworkBuilder {
        dynamicFrameworks: Bool) {
     self.projectDir = projectDir
     self.targetPlatforms = platform.platformTargets
-    self.includeCarthage = includeCarthage
+    self.buildCarthage = includeCarthage && platform == .iOS
     self.dynamicFrameworks = dynamicFrameworks
   }
 
   // MARK: - Public Functions
 
-  /// Build a fat library framework file for a given framework name.
-  ///
-  /// - Parameters:
-  ///   - framework: The name of the Framework being built.
-  ///   - version: String representation of the version.
-  /// - Parameter logsOutputDir: The path to the directory to place build logs.
-  /// - Parameter moduleMapContents: Module map contents for all frameworks in this pod.
-  /// - Returns: An array of URLs to the frameworks that were built (or pulled from the cache)
-  /// and the Carthage version.
-  func buildFrameworks(withName podName: String,
-                      podInfo: CocoaPodUtils.PodInfo,
-                      logsOutputDir: URL? = nil) -> ([URL], URL?) {
-    print("Building \(podName)")
-
-    // Get (or create) the cache directory for storing built frameworks.
-    let fileManager = FileManager.default
-    var cachedFrameworkRoot: URL
-    var cachedCarthageRoot: URL
-    do {
-      let cacheDir = try fileManager.sourcePodCacheDirectory(withSubdir: "zip")
-      let carthageCacheDir = try fileManager.sourcePodCacheDirectory(withSubdir: "carthage")
-      cachedFrameworkRoot = cacheDir.appendingPathComponents([podName, podInfo.version])
-      cachedCarthageRoot = carthageCacheDir.appendingPathComponents([podName, podInfo.version])
-    } catch {
-      fatalError("Could not create caches directory for building frameworks: \(error)")
-    }
-
-    // Build the full cached framework path.
-    let realFramework = frameworkBuildName(podName)
-    let cachedCarthageDir = cachedCarthageRoot.appendingPathComponent("\(realFramework).framework")
-    let (frameworks, carthageDir) = compileFrameworkAndResources(withName: podName,
-                                                                   podInfo: podInfo)
-    do {
-      // Remove the previously cached framework if it exists, otherwise the `moveItem` call will
-      // fail.
-      // TODO
-      //fileManager.removeIfExists(at: cachedFrameworkDir)
-      fileManager.removeIfExists(at: cachedCarthageDir)
-
-      // Create the root cache directories if they don't exist.
-      if !fileManager.directoryExists(at: cachedFrameworkRoot) {
-        // If the root directory doesn't exist, create it so the `moveItem` will succeed.
-        try fileManager.createDirectory(at: cachedFrameworkRoot,
-                                        withIntermediateDirectories: true)
-      }
-      if !fileManager.directoryExists(at: cachedCarthageRoot) {
-        // If the root directory doesn't exist, create it so the `moveItem` will succeed.
-        try fileManager.createDirectory(at: cachedCarthageRoot,
-                                        withIntermediateDirectories: true)
-      }
-
-      // Move the newly built framework to the cache directory.
-      // TODO update next line
-      //try fileManager.moveItem(at: frameworkDir, to: cachedFrameworkDir)
-      if let carthageDir = carthageDir {
-        try fileManager.moveItem(at: carthageDir, to: cachedCarthageDir)
-      }
-      return (frameworks, cachedCarthageDir)
-    } catch {
-      fatalError("Could not move built frameworks into the cached frameworks directory: \(error)")
-    }
-  }
+  // TODO: The new public function `compileFrameworkAndResources` is left below for ease of review.
 
   // MARK: - Private Helpers
 
@@ -434,16 +373,15 @@ struct FrameworkBuilder {
   }
 
   /// Compiles the specified framework in a temporary directory and writes the build logs to file.
-  /// This will compile all architectures and use the -create-xcframework command to create a modern
-  /// "fat" framework.
+  /// This will compile all architectures for a single platform at a time.
   ///
   /// - Parameter framework: The name of the framework to be built.
   /// - Parameter logsOutputDir: The path to the directory to place build logs.
   /// - Parameter moduleMapContents: Module map contents for all frameworks in this pod.
-  /// - Returns: A path to the newly compiled framework and the Carthage version if needed).
-  private func compileFrameworkAndResources(withName framework: String,
+  /// - Returns: A path to the newly compiled frameworks and the Carthage version if needed).
+  func compileFrameworkAndResources(withName framework: String,
                                             logsOutputDir: URL? = nil,
-                                            podInfo: CocoaPodUtils.PodInfo) -> ([URL], URL?) {
+                                            podInfo: CocoaPodUtils.PodInfo) -> ([URL], URL?, URL?) {
     let fileManager = FileManager.default
     let outputDir = fileManager.temporaryDirectory(withName: "frameworks_being_built")
     let logsDir = logsOutputDir ?? fileManager.temporaryDirectory(withName: "build_logs")
@@ -465,7 +403,7 @@ struct FrameworkBuilder {
 
     if dynamicFrameworks {
       return (buildDynamicFrameworks(withName: framework, logsDir: logsDir, outputDir: outputDir),
-              nil)
+              nil, nil)
     } else {
       return buildStaticFrameworks(withName: framework, logsDir: logsDir, outputDir: outputDir,
                                     podInfo: podInfo)
@@ -478,7 +416,7 @@ struct FrameworkBuilder {
   ///
   /// - Parameter framework: The name of the framework to be built.
   /// - Parameter logsDir: The path to the directory to place build logs.
-  /// - Returns: A path to the newly compiled framework (with any included Resources embedded).
+  /// - Returns: A path to the newly compiled frameworks (with any included Resources embedded).
   private func buildDynamicFrameworks(withName framework: String,
                                        logsDir: URL,
                                        outputDir: URL) -> [URL] {
@@ -503,11 +441,11 @@ struct FrameworkBuilder {
   /// - Parameter framework: The name of the framework to be built.
   /// - Parameter logsDir: The path to the directory to place build logs.
   /// - Parameter moduleMapContents: Module map contents for all frameworks in this pod.
-  /// - Returns: A path to the newly compiled framework (with any included Resources embedded).
+  /// - Returns: A path to the newly compiled framework, the Carthage version, and the Resource URL.
   private func buildStaticFrameworks(withName framework: String,
                                       logsDir: URL,
                                       outputDir: URL,
-                                      podInfo: CocoaPodUtils.PodInfo) -> ([URL], URL?) {
+                                      podInfo: CocoaPodUtils.PodInfo) -> ([URL], URL?, URL) {
     // Build every architecture and save the locations in an array to be assembled.
     let slicedFrameworks = buildFrameworksForAllPlatforms(withName: framework, logsDir: logsDir)
 
@@ -606,8 +544,7 @@ struct FrameworkBuilder {
                                          moduleMapContents: moduleMapContents)
 
     var carthageFramework: URL?
-    // TODO: ADD ios check here.
-    if includeCarthage {
+    if buildCarthage {
       var carthageThinArchives: [TargetPlatform: URL]
       if framework == "FirebaseCoreDiagnostics" {
         // FirebaseCoreDiagnostics needs to be built with a different ifdef for the Carthage distro.
@@ -638,7 +575,7 @@ struct FrameworkBuilder {
         """)
       }
     }
-    return (frameworks, carthageFramework)
+    return (frameworks, carthageFramework, resourceContents)
   }
 
   /// Parses CocoaPods config files or uses the passed in `moduleMapContents` to write the
@@ -766,7 +703,7 @@ struct FrameworkBuilder {
   private func groupFrameworks(withName framework: String,
                                fromFolder: URL,
                                slicedFrameworks: [TargetPlatform: URL],
-                               moduleMapContents: String) -> [URL] {
+                               moduleMapContents: String) -> ([URL]) {
     let fileManager = FileManager.default
 
     // Create a `.framework` for each of the thinArchives using the `fromFolder` as the base.
@@ -832,7 +769,7 @@ struct FrameworkBuilder {
   static func makeXCFramework(withName name: String,
                        frameworks: [URL],
                        xcframeworksDir: URL,
-                       resourceContents: URL) -> URL {
+                       resourceContents: URL?) -> URL {
     let xcframework = xcframeworksDir.appendingPathComponent(name + ".xcframework")
 
     // The arguments for the frameworks need to be separated.
@@ -858,16 +795,17 @@ struct FrameworkBuilder {
     }
     // xcframework resources are packaged at top of xcframework. We do a copy instead of a move
     // because the resources may also be copied for the Carthage distribution.
-    let resourceDir = xcframework.appendingPathComponent("Resources")
-    do {
-      try ResourcesManager.moveAllBundles(inDirectory: resourceContents,
-                                          to: resourceDir,
-                                          keepOriginal: true)
-    } catch {
-      fatalError("Could not move bundles into Resources directory while building \(name): " +
-        "\(error)")
+    if let resourceContents = resourceContents {
+      let resourceDir = xcframework.appendingPathComponent("Resources")
+      do {
+        try ResourcesManager.moveAllBundles(inDirectory: resourceContents,
+                                            to: resourceDir,
+                                            keepOriginal: true)
+      } catch {
+        fatalError("Could not move bundles into Resources directory while building \(name): " +
+          "\(error)")
+      }
     }
-
     return xcframework
   }
 

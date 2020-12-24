@@ -180,6 +180,7 @@ struct ZipBuilder {
     var carthageToInstall: [String: [URL]] = [:]
     var podsBuilt: [String: CocoaPodUtils.PodInfo] = [:]
     var xcframeworks: [String: [URL]] = [:]
+    var resources: [String: URL] = [:]
 
     for platform in platforms {
       let includeCarthage = includeCarthage && platform == .iOS
@@ -217,15 +218,18 @@ struct ZipBuilder {
                                            platform: platform,
                                            includeCarthage: includeCarthage,
                                            dynamicFrameworks: dynamicFrameworks)
-          let (frameworks, carthageFramework) =
-              builder.buildFrameworks(withName: podName,
-                                    podInfo: podInfo,
-                                    logsOutputDir: paths.logsOutputDir)
+          let (frameworks, carthageFramework, resourceContents) =
+              builder.compileFrameworkAndResources(withName: podName,
+                                                   logsOutputDir: paths.logsOutputDir,
+                                                   podInfo: podInfo)
           groupedFrameworks[podName] = (groupedFrameworks[podName] ?? []) + frameworks
           if platform == .iOS {
             if let carthageFramework = carthageFramework {
               carthageToInstall[podName] = [carthageFramework]
             }
+          }
+          if resourceContents != nil {
+            resources[podName] = resourceContents
           }
         // Binary pods only need to be collected once, since the platforms should already be merged.
         } else if podsBuilt[podName] == nil {
@@ -256,7 +260,7 @@ struct ZipBuilder {
       let xcframework = FrameworkBuilder.makeXCFramework(withName: name,
                                        frameworks: groupedFramework.value,
                                        xcframeworksDir: xcframeworksDir,
-                                       resourceContents: xcframeworksDir)
+                                       resourceContents: resources[name])
       xcframeworks[name] = [xcframework]
     }
     for (framework, paths) in xcframeworks {
