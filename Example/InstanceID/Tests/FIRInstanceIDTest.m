@@ -51,6 +51,7 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
 @property(nonatomic, readwrite, strong) FIRInstallations *installations;
 @property(nonatomic, readwrite, copy) NSString *fcmSenderID;
 @property(nonatomic, readwrite, copy) NSString *firebaseAppID;
+@property(nonatomic, readwrite, copy) NSString *defaultFCMToken;
 
 - (NSInteger)retryIntervalToFetchDefaultToken;
 - (BOOL)isFCMAutoInitEnabled;
@@ -651,7 +652,6 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
                                  return obj != nil;
                                }]];
 
-  __block NSInteger notificationPostCount = 0;
   __block NSString *notificationToken = nil;
 
   // Fetch token once to store token state
@@ -663,8 +663,6 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
               usingBlock:^(NSNotification *_Nonnull note) {
                 // Should have saved token to cache
                 cachedTokenInfo = sTokenInfo;
-
-                notificationPostCount++;
                 notificationToken = [[self.instanceID token] copy];
                 [defaultTokenExpectation fulfill];
               }];
@@ -721,7 +719,6 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
                                  return obj != nil;
                                }]];
 
-  __block int notificationPostCount = 0;
   __block NSString *notificationToken = nil;
 
   NSString *notificationName = kFIRInstanceIDTokenRefreshNotification;
@@ -733,7 +730,6 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
                 // Should have saved token to cache
                 cachedTokenInfo = sTokenInfo;
 
-                notificationPostCount++;
                 notificationToken = [[self.instanceID token] copy];
                 [defaultTokenExpectation fulfill];
               }];
@@ -800,6 +796,7 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
   __block NSString *notificationToken = nil;
 
   NSString *notificationName = kFIRInstanceIDTokenRefreshNotification;
+
   self.tokenRefreshNotificationObserver = [[NSNotificationCenter defaultCenter]
       addObserverForName:notificationName
                   object:nil
@@ -1326,6 +1323,30 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
 
   OCMVerifyAll(self.mockInstallations);
   OCMVerifyAll(self.mockTokenManager);
+}
+
+- (void)testRefreshDifferentTokenFromMessaging {
+  _instanceID.defaultFCMToken = kToken;
+  XCTAssertEqualObjects(_instanceID.defaultFCMToken, kToken);
+  NSString *newFCMToken = @"test_fake_token_that_is_only_for_this_test";
+  OCMExpect([self.mockTokenManager saveDefaultToken:newFCMToken withOptions:[OCMArg any]]);
+  [[NSNotificationCenter defaultCenter]
+      postNotificationName:kFIRInstanceIDMessagingUpdateTokenNotification
+                    object:newFCMToken];
+  OCMVerifyAll(self.mockTokenManager);
+  XCTAssertEqualObjects(_instanceID.defaultFCMToken, newFCMToken);
+}
+
+- (void)testRefreshTheSameTokenFromMessaging {
+  _instanceID.defaultFCMToken = kToken;
+  XCTAssertEqualObjects(_instanceID.defaultFCMToken, kToken);
+  NSString *newFCMToken = kToken;
+  OCMReject([self.mockTokenManager saveDefaultToken:newFCMToken withOptions:[OCMArg any]]);
+  [[NSNotificationCenter defaultCenter]
+      postNotificationName:kFIRInstanceIDMessagingUpdateTokenNotification
+                    object:newFCMToken];
+  OCMVerifyAll(self.mockTokenManager);
+  XCTAssertEqualObjects(_instanceID.defaultFCMToken, newFCMToken);
 }
 
 #pragma mark - Private Helpers
