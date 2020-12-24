@@ -27,10 +27,13 @@ class DownloadHandlers {
   typealias ProgressHandler = (Float) -> Void
   typealias Completion = (Result<CustomModel, DownloadError>) -> Void
 
+  var runsOnMainThread: Bool
   var progressHandler: ProgressHandler?
   var completion: Completion
 
-  init(progressHandler: ProgressHandler?, completion: @escaping Completion) {
+  init(runsOnMainThread: Bool, progressHandler: ProgressHandler?,
+       completion: @escaping Completion) {
+    self.runsOnMainThread = runsOnMainThread
     self.progressHandler = progressHandler
     self.completion = completion
   }
@@ -56,12 +59,14 @@ class ModelDownloadTask: NSObject {
                                                 delegateQueue: nil)
 
   init(remoteModelInfo: RemoteModelInfo, appName: String, defaults: UserDefaults,
+       runsOnMainThread: Bool,
        progressHandler: DownloadHandlers.ProgressHandler? = nil,
        completion: @escaping DownloadHandlers.Completion) {
     self.remoteModelInfo = remoteModelInfo
     self.appName = appName
     self.defaults = defaults
     downloadHandlers = DownloadHandlers(
+      runsOnMainThread: runsOnMainThread,
       progressHandler: progressHandler,
       completion: completion
     )
@@ -94,13 +99,23 @@ extension ModelDownloadTask: URLSessionDownloadDelegate {
     do {
       try ModelFileManager.moveFile(at: location, to: savedURL)
     } catch let error as DownloadError {
-      DispatchQueue.main.async {
+      if self.downloadHandlers.runsOnMainThread {
+        DispatchQueue.main.async {
+          self.downloadHandlers
+            .completion(.failure(error))
+        }
+      } else {
         self.downloadHandlers
           .completion(.failure(error))
       }
     } catch {
-      DispatchQueue.main.async {
-        self.downloadHandlers
+      if downloadHandlers.runsOnMainThread {
+        DispatchQueue.main.async {
+          self.downloadHandlers
+            .completion(.failure(.internalError(description: error.localizedDescription)))
+        }
+      } else {
+        downloadHandlers
           .completion(.failure(.internalError(description: error.localizedDescription)))
       }
     }
@@ -111,8 +126,12 @@ extension ModelDownloadTask: URLSessionDownloadDelegate {
     localModelInfo.writeToDefaults(defaults, appName: appName)
     /// Build model from model info.
     let model = CustomModel(localModelInfo: localModelInfo)
-    DispatchQueue.main.async {
-      self.downloadHandlers.completion(.success(model))
+    if downloadHandlers.runsOnMainThread {
+      DispatchQueue.main.async {
+        self.downloadHandlers.completion(.success(model))
+      }
+    } else {
+      downloadHandlers.completion(.success(model))
     }
   }
 
@@ -125,7 +144,11 @@ extension ModelDownloadTask: URLSessionDownloadDelegate {
     /// Check if progress handler is unspecified.
     guard let progressHandler = downloadHandlers.progressHandler else { return }
     let calculatedProgress = Float(totalBytesWritten) / Float(totalBytesExpectedToWrite)
-    DispatchQueue.main.async {
+    if downloadHandlers.runsOnMainThread {
+      DispatchQueue.main.async {
+        progressHandler(calculatedProgress)
+      }
+    } else {
       progressHandler(calculatedProgress)
     }
   }

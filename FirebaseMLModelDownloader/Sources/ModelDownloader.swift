@@ -66,11 +66,11 @@ public class ModelDownloader {
   private static var modelDownloaderDictionary: [String: ModelDownloader] = [:]
 
   /// Private init for downloader.
-  private init(app: FirebaseApp) {
+  private init(app: FirebaseApp, defaults: UserDefaults = .firebaseMLDefaults) {
     appName = app.name
     options = app.options
     installations = Installations.installations(app: app)
-    userDefaults = .firebaseMLDefaults
+    userDefaults = defaults
 
     NotificationCenter.default.addObserver(
       self,
@@ -124,15 +124,43 @@ public class ModelDownloader {
       } else {
         getRemoteModel(
           modelName: modelName,
+          runsOnMainThread: true,
           progressHandler: progressHandler,
           completion: completion
         )
       }
-    case .localModelUpdateInBackground: break
+    case .localModelUpdateInBackground:
+      if let localModel = getLocalModel(modelName: modelName) {
+        DispatchQueue.main.async {
+          completion(.success(localModel))
+        }
+        DispatchQueue.global(qos: .utility).async { [weak self] in
+          self?.getRemoteModel(
+            modelName: modelName,
+            runsOnMainThread: false,
+            progressHandler: nil,
+            completion: { result in
+              switch result {
+              case .success: break
+              // TODO: Handle failure of background download
+              case .failure: break
+              }
+            }
+          )
+        }
+      } else {
+        getRemoteModel(
+          modelName: modelName,
+          runsOnMainThread: true,
+          progressHandler: progressHandler,
+          completion: completion
+        )
+      }
 
     case .latestModel:
       getRemoteModel(
         modelName: modelName,
+        runsOnMainThread: true,
         progressHandler: progressHandler,
         completion: completion
       )
@@ -183,6 +211,7 @@ extension ModelDownloader {
 
   /// Download and get model from server, unless the latest model is already available on device.
   private func getRemoteModel(modelName: String,
+                              runsOnMainThread: Bool,
                               progressHandler: ((Float) -> Void)? = nil,
                               completion: @escaping (Result<CustomModel, DownloadError>) -> Void) {
     let localModelInfo = getLocalModelInfo(modelName: modelName)
@@ -203,14 +232,25 @@ extension ModelDownloader {
             remoteModelInfo: remoteModelInfo,
             appName: self.appName,
             defaults: self.userDefaults,
+            runsOnMainThread: runsOnMainThread,
             progressHandler: progressHandler,
             completion: completion
           )
           downloadTask.resumeModelDownload()
         } else {
           guard let localModel = self.getLocalModel(modelName: modelName) else {
-            /// This can only happen if local model info was suddenly wiped out in the middle of model info request and server response.
-            DispatchQueue.main.async {
+            if runsOnMainThread {
+              DispatchQueue.main.async {
+                /// This can only happen if local model info was suddenly wiped out in the middle of model info request and server response.
+                completion(
+                  .failure(
+                    .internalError(
+                      description: "Model unavailable due to deleted local model info."
+                    )
+                  )
+                )
+              }
+            } else {
               completion(
                 .failure(
                   .internalError(description: "Model unavailable due to deleted local model info.")
@@ -220,12 +260,20 @@ extension ModelDownloader {
             return
           }
 
-          DispatchQueue.main.async {
+          if runsOnMainThread {
+            DispatchQueue.main.async {
+              completion(.success(localModel))
+            }
+          } else {
             completion(.success(localModel))
           }
         }
       case let .failure(downloadError):
-        DispatchQueue.main.async {
+        if runsOnMainThread {
+          DispatchQueue.main.async {
+            completion(.failure(downloadError))
+          }
+        } else {
           completion(.failure(downloadError))
         }
       }

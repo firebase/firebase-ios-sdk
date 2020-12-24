@@ -152,6 +152,7 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
       remoteModelInfo: remoteModelInfo,
       appName: testApp.name,
       defaults: .createTestInstance(testName: #function),
+      runsOnMainThread: true,
       progressHandler: { progress in
         XCTAssertNotNil(progress)
       }
@@ -172,5 +173,93 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
     modelDownloadManager.resumeModelDownload()
     waitForExpectations(timeout: 5, handler: nil)
     XCTAssertEqual(modelDownloadManager.downloadStatus, .completed)
+  }
+
+  func testGetModel() {
+    let testApp = FirebaseApp.app()!
+    let testModelName = "image-classification"
+
+    let conditions = ModelDownloadConditions()
+    let modelDownloader = ModelDownloader.modelDownloader(app: testApp)
+
+    var downloadType: ModelDownloadType = .latestModel
+    let latestModelExpectation = expectation(description: "Get latest model.")
+
+    modelDownloader.getModel(
+      name: testModelName,
+      downloadType: downloadType,
+      conditions: conditions,
+      progressHandler: { progress in
+        XCTAssertNotNil(progress)
+      }
+    ) { result in
+      switch result {
+      case let .success(model):
+        XCTAssertNotNil(model.path)
+        guard let filePath = URL(string: model.path) else {
+          XCTFail("Invalid model path.")
+          return
+        }
+        XCTAssertTrue(ModelFileManager.isFileReachable(at: filePath))
+      case let .failure(error):
+        XCTFail("Failed to download model - \(error)")
+      }
+      latestModelExpectation.fulfill()
+    }
+
+    waitForExpectations(timeout: 5, handler: nil)
+
+    downloadType = .localModel
+    let localModelExpectation = expectation(description: "Get local model.")
+
+    modelDownloader.getModel(
+      name: testModelName,
+      downloadType: downloadType,
+      conditions: conditions,
+      progressHandler: { progress in
+        XCTFail("Model is already available on device.")
+      }
+    ) { result in
+      switch result {
+      case let .success(model):
+        XCTAssertNotNil(model.path)
+        guard let filePath = URL(string: model.path) else {
+          XCTFail("Invalid model path.")
+          return
+        }
+        XCTAssertTrue(ModelFileManager.isFileReachable(at: filePath))
+      case let .failure(error):
+        XCTFail("Failed to download model - \(error)")
+      }
+      localModelExpectation.fulfill()
+    }
+    waitForExpectations(timeout: 5, handler: nil)
+
+    downloadType = .localModelUpdateInBackground
+    let backgroundModelExpectation =
+      expectation(description: "Get local model and update in background.")
+
+    modelDownloader.getModel(
+      name: testModelName,
+      downloadType: downloadType,
+      conditions: conditions,
+      progressHandler: { progress in
+        XCTFail("Model is already available on device.")
+      }
+    ) { result in
+      switch result {
+      case let .success(model):
+        XCTAssertNotNil(model.path)
+        guard let filePath = URL(string: model.path) else {
+          XCTFail("Invalid model path.")
+          return
+        }
+        XCTAssertTrue(ModelFileManager.isFileReachable(at: filePath))
+      case let .failure(error):
+        XCTFail("Failed to download model - \(error)")
+      }
+      backgroundModelExpectation.fulfill()
+    }
+    waitForExpectations(timeout: 5, handler: nil)
   }
 }
