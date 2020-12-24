@@ -215,13 +215,13 @@ struct ZipBuilder {
           // Don't build the Firebase pod
         } else if podInfo.isSourcePod {
           let builder = FrameworkBuilder(projectDir: projectDir,
-                                           platform: platform,
-                                           includeCarthage: includeCarthage,
-                                           dynamicFrameworks: dynamicFrameworks)
+                                         platform: platform,
+                                         includeCarthage: includeCarthage,
+                                         dynamicFrameworks: dynamicFrameworks)
           let (frameworks, carthageFramework, resourceContents) =
-              builder.compileFrameworkAndResources(withName: podName,
-                                                   logsOutputDir: paths.logsOutputDir,
-                                                   podInfo: podInfo)
+            builder.compileFrameworkAndResources(withName: podName,
+                                                 logsOutputDir: paths.logsOutputDir,
+                                                 podInfo: podInfo)
           groupedFrameworks[podName] = (groupedFrameworks[podName] ?? []) + frameworks
           if platform == .iOS {
             if let carthageFramework = carthageFramework {
@@ -231,8 +231,8 @@ struct ZipBuilder {
           if resourceContents != nil {
             resources[podName] = resourceContents
           }
-        // Binary pods only need to be collected once, since the platforms should already be merged.
         } else if podsBuilt[podName] == nil {
+          // Binary pods need to be collected once, since the platforms should already be merged.
           let (binaryFrameworks, binaryCarthage) =
             collectBinaryFrameworks(fromPod: podName,
                                     podInfo: podInfo)
@@ -250,7 +250,7 @@ struct ZipBuilder {
     let xcframeworksDir = FileManager.default.temporaryDirectory(withName: "xcframeworks")
     do {
       try FileManager.default.createDirectory(at: xcframeworksDir,
-                                      withIntermediateDirectories: false)
+                                              withIntermediateDirectories: false)
     } catch {
       fatalError("Could not create XCFrameworks directory: \(error)")
     }
@@ -258,9 +258,9 @@ struct ZipBuilder {
     for groupedFramework in groupedFrameworks {
       let name = groupedFramework.key
       let xcframework = FrameworkBuilder.makeXCFramework(withName: name,
-                                       frameworks: groupedFramework.value,
-                                       xcframeworksDir: xcframeworksDir,
-                                       resourceContents: resources[name])
+                                                         frameworks: groupedFramework.value,
+                                                         xcframeworksDir: xcframeworksDir,
+                                                         resourceContents: resources[name])
       xcframeworks[name] = [xcframework]
     }
     for (framework, paths) in xcframeworks {

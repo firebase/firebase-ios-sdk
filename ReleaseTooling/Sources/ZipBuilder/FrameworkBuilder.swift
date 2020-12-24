@@ -39,6 +39,7 @@ enum Platform: CaseIterable {
     case .tvOS: return "tvos"
     }
   }
+
   /// Minimum supported version
   var minimumVersion: String {
     switch self {
@@ -50,9 +51,9 @@ enum Platform: CaseIterable {
 }
 
 class PlatformMinimum {
-  static fileprivate var minimumIOSVersion = ""
-  static fileprivate var minimumMACOSVersion = ""
-  static fileprivate var minimumTVOSVersion = ""
+  fileprivate static var minimumIOSVersion = ""
+  fileprivate static var minimumMACOSVersion = ""
+  fileprivate static var minimumTVOSVersion = ""
   static func initialize(ios: String, macos: String, tvos: String) {
     minimumIOSVersion = ios
     minimumMACOSVersion = macos
@@ -116,7 +117,7 @@ enum TargetPlatform: CaseIterable {
   var buildName: String {
     switch self {
     case .catalyst: return "catalyst"
-    default: return self.sdkName
+    default: return sdkName
     }
   }
 
@@ -165,8 +166,8 @@ struct FrameworkBuilder {
   init(projectDir: URL, platform: Platform, includeCarthage: Bool,
        dynamicFrameworks: Bool) {
     self.projectDir = projectDir
-    self.targetPlatforms = platform.platformTargets
-    self.buildCarthage = includeCarthage && platform == .iOS
+    targetPlatforms = platform.platformTargets
+    buildCarthage = includeCarthage && platform == .iOS
     self.dynamicFrameworks = dynamicFrameworks
   }
 
@@ -179,7 +180,8 @@ struct FrameworkBuilder {
   /// This runs a command and immediately returns a Shell result.
   /// NOTE: This exists in conjunction with the `Shell.execute...` due to issues with different
   ///       `.bash_profile` environment variables. This should be consolidated in the future.
-  private static func syncExec(command: String, args: [String] = [], captureOutput: Bool = false) -> Shell
+  private static func syncExec(command: String, args: [String] = [],
+                               captureOutput: Bool = false) -> Shell
     .Result {
     let task = Process()
     task.launchPath = command
@@ -328,7 +330,8 @@ struct FrameworkBuilder {
       // a successful build.
       try? output.write(to: logFile, atomically: true, encoding: .utf8)
       print("""
-      Successfully built \(framework) for \(targetPlatform.buildName). Build log can be found at \(logFile)
+      Successfully built \(framework) for \(targetPlatform
+        .buildName). Build log can be found at \(logFile)
       """)
 
       // Use the Xcode-generated path to return the path to the compiled library.
@@ -380,8 +383,8 @@ struct FrameworkBuilder {
   /// - Parameter moduleMapContents: Module map contents for all frameworks in this pod.
   /// - Returns: A path to the newly compiled frameworks and the Carthage version if needed).
   func compileFrameworkAndResources(withName framework: String,
-                                            logsOutputDir: URL? = nil,
-                                            podInfo: CocoaPodUtils.PodInfo) -> ([URL], URL?, URL?) {
+                                    logsOutputDir: URL? = nil,
+                                    podInfo: CocoaPodUtils.PodInfo) -> ([URL], URL?, URL?) {
     let fileManager = FileManager.default
     let outputDir = fileManager.temporaryDirectory(withName: "frameworks_being_built")
     let logsDir = logsOutputDir ?? fileManager.temporaryDirectory(withName: "build_logs")
@@ -406,7 +409,7 @@ struct FrameworkBuilder {
               nil, nil)
     } else {
       return buildStaticFrameworks(withName: framework, logsDir: logsDir, outputDir: outputDir,
-                                    podInfo: podInfo)
+                                   podInfo: podInfo)
     }
   }
 
@@ -418,8 +421,8 @@ struct FrameworkBuilder {
   /// - Parameter logsDir: The path to the directory to place build logs.
   /// - Returns: A path to the newly compiled frameworks (with any included Resources embedded).
   private func buildDynamicFrameworks(withName framework: String,
-                                       logsDir: URL,
-                                       outputDir: URL) -> [URL] {
+                                      logsDir: URL,
+                                      outputDir: URL) -> [URL] {
     // xcframework doesn't lipo things together but accepts fat frameworks for one target.
     // We group architectures here to deal with this fact.
     var thinFrameworks = [URL]()
@@ -443,9 +446,9 @@ struct FrameworkBuilder {
   /// - Parameter moduleMapContents: Module map contents for all frameworks in this pod.
   /// - Returns: A path to the newly compiled framework, the Carthage version, and the Resource URL.
   private func buildStaticFrameworks(withName framework: String,
-                                      logsDir: URL,
-                                      outputDir: URL,
-                                      podInfo: CocoaPodUtils.PodInfo) -> ([URL], URL?, URL) {
+                                     logsDir: URL,
+                                     outputDir: URL,
+                                     podInfo: CocoaPodUtils.PodInfo) -> ([URL], URL?, URL) {
     // Build every architecture and save the locations in an array to be assembled.
     let slicedFrameworks = buildFrameworksForAllPlatforms(withName: framework, logsDir: logsDir)
 
@@ -460,7 +463,8 @@ struct FrameworkBuilder {
     }
 
     // Find the location of the public headers, any platform will do.
-    guard let anyPlatform = targetPlatforms.first, let archivePath = slicedFrameworks[anyPlatform] else {
+    guard let anyPlatform = targetPlatforms.first,
+      let archivePath = slicedFrameworks[anyPlatform] else {
       fatalError("Could not get a path to an archive to fetch headers in \(framework).")
     }
 
@@ -539,9 +543,9 @@ struct FrameworkBuilder {
     }
     let moduleMapContents = moduleMapContentsTemplate.get(umbrellaHeader: umbrellaHeader)
     let frameworks = groupFrameworks(withName: framework,
-                                         fromFolder: frameworkDir,
-                                         slicedFrameworks: slicedFrameworks,
-                                         moduleMapContents: moduleMapContents)
+                                     fromFolder: frameworkDir,
+                                     slicedFrameworks: slicedFrameworks,
+                                     moduleMapContents: moduleMapContents)
 
     var carthageFramework: URL?
     if buildCarthage {
@@ -767,9 +771,9 @@ struct FrameworkBuilder {
   /// - Parameter frameworks: The grouped frameworks.
   /// - Parameter resourceContents: Location of the resources for this xcframework.
   static func makeXCFramework(withName name: String,
-                       frameworks: [URL],
-                       xcframeworksDir: URL,
-                       resourceContents: URL?) -> URL {
+                              frameworks: [URL],
+                              xcframeworksDir: URL,
+                              resourceContents: URL?) -> URL {
     let xcframework = xcframeworksDir.appendingPathComponent(name + ".xcframework")
 
     // The arguments for the frameworks need to be separated.
@@ -844,8 +848,10 @@ struct FrameworkBuilder {
     // Build the fat archive using the `lipo` command to make one fat binary that Carthage can use
     // in the framework. We need the full archive path.
     let fatArchive = platformFrameworksDir.appendingPathComponent(framework)
-    let result = FrameworkBuilder.syncExec(command: "/usr/bin/lipo", args: ["-create", "-output", fatArchive.path] +
-      thinSlices.map { $0.value.path })
+    let result = FrameworkBuilder.syncExec(
+      command: "/usr/bin/lipo",
+      args: ["-create", "-output", fatArchive.path] + thinSlices.map { $0.value.path }
+    )
     switch result {
     case let .error(code, output):
       fatalError("""
@@ -936,9 +942,9 @@ struct FrameworkBuilder {
 
         // Use lipo to extract the architecture we're looking for.
         let result = FrameworkBuilder.syncExec(command: "/usr/bin/lipo",
-                              args: [binary.path,
-                                     "-thin",
-                                     arch.rawValue, "-output", destination.path])
+                                               args: [binary.path,
+                                                      "-thin", arch.rawValue,
+                                                      "-output", destination.path])
         switch result {
         case let .error(code, output):
           fatalError("""
