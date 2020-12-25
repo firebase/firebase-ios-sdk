@@ -43,6 +43,17 @@ enum CocoaPodUtils {
     /// The version of the requested pod.
     let version: String?
 
+    /// Platforms supported
+    let platforms: Set<String>
+
+    init(name: String,
+         version: String?,
+         platforms: Set<String> = ["ios", "macos", "tvos"]) {
+      self.name = name
+      self.version = version
+      self.platforms = platforms
+    }
+
     /// The debug description as required by `CustomDebugStringConvertible`.
     var debugDescription: String {
       var desc = name

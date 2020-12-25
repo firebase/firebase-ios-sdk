@@ -797,14 +797,11 @@ struct FrameworkBuilder {
     case .success:
       print("XCFramework for \(name) built successfully at \(xcframework).")
     }
-    // xcframework resources are packaged at top of xcframework. We do a copy instead of a move
-    // because the resources may also be copied for the Carthage distribution.
+    // xcframework resources are packaged at top of xcframework.
     if let resourceContents = resourceContents {
       let resourceDir = xcframework.appendingPathComponent("Resources")
       do {
-        try ResourcesManager.moveAllBundles(inDirectory: resourceContents,
-                                            to: resourceDir,
-                                            keepOriginal: true)
+        try ResourcesManager.moveAllBundles(inDirectory: resourceContents, to: resourceDir)
       } catch {
         fatalError("Could not move bundles into Resources directory while building \(name): " +
           "\(error)")
@@ -878,9 +875,12 @@ struct FrameworkBuilder {
                       destination: frameworkDir)
 
     // Carthage Resources are packaged in the framework.
+    // Copy them instead of moving them, since they'll still need to be copied into the xcframework.
     let resourceDir = frameworkDir.appendingPathComponent("Resources")
     do {
-      try ResourcesManager.moveAllBundles(inDirectory: resourceContents, to: resourceDir)
+      try ResourcesManager.moveAllBundles(inDirectory: resourceContents,
+                                          to: resourceDir,
+                                          keepOriginal: true)
     } catch {
       fatalError("Could not move bundles into Resources directory while building \(framework): " +
         "\(error)")

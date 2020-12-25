@@ -187,7 +187,9 @@ struct ZipBuilder {
       let projectDir = FileManager.default.temporaryDirectory(withName: "project-" + platform.name)
       CocoaPodUtils.podInstallPrepare(inProjectDir: projectDir, templateDir: paths.templateDir)
 
-      CocoaPodUtils.installPods(podsToInstall,
+      let platformPods = podsToInstall.filter { $0.platforms.contains(platform.name) }
+
+      CocoaPodUtils.installPods(platformPods,
                                 inDir: projectDir,
                                 platform: platform,
                                 customSpecRepos: customSpecRepos,
@@ -207,7 +209,7 @@ struct ZipBuilder {
       }
 
       let podsToBuild = includeDependencies ? installedPods : installedPods.filter {
-        podsToInstall.map { $0.name.components(separatedBy: "/").first }.contains($0.key)
+        platformPods.map { $0.name.components(separatedBy: "/").first }.contains($0.key)
       }
 
       for (podName, podInfo) in podsToBuild {
@@ -281,15 +283,21 @@ struct ZipBuilder {
                                        includeCarthage: Bool) throws -> ReleaseArtifacts {
     let manifest = FirebaseManifest.shared
     var podsToInstall = manifest.pods.filter { $0.zip }.map {
-      CocoaPodUtils.VersionedPod(name: $0.name, version: manifest.versionString($0))
+      CocoaPodUtils.VersionedPod(name: $0.name,
+                                 version: manifest.versionString($0),
+                                 platforms: $0.platforms)
     }
     guard !podsToInstall.isEmpty else {
       fatalError("Failed to find versions for Firebase release")
     }
     // We don't release Google-Mobile-Ads-SDK and GoogleSignIn, but we include their latest
     // version for convenience in the Zip and Carthage builds.
-    podsToInstall.append(CocoaPodUtils.VersionedPod(name: "Google-Mobile-Ads-SDK", version: nil))
-    podsToInstall.append(CocoaPodUtils.VersionedPod(name: "GoogleSignIn", version: nil))
+    podsToInstall.append(CocoaPodUtils.VersionedPod(name: "Google-Mobile-Ads-SDK",
+                                                    version: nil,
+                                                    platforms: ["ios"]))
+    podsToInstall.append(CocoaPodUtils.VersionedPod(name: "GoogleSignIn",
+                                                    version: nil,
+                                                    platforms: ["ios"]))
 
     print("Final expected versions for the Zip file: \(podsToInstall)")
     let (installedPods, frameworks,
