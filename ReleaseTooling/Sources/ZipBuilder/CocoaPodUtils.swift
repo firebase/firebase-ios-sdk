@@ -152,7 +152,7 @@ enum CocoaPodUtils {
   /// - Parameters:
   ///   - pods: List of VersionedPods to install
   ///   - directory: Destination directory for the pods.
-  ///   - minimumIOSVersion: The minimum iOS version as a string. Ex. `10.0`.
+  ///   - platform: The platform to install for.
   ///   - customSpecRepos: Additional spec repos to check for installation.
   ///   - linkage: Specifies the linkage type. When `forcedStatic` is used, for the module map
   ///        construction, we want pod names not module names in the generated OTHER_LD_FLAGS

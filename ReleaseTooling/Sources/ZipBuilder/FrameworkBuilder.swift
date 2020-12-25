@@ -17,49 +17,7 @@
 import Foundation
 import Utils
 
-// The supported platforms.
-enum Platform: CaseIterable {
-  case iOS
-  case macOS
-  case tvOS
-
-  var platformTargets: [TargetPlatform] {
-    switch self {
-    case .iOS: return [.iOSDevice, .iOSSimulator, .catalyst]
-    case .macOS: return [.macOS]
-    case .tvOS: return [.tvOSDevice, .tvOSSimulator]
-    }
-  }
-
-  /// Name of the platform as used in Podfiles.
-  var name: String {
-    switch self {
-    case .iOS: return "ios"
-    case .macOS: return "macos"
-    case .tvOS: return "tvos"
-    }
-  }
-
-  /// Minimum supported version
-  var minimumVersion: String {
-    switch self {
-    case .iOS: return PlatformMinimum.minimumIOSVersion
-    case .macOS: return PlatformMinimum.minimumMACOSVersion
-    case .tvOS: return PlatformMinimum.minimumTVOSVersion
-    }
-  }
-}
-
-class PlatformMinimum {
-  fileprivate static var minimumIOSVersion = ""
-  fileprivate static var minimumMACOSVersion = ""
-  fileprivate static var minimumTVOSVersion = ""
-  static func initialize(ios: String, macos: String, tvos: String) {
-    minimumIOSVersion = ios
-    minimumMACOSVersion = macos
-    minimumTVOSVersion = tvos
-  }
-}
+// TODO: Move TargetPlatform to Platforms.swift in subsequent PR
 
 /// The target platform that the framework is built for.
 enum TargetPlatform: CaseIterable {
@@ -180,7 +138,8 @@ struct FrameworkBuilder {
   /// This runs a command and immediately returns a Shell result.
   /// NOTE: This exists in conjunction with the `Shell.execute...` due to issues with different
   ///       `.bash_profile` environment variables. This should be consolidated in the future.
-  private static func syncExec(command: String, args: [String] = [],
+  private static func syncExec(command: String,
+                               args: [String] = [],
                                captureOutput: Bool = false) -> Shell
     .Result {
     let task = Process()
@@ -330,8 +289,7 @@ struct FrameworkBuilder {
       // a successful build.
       try? output.write(to: logFile, atomically: true, encoding: .utf8)
       print("""
-      Successfully built \(framework) for \(targetPlatform
-        .buildName). Build log can be found at \(logFile)
+      Successfully built \(framework) for \(targetPlatform.buildName). Build log is at \(logFile).
       """)
 
       // Use the Xcode-generated path to return the path to the compiled library.
@@ -381,7 +339,7 @@ struct FrameworkBuilder {
   /// - Parameter framework: The name of the framework to be built.
   /// - Parameter logsOutputDir: The path to the directory to place build logs.
   /// - Parameter moduleMapContents: Module map contents for all frameworks in this pod.
-  /// - Returns: A path to the newly compiled frameworks and the Carthage version if needed).
+  /// - Returns: A path to the newly compiled frameworks, the Carthage frameworks, and Resources.
   func compileFrameworkAndResources(withName framework: String,
                                     logsOutputDir: URL? = nil,
                                     podInfo: CocoaPodUtils.PodInfo) -> ([URL], URL?, URL?) {
@@ -702,7 +660,6 @@ struct FrameworkBuilder {
   /// - Parameter fromFolder: The almost complete framework folder. Includes Headers, Info.plist,
   /// and Resources.
   /// - Parameter slicedFrameworks: All the frameworks sliced by platform.
-  /// - Parameter resourceContents: Location of the resources for this xcframework.
   /// - Parameter moduleMapContents: Module map contents for all frameworks in this pod.
   private func groupFrameworks(withName framework: String,
                                fromFolder: URL,

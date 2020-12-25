@@ -214,7 +214,7 @@ struct ZipBuilder {
 
       for (podName, podInfo) in podsToBuild {
         if podName == "Firebase" {
-          // Don't build the Firebase pod
+          // Don't build the Firebase pod.
         } else if podInfo.isSourcePod {
           let builder = FrameworkBuilder(projectDir: projectDir,
                                          platform: platform,
@@ -271,13 +271,11 @@ struct ZipBuilder {
     return (podsBuilt, xcframeworks, carthageToInstall)
   }
 
-  // TODO: This function contains a lot of "copy these paths to this directory, fail if there are
-  //   errors" code. It could probably be broken out into a cleaner interface or broken out into
-  //   separate functions.
   /// Try to build and package the contents of the Zip file. This will throw an error as soon as it
   /// encounters an error, or will quit due to a fatal error with the appropriate log.
   ///
-  /// - Returns: Information related to the built artifacts.
+  /// - Parameter templateDir: The template project for pod install.
+  /// - Parameter includeCarthage: Whether to build and package Carthage.
   /// - Throws: One of many errors that could have happened during the build phase.
   func buildAndAssembleFirebaseRelease(templateDir: URL,
                                        includeCarthage: Bool) throws -> ReleaseArtifacts {
