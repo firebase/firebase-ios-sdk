@@ -36,7 +36,7 @@ enum CocoaPodUtils {
 
   // MARK: - Public API
 
-  struct VersionedPod: Decodable, CustomDebugStringConvertible {
+  struct VersionedPod: Codable, CustomDebugStringConvertible {
     /// Public name of the pod.
     let name: String
 
@@ -52,6 +52,21 @@ enum CocoaPodUtils {
       self.name = name
       self.version = version
       self.platforms = platforms
+    }
+
+    init(from decoder: Decoder) throws {
+      let container = try decoder.container(keyedBy: CodingKeys.self)
+      name = try container.decode(String.self, forKey: .name)
+      if let platforms = try container.decodeIfPresent(Set<String>.self, forKey: .platforms) {
+        self.platforms = platforms
+      } else {
+        platforms = ["ios", "macos", "tvos"]
+      }
+      if let version = try container.decodeIfPresent(String.self, forKey: .version) {
+        self.version = version
+      } else {
+        version = nil
+      }
     }
 
     /// The debug description as required by `CustomDebugStringConvertible`.

@@ -726,6 +726,7 @@ struct FrameworkBuilder {
   /// Package the built frameworks into an XCFramework.
   /// - Parameter withName: The framework name.
   /// - Parameter frameworks: The grouped frameworks.
+  /// - Parameter xcframeworksDir: Location at which to build the xcframework.
   /// - Parameter resourceContents: Location of the resources for this xcframework.
   static func makeXCFramework(withName name: String,
                               frameworks: [URL],
