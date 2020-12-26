@@ -41,6 +41,6 @@ swift run zip-builder --keep-build-artifacts --update-pod-repo --platforms ios \
 unzip -o "${REPO}"/sdk_zip/Frameworks.zip -d "${HOME}"/ios_frameworks/Firebase/
 
 # Move Frameworks to Firebase dir, so be align with Firebase SDKs.
-mv -n "${HOME}"/ios_frameworks/Firebase/staging "${HOME}"/ios_frameworks/Firebase/NonFirebaseSDKs/
+mv -n "${HOME}"/ios_frameworks/Firebase/Binaries "${HOME}"/ios_frameworks/Firebase/NonFirebaseSDKs/
 
 
