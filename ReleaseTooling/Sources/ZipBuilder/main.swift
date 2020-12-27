@@ -38,20 +38,6 @@ extension Platform: ExpressibleByArgument {
   }
 }
 
-// Enables parsing of target platforms as a command line argument.
-extension TargetPlatform: ExpressibleByArgument {
-  public init?(argument: String) {
-    // Look for a match in SDK name.
-    for targetPlatform in TargetPlatform.allCases {
-      if argument == targetPlatform.sdkName {
-        self = targetPlatform
-        return
-      }
-    }
-    return nil
-  }
-}
-
 struct ZipBuilderTool: ParsableCommand {
   // MARK: - Boolean Flags
 
