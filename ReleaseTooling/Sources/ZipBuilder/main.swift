@@ -25,16 +25,15 @@ extension URL: ExpressibleByArgument {
 }
 
 // Enables parsing of platforms as a command line argument.
-extension TargetPlatform: ExpressibleByArgument {
+extension Platform: ExpressibleByArgument {
   public init?(argument: String) {
     // Look for a match in SDK name.
-    for platform in TargetPlatform.allCases {
-      if argument == platform.sdkName {
+    for platform in Platform.allCases {
+      if argument == platform.name {
         self = platform
         return
       }
     }
-
     return nil
   }
 }
@@ -105,14 +104,23 @@ struct ZipBuilderTool: ParsableCommand {
           help: ArgumentHelp("The minimum supported iOS version."))
   var minimumIOSVersion: String
 
-  /// The list of architectures to build for.
+  /// The minimum macOS Version to build for.
+  @Option(default: "10.12",
+          help: ArgumentHelp("The minimum supported macOS version."))
+  var minimumMACOSVersion: String
+
+  /// The minimum tvOS Version to build for.
+  @Option(default: "10.0",
+          help: ArgumentHelp("The minimum supported tvOS version."))
+  var minimumTVOSVersion: String
+
+  /// The list of platforms to build for.
   @Option(parsing: .upToNextOption,
           help: ArgumentHelp("""
-          The list of target platforms to build for. The default list is \
-          \(TargetPlatform.allCases.map { $0.sdkName }). Note that `macosx` is currently Catalyst \
-          only.
+          The list of platforms to build for. The default list is \
+          \(Platform.allCases.map { $0.name }).
           """))
-  var platforms: [TargetPlatform]
+  var platforms: [Platform]
 
   // MARK: - Specify Pods
 
@@ -219,6 +227,11 @@ struct ZipBuilderTool: ParsableCommand {
       fatalError("Missing template inside of the repo. \(templateDir) does not exist.")
     }
 
+    // Set the platform minimum versions.
+    PlatformMinimum.initialize(ios: minimumIOSVersion,
+                               macos: minimumMACOSVersion,
+                               tvos: minimumTVOSVersion)
+
     let paths = ZipBuilder.FilesystemPaths(repoDir: repoDir,
                                            buildRoot: buildRoot,
                                            outputDir: outputDir,
@@ -228,19 +241,11 @@ struct ZipBuilderTool: ParsableCommand {
 
     // Populate the platforms list if it's empty. This isn't a great spot, but the argument parser
     // can't specify a default for arrays.
-    let platformsToBuild = !platforms.isEmpty ? platforms : TargetPlatform.allCases
+    let platformsToBuild = !platforms.isEmpty ? platforms : Platform.allCases
     let builder = ZipBuilder(paths: paths,
                              platforms: platformsToBuild,
                              dynamicFrameworks: dynamic,
                              customSpecRepos: customSpecRepos)
-    let projectDir = FileManager.default.temporaryDirectory(withName: "project")
-
-    // If it exists, remove it before we re-create it. This is simpler than removing all objects.
-    if FileManager.default.directoryExists(at: projectDir) {
-      try FileManager.default.removeItem(at: projectDir)
-    }
-
-    CocoaPodUtils.podInstallPrepare(inProjectDir: projectDir, paths: paths)
 
     if let outputDir = outputDir {
       do {
@@ -261,8 +266,6 @@ struct ZipBuilderTool: ParsableCommand {
     if let podsToBuild = podsToBuild {
       let (installedPods, frameworks, _) =
         builder.buildAndAssembleZip(podsToInstall: podsToBuild,
-                                    inProjectDir: projectDir,
-                                    minimumIOSVersion: minimumIOSVersion,
                                     includeDependencies: buildDependencies)
       let staging = FileManager.default.temporaryDirectory(withName: "Binaries")
       try builder.copyFrameworks(fromPods: Array(installedPods.keys), toDirectory: staging,
@@ -296,13 +299,13 @@ struct ZipBuilderTool: ParsableCommand {
                                                isVersionCheckEnabled: carthageVersionCheck)
       }
 
-      FirebaseBuilder(zipBuilder: builder).build(in: projectDir,
-                                                 minimumIOSVersion: minimumIOSVersion,
+      FirebaseBuilder(zipBuilder: builder).build(templateDir: paths.templateDir,
                                                  carthageBuildOptions: carthageOptions)
     }
 
     if !keepBuildArtifacts {
-      FileManager.default.removeIfExists(at: projectDir.deletingLastPathComponent())
+      let tempDir = FileManager.default.temporaryDirectory(withName: "random")
+      FileManager.default.removeIfExists(at: tempDir.deletingLastPathComponent())
     }
 
     // Get the time since the start of the build to get the full time.

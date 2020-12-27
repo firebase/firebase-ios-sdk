@@ -76,8 +76,8 @@ struct ModuleMapBuilder {
   /// Dictionary of installed pods required for this module.
   private var installedPods: [String: FrameworkInfo]
 
-  /// The minimum iOS version targeted for this framework. Ex. "10.0".
-  private let minimumIOSVersion: String
+  /// The platform for this build.
+  private let platform: Platform
 
   /// The path containing local podspec URLs, if specified.
   private let localPodspecPath: URL?
@@ -85,10 +85,10 @@ struct ModuleMapBuilder {
   /// Default initializer.
   init(customSpecRepos: [URL]?,
        selectedPods: [String: CocoaPodUtils.PodInfo],
-       minimumIOSVersion: String,
+       platform: Platform,
        paths: ZipBuilder.FilesystemPaths) {
     projectDir = FileManager.default.temporaryDirectory(withName: "module")
-    CocoaPodUtils.podInstallPrepare(inProjectDir: projectDir, paths: paths)
+    CocoaPodUtils.podInstallPrepare(inProjectDir: projectDir, templateDir: paths.templateDir)
 
     self.customSpecRepos = customSpecRepos
     allPods = selectedPods
@@ -102,7 +102,7 @@ struct ModuleMapBuilder {
     }
     self.installedPods = installedPods
 
-    self.minimumIOSVersion = minimumIOSVersion
+    self.platform = platform
     localPodspecPath = paths.localPodspecPath
   }
 
@@ -112,7 +112,9 @@ struct ModuleMapBuilder {
   ///
   func build() {
     for (_, info) in installedPods {
-      if info.isSourcePod == false || info.transitiveFrameworks != nil {
+      if info.isSourcePod == false ||
+        info.transitiveFrameworks != nil ||
+        info.versionedPod.name == "Firebase" {
         continue
       }
       generate(framework: info)
@@ -129,7 +131,7 @@ struct ModuleMapBuilder {
     let deps = CocoaPodUtils.transitiveVersionedPodDependencies(for: podName, in: allPods)
     _ = CocoaPodUtils.installPods(allSubspecList(framework: framework) + deps,
                                   inDir: projectDir,
-                                  minimumIOSVersion: minimumIOSVersion,
+                                  platform: platform,
                                   customSpecRepos: customSpecRepos,
                                   localPodspecPath: localPodspecPath,
                                   linkage: .forcedStatic)
