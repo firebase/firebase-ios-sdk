@@ -24,7 +24,7 @@ enum Platform: CaseIterable {
 
   var platformTargets: [TargetPlatform] {
     switch self {
-    case .iOS: return [.iOSDevice, .iOSSimulator, .catalyst]
+    case .iOS: return [.iOSDevice, .iOSSimulator] + (SkipCatalyst.skip ? [] : [.catalyst])
     case .macOS: return [.macOS]
     case .tvOS: return [.tvOSDevice, .tvOSSimulator]
     }
@@ -57,5 +57,12 @@ class PlatformMinimum {
     minimumIOSVersion = ios
     minimumMACOSVersion = macos
     minimumTVOSVersion = tvos
+  }
+}
+
+class SkipCatalyst {
+  fileprivate static var skip = false
+  static func set() {
+    skip = true
   }
 }

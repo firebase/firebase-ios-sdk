@@ -79,6 +79,12 @@ struct ZipBuilderTool: ParsableCommand {
         help: ArgumentHelp("A flag to indicate keeping (not deleting) the build artifacts."))
   var keepBuildArtifacts: Bool
 
+  /// Flag to skip building the Catalyst slices.
+  @Flag(default: false,
+        inversion: .prefixedNo,
+        help: ArgumentHelp("A flag to indicate keeping (not deleting) the build artifacts."))
+  var skipCatalyst: Bool
+
   /// Flag to run `pod repo update` and `pod cache clean --all`.
   @Flag(default: true,
         inversion: .prefixedNo,
@@ -231,6 +237,11 @@ struct ZipBuilderTool: ParsableCommand {
     PlatformMinimum.initialize(ios: minimumIOSVersion,
                                macos: minimumMACOSVersion,
                                tvos: minimumTVOSVersion)
+
+    // Update iOS target platforms if `--skip-catalyst` was specified.
+    if skipCatalyst {
+      SkipCatalyst.set()
+    }
 
     let paths = ZipBuilder.FilesystemPaths(repoDir: repoDir,
                                            buildRoot: buildRoot,
