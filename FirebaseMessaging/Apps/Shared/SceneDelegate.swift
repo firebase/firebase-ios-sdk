@@ -76,6 +76,5 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, MessagingDelegate {
     print("=============================\n")
     print("Did refresh token:\n", identity.token ?? "")
     print("\n=============================\n")
-
   }
 }
