@@ -1138,7 +1138,7 @@ static FIRInstanceID *gInstanceID;
         (self.defaultFCMToken.length && tokenUpdatedFromMessaging.length &&
          ![self.defaultFCMToken isEqualToString:tokenUpdatedFromMessaging]) ||
         (cachedToken.length && tokenUpdatedFromMessaging.length &&
-         ![self.defaultFCMToken isEqualToString:tokenUpdatedFromMessaging])) {
+         ![cachedToken isEqualToString:tokenUpdatedFromMessaging])) {
       self.defaultFCMToken = tokenUpdatedFromMessaging;
       [self.tokenManager saveDefaultToken:tokenUpdatedFromMessaging
                               withOptions:[self defaultTokenOptions]];
