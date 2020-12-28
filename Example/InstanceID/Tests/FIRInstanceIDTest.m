@@ -1328,7 +1328,18 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
 - (void)testRefreshDifferentTokenFromMessaging {
   _instanceID.defaultFCMToken = kToken;
   XCTAssertEqualObjects(_instanceID.defaultFCMToken, kToken);
-  NSString *newTokenFromMessaging = @"test_fake_token_that_is_only_for_this_test";
+  NSString *newTokenFromMessaging = @"a_new_token_from_messaging";
+  FIRInstanceIDTokenInfo *cachedTokenInfo =
+      [[FIRInstanceIDTokenInfo alloc] initWithAuthorizedEntity:kAuthorizedEntity
+                                                         scope:kFIRInstanceIDDefaultTokenScope
+                                                         token:kToken
+                                                    appVersion:@""
+                                                 firebaseAppID:kGoogleAppID];
+  OCMStub([self.mockTokenManager
+              cachedTokenInfoWithAuthorizedEntity:kAuthorizedEntity
+                                            scope:kFIRInstanceIDDefaultTokenScope])
+      .andReturn(cachedTokenInfo);
+
   OCMExpect([self.mockTokenManager saveDefaultToken:newTokenFromMessaging
                                         withOptions:[OCMArg any]]);
   [[NSNotificationCenter defaultCenter]
@@ -1345,12 +1356,13 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
   NSString *newTokenFromMessaging = kToken;
   FIRInstanceIDTokenInfo *cachedTokenInfo =
       [[FIRInstanceIDTokenInfo alloc] initWithAuthorizedEntity:kAuthorizedEntity
-                                                         scope:kScope
+                                                         scope:kFIRInstanceIDDefaultTokenScope
                                                          token:kToken
                                                     appVersion:@""
                                                  firebaseAppID:kGoogleAppID];
-  OCMStub([self.mockTokenManager cachedTokenInfoWithAuthorizedEntity:kAuthorizedEntity
-                                                               scope:kScope])
+  OCMStub([self.mockTokenManager
+              cachedTokenInfoWithAuthorizedEntity:kAuthorizedEntity
+                                            scope:kFIRInstanceIDDefaultTokenScope])
       .andReturn(cachedTokenInfo);
 
   OCMReject([self.mockTokenManager saveDefaultToken:newTokenFromMessaging
@@ -1371,12 +1383,13 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
 
   FIRInstanceIDTokenInfo *cachedTokenInfo =
       [[FIRInstanceIDTokenInfo alloc] initWithAuthorizedEntity:kAuthorizedEntity
-                                                         scope:kScope
+                                                         scope:kFIRInstanceIDDefaultTokenScope
                                                          token:@"a_outdated_token_in_storage"
                                                     appVersion:@""
                                                  firebaseAppID:kGoogleAppID];
-  OCMStub([self.mockTokenManager cachedTokenInfoWithAuthorizedEntity:kAuthorizedEntity
-                                                               scope:kScope])
+  OCMStub([self.mockTokenManager
+              cachedTokenInfoWithAuthorizedEntity:kAuthorizedEntity
+                                            scope:kFIRInstanceIDDefaultTokenScope])
       .andReturn(cachedTokenInfo);
 
   OCMExpect([self.mockTokenManager saveDefaultToken:newTokenFromMessaging
