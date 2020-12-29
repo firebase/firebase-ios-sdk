@@ -1,5 +1,6 @@
 name: generate_issues
 on:
+  workflow_dispatch:
   pull_request:
     paths:
       - .github/actions/testing_report_generation/app.rb
@@ -9,7 +10,7 @@ on:
 jobs:
   generate_an_issue:
     # Don't run on private repo.
-    if: github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule'
+    if: github.repository == 'Firebase/firebase-ios-sdk'
     runs-on: ubuntu-latest
     name: Generate a nightly testing report issue
     steps:
