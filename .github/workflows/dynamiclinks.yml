@@ -2,7 +2,7 @@ name: dynamiclinks
 
 on:
   pull_request:
-    paths:
+  paths:
     - 'FirebaseDynamicLinks**'
     - '.github/workflows/dynamiclinks.yml'
     - 'Interop/Analytics/Public/*.h'
