@@ -1,5 +1,8 @@
 name: generate_issues
 on:
+  pull_request:
+    paths:
+    - '.github/actions/testing_report_generation**'
   schedule:
     # Run every day at 5am (PST) - cron uses UTC times
     - cron:  '0 13 * * *'
