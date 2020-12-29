@@ -135,5 +135,5 @@ elsif !last_issue.nil? and last_issue.state == "open"
   client.add_comment(REPO_NAME_WITH_OWNER, last_issue.number,failure_report.get_report)
 # Create a new issue if there exists failed workflows.
 else
-  client.create_issue(REPO_NAME_WITH_OWNER, ISSUE_TITLE, failure_report.get_report, labels: ISSUE_LABELS, assignee: ASSIGNEE) unless !failure_report.get_report.nil?
+  client.create_issue(REPO_NAME_WITH_OWNER, ISSUE_TITLE, failure_report.get_report, labels: ISSUE_LABELS, assignee: ASSIGNEE) unless failure_report.get_report.nil?
 end
