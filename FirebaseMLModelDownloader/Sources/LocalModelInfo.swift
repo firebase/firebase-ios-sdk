@@ -39,17 +39,27 @@ class LocalModelInfo {
     return "\(bundleID).\(appName).\(modelName)"
   }
 
-  /// Convenience init to create local model info from remotely downloaded model info and a local model path.
-  init(from remoteModelInfo: RemoteModelInfo, path: String) {
-    name = remoteModelInfo.name
-    downloadURL = remoteModelInfo.downloadURL
-    modelHash = remoteModelInfo.modelHash
-    size = remoteModelInfo.size
+  init(name: String, downloadURL: URL, modelHash: String, size: Int, path: String) {
+    self.name = name
+    self.downloadURL = downloadURL
+    self.modelHash = modelHash
+    self.size = size
     self.path = path
   }
 
+  /// Convenience init to create local model info from remotely downloaded model info and a local model path.
+  convenience init(from remoteModelInfo: RemoteModelInfo, path: String) {
+    self.init(
+      name: remoteModelInfo.name,
+      downloadURL: remoteModelInfo.downloadURL,
+      modelHash: remoteModelInfo.modelHash,
+      size: remoteModelInfo.size,
+      path: path
+    )
+  }
+
   /// Convenience init to create local model info from stored info in user defaults.
-  init?(fromDefaults defaults: UserDefaults, name: String, appName: String) {
+  convenience init?(fromDefaults defaults: UserDefaults, name: String, appName: String) {
     let defaultsPrefix = LocalModelInfo.getUserDefaultsKeyPrefix(appName: appName, modelName: name)
     guard let downloadURL = defaults
       .value(forKey: "\(defaultsPrefix).model-download-url") as? String,
@@ -59,12 +69,7 @@ class LocalModelInfo {
       let path = defaults.value(forKey: "\(defaultsPrefix).model-path") as? String else {
       return nil
     }
-
-    self.name = name
-    self.downloadURL = url
-    self.modelHash = modelHash
-    self.size = size
-    self.path = path
+    self.init(name: name, downloadURL: url, modelHash: modelHash, size: size, path: path)
   }
 
   /// Write local model info to user defaults.

@@ -18,15 +18,20 @@ import XCTest
 @testable import FirebaseMLModelDownloader
 
 extension UserDefaults {
-  /// For testing: returns a new cleared instance of user defaults.
-  @discardableResult static func getTestInstance(cleared: Bool = true) -> UserDefaults {
-    let suiteName = "com.google.firebase.ml.test"
+  /// Returns a new cleared instance of user defaults.
+  static func createTestInstance(testName: String) -> UserDefaults {
+    let suiteName = "com.google.firebase.ml.test.\(testName)"
     // TODO: reconsider force unwrapping
     let defaults = UserDefaults(suiteName: suiteName)!
-    if cleared {
-      defaults.removePersistentDomain(forName: suiteName)
-    }
+    defaults.removePersistentDomain(forName: suiteName)
     return defaults
+  }
+
+  /// Returns the existing user defaults instance.
+  static func getTestInstance(testName: String) -> UserDefaults {
+    let suiteName = "com.google.firebase.ml.test.\(testName)"
+    // TODO: reconsider force unwrapping
+    return UserDefaults(suiteName: suiteName)!
   }
 }
 
@@ -66,7 +71,10 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
           XCTAssertGreaterThan(modelInfo.modelHash.count, 0)
           XCTAssertGreaterThan(modelInfo.size, 0)
           let localModelInfo = LocalModelInfo(from: modelInfo, path: "mock-valid-path")
-          localModelInfo.writeToDefaults(.getTestInstance(), appName: testApp.name)
+          localModelInfo.writeToDefaults(
+            .createTestInstance(testName: #function),
+            appName: testApp.name
+          )
         } else {
           XCTFail("Failed to retrieve model info.")
         }
@@ -75,6 +83,49 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
         XCTFail("Failed to retrieve model info - \(error)")
       }
       downloadExpectation.fulfill()
+    })
+
+    waitForExpectations(timeout: 5, handler: nil)
+
+    if let localInfo = LocalModelInfo(
+      fromDefaults: .getTestInstance(testName: #function),
+      name: testModelName,
+      appName: testApp.name
+    ) {
+      XCTAssertNotNil(localInfo)
+      testRetrieveModelInfo(localInfo: localInfo)
+    } else {
+      XCTFail("Could not save model info locally.")
+    }
+  }
+
+  func testRetrieveModelInfo(localInfo: LocalModelInfo) {
+    guard let testApp = FirebaseApp.app() else {
+      XCTFail("Default app was not configured.")
+      return
+    }
+    let testModelName = "pose-detection"
+
+    let modelInfoRetriever = ModelInfoRetriever(
+      modelName: testModelName,
+      options: testApp.options,
+      installations: Installations.installations(app: testApp),
+      appName: testApp.name,
+      localModelInfo: localInfo
+    )
+    // TODO: This check seems to be flaky.
+    let retrieveExpectation = expectation(description: "Wait for model info to be retrieved.")
+    modelInfoRetriever.downloadModelInfo(completion: { result in
+      switch result {
+      case let .success(remoteModelInfo):
+        if remoteModelInfo != nil {
+          XCTFail("Local model info is already the latest and should not be set again.")
+        }
+      case let .failure(error):
+        XCTAssertNotNil(error)
+        XCTFail("Failed to retrieve model info - \(error)")
+      }
+      retrieveExpectation.fulfill()
     })
 
     waitForExpectations(timeout: 5, handler: nil)
@@ -100,7 +151,8 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
     let modelDownloadManager = ModelDownloadTask(
       remoteModelInfo: remoteModelInfo,
       appName: testApp.name,
-      defaults: .getTestInstance(),
+      defaults: .createTestInstance(testName: #function),
+      runsOnMainThread: true,
       progressHandler: { progress in
         XCTAssertNotNil(progress)
       }
@@ -121,5 +173,93 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
     modelDownloadManager.resumeModelDownload()
     waitForExpectations(timeout: 5, handler: nil)
     XCTAssertEqual(modelDownloadManager.downloadStatus, .completed)
+  }
+
+  func testGetModel() {
+    let testApp = FirebaseApp.app()!
+    let testModelName = "image-classification"
+
+    let conditions = ModelDownloadConditions()
+    let modelDownloader = ModelDownloader.modelDownloader(app: testApp)
+
+    var downloadType: ModelDownloadType = .latestModel
+    let latestModelExpectation = expectation(description: "Get latest model.")
+
+    modelDownloader.getModel(
+      name: testModelName,
+      downloadType: downloadType,
+      conditions: conditions,
+      progressHandler: { progress in
+        XCTAssertNotNil(progress)
+      }
+    ) { result in
+      switch result {
+      case let .success(model):
+        XCTAssertNotNil(model.path)
+        guard let filePath = URL(string: model.path) else {
+          XCTFail("Invalid model path.")
+          return
+        }
+        XCTAssertTrue(ModelFileManager.isFileReachable(at: filePath))
+      case let .failure(error):
+        XCTFail("Failed to download model - \(error)")
+      }
+      latestModelExpectation.fulfill()
+    }
+
+    waitForExpectations(timeout: 5, handler: nil)
+
+    downloadType = .localModel
+    let localModelExpectation = expectation(description: "Get local model.")
+
+    modelDownloader.getModel(
+      name: testModelName,
+      downloadType: downloadType,
+      conditions: conditions,
+      progressHandler: { progress in
+        XCTFail("Model is already available on device.")
+      }
+    ) { result in
+      switch result {
+      case let .success(model):
+        XCTAssertNotNil(model.path)
+        guard let filePath = URL(string: model.path) else {
+          XCTFail("Invalid model path.")
+          return
+        }
+        XCTAssertTrue(ModelFileManager.isFileReachable(at: filePath))
+      case let .failure(error):
+        XCTFail("Failed to download model - \(error)")
+      }
+      localModelExpectation.fulfill()
+    }
+    waitForExpectations(timeout: 5, handler: nil)
+
+    downloadType = .localModelUpdateInBackground
+    let backgroundModelExpectation =
+      expectation(description: "Get local model and update in background.")
+
+    modelDownloader.getModel(
+      name: testModelName,
+      downloadType: downloadType,
+      conditions: conditions,
+      progressHandler: { progress in
+        XCTFail("Model is already available on device.")
+      }
+    ) { result in
+      switch result {
+      case let .success(model):
+        XCTAssertNotNil(model.path)
+        guard let filePath = URL(string: model.path) else {
+          XCTFail("Invalid model path.")
+          return
+        }
+        XCTAssertTrue(ModelFileManager.isFileReachable(at: filePath))
+      case let .failure(error):
+        XCTFail("Failed to download model - \(error)")
+      }
+      backgroundModelExpectation.fulfill()
+    }
+    waitForExpectations(timeout: 5, handler: nil)
   }
 }

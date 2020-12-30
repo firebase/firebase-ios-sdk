@@ -25,19 +25,6 @@ private enum MockOptions {
   static let apiKey = "ABcdEf-APIKeyWithValidFormat_0123456789"
 }
 
-extension UserDefaults {
-  /// For testing: returns a new cleared instance of user defaults.
-  static func getTestInstance(cleared: Bool = true) -> UserDefaults {
-    let suiteName = "com.google.firebase.ml.test"
-    // TODO: reconsider force unwrapping
-    let defaults = UserDefaults(suiteName: suiteName)!
-    if cleared {
-      defaults.removePersistentDomain(forName: suiteName)
-    }
-    return defaults
-  }
-}
-
 final class ModelDownloaderUnitTests: XCTestCase {
   override class func setUp() {
     let options = FirebaseOptions(
@@ -61,7 +48,7 @@ final class ModelDownloaderUnitTests: XCTestCase {
   // TODO: Add unit test.
   func testDeleteModel() {}
 
-  func testExample() {
+  func testGetModel() {
     // This is an example of a functional test case.
     // Use XCTAssert and related functions to verify your tests produce the correct
     // results.
@@ -71,7 +58,6 @@ final class ModelDownloaderUnitTests: XCTestCase {
     }
 
     let modelDownloader = ModelDownloader.modelDownloader()
-
     let modelDownloaderWithApp = ModelDownloader.modelDownloader(app: testApp)
 
     /// These should point to the same instance.
