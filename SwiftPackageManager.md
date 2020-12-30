@@ -51,7 +51,7 @@ https://github.com/firebase/firebase-ios-sdk/issues/6472#issuecomment-694449182.
 
 <img src="docs/resources/SPMObjC.png">
 
-If you're using FirebaseCrashlytics, use 
+If you're using FirebaseCrashlytics, use
 `${BUILD_DIR%Build/*}SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/run`
 as the run script that allows Xcode to upload your project's dSYM files.
 
