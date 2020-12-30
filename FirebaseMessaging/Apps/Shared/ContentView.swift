@@ -48,6 +48,7 @@ struct ContentView: View {
               // simulator renders a single truncated line even though the Preview renders it
               // appropriately. Potentially a bug in the simulator?
               .layoutPriority(1)
+              .lineLimit(7)
           }
           NavigationLink(destination: SettingsView()) {
             Text("Settings")
