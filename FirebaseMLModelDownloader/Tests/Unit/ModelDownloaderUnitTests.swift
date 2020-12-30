@@ -44,7 +44,7 @@ final class ModelDownloaderUnitTests: XCTestCase {
   // TODO: Add unit test with mocks.
   func testStartModelDownload() {}
 
-  func testExample() {
+  func testGetModel() {
     // This is an example of a functional test case.
     // Use XCTAssert and related functions to verify your tests produce the correct
     // results.
@@ -54,7 +54,6 @@ final class ModelDownloaderUnitTests: XCTestCase {
     }
 
     let modelDownloader = ModelDownloader.modelDownloader()
-
     let modelDownloaderWithApp = ModelDownloader.modelDownloader(app: testApp)
 
     /// These should point to the same instance.

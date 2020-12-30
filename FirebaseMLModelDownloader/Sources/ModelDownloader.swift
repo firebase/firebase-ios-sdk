@@ -114,7 +114,6 @@ public class ModelDownloader {
                        conditions: ModelDownloadConditions,
                        progressHandler: ((Float) -> Void)? = nil,
                        completion: @escaping (Result<CustomModel, DownloadError>) -> Void) {
-    // TODO: Model download
     switch downloadType {
     case .localModel:
       if let localModel = getLocalModel(modelName: modelName) {
@@ -141,8 +140,8 @@ public class ModelDownloader {
             progressHandler: nil,
             completion: { result in
               switch result {
+              // TODO: Handle success and failure of background download
               case .success: break
-              // TODO: Handle failure of background download
               case .failure: break
               }
             }
