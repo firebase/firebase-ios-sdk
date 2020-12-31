@@ -1,3 +1,7 @@
+# Version 7.4.0
+* Make FirebasePerformance open source.
+* Remove GoogleToolboxForMac dependency.
+
 # Version 7.3.0
 * Add blocklist for GoogleDataTransport upload URLs.
 * Update the event transport mechanism to open sourced GoogleDataTransport.
