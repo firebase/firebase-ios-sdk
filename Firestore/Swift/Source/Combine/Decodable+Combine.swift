@@ -57,22 +57,20 @@
             self.snapshot = snapshot
         }
         
-        func receive<S>(subscriber: S) where S : Subscriber, Self.Failure == S.Failure, Self.Output == S.Input {
-            let subscription = FIRDecoderSubscription(
-                subscriber: subscriber,
-                snapshot: snapshot
-            )
-
+        func receive<S>(subscriber: S) where S : Subscriber, Self.Failure == S.Failure,
+            Self.Output == S.Input {
+            let subscription = FIRDecoderSubscription(for: subscriber, snapshot: snapshot)
             subscriber.receive(subscription: subscription)
         }
     }
   }
 
-  fileprivate final class FIRDecoderSubscription<S: Subscriber, Output: Decodable>: Subscription where S.Input == Output, S.Failure == Error {
+  fileprivate final class FIRDecoderSubscription<S: Subscriber, Output: Decodable>: Subscription
+    where S.Input == Output, S.Failure == Error {
     private let snapshot: QuerySnapshot
     private var subscriber: S?
     
-    init(subscriber: S, snapshot: QuerySnapshot) {
+    init(for subscriber: S, snapshot: QuerySnapshot) {
         self.subscriber = subscriber
         self.snapshot = snapshot
     }
