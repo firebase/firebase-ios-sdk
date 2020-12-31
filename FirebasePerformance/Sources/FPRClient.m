@@ -31,8 +31,6 @@
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
-#import <GoogleToolboxForMac/GTMLogger.h>
-
 #import "FirebasePerformance/ProtoSupport/PerfMetric.pbobjc.h"
 
 @interface FPRClient ()
