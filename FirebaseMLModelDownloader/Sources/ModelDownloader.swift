@@ -111,6 +111,18 @@ public class ModelDownloader {
     }
   }
 
+  /// Model downloader instance for testing.
+  // TODO: Consider using protocols
+  static func modelDownloader(app: FirebaseApp, defaults: UserDefaults) -> ModelDownloader {
+    if let downloader = modelDownloaderDictionary[app.name] {
+      return downloader
+    } else {
+      let downloader = ModelDownloader(app: app, defaults: defaults)
+      modelDownloaderDictionary[app.name] = downloader
+      return downloader
+    }
+  }
+
   /// Downloads a custom model to device or gets a custom model already on device, w/ optional handler for progress.
   public func getModel(name modelName: String, downloadType: ModelDownloadType,
                        conditions: ModelDownloadConditions,
@@ -171,10 +183,35 @@ public class ModelDownloader {
   /// Gets all downloaded models.
   public func listDownloadedModels(completion: @escaping (Result<Set<CustomModel>,
     DownloadedModelError>) -> Void) {
-    let customModels = Set<CustomModel>()
-    // TODO: List downloaded models
-    completion(.success(customModels))
-    completion(.failure(.notFound))
+    do {
+      let modelPaths = try ModelFileManager.contentsOfModelsDirectory()
+      var customModels = Set<CustomModel>()
+      for path in modelPaths {
+        guard let modelName = ModelFileManager.getModelNameFromFilePath(path) else {
+          completion(.failure(.internalError(description: "Invalid model file name.")))
+          return
+        }
+        guard let modelInfo = getLocalModelInfo(modelName: modelName) else {
+          completion(
+            .failure(.internalError(description: "Failed to get model info for model file."))
+          )
+          return
+        }
+        guard modelInfo.path == path.absoluteString else {
+          completion(
+            .failure(.internalError(description: "Outdated model paths in local storage."))
+          )
+          return
+        }
+        let model = CustomModel(localModelInfo: modelInfo)
+        customModels.insert(model)
+      }
+      completion(.success(customModels))
+    } catch let error as DownloadedModelError {
+      completion(.failure(error))
+    } catch {
+      completion(.failure(.internalError(description: error.localizedDescription)))
+    }
   }
 
   /// Deletes a custom model from device.
@@ -206,8 +243,10 @@ extension ModelDownloader {
       fromDefaults: userDefaults,
       name: modelName,
       appName: appName
-    ),
-      let localPath = URL(string: localModelInfo.path),
+    ) else {
+      return nil
+    }
+    guard let localPath = URL(string: localModelInfo.path),
       ModelFileManager.isFileReachable(at: localPath) else {
       // TODO: Delete local model info in user defaults
       return nil

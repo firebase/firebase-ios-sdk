@@ -48,6 +48,19 @@ final class ModelDownloaderUnitTests: XCTestCase {
   // TODO: Add unit test.
   func testDeleteModel() {}
 
+  /// Test listing models in model directory.
+  // TODO: Add unit test.
+  func testListModels() {
+    let modelDownloader = ModelDownloader.modelDownloader()
+
+    modelDownloader.listDownloadedModels { result in
+      switch result {
+      case .success: break
+      case .failure: break
+      }
+    }
+  }
+
   func testGetModel() {
     // This is an example of a functional test case.
     // Use XCTAssert and related functions to verify your tests produce the correct

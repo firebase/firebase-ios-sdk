@@ -177,10 +177,14 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
 
   func testGetModel() {
     let testApp = FirebaseApp.app()!
+    let testName = "model-downloader-test"
     let testModelName = "image-classification"
 
     let conditions = ModelDownloadConditions()
-    let modelDownloader = ModelDownloader.modelDownloader(app: testApp)
+    let modelDownloader = ModelDownloader.modelDownloader(
+      app: testApp,
+      defaults: .getTestInstance(testName: testName)
+    )
 
     var downloadType: ModelDownloadType = .latestModel
     let latestModelExpectation = expectation(description: "Get latest model.")
@@ -261,5 +265,25 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
       backgroundModelExpectation.fulfill()
     }
     waitForExpectations(timeout: 5, handler: nil)
+  }
+
+  /// Test listing models in model directory.
+  func testListModels() {
+    testGetModel()
+    let testApp = FirebaseApp.app()!
+    let testName = "model-downloader-test"
+
+    let modelDownloader = ModelDownloader.modelDownloader(
+      app: testApp,
+      defaults: .getTestInstance(testName: testName)
+    )
+
+    modelDownloader.listDownloadedModels { result in
+      switch result {
+      case .success: break
+      case let .failure(error):
+        XCTFail("Failed to list models - \(error)")
+      }
+    }
   }
 }

@@ -16,7 +16,9 @@ import Foundation
 
 /// Manager for common file operations.
 enum ModelFileManager {
-  static let fileManager = FileManager.default
+  private static let nameSeparator = "__"
+  private static let modelNamePrefix = "fbml_model"
+  private static let fileManager = FileManager.default
 
   /// Root directory of model file storage on device.
   static var modelsDirectory: URL {
@@ -28,11 +30,30 @@ enum ModelFileManager {
     #endif
   }
 
+  /// Name for model file stored on device.
+  private static func getDownloadedModelFileName(appName: String, modelName: String) -> String {
+    return [modelNamePrefix, appName, modelName].joined(separator: nameSeparator)
+  }
+
+  /// Model name from file path.
+  static func getModelNameFromFilePath(_ path: URL) -> String? {
+    return path.lastPathComponent.components(separatedBy: nameSeparator).last
+  }
+
+  /// Full path of model file stored on device.
+  static func getDownloadedModelFilePath(appName: String, modelName: String) -> URL {
+    let modelFileName = ModelFileManager.getDownloadedModelFileName(
+      appName: appName,
+      modelName: modelName
+    )
+    return ModelFileManager.modelsDirectory
+      .appendingPathComponent(modelFileName)
+  }
+
   /// Check if file is available at URL.
   static func isFileReachable(at fileURL: URL) -> Bool {
     do {
-      let isReachable = try fileURL.checkResourceIsReachable()
-      return isReachable
+      return try fileURL.checkResourceIsReachable()
     } catch {
       /// File unreachable.
       return false
@@ -64,9 +85,27 @@ enum ModelFileManager {
     do {
       try fileManager.removeItem(at: url)
     } catch {
-      throw DownloadError
+      throw DownloadedModelError
         .internalError(
           description: "Could not delete old model file - \(error.localizedDescription)"
+        )
+    }
+  }
+
+  static func contentsOfModelsDirectory() throws -> [URL] {
+    do {
+      let directoryContents = try ModelFileManager.fileManager.contentsOfDirectory(
+        at: modelsDirectory,
+        includingPropertiesForKeys: nil,
+        options: .skipsHiddenFiles
+      )
+      return directoryContents.filter { directoryItem in
+        !directoryItem.hasDirectoryPath
+      }
+    } catch {
+      throw DownloadedModelError
+        .internalError(
+          description: "Could not retrieve model files in directory - \(error.localizedDescription)"
         )
     }
   }

@@ -84,20 +84,17 @@ class ModelDownloadTask: NSObject {
 
 /// Extension to handle delegate methods.
 extension ModelDownloadTask: URLSessionDownloadDelegate {
-  /// Name for model file stored on device.
-  var downloadedModelFileName: String {
-    return "fbml_model__\(appName)__\(remoteModelInfo.name)"
-  }
-
   func urlSession(_ session: URLSession,
                   downloadTask: URLSessionDownloadTask,
                   didFinishDownloadingTo location: URL) {
     assert(downloadTask == self.downloadTask)
     downloadStatus = .completed
-    let savedURL = ModelFileManager.modelsDirectory
-      .appendingPathComponent(downloadedModelFileName)
+    let modelFileURL = ModelFileManager.getDownloadedModelFilePath(
+      appName: appName,
+      modelName: remoteModelInfo.name
+    )
     do {
-      try ModelFileManager.moveFile(at: location, to: savedURL)
+      try ModelFileManager.moveFile(at: location, to: modelFileURL)
     } catch let error as DownloadError {
       if self.downloadHandlers.runsOnMainThread {
         DispatchQueue.main.async {
@@ -121,7 +118,7 @@ extension ModelDownloadTask: URLSessionDownloadDelegate {
     }
 
     /// Generate local model info.
-    let localModelInfo = LocalModelInfo(from: remoteModelInfo, path: savedURL.absoluteString)
+    let localModelInfo = LocalModelInfo(from: remoteModelInfo, path: modelFileURL.absoluteString)
     /// Write model to user defaults.
     localModelInfo.writeToDefaults(defaults, appName: appName)
     /// Build model from model info.
