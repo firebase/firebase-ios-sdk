@@ -130,7 +130,6 @@ static NSString *const kFIRMessagingTokenKeychainId = @"com.google.iid-tokens";
 
 - (void)saveTokenInfoInCache:(FIRMessagingTokenInfo *)tokenInfo {
   tokenInfo.cacheTime = [NSDate date];
-  // Always write to the Keychain, so that the cacheTime is up-to-date.
   NSData *tokenInfoData;
   // TODO(chliangGoogle: Use the new API and secureCoding protocol.
   [NSKeyedArchiver setClassName:@"FIRInstanceIDTokenInfo" forClass:[FIRMessagingTokenInfo class]];

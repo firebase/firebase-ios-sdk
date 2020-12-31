@@ -19,22 +19,22 @@
 #error FIRMessagingLib should be compiled with ARC.
 #endif
 
+#import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessaging.h"
+#import "Firebase/InstanceID/Private/FIRInstanceID_Private.h"
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseInstallations/Source/Library/Public/FirebaseInstallations/FirebaseInstallations.h"
+#import "FirebaseMessaging/Sources/Interop/FIRMessagingInterop.h"
+#import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessagingExtensionHelper.h"
 #import "GoogleUtilities/AppDelegateSwizzler/Public/GoogleUtilities/GULAppDelegateSwizzler.h"
 #import "GoogleUtilities/Environment/Public/GoogleUtilities/GULAppEnvironmentUtil.h"
 #import "GoogleUtilities/Reachability/Public/GoogleUtilities/GULReachabilityChecker.h"
 #import "GoogleUtilities/UserDefaults/Public/GoogleUtilities/GULUserDefaults.h"
-#import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessaging.h"
-#import "Firebase/InstanceID/Private/FIRInstanceID_Private.h"
-#import "FirebaseInstallations/Source/Library/Public/FirebaseInstallations/FirebaseInstallations.h"
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
-#import "FirebaseMessaging/Sources/Interop/FIRMessagingInterop.h"
-#import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessagingExtensionHelper.h"
 #import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 
 #import "FirebaseMessaging/Sources/FIRMessagingAnalytics.h"
+#import "FirebaseMessaging/Sources/FIRMessagingCode.h"
 #import "FirebaseMessaging/Sources/FIRMessagingConstants.h"
 #import "FirebaseMessaging/Sources/FIRMessagingContextManagerService.h"
-#import "FirebaseMessaging/Sources/FIRMessagingCode.h"
 #import "FirebaseMessaging/Sources/FIRMessagingDefines.h"
 #import "FirebaseMessaging/Sources/FIRMessagingLogger.h"
 #import "FirebaseMessaging/Sources/FIRMessagingPubSub.h"
@@ -106,7 +106,6 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 
 // FIRApp properties
 @property(nonatomic, readwrite, strong) NSData *apnsTokenData;
-@property(nonatomic, readwrite, strong) NSString *defaultFcmToken;
 @property(nonatomic, readwrite, strong) FIRMessagingClient *client;
 @property(nonatomic, readwrite, strong) GULReachabilityChecker *reachability;
 @property(nonatomic, readwrite, strong) FIRMessagingPubSub *pubsub;
@@ -247,6 +246,11 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
                                completion:^(NSString *_Nullable FCMToken, NSError *_Nullable error){
                                }];
       }
+      // Set the default FCM token, there's an issue that FIRApp configure
+      // happens before developers able to set the delegate
+      // Hence first token set must be happen here after listener is set
+      // TODO(chliangGoogle) Need to investigate better solution.
+      [self.tokenManager setDefaultFCMToken:self.FCMToken];
     }];
   } else if (self.isAutoInitEnabled) {
     // When there is no cached token, must check auto init is enabled.
@@ -540,7 +544,8 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 
 - (NSString *)FCMToken {
   // Gets the current default token, and requets a new one if it doesn't exist.
-  return [[FIRMessaging messaging].tokenManager tokenAndRequestIfNotExist];
+  NSString *token = [[FIRMessaging messaging].tokenManager tokenAndRequestIfNotExist];
+  return token;
 }
 
 - (void)tokenWithCompletion:(FIRMessagingFCMTokenFetchCompletion)completion {
@@ -625,7 +630,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 
 - (void)deleteDataWithCompletion:(void (^)(NSError *_Nullable))completion {
   FIRMessaging_WEAKIFY(self);
-  [self.tokenManager deleteWithHandler:^(NSError * error) {
+  [self.tokenManager deleteWithHandler:^(NSError *error) {
     FIRMessaging_STRONGIFY(self);
     if (error) {
       if (completion) {
@@ -637,8 +642,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
     // enabled.
     if ([self isAutoInitEnabled]) {
       // Deletion succeeds! Requesting new checkin, IID and token.
-      [self tokenWithCompletion:^(NSString *_Nullable token,
-                                  NSError *_Nullable error) {
+      [self tokenWithCompletion:^(NSString *_Nullable token, NSError *_Nullable error) {
         if (completion) {
           completion(error);
         }
@@ -682,13 +686,13 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
     return;
   }
   if ([self.delegate respondsToSelector:@selector(messaging:didReceiveRegistrationToken:)]) {
-    [self.delegate messaging:self didReceiveRegistrationToken:self.tokenManager.defaultFCMToken];
+    [self.delegate messaging:self didReceiveRegistrationToken:_tokenManager.defaultFCMToken];
   }
 
   // Should always trigger the token refresh notification when the delegate method is called
   NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
   [center postNotificationName:FIRMessagingRegistrationTokenRefreshedNotification
-                        object:self.tokenManager.defaultFCMToken];
+                        object:_tokenManager.defaultFCMToken];
 }
 
 #pragma mark - Topics
@@ -838,11 +842,12 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   }
   // Retrieve the Instance ID default token, and should notify delegate and
   // trigger notification as long as the token is different from previous state.
-  NSString *oldToken = self.defaultFcmToken;
-  self.defaultFcmToken = [(NSString *)notification.object copy];
-  if ((self.defaultFcmToken.length && oldToken.length &&
-       ![self.defaultFcmToken isEqualToString:oldToken]) ||
-      self.defaultFcmToken.length != oldToken.length) {
+  NSString *oldToken = _tokenManager.defaultFCMToken;
+  NSString *newToken = [(NSString *)notification.object copy];
+  if ((newToken.length && oldToken.length && ![newToken isEqualToString:oldToken]) ||
+      newToken.length != oldToken.length) {
+    // Make sure to set default token first before notifying others.
+    [self.tokenManager saveDefaultTokenInfo:newToken];
     [self notifyDelegateOfFCMTokenAvailability];
     [self.pubsub scheduleSync:YES];
   }
@@ -857,12 +862,12 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
     return;
   }
   if ([self.delegate respondsToSelector:@selector(messaging:didReceiveRegistrationToken:)]) {
-    [self.delegate messaging:self didReceiveRegistrationToken:self.defaultFcmToken];
+    [self.delegate messaging:self didReceiveRegistrationToken:self.tokenManager.defaultFCMToken];
   }
   // Should always trigger the token refresh notification when the delegate method is called
   NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
   [center postNotificationName:FIRMessagingRegistrationTokenRefreshedNotification
-                        object:self.defaultFcmToken];
+                        object:self.tokenManager.defaultFCMToken];
 }
 
 #pragma mark - Application Support Directory

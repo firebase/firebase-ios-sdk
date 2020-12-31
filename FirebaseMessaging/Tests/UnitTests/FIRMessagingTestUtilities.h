@@ -16,12 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-<<<<<<< HEAD
-#import <FirebaseMessaging/FIRMessaging.h>
-=======
-#import "Firebase/InstanceID/Public/FIRInstanceID.h"
 #import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessaging.h"
->>>>>>> 88a3f2e667062c6ae86d3de7653ba1f1b083b9b1
 
 #import "FirebaseMessaging/Sources/FIRMessagingPendingTopicsList.h"
 #import "FirebaseMessaging/Sources/FIRMessagingTopicsCommon.h"
@@ -62,13 +57,6 @@ typedef void (^MockDelegateSubscriptionHandler)(NSString *topic,
 @property(nonatomic, strong) id mockInstallations;
 @property(nonatomic, strong) id mockTokenManager;
 @property(nonatomic, readonly, strong) FIRMessaging *messaging;
-<<<<<<< HEAD
-=======
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-@property(nonatomic, readonly, strong) FIRInstanceID *instanceID;
-#pragma clang diagnostic pop
->>>>>>> 88a3f2e667062c6ae86d3de7653ba1f1b083b9b1
 
 - (instancetype)initWithUserDefaults:(NSUserDefaults *)userDefaults
                       withRMQManager:(BOOL)withRMQManager;

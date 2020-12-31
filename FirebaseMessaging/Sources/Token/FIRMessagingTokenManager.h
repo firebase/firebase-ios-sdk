@@ -125,8 +125,6 @@ typedef NS_OPTIONS(NSUInteger, FIRMessagingInvalidTokenReason) {
  */
 - (void)stopAllTokenOperations;
 
-#pragma mark - Invalidating Cached Tokens
-
 /**
  *  Invalidate any cached tokens, if the app version has changed since last launch or if the token
  *  is cached for more than 7 days.
@@ -172,5 +170,11 @@ typedef NS_OPTIONS(NSUInteger, FIRMessagingInvalidTokenReason) {
  * Saves the default token to cache. This is to set the cache if token is updated from iid.
  */
 - (void)saveDefaultTokenInfo:(NSString *)defaultFcmToken;
+
+/*
+ * Sets the default FCM token the first time from FIRMessaging.
+ *
+ */
+- (void)setDefaultFCMToken:(NSString *)defaultFcmToken;
 
 @end

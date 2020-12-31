@@ -17,10 +17,9 @@
 #import "FirebaseMessaging/Sources/FIRMessagingUtilities.h"
 
 #import "FirebaseCore/Sources/Public/FirebaseCore/FIROptions.h"
-#import "GoogleUtilities/UserDefaults/Public/GoogleUtilities/GULUserDefaults.h"
 #import "FirebaseMessaging/Sources/FIRMessagingLogger.h"
 #import "GoogleUtilities/Environment/Public/GoogleUtilities/GULAppEnvironmentUtil.h"
-
+#import "GoogleUtilities/UserDefaults/Public/GoogleUtilities/GULUserDefaults.h"
 
 static const uint64_t kBytesToMegabytesDivisor = 1024 * 1024LL;
 NSString *const kFIRMessagingInstanceIDUserDefaultsKeyLocale =

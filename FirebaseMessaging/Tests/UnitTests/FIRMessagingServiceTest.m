@@ -17,25 +17,15 @@
 #import <XCTest/XCTest.h>
 #import "OCMock.h"
 
-<<<<<<< HEAD
-#import "GoogleUtilities/UserDefaults/Private/GULUserDefaults.h"
-
 #import <FirebaseInstallations/FirebaseInstallations.h>
 #import <FirebaseMessaging/FIRMessaging.h>
+#import <GoogleUtilities/GULUserDefaults.h>
 #import "FirebaseMessaging/Sources/FIRMessagingClient.h"
 #import "FirebaseMessaging/Sources/FIRMessagingPubSub.h"
 #import "FirebaseMessaging/Sources/FIRMessagingTopicsCommon.h"
 #import "FirebaseMessaging/Sources/NSError+FIRMessaging.h"
-#import "FirebaseMessaging/Sources/Token/FIRMessagingTokenManager.h"
-=======
-#import <GoogleUtilities/GULUserDefaults.h>
-#import "Firebase/InstanceID/Public/FirebaseInstanceID.h"
-
-#import "FirebaseMessaging/Sources/FIRMessagingPubSub.h"
-#import "FirebaseMessaging/Sources/FIRMessagingTopicsCommon.h"
-#import "FirebaseMessaging/Sources/NSError+FIRMessaging.h"
 #import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessaging.h"
->>>>>>> 88a3f2e667062c6ae86d3de7653ba1f1b083b9b1
+#import "FirebaseMessaging/Sources/Token/FIRMessagingTokenManager.h"
 #import "FirebaseMessaging/Tests/UnitTests/FIRMessagingTestUtilities.h"
 
 static NSString *const kFakeToken =
@@ -47,13 +37,7 @@ static NSString *const kFIRMessagingTestsServiceSuiteName = @"com.messaging.test
 
 @interface FIRMessaging ()
 @property(nonatomic, readwrite, strong) FIRMessagingPubSub *pubsub;
-<<<<<<< HEAD
-=======
 @property(nonatomic, readwrite, strong) NSString *defaultFcmToken;
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-@property(nonatomic, readwrite, strong) FIRInstanceID *instanceID;
->>>>>>> 88a3f2e667062c6ae86d3de7653ba1f1b083b9b1
 
 @end
 
@@ -313,7 +297,6 @@ static NSString *const kFIRMessagingTestsServiceSuiteName = @"com.messaging.test
                         }];
   [self waitForExpectationsWithTimeout:0.2 handler:nil];
 }
-<<<<<<< HEAD
 
 - (void)mockTokenRequestSuccess {
   OCMStub([_mockInstallations
@@ -322,8 +305,6 @@ static NSString *const kFIRMessagingTestsServiceSuiteName = @"com.messaging.test
       retrieveFCMTokenForSenderID:[OCMArg any]
                        completion:([OCMArg invokeBlockWithArgs:kFakeToken, [NSNull null], nil])]);
 }
-=======
 #pragma clang diagnostic pop
 
->>>>>>> 88a3f2e667062c6ae86d3de7653ba1f1b083b9b1
 @end

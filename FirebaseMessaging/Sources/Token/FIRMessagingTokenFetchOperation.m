@@ -16,13 +16,13 @@
 
 #import "FIRMessagingTokenFetchOperation.h"
 
-#import "FIRmessagingCode.h"
 #import "FIRMessagingCheckinPreferences.h"
 #import "FIRMessagingConstants.h"
 #import "FIRMessagingDefines.h"
 #import "FIRMessagingLogger.h"
 #import "FIRMessagingTokenOperation.h"
 #import "FIRMessagingUtilities.h"
+#import "FIRmessagingCode.h"
 #import "NSError+FIRMessaging.h"
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"

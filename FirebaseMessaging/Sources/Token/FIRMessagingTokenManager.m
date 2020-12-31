@@ -74,6 +74,7 @@ static NSString *const kCheckinFileName = @"g-checkin";
   if (!self.fcmSenderID.length) {
     return nil;
   }
+
   if (_defaultFCMToken.length) {
     return _defaultFCMToken;
   }
@@ -102,23 +103,28 @@ static NSString *const kCheckinFileName = @"g-checkin";
 
 - (void)setDefaultFCMToken:(NSString *)defaultFcmToken {
   // Should always trigger the token refresh notification when the delegate method is called
+  // No need to check if the token has changed, it's handled in the notification receiver.
   NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
   [center postNotificationName:kFIRMessagingRegistrationTokenRefreshNotification
                         object:defaultFcmToken];
 }
 
 - (void)saveDefaultTokenInfo:(NSString *)defaultFcmToken {
-  _defaultFCMToken = [defaultFcmToken copy];
-  FIRMessagingTokenInfo *tokenInfo =
-      [[FIRMessagingTokenInfo alloc] initWithAuthorizedEntity:_fcmSenderID
-                                                        scope:kFIRMessagingDefaultTokenScope
-                                                        token:defaultFcmToken
-                                                   appVersion:FIRMessagingCurrentAppVersion()
-                                                firebaseAppID:_firebaseAppID];
-  tokenInfo.APNSInfo =
-      [[FIRMessagingAPNSInfo alloc] initWithTokenOptionsDictionary:[self tokenOptions]];
+  if (_defaultFCMToken.length != defaultFcmToken.length ||
+      (_defaultFCMToken.length && defaultFcmToken.length &&
+       ![_defaultFCMToken isEqualToString:defaultFcmToken])) {
+    _defaultFCMToken = [defaultFcmToken copy];
+    FIRMessagingTokenInfo *tokenInfo =
+        [[FIRMessagingTokenInfo alloc] initWithAuthorizedEntity:_fcmSenderID
+                                                          scope:kFIRMessagingDefaultTokenScope
+                                                          token:defaultFcmToken
+                                                     appVersion:FIRMessagingCurrentAppVersion()
+                                                  firebaseAppID:_firebaseAppID];
+    tokenInfo.APNSInfo =
+        [[FIRMessagingAPNSInfo alloc] initWithTokenOptionsDictionary:[self tokenOptions]];
 
-  [self->_tokenStore saveTokenInfoInCache:tokenInfo];
+    [self->_tokenStore saveTokenInfoInCache:tokenInfo];
+  }
 }
 
 - (NSDictionary *)tokenOptions {
@@ -404,7 +410,6 @@ static NSString *const kCheckinFileName = @"g-checkin";
         if (handler) {
           [operation addCompletionHandler:^(FIRMessagingTokenOperationResult result,
                                             NSString *_Nullable token, NSError *_Nullable error) {
-            [self setDefaultFCMToken:nil];
             dispatch_async(dispatch_get_main_queue(), ^{
               handler(error);
             });
@@ -432,7 +437,7 @@ static NSString *const kCheckinFileName = @"g-checkin";
       return;
     }
     [self deleteAllTokensLocallyWithHandler:^(NSError *localError) {
-      self->_defaultFCMToken = nil;
+      [self setDefaultFCMToken:nil];
       if (localError) {
         handler(localError);
         return;

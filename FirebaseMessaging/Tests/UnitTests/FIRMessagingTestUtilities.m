@@ -16,20 +16,11 @@
 
 #import "OCMock.h"
 
-<<<<<<< HEAD
-=======
-#import "FirebaseMessaging/Tests/UnitTests/XCTestCase+FIRMessagingRmqManagerTests.h"
-
->>>>>>> 88a3f2e667062c6ae86d3de7653ba1f1b083b9b1
 #import "FirebaseMessaging/Tests/UnitTests/FIRMessagingTestUtilities.h"
 #import "XCTestCase+FIRMessagingRmqManagerTests.h"
 
-<<<<<<< HEAD
-#import <FirebaseCore/FirebaseCore.h>
-=======
 #import <GoogleUtilities/GULUserDefaults.h>
-#import "Firebase/InstanceID/Public/FirebaseInstanceID.h"
->>>>>>> 88a3f2e667062c6ae86d3de7653ba1f1b083b9b1
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
 #import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 
@@ -37,8 +28,8 @@
 #import "FirebaseMessaging/Sources/FIRMessagingRmqManager.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingTokenManager.h"
 
-NS_ASSUME_NONNULL_BEGIN
-static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
+NS_ASSUME_NONNULL_BEGIN static NSString *const kFIRMessagingDefaultsTestDomain =
+    @"com.messaging.tests";
 static NSString *const kFakeSenderID = @"123456789123";
 
 @interface FIRMessaging (ExposedForTest)
@@ -100,14 +91,6 @@ static NSString *const kFakeSenderID = @"123456789123";
     // `FIRInstallations` default instance. Need to stub it before.
     _mockInstallations = OCMClassMock([FIRInstallations class]);
     OCMStub([self.mockInstallations installations]).andReturn(self.mockInstallations);
-<<<<<<< HEAD
-=======
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    _instanceID = [[FIRInstanceID alloc] initPrivately];
-#pragma clang diagnostic pop
-    [_instanceID start];
->>>>>>> 88a3f2e667062c6ae86d3de7653ba1f1b083b9b1
 
     // Create the messaging instance and call `start`.
     _messaging = [[FIRMessaging alloc] initWithAnalytics:nil withUserDefaults:userDefaults];
