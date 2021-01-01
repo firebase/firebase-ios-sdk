@@ -11,41 +11,43 @@ import FirebaseMLModelDownloader
 struct ContentView: View {
   var downloadTotal: Float = 1.0
   @ObservedObject var downloader = Downloader()
-  
+
   private var buttons: some View {
     VStack(spacing: 10) {
-      
       Button(action: downloader.downloadModelHelper(downloadType: .localModel), label: {
         Text("Local Model")
       })
+        .buttonStyle(CustomDownloadButtonStyle())
+
+      Button(
+        action: downloader.downloadModelHelper(downloadType: .localModelUpdateInBackground),
+        label: {
+          Text("Local Model (Background Update)")
+        }
+      )
       .buttonStyle(CustomDownloadButtonStyle())
-      
-      Button(action: downloader.downloadModelHelper(downloadType: .localModelUpdateInBackground), label: {
-        Text("Local Model (Background Update)")
-      })
-      .buttonStyle(CustomDownloadButtonStyle())
-      
+
       Button(action: downloader.downloadModelHelper(downloadType: .latestModel), label: {
         Text("Latest Model")
       })
-      .buttonStyle(CustomDownloadButtonStyle())
-      
+        .buttonStyle(CustomDownloadButtonStyle())
+
       Button(action: downloader.listModelHelper(), label: {
         Text("List Models")
       })
-      .buttonStyle(CustomListButtonStyle())
-      .padding()
-      
+        .buttonStyle(CustomListButtonStyle())
+        .padding()
+
       Button(action: downloader.deleteModelHelper(), label: {
         Text("Delete Model")
       })
-      .buttonStyle(CustomDeleteButtonStyle())
+        .buttonStyle(CustomDeleteButtonStyle())
     }
   }
-  
+
   private var download: some View {
     VStack {
-      if (downloader.downloadProgress >= downloadTotal) {
+      if downloader.downloadProgress >= downloadTotal {
         Text("Model downloaded!")
           .foregroundColor(.green)
       } else {
@@ -58,13 +60,13 @@ struct ContentView: View {
         .font(.footnote)
     }
   }
-  
+
   private var delete: some View {
     Text("Model deleted.")
       .foregroundColor(.purple)
       .padding()
   }
-  
+
   private var list: some View {
     VStack {
       Text("These models are currently on device.")
@@ -76,40 +78,40 @@ struct ContentView: View {
       }
     }
   }
-  
+
   var body: some View {
-    
     VStack(spacing: 10) {
       Text("Download Model")
         .font(.title)
-      
+
       Picker(selection: $downloader.selectedModel, label: Text("Pick a model to download")) {
         Text("Pose Detection").tag("pose-detection")
-          .foregroundColor(.init(red: 162/255, green: 82/255, blue: 45/255, opacity: 0.8))
+          .foregroundColor(.init(red: 162 / 255, green: 82 / 255, blue: 45 / 255, opacity: 0.8))
         Text("Image Classification").tag("image-classification")
-          .foregroundColor(.init(red: 162/255, green: 82/255, blue: 45/255, opacity: 0.8))
+          .foregroundColor(.init(red: 162 / 255, green: 82 / 255, blue: 45 / 255, opacity: 0.8))
       }
       .frame(width: 200, height: 100)
       .clipped()
-      
+
       buttons
-      
+
       ProgressView("Downloading...", value: downloader.downloadProgress, total: downloadTotal)
-        .progressViewStyle(CustomProgressViewStyle(progress: downloader.downloadProgress, total: downloadTotal))
-      
-      if (downloader.isDownloaded) {
+        .progressViewStyle(CustomProgressViewStyle(progress: downloader.downloadProgress,
+                                                   total: downloadTotal))
+
+      if downloader.isDownloaded {
         download
       }
-      
-      if (downloader.isDeleted) {
+
+      if downloader.isDeleted {
         delete
       }
-      
-      if (downloader.modelNames.count > 0) {
+
+      if downloader.modelNames.count > 0 {
         list
       }
-      
-      if (downloader.isError) {
+
+      if downloader.isError {
         Text(downloader.error)
       }
     }
@@ -127,7 +129,7 @@ struct CustomProgressViewStyle: ProgressViewStyle {
   var downloadCompletecolor: Color = .green
   var progress: Float
   var total: Float
-  
+
   func makeBody(configuration: Configuration) -> some View {
     ProgressView(configuration)
       .padding(.horizontal, 30)
@@ -164,4 +166,3 @@ struct CustomDeleteButtonStyle: ButtonStyle {
       .shadow(radius: 5)
   }
 }
-

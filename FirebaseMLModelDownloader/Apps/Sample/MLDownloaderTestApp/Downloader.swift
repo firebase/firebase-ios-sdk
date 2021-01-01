@@ -8,7 +8,7 @@
 import Foundation
 import FirebaseMLModelDownloader
 
-class Downloader : ObservableObject {
+class Downloader: ObservableObject {
   @Published var downloadProgress: Float = 0.0
   @Published var selectedModel = "pose-detection"
   @Published var filePath = ""
@@ -17,32 +17,37 @@ class Downloader : ObservableObject {
   @Published var isDeleted = false
   @Published var isError = false
   @Published var modelNames = [String]()
-  
+
   private func resetState() {
-    self.isDownloaded = false
-    self.isDeleted = false
-    self.downloadProgress = 0.0
-    self.filePath = ""
-    self.error = ""
-    self.isError = false
-    self.modelNames = []
+    isDownloaded = false
+    isDeleted = false
+    downloadProgress = 0.0
+    filePath = ""
+    error = ""
+    isError = false
+    modelNames = []
   }
-  
-  func downloadModelHelper(downloadType: ModelDownloadType) -> () -> () {
+
+  func downloadModelHelper(downloadType: ModelDownloadType) -> () -> Void {
     return {
       self.resetState()
       self.downloadModel(downloadType: downloadType)
     }
   }
-  
+
   func downloadModel(downloadType: ModelDownloadType) {
     let modelDownloader = ModelDownloader.modelDownloader()
     let conditions = ModelDownloadConditions()
 
-    let modelName = self.selectedModel
-    modelDownloader.getModel(name: modelName, downloadType: downloadType, conditions: conditions, progressHandler: { progress in
-      self.downloadProgress = progress
-    }) { result in
+    let modelName = selectedModel
+    modelDownloader.getModel(
+      name: modelName,
+      downloadType: downloadType,
+      conditions: conditions,
+      progressHandler: { progress in
+        self.downloadProgress = progress
+      }
+    ) { result in
       switch result {
       case let .success(model):
         self.isDownloaded = true
@@ -54,17 +59,17 @@ class Downloader : ObservableObject {
       }
     }
   }
-  
-  func deleteModelHelper() -> () -> () {
+
+  func deleteModelHelper() -> () -> Void {
     return {
       self.resetState()
       self.deleteModel()
     }
   }
-  
+
   func deleteModel() {
     let modelDownloader = ModelDownloader.modelDownloader()
-    let modelName = self.selectedModel
+    let modelName = selectedModel
     modelDownloader.deleteDownloadedModel(name: modelName) { result in
       switch result {
       case .success:
@@ -78,14 +83,14 @@ class Downloader : ObservableObject {
       }
     }
   }
-  
-  func listModelHelper() -> () -> () {
+
+  func listModelHelper() -> () -> Void {
     return {
       self.resetState()
       self.listModel()
     }
   }
-  
+
   func listModel() {
     let modelDownloader = ModelDownloader.modelDownloader()
     modelDownloader.listDownloadedModels { result in
