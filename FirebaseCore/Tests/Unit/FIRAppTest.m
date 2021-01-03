@@ -65,6 +65,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   [super setUp];
   [FIROptions resetDefaultOptions];
   [FIRApp resetApps];
+  // TODO: Don't mock the class we are testing.
   _appClassMock = OCMClassMock([FIRApp class]);
   _observerMock = OCMObserverMock();
   _mockCoreDiagnosticsConnector = OCMClassMock([FIRCoreDiagnosticsConnector class]);
@@ -81,7 +82,14 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 }
 
 - (void)tearDown {
+  // Wait for background operations to complete.
+  NSDate *waitUntilDate = [NSDate dateWithTimeIntervalSinceNow:0.5];
+  while ([[NSDate date] compare:waitUntilDate] == NSOrderedAscending) {
+    [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
+  }
+
   [_appClassMock stopMocking];
+  _appClassMock = nil;
   [_notificationCenter removeObserver:_observerMock];
   _observerMock = nil;
   _notificationCenter = nil;
@@ -910,12 +918,6 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 
 #pragma mark - Core Diagnostics
 
-- (void)testCoreDiagnosticsLoggedWhenFIRAppIsConfigured {
-  [self expectCoreDiagnosticsDataLogWithOptions:[self appOptions]];
-  [self createConfiguredAppWithName:NSStringFromSelector(_cmd)];
-  OCMVerifyAll(self.mockCoreDiagnosticsConnector);
-}
-
 - (void)testCoreDiagnosticsLoggedWhenAppDidBecomeActive {
   FIRApp *app = [self createConfiguredAppWithName:NSStringFromSelector(_cmd)];
   [self expectCoreDiagnosticsDataLogWithOptions:app.options];
@@ -923,7 +925,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   [self.notificationCenter postNotificationName:[self appDidBecomeActiveNotificationName]
                                          object:nil];
 
-  OCMVerifyAll(self.mockCoreDiagnosticsConnector);
+  OCMVerifyAllWithDelay(self.mockCoreDiagnosticsConnector, 0.5);
 }
 
 #pragma mark - private

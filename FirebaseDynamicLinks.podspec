@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseDynamicLinks'
-  s.version          = '7.0.0'
+  s.version          = '7.3.1'
   s.summary          = 'Firebase Dynamic Links'
 
   s.description      = <<-DESC
@@ -38,6 +38,7 @@ Firebase Dynamic Links are deep links that enhance user experience and increase 
   }
 
   s.test_spec 'unit' do |unit_tests|
+    unit_tests.scheme = { :code_coverage => true }
     unit_tests.source_files = [
       'FirebaseDynamicLinks/Tests/Unit/*.[mh]',
     ]

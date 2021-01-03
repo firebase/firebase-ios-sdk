@@ -1,3 +1,9 @@
+# 2021-01 -- v7.4.0
+- [added] Added support for custom in-app messages in tvOS (#7160).
+
+# 2020-12 -- v7.3.0
+- [fixed] Fixed default display bug in apps that don't use `UISceneDelegate` (#6803).
+
 # 2020-10 -- v7.0.0
 - [removed] Removed deprecated elements of in-app messaging API.
 

@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'GoogleUtilities'
-  s.version          = '7.0.0'
+  s.version          = '7.2.0'
   s.summary          = 'Google Utilities for iOS (plus community support for macOS and tvOS)'
 
   s.description      = <<-DESC
@@ -116,6 +116,7 @@ other Google CocoaPods. They're not intended for direct public usage.
   end
 
   s.test_spec 'unit' do |unit_tests|
+    unit_tests.scheme = { :code_coverage => true }
     # All tests require arc except Tests/Network/third_party/GTMHTTPServer.m
     unit_tests.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
     unit_tests.source_files = [
@@ -128,6 +129,7 @@ other Google CocoaPods. They're not intended for direct public usage.
   end
 
   s.test_spec 'unit-swift' do |unit_tests_swift|
+    unit_tests_swift.scheme = { :code_coverage => true }
     unit_tests_swift.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
     unit_tests_swift.source_files = 'GoogleUtilities/Tests/SwiftUnit/**/*.swift',
                                     'GoogleUtilities/Tests/SwiftUnit/**/*.h'

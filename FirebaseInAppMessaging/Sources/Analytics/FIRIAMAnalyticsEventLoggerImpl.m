@@ -15,7 +15,7 @@
  */
 
 #import <TargetConditionals.h>
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS || TARGET_OS_TV
 
 #import "FirebaseInAppMessaging/Sources/Analytics/FIRIAMAnalyticsEventLoggerImpl.h"
 
@@ -172,4 +172,4 @@ static NSString *const kFIAMUserDefaualtsKeyForRemoveUserPropertyTimeInSeconds =
 }
 @end
 
-#endif  // TARGET_OS_IOS
+#endif  // TARGET_OS_IOS || TARGET_OS_TV

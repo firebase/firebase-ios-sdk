@@ -197,9 +197,10 @@ ListenSequenceNumber LruGarbageCollector::SequenceNumberForQueryCount(
 
   RollingSequenceNumberBuffer buffer(query_count);
 
-  delegate_->EnumerateTargets([&buffer](const TargetData& target_data) {
-    buffer.AddElement(target_data.sequence_number());
-  });
+  delegate_->EnumerateTargetSequenceNumbers(
+      [&buffer](ListenSequenceNumber sequence_number) {
+        buffer.AddElement(sequence_number);
+      });
 
   delegate_->EnumerateOrphanedDocuments(
       [&buffer](const DocumentKey&, ListenSequenceNumber sequence_number) {

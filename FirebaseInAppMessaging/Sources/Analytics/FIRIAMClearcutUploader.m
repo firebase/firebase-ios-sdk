@@ -15,7 +15,7 @@
  */
 
 #import <TargetConditionals.h>
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS || TARGET_OS_TV
 
 #import <UIKit/UIKit.h>
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
@@ -245,4 +245,4 @@ static NSString *FIRIAM_UserDefaultsKeyForNextValidClearcutUploadTimeInMills =
 
 @end
 
-#endif  // TARGET_OS_IOS
+#endif  // TARGET_OS_IOS || TARGET_OS_TV

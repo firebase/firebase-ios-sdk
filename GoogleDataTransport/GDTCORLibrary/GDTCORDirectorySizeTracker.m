@@ -80,10 +80,12 @@
                     }];
 
   for (NSURL *fileURL in enumerator) {
-    NSNumber *isRegularFile;
-    [fileURL getResourceValue:&isRegularFile forKey:NSURLIsRegularFileKey error:nil];
-    if (isRegularFile.boolValue) {
-      totalBytes += [self fileSizeAtURL:fileURL];
+    @autoreleasepool {
+      NSNumber *isRegularFile;
+      [fileURL getResourceValue:&isRegularFile forKey:NSURLIsRegularFileKey error:nil];
+      if (isRegularFile.boolValue) {
+        totalBytes += [self fileSizeAtURL:fileURL];
+      }
     }
   }
 

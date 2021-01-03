@@ -1,5 +1,5 @@
 # 2020-11 -- v7.1.0
-- [fixed] Fix crash on iOS 14 when multiple app delegate completion methods are called (#6863)
+- [fixed] Fixed completion handler issue in `application(_:didReceiveRemoteNotification:fetchCompletionHandler:)` method. (#6863)
 
 # 2020-10 -- v7.0.0
 - [changed] Remove the deprecated FCM direct channel API and Upstream send API. (#6430)

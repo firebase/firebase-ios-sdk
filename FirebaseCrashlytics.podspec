@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseCrashlytics'
-  s.version          = '7.0.0'
+  s.version          = '7.3.0'
   s.summary          = 'Best and lightest-weight crash reporting for mobile, desktop and tvOS.'
   s.description      = 'Firebase Crashlytics helps you track, prioritize, and fix stability issues that erode app quality.'
   s.homepage         = 'https://firebase.google.com/'
@@ -11,7 +11,7 @@ Pod::Spec.new do |s|
     :tag => 'CocoaPods-' + s.version.to_s
   }
 
-  s.ios.deployment_target = '10.0'
+  s.ios.deployment_target = '9.0'
   s.osx.deployment_target = '10.12'
   s.tvos.deployment_target = '10.0'
   s.watchos.deployment_target = '6.0'
@@ -51,7 +51,7 @@ Pod::Spec.new do |s|
   s.dependency 'FirebaseInstallations', '~> 7.0'
   s.dependency 'PromisesObjC', '~> 1.2'
   s.dependency 'GoogleDataTransport', '~> 8.0'
-  s.dependency 'nanopb', '~> 2.30906.0'
+  s.dependency 'nanopb', '~> 2.30907.0'
 
   s.libraries = 'c++', 'z'
   s.ios.frameworks = 'Security', 'SystemConfiguration'
@@ -97,6 +97,7 @@ Pod::Spec.new do |s|
   }
 
   s.test_spec 'unit' do |unit_tests|
+    unit_tests.scheme = { :code_coverage => true }
     # Unit tests can't run on watchOS.
     unit_tests.platforms = {:ios => '10.0', :osx => '10.12', :tvos => '10.0'}
     unit_tests.source_files = 'Crashlytics/UnitTests/*.[mh]',

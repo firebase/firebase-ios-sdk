@@ -26,7 +26,7 @@ let package = Package(
     .executable(name: "zip-builder", targets: ["ZipBuilder"]),
   ],
   dependencies: [
-    .package(url: "https://github.com/apple/swift-argument-parser", .exact("0.0.1")),
+    .package(url: "https://github.com/apple/swift-argument-parser", .exact("0.1.0")),
   ],
   targets: [
     .target(

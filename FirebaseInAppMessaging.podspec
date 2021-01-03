@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseInAppMessaging'
-  s.version          = '7.0.0-beta'
+  s.version          = '7.3.0-beta'
   s.summary          = 'Firebase In-App Messaging for iOS'
 
   s.description      = <<-DESC
@@ -18,23 +18,59 @@ See more product details at https://firebase.google.com/products/in-app-messagin
   }
   s.social_media_url = 'https://twitter.com/Firebase'
   s.ios.deployment_target = '10.0'
+  s.tvos.deployment_target = '13.0'
 
   s.cocoapods_version = '>= 1.4.0'
   s.prefix_header_file = false
 
   base_dir = "FirebaseInAppMessaging/"
-  s.source_files = [
-    base_dir + "Sources/**/*.[cmh]",
+  s.ios.source_files = [
+    base_dir + "Sources/*.[cmh]",
+	base_dir + "Sources/Analytics/**/*.[cmh]",
+	base_dir + "Sources/Data/**/*.[cmh]",
+	base_dir + "Sources/DefaultUI/**/*.[cmh]",
+	base_dir + "Sources/DisplayTrigger/**/*.[cmh]",
+	base_dir + "Sources/Flows/**/*.[cmh]",
+	base_dir + "Sources/Private/**/*.[cmh]",
+	base_dir + "Sources/Public/**/*.[cmh]",
+	base_dir + "Sources/RenderingObjects/**/*.[cmh]",
+	base_dir + "Sources/Runtime/**/*.[cmh]",
+	base_dir + "Sources/Util/**/*.[cmh]",
     'Interop/Analytics/Public/*.h',
     'FirebaseABTesting/Sources/Private/*.h',
     'FirebaseCore/Sources/Private/*.h',
     'FirebaseInstallations/Source/Library/Private/*.h',
   ]
+
+  s.tvos.source_files = [
+    base_dir + "Sources/*.[cmh]",
+	base_dir + "Sources/Analytics/**/*.[cmh]",
+	base_dir + "Sources/Data/**/*.[cmh]",
+	base_dir + "Sources/DisplayTrigger/**/*.[cmh]",
+	base_dir + "Sources/Flows/**/*.[cmh]",
+	base_dir + "Sources/Private/**/*.[cmh]",
+	base_dir + "Sources/Public/**/*.[cmh]",
+	base_dir + "Sources/RenderingObjects/**/*.[cmh]",
+	base_dir + "Sources/Runtime/**/*.[cmh]",
+	base_dir + "Sources/Util/**/*.[cmh]",
+    'Interop/Analytics/Public/*.h',
+    'FirebaseABTesting/Sources/Private/*.h',
+    'FirebaseCore/Sources/Private/*.h',
+    'FirebaseInstallations/Source/Library/Private/*.h',
+  ]
+
   s.public_header_files = base_dir + 'Sources/Public/FirebaseInAppMessaging/*.h'
 
-  s.resource_bundles = {
+  s.ios.resource_bundles = {
     'InAppMessagingDisplayResources' => [
-       base_dir + 'Resources/*.storyboard',
+       base_dir + 'Resources/FIRInAppMessageDisplayStoryboard.storyboard',
+       base_dir + 'Resources/*.png'
+     ]
+  }
+
+  s.tvos.resource_bundles = {
+    'InAppMessagingDisplayResources' => [
+       base_dir + 'Resources/FIRInAppMessageDisplayStoryboardTV.storyboard',
        base_dir + 'Resources/*.png'
      ]
   }
@@ -50,13 +86,13 @@ See more product details at https://firebase.google.com/products/in-app-messagin
   s.dependency 'FirebaseInstallations', '~> 7.0'
   s.dependency 'FirebaseABTesting', '~> 7.0'
   s.dependency 'GoogleUtilities/Environment', '~> 7.0'
-  s.dependency 'nanopb', '~> 2.30906.0'
+  s.dependency 'nanopb', '~> 2.30907.0'
 
   s.test_spec 'unit' do |unit_tests|
+      unit_tests.scheme = { :code_coverage => true }
       unit_tests.source_files = 'FirebaseInAppMessaging/Tests/Unit/*.[mh]'
       unit_tests.resources = 'FirebaseInAppMessaging/Tests/Unit/*.txt'
       unit_tests.requires_app_host = true
       unit_tests.dependency 'OCMock'
    end
-
 end

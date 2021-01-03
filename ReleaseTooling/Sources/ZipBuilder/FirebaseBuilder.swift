@@ -28,27 +28,29 @@ struct FirebaseBuilder {
     self.zipBuilder = zipBuilder
   }
 
-  /// Wrapper around a generic zip builder that adds in Firebase specific steps including a multi-level zip file, a README, and a
-  /// Carthage build.
-  func build(in projectDir: URL) {
+  /// Wrapper around a generic zip builder that adds in Firebase specific steps including a
+  /// multi-level zip file, a README, and optionally Carthage artifacts.
+  func build(in projectDir: URL,
+             minimumIOSVersion: String,
+             carthageBuildOptions: CarthageBuildOptions?) {
     // Build the zip file and get the path.
     do {
-      let artifacts = try builder.buildAndAssembleFirebaseRelease(inProjectDir: projectDir)
+      let artifacts = try zipBuilder.buildAndAssembleFirebaseRelease(inProjectDir: projectDir,
+                                                                     minimumIOSVersion: minimumIOSVersion,
+                                                                     includeCarthage: carthageBuildOptions !=
+                                                                       nil)
       let firebaseVersion = artifacts.firebaseVersion
       let location = artifacts.zipDir
       print("Firebase \(firebaseVersion) directory is ready to be packaged: \(location)")
 
       // Package carthage if it's enabled.
       var carthageRoot: URL?
-      if args.carthageBuild {
-        guard let repoDir = args.repoDir else {
-          fatalError("repoDir option must be specified when building Carthage")
-        }
-        let carthageJSONDir = repoDir.appendingPathComponents(["ReleaseTooling", "CarthageJSON"])
-        carthageRoot = CarthageUtils.packageCarthageRelease(templateDir: args.templateDir,
-                                                            carthageJSONDir: carthageJSONDir,
-                                                            artifacts: artifacts,
-                                                            rcNumber: args.rcNumber)
+      if let carthageBuildOptions = carthageBuildOptions {
+        carthageRoot = CarthageUtils.packageCarthageRelease(
+          templateDir: zipBuilder.paths.templateDir,
+          artifacts: artifacts,
+          options: carthageBuildOptions
+        )
       }
 
       // Prepare the release directory for zip packaging.
@@ -70,18 +72,12 @@ struct FirebaseBuilder {
       }
 
       print("Attempting to Zip the directory...")
-      var candidateName = "Firebase-\(firebaseVersion)"
-      if let rcNumber = args.rcNumber {
-        candidateName += "-rc\(rcNumber)"
-      } else {
-        candidateName += "-latest-manual"
-      }
-      candidateName += ".zip"
+      let candidateName = "Firebase-\(firebaseVersion)-latest.zip"
       let zipped = Zip.zipContents(ofDir: location, name: candidateName)
 
       // If an output directory was specified, copy the Zip file to that directory. Otherwise just print
       // the location for further use.
-      if let outputDir = args.outputDir {
+      if let outputDir = zipBuilder.paths.outputDir {
         do {
           // We want the output to be in the X_Y_Z directory.
           let underscoredVersion = firebaseVersion.replacingOccurrences(of: ".", with: "_")

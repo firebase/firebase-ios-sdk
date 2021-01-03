@@ -1,3 +1,12 @@
+# Unreleased
+- [changed] Removed obsolete crash reporting mechanism from the SDK
+
+# v7.3.0
+- [added] Added Crashlytics support for x86 apps running on Apple Silicon via Rosetta 2
+- [changed] Decreased Crashlytics CocoaPods minimum deployment target from iOS 10 to iOS 9
+- [changed] Removed obsolete API calls from upload-symbols
+- [changed] Removed obsolete onboarding calls from the SDK.
+
 # v7.1.0
 - [fixed] Fixed an issue where symbol uploads would fail when there are spaces in the project path, particularly in Unity builds (#6789).
 - [changed] Added additional logging when settings requests fail with a 404 status to help customers debug onboarding issues (#6847).

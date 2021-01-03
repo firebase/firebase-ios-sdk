@@ -18,6 +18,14 @@ import CommonCrypto
 import Foundation
 import Utils
 
+struct CarthageBuildOptions {
+  /// Location of directory containing all JSON Carthage manifests.
+  let jsonDir: URL
+
+  /// Version checking flag.
+  let isVersionCheckEnabled: Bool
+}
+
 /// Carthage related utility functions. The enum type is used as a namespace here instead of having
 /// root functions, and no cases should be added to it.
 enum CarthageUtils {}
@@ -29,12 +37,11 @@ extension CarthageUtils {
   ///   - templateDir: The template project directory, contains the dummy Firebase library.
   ///   - carthageJSONDir: Location of directory containing all JSON Carthage manifests.
   ///   - artifacts: Release Artifacts from build.
-  ///   - rcNumber: The RC number.
+  ///   - options: Carthage specific options for the build.
   /// - Returns: The path to the root of the Carthage installation.
   static func packageCarthageRelease(templateDir: URL,
-                                     carthageJSONDir: URL,
                                      artifacts: ZipBuilder.ReleaseArtifacts,
-                                     rcNumber: Int?) -> URL? {
+                                     options: CarthageBuildOptions) -> URL? {
     guard let zipLocation = artifacts.carthageDir else { return nil }
 
     do {
@@ -49,18 +56,14 @@ extension CarthageUtils {
       // Package the Carthage distribution with the current directory structure.
       let carthageDir = zipLocation.deletingLastPathComponent().appendingPathComponent("carthage")
       fileManager.removeIfExists(at: carthageDir)
-      var output = carthageDir.appendingPathComponent(artifacts.firebaseVersion)
-      if let rcNumber = args.rcNumber {
-        output.appendPathComponent("rc\(rcNumber)")
-      } else {
-        output.appendPathComponent("latest-non-rc")
-      }
+      let output = carthageDir.appendingPathComponents([artifacts.firebaseVersion, "latest"])
       try fileManager.createDirectory(at: output, withIntermediateDirectories: true)
       generateCarthageRelease(fromPackagedDir: carthagePath,
                               templateDir: templateDir,
-                              jsonDir: carthageJSONDir,
+                              jsonDir: options.jsonDir,
                               artifacts: artifacts,
-                              outputDir: output)
+                              outputDir: output,
+                              versionCheckEnabled: options.isVersionCheckEnabled)
 
       // Remove the duplicated Carthage build directory.
       fileManager.removeIfExists(at: carthagePath)
@@ -87,7 +90,8 @@ extension CarthageUtils {
                                               templateDir: URL,
                                               jsonDir: URL,
                                               artifacts: ZipBuilder.ReleaseArtifacts,
-                                              outputDir: URL) {
+                                              outputDir: URL,
+                                              versionCheckEnabled: Bool) {
     factorProtobuf(inPackagedDir: packagedDir)
     let directories: [String]
     do {
@@ -102,9 +106,23 @@ extension CarthageUtils {
       let fullPath = packagedDir.appendingPathComponent(product)
       guard FileManager.default.isDirectory(at: fullPath) else { continue }
 
+      // Abort Carthage generation if there are any xcframeworks.
+      do {
+        let files = try FileManager.default.contentsOfDirectory(at: fullPath,
+                                                                includingPropertiesForKeys: nil)
+        let xcfFiles = files.filter { $0.pathExtension == "xcframework" }
+        if xcfFiles.count > 0 {
+          print("Skipping Carthage generation for \(product) since it includes xcframeworks.")
+          continue
+        }
+      } catch {
+        fatalError("Failed to get contents of \(fullPath).")
+      }
+
       // Parse the JSON file, ensure that we're not trying to overwrite a release.
       var jsonManifest = parseJSONFile(fromDir: jsonDir, product: product)
-      if !args.carthageSkipVersionCheck {
+
+      if versionCheckEnabled {
         guard jsonManifest[firebaseVersion] == nil else {
           print("Carthage release for \(product) \(firebaseVersion) already exists - skipping.")
           continue
@@ -114,7 +132,10 @@ extension CarthageUtils {
       // Analytics includes all the Core frameworks and Firebase module, do extra work to package
       // it.
       if product == "FirebaseAnalytics" {
-        createFirebaseFramework(inDir: fullPath, rootDir: packagedDir, templateDir: templateDir)
+        createFirebaseFramework(version: firebaseVersion,
+                                inDir: fullPath,
+                                rootDir: packagedDir,
+                                templateDir: templateDir)
 
         // Copy the NOTICES file from FirebaseCore.
         let noticesName = "NOTICES"
@@ -233,10 +254,12 @@ extension CarthageUtils {
   /// Creates a fake Firebase.framework to use the module for `import Firebase` compatibility.
   ///
   /// - Parameters:
+  ///   - version: Firebase version.
   ///   - destination: The destination directory for the Firebase framework.
   ///   - rootDir: The root directory that contains other required files (like the Firebase header).
   ///   - templateDir: The template directory containing the dummy Firebase library.
-  private static func createFirebaseFramework(inDir destination: URL,
+  private static func createFirebaseFramework(version: String,
+                                              inDir destination: URL,
                                               rootDir: URL,
                                               templateDir: URL) {
     // Local FileManager for better readability.
@@ -281,14 +304,17 @@ extension CarthageUtils {
     }
 
     // Write the Info.plist.
-    generatePlistContents(forName: "Firebase", to: frameworkDir)
+    generatePlistContents(forName: "Firebase", withVersion: version, to: frameworkDir)
   }
 
-  static func generatePlistContents(forName name: String, to location: URL) {
+  static func generatePlistContents(forName name: String,
+                                    withVersion version: String,
+                                    to location: URL) {
+    let ver = version.components(separatedBy: "-")[0] // remove any version suffix.
     let plist: [String: String] = ["CFBundleIdentifier": "com.firebase.Firebase-\(name)",
                                    "CFBundleInfoDictionaryVersion": "6.0",
                                    "CFBundlePackageType": "FMWK",
-                                   "CFBundleVersion": "1",
+                                   "CFBundleVersion": ver,
                                    "DTSDKName": "iphonesimulator11.2",
                                    "CFBundleExecutable": name,
                                    "CFBundleName": name]
