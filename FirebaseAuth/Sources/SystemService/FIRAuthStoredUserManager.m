@@ -72,7 +72,7 @@ static NSString *kStoredUserCoderKey = @"firebase_auth_stored_user_coder_key";
 #pragma mark - User for Access Group
 
 - (FIRUser *)getStoredUserForAccessGroup:(NSString *)accessGroup
-                 shareAuthStateAcrossDevices:(BOOL)shareAuthStateAcrossDevices
+             shareAuthStateAcrossDevices:(BOOL)shareAuthStateAcrossDevices
                        projectIdentifier:(NSString *)projectIdentifier
                                    error:(NSError *_Nullable *_Nullable)outError {
   NSMutableDictionary *query = [[NSMutableDictionary alloc] init];
@@ -109,15 +109,14 @@ static NSString *kStoredUserCoderKey = @"firebase_auth_stored_user_coder_key";
 }
 
 - (BOOL)setStoredUser:(FIRUser *)user
-             forAccessGroup:(NSString *)accessGroup
+                 forAccessGroup:(NSString *)accessGroup
     shareAuthStateAcrossDevices:(BOOL)shareAuthStateAcrossDevices
-          projectIdentifier:(NSString *)projectIdentifier
-                      error:(NSError *_Nullable *_Nullable)outError {
+              projectIdentifier:(NSString *)projectIdentifier
+                          error:(NSError *_Nullable *_Nullable)outError {
   NSMutableDictionary *query = [[NSMutableDictionary alloc] init];
   query[(__bridge id)kSecClass] = (__bridge id)kSecClassGenericPassword;
   if (shareAuthStateAcrossDevices) {
-    query[(__bridge id)kSecAttrAccessible] =
-        (__bridge id)kSecAttrAccessibleAfterFirstUnlock;
+    query[(__bridge id)kSecAttrAccessible] = (__bridge id)kSecAttrAccessibleAfterFirstUnlock;
   } else {
     query[(__bridge id)kSecAttrAccessible] =
         (__bridge id)kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly;
@@ -151,14 +150,13 @@ static NSString *kStoredUserCoderKey = @"firebase_auth_stored_user_coder_key";
 }
 
 - (BOOL)removeStoredUserForAccessGroup:(NSString *)accessGroup
-               shareAuthStateAcrossDevices:(BOOL)shareAuthStateAcrossDevices
+           shareAuthStateAcrossDevices:(BOOL)shareAuthStateAcrossDevices
                      projectIdentifier:(NSString *)projectIdentifier
                                  error:(NSError *_Nullable *_Nullable)outError {
   NSMutableDictionary *query = [[NSMutableDictionary alloc] init];
   query[(__bridge id)kSecClass] = (__bridge id)kSecClassGenericPassword;
   if (shareAuthStateAcrossDevices) {
-    query[(__bridge id)kSecAttrAccessible] =
-        (__bridge id)kSecAttrAccessibleAfterFirstUnlock;
+    query[(__bridge id)kSecAttrAccessible] = (__bridge id)kSecAttrAccessibleAfterFirstUnlock;
   } else {
     query[(__bridge id)kSecAttrAccessible] =
         (__bridge id)kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly;

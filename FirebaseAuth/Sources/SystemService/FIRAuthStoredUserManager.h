@@ -69,7 +69,7 @@ NS_ASSUME_NONNULL_BEGIN
     @param outError Return value for any error which occurs.
  */
 - (nullable FIRUser *)getStoredUserForAccessGroup:(NSString *)accessGroup
-                          shareAuthStateAcrossDevices:(BOOL)shareAuthStateAcrossDevices
+                      shareAuthStateAcrossDevices:(BOOL)shareAuthStateAcrossDevices
                                 projectIdentifier:(NSString *)projectIdentifier
                                             error:(NSError *_Nullable *_Nullable)outError;
 
@@ -84,10 +84,10 @@ NS_ASSUME_NONNULL_BEGIN
     @param outError Return value for any error which occurs.
  */
 - (BOOL)setStoredUser:(FIRUser *)user
-             forAccessGroup:(NSString *)accessGroup
+                 forAccessGroup:(NSString *)accessGroup
     shareAuthStateAcrossDevices:(BOOL)shareAuthStateAcrossDevices
-          projectIdentifier:(NSString *)projectIdentifier
-                      error:(NSError *_Nullable *_Nullable)outError;
+              projectIdentifier:(NSString *)projectIdentifier
+                          error:(NSError *_Nullable *_Nullable)outError;
 
 /** @fn removeStoredUserForAccessGroup:projectID:error:
     @brief Remove the user that stored locally.
@@ -99,7 +99,7 @@ NS_ASSUME_NONNULL_BEGIN
     @param outError Return value for any error which occurs.
  */
 - (BOOL)removeStoredUserForAccessGroup:(NSString *)accessGroup
-               shareAuthStateAcrossDevices:(BOOL)shareAuthStateAcrossDevices
+           shareAuthStateAcrossDevices:(BOOL)shareAuthStateAcrossDevices
                      projectIdentifier:(NSString *)projectIdentifier
                                  error:(NSError *_Nullable *_Nullable)outError;
 
