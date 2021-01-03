@@ -62,14 +62,14 @@ NS_ASSUME_NONNULL_BEGIN
 /** @fn getStoredUserForAccessGroup:projectID:error:
     @brief The getter of the user stored locally.
     @param accessGroup The access group to retrieve the user from.
-    @param shareLoginAcrossDevices If true, the keychain will be synced across the end-user's
+    @param shareAuthStateAcrossDevices If true, the keychain will be synced across the end-user's
    iCloud.
     @param projectIdentifier An identifier of the project that the user associates with. Currently,
         we use API KEY.
     @param outError Return value for any error which occurs.
  */
 - (nullable FIRUser *)getStoredUserForAccessGroup:(NSString *)accessGroup
-                          shareLoginAcrossDevices:(BOOL)shareLoginAcrossDevices
+                          shareAuthStateAcrossDevices:(BOOL)shareAuthStateAcrossDevices
                                 projectIdentifier:(NSString *)projectIdentifier
                                             error:(NSError *_Nullable *_Nullable)outError;
 
@@ -77,7 +77,7 @@ NS_ASSUME_NONNULL_BEGIN
     @brief The setter of the user stored locally.
     @param user The user to be stored.
     @param accessGroup The access group to store the user in.
-    @param shareLoginAcrossDevices If true, the keychain will be synced across the end-user's
+    @param shareAuthStateAcrossDevices If true, the keychain will be synced across the end-user's
    iCloud.
     @param projectIdentifier An identifier of the project that the user associates with. Currently,
         we use API KEY.
@@ -85,21 +85,21 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (BOOL)setStoredUser:(FIRUser *)user
              forAccessGroup:(NSString *)accessGroup
-    shareLoginAcrossDevices:(BOOL)shareLoginAcrossDevices
+    shareAuthStateAcrossDevices:(BOOL)shareAuthStateAcrossDevices
           projectIdentifier:(NSString *)projectIdentifier
                       error:(NSError *_Nullable *_Nullable)outError;
 
 /** @fn removeStoredUserForAccessGroup:projectID:error:
     @brief Remove the user that stored locally.
     @param accessGroup The access group to remove the user from.
-    @param shareLoginAcrossDevices If true, the keychain will be synced across the end-user's
+    @param shareAuthStateAcrossDevices If true, the keychain will be synced across the end-user's
    iCloud.
     @param projectIdentifier An identifier of the project that the user associates with. Currently,
         we use API KEY.
     @param outError Return value for any error which occurs.
  */
 - (BOOL)removeStoredUserForAccessGroup:(NSString *)accessGroup
-               shareLoginAcrossDevices:(BOOL)shareLoginAcrossDevices
+               shareAuthStateAcrossDevices:(BOOL)shareAuthStateAcrossDevices
                      projectIdentifier:(NSString *)projectIdentifier
                                  error:(NSError *_Nullable *_Nullable)outError;
 

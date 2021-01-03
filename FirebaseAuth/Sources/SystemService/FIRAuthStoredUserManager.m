@@ -72,7 +72,7 @@ static NSString *kStoredUserCoderKey = @"firebase_auth_stored_user_coder_key";
 #pragma mark - User for Access Group
 
 - (FIRUser *)getStoredUserForAccessGroup:(NSString *)accessGroup
-                 shareLoginAcrossDevices:(BOOL)shareLoginAcrossDevices
+                 shareAuthStateAcrossDevices:(BOOL)shareAuthStateAcrossDevices
                        projectIdentifier:(NSString *)projectIdentifier
                                    error:(NSError *_Nullable *_Nullable)outError {
   NSMutableDictionary *query = [[NSMutableDictionary alloc] init];
@@ -81,7 +81,7 @@ static NSString *kStoredUserCoderKey = @"firebase_auth_stored_user_coder_key";
   query[(__bridge id)kSecAttrAccessGroup] = accessGroup;
   query[(__bridge id)kSecAttrService] = projectIdentifier;
   query[(__bridge id)kSecAttrAccount] = kSharedKeychainAccountValue;
-  if (shareLoginAcrossDevices) {
+  if (shareAuthStateAcrossDevices) {
     query[(__bridge id)kSecAttrSynchronizable] = (__bridge id)kCFBooleanTrue;
   }
 
@@ -110,12 +110,15 @@ static NSString *kStoredUserCoderKey = @"firebase_auth_stored_user_coder_key";
 
 - (BOOL)setStoredUser:(FIRUser *)user
              forAccessGroup:(NSString *)accessGroup
-    shareLoginAcrossDevices:(BOOL)shareLoginAcrossDevices
+    shareAuthStateAcrossDevices:(BOOL)shareAuthStateAcrossDevices
           projectIdentifier:(NSString *)projectIdentifier
                       error:(NSError *_Nullable *_Nullable)outError {
   NSMutableDictionary *query = [[NSMutableDictionary alloc] init];
   query[(__bridge id)kSecClass] = (__bridge id)kSecClassGenericPassword;
-  if (!shareLoginAcrossDevices) {
+  if (shareAuthStateAcrossDevices) {
+    query[(__bridge id)kSecAttrAccessible] =
+        (__bridge id)kSecAttrAccessibleAfterFirstUnlock;
+  } else {
     query[(__bridge id)kSecAttrAccessible] =
         (__bridge id)kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly;
   }
@@ -123,7 +126,7 @@ static NSString *kStoredUserCoderKey = @"firebase_auth_stored_user_coder_key";
   query[(__bridge id)kSecAttrAccessGroup] = accessGroup;
   query[(__bridge id)kSecAttrService] = projectIdentifier;
   query[(__bridge id)kSecAttrAccount] = kSharedKeychainAccountValue;
-  if (shareLoginAcrossDevices) {
+  if (shareAuthStateAcrossDevices) {
     query[(__bridge id)kSecAttrSynchronizable] = (__bridge id)kCFBooleanTrue;
   }
 
@@ -148,16 +151,19 @@ static NSString *kStoredUserCoderKey = @"firebase_auth_stored_user_coder_key";
 }
 
 - (BOOL)removeStoredUserForAccessGroup:(NSString *)accessGroup
-               shareLoginAcrossDevices:(BOOL)shareLoginAcrossDevices
+               shareAuthStateAcrossDevices:(BOOL)shareAuthStateAcrossDevices
                      projectIdentifier:(NSString *)projectIdentifier
                                  error:(NSError *_Nullable *_Nullable)outError {
   NSMutableDictionary *query = [[NSMutableDictionary alloc] init];
   query[(__bridge id)kSecClass] = (__bridge id)kSecClassGenericPassword;
-  if (!shareLoginAcrossDevices) {
+  if (shareAuthStateAcrossDevices) {
+    query[(__bridge id)kSecAttrAccessible] =
+        (__bridge id)kSecAttrAccessibleAfterFirstUnlock;
+  } else {
     query[(__bridge id)kSecAttrAccessible] =
         (__bridge id)kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly;
   }
-  if (shareLoginAcrossDevices) {
+  if (shareAuthStateAcrossDevices) {
     query[(__bridge id)kSecAttrSynchronizable] = (__bridge id)kCFBooleanTrue;
   }
 

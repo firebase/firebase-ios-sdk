@@ -340,10 +340,13 @@ NS_SWIFT_NAME(Auth)
  */
 @property(readonly, nonatomic, copy, nullable) NSString *userAccessGroup;
 
-/** @property shareLoginAcrossDevices
-    @brief Contains shareLoginAcrossDevices setting related to the auth object.
+/** @property shareAuthStateAcrossDevices
+    @brief Contains shareAuthStateAcrossDevices setting related to the auth object.
+    @remarks If userAccessGroup is not set, setting shareAuthStateAcrossDevices will
+        have no effect. You should set shareAuthStateAcrossDevices to it's desired
+        state and then set the userAccessGroup after.
  */
-@property(nonatomic) BOOL shareLoginAcrossDevices;
+@property(nonatomic) BOOL shareAuthStateAcrossDevices;
 
 /** @property tenantID
     @brief The tenant ID of the auth instance. nil if none is available.
