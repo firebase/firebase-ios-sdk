@@ -80,5 +80,6 @@ jobs:
           path: /Users/runner/test
       - name: display results
         run: |
-          echo ${{steps.download.outputs.download-path}}
+          [ ! -d "${{steps.download.outputs.download-path}}" ] && echo " Directory does not exist."
+          echo "${{steps.download.outputs.download-path}}"
           find "/Users/runner/test" -print -regex ".*/.*\.xcresult" -exec xcrun xccov view --report {} \;
