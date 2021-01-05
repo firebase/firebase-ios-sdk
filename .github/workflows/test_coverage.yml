@@ -78,5 +78,5 @@ jobs:
       - name: display results
         run: |
         if [ -d "/Users/runner/test" ]; then
-        find /Users/runner/test/ -print -regex ".*/.*\.xcresult" -exec xcrun xccov view --report {} \;
+        find "/Users/runner/test" -print -regex ".*/.*\.xcresult" -exec xcrun xccov view --report {} \;
         fi
