@@ -17,7 +17,7 @@
 #import "OCMock.h"
 
 #import "FirebaseMessaging/Tests/UnitTests/FIRMessagingTestUtilities.h"
-#import "XCTestCase+FIRMessagingRmqManagerTests.h"
+#import "FirebaseMessaging/Tests/UnitTests/XCTestCase+FIRMessagingRmqManagerTests.h"
 
 #import <GoogleUtilities/GULUserDefaults.h>
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"

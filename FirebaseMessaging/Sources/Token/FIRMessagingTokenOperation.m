@@ -19,11 +19,11 @@
 #import <FirebaseInstallations/FirebaseInstallations.h>
 #import "GoogleUtilities/Environment/Public/GoogleUtilities/GULAppEnvironmentUtil.h"
 
-#import "FIRMessagingCheckinPreferences.h"
-#import "FIRMessagingLogger.h"
-#import "FIRMessagingUtilities.h"
+#import "FirebaseMessaging/Sources/FIRMessagingLogger.h"
+#import "FirebaseMessaging/Sources/FIRMessagingUtilities.h"
 #import "FirebaseMessaging/Sources/FIRMessaging_Private.h"
-#import "NSError+FIRMessaging.h"
+#import "FirebaseMessaging/Sources/NSError+FIRMessaging.h"
+#import "FirebaseMessaging/Sources/Token/FIRMessagingCheckinPreferences.h"
 
 static const NSInteger kFIRMessagingPlatformVersionIOS = 2;
 

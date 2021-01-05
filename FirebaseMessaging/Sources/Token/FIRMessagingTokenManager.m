@@ -18,17 +18,17 @@
 
 #import <FirebaseInstallations/FIRInstallations.h>
 
-#import "FIRMessagingAuthKeyChain.h"
-#import "FIRMessagingAuthService.h"
-#import "FIRMessagingCheckinPreferences.h"
-#import "FIRMessagingConstants.h"
-#import "FIRMessagingDefines.h"
-#import "FIRMessagingLogger.h"
-#import "FIRMessagingTokenDeleteOperation.h"
-#import "FIRMessagingTokenFetchOperation.h"
-#import "FIRMessagingTokenInfo.h"
-#import "FIRMessagingTokenOperation.h"
+#import "FirebaseMessaging/Sources/FIRMessagingConstants.h"
+#import "FirebaseMessaging/Sources/FIRMessagingDefines.h"
+#import "FirebaseMessaging/Sources/FIRMessagingLogger.h"
+#import "FirebaseMessaging/Sources/Token/FIRMessagingAuthKeyChain.h"
+#import "FirebaseMessaging/Sources/Token/FIRMessagingAuthService.h"
+#import "FirebaseMessaging/Sources/Token/FIRMessagingCheckinPreferences.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingCheckinStore.h"
+#import "FirebaseMessaging/Sources/Token/FIRMessagingTokenDeleteOperation.h"
+#import "FirebaseMessaging/Sources/Token/FIRMessagingTokenFetchOperation.h"
+#import "FirebaseMessaging/Sources/Token/FIRMessagingTokenInfo.h"
+#import "FirebaseMessaging/Sources/Token/FIRMessagingTokenOperation.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingTokenStore.h"
 #import "NSError+FIRMessaging.h"
 
