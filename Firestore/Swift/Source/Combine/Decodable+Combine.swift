@@ -20,6 +20,7 @@
   import Foundation
   import FirebaseFirestore
 
+  @available(iOS 13.0, macOS 10.15, tvOS 13.0, *)
   extension Publisher where Output == QuerySnapshot {
     
     /**
@@ -45,6 +46,7 @@
     }
   }
 
+  @available(iOS 13.0, macOS 10.15, tvOS 13.0, *)
   extension Publishers {
     
     struct FIRDecoder<T: Decodable>: Publisher {
@@ -65,6 +67,7 @@
     }
   }
 
+  @available(iOS 13.0, macOS 10.15, tvOS 13.0, *)
   fileprivate final class FIRDecoderSubscription<S: Subscriber, Output: Decodable>: Subscription
     where S.Input == Output, S.Failure == Error {
     private let snapshot: QuerySnapshot
