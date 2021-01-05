@@ -31,7 +31,6 @@
 
 #import "Firebase/CoreDiagnostics/FIRCDLibrary/Protogen/nanopb/firebasecore.nanopb.h"
 
-extern NSString *const kFIRAppDiagnosticsNotification;
 extern NSString *const kFIRLastCheckinDateKey;
 
 static NSString *const kGoogleAppID = @"1:123:ios:123abc";

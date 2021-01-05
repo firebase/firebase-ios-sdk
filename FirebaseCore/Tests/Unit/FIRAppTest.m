@@ -57,6 +57,9 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 @property(nonatomic) id mockCoreDiagnosticsConnector;
 @property(nonatomic) NSNotificationCenter *notificationCenter;
 
+/// If `YES` then throws when `logCoreTelemetryWithOptions:` method is called.
+@property(nonatomic) BOOL assertNoLogCoreTelemetry;
+
 @end
 
 @implementation FIRAppTest
@@ -72,8 +75,13 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 
   [FIROptionsMock mockFIROptions];
 
+  self.assertNoLogCoreTelemetry = NO;
   OCMStub(ClassMethod([self.mockCoreDiagnosticsConnector logCoreTelemetryWithOptions:[OCMArg any]]))
-      .andDo(^(NSInvocation *invocation){
+      .andDo(^(NSInvocation *invocation) {
+        if (self.assertNoLogCoreTelemetry) {
+          XCTFail(@"Method `-[mockCoreDiagnosticsConnector logCoreTelemetryWithOptions:]` must not "
+                  @"be called");
+        }
       });
 
   // TODO: Remove all usages of defaultCenter in Core, then we can instantiate an instance here to
@@ -725,24 +733,22 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   FIRApp *app = [[FIRApp alloc] initInstanceWithName:NSStringFromSelector(_cmd) options:options];
   app.dataCollectionDefaultEnabled = NO;
 
-  // Add an observer for the diagnostics notification. Currently no object is sent, but in the
-  // future that could change so leave it as OCMOCK_ANY.
-  [self.notificationCenter addMockObserver:self.observerMock
-                                      name:kFIRAppDiagnosticsNotification
-                                    object:OCMOCK_ANY];
-
   // Stub out reading from user defaults since stubbing out the BOOL has issues. If the data
   // collection switch is disabled, the `sendLogs` call should return immediately and not fire a
   // notification.
   OCMStub([self.appClassMock readDataCollectionSwitchFromUserDefaultsForApp:OCMOCK_ANY])
       .andReturn(@NO);
 
-  // Ensure configure doesn't fire a notification.
-  [FIRApp configure];
+  // Don't expect the diagnostics data to be sent.
+  self.assertNoLogCoreTelemetry = YES;
 
-  // The observer mock is strict and will raise an exception when an unexpected notification is
-  // received.
-  OCMVerifyAll(self.observerMock);
+  // The diagnostics data is expected to be sent on `UIApplicationDidBecomeActiveNotification` when
+  // data collection is enabled.
+  [FIRApp configure];
+  [self.notificationCenter postNotificationName:[self appDidBecomeActiveNotificationName]
+                                         object:nil];
+  // Wait for some time because diagnostics is logged asynchronously.
+  OCMVerifyAllWithDelay(self.mockCoreDiagnosticsConnector, 1);
 }
 
 #pragma mark - Analytics Flag Tests
