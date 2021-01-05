@@ -8,6 +8,7 @@ jobs:
   check:
     name: Check changed files
     outputs:
+      pr_branch: ${{ github.payload.pull_request.head.ref }}
       database_run_job: ${{ steps.check_files.outputs.database_run_job }}
       functions_run_job: ${{ steps.check_files.outputs.functions_run_job }}
     runs-on: ubuntu-latest
