@@ -24,6 +24,8 @@ echo "::set-output name=database_run_job::false"
 echo "::set-output name=functions_run_job::false"
 # Get most rescent ancestor commit.
 echo "The current branch is ${pr_branch}."
+echo "pwd: $(pwd)"
+echo "ls: $(ls)"
 common_commit=$(git merge-base ${pr_branch} master)
 echo "The common commit is ${common_commit}."
 
