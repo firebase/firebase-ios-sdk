@@ -19,7 +19,7 @@ jobs:
       - name: check files
         id: check_files
         env:
-          pr_branch: ${{ github.payload.pull_request.head.ref }}
+          pr_branch: ${{ github.event.pull_request.head.ref }}
         run: ./scripts/get_updated_files.sh
   pod-lib-lint-database:
     # Don't run on private repo unless it is a PR.
