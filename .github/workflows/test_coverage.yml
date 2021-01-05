@@ -14,10 +14,11 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
       - name: check files
         id: check_files
-        run: |
-          ./scripts/get_updated_files.sh
+        run: ./scripts/get_updated_files.sh
   pod-lib-lint-database:
     # Don't run on private repo unless it is a PR.
     needs: check

@@ -22,10 +22,13 @@ FUNCTIONS_PATHS=("Functions.*" \
   "FirebaseMessaging/Sources/Interop/\.\*.h")
 echo "::set-output name=database_run_job::false"
 echo "::set-output name=functions_run_job::false"
+# Get most rescent ancestor commit.
+common_commit=$(git merge-base $GITHUB_REF master)
+
 echo "=============== list changed files ==============="
-cat < <(git diff --name-only HEAD^ HEAD)
+cat < <(git diff --name-only $common_commit HEAD)
 echo "========== check paths of changed files =========="
-git diff --name-only HEAD^ HEAD > files.txt
+git diff --name-only common_commit HEAD > files.txt
 while IFS= read -r file
 do
   echo $file
