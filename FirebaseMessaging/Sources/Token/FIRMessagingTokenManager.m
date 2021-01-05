@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRMessagingTokenManager.h"
+#import "FirebaseMessaging/Sources/Token/FIRMessagingTokenManager.h"
 
 #import <FirebaseInstallations/FIRInstallations.h>
 

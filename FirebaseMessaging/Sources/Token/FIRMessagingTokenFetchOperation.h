@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRMessagingTokenOperation.h"
+#import "FirebaseMessaging/Sources/Token/FIRMessagingTokenOperation.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

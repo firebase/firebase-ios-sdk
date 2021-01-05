@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-#import "FIRMessagingCheckinStore.h"
+#import "FirebaseMessaging/Sources/Token/FIRMessagingCheckinStore.h"
 
-#import "FIRMessagingAuthKeyChain.h"
-#import "FIRMessagingBackupExcludedPlist.h"
-#import "FIRMessagingCheckinPreferences.h"
-#import "FIRMessagingCheckinService.h"
-#import "FIRMessagingCode.h"
-#import "FIRMessagingLogger.h"
-#import "FIRMessagingUtilities.h"
-#import "NSError+FIRMessaging.h"
+#import "FirebaseMessaging/Sources/FIRMessagingCode.h"
+#import "FirebaseMessaging/Sources/FIRMessagingLogger.h"
+#import "FirebaseMessaging/Sources/FIRMessagingUtilities.h"
+#import "FirebaseMessaging/Sources/NSError+FIRMessaging.h"
+#import "FirebaseMessaging/Sources/Token/FIRMessagingAuthKeyChain.h"
+#import "FirebaseMessaging/Sources/Token/FIRMessagingBackupExcludedPlist.h"
+#import "FirebaseMessaging/Sources/Token/FIRMessagingCheckinPreferences.h"
+#import "FirebaseMessaging/Sources/Token/FIRMessagingCheckinService.h"
 
 static NSString *const kFIRMessagingCheckinKeychainGeneric = @"com.google.iid";
 

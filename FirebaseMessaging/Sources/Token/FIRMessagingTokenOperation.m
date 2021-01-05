@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRMessagingTokenOperation.h"
+#import "FirebaseMessaging/Sources/Token/FIRMessagingTokenOperation.h"
 
 #import <FirebaseInstallations/FirebaseInstallations.h>
 #import "GoogleUtilities/Environment/Public/GoogleUtilities/GULAppEnvironmentUtil.h"
