@@ -68,6 +68,7 @@ Firebase Performance library to measure performance of Mobile and Web Apps.
   s.dependency 'Protobuf', '~> 3.12'
 
   s.test_spec 'unit' do |unit_tests|
+    unit_tests.scheme = { :code_coverage => true }
     unit_tests.platforms = {:ios => '10.0'}
     unit_tests.source_files = [
       'FirebasePerformance/Tests/Unit/**/*.{m,h,plist}',

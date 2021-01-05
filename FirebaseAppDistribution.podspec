@@ -41,6 +41,7 @@ iOS SDK for App Distribution for Firebase.
   }
 
   s.test_spec 'unit' do |unit_tests|
+   unit_tests.scheme = { :code_coverage => true }
    unit_tests.source_files = 'FirebaseAppDistribution/Tests/Unit*/*.[mh]'
    unit_tests.resources = 'FirebaseAppDistribution/Tests/Unit/Resources/*'
    unit_tests.dependency 'OCMock'
