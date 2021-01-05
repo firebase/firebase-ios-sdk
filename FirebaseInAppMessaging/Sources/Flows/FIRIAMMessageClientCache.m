@@ -14,14 +14,17 @@
  * limitations under the License.
  */
 
-#import <FirebaseCore/FIRLogger.h>
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
 
-#import "FIRCore+InAppMessaging.h"
-#import "FIRIAMDisplayCheckOnAnalyticEventsFlow.h"
-#import "FIRIAMDisplayTriggerDefinition.h"
-#import "FIRIAMFetchResponseParser.h"
-#import "FIRIAMMessageClientCache.h"
-#import "FIRIAMServerMsgFetchStorage.h"
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+
+#import "FirebaseInAppMessaging/Sources/FIRCore+InAppMessaging.h"
+#import "FirebaseInAppMessaging/Sources/Private/Data/FIRIAMFetchResponseParser.h"
+#import "FirebaseInAppMessaging/Sources/Private/DisplayTrigger/FIRIAMDisplayTriggerDefinition.h"
+#import "FirebaseInAppMessaging/Sources/Private/Flows/FIRIAMDisplayCheckOnAnalyticEventsFlow.h"
+#import "FirebaseInAppMessaging/Sources/Private/Flows/FIRIAMMessageClientCache.h"
+#import "FirebaseInAppMessaging/Sources/Private/Flows/FIRIAMServerMsgFetchStorage.h"
 
 @interface FIRIAMMessageClientCache ()
 
@@ -232,3 +235,5 @@
   }];
 }
 @end
+
+#endif  // TARGET_OS_IOS

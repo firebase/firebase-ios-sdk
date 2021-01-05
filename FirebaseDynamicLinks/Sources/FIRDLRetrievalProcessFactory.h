@@ -24,7 +24,6 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FIRDLRetrievalProcessFactory : NSObject
 
 - (instancetype)initWithNetworkingService:(FIRDynamicLinkNetworking *)networkingService
-                                 clientID:(NSString *)clientID
                                 URLScheme:(NSString *)URLScheme
                                    APIKey:(NSString *)APIKey
                             FDLSDKVersion:(NSString *)FDLSDKVersion

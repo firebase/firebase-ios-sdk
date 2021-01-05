@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import <FirebaseMessaging/FIRMessaging.h>
+#import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessaging.h"
 
 @class FIRMessagingClient;
 @class FIRMessagingPubSub;
@@ -30,28 +30,12 @@ FOUNDATION_EXPORT NSString *const kFIRMessagingUserDefaultsKeyAutoInitEnabled;
 FOUNDATION_EXPORT NSString *const kFIRMessagingUserDefaultsKeyUseMessagingDelegate;
 FOUNDATION_EXPORT NSString *const kFIRMessagingPlistUseMessagingDelegate;
 
-@interface FIRMessagingRemoteMessage ()
-
-@property(nonatomic, copy) NSString *messageID;
-@property(nonatomic, strong) NSDictionary *appData;
-
-@end
-
 @interface FIRMessaging ()
 
 #pragma mark - Private API
 
 - (NSString *)defaultFcmToken;
-- (FIRMessagingClient *)client;
 - (FIRMessagingPubSub *)pubsub;
-
-// Create a sample message to be sent over the wire using FIRMessaging. Look at
-// FIRMessagingService.h to see what each param signifies.
-+ (NSMutableDictionary *)createFIRMessagingMessageWithMessage:(NSDictionary *)message
-                                                           to:(NSString *)to
-                                                       withID:(NSString *)msgID
-                                                   timeToLive:(int64_t)ttl
-                                                        delay:(int)delay;
 
 - (BOOL)isNetworkAvailable;
 - (FIRMessagingNetworkStatus)networkType;

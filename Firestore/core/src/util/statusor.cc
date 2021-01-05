@@ -28,7 +28,7 @@ void Helper::HandleInvalidStatusCtorArg(Status* status) {
       "An OK status is not a valid constructor argument to StatusOr<T>";
   HARD_FAIL("%s", kMessage);
   // Fall back to Internal for non-debug builds
-  *status = Status(Error::kInternal, kMessage);
+  *status = Status(Error::kErrorInternal, kMessage);
 }
 
 void Helper::Crash(const Status& status) {

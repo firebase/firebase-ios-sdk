@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRCLSDataCollectionArbiter.h"
+#import "Crashlytics/Crashlytics/DataCollection/FIRCLSDataCollectionArbiter.h"
 
 #import <XCTest/XCTest.h>
 
@@ -22,8 +22,8 @@
 #import "FBLPromises.h"
 #endif
 
-#import "FIRAppFake.h"
-#import "FIRCLSUserDefaults.h"
+#import "Crashlytics/Crashlytics/FIRCLSUserDefaults/FIRCLSUserDefaults.h"
+#import "Crashlytics/UnitTests/Mocks/FIRAppFake.h"
 
 #pragma mark - Tests for FIRCLSDataCollectionArbiter
 
@@ -49,12 +49,15 @@
   [super tearDown];
 }
 
-// If you do nothing, it should be YES. We should not be turning Fabric
-// customers off by default
 - (void)testNothingSet {
   self.fakeApp.isDefaultCollectionEnabled = YES;
   FIRCLSDataCollectionArbiter *arbiter = [self arbiterWithDictionary:@{}];
+#ifdef CRASHLYTICS_1P
+  XCTAssertFalse([arbiter isCrashlyticsCollectionEnabled]);
+#else
+  // It should be YES by default for 3P users.
   XCTAssertTrue([arbiter isCrashlyticsCollectionEnabled]);
+#endif
 }
 
 - (void)testOnlyStickyOff {

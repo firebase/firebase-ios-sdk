@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "GDTCORTests/Integration/TestServer/GDTCORTestServer.h"
+#import "GoogleDataTransport/GDTCORTests/Integration/TestServer/GDTCORTestServer.h"
 
 @interface GDTCORTestServer ()
 

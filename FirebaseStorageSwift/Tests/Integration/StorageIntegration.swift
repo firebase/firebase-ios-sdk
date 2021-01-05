@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import FirebaseAuth
 import FirebaseCore
 import FirebaseStorage
 import FirebaseStorageSwift
@@ -19,8 +20,10 @@ import XCTest
 
 class StorageIntegration: XCTestCase {
   var app: FirebaseApp!
+  var auth: Auth!
   var storage: Storage!
   static var once = false
+  static var signedIn = false
 
   override class func setUp() {
     FirebaseApp.configure()
@@ -29,7 +32,12 @@ class StorageIntegration: XCTestCase {
   override func setUp() {
     super.setUp()
     app = FirebaseApp.app()
+    auth = Auth.auth(app: app)
     storage = Storage.storage(app: app!)
+
+    if !StorageIntegration.signedIn {
+      signInAndWait()
+    }
 
     if !StorageIntegration.once {
       StorageIntegration.once = true
@@ -74,8 +82,8 @@ class StorageIntegration: XCTestCase {
     super.tearDown()
   }
 
-  func testUnauthenticatedGetMetadata() {
-    let expectation = self.expectation(description: "testUnauthenticatedGetMetadata")
+  func testGetMetadata() {
+    let expectation = self.expectation(description: "testGetMetadata")
     let ref = storage.reference().child("ios/public/1mb")
     ref.getMetadata { result in
       self.assertResultSuccess(result)
@@ -84,7 +92,7 @@ class StorageIntegration: XCTestCase {
     waitForExpectations()
   }
 
-  func testUnauthenticatedUpdateMetadata() {
+  func testUpdateMetadata() {
     let expectation = self.expectation(description: #function)
 
     let meta = StorageMetadata()
@@ -110,7 +118,7 @@ class StorageIntegration: XCTestCase {
     waitForExpectations()
   }
 
-  func testUnauthenticatedDelete() throws {
+  func testDelete() throws {
     let expectation = self.expectation(description: #function)
     let ref = storage.reference(withPath: "ios/public/fileToDelete")
     let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
@@ -136,7 +144,7 @@ class StorageIntegration: XCTestCase {
     waitForExpectations()
   }
 
-  func testUnauthenticatedSimplePutData() throws {
+  func testSimplePutData() throws {
     let expectation = self.expectation(description: #function)
     let ref = storage.reference(withPath: "ios/public/testBytesUpload")
     let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
@@ -147,7 +155,7 @@ class StorageIntegration: XCTestCase {
     waitForExpectations()
   }
 
-  func testUnauthenticatedSimplePutSpecialCharacter() throws {
+  func testSimplePutSpecialCharacter() throws {
     let expectation = self.expectation(description: #function)
     let ref = storage.reference(withPath: "ios/public/-._~!$'()*,=:@&+;")
     let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
@@ -158,7 +166,7 @@ class StorageIntegration: XCTestCase {
     waitForExpectations()
   }
 
-  func testUnauthenticatedSimplePutDataInBackgroundQueue() throws {
+  func testSimplePutDataInBackgroundQueue() throws {
     let expectation = self.expectation(description: #function)
     let ref = storage.reference(withPath: "ios/public/testBytesUpload")
     let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
@@ -171,9 +179,9 @@ class StorageIntegration: XCTestCase {
     waitForExpectations()
   }
 
-  func testUnauthenticatedSimplePutEmptyData() {
+  func testSimplePutEmptyData() {
     let expectation = self.expectation(description: #function)
-    let ref = storage.reference(withPath: "ios/public/testUnauthenticatedSimplePutEmptyData")
+    let ref = storage.reference(withPath: "ios/public/testSimplePutEmptyData")
     let data = Data()
     ref.putData(data) { result in
       self.assertResultSuccess(result)
@@ -182,7 +190,7 @@ class StorageIntegration: XCTestCase {
     waitForExpectations()
   }
 
-  func testUnauthenticatedSimplePutDataUnauthorized() throws {
+  func testSimplePutDataUnauthorized() throws {
     let expectation = self.expectation(description: #function)
     let ref = storage.reference(withPath: "ios/private/secretfile.txt")
     let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
@@ -198,7 +206,7 @@ class StorageIntegration: XCTestCase {
     waitForExpectations()
   }
 
-  func testUnauthenticatedSimplePutDataUnauthorizedThrow() throws {
+  func testSimplePutDataUnauthorizedThrow() throws {
     let expectation = self.expectation(description: #function)
     let ref = storage.reference(withPath: "ios/private/secretfile.txt")
     let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
@@ -215,10 +223,10 @@ class StorageIntegration: XCTestCase {
     waitForExpectations()
   }
 
-  func testUnauthenticatedSimplePutFile() throws {
+  func testSimplePutFile() throws {
     let expectation = self.expectation(description: #function)
     let putFileExpectation = self.expectation(description: "putFile")
-    let ref = storage.reference(withPath: "ios/public/testUnauthenticatedSimplePutFile")
+    let ref = storage.reference(withPath: "ios/public/testSimplePutFile")
     let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
     let tmpDirURL = URL(fileURLWithPath: NSTemporaryDirectory())
     let fileURL = tmpDirURL.appendingPathComponent("hello.txt")
@@ -248,6 +256,18 @@ class StorageIntegration: XCTestCase {
     waitForExpectations()
   }
 
+  func testAttemptToUploadDirectoryShouldFail() throws {
+    // This `.numbers` file is actually a directory.
+    let fileName = "HomeImprovement.numbers"
+    let bundle = Bundle(for: StorageIntegration.self)
+    let fileURL = try XCTUnwrap(bundle.url(forResource: fileName, withExtension: ""),
+                                "Failed to get filePath")
+    let ref = storage.reference(withPath: "ios/public/" + fileName)
+    ref.putFile(from: fileURL) { result in
+      self.assertResultFailure(result)
+    }
+  }
+
   func testPutFileWithSpecialCharacters() throws {
     let expectation = self.expectation(description: #function)
 
@@ -272,10 +292,10 @@ class StorageIntegration: XCTestCase {
     waitForExpectations()
   }
 
-  func testUnauthenticatedSimplePutDataNoMetadata() throws {
+  func testSimplePutDataNoMetadata() throws {
     let expectation = self.expectation(description: #function)
 
-    let ref = storage.reference(withPath: "ios/public/testUnauthenticatedSimplePutDataNoMetadata")
+    let ref = storage.reference(withPath: "ios/public/testSimplePutDataNoMetadata")
     let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
 
     ref.putData(data) { result in
@@ -285,7 +305,7 @@ class StorageIntegration: XCTestCase {
     waitForExpectations()
   }
 
-  func testUnauthenticatedSimplePutFileNoMetadata() throws {
+  func testSimplePutFileNoMetadata() throws {
     let expectation = self.expectation(description: #function)
 
     let fileName = "hello&+@_ .txt"
@@ -301,7 +321,7 @@ class StorageIntegration: XCTestCase {
     waitForExpectations()
   }
 
-  func testUnauthenticatedSimpleGetData() {
+  func testSimpleGetData() {
     let expectation = self.expectation(description: #function)
 
     let ref = storage.reference(withPath: "ios/public/1mb")
@@ -312,7 +332,7 @@ class StorageIntegration: XCTestCase {
     waitForExpectations()
   }
 
-  func testUnauthenticatedSimpleGetDataInBackgroundQueue() {
+  func testSimpleGetDataInBackgroundQueue() {
     let expectation = self.expectation(description: #function)
 
     let ref = storage.reference(withPath: "ios/public/1mb")
@@ -325,7 +345,34 @@ class StorageIntegration: XCTestCase {
     waitForExpectations()
   }
 
-  func testUnauthenticatedSimpleGetDataTooSmall() {
+  func testSimpleGetDataWithCustomCallbackQueue() {
+    let expectation = self.expectation(description: #function)
+
+    let callbackQueueLabel = "customCallbackQueue"
+    let callbackQueueKey = DispatchSpecificKey<String>()
+    let callbackQueue = DispatchQueue(label: callbackQueueLabel)
+    callbackQueue.setSpecific(key: callbackQueueKey, value: callbackQueueLabel)
+    storage.callbackQueue = callbackQueue
+
+    let ref = storage.reference(withPath: "ios/public/1mb")
+    ref.getData(maxSize: 1024 * 1024) { result in
+      self.assertResultSuccess(result)
+
+      XCTAssertFalse(Thread.isMainThread)
+
+      let currentQueueLabel = DispatchQueue.getSpecific(key: callbackQueueKey)
+      XCTAssertEqual(currentQueueLabel, callbackQueueLabel)
+
+      expectation.fulfill()
+
+      // Reset the callbackQueue to default (main queue).
+      self.storage.callbackQueue = DispatchQueue.main
+      callbackQueue.setSpecific(key: callbackQueueKey, value: nil)
+    }
+    waitForExpectations()
+  }
+
+  func testSimpleGetDataTooSmall() {
     let expectation = self.expectation(description: #function)
 
     let ref = storage.reference(withPath: "ios/public/1mb")
@@ -341,7 +388,7 @@ class StorageIntegration: XCTestCase {
     waitForExpectations()
   }
 
-  func testUnauthenticatedSimpleGetDownloadURL() {
+  func testSimpleGetDownloadURL() {
     let expectation = self.expectation(description: #function)
 
     let ref = storage.reference(withPath: "ios/public/1mb")
@@ -372,7 +419,7 @@ class StorageIntegration: XCTestCase {
     waitForExpectations()
   }
 
-  func testUnauthenticatedSimpleGetFile() throws {
+  func testSimpleGetFile() throws {
     let expectation = self.expectation(description: #function)
     let ref = storage.reference(withPath: "ios/public/helloworld")
     let tmpDirURL = URL(fileURLWithPath: NSTemporaryDirectory())
@@ -438,7 +485,7 @@ class StorageIntegration: XCTestCase {
     XCTAssertNil(actualMetadata.customMetadata)
   }
 
-  func testUpdateMetadata() {
+  func testUpdateMetadata2() {
     let expectation = self.expectation(description: #function)
     let ref = storage.reference(withPath: "ios/public/1mb")
 
@@ -494,7 +541,7 @@ class StorageIntegration: XCTestCase {
     let expectation = self.expectation(description: #function)
     let ref = storage.reference(withPath: "ios/public/list")
 
-    ref.list(withMaxResults: 2) { result in
+    ref.list(maxResults: 2) { result in
       switch result {
       case let .success(listResult):
         XCTAssertEqual(listResult.items, [ref.child("a"), ref.child("b")])
@@ -504,7 +551,7 @@ class StorageIntegration: XCTestCase {
           expectation.fulfill()
           return
         }
-        ref.list(withMaxResults: 2, pageToken: pageToken) { result in
+        ref.list(maxResults: 2, pageToken: pageToken) { result in
           switch result {
           case let .success(listResult):
             XCTAssertEqual(listResult.items, [])
@@ -541,6 +588,18 @@ class StorageIntegration: XCTestCase {
     waitForExpectations()
   }
 
+  private func signInAndWait() {
+    let expectation = self.expectation(description: #function)
+    auth.signIn(withEmail: Credentials.kUserName,
+                password: Credentials.kPassword) { result, error in
+      XCTAssertNil(error)
+      StorageIntegration.signedIn = true
+      print("Successfully signed in")
+      expectation.fulfill()
+    }
+    waitForExpectations()
+  }
+
   private func waitForExpectations() {
     let kFIRStorageIntegrationTestTimeout = 60.0
     waitForExpectations(timeout: kFIRStorageIntegrationTestTimeout,
@@ -548,7 +607,7 @@ class StorageIntegration: XCTestCase {
                           if let error = error {
                             print(error)
                           }
-    })
+                        })
   }
 
   private func assertResultSuccess<T>(_ result: Result<T, Error>,
@@ -558,6 +617,16 @@ class StorageIntegration: XCTestCase {
       XCTAssertNotNil(value, file: file, line: line)
     case let .failure(error):
       XCTFail("Unexpected error \(error)")
+    }
+  }
+
+  private func assertResultFailure<T>(_ result: Result<T, Error>,
+                                      file: StaticString = #file, line: UInt = #line) {
+    switch result {
+    case let .success(value):
+      XCTFail("Unexpected success with value: \(value)")
+    case let .failure(error):
+      XCTAssertNotNil(error, file: file, line: line)
     }
   }
 }

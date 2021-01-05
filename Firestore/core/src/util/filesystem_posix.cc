@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2018 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -103,7 +103,8 @@ StatusOr<Path> Filesystem::AppDataDir(absl::string_view app_name) {
 }
 
 StatusOr<Path> Filesystem::LegacyDocumentsDir(absl::string_view) {
-  return Status(Error::kUnimplemented, "No legacy storage on this platform.");
+  return Status(Error::kErrorUnimplemented,
+                "No legacy storage on this platform.");
 }
 
 Path Filesystem::TempDir() {
@@ -134,7 +135,7 @@ Status Filesystem::IsDirectory(const Path& path) {
   if (::stat(path.c_str(), &buffer)) {
     if (errno == ENOENT) {
       // Expected common error case.
-      return Status{Error::kNotFound, path.ToUtf8String()};
+      return Status{Error::kErrorNotFound, path.ToUtf8String()};
 
     } else if (errno == ENOTDIR) {
       // This is a case where POSIX and Windows differ in behavior in a way
@@ -150,14 +151,14 @@ Status Filesystem::IsDirectory(const Path& path) {
       //
       // Since we really don't care about this distinction it's easier to
       // resolve this by returning NotFound here.
-      return Status{Error::kNotFound, path.ToUtf8String()};
+      return Status{Error::kErrorNotFound, path.ToUtf8String()};
     } else {
       return Status::FromErrno(errno, path.ToUtf8String());
     }
   }
 
   if (!S_ISDIR(buffer.st_mode)) {
-    return Status{Error::kFailedPrecondition,
+    return Status{Error::kErrorFailedPrecondition,
                   StringFormat("Path %s exists but is not a directory",
                                path.ToUtf8String())};
   }
@@ -167,7 +168,7 @@ Status Filesystem::IsDirectory(const Path& path) {
 
 StatusOr<int64_t> Filesystem::FileSize(const Path& path) {
   struct stat st {};
-  if (stat(path.c_str(), &st) == 0) {
+  if (::stat(path.c_str(), &st) == 0) {
     return st.st_size;
   } else {
     return Status::FromErrno(

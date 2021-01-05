@@ -16,14 +16,12 @@
 
 #include "Firestore/core/src/auth/firebase_credentials_provider_apple.h"
 
-#import <FirebaseAuthInterop/FIRAuthInterop.h>
-#import <FirebaseCore/FIRApp.h>
-#import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseCore/FIRComponentContainer.h>
-#import <FirebaseCore/FIROptionsInternal.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "Interop/Auth/Public/FIRAuthInterop.h"
 
 #include "Firestore/core/src/util/error_apple.h"
 #include "Firestore/core/src/util/hard_assert.h"
+#include "Firestore/core/src/util/log.h"
 #include "Firestore/core/src/util/string_apple.h"
 
 namespace firebase {
@@ -97,8 +95,8 @@ void FirebaseCredentialsProvider::GetToken(TokenListener completion) {
       // Cancel the request since the user changed while the request was
       // outstanding so the response is likely for a previous user (which
       // user, we can't be sure).
-      completion(util::Status(Error::kAborted,
-                              "GetToken aborted due to token change."));
+      LOG_DEBUG("GetToken aborted due to token change.");
+      return GetToken(completion);
     } else {
       if (error == nil) {
         if (token != nil) {
@@ -107,7 +105,7 @@ void FirebaseCredentialsProvider::GetToken(TokenListener completion) {
           completion(Token::Unauthenticated());
         }
       } else {
-        Error error_code = Error::kUnknown;
+        Error error_code = Error::kErrorUnknown;
         if (error.domain == FIRFirestoreErrorDomain) {
           error_code = static_cast<Error>(error.code);
         }

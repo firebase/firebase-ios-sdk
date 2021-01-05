@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2018 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@
 #include <string>
 #include <vector>
 
+#include "Firestore/core/src/util/defer.h"
 #include "gtest/gtest.h"
 
 namespace firebase {
@@ -50,9 +51,10 @@ class StringAppleTest : public testing::Test {
 TEST_F(StringAppleTest, MakeStringFromCFStringRef) {
   for (const std::string& string_value : StringTestCases()) {
     CFStringRef cf_string = MakeCFString(string_value);
+    Defer cleanup([&] { SafeCFRelease(cf_string); });
+
     std::string actual = MakeString(cf_string);
     EXPECT_EQ(string_value, actual);
-    CFRelease(cf_string);
   }
 }
 

@@ -27,6 +27,7 @@
 #include "Firestore/core/src/model/document_key.h"
 #include "Firestore/core/src/model/mutation.h"
 #include "Firestore/core/src/remote/connectivity_monitor.h"
+#include "Firestore/core/src/remote/firebase_metadata_provider.h"
 #include "Firestore/core/src/remote/grpc_completion.h"
 #include "Firestore/core/src/remote/grpc_connection.h"
 #include "Firestore/core/src/remote/grpc_nanopb.h"
@@ -81,8 +82,8 @@ void LogGrpcCallFinished(absl::string_view rpc_name,
             status.error_message());
   if (LogIsDebugEnabled()) {
     auto headers =
-        Datastore::GetWhitelistedHeadersAsString(call->GetResponseHeaders());
-    LOG_DEBUG("RPC %s returned headers (whitelisted): %s", rpc_name, headers);
+        Datastore::GetAllowlistedHeadersAsString(call->GetResponseHeaders());
+    LOG_DEBUG("RPC %s returned headers (allowlisted): %s", rpc_name, headers);
   }
 }
 
@@ -90,21 +91,15 @@ void LogGrpcCallFinished(absl::string_view rpc_name,
 
 Datastore::Datastore(const DatabaseInfo& database_info,
                      const std::shared_ptr<AsyncQueue>& worker_queue,
-                     std::shared_ptr<CredentialsProvider> credentials)
-    : Datastore{database_info, worker_queue, credentials,
-                ConnectivityMonitor::Create(worker_queue)} {
-}
-
-Datastore::Datastore(const DatabaseInfo& database_info,
-                     const std::shared_ptr<AsyncQueue>& worker_queue,
                      std::shared_ptr<CredentialsProvider> credentials,
-                     std::unique_ptr<ConnectivityMonitor> connectivity_monitor)
+                     ConnectivityMonitor* connectivity_monitor,
+                     FirebaseMetadataProvider* firebase_metadata_provider)
     : worker_queue_{NOT_NULL(worker_queue)},
       credentials_{std::move(credentials)},
       rpc_executor_{CreateExecutor()},
-      connectivity_monitor_{std::move(connectivity_monitor)},
+      connectivity_monitor_{connectivity_monitor},
       grpc_connection_{database_info, worker_queue, &grpc_queue_,
-                       connectivity_monitor_.get()},
+                       connectivity_monitor_, firebase_metadata_provider},
       datastore_serializer_{database_info} {
   if (!database_info.ssl_enabled()) {
     GrpcConnection::UseInsecureChannel(database_info.host());
@@ -283,7 +278,7 @@ void Datastore::ResumeRpcWithCredentials(const OnCredentials& on_credentials) {
 }
 
 void Datastore::HandleCallStatus(const Status& status) {
-  if (status.code() == Error::kUnauthenticated) {
+  if (status.code() == Error::kErrorUnauthenticated) {
     credentials_->InvalidateToken();
   }
 }
@@ -298,35 +293,35 @@ void Datastore::RemoveGrpcCall(GrpcCall* to_remove) {
 }
 
 bool Datastore::IsAbortedError(const Status& error) {
-  return error.code() == Error::kAborted;
+  return error.code() == Error::kErrorAborted;
 }
 
 bool Datastore::IsPermanentError(const Status& error) {
   switch (error.code()) {
-    case Error::kOk:
+    case Error::kErrorOk:
       HARD_FAIL("Treated status OK as error");
-    case Error::kCancelled:
-    case Error::kUnknown:
-    case Error::kDeadlineExceeded:
-    case Error::kResourceExhausted:
-    case Error::kInternal:
-    case Error::kUnavailable:
+    case Error::kErrorCancelled:
+    case Error::kErrorUnknown:
+    case Error::kErrorDeadlineExceeded:
+    case Error::kErrorResourceExhausted:
+    case Error::kErrorInternal:
+    case Error::kErrorUnavailable:
       // Unauthenticated means something went wrong with our token and we need
       // to retry with new credentials which will happen automatically.
-    case Error::kUnauthenticated:
+    case Error::kErrorUnauthenticated:
       return false;
-    case Error::kInvalidArgument:
-    case Error::kNotFound:
-    case Error::kAlreadyExists:
-    case Error::kPermissionDenied:
-    case Error::kFailedPrecondition:
-    case Error::kAborted:
+    case Error::kErrorInvalidArgument:
+    case Error::kErrorNotFound:
+    case Error::kErrorAlreadyExists:
+    case Error::kErrorPermissionDenied:
+    case Error::kErrorFailedPrecondition:
+    case Error::kErrorAborted:
       // Aborted might be retried in some scenarios, but that is dependant on
       // the context and should handled individually by the calling code.
       // See https://cloud.google.com/apis/design/errors
-    case Error::kOutOfRange:
-    case Error::kUnimplemented:
-    case Error::kDataLoss:
+    case Error::kErrorOutOfRange:
+    case Error::kErrorUnimplemented:
+    case Error::kErrorDataLoss:
       return true;
   }
 
@@ -337,15 +332,16 @@ bool Datastore::IsPermanentWriteError(const Status& error) {
   return IsPermanentError(error) && !IsAbortedError(error);
 }
 
-std::string Datastore::GetWhitelistedHeadersAsString(
+std::string Datastore::GetAllowlistedHeadersAsString(
     const GrpcCall::Metadata& headers) {
-  static std::unordered_set<std::string> whitelist = {
+  static auto* allowlist = new std::unordered_set<std::string>{
       "date", "x-google-backends", "x-google-netmon-label", "x-google-service",
       "x-google-gfe-request-trace"};
 
   std::string result;
+  auto end = allowlist->end();
   for (const auto& kv : headers) {
-    if (whitelist.find(MakeString(kv.first)) != whitelist.end()) {
+    if (allowlist->find(MakeString(kv.first)) != end) {
       absl::StrAppend(&result, MakeStringView(kv.first), ": ",
                       MakeStringView(kv.second), "\n");
     }

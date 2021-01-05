@@ -16,7 +16,9 @@
 
 #import <Foundation/Foundation.h>
 
-#import "GDTCORLibrary/Private/GDTCORFlatFileStorage.h"
+#import "GoogleDataTransport/GDTCORLibrary/Private/GDTCORFlatFileStorage.h"
+
+@class GDTCORDirectorySizeTracker;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -27,6 +29,8 @@ NS_ASSUME_NONNULL_BEGIN
  * doesn't remove stored files from disk.
  */
 - (void)reset;
+
+@property(nonatomic, readonly) GDTCORDirectorySizeTracker *sizeTracker;
 
 @end
 

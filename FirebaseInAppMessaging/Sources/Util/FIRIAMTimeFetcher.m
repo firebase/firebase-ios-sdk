@@ -14,10 +14,15 @@
  * limitations under the License.
  */
 
-#import "FIRIAMTimeFetcher.h"
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
+
+#import "FirebaseInAppMessaging/Sources/Private/Util/FIRIAMTimeFetcher.h"
 
 @implementation FIRIAMTimerWithNSDate
 - (NSTimeInterval)currentTimestampInSeconds {
   return [[NSDate date] timeIntervalSince1970];
 }
 @end
+
+#endif  // TARGET_OS_IOS

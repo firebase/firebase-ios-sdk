@@ -15,8 +15,8 @@
  */
 
 #import <XCTest/XCTest.h>
-#import "FIRInstallationsHTTPError.h"
-#import "FIRKeyedArchivingUtils.h"
+#import "FirebaseInstallations/Source/Library/Errors/FIRInstallationsHTTPError.h"
+#import "FirebaseInstallations/Source/Tests/Utils/FIRKeyedArchivingUtils.h"
 
 @interface FIRInstallationsHTTPErrorTests : XCTestCase
 
@@ -48,8 +48,6 @@
   XCTAssertTrue([failureReason containsString:HTTPResponse.URL.absoluteString]);
   XCTAssertTrue([failureReason containsString:@(HTTPResponse.statusCode).stringValue]);
   XCTAssertTrue([failureReason containsString:@(HTTPResponse.statusCode).stringValue]);
-  XCTAssertTrue([failureReason containsString:@"header1"]);
-  XCTAssertTrue([failureReason containsString:@"value1"]);
 
   // Validate response data content.
   XCTAssertTrue([failureReason containsString:@"invalid request"]);

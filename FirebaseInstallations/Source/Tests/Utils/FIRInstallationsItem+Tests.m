@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#import "FIRInstallationsItem+Tests.h"
+#import "FirebaseInstallations/Source/Tests/Utils/FIRInstallationsItem+Tests.h"
 
-#import <FirebaseCore/FIRAppInternal.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
-#import "FIRInstallationsStoredAuthToken.h"
+#import "FirebaseInstallations/Source/Library/InstallationsStore/FIRInstallationsStoredAuthToken.h"
 
 @implementation FIRInstallationsItem (Tests)
 
@@ -36,6 +36,14 @@
                                                                        appName:kFIRDefaultAppName];
   item.firebaseInstallationID = @"firebaseInstallationID";
   item.registrationStatus = FIRInstallationStatusRegistered;
+
+  return item;
+}
+
++ (FIRInstallationsItem *)createCorruptedItem {
+  FIRInstallationsItem *item = [self createRegisteredInstallationItemWithAppID:@"appID"
+                                                                       appName:kFIRDefaultAppName];
+  item.firebaseInstallationID = nil;
 
   return item;
 }

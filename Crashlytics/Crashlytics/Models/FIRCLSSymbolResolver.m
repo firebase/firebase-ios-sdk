@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRCLSSymbolResolver.h"
+#import "Crashlytics/Crashlytics/Models/FIRCLSSymbolResolver.h"
 
 #include <dlfcn.h>
 
-#include "FIRCLSBinaryImage.h"
-#include "FIRCLSFile.h"
-#import "FIRCLSLogger.h"
-#import "FIRStackFrame_Private.h"
+#include "Crashlytics/Crashlytics/Components/FIRCLSBinaryImage.h"
+#include "Crashlytics/Crashlytics/Helpers/FIRCLSFile.h"
+#import "Crashlytics/Crashlytics/Helpers/FIRCLSLogger.h"
+#import "Crashlytics/Crashlytics/Private/FIRStackFrame_Private.h"
 
 @interface FIRCLSSymbolResolver () {
   NSMutableArray* _binaryImages;

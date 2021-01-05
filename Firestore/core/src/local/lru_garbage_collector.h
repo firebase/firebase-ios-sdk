@@ -23,6 +23,7 @@
 #include "Firestore/core/src/local/target_cache.h"
 #include "Firestore/core/src/local/target_data.h"
 #include "Firestore/core/src/model/types.h"
+#include "Firestore/core/src/util/status_fwd.h"
 
 namespace firebase {
 namespace firestore {
@@ -71,7 +72,7 @@ class LruDelegate : public ReferenceDelegate {
   /** Access to the underlying LRU Garbage collector instance. */
   virtual LruGarbageCollector* garbage_collector() = 0;
 
-  virtual int64_t CalculateByteSize() = 0;
+  virtual util::StatusOr<int64_t> CalculateByteSize() = 0;
 
   /** Returns the number of targets and orphaned documents cached. */
   virtual size_t GetSequenceNumberCount() = 0;
@@ -114,9 +115,7 @@ class LruGarbageCollector {
  public:
   LruGarbageCollector(LruDelegate* delegate, LruParams params);
 
-  int64_t CalculateByteSize() const {
-    return delegate_->CalculateByteSize();
-  }
+  util::StatusOr<int64_t> CalculateByteSize() const;
 
   /**
    * Given a target percentile, return the number of queries that make up that

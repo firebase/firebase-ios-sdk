@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright 2020 Google
+# Copyright 2020 Google LLC
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -14,11 +14,19 @@
 set -x
 REPO=`pwd`
 
+if [[ $# -lt 1 ]]; then
+  cat 1>&2 <<EOF
+USAGE: $0 [output_directory]
+EOF
+  exit 1
+fi
+
 # The first and only argument to this script should be the name of the
 # output directory.
 OUTPUT_DIR="$REPO/$1"
 
-cd ZipBuilder
-swift run ReleasePackager -keepBuildArtifacts true -updatePodRepo true \
-  -templateDir "${REPO}"/ZipBuilder/Template -localPodspecPath "${REPO}" \
-  -outputDir "${OUTPUT_DIR}"
+cd ReleaseTooling
+swift run zip-builder --keep-build-artifacts --update-pod-repo \
+    --repo-dir "${REPO}" --local-podspec-path "${REPO}" \
+    --enable-carthage-build --output-dir "${OUTPUT_DIR}" \
+    --custom-spec-repos https://github.com/firebase/SpecsStaging.git

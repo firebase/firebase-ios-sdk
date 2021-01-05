@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "GDTCORTests/Common/Fakes/GDTCORTransportFake.h"
+#import "GoogleDataTransport/GDTCORTests/Common/Fakes/GDTCORTransportFake.h"
 
 @interface GDTCORTransportFake ()
 
@@ -30,7 +30,7 @@
 
 - (instancetype)initWithMappingID:(NSString *)mappingID
                      transformers:(nullable NSArray<id<GDTCOREventTransformer>> *)transformers
-                           target:(NSInteger)target {
+                           target:(GDTCORTarget)target {
   self = [super initWithMappingID:mappingID transformers:transformers target:target];
 
   if (self) {

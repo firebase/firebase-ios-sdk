@@ -4,7 +4,9 @@ on:
   pull_request:
     paths:
     - 'FirebaseAuth**'
+    - 'Interop/Auth/Public/*.h'
     - '.github/workflows/auth.yml'
+    - 'Gemfile'
   schedule:
     # Run every day at 11pm (PST) - cron uses UTC times
     - cron:  '0 7 * * *'
@@ -12,11 +14,14 @@ on:
 jobs:
 
   pod-lib-lint:
+    # Don't run on private repo unless it is a PR.
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+
     runs-on: macOS-latest
 
     strategy:
       matrix:
-        target: [ios, tvos, macos]
+        target: [ios, tvos, macos, watchos]
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
@@ -26,6 +31,9 @@ jobs:
         scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseAuth.podspec --platforms=${{ matrix.target }}
 
   integration-tests:
+    # Don't run on private repo unless it is a PR.
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
     runs-on: macos-latest
@@ -49,11 +57,45 @@ jobs:
           FirebaseAuth/Tests/Sample/Sample/GoogleService-Info_multi.plist "$plist_secret"
         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/AuthSample/Sample.entitlements.gpg \
           FirebaseAuth/Tests/Sample/Sample/Sample.entitlements "$plist_secret"
+        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/AuthSample/Credentials.swift.gpg \
+          FirebaseAuth/Tests/Sample/SwiftApiTests/Credentials.swift "$plist_secret"
 
     - name: BuildAndTest # can be replaced with pod lib lint with CocoaPods 1.10
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/build.sh Auth iOS)
 
+  spm:
+    # Don't run on private repo unless it is a PR.
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+    runs-on: macOS-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Xcode 12
+      run: sudo xcode-select -s /Applications/Xcode_12.app/Contents/Developer
+    - name: Initialize xcodebuild
+      run: xcodebuild -list
+    - name: iOS Unit Tests
+      run: scripts/third_party/travis/retry.sh ./scripts/build.sh AuthUnit iOS spm
+
+  spm-cron:
+    # Don't run on private repo.
+    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
+    runs-on: macOS-latest
+    strategy:
+      matrix:
+        target: [tvOS, macOS, catalyst]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Xcode 12
+      run: sudo xcode-select -s /Applications/Xcode_12.app/Contents/Developer
+    - name: Initialize xcodebuild
+      run: xcodebuild -list
+    - name: Unit Tests
+      run: scripts/third_party/travis/retry.sh ./scripts/build.sh AuthUnit ${{ matrix.target }} spm
+
   catalyst:
+    # Don't run on private repo unless it is a PR.
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+
     runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v2
@@ -64,6 +106,9 @@ jobs:
       run: scripts/test_catalyst.sh FirebaseAuth build FirebaseAuth-Unit-unit
 
   quickstart:
+    # Don't run on private repo unless it is a PR.
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -78,17 +123,20 @@ jobs:
     - name: Install Secret FIREGSignInInfo.h
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/FIREGSignInInfo.h.gpg \
           quickstart-ios/TestUtils/FIREGSignInInfo.h "$signin_secret"
-    - name: Test quickstart
+    - name: Test swift quickstart
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Authentication)
 
   auth-cron-only:
+    # Don't run on private repo.
+    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
+
     runs-on: macos-latest
-    if: github.event_name == 'schedule'
     strategy:
       matrix:
-        target: [ios, tvos --skip-tests, macos --skip-tests] # The macos and tvos tests can hang
+        # The macos and tvos tests can hang, and watchOS doesn't have tests.
+        target: [ios, tvos --skip-tests, macos --skip-tests, watchos --skip-tests]
         flags: [
-          '--use-modular-headers',
+          '--use-static-frameworks',
           '--use-libraries'
         ]
     needs: pod-lib-lint
@@ -97,6 +145,4 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: PodLibLint Auth Cron
-      run: |
-        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseAuth.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}
-        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseAuth.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}
+      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseAuth.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}

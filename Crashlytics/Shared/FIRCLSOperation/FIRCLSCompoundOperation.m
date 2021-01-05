@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRCLSCompoundOperation.h"
+#import "Crashlytics/Shared/FIRCLSOperation/FIRCLSCompoundOperation.h"
 
-#import "FIRCLSFABAsyncOperation_Private.h"
+#import "Crashlytics/Shared/FIRCLSOperation/FIRCLSFABAsyncOperation_Private.h"
 
 #define FIRCLS_DISPATCH_QUEUES_AS_OBJECTS OS_OBJECT_USE_OBJC_RETAIN_RELEASE
 

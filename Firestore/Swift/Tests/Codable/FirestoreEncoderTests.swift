@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google
+ * Copyright 2019 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -481,6 +481,27 @@ class FirestoreEncoderTests: XCTestCase {
         .decodes(to: Model(timestamp: nil))
     }
 
+    func testServerTimestampOfDate() throws {
+      struct Model: Codable, Equatable {
+        @ServerTimestamp var date: Date? = nil
+      }
+
+      // Encoding a pending server timestamp
+      assertThat(Model())
+        .encodes(to: ["date": FieldValue.serverTimestamp()])
+
+      // Encoding a resolved server timestamp yields a timestamp; decoding
+      // yields it back.
+      let timestamp = Timestamp(seconds: 123_456_789, nanoseconds: 0)
+      let date: Date = timestamp.dateValue()
+      assertThat(Model(date: date))
+        .roundTrips(to: ["date": timestamp])
+
+      // Decoding a NSNull() leads to nil.
+      assertThat(["date": NSNull()])
+        .decodes(to: Model(date: nil))
+    }
+
     func testServerTimestampUserType() throws {
       struct Model: Codable, Equatable {
         @ServerTimestamp var timestamp: String? = nil
@@ -595,7 +616,7 @@ class FirestoreEncoderTests: XCTestCase {
           in: FSTTestDocRef("abc/123")
         )
         XCTFail("Failed to throw")
-      } catch let FirestoreDecodingError.fieldNameConfict(msg) {
+      } catch let FirestoreDecodingError.fieldNameConflict(msg) {
         XCTAssertEqual(msg, "Field name [\"docId\"] was found from document \"abc/123\", "
           + "cannot assign the document reference to this field.")
         return

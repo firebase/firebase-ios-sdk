@@ -16,10 +16,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseCore/FIRComponentContainer.h>
-#import <FirebaseCore/FIRLibrary.h>
-#import <FirebaseCore/FIROptionsInternal.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "FirebaseRemoteConfig/Sources/FIRRemoteConfigComponent.h"
 #import "FirebaseRemoteConfig/Sources/Private/FIRRemoteConfig_Private.h"
 #import "FirebaseRemoteConfig/Tests/Unit/RCNTestUtilities.h"
@@ -175,7 +172,7 @@
 - (FIROptions *)fakeOptions {
   FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:@"1:123:ios:123abc"
                                                     GCMSenderID:@"correct_gcm_sender_id"];
-  options.APIKey = @"api-key";
+  options.APIKey = @"AIzaSy-ApiKeyWithValidFormat_0123456789";
   options.projectID = @"project-id";
   return options;
 }

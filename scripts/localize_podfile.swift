@@ -20,15 +20,24 @@
 
 import Foundation
 
+let arg_cnts: Int = Int(CommandLine.argc)
+
 let podfile = CommandLine.arguments[1]
+
+var releaseTesting = false
+
+if arg_cnts > 2 {
+  releaseTesting = CommandLine.arguments[1 ..< arg_cnts].contains("release_testing")
+}
 
 // Always add these, since they may not be in the Podfile, but we still want the local
 // versions when they're dependencies of other requested local pods.
-let implicitPods = ["FirebaseCore", "FirebaseInstanceID", "FirebaseInstallations", "Firebase",
-                    "GoogleDataTransport", "GoogleDataTransportCCTSupport", "GoogleUtilities",
-                    "FirebaseAuth",
-                    "FirebaseAnalyticsInterop", "FirebaseAuthInterop", "FirebaseCoreDiagnostics",
-                    "FirebaseCoreDiagnosticsInterop", "FirebaseRemoteConfig", "FirebaseAuthInterop"]
+let implicitPods = [
+  "FirebaseCore", "FirebaseInstanceID", "FirebaseInstallations", "Firebase",
+  "GoogleDataTransport", "GoogleUtilities",
+  "FirebaseAuth", "FirebaseABTesting",
+  "FirebaseCoreDiagnostics", "FirebaseRemoteConfig",
+]
 var didImplicits = false
 
 var fileContents = ""
@@ -46,11 +55,13 @@ while url.path != "/", url.lastPathComponent != "firebase-ios-sdk" {
 
 let repo = url
 let lines = fileContents.components(separatedBy: .newlines)
-var outBuffer = ""
+var outBuffer =
+  "source 'https://github.com/firebase/SpecsStaging.git'\n"
+    + "source 'https://cdn.cocoapods.org/'\n"
 for line in lines {
-  var newLine = line
-  let tokens = line.components(separatedBy: [" ", ","] as CharacterSet)
-  if tokens.first == "pod" {
+  var newLine = line.trimmingCharacters(in: .whitespacesAndNewlines)
+  let tokens = newLine.components(separatedBy: [" ", ","] as CharacterSet)
+  if tokens.first == "pod", !releaseTesting {
     let podNameRaw = String(tokens[1]).replacingOccurrences(of: "'", with: "")
     var podName = podNameRaw
 

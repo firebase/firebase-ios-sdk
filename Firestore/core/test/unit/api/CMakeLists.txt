@@ -12,6 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+if(NOT FIREBASE_IOS_BUILD_TESTS)
+  return()
+endif()
+
 firebase_ios_add_test(
   firestore_api_test
   cc_compilation_test.cc

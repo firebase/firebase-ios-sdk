@@ -1,3 +1,9 @@
+# v1.7.0
+- Internal headers removed from public headers. (#6442)
+
+# v1.6.0
+- Add logging for Swift Package Manager.
+
 # v1.2.3
 - Remove usage of memcpy and convert calls from malloc to calloc.
 

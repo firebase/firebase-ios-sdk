@@ -85,7 +85,6 @@ if(APPLE)
   set(
     FIREBASE_IOS_OBJC_FLAGS
     -fobjc-arc
-    -fmodules
     -fno-autolink
   )
   set(

@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#import "GDTCORTests/Unit/GDTCORTestCase.h"
+#import "GoogleDataTransport/GDTCORTests/Unit/GDTCORTestCase.h"
 
-#import "GDTCORLibrary/Public/GDTCORClock.h"
-#import "GDTCORLibrary/Public/GDTCORPlatform.h"
+#import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORPlatform.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORClock.h"
 
 @interface GDTCORClockTest : GDTCORTestCase
 
@@ -79,6 +79,44 @@
   [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:5.0]];
   GDTCORClock *clock2 = [GDTCORClock snapshot];
   XCTAssertFalse([clock2 isAfter:clock1]);
+}
+
+- (void)testUptime {
+  NSTimeInterval timeDiff = 1;
+  GDTCORClock *clock1 = [GDTCORClock snapshot];
+  [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:timeDiff]];
+  GDTCORClock *clock2 = [GDTCORClock snapshot];
+
+  XCTAssertGreaterThan(clock2.uptimeNanoseconds, clock1.uptimeNanoseconds);
+  NSTimeInterval uptimeDiff =
+      (clock2.uptimeNanoseconds - clock1.uptimeNanoseconds) / (double)NSEC_PER_SEC;
+  NSTimeInterval accuracy = 0.2;
+
+  // Assert that uptime difference reflects the actually passed time.
+  XCTAssertLessThanOrEqual(ABS(uptimeDiff - timeDiff), accuracy);
+}
+
+- (void)testUptimeMilliseconds {
+  NSTimeInterval timeDiff = 1;
+  GDTCORClock *clock1 = [GDTCORClock snapshot];
+  [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:timeDiff]];
+  GDTCORClock *clock2 = [GDTCORClock snapshot];
+
+  XCTAssertGreaterThan(clock2.uptimeNanoseconds, clock1.uptimeNanoseconds);
+
+  NSTimeInterval millisecondsPerSecond = 1000;
+  NSTimeInterval uptimeDiff =
+      ([clock2 uptimeMilliseconds] - [clock1 uptimeMilliseconds]) / millisecondsPerSecond;
+  NSTimeInterval accuracy = 0.2;
+
+  // Assert that uptime difference reflects the actually passed time.
+  XCTAssertLessThanOrEqual(ABS(uptimeDiff - timeDiff), accuracy);
+}
+
+- (void)testTimezoneOffsetSeconds {
+  GDTCORClock *snapshot = [GDTCORClock snapshot];
+  int64_t expectedTimeZoneOffset = [[NSTimeZone systemTimeZone] secondsFromGMT];
+  XCTAssertEqual(snapshot.timezoneOffsetSeconds, expectedTimeZoneOffset);
 }
 
 @end

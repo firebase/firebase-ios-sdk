@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-#import "GDTCORTests/Unit/GDTCORTestCase.h"
+#import "GoogleDataTransport/GDTCORTests/Unit/GDTCORTestCase.h"
 
-#import <GoogleDataTransport/GDTCORRegistrar.h>
+#import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORRegistrar.h"
 
-#import "GDTCORLibrary/Private/GDTCORRegistrar_Private.h"
-#import "GDTCORTests/Unit/Helpers/GDTCORTestPrioritizer.h"
-#import "GDTCORTests/Unit/Helpers/GDTCORTestUploader.h"
+#import "GoogleDataTransport/GDTCORLibrary/Private/GDTCORRegistrar_Private.h"
+#import "GoogleDataTransport/GDTCORTests/Unit/Helpers/GDTCORTestUploader.h"
 
 @interface GDTCORRegistrarTest : GDTCORTestCase
 
@@ -32,7 +31,7 @@
 
 - (void)setUp {
   [super setUp];
-  _target = 23;
+  _target = kGDTCORTargetTest;
 }
 
 /** Tests the default initializer. */
@@ -48,12 +47,6 @@
   XCTAssertEqual(uploader, registrar.targetToUploader[@(_target)]);
 }
 
-/** Test registering a prioritizer. */
-- (void)testRegisterPrioritizer {
-  GDTCORRegistrar *registrar = [GDTCORRegistrar sharedInstance];
-  GDTCORTestPrioritizer *prioritizer = [[GDTCORTestPrioritizer alloc] init];
-  XCTAssertNoThrow([registrar registerPrioritizer:prioritizer target:self.target]);
-  XCTAssertEqual(prioritizer, registrar.targetToPrioritizer[@(_target)]);
-}
+// TODO(mikehaney24): Add test for registering a storage.
 
 @end

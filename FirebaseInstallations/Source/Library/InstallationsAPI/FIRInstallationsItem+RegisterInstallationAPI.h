@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRInstallationsItem.h"
+#import "FirebaseInstallations/Source/Library/FIRInstallationsItem.h"
 
 @class FIRInstallationsStoredAuthToken;
 
@@ -26,7 +26,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Parses and validates the Register Installation API response and returns a corresponding
  * `FIRInstallationsItem` instance on success.
  * @param JSONData The data with JSON encoded API response.
- * @param date The Auth Token expiration date will be calculated as `date` +
+ * @param date The installation auth token expiration date will be calculated as `date` +
  * `response.authToken.expiresIn`. For most of the cases `[NSDate date]` should be passed there. A
  * different value may be passed e.g. for unit tests.
  * @param outError A pointer to assign a specific `NSError` instance in case of failure. No error is

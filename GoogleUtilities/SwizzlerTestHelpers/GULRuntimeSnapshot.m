@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "GULRuntimeSnapshot.h"
+#import "GoogleUtilities/SwizzlerTestHelpers/GULRuntimeSnapshot.h"
 
 #import <objc/runtime.h>
 
-#import "GULRuntimeClassDiff.h"
-#import "GULRuntimeClassSnapshot.h"
-#import "GULRuntimeDiff.h"
+#import "GoogleUtilities/SwizzlerTestHelpers/GULRuntimeClassDiff.h"
+#import "GoogleUtilities/SwizzlerTestHelpers/GULRuntimeClassSnapshot.h"
+#import "GoogleUtilities/SwizzlerTestHelpers/GULRuntimeDiff.h"
 
 @implementation GULRuntimeSnapshot {
   /** The set of tracked classes. */

@@ -21,9 +21,8 @@ set -euo pipefail
 export HOMEBREW_NO_ANALYTICS=1
 export HOMEBREW_NO_AUTO_UPDATE=1
 
-brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/c6f1cbd/Formula/clang-format.rb
-brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/c13eda8/Formula/swiftformat.rb
-
+echo "python --version: $(python --version)"
+pip install --upgrade pip
 pip install flake8
 pip install six
 
@@ -33,3 +32,13 @@ if ! git rev-parse origin/master >& /dev/null; then
   git remote set-branches --add origin master
   git fetch origin
 fi
+
+# install clang-format
+brew update
+brew install clang-format@11
+
+# mint installs tools from Mintfile on demand.
+brew install mint
+
+# Explicitly mint bootstrap to show its version in the "Setup check" GHA phase
+mint bootstrap

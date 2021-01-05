@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import <FirebaseStorage/FIRStorageConstants.h>
+#import "FirebaseStorage/Sources/Public/FirebaseStorage/FIRStorageConstants.h"
 
 #import "FirebaseStorage/Sources/FIRStorageConstants_Private.h"
 
@@ -84,9 +84,3 @@ NSString *const kFIRStorageTaskStatusFailureNotification =
     @"kFIRStorageTaskStatusResumeNotification";
 
 NSString *const kFIRStorageBundleIdentifier = @"com.google.firebase.storage";
-
-// The STR and STR_EXPAND macro allow a numeric version passed to he compiler driver
-// with a -D to be treated as a string instead of an invalid floating point value.
-#define STR(x) STR_EXPAND(x)
-#define STR_EXPAND(x) #x
-const char *const FIRStorageVersionString = (const char *const)STR(FIRStorage_VERSION);

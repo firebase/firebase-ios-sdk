@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import <FirebaseStorage/FIRStorageObservableTask.h>
+#import "FirebaseStorage/Sources/Public/FirebaseStorage/FIRStorageObservableTask.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

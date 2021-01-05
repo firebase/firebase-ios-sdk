@@ -19,10 +19,10 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FIRCLSOperation.h"
+#import "Crashlytics/Shared/FIRCLSOperation/FIRCLSOperation.h"
 
-#import "FABTestAsyncOperation.h"
-#import "FABTestExpectations.h"
+#import "Crashlytics/UnitTests/FABOperation/FABTestAsyncOperation.h"
+#import "Crashlytics/UnitTests/FABOperation/FABTestExpectations.h"
 
 @interface FABOperationPreFlightCancellationTest : XCTestCase
 

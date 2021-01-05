@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRCLSNetworkClient.h"
+#import "Crashlytics/Crashlytics/Controllers/FIRCLSNetworkClient.h"
 
 @interface FIRCLSMockNetworkClient : FIRCLSNetworkClient
 

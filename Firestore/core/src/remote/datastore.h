@@ -42,6 +42,9 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
+class ConnectivityMonitor;
+class FirebaseMetadataProvider;
+
 /**
  * `Datastore` represents a proxy for the remote server, hiding details of the
  * RPC layer. It:
@@ -65,7 +68,9 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
 
   Datastore(const core::DatabaseInfo& database_info,
             const std::shared_ptr<util::AsyncQueue>& worker_queue,
-            std::shared_ptr<auth::CredentialsProvider> credentials);
+            std::shared_ptr<auth::CredentialsProvider> credentials,
+            ConnectivityMonitor* connectivity_monitor,
+            FirebaseMetadataProvider* firebase_metadata_provider);
 
   virtual ~Datastore() = default;
 
@@ -118,7 +123,7 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
    */
   static bool IsPermanentWriteError(const util::Status& status);
 
-  static std::string GetWhitelistedHeadersAsString(
+  static std::string GetAllowlistedHeadersAsString(
       const GrpcCall::Metadata& headers);
 
   Datastore(const Datastore& other) = delete;
@@ -127,12 +132,6 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
   Datastore& operator=(Datastore&& other) = delete;
 
  protected:
-  /** Test-only constructor */
-  Datastore(const core::DatabaseInfo& database_info,
-            const std::shared_ptr<util::AsyncQueue>& worker_queue,
-            std::shared_ptr<auth::CredentialsProvider> credentials,
-            std::unique_ptr<ConnectivityMonitor> connectivity_monitor);
-
   /** Test-only method */
   grpc::CompletionQueue* grpc_queue() {
     return &grpc_queue_;
@@ -170,7 +169,7 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
 
   void RemoveGrpcCall(GrpcCall* to_remove);
 
-  static GrpcCall::Metadata ExtractWhitelistedHeaders(
+  static GrpcCall::Metadata ExtractAllowlistedHeaders(
       const GrpcCall::Metadata& headers);
 
   // In case Auth tries to invoke a callback after `Datastore` has been shut
@@ -184,8 +183,7 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
   // shared for all spawned gRPC streams and calls).
   std::unique_ptr<util::Executor> rpc_executor_;
   grpc::CompletionQueue grpc_queue_;
-  // TODO(varconst): move `ConnectivityMonitor` to `FirestoreClient`.
-  std::unique_ptr<ConnectivityMonitor> connectivity_monitor_;
+  ConnectivityMonitor* connectivity_monitor_ = nullptr;
   GrpcConnection grpc_connection_;
 
   std::vector<std::unique_ptr<GrpcCall>> active_calls_;

@@ -35,6 +35,6 @@ extension CollectionReference {
                                         encoder: Firestore.Encoder = Firestore.Encoder(),
                                         completion: ((Error?) -> Void)? = nil) throws
     -> DocumentReference {
-      return addDocument(data: try encoder.encode(value), completion: completion)
-    }
+    return addDocument(data: try encoder.encode(value), completion: completion)
+  }
 }

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRCLSSettings.h"
+#import "Crashlytics/Crashlytics/Models/FIRCLSSettings.h"
 
 #if __has_include(<FBLPromises/FBLPromises.h>)
 #import <FBLPromises/FBLPromises.h>
@@ -20,11 +20,11 @@
 #import "FBLPromises.h"
 #endif
 
-#import "FIRCLSApplicationIdentifierModel.h"
-#import "FIRCLSConstants.h"
-#import "FIRCLSFileManager.h"
-#import "FIRCLSLogger.h"
-#import "FIRCLSURLBuilder.h"
+#import "Crashlytics/Crashlytics/Helpers/FIRCLSLogger.h"
+#import "Crashlytics/Crashlytics/Models/FIRCLSFileManager.h"
+#import "Crashlytics/Crashlytics/Settings/Models/FIRCLSApplicationIdentifierModel.h"
+#import "Crashlytics/Shared/FIRCLSConstants.h"
+#import "Crashlytics/Shared/FIRCLSNetworking/FIRCLSURLBuilder.h"
 
 NSString *const CreatedAtKey = @"created_at";
 NSString *const GoogleAppIDKey = @"google_app_id";
@@ -304,6 +304,9 @@ NSString *const AppVersion = @"app_version";
 }
 
 - (BOOL)shouldUseNewReportEndpoint {
+#ifdef CRASHLYTICS_1P
+  return YES;
+#else
   NSNumber *value = [self appSettings][@"report_upload_variant"];
 
   // Default to use the new endpoint when settings were not successfully fetched
@@ -316,6 +319,7 @@ NSString *const AppVersion = @"app_version";
   // 1 - Legacy
   // 2 - New
   return value.intValue == 2;
+#endif
 }
 
 #pragma mark - Optional Limit Overrides

@@ -369,9 +369,10 @@ class SerializerTest : public ::testing::Test {
     create_time_proto->set_nanos(4321);
   }
 
-  void ExpectUnaryOperator(const FieldValue& value,
+  void ExpectUnaryOperator(std::string op_str,
+                           const FieldValue& value,
                            v1::StructuredQuery::UnaryFilter::Operator op) {
-    core::Query q = Query("docs").AddingFilter(Filter("prop", "==", value));
+    core::Query q = Query("docs").AddingFilter(Filter("prop", op_str, value));
     TargetData model = CreateTargetData(std::move(q));
 
     v1::Target proto;
@@ -383,6 +384,15 @@ class SerializerTest : public ::testing::Test {
     *proto.mutable_query()->mutable_structured_query()->add_from() =
         std::move(from);
 
+    // Add extra ORDER_BY field for '!=' since it is an inequality.
+    if (op_str == "!=") {
+      v1::StructuredQuery::Order order1;
+      order1.mutable_field()->set_field_path("prop");
+      order1.set_direction(v1::StructuredQuery::ASCENDING);
+      *proto.mutable_query()->mutable_structured_query()->add_order_by() =
+          std::move(order1);
+    }
+
     v1::StructuredQuery::Order order;
     order.mutable_field()->set_field_path(FieldPath::kDocumentKeyPath);
     order.set_direction(v1::StructuredQuery::ASCENDING);
@@ -393,6 +403,7 @@ class SerializerTest : public ::testing::Test {
                                                     ->mutable_structured_query()
                                                     ->mutable_where()
                                                     ->mutable_unary_filter();
+
     filter.mutable_field()->set_field_path("prop");
     filter.set_op(op);
 
@@ -895,8 +906,8 @@ TEST_F(SerializerTest, BadNullValue) {
   // Alter the null value from 0 to 1.
   Mutate(&bytes[1], /*expected_initial_value=*/0, /*new_value=*/1);
 
-  ExpectFailedStatusDuringFieldValueDecode(Status(Error::kDataLoss, "ignored"),
-                                           bytes);
+  ExpectFailedStatusDuringFieldValueDecode(
+      Status(Error::kErrorDataLoss, "ignored"), bytes);
 }
 
 TEST_F(SerializerTest, BadBoolValueInterpretedAsTrue) {
@@ -928,8 +939,8 @@ TEST_F(SerializerTest, BadIntegerValue) {
   bytes.resize(12);
   bytes[11] = 0x7f;
 
-  ExpectFailedStatusDuringFieldValueDecode(Status(Error::kDataLoss, "ignored"),
-                                           bytes);
+  ExpectFailedStatusDuringFieldValueDecode(
+      Status(Error::kErrorDataLoss, "ignored"), bytes);
 }
 
 TEST_F(SerializerTest, BadStringValue) {
@@ -940,8 +951,8 @@ TEST_F(SerializerTest, BadStringValue) {
   // used by the encoded tag.)
   Mutate(&bytes[2], /*expected_initial_value=*/1, /*new_value=*/5);
 
-  ExpectFailedStatusDuringFieldValueDecode(Status(Error::kDataLoss, "ignored"),
-                                           bytes);
+  ExpectFailedStatusDuringFieldValueDecode(
+      Status(Error::kErrorDataLoss, "ignored"), bytes);
 }
 
 TEST_F(SerializerTest, BadTimestampValue_TooLarge) {
@@ -951,8 +962,8 @@ TEST_F(SerializerTest, BadTimestampValue_TooLarge) {
   // Add some time, which should push us above the maximum allowed timestamp.
   Mutate(&bytes[4], 0x82, 0x83);
 
-  ExpectFailedStatusDuringFieldValueDecode(Status(Error::kDataLoss, "ignored"),
-                                           bytes);
+  ExpectFailedStatusDuringFieldValueDecode(
+      Status(Error::kErrorDataLoss, "ignored"), bytes);
 }
 
 TEST_F(SerializerTest, BadTimestampValue_TooSmall) {
@@ -962,8 +973,8 @@ TEST_F(SerializerTest, BadTimestampValue_TooSmall) {
   // Remove some time, which should push us below the minimum allowed timestamp.
   Mutate(&bytes[4], 0x92, 0x91);
 
-  ExpectFailedStatusDuringFieldValueDecode(Status(Error::kDataLoss, "ignored"),
-                                           bytes);
+  ExpectFailedStatusDuringFieldValueDecode(
+      Status(Error::kErrorDataLoss, "ignored"), bytes);
 }
 
 TEST_F(SerializerTest, BadFieldValueTagAndNoOtherTagPresent) {
@@ -980,8 +991,8 @@ TEST_F(SerializerTest, BadFieldValueTagAndNoOtherTagPresent) {
   // field number 31 encoded as a varint.
   Mutate(&bytes[0], /*expected_initial_value=*/0x58, /*new_value=*/0xf8);
 
-  ExpectFailedStatusDuringFieldValueDecode(Status(Error::kDataLoss, "ignored"),
-                                           bytes);
+  ExpectFailedStatusDuringFieldValueDecode(
+      Status(Error::kErrorDataLoss, "ignored"), bytes);
 }
 
 TEST_F(SerializerTest, BadFieldValueTagWithOtherValidTagsPresent) {
@@ -1039,14 +1050,14 @@ TEST_F(SerializerTest, IncompleteFieldValue) {
   ASSERT_EQ(0x00, bytes[1]);
   bytes.pop_back();
 
-  ExpectFailedStatusDuringFieldValueDecode(Status(Error::kDataLoss, "ignored"),
-                                           bytes);
+  ExpectFailedStatusDuringFieldValueDecode(
+      Status(Error::kErrorDataLoss, "ignored"), bytes);
 }
 
 TEST_F(SerializerTest, IncompleteTag) {
   std::vector<uint8_t> bytes;
-  ExpectFailedStatusDuringFieldValueDecode(Status(Error::kDataLoss, "ignored"),
-                                           bytes);
+  ExpectFailedStatusDuringFieldValueDecode(
+      Status(Error::kErrorDataLoss, "ignored"), bytes);
 }
 
 TEST_F(SerializerTest, FailOnInvalidInputBytes) {
@@ -1054,8 +1065,8 @@ TEST_F(SerializerTest, FailOnInvalidInputBytes) {
   // bytes correspond to a Map FieldValue with an empty value. It was
   // generated by our fuzz tests and used to trigger an assertion.
   std::vector<uint8_t> bytes = {0x32, 0x02, 0x0a, 0x00};
-  ExpectFailedStatusDuringFieldValueDecode(Status(Error::kDataLoss, "ignored"),
-                                           bytes);
+  ExpectFailedStatusDuringFieldValueDecode(
+      Status(Error::kErrorDataLoss, "ignored"), bytes);
 }
 
 TEST_F(SerializerTest, EncodesKey) {
@@ -1177,7 +1188,7 @@ TEST_F(SerializerTest, DecodeMaybeDocWithoutFoundOrMissingSetShouldFail) {
 
   ByteString bytes = ProtobufSerialize(proto);
   ExpectFailedStatusDuringMaybeDocumentDecode(
-      Status(Error::kDataLoss, "ignored"), bytes);
+      Status(Error::kErrorDataLoss, "ignored"), bytes);
 }
 
 TEST_F(SerializerTest, EncodesFirstLevelKeyQueries) {
@@ -1335,14 +1346,26 @@ TEST_F(SerializerTest, EncodesMultipleFiltersOnDeeperCollections) {
 
 TEST_F(SerializerTest, EncodesNullFilter) {
   SCOPED_TRACE("EncodesNullFilter");
-  ExpectUnaryOperator(Value(nullptr),
+  ExpectUnaryOperator("==", Value(nullptr),
                       v1::StructuredQuery_UnaryFilter_Operator_IS_NULL);
 }
 
 TEST_F(SerializerTest, EncodesNanFilter) {
   SCOPED_TRACE("EncodesNanFilter");
-  ExpectUnaryOperator(Value(NAN),
+  ExpectUnaryOperator("==", Value(NAN),
                       v1::StructuredQuery_UnaryFilter_Operator_IS_NAN);
+}
+
+TEST_F(SerializerTest, EncodesNotNullFilter) {
+  SCOPED_TRACE("EncodesNotNullFilter");
+  ExpectUnaryOperator("!=", Value(nullptr),
+                      v1::StructuredQuery_UnaryFilter_Operator_IS_NOT_NULL);
+}
+
+TEST_F(SerializerTest, EncodesNotNanFilter) {
+  SCOPED_TRACE("EncodesNotNanFilter");
+  ExpectUnaryOperator("!=", Value(NAN),
+                      v1::StructuredQuery_UnaryFilter_Operator_IS_NOT_NAN);
 }
 
 TEST_F(SerializerTest, EncodesSortOrders) {
@@ -1571,9 +1594,9 @@ TEST_F(SerializerTest, DecodesListenResponseWithAddedTargetChange) {
 }
 
 TEST_F(SerializerTest, DecodesListenResponseWithRemovedTargetChange) {
-  WatchTargetChange model(WatchTargetChangeState::Removed, {1, 2},
-                          ByteString("resume_token"),
-                          Status{Error::kPermissionDenied, "Error message"});
+  WatchTargetChange model(
+      WatchTargetChangeState::Removed, {1, 2}, ByteString("resume_token"),
+      Status{Error::kErrorPermissionDenied, "Error message"});
 
   v1::ListenResponse proto;
 
@@ -1583,7 +1606,7 @@ TEST_F(SerializerTest, DecodesListenResponseWithRemovedTargetChange) {
   change->add_target_ids(1);
   change->add_target_ids(2);
   change->set_resume_token("resume_token");
-  change->mutable_cause()->set_code(Error::kPermissionDenied);
+  change->mutable_cause()->set_code(Error::kErrorPermissionDenied);
   change->mutable_cause()->set_message("Error message");
 
   SCOPED_TRACE("DecodesListenResponseWithRemovedTargetChange");
@@ -1890,6 +1913,18 @@ TEST_F(SerializerTest, EncodesFieldFilter) {
   ExpectRoundTrip(model, proto);
 }
 
+TEST_F(SerializerTest, EncodesNotEqualFilter) {
+  auto model = testutil::Filter("item.tags", "!=", "food");
+
+  v1::StructuredQuery::Filter proto;
+  v1::StructuredQuery::FieldFilter& field = *proto.mutable_field_filter();
+  field.mutable_field()->set_field_path("item.tags");
+  field.set_op(v1::StructuredQuery::FieldFilter::NOT_EQUAL);
+  *field.mutable_value() = ValueProto("food");
+
+  ExpectRoundTrip(model, proto);
+}
+
 TEST_F(SerializerTest, EncodesArrayContainsFilter) {
   auto model = testutil::Filter("item.tags", "array_contains", "food");
 
@@ -1923,6 +1958,32 @@ TEST_F(SerializerTest, EncodesInFilter) {
   field.mutable_field()->set_field_path("item.tags");
   field.set_op(v1::StructuredQuery::FieldFilter::IN_);
   *field.mutable_value() = ValueProto(std::vector<FieldValue>{Value("food")});
+
+  ExpectRoundTrip(model, proto);
+}
+
+TEST_F(SerializerTest, EncodesNotInFilter) {
+  auto model = testutil::Filter("item.tags", "not-in", Array("food"));
+
+  v1::StructuredQuery::Filter proto;
+  v1::StructuredQuery::FieldFilter& field = *proto.mutable_field_filter();
+  field.mutable_field()->set_field_path("item.tags");
+  field.set_op(v1::StructuredQuery::FieldFilter::NOT_IN);
+  *field.mutable_value() = ValueProto(std::vector<FieldValue>{Value("food")});
+
+  ExpectRoundTrip(model, proto);
+}
+
+TEST_F(SerializerTest, EncodesNotInFilterWithNull) {
+  auto model =
+      testutil::Filter("item.tags", "not-in", Array(FieldValue::Null()));
+
+  v1::StructuredQuery::Filter proto;
+  v1::StructuredQuery::FieldFilter& field = *proto.mutable_field_filter();
+  field.mutable_field()->set_field_path("item.tags");
+  field.set_op(v1::StructuredQuery::FieldFilter::NOT_IN);
+  *field.mutable_value() =
+      ValueProto(std::vector<FieldValue>{FieldValue::Null()});
 
   ExpectRoundTrip(model, proto);
 }

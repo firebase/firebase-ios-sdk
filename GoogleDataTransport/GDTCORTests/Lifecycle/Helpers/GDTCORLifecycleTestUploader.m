@@ -14,15 +14,11 @@
  * limitations under the License.
  */
 
-#import "GDTCORTests/Lifecycle/Helpers/GDTCORLifecycleTestUploader.h"
+#import "GoogleDataTransport/GDTCORTests/Lifecycle/Helpers/GDTCORLifecycleTestUploader.h"
 
 @implementation GDTCORLifecycleTestUploader
 
-- (void)uploadPackage:(GDTCORUploadPackage *)package {
-}
-
-- (BOOL)readyToUploadTarget:(GDTCORTarget)target conditions:(GDTCORUploadConditions)conditions {
-  return YES;
+- (void)uploadTarget:(GDTCORTarget)target withConditions:(GDTCORUploadConditions)conditions {
 }
 
 @end

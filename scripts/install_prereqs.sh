@@ -23,35 +23,6 @@
 
 set -euo pipefail
 
-# Set up secrets for integration tests and metrics collection. This does not work for pull
-# requests from forks. See
-# https://docs.travis-ci.com/user/pull-requests#pull-requests-and-security-restrictions
-function install_secrets() {
-  if [[ -n "${encrypted_de2056405dcb_key:-}" && $secrets_installed != true ]]; then
-    secrets_installed=true
-    openssl aes-256-cbc -K $encrypted_de2056405dcb_key -iv $encrypted_de2056405dcb_iv \
-    -in scripts/travis-encrypted/Secrets.tar.enc \
-    -out scripts/travis-encrypted/Secrets.tar -d
-
-    tar xvf scripts/travis-encrypted/Secrets.tar
-
-    cp Secrets/Storage/App/GoogleService-Info.plist FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist
-    cp Secrets/Storage/App/GoogleService-Info.plist Example/Database/App/GoogleService-Info.plist
-
-    cp Secrets/Metrics/database.config Metrics/database.config
-
-    # Firebase Installations
-    fis_resources_dir=FirebaseInstallations/Source/Tests/Resources/
-    mkdir -p "$fis_resources_dir"
-    cp Secrets/Installations/GoogleService-Info.plist "$fis_resources_dir"
-
-    # FirebaseInstanceID
-    iid_resources_dir=Example/InstanceID/Resources/
-    mkdir -p "$iid_resources_dir"
-    cp Secrets/Installations/GoogleService-Info.plist "$iid_resources_dir"
-  fi
-}
-
 # apt_install program package
 #
 # Installs the given package if the given command is missing
@@ -67,8 +38,6 @@ function install_xcpretty() {
     gem install xcpretty-travis-formatter
   fi
 }
-
-secrets_installed=false
 
 # Default values, if not supplied on the command line or environment
 platform="iOS"
@@ -98,11 +67,6 @@ if [[ "$method" != "cmake" ]]; then
   scripts/setup_bundler.sh
 fi
 
-if [[ ! -z "${QUICKSTART:-}" ]]; then
-  install_secrets
-  scripts/setup_quickstart.sh "$QUICKSTART"
-fi
-
 case "$project-$platform-$method" in
 
   FirebasePod-iOS-*)
@@ -128,14 +92,6 @@ case "$project-$platform-$method" in
     ;;
 
   Storage-*)
-    ;;
-
-  Installations-*)
-    install_secrets
-    ;;
-
-  InstanceID-*)
-    install_secrets
     ;;
 
   InAppMessaging-*-xcodebuild)
@@ -180,7 +136,23 @@ case "$project-$platform-$method" in
 
   MessagingSample-*)
     install_xcpretty
-    bundle exec pod install --project-directory=Example/Messaging/Sample --repo-update
+    bundle exec pod install --project-directory=FirebaseMessaging/Apps/Sample --repo-update
+    ;;
+
+  RemoteConfigSample-*)
+    install_xcpretty
+    bundle exec pod install --project-directory=FirebaseRemoteConfig/Tests/Sample --repo-update
+    ;;
+
+  SegmentationSample-*)
+    install_xcpretty
+    bundle exec pod install --project-directory=FirebaseSegmentation/Tests/Sample --repo-update
+    ;;
+
+  GoogleDataTransport-watchOS-xcodebuild)
+    install_xcpretty
+    bundle exec pod install --project-directory=GoogleDataTransport/GDTWatchOSTestApp/ --repo-update
+    bundle exec pod install --project-directory=GoogleDataTransport/GDTCCTWatchOSTestApp/
     ;;
 
   *-pod-lib-lint)

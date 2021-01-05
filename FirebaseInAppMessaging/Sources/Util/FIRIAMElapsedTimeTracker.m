@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 
-#import "FIRIAMElapsedTimeTracker.h"
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
+
+#import "FirebaseInAppMessaging/Sources/Util/FIRIAMElapsedTimeTracker.h"
 @interface FIRIAMElapsedTimeTracker ()
 @property(nonatomic) NSTimeInterval totalTrackedTimeSoFar;
 @property(nonatomic) NSTimeInterval lastTrackingStartPoint;
@@ -54,3 +57,5 @@
   return self;
 }
 @end
+
+#endif  // TARGET_OS_IOS

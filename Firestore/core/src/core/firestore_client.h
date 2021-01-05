@@ -51,6 +51,8 @@ class Mutation;
 }  // namespace model
 
 namespace remote {
+class ConnectivityMonitor;
+class FirebaseMetadataProvider;
 class RemoteStore;
 }  // namespace remote
 
@@ -76,19 +78,23 @@ class FirestoreClient : public std::enable_shared_from_this<FirestoreClient> {
       const api::Settings& settings,
       std::shared_ptr<auth::CredentialsProvider> credentials_provider,
       std::shared_ptr<util::Executor> user_executor,
-      std::shared_ptr<util::AsyncQueue> worker_queue);
+      std::shared_ptr<util::AsyncQueue> worker_queue,
+      std::unique_ptr<remote::FirebaseMetadataProvider>
+          firebase_metadata_provider);
+
+  ~FirestoreClient();
+
+  /**
+   * Synchronously destroys this client, cancels all writes / listeners, and
+   * releases all resources.
+   */
+  void Dispose();
 
   /**
    * Terminates this client, cancels all writes / listeners, and releases all
    * resources.
    */
   void TerminateAsync(util::StatusCallback callback);
-
-  /**
-   * Synchronously terminates this client, cancels all writes / listeners, and
-   * releases all resources.
-   */
-  void Terminate();
 
   /**
    * Passes a callback that is triggered when all the pending writes at the
@@ -177,7 +183,9 @@ class FirestoreClient : public std::enable_shared_from_this<FirestoreClient> {
       const DatabaseInfo& database_info,
       std::shared_ptr<auth::CredentialsProvider> credentials_provider,
       std::shared_ptr<util::Executor> user_executor,
-      std::shared_ptr<util::AsyncQueue> worker_queue);
+      std::shared_ptr<util::AsyncQueue> worker_queue,
+      std::unique_ptr<remote::FirebaseMetadataProvider>
+          firebase_metadata_provider);
 
   void Initialize(const auth::User& user, const api::Settings& settings);
 
@@ -199,9 +207,12 @@ class FirestoreClient : public std::enable_shared_from_this<FirestoreClient> {
   std::shared_ptr<util::AsyncQueue> worker_queue_;
   std::shared_ptr<util::Executor> user_executor_;
 
+  std::unique_ptr<remote::FirebaseMetadataProvider> firebase_metadata_provider_;
+
   std::unique_ptr<local::Persistence> persistence_;
   std::unique_ptr<local::LocalStore> local_store_;
   std::unique_ptr<local::QueryEngine> query_engine_;
+  std::unique_ptr<remote::ConnectivityMonitor> connectivity_monitor_;
   std::unique_ptr<remote::RemoteStore> remote_store_;
   std::unique_ptr<SyncEngine> sync_engine_;
   std::unique_ptr<EventManager> event_manager_;

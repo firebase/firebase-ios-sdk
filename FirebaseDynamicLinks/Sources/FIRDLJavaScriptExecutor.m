@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
+
 #import <WebKit/WebKit.h>
 
 #import "FirebaseDynamicLinks/Sources/FIRDLJavaScriptExecutor.h"
@@ -135,3 +138,5 @@ NSString *GINFingerprintJSMethodString() {
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif  // TARGET_OS_IOS

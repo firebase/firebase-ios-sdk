@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRInstallationsStatus.h"
+#import "FirebaseInstallations/Source/Library/InstallationsIDController/FIRInstallationsStatus.h"
 
 @class FIRInstallationsStoredItem;
 @class FIRInstallationsStoredAuthToken;
@@ -66,6 +66,13 @@ NS_ASSUME_NONNULL_BEGIN
  * @return Returns a string uniquely identifying the installation.
  */
 - (NSString *)identifier;
+
+/** Validates if all the required item fields are populated and values don't explicitly conflict
+ * with each other.
+ *  @param outError A reference to be populated with an error containing validation failure details.
+ *  @return `YES` if the item it valid, `NO` otherwise.
+ */
+- (BOOL)isValid:(NSError *_Nullable *)outError;
 
 /**
  * The installation identifier.

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "GDTCORLibrary/Private/GDTCORTransformer.h"
+#import "GoogleDataTransport/GDTCORLibrary/Private/GDTCORTransformer.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

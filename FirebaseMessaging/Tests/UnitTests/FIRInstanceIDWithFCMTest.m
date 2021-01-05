@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-#import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
+#import "OCMock.h"
 
-#import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseInstanceID/FirebaseInstanceID.h>
 #import <GoogleUtilities/GULUserDefaults.h>
+#import "Firebase/InstanceID/Public/FirebaseInstanceID.h"
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
-#import <FirebaseMessaging/FIRMessaging.h>
+#import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessaging.h"
 
 #import "FirebaseMessaging/Sources/FIRMessaging_Private.h"
 #import "FirebaseMessaging/Tests/UnitTests/FIRMessagingTestUtilities.h"
@@ -32,8 +32,10 @@
 @end
 
 @interface FIRInstanceIDTest : XCTestCase
-
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 @property(nonatomic, readwrite, strong) FIRInstanceID *instanceID;
+#pragma clang diagnostic pop
 @property(nonatomic, readwrite, strong) id mockFirebaseApp;
 @property(nonatomic, readwrite, strong) FIRMessagingTestUtilities *testUtil;
 @property(nonatomic, strong) FIRMessaging *messaging;

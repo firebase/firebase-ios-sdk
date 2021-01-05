@@ -52,8 +52,8 @@ exports.tokenTest = functions.https.onRequest((request, response) => {
   response.send({ data: {} });
 });
 
-exports.instanceIdTest = functions.https.onRequest((request, response) => {
-  assert.equal(request.get('Firebase-Instance-ID-Token'), 'iid');
+exports.FCMTokenTest = functions.https.onRequest((request, response) => {
+  assert.equal(request.get('Firebase-Instance-ID-Token'), 'fakeFCMToken');
   assert.deepEqual(request.body, { data: {} });
   response.send({ data: {} });
 });

@@ -74,7 +74,6 @@ EXAMPLES:
 
 EOF
 }
-
 set -euo pipefail
 unset CDPATH
 
@@ -281,12 +280,18 @@ if [ -z "${GITHUB_WORKFLOW-}" ]; then
   fi
 fi
 
+set -x
+
+# Print the versions of tools being used.
+python --version
+
 # Check lint errors.
 "${top_dir}/scripts/check_whitespace.sh"
 "${top_dir}/scripts/check_filename_spaces.sh"
 "${top_dir}/scripts/check_copyright.sh"
 "${top_dir}/scripts/check_no_module_imports.sh"
 "${top_dir}/scripts/check_test_inclusion.py"
+"${top_dir}/scripts/check_imports.swift"
 
 # Google C++ style
 lint_cmd=("${top_dir}/scripts/check_lint.py")

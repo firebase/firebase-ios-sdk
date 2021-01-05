@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "FIRCLSFABHost.h"
+#include "Crashlytics/Shared/FIRCLSFABHost.h"
 
 #if TARGET_OS_WATCH
 #import <WatchKit/WatchKit.h>
@@ -97,7 +97,7 @@ NSString *FIRCLSHostModelInfo(void) {
 #elif TARGET_OS_TV
   model = @"tvOS Simulator";
 #elif TARGET_OS_IPHONE
-  switch (UI_USER_INTERFACE_IDIOM()) {
+  switch ([[UIDevice currentDevice] userInterfaceIdiom]) {
     case UIUserInterfaceIdiomPhone:
       model = @"iOS Simulator (iPhone)";
       break;

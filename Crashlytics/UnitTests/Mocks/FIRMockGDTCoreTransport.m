@@ -1,4 +1,4 @@
-// Copyright 2020 Google
+// Copyright 2020 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRMockGDTCoreTransport.h"
+#import "Crashlytics/UnitTests/Mocks/FIRMockGDTCoreTransport.h"
 
 @implementation FIRMockGDTCORTransport
 
 - (instancetype)initWithMappingID:(NSString *)mappingID
-                     transformers:(NSArray<id<GDTCOREventTransformer>> *)transformers
-                           target:(NSInteger)target {
+                     transformers:(nullable NSArray<id<GDTCOREventTransformer>> *)transformers
+                           target:(GDTCORTarget)target {
   _mappingID = mappingID;
   _target = target;
   _sendDataEvent_wasWritten = YES;

@@ -14,14 +14,14 @@
 
 #import <XCTest/XCTest.h>
 
-#import <FirebaseCore/FIROptions.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 #import "FIRAuthInteropFake.h"
-#import "FIRError.h"
-#import "FIRFunctions+Internal.h"
-#import "FIRFunctions.h"
-#import "FIRHTTPSCallable.h"
-#import "FUNFakeInstanceID.h"
+#import "Functions/FirebaseFunctions/FIRFunctions+Internal.h"
+#import "Functions/FirebaseFunctions/Public/FirebaseFunctions/FIRError.h"
+#import "Functions/FirebaseFunctions/Public/FirebaseFunctions/FIRFunctions.h"
+#import "Functions/FirebaseFunctions/Public/FirebaseFunctions/FIRHTTPSCallable.h"
+#import "SharedTestUtilities/FIRMessagingInteropFake.h"
 
 // Project ID used by these tests.
 static NSString *const kDefaultProjectID = @"functions-integration-test";
@@ -30,6 +30,7 @@ static NSString *const kDefaultProjectID = @"functions-integration-test";
   FIRFunctions *_functions;
   NSString *_projectID;
   BOOL _useLocalhost;
+  FIRMessagingInteropFake *_messagingFake;
 }
 @end
 
@@ -37,6 +38,8 @@ static NSString *const kDefaultProjectID = @"functions-integration-test";
 
 - (void)setUp {
   [super setUp];
+
+  _messagingFake = [[FIRMessagingInteropFake alloc] init];
 
   _projectID = kDefaultProjectID;
   _useLocalhost = YES;
@@ -51,7 +54,9 @@ static NSString *const kDefaultProjectID = @"functions-integration-test";
   _functions = [[FIRFunctions alloc]
       initWithProjectID:_projectID
                  region:@"us-central1"
-                   auth:[[FIRAuthInteropFake alloc] initWithToken:nil userID:nil error:nil]];
+           customDomain:nil
+                   auth:[[FIRAuthInteropFake alloc] initWithToken:nil userID:nil error:nil]
+              messaging:_messagingFake];
   if (_useLocalhost) {
     [_functions useLocalhost];
   }
@@ -101,7 +106,9 @@ static NSString *const kDefaultProjectID = @"functions-integration-test";
   FIRFunctions *functions = [[FIRFunctions alloc]
       initWithProjectID:_projectID
                  region:@"us-central1"
-                   auth:[[FIRAuthInteropFake alloc] initWithToken:@"token" userID:nil error:nil]];
+           customDomain:nil
+                   auth:[[FIRAuthInteropFake alloc] initWithToken:@"token" userID:nil error:nil]
+              messaging:_messagingFake];
   if (_useLocalhost) {
     [functions useLocalhost];
   }
@@ -117,9 +124,9 @@ static NSString *const kDefaultProjectID = @"functions-integration-test";
   [self waitForExpectations:@[ expectation ] timeout:10];
 }
 
-- (void)testInstanceID {
+- (void)testFCMToken {
   XCTestExpectation *expectation = [[XCTestExpectation alloc] init];
-  FIRHTTPSCallable *function = [_functions HTTPSCallableWithName:@"instanceIdTest"];
+  FIRHTTPSCallable *function = [_functions HTTPSCallableWithName:@"FCMTokenTest"];
   [function callWithObject:@{}
                 completion:^(FIRHTTPSCallableResult *_Nullable result, NSError *_Nullable error) {
                   XCTAssertNil(error);

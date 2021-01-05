@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRInstallationsAPIService.h"
-
-#import <FirebaseInstallations/FIRInstallationsVersion.h>
+#import "FirebaseInstallations/Source/Library/InstallationsAPI/FIRInstallationsAPIService.h"
 
 #if __has_include(<FBLPromises/FBLPromises.h>)
 #import <FBLPromises/FBLPromises.h>
@@ -24,11 +22,11 @@
 #import "FBLPromises.h"
 #endif
 
-#import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseCore/FIRHeartbeatInfo.h>
-#import "FIRInstallationsErrorUtil.h"
-#import "FIRInstallationsItem+RegisterInstallationAPI.h"
-#import "FIRInstallationsLogger.h"
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseInstallations/Source/Library/Errors/FIRInstallationsErrorUtil.h"
+#import "FirebaseInstallations/Source/Library/Errors/FIRInstallationsHTTPError.h"
+#import "FirebaseInstallations/Source/Library/FIRInstallationsLogger.h"
+#import "FirebaseInstallations/Source/Library/InstallationsAPI/FIRInstallationsItem+RegisterInstallationAPI.h"
 
 NSString *const kFIRInstallationsAPIBaseURL = @"https://firebaseinstallations.googleapis.com";
 NSString *const kFIRInstallationsAPIKey = @"X-Goog-Api-Key";
@@ -72,7 +70,7 @@ NS_ASSUME_NONNULL_END
 
 - (instancetype)initWithAPIKey:(NSString *)APIKey projectID:(NSString *)projectID {
   NSURLSession *URLSession = [NSURLSession
-      sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]];
+      sessionWithConfiguration:[NSURLSessionConfiguration ephemeralSessionConfiguration]];
   return [self initWithURLSession:URLSession APIKey:APIKey projectID:projectID];
 }
 
@@ -92,7 +90,10 @@ NS_ASSUME_NONNULL_END
 #pragma mark - Public
 
 - (FBLPromise<FIRInstallationsItem *> *)registerInstallation:(FIRInstallationsItem *)installation {
-  return [self registerRequestWithInstallation:installation]
+  return [self validateInstallation:installation]
+      .then(^id _Nullable(FIRInstallationsItem *_Nullable validInstallation) {
+        return [self registerRequestWithInstallation:validInstallation];
+      })
       .then(^id _Nullable(NSURLRequest *_Nullable request) {
         return [self sendURLRequest:request];
       })
@@ -138,7 +139,9 @@ NS_ASSUME_NONNULL_END
   NSURL *URL = [NSURL URLWithString:URLString];
 
   NSDictionary *bodyDict = @{
-    @"fid" : installation.firebaseInstallationID,
+    // `firebaseInstallationID` is validated before but let's make sure it is not `nil` one more
+    // time to prevent a crash.
+    @"fid" : installation.firebaseInstallationID ?: @"",
     @"authVersion" : @"FIS_v2",
     @"appId" : installation.appID,
     @"sdkVersion" : [self SDKVersion]
@@ -334,7 +337,8 @@ NS_ASSUME_NONNULL_END
   return [FBLPromise attempts:1
       delay:1
       condition:^BOOL(NSInteger remainingAttempts, NSError *_Nonnull error) {
-        return [FIRInstallationsErrorUtil isAPIError:error withHTTPCode:500];
+        return [FIRInstallationsErrorUtil isAPIError:error
+                                        withHTTPCode:FIRInstallationsHTTPCodesServerInternalError];
       }
       retry:^id _Nullable {
         return [self URLRequestPromise:request];
@@ -342,7 +346,21 @@ NS_ASSUME_NONNULL_END
 }
 
 - (NSString *)SDKVersion {
-  return [NSString stringWithFormat:@"i:%s", FIRInstallationsVersionStr];
+  return [NSString stringWithFormat:@"i:%@", FIRFirebaseVersion()];
+}
+
+#pragma mark - Validation
+
+- (FBLPromise<FIRInstallationsItem *> *)validateInstallation:(FIRInstallationsItem *)installation {
+  FBLPromise<FIRInstallationsItem *> *result = [FBLPromise pendingPromise];
+
+  NSError *validationError;
+  if ([installation isValid:&validationError]) {
+    [result fulfill:installation];
+  } else {
+    [result reject:validationError];
+  }
+  return result;
 }
 
 #pragma mark - JSON

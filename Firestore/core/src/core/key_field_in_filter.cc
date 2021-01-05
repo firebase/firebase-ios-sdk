@@ -38,12 +38,7 @@ class KeyFieldInFilter::Rep : public FieldFilter::Rep {
  public:
   Rep(FieldPath field, FieldValue value)
       : FieldFilter::Rep(std::move(field), Operator::In, std::move(value)) {
-    const FieldValue::Array& array_value = this->value().array_value();
-    for (const auto& ref_value : array_value) {
-      HARD_ASSERT(ref_value.type() == FieldValue::Type::Reference,
-                  "Comparing on key with IN, but an array value was not"
-                  " a Reference");
-    }
+    ValidateArrayValue(this->value());
   }
 
   Type type() const override {
@@ -60,12 +55,28 @@ KeyFieldInFilter::KeyFieldInFilter(FieldPath field, FieldValue value)
 
 bool KeyFieldInFilter::Rep::Matches(const Document& doc) const {
   const FieldValue::Array& array_value = value().array_value();
+  return Contains(array_value, doc);
+}
+
+bool KeyFieldInFilter::Contains(const FieldValue::Array& array_value,
+                                const Document& doc) {
   for (const auto& rhs : array_value) {
     if (doc.key() == rhs.reference_value().key()) {
       return true;
     }
   }
   return false;
+}
+
+void KeyFieldInFilter::ValidateArrayValue(const FieldValue& value) {
+  HARD_ASSERT(value.type() == FieldValue::Type::Array,
+              "Comparing on key with In/NotIn, but the value was not an Array");
+  const FieldValue::Array& array_value = value.array_value();
+  for (const auto& ref_value : array_value) {
+    HARD_ASSERT(ref_value.type() == FieldValue::Type::Reference,
+                "Comparing on key with In/NotIn, but an array value was not"
+                " a Reference");
+  }
 }
 
 }  // namespace core

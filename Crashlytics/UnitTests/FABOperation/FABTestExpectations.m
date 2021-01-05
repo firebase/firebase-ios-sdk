@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FABTestExpectations.h"
+#import "Crashlytics/UnitTests/FABOperation/FABTestExpectations.h"
 
 #import <XCTest/XCTest.h>
 
-#import "FIRCLSOperation.h"
+#import "Crashlytics/Shared/FIRCLSOperation/FIRCLSOperation.h"
 
-#import "FABTestAsyncOperation.h"
+#import "Crashlytics/UnitTests/FABOperation/FABTestAsyncOperation.h"
 
 void *FABOperationPreFlightCancellationTestKVOContext =
     &FABOperationPreFlightCancellationTestKVOContext;

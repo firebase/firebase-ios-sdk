@@ -1,0 +1,38 @@
+{
+  "authors": "Google, Inc.",
+  "dependencies": {
+    "FirebaseCore": "~> 7.0",
+    "FirebaseMLCommon": "~> 7.0-beta",
+    "GTMSessionFetcher/Core": "~> 1.1",
+    "GoogleUtilities/UserDefaults": "~> 7.0",
+    "TensorFlowLiteObjC": "~> 2.3.0"
+  },
+  "description": "This pod contains the model interpreter to run the custom models on iOS. If ML Kit's pre-built models don't meet your needs, you can use a custom TensorFlow Lite model with ML Kit.",
+  "frameworks": [
+    "Foundation"
+  ],
+  "homepage": "https://firebase.google.com/docs/ml-kit/",
+  "license": {
+    "text": "Copyright 2020 Google",
+    "type": "Copyright"
+  },
+  "name": "FirebaseMLModelInterpreter",
+  "platforms": {
+    "ios": "10.0"
+  },
+  "pod_target_xcconfig": {
+    "VALID_ARCHS": "x86_64 armv7 arm64"
+  },
+  "preserve_paths": [
+    "CHANGELOG.md",
+    "README.md"
+  ],
+  "source": {
+    "http": "https://dl.google.com/dl/cpdc/39b2739bdfc46d59/FirebaseMLModelInterpreter-0.21.0.tar.gz"
+  },
+  "summary": "Firebase ML Kit Custom Model Interpreter SDK for iOS",
+  "vendored_frameworks": [
+    "Frameworks/FirebaseMLModelInterpreter.framework"
+  ],
+  "version": "7.1.0-beta"
+}

@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'Firebase'
-  s.version          = '6.23.0'
+  s.version          = '7.1.0'
   s.summary          = 'Firebase'
 
   s.description      = <<-DESC
@@ -13,7 +13,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
 
   s.source           = {
     :git => 'https://github.com/firebase/firebase-ios-sdk.git',
-    :tag => s.version.to_s
+    :tag => 'CocoaPods-' + s.version.to_s
   }
 
   s.preserve_paths = [
@@ -22,8 +22,8 @@ Simplify your app development, grow your user base, and monetize more effectivel
     "CoreOnly/README.md"
   ]
   s.social_media_url = 'https://twitter.com/Firebase'
-  s.ios.deployment_target = '8.0'
-  s.osx.deployment_target = '10.11'
+  s.ios.deployment_target = '10.0'
+  s.osx.deployment_target = '10.12'
   s.tvos.deployment_target = '10.0'
 
   s.cocoapods_version = '>= 1.4.0'
@@ -31,12 +31,13 @@ Simplify your app development, grow your user base, and monetize more effectivel
   s.default_subspec = 'Core'
 
   s.subspec 'Core' do |ss|
-    ss.ios.dependency 'FirebaseAnalytics', '6.4.2'
+    ss.ios.deployment_target = '9.0'
+    ss.ios.dependency 'FirebaseAnalytics', '7.1.0'
     ss.dependency 'Firebase/CoreOnly'
   end
 
   s.subspec 'CoreOnly' do |ss|
-    ss.dependency 'FirebaseCore', '6.6.7'
+    ss.dependency 'FirebaseCore', '7.1.0'
     ss.source_files = 'CoreOnly/Sources/Firebase.h'
     ss.preserve_paths = 'CoreOnly/Sources/module.modulemap'
     if ENV['FIREBASE_POD_REPO_FOR_DEV_POD'] then
@@ -48,170 +49,126 @@ Simplify your app development, grow your user base, and monetize more effectivel
         'HEADER_SEARCH_PATHS' => "$(inherited) ${PODS_ROOT}/Firebase/CoreOnly/Sources"
       }
     end
-    # Standard platforms PLUS watchOS.
-    ss.ios.deployment_target = '8.0'
-    ss.osx.deployment_target = '10.11'
+    ss.ios.deployment_target = '9.0'
+    ss.osx.deployment_target = '10.12'
     ss.tvos.deployment_target = '10.0'
     ss.watchos.deployment_target = '6.0'
   end
 
   s.subspec 'Analytics' do |ss|
+    ss.ios.deployment_target = '9.0'
     ss.dependency 'Firebase/Core'
   end
 
   s.subspec 'ABTesting' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseABTesting', '~> 3.2.0'
+    ss.dependency 'FirebaseABTesting', '~> 7.1.0'
   end
 
   s.subspec 'AdMob' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.ios.dependency 'Google-Mobile-Ads-SDK', '~> 7.50'
+    ss.ios.deployment_target = '9.0'
+    ss.ios.dependency 'Google-Mobile-Ads-SDK', '~> 7.66'
+  end
+
+  s.subspec 'AppDistribution' do |ss|
+    ss.dependency 'Firebase/CoreOnly'
+    ss.ios.dependency 'FirebaseAppDistribution', '~> 7.1.0-beta'
   end
 
   s.subspec 'Auth' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseAuth', '~> 6.5.2'
+    ss.dependency 'FirebaseAuth', '~> 7.1.0'
+    # Standard platforms PLUS watchOS.
+    ss.ios.deployment_target = '10.0'
+    ss.osx.deployment_target = '10.12'
+    ss.tvos.deployment_target = '10.0'
+    ss.watchos.deployment_target = '6.0'
   end
 
   s.subspec 'Crashlytics' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseCrashlytics', '~> 4.0.0'
+    ss.dependency 'FirebaseCrashlytics', '~> 7.1.0'
+    # Standard platforms PLUS watchOS.
+    ss.ios.deployment_target = '10.0'
+    ss.osx.deployment_target = '10.12'
+    ss.tvos.deployment_target = '10.0'
+    ss.watchos.deployment_target = '6.0'
   end
 
   s.subspec 'Database' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseDatabase', '~> 6.2.0'
+    ss.dependency 'FirebaseDatabase', '~> 7.1.0'
   end
 
   s.subspec 'DynamicLinks' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.ios.dependency 'FirebaseDynamicLinks', '~> 4.0.8'
+    ss.ios.dependency 'FirebaseDynamicLinks', '~> 7.1.0'
   end
 
   s.subspec 'Firestore' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseFirestore', '~> 1.12.1'
+    ss.dependency 'FirebaseFirestore', '~> 7.1.0'
   end
 
   s.subspec 'Functions' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseFunctions', '~> 2.5.1'
+    ss.dependency 'FirebaseFunctions', '~> 7.1.0'
   end
 
   s.subspec 'InAppMessaging' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.ios.dependency 'FirebaseInAppMessaging', '~> 0.19.3'
-    ss.ios.deployment_target = '9.0'
+    ss.ios.dependency 'FirebaseInAppMessaging', '~> 7.1.0-beta'
   end
 
-  s.subspec 'InAppMessagingDisplay' do |ss|
+  s.subspec 'Installations' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.ios.dependency 'FirebaseInAppMessagingDisplay', '~> 0.17.0'
-    ss.ios.deployment_target = '9.0'
+    ss.dependency 'FirebaseInstallations', '~> 7.1.0'
   end
 
   s.subspec 'Messaging' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseMessaging', '~> 4.3.1'
+    ss.dependency 'FirebaseMessaging', '~> 7.1.0'
     # Standard platforms PLUS watchOS.
-    ss.ios.deployment_target = '8.0'
-    ss.osx.deployment_target = '10.11'
+    ss.ios.deployment_target = '10.0'
+    ss.osx.deployment_target = '10.12'
     ss.tvos.deployment_target = '10.0'
     ss.watchos.deployment_target = '6.0'
   end
 
   s.subspec 'Performance' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.ios.dependency 'FirebasePerformance', '~> 3.1.11'
+    ss.ios.dependency 'FirebasePerformance', '~> 7.1.0'
   end
 
   s.subspec 'RemoteConfig' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseRemoteConfig', '~> 4.4.9'
+    ss.dependency 'FirebaseRemoteConfig', '~> 7.1.0'
   end
 
   s.subspec 'Storage' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseStorage', '~> 3.6.1'
+    ss.dependency 'FirebaseStorage', '~> 7.1.0'
     # Standard platforms PLUS watchOS.
-    ss.ios.deployment_target = '8.0'
-    ss.osx.deployment_target = '10.11'
+    ss.ios.deployment_target = '10.0'
+    ss.osx.deployment_target = '10.12'
     ss.tvos.deployment_target = '10.0'
     ss.watchos.deployment_target = '6.0'
   end
 
   s.subspec 'MLCommon' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.ios.dependency 'FirebaseMLCommon', '~> 0.19.0'
+    ss.ios.dependency 'FirebaseMLCommon', '~> 7.1.0-beta'
   end
 
   s.subspec 'MLModelInterpreter' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.ios.dependency 'FirebaseMLModelInterpreter', '~> 0.19.0'
-    ss.ios.deployment_target = '9.0'
-  end
-
-  s.subspec 'MLNLLanguageID' do |ss|
-    ss.dependency 'Firebase/CoreOnly'
-    ss.ios.dependency 'FirebaseMLNLLanguageID', '~> 0.17.0'
-    ss.ios.deployment_target = '9.0'
-  end
-
-  s.subspec 'MLNLSmartReply' do |ss|
-    ss.dependency 'Firebase/CoreOnly'
-    ss.ios.dependency 'FirebaseMLNLSmartReply', '~> 0.17.0'
-    ss.ios.deployment_target = '9.0'
-  end
-
-  s.subspec 'MLNLTranslate' do |ss|
-    ss.dependency 'Firebase/CoreOnly'
-    ss.ios.dependency 'FirebaseMLNLTranslate', '~> 0.17.0'
-    ss.ios.deployment_target = '9.0'
-  end
-
-  s.subspec 'MLNaturalLanguage' do |ss|
-    ss.dependency 'Firebase/CoreOnly'
-    ss.ios.dependency 'FirebaseMLNaturalLanguage', '~> 0.17.0'
-    ss.ios.deployment_target = '9.0'
+    ss.ios.dependency 'FirebaseMLModelInterpreter', '~> 7.1.0-beta'
   end
 
   s.subspec 'MLVision' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.ios.dependency 'FirebaseMLVision', '~> 0.19.0'
-  end
-
-  s.subspec 'MLVisionAutoML' do |ss|
-    ss.dependency 'Firebase/CoreOnly'
-    ss.ios.dependency 'FirebaseMLVisionAutoML', '~> 0.19.0'
-    ss.ios.deployment_target = '9.0'
-  end
-
-  s.subspec 'MLVisionBarcodeModel' do |ss|
-    ss.dependency 'Firebase/CoreOnly'
-    ss.ios.dependency 'FirebaseMLVisionBarcodeModel', '~> 0.19.0'
-    ss.ios.deployment_target = '9.0'
-  end
-
-  s.subspec 'MLVisionFaceModel' do |ss|
-    ss.dependency 'Firebase/CoreOnly'
-    ss.ios.dependency 'FirebaseMLVisionFaceModel', '~> 0.19.0'
-  end
-
-  s.subspec 'MLVisionLabelModel' do |ss|
-    ss.dependency 'Firebase/CoreOnly'
-    ss.ios.dependency 'FirebaseMLVisionLabelModel', '~> 0.19.0'
-  end
-
-  s.subspec 'MLVisionTextModel' do |ss|
-    ss.dependency 'Firebase/CoreOnly'
-    ss.ios.dependency 'FirebaseMLVisionTextModel', '~> 0.19.0'
-  end
-
-  s.subspec 'MLVisionObjectDetection' do |ss|
-    ss.dependency 'Firebase/CoreOnly'
-    ss.ios.dependency 'FirebaseMLVisionObjectDetection', '~> 0.19.0'
-    ss.ios.deployment_target = '9.0'
+    ss.ios.dependency 'FirebaseMLVision', '~> 7.1.0-beta'
   end
 
 end

@@ -1,3 +1,50 @@
+# v8.0.1
+- Remove `GCC_TREAT_WARNINGS_AS_ERRORS` from the podspec.
+- Reduce pre-main startup time footprint. (#6855)
+
+# v8.0.0
+- Source restructuring to limit the public API surface.
+
+# v7.5.1
+- Fix deprecation warning for iOS 12.0 and higher projects. (#6682)
+
+# v7.5.0
+- Legacy pre Xcode 10 compatibility checks removed. (#6486)
+- `GDTCORDirectorySizeTracker` crash fixed. (#6540)
+
+# v7.4.0
+- Limit disk space consumed by GoogleDataTransport to store events. (#6365)
+- Fix `GDTTransformer` background task handling.  (#6258)
+
+# v7.1.1
+- Use `NSTimeZone` instead of `CFTimeZone` to get time zone offset respecting daylight. (#6246)
+
+# v7.1.0
+- Device uptime calculation fixes. (#6102)
+
+# v7.0.0
+- Storage has been completely reimplemented to a flat-file system. It
+is not backwards compatible with previously saved events.
+- Prioritizers, data futures, and upload packages have been removed.
+- Consolidated GoogleDataTransportCCTSupport with GoogleDataTransport. Starting
+with this version, GoogleDataTransportCCTSupport should no longer be linked.
+- `GDTCORFlatFileStorage`: keep not expired events when expired batch removed. (#6010)
+
+# v6.2.1
+- Stopped GDTCORUploadCoordinator from blocking main thread. (#5707, #5708)
+
+# v6.2.0
+- Added an API for arbitrary data persistence on storage instances.
+- Added an API for fetching storage instances specific to a target.
+
+# v6.1.1
+- Fixes writing event counts in a directory that doesn't yet exist. (#5549)
+
+# v6.1.0
+- watchOS extension and independent apps now supported. (#4292)
+- iOS extensions better supported.
+- GDTCORReachability will lazily initialize to address library loading hang. (#5463)
+
 # v6.0.0
 - Internal refactor to change storage to a protocol.
 

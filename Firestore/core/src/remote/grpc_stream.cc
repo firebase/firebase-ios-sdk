@@ -193,7 +193,7 @@ void GrpcStream::Shutdown() {
   if (!completions_.empty() && !is_grpc_call_finished_) {
     // Important: during normal operation, the stream always has a pending read
     // operation, so `Shutdown` would hang indefinitely if we didn't cancel the
-    // `context_`. However, if the stream has already failed, avoid canceling
+    // `context_`. However, if the stream has already failed, avoid cancelling
     // the context to avoid overwriting the status captured during the
     // `OnOperationFailed`.
 
@@ -279,7 +279,7 @@ bool GrpcStream::TryLastWrite(grpc::ByteBuffer&& message) {
   // (both with and without network connection), and never more than several
   // dozen milliseconds. Nevertheless, ensure `WriteAndFinish` doesn't hang if
   // there happen to be circumstances under which the write may block
-  // indefinitely (in that case, rely on the fact that canceling a gRPC call
+  // indefinitely (in that case, rely on the fact that cancelling a gRPC call
   // makes all pending operations come back from the queue quickly).
 
   auto status = completion->WaitUntilOffQueue(std::chrono::milliseconds(500));

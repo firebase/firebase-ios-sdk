@@ -13,16 +13,17 @@
 // limitations under the License.
 
 #import <XCTest/XCTest.h>
+#import "OCMock.h"
 
-#import <FirebaseABTesting/FIRExperimentController.h>
-#import <FirebaseABTesting/FIRLifecycleEvents.h>
-#import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseCore/FIROptionsInternal.h>
-#import <OCMock/OCMock.h>
 #import "FirebaseABTesting/Sources/ABTConditionalUserPropertyController.h"
 #import "FirebaseABTesting/Sources/ABTConstants.h"
+#import "FirebaseABTesting/Sources/Private/ABTExperimentPayload.h"
+#import "FirebaseABTesting/Sources/Public/FirebaseABTesting/FIRExperimentController.h"
+#import "FirebaseABTesting/Sources/Public/FirebaseABTesting/FIRLifecycleEvents.h"
 #import "FirebaseABTesting/Tests/Unit/ABTFakeFIRAConditionalUserPropertyController.h"
 #import "FirebaseABTesting/Tests/Unit/ABTTestUniversalConstants.h"
+#import "FirebaseABTesting/Tests/Unit/Utilities/ABTTestUtilities.h"
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 @interface ABTConditionalUserPropertyController (ExposedForTest)
 - (NSInteger)maxNumberOfExperimentsOfOrigin:(NSString *)origin;
@@ -31,9 +32,9 @@
 - (id)createExperimentFromOrigin:(NSString *)origin
                          payload:(ABTExperimentPayload *)payload
                           events:(FIRLifecycleEvents *)events;
-- (ABTExperimentPayload_ExperimentOverflowPolicy)
+- (ABTExperimentPayloadExperimentOverflowPolicy)
     overflowPolicyWithPayload:(ABTExperimentPayload *)payload
-               originalPolicy:(ABTExperimentPayload_ExperimentOverflowPolicy)originalPolicy;
+               originalPolicy:(ABTExperimentPayloadExperimentOverflowPolicy)originalPolicy;
 /// Surface internal initializer to avoid singleton usage during tests.
 - (instancetype)initWithAnalytics:(nullable id<FIRAnalyticsInterop>)analytics;
 @end
@@ -46,6 +47,10 @@ typedef void (^FakeAnalyticsLogEventWithOriginNameParametersHandler)(
   ABTFakeFIRAConditionalUserPropertyController *_fakeController;
   id _mockCUPController;
 }
+@end
+
+@interface ABTExperimentPayload (Testing)
+@property(nonatomic, readwrite) ABTExperimentPayloadExperimentOverflowPolicy overflowPolicy;
 @end
 
 @implementation ABTConditionalUserPropertyControllerTest
@@ -77,64 +82,68 @@ typedef void (^FakeAnalyticsLogEventWithOriginNameParametersHandler)(
 
 #pragma mark - test proxy methods on Firebase Analytics
 - (void)testSetExperiment {
-  ABTExperimentPayload *payload = [[ABTExperimentPayload alloc] init];
-  payload.experimentId = @"exp_0";
+  id payload = OCMClassMock([ABTExperimentPayload class]);
+  OCMStub([payload experimentId]).andReturn(@"exp_0");
+  OCMStub([payload variantId]).andReturn(@"v1");
   FIRLifecycleEvents *events = [[FIRLifecycleEvents alloc] init];
   [_ABTCUPController
       setExperimentWithOrigin:gABTTestOrigin
                       payload:payload
                        events:events
-                       policy:ABTExperimentPayload_ExperimentOverflowPolicy_IgnoreNewest];
+                       policy:ABTExperimentPayloadExperimentOverflowPolicyIgnoreNewest];
 
   NSArray *experiments = [_ABTCUPController experimentsWithOrigin:gABTTestOrigin];
   XCTAssertEqual(experiments.count, 1);
 }
 
 - (void)testSetExperimentWhenOverflow {
-  ABTExperimentPayload *payload = [[ABTExperimentPayload alloc] init];
-  payload.experimentId = @"exp_1";
-  payload.variantId = @"v1";
+  id payload1 = OCMClassMock([ABTExperimentPayload class]);
+  OCMStub([payload1 experimentId]).andReturn(@"exp_1");
+  OCMStub([payload1 variantId]).andReturn(@"v1");
   FIRLifecycleEvents *events = [[FIRLifecycleEvents alloc] init];
   [_ABTCUPController
       setExperimentWithOrigin:gABTTestOrigin
-                      payload:payload
+                      payload:payload1
                        events:events
-                       policy:ABTExperimentPayload_ExperimentOverflowPolicy_IgnoreNewest];
+                       policy:ABTExperimentPayloadExperimentOverflowPolicyIgnoreNewest];
 
   NSArray *experiments = [_ABTCUPController experimentsWithOrigin:gABTTestOrigin];
   XCTAssertEqual(experiments.count, 1);
 
-  payload.experimentId = @"exp_2";
-  payload.variantId = @"v1";
+  id payload2 = OCMClassMock([ABTExperimentPayload class]);
+  OCMStub([payload2 experimentId]).andReturn(@"exp_2");
+  OCMStub([payload2 variantId]).andReturn(@"v1");
   [_ABTCUPController
       setExperimentWithOrigin:gABTTestOrigin
-                      payload:payload
+                      payload:payload2
                        events:events
-                       policy:ABTExperimentPayload_ExperimentOverflowPolicy_IgnoreNewest];
+                       policy:ABTExperimentPayloadExperimentOverflowPolicyIgnoreNewest];
 
   experiments = [_ABTCUPController experimentsWithOrigin:gABTTestOrigin];
   XCTAssertEqual(experiments.count, 2);
 
-  payload.experimentId = @"exp_3";
-  payload.variantId = @"v1";
+  id payload3 = OCMClassMock([ABTExperimentPayload class]);
+  OCMStub([payload3 experimentId]).andReturn(@"exp_3");
+  OCMStub([payload3 variantId]).andReturn(@"v1");
   [_ABTCUPController
       setExperimentWithOrigin:gABTTestOrigin
-                      payload:payload
+                      payload:payload3
                        events:events
-                       policy:ABTExperimentPayload_ExperimentOverflowPolicy_IgnoreNewest];
+                       policy:ABTExperimentPayloadExperimentOverflowPolicyIgnoreNewest];
 
   experiments = [_ABTCUPController experimentsWithOrigin:gABTTestOrigin];
   XCTAssertEqual(experiments.count, 3);
 
   // Now it's overflowed, try setting a new experiment exp_4.
-  payload.experimentId = @"exp_4";
-  payload.variantId = @"v1";
+  id payload4 = OCMClassMock([ABTExperimentPayload class]);
+  OCMStub([payload4 experimentId]).andReturn(@"exp_4");
+  OCMStub([payload4 variantId]).andReturn(@"v1");
   // Try setting a new experiment with ignore newest policy.
   [_ABTCUPController
       setExperimentWithOrigin:gABTTestOrigin
-                      payload:payload
+                      payload:payload4
                        events:events
-                       policy:ABTExperimentPayload_ExperimentOverflowPolicy_IgnoreNewest];
+                       policy:ABTExperimentPayloadExperimentOverflowPolicyIgnoreNewest];
 
   experiments = [_ABTCUPController experimentsWithOrigin:gABTTestOrigin];
   XCTAssertEqual(experiments.count, 3);
@@ -147,22 +156,23 @@ typedef void (^FakeAnalyticsLogEventWithOriginNameParametersHandler)(
   // Try setting a new experiment with discard oldest policy.
   [_ABTCUPController
       setExperimentWithOrigin:gABTTestOrigin
-                      payload:payload
+                      payload:payload4
                        events:events
-                       policy:ABTExperimentPayload_ExperimentOverflowPolicy_DiscardOldest];
+                       policy:ABTExperimentPayloadExperimentOverflowPolicyDiscardOldest];
   experiments = [_ABTCUPController experimentsWithOrigin:gABTTestOrigin];
   XCTAssertEqual(experiments.count, 3);
   XCTAssertFalse([self isExperimentID:@"exp_1" variantID:@"v1" inExperiments:experiments]);
   XCTAssertTrue([self isExperimentID:@"exp_4" variantID:@"v1" inExperiments:experiments]);
 
   // Try setting a new experiment with unspecified policy
-  payload.experimentId = @"exp_5";
-  payload.variantId = @"v1";
+  id payload5 = OCMClassMock([ABTExperimentPayload class]);
+  OCMStub([payload5 experimentId]).andReturn(@"exp_5");
+  OCMStub([payload5 variantId]).andReturn(@"v1");
   [_ABTCUPController
       setExperimentWithOrigin:gABTTestOrigin
-                      payload:payload
+                      payload:payload5
                        events:events
-                       policy:ABTExperimentPayload_ExperimentOverflowPolicy_PolicyUnspecified];
+                       policy:ABTExperimentPayloadExperimentOverflowPolicyUnspecified];
 
   experiments = [_ABTCUPController experimentsWithOrigin:gABTTestOrigin];
   XCTAssertEqual(experiments.count, 3);
@@ -173,27 +183,28 @@ typedef void (^FakeAnalyticsLogEventWithOriginNameParametersHandler)(
 }
 
 - (void)testSetExperimentWithTheSameVariantID {
-  ABTExperimentPayload *payload = [[ABTExperimentPayload alloc] init];
-  payload.experimentId = @"exp_1";
-  payload.variantId = @"v1";
+  id payload1 = OCMClassMock([ABTExperimentPayload class]);
+  OCMStub([payload1 experimentId]).andReturn(@"exp_1");
+  OCMStub([payload1 variantId]).andReturn(@"v1");
   FIRLifecycleEvents *events = [[FIRLifecycleEvents alloc] init];
   [_ABTCUPController
       setExperimentWithOrigin:gABTTestOrigin
-                      payload:payload
+                      payload:payload1
                        events:events
-                       policy:ABTExperimentPayload_ExperimentOverflowPolicy_IgnoreNewest];
+                       policy:ABTExperimentPayloadExperimentOverflowPolicyIgnoreNewest];
 
   NSArray *experiments = [_ABTCUPController experimentsWithOrigin:gABTTestOrigin];
   XCTAssertEqual(experiments.count, 1);
   XCTAssertTrue([self isExperimentID:@"exp_1" variantID:@"v1" inExperiments:experiments]);
 
-  payload.experimentId = @"exp_1";
-  payload.variantId = @"v2";
+  id payload2 = OCMClassMock([ABTExperimentPayload class]);
+  OCMStub([payload2 experimentId]).andReturn(@"exp_1");
+  OCMStub([payload2 variantId]).andReturn(@"v2");
   [_ABTCUPController
       setExperimentWithOrigin:gABTTestOrigin
-                      payload:payload
+                      payload:payload2
                        events:events
-                       policy:ABTExperimentPayload_ExperimentOverflowPolicy_IgnoreNewest];
+                       policy:ABTExperimentPayloadExperimentOverflowPolicyIgnoreNewest];
 
   experiments = [_ABTCUPController experimentsWithOrigin:gABTTestOrigin];
   XCTAssertEqual(experiments.count, 1);
@@ -213,17 +224,16 @@ typedef void (^FakeAnalyticsLogEventWithOriginNameParametersHandler)(
 }
 
 - (void)testClearExperiment {
-  ABTExperimentPayload *payload = [[ABTExperimentPayload alloc] init];
-  payload.experimentId = @"exp_1";
-  payload.variantId = @"v1";
-  // TODO(chliang) to check this name is logged in scion.
-  payload.clearEventToLog = @"override_clear_event";
+  id payload = OCMClassMock([ABTExperimentPayload class]);
+  OCMStub([payload experimentId]).andReturn(@"exp_1");
+  OCMStub([payload variantId]).andReturn(@"v1");
+  OCMStub([payload clearEventToLog]).andReturn(@"override_clear_event");
   FIRLifecycleEvents *events = [[FIRLifecycleEvents alloc] init];
   [_ABTCUPController
       setExperimentWithOrigin:gABTTestOrigin
                       payload:payload
                        events:events
-                       policy:ABTExperimentPayload_ExperimentOverflowPolicy_IgnoreNewest];
+                       policy:ABTExperimentPayloadExperimentOverflowPolicyIgnoreNewest];
 
   NSArray *experiments = [_ABTCUPController experimentsWithOrigin:gABTTestOrigin];
   XCTAssertEqual(experiments.count, 1);
@@ -242,15 +252,18 @@ typedef void (^FakeAnalyticsLogEventWithOriginNameParametersHandler)(
 }
 
 - (void)testCreateExperiment {
-  ABTExperimentPayload *payload = [[ABTExperimentPayload alloc] init];
-  payload.experimentId = @"exp_1";
-  payload.variantId = @"variant_B";
   NSTimeInterval now = [[NSDate date] timeIntervalSince1970];
-  payload.experimentStartTimeMillis = now * ABT_MSEC_PER_SEC;
-  payload.triggerEvent = @"";
-  int64_t triggerTimeout = now + 1500;
-  payload.triggerTimeoutMillis = triggerTimeout * ABT_MSEC_PER_SEC;
-  payload.timeToLiveMillis = (now + 60000) * ABT_MSEC_PER_SEC;
+
+  id payload = OCMClassMock([ABTExperimentPayload class]);
+  OCMStub([payload experimentId]).andReturn(@"exp_1");
+  OCMStub([payload variantId]).andReturn(@"variant_B");
+  int64_t startTimeMillis = now * ABT_MSEC_PER_SEC;
+  OCMStub([payload experimentStartTimeMillis]).andReturn(startTimeMillis);
+  OCMStub([payload triggerEvent]).andReturn(@"");
+  int64_t triggerTimeoutMillis = (now + 1500) * ABT_MSEC_PER_SEC;
+  OCMStub([payload triggerTimeoutMillis]).andReturn(triggerTimeoutMillis);
+  int64_t timeToLiveMillis = (now + 60000) * ABT_MSEC_PER_SEC;
+  OCMStub([payload timeToLiveMillis]).andReturn(timeToLiveMillis);
 
   FIRLifecycleEvents *events = [[FIRLifecycleEvents alloc] init];
   events.activateExperimentEventName = @"_lifecycle_override_activate";
@@ -263,8 +276,8 @@ typedef void (^FakeAnalyticsLogEventWithOriginNameParametersHandler)(
   XCTAssertEqualObjects([experiment objectForKey:@"name"], @"exp_1");
   XCTAssertEqualObjects([experiment objectForKey:@"value"], @"variant_B");
   XCTAssertEqualObjects(gABTTestOrigin, [experiment objectForKey:@"origin"]);
-  XCTAssertEqualWithAccuracy(
-      now, [(NSNumber *)[experiment objectForKey:@"creationTimestamp"] doubleValue], 1.0);
+  XCTAssertEqualWithAccuracy(now, [[experiment objectForKey:@"creationTimestamp"] longLongValue],
+                             1.0);
 
   // Trigger event
   XCTAssertEqualObjects(gABTTestOrigin, triggeredEvent[@"origin"]);
@@ -289,21 +302,25 @@ typedef void (^FakeAnalyticsLogEventWithOriginNameParametersHandler)(
                         @"Empty trigger event must be set to nil");
 
   // trigger timeout
-  XCTAssertEqualWithAccuracy(
-      now + 1500, [(NSNumber *)([experiment objectForKey:@"triggerTimeout"]) doubleValue], 1.0);
+  XCTAssertEqualWithAccuracy(now + 1500,
+                             [[experiment objectForKey:@"triggerTimeout"] longLongValue], 1.0);
 
   // time to live
-  XCTAssertEqualWithAccuracy(
-      now + 60000, [(NSNumber *)[experiment objectForKey:@"timeToLive"] doubleValue], 1.0);
+  XCTAssertEqualWithAccuracy(now + 60000, [[experiment objectForKey:@"timeToLive"] longLongValue],
+                             1.0);
 
   // Overwrite all event names
-  payload.activateEventToLog = @"payload_override_activate";
-  payload.ttlExpiryEventToLog = @"payload_override_time_to_live";
-  payload.timeoutEventToLog = @"payload_override_timeout";
-  payload.triggerEvent = @"payload_override_trigger_event";
+  id payloadWithCustomEventNames = OCMClassMock([ABTExperimentPayload class]);
+  OCMStub([payloadWithCustomEventNames experimentId]).andReturn(@"exp_1");
+  OCMStub([payloadWithCustomEventNames variantId]).andReturn(@"variant_B");
+  OCMStub([payloadWithCustomEventNames activateEventToLog]).andReturn(@"payload_override_activate");
+  OCMStub([payloadWithCustomEventNames ttlExpiryEventToLog])
+      .andReturn(@"payload_override_time_to_live");
+  OCMStub([payloadWithCustomEventNames timeoutEventToLog]).andReturn(@"payload_override_timeout");
+  OCMStub([payloadWithCustomEventNames triggerEvent]).andReturn(@"payload_override_trigger_event");
 
   experiment = [_ABTCUPController createExperimentFromOrigin:gABTTestOrigin
-                                                     payload:payload
+                                                     payload:payloadWithCustomEventNames
                                                       events:events];
   triggeredEvent = [experiment objectForKey:@"triggeredEvent"];
   XCTAssertEqual(triggeredEvent[@"name"], @"payload_override_activate");
@@ -311,7 +328,8 @@ typedef void (^FakeAnalyticsLogEventWithOriginNameParametersHandler)(
   XCTAssertEqualObjects(timedOutEvent[@"name"], @"payload_override_timeout");
   expiredEvent = [experiment objectForKey:@"expiredEvent"];
   XCTAssertEqual(expiredEvent[@"name"], @"payload_override_time_to_live");
-  XCTAssertEqual([experiment objectForKey:@"triggerEventName"], @"payload_override_trigger_event");
+  XCTAssertEqualObjects([experiment objectForKey:@"triggerEventName"],
+                        @"payload_override_trigger_event");
 }
 
 #pragma mark - helpers
@@ -320,41 +338,50 @@ typedef void (^FakeAnalyticsLogEventWithOriginNameParametersHandler)(
   NSDictionary<NSString *, NSString *> *experiment =
       @{@"name" : @"exp_1", @"value" : @"variant_control_group"};
 
-  ABTExperimentPayload *payload = [[ABTExperimentPayload alloc] init];
-  payload.experimentId = @"exp_2";
-  payload.variantId = @"variant_group_A";
+  id payload2 = OCMClassMock([ABTExperimentPayload class]);
+  OCMStub([payload2 experimentId]).andReturn(@"exp_2");
+  OCMStub([payload2 variantId]).andReturn(@"variant_group_A");
 
-  XCTAssertFalse([_ABTCUPController isExperiment:experiment theSameAsPayload:payload]);
+  XCTAssertFalse([_ABTCUPController isExperiment:experiment theSameAsPayload:payload2]);
 
-  payload.experimentId = @"exp_1";
-  XCTAssertFalse([_ABTCUPController isExperiment:experiment theSameAsPayload:payload]);
+  id payload1 = OCMClassMock([ABTExperimentPayload class]);
+  OCMStub([payload1 experimentId]).andReturn(@"exp_1");
+  OCMStub([payload1 variantId]).andReturn(@"variant_group_A");
 
-  payload.variantId = @"variant_control_group";
-  XCTAssertTrue([_ABTCUPController isExperiment:experiment theSameAsPayload:payload]);
+  XCTAssertFalse([_ABTCUPController isExperiment:experiment theSameAsPayload:payload1]);
+
+  id payloadJustRight = OCMClassMock([ABTExperimentPayload class]);
+  OCMStub([payloadJustRight experimentId]).andReturn(@"exp_1");
+  OCMStub([payloadJustRight variantId]).andReturn(@"variant_control_group");
+  XCTAssertTrue([_ABTCUPController isExperiment:experiment theSameAsPayload:payloadJustRight]);
 }
 
 - (void)testOverflowPolicyWithPayload {
-  ABTExperimentPayload *payload = [[ABTExperimentPayload alloc] init];
+  ABTExperimentPayload *payloadUnspecifiedPolicy =
+      [ABTTestUtilities payloadFromTestFilename:@"TestABTPayload3"];
 
-  XCTAssertEqual(ABTExperimentPayload_ExperimentOverflowPolicy_DiscardOldest,
-                 [_ABTCUPController overflowPolicyWithPayload:payload originalPolicy:-1000],
+  XCTAssertEqual(ABTExperimentPayloadExperimentOverflowPolicyDiscardOldest,
+                 [_ABTCUPController overflowPolicyWithPayload:payloadUnspecifiedPolicy
+                                               originalPolicy:-1000],
                  @"Payload policy is unspecified, original policy is invalid, should return "
                  @"default: DiscardOldest.");
 
   XCTAssertEqual(
-      ABTExperimentPayload_ExperimentOverflowPolicy_IgnoreNewest,
+      ABTExperimentPayloadExperimentOverflowPolicyIgnoreNewest,
       [_ABTCUPController
-          overflowPolicyWithPayload:payload
-                     originalPolicy:ABTExperimentPayload_ExperimentOverflowPolicy_IgnoreNewest],
+          overflowPolicyWithPayload:payloadUnspecifiedPolicy
+                     originalPolicy:ABTExperimentPayloadExperimentOverflowPolicyIgnoreNewest],
       @"Payload policy is unspecified, original policy is valid, use "
       @"original policy.");
 
-  payload.overflowPolicy = ABTExperimentPayload_ExperimentOverflowPolicy_DiscardOldest;
+  ABTExperimentPayload *payloadDiscardOldest =
+      [ABTTestUtilities payloadFromTestFilename:@"TestABTPayload1"];
+  payloadDiscardOldest.overflowPolicy = ABTExperimentPayloadExperimentOverflowPolicyDiscardOldest;
   XCTAssertEqual(
-      ABTExperimentPayload_ExperimentOverflowPolicy_DiscardOldest,
+      ABTExperimentPayloadExperimentOverflowPolicyDiscardOldest,
       [_ABTCUPController
-          overflowPolicyWithPayload:payload
-                     originalPolicy:ABTExperimentPayload_ExperimentOverflowPolicy_IgnoreNewest],
+          overflowPolicyWithPayload:payloadDiscardOldest
+                     originalPolicy:ABTExperimentPayloadExperimentOverflowPolicyIgnoreNewest],
       @"Payload policy is specified, original policy is valid, but "
       @"use Payload because Payload always wins.");
 }

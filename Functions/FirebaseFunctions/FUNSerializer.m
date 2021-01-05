@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FUNSerializer.h"
+#import "Functions/FirebaseFunctions/FUNSerializer.h"
 
-#import "FIRError.h"
-#import "FUNUsageValidation.h"
+#import "Functions/FirebaseFunctions/FUNUsageValidation.h"
+#import "Functions/FirebaseFunctions/Public/FirebaseFunctions/FIRError.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

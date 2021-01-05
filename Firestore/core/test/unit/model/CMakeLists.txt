@@ -17,14 +17,16 @@ firebase_ios_glob(
   EXCLUDE *_benchmark.cc
 )
 
-firebase_ios_add_test(firestore_model_test ${sources})
+if(FIREBASE_IOS_BUILD_TESTS)
+  firebase_ios_add_test(firestore_model_test ${sources})
 
-target_link_libraries(
-  firestore_model_test PRIVATE
-  GMock::GMock
-  firestore_core
-  firestore_testutil
-)
+  target_link_libraries(
+    firestore_model_test PRIVATE
+    GMock::GMock
+    firestore_core
+    firestore_testutil
+  )
+endif()
 
 if(FIREBASE_IOS_BUILD_BENCHMARKS)
   firebase_ios_add_executable(

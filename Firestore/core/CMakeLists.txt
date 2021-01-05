@@ -117,12 +117,17 @@ endif()
 
 
 configure_file(
-  src/util/config.h.in
-  src/util/config.h  # NOLINT(generated)
+  src/util/config_detected.h.in
+  src/util/config_detected.h  # NOLINT(generated)
 )
 
 
 firebase_ios_add_library(firestore_util EXCLUDE_FROM_ALL ${util_sources})
+
+target_compile_definitions(
+  firestore_util PUBLIC
+  FIRESTORE_HAVE_CONFIG_DETECTED_H
+)
 
 target_link_libraries(
   firestore_util PUBLIC
@@ -132,6 +137,13 @@ target_link_libraries(
   absl_optional
   absl_strings
 )
+
+if(HAVE_OPENSSL_RAND_H)
+  target_link_libraries(
+    firestore_util PRIVATE
+    OpenSSL::Crypto
+  )
+endif()
 
 if(APPLE)
   target_link_libraries(
@@ -198,6 +210,7 @@ if(APPLE)
     core_sources APPEND
     src/auth/firebase_credentials_provider_apple.*
     src/remote/connectivity_monitor_apple.mm
+    src/remote/firebase_metadata_provider_apple.mm
   )
 endif()
 

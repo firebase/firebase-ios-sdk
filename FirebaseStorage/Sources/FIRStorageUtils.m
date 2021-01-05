@@ -26,7 +26,11 @@
 #import "FirebaseStorage/Sources/FIRStorageErrors.h"
 #import "FirebaseStorage/Sources/FIRStoragePath.h"
 
+#if SWIFT_PACKAGE
+@import GTMSessionFetcherCore;
+#else
 #import <GTMSessionFetcher/GTMSessionFetcher.h>
+#endif
 
 // This is the list at https://cloud.google.com/storage/docs/json_api/ without &, ; and +.
 NSString *const kGCSObjectAllowedCharacterSet =
@@ -97,6 +101,12 @@ NSString *const kGCSObjectAllowedCharacterSet =
     [queryItems addObject:[NSURLQueryItem queryItemWithName:key value:queryParams[key]]];
   }
   [components setQueryItems:queryItems];
+  // NSURLComponents does not encode "+" as "%2B". This is however required by our backend, as
+  // it treats "+" as a shorthand encoding for spaces. See also
+  // https://stackoverflow.com/questions/31577188/how-to-encode-into-2b-with-nsurlcomponents
+  [components setPercentEncodedQuery:[[components percentEncodedQuery]
+                                         stringByReplacingOccurrencesOfString:@"+"
+                                                                   withString:@"%2B"]];
 
   NSString *encodedPath = [self encodedURLForPath:path];
   [components setPercentEncodedPath:encodedPath];
@@ -122,6 +132,23 @@ NSString *const kGCSObjectAllowedCharacterSet =
   return [NSError errorWithDomain:FIRStorageErrorDomain
                              code:code
                          userInfo:@{NSLocalizedDescriptionKey : description}];
+}
+
++ (NSTimeInterval)computeRetryIntervalFromRetryTime:(NSTimeInterval)retryTime {
+  // GTMSessionFetcher's retry starts at 1 second and then doubles every time. We use this
+  // information to compute a best-effort estimate of what to translate the user provided retry
+  // time into.
+
+  // Note that this is the same as 2 << (log2(retryTime) - 1), but deemed more readable.
+  NSTimeInterval lastInterval = 1.0;
+  NSTimeInterval sumOfAllIntervals = 1.0;
+
+  while (sumOfAllIntervals < retryTime) {
+    lastInterval *= 2;
+    sumOfAllIntervals += lastInterval;
+  }
+
+  return lastInterval;
 }
 
 @end

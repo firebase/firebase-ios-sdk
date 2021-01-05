@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "GULProxy.h"
+#import "GoogleUtilities/SwizzlerTestHelpers/GULProxy.h"
 
 @interface GULProxy ()
 

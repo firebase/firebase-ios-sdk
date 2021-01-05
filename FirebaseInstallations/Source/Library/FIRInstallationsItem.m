@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
-#import "FIRInstallationsItem.h"
+#import "FirebaseInstallations/Source/Library/FIRInstallationsItem.h"
 
-#import "FIRInstallationsStoredAuthToken.h"
-#import "FIRInstallationsStoredItem.h"
+#import "FirebaseInstallations/Source/Library/InstallationsStore/FIRInstallationsStoredAuthToken.h"
+#import "FirebaseInstallations/Source/Library/InstallationsStore/FIRInstallationsStoredItem.h"
+
+#import "FirebaseInstallations/Source/Library/Errors/FIRInstallationsErrorUtil.h"
 
 @implementation FIRInstallationsItem
 
@@ -37,6 +39,7 @@
   clone.refreshToken = [self.refreshToken copy];
   clone.authToken = [self.authToken copy];
   clone.registrationStatus = self.registrationStatus;
+  clone.IIDDefaultToken = [self.IIDDefaultToken copy];
 
   return clone;
 }
@@ -61,6 +64,60 @@
 
 - (nonnull NSString *)identifier {
   return [[self class] identifierWithAppID:self.appID appName:self.firebaseAppName];
+}
+
+- (BOOL)isValid:(NSError *_Nullable *)outError {
+  NSMutableArray<NSString *> *validationIssues = [NSMutableArray array];
+
+  if (self.appID.length == 0) {
+    [validationIssues addObject:@"`appID` must not be empty"];
+  }
+
+  if (self.firebaseAppName.length == 0) {
+    [validationIssues addObject:@"`firebaseAppName` must not be empty"];
+  }
+
+  if (self.firebaseInstallationID.length == 0) {
+    [validationIssues addObject:@"`firebaseInstallationID` must not be empty"];
+  }
+
+  switch (self.registrationStatus) {
+    case FIRInstallationStatusUnknown:
+      [validationIssues addObject:@"invalid `registrationStatus`"];
+      break;
+
+    case FIRInstallationStatusRegistered:
+      if (self.refreshToken == 0) {
+        [validationIssues addObject:@"registered installation must have non-empty `refreshToken`"];
+      }
+
+      if (self.authToken.token == 0) {
+        [validationIssues
+            addObject:@"registered installation must have non-empty `authToken.token`"];
+      }
+
+      if (self.authToken.expirationDate == nil) {
+        [validationIssues
+            addObject:@"registered installation must have non-empty `authToken.expirationDate`"];
+      }
+
+    case FIRInstallationStatusUnregistered:
+      break;
+  }
+
+  BOOL isValid = validationIssues.count == 0;
+
+  if (!isValid && outError) {
+    NSString *failureReason =
+        [NSString stringWithFormat:@"FIRInstallationsItem validation errors: %@",
+                                   [validationIssues componentsJoinedByString:@", "]];
+    *outError =
+        [FIRInstallationsErrorUtil installationsErrorWithCode:FIRInstallationsErrorCodeUnknown
+                                                failureReason:failureReason
+                                              underlyingError:nil];
+  }
+
+  return isValid;
 }
 
 + (NSString *)identifierWithAppID:(NSString *)appID appName:(NSString *)appName {

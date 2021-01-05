@@ -22,9 +22,9 @@ import FirebaseStorage
 ///                 an `Error`.
 /// - Returns: A closure parameterized with an optional generic and optional `Error` to match
 ///            Objective C APIs.
-private func getResultCallback<T>(
-  completion: @escaping (Result<T, Error>) -> Void
-) -> (_: T?, _: Error?) -> Void {
+private func getResultCallback<T>(completion: @escaping (Result<T, Error>) -> Void) -> (_: T?,
+                                                                                        _: Error?)
+  -> Void {
   return { (value: T?, error: Error?) -> Void in
     if let value = value {
       completion(.success(value))
@@ -86,16 +86,16 @@ public extension StorageReference {
   /// Only available for projects using Firebase Rules Version 2.
   ///
   /// - Parameters:
-  ///   - withMaxResults The maximum number of results to return in a single page. Must be
-  ///                    greater than 0 and at most 1000.
+  ///   - maxResults The maximum number of results to return in a single page. Must be
+  ///                greater than 0 and at most 1000.
   ///   - pageToken A page token from a previous call to list.
   ///   - completion A completion handler that will be invoked with the next items and
   ///                prefixes under the current StorageReference. It returns a `Result` enum
   ///                with either the list or an `Error`.
-  func list(withMaxResults maxResults: Int64,
+  func list(maxResults: Int64,
             pageToken: String,
             completion: @escaping (Result<StorageListResult, Error>) -> Void) {
-    list(withMaxResults: maxResults,
+    list(maxResults: maxResults,
          pageToken: pageToken,
          completion: getResultCallback(completion: completion))
   }
@@ -109,14 +109,14 @@ public extension StorageReference {
   /// Only available for projects using Firebase Rules Version 2.
   ///
   /// - Parameters:
-  ///   - withMaxResults The maximum number of results to return in a single page. Must be
-  ///                    greater than 0 and at most 1000.
+  ///   - maxResults The maximum number of results to return in a single page. Must be
+  ///                greater than 0 and at most 1000.
   ///   - completion A completion handler that will be invoked with the next items and
   ///                prefixes under the current `StorageReference`. It returns a `Result` enum
   ///                with either the list or an `Error`.
-  func list(withMaxResults maxResults: Int64,
+  func list(maxResults: Int64,
             completion: @escaping (Result<StorageListResult, Error>) -> Void) {
-    list(withMaxResults: maxResults,
+    list(maxResults: maxResults,
          completion: getResultCallback(completion: completion))
   }
 

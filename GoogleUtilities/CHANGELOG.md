@@ -1,3 +1,23 @@
+# 7.1.0 -- Unreleased
+- Added `NSURLSession` promise extension. (#6753)
+- `ios_on_mac` option added to `GULAppEnvironmentUtil.applePlatform()`. (#6799)
+- Fixed completion handler issue in `GULAppDelegateSwizzler` for
+  `application(_:didReceiveRemoteNotification:fetchCompletionHandler:)` method.  (#6863)
+
+# 7.0.0
+- All APIs are now public. All CocoaPods private headers are transitioned to public. Note that
+  GoogleUtilities may have more frequent breaking changes than Firebase. (#6588)
+- Fixed writing heartbeat to disk on tvOS devices. (#6658)
+- Refactor `GULSwizzledObject` to ARC to unblock SwiftPM support. (#5862)
+
+# 6.7.1
+- Fix import regression when mixing 6.7.0 with earlier Firebase versions. (#6047)
+
+# 6.7.0 -- M75
+- Lazily access filesystem outside of `GULHeartbeatDateStorage` initializer. (#5969)
+- Update source imports to use repo-relative headers. (#5824)
+- Source cleanups to remove pre-iOS 8 code. (#5841)
+
 # 6.6.0 -- M69
 - Keychain utilities and Keychain based key-value storage added to
   `GoogleUtilities/Environment`. (#5329)

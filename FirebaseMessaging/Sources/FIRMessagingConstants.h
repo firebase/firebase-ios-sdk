@@ -23,34 +23,17 @@
 #ifndef _FIRMessaging_CONSTANTS_H
 #define _FIRMessaging_CONSTANTS_H
 
-FOUNDATION_EXPORT NSString *const kFIRMessagingRawDataKey;
-FOUNDATION_EXPORT NSString *const kFIRMessagingCollapseKey;
 FOUNDATION_EXPORT NSString *const kFIRMessagingFromKey;
-
-FOUNDATION_EXPORT NSString *const kFIRMessagingSendTo;
-FOUNDATION_EXPORT NSString *const kFIRMessagingSendTTL;
-FOUNDATION_EXPORT NSString *const kFIRMessagingSendDelay;
-FOUNDATION_EXPORT NSString *const kFIRMessagingSendMessageID;
-FOUNDATION_EXPORT NSString *const KFIRMessagingSendMessageAppData;
-
-FOUNDATION_EXPORT NSString *const kFIRMessagingMessageInternalReservedKeyword;
-FOUNDATION_EXPORT NSString *const kFIRMessagingMessagePersistentIDKey;
-
 FOUNDATION_EXPORT NSString *const kFIRMessagingMessageIDKey;
 FOUNDATION_EXPORT NSString *const kFIRMessagingMessageAPNSContentAvailableKey;
-FOUNDATION_EXPORT NSString *const kFIRMessagingMessageSyncViaMCSKey;
 FOUNDATION_EXPORT NSString *const kFIRMessagingMessageSyncMessageTTLKey;
 FOUNDATION_EXPORT NSString *const kFIRMessagingMessageLinkKey;
-
 FOUNDATION_EXPORT NSString *const kFIRMessagingRemoteNotificationsProxyEnabledInfoPlistKey;
-
 FOUNDATION_EXPORT NSString *const kFIRMessagingSubDirectoryName;
 
 // Notifications
 FOUNDATION_EXPORT NSString *const kFIRMessagingCheckinFetchedNotification;
 FOUNDATION_EXPORT NSString *const kFIRMessagingAPNSTokenNotification;
 FOUNDATION_EXPORT NSString *const kFIRMessagingRegistrationTokenRefreshNotification;
-
-FOUNDATION_EXPORT const int kFIRMessagingSendTtlDefault;  // 24 hours
 
 #endif

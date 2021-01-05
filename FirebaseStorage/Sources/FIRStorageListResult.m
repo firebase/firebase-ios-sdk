@@ -12,8 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import <FirebaseStorage/FIRStorageListResult.h>
-#import <FirebaseStorage/FIRStorageReference.h>
+#import "FirebaseStorage/Sources/Public/FirebaseStorage/FIRStorageListResult.h"
+#import "FirebaseStorage/Sources/Public/FirebaseStorage/FIRStorageReference.h"
+
 #import "FirebaseStorage/Sources/FIRStorageConstants_Private.h"
 
 @implementation FIRStorageListResult
@@ -33,16 +34,12 @@
     }
 
     FIRStorageReference *prefixReference = [rootReference child:pathWithoutTrailingSlash];
-    NSAssert([prefixReference.fullPath hasPrefix:reference.fullPath],
-             @"Expected %@ to be a child element of %@", reference, prefixReference);
     [prefixes addObject:prefixReference];
   }
 
   NSArray<NSDictionary<NSString *, NSString *> *> *itemEntries = dictionary[kFIRStorageListItems];
   for (NSDictionary<NSString *, NSString *> *itemEntry in itemEntries) {
     FIRStorageReference *itemReference = [rootReference child:itemEntry[kFIRStorageListItemName]];
-    NSAssert([itemReference.fullPath hasPrefix:reference.fullPath],
-             @"Expected %@ to be a child element of %@", reference, itemReference);
     [items addObject:itemReference];
   }
 

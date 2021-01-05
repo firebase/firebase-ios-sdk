@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2018 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@
 #include <fstream>
 
 #include "Firestore/core/src/util/autoid.h"
+#include "Firestore/core/src/util/defer.h"
 #include "Firestore/core/src/util/log.h"
 #include "Firestore/core/src/util/path.h"
 #include "Firestore/core/src/util/statusor.h"
@@ -43,28 +44,31 @@ using testutil::Touch;
 static void WriteStringToFile(const Path& path, const std::string& text) {
   std::ofstream out{path.native_value()};
   ASSERT_TRUE(out.good());
+  Defer cleanup([&] {
+    out.close();
+    ASSERT_TRUE(out.good());
+  });
+
   out << text;
-  out.close();
-  ASSERT_TRUE(out.good());
 }
 
 static void WriteBytesToFile(const Path& path, int byte_count) {
   WriteStringToFile(path, std::string(byte_count, 'a'));
 }
 
-#define ASSERT_NOT_FOUND(expression)                  \
-  do {                                                \
-    ASSERT_EQ(Error::kNotFound, (expression).code()); \
+#define ASSERT_NOT_FOUND(expression)                       \
+  do {                                                     \
+    ASSERT_EQ(Error::kErrorNotFound, (expression).code()); \
   } while (0)
 
-#define EXPECT_NOT_FOUND(expression)                  \
-  do {                                                \
-    ASSERT_EQ(Error::kNotFound, (expression).code()); \
+#define EXPECT_NOT_FOUND(expression)                       \
+  do {                                                     \
+    ASSERT_EQ(Error::kErrorNotFound, (expression).code()); \
   } while (0)
 
-#define EXPECT_FAILED_PRECONDITION(expression)                  \
-  do {                                                          \
-    ASSERT_EQ(Error::kFailedPrecondition, (expression).code()); \
+#define EXPECT_FAILED_PRECONDITION(expression)                       \
+  do {                                                               \
+    ASSERT_EQ(Error::kErrorFailedPrecondition, (expression).code()); \
   } while (0)
 
 class FilesystemTest : public testing::Test {
@@ -174,7 +178,7 @@ TEST_F(FilesystemTest, RecursivelyCreateDirFailure) {
   Touch(dir);
 
   Status status = fs_->RecursivelyCreateDir(subdir);
-  EXPECT_EQ(Error::kFailedPrecondition, status.code());
+  EXPECT_EQ(Error::kErrorFailedPrecondition, status.code());
 
   EXPECT_OK(fs_->RecursivelyRemove(dir));
 }

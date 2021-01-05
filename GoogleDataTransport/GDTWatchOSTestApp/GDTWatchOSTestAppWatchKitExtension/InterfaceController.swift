@@ -22,17 +22,11 @@ import GoogleDataTransport
 
 class InterfaceController: WKInterfaceController {
   let transport: GDTCORTransport = GDTCORTransport(mappingID: "1234", transformers: nil,
-                                                   target: GDTCORTarget.test.rawValue)!
+                                                   target: GDTCORTarget.test)!
 
   override func awake(withContext context: Any?) {
     super.awake(withContext: context)
     // Configure interface objects here.
-  }
-
-  override func willActivate() {
-    GDTCORRegistrar.sharedInstance().register(TestUploader(), target: GDTCORTarget.test)
-    GDTCORRegistrar.sharedInstance().register(TestPrioritizer(), target: GDTCORTarget.test)
-    super.willActivate()
   }
 
   override func didDeactivate() {
@@ -76,5 +70,12 @@ class InterfaceController: WKInterfaceController {
     event.dataObject = TestDataObject()
     event.qosTier = GDTCOREventQoS.qoSDaily
     transport.sendDataEvent(event)
+  }
+}
+
+class TestDataObject: NSObject, GDTCOREventDataObject {
+  func transportBytes() -> Data {
+    return "Normally, some SDK's data object would populate this. \(Date())"
+      .data(using: String.Encoding.utf8)!
   }
 }

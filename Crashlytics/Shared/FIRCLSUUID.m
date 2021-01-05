@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRCLSUUID.h"
+#import "Crashlytics/Shared/FIRCLSUUID.h"
 
-#import "FIRCLSByteUtility.h"
+#import "Crashlytics/Shared/FIRCLSByteUtility.h"
 
 static NSInteger const FIRCLSUUIDStringLength = 33;
 

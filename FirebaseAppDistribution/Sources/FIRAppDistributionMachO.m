@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
+#import "FirebaseAppDistribution/Sources/FIRAppDistributionMachO.h"
 #import <CommonCrypto/CommonHMAC.h>
 #include <mach-o/arch.h>
 #import <mach-o/fat.h>
 #import <mach-o/loader.h>
-#import "FIRAppDistributionMachO+Private.h"
-#import "FIRAppDistributionMachOSlice+Private.h"
+#import "FirebaseAppDistribution/Sources/FIRAppDistributionMachOSlice.h"
 
 @interface FIRAppDistributionMachO ()
 @property(nonatomic, copy) NSFileHandle* file;
-@property(nonatomic, copy) NSMutableArray* slices;
+@property(nonatomic, strong) NSMutableArray* slices;
 @end
 
 @implementation FIRAppDistributionMachO
@@ -36,7 +36,6 @@
     _slices = [NSMutableArray new];
     [self extractSlices];
   }
-
   return self;
 }
 

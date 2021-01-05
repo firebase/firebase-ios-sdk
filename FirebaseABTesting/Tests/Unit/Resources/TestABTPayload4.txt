@@ -1,0 +1,18 @@
+{
+  "experimentId": "exp_1",
+  "variantId": "v3",
+  "experimentStartTime": "2021-05-09T00:00:00.000Z",
+  "triggerTimeoutMillis": 15892000000,
+  "timeToLiveMillis": 15892000000,
+  "setEventToLog": "set_event",
+  "activateEventToLog": "activate_event",
+  "clearEventToLog": "clear_event",
+  "timeoutEventToLog": "timeout_event",
+  "ttlExpiryEventToLog": "ttl_expiry_event",
+  "overflowPolicy": 2,
+  "ongoingExperiments": [
+    {
+      "experimentId": "exp_2"
+    }
+  ]
+}

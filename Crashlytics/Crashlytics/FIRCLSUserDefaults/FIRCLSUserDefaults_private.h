@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #import <Foundation/Foundation.h>
-#import "FIRCLSUserDefaults.h"
+#import "Crashlytics/Crashlytics/FIRCLSUserDefaults/FIRCLSUserDefaults.h"
 
 @interface FIRCLSUserDefaults (Private)
 - (BOOL)synchronizeWroteToDisk;

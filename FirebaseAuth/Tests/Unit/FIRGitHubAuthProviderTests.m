@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-#import <FirebaseAuth/FIRGitHubAuthProvider.h>
 #import <XCTest/XCTest.h>
+
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRGitHubAuthProvider.h"
 
 #import "FirebaseAuth/Sources/AuthProvider/FIRAuthCredential_Internal.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyAssertionRequest.h"

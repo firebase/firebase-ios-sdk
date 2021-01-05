@@ -16,7 +16,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "XCTestCase+FIRMessagingRmqManagerTests.h"
+#import "FirebaseMessaging/Tests/UnitTests/XCTestCase+FIRMessagingRmqManagerTests.h"
 
 #import "FirebaseMessaging/Sources/FIRMessagingConstants.h"
 #import "FirebaseMessaging/Sources/FIRMessagingPersistentSyncMessage.h"
@@ -59,54 +59,28 @@ static NSString *const kRmqSqliteFilename = @"rmq-sync-manager-test";
  *  Test receiving a new sync message via APNS should be added to SYNC_RMQ.
  */
 - (void)testNewAPNSMessage {
-  int64_t expirationTime = FIRMessagingCurrentTimestampInSeconds() + 86400;  // 1 day in future
-
   NSDictionary *oldMessage = @{
     kFIRMessagingMessageIDKey : @"fake-rmq-1",
-    kFIRMessagingMessageSyncViaMCSKey : @(expirationTime),
     @"hello" : @"world",
   };
   XCTAssertFalse([self.syncMessageManager didReceiveAPNSSyncMessage:oldMessage]);
 
   NSDictionary *newMessage = @{
     kFIRMessagingMessageIDKey : @"fake-rmq-2",
-    kFIRMessagingMessageSyncViaMCSKey : @(expirationTime),
     @"hello" : @"world",
   };
 
   XCTAssertFalse([self.syncMessageManager didReceiveAPNSSyncMessage:newMessage]);
 }
 
-/**
- *  Test receiving a new sync message via MCS should be added to SYNC_RMQ.
- */
-- (void)testNewMCSMessage {
-  int64_t expirationTime = FIRMessagingCurrentTimestampInSeconds() + 86400;  // 1 day in future
-  NSDictionary *oldMessage = @{
-    kFIRMessagingMessageIDKey : @"fake-rmq-1",
-    kFIRMessagingMessageSyncViaMCSKey : @(expirationTime),
-    @"hello" : @"world",
-  };
-  XCTAssertFalse([self.syncMessageManager didReceiveMCSSyncMessage:oldMessage]);
-
-  NSDictionary *newMessage = @{
-    kFIRMessagingMessageIDKey : @"fake-rmq-2",
-    kFIRMessagingMessageSyncViaMCSKey : @(expirationTime),
-    @"hello" : @"world",
-  };
-
-  XCTAssertFalse([self.syncMessageManager didReceiveAPNSSyncMessage:newMessage]);
-}
-
+#if !(SWIFT_PACKAGE && TARGET_OS_TV)  // Not enough space.
 /**
  *  Test receiving a duplicate message via APNS.
  */
 - (void)testDuplicateAPNSMessage {
   NSString *messageID = @"fake-rmq-1";
-  int64_t expirationTime = FIRMessagingCurrentTimestampInSeconds() + 86400;  // 1 day in future
   NSDictionary *newMessage = @{
     kFIRMessagingMessageIDKey : messageID,
-    kFIRMessagingMessageSyncViaMCSKey : @(expirationTime),
     @"hello" : @"world",
   };
 
@@ -119,51 +93,6 @@ static NSString *const kRmqSqliteFilename = @"rmq-sync-manager-test";
       [self.rmqManager querySyncMessageWithRmqID:messageID];
   XCTAssertTrue(persistentMessage.apnsReceived);
   XCTAssertFalse(persistentMessage.mcsReceived);
-}
-
-/**
- *  Test receiving a duplicate message via MCS.
- */
-- (void)testDuplicateMCSMessage {
-  NSString *messageID = @"fake-rmq-1";
-  int64_t expirationTime = FIRMessagingCurrentTimestampInSeconds() + 86400;  // 1 day in future
-  NSDictionary *newMessage = @{
-    kFIRMessagingMessageIDKey : messageID,
-    kFIRMessagingMessageSyncViaMCSKey : @(expirationTime),
-    @"hello" : @"world",
-  };
-
-  XCTAssertFalse([self.syncMessageManager didReceiveMCSSyncMessage:newMessage]);
-
-  // The message is a duplicate
-  XCTAssertTrue([self.syncMessageManager didReceiveMCSSyncMessage:newMessage]);
-
-  FIRMessagingPersistentSyncMessage *persistentMessage =
-      [self.rmqManager querySyncMessageWithRmqID:messageID];
-  XCTAssertFalse(persistentMessage.apnsReceived);
-  XCTAssertTrue(persistentMessage.mcsReceived);
-}
-
-/**
- *  Test receiving a sync message both via APNS and MCS.
- */
-- (void)testMessageReceivedBothViaAPNSAndMCS {
-  NSString *messageID = @"fake-rmq-1";
-  int64_t expirationTime = FIRMessagingCurrentTimestampInSeconds() + 86400;  // 1 day in future
-  NSDictionary *newMessage = @{
-    kFIRMessagingMessageIDKey : messageID,
-    kFIRMessagingMessageSyncViaMCSKey : @(expirationTime),
-    @"hello" : @"world",
-  };
-
-  XCTAssertFalse([self.syncMessageManager didReceiveAPNSSyncMessage:newMessage]);
-  // Duplicate of the above received APNS message
-  XCTAssertTrue([self.syncMessageManager didReceiveMCSSyncMessage:newMessage]);
-
-  // Since we've received both APNS and MCS messages we should have deleted them from SYNC_RMQ
-  FIRMessagingPersistentSyncMessage *persistentMessage =
-      [self.rmqManager querySyncMessageWithRmqID:messageID];
-  XCTAssertNil(persistentMessage);
 }
 
 - (void)testDeletingExpiredMessages {
@@ -216,13 +145,10 @@ static NSString *const kRmqSqliteFilename = @"rmq-sync-manager-test";
   };
   XCTAssertFalse([self.syncMessageManager didReceiveAPNSSyncMessage:noTTLMessage]);
 
-  // Mark the no-TTL message as received via MCS too
-  [self.rmqManager updateSyncMessageViaMCSWithRmqID:noTTLMessageID];
-
   [self.syncMessageManager removeExpiredSyncMessages];
 
   XCTAssertNotNil([self.rmqManager querySyncMessageWithRmqID:unexpiredMessageID]);
-  XCTAssertNil([self.rmqManager querySyncMessageWithRmqID:noTTLMessageID]);
+  XCTAssertNotNil([self.rmqManager querySyncMessageWithRmqID:noTTLMessageID]);
 }
 
 - (void)testDeleteFinishedAndExpiredMessages {
@@ -251,15 +177,13 @@ static NSString *const kRmqSqliteFilename = @"rmq-sync-manager-test";
   };
   XCTAssertFalse([self.syncMessageManager didReceiveAPNSSyncMessage:noTTLMessage]);
 
-  // Mark the no-TTL message as received via MCS too
-  [self.rmqManager updateSyncMessageViaMCSWithRmqID:noTTLMessageID];
-
   // Remove expired or finished sync messages.
   [self.syncMessageManager removeExpiredSyncMessages];
 
   XCTAssertNotNil([self.rmqManager querySyncMessageWithRmqID:unexpiredMessageID]);
   XCTAssertNil([self.rmqManager querySyncMessageWithRmqID:expiredMessageID]);
-  XCTAssertNil([self.rmqManager querySyncMessageWithRmqID:noTTLMessageID]);
+  XCTAssertNotNil([self.rmqManager querySyncMessageWithRmqID:noTTLMessageID]);
 }
+#endif  // #if !(SWIFT_PACKAGE && TARGET_OS_TV)
 
 @end

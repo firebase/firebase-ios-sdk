@@ -72,9 +72,9 @@ const ListenSequenceNumber kIrrelevantSequenceNumber = -1;
 
 bool ErrorIsInteresting(const Status& error) {
   bool missing_index =
-      (error.code() == Error::kFailedPrecondition &&
+      (error.code() == Error::kErrorFailedPrecondition &&
        error.error_message().find("requires an index") != std::string::npos);
-  bool no_permission = (error.code() == Error::kPermissionDenied);
+  bool no_permission = (error.code() == Error::kErrorPermissionDenied);
   return missing_index || no_permission;
 }
 
@@ -448,7 +448,7 @@ void SyncEngine::FailOutstandingPendingWriteCallbacks(
     const std::string& message) {
   for (const auto& entry : pending_writes_callbacks_) {
     for (const auto& callback : entry.second) {
-      callback(Status(Error::kCancelled, message));
+      callback(Status(Error::kErrorCancelled, message));
     }
   }
 

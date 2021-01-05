@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-#import "GDTCORTests/Unit/GDTCORTestCase.h"
+#import "GoogleDataTransport/GDTCORTests/Unit/GDTCORTestCase.h"
 
-#import <GoogleDataTransport/GDTCOREvent.h>
-#import <GoogleDataTransport/GDTCORRegistrar.h>
-#import <GoogleDataTransport/GDTCORTransport.h>
+#import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORRegistrar.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCOREvent.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORTransport.h"
 
-#import "GDTCORLibrary/Private/GDTCORTransport_Private.h"
+#import "GoogleDataTransport/GDTCORLibrary/Private/GDTCORTransport_Private.h"
 
-#import "GDTCORTests/Common/Fakes/GDTCORStorageFake.h"
-#import "GDTCORTests/Common/Fakes/GDTCORTransformerFake.h"
+#import "GoogleDataTransport/GDTCORTests/Common/Fakes/GDTCORStorageFake.h"
+#import "GoogleDataTransport/GDTCORTests/Common/Fakes/GDTCORTransformerFake.h"
 
-#import "GDTCORTests/Common/Categories/GDTCORRegistrar+Testing.h"
+#import "GoogleDataTransport/GDTCORTests/Common/Categories/GDTCORRegistrar+Testing.h"
 
-#import "GDTCORTests/Unit/Helpers/GDTCORDataObjectTesterClasses.h"
+#import "GoogleDataTransport/GDTCORTests/Unit/Helpers/GDTCORDataObjectTesterClasses.h"
 
 @interface GDTCORTransportTest : GDTCORTestCase
 

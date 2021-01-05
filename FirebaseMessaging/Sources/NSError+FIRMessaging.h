@@ -16,54 +16,38 @@
 
 #import <Foundation/Foundation.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 FOUNDATION_EXPORT NSString *const kFIRMessagingDomain;
 
-typedef NS_ENUM(NSUInteger, FIRMessagingInternalErrorCode) {
-  // Unknown error.
+// FIRMessaging Internal Error Code
+typedef NS_ENUM(NSUInteger, FIRMessagingErrorCode) {
   kFIRMessagingErrorCodeUnknown = 0,
 
-  // HTTP related errors.
-  kFIRMessagingErrorCodeAuthentication = 1,
-  kFIRMessagingErrorCodeNoAccess = 2,
-  kFIRMessagingErrorCodeTimeout = 3,
   kFIRMessagingErrorCodeNetwork = 4,
 
-  // Another operation is in progress.
-  kFIRMessagingErrorCodeOperationInProgress = 5,
-
-  // Failed to perform device check in.
-  kFIRMessagingErrorCodeRegistrarFailedToCheckIn = 6,
-
   kFIRMessagingErrorCodeInvalidRequest = 7,
+
+  kFIRMessagingErrorCodeInvalidTopicName = 8,
 
   // FIRMessaging generic errors
   kFIRMessagingErrorCodeMissingDeviceID = 501,
 
-  // upstream send errors
-  kFIRMessagingErrorServiceNotAvailable = 1001,
-  kFIRMessagingErrorInvalidParameters = 1002,
-  kFIRMessagingErrorMissingTo = 1003,
-  kFIRMessagingErrorSave = 1004,
-  kFIRMessagingErrorSizeExceeded = 1005,
-  // Future Send Errors
-
-  // MCS errors
-  // Already connected with MCS
-  kFIRMessagingErrorCodeAlreadyConnected = 2001,
+  // Upstream send errors
+  kFIRMessagingErrorCodeServiceNotAvailable = 1001,
+  kFIRMessagingErrorCodeMissingTo = 1003,
+  kFIRMessagingErrorCodeSave = 1004,
+  kFIRMessagingErrorCodeSizeExceeded = 1005,
 
   // PubSub errors
-  kFIRMessagingErrorCodePubSubAlreadySubscribed = 3001,
-  kFIRMessagingErrorCodePubSubAlreadyUnsubscribed = 3002,
-  kFIRMessagingErrorCodePubSubInvalidTopic = 3003,
-  kFIRMessagingErrorCodePubSubFIRMessagingNotSetup = 3004,
   kFIRMessagingErrorCodePubSubOperationIsCancelled = 3005,
 };
 
 @interface NSError (FIRMessaging)
 
-@property(nonatomic, readonly) FIRMessagingInternalErrorCode fcmErrorCode;
-
-+ (NSError *)errorWithFCMErrorCode:(FIRMessagingInternalErrorCode)fcmErrorCode;
-+ (NSError *)fcm_errorWithCode:(NSInteger)code userInfo:(NSDictionary *)userInfo;
++ (NSError *)messagingErrorWithCode:(FIRMessagingErrorCode)fcmErrorCode
+                      failureReason:(NSString *)failureReason;
 
 @end
+
+NS_ASSUME_NONNULL_END

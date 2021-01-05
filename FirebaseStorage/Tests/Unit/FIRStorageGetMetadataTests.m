@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRStorageTestHelpers.h"
 #import "FirebaseStorage/Sources/FIRStorageGetMetadataTask.h"
+#import "FirebaseStorage/Tests/Unit/FIRStorageTestHelpers.h"
 
 @interface FIRStorageGetMetadataTests : XCTestCase
 

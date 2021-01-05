@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRCLSSymbolicationOperation.h"
+#import "Crashlytics/Crashlytics/Operations/Symbolication/FIRCLSSymbolicationOperation.h"
 
 #import <Foundation/Foundation.h>
 #import <XCTest/XCTest.h>
 
-#import "FIRCLSMockSymbolResolver.h"
-#import "FIRStackFrame_Private.h"
+#import "Crashlytics/Crashlytics/Private/FIRStackFrame_Private.h"
+#import "Crashlytics/UnitTests/Mocks/FIRCLSMockSymbolResolver.h"
 
 @interface FIRCLSSymbolicationOperationTests : XCTestCase
 

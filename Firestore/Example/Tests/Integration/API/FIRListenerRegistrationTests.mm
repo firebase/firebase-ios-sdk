@@ -90,26 +90,34 @@
   id<FIRListenerRegistration> one =
       [collectionRef addSnapshotListener:^(FIRQuerySnapshot *, NSError *_Nullable error) {
         XCTAssertNil(error);
-        callbacksOne++;
+        @synchronized(self) {
+          callbacksOne++;
+        }
       }];
 
   id<FIRListenerRegistration> two =
       [collectionRef addSnapshotListener:^(FIRQuerySnapshot *, NSError *_Nullable error) {
         XCTAssertNil(error);
-        callbacksTwo++;
+        @synchronized(self) {
+          callbacksTwo++;
+        }
       }];
 
   // Wait for initial events
   [self waitUntil:^BOOL {
-    return callbacksOne == 1 && callbacksTwo == 1;
+    @synchronized(self) {
+      return callbacksOne == 1 && callbacksTwo == 1;
+    }
   }];
 
   // Trigger new events
   [self writeDocumentRef:docRef data:@{@"foo" : @"bar"}];
 
   // Write events should have triggered
-  XCTAssertEqual(2, callbacksOne);
-  XCTAssertEqual(2, callbacksTwo);
+  @synchronized(self) {
+    XCTAssertEqual(2, callbacksOne);
+    XCTAssertEqual(2, callbacksTwo);
+  }
 
   // Should leave "two" unaffected
   [one remove];
@@ -117,8 +125,10 @@
   [self writeDocumentRef:docRef data:@{@"foo" : @"new-bar"}];
 
   // Assert only events for "two" actually occurred
-  XCTAssertEqual(2, callbacksOne);
-  XCTAssertEqual(3, callbacksTwo);
+  @synchronized(self) {
+    XCTAssertEqual(2, callbacksOne);
+    XCTAssertEqual(3, callbacksTwo);
+  }
 
   [self writeDocumentRef:docRef data:@{@"foo" : @"new-bar"}];
 
@@ -148,6 +158,7 @@
 
   FIRDocumentReference *docRef2 = [collectionRef documentWithPath:documentID];
   [self writeDocumentRef:docRef2 data:@{@"foo" : @"bar"}];
+  [self awaitExpectation:seen];
 
   [registration remove];
 }

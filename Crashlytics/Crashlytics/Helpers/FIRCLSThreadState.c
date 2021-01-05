@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "FIRCLSThreadState.h"
-#include "FIRCLSDefines.h"
-#include "FIRCLSUtility.h"
+#include "Crashlytics/Crashlytics/Helpers/FIRCLSThreadState.h"
+#include "Crashlytics/Crashlytics/Helpers/FIRCLSDefines.h"
+#include "Crashlytics/Crashlytics/Helpers/FIRCLSUtility.h"
 
 #if defined(__arm__) || defined(__arm64__)
 #include <mach/arm/thread_status.h>

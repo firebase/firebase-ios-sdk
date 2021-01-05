@@ -17,10 +17,10 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
-#import "FIRIAMClearcutHttpRequestSender.h"
-#import "FIRIAMClearcutLogStorage.h"
-#import "FIRIAMClearcutUploader.h"
-#import "FIRIAMTimeFetcher.h"
+#import "FirebaseInAppMessaging/Sources/Analytics/FIRIAMClearcutHttpRequestSender.h"
+#import "FirebaseInAppMessaging/Sources/Analytics/FIRIAMClearcutLogStorage.h"
+#import "FirebaseInAppMessaging/Sources/Private/Analytics/FIRIAMClearcutUploader.h"
+#import "FirebaseInAppMessaging/Sources/Private/Util/FIRIAMTimeFetcher.h"
 
 @interface FIRIAMClearcutUploaderTests : XCTestCase
 @property(nonatomic) id<FIRIAMTimeFetcher> mockTimeFetcher;

@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-#import "GDTCORTests/Common/Categories/GDTCORRegistrar+Testing.h"
+#import "GoogleDataTransport/GDTCORTests/Common/Categories/GDTCORRegistrar+Testing.h"
 
-#import "GDTCORLibrary/Private/GDTCORRegistrar_Private.h"
+#import "GoogleDataTransport/GDTCORLibrary/Private/GDTCORRegistrar_Private.h"
 
 @implementation GDTCORRegistrar (Testing)
 
 - (void)reset {
   // These calls occur on the queue.
-  [self.targetToPrioritizer removeAllObjects];
   [self.targetToUploader removeAllObjects];
   [self.targetToStorage removeAllObjects];
   dispatch_sync(self.registrarQueue, ^{

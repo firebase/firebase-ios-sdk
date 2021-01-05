@@ -15,8 +15,11 @@
  */
 
 #import <XCTest/XCTest.h>
-#import "FIRInstallationsItem.h"
-#import "FIRInstallationsStoredItem.h"
+
+#import "FirebaseInstallations/Source/Library/FIRInstallationsItem.h"
+#import "FirebaseInstallations/Source/Library/InstallationsStore/FIRInstallationsStoredItem.h"
+
+#import "FirebaseInstallations/Source/Tests/Utils/FIRInstallationsItem+Tests.h"
 
 @interface FIRInstallationsItemTests : XCTestCase
 
@@ -48,6 +51,48 @@
   [self assertValidFID:FID2];
 
   XCTAssertNotEqualObjects(FID1, FID2);
+}
+
+- (void)testValidate_InvalidItem {
+  FIRInstallationsItem *unregisteredItem = [[FIRInstallationsItem alloc] initWithAppID:@""
+                                                                       firebaseAppName:@""];
+
+  NSError *validationError;
+  XCTAssertFalse([unregisteredItem isValid:&validationError]);
+  XCTAssertTrue(
+      [validationError.localizedFailureReason containsString:@"`appID` must not be empty"]);
+  XCTAssertTrue([validationError.localizedFailureReason
+      containsString:@"`firebaseAppName` must not be empty"]);
+  XCTAssertTrue([validationError.localizedFailureReason
+      containsString:@"`firebaseInstallationID` must not be empty"]);
+  XCTAssertTrue(
+      [validationError.localizedFailureReason containsString:@"invalid `registrationStatus`"]);
+
+  FIRInstallationsItem *registerredItem = [[FIRInstallationsItem alloc] initWithAppID:@""
+                                                                      firebaseAppName:@""];
+  registerredItem.registrationStatus = FIRInstallationStatusRegistered;
+
+  XCTAssertFalse([registerredItem isValid:&validationError]);
+  XCTAssertTrue(
+      [validationError.localizedFailureReason containsString:@"`appID` must not be empty"]);
+  XCTAssertTrue([validationError.localizedFailureReason
+      containsString:@"`firebaseAppName` must not be empty"]);
+  XCTAssertTrue([validationError.localizedFailureReason
+      containsString:@"`firebaseInstallationID` must not be empty"]);
+  XCTAssertTrue([validationError.localizedFailureReason
+      containsString:@"registered installation must have non-empty `refreshToken`"]);
+  XCTAssertTrue([validationError.localizedFailureReason
+      containsString:@"registered installation must have non-empty `authToken.token`"]);
+  XCTAssertTrue([validationError.localizedFailureReason
+      containsString:@"registered installation must have non-empty `authToken.expirationDate`"]);
+}
+
+- (void)testValidate_ValidItem {
+  FIRInstallationsItem *item = [FIRInstallationsItem createRegisteredInstallationItem];
+
+  NSError *error;
+  XCTAssertTrue([item isValid:&error]);
+  XCTAssertNil(error);
 }
 
 - (void)assertValidFID:(NSString *)FID {

@@ -20,6 +20,8 @@
 #include <string>
 
 #include "Firestore/core/src/core/field_filter.h"
+#include "Firestore/core/src/model/document.h"
+#include "Firestore/core/src/model/model_fwd.h"
 
 namespace firebase {
 namespace firestore {
@@ -34,6 +36,13 @@ class KeyFieldInFilter : public FieldFilter {
 
  private:
   class Rep;
+
+  static bool Contains(const model::FieldValue::Array& array_value,
+                       const model::Document& doc);
+
+  static void ValidateArrayValue(const model::FieldValue& value);
+
+  friend class KeyFieldNotInFilter;
 };
 
 }  // namespace core

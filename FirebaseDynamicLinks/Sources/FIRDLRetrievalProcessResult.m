@@ -14,7 +14,11 @@
  * limitations under the License.
  */
 
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
+
 #import "FirebaseDynamicLinks/Sources/FIRDLRetrievalProcessResult.h"
+
 #import "FirebaseDynamicLinks/Sources/FIRDLRetrievalProcessResult+Private.h"
 #import "FirebaseDynamicLinks/Sources/FIRDynamicLink+Private.h"
 #import "FirebaseDynamicLinks/Sources/Utilities/FDLUtilities.h"
@@ -57,3 +61,5 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif  // TARGET_OS_IOS

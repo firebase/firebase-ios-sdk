@@ -26,7 +26,7 @@ included.
 ## Overview
 
 When a Firebase framework wants to provide functionality to another Firebase framework, it must be
-done through the Interop system. Both frameworks depend on a shared protocol in a separate framework
+done through the Interop system. Both frameworks depend on a shared protocol in the Interop folder
 that describes the functionality provided by one framework and required by the other. Let's use `A`
 and `B`, where `B` depends on functionality provided by `A` and the functionality is described by
 protocol `AInterop`.
@@ -42,20 +42,17 @@ instance of an object that conforms to `AInterop` and provides the functionality
 This system allows Firebase frameworks to depend on each other in a typesafe way and allows us to
 explicitly declare version dependencies on the interfaces required instead of the product's version.
 
-## Protocol Only Frameworks
+## Protocol Headers
 
-In order to share protocols between two frameworks, we introduced header only frameworks that
+In order to share protocols between two frameworks, we introduced headers that
 declare the desired protocol(s).
 
-The naming convention for the framework should be `<ProductName>Interop` but the protocols don't
-have a strict naming guideline other than having a `FIR` prefix in Objective-C.
-
-Both the implementing and dependent framework will have a required dependency on this
-`<ProductName>Interop` framework: the implementing framework must conform to the protocols defined
+Both the implementing and dependent framework will import the
+`<ProductName>Interop` headers: the implementing framework must conform to the protocols defined
 and register it with Core, while the dependent framework will use the protocol definition to use
 methods defined by it.
 
-An Interop framework can have multiple protocols, but all should be implemented by the product it
+An Interop folder can have multiple protocols, but all should be implemented by the product it
 is named after.
 
 Protocols *can not* declare class methods. This is an intentional decision to ensure all interfaces
@@ -93,9 +90,7 @@ Each Firebase framework should register with Core in the `+load` method of the c
 dependencies before a class has a chance to be called by a developer (if called at all).
 
 ```obj-c
-#import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseCore/FIRComponentContainer.h>
-#import <FirebaseCore/FIRLibrary.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 @interface FIRFoo <FIRLibrary>
 @end
@@ -352,8 +347,10 @@ get back to this spot as it lays the groundwork necessary to understand this sec
 Adding dependencies is easy once components are registered with Core. Let's take the example from
 Functions above and add a dependency to `FIRAuthInterop` defined above.
 
-**Important**: You will also need to add a dependency on the `FirebaseAuthInterop` pod to your
-               product's podspec and any package manager supported.
+**Important**: You will also need to add `FirebaseAuthInterop` headers to your
+               product's podspec `preserved_paths` attribute for CocoaPods and something
+               comparable for any other package manager supported. Note, for Swift Package Manager,
+               nothing special is needed as long as all the pods and headers are in the same repo.
 
 Before adding the dependency on `FIRAuthInterop`.
 

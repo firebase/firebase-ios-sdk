@@ -18,12 +18,13 @@
 
 #import <OCMock/OCMock.h>
 
-#import <GoogleUtilities/GULSwizzler+Unswizzle.h>
+// This needs to precede the GULSwizzler+Unswizzle.h import for the --use-libraries build.
 #import <GoogleUtilities/GULSwizzler.h>
+
+#import <GoogleUtilities/GULSwizzler+Unswizzle.h>
 #import "FirebaseDynamicLinks/Sources/FIRDynamicLinkNetworking+Private.h"
 
 static NSString *const kAPIKey = @"myfakeapikey";
-static NSString *const kClientID = @"myfakeclientid";
 const NSInteger kJSONParsingErrorCode = 3840;
 static NSString *const kURLScheme = @"gindeeplinkurl";
 static const NSTimeInterval kAsyncTestTimout = 0.5;
@@ -42,9 +43,7 @@ static const NSTimeInterval kAsyncTestTimout = 0.5;
 
 - (FIRDynamicLinkNetworking *)service {
   if (!_service) {
-    _service = [[FIRDynamicLinkNetworking alloc] initWithAPIKey:kAPIKey
-                                                       clientID:kClientID
-                                                      URLScheme:kURLScheme];
+    _service = [[FIRDynamicLinkNetworking alloc] initWithAPIKey:kAPIKey URLScheme:kURLScheme];
   }
   return _service;
 }

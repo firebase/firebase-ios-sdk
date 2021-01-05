@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRCLSMultipartMimeStreamEncoder.h"
+#import "Crashlytics/Shared/FIRCLSNetworking/FIRCLSMultipartMimeStreamEncoder.h"
 
-#import "FIRCLSByteUtility.h"
-#import "FIRCLSLogger.h"
-#import "FIRCLSUUID.h"
+#import "Crashlytics/Crashlytics/Helpers/FIRCLSLogger.h"
+#import "Crashlytics/Shared/FIRCLSByteUtility.h"
+#import "Crashlytics/Shared/FIRCLSUUID.h"
 
 @interface FIRCLSMultipartMimeStreamEncoder () <NSStreamDelegate>
 

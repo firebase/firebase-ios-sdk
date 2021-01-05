@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import <FirebaseInstanceID/FIRInstanceID.h>
+#import "Firebase/InstanceID/Public/FIRInstanceID.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -31,9 +31,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, readonly, strong) NSString *versionInfo;
 
 @property(nonatomic, readonly, strong) FIRInstallations *installations;
-
-/// A cached value of FID. Should be used only for `-[FIRInstanceID appInstanceID:]`.
-@property(atomic, readonly, copy, nullable) NSString *firebaseInstallationsID;
 
 /**
  *  Private initializer.
@@ -68,6 +65,13 @@ NS_ASSUME_NONNULL_BEGIN
  *  @return YES if successfully loaded cached checkin preferences into memory else NO.
  */
 - (BOOL)tryToLoadValidCheckinInfo;
+
+/**
+ *  Deletes the checkin info for the app.
+ *
+ *  @param handler The completion handler to invoke once the request has completed.
+ */
+- (void)deleteCheckinWithHandler:(void (^)(NSError *_Nullable error))handler;
 
 @end
 

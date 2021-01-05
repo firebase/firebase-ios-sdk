@@ -37,6 +37,7 @@ FirebaseABTesting, FirebaseInAppMessaging, or FirebaseML,
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseABTestingBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseAdMobBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseAnalyticsBinary.json"
+binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseAppDistributionBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseAuthBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseCrashlyticsBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseDatabaseBinary.json"
@@ -47,17 +48,7 @@ binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseGoogleSignInBinar
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseInAppMessagingBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseMessagingBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseMLModelInterpreterBinary.json"
-binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseMLNLLanguageIDBinary.json"
-binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseMLNLSmartReplyBinary.json"
-binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseMLNLTranslateBinary.json"
-binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseMLNaturalLanguageBinary.json"
-binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseMLVisionAutoMLBinary.json"
-binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseMLVisionBarcodeModelBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseMLVisionBinary.json"
-binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseMLVisionFaceModelBinary.json"
-binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseMLVisionLabelModelBinary.json"
-binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseMLVisionObjectDetectionBinary.json"
-binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseMLVisionTextModelBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebasePerformanceBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseProtobufBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseRemoteConfigBinary.json"
@@ -73,13 +64,7 @@ binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseStorageBinary.jso
 - [Delete Firebase.framework from the Link Binary With Libraries Build Phase](https://github.com/firebase/firebase-ios-sdk/issues/911#issuecomment-372455235).
 - If you're including a Firebase component that has resources, copy its bundles
     into the Xcode project and make sure they're added to the
-    `Copy Bundle Resources` Build Phase :
-    - For Firestore:
-        - ./Carthage/Build/iOS/gRPC-C++.framework/Resources/gRPCCertificates-Cpp.bundle
-    - For FirebaseMLVisionFaceModel:
-        - ./Carthage/Build/iOS/FaceDetector.framework/GoogleMVFaceDetectorResources.bundle
-    - For FirebaseMLVisionTextModel:
-        - ./Carthage/Build/iOS/TextDetector.framework/GoogleMVTextDetectorResources.bundle
+    `Copy Bundle Resources` Build Phase.
 
 - Please note that you shouldn't add any of the Firebase frameworks to the Carthage build phase
  (`copy-frameworks`). The frameworks contain static libraries that are linked at build time.
@@ -92,14 +77,17 @@ binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseStorageBinary.jso
     - Download
      [upload-symbols](https://github.com/firebase/firebase-ios-sdk/raw/master/Crashlytics/upload-symbols)
      and [run](https://github.com/firebase/firebase-ios-sdk/raw/master/Crashlytics/run).
+     Note: please see the [discussion](https://github.com/firebase/firebase-ios-sdk/issues/4720#issuecomment-577213858)
+     for details why it has to be done manually.
     - Put these in the directory where your `.xcodeproj` file lives, eg. `scripts/run` and `scripts/upload-symbols`
+    - Make sure that the files are executable - `chmod +x scripts/run scripts/upload-symbols`
     - Open your project in Xcode, then select its project file in the left navigator.
     - From the **Select a project or target** dropdown, select your main build target.
     - Select the **Build Phases** tab, then click "+" add > **New Run Script Phase**.
     - Paste the following into your new Run Script, replacing "scripts" with whatever you named your folder: `"${PROJECT_DIR}/scripts/run"`
     - Add the following dependencies as **Input Files** to the Run Script:
        - `${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${TARGET_NAME}`
-       - `$(SRCROOT)/$(BUILT_PRODUCTS_DIR)/$(INFOPLIST_PATH)`
+       - `${BUILT_PRODUCTS_DIR}/${INFOPLIST_PATH}`
 
 ## Versioning
 

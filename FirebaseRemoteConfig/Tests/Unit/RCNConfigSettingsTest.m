@@ -15,10 +15,8 @@
  */
 
 #import <XCTest/XCTest.h>
+#import "OCMock.h"
 
-#import "FirebaseRemoteConfig/Sources/Protos/wireless/android/config/proto/Config.pbobjc.h"
-
-#import <OCMock/OCMock.h>
 #import "FirebaseRemoteConfig/Sources/Private/RCNConfigSettings.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigDBManager.h"

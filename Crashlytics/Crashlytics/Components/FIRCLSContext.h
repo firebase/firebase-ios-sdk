@@ -14,15 +14,15 @@
 
 #pragma once
 
-#include "FIRCLSAllocate.h"
-#include "FIRCLSBinaryImage.h"
-#include "FIRCLSException.h"
-#include "FIRCLSFeatures.h"
-#include "FIRCLSHost.h"
-#include "FIRCLSInternalLogging.h"
-#include "FIRCLSMachException.h"
-#include "FIRCLSSignal.h"
-#include "FIRCLSUserLogging.h"
+#include "Crashlytics/Crashlytics/Components/FIRCLSBinaryImage.h"
+#include "Crashlytics/Crashlytics/Components/FIRCLSHost.h"
+#include "Crashlytics/Crashlytics/Components/FIRCLSUserLogging.h"
+#include "Crashlytics/Crashlytics/Handlers/FIRCLSException.h"
+#include "Crashlytics/Crashlytics/Handlers/FIRCLSMachException.h"
+#include "Crashlytics/Crashlytics/Handlers/FIRCLSSignal.h"
+#include "Crashlytics/Crashlytics/Helpers/FIRCLSAllocate.h"
+#include "Crashlytics/Crashlytics/Helpers/FIRCLSFeatures.h"
+#include "Crashlytics/Crashlytics/Helpers/FIRCLSInternalLogging.h"
 
 #include <dispatch/dispatch.h>
 #include <stdbool.h>
@@ -57,7 +57,9 @@ typedef struct {
   FIRCLSBinaryImageReadOnlyContext binaryimage;
   FIRCLSExceptionReadOnlyContext exception;
   FIRCLSHostReadOnlyContext host;
+#if CLS_SIGNAL_SUPPORTED
   FIRCLSSignalReadContext signal;
+#endif
 #if CLS_MACH_EXCEPTION_SUPPORTED
   FIRCLSMachExceptionReadContext machException;
 #endif

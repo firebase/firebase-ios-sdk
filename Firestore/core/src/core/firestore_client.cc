@@ -42,7 +42,9 @@
 #include "Firestore/core/src/model/database_id.h"
 #include "Firestore/core/src/model/document_set.h"
 #include "Firestore/core/src/model/mutation.h"
+#include "Firestore/core/src/remote/connectivity_monitor.h"
 #include "Firestore/core/src/remote/datastore.h"
+#include "Firestore/core/src/remote/firebase_metadata_provider.h"
 #include "Firestore/core/src/remote/remote_store.h"
 #include "Firestore/core/src/remote/serializer.h"
 #include "Firestore/core/src/util/async_queue.h"
@@ -84,7 +86,9 @@ using model::DocumentMap;
 using model::MaybeDocument;
 using model::Mutation;
 using model::OnlineState;
+using remote::ConnectivityMonitor;
 using remote::Datastore;
+using remote::FirebaseMetadataProvider;
 using remote::RemoteStore;
 using remote::Serializer;
 using util::AsyncQueue;
@@ -105,13 +109,14 @@ static const size_t kMaxConcurrentLimboResolutions = 100;
 std::shared_ptr<FirestoreClient> FirestoreClient::Create(
     const DatabaseInfo& database_info,
     const api::Settings& settings,
-    std::shared_ptr<auth::CredentialsProvider> credentials_provider,
-    std::shared_ptr<util::Executor> user_executor,
-    std::shared_ptr<util::AsyncQueue> worker_queue) {
+    std::shared_ptr<CredentialsProvider> credentials_provider,
+    std::shared_ptr<Executor> user_executor,
+    std::shared_ptr<AsyncQueue> worker_queue,
+    std::unique_ptr<FirebaseMetadataProvider> firebase_metadata_provider) {
   // Have to use `new` because `make_shared` cannot access private constructor.
-  std::shared_ptr<FirestoreClient> shared_client(
-      new FirestoreClient(database_info, std::move(credentials_provider),
-                          std::move(user_executor), std::move(worker_queue)));
+  std::shared_ptr<FirestoreClient> shared_client(new FirestoreClient(
+      database_info, std::move(credentials_provider), std::move(user_executor),
+      std::move(worker_queue), std::move(firebase_metadata_provider)));
 
   std::weak_ptr<FirestoreClient> weak_client(shared_client);
   auto credential_change_listener = [weak_client, settings](User user) mutable {
@@ -125,12 +130,12 @@ std::shared_ptr<FirestoreClient> FirestoreClient::Create(
       // it is invoked synchronously on the calling thread. This ensures that
       // the first item enqueued on the worker queue is
       // `FirestoreClient::Initialize()`.
-      shared_client->worker_queue()->Enqueue([shared_client, user, settings] {
+      shared_client->worker_queue_->Enqueue([shared_client, user, settings] {
         shared_client->Initialize(user, settings);
       });
     } else {
-      shared_client->worker_queue()->Enqueue([shared_client, user] {
-        shared_client->worker_queue()->VerifyIsCurrentQueue();
+      shared_client->worker_queue_->Enqueue([shared_client, user] {
+        shared_client->worker_queue_->VerifyIsCurrentQueue();
 
         LOG_DEBUG("Credential Changed. Current user: %s", user.uid());
         shared_client->sync_engine_->HandleCredentialChange(user);
@@ -150,18 +155,20 @@ std::shared_ptr<FirestoreClient> FirestoreClient::Create(
 
 FirestoreClient::FirestoreClient(
     const DatabaseInfo& database_info,
-    std::shared_ptr<auth::CredentialsProvider> credentials_provider,
-    std::shared_ptr<util::Executor> user_executor,
-    std::shared_ptr<util::AsyncQueue> worker_queue)
+    std::shared_ptr<CredentialsProvider> credentials_provider,
+    std::shared_ptr<Executor> user_executor,
+    std::shared_ptr<AsyncQueue> worker_queue,
+    std::unique_ptr<FirebaseMetadataProvider> firebase_metadata_provider)
     : database_info_(database_info),
       credentials_provider_(std::move(credentials_provider)),
       worker_queue_(std::move(worker_queue)),
-      user_executor_(std::move(user_executor)) {
+      user_executor_(std::move(user_executor)),
+      firebase_metadata_provider_(std::move(firebase_metadata_provider)) {
 }
 
 void FirestoreClient::Initialize(const User& user, const Settings& settings) {
   // Do all of our initialization on our own dispatch queue.
-  worker_queue()->VerifyIsCurrentQueue();
+  worker_queue_->VerifyIsCurrentQueue();
   LOG_DEBUG("Initializing. Current user: %s", user.uid());
 
   // Note: The initialization work must all be synchronous (we can't dispatch
@@ -193,15 +200,15 @@ void FirestoreClient::Initialize(const User& user, const Settings& settings) {
   query_engine_ = absl::make_unique<IndexFreeQueryEngine>();
   local_store_ = absl::make_unique<LocalStore>(persistence_.get(),
                                                query_engine_.get(), user);
+  connectivity_monitor_ = ConnectivityMonitor::Create(worker_queue_);
+  auto datastore = std::make_shared<Datastore>(
+      database_info_, worker_queue_, credentials_provider_,
+      connectivity_monitor_.get(), firebase_metadata_provider_.get());
 
-  auto datastore = std::make_shared<Datastore>(database_info_, worker_queue(),
-                                               credentials_provider_);
-
-  std::weak_ptr<FirestoreClient> weak_this(shared_from_this());
   remote_store_ = absl::make_unique<RemoteStore>(
-      local_store_.get(), std::move(datastore), worker_queue(),
-      [weak_this](OnlineState online_state) {
-        weak_this.lock()->sync_engine_->HandleOnlineStateChange(online_state);
+      local_store_.get(), std::move(datastore), worker_queue_,
+      connectivity_monitor_.get(), [this](OnlineState online_state) {
+        sync_engine_->HandleOnlineStateChange(online_state);
       });
 
   sync_engine_ =
@@ -219,6 +226,72 @@ void FirestoreClient::Initialize(const User& user, const Settings& settings) {
   remote_store_->Start();
 }
 
+FirestoreClient::~FirestoreClient() {
+  Dispose();
+}
+
+void FirestoreClient::Dispose() {
+  // Prevent new API invocations from enqueueing further work.
+  worker_queue_->EnterRestrictedMode();
+
+  // Clean up internal resources. It's possible that this can race with a call
+  // to `Firestore::ClearPersistence` or `Firestore::Terminate`, but that's OK
+  // because that operation does not rely on any state in this FirestoreClient.
+  std::promise<void> signal_disposing;
+  bool enqueued = worker_queue_->EnqueueEvenWhileRestricted([&, this] {
+    // Once this task has started running, AsyncQueue::Dispose will block on its
+    // completion. Signal as early as possible to lock out even restricted tasks
+    // as early as possible.
+    signal_disposing.set_value();
+
+    TerminateInternal();
+  });
+
+  // If we successfully enqueued the TerminateInternal task then wait for it to
+  // start.
+  //
+  // If the task was not enqueued, we lost the race with some other concurrent
+  // invocation of Dispose. In that case, `signal_disposing` will never be
+  // completed.
+  if (enqueued) {
+    signal_disposing.get_future().wait();
+  }
+
+  worker_queue_->Dispose();
+  user_executor_->Dispose();
+}
+
+void FirestoreClient::TerminateAsync(StatusCallback callback) {
+  worker_queue_->EnterRestrictedMode();
+  worker_queue_->EnqueueEvenWhileRestricted([this, callback] {
+    TerminateInternal();
+
+    if (callback) {
+      user_executor_->Execute([=] { callback(Status::OK()); });
+    }
+  });
+}
+
+void FirestoreClient::TerminateInternal() {
+  if (!remote_store_) return;
+
+  credentials_provider_->SetCredentialChangeListener(nullptr);
+  credentials_provider_.reset();
+
+  // If we've scheduled LRU garbage collection, cancel it.
+  lru_callback_.Cancel();
+
+  remote_store_->Shutdown();
+  persistence_->Shutdown();
+
+  local_store_.reset();
+  query_engine_.reset();
+  event_manager_.reset();
+
+  // Clear the remote store to indicate terminate is complete.
+  remote_store_.reset();
+}
+
 /**
  * Schedules a callback to try running LRU garbage collection. Reschedules
  * itself after the GC has run.
@@ -226,92 +299,49 @@ void FirestoreClient::Initialize(const User& user, const Settings& settings) {
 void FirestoreClient::ScheduleLruGarbageCollection() {
   std::chrono::milliseconds delay =
       gc_has_run_ ? regular_gc_delay_ : initial_gc_delay_;
-  std::weak_ptr<FirestoreClient> weak_this = shared_from_this();
-  lru_callback_ = worker_queue()->EnqueueAfterDelay(
-      delay, TimerId::GarbageCollectionDelay, [weak_this] {
-        auto shared_this = weak_this.lock();
-        if (!shared_this) return;
 
-        shared_this->local_store_->CollectGarbage(
-            shared_this->lru_delegate_->garbage_collector());
-        shared_this->gc_has_run_ = true;
-        shared_this->ScheduleLruGarbageCollection();
+  lru_callback_ = worker_queue_->EnqueueAfterDelay(
+      delay, TimerId::GarbageCollectionDelay, [this] {
+        local_store_->CollectGarbage(lru_delegate_->garbage_collector());
+        gc_has_run_ = true;
+        ScheduleLruGarbageCollection();
       });
 }
 
 void FirestoreClient::DisableNetwork(StatusCallback callback) {
   VerifyNotTerminated();
-  auto shared_this = shared_from_this();
-  worker_queue()->Enqueue([shared_this, callback] {
-    shared_this->remote_store_->DisableNetwork();
+
+  worker_queue_->Enqueue([this, callback] {
+    remote_store_->DisableNetwork();
     if (callback) {
-      shared_this->user_executor()->Execute([=] { callback(Status::OK()); });
+      user_executor_->Execute([=] { callback(Status::OK()); });
     }
   });
 }
 
 void FirestoreClient::EnableNetwork(StatusCallback callback) {
   VerifyNotTerminated();
-  auto shared_this = shared_from_this();
-  worker_queue()->Enqueue([shared_this, callback] {
-    shared_this->remote_store_->EnableNetwork();
+
+  worker_queue_->Enqueue([this, callback] {
+    remote_store_->EnableNetwork();
     if (callback) {
-      shared_this->user_executor()->Execute([=] { callback(Status::OK()); });
+      user_executor_->Execute([=] { callback(Status::OK()); });
     }
   });
-}
-
-void FirestoreClient::TerminateAsync(StatusCallback callback) {
-  auto shared_this = shared_from_this();
-  worker_queue()->EnqueueAndInitiateShutdown([shared_this, callback] {
-    shared_this->TerminateInternal();
-
-    if (callback) {
-      shared_this->user_executor()->Execute([=] { callback(Status::OK()); });
-    }
-  });
-}
-
-void FirestoreClient::Terminate() {
-  std::promise<void> signal_terminated;
-  worker_queue()->EnqueueAndInitiateShutdown([&, this] {
-    TerminateInternal();
-    signal_terminated.set_value();
-  });
-  signal_terminated.get_future().wait();
-}
-
-void FirestoreClient::TerminateInternal() {
-  if (!remote_store_) return;
-
-  credentials_provider_->SetCredentialChangeListener(nullptr);
-
-  // If we've scheduled LRU garbage collection, cancel it.
-  if (lru_callback_) {
-    lru_callback_.Cancel();
-  }
-  remote_store_->Shutdown();
-  persistence_->Shutdown();
-
-  // Clear the remote store to indicate terminate is complete.
-  remote_store_.reset();
 }
 
 void FirestoreClient::WaitForPendingWrites(StatusCallback callback) {
   VerifyNotTerminated();
 
   // Dispatch the result back onto the user dispatch queue.
-  auto shared_this = shared_from_this();
-  auto async_callback = [shared_this, callback](util::Status status) {
+  auto async_callback = [this, callback](util::Status status) {
     if (callback) {
-      shared_this->user_executor()->Execute(
-          [=] { callback(std::move(status)); });
+      user_executor_->Execute([=] { callback(std::move(status)); });
     }
   };
 
-  worker_queue()->Enqueue([shared_this, async_callback] {
-    shared_this->sync_engine_->RegisterPendingWritesCallback(
-        std::move(async_callback));
+  worker_queue_->Enqueue([this, async_callback] {
+    sync_engine_->RegisterPendingWritesCallback(std::move(async_callback));
   });
 }
 
@@ -322,10 +352,12 @@ void FirestoreClient::VerifyNotTerminated() {
 }
 
 bool FirestoreClient::is_terminated() const {
-  // Technically, the worker queue is still running, but only accepting tasks
-  // related to termination or supposed to be run after termination. It is
-  // effectively terminated to the eyes of users.
-  return worker_queue()->is_shutting_down();
+  // When the user calls `Terminate`, it puts the `AsyncQueue` into restricted
+  // mode.
+  //
+  // Note that `remote_store_ == nullptr` is not a good test for this because
+  // `remote_store_` is reset asynchronously.
+  return !worker_queue_->is_running();
 }
 
 std::shared_ptr<QueryListener> FirestoreClient::ListenToQuery(
@@ -335,9 +367,8 @@ std::shared_ptr<QueryListener> FirestoreClient::ListenToQuery(
   auto query_listener = QueryListener::Create(
       std::move(query), std::move(options), std::move(listener));
 
-  auto shared_this = shared_from_this();
-  worker_queue()->Enqueue([shared_this, query_listener] {
-    shared_this->event_manager_->AddQueryListener(std::move(query_listener));
+  worker_queue_->Enqueue([this, query_listener] {
+    event_manager_->AddQueryListener(std::move(query_listener));
   });
 
   return query_listener;
@@ -350,10 +381,8 @@ void FirestoreClient::RemoveListener(
   if (is_terminated()) {
     return;
   }
-  auto shared_this = shared_from_this();
-  worker_queue()->Enqueue([shared_this, listener] {
-    shared_this->event_manager_->RemoveQueryListener(listener);
-  });
+  worker_queue_->Enqueue(
+      [this, listener] { event_manager_->RemoveQueryListener(listener); });
 }
 
 void FirestoreClient::GetDocumentFromLocalCache(
@@ -362,10 +391,9 @@ void FirestoreClient::GetDocumentFromLocalCache(
 
   // TODO(c++14): move `callback` into lambda.
   auto shared_callback = absl::ShareUniquePtr(std::move(callback));
-  auto shared_this = shared_from_this();
-  worker_queue()->Enqueue([shared_this, doc, shared_callback] {
+  worker_queue_->Enqueue([this, doc, shared_callback] {
     absl::optional<MaybeDocument> maybe_document =
-        shared_this->local_store_->ReadDocument(doc.key());
+        local_store_->ReadDocument(doc.key());
     StatusOr<DocumentSnapshot> maybe_snapshot;
 
     if (maybe_document && maybe_document->is_document()) {
@@ -382,14 +410,14 @@ void FirestoreClient::GetDocumentFromLocalCache(
                            /*from_cache=*/true});
     } else {
       maybe_snapshot =
-          Status{Error::kUnavailable,
+          Status{Error::kErrorUnavailable,
                  "Failed to get document from cache. (However, this document "
                  "may exist on the server. Run again without setting source to "
                  "FirestoreSourceCache to attempt to retrieve the document "};
     }
 
     if (shared_callback) {
-      shared_this->user_executor()->Execute(
+      user_executor_->Execute(
           [=] { shared_callback->OnEvent(std::move(maybe_snapshot)); });
     }
   });
@@ -401,9 +429,8 @@ void FirestoreClient::GetDocumentsFromLocalCache(
 
   // TODO(c++14): move `callback` into lambda.
   auto shared_callback = absl::ShareUniquePtr(std::move(callback));
-  auto shared_this = shared_from_this();
-  worker_queue()->Enqueue([shared_this, query, shared_callback] {
-    QueryResult query_result = shared_this->local_store_->ExecuteQuery(
+  worker_queue_->Enqueue([this, query, shared_callback] {
+    QueryResult query_result = local_store_->ExecuteQuery(
         query.query(), /* use_previous_results= */ true);
 
     View view(query.query(), query_result.remote_keys());
@@ -424,7 +451,7 @@ void FirestoreClient::GetDocumentsFromLocalCache(
                          std::move(metadata));
 
     if (shared_callback) {
-      shared_this->user_executor()->Execute(
+      user_executor_->Execute(
           [=] { shared_callback->OnEvent(std::move(result)); });
     }
   });
@@ -435,19 +462,17 @@ void FirestoreClient::WriteMutations(std::vector<Mutation>&& mutations,
   VerifyNotTerminated();
 
   // TODO(c++14): move `mutations` into lambda (C++14).
-  auto shared_this = shared_from_this();
-  worker_queue()->Enqueue([shared_this, mutations, callback]() mutable {
+  worker_queue_->Enqueue([this, mutations, callback]() mutable {
     if (mutations.empty()) {
       if (callback) {
-        shared_this->user_executor()->Execute([=] { callback(Status::OK()); });
+        user_executor_->Execute([=] { callback(Status::OK()); });
       }
     } else {
-      shared_this->sync_engine_->WriteMutations(
-          std::move(mutations), [callback, shared_this](Status error) {
+      sync_engine_->WriteMutations(
+          std::move(mutations), [this, callback](Status error) {
             // Dispatch the result back onto the user dispatch queue.
             if (callback) {
-              shared_this->user_executor()->Execute(
-                  [=] { callback(std::move(error)); });
+              user_executor_->Execute([=] { callback(std::move(error)); });
             }
           });
     }
@@ -460,34 +485,31 @@ void FirestoreClient::Transaction(int retries,
   VerifyNotTerminated();
 
   // Dispatch the result back onto the user dispatch queue.
-  auto shared_this = shared_from_this();
-  auto async_callback = [shared_this, result_callback](Status status) {
+  auto async_callback = [this, result_callback](Status status) {
     if (result_callback) {
-      shared_this->user_executor()->Execute(
-          [=] { result_callback(std::move(status)); });
+      user_executor_->Execute([=] { result_callback(std::move(status)); });
     }
   };
 
-  worker_queue()->Enqueue([shared_this, retries, update_callback,
-                           async_callback] {
-    shared_this->sync_engine_->Transaction(retries, shared_this->worker_queue(),
-                                           std::move(update_callback),
-                                           std::move(async_callback));
+  worker_queue_->Enqueue([this, retries, update_callback, async_callback] {
+    sync_engine_->Transaction(retries, worker_queue_,
+                              std::move(update_callback),
+                              std::move(async_callback));
   });
 }
 
 void FirestoreClient::AddSnapshotsInSyncListener(
     const std::shared_ptr<EventListener<Empty>>& user_listener) {
-  auto shared_this = shared_from_this();
-  worker_queue()->Enqueue([shared_this, user_listener] {
-    shared_this->event_manager_->AddSnapshotsInSyncListener(
-        std::move(user_listener));
+  worker_queue_->Enqueue([this, user_listener] {
+    event_manager_->AddSnapshotsInSyncListener(std::move(user_listener));
   });
 }
 
 void FirestoreClient::RemoveSnapshotsInSyncListener(
     const std::shared_ptr<EventListener<Empty>>& user_listener) {
-  event_manager_->RemoveSnapshotsInSyncListener(user_listener);
+  worker_queue_->Enqueue([this, user_listener] {
+    event_manager_->RemoveSnapshotsInSyncListener(user_listener);
+  });
 }
 
 }  // namespace core

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRCLSOperation.h"
+#import "Crashlytics/Shared/FIRCLSOperation/FIRCLSOperation.h"
 
 FOUNDATION_EXPORT const NSUInteger FABTestAsyncOperationErrorCodeCancelled;
 

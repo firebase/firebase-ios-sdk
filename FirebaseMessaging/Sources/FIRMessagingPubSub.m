@@ -16,14 +16,16 @@
 
 #import "FirebaseMessaging/Sources/FIRMessagingPubSub.h"
 
-#import <FirebaseMessaging/FIRMessaging.h>
 #import <GoogleUtilities/GULSecureCoding.h>
 #import <GoogleUtilities/GULUserDefaults.h>
+#import "Firebase/InstanceID/Private/FIRInstanceID_Private.h"
+#import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessaging.h"
 
-#import "FirebaseMessaging/Sources/FIRMessagingClient.h"
 #import "FirebaseMessaging/Sources/FIRMessagingDefines.h"
 #import "FirebaseMessaging/Sources/FIRMessagingLogger.h"
 #import "FirebaseMessaging/Sources/FIRMessagingPendingTopicsList.h"
+#import "FirebaseMessaging/Sources/FIRMessagingTopicOperation.h"
+#import "FirebaseMessaging/Sources/FIRMessagingTopicsCommon.h"
 #import "FirebaseMessaging/Sources/FIRMessagingUtilities.h"
 #import "FirebaseMessaging/Sources/FIRMessaging_Private.h"
 #import "FirebaseMessaging/Sources/NSDictionary+FIRMessaging.h"
@@ -35,22 +37,21 @@ static NSString *const kPendingSubscriptionsListKey =
 @interface FIRMessagingPubSub () <FIRMessagingPendingTopicsListDelegate>
 
 @property(nonatomic, readwrite, strong) FIRMessagingPendingTopicsList *pendingTopicUpdates;
-@property(nonatomic, readwrite, strong) FIRMessagingClient *client;
+@property(nonatomic, readonly, strong) NSOperationQueue *topicOperations;
+// Common errors, instantiated, to avoid generating multiple copies
+@property(nonatomic, readwrite, strong) NSError *operationInProgressError;
 
 @end
 
 @implementation FIRMessagingPubSub
 
 - (instancetype)init {
-  FIRMessagingInvalidateInitializer();
-  // Need this to disable an Xcode warning.
-  return [self initWithClient:nil];
-}
-
-- (instancetype)initWithClient:(FIRMessagingClient *)client {
   self = [super init];
   if (self) {
-    _client = client;
+    _topicOperations = [[NSOperationQueue alloc] init];
+    // Do 10 topic operations at a time; it's enough to keep the TCP connection to the host alive,
+    // saving hundreds of milliseconds on each request (compared to a serial queue).
+    _topicOperations.maxConcurrentOperationCount = 10;
     [self restorePendingTopicsList];
   }
   return self;
@@ -60,11 +61,6 @@ static NSString *const kPendingSubscriptionsListKey =
                      topic:(NSString *)topic
                    options:(NSDictionary *)options
                    handler:(FIRMessagingTopicOperationCompletion)handler {
-  if (!self.client) {
-    handler([NSError errorWithFCMErrorCode:kFIRMessagingErrorCodePubSubFIRMessagingNotSetup]);
-    return;
-  }
-
   token = [token copy];
   topic = [topic copy];
 
@@ -73,9 +69,11 @@ static NSString *const kPendingSubscriptionsListKey =
   }
 
   if (![[self class] isValidTopicWithPrefix:topic]) {
-    FIRMessagingLoggerError(kFIRMessagingMessageCodePubSub000,
-                            @"Invalid FIRMessaging Pubsub topic %@", topic);
-    handler([NSError errorWithFCMErrorCode:kFIRMessagingErrorCodePubSubInvalidTopic]);
+    NSString *failureReason =
+        [NSString stringWithFormat:@"Invalid subscription topic :'%@'", topic];
+    FIRMessagingLoggerError(kFIRMessagingMessageCodePubSub000, @"%@", failureReason);
+    handler([NSError messagingErrorWithCode:kFIRMessagingErrorCodeInvalidTopicName
+                              failureReason:failureReason]);
     return;
   }
 
@@ -88,23 +86,67 @@ static NSString *const kPendingSubscriptionsListKey =
   // copy the dictionary would trim non-string keys or values if any.
   options = [options fcm_trimNonStringValues];
 
-  [self.client updateSubscriptionWithToken:token
-                                     topic:topic
-                                   options:options
-                              shouldDelete:NO
-                                   handler:^void(NSError *error) {
-                                     handler(error);
-                                   }];
+  [self updateSubscriptionWithToken:token
+                              topic:topic
+                            options:options
+                       shouldDelete:NO
+                            handler:handler];
+}
+
+- (void)dealloc {
+  [self.topicOperations cancelAllOperations];
+}
+
+#pragma mark - FIRMessaging subscribe
+
+- (void)updateSubscriptionWithToken:(NSString *)token
+                              topic:(NSString *)topic
+                            options:(NSDictionary *)options
+                       shouldDelete:(BOOL)shouldDelete
+                            handler:(FIRMessagingTopicOperationCompletion)handler {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+  if ([[FIRInstanceID instanceID] tryToLoadValidCheckinInfo]) {
+#pragma clang diagnostic pop
+    FIRMessagingTopicAction action =
+        shouldDelete ? FIRMessagingTopicActionUnsubscribe : FIRMessagingTopicActionSubscribe;
+    FIRMessagingTopicOperation *operation = [[FIRMessagingTopicOperation alloc]
+        initWithTopic:topic
+               action:action
+                token:token
+              options:options
+           completion:^(NSError *_Nullable error) {
+             if (error) {
+               FIRMessagingLoggerError(kFIRMessagingMessageCodeClient001,
+                                       @"Failed to subscribe to topic %@", error);
+             } else {
+               if (shouldDelete) {
+                 FIRMessagingLoggerInfo(kFIRMessagingMessageCodeClient002,
+                                        @"Successfully unsubscribed from topic %@", topic);
+               } else {
+                 FIRMessagingLoggerInfo(kFIRMessagingMessageCodeClient003,
+                                        @"Successfully subscribed to topic %@", topic);
+               }
+             }
+             if (handler) {
+               handler(error);
+             }
+           }];
+    [self.topicOperations addOperation:operation];
+  } else {
+    NSString *failureReason = @"Device ID and checkin info is not found. Will not proceed with "
+                              @"subscription/unsubscription.";
+    FIRMessagingLoggerDebug(kFIRMessagingMessageCodeRegistrar000, @"%@", failureReason);
+    NSError *error = [NSError messagingErrorWithCode:kFIRMessagingErrorCodeMissingDeviceID
+                                       failureReason:failureReason];
+    handler(error);
+  }
 }
 
 - (void)unsubscribeWithToken:(NSString *)token
                        topic:(NSString *)topic
                      options:(NSDictionary *)options
                      handler:(FIRMessagingTopicOperationCompletion)handler {
-  if (!self.client) {
-    handler([NSError errorWithFCMErrorCode:kFIRMessagingErrorCodePubSubFIRMessagingNotSetup]);
-    return;
-  }
   token = [token copy];
   topic = [topic copy];
   if (![options count]) {
@@ -112,9 +154,11 @@ static NSString *const kPendingSubscriptionsListKey =
   }
 
   if (![[self class] isValidTopicWithPrefix:topic]) {
-    FIRMessagingLoggerError(kFIRMessagingMessageCodePubSub002,
-                            @"Invalid FIRMessaging Pubsub topic %@", topic);
-    handler([NSError errorWithFCMErrorCode:kFIRMessagingErrorCodePubSubInvalidTopic]);
+    NSString *failureReason =
+        [NSString stringWithFormat:@"Invalid topic name : '%@' for unsubscription.", topic];
+    FIRMessagingLoggerError(kFIRMessagingMessageCodePubSub002, @"%@", failureReason);
+    handler([NSError messagingErrorWithCode:kFIRMessagingErrorCodeInvalidTopicName
+                              failureReason:failureReason]);
     return;
   }
   if (![self verifyPubSubOptions:options]) {
@@ -126,13 +170,13 @@ static NSString *const kPendingSubscriptionsListKey =
   // copy the dictionary would trim non-string keys or values if any.
   options = [options fcm_trimNonStringValues];
 
-  [self.client updateSubscriptionWithToken:token
-                                     topic:topic
-                                   options:options
-                              shouldDelete:YES
-                                   handler:^void(NSError *error) {
-                                     handler(error);
-                                   }];
+  [self updateSubscriptionWithToken:token
+                              topic:topic
+                            options:options
+                       shouldDelete:YES
+                            handler:^void(NSError *error) {
+                              handler(error);
+                            }];
 }
 
 - (void)subscribeToTopic:(NSString *)topic
@@ -270,7 +314,7 @@ static NSString *const kTopicRegexPattern = @"/topics/([a-zA-Z0-9-_.~%]+)";
 /**
  *  Gets the class describing occurences of topic names and sender IDs in the sender.
  *
- *  @param expression The topic expression used to generate a pubsub topic
+ *  @param topic The topic expression used to generate a pubsub topic
  *
  *  @return Representation of captured subexpressions in topic regular expression
  */

@@ -14,15 +14,17 @@
  * limitations under the License.
  */
 
-#import <FirebaseAuth/FIRAuth.h>
-#import <FirebaseAuth/FIRAuthSettings.h>
-#import <FirebaseAuth/FIRAuthUIDelegate.h>
-#import <FirebaseAuth/FIRPhoneAuthProvider.h>
-#import <FirebaseCore/FIRApp.h>
-#import <FirebaseCore/FIROptions.h>
-#import <OCMock/OCMock.h>
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
+
 #import <SafariServices/SafariServices.h>
 #import <XCTest/XCTest.h>
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuth.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthSettings.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthUIDelegate.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRPhoneAuthProvider.h"
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "OCMock.h"
 
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
@@ -98,6 +100,16 @@ static NSString *const kFakeClientID = @"123456.apps.googleusercontent.com";
  */
 static NSString *const kFakeReverseClientID = @"com.googleusercontent.apps.123456";
 
+/** @var kFakeFirebaseAppID
+    @brief A fake Firebase app ID.
+ */
+static NSString *const kFakeFirebaseAppID = @"1:123456789:ios:123abc456def";
+
+/** @var kFakeEncodedFirebaseAppID
+    @brief A fake encoded Firebase app ID to be used as a custom URL scheme.
+ */
+static NSString *const kFakeEncodedFirebaseAppID = @"app-1-123456789-ios-123abc456def";
+
 /** @var kFakeBundleID
     @brief A fake bundle ID.
  */
@@ -119,13 +131,13 @@ static NSString *const kFakeAuthorizedDomain = @"test.firebaseapp.com";
 static NSString *const kFakeReCAPTCHAToken = @"fakeReCAPTCHAToken";
 
 /** @var kFakeRedirectURLStringWithReCAPTCHAToken
-    @brief The format for a fake redirect URL string that contains the fake reCAPTCHA token above.
+    @brief The format for a fake redirect URL string (minus the scheme) that contains the fake
+   reCAPTCHA token above.
  */
 static NSString *const kFakeRedirectURLStringWithReCAPTCHAToken =
-    @"com.googleusercontent.apps.1"
-     "23456://firebaseauth/"
-     "link?deep_link_id=https%3A%2F%2Fexample.firebaseapp.com%2F__%2Fauth%2Fcal"
-     "lback%3FauthType%3DverifyApp%26recaptchaToken%3DfakeReCAPTCHAToken";
+    @"://firebaseauth/"
+    @"link?deep_link_id=https%3A%2F%2Fexample.firebaseapp.com%2F__%2Fauth%2Fcallback%3FauthType%"
+    @"3DverifyApp%26recaptchaToken%3DfakeReCAPTCHAToken";
 
 /** @var kFakeRedirectURLStringInvalidClientID
     @brief The format for a fake redirect URL string with an invalid client error.
@@ -232,6 +244,11 @@ static const NSTimeInterval kExpectationTimeout = 2;
    */
   id _mockApp;
 
+  /** @var _mockOptions
+      @brief The mock @c FIROptions instance associated with @c _mockApp.
+   */
+  id _mockOptions;
+
   /** @var _mockAPNSTokenManager
       @brief The mock @c FIRAuthAPNSTokenManager instance associated with @c _mockAuth .
    */
@@ -260,9 +277,9 @@ static const NSTimeInterval kExpectationTimeout = 2;
   _mockAuth = OCMClassMock([FIRAuth class]);
   _mockApp = OCMClassMock([FIRApp class]);
   OCMStub([_mockAuth app]).andReturn(_mockApp);
-  id mockOptions = OCMClassMock([FIROptions class]);
-  OCMStub([(FIRApp *)_mockApp options]).andReturn(mockOptions);
-  OCMStub([mockOptions clientID]).andReturn(kFakeClientID);
+  _mockOptions = OCMClassMock([FIROptions class]);
+  OCMStub([(FIRApp *)_mockApp options]).andReturn(_mockOptions);
+  OCMStub([_mockOptions googleAppID]).andReturn(kFakeFirebaseAppID);
   _mockAPNSTokenManager = OCMClassMock([FIRAuthAPNSTokenManager class]);
   OCMStub([_mockAuth tokenManager]).andReturn(_mockAPNSTokenManager);
   _mockAppCredentialManager = OCMClassMock([FIRAuthAppCredentialManager class]);
@@ -274,7 +291,6 @@ static const NSTimeInterval kExpectationTimeout = 2;
   id mockRequestConfiguration = OCMClassMock([FIRAuthRequestConfiguration class]);
   OCMStub([_mockAuth requestConfiguration]).andReturn(mockRequestConfiguration);
   OCMStub([mockRequestConfiguration APIKey]).andReturn(kFakeAPIKey);
-  _provider = [FIRPhoneAuthProvider providerWithAuth:_mockAuth];
 }
 
 - (void)tearDown {
@@ -291,6 +307,9 @@ static const NSTimeInterval kExpectationTimeout = 2;
         FIRAuthCredential instance.
  */
 - (void)testCredentialWithVerificationID {
+  OCMStub([_mockOptions clientID]).andReturn(kFakeClientID);
+  _provider = [FIRPhoneAuthProvider providerWithAuth:_mockAuth];
+
   FIRPhoneAuthCredential *credential =
       [_provider credentialWithVerificationID:kTestVerificationID
                              verificationCode:kTestVerificationCode];
@@ -305,6 +324,9 @@ static const NSTimeInterval kExpectationTimeout = 2;
         number was provided.
  */
 - (void)testVerifyEmptyPhoneNumber {
+  OCMStub([_mockOptions clientID]).andReturn(kFakeClientID);
+  _provider = [FIRPhoneAuthProvider providerWithAuth:_mockAuth];
+
   id mockBundle = OCMClassMock([NSBundle class]);
   OCMStub(ClassMethod([mockBundle mainBundle])).andReturn(mockBundle);
   OCMStub([mockBundle objectForInfoDictionaryKey:@"CFBundleURLTypes"]).andReturn(@[
@@ -329,6 +351,9 @@ static const NSTimeInterval kExpectationTimeout = 2;
         number was provided.
  */
 - (void)testVerifyInvalidPhoneNumber {
+  OCMStub([_mockOptions clientID]).andReturn(kFakeClientID);
+  _provider = [FIRPhoneAuthProvider providerWithAuth:_mockAuth];
+
   id mockBundle = OCMClassMock([NSBundle class]);
   OCMStub(ClassMethod([mockBundle mainBundle])).andReturn(mockBundle);
   OCMStub([mockBundle objectForInfoDictionaryKey:@"CFBundleURLTypes"]).andReturn(@[
@@ -372,6 +397,9 @@ static const NSTimeInterval kExpectationTimeout = 2;
     @brief Tests a successful invocation of @c verifyPhoneNumber:completion:.
  */
 - (void)testVerifyPhoneNumber {
+  OCMStub([_mockOptions clientID]).andReturn(kFakeClientID);
+  _provider = [FIRPhoneAuthProvider providerWithAuth:_mockAuth];
+
   id mockBundle = OCMClassMock([NSBundle class]);
   OCMStub(ClassMethod([mockBundle mainBundle])).andReturn(mockBundle);
   OCMStub([mockBundle objectForInfoDictionaryKey:@"CFBundleURLTypes"]).andReturn(@[
@@ -419,6 +447,9 @@ static const NSTimeInterval kExpectationTimeout = 2;
         is disabled.
  */
 - (void)testVerifyPhoneNumberInTestMode {
+  OCMStub([_mockOptions clientID]).andReturn(kFakeClientID);
+  _provider = [FIRPhoneAuthProvider providerWithAuth:_mockAuth];
+
   id mockBundle = OCMClassMock([NSBundle class]);
   OCMStub(ClassMethod([mockBundle mainBundle])).andReturn(mockBundle);
   OCMStub([mockBundle objectForInfoDictionaryKey:@"CFBundleURLTypes"]).andReturn(@[
@@ -468,6 +499,9 @@ static const NSTimeInterval kExpectationTimeout = 2;
         is disabled.
  */
 - (void)testVerifyPhoneNumberInTestModeFailure {
+  OCMStub([_mockOptions clientID]).andReturn(kFakeClientID);
+  _provider = [FIRPhoneAuthProvider providerWithAuth:_mockAuth];
+
   id mockBundle = OCMClassMock([NSBundle class]);
   OCMStub(ClassMethod([mockBundle mainBundle])).andReturn(mockBundle);
   OCMStub([mockBundle objectForInfoDictionaryKey:@"CFBundleURLTypes"]).andReturn(@[
@@ -510,10 +544,145 @@ static const NSTimeInterval kExpectationTimeout = 2;
   OCMVerifyAll(_mockAppCredentialManager);
 }
 
-/** @fn testVerifyPhoneNumberUIDelegate
+/** @fn testVerifyPhoneNumberUIDelegateFirebaseAppIdFlow
     @brief Tests a successful invocation of @c verifyPhoneNumber:UIDelegate:completion:.
  */
-- (void)testVerifyPhoneNumberUIDelegate {
+- (void)testVerifyPhoneNumberUIDelegateFirebaseAppIdFlow {
+  _provider = [FIRPhoneAuthProvider providerWithAuth:_mockAuth];
+
+  id mockBundle = OCMClassMock([NSBundle class]);
+  OCMStub(ClassMethod([mockBundle mainBundle])).andReturn(mockBundle);
+  OCMStub([mockBundle objectForInfoDictionaryKey:@"CFBundleURLTypes"]).andReturn(@[
+    @{@"CFBundleURLSchemes" : @[ kFakeEncodedFirebaseAppID ]}
+  ]);
+  OCMStub([mockBundle bundleIdentifier]).andReturn(kFakeBundleID);
+
+  // Simulate missing app token error.
+  OCMExpect([_mockNotificationManager checkNotificationForwardingWithCallback:OCMOCK_ANY])
+      .andCallBlock1(^(FIRAuthNotificationForwardingCallback callback) {
+        callback(YES);
+      });
+  OCMExpect([_mockAppCredentialManager credential]).andReturn(nil);
+  OCMExpect([_mockAPNSTokenManager getTokenWithCallback:OCMOCK_ANY])
+      .andCallBlock1(^(FIRAuthAPNSTokenCallback callback) {
+        NSError *error = [NSError errorWithDomain:FIRAuthErrorDomain
+                                             code:FIRAuthErrorCodeMissingAppToken
+                                         userInfo:nil];
+        callback(nil, error);
+      });
+  OCMExpect([_mockBackend getProjectConfig:[OCMArg any] callback:[OCMArg any]])
+      .andCallBlock2(
+          ^(FIRGetProjectConfigRequest *request, FIRGetProjectConfigResponseCallback callback) {
+            XCTAssertNotNil(request);
+            dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
+              id mockGetProjectConfigResponse = OCMClassMock([FIRGetProjectConfigResponse class]);
+              OCMStub([mockGetProjectConfigResponse authorizedDomains]).andReturn(@[
+                kFakeAuthorizedDomain
+              ]);
+              callback(mockGetProjectConfigResponse, nil);
+            });
+          });
+  id mockUIDelegate = OCMProtocolMock(@protocol(FIRAuthUIDelegate));
+
+  // Expect view controller presentation by UIDelegate.
+  OCMExpect([_mockURLPresenter presentURL:OCMOCK_ANY
+                               UIDelegate:mockUIDelegate
+                          callbackMatcher:OCMOCK_ANY
+                               completion:OCMOCK_ANY])
+      .andDo(^(NSInvocation *invocation) {
+        __unsafe_unretained id unretainedArgument;
+        // Indices 0 and 1 indicate the hidden arguments self and _cmd.
+        // `presentURL` is at index 2.
+        [invocation getArgument:&unretainedArgument atIndex:2];
+        NSURL *presentURL = unretainedArgument;
+        XCTAssertEqualObjects(presentURL.scheme, @"https");
+        XCTAssertEqualObjects(presentURL.host, kFakeAuthorizedDomain);
+        XCTAssertEqualObjects(presentURL.path, @"/__/auth/handler");
+
+        NSURLComponents *actualURLComponents = [NSURLComponents componentsWithURL:presentURL
+                                                          resolvingAgainstBaseURL:NO];
+        NSArray<NSURLQueryItem *> *queryItems = [actualURLComponents queryItems];
+        XCTAssertEqualObjects([FIRAuthWebUtils queryItemValue:@"ibi" from:queryItems],
+                              kFakeBundleID);
+        XCTAssertEqualObjects([FIRAuthWebUtils queryItemValue:@"appId" from:queryItems],
+                              kFakeFirebaseAppID);
+        XCTAssertEqualObjects([FIRAuthWebUtils queryItemValue:@"apiKey" from:queryItems],
+                              kFakeAPIKey);
+        XCTAssertEqualObjects([FIRAuthWebUtils queryItemValue:@"authType" from:queryItems],
+                              @"verifyApp");
+        XCTAssertNotNil([FIRAuthWebUtils queryItemValue:@"v" from:queryItems]);
+        // `callbackMatcher` is at index 4
+        [invocation getArgument:&unretainedArgument atIndex:4];
+        FIRAuthURLCallbackMatcher callbackMatcher = unretainedArgument;
+        NSMutableString *redirectURL = [NSMutableString
+            stringWithString:[kFakeEncodedFirebaseAppID
+                                 stringByAppendingString:kFakeRedirectURLStringWithReCAPTCHAToken]];
+        // Verify that the URL is rejected by the callback matcher without the event ID.
+        XCTAssertFalse(callbackMatcher([NSURL URLWithString:redirectURL]));
+        [redirectURL appendString:@"%26eventId%3D"];
+        [redirectURL appendString:[FIRAuthWebUtils queryItemValue:@"eventId" from:queryItems]];
+        NSURLComponents *originalComponents = [[NSURLComponents alloc] initWithString:redirectURL];
+        // Verify that the URL is accepted by the callback matcher with the matching event ID.
+        XCTAssertTrue(callbackMatcher([originalComponents URL]));
+        NSURLComponents *components = [originalComponents copy];
+        components.query = @"https";
+        XCTAssertFalse(callbackMatcher([components URL]));
+        components = [originalComponents copy];
+        components.host = @"badhost";
+        XCTAssertFalse(callbackMatcher([components URL]));
+        components = [originalComponents copy];
+        components.path = @"badpath";
+        XCTAssertFalse(callbackMatcher([components URL]));
+        components = [originalComponents copy];
+        components.query = @"badquery";
+        XCTAssertFalse(callbackMatcher([components URL]));
+
+        // `completion` is at index 5
+        [invocation getArgument:&unretainedArgument atIndex:5];
+        FIRAuthURLPresentationCompletion completion = unretainedArgument;
+        dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
+          completion([NSURL URLWithString:[kFakeEncodedFirebaseAppID
+                                              stringByAppendingString:
+                                                  kFakeRedirectURLStringWithReCAPTCHAToken]],
+                     nil);
+        });
+      });
+
+  OCMExpect([_mockBackend sendVerificationCode:[OCMArg any] callback:[OCMArg any]])
+      .andCallBlock2(^(FIRSendVerificationCodeRequest *request,
+                       FIRSendVerificationCodeResponseCallback callback) {
+        XCTAssertEqualObjects(request.phoneNumber, kTestPhoneNumber);
+        XCTAssertNil(request.appCredential);
+        XCTAssertEqualObjects(request.reCAPTCHAToken, kFakeReCAPTCHAToken);
+        dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
+          id mockSendVerificationCodeResponse =
+              OCMClassMock([FIRSendVerificationCodeResponse class]);
+          OCMStub([mockSendVerificationCodeResponse verificationID]).andReturn(kTestVerificationID);
+          callback(mockSendVerificationCodeResponse, nil);
+        });
+      });
+
+  XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
+  [_provider verifyPhoneNumber:kTestPhoneNumber
+                    UIDelegate:mockUIDelegate
+                    completion:^(NSString *_Nullable verificationID, NSError *_Nullable error) {
+                      XCTAssertTrue([NSThread isMainThread]);
+                      XCTAssertNil(error);
+                      XCTAssertEqualObjects(verificationID, kTestVerificationID);
+                      [expectation fulfill];
+                    }];
+  [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
+  OCMVerifyAll(_mockBackend);
+  OCMVerifyAll(_mockNotificationManager);
+}
+
+/** @fn testVerifyPhoneNumberUIDelegateClientIdFlow
+    @brief Tests a successful invocation of @c verifyPhoneNumber:UIDelegate:completion:.
+ */
+- (void)testVerifyPhoneNumberUIDelegateClientIdFlow {
+  OCMStub([_mockOptions clientID]).andReturn(kFakeClientID);
+  _provider = [FIRPhoneAuthProvider providerWithAuth:_mockAuth];
+
   id mockBundle = OCMClassMock([NSBundle class]);
   OCMStub(ClassMethod([mockBundle mainBundle])).andReturn(mockBundle);
   OCMStub([mockBundle objectForInfoDictionaryKey:@"CFBundleURLTypes"]).andReturn(@[
@@ -578,8 +747,9 @@ static const NSTimeInterval kExpectationTimeout = 2;
         // `callbackMatcher` is at index 4
         [invocation getArgument:&unretainedArgument atIndex:4];
         FIRAuthURLCallbackMatcher callbackMatcher = unretainedArgument;
-        NSMutableString *redirectURL =
-            [NSMutableString stringWithString:kFakeRedirectURLStringWithReCAPTCHAToken];
+        NSMutableString *redirectURL = [NSMutableString
+            stringWithString:[kFakeReverseClientID
+                                 stringByAppendingString:kFakeRedirectURLStringWithReCAPTCHAToken]];
         // Verify that the URL is rejected by the callback matcher without the event ID.
         XCTAssertFalse(callbackMatcher([NSURL URLWithString:redirectURL]));
         [redirectURL appendString:@"%26eventId%3D"];
@@ -604,7 +774,10 @@ static const NSTimeInterval kExpectationTimeout = 2;
         [invocation getArgument:&unretainedArgument atIndex:5];
         FIRAuthURLPresentationCompletion completion = unretainedArgument;
         dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
-          completion([NSURL URLWithString:kFakeRedirectURLStringWithReCAPTCHAToken], nil);
+          completion([NSURL URLWithString:[kFakeReverseClientID
+                                              stringByAppendingString:
+                                                  kFakeRedirectURLStringWithReCAPTCHAToken]],
+                     nil);
         });
       });
 
@@ -641,6 +814,9 @@ static const NSTimeInterval kExpectationTimeout = 2;
         invalid client ID error.
  */
 - (void)testVerifyPhoneNumberUIDelegateInvalidClientID {
+  OCMStub([_mockOptions clientID]).andReturn(kFakeClientID);
+  _provider = [FIRPhoneAuthProvider providerWithAuth:_mockAuth];
+
   id mockBundle = OCMClassMock([NSBundle class]);
   OCMStub(ClassMethod([mockBundle mainBundle])).andReturn(mockBundle);
   OCMStub([mockBundle objectForInfoDictionaryKey:@"CFBundleURLTypes"]).andReturn(@[
@@ -710,6 +886,9 @@ static const NSTimeInterval kExpectationTimeout = 2;
         network request failed error.
  */
 - (void)testVerifyPhoneNumberUIDelegateNetworkRequestFailed {
+  OCMStub([_mockOptions clientID]).andReturn(kFakeClientID);
+  _provider = [FIRPhoneAuthProvider providerWithAuth:_mockAuth];
+
   id mockBundle = OCMClassMock([NSBundle class]);
   OCMStub(ClassMethod([mockBundle mainBundle])).andReturn(mockBundle);
   OCMStub([mockBundle objectForInfoDictionaryKey:@"CFBundleURLTypes"]).andReturn(@[
@@ -779,6 +958,9 @@ static const NSTimeInterval kExpectationTimeout = 2;
         internal error.
  */
 - (void)testVerifyPhoneNumberUIDelegateWebInternalError {
+  OCMStub([_mockOptions clientID]).andReturn(kFakeClientID);
+  _provider = [FIRPhoneAuthProvider providerWithAuth:_mockAuth];
+
   id mockBundle = OCMClassMock([NSBundle class]);
   OCMStub(ClassMethod([mockBundle mainBundle])).andReturn(mockBundle);
   OCMStub([mockBundle objectForInfoDictionaryKey:@"CFBundleURLTypes"]).andReturn(@[
@@ -848,6 +1030,9 @@ static const NSTimeInterval kExpectationTimeout = 2;
         invalid client ID.
  */
 - (void)testVerifyPhoneNumberUIDelegateUnexpectedError {
+  OCMStub([_mockOptions clientID]).andReturn(kFakeClientID);
+  _provider = [FIRPhoneAuthProvider providerWithAuth:_mockAuth];
+
   id mockBundle = OCMClassMock([NSBundle class]);
   OCMStub(ClassMethod([mockBundle mainBundle])).andReturn(mockBundle);
   OCMStub([mockBundle objectForInfoDictionaryKey:@"CFBundleURLTypes"]).andReturn(@[
@@ -919,6 +1104,9 @@ static const NSTimeInterval kExpectationTimeout = 2;
         structure of the error response.
  */
 - (void)testVerifyPhoneNumberUIDelegateUnstructuredError {
+  OCMStub([_mockOptions clientID]).andReturn(kFakeClientID);
+  _provider = [FIRPhoneAuthProvider providerWithAuth:_mockAuth];
+
   id mockBundle = OCMClassMock([NSBundle class]);
   OCMStub(ClassMethod([mockBundle mainBundle])).andReturn(mockBundle);
   OCMStub([mockBundle objectForInfoDictionaryKey:@"CFBundleURLTypes"]).andReturn(@[
@@ -989,6 +1177,9 @@ static const NSTimeInterval kExpectationTimeout = 2;
         exception.
  */
 - (void)testVerifyPhoneNumberUIDelegateRaiseException {
+  OCMStub([_mockOptions clientID]).andReturn(kFakeClientID);
+  _provider = [FIRPhoneAuthProvider providerWithAuth:_mockAuth];
+
   id mockBundle = OCMClassMock([NSBundle class]);
   OCMStub(ClassMethod([mockBundle mainBundle])).andReturn(mockBundle);
   OCMStub([mockBundle objectForInfoDictionaryKey:@"CFBundleURLTypes"]).andReturn(@[
@@ -1007,6 +1198,9 @@ static const NSTimeInterval kExpectationTimeout = 2;
     @brief Tests returning an error for the app failing to forward notification.
  */
 - (void)testNotForwardingNotification {
+  OCMStub([_mockOptions clientID]).andReturn(kFakeClientID);
+  _provider = [FIRPhoneAuthProvider providerWithAuth:_mockAuth];
+
   id mockBundle = OCMClassMock([NSBundle class]);
   OCMStub(ClassMethod([mockBundle mainBundle])).andReturn(mockBundle);
   OCMStub([mockBundle objectForInfoDictionaryKey:@"CFBundleURLTypes"]).andReturn(@[
@@ -1035,6 +1229,9 @@ static const NSTimeInterval kExpectationTimeout = 2;
     @brief Tests returning an error for the app failing to provide an APNS device token.
  */
 - (void)testMissingAPNSToken {
+  OCMStub([_mockOptions clientID]).andReturn(kFakeClientID);
+  _provider = [FIRPhoneAuthProvider providerWithAuth:_mockAuth];
+
   id mockBundle = OCMClassMock([NSBundle class]);
   OCMStub(ClassMethod([mockBundle mainBundle])).andReturn(mockBundle);
   OCMStub([mockBundle objectForInfoDictionaryKey:@"CFBundleURLTypes"]).andReturn(@[
@@ -1105,6 +1302,9 @@ static const NSTimeInterval kExpectationTimeout = 2;
     @brief Tests verifying client before sending verification code.
  */
 - (void)testVerifyClient {
+  OCMStub([_mockOptions clientID]).andReturn(kFakeClientID);
+  _provider = [FIRPhoneAuthProvider providerWithAuth:_mockAuth];
+
   id mockBundle = OCMClassMock([NSBundle class]);
   OCMStub(ClassMethod([mockBundle mainBundle])).andReturn(mockBundle);
   OCMStub([mockBundle objectForInfoDictionaryKey:@"CFBundleURLTypes"]).andReturn(@[
@@ -1138,10 +1338,10 @@ static const NSTimeInterval kExpectationTimeout = 2;
         });
       });
   // Mock receiving of push notification.
-  OCMExpect([[_mockAppCredentialManager ignoringNonObjectArgs]
-                didStartVerificationWithReceipt:OCMOCK_ANY
-                                        timeout:0
-                                       callback:OCMOCK_ANY])
+  OCMExpect([_mockAppCredentialManager didStartVerificationWithReceipt:OCMOCK_ANY
+                                                               timeout:0
+                                                              callback:OCMOCK_ANY])
+      .ignoringNonObjectArgs()
       .andCallIdDoubleIdBlock(^(NSString *receipt, NSTimeInterval timeout,
                                 FIRAuthAppCredentialCallback callback) {
         XCTAssertEqualObjects(receipt, kTestReceipt);
@@ -1186,6 +1386,9 @@ static const NSTimeInterval kExpectationTimeout = 2;
     @brief Tests failed retry after failing to send verification code.
  */
 - (void)testSendVerificationCodeFailedRetry {
+  OCMStub([_mockOptions clientID]).andReturn(kFakeClientID);
+  _provider = [FIRPhoneAuthProvider providerWithAuth:_mockAuth];
+
   id mockBundle = OCMClassMock([NSBundle class]);
   OCMStub(ClassMethod([mockBundle mainBundle])).andReturn(mockBundle);
   OCMStub([mockBundle objectForInfoDictionaryKey:@"CFBundleURLTypes"]).andReturn(@[
@@ -1254,10 +1457,10 @@ static const NSTimeInterval kExpectationTimeout = 2;
       });
 
   // Mock receiving of push notification.
-  OCMStub([[_mockAppCredentialManager ignoringNonObjectArgs]
-              didStartVerificationWithReceipt:OCMOCK_ANY
-                                      timeout:0
-                                     callback:OCMOCK_ANY])
+  OCMStub([_mockAppCredentialManager didStartVerificationWithReceipt:OCMOCK_ANY
+                                                             timeout:0
+                                                            callback:OCMOCK_ANY])
+      .ignoringNonObjectArgs()
       .andCallIdDoubleIdBlock(^(NSString *receipt, NSTimeInterval timeout,
                                 FIRAuthAppCredentialCallback callback) {
         XCTAssertEqualObjects(receipt, kTestReceipt);
@@ -1288,6 +1491,9 @@ static const NSTimeInterval kExpectationTimeout = 2;
     @brief Tests successful retry after failing to send verification code.
  */
 - (void)testSendVerificationCodeSuccessFulRetry {
+  OCMStub([_mockOptions clientID]).andReturn(kFakeClientID);
+  _provider = [FIRPhoneAuthProvider providerWithAuth:_mockAuth];
+
   id mockBundle = OCMClassMock([NSBundle class]);
   OCMStub(ClassMethod([mockBundle mainBundle])).andReturn(mockBundle);
   OCMStub([mockBundle objectForInfoDictionaryKey:@"CFBundleURLTypes"]).andReturn(@[
@@ -1359,10 +1565,10 @@ static const NSTimeInterval kExpectationTimeout = 2;
       });
 
   // Mock receiving of push notification.
-  OCMStub([[_mockAppCredentialManager ignoringNonObjectArgs]
-              didStartVerificationWithReceipt:OCMOCK_ANY
-                                      timeout:0
-                                     callback:OCMOCK_ANY])
+  OCMStub([_mockAppCredentialManager didStartVerificationWithReceipt:OCMOCK_ANY
+                                                             timeout:0
+                                                            callback:OCMOCK_ANY])
+      .ignoringNonObjectArgs()
       .andCallIdDoubleIdBlock(^(NSString *receipt, NSTimeInterval timeout,
                                 FIRAuthAppCredentialCallback callback) {
         XCTAssertEqualObjects(receipt, kTestReceipt);
@@ -1393,3 +1599,5 @@ static const NSTimeInterval kExpectationTimeout = 2;
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif

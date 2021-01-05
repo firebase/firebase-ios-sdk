@@ -14,30 +14,37 @@
  * limitations under the License.
  */
 
-#import "GDTCORTests/Common/Categories/GDTCORUploadCoordinator+Testing.h"
+#import "GoogleDataTransport/GDTCORTests/Common/Categories/GDTCORUploadCoordinator+Testing.h"
 
 #import <objc/runtime.h>
 
-#import "GDTCORLibrary/Private/GDTCORFlatFileStorage.h"
-#import "GDTCORLibrary/Public/GDTCORRegistrar.h"
+#import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORRegistrar.h"
+#import "GoogleDataTransport/GDTCORLibrary/Private/GDTCORFlatFileStorage.h"
 
 @implementation GDTCORUploadCoordinator (Testing)
 
 - (void)reset {
   dispatch_sync(self.coordinationQueue, ^{
     self.registrar = [GDTCORRegistrar sharedInstance];
-    [self.targetToInFlightPackages removeAllObjects];
   });
 }
 
 - (void)setTimerInterval:(uint64_t)timerInterval {
   [self setValue:@(timerInterval) forKey:@"_timerInterval"];
-  dispatch_source_set_timer(self.timer, DISPATCH_TIME_NOW, timerInterval, self.timerLeeway);
+
+  dispatch_source_t timer = self.timer;
+  if (timer) {
+    dispatch_source_set_timer(timer, DISPATCH_TIME_NOW, timerInterval, self.timerLeeway);
+  }
 }
 
 - (void)setTimerLeeway:(uint64_t)timerLeeway {
   [self setValue:@(timerLeeway) forKey:@"_timerLeeway"];
-  dispatch_source_set_timer(self.timer, DISPATCH_TIME_NOW, self.timerInterval, timerLeeway);
+
+  dispatch_source_t timer = self.timer;
+  if (timer) {
+    dispatch_source_set_timer(timer, DISPATCH_TIME_NOW, self.timerInterval, timerLeeway);
+  }
 }
 
 @end

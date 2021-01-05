@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2018 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,11 +19,14 @@
 
 #include <dispatch/dispatch.h>
 
-#include <chrono>  // NOLINT(build/c++11)
+#include <chrono>              // NOLINT(build/c++11)
+#include <condition_variable>  // NOLINT(build/c++11)
 #include <functional>
 #include <memory>
+#include <mutex>  // NOLINT(build/c++11)
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 #include <utility>
 
 #include "Firestore/core/src/util/executor.h"
@@ -40,30 +43,14 @@ namespace firebase {
 namespace firestore {
 namespace util {
 
-namespace internal {
-
-// Generic wrapper over `dispatch_async_f`, providing `dispatch_async`-like
-// interface: accepts an arbitrary invocable object in place of an Objective-C
-// block.
-void DispatchAsync(dispatch_queue_t queue, std::function<void()>&& work);
-
-// Similar to `DispatchAsync` but wraps `dispatch_sync_f`.
-void DispatchSync(dispatch_queue_t queue, std::function<void()> work);
-
-}  // namespace internal
-
-class TimeSlot;
-
 // A serial queue built on top of libdispatch. The operations are run on
 // a dedicated serial dispatch queue.
 class ExecutorLibdispatch : public Executor {
  public:
-  // An opaque, monotonically increasing identifier for TimeSlots that does
-  // not depend on their address.
-  using TimeSlotId = uint32_t;
-
   explicit ExecutorLibdispatch(dispatch_queue_t dispatch_queue);
   ~ExecutorLibdispatch() override;
+
+  void Dispose() override;
 
   bool IsCurrentExecutor() const override;
   std::string CurrentExecutorName() const override;
@@ -72,28 +59,68 @@ class ExecutorLibdispatch : public Executor {
   void Execute(Operation&& operation) override;
   void ExecuteBlocking(Operation&& operation) override;
   DelayedOperation Schedule(Milliseconds delay,
-                            TaggedOperation&& operation) override;
+                            Tag tag,
+                            Operation&& operation) override;
 
-  void RemoveFromSchedule(TimeSlotId to_remove);
-
-  bool IsScheduled(Tag tag) const override;
-  absl::optional<TaggedOperation> PopFromSchedule() override;
+  bool IsTagScheduled(Tag tag) const override;
+  bool IsIdScheduled(Id id) const override;
+  Task* PopFromSchedule() override;
 
   dispatch_queue_t dispatch_queue() const {
     return dispatch_queue_;
   }
 
  private:
-  using ScheduleMap = std::unordered_map<TimeSlotId, TimeSlot*>;
+  using ScheduleMap = std::unordered_map<Id, Task*>;
   using ScheduleEntry = ScheduleMap::value_type;
 
-  TimeSlotId NextId();
+  void OnCompletion(Task* task) override;
+  void Cancel(Id operation_id) override;
+
+  static void InvokeAsync(void* raw_task);
+  static void InvokeSync(void* raw_task);
+
+  Id NextIdLocked();
+
+  // A mutex controlling the executor's internal state. Avoid holding this
+  // while making calls into tasks, which could trigger callbacks into this
+  // executor, causing a deadlock.
+  mutable std::mutex mutex_;
 
   dispatch_queue_t dispatch_queue_;
-  // Stores non-owned pointers to `TimeSlot`s.
-  // Invariant: if a `TimeSlot` is in `schedule_`, it's a valid pointer.
+
+  // A map of `Schedule`d tasks by their Id, allowing `Cancel` to be able to
+  // find tasks quickly.
   ScheduleMap schedule_;
-  TimeSlotId current_id_ = 0;
+
+  // The set of all tasks managed by this executor, including those from
+  // `Execute`, `ExecuteBlocking`, and `Schedule`.
+  //
+  // libdispatch doesn't provide a way to cancel a scheduled operation, so once
+  // a `Task` is created, it will always stay in the schedule until the time is
+  // past. `Task`s internally track their own state and the executor may cancel
+  // them instead. This means that by the time libdispatch attempts to execute a
+  // a particular operation, the `Task` may already have been executed or
+  // canceled (imagine getting to a meeting and finding out it's been
+  // cancelled).
+  //
+  // `Task`s are jointly owned by libdispatch and the executor.
+  //
+  // Invariant: if the `tasks_` set contains a pointer to a `Task`, it is a
+  // valid object. This is achieved because when libdispatch executes a task,
+  // the task will remove itself from the executor (via a call to
+  // `OnCompletion`) before deleting itself. The reverse is not true: a
+  // cancelled task is removed from the executor, but won't be destroyed until
+  // its original due time is past.
+  std::unordered_set<Task*> tasks_;
+
+  Id current_id_ = 0;
+
+  // Whether or not the executor has been disposed. Only operations that add
+  // new work need to observe this. Other operations that operate on `tasks_` or
+  // `schedule_` implicitly do so because those structures are cleared during
+  // `Dispose`.
+  bool disposed_ = false;
 };
 
 }  // namespace util

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRCLSAsyncOperation.h"
+#import "Crashlytics/Crashlytics/Operations/FIRCLSAsyncOperation.h"
 
 @interface FIRCLSAsyncOperation () {
   BOOL _internalExecuting;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2018 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,8 @@
 #include "Firestore/core/src/model/field_mask.h"
 #include "Firestore/core/src/model/field_path.h"
 #include "Firestore/core/src/nanopb/byte_string.h"
+#include "Firestore/core/src/util/defer.h"
+#include "Firestore/core/src/util/string_apple.h"
 #include "Firestore/core/test/unit/testutil/equals_tester.h"
 #include "Firestore/core/test/unit/testutil/testutil.h"
 #include "Firestore/core/test/unit/testutil/time_testing.h"
@@ -312,10 +314,10 @@ TEST_F(FieldValueTest, Equality) {
 TEST_F(FieldValueTest, CanonicalBitsAreCanonical) {
   double input = ToDouble(kAlternateNanBits);
   CFNumberRef number = CFNumberCreate(nullptr, kCFNumberDoubleType, &input);
+  util::Defer cleanup([&] { util::SafeCFRelease(number); });
 
   double actual = 0.0;
   CFNumberGetValue(number, kCFNumberDoubleType, &actual);
-  CFRelease(number);
 
   ASSERT_EQ(kCanonicalNanBits, ToBits(actual));
 }

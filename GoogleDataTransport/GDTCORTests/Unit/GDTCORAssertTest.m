@@ -18,7 +18,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import <GoogleDataTransport/GDTCORAssert.h>
+#import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORAssert.h"
 
 @interface GDTCORAssertNotBlockedTest : XCTestCase
 

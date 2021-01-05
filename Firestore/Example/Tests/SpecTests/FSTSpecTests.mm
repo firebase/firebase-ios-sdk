@@ -353,6 +353,10 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
   [self.driver writeUserMutation:FSTTestDeleteMutation(key)];
 }
 
+- (void)doWaitForPendingWrites {
+  [self.driver waitForPendingWrites];
+}
+
 - (void)doAddSnapshotsInSyncListener {
   [self.driver addSnapshotsInSyncListener];
 }
@@ -593,6 +597,8 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
     [self doWriteAck:step[@"writeAck"]];
   } else if (step[@"failWrite"]) {
     [self doFailWrite:step[@"failWrite"]];
+  } else if (step[@"waitForPendingWrites"]) {
+    [self doWaitForPendingWrites];
   } else if (step[@"runTimer"]) {
     [self doRunTimer:step[@"runTimer"]];
   } else if (step[@"enableNetwork"]) {
@@ -756,6 +762,11 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
   [self validateActiveTargets];
 }
 
+- (void)validateWaitForPendingWritesEvents:(int)expectedWaitForPendingWritesEvents {
+  XCTAssertEqual(expectedWaitForPendingWritesEvents, [self.driver waitForPendingWritesEvents]);
+  [self.driver resetWaitForPendingWritesEvents];
+}
+
 - (void)validateSnapshotsInSyncEvents:(int)expectedSnapshotInSyncEvents {
   XCTAssertEqual(expectedSnapshotInSyncEvents, [self.driver snapshotsInSyncEvents]);
   [self.driver resetSnapshotsInSyncEvents];
@@ -869,6 +880,9 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
         [self validateExpectedState:step[@"expectedState"]];
         int expectedSnapshotsInSyncEvents = [step[@"expectedSnapshotsInSyncEvents"] intValue];
         [self validateSnapshotsInSyncEvents:expectedSnapshotsInSyncEvents];
+        int expectedWaitForPendingWritesEvents =
+            [step[@"expectedWaitForPendingWritesEvents"] intValue];
+        [self validateWaitForPendingWritesEvents:expectedWaitForPendingWritesEvents];
       }
       [self.driver validateUsage];
     } @finally {

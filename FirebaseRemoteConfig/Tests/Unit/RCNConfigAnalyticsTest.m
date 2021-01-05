@@ -15,9 +15,9 @@
  */
 
 #import <XCTest/XCTest.h>
+#import "OCMock.h"
 
-#import <OCMock/OCMock.h>
-#import "RCNConfigAnalytics.h"
+//#import "RCNConfigAnalytics.h"
 
 @interface RCNConfigAnalyticsTest : XCTestCase {
   id _mockAnalytics;

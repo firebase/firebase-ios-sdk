@@ -20,6 +20,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 static NSString *const kWithdrawMFAEndPoint = @"accounts/mfaEnrollment:withdraw";
 
+/** @var kTenantIDKey
+    @brief The key for the tenant id value in the request.
+ */
+static NSString *const kTenantIDKey = @"tenantId";
+
 @implementation FIRWithdrawMFARequest
 
 - (nullable instancetype)initWithIDToken:(NSString *)IDToken
@@ -43,6 +48,9 @@ static NSString *const kWithdrawMFAEndPoint = @"accounts/mfaEnrollment:withdraw"
   }
   if (_MFAEnrollmentID) {
     postBody[@"mfaEnrollmentId"] = _MFAEnrollmentID;
+  }
+  if (self.tenantID) {
+    postBody[kTenantIDKey] = self.tenantID;
   }
   return [postBody copy];
 }

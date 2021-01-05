@@ -14,21 +14,21 @@
  * limitations under the License.
  */
 
-#import "GDTCORLibrary/Public/GDTCORTransport.h"
-#import "GDTCORLibrary/Private/GDTCORTransport_Private.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORTransport.h"
+#import "GoogleDataTransport/GDTCORLibrary/Private/GDTCORTransport_Private.h"
 
-#import <GoogleDataTransport/GDTCORAssert.h>
-#import <GoogleDataTransport/GDTCORClock.h>
-#import <GoogleDataTransport/GDTCOREvent.h>
+#import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORAssert.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORClock.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCOREvent.h"
 
-#import "GDTCORLibrary/Private/GDTCORTransformer.h"
+#import "GoogleDataTransport/GDTCORLibrary/Private/GDTCORTransformer.h"
 
 @implementation GDTCORTransport
 
 - (nullable instancetype)initWithMappingID:(NSString *)mappingID
                               transformers:
                                   (nullable NSArray<id<GDTCOREventTransformer>> *)transformers
-                                    target:(NSInteger)target {
+                                    target:(GDTCORTarget)target {
   GDTCORAssert(mappingID.length > 0, @"A mapping ID cannot be nil or empty");
   GDTCORAssert(target > 0, @"A target cannot be negative or 0");
   if (mappingID == nil || mappingID.length == 0 || target <= 0) {

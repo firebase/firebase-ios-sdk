@@ -53,6 +53,11 @@ static NSString *const kCaptchaResponseKey = @"captchaResponse";
  */
 static NSString *const kReturnSecureTokenKey = @"returnSecureToken";
 
+/** @var kTenantIDKey
+    @brief The key for the tenant id value in the request.
+ */
+static NSString *const kTenantIDKey = @"tenantId";
+
 @implementation FIRVerifyPasswordRequest
 
 - (nullable instancetype)initWithEmail:(NSString *)email
@@ -86,6 +91,9 @@ static NSString *const kReturnSecureTokenKey = @"returnSecureToken";
   }
   if (_returnSecureToken) {
     postBody[kReturnSecureTokenKey] = @YES;
+  }
+  if (self.tenantID) {
+    postBody[kTenantIDKey] = self.tenantID;
   }
   return [postBody copy];
 }

@@ -1,0 +1,55 @@
+# Merge the yml file to master branch for the cron job schedule to be effective.
+# Reference: https://github.community/t/on-schedule-per-branch/17525
+name: performance
+
+on:
+  pull_request:
+    paths:
+    # Performance sources
+    - 'FirebasePerformance/**'
+    # Podspec
+    - 'FirebasePerformance.podspec'
+    # YML configuration file
+    - '.github/workflows/performance.yml'
+    # Rebuild on Ruby infrastructure changes
+    - 'Gemfile'
+  schedule:
+    # Run every day at 11pm (PST) - cron uses UTC times
+    # Specified in format 'minutes hours day month dayofweek'
+    - cron:  '0 7 * * *'
+
+jobs:
+
+  # Build and run the unit tests for Firebase performance SDK.
+  performance:
+    # Firebase Performance lives in private repository only currently.
+    # Remove the check after Firebase Performance is open sourced.
+    if: github.repository == 'FirebasePrivate/firebase-ios-sdk'
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        ref: perf
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: BuildAndTest # can be replaced with pod lib lint with CocoaPods 1.10
+      run: scripts/third_party/travis/retry.sh scripts/build.sh Performance all xcodebuild
+
+  # Podspec lint check for Firebase Performance
+  pod-lib-lint:
+    # Firebase Performance lives in private repository only currently.
+    # Remove the check after Firebase Performance is open sourced.
+    if: github.repository == 'FirebasePrivate/firebase-ios-sdk'
+    runs-on: macOS-latest
+
+    strategy:
+      matrix:
+        target: [ios]
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        ref: perf
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Build
+      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebasePerformance.podspec --skip-tests --platforms=${{ matrix.target }}

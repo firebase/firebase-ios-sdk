@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
+
 #import <XCTest/XCTest.h>
 
 #import "FirebaseAuth/Sources/Auth/FIRAuthOperationType.h"
@@ -187,3 +190,5 @@ NSString *const FIRAuthOperationString(FIRAuthOperationType operationType);
 }
 
 @end
+
+#endif

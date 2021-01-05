@@ -14,16 +14,19 @@
  * limitations under the License.
  */
 
-#import <GoogleDataTransport/GDTCOREvent.h>
-#import <GoogleDataTransport/GDTCORTargets.h>
+#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCOREvent.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORTargets.h"
 
-#import <GoogleDataTransport/GDTCORClock.h>
-#import <GoogleDataTransport/GDTCORPlatform.h>
+#import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORPlatform.h"
+#import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORRegistrar.h"
+#import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORStorageProtocol.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORClock.h"
 
-#import "GDTCORTests/Unit/GDTCORTestCase.h"
-#import "GDTCORTests/Unit/Helpers/GDTCORDataObjectTesterClasses.h"
+#import "GoogleDataTransport/GDTCORTests/Unit/GDTCORTestCase.h"
+#import "GoogleDataTransport/GDTCORTests/Unit/Helpers/GDTCORDataObjectTesterClasses.h"
 
-#import "GDTCORLibrary/Private/GDTCOREvent_Private.h"
+#import "GoogleDataTransport/GDTCORLibrary/Private/GDTCOREvent_Private.h"
+#import "GoogleDataTransport/GDTCORLibrary/Private/GDTCORFlatFileStorage.h"
 
 @interface GDTCOREventTest : GDTCORTestCase
 
@@ -33,9 +36,7 @@
 
 /** Tests the designated initializer. */
 - (void)testInit {
-  XCTAssertGreaterThan(
-      [[GDTCOREvent alloc] initWithMappingID:@"1" target:kGDTCORTargetTest].eventID.integerValue,
-      0);
+  XCTAssertNotNil([[GDTCOREvent alloc] initWithMappingID:@"1" target:kGDTCORTargetTest].eventID);
   XCTAssertNotNil([[GDTCOREvent alloc] initWithMappingID:@"1" target:kGDTCORTargetTest]);
   XCTAssertNil([[GDTCOREvent alloc] initWithMappingID:@"" target:kGDTCORTargetTest]);
 }
@@ -88,37 +89,34 @@
 /** Tests equality between GDTCOREvents. */
 - (void)testIsEqualAndHash {
   GDTCOREvent *event1 = [[GDTCOREvent alloc] initWithMappingID:@"1018" target:kGDTCORTargetTest];
-  event1.eventID = @123;
+  event1.eventID = @"123";
   event1.clockSnapshot = [GDTCORClock snapshot];
   [event1.clockSnapshot setValue:@(1553534573010) forKeyPath:@"timeMillis"];
   [event1.clockSnapshot setValue:@(-25200) forKeyPath:@"timezoneOffsetSeconds"];
-  [event1.clockSnapshot setValue:@(1552576634359451) forKeyPath:@"kernelBootTime"];
-  [event1.clockSnapshot setValue:@(961141365197) forKeyPath:@"uptime"];
+  [event1.clockSnapshot setValue:@(1552576634359451) forKeyPath:@"kernelBootTimeNanoseconds"];
+  [event1.clockSnapshot setValue:@(961141365197) forKeyPath:@"uptimeNanoseconds"];
   event1.qosTier = GDTCOREventQosDefault;
+  event1.dataObject = [[GDTCORDataObjectTesterSimple alloc] initWithString:@"someData"];
   NSError *error1;
   event1.customBytes = [NSJSONSerialization dataWithJSONObject:@{@"customParam1" : @"aValue1"}
                                                        options:0
                                                          error:&error1];
   XCTAssertNil(error1);
-  [event1 writeToGDTPath:@"/tmp/fake.txt" error:&error1];
-  XCTAssertNil(error1);
 
   GDTCOREvent *event2 = [[GDTCOREvent alloc] initWithMappingID:@"1018" target:kGDTCORTargetTest];
-  event2.eventID = @123;
+  event2.eventID = @"123";
   event2.clockSnapshot = [GDTCORClock snapshot];
   [event2.clockSnapshot setValue:@(1553534573010) forKeyPath:@"timeMillis"];
   [event2.clockSnapshot setValue:@(-25200) forKeyPath:@"timezoneOffsetSeconds"];
-  [event2.clockSnapshot setValue:@(1552576634359451) forKeyPath:@"kernelBootTime"];
-  [event2.clockSnapshot setValue:@(961141365197) forKeyPath:@"uptime"];
+  [event2.clockSnapshot setValue:@(1552576634359451) forKeyPath:@"kernelBootTimeNanoseconds"];
+  [event2.clockSnapshot setValue:@(961141365197) forKeyPath:@"uptimeNanoseconds"];
   event2.qosTier = GDTCOREventQosDefault;
+  event2.dataObject = [[GDTCORDataObjectTesterSimple alloc] initWithString:@"someData"];
   NSError *error2;
   event2.customBytes = [NSJSONSerialization dataWithJSONObject:@{@"customParam1" : @"aValue1"}
                                                        options:0
                                                          error:&error2];
   XCTAssertNil(error2);
-  [event2 writeToGDTPath:@"/tmp/fake.txt" error:&error2];
-  XCTAssertNil(error2);
-
   XCTAssertEqual([event1 hash], [event2 hash]);
   XCTAssertEqualObjects(event1, event2);
 
@@ -131,18 +129,16 @@
 
 /** Tests generating event IDs. */
 - (void)testGenerateEventIDs {
-  NSNumber *initialValue;
+  BOOL originalContinueAfterFailureValue = self.continueAfterFailure;
+  self.continueAfterFailure = NO;
   NSMutableSet *generatedValues = [[NSMutableSet alloc] init];
   for (int i = 0; i < 100000; i++) {
-    NSNumber *eventID;
-    XCTAssertNoThrow(eventID = [GDTCOREvent nextEventID]);
+    NSString *eventID = [GDTCOREvent nextEventID];
+    XCTAssertNotNil(eventID);
     XCTAssertFalse([generatedValues containsObject:eventID]);
     [generatedValues addObject:eventID];
-    if (i == 0) {
-      initialValue = eventID;
-    }
-    XCTAssertEqual(eventID.integerValue, initialValue.integerValue + i);
   }
+  self.continueAfterFailure = originalContinueAfterFailureValue;
 }
 
 @end

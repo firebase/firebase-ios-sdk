@@ -7,7 +7,7 @@ brew install automake libtool protobuf golang
 
 Take a nap while that completes. Then, build the protos:
 ```
-cd firebase-ios-sdk
+cd firebase-ios-sdk  # the root of this repo, not Firestore/Protos
 mkdir -p build
 cd build
 cmake ..
@@ -15,6 +15,12 @@ make -j generate_protos
 ```
 
 Verify diffs, make sure tests still pass, and create a PR.
+
+### Updating to a new nanopb version:
+  * Modify verion in [nanopb.cmake](cmake/external/nanopb.cmake).
+  * Build.
+  * Note build failure.
+  * Plug expected hash into [nanopb.cmake](cmake/external/nanopb.cmake).
 
 ### Script Details
 

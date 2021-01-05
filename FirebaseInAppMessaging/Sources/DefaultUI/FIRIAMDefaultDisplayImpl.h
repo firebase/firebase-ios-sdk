@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import <FirebaseInAppMessaging/FIRInAppMessagingRendering.h>
+#import "FirebaseInAppMessaging/Sources/Public/FirebaseInAppMessaging/FIRInAppMessagingRendering.h"
 
 NS_ASSUME_NONNULL_BEGIN
 NS_SWIFT_NAME(InAppMessagingDefaultDisplayImpl)

@@ -16,7 +16,7 @@ if(NOT APPLE)
   return()
 endif()
 
-file(GLOB headers Public/*.h)
+file(GLOB headers Public/FirebaseFirestore/*.h)
 file(GLOB sources API/*.h API/*.m API/*.mm)
 
 firebase_ios_add_framework(FirebaseFirestore ${headers} ${sources})

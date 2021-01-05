@@ -18,11 +18,11 @@
     __TV_OS_VERSION_MAX_ALLOWED >= __TV_10_0 || __MAC_OS_X_VERSION_MAX_ALLOWED >= __MAC_10_14
 #import <UserNotifications/UserNotifications.h>
 #endif
-#import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
+#import "OCMock.h"
 
-#import <FirebaseMessaging/FIRMessaging.h>
 #import <GoogleUtilities/GULAppDelegateSwizzler.h>
+#import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessaging.h"
 
 #import "FirebaseMessaging/Sources/FIRMessagingRemoteNotificationsProxy.h"
 
@@ -159,8 +159,9 @@
   // Update +sharedProxy to always return our test instance
   OCMStub([_mockProxyClass sharedProxy]).andReturn(self.proxy);
   if (@available(macOS 10.14, iOS 10.0, *)) {
-    _mockUserNotificationCenter =
-        OCMPartialMock([UNUserNotificationCenter currentNotificationCenter]);
+    _mockUserNotificationCenter = OCMClassMock([UNUserNotificationCenter class]);
+    OCMStub([_mockUserNotificationCenter currentNotificationCenter])
+        .andReturn(_mockUserNotificationCenter);
   }
 }
 
@@ -194,6 +195,8 @@
       didReceiveRemoteNotification:@{}];
 }
 
+#if !SWIFT_PACKAGE
+// The next 3 tests depend on a sharedApplication which is not available in the Swift PM test env.
 - (void)testSwizzledIncompleteAppDelegateRemoteNotificationMethod {
   IncompleteAppDelegate *incompleteAppDelegate = [[IncompleteAppDelegate alloc] init];
   [[GULAppDelegateSwizzler sharedApplication] setDelegate:incompleteAppDelegate];
@@ -283,6 +286,7 @@
 
   XCTAssertEqual(appDelegate.registerForRemoteNotificationsError, error);
 }
+#endif
 
 - (void)testListeningForDelegateChangesOnInvalidUserNotificationCenter {
   if (@available(macOS 10.14, iOS 10.0, *)) {
@@ -314,29 +318,6 @@
                       withCompletionHandler:^(UNNotificationPresentationOptions options){
                       }];
   }
-}
-
-- (void)testSwizzlingUserNotificationsCenterDelegate {
-#if TARGET_OS_IOS || TARGET_OS_OSX
-  if (@available(macOS 10.14, iOS 10.0, *)) {
-    FakeUserNotificationCenterDelegate *delegate =
-        [[FakeUserNotificationCenterDelegate alloc] init];
-    OCMStub([self.mockUserNotificationCenter delegate]).andReturn(delegate);
-    [self.proxy swizzleMethodsIfPossible];
-
-    NSDictionary *message = @{@"message" : @""};
-    id notification = [self userNotificationWithMessage:message];
-
-    OCMExpect([self.mockMessaging appDidReceiveMessage:message]);
-
-    [delegate userNotificationCenter:self.mockUserNotificationCenter
-             willPresentNotification:notification
-               withCompletionHandler:^(UNNotificationPresentationOptions options){
-               }];
-
-    [self.mockMessaging verify];
-  }
-#endif
 }
 
 // Use a fake delegate that doesn't actually implement the needed delegate method.

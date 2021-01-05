@@ -14,11 +14,14 @@
  * limitations under the License.
  */
 
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
+
 #import <Foundation/Foundation.h>
 
 #import "FirebaseDynamicLinks/Sources/FDLURLComponents/FDLURLComponents+Private.h"
 #import "FirebaseDynamicLinks/Sources/FDLURLComponents/FIRDynamicLinkComponentsKeyProvider.h"
-#import "FirebaseDynamicLinks/Sources/Public/FDLURLComponents.h"
+#import "FirebaseDynamicLinks/Sources/Public/FirebaseDynamicLinks/FDLURLComponents.h"
 
 #import "FirebaseDynamicLinks/Sources/Logging/FDLLogging.h"
 #import "FirebaseDynamicLinks/Sources/Utilities/FDLUtilities.h"
@@ -693,3 +696,5 @@ static NSString *const kFDLOtherPlatformParametersFallbackURLKey = @"ofl";
 }
 
 @end
+
+#endif  // TARGET_OS_IOS

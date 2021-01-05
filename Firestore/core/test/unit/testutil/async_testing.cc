@@ -28,11 +28,26 @@ namespace firebase {
 namespace firestore {
 namespace testutil {
 
+using testing::UnitTest;
 using util::AsyncQueue;
 using util::Executor;
 
 std::unique_ptr<util::Executor> ExecutorForTesting(const char* name) {
-  std::string label = absl::StrCat("firestore.testing.", name);
+  std::string label = "firestore.testing";
+
+  if (name) {
+    absl::StrAppend(&label, ".", name);
+  }
+
+  auto unit_test = UnitTest::GetInstance();
+  if (unit_test) {
+    auto test_info = UnitTest::GetInstance()->current_test_info();
+    if (test_info) {
+      absl::StrAppend(&label, ".", test_info->test_suite_name(), ".",
+                      test_info->name());
+    }
+  }
+
   return Executor::CreateSerial(label.c_str());
 }
 

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRAppFake.h"
+#import "Crashlytics/UnitTests/Mocks/FIRAppFake.h"
 
 @implementation FIRAppFake : NSObject
 

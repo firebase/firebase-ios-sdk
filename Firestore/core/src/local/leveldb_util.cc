@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2018 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,17 +23,16 @@
 namespace firebase {
 namespace firestore {
 namespace local {
-
 namespace {
 
 Error ConvertStatusCode(const leveldb::Status& status) {
-  if (status.ok()) return Error::kOk;
-  if (status.IsNotFound()) return Error::kNotFound;
-  if (status.IsCorruption()) return Error::kDataLoss;
-  if (status.IsIOError()) return Error::kUnavailable;
-  if (status.IsNotSupportedError()) return Error::kUnimplemented;
-  if (status.IsInvalidArgument()) return Error::kInvalidArgument;
-  return Error::kUnknown;
+  if (status.ok()) return Error::kErrorOk;
+  if (status.IsNotFound()) return Error::kErrorNotFound;
+  if (status.IsCorruption()) return Error::kErrorDataLoss;
+  if (status.IsIOError()) return Error::kErrorUnavailable;
+  if (status.IsNotSupportedError()) return Error::kErrorUnimplemented;
+  if (status.IsInvalidArgument()) return Error::kErrorInvalidArgument;
+  return Error::kErrorUnknown;
 }
 
 }  // namespace

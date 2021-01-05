@@ -25,6 +25,8 @@
 #include "Firestore/core/src/model/mutation.h"
 #include "Firestore/core/src/nanopb/message.h"
 #include "Firestore/core/src/nanopb/nanopb_util.h"
+#include "Firestore/core/src/remote/firebase_metadata_provider.h"
+#include "Firestore/core/src/remote/firebase_metadata_provider_noop.h"
 #include "Firestore/core/src/remote/grpc_nanopb.h"
 #include "Firestore/core/src/remote/serializer.h"
 #include "Firestore/core/src/util/async_queue.h"
@@ -32,6 +34,7 @@
 #include "Firestore/core/src/util/status.h"
 #include "Firestore/core/src/util/statusor.h"
 #include "Firestore/core/src/util/string_apple.h"
+#include "Firestore/core/test/unit/remote/create_noop_connectivity_monitor.h"
 #include "Firestore/core/test/unit/remote/fake_credentials_provider.h"
 #include "Firestore/core/test/unit/remote/grpc_stream_tester.h"
 #include "Firestore/core/test/unit/testutil/async_testing.h"
@@ -102,9 +105,12 @@ class FakeDatastore : public Datastore {
 std::shared_ptr<FakeDatastore> CreateDatastore(
     const DatabaseInfo& database_info,
     const std::shared_ptr<AsyncQueue>& worker_queue,
-    std::shared_ptr<CredentialsProvider> credentials) {
+    std::shared_ptr<CredentialsProvider> credentials,
+    ConnectivityMonitor* connectivity_monitor,
+    FirebaseMetadataProvider* firebase_metadata_provider) {
   return std::make_shared<FakeDatastore>(database_info, worker_queue,
-                                         credentials);
+                                         credentials, connectivity_monitor,
+                                         firebase_metadata_provider);
 }
 
 }  // namespace
@@ -114,7 +120,13 @@ class DatastoreTest : public testing::Test {
   DatastoreTest()
       : database_info{DatabaseId{"p", "d"}, "", "localhost", false},
         worker_queue{testutil::AsyncQueueForTesting()},
-        datastore{CreateDatastore(database_info, worker_queue, credentials)},
+        connectivity_monitor{CreateNoOpConnectivityMonitor()},
+        firebase_metadata_provider{CreateFirebaseMetadataProviderNoOp()},
+        datastore{CreateDatastore(database_info,
+                                  worker_queue,
+                                  credentials,
+                                  connectivity_monitor.get(),
+                                  firebase_metadata_provider.get())},
         fake_grpc_queue{datastore->queue()} {
     // Deliberately don't `Start` the `Datastore` to prevent normal gRPC
     // completion queue polling; the test is using `FakeGrpcQueue`.
@@ -153,9 +165,10 @@ class DatastoreTest : public testing::Test {
       std::make_shared<FakeCredentialsProvider>();
 
   std::shared_ptr<AsyncQueue> worker_queue;
+  std::unique_ptr<ConnectivityMonitor> connectivity_monitor;
+  std::unique_ptr<FirebaseMetadataProvider> firebase_metadata_provider;
   std::shared_ptr<FakeDatastore> datastore;
 
-  std::unique_ptr<ConnectivityMonitor> connectivity_monitor;
   FakeGrpcQueue fake_grpc_queue;
 };
 
@@ -163,17 +176,17 @@ TEST_F(DatastoreTest, CanShutdownWithNoOperations) {
   Shutdown();
 }
 
-TEST_F(DatastoreTest, WhitelistedHeaders) {
+TEST_F(DatastoreTest, AllowlistedHeaders) {
   GrpcStream::Metadata headers = {
       {"date", "date value"},
       {"x-google-backends", "backend value"},
-      {"x-google-foo", "should not be in result"},  // Not whitelisted
+      {"x-google-foo", "should not be in result"},  // Not allowlisted
       {"x-google-gfe-request-trace", "request trace"},
       {"x-google-netmon-label", "netmon label"},
       {"x-google-service", "service 1"},
       {"x-google-service", "service 2"},  // Duplicate names are allowed
   };
-  std::string result = Datastore::GetWhitelistedHeadersAsString(headers);
+  std::string result = Datastore::GetAllowlistedHeadersAsString(headers);
   EXPECT_EQ(result,
             "date: date value\n"
             "x-google-backends: backend value\n"
@@ -273,7 +286,7 @@ TEST_F(DatastoreTest, CommitMutationsError) {
 
   EXPECT_TRUE(done);
   EXPECT_FALSE(resulting_status.ok());
-  EXPECT_EQ(resulting_status.code(), Error::kUnavailable);
+  EXPECT_EQ(resulting_status.code(), Error::kErrorUnavailable);
 }
 
 TEST_F(DatastoreTest, LookupDocumentsErrorBeforeFirstRead) {
@@ -293,7 +306,7 @@ TEST_F(DatastoreTest, LookupDocumentsErrorBeforeFirstRead) {
 
   EXPECT_TRUE(done);
   EXPECT_FALSE(resulting_status.ok());
-  EXPECT_EQ(resulting_status.code(), Error::kUnavailable);
+  EXPECT_EQ(resulting_status.code(), Error::kErrorUnavailable);
 }
 
 TEST_F(DatastoreTest, LookupDocumentsErrorAfterFirstRead) {
@@ -316,7 +329,7 @@ TEST_F(DatastoreTest, LookupDocumentsErrorAfterFirstRead) {
   EXPECT_TRUE(done);
   EXPECT_TRUE(resulting_docs.empty());
   EXPECT_FALSE(resulting_status.ok());
-  EXPECT_EQ(resulting_status.code(), Error::kUnavailable);
+  EXPECT_EQ(resulting_status.code(), Error::kErrorUnavailable);
 }
 
 // Auth errors
@@ -376,17 +389,17 @@ MATCHER(IsPermanentError,
 }
 
 TEST_F(DatastoreTest, IsPermanentError) {
-  EXPECT_THAT(Error::kCancelled, Not(IsPermanentError()));
-  EXPECT_THAT(Error::kResourceExhausted, Not(IsPermanentError()));
-  EXPECT_THAT(Error::kUnavailable, Not(IsPermanentError()));
+  EXPECT_THAT(Error::kErrorCancelled, Not(IsPermanentError()));
+  EXPECT_THAT(Error::kErrorResourceExhausted, Not(IsPermanentError()));
+  EXPECT_THAT(Error::kErrorUnavailable, Not(IsPermanentError()));
   // User info doesn't matter:
   EXPECT_FALSE(Datastore::IsPermanentError(
-      Status{Error::kUnavailable, "Connectivity lost"}));
+      Status{Error::kErrorUnavailable, "Connectivity lost"}));
   // "unauthenticated" is considered a recoverable error due to expired token.
-  EXPECT_THAT(Error::kUnauthenticated, Not(IsPermanentError()));
+  EXPECT_THAT(Error::kErrorUnauthenticated, Not(IsPermanentError()));
 
-  EXPECT_THAT(Error::kDataLoss, IsPermanentError());
-  EXPECT_THAT(Error::kAborted, IsPermanentError());
+  EXPECT_THAT(Error::kErrorDataLoss, IsPermanentError());
+  EXPECT_THAT(Error::kErrorAborted, IsPermanentError());
 }
 
 MATCHER(IsPermanentWriteError,
@@ -395,9 +408,9 @@ MATCHER(IsPermanentWriteError,
 }
 
 TEST_F(DatastoreTest, IsPermanentWriteError) {
-  EXPECT_THAT(Error::kUnauthenticated, Not(IsPermanentWriteError()));
-  EXPECT_THAT(Error::kDataLoss, IsPermanentWriteError());
-  EXPECT_THAT(Error::kAborted, Not(IsPermanentWriteError()));
+  EXPECT_THAT(Error::kErrorUnauthenticated, Not(IsPermanentWriteError()));
+  EXPECT_THAT(Error::kErrorDataLoss, IsPermanentWriteError());
+  EXPECT_THAT(Error::kErrorAborted, Not(IsPermanentWriteError()));
 }
 
 }  // namespace remote

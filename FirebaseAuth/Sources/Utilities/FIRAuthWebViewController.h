@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include <TargetConditionals.h>
+#import <TargetConditionals.h>
 #if TARGET_OS_IOS
 
 #import <UIKit/UIKit.h>

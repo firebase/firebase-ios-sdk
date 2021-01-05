@@ -1,4 +1,4 @@
-// Copyright 2020 Google
+// Copyright 2020 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,8 +14,8 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FIRExceptionModel_Private.h"
-#import "FIRStackFrame_Private.h"
+#import "Crashlytics/Crashlytics/Private/FIRExceptionModel_Private.h"
+#import "Crashlytics/Crashlytics/Private/FIRStackFrame_Private.h"
 
 @interface FIRExceptionModelTests : XCTestCase
 

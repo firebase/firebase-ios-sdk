@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-if(NOT APPLE)
+if(NOT APPLE OR NOT FIREBASE_IOS_BUILD_TESTS)
   return()
 endif()
 

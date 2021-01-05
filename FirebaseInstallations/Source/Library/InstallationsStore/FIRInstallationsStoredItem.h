@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRInstallationsStatus.h"
+#import "FirebaseInstallations/Source/Library/InstallationsIDController/FIRInstallationsStatus.h"
 
 @class FIRInstallationsStoredAuthToken;
 @class FIRInstallationsStoredIIDCheckin;
@@ -35,7 +35,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 ///  A stable identifier that uniquely identifies the app instance.
 @property(nonatomic, copy, nullable) NSString *firebaseInstallationID;
-/// The `refreshToken` is used to authorize the auth token requests.
+/// The `refreshToken` is used to authorize the installation auth token requests.
 @property(nonatomic, copy, nullable) NSString *refreshToken;
 
 @property(nonatomic, nullable) FIRInstallationsStoredAuthToken *authToken;

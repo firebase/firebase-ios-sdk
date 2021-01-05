@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-#import "FIRCLSReportAdapter.h"
-#import "FIRCLSReportAdapter_Private.h"
+#import "Crashlytics/Crashlytics/Models/Record/FIRCLSReportAdapter.h"
+#import "Crashlytics/Crashlytics/Models/Record/FIRCLSReportAdapter_Private.h"
 
-#import "FIRCLSInternalReport.h"
-#import "FIRCLSLogger.h"
+#import "Crashlytics/Crashlytics/Helpers/FIRCLSLogger.h"
+#import "Crashlytics/Crashlytics/Models/FIRCLSInternalReport.h"
 
-#import "FIRCLSUserLogging.h"
+#import "Crashlytics/Crashlytics/Components/FIRCLSUserLogging.h"
 
 #import <nanopb/pb.h>
 #import <nanopb/pb_decode.h>
@@ -219,10 +219,15 @@
 }
 
 /** Mallocs a pb_bytes_array and copies the given NSString's bytes into the bytes array.
- * @note Memory needs to be free manually, through pb_free or pb_release.
+ * @note Memory needs to be freed manually, through pb_free or pb_release.
  * @param string The string to encode as pb_bytes.
  */
 pb_bytes_array_t *FIRCLSEncodeString(NSString *string) {
+  if ([string isMemberOfClass:[NSNull class]]) {
+    FIRCLSErrorLog(@"Expected encodable string, but found NSNull instead. "
+                   @"Set a symbolic breakpoint at FIRCLSEncodeString to debug.");
+    string = nil;
+  }
   NSString *stringToEncode = string ? string : @"";
   NSData *stringBytes = [stringToEncode dataUsingEncoding:NSUTF8StringEncoding];
   return FIRCLSEncodeData(stringBytes);

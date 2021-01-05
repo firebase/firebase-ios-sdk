@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2018 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@
 namespace firebase {
 namespace firestore {
 namespace remote {
+namespace {
 
 using auth::CredentialsProvider;
 using auth::Token;
@@ -39,8 +40,6 @@ using util::Status;
 using util::StatusOr;
 using util::StringFormat;
 using util::TimerId;
-
-namespace {
 
 /**
  * Initial backoff time after an error.
@@ -202,8 +201,8 @@ void Stream::OnStreamRead(const grpc::ByteBuffer& message) {
   HARD_ASSERT(IsStarted(), "OnStreamRead called for a stopped stream.");
 
   if (LogIsDebugEnabled()) {
-    LOG_DEBUG("%s headers (whitelisted): %s", GetDebugDescription(),
-              Datastore::GetWhitelistedHeadersAsString(
+    LOG_DEBUG("%s headers (allowlisted): %s", GetDebugDescription(),
+              Datastore::GetAllowlistedHeadersAsString(
                   grpc_stream_->GetResponseHeaders()));
   }
 
@@ -280,12 +279,12 @@ void Stream::Close(const Status& status) {
 }
 
 void Stream::HandleErrorStatus(const Status& status) {
-  if (status.code() == Error::kResourceExhausted) {
+  if (status.code() == Error::kErrorResourceExhausted) {
     LOG_DEBUG(
         "%s Using maximum backoff delay to prevent overloading the backend.",
         GetDebugDescription());
     backoff_.ResetToMax();
-  } else if (status.code() == Error::kUnauthenticated) {
+  } else if (status.code() == Error::kErrorUnauthenticated) {
     // "unauthenticated" error means the token was rejected. Try force
     // refreshing it in case it just expired.
     credentials_provider_->InvalidateToken();
@@ -295,7 +294,13 @@ void Stream::HandleErrorStatus(const Status& status) {
 void Stream::OnStreamFinish(const Status& status) {
   EnsureOnQueue();
 
-  LOG_DEBUG("%s Stream error: '%s'", GetDebugDescription(), status.ToString());
+  if (!status.ok()) {
+    LOG_WARN("%s Stream error: '%s'", GetDebugDescription(), status.ToString());
+  } else {
+    LOG_DEBUG("%s Stream closing: '%s'", GetDebugDescription(),
+              status.ToString());
+  }
+
   Close(status);
 }
 

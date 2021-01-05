@@ -14,71 +14,86 @@
  * limitations under the License.
  */
 
-#import "GDTCORTests/Integration/Helpers/GDTCORIntegrationTestUploader.h"
+#import "GoogleDataTransport/GDTCORTests/Integration/Helpers/GDTCORIntegrationTestUploader.h"
 
-#import <GoogleDataTransport/GDTCORAssert.h>
-#import <GoogleDataTransport/GDTCOREvent.h>
-#import <GoogleDataTransport/GDTCORRegistrar.h>
+#import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORAssert.h"
+#import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORRegistrar.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCOREvent.h"
 
-#import "GDTCORTests/Integration/Helpers/GDTCORIntegrationTestPrioritizer.h"
-
-#import "GDTCORTests/Integration/TestServer/GDTCORTestServer.h"
+#import "GoogleDataTransport/GDTCORTests/Integration/TestServer/GDTCORTestServer.h"
 
 @implementation GDTCORIntegrationTestUploader {
   /** The current upload task. */
   NSURLSessionUploadTask *_currentUploadTask;
 
   /** The server URL to upload to. */
-  NSURL *_serverURL;
+  GDTCORTestServer *_testServer;
 }
 
-- (instancetype)initWithServerURL:(NSURL *)serverURL {
+- (instancetype)initWithServer:(GDTCORTestServer *)testServer {
   self = [super init];
   if (self) {
-    _serverURL = serverURL;
+    _testServer = testServer;
     [[GDTCORRegistrar sharedInstance] registerUploader:self target:kGDTCORTargetTest];
   }
   return self;
 }
 
-- (void)uploadPackage:(GDTCORUploadPackage *)package {
-  GDTCORFatalAssert(!_currentUploadTask,
-                    @"An upload shouldn't be initiated with another in progress.");
-  NSURL *serverURL = arc4random_uniform(2) ? [_serverURL URLByAppendingPathComponent:@"log"]
-                                           : [_serverURL URLByAppendingPathComponent:@"logBatch"];
-  NSURLSession *session = [NSURLSession sharedSession];
-  NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:serverURL];
-  request.HTTPMethod = @"POST";
-  NSMutableData *uploadData = [[NSMutableData alloc] init];
+- (void)uploadTarget:(GDTCORTarget)target withConditions:(GDTCORUploadConditions)conditions {
+  __block NSSet<GDTCOREvent *> *eventsForTarget;
+  id<GDTCORStorageProtocol> storage = GDTCORStorageInstanceForTarget(target);
+  GDTCORStorageEventSelector *eventSelector =
+      [GDTCORStorageEventSelector eventSelectorForTarget:target];
+  [storage
+      batchWithEventSelector:eventSelector
+             batchExpiration:[NSDate dateWithTimeIntervalSinceNow:60000]
+                  onComplete:^(NSNumber *_Nullable batchID,
+                               NSSet<GDTCOREvent *> *_Nullable events) {
+                    eventsForTarget = events;
+                    if (self->_currentUploadTask) {
+                      return;
+                    }
+                    NSURL *serverURL =
+                        arc4random_uniform(2)
+                            ? [self->_testServer.serverURL URLByAppendingPathComponent:@"log"]
+                            : [self->_testServer.serverURL URLByAppendingPathComponent:@"logBatch"];
+                    NSURLSession *session = [NSURLSession sharedSession];
+                    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:serverURL];
+                    request.HTTPMethod = @"POST";
+                    NSMutableData *uploadData = [[NSMutableData alloc] init];
 
-  NSLog(@"Uploading batch of %lu events: ", (unsigned long)[package events].count);
+                    NSLog(@"Uploading batch of %lu events: ", (unsigned long)eventsForTarget.count);
 
-  // In real usage, you'd create an instance of whatever request proto your server needs.
-  for (GDTCOREvent *event in package.events) {
-    NSData *fileData = [NSData dataWithContentsOfURL:event.fileURL];
-    GDTCORFatalAssert(fileData, @"An event file shouldn't be empty");
-    [uploadData appendData:fileData];
-  }
-  _currentUploadTask = [session
-      uploadTaskWithRequest:request
-                   fromData:uploadData
-          completionHandler:^(NSData *_Nullable data, NSURLResponse *_Nullable response,
-                              NSError *_Nullable error) {
-            NSLog(@"Batch upload complete.");
-            // Remove from the prioritizer if there were no errors.
-            GDTCORFatalAssert(!error, @"There should be no errors uploading events: %@", error);
-            if (error) {
-              [package retryDeliveryInTheFuture];
-            } else {
-              [package completeDelivery];
-            }
-            self->_currentUploadTask = nil;
-          }];
-  [_currentUploadTask resume];
+                    // In real usage, you'd create an instance of whatever request proto your server
+                    // needs.
+                    for (GDTCOREvent *event in eventsForTarget) {
+                      NSData *fileData = event.serializedDataObjectBytes;
+                      GDTCORFatalAssert(fileData, @"An event file shouldn't be empty");
+                      [uploadData appendData:fileData];
+                    }
+                    self->_currentUploadTask = [session
+                        uploadTaskWithRequest:request
+                                     fromData:uploadData
+                            completionHandler:^(NSData *_Nullable data,
+                                                NSURLResponse *_Nullable response,
+                                                NSError *_Nullable error) {
+                              NSLog(@"Batch upload complete.");
+                              // Remove from the prioritizer if there were no errors.
+                              GDTCORFatalAssert(
+                                  !error, @"There should be no errors uploading events: %@", error);
+                              if (error) {
+                                [storage removeBatchWithID:batchID deleteEvents:NO onComplete:nil];
+                              } else {
+                                [storage removeBatchWithID:batchID deleteEvents:YES onComplete:nil];
+                              }
+                              self->_currentUploadTask = nil;
+                            }];
+                    [self->_currentUploadTask resume];
+                  }];
 }
 
 - (BOOL)readyToUploadTarget:(GDTCORTarget)target conditions:(GDTCORUploadConditions)conditions {
-  return _currentUploadTask ? NO : YES;
+  return _currentUploadTask != nil && _testServer.isRunning;
 }
 
 @end

@@ -346,7 +346,7 @@ private struct _FirestoreKeyedDecodingContainer<K: CodingKey>: KeyedDecodingCont
           var codingPathCopy = codingPath.map { key in key.stringValue }
           codingPathCopy.append(key.stringValue)
 
-          throw FirestoreDecodingError.fieldNameConfict("Field name " +
+          throw FirestoreDecodingError.fieldNameConflict("Field name " +
             "\(codingPathCopy) was found from document \"\(docPath)\", " +
             "cannot assign the document reference to this field.")
         }
@@ -694,7 +694,7 @@ private struct _FirestoreUnkeyedDecodingContainer: UnkeyedDecodingContainer {
                        DecodingError
                          .Context(codingPath: decoder
                            .codingPath + [_FirestoreKey(index: currentIndex)],
-                                  debugDescription: "Unkeyed container is at end."))
+                           debugDescription: "Unkeyed container is at end."))
     }
   }
 
@@ -1152,8 +1152,7 @@ extension DecodingError {
   fileprivate static func _typeDescription(of value: Any) -> String {
     if value is NSNull {
       return "a null value"
-    }
-      else if value is NSNumber /* FIXME: If swift-corelibs-foundation isn't updated to use NSNumber, this check will be necessary: || value is Int || value is Double */ {
+    } else if value is NSNumber /* FIXME: If swift-corelibs-foundation isn't updated to use NSNumber, this check will be necessary: || value is Int || value is Double */ {
       return "a number"
     } else if value is String {
       return "a string/data"

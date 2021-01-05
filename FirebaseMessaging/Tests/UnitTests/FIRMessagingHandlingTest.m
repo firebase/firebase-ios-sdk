@@ -16,13 +16,13 @@
 
 #import <XCTest/XCTest.h>
 
-#import <OCMock/OCMock.h>
+#import "OCMock.h"
 
-#import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
-#import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseInstanceID/FirebaseInstanceID.h>
-#import <FirebaseMessaging/FIRMessaging.h>
 #import <GoogleUtilities/GULUserDefaults.h>
+#import "Firebase/InstanceID/Public/FirebaseInstanceID.h"
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessaging.h"
+#import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 
 #import "FirebaseMessaging/Sources/FIRMessagingAnalytics.h"
 #import "FirebaseMessaging/Sources/FIRMessagingRmqManager.h"
@@ -38,7 +38,10 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
 @interface FIRMessaging ()
 
 @property(nonatomic, readwrite, strong) NSString *defaultFcmToken;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 @property(nonatomic, readwrite, strong) FIRInstanceID *instanceID;
+#pragma clang diagnostic pop
 
 - (BOOL)handleContextManagerMessage:(NSDictionary *)message;
 - (void)handleIncomingLinkIfNeededFromMessage:(NSDictionary *)message;
@@ -168,8 +171,10 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
   OCMReject([_testUtil.mockMessaging handleIncomingLinkIfNeededFromMessage:notificationPayload]);
   OCMReject([_mockMessagingAnalytics logMessage:notificationPayload toAnalytics:[OCMArg any]]);
 
+#if !(SWIFT_PACKAGE && TARGET_OS_TV)  // Not enough space.
   XCTAssertEqualObjects(@(FIRMessagingMessageStatusNew),
                         @([_testUtil.messaging appDidReceiveMessage:notificationPayload].status));
+#endif
   OCMVerifyAll(_testUtil.mockMessaging);
 }
 

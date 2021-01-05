@@ -1,3 +1,25 @@
+# v4.3.1
+- [changed] Client id usage in api call and respective checks in the code.
+- [fixed] Fix attempts to connect to invalid ipv6 domain by updating ipv4 and ipv6 to use a single, valid endpoint (#5032)
+
+# v4.3.0
+- [changed] Functionally neutral public header refactor to enable Swift Package
+  Manager support.
+
+# v4.2.1
+- [fixed]Check for Pending Dynamic link guard check logic
+
+# v4.2.0
+- [fixed] Fixed crashes that occur when a dynamic link is opened for the second time while an app is in the foreground (#5880)
+- [Added] Plist property `FirebaseDeepLinkPasteboardRetrievalEnabled` to enable/disable fetching dynamic links from Pasteboard.
+- [fixed] Reduce frequency of iOS14 pasteboard notifications by only reading from it when it contains URL(s). (#5905)
+- [changed] Functionally neutral updated import references for dependencies. (#5824)
+
+Refer to the [README.md](https://github.com/firebase/firebase-ios-sdk/blob/master/FirebaseDynamicLinks/README.md) for more details about this release.
+
+# v4.1.0
+- [fixed] Fixing unwanted pending dynamic links checks on subsequent app restarts. (#5665)
+
 # v4.0.8 -- M67
 - [fixed] Fix Catalyst build - removed deprecated unused Apple framework dependencies. (#5139)
 

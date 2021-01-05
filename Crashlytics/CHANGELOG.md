@@ -1,6 +1,45 @@
-# Unreleased
+# v7.1.0
+- [fixed] Fixed an issue where symbol uploads would fail when there are spaces in the project path, particularly in Unity builds (#6789).
+- [changed] Added additional logging when settings requests fail with a 404 status to help customers debug onboarding issues (#6847).
+
+# v4.6.2
+
+- [changed] Improved upload-symbols conversion speed. Customers with large dSYMs should see a significant improvement in the time it takes to upload Crashlytics symbols.
+- [fixed] Fixed Apple Watch crash related to `sigaction` (#6434).
+
+# v4.6.0
+
+- [added] Added stackFrameWithAddress API for recording custom errors that are symbolicated on the backend (#5975).
+- [fixed] Fixed comment typos (#6363).
+- [fixed] Remove device information from binary image data crash info entries (#6382).
+
+# v4.5.0
+
+- [fixed] Fixed a compiler warning and removed unused networking code (#6210).
+- [fixed] Fixed a crash that occurred rarely when trying to restart a URL session task without a valid request (#5984).
+- [added] Introduced watchOS support (#6262).
+
+# v4.3.1
+
+- [fixed] Fixed a segmentation fault that could occur when writing crash contexts to disk (#6048).
+
+# v4.3.0
+
+- [changed] Add dispatch_once for opening sdk log file. (#5904)
+- [changed] Functionally neutral updated import references for dependencies. (#5902)
+
+# v4.2.0
+
+- [changed] Removed an unnecessary linker rule for embedding the Info.plist. (#5804)
+
+# v4.1.1
+
+- [fixed] Fixed a crash that could occur if certain plist fields necessary to create Crashlytics records were missing at runtime. Also added some diagnostic logging to make the issue cause more explicit (#5565).
+
+# v4.1.0
 
 - [fixed] Fixed unchecked `malloc`s in Crashlytics (#5428).
+- [fixed] Fixed an instance of undefined behavior when loading files from disk (#5454).
 
 # v4.0.0
 

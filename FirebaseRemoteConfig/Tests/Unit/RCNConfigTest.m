@@ -15,16 +15,14 @@
  */
 
 #import <XCTest/XCTest.h>
+#import "OCMock.h"
 
-#import "FirebaseRemoteConfig/Sources/Protos/wireless/android/config/proto/Config.pbobjc.h"
-
-#import <FirebaseInstanceID/FIRInstanceID+Private.h>
-#import <FirebaseInstanceID/FIRInstanceIDCheckinPreferences.h>
-#import <OCMock/OCMock.h>
+//#import <FirebaseInstanceID/FIRInstanceID+Private.h>
+//#import <FirebaseInstanceID/FIRInstanceIDCheckinPreferences.h>
+#import "FirebaseRemoteConfig/Sources/Private/RCNConfigFetch.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigContent.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigExperiment.h"
-#import "FirebaseRemoteConfig/Sources/RCNConfigFetch.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigValue_Internal.h"
 #import "FirebaseRemoteConfig/Tests/Unit/RCNTestUtilities.h"
 

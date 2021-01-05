@@ -15,13 +15,13 @@
  */
 
 #import <FirebaseRemoteConfig/FIRRemoteConfig.h>
-
-#import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
-#import <FirebaseRemoteConfig/RCNConfigSettings.h>
+#import "RCNConfigSettings.h"  // This import is needed to expose settings for the Swift API tests.
 
 @class FIROptions;
 @class RCNConfigContent;
 @class RCNConfigDBManager;
+@class RCNConfigFetch;
+@protocol FIRAnalyticsInterop;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -33,6 +33,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// Internal settings
 @property(nonatomic, readonly, strong) RCNConfigSettings *settings;
+
+/// Config settings are custom settings.
+@property(nonatomic, readwrite, strong, nonnull) RCNConfigFetch *configFetch;
 
 /// Returns the FIRRemoteConfig instance for your namespace and for the default Firebase App.
 /// This singleton object contains the complete set of Remote Config parameter values available to

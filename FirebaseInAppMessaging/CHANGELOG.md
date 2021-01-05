@@ -1,3 +1,24 @@
+# 2020-10 -- v7.0.0
+- [removed] Removed deprecated elements of in-app messaging API.
+
+# 2020-08 -- v0.24.0
+- [changed] Functionally neutral import and header refactor to enable Swift Package
+  Manager support.
+
+# 2020-07 -- v0.23.0
+- [fixed] Fixed an inaccurate doc comment in `InAppMessagingDisplay` (#5972).
+- [changed] Functionally neutral source reorganization for preliminary Swift Package Manager support. (#6013)
+
+# 2020-07 -- v0.22.0
+- [changed] Functionally neutral updated import references for dependencies. (#5902)
+- [changed] Updated In-App Messaging to consume the Protobuf-less AB Testing SDK (#5890).
+
+# 2020-06-02 -- v0.20.2
+- [fixed] Fixed log message for in-app messaging test on device flow (#5680).
+
+# 2020-05-19 -- v0.20.1
+- [fixed] Fixed an issue where clicks were counted for messages with no action URL (#5564).
+
 # 2020-04-21 -- v0.19.3
 - [fixed] Fixed an issue where GoogleUtilities wasn't explicitly listed as a dependency (#5282).
 

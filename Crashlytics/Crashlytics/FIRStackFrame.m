@@ -1,4 +1,4 @@
-// Copyright 2020 Google
+// Copyright 2020 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRStackFrame_Private.h"
+#import "Crashlytics/Crashlytics/Private/FIRStackFrame_Private.h"
 
 @interface FIRStackFrame ()
 
@@ -47,6 +47,14 @@
   return self;
 }
 
++ (instancetype)stackFrameWithAddress:(NSUInteger)address {
+  FIRStackFrame *frame = [self stackFrame];
+
+  [frame setAddress:address];
+
+  return frame;
+}
+
 + (instancetype)stackFrameWithSymbol:(NSString *)symbol file:(NSString *)file line:(NSInteger)line {
   return [[FIRStackFrame alloc] initWithSymbol:symbol file:file line:line];
 }
@@ -55,14 +63,6 @@
 
 + (instancetype)stackFrame {
   return [[self alloc] init];
-}
-
-+ (instancetype)stackFrameWithAddress:(NSUInteger)address {
-  FIRStackFrame *frame = [self stackFrame];
-
-  [frame setAddress:address];
-
-  return frame;
 }
 
 + (instancetype)stackFrameWithSymbol:(NSString *)symbol {

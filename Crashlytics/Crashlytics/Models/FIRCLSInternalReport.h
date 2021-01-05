@@ -14,7 +14,7 @@
 
 #import <Foundation/Foundation.h>
 
-#include "FIRCLSFeatures.h"
+#include "Crashlytics/Crashlytics/Helpers/FIRCLSFeatures.h"
 
 extern NSString *const FIRCLSReportBinaryImageFile;
 extern NSString *const FIRCLSReportExceptionFile;

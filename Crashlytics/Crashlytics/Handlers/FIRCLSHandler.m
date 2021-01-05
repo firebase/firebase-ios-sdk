@@ -12,15 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "FIRCLSHandler.h"
+#include "Crashlytics/Crashlytics/Handlers/FIRCLSHandler.h"
 
-#include "FIRCLSCrashedMarkerFile.h"
-#include "FIRCLSGlobals.h"
-#include "FIRCLSHost.h"
-#include "FIRCLSProcess.h"
-#include "FIRCLSUtility.h"
+#include "Crashlytics/Crashlytics/Components/FIRCLSCrashedMarkerFile.h"
+#include "Crashlytics/Crashlytics/Components/FIRCLSGlobals.h"
+#include "Crashlytics/Crashlytics/Components/FIRCLSHost.h"
+#include "Crashlytics/Crashlytics/Components/FIRCLSProcess.h"
+#include "Crashlytics/Crashlytics/Helpers/FIRCLSUtility.h"
 
-#import "FIRCLSReportManager_Private.h"
+#import "Crashlytics/Crashlytics/Controllers/FIRCLSReportManager_Private.h"
 
 void FIRCLSHandler(FIRCLSFile* file, thread_t crashedThread, void* uapVoid) {
   FIRCLSProcess process;

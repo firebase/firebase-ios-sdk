@@ -18,34 +18,27 @@
 #error FIRMessagingLib should be compiled with ARC.
 #endif
 
-#import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
-#import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseCore/FIRComponent.h>
-#import <FirebaseCore/FIRComponentContainer.h>
-#import <FirebaseCore/FIRDependency.h>
-#import <FirebaseCore/FIRLibrary.h>
-#import <FirebaseInstanceID/FIRInstanceID_Private.h>
-#import <FirebaseInstanceID/FirebaseInstanceID.h>
-#import <FirebaseMessaging/FIRMessaging.h>
-#import <FirebaseMessaging/FIRMessagingExtensionHelper.h>
+#import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessaging.h"
 #import <GoogleUtilities/GULAppDelegateSwizzler.h>
 #import <GoogleUtilities/GULReachabilityChecker.h>
 #import <GoogleUtilities/GULUserDefaults.h>
+#import "Firebase/InstanceID/Private/FIRInstanceID_Private.h"
+#import "Firebase/InstanceID/Public/FirebaseInstanceID.h"
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseMessaging/Sources/Interop/FIRMessagingInterop.h"
+#import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessagingExtensionHelper.h"
+#import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 
 #import "FirebaseMessaging/Sources/FIRMessagingAnalytics.h"
-#import "FirebaseMessaging/Sources/FIRMessagingClient.h"
 #import "FirebaseMessaging/Sources/FIRMessagingConstants.h"
 #import "FirebaseMessaging/Sources/FIRMessagingContextManagerService.h"
-#import "FirebaseMessaging/Sources/FIRMessagingDataMessageManager.h"
 #import "FirebaseMessaging/Sources/FIRMessagingDefines.h"
 #import "FirebaseMessaging/Sources/FIRMessagingLogger.h"
 #import "FirebaseMessaging/Sources/FIRMessagingPubSub.h"
-#import "FirebaseMessaging/Sources/FIRMessagingReceiver.h"
 #import "FirebaseMessaging/Sources/FIRMessagingRemoteNotificationsProxy.h"
 #import "FirebaseMessaging/Sources/FIRMessagingRmqManager.h"
 #import "FirebaseMessaging/Sources/FIRMessagingSyncMessageManager.h"
 #import "FirebaseMessaging/Sources/FIRMessagingUtilities.h"
-#import "FirebaseMessaging/Sources/FIRMessagingVersionUtilities.h"
 #import "FirebaseMessaging/Sources/FIRMessaging_Private.h"
 #import "FirebaseMessaging/Sources/NSError+FIRMessaging.h"
 
@@ -55,23 +48,9 @@ static NSString *const kFIRMessagingDefaultTokenScope = @"*";
 static NSString *const kFIRMessagingFCMTokenFetchAPNSOption = @"apns_token";
 
 #if defined(__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
-const NSNotificationName FIRMessagingSendSuccessNotification =
-    @"com.firebase.messaging.notif.send-success";
-const NSNotificationName FIRMessagingSendErrorNotification =
-    @"com.firebase.messaging.notif.send-error";
-const NSNotificationName FIRMessagingMessagesDeletedNotification =
-    @"com.firebase.messaging.notif.messages-deleted";
-const NSNotificationName FIRMessagingConnectionStateChangedNotification =
-    @"com.firebase.messaging.notif.connection-state-changed";
 const NSNotificationName FIRMessagingRegistrationTokenRefreshedNotification =
     @"com.firebase.messaging.notif.fcm-token-refreshed";
 #else
-NSString *const FIRMessagingSendSuccessNotification = @"com.firebase.messaging.notif.send-success";
-NSString *const FIRMessagingSendErrorNotification = @"com.firebase.messaging.notif.send-error";
-NSString *const FIRMessagingMessagesDeletedNotification =
-    @"com.firebase.messaging.notif.messages-deleted";
-NSString *const FIRMessagingConnectionStateChangedNotification =
-    @"com.firebase.messaging.notif.connection-state-changed";
 NSString *const FIRMessagingRegistrationTokenRefreshedNotification =
     @"com.firebase.messaging.notif.fcm-token-refreshed";
 #endif  // defined(__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
@@ -121,39 +100,20 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 
 @end
 
-#pragma mark - for iOS 10 compatibility
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-implementations"
-@implementation FIRMessagingRemoteMessage
-#pragma clang diagnostic pop
-
-- (instancetype)init {
-  self = [super init];
-  if (self) {
-    _appData = [[NSMutableDictionary alloc] init];
-  }
-
-  return self;
-}
-
-@end
-
-@interface FIRMessaging () <FIRMessagingClientDelegate,
-                            FIRMessagingReceiverDelegate,
-                            GULReachabilityDelegate>
+@interface FIRMessaging () <GULReachabilityDelegate>
 
 // FIRApp properties
 @property(nonatomic, readwrite, strong) NSData *apnsTokenData;
 @property(nonatomic, readwrite, strong) NSString *defaultFcmToken;
-
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 @property(nonatomic, readwrite, strong) FIRInstanceID *instanceID;
+#pragma clang diagnostic pop
 
 @property(nonatomic, readwrite, strong) FIRMessagingClient *client;
 @property(nonatomic, readwrite, strong) GULReachabilityChecker *reachability;
-@property(nonatomic, readwrite, strong) FIRMessagingDataMessageManager *dataMessageManager;
 @property(nonatomic, readwrite, strong) FIRMessagingPubSub *pubsub;
 @property(nonatomic, readwrite, strong) FIRMessagingRmqManager *rmq2Manager;
-@property(nonatomic, readwrite, strong) FIRMessagingReceiver *receiver;
 @property(nonatomic, readwrite, strong) FIRMessagingSyncMessageManager *syncMessageManager;
 @property(nonatomic, readwrite, strong) GULUserDefaults *messagingUserDefaults;
 
@@ -165,21 +125,14 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 
 @end
 
-// Messaging doesn't provide any functionality to other components,
-// so it provides a private, empty protocol that it conforms to and use it for registration.
-
-@protocol FIRMessagingInstanceProvider
-@end
-
-@interface FIRMessaging () <FIRMessagingInstanceProvider, FIRLibrary>
+@interface FIRMessaging () <FIRMessagingInterop, FIRLibrary>
 @end
 
 @implementation FIRMessaging
 
 + (FIRMessaging *)messaging {
   FIRApp *defaultApp = [FIRApp defaultApp];  // Missing configure will be logged here.
-  id<FIRMessagingInstanceProvider> instance =
-      FIR_COMPONENT(FIRMessagingInstanceProvider, defaultApp.container);
+  id<FIRMessagingInterop> instance = FIR_COMPONENT(FIRMessagingInterop, defaultApp.container);
 
   // We know the instance coming from the container is a FIRMessaging instance, cast it and move on.
   return (FIRMessaging *)instance;
@@ -193,10 +146,12 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   });
   return extensionHelper;
 }
-
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 - (instancetype)initWithAnalytics:(nullable id<FIRAnalyticsInterop>)analytics
                    withInstanceID:(FIRInstanceID *)instanceID
                  withUserDefaults:(GULUserDefaults *)defaults {
+#pragma clang diagnostic pop
   self = [super init];
   if (self != nil) {
     _loggedMessageIDs = [NSMutableSet set];
@@ -216,9 +171,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 #pragma mark - Config
 
 + (void)load {
-  [FIRApp registerInternalLibrary:(Class<FIRLibrary>)self
-                         withName:@"fire-fcm"
-                      withVersion:FIRMessagingCurrentLibraryVersion()];
+  [FIRApp registerInternalLibrary:(Class<FIRLibrary>)self withName:@"fire-fcm"];
 }
 
 + (nonnull NSArray<FIRComponent *> *)componentsToRegister {
@@ -236,16 +189,19 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
     // Ensure it's cached so it returns the same instance every time messaging is called.
     *isCacheable = YES;
     id<FIRAnalyticsInterop> analytics = FIR_COMPONENT(FIRAnalyticsInterop, container);
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     FIRMessaging *messaging =
         [[FIRMessaging alloc] initWithAnalytics:analytics
                                  withInstanceID:[FIRInstanceID instanceID]
                                withUserDefaults:[GULUserDefaults standardUserDefaults]];
+#pragma clang diagnostic pop
     [messaging start];
     [messaging configureNotificationSwizzlingIfEnabled];
     return messaging;
   };
   FIRComponent *messagingProvider =
-      [FIRComponent componentWithProtocol:@protocol(FIRMessagingInstanceProvider)
+      [FIRComponent componentWithProtocol:@protocol(FIRMessagingInterop)
                       instantiationTiming:FIRInstantiationTimingEagerInDefaultApp
                              dependencies:@[ analyticsDep ]
                             creationBlock:creationBlock];
@@ -273,14 +229,13 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 - (void)start {
   [self setupFileManagerSubDirectory];
   [self setupNotificationListeners];
+  [self setupTopics];
 
 #if !TARGET_OS_WATCH
   // Print the library version for logging.
-  NSString *currentLibraryVersion = FIRMessagingCurrentLibraryVersion();
+  NSString *currentLibraryVersion = FIRFirebaseVersion();
   FIRMessagingLoggerInfo(kFIRMessagingMessageCodeMessagingPrintLibraryVersion,
                          @"FIRMessaging library version %@", currentLibraryVersion);
-
-  [self setupReceiver];
 
   NSString *hostname = kFIRMessagingReachabilityHostname;
   self.reachability = [[GULReachabilityChecker alloc] initWithReachabilityDelegate:self
@@ -289,10 +244,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 
   // setup FIRMessaging objects
   [self setupRmqManager];
-  [self setupClient];
   [self setupSyncMessageManager];
-  [self setupDataMessageManager];
-  [self setupTopics];
 
 #endif
 }
@@ -311,38 +263,6 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
              selector:@selector(defaultInstanceIDTokenWasRefreshed:)
                  name:kFIRMessagingRegistrationTokenRefreshNotification
                object:nil];
-#if TARGET_OS_IOS || TARGET_OS_TV
-  [center addObserver:self
-             selector:@selector(applicationStateChanged)
-                 name:UIApplicationDidBecomeActiveNotification
-               object:nil];
-  [center addObserver:self
-             selector:@selector(applicationStateChanged)
-                 name:UIApplicationDidEnterBackgroundNotification
-               object:nil];
-#endif
-}
-
-- (void)setupReceiver {
-  self.receiver = [[FIRMessagingReceiver alloc] init];
-  self.receiver.delegate = self;
-}
-
-- (void)setupClient {
-  self.client = [[FIRMessagingClient alloc] initWithDelegate:self
-                                                reachability:self.reachability
-                                                 rmq2Manager:self.rmq2Manager];
-}
-
-- (void)setupDataMessageManager {
-  self.dataMessageManager =
-      [[FIRMessagingDataMessageManager alloc] initWithDelegate:self.receiver
-                                                        client:self.client
-                                                   rmq2Manager:self.rmq2Manager
-                                            syncMessageManager:self.syncMessageManager];
-
-  [self.dataMessageManager refreshDelayedMessages];
-  [self.client setDataMessageManager:self.dataMessageManager];
 }
 
 - (void)setupRmqManager {
@@ -351,11 +271,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 }
 
 - (void)setupTopics {
-  if (!self.client) {
-    FIRMessagingLoggerWarn(kFIRMessagingMessageCodeInvalidClient,
-                           @"Invalid nil client before init pubsub.");
-  }
-  self.pubsub = [[FIRMessagingPubSub alloc] initWithClient:self.client];
+  self.pubsub = [[FIRMessagingPubSub alloc] init];
 }
 
 - (void)setupSyncMessageManager {
@@ -365,12 +281,9 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 }
 
 - (void)teardown {
-  [self.client teardown];
   self.pubsub = nil;
   self.syncMessageManager = nil;
   self.rmq2Manager = nil;
-  self.dataMessageManager = nil;
-  self.client = nil;
   FIRMessagingLoggerDebug(kFIRMessagingMessageCodeMessaging001, @"Did successfully teardown");
 }
 
@@ -575,17 +488,25 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   return token;
 }
 
+- (void)tokenWithCompletion:(FIRMessagingFCMTokenFetchCompletion)completion {
+  FIROptions *options = FIRApp.defaultApp.options;
+  [self retrieveFCMTokenForSenderID:options.GCMSenderID completion:completion];
+}
+- (void)deleteTokenWithCompletion:(FIRMessagingDeleteFCMTokenCompletion)completion {
+  FIROptions *options = FIRApp.defaultApp.options;
+  [self deleteFCMTokenForSenderID:options.GCMSenderID completion:completion];
+}
+
 - (void)retrieveFCMTokenForSenderID:(nonnull NSString *)senderID
                          completion:(nonnull FIRMessagingFCMTokenFetchCompletion)completion {
   if (!senderID.length) {
-    FIRMessagingLoggerError(kFIRMessagingMessageCodeSenderIDNotSuppliedForTokenFetch,
-                            @"Sender ID not supplied. It is required for a token fetch, "
-                            @"to identify the sender.");
+    NSString *description = @"Couldn't fetch token because a Sender ID was not supplied. A valid "
+                            @"Sender ID is required to fetch an FCM token";
+    FIRMessagingLoggerError(kFIRMessagingMessageCodeSenderIDNotSuppliedForTokenFetch, @"%@",
+                            description);
     if (completion) {
-      NSString *description = @"Couldn't fetch token because a Sender ID was not supplied. A valid "
-                              @"Sender ID is required to fetch an FCM token";
-      NSError *error = [NSError fcm_errorWithCode:FIRMessagingErrorInvalidRequest
-                                         userInfo:@{NSLocalizedDescriptionKey : description}];
+      NSError *error = [NSError messagingErrorWithCode:kFIRMessagingErrorCodeInvalidRequest
+                                         failureReason:description];
       completion(nil, error);
     }
     return;
@@ -601,29 +522,70 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
                            @"set.",
                            senderID);
   }
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   [self.instanceID tokenWithAuthorizedEntity:senderID
                                        scope:kFIRMessagingDefaultTokenScope
                                      options:options
                                      handler:completion];
+#pragma clang diagnostic pop
 }
 
 - (void)deleteFCMTokenForSenderID:(nonnull NSString *)senderID
                        completion:(nonnull FIRMessagingDeleteFCMTokenCompletion)completion {
   if (!senderID.length) {
-    FIRMessagingLoggerError(kFIRMessagingMessageCodeSenderIDNotSuppliedForTokenDelete,
-                            @"Sender ID not supplied. It is required to delete an FCM token.");
+    NSString *description = @"Couldn't delete token because a Sender ID was not supplied. A "
+                            @"valid Sender ID is required to delete an FCM token";
+    FIRMessagingLoggerError(kFIRMessagingMessageCodeSenderIDNotSuppliedForTokenDelete, @"%@",
+                            description);
     if (completion) {
-      NSString *description = @"Couldn't delete token because a Sender ID was not supplied. A "
-                              @"valid Sender ID is required to delete an FCM token";
-      NSError *error = [NSError fcm_errorWithCode:FIRMessagingErrorInvalidRequest
-                                         userInfo:@{NSLocalizedDescriptionKey : description}];
+      NSError *error = [NSError messagingErrorWithCode:kFIRMessagingErrorCodeInvalidRequest
+                                         failureReason:description];
       completion(error);
     }
     return;
   }
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   [self.instanceID deleteTokenWithAuthorizedEntity:senderID
                                              scope:kFIRMessagingDefaultTokenScope
                                            handler:completion];
+#pragma clang diagnostic pop
+}
+
+- (void)deleteDataWithCompletion:(void (^)(NSError *_Nullable))completion {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+  FIRMessaging_WEAKIFY(self);
+  [self.instanceID
+      deleteTokenWithAuthorizedEntity:@"*"
+                                scope:@"*"
+                              handler:^(NSError *_Nonnull error) {
+                                FIRMessaging_STRONGIFY(self);
+                                if (error) {
+                                  completion(error);
+                                  return;
+                                }
+                                [self.instanceID
+                                    deleteCheckinWithHandler:^(NSError *_Nullable error) {
+                                      if (error) {
+                                        completion(error);
+                                        return;
+                                      }
+                                      // Only request new token if FCM auto initialization is
+                                      // enabled.
+                                      if ([self isAutoInitEnabled]) {
+                                        // Deletion succeeds! Requesting new checkin, IID and token.
+                                        [self tokenWithCompletion:^(NSString *_Nullable token,
+                                                                    NSError *_Nullable error) {
+                                          completion(error);
+                                        }];
+                                        return;
+                                      }
+                                      completion(nil);
+                                    }];
+                              }];
+#pragma clang diagnostic pop
 }
 
 #pragma mark - FIRMessagingDelegate helper methods
@@ -665,82 +627,6 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
                         object:self.defaultFcmToken];
 }
 
-#pragma mark - Application State Changes
-
-- (void)applicationStateChanged {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  if (self.shouldEstablishDirectChannel) {
-    [self updateAutomaticClientConnection];
-  }
-#pragma clang diagnostic pop
-}
-
-#pragma mark - Direct Channel
-
-- (void)setShouldEstablishDirectChannel:(BOOL)shouldEstablishDirectChannel {
-  if (_shouldEstablishDirectChannel == shouldEstablishDirectChannel) {
-    return;
-  }
-  _shouldEstablishDirectChannel = shouldEstablishDirectChannel;
-  [self updateAutomaticClientConnection];
-}
-
-- (BOOL)isDirectChannelEstablished {
-  return self.client.isConnectionActive;
-}
-
-- (BOOL)shouldBeConnectedAutomatically {
-#if TARGET_OS_OSX || TARGET_OS_WATCH
-  return NO;
-#else
-  // We require a token from Instance ID
-  NSString *token = self.defaultFcmToken;
-  // Only on foreground connections
-  UIApplication *application = [GULAppDelegateSwizzler sharedApplication];
-  if (!application) {
-    return NO;
-  }
-  UIApplicationState applicationState = application.applicationState;
-  BOOL shouldBeConnected = _shouldEstablishDirectChannel && (token.length > 0) &&
-                           applicationState == UIApplicationStateActive;
-  return shouldBeConnected;
-#endif
-}
-
-- (void)updateAutomaticClientConnection {
-  if (![NSThread isMainThread]) {
-    // Call this method from the main thread
-    dispatch_async(dispatch_get_main_queue(), ^{
-      [self updateAutomaticClientConnection];
-    });
-    return;
-  }
-  BOOL shouldBeConnected = [self shouldBeConnectedAutomatically];
-  if (shouldBeConnected && !self.client.isConnected) {
-    [self.client connectWithHandler:^(NSError *error) {
-      if (!error) {
-        // It means we connected. Fire connection change notification
-        [self notifyOfDirectChannelConnectionChange];
-      } else {
-        FIRMessagingLoggerError(kFIRMessagingMessageCodeDirectChannelConnectionFailed,
-                                @"Failed to connect to direct channel, error: %@\n", error);
-      }
-    }];
-  } else if (!shouldBeConnected && self.client.isConnected) {
-    [self.client disconnect];
-    [self notifyOfDirectChannelConnectionChange];
-  }
-}
-
-- (void)notifyOfDirectChannelConnectionChange {
-  NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  [center postNotificationName:FIRMessagingConnectionStateChangedNotification object:self];
-#pragma clang diagnostic pop
-}
-
 #pragma mark - Topics
 
 + (NSString *)normalizeTopic:(NSString *)topic {
@@ -769,6 +655,8 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
                            topic, [FIRMessagingPubSub removePrefixFromTopic:topic]);
   }
   __weak FIRMessaging *weakSelf = self;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   [self.instanceID instanceIDWithHandler:^(FIRInstanceIDResult *_Nullable result,
                                            NSError *_Nullable error) {
     if (error) {
@@ -786,12 +674,15 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
       [strongSelf.pubsub subscribeToTopic:normalizeTopic handler:completion];
       return;
     }
-    FIRMessagingLoggerError(kFIRMessagingMessageCodeMessaging009,
-                            @"Cannot parse topic name %@. Will not subscribe.", topic);
+    NSString *failureReason =
+        [NSString stringWithFormat:@"Cannot parse topic name: '%@'. Will not subscribe.", topic];
+    FIRMessagingLoggerError(kFIRMessagingMessageCodeMessaging009, @"%@", failureReason);
     if (completion) {
-      completion([NSError fcm_errorWithCode:FIRMessagingErrorInvalidTopicName userInfo:nil]);
+      completion([NSError messagingErrorWithCode:kFIRMessagingErrorCodeInvalidTopicName
+                                   failureReason:failureReason]);
     }
   }];
+#pragma clang diagnostic pop
 }
 
 - (void)unsubscribeFromTopic:(NSString *)topic {
@@ -807,6 +698,8 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
                            topic, [FIRMessagingPubSub removePrefixFromTopic:topic]);
   }
   __weak FIRMessaging *weakSelf = self;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   [self.instanceID instanceIDWithHandler:^(FIRInstanceIDResult *_Nullable result,
                                            NSError *_Nullable error) {
     if (error) {
@@ -824,72 +717,25 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
       [strongSelf.pubsub unsubscribeFromTopic:normalizeTopic handler:completion];
       return;
     }
-    FIRMessagingLoggerError(kFIRMessagingMessageCodeMessaging011,
-                            @"Cannot parse topic name %@. Will not unsubscribe.", topic);
+    NSString *failureReason =
+        [NSString stringWithFormat:@"Cannot parse topic name: '%@'. Will not unsubscribe.", topic];
+    FIRMessagingLoggerError(kFIRMessagingMessageCodeMessaging011, @"%@", failureReason);
     if (completion) {
-      completion([NSError fcm_errorWithCode:FIRMessagingErrorInvalidTopicName userInfo:nil]);
+      completion([NSError messagingErrorWithCode:kFIRMessagingErrorCodeInvalidTopicName
+                                   failureReason:failureReason]);
     }
   }];
-}
-
-#pragma mark - Send
-
-- (void)sendMessage:(NSDictionary *)message
-                 to:(NSString *)to
-      withMessageID:(NSString *)messageID
-         timeToLive:(int64_t)ttl {
-  NSMutableDictionary *fcmMessage = [[self class] createFIRMessagingMessageWithMessage:message
-                                                                                    to:to
-                                                                                withID:messageID
-                                                                            timeToLive:ttl
-                                                                                 delay:0];
-  FIRMessagingLoggerInfo(kFIRMessagingMessageCodeMessaging013,
-                         @"Sending message: %@ with id: %@ to %@.", message, messageID, to);
-  [self.dataMessageManager sendDataMessageStanza:fcmMessage];
-}
-
-+ (NSMutableDictionary *)createFIRMessagingMessageWithMessage:(NSDictionary *)message
-                                                           to:(NSString *)to
-                                                       withID:(NSString *)msgID
-                                                   timeToLive:(int64_t)ttl
-                                                        delay:(int)delay {
-  NSMutableDictionary *fcmMessage = [NSMutableDictionary dictionary];
-  fcmMessage[kFIRMessagingSendTo] = [to copy];
-  fcmMessage[kFIRMessagingSendMessageID] = msgID ? [msgID copy] : @"";
-  fcmMessage[kFIRMessagingSendTTL] = @(ttl);
-  fcmMessage[kFIRMessagingSendDelay] = @(delay);
-  fcmMessage[KFIRMessagingSendMessageAppData] =
-      [NSMutableDictionary dictionaryWithDictionary:message];
-  return fcmMessage;
+#pragma clang diagnostic pop
 }
 
 #pragma mark - IID dependencies
 
 + (NSString *)FIRMessagingSDKVersion {
-  return FIRMessagingCurrentLibraryVersion();
+  return FIRFirebaseVersion();
 }
 
 + (NSString *)FIRMessagingSDKCurrentLocale {
   return [self currentLocale];
-}
-
-#pragma mark - FIRMessagingReceiverDelegate
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-- (void)receiver:(FIRMessagingReceiver *)receiver
-    receivedRemoteMessage:(FIRMessagingRemoteMessage *)remoteMessage {
-  if ([self.delegate respondsToSelector:@selector(messaging:didReceiveMessage:)]) {
-    [self appDidReceiveMessage:remoteMessage.appData];
-#pragma clang diagnostic ignored "-Wunguarded-availability"
-    [self.delegate messaging:self didReceiveMessage:remoteMessage];
-#pragma clang diagnostic pop
-  } else {
-    // Delegate methods weren't implemented, so messages are being dropped, log a warning
-    FIRMessagingLoggerWarn(kFIRMessagingMessageCodeRemoteMessageDelegateMethodNotImplemented,
-                           @"FIRMessaging received data-message, but FIRMessagingDelegate's"
-                           @"-messaging:didReceiveMessage: not implemented");
-  }
 }
 
 #pragma mark - GULReachabilityDelegate
@@ -902,12 +748,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 #pragma mark - Network
 
 - (void)onNetworkStatusChanged {
-  if (![self.client isConnected] && [self isNetworkAvailable]) {
-    if (self.client.shouldStayConnected) {
-      FIRMessagingLoggerDebug(kFIRMessagingMessageCodeMessaging014,
-                              @"Attempting to establish direct channel.");
-      [self.client retryConnectionImmediately:YES];
-    }
+  if ([self isNetworkAvailable]) {
     [self.pubsub scheduleSync:YES];
   }
 }
@@ -946,12 +787,6 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
       self.defaultFcmToken.length != oldToken.length) {
     [self notifyDelegateOfFCMTokenAvailability];
     [self.pubsub scheduleSync:YES];
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    if (self.shouldEstablishDirectChannel) {
-      [self updateAutomaticClientConnection];
-    }
-#pragma clang diagnostic pop
   }
 }
 
@@ -1067,7 +902,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
     // Malay
     @"ms" : @[ @"ms_MY" ],
     // Maltese
-    @"ms" : @[ @"mt_MT" ],
+    @"mt" : @[ @"mt_MT" ],
     // Polish
     @"pl" : @[ @"pl", @"pl_PL", @"pl-PL" ],
     // Romanian

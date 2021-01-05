@@ -14,20 +14,20 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FIRCLSReportUploader_Private.h"
+#import "Crashlytics/Crashlytics/Controllers/FIRCLSReportUploader_Private.h"
 
-#import "FABMockApplicationIdentifierModel.h"
-#import "FIRCLSApplication.h"
-#include "FIRCLSConstants.h"
-#include "FIRCLSDataCollectionToken.h"
-#include "FIRCLSDefines.h"
-#include "FIRCLSFileManager.h"
-#include "FIRCLSInternalReport.h"
-#include "FIRCLSMockNetworkClient.h"
-#include "FIRCLSMockSettings.h"
-#include "FIRCLSSettings.h"
-#include "FIRCLSTempMockFileManager.h"
-#include "FIRMockGDTCoreTransport.h"
+#import "Crashlytics/Crashlytics/Components/FIRCLSApplication.h"
+#include "Crashlytics/Crashlytics/DataCollection/FIRCLSDataCollectionToken.h"
+#include "Crashlytics/Crashlytics/Helpers/FIRCLSDefines.h"
+#include "Crashlytics/Crashlytics/Models/FIRCLSFileManager.h"
+#include "Crashlytics/Crashlytics/Models/FIRCLSInternalReport.h"
+#include "Crashlytics/Crashlytics/Models/FIRCLSSettings.h"
+#include "Crashlytics/Shared/FIRCLSConstants.h"
+#import "Crashlytics/UnitTests/Mocks/FABMockApplicationIdentifierModel.h"
+#include "Crashlytics/UnitTests/Mocks/FIRCLSMockNetworkClient.h"
+#include "Crashlytics/UnitTests/Mocks/FIRCLSMockSettings.h"
+#include "Crashlytics/UnitTests/Mocks/FIRCLSTempMockFileManager.h"
+#include "Crashlytics/UnitTests/Mocks/FIRMockGDTCoreTransport.h"
 
 NSString *const TestEndpoint = @"https://reports.crashlytics.com";
 
@@ -65,9 +65,9 @@ NSString *const TestEndpoint = @"https://reports.crashlytics.com";
                                                        client:self.networkClient
                                                   fileManager:self.fileManager
                                                     analytics:nil];
-  self.mockDataTransport = [[FIRMockGDTCORTransport alloc] initWithMappingID:@"mappingID"
+  self.mockDataTransport = [[FIRMockGDTCORTransport alloc] initWithMappingID:@"1206"
                                                                 transformers:nil
-                                                                      target:1206];
+                                                                      target:kGDTCORTargetCSH];
 }
 
 - (void)tearDown {

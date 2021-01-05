@@ -13,10 +13,10 @@
 // limitations under the License.
 
 #import "FirebaseCore/Sources/FIRBundleUtil.h"
-#import "FirebaseCore/Sources/FIRVersion.h"
 #import "FirebaseCore/Sources/Private/FIRAppInternal.h"
 #import "FirebaseCore/Sources/Private/FIRLogger.h"
 #import "FirebaseCore/Sources/Private/FIROptionsInternal.h"
+#import "FirebaseCore/Sources/Public/FirebaseCore/FIRVersion.h"
 
 // Keys for the strings in the plist file.
 NSString *const kFIRAPIKey = @"API_KEY";
@@ -90,40 +90,40 @@ NSString *const kFIRExceptionBadModification =
 
 static FIROptions *sDefaultOptions = nil;
 static NSDictionary *sDefaultOptionsDictionary = nil;
+static dispatch_once_t sDefaultOptionsOnceToken;
+static dispatch_once_t sDefaultOptionsDictionaryOnceToken;
 
 #pragma mark - Public only for internal class methods
 
 + (FIROptions *)defaultOptions {
-  if (sDefaultOptions != nil) {
-    return sDefaultOptions;
-  }
+  dispatch_once(&sDefaultOptionsOnceToken, ^{
+    NSDictionary *defaultOptionsDictionary = [self defaultOptionsDictionary];
+    if (defaultOptionsDictionary != nil) {
+      sDefaultOptions =
+          [[FIROptions alloc] initInternalWithOptionsDictionary:defaultOptionsDictionary];
+    }
+  });
 
-  NSDictionary *defaultOptionsDictionary = [self defaultOptionsDictionary];
-  if (defaultOptionsDictionary == nil) {
-    return nil;
-  }
-
-  sDefaultOptions = [[FIROptions alloc] initInternalWithOptionsDictionary:defaultOptionsDictionary];
   return sDefaultOptions;
 }
 
 #pragma mark - Private class methods
 
 + (NSDictionary *)defaultOptionsDictionary {
-  if (sDefaultOptionsDictionary != nil) {
-    return sDefaultOptionsDictionary;
-  }
-  NSString *plistFilePath = [FIROptions plistFilePathWithName:kServiceInfoFileName];
-  if (plistFilePath == nil) {
-    return nil;
-  }
-  sDefaultOptionsDictionary = [NSDictionary dictionaryWithContentsOfFile:plistFilePath];
-  if (sDefaultOptionsDictionary == nil) {
-    FIRLogError(kFIRLoggerCore, @"I-COR000011",
-                @"The configuration file is not a dictionary: "
-                @"'%@.%@'.",
-                kServiceInfoFileName, kServiceInfoFileType);
-  }
+  dispatch_once(&sDefaultOptionsDictionaryOnceToken, ^{
+    NSString *plistFilePath = [FIROptions plistFilePathWithName:kServiceInfoFileName];
+    if (plistFilePath == nil) {
+      return;
+    }
+    sDefaultOptionsDictionary = [NSDictionary dictionaryWithContentsOfFile:plistFilePath];
+    if (sDefaultOptionsDictionary == nil) {
+      FIRLogError(kFIRLoggerCore, @"I-COR000011",
+                  @"The configuration file is not a dictionary: "
+                  @"'%@.%@'.",
+                  kServiceInfoFileName, kServiceInfoFileType);
+    }
+  });
+
   return sDefaultOptionsDictionary;
 }
 
@@ -144,6 +144,8 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
 + (void)resetDefaultOptions {
   sDefaultOptions = nil;
   sDefaultOptionsDictionary = nil;
+  sDefaultOptionsOnceToken = 0;
+  sDefaultOptionsDictionaryOnceToken = 0;
 }
 
 #pragma mark - Private instance methods
@@ -158,9 +160,9 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
 }
 
 - (id)copyWithZone:(NSZone *)zone {
-  FIROptions *newOptions = [[[self class] allocWithZone:zone] init];
+  FIROptions *newOptions = [(FIROptions *)[[self class] allocWithZone:zone]
+      initInternalWithOptionsDictionary:self.optionsDictionary];
   if (newOptions) {
-    newOptions.optionsDictionary = self.optionsDictionary;
     newOptions.deepLinkURLScheme = self.deepLinkURLScheme;
     newOptions.appGroupID = self.appGroupID;
     newOptions.editingLocked = self.isEditingLocked;
@@ -170,6 +172,12 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
 }
 
 #pragma mark - Public instance methods
+
+- (instancetype)init {
+  // Unavailable.
+  [self doesNotRecognizeSelector:_cmd];
+  return nil;
+}
 
 - (instancetype)initWithContentsOfFile:(NSString *)plistPath {
   self = [super init];
@@ -277,7 +285,7 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
     // The unit tests are set up to catch anything that does not properly convert.
-    NSString *version = [NSString stringWithUTF8String:FIRCoreVersionString];
+    NSString *version = FIRFirebaseVersion();
     NSArray *components = [version componentsSeparatedByString:@"."];
     NSString *major = [components objectAtIndex:0];
     NSString *minor = [NSString stringWithFormat:@"%02d", [[components objectAtIndex:1] intValue]];

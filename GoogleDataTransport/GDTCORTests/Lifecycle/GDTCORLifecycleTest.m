@@ -16,19 +16,18 @@
 
 #import <XCTest/XCTest.h>
 
-#import <GoogleDataTransport/GDTCOREvent.h>
-#import <GoogleDataTransport/GDTCOREventDataObject.h>
-#import <GoogleDataTransport/GDTCORTransport.h>
+#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCOREvent.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCOREventDataObject.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORTransport.h"
 
-#import "GDTCORLibrary/Private/GDTCORTransformer_Private.h"
-#import "GDTCORLibrary/Private/GDTCORUploadCoordinator.h"
+#import "GoogleDataTransport/GDTCORLibrary/Private/GDTCORTransformer_Private.h"
+#import "GoogleDataTransport/GDTCORLibrary/Private/GDTCORUploadCoordinator.h"
 
-#import "GDTCORTests/Lifecycle/Helpers/GDTCORLifecycleTestPrioritizer.h"
-#import "GDTCORTests/Lifecycle/Helpers/GDTCORLifecycleTestUploader.h"
+#import "GoogleDataTransport/GDTCORTests/Lifecycle/Helpers/GDTCORLifecycleTestUploader.h"
 
-#import "GDTCORTests/Common/Categories/GDTCORFlatFileStorage+Testing.h"
-#import "GDTCORTests/Common/Categories/GDTCORRegistrar+Testing.h"
-#import "GDTCORTests/Common/Categories/GDTCORUploadCoordinator+Testing.h"
+#import "GoogleDataTransport/GDTCORTests/Common/Categories/GDTCORFlatFileStorage+Testing.h"
+#import "GoogleDataTransport/GDTCORTests/Common/Categories/GDTCORRegistrar+Testing.h"
+#import "GoogleDataTransport/GDTCORTests/Common/Categories/GDTCORUploadCoordinator+Testing.h"
 
 /** Waits for the result of waitBlock to be YES, or times out and fails.
  *
@@ -64,9 +63,6 @@
 
 @interface GDTCORLifecycleTest : XCTestCase
 
-/** The test prioritizer. */
-@property(nonatomic) GDTCORLifecycleTestPrioritizer *prioritizer;
-
 /** The test uploader. */
 @property(nonatomic) GDTCORLifecycleTestUploader *uploader;
 
@@ -76,24 +72,14 @@
 
 - (void)setUp {
   [super setUp];
-  [[GDTCORRegistrar sharedInstance] registerStorage:[GDTCORFlatFileStorage sharedInstance]
-                                             target:kGDTCORTargetTest];
-
-  // Don't check the error, because it'll be populated in cases where the file doesn't exist.
-  NSError *error;
-  [[NSFileManager defaultManager] removeItemAtPath:[GDTCORFlatFileStorage archivePath]
-                                             error:&error];
+  [[GDTCORFlatFileStorage sharedInstance] reset];
   self.uploader = [[GDTCORLifecycleTestUploader alloc] init];
   [[GDTCORRegistrar sharedInstance] registerUploader:self.uploader target:kGDTCORTargetTest];
-
-  self.prioritizer = [[GDTCORLifecycleTestPrioritizer alloc] init];
-  [[GDTCORRegistrar sharedInstance] registerPrioritizer:self.prioritizer target:kGDTCORTargetTest];
 }
 
 - (void)tearDown {
   [super tearDown];
   self.uploader = nil;
-  self.prioritizer = nil;
 
   [[GDTCORRegistrar sharedInstance] reset];
   [[GDTCORFlatFileStorage sharedInstance] reset];
@@ -108,62 +94,32 @@
   GDTCORTransport *transport = [[GDTCORTransport alloc] initWithMappingID:@"test"
                                                              transformers:nil
                                                                    target:kGDTCORTargetTest];
-  GDTCOREvent *event = [transport eventForTransport];
-  event.dataObject = [[GDTCORLifecycleTestEvent alloc] init];
-  XCTAssertEqual([GDTCORFlatFileStorage sharedInstance].storedEvents.count, 0);
-  [transport sendDataEvent:event];
-  GDTCORWaitForBlock(
-      ^BOOL {
-        return [GDTCORFlatFileStorage sharedInstance].storedEvents.count > 0;
-      },
-      5.0);
 
   NSNotificationCenter *notifCenter = [NSNotificationCenter defaultCenter];
   [notifCenter postNotificationName:UIApplicationDidEnterBackgroundNotification object:nil];
   XCTAssertTrue([GDTCORApplication sharedApplication].isRunningInBackground);
 
-  GDTCORWaitForBlock(
-      ^BOOL {
-        NSFileManager *fm = [NSFileManager defaultManager];
-        return [fm fileExistsAtPath:[GDTCORFlatFileStorage archivePath] isDirectory:NULL];
-      },
-      5.0);
-}
-
-/** Tests that the library deserializes itself from disk when the app foregrounds. */
-- (void)testForegrounding {
-  GDTCORTransport *transport = [[GDTCORTransport alloc] initWithMappingID:@"test"
-                                                             transformers:nil
-                                                                   target:kGDTCORTargetTest];
   GDTCOREvent *event = [transport eventForTransport];
   event.dataObject = [[GDTCORLifecycleTestEvent alloc] init];
-  XCTAssertEqual([GDTCORFlatFileStorage sharedInstance].storedEvents.count, 0);
+  XCTestExpectation *expectation = [self expectationWithDescription:@"hasEvent completion called"];
+  [[GDTCORFlatFileStorage sharedInstance] hasEventsForTarget:kGDTCORTargetTest
+                                                  onComplete:^(BOOL hasEvents) {
+                                                    XCTAssertFalse(hasEvents);
+                                                    [expectation fulfill];
+                                                  }];
+  [self waitForExpectations:@[ expectation ] timeout:10];
   [transport sendDataEvent:event];
-  GDTCORWaitForBlock(
-      ^BOOL {
-        return [GDTCORFlatFileStorage sharedInstance].storedEvents.count > 0;
-      },
-      5.0);
-
-  NSNotificationCenter *notifCenter = [NSNotificationCenter defaultCenter];
-  [notifCenter postNotificationName:UIApplicationDidEnterBackgroundNotification object:nil];
-
-  GDTCORWaitForBlock(
-      ^BOOL {
-        NSFileManager *fm = [NSFileManager defaultManager];
-        return [fm fileExistsAtPath:[GDTCORFlatFileStorage archivePath] isDirectory:NULL];
-      },
-      5.0);
-
-  [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
-  [notifCenter postNotificationName:UIApplicationWillEnterForegroundNotification object:nil];
-  XCTAssertFalse([GDTCORApplication sharedApplication].isRunningInBackground);
-  GDTCORWaitForBlock(
-      ^BOOL {
-        return [GDTCORFlatFileStorage sharedInstance].storedEvents.count > 0;
-      },
-      5.0);
+  dispatch_sync([GDTCORTransformer sharedInstance].eventWritingQueue, ^{
+                });
+  expectation = [self expectationWithDescription:@"hasEvent completion called"];
+  [[GDTCORFlatFileStorage sharedInstance] hasEventsForTarget:kGDTCORTargetTest
+                                                  onComplete:^(BOOL hasEvents) {
+                                                    XCTAssertTrue(hasEvents);
+                                                    [expectation fulfill];
+                                                  }];
+  [self waitForExpectations:@[ expectation ] timeout:10];
 }
+
 #endif  // #if TARGET_OS_IOS || TARGET_OS_TV
 
 /** Tests that the library gracefully stops doing stuff when terminating. */
@@ -171,24 +127,28 @@
   GDTCORTransport *transport = [[GDTCORTransport alloc] initWithMappingID:@"test"
                                                              transformers:nil
                                                                    target:kGDTCORTargetTest];
-  GDTCOREvent *event = [transport eventForTransport];
-  event.dataObject = [[GDTCORLifecycleTestEvent alloc] init];
-  XCTAssertEqual([GDTCORFlatFileStorage sharedInstance].storedEvents.count, 0);
-  [transport sendDataEvent:event];
-  GDTCORWaitForBlock(
-      ^BOOL {
-        return [GDTCORFlatFileStorage sharedInstance].storedEvents.count > 0;
-      },
-      5.0);
-
   NSNotificationCenter *notifCenter = [NSNotificationCenter defaultCenter];
   [notifCenter postNotificationName:kGDTCORApplicationWillTerminateNotification object:nil];
-  GDTCORWaitForBlock(
-      ^BOOL {
-        NSFileManager *fm = [NSFileManager defaultManager];
-        return [fm fileExistsAtPath:[GDTCORFlatFileStorage archivePath] isDirectory:NULL];
-      },
-      5.0);
+
+  GDTCOREvent *event = [transport eventForTransport];
+  event.dataObject = [[GDTCORLifecycleTestEvent alloc] init];
+  XCTestExpectation *expectation = [self expectationWithDescription:@"hasEvent completion called"];
+  [[GDTCORFlatFileStorage sharedInstance] hasEventsForTarget:kGDTCORTargetTest
+                                                  onComplete:^(BOOL hasEvents) {
+                                                    XCTAssertFalse(hasEvents);
+                                                    [expectation fulfill];
+                                                  }];
+  [self waitForExpectations:@[ expectation ] timeout:10];
+  [transport sendDataEvent:event];
+  dispatch_sync([GDTCORTransformer sharedInstance].eventWritingQueue, ^{
+                });
+  expectation = [self expectationWithDescription:@"hasEvent completion called"];
+  [[GDTCORFlatFileStorage sharedInstance] hasEventsForTarget:kGDTCORTargetTest
+                                                  onComplete:^(BOOL hasEvents) {
+                                                    XCTAssertTrue(hasEvents);
+                                                    [expectation fulfill];
+                                                  }];
+  [self waitForExpectations:@[ expectation ] timeout:10];
 }
 
 @end

@@ -8,12 +8,16 @@ on:
     - '*.podspec'
     - 'CoreOnly/**'
     - '.github/workflows/firebasepod.yml'
+    - 'Gemfile'
   schedule:
     # Run every day at 11pm (PST) - cron uses UTC times
     - cron:  '0 7 * * *'
 
 jobs:
   installation-test:
+    # Don't run on private repo unless it is a PR.
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+
     runs-on: macOS-latest
 
     steps:

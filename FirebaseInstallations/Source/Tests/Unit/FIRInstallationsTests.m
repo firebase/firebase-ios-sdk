@@ -18,19 +18,18 @@
 
 #import <OCMock/OCMock.h>
 
-#import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseCore/FIROptionsInternal.h>
 #import "FBLPromise+Testing.h"
-#import "FIRInstallations+Tests.h"
-#import "FIRInstallationsErrorUtil+Tests.h"
-#import "FIRInstallationsItem+Tests.h"
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseInstallations/Source/Tests/Utils/FIRInstallations+Tests.h"
+#import "FirebaseInstallations/Source/Tests/Utils/FIRInstallationsErrorUtil+Tests.h"
+#import "FirebaseInstallations/Source/Tests/Utils/FIRInstallationsItem+Tests.h"
 
-#import "FIRInstallations.h"
-#import "FIRInstallationsAuthTokenResultInternal.h"
-#import "FIRInstallationsErrorUtil.h"
-#import "FIRInstallationsHTTPError.h"
-#import "FIRInstallationsIDController.h"
-#import "FIRInstallationsStoredAuthToken.h"
+#import "FirebaseInstallations/Source/Library/Errors/FIRInstallationsErrorUtil.h"
+#import "FirebaseInstallations/Source/Library/Errors/FIRInstallationsHTTPError.h"
+#import "FirebaseInstallations/Source/Library/FIRInstallationsAuthTokenResultInternal.h"
+#import "FirebaseInstallations/Source/Library/InstallationsIDController/FIRInstallationsIDController.h"
+#import "FirebaseInstallations/Source/Library/InstallationsStore/FIRInstallationsStoredAuthToken.h"
+#import "FirebaseInstallations/Source/Library/Public/FirebaseInstallations/FIRInstallations.h"
 
 @interface FIRInstallationsTests : XCTestCase
 @property(nonatomic) FIRInstallations *installations;
@@ -45,7 +44,7 @@
 
   self.appOptions = [[FIROptions alloc] initWithGoogleAppID:@"GoogleAppID"
                                                 GCMSenderID:@"GCMSenderID"];
-  self.appOptions.APIKey = @"APIKey";
+  self.appOptions.APIKey = @"AIzaSy-ApiKeyWithValidFormat_0123456789";
   self.appOptions.projectID = @"ProjectID";
 
   self.mockIDController = OCMClassMock([FIRInstallationsIDController class]);
@@ -239,13 +238,13 @@
 
 #pragma mark - Invalid Firebase configuration
 
-- (void)testInitWhenProjectIDMissingThenNoThrow {
+- (void)testInitWhenProjectIDMissingThenThrow {
   FIROptions *options = [self.appOptions copy];
   options.projectID = nil;
-  XCTAssertNoThrow([self createInstallationsWithAppOptions:options appName:@"missingProjectID"]);
+  XCTAssertThrows([self createInstallationsWithAppOptions:options appName:@"missingProjectID"]);
 
   options.projectID = @"";
-  XCTAssertNoThrow([self createInstallationsWithAppOptions:options appName:@"emptyProjectID"]);
+  XCTAssertThrows([self createInstallationsWithAppOptions:options appName:@"emptyProjectID"]);
 }
 
 - (void)testInitWhenAPIKeyMissingThenThrows {
@@ -269,17 +268,6 @@
   XCTAssertNoThrow([self createInstallationsWithAppOptions:options appName:@"emptyGCMSenderID"]);
 }
 
-- (void)testInitWhenProjectIDAndGCMSenderIDMissingThenNoThrow {
-  FIROptions *options = [self.appOptions copy];
-  options.GCMSenderID = @"";
-
-  options.projectID = nil;
-  XCTAssertThrows([self createInstallationsWithAppOptions:options appName:@"missingProjectID"]);
-
-  options.projectID = @"";
-  XCTAssertThrows([self createInstallationsWithAppOptions:options appName:@"emptyProjectID"]);
-}
-
 - (void)testInitWhenAppNameMissingThenThrows {
   FIROptions *options = [self.appOptions copy];
   XCTAssertThrows([self createInstallationsWithAppOptions:options appName:@""]);
@@ -288,6 +276,21 @@
 
 - (void)testInitWhenAppOptionsMissingThenThrows {
   XCTAssertThrows([self createInstallationsWithAppOptions:nil appName:@"missingOptions"]);
+}
+
+- (void)testInitWithAPIKeyIsNotMatchingExpectedFormat {
+  FIROptions *options = [self.appOptions copy];
+  options.APIKey = @"AIzaSy-ApiKeyTooShort_0123456789012345";
+  XCTAssertThrows([self createInstallationsWithAppOptions:options appName:@"shortAPIKey"]);
+
+  options.APIKey = @"AIzaSy-ApiKeyWithLengthTooLong_0123456789";
+  XCTAssertThrows([self createInstallationsWithAppOptions:options appName:@"longAPIKey"]);
+
+  options.APIKey = @"BBAIzaSy-ApiKeyInvalidFormat_0123456789";
+  XCTAssertThrows([self createInstallationsWithAppOptions:options appName:@"wrongFirstCharacter"]);
+
+  options.APIKey = @"AIzaSy-+-ApiKeyInvalidFormat_0123456789";
+  XCTAssertThrows([self createInstallationsWithAppOptions:options appName:@"invalidCharacters"]);
 }
 
 #pragma mark - Helpers

@@ -17,7 +17,7 @@
 #   -modernize-use-equals-delete
 #     GoogleTest generates test classes that use the old idiom of making
 #     default constructors and operator= private.
-Checks:          'bugprone-*,cert-*,-cert-dcl50-cpp,-cert-err58-cpp,google-*,objc-*,readability-*,-readability-else-after-return,-readability-implicit-bool-conversion,misc-*,modernize-*,-modernize-use-equals-default,-modernize-use-equals-delete,clang-diagnostic-*,clang-analyzer-*'
+Checks:          'bugprone-*,cert-*,-cert-dcl50-cpp,-cert-err58-cpp,google-*,objc-*,readability-*,-readability-else-after-return,-readability-implicit-bool-conversion,misc-*,modernize-*,-modernize-use-equals-default,-modernize-use-equals-delete,-modernize-use-trailing-return-type,clang-diagnostic-*,clang-analyzer-*'
 WarningsAsErrors: ''
 HeaderFilterRegex: ''
 CheckOptions:

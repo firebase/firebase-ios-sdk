@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRStorageTestHelpers.h"
 #import "FirebaseStorage/Sources/FIRStorageListTask.h"
+#import "FirebaseStorage/Tests/Unit/FIRStorageTestHelpers.h"
 
 @interface FIRStorageListTests : XCTestCase
 
@@ -144,6 +144,42 @@
           dispatchQueue:self.dispatchQueue
                pageSize:@(42)
       previousPageToken:@"foo"
+             completion:^(FIRStorageListResult *result, NSError *error) {
+               [expectation fulfill];
+             }];
+  [task enqueue];
+
+  [FIRStorageTestHelpers waitForExpectation:self];
+}
+
+- (void)testPercentEncodesPlusToken {
+  XCTestExpectation *expectation = [self expectationWithDescription:@"testPercentEncodesPlusToken"];
+  NSURL *expectedURL = [NSURL URLWithString:@"https://firebasestorage.googleapis.com/v0/b/bucket/"
+                                            @"o?prefix=%2Bfoo/&delimiter=/"];
+
+  self.fetcherService.testBlock =
+      ^(GTMSessionFetcher *fetcher, GTMSessionFetcherTestResponse response) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-retain-cycles"
+        XCTAssertEqualObjects(fetcher.request.URL, expectedURL);  // Implicitly retains self
+        XCTAssertEqualObjects(fetcher.request.HTTPMethod, @"GET");
+#pragma clang diagnostic pop
+        NSHTTPURLResponse *httpResponse = [[NSHTTPURLResponse alloc] initWithURL:fetcher.request.URL
+                                                                      statusCode:200
+                                                                     HTTPVersion:kHTTPVersion
+                                                                    headerFields:nil];
+        response(httpResponse, nil, nil);
+      };
+
+  FIRStoragePath *path =
+      [FIRStoragePath pathFromString:@"https://firebasestorage.googleapis.com/v0/b/bucket/0/+foo"];
+  FIRStorageReference *ref = [[FIRStorageReference alloc] initWithStorage:self.storage path:path];
+  FIRStorageListTask *task = [[FIRStorageListTask alloc]
+      initWithReference:ref
+         fetcherService:self.fetcherService
+          dispatchQueue:self.dispatchQueue
+               pageSize:nil
+      previousPageToken:nil
              completion:^(FIRStorageListResult *result, NSError *error) {
                [expectation fulfill];
              }];

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRCLSSettings.h"
+#import "Crashlytics/Crashlytics/Models/FIRCLSSettings.h"
 
 #import <Foundation/Foundation.h>
 #import <XCTest/XCTest.h>
@@ -23,9 +23,9 @@
 #import "FBLPromises.h"
 #endif
 
-#import "FABMockApplicationIdentifierModel.h"
-#import "FIRCLSFileManager.h"
-#import "FIRCLSMockFileManager.h"
+#import "Crashlytics/Crashlytics/Models/FIRCLSFileManager.h"
+#import "Crashlytics/UnitTests/Mocks/FABMockApplicationIdentifierModel.h"
+#import "Crashlytics/UnitTests/Mocks/FIRCLSMockFileManager.h"
 
 const NSString *FIRCLSTestSettingsActivated =
     @"{\"settings_version\":3,\"cache_duration\":60,\"features\":{\"collect_logged_exceptions\":"
@@ -489,7 +489,11 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   [self.settings cacheSettingsWithGoogleAppID:TestGoogleAppID currentTimestamp:currentTimestamp];
 
   XCTAssertNil(error, "%@", error);
+#ifdef CRASHLYTICS_1P
+  XCTAssertTrue(self.settings.shouldUseNewReportEndpoint);
+#else
   XCTAssertFalse(self.settings.shouldUseNewReportEndpoint);
+#endif
 }
 
 - (void)testLegacyReportEndpointSettingsWithNonExistentKey {

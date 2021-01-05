@@ -16,7 +16,7 @@
 
 #import "FirebaseMessaging/Sources/FIRMessagingTopicOperation.h"
 
-#import <FirebaseInstanceID/FIRInstanceID_Private.h>
+#import "Firebase/InstanceID/Private/FIRInstanceID_Private.h"
 
 #import "FirebaseMessaging/Sources/FIRMessagingDefines.h"
 #import "FirebaseMessaging/Sources/FIRMessagingLogger.h"
@@ -120,8 +120,10 @@ NSString *FIRMessagingSubscriptionsServer() {
 
 - (void)start {
   if (self.isCancelled) {
-    NSError *error =
-        [NSError errorWithFCMErrorCode:kFIRMessagingErrorCodePubSubOperationIsCancelled];
+    NSError *error = [NSError
+        messagingErrorWithCode:kFIRMessagingErrorCodePubSubOperationIsCancelled
+                 failureReason:
+                     @"Failed to start the pubsub service as the topic operation is cancelled."];
     [self finishWithError:error];
     return;
   }
@@ -148,7 +150,8 @@ NSString *FIRMessagingSubscriptionsServer() {
 - (void)cancel {
   [super cancel];
   [self.dataTask cancel];
-  NSError *error = [NSError errorWithFCMErrorCode:kFIRMessagingErrorCodePubSubOperationIsCancelled];
+  NSError *error = [NSError messagingErrorWithCode:kFIRMessagingErrorCodePubSubOperationIsCancelled
+                                     failureReason:@"The topic operation is cancelled."];
   [self finishWithError:error];
 }
 
@@ -156,13 +159,15 @@ NSString *FIRMessagingSubscriptionsServer() {
   NSURL *url = [NSURL URLWithString:FIRMessagingSubscriptionsServer()];
   NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
   NSString *appIdentifier = FIRMessagingAppIdentifier();
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   NSString *deviceAuthID = [FIRInstanceID instanceID].deviceAuthID;
   NSString *secretToken = [FIRInstanceID instanceID].secretToken;
   NSString *authString = [NSString stringWithFormat:@"AidLogin %@:%@", deviceAuthID, secretToken];
   [request setValue:authString forHTTPHeaderField:@"Authorization"];
   [request setValue:appIdentifier forHTTPHeaderField:@"app"];
   [request setValue:[FIRInstanceID instanceID].versionInfo forHTTPHeaderField:@"info"];
-
+#pragma clang diagnostic pop
   // Topic can contain special characters (like `%`) so encode the value.
   NSCharacterSet *characterSet = [NSCharacterSet URLQueryAllowedCharacterSet];
   NSString *encodedTopic =
@@ -210,16 +215,21 @@ NSString *FIRMessagingSubscriptionsServer() {
         }
         NSString *response = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
         if (response.length == 0) {
-          FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTopicOperationEmptyResponse,
-                                  @"Invalid registration response - zero length.");
-          [self finishWithError:[NSError errorWithFCMErrorCode:kFIRMessagingErrorCodeUnknown]];
+          NSString *failureReason = @"Invalid registration response - zero length.";
+          FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTopicOperationEmptyResponse, @"%@",
+                                  failureReason);
+          [self finishWithError:[NSError messagingErrorWithCode:kFIRMessagingErrorCodeUnknown
+                                                  failureReason:failureReason]];
           return;
         }
         NSArray *parts = [response componentsSeparatedByString:@"="];
         if (![parts[0] isEqualToString:@"token"] || parts.count <= 1) {
-          FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTopicOption002,
-                                  @"Invalid registration response %@", response);
-          [self finishWithError:[NSError errorWithFCMErrorCode:kFIRMessagingErrorCodeUnknown]];
+          NSString *failureReason = [NSString
+              stringWithFormat:@"Invalid registration response :'%@'. It is missing 'token' field.",
+                               response];
+          FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTopicOption002, @"%@", failureReason);
+          [self finishWithError:[NSError messagingErrorWithCode:kFIRMessagingErrorCodeUnknown
+                                                  failureReason:failureReason]];
           return;
         }
         [self finishWithError:nil];

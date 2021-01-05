@@ -1,4 +1,4 @@
-// Copyright 2020 Google
+// Copyright 2020 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,8 +15,8 @@
 #import <Foundation/Foundation.h>
 #import <XCTest/XCTest.h>
 
-#import <FirebaseCore/FIRAppInternal.h>
-#import "FIRAppDistributionMachO+Private.h"
+#import "FirebaseAppDistribution/Sources/FIRAppDistributionMachO.h"
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 @interface FIRAppDistributionMachOTests : XCTestCase
 @end

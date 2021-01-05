@@ -65,14 +65,15 @@ class AsyncQueueTestLibdispatchOnly : public ::testing::Test,
 
 TEST_F(AsyncQueueTestLibdispatchOnly, SameQueueIsAllowedForUnownedActions) {
   Expectation ran;
-  internal::DispatchAsync(underlying_queue,
-                          [&] { queue->Enqueue(ran.AsCallback()); });
+  dispatch_async(underlying_queue, ^{
+    queue->Enqueue(ran.AsCallback());
+  });
   Await(ran);
 }
 
 TEST_F(AsyncQueueTestLibdispatchOnly,
        VerifyIsCurrentQueueRequiresOperationInProgress) {
-  internal::DispatchSync(underlying_queue, [this] {
+  dispatch_sync(underlying_queue, ^{
     EXPECT_ANY_THROW(queue->VerifyIsCurrentQueue());
   });
 }

@@ -57,7 +57,7 @@ class LevelDbLruReferenceDelegate : public LruDelegate {
 
   LruGarbageCollector* garbage_collector() override;
 
-  int64_t CalculateByteSize() override;
+  util::StatusOr<int64_t> CalculateByteSize() override;
   size_t GetSequenceNumberCount() override;
 
   void EnumerateTargets(const TargetCallback& callback) override;

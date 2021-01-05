@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "GULRuntimeDiff.h"
+#import "GoogleUtilities/SwizzlerTestHelpers/GULRuntimeDiff.h"
 
-#import "GULRuntimeClassDiff.h"
+#import "GoogleUtilities/SwizzlerTestHelpers/GULRuntimeClassDiff.h"
 
 /** Computes the equality of possibly nil or empty NSSets.
  *

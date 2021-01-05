@@ -14,8 +14,12 @@
  * limitations under the License.
  */
 
-#import <FirebaseAuth/FIRAuthErrors.h>
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
+
 #import <XCTest/XCTest.h>
+
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthErrors.h"
 
 #import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIREmailLinkSignInRequest.h"
@@ -137,3 +141,5 @@ static NSString *const kExpectedAPIURL =
 }
 
 @end
+
+#endif

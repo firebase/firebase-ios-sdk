@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseRemoteConfig'
-  s.version          = '4.4.9'
+  s.version          = '7.1.0'
   s.summary          = 'Firebase Remote Config'
 
   s.description      = <<-DESC
@@ -15,36 +15,34 @@ app update.
 
   s.source           = {
     :git => 'https://github.com/firebase/firebase-ios-sdk.git',
-    :tag => 'RemoteConfig-' + s.version.to_s
+    :tag => 'CocoaPods-' + s.version.to_s
   }
   s.social_media_url = 'https://twitter.com/Firebase'
-  s.ios.deployment_target = '8.0'
-  s.osx.deployment_target = '10.11'
+  s.ios.deployment_target = '10.0'
+  s.osx.deployment_target = '10.12'
   s.tvos.deployment_target = '10.0'
 
   s.cocoapods_version = '>= 1.4.0'
-  s.static_framework = true
   s.prefix_header_file = false
 
   base_dir = "FirebaseRemoteConfig/Sources/"
-  s.source_files = base_dir + '**/*.[mh]'
-  s.requires_arc = base_dir + '*.m'
-  s.public_header_files = base_dir + 'Public/*.h'
-  s.private_header_files = base_dir + 'Private/*.h'
+  s.source_files = [
+    base_dir + '**/*.[mh]',
+    'Interop/Analytics/Public/*.h',
+    'FirebaseABTesting/Sources/Private/*.h',
+    'FirebaseCore/Sources/Private/*.h',
+    'FirebaseInstallations/Source/Library/Private/*.h',
+  ]
+  s.public_header_files = base_dir + 'Public/FirebaseRemoteConfig/*.h'
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
-    'GCC_PREPROCESSOR_DEFINITIONS' =>
-      'GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS=1 ' +
-      'FIRRemoteConfig_VERSION=' + String(s.version),
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
   }
-  s.dependency 'FirebaseAnalyticsInterop', '~> 1.4'
-  s.dependency 'FirebaseABTesting', '~> 3.1'
-  s.dependency 'FirebaseCore', '~> 6.2'
-  s.dependency 'FirebaseInstallations', '~> 1.1'
-  s.dependency 'GoogleUtilities/Environment', '~> 6.2'
-  s.dependency 'GoogleUtilities/NSData+zlib', '~> 6.2'
-  s.dependency 'Protobuf', '~> 3.9', '>= 3.9.2'
+  s.dependency 'FirebaseABTesting', '~> 7.0'
+  s.dependency 'FirebaseCore', '~> 7.0'
+  s.dependency 'FirebaseInstallations', '~> 7.0'
+  s.dependency 'GoogleUtilities/Environment', '~> 7.0'
+  s.dependency 'GoogleUtilities/NSData+zlib', '~> 7.0'
 
   s.test_spec 'unit' do |unit_tests|
     # TODO(dmandar) - Update or delete the commented files.
@@ -56,6 +54,7 @@ app update.
 #        'FirebaseRemoteConfig/Tests/Unit/RCNConfigTest.m',
         'FirebaseRemoteConfig/Tests/Unit/RCNConfigExperimentTest.m',
         'FirebaseRemoteConfig/Tests/Unit/RCNConfigValueTest.m',
+        'FirebaseRemoteConfig/Tests/Unit/RCNPersonalizationTest.m',
 #        'FirebaseRemoteConfig/Tests/Unit/RCNRemoteConfig+FIRAppTest.m',
         'FirebaseRemoteConfig/Tests/Unit/RCNRemoteConfigTest.m',
 #        'FirebaseRemoteConfig/Tests/Unit/RCNThrottlingTests.m',
@@ -66,9 +65,40 @@ app update.
     # Supply plist custom plist testing.
     unit_tests.resources =
         'FirebaseRemoteConfig/Tests/Unit/Defaults-testInfo.plist',
-        'FirebaseRemoteConfig/Tests/Unit/SecondApp-GoogleService-Info.plist'
+        'FirebaseRemoteConfig/Tests/Unit/SecondApp-GoogleService-Info.plist',
+        'FirebaseRemoteConfig/Tests/Unit/TestABTPayload.txt'
     unit_tests.requires_app_host = true
     unit_tests.dependency 'OCMock'
     unit_tests.requires_arc = true
+  end
+
+  # Run Swift API tests on a real backend.
+  s.test_spec 'swift-api-tests' do |swift_api|
+    swift_api.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
+    swift_api.source_files = 'FirebaseRemoteConfig/Tests/SwiftAPI/*.swift',
+                             'FirebaseRemoteConfig/Tests/FakeUtils/*.[hm]',
+                             'FirebaseRemoteConfig/Tests/FakeUtils/*.swift'
+    swift_api.requires_app_host = true
+    swift_api.pod_target_xcconfig = {
+      'SWIFT_OBJC_BRIDGING_HEADER' => '$(PODS_TARGET_SRCROOT)/FirebaseRemoteConfig/Tests/FakeUtils/Bridging-Header.h'
+    }
+    swift_api.resources = 'FirebaseRemoteConfig/Tests/SwiftAPI/GoogleService-Info.plist',
+                          'FirebaseRemoteConfig/Tests/SwiftAPI/AccessToken.json'
+    swift_api.dependency 'OCMock'
+  end
+
+  # Run Swift API tests and tests requiring console changes on a Fake Console.
+  s.test_spec 'fake-console-tests' do |fake_console|
+    fake_console.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
+    fake_console.source_files = 'FirebaseRemoteConfig/Tests/SwiftAPI/*.swift',
+                                      'FirebaseRemoteConfig/Tests/FakeUtils/*.[hm]',
+                                      'FirebaseRemoteConfig/Tests/FakeUtils/*.swift',
+                                      'FirebaseRemoteConfig/Tests/FakeConsole/*.swift'
+    fake_console.requires_app_host = true
+    fake_console.pod_target_xcconfig = {
+      'SWIFT_OBJC_BRIDGING_HEADER' => '$(PODS_TARGET_SRCROOT)/FirebaseRemoteConfig/Tests/FakeUtils/Bridging-Header.h'
+    }
+    fake_console.resources = 'FirebaseRemoteConfig/Tests/FakeUtils/GoogleService-Info.plist'
+    fake_console.dependency 'OCMock'
   end
 end

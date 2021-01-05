@@ -66,7 +66,7 @@ class CountingQueryEngine : public QueryEngine {
    * Returns the number of documents returned by the RemoteDocumentCache's
    * `GetMatching()` API (since the last call to `ResetCounts()`)
    */
-  int documents_read_by_query() const {
+  size_t documents_read_by_query() const {
     return documents_read_by_query_;
   }
 
@@ -74,7 +74,7 @@ class CountingQueryEngine : public QueryEngine {
    * Returns the number of documents returned by the RemoteDocumentCache's
    * `Get()` and `GetAll()` APIs (since the last call to `ResetCounts()`)
    */
-  int documents_read_by_key() const {
+  size_t documents_read_by_key() const {
     return documents_read_by_key_;
   }
 
@@ -83,7 +83,7 @@ class CountingQueryEngine : public QueryEngine {
    * `getAllMutationBatchesAffectingQuery()` API (since the last call to
    * `ResetCounts()`)
    */
-  int mutations_read_by_query() const {
+  size_t mutations_read_by_query() const {
     return mutations_read_by_query_;
   }
 
@@ -93,7 +93,7 @@ class CountingQueryEngine : public QueryEngine {
    * `AllMutationBatchesAffectingDocumentKeys()` APIs (since the last call to
    * `ResetCounts()`)
    */
-  int mutations_read_by_key() const {
+  size_t mutations_read_by_key() const {
     return mutations_read_by_key_;
   }
 
@@ -107,10 +107,10 @@ class CountingQueryEngine : public QueryEngine {
   std::unique_ptr<WrappedMutationQueue> mutation_queue_;
   std::unique_ptr<WrappedRemoteDocumentCache> remote_documents_;
 
-  int mutations_read_by_query_ = 0;
-  int mutations_read_by_key_ = 0;
-  int documents_read_by_query_ = 0;
-  int documents_read_by_key_ = 0;
+  size_t mutations_read_by_query_ = 0;
+  size_t mutations_read_by_key_ = 0;
+  size_t documents_read_by_query_ = 0;
+  size_t documents_read_by_key_ = 0;
 };
 
 /** A MutationQueue that counts document reads. */

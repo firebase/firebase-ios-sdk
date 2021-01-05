@@ -12,6 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+if(NOT FIREBASE_IOS_BUILD_TESTS)
+  return()
+endif()
+
 set(
   local_testing_sources
   counting_query_engine.cc

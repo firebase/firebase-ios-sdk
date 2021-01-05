@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FirebaseDynamicLinks/Sources/Public/FDLURLComponents.h"
+#import "FirebaseDynamicLinks/Sources/Public/FirebaseDynamicLinks/FDLURLComponents.h"
 
 /**
  * Label exceptions from FDL.

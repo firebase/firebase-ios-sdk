@@ -22,7 +22,6 @@ public extension ViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
     GDTCORRegistrar.sharedInstance().register(TestUploader(), target: GDTCORTarget.test)
-    GDTCORRegistrar.sharedInstance().register(TestPrioritizer(), target: GDTCORTarget.test)
     Globals.SharedViewController = self
   }
 

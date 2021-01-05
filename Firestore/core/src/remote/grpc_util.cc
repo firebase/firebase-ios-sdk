@@ -36,9 +36,9 @@ Status ConvertStatus(const grpc::Status& from) {
   // conversion should be safe.
   // See
   // https://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto
-  HARD_ASSERT(
-      error_code >= grpc::CANCELLED && error_code <= grpc::UNAUTHENTICATED,
-      "Unknown gRPC error code: %s", error_code);
+  HARD_ASSERT(error_code >= grpc::StatusCode::CANCELLED &&
+                  error_code <= grpc::StatusCode::UNAUTHENTICATED,
+              "Unknown gRPC error code: %s", error_code);
 
   return {static_cast<Error>(error_code), from.error_message()};
 }

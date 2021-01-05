@@ -1,14 +1,13 @@
 use_frameworks!
 
+source 'https://github.com/firebase/SpecsStaging.git'
 source 'https://cdn.cocoapods.org/'
 
 pod 'FirebaseAnalytics'
 pod 'FirebaseCore', :path => '../../../..'
 pod 'FirebaseInstallations', :path => '../../../..'
 pod 'FirebaseCoreDiagnostics', :path => '../../../..'
-pod 'FirebaseCoreDiagnosticsInterop', :path => '../../../..'
 pod 'GoogleDataTransport', :path => '../../../..'
-pod 'GoogleDataTransportCCTSupport', :path => '../../../..'
 pod 'GoogleUtilities', :path => '../../../..'
 pod 'FirebaseABTesting', :path => '../../../..'
 
@@ -16,7 +15,6 @@ target 'InAppMessaging_Example_iOS' do
   platform :ios, '9.0'
 
   pod 'FirebaseInAppMessaging', :path => '../../../..'
-  pod 'FirebaseAnalyticsInterop',  :path => '../../../..'
   pod 'FirebaseDynamicLinks',  :path => '../../../..'
 
 end

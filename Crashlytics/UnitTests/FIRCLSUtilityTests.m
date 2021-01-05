@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "FIRCLSUtility.h"
+#include "Crashlytics/Crashlytics/Helpers/FIRCLSUtility.h"
 
 #import <Foundation/Foundation.h>
 #import <XCTest/XCTest.h>
 
-#include "FIRCLSByteUtility.h"
+#include "Crashlytics/Shared/FIRCLSByteUtility.h"
 
 @interface FIRCLSUtilityTests : XCTestCase
 
@@ -77,4 +77,56 @@
   XCTAssertEqualObjects([NSString stringWithUTF8String:string], @"52d04e1f", @"");
 }
 
+- (void)testRedactUUIDWithExpectedPattern {
+  const char* readonly = "CoreSimulator 704.12.1 - Device: iPhone SE (2nd generation) "
+                         "(45D62CC2-CFB5-4E33-AB61-B0684627F1B6) - Runtime: iOS 13.4 (17E8260) - "
+                         "DeviceType: iPhone SE (2nd generation)";
+  size_t len = strlen(readonly);
+  char message[len];
+  strcpy(message, readonly);
+
+  FIRCLSRedactUUID(message);
+
+  NSString* actual = [NSString stringWithUTF8String:message];
+  NSString* expected = @"CoreSimulator 704.12.1 - Device: iPhone SE (2nd generation) "
+                       @"(********-****-****-****-************) - Runtime: iOS 13.4 (17E8260) - "
+                       @"DeviceType: iPhone SE (2nd generation)";
+
+  XCTAssertEqualObjects(actual, expected);
+}
+
+- (void)testRedactUUIDWithMalformedPattern {
+  const char* readonly = "CoreSimulator 704.12.1 - Device: iPhone SE (2nd generation) "
+                         "(45D62CC2-CFB5-4E33-AB61-B0684627F1B6";
+  size_t len = strlen(readonly);
+  char message[len];
+  strcpy(message, readonly);
+
+  FIRCLSRedactUUID(message);
+
+  NSString* actual = [NSString stringWithUTF8String:message];
+  NSString* expected = @"CoreSimulator 704.12.1 - Device: iPhone SE (2nd generation) "
+                       @"(45D62CC2-CFB5-4E33-AB61-B0684627F1B6";
+
+  XCTAssertEqualObjects(actual, expected);
+}
+
+- (void)testRedactUUIDWithoutUUID {
+  const char* readonly = "Fatal error: file /Users/test/src/foo/bar/ViewController.swift, line 25";
+  size_t len = strlen(readonly);
+  char message[len];
+  strcpy(message, readonly);
+
+  FIRCLSRedactUUID(message);
+
+  NSString* actual = [NSString stringWithUTF8String:message];
+  NSString* expected = @"Fatal error: file /Users/test/src/foo/bar/ViewController.swift, line 25";
+
+  XCTAssertEqualObjects(actual, expected);
+}
+
+- (void)testRedactUUIDWithNull {
+  char* message = NULL;
+  XCTAssertNoThrow(FIRCLSRedactUUID(message));
+}
 @end

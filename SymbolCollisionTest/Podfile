@@ -1,6 +1,6 @@
-# Uncomment the next line to define a global platform for your project
-platform :ios, '9.0'
+platform :ios, '10.0'
 
+source 'https://github.com/firebase/SpecsStaging.git'
 source 'https://cdn.cocoapods.org/'
 
 target 'SymbolCollisionTest' do
@@ -10,13 +10,11 @@ target 'SymbolCollisionTest' do
   # Firebase Pods
     pod 'Firebase', :path => '../'
     pod 'FirebaseABTesting', :path => '../'
+    pod 'FirebaseAppDistribution', :path => '../'
     pod 'FirebaseAnalytics'
-    pod 'FirebaseAnalyticsInterop', :path => '../'
     pod 'FirebaseAuth', :path => '../'
-    pod 'FirebaseAuthInterop', :path => '../'
     pod 'FirebaseCore', :path => '../'
     pod 'FirebaseCoreDiagnostics', :path => '../'
-    pod 'FirebaseCoreDiagnosticsInterop', :path => '../'
     pod 'FirebaseCrashlytics', :path => '../'
     pod 'FirebaseDatabase', :path => '../'
     pod 'FirebaseDynamicLinks', :path => '../'
@@ -26,19 +24,15 @@ target 'SymbolCollisionTest' do
     pod 'FirebaseInstanceID', :path => '../'
     pod 'FirebaseInstallations', :path => '../'
     pod 'FirebaseMessaging', :path => '../'
-    pod 'FirebaseMLCommon'
-    pod 'FirebaseMLModelInterpreter'
-    pod 'FirebaseMLVision'
-    pod 'FirebaseMLVisionBarcodeModel'
-    pod 'FirebaseMLVisionFaceModel'
-    pod 'FirebaseMLVisionLabelModel'
-    pod 'FirebaseMLVisionTextModel'
+    pod 'Firebase/MLCommon', :path => '../'
+    pod 'Firebase/MLModelInterpreter', :path => '../'
+    pod 'Firebase/MLVision', :path => '../'
     pod 'FirebasePerformance'
     pod 'FirebaseRemoteConfig', :path => '../'
     pod 'FirebaseStorage', :path => '../'
     pod 'GoogleDataTransport', :path => '../'
-    pod 'GoogleDataTransportCCTSupport', :path => '../'
     pod 'GoogleUtilities', :path => '../'
+    pod 'GoogleUtilitiesComponents', :path => '../'
 
 #    pod 'FirebaseUI'. - requires use_frameworks!
 
@@ -59,6 +53,8 @@ target 'SymbolCollisionTest' do
     pod 'GoogleIDFASupport'
     pod 'GoogleInterchangeUtilities'
     pod 'GoogleMaps'
+
+    pod 'GoogleMLKit'
 #    pod 'GoogleMobileVision' # After Firebase 6.8.0, conflicts with FirebaseML
     pod 'GoogleNetworkingUtilities'
     pod 'GoogleParsingUtilities'
@@ -78,7 +74,6 @@ target 'SymbolCollisionTest' do
     pod 'nanopb'
 #    pod 'NearbyMessages' # - conflicts with google-cast-sdk
     pod 'Protobuf'
-#    pod 'TensorFlow-experimental' -- conflicts with TensorFlowLiteC
 
   # Non-Google Pods
 

@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRCLSFABAsyncOperation.h"
+#import "Crashlytics/Shared/FIRCLSOperation/FIRCLSFABAsyncOperation.h"
 
-#import "FIRCLSFABAsyncOperation_Private.h"
+#import "Crashlytics/Shared/FIRCLSOperation/FIRCLSFABAsyncOperation_Private.h"
 
 @interface FIRCLSFABAsyncOperation () {
   BOOL _internalExecuting;

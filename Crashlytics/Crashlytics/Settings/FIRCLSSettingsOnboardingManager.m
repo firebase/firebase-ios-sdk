@@ -12,20 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRCLSSettingsOnboardingManager.h"
+#import "Crashlytics/Crashlytics/Settings/FIRCLSSettingsOnboardingManager.h"
 
-#import "FIRCLSApplicationIdentifierModel.h"
-#import "FIRCLSConstants.h"
-#import "FIRCLSDataCollectionToken.h"
-#import "FIRCLSDefines.h"
-#import "FIRCLSDownloadAndSaveSettingsOperation.h"
-#import "FIRCLSFABNetworkClient.h"
-#import "FIRCLSFileManager.h"
-#import "FIRCLSInstallIdentifierModel.h"
-#import "FIRCLSLogger.h"
-#import "FIRCLSOnboardingOperation.h"
-#import "FIRCLSSettings.h"
-#import "FIRCLSURLBuilder.h"
+#import "Crashlytics/Crashlytics/DataCollection/FIRCLSDataCollectionToken.h"
+#import "Crashlytics/Crashlytics/Helpers/FIRCLSDefines.h"
+#import "Crashlytics/Crashlytics/Helpers/FIRCLSLogger.h"
+#import "Crashlytics/Crashlytics/Models/FIRCLSFileManager.h"
+#import "Crashlytics/Crashlytics/Models/FIRCLSInstallIdentifierModel.h"
+#import "Crashlytics/Crashlytics/Models/FIRCLSSettings.h"
+#import "Crashlytics/Crashlytics/Settings/Models/FIRCLSApplicationIdentifierModel.h"
+#import "Crashlytics/Crashlytics/Settings/Operations/FIRCLSDownloadAndSaveSettingsOperation.h"
+#import "Crashlytics/Crashlytics/Settings/Operations/FIRCLSOnboardingOperation.h"
+#import "Crashlytics/Shared/FIRCLSConstants.h"
+#import "Crashlytics/Shared/FIRCLSNetworking/FIRCLSFABNetworkClient.h"
+#import "Crashlytics/Shared/FIRCLSNetworking/FIRCLSURLBuilder.h"
 
 @interface FIRCLSSettingsOnboardingManager () <FIRCLSDownloadAndSaveSettingsOperationDelegate,
                                                FIRCLSOnboardingOperationDelegate>
@@ -84,7 +84,7 @@
   // backwards compatibility
   // TODO(b/141747635)
   self.kitVersionsByKitBundleIdentifier = @{
-    FIRCLSApplicationGetSDKBundleID() : @CLS_SDK_DISPLAY_VERSION,
+    FIRCLSApplicationGetSDKBundleID() : FIRCLSSDKVersion(),
   };
 
   [self beginSettingsDownload:token waitForCompletion:waitForCompletion];
@@ -181,7 +181,15 @@
 - (void)operation:(FIRCLSDownloadAndSaveSettingsOperation *)operation
     didDownloadAndSaveSettingsWithError:(nullable NSError *)error {
   if (error) {
-    FIRCLSErrorLog(@"Failed to download settings %@", error);
+    NSString *message = @"Failed to download settings.";
+    if (error.userInfo && [error.userInfo objectForKey:@"status_code"] &&
+        [[error.userInfo objectForKey:@"status_code"]
+            isEqualToNumber:[NSNumber numberWithInt:404]]) {
+      NSString *debugHint = @"If this is your first time launching the app, make sure you have "
+                            @"enabled Crashlytics in the Firebase Console.";
+      message = [NSString stringWithFormat:@"%@ %@", message, debugHint];
+    }
+    FIRCLSErrorLog(@"%@ %@", message, error);
     [self finishNetworkingSession];
     return;
   }

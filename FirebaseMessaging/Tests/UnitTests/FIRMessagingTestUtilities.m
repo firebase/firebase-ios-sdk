@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-#import <OCMock/OCMock.h>
+#import "OCMock.h"
 
-#import "XCTestCase+FIRMessagingRmqManagerTests.h"
+#import "FirebaseMessaging/Tests/UnitTests/XCTestCase+FIRMessagingRmqManagerTests.h"
 
 #import "FirebaseMessaging/Tests/UnitTests/FIRMessagingTestUtilities.h"
 
-#import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
-#import <FirebaseInstallations/FIRInstallations.h>
-#import <FirebaseInstanceID/FirebaseInstanceID.h>
 #import <GoogleUtilities/GULUserDefaults.h>
+#import "Firebase/InstanceID/Public/FirebaseInstanceID.h"
+#import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
+#import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 
 #import "FirebaseMessaging/Sources/FIRMessagingPubSub.h"
 #import "FirebaseMessaging/Sources/FIRMessagingRmqManager.h"
@@ -48,10 +48,12 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
 @property(nonatomic, readwrite, strong) FIRMessagingRmqManager *rmq2Manager;
 
 /// Surface internal initializer to avoid singleton usage during tests.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 - (instancetype)initWithAnalytics:(nullable id<FIRAnalyticsInterop>)analytics
                    withInstanceID:(FIRInstanceID *)instanceID
                  withUserDefaults:(GULUserDefaults *)defaults;
-
+#pragma clang diagnostic pop
 /// Kicks off required calls for some messaging tests.
 - (void)start;
 - (void)setupRmqManager;
@@ -97,8 +99,10 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
     // `FIRInstallations` default instance. Need to stub it before.
     _mockInstallations = OCMClassMock([FIRInstallations class]);
     OCMStub([self.mockInstallations installations]).andReturn(self.mockInstallations);
-
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     _instanceID = [[FIRInstanceID alloc] initPrivately];
+#pragma clang diagnostic pop
     [_instanceID start];
 
     // Create the messaging instance and call `start`.
@@ -123,10 +127,6 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
   [_messaging.rmq2Manager removeDatabase];
   [testCase waitForDrainDatabaseQueueForRmqManager:_messaging.rmq2Manager];
   [_messaging.messagingUserDefaults removePersistentDomainForName:kFIRMessagingDefaultsTestDomain];
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  _messaging.shouldEstablishDirectChannel = NO;
-#pragma clang diagnostic pop
   [_mockPubsub stopMocking];
   [_mockMessaging stopMocking];
   [_mockInstanceID stopMocking];

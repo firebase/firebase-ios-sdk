@@ -4,14 +4,17 @@ on:
   pull_request:
     paths:
     - 'GoogleDataTransport**'
-    - 'GoogleDataTransportCCTSupport**'
     - '.github/workflows/datatransport.yml'
+    - 'Gemfile'
   schedule:
     # Run every day at 11pm (PST) - cron uses UTC times
     - cron:  '0 7 * * *'
 
 jobs:
   pod_lib_lint:
+    # Don't run on private repo unless it is a PR.
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+
     runs-on: macos-latest
     strategy:
       matrix:
@@ -23,30 +26,46 @@ jobs:
     - name: PodLibLint DataTransport
       run: |
         scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=${{ matrix.target }}
-        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=${{ matrix.target }}
 
   catalyst:
+    # Don't run on private repo unless it is a PR.
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+
     runs-on: macOS-latest
-    strategy:
-      matrix:
-        pod: [GoogleDataTransport, GoogleDataTransportCCTSupport]
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Setup project and Test Catalyst
-      run: scripts/third_party/travis/retry.sh scripts/test_catalyst.sh ${{ matrix.pod }} test
+      # Only build the unit tests on Catalyst. Test stopped working when GHA moved to Xcode 11.4.1.
+      run: scripts/third_party/travis/retry.sh scripts/test_catalyst.sh GoogleDataTransport build
+
+  watchos-testapp:
+    # Don't run on private repo unless it is a PR.
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+
+    runs-on: macOS-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Prereqs
+      run: scripts/install_prereqs.sh GoogleDataTransport watchOS xcodebuild
+    - name: Setup project and build watchOS test app
+      run: scripts/third_party/travis/retry.sh scripts/build.sh GoogleDataTransport watchOS xcodebuild
 
 # Scheduled jobs
 
   datatransport-cron-only:
+    # Don't run on private repo.
+    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
+
     runs-on: macos-latest
-    if: github.event_name == 'schedule'
     strategy:
       matrix:
         target: [ios, tvos, macos, watchos]
         flags: [
-          '--use-modular-headers',
+          '--use-static-frameworks',
           '--use-libraries'
         ]
     needs: pod_lib_lint
@@ -57,4 +76,3 @@ jobs:
     - name: PodLibLint DataTransport Cron
       run: |
         scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}
-        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb GoogleDataTransportCCTSupport.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}

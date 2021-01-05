@@ -17,12 +17,14 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
-#import "FIRIAMActionURLFollower.h"
-#import "FIRIAMDisplayExecutor.h"
-#import "FIRIAMDisplayTriggerDefinition.h"
-#import "FIRIAMMessageContentData.h"
-#import "FIRInAppMessaging.h"
-#import "FIRInAppMessagingRenderingPrivate.h"
+#import "FirebaseInAppMessaging/Sources/Private/Data/FIRIAMMessageContentData.h"
+#import "FirebaseInAppMessaging/Sources/Private/DisplayTrigger/FIRIAMDisplayTriggerDefinition.h"
+#import "FirebaseInAppMessaging/Sources/Private/Flows/FIRIAMDisplayExecutor.h"
+#import "FirebaseInAppMessaging/Sources/Private/Runtime/FIRIAMActionURLFollower.h"
+#import "FirebaseInAppMessaging/Sources/Public/FirebaseInAppMessaging/FIRInAppMessaging.h"
+#import "FirebaseInAppMessaging/Sources/RenderingObjects/FIRInAppMessagingRenderingPrivate.h"
+
+#import "FirebaseABTesting/Sources/Private/ABTExperimentPayload.h"
 
 // A class implementing protocol FIRIAMMessageContentData to be used for unit testing
 @interface FIRIAMMessageContentDataForTesting : NSObject <FIRIAMMessageContentData>
@@ -206,7 +208,7 @@ typedef NS_ENUM(NSInteger, FIRInAppMessagingDelegateInteraction) {
 @property id<FIRInAppMessagingDisplay> mockMessageDisplayComponent;
 
 // four pre-defined messages
-@property FIRIAMMessageDefinition *m1, *m2, *m3, *m4;
+@property FIRIAMMessageDefinition *m1, *m2, *m3, *m4, *m5;
 @end
 
 @implementation FIRIAMDisplayExecutorTests
@@ -220,7 +222,7 @@ typedef NS_ENUM(NSInteger, FIRInAppMessagingDelegateInteraction) {
   FIRIAMDisplayTriggerDefinition *contextualTriggerDefinition =
       [[FIRIAMDisplayTriggerDefinition alloc] initWithFirebaseAnalyticEvent:@"test_event"];
 
-  // m2 and m4 will be of app open trigger
+  // m2, m4, and m5 will be of app open trigger
   FIRIAMDisplayTriggerDefinition *appOpentriggerDefinition =
       [[FIRIAMDisplayTriggerDefinition alloc] initForAppForegroundTrigger];
 
@@ -323,13 +325,16 @@ typedef NS_ENUM(NSInteger, FIRInAppMessagingDelegateInteraction) {
                                              contentData:m4ContentData
                                          renderingEffect:renderSetting4];
 
-  ABTExperimentPayload *experimentPayload = [ABTExperimentPayload message];
-  experimentPayload.experimentId = @"_exp_1";
-  experimentPayload.experimentStartTimeMillis = 1582143484729;
-  experimentPayload.overflowPolicy = ABTExperimentPayload_ExperimentOverflowPolicy_DiscardOldest;
-  experimentPayload.timeToLiveMillis = 15552000000;
-  experimentPayload.triggerTimeoutMillis = 15552000000;
-  experimentPayload.variantId = @"1";
+  NSDictionary *experimentPayloadDictionary = @{
+    @"experimentId" : @"_exp_1",
+    @"experimentStartTimeMillis" : @1582143484729,
+    @"overflowPolicy" : @"DISCARD_OLDEST",
+    @"timeToLiveMillis" : @15552000000,
+    @"triggerTimeoutMillis" : @15552000000,
+    @"variantId" : @"1"
+  };
+  ABTExperimentPayload *experimentPayload =
+      [[ABTExperimentPayload alloc] initWithDictionary:experimentPayloadDictionary];
 
   self.m4 = [[FIRIAMMessageDefinition alloc] initWithRenderData:renderData4
                                                       startTime:activeStartTime
@@ -337,6 +342,35 @@ typedef NS_ENUM(NSInteger, FIRInAppMessagingDelegateInteraction) {
                                               triggerDefinition:@[ appOpentriggerDefinition ]
                                                         appData:@{@"a" : @"b", @"up" : @"dog"}
                                               experimentPayload:experimentPayload
+                                                  isTestMessage:NO];
+
+  FIRIAMMessageContentDataForTesting *m5ContentData = [[FIRIAMMessageContentDataForTesting alloc]
+           initWithMessageTitle:nil
+                    messageBody:nil
+               actionButtonText:nil
+      secondaryActionButtonText:nil
+                      actionURL:nil
+             secondaryActionURL:nil
+                       imageURL:[NSURL URLWithString:@"https://google.com/image"]
+              landscapeImageURL:nil
+                  hasImageError:NO];
+
+  FIRIAMRenderingEffectSetting *renderSetting5 =
+      [FIRIAMRenderingEffectSetting getDefaultRenderingEffectSetting];
+  renderSetting5.viewMode = FIRIAMRenderAsImageOnlyView;
+
+  FIRIAMMessageRenderData *renderData5 =
+      [[FIRIAMMessageRenderData alloc] initWithMessageID:@"m5"
+                                             messageName:@"name"
+                                             contentData:m5ContentData
+                                         renderingEffect:renderSetting5];
+
+  self.m5 = [[FIRIAMMessageDefinition alloc] initWithRenderData:renderData5
+                                                      startTime:activeStartTime
+                                                        endTime:activeEndTime
+                                              triggerDefinition:@[ appOpentriggerDefinition ]
+                                                        appData:nil
+                                              experimentPayload:nil
                                                   isTestMessage:NO];
 }
 
@@ -599,8 +633,37 @@ NSTimeInterval DISPLAY_MIN_INTERVALS = 1;
 
   [self.clientMessageCache setMessageData:@[ self.m2 ]];
 
+  FIRInAppMessagingAction *m2Action = [[FIRInAppMessagingAction alloc]
+      initWithActionText:self.m2.renderData.contentData.actionButtonText
+               actionURL:self.m2.renderData.contentData.actionURL];
   FIRIAMMessageDisplayForTesting *display = [[FIRIAMMessageDisplayForTesting alloc]
-      initWithDelegateInteraction:FIRInAppMessagingDelegateInteractionClick];
+      initWithDelegateInteraction:FIRInAppMessagingDelegateInteractionClick
+                           action:m2Action];
+  self.displayExecutor.messageDisplayComponent = display;
+
+  [self.displayExecutor checkAndDisplayNextAppForegroundMessage];
+  OCMVerifyAll((id)self.mockAnalyticsEventLogger);
+}
+
+- (void)testAnalyticsTrackingOnMessageClickCaseWithNoActionURL {
+  // This setup allows next message to be displayed from display interval perspective.
+  OCMStub([self.mockTimeFetcher currentTimestampInSeconds])
+      .andReturn(DISPLAY_MIN_INTERVALS * 60 + 100);
+
+  // We expect two analytics events for a click action:
+  // An impression event and an action URL follow event
+  OCMExpect([self.mockAnalyticsEventLogger
+      logAnalyticsEventForType:FIRIAMAnalyticsEventMessageImpression
+                 forCampaignID:[OCMArg isEqual:self.m5.renderData.messageID]
+              withCampaignName:[OCMArg any]
+                 eventTimeInMs:[OCMArg any]
+                    completion:[OCMArg any]]);
+
+  [self.clientMessageCache setMessageData:@[ self.m5 ]];
+
+  FIRIAMMessageDisplayForTesting *display = [[FIRIAMMessageDisplayForTesting alloc]
+      initWithDelegateInteraction:FIRInAppMessagingDelegateInteractionClick
+                           action:nil];
   self.displayExecutor.messageDisplayComponent = display;
 
   [self.displayExecutor checkAndDisplayNextAppForegroundMessage];

@@ -15,7 +15,8 @@
  */
 #import <Foundation/Foundation.h>
 
-@class GDTCOREvent;
+#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCOREvent.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORTargets.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -26,6 +27,17 @@ NS_ASSUME_NONNULL_BEGIN
  * @return A set of 3 generated stored events.
  */
 + (NSMutableSet<GDTCOREvent *> *)generate3Events;
+
+/** Generates an event with the given params, or random ones if none are given.
+ *
+ * @param target The target to generate an event for.
+ * @param qosTier The qosTier of the event, or nil for a random one.
+ * @param mappingID The mappingID of the event, or nil for a random one.
+ * @return A newly generated event.
+ */
++ (GDTCOREvent *)generateEventForTarget:(GDTCORTarget)target
+                                qosTier:(nullable NSNumber *)qosTier
+                              mappingID:(nullable NSString *)mappingID;
 
 @end
 

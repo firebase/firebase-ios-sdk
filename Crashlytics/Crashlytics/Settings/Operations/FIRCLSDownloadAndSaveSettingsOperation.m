@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRCLSDownloadAndSaveSettingsOperation.h"
+#import "Crashlytics/Crashlytics/Settings/Operations/FIRCLSDownloadAndSaveSettingsOperation.h"
 
-#import "FIRCLSConstants.h"
-#import "FIRCLSFABHost.h"
-#import "FIRCLSFABNetworkClient.h"
-#import "FIRCLSInstallIdentifierModel.h"
-#import "FIRCLSLogger.h"
+#import "Crashlytics/Crashlytics/Helpers/FIRCLSLogger.h"
+#import "Crashlytics/Crashlytics/Models/FIRCLSInstallIdentifierModel.h"
+#import "Crashlytics/Shared/FIRCLSConstants.h"
+#import "Crashlytics/Shared/FIRCLSFABHost.h"
+#import "Crashlytics/Shared/FIRCLSNetworking/FIRCLSFABNetworkClient.h"
 
 @interface FIRCLSDownloadAndSaveSettingsOperation ()
 
@@ -88,7 +88,7 @@
       forHTTPHeaderField:@"X-Crashlytics-OS-Build-Version"];
   [request setValue:FIRCLSHostOSDisplayVersion()
       forHTTPHeaderField:@"X-Crashlytics-OS-Display-Version"];
-  [request setValue:FIRCLSVersion forHTTPHeaderField:@"X-Crashlytics-API-Client-Version"];
+  [request setValue:FIRCLSSDKVersion() forHTTPHeaderField:@"X-Crashlytics-API-Client-Version"];
 
   return request;
 }

@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 
-#import "NSString+FIRInterlaceStrings.h"
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
+
+#import "FirebaseInAppMessaging/Sources/Private/Util/NSString+FIRInterlaceStrings.h"
 
 @implementation NSString (InterlaceStrings)
 
@@ -40,3 +43,5 @@
 }
 
 @end
+
+#endif  // TARGET_OS_IOS

@@ -12,38 +12,30 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRFunctions.h"
-#import "FIRFunctions+Internal.h"
+#import "Functions/FirebaseFunctions/Public/FirebaseFunctions/FIRFunctions.h"
+#import "Functions/FirebaseFunctions/FIRFunctions+Internal.h"
 
-#import <FirebaseAuthInterop/FIRAuthInterop.h>
-#import <FirebaseCore/FIRComponent.h>
-#import <FirebaseCore/FIRComponentContainer.h>
-#import <FirebaseCore/FIRDependency.h>
-#import <FirebaseCore/FIRLibrary.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseMessaging/Sources/Interop/FIRMessagingInterop.h"
+#import "Interop/Auth/Public/FIRAuthInterop.h"
 
-#import "FIRError.h"
-#import "FIRHTTPSCallable+Internal.h"
-#import "FIRHTTPSCallable.h"
-#import "FUNContext.h"
-#import "FUNError.h"
-#import "FUNSerializer.h"
-#import "FUNUsageValidation.h"
+#import "Functions/FirebaseFunctions/FIRHTTPSCallable+Internal.h"
+#import "Functions/FirebaseFunctions/FUNContext.h"
+#import "Functions/FirebaseFunctions/FUNError.h"
+#import "Functions/FirebaseFunctions/FUNSerializer.h"
+#import "Functions/FirebaseFunctions/FUNUsageValidation.h"
+#import "Functions/FirebaseFunctions/Public/FirebaseFunctions/FIRError.h"
+#import "Functions/FirebaseFunctions/Public/FirebaseFunctions/FIRHTTPSCallable.h"
 
-#import <FirebaseCore/FIRApp.h>
-#import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseCore/FIROptions.h>
+#if SWIFT_PACKAGE
+@import GTMSessionFetcherCore;
+#else
 #import <GTMSessionFetcher/GTMSessionFetcherService.h>
-
-// The following two macros supply the incantation so that the C
-// preprocessor does not try to parse the version as a floating
-// point number. See
-// https://www.guyrutenberg.com/2008/12/20/expanding-macros-into-string-constants-in-c/
-#define STR(x) STR_EXPAND(x)
-#define STR_EXPAND(x) #x
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
 
-NSString *const kFUNInstanceIDTokenHeader = @"Firebase-Instance-ID-Token";
+NSString *const kFUNFCMTokenHeader = @"Firebase-Instance-ID-Token";
 NSString *const kFUNDefaultRegion = @"us-central1";
 
 /// Empty protocol to register Functions as a component with Core.
@@ -57,6 +49,8 @@ NSString *const kFUNDefaultRegion = @"us-central1";
   NSString *_projectID;
   // The region to use for all function references.
   NSString *_region;
+  // The custom domain to use for all functions references (optional).
+  NSString *_customDomain;
   // A serializer to encode/decode data and return values.
   FUNSerializer *_serializer;
   // A factory for getting the metadata to include with function calls.
@@ -68,15 +62,17 @@ NSString *const kFUNDefaultRegion = @"us-central1";
 // Re-declare this initializer here in order to attribute it as the designated initializer.
 - (instancetype)initWithProjectID:(NSString *)projectID
                            region:(NSString *)region
-                             auth:(nullable id<FIRAuthInterop>)auth NS_DESIGNATED_INITIALIZER;
+                     customDomain:(nullable NSString *)customDomain
+                             auth:(nullable id<FIRAuthInterop>)auth
+                        messaging:(nullable id<FIRMessagingInterop>)messaging
+    NS_DESIGNATED_INITIALIZER;
 
 @end
 
 @implementation FIRFunctions
 
 + (void)load {
-  NSString *version = [NSString stringWithUTF8String:(const char *const)STR(FIRFunctions_VERSION)];
-  [FIRApp registerInternalLibrary:(Class<FIRLibrary>)self withName:@"fire-fun" withVersion:version];
+  [FIRApp registerInternalLibrary:(Class<FIRLibrary>)self withName:@"fire-fun"];
 }
 
 + (NSArray<FIRComponent *> *)componentsToRegister {
@@ -96,30 +92,46 @@ NSString *const kFUNDefaultRegion = @"us-central1";
 }
 
 + (instancetype)functions {
-  return [[self alloc] initWithApp:[FIRApp defaultApp] region:kFUNDefaultRegion];
+  return [[self alloc] initWithApp:[FIRApp defaultApp] region:kFUNDefaultRegion customDomain:nil];
 }
 
 + (instancetype)functionsForApp:(FIRApp *)app {
-  return [[self alloc] initWithApp:app region:kFUNDefaultRegion];
+  return [[self alloc] initWithApp:app region:kFUNDefaultRegion customDomain:nil];
 }
 
 + (instancetype)functionsForRegion:(NSString *)region {
-  return [[self alloc] initWithApp:[FIRApp defaultApp] region:region];
+  return [[self alloc] initWithApp:[FIRApp defaultApp] region:region customDomain:nil];
+}
+
++ (instancetype)functionsForCustomDomain:(NSString *)customDomain {
+  return [[self alloc] initWithApp:[FIRApp defaultApp]
+                            region:kFUNDefaultRegion
+                      customDomain:customDomain];
 }
 
 + (instancetype)functionsForApp:(FIRApp *)app region:(NSString *)region {
-  return [[self alloc] initWithApp:app region:region];
+  return [[self alloc] initWithApp:app region:region customDomain:nil];
 }
 
-- (instancetype)initWithApp:(FIRApp *)app region:(NSString *)region {
++ (instancetype)functionsForApp:(FIRApp *)app customDomain:(NSString *)customDomain {
+  return [[self alloc] initWithApp:app region:kFUNDefaultRegion customDomain:customDomain];
+}
+
+- (instancetype)initWithApp:(FIRApp *)app
+                     region:(NSString *)region
+               customDomain:(nullable NSString *)customDomain {
   return [self initWithProjectID:app.options.projectID
                           region:region
-                            auth:FIR_COMPONENT(FIRAuthInterop, app.container)];
+                    customDomain:customDomain
+                            auth:FIR_COMPONENT(FIRAuthInterop, app.container)
+                       messaging:FIR_COMPONENT(FIRMessagingInterop, app.container)];
 }
 
 - (instancetype)initWithProjectID:(NSString *)projectID
                            region:(NSString *)region
-                             auth:(nullable id<FIRAuthInterop>)auth {
+                     customDomain:(nullable NSString *)customDomain
+                             auth:(nullable id<FIRAuthInterop>)auth
+                        messaging:(nullable id<FIRMessagingInterop>)messaging {
   self = [super init];
   if (self) {
     if (!region) {
@@ -128,15 +140,22 @@ NSString *const kFUNDefaultRegion = @"us-central1";
     _fetcherService = [[GTMSessionFetcherService alloc] init];
     _projectID = [projectID copy];
     _region = [region copy];
+    _customDomain = [customDomain copy];
     _serializer = [[FUNSerializer alloc] init];
-    _contextProvider = [[FUNContextProvider alloc] initWithAuth:auth];
+    _contextProvider = [[FUNContextProvider alloc] initWithAuth:auth messaging:messaging];
     _emulatorOrigin = nil;
   }
   return self;
 }
 
 - (void)useLocalhost {
-  [self useFunctionsEmulatorOrigin:@"http://localhost:5005"];
+  [self useEmulatorWithHost:@"http://localhost" port:5005];
+}
+
+- (void)useEmulatorWithHost:(NSString *)host port:(NSInteger)port {
+  NSAssert(host.length > 0, @"Cannot connect to nil or empty host");
+  NSString *origin = [NSString stringWithFormat:@"%@:%li", host, (long)port];
+  _emulatorOrigin = origin;
 }
 
 - (void)useFunctionsEmulatorOrigin:(NSString *)origin {
@@ -152,6 +171,9 @@ NSString *const kFUNDefaultRegion = @"us-central1";
   }
   if (_emulatorOrigin) {
     return [NSString stringWithFormat:@"%@/%@/%@/%@", _emulatorOrigin, _projectID, _region, name];
+  }
+  if (_customDomain) {
+    return [NSString stringWithFormat:@"%@/%@", _customDomain, name];
   }
   return
       [NSString stringWithFormat:@"https://%@-%@.cloudfunctions.net/%@", _region, _projectID, name];
@@ -218,8 +240,8 @@ NSString *const kFUNDefaultRegion = @"us-central1";
     NSString *value = [NSString stringWithFormat:@"Bearer %@", context.authToken];
     [fetcher setRequestValue:value forHTTPHeaderField:@"Authorization"];
   }
-  if (context.instanceIDToken) {
-    [fetcher setRequestValue:context.instanceIDToken forHTTPHeaderField:kFUNInstanceIDTokenHeader];
+  if (context.FCMToken) {
+    [fetcher setRequestValue:context.FCMToken forHTTPHeaderField:kFUNFCMTokenHeader];
   }
 
   // Override normal security rules if this is a local test.
@@ -301,6 +323,10 @@ NSString *const kFUNDefaultRegion = @"us-central1";
 
 - (FIRHTTPSCallable *)HTTPSCallableWithName:(NSString *)name {
   return [[FIRHTTPSCallable alloc] initWithFunctions:self name:name];
+}
+
+- (nullable NSString *)emulatorOrigin {
+  return _emulatorOrigin;
 }
 
 @end

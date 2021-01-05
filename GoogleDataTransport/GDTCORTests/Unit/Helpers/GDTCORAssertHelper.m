@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "GDTCORTests/Unit/Helpers/GDTCORAssertHelper.h"
+#import "GoogleDataTransport/GDTCORTests/Unit/Helpers/GDTCORAssertHelper.h"
 
 @implementation GDTCORAssertHelper
 

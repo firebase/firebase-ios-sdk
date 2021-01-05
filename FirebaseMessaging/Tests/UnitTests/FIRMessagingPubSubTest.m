@@ -14,16 +14,15 @@
  * limitations under the License.
  */
 
-#import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
+#import "OCMock.h"
 
-#import <GoogleUtilities/GULReachabilityChecker.h>
-
-#import "FirebaseMessaging/Sources/FIRMessagingClient.h"
 #import "FirebaseMessaging/Sources/FIRMessagingPendingTopicsList.h"
 #import "FirebaseMessaging/Sources/FIRMessagingPubSub.h"
 #import "FirebaseMessaging/Sources/FIRMessagingRmqManager.h"
 #import "FirebaseMessaging/Tests/UnitTests/FIRMessagingTestUtilities.h"
+
+#import <GoogleUtilities/GULReachabilityChecker.h>
 
 @interface FIRMessagingPubSub (ExposedForTest)
 
@@ -126,13 +125,7 @@ static NSString *const kTopicName = @"topic-Name";
                        completion:nil];
   XCTAssertEqual(topicList.numberOfBatches, 3);
 
-  id mockClientDelegate = OCMStrictProtocolMock(@protocol(FIRMessagingClientDelegate));
-  id mockReachability = OCMClassMock([GULReachabilityChecker class]);
-  id mockRmqManager = OCMClassMock([FIRMessagingRmqManager class]);
-  FIRMessagingClient *client = [[FIRMessagingClient alloc] initWithDelegate:mockClientDelegate
-                                                               reachability:mockReachability
-                                                                rmq2Manager:mockRmqManager];
-  FIRMessagingPubSub *pubSub = [[FIRMessagingPubSub alloc] initWithClient:client];
+  FIRMessagingPubSub *pubSub = [[FIRMessagingPubSub alloc] init];
   [pubSub archivePendingTopicsList:topicList];
   [pubSub restorePendingTopicsList];
   XCTAssertEqual(pubSub.pendingTopicUpdates.numberOfBatches, 3);

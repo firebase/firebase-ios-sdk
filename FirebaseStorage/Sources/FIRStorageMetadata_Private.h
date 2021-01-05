@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-#import <FirebaseStorage/FIRStorageMetadata.h>
+#import "FirebaseStorage/Sources/Public/FirebaseStorage/FIRStorageMetadata.h"
+
 #import "FirebaseStorage/Sources/FIRStorageConstants_Private.h"
 
 @class FIRStorageReference;

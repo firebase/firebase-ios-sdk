@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -193,7 +193,7 @@ class OtherFilesystem : public Filesystem {
   }
 
   StatusOr<Path> LegacyDocumentsDir(absl::string_view) override {
-    return Status(Error::kUnimplemented, "unimplemented");
+    return Status(Error::kErrorUnimplemented, "unimplemented");
   }
 
  private:
@@ -223,7 +223,7 @@ TEST(LevelDbOpenerTest, HandlesAppDataDirFailure) {
   NiceMock<MockFilesystem> fs;
 
   EXPECT_CALL(fs, AppDataDir)
-      .WillRepeatedly(Return(Status(Error::kPermissionDenied, "EPERM")));
+      .WillRepeatedly(Return(Status(Error::kErrorPermissionDenied, "EPERM")));
 
   DatabaseInfo db_info = FakeDatabaseInfo();
   LevelDbOpener opener(db_info, &fs);

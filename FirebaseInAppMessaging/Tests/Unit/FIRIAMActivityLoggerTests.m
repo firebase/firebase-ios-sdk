@@ -16,7 +16,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FIRIAMActivityLogger.h"
+#import "FirebaseInAppMessaging/Sources/Private/Flows/FIRIAMActivityLogger.h"
 @interface FIRIAMActivityLogger ()
 - (void)loadFromCachePath:(NSString *)cacheFilePath;
 - (BOOL)saveIntoCacheWithPath:(NSString *)cacheFilePath;

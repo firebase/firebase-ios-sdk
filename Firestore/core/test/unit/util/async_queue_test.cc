@@ -147,13 +147,14 @@ TEST_P(AsyncQueueTest, CanCallCancelOnDelayedOperationAfterTheOperationHasRun) {
 
   DelayedOperation delayed_operation;
   queue->Enqueue([&] {
-    delayed_operation = queue->EnqueueAfterDelay(AsyncQueue::Milliseconds(10),
+    delayed_operation = queue->EnqueueAfterDelay(AsyncQueue::Milliseconds(1),
                                                  kTimerId1, ran.AsCallback());
     EXPECT_TRUE(queue->IsScheduled(kTimerId1));
   });
 
   Await(ran);
-  EXPECT_FALSE(queue->IsScheduled(kTimerId1));
+  bool scheduled = queue->IsScheduled(kTimerId1);
+  EXPECT_FALSE(scheduled);
   EXPECT_NO_THROW(delayed_operation.Cancel());
 }
 
@@ -180,10 +181,12 @@ TEST_P(AsyncQueueTest, CanManuallyDrainSpecificDelayedOperationsForTesting) {
   Expectation ran;
   std::string steps;
 
+  DelayedOperation timer1;
+
   queue->Enqueue([&] {
     queue->EnqueueRelaxed([&] { steps += '1'; });
-    queue->EnqueueAfterDelay(AsyncQueue::Milliseconds(20000), kTimerId1,
-                             [&steps] { steps += '5'; });
+    timer1 = queue->EnqueueAfterDelay(AsyncQueue::Milliseconds(20000),
+                                      kTimerId1, [&steps] { steps += '5'; });
     queue->EnqueueAfterDelay(AsyncQueue::Milliseconds(10000), kTimerId2,
                              [&steps] { steps += '3'; });
     queue->EnqueueAfterDelay(AsyncQueue::Milliseconds(15000), kTimerId3,
@@ -195,6 +198,15 @@ TEST_P(AsyncQueueTest, CanManuallyDrainSpecificDelayedOperationsForTesting) {
   Await(ran);
   queue->RunScheduledOperationsUntil(kTimerId3);
   EXPECT_EQ(steps, "1234");
+
+  // TODO(wilhuff): Force the AsyncQueue to be destroyed at test end
+  //
+  // Currently the Task with tag=kTimerId1 survives beyond the end of the test
+  // because the AsyncQueue is held by shared_ptr that's captured in the test.
+  // If the AsyncQueue were destroyed at test end, the Executor's normal logic
+  // of cancelling all future scheduled tasks would kick in and this manual
+  // cancellation would not be necessary.
+  timer1.Cancel();
 }
 
 TEST_P(AsyncQueueTest, CanScheduleOprationsWithRespectsToShutdownState) {
@@ -202,13 +214,68 @@ TEST_P(AsyncQueueTest, CanScheduleOprationsWithRespectsToShutdownState) {
   std::string steps;
 
   queue->Enqueue([&] { steps += '1'; });
-  queue->EnqueueAndInitiateShutdown([&] { steps += '2'; });
+  queue->EnterRestrictedMode();
+  queue->EnqueueEvenWhileRestricted([&] { steps += '2'; });
   queue->Enqueue([&] { steps += '3'; });
-  queue->EnqueueEvenAfterShutdown([&] { steps += '4'; });
-  queue->EnqueueEvenAfterShutdown(ran.AsCallback());
+  queue->EnqueueEvenWhileRestricted([&] { steps += '4'; });
+  queue->EnqueueEvenWhileRestricted(ran.AsCallback());
 
   Await(ran);
   EXPECT_EQ(steps, "124");
+}
+
+TEST_P(AsyncQueueTest, RestrictedModePreventsEnqueue) {
+  ASSERT_TRUE(queue->Enqueue([&] {}));
+  ASSERT_TRUE(queue->EnqueueEvenWhileRestricted([&] {}));
+
+  queue->EnterRestrictedMode();
+  ASSERT_FALSE(queue->Enqueue([&] {}));
+  ASSERT_TRUE(queue->EnqueueEvenWhileRestricted([&] {}));
+}
+
+TEST_P(AsyncQueueTest, DisposePreventsAllEnqueues) {
+  ASSERT_TRUE(queue->Enqueue([&] {}));
+  ASSERT_TRUE(queue->EnqueueEvenWhileRestricted([&] {}));
+
+  queue->Dispose();
+  ASSERT_FALSE(queue->Enqueue([&] {}));
+  ASSERT_FALSE(queue->EnqueueEvenWhileRestricted([&] {}));
+}
+
+TEST_P(AsyncQueueTest, DisposeDoesNotBlockEnqueueWhileWaiting) {
+  // Start a task that will block the queue. AsyncQueue::Dispose will block
+  // until this completes.
+  Expectation blocking_started;
+  Expectation blocking_complete;
+  queue->Enqueue([&] {
+    blocking_started.Fulfill();
+    Await(blocking_complete);
+  });
+
+  // Kick off Dispose--this will block while the task above is still running.
+  Await(blocking_started);
+  Expectation dispose_started;
+  Expectation dispose_complete;
+  Async([&] {
+    dispose_started.Fulfill();
+    queue->Dispose();
+    dispose_complete.Fulfill();
+  });
+
+  // Finally, try to enqueue while Dispose is blocked waiting for the first
+  // task to complete. This should not block.
+  Expectation enqueue_completed;
+  Expectation post_dispose;
+  Async([&] {
+    Await(dispose_started);
+    bool enqueued = queue->Enqueue(post_dispose.AsCallback());
+    ASSERT_FALSE(enqueued);
+    enqueue_completed.Fulfill();
+  });
+
+  Await(enqueue_completed);
+  blocking_complete.Fulfill();
+  Await(dispose_complete);
 }
 
 }  // namespace util

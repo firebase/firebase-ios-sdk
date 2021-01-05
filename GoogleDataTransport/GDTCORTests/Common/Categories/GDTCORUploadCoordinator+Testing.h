@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "GDTCORLibrary/Private/GDTCORUploadCoordinator.h"
+#import "GoogleDataTransport/GDTCORLibrary/Private/GDTCORUploadCoordinator.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

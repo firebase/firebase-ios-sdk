@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright 2020 Google
+# Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@
 readonly DIR="$( git rev-parse --show-toplevel )"
 
 # Current release of nanopb being used  to build the CCT protos
-readonly NANOPB_VERSION="0.3.9.3"
+readonly NANOPB_VERSION="0.3.9.6"
 readonly NANOPB_TEMPDIR="${DIR}/Crashlytics/nanopb_temp"
 
 readonly LIBRARY_DIR="${DIR}/Crashlytics/Crashlytics/"

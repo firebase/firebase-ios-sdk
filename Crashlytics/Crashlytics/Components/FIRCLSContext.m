@@ -12,23 +12,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "FIRCLSContext.h"
+#include "Crashlytics/Crashlytics/Components/FIRCLSContext.h"
 
 #include <stdlib.h>
 #include <string.h>
 
-#import "FIRCLSFileManager.h"
-#import "FIRCLSInstallIdentifierModel.h"
-#import "FIRCLSInternalReport.h"
-#import "FIRCLSSettings.h"
+#import "Crashlytics/Shared/FIRCLSConstants.h"
 
-#include "FIRCLSApplication.h"
-#include "FIRCLSCrashedMarkerFile.h"
-#include "FIRCLSDefines.h"
-#include "FIRCLSFeatures.h"
-#include "FIRCLSGlobals.h"
-#include "FIRCLSProcess.h"
-#include "FIRCLSUtility.h"
+#import "Crashlytics/Crashlytics/Models/FIRCLSFileManager.h"
+#import "Crashlytics/Crashlytics/Models/FIRCLSInstallIdentifierModel.h"
+#import "Crashlytics/Crashlytics/Models/FIRCLSInternalReport.h"
+#import "Crashlytics/Crashlytics/Models/FIRCLSSettings.h"
+
+#include "Crashlytics/Crashlytics/Components/FIRCLSApplication.h"
+#include "Crashlytics/Crashlytics/Components/FIRCLSCrashedMarkerFile.h"
+#include "Crashlytics/Crashlytics/Components/FIRCLSGlobals.h"
+#include "Crashlytics/Crashlytics/Components/FIRCLSProcess.h"
+#include "Crashlytics/Crashlytics/Helpers/FIRCLSDefines.h"
+#include "Crashlytics/Crashlytics/Helpers/FIRCLSFeatures.h"
+#include "Crashlytics/Crashlytics/Helpers/FIRCLSUtility.h"
 
 // The writable size is our handler stack plus whatever scratch we need.  We have to use this space
 // extremely carefully, however, because thread stacks always needs to be page-aligned.  Only the
@@ -72,6 +74,7 @@ FIRCLSContextInitData FIRCLSContextBuildInitData(FIRCLSInternalReport* report,
   initData.maxErrorLogSize = [settings errorLogBufferSize];
   initData.maxLogSize = [settings logBufferSize];
   initData.maxKeyValues = [settings maxCustomKeys];
+  initData.betaToken = "";
 
   // If this is set, then we could attempt to do a synchronous submission for certain kinds of
   // events (exceptions). This is a very cool feature, but adds complexity to the backend. For now,
@@ -195,12 +198,14 @@ bool FIRCLSContextInitialize(FIRCLSInternalReport* report,
   });
 
   if (!_firclsContext.readonly->debuggerAttached) {
+#if CLS_SIGNAL_SUPPORTED
     dispatch_group_async(group, queue, ^{
       _firclsContext.readonly->signal.path =
           FIRCLSContextAppendToRoot(rootPath, FIRCLSReportSignalFile);
 
       FIRCLSSignalInitialize(&_firclsContext.readonly->signal);
     });
+#endif
 
 #if CLS_MACH_EXCEPTION_SUPPORTED
     dispatch_group_async(group, queue, ^{
@@ -397,9 +402,9 @@ static bool FIRCLSContextRecordIdentity(FIRCLSFile* file, const FIRCLSContextIni
 
   FIRCLSFileWriteHashStart(file);
 
-  FIRCLSFileWriteHashEntryString(file, "generator", CLS_SDK_GENERATOR_NAME);
-  FIRCLSFileWriteHashEntryString(file, "display_version", CLS_SDK_DISPLAY_VERSION);
-  FIRCLSFileWriteHashEntryString(file, "build_version", CLS_SDK_DISPLAY_VERSION);
+  FIRCLSFileWriteHashEntryString(file, "generator", FIRCLSSDKGeneratorName().UTF8String);
+  FIRCLSFileWriteHashEntryString(file, "display_version", FIRCLSSDKVersion().UTF8String);
+  FIRCLSFileWriteHashEntryString(file, "build_version", FIRCLSSDKVersion().UTF8String);
   FIRCLSFileWriteHashEntryUint64(file, "started_at", time(NULL));
 
   FIRCLSFileWriteHashEntryString(file, "session_id", initData->sessionId);

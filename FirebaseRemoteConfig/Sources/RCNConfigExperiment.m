@@ -16,30 +16,12 @@
 
 #import "FirebaseRemoteConfig/Sources/RCNConfigExperiment.h"
 
-#import "Protos/wireless/android/config/proto/Config.pbobjc.h"
-
-#import <FirebaseABTesting/ExperimentPayload.pbobjc.h>
-#import <FirebaseABTesting/FIRExperimentController.h>
-#import <FirebaseABTesting/FIRLifecycleEvents.h>
-#import <FirebaseCore/FIRLogger.h>
+#import "FirebaseABTesting/Sources/Private/FirebaseABTestingInternal.h"
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigDBManager.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigDefines.h"
 
 static NSString *const kExperimentMetadataKeyLastStartTime = @"last_experiment_start_time";
-/// Based on proto:
-/// http://google3/googlemac/iPhone/Firebase/ABTesting/Source/Protos/developers/mobile/abt/proto/ExperimentPayload.pbobjc.m
-static NSString *const kExperimentPayloadKeyExperimentID = @"experimentId";
-static NSString *const kExperimentPayloadKeyVariantID = @"variantId";
-static NSString *const kExperimentPayloadKeyExperimentStartTime = @"experimentStartTime";
-static NSString *const kExperimentPayloadKeyTriggerEvent = @"triggerEvent";
-static NSString *const kExperimentPayloadKeyTriggerTimeoutMillis = @"triggerTimeoutMillis";
-static NSString *const kExperimentPayloadKeyTimeToLiveMillis = @"timeToLiveMillis";
-static NSString *const kExperimentPayloadKeySetEventToLog = @"setEventToLog";
-static NSString *const kExperimentPayloadKeyActivateEventToLog = @"activateEventToLog";
-static NSString *const kExperimentPayloadKeyClearEventToLog = @"clearEventToLog";
-static NSString *const kExperimentPayloadKeyTimeoutEventToLog = @"timeoutEventToLog";
-static NSString *const kExperimentPayloadKeyTTLExpiryEventToLog = @"ttlExpiryEventToLog";
-static NSString *const kExperimentPayloadKeyOverflowPolicy = @"overflowPolicy";
 
 static NSString *const kServiceOrigin = @"frc";
 static NSString *const kMethodNameLatestStartTime =
@@ -92,20 +74,11 @@ static NSString *const kMethodNameLatestStartTime =
     if (result[@RCNExperimentTableKeyPayload]) {
       [strongSelf->_experimentPayloads removeAllObjects];
       for (NSData *experiment in result[@RCNExperimentTableKeyPayload]) {
-        // Try to parse the experimentpayload as JSON.
-        NSError *error;
-        id experimentPayloadJSON = [NSJSONSerialization JSONObjectWithData:experiment
-                                                                   options:kNilOptions
-                                                                     error:&error];
-        if (!experimentPayloadJSON || error) {
+        if (![NSJSONSerialization isValidJSONObject:experiment]) {
           FIRLogWarning(kFIRLoggerRemoteConfig, @"I-RCN000031",
                         @"Experiment payload could not be parsed as JSON.");
-          // Add this as serialized proto.
-          [strongSelf->_experimentPayloads addObject:experiment];
         } else {
-          // Convert to protobuf.
-          NSData *protoPayload = [self convertABTExperimentPayloadToProto:experimentPayloadJSON];
-          [strongSelf->_experimentPayloads addObject:protoPayload];
+          [strongSelf->_experimentPayloads addObject:experiment];
         }
       }
     }
@@ -116,49 +89,12 @@ static NSString *const kMethodNameLatestStartTime =
   [_DBManager loadExperimentWithCompletionHandler:completionHandler];
 }
 
-/// This method converts the ABT experiment payload to a serialized protobuf which is consumable by
-/// the ABT SDK.
-- (NSData *)convertABTExperimentPayloadToProto:(NSDictionary<NSString *, id> *)experimentPayload {
-  ABTExperimentPayload *ABTExperiment = [[ABTExperimentPayload alloc] init];
-  ABTExperiment.experimentId = experimentPayload[kExperimentPayloadKeyExperimentID];
-  ABTExperiment.variantId = experimentPayload[kExperimentPayloadKeyVariantID];
-  NSDate *experimentStartTime = [self.experimentStartTimeDateFormatter
-      dateFromString:experimentPayload[kExperimentPayloadKeyExperimentStartTime]];
-  ABTExperiment.experimentStartTimeMillis =
-      [@([experimentStartTime timeIntervalSince1970] * 1000) longLongValue];
-  ABTExperiment.triggerEvent = experimentPayload[kExperimentPayloadKeyTriggerEvent];
-  ABTExperiment.triggerTimeoutMillis =
-      experimentPayload[kExperimentPayloadKeyTriggerTimeoutMillis]
-          ? atoll([experimentPayload[kExperimentPayloadKeyTriggerTimeoutMillis] UTF8String])
-          : 0;
-  ABTExperiment.timeToLiveMillis =
-      experimentPayload[kExperimentPayloadKeyTimeToLiveMillis]
-          ? atoll([experimentPayload[kExperimentPayloadKeyTimeToLiveMillis] UTF8String])
-          : 0;
-  ABTExperiment.setEventToLog = experimentPayload[kExperimentPayloadKeySetEventToLog];
-  ABTExperiment.activateEventToLog = experimentPayload[kExperimentPayloadKeyActivateEventToLog];
-  ABTExperiment.clearEventToLog = experimentPayload[kExperimentPayloadKeyClearEventToLog];
-  ABTExperiment.timeoutEventToLog = experimentPayload[kExperimentPayloadKeyTimeoutEventToLog];
-  ABTExperiment.ttlExpiryEventToLog = experimentPayload[kExperimentPayloadKeyTTLExpiryEventToLog];
-  ABTExperiment.overflowPolicy = [experimentPayload[kExperimentPayloadKeyOverflowPolicy] intValue];
-
-  // Serialize the experiment payload.
-  NSData *serializedABTExperiment = ABTExperiment.data;
-  return serializedABTExperiment;
-}
-
 - (void)updateExperimentsWithResponse:(NSArray<NSDictionary<NSString *, id> *> *)response {
   // cache fetched experiment payloads.
   [_experimentPayloads removeAllObjects];
   [_DBManager deleteExperimentTableForKey:@RCNExperimentTableKeyPayload];
 
   for (NSDictionary<NSString *, id> *experiment in response) {
-    NSData *protoPayload = [self convertABTExperimentPayloadToProto:experiment];
-    [_experimentPayloads addObject:protoPayload];
-    // We will add the new serialized JSON data to the database.
-    // TODO: (b/129272809). Eventually, RC and ABT need to be migrated to move off protos once
-    // (most) customers have migrated to using the new SDK (and hence saving the new JSON based
-    // payload in the database).
     NSError *error;
     NSData *JSONPayload = [NSJSONSerialization dataWithJSONObject:experiment
                                                           options:kNilOptions
@@ -166,15 +102,16 @@ static NSString *const kMethodNameLatestStartTime =
     if (!JSONPayload || error) {
       FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000030",
                   @"Invalid experiment payload to be serialized.");
+    } else {
+      [_experimentPayloads addObject:JSONPayload];
+      [_DBManager insertExperimentTableWithKey:@RCNExperimentTableKeyPayload
+                                         value:JSONPayload
+                             completionHandler:nil];
     }
-
-    [_DBManager insertExperimentTableWithKey:@RCNExperimentTableKeyPayload
-                                       value:JSONPayload
-                           completionHandler:nil];
   }
 }
 
-- (void)updateExperiments {
+- (void)updateExperimentsWithHandler:(void (^)(NSError *_Nullable))handler {
   FIRLifecycleEvents *lifecycleEvent = [[FIRLifecycleEvents alloc] init];
 
   // Get the last experiment start time prior to the latest payload.
@@ -183,15 +120,13 @@ static NSString *const kMethodNameLatestStartTime =
 
   // Update the last experiment start time with the latest payload.
   [self updateExperimentStartTime];
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   [self.experimentController
       updateExperimentsWithServiceOrigin:kServiceOrigin
                                   events:lifecycleEvent
-                                  policy:ABTExperimentPayload_ExperimentOverflowPolicy_DiscardOldest
+                                  policy:ABTExperimentPayloadExperimentOverflowPolicyDiscardOldest
                            lastStartTime:lastStartTime
-                                payloads:_experimentPayloads];
-#pragma clang diagnostic pop
+                                payloads:_experimentPayloads
+                       completionHandler:handler];
 }
 
 - (void)updateExperimentStartTime {

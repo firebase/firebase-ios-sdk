@@ -1,0 +1,47 @@
+name: archiving
+
+on:
+  pull_request:
+    paths:
+    - '.github/workflows/archiving.yml'
+  schedule:
+    # Run every day at 2am (PST) - cron uses UTC times
+    # This is set to 3 hours after zip workflow finishes so zip testing can run after.
+    - cron:  '0 10 * * *'
+
+jobs:
+  # Archive tests for pods that support iOS only.
+  pods-ios-only-cron:
+    # Don't run on private repo.
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule')
+
+    runs-on: macOS-latest
+    strategy:
+      matrix:
+        # These need to be on a single line or else the formatting won't validate.
+        pod: ["FirebaseAppDistribution", "FirebaseDynamicLinks", "FirebaseInAppMessaging"]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Setup project and archive
+      run: scripts/test_archiving.sh ${{ matrix.pod }} ios ArchiveOutputs/ios.xcarchive
+
+
+  # Archive tests for pods that support iOS, tvOS, and macOS.
+  pods-ios-tvos-macos-cron:
+    # Don't run on private repo.
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule')
+
+    runs-on: macOS-latest
+    strategy:
+      matrix:
+        target: [ios, tvos, macos]
+        # These need to be on a single line or else the formatting won't validate.
+        pod: ["FirebaseABTesting", "FirebaseAuth", "FirebaseCore", "FirebaseCrashlytics", "FirebaseDatabase", "FirebaseFirestore", "FirebaseFunctions", "FirebaseMessaging", "FirebaseRemoteConfig", "FirebaseStorage", "GoogleDataTransport"]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Setup project and archive
+      run: scripts/test_archiving.sh ${{ matrix.pod }} ${{ matrix.target }} ArchiveOutputs/${{ matrix.target }}.xcarchive

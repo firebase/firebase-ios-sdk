@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2017 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,6 @@
 
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 
-#import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseCore/FIRLogger.h>
-#import <FirebaseCore/FIROptions.h>
 #import <FirebaseFirestore/FIRCollectionReference.h>
 #import <FirebaseFirestore/FIRDocumentChange.h>
 #import <FirebaseFirestore/FIRDocumentReference.h>
@@ -33,6 +30,7 @@
 #include <string>
 #include <utility>
 
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "Firestore/Example/Tests/Util/FIRFirestore+Testing.h"
 #import "Firestore/Example/Tests/Util/FSTEventAccumulator.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
@@ -42,6 +40,7 @@
 #include "Firestore/core/src/auth/user.h"
 #include "Firestore/core/src/local/leveldb_opener.h"
 #include "Firestore/core/src/model/database_id.h"
+#include "Firestore/core/src/remote/firebase_metadata_provider_apple.h"
 #include "Firestore/core/src/remote/grpc_connection.h"
 #include "Firestore/core/src/util/async_queue.h"
 #include "Firestore/core/src/util/autoid.h"
@@ -63,9 +62,10 @@ using firebase::firestore::auth::User;
 using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::local::LevelDbOpener;
 using firebase::firestore::model::DatabaseId;
+using firebase::firestore::remote::GrpcConnection;
+using firebase::firestore::remote::FirebaseMetadataProviderApple;
 using firebase::firestore::testutil::AppForUnitTesting;
 using firebase::firestore::testutil::AsyncQueueForTesting;
-using firebase::firestore::remote::GrpcConnection;
 using firebase::firestore::util::AsyncQueue;
 using firebase::firestore::util::CreateAutoId;
 using firebase::firestore::util::Filesystem;
@@ -172,8 +172,6 @@ class FakeCredentialsProvider : public EmptyCredentialsProvider {
  *
  * Several configurations are supported:
  *   * Mobile Harness, running periocally against prod and nightly, using live SSL certs
- *   * Hexa built from google3, running on a companion gLinux machine, using self-signed test SSL
- *     certs
  *   * Firestore emulator, running on localhost, with SSL disabled
  *
  * See Firestore/README.md for detailed setup instructions or comments below for which specific
@@ -192,6 +190,8 @@ class FakeCredentialsProvider : public EmptyCredentialsProvider {
   if (project && host) {
     defaultProjectId = project;
     defaultSettings.host = host;
+
+    NSLog(@"Integration tests running against %@/%@", defaultSettings.host, defaultProjectId);
     return;
   }
 
@@ -203,40 +203,20 @@ class FakeCredentialsProvider : public EmptyCredentialsProvider {
       // Allow access to nightly or other hosts via this mechanism too.
       defaultSettings.host = host;
     }
+
+    NSLog(@"Integration tests running against %@/%@", defaultSettings.host, defaultProjectId);
     return;
   }
 
-  // Otherwise fall back on assuming the emulator or Hexa on localhost.
+  // Otherwise fall back on assuming the emulator or localhost.
   defaultProjectId = @"test-db";
 
-  // Hexa uses a self-signed cert: the first bundle location is used by bazel builds. The second is
-  // used for github clones.
-  NSString *certsPath =
-      [[NSBundle mainBundle] pathForResource:@"PlugIns/IntegrationTests.xctest/CAcert"
-                                      ofType:@"pem"];
-  if (certsPath == nil) {
-    certsPath = [[NSBundle bundleForClass:[self class]] pathForResource:@"CAcert" ofType:@"pem"];
-  }
-  unsigned long long fileSize =
-      [[[NSFileManager defaultManager] attributesOfItemAtPath:certsPath error:nil] fileSize];
+  defaultSettings.host = @"localhost:8080";
+  defaultSettings.sslEnabled = false;
+  runningAgainstEmulator = true;
 
-  if (fileSize != 0) {
-    defaultSettings.host = @"localhost:8081";
-
-    GrpcConnection::UseTestCertificate(util::MakeString(defaultSettings.host),
-                                       Path::FromNSString(certsPath), "test_cert_2");
-  } else {
-    // If no cert is set up, configure for the Firestore emulator.
-    defaultSettings.host = @"localhost:8080";
-    defaultSettings.sslEnabled = false;
-    runningAgainstEmulator = true;
-
-    // Also issue a warning because the Firestore emulator doesn't completely work yet.
-    NSLog(@"Please set up a GoogleServices-Info.plist for Firestore in Firestore/Example/App using "
-           "instructions at <https://github.com/firebase/firebase-ios-sdk#running-sample-apps>. "
-           "Alternatively, if you're a Googler with a Hexa preproduction environment, run "
-           "setup_integration_tests.py to properly configure testing SSL certificates.");
-  }
+  NSLog(@"Integration tests running against the emulator at %@/%@", defaultSettings.host,
+        defaultProjectId);
 }
 
 + (NSString *)projectID {
@@ -277,6 +257,7 @@ class FakeCredentialsProvider : public EmptyCredentialsProvider {
                                 persistenceKey:util::MakeString(persistenceKey)
                            credentialsProvider:_fakeCredentialsProvider
                                    workerQueue:AsyncQueueForTesting()
+                      firebaseMetadataProvider:absl::make_unique<FirebaseMetadataProviderApple>(app)
                                    firebaseApp:app
                               instanceRegistry:nil];
 
@@ -313,7 +294,7 @@ class FakeCredentialsProvider : public EmptyCredentialsProvider {
         }];
 
     // Wait for watch to initialize and deliver first event.
-    [self awaitExpectations];
+    [self awaitExpectation:watchInitialized];
 
     watchUpdateReceived = [self expectationWithDescription:@"Prime backend: Watch update received"];
 
@@ -342,17 +323,18 @@ class FakeCredentialsProvider : public EmptyCredentialsProvider {
 }
 
 - (void)terminateFirestore:(FIRFirestore *)firestore {
-  [firestore terminateWithCompletion:[self completionForExpectationWithName:@"shutdown"]];
-  [self awaitExpectations];
+  XCTestExpectation *expectation = [self expectationWithDescription:@"shutdown"];
+  [firestore terminateWithCompletion:[self completionForExpectation:expectation]];
+  [self awaitExpectation:expectation];
 }
 
 - (void)deleteApp:(FIRApp *)app {
-  XCTestExpectation *expectation = [self expectationWithDescription:@"Delete app"];
+  XCTestExpectation *expectation = [self expectationWithDescription:@"deleteApp"];
   [app deleteApp:^(BOOL completion) {
     XCTAssertTrue(completion);
     [expectation fulfill];
   }];
-  [self awaitExpectations];
+  [self awaitExpectation:expectation];
 }
 
 - (NSString *)documentPath {
@@ -414,7 +396,7 @@ class FakeCredentialsProvider : public EmptyCredentialsProvider {
                     result = doc;
                     [expectation fulfill];
                   }];
-  [self awaitExpectations];
+  [self awaitExpectation:expectation];
 
   return result;
 }
@@ -433,7 +415,7 @@ class FakeCredentialsProvider : public EmptyCredentialsProvider {
                        result = documentSet;
                        [expectation fulfill];
                      }];
-  [self awaitExpectations];
+  [self awaitExpectation:expectation];
 
   return result;
 }
@@ -454,61 +436,63 @@ class FakeCredentialsProvider : public EmptyCredentialsProvider {
                                              }
                                            }];
 
-  [self awaitExpectations];
+  [self awaitExpectation:expectation];
   [listener remove];
 
   return result;
 }
 
 - (void)writeDocumentRef:(FIRDocumentReference *)ref data:(NSDictionary<NSString *, id> *)data {
-  [ref setData:data completion:[self completionForExpectationWithName:@"setData"]];
-  [self awaitExpectations];
+  XCTestExpectation *expectation = [self expectationWithDescription:@"setData"];
+  [ref setData:data completion:[self completionForExpectation:expectation]];
+  [self awaitExpectation:expectation];
 }
 
 - (void)updateDocumentRef:(FIRDocumentReference *)ref data:(NSDictionary<id, id> *)data {
-  [ref updateData:data completion:[self completionForExpectationWithName:@"updateData"]];
-  [self awaitExpectations];
+  XCTestExpectation *expectation = [self expectationWithDescription:@"updateData"];
+  [ref updateData:data completion:[self completionForExpectation:expectation]];
+  [self awaitExpectation:expectation];
 }
 
 - (void)deleteDocumentRef:(FIRDocumentReference *)ref {
-  [ref deleteDocumentWithCompletion:[self completionForExpectationWithName:@"deleteDocument"]];
-  [self awaitExpectations];
+  XCTestExpectation *expectation = [self expectationWithDescription:@"deleteDocument"];
+  [ref deleteDocumentWithCompletion:[self completionForExpectation:expectation]];
+  [self awaitExpectation:expectation];
 }
 
 - (FIRDocumentReference *)addDocumentRef:(FIRCollectionReference *)ref
                                     data:(NSDictionary<NSString *, id> *)data {
-  FIRDocumentReference *doc =
-      [ref addDocumentWithData:data
-                    completion:[self completionForExpectationWithName:@"addDocument"]];
-  [self awaitExpectations];
+  XCTestExpectation *expectation = [self expectationWithDescription:@"addDocument"];
+  FIRDocumentReference *doc = [ref addDocumentWithData:data
+                                            completion:[self completionForExpectation:expectation]];
+  [self awaitExpectation:expectation];
   return doc;
 }
 
 - (void)mergeDocumentRef:(FIRDocumentReference *)ref data:(NSDictionary<NSString *, id> *)data {
-  [ref setData:data
-           merge:YES
-      completion:[self completionForExpectationWithName:@"setDataWithMerge"]];
-  [self awaitExpectations];
+  XCTestExpectation *expectation = [self expectationWithDescription:@"setDataWithMerge"];
+  [ref setData:data merge:YES completion:[self completionForExpectation:expectation]];
+  [self awaitExpectation:expectation];
 }
 
 - (void)mergeDocumentRef:(FIRDocumentReference *)ref
                     data:(NSDictionary<NSString *, id> *)data
                   fields:(NSArray<id> *)fields {
-  [ref setData:data
-      mergeFields:fields
-       completion:[self completionForExpectationWithName:@"setDataWithMerge"]];
-  [self awaitExpectations];
+  XCTestExpectation *expectation = [self expectationWithDescription:@"setDataWithMerge"];
+  [ref setData:data mergeFields:fields completion:[self completionForExpectation:expectation]];
+  [self awaitExpectation:expectation];
 }
 
 - (void)disableNetwork {
-  [self.db
-      disableNetworkWithCompletion:[self completionForExpectationWithName:@"Disable Network."]];
-  [self awaitExpectations];
+  XCTestExpectation *expectation = [self expectationWithDescription:@"disableNetwork"];
+  [self.db disableNetworkWithCompletion:[self completionForExpectation:expectation]];
+  [self awaitExpectation:expectation];
 }
 
 - (void)enableNetwork {
-  [self.db enableNetworkWithCompletion:[self completionForExpectationWithName:@"Enable Network."]];
-  [self awaitExpectations];
+  XCTestExpectation *expectation = [self expectationWithDescription:@"enableNetwork"];
+  [self.db enableNetworkWithCompletion:[self completionForExpectation:expectation]];
+  [self awaitExpectation:expectation];
 }
 
 - (const std::shared_ptr<util::AsyncQueue> &)queueForFirestore:(FIRFirestore *)firestore {

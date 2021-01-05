@@ -14,13 +14,16 @@
  * limitations under the License.
  */
 
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
+
 #import <UIKit/UIKit.h>
 
-#import <FirebaseCore/FIRLogger.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
-#import "FIRCore+InAppMessaging.h"
-#import "FIRIAMClearcutLogStorage.h"
-#import "FIRIAMTimeFetcher.h"
+#import "FirebaseInAppMessaging/Sources/Analytics/FIRIAMClearcutLogStorage.h"
+#import "FirebaseInAppMessaging/Sources/FIRCore+InAppMessaging.h"
+#import "FirebaseInAppMessaging/Sources/Private/Util/FIRIAMTimeFetcher.h"
 
 @implementation FIRIAMClearcutLogRecord
 static NSString *const kEventTimestampKey = @"event_ts_seconds";
@@ -186,3 +189,5 @@ static NSString *const kEventExtensionJson = @"extension_js";
   }
 }
 @end
+
+#endif  // TARGET_OS_IOS

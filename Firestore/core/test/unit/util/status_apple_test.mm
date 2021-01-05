@@ -49,10 +49,10 @@ NSError* MakeCocoaNotFound() {
 
 TEST(Status, MapsPosixErrorCodes) {
   Status s = Status::FromNSError(MakeNotFound());
-  EXPECT_EQ(Error::kNotFound, s.code());
+  EXPECT_EQ(Error::kErrorNotFound, s.code());
 
   s = Status::FromNSError(MakeCocoaNotFound());
-  EXPECT_EQ(Error::kNotFound, s.code());
+  EXPECT_EQ(Error::kErrorNotFound, s.code());
 }
 
 TEST(Status, PreservesNSError) {
@@ -65,7 +65,7 @@ TEST(Status, PreservesNSError) {
 
 TEST(Status, CausedBy_Chain_NSError) {
   NSError* not_found_nserror = MakeNotFound();
-  Status internal_error(Error::kInternal, "Something broke");
+  Status internal_error(Error::kErrorInternal, "Something broke");
 
   Status result = internal_error;
   result.CausedBy(Status::FromNSError(not_found_nserror));
@@ -88,11 +88,11 @@ TEST(Status, CausedBy_Chain_NSError) {
 
 #if !__clang_analyzer__
 TEST(Status, MovedFromToNSError) {
-  Status not_found(Error::kNotFound, "Some file not found");
+  Status not_found(Error::kErrorNotFound, "Some file not found");
   Status unused = std::move(not_found);
 
   EXPECT_EQ(not_found.ToNSError().domain, FIRFirestoreErrorDomain);
-  EXPECT_EQ(not_found.ToNSError().code, Error::kInternal);
+  EXPECT_EQ(not_found.ToNSError().code, Error::kErrorInternal);
 }
 #endif  // !__clang_analyzer__
 

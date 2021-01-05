@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
+#import "OCMock.h"
 
-#import <FirebaseAnalyticsInterop/FIRInteropEventNames.h>
-#import <FirebaseAnalyticsInterop/FIRInteropParameterNames.h>
+#import "Interop/Analytics/Public/FIRInteropEventNames.h"
+#import "Interop/Analytics/Public/FIRInteropParameterNames.h"
 
 #import "FirebaseMessaging/Sources/FIRMessagingAnalytics.h"
 
@@ -424,6 +424,8 @@ static FakeAnalyticsLogEventHandler _userPropertyHandler;
   [FIRMessagingAnalytics logUserPropertyForConversionTracking:notification toAnalytics:analytics];
 }
 
+#if !SWIFT_PACKAGE
+// This test depends on a sharedApplication which is not available in the Swift PM test env.
 - (void)testLogMessage {
   NSDictionary *notification = @{
     @"google.c.a.e" : @"1",
@@ -431,6 +433,7 @@ static FakeAnalyticsLogEventHandler _userPropertyHandler;
   [FIRMessagingAnalytics logMessage:notification toAnalytics:nil];
   OCMVerify([self.logClassMock logEvent:OCMOCK_ANY withNotification:notification toAnalytics:nil]);
 }
+#endif
 
 - (void)testLogOpenNotification {
   NSDictionary *notification = @{

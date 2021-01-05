@@ -16,9 +16,9 @@
 
 #import <Foundation/Foundation.h>
 
-#import <GoogleDataTransport/GDTCORUploader.h>
+#import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORUploader.h"
 
-#import "GDTCORTests/Integration/Helpers/GDTCORIntegrationTestPrioritizer.h"
+@class GDTCORTestServer;
 
 /** An integration test uploader. */
 @interface GDTCORIntegrationTestUploader : NSObject <GDTCORUploader>
@@ -28,6 +28,6 @@
  * @param serverURL The server URL this uploader should upload to.
  * @return An instance of this class.
  */
-- (instancetype)initWithServerURL:(NSURL *)serverURL;
+- (instancetype)initWithServer:(GDTCORTestServer *)serverURL;
 
 @end

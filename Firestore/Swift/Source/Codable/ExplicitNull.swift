@@ -39,6 +39,8 @@ import FirebaseFirestore
 
   extension ExplicitNull: Equatable where Value: Equatable {}
 
+  extension ExplicitNull: Hashable where Value: Hashable {}
+
   extension ExplicitNull: Encodable where Value: Encodable {
     public func encode(to encoder: Encoder) throws {
       var container = encoder.singleValueContainer()

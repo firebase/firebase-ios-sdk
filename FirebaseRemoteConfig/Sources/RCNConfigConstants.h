@@ -19,13 +19,6 @@
 #define RCN_SEC_PER_MIN 60
 #define RCN_MSEC_PER_SEC 1000
 
-/// Remote Config SDK internal version that is different than
-/// FIRRemoteConfigPodVersion. This is for config server to track down iOS
-/// client app version. Each version can only go up to 99.
-static const int kRCNMajorVersion = 1;
-static const int kRCNMinorVersion = 2;
-static const int kRCNPatchVersion = 10;
-
 /// Key prefix applied to all the packages (bundle IDs) in internal metadata.
 static NSString *const RCNInternalMetadataAllPackagesPrefix = @"all_packages";
 
@@ -42,6 +35,8 @@ static const char *RCNRemoteConfigQueueLabel = "com.google.GoogleConfigService.F
 static NSString *const RCNFetchResponseKeyEntries = @"entries";
 /// Key that includes data for experiment descriptions in ABT.
 static NSString *const RCNFetchResponseKeyExperimentDescriptions = @"experimentDescriptions";
+/// Key that includes data for Personalization metadata.
+static NSString *const RCNFetchResponseKeyPersonalizationMetadata = @"personalizationMetadata";
 /// Error key.
 static NSString *const RCNFetchResponseKeyError = @"error";
 /// Error code.

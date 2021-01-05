@@ -1,4 +1,26 @@
-# Unreleased
+# 7.1.0
+- [Fixed] Remove explicit MobileCoreServices library linkage from podspec. (#6850)
+
+# 7.0.0
+- [changed] The global variable `FIRStorageVersionString` is deleted.
+  `FirebaseVersion()` or `FIRFirebaseVersion()` should be used instead.
+- [fixed] Fixed an issue with the List API that prevented listing of locations
+  that contain the "+" sign.
+- [changed] Renamed `list(withMaxResults:)` to `list(maxResults:)` in the Swift
+  API.
+- [fixed] Fixed an issue that caused longer than expected timeouts for users
+  that specified custom timeouts.
+
+# 3.8.1
+- [fixed] Fixed typo in doc comments (#6485).
+
+# 3.8.0
+- [changed] Add error for attempt to upload directory (#5750)
+- [changed] Functionally neutral source reorganization. (#5851)
+
+# 3.7.0
+- [fixed] Fixed a crash when listAll() was called at the root location. (#5772)
+- [added] Added a check to FIRStorageUploadTask's `putFile:` to check if the passed in `fileURL` is a directory, and provides a clear error if it is. (#5750)
 
 # 3.6.1
 - [fixed] Fix a rare case where a StorageTask would call its completion callbacks more than

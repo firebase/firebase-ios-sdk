@@ -12,16 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRCLSOnboardingOperation.h"
+#import "Crashlytics/Crashlytics/Settings/Operations/FIRCLSOnboardingOperation.h"
 
-#import "FIRCLSByteUtility.h"
-#import "FIRCLSConstants.h"
-#import "FIRCLSFABNetworkClient.h"
-#import "FIRCLSLogger.h"
-#import "FIRCLSMachO.h"
-#import "FIRCLSMultipartMimeStreamEncoder.h"
-#import "FIRCLSSettings.h"
-#import "FIRCLSURLBuilder.h"
+#import "Crashlytics/Crashlytics/Helpers/FIRCLSLogger.h"
+#import "Crashlytics/Crashlytics/Models/FIRCLSSettings.h"
+#import "Crashlytics/Shared/FIRCLSByteUtility.h"
+#import "Crashlytics/Shared/FIRCLSConstants.h"
+#import "Crashlytics/Shared/FIRCLSMachO/FIRCLSMachO.h"
+#import "Crashlytics/Shared/FIRCLSNetworking/FIRCLSFABNetworkClient.h"
+#import "Crashlytics/Shared/FIRCLSNetworking/FIRCLSMultipartMimeStreamEncoder.h"
+#import "Crashlytics/Shared/FIRCLSNetworking/FIRCLSURLBuilder.h"
 
 // The SPIv1/v2 onboarding flow looks something like this:
 // - get settings

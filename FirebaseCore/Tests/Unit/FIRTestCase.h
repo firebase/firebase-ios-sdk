@@ -14,32 +14,11 @@
  * limitations under the License.
  */
 
-#import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
-
-NS_ASSUME_NONNULL_BEGIN
-
-extern NSString *const kAPIKey;
-extern NSString *const kCustomizedAPIKey;
-extern NSString *const kClientID;
-extern NSString *const kTrackingID;
-extern NSString *const kGCMSenderID;
-extern NSString *const kAndroidClientID;
-extern NSString *const kGoogleAppID;
-extern NSString *const kDatabaseURL;
-extern NSString *const kStorageBucket;
-
-extern NSString *const kDeepLinkURLScheme;
-extern NSString *const kNewDeepLinkURLScheme;
-
-extern NSString *const kBundleID;
-extern NSString *const kProjectID;
+#import "OCMock.h"
 
 /**
  * Base test case for Firebase Core SDK tests.
  */
 @interface FIRTestCase : XCTestCase
-
 @end
-
-NS_ASSUME_NONNULL_END

@@ -35,8 +35,6 @@ NS_ASSUME_NONNULL_BEGIN
                                       action:^{ [weakSelf updatePassword]; }],
     [StaticContentTableViewCell cellWithTitle:@"Update Phone Number"
                                       action:^{ [weakSelf updatePhoneNumber]; }],
-    [StaticContentTableViewCell cellWithTitle:@"Get Provider IDs for Email"
-                                      action:^{ [weakSelf getProvidersForEmail]; }],
     [StaticContentTableViewCell cellWithTitle:@"Get Sign-in methods for Email"
                                       action:^{ [weakSelf getAllSignInMethodsForEmail]; }],
     [StaticContentTableViewCell cellWithTitle:@"Reload User"
@@ -110,33 +108,6 @@ NS_ASSUME_NONNULL_BEGIN
       }];
     }];
   }];
-}
-
-- (void)getProvidersForEmail {
-  [self showTextInputPromptWithMessage:@"Email:"
-                       completionBlock:^(BOOL userPressedOK, NSString *_Nullable userInput) {
-   if (!userPressedOK || !userInput.length) {
-     return;
-   }
-   [self showSpinner:^{
-     [[AppManager auth] fetchProvidersForEmail:userInput
-                                    completion:^(NSArray<NSString *> *_Nullable providers,
-                                                 NSError *_Nullable error) {
-      if (error) {
-        [self logFailure:@"get providers for email failed" error:error];
-      } else {
-        [self logSuccess:@"get providers for email succeeded."];
-      }
-      [self hideSpinner:^{
-        if (error) {
-          [self showMessagePrompt:error.localizedDescription];
-          return;
-        }
-        [self showMessagePrompt:[providers componentsJoinedByString:@", "]];
-      }];
-    }];
-   }];
- }];
 }
 
 - (void)getAllSignInMethodsForEmail {

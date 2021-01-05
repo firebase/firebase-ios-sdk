@@ -18,6 +18,11 @@
 #include <stdint.h>
 #include <sys/cdefs.h>
 
+// Required for 1P builds
+#include <stddef.h>
+#include <sys/types.h>
+#include <unistd.h>
+
 #if defined(__OBJC__)
 #import <Foundation/Foundation.h>
 #endif

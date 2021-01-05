@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-#import "FIRInstanceID+Private.h"
+#import "Firebase/InstanceID/Private/FIRInstanceID+Private.h"
 
-#import <FirebaseInstallations/FirebaseInstallations.h>
+#import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
 
-#import <FirebaseInstanceID/FIRInstanceID_Private.h>
-#import "FIRInstanceIDAuthService.h"
-#import "FIRInstanceIDDefines.h"
-#import "FIRInstanceIDTokenManager.h"
+#import "Firebase/InstanceID/FIRInstanceIDAuthService.h"
+#import "Firebase/InstanceID/FIRInstanceIDTokenManager.h"
+#import "Firebase/InstanceID/Private/FIRInstanceID_Private.h"
 
 @class FIRInstallations;
 
@@ -31,18 +30,15 @@
 
 @end
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-implementations"
 @implementation FIRInstanceID (Private)
+#pragma clang diagnostic pop
 
 // This method just wraps our pre-configured auth service to make the request.
 // This method is only needed by first-party users, like Remote Config.
 - (void)fetchCheckinInfoWithHandler:(FIRInstanceIDDeviceCheckinCompletion)handler {
   [self.tokenManager.authService fetchCheckinInfoWithHandler:handler];
-}
-
-// TODO(#4486): Delete the method, `self.firebaseInstallationsID` and related
-// code for Firebase 7 release.
-- (NSString *)appInstanceID:(NSError **)outError {
-  return self.firebaseInstallationsID;
 }
 
 #pragma mark - Firebase Installations Compatibility

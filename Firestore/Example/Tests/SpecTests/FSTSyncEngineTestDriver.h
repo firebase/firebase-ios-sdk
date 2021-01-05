@@ -325,6 +325,20 @@ typedef std::unordered_map<auth::User, NSMutableArray<FSTOutstandingWrite *> *, 
 @property(nonatomic, assign, readonly) const auth::User &currentUser;
 
 /**
+ * The number of waitForPendingWrites events that have been received.
+ */
+@property(nonatomic, readonly) int waitForPendingWritesEvents;
+
+- (void)incrementWaitForPendingWritesEvents;
+
+- (void)resetWaitForPendingWritesEvents;
+
+/**
+ * Register a new waitForPendingWrites() callback.
+ */
+- (void)waitForPendingWrites;
+
+/**
  * The number of snapshots-in-sync events that have been received.
  */
 @property(nonatomic, readonly) int snapshotsInSyncEvents;

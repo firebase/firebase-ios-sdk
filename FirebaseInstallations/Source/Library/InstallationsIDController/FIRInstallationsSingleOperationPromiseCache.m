@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRInstallationsSingleOperationPromiseCache.h"
+#import "FirebaseInstallations/Source/Library/InstallationsIDController/FIRInstallationsSingleOperationPromiseCache.h"
 
 #if __has_include(<FBLPromises/FBLPromises.h>)
 #import <FBLPromises/FBLPromises.h>

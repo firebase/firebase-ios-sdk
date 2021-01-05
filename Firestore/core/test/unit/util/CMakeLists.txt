@@ -20,35 +20,37 @@ if(NOT MSVC)
 endif()
 
 
-firebase_ios_glob(
-  sources *.cc *.h
-  EXCLUDE *_benchmark.cc *_std_test.cc
-)
-
-if(APPLE)
+if(FIREBASE_IOS_BUILD_TESTS)
   firebase_ios_glob(
-    sources APPEND *.mm
-    EXCLUDE *_benchmark.mm *_libdispatch_test.mm
+    sources *.cc *.h
+    EXCLUDE *_benchmark.cc *_std_test.cc
+  )
+
+  if(APPLE)
+    firebase_ios_glob(
+      sources APPEND *.mm
+      EXCLUDE *_benchmark.mm *_libdispatch_test.mm
+    )
+  endif()
+
+  if(HAVE_LIBDISPATCH)
+    firebase_ios_glob(sources APPEND *_libdispatch_test.mm)
+  else()
+    firebase_ios_glob(sources APPEND *_std_test.cc)
+  endif()
+
+  firebase_ios_add_test(firestore_util_test ${sources})
+
+  target_link_libraries(
+    firestore_util_test PRIVATE
+    GMock::GMock
+    absl_base
+    absl_optional
+    absl_strings
+    firestore_core
+    firestore_testutil
   )
 endif()
-
-if(HAVE_LIBDISPATCH)
-  firebase_ios_glob(sources APPEND *_libdispatch_test.mm)
-else()
-  firebase_ios_glob(sources APPEND *_std_test.cc)
-endif()
-
-firebase_ios_add_test(firestore_util_test ${sources})
-
-target_link_libraries(
-  firestore_util_test PRIVATE
-  GMock::GMock
-  absl_base
-  absl_optional
-  absl_strings
-  firestore_core
-  firestore_testutil
-)
 
 
 # Benchmarks

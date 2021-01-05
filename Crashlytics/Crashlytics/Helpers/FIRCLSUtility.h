@@ -17,7 +17,7 @@
 #include <mach/vm_types.h>
 #include <stdbool.h>
 #include <stdio.h>
-#include "FIRCLSGlobals.h"
+#include "Crashlytics/Crashlytics/Components/FIRCLSGlobals.h"
 
 #define FIRCLSIsValidPointer(x) ((uintptr_t)x >= 4096)
 #define FIRCLSInvalidCharNybble (255)
@@ -35,6 +35,7 @@ bool FIRCLSReadString(vm_address_t src, char** dest, size_t maxlen);
 const char* FIRCLSDupString(const char* string);
 
 bool FIRCLSUnlinkIfExists(const char* path);
+void FIRCLSRedactUUID(char* value);
 
 #if __OBJC__
 void FIRCLSDispatchAfter(float timeInSeconds, dispatch_queue_t queue, dispatch_block_t block);

@@ -12,9 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import <FirebaseStorage/FIRStorageReference.h>
+#import "FirebaseStorage/Sources/Public/FirebaseStorage/FIRStorageReference.h"
 
-#import <FirebaseStorage/FIRStorageTaskSnapshot.h>
 #import "FirebaseStorage/Sources/FIRStorageConstants_Private.h"
 #import "FirebaseStorage/Sources/FIRStorageDeleteTask.h"
 #import "FirebaseStorage/Sources/FIRStorageDownloadTask_Private.h"
@@ -30,12 +29,16 @@
 #import "FirebaseStorage/Sources/FIRStorageUploadTask_Private.h"
 #import "FirebaseStorage/Sources/FIRStorageUtils.h"
 #import "FirebaseStorage/Sources/FIRStorage_Private.h"
+#import "FirebaseStorage/Sources/Public/FirebaseStorage/FIRStorageTaskSnapshot.h"
 
-#import <FirebaseCore/FIRApp.h>
-#import <FirebaseCore/FIROptions.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
+#if SWIFT_PACKAGE
+@import GTMSessionFetcherCore;
+#else
 #import <GTMSessionFetcher/GTMSessionFetcher.h>
 #import <GTMSessionFetcher/GTMSessionFetcherService.h>
+#endif
 
 @implementation FIRStorageReference
 

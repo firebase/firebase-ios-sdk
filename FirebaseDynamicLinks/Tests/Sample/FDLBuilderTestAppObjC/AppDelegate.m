@@ -17,8 +17,7 @@
 #import "AppDelegate.h"
 #import "ViewController.h"
 
-#import <FirebaseCore/FIRApp.h>
-#import <FirebaseCore/FIROptions.h>
+#import <FirebaseCore/FirebaseCore.h>
 #import <FirebaseDynamicLinks/FIRDynamicLinks.h>
 
 @implementation AppDelegate
@@ -93,7 +92,10 @@
   [alertVC addAction:[UIAlertAction actionWithTitle:@"Dismiss"
                                               style:UIAlertActionStyleCancel
                                             handler:NULL]];
-  [self.window.rootViewController presentViewController:alertVC animated:YES completion:NULL];
+
+  [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:alertVC
+                                                                               animated:YES
+                                                                             completion:NULL];
 }
 
 @end

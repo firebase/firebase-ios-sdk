@@ -17,7 +17,7 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
-#import "FIRIAMSDKModeManager.h"
+#import "FirebaseInAppMessaging/Sources/Private/Runtime/FIRIAMSDKModeManager.h"
 
 @interface FIRIAMSDKModeManagerTests : XCTestCase
 @property(nonatomic) NSUserDefaults *mockUserDefaults;

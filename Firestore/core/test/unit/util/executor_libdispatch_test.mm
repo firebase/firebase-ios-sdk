@@ -77,19 +77,19 @@ TEST_F(ExecutorLibdispatchOnlyTests,
 
 TEST_F(ExecutorLibdispatchOnlyTests, ScheduledOperationOutlivesExecutor) {
   namespace chr = std::chrono;
-  const auto far_away = chr::milliseconds(100);
-  executor->Schedule(far_away, {Executor::Tag{1}, [] {}});
+  const auto far_away = chr::milliseconds(10);
+  executor->Schedule(far_away, Executor::Tag{1}, [] {});
   executor.reset();
   // Try to wait until libdispatch invokes the scheduled operation. This is
   // flaky but unlikely to not work in practice. The test is successful if
   // there is no crash/data race under TSan.
-  std::this_thread::sleep_for(chr::milliseconds(500));
+  std::this_thread::sleep_for(chr::milliseconds(50));
 }
 
 TEST_F(ExecutorLibdispatchOnlyTests,
        ScheduledOperationOutlivesExecutor_DestroyedOnOwnQueue) {
-  const auto far_away = chr::milliseconds(100);
-  executor->Schedule(far_away, {Executor::Tag{1}, [] {}});
+  const auto far_away = chr::milliseconds(10);
+  executor->Schedule(far_away, Executor::Tag{1}, [] {});
 
   // Invoke destructor on the executor's own queue to make sure there is no
   // deadlock.
@@ -103,7 +103,7 @@ TEST_F(ExecutorLibdispatchOnlyTests,
   // Try to wait until libdispatch invokes the scheduled operation. This is
   // flaky but unlikely to not work in practice. The test is successful if
   // there is no crash/data race under TSan.
-  std::this_thread::sleep_for(chr::milliseconds(500));
+  std::this_thread::sleep_for(chr::milliseconds(50));
 }
 
 }  // namespace internal

@@ -16,12 +16,11 @@
 
 #import <FirebaseFirestore/FirebaseFirestore.h>
 
-#import <FirebaseCore/FIRApp.h>
-#import <FirebaseCore/FIROptions.h>
 #import <XCTest/XCTest.h>
 
 #include <limits>
 
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "Firestore/Source/API/FIRFieldValue+Internal.h"
 #import "Firestore/Source/API/FIRQuery+Internal.h"
 
@@ -416,22 +415,6 @@ namespace testutil = firebase::firestore::testutil;
                   @"Invalid Query. Query limit (-1) is invalid. Limit must be positive.");
 }
 
-- (void)testNonEqualityQueriesOnNullOrNaNFail {
-  FSTAssertThrows([[self collectionRef] queryWhereField:@"a" isGreaterThan:nil],
-                  @"Invalid Query. Null supports only equality comparisons.");
-  FSTAssertThrows([[self collectionRef] queryWhereField:@"a" isGreaterThan:[NSNull null]],
-                  @"Invalid Query. Null supports only equality comparisons.");
-  FSTAssertThrows([[self collectionRef] queryWhereField:@"a" arrayContains:nil],
-                  @"Invalid Query. Null supports only equality comparisons.");
-  FSTAssertThrows([[self collectionRef] queryWhereField:@"a" arrayContains:[NSNull null]],
-                  @"Invalid Query. Null supports only equality comparisons.");
-
-  FSTAssertThrows([[self collectionRef] queryWhereField:@"a" isGreaterThan:@(NAN)],
-                  @"Invalid Query. NaN supports only equality comparisons.");
-  FSTAssertThrows([[self collectionRef] queryWhereField:@"a" arrayContains:@(NAN)],
-                  @"Invalid Query. NaN supports only equality comparisons.");
-}
-
 - (void)testQueryCannotBeCreatedFromDocumentsMissingSortValues {
   FIRCollectionReference *testCollection =
       [self collectionRefWithDocuments:@{@"f" : @{@"v" : @"f", @"nosort" : @1.0}}];
@@ -597,13 +580,13 @@ namespace testutil = firebase::firestore::testutil;
   FIRQuery *base = [coll queryWhereField:@"x" isGreaterThanOrEqualTo:@32];
 
   FSTAssertThrows([base queryWhereField:@"y" isLessThan:@"cat"],
-                  @"Invalid Query. All where filters with an inequality (lessThan, "
+                  @"Invalid Query. All where filters with an inequality (notEqual, lessThan, "
                    "lessThanOrEqual, greaterThan, or greaterThanOrEqual) must be on the same "
                    "field. But you have inequality filters on 'x' and 'y'");
 
   NSString *reason =
       @"Invalid query. You have a where filter with "
-       "an inequality (lessThan, lessThanOrEqual, greaterThan, or greaterThanOrEqual) "
+       "an inequality (notEqual, lessThan, lessThanOrEqual, greaterThan, or greaterThanOrEqual) "
        "on field 'x' and so you must also use 'x' as your first queryOrderedBy field, "
        "but your first queryOrderedBy is currently on field 'y' instead.";
   FSTAssertThrows([base queryOrderedByField:@"y"], reason);
@@ -612,6 +595,7 @@ namespace testutil = firebase::firestore::testutil;
   FSTAssertThrows([[[coll queryOrderedByField:@"y"] queryOrderedByField:@"x"] queryWhereField:@"x"
                                                                                 isGreaterThan:@32],
                   reason);
+  FSTAssertThrows([[coll queryOrderedByField:@"y"] queryWhereField:@"x" isNotEqualTo:@32], reason);
 
   XCTAssertNoThrow([base queryWhereField:@"x" isLessThanOrEqualTo:@"cat"],
                    @"Same inequality fields work");
@@ -639,6 +623,20 @@ namespace testutil = firebase::firestore::testutil;
                    @"array_contains different than orderBy works.");
 }
 
+- (void)testQueriesWithMultipleNotEqualAndInequalitiesFail {
+  FIRCollectionReference *coll = [self.db collectionWithPath:@"collection"];
+
+  FSTAssertThrows([[coll queryWhereField:@"x" isNotEqualTo:@1] queryWhereField:@"x"
+                                                                  isNotEqualTo:@2],
+                  @"Invalid Query. You cannot use more than one 'notEqual' filter.");
+
+  FSTAssertThrows([[coll queryWhereField:@"x" isNotEqualTo:@1] queryWhereField:@"y"
+                                                                  isNotEqualTo:@2],
+                  @"Invalid Query. All where filters with an inequality (notEqual, lessThan, "
+                   "lessThanOrEqual, greaterThan, or greaterThanOrEqual) must be on "
+                   "the same field. But you have inequality filters on 'x' and 'y'");
+}
+
 - (void)testQueriesWithMultipleArrayFiltersFail {
   FIRCollectionReference *coll = [self.db collectionWithPath:@"collection"];
   FSTAssertThrows([[coll queryWhereField:@"foo" arrayContains:@1] queryWhereField:@"foo"
@@ -656,6 +654,18 @@ namespace testutil = firebase::firestore::testutil;
       @"Invalid Query. You cannot use 'arrayContains' filters with 'arrayContainsAny' filters.");
 }
 
+- (void)testQueriesWithNotEqualAndNotInFiltersFail {
+  FIRCollectionReference *coll = [self.db collectionWithPath:@"collection"];
+
+  FSTAssertThrows([[coll queryWhereField:@"foo" notIn:@[ @1 ]] queryWhereField:@"foo"
+                                                                  isNotEqualTo:@2],
+                  @"Invalid Query. You cannot use 'notEqual' filters with 'notIn' filters.");
+
+  FSTAssertThrows([[coll queryWhereField:@"foo" isNotEqualTo:@2] queryWhereField:@"foo"
+                                                                           notIn:@[ @1 ]],
+                  @"Invalid Query. You cannot use 'notIn' filters with 'notEqual' filters.");
+}
+
 - (void)testQueriesWithMultipleDisjunctiveFiltersFail {
   FIRCollectionReference *coll = [self.db collectionWithPath:@"collection"];
   FSTAssertThrows([[coll queryWhereField:@"foo" in:@[ @1 ]] queryWhereField:@"foo" in:@[ @2 ]],
@@ -665,6 +675,10 @@ namespace testutil = firebase::firestore::testutil;
                                                                          arrayContainsAny:@[ @2 ]],
                   @"Invalid Query. You cannot use more than one 'arrayContainsAny' filter.");
 
+  FSTAssertThrows([[coll queryWhereField:@"foo" notIn:@[ @1 ]] queryWhereField:@"foo"
+                                                                         notIn:@[ @2 ]],
+                  @"Invalid Query. You cannot use more than one 'notIn' filter.");
+
   FSTAssertThrows([[coll queryWhereField:@"foo" arrayContainsAny:@[ @1 ]] queryWhereField:@"foo"
                                                                                        in:@[ @2 ]],
                   @"Invalid Query. You cannot use 'in' filters with 'arrayContainsAny' filters.");
@@ -673,6 +687,20 @@ namespace testutil = firebase::firestore::testutil;
                                                            arrayContainsAny:@[ @2 ]],
                   @"Invalid Query. You cannot use 'arrayContainsAny' filters with 'in' filters.");
 
+  FSTAssertThrows(
+      [[coll queryWhereField:@"foo" arrayContainsAny:@[ @1 ]] queryWhereField:@"foo" notIn:@[ @2 ]],
+      @"Invalid Query. You cannot use 'notIn' filters with 'arrayContainsAny' filters.");
+
+  FSTAssertThrows(
+      [[coll queryWhereField:@"foo" notIn:@[ @1 ]] queryWhereField:@"foo" arrayContainsAny:@[ @2 ]],
+      @"Invalid Query. You cannot use 'arrayContainsAny' filters with 'notIn' filters.");
+
+  FSTAssertThrows([[coll queryWhereField:@"foo" in:@[ @1 ]] queryWhereField:@"foo" notIn:@[ @2 ]],
+                  @"Invalid Query. You cannot use 'notIn' filters with 'in' filters.");
+
+  FSTAssertThrows([[coll queryWhereField:@"foo" notIn:@[ @1 ]] queryWhereField:@"foo" in:@[ @2 ]],
+                  @"Invalid Query. You cannot use 'in' filters with 'notIn' filters.");
+
   // This is redundant with the above tests, but makes sure our validation doesn't get confused.
   FSTAssertThrows([[[coll queryWhereField:@"foo"
                                        in:@[ @1 ]] queryWhereField:@"foo"
@@ -680,11 +708,23 @@ namespace testutil = firebase::firestore::testutil;
                                                                       arrayContainsAny:@[ @2 ]],
                   @"Invalid Query. You cannot use 'arrayContainsAny' filters with 'in' filters.");
 
+  FSTAssertThrows(
+      [[[coll queryWhereField:@"foo"
+                arrayContains:@1] queryWhereField:@"foo" in:@[ @2 ]] queryWhereField:@"foo"
+                                                                    arrayContainsAny:@[ @2 ]],
+      @"Invalid Query. You cannot use 'arrayContainsAny' filters with 'arrayContains' filters.");
+
+  FSTAssertThrows([[[coll queryWhereField:@"foo"
+                                    notIn:@[ @1 ]] queryWhereField:@"foo"
+                                                     arrayContains:@2] queryWhereField:@"foo"
+                                                                      arrayContainsAny:@[ @2 ]],
+                  @"Invalid Query. You cannot use 'arrayContains' filters with 'notIn' filters.");
+
   FSTAssertThrows([[[coll queryWhereField:@"foo"
                             arrayContains:@1] queryWhereField:@"foo"
                                                            in:@[ @2 ]] queryWhereField:@"foo"
-                                                                      arrayContainsAny:@[ @2 ]],
-                  @"Invalid Query. You cannot use 'arrayContainsAny' filters with 'in' filters.");
+                                                                                 notIn:@[ @2 ]],
+                  @"Invalid Query. You cannot use 'notIn' filters with 'arrayContains' filters.");
 }
 
 - (void)testQueriesCanUseInWithArrayContain {
@@ -716,6 +756,9 @@ namespace testutil = firebase::firestore::testutil;
   FSTAssertThrows([coll queryWhereField:@"foo" in:@[]],
                   @"Invalid Query. A non-empty array is required for 'in' filters.");
 
+  FSTAssertThrows([coll queryWhereField:@"foo" notIn:@[]],
+                  @"Invalid Query. A non-empty array is required for 'notIn' filters.");
+
   FSTAssertThrows([coll queryWhereField:@"foo" arrayContainsAny:@[]],
                   @"Invalid Query. A non-empty array is required for 'arrayContainsAny' filters.");
 
@@ -727,20 +770,9 @@ namespace testutil = firebase::firestore::testutil;
   FSTAssertThrows([coll queryWhereField:@"foo" arrayContainsAny:values],
                   @"Invalid Query. 'arrayContainsAny' filters support a maximum of 10 elements"
                    " in the value array.");
-
-  NSArray *withNullValues = @[ @1, [NSNull null] ];
-  FSTAssertThrows([coll queryWhereField:@"foo" in:withNullValues],
-                  @"Invalid Query. 'in' filters cannot contain 'null' in the value array.");
   FSTAssertThrows(
-      [coll queryWhereField:@"foo" arrayContainsAny:withNullValues],
-      @"Invalid Query. 'arrayContainsAny' filters cannot contain 'null' in the value array.");
-
-  NSArray *withNaNValues = @[ @2, @(NAN) ];
-  FSTAssertThrows([coll queryWhereField:@"foo" in:withNaNValues],
-                  @"Invalid Query. 'in' filters cannot contain 'NaN' in the value array.");
-  FSTAssertThrows(
-      [coll queryWhereField:@"foo" arrayContainsAny:withNaNValues],
-      @"Invalid Query. 'arrayContainsAny' filters cannot contain 'NaN' in the value array.");
+      [coll queryWhereField:@"foo" notIn:values],
+      @"Invalid Query. 'notIn' filters support a maximum of 10 elements in the value array.");
 }
 
 #pragma mark - GeoPoint Validation

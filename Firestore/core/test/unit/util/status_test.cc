@@ -27,7 +27,7 @@ namespace firestore {
 namespace util {
 
 TEST(Status, OK) {
-  EXPECT_EQ(Status::OK().code(), Error::kOk);
+  EXPECT_EQ(Status::OK().code(), Error::kErrorOk);
   EXPECT_EQ(Status::OK().error_message(), "");
   EXPECT_OK(Status::OK());
   ASSERT_OK(Status::OK());
@@ -38,23 +38,23 @@ TEST(Status, OK) {
 
 TEST(Status, Set) {
   Status status;
-  status = Status(Error::kCancelled, "Error message");
-  EXPECT_EQ(status.code(), Error::kCancelled);
+  status = Status(Error::kErrorCancelled, "Error message");
+  EXPECT_EQ(status.code(), Error::kErrorCancelled);
   EXPECT_EQ(status.error_message(), "Error message");
 }
 
 TEST(Status, Copy) {
-  Status a(Error::kInvalidArgument, "Invalid");
+  Status a(Error::kErrorInvalidArgument, "Invalid");
   Status b(a);
   ASSERT_EQ(a.ToString(), b.ToString());
 }
 
 TEST(Status, Move) {
-  Status s(Status(Error::kInvalidArgument, "Invalid"));
-  ASSERT_EQ(Error::kInvalidArgument, s.code());
+  Status s(Status(Error::kErrorInvalidArgument, "Invalid"));
+  ASSERT_EQ(Error::kErrorInvalidArgument, s.code());
 
   Status new_s = std::move(s);
-  ASSERT_EQ(Error::kInvalidArgument, new_s.code());
+  ASSERT_EQ(Error::kErrorInvalidArgument, new_s.code());
 
   Status ok = Status::OK();
   Status new_ok = std::move(ok);
@@ -67,7 +67,7 @@ TEST(Status, Move) {
 }
 
 TEST(Status, Assign) {
-  Status a(Error::kInvalidArgument, "Invalid");
+  Status a(Error::kErrorInvalidArgument, "Invalid");
   Status b;
   b = a;
   ASSERT_EQ(a.ToString(), b.ToString());
@@ -75,13 +75,13 @@ TEST(Status, Assign) {
 
 TEST(Status, MoveAssign) {
   Status ok;
-  Status reassigned{Error::kInvalidArgument, "Foo"};
+  Status reassigned{Error::kErrorInvalidArgument, "Foo"};
   reassigned = std::move(ok);
   ASSERT_EQ(reassigned, Status::OK());
 
-  Status bad{Error::kInvalidArgument, "Foo"};
+  Status bad{Error::kErrorInvalidArgument, "Foo"};
   reassigned = std::move(bad);
-  ASSERT_EQ(reassigned, Status(Error::kInvalidArgument, "Foo"));
+  ASSERT_EQ(reassigned, Status(Error::kErrorInvalidArgument, "Foo"));
 }
 
 #if !__clang_analyzer__
@@ -91,16 +91,16 @@ TEST(Status, CanAccessMovedFrom) {
 
   ASSERT_FALSE(ok.ok());
   ASSERT_EQ(ok.error_message(), "Status accessed after move.");
-  ASSERT_EQ(ok.code(), Error::kInternal);
+  ASSERT_EQ(ok.code(), Error::kErrorInternal);
 }
 #endif  // !__clang_analyzer__
 
 #if !__clang_analyzer__
 TEST(Status, CanAssignToMovedFromStatus) {
-  Status a(Error::kInvalidArgument, "Invalid");
+  Status a(Error::kErrorInvalidArgument, "Invalid");
   Status b = std::move(a);
 
-  EXPECT_NO_THROW({ a = Status(Error::kInternal, "Internal"); });
+  EXPECT_NO_THROW({ a = Status(Error::kErrorInternal, "Internal"); });
   ASSERT_EQ(a.ToString(), "Internal: Internal");
 }
 #endif  // !__clang_analyzer__
@@ -109,10 +109,10 @@ TEST(Status, Update) {
   Status s;
   s.Update(Status::OK());
   ASSERT_TRUE(s.ok());
-  Status a(Error::kInvalidArgument, "Invalid");
+  Status a(Error::kErrorInvalidArgument, "Invalid");
   s.Update(a);
   ASSERT_EQ(s.ToString(), a.ToString());
-  Status b(Error::kInternal, "Internal");
+  Status b(Error::kErrorInternal, "Internal");
   s.Update(b);
   ASSERT_EQ(s.ToString(), a.ToString());
   s.Update(Status::OK());
@@ -122,7 +122,7 @@ TEST(Status, Update) {
 
 #if !__clang_analyzer__
 TEST(Status, CanUpdateMovedFrom) {
-  Status a(Error::kInvalidArgument, "Invalid");
+  Status a(Error::kErrorInvalidArgument, "Invalid");
   Status b = std::move(a);
 
   a.Update(b);
@@ -135,34 +135,34 @@ TEST(Status, EqualsOK) {
 }
 
 TEST(Status, EqualsSame) {
-  Status a(Error::kInvalidArgument, "Invalid");
-  Status b(Error::kInvalidArgument, "Invalid");
+  Status a(Error::kErrorInvalidArgument, "Invalid");
+  Status b(Error::kErrorInvalidArgument, "Invalid");
   ASSERT_EQ(a, b);
 }
 
 TEST(Status, EqualsCopy) {
-  Status a(Error::kInvalidArgument, "Invalid");
+  Status a(Error::kErrorInvalidArgument, "Invalid");
   Status b = a;
   ASSERT_EQ(a, b);
 }
 
 TEST(Status, EqualsDifferentCode) {
-  Status a(Error::kInvalidArgument, "message");
-  Status b(Error::kInternal, "message");
+  Status a(Error::kErrorInvalidArgument, "message");
+  Status b(Error::kErrorInternal, "message");
   ASSERT_NE(a, b);
 }
 
 TEST(Status, EqualsDifferentMessage) {
-  Status a(Error::kInvalidArgument, "message");
-  Status b(Error::kInvalidArgument, "another");
+  Status a(Error::kErrorInvalidArgument, "message");
+  Status b(Error::kErrorInvalidArgument, "another");
   ASSERT_NE(a, b);
 }
 
 #if !__clang_analyzer__
 TEST(Status, EqualsApplyToMovedFrom) {
-  Status a(Error::kInvalidArgument, "message");
+  Status a(Error::kErrorInvalidArgument, "message");
   Status unused = std::move(a);
-  Status b(Error::kInvalidArgument, "message");
+  Status b(Error::kErrorInvalidArgument, "message");
 
   ASSERT_NE(a, b);
 
@@ -189,7 +189,7 @@ TEST(Status, CausedBy_OK) {
 }
 
 TEST(Status, CausedBy_CauseOK) {
-  Status not_found(Error::kNotFound, "file not found");
+  Status not_found(Error::kErrorNotFound, "file not found");
 
   Status result = not_found;
   result.CausedBy(Status::OK());
@@ -197,7 +197,7 @@ TEST(Status, CausedBy_CauseOK) {
 }
 
 TEST(Status, CausedBy_OuterOK) {
-  Status not_found(Error::kNotFound, "file not found");
+  Status not_found(Error::kErrorNotFound, "file not found");
 
   Status result = Status::OK();
   result.CausedBy(not_found);
@@ -205,8 +205,8 @@ TEST(Status, CausedBy_OuterOK) {
 }
 
 TEST(Status, CausedBy_Chain) {
-  Status not_found(Error::kNotFound, "file not found");
-  Status not_ready(Error::kFailedPrecondition, "DB not ready");
+  Status not_found(Error::kErrorNotFound, "file not found");
+  Status not_ready(Error::kErrorFailedPrecondition, "DB not ready");
 
   Status result = not_ready;
   result.CausedBy(not_found);
@@ -220,15 +220,15 @@ TEST(Status, CausedBy_Chain) {
 }
 
 TEST(Status, CauseBy_Self) {
-  Status not_found(Error::kNotFound, "file not found");
+  Status not_found(Error::kErrorNotFound, "file not found");
   Status result = not_found.CausedBy(not_found);
   EXPECT_EQ(not_found, result);
 }
 
 #if !__clang_analyzer__
 TEST(Status, CauseBy_OnMovedFrom) {
-  Status not_ready(Error::kFailedPrecondition, "DB not ready");
-  Status not_found(Error::kNotFound, "file not found");
+  Status not_ready(Error::kErrorFailedPrecondition, "DB not ready");
+  Status not_found(Error::kErrorNotFound, "file not found");
   Status unused = std::move(not_ready);
 
   Status result = not_ready.CausedBy(not_found);

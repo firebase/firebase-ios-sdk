@@ -91,7 +91,7 @@ class Filesystem {
    * @param app_name The name of the application.
    *
    * @returns The documents directory path or a status with
-   * Error::kUnimplemented if the current platform does not have a legacy
+   * Error::kErrorUnimplemented if the current platform does not have a legacy
    * documents directory.
    */
   virtual StatusOr<Path> LegacyDocumentsDir(absl::string_view app_name);

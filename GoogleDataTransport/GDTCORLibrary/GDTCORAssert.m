@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "GDTCORLibrary/Public/GDTCORAssert.h"
+#import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORAssert.h"
 
 GDTCORAssertionBlock GDTCORAssertionBlockToRunInstead(void) {
   // This class is only compiled in by unit tests, and this should fail quickly in optimized builds.

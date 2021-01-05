@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRIAMAnalyticsEventLogger.h"
+#import "FirebaseInAppMessaging/Sources/Private/Flows/FIRIAMAnalyticsEventLogger.h"
 
 @class FIRIAMClearcutLogger;
 @protocol FIRIAMTimeFetcher;

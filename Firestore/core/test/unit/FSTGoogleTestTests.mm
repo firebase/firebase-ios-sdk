@@ -221,13 +221,31 @@ void XCTestMethod(XCTestCase* self, SEL _cmd) {
   int parts = result->total_part_count();
   for (int i = 0; i < parts; i++) {
     const testing::TestPartResult& part = result->GetTestPartResult(i);
-    [self
-        recordFailureWithDescription:@(part.message())
-                              inFile:@(part.file_name() ? part.file_name() : "")
-                              atLine:(part.line_number() > 0
-                                          ? part.line_number()
-                                          : 0)
-                            expected:true];
+    const char* path = part.file_name() ? part.file_name() : "";
+    int line = part.line_number() > 0 ? part.line_number() : 0;
+
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 140000 || \
+    __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500
+    // Xcode 12
+    auto* location = [[XCTSourceCodeLocation alloc] initWithFilePath:@(path)
+                                                          lineNumber:line];
+    auto* context = [[XCTSourceCodeContext alloc] initWithLocation:location];
+    auto* issue = [[XCTIssue alloc] initWithType:XCTIssueTypeAssertionFailure
+                              compactDescription:@(part.summary())
+                             detailedDescription:@(part.message())
+                               sourceCodeContext:context
+                                 associatedError:nil
+                                     attachments:@[]];
+    [self recordIssue:issue];
+
+#else
+    // Xcode 11 and prior. recordFailureWithDescription:inFile:atLine:expected:
+    // is deprecated in Xcode 12.
+    [self recordFailureWithDescription:@(part.message())
+                                inFile:@(path)
+                                atLine:line
+                              expected:true];
+#endif
   }
 }
 

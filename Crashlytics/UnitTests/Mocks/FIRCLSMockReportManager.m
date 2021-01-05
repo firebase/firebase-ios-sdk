@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRCLSMockReportManager.h"
+#import "Crashlytics/UnitTests/Mocks/FIRCLSMockReportManager.h"
 
-#import "FIRCLSContext.h"
-#import "FIRCLSMockNetworkClient.h"
-#import "FIRCLSMockReportUploader.h"
+#import "Crashlytics/Crashlytics/Components/FIRCLSContext.h"
+#import "Crashlytics/UnitTests/Mocks/FIRCLSMockNetworkClient.h"
+#import "Crashlytics/UnitTests/Mocks/FIRCLSMockReportUploader.h"
 
-#import "FIRInstallations.h"
+#import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
 
 @interface FIRCLSMockReportManager () {
   FIRCLSMockReportUploader *_uploader;

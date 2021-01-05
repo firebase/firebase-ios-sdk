@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRCLSMockReportUploader.h"
+#import "Crashlytics/UnitTests/Mocks/FIRCLSMockReportUploader.h"
 
-#import "FIRCLSFileManager.h"
-#import "FIRCLSInternalReport.h"
+#import "Crashlytics/Crashlytics/Models/FIRCLSFileManager.h"
+#import "Crashlytics/Crashlytics/Models/FIRCLSInternalReport.h"
 
 @interface FIRCLSMockReportUploader () {
   NSMutableArray *_prepareAndSubmitReportArray;

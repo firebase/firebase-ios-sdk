@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseFirestore/FirebaseFirestore.h>
 
 #import <XCTest/XCTest.h>
 
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "Firestore/Example/Tests/Util/FSTEventAccumulator.h"
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
@@ -566,6 +566,16 @@ using firebase::firestore::util::TimerId;
   }];
 
   [self writeDocumentRef:ref data:@{@"foo" : @3}];
+  [self awaitExpectation:done];
+}
+
+- (void)testSnapshotsInSyncRemoveIsIdempotent {
+  // This test merely verifies that calling remove multiple times doesn't
+  // explode.
+  auto listener = [self.db addSnapshotsInSyncListener:^(){
+  }];
+  [listener remove];
+  [listener remove];
 }
 
 - (void)testListenCanBeCalledMultipleTimes {
@@ -1320,7 +1330,7 @@ using firebase::firestore::util::TimerId;
   [self terminateFirestore:firestore];
   [self.firestores removeObject:firestore];
   [firestore
-      clearPersistenceWithCompletion:[self completionForExpectationWithName:@"Enable network"]];
+      clearPersistenceWithCompletion:[self completionForExpectationWithName:@"ClearPersistence"]];
   [self awaitExpectations];
   [self deleteApp:app];
 
@@ -1330,6 +1340,42 @@ using firebase::firestore::util::TimerId;
   [FIRApp configureWithName:appName options:options];
   FIRApp *app2 = [FIRApp appNamed:appName];
   FIRFirestore *firestore2 = [self firestoreWithApp:app2];
+  FIRDocumentReference *docRef2 = [firestore2 documentWithPath:doc.path];
+  XCTestExpectation *expectation2 = [self expectationWithDescription:@"getData"];
+  [docRef2 getDocumentWithSource:FIRFirestoreSourceCache
+                      completion:^(FIRDocumentSnapshot *, NSError *_Nullable error) {
+                        XCTAssertNotNil(error);
+                        XCTAssertEqualObjects(error.domain, FIRFirestoreErrorDomain);
+                        XCTAssertEqual(error.code, FIRFirestoreErrorCodeUnavailable);
+                        [expectation2 fulfill];
+                      }];
+  [self awaitExpectations];
+}
+
+- (void)testCanClearPersistenceOnANewFirestoreInstance {
+  FIRDocumentReference *doc = [self documentRef];
+  FIRFirestore *firestore = doc.firestore;
+  FIRApp *app = firestore.app;
+  NSString *appName = app.name;
+  FIROptions *options = app.options;
+
+  NSDictionary<NSString *, id> *initialData = @{@"foo" : @"42"};
+  [self writeDocumentRef:doc data:initialData];
+
+  [firestore terminateWithCompletion:[self completionForExpectationWithName:@"Terminate"]];
+  [self.firestores removeObject:firestore];
+  [self awaitExpectations];
+  [self deleteApp:app];
+
+  // We restart the app with the same name and options to check that the previous instance's
+  // persistent storage is actually cleared after the restart. Calling [self firestore] here would
+  // create a new instance of firestore, which defeats the purpose of this test.
+  [FIRApp configureWithName:appName options:options];
+  FIRApp *app2 = [FIRApp appNamed:appName];
+  FIRFirestore *firestore2 = [self firestoreWithApp:app2];
+  [firestore2
+      clearPersistenceWithCompletion:[self completionForExpectationWithName:@"ClearPersistence"]];
+  [self awaitExpectations];
   FIRDocumentReference *docRef2 = [firestore2 documentWithPath:doc.path];
   XCTestExpectation *expectation2 = [self expectationWithDescription:@"getData"];
   [docRef2 getDocumentWithSource:FIRFirestoreSourceCache
@@ -1437,6 +1483,137 @@ using firebase::firestore::util::TimerId;
   [listenerRegistration remove];
   // Multiple calls should proceed as well.
   [listenerRegistration remove];
+}
+
+- (void)testListenerCallbackBlocksRemove {
+  // This tests a guarantee required for C++ that doesn't strictly matter for Objective-C and has no
+  // equivalent on other platforms.
+  //
+  // The problem for C++ is that users can register a listener that refers to some state, then call
+  // `ListenerRegistration::Remove()` and expect to be able to immediately delete that state. The
+  // trouble is that there may be a callback in progress against that listener so the implementation
+  // now blocks the remove call until the callback is complete.
+  //
+  // To make this work, user callbacks can't be on the main thread because the main thread is
+  // blocked waiting for the test to complete (that is, you can't await expectations on the main
+  // thread and then have the user callback additionally await expectations).
+  dispatch_queue_t userQueue = dispatch_queue_create("firestore.test.user", DISPATCH_QUEUE_SERIAL);
+  FIRFirestoreSettings *settings = self.db.settings;
+  settings.dispatchQueue = userQueue;
+  self.db.settings = settings;
+
+  XCTestExpectation *running = [self expectationWithDescription:@"listener running"];
+  XCTestExpectation *allowCompletion =
+      [self expectationWithDescription:@"allow listener to complete"];
+  XCTestExpectation *removing = [self expectationWithDescription:@"attempting to remove listener"];
+  XCTestExpectation *removed = [self expectationWithDescription:@"listener removed"];
+
+  NSMutableString *steps = [NSMutableString string];
+
+  FIRDocumentReference *doc = [self documentRef];
+  [self writeDocumentRef:doc data:@{@"foo" : @"bar"}];
+
+  __block bool firstTime = true;
+
+  id<FIRListenerRegistration> listener =
+      [doc addSnapshotListener:^(FIRDocumentSnapshot *, NSError *) {
+        @synchronized(self) {
+          if (!firstTime) {
+            return;
+          }
+          firstTime = false;
+        }
+
+        [steps appendString:@"1"];
+        [running fulfill];
+
+        [self awaitExpectation:allowCompletion];
+        [steps appendString:@"3"];
+      }];
+
+  // Call remove asynchronously to avoid blocking the main test thread.
+  dispatch_queue_t async = dispatch_queue_create("firestore.async", DISPATCH_QUEUE_SERIAL);
+  dispatch_async(async, ^{
+    [self awaitExpectation:running];
+    [steps appendString:@"2"];
+
+    [removing fulfill];
+    [listener remove];
+
+    [steps appendString:@"4"];
+    [removed fulfill];
+  });
+
+  // Perform a write to `doc` which will trigger the listener callback. Don't wait for completion
+  // though because that completion handler is in line behind the listener callback that the test
+  // is blocking.
+  XCTestExpectation *setData = [self expectationWithDescription:@"setData"];
+  [doc setData:@{@"foo" : @"bar"} completion:[self completionForExpectation:setData]];
+
+  [self awaitExpectation:removing];
+  [allowCompletion fulfill];
+
+  [self awaitExpectation:removed];
+  XCTAssertEqualObjects(steps, @"1234");
+
+  [self awaitExpectation:setData];
+}
+
+- (void)testListenerCallbackCanCallRemoveWithoutBlocking {
+  // This tests a guarantee required for C++ that doesn't strictly matter for Objective-C and has no
+  // equivalent on other platforms. See `testListenerCallbackBlocksRemove` for background.
+  XCTestExpectation *removed = [self expectationWithDescription:@"listener removed"];
+
+  NSMutableString *steps = [NSMutableString string];
+
+  FIRDocumentReference *doc = [self documentRef];
+  [self writeDocumentRef:doc data:@{@"foo" : @"bar"}];
+
+  __block id<FIRListenerRegistration> listener = nil;
+
+  @synchronized(self) {
+    listener = [doc addSnapshotListener:^(FIRDocumentSnapshot *, NSError *) {
+      [steps appendString:@"1"];
+
+      @synchronized(self) {
+        // This test is successful if this method does not block.
+        [listener remove];
+      }
+
+      [steps appendString:@"2"];
+      [removed fulfill];
+    }];
+  }
+
+  // Perform a write to `doc` which will trigger the listener callback.
+  [self writeDocumentRef:doc data:@{@"foo" : @"bar2"}];
+
+  [self awaitExpectation:removed];
+  XCTAssertEqualObjects(steps, @"12");
+}
+
+- (void)testListenerCallbacksHappenOnMainThread {
+  // Verify that callbacks occur on the main thread if settings.dispatchQueue is not specified.
+  XCTestExpectation *invoked = [self expectationWithDescription:@"listener invoked"];
+  invoked.assertForOverFulfill = false;
+
+  FIRDocumentReference *doc = [self documentRef];
+  [self writeDocumentRef:doc data:@{@"foo" : @"bar"}];
+
+  __block bool callbackThreadIsMainThread;
+  __block NSString *callbackThreadDescription;
+
+  [doc addSnapshotListener:^(FIRDocumentSnapshot *, NSError *) {
+    callbackThreadIsMainThread = NSThread.isMainThread;
+    callbackThreadDescription = [NSString stringWithFormat:@"%@", NSThread.currentThread];
+    [invoked fulfill];
+  }];
+
+  [self awaitExpectation:invoked];
+  XCTAssertTrue(callbackThreadIsMainThread,
+                @"The listener callback was expected to occur on the main thread, but instead it "
+                @"occurred on the thread %@",
+                callbackThreadDescription);
 }
 
 - (void)testWaitForPendingWritesCompletes {

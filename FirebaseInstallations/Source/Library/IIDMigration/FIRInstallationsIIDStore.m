@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRInstallationsIIDStore.h"
+#import "FirebaseInstallations/Source/Library/IIDMigration/FIRInstallationsIIDStore.h"
 
 #if __has_include(<FBLPromises/FBLPromises.h>)
 #import <FBLPromises/FBLPromises.h>
@@ -23,7 +23,7 @@
 #endif
 
 #import <CommonCrypto/CommonDigest.h>
-#import "FIRInstallationsErrorUtil.h"
+#import "FirebaseInstallations/Source/Library/Errors/FIRInstallationsErrorUtil.h"
 
 static NSString *const kFIRInstallationsIIDKeyPairPublicTagPrefix =
     @"com.google.iid.keypair.public-";
@@ -83,6 +83,12 @@ static NSString *const kFIRInstallationsIIDCreationTimePlistKey = @"|S|cre";
   return [self base64URLEncodedStringWithData:data];
 }
 
+/** FirebaseInstallations SDK uses the SHA1 hash for backwards compatibility with the legacy
+ * FirebaseInstanceID SDK. The SHA1 hash is used to access Instance IDs stored on the device and not
+ * for any security-relevant process. This is a one-time step that allows migration of old client
+ * identifiers. Cryptographic security is not needed here, so potential hash collisions are not a
+ * problem.
+ */
 - (NSData *)sha1WithData:(NSData *)data {
   unsigned char output[CC_SHA1_DIGEST_LENGTH];
   unsigned int length = (unsigned int)[data length];

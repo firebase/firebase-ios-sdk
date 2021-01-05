@@ -153,12 +153,12 @@ void DocumentReference::GetDocument(Source source,
         // 2) Actually call the callback with an error if the
         // document doesn't exist when you are offline.
         listener_->OnEvent(
-            Status{Error::kUnavailable,
+            Status{Error::kErrorUnavailable,
                    "Failed to get document because the client is offline."});
       } else if (snapshot.exists() && snapshot.metadata().from_cache() &&
                  source_ == Source::Server) {
         listener_->OnEvent(
-            Status{Error::kUnavailable,
+            Status{Error::kErrorUnavailable,
                    "Failed to get document from server. (However, "
                    "this document does exist in the local cache. Run "
                    "again without setting source to "

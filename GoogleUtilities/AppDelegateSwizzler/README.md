@@ -138,7 +138,7 @@ For eg.
 
 // MYInterestingClass.m
 
-#import <GoogleUtilities/GULAppDelegateSwizzler.h>
+#import "GoogleUtilities/AppDelegateSwizzler/Public/GoogleUtilities/GULAppDelegateSwizzler.h"
 
 ...
 

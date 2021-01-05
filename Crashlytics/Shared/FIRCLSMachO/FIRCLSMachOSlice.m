@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRCLSMachOSlice.h"
+#import "Crashlytics/Shared/FIRCLSMachO/FIRCLSMachOSlice.h"
 
 #include <mach-o/loader.h>
 
