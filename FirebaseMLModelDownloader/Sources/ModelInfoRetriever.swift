@@ -32,6 +32,12 @@ private extension ModelInfoResponse {
   }
 }
 
+/// Downloading model info will return new model info only if it different from local model info.
+enum DownloadModelInfoResult {
+  case notModified
+  case modelInfo(RemoteModelInfo)
+}
+
 /// Model info retriever for a model from local user defaults or server.
 class ModelInfoRetriever: NSObject {
   /// Current Firebase app options.
@@ -118,7 +124,8 @@ extension ModelInfoRetriever {
   }
 
   /// Get model info from server.
-  func downloadModelInfo(completion: @escaping (Result<RemoteModelInfo?, DownloadError>) -> Void) {
+  func downloadModelInfo(completion: @escaping (Result<DownloadModelInfoResult, DownloadError>)
+    -> Void) {
     getAuthToken { result in
       switch result {
       /// Successfully received FIS token.
@@ -160,7 +167,7 @@ extension ModelInfoRetriever {
               }
               do {
                 let modelInfo = try self.getRemoteModelInfoFromResponse(data, modelHash: modelHash)
-                completion(.success(modelInfo))
+                completion(.success(.modelInfo(modelInfo)))
               } catch {
                 completion(
                   .failure(.internalError(description: "Failed to retrieve model info: \(error)"))
@@ -175,7 +182,7 @@ extension ModelInfoRetriever {
                 )
                 return
               }
-              completion(.success(nil))
+              completion(.success(.notModified))
             case 404:
               completion(.failure(.notFound))
             // TODO: Handle more http status codes

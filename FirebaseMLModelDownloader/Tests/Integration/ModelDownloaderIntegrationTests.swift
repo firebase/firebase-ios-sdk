@@ -65,8 +65,9 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
     let downloadExpectation = expectation(description: "Wait for model info to download.")
     modelInfoRetriever.downloadModelInfo(completion: { result in
       switch result {
-      case let .success(remoteModelInfo):
-        if let modelInfo = remoteModelInfo {
+      case let .success(modelInfoResult):
+        switch modelInfoResult {
+        case let .modelInfo(modelInfo):
           XCTAssertGreaterThan(modelInfo.downloadURL.absoluteString.count, 0)
           XCTAssertGreaterThan(modelInfo.modelHash.count, 0)
           XCTAssertGreaterThan(modelInfo.size, 0)
@@ -75,7 +76,7 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
             .createTestInstance(testName: #function),
             appName: testApp.name
           )
-        } else {
+        case .notModified:
           XCTFail("Failed to retrieve model info.")
         }
       case let .failure(error):
@@ -117,9 +118,11 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
     let retrieveExpectation = expectation(description: "Wait for model info to be retrieved.")
     modelInfoRetriever.downloadModelInfo(completion: { result in
       switch result {
-      case let .success(remoteModelInfo):
-        if remoteModelInfo != nil {
+      case let .success(modelInfoResult):
+        switch modelInfoResult {
+        case .modelInfo:
           XCTFail("Local model info is already the latest and should not be set again.")
+        case .notModified: break
         }
       case let .failure(error):
         XCTAssertNotNil(error)
