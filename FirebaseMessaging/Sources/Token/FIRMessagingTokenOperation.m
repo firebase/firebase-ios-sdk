@@ -16,14 +16,13 @@
 
 #import "FirebaseMessaging/Sources/Token/FIRMessagingTokenOperation.h"
 
-#import <FirebaseInstallations/FirebaseInstallations.h>
-#import "GoogleUtilities/Environment/Public/GoogleUtilities/GULAppEnvironmentUtil.h"
-
+#import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
 #import "FirebaseMessaging/Sources/FIRMessagingLogger.h"
 #import "FirebaseMessaging/Sources/FIRMessagingUtilities.h"
 #import "FirebaseMessaging/Sources/FIRMessaging_Private.h"
 #import "FirebaseMessaging/Sources/NSError+FIRMessaging.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingCheckinPreferences.h"
+#import "GoogleUtilities/Environment/Public/GoogleUtilities/GULAppEnvironmentUtil.h"
 
 static const NSInteger kFIRMessagingPlatformVersionIOS = 2;
 

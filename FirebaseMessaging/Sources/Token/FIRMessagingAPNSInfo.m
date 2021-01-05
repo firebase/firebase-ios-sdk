@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRMessagingAPNSInfo.h"
+#import "FirebaseMessaging/Sources/Token/FIRMessagingAPNSInfo.h"
 
 #import "FirebaseMessaging/Sources/FIRMessagingConstants.h"
 

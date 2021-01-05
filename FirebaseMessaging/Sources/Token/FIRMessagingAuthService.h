@@ -15,7 +15,7 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "FIRMessagingCheckinService.h"
+#import "FirebaseMessaging/Sources/Token/FIRMessagingCheckinService.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
