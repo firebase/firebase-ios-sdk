@@ -26,6 +26,7 @@ echo "::set-output name=functions_run_job::false"
 echo "The current branch is ${pr_branch}."
 echo "pwd: $(pwd)"
 echo "ls: $(ls)"
+echo "git branch -a: $(git branch -a)"
 common_commit=$(git merge-base ${pr_branch} master)
 echo "The common commit is ${common_commit}."
 
