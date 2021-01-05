@@ -76,10 +76,4 @@ jobs:
         with:
           path: /Users/runner/test
       - name: display results
-        run: |
-        if [ -d "/Users/runner/test" ] 
-        then
-            echo "Directory /path/to/dir exists." 
-        else
-            echo "Error: Directory /path/to/dir does not exists."
-        fi
+        run: echo "display results"
