@@ -75,7 +75,10 @@ jobs:
     runs-on: macOS-latest
     steps:
       - uses: actions/download-artifact@v2
+        id: download
         with:
           path: /Users/runner/test
       - name: display results
-        run: find "/Users/runner/test" -print -regex ".*/.*\.xcresult" -exec xcrun xccov view --report {} \;
+        run: |
+          echo ${{steps.download.outputs.download-path}}
+          find "/Users/runner/test" -print -regex ".*/.*\.xcresult" -exec xcrun xccov view --report {} \;
