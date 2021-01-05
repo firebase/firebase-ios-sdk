@@ -16,17 +16,15 @@
 
 #import "OCMock.h"
 
-#import "FirebaseMessaging/Tests/UnitTests/FIRMessagingTestUtilities.h"
-#import "FirebaseMessaging/Tests/UnitTests/XCTestCase+FIRMessagingRmqManagerTests.h"
-
 #import <GoogleUtilities/GULUserDefaults.h>
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
-#import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
-
 #import "FirebaseMessaging/Sources/FIRMessagingPubSub.h"
 #import "FirebaseMessaging/Sources/FIRMessagingRmqManager.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingTokenManager.h"
+#import "FirebaseMessaging/Tests/UnitTests/FIRMessagingTestUtilities.h"
+#import "FirebaseMessaging/Tests/UnitTests/XCTestCase+FIRMessagingRmqManagerTests.h"
+#import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 
 NS_ASSUME_NONNULL_BEGIN static NSString *const kFIRMessagingDefaultsTestDomain =
     @"com.messaging.tests";

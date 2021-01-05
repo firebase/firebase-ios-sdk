@@ -16,11 +16,11 @@
 
 #import "FirebaseMessaging/Sources/Token/FIRMessagingTokenManager.h"
 
-#import <FirebaseInstallations/FIRInstallations.h>
-
+#import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
 #import "FirebaseMessaging/Sources/FIRMessagingConstants.h"
 #import "FirebaseMessaging/Sources/FIRMessagingDefines.h"
 #import "FirebaseMessaging/Sources/FIRMessagingLogger.h"
+#import "FirebaseMessaging/Sources/NSError+FIRMessaging.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingAuthKeyChain.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingAuthService.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingCheckinPreferences.h"
@@ -30,7 +30,6 @@
 #import "FirebaseMessaging/Sources/Token/FIRMessagingTokenInfo.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingTokenOperation.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingTokenStore.h"
-#import "NSError+FIRMessaging.h"
 
 // NOTE: These values should be in sync with what InstanceID saves in as.
 static NSString *const kCheckinFileName = @"g-checkin";
