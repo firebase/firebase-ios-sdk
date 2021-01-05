@@ -23,8 +23,8 @@ FUNCTIONS_PATHS=("Functions.*" \
 echo "::set-output name=database_run_job::false"
 echo "::set-output name=functions_run_job::false"
 # Get most rescent ancestor commit.
-echo "The current branch is ${GITHUB_REF}."
-common_commit=$(git merge-base $GITHUB_REF master)
+echo "The current branch is ${GITHUB_REF##*/}."
+common_commit=$(git merge-base ${GITHUB_REF##*/} master)
 echo "The common commit is ${common_commit}."
 
 echo "=============== list changed files ==============="
