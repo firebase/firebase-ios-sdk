@@ -80,4 +80,6 @@ jobs:
           path: /Users/runner/test
       - name: display results
         run: |
-          [ -d "${{steps.download.outputs.download-path}}" ] && find "/Users/runner/test" -print -regex ".*/.*\.xcresult" -exec xcrun xccov view --report {} \;
+          if [ -d "${{steps.download.outputs.download-path}}" ]; then
+          find "/Users/runner/test" -print -regex ".*/.*\.xcresult" -exec xcrun xccov view --report {} \;
+          fi
