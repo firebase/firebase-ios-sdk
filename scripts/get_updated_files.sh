@@ -28,7 +28,9 @@ common_commit=$(git merge-base $GITHUB_REF master)
 echo "=============== list changed files ==============="
 cat < <(git diff --name-only $common_commit HEAD)
 echo "========== check paths of changed files =========="
-git diff --name-only common_commit HEAD > files.txt
+git diff --name-only $common_commit HEAD > files.txt
+
+touch run_sdk_jobs.txt
 while IFS= read -r file
 do
   echo $file
