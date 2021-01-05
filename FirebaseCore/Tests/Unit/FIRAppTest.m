@@ -53,7 +53,6 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 @interface FIRAppTest : FIRTestCase
 
 @property(nonatomic) id appClassMock;
-@property(nonatomic) id observerMock;
 @property(nonatomic) id mockCoreDiagnosticsConnector;
 @property(nonatomic) NSNotificationCenter *notificationCenter;
 
@@ -70,7 +69,6 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   [FIRApp resetApps];
   // TODO: Don't mock the class we are testing.
   _appClassMock = OCMClassMock([FIRApp class]);
-  _observerMock = OCMObserverMock();
   _mockCoreDiagnosticsConnector = OCMClassMock([FIRCoreDiagnosticsConnector class]);
 
   [FIROptionsMock mockFIROptions];
@@ -98,8 +96,6 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 
   [_appClassMock stopMocking];
   _appClassMock = nil;
-  [_notificationCenter removeObserver:_observerMock];
-  _observerMock = nil;
   _notificationCenter = nil;
   _mockCoreDiagnosticsConnector = nil;
 
@@ -113,12 +109,12 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 
   NSDictionary *expectedUserInfo = [self expectedUserInfoWithAppName:kFIRDefaultAppName
                                                         isDefaultApp:YES];
-  [self expectNotificationForObserver:self.observerMock
-                     notificationName:kFIRAppReadyToConfigureSDKNotification
-                               object:[FIRApp class]
-                             userInfo:expectedUserInfo];
+  XCTestExpectation *notificationExpectation =
+      [self expectNotificationNamed:kFIRAppReadyToConfigureSDKNotification
+                             object:[FIRApp class]
+                           userInfo:expectedUserInfo];
   XCTAssertNoThrow([FIRApp configure]);
-  OCMVerifyAll(self.observerMock);
+  [self waitForExpectations:@[ notificationExpectation ] timeout:0.1];
 
   FIRApp *app = [FIRApp defaultApp];
   XCTAssertNotNil(app);
@@ -148,17 +144,18 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 
   NSDictionary *expectedUserInfo = [self expectedUserInfoWithAppName:kFIRDefaultAppName
                                                         isDefaultApp:YES];
-  [self expectNotificationForObserver:self.observerMock
-                     notificationName:kFIRAppReadyToConfigureSDKNotification
-                               object:[FIRApp class]
-                             userInfo:expectedUserInfo];
+
+  XCTestExpectation *notificationExpectation =
+      [self expectNotificationNamed:kFIRAppReadyToConfigureSDKNotification
+                             object:[FIRApp class]
+                           userInfo:expectedUserInfo];
 
   // Use a valid instance of options.
   FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
                                                     GCMSenderID:kGCMSenderID];
   options.clientID = kClientID;
   XCTAssertNoThrow([FIRApp configureWithOptions:options]);
-  OCMVerifyAll(self.observerMock);
+  [self waitForExpectations:@[ notificationExpectation ] timeout:0.1];
 
   // Verify the default app instance is created.
   FIRApp *app = [FIRApp defaultApp];
@@ -185,12 +182,12 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 
   NSDictionary *expectedUserInfo = [self expectedUserInfoWithAppName:kFIRTestAppName1
                                                         isDefaultApp:NO];
-  [self expectNotificationForObserver:self.observerMock
-                     notificationName:kFIRAppReadyToConfigureSDKNotification
-                               object:[FIRApp class]
-                             userInfo:expectedUserInfo];
+  XCTestExpectation *notificationExpectation =
+      [self expectNotificationNamed:kFIRAppReadyToConfigureSDKNotification
+                             object:[FIRApp class]
+                           userInfo:expectedUserInfo];
   XCTAssertNoThrow([FIRApp configureWithName:kFIRTestAppName1 options:options]);
-  OCMVerifyAll(self.observerMock);
+  [self waitForExpectations:@[ notificationExpectation ] timeout:0.1];
 
   XCTAssertTrue([FIRApp allApps].count == 1);
   FIRApp *app = [FIRApp appNamed:kFIRTestAppName1];
@@ -207,16 +204,12 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
                                                      GCMSenderID:kGCMSenderID];
   options1.deepLinkURLScheme = kDeepLinkURLScheme;
 
-  // Set up notification center observer for verifying notifications.
-  [self.notificationCenter addMockObserver:self.observerMock
-                                      name:kFIRAppReadyToConfigureSDKNotification
-                                    object:[FIRApp class]];
-
   NSDictionary *expectedUserInfo1 = [self expectedUserInfoWithAppName:kFIRTestAppName1
                                                          isDefaultApp:NO];
-  [[self.observerMock expect] notificationWithName:kFIRAppReadyToConfigureSDKNotification
-                                            object:[FIRApp class]
-                                          userInfo:expectedUserInfo1];
+  XCTestExpectation *configExpectation1 =
+      [self expectNotificationNamed:kFIRAppReadyToConfigureSDKNotification
+                             object:[FIRApp class]
+                           userInfo:expectedUserInfo1];
   XCTAssertNoThrow([FIRApp configureWithName:kFIRTestAppName1 options:options1]);
   XCTAssertTrue([FIRApp allApps].count == 1);
 
@@ -228,13 +221,16 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 
   NSDictionary *expectedUserInfo2 = [self expectedUserInfoWithAppName:kFIRTestAppName2
                                                          isDefaultApp:NO];
-  [[self.observerMock expect] notificationWithName:kFIRAppReadyToConfigureSDKNotification
-                                            object:[FIRApp class]
-                                          userInfo:expectedUserInfo2];
+  XCTestExpectation *configExpectation2 =
+      [self expectNotificationNamed:kFIRAppReadyToConfigureSDKNotification
+                             object:[FIRApp class]
+                           userInfo:expectedUserInfo2];
 
-  [self.observerMock setExpectationOrderMatters:YES];
   XCTAssertNoThrow([FIRApp configureWithName:kFIRTestAppName2 options:options2]);
-  OCMVerifyAll(self.observerMock);
+
+  [self waitForExpectations:@[ configExpectation1, configExpectation2 ]
+                    timeout:0.1
+               enforceOrder:YES];
 
   XCTAssertTrue([FIRApp allApps].count == 2);
   FIRApp *app = [FIRApp appNamed:kFIRTestAppName2];
@@ -366,19 +362,21 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   XCTAssertNotNil(FIR_COMPONENT(FIRTestProtocolEagerCached, app.container));
   XCTAssertNil(FIR_COMPONENT(FIRTestProtocol, app.container));
 
-  [self expectNotificationForObserver:self.observerMock
-                     notificationName:kFIRAppDeleteNotification
-                               object:[FIRApp class]
-                             userInfo:[OCMArg any]];
-  XCTestExpectation *expectation =
+  XCTestExpectation *notificationExpectation =
+      [self expectationForNotification:kFIRAppDeleteNotification
+                                object:[FIRApp class]
+                    notificationCenter:self.notificationCenter
+                               handler:nil];
+
+  XCTestExpectation *deleteExpectation =
       [self expectationWithDescription:@"Deleting the app should succeed."];
   [app deleteApp:^(BOOL success) {
     XCTAssertTrue(success);
-    [expectation fulfill];
+    [deleteExpectation fulfill];
   }];
 
-  [self waitForExpectations:@[ expectation ] timeout:1];
-  OCMVerifyAll(self.observerMock);
+  [self waitForExpectations:@[ notificationExpectation, deleteExpectation ] timeout:1];
+
   XCTAssertTrue([FIRApp allApps].count == 0);
 
   // Check no new library instances created after the app delete.
@@ -936,12 +934,18 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 
 #pragma mark - private
 
-- (void)expectNotificationForObserver:(id)observer
-                     notificationName:(NSNotificationName)name
-                               object:(nullable id)object
-                             userInfo:(nullable NSDictionary *)userInfo {
-  [self.notificationCenter addMockObserver:observer name:name object:object];
-  [[observer expect] notificationWithName:name object:object userInfo:userInfo];
+- (XCTestExpectation *)expectNotificationNamed:(NSNotificationName)name
+                                        object:(nullable id)object
+                                      userInfo:(NSDictionary *)userInfo {
+  XCTestExpectation *notificationExpectation =
+      [self expectationForNotification:name
+                                object:object
+                    notificationCenter:self.notificationCenter
+                               handler:^BOOL(NSNotification *_Nonnull notification) {
+                                 return [userInfo isEqualToDictionary:notification.userInfo];
+                               }];
+
+  return notificationExpectation;
 }
 
 - (NSDictionary<NSString *, NSObject *> *)expectedUserInfoWithAppName:(NSString *)name
