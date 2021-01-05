@@ -266,9 +266,9 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
 
         public init(from decoder: Decoder) throws {
           let container = try decoder.container(keyedBy: CodingKeys.self)
-          let name = try container.decode(String.self, forKey: .name)
-          let docId = try container.decode(DocumentID<DocumentReference>.self, forKey: .docId)
-          self.init(name: name, docId: docId.wrappedValue)
+          name = try container.decode(String.self, forKey: .name)
+          docId = try container.decode(DocumentID<DocumentReference>.self, forKey: .docId)
+            .wrappedValue
         }
 
         public func encode(to encoder: Encoder) throws {
