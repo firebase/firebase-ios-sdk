@@ -43,7 +43,7 @@ enum Platform: CaseIterable {
   var minimumVersion: String {
     switch self {
     case .iOS: return PlatformMinimum.minimumIOSVersion
-    case .macOS: return PlatformMinimum.minimumMACOSVersion
+    case .macOS: return PlatformMinimum.minimumMacOSVersion
     case .tvOS: return PlatformMinimum.minimumTVOSVersion
     }
   }
@@ -51,11 +51,11 @@ enum Platform: CaseIterable {
 
 class PlatformMinimum {
   fileprivate static var minimumIOSVersion = ""
-  fileprivate static var minimumMACOSVersion = ""
+  fileprivate static var minimumMacOSVersion = ""
   fileprivate static var minimumTVOSVersion = ""
   static func initialize(ios: String, macos: String, tvos: String) {
     minimumIOSVersion = ios
-    minimumMACOSVersion = macos
+    minimumMacOSVersion = macos
     minimumTVOSVersion = tvos
   }
 }

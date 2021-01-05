@@ -569,7 +569,7 @@ struct FrameworkBuilder {
     return true
   }
 
-  /// Groups slices for each platform into a minimal set of frameworks
+  /// Groups slices for each platform into a minimal set of frameworks.
   /// - Parameter withName: The framework name.
   /// - Parameter fromFolder: The almost complete framework folder. Includes Headers, Info.plist,
   /// and Resources.

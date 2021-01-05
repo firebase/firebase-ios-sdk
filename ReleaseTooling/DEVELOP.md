@@ -44,7 +44,7 @@ for the process documentation.
 
 ### Launch Arguments
 
-See `main.swift`  for information on specific launch arguments.
+See `main.swift` for information on specific launch arguments.
 
 You can pass in launch arguments with Xcode by selecting the  "firebase-releaser" scheme
 beside the Run/Stop buttons, clicking "Edit Scheme" and adding them in the "Arguments Passed On Launch"

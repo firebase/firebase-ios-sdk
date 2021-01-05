@@ -80,10 +80,10 @@ struct ZipBuilderTool: ParsableCommand {
   var keepBuildArtifacts: Bool
 
   /// Flag to skip building the Catalyst slices.
-  @Flag(default: false,
+  @Flag(default: true,
         inversion: .prefixedNo,
-        help: ArgumentHelp("A flag to indicate keeping (not deleting) the build artifacts."))
-  var skipCatalyst: Bool
+        help: ArgumentHelp("A flag to indicate skip building the Catalyst slice."))
+  var includeCatalyst: Bool
 
   /// Flag to run `pod repo update` and `pod cache clean --all`.
   @Flag(default: true,
@@ -106,18 +106,15 @@ struct ZipBuilderTool: ParsableCommand {
   // MARK: - Platform Arguments
 
   /// The minimum iOS Version to build for.
-  @Option(default: "10.0",
-          help: ArgumentHelp("The minimum supported iOS version."))
+  @Option(default: "10.0", help: ArgumentHelp("The minimum supported iOS version."))
   var minimumIOSVersion: String
 
   /// The minimum macOS Version to build for.
-  @Option(default: "10.12",
-          help: ArgumentHelp("The minimum supported macOS version."))
-  var minimumMACOSVersion: String
+  @Option(default: "10.12", help: ArgumentHelp("The minimum supported macOS version."))
+  var minimumMacOSVersion: String
 
   /// The minimum tvOS Version to build for.
-  @Option(default: "10.0",
-          help: ArgumentHelp("The minimum supported tvOS version."))
+  @Option(default: "10.0", help: ArgumentHelp("The minimum supported tvOS version."))
   var minimumTVOSVersion: String
 
   /// The list of platforms to build for.
@@ -235,11 +232,11 @@ struct ZipBuilderTool: ParsableCommand {
 
     // Set the platform minimum versions.
     PlatformMinimum.initialize(ios: minimumIOSVersion,
-                               macos: minimumMACOSVersion,
+                               macos: minimumMacOSVersion,
                                tvos: minimumTVOSVersion)
 
-    // Update iOS target platforms if `--skip-catalyst` was specified.
-    if skipCatalyst {
+    // Update iOS target platforms if `--include-catalyst` was specified.
+    if !includeCatalyst {
       SkipCatalyst.set()
     }
 
@@ -315,7 +312,7 @@ struct ZipBuilderTool: ParsableCommand {
     }
 
     if !keepBuildArtifacts {
-      let tempDir = FileManager.default.temporaryDirectory(withName: "random")
+      let tempDir = FileManager.default.temporaryDirectory(withName: "placeholder")
       FileManager.default.removeIfExists(at: tempDir.deletingLastPathComponent())
     }
 
