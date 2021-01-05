@@ -47,7 +47,7 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
   s.tvos.framework = 'UIKit'
   s.dependency 'GoogleUtilities/Environment', '~> 7.0'
   s.dependency 'GoogleUtilities/Logger', '~> 7.0'
-  s.dependency 'FirebaseCoreDiagnostics', '~> 7.0'
+  s.dependency 'FirebaseCoreDiagnostics', '~> 7.4'
 
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
