@@ -1,4 +1,4 @@
-# 20210-1 - 7.4.0
+# 2021-01 -- 7.4.0
 - [changed] Added a check on whether the default token has been changed by Messaging before writing to the InstanceID keychain storage. (#7223)
 
 # 2020-10 -- 7.0.0
