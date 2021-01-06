@@ -1,5 +1,7 @@
-# Unreleased
-- [fixed] Check if the reverse client ID is configured as a custom URL scheme before setting it as the callback scheme. (#7211).
+# 7.4.0
+- [fixed] Check if the reverse client ID is configured as a custom URL scheme before setting it as the callback scheme. (#7211)
+- [added] Add ability to sync auth state across devices. (#6924)
+- [fixed] Add multi-tenancy support for email link sign-in. (#7246)
 
 # 7.3.0
 - [fixed] Catalyst browser issue with `verifyPhoneNumber` API. (#7049)
