@@ -1,4 +1,4 @@
-# Unreleased
+# 20210-1 - 7.0.1
 - [changed] Added a check on whether the default token has been changed from Messaging before writing to storage. (#7223)
 
 # 2020-10 -- 7.0.0
