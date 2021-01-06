@@ -190,6 +190,10 @@
                           priorityMethod:NO];
 }
 
+- (FIRDatabaseQuery *)queryStartingAfterValue:(id)startAfterValue {
+    return [self queryStartingAfterValue:startAfterValue childKey:nil];
+}
+
 - (FIRDatabaseQuery *)queryStartingAfterValue:(id)startAfterValue
                                      childKey:(NSString *)childKey {
     if ([self.queryParams.index isEqual:[FKeyIndex keyIndex]]) {
@@ -216,7 +220,7 @@
                                          from:(NSString *)methodName
                                priorityMethod:(BOOL)priorityMethod {
     [self validateIndexValueType:startValue fromMethod:methodName];
-    if (childKey != nil) {
+    if (childKey != nil && ![childKey isEqual:[FUtilities maxName]]) {
         [FValidation validateFrom:methodName validKey:childKey];
     }
     if ([self.queryParams hasStart]) {

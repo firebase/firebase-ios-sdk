@@ -20,6 +20,12 @@
 static NSString *const PUSH_CHARS =
     @"-0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz";
 
+static NSString *const MIN_PUSH_CHAR = @"-";
+
+static NSString *const MAX_PUSH_CHAR = @"z";
+
+static NSInteger const MAX_KEY_LEN = 786;
+
 @implementation FNextPushId
 
 + (NSString *)get:(NSTimeInterval)currentTime {
@@ -63,28 +69,39 @@ static NSString *const PUSH_CHARS =
     NSInteger keyAsInt;
     if ([FUtilities tryParseStringToInt:key asInt:&keyAsInt]) {
         return [FUtilities
-            ieee754StringForNumber:[NSNumber
-                                       numberWithInteger:(keyAsInt + 1)]];
+            ieee754StringForNumber:[NSNumber numberWithInteger:(keyAsInt + 1)]];
     }
     NSString *charFormat = @"%C";
-    NSMutableString *next = [NSMutableString stringWithCapacity:[key length]];
-    unsigned long i;
-    for (i = [key length] - 1;
-        i >= 0 && [key characterAtIndex:i] == [PUSH_CHARS characterAtIndex: [PUSH_CHARS length] - 1];
-        i--) {
-        [next replaceCharactersInRange:NSMakeRange(i, 1) withString:[NSString stringWithFormat:charFormat, [PUSH_CHARS characterAtIndex:i]]];
+    NSMutableString *next = [NSMutableString stringWithString:key];
+    if ([next length] < MAX_KEY_LEN) {
+        [next insertString:MIN_PUSH_CHAR atIndex:[key length]];
+        return next;
     }
+    unsigned long i = [next length] - 1;
+
+    while (i >= 0 && [[next substringWithRange:NSMakeRange(i, i + 1)]
+                         isEqualToString:MAX_PUSH_CHAR]) {
+        i--;
+    }
+
+    // `nextAfter` was called on the largest possible key, so return the
+    // maxName, which sorts larger than all keys.
     if (i == -1) {
-        [next appendFormat:charFormat, [PUSH_CHARS characterAtIndex:0]];
-    } else {
-        NSString * source = [NSString stringWithFormat:charFormat, [key characterAtIndex:i]];
-        NSString * sourcePlusOne = [NSString stringWithFormat:charFormat, [PUSH_CHARS characterAtIndex: [PUSH_CHARS rangeOfString:source].location + 1]];
-        [next replaceCharactersInRange:NSMakeRange(i, 1) withString:sourcePlusOne];
+        return [FUtilities maxName];
     }
-    while (--i >= 0) {
-        [next replaceCharactersInRange:NSMakeRange(i, 1) withString:[NSString stringWithFormat:charFormat, [key characterAtIndex:i]]];
-    }
-    return next;
+
+    NSString *source =
+        [NSString stringWithFormat:charFormat, [next characterAtIndex:i]];
+    NSString *sourcePlusOne = [NSString
+        stringWithFormat:charFormat,
+                         [PUSH_CHARS
+                             characterAtIndex:[PUSH_CHARS rangeOfString:source]
+                                                  .location +
+                                              1]];
+
+    [next replaceCharactersInRange:NSMakeRange(i, i + 1)
+                        withString:sourcePlusOne];
+    return [next substringWithRange:NSMakeRange(0, i + 1)];
 }
 
 @end

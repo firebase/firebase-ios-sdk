@@ -484,6 +484,37 @@ priority is meant to be preserved, you should use setValue:andPriority: instead.
                                   childKey:(nullable NSString *)childKey;
 
 /**
+ * queryStartingAfterValue: is used to generate a reference to a limited view of
+ * the data at this location. The FIRDatabaseQuery instance returned by
+ * queryStartingAfterValue: will respond to events at nodes with a value greater
+ * than to startAfterValue.
+ *
+ * @param startAfterValue The lower bound, inclusive, for the value of data
+ * visible to the returned FIRDatabaseQuery
+ * @return A FIRDatabaseQuery instance, limited to data with value greater than
+ * startAfterValue
+ */
+- (FIRDatabaseQuery *)queryStartingAfterValue:(nullable id)startAfterValue;
+
+/**
+ * queryStartingAtValue:childKey: is used to generate a reference to a limited
+ * view of the data at this location. The FIRDatabaseQuery instance returned by
+ * queryStartingAtValue:childKey will respond to events at nodes with a value
+ * greater than startAfterValue, or equal to startAfterValue and with a key
+ * greater than or to childKey.
+ *
+ * @param startAfterValue The lower bound, inclusive, for the value of data
+ * visible to the returned FIRDatabaseQuery
+ * @param childKey The lower bound, exclusive, for the key of nodes with value
+ * equal to startAfterValue
+ * @return A FIRDatabaseQuery instance, limited to data with value greater than
+ * or equal to startAfterValue, or equal to startAfterValue and with a key
+ * greater than or to childKey.
+ */
+- (FIRDatabaseQuery *)queryStartingAfterValue:(nullable id)startAfterValue
+                                     childKey:(nullable NSString *)childKey;
+
+/**
  * queryEndingAtValue: is used to generate a reference to a limited view of the
  * data at this location. The FIRDatabaseQuery instance returned by
  * queryEndingAtValue: will respond to events at nodes with a value less than or

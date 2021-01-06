@@ -37,6 +37,10 @@
   [[ref queryOrderedByChild:@"index"] queryStartingAtValue:@1];
   [[ref queryOrderedByChild:@"index"] queryStartingAtValue:@"foo"];
   [[ref queryOrderedByChild:@"index"] queryStartingAtValue:nil];
+  [[ref queryOrderedByChild:@"index"] queryStartingAfterValue:@YES];
+  [[ref queryOrderedByChild:@"index"] queryStartingAfterValue:@1];
+  [[ref queryOrderedByChild:@"index"] queryStartingAfterValue:@"foo"];
+  [[ref queryOrderedByChild:@"index"] queryStartingAfterValue:nil];
   [[ref queryOrderedByChild:@"index"] queryEndingAtValue:@YES];
   [[ref queryOrderedByChild:@"index"] queryEndingAtValue:@1];
   [[ref queryOrderedByChild:@"index"] queryEndingAtValue:@"foo"];
@@ -49,6 +53,9 @@
   [[ref queryOrderedByPriority] queryStartingAtValue:@1];
   [[ref queryOrderedByPriority] queryStartingAtValue:@"foo"];
   [[ref queryOrderedByPriority] queryStartingAtValue:nil];
+  [[ref queryOrderedByPriority] queryStartingAfterValue:@1];
+  [[ref queryOrderedByPriority] queryStartingAfterValue:@"foo"];
+  [[ref queryOrderedByPriority] queryStartingAfterValue:nil];
   [[ref queryOrderedByPriority] queryEndingAtValue:@1];
   [[ref queryOrderedByPriority] queryEndingAtValue:@"foo"];
   [[ref queryOrderedByPriority] queryEndingAtValue:nil];
@@ -81,31 +88,44 @@
   XCTAssertThrows([[ref queryOrderedByValue] queryOrderedByChild:@"foo"]);
   XCTAssertThrows([[ref queryOrderedByValue] queryOrderedByValue]);
   XCTAssertThrows([[ref queryStartingAtValue:@"foo"] queryStartingAtValue:@"foo"]);
+  XCTAssertThrows([[ref queryStartingAtValue:@"foo"] queryStartingAfterValue:@"foo"]);
   XCTAssertThrows([[ref queryStartingAtValue:@"foo"] queryEqualToValue:@"foo"]);
+  XCTAssertThrows([[ref queryStartingAfterValue:@"foo"] queryStartingAtValue:@"foo"]);
+  XCTAssertThrows([[ref queryStartingAfterValue:@"foo"] queryEqualToValue:@"foo"]);
   XCTAssertThrows([[ref queryEndingAtValue:@"foo"] queryEndingAtValue:@"foo"]);
   XCTAssertThrows([[ref queryEndingAtValue:@"foo"] queryEqualToValue:@"foo"]);
   XCTAssertThrows([[ref queryEqualToValue:@"foo"] queryStartingAtValue:@"foo"]);
+  XCTAssertThrows([[ref queryEqualToValue:@"foo"] queryStartingAfterValue:@"foo"]);
   XCTAssertThrows([[ref queryEqualToValue:@"foo"] queryEndingAtValue:@"foo"]);
   XCTAssertThrows([[ref queryEqualToValue:@"foo"] queryEqualToValue:@"foo"]);
   XCTAssertThrows([[ref queryOrderedByKey] queryStartingAtValue:@"foo" childKey:@"foo"]);
+  XCTAssertThrows([[ref queryOrderedByKey] queryStartingAfterValue:@"foo" childKey:@"foo"]);
   XCTAssertThrows([[ref queryOrderedByKey] queryEndingAtValue:@"foo" childKey:@"foo"]);
   XCTAssertThrows([[ref queryOrderedByKey] queryEqualToValue:@"foo" childKey:@"foo"]);
   XCTAssertThrows([[ref queryOrderedByKey] queryStartingAtValue:@1 childKey:@"foo"]);
+  XCTAssertThrows([[ref queryOrderedByKey] queryStartingAfterValue:@1 childKey:@"foo"]);
   XCTAssertThrows([[ref queryOrderedByKey] queryStartingAtValue:@YES]);
+  XCTAssertThrows([[ref queryOrderedByKey] queryStartingAfterValue:@YES]);
   XCTAssertThrows([[ref queryOrderedByKey] queryEndingAtValue:@1]);
   XCTAssertThrows([[ref queryOrderedByKey] queryEndingAtValue:@YES]);
   XCTAssertThrows([[ref queryOrderedByKey] queryStartingAtValue:nil]);
+  XCTAssertThrows([[ref queryOrderedByKey] queryStartingAfterValue:nil]);
   XCTAssertThrows([[ref queryOrderedByKey] queryEndingAtValue:nil]);
   XCTAssertThrows([[ref queryOrderedByKey] queryEqualToValue:nil]);
   XCTAssertThrows([[ref queryStartingAtValue:@"foo" childKey:@"foo"] queryOrderedByKey]);
+  XCTAssertThrows([[ref queryStartingAfterValue:@"foo" childKey:@"foo"] queryOrderedByKey]);
   XCTAssertThrows([[ref queryEndingAtValue:@"foo" childKey:@"foo"] queryOrderedByKey]);
   XCTAssertThrows([[ref queryEqualToValue:@"foo" childKey:@"foo"] queryOrderedByKey]);
   XCTAssertThrows([[ref queryStartingAtValue:@1] queryOrderedByKey]);
+  XCTAssertThrows([[ref queryStartingAfterValue:@1] queryOrderedByKey]);
   XCTAssertThrows([[ref queryStartingAtValue:@YES] queryOrderedByKey]);
+  XCTAssertThrows([[ref queryStartingAfterValue:@YES] queryOrderedByKey]);
   XCTAssertThrows([[ref queryEndingAtValue:@1] queryOrderedByKey]);
   XCTAssertThrows([[ref queryEndingAtValue:@YES] queryOrderedByKey]);
   XCTAssertThrows([ref queryStartingAtValue:@[]]);
   XCTAssertThrows([ref queryStartingAtValue:@{}]);
+  XCTAssertThrows([ref queryStartingAfterValue:@[]]);
+  XCTAssertThrows([ref queryStartingAfterValue:@{}]);
   XCTAssertThrows([ref queryEndingAtValue:@[]]);
   XCTAssertThrows([ref queryEndingAtValue:@{}]);
   XCTAssertThrows([ref queryEqualToValue:@[]]);
@@ -126,12 +146,16 @@
 
   XCTAssertThrows([[ref queryOrderedByKey] queryStartingAtValue:@"a" childKey:@"b"],
                   @"Cannot specify starting child name when ordering by key.");
+  XCTAssertThrows([[ref queryOrderedByKey] queryStartingAfterValue:@"a" childKey:@"b"],
+                  @"Cannot specify starting child name when ordering by key.");
   XCTAssertThrows([[ref queryOrderedByKey] queryEndingAtValue:@"a" childKey:@"b"],
                   @"Cannot specify ending child name when ordering by key.");
   XCTAssertThrows([[ref queryOrderedByKey] queryEqualToValue:@"a" childKey:@"b"],
                   @"Cannot specify equalTo child name when ordering by key.");
 
   XCTAssertThrows([[ref queryOrderedByPriority] queryStartingAtValue:@YES],
+                  @"Can't pass booleans as start/end when using priority index.");
+  XCTAssertThrows([[ref queryOrderedByPriority] queryStartingAfterValue:@YES],
                   @"Can't pass booleans as start/end when using priority index.");
   XCTAssertThrows([[ref queryOrderedByPriority] queryEndingAtValue:@NO],
                   @"Can't pass booleans as start/end when using priority index.");
@@ -161,6 +185,8 @@
 
   for (NSString* badKey in badKeys) {
     XCTAssertThrows([[ref queryOrderedByPriority] queryStartingAtValue:nil childKey:badKey],
+                    @"Setting bad key");
+    XCTAssertThrows([[ref queryOrderedByPriority] queryStartingAfterValue:nil childKey:badKey],
                     @"Setting bad key");
     XCTAssertThrows([[ref queryOrderedByPriority] queryEndingAtValue:nil childKey:badKey],
                     @"Setting bad key");
@@ -460,6 +486,39 @@
   [expectations validate];
 }
 
+- (void)testSetLimitsWithStartAfter {
+  FIRDatabaseReference* ref = [FTestHelpers getRandomNode];
+  FTestExpectations* expectations = [[FTestExpectations alloc] initFrom:self];
+
+  [expectations addQuery:[[[ref queryOrderedByPriority] queryStartingAfterValue:nil]
+                             queryLimitedToFirst:1]
+         withExpectation:@{}];
+  [expectations addQuery:[[[ref queryOrderedByPriority] queryStartingAfterValue:nil childKey:@"c"]
+                             queryLimitedToFirst:1]
+         withExpectation:@{@"d" : @4}];
+  [expectations addQuery:[[[ref queryOrderedByPriority] queryStartingAfterValue:nil childKey:@"b"]
+                             queryLimitedToFirst:1]
+         withExpectation:@{@"c" : @3}];
+  [expectations addQuery:[[[ref queryOrderedByPriority] queryStartingAfterValue:nil childKey:@"b"]
+                             queryLimitedToFirst:2]
+         withExpectation:@{@"c" : @3, @"d" : @4}];
+  [expectations addQuery:[[[ref queryOrderedByPriority] queryStartingAfterValue:nil childKey:@"b"]
+                             queryLimitedToFirst:3]
+         withExpectation:@{@"c" : @3, @"d" : @4}];
+
+  __block BOOL ready = NO;
+  [ref setValue:@{@"a" : @1, @"b" : @2, @"c" : @3, @"d" : @4}
+      withCompletionBlock:^(NSError* err, FIRDatabaseReference* ref) {
+        ready = YES;
+      }];
+
+  [self waitUntil:^BOOL {
+    return ready;
+  }];
+
+  [expectations validate];
+}
+
 - (void)testLimitsAndStartAtWithServerData {
   FIRDatabaseReference* ref = [FTestHelpers getRandomNode];
 
@@ -498,6 +557,45 @@
   params = [params setStartPriority:nil andName:@"b"];
   params = [params limitTo:3];
   [expectations addQuery:[ref queryWithParams:params] withExpectation:@{@"b": @2, @"c": @3}];*/
+
+  [self waitUntil:^BOOL {
+    return expectations.isReady;
+  }];
+  [expectations validate];
+  [ref removeAllObservers];
+}
+
+- (void)testLimitsAndStartAfterWithServerData {
+  FIRDatabaseReference* ref = [FTestHelpers getRandomNode];
+
+  __block BOOL ready = NO;
+  [ref setValue:@{@"a" : @1, @"b" : @2, @"c" : @3, @"d" : @4}
+      withCompletionBlock:^(NSError* err, FIRDatabaseReference* ref) {
+        ready = YES;
+      }];
+
+  [self waitUntil:^BOOL {
+    return ready;
+  }];
+
+  FTestExpectations* expectations = [[FTestExpectations alloc] initFrom:self];
+
+  [expectations addQuery:[[[ref queryOrderedByPriority] queryStartingAfterValue:nil]
+                             queryLimitedToFirst:1]
+         withExpectation:@{}];
+
+  [expectations addQuery:[[[ref queryOrderedByPriority] queryStartingAfterValue:nil childKey:@"c"]
+                             queryLimitedToFirst:1]
+         withExpectation:@{@"d" : @4}];
+  [expectations addQuery:[[[ref queryOrderedByPriority] queryStartingAfterValue:nil childKey:@"b"]
+                             queryLimitedToFirst:1]
+         withExpectation:@{@"c" : @3}];
+  [expectations addQuery:[[[ref queryOrderedByPriority] queryStartingAfterValue:nil childKey:@"b"]
+                             queryLimitedToFirst:2]
+         withExpectation:@{@"c" : @3, @"d" : @4}];
+  [expectations addQuery:[[[ref queryOrderedByPriority] queryStartingAfterValue:nil childKey:@"b"]
+                             queryLimitedToFirst:3]
+         withExpectation:@{@"c" : @3, @"d" : @4}];
 
   [self waitUntil:^BOOL {
     return expectations.isReady;
@@ -652,6 +750,56 @@
   [ref removeAllObservers];
 }
 
+- (void)testChildEventsAreFiredWhenLimitIsHitWithStartAfter {
+  FIRDatabaseReference* ref = [FTestHelpers getRandomNode];
+
+  FIRDatabaseQuery* query =
+      [[[ref queryOrderedByPriority] queryStartingAfterValue:nil
+                                                    childKey:@"a"] queryLimitedToFirst:2];
+
+  NSMutableArray* added = [[NSMutableArray alloc] init];
+  NSMutableArray* removed = [[NSMutableArray alloc] init];
+  [query observeEventType:FIRDataEventTypeChildAdded
+                withBlock:^(FIRDataSnapshot* snapshot) {
+                  [added addObject:[snapshot key]];
+                }];
+  [query observeEventType:FIRDataEventTypeChildRemoved
+                withBlock:^(FIRDataSnapshot* snapshot) {
+                  [removed addObject:[snapshot key]];
+                }];
+
+  __block BOOL ready = NO;
+  [ref setValue:@{@"a" : @1, @"b" : @2, @"c" : @3}
+      withCompletionBlock:^(NSError* err, FIRDatabaseReference* ref) {
+        ready = YES;
+      }];
+
+  [self waitUntil:^BOOL {
+    return ready;
+  }];
+
+  XCTAssertTrue([removed count] == 0, @"Nothing should be removed from our window");
+  NSArray* expected = @[ @"b", @"c" ];
+  XCTAssertTrue([added isEqualToArray:expected], @"Should have two items");
+
+  [added removeAllObjects];
+  ready = NO;
+  [[ref child:@"aa"] setValue:@4
+          withCompletionBlock:^(NSError* err, FIRDatabaseReference* ref) {
+            ready = YES;
+          }];
+
+  [self waitUntil:^BOOL {
+    return ready;
+  }];
+
+  expected = @[ @"c" ];
+  XCTAssertTrue([removed isEqualToArray:expected], @"Expected to remove b");
+  expected = @[ @"aa" ];
+  XCTAssertTrue([added isEqualToArray:expected], @"Expected to add aa");
+  [ref removeAllObservers];
+}
+
 - (void)testChildEventsAreFiredWhenLimitIsHitWithStartAndServerData {
   FIRDatabaseReference* ref = [FTestHelpers getRandomNode];
 
@@ -751,6 +899,54 @@
   [ref removeAllObservers];
 }
 
+- (void)testStartAfterAndLimitWithIncompleteWindow {
+  FIRDatabaseReference* ref = [FTestHelpers getRandomNode];
+
+  FIRDatabaseQuery* query =
+      [[[ref queryOrderedByPriority] queryStartingAfterValue:nil
+                                                    childKey:@"a"] queryLimitedToFirst:2];
+  NSMutableArray* added = [[NSMutableArray alloc] init];
+  NSMutableArray* removed = [[NSMutableArray alloc] init];
+  [query observeEventType:FIRDataEventTypeChildAdded
+                withBlock:^(FIRDataSnapshot* snapshot) {
+                  [added addObject:[snapshot key]];
+                }];
+  [query observeEventType:FIRDataEventTypeChildRemoved
+                withBlock:^(FIRDataSnapshot* snapshot) {
+                  [removed addObject:[snapshot key]];
+                }];
+
+  __block BOOL ready = NO;
+  [ref setValue:@{@"c" : @3}
+      withCompletionBlock:^(NSError* err, FIRDatabaseReference* ref) {
+        ready = YES;
+      }];
+
+  [self waitUntil:^BOOL {
+    return ready && [added count] >= 1;
+  }];
+
+  XCTAssertTrue([removed count] == 0, @"Nothing should be removed from our window");
+  NSArray* expected = @[ @"c" ];
+  XCTAssertTrue([added isEqualToArray:expected], @"Should have one item");
+
+  [added removeAllObjects];
+  ready = NO;
+  [[ref child:@"a"] setValue:@4
+         withCompletionBlock:^(NSError* err, FIRDatabaseReference* ref) {
+           ready = YES;
+         }];
+
+  [self waitUntil:^BOOL {
+    return ready;
+  }];
+
+  XCTAssertTrue([removed count] == 0, @"Expected to remove nothing");
+  expected = @[];
+  XCTAssertTrue([added isEqualToArray:expected], @"Expected _not_ to add a");
+  [ref removeAllObservers];
+}
+
 - (void)testStartAndLimitWithIncompleteWindowAndServerData {
   FIRDatabaseReference* ref = [FTestHelpers getRandomNode];
 
@@ -799,6 +995,59 @@
 
   XCTAssertTrue([removed count] == 0, @"Expected to remove nothing");
   expected = @[ @"b" ];
+  XCTAssertTrue([added isEqualToArray:expected], @"Expected to add b");
+  [ref removeAllObservers];
+}
+
+- (void)testStartAfterAndLimitWithIncompleteWindowAndServerData {
+  FIRDatabaseReference* ref = [FTestHelpers getRandomNode];
+
+  __block BOOL ready = NO;
+  [ref setValue:@{@"c" : @3}
+      withCompletionBlock:^(NSError* err, FIRDatabaseReference* ref) {
+        ready = YES;
+      }];
+
+  [self waitUntil:^BOOL {
+    return ready;
+  }];
+
+  FIRDatabaseQuery* query =
+      [[[ref queryOrderedByPriority] queryStartingAfterValue:nil
+                                                    childKey:@"a"] queryLimitedToFirst:2];
+
+  NSMutableArray* added = [[NSMutableArray alloc] init];
+  NSMutableArray* removed = [[NSMutableArray alloc] init];
+  [query observeEventType:FIRDataEventTypeChildAdded
+                withBlock:^(FIRDataSnapshot* snapshot) {
+                  [added addObject:[snapshot key]];
+                }];
+  [query observeEventType:FIRDataEventTypeChildRemoved
+                withBlock:^(FIRDataSnapshot* snapshot) {
+                  [removed addObject:[snapshot key]];
+                }];
+
+  [self waitUntil:^BOOL {
+    return [added count] == 1;
+  }];
+
+  XCTAssertTrue([removed count] == 0, @"Nothing should be removed from our window");
+  NSArray* expected = @[ @"c" ];
+  XCTAssertTrue([added isEqualToArray:expected], @"Should have one item");
+
+  [added removeAllObjects];
+  ready = NO;
+  [[ref child:@"a"] setValue:@4
+         withCompletionBlock:^(NSError* err, FIRDatabaseReference* ref) {
+           ready = YES;
+         }];
+
+  [self waitUntil:^BOOL {
+    return ready;
+  }];
+
+  XCTAssertTrue([removed count] == 0, @"Expected to remove nothing");
+  expected = @[];
   XCTAssertTrue([added isEqualToArray:expected], @"Expected to add b");
   [ref removeAllObservers];
 }
@@ -1024,6 +1273,40 @@
   [expectations validate];
 }
 
+// TODO(wyszynski): endBefore
+- (void)testStartAfterPriorityAndEndAtPriorityWork {
+  FIRDatabaseReference* ref = [FTestHelpers getRandomNode];
+  FTestExpectations* expectations = [[FTestExpectations alloc] initFrom:self];
+
+  [expectations addQuery:[[[ref queryOrderedByPriority] queryStartingAfterValue:@"w"]
+                             queryEndingAtValue:@"y"]
+         withExpectation:@{@"b" : @2, @"c" : @3}];
+  [expectations addQuery:[[[ref queryOrderedByPriority] queryStartingAfterValue:@"w"]
+                             queryEndingAtValue:@"w"]
+         withExpectation:@{}];
+  [expectations addQuery:[[[ref queryOrderedByPriority] queryStartingAfterValue:@"w"]
+                             queryEndingAtValue:@"x"]
+         withExpectation:@{@"c" : @3}];
+
+  __block id nullSnap = @"dummy";
+  [[[[ref queryOrderedByPriority] queryStartingAfterValue:@"a"] queryEndingAtValue:@"c"]
+      observeEventType:FIRDataEventTypeValue
+             withBlock:^(FIRDataSnapshot* snapshot) {
+               nullSnap = [snapshot value];
+             }];
+
+  [ref setValue:@{
+    @"a" : @{@".value" : @1, @".priority" : @"z"},
+    @"b" : @{@".value" : @2, @".priority" : @"y"},
+    @"c" : @{@".value" : @3, @".priority" : @"x"},
+    @"d" : @{@".value" : @4, @".priority" : @"w"}
+  }];
+
+  WAIT_FOR(expectations.isReady && [nullSnap isEqual:[NSNull null]]);
+
+  [expectations validate];
+}
+
 - (void)testStartAtPriorityAndEndAtPriorityWorkWithServerData {
   FIRDatabaseReference* ref = [FTestHelpers getRandomNode];
 
@@ -1061,6 +1344,46 @@
   [expectations validate];
 }
 
+- (void)testStartAfterPriorityAndEndAtPriorityWorkWithServerData {
+  FIRDatabaseReference* ref = [FTestHelpers getRandomNode];
+
+  __block BOOL ready = NO;
+  [ref setValue:@{
+    @"a" : @{@".value" : @1, @".priority" : @"z"},
+    @"b" : @{@".value" : @2, @".priority" : @"y"},
+    @"c" : @{@".value" : @3, @".priority" : @"x"},
+    @"d" : @{@".value" : @4, @".priority" : @"w"}
+  }
+      withCompletionBlock:^(NSError* err, FIRDatabaseReference* ref) {
+        ready = YES;
+      }];
+
+  WAIT_FOR(ready);
+
+  FTestExpectations* expectations = [[FTestExpectations alloc] initFrom:self];
+
+  [expectations addQuery:[[[ref queryOrderedByPriority] queryStartingAfterValue:@"w"]
+                             queryEndingAtValue:@"y"]
+         withExpectation:@{@"b" : @2, @"c" : @3}];
+  [expectations addQuery:[[[ref queryOrderedByPriority] queryStartingAfterValue:@"w"]
+                             queryEndingAtValue:@"w"]
+         withExpectation:@{}];
+  [expectations addQuery:[[[ref queryOrderedByPriority] queryStartingAfterValue:@"w"]
+                             queryEndingAtValue:@"x"]
+         withExpectation:@{@"c" : @3}];
+
+  __block id nullSnap = @"dummy";
+  [[[[ref queryOrderedByPriority] queryStartingAfterValue:@"a"] queryEndingAtValue:@"c"]
+      observeEventType:FIRDataEventTypeValue
+             withBlock:^(FIRDataSnapshot* snapshot) {
+               nullSnap = [snapshot value];
+             }];
+
+  WAIT_FOR(expectations.isReady && [nullSnap isEqual:[NSNull null]]);
+
+  [expectations validate];
+}
+
 - (void)testStartAtAndEndAtPriorityAndNameWork {
   FIRDatabaseReference* ref = [FTestHelpers getRandomNode];
   FTestExpectations* expectations = [[FTestExpectations alloc] initFrom:self];
@@ -1077,6 +1400,36 @@
 
   query = [[[ref queryOrderedByPriority] queryStartingAtValue:@1
                                                      childKey:@"c"] queryEndingAtValue:@2];
+  [expectations addQuery:query withExpectation:@{@"c" : @3, @"d" : @4}];
+
+  [ref setValue:@{
+    @"a" : @{@".value" : @1, @".priority" : @1},
+    @"b" : @{@".value" : @2, @".priority" : @1},
+    @"c" : @{@".value" : @3, @".priority" : @2},
+    @"d" : @{@".value" : @4, @".priority" : @2}
+  }];
+
+  WAIT_FOR(expectations.isReady);
+
+  [expectations validate];
+}
+
+- (void)testStartAfterAndEndAtPriorityAndNameWork {
+  FIRDatabaseReference* ref = [FTestHelpers getRandomNode];
+  FTestExpectations* expectations = [[FTestExpectations alloc] initFrom:self];
+
+  FIRDatabaseQuery* query = [[[ref queryOrderedByPriority] queryStartingAfterValue:@1 childKey:@"a"]
+      queryEndingAtValue:@2
+                childKey:@"d"];
+  [expectations addQuery:query withExpectation:@{@"b" : @2, @"c" : @3, @"d" : @4}];
+
+  query = [[[ref queryOrderedByPriority] queryStartingAfterValue:@1
+                                                        childKey:@"b"] queryEndingAtValue:@2
+                                                                                 childKey:@"c"];
+  [expectations addQuery:query withExpectation:@{@"c" : @3}];
+
+  query = [[[ref queryOrderedByPriority] queryStartingAfterValue:@1
+                                                        childKey:@"c"] queryEndingAtValue:@2];
   [expectations addQuery:query withExpectation:@{@"c" : @3, @"d" : @4}];
 
   [ref setValue:@{
@@ -1127,6 +1480,42 @@
   [expectations validate];
 }
 
+- (void)testStartAfterAndEndAtPriorityAndNameWorkWithServerData {
+  FIRDatabaseReference* ref = [FTestHelpers getRandomNode];
+  __block BOOL ready = NO;
+  [ref setValue:@{
+    @"a" : @{@".value" : @1, @".priority" : @1},
+    @"b" : @{@".value" : @2, @".priority" : @1},
+    @"c" : @{@".value" : @3, @".priority" : @2},
+    @"d" : @{@".value" : @4, @".priority" : @2}
+  }
+      withCompletionBlock:^(NSError* err, FIRDatabaseReference* ref) {
+        ready = YES;
+      }];
+
+  WAIT_FOR(ready);
+
+  FTestExpectations* expectations = [[FTestExpectations alloc] initFrom:self];
+
+  FIRDatabaseQuery* query = [[[ref queryOrderedByPriority] queryStartingAfterValue:@1 childKey:@"a"]
+      queryEndingAtValue:@2
+                childKey:@"d"];
+  [expectations addQuery:query withExpectation:@{@"b" : @2, @"c" : @3, @"d" : @4}];
+
+  query = [[[ref queryOrderedByPriority] queryStartingAfterValue:@1
+                                                        childKey:@"b"] queryEndingAtValue:@2
+                                                                                 childKey:@"c"];
+  [expectations addQuery:query withExpectation:@{@"c" : @3}];
+
+  query = [[[ref queryOrderedByPriority] queryStartingAfterValue:@1
+                                                        childKey:@"c"] queryEndingAtValue:@2];
+  [expectations addQuery:query withExpectation:@{@"c" : @3, @"d" : @4}];
+
+  WAIT_FOR(expectations.isReady);
+
+  [expectations validate];
+}
+
 - (void)testStartAtAndEndAtPriorityAndNameWork2 {
   FIRDatabaseReference* ref = [FTestHelpers getRandomNode];
   FTestExpectations* expectations = [[FTestExpectations alloc] initFrom:self];
@@ -1143,6 +1532,36 @@
 
   query = [[[ref queryOrderedByPriority] queryStartingAtValue:@1
                                                      childKey:@"e"] queryEndingAtValue:@2];
+  [expectations addQuery:query withExpectation:@{@"a" : @1, @"b" : @2}];
+
+  [ref setValue:@{
+    @"c" : @{@".value" : @3, @".priority" : @1},
+    @"d" : @{@".value" : @4, @".priority" : @1},
+    @"a" : @{@".value" : @1, @".priority" : @2},
+    @"b" : @{@".value" : @2, @".priority" : @2}
+  }];
+
+  WAIT_FOR(expectations.isReady);
+
+  [expectations validate];
+}
+
+- (void)testStartAfterAndEndAtPriorityAndNameWork2 {
+  FIRDatabaseReference* ref = [FTestHelpers getRandomNode];
+  FTestExpectations* expectations = [[FTestExpectations alloc] initFrom:self];
+
+  FIRDatabaseQuery* query = [[[ref queryOrderedByPriority] queryStartingAfterValue:@1 childKey:@"c"]
+      queryEndingAtValue:@2
+                childKey:@"b"];
+  [expectations addQuery:query withExpectation:@{@"a" : @1, @"b" : @2, @"d" : @4}];
+
+  query = [[[ref queryOrderedByPriority] queryStartingAfterValue:@1
+                                                        childKey:@"d"] queryEndingAtValue:@2
+                                                                                 childKey:@"a"];
+  [expectations addQuery:query withExpectation:@{@"a" : @1}];
+
+  query = [[[ref queryOrderedByPriority] queryStartingAfterValue:@1
+                                                        childKey:@"e"] queryEndingAtValue:@2];
   [expectations addQuery:query withExpectation:@{@"a" : @1, @"b" : @2}];
 
   [ref setValue:@{
@@ -1186,6 +1605,42 @@
 
   query = [[[ref queryOrderedByPriority] queryStartingAtValue:@1
                                                      childKey:@"e"] queryEndingAtValue:@2];
+  [expectations addQuery:query withExpectation:@{@"a" : @1, @"b" : @2}];
+
+  WAIT_FOR(expectations.isReady);
+
+  [expectations validate];
+}
+
+- (void)testStartAfterAndEndAtPriorityAndNameWorkWithServerData2 {
+  FIRDatabaseReference* ref = [FTestHelpers getRandomNode];
+  __block BOOL ready = NO;
+  [ref setValue:@{
+    @"c" : @{@".value" : @3, @".priority" : @1},
+    @"d" : @{@".value" : @4, @".priority" : @1},
+    @"a" : @{@".value" : @1, @".priority" : @2},
+    @"b" : @{@".value" : @2, @".priority" : @2}
+  }
+      withCompletionBlock:^(NSError* err, FIRDatabaseReference* ref) {
+        ready = YES;
+      }];
+
+  WAIT_FOR(ready);
+
+  FTestExpectations* expectations = [[FTestExpectations alloc] initFrom:self];
+
+  FIRDatabaseQuery* query = [[[ref queryOrderedByPriority] queryStartingAfterValue:@1 childKey:@"c"]
+      queryEndingAtValue:@2
+                childKey:@"b"];
+  [expectations addQuery:query withExpectation:@{@"a" : @1, @"b" : @2, @"d" : @4}];
+
+  query = [[[ref queryOrderedByPriority] queryStartingAfterValue:@1
+                                                        childKey:@"d"] queryEndingAtValue:@2
+                                                                                 childKey:@"a"];
+  [expectations addQuery:query withExpectation:@{@"a" : @1}];
+
+  query = [[[ref queryOrderedByPriority] queryStartingAfterValue:@1
+                                                        childKey:@"e"] queryEndingAtValue:@2];
   [expectations addQuery:query withExpectation:@{@"a" : @1, @"b" : @2}];
 
   WAIT_FOR(expectations.isReady);
@@ -2363,6 +2818,45 @@
   XCTAssertTrue([val isEqualToNumber:@2], @"Expected next element in window");
 }
 
+- (void)testStartAfterAndLimit1AndRemoveFirstChild {
+  FIRDatabaseReference* ref = [FTestHelpers getRandomNode];
+
+  __block NSNumber* val = nil;
+  FIRDatabaseQuery* query =
+      [[[ref queryOrderedByPriority] queryStartingAfterValue:nil
+                                                    childKey:@"a"] queryLimitedToFirst:1];
+  [query observeEventType:FIRDataEventTypeChildAdded
+                withBlock:^(FIRDataSnapshot* snapshot) {
+                  id newVal = [snapshot value];
+                  if (newVal != nil) {
+                    val = [snapshot value];
+                  }
+                }];
+
+  __block BOOL ready = NO;
+  [ref setValue:@{@"a" : @1, @"b" : @2}
+      withCompletionBlock:^(NSError* err, FIRDatabaseReference* ref) {
+        ready = YES;
+      }];
+
+  [self waitUntil:^BOOL {
+    return ready;
+  }];
+
+  XCTAssertTrue([val isEqualToNumber:@2], @"Expected first element in window");
+
+  ready = NO;
+  [[ref child:@"a"] removeValueWithCompletionBlock:^(NSError* err, FIRDatabaseReference* ref) {
+    ready = YES;
+  }];
+
+  [self waitUntil:^BOOL {
+    return ready;
+  }];
+
+  XCTAssertTrue([val isEqualToNumber:@2], @"Expected next element in window");
+}
+
 // See case 1169
 - (void)testStartAtWithTwoArgumentsWorks {
   FIRDatabaseReference* ref = [FTestHelpers getRandomNode];
@@ -2401,6 +2895,46 @@
   }];
 
   NSArray* expected = @[ @"Walker", @"Michael" ];
+  XCTAssertTrue([children isEqualToArray:expected], @"Expected both children");
+}
+
+- (void)testStartAfterWithTwoArgumentsWorks {
+  FIRDatabaseReference* ref = [FTestHelpers getRandomNode];
+
+  __block BOOL ready = NO;
+  NSMutableArray* children = [[NSMutableArray alloc] init];
+
+  NSDictionary* toSet = @{
+    @"Walker" : @{@"name" : @"Walker", @"score" : @20, @".priority" : @20},
+    @"Michael" : @{@"name" : @"Michael", @"score" : @100, @".priority" : @100}
+  };
+
+  [ref setValue:toSet
+      withCompletionBlock:^(NSError* err, FIRDatabaseReference* ref) {
+        ready = YES;
+      }];
+
+  [self waitUntil:^BOOL {
+    return ready;
+  }];
+
+  ready = NO;
+  FIRDatabaseQuery* query =
+      [[[ref queryOrderedByPriority] queryStartingAfterValue:@20
+                                                    childKey:@"Walker"] queryLimitedToFirst:2];
+  [query observeEventType:FIRDataEventTypeValue
+                withBlock:^(FIRDataSnapshot* snapshot) {
+                  for (FIRDataSnapshot* child in snapshot.children) {
+                    [children addObject:child.key];
+                  }
+                  ready = YES;
+                }];
+
+  [self waitUntil:^BOOL {
+    return ready;
+  }];
+
+  NSArray* expected = @[ @"Michael" ];
   XCTAssertTrue([children isEqualToArray:expected], @"Expected both children");
 }
 
