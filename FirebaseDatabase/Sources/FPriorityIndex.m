@@ -35,8 +35,7 @@
     id<FNode> child2 = [node2 getPriority];
     NSComparisonResult indexCmp = [child1 compare:child2];
     if (indexCmp == NSOrderedSame) {
-        NSComparisonResult result = [FUtilities compareKey:key1 toKey:key2];
-        return result;
+        return [FUtilities compareKey:key1 toKey:key2];
     } else {
         return indexCmp;
     }

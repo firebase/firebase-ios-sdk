@@ -20,7 +20,7 @@
 
 set -euo pipefail
 
-VERSION='4.7.2'
+VERSION='4.4.1'
 FILENAME="firebase-database-emulator-v${VERSION}.jar"
 URL="https://storage.googleapis.com/firebase-preview-drop/emulator/${FILENAME}"
 
