@@ -1,4 +1,4 @@
-# 7.2.0
+# 7.4.0
 - `NSURLSession` promise extension public API. (#7097)
 
 # 7.1.1
