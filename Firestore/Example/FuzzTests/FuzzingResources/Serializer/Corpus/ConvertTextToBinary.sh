@@ -1,6 +1,6 @@
-#!/bin/bash
+#!/bin/bash -l
 
-# Copyright 2018 Google
+# Copyright 2018 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,6 +20,12 @@
 # and SCRIPT_OUTPUT_FILE_0 are defined in the Run Script Build Phase of the
 # XCode build target Firestore_FuzzTests_iOS that executes this script. XCode
 # defines these environment variables and makes them available to the script.
+#
+# By default Xcode build phase scripts run in a stripped down environment that
+# does not include user modifications to the PATH that might come from .profile
+# or similar. The shebang line includes `bash -l` specifically to force the
+# shell to pick up the user profile. This allows `protoc` to be found even if
+# it isn't installed in /usr/local/bin.
 
 if ! [ -x "$(command -v protoc)" ]; then
   echo "This scripts needs the protoc command to be on the PATH."

@@ -97,6 +97,7 @@ Pod::Spec.new do |s|
   }
 
   s.test_spec 'unit' do |unit_tests|
+    unit_tests.scheme = { :code_coverage => true }
     # Unit tests can't run on watchOS.
     unit_tests.platforms = {:ios => '10.0', :osx => '10.12', :tvos => '10.0'}
     unit_tests.source_files = 'Crashlytics/UnitTests/*.[mh]',

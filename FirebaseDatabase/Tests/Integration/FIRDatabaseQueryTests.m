@@ -15,8 +15,12 @@
  */
 
 #import "FirebaseDatabase/Tests/Integration/FIRDatabaseQueryTests.h"
+#import "FirebaseCore/Sources/Public/FirebaseCore/FIROptions.h"
 #import "FirebaseDatabase/Sources/Api/Private/FIRDatabaseQuery_Private.h"
+#import "FirebaseDatabase/Sources/Constants/FConstants.h"
 #import "FirebaseDatabase/Sources/Core/FQuerySpec.h"
+#import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
+#import "FirebaseDatabase/Tests/Helpers/FIRFakeApp.h"
 #import "FirebaseDatabase/Tests/Helpers/FTestExpectations.h"
 
 @implementation FIRDatabaseQueryTests
@@ -3053,6 +3057,188 @@
                      withBlock:^(FIRDataSnapshot* snapshot) {
                        done = YES;
                      }];
+  WAIT_FOR(done);
+}
+
+- (void)testEmptyQueryGet {
+  FIRDatabaseReference* ref = [FTestHelpers getRandomNode];
+
+  __block BOOL done = NO;
+
+  [ref getDataWithCompletionBlock:^(NSError* err, FIRDataSnapshot* snapshot) {
+    XCTAssert([snapshot.value isEqual:[NSNull null]]);
+    done = YES;
+  }];
+
+  WAIT_FOR(done);
+}
+
+- (void)testOfflineQueryGet {
+  FIRDatabaseReference* ref = [FTestHelpers getRandomNode];
+  FIRDatabase* db = [ref database];
+
+  __block BOOL done = NO;
+
+  [db goOffline];
+
+  [ref getDataWithCompletionBlock:^(NSError* err, FIRDataSnapshot* snapshot) {
+    XCTAssertNotNil(err);
+    XCTAssertEqualObjects([err localizedFailureReason], kPersistentConnectionOffline);
+    done = YES;
+  }];
+
+  WAIT_FOR(done);
+}
+
+- (void)testGetQueryBasic {
+  FIRDatabaseReference* ref = [FTestHelpers getRandomNode];
+
+  __block BOOL done = NO;
+
+  [ref setValue:@42
+      withCompletionBlock:^(NSError* error, FIRDatabaseReference* ref) {
+        XCTAssertNil(error);
+        done = YES;
+      }];
+
+  WAIT_FOR(done);
+
+  [ref getDataWithCompletionBlock:^(NSError* err, FIRDataSnapshot* snapshot) {
+    XCTAssertNil(err);
+    XCTAssertEqualObjects(snapshot.value, @42);
+    done = YES;
+  }];
+
+  WAIT_FOR(done);
+}
+
+- (void)testQueryGetCached {
+  FIRDatabaseReference* ref = [FTestHelpers getRandomNode];
+  FIRDatabase* db = [ref database];
+
+  __block BOOL done = NO;
+
+  [ref observeEventType:FIRDataEventTypeValue
+              withBlock:^(FIRDataSnapshot* snapshot) {
+                id value = [snapshot value];
+                if (value != nil && [value isEqualToNumber:@42]) {
+                  done = YES;
+                }
+              }];
+
+  [self waitForCompletionOf:ref setValue:@42];
+
+  WAIT_FOR(done);
+  done = NO;
+
+  [db goOffline];
+
+  [ref getDataWithCompletionBlock:^(NSError* err, FIRDataSnapshot* snapshot) {
+    XCTAssertNil(err);
+    XCTAssertEqualObjects(snapshot.value, @42);
+    done = YES;
+  }];
+
+  WAIT_FOR(done);
+}
+
+- (FIRDatabase*)databaseForURL:(NSString*)url name:(NSString*)name {
+  NSString* defaultDatabaseURL = [NSString stringWithFormat:@"url:%@", self.databaseURL];
+  if ([url isEqualToString:self.databaseURL] && [name isEqualToString:defaultDatabaseURL]) {
+    // Use the default app for the default URL to avoid getting out of sync with FRepoManager
+    // when calling ensureRepo during tests that don't create their own FIRFakeApp.
+    return [FTestHelpers defaultDatabase];
+  } else {
+    id app = [[FIRFakeApp alloc] initWithName:name URL:url];
+    return [FIRDatabase databaseForApp:app];
+  }
+}
+
+- (void)testGetRetrievesLatestValueEvenIfCached {
+  FIRDatabase* db = [self databaseForURL:self.databaseURL name:[[NSUUID UUID] UUIDString]];
+  FIRDatabase* db2 = [self databaseForURL:self.databaseURL name:[[NSUUID UUID] UUIDString]];
+
+  XCTAssertNotEqual(db, db2);
+
+  NSString* uuidPath = [[NSUUID UUID] UUIDString];
+
+  FIRDatabaseReference* readRef = [db referenceWithPath:uuidPath];
+  FIRDatabaseReference* writeRef = [db2 referenceWithPath:uuidPath];
+
+  XCTAssertNotEqual(readRef, writeRef);
+
+  __block BOOL done = NO;
+
+  [self waitForCompletionOf:writeRef setValue:@42];
+
+  [readRef observeEventType:FIRDataEventTypeValue
+                  withBlock:^(FIRDataSnapshot* snapshot) {
+                    NSNumber* value = [snapshot value];
+                    if (value != nil && [value isEqualToNumber:@42]) {
+                      done = YES;
+                    }
+                  }];
+
+  WAIT_FOR(done);
+  done = NO;
+
+  [writeRef setValue:@43
+      withCompletionBlock:^(NSError* error, FIRDatabaseReference* ref) {
+        XCTAssertNil(error);
+        done = YES;
+      }];
+
+  WAIT_FOR(done);
+  done = NO;
+
+  [readRef getDataWithCompletionBlock:^(NSError* err, FIRDataSnapshot* snapshot) {
+    XCTAssertNil(err);
+    XCTAssertEqualObjects(snapshot.value, @43);
+    done = YES;
+  }];
+
+  WAIT_FOR(done);
+}
+
+- (void)testGetUpdatesPersistenceCacheWhenEnabled {
+  FIRDatabase* db = [self databaseForURL:self.databaseURL name:[[NSUUID UUID] UUIDString]];
+  FIRDatabase* db2 = [self databaseForURL:self.databaseURL name:[[NSUUID UUID] UUIDString]];
+
+  [db2 setPersistenceEnabled:true];
+
+  NSString* uuidPath = [[NSUUID UUID] UUIDString];
+
+  FIRDatabaseReference* writeRef = [db referenceWithPath:uuidPath];
+  FIRDatabaseReference* readRef = [db2 referenceWithPath:uuidPath];
+
+  __block BOOL done = NO;
+
+  [writeRef setValue:@42
+      withCompletionBlock:^(NSError* error, FIRDatabaseReference* ref) {
+        XCTAssertNil(error);
+        done = YES;
+      }];
+
+  WAIT_FOR(done);
+  done = NO;
+
+  [readRef getDataWithCompletionBlock:^(NSError* err, FIRDataSnapshot* snapshot) {
+    XCTAssertNil(err);
+    XCTAssertEqualObjects(snapshot.value, @42);
+    done = YES;
+  }];
+
+  WAIT_FOR(done);
+  done = NO;
+
+  [db2 goOffline];
+
+  [readRef observeEventType:FIRDataEventTypeValue
+                  withBlock:^(FIRDataSnapshot* snapshot) {
+                    XCTAssertEqualObjects(snapshot.value, @42);
+                    done = YES;
+                  }];
+
   WAIT_FOR(done);
 }
 
