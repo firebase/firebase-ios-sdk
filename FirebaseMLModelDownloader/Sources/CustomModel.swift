@@ -24,4 +24,21 @@ public struct CustomModel: Hashable {
   public let path: String
   /// Hash for the model, used for model verification.
   public let hash: String
+
+  init(name: String, size: Int, path: String, hash: String) {
+    self.name = name
+    self.size = size
+    self.path = path
+    self.hash = hash
+  }
+
+  /// Convenience init to create model from local model info.
+  init(localModelInfo: LocalModelInfo) {
+    self.init(
+      name: localModelInfo.name,
+      size: localModelInfo.size,
+      path: localModelInfo.path,
+      hash: localModelInfo.modelHash
+    )
+  }
 }
