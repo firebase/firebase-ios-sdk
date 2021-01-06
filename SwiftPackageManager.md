@@ -55,12 +55,12 @@ If you're using FirebaseCrashlytics, use
 `${BUILD_DIR}SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/run`
 as the run script that allows Xcode to upload your project's dSYM files.
 
-As a backup, download the 
+As a backup, download the
 [upload-symbols](https://github.com/firebase/firebase-ios-sdk/raw/master/Crashlytics/upload-symbols)
-script and put in the directory where your `.xcodeproj` file lives, 
+script and put in the directory where your `.xcodeproj` file lives,
 eg. `scripts/upload-symbols`.
-Make sure that the file is executable: `chmod +x scripts/upload-symbols`. 
-This script can be used to manually upload dSYM files (for usage notes and 
+Make sure that the file is executable: `chmod +x scripts/upload-symbols`.
+This script can be used to manually upload dSYM files (for usage notes and
 additional instructions, run without any parameters).
 
 ### Alternatively, add Firebase to a `Package.swift` manifest
