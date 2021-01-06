@@ -724,6 +724,7 @@ struct ZipBuilder {
 
           CarthageUtils.generatePlistContents(
             forName: framework.lastPathComponent.components(separatedBy: ".").first!,
+            withVersion: podInfo.version,
             to: carthageLocation
           )
           carthageFrameworks.append(carthageLocation)

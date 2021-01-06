@@ -1,5 +1,6 @@
 # v7.2.0
 - [added] Made emulator connection API consistent between Auth, Database, Firestore, and Functions (#5916).
+- [added] Added `DatabaseQuery#getData` which returns data from the server when cache is stale (#7110).
 
 # v7.0.0
 - [fixed] Disabled a deprecation warning. (#6502)

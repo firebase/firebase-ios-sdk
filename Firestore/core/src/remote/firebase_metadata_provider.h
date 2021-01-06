@@ -31,10 +31,9 @@ namespace remote {
  */
 class FirebaseMetadataProvider {
  public:
-  static constexpr char kXFirebaseClientHeader[] = "x-firebase-client";
-  static constexpr char kXFirebaseClientLogTypeHeader[] =
-      "x-firebase-client-log-type";
-  static constexpr char kXFirebaseGmpIdHeader[] = "x-firebase-gmpid";
+  static const char kXFirebaseClientHeader[];
+  static const char kXFirebaseClientLogTypeHeader[];
+  static const char kXFirebaseGmpIdHeader[];
 
   virtual ~FirebaseMetadataProvider() = default;
 

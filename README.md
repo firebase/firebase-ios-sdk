@@ -20,6 +20,7 @@
 [![Actions Status][gh-inappmessaging-badge]][gh-actions]
 [![Actions Status][gh-interop-badge]][gh-actions]
 [![Actions Status][gh-messaging-badge]][gh-actions]
+[![Actions Status][gh-performance-badge]][gh-actions]
 [![Actions Status][gh-remoteconfig-badge]][gh-actions]
 [![Actions Status][gh-storage-badge]][gh-actions]
 [![Actions Status][gh-symbolcollision-badge]][gh-actions]
@@ -28,8 +29,8 @@
 
 # Firebase Apple Open Source Development
 
-This repository contains all Apple platform Firebase SDK source except FirebaseAnalytics,
-FirebasePerformance, and FirebaseML.
+This repository contains all Apple platform Firebase SDK source except FirebaseAnalytics
+and FirebaseML.
 
 Firebase is an app development platform with tools to help you build, grow and
 monetize your app. More information about Firebase can be found at
@@ -128,6 +129,12 @@ Firestore has a self contained Xcode project. See
 * Select the Unit-unit scheme
 * Run it to build and test
 
+Alternatively disable signing in each target:
+* Go to Build Settings tab
+* Click `+`
+* Select `Add User-Defined Setting`
+* Add `CODE_SIGNING_REQUIRED` setting with a value of `NO`
+
 ### Adding a New Firebase Pod
 
 See [AddNewPod.md](AddNewPod.md).
@@ -188,6 +195,12 @@ To run against a production instance, provide a valid GoogleServices-Info.plist 
 [public](https://firebase.google.com/docs/database/security/quickstart) while your tests are
 running.
 
+### Firebase Performance Monitoring
+If you're doing specific Firebase Performance Monitoring development, see
+[the Performance README](FirebasePerformance/README.md) for instructions about building the SDK
+and [the Performance TestApp README](FirebasePerformance/Tests/TestApp/README.md) for instructions about
+integrating Performance with the dev test App.
+
 ### Firebase Storage
 
 To run the Storage Integration tests, follow the instructions in
@@ -247,6 +260,7 @@ pod 'Firebase/Database'      # No watchOS support yet
 pod 'Firebase/Firestore'     # No watchOS support yet
 pod 'Firebase/Functions'     # No watchOS support yet
 pod 'Firebase/Messaging'
+pod 'Firebase/Performance'   # No macOS, tvOS, watchOS, and Catalyst support yet
 pod 'Firebase/RemoteConfig'  # No watchOS support yet
 pod 'Firebase/Storage'
 ```
@@ -299,6 +313,7 @@ Your use of Firebase is governed by the
 [gh-inappmessaging-badge]: https://github.com/firebase/firebase-ios-sdk/workflows/inappmessaging/badge.svg
 [gh-interop-badge]: https://github.com/firebase/firebase-ios-sdk/workflows/interop/badge.svg
 [gh-messaging-badge]: https://github.com/firebase/firebase-ios-sdk/workflows/messaging/badge.svg
+[gh-performance-badge]: https://github.com/firebase/firebase-ios-sdk/workflows/performance/badge.svg
 [gh-remoteconfig-badge]: https://github.com/firebase/firebase-ios-sdk/workflows/remoteconfig/badge.svg
 [gh-storage-badge]: https://github.com/firebase/firebase-ios-sdk/workflows/storage/badge.svg
 [gh-symbolcollision-badge]: https://github.com/firebase/firebase-ios-sdk/workflows/symbolcollision/badge.svg

@@ -40,6 +40,7 @@ Firebase Segmentation enables you to associate your custom application instance 
   }.merge(header_search_paths)
 
   s.test_spec 'unit' do |unit_tests|
+    unit_tests.scheme = { :code_coverage => true }
     unit_tests.source_files = 'FirebaseSegmentation/Tests/Unit/*.[mh]'
     unit_tests.dependency 'OCMock'
     unit_tests.requires_app_host = true
