@@ -71,8 +71,10 @@ class LocalModelInfo {
     }
     self.init(name: name, downloadURL: url, modelHash: modelHash, size: size, path: path)
   }
+}
 
-  /// Write local model info to user defaults.
+/// Extension to write local model info to user defaults.
+extension LocalModelInfo: DownloaderUserDefaults {
   func writeToDefaults(_ defaults: UserDefaults, appName: String) {
     let defaultsPrefix = LocalModelInfo.getUserDefaultsKeyPrefix(appName: appName, modelName: name)
     defaults.setValue(downloadURL.absoluteString, forKey: "\(defaultsPrefix).model-download-url")
