@@ -161,7 +161,6 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
       appName: testApp.name,
       defaults: .createTestInstance(testName: #function),
       progressHandler: { progress in
-        XCTAssertNotNil(progress)
         XCTAssertLessThanOrEqual(progress, 1)
         XCTAssertGreaterThanOrEqual(progress, 0)
       }
@@ -311,7 +310,6 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
       downloadType: downloadType,
       conditions: conditions,
       progressHandler: { progress in
-        XCTAssertNotNil(progress)
       }
     ) { result in
       switch result {
