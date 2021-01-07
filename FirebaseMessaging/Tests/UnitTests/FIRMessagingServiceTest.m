@@ -258,12 +258,15 @@ static NSString *const kFIRMessagingTestsServiceSuiteName = @"com.messaging.test
   XCTestExpectation *subscriptionCompletionExpectation =
       [self expectationWithDescription:@"Subscription is complete"];
   NSString *failureReason = @"Invalid token.";
-  OCMStub([_mockInstallations
-      installationIDWithCompletion:
-          ([OCMArg invokeBlockWithArgs:[NSNull null],
-                                       [NSError messagingErrorWithCode:kFIRMessagingErrorCodeUnknown
-                                                         failureReason:failureReason],
-                                       nil])]);
+  OCMStub([_mockMessaging
+      retrieveFCMTokenForSenderID:[OCMArg any]
+                       completion:([OCMArg
+                                      invokeBlockWithArgs:
+                                          [NSNull null],
+                                          [NSError
+                                              messagingErrorWithCode:kFIRMessagingErrorCodeUnknown
+                                                       failureReason:failureReason],
+                                          nil])]);
   [_messaging subscribeToTopic:@"Apple"
                     completion:^(NSError *_Nullable error) {
                       XCTAssertNotNil(error);
@@ -277,13 +280,15 @@ static NSString *const kFIRMessagingTestsServiceSuiteName = @"com.messaging.test
 
 - (void)testUnsubscribeFailedWithInvalidToken {
   NSString *failureReason = @"Invalid token.";
-  OCMStub([_mockInstallations
-      installationIDWithCompletion:
-          ([OCMArg invokeBlockWithArgs:[NSNull null],
-                                       [NSError messagingErrorWithCode:kFIRMessagingErrorCodeUnknown
-                                                         failureReason:failureReason],
-                                       nil])]);
-
+  OCMStub([_mockMessaging
+      retrieveFCMTokenForSenderID:[OCMArg any]
+                       completion:([OCMArg
+                                      invokeBlockWithArgs:
+                                          [NSNull null],
+                                          [NSError
+                                              messagingErrorWithCode:kFIRMessagingErrorCodeUnknown
+                                                       failureReason:failureReason],
+                                          nil])]);
   XCTestExpectation *unsubscriptionCompletionExpectation =
       [self expectationWithDescription:@"Unsubscription is complete"];
 
