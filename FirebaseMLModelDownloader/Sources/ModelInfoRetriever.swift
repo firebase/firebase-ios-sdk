@@ -1,4 +1,4 @@
-// Copyright 2020 Google LLC
+// Copyright 2021 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -135,13 +135,8 @@ extension ModelInfoRetriever {
         // TODO: revisit using ephemeral session with Etag
         let session = URLSession(configuration: .ephemeral)
         /// Download model info.
-        let dataTask = session.dataTask(with: request) { [weak self]
+        let dataTask = session.dataTask(with: request) {
           data, response, error in
-          guard let self = self else {
-            completion(.failure(.internalError(description: ModelInfoRetriever
-                .selfDeallocatedErrorDescription)))
-            return
-          }
           if let downloadError = error {
             completion(.failure(.internalError(description: downloadError.localizedDescription)))
           } else {

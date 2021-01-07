@@ -60,9 +60,6 @@
 - (void)onDisconnectCancelPath:(FPath *)path
                   withCallback:(fbt_void_nsstring_nsstring)callback;
 - (void)ackPuts;
-- (void)getDataAtPath:(NSString *)pathString
-           withParams:(NSDictionary *)queryWireProtocolParams
-         withCallback:(fbt_void_nsstring_id_nsstring)onComplete;
 - (void)purgeOutstandingWrites;
 
 - (void)interruptForReason:(NSString *)reason;
