@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'Firebase'
-  s.version          = '7.3.0'
+  s.version          = '7.4.0'
   s.summary          = 'Firebase'
 
   s.description      = <<-DESC
@@ -32,12 +32,12 @@ Simplify your app development, grow your user base, and monetize more effectivel
 
   s.subspec 'Core' do |ss|
     ss.ios.deployment_target = '9.0'
-    ss.ios.dependency 'FirebaseAnalytics', '7.3.0'
+    ss.ios.dependency 'FirebaseAnalytics', '7.4.0'
     ss.dependency 'Firebase/CoreOnly'
   end
 
   s.subspec 'CoreOnly' do |ss|
-    ss.dependency 'FirebaseCore', '7.3.0'
+    ss.dependency 'FirebaseCore', '7.4.0'
     ss.source_files = 'CoreOnly/Sources/Firebase.h'
     ss.preserve_paths = 'CoreOnly/Sources/module.modulemap'
     if ENV['FIREBASE_POD_REPO_FOR_DEV_POD'] then
@@ -62,7 +62,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
 
   s.subspec 'ABTesting' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseABTesting', '~> 7.3.0'
+    ss.dependency 'FirebaseABTesting', '~> 7.4.0'
   end
 
   s.subspec 'AdMob' do |ss|
@@ -73,12 +73,12 @@ Simplify your app development, grow your user base, and monetize more effectivel
 
   s.subspec 'AppDistribution' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.ios.dependency 'FirebaseAppDistribution', '~> 7.3.0-beta'
+    ss.ios.dependency 'FirebaseAppDistribution', '~> 7.4.0-beta'
   end
 
   s.subspec 'Auth' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseAuth', '~> 7.3.0'
+    ss.dependency 'FirebaseAuth', '~> 7.4.0'
     # Standard platforms PLUS watchOS.
     ss.ios.deployment_target = '10.0'
     ss.osx.deployment_target = '10.12'
@@ -88,7 +88,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
 
   s.subspec 'Crashlytics' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseCrashlytics', '~> 7.3.0'
+    ss.dependency 'FirebaseCrashlytics', '~> 7.4.0'
     # Standard platforms PLUS watchOS.
     ss.ios.deployment_target = '10.0'
     ss.osx.deployment_target = '10.12'
@@ -98,37 +98,37 @@ Simplify your app development, grow your user base, and monetize more effectivel
 
   s.subspec 'Database' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseDatabase', '~> 7.3.0'
+    ss.dependency 'FirebaseDatabase', '~> 7.4.0'
   end
 
   s.subspec 'DynamicLinks' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.ios.dependency 'FirebaseDynamicLinks', '~> 7.3.0'
+    ss.ios.dependency 'FirebaseDynamicLinks', '~> 7.4.0'
   end
 
   s.subspec 'Firestore' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseFirestore', '~> 7.3.0'
+    ss.dependency 'FirebaseFirestore', '~> 7.4.0'
   end
 
   s.subspec 'Functions' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseFunctions', '~> 7.3.0'
+    ss.dependency 'FirebaseFunctions', '~> 7.4.0'
   end
 
   s.subspec 'InAppMessaging' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.ios.dependency 'FirebaseInAppMessaging', '~> 7.3.0-beta'
+    ss.ios.dependency 'FirebaseInAppMessaging', '~> 7.4.0-beta'
   end
 
   s.subspec 'Installations' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseInstallations', '~> 7.3.0'
+    ss.dependency 'FirebaseInstallations', '~> 7.4.0'
   end
 
   s.subspec 'Messaging' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseMessaging', '~> 7.3.0'
+    ss.dependency 'FirebaseMessaging', '~> 7.4.0'
     # Standard platforms PLUS watchOS.
     ss.ios.deployment_target = '10.0'
     ss.osx.deployment_target = '10.12'
@@ -138,17 +138,17 @@ Simplify your app development, grow your user base, and monetize more effectivel
 
   s.subspec 'Performance' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.ios.dependency 'FirebasePerformance', '~> 7.3.0'
+    ss.ios.dependency 'FirebasePerformance', '~> 7.4.0'
   end
 
   s.subspec 'RemoteConfig' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseRemoteConfig', '~> 7.3.0'
+    ss.dependency 'FirebaseRemoteConfig', '~> 7.4.0'
   end
 
   s.subspec 'Storage' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseStorage', '~> 7.3.0'
+    ss.dependency 'FirebaseStorage', '~> 7.4.0'
     # Standard platforms PLUS watchOS.
     ss.ios.deployment_target = '10.0'
     ss.osx.deployment_target = '10.12'
@@ -158,17 +158,17 @@ Simplify your app development, grow your user base, and monetize more effectivel
 
   s.subspec 'MLCommon' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.ios.dependency 'FirebaseMLCommon', '~> 7.3.0-beta'
+    ss.ios.dependency 'FirebaseMLCommon', '~> 7.4.0-beta'
   end
 
   s.subspec 'MLModelInterpreter' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.ios.dependency 'FirebaseMLModelInterpreter', '~> 7.3.0-beta'
+    ss.ios.dependency 'FirebaseMLModelInterpreter', '~> 7.4.0-beta'
   end
 
   s.subspec 'MLVision' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.ios.dependency 'FirebaseMLVision', '~> 7.3.0-beta'
+    ss.ios.dependency 'FirebaseMLVision', '~> 7.4.0-beta'
   end
 
 end
