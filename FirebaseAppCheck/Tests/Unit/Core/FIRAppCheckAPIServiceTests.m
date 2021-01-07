@@ -16,8 +16,8 @@
 
 #import <XCTest/XCTest.h>
 
-#import <OCMock/OCMock.h>
 #import "FBLPromise+Testing.h"
+#import "OCMock.h"
 
 #import <GoogleUtilities/GULURLSessionDataResponse.h>
 #import <GoogleUtilities/NSURLSession+GULPromises.h>
@@ -26,6 +26,7 @@
 #import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckErrorUtil.h"
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckToken.h"
 
+#import "FirebaseAppCheck/Tests/Unit/Utils/FIRFixtureLoader.h"
 #import "SharedTestUtilities/Date/FIRDateTestUtils.h"
 #import "SharedTestUtilities/URLSession/FIRURLSessionOCMockStub.h"
 
@@ -200,7 +201,8 @@
 
 - (void)testAppCheckTokenWithAPIResponseValidResponse {
   // 1. Prepare input parameters.
-  NSData *responseBody = [self loadFixtureNamed:@"DeviceCheckResponseSuccess.json"];
+  NSData *responseBody = [FIRFixtureLoader loadFixtureNamed:@"DeviceCheckResponseSuccess.json"];
+  XCTAssertNotNil(responseBody);
   NSHTTPURLResponse *HTTPResponse = [FIRURLSessionOCMockStub HTTPResponseWithCode:200];
   GULURLSessionDataResponse *APIResponse =
       [[GULURLSessionDataResponse alloc] initWithResponse:HTTPResponse HTTPBody:responseBody];
@@ -259,7 +261,8 @@
 - (void)assertMissingFieldErrorWithFixture:(NSString *)fixtureName
                               missingField:(NSString *)fieldName {
   // 1. Parse API response.
-  NSData *missingFiledBody = [self loadFixtureNamed:fixtureName];
+  NSData *missingFiledBody = [FIRFixtureLoader loadFixtureNamed:fixtureName];
+  XCTAssertNotNil(missingFiledBody);
 
   NSHTTPURLResponse *HTTPResponse = [FIRURLSessionOCMockStub HTTPResponseWithCode:200];
   GULURLSessionDataResponse *APIResponse =
@@ -284,18 +287,6 @@
   XCTAssertTrue([failureReason containsString:fieldNameString],
                 @"Fixture `%@`: expected missing field %@ error not found", fixtureName,
                 fieldNameString);
-}
-
-- (NSData *)loadFixtureNamed:(NSString *)fileName {
-  NSURL *fileURL = [[NSBundle bundleForClass:[self class]] URLForResource:fileName
-                                                            withExtension:nil];
-  XCTAssertNotNil(fileURL);
-
-  NSError *error;
-  NSData *data = [NSData dataWithContentsOfURL:fileURL options:0 error:&error];
-  XCTAssertNotNil(data, @"File name: %@ Error: %@", fileName, error);
-
-  return data;
 }
 
 #pragma mark - Helpers
