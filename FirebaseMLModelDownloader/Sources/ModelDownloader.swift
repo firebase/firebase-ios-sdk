@@ -1,4 +1,4 @@
-// Copyright 2020 Google LLC
+// Copyright 2021 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -106,18 +106,6 @@ public class ModelDownloader {
       return downloader
     } else {
       let downloader = ModelDownloader(app: app)
-      modelDownloaderDictionary[app.name] = downloader
-      return downloader
-    }
-  }
-
-  /// Model downloader instance for testing.
-  // TODO: Consider using protocols
-  static func modelDownloader(app: FirebaseApp, defaults: UserDefaults) -> ModelDownloader {
-    if let downloader = modelDownloaderDictionary[app.name] {
-      return downloader
-    } else {
-      let downloader = ModelDownloader(app: app, defaults: defaults)
       modelDownloaderDictionary[app.name] = downloader
       return downloader
     }
@@ -308,6 +296,22 @@ extension ModelDownloader {
           completion(.failure(downloadError))
         }
       }
+    }
+  }
+}
+
+/// Model downloader extension for testing.
+extension ModelDownloader {
+  /// Model downloader instance for testing.
+  // TODO: Consider using protocols
+  static func modelDownloaderWithDefaults(_ defaults: UserDefaults,
+                                          app: FirebaseApp) -> ModelDownloader {
+    if let downloader = modelDownloaderDictionary[app.name] {
+      return downloader
+    } else {
+      let downloader = ModelDownloader(app: app, defaults: defaults)
+      modelDownloaderDictionary[app.name] = downloader
+      return downloader
     }
   }
 }

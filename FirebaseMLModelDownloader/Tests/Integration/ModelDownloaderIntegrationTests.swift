@@ -1,4 +1,4 @@
-// Copyright 2020 Google LLC
+// Copyright 2021 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -53,6 +53,7 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
       XCTFail("Default app was not configured.")
       return
     }
+
     let testModelName = "pose-detection"
 
     let modelInfoRetriever = ModelInfoRetriever(
@@ -136,7 +137,10 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
 
   /// Test to download model file - makes an actual network call.
   func testResumeModelDownload() throws {
-    let testApp = FirebaseApp.app()!
+    guard let testApp = FirebaseApp.app() else {
+      XCTFail("Default app was not configured.")
+      return
+    }
     let functionName = #function.dropLast(2)
     let testModelName = "\(functionName)-test-model"
     let urlString =
@@ -184,14 +188,17 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
   }
 
   func testGetModel() {
-    let testApp = FirebaseApp.app()!
+    guard let testApp = FirebaseApp.app() else {
+      XCTFail("Default app was not configured.")
+      return
+    }
     let testName = "model-downloader-test"
     let testModelName = "image-classification"
 
     let conditions = ModelDownloadConditions()
-    let modelDownloader = ModelDownloader.modelDownloader(
-      app: testApp,
-      defaults: .getTestInstance(testName: testName)
+    let modelDownloader = ModelDownloader.modelDownloaderWithDefaults(
+      .createTestInstance(testName: testName),
+      app: testApp
     )
 
     /// Test download type - latest model.
@@ -280,14 +287,17 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
 
   /// Delete previously downloaded model.
   func testDeleteModel() {
-    let testApp = FirebaseApp.app()!
+    guard let testApp = FirebaseApp.app() else {
+      XCTFail("Default app was not configured.")
+      return
+    }
     let testName = "model-downloader-test"
     let testModelName = "pose-detection"
 
     let conditions = ModelDownloadConditions()
-    let modelDownloader = ModelDownloader.modelDownloader(
-      app: testApp,
-      defaults: .getTestInstance(testName: testName)
+    let modelDownloader = ModelDownloader.modelDownloaderWithDefaults(
+      .getTestInstance(testName: testName),
+      app: testApp
     )
 
     let downloadType: ModelDownloadType = .latestModel
@@ -328,12 +338,15 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
 
   /// Test listing models in model directory.
   func testListModels() {
-    let testApp = FirebaseApp.app()!
+    guard let testApp = FirebaseApp.app() else {
+      XCTFail("Default app was not configured.")
+      return
+    }
     let testName = "model-downloader-test"
 
-    let modelDownloader = ModelDownloader.modelDownloader(
-      app: testApp,
-      defaults: .getTestInstance(testName: testName)
+    let modelDownloader = ModelDownloader.modelDownloaderWithDefaults(
+      .getTestInstance(testName: testName),
+      app: testApp
     )
 
     modelDownloader.listDownloadedModels { result in

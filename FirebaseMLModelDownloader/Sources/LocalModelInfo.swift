@@ -1,4 +1,4 @@
-// Copyright 2020 Google LLC
+// Copyright 2021 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -68,13 +68,14 @@ class LocalModelInfo {
 }
 
 /// Extension to write local model info to user defaults.
-extension LocalModelInfo: DownloaderUserDefaults {
+extension LocalModelInfo: DownloaderUserDefaultsWriteable {
   /// Get user defaults key prefix.
   private static func getUserDefaultsKeyPrefix(appName: String, modelName: String) -> String {
     let bundleID = Bundle.main.bundleIdentifier ?? ""
     return "\(bundleID).\(appName).\(modelName)"
   }
 
+  /// Write local model info to user defaults.
   func writeToDefaults(_ defaults: UserDefaults, appName: String) {
     let defaultsPrefix = LocalModelInfo.getUserDefaultsKeyPrefix(appName: appName, modelName: name)
     defaults.setValue(downloadURL.absoluteString, forKey: "\(defaultsPrefix).model-download-url")
