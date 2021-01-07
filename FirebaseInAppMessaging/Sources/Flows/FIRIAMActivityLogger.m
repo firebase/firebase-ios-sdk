@@ -110,7 +110,7 @@ static NSString *const kDetailArchiveKey = @"detail";
                                                  name:UIApplicationWillResignActiveNotification
                                                object:nil];
 #if defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
-    if (@available(iOS 13.0, *)) {
+    if (@available(iOS 13.0, tvOS 13.0, *)) {
       [[NSNotificationCenter defaultCenter] addObserver:self
                                                selector:@selector(appWillBecomeInactive:)
                                                    name:UISceneWillDeactivateNotification
