@@ -1,3 +1,9 @@
+# 7.4.0
+- [Fixed] Prevent second `listAll` callback. (#7197)
+
+# 7.3.0
+- [Fixed] Verify block is still alive before calling it in task callbacks. (#7051)
+
 # 7.1.0
 - [Fixed] Remove explicit MobileCoreServices library linkage from podspec. (#6850)
 

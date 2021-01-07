@@ -1,0 +1,53 @@
+# Uncomment the next line to define a global platform for your project
+platform :ios, '10.0'
+
+target 'FIRPerfE2EAutopush' do
+  # Comment the next line if you don't want to use dynamic frameworks
+  use_frameworks!
+
+  # Pods for FIRPerfE2EAutopush
+  # Firebase dependencies
+  pod 'FirebaseCore', :path => '../../../'
+  pod 'FirebasePerformance', :path => '../../../'
+  pod 'FirebaseRemoteConfig', :path => '../../../'
+  pod 'FirebaseABTesting', :path => '../../../'
+  pod 'FirebaseInstallations', :path => '../../../'
+  pod 'GoogleUtilities', :path => '../../../'
+  pod 'FirebaseCoreDiagnostics', :path => '../../../'
+
+  # Data transport dependencies
+  pod 'GoogleDataTransport', :path => '../../../'
+
+  # Other dependencies
+  pod 'Protobuf'
+  pod 'GoogleToolboxForMac/Logger'
+
+  target 'FIRPerfE2EAutopushUITests' do
+  end
+end
+
+
+target 'FIRPerfE2EProd' do
+  # Comment the next line if you don't want to use dynamic frameworks
+  use_frameworks!
+
+  # Pods for FIRPerfE2EProd
+  pod 'FirebaseCore', :path => '../../../'
+  pod 'FirebasePerformance', :path => '../../../'
+  pod 'FirebaseRemoteConfig', :path => '../../../'
+  pod 'FirebaseABTesting', :path => '../../../'
+  pod 'FirebaseInstallations', :path => '../../../'
+  pod 'GoogleUtilities', :path => '../../../'
+  pod 'FirebaseCoreDiagnostics', :path => '../../../'
+
+  # Data transport dependencies
+  pod 'GoogleDataTransport', :path => '../../../'
+
+  # Other dependencies
+  pod 'Protobuf'
+  pod 'GoogleToolboxForMac/Logger'
+
+  target 'FIRPerfE2EProdUITests' do
+  end
+end
+

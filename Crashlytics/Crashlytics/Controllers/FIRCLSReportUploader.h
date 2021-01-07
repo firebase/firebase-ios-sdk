@@ -18,11 +18,9 @@
 @class FIRCLSInternalReport;
 @class FIRCLSSettings;
 @class FIRCLSFileManager;
-@class FIRCLSNetworkClient;
 @class FIRCLSReportUploader;
 @class GDTCORTransport;
 
-@protocol FIRCLSReportUploaderDelegate;
 @protocol FIRCLSReportUploaderDataSource;
 @protocol FIRAnalyticsInterop;
 
@@ -31,41 +29,23 @@
 - (instancetype)init NS_UNAVAILABLE;
 + (instancetype)new NS_UNAVAILABLE;
 - (instancetype)initWithQueue:(NSOperationQueue *)queue
-                     delegate:(id<FIRCLSReportUploaderDelegate>)delegate
                    dataSource:(id<FIRCLSReportUploaderDataSource>)dataSource
-                       client:(FIRCLSNetworkClient *)client
                   fileManager:(FIRCLSFileManager *)fileManager
                     analytics:(id<FIRAnalyticsInterop>)analytics NS_DESIGNATED_INITIALIZER;
 
-@property(nonatomic, weak) id<FIRCLSReportUploaderDelegate> delegate;
 @property(nonatomic, weak) id<FIRCLSReportUploaderDataSource> dataSource;
 
 @property(nonatomic, readonly) NSOperationQueue *operationQueue;
-@property(nonatomic, readonly) FIRCLSNetworkClient *networkClient;
 @property(nonatomic, readonly) FIRCLSFileManager *fileManager;
 
-- (BOOL)prepareAndSubmitReport:(FIRCLSInternalReport *)report
+- (void)prepareAndSubmitReport:(FIRCLSInternalReport *)report
            dataCollectionToken:(FIRCLSDataCollectionToken *)dataCollectionToken
                       asUrgent:(BOOL)urgent
                 withProcessing:(BOOL)shouldProcess;
 
-- (BOOL)uploadPackagedReportAtPath:(NSString *)path
+- (void)uploadPackagedReportAtPath:(NSString *)path
                dataCollectionToken:(FIRCLSDataCollectionToken *)dataCollectionToken
                           asUrgent:(BOOL)urgent;
-
-- (void)reportUploadAtPath:(NSString *)path
-       dataCollectionToken:(FIRCLSDataCollectionToken *)dataCollectionToken
-        completedWithError:(NSError *)error;
-
-@end
-
-@protocol FIRCLSReportUploaderDelegate <NSObject>
-@required
-
-- (void)didCompletePackageSubmission:(NSString *)path
-                 dataCollectionToken:(FIRCLSDataCollectionToken *)token
-                               error:(NSError *)error;
-- (void)didCompleteAllSubmissions;
 
 @end
 

@@ -30,7 +30,7 @@
 #include <google/protobuf/wire_format.h>
 // @@protoc_insertion_point(includes)
 #include <google/protobuf/port_def.inc>
-extern PROTOBUF_INTERNAL_EXPORT_google_2ffirestore_2fv1_2fwrite_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<4> scc_info_Write_google_2ffirestore_2fv1_2fwrite_2eproto;
+extern PROTOBUF_INTERNAL_EXPORT_google_2ffirestore_2fv1_2fwrite_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<5> scc_info_Write_google_2ffirestore_2fv1_2fwrite_2eproto;
 extern PROTOBUF_INTERNAL_EXPORT_google_2fprotobuf_2ftimestamp_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_Timestamp_google_2fprotobuf_2ftimestamp_2eproto;
 namespace firestore {
 namespace client {

@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+#import <TargetConditionals.h>
+#if !TARGET_OS_MACCATALYST
+// Skip keychain tests on Catalyst.
+
 #import <XCTest/XCTest.h>
 
 #import "FBLPromise+Testing.h"
@@ -199,3 +203,5 @@
 }
 
 @end
+
+#endif  // TARGET_OS_MACCATALYST

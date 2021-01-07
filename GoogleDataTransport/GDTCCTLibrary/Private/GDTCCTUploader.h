@@ -45,7 +45,7 @@ extern NSNotificationName const GDTCCTUploadCompleteNotification;
 
 #if !NDEBUG
 /** An upload URL used across all targets. For testing only. */
-@property(nullable, nonatomic) NSURL *testServerURL;
+@property(class, nullable, nonatomic) NSURL *testServerURL;
 
 #endif  // !NDEBUG
 

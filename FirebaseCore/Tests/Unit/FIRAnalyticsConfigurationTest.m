@@ -19,8 +19,6 @@
 #import "FirebaseCore/Sources/FIRAnalyticsConfiguration.h"
 
 @interface FIRAnalyticsConfigurationTest : FIRTestCase
-/// An observer for NSNotificationCenter.
-@property(nonatomic, strong) id observerMock;
 
 @property(nonatomic, strong) NSNotificationCenter *notificationCenter;
 @end
@@ -30,12 +28,10 @@
 - (void)setUp {
   [super setUp];
 
-  _observerMock = OCMObserverMock();
   _notificationCenter = [NSNotificationCenter defaultCenter];
 }
 
 - (void)tearDown {
-  _observerMock = nil;
   _notificationCenter = nil;
 
   [super tearDown];
@@ -70,16 +66,6 @@
                                  forKey:kFIRAPersistedConfigMeasurementEnabledStateKey]);
 
   [userDefaultsMock stopMocking];
-}
-
-#pragma mark - Private Test Helpers
-
-- (void)expectNotificationForObserver:(id)observer
-                     notificationName:(NSNotificationName)name
-                               object:(nullable id)object
-                             userInfo:(nullable NSDictionary *)userInfo {
-  [self.notificationCenter addMockObserver:self.observerMock name:name object:object];
-  [[observer expect] notificationWithName:name object:object userInfo:userInfo];
 }
 
 @end

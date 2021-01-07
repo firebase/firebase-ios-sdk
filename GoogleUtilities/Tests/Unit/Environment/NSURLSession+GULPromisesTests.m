@@ -20,8 +20,8 @@
 #import "OCMock.h"
 #import "SharedTestUtilities/URLSession/FIRURLSessionOCMockStub.h"
 
-#import "GoogleUtilities/Environment/URLSessionPromiseWrapper/GULURLSessionDataResponse.h"
-#import "GoogleUtilities/Environment/URLSessionPromiseWrapper/NSURLSession+GULPromises.h"
+#import "GoogleUtilities/Environment/Public/GoogleUtilities/GULURLSessionDataResponse.h"
+#import "GoogleUtilities/Environment/Public/GoogleUtilities/NSURLSession+GULPromises.h"
 
 @interface NSURLSession_GULPromisesTests : XCTestCase
 @property(nonatomic) NSURLSession *URLSession;
