@@ -35,6 +35,7 @@ extension UserDefaults {
   }
 }
 
+// TODO: Use FirebaseApp internal init for testApp
 final class ModelDownloaderIntegrationTests: XCTestCase {
   override class func setUp() {
     super.setUp()
