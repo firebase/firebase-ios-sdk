@@ -33,12 +33,6 @@ class LocalModelInfo {
   /// Local path of the model.
   let path: String
 
-  /// Get user defaults key prefix.
-  private static func getUserDefaultsKeyPrefix(appName: String, modelName: String) -> String {
-    let bundleID = Bundle.main.bundleIdentifier ?? ""
-    return "\(bundleID).\(appName).\(modelName)"
-  }
-
   init(name: String, downloadURL: URL, modelHash: String, size: Int, path: String) {
     self.name = name
     self.downloadURL = downloadURL
@@ -75,6 +69,12 @@ class LocalModelInfo {
 
 /// Extension to write local model info to user defaults.
 extension LocalModelInfo: DownloaderUserDefaults {
+  /// Get user defaults key prefix.
+  private static func getUserDefaultsKeyPrefix(appName: String, modelName: String) -> String {
+    let bundleID = Bundle.main.bundleIdentifier ?? ""
+    return "\(bundleID).\(appName).\(modelName)"
+  }
+
   func writeToDefaults(_ defaults: UserDefaults, appName: String) {
     let defaultsPrefix = LocalModelInfo.getUserDefaultsKeyPrefix(appName: appName, modelName: name)
     defaults.setValue(downloadURL.absoluteString, forKey: "\(defaultsPrefix).model-download-url")

@@ -14,6 +14,7 @@
 
 import Foundation
 
+/// Protocol to write info to user defaults.
 protocol DownloaderUserDefaults {
   func writeToDefaults(_ defaults: UserDefaults, appName: String)
 }
